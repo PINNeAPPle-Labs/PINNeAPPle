@@ -1,0 +1,64 @@
+\begin{longtable}{lcccccccc}
+\caption{Which rule fires on which defect, per problem. \err{} = error, \warn{} = warning, $n/m$ = the number of valid levels (of $m$) on which the rule fired. The \emph{valid controls} row is the calibration: a rule that fires there is either badly declared or amplifying a small error into a large one.}\label{tab:verification-matrix}\\
+\toprule
+Problem & defect & PC201 & PC202 & PC301 & PC401 & PC403 & PC701 & PC704 \\
+\midrule
+\endfirsthead
+\multicolumn{9}{l}{\footnotesize\itshape continued from the previous page}\\
+\toprule
+Problem & defect & PC201 & PC202 & PC301 & PC401 & PC403 & PC701 & PC704 \\
+\midrule
+\endhead
+\midrule
+\multicolumn{9}{r}{\footnotesize\itshape continued on the next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+steady heat, constant source & valid controls & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $3/6$ & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $1/6$ & \textcolor{black!55}{--} \\
+ & bc\_offset & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & wrong\_coefficient & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+ & over\_smoothed & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & unit\_scale & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \err & \textcolor{black!55}{--} & \err & \warn \\
+ & nonfinite & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \warn \\
+ & zero\_field & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+\midrule
+transient heat, 2-D & valid controls & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $2/6$ & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $1/6$ & \textcolor{black!55}{--} \\
+ & bc\_offset & \err & \err & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & wrong\_coefficient & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+ & over\_smoothed & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & unit\_scale & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \warn \\
+ & nonfinite & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \warn \\
+ & zero\_field & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+\midrule
+Poisson 2-D & valid controls & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $6/6$ & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $1/6$ & \textcolor{black!55}{--} \\
+ & bc\_offset & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & wrong\_coefficient & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} \\
+ & over\_smoothed & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & unit\_scale & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \err & \textcolor{black!55}{--} & \err & \warn \\
+ & nonfinite & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \warn \\
+ & zero\_field & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+\midrule
+Helmholtz 2-D & valid controls & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $1/6$ & \textcolor{black!55}{--} \\
+ & bc\_offset & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & wrong\_coefficient & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+ & over\_smoothed & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+ & unit\_scale & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \warn \\
+ & nonfinite & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \warn \\
+ & zero\_field & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+\midrule
+Burgers 1-D & valid controls & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $1/6$ & \textcolor{black!55}{--} \\
+ & bc\_offset & \err & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & wrong\_coefficient & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+ & over\_smoothed & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+ & unit\_scale & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \warn \\
+ & nonfinite & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \warn \\
+ & zero\_field & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+\midrule
+Allen-Cahn 1-D & valid controls & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & $1/6$ & \textcolor{black!55}{--} \\
+ & bc\_offset & \err & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} \\
+ & wrong\_coefficient & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \warn \\
+ & over\_smoothed & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \warn \\
+ & unit\_scale & \err & \err & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \err & \warn \\
+ & nonfinite & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \textcolor{black!55}{--} & \warn \\
+ & zero\_field & \err & \err & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \textcolor{black!55}{--} & \err & \warn \\
+\end{longtable}

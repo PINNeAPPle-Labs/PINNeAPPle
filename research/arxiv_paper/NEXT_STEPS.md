@@ -1,103 +1,89 @@
 # Publication roadmap — PINNeAPPle arXiv preprint
 
-**Working title:** PINNeAPPle: Towards Reproducible and Physics-Verified Physics-Informed Learning  
-**Authors (requested order):** Yan Barros; Enrico Schiassi  
-**Status:** Research draft; no submission or benchmark superiority claims.  
+**Working title:** Reproducible cross-framework evaluation of physics-informed learning: matched
+numerics, divergent defaults, and the limits of physics-based error detection
+**Authors (requested order):** Yan Barros; Enrico Schiassi
 **Branch:** `research/arxiv-reproducible-physics-ai-paper`
 
-> Authorship names and order are supplied by the project lead. Confirm both authors' consent, final contributions, affiliations, ORCID identifiers and corresponding author before submission. Do not invent affiliations.
+Legend: `[x]` done and verified · `[~]` done but needs a human decision or signature · `[ ]` open.
 
-## P0 — Scientific positioning and authorship
-- [ ] Confirm Yan Barros and Enrico Schiassi approve authorship, order and manuscript scope.
-- [ ] Collect accurate affiliations, emails, ORCIDs, funding, competing interests and contributions.
-- [ ] Formulate a falsifiable central hypothesis and clearly differentiate PINNeAPPle from DeepXDE, PhysicsNeMo and NeuralOperator.
-- [ ] Audit actual PINNeAPPle modules at pinned SHA; document implemented versus experimental features and code paths.
-- [ ] Select primary arXiv category based on paper's actual content; check current moderation, endorsement and submission requirements.
-- [ ] Identify appropriate venue after arXiv (e.g. JOSS subject to its current eligibility requirements or a scientific computing journal).
+---
 
-**Exit:** Authors approve a one-page scientific claims document with traceable evidence.
+## Done
 
-## P0 — Reproducible experiment infrastructure
-- [ ] Create `experiments/` with versioned YAML configs, adapters, unified CLI, metrics, dataset manifests and plotting scripts.
-- [ ] Implement PINNeAPPle, DeepXDE and NVIDIA PhysicsNeMo adapters; include NeuralOperator for matched operator-learning tasks.
-- [ ] Pin exact package versions, git SHAs, Python/CUDA versions, GPU type, numerical precision and OS/container digest.
-- [ ] Set deterministic seeds for Python, NumPy and each framework; record known nondeterminism.
-- [ ] Save run manifests, raw predictions, train/validation/test indices, loss curves, hardware utilization and failures.
-- [ ] Provide `make smoke`, `make benchmark`, `make figures` (or documented equivalents) and clean-environment CI.
-- [ ] Add automated tests for shape, units, coordinate frames, BC enforcement, metrics and file checksums.
+- [x] **Preregistered protocol** for the cross-framework comparison, committed before any result
+      (`benchmarks/vs_frameworks/PROTOCOL.md`), with every deviation listed and justified
+      (`benchmarks/vs_frameworks/REPORT.md`, Appendix A of the paper).
+- [x] **Independent reference solutions** for every benchmark: Cole–Hopf by Gauss–Hermite quadrature
+      for Burgers, manufactured solutions for Poisson and Helmholtz, ETDRK4 with a resolution study
+      for Allen–Cahn (2048 vs 4096 modes: 1.7e-4 in the max norm).
+- [x] **One neutral evaluator** for all frameworks, from exported `.npz` predictions; no framework's
+      own reported metric is used.
+- [x] **Tracks A1 (matched), A2 (native), B (operators), C (inverse), D (ergonomics)** executed, with
+      3–5 seeds, all runs recorded with configuration, versions, thread count and load average.
+- [x] **A defect found, diagnosed and fixed** in PINNeAPPle's `InversePINN` (adaptive loss weighting
+      inflated ν by 12.5×), plus four further bugs found by the harness. All listed in Appendix B.
+- [x] **A new experiment for the paper**: a 72-case controlled corpus measuring what
+      `pinneapple check` catches and misses, with reference-free and reference-based detectors
+      reported apart (`experiments/verification/`).
+- [x] **Full manuscript** (`paper.tex`, 19 pages) with related work, methods, results, threats to
+      validity, reproducibility statement, two appendices and 20 verified references.
+- [x] **Every number generated from a committed record** by
+      `scripts/make_tables.py` and `experiments/verification/analyze.py`; no table edited by hand.
+- [x] **PDF builds clean** with tectonic (no overfull boxes, bibliography resolved).
+- [x] **Bibliography verified**: every DOI resolved against Crossref (journal entries) or
+      DataCite/arXiv (preprints) when written. Two candidate references were dropped because the DOIs
+      did not resolve to the papers claimed.
+- [x] **Reproduction instructions** (`REPRODUCE.md`) and a `Makefile` with `results`, `verification`,
+      `check` and `bundle` targets.
+- [x] **arXiv source bundle** (`arxiv/pinneapple-preprint.tar.gz`) built from the sources only.
 
-**Exit:** An independent contributor can reproduce a smoke run from a clean checkout.
+## Needs a human decision — do these before submitting
 
-## P0 — Benchmark design and reference validation
-- [ ] Poisson 1D: manufactured exact solution, BC and PDE residual checks.
-- [ ] Burgers 1D: documented numerical reference and convergence study.
-- [ ] Heat equation 2D: manufactured solution, temporal and spatial error.
-- [ ] Darcy 2D: held-out coefficient fields, fixed dataset provenance and splits.
-- [ ] Flow case: independent solver, mesh/time-step convergence and Reynolds-number definition.
-- [ ] Neural operators: FNO/DeepONet on compatible tasks, avoiding invalid task comparisons.
-- [ ] Pre-register OOD scenarios (coefficient shifts, geometries, forcing, Reynolds number) and thresholds.
-- [ ] Separate matched architecture comparisons from framework-native tuned comparisons.
+- [ ] **Author consent and order.** Both authors must approve authorship, order and scope, and confirm
+      the manuscript is what they agreed to. The paper states where PINNeAPPle is worse than the
+      alternatives; that is deliberate and both authors should be comfortable with it.
+- [ ] **Affiliations and identifiers.** The paper uses the affiliations and ORCIDs of the JOSS
+      submission (`paper/paper.md`): PINNeAPPle Labs (Brazil); University of Arizona and University of
+      Bologna. Confirm these are current, and confirm who is the corresponding author.
+- [ ] **Funding, competing interests, acknowledgements.** None are declared in the manuscript. Add any
+      that apply, or state explicitly that there are none.
+- [ ] **Software licence and preprint policy.** Confirm the repository licence covers the code the
+      artifacts point to, and that no employer or institutional policy restricts posting.
+- [ ] **Independent review.** At least one reader expert in scientific ML who is not an author should
+      read the draft, with the two specific questions: are any claims stronger than the data, and is
+      the CPU-only framing clear enough that no reader transfers the cost ratios to a GPU.
 
-**Exit:** All datasets and reference solutions have provenance, units, licenses and independent correctness checks.
+## Open at submission time
 
-## P0 — Experimental execution and statistical analysis
-- [ ] Run at least five independent seeds per configuration; report all failures and exclusions.
-- [ ] Equalize device, precision, training data, collocation budgets and compute budgets where appropriate.
-- [ ] Report relative L2 and absolute errors, physical-unit residuals, BC error, conservation violations and OOD degradation.
-- [ ] Measure train time, inference throughput/latency, peak GPU memory and accelerator-hours.
-- [ ] Report median, IQR, uncertainty intervals and effect sizes; use statistical tests only when justified.
-- [ ] Evaluate VeriPhysics with deliberately invalid predictions and false-positive/false-negative rates.
-- [ ] Run ablations: without verification, without progressive fidelity, and other features only if implemented.
-- [ ] Archive immutable result manifests and generate all tables/plots from them.
+- [ ] **arXiv category.** Proposed: `cs.LG` primary, `physics.comp-ph` cross-list. Confirm against the
+      current category descriptions; the paper is a systems-and-evaluation study, so `cs.LG` is the
+      primary claim.
+- [ ] **Endorsement.** A first submission to `cs.LG` normally needs an endorsement for at least one
+      author. Check the current rules before the submission window, and obtain it early if needed.
+- [ ] **Source-package limits and metadata.** Check the current arXiv size limit and metadata fields;
+      the source bundle is well under any historical limit. Title, abstract and comments are ready in
+      `arxiv/METADATA.md`.
+- [ ] **Upload and inspect the compiled preview.** arXiv compiles from source; confirm the preview has
+      the tables, the figures and the bibliography as they appear locally, and respond to moderation.
+- [ ] **After announcement:** add the arXiv ID and the archival DOI to `CITATION.cff`, the README and
+      the repository website; tag the release the artifacts point to, so the claim "this commit
+      reproduces these numbers" resolves.
 
-**Exit:** Every quantitative statement in the manuscript maps to an immutable run artifact.
+## Deliberately not done
 
-## P1 — Manuscript completion
-- [ ] Rewrite abstract after results exist; state measured contributions rather than aspirational features.
-- [ ] Write related work with verified primary sources for PINNs, DeepXDE, PhysicsNeMo, FNO, DeepONet and verification.
-- [ ] Document software architecture and actual public APIs.
-- [ ] Add benchmark setup, hyperparameters, hardware and computational budget tables.
-- [ ] Add accuracy-vs-cost, OOD, verification calibration, variability and failure-case figures.
-- [ ] Explain limitations, negative findings, threats to validity, scope of physical guarantees and generalization limits.
-- [ ] Include reproducibility statement, software/data licensing and archived DOI.
-- [ ] Review English, notation, captions, accessibility, bibliography and LaTeX compilation.
-
-**Exit:** All coauthors approve a complete manuscript without placeholders.
-
-## P1 — Independent review and submission
-- [ ] Obtain at least two independent technical reviews, including one expert in scientific ML/PINNs.
-- [ ] Address review comments and verify figures are regenerated from released artifacts.
-- [ ] Confirm authorship, intellectual-property permissions, institutional policies and preprint posting rights.
-- [ ] Check current arXiv source-package limits, category, endorsement needs and metadata.
-- [ ] Compile and inspect the exact submission bundle; submit only with both authors' approval.
-- [ ] After announcement, link arXiv ID, release/tag, archival DOI and citation metadata; track corrections.
-
-**Exit:** Public arXiv record exists and linked artifacts reproduce the claims. Acceptance cannot be guaranteed.
-
-## Proposed directory layout
-
-```text
-research/arxiv_paper/
-  README.md
-  NEXT_STEPS.md
-  protocol.md
-  paper.tex
-  benchmark.py
-  test_benchmark.py
-  experiments/       # TODO: configs and framework adapters
-  datasets/          # TODO: manifests only; large data external
-  results/           # TODO: manifests and aggregated outputs
-  figures/           # TODO: generated, never manually fabricated
-  environment/       # TODO: lockfiles/container recipes
-```
-
-## Immediate implementation order
-1. Author approval and code audit.
-2. Benchmark API plus independent analytical/reference tests.
-3. PINNeAPPle and DeepXDE matched Poisson/Burgers adapters.
-4. PhysicsNeMo adapter and operator-learning track.
-5. Multi-seed execution, OOD cases and VeriPhysics tests.
-6. Analysis, manuscript revision, independent review and submission.
+- **No GPU runs.** The protocol allowed them (`--device cuda` on every runner) and none were made. The
+  paper says so in the abstract, in §4 and in the threats to validity. A reviewer may ask for them;
+  the honest answer is that they are future work and that no cost ratio here transfers to a GPU.
+- **No increase in seed count.** Five seeds is the protocol's minimum and the largest the CPU budget
+  allowed. The paper states plainly that no difference reaches significance and reports ranges
+  instead.
+- **No Allen–Cahn in A1.** Cut in advance, first item of the protocol's cut order; documented in the
+  figure caption, the table caption and Appendix A.
+- **No claim of superiority for PINNeAPPle as a whole.** The paper reports four places where it loses
+  and says which measurements they come from.
 
 ## Non-negotiable scientific safeguards
-No invented measurements, no fabricated citations, no implied physical guarantees without proof, no selective reporting of successful seeds, and no claim that arXiv acceptance is certain.
+
+No invented measurements, no fabricated citations, no implied physical guarantees without a proof, no
+selective reporting of successful seeds, and no claim that arXiv acceptance is certain.

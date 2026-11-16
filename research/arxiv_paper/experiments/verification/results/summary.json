@@ -1,0 +1,1466 @@
+{
+ "amplification": {
+  "allen_cahn": {
+   "median": 3.968924877640374,
+   "points": [
+    [
+     0.01,
+     3.968924877640374
+    ],
+    [
+     0.03,
+     3.9606835706785346
+    ],
+    [
+     0.1,
+     4.040196337957845
+    ]
+   ]
+  },
+  "burgers": {
+   "median": null,
+   "points": []
+  },
+  "heat2d": {
+   "median": 8.136029129722417,
+   "points": [
+    [
+     0.001,
+     9.09508944344106
+    ],
+    [
+     0.01,
+     8.140568057946847
+    ],
+    [
+     0.03,
+     8.131490201497984
+    ],
+    [
+     0.1,
+     8.130456953288864
+    ]
+   ]
+  },
+  "helmholtz": {
+   "median": null,
+   "points": []
+  },
+  "poisson": {
+   "median": 6.49402976147405,
+   "points": [
+    [
+     0.001,
+     7.379591355097304
+    ],
+    [
+     0.01,
+     6.498257427354548
+    ],
+    [
+     0.03,
+     6.489802095593553
+    ],
+    [
+     0.1,
+     6.488839603689397
+    ]
+   ]
+  },
+  "steady_heat": {
+   "median": 12.47200717696073,
+   "points": [
+    [
+     0.0001,
+     12.472007176957977
+    ],
+    [
+     0.001,
+     12.472007176960945
+    ],
+    [
+     0.01,
+     12.47200717696075
+    ],
+    [
+     0.03,
+     12.472007176960723
+    ],
+    [
+     0.1,
+     12.47200717696073
+    ]
+   ]
+  }
+ },
+ "detection_matrix": {
+  "allen_cahn": {
+   "bc_offset": {
+    "PC201": "error",
+    "PC202": "error"
+   },
+   "nonfinite": {
+    "PC403": "error",
+    "PC704": "warning"
+   },
+   "over_smoothed": {
+    "PC704": "warning"
+   },
+   "unit_scale": {
+    "PC201": "error",
+    "PC202": "error",
+    "PC401": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "valid": {
+    "PC701": [
+     1,
+     6
+    ]
+   },
+   "wrong_coefficient": {
+    "PC704": "warning"
+   },
+   "zero_field": {
+    "PC201": "error",
+    "PC202": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   }
+  },
+  "burgers": {
+   "bc_offset": {
+    "PC201": "error",
+    "PC202": "error"
+   },
+   "nonfinite": {
+    "PC403": "error",
+    "PC704": "warning"
+   },
+   "over_smoothed": {
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "unit_scale": {
+    "PC202": "error",
+    "PC401": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "valid": {
+    "PC701": [
+     1,
+     6
+    ]
+   },
+   "wrong_coefficient": {
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "zero_field": {
+    "PC202": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   }
+  },
+  "heat2d": {
+   "bc_offset": {
+    "PC201": "error",
+    "PC202": "error",
+    "PC301": "error"
+   },
+   "nonfinite": {
+    "PC301": "error",
+    "PC403": "error",
+    "PC704": "warning"
+   },
+   "over_smoothed": {
+    "PC301": "error"
+   },
+   "unit_scale": {
+    "PC202": "error",
+    "PC401": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "valid": {
+    "PC301": [
+     2,
+     6
+    ],
+    "PC701": [
+     1,
+     6
+    ]
+   },
+   "wrong_coefficient": {
+    "PC301": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "zero_field": {
+    "PC202": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   }
+  },
+  "helmholtz": {
+   "bc_offset": {
+    "PC201": "error"
+   },
+   "nonfinite": {
+    "PC403": "error",
+    "PC704": "warning"
+   },
+   "over_smoothed": {
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "unit_scale": {
+    "PC401": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "valid": {
+    "PC701": [
+     1,
+     6
+    ]
+   },
+   "wrong_coefficient": {
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "zero_field": {
+    "PC701": "error",
+    "PC704": "warning"
+   }
+  },
+  "poisson": {
+   "bc_offset": {
+    "PC201": "error",
+    "PC301": "error"
+   },
+   "nonfinite": {
+    "PC301": "error",
+    "PC403": "error",
+    "PC704": "warning"
+   },
+   "over_smoothed": {
+    "PC301": "error"
+   },
+   "unit_scale": {
+    "PC301": "error",
+    "PC401": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "valid": {
+    "PC301": [
+     6,
+     6
+    ],
+    "PC701": [
+     1,
+     6
+    ]
+   },
+   "wrong_coefficient": {
+    "PC301": "error",
+    "PC701": "error"
+   },
+   "zero_field": {
+    "PC701": "error",
+    "PC704": "warning"
+   }
+  },
+  "steady_heat": {
+   "bc_offset": {
+    "PC201": "error",
+    "PC301": "error"
+   },
+   "nonfinite": {
+    "PC301": "error",
+    "PC403": "error",
+    "PC704": "warning"
+   },
+   "over_smoothed": {
+    "PC301": "error"
+   },
+   "unit_scale": {
+    "PC301": "error",
+    "PC401": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "valid": {
+    "PC301": [
+     3,
+     6
+    ],
+    "PC701": [
+     1,
+     6
+    ]
+   },
+   "wrong_coefficient": {
+    "PC301": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   },
+   "zero_field": {
+    "PC301": "error",
+    "PC701": "error",
+    "PC704": "warning"
+   }
+  }
+ },
+ "detection_rates": {
+  "PC201": {
+   "caught": 8,
+   "flagged_valid": 0,
+   "flagged_valid_expressible": 0,
+   "flagged_valid_inexpressible": 0,
+   "invalid_cases": 36,
+   "missed": [
+    "poisson/wrong_coefficient",
+    "poisson/over_smoothed",
+    "poisson/unit_scale",
+    "poisson/nonfinite",
+    "poisson/zero_field",
+    "steady_heat/wrong_coefficient",
+    "steady_heat/over_smoothed",
+    "steady_heat/unit_scale",
+    "steady_heat/nonfinite",
+    "steady_heat/zero_field",
+    "heat2d/wrong_coefficient",
+    "heat2d/over_smoothed",
+    "heat2d/unit_scale",
+    "heat2d/nonfinite",
+    "heat2d/zero_field",
+    "helmholtz/wrong_coefficient",
+    "helmholtz/over_smoothed",
+    "helmholtz/unit_scale",
+    "helmholtz/nonfinite",
+    "helmholtz/zero_field",
+    "burgers/wrong_coefficient",
+    "burgers/over_smoothed",
+    "burgers/unit_scale",
+    "burgers/nonfinite",
+    "burgers/zero_field",
+    "allen_cahn/wrong_coefficient",
+    "allen_cahn/over_smoothed",
+    "allen_cahn/nonfinite"
+   ],
+   "valid_cases": 36,
+   "valid_expressible": 12,
+   "valid_inexpressible": 24
+  },
+  "PC202": {
+   "caught": 9,
+   "flagged_valid": 0,
+   "flagged_valid_expressible": 0,
+   "flagged_valid_inexpressible": 0,
+   "invalid_cases": 36,
+   "missed": [
+    "poisson/bc_offset",
+    "poisson/wrong_coefficient",
+    "poisson/over_smoothed",
+    "poisson/unit_scale",
+    "poisson/nonfinite",
+    "poisson/zero_field",
+    "steady_heat/bc_offset",
+    "steady_heat/wrong_coefficient",
+    "steady_heat/over_smoothed",
+    "steady_heat/unit_scale",
+    "steady_heat/nonfinite",
+    "steady_heat/zero_field",
+    "heat2d/wrong_coefficient",
+    "heat2d/over_smoothed",
+    "heat2d/nonfinite",
+    "helmholtz/bc_offset",
+    "helmholtz/wrong_coefficient",
+    "helmholtz/over_smoothed",
+    "helmholtz/unit_scale",
+    "helmholtz/nonfinite",
+    "helmholtz/zero_field",
+    "burgers/wrong_coefficient",
+    "burgers/over_smoothed",
+    "burgers/nonfinite",
+    "allen_cahn/wrong_coefficient",
+    "allen_cahn/over_smoothed",
+    "allen_cahn/nonfinite"
+   ],
+   "valid_cases": 36,
+   "valid_expressible": 12,
+   "valid_inexpressible": 24
+  },
+  "PC301": {
+   "caught": 15,
+   "flagged_valid": 11,
+   "flagged_valid_expressible": 5,
+   "flagged_valid_inexpressible": 6,
+   "invalid_cases": 36,
+   "missed": [
+    "poisson/zero_field",
+    "heat2d/unit_scale",
+    "heat2d/zero_field",
+    "helmholtz/bc_offset",
+    "helmholtz/wrong_coefficient",
+    "helmholtz/over_smoothed",
+    "helmholtz/unit_scale",
+    "helmholtz/nonfinite",
+    "helmholtz/zero_field",
+    "burgers/bc_offset",
+    "burgers/wrong_coefficient",
+    "burgers/over_smoothed",
+    "burgers/unit_scale",
+    "burgers/nonfinite",
+    "burgers/zero_field",
+    "allen_cahn/bc_offset",
+    "allen_cahn/wrong_coefficient",
+    "allen_cahn/over_smoothed",
+    "allen_cahn/unit_scale",
+    "allen_cahn/nonfinite",
+    "allen_cahn/zero_field"
+   ],
+   "valid_cases": 36,
+   "valid_expressible": 12,
+   "valid_inexpressible": 24
+  },
+  "PC401": {
+   "caught": 6,
+   "flagged_valid": 0,
+   "flagged_valid_expressible": 0,
+   "flagged_valid_inexpressible": 0,
+   "invalid_cases": 36,
+   "missed": [
+    "poisson/bc_offset",
+    "poisson/wrong_coefficient",
+    "poisson/over_smoothed",
+    "poisson/nonfinite",
+    "poisson/zero_field",
+    "steady_heat/bc_offset",
+    "steady_heat/wrong_coefficient",
+    "steady_heat/over_smoothed",
+    "steady_heat/nonfinite",
+    "steady_heat/zero_field",
+    "heat2d/bc_offset",
+    "heat2d/wrong_coefficient",
+    "heat2d/over_smoothed",
+    "heat2d/nonfinite",
+    "heat2d/zero_field",
+    "helmholtz/bc_offset",
+    "helmholtz/wrong_coefficient",
+    "helmholtz/over_smoothed",
+    "helmholtz/nonfinite",
+    "helmholtz/zero_field",
+    "burgers/bc_offset",
+    "burgers/wrong_coefficient",
+    "burgers/over_smoothed",
+    "burgers/nonfinite",
+    "burgers/zero_field",
+    "allen_cahn/bc_offset",
+    "allen_cahn/wrong_coefficient",
+    "allen_cahn/over_smoothed",
+    "allen_cahn/nonfinite",
+    "allen_cahn/zero_field"
+   ],
+   "valid_cases": 36,
+   "valid_expressible": 12,
+   "valid_inexpressible": 24
+  },
+  "PC403": {
+   "caught": 6,
+   "flagged_valid": 0,
+   "flagged_valid_expressible": 0,
+   "flagged_valid_inexpressible": 0,
+   "invalid_cases": 36,
+   "missed": [
+    "poisson/bc_offset",
+    "poisson/wrong_coefficient",
+    "poisson/over_smoothed",
+    "poisson/unit_scale",
+    "poisson/zero_field",
+    "steady_heat/bc_offset",
+    "steady_heat/wrong_coefficient",
+    "steady_heat/over_smoothed",
+    "steady_heat/unit_scale",
+    "steady_heat/zero_field",
+    "heat2d/bc_offset",
+    "heat2d/wrong_coefficient",
+    "heat2d/over_smoothed",
+    "heat2d/unit_scale",
+    "heat2d/zero_field",
+    "helmholtz/bc_offset",
+    "helmholtz/wrong_coefficient",
+    "helmholtz/over_smoothed",
+    "helmholtz/unit_scale",
+    "helmholtz/zero_field",
+    "burgers/bc_offset",
+    "burgers/wrong_coefficient",
+    "burgers/over_smoothed",
+    "burgers/unit_scale",
+    "burgers/zero_field",
+    "allen_cahn/bc_offset",
+    "allen_cahn/wrong_coefficient",
+    "allen_cahn/over_smoothed",
+    "allen_cahn/unit_scale",
+    "allen_cahn/zero_field"
+   ],
+   "valid_cases": 36,
+   "valid_expressible": 12,
+   "valid_inexpressible": 24
+  },
+  "PC701": {
+   "caught": 19,
+   "flagged_valid": 6,
+   "flagged_valid_expressible": 2,
+   "flagged_valid_inexpressible": 4,
+   "invalid_cases": 36,
+   "missed": [
+    "poisson/bc_offset",
+    "poisson/over_smoothed",
+    "poisson/nonfinite",
+    "steady_heat/bc_offset",
+    "steady_heat/over_smoothed",
+    "steady_heat/nonfinite",
+    "heat2d/bc_offset",
+    "heat2d/over_smoothed",
+    "heat2d/nonfinite",
+    "helmholtz/bc_offset",
+    "helmholtz/nonfinite",
+    "burgers/bc_offset",
+    "burgers/nonfinite",
+    "allen_cahn/bc_offset",
+    "allen_cahn/wrong_coefficient",
+    "allen_cahn/over_smoothed",
+    "allen_cahn/nonfinite"
+   ],
+   "valid_cases": 36,
+   "valid_expressible": 12,
+   "valid_inexpressible": 24
+  },
+  "PC704": {
+   "caught": 26,
+   "flagged_valid": 0,
+   "flagged_valid_expressible": 0,
+   "flagged_valid_inexpressible": 0,
+   "invalid_cases": 36,
+   "missed": [
+    "poisson/bc_offset",
+    "poisson/wrong_coefficient",
+    "poisson/over_smoothed",
+    "steady_heat/bc_offset",
+    "steady_heat/over_smoothed",
+    "heat2d/bc_offset",
+    "heat2d/over_smoothed",
+    "helmholtz/bc_offset",
+    "burgers/bc_offset",
+    "allen_cahn/bc_offset"
+   ],
+   "valid_cases": 36,
+   "valid_expressible": 12,
+   "valid_inexpressible": 24
+  }
+ },
+ "expected_vs_measured": [
+  {
+   "case_id": "poisson/bc_offset",
+   "defect": "bc_offset",
+   "expected": [
+    "PC201"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201",
+    "PC301"
+   ],
+   "only_reference_based": false,
+   "problem": "poisson",
+   "rel_l2": 0.025008504433373623
+  },
+  {
+   "case_id": "poisson/wrong_coefficient",
+   "defect": "wrong_coefficient",
+   "expected": [
+    "PC301"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC701"
+   ],
+   "only_reference_based": false,
+   "problem": "poisson",
+   "rel_l2": 0.18
+  },
+  {
+   "case_id": "poisson/over_smoothed",
+   "defect": "over_smoothed",
+   "expected": [
+    "PC704"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC301"
+   ],
+   "only_reference_based": false,
+   "problem": "poisson",
+   "rel_l2": 0.005336610001591901
+  },
+  {
+   "case_id": "poisson/unit_scale",
+   "defect": "unit_scale",
+   "expected": [
+    "PC401"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC401",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "poisson",
+   "rel_l2": 999.0
+  },
+  {
+   "case_id": "poisson/nonfinite",
+   "defect": "nonfinite",
+   "expected": [
+    "PC403"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC403",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "poisson",
+   "rel_l2": null
+  },
+  {
+   "case_id": "poisson/zero_field",
+   "defect": "zero_field",
+   "expected": [
+    "PC202",
+    "PC301"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "poisson",
+   "rel_l2": 1.0
+  },
+  {
+   "case_id": "steady_heat/bc_offset",
+   "defect": "bc_offset",
+   "expected": [
+    "PC201"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201",
+    "PC301"
+   ],
+   "only_reference_based": false,
+   "problem": "steady_heat",
+   "rel_l2": 0.019772674820580344
+  },
+  {
+   "case_id": "steady_heat/wrong_coefficient",
+   "defect": "wrong_coefficient",
+   "expected": [
+    "PC301"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "steady_heat",
+   "rel_l2": 0.24999999999999997
+  },
+  {
+   "case_id": "steady_heat/over_smoothed",
+   "defect": "over_smoothed",
+   "expected": [
+    "PC704"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC301"
+   ],
+   "only_reference_based": false,
+   "problem": "steady_heat",
+   "rel_l2": 0.003544805039131148
+  },
+  {
+   "case_id": "steady_heat/unit_scale",
+   "defect": "unit_scale",
+   "expected": [
+    "PC401"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC401",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "steady_heat",
+   "rel_l2": 999.0
+  },
+  {
+   "case_id": "steady_heat/nonfinite",
+   "defect": "nonfinite",
+   "expected": [
+    "PC403"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC403",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "steady_heat",
+   "rel_l2": null
+  },
+  {
+   "case_id": "steady_heat/zero_field",
+   "defect": "zero_field",
+   "expected": [
+    "PC202",
+    "PC301"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "steady_heat",
+   "rel_l2": 1.0
+  },
+  {
+   "case_id": "heat2d/bc_offset",
+   "defect": "bc_offset",
+   "expected": [
+    "PC201"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201",
+    "PC202",
+    "PC301"
+   ],
+   "only_reference_based": false,
+   "problem": "heat2d",
+   "rel_l2": 0.048893392452292905
+  },
+  {
+   "case_id": "heat2d/wrong_coefficient",
+   "defect": "wrong_coefficient",
+   "expected": [
+    "PC301"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "heat2d",
+   "rel_l2": 0.26488067272293125
+  },
+  {
+   "case_id": "heat2d/over_smoothed",
+   "defect": "over_smoothed",
+   "expected": [
+    "PC704"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC301"
+   ],
+   "only_reference_based": false,
+   "problem": "heat2d",
+   "rel_l2": 0.01727862554644559
+  },
+  {
+   "case_id": "heat2d/unit_scale",
+   "defect": "unit_scale",
+   "expected": [
+    "PC401"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC202",
+    "PC401",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "heat2d",
+   "rel_l2": 999.0
+  },
+  {
+   "case_id": "heat2d/nonfinite",
+   "defect": "nonfinite",
+   "expected": [
+    "PC403"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC301",
+    "PC403",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "heat2d",
+   "rel_l2": null
+  },
+  {
+   "case_id": "heat2d/zero_field",
+   "defect": "zero_field",
+   "expected": [
+    "PC202",
+    "PC301"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC202",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "heat2d",
+   "rel_l2": 1.0
+  },
+  {
+   "case_id": "helmholtz/bc_offset",
+   "defect": "bc_offset",
+   "expected": [
+    "PC201"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201"
+   ],
+   "only_reference_based": false,
+   "problem": "helmholtz",
+   "rel_l2": 0.04991831172504759
+  },
+  {
+   "case_id": "helmholtz/wrong_coefficient",
+   "defect": "wrong_coefficient",
+   "expected": [
+    "PC301"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "helmholtz",
+   "rel_l2": 1.4142135623730951
+  },
+  {
+   "case_id": "helmholtz/over_smoothed",
+   "defect": "over_smoothed",
+   "expected": [
+    "PC704"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "helmholtz",
+   "rel_l2": 0.12493666626372855
+  },
+  {
+   "case_id": "helmholtz/unit_scale",
+   "defect": "unit_scale",
+   "expected": [
+    "PC401"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC401",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "helmholtz",
+   "rel_l2": 999.0
+  },
+  {
+   "case_id": "helmholtz/nonfinite",
+   "defect": "nonfinite",
+   "expected": [
+    "PC403"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC403",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "helmholtz",
+   "rel_l2": null
+  },
+  {
+   "case_id": "helmholtz/zero_field",
+   "defect": "zero_field",
+   "expected": [
+    "PC202",
+    "PC301"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "helmholtz",
+   "rel_l2": 1.0
+  },
+  {
+   "case_id": "burgers/bc_offset",
+   "defect": "bc_offset",
+   "expected": [
+    "PC201"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201",
+    "PC202"
+   ],
+   "only_reference_based": false,
+   "problem": "burgers",
+   "rel_l2": 0.0253262887963855
+  },
+  {
+   "case_id": "burgers/wrong_coefficient",
+   "defect": "wrong_coefficient",
+   "expected": [
+    "PC301"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "burgers",
+   "rel_l2": 0.07224389080312549
+  },
+  {
+   "case_id": "burgers/over_smoothed",
+   "defect": "over_smoothed",
+   "expected": [
+    "PC704"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "burgers",
+   "rel_l2": 0.06001897530466445
+  },
+  {
+   "case_id": "burgers/unit_scale",
+   "defect": "unit_scale",
+   "expected": [
+    "PC401"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC202",
+    "PC401",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "burgers",
+   "rel_l2": 999.0
+  },
+  {
+   "case_id": "burgers/nonfinite",
+   "defect": "nonfinite",
+   "expected": [
+    "PC403"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC403",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "burgers",
+   "rel_l2": null
+  },
+  {
+   "case_id": "burgers/zero_field",
+   "defect": "zero_field",
+   "expected": [
+    "PC202",
+    "PC301"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC202",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "burgers",
+   "rel_l2": 1.0
+  },
+  {
+   "case_id": "allen_cahn/bc_offset",
+   "defect": "bc_offset",
+   "expected": [
+    "PC201"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201",
+    "PC202"
+   ],
+   "only_reference_based": false,
+   "problem": "allen_cahn",
+   "rel_l2": 0.020803875923247544
+  },
+  {
+   "case_id": "allen_cahn/wrong_coefficient",
+   "defect": "wrong_coefficient",
+   "expected": [
+    "PC301"
+   ],
+   "expected_met": false,
+   "fired": [
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "allen_cahn",
+   "rel_l2": 0.006635188057359352
+  },
+  {
+   "case_id": "allen_cahn/over_smoothed",
+   "defect": "over_smoothed",
+   "expected": [
+    "PC704"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC704"
+   ],
+   "only_reference_based": true,
+   "problem": "allen_cahn",
+   "rel_l2": 0.012617095259694107
+  },
+  {
+   "case_id": "allen_cahn/unit_scale",
+   "defect": "unit_scale",
+   "expected": [
+    "PC401"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201",
+    "PC202",
+    "PC401",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "allen_cahn",
+   "rel_l2": 999.0
+  },
+  {
+   "case_id": "allen_cahn/nonfinite",
+   "defect": "nonfinite",
+   "expected": [
+    "PC403"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC403",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "allen_cahn",
+   "rel_l2": null
+  },
+  {
+   "case_id": "allen_cahn/zero_field",
+   "defect": "zero_field",
+   "expected": [
+    "PC202",
+    "PC301"
+   ],
+   "expected_met": true,
+   "fired": [
+    "PC201",
+    "PC202",
+    "PC701",
+    "PC704"
+   ],
+   "only_reference_based": false,
+   "problem": "allen_cahn",
+   "rel_l2": 1.0
+  }
+ ],
+ "first_crossing": {
+  "allen_cahn": "0.03",
+  "burgers": "1.0e-4",
+  "heat2d": "0.01",
+  "helmholtz": "0.10",
+  "poisson": "0.01",
+  "steady_heat": "0.01"
+ },
+ "floors": {
+  "allen_cahn": {
+   "floor": 0.003709241855878813,
+   "scale": 0.9591692782925398,
+   "step": 0.003913894324853229
+  },
+  "burgers": {
+   "floor": 0.917977868497618,
+   "scale": 2.1266206978770965,
+   "step": 0.007843137254901933
+  },
+  "heat2d": {
+   "floor": 0.004076516099963244,
+   "scale": 4.700693486587563,
+   "step": 0.005
+  },
+  "helmholtz": {
+   "floor": 0.037198599116379565,
+   "scale": 84.5823560556704,
+   "step": 0.020000000000000018
+  },
+  "poisson": {
+   "floor": 0.0035149060616585736,
+   "scale": 10.172065114308863,
+   "step": 0.01
+  },
+  "steady_heat": {
+   "floor": 6.549431194956103e-14,
+   "scale": 0.999999999999995,
+   "step": 0.01
+  }
+ },
+ "n_cases": 72,
+ "reference_free_coverage": {
+  "cases": 36,
+  "caught": 28,
+  "missed": [
+   "poisson/zero_field",
+   "helmholtz/wrong_coefficient",
+   "helmholtz/over_smoothed",
+   "helmholtz/zero_field",
+   "burgers/wrong_coefficient",
+   "burgers/over_smoothed",
+   "allen_cahn/wrong_coefficient",
+   "allen_cahn/over_smoothed"
+  ],
+  "per_problem": {
+   "allen_cahn": {
+    "cases": 6,
+    "caught": 4
+   },
+   "burgers": {
+    "cases": 6,
+    "caught": 4
+   },
+   "heat2d": {
+    "cases": 6,
+    "caught": 6
+   },
+   "helmholtz": {
+    "cases": 6,
+    "caught": 3
+   },
+   "poisson": {
+    "cases": 6,
+    "caught": 5
+   },
+   "steady_heat": {
+    "cases": 6,
+    "caught": 6
+   }
+  }
+ },
+ "residual_calibration": {
+  "allen_cahn": [
+   [
+    0.0001,
+    0.003730221413118646,
+    0.003709241855878813
+   ],
+   [
+    0.001,
+    0.005419059894557627,
+    0.003709241855878813
+   ],
+   [
+    0.01,
+    0.03968924877640374,
+    0.003709241855878813
+   ],
+   [
+    0.03,
+    0.11882050712035604,
+    0.003709241855878813
+   ],
+   [
+    0.1,
+    0.4040196337957845,
+    0.003709241855878813
+   ]
+  ],
+  "burgers": [
+   [
+    0.0001,
+    0.9179880585596525,
+    0.917977868497618
+   ],
+   [
+    0.001,
+    0.9180803916767467,
+    0.917977868497618
+   ],
+   [
+    0.01,
+    0.9190655244136147,
+    0.917977868497618
+   ],
+   [
+    0.03,
+    0.9216602036899838,
+    0.917977868497618
+   ],
+   [
+    0.1,
+    0.9352508790868542,
+    0.917977868497618
+   ]
+  ],
+  "heat2d": [
+   [
+    0.0001,
+    0.004156802881779403,
+    0.004076516099963244
+   ],
+   [
+    0.001,
+    0.00909508944344106,
+    0.004076516099963244
+   ],
+   [
+    0.01,
+    0.08140568057946847,
+    0.004076516099963244
+   ],
+   [
+    0.03,
+    0.24394470604493954,
+    0.004076516099963244
+   ],
+   [
+    0.1,
+    0.8130456953288864,
+    0.004076516099963244
+   ]
+  ],
+  "helmholtz": [
+   [
+    0.0001,
+    0.037191860850287445,
+    0.037198599116379565
+   ],
+   [
+    0.001,
+    0.037135383088352916,
+    0.037198599116379565
+   ],
+   [
+    0.01,
+    0.036987803245424916,
+    0.037198599116379565
+   ],
+   [
+    0.03,
+    0.03931717062333304,
+    0.037198599116379565
+   ],
+   [
+    0.1,
+    0.06605024054254653,
+    0.037198599116379565
+   ]
+  ],
+  "poisson": [
+   [
+    0.0001,
+    0.0035742975060479854,
+    0.0035149060616585736
+   ],
+   [
+    0.001,
+    0.0073795913550973044,
+    0.0035149060616585736
+   ],
+   [
+    0.01,
+    0.06498257427354548,
+    0.0035149060616585736
+   ],
+   [
+    0.03,
+    0.19469406286780658,
+    0.0035149060616585736
+   ],
+   [
+    0.1,
+    0.6488839603689397,
+    0.0035149060616585736
+   ]
+  ],
+  "steady_heat": [
+   [
+    0.0001,
+    0.0012472007176957977,
+    6.549431194956103e-14
+   ],
+   [
+    0.001,
+    0.012472007176960946,
+    6.549431194956103e-14
+   ],
+   [
+    0.01,
+    0.1247200717696075,
+    6.549431194956103e-14
+   ],
+   [
+    0.03,
+    0.37416021530882165,
+    6.549431194956103e-14
+   ],
+   [
+    0.1,
+    1.247200717696073,
+    6.549431194956103e-14
+   ]
+  ]
+ },
+ "resolution_study": {
+  "allen_cahn": [
+   {
+    "floor": 0.01359294051919531,
+    "points_per_axis": 101,
+    "step": 0.020000000000000018
+   },
+   {
+    "floor": 0.01313465325886755,
+    "points_per_axis": 201,
+    "step": 0.010000000000000009
+   },
+   {
+    "floor": 0.005718079694970504,
+    "points_per_axis": 401,
+    "step": 0.0050000000000000044
+   },
+   {
+    "floor": 0.0016845125157255118,
+    "points_per_axis": 801,
+    "step": 0.0024999999999999467
+   }
+  ],
+  "burgers": [
+   {
+    "floor": 0.9129424419590291,
+    "points_per_axis": 101,
+    "step": 0.020000000000000018
+   },
+   {
+    "floor": 0.9130625715779042,
+    "points_per_axis": 201,
+    "step": 0.010000000000000009
+   },
+   {
+    "floor": 0.8011592376090145,
+    "points_per_axis": 401,
+    "step": 0.0050000000000000044
+   },
+   {
+    "floor": 0.4261138309464703,
+    "points_per_axis": 801,
+    "step": 0.0024999999999999467
+   }
+  ],
+  "heat2d": [
+   {
+    "floor": 0.004076516099963244,
+    "points_per_axis": 101,
+    "step": 0.005
+   }
+  ],
+  "helmholtz": [
+   {
+    "floor": 0.037198599116379565,
+    "points_per_axis": 101,
+    "step": 0.020000000000000018
+   },
+   {
+    "floor": 0.013693890040435568,
+    "points_per_axis": 201,
+    "step": 0.010000000000000009
+   },
+   {
+    "floor": 0.00481968064520716,
+    "points_per_axis": 401,
+    "step": 0.0050000000000000044
+   }
+  ],
+  "poisson": [
+   {
+    "floor": 0.0035149060616585736,
+    "points_per_axis": 101,
+    "step": 0.01
+   },
+   {
+    "floor": 0.0012433905625781972,
+    "points_per_axis": 201,
+    "step": 0.005
+   },
+   {
+    "floor": 0.0004394294667345923,
+    "points_per_axis": 401,
+    "step": 0.0025
+   }
+  ]
+ },
+ "schema": "pinneapple-arxiv-verification-summary/v1"
+}

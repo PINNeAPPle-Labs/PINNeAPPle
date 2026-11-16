@@ -1,0 +1,12 @@
+# build products of the verification experiment: the per-case directories (predictions, references
+# and the generated checker configuration) are rebuilt from corpus.py in seconds
+_work/
+
+# LaTeX intermediates (paper.pdf itself is committed so the draft can be read without a TeX engine)
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.xdv

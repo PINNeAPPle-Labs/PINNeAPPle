@@ -279,10 +279,72 @@ def test_load_table_bundle_is_the_run_table_with_its_units(tmp_path):
 def test_field_samples_needs_the_field_benchmark_and_says_so(tmp_path):
     pytest.importorskip("gamut", reason="the reader of the format is not installed")
     path = _write_study(tmp_path / "capsule.gamut")
-    if "pinneapple_arena.fieldbench" in sys.modules:
-        pytest.skip("the field benchmark is installed: this test is about the message when it is not")
     try:
         import pinneapple_arena.fieldbench  # noqa: F401
     except Exception:
         with pytest.raises(ImportError, match="fieldbench"):
             cap.field_samples(path)
+    else:
+        pytest.skip("the field benchmark is installed: this test is about the message when it is not")
+
+
+def _stand_in_field_benchmark(monkeypatch):
+    """A ``FieldSample`` with the benchmark's own fields, so the samples can be checked without its model stack.
+
+    ``pinneapple_arena.fieldbench`` lives on the field-benchmark branch, and its model rows pull in more of that
+    branch than this reader needs. What the samples have to get right is their shape and what goes in which slot, and
+    that is what this pins."""
+    from dataclasses import dataclass, field
+
+    @dataclass
+    class FieldSample:
+        id: str
+        points: np.ndarray
+        values: np.ndarray
+        category: str = ""
+        parts: np.ndarray | None = None
+        part_ids: np.ndarray | None = None
+        thickness: np.ndarray | None = None
+        times: np.ndarray | None = None
+        extra: np.ndarray | None = None
+        meta: dict = field(default_factory=dict)
+
+    import types
+
+    module = types.ModuleType("pinneapple_arena.fieldbench")
+    module.FieldSample = FieldSample
+    monkeypatch.setitem(sys.modules, "pinneapple_arena.fieldbench", module)
+    try:
+        import pinneapple_arena
+    except Exception:                                       # pragma: no cover - the package is in this repository
+        return FieldSample
+    monkeypatch.setattr(pinneapple_arena, "fieldbench", module, raising=False)
+    return FieldSample
+
+
+def test_field_samples_put_the_cheap_field_beside_the_inputs_on_every_node(tmp_path, monkeypatch):
+    pytest.importorskip("gamut", reason="the reader of the format is not installed")
+    _stand_in_field_benchmark(monkeypatch)
+    path = _write_study(tmp_path / "capsule.gamut")
+    samples = cap.field_samples(path)
+    assert [s.id for s in samples] == [f"c1_{cap.HIGH_FIDELITY}"]          # only the expensive run has a cheap twin
+    one = samples[0]
+    assert one.points.shape == (4, 3) and one.values.shape == (4, 1)
+    assert one.thickness.tolist() == [0.0, 0.1, 0.2, 0.3]                  # the arc length, node by node
+    assert one.extra.shape == (4, 7)                                       # six inputs, then the cheap model's field
+    assert one.meta["channels"][-1] == f"heat_flux_{cap.LOW_FIDELITY}"
+    assert one.meta["units"] == "W/(m^2)"
+    assert np.allclose(one.extra[:, :6], one.extra[0, :6])                 # one flight condition, broadcast
+    assert np.allclose(one.extra[:, 6], [1.0, 2.0, 3.0, 4.0])              # the cheap run's own heat flux
+    assert np.allclose(one.values[:, 0], [2.0, 4.0, 6.0, 8.0])             # the expensive run's
+    assert one.meta["parameters"]["mach"] == pytest.approx(8.0)
+
+
+def test_field_samples_without_the_cheap_channel_leave_six_channels(tmp_path, monkeypatch):
+    pytest.importorskip("gamut", reason="the reader of the format is not installed")
+    _stand_in_field_benchmark(monkeypatch)
+    path = _write_study(tmp_path / "capsule.gamut")
+    one = cap.field_samples(path, low_fidelity_channel=False)[0]
+    assert one.extra.shape == (4, 6) and len(one.meta["channels"]) == 6
+    every = cap.field_samples(path, fidelity=cap.LOW_FIDELITY)
+    assert len(every) == 2 and all(s.extra.shape == (4, 6) for s in every)

@@ -7532,11 +7532,77 @@
   },
   "source": "tests/test_digital_twin_library.py:777"
  },
+ "pinneapple_systems.digital_twin.library.registry:build": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:107"
+ },
+ "pinneapple_systems.digital_twin.library.registry:catalogue": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:57"
+ },
+ "pinneapple_systems.digital_twin.library.registry:compare": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:113"
+ },
+ "pinneapple_systems.digital_twin.library.registry:describe": {
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library.registry:run": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
  "pinneapple_systems.digital_twin.library.reusable_booster:atmosphere": {
   "inputs": {
    "altitude": 1000.0
   },
   "source": "tests/test_digital_twin_library.py:295"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:Scenario": {
+  "inputs": {
+   "slug": "lunar_base",
+   "title": "six_crew",
+   "values": {
+    "crew": 6.0
+   }
+  },
+  "source": "tests/test_digital_twin_library.py:917"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:check": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:904"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:load_scenarios": {
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "source": "tests/test_digital_twin_library.py:926"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:manifest": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:937"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:run_scenario": {
+  "inputs": {
+   "name": "pipeline_network/low_delivery_pressure"
+  },
+  "source": "tests/test_digital_twin_library.py:910"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:save_scenarios": {
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "source": "tests/test_digital_twin_library.py:926"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:scenario_names": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:937"
  },
  "pinneapple_systems.digital_twin.library:build": {
   "inputs": {

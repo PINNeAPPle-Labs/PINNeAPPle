@@ -1,8 +1,9 @@
-# Digital Twin Library: seven systems, each with its own conservation laws
+# Digital Twin Library: nine systems, each with its own conservation laws
 
-`pinneapple_systems.digital_twin.library` holds reference models of seven engineering systems —
+`pinneapple_systems.digital_twin.library` holds reference models of nine engineering systems —
 an FPSO with its subsea well, a blast furnace, a chemical synthesis loop, a reusable booster, a
-lunar base, a gas pipeline network and a compression station. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
+lunar base, a gas pipeline network, a compression station, a green hydrogen plant and a seawater
+desalination train. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
 describe: cheap enough to run in a test suite, explicit about their assumptions, and the source of
 the solver data a trained surrogate would later be fitted to.
 
@@ -34,6 +35,8 @@ conservation laws **twice, by different routes**, and reports the residual:
 | `lunar_base` | energy, oxygen, water | generation against day load plus storage; regolith yield against crew consumption |
 | `pipeline_network` | mass, energy, linepack | the stations' polytropic shaft work against `cp` times the temperature rise it produces; the closed-form linepack integral against a 200-node quadrature of the pressure profile |
 | `compression_station` | mass, energy, cooling | the shaft work from `cp ΔT` against the integral of `v dp` along the polytropic path, stage by stage; the intercoolers against the enthalpy the previous stage added |
+| `green_hydrogen_plant` | electricity, energy, water, oxygen | the power asked for against cells × voltage × current; hydrogen at its heating value plus the heat the overpotential rejects against the electricity in; the water the stoichiometry demands against the mass of the two gases it became |
+| `desalination_plant` | water, salt, energy | salt in the feed against salt in permeate plus concentrate, with the concentrate's concentration *derived* from that balance and then used to set the osmotic pressure; the pump less the energy-recovery device against the specific energy times the permeate flow |
 
 A residual above the declared tolerance fails the run, and `result.ok` is `False`. `run.require()`
 raises `BalanceFailed` with every failing line named.
@@ -53,6 +56,8 @@ night is half a synodic month, a wet blast runs the raceway colder.
 | `lunar_base` | 4 crew, 1 200 m² of array, 28 kW at night | 354 h of night, 11.7 MWh of storage, 37 m² of radiator, 3 t of regolith per lunar day |
 | `pipeline_network` | 120 km of 0.9 m line, two stations at 1.35, 95 bar in and 60 bar out | 2 210 t/h, 63 MW of compression, 69 °C discharge, 5 175 t of linepack |
 | `compression_station` | 120 kg/s of 0.65-gravity gas, 30 to 90 bar in two stages | 22.4 MW of shaft work, 82 °C hottest discharge, 20.2 MW of cooling, 1 784 kg/h of fuel |
+| `green_hydrogen_plant` | 100 MW stack at 1.78 V and 1.5 A/cm², 2 % purge, product at 30 bar | 48 t/day of hydrogen, 54.1 kWh/kg at the fence, 61.6 % LHV efficiency, 16.8 MW of heat, 16.3 t/h of oxygen |
+| `desalination_plant` | 1 000 m³/h of 35 g/L seawater at 45 % recovery, 95 % energy recovery | 450 m³/h of permeate at 175 mg/L, 63.5 g/L brine, 65.9 bar applied, 2.83 kWh/m³ against a 1.10 kWh/m³ floor |
 
 The numbers are engineering-plausible and *not* plant records: every system carries a
 `not_verified` list that says exactly that. The reactor's enthalpy and entropy of reaction are
@@ -75,7 +80,12 @@ The interesting part of each model is what it solves rather than computes:
 * the pipeline's throughput is the flow at which the pressure the line needs at its inlet is exactly
   the pressure the supply offers — the stations are set to a ratio and the line takes what it can;
 * the compression station *proves* the equal-ratio split instead of asserting it: it searches the
-  split and checks that no other division of the same total ratio costs less work.
+  split and checks that no other division of the same total ratio costs less work;
+* the electrolyser's hydrogen is what Faraday's law says it is, and its heat is what the cell
+  voltage says is left over — the two share no algebra, so the energy balance can fail;
+* the desalination train derives its brine concentration from the salt balance and then uses it to
+  set the osmotic pressure the pump has to beat, and every run is checked against the reversible
+  separation work computed as an integral rather than quoted.
 
 ## Ranges, extrapolation and honesty
 
@@ -101,7 +111,7 @@ for entry in catalogue():
 ```
 
 The 0D/1D models here are the first rung of the Digital Twin Library issues (`#1770`, `#1772`,
-`#1774`, `#1777`, `#1779`, `#1784`, `#1801`). What comes above them — 1D transients, 2D/3D solvers, trained
+`#1774`, `#1777`, `#1779`, `#1784`, `#1801`, `#1813`, `#1814`). What comes above them — 1D transients, 2D/3D solvers, trained
 surrogates with an OOD domain, VeriPhysics gates, the Engineering API workers and the Studio
 scenes — is tracked in those issues, and none of it is claimed here.
 
@@ -116,4 +126,6 @@ van't Hoff on the function actually used, the exponential atmosphere's scale hei
 for the radiator and the FeO oxygen yield, the isothermal line equation written out factor by factor,
 the linepack integral collapsed both to `p V / Z R T` at a flat pressure and to the mean of a
 parabolic pressure profile, the polytropic stage work for one stage and the hand sum for three, and
-Colebrook-White solved for the friction factor the run reports.
+Colebrook-White solved for the friction factor the run reports, Faraday's law and the two water
+voltages, the nine kilograms of water per kilogram of hydrogen, van't Hoff's thirty bar for
+seawater, and the separation-work integral against a quadrature of the same integrand.

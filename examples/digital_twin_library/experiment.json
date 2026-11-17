@@ -1,8 +1,8 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/digital_twin_library",
- "title": "Digital Twin Library: seven reference systems",
- "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster, lunar base, gas pipeline network and compression station, each a 0D/1D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
+ "title": "Digital Twin Library: nine reference systems",
+ "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster, lunar base, gas pipeline network, compression station, green hydrogen plant and desalination train, each a 0D/1D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
  "domain": "digital twins",
  "methods": [
   "material balance",
@@ -11,7 +11,9 @@
   "point-mass flight",
   "radiative balance",
   "isothermal compressible flow",
-  "polytropic compression"
+  "polytropic compression",
+  "electrolysis stoichiometry",
+  "osmotic pressure"
  ],
  "modules": [
   "pinneapple_systems.digital_twin.library"
@@ -23,11 +25,11 @@
    "name": "worst_balance_residual",
    "value": 0.00019079846226366986,
    "unit": "relative",
-   "how": "7 systems, all their balances"
+   "how": "9 systems, all their balances"
   },
   {
    "name": "systems_in_the_catalogue",
-   "value": 7.0,
+   "value": 9.0,
    "unit": "systems",
    "how": "every system registered in the library"
   }
@@ -106,6 +108,30 @@
    "kind": "physics"
   },
   {
+   "name": "desalination_plant: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "water +0.0e+00; salt +1.7e-16; energy +0.0e+00",
+   "kind": "physics"
+  },
+  {
+   "name": "desalination_plant: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "above_the_thermodynamic_floor, pressure_beats_the_brine, brine_more_concentrated_than_feed, permeate_cleaner_than_feed, recovery_below_one",
+   "kind": "physics"
+  },
+  {
    "name": "fpso_subsea: every conservation law closes",
    "passed": true,
    "value": null,
@@ -127,6 +153,30 @@
    "max": null,
    "min": null,
    "detail": "ipr_closes_at_zero_drawdown, maximum_rate_at_zero_bhp, inflow_slope_equals_productivity_index, well_declines, line_only_cools, cooling_bounded_by_expansion, tank_stops_at_separator, recovery_below_one",
+   "kind": "physics"
+  },
+  {
+   "name": "green_hydrogen_plant: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "electricity +0.0e+00; energy -1.4e-16; water +0.0e+00; oxygen +0.0e+00",
+   "kind": "physics"
+  },
+  {
+   "name": "green_hydrogen_plant: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "cell_voltage_above_reversible, efficiency_below_one, specific_energy_above_the_bound, heat_sign_matches_the_voltage, compression_is_the_smaller_term, oxygen_is_the_stoichiometric_half",
    "kind": "physics"
   },
   {
@@ -217,9 +267,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "2681efb28",
-  "created": "2026-11-16T19:02:22Z",
-  "seconds": 0.985,
+  "git": "1a338dea4",
+  "created": "2026-11-17T14:46:17Z",
+  "seconds": 1.008,
   "error": null,
   "environment": {
    "python": "3.11.16",

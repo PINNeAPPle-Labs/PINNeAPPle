@@ -1,4 +1,4 @@
-"""Tests of the Digital Twin Library: seven reference models, each checked against its own physics.
+"""Tests of the Digital Twin Library: nine reference models, each checked against its own physics.
 
 The tests are of two kinds, and they are labelled in their names:
 
@@ -41,11 +41,24 @@ from pinneapple_systems.digital_twin.library.compression_station import (
     stage_discharge_temperature,
     stage_work,
 )
+from pinneapple_systems.digital_twin.library.desalination import (
+    DesalinationPlant,
+    minimum_specific_energy,
+    osmotic_pressure,
+)
 from pinneapple_systems.digital_twin.library.fpso import (
     FPSOSubsea,
     ipr_rate,
     line_pressure_drop,
     vogel_qmax,
+)
+from pinneapple_systems.digital_twin.library.green_hydrogen import (
+    FARADAY,
+    MOLAR_MASS_H2,
+    GreenHydrogenPlant,
+    hydrogen_from_charge,
+    reversible_voltage,
+    thermoneutral_voltage,
 )
 from pinneapple_systems.digital_twin.library.lunar_base import (
     SYNODIC_MONTH_DAYS,
@@ -64,8 +77,8 @@ from pinneapple_systems.digital_twin.library.reusable_booster import (
     atmosphere,
 )
 
-SLUGS = ("blast_furnace", "chemical_plant", "compression_station", "fpso_subsea", "lunar_base",
-         "pipeline_network", "reusable_booster")
+SLUGS = ("blast_furnace", "chemical_plant", "compression_station", "desalination_plant", "fpso_subsea",
+         "green_hydrogen_plant", "lunar_base", "pipeline_network", "reusable_booster")
 
 
 # ---------------------------------------------------------------------------
@@ -598,3 +611,146 @@ def test_a_discharge_below_the_suction_pressure_is_refused():
 def test_an_intercooler_colder_than_the_suction_needs_refrigeration_the_model_lacks():
     with pytest.raises(ParameterError, match="refrigeration"):
         CompressionStation().simulate(intercooler_outlet=295.0)
+
+
+# ---------------------------------------------------------------------------
+# The green hydrogen plant: Faraday, the cell voltage and the specific energy
+# ---------------------------------------------------------------------------
+
+def test_faraday_gives_the_hydrogen_two_electrons_at_a_time():
+    # 2 F of charge is one mole of H2: check the function against the arithmetic, not the model.
+    current, cells, efficiency = 37_500.0, 1_498.0, 0.97
+    expected = cells * current * efficiency / (2.0 * FARADAY) * MOLAR_MASS_H2
+    assert hydrogen_from_charge(current=current, cells=cells, faradaic_efficiency=efficiency) == pytest.approx(
+        expected, rel=1e-12)
+
+
+def test_the_stack_voltage_is_the_geometry_and_the_current():
+    result = GreenHydrogenPlant().simulate()
+    p = result.parameters
+    current = p["current_density"] * 1e4 * p["cell_area"]
+    cells = p["stack_power"] * 1e6 / (p["cell_voltage"] * current)
+    assert result.value("current") * 1e3 == pytest.approx(current, rel=1e-12)
+    assert result.value("cells") == pytest.approx(cells, rel=1e-12)
+    assert result.value("stack_voltage") * 1e3 == pytest.approx(cells * p["cell_voltage"], rel=1e-12)
+
+
+def test_the_specific_energy_is_the_heating_value_over_the_efficiency():
+    # LHV efficiency is hydrogen energy out over electricity in, so the specific energy follows.
+    result = GreenHydrogenPlant().simulate()
+    assert result.value("specific_energy") * result.value("lhv_efficiency") == pytest.approx(
+        119.96e6 / 3.6e6, rel=2e-4)
+
+
+def test_the_reversible_and_thermoneutral_voltages_are_dg_and_dh_over_two_f():
+    assert reversible_voltage() == pytest.approx(237_200.0 / (2.0 * FARADAY), rel=1e-12)
+    assert thermoneutral_voltage() == pytest.approx(285_830.0 / (2.0 * FARADAY), rel=1e-12)
+    assert reversible_voltage() < thermoneutral_voltage()
+
+
+def test_a_voltage_below_the_reversible_one_is_refused():
+    # Below 1.229 V the cell cannot split water at all, whatever the power and the current density.
+    with pytest.raises(ParameterError, match="reversible"):
+        GreenHydrogenPlant().simulate(cell_voltage=1.10, strict=False)
+
+
+def test_more_voltage_buys_hydrogen_at_a_worse_specific_energy():
+    cheap = GreenHydrogenPlant().simulate(cell_voltage=1.60)
+    dear = GreenHydrogenPlant().simulate(cell_voltage=2.00)
+    assert dear.value("hydrogen_rate") < cheap.value("hydrogen_rate")
+    assert dear.value("specific_energy") > cheap.value("specific_energy")
+    assert dear.value("heat_rejected") > cheap.value("heat_rejected")
+
+
+def test_the_water_is_the_hydrogen_and_oxygen_it_became():
+    result = GreenHydrogenPlant().simulate()
+    p = result.parameters
+    # the water is split before the purge: compare it with what the stack made, not what it sold
+    hydrogen = result.value("hydrogen_rate") / 3_600.0 / (1.0 - p["purge_fraction"])
+    oxygen = result.value("oxygen_rate") / 3_600.0
+    water = result.value("water_demand") * 1_000.0 / 3_600.0
+    assert water == pytest.approx(hydrogen + oxygen, rel=1e-12)
+    # and the textbook nine kilograms of water per kilogram of hydrogen
+    assert water / hydrogen == pytest.approx(18.015_28 / 2.015_88, rel=1e-4)
+
+
+def test_the_oxygen_is_eight_times_the_hydrogen_by_mass():
+    result = GreenHydrogenPlant().simulate()
+    generated = result.value("hydrogen_rate") / (1.0 - result.parameters["purge_fraction"])
+    assert result.value("oxygen_rate") / generated == pytest.approx(15.999_4 / 2.015_88, rel=1e-9)
+
+
+# ---------------------------------------------------------------------------
+# The desalination plant: van't Hoff, the salt balance and the thermodynamic floor
+# ---------------------------------------------------------------------------
+
+def test_vant_hoff_gives_seawater_its_thirty_bar():
+    # 35 g/L of NaCl is about 0.6 mol/L of ions, which is about 30 bar at 25 degC.
+    concentration = 35.0 / 0.05844
+    assert osmotic_pressure(concentration=concentration, temperature=298.15) / 1e5 == pytest.approx(
+        2.0 * concentration * 8.314_462_618 * 298.15 / 1e5, rel=1e-12)
+    assert 29.0 < osmotic_pressure(concentration=concentration, temperature=298.15) / 1e5 < 31.0
+
+
+def test_the_floor_is_the_integral_of_the_osmotic_pressure_as_the_brine_concentrates():
+    # Quadrature of pi_f/(1-x) from 0 to the recovery, per cubic metre of permeate.
+    feed, recovery = 3.0e6, 0.45
+    nodes = 20_000
+    integral = 0.0
+    for k in range(nodes):
+        x0, x1 = k / nodes * recovery, (k + 1) / nodes * recovery
+        integral += 0.5 * (1.0 / (1.0 - x0) + 1.0 / (1.0 - x1)) * (x1 - x0)
+    expected = feed * integral / recovery
+    assert minimum_specific_energy(feed_osmotic_pressure=feed, recovery=recovery) == pytest.approx(
+        expected, rel=1e-9)
+
+
+def test_the_brine_concentration_is_the_salt_balance_not_a_rule_of_thumb():
+    result = DesalinationPlant().simulate()
+    p = result.parameters
+    feed = p["feed_flow"] / 3_600.0
+    permeate = feed * p["recovery"]
+    brine = feed - permeate
+    feed_concentration = p["feed_salinity"] / 0.05844
+    permeate_concentration = feed_concentration * (1.0 - p["salt_rejection"])
+    expected = (feed * feed_concentration - permeate * permeate_concentration) / brine
+    assert result.value("brine_salinity") == pytest.approx(expected * 0.05844, rel=1e-12)
+
+
+def test_the_specific_energy_is_the_pump_less_the_energy_recovery_over_the_permeate():
+    result = DesalinationPlant().simulate()
+    p = result.parameters
+    permeate = p["feed_flow"] / 3_600.0 * p["recovery"]
+    net = (result.value("pump_power") - result.value("recovered_power")) * 1e6
+    assert result.value("specific_energy") == pytest.approx(net / permeate / 3.6e6, rel=1e-12)
+
+
+def test_the_train_costs_more_than_the_second_law_allows_and_says_how_much():
+    result = DesalinationPlant().simulate()
+    assert result.value("specific_energy") > result.value("thermodynamic_floor")
+    assert 1.0 < result.value("second_law_margin") < 10.0
+
+
+def test_an_energy_recovery_device_pays_for_itself_in_specific_energy():
+    result = DesalinationPlant().simulate()
+    without = DesalinationPlant().simulate(erd_efficiency=0.0)
+    with_erd = DesalinationPlant().simulate(erd_efficiency=0.95)
+    assert with_erd.value("specific_energy") < without.value("specific_energy")
+    # 1 - eta_erd eta_pump (1 - recovery): what the device gives back, net of the pump it relieves
+    expected = 1.0 - 0.95 * result.parameters["pump_efficiency"] * (1.0 - result.parameters["recovery"])
+    assert with_erd.value("specific_energy") / without.value("specific_energy") == pytest.approx(
+        expected, rel=1e-9)
+
+
+def test_more_recovery_costs_more_energy_per_cubic_metre():
+    low = DesalinationPlant().simulate(recovery=0.35)
+    high = DesalinationPlant().simulate(recovery=0.55)
+    assert high.value("brine_salinity") > low.value("brine_salinity")
+    assert high.value("specific_energy") > low.value("specific_energy")
+
+
+def test_the_permeate_is_cleaner_than_the_feed_by_the_rejection():
+    result = DesalinationPlant().simulate()
+    p = result.parameters
+    assert result.value("permeate_salinity") == pytest.approx(
+        p["feed_salinity"] * 1_000.0 * (1.0 - p["salt_rejection"]), rel=1e-12)

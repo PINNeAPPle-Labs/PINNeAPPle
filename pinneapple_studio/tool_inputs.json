@@ -7403,6 +7403,20 @@
   },
   "source": "tests/test_digital_twin_library.py:537"
  },
+ "pinneapple_systems.digital_twin.library.desalination:minimum_specific_energy": {
+  "inputs": {
+   "feed_osmotic_pressure": 3000000.0,
+   "recovery": 0.45
+  },
+  "source": "tests/test_digital_twin_library.py:695"
+ },
+ "pinneapple_systems.digital_twin.library.desalination:osmotic_pressure": {
+  "inputs": {
+   "concentration": 598.9,
+   "temperature": 298.15
+  },
+  "source": "tests/test_digital_twin_library.py:687"
+ },
  "pinneapple_systems.digital_twin.library.fpso:ipr_rate": {
   "inputs": {
    "bottom_hole_pressure": 10000000.0,
@@ -7435,6 +7449,22 @@
    "exponent": 0.8
   },
   "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:hydrogen_from_charge": {
+  "inputs": {
+   "current": 37500.0,
+   "cells": 1498.0,
+   "faradaic_efficiency": 0.97
+  },
+  "source": "tests/test_digital_twin_library.py:620"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:reversible_voltage": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:657"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:thermoneutral_voltage": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:657"
  },
  "pinneapple_systems.digital_twin.library.lunar_base:night_factor": {
   "inputs": {},

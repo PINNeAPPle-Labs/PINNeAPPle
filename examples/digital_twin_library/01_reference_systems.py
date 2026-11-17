@@ -1,9 +1,10 @@
-"""The Digital Twin Library: seven systems, each one closing its own conservation laws.
+"""The Digital Twin Library: nine systems, each one closing its own conservation laws.
 
 FPSO and subsea production, a blast furnace, a chemical synthesis loop, a reusable booster, a lunar
-base, a gas pipeline network and a compression station. Each is a reference model: SI parameters with declared ranges, a machine-readable result
-that carries two independent routes to every conservation law, invariants that must hold for any
-parameter set, and its own list of what it does not verify.
+base, a gas pipeline network, a compression station, a green hydrogen plant and a seawater
+desalination train. Each is a reference model: SI parameters with declared ranges, a
+machine-readable result that carries two independent routes to every conservation law, invariants
+that must hold for any parameter set, and its own list of what it does not verify.
 
 Run: ``python examples/digital_twin_library/01_reference_systems.py [--smoke] [--out DIR]``
 Outputs in ``examples/digital_twin_library/_out/``.
@@ -27,14 +28,16 @@ def main() -> None:
     os.makedirs(a.out, exist_ok=True)
 
     with pinneapple_lab.experiment(
-            "examples/digital_twin_library", title="Digital Twin Library: seven reference systems",
+            "examples/digital_twin_library", title="Digital Twin Library: nine reference systems",
             description="FPSO and subsea production, blast furnace, chemical synthesis loop, reusable "
-                        "booster, lunar base, gas pipeline network and compression station, each a 0D/1D "
+                        "booster, lunar base, gas pipeline network, compression station, green hydrogen "
+                        "plant and desalination train, each a 0D/1D "
                         "reference model with its conservation laws computed twice by independent routes "
                         "and its own stated limits.",
             domain="digital twins", methods=["material balance", "stoichiometry", "thermodynamic equilibrium",
                                              "point-mass flight", "radiative balance",
-                                             "isothermal compressible flow", "polytropic compression"],
+                                             "isothermal compressible flow", "polytropic compression",
+                                             "electrolysis stoichiometry", "osmotic pressure"],
             modules=["pinneapple_systems.digital_twin.library"], out_dir=HERE, register=False,
             links={"guide": "docs/guides/digital_twin_library.md",
                    "script": "examples/digital_twin_library/01_reference_systems.py"}) as ex:

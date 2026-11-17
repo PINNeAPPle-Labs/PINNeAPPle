@@ -1,0 +1,12 @@
+{
+ "code_hash": "8dc0778f74d7ccc0",
+ "figures": [],
+ "id": "example:examples/industrial_presets/pipe_bend_erosion",
+ "ok": true,
+ "recorded": "2026-11-17",
+ "seconds": 0.71,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Joelho de tubulação com areia: taxa de erosão, perda de parede e vida pelo DNV-RP-O501 | Fluidos / integridade de tubulação (óleo e gás) | not curated\nrel_error[triagem fechada do DNV-RP-O501 §8.4 (R/D = 1.5, D = 80 mm, U = 15 m/s, 20 kg/dia de areia de 150 µm)] 0.17427518172878734 -",
+ "timed_out": false
+}

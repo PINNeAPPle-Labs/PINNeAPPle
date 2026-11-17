@@ -28,6 +28,26 @@
   "returned": "str",
   "seconds": 2.32
  },
+ "pinneapple_data.cae.dataset:quantity_of": {
+  "code_hash": "1d67adbe1f29e14b",
+  "inputs": {
+   "name": "T"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 11.25
+ },
+ "pinneapple_data.cae.foam:dims_unit": {
+  "code_hash": "af4e0dd350e8a845",
+  "inputs": {
+   "dims": "[0 2 -2 0 0 0 0]"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
  "pinneapple_data.cae.inp:read_deck": {
   "code_hash": "f3e64e9cce9c914e",
   "inputs": {
@@ -36,6 +56,16 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "Deck",
+  "seconds": 0.0
+ },
+ "pinneapple_data.cae.inp:vtk_type": {
+  "code_hash": "b5bebf6bad4c9daa",
+  "inputs": {
+   "abq": "NOT_AN_ELEMENT"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "NoneType",
   "seconds": 0.0
  },
  "pinneapple_data.collate:collate_pinn_batches": {

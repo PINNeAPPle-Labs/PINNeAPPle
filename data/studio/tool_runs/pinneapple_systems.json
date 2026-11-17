@@ -309,6 +309,56 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_systems.digital_twin.library.compression_station:polytropic_exponent": {
+  "code_hash": "5b1ddcf8dcc76c4a",
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 1.8
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:split_ratios": {
+  "code_hash": "c39a2be10a2d19f2",
+  "inputs": {
+   "stages": 2,
+   "total_ratio": 3.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_discharge_temperature": {
+  "code_hash": "83e79f4b361ee656",
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78,
+   "ratio": 1.35,
+   "suction_temperature": 300.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_work": {
+  "code_hash": "cfc12bdc15bc4d4a",
+  "inputs": {
+   "gamma": 1.3,
+   "heat_capacity": 1760.89,
+   "mass_flow": 120.0,
+   "polytropic_efficiency": 0.8,
+   "ratio": 1.732,
+   "suction_temperature": 303.15
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_systems.digital_twin.library.fpso:ipr_rate": {
   "code_hash": "b9a145f876827aac",
   "inputs": {
@@ -366,6 +416,49 @@
   "code_hash": "07cd619fd889e858",
   "inputs": {
    "oxygen_rich_fraction": 0.15
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:compressor_discharge": {
+  "code_hash": "718d138252b8818f",
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78,
+   "pressure_ratio": 1.35,
+   "suction_temperature": 300.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:linepack_of_segment": {
+  "code_hash": "4b0bca86e4060560",
+  "inputs": {
+   "diameter": 0.8,
+   "length": 50000.0,
+   "p_downstream": 6000000.0,
+   "p_upstream": 9000000.0,
+   "specific_gas_constant": 470.0,
+   "temperature": 300.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:segment_pressure_square_drop": {
+  "code_hash": "4e81cd971b52ee2b",
+  "inputs": {
+   "diameter": 0.9,
+   "friction_factor": 0.0125,
+   "length": 40000.0,
+   "mass_flow": 600.0,
+   "specific_gas_constant": 441.69478421164473,
+   "temperature": 288.15
   },
   "ok": true,
   "recorded": "2026-11-16",

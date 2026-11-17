@@ -359,6 +359,28 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_systems.digital_twin.library.desalination:minimum_specific_energy": {
+  "code_hash": "a236e5d98e30a4a1",
+  "inputs": {
+   "feed_osmotic_pressure": 3000000.0,
+   "recovery": 0.45
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 13.79
+ },
+ "pinneapple_systems.digital_twin.library.desalination:osmotic_pressure": {
+  "code_hash": "21a2717f60936c34",
+  "inputs": {
+   "concentration": 598.9,
+   "temperature": 298.15
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_systems.digital_twin.library.fpso:ipr_rate": {
   "code_hash": "b9a145f876827aac",
   "inputs": {
@@ -401,6 +423,34 @@
   },
   "ok": true,
   "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:hydrogen_from_charge": {
+  "code_hash": "9a6500322811b92d",
+  "inputs": {
+   "cells": 1498.0,
+   "current": 37500.0,
+   "faradaic_efficiency": 0.97
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:reversible_voltage": {
+  "code_hash": "4d995cc6432d3870",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:thermoneutral_voltage": {
+  "code_hash": "01ade2362c652a8a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
   "returned": "float",
   "seconds": 0.0
  },

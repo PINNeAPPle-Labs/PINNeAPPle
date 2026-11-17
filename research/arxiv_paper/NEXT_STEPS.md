@@ -26,7 +26,7 @@ Legend: `[x]` done and verified · `[~]` done but needs a human decision or sign
 - [x] **A new experiment for the paper**: a 72-case controlled corpus measuring what
       `pinneapple check` catches and misses, with reference-free and reference-based detectors
       reported apart (`experiments/verification/`).
-- [x] **Full manuscript** (`paper.tex`, 19 pages) with related work, methods, results, threats to
+- [x] **Full manuscript** (`paper.tex`, 21 pages) with related work, methods, results, threats to
       validity, reproducibility statement, two appendices and 21 verified references.
 - [x] **Every number generated from a committed record** by
       `scripts/make_tables.py` and `experiments/verification/analyze.py`; no table edited by hand.
@@ -69,13 +69,16 @@ Legend: `[x]` done and verified · `[~]` done but needs a human decision or sign
 - [ ] **Author consent and order.** Both authors must approve authorship, order and scope, and confirm
       the manuscript is what they agreed to. The paper states where PINNeAPPle is worse than the
       alternatives; that is deliberate and both authors should be comfortable with it.
-- [~] **Affiliations and identifiers.** Printed on the title page from the repository's own
+- [x] **Affiliations and identifiers.** Printed on the title page from the repository's own
       `CITATION.cff` and `paper/paper.md`: PINNeAPPle Labs (Brazil), and University of Arizona /
-      University of Bologna. Both ORCID records were resolved through the public ORCID API and each
-      returns the right name, so the identifiers are real. What remains is the human part: confirm the
-      affiliations are still current and that Yan Barros is the corresponding author.
-- [ ] **Funding, competing interests, acknowledgements.** None are declared in the manuscript. Add any
-      that apply, or state explicitly that there are none.
+      University of Bologna, with Yan Barros as corresponding author. Both ORCID records were resolved
+      through the public ORCID API and both authors have now confirmed the affiliations are current.
+- [x] **Funding and competing interests.** Both authors confirmed there is none; the manuscript now
+      carries an unnumbered declaration before the references: "This work received no specific funding
+      from any agency. The authors declare no competing interests."
+- [x] **Affiliations and ORCIDs confirmed by both authors** as printed on the title page.
+- [ ] **Licence for the preprint.** Still to choose: CC BY 4.0 (recommended) or the arXiv default. It is
+      independent of the code's Apache-2.0 and is chosen in the submission form.
 - [~] **Software licence and preprint policy.** The repository is Apache-2.0, which permits both the
       preprint and redistribution of the code the artifacts point to. What remains is the part no
       licence can answer: whether an employer or institution restricts posting.

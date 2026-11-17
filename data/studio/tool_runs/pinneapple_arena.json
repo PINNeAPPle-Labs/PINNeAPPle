@@ -284,6 +284,28 @@
   "returned": "dict",
   "seconds": 0.3
  },
+ "pinneapple_arena.model_factory:build_model": {
+  "code_hash": "4d03ae7777445982",
+  "inputs": {
+   "cfg": {
+    "name": "ModifiedMLP",
+    "network": {
+     "hidden": [
+      32,
+      32,
+      32
+     ]
+    },
+    "type": "modified_mlp"
+   },
+   "in_dim": 2,
+   "out_dim": 1
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "ModifiedMLP",
+  "seconds": 10.69
+ },
  "pinneapple_arena.pointwise.architectures:catalog_status": {
   "code_hash": "1b572fbd0867b539",
   "inputs": {},

@@ -74,6 +74,7 @@ REASONS: dict[str, str] = {
     "pinneapple_reason.props": "physical constants and properties read by the failure modes",
     "pinneapple_presets.cases": "the preset classes, run by preset.run / preset.validate",
     "pinneapple_presets.core": "the Preset base class behind preset.run",
+    "pinneapple_presets.i18n": "the presets' English data sheet, read by the Studio and the Hub, not by a run",
     "pinneapple_presets.registry": "the catalogue preset.run chooses from (and the Hub index)",
     "pinneapple_presets.report": "writes the committed preset folders (python -m pinneapple_presets report)",
     "pinneapple_presets.surrogate": "the surrogate behind preset.run with fidelity = surrogate",

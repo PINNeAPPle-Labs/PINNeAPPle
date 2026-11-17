@@ -7361,6 +7361,20 @@
   },
   "source": "tests/test_digital_twin_library.py:205"
  },
+ "pinneapple_systems.digital_twin.library.carbon_capture:flue_molar_mass": {
+  "inputs": {
+   "co2_fraction": 0.12
+  },
+  "source": "tests/test_digital_twin_library.py:985"
+ },
+ "pinneapple_systems.digital_twin.library.carbon_capture:solvent_capacity": {
+  "inputs": {
+   "circulation_mass_flow": 660.0,
+   "mea_mass_fraction": 0.3,
+   "loading_window": 0.26
+  },
+  "source": "tests/test_digital_twin_library.py:991"
+ },
  "pinneapple_systems.digital_twin.library.chemical_plant:equilibrium_constant": {
   "inputs": {
    "temperature": 450.0,

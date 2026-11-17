@@ -167,6 +167,19 @@ _register(
              source="declared scenario inside the model's range", expect="finding"),
 )
 
+_register(
+    Scenario("carbon_capture_plant", "natural_gas_flue",
+             {"co2_fraction": 0.04, "flue_gas_flow": 520.0, "solvent_circulation": 1_810.0,
+              "steam_flow": 42.0},
+             note="a gas-fired stack: leaner gas, so the same tonnage takes more flue and less solvent",
+             source="declared scenario inside the model's range"),
+    Scenario("carbon_capture_plant", "undersized_circulation", {"solvent_circulation": 1_200.0},
+             note="the same capture target with half the circulation: the solvent saturates at its rich "
+                  "loading limit, the carbon balance reports the gap and the specific duty stays the same "
+                  "while the capture rate does not — the plant cannot deliver the target it was sized for",
+             source="declared scenario inside the model's range", expect="finding"),
+)
+
 
 def scenario_names(slug: str | None = None) -> list[str]:
     """Every registered scenario, or the ones of one twin, in name order."""
@@ -240,9 +253,14 @@ def manifest(*, include_defaults: bool = True, include_scenarios: bool = True) -
             "findings_reported": sum(1 for s in findings if not s["ok"]),
             "failing": [s["failed_checks"] for s in statuses
                         if not s["ok"] and s.get("expect") != "finding"],
+            # The worst balance among the runs that are supposed to close: a finding is allowed to
+            # leave a residual, that is the finding, so it is reported apart instead of dominating.
             "worst_fraction_of_tolerance": max(
-                (s["worst_balance"]["fraction_of_tolerance"] for s in statuses if s["worst_balance"]),
-                default=0.0),
+                (s["worst_balance"]["fraction_of_tolerance"] for s in statuses
+                 if s["worst_balance"] and s.get("expect") != "finding"), default=0.0),
+            "worst_fraction_among_findings": max(
+                (s["worst_balance"]["fraction_of_tolerance"] for s in statuses
+                 if s["worst_balance"] and s.get("expect") == "finding"), default=0.0),
         },
     }
 

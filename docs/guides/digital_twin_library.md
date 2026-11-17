@@ -1,9 +1,9 @@
-# Digital Twin Library: eleven systems, each with its own conservation laws
+# Digital Twin Library: twelve systems, each with its own conservation laws
 
 `pinneapple_systems.digital_twin.library` holds reference models of eleven engineering systems —
 an FPSO with its subsea well, a blast furnace, a chemical synthesis loop, a reusable booster, a
 lunar base, a gas pipeline network, a compression station, a green hydrogen plant, a seawater
-desalination train, an industrial refrigeration plant and a data centre. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
+desalination train, an industrial refrigeration plant, a data centre and a carbon capture island. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
 describe: cheap enough to run in a test suite, explicit about their assumptions, and the source of
 the solver data a trained surrogate would later be fitted to.
 
@@ -38,6 +38,7 @@ conservation laws **twice, by different routes**, and reports the residual:
 | `green_hydrogen_plant` | electricity, energy, water, oxygen | the power asked for against cells × voltage × current; hydrogen at its heating value plus the heat the overpotential rejects against the electricity in; the water the stoichiometry demands against the mass of the two gases it became |
 | `desalination_plant` | water, salt, energy | salt in the feed against salt in permeate plus concentrate, with the concentrate's concentration *derived* from that balance and then used to set the osmotic pressure; the pump less the energy-recovery device against the specific energy times the permeate flow |
 | `industrial_refrigeration` | energy, duty | the compressor's work as the isentropic enthalpy rise against the integral of `v dp` along the same path; the first law round the loop against the condenser's own enthalpy route |
+| `carbon_capture_plant` | carbon, energy | what the capture target demands against what the circulating solvent can carry over its loading window; the duty the stripping steam can deliver against the breakdown the stripper needs |
 | `data_center_cooling` | energy | the facility built up component by component against the heat the cooling plant must move. In a data centre every watt leaves as heat, so this is a *completeness* check and the one that fails when a PUE is wrong |
 
 A residual above the declared tolerance fails the run, and `result.ok` is `False`. `run.require()`
@@ -61,6 +62,7 @@ night is half a synodic month, a wet blast runs the raceway colder.
 | `green_hydrogen_plant` | 100 MW stack at 1.78 V and 1.5 A/cm², 2 % purge, product at 30 bar | 48 t/day of hydrogen, 54.1 kWh/kg at the fence, 61.6 % LHV efficiency, 16.8 MW of heat, 16.3 t/h of oxygen |
 | `desalination_plant` | 1 000 m³/h of 35 g/L seawater at 45 % recovery, 95 % energy recovery | 450 m³/h of permeate at 175 mg/L, 63.5 g/L brine, 65.9 bar applied, 2.83 kWh/m³ against a 1.10 kWh/m³ floor |
 | `industrial_refrigeration` | 5 MW at −8 °C, ammonia, 30 °C cooling medium | COP 3.31 against a Carnot ceiling of 5.85 (56.6 % of it), 13.2 bar condensing, 137 °C discharge, 6.4 MW rejected |
+| `carbon_capture_plant` | 240 kg/s of 12 % CO₂ flue gas, 90 % capture, 30 wt% MEA | 133 t/h captured (1.07 Mt/yr), 3.13 GJ/t, 116 MW of reboiler duty, 40 MW of energy penalty |
 | `data_center_cooling` | 20 MW of IT, 250 m³/h of air per kW, 24 °C wet bulb | 13.3 K air rise, chiller COP 8.1, PUE 1.25 at design and 1.23 annual, 215 GWh/yr |
 
 The numbers are engineering-plausible and *not* plant records: every system carries a
@@ -148,7 +150,7 @@ for entry in catalogue():
 ```
 
 The 0D/1D models here are the first rung of the Digital Twin Library issues (`#1770`, `#1772`,
-`#1774`, `#1777`, `#1779`, `#1784`, `#1801`, `#1813`, `#1814`, `#1807`, `#1819`). The registry and
+`#1774`, `#1777`, `#1779`, `#1784`, `#1801`, `#1813`, `#1814`, `#1807`, `#1819`, `#1809`). The registry and
 the scenario manifest are the discoverability half of the shared-specification issue (`#1802`); the
 typed unit algebra, the component graph with ports, the solver adapter protocol, the cross-fidelity
 consistency checks and the VeriPhysics applicability gate are not here, and that issue is not closed

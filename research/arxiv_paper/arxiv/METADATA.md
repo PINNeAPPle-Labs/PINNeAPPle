@@ -78,9 +78,13 @@ version of this file said 19 because it trusted a stale Spotlight attribute.
 
 ## Licence
 
-arXiv asks for a licence on the submission. It is independent of the software licence: choose the
-default arXiv licence or CC BY 4.0. Confirm with the co-author; the repository's own licence
-(`LICENSE` at the root) governs the code, not the manuscript.
+**Chosen: CC BY 4.0**, confirmed by both authors on 2026-11-17. It is the first option in the
+submission form's list ("CC BY: Creative Commons Attribution") and is irrevocable, so it is recorded
+here rather than decided at the form.
+
+It is independent of the software licence: the repository's `LICENSE` (Apache-2.0) governs the code
+that the artifacts point to, the preprint is separate, and the two do not conflict — a reader may
+reuse the manuscript's text and figures under CC BY, and the code under Apache-2.0.
 
 ## Endorsement
 

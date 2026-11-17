@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 import urllib.request
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -120,7 +121,7 @@ def download(what: str = "wall", dest: str | os.PathLike[str] = "data/capsule_ae
         return local
     url = f"{RESOLVE_URL}/{FILES[what]}" + (f"?revision={revision}" if revision else "")
     with urllib.request.urlopen(url, timeout=timeout) as response, open(local, "wb") as handle:
-        handle.write(response.read())
+        shutil.copyfileobj(response, handle)            # the flow-field file is 470 MB: never held in memory
     return local
 
 

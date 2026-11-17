@@ -93,3 +93,41 @@ def test_no_table_is_empty(regenerated):
         body = path.read_text()
         assert "\\toprule" in body and "\\bottomrule" in body, path.name
         assert len(body) > 80, path.name
+
+
+# --- the submission metadata, which is a hand-written artifact and can go stale in the same way -----
+
+PAPER = HERE.parent / "paper.tex"
+METADATA = HERE.parent / "arxiv" / "METADATA.md"
+
+#: Figures the metadata quotes; each must appear in both, so a corrected abstract cannot leave the
+#: submission form behind. (The abstract shipped to arXiv is the one a reader cites, so it is the
+#: hand-written text most worth guarding.)
+QUOTED_IN_BOTH = ("166", "1156", "0.94", "0.73", "28 of 36", "12.5", "3.4")
+
+
+def _abstract(path: Path) -> str:
+    body = path.read_text()
+    return body[body.index("\\begin{abstract}"):body.index("\\end{abstract}")]
+
+
+def _metadata_abstract() -> str:
+    body = METADATA.read_text()
+    start = body.index("## Abstract (plain text, for the arXiv field)")
+    start = body.index("```", start) + 3
+    return body[start:body.index("```", start)]
+
+
+def test_the_submission_abstract_quotes_the_manuscript():
+    paper, meta = _abstract(PAPER), _metadata_abstract()
+    for number in QUOTED_IN_BOTH:
+        assert number in paper, f"{number} left the manuscript's abstract"
+        assert number in meta, f"{number} is in the manuscript but not in the arXiv metadata"
+
+
+def test_the_submission_abstract_carries_no_retired_figure():
+    """These were in an earlier abstract and are wrong against the records; they must not come back."""
+    meta = _metadata_abstract()
+    for retired in ("factor of 10", "2.4 on Helmholtz", "0.92 of the term scale",
+                    "six significant digits"):
+        assert retired not in meta, retired

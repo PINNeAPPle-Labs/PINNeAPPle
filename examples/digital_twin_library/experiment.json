@@ -24,6 +24,12 @@
  "scripts": [],
  "metrics": [
   {
+   "name": "scenarios_in_the_registry",
+   "value": 11.0,
+   "unit": "scenarios",
+   "how": "4 of them declared findings"
+  },
+  {
    "name": "worst_balance_residual",
    "value": 0.04151746776868173,
    "unit": "relative",
@@ -306,6 +312,30 @@
    "min": null,
    "detail": "soft_landing, returns_to_the_pad, propellant_fits, velocity_below_the_rocket_equation, climbs_before_it_descends, dynamic_pressure_bounded",
    "kind": "physics"
+  },
+  {
+   "name": "a named scenario runs through the same surface",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pipeline_network/low_delivery_pressure: 2394 t/h",
+   "kind": "physics"
+  },
+  {
+   "name": "every expected finding is still reported",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "4/4: compression_station/single_stage, data_center_cooling/cold_climate, industrial_refrigeration/frozen_storage, reusable_booster/heavier_stage",
+   "kind": "physics"
   }
  ],
  "files": {
@@ -323,9 +353,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "85c9ea321",
-  "created": "2026-11-17T15:04:11Z",
-  "seconds": 0.989,
+  "git": "acb7bb43a",
+  "created": "2026-11-17T15:37:29Z",
+  "seconds": 2.883,
   "error": null,
   "environment": {
    "python": "3.11.16",

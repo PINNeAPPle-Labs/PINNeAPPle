@@ -1,0 +1,208 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "capsule_aeroheating",
+ "title": "How many CFD runs the cheap model buys",
+ "description": "The capsule-aeroheating corpus (1.024 panel-method runs, 64 laminar Navier-Stokes ones on the same wall) as a multi-fidelity learning curve: the cheap model, a surrogate from the design alone, a learned correction, and the correction with the cheap model as an input, at N = 4 to 64 expensive designs.",
+ "domain": "aerothermodynamics",
+ "methods": [],
+ "modules": [
+  "pinneapple_data.datasets.capsule_aeroheating",
+  "pinneapple_data.multifidelity"
+ ],
+ "params": {},
+ "scripts": [
+  "01_multifidelity.py"
+ ],
+ "metrics": [
+  {
+   "name": "heat_load_cheap_model_error",
+   "value": 0.058543214006064076,
+   "unit": "relative L2",
+   "how": "the panel method's own value against the Navier-Stokes one, all 64 expensive designs, no fit"
+  },
+  {
+   "name": "heat_load_difference_at_8",
+   "value": 0.05043717698594383,
+   "unit": "relative L2",
+   "how": "correction to the cheap model fitted on 8 expensive designs, scored on the 56 it did not see, median over 20 splits"
+  },
+  {
+   "name": "heat_load_difference_at_64",
+   "value": 0.03548028443663488,
+   "unit": "relative L2",
+   "how": "leave-one-out over the 64 expensive designs"
+  },
+  {
+   "name": "heat_load_design_only_at_64",
+   "value": 0.5485725444276603,
+   "unit": "relative L2",
+   "how": "surrogate of the target from the six inputs alone, same split as the correction"
+  },
+  {
+   "name": "heat_load_fidelity_gap",
+   "value": -0.057418380294021354,
+   "unit": "1",
+   "how": "mean of the cheap model over mean of the expensive one, minus 1: the bias"
+  },
+  {
+   "name": "stagnation_heat_flux_cheap_model_error",
+   "value": 0.1827919813092403,
+   "unit": "relative L2",
+   "how": "the panel method's own value against the Navier-Stokes one, all 64 expensive designs, no fit"
+  },
+  {
+   "name": "stagnation_heat_flux_difference_at_8",
+   "value": 0.17865595965640857,
+   "unit": "relative L2",
+   "how": "correction to the cheap model fitted on 8 expensive designs, scored on the 56 it did not see, median over 20 splits"
+  },
+  {
+   "name": "stagnation_heat_flux_difference_at_64",
+   "value": 0.14600151484279916,
+   "unit": "relative L2",
+   "how": "leave-one-out over the 64 expensive designs"
+  },
+  {
+   "name": "stagnation_heat_flux_design_only_at_64",
+   "value": 0.26846350558180687,
+   "unit": "relative L2",
+   "how": "surrogate of the target from the six inputs alone, same split as the correction"
+  },
+  {
+   "name": "stagnation_heat_flux_fidelity_gap",
+   "value": 0.03086053362301233,
+   "unit": "1",
+   "how": "mean of the cheap model over mean of the expensive one, minus 1: the bias"
+  },
+  {
+   "name": "shoulder_heat_flux_cheap_model_error",
+   "value": 0.27433971537741886,
+   "unit": "relative L2",
+   "how": "the panel method's own value against the Navier-Stokes one, all 64 expensive designs, no fit"
+  },
+  {
+   "name": "shoulder_heat_flux_difference_at_8",
+   "value": 0.164133162297113,
+   "unit": "relative L2",
+   "how": "correction to the cheap model fitted on 8 expensive designs, scored on the 56 it did not see, median over 20 splits"
+  },
+  {
+   "name": "shoulder_heat_flux_difference_at_64",
+   "value": 0.07007296283718019,
+   "unit": "relative L2",
+   "how": "leave-one-out over the 64 expensive designs"
+  },
+  {
+   "name": "shoulder_heat_flux_design_only_at_64",
+   "value": 0.2555497685004162,
+   "unit": "relative L2",
+   "how": "surrogate of the target from the six inputs alone, same split as the correction"
+  },
+  {
+   "name": "shoulder_heat_flux_fidelity_gap",
+   "value": -0.2594318589265757,
+   "unit": "1",
+   "how": "mean of the cheap model over mean of the expensive one, minus 1: the bias"
+  }
+ ],
+ "checks": [
+  {
+   "name": "heat_load: 8 expensive designs beat the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "correction 5.04% against the cheap model's 5.85% (relative L2)",
+   "kind": "baseline"
+  },
+  {
+   "name": "heat_load: the design alone is worse than the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "design-only 54.86% against the cheap model's 5.85% at N=64",
+   "kind": "baseline"
+  },
+  {
+   "name": "stagnation_heat_flux: 8 expensive designs beat the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "correction 17.87% against the cheap model's 18.28% (relative L2)",
+   "kind": "baseline"
+  },
+  {
+   "name": "stagnation_heat_flux: the design alone is worse than the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "design-only 26.85% against the cheap model's 18.28% at N=64",
+   "kind": "baseline"
+  },
+  {
+   "name": "shoulder_heat_flux: 8 expensive designs beat the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "correction 16.41% against the cheap model's 27.43% (relative L2)",
+   "kind": "baseline"
+  },
+  {
+   "name": "shoulder_heat_flux: the design alone is worse than the cheap model",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "design-only 25.55% against the cheap model's 27.43% at N=64",
+   "kind": "baseline"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/capsule_aeroheating/01_multifidelity.py",
+  "dataset": "https://huggingface.co/datasets/bijective/capsule-aeroheating"
+ },
+ "references": [
+  "Bijective Systems (2026), Capsule forebody aeroheating, Newtonian and Navier--Stokes CFD, version 4, https://huggingface.co/datasets/bijective/capsule-aeroheating"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "72836d480",
+  "created": "2026-11-17T22:30:52Z",
+  "seconds": 3.091,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

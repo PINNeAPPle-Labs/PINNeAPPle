@@ -181,7 +181,8 @@ def _write_study(path, *, fidelity_label=True, fidelities=None):
                                   for name in cap.PARAMETERS},
                       labels=labels,
                       scalars={"heat_load": "W", "stagnation_heat_flux": "W m-2"},
-                      fields=WALL_FIELDS, constants={"wall_temperature": (300.0, "K")}) as study:
+                      fields={**WALL_FIELDS, "heat_flux_cell": {"units": "W m-2", "at": "cell"}},
+                      constants={"wall_temperature": (300.0, "K")}) as study:
         for i, (member, fidelity) in enumerate(zip(members, fidelities, strict=True)):
             points = np.array([[0.0, 0.0, i], [1.0, 0.0, i], [1.0, 1.0, i], [0.0, 1.0, i]])
             values = {"diameter": 1.0 + i, "mach": 8.0, "altitude": 50.0, "nose_radius": 0.5,
@@ -191,6 +192,7 @@ def _write_study(path, *, fidelity_label=True, fidelities=None):
                 values["fidelity"] = fidelity
             study.add_run(values, points=points, cells=(types, offsets, connectivity),
                           fields={"heat_flux": np.array([1.0, 2.0, 3.0, 4.0]) * (i + 1),
+                                  "heat_flux_cell": np.array([1.5, 3.5]) * (i + 1),
                                   "pressure": np.ones(4), "arc_length": np.array([0.0, 0.1, 0.2, 0.3])})
     return path
 
@@ -221,6 +223,8 @@ def test_wall_reads_one_run_with_its_units_and_its_inputs(tmp_path):
         assert one.scalar_units["heat_load"] == "W"
         assert one.scalars["heat_load"] == pytest.approx(11.0)
         assert one.constants["wall_temperature"] == pytest.approx(300.0)
+        assert one.cell_fields["heat_flux_cell"].tolist() == [3.0, 7.0]       # Eilmer's own, on the faces
+        assert one.cell_field_units["heat_flux_cell"] == "W/(m^2)"
 
 
 def test_load_bundle_carries_the_wall_the_inputs_and_the_isothermal_wall(tmp_path):
@@ -229,8 +233,10 @@ def test_load_bundle_carries_the_wall_the_inputs_and_the_isothermal_wall(tmp_pat
     assert bundle.manifest.mesh.kind == "unstructured" and bundle.manifest.mesh.dimension == 3
     assert bundle.manifest.mesh.blocks[0].type == "triangle"
     assert bundle.array("mesh:nodes").shape == (4, 3) and bundle.array("block:triangle").shape == (2, 3)
-    assert set(bundle.manifest.fields.names()) == set(WALL_FIELDS)
+    assert set(bundle.manifest.fields.names()) == set(WALL_FIELDS) | {"heat_flux_cell"}
     assert bundle.manifest.fields.get("heat_flux").unit == "W/(m^2)"
+    assert bundle.manifest.fields.get("heat_flux_cell").location == "cell"
+    assert bundle.array("field:heat_flux_cell").shape == (2,)
     parameters = {p.name: p for p in bundle.manifest.physics.parameters}
     assert parameters["mach"].value == pytest.approx(8.0) and parameters["mach"].unit == "1"
     conditions = {(c.field, c.kind): c for c in bundle.manifest.physics.boundary_conditions}

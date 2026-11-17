@@ -156,12 +156,13 @@ except Exception:
 # The external-dataset catalogue (INT-002) and its adapters: imported lazily so that a machine without h5py can
 # still use the built-in datasets.
 __all__ = [name for name in dir() if not name.startswith("_")] + ["catalog", "pdebench", "the_well", "remote_hdf5",
-                                                                  "capsule_aeroheating"]
+                                                                  "capsule_aeroheating",
+                                                                  "capsule_aeroheating_physics"]
 
 
 def __getattr__(name: str):
     import importlib
-    if name in ("pdebench", "the_well", "remote_hdf5", "capsule_aeroheating"):
+    if name in ("pdebench", "the_well", "remote_hdf5", "capsule_aeroheating", "capsule_aeroheating_physics"):
         module = importlib.import_module(f"{__name__}.{name}")
         globals()[name] = module
         return module

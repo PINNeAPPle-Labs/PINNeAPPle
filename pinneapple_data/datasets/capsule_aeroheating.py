@@ -248,6 +248,10 @@ class Wall:
     cell_type: str
     fields: dict[str, np.ndarray] = field(default_factory=dict)      # each (n_nodes,)
     units: dict[str, str] = field(default_factory=dict)
+    #: Values on the faces themselves -- Eilmer is cell-centred, so ``heat_flux_cell`` is the solver's own output and
+    #: the nodal ``heat_flux`` is its area-weighted value at the nodes.
+    cell_fields: dict[str, np.ndarray] = field(default_factory=dict)   # each (n_cells,)
+    cell_field_units: dict[str, str] = field(default_factory=dict)
     parameters: dict[str, float] = field(default_factory=dict)       # the six inputs of the run
     parameter_units: dict[str, str] = field(default_factory=dict)
     scalars: dict[str, float] = field(default_factory=dict)          # per-run results, NaN where absent
@@ -286,12 +290,16 @@ def wall(study, row: int) -> Wall:
     names = study.names("node_fields")
     # one row of a changing mesh reads back as (n_nodes,) on some layouts and (1, n_nodes) on others
     fields = {name: np.asarray(study.get_field(name, rows=[row]), dtype=np.float64).reshape(-1) for name in names}
+    cell_names = study.names("cell_fields") if group_present(study, "cell_fields") else []
+    cell_fields = {name: np.asarray(study.get_field(name, rows=[row]), dtype=np.float64).reshape(-1)
+                   for name in cell_names}
     per_run = study.table(study.names("parameters") + study.names("scalars"), rows=[row])
     return Wall(row=row,
                 member=str(np.asarray(label["member"]).reshape(-1)[0]),
                 fidelity=str(np.asarray(label["fidelity"]).reshape(-1)[0]),
                 points=points, cells=connectivity.reshape(-1, n_per_cell), cell_type=cell_type,
                 fields=fields, units={name: _unit_of(study, name) for name in names},
+                cell_fields=cell_fields, cell_field_units={name: _unit_of(study, name) for name in cell_names},
                 parameters={name: float(per_run[name][0]) for name in study.names("parameters")},
                 parameter_units={name: _unit_of(study, name) for name in study.names("parameters")},
                 scalars={name: float(per_run[name][0]) for name in study.names("scalars")},
@@ -327,6 +335,11 @@ def load_bundle(source: str | os.PathLike[str] | Any, *, row: int | None = None,
                   for name in one.fields]
         for name in one.fields:
             store[f"field:{name}"] = one.fields[name]
+        for name, values in one.cell_fields.items():          # Eilmer's own cell-centred values
+            store[f"field:{name}"] = values
+            fields.append(Field.from_array(name, values, unit=one.cell_field_units[name], location="cell",
+                                           axes=["cell"], description=f"{one.member} ({one.fidelity}): {name}, on "
+                                                                      "the faces"))
         inputs = file_refs([path]) if path and os.path.exists(path) else []
         conditions = [BoundaryCondition(field="pressure", region="wall", kind="wall"),
                       BoundaryCondition(field="velocity", region="wall", kind="wall")]

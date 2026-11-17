@@ -556,6 +556,52 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_systems.digital_twin.library.registry:build": {
+  "code_hash": "127f4caf8aa23829",
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "LunarBase",
+  "seconds": 12.55
+ },
+ "pinneapple_systems.digital_twin.library.registry:catalogue": {
+  "code_hash": "e5717bece133d441",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.registry:compare": {
+  "code_hash": "3a326cf38006986a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.71
+ },
+ "pinneapple_systems.digital_twin.library.registry:describe": {
+  "code_hash": "b2ca1f76bc7e454d",
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.registry:run": {
+  "code_hash": "ba29018f04ad8acc",
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "TwinRun",
+  "seconds": 0.0
+ },
  "pinneapple_systems.digital_twin.library.reusable_booster:atmosphere": {
   "code_hash": "22562dd4da796f79",
   "inputs": {
@@ -566,50 +612,73 @@
   "returned": "tuple",
   "seconds": 0.0
  },
- "pinneapple_systems.digital_twin.library:build": {
-  "code_hash": "127f4caf8aa23829",
+ "pinneapple_systems.digital_twin.library.scenarios:Scenario": {
+  "code_hash": "c965227ec5e995b6",
   "inputs": {
-   "slug": "lunar_base"
+   "slug": "lunar_base",
+   "title": "six_crew",
+   "values": {
+    "crew": 6.0
+   }
   },
+  "method": "run",
   "ok": true,
-  "recorded": "2026-11-16",
-  "returned": "LunarBase",
-  "seconds": 26.82
- },
- "pinneapple_systems.digital_twin.library:catalogue": {
-  "code_hash": "e5717bece133d441",
-  "inputs": {},
-  "ok": true,
-  "recorded": "2026-11-16",
-  "returned": "list",
-  "seconds": 0.0
- },
- "pinneapple_systems.digital_twin.library:compare": {
-  "code_hash": "3a326cf38006986a",
-  "inputs": {},
-  "ok": true,
-  "recorded": "2026-11-16",
-  "returned": "str",
-  "seconds": 1.45
- },
- "pinneapple_systems.digital_twin.library:describe": {
-  "code_hash": "b2ca1f76bc7e454d",
-  "inputs": {
-   "slug": "blast_furnace"
-  },
-  "ok": true,
-  "recorded": "2026-11-16",
-  "returned": "str",
-  "seconds": 0.0
- },
- "pinneapple_systems.digital_twin.library:run": {
-  "code_hash": "ba29018f04ad8acc",
-  "inputs": {
-   "slug": "lunar_base"
-  },
-  "ok": true,
-  "recorded": "2026-11-16",
+  "recorded": "2026-11-17",
   "returned": "TwinRun",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:check": {
+  "code_hash": "054362828d7cbc64",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 1.41
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:load_scenarios": {
+  "code_hash": "e0ebcdb7d3cd69f0",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cases.json'",
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "ok": false,
+  "recorded": "2026-11-17",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:manifest": {
+  "code_hash": "28b324995adb400b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "dict",
+  "seconds": 1.31
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:run_scenario": {
+  "code_hash": "2345d2ac137729d1",
+  "inputs": {
+   "name": "pipeline_network/low_delivery_pressure"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "TwinRun",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:save_scenarios": {
+  "code_hash": "d7eeff0219d87067",
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:scenario_names": {
+  "code_hash": "a4e67373125fbf83",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
   "seconds": 0.0
  },
  "pinneapple_systems.digital_twin.monitoring.anomaly:AnomalyMonitor": {

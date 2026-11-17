@@ -33,27 +33,46 @@ RULES = ("PC201", "PC202", "PC301", "PC401", "PC403", "PC701", "PC704")
 
 
 # --------------------------------------------------------------------------- tool-independent residual
-def _crop(a: np.ndarray, m: int = 2) -> np.ndarray:
-    return np.asarray(a, float)[(slice(m, -m),) * np.ndim(a)]
+def _central(u: np.ndarray, h: float, k: int, order: int) -> np.ndarray:
+    """Central difference along axis ``k``, second order, with the edge points left as NaN.
+
+    Composing two first derivatives (``np.gradient`` twice) is *not* a second-order second
+    derivative at the edges: each one-sided stencil loses an order and the composed operator
+    converges at about h^1.5, which is what an earlier version of this file did and what made the
+    reference floor look like it converged at the wrong rate. A central difference with the edge
+    points excluded is second order everywhere it returns a value; the NaN border is then dropped by
+    the caller, so every term of an equation is evaluated on the same interior box.
+    """
+    out = np.full(np.shape(u), np.nan, dtype=float)
+    inner, plus, minus = [slice(None)] * u.ndim, [slice(None)] * u.ndim, [slice(None)] * u.ndim
+    inner[k], plus[k], minus[k] = slice(1, -1), slice(2, None), slice(None, -2)
+    if order == 1:
+        out[tuple(inner)] = (u[tuple(plus)] - u[tuple(minus)]) / (2 * h)
+    elif order == 2:
+        out[tuple(inner)] = (u[tuple(plus)] - 2 * u[tuple(inner)] + u[tuple(minus)]) / h ** 2
+    else:
+        raise ValueError(order)
+    return out
+
+
+def _rms_finite(a: np.ndarray) -> float:
+    a = np.asarray(a, float)
+    v = a[np.isfinite(a)]
+    return float(np.sqrt(np.mean(v ** 2))) if v.size else float("nan")
 
 
 def fd_residual(problem: str, field: np.ndarray, grid: corpus.Grid) -> np.ndarray:
-    """PDE residual of ``field`` by second-order finite differences on the case grid (tool-independent).
+    """PDE residual of ``field`` by second-order central differences on the case grid.
 
-    The array is cropped by two points on every axis and the derivatives use ``np.gradient`` with
-    ``edge_order=2``, so the operator is the same for a prediction and for the reference it is
-    compared against. The grid step is the case's own spacing, which is reported with each case.
+    Tool-independent: the same formula for every problem, the case's own spacing, and NaN outside
+    the region where the central stencil is defined, so a prediction and the reference it is
+    compared against are always evaluated on the same points.
     """
-    axis = [float(v[1] - v[0]) for v in grid.values]
-    u = _crop(field)
-
-    def d1(k: int) -> np.ndarray:
-        return np.gradient(u, axis[k], axis=k, edge_order=2)
-
-    def d2(k: int) -> np.ndarray:
-        return np.gradient(d1(k), axis[k], axis=k, edge_order=2)
-
-    X = tuple(_crop(m) for m in grid.mesh())
+    h = [float(v[1] - v[0]) for v in grid.values]
+    u = np.asarray(field, float)
+    d1 = lambda k: _central(u, h[k], k, 1)          # noqa: E731
+    d2 = lambda k: _central(u, h[k], k, 2)          # noqa: E731
+    X = tuple(m for m in grid.mesh())
     p = corpus.BY_NAME[problem]()
     if problem == "poisson":
         return d2(0) + d2(1) - p.source(X)
@@ -77,21 +96,12 @@ def residual_scale(problem: str, ref: np.ndarray, grid: corpus.Grid) -> float:
     divided by the magnitude of the terms that must balance, not by the reference's residual, which
     is at machine precision for a manufactured solution and would make every ratio meaningless.
     """
-    axis = [float(v[1] - v[0]) for v in grid.values]
-    u = _crop(ref)
-
-    def d1(k):
-        return np.gradient(u, axis[k], axis=k, edge_order=2)
-
-    def d2(k):
-        return np.gradient(d1(k), axis[k], axis=k, edge_order=2)
-
+    h = [float(v[1] - v[0]) for v in grid.values]
+    u = np.asarray(ref, float)
+    d1 = lambda k: _central(u, h[k], k, 1)          # noqa: E731
+    d2 = lambda k: _central(u, h[k], k, 2)          # noqa: E731
     p = corpus.BY_NAME[problem]()
-    if problem == "poisson":
-        terms = d2(0) + d2(1)
-    elif problem == "steady_heat":
-        terms = d2(0) + d2(1)
-    elif problem == "heat2d":
+    if problem in ("poisson", "steady_heat", "heat2d"):
         terms = d2(0) + d2(1)
     elif problem == "helmholtz":
         terms = d2(0) + d2(1) + p.k ** 2 * u
@@ -101,7 +111,7 @@ def residual_scale(problem: str, ref: np.ndarray, grid: corpus.Grid) -> float:
         terms = p.d * d2(0) + 5.0 * u - 5.0 * u ** 3
     else:
         raise KeyError(problem)
-    return float(np.sqrt(np.nanmean(np.asarray(terms, float) ** 2)))
+    return _rms_finite(terms)
 
 
 def residual_stat(problem: str, field: np.ndarray, ref: np.ndarray, grid: corpus.Grid) -> dict[str, float]:
@@ -109,8 +119,8 @@ def residual_stat(problem: str, field: np.ndarray, ref: np.ndarray, grid: corpus
     r = np.asarray(fd_residual(problem, field, grid), float)
     r0 = np.asarray(fd_residual(problem, ref, grid), float)
     scale = residual_scale(problem, ref, grid)
-    rms = float(np.sqrt(np.nanmean(r ** 2))) if np.isfinite(r).any() else float("nan")
-    floor = float(np.sqrt(np.nanmean(r0 ** 2))) if np.isfinite(r0).any() else float("nan")
+    rms = _rms_finite(r)
+    floor = _rms_finite(r0)
     return {
         "residual_rms": rms,
         "reference_residual_rms": floor,

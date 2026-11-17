@@ -2,7 +2,7 @@
  "cases": [
   {
    "case_id": "poisson/valid_exact",
-   "check_seconds": 0.040231249993667006,
+   "check_seconds": 0.03237845900002867,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -116,18 +116,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.0035149060616585736,
-    "residual_rms": 0.03575385332986993,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 8.225076221337314e-05,
+    "residual_rms": 0.0008199148691892428,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "poisson/valid_0.0001",
-   "check_seconds": 0.19442995788995177,
+   "check_seconds": 0.018042000000605185,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -241,18 +241,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.0035742975060479854,
-    "residual_rms": 0.036357986969431884,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 0.000654840698487733,
+    "residual_rms": 0.006527764742745025,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0001
   },
   {
    "case_id": "poisson/valid_0.001",
-   "check_seconds": 0.024881916935555637,
+   "check_seconds": 0.017172542000480462,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -366,18 +366,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.0073795913550973044,
-    "residual_rms": 0.07506568378104056,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 0.00649706706437639,
+    "residual_rms": 0.06476586658714006,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.001
   },
   {
    "case_id": "poisson/valid_0.01",
-   "check_seconds": 0.27928124996833503,
+   "check_seconds": 0.01801704200079257,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -491,18 +491,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.06498257427354548,
-    "residual_rms": 0.6610069768059166,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 0.06496551616280517,
+    "residual_rms": 0.6476072835441457,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.01
   },
   {
    "case_id": "poisson/valid_0.03",
-   "check_seconds": 0.1309646249283105,
+   "check_seconds": 0.01861083299991151,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -616,18 +616,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.19469406286780658,
-    "residual_rms": 1.980440684860672,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 0.1948964096416203,
+    "residual_rms": 1.9428204665412887,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.03
   },
   {
    "case_id": "poisson/valid_0.1",
-   "check_seconds": 0.3637780410936102,
+   "check_seconds": 0.019525249999787775,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -742,18 +742,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.6488839603689397,
-    "residual_rms": 6.600489896503466,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 0.6496546461593038,
+    "residual_rms": 6.476067697002861,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.1
   },
   {
    "case_id": "poisson/bc_offset",
-   "check_seconds": 0.017933916999027133,
+   "check_seconds": 0.021260917000290647,
    "defect": "bc_offset",
    "expressible": false,
    "family": "invalid",
@@ -868,18 +868,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.9890565476494371,
-    "residual_rms": 10.0607476044236,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 2.176482582558037,
+    "residual_rms": 21.696217566243924,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "poisson/wrong_coefficient",
-   "check_seconds": 0.30378966592252254,
+   "check_seconds": 0.021762458000011975,
    "defect": "wrong_coefficient",
    "expressible": false,
    "family": "invalid",
@@ -994,18 +994,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.7194153347778812,
-    "residual_rms": 7.317939629592917,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 0.7198223664308697,
+    "residual_rms": 7.175533034947344,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "poisson/over_smoothed",
-   "check_seconds": 0.1806422920199111,
+   "check_seconds": 0.020321541000157595,
    "defect": "over_smoothed",
    "expressible": false,
    "family": "invalid",
@@ -1119,18 +1119,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.4395871832223408,
-    "residual_rms": 4.471509451153271,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 2.7886555119479564,
+    "residual_rms": 27.79864961447025,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "poisson/unit_scale",
-   "check_seconds": 0.0158393329475075,
+   "check_seconds": 0.01963987500039366,
    "defect": "unit_scale",
    "expressible": false,
    "family": "invalid",
@@ -1248,18 +1248,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 998.9997718644456,
-    "residual_rms": 10161.89072858484,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 998.9999177492376,
+    "residual_rms": 9958.508162593707,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "poisson/nonfinite",
-   "check_seconds": 0.15480200003366917,
+   "check_seconds": 0.021257665999655728,
    "defect": "nonfinite",
    "expressible": false,
    "family": "invalid",
@@ -1376,18 +1376,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.0035176650382199646,
-    "residual_rms": 0.035781917819101255,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 8.219027680457095e-05,
+    "residual_rms": 0.0008193119217549412,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "poisson/zero_field",
-   "check_seconds": 0.01937883289065212,
+   "check_seconds": 0.020377041000756435,
    "defect": "zero_field",
    "expressible": false,
    "family": "invalid",
@@ -1503,18 +1503,18 @@
    ],
    "problem": "poisson",
    "residual": {
-    "reference_residual_relative": 0.0035149060616585736,
-    "reference_residual_rms": 0.03575385332986993,
+    "reference_residual_relative": 8.225076221337314e-05,
+    "reference_residual_rms": 0.0008199148691892428,
     "residual_grid_step": 0.01,
-    "residual_relative": 1.0002342915478433,
-    "residual_rms": 10.174448343189257,
-    "residual_scale": 10.172065114308863
+    "residual_relative": 1.0000822507622134,
+    "residual_rms": 9.969297374837735,
+    "residual_scale": 9.968477459968547
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "steady_heat/valid_exact",
-   "check_seconds": 0.05437550006899983,
+   "check_seconds": 0.012598959000570176,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -1606,18 +1606,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 6.549431194956103e-14,
-    "residual_rms": 6.54943119495607e-14,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 1.915113806619928e-13,
+    "residual_rms": 1.9151138066199298e-13,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "steady_heat/valid_0.0001",
-   "check_seconds": 0.012795125017873943,
+   "check_seconds": 0.012920332999783568,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -1709,18 +1709,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.0012472007176957977,
-    "residual_rms": 0.0012472007176957914,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 0.0012055831927541573,
+    "residual_rms": 0.0012055831927541584,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0001
   },
   {
    "case_id": "steady_heat/valid_0.001",
-   "check_seconds": 0.19631425000261515,
+   "check_seconds": 0.014643624999735039,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -1812,18 +1812,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.012472007176960946,
-    "residual_rms": 0.012472007176960884,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 0.012055831927518378,
+    "residual_rms": 0.012055831927518388,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.001
   },
   {
    "case_id": "steady_heat/valid_0.01",
-   "check_seconds": 0.01117970806080848,
+   "check_seconds": 0.01283320799939247,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -1917,18 +1917,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.1247200717696075,
-    "residual_rms": 0.12472007176960688,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 0.12055831927518457,
+    "residual_rms": 0.12055831927518468,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.01
   },
   {
    "case_id": "steady_heat/valid_0.03",
-   "check_seconds": 0.26380800001788884,
+   "check_seconds": 0.014156042000649904,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -2022,18 +2022,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.37416021530882165,
-    "residual_rms": 0.37416021530881977,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 0.36167495782555314,
+    "residual_rms": 0.3616749578255535,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.03
   },
   {
    "case_id": "steady_heat/valid_0.1",
-   "check_seconds": 0.08132795803248882,
+   "check_seconds": 0.014136583000436076,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -2128,18 +2128,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 1.247200717696073,
-    "residual_rms": 1.2472007176960669,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 1.2055831927518426,
+    "residual_rms": 1.2055831927518437,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.1
   },
   {
    "case_id": "steady_heat/bc_offset",
-   "check_seconds": 0.015281333005987108,
+   "check_seconds": 0.014042041999346111,
    "defect": "bc_offset",
    "expressible": true,
    "family": "invalid",
@@ -2234,18 +2234,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.8536030494096382,
-    "residual_rms": 0.8536030494096339,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 2.2014567416885575,
+    "residual_rms": 2.2014567416885593,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "steady_heat/wrong_coefficient",
-   "check_seconds": 0.01314979197923094,
+   "check_seconds": 0.013579750000644708,
    "defect": "wrong_coefficient",
    "expressible": true,
    "family": "invalid",
@@ -2342,18 +2342,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.24999999999999664,
-    "residual_rms": 0.2499999999999954,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 0.24999999999999967,
+    "residual_rms": 0.2499999999999999,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "steady_heat/over_smoothed",
-   "check_seconds": 0.019635582924820483,
+   "check_seconds": 0.013691166000171506,
    "defect": "over_smoothed",
    "expressible": true,
    "family": "invalid",
@@ -2447,18 +2447,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 0.7235832801893046,
-    "residual_rms": 0.723583280189301,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 4.2376601676426295,
+    "residual_rms": 4.237660167642633,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "steady_heat/unit_scale",
-   "check_seconds": 0.17656375002115965,
+   "check_seconds": 0.014051541999833717,
    "defect": "unit_scale",
    "expressible": true,
    "family": "invalid",
@@ -2556,18 +2556,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 999.0000000000011,
-    "residual_rms": 998.9999999999961,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 999.0,
+    "residual_rms": 999.0000000000009,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "steady_heat/nonfinite",
-   "check_seconds": 0.009461999987252057,
+   "check_seconds": 0.011744750000616477,
    "defect": "nonfinite",
    "expressible": true,
    "family": "invalid",
@@ -2664,18 +2664,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 6.541802184689542e-14,
-    "residual_rms": 6.541802184689509e-14,
-    "residual_scale": 0.999999999999995
+    "residual_relative": 1.9173649622202511e-13,
+    "residual_rms": 1.917364962220253e-13,
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "steady_heat/zero_field",
-   "check_seconds": 0.04083866602741182,
+   "check_seconds": 0.012706792000244604,
    "defect": "zero_field",
    "expressible": true,
    "family": "invalid",
@@ -2772,18 +2772,18 @@
    ],
    "problem": "steady_heat",
    "residual": {
-    "reference_residual_relative": 6.549431194956103e-14,
-    "reference_residual_rms": 6.54943119495607e-14,
+    "reference_residual_relative": 1.915113806619928e-13,
+    "reference_residual_rms": 1.9151138066199298e-13,
     "residual_grid_step": 0.01,
-    "residual_relative": 1.000000000000005,
+    "residual_relative": 0.9999999999999991,
     "residual_rms": 1.0,
-    "residual_scale": 0.999999999999995
+    "residual_scale": 1.0000000000000009
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "heat2d/valid_exact",
-   "check_seconds": 26.986322709009983,
+   "check_seconds": 4.408709999999701,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -2905,18 +2905,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.004076516099963244,
-    "residual_rms": 0.019162452679066556,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.0016192665731573266,
+    "residual_rms": 0.008256286044184121,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "heat2d/valid_0.0001",
-   "check_seconds": 1.758911499986425,
+   "check_seconds": 0.18901245899996866,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -3038,18 +3038,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.004156802881779403,
-    "residual_rms": 0.019539856231408855,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.0017645102317633366,
+    "residual_rms": 0.008996851687564776,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0001
   },
   {
    "case_id": "heat2d/valid_0.001",
-   "check_seconds": 1.4677884579868987,
+   "check_seconds": 0.1637758329998178,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -3171,18 +3171,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.00909508944344106,
-    "residual_rms": 0.0427532277067147,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.0071950841927102575,
+    "residual_rms": 0.03668616038381703,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.001
   },
   {
    "case_id": "heat2d/valid_0.01",
-   "check_seconds": 1.072774791973643,
+   "check_seconds": 0.16423591600050713,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -3304,18 +3304,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.08140568057946847,
-    "residual_rms": 0.38266315247113514,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.07012377096790612,
+    "residual_rms": 0.35754576868649746,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.01
   },
   {
    "case_id": "heat2d/valid_0.03",
-   "check_seconds": 1.039669582969509,
+   "check_seconds": 0.17821516599997267,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -3439,18 +3439,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.24394470604493954,
-    "residual_rms": 1.146709290792965,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.21032145182780246,
+    "residual_rms": 1.0723830753404393,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.03
   },
   {
    "case_id": "heat2d/valid_0.1",
-   "check_seconds": 0.9579685829812661,
+   "check_seconds": 0.1799062079999203,
    "defect": "none",
    "expressible": true,
    "family": "valid",
@@ -3575,18 +3575,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.8130456953288864,
-    "residual_rms": 3.8218786043305526,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.7010525979387536,
+    "residual_rms": 3.5745138425940866,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.1
   },
   {
    "case_id": "heat2d/bc_offset",
-   "check_seconds": 0.8807767500402406,
+   "check_seconds": 0.14964687500014406,
    "defect": "bc_offset",
    "expressible": true,
    "family": "invalid",
@@ -3712,18 +3712,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 2.1433826558169655,
-    "residual_rms": 10.075384889463562,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 4.255224498656275,
+    "residual_rms": 21.696458894117335,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "heat2d/wrong_coefficient",
-   "check_seconds": 1.1250316249206662,
+   "check_seconds": 0.12818629100002,
    "defect": "wrong_coefficient",
    "expressible": true,
    "family": "invalid",
@@ -3850,18 +3850,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.4417067135740691,
-    "residual_rms": 2.076327871479625,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.4460346327361488,
+    "residual_rms": 2.2742330228566128,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "heat2d/over_smoothed",
-   "check_seconds": 1.3512857919558883,
+   "check_seconds": 0.17852920900077152,
    "defect": "over_smoothed",
    "expressible": true,
    "family": "invalid",
@@ -3985,18 +3985,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.4520871305729113,
-    "residual_rms": 2.1251230300541453,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 2.666442436337158,
+    "residual_rms": 13.595606702252251,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "heat2d/unit_scale",
-   "check_seconds": 0.9791385839926079,
+   "check_seconds": 0.2027706250000847,
    "defect": "unit_scale",
    "expressible": true,
    "family": "invalid",
@@ -4124,18 +4124,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 4.0765160999633085,
-    "residual_rms": 19.16245267906686,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 1.6192665731572897,
+    "residual_rms": 8.256286044183934,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "heat2d/nonfinite",
-   "check_seconds": 0.8805460830917582,
+   "check_seconds": 0.16242000000056578,
    "defect": "nonfinite",
    "expressible": true,
    "family": "invalid",
@@ -4262,18 +4262,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
-    "residual_relative": 0.004076694858242684,
-    "residual_rms": 0.019163292966946396,
-    "residual_scale": 4.700693486587563
+    "residual_relative": 0.0016192330824693283,
+    "residual_rms": 0.00825611528249206,
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "heat2d/zero_field",
-   "check_seconds": 0.8748157080262899,
+   "check_seconds": 0.15558083299947612,
    "defect": "zero_field",
    "expressible": true,
    "family": "invalid",
@@ -4400,18 +4400,18 @@
    ],
    "problem": "heat2d",
    "residual": {
-    "reference_residual_relative": 0.004076516099963244,
-    "reference_residual_rms": 0.019162452679066556,
+    "reference_residual_relative": 0.0016192665731573266,
+    "reference_residual_rms": 0.008256286044184121,
     "residual_grid_step": 0.005,
     "residual_relative": 0.0,
     "residual_rms": 0.0,
-    "residual_scale": 4.700693486587563
+    "residual_scale": 5.098781251369627
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "helmholtz/valid_exact",
-   "check_seconds": 0.2335518749896437,
+   "check_seconds": 0.016557375000047614,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -4513,18 +4513,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.037198599116379565,
-    "residual_rms": 3.146345155233763,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.005017895945001261,
+    "residual_rms": 0.4205669712286913,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "helmholtz/valid_0.0001",
-   "check_seconds": 0.11543208302464336,
+   "check_seconds": 0.016074250000201573,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -4626,18 +4626,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.037191860850287445,
-    "residual_rms": 3.1457752168119613,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.005018239394131697,
+    "residual_rms": 0.4205957568715467,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0001
   },
   {
    "case_id": "helmholtz/valid_0.001",
-   "check_seconds": 0.1968924580141902,
+   "check_seconds": 0.016635666999718524,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -4739,18 +4739,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.037135383088352916,
-    "residual_rms": 3.1409981946427874,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.005052125286489299,
+    "residual_rms": 0.42343584906804094,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.001
   },
   {
    "case_id": "helmholtz/valid_0.01",
-   "check_seconds": 0.21011699992232025,
+   "check_seconds": 0.01893037500030914,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -4852,18 +4852,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.036987803245424916,
-    "residual_rms": 3.1285155438216115,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.0077232311416466064,
+    "residual_rms": 0.64731033982025,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.01
   },
   {
    "case_id": "helmholtz/valid_0.03",
-   "check_seconds": 0.1744137080386281,
+   "check_seconds": 0.016990416000226105,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -4965,18 +4965,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.03931717062333304,
-    "residual_rms": 3.3255389247643,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.018313941566107942,
+    "residual_rms": 1.534953897039273,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.03
   },
   {
    "case_id": "helmholtz/valid_0.1",
-   "check_seconds": 0.015436416026204824,
+   "check_seconds": 0.018111209000380768,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -5080,18 +5080,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.06605024054254653,
-    "residual_rms": 5.586684963132347,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.05892436877013468,
+    "residual_rms": 4.938652291087275,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.1
   },
   {
    "case_id": "helmholtz/bc_offset",
-   "check_seconds": 0.2659871249925345,
+   "check_seconds": 0.015636333000657032,
    "defect": "bc_offset",
    "expressible": false,
    "family": "invalid",
@@ -5195,18 +5195,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.07025971558725343,
-    "residual_rms": 5.942732280171205,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.12944129111635705,
+    "residual_rms": 10.848916030426754,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "helmholtz/wrong_coefficient",
-   "check_seconds": 0.28858079202473164,
+   "check_seconds": 0.01767900000049849,
    "defect": "wrong_coefficient",
    "expressible": false,
    "family": "invalid",
@@ -5312,18 +5312,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 1.0564289114177354,
-    "residual_rms": 89.35524633303919,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 1.046301257795994,
+    "residual_rms": 87.69407652272884,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "helmholtz/over_smoothed",
-   "check_seconds": 0.17592708300799131,
+   "check_seconds": 0.014954000000216183,
    "defect": "over_smoothed",
    "expressible": false,
    "family": "invalid",
@@ -5429,18 +5429,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.16554943241062678,
-    "residual_rms": 14.002561036969775,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.4674295668079989,
+    "residual_rms": 39.17686602708736,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "helmholtz/unit_scale",
-   "check_seconds": 0.2094760419568047,
+   "check_seconds": 0.0157987080001476,
    "defect": "unit_scale",
    "expressible": false,
    "family": "invalid",
@@ -5547,18 +5547,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 998.9855020479463,
-    "residual_rms": 84496.54742867204,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 998.994982104055,
+    "residual_rms": 83729.1762326605,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "helmholtz/nonfinite",
-   "check_seconds": 0.01507116702850908,
+   "check_seconds": 0.016660291000334837,
    "defect": "nonfinite",
    "expressible": false,
    "family": "invalid",
@@ -5664,18 +5664,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 0.03722625329839721,
-    "residual_rms": 3.1486842111036077,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 0.005021491724388957,
+    "residual_rms": 0.42086834576153637,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "helmholtz/zero_field",
-   "check_seconds": 0.01208454102743417,
+   "check_seconds": 0.013489957999809121,
    "defect": "zero_field",
    "expressible": false,
    "family": "invalid",
@@ -5781,18 +5781,18 @@
    ],
    "problem": "helmholtz",
    "residual": {
-    "reference_residual_relative": 0.037198599116379565,
-    "reference_residual_rms": 3.146345155233763,
+    "reference_residual_relative": 0.005017895945001261,
+    "reference_residual_rms": 0.4205669712286913,
     "residual_grid_step": 0.020000000000000018,
-    "residual_relative": 1.0150767530604958,
-    "residual_rms": 85.85758335119668,
-    "residual_scale": 84.5823560556704
+    "residual_relative": 1.0050178959450016,
+    "residual_rms": 84.23397718107027,
+    "residual_scale": 83.81341020984156
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "burgers/valid_exact",
-   "check_seconds": 0.2851652910467237,
+   "check_seconds": 0.014789832999667851,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -5884,18 +5884,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.917977868497618,
-    "residual_rms": 1.952190735340134,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.7257752702846596,
+    "residual_rms": 0.866082176636311,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "burgers/valid_0.0001",
-   "check_seconds": 0.04696487495675683,
+   "check_seconds": 0.01555945900054212,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -5987,18 +5987,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.9179880585596525,
-    "residual_rms": 1.9522124057369692,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.7258001552658138,
+    "residual_rms": 0.8661118723830883,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0001
   },
   {
    "case_id": "burgers/valid_0.001",
-   "check_seconds": 0.270783125073649,
+   "check_seconds": 0.02037412499976199,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -6090,18 +6090,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.9180803916767467,
-    "residual_rms": 1.9524087632548812,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.726026598161259,
+    "residual_rms": 0.8663820912287844,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.001
   },
   {
    "case_id": "burgers/valid_0.01",
-   "check_seconds": 0.027645374997518957,
+   "check_seconds": 0.016072874999736086,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -6193,18 +6193,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.9190655244136147,
-    "residual_rms": 1.954503766923261,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.7285363981179663,
+    "residual_rms": 0.8693770858206699,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.01
   },
   {
    "case_id": "burgers/valid_0.03",
-   "check_seconds": 0.04248820908833295,
+   "check_seconds": 0.015393000000585744,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -6296,18 +6296,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.9216602036899838,
-    "residual_rms": 1.9600216655767402,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.7357093895361762,
+    "residual_rms": 0.8779367602472181,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.03
   },
   {
    "case_id": "burgers/valid_0.1",
-   "check_seconds": 0.03853291703853756,
+   "check_seconds": 0.018761708999591065,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -6401,18 +6401,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.9352508790868542,
-    "residual_rms": 1.988923877173854,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.777821031030254,
+    "residual_rms": 0.9281894260794585,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.1
   },
   {
    "case_id": "burgers/bc_offset",
-   "check_seconds": 0.2727762919384986,
+   "check_seconds": 0.02459212500070862,
    "defect": "bc_offset",
    "expressible": false,
    "family": "invalid",
@@ -6507,18 +6507,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.9180457631458131,
-    "residual_rms": 1.9523351215042608,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.7261938041919339,
+    "residual_rms": 0.8665816215364742,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "burgers/wrong_coefficient",
-   "check_seconds": 0.017397499992512167,
+   "check_seconds": 0.024098957999740378,
    "defect": "wrong_coefficient",
    "expressible": false,
    "family": "invalid",
@@ -6614,18 +6614,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.506402566356788,
-    "residual_rms": 1.0769261790724252,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.8590891210125434,
+    "residual_rms": 1.0251682666995459,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "burgers/over_smoothed",
-   "check_seconds": 0.09752275003120303,
+   "check_seconds": 0.01906158299971139,
    "defect": "over_smoothed",
    "expressible": false,
    "family": "invalid",
@@ -6721,18 +6721,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.587450264340743,
-    "residual_rms": 1.2492838911203956,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.9984489237484843,
+    "residual_rms": 1.1914691124721104,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "burgers/unit_scale",
-   "check_seconds": 0.1193447089754045,
+   "check_seconds": 0.022524750000229687,
    "defect": "unit_scale",
    "expressible": false,
    "family": "invalid",
@@ -6830,18 +6830,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 1525468.601185545,
-    "residual_rms": 3244093.101242802,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 2687719.616599139,
+    "residual_rms": 3207309.6880516503,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "burgers/nonfinite",
-   "check_seconds": 0.01513045805040747,
+   "check_seconds": 0.019048750000365544,
    "defect": "nonfinite",
    "expressible": false,
    "family": "invalid",
@@ -6937,18 +6937,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
-    "residual_relative": 0.917977868497618,
-    "residual_rms": 1.952190735340134,
-    "residual_scale": 2.1266206978770965
+    "residual_relative": 0.7255010774574909,
+    "residual_rms": 0.8657549768400448,
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "burgers/zero_field",
-   "check_seconds": 0.15681300009600818,
+   "check_seconds": 0.01678616699973645,
    "defect": "zero_field",
    "expressible": false,
    "family": "invalid",
@@ -7045,18 +7045,18 @@
    ],
    "problem": "burgers",
    "residual": {
-    "reference_residual_relative": 0.917977868497618,
-    "reference_residual_rms": 1.952190735340134,
+    "reference_residual_relative": 0.7257752702846596,
+    "reference_residual_rms": 0.866082176636311,
     "residual_grid_step": 0.007843137254901933,
     "residual_relative": 0.0,
     "residual_rms": 0.0,
-    "residual_scale": 2.1266206978770965
+    "residual_scale": 1.1933200428510344
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "allen_cahn/valid_exact",
-   "check_seconds": 0.36731141596101224,
+   "check_seconds": 0.017162458999337105,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -7148,18 +7148,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.003709241855878813,
-    "residual_rms": 0.0035577908339157623,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.0028353302299293174,
+    "residual_rms": 0.0026630066485275918,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "allen_cahn/valid_0.0001",
-   "check_seconds": 0.024790583993308246,
+   "check_seconds": 0.016789375000371365,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -7251,18 +7251,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.003730221413118646,
-    "residual_rms": 0.00357791378069239,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.002863053417111796,
+    "residual_rms": 0.0026890448965616333,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0001
   },
   {
    "case_id": "allen_cahn/valid_0.001",
-   "check_seconds": 0.21988662506919354,
+   "check_seconds": 0.01624774999982037,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -7354,18 +7354,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.005419059894557627,
-    "residual_rms": 0.0051977957680868865,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.004882305048986943,
+    "residual_rms": 0.004585571962076594,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.001
   },
   {
    "case_id": "allen_cahn/valid_0.01",
-   "check_seconds": 0.1497984160669148,
+   "check_seconds": 0.014173541999298322,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -7457,18 +7457,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.03968924877640374,
-    "residual_rms": 0.03806870810483625,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.039856165546594026,
+    "residual_rms": 0.03743381730813139,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.01
   },
   {
    "case_id": "allen_cahn/valid_0.03",
-   "check_seconds": 0.20245920808520168,
+   "check_seconds": 0.008593791999373934,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -7560,18 +7560,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.11882050712035604,
-    "residual_rms": 0.11396898006098549,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.11951077543519227,
+    "residual_rms": 0.11224723885603229,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.03
   },
   {
    "case_id": "allen_cahn/valid_0.1",
-   "check_seconds": 0.044166959007270634,
+   "check_seconds": 0.00865700000031211,
    "defect": "none",
    "expressible": false,
    "family": "valid",
@@ -7665,18 +7665,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.4040196337957845,
-    "residual_rms": 0.38752322056391886,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.40623120571921045,
+    "residual_rms": 0.3815415891420188,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.1
   },
   {
    "case_id": "allen_cahn/bc_offset",
-   "check_seconds": 0.02255679201334715,
+   "check_seconds": 0.005878750000192667,
    "defect": "bc_offset",
    "expressible": false,
    "family": "invalid",
@@ -7771,18 +7771,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.11406078701768996,
-    "residual_rms": 0.10940360276523678,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.12690196233691672,
+    "residual_rms": 0.11918920972490457,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "allen_cahn/wrong_coefficient",
-   "check_seconds": 0.023143291007727385,
+   "check_seconds": 0.005364333000215993,
    "defect": "wrong_coefficient",
    "expressible": false,
    "family": "invalid",
@@ -7876,18 +7876,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.02184641904884457,
-    "residual_rms": 0.02095441399235664,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.02360391901396962,
+    "residual_rms": 0.02216933766726528,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "allen_cahn/over_smoothed",
-   "check_seconds": 0.034106750041246414,
+   "check_seconds": 0.005641749999995227,
    "defect": "over_smoothed",
    "expressible": false,
    "family": "invalid",
@@ -7981,18 +7981,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.06829500185525426,
-    "residual_rms": 0.06550646764049191,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.08124500608890212,
+    "residual_rms": 0.07630715783670977,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "allen_cahn/unit_scale",
-   "check_seconds": 0.15336524997837842,
+   "check_seconds": 0.005731416000344325,
    "defect": "unit_scale",
    "expressible": false,
    "family": "invalid",
@@ -8091,18 +8091,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 3232722805.5472693,
-    "residual_rms": 3100728400.316609,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 3321408293.832732,
+    "residual_rms": 3119542223.1899066,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "allen_cahn/nonfinite",
-   "check_seconds": 0.034230749937705696,
+   "check_seconds": 0.006527249999635387,
    "defect": "nonfinite",
    "expressible": false,
    "family": "invalid",
@@ -8198,18 +8198,18 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
-    "residual_relative": 0.003709241855878813,
-    "residual_rms": 0.0035577908339157623,
-    "residual_scale": 0.9591692782925398
+    "residual_relative": 0.002823352693590766,
+    "residual_rms": 0.0026517570739398237,
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0
   },
   {
    "case_id": "allen_cahn/zero_field",
-   "check_seconds": 0.018413707963190973,
+   "check_seconds": 0.006038790999809862,
    "defect": "zero_field",
    "expressible": false,
    "family": "invalid",
@@ -8307,17 +8307,17 @@
    ],
    "problem": "allen_cahn",
    "residual": {
-    "reference_residual_relative": 0.003709241855878813,
-    "reference_residual_rms": 0.0035577908339157623,
+    "reference_residual_relative": 0.0028353302299293174,
+    "reference_residual_rms": 0.0026630066485275918,
     "residual_grid_step": 0.003913894324853229,
     "residual_relative": 0.0,
     "residual_rms": 0.0,
-    "residual_scale": 0.9591692782925398
+    "residual_scale": 0.9392227474659904
    },
    "target_rel_l2": 0.0
   }
  ],
- "elapsed_s": 442.55620374996215,
+ "elapsed_s": 47.546473124999466,
  "environment": {
   "numpy": "2.4.6",
   "pinneapple": null,

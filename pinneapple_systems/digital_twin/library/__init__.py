@@ -4,8 +4,8 @@ What this package is
 --------------------
 Each module here is a *reference model* of a real system written to be read, run and checked
 in seconds: FPSO and subsea production, a blast furnace, a chemical plant, a reusable
-booster, a lunar base, a gas pipeline network, a compression station, a green hydrogen plant and a
-desalination train. They share :class:`~.base.ReferenceModel`, so every one of them takes
+booster, a lunar base, a gas pipeline network, a compression station, a green hydrogen plant, a
+desalination train, an industrial refrigeration plant and a data centre. They share :class:`~.base.ReferenceModel`, so every one of them takes
 SI parameters with declared ranges, returns a machine-readable :class:`~.base.TwinRun` with
 its conservation balances and its invariants, and states the limits of its own physics.
 
@@ -22,8 +22,9 @@ Use
 ---
 >>> from pinneapple_systems.digital_twin.library import catalogue, run, describe
 >>> [entry.slug for entry in catalogue()]
-['blast_furnace', 'chemical_plant', 'compression_station', 'desalination_plant', 'fpso_subsea',
- 'green_hydrogen_plant', 'lunar_base', 'pipeline_network', 'reusable_booster']
+['blast_furnace', 'chemical_plant', 'compression_station', 'data_center_cooling',
+ 'desalination_plant', 'fpso_subsea', 'green_hydrogen_plant', 'industrial_refrigeration',
+ 'lunar_base', 'pipeline_network', 'reusable_booster']
 >>> result = run("fpso_subsea")               # the declared default scenario
 >>> result.ok
 True
@@ -51,11 +52,13 @@ from .base import (
 from .blast_furnace import BlastFurnace
 from .chemical_plant import ChemicalPlant
 from .compression_station import CompressionStation
+from .data_center import DataCentre
 from .desalination import DesalinationPlant
 from .fpso import FPSOSubsea
 from .green_hydrogen import GreenHydrogenPlant
 from .lunar_base import LunarBase
 from .pipeline_network import PipelineNetwork
+from .refrigeration import RefrigerationPlant
 from .reusable_booster import ReusableBooster
 
 __all__ = [
@@ -67,6 +70,7 @@ __all__ = [
     # systems
     "FPSOSubsea", "BlastFurnace", "ChemicalPlant", "ReusableBooster", "LunarBase",
     "PipelineNetwork", "CompressionStation", "GreenHydrogenPlant", "DesalinationPlant",
+    "RefrigerationPlant", "DataCentre",
 ]
 
 #: Every system in the library, by slug.
@@ -80,6 +84,8 @@ TWINS: dict[str, type[ReferenceModel]] = {
     CompressionStation.slug: CompressionStation,
     GreenHydrogenPlant.slug: GreenHydrogenPlant,
     DesalinationPlant.slug: DesalinationPlant,
+    RefrigerationPlant.slug: RefrigerationPlant,
+    DataCentre.slug: DataCentre,
 }
 
 
@@ -121,6 +127,8 @@ _LADDER = {
     "compression_station": ("0D", "reference model; a vendor map with speed lines and surge margin is the next rung"),
     "green_hydrogen_plant": ("0D", "reference model; a polarisation curve and a stack thermal model are the next rung"),
     "desalination_plant": ("0D", "reference model; a membrane transport model with fouling is the next rung"),
+    "industrial_refrigeration": ("0D", "reference model; a real property database and a compressor map are the next rung"),
+    "data_center_cooling": ("0D", "reference model; the hall's air distribution needs CFD, which is the next rung"),
 }
 
 

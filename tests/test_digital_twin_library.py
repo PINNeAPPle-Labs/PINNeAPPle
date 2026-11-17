@@ -1,4 +1,4 @@
-"""Tests of the Digital Twin Library: nine reference models, each checked against its own physics.
+"""Tests of the Digital Twin Library: eleven reference models, each checked against its own physics.
 
 The tests are of two kinds, and they are labelled in their names:
 
@@ -41,6 +41,7 @@ from pinneapple_systems.digital_twin.library.compression_station import (
     stage_discharge_temperature,
     stage_work,
 )
+from pinneapple_systems.digital_twin.library.data_center import DataCentre
 from pinneapple_systems.digital_twin.library.desalination import (
     DesalinationPlant,
     minimum_specific_energy,
@@ -72,13 +73,21 @@ from pinneapple_systems.digital_twin.library.pipeline_network import (
     linepack_of_segment,
     segment_pressure_square_drop,
 )
+from pinneapple_systems.digital_twin.library.refrigeration import (
+    RefrigerationPlant,
+    carnot_cop,
+    latent_heat,
+    saturation_pressure,
+    saturation_temperature,
+)
 from pinneapple_systems.digital_twin.library.reusable_booster import (
     ReusableBooster,
     atmosphere,
 )
 
-SLUGS = ("blast_furnace", "chemical_plant", "compression_station", "desalination_plant", "fpso_subsea",
-         "green_hydrogen_plant", "lunar_base", "pipeline_network", "reusable_booster")
+SLUGS = ("blast_furnace", "chemical_plant", "compression_station", "data_center_cooling",
+         "desalination_plant", "fpso_subsea", "green_hydrogen_plant", "industrial_refrigeration",
+         "lunar_base", "pipeline_network", "reusable_booster")
 
 
 # ---------------------------------------------------------------------------
@@ -754,3 +763,134 @@ def test_the_permeate_is_cleaner_than_the_feed_by_the_rejection():
     p = result.parameters
     assert result.value("permeate_salinity") == pytest.approx(
         p["feed_salinity"] * 1_000.0 * (1.0 - p["salt_rejection"]), rel=1e-12)
+
+
+# ---------------------------------------------------------------------------
+# Industrial refrigeration: the cycle, the Carnot wall and the property model
+# ---------------------------------------------------------------------------
+
+def test_antoine_reproduces_the_normal_boiling_point_of_ammonia():
+    # -33.34 degC at one atmosphere is the published anchor of the correlation, not a fit parameter.
+    assert saturation_pressure(-33.34 + 273.15) / 1e5 == pytest.approx(1.013, rel=2e-2)
+
+
+def test_antoine_inverts_to_machine_precision():
+    for temperature in (240.0, 263.15, 300.0, 320.0):
+        pressure = saturation_pressure(temperature)
+        assert saturation_temperature(pressure) == pytest.approx(temperature, rel=1e-9)
+
+
+def test_watson_is_anchored_on_the_latent_heat_at_the_boiling_point():
+    assert latent_heat(239.81) == pytest.approx(1_371_200.0, rel=1e-12)
+    assert latent_heat(300.0) == pytest.approx(1_155_000.0, rel=2e-2)
+    assert latent_heat(263.15) > latent_heat(308.15)
+
+
+def test_carnot_cop_is_the_textbook_expression():
+    assert carnot_cop(evaporating_temperature=263.15, condensing_temperature=308.15) == pytest.approx(
+        263.15 / 45.0, rel=1e-12)
+
+
+def test_the_cycle_cop_is_the_net_refrigeration_over_the_work():
+    result = RefrigerationPlant().simulate()
+    p = result.parameters
+    net_refrigeration = (result.value("latent_heat_evaporator") - result.value("throttle_loss")) * 1e3
+    work = result.value("specific_work") * 1e3 / p["motor_efficiency"]
+    assert result.value("cop") == pytest.approx(net_refrigeration / work, rel=1e-12)
+
+
+def test_the_pressure_ratio_is_the_two_antoine_pressures():
+    result = RefrigerationPlant().simulate()
+    p = result.parameters
+    evaporating = p["load_temperature"] - p["evaporator_approach"] + 273.15
+    condensing = p["cooling_medium_temperature"] + p["condenser_approach"] + 273.15
+    assert result.value("pressure_ratio") == pytest.approx(
+        saturation_pressure(condensing) / saturation_pressure(evaporating), rel=1e-12)
+
+
+def test_a_warmer_cooling_medium_costs_cop():
+    cool = RefrigerationPlant().simulate(cooling_medium_temperature=20.0)
+    warm = RefrigerationPlant().simulate(cooling_medium_temperature=40.0)
+    assert warm.value("cop") < cool.value("cop")
+    assert warm.value("shaft_power") > cool.value("shaft_power")
+    assert warm.value("carnot_cop") < cool.value("carnot_cop")
+
+
+def test_the_throttle_loss_is_the_liquid_specific_heat_times_the_lift():
+    result = RefrigerationPlant().simulate()
+    lift = result.value("condensing_temperature") - result.value("evaporating_temperature")
+    assert result.value("throttle_loss") == pytest.approx(4.7 * lift, rel=1e-12)
+
+
+def test_the_condenser_balance_reports_the_property_model_rather_than_hiding_it():
+    # Watson's latent heat and a constant liquid cp are not exactly consistent, and the residual is
+    # the size of that inconsistency: a few per cent, not a per-mille round-off.
+    result = RefrigerationPlant().simulate()
+    duty = [b for b in result.balances if b.name == "duty"][0]
+    assert 0.01 < abs(duty.residual) < 0.06
+
+
+def test_a_medium_colder_than_the_evaporator_is_refused():
+    # a load at 10 degC with a half-kelvin approach evaporates at 9.5 degC, while a 5 degC medium only
+    # lets the refrigerant condense at 7 degC: the cycle has nowhere to put the heat
+    with pytest.raises(ParameterError, match="condensing temperature"):
+        RefrigerationPlant().simulate(load_temperature=10.0, evaporator_approach=0.5,
+                                      cooling_medium_temperature=5.0, condenser_approach=2.0)
+
+
+# ---------------------------------------------------------------------------
+# The data centre: airflow, PUE and the annual energy
+# ---------------------------------------------------------------------------
+
+def test_the_air_carries_the_room_heat():
+    result = DataCentre().simulate()
+    p = result.parameters
+    rise = result.value("room_heat") * 1e6 / (result.value("air_flow") * 1.20 * 1_005.0)
+    assert result.value("air_temperature_rise") == pytest.approx(rise, rel=1e-12)
+    assert p["airflow_per_kw"] > 0.0
+
+
+def test_the_pue_is_the_facility_over_the_it():
+    result = DataCentre().simulate()
+    p = result.parameters
+    it = p["it_power"] * 1e6
+    facility = it * (1.0 + p["ups_losses"] + p["pdu_losses"] + p["fan_fraction"] + p["pump_fraction"]
+                     + p["other_fraction"]) + result.value("chiller_power") * 1e6
+    assert result.value("pue") == pytest.approx(facility / it, rel=1e-12)
+
+
+def test_the_economiser_can_only_lower_the_annual_pue():
+    none = DataCentre().simulate(free_cooling_hours=0.0)
+    lots = DataCentre().simulate(free_cooling_hours=6_000.0)
+    assert none.value("annual_pue") == pytest.approx(none.value("pue"), rel=1e-12)
+    assert lots.value("annual_pue") < none.value("annual_pue")
+
+
+def test_a_colder_wet_bulb_gives_a_better_chiller_and_a_lower_pue():
+    hot = DataCentre().simulate(wet_bulb=28.0)
+    cold = DataCentre().simulate(wet_bulb=16.0)
+    assert cold.value("chiller_cop") > hot.value("chiller_cop")
+    assert cold.value("pue") < hot.value("pue")
+
+
+def test_the_chiller_is_the_carnot_cop_times_the_second_law_efficiency():
+    result = DataCentre().simulate()
+    p = result.parameters
+    evaporating = p["chilled_water_supply"] - p["evaporator_approach"] + 273.15
+    condensing = p["wet_bulb"] + p["tower_approach"] + p["condenser_approach"] + 273.15
+    assert result.value("chiller_cop") == pytest.approx(
+        carnot_cop(evaporating_temperature=evaporating, condensing_temperature=condensing)
+        * p["chiller_second_law"], rel=1e-12)
+
+
+def test_more_air_means_a_smaller_temperature_rise():
+    thin = DataCentre().simulate(airflow_per_kw=150.0)
+    generous = DataCentre().simulate(airflow_per_kw=450.0)
+    assert generous.value("air_temperature_rise") < thin.value("air_temperature_rise")
+    # and the heat that has to be moved does not depend on the air
+    assert generous.value("room_heat") == pytest.approx(thin.value("room_heat"), rel=1e-12)
+
+
+def test_an_economiser_running_more_hours_than_the_year_is_refused():
+    with pytest.raises(ParameterError, match="more hours"):
+        DataCentre().simulate(free_cooling_hours=8_760.0, annual_hours=8_000.0)

@@ -1,8 +1,8 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/digital_twin_library",
- "title": "Digital Twin Library: nine reference systems",
- "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster, lunar base, gas pipeline network, compression station, green hydrogen plant and desalination train, each a 0D/1D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
+ "title": "Digital Twin Library: eleven reference systems",
+ "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster, lunar base, gas pipeline network, compression station, green hydrogen plant, desalination train, refrigeration plant and data centre, each a 0D/1D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
  "domain": "digital twins",
  "methods": [
   "material balance",
@@ -13,7 +13,9 @@
   "isothermal compressible flow",
   "polytropic compression",
   "electrolysis stoichiometry",
-  "osmotic pressure"
+  "osmotic pressure",
+  "vapour-compression cycle",
+  "sensible heat balance"
  ],
  "modules": [
   "pinneapple_systems.digital_twin.library"
@@ -23,13 +25,19 @@
  "metrics": [
   {
    "name": "worst_balance_residual",
-   "value": 0.00019079846226366986,
+   "value": 0.04151746776868173,
    "unit": "relative",
-   "how": "9 systems, all their balances"
+   "how": "11 systems, all their balances"
+  },
+  {
+   "name": "worst_residual_over_its_tolerance",
+   "value": 0.6919577961446955,
+   "unit": "ratio",
+   "how": "the closest any balance came to failing: industrial_refrigeration:duty"
   },
   {
    "name": "systems_in_the_catalogue",
-   "value": 9.0,
+   "value": 11.0,
    "unit": "systems",
    "how": "every system registered in the library"
   }
@@ -108,6 +116,30 @@
    "kind": "physics"
   },
   {
+   "name": "data_center_cooling: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "energy +0.0e+00",
+   "kind": "physics"
+  },
+  {
+   "name": "data_center_cooling: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pue_above_one, annual_pue_below_design, chiller_below_carnot, air_temperature_rise_in_band, economiser_hours_available, cooling_below_the_it_load",
+   "kind": "physics"
+  },
+  {
    "name": "desalination_plant: every conservation law closes",
    "passed": true,
    "value": null,
@@ -177,6 +209,30 @@
    "max": null,
    "min": null,
    "detail": "cell_voltage_above_reversible, efficiency_below_one, specific_energy_above_the_bound, heat_sign_matches_the_voltage, compression_is_the_smaller_term, oxygen_is_the_stoichiometric_half",
+   "kind": "physics"
+  },
+  {
+   "name": "industrial_refrigeration: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "energy -6.5e-08; duty +4.2e-02",
+   "kind": "physics"
+  },
+  {
+   "name": "industrial_refrigeration: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "cop_below_carnot, second_law_efficiency_in_band, discharge_temperature_survivable, evaporator_below_the_load, condenser_above_the_medium, latent_heat_falls_with_temperature",
    "kind": "physics"
   },
   {
@@ -267,9 +323,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "1a338dea4",
-  "created": "2026-11-17T14:46:17Z",
-  "seconds": 1.008,
+  "git": "85c9ea321",
+  "created": "2026-11-17T15:04:11Z",
+  "seconds": 0.989,
   "error": null,
   "environment": {
    "python": "3.11.16",

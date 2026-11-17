@@ -7507,6 +7507,31 @@
   },
   "source": "tests/test_digital_twin_library.py:385"
  },
+ "pinneapple_systems.digital_twin.library.refrigeration:carnot_cop": {
+  "inputs": {
+   "evaporating_temperature": 263.15,
+   "condensing_temperature": 308.15
+  },
+  "source": "tests/test_digital_twin_library.py:789"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:latent_heat": {
+  "inputs": {
+   "temperature": 263.15
+  },
+  "source": "tests/test_digital_twin_library.py:783"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_pressure": {
+  "inputs": {
+   "temperature": 263.15
+  },
+  "source": "tests/test_digital_twin_library.py:772"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_temperature": {
+  "inputs": {
+   "pressure": 289500.0
+  },
+  "source": "tests/test_digital_twin_library.py:777"
+ },
  "pinneapple_systems.digital_twin.library.reusable_booster:atmosphere": {
   "inputs": {
    "altitude": 1000.0

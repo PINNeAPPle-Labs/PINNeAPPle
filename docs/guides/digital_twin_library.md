@@ -1,9 +1,9 @@
-# Digital Twin Library: nine systems, each with its own conservation laws
+# Digital Twin Library: eleven systems, each with its own conservation laws
 
-`pinneapple_systems.digital_twin.library` holds reference models of nine engineering systems —
+`pinneapple_systems.digital_twin.library` holds reference models of eleven engineering systems —
 an FPSO with its subsea well, a blast furnace, a chemical synthesis loop, a reusable booster, a
-lunar base, a gas pipeline network, a compression station, a green hydrogen plant and a seawater
-desalination train. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
+lunar base, a gas pipeline network, a compression station, a green hydrogen plant, a seawater
+desalination train, an industrial refrigeration plant and a data centre. They are the bottom rung of the fidelity ladder the Digital Twin Library issues
 describe: cheap enough to run in a test suite, explicit about their assumptions, and the source of
 the solver data a trained surrogate would later be fitted to.
 
@@ -37,6 +37,8 @@ conservation laws **twice, by different routes**, and reports the residual:
 | `compression_station` | mass, energy, cooling | the shaft work from `cp ΔT` against the integral of `v dp` along the polytropic path, stage by stage; the intercoolers against the enthalpy the previous stage added |
 | `green_hydrogen_plant` | electricity, energy, water, oxygen | the power asked for against cells × voltage × current; hydrogen at its heating value plus the heat the overpotential rejects against the electricity in; the water the stoichiometry demands against the mass of the two gases it became |
 | `desalination_plant` | water, salt, energy | salt in the feed against salt in permeate plus concentrate, with the concentrate's concentration *derived* from that balance and then used to set the osmotic pressure; the pump less the energy-recovery device against the specific energy times the permeate flow |
+| `industrial_refrigeration` | energy, duty | the compressor's work as the isentropic enthalpy rise against the integral of `v dp` along the same path; the first law round the loop against the condenser's own enthalpy route |
+| `data_center_cooling` | energy | the facility built up component by component against the heat the cooling plant must move. In a data centre every watt leaves as heat, so this is a *completeness* check and the one that fails when a PUE is wrong |
 
 A residual above the declared tolerance fails the run, and `result.ok` is `False`. `run.require()`
 raises `BalanceFailed` with every failing line named.
@@ -58,6 +60,8 @@ night is half a synodic month, a wet blast runs the raceway colder.
 | `compression_station` | 120 kg/s of 0.65-gravity gas, 30 to 90 bar in two stages | 22.4 MW of shaft work, 82 °C hottest discharge, 20.2 MW of cooling, 1 784 kg/h of fuel |
 | `green_hydrogen_plant` | 100 MW stack at 1.78 V and 1.5 A/cm², 2 % purge, product at 30 bar | 48 t/day of hydrogen, 54.1 kWh/kg at the fence, 61.6 % LHV efficiency, 16.8 MW of heat, 16.3 t/h of oxygen |
 | `desalination_plant` | 1 000 m³/h of 35 g/L seawater at 45 % recovery, 95 % energy recovery | 450 m³/h of permeate at 175 mg/L, 63.5 g/L brine, 65.9 bar applied, 2.83 kWh/m³ against a 1.10 kWh/m³ floor |
+| `industrial_refrigeration` | 5 MW at −8 °C, ammonia, 30 °C cooling medium | COP 3.31 against a Carnot ceiling of 5.85 (56.6 % of it), 13.2 bar condensing, 137 °C discharge, 6.4 MW rejected |
+| `data_center_cooling` | 20 MW of IT, 250 m³/h of air per kW, 24 °C wet bulb | 13.3 K air rise, chiller COP 8.1, PUE 1.25 at design and 1.23 annual, 215 GWh/yr |
 
 The numbers are engineering-plausible and *not* plant records: every system carries a
 `not_verified` list that says exactly that. The reactor's enthalpy and entropy of reaction are
@@ -85,7 +89,14 @@ The interesting part of each model is what it solves rather than computes:
   voltage says is left over — the two share no algebra, so the energy balance can fail;
 * the desalination train derives its brine concentration from the salt balance and then uses it to
   set the osmotic pressure the pump has to beat, and every run is checked against the reversible
-  separation work computed as an integral rather than quoted.
+  separation work computed as an integral rather than quoted;
+* the refrigeration cycle is built from correlations that can each be checked against published
+  data — Antoine reproduces ammonia's normal boiling point, Watson is anchored on its latent heat
+  there — and the condenser balance reports the property model's own inconsistency (a few per cent)
+  instead of hiding it;
+* the data centre states its own limitation: in a hall where every watt leaves as heat the first law
+  is a tautology, so the single balance is a completeness check on the PUE roll-up rather than two
+  dressed-up copies of the same sum.
 
 ## Ranges, extrapolation and honesty
 
@@ -111,7 +122,7 @@ for entry in catalogue():
 ```
 
 The 0D/1D models here are the first rung of the Digital Twin Library issues (`#1770`, `#1772`,
-`#1774`, `#1777`, `#1779`, `#1784`, `#1801`, `#1813`, `#1814`). What comes above them — 1D transients, 2D/3D solvers, trained
+`#1774`, `#1777`, `#1779`, `#1784`, `#1801`, `#1813`, `#1814`, `#1807`, `#1819`). What comes above them — 1D transients, 2D/3D solvers, trained
 surrogates with an OOD domain, VeriPhysics gates, the Engineering API workers and the Studio
 scenes — is tracked in those issues, and none of it is claimed here.
 
@@ -128,4 +139,6 @@ the linepack integral collapsed both to `p V / Z R T` at a flat pressure and to 
 parabolic pressure profile, the polytropic stage work for one stage and the hand sum for three, and
 Colebrook-White solved for the friction factor the run reports, Faraday's law and the two water
 voltages, the nine kilograms of water per kilogram of hydrogen, van't Hoff's thirty bar for
-seawater, and the separation-work integral against a quadrature of the same integrand.
+seawater, the separation-work integral against a quadrature of the same integrand, Antoine's normal
+boiling point and its inverse, Watson anchored at the boiling point, and the data centre's air
+temperature rise and PUE recomputed from their own definitions.

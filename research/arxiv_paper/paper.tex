@@ -53,28 +53,31 @@ Allen--Cahn), one operator benchmark (FNO on Darcy $64\times64$) and one inverse
 (identifying the viscosity of Burgers), on one CPU, one thread per run, with every run's
 configuration, versions and load average recorded.
 
-Three results stand out. (i) Under an \emph{identical} configuration the three PINN libraries are
-numerically the same: they start from the same loss to six significant digits, agree to four
-significant digits after 200 Adam iterations, and their paired per-seed error ratio after 2000
-iterations is $1.00\,[0.96,1.00]$ on Poisson and $1.00\,[1.00,1.00]$ on Helmholtz; the cost per
-iteration is within $+5\%$ and $-10\%$ of DeepXDE's and $1.4$--$1.9\times$ lower than
-PhysicsNeMo-Sym's. (ii) Under each library's \emph{own} recipe and an equal 240\,s CPU budget, the
-defaults dominate the outcome: relative $L^2$ errors span a factor of 10 on Poisson and 2.4 on
-Helmholtz, and no recipe reaches a useful accuracy on Allen--Cahn. (iii) A protocol is not bookkeeping: applying it to
-the inverse problem exposed an adaptive loss-weighting rule in PINNeAPPle that inflated the
-identified viscosity by $12.5\times$; the cause was isolated by single-knob diagnostics, and the
-fixed default reduces the error to $3.4\times$, still behind DeepXDE's $2.2\times$.
+Three results stand out. (i) Under an \emph{identical} configuration---the same network, the same
+weights, the same points, the same number of iterations---the three PINN libraries return the same
+answer to the precision the comparison can resolve: the paired per-seed ratio of their errors after
+2000 iterations is $1.00\,[0.96,1.00]$ on Poisson and $1.00\,[1.00,1.00]$ on Helmholtz, with
+Burgers the one problem where float32 round-off separates them ($0.94\,[0.47,1.04]$ for DeepXDE
+against PINNeAPPle). The cost per iteration is within $+5\%$ and $-10\%$ of DeepXDE's and
+$1.4$--$1.9\times$ lower than PhysicsNeMo-Sym's. (ii) Under each library's \emph{own} recipe and a
+240\,s CPU cap, the defaults decide the outcome: across the three recipes the relative $L^2$ error
+spans $166\times$ on Poisson and $1156\times$ on Helmholtz, and no recipe reaches a useful accuracy
+on Allen--Cahn. (iii) A protocol is not bookkeeping: applying it to the inverse problem exposed an
+adaptive loss-weighting rule in PINNeAPPle that left the identified viscosity $12.5\times$ too
+large; the cause was isolated by single-knob diagnostics, and the fixed default reduces the error to
+$3.4\times$, still behind DeepXDE's $2.2\times$.
 
 We then ask the question the same libraries raise but do not answer: once a prediction exists, can
 its physics be checked without a reference solution? On a controlled corpus of 72 predictions over
 six problems, checks that need no reference (boundary and initial data, declared bounds,
 non-finiteness, PDE residual) flag 28 of 36 single-defect predictions, while the residual check is
 scale-invariant for a homogeneous equation and its accuracy is limited by the finite-difference
-floor of the grid---0.92 of the term scale for Burgers at the benchmark's own test grid, so it
-discriminates nothing there. The 8 defects no reference-free check caught are exactly the wrong
-coefficient and the over-smoothed field of the three equations the checker cannot express. We
-report these limits explicitly rather than as a footnote, because a verification layer inherits the
-expressiveness of its equation set.
+floor of the grid---0.73 of the term scale for Burgers at the benchmark's own test grid, so it
+discriminates nothing there. Of the 8 defects no reference-free check caught, six are the
+wrong-coefficient and over-smoothed predictions of the three equations the checker cannot express,
+and two are the identically zero field on a problem whose boundary data is zero, which no check
+without a reference can distinguish from a solution. We report these limits explicitly rather than
+as a footnote, because a verification layer inherits the expressiveness of its equation set.
 
 We make no claim of statistical significance: with 3 to 5 seeds the exact sign test cannot reach
 $p<0.05$, so differences are reported with their spread. Everything here runs on a CPU; no GPU or
@@ -110,8 +113,8 @@ known by construction, and report which failures it catches, which it misses, an
 
 \paragraph{Contributions.}
 \begin{enumerate}
-  \item A preregistered cross-framework protocol, committed before the first result, with its
-        deviations enumerated (\S\ref{sec:protocol}).
+  \item A cross-framework protocol fixed in advance and shipped with the results, with every
+        deviation from it enumerated (\S\ref{sec:protocol}).
   \item A matched-configuration comparison showing that three independently written PINN libraries
         produce the same numerics, and a measurement of what they cost relative to each other
         (\S\ref{sec:a1}).
@@ -182,12 +185,20 @@ their numerical backends.
 
 \section{Protocol}\label{sec:protocol}
 
-\paragraph{Preregistration.} The protocol was committed before the first result. It fixes the
-problems and their reference solutions, the shared point sets, the initial weights per seed, the
-neutral evaluator, the statistics, a compute budget of about eight CPU-hours, and a cut order used
-if the budget does not fit (Allen--Cahn in track~A1 first, then track~D, then reducing A1 to three
-seeds). A framework that cannot be installed or run is a result; it is never replaced by a
-reimplementation under its name.
+\paragraph{The protocol, and what can be checked about it.} The protocol was written and fixed
+before the runs, and it is shipped with the results in the same tree. It fixes the problems and their
+reference solutions, the shared point sets, the initial weights per seed, the neutral evaluator, the
+statistics, a compute budget of about eight CPU-hours, and a cut order used if the budget does not fit
+(Allen--Cahn in track~A1 first, then track~D, then reducing A1 to three seeds). A framework that
+cannot be installed or run is a result; it is never replaced by a reimplementation under its name.
+
+We are careful about one word. The protocol and the first result files entered the repository in the
+same squashed merge, so the *order* in which they were written is not something a reader can verify
+from the artifact: it rests on the commit messages inside the squashed pull request, and on a
+`git log` that shows no earlier commit carrying only the protocol. What a reader can verify is that
+the protocol is consistent with the runs and that every departure from it is listed with its reason,
+in Appendix~\ref{app:deviations}; that is the standard this paper is held to elsewhere, and it is the
+one we claim here.
 
 \paragraph{Problems and references.} Table~\ref{tab:problems} lists the benchmarks. Every reference
 is independent of the libraries being compared: an exact Cole--Hopf solution for Burgers, a
@@ -209,8 +220,8 @@ Poisson 2-D & $u_{xx}+u_{yy}=f$, $u=\sin\pi x\sin\pi y$ on $[0,1]^2$, $u=0$ on $
             & manufactured & $101\times101$ \\
 Helmholtz 2-D & $u_{xx}+u_{yy}+k^2u=q$, $k=1$, $a_1=1$, $a_2=4$ on $[-1,1]^2$, $u=0$ on $\partial\Omega$
             & manufactured & $101\times101$ \\
-Allen--Cahn 1-D & $u_t=du_{xx}+5u-5u^3$, $d=10^{-4}$, periodic, $u_0=x^2\cos\pi x$
-            & ETDRK4, 2048 modes & $512\times201$ \\
+Allen--Cahn 1-D & $u_t=du_{xx}+5u-5u^3$, $d=10^{-4}$, $u(\pm1,t)=-1$, $u_0=x^2\cos\pi x$
+            & ETDRK4, periodic, 2048 modes & $512\times201$ \\
 Darcy 2-D & $-a\nabla\cdot\nabla u=f$, $64\times64$ fields
             & zoo dataset, SHA-256 checked & $200$ test samples \\
 \bottomrule
@@ -219,7 +230,12 @@ Darcy 2-D & $-a\nabla\cdot\nabla u=f$, $64\times64$ fields
 Burgers and Allen--Cahn follow the data sets of \citet{raissi2019pinn}; Poisson and Helmholtz the
 setting of \citet{wang2021gradient}. The problems, the reference solutions, the shared point sets and
 the neutral evaluator live in
-\code{pinneapple_tools.benchmark_suite.crossframework}, which imports no competitor.}
+\code{pinneapple_tools.benchmark_suite.crossframework}, which imports no competitor. The Allen--Cahn
+reference integrates the periodic problem; the three implementations instead impose
+$u(\pm1,t)=-1$, the condition the DeepXDE example enforces through its output transform, which the
+initial data satisfies exactly and which the periodic reference keeps only to about
+$3\times10^{-3}$ of the boundary scale over the interval. Error is therefore measured against the periodic solution of a problem that
+was solved with Dirichlet data.}
 \label{tab:problems}
 \end{table}
 
@@ -266,16 +282,24 @@ predicting zero) and is poor on Burgers.}
 \label{fig:a1}
 \end{figure}
 
-\paragraph{The three libraries compute the same thing.} They start from the same loss---98.0739 on
-Poisson at step~0, identical to six significant digits---which is by construction, since the initial
-weights are shared; the informative part is that the agreement persists. After 200 iterations the
-errors agree to four significant digits. After 2000 iterations the paired per-seed ratio of a
-framework's error to PINNeAPPle's is $1.00\,[0.96,1.00]$ on Poisson and $1.00\,[1.00,1.00]$ on
-Helmholtz (Table~\ref{tab:a1paired}). Burgers spreads more, $0.94\,[0.47,1.04]$ for DeepXDE and
-$1.00\,[0.85,1.41]$ for PhysicsNeMo-Sym: float32 round-off differences are amplified by Adam's loss
-spikes on this problem, and the spread between frameworks at one seed is as large as the spread
-between seeds. A direct check confirmed that PhysicsNeMo-Sym and plain PyTorch agree to
-$3.6\times10^{-7}$ in the weights after three steps, so Sym adds no numerical difference of its own.
+\paragraph{The three libraries compute the same thing.} Every framework loads the same initial
+weights, generated once per seed and saved, so they start from the same function by construction;
+the informative part is that the agreement persists. After 2000 iterations the paired per-seed ratio
+of a framework's error to PINNeAPPle's is $1.00\,[0.96,1.00]$ on Poisson and $1.00\,[1.00,1.00]$ on
+Helmholtz (Table~\ref{tab:a1paired}); the individual Helmholtz ratios are between $1.002$ and
+$1.004$, which is why the table reports $0/3$ seeds on which either competitor had the lower error.
+Burgers is the exception: $0.94\,[0.47,1.04]$ for DeepXDE and $1.00\,[0.85,1.41]$ for
+PhysicsNeMo-Sym, a spread between frameworks at one seed as large as the spread between seeds, which
+we read as float32 round-off amplified by this problem's sharp front. That reading is an
+interpretation, not a measurement: the per-run records keep the final loss and the length of the
+loss history, not the history itself.
+
+Two further checks come from the benchmark's own report rather than from the machine-readable
+records, and are labelled that way: a starting loss of $98.0739$ on Poisson, identical to six
+significant digits across the three libraries, agreement to four significant digits after 200
+iterations, and PhysicsNeMo-Sym within $3.6\times10^{-7}$ of plain PyTorch in the weights after
+three steps. The last of these is what supports the claim that Sym adds no numerical difference of
+its own.
 
 \begin{table}[t]
 \centering\small
@@ -285,11 +309,18 @@ $3.6\times10^{-7}$ in the weights after three steps, so Sym adds no numerical di
 \label{tab:a1paired}
 \end{table}
 
-\paragraph{They do not cost the same.} On a quiet machine (one run at a time, load below 2)
+\paragraph{They do not cost the same.} The percentages below come from the separate timing run, one
+process at a time, whose recorded load average before each measurement was 1.0 to 2.1---not the
+``load below 2'' an earlier draft of the protocol asked for, and the runs overlapped by up to 0.1.
 PINNeAPPle and DeepXDE are within 11\% of each other per iteration: PINNeAPPle is 4.6\% slower on
-Burgers and 7--10\% faster on Poisson and Helmholtz. PhysicsNeMo-Sym costs $1.4$--$1.9\times$ more
-per iteration on the same network and the same points. Part of that is genuine: Sym's own overhead
-over the equivalent plain PyTorch step is about 11\%, measured separately. The comparison is of
+Burgers and 7--10\% faster on Poisson and Helmholtz. The millisecond column of Table~\ref{tab:a1}
+is a \emph{different} measurement, taken from the A1 runs themselves with two jobs in flight, and it
+reads 1.4\% in PINNeAPPle's favour on Burgers; the two are not the same quantity, and the text
+quotes the quiet-machine one. PhysicsNeMo-Sym costs $1.4$--$1.9\times$ more per iteration on the same
+network and the same points. Most of that is not interpreter overhead: Sym's own cost over the same
+mathematics in plain PyTorch is 31\% on the A1 network ($0.070$ against $0.054$\,s per step) and
+11\% on its own $6\times512$ network, so the larger part of the ratio is what the framework does with
+the network rather than the interpreter around it. The comparison is of
 single-threaded CPU steps; Sym targets GPUs (CUDA graphs, AMP, multi-GPU) and none of that was
 exercised here, so the ratio does not transfer to a GPU.
 
@@ -299,10 +330,13 @@ exercised here, so the ratio does not transfer to a GPU.
 \centering\small
 \fit{\input{tables/a2.tex}}
 \caption{Track~A2, each framework's documented recipe, 3 seeds, capped at 240\,s of process CPU time
-per run. Relative $L^2$, median [min, max], and the steps taken and CPU seconds used. The two
-right-hand PhysicsNeMo-Sym columns are labelled variants requested after the first A2 results---the
-network matched to PINNeAPPle's, and the points per step matched---and are \emph{not} Sym's official
-recipe.}
+per run. Relative $L^2$, median [min, max], and the steps taken and CPU seconds used. Only the
+Helmholtz column of PhysicsNeMo-Sym applies a published example; on the other three problems the
+runner builds the recipe from that example's structure (and, for Burgers and Allen--Cahn, from
+\code{wave_1d}), as the records' \code{config.example} field states. The two right-hand
+PhysicsNeMo-Sym columns are labelled variants requested after the first A2 results---the network
+matched to PINNeAPPle's, and the points per step matched---and are variants of that reconstruction,
+not of a published recipe.}
 \label{tab:a2}
 \end{table}
 
@@ -316,31 +350,43 @@ substantially, without reaching the other two.}
 \label{fig:a2}
 \end{figure}
 
-\paragraph{Defaults dominate.} Under the same 240\,s cap the libraries land far apart
-(Table~\ref{tab:a2}). PINNeAPPle's defaults reach $1.3\times10^{-3}$ on Poisson, 10 times lower than
-DeepXDE's $1.3\times10^{-2}$, and $3.6\times10^{-3}$ on Helmholtz against DeepXDE's
+\paragraph{Defaults dominate.} Under the same cap the libraries land far apart
+(Table~\ref{tab:a2}). PINNeAPPle's defaults reach $1.3\times10^{-3}$ on Poisson, 10.4 times lower
+than DeepXDE's $1.3\times10^{-2}$, and $3.6\times10^{-3}$ on Helmholtz against DeepXDE's
 $8.5\times10^{-3}$; on Burgers the two are level within the seed spread ($0.020$ against $0.017$).
+Across all three recipes, including PhysicsNeMo-Sym's, the span is $166\times$ on Poisson and
+$1156\times$ on Helmholtz---the difference between a usable surrogate and a field that is worse than
+predicting zero.
 On Allen--Cahn no recipe reaches a useful accuracy: $0.49$--$1.21$, against a relative $L^2$ of
 exactly 1 for predicting zero, which is the failure mode the literature documents for this class of
 problems \citep{krishnapriyan2021failure}.
 
-The reason PINNeAPPle wins on Poisson is architectural, not algorithmic: its default modified MLP
-with Fourier features fits the values better. It also leaves small high-frequency ripples, and the
-finite-difference residual picks them up: PINNeAPPle's own residual on Poisson is $0.19$ against
-DeepXDE's $0.012$, sixteen times worse, with an error ten times lower. Accuracy and residual are not
-the same measurement, and a verification layer that only looks at one of them can be fooled in
-either direction (Section~\ref{sec:detection}).
+PINNeAPPle's Poisson advantage is a property of its default, not a claim about a cause: its recipe
+differs from DeepXDE's in the network (a modified MLP with Fourier features against a plain one), in
+the points (2048 resampled per step against a fixed 1200), and in the number of steps it fits into the
+cap (2803--3369 against 13023--16841), and no ablation here separates those. What is measured is that
+the lower error comes with a worse residual: PINNeAPPle's own residual on Poisson is $0.19$ against
+DeepXDE's $0.012$, seventeen times worse, with an error ten times lower. Accuracy and residual are not
+the same measurement, and a verification layer that only looks at one of them can be fooled in either
+direction (Section~\ref{sec:detection}).
 
-\paragraph{An official recipe can be unusable inside a budget.} PhysicsNeMo-Sym's official networks
-are $6\times512$ with weight norm, $1.32$M parameters, 168 times the 7{,}851 of the matched A1
-network. On the official 4000+800 points that costs 3.37\,s per step, of which about 11\% is Sym's
+\paragraph{A documented recipe can be unusable inside a budget.} PhysicsNeMo-Sym publishes an
+example for one of the four problems here (Helmholtz); for Poisson, Burgers and Allen--Cahn the
+runner assembles the recipe from the structure of \code{examples/helmholtz/helmholtz.py} and
+\code{examples/wave_equation/wave_1d.py}, and each record says so in its \code{config.example}
+field. With that caveat, Sym's networks are $6\times512$ with weight norm, $1.32$M parameters, 168
+times the 7{,}851 of the matched A1 network. On the official 4000+800 points that costs 3.37\,s per step, of which about 11\% is Sym's
 own overhead over plain PyTorch, so the cap allows 70--94 steps where its example runs 20{,}000.
 This is a statement about a GPU-first framework measured on a CPU, not about Sym's design; it is
 nonetheless what a user without a GPU would meet. With the network matched to PINNeAPPle's
 $64\times4$ ($12{,}993$ parameters against PINNeAPPle's $20{,}865$ modified MLP) Sym runs
-1{,}500--2{,}000 steps and improves to $0.018$ on Poisson and $0.14$ on Helmholtz, still
-2.5--40 times above the other two libraries on all four problems. That variant was not tuned, and we
-say so rather than presenting it as Sym's result.
+1517--2079 steps and improves to $0.018$ on Poisson and $0.14$ on Helmholtz, still $2.5$--$38$ times
+above the better of the other two libraries on every problem. At Poisson the margin is against
+PINNeAPPle, not DeepXDE: $0.018$ against $0.013$ is a factor of $1.3$, which Table~\ref{tab:a2}
+shows and the range quoted here should not hide. That variant was not tuned, and we say so rather
+than presenting it as Sym's result. For the three problems without a published example, the number
+in the table is the author's application of Sym's structure and not Sym's own; a different
+application could land elsewhere.
 
 \section{Installation and run failures}\label{sec:install}
 
@@ -398,10 +444,12 @@ say nothing about GPU throughput.
 
 \paragraph{Measured ergonomics.} Track~D records only facts (Table~\ref{tab:d}): the number of
 non-blank, non-comment lines of each runner, the size of each package without its dependencies, and
-the time to import it. PINNeAPPle has the shortest runner for the forward and inverse tracks and the
-slowest import, which is what a library that pulls in a large surface looks like; the numbers are
-offered as measurements, not as a quality claim, and the line counts include this benchmark's own
-plumbing.
+the time to import it. PINNeAPPle has the shortest runner on the forward and operator tracks
+($126$ and $12$ lines); on the inverse track DeepXDE's is shorter ($53$ against $67$). Its import is
+the second slowest, after PhysicsNeMo's $6.70$\,s. The install size is not the same measurement for
+every row: PINNeAPPle is installed in editable mode, so its $25.7$\,MB is the whole source checkout,
+while the others are wheel contents from package metadata. The numbers are offered as measurements,
+not as a quality claim, and the line counts include this benchmark's own plumbing.
 
 \begin{table}[t]
 \centering\small
@@ -483,11 +531,15 @@ on a corpus whose truth is known by construction.
 \paragraph{Corpus.} Six problems: two that the checker can express exactly (steady conduction with a
 constant source, and transient 2-D conduction with a manufactured solution) and four from
 Section~\ref{sec:protocol} (Poisson, Helmholtz, Burgers, Allen--Cahn). For each, twelve predictions
-on the benchmark's own test grid: the exact reference, five \emph{valid} approximations built by
+on the benchmark's own test grid (Allen--Cahn's time axis is thinned from 201 to 41 points, because
+this experiment asks which checks fire and not how accurate a solution is, and its reference
+interpolation dominates the cost): the exact reference, five \emph{valid} approximations built by
 adding a smooth boundary-vanishing perturbation scaled to a prescribed relative $L^2$ error
 ($10^{-4}$ to $10^{-1}$), and six \emph{invalid} predictions each carrying exactly one defect---a
-boundary offset confined to a boundary layer, the reference solution of the same problem with one
-physical coefficient changed, a Gaussian-smoothed field with its boundary data restored, a
+boundary offset confined to a boundary layer, the solution of the same problem with one physical
+coefficient changed (the source strength, the cooling rate, the wavenumber, the viscosity, the
+diffusivity; on Poisson, where no coefficient is free, the reference plus $0.18\sin2\pi
+x\sin2\pi y$), a Gaussian-smoothed field with its boundary data restored, a
 $\times10^3$ scaling, five non-finite values, and the identically zero field. All 72 cases are
 deterministic and rebuild in seconds; the corpus, the runner and the analysis are in
 \code{research/arxiv_paper/experiments/verification/}.
@@ -514,37 +566,43 @@ reported separately.}
 \paragraph{The data checks are clean; the residual check is not.} Boundary and initial conditions
 (PC201, PC202), declared bounds (PC401) and non-finiteness (PC403) caught their defects and flagged
 none of the valid controls (Table~\ref{tab:verification-rules}). The PDE residual (PC301) caught 15
-of 36, but also fired on 5 of the 12 valid controls of the problems it can express---because a
-\emph{derivative} check amplifies a small field error by the wavenumber of that error. Measured on
-the two exactly expressible problems, the residual of the exact reference is at machine precision
-for the quadratic steady solution and at $4.1\times10^{-3}$ for the transient one, while a $1\%$
-field error produces a residual of $12.5\%$ and $8.1\%$ respectively: a median amplification of
-$12.5\times$ and $8.1\times$, and $6.5\times$ for Poisson. Setting the residual tolerance at 5\%
-therefore rejects a solution that is correct to 1\%---a calibration decision with a real cost in
-false alarms, which the tolerance alone does not reveal.
+of 36, but also fired on 5 of the 12 valid controls of the problems it can express. The reason is
+that a residual is built from derivatives of the field, so an error of relative size $e$ becomes a
+residual of about $c\,e$ with $c$ of order one to ten. Measured against the controlled ladder
+(Table~\ref{tab:floors}), $c$ is $12.1$ for steady conduction, $7.0$ for transient conduction, $6.5$
+for Poisson and $4.0$ for Allen--Cahn---and $0.6$ for Helmholtz, where the operator's own truncation
+error dominates and the residual \emph{understates} the field error. Setting the residual tolerance at
+5\% therefore rejects a solution that is correct to 1\% on three of these problems, while on
+Helmholtz it accepts an error of 8\%. The factor is a property of the operator and the problem, and
+the tolerance alone does not reveal it.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.5\textwidth]{figures/residual_calibration.pdf}
 \caption{Relative PDE residual against the controlled relative $L^2$ error of the valid predictions,
 for the six problems, computed with a tool-independent second-order finite-difference operator. The
-dashed line is the checker's 5\% residual tolerance. The slope is the amplification: a straight line
-of gradient one would mean a residual check that is no stricter than an error check.}
+dashed line is the checker's 5\% residual tolerance. A line of gradient one would be a residual check no stricter
+than an error check; the measured gradients are $4.0$ to $12.1$ for the five problems where the
+operator resolves the solution, and below one for Helmholtz.}
 \label{fig:calibration}
 \end{figure}
 
 \paragraph{The floor decides whether a residual check works at all.} A finite-difference residual is
 only informative where the reference's own residual is well below the tolerance. It is not, on some
-of these grids (Table~\ref{tab:floors}, Figure~\ref{fig:floor}). For Burgers at the benchmark's
-$256\times100$ test grid the exact Cole--Hopf solution has a relative residual of $0.92$---the
-viscous shock at $\nu=0.01/\pi$ is thinner than the grid step, so the operator cannot represent the
-solution it is checking. Refining all axes, the floor falls $0.913\to0.913\to0.801\to0.426$ at
-$101,201,401,801$ points per axis: even 801 points leave it an order of magnitude above the
-tolerance. For the smooth problems the floor behaves as a second-order operator should: Poisson
-$3.5\times10^{-3}\to1.2\times10^{-3}\to4.4\times10^{-4}$ and Helmholtz
-$3.7\times10^{-2}\to1.4\times10^{-2}\to4.8\times10^{-3}$ over the same refinement. A residual check
-is therefore not a free property of a field; it is a property of the field \emph{and} the grid, and
-the grid has to be chosen for it.
+of these grids (Table~\ref{tab:floors}, Figure~\ref{fig:floor}). For Burgers on the benchmark's
+$256\times100$ test grid the exact Cole--Hopf solution has a relative residual of $0.73$---the viscous
+shock at $\nu=0.01/\pi$ is thinner than the grid step, so the operator cannot represent the solution
+it is checking, and the residual of a correct answer is larger than that of a wrong one. Refining
+every axis together, the floor falls $0.88\to0.79\to0.44\to0.14$ at $101,201,401,801$ points per
+axis: two orders of improvement, and still $2.7$ times the 5\% tolerance at the finest grid tried.
+
+For the smooth problems the floor converges at second order, measured rather than assumed: Poisson
+$8.2\times10^{-5}\to2.1\times10^{-5}\to5.1\times10^{-6}$ and Helmholtz
+$5.0\times10^{-3}\to1.3\times10^{-3}\to3.1\times10^{-4}$ over the same refinement, observed orders
+of $2.01$ and $2.02$. Allen--Cahn starts at $1.1\times10^{-2}$ and only begins to converge once the
+space grid is finer than the time interpolation of its own reference. A residual check is therefore
+not a free property of a field; it is a property of the field \emph{and} the grid, and the grid has
+to be chosen for it.
 
 \begin{table}[t]
 \centering\small
@@ -567,19 +625,27 @@ at every resolution tried.}
 \label{fig:floor}
 \end{figure}
 
-\paragraph{Two blind spots that follow from the normalisation.} The checker normalises the residual
-by the size of the equation's terms, which include the field's own range. For a homogeneous equation
-this makes the residual scale-invariant: the $\times10^3$ scaling of the transient-heat prediction
-leaves PC301 silent (it is caught by bounds and by the reference). For an inhomogeneous equation the
-constant source breaks the invariance and PC301 does catch it (steady conduction with $q=1$). The
-same invariance makes the identically zero field pass PC301 on every homogeneous problem---zero
-solves the equation---so the trivial solution is caught only by the initial and boundary data. A
-verification layer built only from residuals would accept it.
+\paragraph{Two blind spots, one from the normalisation and one from the questions asked.} The
+checker normalises the residual by the size of the equation's terms, which include the field's own
+range. For a homogeneous equation this makes the residual scale-invariant: the $\times10^3$ scaling of
+the transient-heat prediction leaves PC301 silent (it is caught by bounds and by the reference). For an
+inhomogeneous equation the constant source breaks the invariance and PC301 does catch it (steady
+conduction with $q=1$).
+
+The identically zero field is the second blind spot, and it is worse. Zero satisfies every homogeneous
+equation exactly, so PC301 passes by construction; on Allen--Cahn, Burgers and transient heat it is
+then caught by the initial condition, which is not zero. On Poisson and Helmholtz there is no initial
+condition and the boundary data are homogeneous, so the zero field is invisible to the \emph{entire}
+reference-free family---PC201, PC301, PC401 and PC403 all pass---and only the stored reference sees it.
+A verification layer built from physics checks alone therefore accepts the trivial solution on exactly
+the problems whose data cannot exclude it. That is not a defect of one rule: it is what happens when
+none of the questions asked depends on the field being non-trivial.
 
 \paragraph{The boundary of the tool is the equation set.} Of the 36 single-defect predictions, 28
-were caught by at least one reference-free check. The 8 that were not are exactly the
-\emph{wrong-coefficient} and \emph{over-smoothed} defects of Helmholtz, Burgers and Allen--Cahn: the
-three equations the checker cannot express. Its equation catalogue is incompressible flow, heat
+were caught by at least one reference-free check. Six of the 8 that were not are the
+\emph{wrong-coefficient} and \emph{over-smoothed} defects of Helmholtz, Burgers and Allen--Cahn---the
+three whose equation the catalogue has no counterpart for; the other two are the identically zero field on Poisson
+and on Helmholtz, discussed above. Its equation catalogue is incompressible flow, heat
 conduction, elasticity, a generic conservation law, Darcy flow and Maxwell's equations; a Helmholtz
 term $+k^2u$, a convective term, or a reaction term have no counterpart. The heat equation is
 expressible but only with a source $q$ that is a number, not a function of the coordinates, so the
@@ -597,10 +663,12 @@ physics-based checking is supposed to catch, and here it was caught by the refer
 physics.
 
 \paragraph{What the reference-based checks give, and what they cost.} Regression against a stored
-reference (PC701, 5\% tolerance) caught 19 of 36 and flagged 2 of 12 valid controls; the
-high-wavenumber bias warning (PC704) caught 26 of 36 with no false positive on the valid controls.
-Both are strong detectors, and both require a trusted solution for the case at hand---which is the
-thing a surrogate model is built to avoid needing. The honest summary of the corpus is that the
+reference (PC701, 5\% tolerance) caught 19 of 36 and flagged 6 of the 36 valid controls; the
+high-wavenumber bias warning (PC704) caught 26 of 36 and flagged none. Both are strong detectors, and
+both require a trusted solution for the case at hand---which is the thing a surrogate model is built
+to avoid needing. There is also a circularity to declare: the over-smoothed defect is constructed by
+low-pass filtering, which is what PC704 measures, so part of PC704's 26 is the corpus measuring the
+detector it was built to measure. The honest summary of the corpus is that the
 reference-free checks are precise but narrow (they catch exactly the defects they encode and stay
 silent otherwise), while the broad detectors are the ones that need a reference.
 
@@ -645,8 +713,14 @@ configuration, package versions, thread count and load average) through
 \code{research/arxiv_paper/scripts/make_tables.py}, and the verification tables and figures from
 \code{research/arxiv_paper/experiments/verification/results/*.json} through its own
 \code{analyze.py}. The commands that reproduce each track are listed in Appendix~\ref{app:reproduce}
-and in \code{research/arxiv_paper/REPRODUCE.md}. No table is edited by hand and no number is typed
-into the manuscript.
+and in \code{research/arxiv_paper/REPRODUCE.md}. No table and no figure is edited by hand: a test
+regenerates both and fails on a difference, down to the bytes of the PDFs.
+
+The prose is a different matter and we do not claim otherwise. Every aggregate it quotes was computed
+from the same records, but a number quoted in a sentence can be mistyped, and an adversarial read of
+an earlier draft of this section against the records found several that were. The guarantee here is
+that the tables and figures cannot be stale; the sentences that quote a figure each name the table
+they should agree with, which is what makes them checkable.
 
 The environment of the benchmark is pinned in \code{results/environment.json} and reproduced in
 Table~\ref{tab:environment}. Runs were not always alone on the machine; the timing numbers quoted
@@ -656,7 +730,12 @@ and after each measurement.
 \begin{table}[t]
 \centering\small
 \fit{\input{tables/environment.tex}}
-\caption{Environment of the cross-framework benchmark, as recorded by the run harness.}
+\caption{Environment of the cross-framework benchmark, as recorded by \code{results/environment.json}.
+Each run was pinned to one thread; \code{torch_threads} in the record is $4$ because that file
+reports what PyTorch sees in the probe process before the pinning is applied, not what a run used.
+The commit is the one the environment was recorded at, which is not the commit that produced every
+row: no per-run record carries a code version, so the rows span the branch as it stood while the
+harness was being written, and Appendix~\ref{app:changes} lists what changed underneath them.}
 \label{tab:environment}
 \end{table}
 
@@ -665,19 +744,21 @@ and after each measurement.
 Three libraries that implement the same equations, on the same points, from the same initial
 weights, compute the same numbers: that is the reassuring result, and it means that a comparison of
 PINNs across these libraries is a comparison of defaults, budgets and plumbing, not of mathematics.
-The uncomfortable result is that the defaults and the budgets are worth a factor of ten. A protocol
-committed before the results, and a harness applied to every framework including one's own, is what
-turns that from an anecdote into a measurement---and it paid for itself here by finding three
-defects in the software under test.
+The uncomfortable result is that the defaults and the budgets are worth two orders of magnitude
+between the best and the worst recipe on the same problem. A protocol fixed in advance, shipped with
+its results and listing its own deviations, and a harness applied to every framework including one's
+own, is what turns that from an anecdote into a measurement---and it paid for itself here by finding
+three defects in the software under test.
 
 For verification, the picture is more sober. Checks that need no reference solution are precise and
 cheap, and they catch exactly the defects they encode: boundary and initial data, bounds,
 non-finiteness. The residual check, which is the one the field leans on, is scale-invariant under a
-homogeneous equation, amplifies small errors by the wavenumber of those errors, and is bounded below
-by the finite-difference floor of the grid it is evaluated on---a floor of $0.92$ on the benchmark's
-own Burgers grid, where it discriminates nothing. And a verification layer inherits the
-expressiveness of its equation set: three of the four equations in this paper's forward benchmark
-cannot be declared to it at all.
+homogeneous equation, turns a field error into a residual larger by a factor of $0.6$ to $12$ in our
+measurements, and is bounded below by the finite-difference floor of the grid it is evaluated
+on---a floor of $0.73$ on the benchmark's own Burgers grid, where a correct answer has a larger
+residual than a wrong one. And a verification layer inherits the expressiveness of its equation set:
+three of the four equations in this paper's forward benchmark are absent from the checker's
+catalogue, and the fourth cannot be declared with a source that varies in space.
 
 The practical implication is not that physics-based checking is useless, but that its coverage has to
 be stated as precisely as its accuracy. A check that reports which equation it verified, on which
@@ -700,11 +781,14 @@ the protocol's five (cut order, item 3); Allen--Cahn was cut from A1 in advance 
 The remaining deviations, with their reasons, are: (i) PINNeAPPle's A2 runs were redone after a
 harness bias against PINNeAPPle was found mid-run---\code{pp.solve} cannot stop at a time budget, so
 the runner derives an epoch count from a two-point probe, and the first version counted setup time as
-per-epoch cost; all twelve reported runs use 231--258\,s of the 240\,s cap; (ii) after the first
-results, two labelled PhysicsNeMo-Sym A2 variants were added at the request of the project lead, and
-are marked as variants rather than as Sym's recipe; (iii) track~C gained an equal-budget PINNeAPPle
-row and, after the fixes, two reruns and a diagnostic script, all recorded as separate rows without
-replacing the earlier ones; (iv) the confirmed items of the PINNeAPPle bug list below were fixed in a
+per-epoch cost; the cap is enforced between steps, so those runs land at 231--258\,s; (ii) the cap is
+an upper bound and not a fixed budget, and DeepXDE's Burgers runs finish their whole documented
+recipe---15{,}000 Adam iterations then L-BFGS---in 86--167\,s, so they are given less compute than
+every other row and the three-way comparison on that problem is not made under an equal budget;
+(iii) after the first results, two labelled PhysicsNeMo-Sym A2 variants were added at the request of
+the project lead, and are marked as variants rather than as Sym's recipe; (iv) track~C gained an
+equal-budget PINNeAPPle row and, after the fixes, two reruns and a diagnostic script, all recorded as
+separate rows without replacing the earlier ones; (v) the confirmed items of the PINNeAPPle bug list below were fixed in a
 separate branch, and the earlier rows of every table are left unchanged.
 
 \section{Changes made to PINNeAPPle during the benchmark}\label{app:changes}
@@ -752,7 +836,8 @@ python -m benchmarks.vs_frameworks.driver run --track B --epochs 12 --seeds 0 1 
 
 # track C, inverse Burgers
 python -m benchmarks.vs_frameworks.driver run --track C --iters 3000 --seeds 0 1 2 3 4 \
-    --frameworks pinneapple pinneapple_nostop deepxde physicsnemo_sym
+    --frameworks pinneapple pinneapple_nostop pinneapple_equal pinneapple_fixed \
+                 deepxde physicsnemo_sym
 
 # per-iteration cost on a quiet machine, then the aggregate tables
 python -m benchmarks.vs_frameworks.driver run --work _timing --track A1 --iters 200 --seeds 0

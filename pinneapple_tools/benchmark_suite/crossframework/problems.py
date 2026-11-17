@@ -66,8 +66,9 @@ class PINNProblem:
         if self.name in ("burgers", "poisson", "helmholtz"):
             return np.zeros(len(X))
         if self.name == "allen_cahn":
-            # Periodic problem; u(+-1, t) = -1 holds to 1e-3 or better on the reference (see the tests), which is what
-            # DeepXDE's official example imposes through its output transform.
+            # Periodic problem; the reference keeps u(+-1, t) = -1 to 3.2e-3 of the boundary scale (measured on the
+            # 2048-mode reference by the verification corpus), which is what DeepXDE's official example imposes through
+            # its output transform.
             return -np.ones(len(X))
         raise KeyError(self.name)
 

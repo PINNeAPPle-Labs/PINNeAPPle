@@ -27,7 +27,7 @@ Legend: `[x]` done and verified · `[~]` done but needs a human decision or sign
       `pinneapple check` catches and misses, with reference-free and reference-based detectors
       reported apart (`experiments/verification/`).
 - [x] **Full manuscript** (`paper.tex`, 19 pages) with related work, methods, results, threats to
-      validity, reproducibility statement, two appendices and 20 verified references.
+      validity, reproducibility statement, two appendices and 21 verified references.
 - [x] **Every number generated from a committed record** by
       `scripts/make_tables.py` and `experiments/verification/analyze.py`; no table edited by hand.
 - [x] **PDF builds clean** with tectonic (no overfull boxes, bibliography resolved).
@@ -48,6 +48,18 @@ Legend: `[x]` done and verified · `[~]` done but needs a human decision or sign
       bare `python3`, which on this machine has no numpy, so it failed with a traceback from inside a
       generator; it now prints one line saying which interpreter to pass and puts the repository root
       on `PYTHONPATH` itself.
+- [x] **Adversarial review against the records, and the corrections it forced.** A second pass read
+      the manuscript against `results/*.json` with the instruction "find where it claims more than its
+      data supports". Every finding was reproduced from the records before it was accepted, and the
+      manuscript changed: the A1 "same numbers" claim now names Burgers as the exception, the A2
+      spread is quoted per problem (166× on Poisson, 1156× on Helmholtz) instead of as one factor, the
+      PhysicsNeMo-Sym columns are labelled for what they are (only Helmholtz uses a published
+      example; the other three, and both variants, are reconstructions from its structure), the
+      residual operator of the verification experiment was found to compose two first derivatives
+      (order ≈1.5) and replaced by a second-order stencil, with the orders re-measured at 2.01–2.04,
+      the 240 s cap is described as an upper bound that DeepXDE's Burgers runs finish under in
+      86–167 s, and the environment table now states that no per-run record carries a code version.
+      Seven prose numbers were wrong against the records and were replaced by the record's value.
 - [x] **Related-work and scope section added** (Section 2), which also removed nine bibliography
       entries that were in the file but never cited. Every one of the 21 entries is now cited, and
       every DOI resolves.

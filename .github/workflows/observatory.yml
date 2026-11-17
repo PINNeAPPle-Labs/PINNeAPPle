@@ -21,7 +21,7 @@ on:
 jobs:
   browser:
     # Serves the app offline (a local ISS TLE, no warm-up) and drives it in Chromium: languages, panels.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
       run:

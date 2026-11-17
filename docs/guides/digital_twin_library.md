@@ -121,7 +121,7 @@ economiser that costs more than the chiller it replaces, because the fixed free-
 sized against the plant. They carry `expect="finding"` instead of being tuned until they pass, and
 the check is strict in both directions — a finding that stops being reported is a regression too.
 
-`python -m pinneapple_systems.digital_twin.library.scenarios --check` is the CI hook: it exits 1 if
+`python -m pinneapple_systems.digital_twin.library --check` is the CI hook: it exits 1 if
 a case that had to pass failed, and prints what the library's own status page says.
 
 ## Ranges, extrapolation and honesty

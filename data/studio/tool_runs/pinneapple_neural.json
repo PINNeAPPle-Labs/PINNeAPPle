@@ -111,6 +111,21 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_neural.architectures.neural_operators.deeponet:mlp": {
+  "code_hash": "6e4818350a19275a",
+  "inputs": {
+   "hidden": [
+    8,
+    5
+   ],
+   "in_dim": 3,
+   "out_dim": 2
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Sequential",
+  "seconds": 1.45
+ },
  "pinneapple_neural.architectures.neural_operators.registry:NeuralOperatorCatalog": {
   "code_hash": "390d0c6190e18f48",
   "inputs": {},
@@ -169,11 +184,11 @@
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.pinns.registry:register_into_global": {
-  "code_hash": "d6cb8e15a859b827",
+  "code_hash": "74075c36bb8dab31",
   "error": "KeyError: \"Model 'vanilla_pinn' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-16",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.pinns.xtfc:tfc_available": {
@@ -287,6 +302,35 @@
   "ok": false,
   "recorded": "2026-10-31",
   "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.study:default_ranks": {
+  "code_hash": "bc70b8213eb8e66a",
+  "inputs": {
+   "n_train": 50,
+   "n_values": 5,
+   "sv": [
+    10.0,
+    1.0,
+    0.1,
+    0.01,
+    0.001
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.architectures.rom.toy_systems:make_linear_system": {
+  "code_hash": "868508374169bc8d",
+  "inputs": {
+   "D": 6,
+   "seed": 1
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Tensor",
+  "seconds": 0.01
  },
  "pinneapple_neural.architectures.rom.trusted:TrustedLatentSurrogate": {
   "code_hash": "b5a46d6e2dbcc303",
@@ -465,6 +509,21 @@
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
+  "returned": "MetricBundle",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.metrics_cfg:build_metrics_from_cfg": {
+  "code_hash": "956b779c217513fc",
+  "inputs": {
+   "cfg": [
+    "mse",
+    {
+     "name": "MAE"
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
   "returned": "MetricBundle",
   "seconds": 0.0
  },

@@ -102,6 +102,26 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_core.onboarding.catalog:best_method": {
+  "code_hash": "d93fa83b38b3cb55",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 11.21
+ },
+ "pinneapple_core.onboarding.catalog:card": {
+  "code_hash": "3ee363237ad64f50",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Card",
+  "seconds": 0.0
+ },
  "pinneapple_core.onboarding.catalog:catalogue": {
   "code_hash": "d3ccc899f0cce500",
   "inputs": {},
@@ -110,6 +130,26 @@
   "returned": "list",
   "seconds": 0.03
  },
+ "pinneapple_core.onboarding.catalog:default_geometry_note": {
+  "code_hash": "983a7f4a60c56332",
+  "inputs": {
+   "name": "plane_stress_2d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:describe": {
+  "code_hash": "a7e9caa54f79fc80",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_core.onboarding.catalog:domains": {
   "code_hash": "c6f606e7eb2a95dd",
   "inputs": {},
@@ -117,6 +157,87 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.02
+ },
+ "pinneapple_core.onboarding.catalog:needs_geometry_tags": {
+  "code_hash": "214f74e095f4d9cb",
+  "inputs": {
+   "name": "plane_stress_2d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:probe": {
+  "code_hash": "1f38a0adf7529387",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:runnable": {
+  "code_hash": "cebd59f8f4c36f98",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:search": {
+  "code_hash": "1662156c8e43533d",
+  "inputs": {
+   "text": "burgers equation viscous shock",
+   "top": 3
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_core.onboarding.catalog:solver_requirement": {
+  "code_hash": "3599b8cb802bfc21",
+  "inputs": {
+   "solver": "openfoam"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:standalone_snippet": {
+  "code_hash": "2e85b624505c6ef3",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:tag_names": {
+  "code_hash": "9948305f93848b69",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:working_method": {
+  "code_hash": "3988deb23623c01d",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
  },
  "pinneapple_core.onboarding.doctor:doctor": {
   "code_hash": "e350794ee6075609",

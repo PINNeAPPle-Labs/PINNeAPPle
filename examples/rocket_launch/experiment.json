@@ -92,7 +92,7 @@
  "files": {
   "figures": ["../../docs/assets/rocket_launch/ascent_profile.png", "../../docs/assets/rocket_launch/ascent_angles.png"],
   "videos": [],
-  "viewers": ["_out/globe/index.html", "_out/vehicle/index.html", "_out/mission_control.html"],
+  "viewers": [],
   "data": ["results/verification.json", "results/mission.json", "results/design.json"]
  },
  "links": {

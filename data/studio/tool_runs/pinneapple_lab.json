@@ -397,12 +397,12 @@
   "seconds": 0.0
  },
  "pinneapple_lab.store:LabStore": {
-  "code_hash": "40bdc05ed935a267",
+  "code_hash": "130ddae76126196e",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-17",
   "returned": "LabStore",
-  "seconds": 0.04
+  "seconds": 7.32
  },
  "pinneapple_lab.store:default_root": {
   "code_hash": "0e362f115740825c",

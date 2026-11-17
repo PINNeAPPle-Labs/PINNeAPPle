@@ -381,10 +381,10 @@ This is a statement about a GPU-first framework measured on a CPU, not about Sym
 nonetheless what a user without a GPU would meet. With the network matched to PINNeAPPle's
 $64\times4$ ($12{,}993$ parameters against PINNeAPPle's $20{,}865$ modified MLP) Sym runs
 1517--2079 steps and improves to $0.018$ on Poisson and $0.14$ on Helmholtz, still $2.5$--$38$ times
-above the better of the other two libraries on every problem. At Poisson the margin is against
-PINNeAPPle, not DeepXDE: $0.018$ against $0.013$ is a factor of $1.3$, which Table~\ref{tab:a2}
-shows and the range quoted here should not hide. That variant was not tuned, and we say so rather
-than presenting it as Sym's result. For the three problems without a published example, the number
+above the better of the other two libraries on every problem ($13.5$, $38$, $25$ and $2.5$ on
+Poisson, Helmholtz, Burgers and Allen--Cahn). The Poisson factor is mostly PINNeAPPle's unusually low
+default rather than a large error on Sym's part: $0.018$ against DeepXDE's $0.013$ is $1.3$. That
+variant was not tuned, and we say so rather than presenting it as Sym's result. For the three problems without a published example, the number
 in the table is the author's application of Sym's structure and not Sym's own; a different
 application could land elsewhere.
 

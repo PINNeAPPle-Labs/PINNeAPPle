@@ -435,7 +435,9 @@ def test_space_runs_the_same_numbers_and_checks_in_the_browser_runtime(space):
     run = subprocess.run([node, "--test", str(ROOT / "tests" / "js" / "zoo_space.test.mjs")], capture_output=True,
                          text=True, timeout=600, env={**os.environ, "SPACE_DIR": str(out)})
     assert run.returncode == 0, run.stdout[-3000:] + run.stderr[-2000:]
-    assert f"# pass {len(art.manifest()['models'])}" in run.stdout
+    # the summary line is the runner's, and its bullet is not: Node 22 and earlier print "# pass N", Node 23 and
+    # later "ℹ pass N" — the number is what the test is about
+    assert re.search(rf"[#ℹ] pass {len(art.manifest()['models'])}(?!\d)", run.stdout), run.stdout[-2000:]
 
 
 # ============================================================================================== publish end to end

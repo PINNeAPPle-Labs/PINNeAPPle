@@ -41,6 +41,7 @@ from pinneapple_systems.digital_twin.library.compression_station import (
     stage_discharge_temperature,
     stage_work,
 )
+from pinneapple_systems.digital_twin.library import scenarios
 from pinneapple_systems.digital_twin.library.data_center import DataCentre
 from pinneapple_systems.digital_twin.library.desalination import (
     DesalinationPlant,
@@ -894,3 +895,79 @@ def test_more_air_means_a_smaller_temperature_rise():
 def test_an_economiser_running_more_hours_than_the_year_is_refused():
     with pytest.raises(ParameterError, match="more hours"):
         DataCentre().simulate(free_cooling_hours=8_760.0, annual_hours=8_000.0)
+
+
+# ---------------------------------------------------------------------------
+# The registry's scenarios and its status manifest
+# ---------------------------------------------------------------------------
+
+def test_every_registered_scenario_runs_and_says_what_it_expects():
+    # A case declared "pass" has to pass; one declared "finding" has to keep reporting its finding.
+    assert scenarios.SCENARIOS
+    assert scenarios.check() == [], scenarios.check()
+
+
+def test_a_scenario_is_exactly_a_run_with_those_parameters():
+    scenario = scenarios.SCENARIOS["pipeline_network/low_delivery_pressure"]
+    direct = build("pipeline_network").simulate(dict(scenario.values))
+    assert scenario.run().value("throughput") == pytest.approx(direct.value("throughput"), rel=1e-12)
+    assert scenario.name == "pipeline_network/low_delivery_pressure"
+
+
+def test_the_registry_refuses_a_scenario_it_could_not_run():
+    with pytest.raises(LibraryError, match="not a twin"):
+        scenarios.Scenario("not_a_twin", "x", {})
+    with pytest.raises(ParameterError, match="no parameter"):
+        scenarios.Scenario("pipeline_network", "x", {"thickness": 1.0})
+    with pytest.raises(ParameterError, match="expect"):
+        scenarios.Scenario("pipeline_network", "x", {}, expect="maybe")
+
+
+def test_a_scenario_survives_a_round_trip_through_json(tmp_path):
+    scenario = scenarios.SCENARIOS["lunar_base/six_crew"]
+    path = tmp_path / "scenarios.json"
+    scenarios.save_scenarios(path, [scenario])
+    loaded = scenarios.load_scenarios(path)
+    assert list(loaded) == [scenario.name]
+    assert loaded[scenario.name] == scenario
+    assert loaded[scenario.name].run().value("oxygen_per_day") == pytest.approx(
+        scenario.run().value("oxygen_per_day"), rel=1e-12)
+
+
+def test_the_manifest_covers_every_twin_and_every_scenario():
+    data = scenarios.manifest()
+    assert data["schema"] == "pinneapple.digital_twin.manifest/1"
+    assert [entry["slug"] for entry in data["systems"]] == sorted(TWINS)
+    for entry in data["systems"]:
+        assert entry["fidelity"] and entry["status"]
+        assert set(entry["scenarios"]) == set(scenarios.scenario_names(entry["slug"]))
+    summary = data["summary"]
+    assert summary["systems"] == len(TWINS)
+    assert summary["scenarios"] == len(scenarios.SCENARIOS)
+    assert summary["runs"] == summary["systems"] + summary["scenarios"]
+    assert summary["findings_reported"] == summary["findings_expected"]
+    assert summary["failing"] == []
+    assert 0.0 < summary["worst_fraction_of_tolerance"] < 1.0
+
+
+def test_an_expected_finding_that_stops_failing_is_reported(monkeypatch):
+    # The check is strict in both directions: a case meant to trip an invariant, which now runs clean,
+    # has changed the physics, and that is as much a regression as a passing case that breaks.
+    clean = scenarios.Scenario("pipeline_network", "should_not_be_clean",
+                               {"length": 60_000.0}, expect="finding")
+    monkeypatch.setitem(scenarios.SCENARIOS, clean.name, clean)
+    problems = scenarios.check()
+    assert any("expected a finding and got a clean run" in p for p in problems)
+
+
+def test_an_unknown_scenario_name_lists_what_exists():
+    with pytest.raises(LibraryError, match="no scenario"):
+        scenarios.run_scenario("fpso_subsea/does_not_exist")
+
+
+def test_the_command_line_reports_the_registry_and_can_fail_the_run(capsys):
+    assert scenarios._main(["--list"]) == 0
+    assert "refrigeration" in capsys.readouterr().out
+    assert scenarios._main(["--check"]) == 0
+    printed = capsys.readouterr().out
+    assert "systems" in printed and "findings" in printed

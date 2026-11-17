@@ -31,10 +31,8 @@ True
 >>> print(result.report())
 >>> print(describe("fpso_subsea"))            # parameters, assumptions, limits, sources
 """
-from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any
+from __future__ import annotations
 
 from .base import (
     Balance,
@@ -59,114 +57,28 @@ from .green_hydrogen import GreenHydrogenPlant
 from .lunar_base import LunarBase
 from .pipeline_network import PipelineNetwork
 from .refrigeration import RefrigerationPlant
+from .registry import TWINS, TwinEntry, build, catalogue, compare, describe, run
 from .reusable_booster import ReusableBooster
+from .scenarios import (
+    SCENARIOS,
+    Scenario,
+    load_scenarios,
+    manifest,
+    run_scenario,
+    save_scenarios,
+    scenario_names,
+)
 
 __all__ = [
     # contract
     "ReferenceModel", "TwinRun", "Parameter", "Quantity", "Balance", "Check",
     "LibraryError", "ParameterError", "BalanceFailed", "close", "relative_error",
-    # catalogue
+    # registry, scenarios and status
     "TWINS", "TwinEntry", "catalogue", "build", "run", "describe", "compare",
+    "Scenario", "SCENARIOS", "scenario_names", "run_scenario", "manifest", "save_scenarios",
+    "load_scenarios",
     # systems
     "FPSOSubsea", "BlastFurnace", "ChemicalPlant", "ReusableBooster", "LunarBase",
     "PipelineNetwork", "CompressionStation", "GreenHydrogenPlant", "DesalinationPlant",
     "RefrigerationPlant", "DataCentre",
 ]
-
-#: Every system in the library, by slug.
-TWINS: dict[str, type[ReferenceModel]] = {
-    FPSOSubsea.slug: FPSOSubsea,
-    BlastFurnace.slug: BlastFurnace,
-    ChemicalPlant.slug: ChemicalPlant,
-    ReusableBooster.slug: ReusableBooster,
-    LunarBase.slug: LunarBase,
-    PipelineNetwork.slug: PipelineNetwork,
-    CompressionStation.slug: CompressionStation,
-    GreenHydrogenPlant.slug: GreenHydrogenPlant,
-    DesalinationPlant.slug: DesalinationPlant,
-    RefrigerationPlant.slug: RefrigerationPlant,
-    DataCentre.slug: DataCentre,
-}
-
-
-class TwinEntry:
-    """One row of the catalogue: what the system is, what it solves, and what it does not."""
-
-    __slots__ = ("slug", "title", "physics", "fidelity", "status", "model")
-
-    def __init__(self, model: type[ReferenceModel], *, fidelity: str = "0D/1D",
-                 status: str = "reference model") -> None:
-        self.slug = model.slug
-        self.title = model.title
-        self.physics = model.physics
-        self.fidelity = fidelity
-        self.status = status
-        self.model = model
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "slug": self.slug, "title": self.title, "physics": self.physics,
-            "fidelity": self.fidelity, "status": self.status,
-            "n_parameters": len(self.model.parameters),
-            "limits": list(self.model.limits),
-        }
-
-    def __repr__(self) -> str:
-        return f"TwinEntry({self.slug!r}, {self.fidelity}, {self.status!r})"
-
-
-#: Fidelity and status per system. Kept beside the registry rather than in each module so the
-#: ladder is visible in one place: what is a 0D reference model today, what is planned next.
-_LADDER = {
-    "fpso_subsea": ("0D/1D", "reference model; 1D transient and multiphase simulator comparison planned"),
-    "blast_furnace": ("0D", "reference model; shaft profile and wustite equilibrium are the next rung"),
-    "chemical_plant": ("0D", "reference model; kinetics and a rate-based reactor are the next rung"),
-    "reusable_booster": ("3-DOF", "reference model; six-degree-of-freedom entry is the next rung"),
-    "lunar_base": ("0D", "reference model; a transient thermal and power simulation is the next rung"),
-    "pipeline_network": ("1D steady", "reference model; transient linepack and a multiphase mixture are the next rung"),
-    "compression_station": ("0D", "reference model; a vendor map with speed lines and surge margin is the next rung"),
-    "green_hydrogen_plant": ("0D", "reference model; a polarisation curve and a stack thermal model are the next rung"),
-    "desalination_plant": ("0D", "reference model; a membrane transport model with fouling is the next rung"),
-    "industrial_refrigeration": ("0D", "reference model; a real property database and a compressor map are the next rung"),
-    "data_center_cooling": ("0D", "reference model; the hall's air distribution needs CFD, which is the next rung"),
-}
-
-
-def catalogue() -> list[TwinEntry]:
-    """Every system in the library, in slug order, with its fidelity and status."""
-    entries = []
-    for slug, model in sorted(TWINS.items()):
-        fidelity, status = _LADDER.get(slug, ("0D", "reference model"))
-        entries.append(TwinEntry(model, fidelity=fidelity, status=status))
-    return entries
-
-
-def build(slug: str) -> ReferenceModel:
-    """Instantiate one system by slug (the model is stateless; this is for ``describe``)."""
-    try:
-        model = TWINS[slug]
-    except KeyError as exc:
-        raise LibraryError(f"no twin {slug!r} in the library; it has {sorted(TWINS)}") from exc
-    return model()
-
-
-def run(slug: str, values: Mapping[str, Any] | None = None, *, strict: bool = True,
-        **kwargs: Any) -> TwinRun:
-    """Run one system: ``run("fpso_subsea", production_days=30)``."""
-    return build(slug).simulate(values, strict=strict, **kwargs)
-
-
-def describe(slug: str) -> str:
-    """The parameter table, assumptions, limits and sources of one system, as text."""
-    return build(slug).describe()
-
-
-def compare(slugs: list[str] | None = None, *, values: Mapping[str, Any] | None = None) -> str:
-    """Run several systems on their declared defaults and tabulate the verdict of each."""
-    rows = []
-    for slug in (slugs or sorted(TWINS)):
-        result = run(slug, values)
-        rows.append((slug, "PASS" if result.ok else "FAIL",
-                     f"{len(result.balances)} balances", f"{len(result.checks)} invariants"))
-    width = max(len(r[0]) for r in rows) if rows else 0
-    return "\n".join(f"{slug:<{width}s}  {verdict:<4s}  {b}, {c}" for slug, verdict, b, c in rows)

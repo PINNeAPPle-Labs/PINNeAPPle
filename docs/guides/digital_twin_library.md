@@ -98,6 +98,32 @@ The interesting part of each model is what it solves rather than computes:
   is a tautology, so the single balance is a completeness check on the PUE roll-up rather than two
   dressed-up copies of the same sum.
 
+## Named scenarios and the registry's status
+
+A parameter set that says something is worth keeping, so it has a name:
+
+```python
+from pinneapple_systems.digital_twin.library import SCENARIOS, run_scenario, manifest, save_scenarios
+
+run_scenario("pipeline_network/low_delivery_pressure")   # a case, not a keyword soup
+manifest()["summary"]                                    # every twin and every case, with verdicts
+save_scenarios("my_cases.json")                          # hand a case to somebody else
+```
+
+Each scenario is a slug, a name, a few overrides and a line saying where the numbers came from. It
+runs through the same `simulate` as anything else, so a scenario can never bypass a range check.
+
+Four of the eleven shipped scenarios **trip an invariant on purpose**, and they are the most useful
+ones: a 3:1 ratio in a single compression stage discharges at 143 °C, above the machine limit; a 69 K
+lift in a single-stage ammonia machine discharges above 150 °C, which is where a two-stage machine
+starts; a heavier booster runs out of landing propellant; and a cold-climate data hall has an
+economiser that costs more than the chiller it replaces, because the fixed free-cooling share is not
+sized against the plant. They carry `expect="finding"` instead of being tuned until they pass, and
+the check is strict in both directions — a finding that stops being reported is a regression too.
+
+`python -m pinneapple_systems.digital_twin.library.scenarios --check` is the CI hook: it exits 1 if
+a case that had to pass failed, and prints what the library's own status page says.
+
 ## Ranges, extrapolation and honesty
 
 A parameter outside its declared range raises `ParameterError` unless the caller asks for it:
@@ -122,7 +148,11 @@ for entry in catalogue():
 ```
 
 The 0D/1D models here are the first rung of the Digital Twin Library issues (`#1770`, `#1772`,
-`#1774`, `#1777`, `#1779`, `#1784`, `#1801`, `#1813`, `#1814`, `#1807`, `#1819`). What comes above them — 1D transients, 2D/3D solvers, trained
+`#1774`, `#1777`, `#1779`, `#1784`, `#1801`, `#1813`, `#1814`, `#1807`, `#1819`). The registry and
+the scenario manifest are the discoverability half of the shared-specification issue (`#1802`); the
+typed unit algebra, the component graph with ports, the solver adapter protocol, the cross-fidelity
+consistency checks and the VeriPhysics applicability gate are not here, and that issue is not closed
+by them. What comes above them — 1D transients, 2D/3D solvers, trained
 surrogates with an OOD domain, VeriPhysics gates, the Engineering API workers and the Studio
 scenes — is tracked in those issues, and none of it is claimed here.
 

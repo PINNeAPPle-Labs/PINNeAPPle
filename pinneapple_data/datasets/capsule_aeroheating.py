@@ -50,7 +50,7 @@ import numpy as np
 
 __all__ = ["HUGGINGFACE", "RESOLVE_URL", "LICENSE", "CITATION", "FILES", "LOW_FIDELITY", "HIGH_FIDELITY", "FIDELITIES",
            "PARAMETERS", "NODE_FIELDS", "SCALARS", "Wall", "download", "open_study", "schema_unit", "pair_fidelities",
-           "wall", "load_bundle", "load_table_bundle", "field_channels", "field_samples"]
+           "wall", "load_bundle", "load_table_bundle", "field_channels", "field_samples", "field_pair"]
 
 HUGGINGFACE = "bijective/capsule-aeroheating"
 RESOLVE_URL = f"https://huggingface.co/datasets/{HUGGINGFACE}/resolve/main"
@@ -466,6 +466,30 @@ def _resolve_row(study, *, row: int | None, member: str | None) -> int:
 # ---------------------------------------------------------------------------
 # field-benchmark samples
 # ---------------------------------------------------------------------------
+
+def field_pair(study, field_name: str = "heat_flux"):
+    """The two fidelities of one nodal field as a :class:`~pinneapple_data.multifidelity.FieldPair`.
+
+    The expensive runs are the 64 with a Navier-Stokes solution; the cheap model's field at each of them is its own
+    run of the same member, so the two rows are the same wall node for node -- which is what the corpus guarantees and
+    what makes a field correction a subtraction. The design is the six inputs scaled by the bounds the file declares,
+    the same channels :func:`field_samples` offers to a model."""
+    from ..multifidelity import FieldPair
+
+    high, low = pair_fidelities(study)
+    names, channels, _ = field_channels(study)
+    high_fields, low_fields, arc = [], [], None
+    for expensive, cheap in zip(high, low, strict=True):
+        one_high, one_low = wall(study, int(expensive)), wall(study, int(cheap))
+        if field_name not in one_high.fields or field_name not in one_low.fields:
+            raise KeyError(f"no nodal field '{field_name}'; this file has {sorted(one_high.fields)}")
+        if arc is None:
+            arc = np.asarray(one_high.fields["arc_length"], dtype=np.float64)
+        high_fields.append(one_high.fields[field_name])
+        low_fields.append(one_low.fields[field_name])
+    return FieldPair(design_high=channels[high], values_high=np.array(high_fields),
+                     values_low=np.array(low_fields), position=arc)
+
 
 def field_channels(study, rows: Sequence[int] | None = None
                    ) -> tuple[list[str], np.ndarray, dict[str, Any]]:

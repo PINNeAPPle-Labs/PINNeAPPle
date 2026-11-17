@@ -2,7 +2,7 @@
  "schema": "pinneapple.experiment/1",
  "id": "capsule_aeroheating",
  "title": "How many CFD runs the cheap model buys",
- "description": "The capsule-aeroheating corpus (1.024 panel-method runs, 64 laminar Navier-Stokes ones on the same wall) as a multi-fidelity learning curve: the cheap model, a surrogate from the design alone, a learned correction, and the correction with the cheap model as an input, at N = 4 to 64 expensive designs.",
+ "description": "The capsule-aeroheating corpus (1.024 panel-method runs, 64 laminar Navier-Stokes ones on the same wall) as multi-fidelity learning curves, per capsule and per field: the cheap model, a surrogate from the design alone, a learned correction, and the correction with the cheap model as an input; and, for the 2.361-node field, a few modes of the relative residual whose amplitudes are learned from the design.",
  "domain": "aerothermodynamics",
  "methods": [],
  "modules": [
@@ -39,12 +39,6 @@
    "how": "surrogate of the target from the six inputs alone, same split as the correction"
   },
   {
-   "name": "heat_load_fidelity_gap",
-   "value": -0.057418380294021354,
-   "unit": "1",
-   "how": "mean of the cheap model over mean of the expensive one, minus 1: the bias"
-  },
-  {
    "name": "stagnation_heat_flux_cheap_model_error",
    "value": 0.1827919813092403,
    "unit": "relative L2",
@@ -67,12 +61,6 @@
    "value": 0.26846350558180687,
    "unit": "relative L2",
    "how": "surrogate of the target from the six inputs alone, same split as the correction"
-  },
-  {
-   "name": "stagnation_heat_flux_fidelity_gap",
-   "value": 0.03086053362301233,
-   "unit": "1",
-   "how": "mean of the cheap model over mean of the expensive one, minus 1: the bias"
   },
   {
    "name": "shoulder_heat_flux_cheap_model_error",
@@ -99,10 +87,52 @@
    "how": "surrogate of the target from the six inputs alone, same split as the correction"
   },
   {
-   "name": "shoulder_heat_flux_fidelity_gap",
-   "value": -0.2594318589265757,
-   "unit": "1",
-   "how": "mean of the cheap model over mean of the expensive one, minus 1: the bias"
+   "name": "cheap_field_error",
+   "value": 0.17912238860182908,
+   "unit": "relative L2",
+   "how": "relative L2 over each run's whole 2361-node field, median over the held-out runs and 20 splits"
+  },
+  {
+   "name": "mean_correction_at_lowest_budget",
+   "value": 0.08943655175469735,
+   "unit": "relative L2",
+   "how": "relative L2 over each run's whole 2361-node field, median over the held-out runs and 20 splits"
+  },
+  {
+   "name": "pod_correction_at_8",
+   "value": 0.058812207966247254,
+   "unit": "relative L2",
+   "how": "relative L2 over each run's whole 2361-node field, median over the held-out runs and 20 splits"
+  },
+  {
+   "name": "pod_correction_at_64",
+   "value": 0.03569342269089419,
+   "unit": "relative L2",
+   "how": "relative L2 over each run's whole 2361-node field, median over the held-out runs and 20 splits"
+  },
+  {
+   "name": "residual_energy_in_1_mode",
+   "value": 0.8096090369621983,
+   "unit": "share",
+   "how": "share of the energy of the relative residual (each run's residual over the magnitude of its own cheap field) held by the first modes"
+  },
+  {
+   "name": "residual_energy_in_2_modes",
+   "value": 0.9241235501962087,
+   "unit": "share",
+   "how": "share of the energy of the relative residual (each run's residual over the magnitude of its own cheap field) held by the first modes"
+  },
+  {
+   "name": "residual_energy_in_3_modes",
+   "value": 0.9741586611132166,
+   "unit": "share",
+   "how": "share of the energy of the relative residual (each run's residual over the magnitude of its own cheap field) held by the first modes"
+  },
+  {
+   "name": "nodes_per_run",
+   "value": 2361.0,
+   "unit": "nodes",
+   "how": "the shared wall's node count"
   }
  ],
  "checks": [
@@ -177,6 +207,42 @@
    "min": null,
    "detail": "design-only 25.55% against the cheap model's 27.43% at N=64",
    "kind": "baseline"
+  },
+  {
+   "name": "the average correction halves the field's error",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "8.94% against the cheap field's 17.91%, with no dependence on the design",
+   "kind": "baseline"
+  },
+  {
+   "name": "3 modes learned from the design beat the average correction",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "5.88% at N=8 against 8.94%",
+   "kind": "baseline"
+  },
+  {
+   "name": "the field correction is a few modes deep",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "97.4% of the relative residual's energy in 3 modes",
+   "kind": "physics"
   }
  ],
  "files": {
@@ -196,9 +262,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "72836d480",
-  "created": "2026-11-17T22:30:52Z",
-  "seconds": 3.091,
+  "git": "8c5d9aedf",
+  "created": "2026-11-17T23:54:18Z",
+  "seconds": 10.094,
   "error": null,
   "environment": {
    "python": "3.11.16",

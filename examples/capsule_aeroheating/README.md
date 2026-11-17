@@ -33,9 +33,27 @@ Three things follow, and they are the reason the corpus is worth keeping:
   not tell you the heating. That is the justification for the panel method existing at all, measured rather than
   assumed.
 
+## The same question asked of the whole field
+
+A scalar per capsule is one view. The other is the field: 2.361 nodes per capsule, the same nodes on every capsule, so
+the error is a *shape* as well as a size. Modelled as a few modes of the relative residual — each run's residual over
+the magnitude of its own field, because the heating spans 175× across designs and the raw coefficients span that too —
+with their amplitudes learned from the six inputs:
+
+| | cheap field | + average correction | 3 modes, N=8 | 3 modes, N=64 |
+|---|---|---|---|---|
+| relative L2 per run | 17.91 % | **8.94 %** | 5.88 % | **3.57 %** |
+
+The energy of the relative residual sits 81.0 % in one mode, 92.4 % in two and 97.4 % in three, which is why a handful
+of runs is enough: **the correction is a shape, not a table**.
+
+Two readings worth keeping apart. The *average* correction — one shape, no dependence on the design at all — already
+halves the error (17.9 % → 8.9 %). That is not learning; it is the cheap model being wrong the same way everywhere.
+What the design buys on top of it is the amplitude, and that is what the eight runs pay for (8.9 % → 5.9 %).
+
 Pretraining on the cheap fidelity is not a strategy here: the cheap model is a function that can be evaluated at every
 design, so a surrogate of it adds nothing but its own error. What the 1.024 cheap runs buy is the *shape of the
-correction*, which is the `difference` row above.
+correction*, which is the `difference` row and the modes above.
 
 ## Run it
 
@@ -45,20 +63,20 @@ python examples/capsule_aeroheating/01_multifidelity.py          # downloads 77 
 python examples/capsule_aeroheating/01_multifidelity.py --smoke  # 16 designs, 2 splits, seconds
 ```
 
-Every number in the table is recorded in [`experiment.json`](experiment.json) with its unit and how it was measured,
-and each target carries two checks: that the correction at the smallest budget beats the cheap model, and that the
-design alone is worse than it.
+Every number above is recorded in [`experiment.json`](experiment.json) with its unit and how it was measured — 20
+metrics, 9 checks — and the two reports run from one command.
 
 ## What is here and what is not
 
 The reader is `pinneapple_data.datasets.capsule_aeroheating` (pairing the fidelities, the wall as a bundle, the
-samples a field benchmark reads) and the four independent checks are in `capsule_aeroheating_physics` (axial symmetry,
-the panel-method pressure recomputed from the geometry, the heat load integrated over the faces, and the radiative
-equilibrium wall temperature). The regression curve is `pinneapple_data.multifidelity`, which is not specific to this
-corpus: any pair of fidelities with a known value of the cheap model at the expensive designs can use it.
+fidelity pair of a field, the samples a field benchmark reads) and the four independent checks are in
+`capsule_aeroheating_physics` (axial symmetry, the panel-method pressure recomputed from the geometry, the heat load
+integrated over the faces, and the radiative equilibrium wall temperature). The regression curves are
+`pinneapple_data.multifidelity`, which is not specific to this corpus: any pair of fidelities with a known value of the
+cheap model at the expensive designs can use it.
 
-The per-node field curve — the same question asked of the 2.361-node heat-flux field rather than of a scalar — is not
-here: it needs the field-surrogate benchmark, which lives on another branch.
+What is not here: a pointwise model free to choose every node's correction. With 64 fields over 2.361 nodes it would
+be fitting noise, and the modes above say how little there is to gain — the correction is 97 % three modes deep.
 
 ## Licence and citation
 

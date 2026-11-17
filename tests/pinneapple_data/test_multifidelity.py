@@ -167,3 +167,80 @@ def test_a_curve_carries_the_spread_of_its_repeats():
                           scores={"low_fidelity": {"relative_l2": np.array([[1.0, 2.0, 3.0]]), "r2": np.ones((1, 3))}})
     assert curve.median("low_fidelity")[0] == pytest.approx(2.0)
     assert curve.spread("low_fidelity")[0] == pytest.approx(2.0)
+
+
+# ---------------------------------------------------------------------------
+# the field curve
+# ---------------------------------------------------------------------------
+
+from pinneapple_data.multifidelity import (  # noqa: E402
+    FIELD_STRATEGIES,
+    FieldPair,
+    field_learning_curve,
+    residual_rank,
+)
+
+
+def _field_pair(n_high=20, n_nodes=40, seed=0, *, one_mode=True, gain=3.0):
+    """Fields whose residual is one shape with a per-run amplitude, so the answer is known before it is computed.
+
+    ``y_low`` is a smooth profile per run; ``y_high = y_low + amplitude(run) * shape``, with the amplitude a function
+    of the design -- which is what the curve has to learn, and what makes one mode enough."""
+    rng = np.random.default_rng(seed)
+    design = rng.uniform(-1.0, 1.0, size=(n_high, 3))
+    nodes = np.linspace(0.0, 1.0, n_nodes)
+    low = 1.0 + np.sin(2.0 * np.pi * nodes)[None, :] * (1.0 + design[:, :1])
+    shape = np.exp(-3.0 * nodes)                                      # the correction's shape, the same for every run
+    amplitude = gain * (1.0 + design[:, 0])                           # and its size, set by the design
+    residual = amplitude[:, None] * shape[None, :]
+    if not one_mode:
+        residual = residual + 0.2 * amplitude[:, None] * np.cos(np.pi * nodes)[None, :]
+    return FieldPair(design_high=design, values_high=low + residual, values_low=low, position=nodes)
+
+
+def test_a_field_pair_refuses_arrays_of_different_shapes():
+    with pytest.raises(ValueError, match="same shape"):
+        FieldPair(design_high=np.zeros((2, 3)), values_high=np.zeros((2, 5)), values_low=np.zeros((2, 4)))
+    with pytest.raises(ValueError, match="designs against"):
+        FieldPair(design_high=np.zeros((3, 3)), values_high=np.zeros((2, 5)), values_low=np.zeros((2, 5)))
+
+
+def test_the_run_scale_is_the_magnitude_of_the_cheap_field():
+    pair = _field_pair()
+    assert np.allclose(pair.run_scale(), np.linalg.norm(pair.values_low, axis=1))
+    assert "off in relative L2 per run" in pair.summary()
+
+
+def test_one_mode_carries_almost_all_of_a_one_shape_residual():
+    rank = residual_rank(_field_pair().residual(), components=1, scale=_field_pair().run_scale())
+    assert rank["share"] > 0.99
+    two = residual_rank(_field_pair(one_mode=False).residual(), components=2, scale=_field_pair().run_scale())
+    assert two["share"] > 0.999
+
+
+def test_the_field_curve_beats_the_cheap_field_with_no_learning_at_all():
+    """One mean correction, scaled by each run's own magnitude: the cheap model's error halves and nothing is fitted
+    from the design."""
+    pair = _field_pair()
+    curve = field_learning_curve(pair, budgets=(8, 20), repeats=3)
+    cheap = float(np.median(curve.scores["low_fidelity"]["relative_l2"][0]))
+    mean_correction = float(np.median(curve.scores["mean_correction"]["relative_l2"][0]))
+    assert cheap > 0.1
+    assert mean_correction < cheap / 2
+
+
+def test_the_pod_correction_learns_the_amplitude_from_the_design():
+    pair = _field_pair()
+    curve = field_learning_curve(pair, budgets=(8, 20), repeats=3, components=1)
+    pod = curve.scores["pod_correction"]["relative_l2"]
+    mean_correction = curve.scores["mean_correction"]["relative_l2"]
+    assert set(curve.scores) == set(FIELD_STRATEGIES)
+    assert float(np.median(pod[-1])) < float(np.median(mean_correction[-1]))
+    assert float(np.median(pod[-1])) < 0.05                       # the amplitude is a function of the design
+
+
+def test_the_field_curve_refuses_a_budget_it_cannot_score():
+    pair = _field_pair(n_high=6)
+    for bad in (1, 2, 7):
+        with pytest.raises(ValueError, match="outside"):
+            field_learning_curve(pair, budgets=(bad,))

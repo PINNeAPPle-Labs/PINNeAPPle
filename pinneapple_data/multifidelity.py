@@ -37,7 +37,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-__all__ = ["FidelityPair", "KernelRidge", "LearningCurve", "learning_curve", "relative_l2", "r2"]
+__all__ = ["FidelityPair", "FieldPair", "KernelRidge", "LearningCurve", "learning_curve",
+           "field_learning_curve", "residual_rank", "relative_l2", "r2", "STRATEGIES", "FIELD_STRATEGIES"]
 
 STRATEGIES = ("low_fidelity", "geometry", "difference", "residual_feature")
 
@@ -225,7 +226,7 @@ class LearningCurve:
         return np.ptp(self.scores[strategy][metric], axis=1)
 
     def table(self) -> str:
-        strategies = [s for s in STRATEGIES if s in self.scores]
+        strategies = list(self.scores)                  # in the order they were fitted
         header = f"{'N':>4}  " + "  ".join(f"{s:>18}" for s in strategies)
         lines = [header, "-" * len(header)]
         for i, budget in enumerate(self.budgets):
@@ -309,3 +310,176 @@ def _predict(strategy: str, design_train: np.ndarray, cheap_train: np.ndarray, t
         correction = KernelRidge(ridge=ridge, scale=np.append(scale, 1.0)).fit(features, target_train - cheap_train)
         return correction.predict(np.column_stack([design_eval, cheap_eval / cheap_scale])) + cheap_eval
     raise KeyError(f"'{strategy}' is not one of {STRATEGIES}")
+
+
+# ---------------------------------------------------------------------------
+# the same question asked of a field
+# ---------------------------------------------------------------------------
+
+FIELD_STRATEGIES = ("low_fidelity", "mean_correction", "pod_correction")
+
+
+@dataclass(frozen=True)
+class FieldPair:
+    """Two fidelities of a *field* over one shared discretisation.
+
+    Every expensive run's field lives on the same nodes as its cheap run's -- that is what makes the difference a
+    subtraction and not an interpolation, and it is stated here as a requirement rather than hoped for. ``position``
+    is whatever orders the nodes along the surface (an arc length, a coordinate); it is not used by the curve, only
+    reported with it, because a field model that reads the position is a different model."""
+
+    design_high: np.ndarray          # (n_high, d)
+    values_high: np.ndarray          # (n_high, n_nodes)
+    values_low: np.ndarray           # (n_high, n_nodes) the cheap model on the same nodes
+    position: np.ndarray | None = None
+
+    def __post_init__(self):
+        high = np.asarray(self.values_high, dtype=np.float64)
+        low = np.asarray(self.values_low, dtype=np.float64)
+        design = np.asarray(self.design_high, dtype=np.float64)
+        if high.ndim != 2 or low.shape != high.shape:
+            raise ValueError(f"the two fidelities must be (n_runs, n_nodes) of the same shape: {high.shape} and "
+                             f"{low.shape}")
+        if design.shape[0] != high.shape[0]:
+            raise ValueError(f"{design.shape[0]} designs against {high.shape[0]} runs")
+        object.__setattr__(self, "values_high", high)
+        object.__setattr__(self, "values_low", low)
+        object.__setattr__(self, "design_high", design)
+
+    @property
+    def n_high(self) -> int:
+        return int(self.values_high.shape[0])
+
+    @property
+    def n_nodes(self) -> int:
+        return int(self.values_high.shape[1])
+
+    def residual(self) -> np.ndarray:
+        return self.values_high - self.values_low
+
+    def run_scale(self) -> np.ndarray:
+        """The magnitude of each run's cheap field, ``(n_high,)``.
+
+        The divisor that makes a correction comparable across designs: heating spans orders of magnitude, so a residual
+        field measured in W m-2 says which run is hottest, not how wrong the cheap model is there. Dividing by this
+        and multiplying back by the *cheap* run's magnitude is legitimate at any design, because the cheap model runs
+        everywhere."""
+        return np.linalg.norm(self.values_low, axis=1)
+
+    def summary(self) -> str:
+        per_run = np.linalg.norm(self.residual(), axis=1) / np.linalg.norm(self.values_high, axis=1)
+        return (f"{self.n_high} expensive run(s) over {self.n_nodes} nodes; the cheap model is "
+                f"{np.median(per_run):.1%} off in relative L2 per run (median), {per_run.min():.1%} to "
+                f"{per_run.max():.1%}")
+
+
+def residual_rank(residual: np.ndarray, *, components: int = 1, scale: np.ndarray | None = None) -> dict:
+    """How much of the residual field a rank-``k`` model of the runs captures.
+
+    The residual of a run is one vector over the nodes. Stacked over runs, its singular value decomposition says how
+    many independent *shapes* of correction there are: if the first mode carries most of the energy, the correction is
+    one profile with an amplitude per design, and a study of it is a study of that amplitude.
+
+    ``scale`` divides each run's residual by a per-run magnitude first. On the capsule corpus the energy share comes
+    out about the same either way (80 % raw against 81 % normalised), but the *coefficients* do not: raw, they span
+    the 175x the heating spans, and no regression on six inputs learns that. Pass the norm of each run's own field
+    (what :meth:`FieldPair.run_scale` returns) to measure the structure of the relative correction."""
+    residual = np.asarray(residual, dtype=np.float64)
+    if residual.ndim != 2:
+        raise ValueError(f"the residual must be (n_runs, n_nodes): {residual.shape}")
+    if scale is not None:
+        divisor = np.asarray(scale, dtype=np.float64).reshape(-1, 1)
+        residual = residual / np.where(divisor == 0.0, 1.0, divisor)
+    left, singular, right = np.linalg.svd(residual, full_matrices=False)
+    energy = singular ** 2
+    share = float(energy[:components].sum() / energy.sum()) if energy.sum() > 0 else float("nan")
+    return {"share": share, "modes": right[:components], "singular": singular,
+            "amplitude": left[:, :components] * singular[:components]}
+
+
+def field_learning_curve(pair: FieldPair, *, budgets=(8, 16, 32), repeats: int = 10, seed: int = 0,
+                         components: int = 2, ridge: float = 1e-8,
+                         strategies=FIELD_STRATEGIES) -> LearningCurve:
+    """The learning curve of a field, with a low-rank correction instead of a network per node.
+
+    ==================  ==============================================================================
+    ``low_fidelity``    the cheap field itself, on the same nodes.
+    ``mean_correction`` the cheap field plus the average *relative* residual of the training runs: one shape,
+                        scaled by the run's own magnitude, and no dependence on the design. What a correction
+                        buys when nothing is learned from the inputs.
+    ``pod_correction``  the cheap field plus ``components`` relative residual modes, each amplitude learned from
+                        the design by kernel ridge. The proper orthogonal decomposition of the residual with a
+                        regression on its coefficients, which is the field analogue of ``difference``.
+
+    The correction is modelled **relative to each run's own magnitude** (:meth:`FieldPair.run_scale`) and then scaled
+    back by the cheap run's magnitude, which is known at every design because the cheap model runs everywhere. The
+    normalisation is not cosmetic: the heat flux spans 175x across designs in the capsule corpus, so the coefficients
+    of the raw decomposition span 175x too, and a regression on six inputs cannot learn a quantity whose scale is set
+    by the design. Normalised, the first mode carries 81 % of the residual energy and the third 97 %, and the
+    coefficients are O(0.1) for every run -- which is what makes them predictable at all.
+
+    Why low rank rather than a pointwise network: with a handful of expensive runs there are thousands of nodes and
+    only N fields, so a model free to choose every node's correction is fitting noise -- and the residual of a family
+    of shapes turns out to be a couple of modes deep, which :func:`residual_rank` measures instead of assuming. The
+    score is the relative L2 over each held-out run's whole field, then the median over runs and splits."""
+    if repeats < 1:
+        raise ValueError(f"{repeats} repeats is not a curve")
+    n = pair.n_high
+    if n < 3:
+        raise ValueError(f"{n} expensive run(s): a field curve needs at least three to hold one out and keep a mean")
+    budgets = tuple(int(b) for b in budgets)
+    for budget in budgets:
+        if not 2 < budget <= n:
+            raise ValueError(f"budget {budget} is outside (2, {n}]")
+    scale = np.maximum(np.abs(pair.design_high).max(axis=0), 1e-30)
+    design = pair.design_high / scale
+    run_scale = pair.run_scale()
+    residual = pair.residual() / run_scale.reshape(-1, 1)
+    scores = {s: {"relative_l2": np.full((len(budgets), repeats), np.nan),
+                  "r2": np.full((len(budgets), repeats), np.nan)} for s in strategies}
+    rng = np.random.default_rng(seed)
+    for i, budget in enumerate(budgets):
+        for repeat in range(repeats):
+            if budget < n:
+                order = rng.permutation(n)
+                train, test = order[:budget], order[budget:]
+            else:                                    # nothing to hold out: leave one run out at a time
+                train, test = np.arange(n), np.arange(n)
+            prediction = {s: _predict_field(s, design, residual, pair.values_low, run_scale, train, test,
+                                            components, ridge, scale, leave_one_out=budget == n)
+                          for s in strategies}
+            measured = pair.values_high[test]
+            for strategy in strategies:
+                per_run = [relative_l2(prediction[strategy][j], measured[j]) for j in range(len(test))]
+                scores[strategy]["relative_l2"][i, repeat] = float(np.median(per_run))
+                scores[strategy]["r2"][i, repeat] = float(np.median(
+                    [r2(prediction[strategy][j], measured[j]) for j in range(len(test))]))
+    return LearningCurve(budgets=budgets, repeats=repeats, scores=scores)
+
+
+def _predict_field(strategy: str, design: np.ndarray, relative_residual: np.ndarray, cheap: np.ndarray,
+                   run_scale: np.ndarray, train: np.ndarray, test: np.ndarray, components: int, ridge: float,
+                   scale: np.ndarray, *, leave_one_out: bool) -> np.ndarray:
+    """The predicted fields at the ``test`` runs, one row per run."""
+    if strategy == "low_fidelity":
+        return cheap[test]
+    if leave_one_out:
+        predicted = np.empty((len(test), cheap.shape[1]), dtype=np.float64)
+        for slot, run in enumerate(test):
+            others = np.setdiff1d(train, [run])
+            predicted[slot] = _predict_field(strategy, design, relative_residual, cheap, run_scale, others,
+                                             np.array([run]), components, ridge, scale, leave_one_out=False)[0]
+        return predicted
+    if strategy == "mean_correction":
+        return cheap[test] + relative_residual[train].mean(axis=0) * run_scale[test].reshape(-1, 1)
+    if strategy == "pod_correction":
+        _, _, right = np.linalg.svd(relative_residual[train], full_matrices=False)
+        modes = right[:components]                                   # (k, n_nodes)
+        coefficients = relative_residual[train] @ modes.T            # (n_train, k)
+        correction = np.zeros((len(test), cheap.shape[1]), dtype=np.float64)
+        usable = min(components, modes.shape[0])
+        for mode in range(usable):
+            model = KernelRidge(ridge=ridge, scale=scale).fit(design[train], coefficients[:, mode])
+            correction += np.outer(model.predict(design[test]), modes[mode])
+        return cheap[test] + correction * run_scale[test].reshape(-1, 1)
+    raise KeyError(f"'{strategy}' is not one of {FIELD_STRATEGIES}")

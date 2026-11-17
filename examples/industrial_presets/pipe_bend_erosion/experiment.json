@@ -1,0 +1,66 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/pipe_bend_erosion",
+ "title": "Joelho de tubula\u00e7\u00e3o com areia: taxa de eros\u00e3o, perda de parede e vida pelo DNV-RP-O501",
+ "description": "Qual a taxa de eros\u00e3o de pico neste joelho, quanto da parede ele perde no per\u00edodo avaliado e quanto tempo resta at\u00e9 a sobrespessura admiss\u00edvel? Onde (arco e circunfer\u00eancia) fica o pico, e a triagem fechada da norma confirma a mesma ordem de grandeza?",
+ "domain": "Fluidos / integridade de tubula\u00e7\u00e3o (\u00f3leo e g\u00e1s)",
+ "methods": [
+  "pinneapple_presets.cases.pipe_bend_erosion (f_dnv, stokes_time, dnv_bend_screening, track_particles, erosion_map, bend_mesh); a cena usa pinneapple_tools.visualization.studio.scene"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 1.0271969999994326
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[triagem fechada do DNV-RP-O501 \u00a78.4 (R/D = 1.5, D = 80 mm, U = 15 m/s, 20 kg/dia de areia de 150 \u00b5m)]",
+   "value": 0.17427518172878734,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard: DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" \u00a78.4 (\u03b1 = arctan(1/\u221a(2R/D)), G, C1 = 2,5): \u00e9 o modelo do c\u00f3digo na forma fechada, n\u00e3o um ensaio; as duas rotas concordam dentro de 35 % porque a triagem troca a distribui\u00e7\u00e3o de \u00e2ngulos de impacto por um \u00e2ngulo efetivo \u00fanico"
+  }
+ ],
+ "checks": [
+  {
+   "name": "triagem fechada do DNV-RP-O501 \u00a78.4 (R/D = 1.5, D = 80 mm, U = 15 m/s, 20 kg/dia de areia de 150 \u00b5m)",
+   "passed": true,
+   "value": 0.4353358378049347,
+   "reference": 0.5272166079692022,
+   "rtol": 0.35,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/variants.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" \u00a78.4 (\u03b1 = arctan(1/\u221a(2R/D)), G, C1 = 2,5): \u00e9 o modelo do c\u00f3digo na forma fechada, n\u00e3o um ensaio; as duas rotas concordam dentro de 35 % porque a triagem troca a distribui\u00e7\u00e3o de \u00e2ngulos de impacto por um \u00e2ngulo efetivo \u00fanico"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9b9e8b7d8",
+  "created": "2026-11-17T14:45:46Z",
+  "seconds": 0.03,
+  "error": null,
+  "environment": {
+   "python": "3.15.0",
+   "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+ }
+}

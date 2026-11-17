@@ -1,0 +1,330 @@
+{
+ "preset": "pipe_bend_erosion",
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "taxa de pico 0.435 mm/ano no arco 58° (θ = 5°, 0° = extradorso)",
+   "perda de parede em 5 anos: 2.18 mm contra a sobrespessura admissível de 2.00 mm; parede remanescente 3.31 mm de 5.49 mm",
+   "vida no pico até consumir a sobrespessura admissível: 4.6 anos",
+   "a sobrespessura se esgota antes do período avaliado: antecipe a inspeção por ultrassom no extradorso (4.6 anos)",
+   "não atende: a perda de parede no período passa da sobrespessura admissível"
+  ]
+ },
+ "outputs": {
+  "rate_peak_mm_year": 0.4353358378049347,
+  "wall_loss_mm": 2.1766791890246733,
+  "alpha_median_deg": 30.795222277354632,
+  "impact_fraction": 1.0,
+  "peak_arc_deg": 57.821229050279335,
+  "peak_theta_deg": 5.0,
+  "rate_dnv_mm_year": 0.5272166079692022,
+  "life_years": 4.594154274282744,
+  "remaining_wall_mm": 3.313320810975327,
+  "stokes": 41.40624999999999,
+  "n_impacts": 50000,
+  "diagnostics": {
+   "tracking": {
+    "n_impact": 50000,
+    "n_exit": 0,
+    "n_stuck": 0,
+    "n_particles": 50000,
+    "alpha_min": 0.125939697473588,
+    "alpha_max": 59.118904777143975
+   },
+   "peak_cell": {
+    "raw": 0.49688001847912805,
+    "v": 14.872960950983924,
+    "alpha_deg": 56.197351408532725,
+    "flux": 0.05952619538987344,
+    "area": 3.655409037440503e-06,
+    "window_impacts": 1025
+   },
+   "screening": {
+    "alpha_deg": 30.000000000000004,
+    "re_d": 4000000.0,
+    "beta": 53.0,
+    "a_stokes": 43573.605221858554,
+    "gamma": 0.0018749999999999997,
+    "gamma_c": 0.0013436253392413219,
+    "g": 1.0,
+    "area_pipe": 0.005026548245743669,
+    "rate_mm_year": 0.5272166079692022
+   },
+   "u_scaling": {
+    "ratio": 2.8772297824676123,
+    "speed": 1.5,
+    "n_particles": 5000,
+    "mass_rate_kg_s": 4.907532157688417e-10
+   }
+  }
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "penetração na célula de pico = formulação do DNV-RP-O501",
+    "status": "supports",
+    "value": 2.0109496961077967e-15,
+    "limit": 1e-09,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" eq. 7.1-7.3 e Tabela 7-2 (aço: K = 2,0e-9, n = 2,6, ρ_t = 7800 kg/m3); PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md §2.2 (F(α) e Tabela 7-2) e §5 (§8.4, curva): transcrição da norma; as constantes devem ser reconferidas na edição 2015/2025",
+    "reason": "ER = K V^n F(α) com V = 14.87 m/s, α = 56.2°, F = 0.9231, fluxo de areia 5.9526e-02 kg/(m2 s), ρ_t = 7800 kg/m3"
+   },
+   {
+    "name": "rastreamento x triagem fechada da DNV §8.4 (35 %)",
+    "status": "supports",
+    "value": 0.8257248182712127,
+    "limit": 1.35,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" §8.4 (α = arctan(1/√(2R/D)), G, C1 = 2,5, C_unit = 3,15e10); PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md §2.2 (F(α) e Tabela 7-2) e §5 (§8.4, curva): transcrição da norma; as constantes devem ser reconferidas na edição 2015/2025",
+    "reason": "pico do rastreamento 0.435 mm/ano contra 0.527 mm/ano da triagem (α = 30.0°); a triagem troca a distribuição de impactos (mediana 30.8°) por um ângulo efetivo único"
+   },
+   {
+    "name": "conservação do número de partículas",
+    "status": "supports",
+    "value": 50000,
+    "limit": 50000,
+    "source": "rastreamento lagrangiano: cada partícula termina na parede do joelho, atravessando o joelho sem tocar ou (no teto de passos) ainda dentro do tubo; nenhuma é criada ou perdida",
+    "reason": "50000 impactos, 0 atravessaram sem tocar, 0 ficaram no tubo"
+   },
+   {
+    "name": "areia inercial: praticamente toda partícula impacta (St >> 1)",
+    "status": "supports",
+    "value": 1.0,
+    "limit": 0.99,
+    "source": "St = τ_p U / D com τ_p = ρ_p d_p²/(18 μ): com St >> 1 a partícula não acompanha a curva e não sobra uma fração que fuja do extradorso",
+    "reason": "St = 41.4; impactaram 100.0% das partículas"
+   },
+   {
+    "name": "ângulo de impacto dentro de (0°, 90°)",
+    "status": "supports",
+    "value": 59.118904777143975,
+    "limit": 90.0,
+    "source": "geometria do joelho: α = arcsin(|v·n|/|v|) na parede do extradorso; 0° seria rasante e 90° normal à parede, e a partícula que entra com o fluido bate de esguelha",
+    "reason": "α de 0.1° a 59.1°, mediana 30.8°"
+   },
+   {
+    "name": "ângulo mediano de impacto = ângulo efetivo da DNV §8.4 (15 %)",
+    "status": "supports",
+    "value": 30.795222277354632,
+    "limit": 34.5,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" §8.4: α = arctan(1/√(2R/D)) é o ângulo de corte que a norma usa na curva; PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md §2.2 (F(α) e Tabela 7-2) e §5 (§8.4, curva): transcrição da norma; as constantes devem ser reconferidas na edição 2015/2025",
+    "reason": "mediana medida 30.8° contra 30.0° de arctan(1/√(2R/D)) com R/D = 1.50"
+   },
+   {
+    "name": "taxa cresce com a velocidade como U^n (expoente da norma)",
+    "status": "supports",
+    "value": 2.8772297824676123,
+    "limit": 2.8697051264080295,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" eq. 7.1 (ER = K V^n F(α)): a massa removida por segundo é K V^n F(α) por massa de areia, então subir a velocidade por um fator s multiplica a taxa por s^n",
+    "reason": "a 1.5× a velocidade, a massa removida por segundo subiu 2.8772× contra 2.8697× de s^n (5000 partículas); a distribuição de impactos também muda com a velocidade, o que desloca o expoente aparente para 2.61"
+   },
+   {
+    "name": "pico na metade externa do joelho",
+    "status": "supports",
+    "value": 5.0,
+    "limit": 45.0,
+    "source": "geometria do joelho: θ = 0 é o extradorso, para onde a areia é jogada ao virar a curva",
+    "reason": "pico a 58° do arco e 5° na circunferência (0° = extradorso)"
+   },
+   {
+    "name": "posição do pico dentro do arco do joelho",
+    "status": "supports",
+    "value": 57.821229050279335,
+    "limit": 90.0,
+    "source": "geometria do joelho: o arco corre de 0° (entrada) a 90° (saída)",
+    "reason": ""
+   },
+   {
+    "name": "pico do mapa amostrado (média 5 x 5 células)",
+    "status": "supports",
+    "value": 1025,
+    "limit": 50,
+    "source": "estatística do pico: o valor lido é a média de uma janela de células, e uma janela com poucos impactos leria ruído de amostragem como erosão",
+    "reason": "1025 impactos na janela do pico com 50000 partículas"
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "pipe_bend_erosion",
+  "references": [
+   {
+    "case": "triagem fechada do DNV-RP-O501 §8.4 (R/D = 1.5, D = 80 mm, U = 15 m/s, 20 kg/dia de areia de 150 µm)",
+    "output": "rate_peak_mm_year",
+    "unit": "mm/a",
+    "computed": 0.4353358378049347,
+    "reference": 0.5272166079692022,
+    "rel_error": 0.17427518172878734,
+    "tol": 0.35,
+    "pass": true,
+    "kind": "standard",
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" §8.4 (α = arctan(1/√(2R/D)), G, C1 = 2,5): é o modelo do código na forma fechada, não um ensaio; as duas rotas concordam dentro de 35 % porque a triagem troca a distribuição de ângulos de impacto por um ângulo efetivo único",
+    "params": {
+     "d_inner": 0.08,
+     "r_over_d": 1.5,
+     "u_gas": 15.0,
+     "sand_rate": 0.0002314814814814815,
+     "d_particle": 0.00015,
+     "rho_particle": 2650.0,
+     "rho_gas": 50.0,
+     "mu_gas": 1.5e-05,
+     "k_dnv": 2e-09,
+     "n_dnv": 2.6,
+     "rho_wall": 7800.0
+    }
+   }
+  ],
+  "convergence": null,
+  "all_pass": true
+ },
+ "figures": [
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 1.0271969999994326,
+  "versions": {
+   "python": "3.15.0",
+   "pinneapple": "0.8.0",
+   "numpy": "2.5.4",
+   "scipy": "1.18.1",
+   "torch": "2.15.0"
+  },
+  "hardware": {
+   "cpu": "arm",
+   "cores": 10,
+   "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "date_utc": "2026-11-17T14:45:37Z"
+ },
+ "variants": {
+  "rows": {
+   "base (R/D 1,5)": {
+    "params": {},
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "rate_peak_mm_year": 0.4353358378049347,
+     "wall_loss_mm": 2.1766791890246733,
+     "alpha_median_deg": 30.795222277354632,
+     "impact_fraction": 1.0,
+     "peak_arc_deg": 57.821229050279335,
+     "peak_theta_deg": 5.0,
+     "rate_dnv_mm_year": 0.5272166079692022,
+     "life_years": 4.594154274282744,
+     "remaining_wall_mm": 3.313320810975327,
+     "stokes": 41.40624999999999,
+     "n_impacts": 50000
+    }
+   },
+   "raio longo R/D 3": {
+    "params": {
+     "r_over_d": 3.0
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "rate_peak_mm_year": 0.32277926867854473,
+     "wall_loss_mm": 1.6138963433927236,
+     "alpha_median_deg": 23.099458862759462,
+     "impact_fraction": 1.0,
+     "peak_arc_deg": 42.23463687150838,
+     "peak_theta_deg": 5.0,
+     "rate_dnv_mm_year": 0.3850951858294659,
+     "life_years": 6.196184805139379,
+     "remaining_wall_mm": 3.8761036566072766,
+     "stokes": 41.40624999999999,
+     "n_impacts": 50000
+    }
+   },
+   "curva 5D": {
+    "params": {
+     "r_over_d": 5.0
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "rate_peak_mm_year": 0.24764826458696979,
+     "wall_loss_mm": 1.238241322934849,
+     "alpha_median_deg": 18.31236296220615,
+     "impact_fraction": 1.0,
+     "peak_arc_deg": 33.687150837988824,
+     "peak_theta_deg": 5.0,
+     "rate_dnv_mm_year": 0.29641006560465577,
+     "life_years": 8.075970180270069,
+     "remaining_wall_mm": 4.251758677065151,
+     "stokes": 41.40624999999999,
+     "n_impacts": 50000
+    }
+   },
+   "areia em dobro": {
+    "params": {
+     "sand_rate": 0.000462962962962963
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "rate_peak_mm_year": 0.8706716756098694,
+     "wall_loss_mm": 4.3533583780493466,
+     "alpha_median_deg": 30.795222277354632,
+     "impact_fraction": 1.0,
+     "peak_arc_deg": 57.821229050279335,
+     "peak_theta_deg": 5.0,
+     "rate_dnv_mm_year": 1.0544332159384044,
+     "life_years": 2.297077137141372,
+     "remaining_wall_mm": 1.1366416219506537,
+     "stokes": 41.40624999999999,
+     "n_impacts": 50000
+    }
+   },
+   "gás a 25 m/s": {
+    "params": {
+     "u_gas": 25.0
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "rate_peak_mm_year": 1.6885530995979574,
+     "wall_loss_mm": 8.442765497989788,
+     "alpha_median_deg": 30.948692765901065,
+     "impact_fraction": 1.0,
+     "peak_arc_deg": 57.821229050279335,
+     "peak_theta_deg": 5.0,
+     "rate_dnv_mm_year": 1.9897377133625036,
+     "life_years": 1.184446020960903,
+     "remaining_wall_mm": -2.9527654979897875,
+     "stokes": 69.01041666666666,
+     "n_impacts": 50000
+    }
+   }
+  },
+  "compared": [
+   "rate_peak_mm_year",
+   "wall_loss_mm",
+   "life_years"
+  ],
+  "gallery_3d": []
+ },
+ "wall_time_total_s": 9.797158582998236,
+ "environment": {
+  "versions": {
+   "python": "3.15.0",
+   "pinneapple": "0.8.0",
+   "numpy": "2.5.4",
+   "scipy": "1.18.1",
+   "torch": "2.15.0"
+  },
+  "hardware": {
+   "cpu": "arm",
+   "cores": 10,
+   "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+ }
+}

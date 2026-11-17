@@ -7,24 +7,30 @@
    "sector": "Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica",
    "problem": "Seção de asa ou pá descrita por 6 parâmetros CST (3 de espessura, 3 de arqueamento), escoamento subsônico incompressível a Re = 4e6. Cl, Cd e Cm pelo modelo do zoo (ensemble de MLPs treinado em OpenFOAM RANS k-omega SST), com o desvio do ensemble; o método de painéis de Hess-Smith dá a referência invíscida.",
    "question": "Qual a sustentação, o arrasto e a eficiência L/D deste perfil no ângulo de ataque de operação? Que perfil maximiza L/D com espessura estrutural >= 12 % e Cm >= -0,12?",
+   "title_en": "Wing or blade section at Re 4e6: lift, drag and moment (verified RANS surrogate)",
+   "sector_en": "Aerodynamics / light aircraft, UAVs, wind-turbine blades",
+   "problem_en": "A wing or blade section described by six CST parameters (three for thickness, three for camber), subsonic incompressible flow at Re = 4e6. Cl, Cd and Cm from the zoo model (an ensemble of MLPs trained on OpenFOAM RANS k-omega SST), with the ensemble spread; the Hess-Smith panel method gives the inviscid reference.",
+   "question_en": "What are the lift, the drag and the L/D of this section at the operating angle of attack? Which section maximises L/D with structural thickness >= 12 % and Cm >= -0.12?",
    "inputs": [
     {
      "name": "T0",
      "unit": "-",
-     "default": 0.1695912146244289,
+     "default": 0.169591214624429,
      "source": "CST de espessura, ajuste do NACA 2412 (pinneapple_design.aero.naca4)",
      "lo": 0.1,
      "hi": 0.24,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "T1",
      "unit": "-",
-     "default": 0.14495873416070895,
+     "default": 0.14495873416070892,
      "source": "idem",
      "lo": 0.08,
      "hi": 0.22,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "T2",
@@ -33,25 +39,28 @@
      "source": "idem",
      "lo": 0.08,
      "hi": 0.22,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "M0",
      "unit": "-",
-     "default": 0.02492222636259679,
+     "default": 0.024922226362596722,
      "source": "CST de arqueamento, ajuste do NACA 2412",
      "lo": -0.03,
      "hi": 0.08,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "M1",
      "unit": "-",
-     "default": 0.07108767218761686,
+     "default": 0.07108767218761694,
      "source": "idem",
      "lo": -0.02,
      "hi": 0.14,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "M2",
@@ -60,7 +69,8 @@
      "source": "idem",
      "lo": -0.04,
      "hi": 0.12,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "alpha_deg",
@@ -69,7 +79,8 @@
      "source": "premissa: cruzeiro de aeronave leve (Cl ~0,6)",
      "lo": -2.0,
      "hi": 14.0,
-     "help": ""
+     "help": "",
+     "help_en": "Angle of attack"
     },
     {
      "name": "chord",
@@ -78,7 +89,8 @@
      "source": "premissa: corda média de aeronave leve (V ~ 40 m/s dá Re 4e6)",
      "lo": 0.1,
      "hi": 5.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "velocity",
@@ -87,7 +99,8 @@
      "source": "premissa; Re = V c / nu, nu do ar a 15 °C = 1,46e-5 m2/s (ISA)",
      "lo": 5,
      "hi": 120,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -525,6 +538,10 @@
    "sector": "Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás)",
    "problem": "Sonda absoluta tipo pancake (bobina com núcleo de ar) sobre chapa de Al 2024-T3. Variação de impedância pela solução analítica de Dodd & Deeds, conferida pelo FDM axissimétrico da lib; profundidade de penetração; sensibilidade ao afinamento por corrosão frente ao lift-off.",
    "question": "Nesta frequência a sonda distingue 10 % de perda de espessura da variação de lift-off do operador? Qual frequência de ensaio separa melhor os dois sinais, e quanto de espessura se lê de uma medição em várias frequências?",
+   "title_en": "Eddy-current inspection of an aircraft aluminium sheet: impedance and thinning",
+   "sector_en": "Electromagnetics / non-destructive testing (aerospace, oil and gas)",
+   "problem_en": "An absolute pancake probe (air-cored coil) over an Al 2024-T3 sheet. Impedance change from the Dodd & Deeds analytical solution, checked against the library's axisymmetric FDM; depth of penetration; sensitivity to thickness loss against lift-off.",
+   "question_en": "At this frequency, can the probe tell a 10 % thickness loss from the operator's lift-off variation? Which test frequency separates the two signals best, and how much thickness can be measured before the signal is lost?",
    "inputs": [
     {
      "name": "f",
@@ -533,7 +550,8 @@
      "source": "premissa: ensaio de corrosão em chapa fina, 1-100 kHz típico (ASM Handbook vol. 17)",
      "lo": 100,
      "hi": 1000000.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "sigma",
@@ -542,7 +560,8 @@
      "source": "Al 2024-T3: ~30 % IACS (ASM / MIL-HDBK-5): 17,4 MS/m",
      "lo": 500000.0,
      "hi": 60000000.0,
-     "help": ""
+     "help": "",
+     "help_en": "Conductivity"
     },
     {
      "name": "thickness",
@@ -551,7 +570,8 @@
      "source": "premissa: revestimento de fuselagem de 2,0 mm",
      "lo": 0.0002,
      "hi": 0.02,
-     "help": ""
+     "help": "",
+     "help_en": "Sheet thickness"
     },
     {
      "name": "liftoff",
@@ -560,7 +580,8 @@
      "source": "premissa: 0,5 mm (camada de tinta + desgaste da face da sonda)",
      "lo": 0.0,
      "hi": 0.003,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "r1",
@@ -569,7 +590,8 @@
      "source": "premissa: bobina pancake, raio interno 2 mm",
      "lo": 0.0002,
      "hi": 0.02,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "r2",
@@ -578,7 +600,8 @@
      "source": "raio externo 4 mm",
      "lo": 0.0005,
      "hi": 0.03,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "height",
@@ -587,7 +610,8 @@
      "source": "altura da bobina 2 mm",
      "lo": 0.0002,
      "hi": 0.02,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "turns",
@@ -596,7 +620,8 @@
      "source": "premissa: 200 espiras",
      "lo": 1,
      "hi": 5000,
-     "help": ""
+     "help": "",
+     "help_en": "Turns"
     },
     {
      "name": "loss",
@@ -605,7 +630,8 @@
      "source": "afinamento a detectar: 10 % da espessura (critério típico de corrosão)",
      "lo": 0.01,
      "hi": 0.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "liftoff_noise",
@@ -614,7 +640,8 @@
      "source": "premissa: variação de lift-off do operador ±0,05 mm (define a direção do lift-off no plano de impedância)",
      "lo": 1e-06,
      "hi": 0.0005,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "noise_frac",
@@ -623,7 +650,8 @@
      "source": "premissa: ruído do instrumento 0,2 % de |dZ|",
      "lo": 0.0001,
      "hi": 0.05,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "angle_min",
@@ -632,7 +660,8 @@
      "source": "premissa: separação de fase mínima entre afinamento e lift-off para girar o lift-off para a horizontal e ler o afinamento na vertical (prática de ajuste de fase)",
      "lo": 5,
      "hi": 60,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -1669,6 +1698,10 @@
    "sector": "Eletromagnetismo / mobilidade elétrica",
    "problem": "Motor síncrono de ímãs internos em V (8 polos, 48 ranhuras) com a geometria publicada do Prius 2004. FEM magnetostático não linear por posição de rotor com correntes senoidais fixas no referencial dq: torque médio (Arkkio), ondulação, fluxos dq, ângulo de máximo torque por ampère (MTPA) e a tensão de fase na rotação pedida contra o limite do inversor.",
    "question": "Que torque o motor dá nesta corrente e neste ângulo, quanto falta para o MTPA, e a tensão nesta rotação cabe no barramento CC (ou é preciso enfraquecimento de campo)?",
+   "title_en": "Interior permanent-magnet traction motor (Toyota Prius 2004 geometry): torque, MTPA and voltage",
+   "sector_en": "Electromagnetics / electric mobility",
+   "problem_en": "A V-shaped interior permanent-magnet synchronous motor (8 poles, 48 slots) with the published Prius 2004 geometry. Non-linear magnetostatic FEM per rotor position with fixed sinusoidal currents in the dq frame: average torque, torque ripple, the MTPA angle and the terminal voltage at speed.",
+   "question_en": "What torque does the motor give at this current and angle, how far is it from MTPA, and does the voltage at this speed fit the DC bus (or is field weakening needed)?",
    "inputs": [
     {
      "name": "I_peak",
@@ -1677,7 +1710,8 @@
      "source": "250 A de pico, o ponto publicado de Yang et al. (2013)",
      "lo": 10,
      "hi": 300,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "gamma_deg",
@@ -1686,7 +1720,8 @@
      "source": "ângulo da corrente a partir do eixo q (0 = só i_q)",
      "lo": 0,
      "hi": 85,
-     "help": ""
+     "help": "",
+     "help_en": "Current angle"
     },
     {
      "name": "rpm",
@@ -1695,7 +1730,8 @@
      "source": "premissa: rotação de base em torno de 1200-1500 rpm (Staunton et al., ORNL/TM-2004/247, 'Evaluation of the 2004 Toyota Prius hybrid electric drive system' (2005))",
      "lo": 0,
      "hi": 6000,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "v_dc",
@@ -1704,7 +1740,8 @@
      "source": "barramento CC do Prius 2004 com o conversor elevador: até 500 V (Staunton et al., ORNL/TM-2004/247, 'Evaluation of the 2004 Toyota Prius hybrid electric drive system' (2005))",
      "lo": 100,
      "hi": 800,
-     "help": ""
+     "help": "",
+     "help_en": "DC bus voltage"
     },
     {
      "name": "n_positions",
@@ -1713,7 +1750,8 @@
      "source": "posições do rotor por média de torque",
      "lo": 3,
      "hi": 24,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "n_gap",
@@ -1723,6 +1761,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "",
      "choices": [
       480,
       960
@@ -2195,11 +2234,568 @@
    }
   },
   {
+   "name": "pipe_bend_erosion",
+   "title": "Joelho de tubulação com areia: taxa de erosão, perda de parede e vida pelo DNV-RP-O501",
+   "sector": "Fluidos / integridade de tubulação (óleo e gás)",
+   "problem": "Joelho de 90° de uma linha de 3\" de aço carbono por onde passa gás com areia (poço de gás). As partículas são rastreadas no escoamento do joelho, cada impacto entra no modelo de desgaste do DNV-RP-O501 (ER = K V^n F(α), Tabela 7-2) e a taxa por célula da parede dá o mapa de erosão, o pico, a perda de parede no período e a vida até a sobrespessura admissível. A triagem fechada da §8.4 é calculada junto como segunda rota do mesmo modelo.",
+   "question": "Qual a taxa de erosão de pico neste joelho, quanto da parede ele perde no período avaliado e quanto tempo resta até a sobrespessura admissível? Onde (arco e circunferência) fica o pico, e a triagem fechada da norma confirma a mesma ordem de grandeza?",
+   "title_en": "Sand erosion in a pipe bend: rate, wall loss and life to DNV-RP-O501",
+   "sector_en": "Fluids / pipeline integrity (oil and gas)",
+   "problem_en": "A 90° carbon-steel bend in a 3\" gas line carrying sand (a gas well). The particles are tracked through the bend, every impact enters the wear model of DNV-RP-O501 (ER = K V^n F(alpha), Table 7-2) and the rate per wall cell gives the erosion map, the peak, the wall loss over the period and the life down to the allowance. The standard's closed-form bend screening (§8.4) is computed alongside as a second route of the same model.",
+   "question_en": "What is the peak erosion rate in this bend, how much wall does it lose over the period and how long until the allowance is gone? Where does the peak sit (arc and circumference), and does the standard's closed-form screening confirm the same order of magnitude?",
+   "inputs": [
+    {
+     "name": "d_inner",
+     "unit": "m",
+     "default": 0.08,
+     "source": "premissa: linha de 3\" com diâmetro interno nominal de 80 mm (o NPS 3\" Sch 40 da ASME B36.10M tem ID 77,9 mm e parede de 5,49 mm)",
+     "lo": 0.025,
+     "hi": 0.5,
+     "help": "",
+     "help_en": "Inside diameter"
+    },
+    {
+     "name": "r_over_d",
+     "unit": "-",
+     "default": 1.5,
+     "source": "premissa: joelho de raio longo 1,5D, o padrão dos joelhos de 90° da ASME B16.9",
+     "lo": 1.0,
+     "hi": 6.0,
+     "help": "",
+     "help_en": "Bend radius (R/D)"
+    },
+    {
+     "name": "u_gas",
+     "unit": "m/s",
+     "default": 15.0,
+     "source": "premissa: velocidade média do gás na linha de produção do caso",
+     "lo": 2.0,
+     "hi": 40.0,
+     "help": "",
+     "help_en": "Gas velocity"
+    },
+    {
+     "name": "sand_rate",
+     "unit": "kg/s",
+     "default": 0.0002314814814814815,
+     "source": "premissa: 20 kg/dia de areia produzida (2,315e-4 kg/s); o piso da faixa é uma vazão desprezível, não o caso sem areia (sem areia não há erosão a medir)",
+     "lo": 1e-09,
+     "hi": 0.01,
+     "help": "",
+     "help_en": "Sand rate"
+    },
+    {
+     "name": "d_particle",
+     "unit": "m",
+     "default": 0.00015,
+     "source": "premissa: areia de 150 µm (a DNV cita 250-500 µm em poço sem gravel pack; a partícula fina é o caso que mais espalha o impacto pelo arco)",
+     "lo": 2e-05,
+     "hi": 0.001,
+     "help": "",
+     "help_en": "Particle diameter"
+    },
+    {
+     "name": "rho_particle",
+     "unit": "kg/m3",
+     "default": 2650.0,
+     "source": "quartzo (SiO2), a areia de produção",
+     "lo": 1500.0,
+     "hi": 8000.0,
+     "help": "",
+     "help_en": "Particle density"
+    },
+    {
+     "name": "rho_gas",
+     "unit": "kg/m3",
+     "default": 50.0,
+     "source": "premissa: gás natural a ~65 bar e 40 °C: ρ = p M/(Z R T) = 65e5 × 0,0180 / (0,90 × 8,314 × 313) = 50 kg/m3 (entra na triagem pelo Re_D do fator G)",
+     "lo": 0.5,
+     "hi": 400.0,
+     "help": "",
+     "help_en": "Gas density"
+    },
+    {
+     "name": "mu_gas",
+     "unit": "Pa s",
+     "default": 1.5e-05,
+     "source": "premissa: gás natural a 40 °C e 65 bar, μ ≈ 1,5e-5 Pa s",
+     "lo": 8e-06,
+     "hi": 0.001,
+     "help": "",
+     "help_en": "Gas viscosity"
+    },
+    {
+     "name": "k_dnv",
+     "unit": "(m/s)^-n",
+     "default": 2e-09,
+     "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" Tabela 7-2 (aço carbono): K = 2,0e-9 (m/s)^-n",
+     "lo": 1e-10,
+     "hi": 1e-07,
+     "help": "",
+     "help_en": "DNV wear factor K (Table 7-2)"
+    },
+    {
+     "name": "n_dnv",
+     "unit": "-",
+     "default": 2.6,
+     "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" Tabela 7-2 (aço carbono): n = 2,6",
+     "lo": 2.0,
+     "hi": 4.0,
+     "help": "",
+     "help_en": "DNV velocity exponent n"
+    },
+    {
+     "name": "rho_wall",
+     "unit": "kg/m3",
+     "default": 7800.0,
+     "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" Tabela 7-2: ρ_t = 7800 kg/m3 (aço)",
+     "lo": 1000.0,
+     "hi": 9000.0,
+     "help": "",
+     "help_en": "Wall density (Table 7-2)"
+    },
+    {
+     "name": "t_wall",
+     "unit": "m",
+     "default": 0.00549,
+     "source": "ASME B36.10M, NPS 3\" Sch 40: parede de 5,49 mm",
+     "lo": 0.002,
+     "hi": 0.03,
+     "help": "",
+     "help_en": "Nominal wall thickness"
+    },
+    {
+     "name": "t_allow",
+     "unit": "m",
+     "default": 0.002,
+     "source": "premissa: sobrespessura de erosão admissível no período (2 mm; parcela da sobre-espessura de 3 mm usual em projeto de aço carbono)",
+     "lo": 0.0,
+     "hi": 0.02,
+     "help": "",
+     "help_en": "Erosion allowance"
+    },
+    {
+     "name": "years",
+     "unit": "a",
+     "default": 5.0,
+     "source": "premissa: período avaliado / intervalo de inspeção de 5 anos",
+     "lo": 0.5,
+     "hi": 30.0,
+     "help": "",
+     "help_en": "Period evaluated"
+    },
+    {
+     "name": "n_particles",
+     "unit": "-",
+     "default": 50000,
+     "source": "premissa: 50 mil partículas; o gêmeo rodado usou 200 mil e o pico varia menos de 2 % entre os dois. O pico é o máximo do mapa, então amostra pequena o sobrestima (5 mil dão ~18 % acima de 50 mil): o piso de 5 mil é o mínimo em que a janela de 25 células ainda tem impactos",
+     "lo": 5000,
+     "hi": 500000,
+     "help": "",
+     "help_en": "Particles tracked"
+    }
+   ],
+   "outputs": [
+    {
+     "name": "rate_peak_mm_year",
+     "unit": "mm/a",
+     "help": "taxa de erosão de pico na parede do joelho"
+    },
+    {
+     "name": "wall_loss_mm",
+     "unit": "mm",
+     "help": "perda de parede no pico ao fim do período avaliado"
+    },
+    {
+     "name": "alpha_median_deg",
+     "unit": "grau",
+     "help": "ângulo de impacto mediano, entre a trajetória e a parede"
+    },
+    {
+     "name": "impact_fraction",
+     "unit": "-",
+     "help": "fração das partículas que impactam a parede dentro do joelho"
+    },
+    {
+     "name": "peak_arc_deg",
+     "unit": "grau",
+     "help": "posição do pico ao longo do arco (0° = entrada, 90° = saída)"
+    },
+    {
+     "name": "peak_theta_deg",
+     "unit": "grau",
+     "help": "posição circunferencial do pico (0° = extradorso)"
+    },
+    {
+     "name": "rate_dnv_mm_year",
+     "unit": "mm/a",
+     "help": "triagem fechada do DNV-RP-O501 §8.4 na mesma condição"
+    },
+    {
+     "name": "life_years",
+     "unit": "a",
+     "help": "vida no pico até consumir a sobrespessura admissível"
+    },
+    {
+     "name": "remaining_wall_mm",
+     "unit": "mm",
+     "help": "parede remanescente no pico ao fim do período"
+    },
+    {
+     "name": "stokes",
+     "unit": "-",
+     "help": "número de Stokes das partículas no joelho (τ_p U / D)"
+    },
+    {
+     "name": "n_impacts",
+     "unit": "-",
+     "help": "impactos medidos na parede (de n_particles lançadas)"
+    }
+   ],
+   "validity": "Escoamento pistonado monofásico (não é um RANS): a física medida é a impactação inercial da areia e a taxa do modelo da norma. Areia diluída e sem ricochete (uma partícula, um impacto, sem interação entre partículas), St >> 1, joelho de 90° com R/D >= 1, gás a Mach < 0,3. O pico é uma média móvel de 5 x 5 células na malha de 180 x 72 da parede (0,5° no arco e 5° na circunferência). A triagem §8.4 usa uma única velocidade, a média da linha. Abaixo de St ~ 5 (areia fina, gás muito viscoso ou tubo grande) a areia acompanha parte da curva: as checagens de regime inercial não são executadas e o relatório diz por quê.",
+   "pipeline": [
+    "geometria: joelho de 90°, D x R/D (d_inner, r_over_d), malha da parede de 180 x 72 células",
+    "modelo: arrasto de Stokes (τ_p = ρ_p d_p²/18μ) no escoamento pistonado; desgaste ER = K V^n F(α) do DNV-RP-O501 com K, n e ρ_t da Tabela 7-2",
+    "solver: rastreamento lagrangiano até o impacto -> taxa por célula -> média móvel -> integração no período; triagem fechada da §8.4 na mesma condição",
+    "pós: pico e sua posição, ângulo mediano, fração de impactos, perda de parede, vida e parede remanescente",
+    "decisão: perda de parede no período <= sobrespessura admissível"
+   ],
+   "library": [
+    "pinneapple_presets.cases.pipe_bend_erosion (f_dnv, stokes_time, dnv_bend_screening, track_particles, erosion_map, bend_mesh); a cena usa pinneapple_tools.visualization.studio.scene"
+   ],
+   "limitations": [
+    "Escoamento pistonado: sem RANS, sem camada limite e sem turbulência, então a velocidade de impacto segue a velocidade média do gás (um RANS com camada limite muda a distribuição dentro da seção).",
+    "Sem ricochete, sem dispersão turbulenta e sem interação entre partículas (areia diluída): a taxa é a de um único impacto por partícula.",
+    "K, n e A1..A8 vêm de transcrição secundária da norma (anexo do PINNeAPPle-CFD): reconferir na edição 2015/2025 antes de usar o número em contrato.",
+    "O alisamento 5 x 5 do mapa e a malha de 180 x 72 fixam a resolução da posição do pico: um pico mais estreito que uma célula é lido como média da vizinhança.",
+    "O pico é o máximo do mapa, e um máximo entre células com poucos impactos é sobrestimado pela amostragem: de 50 mil para 200 mil partículas ele cai ~2 %, e 5 mil dão ~18 % acima."
+   ],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": false,
+    "optimization": false,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "surrogate": "o rastreamento de 50 mil partículas custa segundos e a triagem fechada da norma responde na hora; uma varredura de engenharia usa a §8.4, não um substituto treinado",
+    "inversion": "o caso não tem medição de campo; a inversão útil seria calibrar K e n contra espessuras medidas por UT ao longo dos anos, e o dado de inspeção não faz parte do preset",
+    "optimization": "não há objetivo de custo declarado; o ganho vem de R/D, D e velocidade, que a triagem fechada da §8.4 responde sem rastreamento"
+   },
+   "reason_case": null,
+   "references": [
+    {
+     "name": "triagem fechada do DNV-RP-O501 §8.4 (R/D = 1.5, D = 80 mm, U = 15 m/s, 20 kg/dia de areia de 150 µm)",
+     "params": {
+      "d_inner": 0.08,
+      "r_over_d": 1.5,
+      "u_gas": 15.0,
+      "sand_rate": 0.0002314814814814815,
+      "d_particle": 0.00015,
+      "rho_particle": 2650.0,
+      "rho_gas": 50.0,
+      "mu_gas": 1.5e-05,
+      "k_dnv": 2e-09,
+      "n_dnv": 2.6,
+      "rho_wall": 7800.0
+     },
+     "output": "rate_peak_mm_year",
+     "value": 0.5272166079692022,
+     "unit": "mm/a",
+     "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" §8.4 (α = arctan(1/√(2R/D)), G, C1 = 2,5): é o modelo do código na forma fechada, não um ensaio; as duas rotas concordam dentro de 35 % porque a triagem troca a distribuição de ângulos de impacto por um ângulo efetivo único",
+     "kind": "standard",
+     "tol": 0.35
+    }
+   ],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"pipe_bend_erosion\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run pipe_bend_erosion",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "pipe_bend_erosion"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/pipe_bend_erosion",
+    "decision": {
+     "verdict": "NOT OK",
+     "reasons": [
+      "taxa de pico 0.435 mm/ano no arco 58° (θ = 5°, 0° = extradorso)",
+      "perda de parede em 5 anos: 2.18 mm contra a sobrespessura admissível de 2.00 mm; parede remanescente 3.31 mm de 5.49 mm",
+      "vida no pico até consumir a sobrespessura admissível: 4.6 anos",
+      "a sobrespessura se esgota antes do período avaliado: antecipe a inspeção por ultrassom no extradorso (4.6 anos)",
+      "não atende: a perda de parede no período passa da sobrespessura admissível"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "penetração na célula de pico = formulação do DNV-RP-O501",
+       "status": "supports",
+       "value": 2.0109496961077967e-15,
+       "limit": 1e-09,
+       "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" eq. 7.1-7.3 e Tabela 7-2 (aço: K = 2,0e-9, n = 2,6, ρ_t = 7800 kg/m3); PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md §2.2 (F(α) e Tabela 7-2) e §5 (§8.4, curva): transcrição da norma; as constantes devem ser reconferidas na edição 2015/2025",
+       "reason": "ER = K V^n F(α) com V = 14.87 m/s, α = 56.2°, F = 0.9231, fluxo de areia 5.9526e-02 kg/(m2 s), ρ_t = 7800 kg/m3"
+      },
+      {
+       "name": "rastreamento x triagem fechada da DNV §8.4 (35 %)",
+       "status": "supports",
+       "value": 0.8257248182712127,
+       "limit": 1.35,
+       "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" §8.4 (α = arctan(1/√(2R/D)), G, C1 = 2,5, C_unit = 3,15e10); PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md §2.2 (F(α) e Tabela 7-2) e §5 (§8.4, curva): transcrição da norma; as constantes devem ser reconferidas na edição 2015/2025",
+       "reason": "pico do rastreamento 0.435 mm/ano contra 0.527 mm/ano da triagem (α = 30.0°); a triagem troca a distribuição de impactos (mediana 30.8°) por um ângulo efetivo único"
+      },
+      {
+       "name": "conservação do número de partículas",
+       "status": "supports",
+       "value": 50000,
+       "limit": 50000,
+       "source": "rastreamento lagrangiano: cada partícula termina na parede do joelho, atravessando o joelho sem tocar ou (no teto de passos) ainda dentro do tubo; nenhuma é criada ou perdida",
+       "reason": "50000 impactos, 0 atravessaram sem tocar, 0 ficaram no tubo"
+      },
+      {
+       "name": "areia inercial: praticamente toda partícula impacta (St >> 1)",
+       "status": "supports",
+       "value": 1.0,
+       "limit": 0.99,
+       "source": "St = τ_p U / D com τ_p = ρ_p d_p²/(18 μ): com St >> 1 a partícula não acompanha a curva e não sobra uma fração que fuja do extradorso",
+       "reason": "St = 41.4; impactaram 100.0% das partículas"
+      },
+      {
+       "name": "ângulo de impacto dentro de (0°, 90°)",
+       "status": "supports",
+       "value": 59.118904777143975,
+       "limit": 90.0,
+       "source": "geometria do joelho: α = arcsin(|v·n|/|v|) na parede do extradorso; 0° seria rasante e 90° normal à parede, e a partícula que entra com o fluido bate de esguelha",
+       "reason": "α de 0.1° a 59.1°, mediana 30.8°"
+      },
+      {
+       "name": "ângulo mediano de impacto = ângulo efetivo da DNV §8.4 (15 %)",
+       "status": "supports",
+       "value": 30.795222277354632,
+       "limit": 34.5,
+       "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" §8.4: α = arctan(1/√(2R/D)) é o ângulo de corte que a norma usa na curva; PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md §2.2 (F(α) e Tabela 7-2) e §5 (§8.4, curva): transcrição da norma; as constantes devem ser reconferidas na edição 2015/2025",
+       "reason": "mediana medida 30.8° contra 30.0° de arctan(1/√(2R/D)) com R/D = 1.50"
+      },
+      {
+       "name": "taxa cresce com a velocidade como U^n (expoente da norma)",
+       "status": "supports",
+       "value": 2.8772297824676123,
+       "limit": 2.8697051264080295,
+       "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" eq. 7.1 (ER = K V^n F(α)): a massa removida por segundo é K V^n F(α) por massa de areia, então subir a velocidade por um fator s multiplica a taxa por s^n",
+       "reason": "a 1.5× a velocidade, a massa removida por segundo subiu 2.8772× contra 2.8697× de s^n (5000 partículas); a distribuição de impactos também muda com a velocidade, o que desloca o expoente aparente para 2.61"
+      },
+      {
+       "name": "pico na metade externa do joelho",
+       "status": "supports",
+       "value": 5.0,
+       "limit": 45.0,
+       "source": "geometria do joelho: θ = 0 é o extradorso, para onde a areia é jogada ao virar a curva",
+       "reason": "pico a 58° do arco e 5° na circunferência (0° = extradorso)"
+      },
+      {
+       "name": "posição do pico dentro do arco do joelho",
+       "status": "supports",
+       "value": 57.821229050279335,
+       "limit": 90.0,
+       "source": "geometria do joelho: o arco corre de 0° (entrada) a 90° (saída)",
+       "reason": ""
+      },
+      {
+       "name": "pico do mapa amostrado (média 5 x 5 células)",
+       "status": "supports",
+       "value": 1025,
+       "limit": 50,
+       "source": "estatística do pico: o valor lido é a média de uma janela de células, e uma janela com poucos impactos leria ruído de amostragem como erosão",
+       "reason": "1025 impactos na janela do pico com 50000 partículas"
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "pipe_bend_erosion",
+     "references": [
+      {
+       "case": "triagem fechada do DNV-RP-O501 §8.4 (R/D = 1.5, D = 80 mm, U = 15 m/s, 20 kg/dia de areia de 150 µm)",
+       "output": "rate_peak_mm_year",
+       "unit": "mm/a",
+       "computed": 0.4353358378049347,
+       "reference": 0.5272166079692022,
+       "rel_error": 0.17427518172878734,
+       "tol": 0.35,
+       "pass": true,
+       "kind": "standard",
+       "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" §8.4 (α = arctan(1/√(2R/D)), G, C1 = 2,5): é o modelo do código na forma fechada, não um ensaio; as duas rotas concordam dentro de 35 % porque a triagem troca a distribuição de ângulos de impacto por um ângulo efetivo único",
+       "params": {
+        "d_inner": 0.08,
+        "r_over_d": 1.5,
+        "u_gas": 15.0,
+        "sand_rate": 0.0002314814814814815,
+        "d_particle": 0.00015,
+        "rho_particle": 2650.0,
+        "rho_gas": 50.0,
+        "mu_gas": 1.5e-05,
+        "k_dnv": 2e-09,
+        "n_dnv": 2.6,
+        "rho_wall": 7800.0
+       }
+      }
+     ],
+     "convergence": null,
+     "all_pass": true
+    },
+    "figures": [
+     "results/variants.png"
+    ],
+    "variants": {
+     "rows": {
+      "base (R/D 1,5)": {
+       "params": {},
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "rate_peak_mm_year": 0.4353358378049347,
+        "wall_loss_mm": 2.1766791890246733,
+        "alpha_median_deg": 30.795222277354632,
+        "impact_fraction": 1.0,
+        "peak_arc_deg": 57.821229050279335,
+        "peak_theta_deg": 5.0,
+        "rate_dnv_mm_year": 0.5272166079692022,
+        "life_years": 4.594154274282744,
+        "remaining_wall_mm": 3.313320810975327,
+        "stokes": 41.40624999999999,
+        "n_impacts": 50000
+       }
+      },
+      "raio longo R/D 3": {
+       "params": {
+        "r_over_d": 3.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "rate_peak_mm_year": 0.32277926867854473,
+        "wall_loss_mm": 1.6138963433927236,
+        "alpha_median_deg": 23.099458862759462,
+        "impact_fraction": 1.0,
+        "peak_arc_deg": 42.23463687150838,
+        "peak_theta_deg": 5.0,
+        "rate_dnv_mm_year": 0.3850951858294659,
+        "life_years": 6.196184805139379,
+        "remaining_wall_mm": 3.8761036566072766,
+        "stokes": 41.40624999999999,
+        "n_impacts": 50000
+       }
+      },
+      "curva 5D": {
+       "params": {
+        "r_over_d": 5.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "rate_peak_mm_year": 0.24764826458696979,
+        "wall_loss_mm": 1.238241322934849,
+        "alpha_median_deg": 18.31236296220615,
+        "impact_fraction": 1.0,
+        "peak_arc_deg": 33.687150837988824,
+        "peak_theta_deg": 5.0,
+        "rate_dnv_mm_year": 0.29641006560465577,
+        "life_years": 8.075970180270069,
+        "remaining_wall_mm": 4.251758677065151,
+        "stokes": 41.40624999999999,
+        "n_impacts": 50000
+       }
+      },
+      "areia em dobro": {
+       "params": {
+        "sand_rate": 0.000462962962962963
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "rate_peak_mm_year": 0.8706716756098694,
+        "wall_loss_mm": 4.3533583780493466,
+        "alpha_median_deg": 30.795222277354632,
+        "impact_fraction": 1.0,
+        "peak_arc_deg": 57.821229050279335,
+        "peak_theta_deg": 5.0,
+        "rate_dnv_mm_year": 1.0544332159384044,
+        "life_years": 2.297077137141372,
+        "remaining_wall_mm": 1.1366416219506537,
+        "stokes": 41.40624999999999,
+        "n_impacts": 50000
+       }
+      },
+      "gás a 25 m/s": {
+       "params": {
+        "u_gas": 25.0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "rate_peak_mm_year": 1.6885530995979574,
+        "wall_loss_mm": 8.442765497989788,
+        "alpha_median_deg": 30.948692765901065,
+        "impact_fraction": 1.0,
+        "peak_arc_deg": 57.821229050279335,
+        "peak_theta_deg": 5.0,
+        "rate_dnv_mm_year": 1.9897377133625036,
+        "life_years": 1.184446020960903,
+        "remaining_wall_mm": -2.9527654979897875,
+        "stokes": 69.01041666666666,
+        "n_impacts": 50000
+       }
+      }
+     },
+     "compared": [
+      "rate_peak_mm_year",
+      "wall_loss_mm",
+      "life_years"
+     ],
+     "gallery_3d": []
+    },
+    "meta": {
+     "wall_time_s": 1.0271969999994326,
+     "versions": {
+      "python": "3.15.0",
+      "pinneapple": "0.8.0",
+      "numpy": "2.5.4",
+      "scipy": "1.18.1",
+      "torch": "2.15.0"
+     },
+     "hardware": {
+      "cpu": "arm",
+      "cores": 10,
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+     },
+     "date_utc": "2026-11-17T14:45:37Z"
+    }
+   }
+  },
+  {
    "name": "plate_fin_heatsink_forced",
    "title": "Dissipador de aletas planas com ventilação forçada (módulo de potência)",
    "sector": "Térmica / eletrônica de potência",
    "problem": "Dissipador de alumínio extrudado com aletas retas, ar forçado canalizado (shroud), fonte de calor concentrada (módulo/transistor 30 x 30 mm) no centro da base. Rede de resistências com correlações publicadas e base resolvida por volumes finitos 3-D.",
    "question": "A temperatura da fonte fica abaixo do limite (85 °C) com a vazão de ar disponível? Qual o dissipador mais leve que atende, e quanto pesa a incerteza da correlação de convecção?",
+   "title_en": "Plate-fin heatsink with forced air (power module)",
+   "sector_en": "Thermal / power electronics",
+   "problem_en": "An extruded aluminium heatsink with straight fins and ducted forced air (shroud), a concentrated heat source (a 30 x 30 mm module) at the centre of the base. Thermal resistance network with published correlations, and the base solved in 3-D conduction.",
+   "question_en": "Does the source temperature stay below the limit (85 °C) with the available air flow? Which is the lightest heatsink that meets it, and how much does the convection correlation's uncertainty weigh?",
    "inputs": [
     {
      "name": "power",
@@ -2208,7 +2804,8 @@
      "source": "premissa: perdas de um módulo MOSFET/IGBT de ~1 kW (eficiência ~94 %)",
      "lo": 1,
      "hi": 300,
-     "help": ""
+     "help": "",
+     "help_en": "Heat load"
     },
     {
      "name": "t_ambient",
@@ -2217,7 +2814,8 @@
      "source": "premissa: ar interno de gabinete eletrônico (40 °C máx. típico de projeto)",
      "lo": -20,
      "hi": 70,
-     "help": ""
+     "help": "",
+     "help_en": "Ambient air"
     },
     {
      "name": "velocity",
@@ -2226,7 +2824,8 @@
      "source": "premissa: ventilador axial de 80 mm canalizado (1-5 m/s típico)",
      "lo": 0.5,
      "hi": 8.0,
-     "help": ""
+     "help": "",
+     "help_en": "Air velocity"
     },
     {
      "name": "base_width",
@@ -2235,7 +2834,8 @@
      "source": "perfil extrudado comercial 100 x 100 mm (premissa de catálogo)",
      "lo": 0.03,
      "hi": 0.3,
-     "help": ""
+     "help": "",
+     "help_en": "Base width"
     },
     {
      "name": "base_depth",
@@ -2244,7 +2844,8 @@
      "source": "comprimento na direção do ar, 100 mm",
      "lo": 0.03,
      "hi": 0.3,
-     "help": ""
+     "help": "",
+     "help_en": "Base depth"
     },
     {
      "name": "base_thickness",
@@ -2253,7 +2854,8 @@
      "source": "base de 5 mm (perfis extrudados típicos 3-10 mm)",
      "lo": 0.002,
      "hi": 0.02,
-     "help": ""
+     "help": "",
+     "help_en": "Base thickness"
     },
     {
      "name": "n_fins",
@@ -2262,7 +2864,8 @@
      "source": "15 aletas (passo ~7 mm, típico de extrudado para ar forçado)",
      "lo": 4,
      "hi": 40,
-     "help": ""
+     "help": "",
+     "help_en": "Number of fins"
     },
     {
      "name": "fin_thickness",
@@ -2271,7 +2874,8 @@
      "source": "1,5 mm (limite prático de extrusão de Al ~1 mm)",
      "lo": 0.0008,
      "hi": 0.005,
-     "help": ""
+     "help": "",
+     "help_en": "Fin thickness"
     },
     {
      "name": "fin_height",
@@ -2280,7 +2884,8 @@
      "source": "35 mm",
      "lo": 0.01,
      "hi": 0.08,
-     "help": ""
+     "help": "",
+     "help_en": "Fin height"
     },
     {
      "name": "material",
@@ -2290,6 +2895,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "Material",
      "choices": [
       "al6063",
       "al6061",
@@ -2304,7 +2910,8 @@
      "source": "encapsulamento de 30 x 30 mm (módulo de potência pequeno)",
      "lo": 0.005,
      "hi": 0.2,
-     "help": ""
+     "help": "",
+     "help_en": "Heat source size"
     },
     {
      "name": "tim",
@@ -2313,7 +2920,8 @@
      "source": "pasta térmica fina, R'' = 10 K mm2/W (5-20 típico)",
      "lo": 1e-06,
      "hi": 0.0001,
-     "help": ""
+     "help": "",
+     "help_en": "Interface material resistance"
     },
     {
      "name": "t_limit",
@@ -2322,7 +2930,8 @@
      "source": "premissa: limite de temperatura de case/base do componente",
      "lo": 40,
      "hi": 175,
-     "help": ""
+     "help": "",
+     "help_en": "Source limit"
     },
     {
      "name": "h_scale",
@@ -2331,7 +2940,8 @@
      "source": "multiplicador do h (1 = correlação; < 1 = desvio de ar pelo lado, sem shroud)",
      "lo": 0.3,
      "hi": 1.5,
-     "help": ""
+     "help": "",
+     "help_en": "Convection scale factor"
     }
    ],
    "outputs": [
@@ -2869,6 +3479,10 @@
    "sector": "Térmica / eletrônica",
    "problem": "Placa de 4 camadas 100 x 80 mm, montada na vertical em gabinete sem ventilação, com dois MOSFETs D2PAK (meia-ponte), o indutor de saída, o controlador QFN e um regulador SOIC-8. Volumes finitos 3-D por camada de cobre/dielétrico, modelos de 2 resistências JEDEC, convecção natural + radiação.",
    "question": "Todas as junções ficam abaixo do Tj máximo derrateado com 20 % de incerteza na convecção? Quantas vias térmicas sob os MOSFETs (ou que cobre) bastam, sem ventilador?",
+   "title_en": "Junction temperature on a power board (4-layer DC-DC converter)",
+   "sector_en": "Thermal / electronics",
+   "problem_en": "A 100 x 80 mm four-layer board, mounted vertically in an unventilated enclosure, carrying two D2PAK MOSFETs (half bridge), the output inductor, the QFN controller and an SOIC-8 regulator. 3-D finite volumes per copper/dielectric layer.",
+   "question_en": "Do all junctions stay below the derated maximum Tj with 20 % uncertainty in convection? How many thermal vias (or how much copper) under the MOSFETs are enough, without a fan?",
    "inputs": [
     {
      "name": "p_mosfet",
@@ -2877,7 +3491,8 @@
      "source": "premissa: perdas de condução + chaveamento por MOSFET de um buck de ~150 W",
      "lo": 0.1,
      "hi": 6.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "p_inductor",
@@ -2886,7 +3501,8 @@
      "source": "premissa: perdas no cobre + núcleo do indutor (~0,8 % de 150 W)",
      "lo": 0.0,
      "hi": 4.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "p_controller",
@@ -2895,7 +3511,8 @@
      "source": "premissa: controlador + drivers de gate",
      "lo": 0.0,
      "hi": 1.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "p_ldo",
@@ -2904,7 +3521,8 @@
      "source": "premissa: LDO 5 V -> 3,3 V a 75 mA",
      "lo": 0.0,
      "hi": 1.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_ambient",
@@ -2913,7 +3531,8 @@
      "source": "premissa: ar interno de gabinete fechado (IEC 60068 classe industrial)",
      "lo": -20,
      "hi": 85,
-     "help": ""
+     "help": "",
+     "help_en": "Ambient air"
     },
     {
      "name": "velocity",
@@ -2922,7 +3541,8 @@
      "source": "0 = convecção natural (sem ventilador)",
      "lo": 0.0,
      "hi": 5.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "n_copper",
@@ -2932,6 +3552,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "",
      "choices": [
       2,
       4,
@@ -2946,7 +3567,8 @@
      "source": "cobre externo 1 oz = 35 um (IPC-2221)",
      "lo": 0.5,
      "hi": 3.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "vias",
@@ -2955,7 +3577,8 @@
      "source": "premissa: 3 x 3 vias de 0,3 mm sob cada D2PAK",
      "lo": 0,
      "hi": 49,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "tj_max",
@@ -2964,7 +3587,8 @@
      "source": "Tj 175 °C do datasheet derratado para 125 °C (prática de projeto)",
      "lo": 80,
      "hi": 175,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "board_w",
@@ -2973,7 +3597,8 @@
      "source": "placa 100 mm",
      "lo": 0.03,
      "hi": 0.3,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "board_d",
@@ -2982,7 +3607,8 @@
      "source": "placa 80 mm (altura, montada na vertical)",
      "lo": 0.03,
      "hi": 0.3,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -3408,6 +4034,10 @@
    "sector": "Estrutural / caldeiraria e processo",
    "problem": "Vaso horizontal de aço carbono SA-516 Gr. 70 (reservatório de ar comprimido / vaso de processo), casco cilíndrico com tampos elípticos 2:1. Espessuras mínimas pela UG-27 e UG-32, chapa comercial, MAWP, pressão de teste hidrostático, conferidas pela solução de Lamé e por elementos finitos 3-D.",
    "question": "Qual a espessura de chapa do casco e dos tampos para esta pressão de projeto, qual a MAWP resultante e a pressão de teste? A tensão real (Lamé/FEM) confirma a fórmula do código?",
+   "title_en": "Cylindrical pressure vessel: shell and head thickness to ASME VIII Div. 1",
+   "sector_en": "Structural / pressure equipment and process",
+   "problem_en": "A horizontal carbon-steel SA-516 Gr. 70 vessel (compressed-air receiver / process vessel) with an elliptical 2:1 head. Minimum thicknesses from UG-27 and UG-32, commercial plate, MAWP, hydrostatic test pressure, and the real stress checked by Lamé and 3-D FEM.",
+   "question_en": "What shell and head plate thickness does this design pressure require, what MAWP results, and what is the test pressure? Does the real stress (Lamé/FEM) confirm the code formula?",
    "inputs": [
     {
      "name": "p_design",
@@ -3416,7 +4046,8 @@
      "source": "premissa: 10 bar(g), compressor de ar industrial / vaso de processo",
      "lo": 100000.0,
      "hi": 20000000.0,
-     "help": ""
+     "help": "",
+     "help_en": "Design pressure"
     },
     {
      "name": "d_inner",
@@ -3425,7 +4056,8 @@
      "source": "premissa: diâmetro interno de 1500 mm",
      "lo": 0.2,
      "hi": 6,
-     "help": ""
+     "help": "",
+     "help_en": "Inside diameter"
     },
     {
      "name": "length",
@@ -3434,7 +4066,8 @@
      "source": "premissa: comprimento do casco entre linhas de tangência",
      "lo": 0.5,
      "hi": 30,
-     "help": ""
+     "help": "",
+     "help_en": "Shell length between tangent lines"
     },
     {
      "name": "S",
@@ -3443,7 +4076,8 @@
      "source": "ASME BPVC Section VIII Div. 1 (2023) / BPVC II-D Tab. 1A: SA-516 Gr. 70, 20,0 ksi até 650 °F",
      "lo": 50000000.0,
      "hi": 300000000.0,
-     "help": ""
+     "help": "",
+     "help_en": "Allowable stress (ASME II-D)"
     },
     {
      "name": "E_joint",
@@ -3452,7 +4086,8 @@
      "source": "ASME BPVC Section VIII Div. 1 (2023) UW-12: solda de topo dupla com radiografia por amostragem (spot)",
      "lo": 0.45,
      "hi": 1.0,
-     "help": ""
+     "help": "",
+     "help_en": "Joint efficiency (UW-12)"
     },
     {
      "name": "ca",
@@ -3461,7 +4096,8 @@
      "source": "premissa: sobre-espessura de corrosão de 3 mm (serviço de ar úmido)",
      "lo": 0.0,
      "hi": 0.01,
-     "help": ""
+     "help": "",
+     "help_en": "Corrosion allowance"
     },
     {
      "name": "mill_tol",
@@ -3470,7 +4106,8 @@
      "source": "ASME BPVC Section VIII Div. 1 (2023) UG-16(c): tolerância de laminação até 0,3 mm (ou 6 %) dispensada",
      "lo": 0.0,
      "hi": 0.002,
-     "help": ""
+     "help": "",
+     "help_en": "Mill tolerance (UG-16)"
     },
     {
      "name": "E_steel",
@@ -3479,7 +4116,8 @@
      "source": "aço carbono, BPVC II-D Tab. TM-1 (~ 29,2e6 psi a 70 °F = 201 GPa)",
      "lo": 150000000000.0,
      "hi": 220000000000.0,
-     "help": ""
+     "help": "",
+     "help_en": "Young's modulus"
     },
     {
      "name": "nu_steel",
@@ -3488,7 +4126,8 @@
      "source": "aço carbono",
      "lo": 0.25,
      "hi": 0.35,
-     "help": ""
+     "help": "",
+     "help_en": "Poisson ratio"
     },
     {
      "name": "rho_steel",
@@ -3497,7 +4136,8 @@
      "source": "aço carbono",
      "lo": 7700,
      "hi": 8100,
-     "help": ""
+     "help": "",
+     "help_en": "Density"
     },
     {
      "name": "head",
@@ -3507,6 +4147,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "Head type",
      "choices": [
       "ellipsoidal_2_1",
       "hemispherical",
@@ -3520,7 +4161,8 @@
      "source": "elementos na espessura do anel FEM (C3D8I); convergência verificada 2-8",
      "lo": 1,
      "hi": 16,
-     "help": ""
+     "help": "",
+     "help_en": "FEM elements through the wall"
     }
    ],
    "outputs": [
@@ -4034,6 +4676,10 @@
    "sector": "Fluidos / bombeamento (saneamento, processo, utilidades)",
    "problem": "Bomba centrífuga de sucção axial acima de um poço aberto (altura de sucção), recalcando para um reservatório. Ponto de operação pela interseção das curvas da bomba e do sistema, NPSH disponível com pressão de vapor IAPWS-IF97 e atmosfera ISO 2533, contra o NPSH3 da bomba com a margem da ANSI/HI.",
    "question": "A bomba opera sem cavitar nesta instalação (altitude, temperatura, altura de sucção, tubulação)? Qual a maior altura de sucção ou temperatura admissível, e que diâmetro de sucção resolve?",
+   "title_en": "Centrifugal pump over a sump: operating point, NPSH available and cavitation margin",
+   "sector_en": "Fluids / pumping (water supply, process, utilities)",
+   "problem_en": "An end-suction centrifugal pump above an open sump, discharging to a reservoir. Operating point from the intersection of the pump and system curves, NPSH available with IAPWS vapour pressure, and the margin against cavitation.",
+   "question_en": "Does the pump run without cavitating in this installation (altitude, temperature, suction lift, piping)? What is the largest admissible suction lift or temperature, and which suction diameter is needed?",
    "inputs": [
     {
      "name": "altitude",
@@ -4042,7 +4688,8 @@
      "source": "premissa: estação de bombeamento a 800 m de altitude",
      "lo": 0,
      "hi": 4000,
-     "help": ""
+     "help": "",
+     "help_en": "Altitude"
     },
     {
      "name": "t_water",
@@ -4051,7 +4698,8 @@
      "source": "premissa: água de processo / retorno morno a 40 °C",
      "lo": 1,
      "hi": 120,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "z_suction",
@@ -4060,7 +4708,8 @@
      "source": "nível do poço 4 m abaixo do eixo da bomba (altura de sucção; + = afogada)",
      "lo": -9,
      "hi": 30,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "h_static",
@@ -4069,7 +4718,8 @@
      "source": "premissa: desnível geométrico até o reservatório de recalque",
      "lo": 0,
      "hi": 50,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d_suction",
@@ -4078,7 +4728,8 @@
      "source": "DN150 Sch 40, diâmetro interno 154,1 mm (ASME B36.10M)",
      "lo": 0.04,
      "hi": 0.6,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "l_suction",
@@ -4087,7 +4738,8 @@
      "source": "premissa: 12 m de tubo de sucção",
      "lo": 1,
      "hi": 200,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "k_suction",
@@ -4096,7 +4748,8 @@
      "source": "válvula de pé com crivo ~2,0-2,5 + curva 90° 0,3 + entrada 0,5 (Crane TP-410 ordem de grandeza)",
      "lo": 0,
      "hi": 20,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d_discharge",
@@ -4105,7 +4758,8 @@
      "source": "DN125 Sch 40, diâmetro interno 128,2 mm (ASME B36.10M)",
      "lo": 0.04,
      "hi": 0.6,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "l_discharge",
@@ -4114,7 +4768,8 @@
      "source": "premissa: 300 m de linha de recalque",
      "lo": 1,
      "hi": 5000,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "k_discharge",
@@ -4123,7 +4778,8 @@
      "source": "premissa: retenção + gaveta + curvas + saída",
      "lo": 0,
      "hi": 60,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "roughness",
@@ -4132,7 +4788,8 @@
      "source": "aço comercial 0,045 mm (White, Fluid Mechanics, Tab. 6.1)",
      "lo": 0,
      "hi": 0.002,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "npsh_ratio_min",
@@ -4141,7 +4798,8 @@
      "source": "ANSI/HI 9.6.1-2017 (margem NPSHa/NPSH3 recomendada 1,1-2,5 conforme a aplicação); 1,3 premissa para água limpa em serviço contínuo",
      "lo": 1.0,
      "hi": 2.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "curve_scale",
@@ -4150,7 +4808,8 @@
      "source": "1 = curva genérica de bomba 80-200 a 2900 rpm (pontos de catálogo da ficha); afinidade: Q ~ s, H ~ s^2, NPSH ~ s^2",
      "lo": 0.6,
      "hi": 1.2,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -4623,6 +5282,10 @@
    "sector": "Térmica / processo e energia",
    "problem": "Água desmineralizada de um circuito fechado de resfriamento (mancais, inversores, moldes) no casco, água de torre nos tubos. Coeficientes por Kern (casco) e Gnielinski (tubos), incrustação TEMA, parede de aço carbono; desempenho por epsilon-NTU do trocador 1-2.",
    "question": "O trocador leva a água do circuito à temperatura de retorno exigida com a água de torre disponível, com velocidade de tubo na faixa recomendada? Quanta incrustação ele tolera, e qual o menor trocador que atende?",
+   "title_en": "Closed-circuit shell-and-tube water cooler (TEMA E, 1 shell pass, 2 tube passes)",
+   "sector_en": "Thermal / process and energy",
+   "problem_en": "Demineralised water from a closed cooling circuit (bearings, inverters, moulds) in the shell, tower water in the tubes. Coefficients by Kern (shell) and Gnielinski (tubes), TEMA fouling, carbon-steel wall; the duty and the pressure drops come from the exchanger's geometry.",
+   "question_en": "Does the exchanger bring the circuit water to the required return temperature with the available tower water, with the tube velocity inside the recommended range? How much fouling can it tolerate?",
    "inputs": [
     {
      "name": "m_hot",
@@ -4631,7 +5294,8 @@
      "source": "premissa: circuito fechado de ~840 kW de carga térmica",
      "lo": 1,
      "hi": 200,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_hot_in",
@@ -4640,7 +5304,8 @@
      "source": "premissa: retorno quente do circuito fechado",
      "lo": 30,
      "hi": 95,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "m_cold",
@@ -4649,7 +5314,8 @@
      "source": "premissa: vazão de água de torre alocada ao trocador",
      "lo": 1,
      "hi": 300,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_cold_in",
@@ -4658,7 +5324,8 @@
      "source": "água de torre no verão (projeto típico 29-32 °C)",
      "lo": 5,
      "hi": 40,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "cp_hot",
@@ -4667,7 +5334,8 @@
      "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 315 K",
      "lo": 4170,
      "hi": 4200,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "mu_hot",
@@ -4676,7 +5344,8 @@
      "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 315 K",
      "lo": 0.00028,
      "hi": 0.0018,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "k_hot",
@@ -4685,7 +5354,8 @@
      "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 315 K",
      "lo": 0.55,
      "hi": 0.68,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "cp_cold",
@@ -4694,7 +5364,8 @@
      "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 305 K",
      "lo": 4170,
      "hi": 4220,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "mu_cold",
@@ -4703,7 +5374,8 @@
      "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 305 K",
      "lo": 0.0003,
      "hi": 0.0018,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "k_cold",
@@ -4712,7 +5384,8 @@
      "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 305 K",
      "lo": 0.55,
      "hi": 0.68,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "n_tubes",
@@ -4721,7 +5394,8 @@
      "source": "premissa: 200 tubos (2 passes de 100)",
      "lo": 10,
      "hi": 2000,
-     "help": ""
+     "help": "",
+     "help_en": "Number of tubes"
     },
     {
      "name": "tube_od",
@@ -4730,7 +5404,8 @@
      "source": "tubo de 3/4\" (TEMA, diâmetro externo padrão)",
      "lo": 0.00635,
      "hi": 0.0508,
-     "help": ""
+     "help": "",
+     "help_en": "Tube outside diameter"
     },
     {
      "name": "tube_wall",
@@ -4739,7 +5414,8 @@
      "source": "16 BWG = 1,65 mm (TEMA Tabela D-7)",
      "lo": 0.0005,
      "hi": 0.005,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "tube_length",
@@ -4748,7 +5424,8 @@
      "source": "16 ft (comprimento padrão TEMA)",
      "lo": 1.0,
      "hi": 12.0,
-     "help": ""
+     "help": "",
+     "help_en": "Tube length"
     },
     {
      "name": "pitch",
@@ -4757,7 +5434,8 @@
      "source": "passo triangular de 15/16\" (1,25 x OD, TEMA RCB-2.5)",
      "lo": 0.008,
      "hi": 0.08,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "shell_id",
@@ -4766,7 +5444,8 @@
      "source": "casco de 19,25\" para ~200 tubos de 3/4\" em 15/16\" triangular, 2 passes (ordem de grandeza da contagem de tubos de Kern, Process Heat Transfer, Tab. 9)",
      "lo": 0.1,
      "hi": 2.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "baffle_spacing",
@@ -4775,7 +5454,8 @@
      "source": "premissa: ~0,6 x diâmetro do casco (TEMA mínimo = ID/5)",
      "lo": 0.05,
      "hi": 2.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "k_wall",
@@ -4784,7 +5464,8 @@
      "source": "aço carbono (Incropera Tab. A.1: AISI 1010 63,9, aço-carbono ao Mn ~50)",
      "lo": 10,
      "hi": 400,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "rf_hot",
@@ -4793,7 +5474,8 @@
      "source": "TEMA Standards 10a ed. (2019), RGP-T-2.4 (resistências de incrustação): água desmineralizada/destilada, 0,0005 h ft2 F/Btu",
      "lo": 0.0,
      "hi": 0.002,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "rf_cold",
@@ -4802,7 +5484,8 @@
      "source": "TEMA Standards 10a ed. (2019), RGP-T-2.4 (resistências de incrustação): água de torre tratada, < 50 °C, 0,001 h ft2 F/Btu",
      "lo": 0.0,
      "hi": 0.002,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_hot_target",
@@ -4811,7 +5494,8 @@
      "source": "premissa: alimentação fria do circuito a 36 °C",
      "lo": 15,
      "hi": 90,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -5305,6 +5989,10 @@
    "sector": "Eletromagnetismo / máquinas elétricas",
    "problem": "Servo-motor de ímãs de NdFeB na superfície do rotor, 4 polos, 24 ranhuras, enrolamento distribuído trifásico, ferro não linear (curva BH). FEM magnetostático 2-D com banda deslizante, torque por tensor de Maxwell e por co-energia, fluxo concatenado e força contra-eletromotriz.",
    "question": "Que torque o motor entrega na corrente nominal (limite térmico de densidade de corrente), com quanta ondulação e cogging? Qual a menor espessura de ímã que mantém o torque?",
+   "title_en": "Surface permanent-magnet synchronous motor (4-pole servo, 24 slots): torque, ripple and cogging",
+   "sector_en": "Electromagnetics / electrical machines",
+   "problem_en": "A servo motor with NdFeB magnets on the rotor surface, 4 poles, 24 slots, distributed three-phase winding, non-linear iron (BH curve). 2-D magnetostatic FEM with a sliding band, torque by Maxwell stress and by co-energy.",
+   "question_en": "What torque does the motor deliver at rated current (thermal current-density limit), with how much ripple and cogging? What is the thinnest magnet that keeps the torque?",
    "inputs": [
     {
      "name": "I_peak",
@@ -5313,7 +6001,8 @@
      "source": "corrente nominal: J_rms = 6 A/mm2 na área de cobre da ranhura (fator de enchimento 0,45, 20 espiras); J típico de motor TEFC 3-6,5 A/mm2 (Pyrhönen, Jokinen & Hrabovcová, Design of Rotating Electrical Machines, 2a ed. (2014), Tab. 6.2)",
      "lo": 1,
      "hi": 60,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "magnet_thickness",
@@ -5322,7 +6011,8 @@
      "source": "ímã de 4 mm (servo-motores pequenos 3-6 mm)",
      "lo": 0.0015,
      "hi": 0.008,
-     "help": ""
+     "help": "",
+     "help_en": "Magnet thickness"
     },
     {
      "name": "magnet_arc",
@@ -5331,7 +6021,8 @@
      "source": "arco do ímã = 80 % do passo polar",
      "lo": 0.5,
      "hi": 0.98,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "Br",
@@ -5340,7 +6031,8 @@
      "source": "NdFeB N38-N42 a 20 °C, Br 1,2-1,3 T (catálogos de ímãs sinterizados)",
      "lo": 0.9,
      "hi": 1.45,
-     "help": ""
+     "help": "",
+     "help_en": "Remanence"
     },
     {
      "name": "magnetization",
@@ -5350,6 +6042,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "",
      "choices": [
       "parallel",
       "radial"
@@ -5362,7 +6055,8 @@
      "source": "abertura da ranhura = 2/15 do passo de ranhura",
      "lo": 0.05,
      "hi": 0.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "rpm",
@@ -5371,7 +6065,8 @@
      "source": "rotação nominal de servo-motor",
      "lo": 100,
      "hi": 12000,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "n_positions",
@@ -5380,7 +6075,8 @@
      "source": "posições do rotor por passo de ranhura (ondulação, cogging)",
      "lo": 3,
      "hi": 24,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "n_theta",
@@ -5390,6 +6086,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "",
      "choices": [
       360,
       720
@@ -5827,6 +6524,10 @@
    "sector": "Processo e energia / utilidades",
    "problem": "Linha de vapor saturado de 10 bar(a) em tubo DN150 ao ar livre, isolada com lã de rocha e revestida de alumínio. Perda de calor por metro, temperatura da superfície e a espessura que minimiza o custo anual (energia perdida + isolamento instalado anualizado).",
    "question": "Qual espessura de isolamento minimiza o custo anual por metro, e qual a menor que mantém a superfície abaixo de 60 °C (proteção pessoal)? Quanto se perde sem isolamento?",
+   "title_en": "Steam-line insulation: heat loss, surface temperature and economic thickness",
+   "sector_en": "Process and energy / utilities",
+   "problem_en": "A 10 bar(a) saturated-steam line, DN150, outdoors, insulated with rock wool and clad in aluminium. Heat loss per metre, surface temperature, and the thickness that minimises annual cost (energy lost against insulation cost).",
+   "question_en": "Which insulation thickness minimises the annual cost per metre, and which is the smallest that keeps the surface below 60 °C (personal protection)? How much is lost uninsulated?",
    "inputs": [
     {
      "name": "d_pipe",
@@ -5835,7 +6536,8 @@
      "source": "DN150 (6\"), diâmetro externo 168,3 mm (ASME B36.10M / EN 10220)",
      "lo": 0.02,
      "hi": 1.2,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_fluid",
@@ -5844,7 +6546,8 @@
      "source": "vapor saturado a 10 bar(a) (IAPWS-IF97: 179,88 °C)",
      "lo": 40,
      "hi": 600,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_amb",
@@ -5853,7 +6556,8 @@
      "source": "premissa: média anual do ar externo de clima temperado",
      "lo": -30,
      "hi": 45,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "wind",
@@ -5862,7 +6566,8 @@
      "source": "premissa: vento médio de 3 m/s ao ar livre",
      "lo": 0,
      "hi": 20,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "thickness",
@@ -5871,7 +6576,8 @@
      "source": "premissa: 60 mm, espessura comum em linhas de vapor de média pressão",
      "lo": 0,
      "hi": 0.3,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "k0",
@@ -5880,7 +6586,8 @@
      "source": "lã de rocha: lambda(T) = k0 + k1 T; ordem dos valores declarados de seções de lã de rocha (EN 14303): ~0,041 a 50 °C, ~0,046 a 100 °C, ~0,056 a 200 °C",
      "lo": 0.015,
      "hi": 0.1,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "k1",
@@ -5889,7 +6596,8 @@
      "source": "inclinação da mesma curva lambda(T)",
      "lo": 0,
      "hi": 0.0005,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "eps",
@@ -5898,7 +6606,8 @@
      "source": "alumínio brilhante: emissividade 0,05 (ISO 12241 Tab. 4)",
      "lo": 0.03,
      "hi": 0.95,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "hours",
@@ -5907,7 +6616,8 @@
      "source": "premissa: operação contínua com paradas de manutenção",
      "lo": 500,
      "hi": 8760,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "energy_price",
@@ -5916,7 +6626,8 @@
      "source": "premissa: gás natural industrial, ordem de grandeza Eurostat nrg_pc_203 (consumidores não-residenciais) 2023-2024",
      "lo": 0.005,
      "hi": 0.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "efficiency",
@@ -5925,7 +6636,8 @@
      "source": "premissa: caldeira + distribuição, 88 %",
      "lo": 0.5,
      "hi": 1.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "cost_per_m3",
@@ -5934,7 +6646,8 @@
      "source": "premissa: lã de rocha instalada (material + mão de obra) por m3",
      "lo": 100,
      "hi": 5000,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "cost_per_m2",
@@ -5943,7 +6656,8 @@
      "source": "premissa: revestimento de alumínio instalado por m2",
      "lo": 0,
      "hi": 300,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "rate",
@@ -5952,7 +6666,8 @@
      "source": "premissa: custo de capital 8 % ao ano (VDI 2055-1 sec. 6)",
      "lo": 0.0,
      "hi": 0.3,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "years",
@@ -5961,7 +6676,8 @@
      "source": "premissa: vida econômica do isolamento 10 anos",
      "lo": 1,
      "hi": 40,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_surface_max",
@@ -5970,7 +6686,8 @@
      "source": "premissa usual de especificação para proteção pessoal (ISO 13732-1: limiar de queimadura de metal ~60 °C para contato de ~5 s)",
      "lo": 40,
      "hi": 80,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -6404,6 +7121,10 @@
    "sector": "Estrutural / construção",
    "problem": "Passarela biapoiada de 30 m com duas vigas I soldadas e tabuleiro de 2,5 m (placas pré-moldadas). Verifica ELU de flexão sob multidão (EN 1991-2), flecha L/360, flambagem lateral com torção (EN 1993-1-1) e conforto à vibração por pedestres (EN 1990 A2, Bachmann & Ammann).",
    "question": "A seção das vigas atende os quatro modos de falha? Qual a seção soldada mais leve que atende? O primeiro modo vertical cai na faixa de passo de caminhada (1,6-2,4 Hz)?",
+   "title_en": "30 m steel footbridge: strength, deflection, lateral buckling and pedestrian vibration",
+   "sector_en": "Structural / construction",
+   "problem_en": "A 30 m simply supported footbridge with two welded I-girders and a 2.5 m deck (precast planks). Ultimate limit state in bending under a crowd (EN 1991-2), deflection L/360, lateral-torsional buckling (EN 1993-1-1) and comfort under pedestrian loading.",
+   "question_en": "Does the girder section meet all four failure modes? Which is the lightest welded section that does? Does the first vertical mode fall in the walking-pace range (1.6-2.4 Hz)?",
    "inputs": [
     {
      "name": "span",
@@ -6412,7 +7133,8 @@
      "source": "premissa: travessia típica de 30 m (via ou rio pequeno)",
      "lo": 8,
      "hi": 60,
-     "help": ""
+     "help": "",
+     "help_en": "Span"
     },
     {
      "name": "deck_width",
@@ -6421,7 +7143,8 @@
      "source": "largura útil de 2,5 m (passarela de pedestres e bicicletas)",
      "lo": 1.5,
      "hi": 6,
-     "help": ""
+     "help": "",
+     "help_en": "Deck width"
     },
     {
      "name": "deck_dead_load",
@@ -6430,7 +7153,8 @@
      "source": "placas de concreto de 100 mm (25 kN/m3, EN 1991-1-1 Tab. A.1) + 0,5 kN/m2 de acabamentos",
      "lo": 500,
      "hi": 8000,
-     "help": ""
+     "help": "",
+     "help_en": "Deck dead load"
     },
     {
      "name": "girder_h",
@@ -6439,7 +7163,8 @@
      "source": "premissa: L/37 (viga dimensionada só pela resistência)",
      "lo": 0.3,
      "hi": 2.0,
-     "help": ""
+     "help": "",
+     "help_en": "Girder depth"
     },
     {
      "name": "girder_b",
@@ -6448,7 +7173,8 @@
      "source": "mesa de 250 mm",
      "lo": 0.1,
      "hi": 0.8,
-     "help": ""
+     "help": "",
+     "help_en": "Flange width"
     },
     {
      "name": "girder_tf",
@@ -6457,7 +7183,8 @@
      "source": "mesa de 20 mm (S355, t <= 40 mm)",
      "lo": 0.008,
      "hi": 0.06,
-     "help": ""
+     "help": "",
+     "help_en": "Flange thickness"
     },
     {
      "name": "girder_tw",
@@ -6466,7 +7193,8 @@
      "source": "alma de 10 mm",
      "lo": 0.006,
      "hi": 0.03,
-     "help": ""
+     "help": "",
+     "help_en": "Web thickness"
     },
     {
      "name": "fy",
@@ -6475,7 +7203,8 @@
      "source": "EN 10025-2 S355, t <= 16 mm",
      "lo": 235000000.0,
      "hi": 460000000.0,
-     "help": ""
+     "help": "",
+     "help_en": "Yield strength"
     },
     {
      "name": "lateral_braces",
@@ -6484,7 +7213,8 @@
      "source": "sem travamento lateral intermediário",
      "lo": 0,
      "hi": 10,
-     "help": ""
+     "help": "",
+     "help_en": "Lateral braces"
     },
     {
      "name": "damping_ratio",
@@ -6493,7 +7223,8 @@
      "source": "aço soldado: 0,5 % (Sétra 2006 / HiVoSS 2008, valor mínimo)",
      "lo": 0.002,
      "hi": 0.05,
-     "help": ""
+     "help": "",
+     "help_en": "Damping ratio"
     },
     {
      "name": "pedestrian_weight",
@@ -6502,7 +7233,8 @@
      "source": "Bachmann & Ammann (1987)",
      "lo": 500,
      "hi": 1000,
-     "help": ""
+     "help": "",
+     "help_en": "Pedestrian weight"
     },
     {
      "name": "acc_max",
@@ -6511,7 +7243,8 @@
      "source": "EN 1990:2002 Anexo A2, A2.4.3.2: aceleração vertical <= 0,7 m/s2 (recomendado)",
      "lo": 0.2,
      "hi": 2.5,
-     "help": ""
+     "help": "",
+     "help_en": "Comfort limit"
     },
     {
      "name": "deflection_ratio",
@@ -6520,7 +7253,8 @@
      "source": "AASHTO LRFD Pedestrian Bridges (2009) sec. 5: L/360 sob carga de pedestres",
      "lo": 200,
      "hi": 1000,
-     "help": ""
+     "help": "",
+     "help_en": "Deflection ratio (L/n)"
     }
    ],
    "outputs": [
@@ -7060,6 +7794,10 @@
    "sector": "Fluidos / saneamento",
    "problem": "Rede malhada de distribuição (duas malhas, um reservatório, seis nós de consumo, oito tubos de 1 km; rede de referência de Alperovits & Shamir 1977). Resolve pressões e vazões em regime permanente (Hazen-Williams ou Darcy-Weisbach/Colebrook) e dimensiona os diâmetros de menor custo.",
    "question": "Todos os nós têm pressão mínima de serviço (30 m) na demanda de projeto? Qual o conjunto de diâmetros comerciais de menor custo que garante isso?",
+   "title_en": "Water distribution network: pressures, flows and least-cost pipe sizing",
+   "sector_en": "Fluids / water supply",
+   "problem_en": "A looped distribution network (two loops, one reservoir, six demand nodes, eight 1 km pipes; the Alperovits & Shamir 1977 reference network). Steady-state pressures and flows (Hazen-Williams or Darcy-Weisbach).",
+   "question_en": "Do all nodes have the minimum service pressure (30 m) at the design demand? Which set of commercial diameters meets it at the lowest cost?",
    "inputs": [
     {
      "name": "reservoir_head",
@@ -7068,7 +7806,8 @@
      "source": "Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas): nível do reservatório 210 m",
      "lo": 160,
      "hi": 300,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "demand_factor",
@@ -7077,7 +7816,8 @@
      "source": "1,0 = demandas de projeto de Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas) (100-330 m3/h por nó)",
      "lo": 0.1,
      "hi": 2.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "headloss",
@@ -7087,6 +7827,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "",
      "choices": [
       "HW",
       "DW"
@@ -7099,7 +7840,8 @@
      "source": "Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas): C = 130 (tubo novo)",
      "lo": 60,
      "hi": 150,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "roughness_dw",
@@ -7108,7 +7850,8 @@
      "source": "ferro fundido, e = 0,26 mm (White, Fluid Mechanics, Tabela 6.1)",
      "lo": 1e-06,
      "hi": 0.005,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "p_min",
@@ -7117,7 +7860,8 @@
      "source": "Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas): pressão mínima de serviço 30 m",
      "lo": 5,
      "hi": 60,
-     "help": ""
+     "help": "",
+     "help_en": "Minimum service pressure"
     },
     {
      "name": "d1",
@@ -7126,7 +7870,8 @@
      "source": "tubo 1: 18 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d2",
@@ -7135,7 +7880,8 @@
      "source": "tubo 2: 10 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d3",
@@ -7144,7 +7890,8 @@
      "source": "tubo 3: 16 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d4",
@@ -7153,7 +7900,8 @@
      "source": "tubo 4: 4 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d5",
@@ -7162,7 +7910,8 @@
      "source": "tubo 5: 16 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d6",
@@ -7171,7 +7920,8 @@
      "source": "tubo 6: 10 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d7",
@@ -7180,7 +7930,8 @@
      "source": "tubo 7: 10 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "d8",
@@ -7189,7 +7940,8 @@
      "source": "tubo 8: 1 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
      "lo": 0.0254,
      "hi": 0.6096,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -7716,6 +8468,10 @@
    "sector": "Fluidos / saneamento e óleo e gás",
    "problem": "Adutora de aço DN500 (reservatório a montante, válvula na ponta) fecha a válvula em t_c segundos. Calcula a sobrepressão e a subpressão ao longo da linha pelo método das características.",
    "question": "Com este tempo de fechamento, a pressão máxima fica abaixo da classe PN da linha e a mínima acima da pressão de vapor (sem separação de coluna)? Qual o tempo mínimo de fechamento seguro?",
+   "title_en": "Water hammer on valve closure in a transmission main: surge pressure and protection",
+   "sector_en": "Fluids / water supply and oil and gas",
+   "problem_en": "A transmission main from a reservoir to a downstream valve that closes in a given time. The transient is solved by the method of characteristics; wave speed from the pipe and fluid, maximum and minimum pressure along the line, and the protection that keeps the surge within the pipe rating.",
+   "question_en": "What is the maximum surge pressure if the valve closes in this time, and where along the line does it happen? Does a slow closure or an air vessel keep the line within its rating?",
    "inputs": [
     {
      "name": "length",
@@ -7724,7 +8480,8 @@
      "source": "premissa: adutora típica de 1,2 km entre reservatório e válvula",
      "lo": 100,
      "hi": 20000,
-     "help": ""
+     "help": "",
+     "help_en": "Main length"
     },
     {
      "name": "od",
@@ -7733,7 +8490,8 @@
      "source": "ASME B36.10M, tubo NPS 20 (508 mm de diâmetro externo)",
      "lo": 0.05,
      "hi": 2.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "wall",
@@ -7742,7 +8500,8 @@
      "source": "ASME B36.10M, NPS 20 parede STD (9,53 mm)",
      "lo": 0.002,
      "hi": 0.05,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "velocity",
@@ -7751,7 +8510,8 @@
      "source": "AWWA M11 (4a ed.) cap. 5: velocidades de projeto típicas 0,9-1,8 m/s",
      "lo": 0.2,
      "hi": 4.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "h_reservoir",
@@ -7760,7 +8520,8 @@
      "source": "premissa: nível do reservatório 60 m acima do eixo da válvula",
      "lo": 5,
      "hi": 500,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "t_close",
@@ -7769,7 +8530,8 @@
      "source": "premissa: atuador de válvula borboleta de 10 s",
      "lo": 0.0,
      "hi": 120.0,
-     "help": ""
+     "help": "",
+     "help_en": "Closure time"
     },
     {
      "name": "closure_exponent",
@@ -7778,7 +8540,8 @@
      "source": "lei de fechamento tau=(1-t/tc)^Em; Em=1 linear (Wylie & Streeter 1993)",
      "lo": 0.5,
      "hi": 4.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "roughness",
@@ -7787,7 +8550,8 @@
      "source": "aço comercial, e = 0,045 mm (White, Fluid Mechanics, Tabela 6.1)",
      "lo": 0.0,
      "hi": 0.003,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "friction",
@@ -7797,6 +8561,7 @@
      "lo": null,
      "hi": null,
      "help": "",
+     "help_en": "",
      "choices": [
       "colebrook",
       "none"
@@ -7809,7 +8574,8 @@
      "source": "aço carbono, E = 207 GPa (ASME B31.3 Tabela C-6, temperatura ambiente)",
      "lo": 1000000000.0,
      "hi": 250000000000.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "nu_pipe",
@@ -7818,7 +8584,8 @@
      "source": "aço, coeficiente de Poisson 0,3",
      "lo": 0.2,
      "hi": 0.5,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "K_water",
@@ -7827,7 +8594,8 @@
      "source": "água a 20 °C, módulo volumétrico 2,19 GPa (Wylie & Streeter 1993, Tab. 2.1)",
      "lo": 1500000000.0,
      "hi": 2500000000.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "rho",
@@ -7836,7 +8604,8 @@
      "source": "água a 20 °C (Incropera, Tabela A.6)",
      "lo": 950,
      "hi": 1050,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "pn_rating",
@@ -7845,7 +8614,8 @@
      "source": "classe PN16 (EN 1092-1): 1,6 MPa manométrica",
      "lo": 400000.0,
      "hi": 10000000.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "p_vapour_abs",
@@ -7854,7 +8624,8 @@
      "source": "pressão de vapor da água a 20 °C (Incropera, Tabela A.6)",
      "lo": 600,
      "hi": 100000.0,
-     "help": ""
+     "help": "",
+     "help_en": ""
     },
     {
      "name": "n_reaches",
@@ -7863,7 +8634,8 @@
      "source": "malha do MOC (Courant 1); convergência verificada em 10-160",
      "lo": 10,
      "hi": 400,
-     "help": ""
+     "help": "",
+     "help_en": ""
     }
    ],
    "outputs": [
@@ -7968,7 +8740,7 @@
       "t_close": 60.0
      },
      "output": "surge_head",
-     "value": 7.1147630905274895,
+     "value": 7.11476308998116,
      "unit": "m",
      "source": "Wylie & Streeter, Fluid Transients in Systems (1993) sec. 1.3 (rigid-column theory), integrada com scipy solve_ivp",
      "kind": "independent_solver",

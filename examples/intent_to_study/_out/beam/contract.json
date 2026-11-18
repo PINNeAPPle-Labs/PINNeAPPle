@@ -1,0 +1,128 @@
+{
+  "schema": "pinneapple.study/1",
+  "id": "1954c4276b241d775b5025ac082e50d9",
+  "status": "ready",
+  "mode": "simulation",
+  "family": "cantilever_beam",
+  "title": "Tip deflection of a cantilever beam under an end load",
+  "objective": "how far the end of a cantilever moves under a load",
+  "domain": "solid mechanics",
+  "physics": {
+    "equations": [
+      "E' I d^2 w/dx^2 = M(x),  E' = E / (1 - nu^2)   (Euler-Bernoulli, plane strain)",
+      "w(0) = 0, w'(0) = 0   (clamped root)",
+      "delta = P L^3 / (3 E' I),  I = h^3 / 12   (tip load, one metre of depth)",
+      "sigma_max = P L (h/2) / I   (outer fibre, bending only)"
+    ],
+    "assumptions": [
+      "Small deflection, linear elasticity, and a beam slender enough for Euler-Bernoulli: the closed form has no shear deformation, which is why the family reports the slenderness L/h next to the answer.",
+      "The two-dimensional solver is plane strain, so the closed form compares against E / (1 - nu^2).",
+      "The root is fully clamped (both displacement components fixed) and the section is rectangular, homogeneous and isotropic."
+    ]
+  },
+  "limitations": [
+    "No plasticity, no buckling, no contact and no fatigue: the answer is the elastic response to one load.",
+    "Deflections above roughly a tenth of the span are outside the linear theory this compares with.",
+    "The stress reported is the bending stress of the closed form, not the peak the solver finds at the clamp, where a real fillet and a real contact pressure change the number."
+  ],
+  "references": [
+    "Timoshenko, Strength of Materials, part I, ch. 5 (cantilever with an end load, and the shear correction this closed form omits).",
+    "Boresi & Chong, Elasticity in Engineering Mechanics (plane strain replaces E with E / (1 - nu^2))."
+  ],
+  "quantities": {
+    "length": {
+      "name": "length",
+      "value": 0.5,
+      "unit": "m",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "0.5 m long"
+    },
+    "youngs_modulus": {
+      "name": "youngs_modulus",
+      "value": 210000000000.0,
+      "unit": "Pa",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "E = 210 GPa"
+    },
+    "load": {
+      "name": "load",
+      "value": 500.0,
+      "unit": "N",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "500 N"
+    },
+    "height": {
+      "name": "height",
+      "value": 0.02,
+      "unit": "m",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "20 mm deep"
+    },
+    "depth": {
+      "name": "depth",
+      "value": 1.0,
+      "unit": "m",
+      "provenance": "defaulted",
+      "source": "1 m, the unit depth of the two-dimensional model; the load is entered as a total over it and divided by it",
+      "quote": ""
+    },
+    "poisson": {
+      "name": "poisson",
+      "value": 0.3,
+      "unit": "",
+      "provenance": "defaulted",
+      "source": "0.3, the usual value for steel and aluminium alloys",
+      "quote": ""
+    }
+  },
+  "workflow": {
+    "ladder": [
+      {
+        "name": "analytic",
+        "label": "Euler-Bernoulli closed form (plane strain)",
+        "method": "the elastic curve of a cantilever with an end load, with E replaced by E/(1 - nu^2)",
+        "available": true,
+        "reason": ""
+      },
+      {
+        "name": "numerical",
+        "label": "immersed finite cell, plane-strain linear elasticity",
+        "method": "pinneapple_simulation.immersed.solve_elasticity on a box of the section: the root face fully clamped, the tip face loaded in shear",
+        "available": true,
+        "reason": ""
+      },
+      {
+        "name": "convergence",
+        "label": "the same solver on two grids",
+        "method": "the numerical rung repeated at a coarser and a finer spacing, and the change of the quantity of interest between them",
+        "available": true,
+        "reason": ""
+      }
+    ],
+    "validation": [
+      "the solver against the closed form on the same inputs",
+      "the quantity of interest under grid refinement",
+      "the slenderness, against the range Euler-Bernoulli applies to"
+    ]
+  },
+  "questions": [],
+  "issues": [],
+  "unsupported": [
+    "'20 mm' was not used: no value of that kind in the Tip deflection of a cantilever beam under an end load template"
+  ],
+  "provenance": {
+    "text": "a cantilever beam 0.5 m long with E = 210 GPa, 20 mm deep, carrying 500 N at the tip",
+    "compiler": "deterministic",
+    "llm": "",
+    "llm_note": "",
+    "library_version": "0.8.0",
+    "created_at": "2026-11-18T13:20:40+00:00",
+    "seed": 0,
+    "python": "3.11.16",
+    "platform": "Darwin"
+  }
+}

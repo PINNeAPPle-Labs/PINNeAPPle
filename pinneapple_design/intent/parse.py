@@ -297,6 +297,16 @@ def formulate(text: str, *, llm: IntentLLM | None = None, answers: dict[str, Any
     return spec
 
 
+def fill_values(target, text: str, *, ranked=None, llm_out: dict[str, Any] | None = None) -> RequirementSpec:
+    """Read the numbers of ``text`` into the slots of ``target`` and return the filled :class:`RequirementSpec`.
+
+    ``target`` is anything that looks like a problem template — ``name``, ``title``, ``slots``, ``slot_map()``,
+    ``objectives`` and ``extra_questions()``. :mod:`pinneapple_intent` passes a study family, so one sentence is
+    read the same way whether it is compiled into a design or into a simulation: there is one parser, not two.
+    """
+    return _fill(target, _norm(str(text)).strip(), ranked or [], llm_out or {})
+
+
 def _fill(t: ProblemTemplate, text: str, ranked, llm_out: dict[str, Any]) -> RequirementSpec:
     low = text.lower()
     slots = t.slot_map()

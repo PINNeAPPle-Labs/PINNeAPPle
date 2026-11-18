@@ -1,0 +1,498 @@
+{
+  "schema": "pinneapple.study.run/1",
+  "contract_id": "1954c4276b241d775b5025ac082e50d9",
+  "family": "cantilever_beam",
+  "mode": "simulation",
+  "seed": 0,
+  "decision": "APPROVED",
+  "trust": {
+    "modelo": "cantilever_beam/simulation",
+    "decisao": "APPROVED",
+    "score": 1.0,
+    "cobertura": 1.0,
+    "motivos": [],
+    "checagens": [
+      {
+        "name": "tip_deflection: the solver against the Euler-Bernoulli closed form (plane strain)",
+        "status": "supports",
+        "critical": true,
+        "weight": 1.0,
+        "value": 0.001279,
+        "limit": 0.05,
+        "source": "",
+        "reason": "tip_deflection = 0.000135243 m from the solver, 0.000135417 m from the Euler-Bernoulli closed form (plane strain); relative error 0.13%"
+      },
+      {
+        "name": "tip_deflection: change under refinement",
+        "status": "supports",
+        "critical": true,
+        "weight": 1.0,
+        "value": 0.005368,
+        "limit": 0.02,
+        "source": "",
+        "reason": "tip_deflection = 0.000134521 m on the coarse grid and 0.000135243 m on the fine one; change 0.54% (the limit is the discretisation error accepted for this study, not a physical one)"
+      },
+      {
+        "name": "the beam is slender enough for Euler-Bernoulli",
+        "status": "supports",
+        "critical": true,
+        "weight": 1.0,
+        "value": 25.0,
+        "limit": 10.0,
+        "source": "",
+        "reason": "below L/h = 10 shear deformation is no longer negligible and the closed form underestimates the deflection"
+      },
+      {
+        "name": "the solution is finite",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 0.00013524349229549122,
+        "limit": null,
+        "source": "",
+        "reason": ""
+      },
+      {
+        "name": "the root reaction balances the applied load",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 499.99998455397963,
+        "limit": -500.0,
+        "source": "",
+        "reason": "equilibrium of the discrete system"
+      },
+      {
+        "name": "the solver is within the family's tolerance of the closed form",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 0.001279,
+        "limit": 0.05,
+        "source": "",
+        "reason": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
+      },
+      {
+        "name": "the solution is finite",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 0.00013452140682543865,
+        "limit": null,
+        "source": "",
+        "reason": ""
+      },
+      {
+        "name": "the root reaction balances the applied load",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 499.9999951412446,
+        "limit": -500.0,
+        "source": "",
+        "reason": "equilibrium of the discrete system"
+      },
+      {
+        "name": "the solver is within the family's tolerance of the closed form",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 0.006611,
+        "limit": 0.05,
+        "source": "",
+        "reason": "0.000134521 m from the solver against 0.000135417 m from the closed form; relative error 0.66%. The gap is the discretisation of the clamp and the shear the closed form omits"
+      },
+      {
+        "name": "the solution is finite",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 0.00013524349229549122,
+        "limit": null,
+        "source": "",
+        "reason": ""
+      },
+      {
+        "name": "the root reaction balances the applied load",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 499.99998455397963,
+        "limit": -500.0,
+        "source": "",
+        "reason": "equilibrium of the discrete system"
+      },
+      {
+        "name": "the solver is within the family's tolerance of the closed form",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 0.001279,
+        "limit": 0.05,
+        "source": "",
+        "reason": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
+      }
+    ],
+    "min_coverage": 0.6,
+    "min_score": 0.8
+  },
+  "stages": [
+    {
+      "rung": "analytic",
+      "ran": true,
+      "reason": "",
+      "outputs": {
+        "tip_deflection": 0.00013541666666666663,
+        "max_bending_stress": 3749999.999999999,
+        "plane_strain_modulus": 230769230769.23077,
+        "slenderness": 25.0
+      },
+      "units": {
+        "tip_deflection": "m",
+        "max_bending_stress": "Pa",
+        "plane_strain_modulus": "Pa",
+        "slenderness": "1"
+      },
+      "checks": [
+        {
+          "name": "the beam is slender enough for Euler-Bernoulli",
+          "passed": true,
+          "value": 25.0,
+          "limit": 10.0,
+          "detail": "below L/h = 10 shear deformation is no longer negligible and the closed form underestimates the deflection"
+        }
+      ],
+      "notes": [
+        "slenderness L/h = 25.0, outer-fibre bending stress 3.75 MPa"
+      ],
+      "artifacts": {},
+      "wall_s": 0.0
+    },
+    {
+      "rung": "numerical",
+      "ran": true,
+      "reason": "",
+      "outputs": {
+        "tip_deflection": 0.00013524349229549122,
+        "grid_spacing": 0.0008333333333333334
+      },
+      "units": {
+        "tip_deflection": "m",
+        "grid_spacing": "m"
+      },
+      "checks": [
+        {
+          "name": "the solution is finite",
+          "passed": true,
+          "value": 0.00013524349229549122,
+          "limit": "finite",
+          "detail": ""
+        },
+        {
+          "name": "the root reaction balances the applied load",
+          "passed": true,
+          "value": 499.99998455397963,
+          "limit": -500.0,
+          "detail": "equilibrium of the discrete system"
+        },
+        {
+          "name": "the solver is within the family's tolerance of the closed form",
+          "passed": true,
+          "value": 0.001279,
+          "limit": 0.05,
+          "detail": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
+        }
+      ],
+      "notes": [
+        "background grid 0.83 mm, 15652 degrees of freedom"
+      ],
+      "artifacts": {},
+      "wall_s": 0.1254927500121994
+    },
+    {
+      "rung": "convergence",
+      "ran": true,
+      "reason": "",
+      "outputs": {
+        "tip_deflection": 0.00013524349229549122,
+        "coarse_tip_deflection": 0.00013452140682543865,
+        "grid_spacing": 0.0008333333333333334,
+        "coarse_grid_spacing": 0.0016666666666666668
+      },
+      "units": {
+        "tip_deflection": "m",
+        "coarse_tip_deflection": "m",
+        "grid_spacing": "m",
+        "coarse_grid_spacing": "m"
+      },
+      "checks": [
+        {
+          "name": "the solution is finite",
+          "passed": true,
+          "value": 0.00013452140682543865,
+          "limit": "finite",
+          "detail": ""
+        },
+        {
+          "name": "the root reaction balances the applied load",
+          "passed": true,
+          "value": 499.9999951412446,
+          "limit": -500.0,
+          "detail": "equilibrium of the discrete system"
+        },
+        {
+          "name": "the solver is within the family's tolerance of the closed form",
+          "passed": true,
+          "value": 0.006611,
+          "limit": 0.05,
+          "detail": "0.000134521 m from the solver against 0.000135417 m from the closed form; relative error 0.66%. The gap is the discretisation of the clamp and the shear the closed form omits"
+        },
+        {
+          "name": "the solution is finite",
+          "passed": true,
+          "value": 0.00013524349229549122,
+          "limit": "finite",
+          "detail": ""
+        },
+        {
+          "name": "the root reaction balances the applied load",
+          "passed": true,
+          "value": 499.99998455397963,
+          "limit": -500.0,
+          "detail": "equilibrium of the discrete system"
+        },
+        {
+          "name": "the solver is within the family's tolerance of the closed form",
+          "passed": true,
+          "value": 0.001279,
+          "limit": 0.05,
+          "detail": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
+        }
+      ],
+      "notes": [
+        "coarse 1.67 mm and fine 0.83 mm; 0.000134521 m then 0.000135243 m"
+      ],
+      "artifacts": {},
+      "wall_s": 0.14378679099900182
+    }
+  ],
+  "checks": [
+    {
+      "name": "tip_deflection: the solver against the Euler-Bernoulli closed form (plane strain)",
+      "passed": true,
+      "value": 0.001279,
+      "limit": 0.05,
+      "detail": "tip_deflection = 0.000135243 m from the solver, 0.000135417 m from the Euler-Bernoulli closed form (plane strain); relative error 0.13%"
+    },
+    {
+      "name": "tip_deflection: change under refinement",
+      "passed": true,
+      "value": 0.005368,
+      "limit": 0.02,
+      "detail": "tip_deflection = 0.000134521 m on the coarse grid and 0.000135243 m on the fine one; change 0.54% (the limit is the discretisation error accepted for this study, not a physical one)"
+    },
+    {
+      "name": "the beam is slender enough for Euler-Bernoulli",
+      "passed": true,
+      "value": 25.0,
+      "limit": 10.0,
+      "detail": "below L/h = 10 shear deformation is no longer negligible and the closed form underestimates the deflection"
+    },
+    {
+      "name": "the solution is finite",
+      "passed": true,
+      "value": 0.00013524349229549122,
+      "limit": "finite",
+      "detail": ""
+    },
+    {
+      "name": "the root reaction balances the applied load",
+      "passed": true,
+      "value": 499.99998455397963,
+      "limit": -500.0,
+      "detail": "equilibrium of the discrete system"
+    },
+    {
+      "name": "the solver is within the family's tolerance of the closed form",
+      "passed": true,
+      "value": 0.001279,
+      "limit": 0.05,
+      "detail": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
+    },
+    {
+      "name": "the solution is finite",
+      "passed": true,
+      "value": 0.00013452140682543865,
+      "limit": "finite",
+      "detail": ""
+    },
+    {
+      "name": "the root reaction balances the applied load",
+      "passed": true,
+      "value": 499.9999951412446,
+      "limit": -500.0,
+      "detail": "equilibrium of the discrete system"
+    },
+    {
+      "name": "the solver is within the family's tolerance of the closed form",
+      "passed": true,
+      "value": 0.006611,
+      "limit": 0.05,
+      "detail": "0.000134521 m from the solver against 0.000135417 m from the closed form; relative error 0.66%. The gap is the discretisation of the clamp and the shear the closed form omits"
+    },
+    {
+      "name": "the solution is finite",
+      "passed": true,
+      "value": 0.00013524349229549122,
+      "limit": "finite",
+      "detail": ""
+    },
+    {
+      "name": "the root reaction balances the applied load",
+      "passed": true,
+      "value": 499.99998455397963,
+      "limit": -500.0,
+      "detail": "equilibrium of the discrete system"
+    },
+    {
+      "name": "the solver is within the family's tolerance of the closed form",
+      "passed": true,
+      "value": 0.001279,
+      "limit": 0.05,
+      "detail": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
+    }
+  ],
+  "wall_s": 0.3513062089914456,
+  "files": {
+    "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/beam/contract.json"
+  },
+  "library_version": "0.8.0",
+  "contract": {
+    "schema": "pinneapple.study/1",
+    "id": null,
+    "status": "ready",
+    "mode": "simulation",
+    "family": "cantilever_beam",
+    "title": "Tip deflection of a cantilever beam under an end load",
+    "objective": "how far the end of a cantilever moves under a load",
+    "domain": "solid mechanics",
+    "physics": {
+      "equations": [
+        "E' I d^2 w/dx^2 = M(x),  E' = E / (1 - nu^2)   (Euler-Bernoulli, plane strain)",
+        "w(0) = 0, w'(0) = 0   (clamped root)",
+        "delta = P L^3 / (3 E' I),  I = h^3 / 12   (tip load, one metre of depth)",
+        "sigma_max = P L (h/2) / I   (outer fibre, bending only)"
+      ],
+      "assumptions": [
+        "Small deflection, linear elasticity, and a beam slender enough for Euler-Bernoulli: the closed form has no shear deformation, which is why the family reports the slenderness L/h next to the answer.",
+        "The two-dimensional solver is plane strain, so the closed form compares against E / (1 - nu^2).",
+        "The root is fully clamped (both displacement components fixed) and the section is rectangular, homogeneous and isotropic."
+      ]
+    },
+    "limitations": [
+      "No plasticity, no buckling, no contact and no fatigue: the answer is the elastic response to one load.",
+      "Deflections above roughly a tenth of the span are outside the linear theory this compares with.",
+      "The stress reported is the bending stress of the closed form, not the peak the solver finds at the clamp, where a real fillet and a real contact pressure change the number."
+    ],
+    "references": [
+      "Timoshenko, Strength of Materials, part I, ch. 5 (cantilever with an end load, and the shear correction this closed form omits).",
+      "Boresi & Chong, Elasticity in Engineering Mechanics (plane strain replaces E with E / (1 - nu^2))."
+    ],
+    "quantities": {
+      "length": {
+        "name": "length",
+        "value": 0.5,
+        "unit": "m",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "0.5 m long"
+      },
+      "youngs_modulus": {
+        "name": "youngs_modulus",
+        "value": 210000000000.0,
+        "unit": "Pa",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "E = 210 GPa"
+      },
+      "load": {
+        "name": "load",
+        "value": 500.0,
+        "unit": "N",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "500 N"
+      },
+      "height": {
+        "name": "height",
+        "value": 0.02,
+        "unit": "m",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "20 mm deep"
+      },
+      "depth": {
+        "name": "depth",
+        "value": 1.0,
+        "unit": "m",
+        "provenance": "defaulted",
+        "source": "1 m, the unit depth of the two-dimensional model; the load is entered as a total over it and divided by it",
+        "quote": ""
+      },
+      "poisson": {
+        "name": "poisson",
+        "value": 0.3,
+        "unit": "",
+        "provenance": "defaulted",
+        "source": "0.3, the usual value for steel and aluminium alloys",
+        "quote": ""
+      }
+    },
+    "workflow": {
+      "ladder": [
+        {
+          "name": "analytic",
+          "label": "Euler-Bernoulli closed form (plane strain)",
+          "method": "the elastic curve of a cantilever with an end load, with E replaced by E/(1 - nu^2)",
+          "available": true,
+          "reason": ""
+        },
+        {
+          "name": "numerical",
+          "label": "immersed finite cell, plane-strain linear elasticity",
+          "method": "pinneapple_simulation.immersed.solve_elasticity on a box of the section: the root face fully clamped, the tip face loaded in shear",
+          "available": true,
+          "reason": ""
+        },
+        {
+          "name": "convergence",
+          "label": "the same solver on two grids",
+          "method": "the numerical rung repeated at a coarser and a finer spacing, and the change of the quantity of interest between them",
+          "available": true,
+          "reason": ""
+        }
+      ],
+      "validation": [
+        "the solver against the closed form on the same inputs",
+        "the quantity of interest under grid refinement",
+        "the slenderness, against the range Euler-Bernoulli applies to"
+      ]
+    },
+    "questions": [],
+    "issues": [],
+    "unsupported": [
+      "'20 mm' was not used: no value of that kind in the Tip deflection of a cantilever beam under an end load template"
+    ],
+    "provenance": {
+      "text": "a cantilever beam 0.5 m long with E = 210 GPa, 20 mm deep, carrying 500 N at the tip",
+      "compiler": "deterministic",
+      "llm": "",
+      "llm_note": "",
+      "library_version": "0.8.0",
+      "created_at": "2026-11-18T13:20:40+00:00",
+      "seed": 0,
+      "python": "3.11.16",
+      "platform": "Darwin"
+    }
+  }
+}

@@ -1,0 +1,417 @@
+{
+  "schema": "pinneapple.study.run/1",
+  "contract_id": "9ed6a06b186165046067807576f70c7b",
+  "family": "laminar_pipe",
+  "mode": "simulation",
+  "seed": 0,
+  "decision": "APPROVED",
+  "trust": {
+    "modelo": "laminar_pipe/simulation",
+    "decisao": "APPROVED",
+    "score": 1.0,
+    "cobertura": 1.0,
+    "motivos": [],
+    "checagens": [
+      {
+        "name": "pressure_drop: the solver against the Hagen-Poiseuille closed form",
+        "status": "supports",
+        "critical": true,
+        "weight": 1.0,
+        "value": 2.3e-05,
+        "limit": 0.05,
+        "source": "",
+        "reason": "pressure_drop = 6.36634 Pa from the solver, 6.3662 Pa from the Hagen-Poiseuille closed form; relative error 0.00%"
+      },
+      {
+        "name": "pressure_drop: change under refinement",
+        "status": "supports",
+        "critical": true,
+        "weight": 1.0,
+        "value": 0.006621,
+        "limit": 0.02,
+        "source": "",
+        "reason": "pressure_drop = 6.40878 Pa on the coarse grid and 6.36634 Pa on the fine one; change 0.66% (the limit is the discretisation error accepted for this study, not a physical one)"
+      },
+      {
+        "name": "the flow is laminar, where the closed form applies",
+        "status": "supports",
+        "critical": true,
+        "weight": 1.0,
+        "value": 529.6,
+        "limit": 2300.0,
+        "source": "",
+        "reason": "above Re = 2300 the laminar law stops describing the flow and this study's answer is the answer to a different problem"
+      },
+      {
+        "name": "the discrete profile is positive everywhere",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 3.9269002307059145e-06,
+        "limit": null,
+        "source": "",
+        "reason": ""
+      },
+      {
+        "name": "the finite-difference solve is within the family's tolerance of the closed form",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 2.3e-05,
+        "limit": 0.05,
+        "source": "",
+        "reason": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
+      },
+      {
+        "name": "the discrete profile is positive everywhere",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 3.9009014752481575e-06,
+        "limit": null,
+        "source": "",
+        "reason": ""
+      },
+      {
+        "name": "the finite-difference solve is within the family's tolerance of the closed form",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 0.006688,
+        "limit": 0.05,
+        "source": "",
+        "reason": "6.40878 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.669%"
+      },
+      {
+        "name": "the discrete profile is positive everywhere",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 3.9269002307059145e-06,
+        "limit": null,
+        "source": "",
+        "reason": ""
+      },
+      {
+        "name": "the finite-difference solve is within the family's tolerance of the closed form",
+        "status": "supports",
+        "critical": false,
+        "weight": 1.0,
+        "value": 2.3e-05,
+        "limit": 0.05,
+        "source": "",
+        "reason": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
+      }
+    ],
+    "min_coverage": 0.6,
+    "min_score": 0.8
+  },
+  "stages": [
+    {
+      "rung": "analytic",
+      "ran": true,
+      "reason": "",
+      "outputs": {
+        "pressure_drop": 6.366197723675814,
+        "mean_velocity": 0.026525823848649224,
+        "reynolds": 529.5615473144331
+      },
+      "units": {
+        "pressure_drop": "Pa",
+        "mean_velocity": "m/s",
+        "reynolds": "1"
+      },
+      "checks": [
+        {
+          "name": "the flow is laminar, where the closed form applies",
+          "passed": true,
+          "value": 529.6,
+          "limit": 2300.0,
+          "detail": "above Re = 2300 the laminar law stops describing the flow and this study's answer is the answer to a different problem"
+        }
+      ],
+      "notes": [
+        "mean velocity 0.02653 m/s, Re = 529.6"
+      ],
+      "artifacts": {},
+      "wall_s": 0.0
+    },
+    {
+      "rung": "numerical",
+      "ran": true,
+      "reason": "",
+      "outputs": {
+        "pressure_drop": 6.36634458001137,
+        "reynolds": 529.5615473144331,
+        "radial_nodes": 256.0
+      },
+      "units": {
+        "pressure_drop": "Pa",
+        "reynolds": "1",
+        "radial_nodes": "1"
+      },
+      "checks": [
+        {
+          "name": "the discrete profile is positive everywhere",
+          "passed": true,
+          "value": 3.9269002307059145e-06,
+          "limit": "> 0",
+          "detail": ""
+        },
+        {
+          "name": "the finite-difference solve is within the family's tolerance of the closed form",
+          "passed": true,
+          "value": 2.3e-05,
+          "limit": 0.05,
+          "detail": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
+        }
+      ],
+      "notes": [
+        "256 radial nodes over a radius of 10.00 mm"
+      ],
+      "artifacts": {},
+      "wall_s": 0.0003488329966785386
+    },
+    {
+      "rung": "convergence",
+      "ran": true,
+      "reason": "",
+      "outputs": {
+        "pressure_drop": 6.36634458001137,
+        "coarse_pressure_drop": 6.408775037931358,
+        "radial_nodes": 256.0,
+        "coarse_radial_nodes": 16.0
+      },
+      "units": {
+        "pressure_drop": "Pa",
+        "coarse_pressure_drop": "Pa",
+        "radial_nodes": "1",
+        "coarse_radial_nodes": "1"
+      },
+      "checks": [
+        {
+          "name": "the discrete profile is positive everywhere",
+          "passed": true,
+          "value": 3.9009014752481575e-06,
+          "limit": "> 0",
+          "detail": ""
+        },
+        {
+          "name": "the finite-difference solve is within the family's tolerance of the closed form",
+          "passed": true,
+          "value": 0.006688,
+          "limit": 0.05,
+          "detail": "6.40878 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.669%"
+        },
+        {
+          "name": "the discrete profile is positive everywhere",
+          "passed": true,
+          "value": 3.9269002307059145e-06,
+          "limit": "> 0",
+          "detail": ""
+        },
+        {
+          "name": "the finite-difference solve is within the family's tolerance of the closed form",
+          "passed": true,
+          "value": 2.3e-05,
+          "limit": 0.05,
+          "detail": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
+        }
+      ],
+      "notes": [
+        "16 then 256 radial nodes; 6.40878 Pa then 6.36634 Pa"
+      ],
+      "artifacts": {},
+      "wall_s": 0.00031245898571796715
+    }
+  ],
+  "checks": [
+    {
+      "name": "pressure_drop: the solver against the Hagen-Poiseuille closed form",
+      "passed": true,
+      "value": 2.3e-05,
+      "limit": 0.05,
+      "detail": "pressure_drop = 6.36634 Pa from the solver, 6.3662 Pa from the Hagen-Poiseuille closed form; relative error 0.00%"
+    },
+    {
+      "name": "pressure_drop: change under refinement",
+      "passed": true,
+      "value": 0.006621,
+      "limit": 0.02,
+      "detail": "pressure_drop = 6.40878 Pa on the coarse grid and 6.36634 Pa on the fine one; change 0.66% (the limit is the discretisation error accepted for this study, not a physical one)"
+    },
+    {
+      "name": "the flow is laminar, where the closed form applies",
+      "passed": true,
+      "value": 529.6,
+      "limit": 2300.0,
+      "detail": "above Re = 2300 the laminar law stops describing the flow and this study's answer is the answer to a different problem"
+    },
+    {
+      "name": "the discrete profile is positive everywhere",
+      "passed": true,
+      "value": 3.9269002307059145e-06,
+      "limit": "> 0",
+      "detail": ""
+    },
+    {
+      "name": "the finite-difference solve is within the family's tolerance of the closed form",
+      "passed": true,
+      "value": 2.3e-05,
+      "limit": 0.05,
+      "detail": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
+    },
+    {
+      "name": "the discrete profile is positive everywhere",
+      "passed": true,
+      "value": 3.9009014752481575e-06,
+      "limit": "> 0",
+      "detail": ""
+    },
+    {
+      "name": "the finite-difference solve is within the family's tolerance of the closed form",
+      "passed": true,
+      "value": 0.006688,
+      "limit": 0.05,
+      "detail": "6.40878 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.669%"
+    },
+    {
+      "name": "the discrete profile is positive everywhere",
+      "passed": true,
+      "value": 3.9269002307059145e-06,
+      "limit": "> 0",
+      "detail": ""
+    },
+    {
+      "name": "the finite-difference solve is within the family's tolerance of the closed form",
+      "passed": true,
+      "value": 2.3e-05,
+      "limit": 0.05,
+      "detail": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
+    }
+  ],
+  "wall_s": 0.000698207993991673,
+  "files": {
+    "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/pipe-laminar/contract.json"
+  },
+  "library_version": "0.8.0",
+  "contract": {
+    "schema": "pinneapple.study/1",
+    "id": null,
+    "status": "ready",
+    "mode": "simulation",
+    "family": "laminar_pipe",
+    "title": "Pressure drop of a laminar flow along a circular pipe",
+    "objective": "the pressure needed to push a given flow rate through a pipe",
+    "domain": "fluid mechanics",
+    "physics": {
+      "equations": [
+        "mu (1/r) d/dr (r du/dr) = dp/dx   (steady, fully developed, axisymmetric momentum balance)",
+        "u(R) = 0 and du/dr(0) = 0   (no-slip at the wall, symmetry on the axis)",
+        "dp = 8 mu L Q / (pi R^4)   (Hagen-Poiseuille, the closed form the solver is checked against)",
+        "Re = rho u D / mu, laminar when Re < 2300"
+      ],
+      "assumptions": [
+        "Steady, fully developed, laminar and incompressible flow.",
+        "A Newtonian fluid of constant viscosity, in a straight circular pipe of constant section.",
+        "The entrance length and the local losses (bends, fittings, a valve) are not part of this study: it prices the straight run only, so a real circuit needs those added.",
+        "No roughness: at the Reynolds numbers this study admits, a laminar profile does not feel it."
+      ]
+    },
+    "limitations": [
+      "Turbulent flow is outside the family: above the Reynolds number this study reports, the answer it gives is the answer to a different problem.",
+      "No heat transfer, no compressibility, no non-Newtonian rheology, no transient start-up.",
+      "The pipe is a straight line: elbows, tees, valves, and the developing region near the inlet are not priced."
+    ],
+    "references": [
+      "Hagen, G. (1839) and Poiseuille, J. L. (1840): the fourth-power law for laminar pipe flow.",
+      "White, F. M., Viscous Fluid Flow, ch. 3 (the Hagen-Poiseuille solution and f = 64/Re)."
+    ],
+    "quantities": {
+      "diameter": {
+        "name": "diameter",
+        "value": 0.02,
+        "unit": "m",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "20 mm pipe"
+      },
+      "viscosity": {
+        "name": "viscosity",
+        "value": 0.001,
+        "unit": "Pa*s",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "1 mPa*s"
+      },
+      "flow_rate": {
+        "name": "flow_rate",
+        "value": 8.333333333333334e-06,
+        "unit": "m^3/s",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "0.5 L/min"
+      },
+      "length": {
+        "name": "length",
+        "value": 3.0,
+        "unit": "m",
+        "provenance": "stated",
+        "source": "user",
+        "quote": "3 m long"
+      },
+      "density": {
+        "name": "density",
+        "value": 998.2,
+        "unit": "kg/m^3",
+        "provenance": "defaulted",
+        "source": "water at 20 \u00b0C (998.2 kg/m3); change it for another fluid",
+        "quote": ""
+      }
+    },
+    "workflow": {
+      "ladder": [
+        {
+          "name": "analytic",
+          "label": "Hagen-Poiseuille closed form",
+          "method": "the exact solution of the steady, fully developed, axisymmetric momentum balance",
+          "available": true,
+          "reason": ""
+        },
+        {
+          "name": "numerical",
+          "label": "finite differences on the radial momentum balance",
+          "method": "(1/r) d/dr (r du/dr) = dp/dx discretised on the real radius, wall no-slip and axis symmetry, the profile integrated to the flow rate and the gradient that carries it solved for",
+          "available": true,
+          "reason": ""
+        },
+        {
+          "name": "convergence",
+          "label": "the same solver on two grids",
+          "method": "the numerical rung repeated at a coarser and a finer spacing, and the change of the quantity of interest between them",
+          "available": true,
+          "reason": ""
+        }
+      ],
+      "validation": [
+        "the finite-difference solve against Hagen-Poiseuille",
+        "the pressure drop under radial grid refinement",
+        "the Reynolds number against the laminar limit the family claims"
+      ]
+    },
+    "questions": [],
+    "issues": [],
+    "unsupported": [],
+    "provenance": {
+      "text": "a 20 mm pipe, 3 m long, carrying 0.5 L/min of water, viscosity 1 mPa*s",
+      "compiler": "deterministic",
+      "llm": "",
+      "llm_note": "",
+      "library_version": "0.8.0",
+      "created_at": "2026-11-18T13:20:40+00:00",
+      "seed": 0,
+      "python": "3.11.16",
+      "platform": "Darwin"
+    }
+  }
+}

@@ -1,5 +1,12 @@
 """Physics checks of a 2-D Darcy field, ``-div(a grad u) = f`` on the unit square with ``u = 0`` on the boundary.
 
+The same checks cover the reacting variant a conjugate cold plate needs,
+``-div(a grad u) + s(x) u = f`` with ``s >= 0`` a volumetric sink (heat leaving the plate to a coolant): every
+function takes ``sink=s`` (a field or a scalar). The certificates survive verbatim, because ``s >= 0`` only
+stiffens the operator -- ``A_a + diag(s) >= min(a) L`` still holds -- so the same ``L^-1`` of the
+constant-coefficient operator bounds the error, and the conservation statement becomes "heat generated = heat to
+the boundary + heat to the sink", which is the energy balance of the conjugate problem.
+
 Every check works on a predicted field alone (no reference solution) and uses the same discretisation as the
 reference solver ``pinneapple_simulation.numerical_solvers.operator_benchmarks.darcy_2d`` and the zoo dataset
 ``darcy_2d_li2021``: cell-centred values on an ``n x n`` grid, ``h = 1/n``, two-point flux finite volumes with
@@ -55,6 +62,7 @@ from typing import Any
 
 import numpy as np
 from scipy import fft as _fft
+from scipy.sparse import linalg as _spla
 
 __all__ = [
     "DEFAULT_TOLERANCES", "darcy_operator_apply", "darcy_residual", "residual_error_bound", "boundary_flux_balance",
@@ -98,11 +106,22 @@ def _pair(a, u) -> tuple[np.ndarray, np.ndarray, bool]:
     return a, u, sa and su
 
 
-def darcy_operator_apply(u: np.ndarray, a: np.ndarray) -> np.ndarray:
+def _sink(sink, shape) -> np.ndarray | None:
+    if sink is None:
+        return None
+    s = np.asarray(sink, dtype=np.float64)
+    if (s < 0).any():
+        raise ValueError("sink must be non-negative (a non-negative sink keeps the operator SPD, which is what the "
+                         "certified bounds rely on)")
+    return np.broadcast_to(s, shape)
+
+
+def darcy_operator_apply(u: np.ndarray, a: np.ndarray, *, sink=None) -> np.ndarray:
     """``A_a u``: the finite-volume operator of ``-div(a grad u)`` (with ``u = 0`` on the boundary) applied to ``u``.
 
     ``u``, ``a``: ``(n, n)`` or ``(batch, n, n)`` at the cell centres. Identical, cell by cell, to the matrix that
-    ``operator_benchmarks.darcy_2d`` assembles.
+    ``operator_benchmarks.darcy_2d`` assembles. ``sink`` (a field or a scalar ``>= 0``) adds the reaction term
+    ``s u`` of ``-div(a grad u) + s u = f`` on the diagonal.
     """
     a, u, single = _pair(a, u)
     n = u.shape[-1]
@@ -122,12 +141,18 @@ def darcy_operator_apply(u: np.ndarray, a: np.ndarray) -> np.ndarray:
     out[:, -1, :] += tb[:, -1, :] * u[:, -1, :]
     out[:, :, 0] += tb[:, :, 0] * u[:, :, 0]
     out[:, :, -1] += tb[:, :, -1] * u[:, :, -1]
+    s = _sink(sink, out.shape)
+    if s is not None:
+        out = out + s * u
     return out[0] if single else out
 
 
-def darcy_residual(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
-    """Finite-volume residual ``f - A_a u`` per cell (same shape as ``u``); zero for the solver's own solution."""
-    Au = darcy_operator_apply(u, a)
+def darcy_residual(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *, sink=None) -> np.ndarray:
+    """Finite-volume residual ``f - A_a u`` per cell (same shape as ``u``); zero for the solver's own solution.
+
+    ``sink`` as in :func:`darcy_operator_apply` (the residual is then that of ``-div(a grad u) + s u = f``).
+    """
+    Au = darcy_operator_apply(u, a, sink=sink)
     return np.broadcast_to(np.asarray(f, dtype=np.float64), Au.shape) - Au
 
 
@@ -146,36 +171,83 @@ def _laplace_inverse(r: np.ndarray) -> np.ndarray:
     return _fft.idstn(R, type=2, axes=(-2, -1), norm="ortho")
 
 
-def residual_error_bound(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
+def _error_field(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *, sink=None,
+                 rtol: float = 1e-12) -> np.ndarray:
+    """``(A_a + diag(s))^-1 r``: the error of ``u`` to the discrete solution, from its residual.
+
+    Conjugate gradients on the operator itself (a ``LinearOperator`` over :func:`darcy_operator_apply`, so no matrix
+    is assembled), preconditioned by the constant-coefficient inverse the fast bounds use (``L^-1 / min a``).
+    """
+    a, u, single = _pair(a, u)
+    n = u.shape[-1]
+    r = darcy_residual(u, a, f, sink=sink)
+    s = _sink(sink, u.shape)
+    out = np.empty_like(u)
+    for i in range(len(u)):
+        amin = float(np.min(a[i]))
+        M = _spla.LinearOperator((n * n, n * n),
+                                 matvec=lambda x, amin=amin: (_laplace_inverse(x.reshape(n, n)) / amin).ravel())
+        op = _spla.LinearOperator((n * n, n * n), matvec=lambda x, i=i: darcy_operator_apply(
+            x.reshape(n, n), a[i], sink=None if s is None else s[i]).ravel())
+        out[i] = _spla.cg(op, r[i].ravel(), rtol=rtol, atol=0.0, maxiter=200 * n, M=M)[0].reshape(n, n)
+    return out[0] if single else out
+
+
+def residual_error_bound(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *,
+                         sink=None, exact: bool = False) -> np.ndarray:
     """Certified relative error of ``u`` in the energy norm of the discrete problem, from its residual alone.
 
     Returns ``||r||_{L^-1} / sqrt(min a) / ||u||_A`` per sample (a scalar for one field), an upper bound on
     ``||u_h - u||_A / ||u||_A`` where ``u_h`` is the exact finite-volume solution on the same grid. Inner products
     carry the cell area ``h^2``. The bound is about the discrete solution: the discretisation error of ``u_h`` itself
     (about 0.5 % in L2 at 128 x 128 for the zoo dataset) is not included.
+
+    With ``sink`` the energy norm is that of ``A_a + diag(s)`` and the bound still holds: ``s >= 0`` gives
+    ``A_a + diag(s) >= min(a) L``, so ``r^T (A_a + diag(s))^-1 r <= r^T (min(a) L)^-1 r`` keeps the ``L^-1`` step
+    unchanged. The bound is then looser by the share of the energy the sink carries, which is the safe direction --
+    and *vacuous* when the sink dominates (a conjugate plate rejects most of its heat to the coolant, so the
+    constant-coefficient step over-estimates by one to two orders of magnitude; measured 44x on a banded sink).
+    ``exact=True`` replaces that relaxation with the discrete error itself (:func:`_error_field`, one preconditioned
+    CG per sample): reference-free like the bound, and tight by construction.
     """
     a, u, single = _pair(a, u)
     h2 = 1.0 / u.shape[-1] ** 2
-    r = darcy_residual(u, a, f)
+    if exact:
+        e = _error_field(u, a, f, sink=sink)
+        num = np.sqrt(np.maximum(h2 * np.sum(e * darcy_operator_apply(e, a, sink=sink), axis=(-2, -1)), 0.0))
+        den = np.sqrt(np.maximum(h2 * np.sum(u * darcy_operator_apply(u, a, sink=sink), axis=(-2, -1)), 0.0))
+        out = num / np.maximum(den, 1e-300)
+        return out[0] if single else out
+    r = darcy_residual(u, a, f, sink=sink)
     dual = np.sqrt(np.maximum(h2 * np.sum(r * _laplace_inverse(r), axis=(-2, -1)), 0.0))
-    energy = np.sqrt(np.maximum(h2 * np.sum(u * darcy_operator_apply(u, a), axis=(-2, -1)), 0.0))
+    energy = np.sqrt(np.maximum(h2 * np.sum(u * darcy_operator_apply(u, a, sink=sink), axis=(-2, -1)), 0.0))
     amin = a.reshape(a.shape[0], -1).min(axis=1)
     out = dual / np.sqrt(amin) / np.maximum(energy, 1e-300)
     return out[0] if single else out
 
 
-def residual_l2_bound(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
+def residual_l2_bound(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *, sink=None,
+                      exact: bool = False) -> np.ndarray:
     """Certified relative L2 error of ``u`` (to the discrete solution), from its residual alone.
 
     ``||u_h - u||_2 <= ||r||_{L^-1} / (min a * sqrt(lambda_min(L))) / ||u||_2``: the energy bound of
     :func:`residual_error_bound` with the discrete Poincare inequality ``v^T A v >= min(a) lambda_min(L) ||v||^2``,
     ``lambda_min(L) = (8 / h^2) sin^2(pi / (2 n))`` (about ``2 pi^2``). It bounds the error of the field itself, the
     quantity a map of ``u`` is judged by, where the energy bound bounds the error of its gradient (the flux).
+    A non-negative ``sink`` only raises ``lambda_min``, so the same normalisation remains a valid bound; as in
+    :func:`residual_error_bound`, it becomes vacuous when the sink dominates the energy, and ``exact=True`` gives the
+    discrete error itself instead.
     """
     a, u, single = _pair(a, u)
     n = u.shape[-1]
     h2 = 1.0 / n ** 2
-    r = darcy_residual(u, a, f)
+    if exact:
+        e = _error_field(u, a, f, sink=sink)
+        num = np.sqrt(np.sum(e * e, axis=(-2, -1)))
+        den = np.sqrt(np.sum(u * u, axis=(-2, -1)))
+        out = num / np.maximum(den, 1e-300)
+        return out[0] if single else out
+    r = darcy_residual(u, a, f, sink=sink)
     dual = np.sqrt(np.maximum(h2 * np.sum(r * _laplace_inverse(r), axis=(-2, -1)), 0.0))
     lam = 8.0 * n ** 2 * np.sin(np.pi / (2 * n)) ** 2
     amin = a.reshape(a.shape[0], -1).min(axis=1)
@@ -184,11 +256,14 @@ def residual_l2_bound(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0)
     return out[0] if single else out
 
 
-def boundary_flux_balance(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0) -> dict[str, np.ndarray]:
+def boundary_flux_balance(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *,
+                          sink=None) -> dict[str, np.ndarray]:
     """Net outward flux through the boundary against the integral of the source (per sample).
 
     The outward flux through a boundary face of cell ``c`` is ``a_c (u_c - 0) / (h/2) * h = 2 a_c u_c``, as in the
-    solver. Returns ``{"outflow", "source", "imbalance"}`` with ``imbalance = |outflow - source| / |source|``.
+    solver. Returns ``{"outflow", "source", "sink", "imbalance"}`` with ``imbalance = |outflow - (source - sink)| /
+    |source|``: the share of the heat generated that the discrete field does not account for, either leaving through
+    the boundary or going to the ``sink`` (zero for ``sink=None``, where the check is unchanged).
     """
     a, u, single = _pair(a, u)
     n = u.shape[-1]
@@ -196,8 +271,10 @@ def boundary_flux_balance(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 
     out = 2 * (np.sum(a[:, 0, :] * u[:, 0, :], axis=-1) + np.sum(a[:, -1, :] * u[:, -1, :], axis=-1)
                + np.sum(a[:, :, 0] * u[:, :, 0], axis=-1) + np.sum(a[:, :, -1] * u[:, :, -1], axis=-1))
     src = np.sum(np.broadcast_to(np.asarray(f, dtype=np.float64), u.shape), axis=(-2, -1)) * h * h
-    imb = np.abs(out - src) / np.maximum(np.abs(src), 1e-300)
-    res = {"outflow": out, "source": src, "imbalance": imb}
+    s = _sink(sink, u.shape)
+    to_sink = np.zeros_like(src) if s is None else np.sum(s * u, axis=(-2, -1)) * h * h
+    imb = np.abs(out - (src - to_sink)) / np.maximum(np.abs(src), 1e-300)
+    res = {"outflow": out, "source": src, "sink": to_sink, "imbalance": imb}
     return {k: v[0] for k, v in res.items()} if single else res
 
 
@@ -319,13 +396,18 @@ class DarcyCheck:
 def darcy_checks(a: np.ndarray, u: np.ndarray, f: float | np.ndarray = 1.0, *,
                  reference: np.ndarray | None = None, envelope: CoefficientEnvelope | None = None,
                  tolerances: Mapping[str, float] | None = None, quantile: float = 0.9,
-                 physics_kind: str = "physics") -> list[DarcyCheck]:
+                 physics_kind: str = "physics", sink=None, exact: bool = False) -> list[DarcyCheck]:
     """Physics checks of predicted Darcy fields ``u`` for coefficients ``a`` (``(n, n)`` or ``(batch, n, n)``).
 
     Each check is computed per sample and aggregated with the ``quantile`` over the batch (0.9: nine samples in ten
     must pass); the per-sample values are kept. Physics checks (no reference needed): certified energy-error bound
     from the residual, boundary condition, flux balance, positivity (``f >= 0`` only). ``reference`` adds the
     relative L2 error; ``envelope`` adds the applicability of the coefficients (inside the training envelope).
+    ``sink`` (a field or a scalar ``>= 0``) checks the reacting problem ``-div(a grad u) + s u = f`` instead: the
+    residual, the two certificates and the flux balance all use the sink, and the balance becomes "generated =
+    boundary + sink". ``exact`` makes the two certificates the discrete error itself instead of the
+    constant-coefficient relaxation (slightly slower, and the only useful form when the sink carries most of the
+    energy).
     ``physics_kind`` labels the physics checks (e.g. ``"drift"`` when ``tolerances`` come from
     :func:`calibrate_tolerances`).
     """
@@ -345,17 +427,20 @@ def darcy_checks(a: np.ndarray, u: np.ndarray, f: float | np.ndarray = 1.0, *,
         checks.append(DarcyCheck("finite values", physics_kind, (~finite).astype(float), float((~finite).mean()), 0.0,
                                  False, True, f"{int((~finite).sum())} of {len(finite)} fields have NaN or inf"))
         return checks
-    pm = physics_metrics(a, u, f)
+    pm = physics_metrics(a, u, f, sink=sink, exact=exact)
     add("PDE residual (certified energy-error bound)", physics_kind, pm["energy_bound"], tol["energy_bound"],
-        "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u); bounds the "
-        "relative energy-norm distance to the discrete solution")
+        "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u)"
+        + (" - s u" if sink is not None else "")
+        + "; bounds the relative energy-norm distance to the discrete solution")
     add("PDE residual (certified L2 error bound)", physics_kind, pm["l2_bound"], tol["l2_bound"],
         "the energy bound with the discrete Poincare inequality: bounds the relative L2 distance of u to the "
         "discrete solution")
     add("boundary condition u = 0", physics_kind, pm["bc"], tol["bc"], "RMS of u on the boundary (linear "
         "extrapolation from the first two cells) over max |u|")
     add("flux balance (net boundary flux = source)", physics_kind, pm["flux"], tol["flux"],
-        "|outflow - integral of f| / |integral of f|, outflow = sum of 2 a u over the boundary faces")
+        "|outflow - (integral of f - integral of s u)| / |integral of f|, outflow = sum of 2 a u over the boundary "
+        "faces" if sink is not None else "|outflow - integral of f| / |integral of f|, outflow = sum of 2 a u over "
+        "the boundary faces")
     fmin = float(np.min(np.asarray(f, dtype=np.float64)))
     if fmin >= 0:
         add("positivity (maximum principle)", physics_kind, pm["positivity"], tol["positivity"],
@@ -380,15 +465,18 @@ def darcy_checks(a: np.ndarray, u: np.ndarray, f: float | np.ndarray = 1.0, *,
     return checks
 
 
-def physics_metrics(a: np.ndarray, u: np.ndarray, f: float | np.ndarray = 1.0) -> dict[str, np.ndarray]:
+def physics_metrics(a: np.ndarray, u: np.ndarray, f: float | np.ndarray = 1.0, *,
+                    sink=None, exact: bool = False) -> dict[str, np.ndarray]:
     """Per-sample values of the physics checks, keyed like :data:`DEFAULT_TOLERANCES` (``energy_bound``,
-    ``l2_bound``, ``bc``, ``flux``, ``positivity``); no reference solution needed."""
+    ``l2_bound``, ``bc``, ``flux``, ``positivity``); no reference solution needed. ``sink``: the reacting variant;
+    ``exact``: the discrete error instead of the constant-coefficient relaxation (see
+    :func:`residual_error_bound`)."""
     a, u, _ = _pair(a, u)
     scale = np.maximum(np.max(np.abs(u), axis=(-2, -1)), 1e-300)
-    return {"energy_bound": residual_error_bound(u, a, f),
-            "l2_bound": residual_l2_bound(u, a, f),
+    return {"energy_bound": residual_error_bound(u, a, f, sink=sink, exact=exact),
+            "l2_bound": residual_l2_bound(u, a, f, sink=sink, exact=exact),
             "bc": np.sqrt(np.mean(boundary_values(u) ** 2, axis=(-2, -1))) / scale,
-            "flux": boundary_flux_balance(u, a, f)["imbalance"],
+            "flux": boundary_flux_balance(u, a, f, sink=sink)["imbalance"],
             "positivity": np.maximum(-np.min(u, axis=(-2, -1)), 0.0) / scale}
 
 
@@ -496,7 +584,7 @@ def sample_verdict(checks: Sequence[Mapping[str, Any]]) -> str:
 
 
 # --------------------------------------------------------------------------------------------- where it works
-def estimated_error(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
+def estimated_error(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *, sink=None) -> np.ndarray:
     """Map of the error of ``u`` estimated from its residual alone: ``e ~ L^-1 r / a_h``.
 
     ``A_a e = r`` holds exactly for the error ``e = u_h - u`` to the discrete solution. Replacing ``A_a`` by the
@@ -507,7 +595,7 @@ def estimated_error(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0) -
     """
     a, u, single = _pair(a, u)
     ah = 1.0 / np.mean(1.0 / a, axis=(-2, -1))
-    e = _laplace_inverse(darcy_residual(u, a, f)) / ah[:, None, None]
+    e = _laplace_inverse(darcy_residual(u, a, f, sink=sink)) / ah[:, None, None]
     return e[0] if single else e
 
 
@@ -538,12 +626,12 @@ def flux_magnitude(u: np.ndarray, a: np.ndarray) -> np.ndarray:
     return q[0] if single else q
 
 
-def estimated_flux_error(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
+def estimated_flux_error(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *, sink=None) -> np.ndarray:
     """Map of the error of the flux ``a grad u`` estimated from the residual alone (:func:`estimated_error`),
     relative to the largest flux of ``u``: ``|a grad e| / max |a grad u|``."""
     a, u, single = _pair(a, u)
-    q = flux_magnitude(estimated_error(u, a, f), a) / np.maximum(flux_magnitude(u, a).max(axis=(-2, -1)),
-                                                                   1e-300)[:, None, None]
+    q = flux_magnitude(estimated_error(u, a, f, sink=sink), a) / np.maximum(
+        flux_magnitude(u, a).max(axis=(-2, -1)), 1e-300)[:, None, None]
     return q[0] if single else q
 
 
@@ -556,11 +644,11 @@ def region_masks(n: int, wall_cells: int = 2, interior_from: int = 8) -> dict[st
 
 
 def regional_errors(u: np.ndarray, a: np.ndarray, f: float | np.ndarray = 1.0, *, wall_cells: int = 2,
-                    interior_from: int = 8) -> dict[str, np.ndarray]:
+                    interior_from: int = 8, sink=None) -> dict[str, np.ndarray]:
     """Relative error estimated without a reference (:func:`estimated_error`) in the ``wall`` and ``interior``
     regions of :func:`region_masks`, per sample: ``||e||_region / ||u||_region``."""
     a, u, single = _pair(a, u)
-    e = estimated_error(u, a, f)
+    e = estimated_error(u, a, f, sink=sink)
     out = {}
     for k, m in region_masks(u.shape[-1], wall_cells, interior_from).items():
         out[k] = np.linalg.norm((e * m).reshape(len(u), -1), axis=1) / \
@@ -578,13 +666,13 @@ USES: dict[str, dict[str, Any]] = {
 
 
 def use_verdicts(a: np.ndarray, u: np.ndarray, f: float = 1.0, *, envelope: CoefficientEnvelope | None = None,
-                 wall_cells: int = 2, interior_from: int = 8) -> dict[str, dict[str, Any]]:
+                 wall_cells: int = 2, interior_from: int = 8, sink=None) -> dict[str, dict[str, Any]]:
     """For one prediction (``(n, n)``): which uses it can serve, and why (:data:`USES`), from the residual alone,
     plus ``inputs`` (the coefficient inside the training envelope). Each entry: ``ok``, the measured ``values``, the
     ``limits`` and a one-line ``reason``."""
-    reg = regional_errors(u, a, f, wall_cells=wall_cells, interior_from=interior_from)
+    reg = regional_errors(u, a, f, wall_cells=wall_cells, interior_from=interior_from, sink=sink)
     vals = {"interior": float(reg["interior"]), "wall": float(reg["wall"]),
-            "flux": float(boundary_flux_balance(u, a, f)["imbalance"])}
+            "flux": float(boundary_flux_balance(u, a, f, sink=sink)["imbalance"])}
     names = {"interior": "interior error", "wall": "wall-band error", "flux": "flux imbalance"}
     out: dict[str, dict[str, Any]] = {}
     for use, spec in USES.items():

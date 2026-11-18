@@ -1,25 +1,82 @@
 {
- "decision": "REJECT",
- "test_rel_l2": 0.017551220805002144,
- "max_hotspot_error_K": 0.23619471814862428,
+ "decision": "APPROVED",
+ "field_decision": "APPROVED",
  "reference_solver_decision": "APPROVED",
- "fno_parameters": 2366305,
+ "test_rel_l2": 0.010732196505598661,
+ "max_hotspot_error_K": 1.1875759131676062,
+ "fno_parameters": 2366337,
+ "fno_in_channels": 3,
  "training": {
-  "epochs": 54.0,
-  "final_loss": 0.009350636042654514,
-  "steps": 2700,
-  "wall_s": 153.67537451800104,
+  "epochs": 96.0,
+  "final_loss": 0.006259287241846323,
+  "steps": 2400,
+  "wall_s": 561.3683285579173,
   "flops": 0.0,
   "flops_per_step": 0.0,
   "stopped_by": "steps",
   "budget": {
    "wall_s": null,
    "flops": null,
-   "steps": 2700
+   "steps": 2400
   },
   "history": null,
-  "eval_wall_s": 1.2692620329999045
+  "eval_wall_s": 5.7354554159828695
  },
+ "design_surrogate": {
+  "heldout_rel_rms": {
+   "rise": 0.030341824668834158,
+   "dp": 0.03864348799455767,
+   "pump": 0.04150737927931196
+  },
+  "trend_violations": {
+   "hot spot falls with flow": -7.555707655478763,
+   "hot spot falls with the film coefficient": -5.5796671764265895,
+   "hot spot falls with the channel count": -17.216133032566148,
+   "pressure drop grows with flow": -4388.30181175717,
+   "pumping power grows with flow": -0.1660858574992219
+  },
+  "steps": 8000
+ },
+ "identity": {
+  "chosen": {
+   "n_channels": 27,
+   "channel_width": 0.000909,
+   "flow_lpm": 0.5819,
+   "h_scale": 1.0069
+  },
+  "t_max_c": 74.57096632917072,
+  "dp_pa": 496.8792700620234,
+  "reynolds": 453.48466495683067,
+  "h_w_m2k": 3654.3393429922876,
+  "h_warnings": [],
+  "dt_f_k": 5.452990382069764,
+  "energy_closure": 4.909204356160692e-15,
+  "pumping_w": 0.004818900787484857
+ },
+ "uncertainty": {
+  "n_mc": 400,
+  "robust": {
+   "design": {
+    "n_channels": 27,
+    "channel_width": 0.000909,
+    "flow_lpm": 0.5819,
+    "h_scale": 1.0069
+   },
+   "p_surrogate": 0.0,
+   "p_fvm": 0.0
+  },
+  "edge": {
+   "design": {
+    "n_channels": 14,
+    "channel_width": 0.001021,
+    "flow_lpm": 0.5114,
+    "h_scale": 1.0352
+   },
+   "p_surrogate": 0.3025,
+   "p_fvm": 1.0
+  }
+ },
+ "energy_closure_max_all_designs": 8.784892005761238e-15,
  "usd": {
   "ok": true,
   "problems": [],
@@ -31,47 +88,47 @@
   {
    "name": "PDE residual (certified energy-error bound)",
    "kind": "physics",
-   "value": 0.19559467296819275,
+   "value": 0.02319673574135596,
    "limit": 0.1,
-   "passed": false,
+   "passed": true,
    "critical": true,
-   "failing_fraction": 1.0,
-   "detail": "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u); bounds the relative energy-norm distance to the discrete solution"
+   "failing_fraction": 0.0,
+   "detail": "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u) - s u; bounds the relative energy-norm distance to the discrete solution"
   },
   {
    "name": "PDE residual (certified L2 error bound)",
    "kind": "physics",
-   "value": 0.2931874348286704,
+   "value": 0.018972473854302497,
    "limit": 0.05,
-   "passed": false,
+   "passed": true,
    "critical": true,
-   "failing_fraction": 1.0,
+   "failing_fraction": 0.04,
    "detail": "the energy bound with the discrete Poincare inequality: bounds the relative L2 distance of u to the discrete solution"
   },
   {
    "name": "boundary condition u = 0",
    "kind": "physics",
-   "value": 0.0177943810412789,
+   "value": 0.004606048795059908,
    "limit": 0.02,
    "passed": true,
    "critical": true,
-   "failing_fraction": 0.02,
+   "failing_fraction": 0.0,
    "detail": "RMS of u on the boundary (linear extrapolation from the first two cells) over max |u|"
   },
   {
    "name": "flux balance (net boundary flux = source)",
    "kind": "physics",
-   "value": 0.08915458931801368,
+   "value": 0.019558018353534545,
    "limit": 0.02,
-   "passed": false,
+   "passed": true,
    "critical": true,
-   "failing_fraction": 0.66,
-   "detail": "|outflow - integral of f| / |integral of f|, outflow = sum of 2 a u over the boundary faces"
+   "failing_fraction": 0.08,
+   "detail": "|outflow - (integral of f - integral of s u)| / |integral of f|, outflow = sum of 2 a u over the boundary faces"
   },
   {
    "name": "positivity (maximum principle)",
    "kind": "physics",
-   "value": 0.004056653792823986,
+   "value": 0.0,
    "limit": 0.01,
    "passed": true,
    "critical": true,
@@ -81,11 +138,11 @@
   {
    "name": "reference (relative L2)",
    "kind": "reference",
-   "value": 0.023806921586688852,
+   "value": 0.018637607804628344,
    "limit": 0.05,
    "passed": true,
    "critical": true,
-   "failing_fraction": 0.0,
+   "failing_fraction": 0.02,
    "detail": "relative L2 error against the reference solution (needs labels: evaluation only)"
   },
   {
@@ -95,8 +152,97 @@
    "limit": 0.0,
    "passed": true,
    "critical": true,
-   "failing_fraction": 0.08,
-   "detail": "4 of 50 coefficients outside the training envelope, e.g. high_fraction 0.382 outside [0.4, 0.605]"
+   "failing_fraction": 0.02,
+   "detail": "1 of 50 coefficients outside the training envelope, e.g. contrast 686 outside [531, 684]"
+  },
+  {
+   "name": "hot spot below the limit",
+   "value": 74.57096632917072,
+   "limit": 85.0,
+   "passed": true,
+   "detail": "max T over the plate with h = 3654 W/m2 K in the slots (h_scale applied)",
+   "kind": "max"
+  },
+  {
+   "name": "coolant outlet below the fluid limit",
+   "value": 45.452990382069764,
+   "limit": 90.0,
+   "passed": true,
+   "detail": "the coolant's own energy balance; water at 1 atm boils at 100 C",
+   "kind": "max"
+  },
+  {
+   "name": "base temperature away from saturation",
+   "value": 74.5709663291707,
+   "limit": 95.0,
+   "passed": true,
+   "detail": "max metal temperature over a slot; 5 K below saturation at 1 atm",
+   "kind": "max"
+  },
+  {
+   "name": "coolant Reynolds number laminar",
+   "value": 453.48466495683067,
+   "limit": 2300.0,
+   "passed": true,
+   "detail": "the Shah & London / Hausen correlations are laminar",
+   "kind": "max"
+  },
+  {
+   "name": "Graetz number inside the fit",
+   "value": 22.17658606632228,
+   "limit": 1000.0,
+   "passed": true,
+   "detail": "thermal-entry correction range",
+   "kind": "max"
+  },
+  {
+   "name": "energy closure of the conjugate solution",
+   "value": 4.909204356160692e-15,
+   "limit": 0.02,
+   "passed": true,
+   "detail": "|heat to the coolant + heat to the manifolds - chip power| / chip power",
+   "kind": "max"
+  },
+  {
+   "name": "pressure drop inside the pump budget",
+   "value": 496.8792700620234,
+   "limit": 20000.0,
+   "passed": true,
+   "detail": "pumping power 0.00482 W",
+   "kind": "max"
+  },
+  {
+   "name": "coolant temperature rise",
+   "value": 5.452990382069764,
+   "limit": 30.0,
+   "passed": true,
+   "detail": "m_dot c_p against the chip power",
+   "kind": "max"
+  },
+  {
+   "name": "hot spot falls with flow",
+   "passed": true,
+   "value": -7.555707655478763
+  },
+  {
+   "name": "hot spot falls with the film coefficient",
+   "passed": true,
+   "value": -5.5796671764265895
+  },
+  {
+   "name": "hot spot falls with the channel count",
+   "passed": true,
+   "value": -17.216133032566148
+  },
+  {
+   "name": "pressure drop grows with flow",
+   "passed": true,
+   "value": -4388.30181175717
+  },
+  {
+   "name": "pumping power grows with flow",
+   "passed": true,
+   "value": -0.1660858574992219
   }
  ]
 }

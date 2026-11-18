@@ -23,10 +23,10 @@ hardware, timings, which components ran).
 | 04 | C | [Physics-consistent synthetic video, a world model judged by physics](04_worldmodel_physics_video/README.md) | REVIEW (checks sound; model rollouts 0/20) | done |
 | 05 | B | [Strap with a hole: exact geometry, FEM, Heywood](05_brep_plate_with_hole/README.md) | APPROVED (Kt 2.320 vs 2.296) | done |
 | 06 | N | [Zoo surrogates as NIM-style services with a trust report per answer](06_model_services_zoo/README.md) | APPROVED (out-of-range answers flagged) | done |
-| 07 | O + P | [Cold plate surrogate in a USD scene](07_omniverse_physicsnemo_coldplate/README.md) | REJECT (energy balance) | done |
+| 07 | O + P | [Conjugate cold plate: microchannels, coolant and a three-channel FNO](07_omniverse_physicsnemo_coldplate/README.md) | APPROVED (1.9 % fields, conjugate energy balance checked) | done |
 | 08 | I + P | [Learned arm dynamics, checked physics](08_robotsim_physicsnemo_learned_dynamics/README.md) | REVIEW (start pose at the envelope edge) | done |
 | 09 | C + P | [A world model that keeps the physics: CNN state, PhysicsNeMo dynamics](09_worldmodel_physicsnemo_state/README.md) | REVIEW (18/20 rollouts physical; encoder worst case) | done |
-| 10 | B + P | [Heat-sink design from exact geometry](10_brep_physicsnemo_heatsink/README.md) | APPROVED (first proposal rejected by verification) | done |
+| 10 | B + P | [Heat-sink design from exact geometry, rated by a network and a 3-D solve](10_brep_physicsnemo_heatsink/README.md) | APPROVED (181 g, 74.2 C, the two models agree to 0.6 %) | done |
 | 11 | N + P | [PhysicsNeMo FNO served with per-answer physics and solver fallback](11_model_services_physicsnemo_operator/README.md) | APPROVED system; no FNO answer approved | done |
 | 12 | O + I | [One USD scene for Omniverse and the robot sim](12_omniverse_robotsim_arm/README.md) | APPROVED (USD = URDF to the bit) | done |
 | 13 | O + C | [Synthetic inspection data as USD scene variations](13_omniverse_worldmodel_inspection/README.md) | REVIEW (label check works; detector below baseline) | done |

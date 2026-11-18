@@ -13,6 +13,11 @@ anyone uses it. The NVIDIA part trains (PhysicsNeMo), shows and simulates (Omniv
                 checks of a video (ballistic fit, conservation of the tracked object)
 ``physicsnemo`` small PhysicsNeMo surrogates (``FullyConnected``) trained and checked the PINNeAPPle way; grid
                 operators (FNO, MeshGraphNet) are in ``pinneapple_neural.physicsnemo_bridge``
+``brep`` / ``parts``  exact solids from NVIDIA USD BRep, their volume / area / mass and their geometry checks
+``heatsink``    plate-fin heat-sink designs rated by the closed-form network and by a 3-D solve of the base,
+                with multi-source, radiation and the exact solid's mass
+``coldplate``   a liquid-cooled cold plate with microchannels: the coupled solid/coolant problem the conjugate
+                checks and the reacting finite volumes work on
 ``testing``     a local fake server speaking the NIM / Cosmos HTTP contracts, for tests without a key or GPU
 ``runinfo``     versions, hardware and timings of a run, and which NVIDIA components ran
 ``figures``     field panels, check charts, curves

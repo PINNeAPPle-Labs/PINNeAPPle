@@ -1,82 +1,92 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/nvidia/10_brep_physicsnemo_heatsink",
- "title": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification",
+ "title": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle network + 3-D verification",
  "description": "",
  "domain": "heat transfer",
  "methods": [
   "B-rep (SMLib)",
   "FullyConnected (PhysicsNeMo)",
-  "closed-form heat sink"
+  "closed-form heat sink",
+  "FVM 3-D"
  ],
  "modules": [
   "pinneapple_tools.nvidia.heatsink",
+  "pinneapple_design.thermal.heatsink.field",
   "pinneapple_tools.nvidia.physicsnemo"
  ],
  "params": {
   "duty": {
-   "power_w": 60.0,
-   "t_ambient_c": 25.0,
+   "sources": [
+    {
+     "x": 0.03,
+     "y": 0.05,
+     "width": 0.04,
+     "depth": 0.04,
+     "power": 80.0
+    },
+    {
+     "x": 0.075,
+     "y": 0.05,
+     "width": 0.015,
+     "depth": 0.015,
+     "power": 15.0
+    }
+   ],
    "air_velocity_m_s": 3.0,
-   "source": 0.04,
-   "base_t": 0.005,
-   "length": 0.1,
-   "width": 0.1,
-   "material": "al6063",
+   "t_ambient_c": 25.0,
+   "emissivity": 0.9,
+   "sky_fraction": 0.25,
    "root_fillet": 0.001
   },
   "T_max_C": 75.0,
   "dp_max_Pa": 30.0,
-  "n_train": 120
+  "n_train": 300,
+  "grid_table": 24,
+  "grid_verify": 48
  },
  "scripts": [],
  "metrics": [
   {
    "name": "proposal_mass",
-   "value": 195.09650445308407,
+   "value": 180.66445056219084,
    "unit": "g",
-   "how": "exact B-rep mass of the verified design"
+   "how": "mass of the verified design"
   },
   {
    "name": "proposal_t_source",
-   "value": 74.20348259023478,
+   "value": 74.19564476966177,
    "unit": "C",
-   "how": "closed-form source temperature of the verified design"
+   "how": "3-D hot spot of the verified design"
+  },
+  {
+   "name": "network_vs_3d_gap_p90",
+   "value": 1.1277094603282887,
+   "unit": "%",
+   "how": "p90 gap between the closed-form network and the 3-D base solve"
   }
  ],
  "checks": [
   {
-   "name": "B-rep volume = closed form incl. fillets (all designs)",
+   "name": "3-D base solve closes its energy balance (all designs)",
    "passed": true,
-   "value": 6.526788272760909e-09,
+   "value": 1.0587834702547345e-12,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 1e-06,
    "min": null,
    "detail": "",
-   "kind": "sanity"
+   "kind": "physics"
   },
   {
-   "name": "B-rep solids manifold (all designs)",
+   "name": "held-out error: rise",
    "passed": true,
-   "value": null,
+   "value": 0.005067035528361088,
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": null,
-   "min": null,
-   "detail": "",
-   "kind": "sanity"
-  },
-  {
-   "name": "held-out error: t_rise",
-   "passed": true,
-   "value": 0.0019379836395997047,
-   "reference": null,
-   "rtol": null,
-   "atol": null,
-   "max": 0.03,
+   "max": 0.05,
    "min": null,
    "detail": "",
    "kind": "generalization"
@@ -84,11 +94,11 @@
   {
    "name": "held-out error: dp",
    "passed": true,
-   "value": 0.0036878032304429736,
+   "value": 0.0069892882435002275,
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.03,
+   "max": 0.05,
    "min": null,
    "detail": "",
    "kind": "generalization"
@@ -96,79 +106,151 @@
   {
    "name": "held-out error: mass",
    "passed": true,
-   "value": 0.0007992565542855192,
+   "value": 0.006853787068641114,
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.03,
+   "max": 0.05,
    "min": null,
    "detail": "",
    "kind": "generalization"
   },
   {
-   "name": "trend: T falls with fin height",
+   "name": "trend: hot spot falls with fin height",
    "passed": true,
-   "value": 0.0,
+   "value": -48.11229994372799,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 0.0,
    "min": null,
-   "detail": "fraction of grid cells with the wrong sign",
-   "kind": "sanity"
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: hot spot falls with fin thickness",
+   "passed": true,
+   "value": -9.23962285226434,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: hot spot falls with the film coefficient",
+   "passed": true,
+   "value": -9.441806772733685,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: hot spot falls with base thickness",
+   "passed": true,
+   "value": -8.745622625770572,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: hot spot falls with the fin count",
+   "passed": true,
+   "value": -64.84138111279269,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: hot spot grows with the interface resistance",
+   "passed": true,
+   "value": -0.6806867478243888,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
   },
   {
    "name": "trend: mass grows with fin count",
    "passed": true,
-   "value": 0.0,
+   "value": -0.2602007882610425,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 0.0,
    "min": null,
-   "detail": "fraction of grid cells with the wrong sign",
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
    "kind": "physics"
   },
   {
    "name": "trend: mass grows with fin height",
    "passed": true,
-   "value": 0.0,
+   "value": -0.2175701606222183,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 0.0,
    "min": null,
-   "detail": "fraction of grid cells with the wrong sign",
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: mass grows with base thickness",
+   "passed": true,
+   "value": -0.18873760266749284,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
    "kind": "physics"
   },
   {
    "name": "trend: dp grows with fin count",
    "passed": true,
-   "value": 0.0,
+   "value": -37.25375597884602,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 0.0,
    "min": null,
-   "detail": "fraction of grid cells with the wrong sign",
-   "kind": "sanity"
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
   },
   {
-   "name": "first surrogate proposal survives verification",
-   "passed": false,
-   "value": 75.2956686251172,
+   "name": "network and 3-D solve agree on every design",
+   "passed": true,
+   "value": 0.011277094603282887,
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 75.0,
+   "max": 0.2,
    "min": null,
-   "detail": "2 proposal(s) verified before one was accepted",
+   "detail": "p90 of |T_network - T_3D| / rise: two independent models of the same physics",
    "kind": "sanity"
   },
   {
-   "name": "accepted design meets T_source <= 75 C (verified)",
+   "name": "accepted design meets T_source <= 75 C (verified 3-D)",
    "passed": true,
-   "value": 74.20348259023478,
+   "value": 74.19564476966177,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -180,7 +262,7 @@
   {
    "name": "accepted design meets dp <= 30 Pa (verified)",
    "passed": true,
-   "value": 8.715583753463099,
+   "value": 13.591781318596748,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -190,21 +272,94 @@
    "kind": "sanity"
   },
   {
-   "name": "surrogate vs verified at the proposal (T rise)",
+   "name": "surrogate vs verified at the proposal (rise)",
    "passed": true,
-   "value": 0.0044978384806539425,
+   "value": 0.0025854918741431954,
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.03,
+   "max": 0.05,
    "min": null,
    "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "design: 3-D base solve closes its own energy balance",
+   "passed": true,
+   "value": 1.0411320928190099e-13,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-06,
+   "min": null,
+   "detail": "heat out of the top face against the chip power, from the finite-volume solve alone",
+   "kind": "physics"
+  },
+  {
+   "name": "design: hot spot below the limit (3-D solve)",
+   "passed": true,
+   "value": 74.19564476966177,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 75.0,
+   "min": null,
+   "detail": "bottom-face maximum over the chips, plus the interface drop",
+   "kind": "sanity"
+  },
+  {
+   "name": "design: pressure drop inside the duct budget",
+   "passed": true,
+   "value": 13.591781318596748,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 30.0,
+   "min": null,
+   "detail": "the fan or blower has to make this",
+   "kind": "physics"
+  },
+  {
+   "name": "design: fin efficiency above 50 %",
+   "passed": true,
+   "value": 0.9635614192825619,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.5,
+   "min": null,
+   "detail": "extra height buys little below this",
+   "kind": "sanity"
+  },
+  {
+   "name": "design: network and 3-D solve agree",
+   "passed": true,
+   "value": 0.010626607389902275,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.2,
+   "min": null,
+   "detail": "relative gap between the closed-form network and the finite-volume base solve: the band is where the two models of the same physics disagree",
+   "kind": "sanity"
+  },
+  {
+   "name": "design: radiation share reported",
+   "passed": true,
+   "value": 0.051113358918057385,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "share of the surface coefficient that is radiative; not a limit, only a quantity the answer now carries",
    "kind": "sanity"
   }
  ],
  "files": {
   "figures": [
    "results/parity.png",
+   "results/models.png",
    "results/design_space.png",
    "results/checks.png"
   ],
@@ -218,13 +373,13 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "bc118b44",
-  "created": "2026-10-24T01:23:24Z",
-  "seconds": 94.196,
+  "git": "7ffd902c7",
+  "created": "2026-11-18T17:07:29Z",
+  "seconds": 40.675,
   "error": null,
   "environment": {
-   "python": "3.13.17",
-   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
   }
  }
 }

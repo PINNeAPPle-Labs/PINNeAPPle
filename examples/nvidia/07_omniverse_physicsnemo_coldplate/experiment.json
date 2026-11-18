@@ -1,72 +1,134 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/nvidia/07_omniverse_physicsnemo_coldplate",
- "title": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene",
+ "title": "Cold plate: conjugate coolant model, PhysicsNeMo FNO and FullyConnected, PINNeAPPle checks, OpenUSD scene",
  "description": "",
  "domain": "heat transfer",
  "methods": [
   "FNO (PhysicsNeMo)",
+  "FullyConnected (PhysicsNeMo)",
   "FVM"
  ],
  "modules": [
+  "pinneapple_tools.nvidia.coldplate",
   "pinneapple_neural.physicsnemo_bridge",
   "pinneapple_physics.darcy_checks",
   "pinneapple_tools.nvidia.omniverse"
  ],
  "params": {
   "n": 32,
-  "n_train": 400,
+  "n_train": 200,
   "n_test": 50,
+  "n_mc": 400,
   "budget": {
    "wall_s": null,
    "flops": null,
-   "steps": 2700
+   "steps": 2400
   },
-  "k_W_mK": [
-   100,
-   400
-  ],
-  "q_W_m3": 2000000.0,
-  "L_m": 0.1
+  "duty": {
+   "power_w": 220.0,
+   "t_inlet_c": 40.0,
+   "material": "cu110",
+   "base_t": 0.003,
+   "channel_depth": 0.0015,
+   "chips": [
+    {
+     "x": 0.03,
+     "y": 0.05,
+     "size": 0.014,
+     "power": 110.0
+    },
+    {
+     "x": 0.072,
+     "y": 0.05,
+     "size": 0.014,
+     "power": 110.0
+    }
+   ]
+  },
+  "bounds": {
+   "n_channels": [
+    10.0,
+    30.0
+   ],
+   "channel_width": [
+    0.0004,
+    0.0012
+   ],
+   "flow_lpm": [
+    0.5,
+    2.0
+   ],
+   "h_scale": [
+    0.8,
+    1.2
+   ]
+  },
+  "T_limit_C": 85.0,
+  "dp_limit_Pa": 20000.0
  },
  "scripts": [],
  "metrics": [
   {
-   "name": "test_rel_l2",
-   "value": 0.017551220805002144,
+   "name": "designs",
+   "value": 250.0,
    "unit": "",
-   "how": "mean relative L2 of T - T_c over 50 held-out layouts"
+   "how": "coupled finite-volume solutions behind the surrogates"
+  },
+  {
+   "name": "energy_closure_max",
+   "value": 8.784892005761238e-15,
+   "unit": "",
+   "how": "largest |heat to coolant + heat to walls - chip power| / chip power over all designs"
+  },
+  {
+   "name": "test_rel_l2",
+   "value": 0.010732196505598661,
+   "unit": "",
+   "how": "mean relative L2 of the field over 50 held-out designs"
   },
   {
    "name": "max_hotspot_error_K",
-   "value": 0.23619471814862428,
+   "value": 1.1875759131676062,
    "unit": "K",
-   "how": "max over test layouts of |max T_FNO - max T_FV|"
+   "how": "largest |hot spot from the surrogate - hot spot from the coupled solve|"
   },
   {
    "name": "train_wall_s",
-   "value": 153.67537451800104,
+   "value": 561.3683285579173,
    "unit": "s",
-   "how": "wall clock of FNO training on this CPU"
+   "how": "wall clock of the FNO training on this CPU"
+  },
+  {
+   "name": "edge_design_p_surrogate",
+   "value": 0.3025,
+   "unit": "",
+   "how": "P(hot spot > limit) for the design the surrogate put just under the limit"
+  },
+  {
+   "name": "edge_design_p_fvm",
+   "value": 1.0,
+   "unit": "",
+   "how": "the same, from coupled solves: the surrogate's optimism at the design it selected"
   }
  ],
  "checks": [
   {
    "name": "PDE residual (certified energy-error bound)",
-   "passed": false,
-   "value": 0.19559467296819275,
+   "passed": true,
+   "value": 0.02319673574135596,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 0.1,
    "min": null,
-   "detail": "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u); bounds the relative energy-norm distance to the discrete solution",
+   "detail": "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u) - s u; bounds the relative energy-norm distance to the discrete solution",
    "kind": "physics"
   },
   {
    "name": "PDE residual (certified L2 error bound)",
-   "passed": false,
-   "value": 0.2931874348286704,
+   "passed": true,
+   "value": 0.018972473854302497,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -78,7 +140,7 @@
   {
    "name": "boundary condition u = 0",
    "passed": true,
-   "value": 0.0177943810412789,
+   "value": 0.004606048795059908,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -89,20 +151,20 @@
   },
   {
    "name": "flux balance (net boundary flux = source)",
-   "passed": false,
-   "value": 0.08915458931801368,
+   "passed": true,
+   "value": 0.019558018353534545,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 0.02,
    "min": null,
-   "detail": "|outflow - integral of f| / |integral of f|, outflow = sum of 2 a u over the boundary faces",
+   "detail": "|outflow - (integral of f - integral of s u)| / |integral of f|, outflow = sum of 2 a u over the boundary faces",
    "kind": "physics"
   },
   {
    "name": "positivity (maximum principle)",
    "passed": true,
-   "value": 0.004056653792823986,
+   "value": 0.0,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -114,7 +176,7 @@
   {
    "name": "reference (relative L2)",
    "passed": true,
-   "value": 0.023806921586688852,
+   "value": 0.018637607804628344,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -132,8 +194,248 @@
    "atol": null,
    "max": 0.0,
    "min": null,
-   "detail": "4 of 50 coefficients outside the training envelope, e.g. high_fraction 0.382 outside [0.4, 0.605]",
+   "detail": "1 of 50 coefficients outside the training envelope, e.g. contrast 686 outside [531, 684]",
    "kind": "applicability"
+  },
+  {
+   "name": "design: hot spot below the limit",
+   "passed": true,
+   "value": 74.57096632917072,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 85.0,
+   "min": null,
+   "detail": "max T over the plate with h = 3654 W/m2 K in the slots (h_scale applied)",
+   "kind": "sanity"
+  },
+  {
+   "name": "design: coolant outlet below the fluid limit",
+   "passed": true,
+   "value": 45.452990382069764,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 90.0,
+   "min": null,
+   "detail": "the coolant's own energy balance; water at 1 atm boils at 100 C",
+   "kind": "physics"
+  },
+  {
+   "name": "design: base temperature away from saturation",
+   "passed": true,
+   "value": 74.5709663291707,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 95.0,
+   "min": null,
+   "detail": "max metal temperature over a slot; 5 K below saturation at 1 atm",
+   "kind": "sanity"
+  },
+  {
+   "name": "design: coolant Reynolds number laminar",
+   "passed": true,
+   "value": 453.48466495683067,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 2300.0,
+   "min": null,
+   "detail": "the Shah & London / Hausen correlations are laminar",
+   "kind": "sanity"
+  },
+  {
+   "name": "design: Graetz number inside the fit",
+   "passed": true,
+   "value": 22.17658606632228,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1000.0,
+   "min": null,
+   "detail": "thermal-entry correction range",
+   "kind": "physics"
+  },
+  {
+   "name": "design: energy closure of the conjugate solution",
+   "passed": true,
+   "value": 4.909204356160692e-15,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.02,
+   "min": null,
+   "detail": "|heat to the coolant + heat to the manifolds - chip power| / chip power",
+   "kind": "physics"
+  },
+  {
+   "name": "design: pressure drop inside the pump budget",
+   "passed": true,
+   "value": 496.8792700620234,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 20000.0,
+   "min": null,
+   "detail": "pumping power 0.00482 W",
+   "kind": "physics"
+  },
+  {
+   "name": "design: coolant temperature rise",
+   "passed": true,
+   "value": 5.452990382069764,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 30.0,
+   "min": null,
+   "detail": "m_dot c_p against the chip power",
+   "kind": "sanity"
+  },
+  {
+   "name": "trend: hot spot falls with flow",
+   "passed": true,
+   "value": -7.555707655478763,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "sign x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: hot spot falls with the film coefficient",
+   "passed": true,
+   "value": -5.5796671764265895,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "sign x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: hot spot falls with the channel count",
+   "passed": true,
+   "value": -17.216133032566148,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "sign x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: pressure drop grows with flow",
+   "passed": true,
+   "value": -4388.30181175717,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "sign x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "trend: pumping power grows with flow",
+   "passed": true,
+   "value": -0.1660858574992219,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "sign x (value at the top of the range - value at the bottom): positive means the model has the direction backwards",
+   "kind": "physics"
+  },
+  {
+   "name": "held-out error, design surrogate: rise",
+   "passed": true,
+   "value": 0.030341824668834158,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "kind": "generalization"
+  },
+  {
+   "name": "held-out error, design surrogate: dp",
+   "passed": true,
+   "value": 0.03864348799455767,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "kind": "generalization"
+  },
+  {
+   "name": "held-out error, design surrogate: pump",
+   "passed": true,
+   "value": 0.04150737927931196,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "kind": "generalization"
+  },
+  {
+   "name": "the surrogate never flips the design decision (hot spot vs limit)",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "held-out designs where the FNO's hot spot and the coupled solve disagree on T_max <= limit",
+   "kind": "generalization"
+  },
+  {
+   "name": "failure probability, robust design: surrogate vs coupled solves",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "P(hot spot > 85 C) = 0.000 (surrogate) vs 0.000 (coupled solves, 400 draws)",
+   "kind": "sanity"
+  },
+  {
+   "name": "the design at the edge of the limit really is worse",
+   "passed": true,
+   "value": -1.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "P(fail) = 1.00 at the edge (the surrogate put it at 0.30) against 0.00 for the robust pick: choosing on the surrogate's own prediction chooses where that prediction is optimistic",
+   "kind": "sanity"
+  },
+  {
+   "name": "the chosen design has margin at nominal conditions",
+   "passed": true,
+   "value": 74.57096632917072,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 82.0,
+   "min": null,
+   "detail": "the design the surrogate picked, re-solved with the coupled model",
+   "kind": "sanity"
   },
   {
    "name": "usd_stage_valid",
@@ -152,6 +454,8 @@
   "figures": [
    "results/fields.png",
    "results/training.png",
+   "results/design_space.png",
+   "results/uncertainty.png",
    "results/checks.png",
    "results/usd_preview.png"
   ],
@@ -165,13 +469,13 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "486dcc50",
-  "created": "2026-10-24T00:26:53Z",
-  "seconds": 162.064,
+  "git": "7ffd902c7",
+  "created": "2026-11-18T16:47:17Z",
+  "seconds": 605.942,
   "error": null,
   "environment": {
-   "python": "3.13.17",
-   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
   }
  }
 }

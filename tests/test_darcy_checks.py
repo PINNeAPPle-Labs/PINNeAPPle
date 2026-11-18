@@ -52,6 +52,47 @@ def test_error_bound_is_a_guaranteed_upper_bound(solved):
         assert (bound <= 10 * true).all()                # and not vacuous
 
 
+def _reacting_matrix(a, sink):
+    import scipy.sparse as sp
+    return ob.darcy_matrix(a) + sp.diags(np.broadcast_to(np.asarray(sink, float), a.shape).ravel())
+
+
+def test_reacting_operator_matches_its_matrix_and_keeps_the_certificates():
+    """``-div(a grad u) + s u = f``: the sink is a diagonal shift, so every certificate carries over."""
+    import scipy.sparse.linalg as spla
+    n = 48
+    a = ob.threshold_coefficient(ob.periodic_grf(3, (n, n), alpha=2.0, tau=3.0, seed=11))
+    c = (np.arange(n) + 0.5) / n
+    band = (np.abs(c - 0.5) < 0.2)[None, :] * np.ones((n, 1))          # a coolant band down the middle
+    sink = np.where(band > 0, 40.0, 0.0)
+    u = np.stack([spla.spsolve(_reacting_matrix(ai, sink), np.ones(n * n)).reshape(n, n) for ai in a])
+
+    # the operator the checks apply is the matrix the test solved with
+    v = np.random.default_rng(2).standard_normal(a.shape)
+    assert np.allclose(dc.darcy_operator_apply(v, a, sink=sink).ravel(),
+                       np.concatenate([_reacting_matrix(ai, sink) @ vi.ravel() for ai, vi in zip(a, v, strict=True)]))
+    assert np.abs(dc.darcy_residual(u, a, 1.0, sink=sink)).max() < 1e-9        # the solver's own field
+    assert all(ck.passed for ck in dc.darcy_checks(a, u, 1.0, sink=sink))
+    bal = dc.boundary_flux_balance(u, a, 1.0, sink=sink)
+    assert (bal["sink"] > 0).all() and np.abs(bal["imbalance"]).max() < 1e-10
+    assert dc.darcy_trust_report(a, u, 1.0, kinds=("physics",), sink=sink)[0].decisao == "APPROVED"
+
+    # the certified bounds are still upper bounds; the constant-coefficient relaxation is valid but vacuous under a
+    # strong sink, and ``exact=True`` recovers the discrete error itself (reference-free and tight)
+    x = c
+    for w in (0.9 * u, u * (1 + 0.01 * np.random.default_rng(3).standard_normal(u.shape)),
+              u + 0.05 * u.max() * np.sin(np.pi * x)[None, :, None] * np.sin(2 * np.pi * x)[None, None, :]):
+        true_l2 = np.linalg.norm((u - w).reshape(len(u), -1), axis=1) / np.linalg.norm(w.reshape(len(w), -1), axis=1)
+        bound = dc.residual_l2_bound(w, a, 1.0, sink=sink)
+        assert (bound >= true_l2 * (1 - 1e-9)).all()
+        tight = dc.residual_l2_bound(w, a, 1.0, sink=sink, exact=True)
+        assert np.allclose(tight, true_l2, rtol=1e-7) and (tight <= bound * (1 + 1e-9)).all()
+
+    # a field of the wrong problem is caught: the same u checked without the sink fails the residual and the balance
+    wrong = {ck.name.split(" ")[0]: ck for ck in dc.darcy_checks(a, u, 1.0)}
+    assert not wrong["PDE"].passed and not wrong["flux"].passed
+
+
 def test_each_check_catches_its_own_violation(solved):
     a, u = solved
     by = lambda checks: {c.name.split(" ")[0]: c for c in checks}   # noqa: E731

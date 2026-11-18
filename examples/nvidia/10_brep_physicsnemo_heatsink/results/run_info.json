@@ -1,18 +1,24 @@
 {
  "name": "10_brep_physicsnemo_heatsink",
- "started": "2026-10-24T01:23:24Z",
- "wall_s": 94.47,
+ "started": "2026-11-18T17:07:28Z",
+ "wall_s": 41.174,
  "steps_s": {
-  "designs: USD BRep + closed form": 72.641,
-  "train (PhysicsNeMo FullyConnected)": 14.873,
-  "verify proposals (USD BRep + closed form), lightest first": 1.085
+  "designs: network + 3-D base solve": 5.631,
+  "train (PhysicsNeMo FullyConnected)": 23.235,
+  "verify proposals (network + 3-D solve + USD BRep), lightest first": 0.064
  },
  "components": [
   {
    "component": "NVIDIA USD BRep",
+   "ran": false,
+   "why": "usd-brep is not installed here (CPython 3.12 wheel): the mass is the closed form's, set PINNEAPPLE_BREP_PYTHON to run it",
+   "how": ""
+  },
+  {
+   "component": "3-D base finite volumes",
    "ran": true,
    "why": "",
-   "how": "151 exact solids"
+   "how": "341 solves at 24 and 48 in-plane cells"
   },
   {
    "component": "PhysicsNeMo FullyConnected",
@@ -22,28 +28,28 @@
   }
  ],
  "environment": {
-  "python": "3.13.17",
-  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
-  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
-  "cpu_count": 4,
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "cpu": "arm",
+  "cpu_count": 10,
   "gpu": null,
   "packages": {
-   "pinneapple": "0.7.0",
-   "torch": "2.14.1",
-   "numpy": "2.5.3",
-   "scipy": "1.18.1",
+   "pinneapple": null,
+   "torch": "2.15.0",
+   "numpy": "2.4.6",
+   "scipy": "1.17.1",
    "matplotlib": "3.11.2",
    "nvidia-physicsnemo": "2.2.2",
    "nvidia-physicsnemo.sym": null,
    "usd-core": "26.11",
    "usd-brep": null,
-   "newton": "1.7.0",
-   "newton-usd-schemas": "0.6.0",
-   "warp-lang": "1.18.0",
+   "newton": null,
+   "newton-usd-schemas": null,
+   "warp-lang": "1.19.0",
    "isaacsim": null,
    "isaaclab": null,
-   "torch_geometric": "2.8.1",
-   "torch_scatter": "2.1.2",
+   "torch_geometric": null,
+   "torch_scatter": null,
    "requests": "2.34.2"
   }
  }

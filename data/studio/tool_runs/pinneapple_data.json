@@ -120,6 +120,48 @@
   "returned": "tuple",
   "seconds": 0.13
  },
+ "pinneapple_data.datasets.capsule_aeroheating:schema_unit": {
+  "code_hash": "59cae2b3c8ff4f09",
+  "inputs": {
+   "reported": "W m-2"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "str",
+  "seconds": 9.63
+ },
+ "pinneapple_data.datasets.capsule_aeroheating_physics:relative_error": {
+  "code_hash": "aa12066094fb54e5",
+  "inputs": {
+   "measured": [
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ],
+   "predicted": [
+    1.0,
+    2.1,
+    3.0,
+    4.4
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.capsule_aeroheating_physics:stagnation_pressure_coefficient": {
+  "code_hash": "b166a1707159821d",
+  "inputs": {
+   "gamma": 1.4,
+   "mach": 10.0
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_data.datasets.catalog:entries": {
   "code_hash": "610dcb73aada33fe",
   "inputs": {},
@@ -335,6 +377,44 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.03
+ },
+ "pinneapple_data.multifidelity:KernelRidge": {
+  "code_hash": "caed48f0b4d8fa17",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "KernelRidge",
+  "seconds": 0.01
+ },
+ "pinneapple_data.multifidelity:residual_rank": {
+  "code_hash": "de99032a41882bc6",
+  "inputs": {
+   "components": 2,
+   "residual": [
+    [
+     1.0,
+     1.1,
+     0.9,
+     1.0
+    ],
+    [
+     0.2,
+     0.3,
+     0.1,
+     0.2
+    ],
+    [
+     1.9,
+     2.0,
+     2.1,
+     2.0
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.01
  },
  "pinneapple_data.parameter_sampling:sample_parameters": {
   "code_hash": "9daf2f15671a060b",

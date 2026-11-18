@@ -53,6 +53,12 @@
   "domain": "structures",
   "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
  },
+ "capsule_aeroheating": {
+  "domain": "aerothermodynamics",
+  "needs": "the 77 MB capsule-aeroheating wall file from Hugging Face, through bijective-gamut",
+  "reason": "01_multifidelity.py downloads the corpus, pairs the two fidelities and fits four scalar strategies and the field's three-mode correction, about a minute of CPU on top; the flow has no node for the corpus reader or the multi-fidelity pairing, both new in this branch",
+  "status": "needs"
+ },
  "carbench_surface_pressure": {
   "domain": "external aerodynamics",
   "reason": "a surface-pressure dataset for a parametric car family (three roof lines, open/closed wheel arches, thirteen design variables), labelled by a lattice-Boltzmann sweep of the library's 3-D tunnel and then used to rank six surrogate families: the label is coarser than the published benchmark's RANS (the manifest records the resolution, the reachable Reynolds number and the density excursion), so the protocol and the ranking are what is reproduced. No node wraps a solver sweep followed by a model benchmark, so it runs from its script",

@@ -132,11 +132,10 @@ def open_study(path: str | os.PathLike[str]):
     dataset that drops one of them should say so here rather than raise a ``KeyError`` three functions later.
     Reading needs ``bijective-gamut`` (``pip install bijective-gamut``), imported here so the rest of the library
     works without it."""
-    import gamut
-
     file = Path(path)
     if not file.exists():
         raise FileNotFoundError(f"{file} is not there; fetch it with download() from {RESOLVE_URL}")
+    import gamut
     study = gamut.open(str(file))
     try:
         for group in ("parameters", "labels"):

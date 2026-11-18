@@ -1,0 +1,12 @@
+{
+ "code_hash": "27103592b5624d48",
+ "figures": [],
+ "id": "example:capsule_aeroheating",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 0.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "How many CFD runs the cheap model buys | aerothermodynamics | not curated\nheat_load_cheap_model_error 0.058543214006064076 relative L2\nheat_load_difference_at_8 0.05043717698594383 relative L2\nheat_load_difference_at_64 0.03548028443663488 relative L2\nheat_load_design_only_at_64 0.5485725444276603 relative L2\nstagnation_heat_flux_cheap_model_error 0.1827919813092403 relative L2",
+ "timed_out": false
+}

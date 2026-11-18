@@ -3059,6 +3059,14 @@
   },
   "source": "tests/pinneapple_neural/test_rom_pieces_core_contracts.py:109"
  },
+ "pinneapple_neural.lpm:ellipse_design_space": {
+  "inputs": {
+   "n": 120,
+   "n_points": 32,
+   "seed": 5
+  },
+  "source": "tests/test_lpm.py:100"
+ },
  "pinneapple_neural.physicsnemo_bridge.field_operators:grid_graph": {
   "inputs": {
    "n": 4
@@ -3707,6 +3715,16 @@
    "ratio": 1.6875
   },
   "source": "tests/test_closed_form_rocket_nozzle.py:20"
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:nozzle_performance": {
+  "inputs": {
+   "R_gas": 320.0,
+   "T_chamber": 3000.0,
+   "area_ratio_exit": 10.0,
+   "gamma": 1.22,
+   "p_chamber": 7000000.0
+  },
+  "source": "tests/test_lpm_pipeline.py:120"
  },
  "pinneapple_physics.closed_form.rocket_nozzle:pressure_ratio": {
   "inputs": {
@@ -5767,6 +5785,17 @@
   },
   "source": "tests/test_reflector_po.py:94"
  },
+ "pinneapple_simulation.electromagnetics.reflector.paired:objective": {
+  "inputs": {
+   "row": {
+    "direct_amp_pp_dB": 2.0,
+    "direct_phase_ripple_pp_deg": 45.0,
+    "direct_usable_width": 0.4
+   },
+   "source": "direct"
+  },
+  "source": "tests/test_reflector_exact.py:119"
+ },
  "pinneapple_simulation.electromagnetics.reflector.planar2d:validate_circle": {
   "inputs": {},
   "source": "tests/test_reflector_exact.py:9"
@@ -6932,8 +6961,8 @@
  },
  "pinneapple_simulation.vortex_domains.bodies:deploying_spoiler": {
   "inputs": {
-   "n": 12,
-   "length": 0.1
+   "length": 0.1,
+   "n": 12
   },
   "source": "tests/test_vortex_domains.py:114"
  },
@@ -7003,8 +7032,8 @@
  },
  "pinneapple_simulation.vortex_domains.verification:check_cylinder_drag": {
   "inputs": {
-   "re": 40.0,
    "panels": 24,
+   "re": 40.0,
    "t_end": 0.3
   },
   "source": "tests/test_vortex_domains.py:143"

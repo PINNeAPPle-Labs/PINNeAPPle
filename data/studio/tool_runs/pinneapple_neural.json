@@ -312,6 +312,18 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_neural.lpm:ellipse_design_space": {
+  "code_hash": "424e7bbf86aca834",
+  "inputs": {
+   "n": 120,
+   "n_points": 32,
+   "seed": 5
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "list",
+  "seconds": 8.26
+ },
  "pinneapple_neural.physicsnemo_bridge.adapters:is_physicsnemo_available": {
   "code_hash": "c285775f7e26d34d",
   "inputs": {},

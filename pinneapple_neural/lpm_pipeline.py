@@ -322,6 +322,10 @@ def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: 
     out = Path(out_dir)
     designs_dir = out / "designs"
     designs_dir.mkdir(parents=True, exist_ok=True)
+    # a second run into the same directory must leave the dataset it describes, not the union of both: the manifest
+    # is rewritten every time, and a file it does not list is a leftover from a larger run
+    for stale in designs_dir.glob("*.npz"):
+        stale.unlink()
     started = time.monotonic()
     specs = draw(family, n_geometries, conditions_per_geometry, seed)
     records, fields_total, points_total = [], 0, 0

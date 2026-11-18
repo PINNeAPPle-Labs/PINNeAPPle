@@ -607,6 +607,7 @@ include = [
   "pinneapple_autolab/**",
   "pinneapple_condense/**",
   "pinneapple_query/**",
+  "pinneapple_intent/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

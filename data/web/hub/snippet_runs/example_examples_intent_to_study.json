@@ -1,0 +1,12 @@
+{
+ "code_hash": "bc2e3e6fa89172f1",
+ "figures": [],
+ "id": "example:examples/intent_to_study",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 5.2,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Text to simulation: four requests through one compiler, ladder, decision and replay | heat transfer, fluid mechanics and solid mechanics from natural language | not curated",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "04833c931f6f0d30",
+ "figures": [],
+ "id": "api:pp-study",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 99.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "pp.study(text: 'str', *, out_dir: 'str | None' = None, answers: 'dict[str, Any] | None' = None, family: 'str | StudyFamily | None' = None, mode: 'str' = 'simulation', llm: 'Any' = None, seed: 'int' = 0, rungs: 'tuple[str, ...] | None' = None, progress: 'Callable[[str], None] | None' = None)\nA sentence in, a run out: ``compile_study`` and ``run_study`` in one call.",
+ "timed_out": false
+}

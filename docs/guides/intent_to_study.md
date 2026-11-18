@@ -11,7 +11,7 @@ import pinneapple as pp
 
 run = pp.study("a 12 mm steel wall with k = 200 W/mK, 300 degC inside and air at 25 degC outside with h = 12 W/m2K")
 print(run.summary())
-# Steady heat conduction through a wall, cooled by convection: cold_face_temperature = 572.95 K (APPROVED); 12/12 ...
+# Steady heat conduction through a wall, cooled by convection: cold_face_temperature = 572.953 K (APPROVED); 6/6 ...
 run.files["report"]        # report.md, next to contract.json, run.json and trust.md
 ```
 

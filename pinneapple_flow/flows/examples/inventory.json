@@ -191,6 +191,11 @@
   "reason": "the study trains a Large Physics Model (pinneapple_neural.lpm.LargePhysicsModel with the query-to-surface attention blocks) on a whole design space in batched PyTorch, and every number it reports comes from that fit(); no flow node wraps batched design-space training, and the default run is two minutes of training rather than a form call",
   "status": "not_convertible"
  },
+ "lpm_five_models": {
+  "domain": "physics AI / design-space surrogates",
+  "reason": "the study draws a parametric design space for each of five families, runs the family's own reference on every design (fin theory, exact potential flow, quasi-1-D isentropic flow, epsilon-NTU, immersed FEM), trains a Large Physics Model on batched designs and reports on bodies held out by geometry; no flow node wraps design-space data generation or batched training, and the default run is minutes of solving and fitting rather than a form call",
+  "status": "not_convertible"
+ },
  "meshgraphnet": {
   "domain": "neural operators",
   "notes": "02_cylinder_flow_deepmind: a 400 MB prefix of the DeepMind TFRecords (storage.googleapis.com, needs pip install tfrecord) in the committed configuration of _out/cylinder_flow/metrics.json (3000 steps, hidden 64, 6 layers); the frozen-velocity baseline moved from the script into mgn_dynamics.frozen_ic_rmse; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"

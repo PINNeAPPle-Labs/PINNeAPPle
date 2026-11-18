@@ -360,14 +360,22 @@ class LargePhysicsModel(nn.Module):
 
     @torch.no_grad()
     def remember_training_set(self, designs: list[Design], batch_size: int = 256) -> None:
-        """Store the geometry codes (and the parameter range) of the training designs, for OOD."""
+        """Store the geometry codes (and the parameter range) of the training designs, for OOD.
+
+        The stored codes are **distinct**: a design space runs several operating points on the same body, and those
+        share a geometry code exactly. Keeping the duplicates would put a large share of zero at the bottom of the
+        nearest-neighbour distances the OOD rule measures itself against, which shrinks the reference toward zero
+        and makes every held-out body look far outside the training set. Deduplicating first keeps that reference at
+        the spacing between *different* bodies, which is what "farther from the training designs than usual" means.
+        """
         if not designs:
             raise ValueError("remember_training_set needs the training designs")
         dev = self.train_codes.device
         codes = [self.geo(b.points, b.normals, b.point_mask)
                  for b in (stack_designs(designs[i:i + batch_size], device=dev)
                            for i in range(0, len(designs), batch_size))]
-        self.train_codes = torch.cat(codes)
+        stacked = torch.round(torch.cat(codes).detach().cpu(), decimals=6)
+        self.train_codes = torch.unique(stacked, dim=0).to(dev)
         if designs[0].params.numel():
             P = torch.stack([d.params for d in designs]).to(dev)
             self.param_lo, self.param_hi = P.min(0).values, P.max(0).values

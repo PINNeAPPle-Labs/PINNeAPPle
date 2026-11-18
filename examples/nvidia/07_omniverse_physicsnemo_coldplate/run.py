@@ -103,16 +103,16 @@ def main(smoke=False, base=None):
     architecture_diagram(
         "07 Cold plate: PINNeAPPle + Omniverse + PhysicsNeMo",
         [Block("gen", "Designs (Latin hypercube):\nchannels, slot width, flow, h", "pinneapple", 0, 0),
-         Block("hyd", "Coolant model: Shah & London Nu,\nHausen, Muznycka-Yovanovich dp", "pinneapple", 1, 0),
+         Block("hyd", "Coolant model: Shah & London Nu,\nHausen, Muzychka-Yovanovich dp", "pinneapple", 1, 0),
          Block("fv", "Conjugate finite volumes\n-div(a grad u) + s u = f", "pinneapple", 2, 0),
-         Block("fno", "physicsnemo.models.fno.FNO\n(conductance, coupling) -> T", "physicsnemo", 2, 1),
+         Block("fno", "physicsnemo.models.fno.FNO\n(conductance, coupling, source) -> T", "physicsnemo", 2, 1),
          Block("chk", "Physics checks: certified residual\nbounds, conjugate energy balance", "pinneapple", 3, 1),
          Block("mlp", "FullyConnected on the design\nvariables: hot spot, dp, pump", "physicsnemo", 3, 0),
          Block("uq", "Monte-Carlo the plant:\nP(hot spot > limit), Pareto", "pinneapple", 4, 1),
          Block("trust", "Trust decision\nAPPROVED / REVIEW / REJECT", "pinneapple", 5, 1),
          Block("usd", "OpenUSD stage (usd-core)\nT primvar + coupling + trust", "omniverse", 5, 0),
          Block("kit", "Omniverse Kit / USD Composer\nRTX viewport", "omniverse", 6, 0, ran=False)],
-        [("gen", "hyd", "channels"), ("gen", "fv", "a, s, f"), ("hyd", "fv", "h, dp"), ("fv", "fno", "(a, s) -> u"),
+        [("gen", "hyd", "channels"), ("gen", "fv", "a, s, f"), ("hyd", "fv", "h, dp"), ("fv", "fno", "(a, s, f) -> u"),
          ("fno", "chk", "u predicted"), ("fv", "mlp", "hot spot, dp, pump"), ("mlp", "uq", "surrogate"),
          ("chk", "trust", "checks"), ("uq", "trust", "robustness"), ("fno", "usd", "T field"),
          ("trust", "usd", "decision"), ("usd", "kit", ".usda")],
@@ -369,7 +369,7 @@ def _figures(OUT, P, pick, pick_edge, solved, uq_robust, uq_edge, hist, checks, 
     ax.axhline(dc.DEFAULT_TOLERANCES["reference"], color="r", ls="--", lw=1, label="reference limit (5 %)")
     ax.set_xlabel("step")
     ax.set_ylabel("relative L2 on held-out designs")
-    ax.set_title("PhysicsNeMo FNO, two input channels (conductance, coupling)", fontsize=9)
+    ax.set_title("PhysicsNeMo FNO, three input channels (conductance, coupling, source)", fontsize=9)
     ax.grid(alpha=0.3)
     ax.legend(fontsize=7)
     fig.tight_layout()

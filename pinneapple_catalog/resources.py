@@ -97,6 +97,20 @@ _RESOURCES: List[Resource] = [
        license="CC-BY-NC-SA-4.0 (data)", commercial="no", url="https://blastnet.github.io/",
        paper="Chung et al., BLASTNet 2.0, NeurIPS 2023 Datasets & Benchmarks, arXiv:2309.13457",
        size="4.8 TB", rating="reference", tags=("combustion", "turbulence")),
+    _r(id="capsule_aeroheating", name="Capsule aeroheating (Bijective Systems)", kind="dataset", domain="cfd",
+       summary="Laminar forebody heat flux and pressure on parametric entry capsules: 1.024 capsules from a "
+               "Newtonian panel method, 64 of them also from second-order laminar Navier-Stokes (Eilmer). Every wall "
+               "has the same 2.361 nodes and node i is the same point of the heat shield on every capsule and at "
+               "both fidelities, so the two fidelities subtract node by node -- the cleanest public multi-fidelity "
+               "corpus this catalog has. Mach 6-15, 40-80 km, D 0.8-5.5 m, zero incidence, 300 K wall.",
+       license="CC-BY-4.0 (data), Apache-2.0 (bijective-gamut reader)", commercial="yes",
+       url="https://huggingface.co/datasets/bijective/capsule-aeroheating",
+       size="77 MB (wall), 470 MB (flow fields)", hf_repo=("bijective/capsule-aeroheating", "dataset"),
+       rating="use_now",
+       notes="The card's licence was read on 2026-11-17. The cheap model's heat flux is 18.3 % off the CFD one in "
+             "relative L2 over the 64 cases: that is the baseline a surrogate has to beat. Read it with "
+             "pinneapple_data.datasets.capsule_aeroheating.",
+       tags=("multi-fidelity", "hypersonic", "aeroheating", "reentry", "eilmer")),
     _r(id="the_well", name="The Well", kind="dataset", domain="multiphysics",
        summary="16 datasets / 15 TB: shear_flow, rayleigh_benard, turbulent_radiative_layer, "
                "euler_multi_quadrants, MHD, supernova... Uniform HDF5, HF streaming, FNO/TFNO/U-Net baselines.",

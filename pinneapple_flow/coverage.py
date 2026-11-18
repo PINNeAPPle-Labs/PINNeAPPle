@@ -27,6 +27,10 @@ REASONS: dict[str, str] = {
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",
     # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for
+    "pinneapple_data.multifidelity": "the two-fidelity models -- pairing the cheap and expensive values of the same "
+                                     "design, the kernel-ridge correction, and the learning curves over scalar targets "
+                                     "and over a whole field; they take the corpus's arrays and fitted pairs as "
+                                     "objects, so a flow form cannot hold their inputs",
     "pinneapple_data.graph": "the module builds the Graph objects the graph networks train on, from arrays and from "
                              "simulation records; a Graph is not something a flow's parameter form holds, so the "
                              "node that trains a graph model builds it inside the node",

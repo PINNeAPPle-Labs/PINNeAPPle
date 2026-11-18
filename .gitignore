@@ -120,3 +120,6 @@ examples/rocket_launch/_out/
 
 # outputs of the Digital Twin Library example
 examples/digital_twin_library/_out/
+
+# the capsule-aeroheating example: the 77 MB wall file and what the run writes
+examples/capsule_aeroheating/_out/

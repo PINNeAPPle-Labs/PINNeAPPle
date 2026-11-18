@@ -128,7 +128,7 @@
   "ok": true,
   "recorded": "2026-11-18",
   "returned": "StudyPlan",
-  "seconds": 133.4
+  "seconds": 61.54
  },
  "pinneapple_advisor:advise_detailed": {
   "code_hash": "d6dfc4c8d822416f",
@@ -139,7 +139,7 @@
   "ok": true,
   "recorded": "2026-11-18",
   "returned": "Composition",
-  "seconds": 0.26
+  "seconds": 0.0
  },
  "pinneapple_advisor:brief": {
   "code_hash": "1a93899f2891e850",

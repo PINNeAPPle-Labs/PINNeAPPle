@@ -12,6 +12,7 @@ documentation tools render it from the source text.
 from __future__ import annotations
 
 import html as _html
+import re
 
 from .schema import Stage, StudyPlan, text_of
 
@@ -48,6 +49,15 @@ def diagram(plan: StudyPlan, kind: str = "mermaid", lang: str | None = None) -> 
 
 
 # ---------------------------------------------------------------------------------------------------- helpers
+
+_TAG = re.compile(r"<[^>]*>")
+
+
+def _safe_label(text: str) -> str:
+    """A label for a source-text diagram (Mermaid, DOT): no markup and no double quotes, so a problem description
+    cannot carry a tag into a renderer that treats labels as HTML."""
+    return _TAG.sub("", str(text)).replace('"', "'").strip()
+
 
 def _label(stage: Stage, lang: str) -> str:
     kind = KIND_LABEL.get(stage.kind, (stage.kind, stage.kind))[0 if lang == "pt" else 1]
@@ -128,8 +138,7 @@ def mermaid(plan: StudyPlan, lang: str = "pt") -> str:
     """Mermaid ``flowchart TD``: one node per stage, coloured by status, one arrow per dependency."""
     lines = ["flowchart TD"]
     for s in plan.stages:
-        label = _label(s, lang).replace('"', "'")
-        lines.append(f'  {s.id}["{label}"]:::{s.status}')
+        lines.append(f'  {s.id}["{_safe_label(_label(s, lang))}"]:::{s.status}')
     for s in plan.stages:
         for dep in s.depends_on:
             if any(x.id == dep for x in plan.stages):
@@ -146,7 +155,7 @@ def dot(plan: StudyPlan, lang: str = "pt") -> str:
     lines = ["digraph pipeline {", '  rankdir=TB;', '  node [shape=box, style="rounded,filled", fontname="Helvetica"];']
     for s in plan.stages:
         style = STATUS_STYLE.get(s.status, STATUS_STYLE["generate"])
-        label = _label(s, lang).replace('"', "'")
+        label = _safe_label(_label(s, lang))
         lines.append(f'  {s.id} [label="{label}", fillcolor="{style["fill"]}", color="{style["stroke"]}"];')
     for s in plan.stages:
         for dep in s.depends_on:

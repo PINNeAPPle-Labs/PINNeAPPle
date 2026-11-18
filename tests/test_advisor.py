@@ -396,3 +396,19 @@ def test_the_flow_node_writes_the_plan_and_its_drawings(tmp_path):
     report = json.loads((folder / "report.json").read_text(encoding="utf-8"))
     metrics = report["metrics"]
     assert "campaign.hours" in metrics and "choice.solver" in metrics
+
+
+def test_an_empty_dataset_is_flagged_instead_of_trained_on():
+    plan = advise("conduction in a 2D plate, I have a dataset with 0 simulations", llm=False)
+    assert plan.stage("dataset").status == "have"
+    assert any("zero" in w["pt"] for w in plan.warnings)
+
+
+def test_a_description_nothing_matches_still_gives_a_plan_and_says_what_it_lacks():
+    plan = advise("a poem about the sea", llm=False)
+    assert {d.topic: d.choice for d in plan.decisions}["physics_family"] == "custom"
+    assert [s.id for s in plan.stages] == ["physics", "solver", "verification", "visualization"]
+    assert any("não foi identificada" in w["pt"] for w in plan.warnings)
+    assert len(plan.open_questions) == len(questions())        # everything is still open, and it says so
+    with pytest.raises(ValueError):
+        advise("   ", llm=False)

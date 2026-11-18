@@ -249,6 +249,13 @@ def build(brief: Brief, *, cost: CostModel | None = None, available_families: di
                            f"The estimated campaign ({campaign.total_seconds / 3600:.1f} h) exceeds the "
                            f"{float(budget_hours):g} h budget: cut the number of samples, or use the solver only "
                            f"on the cases the surrogate does not cover."))
+    if dataset_present and not (brief.values.get("n_simulations_present") or 0):
+        warnings.append(bi("Você marcou que já tem um dataset, mas não informou quantas simulações ele tem: se forem "
+                           "zero, o passo de treino não tem com o que aprender -- informe o número, ou deixe o plano "
+                           "gerar a campanha.",
+                           "You said you already have a dataset but not how many simulations it holds: if it is "
+                           "zero, the training step has nothing to learn from -- give the number, or let the plan "
+                           "build the campaign."))
     if brief.values.get("geometry_varies") and not dataset_present and not direct_only:
         warnings.append(bi("A geometria varia entre os casos: cada amostra do dataset paga uma geometria e uma "
                            "malha novas, e o custo por amostra é o do item 3 somado ao do item 6.",

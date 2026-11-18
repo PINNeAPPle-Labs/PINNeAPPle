@@ -11,6 +11,14 @@
   "returned": "Tool",
   "seconds": 0.0
  },
+ "pinneapple_advisor.compose:solver_families": {
+  "code_hash": "c9a8b867d5447d6b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_advisor.estimate:CostModel": {
   "code_hash": "e64af2970a28855a",
   "inputs": {},
@@ -18,7 +26,7 @@
   "ok": true,
   "recorded": "2026-11-18",
   "returned": "Estimate",
-  "seconds": 0.0
+  "seconds": 0.01
  },
  "pinneapple_advisor.estimate:estimate_solve": {
   "code_hash": "2a4658da7f2960cd",
@@ -86,7 +94,7 @@
   "ok": true,
   "recorded": "2026-11-18",
   "returned": "Question",
-  "seconds": 0.0
+  "seconds": 0.01
  },
  "pinneapple_advisor.questions:questions": {
   "code_hash": "63eece2bf7614596",
@@ -120,7 +128,7 @@
   "ok": true,
   "recorded": "2026-11-18",
   "returned": "StudyPlan",
-  "seconds": 93.23
+  "seconds": 104.61
  },
  "pinneapple_advisor:advise_detailed": {
   "code_hash": "d6dfc4c8d822416f",
@@ -131,7 +139,7 @@
   "ok": true,
   "recorded": "2026-11-18",
   "returned": "Composition",
-  "seconds": 2.93
+  "seconds": 0.02
  },
  "pinneapple_advisor:brief": {
   "code_hash": "1a93899f2891e850",

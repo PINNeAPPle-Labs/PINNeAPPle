@@ -174,7 +174,7 @@ def build(brief: Brief, *, cost: CostModel | None = None, available_families: di
         stages.append(dataset_stage)
 
     training_stage = _training_stage(brief, arch_choice, n_samples, cost, direct_only, decisions,
-                                     dataset_present)
+                                     dataset_present, dataset_stage is not None)
     if training_stage is not None:
         stages.append(training_stage)
 
@@ -578,7 +578,8 @@ def _dataset_stage(brief: Brief, real_shape: bool, n_samples: int, solve_est: Es
 
 
 def _training_stage(brief: Brief, arch: str, n_samples: int, cost: CostModel, direct_only: bool,
-                    decisions: list[Decision], dataset_present: bool = False) -> Stage | None:
+                    decisions: list[Decision], dataset_present: bool = False,
+                    dataset_built: bool = False) -> Stage | None:
     if direct_only:
         decisions.append(Decision(
             topic="architecture", choice="none", source="architecture_recommendation.recommend_architecture",
@@ -603,11 +604,13 @@ def _training_stage(brief: Brief, arch: str, n_samples: int, cost: CostModel, di
              if physics_only else
              bi(f"Treinar e comparar as famílias de surrogate (`{arch}`)", f"Train and compare the surrogate "
                                                                             f"families (`{arch}`)"))
-    if physics_only and dataset_present:
-        why = bi("O sinal principal é o resíduo da EDP, e o seu dataset entra como supervisão extra: é assim que um "
-                 "PINN usa dados quando eles existem, em vez de jogá-los fora.",
-                 "The main signal is the PDE residual and your dataset comes in as extra supervision: that is how a "
-                 "PINN uses data when there is data, instead of throwing it away.")
+    if physics_only and (dataset_present or dataset_built):
+        source = "o seu dataset" if dataset_present else f"as {n_samples} simulações que o plano gera"
+        source_en = "your dataset" if dataset_present else f"the {n_samples} simulations the plan builds"
+        why = bi(f"O sinal principal é o resíduo da EDP, e {source} entram como supervisão extra: é assim que um "
+                 f"PINN usa dados quando eles existem, em vez de jogá-los fora.",
+                 f"The main signal is the PDE residual and {source_en} come in as extra supervision: that is how a "
+                 f"PINN uses data when there is data, instead of throwing it away.")
     else:
         why = (bi("Sem dados, o sinal de treino é o resíduo da EDP e as condições: um modelo por instância, sem "
                   "generalização entre casos -- o que é correto quando o caso é único.",
@@ -625,7 +628,7 @@ def _training_stage(brief: Brief, arch: str, n_samples: int, cost: CostModel, di
         tools=tools + list(cap.TRAIN_CHECK),
         inputs=["o ProblemSpec" if physics_only else "o dataset"],
         outputs=["o modelo treinado", "o erro em dados não vistos", "a decisão de uso"],
-        depends_on=["dataset"] if (dataset_present or not physics_only) else ["physics"],
+        depends_on=["dataset"] if (dataset_present or dataset_built or not physics_only) else ["physics"],
         estimate=est,
         checks=[{"what": f"erro relativo de {brief.get('accuracy_target'):.3g} em dados não vistos",
                  "tool": "pinneapple_autolab.study.benchmark:benchmark"},

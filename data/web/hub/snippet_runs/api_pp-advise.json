@@ -1,0 +1,12 @@
+{
+ "code_hash": "973b8d2a462141a8",
+ "figures": [],
+ "id": "api:pp-advise",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 49.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "pp.advise(problem: 'str | Brief', *, answers: 'dict[str, Any] | None' = None, llm: 'bool | Callable | None' = None, provider: 'str' = 'ollama', model: 'str' = '', cost: 'CostModel | None' = None, language: 'str' = 'pt', out_dir: 'str | None' = None, available_families: 'dict[str, Any] | None' = None, solve_seconds_measured: 'float | None' = None, **llm_kwargs: 'Any') -> 'StudyPlan'\nThe study pipeline for a problem description (or a :class:`~pinneapple_advisor.brief.Brief`), ten questions",
+ "timed_out": false
+}

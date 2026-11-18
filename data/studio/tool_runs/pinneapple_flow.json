@@ -302,6 +302,16 @@
   "returned": "_GeneratorContextManager",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.advisor:build_flow": {
+  "code_hash": "5cceb0699a15854a",
+  "inputs": {
+   "text": "transient heat in a 3D bracket"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "FlowBuilder",
+  "seconds": 51.48
+ },
  "pinneapple_flow.nodes_ext.aircraft_surrogate:build_flow": {
   "code_hash": "571d9f79b91843ac",
   "inputs": {},

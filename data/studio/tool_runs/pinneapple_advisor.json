@@ -1,0 +1,155 @@
+{
+ "pinneapple_advisor.capabilities:tool": {
+  "code_hash": "547c0ee1b8ac1a9a",
+  "inputs": {
+   "call": "pinneapple:solve",
+   "en": "solves the problem",
+   "pt": "resolve o problema"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Tool",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.estimate:CostModel": {
+  "code_hash": "e64af2970a28855a",
+  "inputs": {},
+  "method": "solve",
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Estimate",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.estimate:estimate_solve": {
+  "code_hash": "2a4658da7f2960cd",
+  "inputs": {
+   "cells": 20000,
+   "dim": 2,
+   "family": "heat_equation"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Estimate",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.estimate:estimate_training": {
+  "code_hash": "a61778614f6da837",
+  "inputs": {
+   "architecture": "fno",
+   "n_samples": 50
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Estimate",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.extract:brief_prompt": {
+  "code_hash": "bf2c6725cbb98719",
+  "inputs": {
+   "text": "transient heat in a 3D bracket",
+   "unknown": [
+    "dimension",
+    "goal"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.extract:detect": {
+  "code_hash": "3ed2f28e62d3e4ed",
+  "inputs": {
+   "text": "transient heat in a 3D bracket, I have the STEP"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.extract:extract": {
+  "code_hash": "95f3cbde108c7089",
+  "inputs": {
+   "call": false,
+   "text": "transient heat in a 3D bracket"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Brief",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.questions:question": {
+  "code_hash": "7a4689f00b190cf2",
+  "inputs": {
+   "question_id": "dimension"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Question",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.questions:questions": {
+  "code_hash": "63eece2bf7614596",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor.schema:bi": {
+  "code_hash": "2ec4838b5abc0a8a",
+  "inputs": {
+   "en": "text",
+   "pt": "texto"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor:advise": {
+  "code_hash": "eb6c6b4ac6f15344",
+  "inputs": {
+   "answers": {
+    "evaluations_needed": 200
+   },
+   "language": "pt",
+   "llm": false,
+   "problem": "transient heat in a 3D bracket, I have the STEP but no mesh"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "StudyPlan",
+  "seconds": 93.23
+ },
+ "pinneapple_advisor:advise_detailed": {
+  "code_hash": "d6dfc4c8d822416f",
+  "inputs": {
+   "llm": false,
+   "problem": "conduction in a 2D plate"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Composition",
+  "seconds": 2.93
+ },
+ "pinneapple_advisor:brief": {
+  "code_hash": "1a93899f2891e850",
+  "inputs": {
+   "llm": false,
+   "problem": "conduction in a 2D plate"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "Brief",
+  "seconds": 0.0
+ },
+ "pinneapple_advisor:questions": {
+  "code_hash": "cab018455f6505ac",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "list",
+  "seconds": 0.0
+ }
+}

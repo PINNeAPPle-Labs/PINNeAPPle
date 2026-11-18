@@ -13,6 +13,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("problem", "Problem setup", "Describe the physical problem: presets, generic problems, requirements",
      ("node:problem.", "node:scenario.", "node:preset.", "fn:pp.PhysicalProblem", "fn:pp.presets", "mcp:list_presets",
       "fn:pp.doctor", "fn:pp.recommend", "fn:pp.card", "fn:pp.new",   # the first hour: which preset, what it takes
+      "fn:pp.advise", "lib:pinneapple_advisor",                       # the study pipeline a problem needs
       "lib:pinneapple_data.formfill")),
     ("geometry", "Geometry and meshing", "Domains, meshes, shapes from parameters, geometry exports",
      ("node:geometry.", "node:lib.export.geometry", "node:lib.export.usd_validate", "lib:pinneapple_design.geometry", "fn:pinneapple_design.geometry",
@@ -77,7 +78,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
 
 #: the node types of the example flows (pinneapple_flow.nodes_ext, one module per examples/* domain), by category
 EXAMPLE_NODES: dict[str, tuple[str, ...]] = {
-    "problem": ("node:problemdesign.",),
+    "problem": ("node:problemdesign.", "node:advisor."),
     "geometry": ("node:study.ahmed_geometry",),
     "equations": ("node:nonhermitian.", "node:discover.", "node:pde_env.",
                   "node:potential."),                    # physics as derivatives of one potential (L, A(T, V), W(F))

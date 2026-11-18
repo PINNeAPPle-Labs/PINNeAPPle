@@ -494,24 +494,45 @@ def _solver_stage(brief: Brief, family: str, dim: int, method: str, solver_rec: 
                    confidence=total.confidence, assumptions=list(total.assumptions))
     return Stage(
         id="solver", kind="solver",
-        title=(bi("Rodar o solver escolhido em cada caso", "Run the chosen solver on every case") if direct_only else
-               bi("Rodar o solver escolhido e medir o custo real de uma execução",
-                  "Run the chosen solver and measure what one run really costs")),
-        why=(bi(f"A família recomendada é `{rec_family}`. O custo direto cabe no orçamento, então o solver "
-                f"responde cada caso: são {study_evaluations} execuções, sem surrogate.",
-                f"The recommended family is `{rec_family}`. The direct cost fits the budget, so the solver answers "
-                f"every case: {study_evaluations} runs, no surrogate.")
-             if direct_only else
-             bi(f"A família recomendada é `{rec_family}`. Uma execução resolve o caso, dá o campo de referência e "
-                f"calibra o custo: a partir dela o tempo estimado deixa de ser ordem de grandeza.",
-                f"The recommended family is `{rec_family}`. One run solves the case, gives the reference field and "
-                f"calibrates the cost: from it on the estimate stops being an order of magnitude.")),
+        title=(_solver_title(rec_family, direct_only, brief)),
+        why=(_solver_why(rec_family, direct_only, study_evaluations, brief)),
         status="generate", answers=[6], tools=list(cap.SOLVER_SELECT) + list(cap.SOLVER_RUN),
         inputs=["o ProblemSpec confirmado", "a malha (ou o domínio analítico)"],
         outputs=["o campo (ou o KPI) de cada caso", "o custo medido por execução"],
         depends_on=["physics"] + (["mesh"] if brief.values.get("mesh_present") or _has_mesh(brief) else []),
         estimate=est, checks=list(_solver_checks()), views=list(cap.VIEWS["field"])[:1],
         question="" if brief.values.get("solve_seconds_measured") else "solve_seconds_measured")
+
+
+def _solver_title(family: str, direct_only: bool, brief: Brief) -> dict[str, str]:
+    """What the solver stage is for depends on the path: every case of a sweep, the forward model a calibration
+    calls again and again, or one run that measures what the campaign will cost."""
+    if direct_only and brief.get("goal") == "inverse":
+        return bi("Rodar o solver escolhido no modelo direto",
+                  "Run the chosen solver on the forward model")
+    if direct_only:
+        return bi("Rodar o solver escolhido em cada caso", "Run the chosen solver on every case")
+    return bi("Rodar o solver escolhido e medir o custo real de uma execução",
+              "Run the chosen solver and measure what one run really costs")
+
+
+def _solver_why(family: str, direct_only: bool, study_evaluations: int, brief: Brief) -> dict[str, str]:
+    if direct_only and brief.get("goal") == "inverse":
+        return bi(f"A família recomendada é `{family}`. Cada iteração da calibração resolve o modelo direto, e o "
+                  f"custo por execução é o que decide quantas iterações cabem no orçamento -- por isso não há "
+                  f"surrogate aqui.",
+                  f"The recommended family is `{family}`. Every iteration of the calibration solves the forward "
+                  f"model, and the cost per run is what decides how many iterations fit the budget -- which is why "
+                  f"no surrogate is involved here.")
+    if direct_only:
+        return bi(f"A família recomendada é `{family}`. O custo direto cabe no orçamento, então o solver responde "
+                  f"cada caso: são {study_evaluations} execuções, sem surrogate.",
+                  f"The recommended family is `{family}`. The direct cost fits the budget, so the solver answers "
+                  f"every case: {study_evaluations} runs, no surrogate.")
+    return bi(f"A família recomendada é `{family}`. Uma execução resolve o caso, dá o campo de referência e calibra "
+              f"o custo: a partir dela o tempo estimado deixa de ser ordem de grandeza.",
+              f"The recommended family is `{family}`. One run solves the case, gives the reference field and "
+              f"calibrates the cost: from it on the estimate stops being an order of magnitude.")
 
 
 def _dataset_stage(brief: Brief, real_shape: bool, n_samples: int, solve_est: Estimate, direct_only: bool,

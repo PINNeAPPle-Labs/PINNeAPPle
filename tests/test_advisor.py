@@ -424,3 +424,13 @@ def test_a_description_cannot_carry_markup_into_the_drawings():
     for kind in ("mermaid", "dot"):
         out = plan.diagram(kind)
         assert "<script>" not in out and "alert" not in out, kind
+
+
+def test_an_inverse_plan_says_what_the_solver_is_for_there():
+    """One case with measurements is not a sweep: the solver stage is the forward model the calibration calls."""
+    plan = advise("recover the conductivity from measurements in a 2D cylinder", answers={"goal": "inverse"}, llm=False)
+    assert "modelo direto" in plan.stage("solver").title["pt"]
+    assert "iteração da calibração" in plan.stage("solver").why["pt"]
+    sweep = advise("heat in plates whose thickness varies", answers={"evaluations_needed": 20, "parameter_varies": True},
+                   llm=False)
+    assert "cada caso" in sweep.stage("solver").title["pt"]

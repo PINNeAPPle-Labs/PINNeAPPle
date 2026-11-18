@@ -1,0 +1,12 @@
+{
+ "code_hash": "c9242e68cb9bc0c8",
+ "figures": [],
+ "id": "node:intent.study",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 100.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "Run a sentence end to end and check it -> pinneapple_intent.execute:study (pp.study) / pinneapple_intent.replay:replay\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'text': 'a 12 mm steel wall with k = 200 W/mK, 300 degC inside and air at 25 degC outside with h = 12 W/m2K', 'mode': 'simulation', 'answers': {}}",
+ "timed_out": false
+}

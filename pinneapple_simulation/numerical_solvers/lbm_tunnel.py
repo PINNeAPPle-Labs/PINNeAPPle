@@ -34,7 +34,7 @@ import numpy as np
 import torch
 
 __all__ = ["WindTunnelLBM", "Units", "velocity_set", "sphere", "box", "voxelize_stl", "write_vtk", "read_vtk",
-           "drag_sphere_schiller_naumann", "stokes_sphere_field"]
+           "drag_sphere_schiller_naumann", "stokes_sphere_field", "sample_field"]
 
 FP16_SCALE = 1024.0          # shifted DDFs are O(1e-3..1e-1); x1024 keeps the small ones out of the FP16 subnormals
 
@@ -267,6 +267,11 @@ class WindTunnelLBM:
         u = j / rho
         return rho, u
 
+    def _pressure_tensor(self, f: torch.Tensor | None = None) -> torch.Tensor:
+        """Kinematic pressure ``c_s^2 (rho - 1)`` (``c_s^2 = 1/3``) on the box."""
+        rho, _ = self.macroscopic(f)
+        return (rho - 1.0) / 3.0
+
     def _collide(self, f: torch.Tensor) -> torch.Tensor:
         rho, u = self.macroscopic(f)
         feq = self._feq(rho, u)
@@ -388,6 +393,102 @@ class WindTunnelLBM:
             F += dP[:, nb_solid].sum(1)
         return F.cpu().numpy()
 
+    # ---------------------------------------------------------------- wall and surface pressure
+    def pressure(self) -> np.ndarray:
+        """Kinematic pressure ``c_s^2 (rho - 1)`` on the whole box, in lattice units (m^2/s^2 with the cell = 1 and
+        the step = 1 of :meth:`Units.x` and :meth:`Units.u`); solid cells carry ``nan``."""
+        p = self._pressure_tensor()
+        return p.masked_fill(self._all_solid, float("nan")).cpu().numpy()
+
+    def wall_pressure(self, mask: torch.Tensor | None = None) -> dict:
+        """Kinematic pressure on the solid cells that face fluid, i.e. what a pressure tap on the body would read.
+
+        The pressure of a solid cell is the mean of the fluid cells around it (the wall lies half a link away, where
+        the bounce-back puts it). Cells of ``mask`` (default: the solids added with :meth:`add_solid`, never the tunnel
+        walls) that no fluid cell touches are left out of the returned samples but still get a value in ``field``
+        (filled from their nearest sampled neighbour, so that :meth:`surface_pressure` can interpolate anywhere).
+
+        Returns
+        -------
+        dict
+            ``cells`` (M, 3) float, centroids in lattice coordinates; ``p`` (M,) kinematic pressure; ``field``
+            (nx, ny, nz) kinematic pressure defined on the fluid and on the solid, ``nan`` elsewhere."""
+        solid = self.solid if mask is None else torch.as_tensor(mask, device=self.dev).bool()
+        fluid = ~self._all_solid
+        p = self._pressure_tensor()
+        acc = torch.zeros_like(p)
+        cnt = torch.zeros_like(p)
+        for ci in self.c.tolist()[1:]:
+            nb = torch.roll(fluid, shifts=ci, dims=(0, 1, 2))              # neighbour along +c_i is fluid
+            if not bool(nb.any()):
+                continue
+            acc = acc + torch.where(nb, torch.roll(p, shifts=ci, dims=(0, 1, 2)), torch.zeros_like(p))
+            cnt = cnt + nb.to(p.dtype)
+        face = solid & (cnt > 0)
+        pw = acc / cnt.clamp(min=1.0)
+        field = torch.where(solid & ~face, torch.full_like(p, float("nan")), torch.where(face, pw, torch.where(
+            fluid | self.eq_mask | self.out_mask, p, torch.full_like(p, float("nan")))))
+        p_np = _nan_fill(field.cpu().numpy())
+        cells = np.argwhere(face.cpu().numpy())                            # (i, j, k)
+        return {"cells": cells.astype(float), "p": pw[face].cpu().numpy().astype(float), "field": p_np}
+
+    def surface_pressure(self, points, field: np.ndarray | None = None) -> np.ndarray:
+        """Kinematic pressure at ``points`` (in lattice coordinates, (P, 3): the *cell* index, so the cell ``(i, j, k)``
+        has its centre at that integer triple), by trilinear interpolation of the wall-filled pressure field.
+
+        ``field`` defaults to the wall-filled field of :meth:`wall_pressure`; pass a field from
+        :meth:`run_averaged` (``averaged["field"]``) to read a time-averaged wall pressure instead."""
+        if field is None:
+            field = self.wall_pressure()["field"]
+        return sample_field(field, points)
+
+    def run_averaged(self, steps: int, average_from: int = 0, every: int = 1,
+                     callback: Callable[[WindTunnelLBM], None] | None = None) -> dict:
+        """Run ``steps`` and average the fields over the samples taken at or after step ``average_from``.
+
+        A steady flow needs no average; a shedding one (a cylinder, a blunt rear end) does, and the averaged wall
+        pressure is the field a steady-RANS label is trying to be. Returns ``{"steps", "samples", "rho", "u", "p",
+        "field"}``: the last two are the averaged kinematic pressure on the box and the same wall-filled (``field``,
+        as in :meth:`wall_pressure`)."""
+        total = {"rho": None, "u": None}
+        n = 0
+        done = 0
+        while done < steps:
+            k = min(every or steps, steps - done)
+            self.step(k)
+            done += k
+            if self.t >= average_from:
+                rho, u = self.macroscopic()
+                total["rho"] = rho if total["rho"] is None else total["rho"] + rho
+                total["u"] = u if total["u"] is None else total["u"] + u
+                n += 1
+            if callback is not None:
+                callback(self)
+        if n == 0:
+            raise ValueError("no sample was taken: average_from is beyond the end of the run")
+        rho, u = total["rho"] / n, total["u"] / n
+        solid = self._all_solid
+        p = (rho - 1.0) / 3.0
+        p_np = p.masked_fill(solid, float("nan")).cpu().numpy()
+        # the wall value of a solid cell, from the averaged neighbours, then the same fill as wall_pressure
+        acc = torch.zeros_like(p)
+        cnt = torch.zeros_like(p)
+        fluid = ~solid
+        for ci in self.c.tolist()[1:]:
+            nb = torch.roll(fluid, shifts=ci, dims=(0, 1, 2))
+            if not bool(nb.any()):
+                continue
+            acc = acc + torch.where(nb, torch.roll(p, shifts=ci, dims=(0, 1, 2)), torch.zeros_like(p))
+            cnt = cnt + nb.to(p.dtype)
+        face = self.solid & (cnt > 0)
+        pw = (acc / cnt.clamp(min=1.0))[face]
+        field = torch.where(self.solid & ~face, torch.full_like(p, float("nan")),
+                            torch.where(face, acc / cnt.clamp(min=1.0), torch.where(fluid, p, torch.full_like(
+                                p, float("nan")))))
+        return {"steps": int(steps), "samples": int(n), "rho": rho.cpu().numpy(), "u": u.cpu().numpy(),
+                "p": p_np, "field": _nan_fill(field.cpu().numpy()), "cells": np.argwhere(face.cpu().numpy()).astype(
+                    float), "wall_p": pw.cpu().numpy().astype(float)}
+
     def write_vtk(self, path: str, origin=(0.0, 0.0, 0.0), spacing: float = 1.0) -> list[str]:
         """``<path>-u.vtk``, ``<path>-rho.vtk`` and ``<path>-flags.vtk`` (legacy binary structured points)."""
         fld = self.fields()
@@ -397,6 +498,51 @@ class WindTunnelLBM:
             write_vtk(p, arr, origin, spacing)
             out.append(p)
         return out
+
+
+# ------------------------------------------------------------------------------------------------- sampling
+def _nan_fill(field: np.ndarray) -> np.ndarray:
+    """Replace the ``nan`` of ``field`` by the value of the nearest cell that has one (distance-transform fill)."""
+    from scipy import ndimage
+
+    a = np.asarray(field, dtype=np.float64)
+    bad = ~np.isfinite(a)
+    if not bad.any():
+        return a
+    if bad.all():
+        raise ValueError("every cell is nan: there is no value to fill from")
+    idx = ndimage.distance_transform_edt(bad, return_distances=False, return_indices=True)
+    return a[tuple(idx)]
+
+
+def sample_field(field: np.ndarray, points) -> np.ndarray:
+    """Trilinear interpolation of a 3-D field at ``points`` given in lattice coordinates (P, 3).
+
+    A cell ``(i, j, k)`` has its centre at the integer triple, so a point on a cell face sits at a half-integer.
+    Points outside the box are clamped to its boundary (no extrapolation)."""
+    a = np.asarray(field, dtype=np.float64)
+    if a.ndim != 3:
+        raise ValueError(f"field must be 3-D, got shape {a.shape}")
+    pts = np.asarray(points, dtype=np.float64).reshape(-1, 3)
+    if pts.shape[0] == 0:
+        return np.zeros(0)
+    nx, ny, nz = a.shape
+    hi = np.array([n - 1 for n in a.shape], dtype=np.float64)
+    lo = np.array([max(n - 2, 0) for n in a.shape], dtype=np.float64)
+    p = np.clip(pts, 0.0, hi)                                   # clamp the point, not the interpolation cell
+    i0 = np.minimum(np.floor(p).astype(int), lo.astype(int))
+    f = p - i0
+    out = np.zeros(pts.shape[0], dtype=np.float64)
+    for dx in (0, 1):
+        for dy in (0, 1):
+            for dz in (0, 1):
+                w = ((f[:, 0] if dx else 1.0 - f[:, 0]) * (f[:, 1] if dy else 1.0 - f[:, 1])
+                     * (f[:, 2] if dz else 1.0 - f[:, 2]))
+                ii = np.clip(i0[:, 0] + dx, 0, nx - 1)
+                jj = np.clip(i0[:, 1] + dy, 0, ny - 1)
+                kk = np.clip(i0[:, 2] + dz, 0, nz - 1)
+                out += w * a[ii, jj, kk]
+    return out
 
 
 # ------------------------------------------------------------------------------------------------- VTK I/O

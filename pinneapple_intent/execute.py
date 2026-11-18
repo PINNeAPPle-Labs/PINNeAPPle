@@ -160,10 +160,27 @@ def run_study(contract: StudyContract, *, out_dir: str | None = None, rungs: tup
     run.wall_s = time.perf_counter() - started
     run.checks = family.compare(run.measurements)
     run.checks += [c for m in run.measurements.values() for c in m.checks]
+    run.checks = _without_repeats(run.checks)
     run.trust = _trust(run, contract, ladder)
     if out_dir:
         run.write(out_dir)
     return run
+
+
+def _without_repeats(checks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """One row per check name.
+
+    A rung that runs the solver twice (the refinement rung does) reports its own checks twice, and the same energy
+    balance counted four times reads as four verifications. The first failure is kept, since that is the one a reader
+    has to act on; a check that passed everywhere keeps its first row.
+    """
+    kept: dict[str, dict[str, Any]] = {}
+    for item in checks:
+        name = str(item.get("name", ""))
+        previous = kept.get(name)
+        if previous is None or (previous.get("passed") and not item.get("passed")):
+            kept[name] = item
+    return list(kept.values())
 
 
 def _spacing(family: StudyFamily, rung: str, contract: StudyContract) -> float | None:

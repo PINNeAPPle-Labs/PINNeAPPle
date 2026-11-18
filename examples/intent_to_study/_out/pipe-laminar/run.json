@@ -61,46 +61,6 @@
         "limit": 0.05,
         "source": "",
         "reason": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
-      },
-      {
-        "name": "the discrete profile is positive everywhere",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 3.9009014752481575e-06,
-        "limit": null,
-        "source": "",
-        "reason": ""
-      },
-      {
-        "name": "the finite-difference solve is within the family's tolerance of the closed form",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 0.006688,
-        "limit": 0.05,
-        "source": "",
-        "reason": "6.40878 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.669%"
-      },
-      {
-        "name": "the discrete profile is positive everywhere",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 3.9269002307059145e-06,
-        "limit": null,
-        "source": "",
-        "reason": ""
-      },
-      {
-        "name": "the finite-difference solve is within the family's tolerance of the closed form",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 2.3e-05,
-        "limit": 0.05,
-        "source": "",
-        "reason": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
       }
     ],
     "min_coverage": 0.6,
@@ -170,7 +130,7 @@
         "256 radial nodes over a radius of 10.00 mm"
       ],
       "artifacts": {},
-      "wall_s": 0.003368083998793736
+      "wall_s": 0.0013646669976878911
     },
     {
       "rung": "convergence",
@@ -222,7 +182,7 @@
         "16 then 256 radial nodes; 6.40878 Pa then 6.36634 Pa"
       ],
       "artifacts": {},
-      "wall_s": 0.002087791988742538
+      "wall_s": 0.001266833016416058
     }
   ],
   "checks": [
@@ -260,37 +220,9 @@
       "value": 2.3e-05,
       "limit": 0.05,
       "detail": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
-    },
-    {
-      "name": "the discrete profile is positive everywhere",
-      "passed": true,
-      "value": 3.9009014752481575e-06,
-      "limit": "> 0",
-      "detail": ""
-    },
-    {
-      "name": "the finite-difference solve is within the family's tolerance of the closed form",
-      "passed": true,
-      "value": 0.006688,
-      "limit": 0.05,
-      "detail": "6.40878 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.669%"
-    },
-    {
-      "name": "the discrete profile is positive everywhere",
-      "passed": true,
-      "value": 3.9269002307059145e-06,
-      "limit": "> 0",
-      "detail": ""
-    },
-    {
-      "name": "the finite-difference solve is within the family's tolerance of the closed form",
-      "passed": true,
-      "value": 2.3e-05,
-      "limit": 0.05,
-      "detail": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
     }
   ],
-  "wall_s": 0.005656458000885323,
+  "wall_s": 0.0028340420103631914,
   "files": {
     "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/pipe-laminar/contract.json"
   },
@@ -408,7 +340,7 @@
       "llm": "",
       "llm_note": "",
       "library_version": "0.8.0",
-      "created_at": "2026-11-18T13:29:10+00:00",
+      "created_at": "2026-11-18T14:02:14+00:00",
       "seed": 0,
       "python": "3.11.16",
       "platform": "Darwin"

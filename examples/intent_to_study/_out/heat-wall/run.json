@@ -71,66 +71,6 @@
         "limit": 0.05,
         "source": "",
         "reason": "the edges are insulated, so the two answers should coincide; the gap is the discretisation error plus the film treatment at the cold face"
-      },
-      {
-        "name": "the solution is finite",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 572.9535609760062,
-        "limit": null,
-        "source": "",
-        "reason": ""
-      },
-      {
-        "name": "energy balance of the discrete system",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": -2.2578846515966655e-11,
-        "limit": 1e-08,
-        "source": "",
-        "reason": "the net boundary flux equals the source integral"
-      },
-      {
-        "name": "the two-dimensional solve is within the family's tolerance of the closed form",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 2e-06,
-        "limit": 0.05,
-        "source": "",
-        "reason": "the edges are insulated, so the two answers should coincide; the gap is the discretisation error plus the film treatment at the cold face"
-      },
-      {
-        "name": "the solution is finite",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 572.9530731608912,
-        "limit": null,
-        "source": "",
-        "reason": ""
-      },
-      {
-        "name": "energy balance of the discrete system",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": -9.076522710021778e-12,
-        "limit": 1e-08,
-        "source": "",
-        "reason": "the net boundary flux equals the source integral"
-      },
-      {
-        "name": "the two-dimensional solve is within the family's tolerance of the closed form",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 2e-06,
-        "limit": 0.05,
-        "source": "",
-        "reason": "the edges are insulated, so the two answers should coincide; the gap is the discretisation error plus the film treatment at the cold face"
       }
     ],
     "min_coverage": 0.6,
@@ -205,7 +145,7 @@
         "background grid 1.50 mm, 280 degrees of freedom"
       ],
       "artifacts": {},
-      "wall_s": 0.0072534170030849054
+      "wall_s": 0.010563625008217059
     },
     {
       "rung": "convergence",
@@ -271,7 +211,7 @@
         "coarse 3.00 mm and fine 1.50 mm; 572.954 K then 572.953 K"
       ],
       "artifacts": {},
-      "wall_s": 0.010820124996826053
+      "wall_s": 0.019939375008107163
     }
   ],
   "checks": [
@@ -316,51 +256,9 @@
       "value": 2e-06,
       "limit": 0.05,
       "detail": "the edges are insulated, so the two answers should coincide; the gap is the discretisation error plus the film treatment at the cold face"
-    },
-    {
-      "name": "the solution is finite",
-      "passed": true,
-      "value": 572.9535609760062,
-      "limit": "finite",
-      "detail": ""
-    },
-    {
-      "name": "energy balance of the discrete system",
-      "passed": true,
-      "value": -2.2578846515966655e-11,
-      "limit": 1e-08,
-      "detail": "the net boundary flux equals the source integral"
-    },
-    {
-      "name": "the two-dimensional solve is within the family's tolerance of the closed form",
-      "passed": true,
-      "value": 2e-06,
-      "limit": 0.05,
-      "detail": "the edges are insulated, so the two answers should coincide; the gap is the discretisation error plus the film treatment at the cold face"
-    },
-    {
-      "name": "the solution is finite",
-      "passed": true,
-      "value": 572.9530731608912,
-      "limit": "finite",
-      "detail": ""
-    },
-    {
-      "name": "energy balance of the discrete system",
-      "passed": true,
-      "value": -9.076522710021778e-12,
-      "limit": 1e-08,
-      "detail": "the net boundary flux equals the source integral"
-    },
-    {
-      "name": "the two-dimensional solve is within the family's tolerance of the closed form",
-      "passed": true,
-      "value": 2e-06,
-      "limit": 0.05,
-      "detail": "the edges are insulated, so the two answers should coincide; the gap is the discretisation error plus the film treatment at the cold face"
     }
   ],
-  "wall_s": 0.05671995799639262,
+  "wall_s": 0.07752566700219177,
   "files": {
     "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/heat-wall/contract.json"
   },
@@ -484,7 +382,7 @@
       "llm": "",
       "llm_note": "",
       "library_version": "0.8.0",
-      "created_at": "2026-11-18T13:29:10+00:00",
+      "created_at": "2026-11-18T14:02:14+00:00",
       "seed": 0,
       "python": "3.11.16",
       "platform": "Darwin"

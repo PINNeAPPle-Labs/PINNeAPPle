@@ -11,9 +11,3 @@
 | the solution is finite | supports | não | 572.953 | — | — |
 | energy balance of the discrete system | supports | não | -9.07652e-12 | 1e-08 | — |
 | the two-dimensional solve is within the family's tolerance of the closed form | supports | não | 2e-06 | 0.05 | — |
-| the solution is finite | supports | não | 572.954 | — | — |
-| energy balance of the discrete system | supports | não | -2.25788e-11 | 1e-08 | — |
-| the two-dimensional solve is within the family's tolerance of the closed form | supports | não | 2e-06 | 0.05 | — |
-| the solution is finite | supports | não | 572.953 | — | — |
-| energy balance of the discrete system | supports | não | -9.07652e-12 | 1e-08 | — |
-| the two-dimensional solve is within the family's tolerance of the closed form | supports | não | 2e-06 | 0.05 | — |

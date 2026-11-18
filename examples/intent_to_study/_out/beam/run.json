@@ -71,66 +71,6 @@
         "limit": 0.05,
         "source": "",
         "reason": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
-      },
-      {
-        "name": "the solution is finite",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 0.00013452140682543865,
-        "limit": null,
-        "source": "",
-        "reason": ""
-      },
-      {
-        "name": "the root reaction balances the applied load",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 499.9999951412446,
-        "limit": -500.0,
-        "source": "",
-        "reason": "equilibrium of the discrete system"
-      },
-      {
-        "name": "the solver is within the family's tolerance of the closed form",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 0.006611,
-        "limit": 0.05,
-        "source": "",
-        "reason": "0.000134521 m from the solver against 0.000135417 m from the closed form; relative error 0.66%. The gap is the discretisation of the clamp and the shear the closed form omits"
-      },
-      {
-        "name": "the solution is finite",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 0.00013524349229549122,
-        "limit": null,
-        "source": "",
-        "reason": ""
-      },
-      {
-        "name": "the root reaction balances the applied load",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 499.99998455397963,
-        "limit": -500.0,
-        "source": "",
-        "reason": "equilibrium of the discrete system"
-      },
-      {
-        "name": "the solver is within the family's tolerance of the closed form",
-        "status": "supports",
-        "critical": false,
-        "weight": 1.0,
-        "value": 0.001279,
-        "limit": 0.05,
-        "source": "",
-        "reason": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
       }
     ],
     "min_coverage": 0.6,
@@ -207,7 +147,7 @@
         "background grid 0.83 mm, 15652 degrees of freedom"
       ],
       "artifacts": {},
-      "wall_s": 0.35249591700267047
+      "wall_s": 0.44072062500345055
     },
     {
       "rung": "convergence",
@@ -273,7 +213,7 @@
         "coarse 1.67 mm and fine 0.83 mm; 0.000134521 m then 0.000135243 m"
       ],
       "artifacts": {},
-      "wall_s": 0.3080012500140583
+      "wall_s": 0.4942054170096526
     }
   ],
   "checks": [
@@ -318,51 +258,9 @@
       "value": 0.001279,
       "limit": 0.05,
       "detail": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
-    },
-    {
-      "name": "the solution is finite",
-      "passed": true,
-      "value": 0.00013452140682543865,
-      "limit": "finite",
-      "detail": ""
-    },
-    {
-      "name": "the root reaction balances the applied load",
-      "passed": true,
-      "value": 499.9999951412446,
-      "limit": -500.0,
-      "detail": "equilibrium of the discrete system"
-    },
-    {
-      "name": "the solver is within the family's tolerance of the closed form",
-      "passed": true,
-      "value": 0.006611,
-      "limit": 0.05,
-      "detail": "0.000134521 m from the solver against 0.000135417 m from the closed form; relative error 0.66%. The gap is the discretisation of the clamp and the shear the closed form omits"
-    },
-    {
-      "name": "the solution is finite",
-      "passed": true,
-      "value": 0.00013524349229549122,
-      "limit": "finite",
-      "detail": ""
-    },
-    {
-      "name": "the root reaction balances the applied load",
-      "passed": true,
-      "value": 499.99998455397963,
-      "limit": -500.0,
-      "detail": "equilibrium of the discrete system"
-    },
-    {
-      "name": "the solver is within the family's tolerance of the closed form",
-      "passed": true,
-      "value": 0.001279,
-      "limit": 0.05,
-      "detail": "0.000135243 m from the solver against 0.000135417 m from the closed form; relative error 0.13%. The gap is the discretisation of the clamp and the shear the closed form omits"
     }
   ],
-  "wall_s": 0.874670708013582,
+  "wall_s": 1.1979223329981323,
   "files": {
     "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/beam/contract.json"
   },
@@ -489,7 +387,7 @@
       "llm": "",
       "llm_note": "",
       "library_version": "0.8.0",
-      "created_at": "2026-11-18T13:29:10+00:00",
+      "created_at": "2026-11-18T14:02:14+00:00",
       "seed": 0,
       "python": "3.11.16",
       "platform": "Darwin"

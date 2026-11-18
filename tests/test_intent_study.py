@@ -133,6 +133,8 @@ def test_every_family_runs_its_ladder_and_is_checked(text, family, qoi):
     assert run.decision == "APPROVED", [c for c in run.checks if not c["passed"]]
     assert run.qoi is not None and run.qoi > 0
     assert any(qoi in c["name"] for c in run.checks)
+    names = [c["name"] for c in run.checks]
+    assert len(names) == len(set(names)), "the same check is reported once, however many rungs ran it"
 
 
 def test_a_turbulent_pipe_is_rejected_because_the_law_no_longer_applies():

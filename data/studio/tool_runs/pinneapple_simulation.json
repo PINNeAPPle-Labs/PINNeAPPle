@@ -3072,6 +3072,26 @@
   "returned": "Tensor",
   "seconds": 0.12
  },
+ "pinneapple_simulation.numerical_solvers.lbm_tunnel:WindTunnelLBM": {
+  "code_hash": "fc47146f585804fb",
+  "inputs": {
+   "nu": 0.05,
+   "shape": [
+    24,
+    16,
+    16
+   ],
+   "u_in": [
+    0.05,
+    0.0,
+    0.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "WindTunnelLBM",
+  "seconds": 0.86
+ },
  "pinneapple_simulation.numerical_solvers.lbm_tunnel:velocity_set": {
   "code_hash": "a05d664be0dcb15d",
   "inputs": {},
@@ -3491,6 +3511,83 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_simulation.pipelines.field_lines:comparar_picos": {
+  "code_hash": "e098ecc0bc0c9864",
+  "inputs": {
+   "passo": 0.01,
+   "picos": {
+    "linha-1": {
+     "k": 4.0,
+     "s": 0.1
+    }
+   },
+   "referencia": {
+    "linha-1": [
+     3.8,
+     0.12
+    ]
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 8.27
+ },
+ "pinneapple_simulation.pipelines.field_lines:desvio_mediano_passos": {
+  "code_hash": "b90dac695b9078b9",
+  "inputs": {
+   "comparacao": [
+    {
+     "delta_s": 0.1,
+     "linha": "linha-1"
+    }
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_simulation.pipelines.field_lines:picos_por_linha": {
+  "code_hash": "16c4702fa4c7ebb6",
+  "inputs": {
+   "series": {
+    "linha-1": [
+     [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       1.0,
+       4.0,
+       2.5
+      ],
+      [
+       2.0,
+       1.0,
+       0.5
+      ]
+     ],
+     [
+      0.0,
+      0.1,
+      0.2
+     ],
+     [
+      0.0,
+      0.9,
+      0.2
+     ]
+    ]
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.pipelines.freecad_openfoam.cad:FakeFreeCAD": {
   "code_hash": "fde58075db1bc70b",
   "inputs": {},
@@ -3597,6 +3694,24 @@
   "returned": "PipelineSpec",
   "seconds": 0.0
  },
+ "pinneapple_simulation.pipelines.pole_impact:design_vector": {
+  "code_hash": "50b9ee0c0d6505b4",
+  "inputs": {
+   "design": {
+    "beam_thickness": 0.0025,
+    "box_thickness": 0.0025,
+    "dp1000_yield": 700000000.0,
+    "dp600_yield": 390000000.0,
+    "pole_offset": 0.0,
+    "pole_radius": 0.06,
+    "velocity": 16.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
  "pinneapple_simulation.pipelines.pole_impact:quantities_table": {
   "code_hash": "0952172f88cf6b7a",
   "inputs": {
@@ -3631,16 +3746,25 @@
   "seconds": 0.01
  },
  "pinneapple_simulation.pipelines.pole_impact:run_design": {
-  "code_hash": "630af12dea0e77f2",
+  "code_hash": "5a88b7cccf04f113",
   "inputs": {
-   "design": {},
+   "design": {
+    "beam_thickness": 0.0025,
+    "box_thickness": 0.0025,
+    "dp1000_yield": 700000000.0,
+    "dp600_yield": 390000000.0,
+    "pole_offset": 0.0,
+    "pole_radius": 0.06,
+    "velocity": 16.0
+   },
    "end_time": 0.0001,
-   "frames": 2
+   "frames": 2,
+   "n_parts": 3
   },
   "ok": true,
-  "recorded": "2026-11-07",
+  "recorded": "2026-11-17",
   "returned": "dict",
-  "seconds": 8.67
+  "seconds": 1.95
  },
  "pinneapple_simulation.robot_sim.checks:arm_pick_and_place": {
   "code_hash": "872f3cec436b3b7a",

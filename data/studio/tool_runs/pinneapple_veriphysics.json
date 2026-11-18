@@ -15,6 +15,31 @@
   "returned": "str",
   "seconds": 0.0
  },
+ "pinneapple_veriphysics.maturity:assess_maturity": {
+  "code_hash": "f3d0ce34f3e4c838",
+  "inputs": {
+   "facts": {
+    "model.prediction_recorded": true,
+    "usecase.profile_defined": true,
+    "verification.conditions_executed": true,
+    "verification.residual_executed": true
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "MaturityAssessment",
+  "seconds": 7.03
+ },
+ "pinneapple_veriphysics.maturity:requirements_for": {
+  "code_hash": "1cee9b0d1212362f",
+  "inputs": {
+   "dimension": "scientific"
+  },
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
  "pinneapple_veriphysics.policy:load_policy": {
   "code_hash": "5bbb14c0026f18f0",
   "inputs": {},
@@ -64,6 +89,14 @@
   "recorded": "2026-10-31",
   "returned": "ScopeOfUse",
   "seconds": 0.73
+ },
+ "pinneapple_veriphysics.usecase:profile_presets": {
+  "code_hash": "8ae45662668a4a7d",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-05",
+  "returned": "list",
+  "seconds": 7.25
  },
  "pinneapple_veriphysics.validation_lab:category_of": {
   "code_hash": "86ef4b4251adcd6f",

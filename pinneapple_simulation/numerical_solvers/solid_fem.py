@@ -144,6 +144,7 @@ class FEMResult:
 
 @dataclass
 class SolidFEM:
+    """3D linear elasticity on a hex mesh: fixed supports, loads, pressure, solution and CalculiX export."""
     mesh: HexMesh
     E: float = 210e9
     nu: float = 0.3

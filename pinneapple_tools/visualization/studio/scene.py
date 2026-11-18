@@ -354,6 +354,59 @@ def scalar_of(a: np.ndarray) -> np.ndarray:
     return np.linalg.norm(a, axis=1)
 
 
+# ------------------------------------------------------------- annotation geometry: a marker, a ray, a measurement plane
+def sphere_surface(centre, radius: float, *, name: str = "marker", material: str = "led",
+                   n_lat: int = 16, n_lon: int = 24) -> Surface:
+    """A :class:`Surface` sphere: a source, a sensor, a probe location. ``led`` emits, so it reads against a dark
+    stage without a light of its own."""
+    c, r = np.asarray(centre, float).reshape(3), float(radius)
+    th = np.linspace(0.0, np.pi, n_lat + 1)
+    ph = np.linspace(0.0, 2.0 * np.pi, n_lon + 1)
+    T, P = np.meshgrid(th, ph, indexing="ij")
+    V = c + r * np.stack([np.sin(T) * np.cos(P), np.sin(T) * np.sin(P), np.cos(T)], axis=-1).reshape(-1, 3)
+    idx = np.arange((n_lat + 1) * (n_lon + 1)).reshape(n_lat + 1, n_lon + 1)
+    a, b = idx[:-1, :-1].ravel(), idx[1:, :-1].ravel()
+    F = np.concatenate([np.c_[a, idx[1:, 1:].ravel(), idx[:-1, 1:].ravel()],
+                        np.c_[a, b, idx[1:, 1:].ravel()]])
+    return Surface(name, V, F, material)
+
+
+def rod_surface(a, b, radius: float, *, name: str = "rod", material: str = "metal", n: int = 16) -> Surface:
+    """A :class:`Surface` cylinder from ``a`` to ``b``: a ray, a beam axis, a support."""
+    a, b = np.asarray(a, float).reshape(3), np.asarray(b, float).reshape(3)
+    d = b - a
+    L = float(np.linalg.norm(d))
+    d = d / (L or 1.0)
+    u = np.cross(d, [0.0, 0.0, 1.0])
+    u = u / np.linalg.norm(u) if np.linalg.norm(u) > 1e-9 else np.array([1.0, 0.0, 0.0])
+    v = np.cross(d, u)
+    ph = np.linspace(0.0, 2.0 * np.pi, n, endpoint=False)
+    ring = radius * (np.outer(np.cos(ph), u) + np.outer(np.sin(ph), v))
+    V = np.r_[a + ring, b + ring, a[None], b[None]]
+    F = []
+    for j in range(n):
+        k = (j + 1) % n
+        F += [[j, k, n + k], [j, n + k, n + j], [2 * n, k, j], [2 * n + 1, n + j, n + k]]
+    return Surface(name, V, np.array(F), material)
+
+
+def disc_surface(centre, radius: float, *, normal=(0.0, 0.0, 1.0), name: str = "plane", material: str = "glass",
+                 n: int = 48) -> Surface:
+    """A :class:`Surface` disc of ``radius`` about ``centre``: a measurement plane, a quiet zone, an aperture. Give
+    it a material with ``alpha`` in ``Scene.materials`` to draw the plane translucent."""
+    c = np.asarray(centre, float).reshape(3)
+    nv = np.asarray(normal, float).reshape(3)
+    nv = nv / np.linalg.norm(nv)
+    u = np.cross(nv, [0.0, 0.0, 1.0])
+    u = u / np.linalg.norm(u) if np.linalg.norm(u) > 1e-9 else np.array([1.0, 0.0, 0.0])
+    v = np.cross(nv, u)
+    ph = np.linspace(0.0, 2.0 * np.pi, n, endpoint=False)
+    V = np.r_[c[None], c + radius * (np.outer(np.cos(ph), u) + np.outer(np.sin(ph), v))]
+    F = np.array([[0, 1 + j, 1 + (j + 1) % n] for j in range(n)])
+    return Surface(name, V, F, material)
+
+
+
 def _mesh_fields(mesh) -> Dict[str, Tuple[str, np.ndarray]]:
     out = {}
     for where, d in (("point", getattr(mesh, "point_data", None)), ("cell", getattr(mesh, "cell_data", None))):
@@ -428,7 +481,9 @@ _GL_NCOMP = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
 def read_gltf(path: str, axes: str = "z_up") -> List[Surface]:
     """Triangle meshes of a .glb/.gltf (embedded, data-URI or external buffers), node transforms applied, converted
     from glTF's y-up to the scene ``axes``. Float vertex attributes starting with ``_`` become fields (their original
-    names when the file was written by this module)."""
+    names when the file was written by this module). The material names are kept as written, so a scene saved and
+    read back renders with its own ``Scene.materials``; a name found in neither that nor ``MATERIALS`` renders grey
+    (:meth:`Scene.unknown_materials` lists it)."""
     import base64
     raw = open(path, "rb").read()
     if raw[:4] == b"glTF":
@@ -499,8 +554,7 @@ def read_gltf(path: str, axes: str = "z_up") -> List[Surface]:
                 F = (accessor(prim["indices"]).ravel() if "indices" in prim else np.arange(len(P))).reshape(-1, 3)
                 mname = mats[prim["material"]].get("name", "grey") if "material" in prim and mats else "grey"
                 nm = mesh.get("name") or node.get("name") or f"mesh{len(out)}"
-                srf = Surface(nm if len(mesh["primitives"]) == 1 else f"{nm}_{pi}", P, F.astype(np.int64),
-                              mname if mname in MATERIALS else "grey")
+                srf = Surface(nm if len(mesh["primitives"]) == 1 else f"{nm}_{pi}", P, F.astype(np.int64), mname)
                 names = prim.get("extras", {}).get("fields", {})
                 for k, ai in prim["attributes"].items():
                     if k.startswith("_"):

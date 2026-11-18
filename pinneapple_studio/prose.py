@@ -2,7 +2,10 @@
 
 Each package file holds the package's purpose (``objetivo``), its limitations (``limitacoes``), worked examples
 (``exemplos``), and one text per submodule, module and symbol (``"module:Name"``); ``_apps_exemplos.json`` holds the
-apps, examples, reproductions, scripts, benchmarks and workflows. The text is shown as written: nothing is
+apps, examples, reproductions, scripts, benchmarks and workflows, with the gallery's titles in Portuguese
+(``titulos``, by gallery id) and, under ``en``, the English title or description of an entry whose own source has
+none in English (``en.titulos``, ``en.descricoes``). The glossary carries each term in both languages (``termo`` /
+``definicao`` and ``term`` / ``definition``). The text is shown as written: nothing is
 summarised, nothing is generated. A symbol without prose has none (``""``), and :func:`unmatched` lists prose whose
 module or symbol is no longer in the code.
 """
@@ -27,7 +30,10 @@ class Prose:
     symbols: dict[str, str] = field(default_factory=dict)               # "module:Name" -> text
     folders: dict[str, dict[str, str]] = field(default_factory=dict)    # apps / examples / scripts / ... -> {name: text}
     reproductions: list[dict[str, Any]] = field(default_factory=list)
-    glossary: list[dict[str, str]] = field(default_factory=list)        # [{"termo", "definicao"}]
+    glossary: list[dict[str, str]] = field(default_factory=list)        # [{"termo", "definicao", "term", "definition"}]
+    titles: dict[str, str] = field(default_factory=dict)                # gallery id -> title in Portuguese
+    en_titles: dict[str, str] = field(default_factory=dict)             # gallery id -> English title (source in PT)
+    en_descriptions: dict[str, str] = field(default_factory=dict)       # gallery id -> English description
 
     def module(self, name: str) -> str:
         return self.modules.get(name, "")
@@ -61,6 +67,11 @@ def load(root: Path | None = None) -> Prose:
             for k, v in data.items():
                 if k == "reproducoes":
                     out.reproductions = list(v)
+                elif k == "titulos":
+                    out.titles = dict(v)
+                elif k == "en":
+                    out.en_titles = dict(v.get("titulos") or {})
+                    out.en_descriptions = dict(v.get("descricoes") or {})
                 elif isinstance(v, dict):
                     out.folders[k] = dict(v)
             continue

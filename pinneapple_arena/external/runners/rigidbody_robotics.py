@@ -44,9 +44,12 @@ def infer_mujoco_mjx(ds: dict, include_heavy: bool = False) -> ModelResult:
     meta = dict(name="MuJoCo MJX", slug="mujoco-mjx", category="rigidbody", domains=["rigidbody"],
                 repo="https://github.com/google-deepmind/mujoco")
     if not include_heavy:
-        return skipped_heavy(**meta, pip_hint="pip install mujoco", dataset=ds)
+        return skipped_heavy(**meta, pip_hint="pip install mujoco-mjx jax", dataset=ds)
     if not is_installed("mujoco"):
         return not_installed(**meta, pip_hint="pip install mujoco", dataset=ds)
+    if not is_installed("mujoco.mjx"):
+        # MuJoCo 4.0 moved MJX out of the `mujoco` wheel into the separate `mujoco-mjx` package
+        return not_installed(**meta, pip_hint="pip install mujoco-mjx jax", dataset=ds)
     with Timer() as t:
         try:
             import mujoco

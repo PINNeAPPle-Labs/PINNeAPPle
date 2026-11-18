@@ -171,8 +171,8 @@ Projeto `pinneapple` versão `0.7.0`, Python `>=3.10`. Dependências obrigatóri
 | `astro` | astropy>=6.0 |
 | `jax_cfd` | jax-cfd>=0.2.0 |
 | `fenics` | fenics-dolfinx>=0.7.0, mpi4py>=3.1, petsc4py>=3.20 |
-| `mujoco` | mujoco>=3.0 |
-| `mujoco_mjx` | mujoco>=3.0, jax[cuda12]>=0.4.25 |
+| `mujoco` | mujoco>=4.0 (3.17 no Python 3.10) |
+| `mujoco_mjx` | mujoco-mjx>=4.0, mujoco>=4.0, jax>=0.4.25 |
 | `genesis` | genesis-world>=0.2.0 |
 | `noether` | emmiai-noether>=2026.4.0 |
 | `pinn` | sympy>=1.12 |
@@ -193,7 +193,7 @@ Projeto `pinneapple` versão `0.7.0`, Python `>=3.10`. Dependências obrigatóri
 | `earthdata` | requests>=2.31, earthaccess>=0.10.0 |
 | `research` | requests>=2.31, pdfminer.six>=20231228 |
 | `retrieval` | sentence-transformers>=3.0 |
-| `all` | cryptography>=41, trimesh>=4.0.0, meshio>=5.3.0, gmsh>=4.11, fast-simplification>=0.1.0, cadquery>=2.4.0, numba>=0.59, sympy>=1.12, fastapi>=0.111, uvicorn[standard]>=0.29, onnx>=1.16, onnxruntime>=1.18, paho-mqtt>=2.0, kafka-python>=2.0, sentence-transformers>=3.0, statsmodels>=0.14, requests>=2.31, mujoco>=3.0, fmpy>=0.3.20, genesis-world>=0.2.0, emmiai-noether>=2026.4.0, huggingface_hub>=0.24, anthropic>=0.34, openai>=1.40, transformers>=4.45, accelerate>=0.30 |
+| `all` | cryptography>=41, trimesh>=4.0.0, meshio>=5.3.0, gmsh>=4.11, fast-simplification>=0.1.0, cadquery>=2.4.0, numba>=0.59, sympy>=1.12, fastapi>=0.111, uvicorn[standard]>=0.29, onnx>=1.16, onnxruntime>=1.18, paho-mqtt>=2.0, kafka-python>=2.0, sentence-transformers>=3.0, statsmodels>=0.14, requests>=2.31, mujoco>=4.0, fmpy>=0.3.20, genesis-world>=0.2.0, emmiai-noether>=2026.4.0, huggingface_hub>=0.24, anthropic>=0.34, openai>=1.40, transformers>=4.45, accelerate>=0.30 |
 | `viz` | matplotlib>=3.8, scipy>=1.10 |
 | `viz_interactive` | plotly>=5.18, kaleido>=0.2 |
 | `pyvista` | pyvista>=0.43, matplotlib>=3.8, imageio>=2.34 |

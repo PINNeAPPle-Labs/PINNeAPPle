@@ -94,6 +94,10 @@
   "domain": "design",
   "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
  },
+ "digital_twin_library": {
+  "domain": "digital twins",
+  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share \u2014 two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list \u2014 which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
+ },
  "dynamics_toolkit": {
   "domain": "dynamical systems",
   "reason": "pinneapple_analysis.dynamics has no flow nodes yet (its coverage reason in pinneapple_flow/coverage.py); the script composes library calls only: pp.solve (PINN), survival_from_solution, DMD, ObservationScheduler, BuckinghamPiAnalyzer / CurveCollapseAnalyzer and EarlyWarningAnalyzer",
@@ -134,8 +138,8 @@
  },
  "fno_coldplate": {
   "domain": "neural operators",
-  "status": "not_convertible",
-  "reason": "the study (layouts, FNO training under a ComputeBudget, the Darcy checks and their decision) is arranged in run.py main(), with no library entry point a node could call; the Studio runs it as example:fno_coldplate and tests/test_fno_coldplate_example.py runs its smoke size"
+  "reason": "the study (layouts, FNO training under a ComputeBudget, the Darcy checks and their decision) is arranged in run.py main(), with no library entry point a node could call; the Studio runs it as example:fno_coldplate and tests/test_fno_coldplate_example.py runs its smoke size",
+  "status": "not_convertible"
  },
  "free_surface": {
   "domain": "CFD",
@@ -219,6 +223,12 @@
  "motor_magnetics": {
   "domain": "electromagnetics"
  },
+ "mujoco": {
+  "domain": "robotics",
+  "needs": "MuJoCo (pip install \"pinneapple[mujoco]\")",
+  "reason": "quickstart.py runs four MuJoCo sessions in about two seconds (a trajectory and its UPD export, validate(), a BatchRunner campaign, and an arm held by the multibody tree), but MuJoCo is an optional wheel the Flow Studio image does not install and no flow node wraps the backend yet",
+  "status": "needs"
+ },
  "near_random_forecasting": {
   "domain": "time series",
   "notes": "one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet. In random_walk the baselines match; the two learned models (scikit-learn HistGradientBoosting, torch MLP) differ by 0.1-3 % on the test RMSE, and the committed results do not record the scikit-learn / torch versions (here scikit-learn 1.9.1)"
@@ -285,6 +295,10 @@
   "domain": "heat transfer",
   "reason": "the demo's numbers are statistics over 5,115 queries compared with three fine finite-volume solves (about 10 minutes, run_demo.py); the engine itself is the Flow node query.package, which answers a list of queries on a package with value, uncertainty, method and whether it was read or predicted"
  },
+ "pict_cavity": {
+  "domain": "fluid dynamics",
+  "reason": "run.py drives pinneapple_lab.experiment (metrics and the profile figure) and then compares the centreline profiles with Ghia et al. (1982), which is more than a node returns; the single-node version is the Flow node lib.solver.pict_cavity, whose smoke run is recorded. The script runs everywhere (local engine, no GPU), in 45 s inside the sandbox or 23 s on one core."
+ },
  "pinn_solver": {
   "domain": "PINN",
   "notes": "01 is a flow (pinn_solver.factory_loss: the PINNFactory loss, as the script); 02 Poisson, 03 Burgers, 06 wave and 04 inverse heat are flows of equations.system + train.pinn / inverse.discover + validate.compare (the same problem and error metric, trained by train.pinn instead of the script's compile_problem / PINNFactory loop); nothing committed to compare, and the quick configurations are far from converged. 03_symbolic_pde_hard_bc (hard-BC ansatz and loop), 05_upd_dataset (synthetic Zarr and loop), 06_domino (residuals and BCs), 06_open_meteo (three training pipelines, network) and 07_interface_bc (two-region batch and loop) hold their method in the scripts"
@@ -306,8 +320,8 @@
  },
  "potential_co2": {
   "domain": "thermodynamics",
-  "status": "runs-quick",
-  "notes": "surrogate_study: potential.co2_surrogates at one seed and a reduced budget (no comparison with the committed numbers, which are means over five seeds at 3000 and 9000 steps); the full study (5 seeds x 3 configurations, about 1.5 h on CPU) runs as 01_run_study.py and 02_report.py builds the figures, report and manifest."
+  "notes": "surrogate_study: potential.co2_surrogates at one seed and a reduced budget (no comparison with the committed numbers, which are means over five seeds at 3000 and 9000 steps); the full study (5 seeds x 3 configurations, about 1.5 h on CPU) runs as 01_run_study.py and 02_report.py builds the figures, report and manifest.",
+  "status": "runs-quick"
  },
  "problem_designer": {
   "domain": "design",
@@ -323,13 +337,13 @@
  },
  "quickstart": {
   "domain": "getting started",
-  "status": "not_convertible",
-  "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs"
+  "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs",
+  "status": "not_convertible"
  },
  "reproductions": {
   "domain": "physics-informed ML",
-  "status": "not_convertible",
-  "reason": "paper reproductions under the protocol of pinneapple_analysis.reproduction: each folder freezes a paper's quoted targets in TARGETS.md before any run, then runs many seeds (up to 1000) of the paper's settings and scores them offline against those targets. A flow node wraps one library call with a comparable result; a seed campaign scored against frozen quotes is not one call, and a one-seed flow would misstate what the folder measures. The solvers it uses are library calls (xtfc_general.solve_xtfc) and the folder's page is checked: the hub snippets example:examples/reproductions and example:examples/reproductions/xtfc_schiassi2021 load their experiment.json through pinneapple_lab.manifest and run"
+  "reason": "paper reproductions under the protocol of pinneapple_analysis.reproduction: each folder freezes a paper's quoted targets in TARGETS.md before any run, then runs many seeds (up to 1000) of the paper's settings and scores them offline against those targets. A flow node wraps one library call with a comparable result; a seed campaign scored against frozen quotes is not one call, and a one-seed flow would misstate what the folder measures. The solvers it uses are library calls (xtfc_general.solve_xtfc) and the folder's page is checked: the hub snippets example:examples/reproductions and example:examples/reproductions/xtfc_schiassi2021 load their experiment.json through pinneapple_lab.manifest and run",
+  "status": "not_convertible"
  },
  "rigid_body": {
   "domain": "multibody",
@@ -390,6 +404,11 @@
  "visualizations": {
   "domain": "visualization",
   "reason": "hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows",
+  "status": "not_convertible"
+ },
+ "vortex_domains": {
+  "domain": "CFD",
+  "reason": "the scripts are solver runs of minutes whose verification is a set of physics checks against published references (panel integrals against a quadrature, potential flow past a cylinder, the drag against Dennis & Chang, the shedding against Williamson & Brown), reported by run_study and by pinneapple_simulation.vortex_domains.verification; the reduced version of the cylinder and of the spoiler is already a node (vortex.cylinder, vortex.spoiler), and the full runs stay in the example folder so the checks are what is measured",
   "status": "not_convertible"
  },
  "vs_physicsnemo": {

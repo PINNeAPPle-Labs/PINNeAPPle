@@ -172,7 +172,9 @@
   "pinneapple_neural.trainer.weight_scheduler:GradNormBalancer": "GradNorm: ajusta pesos para manter as normas de gradiente de cada termo numa camada compartilhada proporcionais à média.",
   "pinneapple_neural.trainer.weight_scheduler:LossRatioBalancer": "Mantém as razões entre perdas (via EMA) próximas de valores-alvo em relação à perda da EDP.",
   "pinneapple_neural.trainer.weight_scheduler:NTKWeightBalancer": "Pesos inversamente proporcionais ao traço do NTK de cada termo, estimado por Hutchinson.",
-  "pinneapple_neural.trainer.weight_scheduler:WeightScheduler": "Interface única: `step(losses)` aplica os pesos atuais, atualiza conforme o método e expõe parâmetros aprendíveis quando houver."
+  "pinneapple_neural.trainer.weight_scheduler:WeightScheduler": "Interface única: `step(losses)` aplica os pesos atuais, atualiza conforme o método e expõe parâmetros aprendíveis quando houver.",
+  "pinneapple_neural.architectures.pinns.pinnsformer_paper:init_official": "A inicialização dos notebooks oficiais: todo `nn.Linear` (inclusive as projeções de saída da atenção) recebe pesos Xavier uniformes e bias 0,01; as projeções de entrada da atenção mantêm a inicialização do PyTorch.",
+  "pinneapple_neural.architectures.pinns.pinnsformer_paper:PINNsFormerPaper": "O PINNsFormer de Zhao, Ding & Prakash (ICLR 2024); ver o docstring do módulo."
  },
  "exemplos": [
   {

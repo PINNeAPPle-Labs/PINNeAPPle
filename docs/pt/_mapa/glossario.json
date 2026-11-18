@@ -1,214 +1,320 @@
 [
  {
   "termo": "PINN",
-  "definicao": "Physics-Informed Neural Network: rede neural treinada para satisfazer a equação diferencial (resíduo na perda), além de dados e condições de contorno."
+  "definicao": "Physics-Informed Neural Network: rede neural treinada para satisfazer a equação diferencial (resíduo na perda), além de dados e condições de contorno.",
+  "term": "PINN",
+  "definition": "Physics-Informed Neural Network: a neural network trained to satisfy the differential equation (the residual in the loss), as well as data and boundary conditions."
  },
  {
   "termo": "Resíduo",
-  "definicao": "Quanto a solução deixa de satisfazer a equação num ponto. Resíduo zero = equação satisfeita."
+  "definicao": "Quanto a solução deixa de satisfazer a equação num ponto. Resíduo zero = equação satisfeita.",
+  "term": "Residual",
+  "definition": "How far the solution is from satisfying the equation at a point. Zero residual = equation satisfied."
  },
  {
   "termo": "Ponto de colocação (collocation point)",
-  "definicao": "Ponto do domínio onde o resíduo da equação é avaliado durante o treino de uma PINN."
+  "definicao": "Ponto do domínio onde o resíduo da equação é avaliado durante o treino de uma PINN.",
+  "term": "Collocation point",
+  "definition": "A point of the domain where the equation's residual is evaluated while a PINN trains."
  },
  {
   "termo": "Condição de contorno (BC)",
-  "definicao": "Valor ou fluxo imposto na fronteira do domínio. Dirichlet fixa o valor; Neumann fixa a derivada normal; Robin combina os dois."
+  "definicao": "Valor ou fluxo imposto na fronteira do domínio. Dirichlet fixa o valor; Neumann fixa a derivada normal; Robin combina os dois.",
+  "term": "Boundary condition (BC)",
+  "definition": "A value or flux imposed on the boundary of the domain. Dirichlet fixes the value; Neumann fixes the normal derivative; Robin combines the two."
  },
  {
   "termo": "Condição inicial (IC)",
-  "definicao": "Estado do sistema no instante inicial de um problema transiente."
+  "definicao": "Estado do sistema no instante inicial de um problema transiente.",
+  "term": "Initial condition (IC)",
+  "definition": "The state of the system at the initial time of a transient problem."
  },
  {
   "termo": "Hard BC",
-  "definicao": "Condição de contorno imposta pela própria forma da rede (por construção), e não por um termo de perda."
+  "definicao": "Condição de contorno imposta pela própria forma da rede (por construção), e não por um termo de perda.",
+  "term": "Hard BC",
+  "definition": "A boundary condition imposed by the form of the network itself (by construction), not by a loss term."
  },
  {
   "termo": "Operador neural",
-  "definicao": "Rede que aprende um mapa entre funções (por exemplo, condição de contorno → campo solução). Exemplos: FNO, DeepONet, AFNO."
+  "definicao": "Rede que aprende um mapa entre funções (por exemplo, condição de contorno → campo solução). Exemplos: FNO, DeepONet, AFNO.",
+  "term": "Neural operator",
+  "definition": "A network that learns a map between functions (for example, boundary condition → solution field). Examples: FNO, DeepONet, AFNO."
  },
  {
   "termo": "FNO",
-  "definicao": "Fourier Neural Operator: operador neural que mistura informação no espaço de Fourier."
+  "definicao": "Fourier Neural Operator: operador neural que mistura informação no espaço de Fourier.",
+  "term": "FNO",
+  "definition": "Fourier Neural Operator: a neural operator that mixes information in Fourier space."
  },
  {
   "termo": "DeepONet",
-  "definicao": "Operador neural com uma rede 'branch' (entrada funcional) e uma 'trunk' (coordenadas)."
+  "definicao": "Operador neural com uma rede 'branch' (entrada funcional) e uma 'trunk' (coordenadas).",
+  "term": "DeepONet",
+  "definition": "A neural operator with a 'branch' network (the functional input) and a 'trunk' network (the coordinates)."
  },
  {
   "termo": "GNN / MeshGraphNet",
-  "definicao": "Rede de grafos que opera sobre os nós e arestas de uma malha."
+  "definicao": "Rede de grafos que opera sobre os nós e arestas de uma malha.",
+  "term": "GNN / MeshGraphNet",
+  "definition": "A graph network that operates on the nodes and edges of a mesh."
  },
  {
   "termo": "X-TFC / TFC",
-  "definicao": "Theory of Functional Connections: expressões que satisfazem as restrições exatamente; X-TFC combina isso com redes de camada única (extreme learning machine)."
+  "definicao": "Theory of Functional Connections: expressões que satisfazem as restrições exatamente; X-TFC combina isso com redes de camada única (extreme learning machine).",
+  "term": "X-TFC / TFC",
+  "definition": "Theory of Functional Connections: expressions that satisfy the constraints exactly; X-TFC combines this with single-layer networks (extreme learning machine)."
  },
  {
   "termo": "Surrogate (modelo substituto)",
-  "definicao": "Modelo rápido, em geral aprendido, que aproxima um simulador caro."
+  "definicao": "Modelo rápido, em geral aprendido, que aproxima um simulador caro.",
+  "term": "Surrogate",
+  "definition": "A fast model, usually learned, that approximates an expensive simulator."
  },
  {
   "termo": "FDM / FEM / FVM",
-  "definicao": "Diferenças finitas, elementos finitos e volumes finitos: famílias clássicas de discretização de equações diferenciais."
+  "definicao": "Diferenças finitas, elementos finitos e volumes finitos: famílias clássicas de discretização de equações diferenciais.",
+  "term": "FDM / FEM / FVM",
+  "definition": "Finite differences, finite elements and finite volumes: classic families of discretisation of differential equations."
  },
  {
   "termo": "SPH",
-  "definicao": "Smoothed Particle Hydrodynamics: método sem malha baseado em partículas."
+  "definicao": "Smoothed Particle Hydrodynamics: método sem malha baseado em partículas.",
+  "term": "SPH",
+  "definition": "Smoothed Particle Hydrodynamics: a meshless, particle-based method."
  },
  {
   "termo": "LBM",
-  "definicao": "Lattice Boltzmann Method: método de fluidos baseado em distribuições de partículas numa rede regular."
+  "definicao": "Lattice Boltzmann Method: método de fluidos baseado em distribuições de partículas numa rede regular.",
+  "term": "LBM",
+  "definition": "Lattice Boltzmann Method: a fluid method based on particle distributions on a regular lattice."
  },
  {
   "termo": "Solução manufaturada",
-  "definicao": "Solução escolhida de antemão, inserida na equação para gerar o termo fonte; serve para verificar a ordem de convergência de um solver."
+  "definicao": "Solução escolhida de antemão, inserida na equação para gerar o termo fonte; serve para verificar a ordem de convergência de um solver.",
+  "term": "Manufactured solution",
+  "definition": "A solution chosen in advance and put into the equation to generate the source term; used to verify a solver's order of convergence."
  },
  {
   "termo": "Referência independente",
-  "definicao": "Valor de comparação que não vem do próprio código testado: forma fechada, solução manufaturada ou valor publicado/tabelado."
+  "definicao": "Valor de comparação que não vem do próprio código testado: forma fechada, solução manufaturada ou valor publicado/tabelado.",
+  "term": "Independent reference",
+  "definition": "A comparison value that does not come from the code under test: a closed form, a manufactured solution or a published or tabulated value."
  },
  {
   "termo": "validated / tested / untested",
-  "definicao": "Status do catálogo de métodos: validated = algum teste compara contra referência independente; tested = há testes, mas nenhum contra referência; untested = sem testes."
+  "definicao": "Status do catálogo de métodos: validated = algum teste compara contra referência independente; tested = há testes, mas nenhum contra referência; untested = sem testes.",
+  "term": "validated / tested / untested",
+  "definition": "Status in the catalog of methods: validated = some test compares against an independent reference; tested = there are tests, but none against a reference; untested = no tests."
  },
  {
   "termo": "Trust card",
-  "definicao": "Cartão de confiança: conjunto de verificações físicas de um campo (resíduo, conservação, contornos, referência, domínio) com decisão APPROVED / REVIEW / REJECT."
+  "definicao": "Cartão de confiança: conjunto de verificações físicas de um campo (resíduo, conservação, contornos, referência, domínio) com decisão APPROVED / REVIEW / REJECT.",
+  "term": "Trust card",
+  "definition": "A set of physics checks of a field (residual, conservation, boundaries, reference, domain) with a decision APPROVED / REVIEW / REJECT."
  },
  {
   "termo": "Credibilidade",
-  "definicao": "Nível atribuído por pp.validate a cada fator verificado, com decisão final pass / warn / fail."
+  "definicao": "Nível atribuído por pp.validate a cada fator verificado, com decisão final pass / warn / fail.",
+  "term": "Credibility",
+  "definition": "The level pp.validate assigns to each factor it checks, with a final decision pass / warn / fail."
  },
  {
   "termo": "OOD (fora do domínio)",
-  "definicao": "Entrada fora da região onde o modelo foi treinado ou validado; os resultados ali não são confiáveis."
+  "definicao": "Entrada fora da região onde o modelo foi treinado ou validado; os resultados ali não são confiáveis.",
+  "term": "OOD (out of distribution)",
+  "definition": "An input outside the region where the model was trained or validated; results there are not reliable."
  },
  {
   "termo": "UQ",
-  "definicao": "Uncertainty Quantification: quantificação de incerteza (ensembles, conformal, propagação de tolerâncias, Monte Carlo)."
+  "definicao": "Uncertainty Quantification: quantificação de incerteza (ensembles, conformal, propagação de tolerâncias, Monte Carlo).",
+  "term": "UQ",
+  "definition": "Uncertainty Quantification (ensembles, conformal, propagation of tolerances, Monte Carlo)."
  },
  {
   "termo": "Predição conformal",
-  "definicao": "Método que produz intervalos com cobertura garantida a partir de um conjunto de calibração."
+  "definicao": "Método que produz intervalos com cobertura garantida a partir de um conjunto de calibração.",
+  "term": "Conformal prediction",
+  "definition": "A method that produces intervals with guaranteed coverage from a calibration set."
  },
  {
   "termo": "Problema inverso",
-  "definicao": "Estimar parâmetros ou entradas desconhecidas a partir de observações da saída."
+  "definicao": "Estimar parâmetros ou entradas desconhecidas a partir de observações da saída.",
+  "term": "Inverse problem",
+  "definition": "Estimating unknown parameters or inputs from observations of the output."
  },
  {
   "termo": "EKI",
-  "definicao": "Ensemble Kalman Inversion: método de inversão sem gradiente baseado em ensembles."
+  "definicao": "Ensemble Kalman Inversion: método de inversão sem gradiente baseado em ensembles.",
+  "term": "EKI",
+  "definition": "Ensemble Kalman Inversion: a gradient-free, ensemble-based inversion method."
  },
  {
   "termo": "Assimilação de dados",
-  "definicao": "Combinar um modelo com medições ao longo do tempo (por exemplo, filtro de Kalman, EnKF)."
+  "definicao": "Combinar um modelo com medições ao longo do tempo (por exemplo, filtro de Kalman, EnKF).",
+  "term": "Data assimilation",
+  "definition": "Combining a model with measurements over time (for example, Kalman filter, EnKF)."
  },
  {
   "termo": "Gêmeo digital (digital twin)",
-  "definicao": "Modelo de um ativo real que é atualizado por medições e usado para monitorar, prever ou decidir."
+  "definicao": "Modelo de um ativo real que é atualizado por medições e usado para monitorar, prever ou decidir.",
+  "term": "Digital twin",
+  "definition": "A model of a real asset that is updated with measurements and used to monitor, predict or decide."
  },
  {
   "termo": "Co-simulação",
-  "definicao": "Acoplar simuladores diferentes que trocam dados a cada passo de tempo (por exemplo, via FMI/FMU)."
+  "definicao": "Acoplar simuladores diferentes que trocam dados a cada passo de tempo (por exemplo, via FMI/FMU).",
+  "term": "Co-simulation",
+  "definition": "Coupling different simulators that exchange data at every time step (for example, through FMI/FMU)."
  },
  {
   "termo": "FMI / FMU",
-  "definicao": "Functional Mock-up Interface: padrão para trocar modelos de simulação empacotados (Functional Mock-up Units)."
+  "definicao": "Functional Mock-up Interface: padrão para trocar modelos de simulação empacotados (Functional Mock-up Units).",
+  "term": "FMI / FMU",
+  "definition": "Functional Mock-up Interface: a standard for exchanging packaged simulation models (Functional Mock-up Units)."
  },
  {
   "termo": "Preset",
-  "definicao": "Problema pronto, com nome, equações, domínio e parâmetros padrão; pode ser carregado e resolvido diretamente."
+  "definicao": "Problema pronto, com nome, equações, domínio e parâmetros padrão; pode ser carregado e resolvido diretamente.",
+  "term": "Preset",
+  "definition": "A ready-made problem, with a name, equations, domain and default parameters; it can be loaded and solved directly."
  },
  {
   "termo": "PhysicalProblem",
-  "definicao": "Classe única do PINNeAPPle que descreve um problema físico para todas as partes da biblioteca."
+  "definicao": "Classe única do PINNeAPPle que descreve um problema físico para todas as partes da biblioteca.",
+  "term": "PhysicalProblem",
+  "definition": "The single PINNeAPPle class that describes a physical problem for every part of the library."
  },
  {
   "termo": "ProblemSpec",
-  "definicao": "Definição executável de uma EDP (coordenadas, campos, termo da EDP, contornos, domínio) consumida pelo compilador de PINN."
+  "definicao": "Definição executável de uma EDP (coordenadas, campos, termo da EDP, contornos, domínio) consumida pelo compilador de PINN.",
+  "term": "ProblemSpec",
+  "definition": "An executable definition of a PDE (coordinates, fields, PDE term, boundaries, domain) consumed by the PINN compiler."
  },
  {
   "termo": "Solution",
-  "definicao": "Objeto devolvido por pp.solve: valores, pontos, método e metadados (info)."
+  "definicao": "Objeto devolvido por pp.solve: valores, pontos, método e metadados (info).",
+  "term": "Solution",
+  "definition": "The object pp.solve returns: values, points, method and metadata (info)."
  },
  {
   "termo": "Flow",
-  "definicao": "Grafo de nós tipados (JSON pinneapple-flow/1) que encadeia chamadas da biblioteca; executado por pinneapple_flow."
+  "definicao": "Grafo de nós tipados (JSON pinneapple-flow/1) que encadeia chamadas da biblioteca; executado por pinneapple_flow.",
+  "term": "Flow",
+  "definition": "A graph of typed nodes (JSON pinneapple-flow/1) that chains calls to the library; run by pinneapple_flow."
  },
  {
   "termo": "Hub / zoo",
-  "definicao": "Repositório de modelos treinados e verificados, datasets e biblioteca pesquisável de ferramentas e exemplos."
+  "definicao": "Repositório de modelos treinados e verificados, datasets e biblioteca pesquisável de ferramentas e exemplos.",
+  "term": "Hub / zoo",
+  "definition": "A repository of trained and verified models, datasets and a searchable library of tools and examples."
  },
  {
   "termo": "Lab / selo",
-  "definicao": "pinneapple_lab registra experimentos com manifesto, métricas, verificações e uma nota (A-F); o selo resume essa avaliação."
+  "definicao": "pinneapple_lab registra experimentos com manifesto, métricas, verificações e uma nota (A-F); o selo resume essa avaliação.",
+  "term": "Lab / badge",
+  "definition": "pinneapple_lab records experiments with a manifest, metrics, checks and a grade (A-F); the badge summarises that assessment."
  },
  {
   "termo": "Autolab",
-  "definicao": "Laboratório autônomo: planeja e executa missões com ferramentas controladas, compara surrogates e escolhe a próxima simulação."
+  "definicao": "Laboratório autônomo: planeja e executa missões com ferramentas controladas, compara surrogates e escolhe a próxima simulação.",
+  "term": "Autolab",
+  "definition": "Autonomous laboratory: it plans and runs missions with controlled tools, compares surrogates and chooses the next simulation."
  },
  {
   "termo": "MCP",
-  "definicao": "Model Context Protocol: protocolo para expor ferramentas a agentes de IA; pinneapple_mcp é o servidor do PINNeAPPle."
+  "definicao": "Model Context Protocol: protocolo para expor ferramentas a agentes de IA; pinneapple_mcp é o servidor do PINNeAPPle.",
+  "term": "MCP",
+  "definition": "Model Context Protocol: a protocol for exposing tools to AI agents; pinneapple_mcp is PINNeAPPle's server."
  },
  {
   "termo": "Guardrail físico",
-  "definicao": "Verificação que bloqueia propostas (por exemplo, de um LLM) que violam a física ou o escopo."
+  "definicao": "Verificação que bloqueia propostas (por exemplo, de um LLM) que violam a física ou o escopo.",
+  "term": "Physics guardrail",
+  "definition": "A check that blocks proposals (for example, from an LLM) that violate the physics or the scope."
  },
  {
   "termo": "Condensação (Schur)",
-  "definicao": "Eliminar os graus de liberdade internos de um bloco, ficando só com a interface; reaproveitado entre blocos idênticos."
+  "definicao": "Eliminar os graus de liberdade internos de um bloco, ficando só com a interface; reaproveitado entre blocos idênticos.",
+  "term": "Condensation (Schur)",
+  "definition": "Eliminating a block's internal degrees of freedom, keeping only the interface; reused across identical blocks."
  },
  {
   "termo": "Craig-Bampton",
-  "definicao": "Redução de modelos para dinâmica: modos de interface fixa mais modos de restrição."
+  "definicao": "Redução de modelos para dinâmica: modos de interface fixa mais modos de restrição.",
+  "term": "Craig-Bampton",
+  "definition": "Model reduction for dynamics: fixed-interface modes plus constraint modes."
  },
  {
   "termo": "ROM",
-  "definicao": "Reduced-Order Model: modelo de ordem reduzida (por exemplo, POD) que aproxima o modelo completo com poucos graus de liberdade."
+  "definicao": "Reduced-Order Model: modelo de ordem reduzida (por exemplo, POD) que aproxima o modelo completo com poucos graus de liberdade.",
+  "term": "ROM",
+  "definition": "Reduced-Order Model (for example, POD) that approximates the full model with few degrees of freedom."
  },
  {
   "termo": "NSGA-II",
-  "definicao": "Algoritmo genético multiobjetivo que encontra uma frente de Pareto."
+  "definicao": "Algoritmo genético multiobjetivo que encontra uma frente de Pareto.",
+  "term": "NSGA-II",
+  "definition": "A multi-objective genetic algorithm that finds a Pareto front."
  },
  {
   "termo": "Frente de Pareto",
-  "definicao": "Conjunto de soluções em que nenhum objetivo melhora sem piorar outro."
+  "definicao": "Conjunto de soluções em que nenhum objetivo melhora sem piorar outro.",
+  "term": "Pareto front",
+  "definition": "The set of solutions in which no objective improves without another getting worse."
  },
  {
   "termo": "Otimização bayesiana",
-  "definicao": "Otimização com um modelo probabilístico (em geral processo gaussiano) que escolhe o próximo ponto a avaliar."
+  "definicao": "Otimização com um modelo probabilístico (em geral processo gaussiano) que escolhe o próximo ponto a avaliar.",
+  "term": "Bayesian optimisation",
+  "definition": "Optimisation with a probabilistic model (usually a Gaussian process) that chooses the next point to evaluate."
  },
  {
   "termo": "Adjunto",
-  "definicao": "Método que calcula o gradiente de um objetivo em relação a muitos parâmetros com custo de uma simulação extra."
+  "definicao": "Método que calcula o gradiente de um objetivo em relação a muitos parâmetros com custo de uma simulação extra.",
+  "term": "Adjoint",
+  "definition": "A method that computes the gradient of an objective with respect to many parameters at the cost of one extra simulation."
  },
  {
   "termo": "SDF / CSG",
-  "definicao": "Signed Distance Function (distância com sinal até a fronteira) e Constructive Solid Geometry (união, interseção e diferença de sólidos)."
+  "definicao": "Signed Distance Function (distância com sinal até a fronteira) e Constructive Solid Geometry (união, interseção e diferença de sólidos).",
+  "term": "SDF / CSG",
+  "definition": "Signed Distance Function (signed distance to the boundary) and Constructive Solid Geometry (union, intersection and difference of solids)."
  },
  {
   "termo": "Shim de compatibilidade",
-  "definicao": "Pacote que só reexporta outro, mantido para que imports antigos funcionem."
+  "definicao": "Pacote que só reexporta outro, mantido para que imports antigos funcionem.",
+  "term": "Compatibility shim",
+  "definition": "A package that only re-exports another, kept so that old imports work."
  },
  {
   "termo": "Extra (pyproject)",
-  "definicao": "Grupo opcional de dependências instalado com pip install \"pinneapple[extra]\"."
+  "definicao": "Grupo opcional de dependências instalado com pip install \"pinneapple[extra]\".",
+  "term": "Extra (pyproject)",
+  "definition": "An optional group of dependencies installed with pip install \"pinneapple[extra]\"."
  },
  {
   "termo": "OpenUSD / Omniverse",
-  "definicao": "Formato de cena 3-D da Pixar e plataforma da NVIDIA que o usa; o PINNeAPPle exporta campos e decisões de confiança para ele."
+  "definicao": "Formato de cena 3-D da Pixar e plataforma da NVIDIA que o usa; o PINNeAPPle exporta campos e decisões de confiança para ele.",
+  "term": "OpenUSD / Omniverse",
+  "definition": "Pixar's 3-D scene format and the NVIDIA platform that uses it; PINNeAPPle exports fields and trust decisions to it."
  },
  {
   "termo": "PhysicsNeMo",
-  "definicao": "Framework da NVIDIA para IA física; o PINNeAPPle confere surrogates feitos com ele."
+  "definicao": "Framework da NVIDIA para IA física; o PINNeAPPle confere surrogates feitos com ele.",
+  "term": "PhysicsNeMo",
+  "definition": "NVIDIA's framework for physics AI; PINNeAPPle checks surrogates built with it."
  },
  {
   "termo": "Walk-forward purgado",
-  "definicao": "Protocolo de validação de séries temporais que treina no passado, testa no futuro e remove amostras vizinhas para evitar vazamento."
+  "definicao": "Protocolo de validação de séries temporais que treina no passado, testa no futuro e remove amostras vizinhas para evitar vazamento.",
+  "term": "Purged walk-forward",
+  "definition": "A time-series validation protocol that trains on the past, tests on the future and removes neighbouring samples to avoid leakage."
  },
  {
   "termo": "Teste de Diebold-Mariano (DM)",
-  "definicao": "Teste estatístico que compara a precisão de duas previsões."
+  "definicao": "Teste estatístico que compara a precisão de duas previsões.",
+  "term": "Diebold-Mariano test (DM)",
+  "definition": "A statistical test that compares the accuracy of two forecasts."
  }
 ]

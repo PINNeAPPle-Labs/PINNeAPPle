@@ -25,6 +25,7 @@ __all__ = ["skew_function", "slice_offsets", "skew_study", "continuous_factor"]
 
 
 def continuous_factor(h, total: float, period: float):
+    """Continuous skew factor of harmonic ``h``: ``sin(x) / x`` with ``x = h pi total / period`` (1 at x = 0)."""
     x = np.asarray(h, float) * math.pi * total / period
     return np.where(np.abs(x) < 1e-12, 1.0, np.sin(x) / np.where(x == 0, 1.0, x))
 

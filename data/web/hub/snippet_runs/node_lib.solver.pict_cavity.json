@@ -1,0 +1,12 @@
+{
+ "code_hash": "a8b137dbcc4cf56c",
+ "figures": [],
+ "id": "node:lib.solver.pict_cavity",
+ "ok": true,
+ "recorded": "2026-11-05",
+ "seconds": 8.7,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "Lid-driven cavity (PISO / local) -> pinneapple_flow.wrappers:pict_cavity pinneapple_simulation.external_solvers.pict\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'re': 100.0, 'nx': 32, 'engine': 'local', 'iterations': 50}",
+ "timed_out": false
+}

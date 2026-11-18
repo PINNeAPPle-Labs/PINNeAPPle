@@ -76,3 +76,12 @@ test("error scale: white at zero, dark red at the top, monotone darker", () => {
   for (let k = 1; k < L.length; k++) assert.ok(L[k] < L[k - 1], `luminance falls at ${k / 10}`);
 });
 
+
+test("magma runs dark purple to pale yellow, clamped, and is a published map", () => {
+  assert.deepEqual(core.magma(0).map((v) => Math.round(v * 255)), [0, 0, 4]);
+  assert.deepEqual(core.magma(1).map((v) => Math.round(v * 255)), [252, 253, 191]);
+  assert.deepEqual(core.magma(2), core.magma(1));
+  assert.deepEqual(core.cmapStops("magma"), core.MAGMA);
+  const lum = [0, 0.25, 0.5, 0.75, 1].map((t) => core.magma(t).reduce((a, b) => a + b, 0));
+  assert.ok(lum.every((v, i) => i === 0 || v > lum[i - 1]));
+});

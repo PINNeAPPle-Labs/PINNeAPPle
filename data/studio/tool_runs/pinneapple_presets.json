@@ -57,6 +57,16 @@
   "returned": "IPMTraction",
   "seconds": 0.0
  },
+ "pinneapple_presets.cases.ipm_traction:machine": {
+  "code_hash": "ecf4ffacdb42ca7e",
+  "inputs": {
+   "n_gap": 480
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "IPMMachine",
+  "seconds": 1.75
+ },
  "pinneapple_presets.cases.pcb:PowerPCB": {
   "code_hash": "b121feee2fba20e9",
   "inputs": {},
@@ -121,6 +131,19 @@
   "returned": "Preset",
   "seconds": 0.0
  },
+ "pinneapple_presets.core:check": {
+  "code_hash": "08135406d818b394",
+  "inputs": {
+   "limit": 2.0,
+   "name": "x",
+   "ok": true,
+   "value": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Check",
+  "seconds": 0.0
+ },
  "pinneapple_presets.core:environment": {
   "code_hash": "dc960da91b1e0b62",
   "inputs": {},
@@ -128,6 +151,26 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.01
+ },
+ "pinneapple_presets.core:lhs": {
+  "code_hash": "180b4e5a5c065a6e",
+  "inputs": {
+   "bounds": [
+    [
+     1.0,
+     1000.0
+    ]
+   ],
+   "log": [
+    true
+   ],
+   "n": 6,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "ndarray",
+  "seconds": 0.0
  },
  "pinneapple_presets.registry:index": {
   "code_hash": "0d7646f5566801c6",
@@ -178,6 +221,16 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ARDGP",
+  "seconds": 0.0
+ },
+ "pinneapple_presets.surrogate:surrogate_path": {
+  "code_hash": "17356e3555356a81",
+  "inputs": {
+   "name": "x"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
   "seconds": 0.0
  },
  "preset:airfoil_section_re4e6": {

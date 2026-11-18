@@ -99,6 +99,7 @@ def _fmt(v, f="{:.3g}"):
 
 
 def write_report(mission, res, out_dir, figures: bool = True, info: dict | None = None) -> dict:
+    """Write the mission's numbers, figures and reports into ``out_dir``; returns what was written."""
     os.makedirs(out_dir, exist_ok=True)
     nums = mission_numbers(mission, res)
     nums["run_info"] = info or run_info()

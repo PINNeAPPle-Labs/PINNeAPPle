@@ -48,6 +48,7 @@ ROLES = ("inlet", "outlet", "atmosphere", "wall")
 
 @dataclass
 class Phase:
+    """One phase: name, density ``rho`` and kinematic viscosity ``nu``."""
     name: str
     rho: float
     nu: float
@@ -55,6 +56,7 @@ class Phase:
 
 @dataclass
 class SampleLine:
+    """A sampling line: name, start, end and number of points."""
     name: str
     start: Sequence[float]
     end: Sequence[float]
@@ -85,6 +87,9 @@ def split_surface(V: np.ndarray, F: np.ndarray, boxes: dict[str, tuple[Sequence[
 # ------------------------------------------------------------------------------------------------ the case
 @dataclass
 class FreeSurfaceFlow:
+    """A complete interFoam (VOF) case: regions, patch roles, liquid level, phases and turbulence; writes the case,
+    runs it and reads profiles back.
+    """
     regions: dict | None = None
     roles: dict[str, str] = field(default_factory=dict)
     mesh: str | None = None

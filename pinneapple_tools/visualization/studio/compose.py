@@ -20,13 +20,13 @@ from collections.abc import Sequence
 
 import numpy as np
 
-from .colormap import JET, RDBU, ticks
+from .colormap import JET, MAGMA, RDBU, ticks
 
 # stops: (position 0..1, (r, g, b) 0..255), sRGB; studio-core.js has the same tables
 COOLWARM = [(0.0, (59, 76, 192)), (0.25, (141, 176, 254)), (0.5, (221, 221, 221)), (0.75, (244, 154, 123)),
             (1.0, (180, 4, 38))]                                        # Moreland's diverging map, as in matplotlib
 BWR = [(0.0, (0, 0, 255)), (0.5, (255, 255, 255)), (1.0, (255, 0, 0))]
-CMAPS = {"jet": JET, "coolwarm": COOLWARM, "bwr": BWR, "rdbu": RDBU}
+CMAPS = {"jet": JET, "coolwarm": COOLWARM, "bwr": BWR, "rdbu": RDBU, "magma": MAGMA}
 DIVERGING = {"coolwarm", "bwr", "rdbu"}
 
 

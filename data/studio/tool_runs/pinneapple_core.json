@@ -57,6 +57,33 @@
   "returned": "Sampler",
   "seconds": 0.01
  },
+ "pinneapple_core.distributed:cpu_count": {
+  "code_hash": "a53985ea88abaa81",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-06",
+  "returned": "int",
+  "seconds": 8.06
+ },
+ "pinneapple_core.distributed:decompose_box": {
+  "code_hash": "bf6b45117a0582c2",
+  "inputs": {
+   "hi": [
+    4,
+    1
+   ],
+   "lo": [
+    0,
+    0
+   ],
+   "overlap": 0.5,
+   "parts": 4
+  },
+  "ok": true,
+  "recorded": "2026-11-06",
+  "returned": "list",
+  "seconds": 7.68
+ },
  "pinneapple_core.jsonable:round_sig": {
   "code_hash": "044b215f3e98c321",
   "inputs": {
@@ -75,6 +102,26 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_core.onboarding.catalog:best_method": {
+  "code_hash": "d93fa83b38b3cb55",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 11.21
+ },
+ "pinneapple_core.onboarding.catalog:card": {
+  "code_hash": "3ee363237ad64f50",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Card",
+  "seconds": 0.0
+ },
  "pinneapple_core.onboarding.catalog:catalogue": {
   "code_hash": "d3ccc899f0cce500",
   "inputs": {},
@@ -82,6 +129,26 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.03
+ },
+ "pinneapple_core.onboarding.catalog:default_geometry_note": {
+  "code_hash": "983a7f4a60c56332",
+  "inputs": {
+   "name": "plane_stress_2d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:describe": {
+  "code_hash": "a7e9caa54f79fc80",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
  },
  "pinneapple_core.onboarding.catalog:domains": {
   "code_hash": "c6f606e7eb2a95dd",
@@ -91,21 +158,102 @@
   "returned": "dict",
   "seconds": 0.02
  },
+ "pinneapple_core.onboarding.catalog:needs_geometry_tags": {
+  "code_hash": "214f74e095f4d9cb",
+  "inputs": {
+   "name": "plane_stress_2d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:probe": {
+  "code_hash": "1f38a0adf7529387",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:runnable": {
+  "code_hash": "cebd59f8f4c36f98",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:search": {
+  "code_hash": "1662156c8e43533d",
+  "inputs": {
+   "text": "burgers equation viscous shock",
+   "top": 3
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 0.02
+ },
+ "pinneapple_core.onboarding.catalog:solver_requirement": {
+  "code_hash": "3599b8cb802bfc21",
+  "inputs": {
+   "solver": "openfoam"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:standalone_snippet": {
+  "code_hash": "2e85b624505c6ef3",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:tag_names": {
+  "code_hash": "9948305f93848b69",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_core.onboarding.catalog:working_method": {
+  "code_hash": "3988deb23623c01d",
+  "inputs": {
+   "name": "burgers_1d"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "str",
+  "seconds": 0.0
+ },
  "pinneapple_core.onboarding.doctor:doctor": {
-  "code_hash": "19de08536e8ecfe9",
+  "code_hash": "e350794ee6075609",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-05",
   "returned": "DoctorReport",
-  "seconds": 0.09
+  "seconds": 9.56
  },
  "pinneapple_core.onboarding.doctor:profiles": {
-  "code_hash": "d02f19e917f6561e",
+  "code_hash": "c6ad68e45c38ee82",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-05",
   "returned": "dict",
-  "seconds": 0.0
+  "seconds": 7.24
  },
  "pinneapple_core.optim:list_methods": {
   "code_hash": "a493600991e8a287",
@@ -113,6 +261,45 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_core.registry:kinds": {
+  "code_hash": "fcf332969014fc5a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 39.93
+ },
+ "pinneapple_core.registry:registered": {
+  "code_hash": "4a60294ad5603939",
+  "inputs": {
+   "kind": "solver"
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 12.18
+ },
+ "pinneapple_core.registry:resolve": {
+  "code_hash": "a5c97ff0e13f222d",
+  "inputs": {
+   "kind": "solver",
+   "name": "fem"
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "function",
+  "seconds": 0.0
+ },
+ "pinneapple_core.registry:resolve_kind": {
+  "code_hash": "47ab91a6276a82c4",
+  "inputs": {
+   "kind": "solver"
+  },
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "Registry",
   "seconds": 0.0
  },
  "pinneapple_core.series:bucket_edges": {

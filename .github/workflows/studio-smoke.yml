@@ -31,7 +31,7 @@ jobs:
           python -m pinneapple_studio smoke --workers 2
           python -m pinneapple_studio examples
           python -m pinneapple_studio coverage --record-history -o docs/studio/COVERAGE.md || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: studio-runs
           path: |

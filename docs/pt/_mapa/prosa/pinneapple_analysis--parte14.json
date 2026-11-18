@@ -452,7 +452,17 @@
   "pinneapple_analysis.uncertainty.tolerance:wilson_interval": "Intervalo de score de Wilson para uma proporção binomial.",
   "pinneapple_analysis.uncertainty.tolerance:propagate": "Propaga tolerâncias independentes por `fn` via Monte Carlo.",
   "pinneapple_analysis.uncertainty.tolerance:propagate_space": "Propaga entradas com qualquer distribuição por `fn`.",
-  "pinneapple_analysis.uncertainty.tolerance:src": "Coeficientes de regressão padronizados e R² do ajuste linear: quanto da dispersão cada tolerância explica."
+  "pinneapple_analysis.uncertainty.tolerance:src": "Coeficientes de regressão padronizados e R² do ajuste linear: quanto da dispersão cada tolerância explica.",
+  "pinneapple_analysis.dynamics.first_passage:survival_from_solution": "Aplica `survival_from_density` a um resultado do `pp.solve`: avalia `solution.predict` na grade `x` por `t`.",
+  "pinneapple_analysis.dynamics.koopman:DMD": "DMD exata (opcionalmente com correção de viés por TLS) sobre os estados; ver o docstring do módulo.",
+  "pinneapple_analysis.inverse_problems.activation_mapping:interpolate_baseline": "Interpolação linear (Delaunay) dos tempos medidos; vizinho mais próximo fora do fecho convexo deles.",
+  "pinneapple_analysis.inverse_problems.activation_mapping:EikonalPINNConfig": "Configuração da `EikonalPINN`: camadas ocultas, faixa da velocidade `V`, pesos dos termos de dados, eikonal e variação total, número de pontos de colocação, iterações, taxa de aprendizado, seed e orçamento de tempo.",
+  "pinneapple_analysis.inverse_problems.activation_mapping:EikonalPINN": "Ajusta `T` e `V` no retângulo `bounds = ((x0, x1), (y0, y1))` aos tempos de ativação medidos.",
+  "pinneapple_analysis.inverse_problems.binn:BINNConfig": "Configuração da `ReactionDiffusionBINN`: capacidade de suporte `K` (células/mm²), faixas de difusão `D` (mm²/dia) e crescimento `G` (1/dia), pesos, tamanho de lote, pontos de colocação, iterações, paciência, fração de validação, atraso, seed e orçamento de tempo.",
+  "pinneapple_analysis.inverse_problems.binn:ReactionDiffusionBINN": "`fit(x, t, U)` com `U` de forma (len(x), len(t)) em células/mm², x em mm e t em dias.",
+  "pinneapple_analysis.inverse_problems.ode_model:ODEForwardModel": "Modelo direto de um sistema de EDOs para problemas inversos: integra o sistema (BDF por padrão, tolerâncias configuráveis) e devolve os observáveis pedidos (estados ou atribuições) em função dos parâmetros, com limites opcionais e parametrização em log.",
+  "pinneapple_analysis.inverse_problems.sbinn:SBINNConfig": "Configuração da `SBINN`: camadas ocultas, ativação, features senoidais do tempo (escala do tempo como no paper), taxa de aprendizado, épocas das duas etapas, pesos dos termos de dados, EDO e auxiliar, unidades escaladas ou físicas, intervalo de registro e seed.",
+  "pinneapple_analysis.inverse_problems.sbinn:SBINN": "Infere os parâmetros `unknown` de `system` (com seus `search_range`) a partir de observações de alguns estados."
  },
  "exemplos": [
   {

@@ -2128,6 +2128,47 @@
    "reference_tests": [],
    "status": "tested"
   },
+  "S47": {
+   "added_by": "2026-11-05 (this PR: the four GPU/external-engine entries, scanned separately; the rest of the file is the 2026-10-17 scan untouched)",
+   "other_tests": [
+    "PINNeAPPle/tests/test_newton_rigid.py::test_constant_wrench_balances_gravity_and_spins_up",
+    "PINNeAPPle/tests/test_newton_rigid.py::test_exact_mass_rescales_inertia",
+    "PINNeAPPle/tests/test_newton_rigid.py::test_pendulum_energy_is_conserved",
+    "PINNeAPPle/tests/test_newton_rigid.py::test_rotation_matrix_from_quaternion",
+    "PINNeAPPle/tests/test_newton_rigid.py::test_scene_checks_without_newton",
+    "PINNeAPPle/tests/test_newton_rigid.py::test_several_welded_trees_build_and_rest",
+    "PINNeAPPle/tests/test_newton_rigid.py::test_sliding_box_stops_at_coulomb_distance"
+   ],
+   "reference_tests": [],
+   "status": "tested"
+  },
+  "S48": {
+   "added_by": "2026-11-05 (this PR: the four GPU/external-engine entries, scanned separately; the rest of the file is the 2026-10-17 scan untouched)",
+   "other_tests": [
+    "PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_does_not_invent_a_pressure",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_refuses_what_it_does_not_implement",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_reports_convergence_and_a_sane_velocity",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_runs_the_cavity_and_labels_itself",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_run_cavity_auto_picks_an_engine_and_says_which"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_matches_ghia_at_re_100"
+   ],
+   "status": "validated"
+  },
+  "S49": {
+   "added_by": "2026-11-05 (this PR: the four GPU/external-engine entries, scanned separately; the rest of the file is the 2026-10-17 scan untouched)",
+   "other_tests": [
+    "PINNeAPPle/tests/test_pict_bridge.py::test_availability_is_a_report_not_a_crash",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_refuses_what_it_does_not_implement",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_run_cavity_auto_picks_an_engine_and_says_which",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_run_config_maps_onto_picts_simulation_arguments",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_the_pict_path_raises_with_the_install_line_when_pict_is_absent",
+    "PINNeAPPle/tests/test_pict_bridge.py::test_validate_names_the_engine_that_ran"
+   ],
+   "reference_tests": [],
+   "status": "tested"
+  },
   "S5": {
    "other_tests": [
     "PINNeAPPle/tests/pinneapple_physics/test_turbulence_selector.py::test_lbm_laminar_is_zero",
@@ -2155,6 +2196,27 @@
    "reference_tests": [
     "PINNeAPPle/tests/test_lab.py::test_repo_results_import_and_dataset_catalog",
     "PINNeAPPle/tests/test_lbm_tunnel.py::test_force_driven_poiseuille"
+   ],
+   "status": "validated"
+  },
+  "S50": {
+   "added_by": "2026-11-05 (this PR: the four GPU/external-engine entries, scanned separately; the rest of the file is the 2026-10-17 scan untouched)",
+   "other_tests": [
+    "PINNeAPPle/tests/test_warp_backend.py::test_fem_poisson_q1_converges_at_second_order",
+    "PINNeAPPle/tests/test_warp_backend.py::test_fem_poisson_q2_converges_at_third_order",
+    "PINNeAPPle/tests/test_warp_backend.py::test_fem_poisson_solves_the_linear_system_it_assembles",
+    "PINNeAPPle/tests/test_warp_backend.py::test_float32_drift_over_a_run_is_rounding_not_physics",
+    "PINNeAPPle/tests/test_warp_backend.py::test_float32_is_a_second_kernel_not_a_cast",
+    "PINNeAPPle/tests/test_warp_backend.py::test_install_message_when_warp_is_absent",
+    "PINNeAPPle/tests/test_warp_backend.py::test_module_imports_and_reports_availability",
+    "PINNeAPPle/tests/test_warp_backend.py::test_poisson_rejects_impossible_arguments",
+    "PINNeAPPle/tests/test_warp_backend.py::test_step_gradients_agree_with_torch",
+    "PINNeAPPle/tests/test_warp_backend.py::test_the_step_returns_a_new_state_and_leaves_the_input_alone",
+    "PINNeAPPle/tests/test_warp_backend.py::test_to_warp_refuses_a_non_contiguous_tensor_instead_of_copying",
+    "PINNeAPPle/tests/test_warp_backend.py::test_torch_tensor_and_warp_array_share_one_buffer"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_warp_backend.py::test_manufactured_solution_satisfies_its_own_laplacian"
    ],
    "status": "validated"
   },

@@ -1,0 +1,12 @@
+{
+ "code_hash": "bb1b7f2941e19ece",
+ "figures": [],
+ "id": "example:examples/pict_cavity",
+ "ok": true,
+ "recorded": "2026-11-05",
+ "seconds": 0.3,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Lid-driven cavity vs Ghia et al. (1982) | fluid dynamics | not curated\nghia_u_rms_re100 0.0013823290144452077 \nghia_v_rms_re100 0.0028387343921316725 \ncontinuity_re100 3.552713678800501e-15 U/L\nghia_u_rms_re1000 0.00813410589729766 \nghia_v_rms_re1000 0.005314253604830565",
+ "timed_out": false
+}

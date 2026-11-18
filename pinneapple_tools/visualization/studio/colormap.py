@@ -1,4 +1,5 @@
-"""The CFD colour scale (jet: blue = low, red = high) and a colour bar burnt into an image."""
+"""The CFD colour scale (jet: blue = low, red = high), the perceptual magma scale, and a colour bar burnt
+into an image."""
 from __future__ import annotations
 
 import math
@@ -6,6 +7,11 @@ from typing import List, Optional, Tuple
 
 JET = [(0.0, (0, 0, 143)), (0.125, (0, 0, 255)), (0.375, (0, 255, 255)), (0.625, (255, 255, 0)), (0.875, (255, 0, 0)),
        (1.0, (128, 0, 0))]
+
+#: matplotlib's magma at eleven points: perceptually uniform, black to cream, and it reads on a dark stage
+MAGMA = [(0.0, (0, 0, 4)), (0.1, (14, 9, 44)), (0.2, (50, 15, 84)), (0.3, (89, 21, 105)), (0.4, (131, 38, 105)),
+         (0.5, (177, 57, 89)), (0.6, (221, 88, 66)), (0.7, (253, 138, 53)), (0.8, (254, 191, 74)),
+         (0.9, (252, 233, 145)), (1.0, (252, 253, 191))]
 
 
 def jet(t: float) -> Tuple[float, float, float]:
@@ -16,6 +22,11 @@ def jet(t: float) -> Tuple[float, float, float]:
             f = (t - a) / (b - a)
             return tuple((ca[k] + f * (cb[k] - ca[k])) / 255 for k in range(3))
     return tuple(c / 255 for c in JET[-1][1])
+
+
+def magma(t: float) -> Tuple[float, float, float]:
+    """sRGB magma colour for t in [0, 1], as floats in [0, 1]."""
+    return ramp(t, MAGMA)
 
 
 #: blue - white - red diverging scale (sRGB stops of ColorBrewer RdBu, reversed: blue = low)

@@ -1,0 +1,12 @@
+{
+ "code_hash": "f3149ff258143823",
+ "figures": [],
+ "id": "node:vortex.spoiler",
+ "ok": true,
+ "recorded": "2026-11-09",
+ "seconds": 8.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "NACA 0012 with a deploying spoiler (viscous vortex domains) -> pinneapple_simulation.vortex_domains.cases.naca0012_spoiler_case + solver.VVD2D\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'re': 40000.0, 'panels': 100, 't_end': 0.5, 'deploy_angle_deg': 90.0, 'deploy_start': 0.4}",
+ "timed_out": false
+}

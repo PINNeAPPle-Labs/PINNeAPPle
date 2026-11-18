@@ -16,6 +16,11 @@ of its own):
 ``validation_lab``         ``pinneapple check`` grouped into numerical verification, validation against data and
                            physical consistency, with a ledger entry per outcome (the Validation Lab app)
 ``evidence_package``       engineering evidence report (HTML, PDF) and zip package from other tools' outputs
+``usecase``                the use-case specification: decision, decision quantity, tolerance and consequence
+``findings``               each signal explained (what happened / why it matters / what is unknown / what to do next)
+``maturity``               maturity and gap assessment on two axes: scientific maturity and industrial readiness
+``validation_case``        the validation case, its append-only revisions, expert reviews and the evidence registry
+``dossier``                the validation dossier: the case as the document an engineer files and a reviewer signs
 =========================  ==============================================================================================
 
 Veriphysics (the product) keeps the job queue, the HTTP API, billing and the web app, and imports this package.
@@ -24,8 +29,9 @@ from __future__ import annotations
 
 import importlib as _importlib
 
-__all__ = ["decision", "evidence_report", "applicability", "scope", "robustness", "recommend", "execution_log", "example_cases",
-           "ledger", "validation_lab", "evidence_package"]
+__all__ = ["decision", "evidence_report", "applicability", "scope", "robustness", "recommend", "execution_log",
+           "example_cases", "ledger", "validation_lab", "evidence_package", "usecase", "findings", "maturity",
+           "validation_case", "dossier"]
 
 
 def __getattr__(name: str):

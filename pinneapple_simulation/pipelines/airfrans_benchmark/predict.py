@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 
 from .features import point_features
-from .model import CoordinateNet
+from .model import CoordinateNet, WallAwareNet
 from .train import pick_device
 
 __all__ = ["PredictionSpec", "predict_cases"]
@@ -40,7 +40,12 @@ def predict_cases(store: str, weights: str, case_ids: Sequence[str], entry_dir: 
     spec = spec or DEFAULT_PREDICTION
     device = pick_device(spec.device)
     payload = torch.load(weights, map_location="cpu", weights_only=False)
-    model = CoordinateNet(payload["width"], payload["depth"]).eval().to(device)
+    if payload.get("architecture") == "wall_aware":
+        model = WallAwareNet(payload["width"], payload["depth"], payload.get("fourier", 0),
+                             payload.get("wall_layer", 5e-5), shape_features=payload.get("shape_features", 0))
+    else:
+        model = CoordinateNet(payload["width"], payload["depth"])
+    model.eval().to(device)
     model.load_state_dict(payload["state_dict"])
     out_dir = os.path.join(entry_dir, "predictions")
     os.makedirs(out_dir, exist_ok=True)
@@ -55,7 +60,7 @@ def predict_cases(store: str, weights: str, case_ids: Sequence[str], entry_dir: 
             features = data["features"]
             airfoil = data["airfoil_points"]
             inlet = float(data["inlet_velocity"][0])
-        feats = point_features(features, airfoil)
+        feats = point_features(features, airfoil, shape=bool(payload.get("shape_features")))
         chunks = []
         with torch.no_grad():
             for start in range(0, len(feats), spec.chunk):

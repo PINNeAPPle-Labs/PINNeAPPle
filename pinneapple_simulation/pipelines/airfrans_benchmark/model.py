@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from .features import FEATURE_NAMES
 
-__all__ = ["CoordinateNet", "physics_loss"]
+__all__ = ["CoordinateNet", "WallAwareNet", "physics_loss", "wall_layer_profile"]
 
 
 class CoordinateNet(nn.Module):
@@ -49,3 +49,69 @@ def physics_loss(prediction: torch.Tensor, features: torch.Tensor) -> torch.Tens
     if bool(outer.any()):
         total = total + (bernoulli[outer] ** 2).mean() + (speed2[outer] - 1.0).abs().mean()
     return total
+
+
+def wall_layer_profile(distance, wall_layer: float):
+    """The partition of unity that hands the first few percent of the boundary layer to the slope head.
+
+    ``A(d) = 1 − exp(−(d/λ)²)`` vanishes at the wall *with zero derivative*, so ``U = A·U_outer + (1−A)·s·d`` has
+    ``U(0) = 0`` exactly (no-slip, by construction rather than by penalty) and ``dU/dd|₀ = s`` — the slope head is
+    the wall shear the evaluator will reconstruct. ``λ`` is the height of the viscous sublayer in chords: at
+    ``Re = 3·10⁶`` the first mesh cell sits at ``y⁺ ≈ 0.2`` and ``y⁺ = 5`` is ``λ ≈ 5·10⁻⁵`` chord, which is the band
+    where the true profile is linear anyway."""
+    distance = torch.clamp(distance, min=0.0)
+    return 1.0 - torch.exp(-(distance / wall_layer) ** 2)
+
+
+class WallAwareNet(nn.Module):
+    """A residual coordinate network with a wall-slope head and a no-slip wall layer.
+
+    The measured failure of the plain network is not the far field — it is the wall: the evaluator derives both the
+    wall shear and every force coefficient from the velocity gradient at the surface nodes, and a point-wise MLP that
+    misses the wall velocity by 3 % of ``U∞`` misses the gradient (and so the drag) by a factor of several, because the
+    first cell of the mesh is ``10⁻⁶`` chords away. Predicting the slope explicitly, and making the near-wall field a
+    linear layer with that slope, turns an unlearnable absolute-velocity requirement into a smooth regression on the
+    wall."""
+
+    def __init__(self, width: int = 512, depth: int = 4, fourier: int = 4, wall_layer: float = 5e-5,
+                 slope_scale: float = 1e-3, shape_features: int = 0):
+        super().__init__()
+        self.width, self.depth, self.fourier = width, depth, fourier
+        self.shape_features = shape_features
+        self.register_buffer("wall_layer", torch.tensor(float(wall_layer)))
+        # the true scaled slope is O(10³); the head is asked for ``slope_scale`` times it, so it starts in a
+        # well-conditioned range instead of having to grow its output by three orders of magnitude first
+        self.register_buffer("slope_scale", torch.tensor(float(slope_scale)))
+        self.embed = nn.Linear(len(FEATURE_NAMES) + shape_features + 4 * fourier, width)
+        self.blocks = nn.ModuleList([nn.Sequential(nn.Linear(width, width), nn.SiLU(),
+                                                   nn.Linear(width, width), nn.SiLU()) for _ in range(depth)])
+        self.head_velocity = nn.Sequential(nn.Linear(width, width), nn.SiLU(), nn.Linear(width, 2))
+        self.head_slope = nn.Sequential(nn.Linear(width, width), nn.SiLU(), nn.Linear(width, 2))
+        self.head_pressure = nn.Sequential(nn.Linear(width, width), nn.SiLU(), nn.Linear(width, 1))
+
+    def _encode(self, x: torch.Tensor) -> torch.Tensor:
+        if self.fourier:
+            bands = []
+            for k in range(1, self.fourier + 1):
+                for column in (0, 1):                  # x/c and y/c: the periodicity a coordinate MLP cannot invent
+                    angle = (2.0 * 3.141592653589793 * k) * x[:, column:column + 1]
+                    bands += [torch.sin(angle), torch.cos(angle)]
+            x = torch.cat([x] + bands, dim=1)
+        hidden = self.embed(x)
+        for block in self.blocks:
+            hidden = hidden + block(hidden)           # residual: the trunk starts as the identity and refines
+        return hidden
+
+    def forward(self, x: torch.Tensor, heads: bool = False):
+        """``(N, 3)`` of ``(u/U∞, v/U∞, p/U∞²)`` with no-slip built in; the raw heads too when ``heads`` is set."""
+        hidden = self._encode(x)
+        outer = self.head_velocity(hidden)            # perturbation from the freestream, as in the plain network
+        slope = self.head_slope(hidden) / self.slope_scale    # dimensionless slope, as the wall truth is stored
+        pressure = self.head_pressure(hidden)[:, 0]
+        distance = x[:, 2]                            # sdf / chord
+        weight = wall_layer_profile(distance, float(self.wall_layer))
+        velocity = weight[:, None] * (outer + x[:, 7:9]) + (1.0 - weight)[:, None] * slope * distance[:, None]
+        prediction = torch.cat([velocity, pressure[:, None]], dim=1)
+        if heads:
+            return {"prediction": prediction, "slope": slope, "outer": outer, "pressure": pressure}
+        return prediction

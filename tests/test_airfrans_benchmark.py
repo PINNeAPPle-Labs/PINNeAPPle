@@ -32,6 +32,15 @@ from pinneapple_simulation.pipelines.airfrans_benchmark import (  # noqa: E402
     train,
     write_entry,
 )
+from pinneapple_simulation.pipelines.airfrans_benchmark import (  # noqa: E402
+    WallAwareNet,
+    WallTruthMissing,
+    curve_coefficients,
+    slope_from_wall_shear as wall_shear_slope,
+    surface_rank,
+    wall_case_truth,
+    wall_layer_profile,
+)
 
 AIRFOIL = np.array([[0.0, 0.0], [0.5, 0.06], [1.0, 0.0], [0.5, -0.03]])
 
@@ -220,3 +229,119 @@ def test_the_manifest_helpers_read_the_release_layout(tmp_path):
     manifest_path.write_text(json.dumps({"full_train": ["a", "b"], "full_test": ["c"], "aoa_test": ["c", "d"]}))
     manifest = manifest_splits(str(tmp_path))
     assert case_ids_for(manifest) == ["a", "b", "c", "d"]
+
+
+# --------------------------------------------------------------------------------------------------------------
+# the wall layer, the slope convention and the force quadrature
+# --------------------------------------------------------------------------------------------------------------
+
+def _figure():
+    """A closed circle polyline the way a pyvista airfoil mesh stores one: one segment per cell, outward normals."""
+    count = 4096
+    angle = np.linspace(0.0, 2.0 * np.pi, count, endpoint=False)
+    points = np.stack([np.cos(angle), np.sin(angle)], axis=1)
+    normals = points.copy()                                   # outward on a unit circle
+    cells = np.stack([np.arange(count), (np.arange(count) + 1) % count], axis=1)
+    lengths = np.linalg.norm(points[cells[:, 1]] - points[cells[:, 0]], axis=1)
+    return points, normals, cells.astype(np.int64), lengths
+
+
+def test_the_wall_slope_is_minus_the_wall_shear_over_nu():
+    """``2νS·n`` is ``-ν ∂u_t/∂n`` at a wall: the stored slope is ``-wall shear/ν`` in units of ``U∞/c``."""
+    wall_shear = np.array([[0.0, -3.0], [1.5, 0.0]])
+    nu, inlet, chord_length = 2e-5, 30.0, 1.0
+    slope = wall_shear_slope(wall_shear, nu, inlet, chord_length)
+    assert np.allclose(slope, -wall_shear / nu * (chord_length / inlet))
+    # and the physical wall shear comes straight back out of it
+    recovered = slope * (-nu * inlet / chord_length)
+    assert np.allclose(recovered, wall_shear)
+
+
+def test_a_constant_pressure_on_a_closed_curve_produces_no_force():
+    """d'Alembert in its simplest form: a closed loop sees no net force from a uniform pressure."""
+    points, _, cells, lengths = _figure()
+    _, normals, _, _ = _figure()
+    coefficients = curve_coefficients(np.full(len(points), 0.37), np.zeros((len(points), 2)), cells, lengths,
+                                      normals, cos_alpha=1.0, sin_alpha=0.0, nu=2e-5, inlet_velocity=1.0,
+                                      chord=2.0)
+    assert abs(coefficients["cdp"]) < 1e-12
+    assert abs(coefficients["clp"]) < 1e-12
+
+
+def test_a_pressure_gradient_on_a_circle_gives_the_analytic_drag():
+    """``p = -k x`` on a unit circle: ``∮ p n_x ds = -k π``, so ``cdp = 2·(-kπ)`` at ``U∞ = 1``."""
+    points, normals, cells, lengths = _figure()
+    gradient = 0.25
+    pressure = -gradient * points[:, 0]
+    coefficients = curve_coefficients(pressure, np.zeros((len(points), 2)), cells, lengths, normals,
+                                      cos_alpha=1.0, sin_alpha=0.0, nu=2e-5, inlet_velocity=1.0, chord=2.0)
+    assert coefficients["cdp"] == pytest.approx(-2.0 * gradient * np.pi, rel=2e-3)
+    assert abs(coefficients["clp"]) < 1e-9
+
+
+def test_a_uniform_tangential_slope_integrates_to_the_expected_friction():
+    """A constant slope along the flow gives ``cdv = -2ν s L/(U∞ c)`` with ``L`` the perimeter."""
+    points, normals, cells, lengths = _figure()
+    slope = np.tile(np.array([-1000.0, 0.0]), (len(points), 1))     # tangential, against the flow direction
+    coefficients = curve_coefficients(np.zeros(len(points)), slope, cells, lengths, normals,
+                                      cos_alpha=1.0, sin_alpha=0.0, nu=2e-5, inlet_velocity=1.0, chord=2.0)
+    expected = -2.0 * 2e-5 * (-1000.0) * lengths.sum() / (1.0 * 2.0)
+    assert coefficients["cdv"] == pytest.approx(expected, rel=1e-6)
+    assert abs(coefficients["cdp"]) < 1e-12
+
+
+def test_the_quadrature_runs_on_tensors_and_keeps_the_gradient():
+    """The training loss needs the same numbers as the evaluator *and* a gradient back to the surface pressure."""
+    points, normals, cells, lengths = _figure()
+    pressure = torch.tensor(-0.25 * points[:, 0], requires_grad=True)
+    coefficients = curve_coefficients(pressure, torch.zeros(len(points), 2), torch.from_numpy(cells),
+                                      torch.from_numpy(lengths), torch.from_numpy(normals),
+                                      cos_alpha=1.0, sin_alpha=0.0, nu=2e-5, inlet_velocity=1.0, chord=2.0)
+    assert isinstance(coefficients["cdp"], torch.Tensor)
+    coefficients["cdp"].backward()
+    assert pressure.grad is not None and torch.isfinite(pressure.grad).all()
+    assert float(pressure.grad.abs().sum()) > 0.0
+
+
+def test_the_wall_layer_gives_exact_no_slip_and_the_slope_head_as_the_first_derivative():
+    """``U = A(d)·U_outer + (1−A(d))·s·d`` must vanish at the wall and start with slope ``s``."""
+    distance = torch.tensor([0.0, 1e-9, 1e-6, 1e-4, 1e-2, 1.0], dtype=torch.float64)
+    wall_layer = 5e-5
+    weight = wall_layer_profile(distance, wall_layer)
+    assert float(weight[0]) == 0.0                                  # no-slip, exactly
+    assert float(weight[1]) < 1e-6                                  # and it stays close to the wall while it must
+    assert float(weight[-1]) > 0.999                                # the outer solution owns the far field
+    slope = torch.tensor(2000.0, dtype=torch.float64, requires_grad=True)
+    velocity = (1.0 - wall_layer_profile(distance, wall_layer)) * slope * distance
+    derivative = torch.autograd.grad(velocity.sum(), slope, retain_graph=True)[0]
+    # dU/dd at d→0 equals the slope: the finite difference of the first two entries reproduces it
+    finite_difference = float((velocity[2] - velocity[0]) / distance[2])
+    assert finite_difference == pytest.approx(2000.0, rel=1e-3)
+    assert float(velocity[0]) == 0.0
+    assert float(derivative) > 0.0
+
+
+def test_the_wall_aware_network_is_no_slip_on_the_wall_and_free_of_it_away_from_it():
+    network = WallAwareNet(width=32, depth=1, fourier=2)
+    features = torch.zeros(4, len(FEATURE_NAMES))
+    features[:, 7], features[:, 8] = 1.0, 0.0                     # freestream along x
+    features[:, 2] = torch.tensor([0.0, 0.0, 5e-2, 1.0])          # sdf/c: two wall nodes, two in the field
+    features[:, 6] = torch.tensor([1.0, 1.0, 0.0, 0.0])
+    with torch.no_grad():
+        prediction = network(features)
+    assert torch.allclose(prediction[:2, :2], torch.zeros(2, 2), atol=0.0)   # exactly zero on the wall
+    assert prediction.shape == (4, 3)
+
+
+def test_the_wall_slope_samples_line_up_with_the_native_point_order():
+    """``surface_rank`` maps a sampled node onto its compact wall entry, and -1 everywhere else."""
+    features = np.zeros((5, 9))
+    features[:, 5] = [0, 1, 0, 1, 1]
+    rank = surface_rank(features)
+    assert rank.tolist() == [-1, 0, -1, 1, 2]
+
+
+def test_the_wall_cache_writer_says_which_stack_it_needs(tmp_path):
+    with pytest.raises(WallTruthMissing) as error:
+        wall_case_truth(str(tmp_path), "no-such-case")
+    assert "airfrans" in str(error.value)

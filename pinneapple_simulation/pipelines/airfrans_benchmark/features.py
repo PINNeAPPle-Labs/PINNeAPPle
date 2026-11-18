@@ -8,10 +8,17 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["WALL_FRACTION", "chord", "point_features", "scaled_targets", "sample_indices", "FEATURE_NAMES"]
+__all__ = ["WALL_FRACTION", "SHAPE_BINS", "SHAPE_FEATURES", "chord", "shape_descriptor", "point_features",
+           "scaled_targets", "sample_indices", "FEATURE_NAMES"]
 
 #: share of each training sample taken from the wall and the boundary-layer band
 WALL_FRACTION = 0.25
+
+#: bins of the chord the airfoil's upper and lower surfaces are sampled on for the global shape descriptor
+SHAPE_BINS = 32
+
+#: length of :func:`shape_descriptor` — the per-case channels appended when a model is shape-conditioned
+SHAPE_FEATURES = 2 * SHAPE_BINS
 
 #: the input channels, in the order :func:`point_features` returns them
 FEATURE_NAMES = ("x_over_chord", "y_over_chord", "sdf_over_chord", "log_sdf", "normal_x", "normal_y", "surface",
@@ -24,7 +31,31 @@ def chord(airfoil_points: np.ndarray) -> float:
     return float(max(span[0], 1e-9))
 
 
-def point_features(features: np.ndarray, airfoil_points: np.ndarray) -> np.ndarray:
+def shape_descriptor(airfoil_points: np.ndarray, bins: int = SHAPE_BINS) -> np.ndarray:
+    """The airfoil's upper and lower surfaces on a uniform chord grid, in chords — the case's global shape.
+
+    A coordinate network sees one point at a time, and every airfoil of the family passes through the same region of
+    the plane: without this descriptor two cases are indistinguishable at the same ``(x, y, n)``, while their wall
+    shear differs by a factor of several. Thirty-two samples an edge are enough to separate the family, and they cost
+    nothing at inference — the airfoil's own points travel with every case."""
+    points = np.asarray(airfoil_points, float)
+    c = chord(points)
+    x, y = points[:, 0] / c, points[:, 1] / c
+    index = np.clip(np.rint(x * (bins - 1)).astype(int), 0, bins - 1)
+    upper, lower = np.full(bins, np.nan), np.full(bins, np.nan)
+    for i in range(bins):
+        mask = index == i
+        if mask.any():
+            upper[i], lower[i] = y[mask].max(), y[mask].min()
+    empty = np.isnan(upper)
+    if empty.any() and not empty.all():
+        filled = np.flatnonzero(~empty)
+        upper[empty] = np.interp(np.flatnonzero(empty), filled, upper[filled])
+        lower[empty] = np.interp(np.flatnonzero(empty), filled, lower[filled])
+    return np.nan_to_num(np.concatenate([upper, lower]), nan=0.0).astype(np.float32)
+
+
+def point_features(features: np.ndarray, airfoil_points: np.ndarray, shape: bool = False) -> np.ndarray:
     """The eleven input channels from the AirfRANS per-point features ``(x, y, sdf, n_x, n_y, surface, ux, uy)``.
 
     The signed distance enters twice: divided by the chord, and as a signed logarithm, which is what lets a network
@@ -35,8 +66,11 @@ def point_features(features: np.ndarray, airfoil_points: np.ndarray) -> np.ndarr
     u_inf = np.hypot(ux, uy)
     u_inf = np.where(u_inf > 0, u_inf, 1.0)
     scaled = sdf / c
-    return np.stack([x / c, y / c, scaled, np.log1p(np.abs(scaled)) * np.sign(scaled), nx, ny, surface,
-                     ux / u_inf, uy / u_inf, np.log(u_inf), np.ones_like(x)], axis=1).astype(np.float32)
+    block = np.stack([x / c, y / c, scaled, np.log1p(np.abs(scaled)) * np.sign(scaled), nx, ny, surface,
+                      ux / u_inf, uy / u_inf, np.log(u_inf), np.ones_like(x)], axis=1).astype(np.float32)
+    if shape:
+        block = np.concatenate([block, np.tile(shape_descriptor(airfoil_points), (len(block), 1))], axis=1)
+    return block
 
 
 def scaled_targets(targets: np.ndarray, features: np.ndarray) -> np.ndarray:

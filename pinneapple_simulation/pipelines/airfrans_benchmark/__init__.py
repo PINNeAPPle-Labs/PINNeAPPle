@@ -27,16 +27,22 @@ from .campaign import STAGES, CampaignSpec, campaign_from_dict, run_campaign
 from .data import AirfRANSStackMissing, case_arrays, case_ids_for, extract_cases, manifest_splits
 from .entry import SUPPORTS, write_entry
 from .features import FEATURE_NAMES, chord, point_features, sample_indices, scaled_targets
-from .model import CoordinateNet, physics_loss
+from .model import CoordinateNet, WallAwareNet, physics_loss, wall_layer_profile
 from .predict import PredictionSpec, predict_cases
 from .submit import OfficialToolchain, Step, cross_check_domain_metrics
-from .train import TrainingSpec, load_training_points, pick_device, train
+from .train import (TrainingSpec, WallSpec, curve_force_loss, load_curve_batch, load_training_points,
+                    load_wall_points, pick_device, train, train_wall)
+from .wall import (WallTruthMissing, curve_coefficients, curve_features, load_wall_case, slope_from_wall_shear,
+                   surface_rank, wall_case_truth, write_wall_store)
 
 __all__ = ["CampaignSpec", "campaign_from_dict", "run_campaign", "STAGES",
-           "TrainingSpec", "train", "load_training_points", "pick_device",
+           "TrainingSpec", "WallSpec", "train", "train_wall", "curve_force_loss",
+           "load_training_points", "load_wall_points", "load_curve_batch", "pick_device",
            "PredictionSpec", "predict_cases",
-           "CoordinateNet", "physics_loss", "FEATURE_NAMES", "point_features", "scaled_targets", "sample_indices",
+           "CoordinateNet", "WallAwareNet", "wall_layer_profile", "physics_loss", "FEATURE_NAMES", "point_features", "scaled_targets", "sample_indices",
            "chord",
            "case_arrays", "case_ids_for", "extract_cases", "manifest_splits", "AirfRANSStackMissing",
            "write_entry", "SUPPORTS",
-           "OfficialToolchain", "Step", "cross_check_domain_metrics"]
+           "OfficialToolchain", "Step", "cross_check_domain_metrics",
+           "WallTruthMissing", "wall_case_truth", "write_wall_store", "load_wall_case", "slope_from_wall_shear",
+           "curve_coefficients", "curve_features", "surface_rank"]

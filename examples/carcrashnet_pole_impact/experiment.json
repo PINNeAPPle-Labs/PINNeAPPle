@@ -136,17 +136,10 @@
   }
  ],
  "files": {
-  "figures": [
-   "_out/figures/peak_displacement_parity.png"
-  ],
+  "figures": [],
   "videos": [],
   "viewers": [],
-  "data": [
-   "_out/kpi_peak_displacement.json",
-   "_out/predictions.npz",
-   "_out/tabular_leaderboard.md",
-   "_out/field_leaderboard.md"
-  ]
+  "data": []
  },
  "links": {
   "guide": "docs/guides/crash_and_surface_benchmarks.md",

@@ -109,10 +109,7 @@
   "figures": [],
   "videos": [],
   "viewers": [],
-  "data": [
-   "_out/leaderboard.md",
-   "_out/coefficients.csv"
-  ]
+  "data": []
  },
  "links": {
   "guide": "docs/guides/crash_and_surface_benchmarks.md",

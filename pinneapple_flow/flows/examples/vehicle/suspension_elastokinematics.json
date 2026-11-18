@@ -1,0 +1,43 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "suspension-elastokinematics",
+ "name": "Suspension corner: hardpoints, arm structure and bush compliance in one loop",
+ "description": "pinneapple_design.suspension.study.suspension_study: the double-wishbone hardpoints, the arm's tube and the bushings searched together for the lightest corner that meets a static margin, a camber-gain band, a bump-steer limit and a steer compliance, with the closed-loop multibody solve, the elastokinematic bush modes and the 3-D finite-element check of the winning arm.",
+ "nodes": [
+  {
+   "id": "design",
+   "type": "design.suspension_elastokinematics",
+   "params": {},
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Suspension corner: sizing, kinematics, compliance"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Suspension corner: sizing, kinematics and bush compliance"
+   },
+   "position": {
+    "x": 360.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "design",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "design.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction",
+  "example": "suspension_elastokinematics"
+ }
+}

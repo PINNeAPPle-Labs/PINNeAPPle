@@ -1,0 +1,125 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/suspension_elastokinematics",
+ "title": "Suspension design and sizing: CAD, finite elements and multibody in one loop",
+ "description": "A double-wishbone corner whose hardpoints, tube and bushings are searched for the lightest design that meets a static margin, a camber-gain band, a bump-steer limit and a steer compliance, re-checked with a 3-D finite-element model of the arm.",
+ "domain": "vehicle dynamics",
+ "methods": [
+  "closed-loop multibody kinematics",
+  "two-force load resolution",
+  "beam stress and Euler buckling",
+  "3-D hexahedral elasticity",
+  "bushing compliance modes",
+  "bounded pattern search"
+ ],
+ "modules": [
+  "pinneapple_design.suspension"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "arm_and_bushing_mass",
+   "value": 4.8032894184928026,
+   "unit": "kg",
+   "how": "the winning design, both A-arms"
+  },
+  {
+   "name": "mass_reduction",
+   "value": 9.773266885970733,
+   "unit": "%",
+   "how": "against the nominal corner"
+  },
+  {
+   "name": "outer_fibre_stress",
+   "value": 274.0442477792826,
+   "unit": "MPa",
+   "how": "worst load case, closed form"
+  },
+  {
+   "name": "fem_peak_stress",
+   "value": 229.3118050835477,
+   "unit": "MPa",
+   "how": "3-D hexahedra on the winning arm"
+  },
+  {
+   "name": "bump_steer",
+   "value": 0.07309060283109366,
+   "unit": "deg/50mm",
+   "how": "the kinematic objective"
+  },
+  {
+   "name": "toe_compliance",
+   "value": 0.44527163841035255,
+   "unit": "deg/kN",
+   "how": "the elastokinematic objective"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the closed loop closes over the travel sweep",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "|residual| 5.4e-10 m over +/-60 mm",
+   "kind": "physics"
+  },
+  {
+   "name": "the finite elements reproduce the beam",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "peak 229 MPa, ratio 1.020",
+   "kind": "numerics"
+  },
+  {
+   "name": "the design meets every constraint",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "all of them",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [
+   "_out/wheels_in_bump.png",
+   "_out/compliance_vs_bush.png",
+   "_out/design_search.png",
+   "_out/arm_stress.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/suspension_elastokinematics.md",
+  "script": "examples/suspension_elastokinematics/01_corner_design.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "78744ed46",
+  "created": "2026-11-18T23:31:05Z",
+  "seconds": 18.452,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

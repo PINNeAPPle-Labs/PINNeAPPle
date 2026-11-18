@@ -1,0 +1,337 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T14:46:28+00:00",
+  "family": {
+    "name": "pp_airfoil",
+    "title": "Cambered Joukowski airfoil: surface Cp over camber, thickness and incidence",
+    "domain": "aerodynamics / UAV, wind and compressor sections",
+    "dim": 2,
+    "field_names": [
+      "cp"
+    ],
+    "field_units": [
+      "-"
+    ],
+    "field_scale": [
+      10.0
+    ],
+    "characteristic_length_m": 0.5,
+    "n_points": 120,
+    "geometry_params": {
+      "thickness_x_c_m": [
+        -0.09,
+        -0.01
+      ],
+      "camber_y_c_m": [
+        0.0,
+        0.06
+      ]
+    },
+    "operating_params": {
+      "alpha_deg": [
+        -4.0,
+        14.0
+      ]
+    },
+    "geometry_features": {},
+    "reference": {
+      "name": "Joukowski conformal map with the Kutta condition (exact potential flow)",
+      "citation": "Milne-Thomson, Theoretical Hydrodynamics, 5th ed. (1968), ch. 6 (the Joukowski transformation); Anderson, Fundamentals of Aerodynamics, ch. 4 (Kutta condition and Kutta-Joukowski theorem)",
+      "assumptions": [
+        "incompressible, inviscid, irrotational: no boundary layer, no separation, no drag from pressure",
+        "two-dimensional and steady",
+        "a cusped trailing edge, so the Kutta condition applies and the circulation is fixed by it"
+      ],
+      "implements": "analytic"
+    },
+    "tolerance": 0.05
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 60,
+    "n_geometries": 20,
+    "conditions_per_geometry": 3
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 45,
+    "n_holdout_designs": 15,
+    "n_train_geometries": 15,
+    "n_holdout_geometries": 5
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 1,
+      "n_params": 1,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201060
+  },
+  "training": {
+    "epochs": 360,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 32,
+    "loss_first": 0.09678952395915985,
+    "loss_last": 0.0007910850690677762,
+    "seconds": 334.469,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.31973339149972557,
+    "relative_l2_p90": 0.9643357666609448,
+    "max_abs_error": 33.00768280029297,
+    "constant_field_baseline_relative_l2": 0.985978845208435,
+    "n_designs": 15,
+    "n_points": 1800,
+    "per_design": [
+      {
+        "relative_l2": 0.11530086480636999,
+        "max_abs_error": 3.7210731506347656,
+        "mean_std": 0.004541141912341118,
+        "ood": false,
+        "ood_score": 0.5505298376083374
+      },
+      {
+        "relative_l2": 1.0660719045271965,
+        "max_abs_error": 2.559271812438965,
+        "mean_std": 0.004650542978197336,
+        "ood": false,
+        "ood_score": 0.5505298376083374
+      },
+      {
+        "relative_l2": 0.12025787872885964,
+        "max_abs_error": 2.1220455169677734,
+        "mean_std": 0.004513093736022711,
+        "ood": false,
+        "ood_score": 0.5505298376083374
+      },
+      {
+        "relative_l2": 0.22863831001318388,
+        "max_abs_error": 0.6967115998268127,
+        "mean_std": 0.004473610781133175,
+        "ood": false,
+        "ood_score": 1.1776717901229858
+      },
+      {
+        "relative_l2": 0.23663172199238103,
+        "max_abs_error": 0.6718490123748779,
+        "mean_std": 0.004484273958951235,
+        "ood": false,
+        "ood_score": 1.1776717901229858
+      },
+      {
+        "relative_l2": 0.2486455364545071,
+        "max_abs_error": 0.6536915302276611,
+        "mean_std": 0.004501317162066698,
+        "ood": false,
+        "ood_score": 1.1776717901229858
+      },
+      {
+        "relative_l2": 0.9643357666609448,
+        "max_abs_error": 1.0267491340637207,
+        "mean_std": 0.004470293875783682,
+        "ood": false,
+        "ood_score": 0.3279513418674469
+      },
+      {
+        "relative_l2": 0.11655391506330878,
+        "max_abs_error": 0.8332011699676514,
+        "mean_std": 0.004599627573043108,
+        "ood": false,
+        "ood_score": 0.3279513418674469
+      },
+      {
+        "relative_l2": 0.18750697865373667,
+        "max_abs_error": 0.45709192752838135,
+        "mean_std": 0.00441674143075943,
+        "ood": false,
+        "ood_score": 0.3279513418674469
+      },
+      {
+        "relative_l2": 0.1020492067549644,
+        "max_abs_error": 1.8016042709350586,
+        "mean_std": 0.00514579052105546,
+        "ood": false,
+        "ood_score": 0.16577817499637604
+      },
+      {
+        "relative_l2": 0.3412929660269696,
+        "max_abs_error": 0.4923217296600342,
+        "mean_std": 0.004305708222091198,
+        "ood": false,
+        "ood_score": 0.16577817499637604
+      },
+      {
+        "relative_l2": 1.0239434694808303,
+        "max_abs_error": 1.1429555416107178,
+        "mean_std": 0.004391385242342949,
+        "ood": false,
+        "ood_score": 0.16577817499637604
+      },
+      {
+        "relative_l2": 0.33596891903281456,
+        "max_abs_error": 33.00768280029297,
+        "mean_std": 0.005057188216596842,
+        "ood": false,
+        "ood_score": 0.2646481394767761
+      },
+      {
+        "relative_l2": 0.33297476720427827,
+        "max_abs_error": 25.760509490966797,
+        "mean_std": 0.0047663915902376175,
+        "ood": false,
+        "ood_score": 0.2646481394767761
+      },
+      {
+        "relative_l2": 0.34345122804825734,
+        "max_abs_error": 21.48989486694336,
+        "mean_std": 0.004617998842149973,
+        "ood": false,
+        "ood_score": 0.2646481394767761
+      }
+    ],
+    "tolerance": 0.05,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.004595674108713865,
+    "p95_std": 0.008931114338338375,
+    "max_std": 0.03557002916932106,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 36% thick section, four times the trained thickness",
+        "ood": true,
+        "ood_score": 16.370941162109375,
+        "reasons": [
+          "geometry 16.37x farther from the training designs than usual"
+        ]
+      },
+      {
+        "name": "an 18% camber, three times the trained camber",
+        "ood": true,
+        "ood_score": 4.499508380889893,
+        "reasons": [
+          "geometry 4.50x farther from the training designs than usual"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 0.5505298376083374
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 0.5505298376083374
+      },
+      {
+        "name": "held-out design 2",
+        "ood": false,
+        "ood_score": 0.5505298376083374
+      },
+      {
+        "name": "held-out design 3",
+        "ood": false,
+        "ood_score": 1.1776717901229858
+      },
+      {
+        "name": "held-out design 4",
+        "ood": false,
+        "ood_score": 1.1776717901229858
+      },
+      {
+        "name": "held-out design 5",
+        "ood": false,
+        "ood_score": 1.1776717901229858
+      },
+      {
+        "name": "held-out design 6",
+        "ood": false,
+        "ood_score": 0.3279513418674469
+      },
+      {
+        "name": "held-out design 7",
+        "ood": false,
+        "ood_score": 0.3279513418674469
+      },
+      {
+        "name": "held-out design 8",
+        "ood": false,
+        "ood_score": 0.3279513418674469
+      },
+      {
+        "name": "held-out design 9",
+        "ood": false,
+        "ood_score": 0.16577817499637604
+      },
+      {
+        "name": "held-out design 10",
+        "ood": false,
+        "ood_score": 0.16577817499637604
+      },
+      {
+        "name": "held-out design 11",
+        "ood": false,
+        "ood_score": 0.16577817499637604
+      },
+      {
+        "name": "held-out design 12",
+        "ood": false,
+        "ood_score": 0.2646481394767761
+      },
+      {
+        "name": "held-out design 13",
+        "ood": false,
+        "ood_score": 0.2646481394767761
+      },
+      {
+        "name": "held-out design 14",
+        "ood": false,
+        "ood_score": 0.2646481394767761
+      }
+    ],
+    "probes_flagged": 2,
+    "probes_total": 2,
+    "held_out_flagged": 0,
+    "held_out_ood_score_max": 1.1776717901229858,
+    "held_out_ood_score_median": 0.3279513418674469,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.3197 on 15 designs of 1800 points, tolerance 0.05",
+      "constant-field baseline on the same designs: 0.986",
+      "OOD: 2/2 probes outside the family flagged, 0/15 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: analytic \u2014 Joukowski conformal map with the Kutta condition (exact potential flow), with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

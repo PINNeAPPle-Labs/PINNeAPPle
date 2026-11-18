@@ -107,6 +107,8 @@ docs/studio/COVERAGE.md
 
 # Ahmed study: generated pages (05_twin.py, 06_visuals.py write them; the app writes its own copy)
 examples/end_to_end/ahmed_body/results/twin/
-benchmarks/_out/lpm_pp_*/dataset/
-benchmarks/_out/lpm_pp_*/model/model.pt
+benchmarks/_out/*/dataset/
+benchmarks/_out/*/model/model.pt
 five_run.json
+examples/lpm_five_models/results/*/dataset/
+examples/lpm_five_models/results/*/model/model.pt

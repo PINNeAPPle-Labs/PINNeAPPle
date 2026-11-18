@@ -15,6 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # package or package.module -> why there is no node (or "covered by <node types>" when the coverage is indirect)
 REASONS: dict[str, str] = {
+    # design spaces, not calls: a family is a reference plus the bounds it is valid over, and the pipeline that turns
+    # one into a dataset and a model is a command line (python -m pinneapple_neural.lpm_pipeline), not a form call
+    "pinneapple_neural.lpm_families": "design-space families (a reference and its bounds), consumed by the lpm "
+                                      "pipeline command line rather than called by a node",
+    "pinneapple_neural.lpm_families_3d": "the same design spaces in three dimensions; consumed by the lpm pipeline "
+                                         "command line rather than called by a node",
+    "pinneapple_neural.lpm_pipeline": "the dataset / fit / card pipeline, run as a command line: its stages are "
+                                      "driven by run() and train(), which take a design space, not a form",
+    "pinneapple_neural.lpm_real_data": "a published simulation campaign read through the dataset loader; its gates "
+                                       "report what passed, which data_gates() prints outside a node",
     # compatibility shims and infrastructure
     "pinneapple_models": "shim: re-exports pinneapple_neural.architectures (covered there)",
     "pinneapple_train": "shim: re-exports pinneapple_neural.trainer (covered there)",

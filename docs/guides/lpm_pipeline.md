@@ -98,6 +98,41 @@ without a single extra solver run. Pointwise Cp error is now flat along the chor
 leading edge to 70 % chord); what remains sits near the trailing edge, where Cp is small and the relative error is
 large while the absolute error is not.
 
+## Three dimensions
+
+The five families above are 2-D: a section, a meridian, a plate. `pinneapple_neural.lpm_families_3d` keeps the same
+pipeline and answers three of the same problems in three dimensions, where an industrial surrogate is actually asked
+for one.
+
+| Name | Problem | Field | Reference |
+|---|---|---|---|
+| `pp_wing3d` | swept, tapered, twisted wing at a compressible free stream | surface Cp (960 points) | 3-D vortex lattice on the camber surface, strip-coupled to the 2-D Hess-Smith section solution, Prandtl-Glauert |
+| `pp_fin3d` | extruded-fin heat sink under a chip of known power | fin and base temperature (950 points) | 3-D conduction with a Robin boundary, immersed finite-cell method |
+| `pp_bracket3d` | L-bracket under a tip load | displacement and von Mises (192 points) | 3-D linear elasticity on conforming quadratic tetrahedra (gmsh P2) |
+
+```python
+from pinneapple_neural.lpm_families_3d import families_3d
+from pinneapple_neural.lpm_pipeline import run
+
+summary = run(families_3d()["pp_wing3d"], "out/pp_wing3d", n_geometries=80, conditions_per_geometry=3)
+```
+
+Each is checked against a property of the physics rather than against itself: the wing's composed pressure must
+integrate, section by section, to the load the lattice asked for, its lift must obey Prandtl's lifting-line law as the
+aspect ratio grows, a symmetric section at zero incidence must carry no load, and Cp at Mach must be Cp at zero Mach
+divided by β. The heat sink must balance its energy and run cooler when the convection coefficient rises. The bracket
+must be linear in the load and unchanged when the mesh is refined.
+
+Two things this does **not** claim. There is no 3-D compressible Navier-Stokes here: `pp_wing3d` is the linearised
+compressible lifting surface, so a transonic case is a subsonic field stretched by 1/β and a shock is not in it. And
+the 3-D exchanger and 3-D nozzle are not built yet — each needs its own reference, and a reference that has not been
+verified is worse than none.
+
+A note on the bracket, because it is the kind of thing a card cannot say for itself: the immersed finite-cell grid was
+the first attempt, the one the heat sink uses, and it was rejected here. On a thin plate in bending at order one,
+halving the grid moved the tip displacement by 55 %. Conforming P2 tetrahedra on the same part move by 0.9 % and then
+0.3 %; that is the path the repository already verifies against CalculiX, and it is the one the family uses.
+
 ## Three rules the pipeline enforces
 
 **The split is by geometry, never by design.** A design space runs several operating points on the same body. Splitting

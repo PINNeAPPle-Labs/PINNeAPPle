@@ -666,10 +666,14 @@ def families() -> dict[str, FieldFamily]:
 
 
 def _family_by_name(name: str) -> FieldFamily:
+    """A family by name, from either registry: a dataset's manifest records the name, and both are the same pipeline."""
+    from .lpm_families_3d import families_3d      # imported here: the 3-D module builds on this one
+
+    known = {**families(), **families_3d()}
     try:
-        return families()[name]
+        return known[name]
     except KeyError as exc:
-        raise ValueError(f"unknown family {name!r}; known: {', '.join(families())}") from exc
+        raise ValueError(f"unknown family {name!r}; known: {', '.join(known)}") from exc
 
 
 def run(family: FieldFamily | str, out_dir: str | Path, *, n_geometries: int = 32,
@@ -692,7 +696,8 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("family", choices=sorted(families()), help="which family to run")
+    from .lpm_families_3d import families_3d
+    parser.add_argument("family", choices=sorted({**families(), **families_3d()}), help="which family to run")
     parser.add_argument("--out", default=None, help="output directory (default: benchmarks/_out/lpm_<family>)")
     parser.add_argument("--geometries", type=int, default=32)
     parser.add_argument("--conditions", type=int, default=3)

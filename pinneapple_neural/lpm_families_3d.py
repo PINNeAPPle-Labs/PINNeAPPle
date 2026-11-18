@@ -19,7 +19,7 @@ import numpy as np
 from pinneapple_design.aero import vlm
 from pinneapple_design.aero.airframe import Airframe
 from pinneapple_design.aero.geometry import BOUNDS as SECTION_BOUNDS
-from pinneapple_design.aero.geometry import latin_hypercube, valid
+from pinneapple_design.aero.geometry import latin_hypercube, naca4, valid
 from pinneapple_design.aero.panel import airfoil_nodes, panel_solve
 
 from .lpm_pipeline import DesignSpec, FieldFamily, Reference
@@ -207,6 +207,15 @@ class Wing3D(FieldFamily):
         return cp[:, None]
 
     # ------------------------------------------------------------------------------------------------- gates
+    def ood_probes(self) -> list[tuple[str, DesignSpec]]:
+        """A 60 deg swept, 18 % thick wing at M 0.93: outside the planform and beyond the Mach the family trains on."""
+        shape = np.round(naca4("2415"), 6)
+        geometry = {"aspect_ratio": 3.0, "taper": 0.2, "sweep_le_deg": 60.0, "dihedral_deg": 8.0,
+                    "twist_deg": -9.0, "incidence_deg": 6.0}
+        return [("a 60 deg swept, AR-3 wing at M 0.93",
+                 DesignSpec({**geometry, **{f"cst_{i}": float(v) for i, v in enumerate(shape)}},
+                            {"alpha_deg": 12.0, "mach": 0.93}, label="probe:sweep"))]
+
     def validate(self, spec: DesignSpec) -> str:
         ok, why = valid(self._section(spec))
         if not ok:
@@ -307,6 +316,13 @@ class FinHeatSink3D(FieldFamily):
             nrm.append(q)
         return np.concatenate(pts), np.concatenate(nrm)
 
+    def ood_probes(self) -> list[tuple[str, DesignSpec]]:
+        """A sink with 12x the convection coefficient and 4x the power of the trained family."""
+        return [("a 480 W sink at 900 W/m2K",
+                 DesignSpec({"fin_height_mm": 60.0, "fin_thickness_mm": 2.0, "length_mm": 120.0,
+                             "base_thickness_mm": 10.0},
+                            {"power_w": 480.0, "h_w_m2k": 900.0, "t_inf_c": 25.0}, label="probe:hot"))]
+
     def _h(self, spec: DesignSpec) -> float:
         """Background grid spacing: about ten cells along the base, which is a converged-enough 3-D solve and still
         a second per design."""
@@ -334,7 +350,7 @@ class FinHeatSink3D(FieldFamily):
         return sol(pts)[:, None]
 
 
-def _occ_boxes(boxes) -> "Callable":                                  # noqa: F821 - gmsh builds it
+def _occ_boxes(boxes) -> Callable:                                  # noqa: F821 - gmsh builds it
     """A gmsh/OCC volume that is the union of the given boxes: the CAD the conforming tet mesher needs."""
     def build(g):
         created = [g.model.occ.addBox(*np.asarray(lo, float),
@@ -432,6 +448,12 @@ class Bracket3D(FieldFamily):
         sol = T.solve_elasticity(mesh, E, nu, bcs=bcs)
         pts, _ = self.points_and_normals(spec)
         return np.stack([np.linalg.norm(sol(pts), axis=1), sol.von_mises(pts)], axis=1)
+
+    def ood_probes(self) -> list[tuple[str, DesignSpec]]:
+        """A load ten times the trained one on a part twice as long."""
+        return [("a 5 kN load on a 200 mm arm",
+                 DesignSpec({"arm_mm": 200.0, "width_mm": 20.0, "thickness_mm": 3.0, "upright_mm": 150.0},
+                            {"load_n": 5000.0}, label="probe:load"))]
 
     def validate(self, spec: DesignSpec) -> str:
         if spec.operating["load_n"] <= 0.0:

@@ -51,7 +51,7 @@ from pinneapple_neural.lpm_pipeline import (
 
 def test_the_five_families_are_registered_and_describe_themselves():
     fams = families()
-    assert set(fams) == {"pp_fin", "pp_airfoil", "pp_nozzle", "pp_exchanger", "pp_bracket"}
+    assert set(fams) == {"pp_fin", "pp_airfoil", "pp_nozzle", "pp_exchanger", "pp_bracket", "pp_airfoil_rans"}
     for name, fam in fams.items():
         described = fam.describe()
         assert described["name"] == name
@@ -59,8 +59,12 @@ def test_the_five_families_are_registered_and_describe_themselves():
         assert len(described["field_scale"]) == fam.n_fields
         assert described["reference"]["name"] and described["reference"]["citation"]
         assert described["reference"]["assumptions"], "a reference without assumptions is an overclaim"
+    # two families hand the target to a solver; the published campaign is the only one this repository did not run
     assert fams["pp_bracket"].reference.implements == "solver"
-    assert all(fams[k].reference.implements == "analytic" for k in fams if k != "pp_bracket")
+    assert fams["pp_airfoil_rans"].reference.implements == "solver"
+    assert fams["pp_airfoil_rans"].reference.licence and fams["pp_airfoil_rans"].reference.provenance
+    assert all(fams[k].reference.implements == "analytic"
+               for k in fams if k not in ("pp_bracket", "pp_airfoil_rans"))
 
 
 def test_airfoil_reproduces_the_analytic_ellipse_and_the_kutta_joukowski_theorem():
@@ -299,6 +303,17 @@ def test_a_family_fits_end_to_end_and_writes_a_card(tmp_path):
     assert card["split"]["n_train_geometries"] + card["split"]["n_holdout_geometries"] == 10
     assert set(card["held_out"]) >= {"relative_l2", "relative_l2_p90", "constant_field_baseline_relative_l2"}
     assert (out / "model" / "model.pt").stat().st_size > 0
+    # the model a caller gets back must be the model that was fitted, out-of-distribution reference included
+    from pinneapple_neural.lpm_pipeline import build, draw, load_model
+
+    loaded = load_model(out, device="cpu")
+    design = build(family, draw(family, n_geometries=1, conditions_per_geometry=1, seed=11)[0])
+    report = loaded.predict(design)
+    assert report["mean"].shape == design.target.shape and bool(torch.isfinite(report["mean"]).all())
+    assert loaded.train_codes.shape[0] > 1, "the training codes must travel with the checkpoint"
+    assert loaded.train_codes.shape[0] <= card["split"]["n_train_geometries"], \
+        "remembered codes are distinct bodies, so there cannot be more of them than training bodies"
+    assert isinstance(loaded.ood(design)["ood"], bool)
 
 
 def test_the_ood_flag_is_measured_on_every_family(tmp_path):
@@ -311,3 +326,56 @@ def test_the_ood_flag_is_measured_on_every_family(tmp_path):
         summary = train(datasets, tmp_path / f"{name}_run", seed=0, epochs=150, batch_designs=12,
                         backbone="mlp", device="cpu", width=48, n_heads=2)
         assert summary["ood_probes_flagged"].split("/")[0] != "0", summary
+
+
+# ---------------------------------------------------------------------------------- the published RANS campaign
+
+def _rans_or_skip():
+    """The real campaign is a ~500 MB download: skip when this machine does not have it cached."""
+    try:
+        from pinneapple_neural.lpm_real_data import RansAirfoil, data_gates
+        family = RansAirfoil()
+        family.specs()
+    except Exception as exc:                       # noqa: BLE001 - no cache, no test
+        pytest.skip(f"the {exc}")
+    return family, data_gates
+
+
+def test_the_real_campaign_passes_its_gates_and_reconstructs_its_published_lift():
+    """The wall pressure of every accepted run must integrate to the Cl the campaign published for it."""
+    family, data_gates = _rans_or_skip()
+    report = data_gates(max_runs=40)
+    assert report["designs_after_gates"] > 30
+    assert report["designs_refused"] == 0, report["refusals"]
+    assert report["lift_gate"]["median_absolute_error"] < 0.02
+    assert report["lift_gate"]["max_absolute_error"] < 0.05
+    assert report["licence"] == "cc-by-4.0"
+    assert report["splits"]["train"] > 0 and report["splits"]["test"] > 0
+
+
+def test_the_real_family_keeps_the_published_split():
+    """The campaign held 15 % of its shapes out before publishing: no shape may appear on both sides."""
+    family, _ = _rans_or_skip()
+    specs = family.specs()
+    sides: dict[int, set[str]] = {}
+    for spec in specs:
+        sides.setdefault(spec.geometry_id, set()).add(spec.split)
+    assert all(len(v) == 1 for v in sides.values()), "a shape straddles the published split"
+    assert sum(1 for s in specs if s.split == "train") > sum(1 for s in specs if s.split == "test")
+
+
+def test_the_real_wall_ring_is_the_section_it_claims_to_be():
+    family, _ = _rans_or_skip()
+    spec = family.specs()[0]
+    points, normals = family.points_and_normals(spec)
+    assert points.shape == (family.n_points, 2) and normals.shape == points.shape
+    torch.testing.assert_close(torch.tensor(np.linalg.norm(normals, axis=1)),
+                               torch.ones(family.n_points), atol=1e-5, rtol=0)
+    # the ring closes on itself and spans about one chord, with the outline above and below the chord line
+    following = np.roll(points, -1, axis=0)
+    assert float(np.hypot(*(following[0] - points[0]))) < 0.05
+    assert 0.8 < float(points[:, 0].max() - points[:, 0].min()) < 1.2
+    assert points[:, 1].min() < 0 < points[:, 1].max()
+    assert family.field(spec).shape == (family.n_points, 1)
+    assert family.reference.implements == "solver"
+    assert "cc-by" in family.reference.licence

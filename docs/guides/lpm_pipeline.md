@@ -46,6 +46,58 @@ Two of the five predict dimensional fields (the heat sink in °C, the bracket in
 dimensionless ones (Cp, Mach and p/p0, θ) because that is how their physics scales. `pp_exchanger` reconstructs the
 physical temperatures as `T_cold_in + θ (T_hot_in − T_cold_in)`, and `pp_nozzle` as `(p/p0) × p_chamber`.
 
+## Fitting data this repository did not produce
+
+The five families above compute their own targets, so a good fit proves the *model* can learn a physics this
+repository implements — not that it can learn physics as it is actually solved. `pinneapple_neural.lpm_real_data`
+closes that gap with a **published campaign**: `pp_airfoil_rans` fits the `airfoil_rans_cst_re4e6_fields` dataset, 436
+steady 2-D RANS runs (OpenFOAM `simpleFoam`, k-omega SST, y+ < 1) over 100 Latin-hypercube CST shapes at four
+incidences plus four NACA sections at nine, on a shared 228 x 88 O-grid, cc-by-4.0.
+
+Nothing is drawn here: `specs()` returns the campaign's runs exactly as recorded, and `published_split()` hands back
+the 15 % of shapes its authors held out before publishing, so a held-out number means what it means in the campaign.
+The geometry is the **wall ring** of the O-grid, the field is surface Cp from the solved kinematic pressure, and the
+condition is the incidence.
+
+```python
+from pinneapple_neural.lpm_real_data import data_gates
+print(data_gates())                              # what passed the gates and what was refused
+python -m pinneapple_neural.lpm_pipeline pp_airfoil_rans --dataset-only --out out/rans
+```
+
+Three gates stand between the data and the fit, and a run that fails one is not written:
+
+| Gate | What it catches |
+|---|---|
+| the run's own status | the campaign flags 32 runs unsteady; a final-iteration snapshot of an oscillation is not a steady answer |
+| the wall pressure must integrate to the campaign's published Cl | the ring, the normals or the sign was read wrong — this is the only check of the extraction itself |
+| surface Cp inside what a RANS section can produce | a mis-indexed grid, before it is trained on |
+
+The campaign's own verification — grid study on NACA 2412 (Cl 0.6614/0.6625/0.6624 at 6840/20064/45144 cells, Cd GCI
+1.9 %), XFOIL 6.99 (Cl −2.3 %, Cd +4.5 %), a 0.110/deg lift slope against thin-airfoil theory, and NASA TMR NACA 0012
+SST (Cd 0.00812 vs 0.0081) — is quoted in the reference and repeated in every card. It is the campaign's, not this
+pipeline's. What this family still does not do: it does not validate the RANS itself, and it does not turn a 2-D
+section into a 3-D wing.
+
+### What it measured
+
+372 runs pass the gates (100 shapes, 314 train / 58 test by the campaign's own split, no refusal), and the wall
+pressure integrates to the campaign's published Cl to a median of 0.0033 in coefficient, worst 0.0159 — the residual
+is the viscous part of the reported coefficient, which a pressure integral does not contain.
+
+| Run | Held-out relative L2 | p90 | Cl from the predicted Cp |
+|---|---|---|---|
+| 96 wide, 150 epochs, 32 designs/batch | 0.216 | 0.321 | 9.3 % median, r = 0.979 |
+| 128 wide, 700 epochs, 48 designs/batch, 48-code, 8 frequencies, 3 attention layers | **0.057** | 0.125 | **2.8 % median, p90 6.8 %, r = 0.998** |
+
+The constant-field baseline on the same 58 designs is 0.959, so the model explains what a mean field cannot. The
+second row is `train(dataset, out, epochs=700, batch_designs=48, width=128, code=48, n_freq=8, n_heads=6,
+attn_layers=3, lr=1.5e-3)`; it takes 19 minutes on one MPS device. The first row is the same data at the defaults,
+and it is a useful comparison: on this space the limit was training budget, not the data — the error fell by 3.8x
+without a single extra solver run. Pointwise Cp error is now flat along the chord (0.05 of the local rms from the
+leading edge to 70 % chord); what remains sits near the trailing edge, where Cp is small and the relative error is
+large while the absolute error is not.
+
 ## Three rules the pipeline enforces
 
 **The split is by geometry, never by design.** A design space runs several operating points on the same body. Splitting

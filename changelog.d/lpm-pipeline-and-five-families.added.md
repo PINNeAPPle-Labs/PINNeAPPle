@@ -17,3 +17,12 @@
   flagged as out of distribution.
 - `examples/lpm_five_models` (data, fit, held-out error and OOD report for the five families) and
   `docs/guides/lpm_pipeline.md`.
+- `pinneapple_neural.lpm_real_data`: the same pipeline fitted on a **published** campaign instead of targets this
+  repository computed. `pp_airfoil_rans` reads `airfoil_rans_cst_re4e6_fields` — 436 steady 2-D OpenFOAM RANS runs
+  (k-omega SST, y+ < 1) over 100 CST shapes at four incidences plus four NACA sections at nine, cc-by-4.0 — and
+  trains on the wall ring of the shared O-grid, with surface Cp as the target and the incidence as the condition.
+  `FieldFamily.specs()` and `published_split()` let a family supply the designs and the split, so the campaign's own
+  held-out shapes stay held out instead of being re-drawn here. `data_gates()` refuses a run the campaign flags
+  unsteady, whose wall pressure does not integrate to the campaign's published Cl, or whose Cp is outside the range a
+  RANS section can produce, and reports every refusal with its reason. `Reference` gained `provenance` and `licence`,
+  both repeated in every card.

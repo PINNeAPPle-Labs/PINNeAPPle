@@ -85,10 +85,13 @@ class Reference:
     citation: str
     assumptions: tuple[str, ...]
     implements: str = "analytic"
+    #: where the data came from and under what licence, when it is not generated here (a published campaign)
+    provenance: str = ""
+    licence: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         return {"name": self.name, "citation": self.citation, "assumptions": list(self.assumptions),
-                "implements": self.implements}
+                "implements": self.implements, "provenance": self.provenance, "licence": self.licence}
 
 
 @dataclass(frozen=True)
@@ -99,9 +102,13 @@ class DesignSpec:
     operating: dict[str, float]
     geometry_id: int = 0
     label: str = ""
+    #: which side of a **published** split this run belongs to ("train" / "test"), when the data has one. A campaign
+    #: that held out shapes before publishing them fixes what "held out" means, and the pipeline must honour that
+    #: instead of drawing its own split.
+    split: str = ""
 
     def as_dict(self) -> dict[str, Any]:
-        return {"label": self.label, "geometry_id": self.geometry_id,
+        return {"label": self.label, "geometry_id": self.geometry_id, "split": self.split,
                 "geometry": dict(self.geometry), "operating": dict(self.operating)}
 
 
@@ -163,6 +170,30 @@ class FieldFamily:
     def ood_probes(self) -> list[tuple[str, DesignSpec]]:
         """Designs outside the trained family, as ``(name, spec)``. Empty when the family has none."""
         return []
+
+    def specs(self) -> list[DesignSpec] | None:
+        """The designs of a **real-data** family: one per run of the published dataset.
+
+        A family that generates its own data leaves this as ``None`` and :func:`draw` samples instead. A family over
+        a published campaign returns its runs here — the pipeline then writes exactly those and nothing it invented.
+        """
+        return None
+
+    def published_split(self, records: list[dict[str, Any]]) -> tuple[list[int], list[int]] | None:
+        """The train/hold-out indices the dataset's authors defined, or ``None`` to let the pipeline draw its own.
+
+        Honouring the published split is what makes a held-out number comparable with the campaign that produced the
+        data: the shapes were held out before anyone trained on them.
+        """
+        marked = [i for i, record in enumerate(records) if record.get("split")]
+        if not marked:
+            return None
+        train = [i for i, record in enumerate(records) if record.get("split") == "train"]
+        hold = [i for i, record in enumerate(records) if record.get("split") == "test"]
+        if not train or not hold:
+            raise ValueError(f"{self.name}: the design set carries split markers but not both sides "
+                             f"(train {len(train)}, test {len(hold)})")
+        return train, hold
 
     def validate(self, spec: DesignSpec) -> str:
         """Why this design cannot be built, or ``""`` when it can.
@@ -255,6 +286,11 @@ def draw(family: FieldFamily, n_geometries: int, conditions_per_geometry: int = 
         raise ValueError("a design space needs at least one geometry")
     if conditions_per_geometry < 1:
         raise ValueError("each geometry needs at least one operating point")
+    published = family.specs()
+    if published is not None:
+        if not published:
+            raise ValueError(f"{family.name}: the family publishes no designs")
+        return list(published)
     rng = np.random.default_rng(seed)
     specs: list[DesignSpec] = []
     for gid in range(n_geometries):
@@ -407,6 +443,32 @@ def _relative_l2(pred: torch.Tensor, target: torch.Tensor) -> float:
     return error / norm if norm > 0 else float("nan")
 
 
+def load_model(out_dir: str | Path, device: str | None = None) -> LargePhysicsModel:
+    """Load a model written by :func:`train`, so a fitted design space can be used without the pipeline.
+
+    The training geometry codes travel in the checkpoint, so the out-of-distribution rule still measures against the
+    bodies the model was actually fitted on.
+    """
+    payload = torch.load(Path(out_dir) / "model" / "model.pt", map_location="cpu", weights_only=False)
+    config = payload["config"]
+    model = LargePhysicsModel(
+        dim=int(config["dim"]), n_fields=int(config["n_fields"]), n_params=int(config["n_params"]),
+        radii=tuple(config["radii"]), n_freq=int(config["n_freq"]), width=int(config["width"]),
+        code=int(config["code"]), n_heads=int(config["n_heads"]), backbone=str(config["backbone"]),
+        attn_heads=int(config["attn_heads"]), attn_layers=int(config["attn_layers"]),
+    )
+    state = payload["state_dict"]
+    if "train_codes" in state:
+        # the remembered codes are a buffer whose size is the number of distinct training bodies, so it has to be
+        # sized from the checkpoint before the state is copied into it
+        model.train_codes = state["train_codes"].clone()
+    model.load_state_dict(state)
+    model = model.to(torch.device(device) if device is not None else torch.device(
+        "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"))
+    model.eval()
+    return model
+
+
 def evaluate(model: LargePhysicsModel, family: FieldFamily, designs: list[Design],
              train_designs: list[Design] | None = None) -> dict[str, Any]:
     """Held-out error, ensemble spread, constant-field baseline and the OOD report, over a list of designs.
@@ -496,7 +558,9 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
     """
     designs, manifest = load_dataset(dataset_dir)
     family_info = manifest["family"]
-    train_idx, hold_idx = _split_by_geometry(manifest, holdout_fraction, seed)
+    published = _family_by_name(family_info["name"]).published_split(manifest["designs"])
+    train_idx, hold_idx = published if published is not None else _split_by_geometry(
+        manifest, holdout_fraction, seed)
     train_designs = [designs[i] for i in train_idx]
     hold_designs = [designs[i] for i in hold_idx]
     dev = torch.device(device) if device is not None else torch.device(
@@ -533,7 +597,9 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
         "dataset": {"schema": manifest["schema"], "seed": manifest["seed"],
                     "n_designs": manifest["n_designs"], "n_geometries": manifest["n_geometries"],
                     "conditions_per_geometry": manifest["conditions_per_geometry"]},
-        "split": {"policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+        "split": {"policy": ("the published split of the dataset: a held-out body was held out before training"
+                             if published is not None else
+                             "random by geometry, fixed by the seed: a held-out body is never a training body"),
                   "seed": int(seed), "holdout_fraction": float(holdout_fraction),
                   "n_train_designs": len(train_designs), "n_holdout_designs": len(hold_designs),
                   "n_train_geometries": len({manifest["designs"][i]["geometry_id"] for i in train_idx}),
@@ -586,10 +652,17 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
 
 
 def families() -> dict[str, FieldFamily]:
-    """The first five families PINNeAPPle ships, by name."""
-    from .lpm_families import AIRFOIL, BRACKET, EXCHANGER, FIN, NOZZLE
+    """Every family PINNeAPPle ships, by name.
 
-    return {f.name: f for f in (FIN, AIRFOIL, NOZZLE, EXCHANGER, BRACKET)}
+    Five generate their fields from a reference this repository implements
+    (:mod:`pinneapple_neural.lpm_families`); ``pp_airfoil_rans`` fits the same model on a **published** OpenFOAM
+    campaign instead (:mod:`pinneapple_neural.lpm_real_data`), which is how the methodology is shown on data nobody
+    here produced.
+    """
+    from .lpm_families import AIRFOIL, BRACKET, EXCHANGER, FIN, NOZZLE
+    from .lpm_real_data import RansAirfoil
+
+    return {f.name: f for f in (FIN, AIRFOIL, NOZZLE, EXCHANGER, BRACKET, RansAirfoil())}
 
 
 def _family_by_name(name: str) -> FieldFamily:

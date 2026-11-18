@@ -205,7 +205,7 @@
         "background grid 1.50 mm, 280 degrees of freedom"
       ],
       "artifacts": {},
-      "wall_s": 0.0024201659980462864
+      "wall_s": 0.006998458004090935
     },
     {
       "rung": "convergence",
@@ -271,7 +271,7 @@
         "coarse 3.00 mm and fine 1.50 mm; 572.954 K then 572.953 K"
       ],
       "artifacts": {},
-      "wall_s": 0.003531417009071447
+      "wall_s": 0.009613709000404924
     }
   ],
   "checks": [
@@ -360,7 +360,7 @@
       "detail": "the edges are insulated, so the two answers should coincide; the gap is the discretisation error plus the film treatment at the cold face"
     }
   ],
-  "wall_s": 0.013451542006805539,
+  "wall_s": 0.03419066699279938,
   "files": {
     "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/heat-wall-replay/contract.json"
   },
@@ -484,7 +484,7 @@
       "llm": "",
       "llm_note": "",
       "library_version": "0.8.0",
-      "created_at": "2026-11-18T13:20:40+00:00",
+      "created_at": "2026-11-18T13:29:10+00:00",
       "seed": 0,
       "python": "3.11.16",
       "platform": "Darwin"

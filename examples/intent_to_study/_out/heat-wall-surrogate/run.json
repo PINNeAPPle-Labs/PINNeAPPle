@@ -37,10 +37,10 @@
         "status": "supports",
         "critical": false,
         "weight": 1.0,
-        "value": 5e-06,
+        "value": 1.4e-05,
         "limit": 0.05,
         "source": "",
-        "reason": "the wall thickness swept over 4.8 to 19.2 mm, 24 solver runs at the coarse spacing; mean relative error on the 2 held-out designs 0.001% (p95 0.001%)"
+        "reason": "the wall thickness swept over 4.8 to 19.2 mm, 24 solver runs at the coarse spacing; mean relative error on the 6 held-out designs 0.001% (p95 0.002%)"
       },
       {
         "name": "the closed form returns a finite far-face temperature",
@@ -147,7 +147,7 @@
         "status": "supports",
         "critical": false,
         "weight": 1.0,
-        "value": 2.0,
+        "value": 6.0,
         "limit": null,
         "source": "",
         "reason": ""
@@ -225,7 +225,7 @@
         "background grid 1.50 mm, 280 degrees of freedom"
       ],
       "artifacts": {},
-      "wall_s": 0.0021377079974627122
+      "wall_s": 0.004729250009404495
     },
     {
       "rung": "convergence",
@@ -291,14 +291,14 @@
         "coarse 3.00 mm and fine 1.50 mm; 572.954 K then 572.953 K"
       ],
       "artifacts": {},
-      "wall_s": 0.005404292009188794
+      "wall_s": 0.0080327089963248
     },
     {
       "rung": "surrogate",
       "ran": true,
       "reason": "",
       "outputs": {
-        "held_out_relative_error": 5.327278358890908e-06,
+        "held_out_relative_error": 1.37263850774616e-05,
         "n_designs": 24.0
       },
       "units": {
@@ -308,13 +308,13 @@
         {
           "name": "the surrogate was fitted and scored on held-out designs",
           "passed": true,
-          "value": 2,
+          "value": 6,
           "limit": ">= 1",
           "detail": ""
         }
       ],
       "notes": [
-        "the wall thickness swept over 4.8 to 19.2 mm, 24 solver runs at the coarse spacing; mean relative error on the 2 held-out designs 0.001% (p95 0.001%)"
+        "the wall thickness swept over 4.8 to 19.2 mm, 24 solver runs at the coarse spacing; mean relative error on the 6 held-out designs 0.001% (p95 0.002%)"
       ],
       "artifacts": {},
       "wall_s": 0.0
@@ -338,9 +338,9 @@
     {
       "name": "the surrogate on designs held out of its fit",
       "passed": true,
-      "value": 5e-06,
+      "value": 1.4e-05,
       "limit": 0.05,
-      "detail": "the wall thickness swept over 4.8 to 19.2 mm, 24 solver runs at the coarse spacing; mean relative error on the 2 held-out designs 0.001% (p95 0.001%)"
+      "detail": "the wall thickness swept over 4.8 to 19.2 mm, 24 solver runs at the coarse spacing; mean relative error on the 6 held-out designs 0.001% (p95 0.002%)"
     },
     {
       "name": "the closed form returns a finite far-face temperature",
@@ -415,12 +415,12 @@
     {
       "name": "the surrogate was fitted and scored on held-out designs",
       "passed": true,
-      "value": 2,
+      "value": 6,
       "limit": ">= 1",
       "detail": ""
     }
   ],
-  "wall_s": 0.6294666249887086,
+  "wall_s": 1.4243388750037411,
   "files": {
     "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/heat-wall-surrogate/contract.json"
   },
@@ -551,7 +551,7 @@
       "llm": "",
       "llm_note": "",
       "library_version": "0.8.0",
-      "created_at": "2026-11-18T13:20:41+00:00",
+      "created_at": "2026-11-18T13:29:11+00:00",
       "seed": 0,
       "python": "3.11.16",
       "platform": "Darwin"

@@ -170,7 +170,7 @@
         "256 radial nodes over a radius of 10.00 mm"
       ],
       "artifacts": {},
-      "wall_s": 0.0003488329966785386
+      "wall_s": 0.003368083998793736
     },
     {
       "rung": "convergence",
@@ -222,7 +222,7 @@
         "16 then 256 radial nodes; 6.40878 Pa then 6.36634 Pa"
       ],
       "artifacts": {},
-      "wall_s": 0.00031245898571796715
+      "wall_s": 0.002087791988742538
     }
   ],
   "checks": [
@@ -290,7 +290,7 @@
       "detail": "6.36634 Pa from the discrete profile against 6.3662 Pa from Hagen-Poiseuille; relative error 0.002%"
     }
   ],
-  "wall_s": 0.000698207993991673,
+  "wall_s": 0.005656458000885323,
   "files": {
     "contract": "/Users/yanbarros/Documents/GitHub/wt-intent/examples/intent_to_study/_out/pipe-laminar/contract.json"
   },
@@ -408,7 +408,7 @@
       "llm": "",
       "llm_note": "",
       "library_version": "0.8.0",
-      "created_at": "2026-11-18T13:20:40+00:00",
+      "created_at": "2026-11-18T13:29:10+00:00",
       "seed": 0,
       "python": "3.11.16",
       "platform": "Darwin"

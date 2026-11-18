@@ -48,7 +48,7 @@
 |---|---|---|---|
 | cold_face_temperature: the solver against the series-resistance closed form | pass | 2e-06 | 0.05 |
 | cold_face_temperature: change under refinement | pass | 1e-06 | 0.02 |
-| the surrogate on designs held out of its fit | pass | 5e-06 | 0.05 |
+| the surrogate on designs held out of its fit | pass | 1.4e-05 | 0.05 |
 | the closed form returns a finite far-face temperature | pass | 572.9521424574307 | finite |
 | the solution is finite | pass | 572.9530731608912 | finite |
 | energy balance of the discrete system | pass | -9.076522710021778e-12 | 1e-08 |
@@ -59,7 +59,7 @@
 | the solution is finite | pass | 572.9530731608912 | finite |
 | energy balance of the discrete system | pass | -9.076522710021778e-12 | 1e-08 |
 | the two-dimensional solve is within the family's tolerance of the closed form | pass | 2e-06 | 0.05 |
-| the surrogate was fitted and scored on held-out designs | pass | 2 | >= 1 |
+| the surrogate was fitted and scored on held-out designs | pass | 6 | >= 1 |
 
 ## What this study does not cover
 

@@ -412,3 +412,15 @@ def test_a_description_nothing_matches_still_gives_a_plan_and_says_what_it_lacks
     assert len(plan.open_questions) == len(questions())        # everything is still open, and it says so
     with pytest.raises(ValueError):
         advise("   ", llm=False)
+
+
+def test_a_description_cannot_carry_markup_into_the_drawings():
+    """The page inserts the SVG into the document: the text of a problem must arrive escaped there, and a source
+    diagram (Mermaid, DOT) must arrive without tags at all."""
+    plan = advise('heat in a plate <script>alert("x")</script> & 3 > 2 "quoted"', llm=False)
+    for kind in ("svg", "html"):
+        out = plan.diagram(kind)
+        assert "<script>" not in out and "&lt;script&gt;" in out, kind
+    for kind in ("mermaid", "dot"):
+        out = plan.diagram(kind)
+        assert "<script>" not in out and "alert" not in out, kind

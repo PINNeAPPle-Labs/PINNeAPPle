@@ -34,6 +34,19 @@ N_STRIPS = 12
 N_FINS = 7
 
 
+def _station_fracs() -> np.ndarray:
+    """Where along the semi-span the surface strips sit: the lattice's own cosine spacing, not a uniform one.
+
+    The vortex lattice clusters its strips toward the tips (``ye = -b/2 cos(theta)``), and each strip's lift belongs at
+    that strip's centre. Sampling the surface uniformly and putting the k-th strip's lift on the k-th uniform station
+    would smear the load by up to half a strip width, which at the tip is most of the load.
+    """
+    th = np.linspace(0.0, math.pi, 2 * N_STRIPS + 1)
+    ye = -np.cos(th)
+    centre = 0.5 * (ye[:-1] + ye[1:])[N_STRIPS:]                 # the right half, root to tip
+    return np.abs(centre)
+
+
 def _beta(mach: float) -> float:
     """Prandtl-Glauert factor, ``sqrt(1 - M^2)``."""
     return math.sqrt(max(1.0 - mach * mach, 1e-6))
@@ -133,8 +146,7 @@ class Wing3D(FieldFamily):
         if area < 0.0:
             normal = -normal
         points, normals = [], []
-        for k in range(N_STRIPS):
-            frac = (k + 0.5) / N_STRIPS
+        for frac in _station_fracs():
             x_le, chord, z = self._station(af, frac)
             y = frac * af.span / 2.0
             angle = math.radians(af.incidence + af.twist * frac)      # washout: negative at the tip
@@ -160,9 +172,8 @@ class Wing3D(FieldFamily):
         ring = nodes[:-1] if np.allclose(nodes[0], nodes[-1]) else nodes
         panel = np.linalg.norm(np.roll(ring, -1, axis=0) - ring, axis=1)
         out = []
-        for k in range(N_STRIPS):
-            chord = self._station(af, (k + 0.5) / N_STRIPS)[1]
-            out.append(panel * chord)
+        for frac in _station_fracs():
+            out.append(panel * self._station(af, frac)[1])
         return np.concatenate(out)
 
     # ----------------------------------------------------------------------------------------------- the field

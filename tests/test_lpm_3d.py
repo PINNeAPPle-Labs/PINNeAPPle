@@ -18,6 +18,7 @@ from pinneapple_neural.lpm_families_3d import (
     FinHeatSink3D,
     Wing3D,
     _beta,
+    _station_fracs,
     families_3d,
 )
 from pinneapple_neural.lpm_pipeline import DesignSpec, build, draw, families, generate_dataset
@@ -62,7 +63,7 @@ def test_the_wing_section_integral_carries_the_load_the_lattice_asked_for():
     cl_lattice = vlm.solve(af, x_ref=0.25 * af.root_chord, nc=4, ns_wing=N_STRIPS,
                            tail=False).strip_cl(math.radians(spec.operating["alpha_deg"]), 0.0)
     cl_lattice = cl_lattice[N_STRIPS:] / beta                          # the right wing, Prandtl-Glauert
-    chord = np.array([family._station(af, (k + 0.5) / N_STRIPS)[1] for k in range(N_STRIPS)])
+    chord = np.array([family._station(af, f)[1] for f in _station_fracs()])
     cl_field = _span_integral(family, spec, points, normals, cp) / chord
     np.testing.assert_allclose(cl_field, cl_lattice, atol=2e-3)
 
@@ -83,7 +84,7 @@ def test_the_wing_obeys_prandtl_lifting_line():
         cp = family.field(spec).ravel()
         af = family._airframe(spec)
         dy = vlm.solve(af, x_ref=0.25 * af.root_chord, nc=4, ns_wing=N_STRIPS, tail=False).L.dy[N_STRIPS:]
-        chord = np.array([family._station(af, (k + 0.5) / N_STRIPS)[1] for k in range(N_STRIPS)])
+        chord = np.array([family._station(af, f)[1] for f in _station_fracs()])
         cl = _span_integral(family, spec, points, normals, cp) / chord
         CL = float(np.sum(cl * chord * dy) / af.wing_area)
         values.append(CL * (aspect_ratio + 2.0) / aspect_ratio)

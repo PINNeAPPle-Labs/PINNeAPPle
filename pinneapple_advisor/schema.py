@@ -186,10 +186,11 @@ class StudyPlan:
     def json(self, indent: int = 2) -> str:
         return json.dumps(self.to_dict(), ensure_ascii=False, indent=indent)
 
-    def diagram(self, kind: str = "mermaid") -> str:
-        """``mermaid``, ``dot``, ``svg``, ``html`` or ``markdown`` -- all from this same plan."""
+    def diagram(self, kind: str = "mermaid", lang: str | None = None) -> str:
+        """``mermaid``, ``dot``, ``svg``, ``html`` or ``markdown`` -- all from this same plan. ``lang`` overrides the
+        language the plan was composed in (``pt`` or ``en``)."""
         from . import render
-        return render.diagram(self, kind)
+        return render.diagram(self, kind, lang)
 
     def write(self, folder: str, *, diagrams: tuple = ("mermaid", "svg", "html", "markdown")) -> list[str]:
         """Write ``plan.json`` and each diagram into ``folder``; returns the paths written."""

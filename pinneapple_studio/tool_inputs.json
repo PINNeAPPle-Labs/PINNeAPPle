@@ -3277,6 +3277,14 @@
   },
   "source": "tests/pinneapple_neural/test_rom_pieces_core_contracts.py:109"
  },
+ "pinneapple_neural.lpm:ellipse_design_space": {
+  "inputs": {
+   "n": 120,
+   "n_points": 32,
+   "seed": 5
+  },
+  "source": "tests/test_lpm.py:100"
+ },
  "pinneapple_neural.physicsnemo_bridge.field_operators:grid_graph": {
   "inputs": {
    "n": 4

@@ -386,13 +386,18 @@ METHODS: List[Method] = [
        ["pinneapple_arena/autoresearch.py"], ["AutoResearch", "autoresearch"],
        refs_added=["karpathy/autoresearch (MIT), https://github.com/karpathy/autoresearch"]),
     _m("T22", "Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, "
-              "ensemble UQ, OOD score, fine-tuning)", ["pinneapple_neural/lpm.py"],
-       ["LargePhysicsModel", "pinneapple_neural.lpm"],
+              "ensemble UQ, OOD score, fine-tuning, query-to-surface attention, batched design-space training)",
+       ["pinneapple_neural/lpm.py"],
+       ["LargePhysicsModel", "PointAttention", "DesignBatch", "ellipse_design_space", "pinneapple_neural.lpm"],
        refs_in_code=["Luminary, Vocabulary of Physics AI / How Large Physics Models gain spatial context (2026)",
                      "Tancik et al., Fourier features let networks learn high frequency functions, NeurIPS 2020, "
                      "arXiv:2006.10739",
                      "Zaheer et al., Deep Sets, NeurIPS 2017, arXiv:1703.06114",
-                     "Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474"],
+                     "Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474",
+                     "Wu, Hao, Liu et al., Transolver: a fast transformer solver for PDEs on general geometries, "
+                     "ICML 2024, arXiv:2402.02366",
+                     "Herde et al., GeoTransolver: geometry-aware transformer for PDE solving, 2025, arXiv:2507.13822",
+                     "Gao et al., AB-UPT: anchor-based universal physics transformer, 2025, arXiv:2505.18781"],
        refs_added=["Milne-Thomson, Theoretical Hydrodynamics, §9.61 (ellipse potential flow, benchmark reference)"]),
     _m("T23", "MultiAdam: per-loss-term Adam moments for multi-term PINN losses", [TR + "multiadam.py"],
        ["MultiAdam", "multiadam"],

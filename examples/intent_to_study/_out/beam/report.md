@@ -39,8 +39,8 @@
 | rung | what it is | ran | time |
 |---|---|---|---|
 | analytic | Euler-Bernoulli closed form (plane strain) | yes | 0.00 s |
-| numerical | immersed finite cell, plane-strain linear elasticity | yes | 0.35 s |
-| convergence | the same solver on two grids | yes | 0.31 s |
+| numerical | immersed finite cell, plane-strain linear elasticity | yes | 0.44 s |
+| convergence | the same solver on two grids | yes | 0.49 s |
 
 ## Checks
 
@@ -49,12 +49,6 @@
 | tip_deflection: the solver against the Euler-Bernoulli closed form (plane strain) | pass | 0.001279 | 0.05 |
 | tip_deflection: change under refinement | pass | 0.005368 | 0.02 |
 | the beam is slender enough for Euler-Bernoulli | pass | 25.0 | 10.0 |
-| the solution is finite | pass | 0.00013524349229549122 | finite |
-| the root reaction balances the applied load | pass | 499.99998455397963 | -500.0 |
-| the solver is within the family's tolerance of the closed form | pass | 0.001279 | 0.05 |
-| the solution is finite | pass | 0.00013452140682543865 | finite |
-| the root reaction balances the applied load | pass | 499.9999951412446 | -500.0 |
-| the solver is within the family's tolerance of the closed form | pass | 0.006611 | 0.05 |
 | the solution is finite | pass | 0.00013524349229549122 | finite |
 | the root reaction balances the applied load | pass | 499.99998455397963 | -500.0 |
 | the solver is within the family's tolerance of the closed form | pass | 0.001279 | 0.05 |

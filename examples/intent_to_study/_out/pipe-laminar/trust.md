@@ -10,7 +10,3 @@
 | the flow is laminar, where the closed form applies | supports | sim | 529.6 | 2300 | — |
 | the discrete profile is positive everywhere | supports | não | 3.9269e-06 | — | — |
 | the finite-difference solve is within the family's tolerance of the closed form | supports | não | 2.3e-05 | 0.05 | — |
-| the discrete profile is positive everywhere | supports | não | 3.9009e-06 | — | — |
-| the finite-difference solve is within the family's tolerance of the closed form | supports | não | 0.006688 | 0.05 | — |
-| the discrete profile is positive everywhere | supports | não | 3.9269e-06 | — | — |
-| the finite-difference solve is within the family's tolerance of the closed form | supports | não | 2.3e-05 | 0.05 | — |

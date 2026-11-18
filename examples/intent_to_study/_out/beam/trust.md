@@ -11,9 +11,3 @@
 | the solution is finite | supports | não | 0.000135243 | — | — |
 | the root reaction balances the applied load | supports | não | 500 | -500 | — |
 | the solver is within the family's tolerance of the closed form | supports | não | 0.001279 | 0.05 | — |
-| the solution is finite | supports | não | 0.000134521 | — | — |
-| the root reaction balances the applied load | supports | não | 500 | -500 | — |
-| the solver is within the family's tolerance of the closed form | supports | não | 0.006611 | 0.05 | — |
-| the solution is finite | supports | não | 0.000135243 | — | — |
-| the root reaction balances the applied load | supports | não | 500 | -500 | — |
-| the solver is within the family's tolerance of the closed form | supports | não | 0.001279 | 0.05 | — |

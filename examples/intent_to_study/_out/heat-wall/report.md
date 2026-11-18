@@ -39,7 +39,7 @@
 |---|---|---|---|
 | analytic | series-resistance closed form | yes | 0.00 s |
 | numerical | immersed finite cell, two-dimensional | yes | 0.01 s |
-| convergence | the same solver on two grids | yes | 0.01 s |
+| convergence | the same solver on two grids | yes | 0.02 s |
 
 ## Checks
 
@@ -48,12 +48,6 @@
 | cold_face_temperature: the solver against the series-resistance closed form | pass | 2e-06 | 0.05 |
 | cold_face_temperature: change under refinement | pass | 1e-06 | 0.02 |
 | the closed form returns a finite far-face temperature | pass | 572.9521424574307 | finite |
-| the solution is finite | pass | 572.9530731608912 | finite |
-| energy balance of the discrete system | pass | -9.076522710021778e-12 | 1e-08 |
-| the two-dimensional solve is within the family's tolerance of the closed form | pass | 2e-06 | 0.05 |
-| the solution is finite | pass | 572.9535609760062 | finite |
-| energy balance of the discrete system | pass | -2.2578846515966655e-11 | 1e-08 |
-| the two-dimensional solve is within the family's tolerance of the closed form | pass | 2e-06 | 0.05 |
 | the solution is finite | pass | 572.9530731608912 | finite |
 | energy balance of the discrete system | pass | -9.076522710021778e-12 | 1e-08 |
 | the two-dimensional solve is within the family's tolerance of the closed form | pass | 2e-06 | 0.05 |

@@ -51,10 +51,6 @@
 | the flow is laminar, where the closed form applies | pass | 529.6 | 2300.0 |
 | the discrete profile is positive everywhere | pass | 3.9269002307059145e-06 | > 0 |
 | the finite-difference solve is within the family's tolerance of the closed form | pass | 2.3e-05 | 0.05 |
-| the discrete profile is positive everywhere | pass | 3.9009014752481575e-06 | > 0 |
-| the finite-difference solve is within the family's tolerance of the closed form | pass | 0.006688 | 0.05 |
-| the discrete profile is positive everywhere | pass | 3.9269002307059145e-06 | > 0 |
-| the finite-difference solve is within the family's tolerance of the closed form | pass | 2.3e-05 | 0.05 |
 
 ## What this study does not cover
 

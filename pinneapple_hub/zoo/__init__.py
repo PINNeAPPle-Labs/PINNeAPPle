@@ -10,6 +10,7 @@ reference, validate (physics checks + validity range), benchmark and fine-tune w
     pp.zoo.evaluate("airfoil_cst_rans_mlp")             # recomputes the card's metrics on the stored reference
     pp.zoo.validate("airfoil_cst_rans_mlp").decisao     # TrustReport: APPROVED | REVIEW | REJECT
     print(pp.zoo.catalogue())                           # every model and dataset: metrics, size, Hub link
+    print(pp.zoo.anchors.catalogue())                   # the same models as a named family, one per problem
     res = pp.zoo.finetune("airfoil_cst_rans_mlp", (X_new, Y_new), save_to="my_airfoil")  # refused if worse
 
 Only models that passed the zoo's gate ship (see ``_catalog.py`` and ``docs/dev/model_dataset_inventory.md``).
@@ -32,7 +33,7 @@ import numpy as np
 from pinneapple_hub.model_card import ModelCard
 
 from . import _artifacts as art
-from . import datasets
+from . import anchors, datasets
 from ._artifacts import (
     ArtifactNotPublishedError,
     ArtifactUnavailableError,
@@ -52,8 +53,8 @@ from ._models import (
 
 __all__ = ["list", "info", "load", "versions", "predict", "evaluate", "validate", "benchmark", "finetune", "status",
            "catalogue", "export_onnx", "onnx_parity", "query_checks", "check_spec", "export_web",
-           "load_dir", "datasets", "ZooModel", "FinetuneResult", "FinetuneRejectedError", "OutOfRangeWarning",
-           "SupersededModelWarning",
+           "load_dir", "datasets", "anchors", "ZooModel", "FinetuneResult", "FinetuneRejectedError",
+           "OutOfRangeWarning", "SupersededModelWarning",
            "ZooError", "ArtifactNotPublishedError", "ArtifactUnavailableError", "ChecksumMismatchError", "cache_dir"]
 
 

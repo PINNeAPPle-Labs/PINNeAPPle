@@ -4,6 +4,7 @@ An experiment is a class with parameters and a ``run(ctx)`` method. The runner g
 experiment, its version and its parameters, records its inputs, outputs, metrics, validation checks,
 figures and datasets in one folder, keeps its status (running, completed, failed, failed_validation) and indexes
 everything in SQLite, so runs can be queried, compared, exported as training sets and summarised in a catalogue.
+Dead processes are marked ``interrupted`` and can be removed with ``python -m pinneapple_lab reap --delete``.
 
     from pinneapple_lab import Experiment, register, run, sweep, LabStore
 

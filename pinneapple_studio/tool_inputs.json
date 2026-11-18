@@ -738,11 +738,36 @@
   },
   "source": "tests/test_arena_autoresearch.py:20"
  },
+ "pinneapple_arena.bundle_uq:spearman": {
+  "inputs": {
+   "a": [
+    1.0,
+    2.0
+   ],
+   "b": [
+    1.0,
+    2.0
+   ]
+  },
+  "source": "tests/test_arena_bundle_uq.py:111"
+ },
  "pinneapple_arena.decision_mode:catalog_family": {
   "inputs": {
    "model_type": "vanilla_pinn"
   },
   "source": "tests/test_decision_adapter_tree_arena.py:317"
+ },
+ "pinneapple_arena.fieldbench.models:available_models": {
+  "inputs": {},
+  "source": "tests/test_fieldbench.py:189"
+ },
+ "pinneapple_arena.fieldbench.models:build_model_specs": {
+  "inputs": {},
+  "source": "tests/test_fieldbench.py:189"
+ },
+ "pinneapple_arena.fieldbench.tabular:available_regressors": {
+  "inputs": {},
+  "source": "tests/test_fieldbench_tabular.py:141"
  },
  "pinneapple_arena.model_factory:build_model": {
   "inputs": {
@@ -1153,6 +1178,36 @@
   },
   "source": "tests/test_convenience_layer_bugfixes.py:64"
  },
+ "pinneapple_data.datasets.catalog:get": {
+  "inputs": {
+   "dataset_id": "nasa_tmr"
+  },
+  "source": "tests/pinneapple_data/test_dataset_catalog.py:46"
+ },
+ "pinneapple_data.datasets.catalog:redistributable": {
+  "inputs": {
+   "dataset_id": "pdebench"
+  },
+  "source": "tests/pinneapple_data/test_dataset_catalog.py:52"
+ },
+ "pinneapple_data.datasets.pdebench:case_card": {
+  "inputs": {
+   "name": "1D_Burgers_Sols_Nu0.001.hdf5"
+  },
+  "source": "tests/pinneapple_data/test_pdebench.py:145"
+ },
+ "pinneapple_data.datasets.pdebench:darus_url": {
+  "inputs": {
+   "file_id": 133219
+  },
+  "source": "tests/pinneapple_data/test_pdebench.py:182"
+ },
+ "pinneapple_data.datasets.pdebench:dataset": {
+  "inputs": {
+   "name": "Sod6"
+  },
+  "source": "tests/pinneapple_data/test_pdebench.py:150"
+ },
  "pinneapple_data.datasets.physics:burgers_periodic_pairs": {
   "inputs": {
    "T": 0.3,
@@ -1162,6 +1217,24 @@
    "seed": 3
   },
   "source": "tests/test_burgers_periodic_pairs.py:37"
+ },
+ "pinneapple_data.datasets.remote_hdf5:is_url": {
+  "inputs": {
+   "source": "https://darus.example.org/pdebench/1D/diffusion-reaction.h5"
+  },
+  "source": "the DaRUS layout the adapter reads"
+ },
+ "pinneapple_data.datasets.the_well:scenario_hint": {
+  "inputs": {
+   "source": ".../polymathic-ai/shear_flow/resolve/main/data/train/x.hdf5"
+  },
+  "source": "tests/pinneapple_data/test_the_well.py:90"
+ },
+ "pinneapple_data.datasets.the_well:scenario_url": {
+  "inputs": {
+   "name": "helmholtz_staircase"
+  },
+  "source": "tests/pinneapple_data/test_the_well.py:91"
  },
  "pinneapple_data.expressions:evaluate": {
   "inputs": {
@@ -1237,6 +1310,25 @@
    "path": "case/0.5/U"
   },
   "source": "tests/test_app_helpers_in_library.py:103"
+ },
+ "pinneapple_data.schema.gates:relative_l2": {
+  "inputs": {
+   "computed": [
+    1.0,
+    2.0
+   ],
+   "reference": [
+    1.0,
+    2.0
+   ]
+  },
+  "source": "tests/pinneapple_data/test_schema_bundle.py:227"
+ },
+ "pinneapple_data.schema.models:unit_or_dimensionless": {
+  "inputs": {
+   "text": "-"
+  },
+  "source": "tests/pinneapple_data/test_schema_bundle.py:60"
  },
  "pinneapple_data.simulation_metadata.foam_dict:parse": {
   "inputs": {
@@ -1343,7 +1435,7 @@
  },
  "pinneapple_design.aero.aircraft_surrogate_demo:parse_request": {
   "inputs": {
-   "text": "Quero um surrogate de uma aeronave leve: área de asa 16 m², alongamento 12, afilamento 0,6, enflechamento de 15°, torção de -2° e ângulo de ataque de 4 graus."
+   "text": "Quero um surrogate de uma aeronave leve: \u00e1rea de asa 16 m\u00b2, alongamento 12, afilamento 0,6, enflechamento de 15\u00b0, tor\u00e7\u00e3o de -2\u00b0 e \u00e2ngulo de ataque de 4 graus."
   },
   "source": "tests/test_aero_aircraft_surrogate.py:75"
  },
@@ -1740,6 +1832,64 @@
    "refine": []
   },
   "source": "tests/test_mesh_generation.py"
+ },
+ "pinneapple_design.geometry.runner_ramp:facetas_abertas": {
+  "inputs": {
+   "faces": [
+    [
+     0,
+     1,
+     2
+    ],
+    [
+     0,
+     2,
+     3
+    ],
+    [
+     0,
+     1,
+     3
+    ],
+    [
+     1,
+     2,
+     3
+    ]
+   ]
+  },
+  "source": "a closed tetrahedron: every edge is in exactly two faces"
+ },
+ "pinneapple_design.geometry.runner_ramp:parametros": {
+  "inputs": {
+   "r": {
+    "caso": "A",
+    "comprimento": 36.0,
+    "face_reta_deg": 21.8,
+    "largura": 1.5,
+    "s_fim": 30.0,
+    "s_inicio": 12.0,
+    "z_crista": 0.0,
+    "z_pe": -4.0
+   }
+  },
+  "source": "variant A of the published ramp"
+ },
+ "pinneapple_design.geometry.runner_ramp:solido": {
+  "inputs": {
+   "n_s": 30,
+   "r": {
+    "caso": "A",
+    "comprimento": 36.0,
+    "face_reta_deg": 21.8,
+    "largura": 1.5,
+    "s_fim": 30.0,
+    "s_inicio": 12.0,
+    "z_crista": 0.0,
+    "z_pe": -4.0
+   }
+  },
+  "source": "variant A of the published ramp"
  },
  "pinneapple_design.geometry.vehicle_cad:mli_blanket": {
   "inputs": {
@@ -2188,7 +2338,7 @@
  },
  "pinneapple_flow.planner.extensions:match": {
   "inputs": {
-   "text": "Quero um surrogate da aerodinâmica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
+   "text": "Quero um surrogate da aerodin\u00e2mica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
   },
   "source": "tests/test_aero_aircraft_surrogate.py:121"
  },
@@ -2758,6 +2908,18 @@
   },
   "source": "tests/pinneapple_security/test_scan_policy_attest_integrate.py:137"
  },
+ "pinneapple_hub.zoo.anchors:card": {
+  "inputs": {
+   "anchor_id": "anchor-aero"
+  },
+  "source": "pinneapple_hub/zoo/anchors.py: the four published anchors"
+ },
+ "pinneapple_hub.zoo.anchors:info": {
+  "inputs": {
+   "anchor_id": "anchor-aero"
+  },
+  "source": "pinneapple_hub/zoo/anchors.py: the four published anchors"
+ },
  "pinneapple_hub.zoo.demo:bands": {
   "inputs": {
    "outputs": [
@@ -2859,9 +3021,9 @@
    "rec": {
     "headline": {
      "label": "drag vs wind tunnel (Ahmed, Ramm & Faltin, 1984)",
-     "label_pt": "arrasto vs túnel de vento (Ahmed, Ramm & Faltin, 1984)",
-     "label_short_pt": "arrasto vs túnel de vento (Ahmed 1984)",
-     "text": "drag vs wind tunnel · Ahmed, Ramm & Faltin (1984), 25 deg slant"
+     "label_pt": "arrasto vs t\u00fanel de vento (Ahmed, Ramm & Faltin, 1984)",
+     "label_short_pt": "arrasto vs t\u00fanel de vento (Ahmed 1984)",
+     "text": "drag vs wind tunnel \u00b7 Ahmed, Ramm & Faltin (1984), 25 deg slant"
     }
    }
   },
@@ -4941,18 +5103,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (°C)",
+     "T_in (\u00b0C)",
      "flow_rate (kg/s)",
-     "T_ambient (°C)",
+     "T_ambient (\u00b0C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (°C)"
+     "T_out (\u00b0C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -5008,18 +5170,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (°C)",
+     "T_in (\u00b0C)",
      "flow_rate (kg/s)",
-     "T_ambient (°C)",
+     "T_ambient (\u00b0C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (°C)"
+     "T_out (\u00b0C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -5210,7 +5372,7 @@
  },
  "pinneapple_security.privacy:find_pii": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:22"
  },
@@ -5228,7 +5390,7 @@
  },
  "pinneapple_security.privacy:redact": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:24"
  },
@@ -5767,6 +5929,17 @@
   },
   "source": "tests/test_reflector_po.py:94"
  },
+ "pinneapple_simulation.electromagnetics.reflector.paired:objective": {
+  "inputs": {
+   "row": {
+    "direct_amp_pp_dB": 2.0,
+    "direct_phase_ripple_pp_deg": 45.0,
+    "direct_usable_width": 0.4
+   },
+   "source": "direct"
+  },
+  "source": "tests/test_reflector_exact.py:119"
+ },
  "pinneapple_simulation.electromagnetics.reflector.planar2d:validate_circle": {
   "inputs": {},
   "source": "tests/test_reflector_exact.py:9"
@@ -6263,6 +6436,16 @@
   },
   "source": "tests/test_geophysics.py:45"
  },
+ "pinneapple_simulation.granular.equipment:charge_positions": {
+  "inputs": {
+   "length": 0.06,
+   "n_particles": 60,
+   "particle_radius": 0.01,
+   "radius": 0.15,
+   "seed": 3
+  },
+  "source": "tests/test_granular_process.py:25"
+ },
  "pinneapple_simulation.hemodynamics.windkessel:Windkessel": {
   "inputs": {
    "C": 1e-08,
@@ -6389,6 +6572,93 @@
    "GM": 1.5
   },
   "source": "tests/test_control_literal_calls.py:22"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:bumper_beam_assembly": {
+  "inputs": {},
+  "source": "tests/test_crash_fem.py:128"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:cross_section_scaled_material": {
+  "inputs": {
+   "base": {
+    "E": 210000000000.0,
+    "erosion_strain": 0.3,
+    "hardening": 400000000.0,
+    "nu": 0.3,
+    "rho": 7800.0,
+    "yield_stress": 390000000.0
+   },
+   "thickness": 0.002
+  },
+  "source": "tests/test_crash_fem.py:22"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:pole_impact": {
+  "inputs": {
+   "design": {},
+   "end_time": 0.0001,
+   "frames": 2
+  },
+  "source": "tests/test_crash_fem.py:145"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_cases:sample_design": {
+  "inputs": {
+   "n": 3
+  },
+  "source": "pinneapple_simulation/pipelines/pole_impact.py:83"
+ },
+ "pinneapple_simulation.numerical_solvers.crash_fem:qoi_from_history": {
+  "inputs": {
+   "contact_force": [
+    0.0,
+    0.0,
+    400000.0,
+    1200000.0,
+    300000.0,
+    0.0
+   ],
+   "energies": {
+    "contact": [
+     0.0,
+     0.0,
+     0.1,
+     0.3,
+     0.2,
+     0.0
+    ],
+    "internal": [
+     0.0,
+     20.0,
+     80.0,
+     280.0,
+     480.0,
+     600.0
+    ],
+    "kinetic": [
+     980.0,
+     960.0,
+     900.0,
+     700.0,
+     500.0,
+     380.0
+    ],
+    "plastic": [
+     0.0,
+     10.0,
+     40.0,
+     200.0,
+     400.0,
+     500.0
+    ]
+   },
+   "times": [
+    0.0,
+    0.0002,
+    0.0004,
+    0.0006,
+    0.0008,
+    0.001
+   ]
+  },
+  "source": "tests/test_crash_fem.py:104"
  },
  "pinneapple_simulation.numerical_solvers.cylinder_wake:simulate": {
   "inputs": {
@@ -6626,6 +6896,22 @@
   },
   "source": "tests/test_lbm_naca4_mask.py:11"
  },
+ "pinneapple_simulation.numerical_solvers.lbm_tunnel:WindTunnelLBM": {
+  "inputs": {
+   "nu": 0.05,
+   "shape": [
+    24,
+    16,
+    16
+   ],
+   "u_in": [
+    0.05,
+    0.0,
+    0.0
+   ]
+  },
+  "source": "tests/test_lbm_wall_pressure.py:34"
+ },
  "pinneapple_simulation.numerical_solvers.nonlinear_beam_fem:cantilever_frequency_roots": {
   "inputs": {
    "n": 1
@@ -6810,6 +7096,122 @@
   },
   "source": "tests/test_geo_mpm.py:22"
  },
+ "pinneapple_simulation.pipelines.car_pressure:car_surfaces": {
+  "inputs": {
+   "design": {
+    "boat_tail": 0.09294965609839984,
+    "clearance": 0.10132221084228234,
+    "deck_height": 1.0882559406640464,
+    "diffuser_deg": 6.523499897585074,
+    "front_overhang": 0.9786106414881354,
+    "length": 4.709569349857164,
+    "roof_height": 1.3081947047872389,
+    "roof_line": "fastback",
+    "slant_deg": 24.919443963809236,
+    "wheel_radius": 0.3661043454272661,
+    "wheel_width": 0.2652682843297226,
+    "wheelbase": 2.650958475059552,
+    "wheels": "open",
+    "width": 1.803957342752774,
+    "windshield_deg": 32.95306692733266
+   }
+  },
+  "source": "pinneapple_simulation/pipelines/car_pressure.py:1"
+ },
+ "pinneapple_simulation.pipelines.car_pressure:design_category": {
+  "inputs": {
+   "design": {
+    "boat_tail": 0.09294965609839984,
+    "clearance": 0.10132221084228234,
+    "deck_height": 1.0882559406640464,
+    "diffuser_deg": 6.523499897585074,
+    "front_overhang": 0.9786106414881354,
+    "length": 4.709569349857164,
+    "roof_height": 1.3081947047872389,
+    "roof_line": "fastback",
+    "slant_deg": 24.919443963809236,
+    "wheel_radius": 0.3661043454272661,
+    "wheel_width": 0.2652682843297226,
+    "wheelbase": 2.650958475059552,
+    "wheels": "open",
+    "width": 1.803957342752774,
+    "windshield_deg": 32.95306692733266
+   }
+  },
+  "source": "pinneapple_simulation/pipelines/car_pressure.py:1"
+ },
+ "pinneapple_simulation.pipelines.car_pressure:sample_designs": {
+  "inputs": {
+   "n": 3,
+   "seed": 0
+  },
+  "source": "tests/test_aero_field_dataset.py:1"
+ },
+ "pinneapple_simulation.pipelines.field_lines:comparar_picos": {
+  "inputs": {
+   "passo": 0.01,
+   "picos": {
+    "linha-1": {
+     "k": 4.0,
+     "s": 0.1
+    }
+   },
+   "referencia": {
+    "linha-1": [
+     3.8,
+     0.12
+    ]
+   }
+  },
+  "source": "one line against a published reference"
+ },
+ "pinneapple_simulation.pipelines.field_lines:desvio_mediano_passos": {
+  "inputs": {
+   "comparacao": [
+    {
+     "delta_s": 0.1,
+     "linha": "linha-1"
+    }
+   ]
+  },
+  "source": "one comparison row"
+ },
+ "pinneapple_simulation.pipelines.field_lines:picos_por_linha": {
+  "inputs": {
+   "series": {
+    "linha-1": [
+     [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       1.0,
+       4.0,
+       2.5
+      ],
+      [
+       2.0,
+       1.0,
+       0.5
+      ]
+     ],
+     [
+      0.0,
+      0.1,
+      0.2
+     ],
+     [
+      0.0,
+      0.9,
+      0.2
+     ]
+    ]
+   }
+  },
+  "source": "one line sampled at three instants and three points, with a peak in the middle"
+ },
  "pinneapple_simulation.pipelines.freecad_openfoam.cad:rule_eval": {
   "inputs": {
    "expr": "plane and abs(cx + L) < 1e-3 * D",
@@ -6839,6 +7241,66 @@
    ]
   },
   "source": "tests/test_freecad_openfoam_pipeline.py:157"
+ },
+ "pinneapple_simulation.pipelines.pole_impact:design_vector": {
+  "inputs": {
+   "design": {
+    "beam_thickness": 0.0025,
+    "box_thickness": 0.0025,
+    "dp1000_yield": 700000000.0,
+    "dp600_yield": 390000000.0,
+    "pole_offset": 0.0,
+    "pole_radius": 0.06,
+    "velocity": 16.0
+   }
+  },
+  "source": "the middle of the box of every variable"
+ },
+ "pinneapple_simulation.pipelines.pole_impact:quantities_table": {
+  "inputs": {
+   "rows": [
+    {
+     "design": {
+      "velocity": 16.0
+     },
+     "eroded_end": 2,
+     "out_of_envelope": false,
+     "qoi": {
+      "ke_absorption": 0.9,
+      "peak_wall_force": 1000000.0
+     }
+    },
+    {
+     "design": {
+      "velocity": 15.0
+     },
+     "eroded_end": 0,
+     "out_of_envelope": true,
+     "qoi": {
+      "ke_absorption": 0.8,
+      "peak_wall_force": 900000.0
+     }
+    }
+   ]
+  },
+  "source": "pinneapple_simulation/pipelines/pole_impact.py:57"
+ },
+ "pinneapple_simulation.pipelines.pole_impact:run_design": {
+  "inputs": {
+   "design": {
+    "beam_thickness": 0.0025,
+    "box_thickness": 0.0025,
+    "dp1000_yield": 700000000.0,
+    "dp600_yield": 390000000.0,
+    "pole_offset": 0.0,
+    "pole_radius": 0.06,
+    "velocity": 16.0
+   },
+   "end_time": 0.0001,
+   "frames": 2,
+   "n_parts": 3
+  },
+  "source": "the middle of the box, the same tiny run the tests use"
  },
  "pinneapple_simulation.terramechanics.testbed:load_dataset": {
   "inputs": {
@@ -6932,8 +7394,8 @@
  },
  "pinneapple_simulation.vortex_domains.bodies:deploying_spoiler": {
   "inputs": {
-   "n": 12,
-   "length": 0.1
+   "length": 0.1,
+   "n": 12
   },
   "source": "tests/test_vortex_domains.py:114"
  },
@@ -7003,8 +7465,8 @@
  },
  "pinneapple_simulation.vortex_domains.verification:check_cylinder_drag": {
   "inputs": {
-   "re": 40.0,
    "panels": 24,
+   "re": 40.0,
    "t_end": 0.3
   },
   "source": "tests/test_vortex_domains.py:143"
@@ -7314,6 +7776,322 @@
   },
   "source": "tests/test_operations_anomaly_control.py:157"
  },
+ "pinneapple_systems.digital_twin.library.base:Parameter": {
+  "inputs": {
+   "default": 0.01,
+   "hi": 0.1,
+   "lo": 0.001,
+   "meaning": "a wall thickness",
+   "name": "thickness",
+   "unit": "m"
+  },
+  "source": "tests/test_digital_twin_library.py:60"
+ },
+ "pinneapple_systems.digital_twin.library.base:close": {
+  "inputs": {
+   "inflow": 1.0,
+   "name": "mass",
+   "outflow": 1.0,
+   "unit": "kg"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.base:relative_error": {
+  "inputs": {
+   "computed": 1.0,
+   "reference": 1.0
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:raceway_flame_temperature": {
+  "inputs": {
+   "blast_temperature": 1473.15,
+   "carbon_burnt": 20.0,
+   "h2o_blast": 0.5,
+   "n2_blast": 37.0,
+   "o2_blast": 9.8
+  },
+  "source": "tests/test_digital_twin_library.py:193"
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:top_gas": {
+  "inputs": {
+   "carbon_in": 31.0,
+   "flux_carbon": 2.0,
+   "flux_oxygen": 2.0,
+   "ore_oxygen": 25.5,
+   "oxygen_in": 40.0
+  },
+  "source": "tests/test_digital_twin_library.py:205"
+ },
+ "pinneapple_systems.digital_twin.library.chemical_plant:equilibrium_constant": {
+  "inputs": {
+   "delta_h": -90000.0,
+   "delta_s": -220.0,
+   "temperature": 450.0
+  },
+  "source": "tests/test_digital_twin_library.py:232"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:polytropic_exponent": {
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78
+  },
+  "source": "tests/test_digital_twin_library.py:505"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:split_ratios": {
+  "inputs": {
+   "stages": 2,
+   "total_ratio": 3.0
+  },
+  "source": "tests/test_digital_twin_library.py:537"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_discharge_temperature": {
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78,
+   "ratio": 1.35,
+   "suction_temperature": 300.0
+  },
+  "source": "tests/test_digital_twin_library.py:537"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_work": {
+  "inputs": {
+   "gamma": 1.3,
+   "heat_capacity": 1760.89,
+   "mass_flow": 120.0,
+   "polytropic_efficiency": 0.8,
+   "ratio": 1.732,
+   "suction_temperature": 303.15
+  },
+  "source": "tests/test_digital_twin_library.py:537"
+ },
+ "pinneapple_systems.digital_twin.library.desalination:minimum_specific_energy": {
+  "inputs": {
+   "feed_osmotic_pressure": 3000000.0,
+   "recovery": 0.45
+  },
+  "source": "tests/test_digital_twin_library.py:695"
+ },
+ "pinneapple_systems.digital_twin.library.desalination:osmotic_pressure": {
+  "inputs": {
+   "concentration": 598.9,
+   "temperature": 298.15
+  },
+  "source": "tests/test_digital_twin_library.py:687"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:ipr_rate": {
+  "inputs": {
+   "bottom_hole_pressure": 10000000.0,
+   "exponent": 0.8,
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0
+  },
+  "source": "tests/test_digital_twin_library.py:120"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:line_pressure_drop": {
+  "inputs": {
+   "diameter": 0.15,
+   "gas_specific_gravity": 0.7,
+   "gor": 120.0,
+   "length": 6000.0,
+   "oil_density": 850.0,
+   "oil_rate": 0.015,
+   "oil_viscosity": 0.005,
+   "pressure": 30000000.0,
+   "rise": 300.0,
+   "temperature_k": 330.0,
+   "water_cut": 0.15
+  },
+  "source": "tests/test_digital_twin_library.py:129"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:vogel_qmax": {
+  "inputs": {
+   "exponent": 0.8,
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:hydrogen_from_charge": {
+  "inputs": {
+   "cells": 1498.0,
+   "current": 37500.0,
+   "faradaic_efficiency": 0.97
+  },
+  "source": "tests/test_digital_twin_library.py:620"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:reversible_voltage": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:657"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:thermoneutral_voltage": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:657"
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:night_factor": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:330"
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:regolith_oxygen_yield": {
+  "inputs": {
+   "oxygen_rich_fraction": 0.15
+  },
+  "source": "tests/test_digital_twin_library.py:338"
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:compressor_discharge": {
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78,
+   "pressure_ratio": 1.35,
+   "suction_temperature": 300.0
+  },
+  "source": "tests/test_digital_twin_library.py:425"
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:linepack_of_segment": {
+  "inputs": {
+   "diameter": 0.8,
+   "length": 50000.0,
+   "p_downstream": 6000000.0,
+   "p_upstream": 9000000.0,
+   "specific_gas_constant": 470.0,
+   "temperature": 300.0
+  },
+  "source": "tests/test_digital_twin_library.py:408"
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:segment_pressure_square_drop": {
+  "inputs": {
+   "diameter": 0.9,
+   "friction_factor": 0.0125,
+   "length": 40000.0,
+   "mass_flow": 600.0,
+   "specific_gas_constant": 441.69478421164473,
+   "temperature": 288.15
+  },
+  "source": "tests/test_digital_twin_library.py:385"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:carnot_cop": {
+  "inputs": {
+   "condensing_temperature": 308.15,
+   "evaporating_temperature": 263.15
+  },
+  "source": "tests/test_digital_twin_library.py:789"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:latent_heat": {
+  "inputs": {
+   "temperature": 263.15
+  },
+  "source": "tests/test_digital_twin_library.py:783"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_pressure": {
+  "inputs": {
+   "temperature": 263.15
+  },
+  "source": "tests/test_digital_twin_library.py:772"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_temperature": {
+  "inputs": {
+   "pressure": 289500.0
+  },
+  "source": "tests/test_digital_twin_library.py:777"
+ },
+ "pinneapple_systems.digital_twin.library.registry:build": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:107"
+ },
+ "pinneapple_systems.digital_twin.library.registry:catalogue": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:57"
+ },
+ "pinneapple_systems.digital_twin.library.registry:compare": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:113"
+ },
+ "pinneapple_systems.digital_twin.library.registry:describe": {
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library.registry:run": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.reusable_booster:atmosphere": {
+  "inputs": {
+   "altitude": 1000.0
+  },
+  "source": "tests/test_digital_twin_library.py:295"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:Scenario": {
+  "inputs": {
+   "slug": "lunar_base",
+   "title": "six_crew",
+   "values": {
+    "crew": 6.0
+   }
+  },
+  "source": "tests/test_digital_twin_library.py:917"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:check": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:904"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:load_scenarios": {
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "source": "tests/test_digital_twin_library.py:926"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:manifest": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:937"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:run_scenario": {
+  "inputs": {
+   "name": "pipeline_network/low_delivery_pressure"
+  },
+  "source": "tests/test_digital_twin_library.py:910"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:save_scenarios": {
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "source": "tests/test_digital_twin_library.py:926"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:scenario_names": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:937"
+ },
+ "pinneapple_systems.digital_twin.library:build": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:107"
+ },
+ "pinneapple_systems.digital_twin.library:catalogue": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:57"
+ },
+ "pinneapple_systems.digital_twin.library:compare": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:113"
+ },
+ "pinneapple_systems.digital_twin.library:describe": {
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library:run": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
  "pinneapple_systems.digital_twin.monitoring.anomaly:ThresholdDetector": {
   "inputs": {
    "thresholds": {
@@ -7422,7 +8200,7 @@
  },
  "pinneapple_systems.process_components.joule_thomson:parse_valve_request": {
   "inputs": {
-   "text": "inlet pressure 70 bar, inlet temperature 25 °C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 °C. Methane 92 %, ethane 5 %, nitrogen 3 %"
+   "text": "inlet pressure 70 bar, inlet temperature 25 \u00b0C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 \u00b0C. Methane 92 %, ethane 5 %, nitrogen 3 %"
   },
   "source": "tests/test_valve_joule_thomson.py:10"
  },
@@ -7785,7 +8563,7 @@
    "date": "January 1, 2026",
    "report_id": "TR-0",
    "subtitle": "Unit test",
-   "title": "A test report with u₀ and 10⁻³"
+   "title": "A test report with u\u2080 and 10\u207b\u00b3"
   },
   "source": "tests/test_paperkit.py:90"
  },
@@ -7983,6 +8761,1213 @@
    }
   },
   "source": "tests/pinneapple_veriphysics/test_scope.py:62"
+ },
+ "pinneapple_veriphysics.surrogate_gates:advection_residual": {
+  "inputs": {
+   "c": 1.0,
+   "field": [
+    [
+     0.0,
+     0.09983341664682815,
+     0.19866933079506122,
+     0.2955202066613396,
+     0.3894183423086505,
+     0.479425538604203,
+     0.5646424733950355,
+     0.6442176872376911,
+     0.7173560908995228,
+     0.7833269096274834,
+     0.8414709848078965,
+     0.8912073600614354,
+     0.9320390859672264,
+     0.963558185417193,
+     0.9854497299884603,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817
+    ],
+    [
+     0.19866933079506122,
+     0.2955202066613396,
+     0.3894183423086505,
+     0.479425538604203,
+     0.5646424733950355,
+     0.644217687237691,
+     0.7173560908995228,
+     0.7833269096274834,
+     0.8414709848078965,
+     0.8912073600614354,
+     0.9320390859672263,
+     0.963558185417193,
+     0.9854497299884603,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901
+    ],
+    [
+     0.3894183423086505,
+     0.479425538604203,
+     0.5646424733950355,
+     0.6442176872376911,
+     0.7173560908995228,
+     0.7833269096274834,
+     0.8414709848078965,
+     0.8912073600614354,
+     0.9320390859672264,
+     0.963558185417193,
+     0.9854497299884601,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.74570521217672,
+     0.6754631805511511
+    ],
+    [
+     0.5646424733950355,
+     0.6442176872376911,
+     0.7173560908995228,
+     0.7833269096274834,
+     0.8414709848078965,
+     0.8912073600614354,
+     0.9320390859672264,
+     0.9635581854171931,
+     0.9854497299884603,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.74570521217672,
+     0.6754631805511506,
+     0.5984721441039564,
+     0.5155013718214642
+    ],
+    [
+     0.7173560908995228,
+     0.7833269096274834,
+     0.8414709848078965,
+     0.8912073600614354,
+     0.9320390859672264,
+     0.963558185417193,
+     0.9854497299884603,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.7457052121767204,
+     0.6754631805511506,
+     0.5984721441039564,
+     0.5155013718214642,
+     0.4273798802338298,
+     0.3349881501559051
+    ],
+    [
+     0.8414709848078965,
+     0.8912073600614354,
+     0.9320390859672263,
+     0.963558185417193,
+     0.9854497299884601,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.7457052121767204,
+     0.6754631805511506,
+     0.5984721441039564,
+     0.5155013718214642,
+     0.4273798802338298,
+     0.3349881501559051,
+     0.23924932921398198,
+     0.1411200080598672
+    ],
+    [
+     0.9320390859672264,
+     0.9635581854171931,
+     0.9854497299884603,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874144,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.74570521217672,
+     0.6754631805511506,
+     0.5984721441039564,
+     0.5155013718214638,
+     0.4273798802338298,
+     0.33498815015590466,
+     0.23924932921398198,
+     0.1411200080598672,
+     0.04158066243329005,
+     -0.058374143427580086
+    ],
+    [
+     0.9854497299884603,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.74570521217672,
+     0.6754631805511506,
+     0.5984721441039564,
+     0.5155013718214638,
+     0.4273798802338298,
+     0.33498815015590466,
+     0.23924932921398198,
+     0.1411200080598672,
+     0.04158066243329005,
+     -0.058374143427580086,
+     -0.15774569414324865,
+     -0.25554110202683167
+    ],
+    [
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.74570521217672,
+     0.6754631805511506,
+     0.5984721441039564,
+     0.5155013718214642,
+     0.4273798802338298,
+     0.33498815015590466,
+     0.23924932921398198,
+     0.1411200080598672,
+     0.04158066243329049,
+     -0.058374143427580086,
+     -0.15774569414324865,
+     -0.25554110202683167,
+     -0.35078322768961984,
+     -0.44252044329485246
+    ],
+    [
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.7457052121767204,
+     0.6754631805511506,
+     0.5984721441039564,
+     0.5155013718214642,
+     0.4273798802338298,
+     0.3349881501559051,
+     0.23924932921398198,
+     0.1411200080598672,
+     0.04158066243329049,
+     -0.058374143427580086,
+     -0.1577456941432482,
+     -0.25554110202683167,
+     -0.35078322768961984,
+     -0.44252044329485246,
+     -0.5298361409084934,
+     -0.6118578909427189
+    ],
+    [
+     0.9092974268256817,
+     0.8632093666488737,
+     0.8084964038195901,
+     0.7457052121767204,
+     0.6754631805511511,
+     0.5984721441039564,
+     0.5155013718214642,
+     0.4273798802338298,
+     0.3349881501559051,
+     0.23924932921398243,
+     0.1411200080598672,
+     0.04158066243329049,
+     -0.058374143427580086,
+     -0.1577456941432482,
+     -0.25554110202683167,
+     -0.35078322768961984,
+     -0.44252044329485246,
+     -0.5298361409084934,
+     -0.6118578909427189,
+     -0.6877661591839741,
+     -0.7568024953079283
+    ]
+   ],
+   "t": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5
+   ],
+   "x": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6000000000000001,
+    0.65,
+    0.7000000000000001,
+    0.75,
+    0.8,
+    0.8500000000000001,
+    0.9,
+    0.9500000000000001,
+    1.0
+   ]
+  },
+  "source": "a sine wave advected at c=1, sampled on 21 x 11 points"
+ },
+ "pinneapple_veriphysics.surrogate_gates:burgers_residual": {
+  "inputs": {
+   "field": [
+    [
+     0.0,
+     0.04995837495787998,
+     0.09966799462495582,
+     0.148885033623318,
+     0.197375320224904,
+     0.24491866240370913,
+     0.29131261245159096,
+     0.33637554433633227,
+     0.3799489622552249,
+     0.42189900525000795,
+     0.46211715726000974,
+     0.5005202111902353,
+     0.5370495669980353,
+     0.5716699660851172,
+     0.6043677771171635,
+     0.6351489523872873,
+     0.664036770267849,
+     0.6910694698329306,
+     0.7162978701990245,
+     0.7397830512740043,
+     0.7615941559557649
+    ],
+    [
+     -0.09966799462495582,
+     -0.04995837495787998,
+     0.0,
+     0.04995837495787999,
+     0.09966799462495582,
+     0.14888503362331798,
+     0.19737532022490403,
+     0.24491866240370913,
+     0.29131261245159096,
+     0.3363755443363322,
+     0.3799489622552249,
+     0.421899005250008,
+     0.46211715726000985,
+     0.5005202111902353,
+     0.5370495669980353,
+     0.5716699660851172,
+     0.6043677771171635,
+     0.6351489523872874,
+     0.664036770267849,
+     0.6910694698329306,
+     0.7162978701990245
+    ],
+    [
+     -0.197375320224904,
+     -0.148885033623318,
+     -0.09966799462495582,
+     -0.04995837495787996,
+     0.0,
+     0.04995837495787996,
+     0.09966799462495585,
+     0.148885033623318,
+     0.197375320224904,
+     0.24491866240370913,
+     0.2913126124515909,
+     0.33637554433633227,
+     0.37994896225522495,
+     0.42189900525000795,
+     0.46211715726000974,
+     0.5005202111902353,
+     0.5370495669980353,
+     0.5716699660851173,
+     0.6043677771171635,
+     0.6351489523872873,
+     0.664036770267849
+    ],
+    [
+     -0.29131261245159096,
+     -0.2449186624037092,
+     -0.19737532022490403,
+     -0.148885033623318,
+     -0.09966799462495585,
+     -0.04995837495788002,
+     0.0,
+     0.04995837495787996,
+     0.09966799462495579,
+     0.14888503362331795,
+     0.19737532022490395,
+     0.24491866240370913,
+     0.29131261245159096,
+     0.3363755443363322,
+     0.3799489622552249,
+     0.4218990052500079,
+     0.46211715726000974,
+     0.5005202111902353,
+     0.5370495669980353,
+     0.5716699660851172,
+     0.6043677771171635
+    ],
+    [
+     -0.3799489622552249,
+     -0.33637554433633227,
+     -0.29131261245159096,
+     -0.24491866240370913,
+     -0.197375320224904,
+     -0.148885033623318,
+     -0.09966799462495579,
+     -0.04995837495787996,
+     0.0,
+     0.04995837495787996,
+     0.09966799462495579,
+     0.148885033623318,
+     0.19737532022490406,
+     0.24491866240370913,
+     0.29131261245159096,
+     0.3363755443363322,
+     0.3799489622552249,
+     0.421899005250008,
+     0.46211715726000974,
+     0.5005202111902353,
+     0.5370495669980353
+    ],
+    [
+     -0.46211715726000974,
+     -0.42189900525000795,
+     -0.3799489622552249,
+     -0.3363755443363322,
+     -0.2913126124515909,
+     -0.24491866240370913,
+     -0.19737532022490395,
+     -0.14888503362331795,
+     -0.09966799462495579,
+     -0.04995837495787996,
+     0.0,
+     0.04995837495788002,
+     0.0996679946249559,
+     0.148885033623318,
+     0.19737532022490406,
+     0.24491866240370913,
+     0.29131261245159096,
+     0.33637554433633227,
+     0.3799489622552249,
+     0.421899005250008,
+     0.46211715726000974
+    ],
+    [
+     -0.5370495669980353,
+     -0.5005202111902353,
+     -0.46211715726000985,
+     -0.421899005250008,
+     -0.37994896225522495,
+     -0.33637554433633227,
+     -0.29131261245159096,
+     -0.2449186624037092,
+     -0.19737532022490406,
+     -0.14888503362331806,
+     -0.0996679946249559,
+     -0.04995837495788002,
+     0.0,
+     0.04995837495787991,
+     0.09966799462495579,
+     0.1488850336233179,
+     0.19737532022490395,
+     0.24491866240370913,
+     0.29131261245159085,
+     0.3363755443363322,
+     0.3799489622552248
+    ],
+    [
+     -0.6043677771171635,
+     -0.5716699660851172,
+     -0.5370495669980353,
+     -0.5005202111902353,
+     -0.46211715726000974,
+     -0.421899005250008,
+     -0.3799489622552249,
+     -0.33637554433633227,
+     -0.29131261245159096,
+     -0.2449186624037092,
+     -0.19737532022490406,
+     -0.148885033623318,
+     -0.09966799462495579,
+     -0.04995837495788002,
+     0.0,
+     0.04995837495787991,
+     0.09966799462495579,
+     0.148885033623318,
+     0.19737532022490395,
+     0.24491866240370913,
+     0.29131261245159085
+    ],
+    [
+     -0.664036770267849,
+     -0.6351489523872873,
+     -0.6043677771171635,
+     -0.5716699660851172,
+     -0.5370495669980353,
+     -0.5005202111902353,
+     -0.46211715726000974,
+     -0.42189900525000795,
+     -0.3799489622552249,
+     -0.33637554433633227,
+     -0.29131261245159096,
+     -0.24491866240370913,
+     -0.19737532022490395,
+     -0.148885033623318,
+     -0.09966799462495579,
+     -0.04995837495788002,
+     0.0,
+     0.04995837495788002,
+     0.09966799462495579,
+     0.148885033623318,
+     0.19737532022490395
+    ],
+    [
+     -0.7162978701990245,
+     -0.6910694698329306,
+     -0.664036770267849,
+     -0.6351489523872873,
+     -0.6043677771171635,
+     -0.5716699660851172,
+     -0.5370495669980353,
+     -0.5005202111902353,
+     -0.46211715726000974,
+     -0.42189900525000795,
+     -0.3799489622552249,
+     -0.3363755443363322,
+     -0.29131261245159085,
+     -0.24491866240370913,
+     -0.19737532022490395,
+     -0.148885033623318,
+     -0.09966799462495579,
+     -0.04995837495787991,
+     0.0,
+     0.04995837495788002,
+     0.09966799462495579
+    ],
+    [
+     -0.7615941559557649,
+     -0.7397830512740042,
+     -0.7162978701990245,
+     -0.6910694698329306,
+     -0.664036770267849,
+     -0.6351489523872873,
+     -0.6043677771171635,
+     -0.5716699660851172,
+     -0.5370495669980353,
+     -0.5005202111902353,
+     -0.46211715726000974,
+     -0.4218990052500079,
+     -0.3799489622552248,
+     -0.3363755443363322,
+     -0.29131261245159085,
+     -0.24491866240370913,
+     -0.19737532022490395,
+     -0.1488850336233179,
+     -0.09966799462495579,
+     -0.04995837495787991,
+     0.0
+    ]
+   ],
+   "nu": 0.01,
+   "t": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5
+   ],
+   "x": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6000000000000001,
+    0.65,
+    0.7000000000000001,
+    0.75,
+    0.8,
+    0.8500000000000001,
+    0.9,
+    0.9500000000000001,
+    1.0
+   ]
+  },
+  "source": "a tanh front steepening under nu=0.01, sampled on 21 x 11 points"
+ },
+ "pinneapple_veriphysics.surrogate_gates:diffusion_residual": {
+  "inputs": {
+   "alpha": 0.1,
+   "field": [
+    [
+     1.0,
+     0.999750031247396,
+     0.999000499833375,
+     0.9977525293526299,
+     0.9960079893439915,
+     0.9937694906233947,
+     0.9910403787728836,
+     0.9878247258083831,
+     0.9841273200552851,
+     0.9799536542670847,
+     0.9753099120283326,
+     0.9702029524890169,
+     0.964640293483123,
+     0.9586300930895252,
+     0.9521811296985049,
+     0.9453027806520595,
+     0.9380049995307295,
+     0.9302982921639203,
+     0.922193691444608,
+     0.91370273103288,
+     0.9048374180359595
+    ],
+    [
+     0.95,
+     0.9497625296850262,
+     0.9490504748417062,
+     0.9478649028849984,
+     0.9462075898767919,
+     0.944081016092225,
+     0.9414883598342394,
+     0.9384334895179639,
+     0.9349209540525208,
+     0.9309559715537304,
+     0.926544416426916,
+     0.921692804864566,
+     0.9164082788089668,
+     0.9106985884350489,
+     0.9045720732135796,
+     0.8980376416194565,
+     0.8911047495541929,
+     0.8837833775557243,
+     0.8760840068723776,
+     0.8680175944812359,
+     0.8595955471341615
+    ],
+    [
+     0.9,
+     0.8997750281226564,
+     0.8991004498500376,
+     0.8979772764173669,
+     0.8964071904095924,
+     0.8943925415610553,
+     0.8919363408955953,
+     0.8890422532275448,
+     0.8857145880497567,
+     0.8819582888403762,
+     0.8777789208254994,
+     0.8731826572401152,
+     0.8681762641348106,
+     0.8627670837805727,
+     0.8569630167286544,
+     0.8507725025868536,
+     0.8442044995776565,
+     0.8372684629475283,
+     0.8299743223001472,
+     0.8223324579295921,
+     0.8143536762323635
+    ],
+    [
+     0.85,
+     0.8497875265602866,
+     0.8491504248583688,
+     0.8480896499497355,
+     0.8466067909423928,
+     0.8447040670298854,
+     0.8423843219569511,
+     0.8396510169371256,
+     0.8365082220469924,
+     0.8329606061270219,
+     0.8290134252240827,
+     0.8246725096156643,
+     0.8199442494606545,
+     0.8148355791260964,
+     0.8093539602437291,
+     0.8035073635542506,
+     0.79730424960112,
+     0.7907535483393323,
+     0.7838646377279168,
+     0.776647321377948,
+     0.7691118053305656
+    ],
+    [
+     0.8,
+     0.7998000249979169,
+     0.7992003998667001,
+     0.798202023482104,
+     0.7968063914751933,
+     0.7950155924987158,
+     0.792832303018307,
+     0.7902597806467065,
+     0.7873018560442282,
+     0.7839629234136678,
+     0.7802479296226661,
+     0.7761623619912136,
+     0.7717122347864984,
+     0.7669040744716202,
+     0.761744903758804,
+     0.7562422245216477,
+     0.7504039996245836,
+     0.7442386337311363,
+     0.7377549531556865,
+     0.730962184826304,
+     0.7238699344287677
+    ],
+    [
+     0.75,
+     0.749812523435547,
+     0.7492503748750312,
+     0.7483143970144724,
+     0.7470059920079937,
+     0.745327117967546,
+     0.7432802840796627,
+     0.7408685443562874,
+     0.7380954900414638,
+     0.7349652407003135,
+     0.7314824340212495,
+     0.7276522143667626,
+     0.7234802201123423,
+     0.7189725698171439,
+     0.7141358472738787,
+     0.7089770854890447,
+     0.7035037496480471,
+     0.6977237191229403,
+     0.691645268583456,
+     0.68527704827466,
+     0.6786280635269697
+    ],
+    [
+     0.7,
+     0.6998250218731772,
+     0.6993003498833624,
+     0.6984267705468409,
+     0.697205592540794,
+     0.6956386434363763,
+     0.6937282651410185,
+     0.6914773080658682,
+     0.6888891240386995,
+     0.6859675579869593,
+     0.6827169384198328,
+     0.6791420667423118,
+     0.6752482054381861,
+     0.6710410651626676,
+     0.6665267907889534,
+     0.6617119464564416,
+     0.6566034996715105,
+     0.6512088045147442,
+     0.6455355840112256,
+     0.639591911723016,
+     0.6333861926251716
+    ],
+    [
+     0.6499999999999999,
+     0.6498375203108073,
+     0.6493503248916936,
+     0.6485391440792093,
+     0.6474051930735943,
+     0.6459501689052065,
+     0.6441762462023742,
+     0.642086071775449,
+     0.6396827580359352,
+     0.6369698752736049,
+     0.6339514428184161,
+     0.6306319191178609,
+     0.6270161907640298,
+     0.6231095605081913,
+     0.6189177343040281,
+     0.6144468074238386,
+     0.609703249694974,
+     0.6046938899065482,
+     0.5994258994389952,
+     0.5939067751713719,
+     0.5881443217233736
+    ],
+    [
+     0.6,
+     0.5998500187484376,
+     0.599400299900025,
+     0.598651517611578,
+     0.5976047936063948,
+     0.5962616943740368,
+     0.5946242272637302,
+     0.5926948354850299,
+     0.590476392033171,
+     0.5879721925602508,
+     0.5851859472169996,
+     0.5821217714934102,
+     0.5787841760898738,
+     0.5751780558537151,
+     0.5713086778191029,
+     0.5671816683912357,
+     0.5628029997184376,
+     0.5581789752983521,
+     0.5533162148667649,
+     0.548221638619728,
+     0.5429024508215757
+    ],
+    [
+     0.55,
+     0.5498625171860678,
+     0.5494502749083563,
+     0.5487638911439465,
+     0.5478043941391953,
+     0.5465732198428671,
+     0.5450722083250861,
+     0.5433035991946108,
+     0.5412700260304069,
+     0.5389745098468967,
+     0.5364204516155829,
+     0.5336116238689593,
+     0.5305521614157177,
+     0.5272465511992389,
+     0.5236996213341777,
+     0.5199165293586328,
+     0.5159027497419012,
+     0.5116640606901562,
+     0.5072065302945344,
+     0.5025365020680841,
+     0.4976605799197778
+    ],
+    [
+     0.5,
+     0.499875015623698,
+     0.4995002499166875,
+     0.49887626467631496,
+     0.49800399467199574,
+     0.49688474531169735,
+     0.4955201893864418,
+     0.49391236290419155,
+     0.49206366002764257,
+     0.48997682713354235,
+     0.4876549560141663,
+     0.48510147624450844,
+     0.4823201467415615,
+     0.4793150465447626,
+     0.47609056484925244,
+     0.47265139032602976,
+     0.46900249976536473,
+     0.4651491460819602,
+     0.461096845722304,
+     0.45685136551644,
+     0.45241870901797976
+    ]
+   ],
+   "t": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5
+   ],
+   "x": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6000000000000001,
+    0.65,
+    0.7000000000000001,
+    0.75,
+    0.8,
+    0.8500000000000001,
+    0.9,
+    0.9500000000000001,
+    1.0
+   ]
+  },
+  "source": "a Gaussian decaying under alpha=0.1, sampled on 21 x 11 points"
+ },
+ "pinneapple_veriphysics.surrogate_gates:relative_l2": {
+  "inputs": {
+   "computed": [
+    0.0,
+    0.9,
+    1.9,
+    3.1,
+    3.9
+   ],
+   "reference": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ]
+  },
+  "source": "case 10's report: a residual check on a closed form"
+ },
+ "pinneapple_veriphysics.surrogate_gates:wave_residual": {
+  "inputs": {
+   "c": 1.0,
+   "field": [
+    [
+     0.0,
+     0.09983341664682815,
+     0.19866933079506122,
+     0.2955202066613396,
+     0.3894183423086505,
+     0.479425538604203,
+     0.5646424733950355,
+     0.6442176872376911,
+     0.7173560908995228,
+     0.7833269096274834,
+     0.8414709848078965,
+     0.8912073600614354,
+     0.9320390859672264,
+     0.963558185417193,
+     0.9854497299884603,
+     0.9974949866040544,
+     0.9995736030415051,
+     0.9916648104524686,
+     0.9738476308781951,
+     0.9463000876874145,
+     0.9092974268256817
+    ],
+    [
+     0.0,
+     0.09933466539753062,
+     0.19767681165408388,
+     0.2940438365518559,
+     0.38747287263277136,
+     0.477030407851843,
+     0.5618216129209472,
+     0.6409992821472792,
+     0.7137722984325873,
+     0.7794135378537097,
+     0.8372671348444594,
+     0.8867550353875615,
+     0.9273827727393142,
+     0.9587444079778433,
+     0.9805265860106238,
+     0.9925116665149828,
+     0.9945798985282616,
+     0.9867106169598502,
+     0.9689824490699416,
+     0.9415725288519384,
+     0.9047547271681442
+    ],
+    [
+     0.0,
+     0.09784339500725571,
+     0.19470917115432523,
+     0.2896294776255156,
+     0.3816559020950483,
+     0.4698689469495153,
+     0.5533872166040867,
+     0.6313762241158433,
+     0.703056729101466,
+     0.7677125236495632,
+     0.8246975884333746,
+     0.8734425475223383,
+     0.9134603573981784,
+     0.9443511733327449,
+     0.9658063445043659,
+     0.9776114979348308,
+     0.9796486804333276,
+     0.9718975371457345,
+     0.9544355149335934,
+     0.9274370885506712,
+     0.8911720173488927
+    ],
+    [
+     0.0,
+     0.09537450575679464,
+     0.18979606097868743,
+     0.2823212366975177,
+     0.3720255519422596,
+     0.45801271084729195,
+     0.5394235581444116,
+     0.6154446635582735,
+     0.6853164493328192,
+     0.7483407796811309,
+     0.8038879363274419,
+     0.8514029104439915,
+     0.8904109481157689,
+     0.9205222939247008,
+     0.941436085256952,
+     0.9529433584227107,
+     0.9549291365523036,
+     0.9473735784070708,
+     0.9303521766264641,
+     0.9040350034305477,
+     0.8686850113145944
+    ],
+    [
+     0.0,
+     0.09195266597143172,
+     0.18298657129998708,
+     0.27219213529543146,
+     0.3586780454497614,
+     0.4415801631371558,
+     0.520070157801479,
+     0.5933637833613875,
+     0.6607287141379384,
+     0.721491862010698,
+     0.7750461016917478,
+     0.8208563369208728,
+     0.8584648469705141,
+     0.887495860039976,
+     0.9076593078430459,
+     0.918753723874425,
+     0.920668256396454,
+     0.9133837760330333,
+     0.8969730669040251,
+     0.8716000993903873,
+     0.837518391796328
+    ],
+    [
+     0.0,
+     0.08761206554319244,
+     0.17434874028817574,
+     0.2593433800522308,
+     0.34174674649032766,
+     0.42073549240394825,
+     0.49552038835413187,
+     0.5653542083811439,
+     0.6295391960392663,
+     0.6874340361485554,
+     0.7384602626041288,
+     0.7821080382182704,
+     0.8179412488450799,
+     0.845601860888859,
+     0.864813498657449,
+     0.8753842058167891,
+     0.8772083633551545,
+     0.8702677448934083,
+     0.8546316987969566,
+     0.8304564552698056,
+     0.7979835653540055
+    ],
+    [
+     0.0,
+     0.08239607431674402,
+     0.1639688742954361,
+     0.2439033514830719,
+     0.32140082700641764,
+     0.39568697170730355,
+     0.46601954298361326,
+     0.5316958010320105,
+     0.5920595303917606,
+     0.646507596632697,
+     0.6944959726750778,
+     0.7355451745283358,
+     0.7692450521366152,
+     0.7952588874625527,
+     0.8133267588626022,
+     0.8232681381381786,
+     0.8249836943137432,
+     0.8184562861190776,
+     0.8037511332591886,
+     0.7810151647605746,
+     0.7504755509049621
+    ],
+    [
+     0.0,
+     0.0763568087522437,
+     0.15195068551164018,
+     0.22602632124962302,
+     0.2978435767000479,
+     0.36668487758608254,
+     0.4318623843851825,
+     0.4927248649942301,
+     0.5486642016254413,
+     0.5991214669182832,
+     0.6435925085569041,
+     0.6816329865934229,
+     0.7128628131458088,
+     0.7369699501103585,
+     0.7537135269432824,
+     0.7629262473595564,
+     0.7645160609021017,
+     0.7584670826795237,
+     0.7448397520826958,
+     0.7237702288943453,
+     0.6954690328255114
+    ],
+    [
+     0.0,
+     0.06955461119489617,
+     0.13841425570643057,
+     0.20589091072861618,
+     0.2713103718292879,
+     0.3340189893779267,
+     0.3933901995966996,
+     0.4488307849786132,
+     0.49978680152075255,
+     0.5457491135496484,
+     0.5862584808366281,
+     0.6209101471743771,
+     0.6493578845671661,
+     0.6713174526265383,
+     0.6865694386073128,
+     0.6949614497072056,
+     0.6964096357253368,
+     0.6908995268657199,
+     0.6784861783146803,
+     0.6592936201476326,
+     0.6335136180615656
+    ],
+    [
+     0.0,
+     0.06205744695418687,
+     0.12349483641187213,
+     0.1836983062860955,
+     0.24206632340649498,
+     0.29801569383990484,
+     0.3509873899713575,
+     0.400452136123222,
+     0.4459156969028202,
+     0.4869238154390976,
+     0.5230667521671213,
+     0.5539833788103714,
+     0.5793647866551066,
+     0.5989573730641202,
+     0.6125653753904615,
+     0.620052826973093,
+     0.6213449156708237,
+     0.6164287313604934,
+     0.6053533949306565,
+     0.5882295674819007,
+     0.5652283446377088
+    ],
+    [
+     0.0,
+     0.05394022521697598,
+     0.1073414975338518,
+     0.15967024908975097,
+     0.21040362829671244,
+     0.2590347239999257,
+     0.30507763036642743,
+     0.3480723018955646,
+     0.387589150041567,
+     0.42323333552029324,
+     0.4546487134128409,
+     0.48152139164785107,
+     0.5035828673073258,
+     0.5206127094190299,
+     0.5324407614299008,
+     0.5389488413540798,
+     0.5400719226082498,
+     0.5357987837357605,
+     0.5261721205277139,
+     0.5112881194207329,
+     0.49129549643388193
+    ]
+   ],
+   "t": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5
+   ],
+   "x": [
+    0.0,
+    0.05,
+    0.1,
+    0.15000000000000002,
+    0.2,
+    0.25,
+    0.30000000000000004,
+    0.35000000000000003,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6000000000000001,
+    0.65,
+    0.7000000000000001,
+    0.75,
+    0.8,
+    0.8500000000000001,
+    0.9,
+    0.9500000000000001,
+    1.0
+   ]
+  },
+  "source": "a standing wave of a closed form, sampled on 21 x 11 points"
  },
  "pinneapple_veriphysics.validation_lab:category_of": {
   "inputs": {

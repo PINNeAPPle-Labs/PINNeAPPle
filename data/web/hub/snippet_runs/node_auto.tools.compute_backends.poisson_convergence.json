@@ -1,0 +1,12 @@
+{
+ "code_hash": "2a7cca9719e08e64",
+ "figures": [],
+ "id": "node:auto.tools.compute_backends.poisson_convergence",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 12.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "poisson convergence -> pinneapple_tools.compute_backends:poisson_convergence\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'resolutions': [8, 16, 32, 64], 'degree': 2}",
+ "timed_out": false
+}

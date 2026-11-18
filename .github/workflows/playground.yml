@@ -48,7 +48,7 @@ jobs:
         run: pytest tests/test_zoo_web.py tests/test_playground.py -q -p no:warnings
 
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
       run:

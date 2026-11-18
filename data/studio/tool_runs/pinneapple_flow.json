@@ -608,6 +608,16 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_flow.planner.extensions:match": {
+  "code_hash": "9bc68f7b852b3c86",
+  "inputs": {
+   "text": "Quero um surrogate da aerodin\u00e2mica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 2.6
+ },
  "pinneapple_flow.planner.heuristic:sensor_count": {
   "code_hash": "37d8d6c624bc7370",
   "inputs": {

@@ -101,6 +101,7 @@ check = [
   "meshio>=5.3",
   "h5py>=3.8",
   "cryptography>=41",
+  "pydantic>=2.0",
 ]
 # Football studies (pinneapple_systems.sports.football): the data-only baselines (boosted trees, logistic regression)
 sports = [

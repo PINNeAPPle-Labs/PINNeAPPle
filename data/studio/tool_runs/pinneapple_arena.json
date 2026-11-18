@@ -50,6 +50,23 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_arena.bundle_uq:spearman": {
+  "code_hash": "f6c6462e41f45f14",
+  "inputs": {
+   "a": [
+    1.0,
+    2.0
+   ],
+   "b": [
+    1.0,
+    2.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 10.38
+ },
  "pinneapple_arena.dataset_bench:list_benchmarks": {
   "code_hash": "2578daac725ba987",
   "inputs": {},
@@ -283,6 +300,52 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.3
+ },
+ "pinneapple_arena.fieldbench.models:available_models": {
+  "code_hash": "7a73e139aac300bf",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "list",
+  "seconds": 33.1
+ },
+ "pinneapple_arena.fieldbench.models:build_model_specs": {
+  "code_hash": "5097a5e7f8cde0c7",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 9.83
+ },
+ "pinneapple_arena.fieldbench.tabular:available_regressors": {
+  "code_hash": "bdf42c293ee40515",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-07",
+  "returned": "dict",
+  "seconds": 0.01
+ },
+ "pinneapple_arena.model_factory:build_model": {
+  "code_hash": "4d03ae7777445982",
+  "inputs": {
+   "cfg": {
+    "name": "ModifiedMLP",
+    "network": {
+     "hidden": [
+      32,
+      32,
+      32
+     ]
+    },
+    "type": "modified_mlp"
+   },
+   "in_dim": 2,
+   "out_dim": 1
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "ModifiedMLP",
+  "seconds": 10.69
  },
  "pinneapple_arena.pointwise.architectures:catalog_status": {
   "code_hash": "1b572fbd0867b539",

@@ -75,6 +75,8 @@ def main(argv=None) -> int:
     s.add_argument("--force", action="store_true")
     sub.add_parser("status")
     sub.add_parser("reindex")
+    reap = sub.add_parser("reap", help="mark dead running processes as interrupted")
+    reap.add_argument("--delete", action="store_true", help="remove interrupted run folders")
     rep = sub.add_parser("report")
     rep.add_argument("--out", default=None)
     rep.add_argument("--html", action="store_true", help="also write the browsable index.html")
@@ -346,6 +348,8 @@ def main(argv=None) -> int:
     store = LabStore(a.root)
     if a.cmd == "status":
         print(json.dumps(store.status(), indent=1))
+    elif a.cmd == "reap":
+        print(json.dumps(store.reap(delete=a.delete), indent=1))
     elif a.cmd == "reindex":
         print(store.reindex(), "runs indexed")
     elif a.cmd == "report":

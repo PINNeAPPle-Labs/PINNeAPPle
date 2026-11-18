@@ -53,6 +53,16 @@
   "domain": "structures",
   "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
  },
+ "carbench_surface_pressure": {
+  "domain": "external aerodynamics",
+  "reason": "a surface-pressure dataset for a parametric car family (three roof lines, open/closed wheel arches, thirteen design variables), labelled by a lattice-Boltzmann sweep of the library's 3-D tunnel and then used to rank six surrogate families: the label is coarser than the published benchmark's RANS (the manifest records the resolution, the reachable Reynolds number and the density excursion), so the protocol and the ranking are what is reproduced. No node wraps a solver sweep followed by a model benchmark, so it runs from its script",
+  "status": "not_convertible"
+ },
+ "carcrashnet_pole_impact": {
+  "domain": "structural crashworthiness",
+  "reason": "a pole-impact dataset of a bumper-beam coupon (seven design variables to the crashworthiness quantities, and the undeformed mesh plus the design vector to the displacement of every node at every frame), labelled by the library's explicit crash solver and then used to rank tabular and field surrogates on one campaign, with the design kept as a per-node channel so a held-out design can be asked about and its peak displacement scored. No node wraps a transient solver sweep followed by a model benchmark, so it runs from its script",
+  "status": "not_convertible"
+ },
  "chain_of_whys": {
   "domain": "design reasoning",
   "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"
@@ -83,6 +93,10 @@
  "design_from_intent": {
   "domain": "design",
   "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
+ },
+ "digital_twin_library": {
+  "domain": "digital twins",
+  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share \u2014 two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list \u2014 which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
  },
  "dynamics_toolkit": {
   "domain": "dynamical systems",
@@ -158,6 +172,11 @@
   "domain": "PINN",
   "notes": "03_heat_diffusion_1d and 04_wave_equation_1d are flows of equations.system + train.pinn + validate.compare for the script's three diffusivities / wave speeds against the exact solutions (the script trains its own torch loop with a hard x(1-x) factor); nothing committed to compare. 01, 02 and 05-10 are pure-torch ODE PINNs without pinneapple calls, and no node trains a PINN on an ODE (geometry.domain needs a spatial dimension)"
  },
+ "granular_dem": {
+  "domain": "process engineering",
+  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign \u2014 drum, charge, liner facets, a bonded agglomerate and its breakage \u2014 and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
+  "status": "not_convertible"
+ },
  "handoff_cases": {
   "domain": "CFD",
   "needs": "OpenFOAM (+ xfoil)",
@@ -206,14 +225,14 @@
   "reason": "protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled)",
   "status": "needs"
  },
+ "motor_magnetics": {
+  "domain": "electromagnetics"
+ },
  "mujoco": {
   "domain": "robotics",
   "needs": "MuJoCo (pip install \"pinneapple[mujoco]\")",
   "reason": "quickstart.py runs four MuJoCo sessions in about two seconds (a trajectory and its UPD export, validate(), a BatchRunner campaign, and an arm held by the multibody tree), but MuJoCo is an optional wheel the Flow Studio image does not install and no flow node wraps the backend yet",
   "status": "needs"
- },
- "motor_magnetics": {
-  "domain": "electromagnetics"
  },
  "near_random_forecasting": {
   "domain": "time series",
@@ -253,6 +272,11 @@
  "physics_condensation": {
   "domain": "heat transfer",
   "notes": "hierarchy_64: condense.package_thermal at 64 x 64 blocks, m = 12, compared with the committed scaling point (quick: 16 x 16). The other studies of run_benchmark.py (accuracy against modes, refinement, Keff, learned blocks, transient, meshless, exception patches) are pinneapple_condense.benchmark functions that run for minutes in subprocesses and are measured by the script."
+ },
+ "physics_data_schema": {
+  "domain": "physics data",
+  "reason": "01_pdebench_bundle.py writes a synthetic PDEBench file to a temporary directory, reads it through the adapter, builds the bundle and puts it through the gates; the flow has no node for the schema adapters or the gates yet, and the point of the example is the file round trip the script arranges",
+  "status": "not_convertible"
  },
  "physics_db": {
   "domain": "data",
@@ -335,6 +359,11 @@
   "domain": "multibody",
   "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"
  },
+ "rocket_launch": {
+  "domain": "flight dynamics",
+  "status": "not_convertible",
+  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet."
+ },
  "science": {
   "domain": "science",
   "notes": "one flow per pp.science experiment (science.run in every committed dimension at the committed resolution, #882-#884), compared with the relative error of each quantity in its result.json; the quick configuration uses the reduced sizes and compares nothing. science.atlas (the atlas page) is the bundled side of the same nodes"
@@ -410,10 +439,5 @@
  "worldmodel": {
   "domain": "world model",
   "notes": "nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder"
- },
- "rocket_launch": {
-  "domain": "flight dynamics",
-  "status": "not_convertible",
-  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet."
  }
 }

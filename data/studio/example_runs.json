@@ -52,6 +52,19 @@
   "seconds": 16.1,
   "writes_files": []
  },
+ "example:digital_twin_library": {
+  "error": "",
+  "hash": "5c73feb5e08e8e2c",
+  "ok": true,
+  "recorded": "2026-11-17",
+  "scripts": [
+   "examples/digital_twin_library/01_reference_systems.py"
+  ],
+  "seconds": 16.9,
+  "writes_files": [
+   "examples/digital_twin_library/experiment.json"
+  ]
+ },
  "example:fno_coldplate": {
   "error": "",
   "hash": "edeecb3eafdf8dbf",
@@ -66,6 +79,17 @@
    "examples/fno_coldplate/results/fields.png",
    "examples/fno_coldplate/results/summary.json"
   ]
+ },
+ "example:granular_dem": {
+  "error": "",
+  "hash": "3164dfdc15b34776",
+  "ok": true,
+  "recorded": "2026-11-17",
+  "scripts": [
+   "examples/granular_dem/01_mill_power_and_wear.py"
+  ],
+  "seconds": 9.3,
+  "writes_files": []
  },
  "example:latent": {
   "error": "fit\n    self.rom.fit(P_train, X_train)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/tmp/studio-examples-ayhv6gae/copy0/pinneapple_neural/architectures/rom/parametric.py\", line 69, in fit\n    from sklearn.gaussian_process import GaussianProcessRegressor\nModuleNotFoundError: No module named 'sklearn'",
@@ -87,6 +111,17 @@
    "examples/physics_audit/pipe_regimes.py"
   ],
   "seconds": 4.7,
+  "writes_files": []
+ },
+ "example:physics_data_schema": {
+  "error": "",
+  "hash": "2b89c38a0796dcb0",
+  "ok": true,
+  "recorded": "2026-11-17",
+  "scripts": [
+   "examples/physics_data_schema/01_pdebench_bundle.py"
+  ],
+  "seconds": 1.6,
   "writes_files": []
  },
  "example:physics_ensemble": {

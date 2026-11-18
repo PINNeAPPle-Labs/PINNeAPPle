@@ -254,6 +254,66 @@
   "returned": "ModelCard",
   "seconds": 0.0
  },
+ "pinneapple_hub.zoo.anchors:card": {
+  "code_hash": "2bc228aa25e15b43",
+  "inputs": {
+   "anchor_id": "anchor-aero"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 18.17
+ },
+ "pinneapple_hub.zoo.anchors:catalogue": {
+  "code_hash": "b5ab36a07ed64c16",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 19.89
+ },
+ "pinneapple_hub.zoo.anchors:dumps": {
+  "code_hash": "4599e472e4dd2a22",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.anchors:info": {
+  "code_hash": "49d81e0e3e3b77b1",
+  "inputs": {
+   "anchor_id": "anchor-aero"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "AnchorInfo",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.anchors:list": {
+  "code_hash": "6395d6c7a8301070",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.anchors:problems": {
+  "code_hash": "93542c26ae3984da",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_hub.zoo.anchors:public": {
+  "code_hash": "890f65a62baff571",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "dict",
+  "seconds": 0.01
+ },
  "pinneapple_hub.zoo.catalogue:markdown": {
   "code_hash": "456c00b5eb79f0f8",
   "inputs": {},

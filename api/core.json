@@ -1536,6 +1536,15 @@
    }
   },
   "pinneapple_neural.architectures.neural_operators.fno_export": {
+   "RealSpectralConv1d": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(conv, L)",
+     "forward": "(x)"
+    }
+   },
    "RealSpectralConv2d": {
     "class": [
      "nn.Module"
@@ -1546,6 +1555,7 @@
     }
    },
    "export_onnx": "def(model, example, path, *, grid=None, opset=17, atol=0.0001)",
+   "spatial_shape": "def(model, example)",
    "to_exportable": "def(model, grid)"
   },
   "pinneapple_neural.architectures.neural_operators.gno": {
@@ -1681,7 +1691,7 @@
     ],
     "methods": {
      "__init__": "(dim, heads=8, slices=32, dropout=0.0)",
-     "forward": "(x, return_weights=False)"
+     "forward": "(x, return_weights=False, mask=None)"
     }
    },
    "Transolver": {
@@ -1699,7 +1709,7 @@
     ],
     "methods": {
      "__init__": "(dim, heads, slices, mlp_ratio=2, dropout=0.0)",
-     "forward": "(x)"
+     "forward": "(x, mask=None)"
     }
    },
    "TransolverLite": {

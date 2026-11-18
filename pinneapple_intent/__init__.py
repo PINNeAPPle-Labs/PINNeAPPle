@@ -2,7 +2,7 @@
 
     import pinneapple as pp
     run = pp.study("a 12 mm steel wall, k = 200 W/mK, 300 degC inside, air at 25 degC outside, h = 12 W/m2K")
-    print(run.summary())            # cold_face_temperature = 572.95 K (APPROVED); 12/12 checks passed
+    print(run.summary())            # cold_face_temperature = 572.953 K (APPROVED); 6/6 checks passed
     run.files["report"]             # the Markdown report; contract.json and run.json sit next to it
 
     pp.study("a heat sink for a 40 W chip")     # -> the contract, status needs_clarification, with its questions

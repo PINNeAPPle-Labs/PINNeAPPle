@@ -1,0 +1,64 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/intent_to_study",
+ "title": "Text to simulation: four requests through one compiler, ladder, decision and replay",
+ "description": "Four requests in plain language compiled into study contracts and run end to end: a steel wall cooled by convection (closed form vs immersed finite volume, 12 mm and 300 degC), a laminar pipe (Hagen-Poiseuille vs finite differences on the radial momentum balance), a cantilever beam (Euler-Bernoulli in plane strain vs immersed elasticity) and the wall again in physics_ai mode, where a surrogate is fitted to the solver and scored on designs held out of its fit. The script then replays the first run from contract.json alone. Every number comes from a closed form, a solver call or a value the contract records with its source; each study is decided by pinneapple_analysis.trust.TrustReport.",
+ "domain": "heat transfer, fluid mechanics and solid mechanics from natural language",
+ "methods": [
+  "immersed finite cell (finite volume / FEM)",
+  "Hagen-Poiseuille",
+  "Euler-Bernoulli beam theory",
+  "fitted surrogate with held-out error"
+ ],
+ "modules": [
+  "pinneapple",
+  "pinneapple_intent"
+ ],
+ "params": {},
+ "scripts": [
+  "intent_to_study.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/beam/contract.json",
+   "_out/beam/report.md",
+   "_out/beam/run.json",
+   "_out/beam/trust.md",
+   "_out/heat-wall-replay/contract.json",
+   "_out/heat-wall-replay/replay.json",
+   "_out/heat-wall-replay/report.md",
+   "_out/heat-wall-replay/run.json",
+   "_out/heat-wall-replay/trust.md",
+   "_out/heat-wall-surrogate/contract.json",
+   "_out/heat-wall-surrogate/report.md",
+   "_out/heat-wall-surrogate/run.json",
+   "_out/heat-wall-surrogate/trust.md",
+   "_out/heat-wall/contract.json",
+   "_out/heat-wall/report.md",
+   "_out/heat-wall/run.json",
+   "_out/heat-wall/trust.md",
+   "_out/pipe-laminar/contract.json",
+   "_out/pipe-laminar/report.md",
+   "_out/pipe-laminar/run.json",
+   "_out/pipe-laminar/trust.md",
+   "_out/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/intent_to_study.md",
+  "script": "examples/intent_to_study/intent_to_study.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "78744ed46"
+ }
+}

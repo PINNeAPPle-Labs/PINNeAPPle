@@ -154,7 +154,8 @@ break, because the report is built from them:
 
 ## What this does not do yet
 
-- `text-to-science` (a hypothesis or an article to a reproduced experiment) has no literature stage.
+- `text-to-science` (a hypothesis or an article to a reproduced experiment) has no literature stage; the
+  design and what remains is written down in [#1862](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1862).
 - The surrogate rung fits a small MLP over one swept input; it is not a PINN or a neural operator trained on the
   field. Neural operators live in `pinneapple_neural` and are not wired into the ladder yet.
 - Three families ship. The registry makes a fourth a module, not a rewrite, but the physics of each one is real work:

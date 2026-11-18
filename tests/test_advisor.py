@@ -292,3 +292,107 @@ def test_build_is_the_same_plan_as_advise():
     a = advise(text, llm=False).to_dict()
     b = build(brief(text, llm=False)).plan.to_dict()
     assert [s["id"] for s in a["stages"]] == [s["id"] for s in b["stages"]]
+
+
+# ---------------------------------------------------------------------------------- the scenarios, end to end
+
+SCENARIOS = {
+    "3d_cad_surrogate": ("transient heat in a 3-D bracket, I have the STEP but no mesh",
+                         {"evaluations_needed": 300},
+                         ["physics", "geometry", "mesh", "solver", "dataset", "training", "verification",
+                          "visualization"]),
+    "2d_analytic_direct": ("Laplace in a rectangular plate with 20k cells",
+                           {"approx_cells": 20_000},
+                           ["physics", "solver", "verification", "visualization"]),
+    "dataset_in_hand": ("linear elasticity on a 2D beam, I have a dataset with 300 simulations",
+                        {"dataset_present": True, "n_simulations_present": 300},
+                        ["physics", "solver", "dataset", "training", "verification", "visualization"]),
+    "inverse": ("recover the thermal conductivity from temperature measurements in a 2D cylinder",
+                {"goal": "inverse"},
+                ["physics", "solver", "inverse", "verification", "visualization"]),
+    "optimise": ("optimise the thickness of a 2D fin for the lowest mass",
+                 {"goal": "optimization", "evaluations_needed": 400},
+                 ["physics", "solver", "dataset", "training", "optimization", "verification", "visualization"]),
+    "mesh_in_hand": ("turbulent flow in a 3-D duct, I have the mesh",
+                     {"mesh_present": True, "turbulent": True},
+                     ["physics", "mesh", "solver", "verification", "visualization"]),
+}
+
+
+@pytest.mark.parametrize("name", sorted(SCENARIOS))
+def test_each_scenario_gives_the_stages_it_needs(name):
+    text, answers, expected = SCENARIOS[name]
+    plan = advise(text, answers=answers, llm=False)
+    assert [s.id for s in plan.stages] == expected
+    # every plan is a DAG whose edges point at stages that exist, and every stage says what it costs or why not
+    order = {s.id: i for i, s in enumerate(plan.stages)}
+    for stage in plan.stages:
+        assert all(dep in order and order[dep] < order[stage.id] for dep in stage.depends_on), stage.id
+        assert stage.answers and all(1 <= a <= 10 for a in stage.answers), stage.id
+        assert stage.tools, stage.id
+        if stage.status == "generate":
+            assert stage.checks, stage.id
+    # the campaign estimate covers every stage that still costs work, and says what it is based on
+    total = plan.total_estimate()
+    assert total.total_seconds >= 0.0
+    assert total.basis and total.confidence in ("measured", "order of magnitude")
+
+
+def test_the_diagram_of_every_scenario_is_drawable():
+    for name, (text, answers, _expected) in SCENARIOS.items():
+        plan = advise(text, answers=answers, llm=False)
+        for kind in ("mermaid", "dot", "svg", "html", "markdown"):
+            out = plan.diagram(kind)
+            assert out.strip(), (name, kind)
+        root = ET.fromstring(plan.diagram("svg"))
+        boxes = root.findall(".//{http://www.w3.org/2000/svg}rect")
+        assert len(boxes) >= len(plan.stages), name
+
+
+def test_the_training_waits_for_the_dataset_the_plan_builds():
+    """A PINN that is fed the simulations the plan generates must depend on that stage, or the drawing lies."""
+    plan = advise("transient heat in a 3-D bracket, I have the STEP but no mesh",
+                  answers={"evaluations_needed": 300}, llm=False)
+    assert plan.stage("dataset").status == "generate"
+    assert plan.stage("training").depends_on == ["dataset"]
+    assert plan.stage("solver").depends_on == ["physics", "mesh"]
+    # and the stage that runs the solver says it is one run, because the campaign is the dataset stage
+    assert "one run to calibrate" in plan.stage("solver").estimate.basis
+
+
+def test_a_narrow_plan_is_still_wide_enough_for_its_own_header():
+    """One stage per row gives a narrow drawing; the subtitle must not run off the edge of it."""
+    from pinneapple_advisor import render
+
+    plan = advise("optimise the thickness of a 2D fin", answers={"goal": "optimization"}, llm=False)
+    svg = plan.diagram("svg")
+    width = float(svg.split('width="', 1)[1].split('"', 1)[0])
+    assert width >= render._MIN_W
+    longest = max(len(_text_of(plan.problem, "pt")), len(render._estimate_line(plan, "pt")))
+    assert longest <= render._fit_chars(width - 2 * render._MARGIN, 11.5) + 200        # elided, not clipped
+
+
+def _text_of(value, lang):
+    from pinneapple_advisor.schema import text_of
+    return text_of(value, lang)
+
+
+def test_the_flow_node_writes_the_plan_and_its_drawings(tmp_path):
+    """The same plan through the flow runtime: the node writes the four files and the report node reads them."""
+    import pinneapple_flow as pf
+    from pinneapple_flow.nodes_ext.advisor import build_flow
+
+    flow = build_flow("transient heat in a 3-D bracket, I have the STEP but no mesh", language="pt",
+                      answers={"evaluations_needed": 300}).flow()
+    result = pf.run(flow, workdir=tmp_path)
+    folder = tmp_path / "engine" / "runs" / result.run_id / "advise"
+    assert (folder / "plan.json").is_file()
+    assert (folder / "pipeline.svg").is_file()
+    assert (folder / "pipeline.html").is_file()
+    assert (folder / "pipeline.mmd").is_file()
+    plan = json.loads((folder / "plan.json").read_text(encoding="utf-8"))
+    assert plan["schema"] == "pinneapple.advisor/1"
+    assert [s["id"] for s in plan["stages"]][:3] == ["physics", "geometry", "mesh"]
+    report = json.loads((folder / "report.json").read_text(encoding="utf-8"))
+    metrics = report["metrics"]
+    assert "campaign.hours" in metrics and "choice.solver" in metrics

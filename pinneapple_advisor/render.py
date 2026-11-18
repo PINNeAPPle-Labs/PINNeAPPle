@@ -91,6 +91,22 @@ def layers(plan: StudyPlan) -> list[list[Stage]]:
     return [rows[k] for k in sorted(rows)]
 
 
+def _ordered_rows(plan: StudyPlan) -> list[list[Stage]]:
+    """The dependency rows, with each row ordered by the average column of its parents: a child sits under what it
+    needs, which is most of what keeps the arrows from crossing."""
+    rows = layers(plan)
+    column: dict[str, float] = {}
+    ordered: list[list[Stage]] = []
+    for i, row in enumerate(rows):
+        if i:                                    # keep the order stable within equal barycentres
+            parent_x = {s.id: [column[d] for d in s.depends_on if d in column] for s in row}
+            row = sorted(row, key=lambda s: (sum(parent_x[s.id]) / len(parent_x[s.id])) if parent_x[s.id] else 0.0)
+        for j, stage in enumerate(row):
+            column[stage.id] = j
+        ordered.append(row)
+    return ordered
+
+
 def _estimate_line(plan: StudyPlan, lang: str) -> str:
     est = plan.total_estimate().to_dict()
     hours = est["total_hours"]
@@ -142,8 +158,9 @@ def dot(plan: StudyPlan, lang: str = "pt") -> str:
 
 # ---------------------------------------------------------------------------------------------------- svg
 
+_MIN_W = 820
 _BOX_W = 300
-_BOX_H = 74
+_BOX_H = 98
 _GAP_X = 40
 _GAP_Y = 96
 _MARGIN = 36
@@ -163,9 +180,10 @@ def _status_text(stage: Stage, lang: str) -> str:
 
 def svg(plan: StudyPlan, lang: str = "pt") -> str:
     """A self-contained SVG: rows are the dependency depth, arrows are the ``depends_on`` edges."""
-    rows = layers(plan)
+    rows = _ordered_rows(plan)
     widest = max((len(r) for r in rows), default=1)
-    width = _MARGIN * 2 + widest * _BOX_W + (widest - 1) * _GAP_X
+    # at least wide enough for the header lines: a one-per-row plan is narrow, and a clipped subtitle reads as a bug
+    width = max(_MARGIN * 2 + widest * _BOX_W + (widest - 1) * _GAP_X, _MIN_W)
     height = _HEADER + max(len(rows), 1) * (_BOX_H + _GAP_Y) + 64
 
     pos: dict[str, tuple[float, float]] = {}
@@ -198,19 +216,27 @@ def svg(plan: StudyPlan, lang: str = "pt") -> str:
         dash = ' stroke-dasharray="5 4"' if stage.status == "skip" else ""
         body.append(f'<g><rect x="{x:.0f}" y="{y:.0f}" width="{_BOX_W}" height="{_BOX_H}" rx="12" '
                     f'fill="{style["fill"]}" stroke="{style["stroke"]}" stroke-width="1.6"{dash}/>')
-        body.append(f'<text x="{x + 14:.0f}" y="{y + 20:.0f}" font-family="Helvetica, Arial, sans-serif" '
-                    f'font-size="12.5" font-weight="600" fill="#262626">'
-                    f'{_html.escape(text_of(stage.title, lang))[:46]}</text>')
+        # the title wraps to at most two lines and is elided with an ellipsis rather than cut mid-word
+        lines = _wrap(text_of(stage.title, lang), 36, 2)
+        if len(lines) == 2 and len(" ".join(_wrap(text_of(stage.title, lang), 36, 9))) > len(" ".join(lines)):
+            lines[1] = lines[1][:33].rstrip() + "…"
+        for i, line in enumerate(lines):
+            body.append(f'<text x="{x + 14:.0f}" y="{y + 22 + i * 16:.0f}" '
+                        f'font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" '
+                        f'fill="#262626">{_html.escape(line)}</text>')
         sub = _status_text(stage, lang)
         if stage.estimate is not None:
-            secs = stage.estimate.total_seconds
-            sub += f" · {_human_time(secs)}"
-        body.append(f'<text x="{x + 14:.0f}" y="{y + 44:.0f}" font-family="Helvetica, Arial, sans-serif" '
+            sub += f" · {_human_time(stage.estimate.total_seconds)}"
+        status_y = y + 22 + 16 * len(lines) + 13
+        body.append(f'<text x="{x + 14:.0f}" y="{status_y:.0f}" font-family="Helvetica, Arial, sans-serif" '
                     f'font-size="11" fill="{style["stroke"]}">{_html.escape(sub)}</text>')
-        answers = ", ".join(str(a) for a in stage.answers)
-        if answers:
-            body.append(f'<text x="{x + 14:.0f}" y="{y + 62:.0f}" font-family="Helvetica, Arial, sans-serif" '
-                        f'font-size="10" fill="#6b6b6b">{_html.escape(("pergunta" if lang == "pt" else "question") + " " + answers)}</text>')
+        if stage.answers:
+            answers = ", ".join(str(a) for a in sorted(stage.answers))
+            word = "perguntas" if lang == "pt" and len(stage.answers) > 1 else (
+                "pergunta" if lang == "pt" else ("questions" if len(stage.answers) > 1 else "question"))
+            body.append(f'<text x="{x + 14:.0f}" y="{status_y + 18:.0f}" '
+                        f'font-family="Helvetica, Arial, sans-serif" font-size="10" fill="#6b6b6b">'
+                        f'{_html.escape(f"{word} {answers}")}</text>')
         body.append("</g>")
 
     title = "Pipeline sugerido" if lang == "pt" else "Suggested pipeline"
@@ -220,9 +246,9 @@ def svg(plan: StudyPlan, lang: str = "pt") -> str:
         f'<text x="{_MARGIN}" y="44" font-family="Helvetica, Arial, sans-serif" font-size="21" font-weight="700" '
         f'fill="#262626">{_html.escape(title)}</text>',
         f'<text x="{_MARGIN}" y="68" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#4a4a4a">'
-        f'{_html.escape(subtitle)}</text>',
+        f'{_html.escape(_elide(subtitle, _fit_chars(width - 2 * _MARGIN, 13)))}</text>',
         f'<text x="{_MARGIN}" y="90" font-family="Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b6b6b">'
-        f'{_html.escape(_html.escape(text_of(plan.problem, lang))[:150])}</text>',
+        f'{_html.escape(_elide(text_of(plan.problem, lang), _fit_chars(width - 2 * _MARGIN, 11.5)))}</text>',
     ]
     legend = []
     x = _MARGIN
@@ -241,6 +267,16 @@ def svg(plan: StudyPlan, lang: str = "pt") -> str:
             f'orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa0a6"/></marker></defs>\n'
             f'<rect width="100%" height="100%" fill="#ffffff"/>\n'
             + "\n".join(header) + "\n" + "\n".join(body) + "\n" + "\n".join(legend) + "\n</svg>\n")
+
+
+def _fit_chars(pixels: float, font_size: float) -> int:
+    """How many characters of this font size fit in that many pixels (0.55 em is the average advance of Helvetica)."""
+    return max(int(pixels / (font_size * 0.55)), 12)
+
+
+def _elide(text: str, limit: int) -> str:
+    text = " ".join(str(text or "").split())
+    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
 
 
 def _human_time(seconds: float) -> str:

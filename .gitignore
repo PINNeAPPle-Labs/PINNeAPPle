@@ -115,3 +115,6 @@ examples/end_to_end/ahmed_body/results/twin/
 
 # Ascent example: the viewer pages and the mission-control frames are rebuilt by the scripts
 examples/rocket_launch/_out/
+
+# outputs of the Digital Twin Library example
+examples/digital_twin_library/_out/

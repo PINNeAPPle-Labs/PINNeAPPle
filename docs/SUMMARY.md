@@ -78,6 +78,7 @@
     * [pp.validate: one call, one validation report](guides/pp_validate.md)
     * [FMI import compatibility](guides/fmi_compatibility.md)
     * [Spectral fidelity: what relative L2 does not see](guides/spectral_fidelity.md)
+    * [Digital Twin Library: five systems, each with its own conservation laws](guides/digital_twin_library.md)
     * [Metamorphic tests: checking a surrogate without ground truth](guides/metamorphic_tests.md)
     * [Dataset physics audit: does the data solve its PDE?](guides/dataset_audit.md)
     * [From residual to error bound](guides/residual_error_bound.md)

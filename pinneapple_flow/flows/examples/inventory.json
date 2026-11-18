@@ -84,6 +84,10 @@
   "domain": "design",
   "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
  },
+ "digital_twin_library": {
+  "domain": "digital twins",
+  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share \u2014 two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list \u2014 which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
+ },
  "dynamics_toolkit": {
   "domain": "dynamical systems",
   "reason": "pinneapple_analysis.dynamics has no flow nodes yet (its coverage reason in pinneapple_flow/coverage.py); the script composes library calls only: pp.solve (PINN), survival_from_solution, DMD, ObservationScheduler, BuckinghamPiAnalyzer / CurveCollapseAnalyzer and EarlyWarningAnalyzer",
@@ -206,14 +210,14 @@
   "reason": "protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled)",
   "status": "needs"
  },
+ "motor_magnetics": {
+  "domain": "electromagnetics"
+ },
  "mujoco": {
   "domain": "robotics",
   "needs": "MuJoCo (pip install \"pinneapple[mujoco]\")",
   "reason": "quickstart.py runs four MuJoCo sessions in about two seconds (a trajectory and its UPD export, validate(), a BatchRunner campaign, and an arm held by the multibody tree), but MuJoCo is an optional wheel the Flow Studio image does not install and no flow node wraps the backend yet",
   "status": "needs"
- },
- "motor_magnetics": {
-  "domain": "electromagnetics"
  },
  "near_random_forecasting": {
   "domain": "time series",

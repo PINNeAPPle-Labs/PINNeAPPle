@@ -717,6 +717,17 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.eddy_coil:skin_depth": {
+  "code_hash": "8f92ec8686ae5be8",
+  "inputs": {
+   "f": 50.0,
+   "sigma": 58000000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 1.53
+ },
  "pinneapple_physics.closed_form.fin_array_conduction:fin_array_profile_params": {
   "code_hash": "174cfcc18abc2d97",
   "inputs": {
@@ -735,6 +746,17 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.heat_exchanger:gnielinski": {
+  "code_hash": "a29784316ffbcf77",
+  "inputs": {
+   "pr": 5.0,
+   "re": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.heat_exchanger:hausen_mean_nusselt": {
   "code_hash": "a13b33f1cdfde0c5",
   "inputs": {
@@ -744,6 +766,35 @@
   },
   "ok": true,
   "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.heat_exchanger:kern_shell": {
+  "code_hash": "043ff4cd862f02d8",
+  "inputs": {
+   "baffle_spacing": 0.2,
+   "cp": 2840.0,
+   "k": 0.19,
+   "layout": "square",
+   "m_dot": 10.0,
+   "mu": 0.00034,
+   "pitch": 0.025,
+   "shell_id": 0.5,
+   "tube_od": 0.019
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.heat_exchanger:ntu_from_effectiveness": {
+  "code_hash": "0df84286d9c15783",
+  "inputs": {
+   "cr": 1.0,
+   "eps": 0.75
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
   "returned": "float",
   "seconds": 0.0
  },
@@ -956,6 +1007,17 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.pipe_flow:friction_factor": {
+  "code_hash": "2f5cc8eb29897a1b",
+  "inputs": {
+   "Re": 100000.0,
+   "rel_rough": 0.0001
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.pipe_flow:laminar": {
   "code_hash": "f7f549fcfe299486",
   "inputs": {
@@ -964,6 +1026,59 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:air": {
+  "code_hash": "9cefebd54308fffc",
+  "inputs": {
+   "t_c": 26.85
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:crf": {
+  "code_hash": "29a7b0b020f7eb5d",
+  "inputs": {
+   "rate": 0.1,
+   "years": 10
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:economic_thickness": {
+  "code_hash": "eececc15511650c3",
+  "inputs": {
+   "cost_per_m2": 30.0,
+   "cost_per_m3": 2000.0,
+   "d_pipe": 0.1,
+   "efficiency": 0.9,
+   "energy_price": 0.05,
+   "eps": 0.9,
+   "hours": 8000,
+   "k0": 0.035,
+   "k1": 0.0001,
+   "rate": 0.08,
+   "t_amb": 20.0,
+   "t_in": 180.0,
+   "t_surface_max": 50.0,
+   "thicknesses": [
+    0.0,
+    0.02,
+    0.04,
+    0.06,
+    0.08,
+    0.12
+   ],
+   "wind": 2.0,
+   "years": 10
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.pipe_insulation:heat_loss": {
@@ -982,6 +1097,19 @@
   "recorded": "2026-10-31",
   "returned": "dict",
   "seconds": 0.01
+ },
+ "pinneapple_physics.closed_form.pipe_insulation:surface_coefficient": {
+  "code_hash": "16f840d96982d0ea",
+  "inputs": {
+   "d": 0.2,
+   "eps": 0.9,
+   "ta": 20.0,
+   "ts": 60.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
  },
  "pinneapple_physics.closed_form.plate_fin_heatsink:air_properties": {
   "code_hash": "95fa3175ae311242",
@@ -1017,6 +1145,39 @@
   "returned": "float",
   "seconds": 0.0
  },
+ "pinneapple_physics.closed_form.pump_npsh:iapws97_psat": {
+  "code_hash": "ae44a59428824861",
+  "inputs": {
+   "t_c": 26.85
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pump_npsh:npsh_available": {
+  "code_hash": "35e2b982a1330c29",
+  "inputs": {
+   "h_loss": 0.5,
+   "p_surface": 101325.0,
+   "t_c": 26.85,
+   "z_suction": -3.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.pump_npsh:water_density": {
+  "code_hash": "8e35d899e44913d0",
+  "inputs": {
+   "t_c": 20.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
  "pinneapple_physics.closed_form.rocket_nozzle:area_ratio": {
   "code_hash": "c7c8ba16976555cd",
   "inputs": {
@@ -1047,6 +1208,17 @@
   },
   "ok": true,
   "recorded": "2026-10-31",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.closed_form.rocket_nozzle:specific_impulse": {
+  "code_hash": "64363884f386bd5c",
+  "inputs": {
+   "c_star": 1500.0,
+   "cf": 1.6
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
   "returned": "float",
   "seconds": 0.0
  },
@@ -1260,12 +1432,42 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_physics.pde_environment.capabilities:get_pde_family": {
+  "code_hash": "82e854503561fef9",
+  "inputs": {
+   "kind_or_alias": "Viscous Burgers"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "PDEFamily",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.capabilities:identify_pde": {
+  "code_hash": "983187c77c6ae6a0",
+  "inputs": {
+   "description": "heat equation in a rod"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_physics.pde_environment.capabilities:list_pde_families": {
   "code_hash": "e3a0537bafc2b86c",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.capabilities:suggest_problem_spec": {
+  "code_hash": "23238d40f99cd1b7",
+  "inputs": {
+   "description": "viscous burgers shock"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
   "seconds": 0.0
  },
  "pinneapple_physics.pde_environment.conditions:DataConstraint": {
@@ -1299,6 +1501,30 @@
   "returned": "ConditionSpec",
   "seconds": 0.0
  },
+ "pinneapple_physics.pde_environment.conditions:InitialCondition": {
+  "code_hash": "313fe67c9e329ea4",
+  "inputs": {
+   "name": {
+    "u": 0.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "ConditionSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.conditions:NeumannBC": {
+  "code_hash": "309244fc2b11d9cf",
+  "inputs": {
+   "name": {
+    "u": 1.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "ConditionSpec",
+  "seconds": 0.0
+ },
  "pinneapple_physics.pde_environment.presets.academics:burgers_1d_default": {
   "code_hash": "9c4b22cabe5acd1c",
   "inputs": {},
@@ -1321,6 +1547,17 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:cr3bp_collinear_lagrange_point": {
+  "code_hash": "7235ac15ee967a87",
+  "inputs": {
+   "mu": 0.012150585,
+   "x0": 0.8
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
   "seconds": 0.0
  },
  "pinneapple_physics.pde_environment.presets.astrophysics:cr3bp_lagrange_points": {
@@ -1435,6 +1672,18 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.astrophysics:schwarzschild_deflection_angle_weak_field": {
+  "code_hash": "9aff7a4cc0578da0",
+  "inputs": {
+   "GM": 1.32712440018e+20,
+   "b": 695700000.0,
+   "c": 299792458.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
   "seconds": 0.0
  },
  "pinneapple_physics.pde_environment.presets.astrophysics:schwarzschild_light_bending_weak_field": {
@@ -3042,6 +3291,18 @@
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "_GeneratorContextManager",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pinn_solver.io.mappings:build_default_mapping_atmosphere": {
+  "code_hash": "7c8523817595f045",
+  "inputs": {
+   "dep_vars": [
+    "T"
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "PINNMapping",
   "seconds": 0.0
  },
  "pinneapple_physics.pinn_solver.stochastic:sample_latent": {

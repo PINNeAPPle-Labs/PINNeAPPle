@@ -230,6 +230,457 @@
   "returned": "bool",
   "seconds": 4.98
  },
+ "pinneapple_systems.digital_twin.library.base:Parameter": {
+  "code_hash": "2d6ab83705df1d34",
+  "inputs": {
+   "default": 0.01,
+   "hi": 0.1,
+   "lo": 0.001,
+   "meaning": "a wall thickness",
+   "name": "thickness",
+   "unit": "m"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Parameter",
+  "seconds": 28.53
+ },
+ "pinneapple_systems.digital_twin.library.base:close": {
+  "code_hash": "b80525dc4193ba96",
+  "inputs": {
+   "inflow": 1.0,
+   "name": "mass",
+   "outflow": 1.0,
+   "unit": "kg"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Balance",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.base:relative_error": {
+  "code_hash": "74e5de414c90203e",
+  "inputs": {
+   "computed": 1.0,
+   "reference": 1.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:raceway_flame_temperature": {
+  "code_hash": "ff41ce321b1dc7c8",
+  "inputs": {
+   "blast_temperature": 1473.15,
+   "carbon_burnt": 20.0,
+   "h2o_blast": 0.5,
+   "n2_blast": 37.0,
+   "o2_blast": 9.8
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:top_gas": {
+  "code_hash": "02ca0922f5823c98",
+  "inputs": {
+   "carbon_in": 31.0,
+   "flux_carbon": 2.0,
+   "flux_oxygen": 2.0,
+   "ore_oxygen": 25.5,
+   "oxygen_in": 40.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.chemical_plant:equilibrium_constant": {
+  "code_hash": "30ece628ad73d765",
+  "inputs": {
+   "delta_h": -90000.0,
+   "delta_s": -220.0,
+   "temperature": 450.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:polytropic_exponent": {
+  "code_hash": "5b1ddcf8dcc76c4a",
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 1.8
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:split_ratios": {
+  "code_hash": "c39a2be10a2d19f2",
+  "inputs": {
+   "stages": 2,
+   "total_ratio": 3.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_discharge_temperature": {
+  "code_hash": "83e79f4b361ee656",
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78,
+   "ratio": 1.35,
+   "suction_temperature": 300.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_work": {
+  "code_hash": "cfc12bdc15bc4d4a",
+  "inputs": {
+   "gamma": 1.3,
+   "heat_capacity": 1760.89,
+   "mass_flow": 120.0,
+   "polytropic_efficiency": 0.8,
+   "ratio": 1.732,
+   "suction_temperature": 303.15
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.desalination:minimum_specific_energy": {
+  "code_hash": "a236e5d98e30a4a1",
+  "inputs": {
+   "feed_osmotic_pressure": 3000000.0,
+   "recovery": 0.45
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 13.79
+ },
+ "pinneapple_systems.digital_twin.library.desalination:osmotic_pressure": {
+  "code_hash": "21a2717f60936c34",
+  "inputs": {
+   "concentration": 598.9,
+   "temperature": 298.15
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.fpso:ipr_rate": {
+  "code_hash": "b9a145f876827aac",
+  "inputs": {
+   "bottom_hole_pressure": 10000000.0,
+   "exponent": 0.8,
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.fpso:line_pressure_drop": {
+  "code_hash": "fb92355e84e8e36d",
+  "inputs": {
+   "diameter": 0.15,
+   "gas_specific_gravity": 0.7,
+   "gor": 120.0,
+   "length": 6000.0,
+   "oil_density": 850.0,
+   "oil_rate": 0.015,
+   "oil_viscosity": 0.005,
+   "pressure": 30000000.0,
+   "rise": 300.0,
+   "temperature_k": 330.0,
+   "water_cut": 0.15
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.fpso:vogel_qmax": {
+  "code_hash": "321e20aa3dd38bb5",
+  "inputs": {
+   "exponent": 0.8,
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:hydrogen_from_charge": {
+  "code_hash": "9a6500322811b92d",
+  "inputs": {
+   "cells": 1498.0,
+   "current": 37500.0,
+   "faradaic_efficiency": 0.97
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:reversible_voltage": {
+  "code_hash": "4d995cc6432d3870",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:thermoneutral_voltage": {
+  "code_hash": "01ade2362c652a8a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:night_factor": {
+  "code_hash": "b3b8d4ed4a0d6639",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:regolith_oxygen_yield": {
+  "code_hash": "07cd619fd889e858",
+  "inputs": {
+   "oxygen_rich_fraction": 0.15
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:compressor_discharge": {
+  "code_hash": "718d138252b8818f",
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78,
+   "pressure_ratio": 1.35,
+   "suction_temperature": 300.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:linepack_of_segment": {
+  "code_hash": "4b0bca86e4060560",
+  "inputs": {
+   "diameter": 0.8,
+   "length": 50000.0,
+   "p_downstream": 6000000.0,
+   "p_upstream": 9000000.0,
+   "specific_gas_constant": 470.0,
+   "temperature": 300.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:segment_pressure_square_drop": {
+  "code_hash": "4e81cd971b52ee2b",
+  "inputs": {
+   "diameter": 0.9,
+   "friction_factor": 0.0125,
+   "length": 40000.0,
+   "mass_flow": 600.0,
+   "specific_gas_constant": 441.69478421164473,
+   "temperature": 288.15
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:carnot_cop": {
+  "code_hash": "4bc1d5a0a8518401",
+  "inputs": {
+   "condensing_temperature": 308.15,
+   "evaporating_temperature": 263.15
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 8.95
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:latent_heat": {
+  "code_hash": "b2ce1b81293b7ffd",
+  "inputs": {
+   "temperature": 263.15
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_pressure": {
+  "code_hash": "c4fb1eef1a7d5bfd",
+  "inputs": {
+   "temperature": 263.15
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_temperature": {
+  "code_hash": "b66b8e83a673a0f3",
+  "inputs": {
+   "pressure": 289500.0
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.registry:build": {
+  "code_hash": "127f4caf8aa23829",
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "LunarBase",
+  "seconds": 12.55
+ },
+ "pinneapple_systems.digital_twin.library.registry:catalogue": {
+  "code_hash": "e5717bece133d441",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.registry:compare": {
+  "code_hash": "3a326cf38006986a",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.71
+ },
+ "pinneapple_systems.digital_twin.library.registry:describe": {
+  "code_hash": "b2ca1f76bc7e454d",
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.registry:run": {
+  "code_hash": "ba29018f04ad8acc",
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "TwinRun",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.reusable_booster:atmosphere": {
+  "code_hash": "22562dd4da796f79",
+  "inputs": {
+   "altitude": 1000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:Scenario": {
+  "code_hash": "c965227ec5e995b6",
+  "inputs": {
+   "slug": "lunar_base",
+   "title": "six_crew",
+   "values": {
+    "crew": 6.0
+   }
+  },
+  "method": "run",
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "TwinRun",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:check": {
+  "code_hash": "054362828d7cbc64",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 1.41
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:load_scenarios": {
+  "code_hash": "e0ebcdb7d3cd69f0",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cases.json'",
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "ok": false,
+  "recorded": "2026-11-17",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:manifest": {
+  "code_hash": "28b324995adb400b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "dict",
+  "seconds": 1.31
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:run_scenario": {
+  "code_hash": "2345d2ac137729d1",
+  "inputs": {
+   "name": "pipeline_network/low_delivery_pressure"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "TwinRun",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:save_scenarios": {
+  "code_hash": "d7eeff0219d87067",
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "PosixPath",
+  "seconds": 0.0
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:scenario_names": {
+  "code_hash": "a4e67373125fbf83",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
  "pinneapple_systems.digital_twin.monitoring.anomaly:AnomalyMonitor": {
   "code_hash": "20c7f554b3f7e698",
   "inputs": {},

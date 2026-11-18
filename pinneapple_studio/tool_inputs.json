@@ -1343,7 +1343,7 @@
  },
  "pinneapple_design.aero.aircraft_surrogate_demo:parse_request": {
   "inputs": {
-   "text": "Quero um surrogate de uma aeronave leve: área de asa 16 m², alongamento 12, afilamento 0,6, enflechamento de 15°, torção de -2° e ângulo de ataque de 4 graus."
+   "text": "Quero um surrogate de uma aeronave leve: \u00e1rea de asa 16 m\u00b2, alongamento 12, afilamento 0,6, enflechamento de 15\u00b0, tor\u00e7\u00e3o de -2\u00b0 e \u00e2ngulo de ataque de 4 graus."
   },
   "source": "tests/test_aero_aircraft_surrogate.py:75"
  },
@@ -2188,7 +2188,7 @@
  },
  "pinneapple_flow.planner.extensions:match": {
   "inputs": {
-   "text": "Quero um surrogate da aerodinâmica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
+   "text": "Quero um surrogate da aerodin\u00e2mica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
   },
   "source": "tests/test_aero_aircraft_surrogate.py:121"
  },
@@ -2859,9 +2859,9 @@
    "rec": {
     "headline": {
      "label": "drag vs wind tunnel (Ahmed, Ramm & Faltin, 1984)",
-     "label_pt": "arrasto vs túnel de vento (Ahmed, Ramm & Faltin, 1984)",
-     "label_short_pt": "arrasto vs túnel de vento (Ahmed 1984)",
-     "text": "drag vs wind tunnel · Ahmed, Ramm & Faltin (1984), 25 deg slant"
+     "label_pt": "arrasto vs t\u00fanel de vento (Ahmed, Ramm & Faltin, 1984)",
+     "label_short_pt": "arrasto vs t\u00fanel de vento (Ahmed 1984)",
+     "text": "drag vs wind tunnel \u00b7 Ahmed, Ramm & Faltin (1984), 25 deg slant"
     }
    }
   },
@@ -4941,18 +4941,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (°C)",
+     "T_in (\u00b0C)",
      "flow_rate (kg/s)",
-     "T_ambient (°C)",
+     "T_ambient (\u00b0C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (°C)"
+     "T_out (\u00b0C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -5008,18 +5008,18 @@
     "horizon": "6h",
     "input_window": "48 steps (8h)",
     "inputs": [
-     "T_in (°C)",
+     "T_in (\u00b0C)",
      "flow_rate (kg/s)",
-     "T_ambient (°C)",
+     "T_ambient (\u00b0C)",
      "pressure (bar)"
     ],
     "outputs": [
-     "T_out (°C)"
+     "T_out (\u00b0C)"
     ],
     "task_type": "forecasting",
     "title": "Heat Exchanger: Outlet Temperature Forecast",
     "validation": {
-     "acceptance_criteria": "MAE < 0.5°C at 6h horizon",
+     "acceptance_criteria": "MAE < 0.5\u00b0C at 6h horizon",
      "primary_metrics": [
       "MAE"
      ],
@@ -5210,7 +5210,7 @@
  },
  "pinneapple_security.privacy:find_pii": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:22"
  },
@@ -5228,7 +5228,7 @@
  },
  "pinneapple_security.privacy:redact": {
   "inputs": {
-   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cartão 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 não é CPF; run 12345678901 também não."
+   "text": "Contato: ana.souza@empresa.com.br, tel +55 11 98765-4321, CPF 529.982.247-25, CNPJ 11.222.333/0001-81, cart\u00e3o 4111 1111 1111 1111, servidor 10.0.0.12. Medida 529.982.247-24 n\u00e3o \u00e9 CPF; run 12345678901 tamb\u00e9m n\u00e3o."
   },
   "source": "tests/pinneapple_security/test_privacy_dp.py:24"
  },
@@ -7314,6 +7314,322 @@
   },
   "source": "tests/test_operations_anomaly_control.py:157"
  },
+ "pinneapple_systems.digital_twin.library.base:Parameter": {
+  "inputs": {
+   "name": "thickness",
+   "unit": "m",
+   "default": 0.01,
+   "lo": 0.001,
+   "hi": 0.1,
+   "meaning": "a wall thickness"
+  },
+  "source": "tests/test_digital_twin_library.py:60"
+ },
+ "pinneapple_systems.digital_twin.library.base:close": {
+  "inputs": {
+   "name": "mass",
+   "inflow": 1.0,
+   "outflow": 1.0,
+   "unit": "kg"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.base:relative_error": {
+  "inputs": {
+   "computed": 1.0,
+   "reference": 1.0
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:raceway_flame_temperature": {
+  "inputs": {
+   "carbon_burnt": 20.0,
+   "o2_blast": 9.8,
+   "h2o_blast": 0.5,
+   "n2_blast": 37.0,
+   "blast_temperature": 1473.15
+  },
+  "source": "tests/test_digital_twin_library.py:193"
+ },
+ "pinneapple_systems.digital_twin.library.blast_furnace:top_gas": {
+  "inputs": {
+   "carbon_in": 31.0,
+   "oxygen_in": 40.0,
+   "flux_carbon": 2.0,
+   "flux_oxygen": 2.0,
+   "ore_oxygen": 25.5
+  },
+  "source": "tests/test_digital_twin_library.py:205"
+ },
+ "pinneapple_systems.digital_twin.library.chemical_plant:equilibrium_constant": {
+  "inputs": {
+   "temperature": 450.0,
+   "delta_h": -90000.0,
+   "delta_s": -220.0
+  },
+  "source": "tests/test_digital_twin_library.py:232"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:polytropic_exponent": {
+  "inputs": {
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78
+  },
+  "source": "tests/test_digital_twin_library.py:505"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:split_ratios": {
+  "inputs": {
+   "total_ratio": 3.0,
+   "stages": 2
+  },
+  "source": "tests/test_digital_twin_library.py:537"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_discharge_temperature": {
+  "inputs": {
+   "suction_temperature": 300.0,
+   "ratio": 1.35,
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78
+  },
+  "source": "tests/test_digital_twin_library.py:537"
+ },
+ "pinneapple_systems.digital_twin.library.compression_station:stage_work": {
+  "inputs": {
+   "mass_flow": 120.0,
+   "suction_temperature": 303.15,
+   "ratio": 1.732,
+   "gamma": 1.3,
+   "heat_capacity": 1760.89,
+   "polytropic_efficiency": 0.8
+  },
+  "source": "tests/test_digital_twin_library.py:537"
+ },
+ "pinneapple_systems.digital_twin.library.desalination:minimum_specific_energy": {
+  "inputs": {
+   "feed_osmotic_pressure": 3000000.0,
+   "recovery": 0.45
+  },
+  "source": "tests/test_digital_twin_library.py:695"
+ },
+ "pinneapple_systems.digital_twin.library.desalination:osmotic_pressure": {
+  "inputs": {
+   "concentration": 598.9,
+   "temperature": 298.15
+  },
+  "source": "tests/test_digital_twin_library.py:687"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:ipr_rate": {
+  "inputs": {
+   "bottom_hole_pressure": 10000000.0,
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0,
+   "exponent": 0.8
+  },
+  "source": "tests/test_digital_twin_library.py:120"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:line_pressure_drop": {
+  "inputs": {
+   "oil_rate": 0.015,
+   "gor": 120.0,
+   "water_cut": 0.15,
+   "oil_density": 850.0,
+   "gas_specific_gravity": 0.7,
+   "diameter": 0.15,
+   "length": 6000.0,
+   "rise": 300.0,
+   "pressure": 30000000.0,
+   "temperature_k": 330.0,
+   "oil_viscosity": 0.005
+  },
+  "source": "tests/test_digital_twin_library.py:129"
+ },
+ "pinneapple_systems.digital_twin.library.fpso:vogel_qmax": {
+  "inputs": {
+   "productivity_index": 1.2e-09,
+   "reservoir_pressure": 30000000.0,
+   "exponent": 0.8
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:hydrogen_from_charge": {
+  "inputs": {
+   "current": 37500.0,
+   "cells": 1498.0,
+   "faradaic_efficiency": 0.97
+  },
+  "source": "tests/test_digital_twin_library.py:620"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:reversible_voltage": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:657"
+ },
+ "pinneapple_systems.digital_twin.library.green_hydrogen:thermoneutral_voltage": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:657"
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:night_factor": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:330"
+ },
+ "pinneapple_systems.digital_twin.library.lunar_base:regolith_oxygen_yield": {
+  "inputs": {
+   "oxygen_rich_fraction": 0.15
+  },
+  "source": "tests/test_digital_twin_library.py:338"
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:compressor_discharge": {
+  "inputs": {
+   "suction_temperature": 300.0,
+   "pressure_ratio": 1.35,
+   "gamma": 1.3,
+   "polytropic_efficiency": 0.78
+  },
+  "source": "tests/test_digital_twin_library.py:425"
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:linepack_of_segment": {
+  "inputs": {
+   "p_upstream": 9000000.0,
+   "p_downstream": 6000000.0,
+   "length": 50000.0,
+   "diameter": 0.8,
+   "specific_gas_constant": 470.0,
+   "temperature": 300.0
+  },
+  "source": "tests/test_digital_twin_library.py:408"
+ },
+ "pinneapple_systems.digital_twin.library.pipeline_network:segment_pressure_square_drop": {
+  "inputs": {
+   "mass_flow": 600.0,
+   "length": 40000.0,
+   "diameter": 0.9,
+   "friction_factor": 0.0125,
+   "temperature": 288.15,
+   "specific_gas_constant": 441.69478421164473
+  },
+  "source": "tests/test_digital_twin_library.py:385"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:carnot_cop": {
+  "inputs": {
+   "evaporating_temperature": 263.15,
+   "condensing_temperature": 308.15
+  },
+  "source": "tests/test_digital_twin_library.py:789"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:latent_heat": {
+  "inputs": {
+   "temperature": 263.15
+  },
+  "source": "tests/test_digital_twin_library.py:783"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_pressure": {
+  "inputs": {
+   "temperature": 263.15
+  },
+  "source": "tests/test_digital_twin_library.py:772"
+ },
+ "pinneapple_systems.digital_twin.library.refrigeration:saturation_temperature": {
+  "inputs": {
+   "pressure": 289500.0
+  },
+  "source": "tests/test_digital_twin_library.py:777"
+ },
+ "pinneapple_systems.digital_twin.library.registry:build": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:107"
+ },
+ "pinneapple_systems.digital_twin.library.registry:catalogue": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:57"
+ },
+ "pinneapple_systems.digital_twin.library.registry:compare": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:113"
+ },
+ "pinneapple_systems.digital_twin.library.registry:describe": {
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library.registry:run": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
+ "pinneapple_systems.digital_twin.library.reusable_booster:atmosphere": {
+  "inputs": {
+   "altitude": 1000.0
+  },
+  "source": "tests/test_digital_twin_library.py:295"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:Scenario": {
+  "inputs": {
+   "slug": "lunar_base",
+   "title": "six_crew",
+   "values": {
+    "crew": 6.0
+   }
+  },
+  "source": "tests/test_digital_twin_library.py:917"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:check": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:904"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:load_scenarios": {
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "source": "tests/test_digital_twin_library.py:926"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:manifest": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:937"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:run_scenario": {
+  "inputs": {
+   "name": "pipeline_network/low_delivery_pressure"
+  },
+  "source": "tests/test_digital_twin_library.py:910"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:save_scenarios": {
+  "inputs": {
+   "path": "/tmp/cases.json"
+  },
+  "source": "tests/test_digital_twin_library.py:926"
+ },
+ "pinneapple_systems.digital_twin.library.scenarios:scenario_names": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:937"
+ },
+ "pinneapple_systems.digital_twin.library:build": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:107"
+ },
+ "pinneapple_systems.digital_twin.library:catalogue": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:57"
+ },
+ "pinneapple_systems.digital_twin.library:compare": {
+  "inputs": {},
+  "source": "tests/test_digital_twin_library.py:113"
+ },
+ "pinneapple_systems.digital_twin.library:describe": {
+  "inputs": {
+   "slug": "blast_furnace"
+  },
+  "source": "tests/test_digital_twin_library.py:118"
+ },
+ "pinneapple_systems.digital_twin.library:run": {
+  "inputs": {
+   "slug": "lunar_base"
+  },
+  "source": "tests/test_digital_twin_library.py:71"
+ },
  "pinneapple_systems.digital_twin.monitoring.anomaly:ThresholdDetector": {
   "inputs": {
    "thresholds": {
@@ -7422,7 +7738,7 @@
  },
  "pinneapple_systems.process_components.joule_thomson:parse_valve_request": {
   "inputs": {
-   "text": "inlet pressure 70 bar, inlet temperature 25 °C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 °C. Methane 92 %, ethane 5 %, nitrogen 3 %"
+   "text": "inlet pressure 70 bar, inlet temperature 25 \u00b0C, outlet pressure 20 bar, Cv 20, DN 100. My CFD outlet temperature is 24.6 \u00b0C. Methane 92 %, ethane 5 %, nitrogen 3 %"
   },
   "source": "tests/test_valve_joule_thomson.py:10"
  },
@@ -7785,7 +8101,7 @@
    "date": "January 1, 2026",
    "report_id": "TR-0",
    "subtitle": "Unit test",
-   "title": "A test report with u₀ and 10⁻³"
+   "title": "A test report with u\u2080 and 10\u207b\u00b3"
   },
   "source": "tests/test_paperkit.py:90"
  },

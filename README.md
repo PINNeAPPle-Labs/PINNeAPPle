@@ -1,6 +1,6 @@
 <div align="center">
 
-# PINNeAPPle 🍍
+<img src="docs/assets/readme/logo-horizontal.png" width="400" alt="PINNeAPPle"/>
 
 ### Physics AI that tells you when to trust it
 

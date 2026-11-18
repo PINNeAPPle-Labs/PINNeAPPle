@@ -37,6 +37,7 @@ from .extract import answer as _answer
 from .extract import detect, extract
 from .questions import QUESTIONS
 from .questions import next_questions as _next_questions
+from .questions import question as question
 from .questions import questions as _questions
 from .schema import SCHEMA, StudyPlan
 
@@ -112,5 +113,6 @@ def answer(question_id: str, raw: Any, *, llm: bool | Callable | None = None, pr
     return _answer(question_id, raw, call=call, provider=provider, model=model)
 
 
-__all__ = ["advise", "advise_detailed", "brief", "questions", "next_questions", "answer", "detect", "extract",
-           "build", "Brief", "BriefError", "FIELDS", "CostModel", "StudyPlan", "SCHEMA", "QUESTIONS", "__version__"]
+__all__ = ["advise", "advise_detailed", "brief", "questions", "next_questions", "question", "answer", "detect",
+           "extract", "build", "Brief", "BriefError", "FIELDS", "CostModel", "StudyPlan", "SCHEMA", "QUESTIONS",
+           "__version__"]

@@ -133,6 +133,44 @@ the first attempt, the one the heat sink uses, and it was rejected here. On a th
 halving the grid moved the tip displacement by 55 %. Conforming P2 tetrahedra on the same part move by 0.9 % and then
 0.3 %; that is the path the repository already verifies against CalculiX, and it is the one the family uses.
 
+## Running the campaign
+
+`benchmarks/lpm_campaign.py` runs every design space end to end: one dataset, one fit, one card, in the order that
+leaves usable models if the night gets cut short.
+
+```bash
+python -m benchmarks.lpm_campaign --plan                     # what would run, and the estimate
+python -m benchmarks.lpm_campaign --scale smoke              # the whole wiring, about a minute
+python -m benchmarks.lpm_campaign --stage dataset            # the data, all nine
+python -m benchmarks.lpm_campaign --stage train              # the fits only
+python -m benchmarks.lpm_campaign --detach ~/lpm-campaign.log --out ~/lpm-data   # survives the session
+```
+
+It **resumes**: a dataset whose manifest is there is not regenerated and a model whose card is there is not refitted,
+so a run that dies at the seventh family restarts at the seventh family. `--force` is the only way to change that. It
+also writes `failures.json` with the traceback of any family that raised and carries on with the rest, and exits 1 at
+the end so a scheduler sees it. `--detach` re-runs the command with `os.setsid()`, which is what actually protects a
+long fit: `nohup` only ignores SIGHUP, and what kills it is the process group going away.
+
+The full recipe, as estimated from the measured cost of one reference evaluation and of the 3-D wing's fit:
+
+| Family | Bodies × conditions | Dataset | Fit | Note |
+|---|---|---|---|---|
+| `pp_fin`, `pp_airfoil`, `pp_nozzle`, `pp_exchanger` | 400–600 × 3-4 | under a minute | 3.6–5.4 h each | closed-form or cheap FEM references |
+| `pp_bracket` | 200 × 2 | 24 s | 1.2 h | immersed FEM, 2-D |
+| `pp_airfoil_rans` | the campaign's 372 runs | 19 s (a 500 MB download the first time) | 1.3 h | no design space of ours: its authors' |
+| `pp_wing3d` | 400 × 3 | 72 s | 3.6 h | a lattice and a section solve per design |
+| `pp_fin3d` | 300 × 2 | 16 min | 1.8 h | 3-D immersed heat, ~1.6 s per design |
+| `pp_bracket3d` | 150 × 1 | 38 min | 0.5 h | P2 tet mesh and direct solve, ~15 s per design |
+
+About 28 hours in all on one machine, and the two 3-D solids are half of the wall clock even though they are the two
+with the fewest designs. Put `--out` outside the repository: the datasets are the bulk of it.
+
+What to check first when the campaign lands: `campaign.json` holds the held-out error, the constant-field baseline and
+the OOD probe count per family. A family whose held-out error is close to its baseline has not learnt the design space,
+and the fix is more bodies, not more epochs — the 2-D families needed 60 to 240 bodies to reach 0.06-0.17 and the 3-D
+wing is at 0.51 with 24, which is a smoke test, not a result.
+
 ## Three rules the pipeline enforces
 
 **The split is by geometry, never by design.** A design space runs several operating points on the same body. Splitting

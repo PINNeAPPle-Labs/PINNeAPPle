@@ -112,3 +112,5 @@ benchmarks/_out/*/model/model.pt
 five_run.json
 examples/lpm_five_models/results/*/dataset/
 examples/lpm_five_models/results/*/model/model.pt
+# campaign wiring checks: tiny by design, never evidence of anything but the plumbing
+benchmarks/_out/lpm_campaign_smoke/

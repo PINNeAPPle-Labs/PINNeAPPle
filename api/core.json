@@ -1536,6 +1536,15 @@
    }
   },
   "pinneapple_neural.architectures.neural_operators.fno_export": {
+   "RealSpectralConv1d": {
+    "class": [
+     "nn.Module"
+    ],
+    "methods": {
+     "__init__": "(conv, L)",
+     "forward": "(x)"
+    }
+   },
    "RealSpectralConv2d": {
     "class": [
      "nn.Module"
@@ -1546,6 +1555,7 @@
     }
    },
    "export_onnx": "def(model, example, path, *, grid=None, opset=17, atol=0.0001)",
+   "spatial_shape": "def(model, example)",
    "to_exportable": "def(model, grid)"
   },
   "pinneapple_neural.architectures.neural_operators.gno": {

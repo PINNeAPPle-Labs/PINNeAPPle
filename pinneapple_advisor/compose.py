@@ -45,6 +45,11 @@ from .schema import Decision, Estimate, Stage, StudyPlan, Tool, bi
 # architecture_recommendation uses when the caller gives no budget).
 DIRECT_BUDGET_S = 600.0
 
+# Probing what is installed (OpenFOAM, FEniCS, the internal solvers) runs subprocesses: 17 s cold, 2 s warm on the
+# machine this was written on, so the answer is kept for the process and refreshed on request.
+FAMILIES_TTL_S = 600.0
+_FAMILIES: dict[str, Any] = {"at": 0.0, "value": None}
+
 # Samples a surrogate needs, when the brief does not say: about ten per input for a scalar target (Loeppky, Sacks &
 # Welch 2009, "Choosing the sample size of a computer experiment"), and the operator-learning threshold
 # architecture_recommendation itself uses for a field.
@@ -730,14 +735,25 @@ def _visualization_stage(brief: Brief, parent: str, dim: int) -> Stage:
 
 # ---------------------------------------------------------------------------------------------------- the APIs
 
+def solver_families(refresh: bool = False) -> dict[str, Any]:
+    """What is installed here, cached for :data:`FAMILIES_TTL_S`: the probe starts subprocesses and is the slowest
+    part of a plan (17 s cold, 2 s warm on the reference machine, 0 s from this cache). ``refresh=True`` probes
+    again."""
+    import time
+
+    if not refresh and _FAMILIES["value"] is not None and time.time() - _FAMILIES["at"] < FAMILIES_TTL_S:
+        return _FAMILIES["value"]
+    from pinneapple_analysis.verification.solver_orchestration import list_available_solver_families
+    _FAMILIES["value"] = list_available_solver_families()
+    _FAMILIES["at"] = time.time()
+    return _FAMILIES["value"]
+
+
 def _solver_recommendation(brief: Brief, family: str, dim: int, time_dependent: bool,
                            available_families: dict[str, Any] | None = None) -> tuple[Any | None, Any]:
     try:
-        from pinneapple_analysis.verification.solver_orchestration import (
-            list_available_solver_families,
-            select_solver_family,
-        )
-        catalog = available_families if available_families is not None else list_available_solver_families()
+        from pinneapple_analysis.verification.solver_orchestration import select_solver_family
+        catalog = available_families if available_families is not None else solver_families()
         spec = _spec(family, dim, time_dependent)
         return select_solver_family(spec, catalog=catalog), None
     except Exception as exc:                    # noqa: BLE001 - a missing optional solver stack is a warning
@@ -865,4 +881,5 @@ def _solver_checks() -> list[dict[str, str]]:
              "tool": "pp.trust_card"}]
 
 
-__all__ = ["build", "Composition", "DIRECT_BUDGET_S", "SAMPLES_PER_INPUT_SCALAR", "SAMPLES_FIELD"]
+__all__ = ["build", "Composition", "solver_families", "DIRECT_BUDGET_S", "SAMPLES_PER_INPUT_SCALAR",
+           "SAMPLES_FIELD", "FAMILIES_TTL_S"]

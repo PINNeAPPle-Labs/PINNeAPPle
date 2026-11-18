@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-intent-to-study",
+ "name": "Text to simulation: a sentence, its contract, and the checks that make it a result",
+ "description": "Two sentences compiled into study contracts and run through their fidelity ladder: a steel wall cooled by convection and a laminar pipe. The same nodes cover physics_ai mode, where the ladder gains a surrogate scored on designs held out of its fit (examples/intent_to_study/intent_to_study.py).",
+ "nodes": [
+  {
+   "id": "wall",
+   "type": "intent.study",
+   "params": {
+    "text": "a 12 mm steel wall with k = 200 W/mK, 300 degC inside and air at 25 degC outside with h = 12 W/m2K",
+    "mode": "simulation"
+   },
+   "label": "Steel wall, convection outside",
+   "position": {
+    "x": 120.0,
+    "y": 60.0
+   }
+  },
+  {
+   "id": "pipe",
+   "type": "intent.study",
+   "params": {
+    "text": "a 20 mm pipe, 3 m long, carrying 0.5 L/min of water, viscosity 1 mPa*s",
+    "mode": "simulation"
+   },
+   "label": "Laminar pipe",
+   "position": {
+    "x": 120.0,
+    "y": 320.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "intent_to_study",
+  "domain": "text to simulation and text to physics AI",
+  "scripts": [
+   "intent_to_study.py"
+  ],
+  "notes": "the numbers the script committed are in _out/summary.json; the flow runs the same two sentences through the same nodes, so the wall's cold-face temperature is the script's 572.95 K"
+ }
+}

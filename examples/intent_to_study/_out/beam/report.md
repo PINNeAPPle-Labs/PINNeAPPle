@@ -39,8 +39,8 @@
 | rung | what it is | ran | time |
 |---|---|---|---|
 | analytic | Euler-Bernoulli closed form (plane strain) | yes | 0.00 s |
-| numerical | immersed finite cell, plane-strain linear elasticity | yes | 0.13 s |
-| convergence | the same solver on two grids | yes | 0.14 s |
+| numerical | immersed finite cell, plane-strain linear elasticity | yes | 0.35 s |
+| convergence | the same solver on two grids | yes | 0.31 s |
 
 ## Checks
 

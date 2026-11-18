@@ -38,8 +38,8 @@
 | rung | what it is | ran | time |
 |---|---|---|---|
 | analytic | series-resistance closed form | yes | 0.00 s |
-| numerical | immersed finite cell, two-dimensional | yes | 0.00 s |
-| convergence | the same solver on two grids | yes | 0.00 s |
+| numerical | immersed finite cell, two-dimensional | yes | 0.01 s |
+| convergence | the same solver on two grids | yes | 0.01 s |
 
 ## Checks
 

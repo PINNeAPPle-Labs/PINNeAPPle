@@ -7818,6 +7818,22 @@
    "status": "done"
   }
  },
+ "intent_to_study/01_intent_to_study": {
+  "full": {
+   "commit": "e3ce40c1d",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-18",
+   "manifest": "manifest /Users/yanbarros/.pinneapple_flow/work/example-intent-to-study.experiment.json, Lab item manifest/flow/example-intent-to-study",
+   "matched": 0,
+   "nodes": {
+    "pipe": "cached",
+    "wall": "cached"
+   },
+   "seconds": 2.0,
+   "status": "done"
+  }
+ },
  "lbm/01_sphere_wind_tunnel": {
   "quick": {
    "commit": "c49301d7",

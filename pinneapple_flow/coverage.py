@@ -81,6 +81,14 @@ REASONS: dict[str, str] = {
     "pinneapple_studio": "the Studio itself: it catalogs every library symbol as a tool and runs tools and examples "
                          "as jobs; a flow calls the tools it lists, not the catalog",
     "pinneapple_autolab.core": "the agent loop (toolbox, planners, execute) run inside autolab.* nodes",
+    "pinneapple_intent.contract": "the StudyContract document itself -- the typed description of a study, its values "
+                                  "and their provenance; intent.compile writes it and intent.study runs it",
+    "pinneapple_intent.family": "the StudyFamily base class and its registry; a family is what intent.study runs, "
+                               "and the registry is read when the sentence is compiled",
+    "pinneapple_intent.families": "the installed families (heat wall, laminar pipe, cantilever beam), each reached "
+                                 "through intent.study's ladder",
+    "pinneapple_intent.cli": "the shell front end of the same calls (compile / run / replay), covered by "
+                            "intent.compile and intent.study",
     "pinneapple_reason.llm": "optional LLM advisor of the reasoning engine; flows reason without an LLM",
     "pinneapple_reason.narrative": "the text of Chain.explain, shown in the summary of reason.chain",
     "pinneapple_reason.props": "physical constants and properties read by the failure modes",

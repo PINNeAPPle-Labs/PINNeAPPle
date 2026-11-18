@@ -1,12 +1,12 @@
 {
- "code_hash": "1a642cfd5c24c1be",
+ "code_hash": "63b266f2b3bc5a88",
  "figures": [],
  "id": "node:auto.data.physical_units.infer_quantity",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.75,
+ "recorded": "2026-11-18",
+ "seconds": 12.67,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "QuantityGuess\nQuantityGuess(quantity=None, confidence=0.0, reason='no unit and no recognisable keyword', alternatives=[], is_difference=False)",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "infer quantity -> pinneapple_data.physical_units:infer_quantity\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
  "timed_out": false
 }

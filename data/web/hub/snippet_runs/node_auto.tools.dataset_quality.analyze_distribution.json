@@ -1,12 +1,12 @@
 {
- "code_hash": "ae9a5120b3750b67",
+ "code_hash": "39bfeafbcb13595d",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.analyze_distribution",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.95,
+ "recorded": "2026-11-18",
+ "seconds": 30.63,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "dict\n{'per_field': {}}",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "analyze distribution -> pinneapple_tools.dataset_quality:analyze_distribution\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fields': {}}",
  "timed_out": false
 }

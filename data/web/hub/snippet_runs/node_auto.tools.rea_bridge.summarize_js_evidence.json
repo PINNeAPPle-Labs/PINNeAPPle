@@ -1,12 +1,12 @@
 {
- "code_hash": "eff9b0c10a15976c",
+ "code_hash": "f9bf7ed9e5b5dc09",
  "figures": [],
  "id": "node:auto.tools.rea_bridge.summarize_js_evidence",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.86,
+ "recorded": "2026-11-18",
+ "seconds": 13.9,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "FeatureMap\nFeatureMap(evidence_id=None, subject_sha256=None, root=None, functions={}, calls={}, callers={}, timers=[], storage=[], limitations=[], vendor_modules=[])",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "summarize js evidence -> pinneapple_tools.rea_bridge:summarize_js_evidence\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'evidence': {}, 'vendor_globs': ['*.min.js', 'node_modules/*', '*/vendor/*', 'vendor/*', '*/lib/*'], 'include_vendor': False}",
  "timed_out": false
 }

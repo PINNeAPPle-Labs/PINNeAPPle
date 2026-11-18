@@ -1,12 +1,12 @@
 {
- "code_hash": "11cdb88e9fe051ab",
+ "code_hash": "3e2aae042eb6dcb7",
  "figures": [],
  "id": "node:auto.data.preflight.drop_results",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.74,
+ "recorded": "2026-11-18",
+ "seconds": 21.73,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "dict\n{}",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "drop results -> pinneapple_data.preflight:drop_results\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fs': {}}",
  "timed_out": false
 }

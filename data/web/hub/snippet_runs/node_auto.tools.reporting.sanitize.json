@@ -1,12 +1,12 @@
 {
- "code_hash": "6a56a2f997eb0fd3",
+ "code_hash": "40c7528cb67dc669",
  "figures": [],
  "id": "node:auto.tools.reporting.sanitize",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.88,
+ "recorded": "2026-11-18",
+ "seconds": 13.19,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "str\n''",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "sanitize -> pinneapple_tools.reporting:sanitize\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'text': ''}",
  "timed_out": false
 }

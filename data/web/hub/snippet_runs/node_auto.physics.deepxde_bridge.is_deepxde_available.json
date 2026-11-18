@@ -1,12 +1,12 @@
 {
- "code_hash": "7fe52f1c95e474ac",
+ "code_hash": "18a8dda374d161f7",
  "figures": [],
  "id": "node:auto.physics.deepxde_bridge.is_deepxde_available",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.99,
+ "recorded": "2026-11-18",
+ "seconds": 12.6,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "bool\nFalse",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "is deepxde available -> pinneapple_physics.deepxde_bridge:is_deepxde_available\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
  "timed_out": false
 }

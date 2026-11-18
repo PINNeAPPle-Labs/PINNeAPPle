@@ -1,12 +1,12 @@
 {
- "code_hash": "79d2fe52f6f03426",
+ "code_hash": "fa028adf3d910058",
  "figures": [],
  "id": "node:auto.data.parameter_sampling.sample_parameters",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.01,
+ "recorded": "2026-11-18",
+ "seconds": 13.18,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "list\n[{}]",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "sample parameters -> pinneapple_data.parameter_sampling:sample_parameters\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'param_ranges': {}, 'n_samples': 1, 'method': 'lhs', 'seed': 0}",
  "timed_out": false
 }

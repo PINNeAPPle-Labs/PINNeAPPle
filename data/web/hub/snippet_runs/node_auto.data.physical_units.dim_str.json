@@ -1,12 +1,12 @@
 {
- "code_hash": "50d74f7d4117804b",
+ "code_hash": "d6329306bfb966d9",
  "figures": [],
  "id": "node:auto.data.physical_units.dim_str",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.58,
+ "recorded": "2026-11-18",
+ "seconds": 33.03,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "str\n'dimensionless'",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "dim str -> pinneapple_data.physical_units:dim_str\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'dim': []}",
  "timed_out": false
 }

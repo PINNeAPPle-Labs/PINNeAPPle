@@ -1,12 +1,12 @@
 {
- "code_hash": "3e8c246583abe8d7",
+ "code_hash": "636e6cc68c3a5f35",
  "figures": [],
  "id": "node:auto.core.optim.list_methods",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 0.65,
+ "recorded": "2026-11-18",
+ "seconds": 12.44,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "list\n['slsqp', 'adjoint', 'penalty', 'augmented_lagrangian', 'differential_evolution', 'bayesian']",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "list methods -> pinneapple_core.optim:list_methods\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
  "timed_out": false
 }

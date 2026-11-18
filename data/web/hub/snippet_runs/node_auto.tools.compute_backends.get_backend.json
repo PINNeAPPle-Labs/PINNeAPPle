@@ -1,12 +1,12 @@
 {
- "code_hash": "e99f491975be5d22",
+ "code_hash": "53c9f1f1b205247d",
  "figures": [],
  "id": "node:auto.tools.compute_backends.get_backend",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.55,
+ "recorded": "2026-11-18",
+ "seconds": 12.04,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "str\n'torch'",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "get backend -> pinneapple_tools.compute_backends:get_backend\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
  "timed_out": false
 }

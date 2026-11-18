@@ -1,12 +1,12 @@
 {
- "code_hash": "3bb7896d28b4b70e",
+ "code_hash": "3d1387cdd60aaf83",
  "figures": [],
  "id": "node:auto.analysis.cost.cosine_lr",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.52,
+ "recorded": "2026-11-18",
+ "seconds": 32.65,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "float\n0.03",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "cosine lr -> pinneapple_analysis.cost:cosine_lr\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'progress': 1.0, 'lr0': 1.0, 'final_fraction': 0.03}",
  "timed_out": false
 }

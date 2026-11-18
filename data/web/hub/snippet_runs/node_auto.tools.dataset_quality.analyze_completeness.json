@@ -1,12 +1,12 @@
 {
- "code_hash": "02d178f6cc8f0f7b",
+ "code_hash": "ec47b7ca6989d834",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.analyze_completeness",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.51,
+ "recorded": "2026-11-18",
+ "seconds": 30.63,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "dict\n{'missing_fraction_per_field': {}, 'overall_completeness': 1.0}",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "analyze completeness -> pinneapple_tools.dataset_quality:analyze_completeness\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fields': {}}",
  "timed_out": false
 }

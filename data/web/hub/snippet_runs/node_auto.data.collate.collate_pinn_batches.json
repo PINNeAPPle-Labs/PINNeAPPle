@@ -1,12 +1,12 @@
 {
- "code_hash": "1a60902188310e7e",
+ "code_hash": "b057863d1d6a9aa6",
  "figures": [],
  "id": "node:auto.data.collate.collate_pinn_batches",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.72,
+ "recorded": "2026-11-18",
+ "seconds": 33.98,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "dict\n{}",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "collate pinn batches -> pinneapple_data.collate:collate_pinn_batches\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'batches': []}",
  "timed_out": false
 }

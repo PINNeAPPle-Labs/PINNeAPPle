@@ -1,12 +1,12 @@
 {
- "code_hash": "7a483a1974f84f52",
+ "code_hash": "eba20fad6af20815",
  "figures": [],
  "id": "node:auto.core.jsonable.round_sig",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 0.54,
+ "recorded": "2026-11-18",
+ "seconds": 13.09,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "float\n1.0",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "round sig -> pinneapple_core.jsonable:round_sig\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'x': 1.0, 'digits': 6, 'small': 0.001}",
  "timed_out": false
 }

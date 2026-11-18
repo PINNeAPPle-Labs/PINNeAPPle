@@ -1,12 +1,12 @@
 {
- "code_hash": "8fdefb5b6afd634e",
+ "code_hash": "a038fea71a338ec6",
  "figures": [],
  "id": "node:auto.analysis.retrieval.chunk_text",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.59,
+ "recorded": "2026-11-18",
+ "seconds": 32.33,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "list\n[]",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "chunk text -> pinneapple_analysis.retrieval:chunk_text\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'text': '', 'max_chars': 4000, 'overlap': 200}",
  "timed_out": false
 }

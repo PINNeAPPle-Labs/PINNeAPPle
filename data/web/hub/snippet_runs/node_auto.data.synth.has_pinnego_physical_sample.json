@@ -1,12 +1,12 @@
 {
- "code_hash": "33482ed4c1124891",
+ "code_hash": "5b715d92d7013f53",
  "figures": [],
  "id": "node:auto.data.synth.has_pinnego_physical_sample",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.51,
+ "recorded": "2026-11-18",
+ "seconds": 12.5,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "bool\nTrue",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "has pinnego physical sample -> pinneapple_data.synth:has_pinnego_physical_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
  "timed_out": false
 }

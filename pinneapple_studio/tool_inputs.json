@@ -2838,6 +2838,18 @@
   },
   "source": "tests/pinneapple_security/test_scan_policy_attest_integrate.py:137"
  },
+ "pinneapple_hub.zoo.anchors:card": {
+  "inputs": {
+   "anchor_id": "anchor-aero"
+  },
+  "source": "pinneapple_hub/zoo/anchors.py: the four published anchors"
+ },
+ "pinneapple_hub.zoo.anchors:info": {
+  "inputs": {
+   "anchor_id": "anchor-aero"
+  },
+  "source": "pinneapple_hub/zoo/anchors.py: the four published anchors"
+ },
  "pinneapple_hub.zoo.demo:bands": {
   "inputs": {
    "outputs": [

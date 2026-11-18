@@ -1,12 +1,12 @@
 {
- "code_hash": "3a4e2cc99f0a7ac9",
+ "code_hash": "6b8a83203cd52b31",
  "figures": [],
  "id": "node:auto.data.physical_units.split_header",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 2.71,
+ "recorded": "2026-11-18",
+ "seconds": 14.57,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "",
- "stdout": "tuple\n('', None)",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "split header -> pinneapple_data.physical_units:split_header\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'header': ''}",
  "timed_out": false
 }

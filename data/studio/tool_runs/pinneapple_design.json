@@ -1035,6 +1035,84 @@
   "returned": "RBFInterpolator",
   "seconds": 0.0
  },
+ "pinneapple_design.geometry.runner_ramp:facetas_abertas": {
+  "code_hash": "ed94e9ff9e7cc9be",
+  "inputs": {
+   "faces": [
+    [
+     0,
+     1,
+     2
+    ],
+    [
+     0,
+     2,
+     3
+    ],
+    [
+     0,
+     1,
+     3
+    ],
+    [
+     1,
+     2,
+     3
+    ]
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "int",
+  "seconds": 9.26
+ },
+ "pinneapple_design.geometry.runner_ramp:parametros": {
+  "code_hash": "2f7f47cf82ceaff9",
+  "inputs": {
+   "r": {
+    "caso": "A",
+    "comprimento": 36.0,
+    "face_reta_deg": 21.8,
+    "largura": 1.5,
+    "s_fim": 30.0,
+    "s_inicio": 12.0,
+    "z_crista": 0.0,
+    "z_pe": -4.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.runner_ramp:solido": {
+  "code_hash": "19653e64a4d6c8f7",
+  "inputs": {
+   "n_s": 30,
+   "r": {
+    "caso": "A",
+    "comprimento": 36.0,
+    "face_reta_deg": 21.8,
+    "largura": 1.5,
+    "s_fim": 30.0,
+    "s_inicio": 12.0,
+    "z_crista": 0.0,
+    "z_pe": -4.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_design.geometry.runner_ramp:validar": {
+  "code_hash": "1f59b996426e3294",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "dict",
+  "seconds": 9.83
+ },
  "pinneapple_design.geometry.vehicle_cad:drill_assembly": {
   "code_hash": "8ee266e9dd995686",
   "inputs": {},

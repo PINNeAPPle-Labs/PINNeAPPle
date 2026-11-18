@@ -60,6 +60,7 @@
 * Guides
     * [Choosing a method: PINN, operator, graph network or solver](guides/choosing_a_method.md)
     * [Running a benchmark](guides/running_a_benchmark.md)
+    * [Crash and surface-pressure benchmarks, recreated](guides/crash_and_surface_benchmarks.md)
     * [Viscous vortex domains: 2-D Navier-Stokes without a mesh](guides/vortex_domains.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [MuJoCo 4.0: trajectories, checks and the robot backend](guides/mujoco.md)

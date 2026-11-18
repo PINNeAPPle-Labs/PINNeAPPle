@@ -1,12 +1,12 @@
 {
- "code_hash": "dd23b67e70faed29",
+ "code_hash": "1f32f71cb7b08058",
  "figures": [],
  "id": "node:auto.neural.physicsnemo_bridge.is_physicsnemo_available",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 12.51,
+ "recorded": "2026-10-24",
+ "seconds": 3.99,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "is physicsnemo available -> pinneapple_neural.physicsnemo_bridge:is_physicsnemo_available\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "stderr": "",
+ "stdout": "bool\nFalse",
  "timed_out": false
 }

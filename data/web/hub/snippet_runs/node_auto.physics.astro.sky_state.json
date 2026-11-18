@@ -1,12 +1,12 @@
 {
- "code_hash": "ccfe10467ba2e3bd",
+ "code_hash": "7fdf4f40c21981aa",
  "figures": [],
  "id": "node:auto.physics.astro.sky_state",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 14.74,
+ "recorded": "2026-10-24",
+ "seconds": 3.34,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "sky state -> pinneapple_physics.astro:sky_state\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'sun_alt_deg': 1.0}",
+ "stderr": "",
+ "stdout": "str\n'day'",
  "timed_out": false
 }

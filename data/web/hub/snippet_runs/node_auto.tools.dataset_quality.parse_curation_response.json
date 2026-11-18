@@ -1,12 +1,12 @@
 {
- "code_hash": "b213c8cccea3e04a",
+ "code_hash": "9f579554106b062d",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.parse_curation_response",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 13.07,
+ "recorded": "2026-10-24",
+ "seconds": 3.92,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "parse curation response -> pinneapple_tools.dataset_quality:parse_curation_response\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'seq_id': '', 'text': '', 'labels': ['consistent', 'suspect', 'inconsistent'], 'reason_max_chars': 300, 'raw_text_max_chars': 1200}",
+ "stderr": "",
+ "stdout": "CurationRecord\nCurationRecord(id='', label='suspect', confidence=0.5, reason='', raw_text='')",
  "timed_out": false
 }

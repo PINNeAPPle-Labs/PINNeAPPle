@@ -1,12 +1,12 @@
 {
- "code_hash": "5792e4c926f98087",
+ "code_hash": "197d2f014d02c2e6",
  "figures": [],
  "id": "node:auto.data.unified.conversion_text",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 33.97,
+ "recorded": "2026-10-24",
+ "seconds": 2.79,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "conversion text -> pinneapple_data.unified:conversion_text\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'src': '', 'dst': '', 'difference': False}",
+ "stderr": "",
+ "stdout": "str\n'empty unit'",
  "timed_out": false
 }

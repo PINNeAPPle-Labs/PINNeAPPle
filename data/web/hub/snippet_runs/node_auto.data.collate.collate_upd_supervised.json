@@ -1,12 +1,12 @@
 {
- "code_hash": "d6229a4b162cc2d7",
+ "code_hash": "96db5be3476fd6cb",
  "figures": [],
  "id": "node:auto.data.collate.collate_upd_supervised",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 33.99,
+ "recorded": "2026-10-24",
+ "seconds": 2.59,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "collate upd supervised -> pinneapple_data.collate:collate_upd_supervised\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'samples': []}",
+ "stderr": "",
+ "stdout": "dict\n{}",
  "timed_out": false
 }

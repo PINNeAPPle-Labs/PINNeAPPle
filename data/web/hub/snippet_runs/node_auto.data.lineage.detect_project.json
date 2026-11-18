@@ -1,12 +1,12 @@
 {
- "code_hash": "95ff2d84ff3e4189",
+ "code_hash": "de0d7299cf597c83",
  "figures": [],
  "id": "node:auto.data.lineage.detect_project",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 32.86,
+ "recorded": "2026-10-24",
+ "seconds": 3.02,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "detect project -> pinneapple_data.lineage:detect_project\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fs': {}, 'project': ''}",
+ "stderr": "",
+ "stdout": "Lineage\n<pinneapple_data.lineage.graph.Lineage object at 0x7ff20f20f0e0>",
  "timed_out": false
 }

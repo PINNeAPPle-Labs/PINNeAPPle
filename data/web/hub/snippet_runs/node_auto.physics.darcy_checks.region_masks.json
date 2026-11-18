@@ -1,12 +1,12 @@
 {
- "code_hash": "8020903c0139a8d1",
+ "code_hash": "3e1ddef7d5e49b9e",
  "figures": [],
  "id": "node:auto.physics.darcy_checks.region_masks",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 13.07,
+ "recorded": "2026-10-24",
+ "seconds": 3.2,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "region masks -> pinneapple_physics.darcy_checks:region_masks\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'n': 1, 'wall_cells': 2, 'interior_from': 8}",
+ "stderr": "",
+ "stdout": "dict\n{'wall': array([[ True]]), 'interior': array([[False]])}",
  "timed_out": false
 }

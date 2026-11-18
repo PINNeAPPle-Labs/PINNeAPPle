@@ -1,12 +1,12 @@
 {
- "code_hash": "d37599e2618ddaa6",
+ "code_hash": "aaf3c237169022bd",
  "figures": [],
  "id": "node:auto.data.unified.canonical_name",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 32.38,
+ "recorded": "2026-10-24",
+ "seconds": 2.76,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "canonical name -> pinneapple_data.unified:canonical_name\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'base': '', 'quantity': ''}",
+ "stderr": "",
+ "stdout": "str\n'value'",
  "timed_out": false
 }

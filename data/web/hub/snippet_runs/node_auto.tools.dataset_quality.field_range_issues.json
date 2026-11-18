@@ -1,12 +1,12 @@
 {
- "code_hash": "6826772df934decd",
+ "code_hash": "54f9cbdb63a462a2",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.field_range_issues",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 12.03,
+ "recorded": "2026-10-24",
+ "seconds": 3.78,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "field range issues -> pinneapple_tools.dataset_quality:field_range_issues\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fields': {}, 'ranges': {}}",
+ "stderr": "",
+ "stdout": "list\n[]",
  "timed_out": false
 }

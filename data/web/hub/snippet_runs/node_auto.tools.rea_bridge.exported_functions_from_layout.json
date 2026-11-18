@@ -1,12 +1,12 @@
 {
- "code_hash": "3fe7223ab7dacfbb",
+ "code_hash": "a0f7c7d30657e882",
  "figures": [],
  "id": "node:auto.tools.rea_bridge.exported_functions_from_layout",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 21.31,
+ "recorded": "2026-10-24",
+ "seconds": 3.85,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "exported functions from layout -> pinneapple_tools.rea_bridge:exported_functions_from_layout\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'evidence': {}}",
+ "stderr": "",
+ "stdout": "list\n[]",
  "timed_out": false
 }

@@ -1,12 +1,12 @@
 {
- "code_hash": "3ba0f73af9ded529",
+ "code_hash": "38d36d63a1705331",
  "figures": [],
  "id": "node:auto.tools.compute_backends.jax_available",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 12.43,
+ "recorded": "2026-10-24",
+ "seconds": 3.66,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "jax available -> pinneapple_tools.compute_backends:jax_available\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "stderr": "",
+ "stdout": "bool\nFalse",
  "timed_out": false
 }

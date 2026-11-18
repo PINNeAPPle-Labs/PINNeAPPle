@@ -1,12 +1,12 @@
 {
- "code_hash": "258572e2c4ef3691",
+ "code_hash": "7134cfa8d05f1ad2",
  "figures": [],
  "id": "node:auto.physics.solid.lame_parameters",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 12.44,
+ "recorded": "2026-10-24",
+ "seconds": 3.18,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "lame parameters -> pinneapple_physics.solid:lame_parameters\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'E': 1.0, 'nu': 1.0}",
+ "stderr": "",
+ "stdout": "tuple\n(-0.5, 0.25)",
  "timed_out": false
 }

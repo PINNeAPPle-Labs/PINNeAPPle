@@ -1,12 +1,12 @@
 {
- "code_hash": "9fb8a00ba1794dd3",
+ "code_hash": "4ed0850f18ce7fdf",
  "figures": [],
  "id": "node:auto.data.physical_units.try_parse_unit",
  "ok": true,
- "recorded": "2026-11-18",
- "seconds": 13.79,
+ "recorded": "2026-10-24",
+ "seconds": 2.81,
  "source": "python -m pinneapple_hub.library run",
- "stderr": "Matplotlib is building the font cache; this may take a moment.",
- "stdout": "try parse unit -> pinneapple_data.physical_units:try_parse_unit\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'text': ''}",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
  "timed_out": false
 }

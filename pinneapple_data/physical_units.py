@@ -86,6 +86,8 @@ _BASE: Dict[str, Tuple[float, Dim, float]] = {
     "Pa": (1, _PA, 0), "mPa": (1e-3, _PA, 0), "hPa": (1e2, _PA, 0), "kPa": (1e3, _PA, 0), "MPa": (1e6, _PA, 0), "GPa": (1e9, _PA, 0),
     "bar": (1e5, _PA, 0), "mbar": (1e2, _PA, 0), "psi": (_LBF / _INCH ** 2, _PA, 0), "ksi": (1e3 * _LBF / _INCH ** 2, _PA, 0),
     "atm": (101325, _PA, 0), "torr": (101325 / 760, _PA, 0), "mmHg": (133.322387415, _PA, 0),
+    # permeability (a length squared): 1 D = 9.869233e-13 m^2, the definition reservoir data is quoted in
+    "D": (9.869233e-13, _d((_L, 2)), 0), "mD": (9.869233e-16, _d((_L, 2)), 0),
     "inH2O": (249.08891, _PA, 0), "mmH2O": (9.80665, _PA, 0), "inHg": (3386.389, _PA, 0),
     # energy, power
     "J": (1, _J, 0), "kJ": (1e3, _J, 0), "MJ": (1e6, _J, 0), "Wh": (3600, _J, 0), "kWh": (3.6e6, _J, 0),

@@ -26,6 +26,14 @@ REASONS: dict[str, str] = {
     "pinneapple_registry": "artifact store and model gateway services (deployment, not a computation step)",
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",
+    # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for
+    "pinneapple_data.graph": "the module builds the Graph objects the graph networks train on, from arrays and from "
+                             "simulation records; a Graph is not something a flow's parameter form holds, so the "
+                             "node that trains a graph model builds it inside the node",
+    "pinneapple_data.schema": "the data contract a bundle carries -- manifest, fields, locations, units, gates; it "
+                              "is a type the adapters fill and the gates read, not a computation step of its own",
+    "pinneapple_simulation.launch": "ascent trajectories for the launch vertical: the flight profile, its atmosphere "
+                                    "and its visuals are arranged by examples/rocket_launch, which no node wraps",
     "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "
                               "apps and data reports use, not a computation step)",
     "pinneapple_core.onboarding": "the first hour: doctor / recommend / card / new run before a problem "
@@ -104,6 +112,9 @@ REASONS: dict[str, str] = {
                                     "Koopman) used as a Python API; its flow nodes come with the toolkit's "
                                     "integration pull request",
     "pinneapple_physics.biology": "SBML import and biological ODE / excitable-media models, used through pinneapple_analysis.inverse_problems and examples/biology (a model library, not one flow step)",
+    "pinneapple_simulation.granular": "a discrete element solver stepped in a python loop (thousands of steps per "
+                                      "case): examples/granular_dem runs the mill, the wear calibration and the "
+                                      "breakage test, and tests/test_granular_*.py check each layer",
     "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",

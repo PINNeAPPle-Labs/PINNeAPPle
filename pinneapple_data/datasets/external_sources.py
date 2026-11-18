@@ -1,6 +1,6 @@
 """External data source integrations for PINNeAPPle.
 
-Provides loaders for 12 scientific/engineering data sources with automatic
+Provides loaders for 15 scientific/engineering data sources with automatic
 fallback to cached or synthetic data when the source is unavailable.
 
 Sources
@@ -19,6 +19,8 @@ Sources
   su2                 — Aerodynamics / CFD / optimization (SU2 Foundation)
   nasa_power          — Daily point meteorology / solar resource (NASAPowerClient)
   open_meteo          — Hourly historical weather archive (OpenMeteoClient)
+  destine             — Destination Earth platform: the Digital Twin catalogue and the
+                        Climate DT collections (DestinEClient)
 
 Usage
 -----
@@ -39,6 +41,8 @@ Authentication
   Materials Project : MP_API_KEY environment variable or api_key param
   NREL              : NREL_API_KEY environment variable or api_key param
   Copernicus CDS    : ~/.cdsapirc config file (see https://cds.climate.copernicus.eu)
+  DestinE           : DESTINE_CLIENT_ID / DESTINE_CLIENT_SECRET (service account key) for items
+                      and downloads; the catalogue itself needs no credentials
   All others        : public REST APIs, no key required
 """
 from __future__ import annotations
@@ -46,6 +50,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import time
 import urllib.parse
 import urllib.request
 from functools import lru_cache
@@ -74,10 +79,33 @@ def _get_json(url: str, headers: Optional[Dict] = None, timeout: int = _TIMEOUT)
         return json.loads(resp.read().decode("utf-8"))
 
 
-def _get_bytes(url: str, timeout: int = _TIMEOUT) -> bytes:
-    req = urllib.request.Request(url, headers=_HEADERS)
+def _get_bytes(url: str, timeout: int = _TIMEOUT, headers: dict | None = None) -> bytes:
+    h = dict(_HEADERS)
+    if headers:
+        h.update(headers)
+    req = urllib.request.Request(url, headers=h)
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
+
+
+def _post_json(url: str, payload: Any, timeout: int = _TIMEOUT,
+               headers: dict | None = None) -> Any:
+    h = dict(_HEADERS)
+    h["Content-Type"] = "application/json"
+    if headers:
+        h.update(headers)
+    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=h, method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _post_form(url: str, form: dict[str, str], timeout: int = _TIMEOUT) -> Any:
+    h = dict(_HEADERS)
+    h["Content-Type"] = "application/x-www-form-urlencoded"
+    req = urllib.request.Request(url, data=urllib.parse.urlencode(form).encode("utf-8"), headers=h,
+                                 method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1165,3 +1193,199 @@ class OpenMeteoClient:
         """:meth:`fetch_archive_json` followed by :meth:`hourly_arrays`."""
         return self.hourly_arrays(self.fetch_archive_json(latitude, longitude, start_date, end_date, hourly,
                                                           **kwargs))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 15. DestinE (Destination Earth: Digital Twin catalogue and HDA)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class DestinEClient:
+    """Client for the DestinE Platform (Destination Earth, EU) and its Data Lake.
+
+    The platform has two tiers, and the difference decides what a caller can do:
+
+    * **Discovery, no credentials.** :meth:`collections` lists the whole portfolio (348
+      collections when checked in 2026-11, of which 72 are Climate DT and 2 Extremes DT) and
+      :meth:`collection` / :meth:`variables` read one collection's metadata: variables with
+      units, dimensions, temporal extent, licence and DOI.
+    * **Items and assets, OAuth2 token.** :meth:`search`, :meth:`items` and :meth:`download`
+      send a bearer token from the ``client_credentials`` grant of the platform's Keycloak
+      realm. The Digital Twins collections (the ``DT_CLIMATE`` and ``DT_EXTREMES`` ones) need
+      more than a token: the platform gates them behind an *upgraded access* that is requested
+      per user, so they answer 403 until it is granted.
+
+    Keep the two apart: a catalogue of what exists is available to anyone, and the km-scale
+    fields are not. A 403 here is that gate, not a bug.
+
+    Docs: https://platform.destine.eu/ . Registration (free) makes the account; the key pair
+    comes from a service account in My DataLake Services and is read from
+    ``DESTINE_CLIENT_ID`` / ``DESTINE_CLIENT_SECRET`` (or passed in). Errors that are not a
+    refusal (401/403) propagate as :class:`urllib.error.HTTPError`.
+
+        >>> c = DestinEClient()
+        >>> dt = c.climate_dt_collections()                     # no token, no account  # doctest: +SKIP
+        >>> dt[0]["id"]                                                                  # doctest: +SKIP
+        'EO.ECMWF.DAT.D1.DT_CLIMATE.G1.CMIP6_HIST_ICON.R1'
+        >>> vars = c.variables(dt[0]["id"])                                              # doctest: +SKIP
+        >>> vars["Temperature(clte_pl)"]["unit"]                                         # doctest: +SKIP
+        'K'
+        >>> c.search(dt[0]["id"], bbox=(-44, -24, -42, -22), limit=5)                     # doctest: +SKIP
+        Traceback (most recent call last):                        # without a token or with the
+        PermissionError: DestinE: ...                             # gate closed: 401 / 403
+    """
+
+    STAC_URL = "https://hda.data.destination-earth.eu/stac/v2"
+    TOKEN_URL = "https://auth.destine.eu/realms/desp/protocol/openid-connect/token"
+    REGISTER_URL = "https://platform.destine.eu/"
+    CLIMATE_DT = "DT_CLIMATE"
+
+    def __init__(self, client_id: str | None = None, client_secret: str | None = None,
+                 token: str | None = None, timeout: int = 60) -> None:
+        self.client_id = client_id or os.environ.get("DESTINE_CLIENT_ID", "")
+        self.client_secret = client_secret or os.environ.get("DESTINE_CLIENT_SECRET", "")
+        self.timeout = timeout
+        self._token = token or os.environ.get("DESTINE_TOKEN", "")
+        self._token_expires = 0.0          # monotonic deadline; 0 = the token given by the caller
+
+    # -- token -----------------------------------------------------------------
+
+    def token(self) -> str:
+        """A bearer token, fetched once by the ``client_credentials`` grant and cached until
+        shortly before it expires. Raises :class:`PermissionError` when there are no credentials."""
+        if self._token and (self._token_expires == 0.0 or time.monotonic() < self._token_expires):
+            return self._token
+        if not (self.client_id and self.client_secret):
+            raise PermissionError(
+                "DestinE: no credentials. The catalogue (collections, metadata, variables) needs none; "
+                "items and downloads need a free DestinE Platform account ("
+                f"{self.REGISTER_URL}) and a service-account key pair, read from DESTINE_CLIENT_ID and "
+                "DESTINE_CLIENT_SECRET or passed to the constructor. The Digital Twins collections "
+                "additionally need the platform's upgraded access, which is requested, not automatic.")
+        js = _post_form(self.TOKEN_URL, {"grant_type": "client_credentials", "client_id": self.client_id,
+                                        "client_secret": self.client_secret}, timeout=self.timeout)
+        self._token = js["access_token"]
+        self._token_expires = time.monotonic() + max(float(js.get("expires_in", 300)) - 60.0, 0.0)
+        return self._token
+
+    def _auth(self) -> dict[str, str]:
+        return {"Authorization": f"Bearer {self.token()}"}
+
+    def _denied(self, code: int) -> PermissionError:
+        if code == 401:
+            return PermissionError(
+                f"DestinE: the token was rejected (401) by {self.STAC_URL}. Check the service-account "
+                "key pair (DESTINE_CLIENT_ID / DESTINE_CLIENT_SECRET); a rotated key invalidates old ones.")
+        return PermissionError(
+            "DestinE: access denied (403). The Digital Twins collections (DT_CLIMATE, DT_EXTREMES) are "
+            "gated behind the platform's upgraded access, requested under Account Settings -> Access "
+            f"Policy Upgrade at {self.REGISTER_URL} (public authorities, academia, SMEs and start-ups; "
+            "granted at the platform's discretion). Discovery - collections, metadata, variables - "
+            "needs no access grant at all.")
+
+    # -- discovery (no credentials) --------------------------------------------
+
+    def collections(self, pattern: str | None = None) -> list[dict[str, Any]]:
+        """The DestinE Data Portfolio: every STAC collection, filtered by a case-insensitive
+        substring of the id when ``pattern`` is given (e.g. ``"DT_CLIMATE"``, ``"EUM"``)."""
+        js = _get_json(f"{self.STAC_URL}/collections", timeout=self.timeout)
+        cols = list(js.get("collections") or [])
+        if pattern:
+            cols = [c for c in cols if pattern.lower() in str(c.get("id", "")).lower()]
+        return cols
+
+    def climate_dt_collections(self) -> list[dict[str, Any]]:
+        """The Climate DT collections: ``ICON``, ``IFS-FESOM`` and ``IFS-NEMO``, historical
+        (CMIP6), scenario (SSP3-7.0) and storyline (T+2.0 K), generations 1 and 2."""
+        return self.collections(self.CLIMATE_DT)
+
+    def collection(self, collection_id: str) -> dict[str, Any]:
+        """One collection's metadata: ``cube:variables``, ``cube:dimensions``, ``extent``,
+        ``license`` (Climate DT: ``CC-BY-4.0``), ``summaries``, and the citation fields
+        (``sci:citation``, ``sci:doi``) when the provider recorded them."""
+        return _get_json(f"{self.STAC_URL}/collections/{collection_id}", timeout=self.timeout)
+
+    def variables(self, collection_id: str) -> dict[str, dict[str, Any]]:
+        """The variables of a collection as ``{name(stream): {"unit", "type", "attrs"}}`` - what
+        is worth asking :meth:`search` for, before asking for it."""
+        return dict(self.collection(collection_id).get("cube:variables") or {})
+
+    # -- items and assets (token) ----------------------------------------------
+
+    def search(self, collections: list[str] | str, *, bbox: list[float] | None = None,
+               time_range: str | None = None, limit: int = 10,
+               **extra: Any) -> dict[str, Any]:
+        """STAC item search over ``collections`` (the API rejects an empty list), optionally
+        constrained to ``bbox`` = (west, south, east, north) and to a ``time_range`` such as
+        ``"2020-01-01T00:00:00Z/2020-01-02T00:00:00Z"`` (sent as STAC ``datetime``). Returns the
+        raw ``FeatureCollection``."""
+        ids = [collections] if isinstance(collections, str) else list(collections)
+        if not ids:
+            raise ValueError("DestinE search needs at least one collection id; the API rejects an empty list")
+        payload: dict[str, Any] = {"collections": ids, "limit": int(limit)}
+        if bbox is not None:
+            if len(bbox) != 4:
+                raise ValueError("bbox must be (west, south, east, north)")
+            payload["bbox"] = [float(v) for v in bbox]
+        if time_range is not None:
+            payload["datetime"] = time_range
+        payload.update(extra)
+        try:
+            return _post_json(f"{self.STAC_URL}/search", payload, timeout=self.timeout, headers=self._auth())
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 403):
+                raise self._denied(exc.code) from exc
+            raise
+
+    def items(self, collection_id: str, *, limit: int = 10, bbox: list[float] | None = None,
+              time_range: str | None = None, **extra: Any) -> dict[str, Any]:
+        """The items of one collection (the GET form of :meth:`search`), as a ``FeatureCollection``."""
+        params: dict[str, Any] = {"limit": int(limit), **extra}
+        if bbox is not None:
+            params["bbox"] = ",".join(str(float(v)) for v in bbox)
+        if time_range is not None:
+            params["datetime"] = time_range
+        url = f"{self.STAC_URL}/collections/{collection_id}/items?{urllib.parse.urlencode(params)}"
+        try:
+            return _get_json(url, timeout=self.timeout, headers=self._auth())
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 403):
+                raise self._denied(exc.code) from exc
+            raise
+
+    def download(self, url: str, path: str | None = None) -> bytes:
+        """Fetch one asset (or download link) of an item with the bearer token; written to
+        ``path`` when given. Assets are usually GRIB/Zarr/NetCDF over HTTP."""
+        try:
+            raw = _get_bytes(url, timeout=self.timeout, headers=self._auth())
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 403):
+                raise self._denied(exc.code) from exc
+            raise
+        if path is not None:
+            with open(path, "wb") as fh:
+                fh.write(raw)
+        return raw
+
+    # -- response to arrays ----------------------------------------------------
+
+    @staticmethod
+    def to_arrays(js: dict[str, Any]) -> dict[str, np.ndarray]:
+        """``{"datetime": datetime64[s] (N,), "bbox": float64 (N, 4)}`` from a :meth:`search` or
+        :meth:`items` response: when each item starts and where it is, for plotting coverage or
+        picking the item to download. An item without a time becomes ``NaT``, without a bbox NaN."""
+        feats = js.get("features")
+        if not feats:
+            raise ValueError("DestinE response has no features")
+        times, boxes = [], []
+        for f in feats:
+            props = f.get("properties") or {}
+            when = props.get("datetime") or props.get("start_datetime")
+            if when:
+                start = str(when).split("/")[0].replace("Z", "")   # an interval keeps its start
+                times.append(np.datetime64(start))
+            else:
+                times.append(np.datetime64("NaT"))
+            box = [float(v) for v in (f.get("bbox") or props.get("bbox") or [])][:4]
+            boxes.append(box + [np.nan] * (4 - len(box)))        # always (N, 4); a 3-D bbox keeps its footprint
+        return {"datetime": np.array(times, dtype="datetime64[s]"),
+                "bbox": np.asarray(boxes, dtype=np.float64)}

@@ -50,6 +50,23 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_arena.bundle_uq:spearman": {
+  "code_hash": "f6c6462e41f45f14",
+  "inputs": {
+   "a": [
+    1.0,
+    2.0
+   ],
+   "b": [
+    1.0,
+    2.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 10.38
+ },
  "pinneapple_arena.dataset_bench:list_benchmarks": {
   "code_hash": "2578daac725ba987",
   "inputs": {},

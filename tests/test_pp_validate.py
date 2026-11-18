@@ -37,6 +37,7 @@ class UserFNO(torch.nn.Module):
 
 @pytest.fixture(scope="module")
 def darcy_case(tmp_path_factory):
+    pytest.importorskip("onnxruntime")        # the fixture trains an FNO and exports it, so it needs both ends
     A, U = darcy(500, 1)
     torch.manual_seed(0)
     m = UserFNO(float(A[:400].mean()), float(A[:400].std()), float(U[:400].std()))
@@ -157,6 +158,7 @@ def test_schema_refuses_unknown_ids_and_inherits_families():
 
 @pytest.mark.parametrize("H,W,modes", [(16, 16, 4), (15, 17, 7), (24, 24, 13)])
 def test_fno_onnx_export_is_exact(tmp_path, H, W, modes):
+    pytest.importorskip("onnxruntime")        # export_onnx checks the graph by running it, not by writing it
     from pinneapple_neural.architectures.neural_operators.fno import FNO2d
     from pinneapple_neural.architectures.neural_operators.fno_export import export_onnx
     torch.manual_seed(0)

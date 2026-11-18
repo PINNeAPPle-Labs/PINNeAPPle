@@ -21,6 +21,7 @@ of its own):
 ``maturity``               maturity and gap assessment on two axes: scientific maturity and industrial readiness
 ``validation_case``        the validation case, its append-only revisions, expert reviews and the evidence registry
 ``dossier``                the validation dossier: the case as the document an engineer files and a reviewer signs
+``surrogate_gates``        accuracy, conservation, boundary conditions and the PDE residual of a *trained model*
 =========================  ==============================================================================================
 
 Veriphysics (the product) keeps the job queue, the HTTP API, billing and the web app, and imports this package.
@@ -31,7 +32,7 @@ import importlib as _importlib
 
 __all__ = ["decision", "evidence_report", "applicability", "scope", "robustness", "recommend", "execution_log",
            "example_cases", "ledger", "validation_lab", "evidence_package", "usecase", "findings", "maturity",
-           "validation_case", "dossier"]
+           "validation_case", "dossier", "surrogate_gates"]
 
 
 def __getattr__(name: str):

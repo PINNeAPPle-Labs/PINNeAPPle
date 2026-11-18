@@ -172,6 +172,11 @@
   "domain": "PINN",
   "notes": "03_heat_diffusion_1d and 04_wave_equation_1d are flows of equations.system + train.pinn + validate.compare for the script's three diffusivities / wave speeds against the exact solutions (the script trains its own torch loop with a hard x(1-x) factor); nothing committed to compare. 01, 02 and 05-10 are pure-torch ODE PINNs without pinneapple calls, and no node trains a PINN on an ODE (geometry.domain needs a spatial dimension)"
  },
+ "granular_dem": {
+  "domain": "process engineering",
+  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign \u2014 drum, charge, liner facets, a bonded agglomerate and its breakage \u2014 and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
+  "status": "not_convertible"
+ },
  "handoff_cases": {
   "domain": "CFD",
   "needs": "OpenFOAM (+ xfoil)",
@@ -268,6 +273,11 @@
   "domain": "heat transfer",
   "notes": "hierarchy_64: condense.package_thermal at 64 x 64 blocks, m = 12, compared with the committed scaling point (quick: 16 x 16). The other studies of run_benchmark.py (accuracy against modes, refinement, Keff, learned blocks, transient, meshless, exception patches) are pinneapple_condense.benchmark functions that run for minutes in subprocesses and are measured by the script."
  },
+ "physics_data_schema": {
+  "domain": "physics data",
+  "reason": "01_pdebench_bundle.py writes a synthetic PDEBench file to a temporary directory, reads it through the adapter, builds the bundle and puts it through the gates; the flow has no node for the schema adapters or the gates yet, and the point of the example is the file round trip the script arranges",
+  "status": "not_convertible"
+ },
  "physics_db": {
   "domain": "data",
   "needs": "earthaccess + NASA Earthdata login / network",
@@ -348,6 +358,11 @@
  "rigid_body": {
   "domain": "multibody",
   "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"
+ },
+ "rocket_launch": {
+  "domain": "flight dynamics",
+  "status": "not_convertible",
+  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet."
  },
  "science": {
   "domain": "science",

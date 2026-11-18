@@ -120,6 +120,88 @@
   "returned": "tuple",
   "seconds": 0.13
  },
+ "pinneapple_data.datasets.catalog:entries": {
+  "code_hash": "610dcb73aada33fe",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.catalog:get": {
+  "code_hash": "b182574121cf9cbe",
+  "inputs": {
+   "dataset_id": "nasa_tmr"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "CatalogEntry",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.catalog:implemented": {
+  "code_hash": "4bf379bc9939a3f8",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.catalog:missing": {
+  "code_hash": "108b279229cf2140",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.catalog:redistributable": {
+  "code_hash": "9c9038d971e4b782",
+  "inputs": {
+   "dataset_id": "pdebench"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "bool",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.catalog:to_json": {
+  "code_hash": "b12848b9095ffe4f",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.pdebench:case_card": {
+  "code_hash": "32734d0ad3e627c4",
+  "inputs": {
+   "name": "1D_Burgers_Sols_Nu0.001.hdf5"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "CaseCard",
+  "seconds": 0.01
+ },
+ "pinneapple_data.datasets.pdebench:darus_url": {
+  "code_hash": "e21a765d7d2e2f9a",
+  "inputs": {
+   "file_id": 133219
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets.pdebench:dataset": {
+  "code_hash": "0055324730928d91",
+  "inputs": {
+   "name": "Sod6"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "DatasetFile",
+  "seconds": 0.0
+ },
  "pinneapple_data.datasets.physics:burgers_periodic_pairs": {
   "code_hash": "43192e76b94417c7",
   "inputs": {
@@ -134,19 +216,49 @@
   "returned": "tuple",
   "seconds": 0.02
  },
- "pinneapple_data.datasets:dataset_ids": {
-  "code_hash": "38383017f4182e26",
-  "inputs": {},
+ "pinneapple_data.datasets.remote_hdf5:is_url": {
+  "code_hash": "815a686845c4bcf3",
+  "inputs": {
+   "source": "https://darus.example.org/pdebench/1D/diffusion-reaction.h5"
+  },
   "ok": true,
-  "recorded": "2026-10-31",
-  "returned": "list",
+  "recorded": "2026-11-17",
+  "returned": "bool",
+  "seconds": 13.11
+ },
+ "pinneapple_data.datasets.the_well:scenario_hint": {
+  "code_hash": "155eeef4376bf8fb",
+  "inputs": {
+   "source": ".../polymathic-ai/shear_flow/resolve/main/data/train/x.hdf5"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
   "seconds": 0.0
  },
- "pinneapple_data.datasets:list_datasets": {
-  "code_hash": "9f99c9d8af230c0d",
+ "pinneapple_data.datasets.the_well:scenario_url": {
+  "code_hash": "32c39f5b01953d9e",
+  "inputs": {
+   "name": "helmholtz_staircase"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_data.datasets:dataset_ids": {
+  "code_hash": "d6438971bd303c43",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-17",
+  "returned": "list",
+  "seconds": 10.4
+ },
+ "pinneapple_data.datasets:list_datasets": {
+  "code_hash": "87575a0a128ead02",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
   "returned": "list",
   "seconds": 0.0
  },
@@ -284,6 +396,51 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 0.04
+ },
+ "pinneapple_data.schema.gates:relative_l2": {
+  "code_hash": "a993216e56ccd064",
+  "inputs": {
+   "computed": [
+    1.0,
+    2.0
+   ],
+   "reference": [
+    1.0,
+    2.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_data.schema.models:sha256_file": {
+  "code_hash": "f07e2cd7969ef218",
+  "error": "FileNotFoundError: [Errno 2] No such file or directory: 'AGENTS.md'",
+  "inputs": {
+   "path": "AGENTS.md"
+  },
+  "ok": false,
+  "recorded": "2026-11-17",
+  "seconds": 0.0
+ },
+ "pinneapple_data.schema.models:unit_or_dimensionless": {
+  "code_hash": "6a621f79ce5c4668",
+  "inputs": {
+   "text": "-"
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_data.schema.view:available": {
+  "code_hash": "df5e884d774b1bb5",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "bool",
+  "seconds": 0.5
  },
  "pinneapple_data.simulation_metadata.foam_dict:parse": {
   "code_hash": "0bfb0a62a81d7417",

@@ -1,0 +1,1990 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T16:01:39+00:00",
+  "family": {
+    "name": "pp_exchanger",
+    "title": "Shell-and-tube exchanger: dimensionless temperature profiles over its design space",
+    "domain": "energy / process and HVAC heat exchangers",
+    "dim": 2,
+    "field_names": [
+      "theta_shell",
+      "theta_tube"
+    ],
+    "field_units": [
+      "-",
+      "-"
+    ],
+    "field_scale": [
+      1.0,
+      1.0
+    ],
+    "characteristic_length_m": 1.0,
+    "n_points": 80,
+    "geometry_params": {
+      "tube_od_m": [
+        0.01,
+        0.025
+      ],
+      "n_tubes": [
+        20.0,
+        160.0
+      ],
+      "shell_id_m": [
+        0.1,
+        0.35
+      ],
+      "length_m": [
+        0.6,
+        3.5
+      ],
+      "baffle_spacing_m": [
+        0.05,
+        0.25
+      ]
+    },
+    "operating_params": {
+      "m_dot_shell_kg_s": [
+        0.5,
+        3.5
+      ],
+      "m_dot_tube_kg_s": [
+        4.0,
+        12.0
+      ]
+    },
+    "geometry_features": {
+      "n_tubes": [
+        20.0,
+        160.0
+      ],
+      "shell_over_length": [
+        0.03,
+        0.6
+      ],
+      "baffle_over_length": [
+        0.02,
+        0.4
+      ]
+    },
+    "reference": {
+      "name": "Kern + Gnielinski film coefficients with the 1-2 exchanger energy equations (epsilon-NTU)",
+      "citation": "Kern (1950) via pinneapple_physics.closed_form.heat_exchanger.kern_shell; Gnielinski (1976) and Incropera ch. 8 for the tube side; Nagle's 1-2 model integrated in pinneapple_physics.closed_form.heat_exchanger.one_two_exchanger_ode",
+      "assumptions": [
+        "water on both sides with properties held at 45 degC (cp 4182, mu 6.5e-4, k 0.64, rho 990)",
+        "1-2 exchanger, shell fluid well mixed across each section, tube passes in counterflow",
+        "constant UA along the exchanger, no fouling, no heat loss to the surroundings",
+        "shell stream is C_min by construction, which is what the 1-2 model assumes"
+      ],
+      "implements": "analytic"
+    },
+    "tolerance": 0.02
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 600,
+    "n_geometries": 200,
+    "conditions_per_geometry": 3
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 450,
+    "n_holdout_designs": 150,
+    "n_train_geometries": 150,
+    "n_holdout_geometries": 50
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 2,
+      "n_params": 5,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201832
+  },
+  "training": {
+    "epochs": 200,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 64,
+    "loss_first": 0.1507880687713623,
+    "loss_last": 0.0018093747785314918,
+    "seconds": 607.566,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.07794685612485094,
+    "relative_l2_p90": 0.1348457950974606,
+    "max_abs_error": 0.21303629875183105,
+    "constant_field_baseline_relative_l2": 0.4311662375000235,
+    "n_designs": 150,
+    "n_points": 12000,
+    "per_design": [
+      {
+        "relative_l2": 0.04775839486627073,
+        "max_abs_error": 0.06331658363342285,
+        "mean_std": 0.008218192495405674,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.041802727268243814,
+        "max_abs_error": 0.06137096881866455,
+        "mean_std": 0.008304255083203316,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04893995722677717,
+        "max_abs_error": 0.0676465630531311,
+        "mean_std": 0.008176082745194435,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.020475415036100376,
+        "max_abs_error": 0.02968849241733551,
+        "mean_std": 0.0039710355922579765,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10011509629543791,
+        "max_abs_error": 0.06491095572710037,
+        "mean_std": 0.004801698494702578,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02768710748844071,
+        "max_abs_error": 0.02694106101989746,
+        "mean_std": 0.004227128811180592,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03496765569357041,
+        "max_abs_error": 0.03877533972263336,
+        "mean_std": 0.005460747983306646,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.035478951980127724,
+        "max_abs_error": 0.040120333433151245,
+        "mean_std": 0.0054874420166015625,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07049541652717548,
+        "max_abs_error": 0.06203573942184448,
+        "mean_std": 0.004471357446163893,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.05029310209643876,
+        "max_abs_error": 0.06203871965408325,
+        "mean_std": 0.010917543433606625,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.06631106140556745,
+        "max_abs_error": 0.08466964215040207,
+        "mean_std": 0.013034139759838581,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04117891174910076,
+        "max_abs_error": 0.06259556114673615,
+        "mean_std": 0.011764542199671268,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03889432801870601,
+        "max_abs_error": 0.04859255254268646,
+        "mean_std": 0.009013555943965912,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1769423754681554,
+        "max_abs_error": 0.19179701805114746,
+        "mean_std": 0.009563282132148743,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10246606338151022,
+        "max_abs_error": 0.12169867753982544,
+        "mean_std": 0.009923786856234074,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1129356767764616,
+        "max_abs_error": 0.09347736835479736,
+        "mean_std": 0.0038344934582710266,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08192185236026255,
+        "max_abs_error": 0.06596386432647705,
+        "mean_std": 0.0033708889968693256,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.057218202848250604,
+        "max_abs_error": 0.09479719400405884,
+        "mean_std": 0.005853251088410616,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07027814391656571,
+        "max_abs_error": 0.06349962949752808,
+        "mean_std": 0.003965356387197971,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0290774504084014,
+        "max_abs_error": 0.03925648331642151,
+        "mean_std": 0.0036733958404511213,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04519659944630404,
+        "max_abs_error": 0.053115248680114746,
+        "mean_std": 0.004224604927003384,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.05142049294522454,
+        "max_abs_error": 0.05453449487686157,
+        "mean_std": 0.00480864429846406,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.027395986516952173,
+        "max_abs_error": 0.03316053748130798,
+        "mean_std": 0.00540253147482872,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02301928319414559,
+        "max_abs_error": 0.028633028268814087,
+        "mean_std": 0.005329590756446123,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03769935496344909,
+        "max_abs_error": 0.03603041172027588,
+        "mean_std": 0.004947078879922628,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0303745189292101,
+        "max_abs_error": 0.033953964710235596,
+        "mean_std": 0.004851512610912323,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08465073845270071,
+        "max_abs_error": 0.07128828763961792,
+        "mean_std": 0.005696801468729973,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1116855633622462,
+        "max_abs_error": 0.12656915187835693,
+        "mean_std": 0.005669262260198593,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08815240710373574,
+        "max_abs_error": 0.08596950769424438,
+        "mean_std": 0.005210937932133675,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09607320917419317,
+        "max_abs_error": 0.13047748804092407,
+        "mean_std": 0.0057252394035458565,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.05238838186733708,
+        "max_abs_error": 0.09527730941772461,
+        "mean_std": 0.006321601569652557,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07411182229893215,
+        "max_abs_error": 0.06768012046813965,
+        "mean_std": 0.004373332019895315,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.045810490381938386,
+        "max_abs_error": 0.04077772796154022,
+        "mean_std": 0.003915483597666025,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.035927508808244156,
+        "max_abs_error": 0.0578138530254364,
+        "mean_std": 0.006298662628978491,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.13213772612833485,
+        "max_abs_error": 0.09951788187026978,
+        "mean_std": 0.005186071153730154,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03154734299746034,
+        "max_abs_error": 0.058034077286720276,
+        "mean_std": 0.006385778542608023,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.023701926349012054,
+        "max_abs_error": 0.03305429220199585,
+        "mean_std": 0.0037656277418136597,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09614845198408974,
+        "max_abs_error": 0.08085551857948303,
+        "mean_std": 0.004432906396687031,
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03930920208449768,
+        "max_abs_error": 0.06685277819633484,
+        "mean_std": 0.004669772926717997,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.022337861971536154,
+        "max_abs_error": 0.04461228847503662,
+        "mean_std": 0.004560062661767006,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.05210391681579219,
+        "max_abs_error": 0.07193639874458313,
+        "mean_std": 0.005951923783868551,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.06181367589713624,
+        "max_abs_error": 0.05798700451850891,
+        "mean_std": 0.005202955100685358,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.06397793246187286,
+        "max_abs_error": 0.0761132687330246,
+        "mean_std": 0.005138474982231855,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07463730799960976,
+        "max_abs_error": 0.06708937883377075,
+        "mean_std": 0.00398420263081789,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.028012768742978263,
+        "max_abs_error": 0.029818952083587646,
+        "mean_std": 0.003561765654012561,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.11362094388760693,
+        "max_abs_error": 0.09915351867675781,
+        "mean_std": 0.005593867041170597,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0996621934050356,
+        "max_abs_error": 0.08357900381088257,
+        "mean_std": 0.003931649494916201,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03413168564242822,
+        "max_abs_error": 0.03276832401752472,
+        "mean_std": 0.003293598536401987,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09392048254845226,
+        "max_abs_error": 0.11824983358383179,
+        "mean_std": 0.005330045707523823,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.11148332461255872,
+        "max_abs_error": 0.07183623313903809,
+        "mean_std": 0.005973248742520809,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07519984745386907,
+        "max_abs_error": 0.06419223546981812,
+        "mean_std": 0.005628025624901056,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0371144280152235,
+        "max_abs_error": 0.061380743980407715,
+        "mean_std": 0.008542308583855629,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04896850775031323,
+        "max_abs_error": 0.0743337869644165,
+        "mean_std": 0.008643758483231068,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03308982547633008,
+        "max_abs_error": 0.048060595989227295,
+        "mean_std": 0.008591195568442345,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02305483190063356,
+        "max_abs_error": 0.029712378978729248,
+        "mean_std": 0.003630721243098378,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1627192956038353,
+        "max_abs_error": 0.0833558440208435,
+        "mean_std": 0.0043647270649671555,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07449573599844167,
+        "max_abs_error": 0.04620705544948578,
+        "mean_std": 0.0041104950942099094,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.21952521133544317,
+        "max_abs_error": 0.14485329389572144,
+        "mean_std": 0.005933729000389576,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1967392453554665,
+        "max_abs_error": 0.13888078927993774,
+        "mean_std": 0.0033293876331299543,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1038488846941879,
+        "max_abs_error": 0.1195448487997055,
+        "mean_std": 0.005154346581548452,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1915010898437376,
+        "max_abs_error": 0.15312081575393677,
+        "mean_std": 0.006448913365602493,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.05257054170851242,
+        "max_abs_error": 0.0425264909863472,
+        "mean_std": 0.007261734455823898,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03259811338600381,
+        "max_abs_error": 0.03769099712371826,
+        "mean_std": 0.0064149112440645695,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.041823991156600314,
+        "max_abs_error": 0.04293447732925415,
+        "mean_std": 0.0033969380892813206,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.029211724620382584,
+        "max_abs_error": 0.0278308242559433,
+        "mean_std": 0.003530354704707861,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.11710783344514222,
+        "max_abs_error": 0.10096016526222229,
+        "mean_std": 0.00478189205750823,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.034483397996498716,
+        "max_abs_error": 0.06401091814041138,
+        "mean_std": 0.0042448644526302814,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.042379895703405654,
+        "max_abs_error": 0.06524252891540527,
+        "mean_std": 0.004252716898918152,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08713613516968288,
+        "max_abs_error": 0.10056504607200623,
+        "mean_std": 0.005933200474828482,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04784508897257987,
+        "max_abs_error": 0.07665625214576721,
+        "mean_std": 0.004994221962988377,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07790199275114766,
+        "max_abs_error": 0.07562494277954102,
+        "mean_std": 0.0057241772301495075,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.05509977427888327,
+        "max_abs_error": 0.0859222412109375,
+        "mean_std": 0.004834480583667755,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07958755069286387,
+        "max_abs_error": 0.10469996929168701,
+        "mean_std": 0.005601294804364443,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0624595504246132,
+        "max_abs_error": 0.07105422019958496,
+        "mean_std": 0.004879053682088852,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.049323524737416635,
+        "max_abs_error": 0.050930559635162354,
+        "mean_std": 0.004162217490375042,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.01579343252134044,
+        "max_abs_error": 0.021636366844177246,
+        "mean_std": 0.005247022025287151,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.016531990967052292,
+        "max_abs_error": 0.02318638563156128,
+        "mean_std": 0.0049307807348668575,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.020781072874534963,
+        "max_abs_error": 0.027494370937347412,
+        "mean_std": 0.004620133433490992,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.024156897429041306,
+        "max_abs_error": 0.04526270925998688,
+        "mean_std": 0.0042561981827020645,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.027554176818701964,
+        "max_abs_error": 0.037314653396606445,
+        "mean_std": 0.0036110207438468933,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04177970392836191,
+        "max_abs_error": 0.03630897402763367,
+        "mean_std": 0.0038843683432787657,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02521787220413702,
+        "max_abs_error": 0.03077802062034607,
+        "mean_std": 0.0034162618685513735,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02222845225092479,
+        "max_abs_error": 0.03260993957519531,
+        "mean_std": 0.0035751271061599255,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07452042496397986,
+        "max_abs_error": 0.12572525441646576,
+        "mean_std": 0.007416373584419489,
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1336206074870578,
+        "max_abs_error": 0.06572965532541275,
+        "mean_std": 0.004488990642130375,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.01725799195376299,
+        "max_abs_error": 0.016382664442062378,
+        "mean_std": 0.003470415947958827,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.059487880453500515,
+        "max_abs_error": 0.07731828093528748,
+        "mean_std": 0.00548997288569808,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.21218295503055096,
+        "max_abs_error": 0.21303629875183105,
+        "mean_std": 0.0059103211387991905,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.13468500755862597,
+        "max_abs_error": 0.10262429714202881,
+        "mean_std": 0.005212845746427774,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10558942806808683,
+        "max_abs_error": 0.09046286344528198,
+        "mean_std": 0.004608448129147291,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.17223044490892625,
+        "max_abs_error": 0.14106643199920654,
+        "mean_std": 0.006228282582014799,
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.15782237696812618,
+        "max_abs_error": 0.17888709902763367,
+        "mean_std": 0.008196139708161354,
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10284213605641983,
+        "max_abs_error": 0.13453370332717896,
+        "mean_std": 0.006071510724723339,
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0871462253203395,
+        "max_abs_error": 0.08273577690124512,
+        "mean_std": 0.004578684456646442,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10998131478815004,
+        "max_abs_error": 0.09461170434951782,
+        "mean_std": 0.0046379538252949715,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10447557780191678,
+        "max_abs_error": 0.1004064679145813,
+        "mean_std": 0.0050825802609324455,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1451696672840076,
+        "max_abs_error": 0.11033207178115845,
+        "mean_std": 0.0033612072002142668,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04337888607303454,
+        "max_abs_error": 0.044113874435424805,
+        "mean_std": 0.0038669377099722624,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.14970252611172236,
+        "max_abs_error": 0.11491131782531738,
+        "mean_std": 0.003589679952710867,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.07994496167462846,
+        "max_abs_error": 0.05759689211845398,
+        "mean_std": 0.0038512181490659714,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0751289606423095,
+        "max_abs_error": 0.059127360582351685,
+        "mean_std": 0.004022564273327589,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10157501826781856,
+        "max_abs_error": 0.08448877930641174,
+        "mean_std": 0.004514425061643124,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.058511099784882545,
+        "max_abs_error": 0.07869857549667358,
+        "mean_std": 0.0040929182432591915,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09205691561695567,
+        "max_abs_error": 0.06322848796844482,
+        "mean_std": 0.003491160925477743,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08627130805321055,
+        "max_abs_error": 0.06188631057739258,
+        "mean_std": 0.0034103929065167904,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.061021357419452846,
+        "max_abs_error": 0.06310543417930603,
+        "mean_std": 0.004329487215727568,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.048683118768404816,
+        "max_abs_error": 0.05462288856506348,
+        "mean_std": 0.005915775429457426,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1348457950974606,
+        "max_abs_error": 0.11782240867614746,
+        "mean_std": 0.0051630460657179356,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03079070128693535,
+        "max_abs_error": 0.03562057018280029,
+        "mean_std": 0.003846708219498396,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.038091984214750636,
+        "max_abs_error": 0.0338260680437088,
+        "mean_std": 0.0037323832511901855,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.020538147059593184,
+        "max_abs_error": 0.02144753932952881,
+        "mean_std": 0.0036176536232233047,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08842978986390863,
+        "max_abs_error": 0.06164741516113281,
+        "mean_std": 0.0036424275022000074,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.083773172943335,
+        "max_abs_error": 0.05501171946525574,
+        "mean_std": 0.004270005971193314,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09987291822942036,
+        "max_abs_error": 0.06442293524742126,
+        "mean_std": 0.0038494556210935116,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04616056074928924,
+        "max_abs_error": 0.04975786805152893,
+        "mean_std": 0.004075759090483189,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.11702889890798938,
+        "max_abs_error": 0.1030038595199585,
+        "mean_std": 0.0052365465089678764,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.11434455570442102,
+        "max_abs_error": 0.06365792453289032,
+        "mean_std": 0.0038911974988877773,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.017677380793491956,
+        "max_abs_error": 0.028201699256896973,
+        "mean_std": 0.005852611735463142,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02107715437985605,
+        "max_abs_error": 0.024924814701080322,
+        "mean_std": 0.005692504812031984,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03308479109236811,
+        "max_abs_error": 0.04057738184928894,
+        "mean_std": 0.005180821288377047,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08867796722737996,
+        "max_abs_error": 0.08429861068725586,
+        "mean_std": 0.00587935745716095,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.04783165950527407,
+        "max_abs_error": 0.07497826218605042,
+        "mean_std": 0.005132811609655619,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.06975717436561779,
+        "max_abs_error": 0.06954741477966309,
+        "mean_std": 0.0054361289367079735,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.15498204940085125,
+        "max_abs_error": 0.08796340227127075,
+        "mean_std": 0.0043595926836133,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.2639399246575982,
+        "max_abs_error": 0.14774131774902344,
+        "mean_std": 0.004875346086919308,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.3525921129715082,
+        "max_abs_error": 0.1863453984260559,
+        "mean_std": 0.004797893576323986,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.028661270129256084,
+        "max_abs_error": 0.03827023506164551,
+        "mean_std": 0.00673369225114584,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03940110056714635,
+        "max_abs_error": 0.05271655321121216,
+        "mean_std": 0.008172290399670601,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.032622805837484545,
+        "max_abs_error": 0.046195149421691895,
+        "mean_std": 0.006592969410121441,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03958977947222908,
+        "max_abs_error": 0.035826802253723145,
+        "mean_std": 0.007595340721309185,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.044223024143319044,
+        "max_abs_error": 0.04257887601852417,
+        "mean_std": 0.007729388773441315,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.022357810374296204,
+        "max_abs_error": 0.03483244776725769,
+        "mean_std": 0.006668440066277981,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.030694009081630582,
+        "max_abs_error": 0.04017558693885803,
+        "mean_std": 0.006615850143134594,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02845315446791739,
+        "max_abs_error": 0.03714132308959961,
+        "mean_std": 0.006517344154417515,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03667310146848418,
+        "max_abs_error": 0.04743126034736633,
+        "mean_std": 0.006735396571457386,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.026251601298278162,
+        "max_abs_error": 0.03177213668823242,
+        "mean_std": 0.00631602993234992,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.026630337867686205,
+        "max_abs_error": 0.037554264068603516,
+        "mean_std": 0.006512045860290527,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09004216883751817,
+        "max_abs_error": 0.10343891382217407,
+        "mean_std": 0.006972442381083965,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.06975081372466889,
+        "max_abs_error": 0.05389583110809326,
+        "mean_std": 0.004399120807647705,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1550378590157896,
+        "max_abs_error": 0.15635627508163452,
+        "mean_std": 0.006006321404129267,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09953167226331093,
+        "max_abs_error": 0.07963109016418457,
+        "mean_std": 0.00480505358427763,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03079416402068108,
+        "max_abs_error": 0.02928204834461212,
+        "mean_std": 0.0038231194484978914,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.0650404509209376,
+        "max_abs_error": 0.06672874093055725,
+        "mean_std": 0.004489109851419926,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03459662539914188,
+        "max_abs_error": 0.03757619857788086,
+        "mean_std": 0.0035638920962810516,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.03400364654251022,
+        "max_abs_error": 0.044955313205718994,
+        "mean_std": 0.0067710308358073235,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.08760060112518081,
+        "max_abs_error": 0.09300920367240906,
+        "mean_std": 0.008125636726617813,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.02599314807160397,
+        "max_abs_error": 0.0315389484167099,
+        "mean_std": 0.006437512580305338,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.10977558675789069,
+        "max_abs_error": 0.1141778826713562,
+        "mean_std": 0.009281962178647518,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.09422582614157528,
+        "max_abs_error": 0.07373601198196411,
+        "mean_std": 0.00702759250998497,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.1356014060669888,
+        "max_abs_error": 0.09735982120037079,
+        "mean_std": 0.008242483250796795,
+        "ood": false,
+        "ood_score": 0.0
+      }
+    ],
+    "tolerance": 0.02,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.005441364366561174,
+    "p95_std": 0.011109051294624805,
+    "max_std": 0.022645197808742523,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 300-tube shell, twice the trained tube count",
+        "ood": true,
+        "ood_score": 0.0,
+        "reasons": [
+          "operating parameters [2] outside the trained range"
+        ]
+      },
+      {
+        "name": "a 9 m exchanger, 2.6x the trained length",
+        "ood": true,
+        "ood_score": 0.0,
+        "reasons": [
+          "operating parameters [3, 4] outside the trained range"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 2",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 3",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 4",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 5",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 6",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 7",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 8",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 9",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 10",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 11",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 12",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 13",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 14",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 15",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 16",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 17",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 18",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 19",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 20",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 21",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 22",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 23",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 24",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 25",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 26",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 27",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 28",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 29",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 30",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 31",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 32",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 33",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 34",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 35",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 36",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 37",
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 38",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 39",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 40",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 41",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 42",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 43",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 44",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 45",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 46",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 47",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 48",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 49",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 50",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 51",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 52",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 53",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 54",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 55",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 56",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 57",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 58",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 59",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 60",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 61",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 62",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 63",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 64",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 65",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 66",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 67",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 68",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 69",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 70",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 71",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 72",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 73",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 74",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 75",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 76",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 77",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 78",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 79",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 80",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 81",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 82",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 83",
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 84",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 85",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 86",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 87",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 88",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 89",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 90",
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 91",
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 92",
+        "ood": true,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 93",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 94",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 95",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 96",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 97",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 98",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 99",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 100",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 101",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 102",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 103",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 104",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 105",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 106",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 107",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 108",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 109",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 110",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 111",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 112",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 113",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 114",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 115",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 116",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 117",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 118",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 119",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 120",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 121",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 122",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 123",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 124",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 125",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 126",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 127",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 128",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 129",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 130",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 131",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 132",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 133",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 134",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 135",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 136",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 137",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 138",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 139",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 140",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 141",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 142",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 143",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 144",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 145",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 146",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 147",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 148",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 149",
+        "ood": false,
+        "ood_score": 0.0
+      }
+    ],
+    "probes_flagged": 2,
+    "probes_total": 2,
+    "held_out_flagged": 5,
+    "held_out_ood_score_max": 0.0,
+    "held_out_ood_score_median": 0.0,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.07795 on 150 designs of 12000 points, tolerance 0.02",
+      "constant-field baseline on the same designs: 0.4312",
+      "OOD: 2/2 probes outside the family flagged, 5/150 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: analytic \u2014 Kern + Gnielinski film coefficients with the 1-2 exchanger energy equations (epsilon-NTU), with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

@@ -24,19 +24,20 @@ from pinneapple_physics.pde_environment.presets.industry import (
 )
 from pinneapple_physics.pde_environment.spec import PDETermSpec, ProblemSpec
 from pinneapple_simulation.numerical_solvers.darcy import Darcy2DFVMSolver
-from pinneapple_simulation.numerical_solvers.heat1d import Heat1DSolver
 from pinneapple_simulation.numerical_solvers.elliptic3d import (
     Elliptic3D,
     Elliptic3DFDMSolver,
     solve_elliptic_3d,
 )
 from pinneapple_simulation.numerical_solvers.fdm3d import FDM3DSolver, Wave3DFDMSolver
+from pinneapple_simulation.numerical_solvers.heat1d import Heat1DSolver
 from pinneapple_simulation.numerical_solvers.reaction_diffusion import (
     ReactionDiffusion,
     ReactionDiffusion1DSolver,
     ReactionDiffusionNDSolver,
 )
 from pinneapple_simulation.numerical_solvers.solid_fem import SolidFEMSpecSolver
+from pinneapple_simulation.numerical_solvers.wave2d import Wave2DFDMSolver
 
 
 def _hot_cube(**params):
@@ -394,3 +395,67 @@ def test_1d_heat_does_not_claim_reaction_diffusion():
     assert [d["family"] for d in documented_families("reaction_diffusion", 1)] == ["reaction_diffusion1d"]
     with pytest.raises(ValueError, match="heat/diffusion"):
         Heat1DSolver().solve_from_spec(_heat1d(kind="wave"))
+
+
+# ------------------------------------------------------------------------------ 2-D linear elasticity
+
+
+def _elasticity_2d(**params):
+    merged = {"E": 210e9, "nu": 0.3}
+    merged.update(params)
+    return ProblemSpec(name="elasticity2d", dim=2, coords=("x", "y"), fields=("ux", "uy"),
+                       pde=PDETermSpec(kind="linear_elasticity", fields=("ux", "uy"), coords=("x", "y"),
+                                       params=merged),
+                       domain_bounds={"x": (0.0, 1.0), "y": (0.0, 1.0)})
+
+
+def test_a_2d_elasticity_spec_is_solved_by_the_solver_its_scope_names():
+    from pinneapple_simulation.numerical_solvers.registry import SolverRegistry
+
+    specification = _elasticity_2d()
+    assert [d["family"] for d in documented_families("linear_elasticity", 2)] == ["fem"]
+    assert select_solver_family(specification).recommended_family == "fem"
+    out = SolverRegistry.build("fem").solve(specification)
+    assert out.extras["method"] == "fem_plane_stress"       # the model plane stress is the default
+    assert tuple(out.extras["ux"].shape) == tuple(out.extras["uy"].shape)
+    # 3-D elasticity keeps its own family, and the 2-D claim cannot leak into it
+    assert [d["family"] for d in documented_families("linear_elasticity", 3)] == ["solid_fem"]
+
+
+def test_fem_does_not_claim_nonlinear_elasticity():
+    # "nonlinear_elasticity" contains "linear_elasticity": the exclusion is what keeps the claim honest, because
+    # the assembly would otherwise fall through to Poisson and answer a different problem
+    assert documented_families("nonlinear_elasticity", 2) == []
+    assert [d["family"] for d in documented_families("axisymmetric_linear_elasticity", 2)] == ["fem"]
+
+
+# -------------------------------------------------------------------------------------- 2-D waves
+
+
+def _wave2d(**params):
+    merged = {"c": 1.0, "nx": 41, "ny": 41, "nt": 60, "u0": 1.0}
+    merged.update(params)
+    return ProblemSpec(name="wave2d", dim=2, coords=("x", "y"), fields=("u",),
+                       pde=PDETermSpec(kind="wave", fields=("u",), coords=("x", "y"), params=merged),
+                       domain_bounds={"x": (0.0, 1.0), "y": (0.0, 1.0)})
+
+
+def test_a_2d_wave_spec_is_solved_by_the_solver_its_scope_names():
+    specification = _wave2d()
+    assert [d["family"] for d in documented_families("wave", 2)] == ["wave2d_fdm"]
+    assert select_solver_family(specification).recommended_family == "wave2d_fdm"
+    out = Wave2DFDMSolver().solve_from_spec(specification)
+    field = out.result.numpy()
+    assert field.shape == (41, 41)
+    # the four walls are held at zero and something happened inside
+    assert float(np.max(np.abs(field[0, :]))) == pytest.approx(0.0)
+    assert float(np.max(np.abs(field[:, -1]))) == pytest.approx(0.0)
+    assert float(np.max(np.abs(field))) > 0.0
+    # 1-D waves stay with fdm, 3-D with wave3d_fdm: the entry is dims={2}
+    assert [d["family"] for d in documented_families("wave", 1)] == ["fdm"]
+    assert [d["family"] for d in documented_families("wave", 3)] == ["wave3d_fdm"]
+
+
+def test_the_2d_wave_solver_refuses_a_kind_it_is_not():
+    with pytest.raises(ValueError, match="wave/acoustic"):
+        Wave2DFDMSolver().solve_from_spec(dc.replace(_wave2d(), pde=dc.replace(_wave2d().pde, kind="heat_equation")))

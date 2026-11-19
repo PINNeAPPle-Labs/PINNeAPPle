@@ -404,6 +404,15 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
             "ReactionDiffusionNDSolver.solve_from_spec is its ProblemSpec face."
         ),
     },
+    "wave2d_fdm": {
+        "kind_substrings": ["wave", "acoustic"],
+        "dims": {2},
+        "source": (
+            "wave2d.py Wave2D docstring: '2-D scalar wave equation solver: d2u/dt2 = c^2 lap(u) + f(x, y, t)', "
+            "Stormer-Verlet in time and second-order central differences in space, every wall held at zero; "
+            "Wave2DFDMSolver.solve_from_spec is its ProblemSpec face."
+        ),
+    },
     "wave3d_fdm": {
         "kind_substrings": ["wave", "acoustic"],
         "dims": {3},
@@ -434,12 +443,18 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
         ),
     },
     "fem": {
-        "kind_substrings": ["poisson", "laplace", "helmholtz", "axisymmetric_linear_elasticity"],
+        # "linear_elasticity" as a substring also covers axisymmetric_linear_elasticity and the presets'
+        # linear_elasticity_plane_stress/_strain; "nonlinear_elasticity" contains it too and is NOT what this
+        # assembly does -- it would silently fall through to Poisson -- so nonlinear is excluded by name
+        "kind_substrings": ["poisson", "laplace", "helmholtz", "linear_elasticity", "plane_stress", "plane_strain"],
+        "not_kind_substrings": ["nonlinear"],
         "dims": {2},
         "source": (
-            "fem.py FEMSolver docstring + solve_from_spec: 'Supported PDE kinds: "
-            "poisson / laplace, helmholtz, axisymmetric_linear_elasticity'; grid is "
-            "always a 2D (nx, ny) structured Q1 mesh."
+            "fem.py FEMSolver docstring: 'poisson / laplace, helmholtz, axisymmetric_linear_elasticity, "
+            "linear_elasticity / linear_elasticity_2d / elasticity / plane_stress / plane_strain ... at dim=2 "
+            "only -- two-field (ux, uy) plane stress or plane strain, Q1 quadrilaterals'; grid is always a 2D "
+            "(nx, ny) structured Q1 mesh, so the 2-D elasticity case lands here while a 3-D elasticity spec "
+            "still falls through to Poisson, which is why dims stays {2}."
         ),
     },
     "fdm": {
@@ -514,8 +529,8 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # numerical-accuracy claim this module can actually verify -- see the
 # docstring below.
 _FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "wave3d_fdm", "darcy2d_fvm",
-                            "elliptic3d_fdm", "reaction_diffusion1d", "reaction_diffusion_nd", "heat1d_fdm", "fdm",
-                            "fenics", "openfoam"]
+                            "elliptic3d_fdm", "wave2d_fdm", "reaction_diffusion1d", "reaction_diffusion_nd",
+                            "heat1d_fdm", "fdm", "fenics", "openfoam"]
 
 
 def select_solver_family(

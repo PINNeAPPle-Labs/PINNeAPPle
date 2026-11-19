@@ -503,12 +503,27 @@ def test_the_family_comes_from_the_documented_scope_not_from_what_is_installed()
 
 
 def test_a_gap_in_the_documented_scope_is_not_blamed_on_the_machine():
-    # 3-D Burgers: every Burgers solver in the library documents one or two dimensions, so the 3-D case is a gap
-    plan = advise("equação de Burgers 3D em um duto, tenho o STEP, sem malha", llm=False)
+    # Darcy in 1-D: the library's Darcy solver documents the unit square only, so this case is a gap in the
+    # documented scope rather than a missing installation
+    plan = advise("fluxo de Darcy 1D em uma coluna porosa, sem malha", llm=False)
     decision = next(d for d in plan.decisions if d.topic == "solver")
     assert decision.choice in ("pinn", "xpinn")
     assert "não desta máquina" in decision.why["pt"]
     assert "instalada" not in decision.why["pt"]
+    assert decision.values["classical_by_nature"] is False
+
+
+def test_a_pinn_by_nature_is_not_reported_as_a_hole_in_the_scope():
+    # SIR and Black-Scholes have their classical answer outside the mesh families (an ODE integration and the pricing
+    # preset with its closed form), so the plan says what that answer is instead of blaming the documentation
+    for text, family in (("modelo SIR de epidemia com 300 simulações variando beta e gamma", "sir"),
+                         ("precificação de uma opção por Black-Scholes, quero as gregas", "black_scholes")):
+        plan = advise(text, llm=False)
+        decision = next(d for d in plan.decisions if d.topic == "solver")
+        assert decision.values["family"] == family, (text, decision.values["family"])
+        assert decision.values["classical_by_nature"] is True
+        assert "lacuna" not in decision.why["pt"] and "não desta máquina" not in decision.why["pt"]
+        assert "pinneapple_physics.biology" in decision.why["pt"] or "black_scholes_1d" in decision.why["pt"]
 
 
 def test_every_word_the_plan_shows_is_written_in_both_languages():

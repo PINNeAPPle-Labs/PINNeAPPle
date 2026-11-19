@@ -385,6 +385,16 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
             "is its ProblemSpec face, and it refuses a time-dependent end value by name."
         ),
     },
+    "elliptic1d_fdm": {
+        "kind_substrings": ["poisson", "laplace", "helmholtz"],
+        "dims": {1},
+        "source": (
+            "elliptic1d.py Elliptic1D docstring: '1-D elliptic problems on a line: u'' + q u = rhs with the two "
+            "ends held', three-point central differences and a direct tridiagonal solve; Elliptic1DFDMSolver."
+            "solve_from_spec is its ProblemSpec face, and tests/test_solver_scope.py holds the parabola and the "
+            "second-order Helmholtz convergence."
+        ),
+    },
     "elliptic3d_fdm": {
         "kind_substrings": ["poisson", "laplace", "helmholtz"],
         "dims": {3},
@@ -396,12 +406,13 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
         ),
     },
     "reaction_diffusion_nd": {
-        "kind_substrings": ["reaction"],
+        "kind_substrings": ["reaction", "fisher"],
         "dims": {2, 3},
         "source": (
             "reaction_diffusion.py ReactionDiffusion docstring: 'Reaction-diffusion u_t = D lap(u) + R(u) on a "
-            "periodic box, in one, two or three dimensions, with the same ETDRK4 scheme and 2/3 dealiasing'; "
-            "ReactionDiffusionNDSolver.solve_from_spec is its ProblemSpec face."
+            "periodic box, in one, two or three dimensions, with the same ETDRK4 scheme and 2/3 dealiasing', "
+            "reactions 'allen_cahn', 'fisher' and 'none'; ReactionDiffusionNDSolver.solve_from_spec is its "
+            "ProblemSpec face."
         ),
     },
     "wave2d_fdm": {
@@ -433,13 +444,14 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
         ),
     },
     "reaction_diffusion1d": {
-        "kind_substrings": ["reaction"],
+        "kind_substrings": ["reaction", "fisher"],
         "dims": {1},
         "source": (
             "reaction_diffusion.py docstring: 'One-dimensional reaction-diffusion on a periodic interval, "
-            "u_t = D u_xx + R(u), with the ETDRK4 scheme', reactions 'allen_cahn' and 'fisher', checked against "
-            "the travelling-front speed and the exact tanh interface profile in tests/test_validation_gallery.py; "
-            "ReactionDiffusion1DSolver.solve_from_spec is its ProblemSpec face."
+            "u_t = D u_xx + R(u), with the ETDRK4 scheme', reactions 'allen_cahn' and 'fisher' (a spec whose kind "
+            "names Fisher-KPP takes the 'fisher' reaction), checked against the travelling-front speed and the exact "
+            "tanh interface profile in tests/test_validation_gallery.py; ReactionDiffusion1DSolver.solve_from_spec "
+            "is its ProblemSpec face."
         ),
     },
     "fem": {
@@ -530,7 +542,8 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # numerical-accuracy claim this module can actually verify -- see the
 # docstring below.
 _FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "wave3d_fdm", "darcy2d_fvm",
-                            "elliptic3d_fdm", "wave2d_fdm", "reaction_diffusion1d", "reaction_diffusion_nd",
+                            "elliptic3d_fdm", "elliptic1d_fdm", "wave2d_fdm", "reaction_diffusion1d",
+                            "reaction_diffusion_nd",
                             "heat1d_fdm", "fdm", "fenics", "openfoam"]
 
 

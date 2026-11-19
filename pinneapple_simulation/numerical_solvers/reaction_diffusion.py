@@ -158,12 +158,12 @@ class ReactionDiffusion1DSolver(SolverBase):
 
     def solve_from_spec(self, spec) -> SolverOutput:
         kind = str(getattr(spec.pde, "kind", "")).lower().replace("-", "_").replace(" ", "_")
-        if "reaction" not in kind:
-            raise ValueError(f"reaction_diffusion1d solves reaction-diffusion, and the spec's kind is '{kind}'.")
+        if "reaction" not in kind and "fisher" not in kind:
+            raise ValueError(f"reaction_diffusion1d solves reaction-diffusion (or a Fisher-KPP front), and the "
+                             f"spec's kind is '{kind}'.")
         if int(getattr(spec, "dim", 1)) != 1:
             raise ValueError(f"reaction_diffusion1d documents a 1-D periodic interval; the spec is "
-                             f"{getattr(spec, 'dim', '?')}-D. Nothing in the library documents reaction-diffusion "
-                             f"in 2-D or 3-D.")
+                             f"{getattr(spec, 'dim', '?')}-D. The 2-D and 3-D case is reaction_diffusion_nd.")
         conditions = tuple(getattr(spec, "conditions", ()) or ())
         if conditions:
             raise ValueError(
@@ -171,7 +171,7 @@ class ReactionDiffusion1DSolver(SolverBase):
                 f"carries {sorted({str(getattr(c, 'kind', '?')) for c in conditions})}.")
         params = dict(getattr(spec.pde, "params", {}) or {})
         system = ReactionDiffusion1D(
-            reaction=str(params.get("reaction", "allen_cahn")),
+            reaction=str(params.get("reaction") or ("fisher" if "fisher" in kind else "allen_cahn")),
             diffusion=float(params.get("diffusion", 1e-3)),
             n=int(params.get("n", 128)),
             length=float(params.get("length", 2.0)),
@@ -213,8 +213,9 @@ class ReactionDiffusionNDSolver(SolverBase):
 
     def solve_from_spec(self, spec) -> SolverOutput:
         kind = str(getattr(spec.pde, "kind", "")).lower().replace("-", "_").replace(" ", "_")
-        if "reaction" not in kind:
-            raise ValueError(f"reaction_diffusion_nd solves reaction-diffusion, and the spec's kind is '{kind}'.")
+        if "reaction" not in kind and "fisher" not in kind:
+            raise ValueError(f"reaction_diffusion_nd solves reaction-diffusion (or a Fisher-KPP front), and the "
+                             f"spec's kind is '{kind}'.")
         dim = int(getattr(spec, "dim", 2))
         if dim not in (1, 2, 3):
             raise ValueError(f"reaction_diffusion_nd is 1-, 2- or 3-D; the spec is {dim}-D.")
@@ -230,7 +231,7 @@ class ReactionDiffusionNDSolver(SolverBase):
                       for a in axes)
         n = int(params.get("n", 64))
         system = ReactionDiffusion(
-            reaction=str(params.get("reaction", "allen_cahn")),
+            reaction=str(params.get("reaction") or ("fisher" if "fisher" in kind else "allen_cahn")),
             diffusion=float(params.get("diffusion", 1e-3)),
             shape=(n,) * dim,
             length=sides,

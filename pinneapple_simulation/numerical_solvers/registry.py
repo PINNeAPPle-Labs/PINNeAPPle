@@ -105,7 +105,7 @@ class SolverRegistry:
 _ALL_SOLVER_MODULES = [
     "fft", "hilbert_huang", "eemd", "ceemdan", "vmd", "wavelet", "sst",
     "ssa", "stl",
-    "fdm", "fem", "fvm", "lbm", "spectral", "jax_cfd_solver", "fdm3d", "solid_fem", "elliptic3d", "heat1d", "wave2d",
+    "fdm", "fem", "fvm", "lbm", "spectral", "jax_cfd_solver", "fdm3d", "solid_fem", "elliptic3d", "elliptic1d", "heat1d", "wave2d",
     "sph", "isph", "dfsph",
     "meshfree",
     "xtfc_ivp", "eddy_current_fdm", "immersed_boundary_fdm", "beam_bvp_fdm", "darcy",

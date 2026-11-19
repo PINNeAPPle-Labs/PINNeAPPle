@@ -1,0 +1,65 @@
+name: LPM integration
+on:
+  pull_request:
+    paths:
+      - 'pinneapple/lpm/**'
+      - 'tests/test_lpm_schema.py'
+      - 'examples/lpm/**'
+      - '.github/workflows/lpm-integration.yml'
+  workflow_dispatch:
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]' || python -m pip install -e .
+          python -m pip install pytest
+      - name: Compile LPM sources
+        run: python -m compileall -q pinneapple/lpm
+      - name: Run schema tests
+        run: python -m pytest -q tests/test_lpm_schema.py
+      - name: Prepare all reference cases without solvers
+        run: |
+          for config in examples/lpm/*.json; do
+            name="$(basename "$config" .json)"
+            python -m pinneapple.lpm "$config" --out "$RUNNER_TEMP/$name" --stage prepare
+          done
+      - name: Verify 240 prepared cases
+        run: |
+          python - <<'PY'
+          import glob,json,os
+          files=glob.glob(os.environ['RUNNER_TEMP']+'/*/manifest.json')
+          assert len(files)==10,files
+          assert sum(len(json.load(open(f))['records']) for f in files)==240
+          PY
+  solver-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container:
+      image: ubuntu:24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OpenFOAM and Python
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-venv openfoam
+      - name: Run one OpenFOAM case end-to-end
+        run: |
+          python3 -m venv /tmp/lpm-venv
+          /tmp/lpm-venv/bin/pip install numpy torch
+          /tmp/lpm-venv/bin/python - <<'PY'
+          from pinneapple.lpm.schema import Campaign
+          from pinneapple.lpm.openfoam import run
+          c=Campaign(name="smoke",domain="cfd",solver="openfoam",family="cavity2d",
+                     samples=3,numerical={"nx":8,"ny":8,"end_time":0.02,"delta_t":0.002})
+          result=run("/tmp/lpm-openfoam-smoke",{"lid_speed":0.1,"nu":0.02},c)
+          assert result["x"].shape==(64,6)
+          assert result["y"].shape==(64,3)
+          PY

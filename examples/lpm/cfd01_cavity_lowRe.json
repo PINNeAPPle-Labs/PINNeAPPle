@@ -1,0 +1,55 @@
+{
+  "name": "cfd01_cavity_lowRe",
+  "domain": "cfd",
+  "solver": "openfoam",
+  "family": "cavity2d",
+  "samples": 24,
+  "seed": 42,
+  "split": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "geometry": {
+    "width": [
+      0.8,
+      1.2
+    ],
+    "height": [
+      0.8,
+      1.2
+    ]
+  },
+  "parameters": {
+    "lid_speed": [
+      0.1,
+      0.4
+    ],
+    "nu": [
+      0.02,
+      0.06
+    ]
+  },
+  "numerical": {
+    "nx": 24,
+    "ny": 24,
+    "delta_t": 0.002,
+    "end_time": 1,
+    "timeout": 3600
+  },
+  "training": {
+    "model": "mlp",
+    "width": 48,
+    "depth": 3,
+    "steps": 2,
+    "epochs": 100,
+    "batch_size": 4,
+    "patience": 20,
+    "learning_rate": 0.001,
+    "device": "cpu"
+  },
+  "gates": {
+    "max_relative_l2": 0.5,
+    "require_veriphysics": true
+  }
+}

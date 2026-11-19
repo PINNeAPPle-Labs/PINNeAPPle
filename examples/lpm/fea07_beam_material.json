@@ -1,0 +1,62 @@
+{
+  "name": "fea07_beam_material",
+  "domain": "structural",
+  "solver": "calculix",
+  "family": "cantilever3d",
+  "samples": 24,
+  "seed": 42,
+  "split": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "geometry": {
+    "length": [
+      0.7,
+      1.4
+    ],
+    "width": [
+      0.09,
+      0.11
+    ],
+    "height": [
+      0.08,
+      0.12
+    ]
+  },
+  "parameters": {
+    "force": [
+      -1300,
+      -800
+    ],
+    "young_modulus": [
+      70000000000,
+      210000000000
+    ],
+    "poisson": [
+      0.25,
+      0.34
+    ]
+  },
+  "numerical": {
+    "nx": 10,
+    "ny": 3,
+    "nz": 3,
+    "timeout": 3600
+  },
+  "training": {
+    "model": "graph",
+    "width": 48,
+    "depth": 3,
+    "steps": 2,
+    "epochs": 100,
+    "batch_size": 4,
+    "patience": 20,
+    "learning_rate": 0.001,
+    "device": "cpu"
+  },
+  "gates": {
+    "max_relative_l2": 0.5,
+    "require_veriphysics": true
+  }
+}

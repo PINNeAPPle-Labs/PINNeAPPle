@@ -373,6 +373,25 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
             "ProblemSpec face and refuses any wall condition other than zero by name."
         ),
     },
+    "elliptic3d_fdm": {
+        "kind_substrings": ["poisson", "laplace", "helmholtz"],
+        "dims": {3},
+        "source": (
+            "elliptic3d.py Elliptic3D docstring: '3-D elliptic problems on a structured grid: lap(u) + q u = rhs "
+            "with Dirichlet walls', seven-point central differences with unequal spacing and red-black SOR; "
+            "Elliptic3DFDMSolver.solve_from_spec is its ProblemSpec face. Second-order convergence against a "
+            "manufactured solution is in tests/test_solver_scope.py."
+        ),
+    },
+    "reaction_diffusion_nd": {
+        "kind_substrings": ["reaction"],
+        "dims": {2, 3},
+        "source": (
+            "reaction_diffusion.py ReactionDiffusion docstring: 'Reaction-diffusion u_t = D lap(u) + R(u) on a "
+            "periodic box, in one, two or three dimensions, with the same ETDRK4 scheme and 2/3 dealiasing'; "
+            "ReactionDiffusionNDSolver.solve_from_spec is its ProblemSpec face."
+        ),
+    },
     "wave3d_fdm": {
         "kind_substrings": ["wave", "acoustic"],
         "dims": {3},
@@ -483,7 +502,8 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # numerical-accuracy claim this module can actually verify -- see the
 # docstring below.
 _FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "wave3d_fdm", "darcy2d_fvm",
-                            "reaction_diffusion1d", "fdm", "fenics", "openfoam"]
+                            "elliptic3d_fdm", "reaction_diffusion1d", "reaction_diffusion_nd", "fdm", "fenics",
+                            "openfoam"]
 
 
 def select_solver_family(

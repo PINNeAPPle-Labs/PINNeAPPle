@@ -503,8 +503,8 @@ def test_the_family_comes_from_the_documented_scope_not_from_what_is_installed()
 
 
 def test_a_gap_in_the_documented_scope_is_not_blamed_on_the_machine():
-    # 2-D reaction-diffusion: the library documents the 1-D periodic problem only, which is a gap in the scope
-    plan = advise("reação-difusão 2D em um reator de superfície, tenho a malha", llm=False)
+    # 3-D Burgers: every Burgers solver in the library documents one or two dimensions, so the 3-D case is a gap
+    plan = advise("equação de Burgers 3D em um duto, tenho o STEP, sem malha", llm=False)
     decision = next(d for d in plan.decisions if d.topic == "solver")
     assert decision.choice in ("pinn", "xpinn")
     assert "não desta máquina" in decision.why["pt"]

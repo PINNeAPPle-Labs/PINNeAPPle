@@ -146,11 +146,22 @@ halving the grid moved the tip displacement by 55 %. Conforming P2 tetrahedra on
 leaves usable models if the night gets cut short.
 
 ```bash
-./benchmarks/run_lpm_campaign.sh                      # plan, then start it detached, output in ~/lpm-campaign
-./benchmarks/run_lpm_campaign.sh --plan                # the plan only
-./benchmarks/run_lpm_campaign.sh --stage dataset       # the data, all nine
+./benchmarks/run_lpm_campaign.sh                       # plan, then start it detached, output in ~/lpm-campaign
+./benchmarks/run_lpm_campaign.sh --list                # the menu: what each design space predicts and how big it is
+./benchmarks/run_lpm_campaign.sh --status              # what already exists, and what each model scored
+./benchmarks/run_lpm_campaign.sh --plan                # the plan and the cost estimate, nothing starts
+./benchmarks/run_lpm_campaign.sh --stage dataset       # the data only
 ./benchmarks/run_lpm_campaign.sh --stage train         # the fits only
+./benchmarks/run_lpm_campaign.sh --families pp_wing3d --geometries 800 --epochs 900   # one family, bigger
 ```
+
+The sizes are **data**, in `benchmarks/lpm_recipes.json`: `full` is the campaign, `smoke` is the wiring check. Change
+the file to change the campaign, or override it for the families of one run with `--geometries`, `--conditions`,
+`--epochs` and `--width` — which is what you want when a family turns out to be the one worth scaling.
+
+`--status` is the one to run before and after a night: it reads each `manifest.json` and `card.json` under `--out` and
+prints, per family, the designs written, the held-out error, the constant-field baseline and the OOD probes. A model at
+or above its baseline has not learnt the design space, and no amount of watching it train changes that.
 
 or the module directly, if you would rather keep the log where you choose:
 

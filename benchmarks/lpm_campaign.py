@@ -34,44 +34,79 @@ import traceback
 from pathlib import Path
 from typing import Any
 
-#: measured seconds per design for one reference evaluation (see the module docstring)
-FIELD_SECONDS = {"pp_fin": 0.02, "pp_airfoil": 0.02, "pp_nozzle": 0.01, "pp_exchanger": 0.02,
-                 "pp_bracket": 0.06, "pp_airfoil_rans": 0.05, "pp_wing3d": 0.06, "pp_nozzle3d": 0.02,
-                 "pp_fin3d": 1.6, "pp_exchanger3d": 0.7, "pp_bracket3d": 15.0}
-#: seconds of training per design-epoch at width 128, from the measured 3-D wing run (72 designs, 400 epochs, 518 s)
-TRAIN_SECONDS_PER_DESIGN_EPOCH = 518.0 / (72 * 400)
+#: the recipes live in ``benchmarks/lpm_recipes.json``: the campaign's sizes are data, so changing how big a design
+#: space is does not mean editing this file
+RECIPES_FILE = Path(__file__).with_name("lpm_recipes.json")
 
+
+def _recipes() -> dict[str, Any]:
+    return json.loads(RECIPES_FILE.read_text(encoding="utf-8"))
+
+
+_RECIPES = _recipes()
+#: measured seconds per design for one reference evaluation (see the module docstring)
+FIELD_SECONDS: dict[str, float] = {k: float(v) for k, v in _RECIPES["field_seconds"].items()}
+#: seconds of training per design-epoch at width 128, from the measured 3-D wing run (72 designs, 400 epochs, 518 s)
+TRAIN_SECONDS_PER_DESIGN_EPOCH = float(_RECIPES["train_seconds_per_design_epoch"])
 #: the campaign's own recipes. ``full`` is what a dataset worth training on looks like; ``smoke`` is the wiring.
-RECIPES: dict[str, dict[str, dict[str, Any]]] = {
-    # 2-D, analytic or fast FEM references: bodies are cheap, so the campaign can afford many
-    "pp_fin": {"full": {"geometries": 400, "conditions": 3, "epochs": 600, "width": 128},
-               "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_airfoil": {"full": {"geometries": 400, "conditions": 4, "epochs": 600, "width": 128},
-                   "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_nozzle": {"full": {"geometries": 400, "conditions": 4, "epochs": 600, "width": 128},
-                  "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_exchanger": {"full": {"geometries": 600, "conditions": 3, "epochs": 600, "width": 128},
-                     "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_bracket": {"full": {"geometries": 200, "conditions": 2, "epochs": 600, "width": 128},
-                   "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    # the published RANS campaign: the designs are the runs its authors published, so the counts are not ours to set
-    "pp_airfoil_rans": {"full": {"geometries": None, "conditions": None, "epochs": 700, "width": 128},
-                        "smoke": {"geometries": None, "conditions": None, "epochs": 5, "width": 32}},
-    # 3-D: the wing is cheap (a lattice and a section solve), the two solid bodies are solver-backed
-    "pp_wing3d": {"full": {"geometries": 400, "conditions": 3, "epochs": 600, "width": 128},
-                  "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_nozzle3d": {"full": {"geometries": 400, "conditions": 4, "epochs": 600, "width": 128},
-                    "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_exchanger3d": {"full": {"geometries": 250, "conditions": 2, "epochs": 600, "width": 128},
-                       "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_fin3d": {"full": {"geometries": 300, "conditions": 2, "epochs": 600, "width": 128},
-                 "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-    "pp_bracket3d": {"full": {"geometries": 150, "conditions": 1, "epochs": 600, "width": 128},
-                     "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-}
+RECIPES: dict[str, dict[str, dict[str, Any]]] = _RECIPES["families"]
 #: the order they run in: the cheap families first, so a night that gets cut short still leaves usable models
-ORDER = ("pp_fin", "pp_airfoil", "pp_nozzle", "pp_exchanger", "pp_bracket", "pp_airfoil_rans",
-         "pp_wing3d", "pp_nozzle3d", "pp_fin3d", "pp_exchanger3d", "pp_bracket3d")
+ORDER: tuple[str, ...] = tuple(_RECIPES["order"])
+
+
+def override(recipe: dict[str, Any], args: Any) -> dict[str, Any]:
+    """Apply the command-line size overrides, so one family can be run bigger without touching the recipes file."""
+    out = dict(recipe)
+    for key in ("geometries", "conditions", "epochs", "width"):
+        value = getattr(args, key, None)
+        if value is not None and out.get(key) is not None:
+            out[key] = value
+    return out
+
+
+def catalogue(selected: list[str], scale: str, out: Path) -> None:
+    """Every design space, what it predicts and how big the recipe is: the menu, before anything runs."""
+    fams = families_by_name()
+    print(f"{'family':<18}{'dim':>4} {'fields':<32}{'reference':<10}{'bodies':>10}{'conds':>7}{'epochs':>8}",
+          flush=True)
+    for name in selected:
+        fam, recipe = fams[name], RECIPES[name][scale]
+        fields = ", ".join(fam.field_names)
+        bodies = "published" if recipe["geometries"] is None else str(recipe["geometries"])
+        conditions = "-" if recipe["conditions"] is None else str(recipe["conditions"])
+        print(f"{name:<18}{fam.dim:>4} {fields[:31]:<32}{fam.reference.implements:<10}"
+              f"{bodies:>10}{conditions:>7}{recipe['epochs']:>8}", flush=True)
+
+
+def status(selected: list[str], out: Path) -> int:
+    """What already exists under ``--out``: the designs written and the held-out number each model reached."""
+    done = 0
+    print(f"{'family':<18}{'designs':>8}{'bodies':>8}{'held-out':>10}{'baseline':>10}{'OOD probes':>12}"
+          f"{'epochs':>8}  written", flush=True)
+    for name in selected:
+        manifest = out / name / "dataset" / "manifest.json"
+        card = out / name / "model" / "card.json"
+        designs = bodies = held = baseline = probes = epochs = "-"
+        created = ""
+        if manifest.is_file():
+            m = json.loads(manifest.read_text(encoding="utf-8"))
+            designs, bodies, created = str(m.get("n_designs", "-")), str(m.get("n_geometries", "-")),                 str(m.get("created_at", ""))[:16]
+        if card.is_file():
+            c = json.loads(card.read_text(encoding="utf-8"))
+            held_out = c.get("held_out", {})
+            held = _fmt(held_out.get("relative_l2"))
+            baseline = _fmt(held_out.get("constant_field_baseline_relative_l2"))
+            ood = c.get("ood", {})
+            probes = f"{ood.get('probes_flagged', '-')}/{ood.get('probes_total', '-')}"
+            epochs = str(c.get("training", {}).get("epochs", "-"))
+            created = str(c.get("created_at", created))[:16]
+            done += 1
+        print(f"{name:<18}{designs:>8}{bodies:>8}{held:>10}{baseline:>10}{probes:>12}{epochs:>8}  {created}",
+              flush=True)
+    print(f"\n{done} of {len(selected)} fitted. held-out is the relative L2 on bodies held out by geometry; baseline is "
+          f"predicting the training-average field, and a model at or above it has not learnt the design space.",
+          flush=True)
+    return 0
 
 
 def families_by_name() -> dict[str, Any]:
@@ -107,10 +142,11 @@ def estimate(name: str, recipe: dict[str, Any], stage: str) -> dict[str, Any]:
             "dataset_s": field_s, "train_s": train_s, "total_s": total}
 
 
-def plan(selected: list[str], stage: str, out: Path, force: bool, scale: str) -> list[dict[str, Any]]:
+def plan(selected: list[str], stage: str, out: Path, force: bool, scale: str,
+         args: Any | None = None) -> list[dict[str, Any]]:
     rows = []
     for name in selected:
-        recipe = RECIPES[name][scale]
+        recipe = RECIPES[name][scale] if args is None else override(RECIPES[name][scale], args)
         e = estimate(name, recipe, stage)
         dataset, model = out / name / "dataset", out / name / "model"
         e.update(name=name, recipe=recipe,
@@ -224,12 +260,27 @@ def main(argv: list[str] | None = None) -> int:
                         help="where the datasets and models go; put it outside the repository for a long campaign")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--plan", action="store_true", help="print what would run and exit")
+    parser.add_argument("--list", action="store_true", help="what each design space predicts and how big it is")
+    parser.add_argument("--status", action="store_true", help="what already exists under --out, and what it scored")
+    parser.add_argument("--geometries", type=int, help="override the recipe's body count for the selected families")
+    parser.add_argument("--conditions", type=int, help="override the recipe's operating points per body")
+    parser.add_argument("--epochs", type=int, help="override the recipe's epochs")
+    parser.add_argument("--width", type=int, help="override the recipe's model width")
     parser.add_argument("--force", action="store_true", help="regenerate and refit even what is already there")
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--detach", type=Path, metavar="LOG",
                         help="run in its own session, writing to LOG, and return immediately")
     a = parser.parse_args(argv)
 
+    def _selected() -> list[str]:
+        return [n for n in ORDER if n in set(a.families)]
+
+    # the two read-only views answer and exit before anything is detached or drawn
+    if a.list:
+        catalogue(_selected(), a.scale, a.out)
+        return 0
+    if a.status:
+        return status(_selected(), a.out)
     if a.detach:
         detach(a.detach)
 
@@ -237,8 +288,8 @@ def main(argv: list[str] | None = None) -> int:
     # family it was supposed to build
     if a.scale == "smoke" and a.out == Path("benchmarks/_out/lpm_campaign"):
         a.out = a.out.with_name(a.out.name + "_smoke")
-    selected = [n for n in ORDER if n in set(a.families)]
-    rows = plan(selected, a.stage, a.out, a.force, a.scale)
+    selected = _selected()
+    rows = plan(selected, a.stage, a.out, a.force, a.scale, a)
     print(f"scale {a.scale}, stage {a.stage}, out {a.out}", flush=True)
     print_plan(rows, a.stage)
     if a.plan:

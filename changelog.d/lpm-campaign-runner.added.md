@@ -7,3 +7,9 @@
   is what actually protects a long fit — `nohup` only ignores SIGHUP, and what kills it is the process group going
   away. `examples/lpm_five_models/experiment.json` now exists, so the manifest gate is satisfied for the example. `benchmarks/run_lpm_campaign.sh` wraps it in one command: plan, then start detached, with the
   output outside the repository by default.
+- `benchmarks/lpm_recipes.json`: the campaign sizes as data, so making a design space bigger is a one-line edit
+  rather than a code change, and `--geometries`, `--conditions`, `--epochs` and `--width` override them for the
+  families of one run. `--list` prints the menu (what each design space predicts, its reference, how big the
+  recipe is) and `--status` reads every `manifest.json` and `card.json` under `--out` and prints, per family, the
+  designs written, the held-out error, the constant-field baseline and the OOD probes — which is the table that
+  says whether a night produced models or only files.

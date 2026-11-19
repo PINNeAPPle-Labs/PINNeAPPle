@@ -31,7 +31,28 @@ transfers by assumption; the support release pins exactly which points are score
 | DrivAerML | `neashton/drivaerml` | chunked immutable support | the guide states a reconstructed VTU is about 50 GB, which is why it ships chunked |
 | DrivAerNet++ | 15 Harvard Dataverse archives, about 210 GB | about 5.5 GB prepared support | surface pressure only, 1,154 designs |
 
-## This machine, measured (2026-11-18)
+## The per-case numbers, read from the case records (2026-11-19)
+
+The `case-support.json` records in the checkout state, for every case, the source artifact's size, its SHA-256 and the
+native entity counts — which is the geometry representation and the evaluation contract, before anything is downloaded:
+
+| dataset | what one case is, natively | measured per case | `full`-split total |
+|---|---|---|---|
+| AhmedML | surface `.vtp` (78.6 MB) + volume `.vtu` + cell areas | **5.55 GB** (median of 450 records, volume alone) | ~280 GB for 50 cases |
+| WindsorML | surface points, 640 entities; volume support alongside | 0.5 MB of support per case | small; the volume fields are the expensive part |
+| DrivAerML | volume cells, **8.4 M entities** per case, chunked | support ships chunked, 1 MB per artifact | the surface-only scope exists; the volume scope is the 50 GB-per-VTU case |
+| DrivAerNet++ | surface points only, `p` alone | geometry **26.4 MB** (median of 1 154), support 5.0 MB | **30.5 GB geometry + 5.49 GB support** |
+
+**DrivAerNet++ contract, verified by fetching one case** (`E_S_WWC_WM_008`; the archive's SHA-256 matches the manifest's
+`d22f6fa7…`): a VTK legacy surface with PointData `p`, **511 063 points**, 474 686 polygons, 5 connected components
+(436 403 + 2×18 742 + 2×18 588 — body and four wheels), bounding box 4.85 × 2.25 × 1.33 m, total dual area
+32.35 m², dynamic head 450 m²/s², `p` from −1 853.8 to 449.9 m²/s². The support `.npz` carries the truth `p`, the
+`dual_area_m2` weights and the profile indices — and **no coordinates**: the geometry has to be fetched separately, which
+is what makes the 30.5 GB the real cost of scoring this split. Two metrics are bound to the single quantity
+(`surface_pressure_rel_l2`, area-weighted; `surface_pressure_equal_entity_rel_l2`, uniform), aggregated per geometry and
+then averaged over the 1 154 designs, and it is the only component of the composite (cap 100).
+
+## This machine, measured (2026-11-19)
 
 | resource | laptop | server `159.69.246.142` |
 |---|---|---|
@@ -50,7 +71,10 @@ transfers by assumption; the support release pins exactly which points are score
 - **WindsorML — not feasible here.** 233 test cases with volume fields, and the volume representation is the expensive
   part; the smallest label (`full`, 35 cases) still needs both surface and volume predictions per case.
 - **DrivAerML — not feasible here.** About 50 GB for a single reconstructed VTU; the smallest split is 50 test cases.
-- **DrivAerNet++ — not feasible here.** 210 GB of public data against 24 GB of disk.
+- **DrivAerNet++ — not feasible here, and the number is now exact.** It is the cheapest of the four by contract: one
+  scalar field on the surface, no volume, one component in the composite. It costs **30.5 GB of geometry plus 5.49 GB of
+  support** for the 1 154-design test split, against 24 GB free — and the support carries no coordinates, so the geometry
+  cannot be avoided. With a 40 GB disk and this laptop it would still be a 5·10⁸-point inference problem.
 
 The disk is only the first wall. The second is compute: every one of the four is a 3-D geometry-conditioned problem
 (point clouds or graphs with 10⁵-10⁶ surface points per case), where a single training run on a GPU is measured in

@@ -172,6 +172,87 @@ def test_example_07_coldplate_smoke(tmp_path):
 
 
 @needs_pnemo
+def test_example_10_heatsink_smoke(tmp_path):
+    s = _example("10_brep_physicsnemo_heatsink")["main"](True, str(tmp_path))
+    assert s["decision"] in ("APPROVED", "REVIEW", "REJECT")
+    (a,) = s["attempts"][:1]
+    assert a["verified_t"] > 0 and a["network_t"] > 0
+    for f in ("architecture.png", "parity.png", "models.png", "design_space.png", "checks.png", "summary.json"):
+        assert os.path.exists(tmp_path / "results" / f)
+
+
+# ------------------------------------------------------------------------------------------------ cold plate
+def test_coldplate_conjugate_solve_closes_its_energy_balance():
+    """The coolant carries the chip power, the manifolds carry almost nothing, and the solver's own field is a
+    solution of exactly the reacting problem the checks certify."""
+    from pinneapple_physics import darcy_checks as dc
+    from pinneapple_tools.nvidia import coldplate as cp
+    cfg = cp.ColdPlate()
+    r = cp.solve(cfg, 32)
+    assert r["energy_closure"] < 1e-9
+    assert r["q_coolant"] / r["q_total"] > 0.99          # the guard ring keeps the rim adiabatic
+    assert r["q_edges"] / r["q_total"] < 0.01
+    assert 0 < r["dt_f"] < 10 and r["converged"]
+    fl = r["fields"]
+    f = fl["f0"] + fl["s"] * r["theta_f"]
+    assert np.abs(dc.darcy_residual(r["u"], fl["a"], f, sink=fl["s"])).max() < 1e-8
+    assert all(c.passed for c in dc.darcy_checks(fl["a"], r["u"], f, sink=fl["s"], exact=True))
+    assert all(c["passed"] for c in cp.checks(r))
+
+
+def test_coldplate_hydraulics_and_the_limits_it_reports():
+    from pinneapple_tools.nvidia import coldplate as cp
+    slow = cp.hydraulics(cp.ColdPlate(n_channels=20, channel_width=0.0008, coolant=cp.Coolant(flow_lpm=1.0)))
+    fast = cp.hydraulics(cp.ColdPlate(n_channels=12, channel_width=0.0012, coolant=cp.Coolant(flow_lpm=2.0)))
+    assert slow.re < cp.RE_LAMINAR_MAX and slow.dp > 0 and slow.h > 1000
+    assert fast.dp > slow.dp and fast.velocity > slow.velocity
+    assert fast.re > cp.RE_LAMINAR_MAX and any("turbulent" in w for w in fast.warnings)
+
+
+def test_coldplate_slot_fraction_is_exact_whatever_the_grid():
+    from pinneapple_tools.nvidia import coldplate as cp
+    for n in (16, 32, 64):
+        frac = cp._slot_fraction(n, 0.1, 20, 0.1, 0.0008)
+        assert np.all((frac >= 0) & (frac <= 1))
+        assert frac.sum() * (0.1 / n) == pytest.approx(20 * 0.0008, rel=1e-12)   # the slots keep their width
+
+
+# ------------------------------------------------------------------------------------------------ heat sink
+def test_heat_sink_network_and_3d_base_solve_agree_on_one_chip():
+    from pinneapple_tools.nvidia import heatsink as hs
+    duty = hs.Duty(root_fillet=0.001)
+    r = hs.evaluate_full({"n_fins": 14, "fin_height": 0.032, "fin_t": 0.0015, "base_t": 0.005}, duty, grid=24)
+    assert abs(r["t_source_network"] - r["t_source_max_c"]) / r["rise_k"] < 0.05
+    assert r["fvm_energy_error"] < 1e-6 and r["dp"] > 0 and r["mass"] > 0
+    assert all(c["passed"] for c in hs.checks(r, t_limit_c=75.0))
+
+
+def test_heat_sink_3d_solve_sees_the_small_chip_the_network_cannot():
+    from pinneapple_tools.nvidia import heatsink as hs
+    duty = hs.Duty(sources=(hs.Source(0.03, 0.05, 0.04, 0.04, 80.0), hs.Source(0.075, 0.05, 0.015, 0.015, 15.0)),
+                   root_fillet=0.001)
+    r = hs.evaluate_full({"n_fins": 16, "fin_height": 0.035, "fin_t": 0.0015, "base_t": 0.006}, duty, grid=24)
+    big, small = r["t_chip_c"]
+    assert big > small > duty.t_ambient_c
+    assert r["t_source_max_c"] == pytest.approx(big)
+    assert r["fvm_energy_error"] < 1e-6
+
+
+def test_heat_sink_radiation_is_a_share_of_the_coefficient_and_cools():
+    from pinneapple_physics.closed_form import plate_fin_heatsink as pfh
+    from pinneapple_tools.nvidia import heatsink as hs
+    ducted = hs.evaluate_full({"n_fins": 14, "fin_height": 0.032, "fin_t": 0.0015}, hs.Duty(), grid=16)
+    open_ = hs.evaluate_full({"n_fins": 14, "fin_height": 0.032, "fin_t": 0.0015},
+                             hs.Duty(emissivity=0.9, sky_fraction=1.0), grid=16)
+    assert ducted["radiation_share"] == 0.0 and 0.05 < open_["radiation_share"] < 0.5
+    assert open_["t_source_max_c"] < ducted["t_source_max_c"]
+    g = pfh.HeatSinkGeometry(0.1, 0.1, 0.005, 15, 0.0015, 0.035, "al6063")
+    op = pfh.OperatingPoint(60.0, 25.0, 3.0, 0.04, 0.04)
+    assert pfh.evaluate(g, op)["h_rad_w_m2k"] == 0.0                    # the default is the ducted case
+    assert pfh.radiative_coefficient(0.9, 1.0, 60.0, 25.0) > 3.0
+
+
+@needs_pnemo
 def test_example_02_plume_smoke(tmp_path):
     s = _example("02_physicsnemo_plume_rollout")["main"](True, str(tmp_path))
     assert s["decision"] in ("APPROVED", "REVIEW", "REJECT")

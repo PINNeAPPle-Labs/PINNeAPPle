@@ -1,146 +1,239 @@
 {
  "decision": "APPROVED",
  "heldout_rel_rms": {
-  "t_rise": 0.0019379836395997047,
-  "dp": 0.0036878032304429736,
-  "mass": 0.0007992565542855192
+  "rise": 0.005067035528361088,
+  "dp": 0.0069892882435002275,
+  "mass": 0.006853787068641114
  },
  "trend_violations": {
-  "T falls with fin height": 0.0,
-  "mass grows with fin count": 0.0,
-  "mass grows with fin height": 0.0,
-  "dp grows with fin count": 0.0
+  "hot spot falls with fin height": -48.11229994372799,
+  "hot spot falls with fin thickness": -9.23962285226434,
+  "hot spot falls with the film coefficient": -9.441806772733685,
+  "hot spot falls with base thickness": -8.745622625770572,
+  "hot spot falls with the fin count": -64.84138111279269,
+  "hot spot grows with the interface resistance": -0.6806867478243888,
+  "mass grows with fin count": -0.2602007882610425,
+  "mass grows with fin height": -0.2175701606222183,
+  "mass grows with base thickness": -0.18873760266749284,
+  "dp grows with fin count": -37.25375597884602
+ },
+ "network_vs_3d_gap": {
+  "median": 0.005725556994385051,
+  "p90": 0.011277094603282887,
+  "max": 0.05339509459047364
  },
  "proposal": {
-  "n_fins": 14,
-  "fin_height_mm": 15.5,
-  "fin_t_mm": 1.0,
-  "gap_mm": 6.615384615384616
+  "n_fins": 21,
+  "fin_height": 0.01808330172227867,
+  "fin_t": 0.000827788657274601,
+  "base_t": 0.0035353856684685455,
+  "material": "al1050",
+  "gap_mm": 4.13082190986167
  },
  "proposal_surrogate": {
-  "t_source": 73.98217327285823,
-  "dp": 8.648066558578389,
-  "mass": 0.1946683324378936
+  "t_source": 74.32283970945696,
+  "dp": 13.507785897711138,
+  "mass": 0.18119245878909462
  },
  "proposal_verified": {
-  "t_source": 74.20348259023478,
-  "dp": 8.715583753463099,
-  "mass": 0.19509650445308407,
-  "mass_closed_form": 0.19359,
-  "fin_efficiency": 0.9785589340719802,
+  "t_source_3d": 74.19564476966177,
+  "t_chip": [
+   74.19564476966177,
+   62.61953323024008
+  ],
+  "t_source_network": 73.67286196740147,
+  "dp": 13.591781318596748,
+  "mass": 0.18066445056219083,
+  "fin_efficiency": 0.9635614192825619,
+  "radiation_share": 0.051113358918057385,
+  "h_w_m2k": 30.048114845744077,
   "warnings": [
+   "Radiation is modelled as 5% of the surface coefficient with a sky_fraction of 0.25: the rest of the array sees the neighbouring fin at its own temperature and exchanges almost nothing.",
    "Assumes ducted flow (shroud): all air passes between the fins. Without a shroud, bypass can cut performance by 20-50%."
   ]
  },
  "attempts": [
   {
-   "n_fins": 14,
-   "fin_height_mm": 15.0,
-   "fin_t_mm": 1.0,
-   "predicted_t": 74.9893682655478,
-   "verified_t": 75.2956686251172,
-   "verified_dp": 8.790267596954099,
-   "verified_mass": 0.19320650446646548,
-   "accepted": false
-  },
-  {
-   "n_fins": 14,
-   "fin_height_mm": 15.5,
-   "fin_t_mm": 1.0,
-   "predicted_t": 73.98217383353548,
-   "verified_t": 74.20348259023478,
-   "verified_dp": 8.715583753463099,
-   "verified_mass": 0.19509650445308407,
+   "design": {
+    "n_fins": 21,
+    "fin_height": 0.01808330172227867,
+    "fin_t": 0.000827788657274601,
+    "base_t": 0.0035353856684685455
+   },
+   "material": "al1050",
+   "predicted_t": 74.3228381525553,
+   "verified_t": 74.19564476966177,
+   "network_t": 73.67286196740147,
+   "verified_dp": 13.591781318596748,
+   "verified_mass": 0.18066445056219083,
    "accepted": true
   }
  ],
- "fillet_mass_share_max": 0.008069088092368129,
- "train_designs": 120,
+ "brep_ran": false,
+ "train_designs": 300,
  "train_steps": 15000,
- "train_wall_s": 14.792379847011944,
+ "train_wall_s": 23.16177820743178,
  "checks": [
   {
-   "name": "B-rep volume = closed form incl. fillets (all designs)",
-   "value": 6.526788272760909e-09,
+   "name": "3-D base solve closes its energy balance (all designs)",
+   "value": 1.0587834702547345e-12,
    "limit": 1e-06,
-   "passed": 1.0
-  },
-  {
-   "name": "B-rep solids manifold (all designs)",
-   "value": null,
-   "limit": null,
    "passed": true
   },
   {
-   "name": "held-out error: t_rise",
-   "value": 0.0019379836395997047,
-   "limit": 0.03,
+   "name": "held-out error: rise",
+   "value": 0.005067035528361088,
+   "limit": 0.05,
    "passed": true
   },
   {
    "name": "held-out error: dp",
-   "value": 0.0036878032304429736,
-   "limit": 0.03,
+   "value": 0.0069892882435002275,
+   "limit": 0.05,
    "passed": true
   },
   {
    "name": "held-out error: mass",
-   "value": 0.0007992565542855192,
-   "limit": 0.03,
+   "value": 0.006853787068641114,
+   "limit": 0.05,
    "passed": true
   },
   {
-   "name": "trend: T falls with fin height",
-   "value": 0.0,
+   "name": "trend: hot spot falls with fin height",
+   "value": -48.11229994372799,
    "limit": 0.0,
    "passed": true,
-   "detail": "fraction of grid cells with the wrong sign"
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
+  },
+  {
+   "name": "trend: hot spot falls with fin thickness",
+   "value": -9.23962285226434,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
+  },
+  {
+   "name": "trend: hot spot falls with the film coefficient",
+   "value": -9.441806772733685,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
+  },
+  {
+   "name": "trend: hot spot falls with base thickness",
+   "value": -8.745622625770572,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
+  },
+  {
+   "name": "trend: hot spot falls with the fin count",
+   "value": -64.84138111279269,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
+  },
+  {
+   "name": "trend: hot spot grows with the interface resistance",
+   "value": -0.6806867478243888,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
   },
   {
    "name": "trend: mass grows with fin count",
-   "value": 0.0,
+   "value": -0.2602007882610425,
    "limit": 0.0,
    "passed": true,
-   "detail": "fraction of grid cells with the wrong sign"
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
   },
   {
    "name": "trend: mass grows with fin height",
-   "value": 0.0,
+   "value": -0.2175701606222183,
    "limit": 0.0,
    "passed": true,
-   "detail": "fraction of grid cells with the wrong sign"
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
+  },
+  {
+   "name": "trend: mass grows with base thickness",
+   "value": -0.18873760266749284,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
   },
   {
    "name": "trend: dp grows with fin count",
-   "value": 0.0,
+   "value": -37.25375597884602,
    "limit": 0.0,
    "passed": true,
-   "detail": "fraction of grid cells with the wrong sign"
+   "detail": "-expected x (value at the top of the range - value at the bottom): positive means the model has the direction backwards"
   },
   {
-   "name": "first surrogate proposal survives verification",
-   "value": 75.2956686251172,
-   "limit": 75.0,
-   "passed": false,
-   "detail": "2 proposal(s) verified before one was accepted"
+   "name": "network and 3-D solve agree on every design",
+   "value": 0.011277094603282887,
+   "limit": 0.2,
+   "passed": true,
+   "detail": "p90 of |T_network - T_3D| / rise: two independent models of the same physics"
   },
   {
-   "name": "accepted design meets T_source <= 75 C (verified)",
-   "value": 74.20348259023478,
+   "name": "accepted design meets T_source <= 75 C (verified 3-D)",
+   "value": 74.19564476966177,
    "limit": 75.0,
    "passed": true
   },
   {
    "name": "accepted design meets dp <= 30 Pa (verified)",
-   "value": 8.715583753463099,
+   "value": 13.591781318596748,
    "limit": 30.0,
    "passed": true
   },
   {
-   "name": "surrogate vs verified at the proposal (T rise)",
-   "value": 0.0044978384806539425,
-   "limit": 0.03,
-   "passed": 1.0
+   "name": "surrogate vs verified at the proposal (rise)",
+   "value": 0.0025854918741431954,
+   "limit": 0.05,
+   "passed": true
+  },
+  {
+   "name": "design: 3-D base solve closes its own energy balance",
+   "value": 1.0411320928190099e-13,
+   "limit": 1e-06,
+   "passed": true,
+   "detail": "heat out of the top face against the chip power, from the finite-volume solve alone"
+  },
+  {
+   "name": "design: hot spot below the limit (3-D solve)",
+   "value": 74.19564476966177,
+   "limit": 75.0,
+   "passed": true,
+   "detail": "bottom-face maximum over the chips, plus the interface drop"
+  },
+  {
+   "name": "design: pressure drop inside the duct budget",
+   "value": 13.591781318596748,
+   "limit": 30.0,
+   "passed": true,
+   "detail": "the fan or blower has to make this"
+  },
+  {
+   "name": "design: fin efficiency above 50 %",
+   "value": 0.9635614192825619,
+   "limit": 0.5,
+   "passed": true,
+   "detail": "extra height buys little below this"
+  },
+  {
+   "name": "design: network and 3-D solve agree",
+   "value": 0.010626607389902275,
+   "limit": 0.2,
+   "passed": true,
+   "detail": "relative gap between the closed-form network and the finite-volume base solve: the band is where the two models of the same physics disagree"
+  },
+  {
+   "name": "design: radiation share reported",
+   "value": 0.051113358918057385,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "share of the surface coefficient that is radiative; not a limit, only a quantity the answer now carries"
   }
  ]
 }

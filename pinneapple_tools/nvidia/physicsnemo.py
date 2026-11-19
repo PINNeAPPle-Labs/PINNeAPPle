@@ -22,7 +22,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["MLPSurrogate", "sign_violations", "relative_errors"]
+__all__ = ["MLPSurrogate", "sign_violations", "sweep_change", "relative_errors"]
 
 
 def _require():
@@ -137,6 +137,20 @@ def sign_violations(f, axes: list[np.ndarray], axis: int, output: int, sign: int
     y = np.asarray(f(X))[:, output].reshape(mesh[0].shape)
     d = np.diff(y, axis=axis) * sign
     return float(np.mean(d < -tol))
+
+
+def sweep_change(f, x_lo, x_hi, output: int, expected: int = 1) -> float:
+    """How far a model's change across a whole sweep goes against the direction the physics requires.
+
+    ``expected = +1`` when the output must grow with the swept variable, ``-1`` when it must fall. The value is
+    ``-expected * (f(x_hi)[output] - f(x_lo)[output])``, so zero or negative means the model has the direction right
+    and a positive value means it has it backwards; the magnitude is in the output's own units.
+    Comparing the two ends of the range instead of adjacent grid cells is what makes the check about the physics and
+    not about the surrogate's own noise: a model with a 3 % held-out error can flip the sign of a step 1 % wide
+    without being wrong about anything an engineer uses.
+    """
+    y = np.asarray(f(np.stack([np.asarray(x_lo, float), np.asarray(x_hi, float)])))[:, output]
+    return float(-expected * (y[1] - y[0]))
 
 
 def relative_errors(pred, ref) -> np.ndarray:

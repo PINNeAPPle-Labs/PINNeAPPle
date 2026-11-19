@@ -3875,6 +3875,15 @@
   },
   "source": "tests/test_heatsink_sizer.py:36"
  },
+ "pinneapple_physics.closed_form.plate_fin_heatsink:radiative_coefficient": {
+  "inputs": {
+   "emissivity": 0.9,
+   "sky_fraction": 1.0,
+   "t_surface_c": 60.0,
+   "t_surround_c": 25.0
+  },
+  "source": "tests/test_nvidia_integrations.py:252"
+ },
  "pinneapple_physics.closed_form.plate_fin_heatsink:spreading_resistance": {
   "inputs": {
    "k": 200.0,
@@ -8805,12 +8814,75 @@
   },
   "source": "tests/pinneapple_tools/test_vlm_curation.py:107"
  },
+ "pinneapple_tools.nvidia.coldplate:plate_for": {
+  "inputs": {
+   "design": {
+    "channel_width": 0.000909,
+    "flow_lpm": 0.5819,
+    "h_scale": 1.007,
+    "n_channels": 27
+   }
+  },
+  "source": "examples/nvidia/07_omniverse_physicsnemo_coldplate/run.py:244"
+ },
+ "pinneapple_tools.nvidia.coldplate:sample_designs": {
+  "inputs": {
+   "n": 4,
+   "seed": 0
+  },
+  "source": "examples/nvidia/07_omniverse_physicsnemo_coldplate/run.py:135"
+ },
+ "pinneapple_tools.nvidia.coldplate:water_properties": {
+  "inputs": {
+   "t_c": 40.0
+  },
+  "source": "examples/nvidia/07_omniverse_physicsnemo_coldplate/run.py:26 (coolant at 40 C)"
+ },
+ "pinneapple_tools.nvidia.heatsink:evaluate_full": {
+  "inputs": {
+   "design": {
+    "base_t": 0.005,
+    "fin_height": 0.032,
+    "fin_t": 0.0015,
+    "n_fins": 14
+   },
+   "grid": 16
+  },
+  "source": "tests/test_nvidia_integrations.py:224"
+ },
  "pinneapple_tools.nvidia.heatsink:sample_designs": {
   "inputs": {
    "n": 6,
    "seed": 0
   },
   "source": "tests/test_nvidia_integrations.py:366"
+ },
+ "pinneapple_tools.nvidia.heatsink:sample_designs_full": {
+  "inputs": {
+   "n": 4,
+   "seed": 0
+  },
+  "source": "examples/nvidia/10_brep_physicsnemo_heatsink/run.py (the 300-design study)"
+ },
+ "pinneapple_tools.nvidia.heatsink:table_rows": {
+  "inputs": {
+   "designs": [
+    {
+     "base_t": 0.005,
+     "fin_height": 0.032,
+     "fin_t": 0.0015,
+     "n_fins": 14
+    },
+    {
+     "base_t": 0.005,
+     "fin_height": 0.04,
+     "fin_t": 0.0015,
+     "n_fins": 18
+    }
+   ],
+   "grid": 16
+  },
+  "source": "tests/test_nvidia_integrations.py:224"
  },
  "pinneapple_tools.nvidia.omniverse:kit_render_script": {
   "inputs": {

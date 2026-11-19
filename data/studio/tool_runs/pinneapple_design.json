@@ -1760,7 +1760,7 @@
   "seconds": 0.06
  },
  "pinneapple_design.thermal.heatsink.field:solve_base_field": {
-  "code_hash": "fe18f21cba856ce9",
+  "code_hash": "f15141d0b55279a0",
   "inputs": {
    "base_depth": 0.08,
    "base_thickness": 0.006,
@@ -1772,9 +1772,9 @@
    "source_width": 0.03
   },
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-18",
   "returned": "dict",
-  "seconds": 0.32
+  "seconds": 62.57
  },
  "pinneapple_design.thermal.heatsink.monotone:train_monotone": {
   "code_hash": "4ad89c6ad1fe02e6",

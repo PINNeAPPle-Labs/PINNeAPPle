@@ -1,19 +1,21 @@
 {
  "name": "07_omniverse_physicsnemo_coldplate",
- "started": "2026-10-24T00:26:53Z",
- "wall_s": 162.318,
+ "started": "2026-11-18T16:47:15Z",
+ "wall_s": 607.628,
  "steps_s": {
-  "data (PINNeAPPle finite volumes)": 1.12,
-  "train (PhysicsNeMo FNO)": 154.983,
-  "checks (PINNeAPPle)": 0.116,
-  "OpenUSD stage": 0.357
+  "designs + conjugate finite volumes (PINNeAPPle)": 4.758,
+  "train the field operator (PhysicsNeMo FNO)": 567.175,
+  "train the design surrogate (PhysicsNeMo FullyConnected)": 9.371,
+  "checks of the surrogate's fields (PINNeAPPle)": 2.983,
+  "robust design and uncertainty (PINNeAPPle)": 4.052,
+  "OpenUSD stage": 1.295
  },
  "components": [
   {
    "component": "PhysicsNeMo FNO training",
    "ran": true,
    "why": "",
-   "how": "CPU, 2700 steps, 54.0 epochs"
+   "how": "CPU, 2400 steps, 96.0 epochs, 3 input channels"
   },
   {
    "component": "OpenUSD stage (usd-core)",
@@ -29,25 +31,28 @@
   }
  ],
  "environment": {
-  "python": "3.13.17",
-  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
-  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
-  "cpu_count": 4,
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "cpu": "arm",
+  "cpu_count": 10,
   "gpu": null,
   "packages": {
-   "pinneapple": "0.7.0",
-   "torch": "2.14.1",
-   "numpy": "2.5.3",
-   "scipy": "1.18.1",
+   "pinneapple": null,
+   "torch": "2.15.0",
+   "numpy": "2.4.6",
+   "scipy": "1.17.1",
    "matplotlib": "3.11.2",
    "nvidia-physicsnemo": "2.2.2",
    "nvidia-physicsnemo.sym": null,
    "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": null,
+   "newton-usd-schemas": null,
+   "warp-lang": "1.19.0",
    "isaacsim": null,
    "isaaclab": null,
-   "torch_geometric": "2.8.1",
-   "torch_scatter": "2.1.2",
-   "openai": null,
+   "torch_geometric": null,
+   "torch_scatter": null,
    "requests": "2.34.2"
   }
  }

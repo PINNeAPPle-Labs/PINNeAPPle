@@ -3489,10 +3489,11 @@
     "methods": {}
    },
    "air_properties": "def(t_c, p_pa=101325.0)",
-   "evaluate": "def(g, op, max_iter=60, h_scale=1.0, t_root_guess_c=None)",
+   "evaluate": "def(g, op, max_iter=60, h_scale=1.0, t_root_guess_c=None, emissivity=0.0, sky_fraction=0.0, t_surround_c=None)",
    "forced_convection": "def(g, v_approach, air)",
    "geometry_errors": "def(g, op)",
    "natural_convection": "def(g, dt_k, air)",
+   "radiative_coefficient": "def(emissivity, sky_fraction, t_surface_c, t_surround_c)",
    "spreading_resistance": "def(k, tb, source_area, plate_area, r_conv)"
   },
   "pinneapple_physics.closed_form.pump_npsh": {

@@ -42,11 +42,11 @@ from __future__ import annotations
 
 import math
 from dataclasses import asdict, dataclass
-from typing import Dict, List
 
 from .fin_array_conduction import fin_array_profile_params
 
 G = 9.80665
+SIGMA_SB = 5.670374419e-8        # Stefan-Boltzmann [W/m2 K4]
 
 # Incropera & DeWitt Table A.4 (air, 1 atm): T [C], k [W/mK], nu [m2/s], Pr
 _AIR_T = (0.0, 20.0, 40.0, 60.0, 80.0, 100.0, 150.0)
@@ -56,7 +56,7 @@ _AIR_PR = (0.711, 0.709, 0.705, 0.702, 0.700, 0.697, 0.690)
 AIR_CP = 1007.0
 
 # Thermal conductivity [W/mK], density [kg/m3]
-MATERIALS: Dict[str, Dict[str, float]] = {
+MATERIALS: dict[str, dict[str, float]] = {
     "al6063": {"k": 209.0, "rho": 2700.0, "label": "Aluminium 6063-T5 (extruded)"},
     "al6061": {"k": 167.0, "rho": 2700.0, "label": "Aluminium 6061-T6 (machined)"},
     "al1050": {"k": 229.0, "rho": 2705.0, "label": "Aluminium 1050 (bonded/skived fins)"},
@@ -76,7 +76,7 @@ def _interp(x: float, xs, ys) -> float:
     return ys[-1]
 
 
-def air_properties(t_c: float, p_pa: float = 101325.0) -> Dict[str, float]:
+def air_properties(t_c: float, p_pa: float = 101325.0) -> dict[str, float]:
     t_k = t_c + 273.15
     nu = _interp(t_c, _AIR_T, _AIR_NU)
     pr = _interp(t_c, _AIR_T, _AIR_PR)
@@ -125,7 +125,7 @@ class OperatingPoint:
     tim_resistance_k_m2_w: float = 1.0e-5   # interface material R'' (thin grease ~ 1e-5)
 
 
-def geometry_errors(g: HeatSinkGeometry, op: OperatingPoint) -> List[str]:
+def geometry_errors(g: HeatSinkGeometry, op: OperatingPoint) -> list[str]:
     errs = []
     if g.material not in MATERIALS:
         errs.append(f"unknown material '{g.material}' (use one of {sorted(MATERIALS)})")
@@ -146,7 +146,7 @@ def geometry_errors(g: HeatSinkGeometry, op: OperatingPoint) -> List[str]:
 
 # ── convection ───────────────────────────────────────────────────────────────
 
-def forced_convection(g: HeatSinkGeometry, v_approach: float, air: Dict[str, float]) -> Dict[str, float]:
+def forced_convection(g: HeatSinkGeometry, v_approach: float, air: dict[str, float]) -> dict[str, float]:
     b, H, L, N = g.fin_gap, g.fin_height, g.base_depth, g.n_fins
     open_area = (N - 1) * b * H
     v_ch = v_approach * g.base_width * H / open_area          # ducted: all flow in channels
@@ -174,7 +174,7 @@ def forced_convection(g: HeatSinkGeometry, v_approach: float, air: Dict[str, flo
             "pressure_drop_pa": dp, "flow_m3_s": flow_m3_s, "fan_power_w": dp * flow_m3_s}
 
 
-def natural_convection(g: HeatSinkGeometry, dt_k: float, air: Dict[str, float]) -> Dict[str, float]:
+def natural_convection(g: HeatSinkGeometry, dt_k: float, air: dict[str, float]) -> dict[str, float]:
     b, L = g.fin_gap, g.base_depth
     el = G * air["beta"] * max(dt_k, 1e-6) * b ** 4 / (air["nu"] * air["alpha"] * L)
     nu_b = (576 / el ** 2 + 2.873 / math.sqrt(el)) ** -0.5
@@ -182,10 +182,26 @@ def natural_convection(g: HeatSinkGeometry, dt_k: float, air: Dict[str, float]) 
             "pressure_drop_pa": 0.0, "flow_m3_s": 0.0, "fan_power_w": 0.0}
 
 
+def radiative_coefficient(emissivity: float, sky_fraction: float, t_surface_c: float,
+                          t_surround_c: float) -> float:
+    """Linearised radiation coefficient ``eps sigma (Ts^2 + Tsurr^2)(Ts + Tsurr)`` [W/m2 K], restricted to the share
+    of the wetted area that has an unobstructed view of the surroundings.
+
+    ``sky_fraction`` is what makes the number honest: the slots of a fin array see the neighbouring fin at very
+    nearly their own temperature, so their net exchange is small; the fin tips and the unfinned base of an open sink
+    see the room and do radiate. A fully shrouded (ducted) sink has ``sky_fraction = 0``. The coefficient is
+    linearised about the current fin-root temperature (`Incropera & DeWitt`, eq. 1.9 and ch. 13).
+    """
+    if emissivity <= 0 or sky_fraction <= 0:
+        return 0.0
+    ts, ti = t_surface_c + 273.15, t_surround_c + 273.15
+    return emissivity * sky_fraction * SIGMA_SB * (ts ** 2 + ti ** 2) * (ts + ti)
+
+
 # ── spreading ────────────────────────────────────────────────────────────────
 
 def spreading_resistance(k: float, tb: float, source_area: float, plate_area: float,
-                         r_conv: float) -> Dict[str, float]:
+                         r_conv: float) -> dict[str, float]:
     """Lee et al. (1995). Includes 1D conduction through the base."""
     rs, rp = math.sqrt(source_area / math.pi), math.sqrt(plate_area / math.pi)
     eps, tau = rs / rp, tb / rp
@@ -204,35 +220,44 @@ def spreading_resistance(k: float, tb: float, source_area: float, plate_area: fl
 # ── full evaluation ──────────────────────────────────────────────────────────
 
 def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
-             h_scale: float = 1.0, t_root_guess_c: float | None = None) -> Dict[str, object]:
+             h_scale: float = 1.0, t_root_guess_c: float | None = None,
+             emissivity: float = 0.0, sky_fraction: float = 0.0,
+             t_surround_c: float | None = None) -> dict[str, object]:
     """Thermal resistance network: T_source = T_amb + Q (R_tim + R_spread + R_fins).
 
     ``h_scale`` multiplies the correlation's heat-transfer coefficient; use
     it to propagate correlation uncertainty (e.g. 0.85 / 1.15).
     ``t_root_guess_c`` is the fin-root temperature the natural-convection
     iteration starts from (default ambient + 20 K); with ``max_iter=1`` the
-    coefficient is evaluated once at that temperature (a hand calculation)."""
+    coefficient is evaluated once at that temperature (a hand calculation).
+    ``emissivity`` and ``sky_fraction`` add radiation as a second coefficient
+    on the fin array (:func:`radiative_coefficient`), inside the fin
+    efficiency: the default of zero is the ducted case, where the slots see
+    each other and the array radiates nothing."""
     errs = geometry_errors(g, op)
     if errs:
         raise ValueError("; ".join(errs))
     mat = MATERIALS[g.material]
     k = mat["k"]
     Q, Ta = op.power_w, op.t_ambient_c
+    t_surr = Ta if t_surround_c is None else float(t_surround_c)
     natural = op.air_velocity_m_s <= 0
     a_src = op.source_width * op.source_depth
     a_base = g.base_width * g.base_depth
 
     t_root = Ta + 20.0 if t_root_guess_c is None else float(t_root_guess_c)
-    conv: Dict[str, float] = {}
-    fin: Dict[str, float] = {}
+    conv: dict[str, float] = {}
+    fin: dict[str, float] = {}
     converged = False
+    h_rad = 0.0
     for _ in range(max_iter):
         air = air_properties(0.5 * (t_root + Ta))
         conv = (natural_convection(g, t_root - Ta, air) if natural
                 else forced_convection(g, op.air_velocity_m_s, air))
         conv["h"] *= h_scale
+        h_rad = radiative_coefficient(emissivity, sky_fraction, t_root, t_surr)
         fin = fin_array_profile_params(
-            k_material_w_mk=k, h_conv_w_m2k=conv["h"], n_fins=g.n_fins,
+            k_material_w_mk=k, h_conv_w_m2k=conv["h"] + h_rad, n_fins=g.n_fins,
             fin_thickness_m=g.fin_thickness, fin_length_m=g.fin_height,
             transverse_extent_m=g.base_depth, spacing_extent_m=g.base_width,
             base_thickness_m=g.base_thickness, power_w=Q,
@@ -252,12 +277,20 @@ def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
     ml = m * fin["lc_m"]
     eta = math.tanh(ml) / ml if ml > 1e-9 else 1.0
 
-    warnings: List[str] = []
+    warnings: list[str] = []
     if not converged:
         warnings.append("Natural-convection iteration did not fully converge.")
+    if h_rad <= 0:
+        if natural:
+            warnings.append("Radiation is neglected (conservative: real parts run ~10-25% cooler "
+                            "in still air, more if anodised).")
+    else:
+        share = h_rad / max(conv["h"] + h_rad, 1e-12)
+        if sky_fraction < 0.9:
+            warnings.append(f"Radiation is modelled as {share:.0%} of the surface coefficient with a "
+                            f"sky_fraction of {sky_fraction:.2f}: the rest of the array sees the neighbouring fin at "
+                            "its own temperature and exchanges almost nothing.")
     if natural:
-        warnings.append("Radiation is neglected (conservative: real parts run ~10-25% cooler "
-                        "in still air, more if anodised).")
         warnings.append("Assumes vertical fins with air rising along the base depth.")
         if not 1e-1 <= conv["elenbaas"] <= 1e4:
             warnings.append(f"Elenbaas number {conv['elenbaas']:.2g} outside 0.1-1e4.")
@@ -289,6 +322,10 @@ def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
         "resistances_k_w": {"interface_tim": r_tim, "spreading_and_base": sp["r_max"],
                             "fins_convection": r_conv},
         "h_w_m2k": conv["h"],
+        "h_rad_w_m2k": h_rad,
+        "radiation_share": h_rad / max(conv["h"] + h_rad, 1e-12),
+        "emissivity": emissivity,
+        "sky_fraction": sky_fraction,
         "fin_efficiency": eta,
         "fin_m_per_m": m,                  # fin parameter sqrt(2h/(k t))
         "fin_lc_m": fin["lc_m"],           # adiabatic-tip corrected fin length

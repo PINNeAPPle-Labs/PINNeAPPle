@@ -57,15 +57,27 @@ def grid_graph(n: int) -> tuple[np.ndarray, np.ndarray]:
 
 
 class _GridOperator(nn.Module):
-    """``(batch, n, n)`` coefficient -> ``(batch, n, n)`` solution around a PhysicsNeMo model."""
+    """``(batch, [channels,] n, n)`` coefficient field(s) -> ``(batch, n, n)`` solution around a PhysicsNeMo model.
 
-    def __init__(self, net: nn.Module, kind: str, n: int, a_mean: float, a_std: float, u_scale: float):
+    ``in_channels`` > 1 stacks several input fields (e.g. a conductivity map and a map of how strongly each cell
+    is coupled to a coolant); the output is always one channel. Normalisation is per input channel.
+    """
+
+    def __init__(self, net: nn.Module, kind: str, n: int, a_mean, a_std, u_scale: float, in_channels: int = 1):
         super().__init__()
         self.net, self.kind, self.n = net, kind, int(n)
-        self.register_buffer("a_mean", torch.tensor(float(a_mean)))
-        self.register_buffer("a_std", torch.tensor(float(a_std)))
+        self.in_channels = int(in_channels)
+        a_mean, a_std = np.atleast_1d(np.asarray(a_mean, float)), np.atleast_1d(np.asarray(a_std, float))
+        if self.in_channels == 1:                       # a scalar buffer: state dicts of single-channel models load
+            self.register_buffer("a_mean", torch.tensor(float(a_mean[0])))
+            self.register_buffer("a_std", torch.tensor(float(a_std[0])))
+        else:
+            self.register_buffer("a_mean", torch.as_tensor(a_mean, dtype=torch.float32))
+            self.register_buffer("a_std", torch.as_tensor(a_std, dtype=torch.float32))
         self.register_buffer("u_scale", torch.tensor(float(u_scale)))
         if kind == "meshgraphnet":
+            if self.in_channels != 1:
+                raise ValueError("MeshGraphNet takes one input channel (use the FNO for several fields)")
             ei, ea = grid_graph(n)
             self.register_buffer("edge_index", torch.from_numpy(ei), persistent=False)
             self.register_buffer("edge_attr", torch.from_numpy(ea), persistent=False)
@@ -76,13 +88,25 @@ class _GridOperator(nn.Module):
             static = np.stack([X, Y, bnd], axis=-1).reshape(n * n, 3).astype(np.float32)
             self.register_buffer("static", torch.from_numpy(static), persistent=False)
 
+    def set_stats(self, mean: np.ndarray, std: np.ndarray) -> None:
+        """Per-channel input mean and standard deviation (a scalar pair for one channel, keeping old state dicts)."""
+        mean, std = np.atleast_1d(mean).astype(float), np.atleast_1d(std).astype(float)
+        if self.in_channels == 1:
+            self.a_mean.fill_(float(mean[0]))
+            self.a_std.fill_(float(std[0]) or 1.0)
+        else:
+            self.a_mean = torch.as_tensor(mean, dtype=torch.float32)
+            self.a_std = torch.as_tensor(np.maximum(std, 1e-12), dtype=torch.float32)
+
     def forward(self, a: torch.Tensor) -> torch.Tensor:
-        x = (a - self.a_mean) / self.a_std
+        if a.dim() == 3:
+            a = a[:, None]
+        x = (a - self.a_mean.reshape(-1, 1, 1)) / self.a_std.reshape(-1, 1, 1)
         b = x.shape[0]
         if self.kind == "fno":
-            y = self.net(x[:, None])[:, 0]
+            y = self.net(x)[:, 0]
         elif self.kind == "pinneapple_fno":
-            y = self.net(x[:, None]).y[:, 0]
+            y = self.net(x).y[:, 0]
         else:
             from torch_geometric.data import Data
             nn_ = self.n * self.n
@@ -110,6 +134,11 @@ class GridFieldPredictor:
         return self.module.n
 
     @property
+    def in_channels(self) -> int:
+        """How many input fields the model takes (1 for a plain coefficient -> solution operator)."""
+        return self.module.in_channels
+
+    @property
     def physicsnemo_model(self) -> nn.Module:
         """The underlying ``physicsnemo`` model instance."""
         return self.module.net
@@ -118,18 +147,30 @@ class GridFieldPredictor:
         return int(sum(p.numel() for p in self.module.net.parameters()))
 
     def fit_normalisation(self, a: np.ndarray, u: np.ndarray) -> None:
-        """Input mean / std and output scale from the training data."""
-        self.module.a_mean.fill_(float(np.mean(a)))
-        self.module.a_std.fill_(float(np.std(a)) or 1.0)
+        """Input mean / std per channel and output scale from the training data."""
+        a = np.asarray(a, np.float32)
+        ac = a if a.ndim == 4 else a[:, None]
+        if ac.shape[1] != self.in_channels:
+            raise ValueError(f"this model takes {self.in_channels} input channel(s), the data has {ac.shape[1]}")
+        self.module.set_stats(ac.mean(axis=(0, 2, 3)), ac.std(axis=(0, 2, 3)))
         self.module.u_scale.fill_(float(np.std(u)) or 1.0)
+
+    def _canonical(self, a) -> tuple[np.ndarray, bool]:
+        """``(n, n)`` or ``(batch, n, n)`` or ``(batch, channels, n, n)`` -> ``(batch, channels, n, n)`` + ``single``."""
+        a = np.asarray(a, dtype=np.float32)
+        single = a.ndim == 2
+        if single:
+            a = a[None, None]
+        elif a.ndim == 3:
+            a = a[:, None]
+        if a.ndim != 4 or a.shape[1] != self.in_channels or a.shape[-2:] != (self.n, self.n):
+            raise ValueError(f"this model works on {self.in_channels} channel(s) of {self.n} x {self.n} grids, "
+                             f"got {np.shape(a)}")
+        return a, single
 
     @torch.no_grad()
     def predict(self, a: np.ndarray, batch_size: int = 16) -> np.ndarray:
-        a = np.asarray(a, dtype=np.float32)
-        single = a.ndim == 2
-        a = a[None] if single else a
-        if a.shape[-2:] != (self.n, self.n):
-            raise ValueError(f"this model works on {self.n} x {self.n} grids, got {a.shape[-2:]}")
+        a, single = self._canonical(a)
         self.module.eval()
         out = [self.module(torch.from_numpy(a[i:i + batch_size])).numpy() for i in range(0, len(a), batch_size)]
         u = np.concatenate(out).astype(np.float64)
@@ -158,31 +199,39 @@ class GridFieldPredictor:
         return pred
 
 
-def physicsnemo_fno(n: int, *, latent_channels: int = 32, num_fno_layers: int = 4, num_fno_modes: int = 12,
-                    decoder_layers: int = 1, decoder_layer_size: int = 64, padding: int = 8,
+def physicsnemo_fno(n: int, *, in_channels: int = 1, latent_channels: int = 32, num_fno_layers: int = 4,
+                    num_fno_modes: int = 12, decoder_layers: int = 1, decoder_layer_size: int = 64, padding: int = 8,
                     seed: int | None = 0) -> GridFieldPredictor:
-    """A 2-D ``physicsnemo.models.fno.FNO`` (coefficient -> solution) wrapped as a :class:`GridFieldPredictor`."""
+    """A 2-D ``physicsnemo.models.fno.FNO`` (coefficient -> solution) wrapped as a :class:`GridFieldPredictor`.
+
+    ``in_channels`` packs several input fields into one sample (a map of the conductivity and a map of the local
+    coupling to a coolant, say); the output is one field.
+    """
     _require_physicsnemo()
     from physicsnemo.models.fno import FNO
     if seed is not None:
         torch.manual_seed(seed)
-    cfg = dict(latent_channels=latent_channels, num_fno_layers=num_fno_layers, num_fno_modes=num_fno_modes,
-               decoder_layers=decoder_layers, decoder_layer_size=decoder_layer_size, padding=padding)
-    net = FNO(in_channels=1, out_channels=1, dimension=2, coord_features=True, **cfg)
-    return GridFieldPredictor(_GridOperator(net, "fno", n, 0.0, 1.0, 1.0),
+    cfg = dict(in_channels=int(in_channels), latent_channels=latent_channels, num_fno_layers=num_fno_layers,
+               num_fno_modes=num_fno_modes, decoder_layers=decoder_layers,
+               decoder_layer_size=decoder_layer_size, padding=padding)
+    net = FNO(out_channels=1, dimension=2, coord_features=True, **cfg)
+    return GridFieldPredictor(_GridOperator(net, "fno", n, np.zeros(in_channels), np.ones(in_channels), 1.0,
+                                            in_channels=in_channels),
                               {"kind": "fno", "n": n, "seed": seed, **cfg}, "PhysicsNeMo FNO")
 
 
-def pinneapple_fno(n: int, *, width: int = 32, modes: int = 12, layers: int = 4, padding: int = 8,
-                   seed: int | None = 0) -> GridFieldPredictor:
+def pinneapple_fno(n: int, *, in_channels: int = 1, width: int = 32, modes: int = 12, layers: int = 4,
+                   padding: int = 8, seed: int | None = 0) -> GridFieldPredictor:
     """The library's ``FNO2d`` (coefficient -> solution, coordinate channels, ``padding`` cells of domain padding
     for the non-periodic boundary) wrapped as a :class:`GridFieldPredictor`. Needs no PhysicsNeMo."""
     from pinneapple_neural.architectures.neural_operators.fno import FNO2d
     if seed is not None:
         torch.manual_seed(seed)
-    cfg = dict(width=width, modes=modes, layers=layers, padding=padding)
-    net = FNO2d(1, 1, width=width, modes1=modes, modes2=modes, layers=layers, use_grid=True, padding=padding)
-    return GridFieldPredictor(_GridOperator(net, "pinneapple_fno", n, 0.0, 1.0, 1.0),
+    cfg = dict(in_channels=int(in_channels), width=width, modes=modes, layers=layers, padding=padding)
+    net = FNO2d(in_channels, 1, width=width, modes1=modes, modes2=modes, layers=layers, use_grid=True,
+                padding=padding)
+    return GridFieldPredictor(_GridOperator(net, "pinneapple_fno", n, np.zeros(in_channels), np.ones(in_channels),
+                                            1.0, in_channels=in_channels),
                               {"kind": "pinneapple_fno", "n": n, "seed": seed, **cfg}, "PINNeAPPle FNO2d")
 
 

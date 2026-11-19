@@ -31,7 +31,8 @@ import scipy.sparse.linalg as spla
 from .etdrk4 import ETDRK4
 
 __all__ = ["periodic_grf", "threshold_coefficient", "burgers_1d", "navier_stokes_2d_vorticity", "li_forcing",
-           "darcy_2d", "darcy_matrix", "advection_diffusion_2d", "darcy_operator", "spectral_downsample", "FourierInterpolant"]
+           "darcy_2d", "darcy_matrix", "darcy_reaction_2d", "darcy_reaction_matrix", "advection_diffusion_2d",
+           "darcy_operator", "spectral_downsample", "FourierInterpolant"]
 
 
 # --------------------------------------------------------------------------- random inputs
@@ -235,6 +236,31 @@ def darcy_matrix(a: np.ndarray, axis_weights: Sequence[float] = (1.0, 1.0)) -> s
 
 #: Name used by the validation arena and the fault-injection suite; same matrix as :func:`darcy_matrix`.
 darcy_operator = darcy_matrix
+
+
+def darcy_reaction_matrix(a: np.ndarray, sink, axis_weights: Sequence[float] = (1.0, 1.0)) -> sp.csc_matrix:
+    """The matrix of ``-div(a grad u) + s(x) u = f``: :func:`darcy_matrix` with ``s`` added to the diagonal.
+
+    ``sink`` is a field (``(n, n)``) or a scalar, ``>= 0``. Positive semi-definite and, with ``min(a) > 0`` and a
+    positive sink somewhere, positive definite; still ``>= min(a) * darcy_matrix(ones)``, which is what lets
+    :mod:`pinneapple_physics.darcy_checks` certify a field of this problem with the same constant-coefficient step.
+    """
+    a = np.asarray(a, dtype=np.float64)
+    s = np.broadcast_to(np.asarray(sink, dtype=np.float64), a.shape)
+    if (s < 0).any():
+        raise ValueError("sink must be non-negative")
+    return darcy_matrix(a, axis_weights) + sp.diags(s.ravel())
+
+
+def darcy_reaction_2d(a: np.ndarray, sink, f: float | np.ndarray = 1.0, *,
+                      axis_weights: Sequence[float] = (1.0, 1.0)) -> np.ndarray:
+    """``-div(a grad u) + s u = f`` on the unit square, ``u = 0`` on the boundary: the same finite volumes as
+    :func:`darcy_2d` plus the reaction term. A conjugate plate losing heat to a coolant is exactly this equation
+    (``a`` the in-plane conductance, ``s`` the surface coupling to the coolant, ``f`` the heat source)."""
+    a = np.asarray(a, dtype=np.float64)
+    n = a.shape[0]
+    rhs = np.broadcast_to(np.asarray(f, dtype=np.float64), (n, n)).ravel()
+    return spla.spsolve(darcy_reaction_matrix(a, sink, axis_weights), rhs).reshape(n, n)
 
 
 # --------------------------------------------------------------------------- differentiable interpolation

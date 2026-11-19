@@ -1,0 +1,119 @@
+{
+  "schema": "pinneapple.study/1",
+  "id": "9ed6a06b186165046067807576f70c7b",
+  "status": "ready",
+  "mode": "simulation",
+  "family": "laminar_pipe",
+  "title": "Pressure drop of a laminar flow along a circular pipe",
+  "objective": "the pressure needed to push a given flow rate through a pipe",
+  "domain": "fluid mechanics",
+  "physics": {
+    "equations": [
+      "mu (1/r) d/dr (r du/dr) = dp/dx   (steady, fully developed, axisymmetric momentum balance)",
+      "u(R) = 0 and du/dr(0) = 0   (no-slip at the wall, symmetry on the axis)",
+      "dp = 8 mu L Q / (pi R^4)   (Hagen-Poiseuille, the closed form the solver is checked against)",
+      "Re = rho u D / mu, laminar when Re < 2300"
+    ],
+    "assumptions": [
+      "Steady, fully developed, laminar and incompressible flow.",
+      "A Newtonian fluid of constant viscosity, in a straight circular pipe of constant section.",
+      "The entrance length and the local losses (bends, fittings, a valve) are not part of this study: it prices the straight run only, so a real circuit needs those added.",
+      "No roughness: at the Reynolds numbers this study admits, a laminar profile does not feel it."
+    ]
+  },
+  "limitations": [
+    "Turbulent flow is outside the family: above the Reynolds number this study reports, the answer it gives is the answer to a different problem.",
+    "No heat transfer, no compressibility, no non-Newtonian rheology, no transient start-up.",
+    "The pipe is a straight line: elbows, tees, valves, and the developing region near the inlet are not priced."
+  ],
+  "references": [
+    "Hagen, G. (1839) and Poiseuille, J. L. (1840): the fourth-power law for laminar pipe flow.",
+    "White, F. M., Viscous Fluid Flow, ch. 3 (the Hagen-Poiseuille solution and f = 64/Re)."
+  ],
+  "quantities": {
+    "diameter": {
+      "name": "diameter",
+      "value": 0.02,
+      "unit": "m",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "20 mm pipe"
+    },
+    "viscosity": {
+      "name": "viscosity",
+      "value": 0.001,
+      "unit": "Pa*s",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "1 mPa*s"
+    },
+    "flow_rate": {
+      "name": "flow_rate",
+      "value": 8.333333333333334e-06,
+      "unit": "m^3/s",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "0.5 L/min"
+    },
+    "length": {
+      "name": "length",
+      "value": 3.0,
+      "unit": "m",
+      "provenance": "stated",
+      "source": "user",
+      "quote": "3 m long"
+    },
+    "density": {
+      "name": "density",
+      "value": 998.2,
+      "unit": "kg/m^3",
+      "provenance": "defaulted",
+      "source": "water at 20 \u00b0C (998.2 kg/m3); change it for another fluid",
+      "quote": ""
+    }
+  },
+  "workflow": {
+    "ladder": [
+      {
+        "name": "analytic",
+        "label": "Hagen-Poiseuille closed form",
+        "method": "the exact solution of the steady, fully developed, axisymmetric momentum balance",
+        "available": true,
+        "reason": ""
+      },
+      {
+        "name": "numerical",
+        "label": "finite differences on the radial momentum balance",
+        "method": "(1/r) d/dr (r du/dr) = dp/dx discretised on the real radius, wall no-slip and axis symmetry, the profile integrated to the flow rate and the gradient that carries it solved for",
+        "available": true,
+        "reason": ""
+      },
+      {
+        "name": "convergence",
+        "label": "the same solver on two grids",
+        "method": "the numerical rung repeated at a coarser and a finer spacing, and the change of the quantity of interest between them",
+        "available": true,
+        "reason": ""
+      }
+    ],
+    "validation": [
+      "the finite-difference solve against Hagen-Poiseuille",
+      "the pressure drop under radial grid refinement",
+      "the Reynolds number against the laminar limit the family claims"
+    ]
+  },
+  "questions": [],
+  "issues": [],
+  "unsupported": [],
+  "provenance": {
+    "text": "a 20 mm pipe, 3 m long, carrying 0.5 L/min of water, viscosity 1 mPa*s",
+    "compiler": "deterministic",
+    "llm": "",
+    "llm_note": "",
+    "library_version": "0.8.0",
+    "created_at": "2026-11-18T14:02:14+00:00",
+    "seed": 0,
+    "python": "3.11.16",
+    "platform": "Darwin"
+  }
+}

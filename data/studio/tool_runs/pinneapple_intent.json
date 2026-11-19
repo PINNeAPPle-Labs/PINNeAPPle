@@ -1,0 +1,187 @@
+{
+ "pinneapple_intent.compile:compile_study": {
+  "code_hash": "264784aa33a01600",
+  "inputs": {
+   "text": "a 12 mm steel wall with k = 200 W/mK, 300 degC inside and air at 25 degC outside with h = 12 W/m2K"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "StudyContract",
+  "seconds": 12.04
+ },
+ "pinneapple_intent.compile:normalise_units": {
+  "code_hash": "ba68525de048d802",
+  "inputs": {
+   "text": "k = 5 W/mK and h = 3 W/m2K"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.compile:schema": {
+  "code_hash": "83fb086e59596925",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.execute:study": {
+  "code_hash": "b8e3b77e09fa54e3",
+  "inputs": {
+   "text": "a 12 mm steel wall with k = 200 W/mK, 300 degC inside and air at 25 degC outside with h = 12 W/m2K"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "StudyRun",
+  "seconds": 0.05
+ },
+ "pinneapple_intent.families.beam_cantilever:CantileverBeam": {
+  "code_hash": "738f3ae636cf4ec2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "CantileverBeam",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.families.beam_cantilever:closed_form": {
+  "code_hash": "dbc5d77910e9a640",
+  "inputs": {
+   "depth": 1.0,
+   "height": 0.02,
+   "length": 0.5,
+   "load": 500.0,
+   "poisson": 0.3,
+   "youngs_modulus": 210000000000.0
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.families.heat_wall:HeatWall": {
+  "code_hash": "0d496f424d97d617",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "HeatWall",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.families.heat_wall:closed_form": {
+  "code_hash": "241b455a3abbe946",
+  "inputs": {
+   "ambient": 298.15,
+   "conductivity": 200.0,
+   "h_conv": 12.0,
+   "hot_side": 573.15,
+   "thickness": 0.012
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.families.laminar_pipe:LaminarPipe": {
+  "code_hash": "a38b58b1f64ae3e0",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "LaminarPipe",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.families.laminar_pipe:hagen_poiseuille": {
+  "code_hash": "63c2bbba581ce416",
+  "inputs": {
+   "density": 998.2,
+   "diameter": 0.02,
+   "flow_rate": 8.333e-06,
+   "length": 3.0,
+   "viscosity": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.families.laminar_pipe:radial_profile": {
+  "code_hash": "da81c8e08be2f685",
+  "inputs": {
+   "diameter": 0.02,
+   "flow_rate": 8.333e-06,
+   "length": 3.0,
+   "n": 64,
+   "viscosity": 0.001
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.families:builtin": {
+  "code_hash": "f105f461b16111c2",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.family:StudyFamily": {
+  "code_hash": "d897fd79dbf97f98",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "StudyFamily",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.family:check": {
+  "code_hash": "97d908d1d49b810d",
+  "inputs": {
+   "name": "the value is finite",
+   "passed": true
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.family:families": {
+  "code_hash": "32a0015a61507613",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.family:get_family": {
+  "code_hash": "93986a18efd5adf3",
+  "inputs": {
+   "name": "heat_wall"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "HeatWall",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.family:relative_error": {
+  "code_hash": "76a7986f9220cf3b",
+  "inputs": {
+   "measured": 572.953,
+   "reference": 572.952
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_intent.family:select_family": {
+  "code_hash": "d99e93ff929b0e7f",
+  "inputs": {
+   "text": "a 12 mm steel wall with k = 200 W/mK, 300 degC inside and air at 25 degC outside with h = 12 W/m2K"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "tuple",
+  "seconds": 0.0
+ }
+}

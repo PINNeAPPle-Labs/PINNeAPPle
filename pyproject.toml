@@ -545,6 +545,7 @@ packages = [
   "pinneapple_query",        # Physics Query Engine: query(quantity, where, time, conditions, accuracy) with a planner
   "pinneapple_condense",     # Adaptive Physics Condensation: repeated-block static condensation, reduced interfaces
   "pinneapple_studio",       # PINNeAPPle Studio: every public symbol as a tool (catalog, forms, status), gallery, jobs
+  "pinneapple_intent",       # PINNeAPPle Intelligence: sentence -> typed study contract -> verified, replayable run
 
   # ── arena + compatibility shims ───────────────────────────────────────────
   "pinneapple_arena",     # YAML/JSON-driven multi-model benchmark runner
@@ -606,6 +607,7 @@ include = [
   "pinneapple_autolab/**",
   "pinneapple_condense/**",
   "pinneapple_query/**",
+  "pinneapple_intent/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

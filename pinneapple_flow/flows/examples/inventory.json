@@ -202,6 +202,10 @@
   "domain": "inspection",
   "notes": "nothing committed to compare: the script prints the losses"
  },
+ "intent_to_study": {
+  "domain": "text to simulation and text to physics AI",
+  "notes": "both sentences compile to a study contract and run their fidelity ladder (analytic, immersed/finite difference solver, refinement); physics_ai mode adds the surrogate rung, which the node exposes as the mode parameter. The wall's numbers are the script's: cold face 572.95 K, decision APPROVED"
+ },
  "latent": {
   "domain": "physics AI",
   "reason": "the study's full-order model (upwind finite-difference advection-diffusion-reaction operator, solve and residual), the envelope / hole / beyond-box samplers and the gate / AUC / coverage statistics (about 130 lines) exist only in trusted_latent_surrogate.py; the library has ParametricPOD and TrustedLatentSurrogate but no function that runs this study",
@@ -367,8 +371,8 @@
  },
  "rocket_launch": {
   "domain": "flight dynamics",
-  "status": "not_convertible",
-  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet."
+  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet.",
+  "status": "not_convertible"
  },
  "science": {
   "domain": "science",

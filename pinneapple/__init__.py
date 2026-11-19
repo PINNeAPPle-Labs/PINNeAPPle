@@ -704,6 +704,8 @@ _LAZY_ATTRS = {
     "Registry": ("pinneapple_core.registry", "Registry"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
+    "study": ("pinneapple_intent", "study"),
+    "compile_study": ("pinneapple_intent", "compile_study"),
     "PhysicsModule": ("pinneapple_core.module", "PhysicsModule"),
     "Sequential": ("pinneapple_core.module", "Sequential"),
     "SolverModule": ("pinneapple_core.module", "SolverModule"),

@@ -1,0 +1,12 @@
+{
+ "code_hash": "659526c4e2481e6b",
+ "figures": [],
+ "id": "node:intent.compile",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 100.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "Compile a sentence into a study contract -> pinneapple_intent.compile:compile_study (pp.compile_study)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'text': 'a 20 mm pipe, 3 m long, carrying 0.5 L/min of water, viscosity 1 mPa*s', 'mode': 'simulation', 'answers': {}}",
+ "timed_out": false
+}

@@ -91,6 +91,35 @@
   "seconds": 9.3,
   "writes_files": []
  },
+ "example:intent_to_study": {
+  "error": "",
+  "hash": "7cf68e1f9c5c5a52",
+  "ok": true,
+  "recorded": "2026-11-18",
+  "scripts": [
+   "examples/intent_to_study/intent_to_study.py"
+  ],
+  "seconds": 30.3,
+  "writes_files": [
+   "examples/intent_to_study/_out/beam/contract.json",
+   "examples/intent_to_study/_out/beam/report.md",
+   "examples/intent_to_study/_out/beam/run.json",
+   "examples/intent_to_study/_out/heat-wall-replay/contract.json",
+   "examples/intent_to_study/_out/heat-wall-replay/report.md",
+   "examples/intent_to_study/_out/heat-wall-replay/run.json",
+   "examples/intent_to_study/_out/heat-wall-surrogate/contract.json",
+   "examples/intent_to_study/_out/heat-wall-surrogate/report.md",
+   "examples/intent_to_study/_out/heat-wall-surrogate/run.json",
+   "examples/intent_to_study/_out/heat-wall-surrogate/trust.md",
+   "examples/intent_to_study/_out/heat-wall/contract.json",
+   "examples/intent_to_study/_out/heat-wall/report.md",
+   "examples/intent_to_study/_out/heat-wall/run.json",
+   "examples/intent_to_study/_out/pipe-laminar/contract.json",
+   "examples/intent_to_study/_out/pipe-laminar/report.md",
+   "examples/intent_to_study/_out/pipe-laminar/run.json",
+   "examples/intent_to_study/_out/summary.json"
+  ]
+ },
  "example:latent": {
   "error": "fit\n    self.rom.fit(P_train, X_train)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/tmp/studio-examples-ayhv6gae/copy0/pinneapple_neural/architectures/rom/parametric.py\", line 69, in fit\n    from sklearn.gaussian_process import GaussianProcessRegressor\nModuleNotFoundError: No module named 'sklearn'",
   "hash": "f12eec59bc931101",

@@ -158,6 +158,7 @@ class WallSpec:
     wall_layer: float = 5e-5
     seed: int = 0
     slope_weight: float = 1.0
+    slope_scale_ref: float = 5000.0
     force_weight: float = 1.0
     physics_weight: float = 0.0
     surface_pressure_weight: float = 5.0
@@ -231,7 +232,7 @@ def load_curve_batch(store: str, wall_store: str, case_ids: Sequence[str],
     return batch
 
 
-def curve_force_loss(model, cases: list[dict[str, Any]], spec: "WallSpec", device: str):
+def curve_force_loss(model, cases: list[dict[str, Any]], spec: WallSpec, device: str):
     """Squared error of the coefficients the evaluator would derive from the predicted curve, in scaled units.
 
     Drag is normalised by ``drag_scale`` — one population standard deviation of the test split is about ``0.01`` — and
@@ -290,6 +291,14 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     val_y = torch.from_numpy(val_block["targets"]).to(device)
     val_slope = torch.from_numpy(val_block["slope"]).to(device)
     val_wall = torch.from_numpy(val_block["wall"]).to(device)
+    # a fixed slice of the training cases, measured the same way as validation: the gap between the two is what tells
+    # memorisation from underfitting
+    check_block = load_wall_points(store, wall_store, list(train_ids)[:30], spec,
+                                   points_per_case=min(spec.points_per_case, 2048), seed=spec.seed + 7)
+    val_check_x = torch.from_numpy(check_block["features"]).to(device)
+    val_check_y = torch.from_numpy(check_block["targets"]).to(device)
+    check_wall = torch.from_numpy(check_block["wall"]).to(device)
+    check_slope = torch.from_numpy(check_block["slope"]).to(device)
 
     rng = np.random.default_rng(spec.seed)
     history = []
@@ -312,8 +321,11 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             loss = data_loss
             slope_loss = torch.zeros((), device=device)
             if spec.slope_weight and bool(batch_wall.any()):
-                error = heads["slope"][batch_wall] - batch_slope[batch_wall]
-                slope_loss = (error ** 2).sum() / ((batch_slope[batch_wall] ** 2).sum() + 1e-12)
+                # plain squared error on a fixed scale, which *is* the numerator of the benchmark's relative L2:
+                # normalising per batch instead reweights the cases against each other and trades the metric away —
+                # measured, the validation ratio drifted up to 2.3 while a per-batch normalisation was in use
+                truth = batch_slope[batch_wall]
+                slope_loss = ((heads["slope"][batch_wall] - truth) ** 2).mean() / spec.slope_scale_ref ** 2
                 loss = loss + spec.slope_weight * slope_loss
             force_loss = torch.zeros((), device=device)
             if spec.force_weight and step % spec.curve_every == 0:
@@ -334,19 +346,25 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
         with torch.no_grad():
             heads = model(val_x, heads=True)
             validation = float(((heads["prediction"] - val_y) ** 2).mean())
+            train_check = float(((model(val_check_x, heads=True)["prediction"] - val_check_y) ** 2).mean())
             predicted_slope = heads["slope"][val_wall]
             true_slope = val_slope[val_wall]
             slope_relative = float(((predicted_slope - true_slope) ** 2).sum()
                                    / ((true_slope ** 2).sum() + 1e-12))
             # is the error a wrong magnitude or a wrong direction? the two are fixed by different losses
             slope_ratio = float(torch.sqrt((predicted_slope ** 2).sum() / ((true_slope ** 2).sum() + 1e-12)))
+            check_predicted = model(val_check_x, heads=True)["slope"][check_wall]
+            check_truth = check_slope[check_wall]
+            train_slope_relative = float(((check_predicted - check_truth) ** 2).sum()
+                                         / ((check_truth ** 2).sum() + 1e-12))
             slope_cosine = float((predicted_slope * true_slope).sum()
                                  / (torch.sqrt((predicted_slope ** 2).sum() * (true_slope ** 2).sum()) + 1e-12))
         history.append({"epoch": epoch, "train_data": running["data"] / max(seen, 1),
-                        "train_slope_rel_l2": running["slope"] / max(seen, 1),
+                        "train_slope_step_mean": running["slope"] / max(seen, 1),
                         "train_force": running["force"] / max(1, n // spec.batch_size),
                         "val": validation, "val_slope_rel_l2": slope_relative,
-                        "val_slope_ratio": slope_ratio, "val_slope_cosine": slope_cosine})
+                        "val_slope_ratio": slope_ratio, "val_slope_cosine": slope_cosine,
+                        "train_slope_rel_l2": train_slope_relative, "train_check_mse": train_check})
         if progress:
             progress(history[-1])
         if spec.checkpoint_every and epoch % spec.checkpoint_every == 0:

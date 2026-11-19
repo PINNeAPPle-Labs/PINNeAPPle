@@ -173,7 +173,6 @@ def curve_coefficients(pressure: np.ndarray, slope: np.ndarray, cells: np.ndarra
     both at the airfoil's own points. Works on numpy and on torch tensors alike: the training loss calls it with
     tensors so the gradient flows back through the surface pressure and the slope head."""
     p_cell = 0.5 * (pressure[cells[:, 0]] + pressure[cells[:, 1]])
-    s_cell = 0.5 * (slope[cells[:, 0]] + slope[cells[:, 1]])
     normal_x = cell_normals[:, 0]
     # drag along (cos α, sin α); lift along (−sin α, cos α) — the basis row order of Simulation.force_coefficient.
     # force_p = ρ Σ p n L and the ρ cancels against the ½ρU∞² normalisation, leaving 2 Σ p n L / U∞².

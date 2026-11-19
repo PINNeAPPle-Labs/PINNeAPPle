@@ -21,25 +21,23 @@ from pinneapple_simulation.pipelines.airfrans_benchmark import (  # noqa: E402
     CoordinateNet,
     PredictionSpec,
     TrainingSpec,
+    WallAwareNet,
+    WallTruthMissing,
     case_ids_for,
     chord,
+    curve_coefficients,
     manifest_splits,
     physics_loss,
     point_features,
     predict_cases,
     sample_indices,
     scaled_targets,
-    train,
-    write_entry,
-)
-from pinneapple_simulation.pipelines.airfrans_benchmark import (  # noqa: E402
-    WallAwareNet,
-    WallTruthMissing,
-    curve_coefficients,
-    slope_from_wall_shear as wall_shear_slope,
+    slope_from_wall_shear,
     surface_rank,
+    train,
     wall_case_truth,
     wall_layer_profile,
+    write_entry,
 )
 
 AIRFOIL = np.array([[0.0, 0.0], [0.5, 0.06], [1.0, 0.0], [0.5, -0.03]])
@@ -235,22 +233,25 @@ def test_the_manifest_helpers_read_the_release_layout(tmp_path):
 # the wall layer, the slope convention and the force quadrature
 # --------------------------------------------------------------------------------------------------------------
 
-def _figure():
-    """A closed circle polyline the way a pyvista airfoil mesh stores one: one segment per cell, outward normals."""
-    count = 4096
+def _figure(count: int = 4096):
+    """A closed polyline the way a pyvista airfoil mesh stores one: one segment per cell, outward face normals.
+
+    The normals are the exact face normals of the regular polygon (not the vertices'), which is what makes the two
+    analytic identities below hold to machine precision rather than to the polygon's own discretisation error."""
     angle = np.linspace(0.0, 2.0 * np.pi, count, endpoint=False)
     points = np.stack([np.cos(angle), np.sin(angle)], axis=1)
-    normals = points.copy()                                   # outward on a unit circle
-    cells = np.stack([np.arange(count), (np.arange(count) + 1) % count], axis=1)
+    cells = np.stack([np.arange(count), (np.arange(count) + 1) % count], axis=1).astype(np.int64)
+    middle = 0.5 * (points[cells[:, 0]] + points[cells[:, 1]])
+    normals = middle / np.linalg.norm(middle, axis=1, keepdims=True)
     lengths = np.linalg.norm(points[cells[:, 1]] - points[cells[:, 0]], axis=1)
-    return points, normals, cells.astype(np.int64), lengths
+    return points, normals, cells, lengths
 
 
 def test_the_wall_slope_is_minus_the_wall_shear_over_nu():
     """``2νS·n`` is ``-ν ∂u_t/∂n`` at a wall: the stored slope is ``-wall shear/ν`` in units of ``U∞/c``."""
     wall_shear = np.array([[0.0, -3.0], [1.5, 0.0]])
     nu, inlet, chord_length = 2e-5, 30.0, 1.0
-    slope = wall_shear_slope(wall_shear, nu, inlet, chord_length)
+    slope = slope_from_wall_shear(wall_shear, nu, inlet, chord_length)
     assert np.allclose(slope, -wall_shear / nu * (chord_length / inlet))
     # and the physical wall shear comes straight back out of it
     recovered = slope * (-nu * inlet / chord_length)
@@ -259,8 +260,7 @@ def test_the_wall_slope_is_minus_the_wall_shear_over_nu():
 
 def test_a_constant_pressure_on_a_closed_curve_produces_no_force():
     """d'Alembert in its simplest form: a closed loop sees no net force from a uniform pressure."""
-    points, _, cells, lengths = _figure()
-    _, normals, _, _ = _figure()
+    points, normals, cells, lengths = _figure()
     coefficients = curve_coefficients(np.full(len(points), 0.37), np.zeros((len(points), 2)), cells, lengths,
                                       normals, cos_alpha=1.0, sin_alpha=0.0, nu=2e-5, inlet_velocity=1.0,
                                       chord=2.0)
@@ -269,13 +269,18 @@ def test_a_constant_pressure_on_a_closed_curve_produces_no_force():
 
 
 def test_a_pressure_gradient_on_a_circle_gives_the_analytic_drag():
-    """``p = -k x`` on a unit circle: ``∮ p n_x ds = -k π``, so ``cdp = 2·(-kπ)`` at ``U∞ = 1``."""
+    """``p = -k x`` on a closed loop: ``∮ p n_x ds = -k · area`` by the divergence theorem, so ``cdp = -2 k area``.
+
+    The identity holds exactly for the polyline (it is the discrete divergence theorem), so this checks the quadrature
+    and not a discretisation error."""
     points, normals, cells, lengths = _figure()
     gradient = 0.25
+    area = 0.5 * np.sum(points[cells[:, 0], 0] * points[cells[:, 1], 1]
+                        - points[cells[:, 1], 0] * points[cells[:, 0], 1])
     pressure = -gradient * points[:, 0]
     coefficients = curve_coefficients(pressure, np.zeros((len(points), 2)), cells, lengths, normals,
                                       cos_alpha=1.0, sin_alpha=0.0, nu=2e-5, inlet_velocity=1.0, chord=2.0)
-    assert coefficients["cdp"] == pytest.approx(-2.0 * gradient * np.pi, rel=2e-3)
+    assert coefficients["cdp"] == pytest.approx(-2.0 * gradient * area, rel=1e-9)
     assert abs(coefficients["clp"]) < 1e-9
 
 

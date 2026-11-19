@@ -7,6 +7,7 @@ from .crash_cases import (DESIGN_BOUNDS as CRASH_DESIGN_BOUNDS, Assembly as Cras
 from .problem_runner import generate_pinn_dataset
 from .cfd_pipeline import CFDMesh, NSFlowSolver, CADToCFDPipeline
 from .fdm3d import (
+    FDM3DSolver,
     SolverOutput3D,
     HeatConfig3D, HeatConduction3D,
     NavierStokesConfig3D, NavierStokes3D,

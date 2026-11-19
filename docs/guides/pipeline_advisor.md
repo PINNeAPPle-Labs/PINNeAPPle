@@ -49,11 +49,18 @@ stage.checks            # coverage, data gates, failures recorded -- each with t
 | 3. A mesh | a real shape needs one; a 3-D canonical domain needs a volumetric one; a 1-D/2-D analytic domain needs none |
 | 4. Have or generate | the user's own geometry and mesh are imported (and repaired, and quality-checked), never rebuilt |
 | 5. A dataset | `pinneapple_analysis.verification.architecture_recommendation.recommend_architecture` decides whether a surrogate pays off at all; a dataset on hand is used |
-| 6. Which solver, what cost | `pinneapple_analysis.verification.solver_orchestration.select_solver_family` (what is installed here and documents this physics and dimension) + the cost model of `pinneapple_advisor.estimate` |
+| 6. Which solver, what cost | the documented scope of every classical family (`_CLASSICAL_SOLVER_SCOPE`, one citation each) through `pinneapple_advisor.compose.documented_families`, with `select_solver_family` deciding and installation reported separately + the cost model of `pinneapple_advisor.estimate` |
 | 7. Sweep or surrogate | the same recommendation API: solves × evaluations against the direct budget, and against the samples a surrogate needs |
 | 8. Which architecture | `recommend_architecture` ranks PINN, XPINN, DeepONet, FNO, MeshGraphNet, PINO, inverse PINN |
 | 9. The dataset recipe | `pinneapple_autolab.study.campaign.plan_doe` (maximin, coverage metrics) + `dataset.region_split` (a test region, not random rows) |
 | 10. Checks and views | `pp.trust_card`, `pinneapple_analysis.validation.physics_learning.verify`, `grid_convergence`, `error_map`, `pp.viz.field_view`, the Studio |
+
+The family the plan recommends is the one the physics asks for, not the one this machine happens to have
+installed: the documented scope (heat in 3-D is `fdm3d`, linear elasticity in 3-D is `solid_fem`, a turbulent 3-D
+flow is `openfoam`) decides, and installation only breaks a tie between families the scope already allows. A family
+the scope names but the machine cannot run stays the recommendation, with the fact said out loud and the estimate
+assuming it; a case no classical family documents -- a 3-D wave problem, say -- says exactly that, instead of
+implying the machine is missing something.
 
 The language model is not in that table on purpose. It reads a free-text description into the brief (and answers the
 predefined questions when the words do not match a choice); every value it proposes is validated against the closed

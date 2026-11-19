@@ -12,6 +12,7 @@ mlp          multilayer perceptron (PyTorch)                        scalars, fie
 fno          Fourier neural operator, parameters as constant        fields on a 1-D or 2-D uniform grid
              input channels (``pinneapple_neural``)
 deeponet     DeepONet, branch = parameters, trunk = coordinates     fields
+ deeponet_hybrid  DeepONet with independently configured KAN-like / Fourier / MLP encoders fields
              (``pinneapple_neural``)
 pinn         physics-informed MLP u(parameters, coordinates):       fields with a declared PDE (``pde.py``)
              data loss + PDE residual
@@ -372,6 +373,34 @@ def _fit_deeponet(ctx: TrainContext) -> Fitted:
     return f
 
 
+def _fit_deeponet_hybrid(ctx: TrainContext) -> Fitted:
+    """Train a DeepONet with selectable branch/trunk via the existing budget trainer."""
+    import torch
+
+    from .hybrid import HybridDeepONet
+
+    if ctx.coords is None:
+        raise ValueError("hybrid DeepONet requires field coordinates")
+    torch.manual_seed(ctx.seed)
+    Z, Y, Zv, Yv = _tensors(ctx)
+    o = ctx.options
+    net = HybridDeepONet(
+        Z.shape[1], ctx.coords.shape[1], 1,
+        branch=o.get("branch", "rbf_kan"), trunk=o.get("trunk", "mlp"),
+        hidden=int(o.get("hidden", 64)), modes=int(o.get("modes", 32)),
+        depth=int(o.get("depth", 3)), grid_size=int(o.get("grid_size", 8)),
+        fourier_features=int(o.get("fourier_features", 16)),
+    )
+    extra = {"trunk": torch.as_tensor(_unit_coords(ctx.coords), dtype=torch.float32)}
+    Zv, Yv = _val_or_train(Zv, Yv, Z, Y)
+    run, best = _train(ctx, net, lambda idx, g: ((_deeponet_forward(net, Z[idx], extra) - Y[idx]) ** 2).mean(),
+                       lambda: ((_deeponet_forward(net, Zv, extra) - Yv) ** 2).mean(),
+                       float(o.get("lr", 2e-3)), int(o.get("batch", 32)))
+    f = _Torch("deeponet_hybrid", net, ctx, _deeponet_forward, extra)
+    f.info = {**_torch_info(run, best), "architecture": dict(net.architecture)}
+    return f
+
+
 def _pinn_forward(m, z, extra):
     import torch
     c = extra["c_unit"]
@@ -480,6 +509,8 @@ CANDIDATES: dict[str, Candidate] = {c.id: c for c in [
     Candidate("mlp", "MLP", "neural network", True, _fit_mlp, _ok),
     Candidate("fno", "FNO", "neural operator", True, _fit_fno, _field_only("FNO")),
     Candidate("deeponet", "DeepONet", "neural operator", True, _fit_deeponet, _field_only("DeepONet")),
+    Candidate("deeponet_hybrid", "Hybrid DeepONet (RBF-KAN / Fourier / MLP)", "neural operator", True,
+              _fit_deeponet_hybrid, _field_only("DeepONet")),
     Candidate("pinn", "PINN", "physics-informed", True, _fit_pinn, _pinn_check),
 ]}
 

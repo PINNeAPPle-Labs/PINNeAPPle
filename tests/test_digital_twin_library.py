@@ -1,4 +1,4 @@
-"""Tests of the Digital Twin Library: eleven reference models, each checked against its own physics.
+"""Tests of the Digital Twin Library: twelve reference models, each checked against its own physics.
 
 The tests are of two kinds, and they are labelled in their names:
 
@@ -26,10 +26,16 @@ from pinneapple_systems.digital_twin.library import (
     compare,
     describe,
     run,
+    scenarios,
 )
 from pinneapple_systems.digital_twin.library.blast_furnace import (
     BlastFurnace,
     raceway_flame_temperature,
+)
+from pinneapple_systems.digital_twin.library.carbon_capture import (
+    CarbonCapturePlant,
+    flue_molar_mass,
+    solvent_capacity,
 )
 from pinneapple_systems.digital_twin.library.chemical_plant import (
     ChemicalPlant,
@@ -41,7 +47,6 @@ from pinneapple_systems.digital_twin.library.compression_station import (
     stage_discharge_temperature,
     stage_work,
 )
-from pinneapple_systems.digital_twin.library import scenarios
 from pinneapple_systems.digital_twin.library.data_center import DataCentre
 from pinneapple_systems.digital_twin.library.desalination import (
     DesalinationPlant,
@@ -86,7 +91,7 @@ from pinneapple_systems.digital_twin.library.reusable_booster import (
     atmosphere,
 )
 
-SLUGS = ("blast_furnace", "chemical_plant", "compression_station", "data_center_cooling",
+SLUGS = ("blast_furnace", "carbon_capture_plant", "chemical_plant", "compression_station", "data_center_cooling",
          "desalination_plant", "fpso_subsea", "green_hydrogen_plant", "industrial_refrigeration",
          "lunar_base", "pipeline_network", "reusable_booster")
 
@@ -971,3 +976,72 @@ def test_the_command_line_reports_the_registry_and_can_fail_the_run(capsys):
     assert scenarios._main(["--check"]) == 0
     printed = capsys.readouterr().out
     assert "systems" in printed and "findings" in printed
+
+
+# ---------------------------------------------------------------------------
+# Carbon capture: what the solvent can carry and what the steam must pay
+# ---------------------------------------------------------------------------
+
+def test_the_flue_molar_mass_is_the_mixture_it_says():
+    for fraction in (0.04, 0.12, 0.25):
+        expected = fraction * 0.044009 + (1.0 - fraction) * 0.02896
+        assert flue_molar_mass(fraction) == pytest.approx(expected, rel=1e-12)
+
+
+def test_the_solvent_capacity_is_the_loading_window_times_the_amine():
+    # 1 kg/s of 30 wt% MEA carries (0.30 / 0.06108) mol MEA per second; over a 0.26 window, times 44 g/mol.
+    capacity = solvent_capacity(circulation_mass_flow=660.0, mea_mass_fraction=0.30, loading_window=0.26)
+    assert capacity == pytest.approx(660.0 * 0.30 / 0.06108 * 0.26 * 0.044009, rel=1e-12)
+
+
+def test_the_capture_follows_the_flue_gas_and_the_rate():
+    result = CarbonCapturePlant().simulate()
+    p = result.parameters
+    molar = p["flue_gas_flow"] / flue_molar_mass(p["co2_fraction"])
+    expected = molar * p["co2_fraction"] * p["capture_rate"] * 0.044009 * 3.6   # t/h
+    assert result.value("co2_captured") == pytest.approx(expected, rel=1e-12)
+    assert result.value("co2_inlet") == pytest.approx(expected / p["capture_rate"], rel=1e-12)
+    assert result.value("co2_emitted") == pytest.approx(result.value("co2_inlet") - result.value("co2_captured"),
+                                                        rel=1e-12)
+
+
+def test_the_reboiler_duty_is_the_sum_of_its_three_parts():
+    result = CarbonCapturePlant().simulate()
+    shares = (result.value("desorption_share") + result.value("sensible_share")
+              + result.value("vapour_share"))
+    assert shares == pytest.approx(1.0, rel=1e-12)
+    assert result.value("desorption_share") == pytest.approx(1.70 / result.value("specific_reboiler_duty"), rel=1e-9)
+
+
+def test_the_specific_duty_lands_where_a_real_mea_plant_does():
+    # 3 to 4 GJ per tonne of CO2 is the band a 30 wt% MEA plant occupies.
+    duty = CarbonCapturePlant().simulate().value("specific_reboiler_duty")
+    assert 2.8 < duty < 4.0
+
+
+def test_a_circulation_too_small_for_the_target_is_reported_as_a_gap():
+    thin = CarbonCapturePlant().simulate(solvent_circulation=1_200.0, strict=False)
+    carbon = [b for b in thin.balances if b.name == "carbon"][0]
+    assert carbon.residual > 0.3          # demand above what the solvent can carry
+    assert thin.value("circulation_margin") < 0.6
+    assert "rich_loading_inside_the_window" in [c.name for c in thin.checks if not c.passed]
+
+
+def test_more_circulation_costs_sensible_heat_without_buying_capture():
+    lean_solvent = CarbonCapturePlant().simulate(solvent_circulation=2_340.0)
+    rich_solvent = CarbonCapturePlant().simulate(solvent_circulation=4_000.0)
+    assert rich_solvent.value("sensible_share") > lean_solvent.value("sensible_share")
+    assert rich_solvent.value("specific_reboiler_duty") > lean_solvent.value("specific_reboiler_duty")
+    assert rich_solvent.value("rich_loading") < lean_solvent.value("rich_loading")
+
+
+def test_the_energy_penalty_is_the_steam_the_turbine_gives_up():
+    result = CarbonCapturePlant().simulate()
+    p = result.parameters
+    assert result.value("energy_penalty") == pytest.approx(p["steam_flow"] * p["steam_to_power"], rel=1e-12)
+
+
+def test_a_solvent_that_cannot_load_carries_nothing_is_refused():
+    # a lean loading above the rich limit is a solvent that would give CO2 back, not pick it up
+    with pytest.raises(ParameterError, match="rich loading limit"):
+        CarbonCapturePlant().simulate(lean_loading=0.35, rich_loading_limit=0.30)

@@ -1,8 +1,8 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/digital_twin_library",
- "title": "Digital Twin Library: eleven reference systems",
- "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster, lunar base, gas pipeline network, compression station, green hydrogen plant, desalination train, refrigeration plant and data centre, each a 0D/1D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
+ "title": "Digital Twin Library: twelve reference systems",
+ "description": "FPSO and subsea production, blast furnace, chemical synthesis loop, reusable booster, lunar base, gas pipeline network, compression station, green hydrogen plant, desalination train, refrigeration plant, data centre and carbon capture island, each a 0D/1D reference model with its conservation laws computed twice by independent routes and its own stated limits.",
  "domain": "digital twins",
  "methods": [
   "material balance",
@@ -25,15 +25,15 @@
  "metrics": [
   {
    "name": "scenarios_in_the_registry",
-   "value": 11.0,
+   "value": 13.0,
    "unit": "scenarios",
-   "how": "4 of them declared findings"
+   "how": "5 of them declared findings"
   },
   {
    "name": "worst_balance_residual",
    "value": 0.04151746776868173,
    "unit": "relative",
-   "how": "11 systems, all their balances"
+   "how": "12 systems, all their balances"
   },
   {
    "name": "worst_residual_over_its_tolerance",
@@ -43,7 +43,7 @@
   },
   {
    "name": "systems_in_the_catalogue",
-   "value": 11.0,
+   "value": 12.0,
    "unit": "systems",
    "how": "every system registered in the library"
   }
@@ -71,6 +71,30 @@
    "max": null,
    "min": null,
    "detail": "flame_temperature_in_band, gas_utilisation_in_band, direct_reduction_plausible, carbon_rate_industrial, slag_basicity_met, metal_hotter_than_blast",
+   "kind": "physics"
+  },
+  {
+   "name": "carbon_capture_plant: every conservation law closes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "carbon -4.9e-03; energy -2.2e-04",
+   "kind": "physics"
+  },
+  {
+   "name": "carbon_capture_plant: every invariant holds",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "rich_loading_inside_the_window, specific_duty_in_the_mea_band, desorption_dominates_the_duty, capture_below_complete, compression_is_the_smaller_cost",
    "kind": "physics"
   },
   {
@@ -334,7 +358,7 @@
    "atol": null,
    "max": null,
    "min": null,
-   "detail": "4/4: compression_station/single_stage, data_center_cooling/cold_climate, industrial_refrigeration/frozen_storage, reusable_booster/heavier_stage",
+   "detail": "5/5: carbon_capture_plant/undersized_circulation, compression_station/single_stage, data_center_cooling/cold_climate, industrial_refrigeration/frozen_storage, reusable_booster/heavier_stage",
    "kind": "physics"
   }
  ],
@@ -353,9 +377,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "acb7bb43a",
-  "created": "2026-11-17T15:37:29Z",
-  "seconds": 2.883,
+  "git": "ca7124698",
+  "created": "2026-11-17T22:25:18Z",
+  "seconds": 1.604,
   "error": null,
   "environment": {
    "python": "3.11.16",

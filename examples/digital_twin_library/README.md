@@ -1,11 +1,11 @@
-# Digital Twin Library — eleven reference systems
+# Digital Twin Library — twelve reference systems
 
 FPSO and subsea production, a blast furnace, a chemical synthesis loop, a reusable booster, a
 lunar base, a gas pipeline network, a compression station, a green hydrogen plant, a seawater
-desalination train, an industrial refrigeration plant and a data centre.
+desalination train, an industrial refrigeration plant, a data centre and a carbon capture island.
 
 ```
-python examples/digital_twin_library/01_reference_systems.py           # all eleven, full report
+python examples/digital_twin_library/01_reference_systems.py           # all twelve, full report
 python examples/digital_twin_library/01_reference_systems.py --smoke   # two of them, quick
 ```
 

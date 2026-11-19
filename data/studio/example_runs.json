@@ -54,13 +54,13 @@
  },
  "example:digital_twin_library": {
   "error": "",
-  "hash": "5c73feb5e08e8e2c",
+  "hash": "36d78fb3e1f08de7",
   "ok": true,
   "recorded": "2026-11-17",
   "scripts": [
    "examples/digital_twin_library/01_reference_systems.py"
   ],
-  "seconds": 16.9,
+  "seconds": 22.8,
   "writes_files": [
    "examples/digital_twin_library/experiment.json"
   ]

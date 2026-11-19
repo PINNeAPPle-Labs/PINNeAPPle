@@ -1,8 +1,8 @@
-"""The Digital Twin Library: eleven systems, each one closing its own conservation laws.
+"""The Digital Twin Library: twelve systems, each one closing its own conservation laws.
 
 FPSO and subsea production, a blast furnace, a chemical synthesis loop, a reusable booster, a lunar
 base, a gas pipeline network, a compression station, a green hydrogen plant, a seawater
-desalination train, an industrial refrigeration plant and a data centre. Each is a reference model: SI parameters with declared ranges, a
+desalination train, an industrial refrigeration plant, a data centre and a carbon capture island. Each is a reference model: SI parameters with declared ranges, a
 machine-readable result that carries two independent routes to every conservation law, invariants
 that must hold for any parameter set, and its own list of what it does not verify.
 
@@ -36,10 +36,10 @@ def main() -> None:
     os.makedirs(a.out, exist_ok=True)
 
     with pinneapple_lab.experiment(
-            "examples/digital_twin_library", title="Digital Twin Library: eleven reference systems",
+            "examples/digital_twin_library", title="Digital Twin Library: twelve reference systems",
             description="FPSO and subsea production, blast furnace, chemical synthesis loop, reusable "
                         "booster, lunar base, gas pipeline network, compression station, green hydrogen "
-                        "plant, desalination train, refrigeration plant and data centre, each a 0D/1D "
+                        "plant, desalination train, refrigeration plant, data centre and carbon capture island, each a 0D/1D "
                         "reference model with its conservation laws computed twice by independent routes "
                         "and its own stated limits.",
             domain="digital twins", methods=["material balance", "stoichiometry", "thermodynamic equilibrium",

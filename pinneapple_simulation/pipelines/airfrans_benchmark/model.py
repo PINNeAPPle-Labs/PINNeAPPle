@@ -27,15 +27,17 @@ def flat_plate_slope(edge_velocity: torch.Tensor, x_over_chord: torch.Tensor, in
     overfit the training cases' magnitudes: with this prior the readout only has to learn a multiplicative correction
     of order one, which is a far smaller thing to get wrong.
 
-    ``edge_velocity`` is the predicted velocity just outside the wall layer — the outer head plus the freestream —
-    so the prior is differentiable and carries no truth.
+    ``edge_velocity`` is the *scaled* velocity just outside the wall layer, in units of ``U∞`` — the outer head plus the
+    freestream channels, which travel as a unit direction — so the prior stays differentiable and carries no truth;
+    ``inlet_velocity`` puts it back into metres per second.
     """
-    speed = torch.linalg.vector_norm(edge_velocity, dim=1).clamp_min(1e-3)
-    x = x_over_chord.abs().clamp_min(1e-4) * CHORD
+    inlet = inlet_velocity.clamp_min(1e-3)
+    speed = torch.linalg.vector_norm(edge_velocity, dim=1).clamp_min(1e-3) * inlet      # m/s
+    x = x_over_chord.abs().clamp_min(1e-4) * CHORD                                        # m
     reynolds_x = (speed * x / NU).clamp_min(1.0)
     friction = coefficient * reynolds_x ** (-exponent)
     wall_shear = 0.5 * speed ** 2 * friction
-    return wall_shear / NU * (CHORD / inlet_velocity.clamp_min(1e-3))
+    return wall_shear / NU * (CHORD / inlet)
 
 
 

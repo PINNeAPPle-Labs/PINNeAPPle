@@ -384,9 +384,10 @@ def test_the_flat_plate_prior_is_the_skin_friction_law_and_is_scaled_like_the_tr
     from pinneapple_simulation.pipelines.airfrans_benchmark import flat_plate_slope
     from pinneapple_simulation.pipelines.airfrans_benchmark.model import CHORD, NU
 
-    speed, x, inlet = 60.0, 0.1, 50.0
-    edge = torch.tensor([[speed, 0.0]])
+    scaled, x, inlet = 1.2, 0.1, 50.0              # the edge speed travels in units of U∞
+    edge = torch.tensor([[scaled, 0.0]])
     value = float(flat_plate_slope(edge, torch.tensor([x]), torch.tensor([inlet]))[0])
+    speed = scaled * inlet
     reynolds = speed * x * CHORD / NU
     expected = 0.5 * speed ** 2 * 0.0576 * reynolds ** -0.2 / NU * (CHORD / inlet)
     assert value == pytest.approx(expected, rel=1e-6)

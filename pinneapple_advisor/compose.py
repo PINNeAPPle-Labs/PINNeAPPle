@@ -490,6 +490,32 @@ def _mesh_checks(turbulent: bool) -> list[dict[str, Any]]:
     return checks
 
 
+# Physics whose natural method is a PINN, and for a reason that is not a hole in the scope table. The scope table
+# lists the mesh families -- a finite difference, volume or element discretisation of a PDE on a grid -- and these two
+# kinds are not that: `sir` is an ODE system, which the library integrates in `pinneapple_physics.biology`, and
+# `black_scholes` is the pricing PDE, whose preset already carries the terminal payoff and the closed form to check
+# against. Reporting them as "no classical family documents this" would describe a document's silence where the
+# classical answer exists, so each one says what that answer is.
+_CLASSICAL_BY_NATURE: dict[str, Any] = {
+    "sir": lambda rec, dim: bi(
+        f"`sir` é um sistema de EDOs, não uma EDP de malha, e a biblioteca o integra em `pinneapple_physics.biology` "
+        f"(SIR/SEIR, com a condição de pico e R0). O `{rec}` aqui é o caminho para um surrogate sobre os parâmetros "
+        f"beta/gamma, não o substituto de um solver que falte.",
+        f"`sir` is an ODE system, not a PDE on a grid, and the library integrates it in `pinneapple_physics.biology` "
+        f"(SIR/SEIR, with the peak and R0 conditions). The `{rec}` here is the path to a surrogate over the beta and "
+        f"gamma parameters, not a stand-in for a solver that is missing."),
+    "black_scholes": lambda rec, dim: bi(
+        f"`black_scholes` é a EDP de precificação em (S, tau) com coeficientes variáveis, e não é uma das famílias de "
+        f"malha do escopo -- o preset `black_scholes_1d` traz o problema montado, com o payoff terminal e a fórmula "
+        f"fechada para conferir. O `{rec}` é o caminho documentado para V(S, tau) e para as gregas, e esse é o método "
+        f"que o caso pede, não uma compensação por falta de solver.",
+        f"`black_scholes` is the pricing PDE in (S, tau) with variable coefficients, and it is not one of the mesh "
+        f"families of the scope -- the `black_scholes_1d` preset brings the problem assembled, with the terminal "
+        f"payoff and the closed form to check against. The `{rec}` is the documented path to V(S, tau) and to the "
+        f"greeks, and that is the method this case asks for, not a compensation for a missing solver."),
+}
+
+
 def _solver_stage(brief: Brief, family: str, dim: int, method: str, solver_rec: Any, solve_est: Estimate,
                   n_evaluations: int, evaluations_source: str, direct_only: bool, study_evaluations: int,
                   decisions: list[Decision], *, installed: bool | None = None,
@@ -518,6 +544,8 @@ def _solver_stage(brief: Brief, family: str, dim: int, method: str, solver_rec: 
                  f"pede. O raciocínio completo da API está em `values.reasoning`.",
                  f"`{rec_family}`'s documented scope covers `{family}` in {dim}-D: it is the method this case asks "
                  f"for. The API's full reasoning is in `values.reasoning`.")
+    elif family in _CLASSICAL_BY_NATURE:
+        why = _CLASSICAL_BY_NATURE[family](rec_family, dim)
     elif reasoning:
         why = bi(f"Nenhuma família clássica da biblioteca documenta `{family}` em {dim}-D, então o método para este "
                  f"caso é o `{rec_family}`, que treina sobre o resíduo da EDP e não depende de solver externo. É uma "
@@ -534,7 +562,8 @@ def _solver_stage(brief: Brief, family: str, dim: int, method: str, solver_rec: 
         why=why,
         alternatives=list(getattr(solver_rec, "fallback_families", []) or []),
         values={"dimension": dim, "family": family, "caveats": caveats, "reasoning": reasoning,
-                "installed": installed, "documented": documented or []}))
+                "installed": installed, "documented": documented or [],
+                "classical_by_nature": family in _CLASSICAL_BY_NATURE}))
     total = solve_est
     count_note = (f"x {n_evaluations} evaluations ({evaluations_source})" if direct_only
                   else f"one run to calibrate the cost and give the reference field; the campaign runs "

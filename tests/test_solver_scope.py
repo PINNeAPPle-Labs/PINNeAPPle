@@ -24,6 +24,11 @@ from pinneapple_physics.pde_environment.presets.industry import (
 )
 from pinneapple_physics.pde_environment.spec import PDETermSpec, ProblemSpec
 from pinneapple_simulation.numerical_solvers.darcy import Darcy2DFVMSolver
+from pinneapple_simulation.numerical_solvers.elliptic1d import (
+    Elliptic1D,
+    Elliptic1DFDMSolver,
+    solve_elliptic_1d,
+)
 from pinneapple_simulation.numerical_solvers.elliptic3d import (
     Elliptic3D,
     Elliptic3DFDMSolver,
@@ -460,3 +465,59 @@ def test_a_2d_wave_spec_is_solved_by_the_solver_its_scope_names():
 def test_the_2d_wave_solver_refuses_a_kind_it_is_not():
     with pytest.raises(ValueError, match="wave/acoustic"):
         Wave2DFDMSolver().solve_from_spec(dc.replace(_wave2d(), pde=dc.replace(_wave2d().pde, kind="heat_equation")))
+
+
+# ----------------------------------------------------------------- 1-D Poisson / Laplace / Helmholtz
+
+
+def test_the_three_elliptic_kinds_have_a_1d_family_and_it_is_this_one():
+    for kind in ("poisson", "laplace", "helmholtz"):
+        assert [d["family"] for d in documented_families(kind, 1)] == ["elliptic1d_fdm"]
+
+
+def test_the_1d_parabola_is_exact_and_the_harmonic_line_too():
+    out = solve_elliptic_1d(Elliptic1D(n=101, rhs=-1.0))          # -u'' = 1 with the ends at zero
+    x = out["x"]
+    assert float(np.abs(out["u"] - 0.5 * x * (1.0 - x)).max()) < 1e-12
+    assert float(out["u"].max()) == pytest.approx(0.125)          # L^2 / 8
+    line = solve_elliptic_1d(Elliptic1D(n=51, u_right=1.0))       # harmonic: a straight line
+    assert float(np.abs(line["u"] - line["x"]).max()) < 1e-12
+
+
+def test_1d_helmholtz_is_second_order():
+    k = 1.0
+    errors = {}
+    for n in (51, 201):
+        out = solve_elliptic_1d(Elliptic1D(n=n, q=k**2, rhs=lambda x: (k**2 - np.pi**2) * np.sin(np.pi * x)))
+        errors[n] = float(np.abs(out["u"] - np.sin(np.pi * out["x"])).max())
+    assert errors[51] / errors[201] > 12.0
+
+
+def test_the_1d_elliptic_spec_face_reads_the_ends_and_refuses_what_it_does_not_have():
+    left = DirichletBC(name="left", fields=("u",), selector_type="callable",
+                       selector=lambda X, ctx: np.isclose(X[:, 0], 0.0),
+                       value_fn=lambda X, ctx: np.full((X.shape[0], 1), 2.0, dtype=np.float32), weight=1.0)
+    left = dc.replace(left, value_fn=lambda X, ctx: np.zeros((X.shape[0], 1), dtype=np.float32))
+    specification = ProblemSpec(name="laplace1d", dim=1, coords=("x",), fields=("u",),
+                                pde=PDETermSpec(kind="laplace", fields=("u",), coords=("x",), params={"n": 21}),
+                                conditions=(left,), domain_bounds={"x": (0.0, 1.0)})
+    assert select_solver_family(specification).recommended_family == "elliptic1d_fdm"
+    out = Elliptic1DFDMSolver().solve_from_spec(specification)
+    assert out.result.shape == (21,)
+    assert float(out.result[0]) == pytest.approx(0.0)          # the end a condition names
+    with pytest.raises(ValueError, match="poisson/laplace/helmholtz"):
+        Elliptic1DFDMSolver().solve_from_spec(dc.replace(specification, pde=dc.replace(
+            specification.pde, kind="heat_equation")))
+
+
+def test_fisher_kpp_is_claimed_by_the_reaction_diffusion_family():
+    for dim, expected in ((1, "reaction_diffusion1d"), (2, "reaction_diffusion_nd"), (3, "reaction_diffusion_nd")):
+        assert [d["family"] for d in documented_families("fisher_kpp", dim)] == [expected]
+    # a spec whose kind names Fisher-KPP takes the Fisher reaction rather than the Allen-Cahn default
+    specification = ProblemSpec(name="fisher3d", dim=3, coords=("x", "y", "z"), fields=("u",),
+                                pde=PDETermSpec(kind="fisher_kpp", fields=("u",), coords=("x", "y", "z"),
+                                                params={"n": 16, "nt": 5, "diffusion": 0.05}),
+                                conditions=(), domain_bounds={"x": (0.0, 1.0), "y": (0.0, 1.0), "z": (0.0, 1.0)})
+    out = ReactionDiffusionNDSolver().solve_from_spec(specification)
+    assert out.extras["reaction"] == "fisher"
+    assert out.result.shape == (16, 16, 16)

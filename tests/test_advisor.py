@@ -481,3 +481,28 @@ def test_the_solver_decision_speaks_the_plan_language():
     # the API explains itself in one long paragraph; the plan says the same and keeps that paragraph as data
     assert len(decision.why["pt"]) < 400
     assert "reasoning" in decision.values
+
+
+def test_the_family_comes_from_the_documented_scope_not_from_what_is_installed():
+    from pinneapple_advisor.compose import build, documented_families
+    assert [d["family"] for d in documented_families("navier_stokes", 3)] == ["openfoam"]
+    assert "fvm" in [d["family"] for d in documented_families("heat_equation", 2)]
+    # the library documents no classical family for 3-D heat: a gap in the scope table, not in this machine
+    assert documented_families("heat_equation", 3) == []
+    nothing_installed = {"numerical_solvers": {"available": False, "registered_names": []},
+                         "openfoam": {"available": False}, "fenics": {"available": False}}
+    plan = build(brief("escoamento turbulento 3D em torno de um cilindro, 200 simulações variando a velocidade",
+                       llm=False), available_families=nothing_installed).plan
+    decision = next(d for d in plan.decisions if d.topic == "solver")
+    assert decision.choice == "openfoam"           # the method, even though this machine cannot run it
+    assert decision.values["installed"] is False
+    assert "instale-a" in decision.why["pt"]
+    assert any("não está instalada" in w["pt"] for w in plan.warnings)
+
+
+def test_a_gap_in_the_documented_scope_is_not_blamed_on_the_machine():
+    plan = advise("condução transiente de calor em um suporte 3D de alumínio, tenho o STEP, sem malha", llm=False)
+    decision = next(d for d in plan.decisions if d.topic == "solver")
+    assert decision.choice in ("pinn", "xpinn")
+    assert "não desta máquina" in decision.why["pt"]
+    assert "instalada" not in decision.why["pt"]

@@ -36,8 +36,8 @@ from typing import Any
 
 #: measured seconds per design for one reference evaluation (see the module docstring)
 FIELD_SECONDS = {"pp_fin": 0.02, "pp_airfoil": 0.02, "pp_nozzle": 0.01, "pp_exchanger": 0.02,
-                 "pp_bracket": 0.06, "pp_airfoil_rans": 0.05, "pp_wing3d": 0.06, "pp_fin3d": 1.6,
-                 "pp_bracket3d": 15.0}
+                 "pp_bracket": 0.06, "pp_airfoil_rans": 0.05, "pp_wing3d": 0.06, "pp_nozzle3d": 0.02,
+                 "pp_fin3d": 1.6, "pp_exchanger3d": 0.7, "pp_bracket3d": 15.0}
 #: seconds of training per design-epoch at width 128, from the measured 3-D wing run (72 designs, 400 epochs, 518 s)
 TRAIN_SECONDS_PER_DESIGN_EPOCH = 518.0 / (72 * 400)
 
@@ -60,6 +60,10 @@ RECIPES: dict[str, dict[str, dict[str, Any]]] = {
     # 3-D: the wing is cheap (a lattice and a section solve), the two solid bodies are solver-backed
     "pp_wing3d": {"full": {"geometries": 400, "conditions": 3, "epochs": 600, "width": 128},
                   "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
+    "pp_nozzle3d": {"full": {"geometries": 400, "conditions": 4, "epochs": 600, "width": 128},
+                    "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
+    "pp_exchanger3d": {"full": {"geometries": 250, "conditions": 2, "epochs": 600, "width": 128},
+                       "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
     "pp_fin3d": {"full": {"geometries": 300, "conditions": 2, "epochs": 600, "width": 128},
                  "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
     "pp_bracket3d": {"full": {"geometries": 150, "conditions": 1, "epochs": 600, "width": 128},
@@ -67,7 +71,7 @@ RECIPES: dict[str, dict[str, dict[str, Any]]] = {
 }
 #: the order they run in: the cheap families first, so a night that gets cut short still leaves usable models
 ORDER = ("pp_fin", "pp_airfoil", "pp_nozzle", "pp_exchanger", "pp_bracket", "pp_airfoil_rans",
-         "pp_wing3d", "pp_fin3d", "pp_bracket3d")
+         "pp_wing3d", "pp_nozzle3d", "pp_fin3d", "pp_exchanger3d", "pp_bracket3d")
 
 
 def families_by_name() -> dict[str, Any]:

@@ -190,7 +190,7 @@ def test_the_bracket_is_linear_in_the_load_and_converges_with_the_mesh():
 
 def test_every_3d_family_is_registered_and_keeps_out_of_the_2d_registry():
     three = families_3d()
-    assert set(three) == {"pp_wing3d", "pp_fin3d", "pp_bracket3d"}
+    assert set(three) == {"pp_wing3d", "pp_fin3d", "pp_bracket3d", "pp_nozzle3d", "pp_exchanger3d"}
     assert not set(three) & set(families()), "the 3-D families must not enter the 2-D registry"
     for family in three.values():
         described = family.describe()
@@ -198,7 +198,8 @@ def test_every_3d_family_is_registered_and_keeps_out_of_the_2d_registry():
         assert described["reference"]["assumptions"], "a 3-D reference without assumptions is an overclaim"
 
 
-@pytest.mark.parametrize("name", ["pp_wing3d", "pp_fin3d", "pp_bracket3d"])
+@pytest.mark.parametrize("name", ["pp_wing3d", "pp_fin3d", "pp_bracket3d", "pp_nozzle3d",
+                                  "pp_exchanger3d"])
 def test_a_3d_family_round_trips_through_a_dataset(tmp_path, name):
     family = families_3d()[name]
     specs = draw(family, n_geometries=2, conditions_per_geometry=1, seed=0)
@@ -208,3 +209,126 @@ def test_a_3d_family_round_trips_through_a_dataset(tmp_path, name):
     out = generate_dataset(family, tmp_path / name, n_geometries=2, conditions_per_geometry=1, seed=0)
     assert out["n_designs"] == 2
     assert (tmp_path / name / "manifest.json").is_file()
+
+
+# ------------------------------------------------------------------------------------------------ the scarfed nozzle
+
+def _nozzle(**over) -> DesignSpec:
+    geometry = {"area_ratio_exit": 8.0, "throat_radius_m": 0.05, "half_angle_deg": 15.0, "scarf_deg": 0.0}
+    geometry.update(over.pop("geometry", {}))
+    return DesignSpec(geometry, {"gamma": 1.2, **over.pop("operating", {})})
+
+
+def test_the_scarfed_nozzle_reduces_to_the_quasi_1d_solution_at_zero_scarf():
+    """With no scarf every sector is the same sector, and each station carries the closed-form area-Mach answer."""
+    from pinneapple_physics.closed_form.compressible import isentropic_ratios
+    from pinneapple_physics.closed_form.rocket_nozzle import mach_from_area_ratio
+
+    family = families_3d()["pp_nozzle3d"]
+    spec = _nozzle()
+    mach = family.field(spec)[:, 0].reshape(family.N_AX, family.N_TH)
+    for column in range(1, family.N_TH):
+        np.testing.assert_allclose(mach[:, column], mach[:, 0], atol=1e-12)
+    points = family.points_and_normals(spec)[0].reshape(family.N_AX, family.N_TH, 3)
+    radius = np.linalg.norm(points[:, 0, 1:], axis=1)
+    ratio = (radius / 0.05) ** 2
+    expected = np.array([1.0 if abs(r - 1.0) < 1e-9 else mach_from_area_ratio(float(r), 1.2) for r in ratio])
+    np.testing.assert_allclose(mach[:, 0], expected, atol=1e-9)
+    pressure = family.field(spec)[:, 1].reshape(family.N_AX, family.N_TH)[:, 0]
+    np.testing.assert_allclose(pressure, 1.0 / isentropic_ratios(expected, 1.2)["p0_p"], atol=1e-9)
+
+
+def test_the_nozzle_mach_round_trips_through_the_area_ratio_that_defines_it():
+    """A/A*(M) computed from the Mach the family reports must be the area ratio of the station it reports it at."""
+    family = families_3d()["pp_nozzle3d"]
+    gamma = 1.2
+    spec = _nozzle(geometry={"scarf_deg": 10.0}, operating={"gamma": gamma})
+    mach = family.field(spec)[:, 0].reshape(family.N_AX, family.N_TH)
+    points = family.points_and_normals(spec)[0].reshape(family.N_AX, family.N_TH, 3)
+    ratio = (np.linalg.norm(points[:, :, 1:], axis=2) / 0.05) ** 2
+    area = (1.0 / mach) * (2.0 / (gamma + 1.0) * (1.0 + 0.5 * (gamma - 1.0) * mach ** 2)) ** (
+        (gamma + 1.0) / (2.0 * (gamma - 1.0)))
+    np.testing.assert_allclose(area, ratio, rtol=1e-7)
+
+
+def test_the_scarf_costs_exit_mach_where_it_shortens_the_sector():
+    """The sector the scarf cuts shortest has the smallest exit area, so the lowest exit Mach of the eight."""
+    family = families_3d()["pp_nozzle3d"]
+    spec = _nozzle(geometry={"scarf_deg": 15.0})
+    mach = family.field(spec)[:, 0].reshape(family.N_AX, family.N_TH)
+    points = family.points_and_normals(spec)[0].reshape(family.N_AX, family.N_TH, 3)
+    exit_mach = mach[-1]
+    exit_x = points[-1, :, 0]
+    assert len(set(np.round(exit_mach, 10))) > 1, "the scarf left every sector identical"
+    assert int(np.argmin(exit_mach)) == int(np.argmin(exit_x)), "the shortest sector is not the slowest"
+    assert int(np.argmax(exit_mach)) == int(np.argmax(exit_x)), "the longest sector is not the fastest"
+    # the scarf lengthens one side as it shortens the other, and Mach is convex in the area ratio, so the mean exit
+    # Mach is *not* below the unscarfed one: only the spread is a statement the model makes
+    spread = float(exit_mach.max() - exit_mach.min()) / float(exit_mach.mean())
+    assert 0.02 < spread < 0.15, f"the scarf produced a {spread:.1%} spread across the sectors"
+
+
+def test_the_scarfed_wall_is_a_cone_of_revolution_with_normals_into_the_flow():
+    family = families_3d()["pp_nozzle3d"]
+    spec = _nozzle(geometry={"scarf_deg": 12.0})
+    points, normals = family.points_and_normals(spec)
+    assert points.shape == (family.n_points, 3) and normals.shape == points.shape
+    np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0, atol=1e-12)
+    radius = np.linalg.norm(points[:, 1:], axis=1)
+    np.testing.assert_allclose(radius, 0.05 + points[:, 0] * math.tan(math.radians(15.0)), atol=1e-12)
+    # into the flow means the meridional component points toward the axis, and the wall is the outer surface
+    assert float(np.mean(normals[:, 1] * points[:, 1] + normals[:, 2] * points[:, 2])) < 0.0
+
+
+# ------------------------------------------------------------------------------------------------ the tube sheet
+
+def _sheet(**over) -> DesignSpec:
+    geometry = {"bore_radius_mm": 4.0, "pitch_mm": 22.0, "thickness_mm": 20.0, "margin_mm": 12.0}
+    geometry.update(over.pop("geometry", {}))
+    operating = {"t_hot_c": 120.0, "t_cold_c": 30.0, "h_tube_w_m2k": 1500.0, "h_shell_w_m2k": 800.0}
+    operating.update(over.pop("operating", {}))
+    return DesignSpec(geometry, operating)
+
+
+def test_the_tube_sheet_balances_its_energy():
+    from pinneapple_simulation import immersed as im
+
+    family = families_3d()["pp_exchanger3d"]
+    spec = _sheet()
+    (lo, hi), r_b, _, _, centres = family._plate(spec)
+    solid = im.box(lo, hi)
+    for cx, cy in centres:
+        solid = im.difference(solid, im.cylinder((cx, cy, 0.5 * hi[2]), r_b, 2.0 * hi[2], axis=2))
+    disc = im.Discretization(solid, family._h(spec), order=1)
+
+    def on_bore(X, n):
+        radial = np.hypot(X[:, None, 0] - centres[None, :, 0], X[:, None, 1] - centres[None, :, 1])
+        return (np.abs(radial.min(axis=1) - r_b) < 2e-5) & (X[:, 2] > 1e-5) & (X[:, 2] < hi[2] - 1e-5)
+
+    sol = im.solve_heat(disc, 16.0, 0.0, [
+        im.Convection(spec.operating["h_tube_w_m2k"], spec.operating["t_hot_c"], where=on_bore),
+        im.Convection(spec.operating["h_shell_w_m2k"], spec.operating["t_cold_c"],
+                      where=lambda X, n: ~on_bore(X, n))])
+    assert abs(sol.balance["imbalance"]) < 1e-6, sol.balance
+
+
+def test_the_tube_sheet_is_hotter_on_the_bores_than_on_the_faces():
+    family = families_3d()["pp_exchanger3d"]
+    spec = _sheet()
+    field = family.field(spec)[:, 0]
+    bores = family.N_BORES ** 2 * family.N_TH * family.N_AX
+    assert bores == 162 and field.shape[0] == family.n_points == 194
+    assert float(field[:bores].mean()) > float(field[bores:].mean()) + 5.0
+    assert 30.0 < float(field.min()) < float(field.max()) < 120.0
+    # and a faster shell side cools it without touching the hot side
+    cooler = family.field(_sheet(operating={"h_shell_w_m2k": 3000.0}))[:, 0]
+    assert float(cooler.max()) < float(field.max())
+
+
+def test_the_tube_sheet_refuses_touching_bores_and_inverted_inlets():
+    from pinneapple_neural.lpm_families_3d import families_3d as registry
+
+    family = registry()["pp_exchanger3d"]
+    assert family.validate(_sheet(geometry={"bore_radius_mm": 9.0, "pitch_mm": 16.0})), "touching bores passed"
+    assert family.validate(_sheet(operating={"t_hot_c": 20.0, "t_cold_c": 40.0})), "an inverted inlet passed"
+    assert family.validate(_sheet()) == ""

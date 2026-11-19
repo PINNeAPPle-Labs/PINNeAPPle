@@ -109,6 +109,8 @@ for one.
 | `pp_wing3d` | swept, tapered, twisted wing at a compressible free stream | surface Cp (960 points) | 3-D vortex lattice on the camber surface, strip-coupled to the 2-D Hess-Smith section solution, Prandtl-Glauert |
 | `pp_fin3d` | extruded-fin heat sink under a chip of known power | fin and base temperature (950 points) | 3-D conduction with a Robin boundary, immersed finite-cell method |
 | `pp_bracket3d` | L-bracket under a tip load | displacement and von Mises (192 points) | 3-D linear elasticity on conforming quadratic tetrahedra (gmsh P2) |
+| `pp_nozzle3d` | scarfed (vectoring) nozzle | wall Mach and p/p0 (128 points) | sector-wise quasi-1-D isentropic expansion on a surface of revolution |
+| `pp_exchanger3d` | tube sheet of a shell-and-tube exchanger | temperature (194 points) | 3-D conduction with a Robin condition on every surface, immersed finite-cell method |
 
 ```python
 from pinneapple_neural.lpm_families_3d import families_3d
@@ -123,10 +125,15 @@ aspect ratio grows, a symmetric section at zero incidence must carry no load, an
 divided by β. The heat sink must balance its energy and run cooler when the convection coefficient rises. The bracket
 must be linear in the load and unchanged when the mesh is refined.
 
-Two things this does **not** claim. There is no 3-D compressible Navier-Stokes here: `pp_wing3d` is the linearised
-compressible lifting surface, so a transonic case is a subsonic field stretched by 1/β and a shock is not in it. And
-the 3-D exchanger and 3-D nozzle are not built yet — each needs its own reference, and a reference that has not been
-verified is worse than none.
+The nozzle and the exchanger name the assumption that carries them, because it is the one a reader has to weigh.
+`pp_nozzle3d` expands each meridional sector as its own quasi-1-D streamtube: the sectors do not exchange mass,
+momentum or heat. The real three-dimensional flow does, and the non-uniformity that communication leaves behind is
+exactly the loss a scarf produces — so the family's exit Mach is the sector-wise answer, not the flow's.
+`pp_exchanger3d` takes both fluids as boundary conditions (film coefficients and inlets) and solves only the metal: it
+is the temperature a thermal-stress analysis would take as input, not the stress.
+
+One thing none of them claims: there is no 3-D compressible Navier-Stokes here. `pp_wing3d` is the linearised
+compressible lifting surface, so a transonic case is a subsonic field stretched by 1/β and a shock is not in it.
 
 A note on the bracket, because it is the kind of thing a card cannot say for itself: the immersed finite-cell grid was
 the first attempt, the one the heat sink uses, and it was rejected here. On a thin plate in bending at order one,
@@ -168,6 +175,8 @@ The full recipe, as estimated from the measured cost of one reference evaluation
 | `pp_airfoil_rans` | the campaign's 372 runs | 19 s (a 500 MB download the first time) | 1.3 h | no design space of ours: its authors' |
 | `pp_wing3d` | 400 × 3 | 72 s | 3.6 h | a lattice and a section solve per design |
 | `pp_fin3d` | 300 × 2 | 16 min | 1.8 h | 3-D immersed heat, ~1.6 s per design |
+| `pp_nozzle3d` | 400 × 4 | 32 s | 3.6 h | closed form per sector, milliseconds |
+| `pp_exchanger3d` | 250 × 2 | 6 min | 1.5 h | 3-D immersed heat, ~0.7 s per design |
 | `pp_bracket3d` | 150 × 1 | 38 min | 0.5 h | P2 tet mesh and direct solve, ~15 s per design |
 
 About 28 hours in all on one machine, and the two 3-D solids are half of the wall clock even though they are the two

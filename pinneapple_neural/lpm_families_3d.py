@@ -472,8 +472,248 @@ class Bracket3D(FieldFamily):
         return ""
 
 
+# ------------------------------------------------------------------------------ the 3-D nozzle: a scarfed exit
+
+class ScarfedNozzle3D(FieldFamily):
+    """A diverging nozzle whose exit plane is cut at an angle: wall Mach and p/p0 over the three-dimensional wall.
+
+    A scarfed nozzle is what a thrust-vectoring installation uses: the exit plane is not perpendicular to the axis, so
+    the expansion ratio, the exit Mach and the wall pressure all vary with the azimuth. The wall is a surface of
+    revolution, and the field lives on it.
+
+    The reference is the **sector-wise quasi-1-D isentropic** model, which is the standard preliminary-design rule for
+    a scarfed contour: each meridional sector expands from the throat to its own exit station with its own area ratio,
+    and the sectors do not exchange mass or momentum. That last sentence is the assumption to read twice — the real
+    three-dimensional flow *does* communicate, and the non-uniformity the communication leaves behind is exactly the
+    loss a scarf produces. A card on this family says so.
+
+    What it gets right, and the tests check: with the scarf at zero the sectors are identical and reproduce the
+    quasi-1-D solution of :class:`pinneapple_neural.lpm_families.ConicalNozzle` exactly; the area-Mach inversion is the
+    same closed form, so A/A*(M) round-trips; and the exit Mach falls as the scarf shortens a sector's expansion.
+    """
+
+    name = "pp_nozzle3d"
+    title = "Scarfed (vectoring) nozzle: wall Mach and pressure over the three-dimensional wall"
+    domain = "propulsion / thrust-vectoring nozzles"
+    dim = 3
+    field_names = ("mach", "pressure_over_chamber")
+    field_units = ("-", "-")
+    field_scale = (5.0, 1.0)
+    characteristic_length_m = 0.25
+    n_points = 16 * 8
+    tolerance = 0.03
+    geometry_params = {"area_ratio_exit": (2.0, 20.0), "throat_radius_m": (0.020, 0.080),
+                       "half_angle_deg": (10.0, 25.0), "scarf_deg": (0.0, 18.0)}
+    operating_params = {"gamma": (1.15, 1.30)}
+    reference = Reference(
+        name="sector-wise quasi-1-D isentropic expansion on a scarfed contour",
+        citation=("Sutton & Biblarz, Rocket Propulsion Elements, 9th ed. (2017) ch. 3 and 11 (scarfed and vectoring "
+                  "nozzles); NACA Report 1135 (1953) eqs. 43-45; code: pinneapple_physics.closed_form.compressible "
+                  "and .rocket_nozzle, the same inverter the 2-D family uses"),
+        assumptions=("each azimuthal sector is a quasi-1-D isentropic streamtube: the sectors do not exchange mass, "
+                     "momentum or heat, which is what a scarf costs in reality and is not modelled here",
+                     "the wall is a cone from the throat to the exit, with no throat curvature and no boundary layer",
+                     "constant gamma, calorically perfect gas, flow attached and expanded to each sector's area ratio",
+                     "the field is p/p_chamber and Mach; the physical pressure is that times the chamber pressure"),
+        implements="analytic",
+    )
+
+    #: axial stations from the throat to each sector's exit, and the azimuths around the wall
+    N_AX = 16
+    N_TH = 8
+
+    def _contour(self, spec: DesignSpec) -> tuple[float, float, float]:
+        """Throat radius, cone half-angle tangent and the nominal (unscarfed) exit station."""
+        g = spec.geometry
+        rt = g["throat_radius_m"]
+        r_exit = rt * math.sqrt(g["area_ratio_exit"])
+        tan_half = math.tan(math.radians(g["half_angle_deg"]))
+        return rt, tan_half, (r_exit - rt) / tan_half
+
+    def _stations(self, spec: DesignSpec) -> np.ndarray:
+        """``(N_AX, N_TH)`` axial stations: every azimuth runs from the throat to its own scarfed exit.
+
+        The exit plane is ``x + tan(scarf) y = L``, and on the cone ``x = (L - tan(scarf) sin(theta) r_t) /
+        (1 + tan(scarf) sin(theta) tan(half))`` -- written out rather than iterated, so the same geometry comes back
+        every time.
+        """
+        rt, tan_half, length = self._contour(spec)
+        theta = np.linspace(0.0, 2.0 * np.pi, self.N_TH, endpoint=False)
+        scarf = math.tan(math.radians(spec.geometry["scarf_deg"]))
+        x_exit = (length - scarf * np.sin(theta) * rt) / (1.0 + scarf * np.sin(theta) * tan_half)
+        s = np.linspace(0.0, 1.0, self.N_AX)[:, None]
+        return s * x_exit[None, :]
+
+    def points_and_normals(self, spec: DesignSpec) -> tuple[np.ndarray, np.ndarray]:
+        """The diverging wall of revolution, with the normal pointing into the flow."""
+        rt, tan_half, _ = self._contour(spec)
+        x = self._stations(spec)
+        th = np.linspace(0.0, 2.0 * np.pi, self.N_TH, endpoint=False)
+        theta = th[None, :]
+        r = rt + x * tan_half
+        points = np.stack([x, r * np.cos(theta), r * np.sin(theta)], axis=-1).reshape(-1, 3)
+        # meridional outward normal of a cone is (-tan(half), 1)/sqrt(1+tan^2); into the flow it flips
+        scale = math.hypot(tan_half, 1.0)
+        base = np.stack([np.full(self.N_TH, -tan_half / scale), np.cos(th) / scale, np.sin(th) / scale], axis=1)
+        normals = -np.broadcast_to(base[None, :, :], (self.N_AX, self.N_TH, 3)).reshape(-1, 3)
+        return points, normals
+
+    def field(self, spec: DesignSpec) -> np.ndarray:
+        from pinneapple_physics.closed_form.compressible import isentropic_ratios
+        from pinneapple_physics.closed_form.rocket_nozzle import mach_from_area_ratio
+
+        gamma = spec.operating["gamma"]
+        rt, tan_half, _ = self._contour(spec)
+        x = self._stations(spec)
+        ratio = ((rt + x * tan_half) / rt) ** 2                       # A/A* of each station of each sector
+        mach = np.array([[1.0 if abs(a - 1.0) < 1e-9 else mach_from_area_ratio(float(a), gamma, supersonic=True)
+                          for a in row] for row in ratio])
+        pressure = 1.0 / isentropic_ratios(mach, gamma)["p0_p"]
+        return np.stack([mach.reshape(-1), pressure.reshape(-1)], axis=1)
+
+    def validate(self, spec: DesignSpec) -> str:
+        if spec.geometry["scarf_deg"] >= 45.0:
+            return "a scarf beyond 45 degrees is outside the sector-wise model's range"
+        if spec.geometry["area_ratio_exit"] < 1.0:
+            return "the exit must be larger than the throat"
+        return ""
+
+    def ood_probes(self) -> list[tuple[str, DesignSpec]]:
+        """A 35 deg scarf with an area ratio of 40: twice the trained angle and twice the trained expansion."""
+        return [("a 35 deg scarf at an area ratio of 40",
+                 DesignSpec({"area_ratio_exit": 40.0, "throat_radius_m": 0.05, "half_angle_deg": 15.0,
+                             "scarf_deg": 35.0}, {"gamma": 1.2}, label="probe:scarf"))]
+
+
+# ------------------------------------------------------------------------ the 3-D exchanger: the tube sheet
+
+class TubeSheet3D(FieldFamily):
+    """The tube sheet of a shell-and-tube exchanger: temperature through a plate drilled for nine tubes.
+
+    The tube sheet is the part that decides whether an exchanger survives: it sees the hot tube-side fluid on the
+    bores, the cool shell-side fluid on both faces and the rim, and the temperature difference between them is what
+    produces the thermal stress the mechanical design has to carry. The field is that temperature over the plate and
+    the bore walls.
+
+    Geometry: bore radius, pitch, thickness and margin — the four numbers that set how much metal sits between the
+    tubes. Operating point: both inlet temperatures and both film coefficients.
+
+    The reference is 3-D steady conduction in the plate with a Robin condition on every surface: ``h_tube`` and the
+    hot inlet on the bores, ``h_shell`` and the cold inlet on the faces and the rim, solved by the immersed
+    finite-cell method. It is a solver, so what a card can claim is energy balance, mesh convergence and the sign of
+    every gradient, and the tests check those.
+    """
+
+    name = "pp_exchanger3d"
+    title = "Tube sheet of a shell-and-tube exchanger: 3-D temperature from the bores to the shell side"
+    domain = "energy / heat exchanger mechanical and thermal design"
+    dim = 3
+    field_names = ("temperature_c",)
+    field_units = ("degC",)
+    field_scale = (50.0,)
+    characteristic_length_m = 0.10
+    n_points = 9 * 6 * 3 + 2 * 4 * 4
+    tolerance = 0.05
+    geometry_params = {"bore_radius_mm": (2.5, 6.0), "pitch_mm": (14.0, 30.0), "thickness_mm": (12.0, 30.0),
+                       "margin_mm": (8.0, 20.0)}
+    operating_params = {"t_hot_c": (80.0, 180.0), "t_cold_c": (15.0, 45.0),
+                        "h_tube_w_m2k": (500.0, 3000.0), "h_shell_w_m2k": (200.0, 1500.0)}
+    reference = Reference(
+        name="3-D steady conduction in the tube sheet with a convective boundary on every surface",
+        citation=("Burman & Hansbo (2010, 2012) ghost penalty; Nitsche (1971); Kern (1950) for the film "
+                  "coefficients the operating point carries; code: pinneapple_simulation.immersed.solve_heat"),
+        assumptions=("the two fluids are boundary conditions, not flows: h_tube and h_shell are given and no "
+                     "shell-side or tube-side flow is solved",
+                     "constant conductivity and no fouling resistance, no axial conduction along the tubes outside "
+                     "the plate, no thermal contact resistance, no radiation",
+                     "the plate is stress-free: this is the temperature that a thermal-stress analysis would take as "
+                     "input, not the stress itself"),
+        implements="solver",
+    )
+
+    #: bores: a 3 x 3 square pattern, fixed, because the field of a design has to line up with every other design
+    N_BORES = 3
+    N_TH = 6
+    N_AX = 3
+
+    def _plate(self, spec: DesignSpec) -> tuple[np.ndarray, float, float, float, np.ndarray]:
+        """Plate corners, bore radius, thickness and the bore centres (all in metres)."""
+        g = spec.geometry
+        r_b, pitch = g["bore_radius_mm"] * 1e-3, g["pitch_mm"] * 1e-3
+        thickness, margin = g["thickness_mm"] * 1e-3, g["margin_mm"] * 1e-3
+        side = 3 * pitch + 2 * margin
+        centres = np.array([[margin + pitch * (i + 0.5), margin + pitch * (j + 0.5)]
+                            for i in range(self.N_BORES) for j in range(self.N_BORES)])
+        return np.array([[0.0, 0.0, 0.0], [side, side, thickness]]), r_b, thickness, side, centres
+
+    def points_and_normals(self, spec: DesignSpec) -> tuple[np.ndarray, np.ndarray]:
+        """The bore walls and the two faces: the surfaces the model reads the field from."""
+        (lo, hi), r_b, thickness, side, centres = self._plate(spec)
+        theta = np.linspace(0.0, 2.0 * np.pi, self.N_TH, endpoint=False)
+        z = np.linspace(0.25 * thickness, 0.75 * thickness, self.N_AX)
+        wall = np.array([[[(cx + r_b * math.cos(t), cy + r_b * math.sin(t), zi) for t in theta]
+                          for zi in z] for cx, cy in centres]).reshape(-1, 3)
+        wall_n = np.array([[[(math.cos(t), math.sin(t), 0.0) for t in theta] for _ in z]
+                           for _ in centres]).reshape(-1, 3)
+        # the faces are sampled on the ligament centres and in the margin bands: every one of them is solid for any
+        # bore and pitch the family draws, so a design's point cloud lines up with every other design's
+        pitch = centres[1, 0] - centres[0, 0]
+        margin = centres[0, 0] - 0.5 * pitch
+        u = np.array([0.5 * margin, margin + pitch, margin + 2.0 * pitch, side - 0.5 * margin])
+        gx, gy = np.meshgrid(u, u, indexing="ij")
+        faces, face_n = [], []
+        for zface, sign in ((0.0, -1.0), (thickness, 1.0)):
+            pts = np.stack([gx.ravel(), gy.ravel(), np.full(gx.size, zface)], axis=1)
+            faces.append(pts)
+            face_n.append(np.tile([0.0, 0.0, sign], (len(pts), 1)))
+        return np.concatenate([wall] + faces), np.concatenate([wall_n] + face_n)
+
+    def _h(self, spec: DesignSpec) -> float:
+        """A quarter of the pitch: the metal between two bores is what the field turns on."""
+        return float(spec.geometry["pitch_mm"]) * 0.25e-3
+
+    def field(self, spec: DesignSpec) -> np.ndarray:
+        from pinneapple_simulation import immersed as im
+
+        (lo, hi), r_b, _, _, centres = self._plate(spec)
+        solid = im.box(lo, hi)
+        for cx, cy in centres:
+            solid = im.difference(solid, im.cylinder((cx, cy, 0.5 * hi[2]), r_b, 2.0 * hi[2], axis=2))
+        disc = im.Discretization(solid, self._h(spec), order=1)
+
+        def on_bore(X, n):
+            # a point is on a bore wall when its distance to the nearest bore axis is the bore radius and it is not on
+            # one of the two faces: the tolerance is the cut-cell boundary's own, about 1e-6 m
+            radial = np.hypot(X[:, None, 0] - centres[None, :, 0], X[:, None, 1] - centres[None, :, 1])
+            on_wall = np.abs(radial.min(axis=1) - r_b) < 2e-5
+            inside = (X[:, 2] > 1e-5) & (X[:, 2] < hi[2] - 1e-5)
+            return on_wall & inside
+
+        bcs = [im.Convection(spec.operating["h_tube_w_m2k"], spec.operating["t_hot_c"], where=on_bore),
+               im.Convection(spec.operating["h_shell_w_m2k"], spec.operating["t_cold_c"],
+                             where=lambda X, n: ~on_bore(X, n))]
+        sol = im.solve_heat(disc, 16.0, 0.0, bcs)                    # stainless steel, W/m.K
+        pts, _ = self.points_and_normals(spec)
+        return sol(pts)[:, None]
+
+    def validate(self, spec: DesignSpec) -> str:
+        g, op = spec.geometry, spec.operating
+        if op["t_hot_c"] <= op["t_cold_c"]:
+            return "the hot inlet must be hotter than the cold inlet for the reference to have a direction"
+        if 2.0 * g["bore_radius_mm"] >= 0.8 * g["pitch_mm"]:
+            return "the bores touch: the ligament between tubes must be positive"
+        return ""
+
+    def ood_probes(self) -> list[tuple[str, DesignSpec]]:
+        """A plate with 4x the film coefficients and a 160 K difference across it."""
+        return [("a 160 K difference at 6000 W/m2K",
+                 DesignSpec({"bore_radius_mm": 3.0, "pitch_mm": 12.0, "thickness_mm": 10.0, "margin_mm": 6.0},
+                            {"t_hot_c": 190.0, "t_cold_c": 30.0, "h_tube_w_m2k": 6000.0, "h_shell_w_m2k": 4000.0},
+                            label="probe:hot"))]
+
+
 def families_3d() -> dict[str, FieldFamily]:
     """The 3-D families by name. Kept apart from :func:`pinneapple_neural.lpm_pipeline.families` so the five 2-D
     families and their measured numbers stay what they are."""
-    fams = (Wing3D(), FinHeatSink3D(), Bracket3D())
+    fams = (Wing3D(), FinHeatSink3D(), Bracket3D(), ScarfedNozzle3D(), TubeSheet3D())
     return {f.name: f for f in fams}

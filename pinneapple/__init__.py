@@ -735,6 +735,13 @@ _LAZY_ATTRS = {
     "StudyModel":      ("pinneapple_analysis.study_models", "StudyModel"),
     "score_against_reference": ("pinneapple_analysis.verification.physics_confidence_score",
                                 "score_against_reference"),
+    # The analysis contract: a calculation that declares its inputs, never raises at the caller and words its
+    # own finding in English or Portuguese (pinneapple_core/analysis)
+    "analysis":        ("pinneapple_core.analysis", "analysis"),
+    "analyses":        ("pinneapple_core.analysis", "analyses"),
+    "run_analysis":    ("pinneapple_core.analysis", "run_analysis"),
+    "analysis_card":   ("pinneapple_core.analysis", "analysis_card"),
+    "check_analysis":  ("pinneapple_core.analysis", "check_analysis"),
 }
 
 
@@ -873,4 +880,6 @@ __all__ = [
     "symbolic", "backend", "dynamics", "worldmodel",
     # Decision layer (lazy): which physics-AI experiment to run next
     "decision", "decide", "execute", "verify", "run_tree", "decision_engine",
+    # Analysis contract (lazy): what a calculation takes, what it gives back, the sentence it words
+    "analysis", "analyses", "run_analysis", "analysis_card", "check_analysis",
 ]

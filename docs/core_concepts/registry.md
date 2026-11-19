@@ -12,7 +12,7 @@ pp.resolve("solver", "my_solver")                          # the object itself
 pp.unregister("solver", "my_solver")
 ```
 
-The same four calls work for all nine kinds. Each kind declares once what it accepts, in `pp.registry.KINDS`, and
+The same four calls work for all ten kinds. Each kind declares once what it accepts, in `pp.registry.KINDS`, and
 registering something of the wrong type fails with `WrongType`, naming the kind and what it takes:
 
 | Kind | Accepts | Where it also lands |
@@ -26,6 +26,7 @@ registering something of the wrong type fails with `WrongType`, naming the kind 
 | `geometry` | a `Geometry` instance or subclass | — |
 | `material` | a `Material` | `pinneapple_design`'s `MATERIALS` |
 | `optimizer` | a `PhysicsOptimizer` subclass | — |
+| `analysis` | an `Analysis`: a calculation that declares its inputs, outputs and finding | `pinneapple_core.analysis`, so `pp.run_analysis(name)` runs it (see [the analysis contract](analysis_contract.md)) |
 
 Where the fourth column says "this module", the kind had no registry of its own before: `pp.resolve` is how the rest of
 the library — and a plugin — finds what was registered there. What the kind reaches is reported back:

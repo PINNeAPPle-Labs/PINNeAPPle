@@ -1,4 +1,4 @@
-"""One registry protocol for every extensible object type (#200): the same suite runs for all nine kinds."""
+"""One registry protocol for every extensible object type (#200): the same suite runs for all ten kinds."""
 import numpy as np
 import pytest
 
@@ -77,6 +77,18 @@ def _optimizer():
     return RegistryOptimizer
 
 
+def _analysis():
+    """An analysis coupon: a declared calculation, the object ``kind="analysis"`` takes."""
+    from pinneapple_core.analysis import Analysis, InputSpec, OutputSpec
+
+    def coupon(x):
+        return {"y": 2.0 * x}
+
+    return Analysis(id="registry_coupon_analysis", function=coupon, label="registry coupon",
+                    inputs={"x": InputSpec(label="the only input")},
+                    outputs={"y": OutputSpec(unit="-", label="the double")}, example={"x": 1.0})
+
+
 SAMPLES = {                       # kind -> (object, extra keyword arguments for register, a wrong object for the kind)
     "physics": (_preset, {}, 42),
     "model": (_model_class(), {}, "not a model"),
@@ -87,6 +99,7 @@ SAMPLES = {                       # kind -> (object, extra keyword arguments for
     "geometry": (_geometry(), {}, "not a geometry"),
     "material": (_material(), {}, "not a material"),
     "optimizer": (_optimizer(), {}, 7),
+    "analysis": (_analysis(), {}, 11),
 }
 
 
@@ -108,8 +121,8 @@ def kind(request):
 
 
 def test_every_kind_is_declared_once_with_what_it_accepts():
-    assert registry.kinds() == ["benchmark", "dataset", "geometry", "material", "model", "operator", "optimizer",
-                                "physics", "solver"]
+    assert registry.kinds() == ["analysis", "benchmark", "dataset", "geometry", "material", "model", "operator",
+                                "optimizer", "physics", "solver"]
     for name, reg in registry.KINDS.items():
         assert reg.kind == name and reg.accepts_doc and reg.home
     assert pp.registry is registry
@@ -154,6 +167,14 @@ def test_a_duplicate_is_refused_and_replace_overwrites(kind):
             """The object the replace=True half of this test swaps in."""
 
         marker = ReplacementOptimizer
+    if k == "analysis":
+        from pinneapple_core.analysis import Analysis, InputSpec, OutputSpec
+
+        def replacement(x):
+            return {"y": 3.0 * x}
+
+        marker = Analysis(id=name, function=replacement, label="the replacement coupon",
+                          inputs={"x": InputSpec()}, outputs={"y": OutputSpec()}, example={"x": 1.0})
     pp.register(marker, kind=k, name=name, replace=True, **extra)
     assert pp.resolve(k, name) is marker
     pp.unregister(k, name)

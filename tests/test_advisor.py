@@ -487,8 +487,10 @@ def test_the_family_comes_from_the_documented_scope_not_from_what_is_installed()
     from pinneapple_advisor.compose import build, documented_families
     assert [d["family"] for d in documented_families("navier_stokes", 3)] == ["openfoam"]
     assert "fvm" in [d["family"] for d in documented_families("heat_equation", 2)]
-    # the library documents no classical family for 3-D heat: a gap in the scope table, not in this machine
-    assert documented_families("heat_equation", 3) == []
+    # 3-D heat and 3-D elasticity have their own documented families now (fdm3d, solid_fem), and the table is
+    # read for what each family documents rather than for what happens to be installed
+    assert [d["family"] for d in documented_families("heat_equation", 3)] == ["fdm3d"]
+    assert [d["family"] for d in documented_families("linear_elasticity", 3)] == ["solid_fem"]
     nothing_installed = {"numerical_solvers": {"available": False, "registered_names": []},
                          "openfoam": {"available": False}, "fenics": {"available": False}}
     plan = build(brief("escoamento turbulento 3D em torno de um cilindro, 200 simulações variando a velocidade",
@@ -501,7 +503,8 @@ def test_the_family_comes_from_the_documented_scope_not_from_what_is_installed()
 
 
 def test_a_gap_in_the_documented_scope_is_not_blamed_on_the_machine():
-    plan = advise("condução transiente de calor em um suporte 3D de alumínio, tenho o STEP, sem malha", llm=False)
+    # 3-D acoustics: the library's wave solvers document one dimension only, which is a gap in the scope table
+    plan = advise("propagação de onda acústica 3D em uma sala, tenho o STEP, sem malha", llm=False)
     decision = next(d for d in plan.decisions if d.topic == "solver")
     assert decision.choice in ("pinn", "xpinn")
     assert "não desta máquina" in decision.why["pt"]

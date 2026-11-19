@@ -23,6 +23,10 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
+import torch
+
+from .base import SolverBase, SolverOutput
+from .registry import SolverRegistry
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -895,6 +899,136 @@ class ChannelFlowSolver3D:
         )
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# The registry face: a ProblemSpec in, the 3-D heat solve out
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@SolverRegistry.register(
+    name="fdm3d",
+    family="pde",
+    description="3-D finite differences: transient heat conduction in a box (explicit Euler + central "
+                "differences, every wall held cold, optional volumetric source), incompressible flow and "
+                "elastic waves",
+    tags=["fdm", "heat", "3d", "transient", "explicit"],
+)
+class FDM3DSolver(SolverBase):
+    """``solve_from_spec`` for the one step of this module that a ``ProblemSpec`` can express: transient heat
+    conduction in a box whose six walls are held at zero.
+
+    ``HeatConduction3D`` documents exactly that domain and that boundary, so a spec asking for anything else --
+    a wall at a non-zero temperature, a flux, a convection -- is refused here by name instead of being run with
+    a boundary it does not have. The spec's parameters this reads (``spec.pde.params``, all optional except
+    ``alpha``):
+
+    - ``alpha`` thermal diffusivity [m^2/s]; ``k/(rho*cp)`` are read as a fallback;
+    - ``nx``, ``ny``, ``nz`` grid points (default 24 each);
+    - ``nt`` steps (default 60) and ``dt`` (default: 40 % of the explicit stability bound);
+    - ``T0`` uniform initial temperature (default 1.0; zero would stay zero);
+    - ``source`` constant volumetric source (default 0.0).
+    """
+
+    def solve_from_spec(self, spec) -> SolverOutput:
+        kind = str(getattr(spec.pde, "kind", "")).lower().replace("-", "_").replace(" ", "_")
+        if not any(k in kind for k in ("heat", "diffusion")):
+            raise ValueError(
+                f"fdm3d solves heat/diffusion in 3-D, and the spec's kind is '{kind}'. Its documented scope is "
+                f"HeatConduction3D: dT/dt = alpha*lap(T) + q on a box, every wall at zero.")
+        params = dict(getattr(spec.pde, "params", {}) or {})
+        bounds = dict(getattr(spec, "domain_bounds", {}) or {})
+        lx, ly, lz = (abs(bounds.get(axis, (0.0, 1.0))[1] - bounds.get(axis, (0.0, 1.0))[0])
+                      for axis in ("x", "y", "z"))
+        alpha = params.get("alpha")
+        if alpha is None and params.get("k") is not None:
+            rho = float(params.get("rho", 1.0))
+            cp = float(params.get("cp", 1.0))
+            alpha = float(params["k"]) / (rho * cp)
+        if alpha is None:
+            raise ValueError("fdm3d needs the thermal diffusivity in spec.pde.params['alpha'] (or k, rho, cp)")
+        alpha = float(alpha)
+
+        nx = int(params.get("nx", 24))
+        ny = int(params.get("ny", 24))
+        nz = int(params.get("nz", 24))
+        self._check_walls_are_cold(spec, bounds, nx, ny, nz)
+
+        dx, dy, dz = lx / max(nx - 1, 1), ly / max(ny - 1, 1), lz / max(nz - 1, 1)
+        dt = params.get("dt")
+        if dt is None:
+            dt = 0.4 / (alpha * (1.0 / dx**2 + 1.0 / dy**2 + 1.0 / dz**2))
+        t0 = self._initial_temperature(spec, bounds, params)
+        source = float(params.get("source", 0.0))
+        cfg = HeatConfig3D(
+            nx=nx, ny=ny, nz=nz, nt=int(params.get("nt", 60)), lx=lx, ly=ly, lz=lz,
+            dt=float(dt), alpha=alpha,
+            ic_fn=lambda X, Y, Z: np.full_like(np.asarray(X, dtype=np.float64), t0),
+            source_fn=(lambda X, Y, Z, t: np.full_like(np.asarray(X, dtype=np.float64), source))
+            if source else None,
+        )
+        out = HeatConduction3D(cfg).solve()
+        field = torch.from_numpy(np.asarray(out.u[-1], dtype=np.float32))
+        return SolverOutput(
+            result=field,
+            losses={"max_T": torch.tensor(float(np.max(out.u[-1])))},
+            extras={"method": "fdm3d_heat_conduction", "grid": (nx, ny, nz), "dt": float(dt),
+                    "nt": cfg.nt, "alpha": alpha, "T0": t0, "source": source,
+                    "coords": out.coords, "history_shape": tuple(np.shape(out.u))},
+        )
+
+    @staticmethod
+    def _initial_temperature(spec, bounds, params) -> float:
+        """The uniform start ``HeatConduction3D`` needs: ``params["T0"]`` when given, else the spec's own
+        initial condition when that one is a constant, else 1.0 when the spec says nothing at all. A start that
+        varies in space is refused by name -- this solver cannot take a field as its initial condition."""
+        if params.get("T0") is not None:
+            return float(params["T0"])
+        initial = [c for c in (getattr(spec, "conditions", ()) or ())
+                   if str(getattr(c, "kind", "")).startswith("initial")]
+        if not initial:
+            return 1.0
+        from . import _bc
+
+        rng = np.random.default_rng(0)
+        axes = [bounds.get(a, (0.0, 1.0)) for a in ("x", "y", "z")]
+        pts = np.column_stack([rng.uniform(lo, hi, 64) for lo, hi in axes])
+        if "t" in (tuple(getattr(spec, "coords", ()) or ())):
+            pts = np.column_stack([pts, np.zeros(len(pts))])
+        values = np.asarray(_bc.values(initial[0], torch.from_numpy(pts.astype(np.float32)))
+                            .detach().cpu().numpy(), dtype=np.float64)
+        spread = float(np.max(values) - np.min(values))
+        if spread > 1e-6 * max(1.0, float(np.max(np.abs(values)))):
+            raise ValueError(
+                "fdm3d starts from a uniform temperature and this spec's initial condition varies in space: give "
+                "the uniform start in spec.pde.params['T0']. A field as the initial condition needs the PINN path "
+                "or tet_fem, not this solver.")
+        return float(np.mean(values))
+
+    @staticmethod
+    def _check_walls_are_cold(spec, bounds, nx: int, ny: int, nz: int) -> None:
+        """``HeatConduction3D`` holds every wall at zero. A spec that says otherwise gets an error naming the
+        condition, not a solve with the wrong boundary."""
+        conditions = tuple(getattr(spec, "conditions", ()) or ())
+        others = [c for c in conditions if getattr(c, "kind", None) not in ("dirichlet", "initial")]
+        if others:
+            raise ValueError(
+                "fdm3d holds the six walls at zero (HeatConduction3D); the spec asks for "
+                f"{sorted({c.kind for c in others})}, which this solver does not have.")
+        from . import _bc
+        axes = [(bounds.get(a, (0.0, 1.0))) for a in ("x", "y", "z")]
+        x = np.linspace(axes[0][0], axes[0][1], nx)
+        y = np.linspace(axes[1][0], axes[1][1], ny)
+        z = np.linspace(axes[2][0], axes[2][1], nz)
+        wall = np.array([[x[0], y[0], z[0]], [x[-1], y[-1], z[-1]], [x[0], y[-1], z[0]],
+                         [x[-1], y[0], z[-1]], [x[len(x) // 2], y[0], z[len(z) // 2]]], dtype=np.float32)
+        pts = torch.from_numpy(wall)
+        for cond in _bc.dirichlet_conditions(spec):
+            values = _bc.values(cond, pts)
+            if float(np.max(np.abs(np.asarray(values.detach().cpu().numpy(), dtype=np.float64)))) > 1e-12:
+                raise ValueError(
+                    f"fdm3d holds every wall at zero, and the dirichlet condition '{getattr(cond, 'name', '')}' "
+                    f"asks for a non-zero value on the wall.")
+
+
 __all__ = [
     "SolverOutput3D",
     "HeatConfig3D",
@@ -907,4 +1041,5 @@ __all__ = [
     "LidDrivenCavitySolver3D",
     "ChannelFlowConfig3D",
     "ChannelFlowSolver3D",
+    "FDM3DSolver",
 ]

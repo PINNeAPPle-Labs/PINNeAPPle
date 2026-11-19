@@ -352,6 +352,27 @@ class SolverRecommendation:
 # does ``if "burgers" in kind: ...``), so a match here is a real claim
 # that the solver's own code would take that branch, not a guess.
 _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
+    "solid_fem": {
+        "kind_substrings": ["linear_elasticity", "elasticity"],
+        "dims": {3},
+        "source": (
+            "solid_fem.py SolidFEM docstring: '3-D linear elasticity with 8-node hexahedra and incompatible "
+            "modes (Wilson-Taylor; the element Abaqus calls C3D8I)', with clamps, face loads, nodal stresses "
+            "and von Mises; SolidFEMSpecSolver.solve_from_spec is its ProblemSpec face, and it takes the box "
+            "domain and the clamped/loaded faces by name (x-, x+, ...), which a tag cannot express."
+        ),
+    },
+    "fdm3d": {
+        # heat, not diffusion: HeatConduction3D's source is q(x, t), so a field-dependent reaction term (the
+        # "diffusion" kinds) is more than this solver documents, and the substring would otherwise claim it
+        "kind_substrings": ["heat"],
+        "dims": {3},
+        "source": (
+            "fdm3d.py HeatConduction3D docstring: '3D heat equation solver using explicit Euler + central "
+            "differences', boundary 'Dirichlet zero on all 6 faces'; FDM3DSolver.solve_from_spec is its "
+            "ProblemSpec face and refuses any wall condition other than zero by name."
+        ),
+    },
     "fem": {
         "kind_substrings": ["poisson", "laplace", "helmholtz", "axisymmetric_linear_elasticity"],
         "dims": {2},
@@ -428,7 +449,7 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # FDM's generic SOR sweep for the same Poisson/Laplace kind), not a
 # numerical-accuracy claim this module can actually verify -- see the
 # docstring below.
-_FAMILY_PREFERENCE_ORDER = ["fem", "lbm", "fvm", "fdm", "fenics", "openfoam"]
+_FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "fdm", "fenics", "openfoam"]
 
 
 def select_solver_family(

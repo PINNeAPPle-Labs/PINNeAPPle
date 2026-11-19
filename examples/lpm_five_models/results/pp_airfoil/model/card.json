@@ -1,0 +1,205 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T14:34:33+00:00",
+  "family": {
+    "name": "pp_airfoil",
+    "title": "Cambered Joukowski airfoil: surface Cp over camber, thickness and incidence",
+    "domain": "aerodynamics / UAV, wind and compressor sections",
+    "dim": 2,
+    "field_names": [
+      "cp"
+    ],
+    "field_units": [
+      "-"
+    ],
+    "field_scale": [
+      10.0
+    ],
+    "characteristic_length_m": 0.5,
+    "n_points": 120,
+    "geometry_params": {
+      "thickness_x_c_m": [
+        -0.09,
+        -0.01
+      ],
+      "camber_y_c_m": [
+        0.0,
+        0.06
+      ]
+    },
+    "operating_params": {
+      "alpha_deg": [
+        -4.0,
+        14.0
+      ]
+    },
+    "geometry_features": {},
+    "reference": {
+      "name": "Joukowski conformal map with the Kutta condition (exact potential flow)",
+      "citation": "Milne-Thomson, Theoretical Hydrodynamics, 5th ed. (1968), ch. 6 (the Joukowski transformation); Anderson, Fundamentals of Aerodynamics, ch. 4 (Kutta condition and Kutta-Joukowski theorem)",
+      "assumptions": [
+        "incompressible, inviscid, irrotational: no boundary layer, no separation, no drag from pressure",
+        "two-dimensional and steady",
+        "a cusped trailing edge, so the Kutta condition applies and the circulation is fixed by it"
+      ],
+      "implements": "analytic"
+    },
+    "tolerance": 0.05
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 20,
+    "n_geometries": 10,
+    "conditions_per_geometry": 2
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 16,
+    "n_holdout_designs": 4,
+    "n_train_geometries": 8,
+    "n_holdout_geometries": 2
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 1,
+      "n_params": 1,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201060
+  },
+  "training": {
+    "epochs": 60,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 10,
+    "loss_first": 0.02172289788722992,
+    "loss_last": 0.003756545251235366,
+    "seconds": 113.134,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.49542328966147864,
+    "relative_l2_p90": 0.9367835678245771,
+    "max_abs_error": 6.356170654296875,
+    "constant_field_baseline_relative_l2": 0.9654575993441359,
+    "n_designs": 4,
+    "n_points": 480,
+    "per_design": [
+      {
+        "relative_l2": 2.190639439916266,
+        "max_abs_error": 4.879006385803223,
+        "mean_std": 0.014109800569713116,
+        "ood": false,
+        "ood_score": 0.43103083968162537
+      },
+      {
+        "relative_l2": 0.9367835678245771,
+        "max_abs_error": 3.261357307434082,
+        "mean_std": 0.014781435020267963,
+        "ood": false,
+        "ood_score": 0.43103083968162537
+      },
+      {
+        "relative_l2": 0.4508047203859094,
+        "max_abs_error": 6.356170654296875,
+        "mean_std": 0.014768769033253193,
+        "ood": true,
+        "ood_score": 0.15801933407783508
+      },
+      {
+        "relative_l2": 0.44003923255802047,
+        "max_abs_error": 5.917865753173828,
+        "mean_std": 0.014546753838658333,
+        "ood": true,
+        "ood_score": 0.15801933407783508
+      }
+    ],
+    "tolerance": 0.05,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.01455168891698122,
+    "p95_std": 0.03559444844722748,
+    "max_std": 0.12431588023900986,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 36% thick section, four times the trained thickness",
+        "ood": true,
+        "ood_score": 10.807771682739258,
+        "reasons": [
+          "geometry 10.81x farther from the training designs than usual"
+        ]
+      },
+      {
+        "name": "an 18% camber, three times the trained camber",
+        "ood": true,
+        "ood_score": 3.8963847160339355,
+        "reasons": [
+          "geometry 3.90x farther from the training designs than usual"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 0.43103083968162537
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 0.43103083968162537
+      },
+      {
+        "name": "held-out design 2",
+        "ood": true,
+        "ood_score": 0.15801933407783508
+      },
+      {
+        "name": "held-out design 3",
+        "ood": true,
+        "ood_score": 0.15801933407783508
+      }
+    ],
+    "probes_flagged": 2,
+    "probes_total": 2,
+    "held_out_flagged": 2,
+    "held_out_ood_score_max": 0.43103083968162537,
+    "held_out_ood_score_median": 0.43103083968162537,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.4954 on 4 designs of 480 points, tolerance 0.05",
+      "constant-field baseline on the same designs: 0.9655",
+      "OOD: 2/2 probes outside the family flagged, 2/4 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: analytic \u2014 Joukowski conformal map with the Kutta condition (exact potential flow), with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T14:35:36+00:00",
+  "family": {
+    "name": "pp_bracket",
+    "title": "L-bracket under a tip load: displacement and von Mises across the design space",
+    "domain": "structural / brackets and machine parts in linear elasticity",
+    "dim": 2,
+    "field_names": [
+      "displacement_m",
+      "von_mises_pa"
+    ],
+    "field_units": [
+      "m",
+      "Pa"
+    ],
+    "field_scale": [
+      1e-06,
+      1000000.0
+    ],
+    "characteristic_length_m": 1.0,
+    "n_points": 96,
+    "geometry_params": {
+      "leg_a_m": [
+        0.4,
+        1.6
+      ],
+      "leg_b_m": [
+        0.3,
+        1.2
+      ],
+      "leg_thickness_m": [
+        0.05,
+        0.2
+      ]
+    },
+    "operating_params": {
+      "load_n": [
+        1000.0,
+        30000.0
+      ],
+      "angle_deg": [
+        -60.0,
+        60.0
+      ],
+      "e_gpa": [
+        60.0,
+        210.0
+      ]
+    },
+    "geometry_features": {},
+    "reference": {
+      "name": "immersed finite-element elasticity, plane stress-free 2-D, checked on equilibrium",
+      "citation": "pinneapple_simulation.immersed (Burman & Hansbo ghost-penalty finite cells; see docs/guides/immersed_analysis.md), verified against conforming FEM in immersed.verification and docs/guides/immersed_analysis.md",
+      "assumptions": [
+        "linear, isotropic, small-strain elasticity in 2-D with Poisson ratio 0.33",
+        "the leg is a solid 2-D section: no out-of-plane bending, no plate or shell behaviour",
+        "the base edge is fully clamped, the load is a total force spread over the tip edge",
+        "the mesh is fixed at 1/50 of the longer leg, so a coarse-mesh error remains in every field"
+      ],
+      "implements": "solver"
+    },
+    "tolerance": 0.05
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 20,
+    "n_geometries": 10,
+    "conditions_per_geometry": 2
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 16,
+    "n_holdout_designs": 4,
+    "n_train_geometries": 8,
+    "n_holdout_geometries": 2
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 2,
+      "n_params": 3,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201640
+  },
+  "training": {
+    "epochs": 60,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 10,
+    "loss_first": 0.013555900193750858,
+    "loss_last": 0.0009423283627256751,
+    "seconds": 51.375,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.8281044653874334,
+    "relative_l2_p90": 0.8787882980643148,
+    "max_abs_error": 618954.1875,
+    "constant_field_baseline_relative_l2": 0.8967741587826994,
+    "n_designs": 4,
+    "n_points": 384,
+    "per_design": [
+      {
+        "relative_l2": 0.45702165265565636,
+        "max_abs_error": 75734.65625,
+        "mean_std": 0.011524058878421783,
+        "ood": false,
+        "ood_score": 0.14997541904449463
+      },
+      {
+        "relative_l2": 0.36623403685375916,
+        "max_abs_error": 104158.375,
+        "mean_std": 0.01269936840981245,
+        "ood": false,
+        "ood_score": 0.14997541904449463
+      },
+      {
+        "relative_l2": 0.8902556240838783,
+        "max_abs_error": 618954.1875,
+        "mean_std": 0.00829929020255804,
+        "ood": true,
+        "ood_score": 0.45021918416023254
+      },
+      {
+        "relative_l2": 0.8787882980643148,
+        "max_abs_error": 324822.1875,
+        "mean_std": 0.0077489507384598255,
+        "ood": false,
+        "ood_score": 0.45021918416023254
+      }
+    ],
+    "tolerance": 0.05,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.010067916475236416,
+    "p95_std": 0.026476886123418808,
+    "max_std": 0.04287359118461609,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 4.5 m leg, 2.8x the trained arm",
+        "ood": true,
+        "ood_score": 12.188544273376465,
+        "reasons": [
+          "geometry 12.19x farther from the training designs than usual"
+        ]
+      },
+      {
+        "name": "a 300 kN load, 10x the trained load",
+        "ood": true,
+        "ood_score": 0.04385407269001007,
+        "reasons": [
+          "operating parameters [0] outside the trained range"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 0.14997541904449463
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 0.14997541904449463
+      },
+      {
+        "name": "held-out design 2",
+        "ood": true,
+        "ood_score": 0.45021918416023254
+      },
+      {
+        "name": "held-out design 3",
+        "ood": false,
+        "ood_score": 0.45021918416023254
+      }
+    ],
+    "probes_flagged": 2,
+    "probes_total": 2,
+    "held_out_flagged": 1,
+    "held_out_ood_score_max": 0.45021918416023254,
+    "held_out_ood_score_median": 0.45021918416023254,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.8281 on 4 designs of 384 points, tolerance 0.05",
+      "constant-field baseline on the same designs: 0.8968",
+      "OOD: 2/2 probes outside the family flagged, 1/4 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: solver \u2014 immersed finite-element elasticity, plane stress-free 2-D, checked on equilibrium, with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

@@ -1,0 +1,390 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T23:49:32+00:00",
+  "family": {
+    "name": "pp_wing3d",
+    "title": "Swept wing at a compressible free stream: surface Cp in three dimensions",
+    "domain": "aerodynamics / 3-D wing, transonic-limited potential flow",
+    "dim": 3,
+    "field_names": [
+      "cp"
+    ],
+    "field_units": [
+      "-"
+    ],
+    "field_scale": [
+      1.0
+    ],
+    "characteristic_length_m": 1.0,
+    "n_points": 960,
+    "geometry_params": {
+      "aspect_ratio": [
+        4.0,
+        10.0
+      ],
+      "taper": [
+        0.3,
+        1.0
+      ],
+      "sweep_le_deg": [
+        0.0,
+        35.0
+      ],
+      "dihedral_deg": [
+        -3.0,
+        5.0
+      ],
+      "twist_deg": [
+        -5.0,
+        0.0
+      ],
+      "incidence_deg": [
+        0.0,
+        3.0
+      ]
+    },
+    "operating_params": {
+      "alpha_deg": [
+        -2.0,
+        8.0
+      ],
+      "mach": [
+        0.2,
+        0.82
+      ]
+    },
+    "geometry_features": {},
+    "reference": {
+      "name": "3-D vortex lattice on the camber surface, strip-coupled to the 2-D Hess-Smith panel solution, Prandtl-Glauert compressibility",
+      "citation": "Hess & Smith (1967); Moran, An Introduction to Theoretical and Computational Aerodynamics (1984) ch. 4 and 7; Katz & Plotkin, Low-Speed Aerodynamics (2001) ch. 12 (vortex lattice); Prandtl (1927) / Glauert (1928) compressibility rule",
+      "assumptions": [
+        "attached potential flow: no separation, no shock, no boundary layer, no viscous drag",
+        "Prandtl-Glauert is the linearised compressible rule, so the transonic answer is the subsonic one stretched by 1/beta; the drag divergence the Korn rule would flag is not in the field",
+        "the section solve is 2-D and sees only the local lift the lattice gives it, so spanwise flow inside the boundary layer is absent",
+        "rigid wing: no aeroelastic twist",
+        "chord 1 m, free stream 1 m/s, incompressible section"
+      ],
+      "implements": "solver",
+      "provenance": "",
+      "licence": ""
+    },
+    "tolerance": 0.1
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 72,
+    "n_geometries": 24,
+    "conditions_per_geometry": 3
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 54,
+    "n_holdout_designs": 18,
+    "n_train_geometries": 18,
+    "n_holdout_geometries": 6
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 3,
+      "n_fields": 1,
+      "n_params": 2,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 128,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 344164
+  },
+  "training": {
+    "epochs": 400,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 24,
+    "loss_first": 0.308176726102829,
+    "loss_last": 0.010241697542369366,
+    "seconds": 942.564,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.5027840350785494,
+    "relative_l2_p90": 0.6792371839756864,
+    "max_abs_error": 2.847048044204712,
+    "constant_field_baseline_relative_l2": 0.9489963680454411,
+    "n_designs": 18,
+    "n_points": 17280,
+    "per_design": [
+      {
+        "relative_l2": 0.41561021104342427,
+        "max_abs_error": 1.0733263492584229,
+        "mean_std": 0.013884584419429302,
+        "ood": false,
+        "ood_score": 1.1103743314743042
+      },
+      {
+        "relative_l2": 0.43557289977920854,
+        "max_abs_error": 0.9301787614822388,
+        "mean_std": 0.01233675517141819,
+        "ood": false,
+        "ood_score": 1.1103743314743042
+      },
+      {
+        "relative_l2": 0.41804840331491216,
+        "max_abs_error": 1.0604479312896729,
+        "mean_std": 0.015816964209079742,
+        "ood": false,
+        "ood_score": 1.1103743314743042
+      },
+      {
+        "relative_l2": 0.6792371839756864,
+        "max_abs_error": 1.5410475730895996,
+        "mean_std": 0.013404851779341698,
+        "ood": false,
+        "ood_score": 0.560295045375824
+      },
+      {
+        "relative_l2": 0.6512622576631825,
+        "max_abs_error": 2.5032145977020264,
+        "mean_std": 0.013244254514575005,
+        "ood": false,
+        "ood_score": 0.560295045375824
+      },
+      {
+        "relative_l2": 0.6552489726425642,
+        "max_abs_error": 1.995305061340332,
+        "mean_std": 0.012822427786886692,
+        "ood": false,
+        "ood_score": 0.560295045375824
+      },
+      {
+        "relative_l2": 0.3651905850139325,
+        "max_abs_error": 1.190779209136963,
+        "mean_std": 0.015979880467057228,
+        "ood": false,
+        "ood_score": 1.13288414478302
+      },
+      {
+        "relative_l2": 0.307153230634439,
+        "max_abs_error": 0.7112831473350525,
+        "mean_std": 0.013612722977995872,
+        "ood": false,
+        "ood_score": 1.13288414478302
+      },
+      {
+        "relative_l2": 0.294853038762174,
+        "max_abs_error": 0.6368482708930969,
+        "mean_std": 0.01326038409024477,
+        "ood": false,
+        "ood_score": 1.13288414478302
+      },
+      {
+        "relative_l2": 0.724078877309889,
+        "max_abs_error": 2.5772507190704346,
+        "mean_std": 0.017732350155711174,
+        "ood": false,
+        "ood_score": 0.28061580657958984
+      },
+      {
+        "relative_l2": 0.7649925235185842,
+        "max_abs_error": 2.847048044204712,
+        "mean_std": 0.019385449588298798,
+        "ood": false,
+        "ood_score": 0.28061580657958984
+      },
+      {
+        "relative_l2": 0.6404531610229648,
+        "max_abs_error": 1.7569600343704224,
+        "mean_std": 0.013717735186219215,
+        "ood": false,
+        "ood_score": 0.28061580657958984
+      },
+      {
+        "relative_l2": 0.39560657072808175,
+        "max_abs_error": 1.9052411317825317,
+        "mean_std": 0.012356843799352646,
+        "ood": false,
+        "ood_score": 0.6392607092857361
+      },
+      {
+        "relative_l2": 0.3362400513123827,
+        "max_abs_error": 0.7987293601036072,
+        "mean_std": 0.010516878217458725,
+        "ood": false,
+        "ood_score": 0.6392607092857361
+      },
+      {
+        "relative_l2": 0.36532552300908544,
+        "max_abs_error": 0.7515447735786438,
+        "mean_std": 0.010511399246752262,
+        "ood": false,
+        "ood_score": 0.6392607092857361
+      },
+      {
+        "relative_l2": 0.37309001280183646,
+        "max_abs_error": 0.7328275442123413,
+        "mean_std": 0.014145197346806526,
+        "ood": false,
+        "ood_score": 0.21261775493621826
+      },
+      {
+        "relative_l2": 0.28970711147033446,
+        "max_abs_error": 0.8511091470718384,
+        "mean_std": 0.015161332674324512,
+        "ood": false,
+        "ood_score": 0.21261775493621826
+      },
+      {
+        "relative_l2": 0.30782412475113674,
+        "max_abs_error": 0.812029242515564,
+        "mean_std": 0.014902474358677864,
+        "ood": false,
+        "ood_score": 0.21261775493621826
+      }
+    ],
+    "tolerance": 0.1,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.014044027775526047,
+    "p95_std": 0.02532532997429371,
+    "max_std": 0.17131313681602478,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 60 deg swept, AR-3 wing at M 0.93",
+        "ood": true,
+        "ood_score": 5.136754035949707,
+        "reasons": [
+          "geometry 5.14x farther from the training designs than usual",
+          "operating parameters [0, 1] outside the trained range"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 1.1103743314743042
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 1.1103743314743042
+      },
+      {
+        "name": "held-out design 2",
+        "ood": false,
+        "ood_score": 1.1103743314743042
+      },
+      {
+        "name": "held-out design 3",
+        "ood": false,
+        "ood_score": 0.560295045375824
+      },
+      {
+        "name": "held-out design 4",
+        "ood": false,
+        "ood_score": 0.560295045375824
+      },
+      {
+        "name": "held-out design 5",
+        "ood": false,
+        "ood_score": 0.560295045375824
+      },
+      {
+        "name": "held-out design 6",
+        "ood": false,
+        "ood_score": 1.13288414478302
+      },
+      {
+        "name": "held-out design 7",
+        "ood": false,
+        "ood_score": 1.13288414478302
+      },
+      {
+        "name": "held-out design 8",
+        "ood": false,
+        "ood_score": 1.13288414478302
+      },
+      {
+        "name": "held-out design 9",
+        "ood": false,
+        "ood_score": 0.28061580657958984
+      },
+      {
+        "name": "held-out design 10",
+        "ood": false,
+        "ood_score": 0.28061580657958984
+      },
+      {
+        "name": "held-out design 11",
+        "ood": false,
+        "ood_score": 0.28061580657958984
+      },
+      {
+        "name": "held-out design 12",
+        "ood": false,
+        "ood_score": 0.6392607092857361
+      },
+      {
+        "name": "held-out design 13",
+        "ood": false,
+        "ood_score": 0.6392607092857361
+      },
+      {
+        "name": "held-out design 14",
+        "ood": false,
+        "ood_score": 0.6392607092857361
+      },
+      {
+        "name": "held-out design 15",
+        "ood": false,
+        "ood_score": 0.21261775493621826
+      },
+      {
+        "name": "held-out design 16",
+        "ood": false,
+        "ood_score": 0.21261775493621826
+      },
+      {
+        "name": "held-out design 17",
+        "ood": false,
+        "ood_score": 0.21261775493621826
+      }
+    ],
+    "probes_flagged": 1,
+    "probes_total": 1,
+    "held_out_flagged": 0,
+    "held_out_ood_score_max": 1.13288414478302,
+    "held_out_ood_score_median": 0.6392607092857361,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.5028 on 18 designs of 17280 points, tolerance 0.1",
+      "constant-field baseline on the same designs: 0.949",
+      "OOD: 1/1 probes outside the family flagged, 0/18 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: solver \u2014 3-D vortex lattice on the camber surface, strip-coupled to the 2-D Hess-Smith panel solution, Prandtl-Glauert compressibility, with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

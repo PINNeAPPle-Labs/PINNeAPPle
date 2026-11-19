@@ -5,4 +5,5 @@
   data from the fits, `--plan` prints the designs and a wall-clock estimate from measured per-design costs, `--scale
   smoke` runs the whole wiring in about four minutes, and `--detach LOG` re-runs the command with `os.setsid()`, which
   is what actually protects a long fit — `nohup` only ignores SIGHUP, and what kills it is the process group going
-  away. `examples/lpm_five_models/experiment.json` now exists, so the manifest gate is satisfied for the example.
+  away. `examples/lpm_five_models/experiment.json` now exists, so the manifest gate is satisfied for the example. `benchmarks/run_lpm_campaign.sh` wraps it in one command: plan, then start detached, with the
+  output outside the repository by default.

@@ -139,11 +139,18 @@ halving the grid moved the tip displacement by 55 %. Conforming P2 tetrahedra on
 leaves usable models if the night gets cut short.
 
 ```bash
+./benchmarks/run_lpm_campaign.sh                      # plan, then start it detached, output in ~/lpm-campaign
+./benchmarks/run_lpm_campaign.sh --plan                # the plan only
+./benchmarks/run_lpm_campaign.sh --stage dataset       # the data, all nine
+./benchmarks/run_lpm_campaign.sh --stage train         # the fits only
+```
+
+or the module directly, if you would rather keep the log where you choose:
+
+```bash
 python -m benchmarks.lpm_campaign --plan                     # what would run, and the estimate
-python -m benchmarks.lpm_campaign --scale smoke              # the whole wiring, about a minute
-python -m benchmarks.lpm_campaign --stage dataset            # the data, all nine
-python -m benchmarks.lpm_campaign --stage train              # the fits only
-python -m benchmarks.lpm_campaign --detach ~/lpm-campaign.log --out ~/lpm-data   # survives the session
+python -m benchmarks.lpm_campaign --scale smoke              # the whole wiring, about four minutes
+python -m benchmarks.lpm_campaign --detach ~/lpm-campaign.log --out ~/lpm-data
 ```
 
 It **resumes**: a dataset whose manifest is there is not regenerated and a model whose card is there is not refitted,

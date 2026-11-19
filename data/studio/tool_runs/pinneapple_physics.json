@@ -2857,6 +2857,38 @@
   "returned": "ProblemSpec",
   "seconds": 0.0
  },
+ "pinneapple_physics.pde_environment.presets.integral:integral_fredholm_separable_exp": {
+  "code_hash": "9caf03438db4f498",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ProblemSpec",
+  "seconds": 27.89
+ },
+ "pinneapple_physics.pde_environment.presets.integral:integral_fredholm_unit_exp": {
+  "code_hash": "49f203fe9d0727b4",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.integral:integral_log_kernel_linear": {
+  "code_hash": "39d91c6df2a8ef06",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pde_environment.presets.integral:integral_volterra_unit_exp": {
+  "code_hash": "464d1cfcf78adabb",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ProblemSpec",
+  "seconds": 0.0
+ },
  "pinneapple_physics.pde_environment.presets.multidisciplinary:black_scholes_1d": {
   "code_hash": "77820e6f65feaf55",
   "inputs": {},
@@ -3292,6 +3324,256 @@
   "recorded": "2026-10-31",
   "returned": "_GeneratorContextManager",
   "seconds": 0.0
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:constant_kernel": {
+  "code_hash": "f8d7e2ec8aa354e0",
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:helmholtz2_diag": {
+  "code_hash": "ca80afdbbc970c65",
+  "inputs": {
+   "ctx": {
+    "k": 1.0
+   },
+   "width": [
+    0.004
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 0.01
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:helmholtz2_kernel": {
+  "code_hash": "3dec0d770ede5c65",
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {
+    "k": 1.0
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:log_diag": {
+  "code_hash": "b4360e34f033c199",
+  "inputs": {
+   "ctx": {},
+   "width": [
+    0.1
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 31.43
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:log_kernel": {
+  "code_hash": "5f6bbacc0c734e2f",
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:product_kernel": {
+  "code_hash": "694d19b0b7997963",
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 0.0
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:trapezoid_weights": {
+  "code_hash": "87ad3fcce40e204b",
+  "inputs": {
+   "x": [
+    0.0,
+    0.03125,
+    0.0625,
+    0.09375,
+    0.125,
+    0.15625,
+    0.1875,
+    0.21875,
+    0.25,
+    0.28125,
+    0.3125,
+    0.34375,
+    0.375,
+    0.40625,
+    0.4375,
+    0.46875,
+    0.5,
+    0.53125,
+    0.5625,
+    0.59375,
+    0.625,
+    0.65625,
+    0.6875,
+    0.71875,
+    0.75,
+    0.78125,
+    0.8125,
+    0.84375,
+    0.875,
+    0.90625,
+    0.9375,
+    0.96875,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ndarray",
+  "seconds": 22.86
  },
  "pinneapple_physics.pinn_solver.io.mappings:build_default_mapping_atmosphere": {
   "code_hash": "7c8523817595f045",

@@ -103,3 +103,7 @@ def _auto_register() -> None:
         from . import electromagnetics as _em  # noqa: F401
     except Exception:
         pass
+    try:
+        from . import integral as _integral  # noqa: F401
+    except Exception:
+        pass

@@ -896,6 +896,31 @@
    ],
    "status": "validated"
   },
+  "E72": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_integral_kinds.py::test_a_complex_kernel_with_two_fields_gives_two_residuals",
+    "PINNeAPPle/tests/test_integral_kinds.py::test_a_singular_kernel_without_a_diagonal_is_refused_rather_than_approximated",
+    "PINNeAPPle/tests/test_integral_kinds.py::test_complex_kernel_needs_two_fields_and_says_so",
+    "PINNeAPPle/tests/test_integral_kinds.py::test_fredholm_bounded_kernel_residual_does_not_vanish_for_a_wrong_solution",
+    "PINNeAPPle/tests/test_integral_kinds.py::test_log_kernel_residual_converges_at_first_order_with_the_analytic_diagonal",
+    "PINNeAPPle/tests/test_integral_kinds.py::test_removing_the_analytic_diagonal_costs_more_than_an_order_of_magnitude",
+    "PINNeAPPle/tests/test_integral_kinds.py::test_the_batch_may_arrive_in_any_order"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_integral_kinds.py::test_fredholm_bounded_kernel_residual_is_second_order_on_the_closed_form_solution",
+    "PINNeAPPle/tests/test_integral_kinds.py::test_lambda_one_is_the_eigenvalue_of_the_unit_kernel",
+    "PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_is_registered_and_has_a_closed_form"
+   ],
+   "status": "validated"
+  },
+  "E73": {
+   "other_tests": [],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_integral_kinds.py::test_volterra_residual_and_solve_are_second_order",
+    "PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_is_registered_and_has_a_closed_form"
+   ],
+   "status": "validated"
+  },
   "P1.1": {
    "other_tests": [
     "PINNeAPPle/tests/pinneapple_analysis/test_architecture_critique.py::test_spec_context_is_included_in_prompt",
@@ -2465,6 +2490,38 @@
    ],
    "reference_tests": [],
    "status": "tested"
+  },
+  "P10.1": {
+   "other_tests": [],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces"
+   ],
+   "status": "validated"
+  },
+  "P10.2": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_integral_presets.py::test_the_preset_trains_through_solve_pde_with_a_fixed_node_set"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces"
+   ],
+   "status": "validated"
+  },
+  "P10.3": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_integral_presets.py::test_the_singular_preset_converges_at_first_order_through_the_preset_path"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces"
+   ],
+   "status": "validated"
+  },
+  "P10.4": {
+   "other_tests": [],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces"
+   ],
+   "status": "validated"
   }
  },
  "rule": "validated = a test exercising the item compares against an independent reference (closed form, manufactured solution, published/tabulated value)",

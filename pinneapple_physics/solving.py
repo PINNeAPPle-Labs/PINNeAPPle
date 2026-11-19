@@ -222,8 +222,9 @@ def _burgers_exact(p: PhysicalProblem):
 
 def _register_closed_forms() -> None:
     from .closed_form import electromagnetics as _em
+    from .closed_form import integral_equations as _ie
 
-    for name, matcher, factory in _em.ANALYTIC:
+    for name, matcher, factory in list(_em.ANALYTIC) + list(_ie.ANALYTIC):
         register_analytic(name, matcher)(factory)
 
 

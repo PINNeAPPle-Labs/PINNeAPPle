@@ -1,6 +1,4 @@
-# Catálogo de métodos do PINNeAPPle
-
-> Gerado por `scripts/build_method_status.py` a partir de `pinneapple_catalog/methods.py` e dos testes. Não editar à mão: rode o script de novo.
+/Users/yanbarros/Documents/GitHub/pinneapple-integral-eq/docs/dev/CATALOGO_METODOS.mda partir de `pinneapple_catalog/methods.py` e dos testes. Não editar à mão: rode o script de novo.
 
 **Regra (D5 de `PEDIDOS_2026-09-24.md`):** ✅ = existe teste que compara o método com uma referência independente (solução fechada, solução manufaturada, valor publicado ou tabelado), na mesma função de teste. 🟡 = há teste, mas nenhum compara com referência. ⚪ = nenhum teste encontrado. Só ✅ entra na lista oficial (`validated_methods()`). O resto fica **pendente: paper + benchmark**; nenhum código foi apagado.
 
@@ -8,10 +6,10 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
-| A. Solvers (S) | 34 | 11 | 1 |
+| A. Solvers (S) | 36 | 13 | 1 |
 | B. Métodos de treino (T) | 3 | 12 | 8 |
-| C. Equações físicas (E) | 50 | 18 | 3 |
-| D. Problemas físicos (P) | 27 | 9 | 30 |
+| C. Equações físicas (E) | 52 | 18 | 3 |
+| D. Problemas físicos (P) | 31 | 9 | 30 |
 
 ## A. Solvers (S)
 
@@ -300,6 +298,30 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Evidência:** `PINNeAPPle/tests/test_dynamics_koopman.py::test_comparison_with_state_space_regression_and_order_selection`; `PINNeAPPle/tests/test_dynamics_koopman.py::test_edmd_on_the_exact_invariant_subspace`; `PINNeAPPle/tests/test_dynamics_koopman.py::test_generator_edmd_from_derivatives` (+3)
 - **Código:** `pinneapple_analysis/dynamics/koopman.py`
 - **Referências no código:** Williams, Kevrekidis & Rowley, A data-driven approximation of the Koopman operator, J. Nonlinear Sci. 25 (2015) 1307-1346 · Colbrook & Townsend, Rigorous data-driven computation of spectral properties of Koopman operators for dynamical systems, Comm. Pure Appl. Math. 77 (2024) 221-283 · Gavish & Donoho, The optimal hard threshold for singular values is 4/sqrt(3), IEEE Trans. Inf. Theory 60 (2014) 5040-5053
+
+### S47 — NVIDIA Newton rigid-body solvers: XPBD, semi-implicit with penalty contacts, Featherstone, MuJoCo-Warp
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/test_newton_rigid.py::test_constant_wrench_balances_gravity_and_spins_up`; `PINNeAPPle/tests/test_newton_rigid.py::test_exact_mass_rescales_inertia`; `PINNeAPPle/tests/test_newton_rigid.py::test_pendulum_energy_is_conserved` (+4)
+- **Código:** `pinneapple_simulation/external_solvers/newton_physics/runner.py`, `pinneapple_simulation/external_solvers/newton_physics/scene.py`
+- **Referências adicionadas:** Newton (newton-physics/newton), Apache-2.0, built on NVIDIA Warp · Macklin, Muller & Chentanez, XPBD: position-based simulation of compliant constrained dynamics, MIG 2016 · Featherstone, Rigid Body Dynamics Algorithms, Springer, 2008
+
+### S48 — Lid-driven cavity by vorticity-streamfunction (local, CPU/GPU-free engine for the PICT bridge)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_matches_ghia_at_re_100`
+- **Código:** `pinneapple_simulation/external_solvers/pict/local_solver.py`
+- **Referências adicionadas:** Ghia, Ghia & Shin, High-Re solutions for incompressible flow using the Navier-Stokes equations and a multigrid method, J. Comput. Phys. 48 (1982) 387-411 -- the benchmark it is held to · Peyret & Taylor, Computational Methods for Fluid Flow, Springer, 1983
+
+### S49 — PICT: differentiable multi-block PISO on a structured grid (external, CUDA)
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/test_pict_bridge.py::test_availability_is_a_report_not_a_crash`; `PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_refuses_what_it_does_not_implement`; `PINNeAPPle/tests/test_pict_bridge.py::test_run_cavity_auto_picks_an_engine_and_says_which` (+3)
+- **Código:** `pinneapple_simulation/external_solvers/pict/runner.py`, `pinneapple_simulation/external_solvers/pict/case.py`
+- **Referências adicionadas:** Franz, Wei, Guastoni & Thuerey, A differentiable, GPU-accelerated multi-block PISO solver for simulation-coupled learning tasks in fluid dynamics, J. Comput. Phys. 544 (2026) 114433 · Issa, Solution of the implicitly discretised fluid flow equations by operator-splitting, J. Comput. Phys. 62 (1986) 40-65
+
+### S50 — NVIDIA Warp kernels: warp.fem weak forms, reverse-mode tape, zero-copy torch buffers
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_warp_backend.py::test_manufactured_solution_satisfies_its_own_laplacian`
+- **Código:** `pinneapple_tools/compute_backends/warp_backend.py`
+- **Referências adicionadas:** NVIDIA Warp (NVIDIA/warp), Apache-2.0
 
 
 ## B. Métodos de treino (T)
@@ -867,6 +889,18 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Código:** `pinneapple_physics/pinn_solver/compiler/em_kinds.py`
 - **Referências adicionadas:** Jin, The Finite Element Method in Electromagnetics, 3rd ed., Wiley-IEEE Press, 2014 · Harrington, Time-Harmonic Electromagnetic Fields, McGraw-Hill, 1961
 
+### E72 — Fredholm integral equation of the second kind in Nystrom form, bounded and logarithmic kernels
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_integral_kinds.py::test_fredholm_bounded_kernel_residual_is_second_order_on_the_closed_form_solution`; `PINNeAPPle/tests/test_integral_kinds.py::test_lambda_one_is_the_eigenvalue_of_the_unit_kernel`; `PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_is_registered_and_has_a_closed_form`
+- **Código:** `pinneapple_physics/pinn_solver/compiler/integral_kinds.py`
+- **Referências adicionadas:** Atkinson, The Numerical Solution of Integral Equations of the Second Kind, Cambridge University Press, 1997
+
+### E73 — Volterra integral equation of the second kind in Nystrom form
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_integral_kinds.py::test_volterra_residual_and_solve_are_second_order`; `PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_is_registered_and_has_a_closed_form`
+- **Código:** `pinneapple_physics/pinn_solver/compiler/integral_kinds.py`
+- **Referências adicionadas:** Atkinson, The Numerical Solution of Integral Equations of the Second Kind, Cambridge University Press, 1997
+
 
 ## D. Problemas físicos (P)
 
@@ -1232,6 +1266,30 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_bekker_wong_terramechanics_satisfying_solution_gives_zero_residual`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E28
+
+### P10.1 — Integral equations: integral_fredholm_separable_exp
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces`
+- **Código:** `pinneapple_physics/pde_environment/presets/`
+- **Equações:** E72
+
+### P10.2 — Integral equations: integral_fredholm_unit_exp
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces`
+- **Código:** `pinneapple_physics/pde_environment/presets/`
+- **Equações:** E72
+
+### P10.3 — Integral equations: integral_log_kernel_linear
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces`
+- **Código:** `pinneapple_physics/pde_environment/presets/`
+- **Equações:** E72
+
+### P10.4 — Integral equations: integral_volterra_unit_exp
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_integral_presets.py::test_every_integral_preset_has_an_exact_solution_that_its_source_reproduces`
+- **Código:** `pinneapple_physics/pde_environment/presets/`
+- **Equações:** E73
 
 ### P9 — PINNeAPPle-CFD v1: pipes + particle erosion (CFD-04 pilot)
 - **Estado:** ⚪ sem teste

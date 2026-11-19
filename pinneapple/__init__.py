@@ -602,6 +602,8 @@ _SUBMODULES = {
     # new features (v0.5)
     "symbolic":   "pinneapple_physics.symbolic_pde",
     "backend":    "pinneapple_tools.compute_backends",
+    # native execution backends behind one C ABI (C/C++ now; Rust/Fortran speak the same header)
+    "native":     "pinneapple_core.native",
     "dynamics":   "pinneapple_simulation.particle_dynamics",
     "worldmodel": "pinneapple_worldmodel",
     # decision layer (which experiment to run next)

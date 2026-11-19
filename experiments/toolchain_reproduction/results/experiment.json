@@ -1,0 +1,413 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "toolchain_reproduction",
+ "title": "A blank machine, an agent and an open-source toolchain: classic CFD and FEA cases in PINNeAPPle, checked against their published values",
+ "description": "",
+ "domain": "fluid dynamics & structural mechanics",
+ "methods": [
+  "Vorticity-streamfunction NS",
+  "Method of characteristics",
+  "Hermite beam FE",
+  "3-D hexahedral FE",
+  "Plane-stress CST FE"
+ ],
+ "modules": [
+  "pinneapple_simulation.external_solvers.pict",
+  "pinneapple_simulation.numerical_solvers.water_hammer_moc",
+  "pinneapple_simulation.numerical_solvers.beam_fe",
+  "pinneapple_simulation.numerical_solvers.solid_fem",
+  "pinneapple_simulation.numerical_solvers.plane_stress_fem"
+ ],
+ "params": {
+  "smoke": false,
+  "3d": true,
+  "cavity": {
+   "re": [
+    100,
+    1000
+   ],
+   "cells": {
+    "100": 64,
+    "1000": 128
+   }
+  },
+  "water_hammer": {
+   "length": 1200.0,
+   "diameter": 0.6,
+   "wave_speed": 1000.0,
+   "q0": 0.3,
+   "h_reservoir": 120.0,
+   "n_reaches": 24
+  },
+  "beam": {
+   "L": 1.0,
+   "b": 0.05,
+   "h": 0.02,
+   "E": 210000000000.0,
+   "nu": 0.3,
+   "rho": 7850.0,
+   "P": 1000.0,
+   "n_el": 40
+  },
+  "plate": {
+   "L": 0.15,
+   "W": 0.06,
+   "D": 0.02,
+   "t": 0.005,
+   "S0": 10000000.0,
+   "E": 68900000000.0,
+   "nu": 0.33,
+   "meshes": [
+    [
+     64,
+     16
+    ],
+    [
+     128,
+     32
+    ],
+    [
+     256,
+     64
+    ]
+   ]
+  }
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "toolchain_licences_paid",
+   "value": 0.0,
+   "unit": "",
+   "how": "count of commercial licences the cases below need"
+  },
+  {
+   "name": "ghia_u_rms_re100",
+   "value": 0.0013823290144452077,
+   "unit": "U",
+   "how": "rms of u(x=0.5) against Ghia et al. (1982) at Re=100, 64x64 cells, local engine"
+  },
+  {
+   "name": "ghia_u_rms_re1000",
+   "value": 0.012128440816589923,
+   "unit": "U",
+   "how": "rms of u(x=0.5) against Ghia et al. (1982) at Re=1000, 128x128 cells, local engine"
+  },
+  {
+   "name": "joukowsky_surge_m",
+   "value": 108.19525056425681,
+   "unit": "m",
+   "how": "max head rise at the valve minus the steady head, against dH = a dV / g"
+  },
+  {
+   "name": "beam_tip_deflection_udl_m",
+   "value": 0.01785714285701255,
+   "unit": "m",
+   "how": "Hermite FE, 40 elements, against q L^4 / 8 E I"
+  },
+  {
+   "name": "beam_first_mode_hz",
+   "value": 16.71033193947129,
+   "unit": "Hz",
+   "how": "consistent mass, against (1.8751^2 / 2 pi) sqrt(EI / m L^4)"
+  },
+  {
+   "name": "kt_net_richardson",
+   "value": 2.3198138726885893,
+   "unit": "",
+   "how": "Richardson from the three finest O-grid meshes, against Heywood 2 + (1 - d/W)^3"
+  },
+  {
+   "name": "kt_net_finest",
+   "value": 2.315044144227272,
+   "unit": "",
+   "how": "CST plane stress, 33280 elements"
+  },
+  {
+   "name": "cavity Re=100: rms of u(x=0.5) vs Ghia",
+   "value": 0.0013823290144452077,
+   "unit": "U",
+   "how": "measured by the script"
+  },
+  {
+   "name": "cavity Re=100: rms of v(y=0.5) vs Ghia",
+   "value": 0.0028387343921316725,
+   "unit": "U",
+   "how": "measured by the script"
+  },
+  {
+   "name": "cavity Re=100: discrete du/dx + dv/dy",
+   "value": 3.552713678800501e-15,
+   "unit": "U/L",
+   "how": "against 0 U/L"
+  },
+  {
+   "name": "cavity Re=1000: rms of u(x=0.5) vs Ghia",
+   "value": 0.012128440816589923,
+   "unit": "U",
+   "how": "measured by the script"
+  },
+  {
+   "name": "cavity Re=1000: rms of v(y=0.5) vs Ghia",
+   "value": 0.009659034034979346,
+   "unit": "U",
+   "how": "measured by the script"
+  },
+  {
+   "name": "cavity Re=1000: discrete du/dx + dv/dy",
+   "value": 7.105427357601002e-15,
+   "unit": "U/L",
+   "how": "against 0 U/L"
+  },
+  {
+   "name": "water hammer: surge after an instantaneous closure",
+   "value": 108.19525056425681,
+   "unit": "m",
+   "how": "against 108.195 m"
+  },
+  {
+   "name": "water hammer: peak head, Darcy friction (f = 0.02)",
+   "value": 228.09950411690107,
+   "unit": "m",
+   "how": "against 228.195 m"
+  },
+  {
+   "name": "water hammer: surge after a slow closure (inside the classical bracket)",
+   "value": 6.404171821165548,
+   "unit": "m",
+   "how": "against 9.01627 m"
+  },
+  {
+   "name": "cantilever: tip deflection, uniform load (Hermite FE)",
+   "value": 0.01785714285701255,
+   "unit": "m",
+   "how": "against 0.0178571 m"
+  },
+  {
+   "name": "cantilever: first natural frequency",
+   "value": 16.71033193947129,
+   "unit": "Hz",
+   "how": "against 16.7103 Hz"
+  },
+  {
+   "name": "cantilever 3-D: tip deflection, hexahedra 20x2x2",
+   "value": 0.04705866401763375,
+   "unit": "m",
+   "how": "against 0.047619 m"
+  },
+  {
+   "name": "cantilever 3-D: tip deflection, hexahedra 40x4x4",
+   "value": 0.04727986791971347,
+   "unit": "m",
+   "how": "against 0.047619 m"
+  },
+  {
+   "name": "cantilever 3-D: tip deflection, hexahedra 60x6x6",
+   "value": 0.04735461995826814,
+   "unit": "m",
+   "how": "against 0.047619 m"
+  },
+  {
+   "name": "cantilever 3-D: bending stress at mid-span, finest 3-D mesh",
+   "value": 149999999.74156147,
+   "unit": "Pa",
+   "how": "against 1.5e+08 Pa"
+  },
+  {
+   "name": "plate with a hole: force balance (reaction / applied)",
+   "value": 1.0000000000000957,
+   "unit": "",
+   "how": "against 1 "
+  },
+  {
+   "name": "plate with a hole: Kt_net, 1156 nodes",
+   "value": 2.255227907047308,
+   "unit": "",
+   "how": "against 2.2963 "
+  },
+  {
+   "name": "plate with a hole: Kt_net, 4356 nodes",
+   "value": 2.302262305279355,
+   "unit": "",
+   "how": "against 2.2963 "
+  },
+  {
+   "name": "plate with a hole: Kt_net, 16900 nodes",
+   "value": 2.315044144227272,
+   "unit": "",
+   "how": "against 2.2963 "
+  },
+  {
+   "name": "plate with a hole: Kt_net, Richardson",
+   "value": 2.3198138726885893,
+   "unit": "",
+   "how": "against 2.2963 "
+  }
+ ],
+ "checks": [
+  {
+   "name": "no licence is needed by any case",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "cavity Re=100: u and v centrelines within 0.05 U of Ghia",
+   "passed": true,
+   "value": 0.0013823290144452077,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "u rms 1.38e-03, v rms 2.84e-03",
+   "kind": "reference"
+  },
+  {
+   "name": "cavity Re=1000: u and v centrelines within 0.05 U of Ghia",
+   "passed": true,
+   "value": 0.012128440816589923,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "u rms 1.21e-02, v rms 9.66e-03",
+   "kind": "reference"
+  },
+  {
+   "name": "water hammer: instantaneous closure matches Joukowsky",
+   "passed": true,
+   "value": 108.19525056425681,
+   "reference": 108.19525056425678,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "water hammer: friction does not change the first peak",
+   "passed": true,
+   "value": 228.09950411690107,
+   "reference": 228.19525056425678,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "water hammer: slow-closure peak between the rigid-column and Michaud estimates",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "rigid column 4.51 m < MOC 6.40 m < Michaud 9.02 m at t_close = 28.8 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "cantilever: Hermite FE reproduces q L^4 / 8EI",
+   "passed": true,
+   "value": 0.01785714285701255,
+   "reference": 0.017857142857142853,
+   "rtol": 1e-09,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "cantilever: first frequency matches the exact Euler-Bernoulli mode",
+   "passed": true,
+   "value": 16.71033193947129,
+   "reference": 16.71033188888161,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "plate with a hole: force balance closes",
+   "passed": true,
+   "value": 1.0000000000000957,
+   "reference": 1.0,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "plate with a hole: Kt_net (Richardson) within 3 % of Heywood",
+   "passed": true,
+   "value": 2.3198138726885893,
+   "reference": 2.2962962962962963,
+   "rtol": 0.03,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "observed order 1.88",
+   "kind": "reference"
+  },
+  {
+   "name": "plate with a hole: meshes converge",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "cavity_vs_ghia.png",
+   "water_hammer.png",
+   "cantilever.png",
+   "plate_hole.png",
+   "cantilever_3d.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [
+  "Ghia, Ghia & Shin, J. Comput. Phys. 48 (1982) 387-411",
+  "Joukowsky (1898); Wylie & Streeter, Fluid Transients in Systems (1993)",
+  "Przemieniecki, Theory of Matrix Structural Analysis (1968), ch. 5 and 11",
+  "Kirsch (1898); Pilkey & Pilkey, Peterson's Stress Concentration Factors, 3rd ed. (2008); Heywood's net-section form"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "8ce185ebb",
+  "created": "2026-11-14T03:12:08Z",
+  "seconds": 535.775,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

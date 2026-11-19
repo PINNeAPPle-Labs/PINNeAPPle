@@ -81,6 +81,42 @@ The disk is only the first wall. The second is compute: every one of the four is
 hours and on this laptop's MPS device in days. Nothing about the AirfRANS result transfers, because the scored
 quantities are surface fields on unstructured 3-D geometry rather than a 2-D volume field.
 
+## What it takes to start DrivAerNet++, measured (2026-11-19)
+
+The dataset is the cheapest of the four by contract and the most awkward by access. Both were checked end to end:
+
+- **the contract is one scalar.** `drivaernetplusplus-surface-native-points-v1` binds two metrics to the same quantity
+  — `surface_pressure_rel_l2` (area-weighted) and `surface_pressure_equal_entity_rel_l2` (uniform) — aggregated per
+  geometry and then macro-averaged over 1 154 designs, and they are the whole composite. A submission needs no volume.
+- **the data is fifteen family ZIPs, not case files.** The Dataverse API (`doi:10.7910/DVN/K7PWNJ`) lists 15 archives
+  from 9.04 GB to 18.80 GB, **212.5 GB** in total, stored Globus-backed. A case is 26.4 MB inside one of them.
+- **the download needs a guestbook.** `GET /api/access/datafile/10816650` answers HTTP 400 with *"You may not download
+  this file without the required Guestbook response for guestbookID 601"*. That is a form filled by the account holder —
+  it is not something a script should answer on someone's behalf, so the dataset's own pipeline stops there.
+- **range requests do work**, so once the guestbook is accepted a handful of cases can be pulled without the 18 GB
+  archive: the support ZIPs of the *scoring* side are already public on the release page and were fetched that way,
+  with the archive SHA-256 matching the manifest.
+- **the scoring support carries no coordinates.** The per-case `.npz` has the truth `p`, the `dual_area_m2` weights and
+  the profile indices; the geometry has to come from the archive, which is why the 30.5 GB of surface files is the real
+  cost of a full test split and why nothing can be predicted before the geometry is in hand.
+
+`pinneapple_simulation.pipelines.drivaernetplusplus` implements everything that does not need the geometry — the VTK
+reader, the support reader, both reductions and the macro aggregation — and its test suite checks the scoring side
+against the released support of `E_S_WWC_WM_008` (511 063 points, 32.3518 m² of dual area, `p` from −1 853.76 to
+449.888 m²/s²).
+
+### Once the guestbook is accepted
+
+```bash
+# 1. one family archive, then the cases it holds (check the box, then the download is a normal ranged GET)
+curl -L -H "Range: bytes=0-1" -o /dev/null -w '%{http_code}\n' \
+  https://dataverse.harvard.edu/api/access/datafile/10816650      # 206 when the guestbook is settled
+
+# 2. the case's geometry, and its scoring support from the public release
+python -m pinneapple_simulation.pipelines.drivaernetplusplus --case E_S_WWC_WM_008 \
+  --geometry E_S_WWC_WM_008.vtk --support E_S_WWC_WM_008/support.npz
+```
+
 ## The exact next command, once there is a machine that fits
 
 ```bash

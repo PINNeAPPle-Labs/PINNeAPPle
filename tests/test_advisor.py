@@ -506,3 +506,16 @@ def test_a_gap_in_the_documented_scope_is_not_blamed_on_the_machine():
     assert decision.choice in ("pinn", "xpinn")
     assert "não desta máquina" in decision.why["pt"]
     assert "instalada" not in decision.why["pt"]
+
+
+def test_every_word_the_plan_shows_is_written_in_both_languages():
+    plan = advise("turbulent 3-D flow around a cylinder; I have a mesh (.msh) and I want 200 runs", llm=False)
+    for stage in plan.stages:
+        for line in list(stage.inputs) + list(stage.outputs):
+            assert isinstance(line, dict) and set(line) == {"pt", "en"}, (stage.id, line)
+        for check in stage.checks:
+            assert isinstance(check["what"], dict) and set(check["what"]) == {"pt", "en"}, (stage.id, check)
+        for view in stage.views:
+            assert isinstance(view["what"], dict) and set(view["what"]) == {"pt", "en"}, (stage.id, view)
+    page = plan.diagram("markdown", "en")
+    assert "checagem principal" not in page

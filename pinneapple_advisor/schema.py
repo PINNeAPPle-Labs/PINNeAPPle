@@ -96,12 +96,12 @@ class Stage:
     why: Text
     status: str = "generate"
     tools: list[Tool] = field(default_factory=list)
-    inputs: list[str] = field(default_factory=list)
-    outputs: list[str] = field(default_factory=list)
+    inputs: list[Any] = field(default_factory=list)      # bilingual text, like every word the plan shows
+    outputs: list[Any] = field(default_factory=list)     # bilingual text, like every word the plan shows
     depends_on: list[str] = field(default_factory=list)
     estimate: Estimate | None = None
-    checks: list[dict[str, str]] = field(default_factory=list)   # [{"what", "tool"}]
-    views: list[dict[str, str]] = field(default_factory=list)    # [{"what", "tool"}]
+    checks: list[dict[str, Any]] = field(default_factory=list)   # [{"what", "tool"}], what is bilingual
+    views: list[dict[str, Any]] = field(default_factory=list)     # [{"what", "tool"}], what is bilingual
     question: str = ""        # the open question whose answer would change this stage ("" = none)
     # Which of the ten questions this stage answers (1-based), for the report and the diagram legend.
     answers: list[int] = field(default_factory=list)

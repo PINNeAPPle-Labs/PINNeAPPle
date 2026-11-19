@@ -36,3 +36,28 @@ python examples/fno_coldplate/run.py --smoke       # seconds (CI)
 - **Why the checks still reject it.** The fields are accurate on average: 1.4–1.7 % error, about 0.2 K on the hotspot. They do not satisfy the PDE locally. The certified bound comes from the residual of `-div(k grad T) = q` on the finite-volume grid, and it stays above its limit. Training longer on data alone lowers it slowly.
   - The next step is to fine-tune with the PDE's residual as a loss: PINO, already in `pinneapple_neural/architectures/neural_operators/pino.py`. Tracked in #1163.
 - **Speed.** On this 32 × 32 grid the solver itself is cheap: about 2.4 ms per layout, against 1.6 ms for the FNO. A neural operator pays off on large or transient problems, not here. The Burgers measurement in #1162 shows about 350× at 1024 points.
+
+## Independent evaluation and falsification controls
+
+Use [EXTERNAL_VALIDATION.md](EXTERNAL_VALIDATION.md) to reproduce the
+finite-volume-positive, corrupted-field-negative, and out-of-envelope-negative
+controls. This checks the **physics validator**, not FNO accuracy:
+
+```bash
+python examples/fno_coldplate/external_validation.py --out artifacts/external_validation/coldplate
+```
+
+The existing FNO can now run on **five different held-out dataset and model
+seeds**, saving per-seed physical decisions and predictions on a shifted
+conductivity distribution:
+
+```bash
+python examples/fno_coldplate/multiseed_study.py --seeds 0 1 2 3 4
+```
+
+This is compute-intensive. Run `--smoke --seeds 0 1` for an integration
+check **only**; short smoke training is not a publishable benchmark.
+
+The existing table above is internal evidence and **REJECT** is a meaningful
+outcome, not a failure to conceal. No independent scientific reproduction
+has been claimed or implied by this code.

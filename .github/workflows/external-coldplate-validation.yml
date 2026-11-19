@@ -1,0 +1,43 @@
+name: Cold-plate external falsification
+
+on:
+  pull_request:
+    paths:
+      - "examples/fno_coldplate/**"
+      - "tests/test_external_validation_coldplate.py"
+      - ".github/workflows/external-coldplate-validation.yml"
+      - "pinneapple_physics/darcy_checks.py"
+      - "pinneapple_simulation/numerical_solvers/operator_benchmarks.py"
+  workflow_dispatch:
+
+jobs:
+  independent-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU dependencies and PINNeAPPle
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e . pytest
+      - name: Negative controls and numerical validation
+        run: |
+          pytest tests/test_external_validation_coldplate.py -q
+          python examples/fno_coldplate/external_validation.py --out artifacts/external_validation/coldplate
+      - name: Train existing FNO smoke and run native checks
+        run: |
+          python examples/fno_coldplate/external_validation.py --fno-smoke --out artifacts/external_validation/coldplate
+      - name: Run two-seed FNO integration smoke (not scientific accuracy)
+        run: |
+          python examples/fno_coldplate/multiseed_study.py --smoke --seeds 0 1 --out artifacts/external_validation/coldplate_multiseed
+      - name: Upload evidence even after failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coldplate-external-validation
+          path: artifacts/external_validation/
+          if-no-files-found: warn

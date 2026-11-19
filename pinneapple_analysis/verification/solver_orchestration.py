@@ -443,11 +443,12 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
         ),
     },
     "fem": {
-        # "linear_elasticity" as a substring also covers axisymmetric_linear_elasticity and the presets'
-        # linear_elasticity_plane_stress/_strain; "nonlinear_elasticity" contains it too and is NOT what this
-        # assembly does -- it would silently fall through to Poisson -- so nonlinear is excluded by name
+        # "linear_elasticity" as a substring also covers the presets' linear_elasticity_plane_stress/_strain, and
+        # "nonlinear_elasticity"/"axisymmetric_linear_elasticity" contain it too. Neither is what this assembly
+        # does: the first would silently fall through to Poisson, and the axisymmetric branch raises today
+        # (2N unknowns, N-node reshape) -- so both are excluded by name until they are fixed
         "kind_substrings": ["poisson", "laplace", "helmholtz", "linear_elasticity", "plane_stress", "plane_strain"],
-        "not_kind_substrings": ["nonlinear"],
+        "not_kind_substrings": ["nonlinear", "axisymmetric"],
         "dims": {2},
         "source": (
             "fem.py FEMSolver docstring: 'poisson / laplace, helmholtz, axisymmetric_linear_elasticity, "

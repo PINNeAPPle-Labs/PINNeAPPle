@@ -350,7 +350,7 @@ A(table([["step", "what happened"],
          ["4. heat sink", "the 3-D solve with several sources, radiation in the network, a 7-variable study"],
          ["5. corrections", "seven defects found by the checks themselves (section 5) — none was hidden by "
           "loosening a tolerance"],
-         ["6. gates", "ruff, 57 tests, experiment manifests, the snippet hub, both examples run end to end"],
+         ["6. gates", "ruff, 53 tests, experiment manifests, the snippet hub and the Studio coverage, both examples run end to end"],
          ["7. delivery", "commit and PR #1873"]],
         [24 * mm, FRAME_W - 24 * mm]))
 
@@ -551,7 +551,7 @@ A(H2("4.1 Gates that ran"))
 A(table([["gate", "result"],
          ["<font face='Courier'>ruff check</font> on the 13 changed files", "clean"],
          ["<font face='Courier'>pytest</font> of the three touched test files",
-          "57 passed, 9 skipped (optional deps)"],
+          "53 passed, 13 skipped (Newton, USD BRep and torch_geometric are not installed here)"],
          ["<font face='Courier'>scripts/check_experiment_manifests.py</font>",
           "every experiment has a valid manifest"],
          ["<font face='Courier'>python -m pinneapple_hub.library check</font>",

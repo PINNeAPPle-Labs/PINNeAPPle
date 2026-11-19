@@ -86,6 +86,16 @@ and are not:
   predicted magnitude runs to 3.6× the truth. Five reductions on one fixed slice, 60-case held-out set: the median floor
   is the only one that keeps improving, ending at 145 % against 970 %.
 
+Neither of those fixes moved the wall shear on the holdout, and neither did removing the force term or detaching the
+readout from the data term. What did move it is taking the magnitude *out of the network*: `slope_prior=True` has the
+readout predict a log-correction to `flat_plate_slope`, the turbulent flat-plate skin friction `Cf = 0.0576 Re_x^{-1/5}`
+at the predicted edge speed. The untrained law already sits at 168 % relative error with a magnitude ratio of 1.08, and
+on the 20-case `full` holdout the trained model reaches **38.5 %** wall shear against 43.5 % for the entry without it,
+with `Cd R²` moving from −5.03 to −1.88. Two unit traps are worth remembering: the freestream channels travel as a unit
+direction and `x_over_chord` is dimensionless, so the law has to be fed metres per second and metres (without the inlet
+factor it comes out a thousand times short and training diverges), and standardising the readout on wall nodes sends a
+far-field row to a huge z-score, which the exponent then turns into an inf — both the z and the correction are clamped.
+
 On the `full` split this takes `overall_score` from 29.44 to **63.20** (field components 16.09 %/758.6 %/12.15 %/34.41 %
 → 2.93 %/78.7 %/4.49 %/3.66 %, Cl R² 0.988 → 0.9995, profile R² 0.782 → 0.968, `field_score` 0 → 58.03).
 

@@ -363,9 +363,10 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
         ),
     },
     "fdm3d": {
-        # heat, not diffusion: HeatConduction3D's source is q(x, t), so a field-dependent reaction term (the
-        # "diffusion" kinds) is more than this solver documents, and the substring would otherwise claim it
-        "kind_substrings": ["heat"],
+        "kind_substrings": ["heat", "diffusion"],
+        # the linear equation with a source q(x, t): a reaction term that depends on the field is
+        # reaction_diffusion_nd's problem, not this one
+        "not_kind_substrings": ["reaction"],
         "dims": {3},
         "source": (
             "fdm3d.py HeatConduction3D docstring: '3D heat equation solver using explicit Euler + central "

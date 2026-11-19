@@ -611,10 +611,13 @@ def read_vtp(path: str, material: str = "grey") -> Surface:
 
 
 def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], generator: str = "PINNeAPPle",
-              groups: Optional[Dict[str, List[int]]] = None) -> bytes:
+              groups: Optional[Dict[str, List[int]]] = None,
+              colors: Optional[Dict[str, np.ndarray]] = None) -> bytes:
     """glTF 2.0 binary with PBR materials (clearcoat, transmission, emissive). Every per-vertex field becomes a
     float attribute ``_NAME`` (upper case; three.js reads it back as ``_name``). ``groups``: node name -> indices of
-    surfaces to parent under one node (e.g. a propeller that spins)."""
+    surfaces to parent under one node (e.g. a propeller that spins). ``colors``: surface name -> (V, 3) RGB,
+    **linear**, written as ``COLOR_0`` vertex colours -- the slot Unreal's importer reads (a ``_NAME`` attribute is
+    ignored by it); see :mod:`.unreal`."""
     mats = list(dict.fromkeys(s.material for s in surfaces))
     buf = bytearray()
     views, accessors, meshes, nodes = [], [], [], []
@@ -643,6 +646,11 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
             key = "_" + an.upper().lstrip("_")
             attrs[key] = add(np.asarray(vals, np.float32), 34962, 5126, "SCALAR")
             names[key] = an
+        if colors is not None and s.name in colors and colors[s.name] is not None:
+            C = np.asarray(colors[s.name], np.float32)[:, :3]
+            if C.shape[0] != len(V):
+                raise ValueError(f"surface '{s.name}': colors has {C.shape[0]} entries for {len(V)} vertices")
+            attrs["COLOR_0"] = add(np.clip(C, 0.0, 1.0), 34962, 5126, "VEC3")
         idx = add(s.faces.astype(np.uint32).ravel(), 34963, 5125, "SCALAR")
         prim = {"attributes": attrs, "indices": idx, "material": mats.index(s.material)}
         if names:

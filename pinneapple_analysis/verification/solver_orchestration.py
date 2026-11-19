@@ -373,6 +373,18 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
             "ProblemSpec face and refuses any wall condition other than zero by name."
         ),
     },
+    "heat1d_fdm": {
+        "kind_substrings": ["heat", "diffusion"],
+        # the linear equation with a source q(x, t); a reaction term that depends on the field is
+        # reaction_diffusion1d's problem, not this one
+        "not_kind_substrings": ["reaction"],
+        "dims": {1},
+        "source": (
+            "heat1d.py Heat1D docstring: 'Crank-Nicolson finite differences for dT/dt = alpha d2T/dx2 + "
+            "q(x, t) on [0, L]', the two ends held at a temperature constant in time; Heat1DSolver.solve_from_spec "
+            "is its ProblemSpec face, and it refuses a time-dependent end value by name."
+        ),
+    },
     "elliptic3d_fdm": {
         "kind_substrings": ["poisson", "laplace", "helmholtz"],
         "dims": {3},
@@ -502,8 +514,8 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # numerical-accuracy claim this module can actually verify -- see the
 # docstring below.
 _FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "wave3d_fdm", "darcy2d_fvm",
-                            "elliptic3d_fdm", "reaction_diffusion1d", "reaction_diffusion_nd", "fdm", "fenics",
-                            "openfoam"]
+                            "elliptic3d_fdm", "reaction_diffusion1d", "reaction_diffusion_nd", "heat1d_fdm", "fdm",
+                            "fenics", "openfoam"]
 
 
 def select_solver_family(

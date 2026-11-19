@@ -24,6 +24,7 @@ from pinneapple_physics.pde_environment.presets.industry import (
 )
 from pinneapple_physics.pde_environment.spec import PDETermSpec, ProblemSpec
 from pinneapple_simulation.numerical_solvers.darcy import Darcy2DFVMSolver
+from pinneapple_simulation.numerical_solvers.heat1d import Heat1DSolver
 from pinneapple_simulation.numerical_solvers.elliptic3d import (
     Elliptic3D,
     Elliptic3DFDMSolver,
@@ -355,3 +356,41 @@ def test_reaction_diffusion_in_two_dimensions_refuses_a_boundary_it_does_not_hav
         value_fn=lambda X, ctx: np.zeros((X.shape[0], 1), dtype=np.float32), weight=1.0),))
     with pytest.raises(ValueError, match="no boundary"):
         ReactionDiffusionNDSolver().solve_from_spec(with_a_wall)
+
+
+# ------------------------------------------------------------------------------------- 1-D heat
+
+
+def _heat1d(**params):
+    merged = {"alpha": 0.01, "nx": 81, "nt": 40, "T_init": 20.0}
+    kind = str(params.pop("kind", "heat_equation"))
+    merged.update(params)
+    left = DirichletBC(name="left", fields=("T",), selector_type="callable",
+                       selector=lambda X, ctx: np.isclose(X[:, 0], 0.0),
+                       value_fn=lambda X, ctx: np.full((X.shape[0], 1), 10.0, dtype=np.float32), weight=1.0)
+    right = DirichletBC(name="right", fields=("T",), selector_type="callable",
+                        selector=lambda X, ctx: np.isclose(X[:, 0], 2.0),
+                        value_fn=lambda X, ctx: np.full((X.shape[0], 1), 30.0, dtype=np.float32), weight=1.0)
+    return ProblemSpec(name="heat1d", dim=1, coords=("x", "t"), fields=("T",),
+                       pde=PDETermSpec(kind=kind, fields=("T",), coords=("x", "t"), params=merged),
+                       conditions=(left, right), domain_bounds={"x": (0.0, 2.0), "t": (0.0, 1.0)})
+
+
+def test_a_1d_heat_spec_is_solved_by_the_solver_its_scope_names():
+    specification = _heat1d()
+    assert [d["family"] for d in documented_families("heat_equation", 1)] == ["heat1d_fdm"]
+    assert select_solver_family(specification).recommended_family == "heat1d_fdm"
+    out = Heat1DSolver().solve_from_spec(specification)
+    field = out.result.numpy()
+    assert field.shape == (81,)
+    assert field[0] == pytest.approx(10.0) and field[-1] == pytest.approx(30.0)
+    # the maximum principle: a start between the two ends stays between them
+    assert field.min() >= 10.0 - 1e-5 and field.max() <= 30.0 + 1e-5
+    assert np.all(np.diff(field) > -1e-6)
+
+
+def test_1d_heat_does_not_claim_reaction_diffusion():
+    # "diffusion" is in both names, and only one of the two solves a reaction term
+    assert [d["family"] for d in documented_families("reaction_diffusion", 1)] == ["reaction_diffusion1d"]
+    with pytest.raises(ValueError, match="heat/diffusion"):
+        Heat1DSolver().solve_from_spec(_heat1d(kind="wave"))

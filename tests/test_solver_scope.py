@@ -67,6 +67,16 @@ def test_a_3d_heat_spec_is_solved_by_the_solver_its_scope_names():
     assert out.extras["method"] == "fdm3d_heat_conduction"
 
 
+def test_pure_diffusion_in_3d_is_the_same_operator_and_the_same_family():
+    # the kind name changes; the equation does not (no reaction term, so the linear operator is the one it solves)
+    specification = _hot_cube()
+    specification = dc.replace(specification, pde=dc.replace(specification.pde, kind="diffusion"))
+    assert [d["family"] for d in documented_families("diffusion", 3)] == ["fdm3d"]
+    assert FDM3DSolver().solve_from_spec(specification).result.shape == (12, 12, 12)
+    # and a field-dependent reaction is still refused by the name of the solver that would have to solve it
+    assert "fdm3d" not in [d["family"] for d in documented_families("reaction_diffusion", 3)]
+
+
 def test_the_3d_heat_start_comes_from_the_spec_and_not_from_a_guess():
     assert FDM3DSolver._initial_temperature(transient_heat_3d_default(),
                                             transient_heat_3d_default().domain_bounds, {}) == 0.0

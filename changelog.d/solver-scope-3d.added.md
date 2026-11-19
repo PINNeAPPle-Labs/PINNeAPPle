@@ -10,7 +10,8 @@
   pure diffusion) and `elliptic1d_fdm` (`elliptic1d`, new: 1-D Poisson/Laplace/Helmholtz by three-point differences
   and a direct tridiagonal solve, with the definiteness guard that makes a Helmholtz spec above the first eigenvalue
   fail instead of return noise). A spec whose kind names Fisher-KPP now routes to the reaction-diffusion family and
-  takes the `"fisher"` reaction, in 1-D and in 2-D/3-D. `fem` gained 2-D plane stress and plane strain (`linear_elasticity`, `plane_stress`/
+  takes the `"fisher"` reaction, in 1-D and in 2-D/3-D. `fdm3d` now also documents pure diffusion in 3-D -- the same
+  linear operator it solves -- while still excluding the reaction kinds by name. `fem` gained 2-D plane stress and plane strain (`linear_elasticity`, `plane_stress`/
   `plane_strain` and the presets' kind names, at dim 2 only), so 2-D elasticity is solved by Q1 elements instead of
   falling through to Poisson. Each of them refuses, by name, a spec it cannot honour instead of solving it with a
   boundary it does not have.

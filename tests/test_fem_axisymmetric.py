@@ -293,8 +293,8 @@ def test_lame_thick_cylinder_converges_to_the_analytic_displacement_in_second_or
 
     ``A r + B/r`` is not in the Q1 space, so this is a discretisation error, not a round-off one:
     it must fall at second order under radial refinement. Measured relative error on the interior
-    nodes (ny = 2, direct solve): 1.159e-4 at nx=8, 2.811e-5 at 16, 6.866e-6 at 32, 1.706e-6 at 64
-    -- ratios 4.12, 4.09, 4.02. The axial displacement stays at round-off (max|u_z| ~ 1e-20 m),
+    nodes (ny = 2, direct solve): 1.159e-4 at nx=8, 2.813e-5 at 16, 6.866e-6 at 32, 1.702e-6 at 64
+    -- ratios 4.12, 4.10, 4.03. The axial displacement stays at round-off (max|u_z| ~ 1e-20 m),
     which is the plane-strain state the analytic solution assumes.
     """
     errors = {}
@@ -313,9 +313,10 @@ def test_lame_wall_stresses_match_the_analytic_hoop_and_radial_stress():
 
     ``sigma_rr = (lam+2mu) e_rr + lam e_tt`` and ``sigma_tt = lam e_rr + (lam+2mu) e_tt`` with
     ``e_zz = 0`` (plane strain), ``e_tt = u_r/r`` and ``e_rr`` a central difference of the nodal
-    ``u_r``. At r = (a+b)/2 = 0.075 m the analytic values are sigma_rr = -8.8889 MPa and sigma_tt =
-    18.8889 MPa; measured at nx=64, ny=2: -8.8850 MPa (0.045 %) and 18.8880 MPa (0.005 %). The
-    hoop stress is the larger one there by a wide margin, and the radial stress is compressive.
+    ``u_r``. At r = (a+b)/2 = 0.075 m the analytic values are ``C(1 - b^2/r^2)`` = -5.1852 MPa and
+    ``C(1 + b^2/r^2)`` = 18.5185 MPa; measured at nx=64, ny=2: -5.1875 MPa (0.045 % off) and
+    18.5176 MPa (0.005 % off). The hoop stress is the larger one there by a wide margin, and the
+    radial stress is compressive.
     """
     nx = 64
     out = FEMSolver(nx=nx, ny=2, solver="direct")(spec=_lame_spec())

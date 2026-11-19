@@ -101,8 +101,8 @@ large while the absolute error is not.
 ## Three dimensions
 
 The five families above are 2-D: a section, a meridian, a plate. `pinneapple_neural.lpm_families_3d` keeps the same
-pipeline and answers three of the same problems in three dimensions, where an industrial surrogate is actually asked
-for one.
+pipeline and answers the same five problems in three dimensions, where an industrial surrogate is actually asked for
+one.
 
 | Name | Problem | Field | Reference |
 |---|---|---|---|

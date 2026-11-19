@@ -46,6 +46,7 @@ class CatalogEntry:
     access: Literal["open", "registration", "restricted"] = "open"
     adapter: str | None = None
     use: tuple[str, ...] = ()
+    stages: tuple[str, ...] = ()
     size: str = ""
     citation: str = ""
     notes: str = ""
@@ -61,7 +62,7 @@ class CatalogEntry:
             "id": self.id, "title": self.title, "domain": self.domain, "priority": self.priority,
             "formats": list(self.formats), "homepage": self.homepage, "license": self.license,
             "license_verified": self.license_verified, "access": self.access, "adapter": self.adapter,
-            "readable": self.readable, "use": list(self.use), "size": self.size, "citation": self.citation,
+            "readable": self.readable, "use": list(self.use), "stages": list(self.stages), "size": self.size, "citation": self.citation,
             "notes": self.notes, "related": list(self.related),
         }
 
@@ -76,6 +77,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         formats=("HDF5",), homepage="https://github.com/pdebench/PDEBench",
         license="CC BY 4.0 (data, verified on the archive record); code MIT per the project",
         license_verified=True, access="open", adapter="pinneapple_data.datasets.pdebench",
+        stages=('physics_ai', 'data', 'surrogates', 'validation'),
         use=("forward PINN/FNO training", "inverse problems", "operator benchmarks"),
         size="1.3 GB (2D Darcy, smallest case) to 88 GB (2D/3D CFD); 336 files",
         citation="Takamoto et al. (2022), PDEBench: An Extensive Benchmark for Scientific Machine Learning, "
@@ -89,6 +91,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         formats=("HDF5", "Zarr"), homepage="https://polymathic-ai.org/the_well/",
         license="code BSD-3-Clause (verified); data licence per scenario, unverified",
         license_verified=False, access="open", adapter="pinneapple_data.datasets.the_well",
+        stages=('physics_ai', 'data', 'surrogates'),
         use=("operator generalisation", "multi-physics surrogates", "temporal forecasting"),
         size="~15 TB over 16+ scenarios; 2.8-21 GB per file",
         citation="Ohana et al. (2024), The Well: a Large-Scale Collection of Diverse Physics Simulations for "
@@ -102,6 +105,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         license="Apache-2.0 (the dataset card's licence field, which is what covers the data; the repository's own "
                 "LICENSE file covers its code)",
         license_verified=True, access="open", adapter="pinneapple_data.datasets.cfdbench",
+        stages=('physics_ai', 'data', 'surrogates', 'validation'),
         use=("CFD surrogates", "generalisation across geometry and Reynolds"),
         size="~2.3 GB in four zips (cavity 786 MB, dam 1.35 GB, tube 213 MB, cylinder split by its three subsets)",
         citation="Luo, Chen & Zhang (2023), CFDBench: A Large-Scale Benchmark for Machine Learning Methods in Fluid "
@@ -115,6 +119,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         formats=("text",), homepage="https://www.spe.org/web/csp/datasets/set02.htm",
         license="not stated: the SPE page links the archive (por_perm_case2a.zip) without terms",
         license_verified=False, access="open", adapter="pinneapple_data.datasets.spe10",
+        stages=('physics_ai', 'data', 'inverse', 'validation'),
         use=("Darcy flow", "FNO/PINN permeability upscaling"),
         size="77 MB (spe_perm.dat 58 MB, spe_phi.dat 19 MB)",
         citation="Christie & Blunt (2001), Tenth SPE Comparative Solution Project, SPE Reservoir Evaluation",
@@ -126,6 +131,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         id="nasa_tmr", title="NASA Turbulence Modeling Resource", domain=_CFD, priority="P0",
         formats=("CGNS", "Plot3D", "text"), homepage="https://turbmodels.larc.nasa.gov/",
         license="public domain (US Government work), unverified per case", access="open", adapter=None,
+        stages=('problem', 'solvers', 'validation'),
         use=("numerical verification", "turbulence model validation"),
         citation="NASA Langley Research Center, Turbulence Modeling Resource",
         notes="Verification cases with published reference quantities (flat plate, bump, cylinder) -- the natural "
@@ -137,6 +143,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         id="pdearena", title="PDEArena: PDE operator learning benchmark", domain=_BENCHMARK, priority="P1",
         formats=("HDF5", "NumPy"), homepage="https://github.com/microsoft/pdearena",
         license="MIT (code), unverified", access="open", adapter=None,
+        stages=('physics_ai', 'data', 'validation'),
         use=("operator benchmark", "time-dependent PDEs"),
         notes="Shares the 1D/2D PDE families of PDEBench; a cross-check rather than a second format."),
     CatalogEntry(
@@ -144,6 +151,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         formats=("NumPy", "npz"), homepage="https://huggingface.co/datasets/BGLab/FlowBench",
         license="CC-BY-NC-4.0 (stated on the dataset card and in the paper; non-commercial)",
         license_verified=True, access="open", adapter="pinneapple_data.datasets.flowbench",
+        stages=('physics_ai', 'data', 'problem'),
         use=("neural simulators on complex geometry", "geometry generalisation"),
         size="over 10 000 samples; the FPO families are ~1.4 GB per sample",
         citation="Tali et al. (2024), FlowBench: A Large Scale Benchmark for Flow Simulation over Complex Geometries, "
@@ -157,6 +165,7 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         id="jhtdb", title="Johns Hopkins Turbulence Database", domain=_CFD, priority="P1",
         formats=("web service", "HDF5"), homepage="https://turbulence.pha.jhu.edu/",
         license="terms of use, registration required", access="registration", adapter=None,
+        stages=('data', 'validation'),
         use=("DNS reconstruction", "extrapolation", "subgrid modelling"),
         citation="Li et al. (2008), A public turbulence database cluster and applications, J. Turbulence",
         notes="Access is an authenticated web service (cutout requests), not a file: an adapter is an HTTP client, "
@@ -165,20 +174,64 @@ CATALOG: dict[str, CatalogEntry] = {e.id: e for e in (
         id="norne", title="Norne: full-field reservoir model", domain=_GEO, priority="P1",
         formats=("GRDECL", "EGRID", "INIT"), homepage="https://github.com/OPM/opm-data",
         license="unverified (Open Porous Media data terms)", access="open", adapter=None,
+        stages=('data', 'inverse', 'twin'),
         use=("data assimilation", "production forecasting"),
         citation="Equinor / Open Porous Media, Norne benchmark case"),
     CatalogEntry(
         id="nrel_wind", title="NREL Wind Integration National Dataset (WIND Toolkit)", domain="weather and energy",
         priority="P2", formats=("HDF5", "CSV"), homepage="https://www.nrel.gov/grid/wind-toolkit.html",
         license="requires API key, terms unverified", access="registration", adapter=None,
+        stages=('data', 'twin'),
         use=("wind forecasting", "digital twins"),
         notes="Time series at fixed points, not fields: the digital-twin side (INT-012) rather than a PDE case."),
+    CatalogEntry(
+        id="deepmind_mgn", title="DeepMind meshgraphnets datasets (cylinder_flow, airfoil, flag)", domain=_BENCHMARK,
+        priority="P1", formats=("TFRecord", "JSON"),
+        homepage="https://github.com/google-deepmind/deepmind-research/tree/master/meshgraphnets",
+        license="code Apache-2.0 (verified); the archives state no separate terms (unverified)",
+        access="open", adapter="pinneapple_data.datasets.deepmind_mgn",
+        stages=("physics_ai", "data"),
+        use=("graph network training", "mesh-based simulation", "rollout error"),
+        citation="Pfaff et al. (2021), Learning Mesh-Based Simulation with Graph Networks, ICLR",
+        notes="A reader existed here before the dataset was catalogued -- the gap this entry closes. One meta.json "
+              "plus one TFRecord per split, served from storage.googleapis.com/dm-meshgraphnets/<dataset>/, and the "
+              "reader takes a byte range so a split can be sampled without downloading it.",
+        related=("flowbench",)),
+    CatalogEntry(
+        id="airfrans", title="AirfRANS: RANS around 2-D airfoils", domain=_CFD, priority="P1",
+        formats=("NumPy", "VTK", "STL"), homepage="https://github.com/Extrality/AirfRANS",
+        license="ODbL-1.0 (the database licence, read on the repository)", license_verified=True, access="open",
+        adapter=None, stages=("physics_ai", "data", "surrogates", "problem"),
+        use=("airfoil surrogates", "generalisation across geometry and Reynolds", "physics-informed training"),
+        size="about 1 000 RANS simulations of 2-D airfoils in and out of the training distribution",
+        citation="Bonnet et al. (2022), AirfRANS: High Fidelity Computational Fluid Dynamics Dataset for "
+                 "Approximating Reynolds-Averaged Navier-Stokes Solutions, NeurIPS Datasets and Benchmarks",
+        notes="ODbL is share-alike for databases: a derived database that is published or served in a product "
+              "inherits the licence, so a model trained on it is one question and a redistributed database is "
+              "another. No reader here yet -- the archive is per-case VTK plus STL geometry.",
+        related=("cfdbench", "flowbench")),
+    CatalogEntry(
+        id="era5", title="ERA5 reanalysis (and the WeatherBench 2 benchmark built on it)", domain="weather and climate",
+        priority="P2", formats=("NetCDF", "GRIB"), homepage="https://cds.climate.copernicus.eu/",
+        license="Copernicus licence: free with attribution, registration required (unverified here)",
+        access="registration", adapter=None, stages=("data", "twin"),
+        use=("weather and climate twins", "temporal forecasting", "assimilation"),
+        citation="Hersbach et al. (2020), The ERA5 global reanalysis, Q. J. R. Meteorol. Soc.",
+        notes="The reanalysis under WeatherBench 2; a registered CDS account downloads it, and the attribution "
+              "terms travel with any derived product. The repository has a DestinE client and a NOAA client "
+              "(external_sources) but no ERA5 reader.",
+        related=("nrel_wind",)),
 )}
 
 
 def entries(*, priority: str | None = None, domain: str | None = None,
-            readable: bool | None = None) -> list[CatalogEntry]:
-    """The catalogue, filtered and sorted by priority then id."""
+            readable: bool | None = None, stage: str | None = None) -> list[CatalogEntry]:
+    """The catalogue, filtered and sorted by priority then id.
+
+    ``stage=`` filters on the workflow stages an entry feeds (``CatalogEntry.stages``, the ids of
+    :mod:`pinneapple_catalog.stages`): "which public data can I get for the inverse step" is a question the
+    catalogue could not answer while it was organised only by priority and domain.
+    """
     out = list(CATALOG.values())
     if priority is not None:
         out = [e for e in out if e.priority == priority]
@@ -186,6 +239,8 @@ def entries(*, priority: str | None = None, domain: str | None = None,
         out = [e for e in out if e.domain == domain]
     if readable is not None:
         out = [e for e in out if e.readable is readable]
+    if stage is not None:
+        out = [e for e in out if stage in e.stages]
     return sorted(out, key=lambda e: (e.priority, e.id))
 
 

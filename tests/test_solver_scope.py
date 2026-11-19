@@ -24,8 +24,17 @@ from pinneapple_physics.pde_environment.presets.industry import (
 )
 from pinneapple_physics.pde_environment.spec import PDETermSpec, ProblemSpec
 from pinneapple_simulation.numerical_solvers.darcy import Darcy2DFVMSolver
+from pinneapple_simulation.numerical_solvers.elliptic3d import (
+    Elliptic3D,
+    Elliptic3DFDMSolver,
+    solve_elliptic_3d,
+)
 from pinneapple_simulation.numerical_solvers.fdm3d import FDM3DSolver, Wave3DFDMSolver
-from pinneapple_simulation.numerical_solvers.reaction_diffusion import ReactionDiffusion1DSolver
+from pinneapple_simulation.numerical_solvers.reaction_diffusion import (
+    ReactionDiffusion,
+    ReactionDiffusion1DSolver,
+    ReactionDiffusionNDSolver,
+)
 from pinneapple_simulation.numerical_solvers.solid_fem import SolidFEMSpecSolver
 
 
@@ -209,10 +218,13 @@ def test_a_1d_reaction_diffusion_spec_is_solved_by_the_solver_its_scope_names():
     assert field.max() == pytest.approx(1.0, abs=0.05) and field.min() == pytest.approx(-1.0, abs=0.05)
 
 
-def test_reaction_diffusion_in_two_dimensions_is_a_gap_and_the_table_says_so():
-    # fdm's and fvm's "diffusion" is the linear equation: a reaction term depending on the field is more than
-    # they document, so the exclusion in the scope table keeps them from claiming it
-    assert documented_families("reaction_diffusion", 2) == []
+def test_reaction_diffusion_in_two_dimensions_is_now_covered_and_the_diffusion_solvers_still_do_not_claim_it():
+    # ReactionDiffusion took the 2-D/3-D case, and fdm's and fvm's "diffusion" still means the linear equation
+    assert documented_families("reaction_diffusion", 2) == [{"family": "reaction_diffusion_nd",
+                                                             "source": documented_families(
+                                                                 "reaction_diffusion", 2)[0]["source"]}]
+    assert "fdm" not in [d["family"] for d in documented_families("reaction_diffusion", 2)]
+    assert [d["family"] for d in documented_families("reaction_diffusion", 1)] == ["reaction_diffusion1d"]
     assert documented_families("diffusion", 2) != []
 
 
@@ -224,3 +236,122 @@ def test_reaction_diffusion_refuses_a_boundary_it_does_not_have():
         ReactionDiffusion1DSolver().solve_from_spec(with_a_wall)
     with pytest.raises(ValueError, match="1-D periodic"):
         ReactionDiffusion1DSolver().solve_from_spec(dc.replace(_reaction_diffusion(), dim=2))
+
+
+# ----------------------------------------------------------------- 3-D Poisson / Laplace / Helmholtz
+
+
+def _elliptic(**params):
+    merged = {"n": 17}
+    merged.update(params)
+    return ProblemSpec(name="elliptic3d", dim=3, coords=("x", "y", "z"), fields=("u",),
+                       pde=PDETermSpec(kind=str(merged.pop("kind", "poisson")), fields=("u",),
+                                       coords=("x", "y", "z"), params=merged),
+                       domain_bounds={"x": (0.0, 1.0), "y": (0.0, 1.0), "z": (0.0, 1.0)})
+
+
+def test_the_three_elliptic_kinds_have_a_3d_family_and_it_is_this_one():
+    for kind in ("poisson", "laplace", "helmholtz"):
+        assert [d["family"] for d in documented_families(kind, 3)] == ["elliptic3d_fdm"]
+    assert select_solver_family(_elliptic(kind="poisson", source=1.0)).recommended_family == "elliptic3d_fdm"
+
+
+def test_a_harmonic_function_is_reproduced_exactly():
+    # x + 2y + 3z is harmonic, and the seven-point Laplacian is exact on it: any error here is the iteration's
+    out = solve_elliptic_3d(Elliptic3D(nx=17, ny=17, nz=17, wall=lambda X, Y, Z: X + 2 * Y + 3 * Z))
+    x = y = z = np.linspace(0.0, 1.0, 17)
+    X, Y, Z = np.meshgrid(x, y, z, indexing="ij")
+    assert float(np.abs(out["u"] - (X + 2 * Y + 3 * Z)).max()) < 1e-10
+
+
+def test_poisson_is_second_order_against_a_manufactured_solution():
+    exact = lambda X, Y, Z: np.sin(np.pi * X) * np.sin(np.pi * Y) * np.sin(np.pi * Z)      # noqa: E731
+    errors = {}
+    for n in (17, 33):
+        out = solve_elliptic_3d(Elliptic3D(
+            nx=n, ny=n, nz=n, rhs=lambda X, Y, Z: -3 * np.pi**2 * exact(X, Y, Z), tol=1e-10))
+        axis = np.linspace(0.0, 1.0, n)
+        X, Y, Z = np.meshgrid(axis, axis, axis, indexing="ij")
+        errors[n] = float(np.abs(out["u"] - exact(X, Y, Z)).max())
+    assert errors[17] / errors[33] > 3.5            # halving the step buys a factor of four
+
+
+def test_helmholtz_solves_its_own_operator():
+    k = 1.0
+    exact = lambda X, Y, Z: np.sin(np.pi * X) * np.sin(np.pi * Y) * np.sin(np.pi * Z)      # noqa: E731
+    out = solve_elliptic_3d(Elliptic3D(nx=25, ny=25, nz=25, q=k**2,
+                                       rhs=lambda X, Y, Z: (k**2 - 3 * np.pi**2) * exact(X, Y, Z), tol=1e-10))
+    axis = np.linspace(0.0, 1.0, 25)
+    X, Y, Z = np.meshgrid(axis, axis, axis, indexing="ij")
+    assert float(np.abs(out["u"] - exact(X, Y, Z)).max()) < 1e-2
+
+
+def test_a_hot_wall_holds_its_value_and_the_middle_sits_at_the_mean():
+    # Laplace with one wall at 1 and the rest at 0: the mean-value property puts the centre at 1/6
+    hot = DirichletBC(name="hot_wall", fields=("u",), selector_type="callable",
+                      selector=lambda X, ctx: np.isclose(X[:, 0], 0.0),
+                      value_fn=lambda X, ctx: np.ones((X.shape[0], 1), dtype=np.float32), weight=1.0)
+    specification = dc.replace(_elliptic(kind="laplace", n=25), conditions=(hot,))
+    out = Elliptic3DFDMSolver().solve_from_spec(specification)
+    field = out.result.numpy()
+    assert float(field[0, 12, 12]) == pytest.approx(1.0)
+    assert float(field[-1, 12, 12]) == pytest.approx(0.0)
+    assert float(field[12, 12, 12]) == pytest.approx(1.0 / 6.0, abs=2e-3)
+
+
+def test_the_elliptic_solver_refuses_what_it_does_not_have():
+    with pytest.raises(ValueError, match="poisson/laplace/helmholtz"):
+        Elliptic3DFDMSolver().solve_from_spec(_elliptic(kind="heat_equation"))
+    with pytest.raises(ValueError, match="3-D"):
+        Elliptic3DFDMSolver().solve_from_spec(dc.replace(_elliptic(), dim=2))
+    with pytest.raises(ValueError, match="wavenumber"):
+        Elliptic3DFDMSolver().solve_from_spec(_elliptic(kind="helmholtz"))
+
+
+# ----------------------------------------------------------------- reaction-diffusion in 2-D and 3-D
+
+
+def _reaction_diffusion_nd(dim, **params):
+    merged = {"reaction": "none", "diffusion": 1e-2, "n": 24, "dt": 0.01, "nt": 60}
+    merged.update(params)
+    axes = ("x", "y", "z")[:dim]
+    return ProblemSpec(name=f"rd{dim}d", dim=dim, coords=axes, fields=("u",),
+                       pde=PDETermSpec(kind="reaction_diffusion", fields=("u",), coords=axes, params=merged),
+                       domain_bounds={a: (0.0, 2 * np.pi) for a in axes})
+
+
+def test_a_single_mode_diffuses_at_its_exact_rate_in_two_and_three_dimensions():
+    # pure diffusion, one Fourier mode of the periodic box: it decays as exp(-D |k|^2 t) and nothing else
+    for dim in (2, 3):
+        assert [d["family"] for d in documented_families("reaction_diffusion", dim)] == ["reaction_diffusion_nd"]
+        system = ReactionDiffusion(reaction="none", diffusion=1e-2, shape=(24,) * dim, length=2 * np.pi, dt=0.01)
+        axis = 2 * np.pi * np.arange(24) / 24
+        grids = np.meshgrid(*([axis] * dim), indexing="ij")
+        initial = np.prod([np.sin(g) for g in grids], axis=0)
+        field = system.step(initial, 60)
+        expected = np.exp(-1e-2 * dim * 60 * 0.01)
+        assert float(field[(6,) * dim]) / float(initial[(6,) * dim]) == pytest.approx(expected, rel=1e-6)
+
+
+def test_the_reaction_diffusion_spec_face_covers_two_and_three_dimensions():
+    for dim in (2, 3):
+        out = ReactionDiffusionNDSolver().solve_from_spec(_reaction_diffusion_nd(dim, reaction="allen_cahn",
+                                                                                diffusion=4e-3, nt=200))
+        assert tuple(out.result.shape) == (24,) * dim
+        assert out.extras["method"] == "reaction_diffusion_nd" and out.extras["dim"] == dim
+        assert float(np.max(np.abs(out.result.numpy()))) > 0.5        # the field separated, on a coarse grid
+
+
+def test_allen_cahn_separates_into_domains_in_two_dimensions():
+    system = ReactionDiffusion(reaction="allen_cahn", diffusion=4e-3, shape=(48, 48), length=2.0, dt=0.05)
+    field = system.step(system.initial_state(seed=1, amplitude=0.4), 500)
+    assert field.min() < -0.9 and field.max() > 0.9
+    assert float(np.mean(np.abs(field) > 0.9)) > 0.5      # most of the box has chosen a phase
+
+
+def test_reaction_diffusion_in_two_dimensions_refuses_a_boundary_it_does_not_have():
+    with_a_wall = dc.replace(_reaction_diffusion_nd(2), conditions=(DirichletBC(
+        name="wall", fields=("u",), selector_type="tag", selector={"tag": "boundary"},
+        value_fn=lambda X, ctx: np.zeros((X.shape[0], 1), dtype=np.float32), weight=1.0),))
+    with pytest.raises(ValueError, match="no boundary"):
+        ReactionDiffusionNDSolver().solve_from_spec(with_a_wall)

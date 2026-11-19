@@ -11,10 +11,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
+import torch
 
+from .base import SolverBase, SolverOutput
 from .etdrk4 import ETDRK4, fourier_wavenumbers
+from .registry import SolverRegistry
 
-__all__ = ["ReactionDiffusion1D"]
+__all__ = ["ReactionDiffusion1D", "ReactionDiffusion1DSolver"]
 
 _REACTIONS = {"allen_cahn": lambda u: u - u ** 3, "fisher": lambda u: u * (1.0 - u)}
 
@@ -63,3 +66,58 @@ class ReactionDiffusion1D:
         for _ in range(n_frames):
             out.append(self.step(out[-1], every))
         return np.stack(out)
+
+
+@SolverRegistry.register(
+    name="reaction_diffusion1d",
+    family="pde",
+    description="1-D reaction-diffusion u_t = D u_xx + R(u) on a periodic interval (Allen-Cahn u - u^3 or "
+                "Fisher-KPP u (1 - u)) with the ETDRK4 scheme",
+    tags=["etdrk4", "reaction_diffusion", "1d", "periodic", "spectral"],
+)
+class ReactionDiffusion1DSolver(SolverBase):
+    """``solve_from_spec`` for :class:`ReactionDiffusion1D`.
+
+    The spec's parameters (``spec.pde.params``): ``reaction`` (``"allen_cahn"`` or ``"fisher"``, default
+    ``"allen_cahn"``), ``diffusion`` (``D``, default 1e-3), ``n`` points (default 128), ``length`` (default
+    2.0), ``dt`` (default 0.05) and ``nt`` steps (default 200). The state starts from
+    :meth:`ReactionDiffusion1D.initial_state` with ``seed``/``amplitude``/``modes`` from the parameters.
+
+    The interval is periodic, so a spec carrying a boundary condition is refused by name: there is no wall here
+    to hold at a value, and silently dropping the condition would solve a different problem.
+    """
+
+    def solve_from_spec(self, spec) -> SolverOutput:
+        kind = str(getattr(spec.pde, "kind", "")).lower().replace("-", "_").replace(" ", "_")
+        if "reaction" not in kind:
+            raise ValueError(f"reaction_diffusion1d solves reaction-diffusion, and the spec's kind is '{kind}'.")
+        if int(getattr(spec, "dim", 1)) != 1:
+            raise ValueError(f"reaction_diffusion1d documents a 1-D periodic interval; the spec is "
+                             f"{getattr(spec, 'dim', '?')}-D. Nothing in the library documents reaction-diffusion "
+                             f"in 2-D or 3-D.")
+        conditions = tuple(getattr(spec, "conditions", ()) or ())
+        if conditions:
+            raise ValueError(
+                "reaction_diffusion1d solves on a periodic interval and has no boundary to impose: the spec "
+                f"carries {sorted({str(getattr(c, 'kind', '?')) for c in conditions})}.")
+        params = dict(getattr(spec.pde, "params", {}) or {})
+        system = ReactionDiffusion1D(
+            reaction=str(params.get("reaction", "allen_cahn")),
+            diffusion=float(params.get("diffusion", 1e-3)),
+            n=int(params.get("n", 128)),
+            length=float(params.get("length", 2.0)),
+            dt=float(params.get("dt", 0.05)),
+        )
+        states = int(params.get("nt", 200))
+        u0 = system.initial_state(seed=int(params.get("seed", 0)),
+                                  amplitude=float(params.get("amplitude", 0.5)),
+                                  modes=int(params.get("modes", 6)))
+        u = system.step(u0, states)
+        return SolverOutput(
+            result=torch.from_numpy(np.asarray(u, dtype=np.float32)),
+            losses={"mean": torch.tensor(float(np.mean(u)))},
+            extras={"method": "reaction_diffusion1d", "reaction": system.reaction,
+                    "diffusion": system.diffusion, "n": system.n, "length": system.length,
+                    "dt": system.dt, "nt": states, "min": float(np.min(u)), "max": float(np.max(u)),
+                    "x": system.x},
+        )

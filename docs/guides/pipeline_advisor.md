@@ -56,11 +56,12 @@ stage.checks            # coverage, data gates, failures recorded -- each with t
 | 10. Checks and views | `pp.trust_card`, `pinneapple_analysis.validation.physics_learning.verify`, `grid_convergence`, `error_map`, `pp.viz.field_view`, the Studio |
 
 The family the plan recommends is the one the physics asks for, not the one this machine happens to have
-installed: the documented scope (heat in 3-D is `fdm3d`, linear elasticity in 3-D is `solid_fem`, a turbulent 3-D
+installed: the documented scope (heat in 3-D is `fdm3d`, linear elasticity in 3-D is `solid_fem`, a 3-D wave is
+`wave3d_fdm`, 2-D Darcy flow is `darcy2d_fvm`, 1-D reaction-diffusion is `reaction_diffusion1d`, a turbulent 3-D
 flow is `openfoam`) decides, and installation only breaks a tie between families the scope already allows. A family
 the scope names but the machine cannot run stays the recommendation, with the fact said out loud and the estimate
-assuming it; a case no classical family documents -- a 3-D wave problem, say -- says exactly that, instead of
-implying the machine is missing something.
+assuming it; a case no classical family documents -- reaction-diffusion in 2-D, say, which the library solves in 1-D only --
+says exactly that, instead of implying the machine is missing something.
 
 The language model is not in that table on purpose. It reads a free-text description into the brief (and answers the
 predefined questions when the words do not match a choice); every value it proposes is validated against the closed

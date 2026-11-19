@@ -434,3 +434,23 @@ def test_an_inverse_plan_says_what_the_solver_is_for_there():
     sweep = advise("heat in plates whose thickness varies", answers={"evaluations_needed": 20, "parameter_varies": True},
                    llm=False)
     assert "cada caso" in sweep.stage("solver").title["pt"]
+
+
+def test_the_plan_can_be_watched_as_a_video(tmp_path):
+    """The same drawing, revealed stage by stage: a GIF needs nothing but matplotlib (the mp4 also needs ffmpeg)."""
+    plan = advise("Laplace in a rectangular plate", answers={"dimension": 2}, llm=False)
+    path = plan.video(str(tmp_path / "plan.gif"), fps=3, dpi=50, hold_s=0.5, reveal=1)
+    assert path.endswith(".gif") and (tmp_path / "plan.gif").stat().st_size > 3000
+
+    import shutil
+
+    if shutil.which("ffmpeg"):
+        mp4 = plan.video(str(tmp_path / "plan.mp4"), fps=3, dpi=50, hold_s=0.5, reveal=1)
+        assert (tmp_path / "plan.mp4").stat().st_size > 3000, mp4
+
+
+def test_the_cli_can_write_the_video(tmp_path):
+    from pinneapple_advisor.cli import main
+
+    assert main(["--text", "Laplace in a plate", "--offline", "--format", "video", "--out", str(tmp_path)]) == 0
+    assert (tmp_path / "pipeline.mp4").is_file()

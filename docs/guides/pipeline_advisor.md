@@ -100,7 +100,9 @@ once and keep the calibrated model for the rest of the study.
 * `plan.diagram("svg")` — a self-contained SVG (rows are the dependency depth, arrows are `depends_on`), for a page
   with no network;
 * `plan.diagram("html")` — the drawing plus every stage in detail, the decisions and the open questions;
-* `plan.diagram("markdown")` — the Mermaid source and a stage table for a repository.
+* `plan.diagram("markdown")` — the Mermaid source and a stage table for a repository;
+* `plan.video("pipeline.mp4")` — the same drawing revealed stage by stage (mp4 through ffmpeg, an animated GIF
+  without it), for a presentation or a quick review.
 
 From a terminal:
 
@@ -108,6 +110,7 @@ From a terminal:
 python -m pinneapple_advisor --text "transient heat in a 3D bracket" --offline --out advice
 python -m pinneapple_advisor --questions          # the predefined questions, as JSON
 python -m pinneapple_advisor --text "..." --format mermaid
+python -m pinneapple_advisor --text "..." --format video --out advice   # writes advice/pipeline.mp4
 ```
 
 In a flow, the node `advisor.pipeline` writes the same files into the run folder and shows the page in the Flow

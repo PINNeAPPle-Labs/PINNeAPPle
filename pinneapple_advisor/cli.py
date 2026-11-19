@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from typing import Any
 
@@ -25,8 +26,8 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--answers", "-a", default="", help="JSON file (or inline JSON) of brief fields")
     p.add_argument("--out", "-o", default="", help="folder to write plan.json and the diagrams into")
     p.add_argument("--format", "-f", default="json", choices=["json", "mermaid", "dot", "svg", "html", "markdown",
-                                                             "text"],
-                   help="what to print when --out is not given")
+                                                             "text", "video"],
+                   help="what to print when --out is not given (video writes pipeline.mp4 and prints its path)")
     p.add_argument("--questions", action="store_true", help="print the predefined questions and exit")
     p.add_argument("--offline", action="store_true", help="no language model: rules and questions only")
     p.add_argument("--provider", default="ollama", help="LLM provider for the intake (default: ollama)")
@@ -70,6 +71,11 @@ def main(argv: list[str] | None = None) -> int:
     plan = advise(args.text, answers=_answers(args.answers), llm=False if args.offline else None,
                   provider=args.provider, model=args.model, language=args.language,
                   out_dir=args.out or None)
+    if args.format == "video":
+        # the drawing revealed stage by stage: mp4 with ffmpeg, an animated gif without it
+        target = os.path.join(args.out or ".", "pipeline.mp4")
+        print(plan.video(target))
+        return 0
     if args.out:
         print(json.dumps({"written": plan.write(args.out), "stages": [s.id for s in plan.stages]}, indent=2))
         return 0

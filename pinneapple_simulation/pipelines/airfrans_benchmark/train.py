@@ -331,8 +331,15 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     shape_features = int(train_block["features"].shape[1]) - len(FEATURE_NAMES)
     model = WallAwareNet(spec.width, spec.depth, spec.fourier, spec.wall_layer,
                          shape_features=shape_features, slope_detach=spec.slope_detach).to(device)
-    feature_mean = torch.from_numpy(train_block["features"].mean(axis=0))
-    feature_std = torch.from_numpy(train_block["features"].std(axis=0)).clamp_min(1e-6)
+    # the wall readout only ever matters inside the viscous layer, so its statistics are measured on the wall nodes.
+    # Standardising it with the whole block — half of which is far field — compresses the near-wall columns into a
+    # narrow band around a large offset, and the readout then has to resolve the near-wall geometry through the
+    # difference of two large numbers. The isolated experiment that reaches 145 % of held-out error standardises this
+    # way; the file here did not.
+    wall_rows = train_block["features"][train_block["wall"]]
+    reference = wall_rows if len(wall_rows) else train_block["features"]
+    feature_mean = torch.from_numpy(reference.mean(axis=0))
+    feature_std = torch.from_numpy(reference.std(axis=0)).clamp_min(1e-6)
     model.feature_mean.copy_(feature_mean)
     model.feature_std.copy_(feature_std)
     optimizer = torch.optim.AdamW(model.parameters(), lr=spec.learning_rate, weight_decay=spec.weight_decay)

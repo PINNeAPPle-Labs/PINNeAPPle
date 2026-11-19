@@ -15,6 +15,12 @@ import pytest
 import torch
 
 from pinneapple_physics.closed_form import integral_equations as cf
+from pinneapple_physics.pde_environment.presets.integral import (
+    integral_fredholm_separable_exp,
+    integral_fredholm_unit_exp,
+    integral_log_kernel_linear,
+    integral_volterra_unit_exp,
+)
 from pinneapple_physics.pde_environment.presets.registry import get_preset
 from pinneapple_physics.pinn_solver.compiler.integral_kinds import (
     constant_kernel,
@@ -194,3 +200,21 @@ def test_the_kernel_helpers_agree_with_their_definitions():
     k = log_kernel(cols, cols, {})
     assert np.allclose(np.diagonal(k), 0.0)
     assert np.allclose(log_diag(np.array([0.1]), {}), [0.1 * (math.log(0.05) - 1.0)])
+
+
+FACTORIES = {"integral_fredholm_unit_exp": integral_fredholm_unit_exp,
+             "integral_fredholm_separable_exp": integral_fredholm_separable_exp,
+             "integral_volterra_unit_exp": integral_volterra_unit_exp,
+             "integral_log_kernel_linear": integral_log_kernel_linear}
+
+
+@pytest.mark.parametrize("name", sorted(FACTORIES))
+def test_the_factory_builds_the_spec_the_registry_serves(name):
+    """The four presets are factories, and the registry entry has to be the one the factory builds: the catalog
+    links a tool to its tests by the symbol a test calls, so the two paths are asserted here and not only through
+    ``pp.solve``."""
+    import pinneapple as pp
+
+    spec = FACTORIES[name]()
+    assert spec.name == name and name in pp.list_presets()
+    assert spec.pde.kind == get_preset(name).pde.kind

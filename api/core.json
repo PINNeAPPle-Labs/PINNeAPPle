@@ -3416,6 +3416,18 @@
    "pfr_conversion_ktau": "def(k, tau)",
    "tube_volume": "def(D, L)"
   },
+  "pinneapple_physics.closed_form.integral_equations": {
+   "fredholm_separable_exp": "def(x, lam=0.5)",
+   "fredholm_separable_exp_source": "def(x, lam=0.5)",
+   "fredholm_unit_exp": "def(x, lam=0.5)",
+   "fredholm_unit_exp_source": "def(x, lam=0.5)",
+   "log_kernel_linear": "def(x, a=1.0, b=0.5)",
+   "log_kernel_linear_source": "def(x, lam=0.5, a=1.0, b=0.5)",
+   "log_kernel_moment0": "def(x)",
+   "log_kernel_moment1": "def(x)",
+   "volterra_unit_exp": "def(x)",
+   "volterra_unit_exp_source": "def(x)"
+  },
   "pinneapple_physics.closed_form.membrane_diffusion": {
    "concentration_at_membrane_depth": "def(reservoir_conc_kg_m3, partition_coeff, membrane_thickness_m, z_from_reservoir_m)",
    "depletion_time_days": "def(diffusion_coeff_m2_s, partition_coeff, membrane_thickness_m, reservoir_thickness_m)",
@@ -3739,6 +3751,12 @@
    "transient_heat_3d_default": "def()",
    "wave_ultrasound_3d_default": "def()"
   },
+  "pinneapple_physics.pde_environment.presets.integral": {
+   "integral_fredholm_separable_exp": "def(lam=0.5, n_col=81)",
+   "integral_fredholm_unit_exp": "def(lam=0.5, n_col=81)",
+   "integral_log_kernel_linear": "def(lam=0.5, a=1.0, b=0.5, n_col=81)",
+   "integral_volterra_unit_exp": "def(n_col=81)"
+  },
   "pinneapple_physics.pde_environment.presets.multidisciplinary": {
    "black_scholes_1d": "def(sigma=0.2, r=0.05, K=100.0, T=1.0)",
    "climate_atmosphere_2d": "def(g=9.81, f=0.0001, H0=1000.0, U_ref=10.0, lon_min=0.0, lon_max=360.0, lat_min=-90.0, lat_max=90.0)",
@@ -3895,6 +3913,17 @@
   },
   "pinneapple_physics.pinn_solver.compiler.em_kinds": {
    "em_residuals": "def(kind, *, fields, xcol, coords, params, ctx, model, field_names, split_fields)"
+  },
+  "pinneapple_physics.pinn_solver.compiler.integral_kinds": {
+   "constant_kernel": "def(X, S, ctx)",
+   "helmholtz2_diag": "def(width, ctx)",
+   "helmholtz2_kernel": "def(X, S, ctx)",
+   "integral_residuals": "def(kind, *, fields, xcol, coords, params, ctx, model, field_names, split_fields)",
+   "log_diag": "def(width, ctx)",
+   "log_kernel": "def(X, S, ctx)",
+   "nystrom_matrix": "def(x, kernel_fn, ctx=None, *, diag_fn=None, volterra=False)",
+   "product_kernel": "def(X, S, ctx)",
+   "trapezoid_weights": "def(x)"
   },
   "pinneapple_physics.pinn_solver.compiler.loss": {
    "AdaptiveWeights": {

@@ -1,0 +1,39 @@
+{
+  "caso": "asa",
+  "descricao": "NACA 2412 a 16°, ponta de asa livre",
+  "malha": [
+    299,
+    135,
+    52
+  ],
+  "celulas": 2098980,
+  "dx_m": 0.03333333333333333,
+  "celulas_por_comprimento": 90,
+  "passos": 1800,
+  "u_lattice": 0.06,
+  "re_lattice": 1200.0,
+  "u_inf_ms": 30.0,
+  "re_fisico": 1926463.8145240648,
+  "comprimento_m": 0.9632319072620324,
+  "tunel": {
+    "a_montante": 1.0,
+    "a_jusante": 2.0
+  },
+  "render": {
+    "res": [
+      1920,
+      1080
+    ],
+    "frames": 144,
+    "fps": 24,
+    "samples": 32,
+    "engine": "EEVEE",
+    "segundos": 6.0
+  },
+  "video": "asa.mp4",
+  "fontes": {
+    "campo": "WindTunnelLBM (D3Q19, Smagorinsky LES)",
+    "volume": "densidade = Q + déficit de velocidade",
+    "motor": "Blender EEVEE + OpenVDB"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "caso": "carro",
+  "descricao": "RoadCar — fastback de rua, rodas abertas",
+  "malha": [
+    600,
+    92,
+    80
+  ],
+  "celulas": 4416000,
+  "dx_m": 0.03850000000000003,
+  "celulas_por_comprimento": 120,
+  "passos": 2200,
+  "u_lattice": 0.06,
+  "re_lattice": 1200.0,
+  "u_inf_ms": 30.0,
+  "re_fisico": 9240000.000000007,
+  "comprimento_m": 4.620000000000004,
+  "tunel": {
+    "a_montante": 1.2,
+    "a_jusante": 2.8
+  },
+  "render": {
+    "res": [
+      1920,
+      1080
+    ],
+    "frames": 144,
+    "fps": 24,
+    "samples": 32,
+    "engine": "EEVEE",
+    "segundos": 6.0
+  },
+  "video": "carro.mp4",
+  "fontes": {
+    "campo": "WindTunnelLBM (D3Q19, Smagorinsky LES)",
+    "volume": "densidade = critério Q (rotação menos deformação)",
+    "motor": "Blender EEVEE + OpenVDB"
+  }
+}

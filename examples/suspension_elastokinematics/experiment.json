@@ -20,25 +20,25 @@
  "metrics": [
   {
    "name": "arm_and_bushing_mass",
-   "value": 4.8032894184928026,
+   "value": 4.774667812296959,
    "unit": "kg",
    "how": "the winning design, both A-arms"
   },
   {
    "name": "mass_reduction",
-   "value": 9.773266885970733,
+   "value": 10.310905532849851,
    "unit": "%",
    "how": "against the nominal corner"
   },
   {
    "name": "outer_fibre_stress",
-   "value": 274.0442477792826,
+   "value": 279.96461091810755,
    "unit": "MPa",
    "how": "worst load case, closed form"
   },
   {
    "name": "fem_peak_stress",
-   "value": 229.3118050835477,
+   "value": 234.27902950476522,
    "unit": "MPa",
    "how": "3-D hexahedra on the winning arm"
   },
@@ -50,7 +50,7 @@
   },
   {
    "name": "toe_compliance",
-   "value": 0.44527163841035255,
+   "value": 0.4496927752456325,
    "unit": "deg/kN",
    "how": "the elastokinematic objective"
   }
@@ -77,7 +77,7 @@
    "atol": null,
    "max": null,
    "min": null,
-   "detail": "peak 229 MPa, ratio 1.020",
+   "detail": "peak 234 MPa, ratio 1.020",
    "kind": "numerics"
   },
   {
@@ -95,10 +95,10 @@
  ],
  "files": {
   "figures": [
-   "_out/wheels_in_bump.png",
-   "_out/compliance_vs_bush.png",
-   "_out/design_search.png",
-   "_out/arm_stress.png"
+   "../../../../../../../tmp/susp-ex/wheels_in_bump.png",
+   "../../../../../../../tmp/susp-ex/compliance_vs_bush.png",
+   "../../../../../../../tmp/susp-ex/design_search.png",
+   "../../../../../../../tmp/susp-ex/arm_stress.png"
   ],
   "videos": [],
   "viewers": [],
@@ -113,9 +113,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "78744ed46",
-  "created": "2026-11-18T23:31:05Z",
-  "seconds": 18.452,
+  "git": "fc610d9e6",
+  "created": "2026-11-19T00:26:22Z",
+  "seconds": 6.022,
   "error": null,
   "environment": {
    "python": "3.11.16",

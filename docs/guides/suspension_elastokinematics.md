@@ -45,7 +45,7 @@ upper arm gains camber and changes the roll centre.
    same closed-loop solver and solves the elastic equilibrium under a lateral force, a braking force and an aligning
    torque: steer and camber per kN, and which bush causes them.
 5. **The loop** — `design.py` searches the five variables (tube OD, wall, bush rate, upper-arm inner-pivot height, tie
-   rod inner height) with a bounded compass search: 5.3 kg nominal → **4.8 kg**, feasible, in ~150 candidates.
+   rod inner height) with a bounded compass search: 5.32 kg nominal → **4.77 kg**, feasible, in 214 candidates.
 6. **The check** — `study.py` re-checks the winner with the finite-element model, writes the 3-D field of von Mises on
    the deformed leg, the four figures and the JSON, and returns its own checks with the numbers they measured.
 
@@ -59,10 +59,11 @@ scrub radius        +25.6 mm            wheel rate         21.95 N/mm
 motion ratio          0.581             roll centre         -4.5 mm
 ```
 
-The search's answer: a 41.7 × 2.0 mm tube, 1084 N/mm bushes, the tie rod 4.2 mm lower and the upper arm 18 mm higher —
-4.80 kg for both A-arms and their bushes, with the outer fibre at 274 MPa of the 280 MPa allowed, the steer compliance
-at 0.445 °/kN of the 0.45 allowed, and camber gain inside its band. The finite-element peak (229 MPa) agrees with beam
-theory to 2 %, and the whole loop is deterministic: the same budget gives the same design.
+The search's answer: a 41.7 × 2.0 mm tube, 1057 N/mm bushes, the tie rod 4.2 mm lower and the upper arm 6.4 mm higher
+— 4.77 kg for both A-arms and their bushes, with the outer fibre at 280 MPa of the 280 MPa allowed (a static margin of
+1.500), the steer compliance at 0.450 °/kN of the 0.45 allowed, and the camber gain at −0.323 °/50 mm inside its band. The
+finite-element peak (234 MPa) agrees with beam theory (230 MPa) to 2 %, and the whole loop is deterministic: the same
+budget gives the same design, which is what `suspension_verify` re-checks together with the mesh.
 
 ## What it does not answer
 

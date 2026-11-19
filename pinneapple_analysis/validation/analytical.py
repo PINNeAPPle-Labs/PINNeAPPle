@@ -99,6 +99,9 @@ def validate_against_solver(
     coord_names: List[str],
     field_names: List[str],
     device: str = "cpu",
+    *,
+    prediction_protocol=None,
+    reference_protocol=None,
 ) -> dict:
     """Compare model predictions to solver reference data.
 
@@ -116,6 +119,14 @@ def validate_against_solver(
     dict with per-field and aggregate errors
     """
     import torch
+
+    # Scientific metadata must be supplied as a pair. Never compare a
+    # documented reference to an undocumented prediction silently.
+    if (prediction_protocol is None) != (reference_protocol is None):
+        raise ValueError("Both prediction_protocol and reference_protocol are required")
+    if prediction_protocol is not None:
+        from pinneapple_analysis.spatial_sampling import require_compatible
+        require_compatible(prediction_protocol, reference_protocol)
 
     # Build input tensor
     cols = []

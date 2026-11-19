@@ -334,18 +334,18 @@ def _physics_stage(brief: Brief, family: str, dim: int, time_dependent: bool,
         id="physics", kind="physics", title=bi(title_pt, "Confirm the physical model (equations, initial and "
                                                           "boundary conditions)"),
         why=why, status="confirm", answers=[1],
-        tools=list(cap.PHYSICS_CONFIRM), inputs=["the problem description"],
-        outputs=["equações, coeficientes, condições de contorno e iniciais confirmados",
-                 "o ProblemSpec que todas as etapas seguintes usam"],
-        checks=[{"what": "cada termo de cada equação e condição tem uma dimensão (unidades)",
+        tools=list(cap.PHYSICS_CONFIRM), inputs=[bi("a descrição do problema", "the problem description")],
+        outputs=[bi("equações, coeficientes, condições de contorno e iniciais confirmados", "equations, coefficients, boundary and initial conditions confirmed"),
+                 bi("o ProblemSpec que todas as etapas seguintes usam", "the ProblemSpec every later stage uses")],
+        checks=[{"what": bi("cada termo de cada equação e condição tem uma dimensão (unidades)", "every term of every equation and condition has a dimension (units)"),
                  "tool": "pinneapple_problemdesign.formulate:ModelDraft.checks"},
-                {"what": "o sistema é fechado: campos contra equações, todo coeficiente definido",
+                {"what": bi("o sistema é fechado: campos contra equações, todo coeficiente definido", "the system is closed: fields against equations, every coefficient defined"),
                  "tool": "pinneapple_problemdesign.formulate:ModelDraft.checks"},
-                {"what": "segunda ordem com condição em cada face; campo transiente com condição inicial",
+                {"what": bi("segunda ordem com condição em cada face; campo transiente com condição inicial", "second order with a condition on every face; a transient field with an initial condition"),
                  "tool": "pinneapple_problemdesign.formulate:ModelDraft.checks"},
-                {"what": "solução manufaturada: o resíduo compilado concorda com o SymPy",
+                {"what": bi("solução manufaturada: o resíduo compilado concorda com o SymPy", "manufactured solution: the compiled residual agrees with SymPy"),
                  "tool": "pinneapple_problemdesign.formulate:ModelDraft.checks"}],
-        views=[{"what": "o sistema em LaTeX, para conferir com quem conhece a física",
+        views=[{"what": bi("o sistema em LaTeX, para conferir com quem conhece a física", "the system in LaTeX, to check with whoever knows the physics"),
                 "tool": "pinneapple_problemdesign.formulate:ModelDraft"}],
         question="" if brief.values.get("physics_family") else "physics_family")
 
@@ -404,13 +404,13 @@ def _geometry_stage(brief: Brief, dim: int, real_shape: bool,
         source="brief"))
     return Stage(
         id="geometry", kind="geometry", title=title, why=why, status=status, answers=[4, 2],
-        tools=tools, inputs=["a descrição da forma" if not present else "os arquivos CAD/STL/STEP"],
-        outputs=["superfície fechada e classificada, num formato que o gerador de malha lê"],
-        checks=[{"what": "a superfície é fechada (sem bordas abertas) e cada região foi identificada",
+        tools=tools, inputs=[bi("a descrição da forma", "the description of the shape") if not present else bi("os arquivos CAD/STL/STEP", "the CAD/STL/STEP files")],
+        outputs=[bi("superfície fechada e classificada, num formato que o gerador de malha lê", "a closed, classified surface in a format the mesher reads")],
+        checks=[{"what": bi("a superfície é fechada (sem bordas abertas) e cada região foi identificada", "the surface is closed (no open edges) and every region is identified"),
                  "tool": "pinneapple_analysis.verification.geometry_intelligence:classify_geometry"},
-                {"what": "as dimensões conferem com as do desenho ou da peça real",
+                {"what": bi("as dimensões conferem com as do desenho ou da peça real", "the dimensions match the drawing or the real part"),
                  "tool": "pinneapple_design.intent:design"}],
-        views=[{"what": "a geometria e as regiões, antes de malhar",
+        views=[{"what": bi("a geometria e as regiões, antes de malhar", "the geometry and its regions, before meshing"),
                 "tool": "pinneapple_design.geometry_library:export_web"}],
         question="" if present or varies else "geometry_present"), True
 
@@ -432,8 +432,8 @@ def _mesh_stage(brief: Brief, dim: int, real_shape: bool, mesh_present: bool, ge
                    "The mesh is ready; what is missing is knowing whether it serves: inverted elements, edge ratio, "
                    "orthogonality and, with turbulence, y+ at the wall."),
             status="have", answers=[4, 3], tools=list(cap.MESH_IMPORT) + list(cap.MESH_CHECK),
-            inputs=["a malha existente"], outputs=["relatório de qualidade da malha"],
-            checks=_mesh_checks(turbulent), views=[{"what": "a malha colorida pela qualidade do elemento",
+            inputs=[bi("a malha existente", "the mesh you have")], outputs=[bi("relatório de qualidade da malha", "the mesh quality report")],
+            checks=_mesh_checks(turbulent), views=[{"what": bi("a malha colorida pela qualidade do elemento", "the mesh coloured by element quality"),
                                                     "tool": "pinneapple_design.geometry_library:export_web"}])
     if real_shape or dim == 3:
         status = "generate"
@@ -462,10 +462,10 @@ def _mesh_stage(brief: Brief, dim: int, real_shape: bool, mesh_present: bool, ge
         return Stage(
             id="mesh", kind="mesh", title=bi("Gerar a malha", "Generate the mesh"), why=why, status=status,
             answers=[3], tools=list(cap.MESH_GENERATE) + list(cap.MESH_CHECK),
-            inputs=["a geometria (importada ou gerada)"],
-            outputs=["malha não estruturada com a camada limite", "relatório de qualidade e y+"],
+            inputs=[bi("a geometria (importada ou gerada)", "the geometry (imported or generated)")],
+            outputs=[bi("malha não estruturada com a camada limite", "an unstructured mesh with the boundary layer"), bi("relatório de qualidade e y+", "the quality and y+ report")],
             depends_on=["geometry"] if geometry_needed else [], checks=_mesh_checks(turbulent),
-            views=[{"what": "a malha colorida pela qualidade do elemento",
+            views=[{"what": bi("a malha colorida pela qualidade do elemento", "the mesh coloured by element quality"),
                     "tool": "pinneapple_design.geometry_library:export_web"}],
             question="" if cells else "approx_cells")
     decisions.append(Decision(
@@ -477,14 +477,14 @@ def _mesh_stage(brief: Brief, dim: int, real_shape: bool, mesh_present: bool, ge
     return None
 
 
-def _mesh_checks(turbulent: bool) -> list[dict[str, str]]:
+def _mesh_checks(turbulent: bool) -> list[dict[str, Any]]:
     checks = [
-        {"what": "qualidade de cada elemento: SICN, gama, razão de aresta", "tool": "mesh_intelligence"},
-        {"what": "convergência de malha (GCI) em pelo menos dois níveis de refino",
+        {"what": bi("qualidade de cada elemento: SICN, gama, razão de aresta", "every element's quality: SICN, gamma, edge ratio"), "tool": "mesh_intelligence"},
+        {"what": bi("convergência de malha (GCI) em pelo menos dois níveis de refino", "mesh convergence (GCI) at two refinement levels at least"),
          "tool": "pinneapple_autolab.study.mesh_study:grid_convergence"},
     ]
     if turbulent:
-        checks.insert(1, {"what": "primeira célula na altura que o y+ alvo exige",
+        checks.insert(1, {"what": bi("primeira célula na altura que o y+ alvo exige", "the first cell at the height the target y+ asks for"),
                           "tool": "pinneapple_analysis.verification.mesh_intelligence:"
                                   "estimate_required_first_cell_height"})
     return checks
@@ -549,8 +549,8 @@ def _solver_stage(brief: Brief, family: str, dim: int, method: str, solver_rec: 
         title=(_solver_title(rec_family, direct_only, brief)),
         why=(_solver_why(rec_family, direct_only, study_evaluations, brief)),
         status="generate", answers=[6], tools=list(cap.SOLVER_SELECT) + list(cap.SOLVER_RUN),
-        inputs=["o ProblemSpec confirmado", "a malha (ou o domínio analítico)"],
-        outputs=["o campo (ou o KPI) de cada caso", "o custo medido por execução"],
+        inputs=[bi("o ProblemSpec confirmado", "the confirmed ProblemSpec"), bi("a malha (ou o domínio analítico)", "the mesh (or the analytic domain)")],
+        outputs=[bi("o campo (ou o KPI) de cada caso", "the field (or KPI) of every case"), bi("o custo medido por execução", "the measured cost per run")],
         depends_on=["physics"] + (["mesh"] if brief.values.get("mesh_present") or _has_mesh(brief) else []),
         estimate=est, checks=list(_solver_checks()), views=list(cap.VIEWS["field"])[:1],
         question="" if brief.values.get("solve_seconds_measured") else "solve_seconds_measured")
@@ -608,10 +608,10 @@ def _dataset_stage(brief: Brief, real_shape: bool, n_samples: int, solve_est: Es
         return Stage(
             id="dataset", kind="dataset", title=bi("Importar o seu dataset", "Import your dataset"),
             why=decisions[-1].why, status="have", answers=[5, 9], tools=list(cap.DATASET_HAVE),
-            inputs=["o dataset existente"], outputs=["PhysicsDataBundle com unidades e proveniência"],
-            checks=[{"what": "portões de dados: unidades, nó/célula, licença, SHA-256",
+            inputs=[bi("o dataset existente", "the dataset you have")], outputs=[bi("PhysicsDataBundle com unidades e proveniência", "a PhysicsDataBundle with units and provenance")],
+            checks=[{"what": bi("portões de dados: unidades, nó/célula, licença, SHA-256", "the data gates: units, node/cell, licence, SHA-256"),
                      "tool": "pinneapple_data.schema:run_gates"},
-                    {"what": "a divisão de teste é uma região do espaço de entrada, não linhas sorteadas",
+                    {"what": bi("a divisão de teste é uma região do espaço de entrada, não linhas sorteadas", "the test split is a region of the input space, not sampled rows"),
                      "tool": "pinneapple_autolab.study.dataset:region_split"}],
             views=list(cap.VIEWS["study"]))
     per_case = solve_est.seconds_per_evaluation * (2.0 if real_shape and brief.values.get("geometry_varies") else 1.0)
@@ -644,14 +644,14 @@ def _dataset_stage(brief: Brief, real_shape: bool, n_samples: int, solve_est: Es
                "run, the coverage (discrepancy, minimum distance) says whether the space was swept, and the test "
                "region measures extrapolation, not interpolation."),
         status="generate", answers=[5, 6, 9], tools=list(cap.DATASET_PLAN) + list(cap.DATASET_BUILD),
-        inputs=["o espaço dos parâmetros (faixas)", "o solver e o seu custo por caso"],
-        outputs=["dataset com um caso por amostra", "métricas de cobertura", "região de teste reservada"],
+        inputs=[bi("o espaço dos parâmetros (faixas)", "the parameter space (ranges)"), bi("o solver e o seu custo por caso", "the solver and its cost per case")],
+        outputs=[bi("dataset com um caso por amostra", "a dataset with one case per sample"), bi("métricas de cobertura", "coverage metrics"), bi("região de teste reservada", "a held-out test region")],
         depends_on=["solver"], estimate=estimate,
-        checks=[{"what": "cobertura do desenho contra um sorteio aleatório do mesmo tamanho",
+        checks=[{"what": bi("cobertura do desenho contra um sorteio aleatório do mesmo tamanho", "the design's coverage against a random draw of the same size"),
                  "tool": "pinneapple_autolab.study.campaign:plan_doe"},
-                {"what": "cada campo com unidades, localização e referência (portões de dados)",
+                {"what": bi("cada campo com unidades, localização e referência (portões de dados)", "every field with units, location and reference (the data gates)"),
                  "tool": "pinneapple_data.schema:run_gates"},
-                {"what": "nenhuma amostra falhou em silêncio: cada falha com o seu motivo",
+                {"what": bi("nenhuma amostra falhou em silêncio: cada falha com o seu motivo", "no sample failed silently: every failure carries its reason"),
                  "tool": "pinneapple_autolab.study.campaign:run_campaign"}],
         views=list(cap.VIEWS["study"]),
         question="" if brief.values.get("evaluations_needed") else "evaluations_needed")
@@ -706,15 +706,16 @@ def _training_stage(brief: Brief, arch: str, n_samples: int, cost: CostModel, di
     return Stage(
         id="training", kind="training", title=title, why=why, status="generate", answers=[7, 8],
         tools=tools + list(cap.TRAIN_CHECK),
-        inputs=["o ProblemSpec" if physics_only else "o dataset"],
-        outputs=["o modelo treinado", "o erro em dados não vistos", "a decisão de uso"],
+        inputs=[bi("o ProblemSpec", "the ProblemSpec") if physics_only else bi("o dataset", "the dataset")],
+        outputs=[bi("o modelo treinado", "the trained model"), bi("o erro em dados não vistos", "the error on unseen data"), bi("a decisão de uso", "the decision on whether to use it")],
         depends_on=["dataset"] if (dataset_present or dataset_built or not physics_only) else ["physics"],
         estimate=est,
-        checks=[{"what": f"erro relativo de {brief.get('accuracy_target'):.3g} em dados não vistos",
+        checks=[{"what": bi(f"erro relativo de {brief.get('accuracy_target'):.3g} em dados não vistos",
+                            f"relative error of {brief.get('accuracy_target'):.3g} on unseen data"),
                  "tool": "pinneapple_autolab.study.benchmark:benchmark"},
-                {"what": "nenhuma previsão fora das faixas amostradas",
+                {"what": bi("nenhuma previsão fora das faixas amostradas", "no prediction outside the sampled ranges"),
                  "tool": "pinneapple_analysis.verification.geometry_ood_guardrail"},
-                {"what": "o modelo aprendeu a física e não só o ajuste (resíduo, fluxo, energia, intervenções)",
+                {"what": bi("o modelo aprendeu a física e não só o ajuste (resíduo, fluxo, energia, intervenções)", "the model learned the physics and not just the fit (residual, flux, energy, interventions)"),
                  "tool": "pinneapple_analysis.validation.physics_learning:verify"}],
         views=list(cap.VIEWS["field"]) + list(cap.VIEWS["chart"]),
         question="" if brief.values.get("output_kind") else "output_kind")
@@ -730,12 +731,12 @@ def _inverse_stage(parent: str, dim: int, estimate: Estimate | None = None) -> S
                "The unknown is a physical parameter, not the field. Identifiability is checked before the fit; then "
                "the field and the parameter are fitted alternately, and what came back comes with its uncertainty."),
         status="generate", answers=[7, 8], tools=list(cap.INVERSE) + list(cap.VERIFY)[:1],
-        inputs=["medições (campos, séries ou pontos)", "o modelo físico"],
-        outputs=["o parâmetro calibrado", "a incerteza e o intervalo de confiança"],
+        inputs=[bi("medições (campos, séries ou pontos)", "measurements (fields, series or points)"), bi("o modelo físico", "the physics model")],
+        outputs=[bi("o parâmetro calibrado", "the calibrated parameter"), bi("a incerteza e o intervalo de confiança", "the uncertainty and its interval")],
         depends_on=[parent],
-        checks=[{"what": "o parâmetro é identificável com estas medições (posto da matriz de sensibilidade)",
+        checks=[{"what": bi("o parâmetro é identificável com estas medições (posto da matriz de sensibilidade)", "the parameter is identifiable from these measurements (sensitivity matrix rank)"),
                  "tool": "pinneapple_analysis.inverse_problems.identifiability:analyze_identifiability"},
-                {"what": "o campo ajustado respeita a EDP e as condições (carta de confiança)",
+                {"what": bi("o campo ajustado respeita a EDP e as condições (carta de confiança)", "the fitted field satisfies the PDE and the conditions (trust card)"),
                  "tool": "pinneapple_analysis.trust.field_card:trust_card"}],
         views=list(cap.VIEWS["field"]) + list(cap.VIEWS["chart"]), estimate=estimate,
         question="accuracy_target")
@@ -752,12 +753,12 @@ def _optimization_stage(parent: str, estimate: Estimate | None = None) -> Stage:
                "between the objectives and the chosen optimum is re-run on the solver before it becomes a "
                "recommendation."),
         status="generate", answers=[7], tools=list(cap.OPTIMIZE) + list(cap.VERIFY)[:1],
-        inputs=["o surrogate validado", "as faixas das variáveis e as restrições"],
-        outputs=["a frente de Pareto", "o projeto escolhido, re-verificado"],
+        inputs=[bi("o surrogate validado", "the validated surrogate"), bi("as faixas das variáveis e as restrições", "the variable ranges and the constraints")],
+        outputs=[bi("a frente de Pareto", "the Pareto front"), bi("o projeto escolhido, re-verificado", "the chosen design, re-verified")],
         depends_on=[parent],
-        checks=[{"what": "as restrições valem no ponto ótimo, medidas no solver",
+        checks=[{"what": bi("as restrições valem no ponto ótimo, medidas no solver", "the constraints hold at the optimum, measured in the solver"),
                  "tool": "pinneapple_design.design_optimizer.workflow:design_optimization"},
-                {"what": "o ótimo está dentro da região amostrada (não é extrapolação)",
+                {"what": bi("o ótimo está dentro da região amostrada (não é extrapolação)", "the optimum lies inside the sampled region (it is not extrapolation)"),
                  "tool": "pinneapple_analysis.trust.field_card:trust_card"}],
         views=list(cap.VIEWS["study"]), estimate=estimate,
         question="evaluations_needed")
@@ -774,12 +775,12 @@ def _verification_stage(brief: Brief, parent: str, dim: int) -> Stage:
                "comparison and applicability outside the trained domain -- with an APPROVED / REVIEW / REJECT "
                "decision."),
         status="confirm", answers=[10], tools=list(cap.VERIFY),
-        inputs=["o resultado (campo, KPI ou modelo)"], outputs=["a carta de confiança", "o registro de proveniência"],
+        inputs=[bi("o resultado (campo, KPI ou modelo)", "the result (field, KPI or model)")], outputs=[bi("a carta de confiança", "the trust card"), bi("o registro de proveniência", "the provenance record")],
         depends_on=[parent],
-        checks=[{"what": "resíduo da EDP nos pontos de avaliação", "tool": "pinneapple_analysis.trust.field_card"},
-                {"what": "condições de contorno e conservação", "tool": "pinneapple_analysis.trust.field_card"},
-                {"what": "comparação com referência (analítica, literatura ou o solver)", "tool": "pp.compare"},
-                {"what": "aplicabilidade: nada fora das faixas treinadas",
+        checks=[{"what": bi("resíduo da EDP nos pontos de avaliação", "the PDE residual at the evaluation points"), "tool": "pinneapple_analysis.trust.field_card"},
+                {"what": bi("condições de contorno e conservação", "boundary conditions and conservation"), "tool": "pinneapple_analysis.trust.field_card"},
+                {"what": bi("comparação com referência (analítica, literatura ou o solver)", "comparison against a reference (analytic, literature or the solver)"), "tool": "pp.compare"},
+                {"what": bi("aplicabilidade: nada fora das faixas treinadas", "applicability: nothing outside the trained ranges"),
                  "tool": "pinneapple_analysis.trust.TrustGate"}],
         views=list(cap.VIEWS["field"]))
 
@@ -808,11 +809,11 @@ def _visualization_stage(brief: Brief, parent: str, dim: int) -> Stage:
                "errs, not only how much), the time series and the study report next to the library's measured "
                "examples."),
         status="have", answers=[10], tools=unique,
-        inputs=["os resultados de cada etapa"], outputs=["figuras, cenas 3-D e o relatório do estudo"],
+        inputs=[bi("os resultados de cada etapa", "the results of every stage")], outputs=[bi("figuras, cenas 3-D e o relatório do estudo", "figures, 3-D scenes and the study report")],
         depends_on=[parent],
-        checks=[{"what": "cada figura e cena vem do resultado verificado, com a carta de confiança anexada",
+        checks=[{"what": bi("cada figura e cena vem do resultado verificado, com a carta de confiança anexada", "every figure and scene comes from the verified result, with the trust card attached"),
                  "tool": "pinneapple_analysis.trust.field_card:trust_card"}],
-        views=[{"what": "a galeria do Studio com o estudo e os exemplos comparáveis",
+        views=[{"what": bi("a galeria do Studio com o estudo e os exemplos comparáveis", "the Studio gallery with the study and comparable examples"),
                 "tool": "pinneapple_studio.catalog:load"}])
 
 
@@ -998,12 +999,12 @@ def _direct_budget(brief: Brief) -> float:
     return float(hours) * 3600.0 if hours else DIRECT_BUDGET_S
 
 
-def _solver_checks() -> list[dict[str, str]]:
-    return [{"what": "uma execução convergiu (resíduo abaixo da tolerância em todas as equações)",
+def _solver_checks() -> list[dict[str, Any]]:
+    return [{"what": bi("uma execução convergiu (resíduo abaixo da tolerância em todas as equações)", "one run converged (residual below tolerance in every equation)"),
              "tool": "pinneapple_analysis.trust.field_card:trust_card"},
-            {"what": "o resultado bate com uma referência (solução exata, literatura ou outro solver)",
+            {"what": bi("o resultado bate com uma referência (solução exata, literatura ou outro solver)", "the result matches a reference (exact solution, literature or another solver)"),
              "tool": "pinneapple_analysis.verification.solver_orchestration:compare_solvers"},
-            {"what": "conservação: o fluxo líquido na fronteira é a integral da fonte",
+            {"what": bi("conservação: o fluxo líquido na fronteira é a integral da fonte", "conservation: the net flux on the boundary is the integral of the source"),
              "tool": "pp.trust_card"}]
 
 

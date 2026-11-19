@@ -409,7 +409,7 @@ def markdown(plan: StudyPlan, lang: str = "pt") -> str:
     out += [head[0], head[1]]
     for i, s in enumerate(plan.stages, 1):
         status = STATUS_STYLE.get(s.status, STATUS_STYLE["generate"])
-        check = s.checks[0]["what"] if s.checks else ""
+        check = text_of(s.checks[0]["what"], lang) if s.checks else ""
         out.append(f"| {i} | {text_of(s.title, lang)} | {KIND_LABEL.get(s.kind, (s.kind, s.kind))[0 if lang == 'pt' else 1]} "
                    f"| {status['label_pt' if lang == 'pt' else 'label_en']} | {check} |")
     out += ["", f"## {'Decisões' if lang == 'pt' else 'Decisions'}", ""]

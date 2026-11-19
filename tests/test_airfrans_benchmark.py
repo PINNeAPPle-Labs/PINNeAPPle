@@ -351,3 +351,28 @@ def test_the_wall_cache_writer_says_which_stack_it_needs(tmp_path):
     with pytest.raises(WallTruthMissing) as error:
         wall_case_truth(str(tmp_path), "no-such-case")
     assert "airfrans" in str(error.value)
+
+
+def test_the_gradient_clip_keeps_the_wall_readout_out_of_the_trunks_norm():
+    """One global clip over this model measures ~140 at initialisation, dominated by the trunk, and scales the slope
+    head's gradients by 0.007 — the head then trains at 1/140 of its learning rate and never fits its own cases
+    (measured: 356 % relative error on the training set against 30 % for the same readout trained alone). The clip
+    has to act on the two groups separately."""
+    from pinneapple_simulation.pipelines.airfrans_benchmark import clip_wall_gradients
+
+    network = WallAwareNet(width=16, depth=1, fourier=0, shape_features=0)
+    head = [p for n, p in network.named_parameters() if n.startswith("head_slope")]
+    trunk = [p for n, p in network.named_parameters() if not n.startswith("head_slope")]
+    for parameter in trunk:                                    # the measurement: norm 139.5 against the head's 1.56
+        parameter.grad = torch.full_like(parameter, 10.0)
+    for parameter in head:
+        parameter.grad = torch.full_like(parameter, 1e-3)
+
+    def norm(parameters):
+        return float(torch.sqrt(sum((p.grad ** 2).sum() for p in parameters)))
+
+    head_before, trunk_before = norm(head), norm(trunk)
+    assert trunk_before > 10 * head_before                    # a single global norm would be the trunk's
+    clip_wall_gradients(network, 1.0)
+    assert norm(head) <= 1.0 + 1e-5 and norm(head) == pytest.approx(head_before)  # untouched: below its own cap
+    assert norm(trunk) == pytest.approx(1.0)                                       # clipped against its own norm

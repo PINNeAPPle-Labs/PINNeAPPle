@@ -21,7 +21,25 @@ from .features import (
 )
 from .model import CoordinateNet, physics_loss
 
-__all__ = ["TrainingSpec", "load_training_points", "train", "pick_device"]
+__all__ = ["TrainingSpec", "WallSpec", "clip_wall_gradients", "load_training_points", "train", "pick_device"]
+
+
+def clip_wall_gradients(model, max_norm: float) -> None:
+    """Clip the residual trunk and the wall readout against *separate* norms.
+
+    One ``clip_grad_norm_(model.parameters(), max_norm)`` measures a single norm over every parameter, and in this
+    model that norm is ~140 at initialisation because the force term dominates the trunk. The scale factor is then
+    0.007, applied to the slope head as well — so the head trains at 1/140 of its learning rate and cannot fit its own
+    training cases (measured: 356 % relative error on the training set, while the same readout trained alone reaches
+    30 %). Two groups, two norms: the trunk keeps its protection and the readout keeps its learning rate.
+    """
+    import torch
+
+    head = [p for n, p in model.named_parameters() if n.startswith("head_slope")]
+    rest = [p for n, p in model.named_parameters() if not n.startswith("head_slope")]
+    torch.nn.utils.clip_grad_norm_(rest, max_norm)
+    torch.nn.utils.clip_grad_norm_(head, max_norm)
+
 
 
 @dataclass(frozen=True)
@@ -153,6 +171,9 @@ class WallSpec:
 
     ``slope_weight`` scales a *relative* L2 between the predicted and true wall slope — the same reduction the
     benchmark's ``surface_wall_shear_rel_l2`` uses, so the loss and the metric speak the same language.
+    ``slope_floor`` is where that relative error is flattened, as a fraction of the batch's *median* slope magnitude:
+    the target's distribution is heavy-tailed enough (rms 26 500 against median 6 500) that a floor on the RMS, or no
+    floor, turns the term into a plain tail-weighted MSE and the readout overfits the training cases' magnitudes.
     ``force_weight`` scales the squared error of the force coefficients reconstructed from the curve through the
     evaluator's own quadrature; it is what teaches the surface pressure the difference between a small and a large
     drag instead of only the pointwise field."""
@@ -168,7 +189,8 @@ class WallSpec:
     seed: int = 0
     slope_weight: float = 1.0
     slope_floor: float = 0.2
-    slope_detach: bool = False
+    slope_detach: bool = True
+    cache_dir: str | None = None
     grad_clip: float = 1.0
     force_weight: float = 1.0
     physics_weight: float = 0.0
@@ -187,6 +209,7 @@ class WallSpec:
                 "lr": self.learning_rate, "width": self.width, "depth": self.depth, "fourier": self.fourier,
                 "wall_layer": self.wall_layer, "seed": self.seed, "slope_weight": self.slope_weight,
                 "slope_floor": self.slope_floor, "slope_detach": self.slope_detach, "grad_clip": self.grad_clip,
+                "cache_dir": self.cache_dir,
                 "force_weight": self.force_weight, "physics_weight": self.physics_weight,
                 "surface_pressure_weight": self.surface_pressure_weight, "wall_fraction": self.wall_fraction,
                 "drag_scale": self.drag_scale, "lift_scale": self.lift_scale, "lift_weight": self.lift_weight,
@@ -197,11 +220,25 @@ class WallSpec:
 
 def load_wall_points(store: str, wall_store: str, case_ids: Sequence[str], spec: WallSpec, *,
                      points_per_case: int | None = None, seed: int = 0) -> dict[str, np.ndarray]:
-    """Sample points plus the cached wall slope they carry, in the network's own scaled units."""
+    """Sample points plus the cached wall slope they carry, in the network's own scaled units.
+
+    With ``spec.cache_dir`` set, the assembled block is memoised on disk under a key built from the case list and the
+    sampling parameters: the point sample is deterministic, and reading 760 case files costs ten minutes that every
+    ablation would otherwise pay again."""
+    per_case = points_per_case or spec.points_per_case
+    if spec.cache_dir:
+        digest = hashlib.sha1("|".join(case_ids).encode()).hexdigest()[:16]
+        path = os.path.join(spec.cache_dir,
+                            f"points-{digest}-{per_case}-{seed}-{spec.wall_fraction:g}-{int(spec.shape)}.npz")
+        if os.path.exists(path):
+            with np.load(path) as data:
+                return {name: data[name] for name in data.files}
+    else:
+        path = None
+
     from .wall import load_wall_case, surface_rank
 
     rng = np.random.default_rng(seed)
-    per_case = points_per_case or spec.points_per_case
     blocks = {"features": [], "targets": [], "slope": [], "wall": []}
     for case_id in case_ids:
         with np.load(os.path.join(store, f"{case_id}.npz")) as data:
@@ -216,7 +253,11 @@ def load_wall_points(store: str, wall_store: str, case_ids: Sequence[str], spec:
                 truth_slope[on_wall] = load_wall_case(wall_store, case_id)["slope"][rank[on_wall]]
             blocks["slope"].append(truth_slope)
             blocks["wall"].append(on_wall)
-    return {name: np.concatenate(values) for name, values in blocks.items()}
+    block = {name: np.concatenate(values) for name, values in blocks.items()}
+    if path:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        np.savez(path, **block)
+    return block
 
 
 def load_curve_batch(store: str, wall_store: str, case_ids: Sequence[str],
@@ -290,6 +331,10 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     shape_features = int(train_block["features"].shape[1]) - len(FEATURE_NAMES)
     model = WallAwareNet(spec.width, spec.depth, spec.fourier, spec.wall_layer,
                          shape_features=shape_features, slope_detach=spec.slope_detach).to(device)
+    feature_mean = torch.from_numpy(train_block["features"].mean(axis=0))
+    feature_std = torch.from_numpy(train_block["features"].std(axis=0)).clamp_min(1e-6)
+    model.feature_mean.copy_(feature_mean)
+    model.feature_std.copy_(feature_std)
     optimizer = torch.optim.AdamW(model.parameters(), lr=spec.learning_rate, weight_decay=spec.weight_decay)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=spec.epochs,
                                                           eta_min=spec.learning_rate / 50)
@@ -335,12 +380,15 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             loss = data_loss
             slope_loss = torch.zeros((), device=device)
             if spec.slope_weight and bool(batch_wall.any()):
-                # per-point relative squared error with a floor at slope_floor of the batch RMS. Three variants were
-                # measured on the holdout before this one was chosen: a per-batch relative L2 (validation ratio drifted
-                # 1.8 → 2.3), a fixed-scale plain MSE (the head blew up, 3.5× the truth) and this one, which stayed
-                # bounded and gave the lowest wall-shear error of the three.
+                # per-point relative squared error with a floor at slope_floor of the batch *median* magnitude. Five
+                # reductions were measured on one fixed slice with a 60-case held-out set (docs: the wall slope has rms
+                # 26 500 and median 6 500, the top 1 % of nodes carrying 39 % of its energy). Floors placed on the RMS,
+                # or none at all, all collapse the head into the tail: the training error falls to 3-13 % while the
+                # held-out error *rises* to 970-1 240 % and the predicted magnitude runs to 3.6× the truth. The median
+                # floor is the only one of the five that keeps the held-out error falling past the first epochs, and it
+                # ends at 145 % against 970 % — so it is what the head is trained with.
                 truth = batch_slope[batch_wall]
-                floor = spec.slope_floor * torch.sqrt((truth ** 2).mean()) + 1e-9
+                floor = spec.slope_floor * truth.abs().median() + 1e-9
                 slope_loss = (((heads["slope"][batch_wall] - truth) ** 2) / (truth ** 2 + floor ** 2)).mean()
                 loss = loss + spec.slope_weight * slope_loss
             force_loss = torch.zeros((), device=device)
@@ -353,7 +401,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
             if spec.grad_clip:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), spec.grad_clip)
+                clip_wall_gradients(model, spec.grad_clip)
             optimizer.step()
             running["data"] += float(data_loss.detach()) * len(index)
             running["slope"] += float(slope_loss.detach()) * len(index)
@@ -389,14 +437,16 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             best_slope = slope_relative
             torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
-                        "shape_features": model.shape_features, "slope_detach": model.slope_detach, "features": list(FEATURE_NAMES),
+                        "shape_features": model.shape_features, "slope_detach": model.slope_detach,
+                "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch, "val_slope_rel_l2": slope_relative},
                        os.path.join(out_dir, "best.pt"))
         if spec.checkpoint_every and epoch % spec.checkpoint_every == 0:
             # a long run that dies must not take every epoch with it
             torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
-                        "shape_features": model.shape_features, "slope_detach": model.slope_detach, "features": list(FEATURE_NAMES),
+                        "shape_features": model.shape_features, "slope_detach": model.slope_detach,
+                "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch}, os.path.join(out_dir, "checkpoint.pt"))
 
     weights = os.path.join(out_dir, "model.pt")

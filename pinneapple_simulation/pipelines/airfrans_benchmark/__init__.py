@@ -33,6 +33,7 @@ from .submit import OfficialToolchain, Step, cross_check_domain_metrics
 from .train import (
                     TrainingSpec,
                     WallSpec,
+                    clip_wall_gradients,
                     curve_force_loss,
                     load_curve_batch,
                     load_training_points,

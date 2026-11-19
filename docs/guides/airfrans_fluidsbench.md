@@ -45,6 +45,50 @@ band, because that is where the wall-derived metrics are read.
 the outer domain. Measured on the full split, that trade is small and in one direction: field errors up by about 1 %
 relative, wall shear down 12 %, `|Cd R²|` down 32 %, `overall_score` 28.49 → 28.55.
 
+## The wall-aware variant, and why it exists
+
+The benchmark never reads a submitted wall shear or a submitted force coefficient: it re-integrates both from the
+submitted velocity and pressure, through the point-based velocity gradient at the surface nodes. Measured on the plain
+coordinate network, the wall velocity — which must be exactly zero — came out at 3.7 % of `U∞`, the first mesh cell of
+the release sits at `y⁺ ≈ 0.2`, the reconstructed viscous drag came out 5.6× the reference value, and 73 % of the
+pressure-drag error sat ahead of 10 % chord. No amount of capacity fixes that; the field near the wall is wrong by
+construction.
+
+`WallAwareNet` addresses it with three additions:
+
+- **an exact no-slip wall layer**, `U = A(d)·U_outer + (1−A(d))·s·d` with `A(d) = 1 − exp(−(d/λ)²)` and `λ` the
+  viscous-sublayer height. The wall value is zero by construction, and the first derivative at the wall *is* the slope
+  the evaluator reconstructs. Blending the true field into this layer with `du_t/dd = +τ_w/ν` reproduces the evaluator's
+  wall shear to 0.85–1.7 % on two cases;
+- **a separate wall network**: the slope is predicted by its own small MLP over the raw point channels, not by a head on
+  the shared trunk. Measured three ways on the wall slope — linear probe 74 %, standalone MLP 60 %, head on the trunk
+  330 % — the trunk smooths away exactly the near-wall detail the readout needs;
+- **a per-case shape descriptor**: the airfoil's upper and lower surfaces on 32 chord bins, 64 channels. A point-wise
+  network cannot tell two airfoils apart at the same location, and that ambiguity is worth 75.7 % → 42.1 % on a
+  nearest-neighbour probe of the wall slope.
+
+`WallSpec` / `train_wall` fit it with three objectives: the data term, a robust relative squared error on the wall
+slope, and the squared error of the drag and lift reconstructed from the predicted curve through
+`wall.curve_coefficients` — the evaluator's own polyline quadrature, reproduced to five decimals against
+`Simulation.force_coefficient` and asserted in `tests/test_airfrans_benchmark.py`.
+
+Two properties of the *objective* had to be measured rather than assumed, because both look like a capacity problem
+and are not:
+
+- **the gradient clip has to be per group.** `clip_grad_norm_` over every parameter measures ~140 at initialisation —
+  the force term dominates the trunk — and its 0.007 scale factor landed on the slope head too, training it at 1/140 of
+  its learning rate. The head then could not fit its own training cases (356 % relative error on the training set) while
+  the same readout trained alone reaches 6 %. `clip_wall_gradients` clips the trunk and the readout against separate
+  norms;
+- **the relative error has to be flattened on the median, not the RMS.** The wall slope has rms 26 500 and median
+  6 500, the top 1 % of nodes carrying 39 % of its energy. A floor on the RMS (or none) turns the term into a
+  tail-weighted MSE: the training error falls to 3–13 % while the held-out error *rises* to 970–1 240 % and the
+  predicted magnitude runs to 3.6× the truth. Five reductions on one fixed slice, 60-case held-out set: the median floor
+  is the only one that keeps improving, ending at 145 % against 970 %.
+
+On the `full` split this takes `overall_score` from 29.44 to **63.20** (field components 16.09 %/758.6 %/12.15 %/34.41 %
+→ 2.93 %/78.7 %/4.49 %/3.66 %, Cl R² 0.988 → 0.9995, profile R² 0.782 → 0.968, `field_score` 0 → 58.03).
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.
@@ -56,6 +100,8 @@ relative, wall shear down 12 %, `|Cd R²|` down 32 %, `overall_score` 28.49 → 
 
 ## Related
 
+- [`fluidsbench_datasets.md`](fluidsbench_datasets.md) — what each of the other open FluidsBench datasets costs, and
+  what this machine can carry.
 - [`fluidsbench.md`](fluidsbench.md) — the adapter: the contract, the support chain, the reductions, the trust decision.
 - [`examples/fluidsbench_airfrans`](../../examples/fluidsbench_airfrans/README.md) — the same path rehearsed on an exact
   reference (potential flow around a cylinder), with no dataset download.

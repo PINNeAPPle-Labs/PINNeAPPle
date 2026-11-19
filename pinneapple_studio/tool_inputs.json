@@ -5035,6 +5035,228 @@
   },
   "source": "tests/test_physics_audit.py:116"
  },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:constant_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "source": "tests/test_integral_presets.py:190"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:helmholtz2_diag": {
+  "inputs": {
+   "ctx": {
+    "k": 1.0
+   },
+   "width": [
+    0.004
+   ]
+  },
+  "source": "tests/test_integral_kinds.py:117"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:helmholtz2_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {
+    "k": 1.0
+   }
+  },
+  "source": "tests/test_integral_kinds.py:259"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:log_diag": {
+  "inputs": {
+   "ctx": {},
+   "width": [
+    0.1
+   ]
+  },
+  "source": "tests/test_integral_presets.py:196"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:log_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "source": "tests/test_integral_presets.py:190"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:product_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "source": "tests/test_integral_presets.py:190"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:trapezoid_weights": {
+  "inputs": {
+   "x": [
+    0.0,
+    0.03125,
+    0.0625,
+    0.09375,
+    0.125,
+    0.15625,
+    0.1875,
+    0.21875,
+    0.25,
+    0.28125,
+    0.3125,
+    0.34375,
+    0.375,
+    0.40625,
+    0.4375,
+    0.46875,
+    0.5,
+    0.53125,
+    0.5625,
+    0.59375,
+    0.625,
+    0.65625,
+    0.6875,
+    0.71875,
+    0.75,
+    0.78125,
+    0.8125,
+    0.84375,
+    0.875,
+    0.90625,
+    0.9375,
+    0.96875,
+    1.0
+   ]
+  },
+  "source": "tests/test_integral_kinds.py:78"
+ },
  "pinneapple_physics.pinn_solver.io.mappings:build_default_mapping_atmosphere": {
   "inputs": {
    "dep_vars": [

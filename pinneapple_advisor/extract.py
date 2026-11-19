@@ -109,7 +109,11 @@ def detect(text: str) -> dict[str, Any]:
     if _has(t, "dataset", "dados de simulação", "simulation data", "resultados de simulação", "snapshots",
             "já rodamos", "already ran", "banco de dados de simulações") and _has(t, *_HAVE, "dataset"):
         out["dataset_present"] = True
-    if _has(t, "não tenho dataset", "sem dataset", "no dataset", "from scratch", "do zero"):
+    if _has(t, "não tenho malha", "nao tenho malha", "não tenho a malha", "sem malha", "no mesh",
+            "not have a mesh", "need a mesh", "preciso de uma malha", "mesmo sem malha"):
+        out["mesh_present"] = False
+    if _has(t, "não tenho dataset", "nao tenho dataset", "não tenho o dataset", "sem dataset", "no dataset",
+            "from scratch", "do zero", "não temos dados"):
         out["dataset_present"] = False
 
     m = re.search(r"(\d+(?:[.,]\d+)?)\s*(k|mil|thousand|m|mi|million|milh(?:ão|oes|ões)?)?\s*"
@@ -121,9 +125,25 @@ def detect(text: str) -> dict[str, Any]:
             value *= 1e3
         elif unit in ("m", "mi", "million", "milh", "milhão", "milhões", "milhoes"):
             value *= 1e6
-        out.setdefault("n_simulations_present", int(value))
-        if "dataset_present" not in out:
-            out["dataset_present"] = True
+        # "tenho 200 simulações" is a dataset on hand; "quero 300 simulações" is the study's budget. The words just
+        # before the count decide, so an order for a campaign is not mistaken for data the user already has.
+        # the words that bind to this number, not the whole sentence: "I have the STEP ... 200
+        # simulations" is a budget, "I have 200 simulations" is data on hand
+        window = t[max(0, m.start() - 24):m.end()]
+        # a "no dataset" earlier in the sentence must not turn into possession of one through the word "dataset"
+        negated = _has(t[max(0, m.start() - 48):m.end()], "não tenho dataset", "nao tenho dataset", "sem dataset",
+                       "no dataset", "não tenho dados", "no data", "not have data", "não temos dados", "do zero",
+                       "from scratch", "sem dados")
+        held = not negated and _has(window, "tenho", "temos", "já rodei", "já rode", "já rodamos", "have",
+                                    "already", "disponho", "dataset", "banco de dados", "data set")
+        wanted = _has(window, "quero", "queria", "preciso", "precisamos", "desejo", "want", "need", "rodar",
+                      "executar", "gerar", "generate", "fazer", "simular", "avaliar", "evaluate", "estudo com")
+        named_data = _has(window, "dataset", "banco de dados", "data set")
+        if held and (not wanted or named_data):
+            out.setdefault("n_simulations_present", int(value))
+            out.setdefault("dataset_present", True)
+        else:
+            out.setdefault("evaluations_needed", int(value))
 
     if _has(t, "família de geometrias", "family of geometries", "várias geometrias", "different geometries",
             "geometrias diferentes", "otimização de forma", "shape optimis", "shape optimiz", "topology",

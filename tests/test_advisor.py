@@ -25,9 +25,26 @@ def test_rules_read_what_the_sentence_states():
     assert b.values["time_dependent"] is True
     assert b.values["geometry_present"] is True
     assert b.values["geometry_formats"] == ["step"]
-    assert b.values.get("mesh_present") is None        # "no mesh" is not a ready mesh
-    assert b.values["n_simulations_present"] == 200
+    assert b.values["mesh_present"] is False           # "no mesh" says the user has none, so one has to be built
+    assert b.values["evaluations_needed"] == 200       # "... would be fine" is the study's budget, not data on hand
+    assert b.values.get("n_simulations_present") is None
     assert b.values["physics_family"] == "heat_equation"
+
+
+def test_data_on_hand_and_a_campaign_budget_are_not_the_same_number():
+    held = brief("tenho o dataset com 200 simulações de escoamento 2D", llm=False)
+    assert held.values["dataset_present"] is True
+    assert held.values["n_simulations_present"] == 200
+    assert held.values.get("evaluations_needed") is None
+    wanted = brief("não tenho dataset, preciso de 500 simulações de escoamento turbulento 3D", llm=False)
+    assert wanted.values["dataset_present"] is False   # the count is what has to be generated, not what exists
+    assert wanted.values["evaluations_needed"] == 500
+    assert wanted.values.get("n_simulations_present") is None
+    # and the plan has to carry the campaign with it, not skip the dataset the user says it lacks
+    steps = [(s.id, s.status) for s in advise(
+        "não tenho dataset, preciso de 500 simulações de escoamento turbulento 3D", llm=False).stages]
+    assert ("dataset", "generate") in steps
+    assert ("training", "generate") in steps
 
 
 def test_portuguese_reading_and_percent_target():
@@ -454,3 +471,13 @@ def test_the_cli_can_write_the_video(tmp_path):
 
     assert main(["--text", "Laplace in a plate", "--offline", "--format", "video", "--out", str(tmp_path)]) == 0
     assert (tmp_path / "pipeline.mp4").is_file()
+
+
+def test_the_solver_decision_speaks_the_plan_language():
+    plan = advise("transiente térmico 3D, tenho o STEP, sem malha, quero 300 simulações", llm=False)
+    decision = next(d for d in plan.decisions if d.topic == "solver")
+    assert set(decision.why) == {"pt", "en"}
+    assert decision.why["pt"] != decision.why["en"]
+    # the API explains itself in one long paragraph; the plan says the same and keeps that paragraph as data
+    assert len(decision.why["pt"]) < 400
+    assert "reasoning" in decision.values

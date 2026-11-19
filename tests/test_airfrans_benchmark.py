@@ -247,14 +247,15 @@ def _figure(count: int = 4096):
     return points, normals, cells, lengths
 
 
-def test_the_wall_slope_is_minus_the_wall_shear_over_nu():
-    """``2νS·n`` is ``-ν ∂u_t/∂n`` at a wall: the stored slope is ``-wall shear/ν`` in units of ``U∞/c``."""
+def test_the_wall_slope_is_the_wall_shear_over_nu():
+    """``2νS·n = ν ∂u_t/∂d`` at a wall: the stored slope is ``+wall shear/ν`` in units of ``U∞/c`` and points along the
+    flow, which is the skin friction the flow exerts on the surface."""
     wall_shear = np.array([[0.0, -3.0], [1.5, 0.0]])
     nu, inlet, chord_length = 2e-5, 30.0, 1.0
     slope = slope_from_wall_shear(wall_shear, nu, inlet, chord_length)
-    assert np.allclose(slope, -wall_shear / nu * (chord_length / inlet))
+    assert np.allclose(slope, wall_shear / nu * (chord_length / inlet))
     # and the physical wall shear comes straight back out of it
-    recovered = slope * (-nu * inlet / chord_length)
+    recovered = slope * (nu * inlet / chord_length)
     assert np.allclose(recovered, wall_shear)
 
 
@@ -287,10 +288,10 @@ def test_a_pressure_gradient_on_a_circle_gives_the_analytic_drag():
 def test_a_uniform_tangential_slope_integrates_to_the_expected_friction():
     """A constant slope along the flow gives ``cdv = -2ν s L/(U∞ c)`` with ``L`` the perimeter."""
     points, normals, cells, lengths = _figure()
-    slope = np.tile(np.array([-1000.0, 0.0]), (len(points), 1))     # tangential, against the flow direction
+    slope = np.tile(np.array([1000.0, 0.0]), (len(points), 1))      # tangential, along the flow direction
     coefficients = curve_coefficients(np.zeros(len(points)), slope, cells, lengths, normals,
                                       cos_alpha=1.0, sin_alpha=0.0, nu=2e-5, inlet_velocity=1.0, chord=2.0)
-    expected = -2.0 * 2e-5 * (-1000.0) * lengths.sum() / (1.0 * 2.0)
+    expected = 2.0 * 2e-5 * 1000.0 * lengths.sum() / (1.0 * 2.0)
     assert coefficients["cdv"] == pytest.approx(expected, rel=1e-6)
     assert abs(coefficients["cdp"]) < 1e-12
 

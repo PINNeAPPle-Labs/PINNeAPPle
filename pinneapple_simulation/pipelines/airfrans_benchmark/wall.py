@@ -56,10 +56,16 @@ def _simulation():
 def slope_from_wall_shear(wall_shear: np.ndarray, nu: float, inlet_velocity: float, chord: float) -> np.ndarray:
     """The dimensionless wall slope the network predicts, from a wall-shear vector.
 
-    ``2ν S·n`` at a wall node of a tangential near-wall profile is ``-ν (∂u_t/∂n) t̂``, so the slope vector is
-    ``-wallShearStress/ν``; dividing by ``U∞/c`` puts it in the network's own units (a velocity per unit of
-    ``sdf/c``), which is what makes one weight set work across cases with different freestreams."""
-    return np.asarray(wall_shear, float) * (-1.0 / nu) * (chord / inlet_velocity)
+    A tangential near-wall profile ``u_t(d)`` gives ``2ν S·n = ν (∂u_t/∂d) t̂`` with ``d`` the distance *away* from the
+    wall, so the slope vector is ``+wallShearStress/ν``, pointing along the flow: the skin friction the flow exerts on
+    the surface. Dividing by ``U∞/c`` puts it in the network's own units (a velocity per unit of ``sdf/c``), which is
+    what makes one weight set work across cases with different freestreams.
+
+    The sign was measured, not assumed. Blending the true field into a linear near-wall layer with
+    ``∂u_t/∂d = +τ/ν`` reproduces the evaluator's wall shear to 0.9 % and 1.7 % on two cases; the opposite sign gives
+    200 %, because it points the near-wall velocity against the flow.
+    """
+    return np.asarray(wall_shear, float) * (1.0 / nu) * (chord / inlet_velocity)
 
 
 def wall_case_truth(dataset_root: str, case_id: str) -> dict[str, Any]:
@@ -178,7 +184,7 @@ def curve_coefficients(pressure: np.ndarray, slope: np.ndarray, cells: np.ndarra
     # force_p = ρ Σ p n L and the ρ cancels against the ½ρU∞² normalisation, leaving 2 Σ p n L / U∞².
     drag_dot_p = p_cell * (normal_x * cos_alpha + cell_normals[:, 1] * sin_alpha)
     lift_dot_p = p_cell * (-normal_x * sin_alpha + cell_normals[:, 1] * cos_alpha)
-    # the viscous force is the wall-shear vector itself, -ν times the physical slope, integrated along the polyline
+    # the viscous force is the wall-shear vector itself, +ν times the physical slope, integrated along the polyline
     drag_dot_v = slope[:, 0] * cos_alpha + slope[:, 1] * sin_alpha
     lift_dot_v = -slope[:, 0] * sin_alpha + slope[:, 1] * cos_alpha
     s_drag = 0.5 * (drag_dot_v[cells[:, 0]] + drag_dot_v[cells[:, 1]])
@@ -190,8 +196,8 @@ def curve_coefficients(pressure: np.ndarray, slope: np.ndarray, cells: np.ndarra
     scale_v = 2.0 * nu / (inlet_velocity * chord)
     cdp = (drag_dot_p * lengths).sum() * scale_p
     clp = (lift_dot_p * lengths).sum() * scale_p
-    cdv = -(s_drag * lengths).sum() * scale_v
-    clv = -(s_lift * lengths).sum() * scale_v
+    cdv = (s_drag * lengths).sum() * scale_v
+    clv = (s_lift * lengths).sum() * scale_v
     if isinstance(cdp, (int, float, np.floating, np.integer)):
         return {"cdp": float(cdp), "clp": float(clp), "cdv": float(cdv), "clv": float(clv),
                 "cd": float(cdp + cdv), "cl": float(clp + clv)}

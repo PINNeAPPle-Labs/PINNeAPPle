@@ -42,7 +42,8 @@ def predict_cases(store: str, weights: str, case_ids: Sequence[str], entry_dir: 
     payload = torch.load(weights, map_location="cpu", weights_only=False)
     if payload.get("architecture") == "wall_aware":
         model = WallAwareNet(payload["width"], payload["depth"], payload.get("fourier", 0),
-                             payload.get("wall_layer", 5e-5), shape_features=payload.get("shape_features", 0))
+                             payload.get("wall_layer", 5e-5), shape_features=payload.get("shape_features", 0),
+                             slope_detach=payload.get("slope_detach", True))
     else:
         model = CoordinateNet(payload["width"], payload["depth"])
     model.eval().to(device)

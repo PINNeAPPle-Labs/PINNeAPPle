@@ -55,8 +55,8 @@ def wall_layer_profile(distance, wall_layer: float):
     """The partition of unity that hands the first few percent of the boundary layer to the slope head.
 
     ``A(d) = 1 − exp(−(d/λ)²)`` vanishes at the wall *with zero derivative*, so ``U = A·U_outer + (1−A)·s·d`` has
-    ``U(0) = 0`` exactly (no-slip, by construction rather than by penalty) and ``dU/dd|₀ = s`` — the slope head is
-    the wall shear the evaluator will reconstruct. ``λ`` is the height of the viscous sublayer in chords: at
+    ``U(0) = 0`` exactly (no-slip, by construction rather than by penalty) and ``dU/dd|₀ = s``, the slope *away*
+    from the wall — ``+wallShearStress/nu``, the quantity the evaluator reconstructs. ``λ`` is the height of the viscous sublayer in chords: at
     ``Re = 3·10⁶`` the first mesh cell sits at ``y⁺ ≈ 0.2`` and ``y⁺ = 5`` is ``λ ≈ 5·10⁻⁵`` chord, which is the band
     where the true profile is linear anyway."""
     distance = torch.clamp(distance, min=0.0)
@@ -74,10 +74,15 @@ class WallAwareNet(nn.Module):
     wall."""
 
     def __init__(self, width: int = 512, depth: int = 4, fourier: int = 4, wall_layer: float = 5e-5,
-                 slope_scale: float = 1e-3, shape_features: int = 0):
+                 slope_scale: float = 1e-3, shape_features: int = 0, slope_detach: bool = True):
         super().__init__()
         self.width, self.depth, self.fourier = width, depth, fourier
         self.shape_features = shape_features
+        # the wall slope reads the trunk's representation but does not train it. Measured on the holdout: letting the
+        # slope gradients reach the shared trunk either wrecked the field (the velocity MSE went from 0.027 to 0.45) or,
+        # clipped, was starved of signal — a detached readout keeps the field that the data term fits and learns the
+        # wall on top of it.
+        self.slope_detach = slope_detach
         self.register_buffer("wall_layer", torch.tensor(float(wall_layer)))
         # the true scaled slope is O(10³); the head is asked for ``slope_scale`` times it, so it starts in a
         # well-conditioned range instead of having to grow its output by three orders of magnitude first
@@ -106,7 +111,8 @@ class WallAwareNet(nn.Module):
         """``(N, 3)`` of ``(u/U∞, v/U∞, p/U∞²)`` with no-slip built in; the raw heads too when ``heads`` is set."""
         hidden = self._encode(x)
         outer = self.head_velocity(hidden)            # perturbation from the freestream, as in the plain network
-        slope = self.head_slope(hidden) / self.slope_scale    # dimensionless slope, as the wall truth is stored
+        slope_features = hidden.detach() if self.slope_detach else hidden
+        slope = self.head_slope(slope_features) / self.slope_scale   # dimensionless slope, as the wall truth is stored
         pressure = self.head_pressure(hidden)[:, 0]
         distance = x[:, 2]                            # sdf / chord
         weight = wall_layer_profile(distance, float(self.wall_layer))

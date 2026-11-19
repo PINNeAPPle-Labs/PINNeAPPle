@@ -28,7 +28,9 @@ python examples/nvidia/10_brep_physicsnemo_heatsink/run.py --smoke    # seconds,
 
 Without `usd-brep` the run still completes: the mass comes from the closed form, and `run_info.json` records the
 B-rep step as not run with that reason. In a run with `usd-brep` the exact volumes equal the closed form with the
-fillets to 7e-9 and the fillets add up to ~1 % mass that the closed-form thermal model leaves out.
+fillets to 7e-9 and the fillets add up to ~1 % mass that the closed-form thermal model leaves out. Those numbers
+need a Linux or Windows machine: the wheel published on PyPI is CPython 3.12 for `manylinux` and `win_amd64` only,
+so `pip install usd-brep` has nothing to install on macOS.
 
 ## Results (this run: macOS arm64, 10 CPU cores, no GPU, PhysicsNeMo 2.2.2, torch 2.15.0; `usd-brep` absent, so the
 mass in this run is the closed form's)

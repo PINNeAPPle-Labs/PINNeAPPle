@@ -556,6 +556,12 @@ A(table([["gate", "result"],
           "every experiment has a valid manifest"],
          ["<font face='Courier'>python -m pinneapple_hub.library check</font>",
           "index ok; no stale snippet runs"],
+         ["<font face='Courier'>python -m pinneapple_studio coverage</font>",
+          "green: the 17 tools this work added or moved now have recorded inputs, a smoke run or a stated reason"],
+         ["the frozen core API snapshot (<font face='Courier'>api/core.json</font>)",
+          "rewritten with the two names this work changes: the new "
+          "<font face='Courier'>radiative_coefficient</font> and the three new arguments of "
+          "<font face='Courier'>evaluate</font>"],
          ["example 07 run end to end", f"APPROVED, {sum(c['passed'] for c in s07['checks'])}/20 checks"],
          ["example 10 run end to end", f"APPROVED, {sum(c['passed'] for c in s10['checks'])}/24 checks"]],
         [FRAME_W * 0.46, FRAME_W * 0.54]))
@@ -600,7 +606,8 @@ A(H1("6 · Limits and what was not run"))
 A(table([["limit", "consequence"],
          ["<font face='Courier'>usd-brep</font> not installed on this machine",
           "the mass recorded in <font face='Courier'>results/</font> is the closed form's. The 7e-9 volume "
-          "agreement and the ~1 % fillet mass quoted in the README come from a run <i>with</i> the B-rep"],
+          "agreement and the ~1 % fillet mass quoted in the README come from a run <i>with</i> the B-rep, and that "
+          "run needs Linux or Windows: PyPI publishes the wheel for CPython 3.12 on manylinux and win_amd64 only"],
          ["RTX render in Omniverse Kit",
           "does not run here (needs Omniverse and an RTX GPU). The script stays at "
           "<font face='Courier'>results/kit_render.py</font>; the stage preview is read back with OpenUSD"],

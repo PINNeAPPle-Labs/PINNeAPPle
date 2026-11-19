@@ -22,6 +22,8 @@ import os
 import re
 import shutil
 import subprocess
+import sys
+import tempfile
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
@@ -35,6 +37,27 @@ FACES = {
     "hex": [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)],
     "tet": [(0, 1, 2), (0, 3, 1), (1, 3, 2), (2, 3, 0)],
 }
+
+
+def _gmsh_env() -> dict:
+    """The environment ``gmsh`` is run in, with a ``python`` that resolves.
+
+    gmsh's console script is a ``#!/usr/bin/env python`` wrapper around its Python module. macOS ships no ``python``
+    (only ``python3``), so the wrapper dies with "env: python: No such file or directory" before meshing anything;
+    when the interpreter running this code can provide one, it is put first on the PATH.
+    """
+    env = dict(os.environ)
+    if shutil.which("python", path=env.get("PATH", "")):
+        return env
+    try:
+        d = tempfile.mkdtemp(prefix="pinneapple_gmsh_")
+        link = os.path.join(d, "python")
+        if not os.path.exists(link):
+            os.symlink(sys.executable, link)
+    except OSError:                                                   # read-only temp, no symlinks: let gmsh report it
+        return env
+    env["PATH"] = d + os.pathsep + env.get("PATH", "")
+    return env
 
 
 def _family(etype: str) -> str:
@@ -117,7 +140,7 @@ class FEModel:
                "-setnumber", "Mesh.SaveAll", "0"]
         if optimize:
             cmd += ["-optimize_netgen" if order == 1 else "-optimize_ho"]
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=1800, env=_gmsh_env())
         if p.returncode or not os.path.exists(out):
             raise RuntimeError(f"gmsh failed:\n{(p.stdout + p.stderr)[-3000:]}")
         return cls._from_gmsh_inp(out, order)

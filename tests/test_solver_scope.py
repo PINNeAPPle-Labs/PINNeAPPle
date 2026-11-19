@@ -426,7 +426,8 @@ def test_fem_does_not_claim_nonlinear_elasticity():
     # "nonlinear_elasticity" contains "linear_elasticity": the exclusion is what keeps the claim honest, because
     # the assembly would otherwise fall through to Poisson and answer a different problem
     assert documented_families("nonlinear_elasticity", 2) == []
-    assert [d["family"] for d in documented_families("axisymmetric_linear_elasticity", 2)] == ["fem"]
+    # and the axisymmetric branch raises today (2N unknowns, N-node reshape), so it is not claimed either
+    assert documented_families("axisymmetric_linear_elasticity", 2) == []
 
 
 # -------------------------------------------------------------------------------------- 2-D waves

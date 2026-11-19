@@ -115,8 +115,28 @@ def build(brief: Brief, *, cost: CostModel | None = None, available_families: di
                                                         available_families=available_families)
     if solver_warning:
         warnings.append(solver_warning)
-    has_solver = solver_rec is not None
-    method = getattr(solver_rec, "recommended_family", "") if solver_rec else ""
+    # The method decides the family, and installation only breaks a tie between the families the documented scope
+    # already allows: a machine without the right solver still gets told what the right solver is.
+    try:
+        catalog = available_families if available_families is not None else solver_families()
+    except Exception:                           # noqa: BLE001 - no catalog means "unknown", not a broken plan
+        catalog = {}
+    documented = documented_families(family, dim)
+    method = next((d["family"] for d in documented if family_installed(d["family"], catalog)), "")
+    if not method and documented:
+        method = documented[0]["family"]
+    if not method:
+        method = getattr(solver_rec, "recommended_family", "") if solver_rec else ""
+    has_solver = bool(method)
+    # "installed" is a question about classical families; the PINN path ships with the library
+    installed = (family_installed(method, catalog)
+                 if (method and catalog and method not in ("pinn", "xpinn")) else None)
+    if documented and installed is False:
+        warnings.append(bi(
+            f"`{method}` é a família que o escopo documentado cobre para {family} em {dim}-D, mas ela não está "
+            f"instalada nesta máquina: o plano a recomenda pelo método e supõe a instalação.",
+            f"`{method}` is the family whose documented scope covers {family} in {dim}-D, but it is not installed on "
+            f"this machine: the plan recommends it on method and assumes the installation."))
 
     # ---- 5/7. dataset or not, and how many evaluations ---------------------------------------------------------
     dataset_present = bool(brief.values.get("dataset_present"))
@@ -166,7 +186,8 @@ def build(brief: Brief, *, cost: CostModel | None = None, available_families: di
     # evaluation when the solver is the answer, because then the campaign is the solver.
     solver_evaluations = n_evaluations if direct_only else 1
     solver_stage = _solver_stage(brief, family, dim, method, solver_rec, solve_est, solver_evaluations,
-                                 evaluations_source, direct_only, n_evaluations, decisions)
+                                 evaluations_source, direct_only, n_evaluations, decisions,
+                                 installed=installed, documented=documented)
     stages.append(solver_stage)
     dataset_stage = _dataset_stage(brief, real_shape, n_samples, solve_est, direct_only, dataset_present,
                                    decisions)
@@ -471,34 +492,49 @@ def _mesh_checks(turbulent: bool) -> list[dict[str, str]]:
 
 def _solver_stage(brief: Brief, family: str, dim: int, method: str, solver_rec: Any, solve_est: Estimate,
                   n_evaluations: int, evaluations_source: str, direct_only: bool, study_evaluations: int,
-                  decisions: list[Decision]) -> Stage:
+                  decisions: list[Decision], *, installed: bool | None = None,
+                  documented: list[dict[str, str]] | None = None) -> Stage:
     rec_family = method or "pinn"
     reasoning = getattr(solver_rec, "reasoning", "") if solver_rec is not None else ""
     caveats = list(getattr(solver_rec, "caveats", []) or [])
     # The API's reasoning is one long English sentence; the plan says the same thing in its own language and keeps
-    # the API's own words in `values.reasoning` for whoever wants the detail.
-    if not reasoning:
-        why = bi("Nenhuma família clássica instalada cobre esta física: o PINN é o caminho, treinando sobre o "
-                 "resíduo da EDP.",
-                 "No installed classical family covers this physics: the PINN path is the one left, training on the "
-                 "PDE residual.")
-    elif rec_family in ("pinn", "xpinn"):
-        why = bi(f"Nenhuma família clássica instalada nesta máquina documenta `{family}` em {dim}-D, então o plano "
-                 f"segue com `{rec_family}`, que treina sobre o resíduo da EDP e não depende de solver externo. A "
-                 f"justificativa completa da API está em `values.reasoning`.",
-                 f"No classical family installed on this machine documents `{family}` in {dim}-D, so the plan goes "
-                 f"with `{rec_family}`, which trains on the PDE residual and needs no external solver. The API's full "
-                 f"reasoning is in `values.reasoning`.")
+    # the API's own words in `values.reasoning` for whoever wants the detail. Installation is reported as its own
+    # fact: what the plan recommends is what the method calls for, and a machine that cannot run it today says so
+    # instead of silently turning the recommendation into a PINN.
+    if documented and installed is False:
+        why = bi(f"O escopo documentado de `{rec_family}` cobre `{family}` em {dim}-D -- é o método certo --, mas ela "
+                 f"não está instalada nesta máquina: instale-a, ou rode o caso onde ela esteja. A estimativa supõe "
+                 f"`{rec_family}`.",
+                 f"`{rec_family}`'s documented scope covers `{family}` in {dim}-D -- it is the right method -- but it "
+                 f"is not installed on this machine: install it, or run the case where it is. The estimate assumes "
+                 f"`{rec_family}`.")
+    elif documented and installed:
+        why = bi(f"O escopo documentado de `{rec_family}` cobre `{family}` em {dim}-D, e ela está instalada nesta "
+                 f"máquina. O raciocínio completo da API está em `values.reasoning`.",
+                 f"`{rec_family}`'s documented scope covers `{family}` in {dim}-D, and it is installed on this "
+                 f"machine. The API's full reasoning is in `values.reasoning`.")
+    elif documented:
+        why = bi(f"O escopo documentado de `{rec_family}` cobre `{family}` em {dim}-D: é o método que este caso "
+                 f"pede. O raciocínio completo da API está em `values.reasoning`.",
+                 f"`{rec_family}`'s documented scope covers `{family}` in {dim}-D: it is the method this case asks "
+                 f"for. The API's full reasoning is in `values.reasoning`.")
+    elif reasoning:
+        why = bi(f"Nenhuma família clássica da biblioteca documenta `{family}` em {dim}-D, então o método para este "
+                 f"caso é o `{rec_family}`, que treina sobre o resíduo da EDP e não depende de solver externo. É uma "
+                 f"lacuna do escopo documentado, não desta máquina.",
+                 f"No classical family in the library documents `{family}` in {dim}-D, so the method for this case is "
+                 f"`{rec_family}`, which trains on the PDE residual and needs no external solver. That is a gap in the "
+                 f"documented scope, not a property of this machine.")
     else:
-        why = bi(f"`{family}` em {dim}-D tem família clássica documentada e instalada nesta máquina: "
-                 f"`{rec_family}`. A justificativa completa da API está em `values.reasoning`.",
-                 f"`{family}` in {dim}-D has a classical family documented and installed on this machine: "
-                 f"`{rec_family}`. The API's full reasoning is in `values.reasoning`.")
+        why = bi("Nenhuma família clássica cobre esta física: o PINN é o caminho, treinando sobre o resíduo da EDP.",
+                 "No classical family covers this physics: the PINN path is the one left, training on the PDE "
+                 "residual.")
     decisions.append(Decision(
         topic="solver", choice=rec_family, source="solver_orchestration.select_solver_family",
         why=why,
         alternatives=list(getattr(solver_rec, "fallback_families", []) or []),
-        values={"dimension": dim, "family": family, "caveats": caveats, "reasoning": reasoning}))
+        values={"dimension": dim, "family": family, "caveats": caveats, "reasoning": reasoning,
+                "installed": installed, "documented": documented or []}))
     total = solve_est
     count_note = (f"x {n_evaluations} evaluations ({evaluations_source})" if direct_only
                   else f"one run to calibrate the cost and give the reference field; the campaign runs "
@@ -794,6 +830,49 @@ def solver_families(refresh: bool = False) -> dict[str, Any]:
     _FAMILIES["value"] = list_available_solver_families()
     _FAMILIES["at"] = time.time()
     return _FAMILIES["value"]
+
+
+def documented_families(family: str, dim: int) -> list[dict[str, str]]:
+    """The classical families whose **own documented scope** covers this physics at this dimension, in the
+    library's preference order -- whether or not any of them can run here.
+
+    ``select_solver_family`` only ever recommends what ``list_available_solver_families()`` reports as installed,
+    which answers "what can I run right now" and not "what is the right method": a machine without OpenFOAM would
+    be told to train a PINN for a 3-D turbulent flow, when a finite-volume solver is what that problem calls for.
+    This reads the same scope table the recommendation uses (``_CLASSICAL_SOLVER_SCOPE``, one citation per entry)
+    and leaves installation to :func:`family_installed`. An empty list means the documented scope has no family
+    for this kind at this dimension -- a gap in the documentation, not a property of this machine.
+    """
+    from pinneapple_analysis.verification import solver_orchestration as so
+    scope_table = getattr(so, "_CLASSICAL_SOLVER_SCOPE", None)
+    order = getattr(so, "_FAMILY_PREFERENCE_ORDER", None)
+    if not scope_table or not order:
+        return []
+    kind = str(family).lower().replace("-", "_").replace(" ", "_")
+    matches: list[dict[str, str]] = []
+    for name in order:
+        scope = scope_table.get(name) or {}
+        if not any(sub in kind for sub in scope.get("kind_substrings", ())):
+            continue
+        dims = scope.get("dims")
+        if isinstance(dims, (set, frozenset)):
+            dim_hit = dim in dims
+        else:
+            dim_hit = any(sub in kind for sub in (dims or {}).get(dim, ()))
+        if dim_hit:
+            matches.append({"family": name, "source": str(scope.get("source", ""))})
+    return matches
+
+
+def family_installed(name: str, catalog: dict[str, Any] | None = None) -> bool:
+    """Whether ``name`` can run on this machine right now, by the same rule ``select_solver_family`` applies."""
+    if not name:
+        return False
+    catalog = catalog if catalog is not None else solver_families()
+    if name in ("openfoam", "fenics"):
+        return bool((catalog.get(name) or {}).get("available"))
+    entry = catalog.get("numerical_solvers") or {}
+    return bool(entry.get("available")) and name in (entry.get("registered_names") or [])
 
 
 def _solver_recommendation(brief: Brief, family: str, dim: int, time_dependent: bool,

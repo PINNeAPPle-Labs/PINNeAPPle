@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import html as _html
 import re
+from collections.abc import Sequence
 
 from .schema import Stage, StudyPlan, text_of
 
@@ -187,16 +188,14 @@ def _status_text(stage: Stage, lang: str) -> str:
     return f"[{kind[0] if lang == 'pt' else kind[1]}] {style['label_' + ('pt' if lang == 'pt' else 'en')]}"
 
 
-def svg(plan: StudyPlan, lang: str = "pt") -> str:
-    """A self-contained SVG: rows are the dependency depth, arrows are the ``depends_on`` edges."""
+def _layout(plan: StudyPlan) -> tuple[dict[str, tuple[float, float]], float, float]:
+    """Where every stage sits, and the size of the canvas: the one layout the SVG and the video both draw."""
     rows = _ordered_rows(plan)
     widest = max((len(r) for r in rows), default=1)
     # at least wide enough for the header lines: a one-per-row plan is narrow, and a clipped subtitle reads as a bug
     width = max(_MARGIN * 2 + widest * _BOX_W + (widest - 1) * _GAP_X, _MIN_W)
     height = _HEADER + max(len(rows), 1) * (_BOX_H + _GAP_Y) + 64
-
     pos: dict[str, tuple[float, float]] = {}
-    body: list[str] = []
     y = _HEADER
     for row in rows:
         row_w = len(row) * _BOX_W + (len(row) - 1) * _GAP_X
@@ -205,6 +204,13 @@ def svg(plan: StudyPlan, lang: str = "pt") -> str:
             pos[stage.id] = (x, y)
             x += _BOX_W + _GAP_X
         y += _BOX_H + _GAP_Y
+    return pos, width, height
+
+
+def svg(plan: StudyPlan, lang: str = "pt") -> str:
+    """A self-contained SVG: rows are the dependency depth, arrows are the ``depends_on`` edges."""
+    pos, width, height = _layout(plan)
+    body: list[str] = []
 
     # edges first, so the boxes cover their ends
     for stage in plan.stages:
@@ -415,4 +421,105 @@ def markdown(plan: StudyPlan, lang: str = "pt") -> str:
     return "\n".join(out) + "\n"
 
 
-__all__ = ["diagram", "mermaid", "dot", "svg", "html", "markdown", "layers", "STATUS_STYLE"]
+def animate(plan: StudyPlan, path: str, *, lang: str | None = None, fps: int = 4, dpi: int = 110,
+            hold_s: float = 2.5, reveal: int = 3) -> str:
+    """The same plan as a video: the stages appear one by one, each with its status, its estimate and the arrows
+    that carry it from what it needs.
+
+    ``.mp4`` writes with ffmpeg (when the machine has it), anything else writes an animated ``.gif``; both come from
+    matplotlib, which the library already depends on. The drawing is the SVG's own layout, so the video and the page
+    cannot disagree. Returns the path written.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from matplotlib import pyplot as plt
+    from matplotlib.animation import FFMpegWriter, PillowWriter
+    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+
+    lang = lang or str(plan.provenance.get("language") or "pt")
+    pos, width, height = _layout(plan)
+    # the drawing's own legend strip is not in the video: the frame ends just below the last box
+    height = max(y for _, y in pos.values()) + _BOX_H + 46 if pos else height
+    scale = 100.0
+    fig = plt.figure(figsize=(width / scale, height / scale), dpi=dpi)
+    ax = fig.add_axes((0, 0, 1, 1))
+    ax.set_xlim(0, width)
+    ax.set_ylim(height, 0)                     # y grows downwards, like the SVG
+    ax.axis("off")
+    fig.patch.set_facecolor("#ffffff")
+
+    def header() -> None:
+        ax.text(_MARGIN, 46, "Pipeline sugerido" if lang == "pt" else "Suggested pipeline", fontsize=19,
+                fontweight="bold", color="#262626", va="center")
+        ax.text(_MARGIN, 70, _elide(_estimate_line(plan, lang), _fit_chars(width - 2 * _MARGIN, 13)), fontsize=11,
+                color="#4a4a4a", va="center")
+        ax.text(_MARGIN, 92, _elide(text_of(plan.problem, lang), _fit_chars(width - 2 * _MARGIN, 11.5)),
+                fontsize=9.5, color="#6b6b6b", va="center")
+
+    def boxes(shown: Sequence[Stage], alpha: float) -> None:
+        for stage in shown:
+            a = alpha if stage is shown[-1] else 1.0
+            x, y = pos[stage.id]
+            style = STATUS_STYLE.get(stage.status, STATUS_STYLE["generate"])
+            ax.add_patch(FancyBboxPatch((x, y), _BOX_W, _BOX_H, boxstyle="round,pad=0,rounding_size=12",
+                                        linewidth=1.6, edgecolor=style["stroke"], facecolor=style["fill"],
+                                        alpha=a, mutation_aspect=1))
+            lines = _wrap(text_of(stage.title, lang), 33, 2)
+            if len(lines) == 2 and len(" ".join(_wrap(text_of(stage.title, lang), 33, 9))) > len(" ".join(lines)):
+                lines[1] = lines[1][:30].rstrip() + "…"
+            for i, line in enumerate(lines):
+                ax.text(x + 14, y + 24 + i * 15, line, fontsize=9.8, fontweight="bold", color="#262626",
+                        va="center", alpha=a)
+            sub = _status_text(stage, lang)
+            if stage.estimate is not None:
+                sub += f" · {_human_time(stage.estimate.total_seconds)}"
+            ax.text(x + 14, y + 24 + 15 * len(lines) + 14, sub, fontsize=8.5, color=style["stroke"], va="center",
+                    alpha=a)
+            if stage.answers:
+                word = "perguntas" if lang == "pt" and len(stage.answers) > 1 else (
+                    "pergunta" if lang == "pt" else ("questions" if len(stage.answers) > 1 else "question"))
+                ax.text(x + 14, y + 24 + 15 * len(lines) + 30, f"{word} " + ", ".join(str(n) for n in
+                        sorted(stage.answers)), fontsize=8, color="#6b6b6b", va="center", alpha=a)
+
+    def arrows(shown: Sequence[Stage]) -> None:
+        ids = {s.id for s in shown}
+        for stage in shown:
+            sx, sy = pos[stage.id]
+            for dep in stage.depends_on:
+                if dep not in ids:
+                    continue
+                dx, dy = pos[dep]
+                ax.add_patch(FancyArrowPatch((dx + _BOX_W / 2, dy + _BOX_H), (sx + _BOX_W / 2, sy),
+                                             arrowstyle="-|>", mutation_scale=12, linewidth=1.4,
+                                             color="#9aa0a6", shrinkA=0, shrinkB=2))
+
+    frames: list[tuple[list[Stage], float]] = [([], 0.0)]
+    shown: list[Stage] = []
+    for stage in plan.stages:
+        shown = shown + [stage]
+        for k in range(1, max(int(reveal), 1) + 1):
+            frames.append((shown, k / max(int(reveal), 1)))
+    frames += [(shown, 1.0)] * max(int(hold_s * fps), 1)
+
+    def draw(frame: tuple[list[Stage], float]) -> None:
+        current, alpha = frame
+        ax.clear()
+        ax.set_xlim(0, width)
+        ax.set_ylim(height, 0)
+        ax.axis("off")
+        header()
+        arrows(current)
+        if current:
+            boxes(current, alpha)
+
+    writer = FFMpegWriter(fps=fps) if str(path).lower().endswith(".mp4") else PillowWriter(fps=fps)
+    with writer.saving(fig, str(path), dpi=dpi):
+        for frame in frames:
+            draw(frame)
+            writer.grab_frame()
+    plt.close(fig)
+    return str(path)
+
+
+__all__ = ["diagram", "mermaid", "dot", "svg", "html", "markdown", "animate", "layers", "STATUS_STYLE"]

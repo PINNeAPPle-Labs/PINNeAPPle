@@ -192,6 +192,12 @@ class StudyPlan:
         from . import render
         return render.diagram(self, kind, lang)
 
+    def video(self, path: str, **kwargs: Any) -> str:
+        """The same plan as a video: the stages appear one by one (``.mp4`` with ffmpeg, else an animated ``.gif``).
+        See :func:`pinneapple_advisor.render.animate`."""
+        from . import render
+        return render.animate(self, path, lang=kwargs.pop("lang", None), **kwargs)
+
     def write(self, folder: str, *, diagrams: tuple = ("mermaid", "svg", "html", "markdown")) -> list[str]:
         """Write ``plan.json`` and each diagram into ``folder``; returns the paths written."""
         import os

@@ -503,8 +503,8 @@ def test_the_family_comes_from_the_documented_scope_not_from_what_is_installed()
 
 
 def test_a_gap_in_the_documented_scope_is_not_blamed_on_the_machine():
-    # 3-D acoustics: the library's wave solvers document one dimension only, which is a gap in the scope table
-    plan = advise("propagação de onda acústica 3D em uma sala, tenho o STEP, sem malha", llm=False)
+    # 2-D reaction-diffusion: the library documents the 1-D periodic problem only, which is a gap in the scope
+    plan = advise("reação-difusão 2D em um reator de superfície, tenho a malha", llm=False)
     decision = next(d for d in plan.decisions if d.topic == "solver")
     assert decision.choice in ("pinn", "xpinn")
     assert "não desta máquina" in decision.why["pt"]

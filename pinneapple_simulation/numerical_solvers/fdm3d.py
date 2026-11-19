@@ -1004,14 +1004,14 @@ class FDM3DSolver(SolverBase):
         return float(np.mean(values))
 
     @staticmethod
-    def _check_walls_are_cold(spec, bounds, nx: int, ny: int, nz: int) -> None:
-        """``HeatConduction3D`` holds every wall at zero. A spec that says otherwise gets an error naming the
-        condition, not a solve with the wrong boundary."""
+    def _check_walls_are_cold(spec, bounds, nx: int, ny: int, nz: int, solver: str = "fdm3d") -> None:
+        """The explicit-in-time 3-D solvers hold every wall at zero. A spec that says otherwise gets an error
+        naming the condition, not a solve with the wrong boundary."""
         conditions = tuple(getattr(spec, "conditions", ()) or ())
         others = [c for c in conditions if getattr(c, "kind", None) not in ("dirichlet", "initial")]
         if others:
             raise ValueError(
-                "fdm3d holds the six walls at zero (HeatConduction3D); the spec asks for "
+                f"{solver} holds the six walls at zero; the spec asks for "
                 f"{sorted({c.kind for c in others})}, which this solver does not have.")
         from . import _bc
         axes = [(bounds.get(a, (0.0, 1.0))) for a in ("x", "y", "z")]
@@ -1025,8 +1025,72 @@ class FDM3DSolver(SolverBase):
             values = _bc.values(cond, pts)
             if float(np.max(np.abs(np.asarray(values.detach().cpu().numpy(), dtype=np.float64)))) > 1e-12:
                 raise ValueError(
-                    f"fdm3d holds every wall at zero, and the dirichlet condition '{getattr(cond, 'name', '')}' "
-                    f"asks for a non-zero value on the wall.")
+                    f"{solver} holds every wall at zero, and the dirichlet condition "
+                    f"'{getattr(cond, 'name', '')}' asks for a non-zero value on the wall.")
+
+
+@SolverRegistry.register(
+    name="wave3d_fdm",
+    family="pde",
+    description="3-D scalar acoustic/elastic wave equation (Verlet, energy-conserving for the homogeneous "
+                "case) on a box with every wall held at zero",
+    tags=["fdm", "wave", "acoustic", "3d", "explicit"],
+)
+class Wave3DFDMSolver(SolverBase):
+    """``solve_from_spec`` for ``ElasticWave3D``: d2u/dt2 = c^2 lap(u) + f on a box, every wall at zero.
+
+    The spec's parameters this reads (``spec.pde.params``): ``c`` (or ``lambda``/``mu``/``rho``, from which
+    ``c = sqrt((lambda + 2 mu)/rho)``), ``nx``/``ny``/``nz`` (default 24), ``nt`` (default 60), ``dt`` (default
+    40 % of the Courant bound ``dx/(c sqrt 3)``), ``u0`` (uniform initial displacement, default 0 -- with zero
+    walls and no source that stays zero, so say what the wave is), ``du0`` (uniform initial velocity, default 0)
+    and ``source`` (constant, default 0).
+    """
+
+    def solve_from_spec(self, spec) -> SolverOutput:
+        kind = str(getattr(spec.pde, "kind", "")).lower().replace("-", "_").replace(" ", "_")
+        if not any(k in kind for k in ("wave", "acoustic")):
+            raise ValueError(f"wave3d_fdm solves wave/acoustic problems in 3-D, and the spec's kind is "
+                             f"'{kind}'. Its documented scope is ElasticWave3D.")
+        params = dict(getattr(spec.pde, "params", {}) or {})
+        bounds = dict(getattr(spec, "domain_bounds", {}) or {})
+        lx, ly, lz = (abs(bounds.get(axis, (0.0, 1.0))[1] - bounds.get(axis, (0.0, 1.0))[0])
+                      for axis in ("x", "y", "z"))
+        c = params.get("c")
+        if c is None and params.get("lambda") is not None and params.get("mu") is not None:
+            c = float(np.sqrt((float(params["lambda"]) + 2.0 * float(params["mu"]))
+                              / float(params.get("rho", 1.0))))
+        if c is None:
+            raise ValueError("wave3d_fdm needs the wave speed in spec.pde.params['c'] "
+                             "(or lambda, mu and rho to compute it)")
+        c = float(c)
+        nx = int(params.get("nx", 24))
+        ny = int(params.get("ny", 24))
+        nz = int(params.get("nz", 24))
+        FDM3DSolver._check_walls_are_cold(spec, bounds, nx, ny, nz, solver="wave3d_fdm")
+        dx, dy, dz = lx / max(nx - 1, 1), ly / max(ny - 1, 1), lz / max(nz - 1, 1)
+        dt = params.get("dt")
+        if dt is None:
+            dt = 0.4 * dx / (c * np.sqrt(1 + (dx / dy) ** 2 + (dx / dz) ** 2))
+        u0 = float(params.get("u0", 0.0))
+        du0 = float(params.get("du0", 0.0))
+        source = float(params.get("source", 0.0))
+        cfg = ElasticWaveConfig3D(
+            nx=nx, ny=ny, nz=nz, nt=int(params.get("nt", 60)), lx=lx, ly=ly, lz=lz, dt=float(dt), c=c,
+            ic_u_fn=lambda X, Y, Z: np.full_like(np.asarray(X, dtype=np.float64), u0),
+            ic_du_fn=lambda X, Y, Z: np.full_like(np.asarray(X, dtype=np.float64), du0),
+            source_fn=(lambda X, Y, Z, t: np.full_like(np.asarray(X, dtype=np.float64), source))
+            if source else None,
+        )
+        out = ElasticWave3D(cfg).solve()
+        field = torch.from_numpy(np.asarray(out.u[-1], dtype=np.float32))
+        energy = float(np.sum(np.asarray(out.u[-1], dtype=np.float64) ** 2))
+        return SolverOutput(
+            result=field,
+            losses={"energy": torch.tensor(energy)},
+            extras={"method": "wave3d_fdm", "grid": (nx, ny, nz), "c": c, "dt": float(dt), "nt": cfg.nt,
+                    "u0": u0, "du0": du0, "source": source, "coords": out.coords,
+                    "history_shape": tuple(np.shape(out.u))},
+        )
 
 
 __all__ = [
@@ -1042,4 +1106,5 @@ __all__ = [
     "ChannelFlowConfig3D",
     "ChannelFlowSolver3D",
     "FDM3DSolver",
+    "Wave3DFDMSolver",
 ]

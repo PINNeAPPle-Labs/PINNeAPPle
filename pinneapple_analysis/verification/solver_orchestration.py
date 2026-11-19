@@ -373,6 +373,35 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
             "ProblemSpec face and refuses any wall condition other than zero by name."
         ),
     },
+    "wave3d_fdm": {
+        "kind_substrings": ["wave", "acoustic"],
+        "dims": {3},
+        "source": (
+            "fdm3d.py ElasticWave3D docstring: '3D elastic (acoustic) wave equation solver via Stormer-Verlet "
+            "integration', d2u/dt2 = c^2 lap(u) + f on a box with every wall held at zero; "
+            "Wave3DFDMSolver.solve_from_spec is its ProblemSpec face."
+        ),
+    },
+    "darcy2d_fvm": {
+        "kind_substrings": ["darcy"],
+        "dims": {2},
+        "source": (
+            "operator_benchmarks.darcy_2d docstring: '-div(a grad u) = f on the unit square with u = 0 on the "
+            "boundary, cell-centred finite volumes (harmonic face coefficients, two-point flux), sparse direct "
+            "solve', second order for smooth coefficients and checked against a manufactured solution in "
+            "tests/test_operator_benchmarks.py; darcy.py Darcy2DFVMSolver is its ProblemSpec face."
+        ),
+    },
+    "reaction_diffusion1d": {
+        "kind_substrings": ["reaction"],
+        "dims": {1},
+        "source": (
+            "reaction_diffusion.py docstring: 'One-dimensional reaction-diffusion on a periodic interval, "
+            "u_t = D u_xx + R(u), with the ETDRK4 scheme', reactions 'allen_cahn' and 'fisher', checked against "
+            "the travelling-front speed and the exact tanh interface profile in tests/test_validation_gallery.py; "
+            "ReactionDiffusion1DSolver.solve_from_spec is its ProblemSpec face."
+        ),
+    },
     "fem": {
         "kind_substrings": ["poisson", "laplace", "helmholtz", "axisymmetric_linear_elasticity"],
         "dims": {2},
@@ -384,6 +413,9 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
     },
     "fdm": {
         "kind_substrings": ["poisson", "laplace", "helmholtz", "heat", "diffusion", "wave", "burgers", "advection", "convection_diffusion"],
+        # the heat/diffusion branch is the linear equation with a source q(x, t); a field-dependent reaction term
+        # is a different problem (1-D only here: see reaction_diffusion1d)
+        "not_kind_substrings": ["reaction"],
         "dims": {1: ["wave", "burgers", "advection", "convection_diffusion"], 2: ["poisson", "laplace", "helmholtz", "heat", "diffusion"]},
         "source": (
             "fdm.py module docstring's own table: 'poisson/laplace -> 2D SOR, "
@@ -393,6 +425,7 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
     },
     "fvm": {
         "kind_substrings": ["heat", "diffusion", "convection_diffusion", "advection", "burgers"],
+        "not_kind_substrings": ["reaction"],
         "dims": {2},
         "source": (
             "fvm.py FVMSolver docstring: 'Supported PDE kinds: heat/diffusion, "
@@ -449,7 +482,8 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # FDM's generic SOR sweep for the same Poisson/Laplace kind), not a
 # numerical-accuracy claim this module can actually verify -- see the
 # docstring below.
-_FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "fdm", "fenics", "openfoam"]
+_FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "wave3d_fdm", "darcy2d_fvm",
+                            "reaction_diffusion1d", "fdm", "fenics", "openfoam"]
 
 
 def select_solver_family(
@@ -505,6 +539,10 @@ def select_solver_family(
         scope = _CLASSICAL_SOLVER_SCOPE[family]
         kind_hit = any(sub in kind for sub in scope["kind_substrings"])
         if not kind_hit:
+            continue
+        # A substring claim is coarse: fdm's and fvm's "diffusion" is the linear equation, and a reaction term
+        # that depends on the field is more than either documents. The exclusion says so per family.
+        if any(sub in kind for sub in scope.get("not_kind_substrings", ())):
             continue
         dims = scope["dims"]
         if isinstance(dims, set):

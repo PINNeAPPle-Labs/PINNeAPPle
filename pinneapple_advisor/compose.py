@@ -855,6 +855,8 @@ def documented_families(family: str, dim: int) -> list[dict[str, str]]:
         scope = scope_table.get(name) or {}
         if not any(sub in kind for sub in scope.get("kind_substrings", ())):
             continue
+        if any(sub in kind for sub in scope.get("not_kind_substrings", ())):
+            continue
         dims = scope.get("dims")
         if isinstance(dims, (set, frozenset)):
             dim_hit = dim in dims

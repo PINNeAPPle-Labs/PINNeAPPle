@@ -7,9 +7,12 @@
   (`heat1d.Heat1D`, new: Crank-Nicolson with the ends held at a temperature), `elliptic3d_fdm` (`elliptic3d`, new:
   3-D Poisson/Laplace/Helmholtz by seven-point differences and red-black SOR) and `reaction_diffusion_nd`
   (`reaction_diffusion.ReactionDiffusion`, new: the ETDRK4 departure in 2-D and 3-D, with the reaction `"none"` for
-  pure diffusion) and `elliptic1d_fdm` (`elliptic1d`, new: 1-D Poisson/Laplace/Helmholtz by three-point differences
+  pure diffusion), `elliptic1d_fdm` (`elliptic1d`, new: 1-D Poisson/Laplace/Helmholtz by three-point differences
   and a direct tridiagonal solve, with the definiteness guard that makes a Helmholtz spec above the first eigenvalue
-  fail instead of return noise). A spec whose kind names Fisher-KPP now routes to the reaction-diffusion family and
+  fail instead of return noise) and `burgers3d_spectral` (`burgers3d.Burgers3D`, new: 3-D viscous Burgers for the
+  vector field `u = (u_x, u_y, u_z)` on a periodic box, pseudo-spectral with 2/3 dealiasing and ETDRK4 in time, so
+  there is no diffusive CFL; it refuses, by name, the inviscid kind, `nu = 0`, a non-3-D spec and any wall
+  condition). A spec whose kind names Fisher-KPP now routes to the reaction-diffusion family and
   takes the `"fisher"` reaction, in 1-D and in 2-D/3-D. `fdm3d` now also documents pure diffusion in 3-D -- the same
   linear operator it solves -- while still excluding the reaction kinds by name. `fem` gained 2-D plane stress and plane strain (`linear_elasticity`, `plane_stress`/
   `plane_strain` and the presets' kind names, at dim 2 only), so 2-D elasticity is solved by Q1 elements instead of
@@ -25,3 +28,9 @@
   carries the terminal payoff and the closed form; for both the decision now says so (and records
   `values.classical_by_nature`) instead of reading "no classical family documents this", which described a document's
   silence where the classical answer exists.
+- **Changed:** `fem` claims `axisymmetric_linear_elasticity` again at 2-D. The branch used to raise -- 2N unknowns
+  reshaped as the N-node scalar grid, and Dirichlet conditions applied to node indices on an interleaved two-field
+  system -- and both are fixed, with the r-weighted Lamé cylinder converging at second order (1.159e-4 at nx=8 to
+  1.702e-6 at nx=64) and a manufactured bilinear field reproduced to round-off in `tests/test_fem_axisymmetric.py`.
+  The exclusion stays for `nonlinear_elasticity`, which this assembly would answer with Poisson, and `solid_fem`
+  now excludes `axisymmetric` at 3-D: the r-weighted weak form is 2-D by nature, and a box of hexahedra is not it.

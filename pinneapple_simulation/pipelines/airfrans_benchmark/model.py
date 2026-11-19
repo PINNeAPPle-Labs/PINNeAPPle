@@ -164,14 +164,16 @@ class WallAwareNet(nn.Module):
         """``(N, 3)`` of ``(u/U∞, v/U∞, p/U∞²)`` with no-slip built in; the raw heads too when ``heads`` is set."""
         hidden = self._encode(self._inputs(x))
         outer = self.head_velocity(hidden)             # perturbation from the freestream, as in the plain network
-        wall_inputs = (x - self.feature_mean) / self.feature_std
+        # the statistics are the wall nodes' (train.py), so a far-field row standardises to a huge z-score; clipped,
+        # because the readout's output is exponentiated below and an unbounded z there is an inf, not a large number
+        wall_inputs = ((x - self.feature_mean) / self.feature_std).clamp(-8.0, 8.0)
         raw = self.head_slope(wall_inputs)             # independent of the trunk
         if self.slope_prior:
             # the law supplies the magnitude, the readout a log-correction and nothing else
             edge = outer + x[:, 7:9]
             prior = flat_plate_slope(edge, x[:, 0], torch.exp(x[:, 9]))
             direction = edge / torch.linalg.vector_norm(edge, dim=1, keepdim=True).clamp_min(1e-6)
-            slope = prior[:, None] * torch.exp(raw) * direction
+            slope = prior[:, None] * torch.exp(raw.clamp(-6.0, 6.0)) * direction
         else:
             slope = raw / self.slope_scale
         pressure = self.head_pressure(hidden)[:, 0]

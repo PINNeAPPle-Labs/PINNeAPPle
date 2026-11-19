@@ -47,12 +47,59 @@ from .kinematics import kinematic_sweep, pose  # noqa: E402
 from .loads import worst_case  # noqa: E402
 from .structure import TubeSection, fem_lower_arm  # noqa: E402
 
-__all__ = ["suspension_study", "suspension_verify", "MESH_DENSITY"]
+__all__ = ["suspension_study", "suspension_verify", "MESH_DENSITY", "X_OUTPUTS"]
 
 PASS, FAIL = "pass", "fail"
 
+#: what each tool returns, name by name, with the unit the number is in: the Studio reads this to label a result, so
+#: no unit on screen is guessed from a name. ``position`` is the abscissa of the curves that follow it.
+X_OUTPUTS = {
+    "suspension_study": [
+        {"name": "mass_kg", "type": "float", "unit": "kg", "description": "mass of the two arms and their bushes"},
+        {"name": "baseline_mass_kg", "type": "float", "unit": "kg", "description": "the nominal corner's mass"},
+        {"name": "mass_reduction_pct", "type": "float", "unit": "%", "description": "lightening against the nominal"},
+        {"name": "sigma_mpa", "type": "float", "unit": "MPa", "description": "outer fibre of the loaded leg"},
+        {"name": "static_margin", "type": "float", "unit": "-", "description": "yield over the working stress"},
+        {"name": "buckling_factor", "type": "float", "unit": "-", "description": "Euler load over the axial force"},
+        {"name": "fem_peak_mpa", "type": "float", "unit": "MPa",
+         "description": "finite-element peak of von Mises on the leg"},
+        {"name": "fem_to_beam_ratio", "type": "float", "unit": "-",
+         "description": "finite elements over beam theory at the same station"},
+        {"name": "fem_elements", "type": "float", "unit": "-", "description": "hexahedra of the arm's model"},
+        {"name": "camber_gain_deg_per_50mm", "type": "float", "unit": "deg/50mm",
+         "description": "camber change from full droop to full bump"},
+        {"name": "bump_steer_deg_per_50mm", "type": "float", "unit": "deg/50mm",
+         "description": "toe change from full droop to full bump"},
+        {"name": "toe_compliance_deg_per_kn", "type": "float", "unit": "deg/kN",
+         "description": "steer of the wheel under 1 kN of lateral force"},
+        {"name": "camber_compliance_deg_per_kn", "type": "float", "unit": "deg/kN",
+         "description": "camber change under 1 kN of lateral force"},
+        {"name": "wheel_rate_n_per_mm", "type": "float", "unit": "N/mm",
+         "description": "force at the contact patch per millimetre of bump"},
+        {"name": "roll_centre_mm", "type": "float", "unit": "mm", "description": "front-view roll centre height"},
+        {"name": "scrub_radius_mm", "type": "float", "unit": "mm", "description": "kingpin axis to the contact patch"},
+        {"name": "caster_deg", "type": "float", "unit": "deg", "description": "caster angle at design height"},
+        {"name": "kpi_deg", "type": "float", "unit": "deg", "description": "kingpin inclination at design height"},
+        {"name": "motion_ratio", "type": "float", "unit": "-", "description": "damper travel over wheel travel"},
+        {"name": "evaluations", "type": "float", "unit": "-", "description": "candidates the search tried"},
+        {"name": "position", "type": "ndarray", "unit": "mm", "description": "wheel travel, the abscissa of the curves"},
+        {"name": "camber_deg", "type": "ndarray", "unit": "deg", "description": "camber over the travel sweep"},
+        {"name": "toe_deg", "type": "ndarray", "unit": "deg", "description": "toe over the travel sweep"},
+    ],
+    "suspension_verify": [
+        {"name": "fem_peak_mpa", "type": "float", "unit": "MPa", "description": "peak of von Mises on the fine mesh"},
+        {"name": "coarse_peak_mpa", "type": "float", "unit": "MPa", "description": "the same peak on the coarse mesh"},
+        {"name": "peak_change_pct", "type": "float", "unit": "%", "description": "how far the peak moved"},
+        {"name": "fem_to_beam_ratio", "type": "float", "unit": "-", "description": "refined FE over beam theory"},
+        {"name": "beam_mpa", "type": "float", "unit": "MPa", "description": "beam theory at the same station"},
+        {"name": "fem_elements", "type": "float", "unit": "-", "description": "hexahedra of the refined model"},
+        {"name": "mass_kg", "type": "float", "unit": "kg", "description": "mass of the design the search returned"},
+        {"name": "same_design", "type": "float", "unit": "-", "description": "1 when the second search agrees"},
+    ],
+}
+
 #: mesh of the finite-element check: ``(n_theta, n_radial, n_len)`` for the loop's confirmation and for the re-check
-MESH_DENSITY = {"coarse": (24, 2, 22), "fine": (36, 2, 40)}
+MESH_DENSITY = {"coarse": (24, 2, 22), "fine": (28, 2, 24)}
 
 INK = "#1c1a18"
 ACCENT = "#fa7c1f"
@@ -98,7 +145,6 @@ def _figure_kinematics(sweep, spec, path: str) -> None:
         a.tick_params(labelsize=8)
     fig.tight_layout()
     fig.savefig(path, dpi=110)
-    plt.close(fig)
 
 
 def _figure_compliance(spec, design: Design, comp: dict, path: str) -> None:
@@ -125,7 +171,6 @@ def _figure_compliance(spec, design: Design, comp: dict, path: str) -> None:
     ax.tick_params(labelsize=8)
     fig.tight_layout()
     fig.savefig(path, dpi=110)
-    plt.close(fig)
 
 
 def _figure_search(result, path: str) -> None:
@@ -145,7 +190,6 @@ def _figure_search(result, path: str) -> None:
     ax.tick_params(labelsize=8)
     fig.tight_layout()
     fig.savefig(path, dpi=110)
-    plt.close(fig)
 
 
 def _figure_stress(fem: dict, spec, path: str) -> None:
@@ -175,7 +219,6 @@ def _figure_stress(fem: dict, spec, path: str) -> None:
     ax.tick_params(labelsize=8)
     fig.tight_layout()
     fig.savefig(path, dpi=110)
-    plt.close(fig)
 
 
 # ------------------------------------------------------------------------------------------------- 3-D views
@@ -225,8 +268,10 @@ def suspension_study(corner_mass_kg: float = 350.0, bump_g: float = 3.0, toe_tar
     Returns
     -------
     out : dict
-        ``design`` (the winning variables), ``metrics`` (named numbers with units), ``checks`` (each one's status,
-        value and what it measured), ``files`` and ``limits`` (what the model does not answer).
+        ``design`` (the winning variables), ``metrics`` (named numbers with units), ``outputs`` (the same numbers as one
+        flat record, with the travel curves beside them, as ``X_OUTPUTS`` declares), ``checks`` (each one's status,
+        value and what it measured), ``decision`` (the verdict and the reasons the checks give it), ``files`` and
+        ``limits`` (what the model does not answer).
     """
     os.makedirs(out_dir, exist_ok=True)
     spec = _spec(corner_mass_kg, bump_g)
@@ -259,7 +304,7 @@ def suspension_study(corner_mass_kg: float = 350.0, bump_g: float = 3.0, toe_tar
 
     # checks — each one a number the models produced, graded against the constraint it belongs to
     checks = [
-        _check("suspension.kinematics_closure", summary["kinematic_closure_residual_m"] < 1e-8,
+        _check("suspension.closure", summary["kinematic_closure_residual_m"] < 1e-8,
                summary["kinematic_closure_residual_m"],
                "the closed-loop solve closes over the whole travel sweep (|residual| < 1e-8 m)"),
         _check("suspension.camber_target",
@@ -311,9 +356,26 @@ def suspension_study(corner_mass_kg: float = 350.0, bump_g: float = 3.0, toe_tar
     with open(os.path.join(out_dir, "suspension_design.json"), "w") as fh:
         json.dump(payload, fh, indent=1)
     files.append(os.path.join(out_dir, "suspension_design.json"))
-    return {"design": design.as_dict(), "metrics": metrics, "checks": checks, "files": files,
-            "sweep_summary": summary, "limits": LIMITS,
-            "verdict": "the design meets every constraint" if all(c["status"] == PASS for c in checks)
+    ok = all(c["status"] == PASS for c in checks)
+    # the same numbers as one flat record, in the order a chassis engineer reads them, and the curves the sweep
+    # produced beside them: the Studio labels each name with the unit X_OUTPUTS declares, and draws the arrays
+    outputs = {k: metrics[k] for k in ("mass_kg", "baseline_mass_kg", "mass_reduction_pct", "sigma_mpa",
+                                       "static_margin", "buckling_factor", "fem_peak_mpa", "fem_to_beam_ratio",
+                                       "fem_elements", "camber_gain_deg_per_50mm", "bump_steer_deg_per_50mm",
+                                       "toe_compliance_deg_per_kn", "camber_compliance_deg_per_kn",
+                                       "wheel_rate_n_per_mm", "roll_centre_mm", "scrub_radius_mm", "caster_deg",
+                                       "kpi_deg", "motion_ratio", "evaluations")}
+    outputs |= {"position": sweep.travel_mm.tolist(), "camber_deg": sweep.camber_deg.tolist(),
+                "toe_deg": sweep.toe_deg.tolist()}
+    decision = {"verdict": "OK" if ok else "NOT OK", "reasons": (
+        [f"the lightest corner that holds every constraint: {metrics['mass_kg']:.2f} kg of arms and bushes, "
+         f"{metrics['mass_reduction_pct']:.1f} % under the nominal corner's {metrics['baseline_mass_kg']:.2f} kg",
+         f"{sum(c['status'] == PASS for c in checks)} of {len(checks)} checks passed, each one on a number the "
+         "models produced"]
+        if ok else [f"{c['code']}: {c['detail']}" for c in checks if c["status"] != PASS])}
+    return {"design": design.as_dict(), "metrics": metrics, "outputs": outputs, "checks": checks, "files": files,
+            "sweep_summary": summary, "limits": LIMITS, "decision": decision,
+            "verdict": "the design meets every constraint" if ok
             else "the design does not meet every constraint (see the checks)"}
 
 
@@ -339,7 +401,8 @@ def suspension_verify(budget: int = 28, mesh: str = "fine", out_dir: str = ".") 
     Returns
     -------
     out : dict
-        ``metrics`` (the refined numbers and their change), ``checks`` (``verify.*``), ``files``.
+        ``metrics`` (the refined numbers and their change), ``outputs`` (the same, as ``X_OUTPUTS`` declares),
+        ``checks`` (``verify.*``), ``decision`` (the verdict and its reasons), ``files`` and ``limits``.
     """
     os.makedirs(out_dir, exist_ok=True)
     spec = _spec(350.0, 3.0)
@@ -377,8 +440,16 @@ def suspension_verify(budget: int = 28, mesh: str = "fine", out_dir: str = ".") 
                "peak_change_pct": 100 * change, "fem_to_beam_ratio": fine["ratio"],
                "fem_elements": float(fine["elements"]), "beam_mpa": fine["sigma_beam_pa"] / 1e6,
                "mass_kg": result.best["mass_kg"], "same_design": float(same)}
-    return {"metrics": metrics, "checks": checks,
+    ok = all(c["status"] == PASS for c in checks)
+    return {"metrics": metrics, "outputs": dict(metrics), "checks": checks,
             "files": [os.path.join(out_dir, "arm_stress_refined.png"),
                       os.path.join(out_dir, "suspension_verify.json")],
-            "verdict": "the refined model confirms the design" if all(c["status"] == PASS for c in checks)
+            "decision": {"verdict": "OK" if ok else "NOT OK", "reasons": (
+                [f"the refined model is {fine['sigma_peak_pa'] / 1e6:.0f} MPa against beam theory's "
+                 f"{fine['sigma_beam_pa'] / 1e6:.0f} MPa, and the peak moves {100 * change:.1f} % when the mesh is "
+                 f"refined from {coarse['elements']} to {fine['elements']} hexahedra",
+                 "the deterministic search returns the same design when it is run again"]
+                if ok else [f"{c['code']}: {c['detail']}" for c in checks if c["status"] != PASS])},
+            "limits": LIMITS,
+            "verdict": "the refined model confirms the design" if ok
             else "the refined model does not confirm the design (see the checks)"}

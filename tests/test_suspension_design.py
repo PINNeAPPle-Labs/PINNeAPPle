@@ -29,9 +29,11 @@ from pinneapple_design.suspension import (
     pose,
     suspension_design,
     suspension_study,
+    suspension_verify,
     tube_mesh,
     wheel_compliance,
 )
+from pinneapple_design.suspension.study import X_OUTPUTS
 
 
 @pytest.fixture(scope="module")
@@ -166,3 +168,26 @@ def test_the_study_writes_its_files_and_passes_its_checks(tmp_path):
                  "design_search.png", "arm_stress.png", "suspension_design.json"):
         assert os.path.isfile(tmp_path / name), name
     assert out["verdict"].startswith("the design meets")
+
+
+def test_the_study_returns_its_numbers_as_the_record_the_deck_reads(tmp_path):
+    """``outputs`` is the flat record a presentation draws: every name is one the module declares with a unit, the
+    curves it carries are the sweep's own arrays, and the verdict is the checks' — nothing here is typed in."""
+    out = suspension_study(out_dir=str(tmp_path), budget=14, mesh="coarse")
+    declared = {e["name"]: e["unit"] for e in X_OUTPUTS["suspension_study"]}
+    assert set(out["outputs"]) == set(declared), sorted(set(out["outputs"]) ^ set(declared))
+    scalars = {k: v for k, v in out["outputs"].items() if not isinstance(v, list)}
+    assert all(isinstance(v, float) for v in scalars.values())
+    curves = {k: v for k, v in out["outputs"].items() if isinstance(v, list)}
+    assert set(curves) == {"position", "camber_deg", "toe_deg"}
+    n = len(curves["position"])
+    assert n >= 5 and all(len(v) == n for v in curves.values())
+    assert curves["position"] == sorted(curves["position"])       # monotonic: it can be the charts' abscissa
+    static = out["sweep_summary"]["static_camber_deg"]
+    assert min(curves["camber_deg"]) <= static <= max(curves["camber_deg"])   # the curve holds the design height
+    assert out["outputs"]["mass_kg"] == pytest.approx(out["metrics"]["mass_kg"])
+    assert out["decision"]["verdict"] == ("OK" if all(c["status"] == "pass" for c in out["checks"]) else "NOT OK")
+    assert out["decision"]["reasons"]
+    again = suspension_verify(out_dir=str(tmp_path), budget=14, mesh="fine")
+    assert set(again["outputs"]) == {e["name"] for e in X_OUTPUTS["suspension_verify"]}
+    assert again["decision"]["verdict"] in ("OK", "NOT OK")

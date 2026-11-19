@@ -11,8 +11,14 @@ from typing import Any
 
 import numpy as np
 
-from .features import (FEATURE_NAMES, SHAPE_FEATURES, WALL_FRACTION, point_features, sample_indices,
-                       scaled_targets)
+from .features import (
+    FEATURE_NAMES,
+    SHAPE_FEATURES,
+    WALL_FRACTION,
+    point_features,
+    sample_indices,
+    scaled_targets,
+)
 from .model import CoordinateNet, physics_loss
 
 __all__ = ["TrainingSpec", "load_training_points", "train", "pick_device"]

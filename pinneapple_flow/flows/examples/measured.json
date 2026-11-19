@@ -11939,6 +11939,22 @@
    "status": "done"
   }
  },
+ "vehicle/suspension_elastokinematics": {
+  "full": {
+   "commit": "f576dc151",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-11-18",
+   "manifest": "manifest /tmp/flowrun/suspension-elastokinematics.experiment.json, Lab item manifest/flow/suspension-elastokinematics",
+   "matched": 0,
+   "nodes": {
+    "design": "done",
+    "report": "done"
+   },
+   "seconds": 22.9,
+   "status": "done"
+  }
+ },
  "vs_physicsnemo/07_check_replay": {
   "full": {
    "commit": "5e891c36",

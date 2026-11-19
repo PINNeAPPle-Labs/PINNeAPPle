@@ -354,6 +354,9 @@ class SolverRecommendation:
 _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
     "solid_fem": {
         "kind_substrings": ["linear_elasticity", "elasticity"],
+        # an axisymmetric problem is two-dimensional by nature (r, z), and the r-weighted weak form is fem's; a
+        # "3-D axisymmetric" spec is not a box of hexahedra, so this assembly does not claim it
+        "not_kind_substrings": ["axisymmetric", "nonlinear"],
         "dims": {3},
         "source": (
             "solid_fem.py SolidFEM docstring: '3-D linear elasticity with 8-node hexahedra and incompatible "
@@ -444,6 +447,19 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
             "tests/test_operator_benchmarks.py; darcy.py Darcy2DFVMSolver is its ProblemSpec face."
         ),
     },
+    "burgers3d_spectral": {
+        "kind_substrings": ["burgers"],
+        # the inviscid equation forms shocks and needs an entropy-satisfying scheme; this is the viscous one
+        "not_kind_substrings": ["inviscid"],
+        "dims": {3},
+        "source": (
+            "burgers3d.py Burgers3D docstring: '3-D viscous Burgers u_t + u.grad(u) = nu lap(u) on a periodic box: "
+            "pseudo-spectral space with 2/3 dealiasing, ETDRK4 in time', for the vector field u = (u_x, u_y, u_z); "
+            "Burgers3DSpectralSolver.solve_from_spec is its ProblemSpec face and refuses, by name, the inviscid kind, "
+            "nu = 0, a non-3-D spec and any wall condition. tests/test_burgers3d_solver.py holds the viscous decay "
+            "(1.1e-15) and the 1-D reduction against Cole-Hopf."
+        ),
+    },
     "reaction_diffusion1d": {
         "kind_substrings": ["reaction", "fisher"],
         "dims": {1},
@@ -456,18 +472,22 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
         ),
     },
     "fem": {
-        # "linear_elasticity" as a substring also covers the presets' linear_elasticity_plane_stress/_strain, and
-        # "nonlinear_elasticity"/"axisymmetric_linear_elasticity" contain it too. Neither is what this assembly
-        # does: the first would silently fall through to Poisson, and the axisymmetric branch raises today
-        # (2N unknowns, N-node reshape) -- so both are excluded by name until they are fixed
-        "kind_substrings": ["poisson", "laplace", "helmholtz", "linear_elasticity", "plane_stress", "plane_strain"],
-        "not_kind_substrings": ["nonlinear", "axisymmetric"],
+        # "linear_elasticity" as a substring also covers the presets' linear_elasticity_plane_stress/_strain and
+        # axisymmetric_linear_elasticity, and both are what this assembly does; "nonlinear_elasticity" contains it
+        # too and is NOT (it would fall through to Poisson and answer a different problem), so it is excluded by
+        # name. The axisymmetric branch used to raise (2N unknowns reshaped as the N-node grid, conditions applied
+        # to node indices on an interleaved two-field system) and is claimed again now that both are fixed --
+        # tests/test_fem_axisymmetric.py holds the Lame cylinder and the manufactured field that say so
+        "kind_substrings": ["poisson", "laplace", "helmholtz", "linear_elasticity", "plane_stress", "plane_strain",
+                            "axisymmetric"],
+        "not_kind_substrings": ["nonlinear"],
         "dims": {2},
         "source": (
             "fem.py FEMSolver docstring: 'poisson / laplace, helmholtz, axisymmetric_linear_elasticity, "
             "linear_elasticity / linear_elasticity_2d / elasticity / plane_stress / plane_strain ... at dim=2 "
-            "only -- two-field (ux, uy) plane stress or plane strain, Q1 quadrilaterals'; grid is always a 2D "
-            "(nx, ny) structured Q1 mesh, so the 2-D elasticity case lands here while a 3-D elasticity spec "
+            "only -- two-field (ux, uy) plane stress, plane strain or "
+            "the r-weighted axisymmetric weak form (x the radius, y the axis), Q1 quadrilaterals'; grid is always "
+            "a 2D (nx, ny) structured Q1 mesh, so the 2-D elasticity case lands here while a 3-D elasticity spec "
             "still falls through to Poisson, which is why dims stays {2}."
         ),
     },
@@ -544,7 +564,7 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # docstring below.
 _FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "wave3d_fdm", "darcy2d_fvm",
                             "elliptic3d_fdm", "elliptic1d_fdm", "wave2d_fdm", "reaction_diffusion1d",
-                            "reaction_diffusion_nd",
+                            "reaction_diffusion_nd", "burgers3d_spectral",
                             "heat1d_fdm", "fdm", "fenics", "openfoam"]
 
 

@@ -23,6 +23,7 @@ from pinneapple_physics.pde_environment.presets.industry import (
     transient_heat_3d_default,
 )
 from pinneapple_physics.pde_environment.spec import PDETermSpec, ProblemSpec
+from pinneapple_simulation.numerical_solvers.burgers3d import Burgers3DSpectralSolver
 from pinneapple_simulation.numerical_solvers.darcy import Darcy2DFVMSolver
 from pinneapple_simulation.numerical_solvers.elliptic1d import (
     Elliptic1D,
@@ -441,8 +442,11 @@ def test_fem_does_not_claim_nonlinear_elasticity():
     # "nonlinear_elasticity" contains "linear_elasticity": the exclusion is what keeps the claim honest, because
     # the assembly would otherwise fall through to Poisson and answer a different problem
     assert documented_families("nonlinear_elasticity", 2) == []
-    # and the axisymmetric branch raises today (2N unknowns, N-node reshape), so it is not claimed either
-    assert documented_families("axisymmetric_linear_elasticity", 2) == []
+    # the axisymmetric branch returns the two nodal grids now (tests/test_fem_axisymmetric.py holds the Lame
+    # cylinder), so the 2-D claim is back -- and a "3-D axisymmetric" spec is still nobody's, since the r-weighted
+    # weak form is 2-D by nature and a box of hexahedra is not it
+    assert [d["family"] for d in documented_families("axisymmetric_linear_elasticity", 2)] == ["fem"]
+    assert documented_families("axisymmetric_linear_elasticity", 3) == []
 
 
 # -------------------------------------------------------------------------------------- 2-D waves
@@ -531,3 +535,39 @@ def test_fisher_kpp_is_claimed_by_the_reaction_diffusion_family():
     out = ReactionDiffusionNDSolver().solve_from_spec(specification)
     assert out.extras["reaction"] == "fisher"
     assert out.result.shape == (16, 16, 16)
+
+
+# ---------------------------------------------------------------------------------- 3-D Burgers
+
+
+def _burgers3d(**params):
+    merged = {"nu": 0.1, "n": 8, "nt": 4}
+    merged.update(params)
+    return ProblemSpec(name="burgers3d", dim=3, coords=("x", "y", "z"), fields=("u_x", "u_y", "u_z"),
+                       pde=PDETermSpec(kind="burgers", fields=("u_x", "u_y", "u_z"), coords=("x", "y", "z"),
+                                       params=merged),
+                       domain_bounds={"x": (0.0, 6.283185307179586), "y": (0.0, 6.283185307179586),
+                                      "z": (0.0, 6.283185307179586)})
+
+
+def test_3d_burgers_is_the_spectral_family_and_each_dimension_keeps_its_own():
+    assert [d["family"] for d in documented_families("burgers", 3)] == ["burgers3d_spectral"]
+    assert [d["family"] for d in documented_families("burgers", 1)] == ["fdm"]
+    assert [d["family"] for d in documented_families("burgers", 2)] == ["fvm"]
+    # the inviscid equation forms shocks and is not this solver's problem
+    assert documented_families("inviscid_burgers", 3) == []
+
+
+def test_the_3d_burgers_spec_face_solves_and_refuses_what_it_does_not_have():
+    specification = _burgers3d()
+    assert select_solver_family(specification).recommended_family == "burgers3d_spectral"
+    out = Burgers3DSpectralSolver().solve_from_spec(specification)
+    assert tuple(out.result.shape) == (3, 8, 8, 8)
+    assert np.isfinite(out.result.numpy()).all()
+    solver = Burgers3DSpectralSolver()
+    with pytest.raises(ValueError, match="inviscid"):
+        solver.solve_from_spec(dc.replace(specification, pde=dc.replace(specification.pde, kind="inviscid_burgers")))
+    with pytest.raises(ValueError, match="nu > 0"):
+        solver.solve_from_spec(dc.replace(specification, pde=dc.replace(specification.pde, params={"nu": 0.0})))
+    with pytest.raises(ValueError, match="three-dimensional"):
+        solver.solve_from_spec(dc.replace(specification, dim=2))

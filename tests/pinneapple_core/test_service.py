@@ -276,3 +276,24 @@ def _wait_for(cond, timeout=10.0):
         if time.time() - t0 > timeout:
             raise TimeoutError
         time.sleep(0.01)
+
+
+def test_a_resource_limit_the_platform_refuses_is_skipped_not_raised(monkeypatch):
+    """A job process sets its own limits before it imports anything. On macOS lowering RLIMIT_AS raises ValueError,
+    and that used to take the job down before it started: the refusal has to be skipped, so the job runs without
+    that limit and the limits listed after it still apply."""
+    import resource
+
+    from pinneapple_core.service import jobs
+
+    tried = []
+
+    def fake_setrlimit(res, lim):
+        tried.append(res)
+        if res == resource.RLIMIT_AS:
+            raise ValueError("current limit exceeds maximum limit")
+
+    monkeypatch.setattr(resource, "setrlimit", fake_setrlimit)
+    monkeypatch.setattr(jobs.os, "setsid", lambda: None)          # no new session in the test process
+    jobs._apply_limits({"memory_mb": 512, "cpu_seconds": 60, "max_files": 64})
+    assert tried == [resource.RLIMIT_AS, resource.RLIMIT_CPU, resource.RLIMIT_NOFILE]

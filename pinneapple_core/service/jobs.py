@@ -447,7 +447,13 @@ def _apply_limits(limits: dict[str, float] | None) -> None:
             soft, hard = resource.getrlimit(res)
             if hard != resource.RLIM_INFINITY:
                 v = min(v, hard)
-            resource.setrlimit(res, (v, hard if hard != resource.RLIM_INFINITY else v))
+            # the soft limit is what a job needs: the hard one is a permission to ask for and some platforms will
+            # not give it (macOS refuses to lower RLIMIT_AS at all and raises), so a limit the system will not
+            # accept is skipped rather than raised -- otherwise no job can start on that system
+            try:
+                resource.setrlimit(res, (v, hard if hard != resource.RLIM_INFINITY else v))
+            except (ValueError, OSError):
+                continue
 
 
 def _process_entry(pipe, ref: str, db_path: str, job_id: str, params: dict[str, Any], workdir: str,

@@ -376,3 +376,37 @@ def test_the_gradient_clip_keeps_the_wall_readout_out_of_the_trunks_norm():
     clip_wall_gradients(network, 1.0)
     assert norm(head) <= 1.0 + 1e-5 and norm(head) == pytest.approx(head_before)  # untouched: below its own cap
     assert norm(trunk) == pytest.approx(1.0)                                       # clipped against its own norm
+
+
+def test_the_flat_plate_prior_is_the_skin_friction_law_and_is_scaled_like_the_truth():
+    """The prior moves the magnitude out of the network: it must be the flat-plate law, in the same dimensionless units
+    the cached wall slope uses, so a correction of order one is all the readout has to learn."""
+    from pinneapple_simulation.pipelines.airfrans_benchmark import flat_plate_slope
+    from pinneapple_simulation.pipelines.airfrans_benchmark.model import CHORD, NU
+
+    speed, x, inlet = 60.0, 0.1, 50.0
+    edge = torch.tensor([[speed, 0.0]])
+    value = float(flat_plate_slope(edge, torch.tensor([x]), torch.tensor([inlet]))[0])
+    reynolds = speed * x * CHORD / NU
+    expected = 0.5 * speed ** 2 * 0.0576 * reynolds ** -0.2 / NU * (CHORD / inlet)
+    assert value == pytest.approx(expected, rel=1e-6)
+    assert 5e3 < value < 2e4          # the truth's rms is 26 500 and its median 6 500 on the training sample
+
+
+def test_with_the_prior_the_readout_starts_at_the_law_and_predicts_a_correction():
+    """A zeroed correction has to return the law untouched, so training starts from physics rather than from zero."""
+    network = WallAwareNet(width=16, depth=1, fourier=0, shape_features=0, slope_prior=True)
+    with torch.no_grad():
+        network.head_slope[-1].weight.zero_()
+        network.head_slope[-1].bias.zero_()
+        features = torch.zeros(2, len(FEATURE_NAMES))
+        features[:, 0] = torch.tensor([0.1, 0.3])
+        features[:, 7] = 50.0                      # freestream along x
+        features[:, 9] = torch.log(torch.tensor(50.0))
+        heads = network(features, heads=True)
+    from pinneapple_simulation.pipelines.airfrans_benchmark import flat_plate_slope
+
+    edge = heads["outer"] + features[:, 7:9]
+    magnitude = flat_plate_slope(edge, features[:, 0], torch.exp(features[:, 9]))
+    expected = magnitude[:, None] * edge / torch.linalg.vector_norm(edge, dim=1, keepdim=True)
+    assert torch.allclose(heads["slope"], expected, rtol=1e-5)   # the law, pointing along the edge flow

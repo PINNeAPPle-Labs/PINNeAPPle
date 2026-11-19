@@ -27,7 +27,7 @@ from .campaign import STAGES, CampaignSpec, campaign_from_dict, run_campaign
 from .data import AirfRANSStackMissing, case_arrays, case_ids_for, extract_cases, manifest_splits
 from .entry import SUPPORTS, write_entry
 from .features import FEATURE_NAMES, chord, point_features, sample_indices, scaled_targets
-from .model import CoordinateNet, WallAwareNet, physics_loss, wall_layer_profile
+from .model import CoordinateNet, WallAwareNet, flat_plate_slope, physics_loss, wall_layer_profile
 from .predict import PredictionSpec, predict_cases
 from .submit import OfficialToolchain, Step, cross_check_domain_metrics
 from .train import (

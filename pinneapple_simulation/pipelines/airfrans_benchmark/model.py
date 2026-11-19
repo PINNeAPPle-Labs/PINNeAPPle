@@ -6,7 +6,37 @@ import torch.nn as nn
 
 from .features import FEATURE_NAMES
 
-__all__ = ["CoordinateNet", "WallAwareNet", "physics_loss", "wall_layer_profile"]
+__all__ = ["CoordinateNet", "WallAwareNet", "physics_loss", "wall_layer_profile", "flat_plate_slope"]
+
+#: the release's kinematic viscosity, in m²/s. Every case of AirfRANS uses the same fluid; Reynolds number varies
+#: through the inlet velocity and the chord, which is what the ``log_inlet_velocity`` channel and the geometry carry.
+NU = 1.54981e-05
+
+#: every airfoil of the release is normalised to this chord, so ``x_over_chord`` is the dimensional distance
+CHORD = 1.0
+
+
+def flat_plate_slope(edge_velocity: torch.Tensor, x_over_chord: torch.Tensor, inlet_velocity: torch.Tensor,
+                     coefficient: float = 0.0576, exponent: float = 0.2) -> torch.Tensor:
+    """The wall slope a flat plate would have at this edge speed and running length — the physics prior for ``τ_w``.
+
+    ``τ_w = ½ρU_e²·C_f`` with ``C_f = 0.0576 Re_x^{-1/5}`` (turbulent flat plate), converted to the network's
+    dimensionless slope ``τ_w/ν · c/U∞``. It is pointwise, needs nothing but quantities the model already has, and —
+    the reason it exists — it moves the *magnitude* of the prediction from the network into a law. Measured on the
+    training sample, the wall slope has rms 26 500 and median 6 500, and every attempt to regress it directly
+    overfit the training cases' magnitudes: with this prior the readout only has to learn a multiplicative correction
+    of order one, which is a far smaller thing to get wrong.
+
+    ``edge_velocity`` is the predicted velocity just outside the wall layer — the outer head plus the freestream —
+    so the prior is differentiable and carries no truth.
+    """
+    speed = torch.linalg.vector_norm(edge_velocity, dim=1).clamp_min(1e-3)
+    x = x_over_chord.abs().clamp_min(1e-4) * CHORD
+    reynolds_x = (speed * x / NU).clamp_min(1.0)
+    friction = coefficient * reynolds_x ** (-exponent)
+    wall_shear = 0.5 * speed ** 2 * friction
+    return wall_shear / NU * (CHORD / inlet_velocity.clamp_min(1e-3))
+
 
 
 class CoordinateNet(nn.Module):
@@ -74,10 +104,14 @@ class WallAwareNet(nn.Module):
     wall."""
 
     def __init__(self, width: int = 512, depth: int = 4, fourier: int = 4, wall_layer: float = 5e-5,
-                 slope_scale: float = 1e-3, shape_features: int = 0, slope_detach: bool = True):
+                 slope_scale: float = 1e-3, shape_features: int = 0, slope_detach: bool = True,
+                 slope_prior: bool = False):
         super().__init__()
         self.width, self.depth, self.fourier = width, depth, fourier
         self.shape_features = shape_features
+        # with the prior the readout predicts a log-correction to the flat-plate law instead of the slope itself: its
+        # output is O(1) and its target is bounded, which is the whole point — see flat_plate_slope
+        self.slope_prior = slope_prior
         # the wall slope reads the trunk's representation but does not train it. Measured on the holdout: letting the
         # slope gradients reach the shared trunk either wrecked the field (the velocity MSE went from 0.027 to 0.45) or,
         # clipped, was starved of signal — a detached readout keeps the field that the data term fits and learns the
@@ -104,7 +138,7 @@ class WallAwareNet(nn.Module):
         self.register_buffer("feature_std", torch.ones(input_features))
         self.head_slope = nn.Sequential(nn.Linear(input_features, self.slope_width), nn.SiLU(),
                                         nn.Linear(self.slope_width, self.slope_width), nn.SiLU(),
-                                        nn.Linear(self.slope_width, 2))
+                                        nn.Linear(self.slope_width, 1 if slope_prior else 2))
         self.head_pressure = nn.Sequential(nn.Linear(width, width), nn.SiLU(), nn.Linear(width, 1))
 
     def _inputs(self, x: torch.Tensor) -> torch.Tensor:
@@ -129,7 +163,15 @@ class WallAwareNet(nn.Module):
         hidden = self._encode(self._inputs(x))
         outer = self.head_velocity(hidden)             # perturbation from the freestream, as in the plain network
         wall_inputs = (x - self.feature_mean) / self.feature_std
-        slope = self.head_slope(wall_inputs) / self.slope_scale    # independent of the trunk
+        raw = self.head_slope(wall_inputs)             # independent of the trunk
+        if self.slope_prior:
+            # the law supplies the magnitude, the readout a log-correction and nothing else
+            edge = outer + x[:, 7:9]
+            prior = flat_plate_slope(edge, x[:, 0], torch.exp(x[:, 9]))
+            direction = edge / torch.linalg.vector_norm(edge, dim=1, keepdim=True).clamp_min(1e-6)
+            slope = prior[:, None] * torch.exp(raw) * direction
+        else:
+            slope = raw / self.slope_scale
         pressure = self.head_pressure(hidden)[:, 0]
         distance = x[:, 2]                             # sdf / chord
         weight = wall_layer_profile(distance, float(self.wall_layer))

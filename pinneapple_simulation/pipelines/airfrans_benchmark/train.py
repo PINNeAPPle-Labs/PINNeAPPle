@@ -190,6 +190,7 @@ class WallSpec:
     slope_weight: float = 1.0
     slope_floor: float = 0.2
     slope_detach: bool = True
+    slope_prior: bool = False
     cache_dir: str | None = None
     grad_clip: float = 1.0
     force_weight: float = 1.0
@@ -209,6 +210,7 @@ class WallSpec:
                 "lr": self.learning_rate, "width": self.width, "depth": self.depth, "fourier": self.fourier,
                 "wall_layer": self.wall_layer, "seed": self.seed, "slope_weight": self.slope_weight,
                 "slope_floor": self.slope_floor, "slope_detach": self.slope_detach, "grad_clip": self.grad_clip,
+                "slope_prior": self.slope_prior,
                 "cache_dir": self.cache_dir,
                 "force_weight": self.force_weight, "physics_weight": self.physics_weight,
                 "surface_pressure_weight": self.surface_pressure_weight, "wall_fraction": self.wall_fraction,
@@ -330,7 +332,8 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
 
     shape_features = int(train_block["features"].shape[1]) - len(FEATURE_NAMES)
     model = WallAwareNet(spec.width, spec.depth, spec.fourier, spec.wall_layer,
-                         shape_features=shape_features, slope_detach=spec.slope_detach).to(device)
+                         shape_features=shape_features, slope_detach=spec.slope_detach,
+                         slope_prior=spec.slope_prior).to(device)
     # the wall readout only ever matters inside the viscous layer, so its statistics are measured on the wall nodes.
     # Standardising it with the whole block — half of which is far field — compresses the near-wall columns into a
     # narrow band around a large offset, and the readout then has to resolve the near-wall geometry through the
@@ -445,6 +448,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                         "shape_features": model.shape_features, "slope_detach": model.slope_detach,
+                        "slope_prior": model.slope_prior,
                 "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch, "val_slope_rel_l2": slope_relative},
                        os.path.join(out_dir, "best.pt"))
@@ -453,6 +457,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                         "shape_features": model.shape_features, "slope_detach": model.slope_detach,
+                        "slope_prior": model.slope_prior,
                 "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch}, os.path.join(out_dir, "checkpoint.pt"))
 
@@ -460,6 +465,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                 "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                 "shape_features": model.shape_features, "slope_detach": model.slope_detach,
+                        "slope_prior": model.slope_prior,
                 "features": list(FEATURE_NAMES), "residual_targets": False,
                 "targets": ["u/Uinf", "v/Uinf", "p/Uinf2"]}, weights)
     record = {"variant": "wall", **spec.as_dict(), "train_cases": len(train_ids), "val_cases": len(val_ids),

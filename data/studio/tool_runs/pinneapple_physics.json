@@ -984,17 +984,30 @@
   "seconds": 0.01
  },
  "pinneapple_physics.closed_form.plate_fin_heatsink:air_properties": {
-  "code_hash": "95fa3175ae311242",
+  "code_hash": "7a379a87709433d0",
   "inputs": {
    "t_c": 25.0
   },
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-18",
   "returned": "dict",
+  "seconds": 62.42
+ },
+ "pinneapple_physics.closed_form.plate_fin_heatsink:radiative_coefficient": {
+  "code_hash": "12ecf6adc486a904",
+  "inputs": {
+   "emissivity": 0.9,
+   "sky_fraction": 1.0,
+   "t_surface_c": 60.0,
+   "t_surround_c": 25.0
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "float",
   "seconds": 0.0
  },
  "pinneapple_physics.closed_form.plate_fin_heatsink:spreading_resistance": {
-  "code_hash": "529b1299c1913d12",
+  "code_hash": "0961246bc9f908cb",
   "inputs": {
    "k": 200.0,
    "plate_area": 0.0064,
@@ -1003,7 +1016,7 @@
    "tb": 0.005
   },
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-18",
   "returned": "dict",
   "seconds": 0.0
  },

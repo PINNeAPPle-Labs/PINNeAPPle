@@ -440,6 +440,58 @@
   "returned": "NoneType",
   "seconds": 0.0
  },
+ "pinneapple_tools.nvidia.coldplate:plate_for": {
+  "code_hash": "272ed353dddc5643",
+  "inputs": {
+   "design": {
+    "channel_width": 0.000909,
+    "flow_lpm": 0.5819,
+    "h_scale": 1.007,
+    "n_channels": 27
+   }
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "ColdPlate",
+  "seconds": 65.52
+ },
+ "pinneapple_tools.nvidia.coldplate:sample_designs": {
+  "code_hash": "5215106ebad9b8c7",
+  "inputs": {
+   "n": 4,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.coldplate:water_properties": {
+  "code_hash": "8cdf56517ec370f9",
+  "inputs": {
+   "t_c": 40.0
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.heatsink:evaluate_full": {
+  "code_hash": "495ccfebfa69c3e3",
+  "inputs": {
+   "design": {
+    "base_t": 0.005,
+    "fin_height": 0.032,
+    "fin_t": 0.0015,
+    "n_fins": 14
+   },
+   "grid": 16
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "dict",
+  "seconds": 0.49
+ },
  "pinneapple_tools.nvidia.heatsink:sample_designs": {
   "code_hash": "b4390babda413971",
   "inputs": {
@@ -450,6 +502,41 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.01
+ },
+ "pinneapple_tools.nvidia.heatsink:sample_designs_full": {
+  "code_hash": "c21d72eb20759106",
+  "inputs": {
+   "n": 4,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.nvidia.heatsink:table_rows": {
+  "code_hash": "99207124c939346c",
+  "inputs": {
+   "designs": [
+    {
+     "base_t": 0.005,
+     "fin_height": 0.032,
+     "fin_t": 0.0015,
+     "n_fins": 14
+    },
+    {
+     "base_t": 0.005,
+     "fin_height": 0.04,
+     "fin_t": 0.0015,
+     "n_fins": 18
+    }
+   ],
+   "grid": 16
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "list",
+  "seconds": 0.03
  },
  "pinneapple_tools.nvidia.omniverse:kit_render_script": {
   "code_hash": "e08108d8fffbb5ed",

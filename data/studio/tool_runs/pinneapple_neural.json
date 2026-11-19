@@ -357,7 +357,7 @@
   "seconds": 0.0
  },
  "pinneapple_neural.physicsnemo_bridge.field_operators:pinneapple_fno": {
-  "code_hash": "f3a1ac2e4fdfd847",
+  "code_hash": "3cc22fe62d3eac43",
   "inputs": {
    "layers": 2,
    "modes": 4,
@@ -366,9 +366,9 @@
    "width": 8
   },
   "ok": true,
-  "recorded": "2026-11-03",
+  "recorded": "2026-11-18",
   "returned": "GridFieldPredictor",
-  "seconds": 6.94
+  "seconds": 13.21
  },
  "pinneapple_neural.trainer.advisor:TrainingAdvisor": {
   "code_hash": "558b1b6ecbc956b2",

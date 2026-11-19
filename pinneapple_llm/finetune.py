@@ -35,6 +35,7 @@ class FinetuneConfig:
     num_train_epochs: float = 3.0
     per_device_train_batch_size: int = 2
     max_seq_length: int = 1024
+    seed: int = 42
 
 
 def prepare_dataset(store: ConversationStore, out_jsonl: str, *, module: Optional[str] = None) -> str:
@@ -46,25 +47,73 @@ def prepare_dataset(store: ConversationStore, out_jsonl: str, *, module: Optiona
     return store.export_jsonl(out_jsonl, module=module)
 
 
-def finetune_lora(dataset_jsonl: str, cfg: FinetuneConfig):
-    """Run a real LoRA fine-tune (``transformers.Trainer`` + ``peft
-    .LoraConfig``) of ``cfg.base_model`` on the (prompt, response) pairs in
-    ``dataset_jsonl`` (as written by :func:`prepare_dataset`).
+def tokenize_supervised_example(tokenizer, prompt: str, response: str, max_length: int) -> dict:
+    """Build causal-LM labels with the instruction masked to -100.
 
-    Requires the ``finetune`` extra (``transformers``, ``peft``,
-    ``datasets``) -- raises a clear ``ImportError`` naming it if missing,
-    same pattern as every other optional-dependency bridge in this
-    package.
+    Returns unpadded examples so the collator can pad inputs and labels
+    separately. Invalid or entirely truncated responses are rejected.
+    """
+    if not isinstance(prompt, str) or not isinstance(response, str):
+        raise TypeError("prompt and response must be strings")
+    if not prompt.strip() or not response.strip():
+        raise ValueError("prompt and response must be nonempty")
+    if max_length < 2:
+        raise ValueError("max_length must be at least 2")
+    prefix = prompt + "\n\n"
+    prefix_ids = tokenizer(prefix, add_special_tokens=False)["input_ids"]
+    answer_ids = tokenizer(response, add_special_tokens=False)["input_ids"]
+    eos_id = tokenizer.eos_token_id
+    if eos_id is not None:
+        answer_ids = answer_ids + [eos_id]
+    # Keep the full answer whenever possible. Long instructions are trimmed
+    # from the left, never silently dropping all supervision.
+    if len(answer_ids) >= max_length:
+        answer_ids = answer_ids[:max_length]
+        prefix_ids = []
+    else:
+        prefix_ids = prefix_ids[-(max_length - len(answer_ids)):]
+    ids = prefix_ids + answer_ids
+    return {
+        "input_ids": ids,
+        "attention_mask": [1] * len(ids),
+        "labels": [-100] * len(prefix_ids) + answer_ids,
+    }
 
-    Returns the path to the saved LoRA adapter (``cfg.output_dir``).
+
+def collate_supervised_batch(features: list[dict], pad_token_id: int) -> dict:
+    """Right-pad inputs with the tokenizer pad ID and labels with -100."""
+    import torch
+
+    longest = max(len(item["input_ids"]) for item in features)
+    return {
+        "input_ids": torch.tensor([
+            item["input_ids"] + [pad_token_id] * (longest - len(item["input_ids"]))
+            for item in features
+        ], dtype=torch.long),
+        "attention_mask": torch.tensor([
+            item["attention_mask"] + [0] * (longest - len(item["attention_mask"]))
+            for item in features
+        ], dtype=torch.long),
+        "labels": torch.tensor([
+            item["labels"] + [-100] * (longest - len(item["labels"]))
+            for item in features
+        ], dtype=torch.long),
+    }
+
+
+def finetune_lora(dataset_jsonl: str, cfg: FinetuneConfig,
+                  validation_jsonl: Optional[str] = None):
+    """Fine-tune a Hugging Face causal LM with response-only LoRA SFT.
+
+    When provided, validation data is evaluated by Trainer and metrics are
+    persisted; the validation split is never used to optimize weights.
     """
     try:
         import torch
         from datasets import load_dataset
         from peft import LoraConfig, get_peft_model
         from transformers import (
-            AutoModelForCausalLM, AutoTokenizer, DataCollatorForLanguageModeling,
-            Trainer, TrainingArguments,
+            AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments,
         )
     except ImportError as e:
         raise ImportError(
@@ -74,25 +123,27 @@ def finetune_lora(dataset_jsonl: str, cfg: FinetuneConfig):
 
     tokenizer = AutoTokenizer.from_pretrained(cfg.base_model)
     if tokenizer.pad_token is None:
+        if tokenizer.eos_token is None:
+            raise ValueError("Tokenizer needs a padding or EOS token")
         tokenizer.pad_token = tokenizer.eos_token
     model = AutoModelForCausalLM.from_pretrained(cfg.base_model)
+    model = get_peft_model(model, LoraConfig(
+        r=cfg.lora_r, lora_alpha=cfg.lora_alpha,
+        lora_dropout=cfg.lora_dropout, bias="none", task_type="CAUSAL_LM",
+    ))
 
-    lora_cfg = LoraConfig(
-        r=cfg.lora_r, lora_alpha=cfg.lora_alpha, lora_dropout=cfg.lora_dropout,
-        bias="none", task_type="CAUSAL_LM",
-    )
-    model = get_peft_model(model, lora_cfg)
+    def _load(path: str):
+        dataset = load_dataset("json", data_files=path, split="train")
+        if not len(dataset):
+            raise ValueError(f"Empty fine-tuning dataset: {path}")
+        def _encode(example):
+            return tokenize_supervised_example(
+                tokenizer, example["prompt"], example["response"], cfg.max_seq_length
+            )
+        return dataset.map(_encode, remove_columns=dataset.column_names)
 
-    dataset = load_dataset("json", data_files=dataset_jsonl, split="train")
-
-    def _format(example):
-        text = f"{example['prompt']}\n\n{example['response']}{tokenizer.eos_token}"
-        enc = tokenizer(text, truncation=True, max_length=cfg.max_seq_length, padding="max_length")
-        enc["labels"] = list(enc["input_ids"])
-        return enc
-
-    tokenized = dataset.map(_format, remove_columns=dataset.column_names)
-
+    training = _load(dataset_jsonl)
+    validation = _load(validation_jsonl) if validation_jsonl else None
     args = TrainingArguments(
         output_dir=cfg.output_dir,
         num_train_epochs=cfg.num_train_epochs,
@@ -101,15 +152,24 @@ def finetune_lora(dataset_jsonl: str, cfg: FinetuneConfig):
         logging_steps=10,
         save_strategy="epoch",
         report_to=[],
+        seed=cfg.seed,
     )
-    collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
-    trainer = Trainer(model=model, args=args, train_dataset=tokenized, data_collator=collator)
-    trainer.train()
-
+    trainer = Trainer(
+        model=model, args=args, train_dataset=training,
+        eval_dataset=validation,
+        data_collator=lambda features: collate_supervised_batch(
+            features, tokenizer.pad_token_id
+        ),
+    )
+    train_result = trainer.train()
+    metrics = {"train": train_result.metrics}
+    if validation is not None:
+        metrics["validation"] = trainer.evaluate()
     os.makedirs(cfg.output_dir, exist_ok=True)
     model.save_pretrained(cfg.output_dir)
     tokenizer.save_pretrained(cfg.output_dir)
     with open(os.path.join(cfg.output_dir, "pinneapple_finetune_config.json"), "w") as f:
         json.dump(cfg.__dict__, f, indent=2)
-
+    with open(os.path.join(cfg.output_dir, "pinneapple_finetune_metrics.json"), "w") as f:
+        json.dump(metrics, f, indent=2)
     return cfg.output_dir

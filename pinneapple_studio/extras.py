@@ -76,7 +76,8 @@ def preset_tools(root: Path | None = None) -> list[dict[str, Any]]:
         props, ev = {}, []
         for i in card["inputs"]:
             s = {**_num(i.get("default")), "default": i.get("default"), "x-unit": i.get("unit", ""),
-                 "description": i.get("help") or "", "x-source": i.get("source", "")}
+                 "description": i.get("help_en") or i.get("help") or "", "description_pt": i.get("help") or "",
+                 "x-source": i.get("source", "")}
             if i.get("lo") is not None:
                 s["minimum"] = i["lo"]
             if i.get("hi") is not None:
@@ -98,7 +99,8 @@ def preset_tools(root: Path | None = None) -> list[dict[str, Any]]:
                        "runs_by_default": True})
             if ok:
                 status, reason = "verified", f"recorded validation {rec.relative_to(root)}: every reference case passes"
-        out.append(_tool(f"preset:{name}", "preset", name, "pinneapple_presets", card["title"], card["problem"],
+        out.append(_tool(f"preset:{name}", "preset", name, "pinneapple_presets",
+                         card.get("title_en") or card["title"], card.get("problem_en") or card["problem"],
                          {"type": "object", "properties": props, "required": [], "x-not-in-form": []},
                          status, reason, ev, {"outputs": [{"name": o.get("name", ""), "type": "",
                                                             "unit": o.get("unit", ""),
@@ -108,6 +110,10 @@ def preset_tools(root: Path | None = None) -> list[dict[str, Any]]:
                                               "validity": card["validity"],
                                                "limitations": card["limitations"], "references": card["references"],
                                                "question": card["question"], "sector": card["sector"],
+                                               "pt": f'{card["title"]}. {card["problem"]}',
+                                               "question_en": card.get("question_en") or "",
+                                               "sector_en": card.get("sector_en") or "",
+                                               "title_pt": card["title"], "problem_pt": card["problem"],
                                                "usage": card["usage"]}))
     return out
 

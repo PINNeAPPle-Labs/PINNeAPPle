@@ -41,6 +41,7 @@ class Param:
     lo: float | None = None
     hi: float | None = None
     help: str = ""
+    help_en: str = ""
     choices: Sequence[Any] | None = None
 
     def inside(self, v) -> bool:
@@ -167,9 +168,13 @@ class Preset:
     and :meth:`references` (and optionally :meth:`scene`, :meth:`convergence`, :meth:`figures`)."""
     name: str = ""
     title: str = ""
+    title_en: str = ""                            # the same data sheet in English: the catalog is searched in both
     sector: str = ""
+    sector_en: str = ""
     problem: str = ""
+    problem_en: str = ""
     question: str = ""
+    question_en: str = ""
     params: Sequence[Param] = ()
     outputs: Sequence[Output] = ()
     validity: str = ""
@@ -306,8 +311,11 @@ class Preset:
         return {
             "name": self.name, "title": self.title, "sector": self.sector, "problem": self.problem,
             "question": self.question,
+            "title_en": self.title_en, "sector_en": self.sector_en, "problem_en": self.problem_en,
+            "question_en": self.question_en,
             "inputs": [{"name": q.name, "unit": q.unit, "default": q.default, "source": q.source, "lo": q.lo,
-                        "hi": q.hi, "help": q.help, **({"choices": list(q.choices)} if q.choices else {})}
+                        "hi": q.hi, "help": q.help, "help_en": q.help_en,
+                        **({"choices": list(q.choices)} if q.choices else {})}
                        for q in self.params],
             "outputs": [asdict(o) for o in self.outputs], "validity": self.validity, "pipeline": list(self.pipeline),
             "library": list(self.library), "limitations": list(self.limitations),

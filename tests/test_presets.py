@@ -93,6 +93,31 @@ def test_footbridge_fe_and_closed_form_agree_and_fails_ltb_as_designed():
         "verdict"] == "OK"
 
 
+def test_pipe_bend_erosion_impacts_the_extrados_and_matches_the_dnv_screening():
+    """Sand in a 90° bend: every particle is inertial enough to hit the extrados, the impact angle is the standard's
+    cut angle arctan(1/sqrt(2R/D)), and the peak rate lands on the DNV-RP-O501 §8.4 screening within its tolerance."""
+    from pinneapple_presets.cases.pipe_bend_erosion import TOL_SCREENING, f_dnv
+    p = P.load("pipe_bend_erosion")
+    assert f_dnv(0.0) == 0.0 and f_dnv(math.pi / 6) == pytest.approx(0.99, abs=0.02)   # F(α): 0 at 0°, ~1 at 30°
+    r = p.run(n_particles=8000)                                  # the same case, a cheaper sample
+    assert r.trust.decisao == "APPROVED", [(c.name, c.status, c.reason) for c in r.trust.checks]
+    assert all(c.status == "supports" for c in r.trust.checks)
+    o = r.outputs
+    assert o["impact_fraction"] == 1.0 and o["stokes"] > 20                 # St >> 1: the sand cannot turn
+    assert o["rate_peak_mm_year"] > 0 and o["wall_loss_mm"] == pytest.approx(
+        o["rate_peak_mm_year"] * r.params["years"], rel=1e-12)
+    assert abs(o["alpha_median_deg"] / (math.degrees(math.atan(1 / math.sqrt(2 * r.params["r_over_d"])))) - 1) < 0.15
+    assert abs(o["peak_theta_deg"] + 180) % 360 - 180 <= 45 and 0 < o["peak_arc_deg"] < 90   # peak on the extrados
+    assert abs(o["rate_peak_mm_year"] / o["rate_dnv_mm_year"] - 1) <= TOL_SCREENING
+    assert r.decision["verdict"] == ("OK" if o["wall_loss_mm"] <= 1e3 * r.params["t_allow"] else "NOT OK")
+    ref = p.references()[0]
+    assert ref.kind == "standard" and "DNV-RP-O501" in ref.source and ref.output == "rate_peak_mm_year"
+    assert abs(o[ref.output] / ref.value - 1) <= ref.tol
+    sc = p.scene(r)                                              # the 3-D scene: bend coloured by wall loss
+    assert set(sc.field_names()) == {"wall_loss", "rate"} and sc.n_faces() < 250_000
+    assert sc.labels["wall_loss"].endswith("[mm]") and p.title_en and p.param("d_particle").help_en
+
+
 def test_beam_fe_converges_to_euler_bernoulli():
     from pinneapple_simulation.numerical_solvers.beam_fe import beam_modes, beam_static
     L, EI, m, q = 20.0, 3e8, 400.0, 2e3

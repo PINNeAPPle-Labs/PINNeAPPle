@@ -1,0 +1,213 @@
+{
+ "preset": "pipe_bend_erosion",
+ "fidelity": "solver",
+ "params": {
+  "d_inner": 0.08,
+  "r_over_d": 1.5,
+  "u_gas": 15.0,
+  "sand_rate": 0.0002314814814814815,
+  "d_particle": 0.00015,
+  "rho_particle": 2650.0,
+  "rho_gas": 50.0,
+  "mu_gas": 1.5e-05,
+  "k_dnv": 2e-09,
+  "n_dnv": 2.6,
+  "rho_wall": 7800.0,
+  "t_wall": 0.00549,
+  "t_allow": 0.002,
+  "years": 5.0,
+  "n_particles": 50000
+ },
+ "outputs": {
+  "rate_peak_mm_year": 0.4353358378049347,
+  "wall_loss_mm": 2.1766791890246733,
+  "alpha_median_deg": 30.795222277354632,
+  "impact_fraction": 1.0,
+  "peak_arc_deg": 57.821229050279335,
+  "peak_theta_deg": 5.0,
+  "rate_dnv_mm_year": 0.5272166079692022,
+  "life_years": 4.594154274282744,
+  "remaining_wall_mm": 3.313320810975327,
+  "stokes": 41.40624999999999,
+  "n_impacts": 50000,
+  "diagnostics": {
+   "tracking": {
+    "n_impact": 50000,
+    "n_exit": 0,
+    "n_stuck": 0,
+    "n_particles": 50000,
+    "alpha_min": 0.125939697473588,
+    "alpha_max": 59.118904777143975
+   },
+   "peak_cell": {
+    "raw": 0.49688001847912805,
+    "v": 14.872960950983924,
+    "alpha_deg": 56.197351408532725,
+    "flux": 0.05952619538987344,
+    "area": 3.655409037440503e-06,
+    "window_impacts": 1025
+   },
+   "screening": {
+    "alpha_deg": 30.000000000000004,
+    "re_d": 4000000.0,
+    "beta": 53.0,
+    "a_stokes": 43573.605221858554,
+    "gamma": 0.0018749999999999997,
+    "gamma_c": 0.0013436253392413219,
+    "g": 1.0,
+    "area_pipe": 0.005026548245743669,
+    "rate_mm_year": 0.5272166079692022
+   },
+   "u_scaling": {
+    "ratio": 2.8772297824676123,
+    "speed": 1.5,
+    "n_particles": 5000,
+    "mass_rate_kg_s": 4.907532157688417e-10
+   }
+  }
+ },
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "taxa de pico 0.435 mm/ano no arco 58\u00b0 (\u03b8 = 5\u00b0, 0\u00b0 = extradorso)",
+   "perda de parede em 5 anos: 2.18 mm contra a sobrespessura admiss\u00edvel de 2.00 mm; parede remanescente 3.31 mm de 5.49 mm",
+   "vida no pico at\u00e9 consumir a sobrespessura admiss\u00edvel: 4.6 anos",
+   "a sobrespessura se esgota antes do per\u00edodo avaliado: antecipe a inspe\u00e7\u00e3o por ultrassom no extradorso (4.6 anos)",
+   "n\u00e3o atende: a perda de parede no per\u00edodo passa da sobrespessura admiss\u00edvel"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "penetra\u00e7\u00e3o na c\u00e9lula de pico = formula\u00e7\u00e3o do DNV-RP-O501",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.0109496961077967e-15,
+    "limit": 1e-09,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" eq. 7.1-7.3 e Tabela 7-2 (a\u00e7o: K = 2,0e-9, n = 2,6, \u03c1_t = 7800 kg/m3); PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md \u00a72.2 (F(\u03b1) e Tabela 7-2) e \u00a75 (\u00a78.4, curva): transcri\u00e7\u00e3o da norma; as constantes devem ser reconferidas na edi\u00e7\u00e3o 2015/2025",
+    "reason": "ER = K V^n F(\u03b1) com V = 14.87 m/s, \u03b1 = 56.2\u00b0, F = 0.9231, fluxo de areia 5.9526e-02 kg/(m2 s), \u03c1_t = 7800 kg/m3"
+   },
+   {
+    "name": "rastreamento x triagem fechada da DNV \u00a78.4 (35 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.8257248182712127,
+    "limit": 1.35,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" \u00a78.4 (\u03b1 = arctan(1/\u221a(2R/D)), G, C1 = 2,5, C_unit = 3,15e10); PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md \u00a72.2 (F(\u03b1) e Tabela 7-2) e \u00a75 (\u00a78.4, curva): transcri\u00e7\u00e3o da norma; as constantes devem ser reconferidas na edi\u00e7\u00e3o 2015/2025",
+    "reason": "pico do rastreamento 0.435 mm/ano contra 0.527 mm/ano da triagem (\u03b1 = 30.0\u00b0); a triagem troca a distribui\u00e7\u00e3o de impactos (mediana 30.8\u00b0) por um \u00e2ngulo efetivo \u00fanico"
+   },
+   {
+    "name": "conserva\u00e7\u00e3o do n\u00famero de part\u00edculas",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 50000,
+    "limit": 50000,
+    "source": "rastreamento lagrangiano: cada part\u00edcula termina na parede do joelho, atravessando o joelho sem tocar ou (no teto de passos) ainda dentro do tubo; nenhuma \u00e9 criada ou perdida",
+    "reason": "50000 impactos, 0 atravessaram sem tocar, 0 ficaram no tubo"
+   },
+   {
+    "name": "areia inercial: praticamente toda part\u00edcula impacta (St >> 1)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.0,
+    "limit": 0.99,
+    "source": "St = \u03c4_p U / D com \u03c4_p = \u03c1_p d_p\u00b2/(18 \u03bc): com St >> 1 a part\u00edcula n\u00e3o acompanha a curva e n\u00e3o sobra uma fra\u00e7\u00e3o que fuja do extradorso",
+    "reason": "St = 41.4; impactaram 100.0% das part\u00edculas"
+   },
+   {
+    "name": "\u00e2ngulo de impacto dentro de (0\u00b0, 90\u00b0)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 59.118904777143975,
+    "limit": 90.0,
+    "source": "geometria do joelho: \u03b1 = arcsin(|v\u00b7n|/|v|) na parede do extradorso; 0\u00b0 seria rasante e 90\u00b0 normal \u00e0 parede, e a part\u00edcula que entra com o fluido bate de esguelha",
+    "reason": "\u03b1 de 0.1\u00b0 a 59.1\u00b0, mediana 30.8\u00b0"
+   },
+   {
+    "name": "\u00e2ngulo mediano de impacto = \u00e2ngulo efetivo da DNV \u00a78.4 (15 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 30.795222277354632,
+    "limit": 34.5,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" \u00a78.4: \u03b1 = arctan(1/\u221a(2R/D)) \u00e9 o \u00e2ngulo de corte que a norma usa na curva; PINNeAPPle-CFD, docs/anexos/erosao-tubulacoes.md \u00a72.2 (F(\u03b1) e Tabela 7-2) e \u00a75 (\u00a78.4, curva): transcri\u00e7\u00e3o da norma; as constantes devem ser reconferidas na edi\u00e7\u00e3o 2015/2025",
+    "reason": "mediana medida 30.8\u00b0 contra 30.0\u00b0 de arctan(1/\u221a(2R/D)) com R/D = 1.50"
+   },
+   {
+    "name": "taxa cresce com a velocidade como U^n (expoente da norma)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.8772297824676123,
+    "limit": 2.8697051264080295,
+    "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" eq. 7.1 (ER = K V^n F(\u03b1)): a massa removida por segundo \u00e9 K V^n F(\u03b1) por massa de areia, ent\u00e3o subir a velocidade por um fator s multiplica a taxa por s^n",
+    "reason": "a 1.5\u00d7 a velocidade, a massa removida por segundo subiu 2.8772\u00d7 contra 2.8697\u00d7 de s^n (5000 part\u00edculas); a distribui\u00e7\u00e3o de impactos tamb\u00e9m muda com a velocidade, o que desloca o expoente aparente para 2.61"
+   },
+   {
+    "name": "pico na metade externa do joelho",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 5.0,
+    "limit": 45.0,
+    "source": "geometria do joelho: \u03b8 = 0 \u00e9 o extradorso, para onde a areia \u00e9 jogada ao virar a curva",
+    "reason": "pico a 58\u00b0 do arco e 5\u00b0 na circunfer\u00eancia (0\u00b0 = extradorso)"
+   },
+   {
+    "name": "posi\u00e7\u00e3o do pico dentro do arco do joelho",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 57.821229050279335,
+    "limit": 90.0,
+    "source": "geometria do joelho: o arco corre de 0\u00b0 (entrada) a 90\u00b0 (sa\u00edda)",
+    "reason": ""
+   },
+   {
+    "name": "pico do mapa amostrado (m\u00e9dia 5 x 5 c\u00e9lulas)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1025,
+    "limit": 50,
+    "source": "estat\u00edstica do pico: o valor lido \u00e9 a m\u00e9dia de uma janela de c\u00e9lulas, e uma janela com poucos impactos leria ru\u00eddo de amostragem como eros\u00e3o",
+    "reason": "1025 impactos na janela do pico com 50000 part\u00edculas"
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 1.0271969999994326,
+  "versions": {
+   "python": "3.15.0",
+   "pinneapple": "0.8.0",
+   "numpy": "2.5.4",
+   "scipy": "1.18.1",
+   "torch": "2.15.0"
+  },
+  "hardware": {
+   "cpu": "arm",
+   "cores": 10,
+   "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "date_utc": "2026-11-17T14:45:37Z"
+ }
+}

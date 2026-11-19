@@ -1,0 +1,32 @@
+{
+ "preset": "pipe_bend_erosion",
+ "references": [
+  {
+   "case": "triagem fechada do DNV-RP-O501 \u00a78.4 (R/D = 1.5, D = 80 mm, U = 15 m/s, 20 kg/dia de areia de 150 \u00b5m)",
+   "output": "rate_peak_mm_year",
+   "unit": "mm/a",
+   "computed": 0.4353358378049347,
+   "reference": 0.5272166079692022,
+   "rel_error": 0.17427518172878734,
+   "tol": 0.35,
+   "pass": true,
+   "kind": "standard",
+   "source": "DNV-RP-O501 Rev. 4.2 (2007), \"Erosive wear in piping systems\" \u00a78.4 (\u03b1 = arctan(1/\u221a(2R/D)), G, C1 = 2,5): \u00e9 o modelo do c\u00f3digo na forma fechada, n\u00e3o um ensaio; as duas rotas concordam dentro de 35 % porque a triagem troca a distribui\u00e7\u00e3o de \u00e2ngulos de impacto por um \u00e2ngulo efetivo \u00fanico",
+   "params": {
+    "d_inner": 0.08,
+    "r_over_d": 1.5,
+    "u_gas": 15.0,
+    "sand_rate": 0.0002314814814814815,
+    "d_particle": 0.00015,
+    "rho_particle": 2650.0,
+    "rho_gas": 50.0,
+    "mu_gas": 1.5e-05,
+    "k_dnv": 2e-09,
+    "n_dnv": 2.6,
+    "rho_wall": 7800.0
+   }
+  }
+ ],
+ "convergence": null,
+ "all_pass": true
+}

@@ -4331,6 +4331,27 @@
     }
    }
   },
+  "pinneapple_presets.cases.pipe_bend_erosion": {
+   "PipeBendErosion": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "references": "()",
+     "variants": "()",
+     "scene": "(result)"
+    }
+   },
+   "bend_mesh": "def(d_inner, r_over_d, n_arc=N_ARC, n_theta=N_THETA)",
+   "dnv_bend_screening": "def(*, d_inner, r_over_d, u_gas, sand_rate, d_particle, rho_particle, rho_gas, mu_gas, k_dnv=DNV_K, n_dnv=DNV_N, rho_wall=DNV_RHO_WALL)",
+   "erosion_map": "def(track, *, d_inner, r_over_d, sand_rate, n_particles, rho_wall=DNV_RHO_WALL, k_dnv=DNV_K, n_dnv=DNV_N, n_arc=N_ARC, n_theta=N_THETA, smooth=SMOOTH)",
+   "f_dnv": "def(alpha_rad)",
+   "stokes_time": "def(rho_particle, d_particle, mu_gas)",
+   "track_particles": "def(*, d_inner, r_over_d, u_gas, rho_particle, d_particle, mu_gas, n_particles, seed=SEED, dt=DT, max_steps=MAX_STEPS)"
+  },
   "pinneapple_presets.cases.pipe_network": {
    "WaterNetwork": {
     "class": [
@@ -4503,6 +4524,10 @@
    "environment": "def()",
    "lhs": "def(n, bounds, seed=0, log=())"
   },
+  "pinneapple_presets.i18n": {
+   "english": "def(preset)",
+   "scene_labels": "def(preset, result)"
+  },
   "pinneapple_presets.registry": {
    "index": "def()",
    "list_presets": "def(sector=None)",
@@ -4560,6 +4585,7 @@
    "colour_range": "def(values, kind='value')",
    "displacement_factor": "def(name, unit, components, mesh_unit='m')",
    "field_view": "def(mesh, fields, *, deform=None, markers=(), max_faces=VIEW_MAX_FACES, title='', axes='z_up', notes=(), length_unit='')",
+   "from_scene": "def(scene, *, labels=None, lang=None)",
    "length_factor": "def(unit, to='m')",
    "subsample": "def(points, n=MAX_MARKER_POINTS)"
   }

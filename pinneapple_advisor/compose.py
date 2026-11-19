@@ -475,14 +475,30 @@ def _solver_stage(brief: Brief, family: str, dim: int, method: str, solver_rec: 
     rec_family = method or "pinn"
     reasoning = getattr(solver_rec, "reasoning", "") if solver_rec is not None else ""
     caveats = list(getattr(solver_rec, "caveats", []) or [])
+    # The API's reasoning is one long English sentence; the plan says the same thing in its own language and keeps
+    # the API's own words in `values.reasoning` for whoever wants the detail.
+    if not reasoning:
+        why = bi("Nenhuma família clássica instalada cobre esta física: o PINN é o caminho, treinando sobre o "
+                 "resíduo da EDP.",
+                 "No installed classical family covers this physics: the PINN path is the one left, training on the "
+                 "PDE residual.")
+    elif rec_family in ("pinn", "xpinn"):
+        why = bi(f"Nenhuma família clássica instalada nesta máquina documenta `{family}` em {dim}-D, então o plano "
+                 f"segue com `{rec_family}`, que treina sobre o resíduo da EDP e não depende de solver externo. A "
+                 f"justificativa completa da API está em `values.reasoning`.",
+                 f"No classical family installed on this machine documents `{family}` in {dim}-D, so the plan goes "
+                 f"with `{rec_family}`, which trains on the PDE residual and needs no external solver. The API's full "
+                 f"reasoning is in `values.reasoning`.")
+    else:
+        why = bi(f"`{family}` em {dim}-D tem família clássica documentada e instalada nesta máquina: "
+                 f"`{rec_family}`. A justificativa completa da API está em `values.reasoning`.",
+                 f"`{family}` in {dim}-D has a classical family documented and installed on this machine: "
+                 f"`{rec_family}`. The API's full reasoning is in `values.reasoning`.")
     decisions.append(Decision(
         topic="solver", choice=rec_family, source="solver_orchestration.select_solver_family",
-        why=bi(reasoning or "Nenhuma família clássica instalada cobre esta física: o PINN é o caminho, treinando "
-                            "sobre o resíduo da EDP.",
-               reasoning or "No installed classical family covers this physics: the PINN path is the one left, "
-                            "training on the PDE residual."),
+        why=why,
         alternatives=list(getattr(solver_rec, "fallback_families", []) or []),
-        values={"dimension": dim, "family": family, "caveats": caveats}))
+        values={"dimension": dim, "family": family, "caveats": caveats, "reasoning": reasoning}))
     total = solve_est
     count_note = (f"x {n_evaluations} evaluations ({evaluations_source})" if direct_only
                   else f"one run to calibrate the cost and give the reference field; the campaign runs "

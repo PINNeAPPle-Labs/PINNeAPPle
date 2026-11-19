@@ -95,6 +95,11 @@ RULES: dict[str, Rule] = {r.id: r for r in [
          topic="method"),
     Rule("route.alternatives", "offer the classical + PINN route, a surrogate route and an inverse route when "
          "they apply", uncited="a planning heuristic of this library", topic="route"),
+    Rule("stage.coverage", "report the workflow stages a proposal spans and where at most one external tool is "
+         "wired for that stage",
+         uncited="a property of this repository's own stage map (pinneapple_catalog.stages), not a literature rule",
+         topic="route", evidence=(("test", "tests/test_stage_fit.py", "the stage map joined to a planner proposal"),
+                                  ("library", "pinneapple_catalog/stages.py", "the map of open tools per stage"))),
     # ---- surrogates
     Rule("surrogate.deeponet", "DeepONet for maps from parameters / input functions to fields",
          cites=("lu2021deeponet",), topic="architecture", evidence=(_EX_OP,)),

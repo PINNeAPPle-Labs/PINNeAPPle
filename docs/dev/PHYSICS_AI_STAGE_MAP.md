@@ -381,6 +381,45 @@ Gap: ONNX is exported and timed with three fallbacks; the rest of the list (Open
 Gap: Not a workflow stage: the palette's drawer of generated `auto.*` calls, kept in the list so the stage ids match the palette exactly.
 
 
+## The map in the planner: a proposal now says which stages it spans
+
+A table nobody queries is a document. The map is joined to the flow planner in `pinneapple_flow/stage_fit.py`:
+`FlowBuilder.proposal()` annotates every proposal with `stage_map`, and the annotation travels inside the flow
+(`flow.meta.stage_map`), so the Studio, the API and a saved flow all see the same thing.
+
+```python
+from pinneapple_flow.stage_fit import fit
+fit([{"id": "calibrate", "type": "inverse.calibrate"}])
+# {'stages': [{'id': 'inverse', 'wired': 1, 'wired_tools': ['pysindy'], 'datasets': [...],
+#              'readable_datasets': [...], 'gap': 'The library calibrates with its own optimisers; ...'}],
+#  'thin': [{'id': 'inverse', 'wired': 1, 'gap': '...'}], 'available': True, ...}
+```
+
+`thin` is deliberately **not** "zero wired tools". It is "at most one", because a stage where a single external tool
+is wired offers no choice at all: the planned flow runs that step on PINNeAPPle's own code whatever the user wanted.
+The stage's `gap` sentence goes with it, so the finding is actionable rather than a score.
+
+A thin stage is also recorded as a decision (`stage.coverage`) with the rule's own citation status, so the reason
+travels with the flow instead of living in a returned dict that a saved flow would lose. The rules gate
+(`tests/test_flow_decisions.py`) requires every rule to cite a reference or to say why it has none; this one says it
+is a property of this repository's map, not a literature rule.
+
+What it looks like on a real plan — `plan_heuristic("identify the conductivity of a rod from measurements")` spans
+six stages and flags one:
+
+| Stage | Wired tools there | Verdict |
+|---|---|---|
+| problem | 2 | fine |
+| equations | 5 | fine |
+| solvers | 13 | fine |
+| data | 8 | fine |
+| **inverse** | **1** (PySINDy) | **thin — recorded as a decision** |
+| export | 6 | fine |
+
+The join degrades instead of failing: without `pinneapple_catalog` installed, `fit()` still reports the stages the
+flow spans and says in `reason` why no coverage came back. An empty map would read as "nothing is available
+anywhere", which is a different and wrong statement.
+
 ## The ten licences this page did not read
 
 Said as a list rather than a footnote, because a delivery decision cannot be made on any of them yet. Each row's

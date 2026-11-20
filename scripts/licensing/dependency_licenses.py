@@ -34,16 +34,34 @@ COPYLEFT = ("GPL", "AGPL", "LGPL", "SSPL", "EUPL")
 
 
 def declared_dependencies(path: Path = ROOT / "pyproject.toml") -> list[str]:
-    """The distribution names from ``[project].dependencies``, specifiers and markers removed."""
+    """The distribution names from ``[project].dependencies`` that apply to this interpreter.
+
+    A requirement behind an environment marker that does not hold here is not part of
+    this installation -- ``tomli`` is declared for ``python_version < '3.11'`` -- so it is
+    left out instead of being reported as "not installed", which would read as a problem.
+    """
     import tomllib
 
     project = tomllib.loads(path.read_text(encoding="utf-8"))["project"]
     names = []
     for requirement in project.get("dependencies", []):
-        name = re.split(r"[<>=!~;\[ ]", requirement.strip(), maxsplit=1)[0]
+        name = _name_if_applicable(requirement)
         if name and name not in names:
             names.append(name)
     return names
+
+
+def _name_if_applicable(requirement: str) -> str | None:
+    """The distribution name, or ``None`` when the requirement's marker excludes this interpreter."""
+    try:
+        from packaging.requirements import Requirement
+
+        parsed = Requirement(requirement)
+        if parsed.marker is not None and not parsed.marker.evaluate():
+            return None
+        return parsed.name
+    except Exception:  # packaging absent, or a requirement it cannot parse: fall back to the name prefix
+        return re.split(r"[<>=!~;\[ ]", requirement.strip(), maxsplit=1)[0] or None
 
 
 def licence_of(name: str) -> str:

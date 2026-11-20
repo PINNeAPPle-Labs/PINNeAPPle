@@ -20,6 +20,20 @@ def test_every_declared_dependency_is_listed():
     assert all(";" not in d and ">" not in d for d in declared)  # specifiers and markers stripped
 
 
+def test_a_requirement_for_another_interpreter_is_not_reported_as_missing(tmp_path):
+    """`tomli` is declared for python_version < '3.11'; on 3.11+ it is not part of the install, not broken."""
+    sys.path.insert(0, str(SCRIPT.parent))
+    from dependency_licenses import declared_dependencies
+
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        "[project]\n"
+        'dependencies = ["numpy>=1.24", "tomli>=2.0; python_version < \'3.7\'", "typing-extensions>=4.8"]\n',
+        encoding="utf-8",
+    )
+    assert declared_dependencies(pyproject) == ["numpy", "typing-extensions"]
+
+
 def test_the_core_has_no_copyleft_dependency():
     """The policy allows a copyleft dependency only as a decision recorded in docs/licensing.md first."""
     result = _run("--fail-on-copyleft")

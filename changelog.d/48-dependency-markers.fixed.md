@@ -1,0 +1,1 @@
+- `scripts/licensing/dependency_licenses.py` now lists only the declared dependencies whose environment marker holds on the interpreter it runs on. `tomli` is declared for `python_version < '3.11'`, so on 3.11 and newer it was printed as "not installed", which reads as a problem when it is not one.

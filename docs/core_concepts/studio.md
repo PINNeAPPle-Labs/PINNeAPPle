@@ -242,6 +242,43 @@ render_animation(sc, "frames/", camera="chase", samples=16, gif=True)   # Cycles
   `compose.compose_grid_video(mp4s, "grid.mp4", labels=..., colorbar=..., crf=28, webm=True)` (ffmpeg `xstack`,
   H.264 yuv420p, optional VP9) put several clips side by side with one common colour bar.
 
+## Turntable: a field orbiting while the time advances
+
+`pp.viz.turntable` turns a stack of 2-D fields into a clip in one call: the camera sweeps a full turn while the field
+runs from the first instant to the last, so both the geometry and the time are motion. It draws with matplotlib's
+Agg canvas, so it needs no display, no GPU and no pyvista; the GIF path needs only Pillow, and MP4 needs the `ffmpeg`
+binary on `PATH`.
+
+```python
+import numpy as np, pinneapple as pp
+
+t = np.linspace(0.0, 2.0, 24)                                  # 24 instants
+x = y = np.linspace(0.0, 1.0, 64)
+X, Y = np.meshgrid(x, y, indexing="ij")
+field = np.sin(2 * np.pi * (X[None] - t[:, None, None])) * np.cos(2 * np.pi * Y[None])
+
+pp.viz.turntable(field, "case.gif", t=t, name="u", unit="m/s")           # 1080p GIF, ~3 s
+pp.viz.turntable(field, "case.mp4", t=t, name="u", unit="m/s", frames=72)  # H.264, smoother orbit
+```
+
+- **The frame says what it shows:** a caption with the field, its unit and the instant (`u [m/s]   t = 1.2 s`), a
+  colour bar, and a discreet mark in the corner (`mark="PINNeAPPle"`, `mark_alpha=0.45`) so a clip lifted out of a
+  report is still attributable. `caption=False`, `colorbar=False` and `mark=""` remove them for a clip annotated
+  elsewhere.
+- **1080p is the default**, not an option to remember: `size=(1920, 1080)`. `dpi` only changes how the figure is
+  built, never the pixels.
+- **`frames`** spreads the clip over that many frames, repeating the nearest instant when it asks for more than there
+  are, which is how a handful of solved instants becomes a smooth orbit. The sweep stops one step short of closing the
+  turn, so a looping GIF does not stutter on a repeated first frame; `orbit=` sets the sweep (`0` freezes the camera)
+  and `azimuth=` where it starts.
+- **The field drives the relief and the colour:** `deform=0.25` lifts the surface by a quarter of the domain width
+  (`0` leaves it flat), `clim` holds the colour scale fixed for the whole clip, and `elevation` and `zoom` frame it.
+- **No file, no encoding:** `turntable(field)` returns the frames as `(h, w, 3)` `uint8` arrays, which is what a
+  caller that wants to compose them somewhere else needs.
+
+Provider `pinneapple_tools.visualization.orbit.turntable` for the details; the failure modes (a 2-D field, a single
+instant, a NaN, an unknown suffix) are refused with a message that says what to pass instead.
+
 ## Particle process videos
 
 Thousands of spheres coloured by a value inside glass or steel equipment that moves (an impeller turning), rendered

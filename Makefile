@@ -13,7 +13,7 @@
 #     make test PY=/usr/bin/python3
 #
 # Measured on an M-series laptop on 2026-11-21 with the development environment installed:
-# `make test` 29 s (106 tests), `make lint` 2 s, `make gates` 5 s. The full suite is minutes, which is why it is a
+# `make test` 17-29 s (127 tests, depending on what the import cache holds), `make lint` 2 s, `make gates` 5 s. The full suite is minutes, which is why it is a
 # separate target.
 
 PY ?= .venv/bin/python
@@ -27,7 +27,8 @@ TORCH_INDEX ?=
 # trains a network, renders, or needs an external solver is deliberately not here; it belongs to test-full.
 FAST = tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.py \
        tests/test_agents_md.py tests/test_changelog_fragments.py tests/test_licensing_policy.py \
-       tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py
+       tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py \
+       tests/test_turntable.py
 
 .PHONY: help setup test test-full lint lint-backlog gates docs clean
 

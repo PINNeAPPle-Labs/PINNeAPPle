@@ -343,6 +343,20 @@ class Provenance(_Model):
     library_version: str = ""
     created: str = Field(default_factory=_now)
     notes: str = ""
+    # -- the minimum a record needs to be reproducible (issue #39, pinneapple_data.provenance) ---------------
+    solver: str = Field(default="", description="What produced the numbers: 'pinn', 'openfoam-simplefoam', ...")
+    seed: int | str | None = Field(default=None,
+                                   description="The seed, or 'deterministic' for a solver with no randomness.")
+    data_hash: str = Field(default="", description="SHA-256 of the exact inputs, as 'sha256:<hex>'.")
+    commit: str = Field(default="", description="The code that ran: PINNEAPPLE_COMMIT or the checkout's HEAD.")
+    mesh: dict[str, Any] = Field(default_factory=dict,
+                                 description="For a mesh-based solver: cells/nodes and the mesh file hash.")
+
+    def problems(self) -> list[str]:
+        """What is missing for this record to be reproducible (empty list = complete). Same rule as
+        ``pinneapple_data.provenance.problems``, which is the one place it is written."""
+        from ..provenance import problems as provenance_problems
+        return provenance_problems(self.model_dump(mode="json"))
 
 
 class Splits(_Model):

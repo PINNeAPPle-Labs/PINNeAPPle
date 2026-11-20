@@ -28,12 +28,18 @@ _spec.loader.exec_module(validate_model_card)
 from pinneapple_hub.model_card import ModelCard
 
 
+# since #39 a card also has to say where its numbers came from; this is the smallest complete record
+_PROVENANCE = {"solver": "modified_mlp", "library_version": "0.8.0", "seed": 0,
+               "data_hash": "sha256:" + "0" * 64, "commit": "a" * 40}
+
+
 def _write_card(tmp_path: Path, **overrides) -> Path:
     card = ModelCard(
         name=overrides.pop("name", "test_model"),
         architecture=overrides.pop("architecture", "modified_mlp"),
         validation_metrics=overrides.pop("validation_metrics", {"rmse": 0.02}),
         reference_source=overrides.pop("reference_source", "Pope, Turbulent Flows, Ch. 7"),
+        provenance=overrides.pop("provenance", dict(_PROVENANCE)),
         **overrides,
     )
     path = tmp_path / "model_card.json"

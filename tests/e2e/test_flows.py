@@ -31,6 +31,7 @@ import numpy as np
 import pytest
 
 import pinneapple as pp
+from pinneapple_data.provenance import build_provenance
 from pinneapple_physics.physical_problem import PhysicalProblem
 
 # The tier's contract: these ten, in this order, and nothing else. The name is the test function without its
@@ -253,7 +254,10 @@ def test_a_trained_run_becomes_a_governed_model_card(tmp_path):
                      task="forward", version="0.0.0", architecture="pinn",
                      validation_metrics={k: float(v["u"]) for k, v in result.metrics.items()},
                      reference_source="burgers_sine_exact (closed form)",
-                     pinneapple_version=result.environment["pinneapple"])
+                     pinneapple_version=result.environment["pinneapple"],
+                     # what produced the numbers, with which code, seed and inputs (#39)
+                     provenance=build_provenance("pinn", seed=5, data_hash="sha256:" + result.problem_fingerprint,
+                                                 commit=result.environment["commit"]))
     card.save(str(tmp_path / "model_card.json"))
 
     gate = subprocess.run([sys.executable, "scripts/validate_model_card.py", str(tmp_path / "model_card.json")],

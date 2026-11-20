@@ -210,6 +210,12 @@ jobs:
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py
 
+      # Provenance (#39): every model card, dataset, study result and model reference in the tree names what computed
+      # the numbers, which library, which seed, which exact inputs (and a hash of the mesh for a meshed solver). The
+      # rule is pinneapple_data.provenance; this is the job that applies it to the repository's own artifacts.
+      - name: Provenance — reject a dataset or model whose numbers cannot be re-derived
+        run: python scripts/validate_provenance.py
+
   generated:
     # The generated files are not committed (AGENTS.md, "Generated files"): a fresh clone generates them here and
     # every gate their committed copies used to carry still holds -- every snippet in the Hub index has a passing

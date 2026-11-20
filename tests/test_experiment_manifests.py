@@ -166,6 +166,27 @@ def test_ci_gate_catches_a_missing_or_broken_manifest(tmp_path):
     assert cli(["manifests", "--check", str(root)]) == 1
 
 
+def test_the_gate_fails_when_the_folder_grew_past_its_manifest(tmp_path):
+    """A script next to the manifest that ``scripts[]`` does not list (#955): the Lab, the site and the coverage
+    report all read ``scripts[]``, so an unlisted file is silently missing from every one of them."""
+    root = tmp_path / "examples"
+    (root / "stale").mkdir(parents=True)
+    (root / "stale" / "01_run.py").write_text("")
+    (root / "stale" / "02_new.py").write_text("")
+    (root / "stale" / "helpers").mkdir()  # a subfolder is not an experiment of its own
+    (root / "stale" / "helpers" / "util.py").write_text("")
+    M.save(M.Manifest(id="examples/stale", title="Stale", scripts=["01_run.py"]), str(root / "stale"))
+
+    problems = M.check_repo(str(root), lab=str(tmp_path / "nolab"))
+    assert len(problems) == 1 and "02_new.py is in the folder but not in scripts[]" in problems[0]
+
+    # listing it is the fix, and the gate goes quiet
+    stale = M.load(str(root / "stale"))
+    stale.scripts.append("02_new.py")
+    M.save(stale, str(root / "stale"))
+    assert M.check_repo(str(root), lab=str(tmp_path / "nolab")) == []
+
+
 def test_the_repository_passes_its_own_gate():
     assert M.check_repo() == []
     assert len(M.example_dirs()) >= 60

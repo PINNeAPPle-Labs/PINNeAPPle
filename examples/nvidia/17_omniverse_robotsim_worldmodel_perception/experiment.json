@@ -15,7 +15,9 @@
   "pinneapple_simulation.robot_sim"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "angle_rms_visible",

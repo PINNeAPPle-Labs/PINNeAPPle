@@ -16,7 +16,9 @@
   "pinneapple_arena.fieldbench"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "designs_simulated",

@@ -435,7 +435,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                     # the evaluator's force error sits ahead of 10 % chord (measured on the previous series: 73 % of the
                     # pressure-drag error), and the slope that decides it varies fastest there; this tilts the readout's
                     # objective towards the leading edge instead of letting the mid-chord bulk carry the mean
-                    leading = (1.0 - batch_x[batch_wall][:, 0].clamp(0.0, 1.0))
+                    leading = (1.0 - batch_x[batch_wall][:, 0].clamp(0.0, 1.0))[:, None]   # slope is two components
                     per_point = per_point * (1.0 + spec.slope_le_weight * leading)
                 slope_loss = per_point.mean()
                 loss = loss + spec.slope_weight * slope_loss

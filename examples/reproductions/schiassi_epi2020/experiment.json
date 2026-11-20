@@ -14,7 +14,9 @@
   "pinneapple_analysis.reproduction"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_epi.py"
+ ],
  "metrics": [
   {
    "name": "sir_residual_rms_clean",

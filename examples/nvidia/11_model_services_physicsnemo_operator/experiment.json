@@ -14,7 +14,9 @@
   "pinneapple_physics.darcy_checks"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "surrogate_rel_l2_in-distribution",

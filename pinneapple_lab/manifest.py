@@ -549,9 +549,30 @@ def scan(roots: list[str] | None = None, *, lab: str | None = None) -> list[tupl
     return out
 
 
+def unlisted_scripts(m: Manifest, base: str) -> list[str]:
+    """``.py`` files in the experiment's own folder that ``m.scripts`` does not list (#955).
+
+    :func:`validate` catches the direction where a listed script is gone. Without this the other direction passed
+    silently: a folder could grow past its manifest, and the Lab, the site and the coverage report then showed ten
+    runs where thirteen existed, with the three extra ones marked as never curated.
+
+    Only top-level scripts count — helpers live in subfolders and are not experiments of their own. A run folder,
+    whose manifest is generated, is not checked: it keeps the behaviour it had.
+    """
+    if not os.path.isdir(base):
+        return []
+    listed = {os.path.basename(str(p)) for p in m.scripts}
+    return [
+        f"script {name} is in the folder but not in scripts[]"
+        for name in sorted(os.listdir(base))
+        if name.endswith(".py") and name not in listed and os.path.isfile(os.path.join(base, name))
+    ]
+
+
 def check_repo(examples: str | None = None, lab: str | None = None) -> list[str]:
     """The CI gate: one line per problem, empty when every ``examples/*`` folder has a valid ``experiment.json``
-    (files present, metrics with values) and every Lab run folder reads as a valid manifest."""
+    (files present, metrics with values, and a ``scripts[]`` that matches the ``.py`` files next to it) and every Lab
+    run folder reads as a valid manifest."""
     problems = []
     for d in example_dirs(examples):
         p = os.path.join(d, FILENAME)
@@ -565,6 +586,7 @@ def check_repo(examples: str | None = None, lab: str | None = None) -> list[str]
             problems.append(f"{rel}/{FILENAME}: {e}")
             continue
         problems += [f"{rel}/{FILENAME}: {e}" for e in validate(m, d)]
+        problems += [f"{rel}/{FILENAME}: {e}" for e in unlisted_scripts(m, d)]
     lab = lab if lab is not None else os.path.join(REPO, "lab")
     runs = os.path.join(lab, "runs")
     if os.path.isdir(runs):

@@ -14,7 +14,9 @@
   "pinneapple_reason"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "chain_of_whys.py"
+ ],
  "metrics": [
   {
    "name": "power_board_versions",

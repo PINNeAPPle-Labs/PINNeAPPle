@@ -29,7 +29,9 @@
   "T_max_C": 75.0,
   "dp_max_Pa": 30.0
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "accepted_mass",

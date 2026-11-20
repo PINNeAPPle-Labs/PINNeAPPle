@@ -13,7 +13,10 @@
   "pinneapple_analysis.reproduction"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_baselines.py",
+  "run_xtfc.py"
+ ],
  "metrics": [
   {
    "name": "ode1_y_median_test_max",

@@ -100,7 +100,8 @@ def _uses_import(header: str, body: str, probes) -> bool:
     return False
 
 
-def main() -> None:
+def scan() -> dict:
+    """The payload a fresh scan produces: every method, its status and the tests behind it. Writes nothing."""
     files = list(_test_files())
     blocks = []  # (file, test name, header+body text)
     for name, text in files:
@@ -129,17 +130,82 @@ def main() -> None:
         "test_functions_scanned": len(blocks),
         "methods": out,
     }
-    dest = os.path.join(ROOT, "pinneapple_catalog", "method_status.json")
-    with open(dest, "w") as f:
+    return payload
+
+
+STATUS_PATH = os.path.join(ROOT, "pinneapple_catalog", "method_status.json")
+
+
+def write_status(payload: dict | None = None) -> str:
+    """Write the scan to ``pinneapple_catalog/method_status.json`` and report what it found."""
+    payload = scan() if payload is None else payload
+    with open(STATUS_PATH, "w") as f:
         json.dump(payload, f, indent=1, sort_keys=True)
     counts = {}
-    for v in out.values():
+    for v in payload["methods"].values():
         counts[v["status"]] = counts.get(v["status"], 0) + 1
-    print(f"{len(files)} test files scanned -> {dest}")
+    print(f"{payload['test_files_scanned']} test files scanned -> {STATUS_PATH}")
     print(counts)
+    return STATUS_PATH
 
 
-if __name__ == "__main__" and "--check-public" not in sys.argv:
+def drift(payload: dict | None = None, committed_path: str | None = None) -> dict:
+    """What a fresh scan says that the committed file does not: statuses, credited tests, counts.
+
+    The snapshot is a generated artifact that two readers treat as a contract (the PC901 rule of
+    ``pinneapple_check``, and the fixtures in ``examples/physics_check/fail``). A refresh that moves a status
+    therefore has to move both, in one reviewable commit; this is what makes the divergence visible while it is
+    still small, instead of it arriving as a red build (issue #1884).
+    """
+    payload = scan() if payload is None else payload
+    path = committed_path or STATUS_PATH
+    with open(path) as f:
+        committed = json.load(f)
+    old, new = committed.get("methods", {}), payload["methods"]
+    statuses = {k: (old.get(k, {}).get("status"), new[k]["status"])
+                for k in sorted(new) if old.get(k, {}).get("status") != new[k]["status"]}
+    gone = sorted(set(old) - set(new))
+    tests = {}
+    for k in sorted(set(old) & set(new)):
+        a = set(old[k].get("reference_tests", [])) | set(old[k].get("other_tests", []))
+        b = set(new[k]["reference_tests"]) | set(new[k]["other_tests"])
+        if a != b:
+            tests[k] = {"added": sorted(b - a), "removed": sorted(a - b)}
+    counts = {key: (committed.get(key), payload[key]) for key in ("generated_on", "test_files_scanned",
+                                                                 "test_functions_scanned")
+              if committed.get(key) != payload[key]}
+    return {"statuses": statuses, "missing": gone, "tests": tests, "counts": counts,
+            "clean": not (statuses or gone or tests)}
+
+
+def report(d: dict, out=sys.stdout) -> None:
+    """The drift as a short summary a person can read in a job log."""
+    if d["clean"]:
+        print("method status: a fresh scan agrees with the committed snapshot (dates and counts aside)", file=out)
+        return
+    if d["statuses"]:
+        print(f"method status: {len(d['statuses'])} status change(s) against the committed snapshot:", file=out)
+        for k, (a, b) in d["statuses"].items():
+            print(f"  {k:10s} {a} -> {b}", file=out)
+    if d["missing"]:
+        print(f"method status: {len(d['missing'])} method(s) in the snapshot are no longer in the catalog: "
+              f"{', '.join(d['missing'][:12])}", file=out)
+    if d["tests"]:
+        n_added = sum(len(v["added"]) for v in d["tests"].values())
+        n_removed = sum(len(v["removed"]) for v in d["tests"].values())
+        print(f"method status: {len(d['tests'])} method(s) have different evidence "
+              f"({n_added} test(s) newly credited, {n_removed} no longer credited)", file=out)
+    for key, (a, b) in d["counts"].items():
+        print(f"  {key}: {a} -> {b}", file=out)
+    print("refresh with: python scripts/build_method_status.py --public --markdown  (and update "
+          "examples/physics_check/fail/expected.json if a status changed)", file=out)
+
+
+def main() -> None:
+    write_status()
+
+
+if __name__ == "__main__" and "--check-public" not in sys.argv and "--check" not in sys.argv:
     main()
 
 
@@ -264,6 +330,11 @@ if __name__ == "__main__" and "--markdown" in sys.argv:
     print(write_markdown())
 if __name__ == "__main__" and "--public" in sys.argv:
     print(write_public_page())
+if __name__ == "__main__" and "--check" in sys.argv:
+    _d = drift()
+    report(_d)
+    # --report: print it and pass, which is what a job that watches for drift wants; without it, drift fails.
+    sys.exit(0 if (_d["clean"] or "--report" in sys.argv) else 1)
 if __name__ == "__main__" and "--check-public" in sys.argv:
     with open(PUBLIC_PAGE) as _f:
         if _f.read() != render_public_page():

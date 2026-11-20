@@ -63,6 +63,13 @@ jobs:
         run: pytest tests/test_equation_discovery.py -q -p no:warnings
       - name: API stability — core vs experimental, deprecation helpers, the frozen core API snapshot api/core.json (must pass)
         run: pytest tests/test_stability.py tests/test_deprecation_and_api.py -q -p no:warnings
+      # The method-status snapshot is a generated artifact that two readers treat as a contract: the PC901 rule of
+      # pinneapple_check and the fixtures of examples/physics_check/fail. A refresh that moves a status has to move
+      # both, in one reviewable commit, so this reports the drift of a fresh scan against the committed file and
+      # does not fail on it -- the point is to see the divergence while it is small (issue #1884).
+      - name: Method status — drift of a fresh scan against the committed snapshot (informational, never fails)
+        continue-on-error: true
+        run: python scripts/build_method_status.py --check --report
       - name: Core coverage toward 1.0 (#1129) — presets, trainer, front-door catalog, data contracts, CAE readers, diffusion, closed forms, operators, PINO, 2-D mesher, trainer losses/UQ/collocation (must pass)
         run: |
           # the optional backends these tests use, so that none of them is skipped here

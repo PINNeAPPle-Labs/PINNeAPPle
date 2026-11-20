@@ -2123,6 +2123,7 @@
     "PINNeAPPle/tests/test_mcp_server.py::test_benchmark_job_and_timeout",
     "PINNeAPPle/tests/test_mcp_server.py::test_mcp_server_in_process",
     "PINNeAPPle/tests/test_mcp_server.py::test_solve_job_fem_with_checks",
+    "PINNeAPPle/tests/test_solve_guide.py::test_the_guide_example_runs_and_grades_both_methods",
     "PINNeAPPle/tests/test_solver_api.py::test_compare_reports_kind_and_ranks_methods",
     "PINNeAPPle/tests/test_solver_api.py::test_external_runner_and_kinds_registry",
     "PINNeAPPle/tests/test_solver_api.py::test_fem_converges_with_refinement_and_handles_1d_and_dirichlet_values",
@@ -3106,6 +3107,6 @@
   }
  },
  "rule": "validated = a test exercising the item compares against an independent reference (closed form, manufactured solution, published/tabulated value)",
- "test_files_scanned": 675,
- "test_functions_scanned": 6337
+ "test_files_scanned": 682,
+ "test_functions_scanned": 6395
 }

@@ -26,6 +26,7 @@ from pinneapple_simulation.pipelines.airfrans_benchmark import (  # noqa: E402
     case_ids_for,
     chord,
     curve_coefficients,
+    curve_projection,
     manifest_splits,
     physics_loss,
     point_features,
@@ -411,3 +412,35 @@ def test_with_the_prior_the_readout_starts_at_the_law_and_predicts_a_correction(
     magnitude = flat_plate_slope(edge, features[:, 0], torch.exp(features[:, 9]))
     expected = magnitude[:, None] * edge / torch.linalg.vector_norm(edge, dim=1, keepdim=True)
     assert torch.allclose(heads["slope"], expected, rtol=1e-5)   # the law, pointing along the edge flow
+
+
+def test_the_curve_projection_averages_each_surface_along_the_chord():
+    """Wall nodes on two surfaces and three chord positions: each bin takes its own mean, and only the wall counts."""
+    features = np.zeros((8, 11))
+    features[:, 6] = 1.0                                  # all on the wall
+    features[:, 7] = 1.0                                  # freestream along +x, so the chord frame is the domain frame
+    features[:4, 0] = [0.1, 0.1, 0.5, 0.5]                # x/c
+    features[4:, 0] = [0.1, 0.1, 0.5, 0.5]
+    features[:4, 5] = 1.0                                 # upper surface: normal along +y -> side +1
+    features[4:, 5] = -1.0                                # lower surface
+    slope = np.array([[1.0, 0.0], [3.0, 0.0], [5.0, 0.0], [7.0, 0.0],
+                      [10.0, 0.0], [14.0, 0.0], [20.0, 0.0], [24.0, 0.0]])
+
+    projected = curve_projection(slope, features, bins=2, smooth=False)
+    assert np.allclose(projected[:2, 0], [2.0, 2.0])      # upper, first half
+    assert np.allclose(projected[2:4, 0], [6.0, 6.0])
+    assert np.allclose(projected[4:6, 0], [12.0, 12.0])   # the two surfaces never share a bin
+    assert np.allclose(projected[6:, 0], [22.0, 22.0])
+
+
+def test_the_curve_projection_is_evaluated_off_the_wall_too():
+    """The slope only acts where the wall layer's weight is non-zero — just off the surface, not on it."""
+    features = np.zeros((3, 11))
+    features[0, 6], features[0, 5], features[0, 0] = 1.0, 1.0, 0.5      # the only wall node
+    features[1:, 5], features[1:, 0] = 1.0, 0.5                          # two band nodes above it
+    features[1, 2], features[2, 2] = 1e-5, 1e-3
+    slope = np.array([[4.0, 0.0], [0.0, 9.0], [0.0, 9.0]])
+
+    projected = curve_projection(slope, features, bins=1, smooth=False)
+    assert np.allclose(projected[1:, 0], 4.0)             # the wall's curve reaches the band
+    assert np.allclose(projected[1:, 1], 0.0)

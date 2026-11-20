@@ -136,6 +136,16 @@ leaves the wall-shear metric almost where it was, so the metric is set by the re
 field. Together with the scale measurement this closes the two cheap families of ideas at once: it is not calibration,
 and it is not near-wall resolution. What remains is a structural change to the readout itself.
 
+**And a chord curve splits the two metrics apart rather than solving both.** The truth's wall slope *is* well
+represented by two short curves per case: binning the true slope into 33 cells per surface reproduces it to **12.1 %**
+(65 cells: 7.3 %, 16 cells: 17.2 %), so the shape is capturable by a smooth function of chord position. Projecting the
+trained readout onto that class — estimated on the wall nodes, evaluated everywhere, linearly interpolated between bin
+centres — takes the holdout wall shear from 22.05 % to **78.7 %** while the drag R² goes from +0.449 to **+0.875**. The
+curve carries the level the polyline force integral wants and destroys the node-wise structure the evaluator's
+least-squares gradient reads, which is the sharpest evidence in this campaign that the two metrics read different
+things: `Cd` is a chord-scale integral, the wall shear is a local derivative. `curve_projection` and
+`campaign/eval_wall_curve.py` reproduce it.
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.

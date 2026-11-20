@@ -160,15 +160,20 @@ class WallAwareNet(nn.Module):
             hidden = hidden + block(hidden)            # residual: the trunk starts as the identity and refines
         return hidden
 
-    def forward(self, x: torch.Tensor, heads: bool = False):
-        """``(N, 3)`` of ``(u/U∞, v/U∞, p/U∞²)`` with no-slip built in; the raw heads too when ``heads`` is set."""
+    def forward(self, x: torch.Tensor, heads: bool = False, slope_override: torch.Tensor | None = None):
+        """``(N, 3)`` of ``(u/U∞, v/U∞, p/U∞²)`` with no-slip built in; the raw heads too when ``heads`` is set.
+
+        ``slope_override`` replaces the readout's slope everywhere, which is how a caller imposes a slope that did not
+        come out of this network — the chord-curve projection of :func:`.wall.curve_projection` is the reason it exists."""
         hidden = self._encode(self._inputs(x))
         outer = self.head_velocity(hidden)             # perturbation from the freestream, as in the plain network
         # the statistics are the wall nodes' (train.py), so a far-field row standardises to a huge z-score; clipped,
         # because the readout's output is exponentiated below and an unbounded z there is an inf, not a large number
         wall_inputs = ((x - self.feature_mean) / self.feature_std).clamp(-8.0, 8.0)
         raw = self.head_slope(wall_inputs)             # independent of the trunk
-        if self.slope_prior:
+        if slope_override is not None:
+            slope = slope_override
+        elif self.slope_prior:
             # the law supplies the magnitude, the readout a log-correction and nothing else
             edge = outer + x[:, 7:9]
             prior = flat_plate_slope(edge, x[:, 0], torch.exp(x[:, 9]))

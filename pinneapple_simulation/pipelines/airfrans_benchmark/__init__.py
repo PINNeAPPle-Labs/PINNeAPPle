@@ -45,6 +45,7 @@ from .train import (
 from .wall import (
                     WallTruthMissing,
                     curve_coefficients,
+                    curve_projection,
                     curve_features,
                     load_wall_case,
                     slope_from_wall_shear,
@@ -63,4 +64,4 @@ __all__ = ["CampaignSpec", "campaign_from_dict", "run_campaign", "STAGES",
            "write_entry", "SUPPORTS",
            "OfficialToolchain", "Step", "cross_check_domain_metrics",
            "WallTruthMissing", "wall_case_truth", "write_wall_store", "load_wall_case", "slope_from_wall_shear",
-           "curve_coefficients", "curve_features", "surface_rank"]
+           "curve_coefficients", "curve_projection", "curve_features", "surface_rank"]

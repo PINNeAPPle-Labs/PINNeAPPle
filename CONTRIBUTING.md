@@ -44,8 +44,38 @@ project needs, not on a fixed schedule or quota.
 
 ## Development setup
 
+One command, then one command to know the checkout works:
+
 ```bash
-python -m venv .venv
+make setup    # .venv with the package installed in editable mode and the [dev] extras
+make test     # the fast suite, ~30 s on a laptop
+```
+
+`make` on its own lists the targets. Each target is one job, and each is what CI runs, so a green `make test`
+locally means the same thing as a green workflow:
+
+| Command | What it does | Time |
+|---|---|---|
+| `make setup` | `python3 -m venv .venv`, then `pip install -e ".[dev]"` | a few minutes, once |
+| `make test` | the fast suite: public surface, front door, executed documentation, changelog and licensing rules, the module reference scripts | ~30 s |
+| `make test-full` | `tests/`, the same selection the full-suite workflow runs | minutes |
+| `make lint` | the ruff selection CI enforces (`E9`: what ruff reports when a file does not parse) | ~2 s |
+| `make lint-backlog` | the wider selection declared in `pyproject.toml` (`E`, `F`, `I`, `B`, `UP`), as a statistic | ~2 s |
+| `make gates` | `scripts/changelog.py check`, `scripts/reference/build.py --check`, the licensing check | ~5 s |
+| `make docs` | regenerate the module reference and build the site (needs `pip install -r requirements-docs.txt`) | minutes |
+| `make clean` | build and cache output, keeping `.venv` | — |
+
+The commands the targets wrap are the ones below; use them directly if you prefer, or if your platform has no
+`make`. Point the targets at another interpreter with `make test PY=/usr/bin/python3`, and at the CPU wheel of
+torch with `make setup TORCH_INDEX=https://download.pytorch.org/whl/cpu`.
+
+A dev container is defined in [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json): open the
+repository in a codespace, or in VS Code with the Dev Containers extension, and it runs `make setup` for you.
+
+### Without make
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -U pip
 pip install -e ".[dev]"
@@ -54,15 +84,31 @@ pip install -e ".[dev]"
 ## Running tests
 
 ```bash
-pytest -q
+make test      # the fast suite, the list below
+pytest tests/  # everything
 ```
+
+```bash
+pytest tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.py \
+       tests/test_agents_md.py tests/test_changelog_fragments.py tests/test_licensing_policy.py \
+       tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py -q
+```
+
+The fast suite is deliberately short: anything that trains a network, renders an image or needs an external solver
+belongs to `make test-full`, so the answer to "can I open a pull request" arrives in under a minute.
 
 ## Lint / format
 
 ```bash
-ruff check .
-ruff format .
+make lint            # what CI enforces: ruff with `--select E9`, expected to pass
+make lint-backlog    # the selection declared in pyproject.toml, currently ~21,000 findings
+ruff format <files>  # a file you changed; there is no repository-wide format pass in CI
 ```
+
+`[tool.ruff.lint]` in `pyproject.toml` selects `E`, `F`, `I`, `B` and `UP`, and the tree does not satisfy that
+selection yet — mostly `UP006`/`UP045` (typing to builtin generics) and `I001` (import order). It is a backlog to
+burn down one rule at a time, not a gate, which is why CI runs only `E9` and why `make lint` matches CI. A new file
+should not add to the backlog, and the last rule burned down moves from `make lint-backlog` into `make lint`.
 
 ## Where code goes
 Reusable logic goes in the library; apps and examples only compose library calls. Physics, numerics, geometry,

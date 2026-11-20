@@ -191,6 +191,9 @@ class WallSpec:
     slope_floor: float = 0.2
     slope_detach: bool = True
     slope_prior: bool = False
+    init_from: str | None = None
+    freeze_trunk: bool = False
+    freeze_readout: bool = False
     cache_dir: str | None = None
     grad_clip: float = 1.0
     force_weight: float = 1.0
@@ -210,7 +213,8 @@ class WallSpec:
                 "lr": self.learning_rate, "width": self.width, "depth": self.depth, "fourier": self.fourier,
                 "wall_layer": self.wall_layer, "seed": self.seed, "slope_weight": self.slope_weight,
                 "slope_floor": self.slope_floor, "slope_detach": self.slope_detach, "grad_clip": self.grad_clip,
-                "slope_prior": self.slope_prior,
+                "slope_prior": self.slope_prior, "init_from": self.init_from,
+                "freeze_trunk": self.freeze_trunk, "freeze_readout": self.freeze_readout,
                 "cache_dir": self.cache_dir,
                 "force_weight": self.force_weight, "physics_weight": self.physics_weight,
                 "surface_pressure_weight": self.surface_pressure_weight, "wall_fraction": self.wall_fraction,
@@ -334,17 +338,32 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     model = WallAwareNet(spec.width, spec.depth, spec.fourier, spec.wall_layer,
                          shape_features=shape_features, slope_detach=spec.slope_detach,
                          slope_prior=spec.slope_prior).to(device)
+    if spec.init_from:
+        # a second stage that starts from a fitted field: the trunk comes from the checkpoint, and freezing it is what
+        # separates the two budgets — the field keeps the epochs it was given, the readout gets its own
+        payload = torch.load(spec.init_from, map_location="cpu", weights_only=False)
+        model.load_state_dict(payload["state_dict"])
+        if spec.freeze_trunk:
+            for name, parameter in model.named_parameters():
+                parameter.requires_grad_(name.startswith("head_slope"))
+    if spec.freeze_readout:
+        # the other half of the split: the field is fitted against a fixed near-wall closure, so the readout cannot be
+        # dragged around by the data term while the trunk converges
+        for name, parameter in model.named_parameters():
+            if name.startswith("head_slope"):
+                parameter.requires_grad_(False)
     # the wall readout only ever matters inside the viscous layer, so its statistics are measured on the wall nodes.
     # Standardising it with the whole block — half of which is far field — compresses the near-wall columns into a
     # narrow band around a large offset, and the readout then has to resolve the near-wall geometry through the
     # difference of two large numbers. The isolated experiment that reaches 145 % of held-out error standardises this
     # way; the file here did not.
-    wall_rows = train_block["features"][train_block["wall"]]
-    reference = wall_rows if len(wall_rows) else train_block["features"]
-    feature_mean = torch.from_numpy(reference.mean(axis=0))
-    feature_std = torch.from_numpy(reference.std(axis=0)).clamp_min(1e-6)
-    model.feature_mean.copy_(feature_mean)
-    model.feature_std.copy_(feature_std)
+    if not spec.init_from:                     # a second stage keeps the statistics the readout was fitted with
+        wall_rows = train_block["features"][train_block["wall"]]
+        reference = wall_rows if len(wall_rows) else train_block["features"]
+        feature_mean = torch.from_numpy(reference.mean(axis=0))
+        feature_std = torch.from_numpy(reference.std(axis=0)).clamp_min(1e-6)
+        model.feature_mean.copy_(feature_mean)
+        model.feature_std.copy_(feature_std)
     optimizer = torch.optim.AdamW(model.parameters(), lr=spec.learning_rate, weight_decay=spec.weight_decay)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=spec.epochs,
                                                           eta_min=spec.learning_rate / 50)

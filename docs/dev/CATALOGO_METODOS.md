@@ -1,4 +1,6 @@
-/Users/yanbarros/Documents/GitHub/pinneapple-integral-eq/docs/dev/CATALOGO_METODOS.mda partir de `pinneapple_catalog/methods.py` e dos testes. Não editar à mão: rode o script de novo.
+# Catálogo de métodos do PINNeAPPle
+
+> Gerado por `scripts/build_method_status.py` a partir de `pinneapple_catalog/methods.py` e dos testes. Não editar à mão: rode o script de novo.
 
 **Regra (D5 de `PEDIDOS_2026-09-24.md`):** ✅ = existe teste que compara o método com uma referência independente (solução fechada, solução manufaturada, valor publicado ou tabelado), na mesma função de teste. 🟡 = há teste, mas nenhum compara com referência. ⚪ = nenhum teste encontrado. Só ✅ entra na lista oficial (`validated_methods()`). O resto fica **pendente: paper + benchmark**; nenhum código foi apagado.
 
@@ -7,9 +9,9 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
 | A. Solvers (S) | 36 | 13 | 1 |
-| B. Métodos de treino (T) | 3 | 12 | 8 |
-| C. Equações físicas (E) | 52 | 18 | 3 |
-| D. Problemas físicos (P) | 31 | 9 | 30 |
+| B. Métodos de treino (T) | 4 | 17 | 2 |
+| C. Equações físicas (E) | 56 | 15 | 2 |
+| D. Problemas físicos (P) | 31 | 38 | 1 |
 
 ## A. Solvers (S)
 
@@ -21,7 +23,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S2 — Finite elements (linear) + nonlinear beam FEM
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_meshless.py::test_helmholtz_on_the_disk_and_heat_on_the_plate_with_a_hole`; `PINNeAPPle/tests/test_meshless.py::test_kansa_is_accurate_but_ill_conditioned`; `PINNeAPPle/tests/test_meshless.py::test_point_cloud_has_no_finite_differences_and_holds_out_points` (+3)
+- **Evidência:** `PINNeAPPle/tests/test_flow_runtime.py::test_trust_card_with_a_source_and_boundary_dirichlet`; `PINNeAPPle/tests/test_meshless.py::test_helmholtz_on_the_disk_and_heat_on_the_plate_with_a_hole`; `PINNeAPPle/tests/test_meshless.py::test_kansa_is_accurate_but_ill_conditioned` (+4)
 - **Código:** `pinneapple_simulation/numerical_solvers/fem.py`, `pinneapple_simulation/numerical_solvers/nonlinear_beam_fem.py`
 - **Referências adicionadas:** Hughes, The Finite Element Method: Linear Static and Dynamic FEA, Dover, 2000 · Zienkiewicz, Taylor & Zhu, The Finite Element Method: Its Basis and Fundamentals, 7th ed., 2013
 
@@ -95,20 +97,20 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S14 — Eddy current FDM
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_em_core.py::test_eddy_current_fdm_coil_field_matches_loop_formula`; `PINNeAPPle/tests/test_maxwell_checks.py::test_eddy_current_and_frequency_kinds`; `PINNeAPPle/tests/test_solver_exact_solutions_batch4.py::test_eddy_current_manufactured_solution_second_order`
+- **Evidência:** `PINNeAPPle/tests/test_em_core.py::test_eddy_current_fdm_coil_field_matches_loop_formula`; `PINNeAPPle/tests/test_maxwell_checks.py::test_eddy_current_and_frequency_kinds`; `PINNeAPPle/tests/test_presets.py::test_eddy_fdm_block_solve_equals_complex_solve_and_dodd_deeds_limits` (+1)
 - **Código:** `pinneapple_simulation/numerical_solvers/eddy_current_fdm.py`
 - **Referências adicionadas:** Jackson, Classical Electrodynamics, 3rd ed., Wiley, 1999
 
 ### S15 — Bekker-Wong terramechanics
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_bekker_wong_terramechanics_satisfying_solution_gives_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_bekker_wong_terramechanics_satisfying_solution_gives_zero_residual`
 - **Código:** `pinneapple_simulation/numerical_solvers/bekker_wong.py`, `pinneapple_simulation/particle_dynamics/terramechanics.py`
 - **Referências no código:** Wong 1978
 - **Referências adicionadas:** Bekker, Introduction to Terrain-Vehicle Systems, University of Michigan Press, 1969 · Wong, Theory of Ground Vehicles, Wiley, 1978 (4th ed. 2008)
 
 ### S16 — N-body (REBOUND)
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_nbody_rebound.py::test_cr3bp_l4_stays_fixed_in_rotating_frame`
+- **Evidência:** `PINNeAPPle/tests/test_flow_runtime.py::test_trust_card_with_a_source_and_boundary_dirichlet`; `PINNeAPPle/tests/test_nbody_rebound.py::test_cr3bp_l4_stays_fixed_in_rotating_frame`
 - **Código:** `pinneapple_simulation/numerical_solvers/nbody_rebound.py`
 - **Referências no código:** Rein & Liu, REBOUND, Astron. Astrophys. 537 (2012) A128
 
@@ -128,7 +130,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S19 — Signal decomposition: CEEMDAN, EEMD, VMD, HHT, SSA, SST, STL, FFT, wavelet
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_solver_registry_build`
+- **Evidência:** `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_solver_registry_build`; `PINNeAPPle/tests/test_solar_cycle.py::test_eemd_small_ensemble_reconstructs_on_average`
 - **Código:** `pinneapple_simulation/numerical_solvers/ceemdan.py`, `pinneapple_simulation/numerical_solvers/eemd.py`, `pinneapple_simulation/numerical_solvers/vmd.py`, `pinneapple_simulation/numerical_solvers/hilbert_huang.py`, `pinneapple_simulation/numerical_solvers/ssa.py`, `pinneapple_simulation/numerical_solvers/sst.py`, `pinneapple_simulation/numerical_solvers/stl.py`, `pinneapple_simulation/numerical_solvers/fft.py`, `pinneapple_simulation/numerical_solvers/wavelet.py`
 - **Referências no código:** Torres et al., CEEMDAN, ICASSP 2011 · Wu & Huang, EEMD, Adv. Adapt. Data Anal. 1(1) (2009) · Dragomiretskiy & Zosso, Variational Mode Decomposition, IEEE TSP 62(3) (2014)
 - **Referências adicionadas:** Huang et al., The empirical mode decomposition and the Hilbert spectrum, Proc. R. Soc. A 454 (1998) 903-995 · Golyandina, Nekrutkin & Zhigljavsky, Analysis of Time Series Structure: SSA and Related Techniques, 2001 · Daubechies, Lu & Wu, Synchrosqueezed wavelet transforms, Appl. Comput. Harmon. Anal. 30 (2011) 243-261 · Cleveland et al., STL: a seasonal-trend decomposition procedure based on loess, J. Off. Stat. 6(1) (1990) · Cooley & Tukey, Math. Comput. 19 (1965) 297-301 -- FFT · Mallat, A Wavelet Tour of Signal Processing, 3rd ed., Academic Press, 2009
@@ -142,13 +144,13 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 ### S21 — Digital twin state estimation: KF/EKF/UKF/EnKF, prognostics, signal reconstruction
 - **Estado:** 🟡 testado, sem referência
 - **Revisão manual:** the only 'reference' hit is an OPC-UA live-stream test; no state-estimation result is compared with an independent reference
-- **Evidência:** `PINNeAPPle/tests/test_digital_twin_streams_scada_live.py::test_opcua_stream_reads_real_values_from_a_real_server`; `PINNeAPPle/tests/test_telemetry_conditioning.py::test_first_order_filter_matches_closed_form_step_response_with_irregular_sampling`
+- **Evidência:** `PINNeAPPle/tests/test_cooled_part_twin.py::test_voxels_and_passages_of_a_plate`; `PINNeAPPle/tests/test_digital_twin_streams_scada_live.py::test_opcua_stream_reads_real_values_from_a_real_server`; `PINNeAPPle/tests/test_telemetry_conditioning.py::test_first_order_filter_matches_closed_form_step_response_with_irregular_sampling`
 - **Código:** `pinneapple_systems/digital_twin/`, `pinneapple_neural/architectures/classical_ts/`
 - **Referências adicionadas:** Kalman, A new approach to linear filtering and prediction problems, J. Basic Eng. 82 (1960) 35-45 · Julier & Uhlmann, Unscented filtering and nonlinear estimation, Proc. IEEE 92(3) (2004) 401-422 · Evensen, Sequential data assimilation with a nonlinear QG model, J. Geophys. Res. 99(C5) (1994) 10143 · Simon, Optimal State Estimation, Wiley, 2006
 
 ### S22 — 1D process components (pipe network, transient pipe, heat exchanger, valve, reaction, polytropic path, compressor map)
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_advection_dispersion_reaction_solver`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_process_component_exceptions`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_transient_pipe`
+- **Evidência:** `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_advection_dispersion_reaction_solver`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_process_component_exceptions`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_transient_pipe` (+9)
 - **Código:** `pinneapple_systems/process_components/`
 - **Referências no código:** PennWell 2003 (compressor similarity map)
 - **Referências adicionadas:** Incropera, DeWitt, Bergman & Lavine, Fundamentals of Heat and Mass Transfer, 7th ed., Wiley, 2011 · White, Fluid Mechanics, 7th ed., McGraw-Hill, 2011 · IEC 60534-2-1 / ANSI/ISA-75.01.01 -- control valve sizing · Schultz, The polytropic analysis of centrifugal compressors, J. Eng. Power 84(1) (1962) 69-82 · Bell, Wronski, Quoilin & Lemort, CoolProp, Ind. Eng. Chem. Res. 53(6) (2014) 2498-2508
@@ -161,7 +163,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S24 — External solvers: OpenFOAM, FEniCS, ANSYS/CFD formats, MATLAB, Modelica/FMI, MuJoCo, Genesis, TurboDesigner
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_fmi_runner.py::test_simulate_fmu_matches_exact_solution`
+- **Evidência:** `PINNeAPPle/tests/test_fmi_runner.py::test_simulate_fmu_matches_exact_solution`; `PINNeAPPle/tests/test_freecad_openfoam_pipeline.py::test_fake_templates_are_closed_and_named`
 - **Código:** `pinneapple_simulation/external_solvers/`
 - **Referências adicionadas:** Weller, Tabor, Jasak & Fureby, A tensorial approach to CFD, Comput. Phys. 12(6) (1998) 620-631 (OpenFOAM) · Baratta et al., DOLFINx: the next generation FEniCS problem solving environment, 2023 · Blochwitz et al., The Functional Mockup Interface, Modelica Conference 2011 · Todorov, Erez & Tassa, MuJoCo, IROS 2012
 
@@ -192,7 +194,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S29 — 2-D A_z magnetostatics, P1 FEM with Newton (nonlinear B-H, magnets, (anti-)periodic constraints)
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_motor_magnetics.py::test_round_wire_matches_amperes_law_and_converges_second_order`
+- **Evidência:** `PINNeAPPle/tests/test_em_fem3d.py::test_uniform_field_is_exact`; `PINNeAPPle/tests/test_motor_magnetics.py::test_round_wire_matches_amperes_law_and_converges_second_order`
 - **Código:** `pinneapple_simulation/electromagnetics/fem.py`, `pinneapple_simulation/electromagnetics/mesh.py`, `pinneapple_simulation/electromagnetics/materials.py`
 - **Referências adicionadas:** Jin, The Finite Element Method in Electromagnetics, 3rd ed., Wiley-IEEE Press, 2014 · Brauer, Simple equations for the magnetization and reluctivity curves of steel, IEEE Trans. Magn. 11(1) (1975) 81
 
@@ -328,18 +330,20 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### T1 — Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/pinneapple_train/test_trainer_minimal.py::test_trainer_runs_one_epoch`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_backtest_runner`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_cosim_trainer_fits` (+6)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_trainer_core_contracts.py::test_gradient_accumulation_equals_one_large_batch`; `PINNeAPPle/tests/pinneapple_neural/test_trainer_more_core_contracts.py::test_multi_restart_keeps_the_best_score`; `PINNeAPPle/tests/pinneapple_train/test_trainer_minimal.py::test_trainer_runs_one_epoch` (+10)
 - **Código:** `pinneapple_neural/trainer/trainer.py`, `pinneapple_neural/trainer/hpc.py`
 - **Referências adicionadas:** Micikevicius et al., Mixed Precision Training, ICLR 2018, arXiv:1710.03740 · Kingma & Ba, Adam, ICLR 2015, arXiv:1412.6980
 
 ### T2 — Distributed: DDP, FSDP, SLURM, torchrun, PowerSGD
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_trainer_hpc_and_utils_core_contracts.py::test_fsdp_and_cuda_graphs_need_an_accelerator`
 - **Código:** `pinneapple_neural/trainer/distributed.py`, `pinneapple_neural/trainer/hpc.py`
 - **Referências no código:** Vogels, Karimireddy & Jaggi, PowerSGD, NeurIPS 2019, arXiv:1905.13727
 - **Referências adicionadas:** Li et al., PyTorch Distributed, VLDB 2020, arXiv:2006.15704 · Zhao et al., PyTorch FSDP, VLDB 2023, arXiv:2304.11277
 
 ### T3 — Causal training
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_trainer_more_core_contracts.py::test_causal_weights_follow_their_definition`
 - **Código:** `pinneapple_neural/trainer/causal.py`
 - **Referências no código:** Wang, Sankaran & Perdikaris, Respecting causality is all you need for training PINNs, arXiv:2203.07404
 
@@ -355,12 +359,14 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Referências adicionadas:** Raissi, Perdikaris & Karniadakis, Physics-informed neural networks, J. Comput. Phys. 378 (2019) 686-707 · Liu & Nocedal, On the limited memory BFGS method, Math. Program. 45 (1989) 503-528
 
 ### T6 — Multi-restart
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_trainer_more_core_contracts.py::test_multi_restart_keeps_the_best_score`
 - **Código:** `pinneapple_neural/trainer/multistart.py`
 - **Referências:** nenhuma fonte encontrada — pendente de paper
 
 ### T7 — Adaptive residual-based collocation
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_trainer_losses_uq_collocation_core_contracts.py::test_manual_residuals_and_uniform_fallback`; `PINNeAPPle/tests/pinneapple_neural/test_trainer_losses_uq_collocation_core_contracts.py::test_resampling_follows_the_residual`
 - **Código:** `pinneapple_neural/trainer/collocation.py`
 - **Referências no código:** Lu et al., DeepXDE, SIAM Rev. 63(1) (2021), arXiv:1907.04502 · Wu et al., non-adaptive and residual-based adaptive sampling for PINNs, CMAME 2023, arXiv:2207.10289
 
@@ -379,25 +385,26 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### T10 — Domain decomposition: XPINN, DoMINO/D3M
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_architecture_recommendation.py::test_scarce_data_no_solver_recommends_pinn`; `PINNeAPPle/tests/pinneapple_veriphysics/test_recommend.py::test_formulate_and_recommend_burgers`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_architecture_recommendation.py::test_scarce_data_no_solver_recommends_pinn`; `PINNeAPPle/tests/pinneapple_neural/test_pinn_architectures_core_contracts.py::test_xpinn_interface_loss_vanishes_for_identical_subnets`; `PINNeAPPle/tests/pinneapple_physics/test_pinn_solver_pieces_core_contracts.py::test_domino_partition_and_blending` (+1)
 - **Código:** `pinneapple_neural/architectures/pinns/xpinn.py`, `pinneapple_physics/pinn_solver/domino.py`
 - **Referências no código:** Li et al., D3M: a deep domain decomposition method for PDEs, arXiv:1909.12236
 - **Referências adicionadas:** Jagtap & Karniadakis, Extended PINNs (XPINNs), Commun. Comput. Phys. 28(5) (2020) 2002-2041
 
 ### T11 — Inverse PINN (learnable physical parameters)
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_architecture_recommendation.py::test_inverse_problem_adds_inverse_pinn_regardless_of_other_axes`; `PINNeAPPle/tests/pinneapple_veriphysics/test_recommend.py::test_formulate_and_recommend_burgers`; `PINNeAPPle/tests/test_decision_adapter_tree_arena.py::test_arena_catalog_family_mapping`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_architecture_recommendation.py::test_inverse_problem_adds_inverse_pinn_regardless_of_other_axes`; `PINNeAPPle/tests/pinneapple_neural/test_inverse_pinn_trainer.py::test_adaptive_weighting_is_still_available`; `PINNeAPPle/tests/pinneapple_neural/test_inverse_pinn_trainer.py::test_default_weighting_is_equal_and_fixed` (+7)
 - **Código:** `pinneapple_neural/trainer/inverse_pinn.py`
 - **Referências adicionadas:** Raissi, Perdikaris & Karniadakis, Physics-informed neural networks, J. Comput. Phys. 378 (2019) 686-707
 
 ### T12 — Gray-box + symbolic regression (PySR)
-- **Estado:** ⚪ sem teste
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_trainer_more_core_contracts.py::test_graybox_recovers_the_hidden_term_of_an_ode`
 - **Código:** `pinneapple_neural/trainer/graybox.py`
 - **Referências adicionadas:** Cranmer, Interpretable ML for science with PySR and SymbolicRegression.jl, arXiv:2305.01582
 
 ### T13 — Uncertainty: heteroscedastic, B-PINN, MC Dropout, deep ensembles
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_deep_ensemble`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_edge_runtime`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_mc_dropout_standalone` (+17)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_uncertainty_inverse.py::test_decompose_populates_both_aleatoric_and_epistemic_when_supported`; `PINNeAPPle/tests/pinneapple_analysis/test_verification_uncertainty_inverse.py::test_mc_dropout_epistemic_uncertainty_is_real_finite_nonnegative`; `PINNeAPPle/tests/pinneapple_neural/test_pinn_architectures_core_contracts.py::test_bayesian_pinn_elbo_and_posterior_predictive` (+22)
 - **Código:** `pinneapple_neural/trainer/heteroscedastic.py`, `pinneapple_neural/architectures/pinns/bpinn.py`, `pinneapple_systems/component_modeling/`
 - **Referências no código:** Yang, Meng & Karniadakis, B-PINNs, J. Comput. Phys. 425 (2021), arXiv:2003.06097
 - **Referências adicionadas:** Gal & Ghahramani, Dropout as a Bayesian approximation, ICML 2016, arXiv:1506.02142 · Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474 · Kendall & Gal, What uncertainties do we need in Bayesian deep learning, NeurIPS 2017, arXiv:1703.04977
@@ -409,7 +416,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Referências adicionadas:** Brunton, Proctor & Kutz, Discovering governing equations from data (SINDy), PNAS 113(15) (2016), arXiv:1509.03580
 
 ### T15 — Adaptive hyperparameter sweep / architecture search (arena NAS)
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_trainer_more_core_contracts.py::test_adaptive_sweep_finds_the_best_region`
 - **Código:** `pinneapple_neural/trainer/adaptive_sweep.py`, `pinneapple_arena/nas.py`
 - **Referências:** nenhuma fonte encontrada — pendente de paper
 
@@ -426,7 +434,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### T18 — Meta-learning: MAML, Reptile
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_adaptation_and_active_learning.py::test_meta_train_reptile_actually_trains_and_adapts`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_maml_trainer_trains`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_meta_benchmark_pipeline_run` (+3)
+- **Evidência:** `PINNeAPPle/tests/test_adaptation_and_active_learning.py::test_meta_train_reptile_actually_trains_and_adapts`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_maml_trainer_trains`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_meta_benchmark_pipeline_run` (+4)
 - **Código:** `pinneapple_adaptation/meta_learning/`
 - **Referências no código:** Finn, Abbeel & Levine, MAML, ICML 2017, arXiv:1703.03400 · Nichol, Achiam & Schulman, On first-order meta-learning algorithms (Reptile), arXiv:1803.02999
 
@@ -466,19 +474,19 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E1 — Laplace
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_laplace_2d_exact_solution_gives_zero_residual` (+4)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d` (+6)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Evans, Partial Differential Equations, 2nd ed., AMS, 2010
 
 ### E2 — Poisson
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/pinneapple_solvers/test_fdm_robin.py::test_robin_poisson_matches_analytical_linear_profile`; `PINNeAPPle/tests/test_app_experiment_report.py::test_custom_problem_trains_on_real_equation_and_reports_held_out_error`; `PINNeAPPle/tests/test_codegen.py::test_fdm_poisson_2d_matches_manufactured_solution` (+12)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_solvers/test_fdm_robin.py::test_robin_poisson_matches_analytical_linear_profile`; `PINNeAPPle/tests/test_app_experiment_report.py::test_custom_problem_trains_on_real_equation_and_reports_held_out_error`; `PINNeAPPle/tests/test_codegen.py::test_fdm_poisson_2d_matches_manufactured_solution` (+16)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Evans, Partial Differential Equations, 2nd ed., AMS, 2010
 
 ### E3 — Helmholtz
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_helmholtz_eigenfunction`; `PINNeAPPle/tests/test_meshless.py::test_helmholtz_on_the_disk_and_heat_on_the_plate_with_a_hole`
+- **Evidência:** `PINNeAPPle/tests/test_crossframework_benchmark.py::test_fd_residual_of_exact_solution_is_small`; `PINNeAPPle/tests/test_crossframework_benchmark.py::test_sources_match_the_manufactured_solutions`; `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_helmholtz_eigenfunction` (+1)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Evans, Partial Differential Equations, 2nd ed., AMS, 2010
 
@@ -496,19 +504,19 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E6 — Advection-diffusion / convection
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_advection_diffusion_decaying_travelling_wave`
+- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_advection_diffusion_decaying_travelling_wave`; `PINNeAPPle/tests/test_reduced_order_workflow.py::test_fom_conserves_mass_and_matches_the_linear_closed_form`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** LeVeque, Finite Difference Methods for Ordinary and Partial Differential Equations, SIAM, 2007
 
 ### E7 — Burgers (viscous / inviscid)
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/pinneapple_core/test_transforms.py::test_nondimensional_burgers_solution_equals_the_original_after_pull_back`; `PINNeAPPle/tests/pinneapple_security/test_scan_policy_attest_integrate.py::test_experiment_attestation_signed`; `PINNeAPPle/tests/test_codegen.py::test_fdm_burgers_1d_matches_traveling_front` (+7)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/pinneapple_core/test_transforms.py::test_nondimensional_burgers_solution_equals_the_original_after_pull_back`; `PINNeAPPle/tests/pinneapple_security/test_scan_policy_attest_integrate.py::test_experiment_attestation_signed` (+11)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Burgers, A mathematical model illustrating the theory of turbulence, Adv. Appl. Mech. 1 (1948) 171-199
 
 ### E8 — Reaction-diffusion 1D/2D (Gray-Scott)
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_reaction_diffusion_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_reaction_diffusion_2d_exact_solution_gives_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/test_biology_models.py::test_reaction_diffusion_2d_preset_has_the_reaction`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_reaction_diffusion_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_reaction_diffusion_2d_exact_solution_gives_zero_residual`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Pearson, Complex patterns in a simple system, Science 261 (1993) 189-192
 
@@ -519,8 +527,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Referências adicionadas:** Fisher, The wave of advance of advantageous genes, Ann. Eugen. 7(4) (1937) 355-369 · Ablowitz & Zeppetella, Bull. Math. Biol. 41(6) (1979) 835-840 -- exact travelling wave
 
 ### E10 — Incompressible Navier-Stokes 2D/3D
-- **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_lid_driven_cavity_domain_2d`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_lid_driven_cavity_domain_3d`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_lid_driven_cavity_solver_3d` (+10)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_pict_bridge.py::test_local_engine_matches_ghia_at_re_100`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Batchelor, An Introduction to Fluid Dynamics, Cambridge University Press, 1967 · Ghia, Ghia & Shin, J. Comput. Phys. 48 (1982) 387-411 -- lid-driven cavity benchmark
 
@@ -544,7 +552,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E14 — Darcy
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_dataset_audit.py::test_clean_darcy_set_passes`; `PINNeAPPle/tests/test_dataset_audit.py::test_collapsed_fourier_coefficients_fail_the_diversity_check`; `PINNeAPPle/tests/test_dataset_audit.py::test_five_percent_leakage_fails` (+9)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`; `PINNeAPPle/tests/test_app_benchmark_arena.py::test_external_published_results`; `PINNeAPPle/tests/test_crossframework_benchmark.py::test_track_b_runner_smoke` (+12)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Darcy, Les fontaines publiques de la ville de Dijon, 1856 · Takamoto et al., PDEBench, arXiv:2210.07182 (Darcy 2D benchmark)
 
@@ -556,7 +564,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E16 — Compressible Euler 1D/2D/axisymmetric/rotating 3D
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_euler_compressible_1d_smooth_advected_pulse_gives_near_zero_residual`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_compressible_euler_rotating_3d_matches_independent_closed_form`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_k_omega_sst_3d_matches_independent_closed_form`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_nozzle_crosscheck.py::test_analytic_only_is_the_closed_form`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_euler_compressible_1d_smooth_advected_pulse_gives_near_zero_residual`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_compressible_euler_rotating_3d_matches_independent_closed_form` (+1)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Toro, Riemann Solvers and Numerical Methods for Fluid Dynamics, 3rd ed., Springer, 2009 · Sod, J. Comput. Phys. 27 (1978) 1-31 -- shock tube
 
@@ -580,7 +588,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E20 — Axisymmetric elasticity (+ torsion) / Lame
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_axisymmetric_elasticity_torsion_exact_solution_gives_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_axisymmetric_elasticity_torsion_exact_solution_gives_zero_residual`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Timoshenko & Goodier, Theory of Elasticity, 3rd ed., McGraw-Hill, 1970
 
@@ -604,12 +612,13 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E24 — Thermoelasticity
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions_batch4.py::test_thermoelasticity_free_thermal_expansion`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_manufactured_solutions_batch4.py::test_thermoelasticity_free_thermal_expansion`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Boley & Weiner, Theory of Thermal Stresses, Wiley, 1960
 
 ### E25 — Phase-field fracture
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Bourdin, Francfort & Marigo, J. Mech. Phys. Solids 48 (2000) 797-826 · Miehe, Hofacker & Welschinger, Comput. Methods Appl. Mech. Eng. 199 (2010) 2765-2778
 
@@ -627,7 +636,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E28 — Bekker-Wong terramechanics
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_bekker_wong_terramechanics_satisfying_solution_gives_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_bekker_wong_terramechanics_satisfying_solution_gives_zero_residual`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Bekker, Introduction to Terrain-Vehicle Systems, University of Michigan Press, 1969 · Wong, Theory of Ground Vehicles, Wiley, 1978 (4th ed. 2008)
 
@@ -663,13 +672,13 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E34 — Kepler two-body orbit
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_kepler_two_body_orbit_exact_gives_near_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_kepler_two_body_orbit_exact_gives_near_zero_residual`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Vallado, Fundamentals of Astrodynamics and Applications, 4th ed., Microcosm Press, 2013
 
 ### E35 — Circular restricted three-body problem (planar, synodic)
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l1_l2_l3_equilibria_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l4_equilibrium_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_nbody_rebound.py::test_cr3bp_l4_stays_fixed_in_rotating_frame`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l1_l2_l3_equilibria_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l4_equilibrium_exact_gives_near_zero_residual` (+1)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Szebehely, Theory of Orbits: The Restricted Problem of Three Bodies, Academic Press, 1967
 
@@ -693,19 +702,19 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E39 — Lane-Emden polytrope
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_lane_emden_n0_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_lane_emden_n1_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_lane_emden_numerical_validation.py::test_lane_emden_astrophysically_standard_n_matches_published_tables` (+2)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_explain_lane_emden_polytrope_matches_astrophysics_py_by_hand`; `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_lane_emden_exact_solutions_satisfy_the_equation` (+5)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Chandrasekhar, An Introduction to the Study of Stellar Structure, 1939 · Hansen, Kawaler & Trimble, Stellar Interiors, 2nd ed., Springer, 2004 (Table 4.1)
 
 ### E40 — Shakura-Sunyaev accretion disk
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_shakura_sunyaev_exact_flux_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_shakura_sunyaev_exact_matches_module_reference_function`; `PINNeAPPle/tests/test_shakura_sunyaev_disk_validation.py::test_shakura_sunyaev_far_field_teff_matches_r_minus_three_quarters_power_law` (+3)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_shakura_sunyaev_exact_flux_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_shakura_sunyaev_exact_matches_module_reference_function` (+4)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Shakura & Sunyaev, Black holes in binary systems, Astron. Astrophys. 24 (1973) 337-355
 
 ### E41 — Schwarzschild weak-field light bending
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astro_ai.py::test_thin_disc_geodesics_match_schwarzschild`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_schwarzschild_light_bending_perturbative_solution_near_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_light_deflection_and_the_first_order_orbit`; `PINNeAPPle/tests/test_astro_ai.py::test_thin_disc_geodesics_match_schwarzschild` (+1)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Misner, Thorne & Wheeler, Gravitation, W. H. Freeman, 1973
 
@@ -717,19 +726,19 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E43 — Pharmacokinetics two-compartment
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_pk_two_compartment_eigen_solution`
+- **Evidência:** `PINNeAPPle/tests/test_bio_workflow.py::test_pk_auc_closed_form_mass_balance_and_dosing_regimen`; `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_pk_two_compartment_eigen_solution`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Gibaldi & Perrier, Pharmacokinetics, 2nd ed., Marcel Dekker, 1982
 
 ### E44 — Reaction network / Arrhenius / mass action
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_app_identifiability_lab.py::test_design_stage_without_values_and_validation`; `PINNeAPPle/tests/test_app_identifiability_lab.py::test_page_meta_and_presets`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_advection_dispersion_reaction_solver` (+7)
+- **Evidência:** `PINNeAPPle/tests/test_app_identifiability_lab.py::test_design_stage_without_values_and_validation`; `PINNeAPPle/tests/test_app_identifiability_lab.py::test_page_meta_and_presets`; `PINNeAPPle/tests/test_biology_models.py::test_reaction_kinetics_problem_spec_from_ode_system` (+10)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`, `pinneapple_systems/process_components/reaction_kinetics.py`
 - **Referências adicionadas:** Fogler, Elements of Chemical Reaction Engineering, 5th ed., Prentice Hall, 2016
 
 ### E45 — Hagen-Poiseuille
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_closed_form_flow.py::test_hagen_poiseuille_equals_darcy_with_laminar_f`; `PINNeAPPle/tests/test_non_newtonian_pipe_flow.py::test_laminar_friction_factor_matches_hagen_poiseuille_16_over_Re`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_closed_form_core_contracts.py::test_laminar_pipe_loss_is_hagen_poiseuille`; `PINNeAPPle/tests/test_closed_form_flow.py::test_hagen_poiseuille_equals_darcy_with_laminar_f`; `PINNeAPPle/tests/test_non_newtonian_pipe_flow.py::test_laminar_friction_factor_matches_hagen_poiseuille_16_over_Re`
 - **Código:** `PINNeAPPle-CFD/pinneapple_cfd/etapas/e02_modelo_matematico/correlacoes.py`
 - **Referências adicionadas:** White, Fluid Mechanics, 7th ed., McGraw-Hill, 2011
 
@@ -740,8 +749,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Referências adicionadas:** White, Fluid Mechanics, 7th ed., McGraw-Hill, 2011
 
 ### E47 — Colebrook-White
-- **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_closed_form_flow.py::test_blasius_and_laminar`; `PINNeAPPle/tests/test_closed_form_flow.py::test_colebrook_moody_chart_values`; `PINNeAPPle/tests/test_closed_form_flow.py::test_first_cell_height` (+5)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_flow_extensions.py::test_generic_cfd_references_and_online_doi_check`
 - **Código:** `PINNeAPPle-CFD/.../correlacoes.py`, `pinneapple_systems/process_components/pipe_network_1d.py`
 - **Referências adicionadas:** Colebrook, Turbulent flow in pipes, J. Inst. Civ. Eng. 11 (1939) 133-156
 
@@ -763,13 +772,13 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E51 — Lame thick-walled cylinder
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_physics_knowledge_base.py::test_sourced_presets_actually_build_a_problem_spec`; `PINNeAPPle/tests/test_pipe_stress_mechanics.py::test_lame_hoop_inner_exceeds_outer_for_a_thick_wall_under_internal_pressure`; `PINNeAPPle/tests/test_pipe_stress_mechanics.py::test_lame_hoop_stress_matches_thin_wall_pressure_vessel_formula_at_small_t_over_r`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`; `PINNeAPPle/tests/test_physics_knowledge_base.py::test_sourced_presets_actually_build_a_problem_spec`; `PINNeAPPle/tests/test_pipe_stress_mechanics.py::test_lame_hoop_inner_exceeds_outer_for_a_thick_wall_under_internal_pressure` (+1)
 - **Código:** `pinneapple_systems/process_components/pipe_stress_mechanics.py`
 - **Referências adicionadas:** Timoshenko & Goodier, Theory of Elasticity, 3rd ed., McGraw-Hill, 1970
 
 ### E52 — von Mises equivalent stress
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_app_helpers_in_library.py::test_field_scalar_von_mises_matches_principal_stresses`; `PINNeAPPle/tests/test_axisymmetric.py::test_lame_cylinder_stresses_and_zero_residual`; `PINNeAPPle/tests/test_axisymmetric.py::test_saint_venant_torsion` (+8)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`; `PINNeAPPle/tests/pinneapple_veriphysics/test_mesh_views.py::test_vtu_example_views_match_pc701_and_deform_with_the_displacement`; `PINNeAPPle/tests/test_app_helpers_in_library.py::test_field_scalar_von_mises_matches_principal_stresses` (+14)
 - **Código:** `pinneapple_systems/process_components/pipe_stress_mechanics.py`, `pinneapple_systems/process_components/beam_statics.py`
 - **Referências adicionadas:** von Mises, Goettinger Nachrichten, Math.-Phys. Kl. (1913) 582-592 · Budynas & Nisbett, Shigley's Mechanical Engineering Design, 10th ed., McGraw-Hill, 2015
 
@@ -788,7 +797,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E55 — S-N curve + Goodman + Miner
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_design_studies.py::test_heatsink_geometry_matches_library_closed_forms`
+- **Evidência:** `PINNeAPPle/tests/test_design_studies.py::test_heatsink_geometry_matches_library_closed_forms`; `PINNeAPPle/tests/test_flow_study_steps_literal.py::test_steps_literal`; `PINNeAPPle/tests/test_nvidia_integrations.py::test_two_link_tree_matches_closed_form_and_energy`
 - **Código:** `pinneapple_systems/process_components/fatigue_analysis.py`, `pinneapple_physics/closed_form/cantilever_fatigue.py`
 - **Referências adicionadas:** Miner, Cumulative damage in fatigue, J. Appl. Mech. 12 (1945) A159-A164 · Budynas & Nisbett, Shigley's Mechanical Engineering Design, 10th ed., McGraw-Hill, 2015
 
@@ -799,14 +808,14 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Referências adicionadas:** Armstrong-Helouvry, Dupont & Canudas de Wit, A survey of models, analysis tools and compensation methods for the control of machines with friction, Automatica 30(7) (1994) 1083-1138
 
 ### E57 — Heat exchanger (effectiveness-NTU)
-- **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_artifact_registry.py::test_model_store_save_load_latest_and_promote`; `PINNeAPPle/tests/test_artifact_registry.py::test_triton_export_produces_config_and_onnx`; `PINNeAPPle/tests/test_component_library.py::test_checkpoint_round_trip_reconstructs_from_component_name` (+5)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_presets.py::test_one_two_exchanger_closed_form_equals_direct_integration`
 - **Código:** `pinneapple_systems/process_components/heat_exchanger.py`
 - **Referências adicionadas:** Incropera, DeWitt, Bergman & Lavine, Fundamentals of Heat and Mass Transfer, 7th ed., Wiley, 2011
 
 ### E58 — Fin array conduction
-- **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/closed_form/test_fin_array_conduction.py::test_matches_brakecool_ai_baseline_radial_profile`; `PINNeAPPle/tests/pinneapple_physics/closed_form/test_fin_array_conduction.py::test_matches_heatsink_design_ai_baseline_exactly`; `PINNeAPPle/tests/pinneapple_physics/closed_form/test_fin_array_conduction.py::test_radial_profile_supports_a_different_corrected_length_than_the_resistance_network` (+1)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/pinneapple_design/test_surrogate_inverse.py::test_fin_cell_one_dimensional_limit`
 - **Código:** `pinneapple_physics/closed_form/fin_array_conduction.py`
 - **Referências adicionadas:** Incropera, DeWitt, Bergman & Lavine, Fundamentals of Heat and Mass Transfer, 7th ed., Wiley, 2011
 
@@ -843,13 +852,13 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E64 — Membrane diffusion
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/closed_form/test_membrane_diffusion.py::test_concentration_profile_is_linear_and_matches_flux_gradient`; `PINNeAPPle/tests/pinneapple_physics/closed_form/test_membrane_diffusion.py::test_decay_constant_independent_of_area_and_equals_inverse_depletion_time`; `PINNeAPPle/tests/pinneapple_physics/closed_form/test_membrane_diffusion.py::test_depletion_time_independent_of_area` (+2)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/closed_form/test_membrane_diffusion.py::test_concentration_profile_is_linear_and_matches_flux_gradient`; `PINNeAPPle/tests/pinneapple_physics/closed_form/test_membrane_diffusion.py::test_decay_constant_independent_of_area_and_equals_inverse_depletion_time`; `PINNeAPPle/tests/pinneapple_physics/closed_form/test_membrane_diffusion.py::test_depletion_time_independent_of_area` (+3)
 - **Código:** `pinneapple_physics/closed_form/membrane_diffusion.py`
 - **Referências adicionadas:** Crank, The Mathematics of Diffusion, 2nd ed., Oxford University Press, 1975
 
 ### E65 — Cantilever fatigue
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_design_studies.py::test_heatsink_geometry_matches_library_closed_forms`
+- **Evidência:** `PINNeAPPle/tests/test_design_studies.py::test_heatsink_geometry_matches_library_closed_forms`; `PINNeAPPle/tests/test_flow_study_steps_literal.py::test_steps_literal`
 - **Código:** `pinneapple_physics/closed_form/cantilever_fatigue.py`
 - **Referências adicionadas:** Budynas & Nisbett, Shigley's Mechanical Engineering Design, 10th ed., McGraw-Hill, 2015
 
@@ -906,84 +915,91 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### P1.1 — Academic: burgers_1d
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/pinneapple_core/test_transforms.py::test_nondimensional_burgers_solution_equals_the_original_after_pull_back`; `PINNeAPPle/tests/pinneapple_security/test_scan_policy_attest_integrate.py::test_experiment_attestation_signed`; `PINNeAPPle/tests/test_codegen.py::test_fdm_burgers_1d_matches_traveling_front` (+6)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/pinneapple_core/test_transforms.py::test_nondimensional_burgers_solution_equals_the_original_after_pull_back`; `PINNeAPPle/tests/pinneapple_security/test_scan_policy_attest_integrate.py::test_experiment_attestation_signed` (+8)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E7
 
 ### P1.2 — Academic: channel_flow_3d
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_physics_guardrail.py::test_conservation_mass_continuity_exact_divergence_free_field_is_near_zero`; `PINNeAPPle/tests/test_physics_guardrail.py::test_conservation_mass_continuity_nondivergence_free_field_is_clearly_flagged`; `PINNeAPPle/tests/test_physics_guardrail.py::test_dimensional_analysis_navier_stokes_positive_Re_passes` (+1)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_academic_cfd_and_em_factories`; `PINNeAPPle/tests/test_physics_guardrail.py::test_conservation_mass_continuity_exact_divergence_free_field_is_near_zero`; `PINNeAPPle/tests/test_physics_guardrail.py::test_conservation_mass_continuity_nondivergence_free_field_is_clearly_flagged` (+2)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
 ### P1.3 — Academic: darcy_pressure_only_3d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E14
 
 ### P1.4 — Academic: helmholtz_acoustics_3d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E3
 
 ### P1.5 — Academic: laplace_2d
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_laplace_2d_exact_solution_gives_zero_residual` (+3)
+- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_laplace_2d_exact_solution_gives_zero_residual` (+4)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E1
 
 ### P1.6 — Academic: lid_driven_cavity_3d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_academic_cfd_and_em_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
 ### P1.7 — Academic: ns_incompressible_2d
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_classify_physics_shape_on_real_presets`; `PINNeAPPle/tests/test_codegen.py::test_fenics_stokes_script_is_valid_and_has_expected_api`; `PINNeAPPle/tests/test_codegen.py::test_pdeparser_rejects_uncovered_kind` (+4)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_academic_cfd_and_em_factories`; `PINNeAPPle/tests/test_codegen.py::test_classify_physics_shape_on_real_presets`; `PINNeAPPle/tests/test_codegen.py::test_fenics_stokes_script_is_valid_and_has_expected_api` (+5)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
 ### P1.8 — Academic: pipe_flow_3d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_academic_cfd_and_em_factories`; `PINNeAPPle/tests/test_onboarding.py::test_tagged_presets_with_their_own_geometry_are_runnable`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
 ### P1.9 — Academic: poisson_2d
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_fdm_poisson_2d_matches_manufactured_solution`; `PINNeAPPle/tests/test_pinn_validation.py::test_converged_pinns_pass`; `PINNeAPPle/tests/test_pinn_validation.py::test_exact_solutions_pass_every_check` (+1)
+- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_fdm_poisson_2d_matches_manufactured_solution`; `PINNeAPPle/tests/test_pinn_validation.py::test_converged_pinns_pass`; `PINNeAPPle/tests/test_pinn_validation.py::test_exact_solutions_pass_every_check` (+2)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E2
 
 ### P1.10 — Academic: reaction_diffusion_2d
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_reaction_diffusion_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_reaction_diffusion_2d_exact_solution_gives_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/test_biology_models.py::test_reaction_diffusion_2d_preset_has_the_reaction`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_reaction_diffusion_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_reaction_diffusion_2d_exact_solution_gives_zero_residual`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E8
 
 ### P1.11 — Academic: steady_heat_conduction_3d
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_retrieval.py::test_corpus_includes_real_presets`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_retrieval.py::test_corpus_includes_real_presets`; `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`; `PINNeAPPle/tests/test_llm_preset_coherence.py::test_regime_and_dimension_are_checked`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E4
 
 ### P1.12 — Academic: transient_heat_3d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`; `PINNeAPPle/tests/test_llm_preset_coherence.py::test_regime_and_dimension_are_checked`; `PINNeAPPle/tests/test_onboarding.py::test_a_preset_knows_which_preset_it_is` (+2)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E4
 
 ### P1.13 — Academic: wave_ultrasound_3d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E5
 
 ### P2.1 — Solids: axisymmetric_linear_elasticity_2d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E20
 
 ### P2.2 — Solids: linear_elasticity_3d
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_classify_physics_shape_on_real_presets`; `PINNeAPPle/tests/test_codegen.py::test_fenics_elasticity_contact_script_is_valid_and_has_expected_api`; `PINNeAPPle/tests/test_codegen.py::test_fenics_elasticity_without_contact_has_config_helper` (+2)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`; `PINNeAPPle/tests/test_codegen.py::test_classify_physics_shape_on_real_presets`; `PINNeAPPle/tests/test_codegen.py::test_fenics_elasticity_contact_script_is_valid_and_has_expected_api` (+3)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E19
 
@@ -994,12 +1010,14 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E19
 
 ### P2.4 — Solids: material_fracture_2d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E25
 
 ### P2.5 — Solids: plane_strain_2d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E19
 
@@ -1010,50 +1028,57 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E19
 
 ### P2.7 — Solids: rotary_coupling_torsion
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E20
 
 ### P2.8 — Solids: thermoelasticity_2d
 - **Estado:** 🟡 testado, sem referência
 - **Revisão manual:** only the thermoelasticity_2d residual is validated (E24, free thermal expansion); the preset's own geometry/BCs are not compared with a reference
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions_batch4.py::test_thermoelasticity_free_thermal_expansion`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_manufactured_solutions_batch4.py::test_thermoelasticity_free_thermal_expansion`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E24
 
 ### P2.9 — Solids: thick_walled_cylinder_lame
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_physics_knowledge_base.py::test_sourced_presets_actually_build_a_problem_spec`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`; `PINNeAPPle/tests/test_physics_knowledge_base.py::test_sourced_presets_actually_build_a_problem_spec`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E20
 
 ### P2.10 — Solids: threaded_coupling_tc50_box
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E20
 
 ### P2.11 — Solids: threaded_coupling_tc50_pin
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E20
 
 ### P2.12 — Solids: threaded_coupling_tc50_rotating
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E20
 
 ### P2.13 — Solids: von_mises_2d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E19, E52
 
 ### P3.1 — Aero / automotive: aircraft_wing_aerodynamics
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
 ### P3.2 — Aero / automotive: aircraft_wing_structural
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E19
 
@@ -1064,27 +1089,32 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E4
 
 ### P3.4 — Aero / automotive: car_external_aero
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
 ### P3.5 — Aero / automotive: car_suspension_fatigue
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E19, E55
 
 ### P3.6 — Aero / automotive: rocket_nozzle_cfd
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E16
 
 ### P3.7 — Aero / automotive: rocket_structural
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E19
 
 ### P4.1 — Turbomachinery: axial_compressor_cascade_2d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E16
 
@@ -1102,7 +1132,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### P4.4 — Turbomachinery: fan_cooler_cfd
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_ns_rotating_frame_solid_body_rotation_gives_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_ns_rotating_frame_solid_body_rotation_gives_zero_residual`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
@@ -1113,12 +1143,14 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E4
 
 ### P5.2 — Industrial thermal: datacenter_airflow_2d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
 ### P5.3 — Industrial thermal: datacenter_cfd_3d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E10
 
@@ -1129,7 +1161,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E4
 
 ### P5.5 — Industrial thermal: furnace_combustion_zone
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_engineering_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E6, E44
 
@@ -1158,12 +1191,14 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E31
 
 ### P6.2 — Multidisciplinary: climate_atmosphere_2d
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E6
 
 ### P6.3 — Multidisciplinary: climate_ocean_gyre
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E18
 
@@ -1174,7 +1209,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E30
 
 ### P6.5 — Multidisciplinary: drug_diffusion_tissue
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E6
 
@@ -1193,30 +1229,31 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### P6.8 — Multidisciplinary: pk_two_compartment
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_pk_two_compartment_eigen_solution`
+- **Evidência:** `PINNeAPPle/tests/test_bio_workflow.py::test_pk_auc_closed_form_mass_balance_and_dosing_regimen`; `PINNeAPPle/tests/test_manufactured_solutions_batch2.py::test_pk_two_compartment_eigen_solution`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E43
 
 ### P6.9 — Multidisciplinary: sir_epidemic
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_industry_multidisciplinary_and_mechanics_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E42
 
 ### P7.1 — Astro / space: cr3bp_planar_synodic
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l1_l2_l3_equilibria_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l4_equilibrium_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_nbody_rebound.py::test_cr3bp_l4_stays_fixed_in_rotating_frame`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l1_l2_l3_equilibria_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_cr3bp_l4_equilibrium_exact_gives_near_zero_residual` (+1)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E35
 
 ### P7.2 — Astro / space: kepler_two_body_orbit
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_kepler_two_body_orbit_exact_gives_near_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_kepler_two_body_orbit_exact_gives_near_zero_residual`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E34
 
 ### P7.3 — Astro / space: lane_emden_polytrope
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_lane_emden_n0_exact_gives_near_zero_residual`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_lane_emden_n1_exact_gives_near_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_explain_lane_emden_polytrope_matches_astrophysics_py_by_hand`; `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_lane_emden_n0_exact_gives_near_zero_residual` (+1)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E39
 
@@ -1234,7 +1271,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### P7.6 — Astro / space: schwarzschild_light_bending_weak_field
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_astrophysics_validation.py::test_schwarzschild_light_bending_perturbative_solution_near_zero_residual`
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_verified_equations_is_real_nonempty_and_correct_by_inspection`; `PINNeAPPle/tests/test_astrophysics_validation.py::test_schwarzschild_light_bending_perturbative_solution_near_zero_residual`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E41
 
@@ -1245,7 +1282,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Equações:** E40
 
 ### P7.8 — Astro / space: sod_shock_tube_astro
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_analysis/test_verification_knowledge_graph.py::test_find_presets_for_phenomenon_astrophysics_matches_real_module`; `PINNeAPPle/tests/pinneapple_physics/test_preset_core_contracts.py::test_academic_cfd_and_em_factories`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E16
 

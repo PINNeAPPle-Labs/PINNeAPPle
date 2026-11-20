@@ -96,6 +96,16 @@ direction and `x_over_chord` is dimensionless, so the law has to be fed metres p
 factor it comes out a thousand times short and training diverges), and standardising the readout on wall nodes sends a
 far-field row to a huge z-score, which the exponent then turns into an inf — both the z and the correction are clamped.
 
+**What the wall shear actually measures, found the hard way.** Splitting the budgets — freeze the readout and fit the
+field, then freeze the field and refit the readout — gives the best near-wall numbers of the campaign (wall shear
+43.5 % → 30.9 %, `Cd R²` −5.03 → −0.97 on the 20-case holdout) but costs field accuracy (velocity 4.31 % → 5.80 %).
+The informative part is the pattern: the wall shear is a property of the *pair* (field, readout), not of the readout.
+Freezing the readout while the field trains keeps the near-wall layer consistent with the law by construction and is
+what buys the gain; refitting the readout afterwards changes almost nothing (30.9 → 29.6), and refitting it on a trunk
+that was trained with a *co-adapting* readout makes it much worse (38.5 % → 75.4 %), because the readout then disagrees
+with the field it sits in. Chasing the readout's own slope error is therefore the wrong lever, which is worth knowing
+before spending another run on it.
+
 On the `full` split this takes `overall_score` from 29.44 to **63.20** (field components 16.09 %/758.6 %/12.15 %/34.41 %
 → 2.93 %/78.7 %/4.49 %/3.66 %, Cl R² 0.988 → 0.9995, profile R² 0.782 → 0.968, `field_score` 0 → 58.03).
 

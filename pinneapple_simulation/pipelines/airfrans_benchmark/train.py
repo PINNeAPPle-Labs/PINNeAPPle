@@ -195,6 +195,7 @@ class WallSpec:
     freeze_trunk: bool = False
     freeze_readout: bool = False
     readout_lr: float = 0.0
+    slope_le_weight: float = 0.0
     cache_dir: str | None = None
     grad_clip: float = 1.0
     force_weight: float = 1.0
@@ -216,7 +217,7 @@ class WallSpec:
                 "slope_floor": self.slope_floor, "slope_detach": self.slope_detach, "grad_clip": self.grad_clip,
                 "slope_prior": self.slope_prior, "init_from": self.init_from,
                 "freeze_trunk": self.freeze_trunk, "freeze_readout": self.freeze_readout,
-                "readout_lr": self.readout_lr,
+                "readout_lr": self.readout_lr, "slope_le_weight": self.slope_le_weight,
                 "cache_dir": self.cache_dir,
                 "force_weight": self.force_weight, "physics_weight": self.physics_weight,
                 "surface_pressure_weight": self.surface_pressure_weight, "wall_fraction": self.wall_fraction,
@@ -429,7 +430,14 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                 # ends at 145 % against 970 % — so it is what the head is trained with.
                 truth = batch_slope[batch_wall]
                 floor = spec.slope_floor * truth.abs().median() + 1e-9
-                slope_loss = (((heads["slope"][batch_wall] - truth) ** 2) / (truth ** 2 + floor ** 2)).mean()
+                per_point = ((heads["slope"][batch_wall] - truth) ** 2) / (truth ** 2 + floor ** 2)
+                if spec.slope_le_weight:
+                    # the evaluator's force error sits ahead of 10 % chord (measured on the previous series: 73 % of the
+                    # pressure-drag error), and the slope that decides it varies fastest there; this tilts the readout's
+                    # objective towards the leading edge instead of letting the mid-chord bulk carry the mean
+                    leading = (1.0 - batch_x[batch_wall][:, 0].clamp(0.0, 1.0))
+                    per_point = per_point * (1.0 + spec.slope_le_weight * leading)
+                slope_loss = per_point.mean()
                 loss = loss + spec.slope_weight * slope_loss
             force_loss = torch.zeros((), device=device)
             if spec.force_weight and step % spec.curve_every == 0:

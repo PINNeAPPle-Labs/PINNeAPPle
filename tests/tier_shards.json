@@ -79,7 +79,8 @@
    "id": "physics",
    "measured": "2026-11-20: 87 passed, 1 skipped in 6.04s (7.8 s wall)",
    "paths": [
-    "tests/pinneapple_physics"
+    "tests/pinneapple_physics",
+    "tests/test_problem_spec_reconcile.py"
    ]
   },
   {

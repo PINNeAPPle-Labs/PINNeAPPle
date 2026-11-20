@@ -33,7 +33,11 @@ CONTRACT_KINDS = ("DatasetSpec", "ModelRef", "StudyResult")
 
 
 def _skip(path: Path) -> bool:
-    return any(part in {".git", "node_modules", "__pycache__", "site"} for part in path.parts)
+    """Scratch output is not an artifact: a run's working directory holds what it wrote this time, and asking it for
+    provenance would make the gate depend on whether someone ran an example. Everything under a ``_``-prefixed
+    directory is scratch by convention (``_work``, ``_out``, ``_runs``)."""
+    return any(part in {".git", "node_modules", "__pycache__", "site"} or part.startswith("_")
+               for part in path.parts)
 
 
 def discover() -> Tuple[List[Path], List[Path]]:

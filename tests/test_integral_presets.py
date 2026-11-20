@@ -174,8 +174,8 @@ def test_the_preset_trains_through_solve_pde_with_a_fixed_node_set():
     resampled every step and the quadrature moves with the batch. This is a wiring test of the whole ``pp`` path and
     not an accuracy claim: a few hundred epochs must reduce the compiled loss by two orders of magnitude.
 
-    ``solve_pde`` feeds the model float32, so the model must not be double -- a mismatch raises deep inside the first
-    linear layer, which is why this is asserted here rather than left to a caller to discover."""
+    ``solve_pde`` builds its batch in the model's own dtype, so a float32 model here and a double one below both
+    train (#1885); a caller no longer has to know which one to build."""
     from pinneapple_physics import solve_pde
 
     spec = get_preset("integral_fredholm_unit_exp")
@@ -189,6 +189,28 @@ def test_the_preset_trains_through_solve_pde_with_a_fixed_node_set():
     with torch.no_grad():
         y = model(torch.as_tensor(x, dtype=torch.float32).reshape(-1, 1)).numpy().ravel()
     assert np.all(np.isfinite(y)) and float(np.max(np.abs(y - np.exp(x)))) < 1.0
+
+
+def test_a_double_precision_model_trains_and_predicts_through_the_same_path():
+    """A small integral case is quadrature-bound, so double precision is the natural choice, and it used to raise
+    ``mat1 and mat2 must have the same dtype`` three frames deep inside ``nn.Linear`` (#1885)."""
+    from pinneapple_physics import PhysicsPipeline, solve_pde
+
+    spec = get_preset("integral_fredholm_unit_exp")
+    x = np.linspace(0.0, 1.0, 41)
+    torch.manual_seed(0)
+    model = torch.nn.Sequential(torch.nn.Linear(1, 16), torch.nn.Tanh(), torch.nn.Linear(16, 1)).double()
+
+    out = solve_pde(spec, model, epochs=400, lr=1e-2, x_col=x.reshape(-1, 1), device="cpu")
+
+    history = out["history"]["loss"]
+    assert len(history) == 400 and np.all(np.isfinite(history))
+    assert history[-1] < history[0] / 100.0
+    assert next(out["model"].parameters()).dtype is torch.float64, "the training path silently downcast the model"
+
+    y = PhysicsPipeline(out["model"], spec, out["history"]).predict(x.reshape(-1, 1))
+    assert y.shape == (41, 1) and np.all(np.isfinite(y))
+    assert float(np.max(np.abs(y.ravel() - np.exp(x)))) < 1.0
 
 
 # ------------------------------------------------------------------------------------------------ kernels

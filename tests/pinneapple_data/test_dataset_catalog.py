@@ -29,7 +29,8 @@ def test_entries_are_sorted_by_priority_then_id():
 
 
 def test_only_the_adapters_that_exist_are_readable():
-    assert {e.id for e in catalog.implemented()} == {"pdebench", "the_well", "cfdbench", "spe10", "flowbench"}
+    assert {e.id for e in catalog.implemented()} == {
+        "pdebench", "the_well", "cfdbench", "spe10", "flowbench", "deepmind_mgn"}
     assert [e.id for e in catalog.missing("P0")] == ["nasa_tmr"], (
         "the TMR validation files are no longer served (2026-11-13), so it is the one P0 dataset with no reader")
 

@@ -41,6 +41,7 @@
   * [Security (pinneapple_security)](core_concepts/security.md)
   * [Verification and evidence (pinneapple_veriphysics)](core_concepts/veriphysics.md)
   * [Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry](dev/PHYSICS_AI_INTEROP.md)
+  * [The physics-AI workflow, stage by stage: open tools and public datasets](dev/PHYSICS_AI_STAGE_MAP.md)
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)
   * [Adaptive ensembles of physics models](core_concepts/physics_ensembles.md)

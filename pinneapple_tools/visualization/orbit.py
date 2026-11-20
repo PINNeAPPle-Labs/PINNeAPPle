@@ -202,6 +202,8 @@ def turntable(field, path: str | Path | None = None, *, x=None, y=None, t=None, 
     ax_rect = [0.0, 0.0, 0.88, 1.0] if colorbar else [0.0, 0.0, 1.0, 1.0]
     cbar_label = f"{name} [{unit}]" if unit else name
 
+    from .caption import figure_caption
+
     out = []
     for j, k in enumerate(idx):
         fig.clf()
@@ -231,10 +233,10 @@ def turntable(field, path: str | Path | None = None, *, x=None, y=None, t=None, 
                 spine.set_visible(False)
 
         if caption:
-            label = cbar_label
-            if times is not None:
-                label += f"   t = {times[k]:.3g} {time_unit}"
-            fig.text(0.014, 0.022, label, color="white", alpha=0.92, fontsize=10.5 * scale, va="bottom")
+            # The same caption the rest of the library states (viz.caption): unit, colour range, instant.
+            text = figure_caption(name, unit, value_range=(lo, hi), time=None if times is None else float(times[k]),
+                                  time_unit=time_unit).text()
+            fig.text(0.014, 0.022, text, color="white", alpha=0.92, fontsize=10.5 * scale, va="bottom")
         if mark:
             fig.text(0.986, 0.022, mark, color="white", alpha=float(mark_alpha), fontsize=8.5 * scale,
                      va="bottom", ha="right")

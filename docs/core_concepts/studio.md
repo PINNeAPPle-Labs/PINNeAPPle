@@ -146,6 +146,13 @@ em.summary()                       # where the error concentrates, against the g
 - **Colours.** Values use the jet scale from their minimum to their maximum on the surface; fields of one `group`
   share a scale. Errors use the sequential error scale (`ERR` in `studio-core.js`, white = 0) from 0 to their 99th
   percentile, and the colour bar says when the maximum lies above it.
+- **The caption.** Every field must declare a `unit`: a rendered field without one is a picture of colours, so
+  `field_view` refuses it, and `"unit": "-"` is how a dimensionless field says so. `fv.meta["captions"]` holds, per
+  field, the caption the page prints — the label, the unit, the range, the exaggeration the view will use and the
+  length unit — and `fv.meta["caption"]` is the one for the field on screen. The same sentence is built anywhere else
+  a figure is written: `pp.viz.figure_caption("von Mises", "MPa", value_range=(0, 512.4), deform=25.0,
+  method="FEM", status="validated")` gives *von Mises [MPa], 0 to 512.4 MPa, deformation x25, lengths in m, FEM
+  (validated)*, and `pp.viz.turntable` puts it on the clip instead of composing its own.
 - **Deformed shape.** Each `deform` entry gives a nodal displacement. The page draws it with a scale factor. By
   default the largest displacement is drawn as 10 % of the body, and `1×` shows the true scale. The undeformed shape
   stays as a grey wire.

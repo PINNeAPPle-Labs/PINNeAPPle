@@ -33,7 +33,7 @@ from .view_cache import cached_view, prune_views, save_view, view_paths
 
 __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_obj", "scalar_of", "JET", "jet",
            "magma", "CMAPS", "stops", "colorbar", "render", "render_headless", "blender_executable",
-           "web_viewer", "serve", "turntable", "headless",
+           "web_viewer", "serve", "turntable", "headless", "figure_caption",
            "LIGHTING_PRESETS", "LightingPreset", "Dashboard", "field_view", "FieldView", "VIEW_MAX_FACES",
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface"]
@@ -51,6 +51,14 @@ def turntable(*a, **kw):
     :func:`pinneapple_tools.visualization.orbit.turntable`."""
     from ..orbit import turntable as _t
     return _t(*a, **kw)
+
+
+def figure_caption(*a, **kw):
+    """The caption a figure carries: field, unit, range, exaggeration, time, method and status; see
+    :func:`pinneapple_tools.visualization.caption.figure_caption`. A unit is required -- ``"-"`` is how a
+    dimensionless field says so."""
+    from ..caption import figure_caption as _f
+    return _f(*a, **kw)
 
 
 def headless(*a, **kw):

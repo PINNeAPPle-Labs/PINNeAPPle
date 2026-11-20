@@ -66,6 +66,10 @@ reads on a dark stage), `pp.viz.rod_surface(a, b, r)` for a ray, beam axis or su
 `scene.materials` to see through it). The colour maps are `pp.viz.CMAPS` (`jet`, `coolwarm`, `bwr`,
 `rdbu`, `magma`; `pp.viz.stops(name)` gives the table), the same ones the browser viewer draws from.
 
+On a server or in a container there is no display to render against: `pp.viz.headless()` says what this machine is
+missing and prints the commands that fix it, and [Rendering without a
+display](../guides/headless_rendering.md) is the recipe (xvfb, OSMesa, EGL and a ready image).
+
 ## Browser viewer
 
 `pp.viz.web_viewer(scene, folder)` writes `index.html`, `viewer.js`, `studio-core.js`, `scene.glb`, `scene.json` and

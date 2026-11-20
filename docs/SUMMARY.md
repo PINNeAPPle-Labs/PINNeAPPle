@@ -59,6 +59,7 @@
 * [Validation status](validation_status.md)
 * Guides
     * [Solve a problem: describe, solve twice, compare](guides/solve_a_problem.md)
+    * [Rendering without a display: xvfb, OSMesa, EGL and a container](guides/headless_rendering.md)
     * [Choosing a method: PINN, operator, graph network or solver](guides/choosing_a_method.md)
     * [Integral equations of the second kind](guides/integral_equations.md)
     * [Running a benchmark](guides/running_a_benchmark.md)

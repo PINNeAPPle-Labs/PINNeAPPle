@@ -16,7 +16,7 @@ MAKEFILE = ROOT / "Makefile"
 CONTRIBUTING = ROOT / "CONTRIBUTING.md"
 DEVCONTAINER = ROOT / ".devcontainer" / "devcontainer.json"
 
-TARGETS = {"setup", "test", "test-full", "lint", "gates", "docs", "clean"}
+TARGETS = {"setup", "test", "e2e", "test-full", "lint", "gates", "docs", "clean"}
 
 
 def _makefile_text() -> str:
@@ -25,7 +25,7 @@ def _makefile_text() -> str:
 
 def test_the_makefile_has_a_target_per_job():
     text = _makefile_text()
-    declared = set(re.findall(r"^([a-z][a-z-]*):", text, flags=re.M))
+    declared = set(re.findall(r"^([a-z][a-z0-9-]*):", text, flags=re.M))
     missing = TARGETS - declared
     assert not missing, f"Makefile is missing {sorted(missing)}"
     assert ".PHONY:" in text, "every target should be .PHONY: none of them names a file"
@@ -54,7 +54,7 @@ def test_the_fast_suite_in_the_makefile_is_the_one_contributing_documents():
 
 def test_contributing_documents_the_commands():
     contributing = CONTRIBUTING.read_text(encoding="utf-8")
-    for command in ("make setup", "make test", "make lint", "make gates"):
+    for command in ("make setup", "make test", "make e2e", "make lint", "make gates"):
         assert command in contributing, f"CONTRIBUTING.md does not mention `{command}`"
 
 

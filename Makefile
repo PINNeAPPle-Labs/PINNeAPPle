@@ -2,6 +2,7 @@
 #
 #   make setup        create .venv and install the package with its test extras
 #   make test         the fast suite: what has to pass before opening a pull request
+#   make e2e          the blocking end-to-end tier (#37): ten flows, input to kept artifact
 #   make test-full    everything, the same selection the full-suite workflow runs
 #   make lint         the ruff selection CI enforces (syntax-level, expected to pass)
 #   make lint-backlog the wider selection declared in pyproject.toml (a backlog, not a gate)
@@ -30,7 +31,7 @@ FAST = tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.p
        tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py \
        tests/test_turntable.py
 
-.PHONY: help setup test test-full lint lint-backlog gates docs clean
+.PHONY: help setup test e2e test-full lint lint-backlog gates docs clean
 
 help:
 	@grep -E '^[a-z-]+:' $(MAKEFILE_LIST) | grep -v '^\.' | awk -F: '{printf "  make %-13s\n", $$1}'
@@ -44,6 +45,12 @@ setup:
 
 test:
 	$(PY) -m pytest $(FAST) -q -p no:warnings
+
+# The blocking end-to-end tier (#37): ten flows from an input a user has to an artifact they keep, through the
+# public API only. Each flow carries its own wall-clock budget and the ten budgets sum to under ten minutes, which
+# is what makes this a tier that can block a merge. Measured at about 5 s together on an M-series laptop.
+e2e:
+	$(PY) -m pytest tests/e2e -q -p no:warnings
 
 test-full:
 	$(PY) -m pytest tests/ -q --continue-on-collection-errors -p no:warnings

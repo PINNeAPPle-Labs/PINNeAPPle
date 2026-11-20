@@ -595,9 +595,21 @@ def load(path: str | Path) -> Contract:
     return from_dict(data)
 
 
-def validate(data: dict[str, Any]) -> list[str]:
-    """Problems with a contract given as a dict (empty list when valid), one readable line each."""
+def validate(data: dict[str, Any] | Contract | str | Path) -> list[str]:
+    """Problems with a contract (empty list when valid), one readable line each.
+
+    ``data`` is the contract object, its dict, or the path to the JSON/YAML file -- the three forms a caller already
+    has. Passing the object used to come back as "not a PINNeAPPle contract (kind=None)", which is a confusing answer
+    to the most natural call, ``validate(DatasetSpec.load(p))``.
+    """
     from pydantic import ValidationError
+    if isinstance(data, Contract):
+        data = data.to_dict()
+    elif isinstance(data, (str, Path)):
+        try:
+            data = load(data).to_dict()
+        except (OSError, ValueError) as exc:
+            return [str(exc)]
     try:
         from_dict(data)
     except ValidationError as exc:

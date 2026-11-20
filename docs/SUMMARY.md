@@ -43,6 +43,7 @@
   * [Add something to PINNeAPPle: six extension points](dev/adding_to_pinneapple.md)
   * [Test shards: what blocks a pull request, and why the rest does not](dev/test_shards.md)
   * [Add a preset, end to end](dev/adding_a_preset.md)
+  * [D1 — the three problem specifications, reconciled](strategy/D1_problem_specs.md)
   * [Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry](dev/PHYSICS_AI_INTEROP.md)
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)

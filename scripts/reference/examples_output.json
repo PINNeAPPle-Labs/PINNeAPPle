@@ -140,10 +140,10 @@
   "stdout": "observed order 1.56, extrapolated 2.6013, GCI 0.49 %\ncoverage of a calibrated 90 % interval: 0.904\ncoverage of an over-confident one:      0.593"
  },
  "pinneapple_llm__0": {
-  "code_hash": "4ad473399cbe5328",
+  "code_hash": "98fbc155d7fbb072",
   "figures": [],
   "ok": true,
-  "seconds": 3.9,
+  "seconds": 1.7,
   "stderr": "",
   "stdout": "x^2 - y^2: residual check passed=True  (pde_residual, value 0)\nx^2 + y^2: residual check passed=False  (pde_residual, value 16)"
  },

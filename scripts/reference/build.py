@@ -194,7 +194,7 @@ def outline(node: dict) -> dict:
             "children": [outline(c) for c in node["children"]]}
 
 
-def main() -> None:
+def _build() -> None:
     os.makedirs(os.path.join(OUT, "data"), exist_ok=True)
     runs = json.load(open(os.path.join(HERE, "examples_output.json")))
     from run_examples import hash_code
@@ -241,6 +241,59 @@ def main() -> None:
             os.remove(os.path.join(OUT, "figures", f))
     print(f"{len(packages)} packages, {totals[0]} modules, {totals[1]} public classes and functions, "
           f"{totals[2]} examples -> {os.path.relpath(OUT, ROOT)}")
+
+
+def _stale_files(built: str, committed: str) -> list[str]:
+    """Files under the built reference that differ from the committed one.
+
+    Only the text artefacts are compared -- ``index.html`` and ``data/*.json``
+    -- because those are what ``build.py`` derives from the source. The figures
+    belong to ``run_examples.py`` and are not touched by a plain build.
+    """
+    stale = []
+    for name in ["index.html", *[f"data/{f}" for f in sorted(os.listdir(os.path.join(built, "data")))]]:
+        new_path = os.path.join(built, name)
+        old_path = os.path.join(committed, name)
+        new = open(new_path, encoding="utf-8").read() if os.path.isfile(new_path) else None
+        old = open(old_path, encoding="utf-8").read() if os.path.isfile(old_path) else None
+        if new != old:
+            stale.append(name)
+    for name in sorted(os.listdir(os.path.join(committed, "data"))):
+        rel = f"data/{name}"
+        if rel not in stale and not os.path.isfile(os.path.join(built, rel)):
+            stale.append(rel)  # a module or package disappeared from the source
+    return stale
+
+
+def main() -> None:
+    """``--check`` builds into a temporary directory and compares it with the
+    committed reference instead of overwriting it, so a pull request can fail
+    when the published API has drifted from the code (issue #451)."""
+    global OUT
+    check = "--check" in sys.argv[1:]
+    committed = OUT
+    if not check:
+        _build()
+        return
+    import tempfile
+
+    OUT = tempfile.mkdtemp(prefix="reference-check-")
+    os.makedirs(os.path.join(OUT, "figures"), exist_ok=True)
+    try:
+        _build()
+        stale = _stale_files(OUT, committed)
+    finally:
+        import shutil
+
+        shutil.rmtree(OUT, ignore_errors=True)
+        OUT = committed
+    if stale:
+        listing = "\n".join(f"  {name}" for name in stale)
+        raise SystemExit(
+            f"the committed module reference is out of date ({len(stale)} file(s)):\n{listing}\n\n"
+            "Run `python scripts/reference/build.py` and commit docs/org/reference/."
+        )
+    print("module reference is up to date with the source")
 
 
 if __name__ == "__main__":

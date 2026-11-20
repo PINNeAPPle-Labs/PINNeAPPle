@@ -1,5 +1,12 @@
 """Run the curated examples of the module reference: each in a fresh interpreter, with matplotlib on Agg; keep its
-printed output and save the figures it leaves open. ``python scripts/reference/run_examples.py [name ...]``."""
+printed output and save the figures it leaves open.
+
+    python scripts/reference/run_examples.py [name ...]           # run and record, writing figures
+    python scripts/reference/run_examples.py --check [name ...]   # run only; write nothing, exit 1 on any failure
+
+``--check`` is the pull-request gate from issue #451: it proves the curated
+examples still run against the current code without writing figures into the
+repository, so CI needs no image artefacts of its own."""
 from __future__ import annotations
 
 import json
@@ -48,10 +55,16 @@ def run_one(key: str, code: str, out_dir: str, timeout: int = 600) -> dict:
 
 
 def main(names: list[str]) -> None:
-    out_dir = os.path.join(ROOT, "docs", "org", "reference", "figures")
-    os.makedirs(out_dir, exist_ok=True)
+    check = "--check" in names
+    names = [n for n in names if not n.startswith("--")]
     cache_path = os.path.join(HERE, "examples_output.json")
     cache = json.load(open(cache_path)) if os.path.exists(cache_path) else {}
+    if check:
+        out_dir = tempfile.mkdtemp(prefix="reference-examples-")
+    else:
+        out_dir = os.path.join(ROOT, "docs", "org", "reference", "figures")
+        os.makedirs(out_dir, exist_ok=True)
+    failures = []
     for pkg in PACKAGES:
         for k, ex in enumerate(pkg.get("examples", [])):
             key = f"{pkg['name']}__{k}"
@@ -61,11 +74,18 @@ def main(names: list[str]) -> None:
                 if f.startswith(key + "_"):
                     os.remove(os.path.join(out_dir, f))
             r = run_one(key, ex["code"], out_dir)
-            cache[key] = {**r, "code_hash": hash_code(ex["code"])}
             status = "ok " if r["ok"] else "FAIL"
             print(f"{status} {key:40s} {r['seconds']:6.1f}s figs={len(r['figures'])}")
             if not r["ok"]:
+                failures.append(key)
                 print("   ", r["stderr"].splitlines()[-1] if r["stderr"] else "")
+            if not check:
+                cache[key] = {**r, "code_hash": hash_code(ex["code"])}
+    if check:
+        if failures:
+            raise SystemExit(f"{len(failures)} curated example(s) failed: {', '.join(failures)}")
+        print("every curated example ran")
+        return
     json.dump(cache, open(cache_path, "w"), indent=1, sort_keys=True)
 
 

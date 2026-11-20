@@ -88,6 +88,26 @@ the core when it is fully tested and used. See [docs/api_stability.md](docs/api_
   `docs/flow_studio/EXAMPLES_AS_FLOWS.md`): they are git-ignored and built where they are used. The commands that
   build them locally, and what is committed instead, are in [AGENTS.md](AGENTS.md#generated-files).
 
+### The module reference
+
+`docs/org/reference/` (published under `/PINNeAPPle/org/reference/`) is generated from the source, and it is
+committed. Two commands, and CI runs both:
+
+```bash
+python scripts/reference/run_examples.py           # only when you changed a curated example
+python scripts/reference/build.py                 # after any change to a public signature
+```
+
+A pull request that changes a public class, function or module and does not rebuild the reference fails the
+`Module reference` workflow with the list of stale files and the command to run. A pull request that breaks a
+curated example fails the same workflow, naming the example. Use `--check` on either script to verify without
+writing anything:
+
+```bash
+python scripts/reference/build.py --check
+python scripts/reference/run_examples.py --check [package ...]
+```
+
 ## Changelog
 Every user-visible change (new feature, bug fix, behavior change, removal) needs one entry, in the same pull
 request, as a **new file in [`changelog.d/`](changelog.d/README.md)**: `<slug>.<category>.md`, with category

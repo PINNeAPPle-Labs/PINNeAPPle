@@ -73,6 +73,14 @@ from .animation import (
     make_gif,
 )
 
+# Orbiting camera and advancing time in one call, GIF or MP4, 1080p (#64)
+from .orbit import (
+    DEFAULT_AZIMUTH,
+    DEFAULT_ORBIT,
+    DEFAULT_SIZE,
+    turntable,
+)
+
 from .vortex import (
     compute_vorticity_2d,
     compute_q_criterion_2d,
@@ -104,6 +112,8 @@ __all__ = [
     "plot_voxel_slice", "plot_voxel_3d", "plot_voxel_histogram",
     # Animation
     "animate_scalar_field", "animate_streamlines", "make_gif",
+    # Turntable (orbiting camera + time) and its defaults
+    "turntable", "DEFAULT_SIZE", "DEFAULT_ORBIT", "DEFAULT_AZIMUTH",
     # Vortex / Q-criterion
     "compute_vorticity_2d", "compute_q_criterion_2d",
     "compute_q_criterion_3d", "compute_lambda2_3d",

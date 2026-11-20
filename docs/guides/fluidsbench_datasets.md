@@ -146,11 +146,14 @@ scalar. The composite gives **25 % to the surface** (`surface_pressure_rel_l2`, 
 |---|---|---|---|---|
 | 11 (`super_scarce`) | 26.10 % | 26.98 % | **17.81 %** | 18.82 % |
 | 67 (`scarce`) | 22.76 % | 24.01 % | **15.37 %** | 16.40 % |
+| 400 (`full`) | 20.18 % | 20.15 % | **12.70 %** | 12.79 % |
 | the training mean of each field | 81.21 % | 88.18 % | 100 % | 100 % |
 
-  The wall shear is under its 20 % cap at both sizes; the pressure is not under its 15 % cap, and the trend with data
-  (26.1 → 22.8 % for six times the cases) is the honest statement about what more training cases would buy. The two
-  heads are normalised separately precisely because the shear is 500× smaller than the pressure.
+  The wall shear is under its 20 % cap at every size and keeps falling with data (17.8 → 15.4 → 12.7 %); the pressure
+  is not under its 15 % cap and falls far more slowly (26.1 → 22.8 → 20.2 %), which says the pressure side is limited by
+  the model rather than by the number of cases — each case is thinned to 120 000 of its ~1.2 M polygons, a tenth of the
+  available resolution. The two heads are normalised separately precisely because the shear is 500× smaller than the
+  pressure.
 - **what is implemented and tested:** `pinneapple_simulation.pipelines.ahmedml` — the `.vtp` reader (VTK's own, because
   the connectivity array is not something to hand-parse), both reductions for both fields with the spec's vector rule,
   the macro average, the area-weighted fit, and a prediction path that needs no truth. Eight tests, none of which needs

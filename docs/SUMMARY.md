@@ -58,6 +58,7 @@
   * [Reduced-order models](core_concepts/reduced_order_models.md)
 * [Validation status](validation_status.md)
 * Guides
+    * [Solve a problem: describe, solve twice, compare](guides/solve_a_problem.md)
     * [Choosing a method: PINN, operator, graph network or solver](guides/choosing_a_method.md)
     * [Integral equations of the second kind](guides/integral_equations.md)
     * [Running a benchmark](guides/running_a_benchmark.md)

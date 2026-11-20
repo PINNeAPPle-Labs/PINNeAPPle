@@ -163,14 +163,26 @@ class PhysicalProblem:
         return {k: p for k, p in self.parameters.items() if p.role == role}
 
     def with_parameters(self, **values: float) -> "PhysicalProblem":
-        """A copy with new parameter values (unknown names raise, so typos do not pass silently)."""
+        """A copy with new parameter values (unknown names raise, so typos do not pass silently).
+
+        The copy in ``pde.params`` moves with them: a stale entry there would make ``to_pde_spec()`` -- which
+        writes the current values -- describe a different problem from the one that was just built, so
+        ``from_pde_spec(to_pde_spec(problem))`` came back with a different fingerprint and anything reading
+        ``pde.params`` directly saw the value the preset shipped instead of the override.
+        """
         missing = sorted(set(values) - set(self.parameters))
         if missing:
             raise KeyError(f"unknown parameter(s) {missing}; known: {sorted(self.parameters)}")
         params = dict(self.parameters)
+        pde = self.pde
+        pde_params = None if pde is None else dict(pde.params)
         for k, v in values.items():
             params[k] = replace(params[k], value=v)
-        return replace(self, parameters=params)
+            if pde_params is not None and k in pde_params and _is_number(pde_params[k]):
+                pde_params[k] = v
+        if pde is not None and pde_params is not None and pde_params != dict(pde.params):
+            pde = replace(pde, params=pde_params)
+        return replace(self, parameters=params, pde=pde)
 
     def set_role(self, name: str, role: str, *, bounds: Optional[Tuple[float, float]] = None,
                  distribution: Optional[Dict[str, Any]] = None) -> "PhysicalProblem":

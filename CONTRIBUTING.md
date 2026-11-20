@@ -85,6 +85,7 @@ pip install -e ".[dev]"
 
 ```bash
 make test      # the fast suite, the list below
+make e2e       # the blocking end-to-end tier: ten flows, input to kept artifact (#37)
 pytest tests/  # everything
 ```
 
@@ -97,6 +98,12 @@ pytest tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.p
 
 The fast suite is deliberately short: anything that trains a network, renders an image or needs an external solver
 belongs to `make test-full`, so the answer to "can I open a pull request" arrives in under a minute.
+
+`make e2e` (`tests/e2e/`) asks a different question: not "is this function right" but "does the product work", from a
+problem, an equation in a text, a parameter space or a plant record to a number or a file a user keeps. Each of the ten
+flows carries its own wall-clock budget and the ten budgets sum to under ten minutes, which is what lets the tier block
+a merge; the measured time is about five seconds. Touch the public API of something a flow uses and run it — the tier
+exists because a flow that stops working rarely breaks a unit test.
 
 ## Lint / format
 

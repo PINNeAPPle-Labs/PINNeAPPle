@@ -41,6 +41,15 @@ jobs:
           pinneapple card burgers_1d --json > /dev/null
           pinneapple recommend "heat sink cooled by a fan" > /dev/null
 
+      # The blocking end-to-end tier (#37): ten flows, each from an input a user has to an artifact they keep, with
+      # its own wall-clock budget. It answers "does the product work", which no unit suite does, so it runs here
+      # rather than in full-suite.yml. Nothing in the tier may skip: the dependencies the flows import are installed
+      # below instead of being skipped over (scipy for the twin, torch for the surrogate design, pandas for tables).
+      - name: End-to-end tier — ten flows from input to kept artifact (must pass)
+        run: |
+          pip install scipy pandas
+          pytest tests/e2e -q -p no:warnings -rA
+
       - name: PINNeAPPle-apps case studies — margin study, recession twin, thin airfoil, two apps (must pass)
         run: |
           pytest tests/test_margin_study.py tests/test_river_recession.py tests/test_thin_airfoil.py tests/test_app_verification_gap.py tests/test_app_predictive_twin.py -q

@@ -205,8 +205,13 @@ def curve_coefficients(pressure: np.ndarray, slope: np.ndarray, cells: np.ndarra
 
 
 def curve_features(airfoil_points: np.ndarray, airfoil_normals: np.ndarray, freestream: Sequence[float],
-                   inlet_velocity: float, shape: bool = False) -> np.ndarray:
-    """The network's eleven input channels evaluated on the airfoil curve itself (``sdf = 0``, ``surface = 1``)."""
+                   inlet_velocity: float, shape: bool = False, panel: bool = False,
+                   panel_pressure: bool = True) -> np.ndarray:
+    """The network's eleven input channels evaluated on the airfoil curve itself (``sdf = 0``, ``surface = 1``).
+
+    ``panel`` adds the case's inviscid field on those same nodes, which is what a panel-conditioned model expects: the
+    force term reads the curve through the same network as the field, so the two feature blocks have to describe the
+    same channels or the force term cannot run at all."""
     from .features import point_features
 
     points = np.asarray(airfoil_points, float)
@@ -214,7 +219,7 @@ def curve_features(airfoil_points: np.ndarray, airfoil_normals: np.ndarray, free
     count = len(points)
     raw = np.concatenate([points, np.zeros((count, 1)), normals, np.ones((count, 1)),
                           np.tile(np.asarray(freestream, float).reshape(1, 2) / inlet_velocity, (count, 1))], axis=1)
-    return point_features(raw, points, shape=shape)
+    return point_features(raw, points, shape=shape, panel=panel, panel_pressure=panel_pressure)
 
 
 def curve_projection(slope: np.ndarray, features: np.ndarray, bins: int = 33, smooth: bool = True) -> np.ndarray:

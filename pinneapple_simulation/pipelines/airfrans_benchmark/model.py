@@ -4,7 +4,7 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from .features import FEATURE_NAMES
+from .features import FEATURE_NAMES, PANEL_FEATURES
 
 __all__ = ["CoordinateNet", "WallAwareNet", "physics_loss", "wall_layer_profile", "flat_plate_slope"]
 
@@ -47,9 +47,9 @@ class CoordinateNet(nn.Module):
     One architecture, deliberately: the campaign exists to measure what a cheap, well-conditioned coordinate network
     does on a benchmark whose leaders are much larger models, not to compete with them on parameter count."""
 
-    def __init__(self, width: int = 256, depth: int = 4):
+    def __init__(self, width: int = 256, depth: int = 4, panel: bool = False):
         super().__init__()
-        layers, last = [], len(FEATURE_NAMES)
+        layers, last = [], len(FEATURE_NAMES) + (PANEL_FEATURES if panel else 0)
         for _ in range(depth):
             layers += [nn.Linear(last, width), nn.SiLU()]
             last = width
@@ -107,10 +107,11 @@ class WallAwareNet(nn.Module):
 
     def __init__(self, width: int = 512, depth: int = 4, fourier: int = 4, wall_layer: float = 5e-5,
                  slope_scale: float = 1e-3, shape_features: int = 0, slope_detach: bool = True,
-                 slope_prior: bool = False):
+                 slope_prior: bool = False, panel: bool = False):
         super().__init__()
         self.width, self.depth, self.fourier = width, depth, fourier
         self.shape_features = shape_features
+        self.panel = panel
         # with the prior the readout predicts a log-correction to the flat-plate law instead of the slope itself: its
         # output is O(1) and its target is bounded, which is the whole point — see flat_plate_slope
         self.slope_prior = slope_prior
@@ -123,7 +124,8 @@ class WallAwareNet(nn.Module):
         # the true scaled slope is O(10³); the head is asked for ``slope_scale`` times it, so it starts in a
         # well-conditioned range instead of having to grow its output by three orders of magnitude first
         self.register_buffer("slope_scale", torch.tensor(float(slope_scale)))
-        self.embed = nn.Linear(len(FEATURE_NAMES) + shape_features + 4 * fourier, width)
+        raw_features = len(FEATURE_NAMES) + (PANEL_FEATURES if panel else 0)
+        self.embed = nn.Linear(raw_features + shape_features + 4 * fourier, width)
         self.blocks = nn.ModuleList([nn.Sequential(nn.Linear(width, width), nn.SiLU(),
                                                    nn.Linear(width, width), nn.SiLU()) for _ in range(depth)])
         self.head_velocity = nn.Sequential(nn.Linear(width, width), nn.SiLU(), nn.Linear(width, 2))
@@ -131,7 +133,7 @@ class WallAwareNet(nn.Module):
         # a linear probe on those channels reaches 74 % of the wall slope, a standalone 256-wide MLP 60 %, and a head
         # reading the trunk output 330 % — the shared encoder smooths away exactly the near-wall detail this needs,
         # and letting its gradients into the trunk costs the field. Two networks, two jobs.
-        input_features = len(FEATURE_NAMES) + shape_features
+        input_features = raw_features + shape_features
         self.slope_width = 256
         # per-feature standardisation, not per-sample: LayerNorm across the channels mixes the 64 shape bins with the
         # local geometry and loses the magnitudes that carry the information — measured, that alone was the difference

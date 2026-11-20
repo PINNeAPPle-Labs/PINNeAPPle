@@ -146,6 +146,86 @@ least-squares gradient reads, which is the sharpest evidence in this campaign th
 things: `Cd` is a chord-scale integral, the wall shear is a local derivative. `curve_projection` and
 `campaign/eval_wall_curve.py` reproduce it.
 
+**Where the field error lives, and the prior that answers it.** Nineteen of twenty points of this campaign's gap to the
+first entry of the leaderboard sit in two components: the domain velocity (3.94 % against 0.42 %) and the wall shear
+(36.95 % against 1.22 %). Measured against the distance to the surface, the velocity error is not spread out — 47 % of
+the release's nodes are within 0.01 chords of the wall and they carry **89.5 % of the error energy** (5.79 % relative L2
+there against 1.61 % in the far field), and the far field carries 3.3 % of it. The leader's own `submission.json` says
+what it does about that: a *potential-flow (panel-method) prior as an input*. The reason it works is that the outer
+problem has a closed form — the edge velocity, the pressure and the far field are inviscid — so a network given that
+field only has to learn the viscous correction, which is what the boundary layer is.
+
+`:mod:`.panel` is that prior, written and validated before it is used. It is the constant-strength source plus
+constant-strength vortex method (Hess–Smith): one unknown source strength per panel, one vortex strength for the body,
+no penetration at every panel midpoint. Its checks are against closed forms, in the repository's test suite:
+
+- the exact circular-cylinder solution to **0.17 % at 60 panels and 0.046 % at 240**, in the same measure the
+  repository's `examples/fluidsbench_airfrans` uses, and **identically for either contour orientation** — the solve
+  normalises the direction, and a contour walked the other way is the same body;
+- Kutta–Joukowski: the lift integrated from the solved pressure is `2Γ/(U·c)` to 0.02 over unity chord;
+- on a NACA 0012 the surface pressure peaks at `Cp = −0.41` at zero incidence and `−5.4` at ten degrees, against the
+  textbook `−0.45` and `−5.5`, and the no-penetration residual on the collocation points is 3·10⁻⁴ of the freestream
+  (the trailing-edge corner, where the potential field is genuinely singular, is the only exception);
+- the wall the prior shares with the target is exact: `|v·n|` at the collocation points is 8·10⁻¹³ of the freestream,
+  because the circulation enters the *solve* rather than being added to the field afterwards.
+
+Four things about it were measured rather than assumed, and three of them were the intuitive answer's opposite:
+
+- **The circulation must be inside the solve.** Adding the vortex sheet to the sources' field afterwards leaves the wall
+  open by an amount of the order of the freestream (measured: eight times it), because the sheet induces a normal
+  velocity of its own that nothing cancels. It is a one-line change to the right-hand side and it is the difference
+  between a prior and noise.
+- **The self-influence has a side.** A collocation point lies exactly on its own panel, where the induced normal
+  velocity is ±½ depending on which side the point is approached from. The analytic influence coefficients in this
+  module's own frame therefore carry a sign, and hard-coding the diagonal as +½ makes the *solve* and the *evaluation*
+  disagree by a whole panel strength. With the diagonal taken from the coefficients — the fluid side, pinned to −0
+  before the sign of a rounding residue can decide it — the residual above falls from 4·`U∞` to 8·10⁻¹³.
+- **Uniform panels beat panels clustered at the edges.** The cosine spacing that resolves a leading-edge singularity is
+  the obvious choice and the worse one: on 125 cases of the release the lift error is **0.035 median uniform against
+  0.041 clustered**, and the worst case is **0.25 against 3.45** — the clustered contour shortens its leading-edge
+  panels below the release's own node spacing and the solve has less to work with, not more.
+- **The contour is the whole problem, and the field is not the symptom when it goes wrong.** Two constructions that
+  look right — ordering the cloud by the angle around the chord's midpoint, and ordering each surface by chord
+  position — cross the contour over itself on the more distorted sections, and the field they solve is off by five
+  orders of magnitude while still being finite, smooth and plausible. What catches it is the algebra: with the wall
+  condition imposed and the self-term consistent, `|v·n|` at the collocation points is `8·10⁻¹³` of the freestream.
+  Against the release's own coefficients the prior's lift correlates at **0.996** over 167 cases, with a median error of
+  0.041 on a range of 2.4, and the 1 000 sections' no-penetration systems are conditioned at 18 (median) and 1.7·10⁴
+  (worst) — a plain solve, exactly.
+
+The prior is three extra input channels — the inviscid velocity in units of the freestream and the kinematic pressure in
+units of its dynamic head, which is exactly the scaling the targets use — so a network that starts from it predicts a
+correction in its own output units. `point_features(..., panel=True)` appends them, `CoordinateNet(..., panel=True)` and
+`WallAwareNet(..., panel=True)` take them, and `TrainingSpec.panel` / `WallSpec.panel` carry the flag into the recorded
+methodology, the feature cache key and the checkpoint, so a model trained with the prior cannot be loaded without it.
+The velocity is clipped at 4.5 times the freestream: the release's own flow never exceeds 4.2 (its lowest pressure is
+−8.7 U²), and the discretised corner at the leading edge reaches 28 times it on 0.2 % of the nodes.
+
+**And on this pipeline it does not help — which is the measurement that decides whether the two points of gap above
+are worth more work.** Two arms, same split, same seed, same budget (200 cases, Fourier and shape channels, scored on
+the 20-case holdout):
+
+| budget | arm | velocity | pressure | p surface | wall shear | `Cd R²` |
+|---|---|---|---|---|---|---|
+| 16 epochs, 4 096 pts | without | 12.87 % | 10.95 % | 5.55 % | 82.7 % | −8.65 |
+| 16 epochs, 4 096 pts | with | 12.45 % | 24.50 % | 22.40 % | 60.9 % | −4.24 |
+| 28 + 16 epochs, 6 144 pts | without | 7.66 % | 4.75 % | 5.26 % | 127.3 % | −3.08 |
+| 28 + 16 epochs, 6 144 pts | with | 8.68 % | 27.57 % | 11.77 % | 46.1 % | −1.78 |
+| 28 epochs, no refit | without | 8.02 % | 4.75 % | 5.26 % | 38.2 % | −1.89 |
+| 28 epochs, no refit | with | 9.21 % | 27.57 % | 11.77 % | 46.6 % | −1.44 |
+
+The wall, the drag and the lift improve with the prior; the *field* gets worse, and the pressure worst of all. Dropping
+the prior's pressure channel does not fix it (26.0 % against 10.9 % at the short budget), so it is not that one channel.
+The reason is measurable and it is the opposite of the leaderboard's situation: **the prior is a worse answer than the
+network already gives**. Its absolute error is 4.4 % of the freestream in the far field and 0.72 U inside one percent of
+chord, against 1.61 % and 5.79 % for this pipeline's own field — an inviscid field two to three times further from the
+truth than the prediction it is offered to. For an entry at 0.42 % velocity it is a starting point; for one at
+1.6–5.8 % it is a second thing to learn around. The gap to the leader is therefore not the prior, and closing it means
+a field whose error is already below the prior's — which is the architecture question, not the feature question.
+
+The flag is off by default, the four measurements above are the argument for leaving it that way, and `--panel` /
+`--no-panel-pressure` in the campaign reproduce either arm.
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.
@@ -164,3 +244,4 @@ things: `Cd` is a chord-scale integral, the wall shear is a local derivative. `c
   reference (potential flow around a cylinder), with no dataset download.
 - `pinneapple-engineering-api` exposes this pipeline as the `engineering.fluidsbench_campaign` job capability
   (`POST /v1/fluidsbench/jobs`).
+- `pinneapple_simulation/pipelines/airfrans_benchmark/panel.py` — the inviscid prior, and the four measurements above.

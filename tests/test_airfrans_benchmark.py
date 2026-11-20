@@ -444,3 +444,203 @@ def test_the_curve_projection_is_evaluated_off_the_wall_too():
     projected = curve_projection(slope, features, bins=1, smooth=False)
     assert np.allclose(projected[1:, 0], 4.0)             # the wall's curve reaches the band
     assert np.allclose(projected[1:, 1], 0.0)
+
+
+def _circle_segments(count, counter_clockwise=True):
+    angle = np.linspace(0.0, 2.0 * np.pi, count, endpoint=False) * (1.0 if counter_clockwise else -1.0)
+    points = np.stack([0.5 * np.cos(angle), 0.5 * np.sin(angle)], axis=1)
+    return points, np.roll(points, -1, axis=0)
+
+
+def _exact_cylinder(points, speed):
+    """Potential flow past a cylinder of radius ½: the closed form the panel solve is checked against."""
+    radius2 = np.einsum("ij,ij->i", points, points)
+    radius = np.sqrt(radius2)
+    theta = np.arctan2(points[:, 1], points[:, 0])
+    radial = speed * np.cos(theta) * (1.0 - 0.25 / radius2)
+    tangential = -speed * np.sin(theta) * (1.0 + 0.25 / radius2)
+    cosine, sine = points[:, 0] / radius, points[:, 1] / radius
+    velocity = np.stack([radial * cosine - tangential * sine, radial * sine + tangential * cosine], axis=1)
+    return velocity, 0.5 * (speed * speed - radial ** 2 - tangential ** 2)
+
+
+def test_the_panel_solve_reproduces_the_exact_cylinder_in_either_orientation():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import panel_flow
+
+    rng = np.random.default_rng(7)
+    angle, radius = rng.uniform(0.0, 2.0 * np.pi, 300), rng.uniform(0.75, 4.0, 300)
+    where = np.stack([radius * np.cos(angle), radius * np.sin(angle)], axis=1)
+    exact_velocity, exact_pressure = _exact_cylinder(where, 6.0)
+    errors = {}
+    for counter_clockwise in (True, False):
+        first, second = _circle_segments(240, counter_clockwise)
+        flow = panel_flow(first, second, np.array([6.0, 0.0]), where)
+        errors[counter_clockwise] = float(np.mean(
+            np.linalg.norm(flow["velocity"] - exact_velocity, axis=1) / np.linalg.norm(exact_velocity, axis=1)))
+        assert np.mean(np.abs(flow["pressure"] - exact_pressure)) / np.abs(exact_pressure).max() < 0.005
+    # a contour walked the other way is the same body: the solve normalises the orientation, and if it did not the
+    # self-influence would land on the wrong side of the sheet and the error would be two orders of magnitude larger
+    assert errors[True] < 0.005 and errors[False] < 0.005
+    assert abs(errors[True] - errors[False]) < 1e-6
+
+
+def test_the_panel_solve_is_refined_by_more_panels():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import panel_flow
+
+    where = np.array([[1.0, 0.0], [0.0, 2.0], [-3.0, 0.5], [2.0, -2.0]])
+    exact_velocity, _ = _exact_cylinder(where, 6.0)
+    errors = []
+    for count in (60, 240):
+        first, second = _circle_segments(count)
+        flow = panel_flow(first, second, np.array([6.0, 0.0]), where)
+        errors.append(float(np.mean(np.linalg.norm(flow["velocity"] - exact_velocity, axis=1))))
+    assert errors[1] < errors[0] / 2.0
+
+
+def test_a_section_without_circulation_carries_no_lift_and_the_prescribed_one_does():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import panel_flow
+
+    angle = np.linspace(0.0, np.pi, 200)
+    chord = 0.5 * (1.0 - np.cos(angle))
+    thickness = 5 * 0.12 * (0.2969 * np.sqrt(chord) - 0.1260 * chord - 0.3516 * chord ** 2
+                            + 0.2843 * chord ** 3 - 0.1015 * chord ** 4)
+    cloud = np.concatenate([np.stack([chord, thickness], axis=1), np.stack([chord, -thickness], axis=1)])
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import (
+        _chord_frame,
+        airfoil_contour,
+    )
+    contour = airfoil_contour(cloud, 160, _chord_frame(cloud))
+    first, second = contour, np.roll(contour, -1, axis=0)
+    length = np.linalg.norm(second - first, axis=1)
+    direction = (second - first) / length[:, None]
+    normal = np.stack([direction[:, 1], -direction[:, 0]], axis=1)
+    mids = 0.5 * (first + second)
+
+    def lift(circulation):
+        flow = panel_flow(first, second, np.array([30.0, 0.0]), mids, circulation=circulation)
+        force = -np.sum(flow["pressure"][:, None] * normal * length[:, None], axis=0)
+        return float(force[1] / (0.5 * 30.0 ** 2 * 1.0))
+
+    assert abs(lift(None)) < 0.02                       # a source-only solve cannot lift
+    # Kutta–Joukowski: the section's lift is rho·U·Γ, so c_l = 2Γ/(U·c) — a closed form the pressure integral from the
+    # solved field has to reproduce
+    for circulation in (3.0, -3.0):
+        assert abs(lift(circulation) - 2.0 * circulation / 30.0) < 0.08
+    assert lift(3.0) < lift(None) or abs(lift(3.0)) > 10.0 * abs(lift(None))
+
+
+def test_the_contour_is_rebuilt_from_an_unordered_cloud_as_one_closed_counter_clockwise_section():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import (
+        _chord_frame,
+        airfoil_contour,
+    )
+
+    angle = np.linspace(0.0, np.pi, 400)
+    chord = 0.5 * (1.0 - np.cos(angle))
+    camber = 0.02 * np.where(chord < 0.4, (2 * 0.4 * chord - chord ** 2) / 0.16,
+                             (0.2 + 0.8 * chord - chord ** 2) / 0.36)
+    thickness = 5 * 0.12 * (0.2969 * np.sqrt(chord) - 0.1260 * chord - 0.3516 * chord ** 2
+                            + 0.2843 * chord ** 3 - 0.1015 * chord ** 4)
+    cloud = np.concatenate([np.stack([chord, camber + thickness], axis=1),
+                            np.stack([chord, camber - thickness], axis=1)])
+    shuffled = cloud[np.random.default_rng(3).permutation(len(cloud))]
+
+    contour = airfoil_contour(shuffled, 160, _chord_frame(shuffled))
+    assert contour.shape == (160, 2) and np.isfinite(contour).all()
+    step = np.linalg.norm(np.roll(contour, -1, axis=0) - contour, axis=1)
+    assert 1.9 < step.sum() < 2.2                      # two chords of surface plus the thickness
+    assert step.min() > 1e-5                           # no coincident panel, which would make the solve singular
+    area = 0.5 * np.sum(contour[:, 0] * np.roll(contour[:, 1], -1) - np.roll(contour[:, 0], -1) * contour[:, 1])
+    assert area > 0.0                                  # counter-clockwise, so [dy, -dx] is outward for every caller
+
+
+def test_the_camber_line_gives_the_thin_airfoil_zero_lift_angle():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import (
+        _chord_frame,
+        airfoil_contour,
+        camber_line,
+        zero_lift_angle,
+    )
+
+    # a circular-arc mean line of camber h has α_L0 = −2h: the classic check of the formula. The section is given a
+    # small thickness because the mean line is the mean of *two* surfaces, and a section with one has no camber line
+    angle = np.linspace(0.0, np.pi, 600)
+    chord = 0.5 * (1.0 - np.cos(angle))
+    thickness = 5 * 0.04 * (0.2969 * np.sqrt(chord) - 0.1260 * chord - 0.3516 * chord ** 2
+                            + 0.2843 * chord ** 3 - 0.1015 * chord ** 4)
+    for camber in (0.02, 0.04):
+        mean = 4.0 * camber * chord * (1.0 - chord)
+        cloud = np.concatenate([np.stack([chord, mean + thickness], axis=1),
+                                np.stack([chord, mean - thickness], axis=1)])
+        frame = _chord_frame(cloud)
+        contour = airfoil_contour(cloud, 160, frame)
+        x, line = camber_line(contour, frame)
+        assert len(x) > 60
+        # the mean line, less whatever constant the frame puts under it
+        assert np.abs((line - line[0]) - (4.0 * camber * x * (1.0 - x) * 1.0
+                                          - 4.0 * camber * x[0] * (1.0 - x[0]))).max() < 6e-3
+        # −2h is the thin-airfoil value; the extraction recovers about 70 % of it, and the 30 % it loses is the aft
+        # percent of the chord, which carries most of the integral's weight and is where the two surfaces are closest
+        # and the difference between them least resolvable. It moves the prescribed lift by a few percent, which is
+        # measured directly against the release's own coefficients elsewhere
+        assert 0.5 * (-2.0 * camber) > zero_lift_angle(contour, frame) > 1.6 * (-2.0 * camber)
+
+
+def test_the_prior_is_the_inviscid_field_in_the_networks_own_units():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import panel_prior
+
+    rng = np.random.default_rng(11)
+    angle = np.linspace(0.0, np.pi, 300)
+    chord = 0.5 * (1.0 - np.cos(angle))
+    thickness = 5 * 0.12 * (0.2969 * np.sqrt(chord) - 0.1260 * chord - 0.3516 * chord ** 2
+                            + 0.2843 * chord ** 3 - 0.1015 * chord ** 4)
+    cloud = np.concatenate([np.stack([chord, thickness], axis=1), np.stack([chord, -thickness], axis=1)])
+    where = np.stack([rng.uniform(-6.0, 6.0, 400), rng.uniform(-6.0, 6.0, 400)], axis=1)
+    where = where[np.hypot(where[:, 0] - 0.5, where[:, 1]) > 0.6]
+    features = np.zeros((len(where), 8))
+    features[:, 0:2] = where
+    features[:, 2] = np.hypot(where[:, 0] - 0.5, where[:, 1]) - 0.5
+    features[:, 6], features[:, 7] = 30.0, 0.0
+
+    prior = panel_prior(features, cloud, 160)
+    assert prior.shape == (len(where), 3) and prior.dtype == np.float32 and np.isfinite(prior).all()
+    speed = np.linalg.norm(prior[:, :2], axis=1)
+    # in the far field the prior is the freestream, and off-body it never beats it by much
+    far = np.hypot(where[:, 0] - 0.5, where[:, 1]) > 3.0
+    assert np.abs(speed[far] - 1.0).mean() < 0.02
+    # Bernoulli holds across the three channels, in the scaling the targets use (p / Uinf²)
+    assert np.abs(prior[:, 2] - 0.5 * (1.0 - speed ** 2)).max() < 1e-6
+    assert speed.max() <= 4.5 + 1e-5
+
+
+def test_the_panel_channels_extend_the_feature_block_without_moving_the_others():
+    from pinneapple_simulation.pipelines.airfrans_benchmark import PANEL_FEATURES
+
+    angle = np.linspace(0.0, np.pi, 200)
+    chord_line = 0.5 * (1.0 - np.cos(angle))
+    thickness = 5 * 0.12 * (0.2969 * np.sqrt(chord_line) - 0.1260 * chord_line - 0.3516 * chord_line ** 2
+                            + 0.2843 * chord_line ** 3 - 0.1015 * chord_line ** 4)
+    cloud = np.concatenate([np.stack([chord_line, thickness], axis=1),
+                            np.stack([chord_line, -thickness], axis=1)])
+    features = np.zeros((50, 8))
+    features[:, 0] = np.linspace(0.1, 2.0, 50)
+    features[:, 1] = np.linspace(0.05, 0.5, 50)
+    features[:, 2] = np.linspace(0.01, 1.0, 50)
+    features[:, 6], features[:, 7] = 30.0, 0.0
+
+    base = point_features(features, cloud)
+    with_panel = point_features(features, cloud, panel=True)
+    assert base.shape[1] == len(FEATURE_NAMES)
+    assert with_panel.shape[1] == len(FEATURE_NAMES) + PANEL_FEATURES
+    assert np.array_equal(with_panel[:, :len(FEATURE_NAMES)], base)
+    assert np.abs(with_panel[:, len(FEATURE_NAMES):]).max() > 0.0
+
+
+def test_both_networks_accept_the_panel_channels():
+    from pinneapple_simulation.pipelines.airfrans_benchmark import PANEL_FEATURES
+    from pinneapple_simulation.pipelines.airfrans_benchmark.model import WallAwareNet
+
+    for model in (CoordinateNet(16, 2, panel=True),
+                  WallAwareNet(16, 2, fourier=0, panel=True, shape_features=4)):
+        x = torch.zeros(5, len(FEATURE_NAMES) + PANEL_FEATURES + (4 if isinstance(model, WallAwareNet) else 0))
+        assert model(x).shape == (5, 3)

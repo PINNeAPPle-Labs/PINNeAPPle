@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["WALL_FRACTION", "SHAPE_BINS", "SHAPE_FEATURES", "chord", "shape_descriptor", "point_features",
-           "scaled_targets", "sample_indices", "FEATURE_NAMES"]
+from .panel import PANEL_CHANNELS, panel_prior
+
+__all__ = ["WALL_FRACTION", "SHAPE_BINS", "SHAPE_FEATURES", "PANEL_FEATURES", "chord", "shape_descriptor",
+           "point_features", "scaled_targets", "sample_indices", "FEATURE_NAMES"]
 
 #: share of each training sample taken from the wall and the boundary-layer band
 WALL_FRACTION = 0.25
@@ -19,6 +21,9 @@ SHAPE_BINS = 32
 
 #: length of :func:`shape_descriptor` — the per-case channels appended when a model is shape-conditioned
 SHAPE_FEATURES = 2 * SHAPE_BINS
+
+#: the invariant field of the case's own inviscid flow, appended when a model is panel-conditioned
+PANEL_FEATURES = len(PANEL_CHANNELS)
 
 #: the input channels, in the order :func:`point_features` returns them
 FEATURE_NAMES = ("x_over_chord", "y_over_chord", "sdf_over_chord", "log_sdf", "normal_x", "normal_y", "surface",
@@ -55,11 +60,19 @@ def shape_descriptor(airfoil_points: np.ndarray, bins: int = SHAPE_BINS) -> np.n
     return np.nan_to_num(np.concatenate([upper, lower]), nan=0.0).astype(np.float32)
 
 
-def point_features(features: np.ndarray, airfoil_points: np.ndarray, shape: bool = False) -> np.ndarray:
+def point_features(features: np.ndarray, airfoil_points: np.ndarray, shape: bool = False,
+                   panel: bool = False, panel_pressure: bool = True) -> np.ndarray:
     """The eleven input channels from the AirfRANS per-point features ``(x, y, sdf, n_x, n_y, surface, ux, uy)``.
 
     The signed distance enters twice: divided by the chord, and as a signed logarithm, which is what lets a network
-    resolve the first few percent of the chord where the wall gradients live."""
+    resolve the first few percent of the chord where the wall gradients live.
+
+    ``panel`` appends the case's own inviscid field from :func:`~.panel.panel_prior` — the velocity and the pressure a
+    panel method gives at each node, in the same units as the targets. It is the difference between asking a network to
+    learn a field and asking it to learn the *viscous correction* to one, which is what the first entry of the
+    FluidsBench leaderboard does and the reason its velocity error is 0.42 % against our 3.94 %. ``shape`` appends the
+    global descriptor after it, so the channels are ``FEATURE_NAMES``, then :data:`PANEL_FEATURES`, then
+    ``SHAPE_FEATURES``."""
     features = np.asarray(features, float)
     x, y, sdf, nx, ny, surface, ux, uy = (features[:, i] for i in range(8))
     c = chord(airfoil_points)
@@ -68,6 +81,8 @@ def point_features(features: np.ndarray, airfoil_points: np.ndarray, shape: bool
     scaled = sdf / c
     block = np.stack([x / c, y / c, scaled, np.log1p(np.abs(scaled)) * np.sign(scaled), nx, ny, surface,
                       ux / u_inf, uy / u_inf, np.log(u_inf), np.ones_like(x)], axis=1).astype(np.float32)
+    if panel:
+        block = np.concatenate([block, panel_prior(features, airfoil_points, pressure=panel_pressure)], axis=1)
     if shape:
         block = np.concatenate([block, np.tile(shape_descriptor(airfoil_points), (len(block), 1))], axis=1)
     return block

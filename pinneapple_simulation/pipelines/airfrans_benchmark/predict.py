@@ -44,9 +44,10 @@ def predict_cases(store: str, weights: str, case_ids: Sequence[str], entry_dir: 
         model = WallAwareNet(payload["width"], payload["depth"], payload.get("fourier", 0),
                              payload.get("wall_layer", 5e-5), shape_features=payload.get("shape_features", 0),
                              slope_detach=payload.get("slope_detach", True),
-                             slope_prior=bool(payload.get("slope_prior", False)))
+                             slope_prior=bool(payload.get("slope_prior", False)),
+                             panel=bool(payload.get("panel", False)))
     else:
-        model = CoordinateNet(payload["width"], payload["depth"])
+        model = CoordinateNet(payload["width"], payload["depth"], panel=bool(payload.get("panel", False)))
     model.eval().to(device)
     model.load_state_dict(payload["state_dict"])
     out_dir = os.path.join(entry_dir, "predictions")
@@ -62,7 +63,8 @@ def predict_cases(store: str, weights: str, case_ids: Sequence[str], entry_dir: 
             features = data["features"]
             airfoil = data["airfoil_points"]
             inlet = float(data["inlet_velocity"][0])
-        feats = point_features(features, airfoil, shape=bool(payload.get("shape_features")))
+        feats = point_features(features, airfoil, shape=bool(payload.get("shape_features")),
+                               panel=bool(payload.get("panel", False)))
         chunks = []
         with torch.no_grad():
             for start in range(0, len(feats), spec.chunk):

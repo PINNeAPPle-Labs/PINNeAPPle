@@ -11,8 +11,8 @@ package twice, with :mod:`pinneapple_arena.fluidsbench` and with an independent 
     spec = CampaignSpec(dataset_root="…/Dataset", support_root="…/support/airfrans", checkout="…/fluidsbench-submission")
     result = run_campaign(spec, "work/airfrans-full", submission_id="my-model-full-v1", split_id="full")
 
-Modules: :mod:`.data` (the release, case by case), :mod:`.features` (the eleven input channels), :mod:`.model` (the
-network and its physics residuals), :mod:`.train`, :mod:`.predict`, :mod:`.entry` (the participant entry and the schema-v3
+Modules: :mod:`.data` (the release, case by case), :mod:`.features` (the eleven input channels, plus the inviscid
+field of :mod:`.panel`), :mod:`.model` (the network and its physics residuals), :mod:`.train`, :mod:`.predict`, :mod:`.entry` (the participant entry and the schema-v3
 package configuration) and :mod:`.submit` (the benchmark's workflow, driven and then checked).
 
 Two things this pipeline deliberately does not do: it does not compute the leaderboard numbers itself — the benchmark's
@@ -26,8 +26,24 @@ from __future__ import annotations
 from .campaign import STAGES, CampaignSpec, campaign_from_dict, run_campaign
 from .data import AirfRANSStackMissing, case_arrays, case_ids_for, extract_cases, manifest_splits
 from .entry import SUPPORTS, write_entry
-from .features import FEATURE_NAMES, chord, point_features, sample_indices, scaled_targets
+from .features import (
+                    FEATURE_NAMES,
+                    PANEL_FEATURES,
+                    chord,
+                    point_features,
+                    sample_indices,
+                    scaled_targets,
+)
 from .model import CoordinateNet, WallAwareNet, flat_plate_slope, physics_loss, wall_layer_profile
+from .panel import (
+                    PANEL_CHANNELS,
+                    airfoil_contour,
+                    camber_line,
+                    panel_flow,
+                    panel_prior,
+                    solve_panels,
+                    zero_lift_angle,
+)
 from .predict import PredictionSpec, predict_cases
 from .submit import OfficialToolchain, Step, cross_check_domain_metrics
 from .train import (
@@ -58,7 +74,9 @@ __all__ = ["CampaignSpec", "campaign_from_dict", "run_campaign", "STAGES",
            "TrainingSpec", "WallSpec", "train", "train_wall", "curve_force_loss",
            "load_training_points", "load_wall_points", "load_curve_batch", "pick_device",
            "PredictionSpec", "predict_cases",
-           "CoordinateNet", "WallAwareNet", "wall_layer_profile", "physics_loss", "FEATURE_NAMES", "point_features", "scaled_targets", "sample_indices",
+           "CoordinateNet", "WallAwareNet", "wall_layer_profile", "physics_loss", "FEATURE_NAMES", "PANEL_FEATURES",
+           "PANEL_CHANNELS", "panel_prior", "panel_flow", "solve_panels", "airfoil_contour", "camber_line",
+           "zero_lift_angle", "point_features", "scaled_targets", "sample_indices",
            "chord",
            "case_arrays", "case_ids_for", "extract_cases", "manifest_splits", "AirfRANSStackMissing",
            "write_entry", "SUPPORTS",

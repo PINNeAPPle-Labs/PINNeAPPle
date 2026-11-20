@@ -24,6 +24,16 @@ SdfFn = Callable[[np.ndarray], np.ndarray]
 _MC_VOLUME_SAMPLES = 200_000
 
 
+def _shape_sdf(shape) -> SdfFn:
+    """A CSG shape's signed distance, in the form :meth:`Domain.sdf` calls."""
+    if not hasattr(shape, "sdf"):
+        raise TypeError(
+            f"{type(shape).__name__} has no sdf(); a Domain can only take a shape that "
+            "answers a signed distance (see pinneapple_design.geometry.csg)"
+        )
+    return lambda x: np.asarray(shape.sdf(np.asarray(x, dtype=np.float64)), dtype=np.float64)
+
+
 class Domain:
     """A region of R^d: a box, or a box cut by a signed distance function."""
 
@@ -41,8 +51,14 @@ class Domain:
             raise ValueError("lo and hi must be 1D arrays of the same length")
         if np.any(self.hi <= self.lo):
             raise ValueError("every hi must be greater than lo")
+        # A shape is the domain, so its own signed distance is the domain's: without
+        # this, ``Domain(lo, hi, shape=shape)`` reported ``is_box`` and every query
+        # fell back to the bounding box — ``contains`` accepted the whole box and
+        # ``sample_interior`` scattered collocation points outside the geometry (#938).
+        if sdf is None and shape is not None:
+            sdf = _shape_sdf(shape)
         self._sdf = sdf
-        self._shape = shape  # optional CSG shape, used for boundary sampling
+        self._shape = shape  # the CSG shape itself, for boundary sampling
         self._volume: Optional[float] = None
 
     # -- constructors -------------------------------------------------------
@@ -60,7 +76,7 @@ class Domain:
         """Wrap a 2D CSG shape (``pinneapple_design.geometry.csg``) as a Domain."""
         lo = np.asarray(shape.bounds_min, dtype=np.float64)
         hi = np.asarray(shape.bounds_max, dtype=np.float64)
-        return cls(lo, hi, sdf=lambda x: shape.sdf(np.asarray(x, dtype=np.float64)), shape=shape)
+        return cls(lo, hi, shape=shape)
 
     # -- basic properties ---------------------------------------------------
     @property

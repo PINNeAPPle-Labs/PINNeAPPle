@@ -43,6 +43,13 @@ native entity counts — which is the geometry representation and the evaluation
 | DrivAerML | volume cells, **8.4 M entities** per case, chunked | support ships chunked, 1 MB per artifact | the surface-only scope exists; the volume scope is the 50 GB-per-VTU case |
 | DrivAerNet++ | surface points only, `p` alone | geometry **26.4 MB** (median of 1 154), support 5.0 MB | **30.5 GB geometry + 5.49 GB support** |
 
+The AhmedML surface, fetched and parsed (2026-11-20): a `.vtp` of 82.7–106.4 MB with **1 101 574–1 235 746 boundary
+entities** of quads (and 422 pentagons in `run_4`), `pMean` as one component in m²/s² and `wallShearStressMean` as three,
+whose median magnitude is 1.5·10⁻³ m²/s² — five hundred times smaller than the pressure, which is the scale a fit has to
+respect. The published `boundary_cell_area_<id>.npy` (4.4 MB) sums to **1.6843 m²** of wetted area on `run_4` and the
+geometric fan area of the same polygons reproduces it to the last digit, so the weights are checkable against the mesh
+instead of trusted.
+
 **DrivAerNet++ contract, verified by fetching one case** (`E_S_WWC_WM_008`; the archive's SHA-256 matches the manifest's
 `d22f6fa7…`): a VTK legacy surface with PointData `p`, **511 063 points**, 474 686 polygons, 5 connected components
 (436 403 + 2×18 742 + 2×18 588 — body and four wheels), bounding box 4.85 × 2.25 × 1.33 m, total dual area
@@ -58,16 +65,18 @@ then averaged over the 1 154 designs, and it is the only component of the compos
 |---|---|---|
 | CPU | Apple M5, 10 cores | 4 vCPU |
 | memory | 16 GB | 7 GB |
-| disk free | 24 GB | 20 GB |
+| disk free | 72 GB (after clearing 87 GB of caches, Docker's image and stale run outputs) | 20 GB |
 | accelerator | MPS (8-core GPU) | **none** |
 
 ## What that means, dataset by dataset
 
 - **AirfRANS — feasible, done.** 14 GB of data, a 3.7 GB feature store, and a 20-minute fit of a 1-2 M-parameter
   coordinate network on the MPS device. This is why the campaign runs here.
-- **AhmedML — not feasible here.** The derived cache alone is 41.45 GB against 24 GB free, before the canonical case
-  files that training needs; and a surface *and* volume prediction must be produced for 50 test cases. Two orders of
-  magnitude of storage short.
+- **AhmedML — half of it is feasible, and now measured.** The surface is 83 MB per case and carries its own truth and
+  its own weights, so the surface fit runs here (below). The volume is 5.55 GB per case, its prepared cache for one
+  50-case split is **1.74 GB of download that installs to 6.61 GB**, and the contract's
+  `complete_case_and_entity_coverage_required` means a surface-only prediction is refused rather than scored partially.
+  A complete entry is therefore ~280 GB of release against this machine's 72 GB.
 - **WindsorML — not feasible here.** 233 test cases with volume fields, and the volume representation is the expensive
   part; the smallest label (`full`, 35 cases) still needs both surface and volume predictions per case.
 - **DrivAerML — not feasible here.** About 50 GB for a single reconstructed VTU; the smallest split is 50 test cases.
@@ -115,6 +124,53 @@ curl -L -H "Range: bytes=0-1" -o /dev/null -w '%{http_code}\n' \
 # 2. the case's geometry, and its scoring support from the public release
 python -m pinneapple_simulation.pipelines.drivaernetplusplus --case E_S_WWC_WM_008 \
   --geometry E_S_WWC_WM_008.vtk --support E_S_WWC_WM_008/support.npz
+```
+
+## What it takes to start AhmedML, measured (2026-11-20)
+
+AhmedML is the mirror image of DrivAerNet++: open where that one is gated, but split in two where that one is a single
+scalar. The composite gives **25 % to the surface** (`surface_pressure_rel_l2`, cap 15, weight 0.15;
+`surface_wall_shear_rel_l2`, cap 20, weight 0.10), **25 % to the volume** (`volume_velocity_rel_l2`, cap 12, 0.15;
+`volume_pressure_rel_l2`, cap 15, 0.10), 25 % to the forces and 25 % to the diagnostics — and
+`complete_case_and_entity_coverage_required` applies to both domains.
+
+- **the access is not the obstacle.** The pinned revision of `neashton/ahmedml` serves individual files over plain
+  HTTPS (no guestbook, unlike DrivAerNet++): the surface of a case is 83 MB and arrives in six seconds, and a whole
+  50-case test split is 4.2 GB.
+- **the surface is self-contained.** `boundary_<id>.vtp` carries `pMean` and `wallShearStressMean` as CellData and
+  `boundary_cell_area_<id>.npy` carries the weights, so a surface model can be fitted *and* scored with nothing else.
+  `geometry_parameters_<id>.csv` adds the eight geometric parameters the design vector needs.
+- **two fits, both on the same 50 test cases** (`super_scarce` and `scarce`), scored by the module's own reductions:
+
+| training cases of the split | surface pressure, area-weighted | surface pressure, equal entity | wall shear, area-weighted | wall shear, equal entity |
+|---|---|---|---|---|
+| 11 (`super_scarce`) | 26.10 % | 26.98 % | **17.81 %** | 18.82 % |
+| 67 (`scarce`) | 22.76 % | 24.01 % | **15.37 %** | 16.40 % |
+| the training mean of each field | 81.21 % | 88.18 % | 100 % | 100 % |
+
+  The wall shear is under its 20 % cap at both sizes; the pressure is not under its 15 % cap, and the trend with data
+  (26.1 → 22.8 % for six times the cases) is the honest statement about what more training cases would buy. The two
+  heads are normalised separately precisely because the shear is 500× smaller than the pressure.
+- **what is implemented and tested:** `pinneapple_simulation.pipelines.ahmedml` — the `.vtp` reader (VTK's own, because
+  the connectivity array is not something to hand-parse), both reductions for both fields with the spec's vector rule,
+  the macro average, the area-weighted fit, and a prediction path that needs no truth. Eight tests, none of which needs
+  the release.
+
+**The exact blocker for a complete entry** is the volume: 5.55 GB per case, of which `UMean` and `pMean` are CellData on
+21.5 M cells, and the whole-split derived cache installs to 6.61 GB per 50 cases against a disk that holds 72. No model
+of the volume exists here and none is claimed.
+
+### The exact next command
+
+```bash
+# 1. the surface of one split, verified against the release's own digests (83 MB per case)
+python fetch_ahmedml_surface.py scarce "$DATA/ahmedml-surf"
+
+# 2. fit on the split's own training cases and score the complete test list
+python run_ahmedml.py --split scarce --epochs 25 --cell-limit 250000 --points-per-case 150000
+
+# 3. the volume — a machine with ~300 GB, and then the volume surrogate does not exist yet
+python scripts/fetch_ahmedml_support.py --split scarce      # 1.7 GB down, 6.6 GB installed
 ```
 
 ## The exact next command, once there is a machine that fits

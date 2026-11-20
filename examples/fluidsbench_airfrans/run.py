@@ -46,6 +46,7 @@ from pinneapple_arena.fieldbench import (  # noqa: E402
     predict_field_model,
     train_field_model,
 )
+
 from pinneapple_arena.fluidsbench import (  # noqa: E402
     Checkout,
     assess_submission,

@@ -12,8 +12,9 @@ what turns the model from a shape-agnostic regressor into a surrogate over the A
 """
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -56,7 +57,6 @@ class SurfaceFieldNet:
     """A point MLP with two heads — the pressure and the wall-shear traction — over geometry and design vector."""
 
     def __init__(self, parameters: int = 8, width: int = 256, depth: int = 3, bands: int = 4):
-        torch = _torch()
         import torch.nn as nn
 
         self.bands, self.parameters = bands, parameters
@@ -142,7 +142,7 @@ def fit_surface_model(cases: Sequence[CaseSurface], *, epochs: int = 40, batch: 
     optimizer = torch.optim.AdamW(parameters, lr=lr, weight_decay=1e-5)
 
     history = []
-    for epoch in range(1, epochs + 1):
+    for _ in range(epochs):
         losses, seen = 0.0, 0
         for case in prepared:
             take = min(batch, len(case["x"]))

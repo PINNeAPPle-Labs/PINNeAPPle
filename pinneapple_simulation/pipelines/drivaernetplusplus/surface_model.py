@@ -12,8 +12,9 @@ the data is a network that spends its capacity on them.
 """
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -63,7 +64,7 @@ class SurfacePressureNet:
     fallback when the release does not carry the parameters."""
 
     def __init__(self, conditioning: int = 0, width: int = 256, depth: int = 3, bands: int = 4):
-        torch = _torch()
+        _torch()
         import torch.nn as nn
 
         self.bands, self.conditioning = bands, conditioning
@@ -99,7 +100,6 @@ def fit_surface_model(cases: Sequence[CaseGeometry], *, epochs: int = 50, batch:
     The weighting is not decoration: the evalued metric is area-weighted, so an unweighted fit spends its capacity on
     the dense flat regions of the body and buys nothing on the metric."""
     torch = _torch()
-    import torch.nn.functional as F
 
     torch.manual_seed(seed)
     device = device or ("mps" if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available() else "cpu")
@@ -123,7 +123,7 @@ def fit_surface_model(cases: Sequence[CaseGeometry], *, epochs: int = 50, batch:
                          "transform": transform})
 
     history = []
-    for epoch in range(1, epochs + 1):
+    for _epoch in range(1, epochs + 1):
         losses = []
         for case in prepared:
             index = torch.randint(0, len(case["x"]), (min(batch, len(case["x"])),))

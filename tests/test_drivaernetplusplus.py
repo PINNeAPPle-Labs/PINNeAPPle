@@ -108,7 +108,7 @@ def test_the_normalisation_is_invertible_and_uses_the_case_scales():
     assert np.allclose(target * transform["dynamic_head"], case.pressure)   # and the pressure comes back
 
     with pytest.raises(ValueError, match="dynamic head"):
-        from pinneapple_simulation.pipelines.drivaernetplusplus import predict_case, CaseGeometry
+        from pinneapple_simulation.pipelines.drivaernetplusplus import CaseGeometry, predict_case
 
         predict_case(None, CaseGeometry("no-head", case.points, case.pressure, case.dual_area))
 

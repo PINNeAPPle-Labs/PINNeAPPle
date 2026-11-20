@@ -40,7 +40,6 @@ def read_surface(path: str) -> dict[str, np.ndarray]:
     parser: the cell array there is a connectivity array, and a misread of 1.2 M polygons is worse than a dependency.
     The orientation of a normal comes from the polygon winding, which the spec names as the force-orientation source."""
     import vtk
-
     from vtk.util.numpy_support import vtk_to_numpy
 
     reader = vtk.vtkXMLPolyDataReader()

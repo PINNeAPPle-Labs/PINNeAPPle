@@ -196,6 +196,7 @@ class WallSpec:
     freeze_readout: bool = False
     readout_lr: float = 0.0
     slope_le_weight: float = 0.0
+    slope_le_power: float = 1.0
     cache_dir: str | None = None
     grad_clip: float = 1.0
     force_weight: float = 1.0
@@ -218,6 +219,7 @@ class WallSpec:
                 "slope_prior": self.slope_prior, "init_from": self.init_from,
                 "freeze_trunk": self.freeze_trunk, "freeze_readout": self.freeze_readout,
                 "readout_lr": self.readout_lr, "slope_le_weight": self.slope_le_weight,
+                "slope_le_power": self.slope_le_power,
                 "cache_dir": self.cache_dir,
                 "force_weight": self.force_weight, "physics_weight": self.physics_weight,
                 "surface_pressure_weight": self.surface_pressure_weight, "wall_fraction": self.wall_fraction,
@@ -436,6 +438,8 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                     # pressure-drag error), and the slope that decides it varies fastest there; this tilts the readout's
                     # objective towards the leading edge instead of letting the mid-chord bulk carry the mean
                     leading = (1.0 - batch_x[batch_wall][:, 0].clamp(0.0, 1.0))[:, None]   # slope is two components
+                    for _ in range(int(spec.slope_le_power) - 1):
+                        leading = leading * leading                       # concentrate on the first percent of chord
                     per_point = per_point * (1.0 + spec.slope_le_weight * leading)
                 slope_loss = per_point.mean()
                 loss = loss + spec.slope_weight * slope_loss

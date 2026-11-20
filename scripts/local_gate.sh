@@ -14,6 +14,15 @@
 set -u
 cd "$(dirname "$0")/.."
 
+# the hook runs with the ambient PATH, which on macOS is usually a python3 that has neither pytest nor torch: pick the
+# first interpreter that can actually import pytest, and let PY override it
+if [ -z "${PY:-}" ]; then
+    for candidate in python3.11 python3 python; do
+        if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "import pytest" >/dev/null 2>&1; then
+            PY=$candidate; break
+        fi
+    done
+fi
 PY=${PY:-python3}
 RUFF=${RUFF:-ruff}
 status=0

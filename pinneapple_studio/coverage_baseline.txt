@@ -3048,8 +3048,3 @@ pinneapple_worldmodel.train:run_pipeline
 pinneapple_worldmodel.train:train_foundation
 pinneapple_worldmodel.train:train_meta
 pinneapple_worldmodel.train:train_specialist
-reproduction:reproductions/binns_lagergren2020
-reproduction:reproductions/deflorio2024
-reproduction:reproductions/gated_xtfc_dwivedi2025
-reproduction:reproductions/sbinn_daneker2022
-reproduction:reproductions/xtfc_schiassi2021

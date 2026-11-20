@@ -352,17 +352,150 @@ class SolverRecommendation:
 # does ``if "burgers" in kind: ...``), so a match here is a real claim
 # that the solver's own code would take that branch, not a guess.
 _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
-    "fem": {
-        "kind_substrings": ["poisson", "laplace", "helmholtz", "axisymmetric_linear_elasticity"],
+    "solid_fem": {
+        "kind_substrings": ["linear_elasticity", "elasticity"],
+        # an axisymmetric problem is two-dimensional by nature (r, z), and the r-weighted weak form is fem's; a
+        # "3-D axisymmetric" spec is not a box of hexahedra, so this assembly does not claim it
+        "not_kind_substrings": ["axisymmetric", "nonlinear"],
+        "dims": {3},
+        "source": (
+            "solid_fem.py SolidFEM docstring: '3-D linear elasticity with 8-node hexahedra and incompatible "
+            "modes (Wilson-Taylor; the element Abaqus calls C3D8I)', with clamps, face loads, nodal stresses "
+            "and von Mises; SolidFEMSpecSolver.solve_from_spec is its ProblemSpec face, and it takes the box "
+            "domain and the clamped/loaded faces by name (x-, x+, ...), which a tag cannot express."
+        ),
+    },
+    "fdm3d": {
+        "kind_substrings": ["heat", "diffusion"],
+        # the linear equation with a source q(x, t): a reaction term that depends on the field is
+        # reaction_diffusion_nd's problem, not this one
+        "not_kind_substrings": ["reaction"],
+        "dims": {3},
+        "source": (
+            "fdm3d.py HeatConduction3D docstring: '3D heat equation solver using explicit Euler + central "
+            "differences', boundary 'Dirichlet zero on all 6 faces'; FDM3DSolver.solve_from_spec is its "
+            "ProblemSpec face and refuses any wall condition other than zero by name."
+        ),
+    },
+    "heat1d_fdm": {
+        "kind_substrings": ["heat", "diffusion"],
+        # the linear equation with a source q(x, t); a reaction term that depends on the field is
+        # reaction_diffusion1d's problem, not this one
+        "not_kind_substrings": ["reaction"],
+        "dims": {1},
+        "source": (
+            "heat1d.py Heat1D docstring: 'Crank-Nicolson finite differences for dT/dt = alpha d2T/dx2 + "
+            "q(x, t) on [0, L]', the two ends held at a temperature constant in time; Heat1DSolver.solve_from_spec "
+            "is its ProblemSpec face, and it refuses a time-dependent end value by name."
+        ),
+    },
+    "elliptic1d_fdm": {
+        "kind_substrings": ["poisson", "laplace", "helmholtz"],
+        "dims": {1},
+        "source": (
+            "elliptic1d.py Elliptic1D docstring: '1-D elliptic problems on a line: u'' + q u = rhs with the two "
+            "ends held', three-point central differences and a direct tridiagonal solve; Elliptic1DFDMSolver."
+            "solve_from_spec is its ProblemSpec face, and tests/test_solver_scope.py holds the parabola and the "
+            "second-order Helmholtz convergence."
+        ),
+    },
+    "elliptic3d_fdm": {
+        "kind_substrings": ["poisson", "laplace", "helmholtz"],
+        "dims": {3},
+        "source": (
+            "elliptic3d.py Elliptic3D docstring: '3-D elliptic problems on a structured grid: lap(u) + q u = rhs "
+            "with Dirichlet walls', seven-point central differences with unequal spacing and red-black SOR; "
+            "Elliptic3DFDMSolver.solve_from_spec is its ProblemSpec face. Second-order convergence against a "
+            "manufactured solution is in tests/test_solver_scope.py."
+        ),
+    },
+    "reaction_diffusion_nd": {
+        "kind_substrings": ["reaction", "fisher"],
+        "dims": {2, 3},
+        "source": (
+            "reaction_diffusion.py ReactionDiffusion docstring: 'Reaction-diffusion u_t = D lap(u) + R(u) on a "
+            "periodic box, in one, two or three dimensions, with the same ETDRK4 scheme and 2/3 dealiasing', "
+            "reactions 'allen_cahn', 'fisher' and 'none'; ReactionDiffusionNDSolver.solve_from_spec is its "
+            "ProblemSpec face."
+        ),
+    },
+    "wave2d_fdm": {
+        "kind_substrings": ["wave", "acoustic"],
         "dims": {2},
         "source": (
-            "fem.py FEMSolver docstring + solve_from_spec: 'Supported PDE kinds: "
-            "poisson / laplace, helmholtz, axisymmetric_linear_elasticity'; grid is "
-            "always a 2D (nx, ny) structured Q1 mesh."
+            "wave2d.py Wave2D docstring: '2-D scalar wave equation solver: d2u/dt2 = c^2 lap(u) + f(x, y, t)', "
+            "Stormer-Verlet in time and second-order central differences in space, every wall held at zero; "
+            "Wave2DFDMSolver.solve_from_spec is its ProblemSpec face."
+        ),
+    },
+    "wave3d_fdm": {
+        "kind_substrings": ["wave", "acoustic"],
+        "dims": {3},
+        "source": (
+            "fdm3d.py ElasticWave3D docstring: '3D elastic (acoustic) wave equation solver via Stormer-Verlet "
+            "integration', d2u/dt2 = c^2 lap(u) + f on a box with every wall held at zero; "
+            "Wave3DFDMSolver.solve_from_spec is its ProblemSpec face."
+        ),
+    },
+    "darcy2d_fvm": {
+        "kind_substrings": ["darcy"],
+        "dims": {2},
+        "source": (
+            "operator_benchmarks.darcy_2d docstring: '-div(a grad u) = f on the unit square with u = 0 on the "
+            "boundary, cell-centred finite volumes (harmonic face coefficients, two-point flux), sparse direct "
+            "solve', second order for smooth coefficients and checked against a manufactured solution in "
+            "tests/test_operator_benchmarks.py; darcy.py Darcy2DFVMSolver is its ProblemSpec face."
+        ),
+    },
+    "burgers3d_spectral": {
+        "kind_substrings": ["burgers"],
+        # the inviscid equation forms shocks and needs an entropy-satisfying scheme; this is the viscous one
+        "not_kind_substrings": ["inviscid"],
+        "dims": {3},
+        "source": (
+            "burgers3d.py Burgers3D docstring: '3-D viscous Burgers u_t + u.grad(u) = nu lap(u) on a periodic box: "
+            "pseudo-spectral space with 2/3 dealiasing, ETDRK4 in time', for the vector field u = (u_x, u_y, u_z); "
+            "Burgers3DSpectralSolver.solve_from_spec is its ProblemSpec face and refuses, by name, the inviscid kind, "
+            "nu = 0, a non-3-D spec and any wall condition. tests/test_burgers3d_solver.py holds the viscous decay "
+            "(1.1e-15) and the 1-D reduction against Cole-Hopf."
+        ),
+    },
+    "reaction_diffusion1d": {
+        "kind_substrings": ["reaction", "fisher"],
+        "dims": {1},
+        "source": (
+            "reaction_diffusion.py docstring: 'One-dimensional reaction-diffusion on a periodic interval, "
+            "u_t = D u_xx + R(u), with the ETDRK4 scheme', reactions 'allen_cahn' and 'fisher' (a spec whose kind "
+            "names Fisher-KPP takes the 'fisher' reaction), checked against the travelling-front speed and the exact "
+            "tanh interface profile in tests/test_validation_gallery.py; ReactionDiffusion1DSolver.solve_from_spec "
+            "is its ProblemSpec face."
+        ),
+    },
+    "fem": {
+        # "linear_elasticity" as a substring also covers the presets' linear_elasticity_plane_stress/_strain and
+        # axisymmetric_linear_elasticity, and both are what this assembly does; "nonlinear_elasticity" contains it
+        # too and is NOT (it would fall through to Poisson and answer a different problem), so it is excluded by
+        # name. The axisymmetric branch used to raise (2N unknowns reshaped as the N-node grid, conditions applied
+        # to node indices on an interleaved two-field system) and is claimed again now that both are fixed --
+        # tests/test_fem_axisymmetric.py holds the Lame cylinder and the manufactured field that say so
+        "kind_substrings": ["poisson", "laplace", "helmholtz", "linear_elasticity", "plane_stress", "plane_strain",
+                            "axisymmetric"],
+        "not_kind_substrings": ["nonlinear"],
+        "dims": {2},
+        "source": (
+            "fem.py FEMSolver docstring: 'poisson / laplace, helmholtz, axisymmetric_linear_elasticity, "
+            "linear_elasticity / linear_elasticity_2d / elasticity / plane_stress / plane_strain ... at dim=2 "
+            "only -- two-field (ux, uy) plane stress, plane strain or "
+            "the r-weighted axisymmetric weak form (x the radius, y the axis), Q1 quadrilaterals'; grid is always "
+            "a 2D (nx, ny) structured Q1 mesh, so the 2-D elasticity case lands here while a 3-D elasticity spec "
+            "still falls through to Poisson, which is why dims stays {2}."
         ),
     },
     "fdm": {
         "kind_substrings": ["poisson", "laplace", "helmholtz", "heat", "diffusion", "wave", "burgers", "advection", "convection_diffusion"],
+        # the heat/diffusion branch is the linear equation with a source q(x, t); a field-dependent reaction term
+        # is a different problem (1-D only here: see reaction_diffusion1d)
+        "not_kind_substrings": ["reaction"],
         "dims": {1: ["wave", "burgers", "advection", "convection_diffusion"], 2: ["poisson", "laplace", "helmholtz", "heat", "diffusion"]},
         "source": (
             "fdm.py module docstring's own table: 'poisson/laplace -> 2D SOR, "
@@ -372,6 +505,7 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
     },
     "fvm": {
         "kind_substrings": ["heat", "diffusion", "convection_diffusion", "advection", "burgers"],
+        "not_kind_substrings": ["reaction"],
         "dims": {2},
         "source": (
             "fvm.py FVMSolver docstring: 'Supported PDE kinds: heat/diffusion, "
@@ -428,7 +562,10 @@ _CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
 # FDM's generic SOR sweep for the same Poisson/Laplace kind), not a
 # numerical-accuracy claim this module can actually verify -- see the
 # docstring below.
-_FAMILY_PREFERENCE_ORDER = ["fem", "lbm", "fvm", "fdm", "fenics", "openfoam"]
+_FAMILY_PREFERENCE_ORDER = ["solid_fem", "fem", "lbm", "fvm", "fdm3d", "wave3d_fdm", "darcy2d_fvm",
+                            "elliptic3d_fdm", "elliptic1d_fdm", "wave2d_fdm", "reaction_diffusion1d",
+                            "reaction_diffusion_nd", "burgers3d_spectral",
+                            "heat1d_fdm", "fdm", "fenics", "openfoam"]
 
 
 def select_solver_family(
@@ -484,6 +621,10 @@ def select_solver_family(
         scope = _CLASSICAL_SOLVER_SCOPE[family]
         kind_hit = any(sub in kind for sub in scope["kind_substrings"])
         if not kind_hit:
+            continue
+        # A substring claim is coarse: fdm's and fvm's "diffusion" is the linear equation, and a reaction term
+        # that depends on the field is more than either documents. The exclusion says so per family.
+        if any(sub in kind for sub in scope.get("not_kind_substrings", ())):
             continue
         dims = scope["dims"]
         if isinstance(dims, set):

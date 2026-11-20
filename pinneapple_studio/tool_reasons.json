@@ -1,4 +1,9 @@
 {
+ "pinneapple_advisor.capabilities:verify_tools": "takes the Tool objects a plan carries; a form cannot hold them, and tests/test_advisor.py:test_every_tool_a_plan_cites_exists_in_the_library runs it over three plans",
+ "pinneapple_advisor.compose:build": "takes a Brief and returns the plan together with the raw solver and architecture recommendations; the Flow node advisor.pipeline reaches it through pinneapple_advisor.advise (smoked) and tests/test_advisor.py covers the composition",
+ "pinneapple_advisor.extract:read_with_llm": "needs a Brief and a live Ollama server; the offline reading (extract with call=False) is smoked, and tests/test_advisor.py stubs the model",
+ "pinneapple_advisor.questions:next_questions": "takes a Brief; pinneapple_advisor.advise (smoked) reports the same open questions in its plan, and tests/test_advisor.py runs it",
+ "pinneapple_advisor:next_questions": "takes a Brief; pinneapple_advisor.advise (smoked) reports the same open questions in its plan, and tests/test_advisor.py runs it",
  "pinneapple_analysis.dynamics.benchmarks.early_warning:run": "a benchmark of the early-warning estimators against closed forms: even run(quick=True) took 77 s on the machine that recorded the smoke runs, beyond the 60 s smoke limit",
  "pinneapple_analysis.dynamics.koopman:KoopmanReconstruction": "a result record: KoopmanReconstruction.evaluate(operator, trajectories) builds it from a fitted KoopmanOperator and its trajectories, which a form cannot hold; building it from its own fields would run nothing",
  "pinneapple_analysis.inverse_problems.discovery:discover_ode": "takes a sampled trajectory (time array and a state matrix) that a form cannot hold; the Flow Studio node discover.equations runs it on the Lorenz and damped-oscillator demos and tests/test_equation_discovery.py checks the recovered coefficients",

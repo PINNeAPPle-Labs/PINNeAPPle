@@ -1,0 +1,12 @@
+{
+ "code_hash": "0a9e0a87f720982d",
+ "figures": [],
+ "id": "node:advisor.pipeline",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 48.09,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "Suggested study pipeline from a problem description -> pinneapple_advisor.advise, pinneapple_advisor.extract.detect, pinneapple_advisor.brief.Brief, pinneapple_advisor.questions.next_questions, pinneapple_advisor.compose.build, pinneapple_advisor.estimate.CostModel, pinneapple_advisor.capabilities.verify_tools, pinneapple_advisor.render.svg, pinneapple_advisor.schema.StudyPlan, pinneapple_advisor.cli.main\ninputs: []\noutputs: [('plan', 'report'), ('metrics', 'metrics')]\ndefaults: {'text': 'transient heat in a 3D bracket, I have the STEP but no mesh', 'answers': {}, 'language': 'pt', 'offline': True, 'model': ''}",
+ "timed_out": false
+}

@@ -109,6 +109,7 @@
     * [Koopman operator and spectral analysis](guides/dynamics_koopman.md)
     * [Self-modifying brick builds](guides/interlocking_bricks.md)
     * [Design from intent: a goal in words to a verified design](guides/design_from_intent.md)
+    * [The pipeline advisor: a problem in words, the study pipeline out](guides/pipeline_advisor.md)
     * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)
     * [Autonomous Physics Lab: an AI that manages evidence for engineering decisions](guides/autonomous_lab.md)
     * [End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)](guides/ahmed_body_end_to_end.md)

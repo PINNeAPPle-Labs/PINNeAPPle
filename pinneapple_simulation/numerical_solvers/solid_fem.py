@@ -20,6 +20,10 @@ import subprocess
 from dataclasses import dataclass, field
 
 import numpy as np
+import torch
+
+from .base import SolverBase, SolverOutput
+from .registry import SolverRegistry
 
 _G = 1 / math.sqrt(3)
 _XI = np.array([[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
@@ -167,6 +171,19 @@ class SolidFEM:
         nodes = np.atleast_1d(nodes)
         for d in range(3):
             self._f[3 * nodes + d] += force[d] / len(nodes)
+        return self
+
+    def load_body(self, force) -> SolidFEM:
+        """A uniform body force per unit volume (self-weight, a centrifugal stand-in), integrated consistently:
+        ``f_a = ∫ N_a b dV`` over every element, 2x2x2 Gauss."""
+        b = np.asarray(force, dtype=float).reshape(3)
+        X = self.mesh.nodes[self.mesh.elements]
+        gps = np.array([[a, c, d] for d in (-_G, _G) for c in (-_G, _G) for a in (-_G, _G)])
+        el = np.zeros((len(X), 8, 3))
+        for xi in gps:
+            det = np.linalg.det(np.einsum("ak,mai->mki", _dN(xi), X))
+            el += _N(xi)[None, :, None] * b[None, None, :] * det[:, None, None]
+        np.add.at(self._f, (3 * self.mesh.elements[:, :, None] + np.arange(3)), el)
         return self
 
     def load_face(self, nodes, force) -> SolidFEM:
@@ -413,3 +430,105 @@ def _triad(fig):
         ax.text(dx * 1.15, dy * 1.15, lab, color=col, fontsize=8, ha="center", va="center")
     ax.set_xlim(-0.8, 1.3)
     ax.set_ylim(-0.6, 1.3)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# The registry face: a ProblemSpec in, the structural solve out
+# ──────────────────────────────────────────────────────────────────────────────
+
+_FACES = ("x-", "x+", "y-", "y+", "z-", "z+")
+
+
+def lame_to_engineering(lmbda: float, mu: float) -> tuple[float, float]:
+    """(E, nu) from Lame's constants, for a spec that states the material that way."""
+    E = mu * (3.0 * lmbda + 2.0 * mu) / (lmbda + mu)
+    return float(E), float(lmbda / (2.0 * (lmbda + mu)))
+
+
+@SolverRegistry.register(
+    name="solid_fem",
+    family="pde",
+    description="3-D linear elasticity on structured hexahedra (8-node C3D8I with incompatible modes): clamped "
+                "faces, a face load as a uniform traction, a body force, nodal stresses and von Mises",
+    tags=["fem", "elasticity", "structural", "3d", "static"],
+)
+class SolidFEMSpecSolver(SolverBase):
+    """``solve_from_spec`` for 3-D linear elasticity: a box, clamped faces, a face load and a body force.
+
+    This is the spec face of :class:`SolidFEM` -- 8-node hexahedra with incompatible modes (C3D8I), which is
+    what a bracket, a frame or a beam in bending needs. A ``ProblemSpec`` says nothing geometric about its
+    conditions (a ``DirichletBC`` carries a *tag*, not a face), so the two things the solve needs that a tag
+    cannot express are read from ``spec.pde.params``, by name:
+
+    - ``fixed_faces`` faces held (translation and rotation) at zero, e.g. ``["x-"]`` for a cantilever root;
+    - ``load_face`` the face the total force acts on (default ``"x+"``) and ``load`` the force as
+      ``[Fx, Fy, Fz]`` in newtons, applied as a uniform traction (consistent nodal loads);
+    - ``body_force`` an optional force per unit volume, ``[bx, by, bz]``;
+    - ``E``/``nu``, or ``lambda``/``mu`` from which both are derived;
+    - ``nx``, ``ny``, ``nz`` elements along each axis (default 20, 3, 3: a bar in bending).
+
+    A face name is one of ``x-``, ``x+``, ``y-``, ``y+``, ``z-``, ``z+``. Every other condition in the spec
+    (a tag the mapping above does not name, a flux, a convection) is refused by name rather than dropped.
+    """
+
+    def solve_from_spec(self, spec):
+        kind = str(getattr(spec.pde, "kind", "")).lower().replace("-", "_").replace(" ", "_")
+        if "elastic" not in kind:
+            raise ValueError(f"solid_fem solves linear elasticity in 3-D, and the spec's kind is '{kind}'.")
+        if int(getattr(spec, "dim", 3)) != 3:
+            raise ValueError(f"solid_fem is a 3-D hexahedral solver; the spec is {getattr(spec, 'dim', '?')}-D.")
+        params = dict(getattr(spec.pde, "params", {}) or {})
+        bounds = dict(getattr(spec, "domain_bounds", {}) or {})
+        (x0, x1), (y0, y1), (z0, z1) = (bounds.get("x", (0.0, 1.0)), bounds.get("y", (-0.5, 0.5)),
+                                         bounds.get("z", (-0.5, 0.5)))
+        L, W, H = abs(x1 - x0), abs(y1 - y0), abs(z1 - z0)
+        origin = (min(x0, x1), 0.5 * (y0 + y1), 0.5 * (z0 + z1))
+
+        if params.get("E") is not None:
+            E, nu = float(params["E"]), float(params.get("nu", 0.3))
+        elif params.get("lambda") is not None and params.get("mu") is not None:
+            E, nu = lame_to_engineering(float(params["lambda"]), float(params["mu"]))
+        else:
+            E, nu = 200e9, 0.3
+
+        mesh = box_mesh(L, W, H, int(params.get("nx", 20)), int(params.get("ny", 3)),
+                        int(params.get("nz", 3)), origin=origin)
+        fem = SolidFEM(mesh, E=E, nu=nu)
+
+        fixed = list(params.get("fixed_faces") or ["x-"])
+        unknown = [f for f in fixed if f not in _FACES]
+        if unknown:
+            raise ValueError(f"solid_fem: fixed_faces has {unknown}; a face is one of {list(_FACES)}.")
+        for face in fixed:
+            fem.fix(mesh.face_nodes(face))
+
+        load = params.get("load")
+        body = params.get("body_force")
+        if load is None and body is None:
+            raise ValueError(
+                "solid_fem needs a load: give params['load'] (total force on params['load_face'], default 'x+') "
+                "or params['body_force'] (force per unit volume).")
+        if load is not None:
+            face = str(params.get("load_face", "x+"))
+            if face not in _FACES:
+                raise ValueError(f"solid_fem: load_face is one of {list(_FACES)}, not '{face}'.")
+            fem.load_face(mesh.face_nodes(face), tuple(float(v) for v in load))
+        if body is not None:
+            fem.load_body(body)                                  # per unit volume, consistent nodal loads
+
+        result = fem.solve()
+        u = np.asarray(result.u, dtype=np.float32)
+        vm = np.asarray(result.von_mises, dtype=np.float64)
+        return SolverOutput(
+            result=torch.from_numpy(u),
+            losses={"von_mises_max": torch.tensor(float(np.max(vm)))},
+            extras={
+                "method": "solid_fem_c3d8i",
+                "max_displacement": float(np.max(np.linalg.norm(result.u, axis=1))),
+                "von_mises_max": float(np.max(vm)),
+                "E": E, "nu": nu, "elements": (int(params.get("nx", 20)), int(params.get("ny", 3)),
+                                               int(params.get("nz", 3))),
+                "fixed_faces": fixed, "load_face": params.get("load_face", "x+" if load is not None else None),
+                "info": dict(getattr(result, "info", {}) or {}),
+            },
+        )

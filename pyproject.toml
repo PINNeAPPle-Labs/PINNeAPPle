@@ -506,6 +506,7 @@ packages = [
   "pinneapple_data",
   "pinneapple_pdb",
   "pinneapple_problemdesign",
+  "pinneapple_advisor",       # a problem in words -> the study pipeline it needs (plan JSON + process diagram)
   "pinneapple_core",         # Field, Mesh, Domain, Geometry primitives (gradient/divergence/interpolate/integrate)
   "pinneapple_stability",    # what is core and what is experimental (toward 1.0); no dependencies
 

@@ -194,6 +194,7 @@ class WallSpec:
     init_from: str | None = None
     freeze_trunk: bool = False
     freeze_readout: bool = False
+    readout_lr: float = 0.0
     cache_dir: str | None = None
     grad_clip: float = 1.0
     force_weight: float = 1.0
@@ -215,6 +216,7 @@ class WallSpec:
                 "slope_floor": self.slope_floor, "slope_detach": self.slope_detach, "grad_clip": self.grad_clip,
                 "slope_prior": self.slope_prior, "init_from": self.init_from,
                 "freeze_trunk": self.freeze_trunk, "freeze_readout": self.freeze_readout,
+                "readout_lr": self.readout_lr,
                 "cache_dir": self.cache_dir,
                 "force_weight": self.force_weight, "physics_weight": self.physics_weight,
                 "surface_pressure_weight": self.surface_pressure_weight, "wall_fraction": self.wall_fraction,
@@ -364,7 +366,16 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
         feature_std = torch.from_numpy(reference.std(axis=0)).clamp_min(1e-6)
         model.feature_mean.copy_(feature_mean)
         model.feature_std.copy_(feature_std)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=spec.learning_rate, weight_decay=spec.weight_decay)
+    if spec.readout_lr:
+        # the middle ground between co-adapting and frozen: the readout follows the field, but at its own, slower rate,
+        # so the near-wall closure stays close to the law instead of being dragged by the data term
+        groups = [{"params": [p for n, p in model.named_parameters() if n.startswith("head_slope")],
+                   "lr": spec.readout_lr},
+                  {"params": [p for n, p in model.named_parameters() if not n.startswith("head_slope")],
+                   "lr": spec.learning_rate}]
+        optimizer = torch.optim.AdamW(groups, lr=spec.learning_rate, weight_decay=spec.weight_decay)
+    else:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=spec.learning_rate, weight_decay=spec.weight_decay)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=spec.epochs,
                                                           eta_min=spec.learning_rate / 50)
 

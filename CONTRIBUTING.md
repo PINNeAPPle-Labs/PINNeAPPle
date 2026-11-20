@@ -108,6 +108,13 @@ python scripts/reference/build.py --check
 python scripts/reference/run_examples.py --check [package ...]
 ```
 
+## Licensing
+
+Apache-2.0, no CLA and no required DCO sign-off: a contribution is accepted under the licence the project ships
+under. GPL code is never copied into this repository, only the idea; an adapted file gets an entry in `NOTICE`; and
+a new dependency is permissive unless its copyleft licence was decided in [`docs/licensing.md`](docs/licensing.md)
+first. Details, and the command that prints the licence of every declared dependency, are in that page.
+
 ## Changelog
 Every user-visible change (new feature, bug fix, behavior change, removal) needs one entry, in the same pull
 request, as a **new file in [`changelog.d/`](changelog.d/README.md)**: `<slug>.<category>.md`, with category

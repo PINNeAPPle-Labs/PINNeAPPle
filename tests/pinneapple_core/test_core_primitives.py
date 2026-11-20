@@ -42,6 +42,32 @@ def test_domain_validation():
         Domain.box([0, 0], [1, 1]).contains(np.zeros((3, 3)))
 
 
+def test_a_domain_built_from_a_shape_is_the_shape_not_its_bounding_box():
+    """Passing ``shape=`` used to leave the domain a box, so interior sampling (#938)."""
+    from pinneapple_design.geometry.csg import CSGCircle
+
+    shape = CSGCircle(0, 0, 0.3)
+    d = Domain([-1, -1], [1, 1], shape=shape)
+
+    assert not d.is_box
+    # the measurement in the issue: the bounding box put 7% of the points inside
+    pts = d.sample_interior(2000, seed=0)
+    assert shape.contains(pts).all()
+    assert d.contains(pts).all()
+
+    assert d.volume() == pytest.approx(np.pi * 0.3**2, rel=0.02)
+    assert not d.contains(np.array([[0.9, 0.9]])).any()
+    assert d.sdf(np.zeros((1, 2)))[0] == pytest.approx(-0.3)
+
+
+def test_a_shape_without_a_signed_distance_is_refused():
+    class Flat:
+        bounds_min, bounds_max = (0.0, 0.0), (1.0, 1.0)
+
+    with pytest.raises(TypeError, match="sdf"):
+        Domain([0, 0], [1, 1], shape=Flat())
+
+
 # -- Mesh --------------------------------------------------------------------
 @pytest.mark.parametrize("shape", [(5,), (4, 3), (3, 2, 2)])
 def test_structured_mesh_volume_and_boundary(shape):

@@ -155,6 +155,15 @@ jobs:
           python scripts/check_experiment_manifests.py
           pytest tests/test_experiment_manifests.py tests/test_experiments_site.py -q -p no:warnings
 
+      # The example catalog (#41): every folder under examples/ is either run here or marked manual with a reason
+      # that came from a measurement. The gate is the expensive half's precondition -- it refuses an uncovered
+      # folder, a ci entry that points at nothing, a known-broken import inside the tier, and a tier whose caps
+      # exceed the budget -- and then the tier itself runs, so "it runs in CI" means the example ran.
+      - name: Example catalog — the gate, then the CI tier itself (must pass)
+        run: |
+          python scripts/example_catalog.py --check
+          python scripts/example_catalog.py --run
+
       - name: NVIDIA integrations — OpenUSD stages, diagrams, water hammer, examples/nvidia smoke (must pass)
         run: |
           pip install usd-core newton newton-usd-schemas

@@ -62,6 +62,7 @@
     * [Submitting to FluidsBench: the contract, the package and what is checked](guides/fluidsbench.md)
     * [An AirfRANS submission end to end: train, predict, submit](guides/airfrans_fluidsbench.md)
     * [FluidsBench beyond AirfRANS: what each dataset costs, and what this machine can carry](guides/fluidsbench_datasets.md)
+    * [Running the gate without GitHub Actions](guides/ci_without_actions.md)
     * [Viscous vortex domains: 2-D Navier-Stokes without a mesh](guides/vortex_domains.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [MuJoCo 4.0: trajectories, checks and the robot backend](guides/mujoco.md)

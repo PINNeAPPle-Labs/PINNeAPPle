@@ -109,6 +109,26 @@ before spending another run on it.
 On the `full` split this takes `overall_score` from 29.44 to **63.20** (field components 16.09 %/758.6 %/12.15 %/34.41 %
 → 2.93 %/78.7 %/4.49 %/3.66 %, Cl R² 0.988 → 0.9995, profile R² 0.782 → 0.968, `field_score` 0 → 58.03).
 
+**Where the last twelve points came from.** Splitting the budgets — the field trained with the readout held at the law,
+then the readout refitted once on that frozen trunk — is what carries the rest: 63.20 → 65.26 when the field gets 28
+epochs instead of 14, → 70.07 when the readout is refitted on the frozen trunk, → 72.50 when the refit's loss is tilted
+towards the leading edge, → **75.44** when the tilt is the square of the chord distance (`1 + 2(1 − x/c)²`), which
+concentrates it on the first percent of chord where the slope the evaluator integrates varies fastest. The tuning of
+that readout is closed by measurement: a cubic weight (29.9 % wall shear) and 24 epochs (26.8 %) are both worse than the
+quadratic at 16 on the same holdout. The same recipe refitted from scratch in the AoA regime gives **67.24** there (from
+55.01), with `Cd R²` +0.702, the best drag of the campaign in any split.
+
+**The residual wall-shear error is a shape error, not a magnitude one** — measured, because it decides whether the next
+run should calibrate or should redesign. The per-case distribution of the packaged entries is uniform (on `full`: mean
+36.95 %, median 36.45 %, p90 49.2 %, and the ten worst cases carry 8.3 % of the sum; on AoA: mean 48.71 %, median
+48.83 %, the ten worst 8.0 %), so it is not a tail. Weighting every case by its own least-squares scale — the best any
+calibration could do per case — takes the mean per-case error from 32.67 % to only **28.13 %** on `full` and from
+32.80 % to 23.79 % on AoA, and a single constant shared by all cases makes it *worse* than doing nothing (33.05 % and
+31.34 %). The magnitude is barely biased on `full` (mean scale 1.025) and drifts case to case (σ 0.20–0.28). So the
+traction is roughly the right size and the wrong shape, which is why no scale, no per-case normalisation and no
+re-weighting of the readout's loss has moved it: what is left is how the shear is distributed along the surface.
+`campaign/diag_wall_scale.py` reproduces the measurement on any checkpoint and case list.
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.

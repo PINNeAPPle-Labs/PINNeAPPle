@@ -85,3 +85,50 @@ def test_the_real_case_support_has_the_arrays_the_spec_binds():
     # the identity prediction scores zero on both reductions, which is the check that the weighting is wired right
     metrics = surface_pressure_metrics(support["p"], support["p"], support["dual_area_m2"])
     assert metrics["surface_pressure_rel_l2"] == 0.0
+
+
+def _synthetic_case(case_id="run_0", n=4000, seed=0, gain=1.0):
+    """A body-ish point cloud with a pressure that a point-wise network can actually learn, plus real-shaped weights."""
+    from pinneapple_simulation.pipelines.drivaernetplusplus import CaseGeometry
+
+    rng = np.random.default_rng(seed)
+    points = rng.normal(size=(n, 3)) * np.array([2.4, 1.1, 0.7])
+    pressure = 450.0 * (gain * points[:, 0] / 2.4 - 0.5 * (points[:, 1] / 1.1) ** 2)
+    area = rng.uniform(1e-4, 1e-3, n)
+    return CaseGeometry(case_id=case_id, points=points, pressure=pressure, dual_area=area, dynamic_head=450.0)
+
+
+def test_the_normalisation_is_invertible_and_uses_the_case_scales():
+    from pinneapple_simulation.pipelines.drivaernetplusplus import normalise_case
+
+    case = _synthetic_case()
+    coordinates, target, transform = normalise_case(case.points, case.pressure, case.dynamic_head)
+    assert np.allclose(coordinates.max(axis=0) - coordinates.min(axis=0), np.ptp(coordinates, axis=0))
+    assert abs(np.ptp(coordinates, axis=0).max() - 1.0) < 1e-9          # the longest side is one body
+    assert np.allclose(target * transform["dynamic_head"], case.pressure)   # and the pressure comes back
+
+    with pytest.raises(ValueError, match="dynamic head"):
+        from pinneapple_simulation.pipelines.drivaernetplusplus import predict_case, CaseGeometry
+
+        predict_case(None, CaseGeometry("no-head", case.points, case.pressure, case.dual_area))
+
+
+def test_the_surrogate_learns_a_case_and_scores_better_than_the_mean():
+    from pinneapple_simulation.pipelines.drivaernetplusplus import (
+        aggregate_metrics,
+        fit_surface_model,
+        predict_case,
+        surface_pressure_metrics,
+    )
+
+    train = [_synthetic_case(f"run_{i}", seed=i, gain=1.0 + 0.1 * i) for i in range(3)]
+    held = _synthetic_case("run_9", seed=99, gain=1.15)
+    fitted = fit_surface_model(train, epochs=40, batch=2048, width=128, depth=2, bands=2, device="cpu")
+    assert fitted["history"][-1] < 0.5 * fitted["history"][0]
+
+    prediction = predict_case(fitted["model"], held)
+    assert prediction.shape == held.pressure.shape
+    learned = surface_pressure_metrics(prediction, held.pressure, held.dual_area)
+    mean = surface_pressure_metrics(np.full_like(held.pressure, held.pressure.mean()), held.pressure, held.dual_area)
+    assert learned["surface_pressure_rel_l2"] < mean["surface_pressure_rel_l2"]
+    assert aggregate_metrics([learned])["surface_pressure_rel_l2"] == pytest.approx(learned["surface_pressure_rel_l2"])

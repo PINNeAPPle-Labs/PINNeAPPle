@@ -226,5 +226,12 @@
     "min_coverage": 0.6,
     "min_score": 0.8
   },
-  "trust_override": {}
+  "trust_override": {},
+  "provenance": {
+    "solver": "pinneapple_simulation.terramechanics.WongReeceModel",
+    "seed": 0,
+    "data_hash": "sha256:c5573d48cbc9ea93309b1c27f61a33ec920a93de358c167f20b5e1a44b415448",
+    "commit": "9fb751a79a0dfcdec8eaccc1dc020a0cb38b9248",
+    "library_version": "0.7.0"
+  }
 }

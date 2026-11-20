@@ -53,6 +53,10 @@ class ModelCard:
     validation_metrics: Dict[str, float] = field(default_factory=dict)
     reference_source: str = ""  # citation for whatever the validation_metrics were computed against
 
+    # -- provenance (issue #39): what computed the numbers, with which code, seed and inputs --
+    # the fields and the rule live in pinneapple_data.provenance; a card without them cannot be re-derived
+    provenance: Dict[str, Any] = field(default_factory=dict)
+
     # -- misc ---------------------------------------------------------------
     citation: str = ""
     license: str = "apache-2.0"
@@ -99,6 +103,17 @@ class ModelCard:
             )
         if self.validation_metrics and not self.reference_source:
             problems.append("validation_metrics is set but reference_source (what it was computed against) is empty")
+        # Provenance (#39): a card whose numbers cannot be re-derived is a claim, not a record. The rule -- which
+        # fields, and why each one -- is pinneapple_data.provenance; the fallback keeps this module importable
+        # without pinneapple_data (the hub is usable on its own).
+        try:
+            from pinneapple_data.provenance import problems as provenance_problems
+        except Exception:  # pragma: no cover - pinneapple_data is a hard dependency of the repo, soft of the hub
+            provenance_problems = None
+        if provenance_problems is not None:
+            provenance = dict(self.provenance or {})
+            provenance.setdefault("library_version", self.pinneapple_version)
+            problems.extend(f"provenance: {line}" for line in provenance_problems(provenance))
         if self.trust_decision == "REJECT" and not self.trust_override.get("reason"):
             reasons = "; ".join(self.trust_report.get("motivos", [])) or "no reasons recorded"
             problems.append(f"trust report decision is REJECT ({reasons}) -- publication is blocked unless "

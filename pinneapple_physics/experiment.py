@@ -61,6 +61,12 @@ def _environment() -> Dict[str, Any]:
         env["cuda"] = torch.version.cuda if torch.cuda.is_available() else None
     except ImportError:  # pragma: no cover
         pass
+    # which code ran, not only which version: a released version pins the library, a commit pins the checkout (#39)
+    try:
+        from pinneapple_data.provenance import git_commit
+        env["commit"] = git_commit()
+    except Exception:  # pragma: no cover - pinneapple_data absent in a slim install
+        env["commit"] = ""
     try:
         import pinneapple
         env["pinneapple"] = pinneapple.__version__

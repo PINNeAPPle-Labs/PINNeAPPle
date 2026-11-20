@@ -40,6 +40,8 @@
   * [Geomechanics with the material point method](core_concepts/geomechanics_mpm.md)
   * [Security (pinneapple_security)](core_concepts/security.md)
   * [Verification and evidence (pinneapple_veriphysics)](core_concepts/veriphysics.md)
+  * [Add something to PINNeAPPle: six extension points](dev/adding_to_pinneapple.md)
+  * [Add a preset, end to end](dev/adding_a_preset.md)
   * [Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry](dev/PHYSICS_AI_INTEROP.md)
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)

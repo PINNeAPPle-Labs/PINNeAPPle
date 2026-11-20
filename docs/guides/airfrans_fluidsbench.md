@@ -129,6 +129,13 @@ traction is roughly the right size and the wrong shape, which is why no scale, n
 re-weighting of the readout's loss has moved it: what is left is how the shear is distributed along the surface.
 `campaign/diag_wall_scale.py` reproduces the measurement on any checkpoint and case list.
 
+**And the field does not set it either.** Doubling the near-wall sampling (`wall_fraction` 0.25 → 0.50, nothing else
+changed, same split, same seed, same two stages) makes the field 2.5× worse — velocity 3.13 % → 7.96 %, `Cd R²`
++0.449 → −0.437 — and the wall shear moves by 1.3 points (22.05 % → 23.38 %). A field that is far worse near the wall
+leaves the wall-shear metric almost where it was, so the metric is set by the readout stage rather than by the resolved
+field. Together with the scale measurement this closes the two cheap families of ideas at once: it is not calibration,
+and it is not near-wall resolution. What remains is a structural change to the readout itself.
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.

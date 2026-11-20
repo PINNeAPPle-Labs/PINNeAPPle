@@ -193,7 +193,7 @@ exact = pp.solve(prob, "analytic")                      # Cole-Hopf closed form
 pinn = pp.solve(prob, "pinn", epochs=4000)            # physics-informed network
 print(pp.compare(prob, ["pinn"], reference="analytic", options={"pinn": {"epochs": 4000}}))
 ```
-`pp.Experiment(...).run()` records the result with the problem's fingerprint; add your own method with `@pp.register_method("name")`.
+`pp.Experiment(...).run()` records the result with the problem's fingerprint. To add a method of your own, see [the module index](docs/org/reference/index.html) (`pinneapple_physics.solving.register_method`).
 </details>
 
 <details>

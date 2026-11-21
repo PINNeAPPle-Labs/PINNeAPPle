@@ -22,7 +22,8 @@ from .mesh import Mesh
 from .operators import curl, div, flux, grad, hessian, integrate, jacobian, laplacian
 
 __all__ = ["Domain", "Geometry", "Mesh", "Field", "FunctionField", "Grid", "PointCloud",
-           "grad", "div", "curl", "laplacian", "jacobian", "hessian", "integrate", "flux"]
+           "grad", "div", "curl", "laplacian", "jacobian", "hessian", "integrate", "flux",
+           "tensor", "PhysicsTensor"]
 
 
 def __getattr__(name):
@@ -33,6 +34,11 @@ def __getattr__(name):
         mod = importlib.import_module(f"{__name__}.{name}")
         globals()[name] = mod
         return mod
+    if name in ("tensor", "PhysicsTensor"):
+        # a torch tensor that keeps its name, unit and domain (X2, #186); loaded on first use like the rest
+        from . import physics_tensor
+
+        return getattr(physics_tensor, name)
     if name in _MODULE_EXPORTS:
         from . import module
 

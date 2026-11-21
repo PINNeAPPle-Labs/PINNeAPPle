@@ -16,7 +16,8 @@
    "id": "core",
    "measured": "2026-11-20: 195 passed, 5 skipped in 138.36s (0:02:18) (140.8 s wall)",
    "paths": [
-    "tests/pinneapple_core"
+    "tests/pinneapple_core",
+    "tests/test_physics_tensor.py"
    ]
   },
   {

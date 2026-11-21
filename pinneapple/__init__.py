@@ -705,6 +705,9 @@ _LAZY_ATTRS = {
     "Registry": ("pinneapple_core.registry", "Registry"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
+    # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
+    "tensor": ("pinneapple_core.physics_tensor", "tensor"),
+    "PhysicsTensor": ("pinneapple_core.physics_tensor", "PhysicsTensor"),
     "PhysicsModule": ("pinneapple_core.module", "PhysicsModule"),
     "Sequential": ("pinneapple_core.module", "Sequential"),
     "SolverModule": ("pinneapple_core.module", "SolverModule"),
@@ -794,6 +797,8 @@ __all__ = [
     "export_torchscript", "export_onnx", "export_csv", "export_npz",
     # The .ppx container: a result with its problem, units, environment and provenance, reproducible elsewhere
     "Artifact", "save", "load", "verify_artifact",
+    # a tensor that knows its name, unit, domain and components (X2, #186)
+    "tensor", "PhysicsTensor",
     # One registry protocol for every extensible object type (X16)
     "register", "unregister", "registered", "resolve", "Registry",
     # Inverse problems

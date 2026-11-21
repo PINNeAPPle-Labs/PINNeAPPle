@@ -164,6 +164,14 @@ jobs:
           python scripts/example_catalog.py --check
           python scripts/example_catalog.py --run
 
+      # The official benchmark cases (#30): the declaration has to be complete and the published table has to be
+      # the one the results file generates. Training is not in CI -- it is what --reproduce does, and it takes
+      # minutes; what must not drift is the page, the protocol and the declaration.
+      - name: Official benchmark cases — declared and published (must pass)
+        run: |
+          python scripts/benchmark_cases.py --check
+          pytest tests/test_benchmark_cases.py -q -p no:warnings
+
       - name: NVIDIA integrations — OpenUSD stages, diagrams, water hammer, examples/nvidia smoke (must pass)
         run: |
           pip install usd-core newton newton-usd-schemas

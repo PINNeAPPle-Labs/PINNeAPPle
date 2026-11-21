@@ -191,7 +191,11 @@ class CollocationSampler:
         strategy: str = "lhs",
         seed: int = 0,
     ) -> "CollocationSampler":
-        """Create from a pinneapple_environment ProblemSpec."""
+        """Create from a PDE ``ProblemSpec`` or from a ``PhysicalProblem`` (the unified description, #27).
+
+        Both carry what this needs -- ``domain_bounds``, ``coords``, ``fields`` and the conditions -- so a problem
+        built once can be sampled here without being converted back to a spec first.
+        """
         bounds = dict(getattr(spec, "domain_bounds", {}))
         coord_names = tuple(spec.coords)
         for c in coord_names:

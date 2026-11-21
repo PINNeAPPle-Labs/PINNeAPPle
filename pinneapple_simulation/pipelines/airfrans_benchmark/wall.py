@@ -206,7 +206,7 @@ def curve_coefficients(pressure: np.ndarray, slope: np.ndarray, cells: np.ndarra
 
 def curve_features(airfoil_points: np.ndarray, airfoil_normals: np.ndarray, freestream: Sequence[float],
                    inlet_velocity: float, shape: bool = False, panel: bool = False,
-                   panel_pressure: bool = True) -> np.ndarray:
+                   panel_pressure: bool = True, correction: bool = False, nu: float = 1.54981e-05) -> np.ndarray:
     """The network's eleven input channels evaluated on the airfoil curve itself (``sdf = 0``, ``surface = 1``).
 
     ``panel`` adds the case's inviscid field on those same nodes, which is what a panel-conditioned model expects: the
@@ -219,7 +219,8 @@ def curve_features(airfoil_points: np.ndarray, airfoil_normals: np.ndarray, free
     count = len(points)
     raw = np.concatenate([points, np.zeros((count, 1)), normals, np.ones((count, 1)),
                           np.tile(np.asarray(freestream, float).reshape(1, 2) / inlet_velocity, (count, 1))], axis=1)
-    return point_features(raw, points, shape=shape, panel=panel, panel_pressure=panel_pressure)
+    return point_features(raw, points, shape=shape, panel=panel, panel_pressure=panel_pressure,
+                          correction=correction, nu=nu)
 
 
 def curve_projection(slope: np.ndarray, features: np.ndarray, bins: int = 33, smooth: bool = True) -> np.ndarray:

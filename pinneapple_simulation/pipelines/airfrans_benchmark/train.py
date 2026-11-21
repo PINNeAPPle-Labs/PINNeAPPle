@@ -12,6 +12,7 @@ from typing import Any
 import numpy as np
 
 from .features import (
+    CORRECTION_FEATURES,
     FEATURE_NAMES,
     PANEL_FEATURES,
     SHAPE_FEATURES,
@@ -60,6 +61,7 @@ class TrainingSpec:
     wall_fraction: float = WALL_FRACTION
     panel: bool = False
     panel_pressure: bool = True
+    correction: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return {"train_key": self.train_key, "train_cases": self.train_cases, "val_cases": self.val_cases,
@@ -93,7 +95,7 @@ def load_training_points(store: str, case_ids: Sequence[str], spec: TrainingSpec
         with np.load(os.path.join(store, f"{case_id}.npz")) as data:
             take = sample_indices(data["features"], per_case, rng, spec.wall_fraction)
             features.append(point_features(data["features"][take], data["airfoil_points"], panel=spec.panel,
-                                           panel_pressure=spec.panel_pressure))
+                                           panel_pressure=spec.panel_pressure, correction=spec.correction))
             targets.append(scaled_targets(data["targets"][take], data["features"][take]))
     return np.concatenate(features), np.concatenate(targets)
 
@@ -120,7 +122,8 @@ def train(store: str, manifest: dict[str, Any], out_dir: str, spec: TrainingSpec
     x_train, y_train = load_training_points(store, train_ids, spec, seed=spec.seed)
     x_val, y_val = load_training_points(store, val_ids, spec, points_per_case=min(spec.points_per_case, 2048),
                                         seed=spec.seed + 1)
-    model = CoordinateNet(spec.width, spec.depth, panel=spec.panel).to(device)
+    model = CoordinateNet(spec.width, spec.depth,
+                          panel=spec.panel).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=spec.learning_rate, weight_decay=1e-5)
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=spec.epochs,
                                                           eta_min=spec.learning_rate / 50)
@@ -212,6 +215,7 @@ class WallSpec:
     shape: bool = True
     panel: bool = False
     panel_pressure: bool = True
+    correction: bool = False
     force_weight: float = 1.0
     physics_weight: float = 0.0
     surface_pressure_weight: float = 5.0
@@ -239,7 +243,7 @@ class WallSpec:
                 "drag_scale": self.drag_scale, "lift_scale": self.lift_scale, "lift_weight": self.lift_weight,
                 "curve_cases": self.curve_cases, "curve_every": self.curve_every, "shape": self.shape,
                 "shape_features": SHAPE_FEATURES if self.shape else 0, "panel": self.panel,
-                "panel_pressure": self.panel_pressure, "select": self.select,
+                "panel_pressure": self.panel_pressure, "correction": self.correction, "select": self.select,
                 "checkpoint_every": self.checkpoint_every}
 
 
@@ -255,7 +259,7 @@ def load_wall_points(store: str, wall_store: str, case_ids: Sequence[str], spec:
         digest = hashlib.sha1("|".join(case_ids).encode()).hexdigest()[:16]
         path = os.path.join(spec.cache_dir,
                             f"points-{digest}-{per_case}-{seed}-{spec.wall_fraction:g}-{int(spec.shape)}"
-                            f"-{int(spec.panel)}-{int(spec.panel_pressure)}.npz")
+                            f"-{int(spec.panel)}-{int(spec.panel_pressure)}-{int(spec.correction)}.npz")
         if os.path.exists(path):
             with np.load(path) as data:
                 return {name: data[name] for name in data.files}
@@ -271,7 +275,7 @@ def load_wall_points(store: str, wall_store: str, case_ids: Sequence[str], spec:
             take = sample_indices(data["features"], per_case, rng, spec.wall_fraction)
             raw = data["features"][take]
             blocks["features"].append(point_features(raw, data["airfoil_points"], shape=spec.shape, panel=spec.panel,
-                                                     panel_pressure=spec.panel_pressure))
+                                                     panel_pressure=spec.panel_pressure, correction=spec.correction))
             blocks["targets"].append(scaled_targets(data["targets"][take], raw))
             rank = surface_rank(raw)
             on_wall = rank >= 0
@@ -288,7 +292,8 @@ def load_wall_points(store: str, wall_store: str, case_ids: Sequence[str], spec:
 
 
 def load_curve_batch(store: str, wall_store: str, case_ids: Sequence[str],
-                     shape: bool = True, panel: bool = False, panel_pressure: bool = True) -> list[dict[str, Any]]:
+                     shape: bool = True, panel: bool = False, panel_pressure: bool = True,
+                     correction: bool = False) -> list[dict[str, Any]]:
     """The airfoil curve of every case, featurised for the network, with its quadrature and truth coefficients."""
     import torch
 
@@ -302,7 +307,7 @@ def load_curve_batch(store: str, wall_store: str, case_ids: Sequence[str],
             normals = data["airfoil_normals"]
         inlet, angle = truth["inlet_velocity"], truth["aoa_rad"]
         freestream = (np.cos(angle) * inlet, np.sin(angle) * inlet)
-        batch.append({"features": torch.from_numpy(curve_features(airfoil, normals, freestream, inlet, shape, panel, panel_pressure)),
+        batch.append({"features": torch.from_numpy(curve_features(airfoil, normals, freestream, inlet, shape, panel, panel_pressure, correction)),
                       "cells": torch.from_numpy(truth["cells"].astype(np.int64)),
                       "lengths": torch.from_numpy(truth["lengths"].astype(np.float32)),
                       "cell_normals": torch.from_numpy(truth["cell_normals"].astype(np.float32)),
@@ -424,15 +429,17 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     train_block = load_wall_points(store, wall_store, train_ids, spec, seed=spec.seed)
     val_block = load_wall_points(store, wall_store, val_ids, spec, points_per_case=min(spec.points_per_case, 2048),
                                  seed=spec.seed + 1)
-    curve_pool = load_curve_batch(store, wall_store, list(train_ids), spec.shape, spec.panel, spec.panel_pressure)
-    val_curve = (load_curve_batch(store, wall_store, list(val_ids), spec.shape, spec.panel, spec.panel_pressure)
+    curve_pool = load_curve_batch(store, wall_store, list(train_ids), spec.shape, spec.panel, spec.panel_pressure,
+                                  spec.correction)
+    val_curve = (load_curve_batch(store, wall_store, list(val_ids), spec.shape, spec.panel, spec.panel_pressure,
+                                  spec.correction)
                  if spec.select == "composite" else [])
 
     extra = int(train_block["features"].shape[1]) - len(FEATURE_NAMES)
-    shape_features = extra - (PANEL_FEATURES if spec.panel else 0)
+    shape_features = extra - (PANEL_FEATURES if spec.panel else 0) - (CORRECTION_FEATURES if spec.correction else 0)
     model = WallAwareNet(spec.width, spec.depth, spec.fourier, spec.wall_layer,
                          shape_features=shape_features, slope_detach=spec.slope_detach,
-                         slope_prior=spec.slope_prior, panel=spec.panel).to(device)
+                         slope_prior=spec.slope_prior, panel=spec.panel, correction=spec.correction).to(device)
     if spec.init_from:
         # a second stage that starts from a fitted field: the trunk comes from the checkpoint, and freezing it is what
         # separates the two budgets — the field keeps the epochs it was given, the readout gets its own
@@ -589,7 +596,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                         "shape_features": model.shape_features, "slope_detach": model.slope_detach,
-                        "slope_prior": model.slope_prior, "panel": model.panel,
+                        "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
                         "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch, "val_slope_rel_l2": slope_relative,
                         "select": spec.select, "composite": score},
@@ -599,7 +606,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
             torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                         "shape_features": model.shape_features, "slope_detach": model.slope_detach,
-                        "slope_prior": model.slope_prior, "panel": model.panel,
+                        "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
                 "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch}, os.path.join(out_dir, "checkpoint.pt"))
 
@@ -607,7 +614,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     torch.save({"state_dict": model.state_dict(), "architecture": "wall_aware", "width": spec.width,
                 "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                 "shape_features": model.shape_features, "slope_detach": model.slope_detach,
-                        "slope_prior": model.slope_prior, "panel": model.panel,
+                        "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
                 "features": list(FEATURE_NAMES), "residual_targets": False,
                 "targets": ["u/Uinf", "v/Uinf", "p/Uinf2"]}, weights)
     record = {"variant": "wall", **spec.as_dict(), "train_cases": len(train_ids), "val_cases": len(val_ids),

@@ -269,6 +269,31 @@ The next form to try is therefore not the full-field prior but a *shape correcti
 integral method's variation along the chord — which keeps what the law already gets right and adds only the part it
 cannot say.
 
+**The shape correction, and what one measurement says about it.** `panel_shape_correction` builds that channel: the
+panel solve supplies the edge velocity along the section, the integral boundary layer turns it into `τ(x)`, and the
+channel is the integral model's variation over the flat-plate law's at the same edge speed. Three things had to be
+measured before it was worth a training run, and the first two were bugs the measurement found.
+
+The panel's edge velocity travels in units of the freestream, and the integral method needs metres per second: fed as it
+was, every case ran at a Reynolds number some thirty times too low, which moves transition and thickens the layer.
+Separately, the channel's side lookup read the raw per-point block's columns 4:6 — `(n_y, surface)`, not the wall
+normals — and the release only fills the normals on the surface nodes themselves, so every off-wall node fell through
+to the default and the channel was a constant one over the whole field. Both are fixed; the side now comes from the
+node's nearest contour point, which is unambiguous where the channel acts and inert where it does not.
+
+With those fixed, the three measurements: the law's shape error along the chord, at the edge speed the flow actually
+has, is **rms log 0.401** on 24 training cases and 13,178 nodes — a typical 40 % bias that varies along the chord. The
+integral model's variation correlates with that error at **0.568**, so the direction is right. And one constant fitted
+on those cases, `log R = α · log c`, removes **17.7 %** of it at **α = 0.322** (0.401 → 0.330): the model's variation is
+about three times too large in amplitude, which is what the gain means. Applied raw, without the gain and without
+dividing out the per-surface median, the channel does the opposite of help — 0.296 → 0.924 rms on held-out cases — which
+is the integral method's own level leaking into a law whose level was already right.
+
+So the channel now carries only the variation, damped by the fitted constant, and `CORRECTION_GAIN` records where the
+constant came from. Whether it earns its place in the network is a question only training answers: 17.7 % of a 40 %
+shape error is a small quantity to hand a readout whose own wall-shear error is several times larger, and the honest
+expectation is a marginal gain, not the one the wall shear needs.
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.

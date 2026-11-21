@@ -4,13 +4,13 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from .features import FEATURE_NAMES, PANEL_FEATURES
+from .features import CORRECTION_FEATURES, FEATURE_NAMES, NU, PANEL_FEATURES
 
 __all__ = ["CoordinateNet", "WallAwareNet", "physics_loss", "wall_layer_profile", "flat_plate_slope"]
 
-#: the release's kinematic viscosity, in m²/s. Every case of AirfRANS uses the same fluid; Reynolds number varies
-#: through the inlet velocity and the chord, which is what the ``log_inlet_velocity`` channel and the geometry carry.
-NU = 1.54981e-05
+#: ``NU`` and ``CHORD`` describe the release itself, so they live with the features; re-exported here because the
+#: prior below is written in terms of both. Every case uses the same fluid — Reynolds number varies through the inlet
+#: velocity and the chord, which is what the ``log_inlet_velocity`` channel and the geometry carry.
 
 #: every airfoil of the release is normalised to this chord, so ``x_over_chord`` is the dimensional distance
 CHORD = 1.0
@@ -107,11 +107,13 @@ class WallAwareNet(nn.Module):
 
     def __init__(self, width: int = 512, depth: int = 4, fourier: int = 4, wall_layer: float = 5e-5,
                  slope_scale: float = 1e-3, shape_features: int = 0, slope_detach: bool = True,
-                 slope_prior: bool = False, panel: bool = False):
+                 slope_prior: bool = False, panel: bool = False, correction: bool = False):
         super().__init__()
         self.width, self.depth, self.fourier = width, depth, fourier
         self.shape_features = shape_features
         self.panel = panel
+        # the shape correction multiplies the flat-plate prior by the integral boundary layer's variation along the chord
+        self.correction = correction
         # with the prior the readout predicts a log-correction to the flat-plate law instead of the slope itself: its
         # output is O(1) and its target is bounded, which is the whole point — see flat_plate_slope
         self.slope_prior = slope_prior
@@ -124,7 +126,8 @@ class WallAwareNet(nn.Module):
         # the true scaled slope is O(10³); the head is asked for ``slope_scale`` times it, so it starts in a
         # well-conditioned range instead of having to grow its output by three orders of magnitude first
         self.register_buffer("slope_scale", torch.tensor(float(slope_scale)))
-        raw_features = len(FEATURE_NAMES) + (PANEL_FEATURES if panel else 0)
+        raw_features = (len(FEATURE_NAMES) + (CORRECTION_FEATURES if correction else 0)
+                        + (PANEL_FEATURES if panel else 0))
         self.embed = nn.Linear(raw_features + shape_features + 4 * fourier, width)
         self.blocks = nn.ModuleList([nn.Sequential(nn.Linear(width, width), nn.SiLU(),
                                                    nn.Linear(width, width), nn.SiLU()) for _ in range(depth)])
@@ -179,6 +182,10 @@ class WallAwareNet(nn.Module):
             # the law supplies the magnitude, the readout a log-correction and nothing else
             edge = outer + x[:, 7:9]
             prior = flat_plate_slope(edge, x[:, 0], torch.exp(x[:, 9]))
+            if self.correction:
+                # the law keeps the level; the integral method says how it varies along the chord
+                shape_column = len(FEATURE_NAMES)
+                prior = prior * x[:, shape_column].clamp(0.1, 10.0)
             direction = edge / torch.linalg.vector_norm(edge, dim=1, keepdim=True).clamp_min(1e-6)
             slope = prior[:, None] * torch.exp(raw.clamp(-6.0, 6.0)) * direction
         else:

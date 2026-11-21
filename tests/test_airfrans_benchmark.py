@@ -705,3 +705,57 @@ def test_the_integral_boundary_layer_reproduces_blasius_and_the_flat_plate_law()
     assert 0 < transition < len(x)
     assert abs(joined["theta"][transition] - joined["theta"][transition - 1]) < 0.05 * joined["theta"][transition]
     assert np.all(joined["shear"][transition:] > 0.0)
+
+
+def test_a_surface_that_never_trips_michel_stays_laminar_instead_of_raising():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.boundary_layer import (
+        edge_solution,
+        thwaites,
+    )
+
+    # a centimetre of chord at a metre a second: Re_x stays under a thousand, so Michel never holds and the turbulent
+    # march has no station to start from
+    nu, speed = 1.54981e-05, 1.0
+    x = np.linspace(1e-4, 0.01, 200)
+    joined = edge_solution(np.full_like(x, speed), x, nu)
+    assert joined["turbulent"] is None
+    np.testing.assert_allclose(joined["shear"], thwaites(np.full_like(x, speed), x, nu)["shear"])
+
+
+def test_the_shape_correction_is_the_variation_and_not_the_level():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.boundary_layer import (
+        CORRECTION_BAND,
+        shape_correction,
+    )
+    from pinneapple_simulation.pipelines.airfrans_benchmark.panel import panel_shape_correction
+
+    nu = 1.54981e-05
+    x = np.linspace(1e-3, 1.0, 400)
+
+    # whatever the edge velocity, the ratio is finite, positive and inside its band — this channel multiplies the wall
+    # prior on every node of every case, so a single blown value is a blown training block
+    for profile in (1.0 - 0.6 * x, np.ones_like(x), 1.0 + 0.6 * x, 1.0 + np.sin(6.0 * x)):
+        ratio = shape_correction(60.0 * profile, x, nu)
+        assert np.isfinite(ratio).all() and (ratio > 0.0).all()
+        assert CORRECTION_BAND[0] <= ratio.min() and ratio.max() <= CORRECTION_BAND[1]
+
+    # on the turbulent part of the chord an adverse gradient thins the traction away from the law's and a favourable
+    # one does not: at 60 m/s Michel trips at 44 % of the chord, so x = 0.5 has both sides turbulent
+    flat = shape_correction(np.full_like(x, 60.0), x, nu)[200]
+    adverse = shape_correction(60.0 * (1.0 - 0.6 * x), x, nu)[200]
+    assert adverse < 0.7 * flat
+
+    # the channel itself carries the variation only — the per-surface level is divided out and the gain keeps the
+    # amplitude inside what the law's shape error actually needs
+    xi = np.linspace(0.0, 1.0, 61)
+    thickness = 0.06 * np.sin(np.pi * xi)
+    airfoil = np.concatenate([np.stack([xi, thickness], axis=1),
+                              np.stack([xi[::-1], -0.4 * thickness[::-1]], axis=1)[:-1]])
+    raw = np.concatenate([airfoil, np.zeros((len(airfoil), 1)), np.zeros((len(airfoil), 2)),
+                          np.ones((len(airfoil), 1)), np.tile([1.0, 0.0], (len(airfoil), 1))], axis=1)
+    channel = panel_shape_correction(raw, airfoil, nu)
+    assert channel.shape == (len(airfoil), 1) and channel.dtype == np.float32
+    assert abs(np.median(channel) - 1.0) < 0.05, "the law keeps the level; the channel must not move it"
+    assert channel.std() > 0.05, "and it must vary along the chord, or it multiplies the law by a constant"
+
+

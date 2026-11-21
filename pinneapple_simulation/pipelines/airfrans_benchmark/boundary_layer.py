@@ -116,10 +116,11 @@ def edge_solution(edge: np.ndarray, x: np.ndarray, nu: float) -> dict[str, np.nd
     coefficient, offset, exponent = MICHEL
     transition = reynolds_theta >= coefficient * (1.0 + offset / reynolds_x) * reynolds_x ** exponent
     first = int(np.argmax(transition)) if transition.any() else len(x)
+    if first >= len(x):  # never trips Michel on this surface: the whole run stays laminar, and Head has nothing to march
+        return {"shear": laminar["shear"], "theta": laminar["theta"], "transition": np.full(len(x), first),
+                "laminar": laminar, "turbulent": None, "edge": speed, "x": x}
 
-    turbulent = head(edge, x, nu, start=max(first, 0),
-                     theta0=float(laminar["theta"][first]) if first < len(x) else None,
-                     shape0=1.4)
+    turbulent = head(edge, x, nu, start=first, theta0=float(laminar["theta"][first]), shape0=1.4)
     shear = np.where(np.arange(len(x)) < first, laminar["shear"], turbulent["shear"])
     return {"shear": shear, "theta": np.where(np.arange(len(x)) < first, laminar["theta"], turbulent["theta"]),
             "transition": np.full(len(x), first), "laminar": laminar, "turbulent": turbulent, "edge": speed, "x": x}
@@ -128,3 +129,40 @@ def edge_solution(edge: np.ndarray, x: np.ndarray, nu: float) -> dict[str, np.nd
 def wall_shear_along(edge: np.ndarray, x: np.ndarray, nu: float) -> np.ndarray:
     """Just the wall shear, in the same units as the edge velocity."""
     return edge_solution(edge, x, nu)["shear"]
+
+
+#: how far the shape correction is allowed to move the law. The integral method returns the *variation* along the chord
+#: and the law the *level*; near the leading edge the variation is a ratio of two quantities that both go to zero, and
+#: without a band a handful of nose nodes would decide the readout's prior
+CORRECTION_BAND = (0.25, 4.0)
+
+#: how much of the integral model's variation to believe. Measured on 24 training cases, node by node, against the
+#: release's own wall shear: the flat-plate law's shape error along the chord has rms log 0.401, the integral model's
+#: variation correlates with it at 0.568, and one constant fitted on those cases — ``log R = α · log c`` — removes
+#: 17.7 % of it at ``α = 0.322``. The model's variation is right in direction and about three times too large in
+#: amplitude, which is what a gain below one means. It is a constant of the model, like the law's own coefficient, not a
+#: per-case calibration.
+CORRECTION_GAIN = 0.322
+
+
+def shape_correction(edge: np.ndarray, x: np.ndarray, nu: float,
+                     coefficient: float = 0.0576, exponent: float = 0.2) -> np.ndarray:
+    """``τ_integral(x) / τ_flat(x)`` — the variation the law cannot express, as a multiplier on it.
+
+    The flat-plate law this campaign's wall prior uses has the right *level* and no *shape*: it is the answer for a
+    constant edge velocity, and on a section the pressure gradient changes the layer's thickness by a factor of several
+    along the chord. An integral method gets the shape and, driven along the whole chord, gets the level wrong — 109.7 %
+    on the release's node-wise wall shear, worse than the law it would replace. The two failures are complementary, so
+    this returns the ratio and leaves the level to the law.
+
+    Both sides are the *same* solver: the numerator with the case's edge velocity, the denominator with the flat-plate
+    relation, so the ratio is 1 wherever the edge velocity is constant and the systematic error the integral method
+    carries cancels."""
+    edge = np.asarray(edge, float)
+    x = np.asarray(x, float)
+    speed = np.maximum(np.abs(edge), 1e-9)
+    integral = edge_solution(speed, np.maximum(x, 1e-6), nu)["shear"]
+    reynolds_x = np.maximum(speed * np.maximum(x, 1e-6) / nu, 1.0)
+    flat = 0.5 * speed ** 2 * coefficient * reynolds_x ** (-exponent)
+    ratio = np.where(flat > 0, integral / np.maximum(flat, 1e-30), 1.0)
+    return np.clip(ratio, *CORRECTION_BAND)

@@ -8,10 +8,14 @@ from __future__ import annotations
 
 import numpy as np
 
-from .panel import PANEL_CHANNELS, panel_prior
+from .panel import PANEL_CHANNELS, panel_prior, panel_shape_correction
 
-__all__ = ["WALL_FRACTION", "SHAPE_BINS", "SHAPE_FEATURES", "PANEL_FEATURES", "chord", "shape_descriptor",
-           "point_features", "scaled_targets", "sample_indices", "FEATURE_NAMES"]
+__all__ = ["WALL_FRACTION", "SHAPE_BINS", "SHAPE_FEATURES", "PANEL_FEATURES", "CORRECTION_FEATURES", "NU",
+           "chord", "shape_descriptor", "point_features", "scaled_targets", "sample_indices", "FEATURE_NAMES"]
+
+#: the release's kinematic viscosity, in m²/s; every case of AirfRANS uses the same fluid. Kept here as well as in
+#: :mod:`.model` because the feature block needs it before there is a network to read it from
+NU = 1.54981e-05
 
 #: share of each training sample taken from the wall and the boundary-layer band
 WALL_FRACTION = 0.25
@@ -24,6 +28,9 @@ SHAPE_FEATURES = 2 * SHAPE_BINS
 
 #: the invariant field of the case's own inviscid flow, appended when a model is panel-conditioned
 PANEL_FEATURES = len(PANEL_CHANNELS)
+
+#: the wall-shear shape correction — the integral boundary layer's variation along the chord over the flat-plate law's
+CORRECTION_FEATURES = 1
 
 #: the input channels, in the order :func:`point_features` returns them
 FEATURE_NAMES = ("x_over_chord", "y_over_chord", "sdf_over_chord", "log_sdf", "normal_x", "normal_y", "surface",
@@ -61,7 +68,8 @@ def shape_descriptor(airfoil_points: np.ndarray, bins: int = SHAPE_BINS) -> np.n
 
 
 def point_features(features: np.ndarray, airfoil_points: np.ndarray, shape: bool = False,
-                   panel: bool = False, panel_pressure: bool = True) -> np.ndarray:
+                   panel: bool = False, panel_pressure: bool = True, correction: bool = False,
+                   nu: float = NU) -> np.ndarray:
     """The eleven input channels from the AirfRANS per-point features ``(x, y, sdf, n_x, n_y, surface, ux, uy)``.
 
     The signed distance enters twice: divided by the chord, and as a signed logarithm, which is what lets a network
@@ -81,6 +89,9 @@ def point_features(features: np.ndarray, airfoil_points: np.ndarray, shape: bool
     scaled = sdf / c
     block = np.stack([x / c, y / c, scaled, np.log1p(np.abs(scaled)) * np.sign(scaled), nx, ny, surface,
                       ux / u_inf, uy / u_inf, np.log(u_inf), np.ones_like(x)], axis=1).astype(np.float32)
+    if correction:
+        # first of the extra channels, so its column is always ``len(FEATURE_NAMES)`` for the model
+        block = np.concatenate([block, panel_shape_correction(features, airfoil_points, nu)], axis=1)
     if panel:
         block = np.concatenate([block, panel_prior(features, airfoil_points, pressure=panel_pressure)], axis=1)
     if shape:

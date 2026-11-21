@@ -396,3 +396,76 @@ def panel_prior(features: np.ndarray, airfoil_points: np.ndarray, panels: int = 
         # Bernoulli on the clipped field, so the three channels stay one flow rather than two
         out[start:stop, 2] = 0.5 * (1.0 - np.einsum("ij,ij->i", velocity, velocity)) if pressure else 0.0
     return out
+
+
+def panel_shape_correction(features: np.ndarray, airfoil_points: np.ndarray, nu: float,
+                           panels: int = PANEL_COUNT, offset: float = 2e-3) -> np.ndarray:
+    """The wall-shear shape correction of one case at its own nodes, as a single channel.
+
+    The chain is the classical one: the panel solve gives the edge velocity along the section from the geometry and the
+    freestream alone, the integral boundary layer turns it into ``τ(x)``, and the correction is that over the flat-plate
+    law at the same edge speed. It is evaluated on the section and then read at every node by chord position and side,
+    because a node far from the wall still needs a finite value for the channel that multiplies the wall prior."""
+    from .boundary_layer import CORRECTION_GAIN, shape_correction
+
+    features = np.asarray(features, float)
+    origin, chord_axis, normal_axis = _chord_frame(airfoil_points)
+    contour = airfoil_contour(airfoil_points, panels, (origin, chord_axis, normal_axis))
+    first, second = contour, np.roll(contour, -1, axis=0)
+    length = np.linalg.norm(second - first, axis=1)
+    direction = (second - first) / length[:, None]
+    inward = np.stack([-direction[:, 1], direction[:, 0]], axis=1)
+    probes = contour - offset * inward
+
+    freestream = features[0, 6:8].astype(float)
+    speed = float(np.hypot(*freestream))
+    if speed <= 0.0:
+        return np.ones((len(features), 1), np.float32)
+    incidence = float(np.arctan2(freestream @ normal_axis, freestream @ chord_axis))
+    circulation = np.pi * chord_length(airfoil_points) * speed * np.sin(incidence - zero_lift_angle(contour, (origin, chord_axis, normal_axis)))
+    flow = panel_flow(first, second, freestream, probes, circulation=circulation)
+
+    along = (contour - origin) @ chord_axis
+    chord = max(float(np.ptp(along)), 1e-12)
+    xc = (along - along.min()) / chord
+    side = np.sign((contour - origin) @ normal_axis)
+    edge = np.linalg.norm(flow["velocity"], axis=1)
+
+    correction = np.ones(len(contour))
+    metre = chord
+    for sign in (-1.0, 1.0):
+        pick = np.flatnonzero(side == sign)
+        if pick.size < 8:
+            continue
+        order = pick[np.argsort(xc[pick])]
+        # the panel's edge velocity is in units of the freestream; the integral model needs metres per second, because
+        # Reynolds number is what decides transition and the layer's growth
+        ratio = shape_correction(edge[order] * speed, xc[order] * metre, nu)
+        # only the *variation* travels: the level stays with the law, which is why the per-surface median is divided out,
+        # and the amplitude is damped by the constant measured against the release's own wall shear
+        variation = np.log(np.maximum(ratio, 1e-12))
+        correction[order] = np.exp(CORRECTION_GAIN * (variation - np.median(variation)))
+
+    # read the correction at every node, by chord position on the side the node is on
+    node_xy = np.asarray(features[:, 0:2], float)
+    node_x = (node_xy - origin) @ chord_axis
+    node_x = np.clip((node_x - along.min()) / chord, 0.0, 1.0)
+    # the side has to come from the geometry: the raw block's wall normals are only filled on the surface nodes itself,
+    # so reading them would leave every off-wall node's channel at its default of one. The nearest contour point's side
+    # is unambiguous for the nodes this channel acts on, and inert for the ones far away.
+    node_side = np.empty(len(node_xy))
+    for start in range(0, len(node_xy), 16_384):
+        stop = min(start + 16_384, len(node_xy))
+        gap = ((node_xy[start:stop, None, :] - contour[None, :, :]) ** 2).sum(axis=2)
+        node_side[start:stop] = side[np.argmin(gap, axis=1)]
+    out = np.ones(len(features))
+    for sign in (-1.0, 1.0):
+        rows = np.flatnonzero(node_side == sign)
+        pick = np.flatnonzero(side == sign)
+        if rows.size and pick.size >= 4:
+            order = pick[np.argsort(xc[pick])]
+            out[rows] = np.interp(node_x[rows], xc[order], correction[order])
+        elif rows.size:
+            order = np.argsort(xc)
+            out[rows] = np.interp(node_x[rows], xc[order], correction[order])
+    return np.clip(out, 0.1, 10.0)[:, None].astype(np.float32)

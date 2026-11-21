@@ -216,6 +216,7 @@ class WallSpec:
     panel: bool = False
     panel_pressure: bool = True
     correction: bool = False
+    stream: bool = False
     force_weight: float = 1.0
     physics_weight: float = 0.0
     surface_pressure_weight: float = 5.0
@@ -243,7 +244,8 @@ class WallSpec:
                 "drag_scale": self.drag_scale, "lift_scale": self.lift_scale, "lift_weight": self.lift_weight,
                 "curve_cases": self.curve_cases, "curve_every": self.curve_every, "shape": self.shape,
                 "shape_features": SHAPE_FEATURES if self.shape else 0, "panel": self.panel,
-                "panel_pressure": self.panel_pressure, "correction": self.correction, "select": self.select,
+                "panel_pressure": self.panel_pressure, "correction": self.correction, "stream": self.stream,
+                "select": self.select,
                 "checkpoint_every": self.checkpoint_every}
 
 
@@ -439,7 +441,8 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     shape_features = extra - (PANEL_FEATURES if spec.panel else 0) - (CORRECTION_FEATURES if spec.correction else 0)
     model = WallAwareNet(spec.width, spec.depth, spec.fourier, spec.wall_layer,
                          shape_features=shape_features, slope_detach=spec.slope_detach,
-                         slope_prior=spec.slope_prior, panel=spec.panel, correction=spec.correction).to(device)
+                         slope_prior=spec.slope_prior, panel=spec.panel, correction=spec.correction,
+                         stream=spec.stream).to(device)
     if spec.init_from:
         # a second stage that starts from a fitted field: the trunk comes from the checkpoint, and freezing it is what
         # separates the two budgets — the field keeps the epochs it was given, the readout gets its own
@@ -597,6 +600,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                         "shape_features": model.shape_features, "slope_detach": model.slope_detach,
                         "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
+                        "stream": model.stream,
                         "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch, "val_slope_rel_l2": slope_relative,
                         "select": spec.select, "composite": score},
@@ -607,6 +611,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                         "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                         "shape_features": model.shape_features, "slope_detach": model.slope_detach,
                         "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
+                        "stream": model.stream,
                 "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch}, os.path.join(out_dir, "checkpoint.pt"))
 
@@ -615,6 +620,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                 "depth": spec.depth, "fourier": spec.fourier, "wall_layer": spec.wall_layer,
                 "shape_features": model.shape_features, "slope_detach": model.slope_detach,
                         "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
+                        "stream": model.stream,
                 "features": list(FEATURE_NAMES), "residual_targets": False,
                 "targets": ["u/Uinf", "v/Uinf", "p/Uinf2"]}, weights)
     record = {"variant": "wall", **spec.as_dict(), "train_cases": len(train_ids), "val_cases": len(val_ids),

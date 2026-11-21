@@ -235,6 +235,16 @@ and incidence, three levels of each. It matches the release's own composition (3
 prior looked better on the wall shear (46.1 % against 127.3 %); on 61 cases the plain field wins (44.9 % against 62.1 %).
 That is what a holdout is for, and it is why every row below is quoted on the larger one.
 
+**How many cases the recipe needs, measured — and it matters more than any of the tricks above.** The refit of the
+readout on a frozen trunk is what took the `full` split from 65.26 to 75.44, and it is a regression with few cases.
+Measured on the 61-case holdout, same recipe, three budgets: at **200** cases the wall shear goes 44.9 % → **84.2 %**
+after the refit, at **340** it goes 37.5 % → **61.8 %**, and at **560** (a 600-case split) it goes 35.8 % → **33.6 %** on
+the final checkpoint and **24.6 %** on the validation-selected one. So the boundary sits between 340 and 560: below
+~400 cases use the **field stage alone** — which is what took the `scarce` entry from 24.59 to 52.53 — and above ~550 use
+the pair. The 600-case field stage is also better than the 200-case recipe on every field channel (velocity 4.38 %
+against 8.57 %, pressure 2.07 % against 4.47 %, wall pressure 2.12 % against 2.97 %, `Cd R²` −0.58 against −1.97), which
+is the campaign's plainest result: on this benchmark, **data budget moves the answer more than the architecture does**.
+
 **Selecting the checkpoint by the score, not by a capped term.** `best.pt` used to follow the validation wall slope,
 and the wall shear is past its cap on every entry that works — so the criterion optimises a term that scores zero. On
 the 61-case holdout the two criteria do not pick the same epoch, and the first pair measured looks exactly like the
@@ -309,6 +319,23 @@ The run also left an operational caution worth recording: under `--freeze-readou
 best at **epoch 1** (1.08 against 5.08 at the end), because the readout's prior reads the trunk's own edge velocity and
 moves with it. A `best.pt` chosen by that criterion is an almost-untrained checkpoint — it scores 37.2 % velocity and
 69.6 % wall shear against 8.63 % and 44.56 % for the final one. Below ~400 cases the field stage submits `model.pt`.
+
+**The stream function, and the measurement that justified trying it.** The two remaining candidates for the wall shear
+were an architecture change and more data. The architecture question reduces to what the network is free to get wrong,
+and continuity is the clearest answer: the release's flow is incompressible to the solver's tolerance, while nothing in
+the training objective says the predicted field has to be. Measured on the 600-case model — reconstructing the
+divergence mesh-lessly, by a least-squares plane over each node's nearest neighbours on the release's own point cloud —
+outside the wall layer the prediction's divergence is **16 to 52 times** the release's: 0.44–0.76 against
+0.008–0.041 in units of `(c/U∞)·∇·u`, with the release sitting on the reconstruction's own noise floor. So continuity
+is a constraint the network violates freely.
+
+The cheaper way to impose it was tried and rejected first, and the rejection is the useful part: the inner layer's
+`u = a(x)d` implies `v = −½ a′(x) d²`, and the release's *own* flow violates that relation by a factor of 17 in the band
+2·10⁻³–2·10⁻² chords. It is not a relation a real flow satisfies at that scale, so a readout built to enforce it would
+be fitting an artefact. What survives is the outer flow: `WallAwareNet(stream=True)` makes `u` and `v` the curl of one
+scalar, which costs an extra derivative of the trunk and removes a head output, leaves the wall layer and no-slip
+untouched, and makes `∇·u = 0` exact — the residual in a finite-difference check is three parts in a thousand of the
+field's own magnitude, against 0.91 for the same weights read as two free channels.
 
 ## What the campaign guarantees, and what it does not
 

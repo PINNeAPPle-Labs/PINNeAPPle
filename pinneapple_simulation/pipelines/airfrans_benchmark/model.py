@@ -107,13 +107,18 @@ class WallAwareNet(nn.Module):
 
     def __init__(self, width: int = 512, depth: int = 4, fourier: int = 4, wall_layer: float = 5e-5,
                  slope_scale: float = 1e-3, shape_features: int = 0, slope_detach: bool = True,
-                 slope_prior: bool = False, panel: bool = False, correction: bool = False):
+                 slope_prior: bool = False, panel: bool = False, correction: bool = False, stream: bool = False):
         super().__init__()
         self.width, self.depth, self.fourier = width, depth, fourier
         self.shape_features = shape_features
         self.panel = panel
         # the shape correction multiplies the flat-plate prior by the integral boundary layer's variation along the chord
         self.correction = correction
+        # the outer flow as the curl of a scalar: one output instead of two, divergence-free by construction. Measured
+        # before it was built: outside the wall layer the predicted field's divergence is 16 to 52 times the truth's,
+        # while the truth sits on the reconstruction's own noise floor — so continuity is a constraint the network is
+        # free to violate today and does.
+        self.stream = stream
         # with the prior the readout predicts a log-correction to the flat-plate law instead of the slope itself: its
         # output is O(1) and its target is bounded, which is the whole point — see flat_plate_slope
         self.slope_prior = slope_prior
@@ -170,8 +175,20 @@ class WallAwareNet(nn.Module):
 
         ``slope_override`` replaces the readout's slope everywhere, which is how a caller imposes a slope that did not
         come out of this network — the chord-curve projection of :func:`.wall.curve_projection` is the reason it exists."""
-        hidden = self._encode(self._inputs(x))
-        outer = self.head_velocity(hidden)             # perturbation from the freestream, as in the plain network
+        if self.stream:
+            # ``outer`` is the curl of a scalar, so ``u = ∂ψ/∂y`` and ``v = −∂ψ/∂x`` satisfy continuity identically and
+            # the network cannot spend capacity on a field that does not. The freestream is added below, as before, and
+            # its divergence is zero — so the whole outer velocity is divergence-free, with one output fewer than the
+            # two free channels it replaces. ``enable_grad`` because evaluation runs under ``no_grad``.
+            with torch.enable_grad():
+                x = x if x.requires_grad else x.detach().requires_grad_(True)
+                hidden = self._encode(self._inputs(x))
+                psi = self.head_velocity(hidden)[:, 0]
+                gradient = torch.autograd.grad(psi.sum(), x, create_graph=self.training)[0]
+            outer = torch.stack([gradient[:, 1], -gradient[:, 0]], dim=1)
+        else:
+            hidden = self._encode(self._inputs(x))
+            outer = self.head_velocity(hidden)             # perturbation from the freestream, as in the plain network
         # the statistics are the wall nodes' (train.py), so a far-field row standardises to a huge z-score; clipped,
         # because the readout's output is exponentiated below and an unbounded z there is an inf, not a large number
         wall_inputs = ((x - self.feature_mean) / self.feature_std).clamp(-8.0, 8.0)

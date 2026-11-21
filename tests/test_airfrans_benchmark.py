@@ -340,6 +340,39 @@ def test_the_wall_aware_network_is_no_slip_on_the_wall_and_free_of_it_away_from_
     assert prediction.shape == (4, 3)
 
 
+def test_the_stream_variant_is_divergence_free_and_still_no_slip():
+    """The outer flow as the curl of a scalar: one output fewer, and continuity identically satisfied.
+
+    Measured on the campaign's own field before the flag existed: outside the wall layer the divergent model's field is
+    16 to 52 times more divergent than the release's, so this is a constraint the network was free to violate."""
+    x = np.linspace(0.2, 1.2, 60)
+    y = np.linspace(0.2, 1.0, 60)
+    grid = np.stack(np.meshgrid(x, y), axis=-1)
+    raw = np.concatenate([grid.reshape(-1, 2), np.full((len(x) * len(y), 1), 0.4),
+                          np.zeros((len(x) * len(y), 2)), np.zeros((len(x) * len(y), 1)),
+                          np.tile([1.0, 0.0], (len(x) * len(y), 1))], axis=1)
+    airfoil = np.stack([np.linspace(0.0, 1.0, 81), 0.05 * np.sin(np.pi * np.linspace(0.0, 1.0, 81))], axis=1)
+    airfoil = np.concatenate([airfoil, airfoil * np.array([1.0, -1.0])])
+    features = point_features(raw, airfoil)
+
+    network = WallAwareNet(width=64, depth=2, fourier=2, stream=True)
+    network.eval()
+    with torch.no_grad():
+        field = network(torch.from_numpy(features)).numpy().astype(float)
+    u = field[:, 0].reshape(len(y), len(x))
+    v = field[:, 1].reshape(len(y), len(x))
+    divergence = np.gradient(u, x[1] - x[0], axis=1) + np.gradient(v, y[1] - y[0], axis=0)
+    # finite differences are the only error left: three parts in a thousand of the field's own magnitude
+    assert np.abs(divergence[1:-1, 1:-1]).max() < 0.01 * np.sqrt((u ** 2).mean())
+
+    # and the wall layer is untouched: no-slip is still exact where the weight vanishes
+    wall = torch.zeros(2, len(FEATURE_NAMES))
+    wall[:, 7], wall[:, 8] = 1.0, 0.0
+    wall[:, 6] = 1.0
+    with torch.no_grad():
+        assert torch.allclose(network(wall)[:, :2], torch.zeros(2, 2), atol=0.0)
+
+
 def test_the_wall_slope_samples_line_up_with_the_native_point_order():
     """``surface_rank`` maps a sampled node onto its compact wall entry, and -1 everywhere else."""
     features = np.zeros((5, 9))

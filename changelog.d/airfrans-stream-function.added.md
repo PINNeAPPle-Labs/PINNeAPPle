@@ -15,3 +15,7 @@
 At the reference budget it is the campaign's clearest case of a metric's *shape* deciding an experiment: wall shear
 44.90 % → **32.65 %** (the largest wall gain of any 200-case arm) and 7.5 proxy points lost, because both wall shears are
 past the 20 % cap and score zero while the field it gives up is scored.
+
+At 560 cases the wall gain does not reproduce — **38.45 % against 35.80 %** for the same recipe without the stream — so
+the 200-case advantage was a small-data effect rather than the architecture's; the wall pressure is the one channel it
+improves (2.12 % → 1.19 %), and the composite proxy moves 41.02 → 41.59.

@@ -347,9 +347,13 @@ Trained at the reference budget and scored on the 61 cases, it is the clearest e
 of any arm at 200 cases — and loses 7.5 proxy points, because `S = clip(100(1 − τ/20))` scores the two as equal (both
 zero) while the field it gives up is scored: velocity 8.58 % → 11.87 %, pressure 4.47 % → 7.87 %, `Cd R²` −1.97 →
 −5.37. A divergence-free field is not a cheaper field, and the 12.3 points of wall shear are worth nothing above the cap.
-That also says exactly where to take it next: at 560 cases the same recipe reaches 35.8 % (24.6 % on the
-validation-selected checkpoint), so a relative gain of the same size would put the stream arm **under the 20 % cap**,
-where the term is worth its full 15.
+That pointed at exactly one experiment, and it settled the question: at 560 cases, where the plain arm reaches 35.8 %
+(24.6 % on the validation-selected checkpoint), a relative wall gain of the same size would have put the stream arm
+under the 20 % cap, where the term is worth its full 15 points. It does not reproduce — **38.45 % against 35.80 %**,
+worse than without it, with the wall pressure as its only real gain (2.12 % → **1.19 %**) and a proxy of 41.59 against
+41.02: a wash. The 12.3 points at 200 cases were a **small-data effect** — a divergence-free field regularises the
+near-wall layer when the data is scarce, and the effect is gone once the field itself is good (4.38 % velocity). The
+architecture is not what is missing, and the closest any arm comes to the 20 % cap is still 24.6 %, above it.
 
 ## What the campaign guarantees, and what it does not
 

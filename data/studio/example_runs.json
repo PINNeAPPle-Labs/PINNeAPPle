@@ -52,6 +52,20 @@
   "seconds": 16.1,
   "writes_files": []
  },
+ "example:data_readiness": {
+  "error": "",
+  "hash": "d43271ba430793f8",
+  "ok": true,
+  "recorded": "2026-11-20",
+  "scripts": [
+   "examples/data_readiness/run.py"
+  ],
+  "seconds": 33.0,
+  "writes_files": [
+   "examples/data_readiness/_out/gate.config.json",
+   "examples/data_readiness/_out/gate.jsonl"
+  ]
+ },
  "example:digital_twin_library": {
   "error": "",
   "hash": "5c73feb5e08e8e2c",

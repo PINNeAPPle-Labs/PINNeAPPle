@@ -1,5 +1,5 @@
 {
- "budget_seconds": 600,
+ "budget_seconds": 660,
  "ci": [
   {
    "command": [
@@ -56,6 +56,13 @@
    ],
    "id": "examples/physics_query",
    "max_seconds": 45
+  },
+  {
+   "command": [
+    "run.py"
+   ],
+   "id": "examples/data_readiness",
+   "max_seconds": 60
   }
  ],
  "manual": {

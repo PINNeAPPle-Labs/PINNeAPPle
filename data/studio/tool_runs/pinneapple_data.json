@@ -477,6 +477,14 @@
   "returned": "tuple",
   "seconds": 0.04
  },
+ "pinneapple_data.readiness:default_policy": {
+  "code_hash": "4306aad31b226b4b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-20",
+  "returned": "ReadinessPolicy",
+  "seconds": 9.17
+ },
  "pinneapple_data.schema.gates:relative_l2": {
   "code_hash": "a993216e56ccd064",
   "inputs": {

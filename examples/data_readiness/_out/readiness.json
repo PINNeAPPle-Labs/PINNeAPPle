@@ -1,0 +1,57 @@
+{
+  "schema": "pinneapple.readiness.report/1",
+  "subject": "plate_sweep",
+  "name": "plate_sweep",
+  "digest": "sha256:a417ccae5ff3680b33cd16568117ba92d91349819f0ae9f465d6f08d2d22a9d8",
+  "status": "WARNING",
+  "policy": {
+    "name": "default",
+    "path": "",
+    "critical": [
+      "schema.missing",
+      "schema.file_missing",
+      "units.unparseable",
+      "units.mismatch",
+      "conditions.missing",
+      "validity.outside"
+    ],
+    "warnings": [],
+    "disabled": [],
+    "require_review_for_warnings": true
+  },
+  "score": {
+    "overall": 90.0,
+    "penalty": 10.0,
+    "method": "Each finding costs 30 (critical) / 10 (warning) / 2 (info) points, scaled from 50 % to 100 % by the share of the dataset it affects (100 % at 10 % or more); the score is 100 minus the sum, floored at 0. The score is reported next to the verdict and never decides it.",
+    "review": {
+      "approved": true,
+      "record": "sha256:862ec6bc61b8e3e336e7a93d7d9e9687d34d31a2476655651b95dca055f5183a",
+      "reviewer": "A. Ribeiro",
+      "accepted": [
+        "units.missing"
+      ],
+      "missing": []
+    }
+  },
+  "groups": {
+    "schema": 0,
+    "conditions": 0,
+    "validity": 0,
+    "table": 0,
+    "units": 1
+  },
+  "findings": [
+    {
+      "id": "units.missing",
+      "group": "units",
+      "severity": "warning",
+      "title": "Column 'T_max' has no unit",
+      "detail": "'T_max' is declared without a unit, so a value cannot be checked against physical bounds or converted.",
+      "evidence": {
+        "column": "T_max"
+      },
+      "fix": "Add the unit of 'T_max' to the manifest.",
+      "affected": 1.0
+    }
+  ]
+}

@@ -42,7 +42,7 @@ from . import closed_form
 from . import pde_environment
 from . import pinn_solver
 from . import symbolic_pde
-from .physical_problem import PARAMETER_ROLES, Parameter, PhysicalProblem, Quantity
+from .physical_problem import PARAMETER_ROLES, Parameter, Objective, Constraint, Fidelity, PhysicalProblem, Quantity
 from . import metrics
 
 # backward-compat aliases (old names still work)

@@ -644,3 +644,64 @@ def test_both_networks_accept_the_panel_channels():
                   WallAwareNet(16, 2, fourier=0, panel=True, shape_features=4)):
         x = torch.zeros(5, len(FEATURE_NAMES) + PANEL_FEATURES + (4 if isinstance(model, WallAwareNet) else 0))
         assert model(x).shape == (5, 3)
+
+
+def test_the_composite_proxy_is_the_benchmarks_composite_on_what_it_can_see():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.train import composite_proxy
+
+    # every term inside its cap: the arithmetic is the published one, weight for weight
+    perfect = composite_proxy({"p_wall": 0.0, "tau": 0.0, "velocity": 0.0, "pressure": 0.0,
+                               "cd_r2": 1.0, "cl_r2": 1.0})
+    assert abs(perfect - 75.0) < 1e-9                  # the six terms carry 0.75 of the composite
+    half = composite_proxy({"p_wall": 7.5, "tau": 10.0, "velocity": 6.0, "pressure": 7.5,
+                            "cd_r2": 0.5, "cl_r2": 0.5})
+    assert abs(half - 37.5) < 1e-9
+
+    # a term past its cap contributes nothing, and the ones that follow still count: this is the whole reason the
+    # criterion exists, because the wall shear head's best epoch is past the cap
+    capped = composite_proxy({"p_wall": 0.0, "tau": 45.0, "velocity": 0.0, "pressure": 0.0,
+                              "cd_r2": 1.0, "cl_r2": 1.0})
+    assert abs(capped - 65.0) < 1e-9
+    assert composite_proxy({"p_wall": 0.0, "tau": 200.0, "velocity": 0.0, "pressure": 0.0,
+                            "cd_r2": 1.0, "cl_r2": 1.0}) == capped
+
+    # and it prefers the final epoch to the one the validation slope picks, on the measured pair: 12.7 points of wall
+    # shear, both past the cap, against 0.6 of velocity and 0.8 of pressure that are not
+    final = {"p_wall": 2.97, "tau": 44.9, "velocity": 8.57, "pressure": 4.47, "cd_r2": -1.97, "cl_r2": 0.998}
+    slope_selected = {"p_wall": 3.14, "tau": 32.2, "velocity": 9.18, "pressure": 5.26, "cd_r2": -2.38, "cl_r2": 0.998}
+    assert composite_proxy(final) > composite_proxy(slope_selected) + 1.0
+
+
+def test_the_integral_boundary_layer_reproduces_blasius_and_the_flat_plate_law():
+    from pinneapple_simulation.pipelines.airfrans_benchmark.boundary_layer import (
+        edge_solution,
+        head,
+        thwaites,
+    )
+
+    # the release's own fluid, at a Reynolds number inside its envelope
+    nu, speed, length = 1.54981e-05, 30.0, 1.0
+    x = np.linspace(1e-4, length, 4000)
+    edge = np.full_like(x, speed)
+
+    laminar = thwaites(edge, x, nu)
+    blasius = 0.664 / np.sqrt(speed * x / nu)
+    friction = 2.0 * laminar["shear"] / speed ** 2
+    inside = x > 0.05 * length
+    assert abs(np.median(friction[inside] / blasius[inside]) - 1.0) < 0.03
+
+    turbulent = head(edge, x, nu, start=0, theta0=1e-4, shape0=1.4)
+    law = 0.0576 * (speed * x / nu) ** -0.2
+    friction = 2.0 * turbulent["shear"] / speed ** 2
+    assert abs(np.median(friction[inside] / law[inside]) - 1.0) < 0.15
+    # a turbulent layer's shape factor is 1.3 to 1.5 on a flat plate; letting it wander to its bounds is the failure
+    # mode that takes the skin friction down by a factor of three
+    assert 1.2 < turbulent["shape"][2:].min() and turbulent["shape"].max() < 1.7
+
+    # and the whole chord: laminar ahead of Michel's criterion, turbulent behind it, with the momentum thickness
+    # continuous across the joint
+    joined = edge_solution(edge, x, nu)
+    transition = int(joined["transition"][0])
+    assert 0 < transition < len(x)
+    assert abs(joined["theta"][transition] - joined["theta"][transition - 1]) < 0.05 * joined["theta"][transition]
+    assert np.all(joined["shear"][transition:] > 0.0)

@@ -226,6 +226,49 @@ a field whose error is already below the prior's — which is the architecture q
 The flag is off by default, the four measurements above are the argument for leaving it that way, and `--panel` /
 `--no-panel-pressure` in the campaign reproduce either arm.
 
+**A holdout that can predict a score.** Twenty cases did not: on the AoA split the 20-case holdout said 22.5 % wall
+shear where the official test measured 48.7 %, and on the scarce split it said 8.02 % velocity where the official said
+8.73 % — both optimistic, both in the same direction. `campaign/make_holdout60.py` draws 61 cases from the far half of
+the same shuffled pool — so every training slice up to 400 cases stays disjoint from it — stratified on inlet velocity
+and incidence, three levels of each. It matches the release's own composition (34 % of its cases above 8° against 31 %,
+33 % above 70 m/s against 37 %) and, more importantly, it *corrected a conclusion*: on 20 cases the arm with the panel
+prior looked better on the wall shear (46.1 % against 127.3 %); on 61 cases the plain field wins (44.9 % against 62.1 %).
+That is what a holdout is for, and it is why every row below is quoted on the larger one.
+
+**Selecting the checkpoint by the score, not by a capped term.** `best.pt` used to follow the validation wall slope,
+and the wall shear is past its cap on every entry that works — so the criterion optimises a term that scores zero. On
+the 61-case holdout the two criteria do not pick the same epoch, and the first pair measured looks exactly like the
+prediction: at the 200-case field stage the slope-selected checkpoint gives 32.2 % wall shear against 44.9 % for the
+final epoch, and that 12.7-point gain is worth **nothing** (both past the 20 % cap) while the field it gives up (9.18 %
+velocity against 8.57 %, 5.26 % pressure against 4.47 %) is worth **1.5 points**, so the composite proxy prefers the
+final epoch by 1.46.
+
+`composite_proxy` is the benchmark's composite on the six terms that can be measured during training, and
+`WallSpec.select="composite"` makes `best.pt` follow it. The second pair, at the 340-case readout stage, is the caution
+that belongs next to the first: there the slope selects an epoch with a *better* drag (`Cd R²` +0.083 against −0.39) and
+a worse wall shear (79.3 % against 70.7 %), and on the holdout that pair scores 39.3 against 38.1 — the slope wins, and
+the composite-selected checkpoint merely ties the final epoch (38.08 against 38.05). With twenty validation cases the
+`Cd R²` of the proxy is itself noisy, so the composite did not see the epoch the holdout likes. The rule that transfers
+is the narrower one, and it is still worth stating: **optimising a term that is already past its cap is negative-sum** —
+what the criterion should do is not visible from the validation slope alone, and the composite is a better-motivated
+default than the slope, not a demonstrated improvement.
+
+**An integral boundary layer for the wall, and the first measurement of it.** What a flat-plate law cannot express is
+why the traction varies along the chord: the pressure gradient thins and thickens the layer and separates it on the aft
+surface. `boundary_layer.py` carries the classical answer — Thwaites' laminar closure, Head's turbulent one with
+Ludwig–Tillmann's skin friction, Michel's criterion for transition — and it is validated against the forms that precede
+it: on a constant edge velocity Thwaites reproduces Blasius to **1.2 %** and Head reproduces the `0.0576 Re_x^{-1/5}`
+law the campaign has been using to **6 %**, with the shape factor staying in its physical band (1.40–1.49) instead of
+running to its bounds, which is the failure mode that takes the skin friction down by a factor of three.
+
+Driven along the whole chord by the panel solve's edge velocity — geometry and freestream alone, no truth — it reaches
+**109.7 %** on the release's node-wise wall shear, worse than the flat-plate law it would replace, while correlating at
+0.58 with it per chord bin and a median 30 % error there. The reading is the campaign's oldest finding applied to a new
+tool: the node-wise metric is dominated by the leading edge, and that is exactly where an integral method is weakest.
+The next form to try is therefore not the full-field prior but a *shape correction* — the law's level multiplied by the
+integral method's variation along the chord — which keeps what the law already gets right and adds only the part it
+cannot say.
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.
@@ -245,3 +288,5 @@ The flag is off by default, the four measurements above are the argument for lea
 - `pinneapple-engineering-api` exposes this pipeline as the `engineering.fluidsbench_campaign` job capability
   (`POST /v1/fluidsbench/jobs`).
 - `pinneapple_simulation/pipelines/airfrans_benchmark/panel.py` — the inviscid prior, and the four measurements above.
+- `pinneapple_simulation/pipelines/airfrans_benchmark/boundary_layer.py` — the integral method, and what it does to the
+  wall shear on the release.

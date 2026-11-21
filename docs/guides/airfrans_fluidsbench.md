@@ -364,6 +364,26 @@ the average of the four finals, of the four `best.pt` (28.43 %) and of all eight
 30.16 % without depending on which seed came out ahead — not the 4.6 points that separate the best clean number from
 the cap.
 
+**The binned target: a real local gain that did not transfer, and what that says about the holdout.** The wall readout
+is trained against each node's own slope, and that target carries the node-to-node variation the evaluator's gradient
+reconstruction amplifies and a per-case MLP cannot know. `WallSpec.slope_bins` replaces it by the mean of each chord bin —
+the truth curve is representable to 12.1 % by 33 bins, so the question becomes answerable. On the 60-case holdout the
+*first* thing in the campaign to move the final checkpoint without any epoch selection: wall shear 33.63 % → 27.22 % at
+48 bins, → **23.80 %** at 24 bins with 32 epochs, and `Cd R²` from −0.14 to **+0.39**, which is +5.9 points of the
+composite proxy.
+
+Then it was packaged — 760 cases, the same trunk as the 75.44 entry, `pp-coordinate-net-wall-binned-full-v1` — and the
+official test said **68.09**: wall shear 51.12 % (against 36.95 %) and `Cd R²` 0.178 (against 0.668). The local proxy
+predicted +5.9 points and the official number moved −7.35. That is the single most useful thing this line produced, and
+it is not about binning: **the holdout can rank variants but cannot predict a drag gain.** `Cd R²` is a cross-case
+covariance and sixty cases drawn from the training distribution do not cover the range where the official test fails.
+
+The same arithmetic also says the wall shear is the wrong thing to chase. Decomposing both entries against the
+leaderboard's first place (97.78 reproduced against 97.76 published, 75.47 against 75.44): wall shear 9.39 points of gap,
+drag 4.65, velocity 4.40, wall pressure 1.81, pressure 1.41, profile 0.65, lift 0.00. But `S = clip(100(1 − τ/20))` is
+linear past the cap, so crossing 20 % is worth **0.5 points** — reaching 10 % would be worth 5, and the leader's 1.22 %
+worth 9.4. Nothing in this campaign came near, and the families that tried are the seven listed above.
+
 ## What the campaign guarantees, and what it does not
 
 - The package is written and validated by the benchmark's own tooling; the campaign only drives it.

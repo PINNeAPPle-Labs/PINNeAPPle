@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="/shared/app.css">
+<title>Optics Lab — imagem litográfica</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a0b0d; --card:#14161c; --border:#232630; --text:#e8e9ec; --dim:#8b8f9a;
+          --faint:#5b5f6b; --accent:#6ea8fe; --green:#3ecf8e; --green-dim:#123024; --amber:#e8b44a;
+          --amber-dim:#332711; --red:#ef5b5b; --red-dim:#3a1717; }
+  * { box-sizing: border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; margin:0; background:var(--bg); color:var(--text); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 13.5px; margin-bottom: 20px; line-height: 1.55; max-width: 860px; }
+  .layout { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--dim); margin: 0 0 14px; font-weight: 650; }
+  label { display: block; font-size: 12.5px; color: var(--dim); margin-bottom: 4px; }
+  .slider-row { margin-bottom: 15px; }
+  .slider-row .value { color: var(--accent); font-weight: 650; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  input[type=number], select { background:#0e1015; border:1px solid var(--border); color:var(--text); padding:8px 10px;
+                               border-radius:7px; font-size:13.5px; width:100%; }
+  button { background: var(--accent); color:#04121f; border:none; padding:12px 16px; border-radius:8px; cursor:pointer;
+           font-size:14px; font-weight:650; width:100%; }
+  button:disabled { opacity:0.5; cursor:progress; }
+  .presets { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+  .presets button { width:auto; padding:6px 10px; font-size:12px; background:#1c2029; color:var(--text); border:1px solid var(--border); }
+  .presets button.on { background:var(--accent); color:#04121f; }
+  #viewer { width:100%; height:520px; border-radius:12px; border:1px solid var(--border); background:#050608;
+            position:relative; overflow:hidden; }
+  #viewer .hint { position:absolute; bottom:8px; right:12px; color:var(--faint); font-size:11px; }
+  #viewer .loading { position:absolute; top:10px; left:12px; color:var(--amber); font-size:11.5px; display:none; }
+  .metrics { display:flex; gap:22px; flex-wrap:wrap; margin:6px 0 4px; }
+  .m .num { font-size:25px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .m .lbl { color:var(--dim); font-size:11.5px; }
+  .m .num.good { color:var(--green); } .m .num.warn { color:var(--amber); } .m .num.bad { color:var(--red); }
+  .check-row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--border);
+               font-size:12.5px; align-items:center; }
+  .check-row:last-child { border-bottom:none; }
+  .check-row .detail { color:var(--dim); flex:1; }
+  .pill { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+  .v-PASS { background:var(--green-dim); color:var(--green); }
+  .v-FAIL { background:var(--red-dim); color:var(--red); }
+  .note { color:var(--faint); font-size:11.5px; line-height:1.6; margin-top:12px; }
+  .caption { font-size:12.5px; color:var(--dim); line-height:1.6; margin:10px 2px 0; }
+  .caption b { color:var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Optics Lab</h1>
+  <div class="sub">
+    A imagem aérea de um clipe litográfico, calculada pela soma de Abbe com o pupil e a fonte declarados, e conferida
+    contra a forma fechada: ganho da máscara clara, limite de resolução λ/(NA(1+σ)) e os kernels de Hopkins.
+    Os planos em 3-D são a mesma imagem em cinco posições de foco.
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h2>Sistema óptico</h2>
+        <div class="presets" id="presets"></div>
+        <div class="slider-row">
+          <label>Comprimento de onda <span class="value" id="v-lam">193 nm</span></label>
+          <input type="range" id="lam" min="13" max="365" step="0.5" value="193">
+        </div>
+        <div class="slider-row">
+          <label>Abertura numérica <span class="value" id="v-na">1.35</span></label>
+          <input type="range" id="na" min="0.2" max="1.35" step="0.01" value="1.35">
+        </div>
+        <div class="slider-row">
+          <label>Coerência parcial σ <span class="value" id="v-sig">0.70</span></label>
+          <input type="range" id="sig" min="0" max="0.95" step="0.01" value="0.7">
+        </div>
+        <label>Iluminação</label>
+        <select id="shape">
+          <option value="conventional">convencional (disco)</option>
+          <option value="annular">anular</option>
+          <option value="coherent">coerente (um ponto)</option>
+        </select>
+        <div class="slider-row" style="margin-top:15px">
+          <label>Limiar de revelação <span class="value" id="v-th">0.30</span></label>
+          <input type="range" id="th" min="0.05" max="0.8" step="0.01" value="0.3">
+        </div>
+        <button id="run" style="margin-top:6px">Calcular a imagem</button>
+        <div class="note" id="timing"></div>
+      </div>
+
+      <div class="card">
+        <h2>Métricas</h2>
+        <div class="metrics" id="metrics"><div class="m"><div class="num">—</div><div class="lbl">aguardando</div></div></div>
+        <div class="note" id="metric-note"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="padding:10px">
+        <div id="viewer"><div class="loading" id="loading">calculando…</div><div class="hint">arraste para girar · role para ampliar</div></div>
+        <div class="caption" id="caption">
+          <b>Imagem aérea em cinco planos de foco.</b> O plano do meio é o foco nominal; os outros são ±30 nm e ±60 nm.
+          A distância entre os planos no desenho é maior que a física, para os cinco caberem na vista.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Verificações</h2>
+        <div id="checks"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script type="module" src="/shared/fieldview3d.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const state = { presets: {}, token: null };
+
+function readInputs() {
+  return {
+    wavelength_nm: +$("#lam").value,
+    na: +$("#na").value,
+    sigma: +$("#sig").value,
+    shape: $("#shape").value,
+    threshold: +$("#th").value,
+    focus_nm: [-60, -30, 0, 30, 60],
+    window: true,
+  };
+}
+function paintLabels() {
+  $("#v-lam").textContent = (+$("#lam").value).toFixed(0) + " nm";
+  $("#v-na").textContent = (+$("#na").value).toFixed(2);
+  $("#v-sig").textContent = (+$("#sig").value).toFixed(2);
+  $("#v-th").textContent = (+$("#th").value).toFixed(2);
+}
+["lam", "na", "sig", "th"].forEach((id) => $("#" + id).addEventListener("input", paintLabels));
+
+async function show3d(token) {
+  await new Promise((res) => (window.FieldView3D ? res() : window.addEventListener("fieldview3d-ready", res, { once: true })));
+  const meta = await (await fetch(`/api/view/${token}`)).json();
+  // o viewer cria a legenda e os controles dentro do elemento que recebe: um destino novo por cálculo,
+  // sem tocar no aviso de carregamento e na dica, que vivem no mesmo painel
+  $("#v3d-host")?.remove();
+  const host = document.createElement("div");
+  host.id = "v3d-host";
+  host.style.cssText = "position:absolute; inset:0";
+  $("#viewer").appendChild(host);
+  new window.FieldView3D(host, { meta, glb: `/api/view/${token}.glb`, field: "intensity", height: 520 });
+}
+
+async function run() {
+  $("#run").disabled = true; $("#loading").style.display = "block";
+  try {
+    const body = readInputs();
+    const res = await fetch("/api/image", { method: "POST", headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(await res.text());
+    const d = await res.json();
+    state.token = d.view;
+    const m = d.metrics;
+    const cdClass = Math.abs(m.cd_bias_nm) < 4 ? "good" : Math.abs(m.cd_bias_nm) < 15 ? "warn" : "bad";
+    $("#metrics").innerHTML = `
+      <div class="m"><div class="num ${cdClass}">${m.cd_nm}</div><div class="lbl">CD impressa [nm] · máscara ${m.cd_mask_nm} · viés ${m.cd_bias_nm > 0 ? "+" : ""}${m.cd_bias_nm}</div></div>
+      <div class="m"><div class="num">${m.nils}</div><div class="lbl">NILS no melhor foco</div></div>
+      <div class="m"><div class="num">${m.resolution_limit_nm}</div><div class="lbl">meia-passo mínimo λ/(NA(1+σ)) [nm]</div></div>
+      <div class="m"><div class="num">${m.k1_clip}</div><div class="lbl">k₁ do clipe (192 nm de passo) · limite: ${m.k1}</div></div>
+      <div class="m"><div class="num">${m.dof_nm ?? "—"}</div><div class="lbl">profundidade de foco [nm]</div></div>
+      <div class="m"><div class="num">${m.exposure_latitude ?? "—"}</div><div class="lbl">latitude de exposição</div></div>`;
+    $("#metric-note").textContent = d.window
+      ? `Janela de processo sobre ${d.window.focus.length} focos × ${d.window.doses.length} doses; EPE mínima ${m.epe_best_nm} nm em ${m.best_focus_nm} nm de foco.`
+      : "";
+    const c = d.checks;
+    const rows = [
+      ["ganho da máscara clara", c.clear_mask_gain.value.toExponential(1), c.clear_mask_gain.ok,
+       "máscara toda clara tem de imagear em 1,0"],
+      ...c.modulation_around_the_limit.map((p) => [`modulação em ${p.pitch_nm} nm`, p.modulated ? "modula" : "não modula", p.ok,
+       p.modulated ? "acima do limite: a ordem difratada entra na pupila" : "abaixo do limite: nenhuma ordem entra"]),
+      ["Abbe × Hopkins (SOCS)", c.abbe_vs_socs.value.toExponential(1), c.abbe_vs_socs.ok, "duas formulações do mesmo cálculo"],
+      ["média da imagem", c.energy.value.toFixed(3), c.energy.ok, "transmissão média preservada"],
+    ];
+    $("#checks").innerHTML = rows.map(([name, val, ok, detail]) => `
+      <div class="check-row">
+        <div class="detail"><b>${name}</b> — ${detail}</div>
+        <div style="font-variant-numeric:tabular-nums">${val}</div>
+        <span class="pill ${ok ? "v-PASS" : "v-FAIL"}">${ok ? "PASS" : "FALHA"}</span>
+      </div>`).join("");
+    $("#timing").textContent = `${d.seconds} s · ${d.source_points} pontos de fonte · grade 128² sobre 1024 nm`;
+    await show3d(d.view);
+  } catch (e) {
+    $("#caption").textContent = "erro: " + e.message;
+  } finally {
+    $("#run").disabled = false; $("#loading").style.display = "none";
+  }
+}
+
+(async () => {
+  paintLabels();
+  const meta = await (await fetch("/api/meta")).json();
+  state.presets = meta.presets;
+  $("#presets").innerHTML = Object.keys(meta.presets).map((k) => `<button data-p="${k}">${k}</button>`).join("");
+  $("#presets").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    const p = state.presets[b.dataset.p];
+    $("#lam").value = p.wavelength_nm; $("#na").value = p.na; $("#sig").value = p.sigma;
+    $("#shape").value = p.shape; paintLabels();
+    $("#presets").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+    run();
+  }));
+  $("#run").addEventListener("click", run);
+  run();
+})();
+</script>
+</body>
+</html>

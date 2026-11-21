@@ -290,9 +290,25 @@ dividing out the per-surface median, the channel does the opposite of help — 0
 is the integral method's own level leaking into a law whose level was already right.
 
 So the channel now carries only the variation, damped by the fitted constant, and `CORRECTION_GAIN` records where the
-constant came from. Whether it earns its place in the network is a question only training answers: 17.7 % of a 40 %
-shape error is a small quantity to hand a readout whose own wall-shear error is several times larger, and the honest
-expectation is a marginal gain, not the one the wall shear needs.
+constant came from. Whether it earns its place in the network is a question only training answers, and the training was
+run: the same 200-case field-stage recipe as the reference arm, twice, differing only in the flag, scored on the 61-case
+holdout.
+
+| arm (200 cases, field stage only) | velocity | pressure | wall pressure | wall shear | `Cd R²` |
+|---|---|---|---|---|---|
+| `tuned-plain-field` | **8.58 %** | **4.47 %** | 2.97 % | 44.90 % | −1.97 |
+| `corr-field` (with the channel) | 8.63 % | 4.49 % | **2.70 %** | **44.56 %** | **−1.05** |
+
+The answer is **neutral**: 0.8 % of relative wall shear, which on 61 cases is inside the noise, and the field channels
+move by hundredths. That is what 17.7 % of a 40 % shape error buys against a readout whose own error is 45 % — the
+arithmetic was never favourable, and the honest reading is that the design's premise was right in direction and too
+small in magnitude to matter. The channel stays, off by default, with the measurement next to it, and the wall shear's
+remaining gap belongs to the readout's near-wall resolution rather than to the law's shape.
+
+The run also left an operational caution worth recording: under `--freeze-readout` the validation slope of this arm is
+best at **epoch 1** (1.08 against 5.08 at the end), because the readout's prior reads the trunk's own edge velocity and
+moves with it. A `best.pt` chosen by that criterion is an almost-untrained checkpoint — it scores 37.2 % velocity and
+69.6 % wall shear against 8.63 % and 44.56 % for the final one. Below ~400 cases the field stage submits `model.pt`.
 
 ## What the campaign guarantees, and what it does not
 

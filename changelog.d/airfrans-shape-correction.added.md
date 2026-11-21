@@ -5,7 +5,8 @@
   velocity, damped by `CORRECTION_GAIN` and read at every node by chord position from its nearest contour point.
 - `point_features(..., correction=True)` appends it as one channel (column `len(FEATURE_NAMES)`), `WallAwareNet`
   multiplies its flat-plate prior by it, and `WallSpec` / `TrainingSpec` carry the flag into the feature cache and the
-  checkpoint.
+  checkpoint. Measured, it is neutral on the 61-case holdout — wall shear 44.56 % against 44.90 % for the same recipe
+  without it, wall pressure 2.70 % against 2.97 % — so it is off by default and the number travels with the flag.
 
 ### Fixed
 

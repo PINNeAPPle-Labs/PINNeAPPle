@@ -3316,6 +3316,16 @@
   },
   "source": "examples/time_series/07_fft_lstm_hybrid.py:90"
  },
+ "pinneapple_neural.trainer.checkpoint:restore_rng": {
+  "inputs": {
+   "state": null
+  },
+  "source": "tests/pinneapple_train/test_trainer_resume.py:70"
+ },
+ "pinneapple_neural.trainer.checkpoint:rng_state": {
+  "inputs": {},
+  "source": "tests/pinneapple_train/test_trainer_resume.py:70"
+ },
  "pinneapple_neural.trainer.metrics_cfg:build_metrics_from_cfg": {
   "inputs": {
    "cfg": [

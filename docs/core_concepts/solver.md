@@ -55,6 +55,25 @@ result = train_model(model, losses, epochs=5000)
 anything beyond the default single-stage Adam policy (two-phase, causal,
 time-marching, distributed), construct the specific trainer class directly.
 
+### Interrupting and resuming a run
+
+A long run can be stopped and continued without changing its curve:
+
+```python
+# first pass: two epochs, and a checkpoint written at the end of every one
+Trainer(model, loss_fn).fit(loader, TrainConfig(epochs=2, save_last="runs/cur.pt"))
+
+# the machine restarts: the same run, continued to four epochs in total
+Trainer(model, loss_fn).fit(loader, TrainConfig(epochs=4, resume_from="runs/cur.pt"))
+```
+
+`resume_from` restores the weights, the optimizer, the AMP scaler, **the RNG state of torch, numpy and `random`**, the
+scheduler state, the loss-balancer state, the epoch counter and the history so far; `epochs` is then the *total* the
+run should reach. Without the RNG the dropout in the next epoch would draw different numbers and the curves would part
+company at the first epoch of the second half -- `tests/pinneapple_train/test_trainer_resume.py` asserts the equality
+rather than describing it. A `scheduler` may be given as an instance or as a factory `optimizer -> scheduler` (the
+trainer builds its own Adam, so a factory is how the scheduler gets the right one).
+
 ## What Solver does *not* do
 
 It has no opinion on which physics or architecture it's optimizing — it

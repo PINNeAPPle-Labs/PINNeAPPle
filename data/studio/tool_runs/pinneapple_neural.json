@@ -3,31 +3,31 @@
   "code_hash": "a38b7fc770b7c0cf",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "AutoencoderCatalog",
-  "seconds": 0.13
+  "seconds": 20.57
  },
  "pinneapple_neural.architectures.autoencoders.registry:register_into_global": {
   "code_hash": "91d99bd8cfc64257",
   "error": "KeyError: \"Model 'dense_ae' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
-  "seconds": 2.39
+  "recorded": "2026-11-20",
+  "seconds": 0.0
  },
  "pinneapple_neural.architectures.benchmarks.registry:register_into_global": {
   "code_hash": "40ffc1f6cd906658",
   "error": "KeyError: \"Model 'bench_mlp' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.classical_ts.arima:ARIMA": {
   "code_hash": "b6e786d5fb273783",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ARIMA",
   "seconds": 0.0
  },
@@ -35,7 +35,7 @@
   "code_hash": "8262b11c5610dd4c",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ClassicalTSCatalog",
   "seconds": 0.0
  },
@@ -44,14 +44,14 @@
   "error": "KeyError: \"Model 'var' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.continuous.registry:ContinuousCatalog": {
   "code_hash": "85d0600355235d7e",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ContinuousCatalog",
   "seconds": 0.0
  },
@@ -60,14 +60,14 @@
   "error": "KeyError: \"Model 'neural_ode' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.convolutions.registry:ConvolutionCatalog": {
   "code_hash": "675090b137ed9ef3",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ConvolutionCatalog",
   "seconds": 0.0
  },
@@ -76,14 +76,14 @@
   "error": "KeyError: \"Model 'conv1d' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.graphnn.registry:GraphCatalog": {
   "code_hash": "24621b648bd32a7a",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "GraphCatalog",
   "seconds": 0.0
  },
@@ -92,14 +92,14 @@
   "error": "KeyError: \"Model 'gnn' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.group_b_registry:GroupBCatalog": {
   "code_hash": "40663c9278221ad6",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "GroupBCatalog",
   "seconds": 0.0
  },
@@ -108,7 +108,7 @@
   "error": "KeyError: \"Model 'siren' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.neural_operators.deeponet:mlp": {
@@ -122,15 +122,15 @@
    "out_dim": 2
   },
   "ok": true,
-  "recorded": "2026-11-16",
+  "recorded": "2026-11-20",
   "returned": "Sequential",
-  "seconds": 1.45
+  "seconds": 0.0
  },
  "pinneapple_neural.architectures.neural_operators.registry:NeuralOperatorCatalog": {
   "code_hash": "390d0c6190e18f48",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "NeuralOperatorCatalog",
   "seconds": 0.0
  },
@@ -139,14 +139,14 @@
   "error": "KeyError: \"Model 'deeponet' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.physics_aware.registry:PhysicsAwareCatalog": {
   "code_hash": "7bb87597804ef1ea",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "PhysicsAwareCatalog",
   "seconds": 0.0
  },
@@ -155,7 +155,7 @@
   "error": "KeyError: \"Model 'physics_aware_neural_network' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.pinns.bpinn:BayesianPINN": {
@@ -163,23 +163,23 @@
   "error": "ValueError: torch.cat(): expected a non-empty list of Tensors",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
-  "seconds": 0.98
+  "recorded": "2026-11-20",
+  "seconds": 0.0
  },
  "pinneapple_neural.architectures.pinns.physics_diffusion:PhysicsInformedDiffusion": {
   "code_hash": "0016aa10316ddf60",
   "inputs": {},
   "method": "predict",
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "Tensor",
-  "seconds": 0.85
+  "seconds": 0.02
  },
  "pinneapple_neural.architectures.pinns.registry:PINNCatalog": {
   "code_hash": "b08147a2b448dc8b",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "PINNCatalog",
   "seconds": 0.0
  },
@@ -188,14 +188,14 @@
   "error": "KeyError: \"Model 'vanilla_pinn' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-11-16",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.pinns.xtfc:tfc_available": {
   "code_hash": "e27b380a0ebd228a",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "bool",
   "seconds": 0.0
  },
@@ -203,7 +203,7 @@
   "code_hash": "4df2ce511975196a",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "RecurrentCatalog",
   "seconds": 0.0
  },
@@ -212,14 +212,14 @@
   "error": "KeyError: \"Model 'gru' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.register_all:register_all": {
   "code_hash": "33fb73bdf4b8ca99",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "NoneType",
   "seconds": 0.0
  },
@@ -227,7 +227,7 @@
   "code_hash": "6f591fa5bd323ade",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ModelRegistry",
   "seconds": 0.0
  },
@@ -235,7 +235,7 @@
   "code_hash": "edc27ce9abee9659",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ReservoirCatalog",
   "seconds": 0.0
  },
@@ -244,14 +244,14 @@
   "error": "KeyError: \"Model 'elm' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.rom.dmd:DMDc": {
   "code_hash": "749761a4ea9e8b78",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "DMDc",
   "seconds": 0.0
  },
@@ -259,7 +259,7 @@
   "code_hash": "fe8eeb4df59a5167",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "DynamicModeDecomposition",
   "seconds": 0.0
  },
@@ -267,7 +267,7 @@
   "code_hash": "440ff0a94cf03cd4",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "HAVOK",
   "seconds": 0.0
  },
@@ -275,7 +275,7 @@
   "code_hash": "277a748c0698a09c",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ParametricPOD",
   "seconds": 0.0
  },
@@ -283,7 +283,7 @@
   "code_hash": "2bec66bbf51d1146",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "POD",
   "seconds": 0.0
  },
@@ -291,7 +291,7 @@
   "code_hash": "268080a3218857c0",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "ROMCatalog",
   "seconds": 0.0
  },
@@ -300,7 +300,7 @@
   "error": "KeyError: \"Model 'pod' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.architectures.rom.study:default_ranks": {
@@ -317,7 +317,7 @@
    ]
   },
   "ok": true,
-  "recorded": "2026-11-16",
+  "recorded": "2026-11-20",
   "returned": "list",
   "seconds": 0.0
  },
@@ -328,7 +328,7 @@
    "seed": 1
   },
   "ok": true,
-  "recorded": "2026-11-16",
+  "recorded": "2026-11-20",
   "returned": "Tensor",
   "seconds": 0.01
  },
@@ -336,7 +336,7 @@
   "code_hash": "b5a46d6e2dbcc303",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "TrustedLatentSurrogate",
   "seconds": 0.0
  },
@@ -344,7 +344,7 @@
   "code_hash": "ceb3cc2edf0909fb",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "TransformerCatalog",
   "seconds": 0.0
  },
@@ -353,16 +353,16 @@
   "error": "KeyError: \"Model 'transformer' already registered\"",
   "inputs": {},
   "ok": false,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "seconds": 0.0
  },
  "pinneapple_neural.physicsnemo_bridge.adapters:is_physicsnemo_available": {
   "code_hash": "c285775f7e26d34d",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "bool",
-  "seconds": 0.21
+  "seconds": 2.2
  },
  "pinneapple_neural.physicsnemo_bridge.field_operators:grid_graph": {
   "code_hash": "0c322f8b271039a3",
@@ -370,13 +370,12 @@
    "n": 4
   },
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "tuple",
-  "seconds": 1.28
+  "seconds": 0.0
  },
  "pinneapple_neural.physicsnemo_bridge.field_operators:physicsnemo_fno": {
   "code_hash": "76163edd60c83463",
-  "error": "ImportError: physicsnemo is required for this operation but is not installed. Install with: pip install nvidia-physicsnemo (see https://github.com/NVIDIA/physicsnemo). Note: the rest of pinneapple_neural.physicsnemo_bridge (model adapters, UQ/digital-twin wiring, the active-learning retrain loop) works on any to",
   "inputs": {
    "decoder_layer_size": 16,
    "latent_channels": 8,
@@ -384,21 +383,22 @@
    "num_fno_layers": 2,
    "num_fno_modes": 4
   },
-  "ok": false,
-  "recorded": "2026-10-31",
-  "seconds": 0.0
+  "ok": true,
+  "recorded": "2026-11-20",
+  "returned": "GridFieldPredictor",
+  "seconds": 3.01
  },
  "pinneapple_neural.physicsnemo_bridge.field_operators:physicsnemo_meshgraphnet": {
   "code_hash": "a187f971a66ba987",
-  "error": "ImportError: physicsnemo is required for this operation but is not installed. Install with: pip install nvidia-physicsnemo (see https://github.com/NVIDIA/physicsnemo). Note: the rest of pinneapple_neural.physicsnemo_bridge (model adapters, UQ/digital-twin wiring, the active-learning retrain loop) works on any to",
   "inputs": {
    "hidden_dim": 16,
    "n": 8,
    "processor_size": 2
   },
-  "ok": false,
-  "recorded": "2026-10-31",
-  "seconds": 0.0
+  "ok": true,
+  "recorded": "2026-11-20",
+  "returned": "GridFieldPredictor",
+  "seconds": 0.09
  },
  "pinneapple_neural.physicsnemo_bridge.field_operators:pinneapple_fno": {
   "code_hash": "f3a1ac2e4fdfd847",
@@ -410,15 +410,15 @@
    "width": 8
   },
   "ok": true,
-  "recorded": "2026-11-03",
+  "recorded": "2026-11-20",
   "returned": "GridFieldPredictor",
-  "seconds": 6.94
+  "seconds": 0.0
  },
  "pinneapple_neural.trainer.advisor:TrainingAdvisor": {
   "code_hash": "558b1b6ecbc956b2",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "TrainingAdvisor",
   "seconds": 0.0
  },
@@ -426,17 +426,17 @@
   "code_hash": "59a2fcd1ae3103e4",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "dict",
-  "seconds": 0.01
+  "seconds": 0.04
  },
  "pinneapple_neural.trainer.audit:set_deterministic": {
   "code_hash": "8ad02953d5806334",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "NoneType",
-  "seconds": 1.37
+  "seconds": 0.0
  },
  "pinneapple_neural.trainer.audit:set_seed": {
   "code_hash": "d06c5ebce65b0f2f",
@@ -444,15 +444,33 @@
    "seed": 42
   },
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "NoneType",
-  "seconds": 3.35
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.checkpoint:restore_rng": {
+  "code_hash": "21b4999cb052e3ee",
+  "inputs": {
+   "state": null
+  },
+  "ok": true,
+  "recorded": "2026-11-20",
+  "returned": "NoneType",
+  "seconds": 0.0
+ },
+ "pinneapple_neural.trainer.checkpoint:rng_state": {
+  "code_hash": "a3dc67b74bfbb9b3",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-20",
+  "returned": "dict",
+  "seconds": 0.0
  },
  "pinneapple_neural.trainer.collocation:filter_nan_rows": {
   "code_hash": "2854da535b28647b",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "tuple",
   "seconds": 0.0
  },
@@ -460,7 +478,7 @@
   "code_hash": "5cfa1a64ceb71513",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "int",
   "seconds": 0.0
  },
@@ -468,7 +486,7 @@
   "code_hash": "951bda89f3916aa9",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "int",
   "seconds": 0.0
  },
@@ -476,7 +494,7 @@
   "code_hash": "125b0477931b9914",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "bool",
   "seconds": 0.0
  },
@@ -484,7 +502,7 @@
   "code_hash": "5a629c3b3ca0933c",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "Metrics",
   "seconds": 0.0
  },
@@ -492,7 +510,7 @@
   "code_hash": "17ae667b64984c88",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "RegressionMetrics",
   "seconds": 0.0
  },
@@ -500,7 +518,7 @@
   "code_hash": "21af47e81c6b8073",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "list",
   "seconds": 0.0
  },
@@ -508,7 +526,7 @@
   "code_hash": "2d8d4b9a72ddc2d4",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "MetricBundle",
   "seconds": 0.0
  },
@@ -523,7 +541,7 @@
    ]
   },
   "ok": true,
-  "recorded": "2026-11-16",
+  "recorded": "2026-11-20",
   "returned": "MetricBundle",
   "seconds": 0.0
  },
@@ -531,15 +549,15 @@
   "code_hash": "93388eafd9993a0f",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "device",
-  "seconds": 0.0
+  "seconds": 0.03
  },
  "pinneapple_neural.trainer.parallel:count_gpus": {
   "code_hash": "b3a7e185877a8bc8",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "int",
   "seconds": 0.0
  },
@@ -547,7 +565,7 @@
   "code_hash": "af9985bc36715aeb",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "list",
   "seconds": 0.0
  },
@@ -555,7 +573,7 @@
   "code_hash": "150179a874cf1753",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "DifferencingStep",
   "seconds": 0.0
  },
@@ -563,7 +581,7 @@
   "code_hash": "eefbc51531afb2c0",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "LogStep",
   "seconds": 0.0
  },
@@ -571,15 +589,15 @@
   "code_hash": "a1767091c8557c6b",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "MissingValueStep",
-  "seconds": 5.66
+  "seconds": 0.0
  },
  "pinneapple_neural.trainer.preprocess:NormalizeStep": {
   "code_hash": "c94b4be8817582e0",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "NormalizeStep",
   "seconds": 0.0
  },
@@ -587,7 +605,7 @@
   "code_hash": "1986a2eb8a65605d",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "RobustScaleStep",
   "seconds": 0.0
  },
@@ -595,7 +613,7 @@
   "code_hash": "e46dbe754278a645",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "WinsorizeStep",
   "seconds": 0.0
  },
@@ -603,8 +621,8 @@
   "code_hash": "433c224165ea2e7c",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "GaussianProcessSurrogate",
-  "seconds": 0.01
+  "seconds": 0.58
  }
 }

@@ -373,6 +373,17 @@ def test_the_stream_variant_is_divergence_free_and_still_no_slip():
         assert torch.allclose(network(wall)[:, :2], torch.zeros(2, 2), atol=0.0)
 
 
+def test_the_wall_readout_width_is_a_parameter_of_the_checkpoint():
+    """The readout is the whole near-wall story, so its width has to travel with the weights it was trained at."""
+    from pinneapple_simulation.pipelines.airfrans_benchmark.train import WallSpec
+
+    narrow = WallAwareNet(width=32, depth=1, fourier=2, slope_prior=True)
+    wide = WallAwareNet(width=32, depth=1, fourier=2, slope_prior=True, slope_width=512)
+    assert narrow.slope_width == 256 and wide.slope_width == 512
+    assert wide.head_slope[0].out_features == 512
+    assert WallSpec().slope_width == 256 and WallSpec(slope_width=512).as_dict()["slope_width"] == 512
+
+
 def test_the_wall_slope_samples_line_up_with_the_native_point_order():
     """``surface_rank`` maps a sampled node onto its compact wall entry, and -1 everywhere else."""
     features = np.zeros((5, 9))

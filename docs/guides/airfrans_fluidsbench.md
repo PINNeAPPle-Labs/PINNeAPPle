@@ -349,11 +349,20 @@ zero) while the field it gives up is scored: velocity 8.58 % → 11.87 %, pressu
 −5.37. A divergence-free field is not a cheaper field, and the 12.3 points of wall shear are worth nothing above the cap.
 That pointed at exactly one experiment, and it settled the question: at 560 cases, where the plain arm reaches 35.8 %
 (24.6 % on the validation-selected checkpoint), a relative wall gain of the same size would have put the stream arm
-under the 20 % cap, where the term is worth its full 15 points. It does not reproduce — **38.45 % against 35.80 %**,
-worse than without it, with the wall pressure as its only real gain (2.12 % → **1.19 %**) and a proxy of 41.59 against
-41.02: a wash. The 12.3 points at 200 cases were a **small-data effect** — a divergence-free field regularises the
-near-wall layer when the data is scarce, and the effect is gone once the field itself is good (4.38 % velocity). The
-architecture is not what is missing, and the closest any arm comes to the 20 % cap is still 24.6 %, above it.
+under the 20 % cap, where the term is worth its full 15 points. It does not reproduce — **38.07 % against 35.80 %**,
+worse than without it, and the wall pressure goes the wrong way too (2.12 % → 2.56 %). The 12.3 points at 200 cases were
+a **small-data effect**: a divergence-free field regularises the near-wall layer when the data is scarce, and the effect
+is gone once the field itself is good (4.4 % velocity). The architecture is not what is missing.
+
+**Averaging the readout reduces the variance, not the error that matters.** The leaderboard's first entry is an
+ensemble of four networks, and it was the last idea in its repertoire not yet measured here. Four readouts trained from
+the same frozen trunk at 560 cases, differing only in seed, averaged in the field they predict and scored on the clean
+60-case holdout: the four final checkpoints give 33.63 / 34.16 / 33.79 / 33.30 % wall shear and their average **30.16 %**
+— 3.6 points below the average member, which is the classic ensemble gain and is small because the members share trunk,
+data and recipe. What it does *not* do is beat the best member: `best.pt` of the first seed is **24.63 %**, better than
+the average of the four finals, of the four `best.pt` (28.43 %) and of all eight (26.27 %). Averaging buys robustness —
+30.16 % without depending on which seed came out ahead — not the 4.6 points that separate the best clean number from
+the cap.
 
 ## What the campaign guarantees, and what it does not
 

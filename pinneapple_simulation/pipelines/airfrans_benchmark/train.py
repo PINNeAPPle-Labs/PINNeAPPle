@@ -217,6 +217,8 @@ class WallSpec:
     panel_pressure: bool = True
     correction: bool = False
     stream: bool = False
+    slope_width: int = 256
+    slope_bins: int = 0
     force_weight: float = 1.0
     physics_weight: float = 0.0
     surface_pressure_weight: float = 5.0
@@ -245,6 +247,7 @@ class WallSpec:
                 "curve_cases": self.curve_cases, "curve_every": self.curve_every, "shape": self.shape,
                 "shape_features": SHAPE_FEATURES if self.shape else 0, "panel": self.panel,
                 "panel_pressure": self.panel_pressure, "correction": self.correction, "stream": self.stream,
+                "slope_width": self.slope_width, "slope_bins": self.slope_bins,
                 "select": self.select,
                 "checkpoint_every": self.checkpoint_every}
 
@@ -261,7 +264,8 @@ def load_wall_points(store: str, wall_store: str, case_ids: Sequence[str], spec:
         digest = hashlib.sha1("|".join(case_ids).encode()).hexdigest()[:16]
         path = os.path.join(spec.cache_dir,
                             f"points-{digest}-{per_case}-{seed}-{spec.wall_fraction:g}-{int(spec.shape)}"
-                            f"-{int(spec.panel)}-{int(spec.panel_pressure)}-{int(spec.correction)}.npz")
+                            f"-{int(spec.panel)}-{int(spec.panel_pressure)}-{int(spec.correction)}"
+                            f"{f'-b{spec.slope_bins}' if spec.slope_bins else ''}.npz")
         if os.path.exists(path):
             with np.load(path) as data:
                 return {name: data[name] for name in data.files}
@@ -284,6 +288,22 @@ def load_wall_points(store: str, wall_store: str, case_ids: Sequence[str], spec:
             truth_slope = np.zeros((len(raw), 2), np.float32)
             if on_wall.any():
                 truth_slope[on_wall] = load_wall_case(wall_store, case_id)["slope"][rank[on_wall]]
+            if spec.slope_bins and on_wall.any():
+                # the target becomes the mean of its chord bin, per surface. The truth curve is representable to 12 %
+                # by 33 bins a side (measured), so what the head is asked to learn stops being the node-to-node noise
+                # the evaluator's gradient reconstruction amplifies and becomes two smooth curves per case.
+                values = truth_slope[on_wall].copy()
+                chord = float(np.ptp(data["airfoil_points"][:, 0])) or 1.0
+                along = np.clip(raw[on_wall, 0] / chord, 0.0, 1.0 - 1e-9)
+                direction = raw[on_wall, 6:8]
+                direction = direction / np.maximum(np.linalg.norm(direction, axis=1, keepdims=True), 1e-12)
+                axis = np.stack([-direction[:, 1], direction[:, 0]], axis=1)
+                side = np.sign(np.sum(raw[on_wall, 3:5] * axis, axis=1))
+                index = (along * spec.slope_bins).astype(np.int64) + (side > 0).astype(np.int64) * spec.slope_bins
+                for bin_index in np.unique(index):
+                    mask = index == bin_index
+                    values[mask] = values[mask].mean(axis=0)
+                truth_slope[on_wall] = values
             blocks["slope"].append(truth_slope)
             blocks["wall"].append(on_wall)
     block = {name: np.concatenate(values) for name, values in blocks.items()}
@@ -442,7 +462,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
     model = WallAwareNet(spec.width, spec.depth, spec.fourier, spec.wall_layer,
                          shape_features=shape_features, slope_detach=spec.slope_detach,
                          slope_prior=spec.slope_prior, panel=spec.panel, correction=spec.correction,
-                         stream=spec.stream).to(device)
+                         stream=spec.stream, slope_width=spec.slope_width).to(device)
     if spec.init_from:
         # a second stage that starts from a fitted field: the trunk comes from the checkpoint, and freezing it is what
         # separates the two budgets — the field keeps the epochs it was given, the readout gets its own
@@ -612,7 +632,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                         "shape_features": model.shape_features, "slope_detach": model.slope_detach,
                         "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
                         "stream": model.stream,
-                "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
+                        "slope_width": model.slope_width, "features": list(FEATURE_NAMES),
                         "residual_targets": False, "epoch": epoch}, os.path.join(out_dir, "checkpoint.pt"))
 
     weights = os.path.join(out_dir, "model.pt")
@@ -621,6 +641,7 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
                 "shape_features": model.shape_features, "slope_detach": model.slope_detach,
                         "slope_prior": model.slope_prior, "panel": model.panel, "correction": model.correction,
                         "stream": model.stream,
+                        "slope_width": model.slope_width,
                 "features": list(FEATURE_NAMES), "residual_targets": False,
                 "targets": ["u/Uinf", "v/Uinf", "p/Uinf2"]}, weights)
     record = {"variant": "wall", **spec.as_dict(), "train_cases": len(train_ids), "val_cases": len(val_ids),

@@ -107,7 +107,8 @@ class WallAwareNet(nn.Module):
 
     def __init__(self, width: int = 512, depth: int = 4, fourier: int = 4, wall_layer: float = 5e-5,
                  slope_scale: float = 1e-3, shape_features: int = 0, slope_detach: bool = True,
-                 slope_prior: bool = False, panel: bool = False, correction: bool = False, stream: bool = False):
+                 slope_prior: bool = False, panel: bool = False, correction: bool = False, stream: bool = False,
+                 slope_width: int = 256):
         super().__init__()
         self.width, self.depth, self.fourier = width, depth, fourier
         self.shape_features = shape_features
@@ -142,7 +143,7 @@ class WallAwareNet(nn.Module):
         # reading the trunk output 330 % — the shared encoder smooths away exactly the near-wall detail this needs,
         # and letting its gradients into the trunk costs the field. Two networks, two jobs.
         input_features = raw_features + shape_features
-        self.slope_width = 256
+        self.slope_width = int(slope_width)
         # per-feature standardisation, not per-sample: LayerNorm across the channels mixes the 64 shape bins with the
         # local geometry and loses the magnitudes that carry the information — measured, that alone was the difference
         # between 30 % and 300 % on the wall slope. The statistics are filled from the training sample in train_wall.

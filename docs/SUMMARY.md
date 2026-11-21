@@ -63,6 +63,7 @@
   * [Reduced-order models](core_concepts/reduced_order_models.md)
 * [Validation status](validation_status.md)
 * [Official benchmark cases: protocol and published table](benchmark_cases.md)
+* [Backlog: this repository, by scope](backlog.md)
 * Guides
     * [Solve a problem: describe, solve twice, compare](guides/solve_a_problem.md)
     * [Rendering without a display: xvfb, OSMesa, EGL and a container](guides/headless_rendering.md)

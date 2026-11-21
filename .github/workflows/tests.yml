@@ -172,6 +172,13 @@ jobs:
           python scripts/benchmark_cases.py --check
           pytest tests/test_benchmark_cases.py -q -p no:warnings
 
+      # The repository's own backlog page: generated from a snapshot, so the gate is offline and deterministic.
+      # Refreshing the snapshot (--fetch) is a deliberate act, not something CI does on every run.
+      - name: Backlog page — matches the committed snapshot (must pass)
+        run: |
+          python scripts/backlog_report.py --check
+          pytest tests/test_backlog_report.py -q -p no:warnings
+
       - name: NVIDIA integrations — OpenUSD stages, diagrams, water hammer, examples/nvidia smoke (must pass)
         run: |
           pip install usd-core newton newton-usd-schemas

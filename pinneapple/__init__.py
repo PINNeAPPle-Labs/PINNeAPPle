@@ -332,7 +332,8 @@ except Exception:  # pragma: no cover
 
 # Unified problem description (geometry, physics, conditions, parameters with units and roles)
 try:
-    from pinneapple_physics.physical_problem import Parameter, PhysicalProblem, Quantity
+    from pinneapple_physics.physical_problem import (Constraint, Fidelity, Objective, Parameter,
+                                                     PhysicalProblem, Quantity)
     from pinneapple_physics.solving import (
         Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
     )

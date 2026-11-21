@@ -1,0 +1,63 @@
+{
+ "pacote": "pinneapple_orchestration",
+ "objetivo": "`pinneapple_orchestration` é uma camada opcional de pipelines no estilo Prefect. Ela não traz lógica nova: só encadeia o que já existe em outros pacotes. Os dados vão para o `DatasetStore` e os modelos para o registro de artefatos de `pinneapple_registry`. Os componentes treináveis vêm de `pinneapple_systems.component_library` e o gêmeo digital de `pinneapple_systems.digital_twin`.\n\nO pacote é pequeno de propósito: são cinco flows. `flow_data_generation` roda N vezes uma função de amostragem dada pelo usuário e grava cada cenário. `flow_training` monta um componente registrado, treina e registra a execução num `ExperimentStore`. `flow_benchmark` ranqueia todas as arquiteturas de um `component_type`. `flow_registry_publish` promove um modelo de estágio (`development` para `staging`/`production`), sempre com confirmação explícita. `flow_digital_twin_prep` monta um `DigitalTwin` a partir de um modelo do registro, só se ele estiver no estágio exigido.\n\nCada flow chama uma task fina em `tasks/`, e cada task delega ao pacote dono da lógica (por exemplo `ComponentModel.fit`, que usa o `Trainer` comum). Todo flow roda dentro de `flow_run_manifest`, que grava um JSON por execução com parâmetros, SHA do git, log das tasks e artefatos.\n\nO Prefect não é obrigatório. Com o extra `pinneapple[orchestration]` instalado, os decoradores `flow`/`task` são os do Prefect (retries, agendamento, UI). Sem ele, `_prefect_compat` troca os decoradores por funções que não fazem nada, e cada flow vira uma função Python comum, chamável e testável.",
+ "submodulos": {
+  "_prefect_compat": "Shim que usa os decoradores `flow`/`task` do Prefect quando instalado e, senão, decoradores que devolvem a função sem mudança.",
+  "common": "Utilitários comuns aos flows; hoje só o manifesto de proveniência de cada execução.",
+  "flows": "Os cinco flows públicos (geração de dados, treino, benchmark, publicação no registro, preparo de gêmeo digital).",
+  "tasks": "As tasks finas por trás de cada flow, que delegam a `pinneapple_registry` e `pinneapple_systems`."
+ },
+ "modulos": {
+  "pinneapple_orchestration": "Ponto de entrada do pacote: reexporta `PREFECT_AVAILABLE`, os subpacotes `tasks` e `flows`, `flow_run_manifest` e `FlowRunManifest`.",
+  "pinneapple_orchestration._prefect_compat": "[shim] Importa `flow` e `task` do Prefect se existir; senão define decoradores de passagem que aceitam `@flow` e `@flow(...)` e ignoram os kwargs. Define `PREFECT_AVAILABLE`. [sem teste direto]",
+  "pinneapple_orchestration.common": "Subpacote que reexporta `flow_run_manifest` e `FlowRunManifest`. [sem teste direto]",
+  "pinneapple_orchestration.common.provenance": "Gerenciador de contexto que grava `<manifest_dir>/<flow_name>/<run_id>.json` ao fim de cada flow (sucesso ou falha), com parâmetros, SHA do git, log de tasks, artefatos e duração. [sem teste direto]",
+  "pinneapple_orchestration.flows": "Subpacote que reexporta os cinco flows.",
+  "pinneapple_orchestration.flows.flow_01_data_generation": "Flow que roda `sample_fn` N vezes e grava cada resultado como cenário num `DatasetStore`. [sem teste direto; coberto por `tests/test_orchestration.py` via `flows`]",
+  "pinneapple_orchestration.flows.flow_02_training": "Flow que monta e treina um componente registrado e registra a execução num `ExperimentStore` opcional.",
+  "pinneapple_orchestration.flows.flow_03_benchmark": "Flow que ranqueia todas as arquiteturas registradas para um `component_type`.",
+  "pinneapple_orchestration.flows.flow_04_registry_publish": "Flow terminal que salva um modelo no registro e o promove de estágio só com `confirm=True`.",
+  "pinneapple_orchestration.flows.flow_05_digital_twin_prep": "Flow que monta um `DigitalTwin` a partir de um modelo do registro, exigindo por padrão o estágio `production`.",
+  "pinneapple_orchestration.tasks": "Subpacote que reexporta as cinco tasks. [sem teste direto]",
+  "pinneapple_orchestration.tasks.benchmark_tasks": "Task que só chama `pinneapple_systems.component_library.benchmark_component_type`; não há lógica de benchmark aqui. [sem teste direto]",
+  "pinneapple_orchestration.tasks.data_generation_tasks": "Task genérica de geração de dados: roda um thunk `sample_fn() -> (coords, fields)` dado pelo usuário e salva cada execução no `DatasetStore`. [sem teste direto]",
+  "pinneapple_orchestration.tasks.digital_twin_tasks": "Task que carrega um modelo do registro e monta um `DigitalTwin`, recusando com `PermissionError` modelos fora do estágio exigido. [sem teste direto]",
+  "pinneapple_orchestration.tasks.registry_tasks": "Task que salva o modelo em `development` e só promove para outro estágio com `confirm=True`; um `trust_report` REJECT bloqueia a promoção salvo `override_reason`. [sem teste direto]",
+  "pinneapple_orchestration.tasks.training_tasks": "Task fina que monta um componente via `ComponentRegistry`, chama `ComponentModel.fit()` e registra métricas num `ExperimentStore`. [sem teste direto]"
+ },
+ "simbolos": {
+  "pinneapple_orchestration.common.provenance:FlowRunManifest": "Registro de uma execução de flow: nome, id, parâmetros, SHA do git, horários, status, log de tasks, artefatos e erro.",
+  "pinneapple_orchestration.common.provenance:flow_run_manifest": "Gerenciador de contexto que cria um `FlowRunManifest`, marca sucesso ou falha e grava o JSON no fim.",
+  "pinneapple_orchestration.flows.flow_01_data_generation:flow_data_generation": "Gera `n_scenarios` cenários com `sample_fn`, grava no `DatasetStore` e devolve os ids e o `run_id`.",
+  "pinneapple_orchestration.flows.flow_02_training:flow_training": "Treina o componente `component_name` com os loaders dados e devolve o modelo, o resultado do `fit` e o `run_id`.",
+  "pinneapple_orchestration.flows.flow_03_benchmark:flow_benchmark": "Ranqueia as arquiteturas de um `component_type` e guarda o ranking no manifesto.",
+  "pinneapple_orchestration.flows.flow_04_registry_publish:flow_registry_publish": "Publica um modelo no registro e devolve a versão; levanta `PermissionError` se o estágio não é `development` e `confirm` não é `True`.",
+  "pinneapple_orchestration.flows.flow_05_digital_twin_prep:flow_digital_twin_prep": "Devolve um `DigitalTwin` montado com o modelo do registro, checando o estágio exigido.",
+  "pinneapple_orchestration.tasks.benchmark_tasks:benchmark_component_type_task": "Repassa a chamada para `benchmark_component_type` e devolve um `ComponentBenchmarkResult`.",
+  "pinneapple_orchestration.tasks.data_generation_tasks:generate_scenarios_task": "Roda `sample_fn()` `n_scenarios` vezes, salva cada resultado como cenário `<prefixo>_NNNN` e devolve os ids.",
+  "pinneapple_orchestration.tasks.digital_twin_tasks:prepare_digital_twin_task": "Escolhe a versão (a mais recente por padrão), confere o estágio, carrega o modelo e devolve um `DigitalTwin`.",
+  "pinneapple_orchestration.tasks.registry_tasks:publish_model_task": "Salva o modelo em `development` e promove para `stage` só com `confirm=True`; devolve a versão.",
+  "pinneapple_orchestration.tasks.training_tasks:train_component_task": "Monta o componente, treina com `fit`, registra `best_val` no `ExperimentStore` (se dado) e devolve modelo, resultado e `run_id`."
+ },
+ "exemplos": [
+  {
+   "titulo": "Gerar cenários com uma função de amostragem",
+   "caminho": "tests/test_orchestration.py",
+   "codigo": "def test_flow_data_generation(tmp_path):\n    reg = _registry()\n\n    def sample_fn():\n        return np.random.rand(20, 2).astype(np.float32), {\"u\": np.random.rand(20, 1).astype(np.float32)}\n\n    result = flow_data_generation(reg.datasets, \"pipe_flow\", sample_fn, 3, manifest_dir=str(tmp_path / \"manifests\"))\n    assert len(result[\"scenarios\"]) == 3\n    assert reg.datasets.list_scenarios(\"pipe_flow\") == sorted(result[\"scenarios\"])"
+  },
+  {
+   "titulo": "Promoção de estágio exige confirm=True",
+   "caminho": "tests/test_orchestration.py",
+   "codigo": "    try:\n        flow_registry_publish(reg, \"valve_demo\", model, stage=\"production\", confirm=False,\n                               manifest_dir=str(tmp_path / \"manifests\"))\n        assert False, \"expected PermissionError\"\n    except PermissionError:\n        pass\n\n    result = flow_registry_publish(reg, \"valve_demo\", model, stage=\"production\", confirm=True,\n                                    manifest_dir=str(tmp_path / \"manifests\"))\n    assert reg.models.metadata(\"valve_demo\", result[\"version\"])[\"stage\"] == \"production\""
+  }
+ ],
+ "limitacoes": [
+  "Prefect é opcional (extra `pinneapple[orchestration]`); sem ele os flows rodam como funções comuns, sem retries, agendamento nem UI.",
+  "Sem Prefect, os kwargs dos decoradores (por exemplo `retries`) são ignorados em silêncio.",
+  "`flow_run_manifest` grava por padrão em `data/manifests` relativo ao diretório atual e chama `git rev-parse HEAD`; fora de um repositório git o SHA fica `None`.",
+  "A geração de dados não configura solvers sozinha: o usuário precisa passar um thunk `sample_fn` sem argumentos.",
+  "`flow_registry_publish` não repassa `trust_report` nem `override_reason` para `publish_model_task`; para usar esse portão é preciso chamar a task direto.",
+  "Os testes (`tests/test_orchestration.py`) importam só `flows`; tasks, `common` e `_prefect_compat` não têm teste direto.",
+  "Depende de `pinneapple_registry` e `pinneapple_systems` (importados no topo dos módulos de flows e tasks)."
+ ]
+}

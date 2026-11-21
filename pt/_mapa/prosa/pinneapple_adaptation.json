@@ -1,0 +1,64 @@
+{
+ "pacote": "pinneapple_adaptation",
+ "objetivo": "`pinneapple_adaptation` reúne duas formas de reaproveitar um PINN já treinado em um problema físico parecido, sem treinar do zero. A primeira é transfer learning (`transfer_learning`, antigo `pinneapple_transfer`): pegar um modelo treinado, congelar parte das camadas e ajustar o resto no novo problema, por exemplo Burgers com outra viscosidade. A segunda é meta-learning (`meta_learning`, antigo `pinneapple_meta`): treinar uma inicialização compartilhada, com MAML ou Reptile, que se adapta a qualquer membro de uma família de EDPs em poucos passos de gradiente.\n\nO pacote trabalha com qualquer `torch.nn.Module` e com funções de perda física no formato `(model, batch) -> perda`. Na prática, essas funções vêm do compilador de problemas de `pinneapple_physics` (`compile_problem` sobre um `ProblemSpec` de um preset, como `laplace_2d_default` ou `burgers_1d_default`), como mostra o teste `tests/test_adaptation_and_active_learning.py`. O catálogo de métodos (`pinneapple_catalog.methods`) lista o meta-learning como método de treino (item T18).\n\nNa raiz há dois atalhos: `fine_tune`, que monta um `TransferConfig` e um `TransferTrainer`, chama `prepare()` e depois `finetune()`; e `adapt_model`, que escolhe entre meta-learning (quando o alvo é um dict com chave `support`) e transfer learning. Os nomes antigos `transfer` e `meta` continuam como apelidos dos submódulos, para compatibilidade.",
+ "submodulos": {
+  "meta_learning": "Meta-learning (MAML e Reptile) sobre famílias paramétricas de EDPs: amostrador de tarefas, treinadores, configurações e um invólucro `MetaModel` para adaptar e prever.",
+  "transfer_learning": "Transfer learning e fine-tuning de PINNs: congelamento de camadas, taxas de aprendizado por camada, descongelamento progressivo, interpolação de pesos entre variantes e adaptação de domínio por MMD."
+ },
+ "modulos": {
+  "pinneapple_adaptation": "Raiz do pacote: reexporta as classes de `transfer_learning` e `meta_learning`, mantém os apelidos antigos `transfer`/`meta` e define os atalhos `fine_tune` e `adapt_model`.",
+  "pinneapple_adaptation.meta_learning": "Reexporta configurações, amostrador e treinadores de meta-learning e oferece `meta_train` (constrói e treina) e `meta_adapt` (adapta a uma tarefa nova).",
+  "pinneapple_adaptation.meta_learning.config": "Dataclasses `MAMLConfig` e `ReptileConfig` com os hiperparâmetros dos laços interno e externo, validados em `__post_init__`.",
+  "pinneapple_adaptation.meta_learning.maml": "Treinador MAML para famílias de EDPs, em versão de primeira ordem (padrão) ou de segunda ordem; usa `torch.func.functional_call` quando existe e cai para cópia profunda + SGD em PyTorch antigo.",
+  "pinneapple_adaptation.meta_learning.meta_model": "Invólucro `MetaModel` de um modelo meta-treinado: adapta a uma função física nova, faz predição e salva/carrega o estado.",
+  "pinneapple_adaptation.meta_learning.reptile": "Treinador Reptile: treina em cada tarefa separadamente e interpola os pesos compartilhados na direção dos pesos de cada tarefa, sem gradientes de segunda ordem.",
+  "pinneapple_adaptation.meta_learning.task_sampler": "`PDETaskSampler`: sorteia parâmetros de EDP em intervalos dados e monta tarefas com conjuntos de suporte e de consulta para o meta-treino.",
+  "pinneapple_adaptation.transfer_learning": "Reexporta `TransferConfig`, `TransferTrainer`, utilitários de congelamento, `ParametricFamilyTransfer` e `PhysicsTransferAdapter`. [sem teste direto do `__init__`]",
+  "pinneapple_adaptation.transfer_learning.adapter": "`PhysicsTransferAdapter`: combina a perda física do domínio alvo com uma regularização pela física de origem e uma perda MMD (kernel RBF) entre features dos dois domínios.",
+  "pinneapple_adaptation.transfer_learning.config": "Dataclass `TransferConfig` com estratégia de transferência (`finetune`, `feature_extract`, `partial_freeze`, `progressive`), prefixos de congelamento, taxas de aprendizado e pesos de perda.",
+  "pinneapple_adaptation.transfer_learning.freeze": "Funções para congelar/descongelar parâmetros por prefixo de nome, montar grupos de otimizador com taxa de aprendizado por camada e contar parâmetros treináveis. [sem teste direto]",
+  "pinneapple_adaptation.transfer_learning.parametric": "`ParametricFamilyTransfer`: guarda variantes de um PINN ajustadas para valores diferentes de um parâmetro físico e interpola linearmente os pesos entre as duas mais próximas.",
+  "pinneapple_adaptation.transfer_learning.trainer": "`TransferTrainer`: copia o modelo de origem, aplica a estratégia de congelamento (`prepare`) e roda o laço de fine-tuning, inclusive com cronograma de descongelamento progressivo."
+ },
+ "simbolos": {
+  "pinneapple_adaptation:fine_tune": "Atalho que cria `TransferConfig` + `TransferTrainer`, chama `prepare()` e `finetune()` e devolve o dict de resultado (modelo, histórico, métricas).",
+  "pinneapple_adaptation:adapt_model": "Adapta um modelo a uma tarefa nova: usa `meta_adapt` se o alvo for um dict com `support` (ou `mode='meta'`), senão `fine_tune`.",
+  "pinneapple_adaptation.meta_learning:meta_train": "Constrói um `ReptileTrainer` (padrão) ou `MAMLTrainer`, executa `train()` e devolve o treinador já treinado.",
+  "pinneapple_adaptation.meta_learning:meta_adapt": "Chama `adapt` do treinador meta-treinado para uma tarefa nova e devolve uma cópia adaptada do modelo.",
+  "pinneapple_adaptation.meta_learning.config:MAMLConfig": "Hiperparâmetros do MAML: passos e taxa do laço interno, taxa externa, tarefas por lote, épocas, flag `first_order`, dispositivo, semente e checkpoint.",
+  "pinneapple_adaptation.meta_learning.config:ReptileConfig": "Hiperparâmetros do Reptile, incluindo o passo de interpolação `epsilon` (validado no intervalo (0, 1]).",
+  "pinneapple_adaptation.meta_learning.maml:MAMLTrainer": "Treina um modelo com MAML sobre uma distribuição de tarefas de EDP, com `meta_update`, `train`, `adapt`, `save` e `load`.",
+  "pinneapple_adaptation.meta_learning.meta_model:MetaModel": "Invólucro de um modelo meta-treinado (rótulo `reptile` ou `maml`) para adaptar em poucos passos, prever e serializar.",
+  "pinneapple_adaptation.meta_learning.reptile:ReptileTrainer": "Treinador Reptile com `meta_update`, `train`, `adapt` (devolve cópia adaptada), `save` e `load`.",
+  "pinneapple_adaptation.meta_learning.task_sampler:PDETaskSampler": "Gera tarefas de meta-treino: parâmetros sorteados uniformemente, função física da fábrica e pontos de suporte/consulta (de `data_factory` ou uniformes em [0,1]^d).",
+  "pinneapple_adaptation.transfer_learning.adapter:PhysicsTransferAdapter": "Adapta um PINN de um domínio físico de origem a um alvo relacionado, somando perda alvo, regularização da física de origem e perda MMD entre features.",
+  "pinneapple_adaptation.transfer_learning.config:TransferConfig": "Configuração de um fine-tuning: estratégia, prefixos a congelar/descongelar, escala de taxa por camada, taxas base e de ajuste, épocas, pesos de perda física/dados e warmup.",
+  "pinneapple_adaptation.transfer_learning.freeze:freeze_layers": "Congela (`requires_grad=False`) os parâmetros cujo nome começa por algum prefixo e devolve quantos foram congelados.",
+  "pinneapple_adaptation.transfer_learning.freeze:unfreeze_layers": "Descongela os parâmetros cujo nome começa por algum prefixo e devolve quantos foram alterados.",
+  "pinneapple_adaptation.transfer_learning.freeze:freeze_all_except": "Congela todos os parâmetros que não casam com os prefixos treináveis.",
+  "pinneapple_adaptation.transfer_learning.freeze:layer_lr_groups": "Monta grupos de parâmetros para o otimizador com taxa de aprendizado por camada (taxa base vezes a escala do prefixo).",
+  "pinneapple_adaptation.transfer_learning.freeze:count_trainable": "Conta parâmetros treináveis, congelados e totais de um modelo.",
+  "pinneapple_adaptation.transfer_learning.parametric:ParametricFamilyTransfer": "Coleção de PINNs ajustados por valor de um parâmetro escalar: devolve a variante mais próxima, interpola pesos entre vizinhas e salva/carrega a família inteira.",
+  "pinneapple_adaptation.transfer_learning.trainer:TransferTrainer": "Treinador de transferência: copia o modelo de origem, aplica a estratégia (`prepare`), ajusta no problema alvo (`finetune`) ou com descongelamento por época (`progressive_unfreeze`)."
+ },
+ "exemplos": [
+  {
+   "titulo": "Fine-tuning de um PINN num preset de Laplace",
+   "caminho": "tests/test_adaptation_and_active_learning.py",
+   "codigo": "    from pinneapple_adaptation import fine_tune\n\n    spec = laplace_2d_default()\n    loss_fn = compile_problem(spec)\n    bounds = spec.domain_bounds\n    coords = list(spec.coords)\n    torch.manual_seed(0)\n    model = torch.nn.Sequential(torch.nn.Linear(2, 32), torch.nn.Tanh(), torch.nn.Linear(32, 1))\n\n    def target_physics_fn(m, batch):\n        x_col = torch.as_tensor(\n            np.stack([np.random.uniform(*bounds[c], size=256) for c in coords], axis=1).astype(np.float32)\n        )\n        x_col.requires_grad_(True)\n        y = m(x_col)\n        return loss_fn(m, y, _empty_batch(x_col, len(coords), 1))"
+  },
+  {
+   "titulo": "Meta-treino Reptile sobre Burgers com viscosidade variável",
+   "caminho": "tests/test_adaptation_and_active_learning.py",
+   "codigo": "    sampler = PDETaskSampler(param_ranges={\"nu\": (0.001, 0.05)},\n                              physics_fn_factory=physics_fn_factory, input_dim=2, seed=0)\n    torch.manual_seed(0)\n    model = torch.nn.Sequential(torch.nn.Linear(2, 32), torch.nn.Tanh(), torch.nn.Linear(32, 1))\n\n    trainer = meta_train(model, sampler, algorithm=\"reptile\",\n                         n_meta_epochs=5, n_tasks_per_batch=2, n_inner_steps=3, seed=0)\n    assert hasattr(trainer, \"adapt\"), \"meta_train() should return a trainer with .adapt()\"\n    assert len(trainer._history) == 5, \"meta_train() must have actually run .train(), not just constructed the trainer\"\n    assert all(np.isfinite(h[\"meta_loss\"]) for h in trainer._history)\n\n    task = sampler.sample_batch(1)[0]\n    adapted = trainer.adapt(task, n_steps=5)"
+  }
+ ],
+ "limitacoes": [
+  "O docstring da raiz cita `fast_adapt` no exemplo de uso, mas essa função não existe; o nome real é `meta_adapt`.",
+  "`MAMLTrainer` e `ReptileTrainer` não usam o mesmo contrato de função física: MAML chama `physics_fn(forward_ou_modelo, x)` e Reptile chama `physics_fn(model, batch) -> (perda, dict)`. Uma mesma fábrica só serve aos dois se tratar as duas formas.",
+  "No PyTorch sem `torch.func`, o MAML usa um caminho alternativo (cópia profunda + SGD) que só faz a aproximação de primeira ordem.",
+  "Em `PhysicsTransferAdapter`, `source_spec` e `target_spec` só ficam guardados como referência; não entram no cálculo, a menos que se faça subclasse.",
+  "`ParametricFamilyTransfer.interpolate_weights` não extrapola: fora do intervalo registrado, ou com menos de duas variantes, devolve a variante mais próxima.",
+  "`fine_tune` e `meta_train` tinham bugs (não chamavam `prepare()` / `train()`); foram corrigidos e agora têm teste de regressão, mas o `__init__` de `transfer_learning` e o módulo `freeze` não têm teste direto."
+ ]
+}

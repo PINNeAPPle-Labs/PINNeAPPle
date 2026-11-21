@@ -1,0 +1,34 @@
+{
+ "pacote": "pinneapple_train",
+ "objetivo": "`pinneapple_train` é um shim de compatibilidade. Ele não tem código próprio: só reexporta o treinador que hoje mora em `pinneapple_neural.trainer`. Existe para que código antigo que faz `from pinneapple_train import Trainer, TrainConfig` (ou importa `pinneapple_train.trainer`, `.losses`, `.metrics`) continue funcionando.\n\nO `__init__` reexporta `Trainer`, `TrainConfig`, `EarlyStopping`, `ModelCheckpoint`, `Metrics`, `Metric`, `MetricBundle` e `default_metrics`. Nomes opcionais (`TimeMarchingTrainer`, `RunLogger`, `Checkpoint`, `save_checkpoint`, `SweepConfig`, `run_parallel_sweep`, `AdaptiveSweepConfig`, `run_adaptive_sweep`) vêm dentro de `try/except` e viram `None` se o import falhar.\n\nOs submódulos `trainer.py`, `losses.py` e `metrics.py` foram criados porque exemplos (`examples/time_series/*`, `examples/trainer/01_audited_training.py`), ferramentas de benchmark e a base de conhecimento de `pinneapple_problemdesign` importavam esses caminhos, que antes não existiam. Código novo deve importar direto de `pinneapple_neural.trainer`.",
+ "submodulos": {
+  "trainer": "Reexporta `Trainer` e `TrainConfig` de `pinneapple_neural.trainer.trainer`.",
+  "losses": "Reexporta `SupervisedLoss`, `PhysicsLossHook`, `CombinedLoss` e `build_loss` de `pinneapple_neural.trainer.losses`.",
+  "metrics": "Reexporta as métricas (`MSE`, `MAE`, `RMSE`, `R2`, `RelL2`, `MaxError`, `default_metrics` etc.) de `pinneapple_neural.trainer.metrics`."
+ },
+ "modulos": {
+  "pinneapple_train": "[shim] Pacote de compatibilidade (marcado como obsoleto) que reexporta o treinador, callbacks e métricas de `pinneapple_neural.trainer`; nomes opcionais viram `None` se o import falhar. [sem teste direto do `__init__`]",
+  "pinneapple_train.losses": "[shim] Reexporta as perdas (`SupervisedLoss`, `PhysicsLossHook`, `CombinedLoss`, `build_loss`) de `pinneapple_neural.trainer.losses`.",
+  "pinneapple_train.metrics": "[shim] Reexporta as métricas de regressão e `default_metrics` de `pinneapple_neural.trainer.metrics`.",
+  "pinneapple_train.trainer": "[shim] Reexporta `Trainer` e `TrainConfig` de `pinneapple_neural.trainer.trainer`, para o caminho `pinneapple_train.trainer` que exemplos e ferramentas já usavam."
+ },
+ "simbolos": {},
+ "exemplos": [
+  {
+   "titulo": "Teste mínimo do treinador pelo caminho antigo",
+   "caminho": "tests/pinneapple_train/test_trainer_minimal.py",
+   "codigo": "from pinneapple_train.trainer import Trainer, TrainConfig\nfrom pinneapple_train.losses import CombinedLoss, SupervisedLoss\nfrom pinneapple_train.metrics import default_metrics\n\n...\n    combined = CombinedLoss(supervised=SupervisedLoss(\"mse\"), physics=None)\n\n    def loss_fn(model_, y_hat, batch):\n        return combined(model_, y_hat, batch)\n\n    tr = Trainer(model=model, loss_fn=loss_fn, metrics=default_metrics())"
+  },
+  {
+   "titulo": "Exemplo de séries temporais que usa o shim",
+   "caminho": "examples/time_series/01_FNO.py",
+   "codigo": "from pinneapple_train.trainer import Trainer, TrainConfig\nfrom pinneapple_train.losses import CombinedLoss, SupervisedLoss\nfrom pinneapple_train.metrics import default_metrics"
+  }
+ ],
+ "limitacoes": [
+  "É só um shim: todo o comportamento está em `pinneapple_neural.trainer`; o pacote é marcado como obsoleto.",
+  "Vários nomes (`TimeMarchingTrainer`, `RunLogger`, `Checkpoint`, `SweepConfig`, `run_parallel_sweep`, `AdaptiveSweepConfig` etc.) são importados com `except Exception` e viram `None` em silêncio se o módulo de origem falhar.",
+  "O `__init__` não tem teste direto; só os submódulos são exercitados por `tests/pinneapple_train/test_trainer_minimal.py`.",
+  "Os submódulos reexportam só uma parte de `pinneapple_neural.trainer`; nomes fora das listas `__all__` não estão disponíveis por este caminho."
+ ]
+}

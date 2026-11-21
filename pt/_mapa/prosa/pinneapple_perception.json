@@ -1,0 +1,68 @@
+{
+ "pacote": "pinneapple_perception",
+ "objetivo": "`pinneapple_perception` extrai observações físicas de imagens, vídeo e áudio para usar como alvos de `DataConstraint` ou como geometria de contorno no resto do PINNeAPPle. É a direção inversa de `pinneapple_worldmodel`, que renderiza simulações em imagens: aqui dados reais entram e saem campos de velocidade, contornos e frequências modais.\n\nAs três técnicas centrais dependem só de numpy/scipy. `video_piv` faz PIV por correlação cruzada (a técnica padrão da mecânica dos fluidos experimental), e o resultado (x, y, u, v) entra direto em `solve_pde`/`compile_problem` como restrição de dados, por exemplo num preset de Navier-Stokes incompressível. `image_geometry` extrai contornos de fotos ou scans de seções de peças para `pinneapple_design.geometry`. `audio_modal` encontra frequências de ressonância de um teste de impacto para calibrar presets de dinâmica estrutural.\n\nHá também ferramentas de apoio e um fluxo de sensoriamento remoto: `piv_tools` lê vídeos com ffmpeg e orienta a escolha de parâmetros do PIV; `sentinel2` busca imagens Sentinel-2 no Google Earth Engine e `change_detection` compara datas por banda e por NDVI e gera relatório HTML. Esse fluxo veio de um produto de monitoramento por satélite dos PINNeAPPle-apps, com correções documentadas no docstring.",
+ "submodulos": {
+  "audio_modal": "Frequências dominantes de vibração a partir de áudio.",
+  "change_detection": "Detecção de mudança multiespectral (bandas e NDVI) com figura e relatório.",
+  "image_geometry": "Contorno e ajuste de círculo a partir de imagem.",
+  "piv_tools": "Leitura de vídeo, grade, resumo e guia de parâmetros para PIV.",
+  "sentinel2": "Busca de imagens Sentinel-2 no Google Earth Engine.",
+  "video_piv": "PIV por correlação cruzada para campos de velocidade."
+ },
+ "modulos": {
+  "pinneapple_perception": "Fachada do pacote: reexporta PIV (`piv_velocity_field`, `piv_velocity_sequence`), extração de contorno de imagem e frequências dominantes de áudio. O sinalizador 'experimental' do inventário vem da expressão 'experimental fluid dynamics' no docstring, não de um aviso.",
+  "pinneapple_perception.audio_modal": "Extrai as frequências dominantes de vibração/acústica de uma gravação por picos da FFT com refinamento parabólico sub-bin, para calibrar presets de dinâmica estrutural. [sem teste direto; exercitado via `tests/test_perception.py`]",
+  "pinneapple_perception.change_detection": "Detecção de mudança entre duas imagens multiespectrais do mesmo local: diferença média por banda em refletância, mudança de NDVI com banda NIR real, figura de comparação e relatório HTML. O módulo remove o NIR inventado (placeholder) do notebook original; não é ele próprio um placeholder.",
+  "pinneapple_perception.image_geometry": "Extrai uma nuvem de pontos de contorno de uma imagem (foto ou scan de seção de peça) e ajusta um círculo por mínimos quadrados, para usar como geometria de domínio. [sem teste direto; exercitado via `tests/test_perception.py`]",
+  "pinneapple_perception.piv_tools": "Utilitários em volta do PIV: decodifica vídeo (ffmpeg/ffprobe) ou arquivos de imagem em quadros, calcula a grade de vetores, resume um resultado e sugere janela/margem a partir do deslocamento esperado.",
+  "pinneapple_perception.sentinel2": "Busca imagens Sentinel-2 de refletância de superfície de um ponto no Google Earth Engine (bandas B4, B3, B2 e o NIR real B8) para `change_detection`; exige `earthengine-api` e credenciais.",
+  "pinneapple_perception.video_piv": "Velocimetria por imagem de partículas (PIV) por correlação cruzada via FFT com refinamento sub-pixel: transforma quadros de vídeo de um escoamento em campo de velocidade pronto para `DataConstraint`."
+ },
+ "simbolos": {
+  "pinneapple_perception.audio_modal:extract_dominant_frequencies": "Devolve os N picos de frequência mais proeminentes como (frequência em Hz, amplitude), ordenados por amplitude.",
+  "pinneapple_perception.change_detection:BandChangeResult": "Resultado da checagem de uma banda: diferença média bruta e em refletância, limiar e se foi excedido.",
+  "pinneapple_perception.change_detection:NdviChangeResult": "Resultado da mudança de NDVI: diferença média absoluta, limiar e se foi excedido.",
+  "pinneapple_perception.change_detection:PairAnalysis": "Análise de um par de datas: resultados por banda, resultado de NDVI (se houver), se houve mudança e narrativa HTML.",
+  "pinneapple_perception.change_detection:band_difference": "Diferença média absoluta de uma banda entre duas imagens, convertida em refletância e comparada ao limiar.",
+  "pinneapple_perception.change_detection:compute_ndvi": "NDVI = (NIR − RED) / (NIR + RED + eps) a partir de bandas reais; não fabrica nenhuma banda.",
+  "pinneapple_perception.change_detection:ndvi_change": "Compara dois mapas de NDVI pela diferença média absoluta contra um limiar.",
+  "pinneapple_perception.change_detection:analyze_pair": "Analisa um par de imagens: sempre as três bandas RGB e o NDVI só quando há NIR real das duas datas.",
+  "pinneapple_perception.change_detection:rgb_preview_stretch": "Contraste de exibição para prévias RGB (divide por constante e corta em [0, 1]); sem significado físico.",
+  "pinneapple_perception.change_detection:render_comparison_figure": "Gera em PNG a grade de comparação (par RGB e diferença, mapas por banda e, se houver, NDVI antes/depois/delta).",
+  "pinneapple_perception.change_detection:render_html_report": "Monta um relatório HTML autocontido com as análises dos pares e as figuras.",
+  "pinneapple_perception.image_geometry:extract_boundary_points": "Extrai o contorno da região de primeiro plano da imagem como nuvem de pontos, opcionalmente ordenada e em unidades físicas.",
+  "pinneapple_perception.image_geometry:estimate_bounding_circle": "Ajuste algébrico de círculo (método de Kasa) a uma nuvem de pontos de contorno; devolve centro e raio.",
+  "pinneapple_perception.piv_tools:FFmpegMissing": "Erro quando `ffmpeg` ou `ffprobe` não está no PATH.",
+  "pinneapple_perception.piv_tools:decode_video": "Lê um vídeo como quadros em tons de cinza (T, H, W) usando ffprobe e ffmpeg.",
+  "pinneapple_perception.piv_tools:decode_image_frames": "Converte pares (nome, bytes) de imagens em quadros em tons de cinza, ordenados pelo nome.",
+  "pinneapple_perception.piv_tools:piv_grid_count": "Número de linhas e colunas de janelas de interrogação que o PIV usa num quadro H x W.",
+  "pinneapple_perception.piv_tools:summarize_piv": "Resume contagens e velocidades de um resultado de `piv_velocity_sequence`.",
+  "pinneapple_perception.piv_tools:piv_parameter_guide": "Sugere janela, margem de busca e passo para um deslocamento esperado em pixels por quadro, com avisos.",
+  "pinneapple_perception.sentinel2:EarthEngineUnavailable": "Erro quando `ee.Initialize()` falha (sem credencial, sem projeto ou API desativada), com a mensagem real e os passos de correção.",
+  "pinneapple_perception.sentinel2:Sentinel2Frame": "Uma imagem Sentinel-2: data, array RGB e banda NIR.",
+  "pinneapple_perception.sentinel2:ee_initialize": "Inicializa o Earth Engine com conta de serviço (variáveis de ambiente) ou com a credencial persistente padrão.",
+  "pinneapple_perception.sentinel2:fetch_sentinel2_sequence": "Busca as N imagens mais recentes e com menos nuvens em torno de um ponto e as devolve como `Sentinel2Frame`.",
+  "pinneapple_perception.video_piv:piv_velocity_field": "Campo de velocidade PIV entre dois quadros: janelas, correlação cruzada normalizada, pico sub-pixel e conversão por `dt` e `units_per_pixel`.",
+  "pinneapple_perception.video_piv:piv_velocity_sequence": "Roda o PIV em cada par consecutivo de quadros e empilha os resultados com uma coluna de tempo `t`."
+ },
+ "exemplos": [
+  {
+   "titulo": "PIV entre dois quadros",
+   "caminho": "pinneapple_perception/__init__.py",
+   "codigo": ">>> from pinneapple_perception import piv_velocity_field\n>>> field = piv_velocity_field(frame_a, frame_b, dt=1/30, units_per_pixel=1e-3)\n>>> # field[\"x\"], field[\"y\"], field[\"u\"], field[\"v\"] -- feed directly into\n>>> # a DataConstraint on a navier_stokes_incompressible-family preset."
+  },
+  {
+   "titulo": "Frequências modais conhecidas recuperadas",
+   "caminho": "tests/test_perception.py",
+   "codigo": "peaks = extract_dominant_frequencies(waveform, sr, n_peaks=2)\nassert len(peaks) == 2\nfreqs_found = sorted(p[0] for p in peaks)\nassert abs(freqs_found[0] - f1) < 0.1, f\"expected ~{f1} Hz, got {freqs_found[0]}\"\nassert abs(freqs_found[1] - f2) < 0.1, f\"expected ~{f2} Hz, got {freqs_found[1]}\""
+  }
+ ],
+ "limitacoes": [
+  "`sentinel2` exige o pacote `earthengine-api` (`ee`), credenciais e um projeto com a API do Earth Engine ativada; sem isso levanta `EarthEngineUnavailable`.",
+  "`piv_tools.decode_video` exige `ffmpeg` e `ffprobe` no PATH (senão levanta `FFmpegMissing`).",
+  "`compute_ndvi` exige a banda NIR real (B8): não há fallback que invente NIR; sem NIR o NDVI simplesmente não é calculado.",
+  "O limiar quantitativo de mudança usa escala de refletância 10000 por padrão; `reflectance_scale=3000` reproduz o comportamento antigo do notebook, que o docstring chama de fisicamente inconsistente.",
+  "`extract_boundary_points` usa por padrão a média da imagem como limiar, adequado só para imagens aproximadamente bimodais.",
+  "`audio_modal` e `image_geometry` não têm teste que os importe pelo caminho do módulo; são testados pela fachada em `tests/test_perception.py`."
+ ]
+}

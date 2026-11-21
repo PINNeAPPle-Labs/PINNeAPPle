@@ -318,6 +318,7 @@
     "tests/test_beam_statics.py",
     "tests/test_bekker_wong_robust.py",
     "tests/test_benchmark_api.py",
+    "tests/test_benchmark_cases.py",
     "tests/test_bio_workflow.py",
     "tests/test_biology_inference.py",
     "tests/test_biology_models.py",

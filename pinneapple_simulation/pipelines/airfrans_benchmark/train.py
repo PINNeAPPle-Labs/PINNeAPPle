@@ -467,7 +467,16 @@ def train_wall(store: str, wall_store: str, train_ids: Sequence[str], val_ids: S
         # a second stage that starts from a fitted field: the trunk comes from the checkpoint, and freezing it is what
         # separates the two budgets — the field keeps the epochs it was given, the readout gets its own
         payload = torch.load(spec.init_from, map_location="cpu", weights_only=False)
-        model.load_state_dict(payload["state_dict"])
+        # the trunk and the shape-independent buffers always transfer; the readout only when it was built at the same
+        # width, because a second stage is allowed to widen it (measured: 256 -> 512 failed to load otherwise)
+        state = payload["state_dict"]
+        here = model.state_dict()
+        skipped = [key for key, value in state.items()
+                   if key in here and here[key].shape != value.shape]
+        model.load_state_dict({key: value for key, value in state.items() if key not in skipped}, strict=False)
+        if skipped:
+            print({"init_from": spec.init_from, "width_changed": sorted({key.split(".")[0] for key in skipped})},
+                  flush=True)
         if spec.freeze_trunk:
             for name, parameter in model.named_parameters():
                 parameter.requires_grad_(name.startswith("head_slope"))

@@ -384,6 +384,21 @@ def test_the_wall_readout_width_is_a_parameter_of_the_checkpoint():
     assert WallSpec().slope_width == 256 and WallSpec(slope_width=512).as_dict()["slope_width"] == 512
 
 
+def test_a_second_stage_can_widen_the_readout_it_starts_from():
+    """The trunk and the buffers transfer; only the readout tensors whose shape changed are skipped.
+
+    Measured the hard way: `--init-from` loaded the whole state dict, so training a 512-wide readout from a 256-wide
+    checkpoint failed on five tensors and the run died before its first epoch."""
+    narrow = WallAwareNet(width=32, depth=1, fourier=2, slope_prior=True)
+    wide = WallAwareNet(width=32, depth=1, fourier=2, slope_prior=True, slope_width=512)
+    state, here = narrow.state_dict(), wide.state_dict()
+    skipped = [key for key, value in state.items() if key in here and here[key].shape != value.shape]
+    assert skipped and all(key.startswith("head_slope") for key in skipped)
+    wide.load_state_dict({key: value for key, value in state.items() if key not in skipped}, strict=False)
+    assert torch.equal(wide.embed.weight, narrow.embed.weight)
+    assert wide.head_slope[0].out_features == 512
+
+
 def test_the_wall_slope_samples_line_up_with_the_native_point_order():
     """``surface_rank`` maps a sampled node onto its compact wall entry, and -1 everywhere else."""
     features = np.zeros((5, 9))

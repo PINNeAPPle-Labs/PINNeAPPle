@@ -9,3 +9,7 @@
   it is the whole near-wall story and a 512-wide head cannot load into a 256-wide one.
 - `WallSpec.slope_floor` is now reachable from the campaign (`--slope-floor`), which is how the metric-weighting
   question — the slope loss is a per-point relative error while the benchmark weights by `τ²` — can be measured.
+
+- A second stage (`init_from`) no longer refuses to start when the readout was widened: the trunk and the buffers
+  transfer and only the mismatched readout tensors are skipped, with the skipped groups printed. Training a 512-wide
+  readout from a 256-wide checkpoint is exactly what the width option is for.

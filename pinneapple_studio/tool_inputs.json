@@ -1367,6 +1367,10 @@
   },
   "source": "tests/test_app_helpers_in_library.py:103"
  },
+ "pinneapple_data.readiness:default_policy": {
+  "inputs": {},
+  "source": "tests/test_data_readiness.py:1"
+ },
  "pinneapple_data.schema.gates:relative_l2": {
   "inputs": {
    "computed": [

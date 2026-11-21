@@ -175,8 +175,11 @@ def train_model(
     dict with ``best_val``, ``best_path``, and per-epoch ``history`` (see
     ``Trainer.fit``).
     """
+    # readiness/review are the data gate (#1491): the shortcut must not be a way around it
+    readiness = cfg_kwargs.pop("readiness", None)
+    review = cfg_kwargs.pop("review", None)
     cfg = TrainConfig(epochs=epochs, device=device, **cfg_kwargs)
-    t = Trainer(model, loss_fn)
+    t = Trainer(model, loss_fn, readiness=readiness, review=review)
     if val_loader is None:
         val_loader = train_loader
     return t.fit(train_loader, val_loader, cfg)

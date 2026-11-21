@@ -1,0 +1,15 @@
+{
+ "schema": "pinneapple.readiness.dataset/1",
+ "name": "plate_sweep",
+ "version": "1.0",
+ "temporal": false,
+ "columns": [
+  {"name": "Re", "role": "input", "unit": "1"},
+  {"name": "T_max", "role": "output", "unit": "K"}
+ ],
+ "boundary_conditions": [
+  {"field": "T_max", "kind": "dirichlet", "value": 300.0}
+ ],
+ "validity": {"Re": [10000.0, 100000.0]},
+ "operating_point": {"Re": 50000.0}
+}

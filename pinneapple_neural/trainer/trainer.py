@@ -87,12 +87,18 @@ class Trainer:
         checkpoint: Optional[ModelCheckpoint] = None,
         scheduler: Any = None,
         loss_balancer: Any = None,
+        readiness: Any = None,
+        review: Any = None,
     ):
         self.model = model
         # both are optional and both are saved/restored, because a resumed run that restarts the learning rate or the
         # loss weights is not the same run (#76)
         self.scheduler = scheduler
         self.loss_balancer = loss_balancer
+        # the data-readiness gate (#1491): a report from pinneapple_data.readiness, and the review store that may
+        # accept its warnings. Without a report nothing changes -- existing runs keep running.
+        self.readiness = readiness
+        self.review = review
         self.loss_fn = loss_fn
         self.preprocess = preprocess
         self.early_stopping = early_stopping
@@ -242,6 +248,7 @@ class Trainer:
 
         is_rank0 = ddp_info["rank"] == 0
 
+
         opt = torch.optim.Adam(self.model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
         if callable(self.scheduler):
             # a factory is the only way to schedule the optimizer this class builds itself; an instance is stepped as
@@ -253,6 +260,18 @@ class Trainer:
         if logger is not None:
             logger.save_config(asdict(cfg))
             logger.save_artifact(f"{cfg.run_name}.env.json", env_fingerprint())
+
+        # ----- the gate (#1491): no training on a dataset with no verdict, a failed verdict, or unreviewed warnings
+        readiness_result: Optional[Dict[str, Any]] = None
+        if self.readiness is not None:
+            from pinneapple_data.readiness import require as require_readiness
+
+            verdict = require_readiness(self.readiness, review=self.review)
+            readiness_result = {"verdict": verdict.status, "digest": verdict.digest,
+                                "score": verdict.score.get("overall"),
+                                "findings": verdict.ids(), "review": verdict.score.get("review")}
+            if is_rank0 and logger is not None:
+                logger.save_artifact("readiness.json", verdict.to_dict())
 
         best_val = float("inf")
         best_path: Optional[str] = None
@@ -481,4 +500,4 @@ class Trainer:
             dist.barrier()
 
         return {"best_val": best_val, "best_path": best_path, "ddp": cfg.ddp, "rank0": is_rank0,
-                "validated": validated, "history": history}
+                "validated": validated, "history": history, "readiness": readiness_result}

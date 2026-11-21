@@ -245,6 +245,11 @@ the pair. The 600-case field stage is also better than the 200-case recipe on ev
 against 8.57 %, pressure 2.07 % against 4.47 %, wall pressure 2.12 % against 2.97 %, `Cd R²` −0.58 against −1.97), which
 is the campaign's plainest result: on this benchmark, **data budget moves the answer more than the architecture does**.
 
+The AoA split confirms the boundary and adds what the refit is actually buying. At 560 of its own training cases the
+pair beats the field stage, and the gain is almost entirely the drag: `Cd R²` −0.44 → **+0.40**, with the wall shear
+moving 37.38 % → 36.79 %. It is the same asymmetry the `full` split shows — the refit buys drag, not the wall — and it
+is why the AoA entry that exists stays the one with 764 cases rather than this one.
+
 **Selecting the checkpoint by the score, not by a capped term.** `best.pt` used to follow the validation wall slope,
 and the wall shear is past its cap on every entry that works — so the criterion optimises a term that scores zero. On
 the 61-case holdout the two criteria do not pick the same epoch, and the first pair measured looks exactly like the
@@ -336,6 +341,15 @@ be fitting an artefact. What survives is the outer flow: `WallAwareNet(stream=Tr
 scalar, which costs an extra derivative of the trunk and removes a head output, leaves the wall layer and no-slip
 untouched, and makes `∇·u = 0` exact — the residual in a finite-difference check is three parts in a thousand of the
 field's own magnitude, against 0.91 for the same weights read as two free channels.
+
+Trained at the reference budget and scored on the 61 cases, it is the clearest example in the campaign of a metric's
+*shape* deciding an experiment: the stream arm brings the wall shear from 44.90 % to **32.65 %** — the largest wall gain
+of any arm at 200 cases — and loses 7.5 proxy points, because `S = clip(100(1 − τ/20))` scores the two as equal (both
+zero) while the field it gives up is scored: velocity 8.58 % → 11.87 %, pressure 4.47 % → 7.87 %, `Cd R²` −1.97 →
+−5.37. A divergence-free field is not a cheaper field, and the 12.3 points of wall shear are worth nothing above the cap.
+That also says exactly where to take it next: at 560 cases the same recipe reaches 35.8 % (24.6 % on the
+validation-selected checkpoint), so a relative gain of the same size would put the stream arm **under the 20 % cap**,
+where the term is worth its full 15.
 
 ## What the campaign guarantees, and what it does not
 

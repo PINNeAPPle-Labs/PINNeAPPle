@@ -11,3 +11,7 @@
   sits on the reconstruction's own noise floor. The obvious cheaper way to impose continuity — the inner-layer relation
   `v = −½ a′(x) d²` between the wall and the readout's own slope — was tried and rejected: the release's own flow
   violates it by a factor of 17 in the same band, so it is not a relation a real flow satisfies at this scale.
+
+At the reference budget it is the campaign's clearest case of a metric's *shape* deciding an experiment: wall shear
+44.90 % → **32.65 %** (the largest wall gain of any 200-case arm) and 7.5 proxy points lost, because both wall shears are
+past the 20 % cap and score zero while the field it gives up is scored.

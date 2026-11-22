@@ -174,6 +174,7 @@ def main(argv: list[str] | None = None) -> int:
               "  working with results\n"
               "    check <paths>        physics linter for results and models (pinneapple check --help)\n"
               "    reproduce <record>   re-run a recorded experiment and say whether it reproduced\n"
+              "    model-card <record>  generate a model card from an experiment record and validate it\n"
               "    benchmark            equal-budget benchmarks of physics-AI methods (when installed)\n"
               "    design               design from a plain-language goal (pinneapple design --help)\n")
         return 0 if argv else 2
@@ -190,6 +191,13 @@ def main(argv: list[str] | None = None) -> int:
         return onboarding(argv)
     if cmd == "check":
         return check_main(rest)
+    if cmd == "model-card":
+        try:
+            from pinneapple_hub.experiment_card import cli as card_cli
+        except ImportError:
+            print("error: `pinneapple model-card` needs pinneapple_hub; reinstall pinneapple", file=sys.stderr)
+            return 2
+        return card_cli(rest)
     if cmd == "reproduce":
         try:
             from pinneapple_physics.experiments import cli as reproduce_cli

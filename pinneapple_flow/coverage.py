@@ -29,6 +29,9 @@ REASONS: dict[str, str] = {
     "pinneapple_flow.reproducibility": "the record of a finished flow run and its reproducer: it re-runs a saved "
                                        "document to compare it with what was recorded, which is a check on a run, "
                                        "not a step of one",
+    "pinneapple_hub.experiment_card": "a model card generated from an experiment record and validated: it is the "
+                                      "document a model is published with, built from the record of a run rather "
+                                      "than being a step of one",
     "pinneapple_analysis.verification.asme_vv20": "the ASME V&V 20 validation of one number against one datum, and "
                                                   "the V&V 40 credibility block: it is a report a reviewer reads, "
                                                   "built from a mesh study and a data point, not a step of a flow",

@@ -49,6 +49,9 @@ class ModelCard:
     # -- data lineage -----------------------------------------------------
     data_lineage: Dict[str, Any] = field(default_factory=dict)  # source file(s)/dataset(s), hashes, time window
 
+    # -- cost: what it took, measured (#40) --------------------------------
+    cost: dict[str, Any] = field(default_factory=dict)  # wall_time_s, trainable_parameters, epochs, ...
+
     # -- validation (the part that has to be a computed number, not prose) --
     validation_metrics: Dict[str, float] = field(default_factory=dict)
     reference_source: str = ""  # citation for whatever the validation_metrics were computed against
@@ -86,11 +89,15 @@ class ModelCard:
     def trust_decision(self) -> str:
         return self.trust_report.get("decisao", "")
 
-    def validate(self) -> List[str]:
+    def validate(self, *, require_cost: bool = False, require_validity: bool = False) -> List[str]:
         """Return a list of schema problems (empty = passes). Does not
         raise -- callers (e.g. a CI governance check, see
         ``scripts/validate_model_card.py``) decide whether to treat a
-        non-empty list as fatal."""
+        non-empty list as fatal.
+
+        ``require_cost`` and ``require_validity`` are what a *generated* card has to satisfy (#40): the cost of
+        producing the answer and the domain it is valid in are part of the claim, not decoration, so the generator
+        asks for them explicitly and a card that omits them is refused."""
         problems = []
         if not self.name:
             problems.append("name is required")
@@ -101,6 +108,14 @@ class ModelCard:
                 "validation_metrics is empty -- a model card with no computed validation metric makes no "
                 "checkable physical claim at all"
             )
+        if require_validity and not self.validity_range:
+            problems.append("validity_range is empty -- a card that does not say where the model is valid invites "
+                            "its use everywhere")
+        if require_cost and not self.cost:
+            problems.append("cost is empty -- how long and how much memory it took is part of what a reader needs")
+        if require_cost and self.cost and "wall_time_s" not in self.cost:
+            problems.append("cost has no wall_time_s: the measured time is the number that makes the rest of the "
+                            "cost record checkable")
         if self.validation_metrics and not self.reference_source:
             problems.append("validation_metrics is set but reference_source (what it was computed against) is empty")
         # Provenance (#39): a card whose numbers cannot be re-derived is a claim, not a record. The rule -- which
@@ -183,6 +198,7 @@ class ModelCard:
             "|---|---|",
             *(f"| {k} | {v} |" for k, v in self.validation_metrics.items()),
             "",
+            *(["## Cost", *(f"- {k}: {v}" for k, v in self.cost.items()), ""] if self.cost else []),
             *self._trust_markdown(),
             *(["## Training data", "", *(f"- {k}: {v}" for k, v in self.data_lineage.items()), ""]
               if self.data_lineage else []),

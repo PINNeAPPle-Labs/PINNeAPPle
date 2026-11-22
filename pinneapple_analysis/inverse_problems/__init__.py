@@ -140,6 +140,9 @@ from .obs_operator import (
 )
 from .presets import get_preset, list_presets, model_from_spec
 
+# A recovered parameter with an interval whose coverage was measured against synthetic truths
+from .recovery import CoverageReport, ParameterInterval, RecoveryResult, coverage_study, recover
+
 # Regularization
 from .regularization import (
     CompositeRegularizer,
@@ -241,6 +244,11 @@ __all__ = [
     "analyze_identifiability",
     "d_optimal_design",
     "profile_likelihood",
+    "RecoveryResult",
+    "ParameterInterval",
+    "CoverageReport",
+    "recover",
+    "coverage_study",
     "CalibrationResult",
     "calibrate",
     "residual_metrics",

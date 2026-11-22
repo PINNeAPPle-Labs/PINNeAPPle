@@ -73,6 +73,43 @@ The names, types and units are declared in the module's `X_OUTPUTS`, which the S
 | `files` | Paths of the written files. |
 | `backend` | How the mesh was made. |
 
+## Repairing a surface
+
+`pinneapple_data.cae.repair` acts on the defects the mesh health report names, and measures the same
+`surface_checks` metrics before and after. Each operation returns **a new mesh plus a result** and never touches the
+input.
+
+```python
+from pinneapple_data.cae import repair_surface, surface_checks
+
+before = surface_checks(mesh)             # open_edges, nonmanifold_edges, inconsistent_orientation_edges,
+new, plan = repair_surface(mesh)          # degenerate_faces, duplicate_faces, shells, watertight, enclosed_volume
+plan.summary["before"]["open_edges"], plan.summary["after"]["open_edges"]     # 4, 0
+plan.no_op                                # True: a clean mesh comes back unchanged and says so
+[step.operation for step in plan]         # merge_vertices, drop_degenerate_faces, drop_duplicate_faces,
+                                          # orient_consistently, close_holes
+```
+
+The order is the pipeline: vertices are welded first because split nodes are what make a surface look open; zero-area
+faces go next because they have no normal to orient by; duplicates after that, because a repeated face inflates the
+edge count into looking non-manifold; the orientation walk runs on clean topology; holes are closed last, and each
+patch inherits the winding the walk settled. The steps can also be called on their own:
+`merge_vertices(mesh, tol_relative)`, `drop_degenerate_faces(mesh, rel_area)`, `drop_duplicate_faces(mesh)`,
+`orient_consistently(mesh)`, `close_holes(mesh, max_edges)`.
+
+Every result carries `guarantees` (what the operation does, measured), `cannot_fix` (what it does not do, in plain
+words) and `regressed` (checks that got worse: a repair that fixed one thing by breaking another is reported as a net
+loss, not accepted). The cases that matter:
+
+- **Closing a hole is a convention.** The patch is a fan of triangles, flat and with sharp edges; a curved hole is
+  approximated. Loops longer than `max_edges` are left open and counted.
+- **Orientation needs a volume.** A closed shell is turned outwards when its enclosed volume comes out negative. An
+  open shell has no inside, so its seed face decides for the whole shell.
+- **Welding is by distance.** Two parts that touch (a contact pair, a lid on a box) become one part: coincidence is
+  not the same as connection.
+- **Volume and polyhedral meshes are refused**, with the reason in the result: a distorted finite-volume cell is a
+  remeshing decision, not a geometric edit. Repair the surface before meshing it.
+
 ## Quality view
 
 The view is `pp.viz.field_view` on the mesh. It has three cell fields: `sicn`, `gamma` and `aspect_ratio`.

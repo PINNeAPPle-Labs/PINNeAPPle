@@ -32,7 +32,7 @@ import dataclasses
 import hashlib
 import json
 from dataclasses import dataclass, field, replace
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from .pde_environment.conditions import ConditionSpec
 from .pde_environment.scales import ScaleSpec
@@ -387,11 +387,22 @@ class PhysicalProblem:
         return converted.with_parameters(**numbers) if numbers else converted
 
     # ------------------------------------------------------------------ checks
-    def validate(self, *, require_units: bool = False) -> List[str]:
+    def dimensions(self, equation: str, **kwargs: Any) -> Any:
+        """Check one equation against the units this problem declares; see :mod:`pinneapple_physics.dimensions`."""
+        from .dimensions import check_dimensions
+
+        return check_dimensions(equation, problem=self, **kwargs)
+
+    def validate(self, *, require_units: bool = False,
+                 equations: "str | Sequence[str] | None" = None) -> List[str]:
         """Inconsistencies as readable strings; an empty list means none were found.
 
         ``require_units=True`` adds "a field without a unit" to the list: the problem refuses to be called complete
-        when a value has no unit, because nothing downstream can check a number whose unit is unknown."""
+        when a value has no unit, because nothing downstream can check a number whose unit is unknown.
+
+        ``equations`` adds the dimensional check (#205): each equation is read term by term against the problem's
+        units, so a source term in W/m^3 next to a time derivative in K/s is reported here instead of becoming an
+        error floor after training."""
         out: List[str] = []
         if len(set(self.coords)) != len(self.coords):
             out.append(f"duplicate coordinate names in {self.coords}")
@@ -437,6 +448,10 @@ class PhysicalProblem:
         for q in self.quantities:
             if q.field is not None and self.fields and q.field not in self.fields:
                 out.append(f"quantity of interest '{q.name}' refers to unknown field '{q.field}'")
+        if equations:
+            for equation in ([equations] if isinstance(equations, str) else list(equations)):
+                report = self.dimensions(equation)
+                out.extend(f"dimensionally inconsistent: {problem}" for problem in report.problems)
         if require_units:
             missing = self.missing_units()
             if missing:

@@ -607,6 +607,8 @@ _SUBMODULES = {
     "worldmodel": "pinneapple_worldmodel",
     # decision layer (which experiment to run next)
     "decision":   "pinneapple_decision",
+    # Bayesian optimization and sequential design of experiments (#102)
+    "bayesopt":   "pinneapple_analysis.bayesopt",
     # one error-metric convention for the whole library
     "metrics":    "pinneapple_physics.metrics",
     # reproducing a recorded run: reproduced / divergent / refused (#1480)
@@ -711,6 +713,8 @@ _LAZY_ATTRS = {
     "design": ("pinneapple_design.intent", "design"),
     # one estimator over EKF / UKF / EnKF / particle, for the sensor -> state -> correction loop (#215)
     "StateEstimator": ("pinneapple_analysis.state_estimation", "StateEstimator"),
+    # which simulation to run next: Bayesian optimization with constraints (#102)
+    "BayesianOptimizer": ("pinneapple_analysis.bayesopt", "BayesianOptimizer"),
     # one dimension for every term of an equation, checked before training (#205)
     "check_dimensions": ("pinneapple_physics.dimensions", "check_dimensions"),
     # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
@@ -820,6 +824,8 @@ __all__ = [
     "register", "unregister", "registered", "resolve", "Registry", "catalog",
     # Dimensional consistency of an equation before training (X21, #205)
     "check_dimensions",
+    # Bayesian optimization and sequential design of experiments (K3, #102)
+    "BayesianOptimizer", "bayesopt",
     # Inverse problems
     "GaussianMisfit", "HuberMisfit", "CauchyMisfit", "StudentTMisfit", "HeteroscedasticMisfit",
     "TikhonovRegularizer", "SparsityRegularizer", "TotalVariationRegularizer",

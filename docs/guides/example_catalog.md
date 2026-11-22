@@ -2,7 +2,7 @@
 
 Every folder under `examples/` is either run by CI or marked manual with a reason. The reasons are measured, not assumed: `python scripts/example_catalog.py --measure` runs each example and records what happened, and `--check` is the gate that keeps this page true.
 
-**In the CI tier: 8 · manual: 93 · budget: 600 s.**
+**In the CI tier: 9 · manual: 93 · budget: 660 s.**
 
 ## Runs in CI
 
@@ -16,6 +16,7 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/pinn_solver` | `01_symbolic_loss_basic.py` | 45 s |
 | `examples/data_pipeline` | `01_physical_sample_basics.py` | 45 s |
 | `examples/physics_query` | `run_demo.py` | 45 s |
+| `examples/data_readiness` | `run.py` | 60 s |
 
 ## Manual, with the reason
 

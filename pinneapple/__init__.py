@@ -711,6 +711,8 @@ _LAZY_ATTRS = {
     "design": ("pinneapple_design.intent", "design"),
     # one estimator over EKF / UKF / EnKF / particle, for the sensor -> state -> correction loop (#215)
     "StateEstimator": ("pinneapple_analysis.state_estimation", "StateEstimator"),
+    # one dimension for every term of an equation, checked before training (#205)
+    "check_dimensions": ("pinneapple_physics.dimensions", "check_dimensions"),
     # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
     # data readiness: may this dataset start a training run? and the engineering review record (#1491, #1493)
     "readiness": ("pinneapple_data.readiness", "readiness"),
@@ -816,6 +818,8 @@ __all__ = [
     "readiness", "require_readiness", "ReadinessError", "ReviewRecord", "ReviewStore",
     # One registry protocol for every extensible object type (X16)
     "register", "unregister", "registered", "resolve", "Registry", "catalog",
+    # Dimensional consistency of an equation before training (X21, #205)
+    "check_dimensions",
     # Inverse problems
     "GaussianMisfit", "HuberMisfit", "CauchyMisfit", "StudentTMisfit", "HeteroscedasticMisfit",
     "TikhonovRegularizer", "SparsityRegularizer", "TotalVariationRegularizer",

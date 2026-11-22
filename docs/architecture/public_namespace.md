@@ -28,7 +28,7 @@ decided to train a neural network.
 
 | Namespace | Holds | Today |
 |---|---|---|
-| `pp.physics` | `PhysicalProblem`, `Parameter`, `Quantity`, presets, PDE families, dimensional checking | Missing. The symbols are top level; the pieces are `pp.env`, `pp.pinn`, `pp.symbolic`, `pp.presets` |
+| `pp.physics` | `PhysicalProblem`, `Parameter`, `Quantity`, presets, PDE families, dimensional checking | Missing as a namespace. The symbols are top level (`pp.PhysicalProblem`, `pp.check_dimensions` since #205, `pp.tensor`); the pieces are `pp.env`, `pp.pinn`, `pp.symbolic`, `pp.presets` |
 | `pp.data` | `PhysicalSample`, collation, collocation, dataset audit, lineage | Lazy: `pp.data` → `pinneapple_data` |
 | `pp.nn` | Architectures, training policy, losses, weight balancers | Missing. `pp.models` (`pinneapple_models`) and `pp.train` (`pinneapple_train`) exist |
 | `pp.optim` | Optimizers, schedulers, design optimization, Bayesian optimization | Missing. Spread over `pp.design_opt` and `pinneapple_neural` |

@@ -35,6 +35,9 @@ REASONS: dict[str, str] = {
     "pinneapple_analysis.verification.asme_vv20": "the ASME V&V 20 validation of one number against one datum, and "
                                                   "the V&V 40 credibility block: it is a report a reviewer reads, "
                                                   "built from a mesh study and a data point, not a step of a flow",
+    "pinneapple_physics.dimensions": "a dimensional check of one equation before training: it reads a statement and "
+                                     "reports which term broke the units, which is a review of a problem rather "
+                                     "than a step of a flow",
     "pinneapple_physics.experiments": "reproducing a recorded run (reproduced / divergent / refused): the definition "
                                       "of the three outcomes, read by pp.experiments rather than placed in a flow",
     # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for

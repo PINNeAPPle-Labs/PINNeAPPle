@@ -36,6 +36,8 @@ from .fields import (
     plot_streamlines,
     compare_fields,
     plot_error,
+    render_field,
+    write_vtu,
 )
 
 from .pinn import (
@@ -116,6 +118,8 @@ __all__ = [
     # Scalar / vector fields
     "plot_scalar", "plot_scalar_3d", "plot_vectors", "plot_streamlines",
     "compare_fields", "plot_error",
+    # A field on an arbitrary domain: the picture and the VTU of the same numbers (#61)
+    "render_field", "write_vtu",
     # PINN
     "plot_loss_history", "plot_multi_loss", "plot_collocation",
     "plot_pinn_prediction", "plot_pde_residual", "plot_gradient_magnitude",

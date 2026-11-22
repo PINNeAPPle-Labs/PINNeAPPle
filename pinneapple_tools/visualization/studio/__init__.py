@@ -68,6 +68,20 @@ def headless(*a, **kw):
     return _h(*a, **kw)
 
 
+def render_field(*a, **kw):
+    """Evaluate a model on a domain and write the picture and the VTU of the same numbers (#61); see
+    :func:`pinneapple_tools.visualization.fields.render_field`."""
+    from ..fields import render_field as _r
+    return _r(*a, **kw)
+
+
+def write_vtu(*a, **kw):
+    """Write an unstructured grid in VTK XML format (#61); see
+    :func:`pinneapple_tools.visualization.fields.write_vtu`."""
+    from ..fields import write_vtu as _w
+    return _w(*a, **kw)
+
+
 def render(*a, **kw):
     """Blender Cycles render; see :func:`pinneapple_tools.visualization.studio.blender.render`."""
     from .blender import render as _r

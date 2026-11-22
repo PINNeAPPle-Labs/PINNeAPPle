@@ -703,6 +703,8 @@ _LAZY_ATTRS = {
     "registered": ("pinneapple_core.registry", "registered"),
     "resolve": ("pinneapple_core.registry", "resolve"),
     "Registry": ("pinneapple_core.registry", "Registry"),
+    # one read-only catalogue over every kind, and over the lists that used to disagree (#1478)
+    "catalog": ("pinneapple_core.catalog", "catalog"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
     # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
@@ -809,7 +811,7 @@ __all__ = [
     # readiness gate and engineering review (PDI, #1491/#1493)
     "readiness", "require_readiness", "ReadinessError", "ReviewRecord", "ReviewStore",
     # One registry protocol for every extensible object type (X16)
-    "register", "unregister", "registered", "resolve", "Registry",
+    "register", "unregister", "registered", "resolve", "Registry", "catalog",
     # Inverse problems
     "GaussianMisfit", "HuberMisfit", "CauchyMisfit", "StudentTMisfit", "HeteroscedasticMisfit",
     "TikhonovRegularizer", "SparsityRegularizer", "TotalVariationRegularizer",

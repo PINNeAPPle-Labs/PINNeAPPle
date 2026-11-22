@@ -134,6 +134,8 @@ REASONS: dict[str, str] = {
     # the last two arrived (2026-11-22).
     "pinneapple_core.physics_tensor": "the tensor that knows its name, unit, domain and components (#186): it is the "
                                       "type the inputs and outputs of a node are, not a computation of its own",
+    "pinneapple_core.catalog": "the read-only catalogue of #1478: it lists what the registry holds and reports where "
+                               "the architecture views disagree; it is a query over other modules, not a step",
     "pinneapple_core.reproducibility": "the seed, the environment fingerprint and the twice-run check (#59): it is "
                                        "the evidence a run attaches, and its inputs are a callable and the process, "
                                        "which a flow form cannot hold",

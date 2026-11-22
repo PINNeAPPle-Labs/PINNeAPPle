@@ -47,6 +47,7 @@
   * [Add a preset, end to end](dev/adding_a_preset.md)
   * [D1 — the three problem specifications, reconciled](strategy/D1_problem_specs.md)
   * [Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry](dev/PHYSICS_AI_INTEROP.md)
+  * [The physics-AI workflow, stage by stage: open tools and public datasets](dev/PHYSICS_AI_STAGE_MAP.md)
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)
   * [Adaptive ensembles of physics models](core_concepts/physics_ensembles.md)

@@ -166,6 +166,25 @@ class RunContext:
         self._mlog.write(json.dumps({"name": name, "value": v, "step": step, "t": time.time()}) + "\n")
         self._mlog.flush()
 
+    def check_unstructured_fv_conservation(
+        self, name: str, owner, neighbour, face_flux, cell_source_integral, *,
+        boundary_flux_targets=None, absolute_tolerance: float = 1e-8,
+        relative_tolerance: float = 1e-6,
+    ) -> dict[str, Any]:
+        """Attach an arbitrary-topology FV balance check to the run evidence."""
+        from pinneapple_physics.validation import check_unstructured_fv_conservation
+        result = check_unstructured_fv_conservation(
+            owner, neighbour, face_flux, cell_source_integral,
+            boundary_flux_targets=boundary_flux_targets,
+            absolute_tolerance=absolute_tolerance,
+            relative_tolerance=relative_tolerance)
+        self.output(name + "_unstructured_conservation_evidence", result)
+        self.check(name + "_unstructured_conservation", passed=result["passed"],
+                   value=result["max_cell_balance_error"],
+                   detail="Face-cell finite-volume conservation with optional boundary flux targets",
+                   kind="physics")
+        return result
+
     def check_cartesian_fv_conservation(
         self, name: str, source_integrals, face_fluxes, *,
         boundary_fluxes=None, absolute_tolerance: float = 1e-8,

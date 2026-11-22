@@ -22,7 +22,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("classical", "Classical solvers", "Finite differences, FEM, LBM, meshless, OpenFOAM, CalculiX, FMU",
      ("node:solver.", "node:lib.solver.", "node:lib.solve.", "node:lib.robot.", "fn:pp.solve", "mcp:solve",
       "lib:pinneapple_simulation.", "lib:pinneapple_physics.solid", "node:condense.", "node:query.",
-      "fn:pinneapple_condense.")),
+      "fn:pinneapple_condense.", "node:vortex.")),   # viscous vortex domains: 2-D Navier-Stokes, no mesh
     ("pinn", "PINNs and neural training", "Train, fine-tune and transfer physics-informed networks",
      ("node:train.", "node:transfer.", "node:meta.", "node:gnn.", "node:lib.model.", "lib:pinneapple_physics.pinn_solver",
       "lib:pinneapple_physics.deepxde_bridge", "lib:pinneapple_neural.", "lib:pinneapple_core.loss",
@@ -54,7 +54,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
       "fn:pinneapple_design.thermal.board_cooling",
       "lib:pinneapple_design.", "lib:pinneapple_data.process_optimizer", "lib:pinneapple_analysis.cost")),
     ("systems", "Process and system components", "Pumps, valves, fatigue, excitation, controllers",
-     ("node:control.", "node:naval.", "lib:pinneapple_systems.")),
+     ("node:control.", "node:naval.", "node:process.", "lib:pinneapple_systems.")),   # valves, Joule-Thomson
     ("vehicles", "Vehicles, contact and wear", "Rovers, soils, wheels, take-off, contact and wear",
      ("node:vehicle.", "node:rover.", "node:terramechanics.", "node:flight.", "node:drone.",
       "lib:pinneapple_physics.tribology",

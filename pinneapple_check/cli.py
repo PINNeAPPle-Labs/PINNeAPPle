@@ -173,6 +173,7 @@ def main(argv: list[str] | None = None) -> int:
               "    studio               every tool, example and app in one place (pinneapple studio --help)\n"
               "  working with results\n"
               "    check <paths>        physics linter for results and models (pinneapple check --help)\n"
+              "    reproduce <record>   re-run a recorded experiment and say whether it reproduced\n"
               "    benchmark            equal-budget benchmarks of physics-AI methods (when installed)\n"
               "    design               design from a plain-language goal (pinneapple design --help)\n")
         return 0 if argv else 2
@@ -189,6 +190,13 @@ def main(argv: list[str] | None = None) -> int:
         return onboarding(argv)
     if cmd == "check":
         return check_main(rest)
+    if cmd == "reproduce":
+        try:
+            from pinneapple_physics.experiments import cli as reproduce_cli
+        except ImportError:
+            print("error: `pinneapple reproduce` needs pinneapple_physics; reinstall pinneapple", file=sys.stderr)
+            return 2
+        return reproduce_cli(rest)
     if cmd == "studio":
         from pinneapple_studio.cli import main as studio
         return studio(rest)

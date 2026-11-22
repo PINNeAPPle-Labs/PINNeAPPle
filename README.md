@@ -68,6 +68,16 @@ Physics-informed neural networks are one tool among several. PINNeAPPle covers t
 Which learned method fits which problem is a question of evidence, not of taste: see
 [Choosing a method](docs/guides/choosing_a_method.md) and the equal-budget benchmark behind it.
 
+## How the library is laid out
+
+PINNeAPPle is a physics computing framework, and a PINN is one method inside it. The code is
+organised into seven planes — Physics IR, Data, Compute, AI, Engineering, Validation and
+Evidence — and a feature enters the core only if it strengthens one of them or a connection
+between two. The public namespaces (`pp.data`, `pp.decision`, `pp.solvers`, `pp.cae`, …) are
+being renamed onto that map; the target, the current state and the rules are in
+[Public namespace](docs/architecture/public_namespace.md), and the admission test is in
+[The seven planes](docs/architecture/seven_planes.md).
+
 ## What makes it different
 
 Most Physics AI libraries stop at the prediction. PINNeAPPle adds a **trust layer**, so a model can say how good it is right now:

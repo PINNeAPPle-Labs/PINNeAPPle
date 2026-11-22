@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "transferência de calor / projeto térmico",
+ "episode_id": "04-termico-trocador",
+ "claim": {
+  "number": "62,1 °C  ·  0,371 K/W  ·  17,2 Pa",
+  "source": "dissipador extrudado: triagem pelo surrogate, número refeito pela física com +15% de pessimismo",
+  "not_affirmed": "não é CFD: convecção por correlação, condução por volumes finitos nas aletas"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T11:09:01Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/04-termico-trocador.mp4",
+   "sha256": "ec8ec71b3509ae45bbfd2b8ff859f2a47fc92c74e4b83f3333804ab25b92587a",
+   "duration_s": 6.23,
+   "width": 1200,
+   "height": 690,
+   "frames": 187,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/04-termico-trocador.mp4",
+   "sha256": "8d033b9cc05fb3af57488a71563485737248242c3dcace6e6f4882a70c06bfbc",
+   "duration_s": 6.23,
+   "width": 1080,
+   "height": 1920,
+   "frames": 187,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

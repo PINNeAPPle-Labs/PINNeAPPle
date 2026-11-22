@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "transferência de calor em eletrônica",
+ "episode_id": "05-termico-eletronica",
+ "claim": {
+  "number": "FPGA 99,1 °C  ·  limite 100 °C",
+  "source": "placa com FPGA/DDR: passa nominalmente, não passa com 20% menos refrigeração",
+  "not_affirmed": "não é CFD do ar: convecção por correlação de placa plana com radiação"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T11:10:15Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/05-termico-eletronica.mp4",
+   "sha256": "a4cdeb6ba4b692bed90aa365e8d4def5a4d69e27143b8d714e190bbfed607c9e",
+   "duration_s": 5.03,
+   "width": 1200,
+   "height": 754,
+   "frames": 151,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/05-termico-eletronica.mp4",
+   "sha256": "69cdecbf5ed21a17ccde852de842f61b765c7b0690dd08c6b4bb4afbd67665c3",
+   "duration_s": 5.03,
+   "width": 1080,
+   "height": 1920,
+   "frames": 151,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

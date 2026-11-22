@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "óptica",
+ "episode_id": "10-optica",
+ "claim": {
+  "number": "ArF imersão × EUV  ·  Abbe = Hopkins",
+  "source": "litografia: imagem aérea em cinco planos de foco, conferida na forma fechada",
+  "not_affirmed": "imagem escalar sem polarização; a lente é perfeita além do defoco"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T17:32:39Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/10-optica.mp4",
+   "sha256": "0d2fe5bab9ea7ad4e8001919b0db27715f61d16464a41d8ae532252c96c542f2",
+   "duration_s": 4.0,
+   "width": 1200,
+   "height": 786,
+   "frames": 120,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/10-optica.mp4",
+   "sha256": "707f962da721f12e24516106a95b843aa341dadf7b2fdde38993e05e8ebf4116",
+   "duration_s": 4.0,
+   "width": 1080,
+   "height": 1920,
+   "frames": 120,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "gravitação / mecânica celeste",
+ "episode_id": "09-astronomia",
+ "claim": {
+  "number": "Lua a 371.661 km  ·  JPL DE421",
+  "source": "céu de São Paulo em 3-D, posições topocêntricas com refração perto do horizonte",
+  "not_affirmed": "posições aparentes, não astrométricas; a cor das estrelas vem do tipo espectral"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T15:49:34Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/09-astronomia.mp4",
+   "sha256": "58f07cc6b3cb0dc09e21ffa4fb522530222b497bca9e19b680f668f11d2734f9",
+   "duration_s": 5.3,
+   "width": 1200,
+   "height": 1062,
+   "frames": 159,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/09-astronomia.mp4",
+   "sha256": "cd471a81787e55b10ec9adb5d8a815f5b547412511ca8dc93adcc93b0a76fef9",
+   "duration_s": 5.27,
+   "width": 1080,
+   "height": 1920,
+   "frames": 158,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "aerodinâmica externa",
+ "episode_id": "02-aerodinamica-externa",
+ "claim": {
+  "number": "CD 0,2954  ·  distância ao caso de treino 0,03",
+  "source": "corpo de Ahmed: twin treinado com a campanha OpenFOAM k-omega SST do próprio estudo",
+  "not_affirmed": "k-omega SST estacionário não reproduz o pico de arrasto logo abaixo de 30°"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T02:33:34Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/02-aerodinamica-externa.mp4",
+   "sha256": "a674618d3a23a18f5071512bdb784cad05fbae6ba7966951564e1c92b47336fe",
+   "duration_s": 7.0,
+   "width": 1200,
+   "height": 750,
+   "frames": 210,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/02-aerodinamica-externa.mp4",
+   "sha256": "20f3c3b1d18b47c37a0455a06ef02556a74f5681903617ca90c4288edf3f8f17",
+   "duration_s": 7.0,
+   "width": 1080,
+   "height": 1920,
+   "frames": 210,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

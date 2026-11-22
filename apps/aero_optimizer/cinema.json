@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "aerodinâmica de aeronave",
+ "episode_id": "03-aviacao",
+ "claim": {
+  "number": "47,9 g CO₂/pkm  ·  Cp do OpenFOAM",
+  "source": "aeronave: projeto certificável escolhido sobre o espaço paramétrico varrido",
+  "not_affirmed": "o Cp é de uma corrida guardada, não de um solver no navegador"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T03:24:43Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/03-aviacao.mp4",
+   "sha256": "2d8e2be14a4192e2a0834240fa5ad530d09f67198825f81de6b11bc751c2cd52",
+   "duration_s": 4.67,
+   "width": 1200,
+   "height": 474,
+   "frames": 140,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/03-aviacao.mp4",
+   "sha256": "328c92b0e2763b3921bdb45cd8e875925a3875878627952d1bbc0e251c986303",
+   "duration_s": 4.63,
+   "width": 1080,
+   "height": 1920,
+   "frames": 139,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

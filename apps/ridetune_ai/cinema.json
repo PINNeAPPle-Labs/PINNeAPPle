@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "mecânica dos sólidos / fadiga",
+ "episode_id": "08-mecanica-solidos",
+ "claim": {
+  "number": "elasticidade 22,2 × 11,1",
+  "source": "viga de suspensão: vida de fadiga por Basquin, seção reta, carga cíclica declarada",
+  "not_affirmed": "não é FEA: é a fórmula fechada de viga engastada, sem concentração de tensão"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T11:33:24Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/08-mecanica-solidos.mp4",
+   "sha256": "277d45cf48f41d482467b3f89f3c9ddc08a6753e3147c23cd4585b1c751c8e52",
+   "duration_s": 6.37,
+   "width": 1200,
+   "height": 668,
+   "frames": 191,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/08-mecanica-solidos.mp4",
+   "sha256": "4b259608b20f7607e2b5ae8db24641ea59945e8ccc744453b2995f55568b318f",
+   "duration_s": 6.37,
+   "width": 1080,
+   "height": 1920,
+   "frames": 191,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

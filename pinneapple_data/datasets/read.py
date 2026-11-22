@@ -29,7 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-__all__ = ["Choice", "choose", "read", "readable_stages"]
+__all__ = ["Choice", "choose", "non_commercial", "read", "readable_stages"]
 
 #: licence texts that forbid a commercial use, matched as substrings; the refusal quotes the text it matched
 _NON_COMMERCIAL = ("non-commercial", "noncommercial", "cc-by-nc", "research only")
@@ -89,9 +89,17 @@ def _table() -> dict[str, Choice]:
     return _CACHE
 
 
-def _non_commercial(license_text: str) -> bool:
+def non_commercial(license_text: str) -> bool:
+    """Whether a licence text forbids commercial use — matched as substrings, so the caller can quote what matched.
+
+    Public because a pipeline has to be able to ask the same question the chooser asks: the flow node that reads an
+    archive by id does not go through :func:`choose`, and a gate written twice is a gate that disagrees with itself."""
     low = license_text.lower()
     return any(marker in low for marker in _NON_COMMERCIAL)
+
+
+#: the name the chooser and its tests were written against; the public one is :func:`non_commercial`
+_non_commercial = non_commercial
 
 
 def choose(stage_id: str | None = None, *, bundle_only: bool = True, commercial_ok: bool = False,

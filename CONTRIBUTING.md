@@ -128,6 +128,12 @@ deploy files) and `examples/` only the narrative of the example. `python scripts
 helper the library already has; [docs/dev/LIBRARY_CONSOLIDATION.md](docs/dev/LIBRARY_CONSOLIDATION.md) is the
 inventory of what is being moved.
 
+Before writing a new module, run the admission test in [The seven planes](docs/architecture/seven_planes.md): name
+the plane the code strengthens and the plane it depends on. If it needs accounts, billing, tenant data or a UI, it
+belongs in the product repository, not the core. A public namespace is added only through
+[docs/architecture/public_namespace.md](docs/architecture/public_namespace.md), which also records which names exist
+today.
+
 ## Core and experimental
 The **core** (`pinneapple_stability.CORE` and `CORE_PP`) is covered by semantic versioning. Do not break a core name.
 To rename one, keep the old name working with a deprecation warning for at least one minor release. Everything else is

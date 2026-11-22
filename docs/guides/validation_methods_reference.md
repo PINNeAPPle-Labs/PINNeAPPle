@@ -118,6 +118,8 @@ Limitation: sampled checks can miss narrow features such as boundary layers or s
 - **`geometry_ood_guardrail`**: z-scored geometry descriptors against a reference set.
 - **`physics_confidence_score`**: a bounded combination of calibration, convergence and residual evidence. The weights are design choices, not a standard.
 - **`provenance`**: hashes of the inputs of a run.
+- **ASME V&V 20 validation** (`validation`, `validation_from_gci`): the comparison error `E = S − D` judged against the validation uncertainty `u_val = sqrt(u_num² + u_input² + u_ref²)`. The model is validated when `|E| <= u_val`. This is the step the GCI alone does not make: a simulation 5 % away from the data looks wrong until you learn that the numerical and input contributions are 8 % together. `u_numerical` has no default — a validation without it is the report the standard replaces — and `validation_from_gci` takes it from a mesh study (`u_num = GCI_fine/100 · |S|`). The budget reports which contribution dominates, which is where the next effort goes. `validation_report` writes one row per quantity plus the credibility block.
+- **Credibility matrix** (`CredibilityMatrix`, ASME V&V 40 Table 2): model influence × decision consequence gives the level of evidence the decision needs (*low*, *medium*, *high*); each of the four categories (verification, validation, uncertainty, applicability) records the level it reached and what backs it. The block reports the gaps by name instead of a single score, and is never sufficient while a category is empty — one missing category is not a gap in an otherwise credible model.
 
 ## 7. Veriphysics applicability and robustness (`pinneapple_veriphysics`)
 

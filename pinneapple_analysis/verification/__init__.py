@@ -153,97 +153,44 @@ geometry_ood_guardrail
 """
 from __future__ import annotations
 
-from pinneapple_analysis.verification.dimensional_analysis import (
-    DimensionlessNumbers,
-    compute_dimensionless_numbers,
-    classify_flow_regime,
+from pinneapple_analysis.verification.architecture_critique import (
+    FAILURE_MODE_CHECKLIST,
+    AdversarialReviewReport,
+    CritiqueFinding,
+    run_adversarial_review,
 )
-from pinneapple_analysis.verification.mesh_intelligence import (
-    TriangleQualityStats,
-    OrthogonalityResult,
-    YPlusEstimate,
-    MeshQualityReport,
-    estimate_required_first_cell_height,
-    assess_mesh_quality,
+from pinneapple_analysis.verification.architecture_recommendation import (
+    ARCHITECTURE_CATALOG,
+    ArchitectureCandidate,
+    ArchitectureRecommendation,
+    recommend_architecture,
+)
+from pinneapple_analysis.verification.asme_vv20 import (
+    CredibilityMatrix,
+    CredibilityResult,
+    UncertaintyBudget,
+    ValidationResult,
+    validation,
+    validation_from_gci,
+    validation_report,
 )
 from pinneapple_analysis.verification.causal_discrepancy import (
-    InterventionRunResult,
-    InterventionReport,
-    run_intervention,
     DiscrepancyModel,
+    InterventionReport,
+    InterventionRunResult,
     fit_discrepancy_model,
-)
-from pinneapple_analysis.verification.knowledge_graph import (
-    build_knowledge_graph,
-    find_presets_for_phenomenon,
-    find_verified_equations,
-    explain_preset,
-    graph_stats,
+    run_intervention,
 )
 from pinneapple_analysis.verification.convergence import (
     ConvergenceResult,
     MeshIndependenceStudyResult,
-    richardson_extrapolate,
     mesh_independence_study,
+    richardson_extrapolate,
 )
-from pinneapple_analysis.verification.physics_confidence_score import (
-    ConfidenceComponent,
-    CalibrationSummary,
-    PhysicsConfidenceScore,
-    compute_physics_confidence,
-    score_against_reference,
-)
-from pinneapple_analysis.verification.geometry_intelligence import (
-    BoundaryLoop,
-    SurfaceRegion,
-    GeometryClassification,
-    classify_geometry,
-)
-from pinneapple_analysis.verification.solver_orchestration import (
-    list_available_solver_families,
-    SolverRecommendation,
-    select_solver_family,
-    ComparisonReport,
-    compare_solvers,
-)
-from pinneapple_analysis.verification.uncertainty_inverse import (
-    UncertaintyReport,
-    InverseProblemResult,
-    InverseParamAdapter,
-    quantify_uncertainty,
-    solve_inverse_problem,
-)
-from pinneapple_analysis.verification.provenance import ProvenanceRecord
-from pinneapple_analysis.verification.pipeline import (
-    AnalysisResult,
-    CandidateResult,
-    analyze,
-    rank_key,
-)
-from pinneapple_analysis.verification.tool_recommendation import (
-    ExternalTool,
-    TOOL_CATALOG,
-    ToolRecommendation,
-    recommend_tools,
-    get_tools_by_category,
-    Player,
-    PLAYER_CATALOG,
-    get_player_for_tool,
-    BUY_VS_BUILD_GUIDANCE,
-    buy_vs_build_recommendation,
-    list_buy_vs_build_needs,
-)
-from pinneapple_analysis.verification.architecture_recommendation import (
-    ArchitectureCandidate,
-    ARCHITECTURE_CATALOG,
-    ArchitectureRecommendation,
-    recommend_architecture,
-)
-from pinneapple_analysis.verification.architecture_critique import (
-    FAILURE_MODE_CHECKLIST,
-    CritiqueFinding,
-    AdversarialReviewReport,
-    run_adversarial_review,
+from pinneapple_analysis.verification.dimensional_analysis import (
+    DimensionlessNumbers,
+    classify_flow_regime,
+    compute_dimensionless_numbers,
 )
 from pinneapple_analysis.verification.evidence_graph import (
     build_evidence_graph,
@@ -257,15 +204,87 @@ from pinneapple_analysis.verification.forecast_skill import (
     block_bootstrap_ratio,
     skill_vs_lead,
 )
+from pinneapple_analysis.verification.geometry_intelligence import (
+    BoundaryLoop,
+    GeometryClassification,
+    SurfaceRegion,
+    classify_geometry,
+)
 from pinneapple_analysis.verification.geometry_ood_guardrail import (
     FEATURE_NAMES as GEOMETRY_OOD_FEATURE_NAMES,
-    extract_geometry_features,
-    GeometryOODResult,
+)
+from pinneapple_analysis.verification.geometry_ood_guardrail import (
     GeometryOODGuardrail,
+    GeometryOODResult,
     default_reference_meshes,
+    extract_geometry_features,
+)
+from pinneapple_analysis.verification.knowledge_graph import (
+    build_knowledge_graph,
+    explain_preset,
+    find_presets_for_phenomenon,
+    find_verified_equations,
+    graph_stats,
+)
+from pinneapple_analysis.verification.mesh_intelligence import (
+    MeshQualityReport,
+    OrthogonalityResult,
+    TriangleQualityStats,
+    YPlusEstimate,
+    assess_mesh_quality,
+    estimate_required_first_cell_height,
+)
+from pinneapple_analysis.verification.physics_confidence_score import (
+    CalibrationSummary,
+    ConfidenceComponent,
+    PhysicsConfidenceScore,
+    compute_physics_confidence,
+    score_against_reference,
+)
+from pinneapple_analysis.verification.pipeline import (
+    AnalysisResult,
+    CandidateResult,
+    analyze,
+    rank_key,
+)
+from pinneapple_analysis.verification.provenance import ProvenanceRecord
+from pinneapple_analysis.verification.solver_orchestration import (
+    ComparisonReport,
+    SolverRecommendation,
+    compare_solvers,
+    list_available_solver_families,
+    select_solver_family,
+)
+from pinneapple_analysis.verification.tool_recommendation import (
+    BUY_VS_BUILD_GUIDANCE,
+    PLAYER_CATALOG,
+    TOOL_CATALOG,
+    ExternalTool,
+    Player,
+    ToolRecommendation,
+    buy_vs_build_recommendation,
+    get_player_for_tool,
+    get_tools_by_category,
+    list_buy_vs_build_needs,
+    recommend_tools,
+)
+from pinneapple_analysis.verification.uncertainty_inverse import (
+    InverseParamAdapter,
+    InverseProblemResult,
+    UncertaintyReport,
+    quantify_uncertainty,
+    solve_inverse_problem,
 )
 
 __all__ = [
+    # ASME V&V 20 validation and the V&V 40 credibility block (#106)
+    "UncertaintyBudget",
+    "ValidationResult",
+    "validation",
+    "validation_from_gci",
+    "validation_report",
+    "CredibilityMatrix",
+    "CredibilityResult",
     # dimensional_analysis
     "DimensionlessNumbers",
     "compute_dimensionless_numbers",

@@ -82,6 +82,36 @@ report.passed, report.checks[0]["detail"]        # True, 'max |difference| = 0 (
 A reproduction whose probe arrays are missing from the file is a **failed** check, not a skipped one: a container that
 cannot be checked is not evidence.
 
+## Written by another version
+
+A result outlives the release that produced it, so the reader says what it made of the file before you use a number
+from it (#225). `load` sets `artifact.compatibility`, and two questions are kept apart:
+
+| The **schema** decides what is readable | The **library version** decides what to warn about |
+|---|---|
+| same version: reads | same major: reads |
+| older with a registered migration: reads, `level="migrated"` | older release: `level="warn"` — the numbers may not reproduce bit for bit |
+| older with no migration: refused, with the version that wrote it | different major: refused, with the way out |
+| newer: refused, telling you to upgrade | |
+
+```python
+art = pp.load("result.ppx")
+art.compatibility.level            # "ok" | "warn" | "migrated"
+art.compatibility.detail           # "written by pinneapple 0.7.3, read by 0.8.0: ..."
+```
+
+A refusal is a sentence you can act on, not a traceback about a dictionary key:
+
+```
+UnsupportedSchema: result.ppx: written by pinneapple 0.6.0; this is 0.8.0. The major version changed, so the numbers
+may come from a different solver. Open it with `pip install pinneapple==0.6.0`, or export what you need from there and
+re-save it with this version.
+```
+
+Migrations live in `pinneapple_core.artifact.MIGRATIONS`, keyed by the schema they upgrade and applied in a chain until
+the manifest reaches the current one. The registry is **empty today**, and that is the honest state of a format that
+has only ever had one version: the machinery exists so the day the layout changes, the old files keep reading.
+
 ## What it is not
 
 - not a registry: `pinneapple_registry` stores artifacts for deployment, this is the file a result travels in;

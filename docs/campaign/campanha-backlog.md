@@ -37,7 +37,7 @@ que pontua). Zero desacordos entre as que devem concordar.
 
 ## Dia 1 — 23/11/2026 (91 issues: 69 da biblioteca + 22 da API)
 
-Saldo depois da triagem: **6 feitas com evidência, 5 com PR aberto para revisão, 9 parciais, 5 bloqueadas e 66 pendentes.** Desde então entraram, com código integrado e teste: #59, #201, #227, #933, #1871, #918 (parcial, com gate e dois lotes), #1478, #1891, #1480, #31, #215, #167, #110, #106, #40, #1494, #205, #104, #225, #171 (parcial), #61, #62 e #102 — **vinte e dois itens do lote**, mais a integração do #1889, que era dependência do #1891. O que continua aberto tem motivo escrito na última coluna. A meta nominal do dia era 91; a diferença está descrita linha
+Saldo depois da triagem: **6 feitas com evidência, 5 com PR aberto para revisão, 9 parciais, 5 bloqueadas e 66 pendentes.** Desde então entraram, com código integrado e teste: #59, #201, #227, #933, #1871, #918 (parcial, com gate e dois lotes), #1478, #1891, #1480, #31, #215, #167, #110, #106, #40, #1494, #205, #104, #225, #171 (parcial), #61, #62, #102 e #77 — **vinte e três itens do lote**, mais a integração do #1889, que era dependência do #1891. O que continua aberto tem motivo escrito na última coluna. A meta nominal do dia era 91; a diferença está descrita linha
 a linha, e o plano já diz que o cronograma é fila nominal, não promessa de 91 implementações validadas.
 
 As seis feitas nesta sessão: #59 (reprodutibilidade numérica), #201 (namespace público), #227 (sete

@@ -166,6 +166,29 @@ class RunContext:
         self._mlog.write(json.dumps({"name": name, "value": v, "step": step, "t": time.time()}) + "\n")
         self._mlog.flush()
 
+    def check_fv_conservation_1d(
+        self, name: str, face_flux, cell_source_integral, *,
+        boundary_flux=None, absolute_tolerance: float = 1e-8,
+        relative_tolerance: float = 1e-6,
+    ) -> dict[str, Any]:
+        """Attach a numerical conservation result to this experiment's physics checks.
+
+        Fluxes and source integrals must be computed by the calling solver or
+        independent measurement; this does not invent missing physical evidence.
+        """
+        from pinneapple_physics.validation import check_fv_conservation_1d
+
+        result = check_fv_conservation_1d(
+            face_flux, cell_source_integral, boundary_flux=boundary_flux,
+            absolute_tolerance=absolute_tolerance,
+            relative_tolerance=relative_tolerance)
+        self.output(name + "_conservation_evidence", result)
+        self.check(name + "_conservation", passed=result["passed"],
+                   value=result["max_cell_balance_error"],
+                   detail="1D finite-volume local/global flux balance and optional boundary flux",
+                   kind="physics")
+        return result
+
     def check(self, name: str, passed: Any = None, *, value: Any = None, reference: Any = None,
               rtol: float | None = None, atol: float | None = None, max: float | None = None,
               min: float | None = None, detail: str = "", kind: str | None = None, label: str = "") -> bool:

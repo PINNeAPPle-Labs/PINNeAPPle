@@ -325,9 +325,73 @@ class PhysicalProblem:
                     distribution=distribution if distribution is not None else p.distribution)
         return replace(self, parameters={**self.parameters, name: p})
 
+    # ------------------------------------------------------------------ units (#110)
+    def unit_names(self) -> list[str]:
+        """Every name in the problem that can carry a unit: coordinates, fields and parameters."""
+        return [*self.coords, *self.fields, *self.parameters]
+
+    def missing_units(self) -> list[str]:
+        """The names above that declare no unit — what ``validate(require_units=True)`` refuses."""
+        declared = {k for k, u in self.units.items() if u not in (None, "")}
+        declared |= {k for k, p in self.parameters.items() if p.unit not in (None, "")}
+        return [n for n in self.unit_names() if n not in declared]
+
+    def to_unit_system(self, targets: Mapping[str, str]) -> PhysicalProblem:
+        """A copy with ``targets`` applied: every number attached to a name converts with its declared unit.
+
+        The numbers a problem carries are the bounds of its coordinates, the ranges of its fields and its parameter
+        values: those convert. A name that declares no unit is **refused** (there is nothing to convert from) and so
+        is a name the problem does not have (a typo would otherwise be a silent no-op), because a conversion that
+        quietly skipped a value would leave a problem half in each system.
+
+        The fingerprint changes when the units do, because it identifies the *description*: a problem in mm and the
+        same problem in m are the same physics with two different records, and a record that claimed otherwise would
+        match a run it does not describe.
+        """
+        from pinneapple_data.physical_units import UnitError, convert, try_parse_unit
+
+        known = set(self.unit_names())
+        unknown = sorted(set(targets) - known)
+        if unknown:
+            raise KeyError(f"unknown name(s) {unknown} to convert; the problem has {sorted(known)}")
+        units = dict(self.units)
+        bounds = dict(self.domain_bounds)
+        ranges = dict(self.field_ranges)
+        params = dict(self.parameters)
+        for name, target in targets.items():
+            source = self.units.get(name) or getattr(self.parameters.get(name), "unit", None)
+            if source in (None, ""):
+                raise ValueError(f"'{name}' declares no unit, so it cannot be converted to {target!r}: a conversion "
+                                 "from an unknown unit is a guess")
+            if try_parse_unit(target) is None:
+                raise ValueError(f"target unit {target!r} for '{name}' is not one this library parses")
+            try:
+                if name in bounds:
+                    lo, hi = bounds[name]
+                    bounds[name] = (float(convert(lo, source, target)), float(convert(hi, source, target)))
+                if name in ranges:
+                    lo, hi = ranges[name]
+                    ranges[name] = (float(convert(lo, source, target)), float(convert(hi, source, target)))
+                if name in params:
+                    p = params[name]
+                    params[name] = replace(
+                        p, value=None if p.value is None else float(convert(p.value, source, target)),
+                        bounds=None if not p.bounds else (float(convert(p.bounds[0], source, target)),
+                                                          float(convert(p.bounds[1], source, target))),
+                        unit=target)
+            except UnitError as exc:
+                raise ValueError(f"cannot convert '{name}' from {source!r} to {target!r}: {exc}") from None
+            units[name] = target
+        converted = replace(self, units=units, domain_bounds=bounds, field_ranges=ranges, parameters=params)
+        numbers = {k: v.value for k, v in params.items() if v.value is not None and k in targets}
+        return converted.with_parameters(**numbers) if numbers else converted
+
     # ------------------------------------------------------------------ checks
-    def validate(self) -> List[str]:
-        """Inconsistencies as readable strings; an empty list means none were found."""
+    def validate(self, *, require_units: bool = False) -> List[str]:
+        """Inconsistencies as readable strings; an empty list means none were found.
+
+        ``require_units=True`` adds "a field without a unit" to the list: the problem refuses to be called complete
+        when a value has no unit, because nothing downstream can check a number whose unit is unknown."""
         out: List[str] = []
         if len(set(self.coords)) != len(self.coords):
             out.append(f"duplicate coordinate names in {self.coords}")
@@ -373,6 +437,11 @@ class PhysicalProblem:
         for q in self.quantities:
             if q.field is not None and self.fields and q.field not in self.fields:
                 out.append(f"quantity of interest '{q.name}' refers to unknown field '{q.field}'")
+        if require_units:
+            missing = self.missing_units()
+            if missing:
+                out.append(f"units are required and missing for {missing}: a value without a unit cannot be checked "
+                           "against anything")
         return out
 
     # ------------------------------------------------------------------ provenance

@@ -24,6 +24,8 @@ def check_cartesian_fv_conservation(
     max_cells: int = 2_000_000,
 ) -> dict[str, Any]:
     source = np.asarray(source_integrals, dtype=np.float64)
+    if (type(max_cells) is not int or max_cells < 1 or max_cells > 2_000_000):
+        raise ValueError("max_cells must be an integer in 1..2_000_000")
     if source.ndim not in (2, 3) or source.size < 1 or source.size > max_cells:
         raise ValueError("source must be a bounded 2D or 3D cell array")
     if not np.isfinite(source).all():
@@ -57,6 +59,8 @@ def check_cartesian_fv_conservation(
         net_boundary_flux += float(high.sum(dtype=np.float64) - low.sum(dtype=np.float64))
         canonical["fluxes"][name] = flux.tolist()
         if boundary_fluxes is not None:
+            if len(boundary_fluxes[name]) != 2:
+                raise ValueError(f"{name} boundary target must be a pair")
             low_target = np.asarray(boundary_fluxes[name][0], dtype=np.float64)
             high_target = np.asarray(boundary_fluxes[name][1], dtype=np.float64)
             if (low_target.shape != low.shape or high_target.shape != high.shape or

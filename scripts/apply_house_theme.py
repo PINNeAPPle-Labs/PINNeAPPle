@@ -77,9 +77,6 @@ def _theme_lines(indent: str) -> list[str]:
             "use_theme(\"report\")   # one theme for every figure of the library (#918)\n"]
 
 
-_MPL_LINE = re.compile(r"^(?P<indent>[ \t]*)(?:from matplotlib[^\n]*|import matplotlib[^\n]*)$")
-_TOP_IMPORT = re.compile(r"^(?:import |from )\S")
-
 #: what ``use_theme("report")`` already sets, with the value it sets. An example that repeats one of these in
 #: ``plt.rcParams.update`` is not choosing a look, only a second place to edit: the migration drops the line.
 #: ``tests/test_house_theme_gate.py`` compares this table against the theme's own rc so it cannot drift.
@@ -100,6 +97,35 @@ def _repeats_the_theme(line: str) -> bool:
                                 for key, value in values.items())
 
 
+def _is_matplotlib(node: ast.AST) -> bool:
+    if isinstance(node, ast.Import):
+        return any(alias.name == "matplotlib" or alias.name.startswith("matplotlib.") for alias in node.names)
+    return isinstance(node, ast.ImportFrom) and (node.module or "").startswith("matplotlib")
+
+
+def _insertion_point(lines: list[str]) -> tuple[int, str] | None:
+    """Where the two theme lines go: after the last top-level import, or after the indented matplotlib import.
+
+    Read with ``ast`` and not with a line pattern, because an import can span lines (``from x import (a, b)``): the
+    point is the *end* of the statement, not the line the keyword happens to be on. Returns the 0-based index of the
+    line to insert after, and the indentation to use."""
+    try:
+        tree = ast.parse("".join(lines))
+    except SyntaxError:
+        return None
+    imports = [n for n in ast.walk(tree) if isinstance(n, ast.Import | ast.ImportFrom)]
+    if not imports:
+        return None
+    top = [n for n in imports if n.col_offset == 0]
+    if any(_is_matplotlib(n) for n in top):
+        return max(n.end_lineno for n in top) - 1, ""     # end_lineno is 1-based
+    inner = [n for n in imports if n.col_offset and _is_matplotlib(n)]
+    if not inner:
+        return None
+    last = max(inner, key=lambda n: n.end_lineno)
+    return last.end_lineno - 1, " " * last.col_offset
+
+
 def migrate(path: Path, *, dry_run: bool = False) -> bool:
     """Add the theme import and call to ``path``. True when it changed.
 
@@ -109,18 +135,13 @@ def migrate(path: Path, *, dry_run: bool = False) -> bool:
     text = path.read_text(encoding="utf-8")
     if _THEMED.search(text):
         return False
-    lines = text.splitlines(keepends=True)
-    mpl = [i for i, line in enumerate(lines) if _MPL_LINE.match(line.rstrip("\n"))]
-    if not mpl:
+    if not _DRAWS.search(text):
         return False
-    top = [i for i in mpl if not _MPL_LINE.match(lines[i].rstrip("\n")).group("indent")]
-    if top:
-        after = max(i for i, line in enumerate(lines) if _TOP_IMPORT.match(line) and i < 200) if any(
-            _TOP_IMPORT.match(line) for line in lines[:200]) else top[-1]
-        at, indent = after, ""
-    else:
-        at = mpl[-1]
-        indent = _MPL_LINE.match(lines[at].rstrip("\n")).group("indent")
+    lines = text.splitlines(keepends=True)
+    point = _insertion_point(lines)
+    if point is None:
+        return False
+    at, indent = point
     new_lines = lines[:at + 1] + _theme_lines(indent) + lines[at + 1:]
     # a script that hand-set what the theme sets keeps a second source of truth: drop those lines
     new_lines = [line for line in new_lines if not _repeats_the_theme(line.rstrip("\n"))]

@@ -34,6 +34,9 @@ from pinneapple_design.geometry.csg import (
     channel_with_hole,
     t_junction,
 )
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 OUT_DIR = Path(__file__).parent / "_out"
 OUT_DIR.mkdir(parents=True, exist_ok=True)

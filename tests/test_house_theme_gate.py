@@ -78,6 +78,16 @@ def test_a_pyplot_import_inside_a_try_block_gets_the_theme_there(tmp_path):
     ast.parse(text)
 
 
+def test_an_import_that_spans_lines_is_not_cut_in_half(tmp_path):
+    """The first version pasted the theme lines after the line the ``from`` was on, inside a parenthesised import."""
+    text = _migrated(tmp_path, "import matplotlib.pyplot as plt\n"
+                                "from pinneapple_design.geometry.csg import (\n"
+                                "    CSGRectangle,\n    CSGCircle,\n)\n"
+                                "plt.savefig('a.png')\n")
+    assert "    CSGCircle,\n)\nfrom pinneapple_tools" in text
+    compile(text, "exemplo.py", "exec")
+
+
 def test_the_inserted_lines_carry_no_trailing_whitespace(tmp_path):
     text = _migrated(tmp_path, "def figure():\n    import matplotlib.pyplot as plt\n    plt.savefig('a.png')\n")
     assert not [line for line in text.splitlines() if line != line.rstrip()]

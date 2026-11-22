@@ -318,7 +318,8 @@ def audit_dataset(splits: Mapping[str, Mapping[str, np.ndarray]], *, name: str =
                   train: str = "train", test: str = "test", tolerances: Mapping[str, float] | None = None,
                   missing_documented: Sequence[str] = (),
                   duplicate_splits: Sequence[str] = ("train", "val", "cal", "test"),
-                  max_physics_samples: int | None = 64, seed: int = 0) -> AuditCard:
+                  max_physics_samples: int | None = 64, seed: int = 0,
+                  regimes: Sequence[Any] = (), min_regime_count: int = 2) -> AuditCard:
     """Audit ``splits`` (``{split: {column: array}}``).
 
     ``inputs``: the columns that identify a sample for diversity and leakage (default: the physics' first column,
@@ -481,6 +482,26 @@ def audit_dataset(splits: Mapping[str, Mapping[str, np.ndarray]], *, name: str =
                                  evidence={"unparseable": bad_u, "mismatch": mism}))
     else:
         checks.append(AuditCheck("units", NA, "no unit metadata"))
+    # ---- physical regimes (#171): which bands of Reynolds, Mach, ... the data never reaches
+    if regimes:
+        from .regimes import RegimeSpec, regime_audit
+
+        columns: dict[str, list[float]] = {}
+        for d in splits.values():
+            for c, v in d.items():
+                columns.setdefault(c, []).extend(np.asarray(v, dtype=float).tolist())
+        for coverage in regime_audit(columns, list(regimes), min_count=min_regime_count):
+            spec: RegimeSpec = coverage.spec
+            if spec.column not in columns:
+                checks.append(AuditCheck(f"regime.{spec.name}", NA,
+                                         f"the dataset has no '{spec.column}' column, so the regimes of {spec.name} "
+                                         "cannot be told apart"))
+                continue
+            summary = str(coverage)
+            if coverage.missing:
+                summary += f" — nothing samples {', '.join(coverage.missing)}"
+            checks.append(AuditCheck(f"regime.{spec.name}", coverage.status, summary,
+                                     value=coverage.counts, evidence=coverage.to_dict()))
     return AuditCard(name, sizes, phys.name if phys else None, checks, tol)
 
 

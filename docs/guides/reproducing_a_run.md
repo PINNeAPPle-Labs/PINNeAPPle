@@ -12,6 +12,17 @@ result.outcome                       # 'reproduced' | 'divergent' | 'refused'
 print(result.to_markdown())          # the ticket: the metrics compared, and what moved
 ```
 
+## From a shell
+
+```
+pinneapple reproduce runs/burgers_pinn                 # the full report
+pinneapple reproduce runs/burgers_pinn --quiet         # one line, for a log
+pinneapple reproduce runs/heat --json report.json      # the record of the reproduction
+```
+
+Exit codes: `0` reproduced, `1` divergent, `2` refused (or a bad invocation). They are three different answers, and a
+job that treats `2` as `1` will pass a run it never reproduced.
+
 ## The three outcomes
 
 | Outcome | Meaning |

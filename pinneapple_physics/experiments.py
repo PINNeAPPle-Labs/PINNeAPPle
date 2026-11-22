@@ -39,8 +39,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-__all__ = ["Difference", "Measurement", "MetricComparison", "Reproduction", "Reproducer", "Refused", "environment",
-           "producers", "register_reproducer", "reproduce", "DEFAULT_RTOL", "HARDWARE_KEYS", "SOFTWARE_KEYS"]
+__all__ = ["Difference", "Measurement", "MetricComparison", "Reproduction", "Reproducer", "Refused", "cli",
+           "environment", "producers", "register_reproducer", "reproduce", "DEFAULT_RTOL", "HARDWARE_KEYS",
+           "SOFTWARE_KEYS"]
 
 #: relative tolerance a metric is compared with when the record declares none
 DEFAULT_RTOL = 1e-6
@@ -448,3 +449,41 @@ def _describe(changes: list[Difference]) -> str:
         parts.append("the machine differs: " + ", ".join(f"{d.what} {d.recorded!r} -> {d.now!r}"
                                                          for d in hardware))
     return "; ".join(parts) or "diverged"
+
+
+def cli(argv: list[str] | None = None) -> int:
+    """``pinneapple reproduce <path>``: the record, the verdict on stdout, and an exit code a job can read.
+
+    ``0`` reproduced, ``1`` divergent, ``2`` refused or a bad invocation. The three are different answers and a
+    script that treats "refused" as "divergent" will pass a run it never reproduced.
+    """
+    import argparse
+    import sys
+
+    ap = argparse.ArgumentParser(
+        prog="pinneapple reproduce",
+        description="Re-run a recorded experiment or workflow run and say whether it reproduced: reproduced (0), "
+                    "divergent (1) or refused (2).",
+        epilog="Docs: docs/guides/reproducing_a_run.md")
+    ap.add_argument("path", help="the record: a folder with experiment.json + result.json, or flow.json + run.json")
+    ap.add_argument("--root", help="search for the record under this folder when the path is a name")
+    ap.add_argument("--rtol", type=float, help=f"relative tolerance for every metric without its own "
+                                               f"(default {DEFAULT_RTOL:g})")
+    ap.add_argument("--exact", action="store_true", help="ask for bit-identical numbers (only honest for a "
+                                                         "deterministic method on the same machine)")
+    ap.add_argument("--json", metavar="FILE", dest="json_out", help="also write the report as JSON")
+    ap.add_argument("--quiet", "-q", action="store_true", help="print only the outcome line")
+    a = ap.parse_args(argv)
+
+    result = reproduce(a.path, root=a.root, rtol=a.rtol, exact=a.exact)
+    if a.json_out:
+        from pathlib import Path
+        Path(a.json_out).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.json_out).write_text(json.dumps(result.to_dict(), indent=1, default=str))
+    if a.quiet:
+        print(f"{result.experiment}: {result.outcome}" + (f" — {result.reason}" if result.reason else ""))
+    else:
+        print(result.to_markdown())
+    if result.outcome == REFUSED:
+        print(f"refused: {result.reason}", file=sys.stderr)
+    return 0 if result.outcome == REPRODUCED else 1 if result.outcome == DIVERGENT else 2

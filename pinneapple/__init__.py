@@ -709,6 +709,8 @@ _LAZY_ATTRS = {
     "catalog": ("pinneapple_core.catalog", "catalog"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
+    # one estimator over EKF / UKF / EnKF / particle, for the sensor -> state -> correction loop (#215)
+    "StateEstimator": ("pinneapple_analysis.state_estimation", "StateEstimator"),
     # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
     # data readiness: may this dataset start a training run? and the engineering review record (#1491, #1493)
     "readiness": ("pinneapple_data.readiness", "readiness"),
@@ -775,7 +777,7 @@ __all__ = [
     "PhysicalProblem", "Parameter", "Quantity",
     # Front door: solve, compare, run reproducible experiments, score with one metrics convention
     "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method", "list_methods",
-    "Experiment", "ExperimentResult", "metrics", "experiments",
+    "Experiment", "ExperimentResult", "metrics", "StateEstimator", "experiments",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # First hour: is this machine ready, what should I run, what does it take, where do I put it

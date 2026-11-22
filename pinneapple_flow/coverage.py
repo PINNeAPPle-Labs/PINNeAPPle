@@ -35,6 +35,8 @@ REASONS: dict[str, str] = {
     "pinneapple_analysis.verification.asme_vv20": "the ASME V&V 20 validation of one number against one datum, and "
                                                   "the V&V 40 credibility block: it is a report a reviewer reads, "
                                                   "built from a mesh study and a data point, not a step of a flow",
+    "pinneapple_data.regimes": "which bands of Reynolds, Mach and the other dimensionless numbers a dataset reaches: "
+                               "it is part of the dataset audit, a check on the data before a flow runs on it",
     "pinneapple_physics.dimensions": "a dimensional check of one equation before training: it reads a statement and "
                                      "reports which term broke the units, which is a review of a problem rather "
                                      "than a step of a flow",

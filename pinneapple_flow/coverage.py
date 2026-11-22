@@ -29,6 +29,9 @@ REASONS: dict[str, str] = {
     "pinneapple_flow.reproducibility": "the record of a finished flow run and its reproducer: it re-runs a saved "
                                        "document to compare it with what was recorded, which is a check on a run, "
                                        "not a step of one",
+    "pinneapple_analysis.verification.asme_vv20": "the ASME V&V 20 validation of one number against one datum, and "
+                                                  "the V&V 40 credibility block: it is a report a reviewer reads, "
+                                                  "built from a mesh study and a data point, not a step of a flow",
     "pinneapple_physics.experiments": "reproducing a recorded run (reproduced / divergent / refused): the definition "
                                       "of the three outcomes, read by pp.experiments rather than placed in a flow",
     # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for

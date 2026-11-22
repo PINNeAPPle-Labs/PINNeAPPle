@@ -166,6 +166,24 @@ class RunContext:
         self._mlog.write(json.dumps({"name": name, "value": v, "step": step, "t": time.time()}) + "\n")
         self._mlog.flush()
 
+    def check_cartesian_fv_conservation(
+        self, name: str, source_integrals, face_fluxes, *,
+        boundary_fluxes=None, absolute_tolerance: float = 1e-8,
+        relative_tolerance: float = 1e-6,
+    ) -> dict[str, Any]:
+        """Record a 2D/3D finite-volume conservation check and its evidence."""
+        from pinneapple_physics.validation import check_cartesian_fv_conservation
+        result = check_cartesian_fv_conservation(
+            source_integrals, face_fluxes, boundary_fluxes=boundary_fluxes,
+            absolute_tolerance=absolute_tolerance,
+            relative_tolerance=relative_tolerance)
+        self.output(name + "_cartesian_conservation_evidence", result)
+        self.check(name + "_cartesian_conservation", passed=result["passed"],
+                   value=result["max_cell_balance_error"],
+                   detail="2D/3D Cartesian finite-volume flux and source balance",
+                   kind="physics")
+        return result
+
     def check_fv_conservation_1d(
         self, name: str, face_flux, cell_source_integral, *,
         boundary_flux=None, absolute_tolerance: float = 1e-8,

@@ -1,0 +1,12 @@
+{
+ "code_hash": "21753d3c54513c65",
+ "figures": [],
+ "id": "node:data.public_dataset",
+ "ok": true,
+ "recorded": "2026-11-22",
+ "seconds": 9.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "Public dataset (catalogued archive) -> pinneapple_data.datasets.read.choose / read + pinneapple_data.schema.run_gates\ninputs: []\noutputs: [('data', 'dataset'), ('metrics', 'metrics'), ('manifest', 'report')]\ndefaults: {'id': '', 'stage': 'data', 'arguments': {}, 'license': '', 'gates': True}",
+ "timed_out": false
+}

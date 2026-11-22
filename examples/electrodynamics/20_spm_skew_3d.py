@@ -70,9 +70,11 @@ def main() -> dict:
 def figure(out: dict) -> None:
     import matplotlib.pyplot as plt
 
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     colours = {"step2": "#2a78d6", "step3": "#eb6834", "continuous": "#1baf7a"}
     muted = "#52514e"
-    plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False})
     fig, ax = plt.subplots(1, 2, figsize=(12, 4.2), facecolor="#fcfcfb")
     rows = out["rows"]
     st = next(r for r in rows if r["kind"] == "straight")

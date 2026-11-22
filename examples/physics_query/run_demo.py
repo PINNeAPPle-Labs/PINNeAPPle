@@ -42,6 +42,9 @@ def figure(r: dict, path: str) -> str:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     colors = {"cached": "#2a6fdb", "superposition": "#1f9e77", "bound": "#e08a2a", "condensed": "#7a5bd6"}
     fig, ax = plt.subplots(figsize=(7.5, 4.2))
     for label, ph in r["phases"].items():

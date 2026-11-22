@@ -13,15 +13,28 @@ do cronograma tenha passado.
 
 | Repositório | `main` | Actions |
 |---|---|---|
-| PINNeAPPle | `da387ca33` | rodou em 22/11 (noturna verde em `main`), mas a cota do Actions esgotou no mesmo dia: no PR #2285 parte dos jobs morre por infraestrutura (por exemplo `git` saindo 128 no diff da base). O gate desta campanha é local |
+| PINNeAPPle | `3133417b1` | rodou em 22/11 (noturna verde em `main`), mas a cota do Actions esgotou no mesmo dia: no PR #2285 parte dos jobs morre por infraestrutura (por exemplo `git` saindo 128 no diff da base). O gate desta campanha é local |
 | pinneapple-engineering-api | `e1ddcea` | **parado**: os jobs morrem em 2–3 s com zero steps (runner não inicia); `MERGEABLE` ali significa só que o git mergeia |
 
 O gate real da API é local: `ruff check .` mais `pytest -q` no `.venv`. Isto já está registrado nas
 issues #154 e #216 daquele repositório.
 
+### Portões vermelhos herdados em `main` (conferidos em worktree limpo de `origin/main`)
+
+| Portão | O que acontece | Situação |
+|---|---|---|
+| `tests/test_method_status_drift.py` | seis métodos (E10, E7, P1.1, S2, S21, S24) têm evidência de teste a mais no snapshot | **aberto**, não é deste lote: o mesmo diff num checkout de `origin/main`. Regenerar `pinneapple_catalog/method_status.json` com o scan já quebrou as fixtures de `examples/physics_check/fail` antes, então o refresh pede revisão item a item, não um comando |
+| `tests/test_example_catalog.py::test_the_page_lists_every_example` | a página gerada não listava o exemplo `data_readiness`, que entrou no tier de CI | **corrigido** em `docs/guides/example_catalog.md` (commit 8d7452295), uma linha de `scripts/example_catalog.py --docs` |
+
+![O catálogo único](../assets/campaign/catalogo_unico.png)
+
+`pp.catalog()` (#1478): as nove seções lidas do registro e as views que alguém lê. Azul são as que devem
+concordar com o catálogo; verde é uma view que é outro plano por construção (o benchmark lista as suítes
+que pontua). Zero desacordos entre as que devem concordar.
+
 ## Dia 1 — 23/11/2026 (91 issues: 69 da biblioteca + 22 da API)
 
-Saldo depois da triagem: **6 feitas com evidência, 5 com PR aberto para revisão, 9 parciais, 5 bloqueadas e 66 pendentes.** A meta nominal do dia era 91; a diferença está descrita linha
+Saldo depois da triagem: **6 feitas com evidência, 5 com PR aberto para revisão, 9 parciais, 5 bloqueadas e 66 pendentes.** Desde então entraram, com código integrado e teste: #59, #201, #227, #933, #1494, #1871, #918 (parcial), #1478 e #1891 — nove itens do lote, mais a integração do #1889, que era dependência. A meta nominal do dia era 91; a diferença está descrita linha
 a linha, e o plano já diz que o cronograma é fila nominal, não promessa de 91 implementações validadas.
 
 As seis feitas nesta sessão: #59 (reprodutibilidade numérica), #201 (namespace público), #227 (sete
@@ -96,11 +109,11 @@ quando o critério de aceite pedia, página de documentação — e nenhuma fech
 | 923 | Experiment quality checklist and badge (baseline, held-out,… | M | P1 | **pendente** | Bloco de qualidade no experiment.json com selo; o CI do PINNeAPPle roda, então os selos podem ser gerados no workflow. |
 | 927 | Sensitivity Lab: propagate surrogate error into the Sobol i… | M | P1 | **pendente** | Propagar o erro do surrogate para os intervalos de Sobol e reportar estabilidade de ranking. |
 | 1477 | [E6] One model provider interface (PyTorch, JAX, ONNX, Torc… | M | P1 | **pendente** | Contrato ModelProvider sobre zoo, hub, pinneapple_neural e model_export. |
-| 1478 | [E7] One catalogue facade over the five list_models() | M | P1 | **pendente** | #200 (registries unificados) está fechada, então a fachada pp.catalog() está desbloqueada: os cinco list_models() de hoje precisam convergir. |
+| 1478 | [E7] One catalogue facade over the five list_models() | M | P1 | **feito** | pp.catalog() em pinneapple_core/catalog.py: nove seções lidas do registro unificado, units/variables/provenance None quando não declarados, as views com os ids de cada uma, view_notes() para as que são outro plano e discrepancies() para as que devem concordar; to_markdown() gera a tabela. 11 testes (#2286, 7e1b18d20). |
 | 1479 | [E8] Kubernetes and cloud batch executors behind the existi… | M | P1 | **pendente** | Executores Kubernetes e batch atrás do contrato existente; verificável com dublê, sem cluster. |
-| 1480 | [E9] Reproducible execution from an experiment id | M | P1 | **pendente** | pp.experiments.reproduce(exp_id) com os três desfechos; o run_twice de #59 é a peça de comparação. |
+| 1480 | [E9] Reproducible execution from an experiment id | M | P1 | **em andamento** | pp.experiments.reproduce(exp_id) com os três desfechos; o run_twice de #59 é a peça de comparação. Em execução agora, no mesmo dia. |
 | 1481 | [E10] Workflow and experiment observability: structured run… | M | P1 | **pendente** | Eventos estruturados de run/step e pp runs why. |
-| 1891 | A pipeline node that reads a catalogued public dataset, wit… | M | P1 | **pendente** | Nó data.public_dataset no catálogo de fluxos, com gates e licença. |
+| 1891 | A pipeline node that reads a catalogued public dataset, wit… | M | P1 | **feito** | data.public_dataset (#2287, 3133417b1): bundle → tabela X/Y igual à do data.ingest, recusa sem leitor citando formatos e homepage, portão não comercial com PINNEAPPLE_COMMERCIAL_MODE=1, licença e digest dentro do npz, gates de schema nas métricas e escolha registrada com os candidatos quando não há id. 10 testes com um HDF5 real no layout do PDEBench. Dependia de #1889, integrado em main no mesmo dia. |
 
 ### Engineering API (22)
 

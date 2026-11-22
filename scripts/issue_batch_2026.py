@@ -79,16 +79,16 @@ def classify(issue: dict) -> dict:
     body = issue.get("body") or ""
     title = issue.get("title") or ""
     priority = next((p for p in PRIORITIES if any(
-        re.search(rf"\\b{p}\\b", label, re.I) for label in labels)), "unclassified")
+        re.search(rf"\b{p}\b", label, re.I) for label in labels)), "unclassified")
     effort = next((size for size in ("S", "M", "L") if any(
-        re.search(rf"\\b{size}\\b", label, re.I) for label in labels)), "unclassified")
+        re.search(rf"\b{size}\b", label, re.I) for label in labels)), "unclassified")
     lower = (title + " " + body).lower()
     dependencies = sorted(set(re.findall(
-        r"(?:depends on|blocked by|depende de|bloquead[oa] por)\\s+#(\\d+)", lower)))
+        r"(?:depends on|blocked by|depende de|bloquead[oa] por)\s+#(\d+)", lower)))
     acceptance = []
     for heading in ("Done when", "Acceptance criteria", "Critérios de aceite", "Definition of done"):
-        match = re.search(r"(?im)^#{1,5}\\s*" + re.escape(heading) +
-                          r"\\s*$\\n(.*?)(?=^#{1,5}\\s|\\Z)", body, re.S | re.M)
+        match = re.search(r"(?im)^#{1,5}\s*" + re.escape(heading) +
+                          r"\s*$\n(.*?)(?=^#{1,5}\s|\Z)", body, re.S | re.M)
         if match:
             acceptance = [line.strip() for line in match.group(1).splitlines()
                           if line.strip() and not line.strip().startswith("|")]
@@ -96,7 +96,7 @@ def classify(issue: dict) -> dict:
     module_paths = sorted(set(re.findall(
         r"`((?:app|pinneapple_[A-Za-z0-9_]+|tests|docs|scripts)/[A-Za-z0-9_./-]+)`", body)))
     prs = sorted(set(re.findall(
-        r"https://github\\.com/[^\\s)]+/pull/\\d+", body)))
+        r"https://github\.com/[^\s)]+/pull/\d+", body)))
     return {"priority": priority, "complexity": effort,
             "dependencies_mentioned": dependencies,
             "acceptance_quoted": acceptance[:25],

@@ -26,6 +26,11 @@ REASONS: dict[str, str] = {
     "pinneapple_registry": "artifact store and model gateway services (deployment, not a computation step)",
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",
+    "pinneapple_flow.reproducibility": "the record of a finished flow run and its reproducer: it re-runs a saved "
+                                       "document to compare it with what was recorded, which is a check on a run, "
+                                       "not a step of one",
+    "pinneapple_physics.experiments": "reproducing a recorded run (reproduced / divergent / refused): the definition "
+                                      "of the three outcomes, read by pp.experiments rather than placed in a flow",
     # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for
     "pinneapple_data.multifidelity": "the two-fidelity models -- pairing the cheap and expensive values of the same "
                                      "design, the kernel-ridge correction, and the learning curves over scalar targets "

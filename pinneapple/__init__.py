@@ -609,6 +609,8 @@ _SUBMODULES = {
     "decision":   "pinneapple_decision",
     # one error-metric convention for the whole library
     "metrics":    "pinneapple_physics.metrics",
+    # reproducing a recorded run: reproduced / divergent / refused (#1480)
+    "experiments": "pinneapple_physics.experiments",
     # 3D studio: any geometry and its fields -> glTF/USD/STL, Blender renders, browser viewer
     "viz":        "pinneapple_tools.visualization.studio",
     # external flow around any body in OpenFOAM (STL -> mesh -> forces, skin fields, streamlines, slices)
@@ -773,7 +775,7 @@ __all__ = [
     "PhysicalProblem", "Parameter", "Quantity",
     # Front door: solve, compare, run reproducible experiments, score with one metrics convention
     "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method", "list_methods",
-    "Experiment", "ExperimentResult", "metrics",
+    "Experiment", "ExperimentResult", "metrics", "experiments",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # First hour: is this machine ready, what should I run, what does it take, where do I put it

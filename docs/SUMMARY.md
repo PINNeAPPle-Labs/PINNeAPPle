@@ -72,6 +72,7 @@
     * [Rendering without a display: xvfb, OSMesa, EGL and a container](guides/headless_rendering.md)
     * [Choosing a method: PINN, operator, graph network or solver](guides/choosing_a_method.md)
     * [One house theme for every 2-D figure](guides/house_theme.md)
+    * [Reproducing a recorded run: reproduced, divergent or refused](guides/reproducing_a_run.md)
     * [Integral equations of the second kind](guides/integral_equations.md)
     * [Running a benchmark](guides/running_a_benchmark.md)
     * [Crash and surface-pressure benchmarks, recreated](guides/crash_and_surface_benchmarks.md)

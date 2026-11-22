@@ -30,6 +30,8 @@ RESOLVES = (
     "sensitivity",
     "inverse",
     "artifact",
+    # reproduced / divergent / refused for a recorded run (#1480)
+    "experiments",
 )
 
 # Namespaces in the target map that do not exist yet. Each is a line of the
@@ -46,7 +48,6 @@ NOT_YET = (
     "solver",
     "surrogate",
     "analysis",
-    "experiments",
     "workflows",
 )
 

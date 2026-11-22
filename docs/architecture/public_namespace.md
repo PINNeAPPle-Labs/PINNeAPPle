@@ -41,7 +41,7 @@ decided to train a neural network.
 | `pp.viz` | Field rendering, viewers, exports for figures and 3D | Exists, but points at `pinneapple_tools.visualization.studio` (the Studio scene builder), not the figure style |
 | `pp.analysis` | Validation, verification, uncertainty, sensitivity, cost | Missing. `pp.uncertainty`, `pp.sensitivity`, `pp.inverse`, `pp.assimilation` exist |
 | `pp.decision` | What to run next, never the physical result | Exists: `pp.decision` and `pp.decide` |
-| `pp.experiments` | `Experiment`, reproducible runs, artifacts, evidence | Missing. `Experiment` is top level, `pp.artifact` holds the `.ppx` container |
+| `pp.experiments` | `Experiment`, reproducible runs, artifacts, evidence | Partial: `pp.experiments.reproduce(id)` answers `reproduced` / `divergent` / `refused` for a recorded run (#1480); `Experiment` itself stays top level and `pp.artifact` holds the `.ppx` container |
 | `pp.workflows` | DAG execution, executors, run events | Missing. `pinneapple_core.workflows`, reachable as `pp.core` |
 
 ## Rules the map enforces

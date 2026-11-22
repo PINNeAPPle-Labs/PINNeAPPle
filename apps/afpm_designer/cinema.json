@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "eletromagnetismo",
+ "episode_id": "01-eletromagnetismo",
+ "claim": {
+  "number": "8,604 contra 7,626 N·m  ·  +2,1% no fluxo",
+  "source": "motor de fluxo axial: estimativa quasi-3-D contra a mesma máquina na malha 3-D",
+  "not_affirmed": "não é elemento finito 3-D completo, e os parâmetros são de um motor plausível"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T11:18:25Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/01-eletromagnetismo.mp4",
+   "sha256": "e1ee24886c360fea7b6afc606582476815498f7252bb3ca7f109bde305f7a677",
+   "duration_s": 5.73,
+   "width": 1200,
+   "height": 760,
+   "frames": 172,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/01-eletromagnetismo.mp4",
+   "sha256": "802270ce590c0bbbabacc66aa43163069c33f06988504825f73afe01e68f7f63",
+   "duration_s": 5.73,
+   "width": 1080,
+   "height": 1920,
+   "frames": 172,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

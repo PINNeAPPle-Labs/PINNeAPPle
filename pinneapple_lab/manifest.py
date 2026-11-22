@@ -33,11 +33,19 @@ Format (``schema`` "pinneapple.experiment/1"; paths relative to the manifest's f
      "links": {"guide": "docs/guides/flight_dynamics.md", "script": "...", "pr": [844, 847]},
      "references": ["MIL-F-8785C"], "status": "curated" | "not curated",
      "lab": {"item": "...", "experiment": "...", "run_id": "..."},
-     "provenance": {"source": "experiment()", "git": "...", "created": "...", "seconds": 1.2, "environment": {...}}}
+     "provenance": {"source": "experiment()", "git": "...", "created": "...", "seconds": 1.2, "environment": {...}},
+     "cinema": {"episode": "S3-05", "claim": {...}, "products": [{"id": "short-9x16", "repo": "...", "path": "...",
+                "sha256": "...", "duration_s": 5.27, "width": 1080, "height": 1920}]}}
 
 A metric always has a measured value (never a placeholder) and says how it was measured; a missing file or a metric
 without a value fails :func:`validate`, and :func:`check_repo` fails CI for an ``examples/*`` folder without a valid
 manifest.
+
+``cinema`` is optional and additive (schema stays ``/1``, so the 174 manifests already written remain valid): it
+records the video products made *from* this experiment, each with the SHA-256 and the measured duration of the file,
+so a video can be traced back to a run instead of living as an unattributed clip. A product is local (``file``,
+relative to the folder, checked like any other file) or hosted elsewhere (``repo`` + ``path``, checked against the
+recorded hash when that checkout is at ``$PINNEAPPLE_CINEMA_ROOT/<repo>``).
 """
 from __future__ import annotations
 
@@ -104,6 +112,7 @@ class Manifest:
     status: str = "not curated"
     lab: dict[str, Any] = field(default_factory=dict)
     provenance: dict[str, Any] = field(default_factory=dict)
+    cinema: dict[str, Any] = field(default_factory=dict)
     schema: str = SCHEMA
 
     def to_dict(self) -> dict[str, Any]:
@@ -179,6 +188,7 @@ def validate(m: Manifest, base: str | None = None) -> list[str]:
     unknown = set(m.files) - {"figures", "videos", "viewers", "data"}
     if unknown:
         err.append(f"unknown file kinds {sorted(unknown)}")
+    err.extend(_cinema_errors(m.cinema, base))
     if base is not None:
         for kind, paths in m.files.items():
             for p in paths:
@@ -188,6 +198,86 @@ def validate(m: Manifest, base: str | None = None) -> list[str]:
             if not os.path.exists(os.path.join(base, p)):
                 err.append(f"script {p} does not exist")
     return err
+
+
+CINEMA_SCHEMA = "pinneapple.cinema.media/1"
+_APPS_ROOT = os.environ.get("PINNEAPPLE_CINEMA_ROOT", "")
+
+
+def _cinema_errors(cinema: Any, base: str | None) -> list[str]:
+    """What is wrong with a ``cinema`` block (empty when absent or valid): every product names its file, its measured
+    duration and size, and the SHA-256 of the bytes, so a clip cannot be replaced without the record noticing."""
+    if not cinema:
+        return []
+    if not isinstance(cinema, dict):
+        return [f"cinema {type(cinema).__name__} is not an object"]
+    err = []
+    if cinema.get("schema") not in (None, CINEMA_SCHEMA):
+        err.append(f"cinema schema {cinema.get('schema')!r} is not {CINEMA_SCHEMA!r}")
+    products = cinema.get("products")
+    if not isinstance(products, list) or not products:
+        return err + ["cinema has no products"]
+    ids = set()
+    for i, p in enumerate(products):
+        if not isinstance(p, dict):
+            err.append(f"cinema product #{i + 1} is not an object")
+            continue
+        pid = str(p.get("id") or "")
+        if not pid:
+            err.append(f"cinema product #{i + 1} has no id")
+        elif pid in ids:
+            err.append(f"cinema product id {pid!r} repeats")
+        ids.add(pid)
+        sha = str(p.get("sha256") or "")
+        if len(sha) != 64 or any(c not in "0123456789abcdef" for c in sha):
+            err.append(f"cinema product {pid!r} has no SHA-256 of its bytes")
+        for k in ("duration_s", "width", "height"):
+            if not _number(p.get(k)) or float(p[k]) <= 0:
+                err.append(f"cinema product {pid!r} has no measured {k}")
+        local, hosted = p.get("file"), p.get("path")
+        if local:
+            if base is not None and not os.path.exists(os.path.join(base, local)):
+                err.append(f"cinema product {pid!r}: file {local} does not exist")
+        elif hosted:
+            if not p.get("repo"):
+                err.append(f"cinema product {pid!r} is hosted but names no repo")
+            elif _APPS_ROOT and os.path.isdir(os.path.join(_APPS_ROOT, str(p["repo"]))):
+                _check_hosted(pid, p, err)
+        else:
+            err.append(f"cinema product {pid!r} names no file (or repo + path)")
+    return err
+
+
+def check_cinema(root: str | None = None) -> list[str]:
+    """Problems in every ``apps/*/cinema.json`` (empty when they are all valid, or absent)."""
+    import glob
+    root = root or REPO
+    out = []
+    for p in sorted(glob.glob(os.path.join(root, "apps", "*", "cinema.json"))):
+        rel = os.path.relpath(p, root)
+        try:
+            with open(p) as f:
+                d = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:  # noqa: BLE001
+            out.append(f"{rel}: {e}")
+            continue
+        out += [f"{rel}: {e}" for e in _cinema_errors(d, os.path.dirname(p))]
+    return out
+
+
+def _check_hosted(pid: str, p: dict[str, Any], err: list[str]) -> None:
+    """Compare a hosted product against its recorded hash, when that checkout is reachable."""
+    import hashlib
+    f = os.path.join(_APPS_ROOT, str(p["repo"]), str(p["path"]))
+    if not os.path.isfile(f):
+        err.append(f"cinema product {pid!r}: {p['repo']}/{p['path']} does not exist")
+        return
+    h = hashlib.sha256()
+    with open(f, "rb") as fh:
+        for bloco in iter(lambda: fh.read(1 << 20), b""):
+            h.update(bloco)
+    if h.hexdigest() != p["sha256"]:
+        err.append(f"cinema product {pid!r}: SHA-256 differs from the record (the clip changed)")
 
 
 def _jsonable(v):

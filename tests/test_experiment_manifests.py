@@ -26,6 +26,30 @@ def _fig(path):
 
 
 # ---------------------------------------------------------------------------------------------- format
+def test_cinema_block_names_the_bytes(tmp_path):
+    """A video product records the hash, the duration and the size it was measured at — a clip cannot be swapped."""
+    m = M.Manifest(id="x", title="X", cinema={"schema": M.CINEMA_SCHEMA, "products": [
+        {"id": "short-9x16", "repo": "site", "path": "midia/05.mp4", "sha256": "b" * 64,
+         "duration_s": 5.2, "width": 1080, "height": 1920}]})
+    assert M.validate(m, str(tmp_path)) == []
+    m.cinema["products"][0]["sha256"] = "curto"
+    assert any("SHA-256" in e for e in M.validate(m, str(tmp_path)))
+    local = M.Manifest(id="y", title="Y", cinema={"products": [
+        {"id": "screen-16x9", "file": "midia/y.mp4", "sha256": "c" * 64, "duration_s": 4.0, "width": 1200,
+         "height": 786}]})
+    assert any("midia/y.mp4 does not exist" in e for e in M.validate(local, str(tmp_path)))
+    (tmp_path / "midia").mkdir()
+    (tmp_path / "midia" / "y.mp4").write_bytes(b"x")
+    assert M.validate(local, str(tmp_path)) == []
+    (tmp_path / "apps" / "demo").mkdir(parents=True)
+    (tmp_path / "apps" / "demo" / "cinema.json").write_text(json.dumps({"products": []}))
+    assert any("no products" in e for e in M.check_cinema(str(tmp_path)))
+    (tmp_path / "apps" / "demo" / "cinema.json").write_text(json.dumps({"products": [
+        {"id": "s", "repo": "r", "path": "p", "sha256": "d" * 64, "duration_s": 1, "width": 2, "height": 3}]}))
+    assert M.check_cinema(str(tmp_path)) == []
+    assert M.load(M.save(m, str(tmp_path))).cinema == m.cinema          # the block survives the round trip
+
+
 def test_validate_catches_what_the_site_cannot_show(tmp_path):
     m = M.Manifest(id="x", title="X")
     assert M.validate(m, str(tmp_path)) == []

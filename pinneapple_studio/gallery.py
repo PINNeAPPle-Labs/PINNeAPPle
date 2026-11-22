@@ -94,6 +94,7 @@ def _entry(root: Path, folder: Path, kind: str, prose: P.Prose, finv: dict, flow
         "modules": exp.get("modules", []), "params": exp.get("params", {}), "metrics": exp.get("metrics", []),
         "checks": exp.get("checks", []), "references": exp.get("references", []), "links": exp.get("links", {}),
         "curation": exp.get("status", ""), "readme": rd["readme"],
+        "provenance": exp.get("provenance", {}), "cinema": exp.get("cinema", {}),
         "scripts": [str(p.relative_to(root)) for p in scripts],
         "flows": [{"name": f["name"], "title": f["title"], "quick": f["quick"], "nodes": f["nodes"]} for f in fl],
         "flow_status": row.get("status") or ("" if not fl else "has-flow"), "flow_reason": row.get("reason", ""),
@@ -142,12 +143,22 @@ def entries(root: Path | None = None) -> list[dict[str, Any]]:
                     "title": rd["title"] or d.name, "description": rd["summary"], "readme": rd["readme"],
                     "pt": prose.folders.get("apps", {}).get(d.name, ""), "state": "app",
                     "start": _app_command(d, root), "requirements": [], "blocked_by": [], "script_needs": [], "flows": [],
-                    "measured": [], "scripts": []})
+                    "measured": [], "scripts": [], "cinema": _cinema(d), "provenance": {}})
     for it in out:                    # both languages: the Portuguese title, and English where the source has none
         it["title_pt"] = prose.titles.get(it["id"], "")
         it["title"] = prose.en_titles.get(it["id"]) or it["title"]
         it["description"] = prose.en_descriptions.get(it["id"]) or it["description"]
     return out
+
+
+def _cinema(d: Path) -> dict[str, Any]:
+    """The ``cinema.json`` of an app folder: the video products made from it (id, file, SHA-256, duration, size).
+    Apps have no ``experiment.json``, so the block lives beside the app, same shape as the manifest's ``cinema``."""
+    p = d / "cinema.json"
+    try:
+        return json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
+    except json.JSONDecodeError:
+        return {}
 
 
 def _app_command(d: Path, root: Path) -> str:

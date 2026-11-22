@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "acústica",
+ "episode_id": "06-acustica",
+ "claim": {
+  "number": "Helmholtz conferido na fórmula fechada",
+  "source": "duto bass-reflex: o otimizador propõe, a fórmula confere",
+  "not_affirmed": "o ar no duto não tem gradiente: o modelo é concentrado, não um campo acústico"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T11:03:17Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/06-acustica.mp4",
+   "sha256": "6264ae90d83ab21c87006c66bc20ad6954afab6ad508d3a5efb5590a7b85bd94",
+   "duration_s": 5.03,
+   "width": 1200,
+   "height": 668,
+   "frames": 151,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/06-acustica.mp4",
+   "sha256": "a89370f09716485acdfe99a9531fc2171c226425a4d21414fa8cd837b74ed307",
+   "duration_s": 5.03,
+   "width": 1080,
+   "height": 1920,
+   "frames": 151,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

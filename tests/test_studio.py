@@ -218,6 +218,21 @@ def test_gallery_blocks_with_the_reason_and_the_command(repo, monkeypatch):
     assert e["blocked_by"][0]["fix"] == 'pip install -e ".[cad]"'
 
 
+def test_gallery_carries_the_cinema_of_an_app(repo, monkeypatch):
+    """An app with a ``cinema.json`` shows up in the gallery with its video products; one without shows none."""
+    from pinneapple_studio import gallery
+    monkeypatch.setattr(gallery, "_flow_rows", lambda: ({}, [], {}))
+    _w(repo / "apps" / "hotspot" / "README.md", "# Hotspot\n\nA board.\n")
+    _w(repo / "apps" / "hotspot" / "cinema.json", json.dumps({"products": [
+        {"id": "short-9x16", "repo": "site", "path": "midia/05.mp4", "sha256": "a" * 64,
+         "duration_s": 5.2, "width": 1080, "height": 1920}]}))
+    _w(repo / "apps" / "plain" / "README.md", "# Plain\n\nNo video.\n")
+    ent = {x["id"]: x for x in gallery.entries(repo)}
+    assert ent["app:hotspot"]["cinema"]["products"][0]["id"] == "short-9x16"
+    assert ent["app:hotspot"]["state"] == "app"
+    assert ent["app:plain"]["cinema"] == {}
+
+
 def test_job_environment_has_no_secrets(monkeypatch):
     monkeypatch.setenv("GITHUB_TOKEN", "x")
     monkeypatch.setenv("DATABASE_URL", "postgres://u:p@h/db")

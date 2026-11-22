@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.cinema.media/1",
+ "episode": "térmica de máquina / mobilidade",
+ "episode_id": "07-freio",
+ "claim": {
+  "number": "65 °C no projeto otimizado  ·  200 amostras",
+  "source": "rotor ventilado: Monte Carlo de fabricação recalculado na fórmula, nunca no surrogate",
+  "not_affirmed": "o limite de 500 °C é genérico; a convecção não entra no Monte Carlo"
+ },
+ "capture": {
+  "driver": "tools/linkedin/fisica-em-serie/serie-3-studio/gravar.py",
+  "driver_commit": "7a0a309 2026-11-21",
+  "fps": 30,
+  "viewport": "1500x950",
+  "captured_at": "2026-11-21T11:26:46Z"
+ },
+ "products": [
+  {
+   "id": "screen-16x9",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia/07-freio.mp4",
+   "sha256": "563a354655b0c6032bf781ca74821c9ed01c51c1b39576f9f44f54878b5a1163",
+   "duration_s": 9.03,
+   "width": 1200,
+   "height": 720,
+   "frames": 271,
+   "fps": 30.0
+  },
+  {
+   "id": "short-9x16",
+   "repo": "PINNeAPPle-Labs.github.io",
+   "path": "tools/linkedin/fisica-em-serie/serie-3-studio/midia-vertical/07-freio.mp4",
+   "sha256": "1ac154cd428e6afd7811ccdf1c11460d16cda0830ff0baf968ef5302c5565096",
+   "duration_s": 9.03,
+   "width": 1080,
+   "height": 1920,
+   "frames": 271,
+   "fps": 30.0
+  }
+ ],
+ "note": "quadros capturados de uma execução real da app; nenhuma etapa generativa"
+}

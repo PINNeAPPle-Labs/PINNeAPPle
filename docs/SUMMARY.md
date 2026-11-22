@@ -76,6 +76,7 @@
     * [Checking the dimensions of an equation](guides/dimensional_check.md)
     * [A field on any domain: the picture and the VTU](guides/rendering_fields.md)
     * [Post-processing gallery: six reference pictures](guides/postprocessing_gallery.md)
+    * [Bayesian optimization: fewer reference simulations](guides/bayesian_optimization.md)
     * [Model cards generated from an experiment record](guides/model_cards.md)
     * [Integral equations of the second kind](guides/integral_equations.md)
     * [Running a benchmark](guides/running_a_benchmark.md)

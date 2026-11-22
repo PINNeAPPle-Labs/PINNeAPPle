@@ -37,7 +37,7 @@ que pontua). Zero desacordos entre as que devem concordar.
 
 ## Dia 1 — 23/11/2026 (91 issues: 69 da biblioteca + 22 da API)
 
-Saldo depois da triagem: **6 feitas com evidência, 5 com PR aberto para revisão, 9 parciais, 5 bloqueadas e 66 pendentes.** Desde então entraram, com código integrado e teste: #59, #201, #227, #933, #1494, #1871, #918 (parcial), #1478, #1891, #1480, #31, #215, #167, #110, #106 e #40 — **dezesseis itens do lote**, mais a integração do #1889, que era dependência do #1891. O que continua aberto tem motivo escrito na última coluna. A meta nominal do dia era 91; a diferença está descrita linha
+Saldo depois da triagem: **6 feitas com evidência, 5 com PR aberto para revisão, 9 parciais, 5 bloqueadas e 66 pendentes.** Desde então entraram, com código integrado e teste: #59, #201, #227, #933, #1494, #1871, #918 (parcial), #1478, #1891, #1480, #31, #215, #167, #110, #106, #40 e #1494 — **quinze itens do lote**, mais a integração do #1889, que era dependência do #1891. O que continua aberto tem motivo escrito na última coluna. A meta nominal do dia era 91; a diferença está descrita linha
 a linha, e o plano já diz que o cronograma é fila nominal, não promessa de 91 implementações validadas.
 
 As seis feitas nesta sessão: #59 (reprodutibilidade numérica), #201 (namespace público), #227 (sete
@@ -54,7 +54,7 @@ quando o critério de aceite pedia, página de documentação — e nenhuma fech
 | 38 | [B12] run_results as verifiable evidence | M | P1 | **PR** | PR #2275 abre o manifesto de integridade determinístico de run_results; revisar e integrar. |
 | 159 | [S10] Automatic conservation and boundary-condition checks | M | P1 | **PR** | Seis PRs abertos (#2276–#2283) cobrem conservação 1D/2D/3D, malha não estruturada e OpenFOAM; revisar e integrar em ordem. |
 | 933 | QA pipeline: repair re-validates the source but does not re… | M | P1 | **feito** | QualityPipeline(rebuild_from_source=...): cada tentativa repara, executa, reconstrói o bundle e valida contra os dados novos, com bundle_source fresh/stale e rebuild_error; 8 testes (c35d9fcb4). |
-| 1494 | [PDI 4] Mesh repair: turn the report's suggested fix into a… | M | P1 | **em andamento** | pinneapple_data/cae/repair.py com antes/depois, em execução nesta sessão. |
+| 1494 | [PDI 4] Mesh repair: turn the report's suggested fix into a… | M | P1 | **feito** | pinneapple_data/cae/repair.py (merge em #2285): merge_vertices, drop_degenerate_faces, drop_duplicate_faces, orient_consistently, close_holes e repair_surface; cada uma devolve o resultado com antes/depois, garantias, o que não corrige e o que regrediu. |
 | 1871 | Decision-level surrogate validation: flip rate, ranking pre… | M | P1 | **feito** | pinneapple_analysis/decision: flip_rate, rank_preservation, regret, failure_map e decision_card com limiares explícitos; 20 testes (7b4d60747). |
 | 31 | [B4] Unified PhysicsValidator | M | P1 | **feito** | Cinco tipos de checagem no mesmo relatório: conservação, contorno, simetria, dimensional e OOD (#2290). A dimensional compara a unidade devolvida pelo modelo e falha reportando o fator quando as dimensões batem mas a escala não; modelo sem unidade volta como "not run", nunca como passe. A OOD exige recall **e** limite de falso alarme. CheckResult ganhou `passed=None` = "not run" e `status`. 13 testes. |
 | 75 | [G2] Backend per problem (PyTorch, JAX, PhysicsNeMo) | L | P1 | **parcial** | compute_backends já cobre PyTorch/JAX; falta problem.backend(...) e o caso 02 do benchmark no PhysicsNeMo. |

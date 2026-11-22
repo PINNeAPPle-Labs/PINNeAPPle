@@ -13,7 +13,7 @@ do cronograma tenha passado.
 
 | Repositório | `main` | Actions |
 |---|---|---|
-| PINNeAPPle | `da387ca33` | ativo: a suíte noturna de 22/11 passou em `main`; os PRs da campanha falham por conteúdo, não por infraestrutura |
+| PINNeAPPle | `da387ca33` | rodou em 22/11 (noturna verde em `main`), mas a cota do Actions esgotou no mesmo dia: no PR #2285 parte dos jobs morre por infraestrutura (por exemplo `git` saindo 128 no diff da base). O gate desta campanha é local |
 | pinneapple-engineering-api | `e1ddcea` | **parado**: os jobs morrem em 2–3 s com zero steps (runner não inicia); `MERGEABLE` ali significa só que o git mergeia |
 
 O gate real da API é local: `ruff check .` mais `pytest -q` no `.venv`. Isto já está registrado nas
@@ -155,6 +155,9 @@ quando o critério de aceite pedia, página de documentação — e nenhuma fech
 
 - **CI do PINNeAPPle voltou.** As issues #53, #70, #93 e #923 estavam bloqueadas por "CI sem billing" e
   deixam de estar: o Actions roda e a noturna de `main` passou. O CI da API continua parado.
+- **O gate de cobertura do Flow estava vermelho em `main`**: `physics_tensor`, `provenance`, `readiness` e `review`
+  não tinham nó nem razão. Corrigido junto com os módulos desta branch (#1494, #1871), com a razão que cada módulo
+  de fato tem.
 - **A campanha paralela já abriu PR por issue em algumas frentes.** Antes de implementar qualquer item,
   consultar os PRs abertos: #2275–#2283 (conservação e evidência) na biblioteca, #779, #780 e #781 na API.
 

@@ -74,19 +74,42 @@ def fetch_issue(repo: str, number: int, token: str | None) -> dict:
 
 
 def classify(issue: dict) -> dict:
+    """Build a conservative issue-to-work matrix; all inferred fields require review."""
     labels = [x["name"] for x in issue.get("labels", [])]
     body = issue.get("body") or ""
     title = issue.get("title") or ""
     priority = next((p for p in PRIORITIES if any(
-        re.search(rf"\b{p}\b", label, re.I) for label in labels)), "unclassified")
+        re.search(rf"\\b{p}\\b", label, re.I) for label in labels)), "unclassified")
     effort = next((size for size in ("S", "M", "L") if any(
-        re.search(rf"\b{size}\b", label, re.I) for label in labels)), "unclassified")
+        re.search(rf"\\b{size}\\b", label, re.I) for label in labels)), "unclassified")
     lower = (title + " " + body).lower()
-    dependencies = sorted(set(re.findall(r"(?:depends on|blocked by|depende de|bloquead[oa] por)\s+#(\d+)",
-                                         lower)))
+    dependencies = sorted(set(re.findall(
+        r"(?:depends on|blocked by|depende de|bloquead[oa] por)\\s+#(\\d+)", lower)))
+    acceptance = []
+    for heading in ("Done when", "Acceptance criteria", "Critérios de aceite", "Definition of done"):
+        match = re.search(r"(?im)^#{1,5}\\s*" + re.escape(heading) +
+                          r"\\s*$\\n(.*?)(?=^#{1,5}\\s|\\Z)", body, re.S | re.M)
+        if match:
+            acceptance = [line.strip() for line in match.group(1).splitlines()
+                          if line.strip() and not line.strip().startswith("|")]
+            break
+    module_paths = sorted(set(re.findall(
+        r"`((?:app|pinneapple_[A-Za-z0-9_]+|tests|docs|scripts)/[A-Za-z0-9_./-]+)`", body)))
+    prs = sorted(set(re.findall(
+        r"https://github\\.com/[^\\s)]+/pull/\\d+", body)))
     return {"priority": priority, "complexity": effort,
             "dependencies_mentioned": dependencies,
-            "automation": "needs_review", "acceptance": "needs_manual_review"}
+            "acceptance_quoted": acceptance[:25],
+            "acceptance_reviewed": False,
+            "module_paths_mentioned": module_paths[:40],
+            "module_mapping_reviewed": False,
+            "linked_prs_mentioned": prs,
+            "pr_coverage_reviewed": False,
+            "automation": "needs_review",
+            "implementation_status": "not_assessed",
+            "test_status": "not_run",
+            "review_status": "not_reviewed",
+            "closure_eligible": False}
 
 
 def reconcile(plan: dict[str, list[int]], token: str | None, pause: float) -> dict:
@@ -127,6 +150,14 @@ def render_md(result: dict, date: str) -> str:
         lines.append(f"| {repo} | [#{row['number']}]({row['url']}) | "
                      f"{row.get('priority', '—')} | {row.get('complexity', '—')} | "
                      f"{row['state']} | {deps} |")
+    lines.extend(["", "## Matriz detalhada de execução", "",
+                  "| Issue | Critério extraído (não revisado) | Módulos citados | PRs citadas | Evidência |",
+                  "|---|---|---|---|---|"])
+    for row in result["rows"]:
+        criterion = "; ".join(row.get("acceptance_quoted", []))[:170].replace("|", "/") or "não extraído"
+        modules = ", ".join(row.get("module_paths_mentioned", []))[:120].replace("|", "/") or "a mapear"
+        prs = ", ".join(row.get("linked_prs_mentioned", []))[:100] or "a relacionar"
+        lines.append(f"| [#{row['number']}]({row['url']}) | {criterion} | {modules} | {prs} | não verificada |")
     lines.extend(["", "## Próximos passos", "",
                   "1. Conferir descrição completa e critérios de aceite de cada issue aberta.",
                   "2. Identificar bloqueios e agrupar PRs por componente; não assumir independência.",

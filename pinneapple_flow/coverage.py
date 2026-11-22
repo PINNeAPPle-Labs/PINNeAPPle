@@ -130,6 +130,26 @@ REASONS: dict[str, str] = {
                                              "by the examples/reproductions/schiassi_epi2020 runner, not a flow step",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
+    # Evidence, types and checks that cannot be a parameter form. The first four were already unreached on main when
+    # the last two arrived (2026-11-22).
+    "pinneapple_core.physics_tensor": "the tensor that knows its name, unit, domain and components (#186): it is the "
+                                      "type the inputs and outputs of a node are, not a computation of its own",
+    "pinneapple_core.catalog": "the read-only catalogue of #1478: it lists what the registry holds and reports where "
+                               "the architecture views disagree; it is a query over other modules, not a step",
+    "pinneapple_core.reproducibility": "the seed, the environment fingerprint and the twice-run check (#59): it is "
+                                       "the evidence a run attaches, and its inputs are a callable and the process, "
+                                       "which a flow form cannot hold",
+    "pinneapple_data.provenance": "the minimum record a dataset, run or model must carry, and its validator (#39): "
+                                  "evidence about a result, the role pinneapple_core.artifact also plays",
+    "pinneapple_data.readiness": "the gate that composes schema, units, CAE quality, preflight and VeriPhysics to "
+                                 "answer whether a dataset may start a training run (#1491): it runs before the "
+                                 "node that trains, which reads its verdict",
+    "pinneapple_data.review": "the engineering review record -- a named person approving a specific set of evidence "
+                              "(#1493): a judgement and an audit trail, not a computation step",
+    "pinneapple_analysis.decision": "decision-level surrogate validation (#1871): flip rate, ranking preservation, "
+                                    "regret and the failure map take the truth and prediction arrays of a whole "
+                                    "design sweep, which a flow form cannot hold (the reason "
+                                    "pinneapple_data.multifidelity already has)",
 }
 
 

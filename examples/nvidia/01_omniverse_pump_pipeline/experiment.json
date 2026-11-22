@@ -23,7 +23,9 @@
    60.0
   ]
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "flow_m3_s",

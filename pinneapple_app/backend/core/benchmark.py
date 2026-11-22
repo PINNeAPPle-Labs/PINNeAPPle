@@ -50,6 +50,9 @@ def build_benchmark_payload(result) -> Dict[str, Any]:
         # generalization, variables, weights, UQ, physics checks, verdict).
         "reports":       {name: r.report for name, r in result.model_results.items()
                           if r.report is not None},
+        # One pp.Experiment record per model -- what ran, with the seed, the options and the problem
+        # fingerprint, in the shape a saved library experiment has (issue #29).
+        "experiments":   getattr(result, "experiments", []),
     })
 
 

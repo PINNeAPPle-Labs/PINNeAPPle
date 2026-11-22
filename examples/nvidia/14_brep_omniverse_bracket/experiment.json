@@ -22,7 +22,9 @@
   "bolt_d": 0.009,
   "web_hole_d": 0.012
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "bracket_mass",

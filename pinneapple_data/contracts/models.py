@@ -343,6 +343,20 @@ class Provenance(_Model):
     library_version: str = ""
     created: str = Field(default_factory=_now)
     notes: str = ""
+    # -- the minimum a record needs to be reproducible (issue #39, pinneapple_data.provenance) ---------------
+    solver: str = Field(default="", description="What produced the numbers: 'pinn', 'openfoam-simplefoam', ...")
+    seed: int | str | None = Field(default=None,
+                                   description="The seed, or 'deterministic' for a solver with no randomness.")
+    data_hash: str = Field(default="", description="SHA-256 of the exact inputs, as 'sha256:<hex>'.")
+    commit: str = Field(default="", description="The code that ran: PINNEAPPLE_COMMIT or the checkout's HEAD.")
+    mesh: dict[str, Any] = Field(default_factory=dict,
+                                 description="For a mesh-based solver: cells/nodes and the mesh file hash.")
+
+    def problems(self) -> list[str]:
+        """What is missing for this record to be reproducible (empty list = complete). Same rule as
+        ``pinneapple_data.provenance.problems``, which is the one place it is written."""
+        from ..provenance import problems as provenance_problems
+        return provenance_problems(self.model_dump(mode="json"))
 
 
 class Splits(_Model):
@@ -595,9 +609,21 @@ def load(path: str | Path) -> Contract:
     return from_dict(data)
 
 
-def validate(data: dict[str, Any]) -> list[str]:
-    """Problems with a contract given as a dict (empty list when valid), one readable line each."""
+def validate(data: dict[str, Any] | Contract | str | Path) -> list[str]:
+    """Problems with a contract (empty list when valid), one readable line each.
+
+    ``data`` is the contract object, its dict, or the path to the JSON/YAML file -- the three forms a caller already
+    has. Passing the object used to come back as "not a PINNeAPPle contract (kind=None)", which is a confusing answer
+    to the most natural call, ``validate(DatasetSpec.load(p))``.
+    """
     from pydantic import ValidationError
+    if isinstance(data, Contract):
+        data = data.to_dict()
+    elif isinstance(data, (str, Path)):
+        try:
+            data = load(data).to_dict()
+        except (OSError, ValueError) as exc:
+            return [str(exc)]
     try:
         from_dict(data)
     except ValidationError as exc:

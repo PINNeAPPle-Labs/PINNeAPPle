@@ -13,7 +13,8 @@
  ],
  "params": {},
  "scripts": [
-  "01_spm_cogging_and_torque.py"
+  "01_spm_cogging_and_torque.py",
+  "03_multiphysics3d_surrogate.py"
  ],
  "metrics": [],
  "checks": [],

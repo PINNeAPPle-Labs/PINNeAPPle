@@ -17,6 +17,24 @@ from pinneapple_tools.benchmark_suite.backends.physicsnemo_sym import PhysicsNeM
 from pinneapple_tools.benchmark_suite.bundle.loader import BundleData
 
 
+def _has_physicsnemo_sym() -> bool:
+    """Whether the backend's dependency is really importable.
+
+    ``importlib.util.find_spec("physicsnemo.sym")`` *raises* ModuleNotFoundError when the parent package is absent
+    (it imports the parent to look for the submodule), so the old ``is None`` check never returned False: in an
+    environment without physicsnemo the whole module failed instead of skipping, and the failure read like a bug in
+    the backend (#90's shard measurement found it).
+    """
+    try:
+        return importlib.util.find_spec("physicsnemo.sym.domain") is not None
+    except (ImportError, ModuleNotFoundError):
+        return False
+
+
+NEEDS_SYM = pytest.mark.skipif(not _has_physicsnemo_sym(),
+                               reason="needs nvidia-physicsnemo.sym with its domain module")
+
+
 def _bundle(n=64):
     rng = np.random.default_rng(0)
     col = pd.DataFrame({"x": rng.uniform(0, 2, n), "y": rng.uniform(0, 1, n)})
@@ -34,8 +52,7 @@ def test_missing_package_gives_a_clear_error(monkeypatch):
         PhysicsNeMoSymBackend().train(_bundle(), {"train": {"device": "cpu", "max_steps": 1}})
 
 
-@pytest.mark.skipif(importlib.util.find_spec("physicsnemo") is None
-                    or importlib.util.find_spec("physicsnemo.sym") is None, reason="needs nvidia-physicsnemo.sym")
+@NEEDS_SYM
 def test_trains_and_returns_a_predictor(tmp_path):
     out = PhysicsNeMoSymBackend().train(_bundle(), {"train": {"device": "cpu", "max_steps": 3, "lr": 1e-3},
                                                     "model": {"nr_layers": 2, "layer_size": 16},

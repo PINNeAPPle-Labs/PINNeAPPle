@@ -7,13 +7,25 @@ from pinneapple_tools.visualization import use_cfd_style, plot_scalar, plot_vect
 from pinneapple_tools.visualization import plot_loss_history, plot_collocation, plot_pinn_prediction
 from pinneapple_tools.visualization import animate_scalar_field, plot_solver_output
 
-use_cfd_style()   # optional: enable dark CFD theme globally
+use_theme()   # the house theme (#918); use_cfd_style() keeps the older dark CFD look
 """
 from .style import (
     use_cfd_style,
+    use_theme,
     get_cmap,
     make_figure,
+    make_panel_figure,
+    figure_sizes,
+    field_cmap,
+    colorbar,
+    label,
+    annotate_verdict,
+    panel_letters,
+    source_note,
+    save_figure,
     CMAPS,
+    FIELD_CMAPS,
+    PALETTE,
     DEFAULT_CMAP,
 )
 
@@ -73,6 +85,14 @@ from .animation import (
     make_gif,
 )
 
+# Orbiting camera and advancing time in one call, GIF or MP4, 1080p (#64)
+from .orbit import (
+    DEFAULT_AZIMUTH,
+    DEFAULT_ORBIT,
+    DEFAULT_SIZE,
+    turntable,
+)
+
 from .vortex import (
     compute_vorticity_2d,
     compute_q_criterion_2d,
@@ -89,6 +109,10 @@ from .vortex import (
 __all__ = [
     # Style
     "use_cfd_style", "get_cmap", "make_figure", "CMAPS", "DEFAULT_CMAP",
+    # House theme (#918): one palette, one map per quantity, labelled axes
+    "use_theme", "make_panel_figure", "figure_sizes", "field_cmap",
+    "colorbar", "label", "annotate_verdict", "panel_letters", "source_note",
+    "save_figure", "FIELD_CMAPS", "PALETTE",
     # Scalar / vector fields
     "plot_scalar", "plot_scalar_3d", "plot_vectors", "plot_streamlines",
     "compare_fields", "plot_error",
@@ -104,6 +128,8 @@ __all__ = [
     "plot_voxel_slice", "plot_voxel_3d", "plot_voxel_histogram",
     # Animation
     "animate_scalar_field", "animate_streamlines", "make_gif",
+    # Turntable (orbiting camera + time) and its defaults
+    "turntable", "DEFAULT_SIZE", "DEFAULT_ORBIT", "DEFAULT_AZIMUTH",
     # Vortex / Q-criterion
     "compute_vorticity_2d", "compute_q_criterion_2d",
     "compute_q_criterion_3d", "compute_lambda2_3d",

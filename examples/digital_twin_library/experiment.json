@@ -21,7 +21,9 @@
   "pinneapple_systems.digital_twin.library"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "01_reference_systems.py"
+ ],
  "metrics": [
   {
    "name": "scenarios_in_the_registry",

@@ -83,7 +83,8 @@ The rules are those of the Engineering API's Capability Registry:
 |---|---|
 | `verified` | a test that runs by default calls it and compares with a reference (`validate()` asserted, a reference / exact / analytic solution, a relative error); for a preset, its recorded `validation.json` shows every reference case passing |
 | `tested` | a test that runs by default calls it, without a reference comparison |
-| `discovered` | no test that runs by default calls it (examples and opt-in slow tests do not count) |
+| `named` | a test that runs by default mentions it without calling it by name — a factory held in a module-level table and exercised as `FACTORIES[name]()`, a class reached only through a registry. Evidence, but weaker than a call, so it does not count as `tested` |
+| `discovered` | no test that runs by default mentions it (examples and opt-in slow tests do not count) |
 
 ### Navigation and search
 

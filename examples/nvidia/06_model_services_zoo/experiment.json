@@ -12,7 +12,9 @@
   "pinneapple_tools.model_services"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "latency_median_ms",

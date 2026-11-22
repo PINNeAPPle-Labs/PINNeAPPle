@@ -55,6 +55,9 @@ class ExperimentResult:
     config: ExperimentConfig
     model_results: Dict[str, ModelResult]
     completed_at: str = ""
+    # one pp.Experiment record per model (issue #29): the same shape a saved library experiment writes, so an app
+    # run and a script run are described by the same class
+    experiments: List[Dict[str, Any]] = field(default_factory=list)
 
     def leaderboard(self) -> list:
         """Rows sorted by held-out l2_relative, then by unseen-point PDE residual."""
@@ -86,6 +89,36 @@ class ExperimentRunner:
         self.data = data_bundle
         self.problem = problem
 
+    def manifests(self) -> List[Dict[str, Any]]:
+        """The configured run as ``pp.Experiment`` records -- one per model, built by the library class (#29).
+
+        The training loop stays here (a model registry, per-epoch events and advisor retrains are not what
+        ``pinneapple_physics.Experiment`` abstracts), but the *record* is the library's: ``Experiment.to_dict()``,
+        with the problem fingerprint and the seed, so a run started from the app and one started from a script
+        can be compared and reloaded with ``pp.Experiment.load``. A custom problem has no preset for the library
+        to rebuild, so its record carries no fingerprint and says why.
+        """
+        from pinneapple_physics.experiment import Experiment as LibraryExperiment
+
+        records: List[Dict[str, Any]] = []
+        for model_cfg in self.config.models:
+            options = {"epochs": self.config.epochs, "lr": self.config.lr,
+                       "batch_size": self.config.batch_size, "device": self.config.device,
+                       **dict(model_cfg.extra_kwargs)}
+            if model_cfg.weight_override:
+                options["loss_weights"] = dict(model_cfg.weight_override)
+            try:
+                record = LibraryExperiment(self.config.problem_name, method=model_cfg.name, options=options,
+                                           seed=self.config.seed).to_dict()
+            except Exception as exc:  # a custom problem ("__custom__") has no preset to rebuild
+                records.append({"name": f"{self.config.problem_name}/{model_cfg.name}/seed{self.config.seed}",
+                                "problem": self.config.problem_name, "method": model_cfg.name,
+                                "options": options, "seed": self.config.seed, "problem_fingerprint": None,
+                                "resumable": False, "unavailable": str(exc) or type(exc).__name__})
+                continue
+            records.append(record)
+        return records
+
     async def run(self, progress_cb: Optional[Callable] = None) -> ExperimentResult:
         """Run all models sequentially. Calls ``progress_cb(event_dict)`` after each epoch."""
         import asyncio
@@ -108,6 +141,7 @@ class ExperimentRunner:
             config=self.config,
             model_results=results,
             completed_at=datetime.now(timezone.utc).isoformat(),
+            experiments=self.manifests(),
         )
 
     # ── Auto-improvement loop ─────────────────────────────────────────────────

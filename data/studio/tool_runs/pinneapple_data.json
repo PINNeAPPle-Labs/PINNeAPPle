@@ -79,7 +79,7 @@
   "seconds": 0.0
  },
  "pinneapple_data.collocation:CollocationSampler": {
-  "code_hash": "4f484cf03c3a7891",
+  "code_hash": "26899ddb00a2047b",
   "inputs": {
    "bounds": {
     "x": [
@@ -100,9 +100,9 @@
    ]
   },
   "ok": true,
-  "recorded": "2026-10-31",
+  "recorded": "2026-11-20",
   "returned": "CollocationSampler",
-  "seconds": 0.0
+  "seconds": 25.23
  },
  "pinneapple_data.contracts.models:json_schemas": {
   "code_hash": "8a8c228319b9b3b4",
@@ -476,6 +476,14 @@
   "recorded": "2026-10-31",
   "returned": "tuple",
   "seconds": 0.04
+ },
+ "pinneapple_data.readiness:default_policy": {
+  "code_hash": "4306aad31b226b4b",
+  "inputs": {},
+  "ok": true,
+  "recorded": "2026-11-20",
+  "returned": "ReadinessPolicy",
+  "seconds": 9.17
  },
  "pinneapple_data.schema.gates:relative_l2": {
   "code_hash": "a993216e56ccd064",

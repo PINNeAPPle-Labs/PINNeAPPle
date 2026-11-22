@@ -332,7 +332,8 @@ except Exception:  # pragma: no cover
 
 # Unified problem description (geometry, physics, conditions, parameters with units and roles)
 try:
-    from pinneapple_physics.physical_problem import Parameter, PhysicalProblem, Quantity
+    from pinneapple_physics.physical_problem import (Constraint, Fidelity, Objective, Parameter,
+                                                     PhysicalProblem, Quantity)
     from pinneapple_physics.solving import (
         Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
     )
@@ -702,8 +703,20 @@ _LAZY_ATTRS = {
     "registered": ("pinneapple_core.registry", "registered"),
     "resolve": ("pinneapple_core.registry", "resolve"),
     "Registry": ("pinneapple_core.registry", "Registry"),
+    # one read-only catalogue over every kind, and over the lists that used to disagree (#1478)
+    "catalog": ("pinneapple_core.catalog", "catalog"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
+    # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
+    # data readiness: may this dataset start a training run? and the engineering review record (#1491, #1493)
+    "readiness": ("pinneapple_data.readiness", "readiness"),
+    "require_readiness": ("pinneapple_data.readiness", "require"),
+    "ReadinessError": ("pinneapple_data.readiness", "ReadinessError"),
+    "ReviewRecord": ("pinneapple_data.review", "ReviewRecord"),
+    "ReviewStore": ("pinneapple_data.review", "ReviewStore"),
+    "approval_for": ("pinneapple_data.review", "approval_for"),
+    "tensor": ("pinneapple_core.physics_tensor", "tensor"),
+    "PhysicsTensor": ("pinneapple_core.physics_tensor", "PhysicsTensor"),
     "PhysicsModule": ("pinneapple_core.module", "PhysicsModule"),
     "Sequential": ("pinneapple_core.module", "Sequential"),
     "SolverModule": ("pinneapple_core.module", "SolverModule"),
@@ -793,8 +806,12 @@ __all__ = [
     "export_torchscript", "export_onnx", "export_csv", "export_npz",
     # The .ppx container: a result with its problem, units, environment and provenance, reproducible elsewhere
     "Artifact", "save", "load", "verify_artifact",
+    # a tensor that knows its name, unit, domain and components (X2, #186)
+    "tensor", "PhysicsTensor",
+    # readiness gate and engineering review (PDI, #1491/#1493)
+    "readiness", "require_readiness", "ReadinessError", "ReviewRecord", "ReviewStore",
     # One registry protocol for every extensible object type (X16)
-    "register", "unregister", "registered", "resolve", "Registry",
+    "register", "unregister", "registered", "resolve", "Registry", "catalog",
     # Inverse problems
     "GaussianMisfit", "HuberMisfit", "CauchyMisfit", "StudentTMisfit", "HeteroscedasticMisfit",
     "TikhonovRegularizer", "SparsityRegularizer", "TotalVariationRegularizer",

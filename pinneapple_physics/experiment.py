@@ -5,6 +5,8 @@
 >>> result = exp.run()
 >>> result.metrics["relative_l2"]["u"], result.wall_time_s
 >>> result.save("runs/burgers_pinn")          # JSON record (+ model weights when there is a model)
+>>> exp.save("runs/burgers_pinn")             # experiment.json: the definition, reloadable
+>>> same = pp.Experiment.load("runs/burgers_pinn")   # runs again, same predictions
 
 A run fixes every random source it controls (Python, NumPy, PyTorch, and PyTorch's deterministic-algorithms mode
 while it runs), records the problem fingerprint, the library and dependency versions and the machine, and scores
@@ -21,7 +23,7 @@ import random
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, Optional, Sequence, Union
 
 import numpy as np
 
@@ -59,6 +61,12 @@ def _environment() -> Dict[str, Any]:
         env["cuda"] = torch.version.cuda if torch.cuda.is_available() else None
     except ImportError:  # pragma: no cover
         pass
+    # which code ran, not only which version: a released version pins the library, a commit pins the checkout (#39)
+    try:
+        from pinneapple_data.provenance import git_commit
+        env["commit"] = git_commit()
+    except Exception:  # pragma: no cover - pinneapple_data absent in a slim install
+        env["commit"] = ""
     try:
         import pinneapple
         env["pinneapple"] = pinneapple.__version__
@@ -119,8 +127,11 @@ class Experiment:
     # experiment tracker: "mlflow", "wandb" or a callable f(result) (see pinneapple_physics.tracking)
     tracker: Optional[Any] = None
     tracker_options: Dict[str, Any] = field(default_factory=dict)
+    # the preset the problem was built from, when it was one: what makes a saved experiment runnable again
+    _preset: Optional[str] = field(default=None, init=False, repr=False, compare=False)
 
     def __post_init__(self):
+        self._preset = self.problem if isinstance(self.problem, str) else None
         self.problem = as_problem(self.problem)
         if not self.name:
             self.name = f"{self.problem.name}/{self.method}/seed{self.seed}"
@@ -129,6 +140,77 @@ class Experiment:
         return {"name": self.name, "problem": self.problem.name, "method": self.method, "options": dict(self.options),
                 "seed": self.seed, "reference": self.reference, "reference_options": dict(self.reference_options),
                 "n_eval": self.n_eval, "metric_names": list(self.metric_names)}
+
+    # ------------------------------------------------------------------ persistence
+    def to_dict(self) -> Dict[str, Any]:
+        """The run's definition, JSON-ready: what :meth:`from_dict` rebuilds and :meth:`save` writes.
+
+        ``problem`` is ``PhysicalProblem.to_dict()``, so a Python function inside a condition is stored as its name
+        only (the caveat ``PhysicalProblem.from_dict`` documents). ``problem_source`` is what makes a reload
+        runnable again: it names the preset and the current parameter values, and ``from_dict`` rebuilds through
+        the preset first, falling back to decoding the description. ``resumable`` says which of the two happened,
+        and ``detached`` lists the condition functions a reload cannot restore. The tracker is not saved (it may
+        be a callable).
+        """
+        detached = [f"{c.name}.{k}" for c in self.problem.conditions for k in ("selector", "value_fn")
+                    if callable(getattr(c, k, None))]
+        d: Dict[str, Any] = {
+            "name": self.name, "method": self.method, "options": dict(self.options), "seed": self.seed,
+            "reference": self.reference, "reference_options": dict(self.reference_options), "n_eval": self.n_eval,
+            "metric_names": list(self.metric_names), "problem": self.problem.to_dict(),
+            "problem_fingerprint": self.problem.fingerprint(),
+            "resumable": bool(self._preset) or (not detached and self.problem.geometry is None),
+        }
+        if self._preset:
+            d["problem_source"] = {"preset": self._preset, "parameters": self.problem.parameter_values()}
+        if detached:
+            d["detached"] = detached
+        return d
+
+    @classmethod
+    def from_dict(cls, d: Mapping[str, Any]) -> "Experiment":
+        """Rebuild from :meth:`to_dict`. A problem that came from a preset comes back with its functions attached,
+        so a reloaded experiment runs and reproduces; one that did not keeps its described-only conditions and
+        fails loudly if it is solved."""
+        expected = d.get("problem_fingerprint")
+        source = d.get("problem_source") or {}
+        problem = None
+        if source.get("preset"):
+            try:
+                candidate = (PhysicalProblem.from_preset(source["preset"])
+                             .with_parameters(**(source.get("parameters") or {})))
+            except (KeyError, TypeError, ValueError):
+                candidate = None
+            if candidate is not None and candidate.fingerprint() == expected:
+                problem = candidate
+        if problem is None:
+            problem = PhysicalProblem.from_dict(d["problem"])
+        if expected and problem.fingerprint() != expected:
+            raise ValueError(f"the problem in this record does not match its fingerprint {expected[:12]}: it was "
+                             "edited after the save, or it needs Python functions this record only names")
+        experiment = cls(problem, method=d.get("method", "pinn"), options=dict(d.get("options") or {}),
+                         seed=int(d.get("seed", 0)), reference=d.get("reference"),
+                         reference_options=dict(d.get("reference_options") or {}), n_eval=int(d.get("n_eval", 4096)),
+                         metric_names=tuple(d.get("metric_names") or ("relative_l2", "rmse", "max_abs")),
+                         name=d.get("name", ""))
+        experiment._preset = source.get("preset")
+        return experiment
+
+    def save(self, directory: str) -> str:
+        """Write ``experiment.json`` to ``directory``; pair it with ``run().save(directory)``'s ``result.json``."""
+        os.makedirs(directory, exist_ok=True)
+        path = os.path.join(directory, "experiment.json")
+        with open(path, "w") as f:
+            json.dump(self.to_dict(), f, indent=2, default=str)
+        return path
+
+    @classmethod
+    def load(cls, path: str) -> "Experiment":
+        """Read a saved experiment: ``path`` is the directory :meth:`save` wrote, or the file itself."""
+        if os.path.isdir(path):
+            path = os.path.join(path, "experiment.json")
+        with open(path) as f:
+            return cls.from_dict(json.load(f))
 
     def evaluation_points(self, reference: Optional[Solution]) -> Optional[np.ndarray]:
         rng = np.random.default_rng(self.seed + 1_000_003)

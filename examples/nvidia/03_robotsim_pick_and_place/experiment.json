@@ -19,7 +19,9 @@
   "duration_s": 0.8,
   "section": "50x50x3 6061-T6"
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "tracking_error_mrad",

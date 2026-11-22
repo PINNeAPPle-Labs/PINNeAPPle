@@ -263,5 +263,12 @@
     "min_coverage": 0.6,
     "min_score": 0.8
   },
-  "trust_override": {}
+  "trust_override": {},
+  "provenance": {
+    "solver": "pinneapple_design.thermal.heatsink.engine (natural convection, 3-D FV base)",
+    "seed": 0,
+    "data_hash": "sha256:0c4f9af43def136d1194172f6970849a4564499d85814d478b331f25c99e49c4",
+    "commit": "2a352a86689a0d5c442bcd5c39659857fd1d00ef",
+    "library_version": "0.7.0"
+  }
 }

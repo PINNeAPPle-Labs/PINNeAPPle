@@ -9,4 +9,5 @@
 - [ ] `ruff check .` is clean for the files I touched
 - [ ] User-visible change recorded as a new file in `changelog.d/` (see `changelog.d/README.md`; not needed for internal-only changes)
 - [ ] Docs or examples updated if behavior changed
-- [ ] Code or data copied from elsewhere has a compatible license (GPL code is not copied, only the idea)
+- [ ] Code or data copied from elsewhere has a compatible license (GPL code is not copied, only the idea), and an adapted file has its entry in `NOTICE`
+- [ ] A new dependency is permissive, or its copyleft licence was agreed in `docs/licensing.md` first (`python scripts/licensing/dependency_licenses.py --fail-on-copyleft`)

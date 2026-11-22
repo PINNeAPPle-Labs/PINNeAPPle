@@ -14,7 +14,9 @@
   "pinneapple_analysis.validation.physics_learning"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_study.py"
+ ],
  "metrics": [
   {
    "name": "defect_detection_verifier",

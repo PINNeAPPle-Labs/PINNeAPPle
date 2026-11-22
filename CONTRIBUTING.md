@@ -44,8 +44,38 @@ project needs, not on a fixed schedule or quota.
 
 ## Development setup
 
+One command, then one command to know the checkout works:
+
 ```bash
-python -m venv .venv
+make setup    # .venv with the package installed in editable mode and the [dev] extras
+make test     # the fast suite, ~20 s on a laptop
+```
+
+`make` on its own lists the targets. Each target is one job, and each is what CI runs, so a green `make test`
+locally means the same thing as a green workflow:
+
+| Command | What it does | Time |
+|---|---|---|
+| `make setup` | `python3 -m venv .venv`, then `pip install -e ".[dev]"` | a few minutes, once |
+| `make test` | the fast suite: public surface, front door, executed documentation, changelog and licensing rules, the module reference scripts | ~20 s |
+| `make test-full` | `tests/`, the same selection the full-suite workflow runs | minutes |
+| `make lint` | the ruff selection CI enforces (`E9`: what ruff reports when a file does not parse) | ~2 s |
+| `make lint-backlog` | the wider selection declared in `pyproject.toml` (`E`, `F`, `I`, `B`, `UP`), as a statistic | ~2 s |
+| `make gates` | `scripts/changelog.py check`, `scripts/reference/build.py --check`, the licensing check | ~5 s |
+| `make docs` | regenerate the module reference and build the site (needs `pip install -r requirements-docs.txt`) | minutes |
+| `make clean` | build and cache output, keeping `.venv` | — |
+
+The commands the targets wrap are the ones below; use them directly if you prefer, or if your platform has no
+`make`. Point the targets at another interpreter with `make test PY=/usr/bin/python3`, and at the CPU wheel of
+torch with `make setup TORCH_INDEX=https://download.pytorch.org/whl/cpu`.
+
+A dev container is defined in [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json): open the
+repository in a codespace, or in VS Code with the Dev Containers extension, and it runs `make setup` for you.
+
+### Without make
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -U pip
 pip install -e ".[dev]"
@@ -54,15 +84,39 @@ pip install -e ".[dev]"
 ## Running tests
 
 ```bash
-pytest -q
+make test      # the fast suite, the list below
+make e2e       # the blocking end-to-end tier: ten flows, input to kept artifact (#37)
+pytest tests/  # everything
 ```
+
+```bash
+pytest tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.py \
+       tests/test_agents_md.py tests/test_changelog_fragments.py tests/test_licensing_policy.py \
+       tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py \
+       tests/test_turntable.py -q
+```
+
+The fast suite is deliberately short: anything that trains a network, renders an image or needs an external solver
+belongs to `make test-full`, so the answer to "can I open a pull request" arrives in under a minute.
+
+`make e2e` (`tests/e2e/`) asks a different question: not "is this function right" but "does the product work", from a
+problem, an equation in a text, a parameter space or a plant record to a number or a file a user keeps. Each of the ten
+flows carries its own wall-clock budget and the ten budgets sum to under ten minutes, which is what lets the tier block
+a merge; the measured time is about five seconds. Touch the public API of something a flow uses and run it — the tier
+exists because a flow that stops working rarely breaks a unit test.
 
 ## Lint / format
 
 ```bash
-ruff check .
-ruff format .
+make lint            # what CI enforces: ruff with `--select E9`, expected to pass
+make lint-backlog    # the selection declared in pyproject.toml, currently ~21,000 findings
+ruff format <files>  # a file you changed; there is no repository-wide format pass in CI
 ```
+
+`[tool.ruff.lint]` in `pyproject.toml` selects `E`, `F`, `I`, `B` and `UP`, and the tree does not satisfy that
+selection yet — mostly `UP006`/`UP045` (typing to builtin generics) and `I001` (import order). It is a backlog to
+burn down one rule at a time, not a gate, which is why CI runs only `E9` and why `make lint` matches CI. A new file
+should not add to the backlog, and the last rule burned down moves from `make lint-backlog` into `make lint`.
 
 ## Where code goes
 Reusable logic goes in the library; apps and examples only compose library calls. Physics, numerics, geometry,
@@ -73,6 +127,12 @@ deploy files) and `examples/` only the narrative of the example. `python scripts
 `tests/test_app_helpers.py`) fails on a new local helper module in `apps/` or `examples/`, or on a new local copy of a
 helper the library already has; [docs/dev/LIBRARY_CONSOLIDATION.md](docs/dev/LIBRARY_CONSOLIDATION.md) is the
 inventory of what is being moved.
+
+Before writing a new module, run the admission test in [The seven planes](docs/architecture/seven_planes.md): name
+the plane the code strengthens and the plane it depends on. If it needs accounts, billing, tenant data or a UI, it
+belongs in the product repository, not the core. A public namespace is added only through
+[docs/architecture/public_namespace.md](docs/architecture/public_namespace.md), which also records which names exist
+today.
 
 ## Core and experimental
 The **core** (`pinneapple_stability.CORE` and `CORE_PP`) is covered by semantic versioning. Do not break a core name.
@@ -87,6 +147,48 @@ the core when it is fully tested and used. See [docs/api_stability.md](docs/api_
 - Do not commit generated files (`data/web/hub/index.json`, `docs/flow_studio/COVERAGE.md`,
   `docs/flow_studio/EXAMPLES_AS_FLOWS.md`): they are git-ignored and built where they are used. The commands that
   build them locally, and what is committed instead, are in [AGENTS.md](AGENTS.md#generated-files).
+
+### The module reference
+
+`docs/org/reference/` (published under `/PINNeAPPle/org/reference/`) is generated from the source, and it is
+committed. Two commands, and CI runs both:
+
+```bash
+python scripts/reference/run_examples.py           # only when you changed a curated example
+python scripts/reference/build.py                 # after any change to a public signature
+```
+
+A pull request that changes a public class, function or module and does not rebuild the reference fails the
+`Module reference` workflow with the list of stale files and the command to run. A pull request that breaks a
+curated example fails the same workflow, naming the example. Use `--check` on either script to verify without
+writing anything:
+
+```bash
+python scripts/reference/build.py --check
+python scripts/reference/run_examples.py --check [package ...]
+```
+
+### The method-status snapshot
+
+`pinneapple_catalog/method_status.json` is generated by scanning the test suites, and two readers treat it as a
+contract: the `PC901` rule of `pinneapple_check` (a model whose method is not validated) and the fixtures in
+`examples/physics_check/fail`. Refresh it in one commit, with the pages it feeds and the fixtures it moves:
+
+```bash
+python scripts/build_method_status.py --public --markdown   # the snapshot and the two pages it renders
+python scripts/build_method_status.py --check              # what a fresh scan says that the snapshot does not
+```
+
+`--check` exits 1 on drift and prints the status changes, the tests newly credited or no longer credited, and the
+command that refreshes it. `--report` prints the same and exits 0, which is what the CI step does: the divergence
+is visible while it is small, instead of arriving as a red build for whoever regenerates the file.
+
+## Licensing
+
+Apache-2.0, no CLA and no required DCO sign-off: a contribution is accepted under the licence the project ships
+under. GPL code is never copied into this repository, only the idea; an adapted file gets an entry in `NOTICE`; and
+a new dependency is permissive unless its copyleft licence was decided in [`docs/licensing.md`](docs/licensing.md)
+first. Details, and the command that prints the licence of every declared dependency, are in that page.
 
 ## Changelog
 Every user-visible change (new feature, bug fix, behavior change, removal) needs one entry, in the same pull

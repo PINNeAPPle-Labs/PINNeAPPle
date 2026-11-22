@@ -66,6 +66,10 @@ reads on a dark stage), `pp.viz.rod_surface(a, b, r)` for a ray, beam axis or su
 `scene.materials` to see through it). The colour maps are `pp.viz.CMAPS` (`jet`, `coolwarm`, `bwr`,
 `rdbu`, `magma`; `pp.viz.stops(name)` gives the table), the same ones the browser viewer draws from.
 
+On a server or in a container there is no display to render against: `pp.viz.headless()` says what this machine is
+missing and prints the commands that fix it, and [Rendering without a
+display](../guides/headless_rendering.md) is the recipe (xvfb, OSMesa, EGL and a ready image).
+
 ## Browser viewer
 
 `pp.viz.web_viewer(scene, folder)` writes `index.html`, `viewer.js`, `studio-core.js`, `scene.glb`, `scene.json` and
@@ -142,6 +146,13 @@ em.summary()                       # where the error concentrates, against the g
 - **Colours.** Values use the jet scale from their minimum to their maximum on the surface; fields of one `group`
   share a scale. Errors use the sequential error scale (`ERR` in `studio-core.js`, white = 0) from 0 to their 99th
   percentile, and the colour bar says when the maximum lies above it.
+- **The caption.** Every field must declare a `unit`: a rendered field without one is a picture of colours, so
+  `field_view` refuses it, and `"unit": "-"` is how a dimensionless field says so. `fv.meta["captions"]` holds, per
+  field, the caption the page prints — the label, the unit, the range, the exaggeration the view will use and the
+  length unit — and `fv.meta["caption"]` is the one for the field on screen. The same sentence is built anywhere else
+  a figure is written: `pp.viz.figure_caption("von Mises", "MPa", value_range=(0, 512.4), deform=25.0,
+  method="FEM", status="validated")` gives *von Mises [MPa], 0 to 512.4 MPa, deformation x25, lengths in m, FEM
+  (validated)*, and `pp.viz.turntable` puts it on the clip instead of composing its own.
 - **Deformed shape.** Each `deform` entry gives a nodal displacement. The page draws it with a scale factor. By
   default the largest displacement is drawn as 10 % of the body, and `1×` shows the true scale. The undeformed shape
   stays as a grey wire.
@@ -241,6 +252,43 @@ render_animation(sc, "frames/", camera="chase", samples=16, gif=True)   # Cycles
 - **Panels:** `compose.compose_grid(pngs, "grid.png", labels=..., ncols=2, colorbar=(title, lo, hi, cmap))` and
   `compose.compose_grid_video(mp4s, "grid.mp4", labels=..., colorbar=..., crf=28, webm=True)` (ffmpeg `xstack`,
   H.264 yuv420p, optional VP9) put several clips side by side with one common colour bar.
+
+## Turntable: a field orbiting while the time advances
+
+`pp.viz.turntable` turns a stack of 2-D fields into a clip in one call: the camera sweeps a full turn while the field
+runs from the first instant to the last, so both the geometry and the time are motion. It draws with matplotlib's
+Agg canvas, so it needs no display, no GPU and no pyvista; the GIF path needs only Pillow, and MP4 needs the `ffmpeg`
+binary on `PATH`.
+
+```python
+import numpy as np, pinneapple as pp
+
+t = np.linspace(0.0, 2.0, 24)                                  # 24 instants
+x = y = np.linspace(0.0, 1.0, 64)
+X, Y = np.meshgrid(x, y, indexing="ij")
+field = np.sin(2 * np.pi * (X[None] - t[:, None, None])) * np.cos(2 * np.pi * Y[None])
+
+pp.viz.turntable(field, "case.gif", t=t, name="u", unit="m/s")           # 1080p GIF, ~3 s
+pp.viz.turntable(field, "case.mp4", t=t, name="u", unit="m/s", frames=72)  # H.264, smoother orbit
+```
+
+- **The frame says what it shows:** a caption with the field, its unit and the instant (`u [m/s]   t = 1.2 s`), a
+  colour bar, and a discreet mark in the corner (`mark="PINNeAPPle"`, `mark_alpha=0.45`) so a clip lifted out of a
+  report is still attributable. `caption=False`, `colorbar=False` and `mark=""` remove them for a clip annotated
+  elsewhere.
+- **1080p is the default**, not an option to remember: `size=(1920, 1080)`. `dpi` only changes how the figure is
+  built, never the pixels.
+- **`frames`** spreads the clip over that many frames, repeating the nearest instant when it asks for more than there
+  are, which is how a handful of solved instants becomes a smooth orbit. The sweep stops one step short of closing the
+  turn, so a looping GIF does not stutter on a repeated first frame; `orbit=` sets the sweep (`0` freezes the camera)
+  and `azimuth=` where it starts.
+- **The field drives the relief and the colour:** `deform=0.25` lifts the surface by a quarter of the domain width
+  (`0` leaves it flat), `clim` holds the colour scale fixed for the whole clip, and `elevation` and `zoom` frame it.
+- **No file, no encoding:** `turntable(field)` returns the frames as `(h, w, 3)` `uint8` arrays, which is what a
+  caller that wants to compose them somewhere else needs.
+
+Provider `pinneapple_tools.visualization.orbit.turntable` for the details; the failure modes (a 2-D field, a single
+instant, a NaN, an unknown suffix) are refused with a message that says what to pass instead.
 
 ## Particle process videos
 

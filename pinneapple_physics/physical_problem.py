@@ -38,7 +38,8 @@ from .pde_environment.conditions import ConditionSpec
 from .pde_environment.scales import ScaleSpec
 from .pde_environment.spec import PDETermSpec, ProblemSpec
 
-__all__ = ["Parameter", "Quantity", "PhysicalProblem", "PARAMETER_ROLES"]
+__all__ = ["Parameter", "Quantity", "Objective", "Constraint", "Fidelity", "PhysicalProblem",
+           "PARAMETER_ROLES"]
 
 PARAMETER_ROLES = ("fixed", "design", "uncertain", "unknown")
 
@@ -98,8 +99,127 @@ class Quantity:
     description: str = ""
 
 
+@dataclass
+class Objective:
+    """What the problem is *for*: a quantity to minimise, maximise, or drive to a target (issue #151).
+
+    ``quantity`` names a ``Quantity`` (or a field) of the same problem; ``target`` is required when ``sense`` is
+    ``"target"`` and ignored otherwise. ``weight`` lets several objectives be combined without losing which one
+    mattered more, and ``unit`` is the unit of ``target``/``tolerance``.
+    """
+    name: str
+    quantity: str = ""
+    sense: str = "minimize"          # minimize | maximize | target
+    target: Optional[float] = None
+    tolerance: Optional[float] = None
+    weight: float = 1.0
+    unit: Optional[str] = None
+    description: str = ""
+
+    def __post_init__(self) -> None:
+        if self.sense not in ("minimize", "maximize", "target"):
+            raise ValueError(f"objective {self.name!r}: sense must be minimize, maximize or target, got {self.sense!r}")
+        if self.sense == "target" and self.target is None:
+            raise ValueError(f"objective {self.name!r}: a target objective needs a target value")
+        if self.weight <= 0:
+            raise ValueError(f"objective {self.name!r}: weight must be positive")
+
+
+@dataclass
+class Constraint:
+    """A limit the answer has to satisfy: a bound on a quantity, or an expression over parameters (#151).
+
+    ``kind="bound"`` uses ``quantity``/``op``/``value``; ``kind="expression"`` uses ``expression`` (free text, the
+    same form the elicited description and the design-of-experiments ``ParameterSpace`` already accept).
+    """
+    name: str
+    kind: str = "bound"              # bound | expression
+    quantity: str = ""
+    op: str = "<="                   # <= | >= | ==
+    value: Optional[float] = None
+    expression: str = ""
+    unit: Optional[str] = None
+    description: str = ""
+
+    def __post_init__(self) -> None:
+        if self.kind not in ("bound", "expression"):
+            raise ValueError(f"constraint {self.name!r}: kind must be bound or expression, got {self.kind!r}")
+        if self.kind == "bound":
+            if self.op not in ("<=", ">=", "=="):
+                raise ValueError(f"constraint {self.name!r}: op must be <=, >= or ==, got {self.op!r}")
+            if self.value is None:
+                raise ValueError(f"constraint {self.name!r}: a bound needs a value")
+        elif not self.expression.strip():
+            raise ValueError(f"constraint {self.name!r}: an expression constraint needs an expression")
+
+    def text(self) -> str:
+        """The constraint as one line, for the elicited description and for a report."""
+        if self.kind == "expression":
+            return self.expression
+        unit = f" {self.unit}" if self.unit else ""
+        return f"{self.quantity} {self.op} {self.value}{unit}"
+
+
+@dataclass
+class Fidelity:
+    """How much physics the answer has to have, and how good it has to be (#151).
+
+    ``level`` is the physics: ``"closed_form"``, ``"linear"``, ``"rans"``, ``"les"``, ``"dns"``, ``"surrogate"`` or
+    ``"unspecified"``. ``mesh_level`` names a mesh (``"L1"``, ``"coarse"``) when the answer depends on one, and
+    ``tolerance`` is the relative error the result has to meet against its reference.
+    """
+    level: str = "unspecified"
+    mesh_level: str = ""
+    tolerance: Optional[float] = None
+    notes: str = ""
+
+    def describe(self) -> str:
+        parts = [self.level] if self.level else []
+        if self.mesh_level:
+            parts.append(f"mesh {self.mesh_level}")
+        if self.tolerance is not None:
+            parts.append(f"within {self.tolerance:g} relative error")
+        if self.notes:
+            parts.append(self.notes)
+        return ", ".join(parts) or "unspecified"
+
+
 def _is_number(x: Any) -> bool:
     return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def _facade_dict(problem: "PhysicalProblem") -> Dict[str, Any]:
+    """The façade fields (#151), only when set: an empty tuple here would move the fingerprint of every preset
+    that predates them, and a fingerprint is how a stored result names its problem."""
+    out: Dict[str, Any] = {}
+    if problem.objectives:
+        out["objectives"] = [dataclasses.asdict(o) for o in problem.objectives]
+    if problem.constraints:
+        out["constraints"] = [{"text": c.text(), **dataclasses.asdict(c)} for c in problem.constraints]
+    if problem.fidelity is not None:
+        out["fidelity"] = dataclasses.asdict(problem.fidelity)
+    if problem.geometry_ref:
+        out["geometry_ref"] = problem.geometry_ref
+    return out
+
+
+def _pde_meta_with_facade(problem: "PhysicalProblem", saved: Mapping[str, Any]) -> Dict[str, Any]:
+    """The ``meta`` of the exported spec: what it already had, plus the façade (#151) when the problem carries one."""
+    meta = dict(saved.get("meta", {}) or {})
+    facade = _facade_dict(problem)
+    if facade:
+        meta["facade"] = facade
+    return meta
+
+
+def _facade_from(d: Mapping[str, Any]) -> Dict[str, Any]:
+    """Read back what :func:`_facade_dict` wrote (missing keys mean "not set", as in the source problem)."""
+    objectives = tuple(Objective(**o) for o in d.get("objectives") or ())
+    constraints = tuple(Constraint(**{k: v for k, v in c.items() if k != "text"})
+                        for c in d.get("constraints") or ())
+    fidelity = Fidelity(**d["fidelity"]) if d.get("fidelity") else None
+    return {"objectives": objectives, "constraints": constraints, "fidelity": fidelity,
+            "geometry_ref": d.get("geometry_ref", "")}
 
 
 # --------------------------------------------------------------------------- the problem
@@ -123,6 +243,10 @@ class PhysicalProblem:
     solver, solver_config : the solver/backend chosen for this problem and its options.
     reference_solver : how reference solutions for this problem are produced (a preset's ``solver_spec``).
     task : what is being asked: ``"forward"``, ``"inverse"``, ``"design"``, ``"uq"``, ``"surrogate"`` or free text.
+    objectives : ``Objective`` objects -- what the answer is for (minimise drag, hold peak temperature under X).
+    constraints : ``Constraint`` objects -- the limits the answer has to satisfy, as bounds or expressions.
+    fidelity : how much physics and how good the answer has to be (``Fidelity``), or ``None``.
+    geometry_ref : a path or URI to the CAD/mesh the domain came from, when there is one.
     intent : free-text context (goal, data, validation, deployment) carried over from problem design.
     references, metadata : citations and free-form provenance.
     """
@@ -144,6 +268,11 @@ class PhysicalProblem:
     solver_config: Dict[str, Any] = field(default_factory=dict)
     reference_solver: Dict[str, Any] = field(default_factory=dict)
     task: str = "forward"
+    # -- the façade (#151): what the problem is for, what limits it, and how much physics it needs ------------
+    objectives: Tuple[Objective, ...] = ()
+    constraints: Tuple[Constraint, ...] = ()
+    fidelity: Optional[Fidelity] = None
+    geometry_ref: str = ""            # a path or URI to the CAD/mesh the domain came from
     intent: Dict[str, Any] = field(default_factory=dict)
     references: Tuple[str, ...] = ()
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -163,14 +292,26 @@ class PhysicalProblem:
         return {k: p for k, p in self.parameters.items() if p.role == role}
 
     def with_parameters(self, **values: float) -> "PhysicalProblem":
-        """A copy with new parameter values (unknown names raise, so typos do not pass silently)."""
+        """A copy with new parameter values (unknown names raise, so typos do not pass silently).
+
+        The copy in ``pde.params`` moves with them: a stale entry there would make ``to_pde_spec()`` -- which
+        writes the current values -- describe a different problem from the one that was just built, so
+        ``from_pde_spec(to_pde_spec(problem))`` came back with a different fingerprint and anything reading
+        ``pde.params`` directly saw the value the preset shipped instead of the override.
+        """
         missing = sorted(set(values) - set(self.parameters))
         if missing:
             raise KeyError(f"unknown parameter(s) {missing}; known: {sorted(self.parameters)}")
         params = dict(self.parameters)
+        pde = self.pde
+        pde_params = None if pde is None else dict(pde.params)
         for k, v in values.items():
             params[k] = replace(params[k], value=v)
-        return replace(self, parameters=params)
+            if pde_params is not None and k in pde_params and _is_number(pde_params[k]):
+                pde_params[k] = v
+        if pde is not None and pde_params is not None and pde_params != dict(pde.params):
+            pde = replace(pde, params=pde_params)
+        return replace(self, parameters=params, pde=pde)
 
     def set_role(self, name: str, role: str, *, bounds: Optional[Tuple[float, float]] = None,
                  distribution: Optional[Dict[str, Any]] = None) -> "PhysicalProblem":
@@ -268,6 +409,7 @@ class PhysicalProblem:
             "reference_solver": dict(self.reference_solver),
             "task": self.task,
             "intent": dict(self.intent),
+            **_facade_dict(self),
             "references": list(self.references),
             "metadata": dict(self.metadata),
         }
@@ -305,6 +447,7 @@ class PhysicalProblem:
             scales=ScaleSpec(**(d.get("scales") or {})), sample_defaults=dict(d.get("sample_defaults") or {}),
             solver=d.get("solver"), solver_config=dict(d.get("solver_config") or {}),
             reference_solver=dict(d.get("reference_solver") or {}), task=d.get("task", "forward"),
+            **_facade_from(d),
             intent=dict(d.get("intent") or {}), references=tuple(d.get("references") or ()),
             metadata=dict(d.get("metadata") or {}),
         )
@@ -364,6 +507,7 @@ class PhysicalProblem:
             sample_defaults=dict(spec.sample_defaults), reference_solver=dict(spec.solver_spec),
             references=tuple(spec.references),
             metadata={"_pde_spec": {"name": spec.name, "dim": spec.dim, "problem_id": spec.problem_id, "meta": meta}},
+            **_facade_from(dict(spec.meta.get("facade") or {})),
         )
 
     def to_pde_spec(self) -> ProblemSpec:
@@ -383,7 +527,7 @@ class PhysicalProblem:
             conditions=tuple(self.conditions), sample_defaults=dict(self.sample_defaults), scales=self.scales,
             field_ranges=dict(self.field_ranges), references=tuple(self.references),
             domain_bounds=dict(self.domain_bounds), solver_spec=dict(self.reference_solver),
-            meta=dict(saved.get("meta", {})), problem_id=saved.get("problem_id", ""),
+            meta=_pde_meta_with_facade(self, saved), problem_id=saved.get("problem_id", ""),
         )
 
     @classmethod
@@ -476,6 +620,10 @@ class PhysicalProblem:
 
         gtxt = dict(it.get("geometry_text") or {})
         geometry = GeometrySpec(**{k: v for k, v in gtxt.items() if k in {f.name for f in dataclasses.fields(GeometrySpec)}})
+        if not geometry.domain and self.geometry_ref:
+            geometry = replace(geometry, domain=self.geometry_ref)      # where the geometry came from, in prose
+        if not geometry.representation and self.fidelity is not None and self.fidelity.level:
+            geometry = replace(geometry, representation=self.fidelity.describe())
         return DesignSpec(
             title=self.name, goal=it.get("goal") or "", task_type=it.get("task_type") or inv.get(self.task, "other"),
             inputs=list(it.get("inputs") or self.coords), outputs=[q.name for q in self.quantities] or list(self.fields),
@@ -488,7 +636,7 @@ class PhysicalProblem:
                                                                              if c.kind != "initial"]),
                 initial_conditions=list(ptxt.get("initial_conditions") or [c.name for c in self.conditions
                                                                            if c.kind == "initial"]),
-                constraints=list(ptxt.get("constraints") or []),
+                constraints=[c.text() for c in self.constraints] or list(ptxt.get("constraints") or []),
                 parameters_known=[k for k, p in self.parameters.items() if p.role != "unknown"],
                 parameters_unknown=[k for k, p in self.parameters.items() if p.role == "unknown"],
                 units=units, turbulence_model=ptxt.get("turbulence_model"),

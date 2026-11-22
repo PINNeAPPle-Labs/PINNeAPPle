@@ -72,6 +72,46 @@ so a change that breaks them fails before the picture is looked at.
 dark theme, for comparison pictures against commercial CAE. It is no longer the
 default: `DEFAULT_CMAP` is `cfd_sequential`.
 
-The examples migrate in batches of about ten folders, each pull request showing
-a before/after contact sheet. An example that has not migrated still runs; it
-just does not look like the others yet.
+The examples migrate in batches, and both halves are mechanical, because 151 of
+them import matplotlib and 23 used the style module: an edit anybody can review
+line by line, and a gate that reads the files so the number only goes down.
+
+```bash
+python scripts/apply_house_theme.py examples/a.py examples/b/c.py   # migrate
+python scripts/apply_house_theme.py --check                         # the gate
+python scripts/apply_house_theme.py --baseline                      # after a batch
+```
+
+The codemod adds two lines where the module imported pyplot — after the
+top-level import block, or inside the `try` block that imported matplotlib when
+the module has one, so the call runs exactly where matplotlib did:
+
+```python
+from pinneapple_tools.visualization.style import use_theme
+use_theme("report")
+```
+
+It also deletes a `plt.rcParams.update(...)` that only restates what the theme
+sets (font size 10, no top or right spine): after the theme that line is a
+second place to edit, not a choice. `tests/test_house_theme_gate.py` compares
+that table against the theme's own `rc`, so the two cannot drift.
+
+The gate fails on an example that draws and calls neither `use_theme` nor
+`use_cfd_style`, unless it is listed in `examples/.house_theme_baseline`. It
+fails the other way too: a baseline line for a file that is themed, or that no
+longer exists, has to go. The baseline is the debt, and it only shrinks — 131
+examples are left after the first batch.
+
+### Batches
+
+| Batch | Examples | What changed |
+|---|---|---|
+| 1 | `first_example`, `pinn_solver/03_symbolic_pde_hard_bc`, `physics_learning_verification/run_study`, `physics_query/run_demo`, `electrodynamics/{20,21,22,23}` | 8 scripts on the theme, 4 redundant `rcParams.update` lines removed |
+
+![Batch 1, before and after](assets/house_theme/batch1_antes_depois.png)
+
+The sheet comes from `scripts/render_theme_migration.py`, which takes the same
+figure from two runs — the branch and `origin/main` — and puts them side by side
+at the same height. What it shows is that the content did not move: same curves,
+same axes, one look.
+

@@ -80,6 +80,9 @@ def figure_detection(det, path):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     rows = det["rows"]
     defects = sorted({r["defect"] for r in rows if r["group"] == "defect"})
     fig, (a, b) = plt.subplots(1, 2, figsize=(11, 4.0), gridspec_kw={"width_ratios": [1.6, 1]})

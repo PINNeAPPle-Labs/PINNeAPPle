@@ -22,6 +22,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 RESULTS = Path(__file__).parent / "results"

@@ -99,16 +99,19 @@ that table against the theme's own `rc`, so the two cannot drift.
 The gate fails on an example that draws and calls neither `use_theme` nor
 `use_cfd_style`, unless it is listed in `examples/.house_theme_baseline`. It
 fails the other way too: a baseline line for a file that is themed, or that no
-longer exists, has to go. The baseline is the debt, and it only shrinks — 131
-examples are left after the first batch.
+longer exists, has to go. The baseline is the debt, and it only shrinks — 114
+examples are left after two batches.
 
 ### Batches
 
 | Batch | Examples | What changed |
 |---|---|---|
 | 1 | `first_example`, `pinn_solver/03_symbolic_pde_hard_bc`, `physics_learning_verification/run_study`, `physics_query/run_demo`, `electrodynamics/{20,21,22,23}` | 8 scripts on the theme, 4 redundant `rcParams.update` lines removed |
+| 2 | `electrodynamics/01`–`06`, `geometry/07_csg_domain_demo`, `getting_started/01`–`10` | 17 scripts; each one run on both sides for the sheet (`getting_started/04` trains for over an hour and was left running past the check window) |
 
 ![Batch 1, before and after](assets/house_theme/batch1_antes_depois.png)
+
+![Batch 2, before and after](assets/house_theme/batch2_antes_depois.png)
 
 The sheet comes from `scripts/render_theme_migration.py`, which takes the same
 figure from two runs — the branch and `origin/main` — and puts them side by side

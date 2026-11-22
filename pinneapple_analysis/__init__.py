@@ -24,6 +24,14 @@ trust
     specs) and ``pinneapple_systems.digital_twin``'s live sensor anomaly
     detection. See ``trust.TrustGate``.
 
+decision
+    Decision-level validation of a surrogate against the reference solver:
+    the flip rate over design pairs, the rank preservation (Spearman,
+    Kendall tau-b, top-k kept), the regret of the design it picks, the
+    failure map over the design space, and the one-page
+    ``decision_card`` that states a verdict. A field error says how wrong
+    a model is; these say whether it changes the design.
+
 Integration helpers
 -------------------
 ``analyze_model(model, spec, x, ...)``
@@ -45,6 +53,12 @@ from . import uncertainty
 from . import validation
 from . import inverse_problems
 from . import trust
+from . import decision
+from .decision import (
+    FlipRate, RankPreservation, Regret, FailureMap,
+    flip_rate, rank_preservation, regret, failure_map,
+    DecisionThresholds, DecisionCard, decision_card,
+)
 
 # backward-compat aliases
 uq       = uncertainty
@@ -135,7 +149,7 @@ def invert(model, y_obs, sensor_locs, *,
 
 __all__ = [
     # Sub-modules (new names)
-    "uncertainty", "validation", "inverse_problems", "trust",
+    "uncertainty", "validation", "inverse_problems", "trust", "decision",
     # Sub-modules (old aliases — backward compat)
     "uq", "validate", "inverse",
     # Integration
@@ -169,4 +183,8 @@ __all__ = [
     "NeuralTermConfig", "NeuralTermDiscovery",
     # trust
     "TrustGate", "TrustScore",
+    # decision
+    "FlipRate", "RankPreservation", "Regret", "FailureMap",
+    "flip_rate", "rank_preservation", "regret", "failure_map",
+    "DecisionThresholds", "DecisionCard", "decision_card",
 ]

@@ -185,9 +185,8 @@ def test_zero_area_face_and_duplicate_face_are_removed():
     assert after["duplicate_faces"] == 0
     assert after["faces"] == before["faces"] - 1
     assert res_dup.changed == 1
+    assert res_flat.regressed == []
     assert res_dup.regressed == []             # the area that went away was the duplicated face's, not new geometry
-    for res in (res_flat, res_dup):
-        assert res.regressed == [] or "area" not in res.regressed
 
 
 def test_the_pipeline_removes_both_and_keeps_the_cube_closed():

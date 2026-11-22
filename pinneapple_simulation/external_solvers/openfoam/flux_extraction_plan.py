@@ -1,9 +1,7 @@
-"""Generate an OpenFOAM-native surfaceScalarField extraction script.
+"""Write a non-executing extraction specification for OpenFOAM face fluxes.
 
-The generated script runs inside an OpenFOAM Python environment with
-PyFoam? No: it uses the OpenFOAM command-line post-processing tool to
-write face flux values to an explicit ASCII CSV via a user-installed
-utility. This module does not assume that such a utility is installed.
+No solver-side utility or executable is generated. The specification is
+intended to guide an independently implemented and verified exporter.
 """
 from __future__ import annotations
 

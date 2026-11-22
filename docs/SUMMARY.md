@@ -191,6 +191,7 @@
   * [pinneapple_llm](api/pinneapple_llm/index.md)
   * [pinneapple_blender](api/pinneapple_blender/index.md)
   * [pinneapple_perception](api/pinneapple_perception/index.md)
+* [Campaign log 2026](campaign/campanha-backlog.md)
 * [Archive](archive/overview_en.md)
   * [Library overview (English, 0.6 era)](archive/overview_en.md)
   * [Visão geral (Português, era 0.6)](archive/overview_pt.md)

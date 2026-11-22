@@ -75,6 +75,7 @@
     * [Reproducing a recorded run: reproduced, divergent or refused](guides/reproducing_a_run.md)
     * [Checking the dimensions of an equation](guides/dimensional_check.md)
     * [A field on any domain: the picture and the VTU](guides/rendering_fields.md)
+    * [Post-processing gallery: six reference pictures](guides/postprocessing_gallery.md)
     * [Model cards generated from an experiment record](guides/model_cards.md)
     * [Integral equations of the second kind](guides/integral_equations.md)
     * [Running a benchmark](guides/running_a_benchmark.md)

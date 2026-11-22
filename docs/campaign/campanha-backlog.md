@@ -21,12 +21,11 @@ issues #154 e #216 daquele repositório.
 
 ## Dia 1 — 23/11/2026 (91 issues: 69 da biblioteca + 22 da API)
 
-Saldo depois da triagem: **5 feitas com evidência, 5 com PR aberto para revisão, 1 em andamento,
-9 parciais, 5 bloqueadas e 66 pendentes.** A meta nominal do dia era 91; a diferença está descrita linha
+Saldo depois da triagem: **6 feitas com evidência, 5 com PR aberto para revisão, 9 parciais, 5 bloqueadas e 66 pendentes.** A meta nominal do dia era 91; a diferença está descrita linha
 a linha, e o plano já diz que o cronograma é fila nominal, não promessa de 91 implementações validadas.
 
-As cinco feitas nesta sessão: #59 (reprodutibilidade numérica), #201 (namespace público), #227 (sete
-planos), #1494 (reparo de malha) e #1871 (validação no nível da decisão). Cada uma tem commit, teste e,
+As seis feitas nesta sessão: #59 (reprodutibilidade numérica), #201 (namespace público), #227 (sete
+planos), #1494 (reparo de malha), #1871 (validação no nível da decisão) e #933 (QA revalida contra o bundle reconstruído). Cada uma tem commit, teste e,
 quando o critério de aceite pedia, página de documentação — e nenhuma fecha por contagem.
 
 ### PINNeAPPle (69)
@@ -38,7 +37,7 @@ quando o critério de aceite pedia, página de documentação — e nenhuma fech
 | 227 | [X40] Architecture decision rule: seven planes (Physics IR,… | S | P1 | **feito** | docs/architecture/seven_planes.md + CONTRIBUTING + ROADMAP §13. Commit 61f7e834b. |
 | 38 | [B12] run_results as verifiable evidence | M | P1 | **PR** | PR #2275 abre o manifesto de integridade determinístico de run_results; revisar e integrar. |
 | 159 | [S10] Automatic conservation and boundary-condition checks | M | P1 | **PR** | Seis PRs abertos (#2276–#2283) cobrem conservação 1D/2D/3D, malha não estruturada e OpenFOAM; revisar e integrar em ordem. |
-| 933 | QA pipeline: repair re-validates the source but does not re… | M | P1 | **em andamento** | rebuild_from_source em QualityPipeline, em execução nesta sessão. |
+| 933 | QA pipeline: repair re-validates the source but does not re… | M | P1 | **feito** | QualityPipeline(rebuild_from_source=...): cada tentativa repara, executa, reconstrói o bundle e valida contra os dados novos, com bundle_source fresh/stale e rebuild_error; 8 testes (c35d9fcb4). |
 | 1494 | [PDI 4] Mesh repair: turn the report's suggested fix into a… | M | P1 | **em andamento** | pinneapple_data/cae/repair.py com antes/depois, em execução nesta sessão. |
 | 1871 | Decision-level surrogate validation: flip rate, ranking pre… | M | P1 | **feito** | pinneapple_analysis/decision: flip_rate, rank_preservation, regret, failure_map e decision_card com limiares explícitos; 20 testes (7b4d60747). |
 | 31 | [B4] Unified PhysicsValidator | M | P1 | **parcial** | PhysicsValidator já orquestra conservação, contorno e simetria; faltam os tipos dimensional e OOD que a issue pede. |

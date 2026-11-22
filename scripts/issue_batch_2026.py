@@ -86,12 +86,12 @@ def classify(issue: dict) -> dict:
     dependencies = sorted(set(re.findall(
         r"(?:depends on|blocked by|depende de|bloquead[oa] por)\s+#(\d+)", lower)))
     acceptance = []
-    for heading in ("Done when", "Acceptance criteria", "Critérios de aceite", "Definition of done"):
+    for heading in ("Done when", "Acceptance criteria", "Acceptance", "Critérios de aceite", "Critérios de aceitação", "Definition of done"):
         match = re.search(r"(?im)^#{1,5}\s*" + re.escape(heading) +
-                          r"\s*$\n(.*?)(?=^#{1,5}\s|\Z)", body, re.S | re.M)
+                          r"[^\S\n]*\n(.*?)(?=^#{1,5}[^\S\n]|\Z)", body, re.S | re.M)
         if match:
             acceptance = [line.strip() for line in match.group(1).splitlines()
-                          if line.strip() and not line.strip().startswith("|")]
+                          if line.strip() and not line.strip().startswith("|") and not line.strip().startswith("---")]
             break
     module_paths = sorted(set(re.findall(
         r"`((?:app|pinneapple_[A-Za-z0-9_]+|tests|docs|scripts)/[A-Za-z0-9_./-]+)`", body)))

@@ -39,7 +39,10 @@ def _digest(path: Path) -> str:
 
 
 def build_manifest(root: str | Path) -> dict:
-    base = Path(root).resolve(strict=True)
+    candidate = Path(root)
+    if candidate.is_symlink():
+        raise ValueError("root must not be a symlink")
+    base = candidate.resolve(strict=True)
     entries = [
         {"path": path.relative_to(base).as_posix(),
          "size_bytes": path.stat().st_size,
@@ -66,7 +69,10 @@ def verify_manifest(root: str | Path, manifest: dict) -> dict:
 
 
 def write_manifest(root: str | Path) -> dict:
-    base = Path(root).resolve(strict=True)
+    candidate = Path(root)
+    if candidate.is_symlink():
+        raise ValueError("root must not be a symlink")
+    base = candidate.resolve(strict=True)
     manifest = build_manifest(base)
     path = base / MANIFEST_NAME
     if path.is_symlink():

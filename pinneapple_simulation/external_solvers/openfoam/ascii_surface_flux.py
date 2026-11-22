@@ -118,6 +118,12 @@ def extract_ascii_surface_scalar_flux(
     header = binary_reader.read_header(raw.encode())
     if header.fmt != "ascii" or header.klass != "surfaceScalarField":
         raise ValueError("only ASCII surfaceScalarField is supported")
+    dims = re.search(r"\\bdimensions\\s*\\[\\s*([-+\\d\\s]+)\\s*\\]\\s*;", raw)
+    if not dims:
+        raise ValueError("missing OpenFOAM field dimensions")
+    exponents = tuple(int(v) for v in dims.group(1).split())
+    if len(exponents) != 7:
+        raise ValueError("expected seven SI dimension exponents")
     values = np.empty(total, dtype=np.float64)
     values[:internal] = _scalar_list(_entry(raw, "internalField"), internal)
     boundary = files[2].read_text(encoding="utf-8")
@@ -147,5 +153,6 @@ def extract_ascii_surface_scalar_flux(
         writer.writerows((i, format(float(v), ".17g")) for i, v in enumerate(values))
     return {"path": str(out), "face_count": total, "internal_face_count": internal,
             "boundary_face_count": total - internal,
+            "dimensions": exponents,
             "source": "openfoam.ascii.surfaceScalarField",
             "scientific_status": "face_flux_extracted_source_terms_not_verified"}

@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import io
 import time
+from dataclasses import asdict
 
 import numpy as np
 
@@ -91,6 +92,149 @@ def ingest(ctx, inputs, params):
     s = ctx.save_npz("series", t=X[:, 0], values=Y)
     s.update({"channels": params["outputs"]})
     return {"data": a, "series": s}
+
+
+#: axis names the catalogue's adapters use for the time coordinate; anything else is a spatial axis
+_TIME_AXES = ("t", "time")
+
+
+def _bundle_table(bundle) -> dict:
+    """The collocation table the rest of the flow speaks, from a :class:`PhysicsDataBundle`.
+
+    A public archive arrives as a bundle: axes with coordinates plus fields on their grid. Every node downstream of
+    ``data.ingest`` takes the same two arrays it produces — ``X`` (one row per point, one column per coordinate) and
+    ``Y`` (one row per point, one column per field) — so that is what this converts to, instead of a new shape no
+    node reads. Spatial axes keep the manifest's order and the time axis goes last, which is the order
+    ``data.observe`` and ``data.parametric`` already use.
+
+    A field that is not laid out on the bundle's axes, or whose shape disagrees with them, is refused by name: a
+    transposed or broadcast table that "looks fine" is worse than a refusal.
+    """
+    axes = list(bundle.axes)
+    if not axes:
+        raise StepFailed(f"{bundle.manifest.id}: the bundle has no structured axes, so there is no point table to "
+                         "build; read it with its own adapter")
+    spatial = [n for n in axes if n not in _TIME_AXES]
+    order = spatial + [n for n in axes if n in _TIME_AXES]
+    values = {n: np.asarray(bundle.axis_array(n), float) for n in order}
+    shape = tuple(len(values[n]) for n in order)
+    mesh = np.meshgrid(*[values[n] for n in order], indexing="ij")
+    X = np.stack([m.ravel() for m in mesh], 1)
+
+    columns, labels, units = [], [], {}
+    for field in bundle.manifest.fields.variables:
+        arr = np.asarray(bundle.field_array(field.name))
+        declared = [n for n in field.axes if n in axes] or list(axes)
+        if sorted(declared) != sorted(axes):
+            raise StepFailed(f"field '{field.name}' is laid out on {declared}, not on the bundle's axes {axes}")
+        if tuple(arr.shape[:len(declared)]) != tuple(len(values[n]) for n in declared):
+            raise StepFailed(f"field '{field.name}' has shape {arr.shape} but its axes {declared} are "
+                             f"{[len(values[n]) for n in declared]} long")
+        perm = [declared.index(n) for n in order]
+        vector = arr.ndim == len(declared) + 1
+        body = np.transpose(arr, perm + ([len(perm)] if vector else [])) if perm != sorted(perm) else arr
+        n_comp = body.shape[-1] if vector else 1
+        body = body.reshape(-1, n_comp)
+        if len(body) != len(X):
+            raise StepFailed(f"field '{field.name}' has {len(body)} points and the axes give {len(X)}")
+        if n_comp == 1:
+            names = [""]
+        elif len(field.components) == n_comp:
+            names = list(field.components)
+        else:
+            names = [str(i) for i in range(n_comp)]
+        for j, comp in enumerate(names):
+            columns.append(body[:, j])
+            labels.append(f"{field.name}_{comp}" if comp else field.name)
+            units[labels[-1]] = field.unit
+    Y = np.stack(columns, 1) if columns else np.zeros((len(X), 0))
+    axis_units = {a.name: a.unit for a in bundle.manifest.mesh.axes}
+    return {"X": X, "Y": Y, "coords": order, "fields": labels, "units": units,
+            "axis_units": {n: axis_units.get(n, "1") for n in order}, "shape": shape, "points": len(X)}
+
+
+@node("data.public_dataset", "Public dataset (catalogued archive)", category="Data",
+      outputs=[Port("data", "dataset"), Port("metrics", "metrics"), Port("manifest", "report")],
+      params=[Param("id", "str", "", help="catalogue id (pinneapple_data.datasets.catalog); empty = choose for "
+                                          "the stage"),
+              Param("stage", "str", "data", help="stage used when id is empty: the archive the stage map ranks first"),
+              Param("arguments", "dict", {}, help="what the adapter insists on (source, case, perm, x, y, index, "
+                                                  "units, license); the refusal names the missing ones"),
+              Param("license", "str", "", help="licence text for an archive that states none (SPE10, The Well)"),
+              Param("gates", "bool", True, help="run the schema gates on what was read and report the verdict")],
+      calls="pinneapple_data.datasets.read.choose / read + pinneapple_data.schema.run_gates")
+def public_dataset(ctx, inputs, params):
+    """Read one catalogued public archive into a dataset, with its licence and the schema gates' verdict.
+
+    The refusal comes before the download: an archive with no reader in this library says which formats and homepage
+    it publishes instead of failing later with a stack trace, a non-commercial archive is refused in commercial mode
+    (``PINNEAPPLE_COMMERCIAL_MODE=1``, the same gate the resource catalogue uses), and the arguments the adapter
+    insists on are named before anything is fetched.
+    """
+    from pinneapple_data.datasets import catalog as core
+    from pinneapple_data.datasets import read as R
+    from pinneapple_neural._licencas import commercial_mode
+
+    args = dict(params["arguments"] or {})
+    if params["license"] and "license" not in args:
+        args["license"] = params["license"]
+    wanted = (params["id"] or "").strip()
+    if not wanted:
+        stage = params["stage"] or "data"
+        picked = R.choose(stage, commercial_ok=not commercial_mode())
+        if not picked["id"]:
+            raise StepFailed(f"no archive for {stage!r}: {picked['why']}; "
+                             f"dropped: {[d['id'] for d in picked['dropped']]}")
+        wanted = picked["id"]
+        ctx.decide("data.public_dataset.choose", f"read {wanted} for stage {stage}",
+                   value={"id": wanted, "candidates": picked["candidates"],
+                          "dropped": {d["id"]: d["why"] for d in picked["dropped"]}},
+                   rationale=picked["why"])
+    try:
+        entry = core.get(wanted)
+    except KeyError:
+        raise StepFailed(f"{wanted!r} is not a catalogued dataset; readable today: "
+                         f"{sorted(e.id for e in core.implemented())}") from None
+    if entry.adapter is None:
+        raise StepFailed(f"{entry.title} ({entry.id}) has no reader in this library: it publishes "
+                         f"{', '.join(entry.formats) or 'files'} at {entry.homepage}. Use data.ingest on a local "
+                         f"copy, or pick an archive with an adapter.")
+    if R.non_commercial(entry.license) and commercial_mode():
+        raise StepFailed(f"{entry.id}: licence {entry.license!r} is non-commercial and PINNEAPPLE_COMMERCIAL_MODE=1 "
+                         f"is set; use it for internal benchmarks only ({entry.homepage})")
+    try:
+        out = R.read(wanted, gates=bool(params["gates"]), **args)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise StepFailed(str(exc.args[0]) if exc.args else repr(exc)) from None
+    bundle, report = out["bundle"], out["gates"]
+    table = _bundle_table(bundle)
+
+    ctx.metric("points", table["points"])
+    ctx.metric("fields", len(table["fields"]))
+    if report is not None:
+        ctx.metric("gates_passed", sum(1 for r in report.results if r.passed is True))
+        ctx.metric("gates_failed", len(report.failed))
+        ctx.table("schema gates", ["gate", "status", "value", "detail"],
+                  [[r.check_id, r.status, "" if r.value is None else round(float(r.value), 6), r.detail]
+                   for r in report.results])
+        if report.failed:
+            ctx.log(f"gates failed: {report.failed}")
+    ctx.log(f"{entry.title}: {table['points']} points, fields {table['fields']}, licence {entry.license}")
+    licence = [entry.license, entry.citation or ""]
+    a = ctx.save_npz("data", X=table["X"], Y=table["Y"], coords=np.array(table["coords"], dtype=str),
+                     fields=np.array(table["fields"], dtype=str), license=np.array(licence, dtype=str))
+    a.update({"coords": table["coords"], "fields": table["fields"], "dataset": wanted, "license": entry.license,
+              "source": bundle.manifest.provenance.source, "digest": bundle.digest(), "units": table["units"]})
+    man = ctx.save_json("manifest", {
+        "dataset": wanted, "title": entry.title, "license": entry.license,
+        "license_verified": entry.license_verified, "citation": entry.citation, "homepage": entry.homepage,
+        "adapter": entry.adapter, "source": bundle.manifest.provenance.source, "digest": bundle.digest(),
+        "bundle_id": bundle.manifest.id, "axes": table["axis_units"], "fields": table["units"],
+        "points": table["points"], "shape": list(table["shape"]),
+        "gates": None if report is None else {"ok": report.ok, "failed": report.failed,
+                                              "results": [asdict(r) for r in report.results]},
+    })
+    return {"data": a, "metrics": ctx.report["metrics"], "manifest": man}
 
 
 @node("data.parametric", "Parametric sweep (solver runs)", category="Data",

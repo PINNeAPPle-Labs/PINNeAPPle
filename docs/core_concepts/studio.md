@@ -60,6 +60,10 @@ tool sees.
 | `rubber` | matte, pebbled (`grain`) | `rubber` |
 | `industrial_glass` | transmissive glass | — |
 
+The procedural detail costs about 15-20% of the render, not a multiple: on the impeller (13 744 triangles,
+1600x900, 96 samples, dark stage with a floor, the same bronze either way) 19-22 s with the flat material against
+23-27 s with `cast_metal` on Metal, and 87-92 s against 101-104 s on the CPU.
+
 `pp.viz.SHADERS` lists the recipes (each is a function of `(bpy, material, entry)`, registered with
 `@pbr.shader("name")`), so a project can add its own. The recipes came out of the industrial pump-station example,
 [`examples/use_cases/physics_data_factory/blender_factory_render.py`](../../../examples/use_cases/physics_data_factory/blender_factory_render.py).

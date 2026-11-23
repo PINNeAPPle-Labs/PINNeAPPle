@@ -39,7 +39,7 @@ handles half models. `scene.labels["cp"] = "Pressure coefficient Cp"` sets the c
 ## Renders
 
 `pp.viz.render(scene, out, field=..., lines=..., slice=..., view="iso", background="studio")` needs
-`pip install "bpy>=4.2"` (Blender as a Python module, CPU Cycles; tested on 4.2 LTS and 5.2, older versions raise
+`pip install "bpy>=4.2"` (Blender as a Python module, Cycles; tested on 4.2 LTS and 5.2, older versions raise
 an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes with their `MATERIALS` /
 `scene.materials` (no glTF import: Blender 4.2's importer crashes the interpreter at exit).
 
@@ -49,6 +49,27 @@ an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes 
   x is the object's length (the flow direction) and z is up. A direction vector also works.
 - **Backgrounds:** `background="studio"` gives a light gradient with true colours; `"sky"` gives a physical sky
   with filmic tone mapping, for the realistic materials.
+- **Device:** `device="auto"` (the default) renders on the first GPU backend this machine exposes — Metal on Apple
+  silicon, OptiX or CUDA on NVIDIA, HIP on AMD, oneAPI on Intel — and falls back to the CPU when there is none, so
+  the same script runs on a laptop and on a headless node. `device="cpu"`, `"gpu"` (whatever the Blender preferences
+  select) or a backend name force the choice. Measured on an M5 against the CPU, on the centrifugal impeller of the
+  geometry library (13 744 triangles, 1600x900, 96 samples, denoised, dark stage with a floor): 62.3 s on the CPU,
+  25.2 s on Metal; on the A320 airliner (34 560 triangles, 64 samples) 75.9 s against 23.5 s. The **first** Metal
+  render on a machine takes minutes longer (the shaders are compiled once); the images are otherwise identical
+  (largest channel difference 3/255, float rounding).
+- **Quality presets:** `quality="preview"` (24 samples, 960x540 — 5.1 s on the same impeller and GPU),
+  `"production"` (96 samples, 1600x900: the default, and the numbers the renderer always used) or `"cinematic"`
+  (512 samples, 3840x2160, 16 bounces). An explicit `samples=` or `size=` wins over the preset.
+- **HDRI environments:** `background="hdri:hall"` loads `hall.hdr` / `.exr` / `.png` from `$PINNEAPPLE_HDRI_DIR`
+  (default: `data/hdri`) — or a path, or a name registered in `pp.viz.HDRIS` — as an environment texture: the image
+  is both the light and what the metals reflect. `hdri_strength` scales it and `hdri_rotation` turns it in degrees
+  around the up axis, which is how one HDRI gives several lighting directions.
+- **Field as a layer, not a repaint:** `field="T"` replaces the surfaces with the colour map (the scientific
+  reading). `field_alpha=0.6` instead mixes the map over each surface's own material, so a bronze or steel part
+  keeps its colour, its roughness and its highlights under a translucent temperature layer: the figure reads as a
+  photograph and as data at the same time.
+- `pp.viz.QUALITY` and `pp.viz.DEVICE_BACKENDS` print the two tables; `pp.viz.hdri_path("hall")` says which file a
+  name resolves to.
 
 Without `bpy` — the usual case, Blender installed as an application — `pp.viz.render_headless(scene, out, **kw)`
 takes the same keyword arguments and renders with the Blender binary: the scene goes to a temporary `.glb` (with its

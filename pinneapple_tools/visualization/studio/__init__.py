@@ -36,14 +36,24 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "web_viewer", "serve", "turntable", "headless", "figure_caption",
            "LIGHTING_PRESETS", "LightingPreset", "Dashboard", "field_view", "FieldView", "VIEW_MAX_FACES",
            "cached_view", "view_paths", "save_view", "prune_views",
-           "sphere_surface", "rod_surface", "disc_surface"]
+           "sphere_surface", "rod_surface", "disc_surface",
+           "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path"]
 
 
 def __getattr__(name):
     if name == "Dashboard":                        # pp.viz.Dashboard: the animation-centred dashboard
         from ..dashboard import Dashboard
         return Dashboard
+    if name in ("QUALITY", "DEVICE_BACKENDS", "HDRIS"):     # render() presets, backends and HDRI registry
+        from . import blender as _b
+        return getattr(_b, name)
     raise AttributeError(name)
+
+
+def hdri_path(*a, **kw):
+    """The image behind ``render(background="hdri:<name>")``; see :func:`.blender.hdri_path`."""
+    from .blender import hdri_path as _h
+    return _h(*a, **kw)
 
 
 def turntable(*a, **kw):

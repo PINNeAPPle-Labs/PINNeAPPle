@@ -92,6 +92,20 @@ is enough for a plate, a duct or a housing. Whichever is used, the same numbers 
 export (as `TEXCOORD_0`, with the vertices split at the seams because glTF indexes one UV per vertex) and the browser
 viewer — the reader reads `TEXCOORD_0` back, so a scene saved and reloaded carries its layout.
 
+### Visual benchmark
+
+`python -m pinneapple_tools.visualization.studio.benchmark --out provas/` renders the reference cases — the impeller
+in cast bronze on the machine-shop HDRI, the pin-fin heat sink in brushed aluminium under the studio light, the A320
+with the material library in the warehouse — and writes, next to each PNG, a record of the time, the device and four
+statistics of the picture: mean luminance, its spread, the fraction of the frame the subject covers and the edge
+energy. `--baseline provas/benchmark.json` on a later run prints the deltas, and `pp.viz.benchmark.compare` does the
+same from Python.
+
+The numbers are the gate, not a pass/fail: they catch what a renderer regression looks like — black, blown out,
+detail-less, subject gone — without the brittleness of a golden-image comparison across GPUs, drivers and Blender
+versions. `pp.viz.benchmark.CASES` is the list; a case is a geometry from the library, its materials, the HDRI and the
+camera preset.
+
 In glTF the images travel inside the GLB (`images` + `textures`), so the browser viewer needs no side-car files; in
 USD the base colour map is a `UsdUVTexture` over `primvars:st`. Roughness and normal maps are Blender and glTF only
 for now — glTF wants roughness packed with metalness in one texture, and USD wants a scale/bias for the normal.

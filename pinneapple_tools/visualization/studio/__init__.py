@@ -38,7 +38,7 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
            "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
-           "bake_materials_headless"]
+           "bake_materials_headless", "benchmark"]
 
 
 def __getattr__(name):
@@ -51,6 +51,9 @@ def __getattr__(name):
     if name == "SHADERS":                                   # the procedural recipes of the material library
         from .pbr import SHADERS
         return SHADERS
+    if name == "benchmark":                                 # the reference scenes and their records
+        import importlib                                    # not `from . import`: that would land back here
+        return importlib.import_module(".benchmark", __name__)
     raise AttributeError(name)
 
 

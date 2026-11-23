@@ -36,6 +36,34 @@ Data known at other points (CFD wall faces, FEA nodes, sensors) goes onto the su
 `scene.map_field("cp", points, values, mirror_y=True)`, using inverse distance over the nearest points. `mirror_y`
 handles half models. `scene.labels["cp"] = "Pressure coefficient Cp"` sets the colour-bar title.
 
+### Materials
+
+A material is a flat entry — `{"color": [r, g, b]` in sRGB, `"metallic"`, `"roughness"`, and optionally
+`"clearcoat"`, `"transmission"`, `"alpha"`, `"emissive"`— in `pp.viz.MATERIALS` (the library) or in
+`scene.materials` (the model's own table, which wins). A model whose names match neither renders grey, which is the
+first thing to check when a part looks like a simulation instead of a photograph: `scene.unknown_materials()` lists
+them, and `render_animation` names them in its log.
+
+An entry may also carry `"shader": "<name>"`, and Blender then builds the procedural detail the export formats
+cannot carry — micro-bump, wear, streaks — on top of the same numbers. Everything else in the pipeline (glTF, USD,
+the browser viewer) still gets the flat material the entry declares, so the shader never changes what a downstream
+tool sees.
+
+| Material | What it is | Shader |
+|---|---|---|
+| `painted_steel`, `paint` | industrial paint, chipped through to bare metal where it wears (`wear`, `metal_color`) | `painted_metal` |
+| `brushed_steel`, `stainless_steel` | brushed stainless: streaks along the object's x, roughness varying across the brush (`streak`) | `brushed_metal` |
+| `galvanized_steel` | the spangle of hot-dip zinc (a voronoi cell pattern, `spangle`) | `galvanized` |
+| `cast_iron` | pitted, sand-cast, no paint (`grain`) | `cast_metal` |
+| `oxidized_steel` | bare metal under rust in patches (`rust`, `rust_color`) | `oxidized_metal` |
+| `concrete` | aggregate in two shades of the entry's colour (`aggregate`) | `concrete` |
+| `rubber` | matte, pebbled (`grain`) | `rubber` |
+| `industrial_glass` | transmissive glass | — |
+
+`pp.viz.SHADERS` lists the recipes (each is a function of `(bpy, material, entry)`, registered with
+`@pbr.shader("name")`), so a project can add its own. The recipes came out of the industrial pump-station example,
+[`examples/use_cases/physics_data_factory/blender_factory_render.py`](../../../examples/use_cases/physics_data_factory/blender_factory_render.py).
+
 ## Renders
 
 `pp.viz.render(scene, out, field=..., lines=..., slice=..., view="iso", background="studio")` needs

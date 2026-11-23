@@ -37,7 +37,7 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "LIGHTING_PRESETS", "LightingPreset", "Dashboard", "field_view", "FieldView", "VIEW_MAX_FACES",
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
-           "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path"]
+           "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS"]
 
 
 def __getattr__(name):
@@ -47,6 +47,9 @@ def __getattr__(name):
     if name in ("QUALITY", "DEVICE_BACKENDS", "HDRIS"):     # render() presets, backends and HDRI registry
         from . import blender as _b
         return getattr(_b, name)
+    if name == "SHADERS":                                   # the procedural recipes of the material library
+        from .pbr import SHADERS
+        return SHADERS
     raise AttributeError(name)
 
 

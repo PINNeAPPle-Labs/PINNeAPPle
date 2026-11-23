@@ -21,6 +21,7 @@ from typing import Optional, Sequence, Tuple, Union
 import numpy as np
 
 from .colormap import colorbar, jet
+from .pbr import SHADERS
 
 VIEWS = {   # direction from the centre to the camera; x is the object's length / the flow direction, z up
     "iso": (-1.0, -1.1, 0.75), "iso_back": (1.0, -1.1, 0.75), "iso_low": (-1.0, -1.1, -0.4),
@@ -164,7 +165,9 @@ def _hdri_world(bpy, bs, path: str, strength: float = 1.0, rotation: float = 0.0
 
 def _table_material(bpy, name: str, st: dict):
     """Principled BSDF material from an entry of ``MATERIALS`` (sRGB colour -> linear unless ``"linear"``, metallic,
-    roughness, clearcoat, transmission, alpha, emissive), as the glTF export of the same table describes it."""
+    roughness, clearcoat, transmission, alpha, emissive), as the glTF export of the same table describes it. An entry
+    with ``"shader"`` naming a recipe of :mod:`.pbr` gets its procedural bump, wear or streaks on top (the rest of
+    the pipeline still sees the numbers alone)."""
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     b = next(n for n in m.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled")
@@ -188,6 +191,9 @@ def _table_material(bpy, name: str, st: dict):
         _set_input(b, ("Emission Strength",), 4.0)
     if st.get("double_sided") is False and hasattr(m, "use_backface_culling"):
         m.use_backface_culling = True
+    build = SHADERS.get(str(st.get("shader", "")))          # the procedural detail the exports cannot carry
+    if build is not None:
+        build(bpy, m, st)
     return m
 
 

@@ -10,7 +10,7 @@ from typing import Any
 import yaml
 
 from pinneapple_analysis.cost.equal_budget import ComputeBudget
-from pinneapple_core.errors import BadValue, UnknownName
+from pinneapple_core.errors import BadValue
 
 __all__ = ["BenchmarkConfig"]
 
@@ -149,6 +149,6 @@ class BenchmarkConfig:
         names = {f.name for f in fields(cls)}
         unknown = set(d) - names
         if unknown:
-            raise UnknownName(f"unknown benchmark config field(s) {sorted(unknown)}",
-                              fix=f"drop or rename them; the known fields are {sorted(names)}")
+            raise BadValue(f"unknown benchmark config field(s) {sorted(unknown)}",
+                           fix=f"drop or rename them; the known fields are {sorted(names)}")
         return cls(**d)

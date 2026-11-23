@@ -177,7 +177,7 @@ AUDITED: tuple[AuditEntry, ...] = (
        was="budget is required (wall_s, flops or steps)"),
     _e("bench-config-fields", "pinneapple_analysis.benchmark.config:BenchmarkConfig.from_dict",
        "an unknown key in the benchmark config", "drop or rename the key: the error lists the known ones",
-       was="unknown benchmark config fields: [...]", kind="unknown-name"),
+       was="unknown benchmark config fields: [...]"),
     _e("solver-unknown", "pinneapple_simulation.numerical_solvers.registry:SolverRegistry.spec",
        "an unregistered solver name", "call SolverRegistry.list() and use one of those names",
        was="Unknown solver 'X'. Available: [...]", kind="unknown-name"),

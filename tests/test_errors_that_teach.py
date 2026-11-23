@@ -165,7 +165,7 @@ EXPECTED_TYPE = {
     "per-query": ValueError, "trust-ood-level": ValueError, "unit-convert-from": ValueError,
     "unit-convert-across": ValueError, "unit-product": ValueError,
     "method-unknown": KeyError, "problem-unknown": KeyError, "bench-method-unknown": KeyError,
-    "solver-unknown": KeyError, "trust-no-bounds": KeyError, "bench-config-fields": KeyError,
+    "solver-unknown": KeyError, "trust-no-bounds": KeyError, "bench-config-fields": ValueError,
     "bench-space": NotImplementedError, "bench-train": NotImplementedError,
     "trust-not-fitted": RuntimeError, "solver-ctor": TypeError,
     "missing-pyarrow": ImportError, "missing-h5py": ImportError, "missing-hub": ImportError,

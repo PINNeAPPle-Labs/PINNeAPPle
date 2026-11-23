@@ -36,10 +36,112 @@ Data known at other points (CFD wall faces, FEA nodes, sensors) goes onto the su
 `scene.map_field("cp", points, values, mirror_y=True)`, using inverse distance over the nearest points. `mirror_y`
 handles half models. `scene.labels["cp"] = "Pressure coefficient Cp"` sets the colour-bar title.
 
+### Materials
+
+A material is a flat entry — `{"color": [r, g, b]` in sRGB, `"metallic"`, `"roughness"`, and optionally
+`"clearcoat"`, `"transmission"`, `"alpha"`, `"emissive"`— in `pp.viz.MATERIALS` (the library) or in
+`scene.materials` (the model's own table, which wins). A model whose names match neither renders grey, which is the
+first thing to check when a part looks like a simulation instead of a photograph: `scene.unknown_materials()` lists
+them, and `render_animation` names them in its log.
+
+An entry may also carry `"shader": "<name>"`, and Blender then builds the procedural detail the export formats
+cannot carry — micro-bump, wear, streaks — on top of the same numbers. Everything else in the pipeline (glTF, USD,
+the browser viewer) still gets the flat material the entry declares, so the shader never changes what a downstream
+tool sees.
+
+| Material | What it is | Shader |
+|---|---|---|
+| `painted_steel`, `paint` | industrial paint, chipped through to bare metal where it wears (`wear`, `metal_color`) | `painted_metal` |
+| `brushed_steel`, `stainless_steel` | brushed stainless: streaks along the object's x, roughness varying across the brush (`streak`) | `brushed_metal` |
+| `galvanized_steel` | the spangle of hot-dip zinc (a voronoi cell pattern, `spangle`) | `galvanized` |
+| `cast_iron` | pitted, sand-cast, no paint (`grain`) | `cast_metal` |
+| `oxidized_steel` | bare metal under rust in patches (`rust`, `rust_color`) | `oxidized_metal` |
+| `concrete` | aggregate in two shades of the entry's colour (`aggregate`) | `concrete` |
+| `rubber` | matte, pebbled (`grain`) | `rubber` |
+| `industrial_glass` | transmissive glass | — |
+
+The procedural detail costs about 15-20% of the render, not a multiple: on the impeller (13 744 triangles,
+1600x900, 96 samples, dark stage with a floor, the same bronze either way) 19-22 s with the flat material against
+23-27 s with `cast_metal` on Metal, and 87-92 s against 101-104 s on the CPU.
+
+`pp.viz.SHADERS` lists the recipes (each is a function of `(bpy, material, entry)`, registered with
+`@pbr.shader("name")`), so a project can add its own. The recipes came out of the industrial pump-station example,
+[`examples/use_cases/physics_data_factory/blender_factory_render.py`](../../../examples/use_cases/physics_data_factory/blender_factory_render.py).
+
+### Baked maps
+
+A shader is detail only Blender can read. `pp.viz.bake_materials(scene, "maps/")` (or
+`bake_materials_headless` where `bpy` is not importable) bakes each material that names a shader into three images —
+base colour, roughness and normal — and returns the entries ready to merge:
+
+```python
+maps = pp.viz.bake_materials(sc, "maps/", size=1024, samples=16)
+sc.materials.update({k: {**sc.materials.get(k, {}), **v} for k, v in maps.items()})
+```
+
+The signals come from Cycles' own passes, not from reading one node of the tree: a shader such as `painted_metal` is
+two BSDFs mixed, and the base colour is the DIFFUSE albedo plus the GLOSSY tint (a metal's diffuse albedo is black),
+so the paint and the bare metal it wears through to are both in the image. The entries keep their flat numbers as the
+fallback and for anything that cannot read a map.
+
+The maps live against **per-corner UVs**. `bake_materials` unwraps by default (`uv="smart"`): Blender's smart
+projection, packed per material, stored back on `Surface.uv` — one pair per face corner, which is why the layout comes
+back from a headless bake and the render here follows it. `uv="box"` keeps the projection of `scene.box_uvs` (each
+triangle on the plane of its dominant normal axis, every face getting the whole square), which needs no unwrap pass and
+is enough for a plate, a duct or a housing. Whichever is used, the same numbers reach the Blender render, the glTF
+export (as `TEXCOORD_0`, with the vertices split at the seams because glTF indexes one UV per vertex) and the browser
+viewer — the reader reads `TEXCOORD_0` back, so a scene saved and reloaded carries its layout.
+
+In glTF the images travel inside the GLB (`images` + `textures`), so the browser viewer needs no side-car files; in
+USD the base colour map is a `UsdUVTexture` over `primvars:st`. Roughness and normal maps are Blender and glTF only
+for now — glTF wants roughness packed with metalness in one texture, and USD wants a scale/bias for the normal.
+
+### Mechanical detail
+
+A solver mesh is right to be smooth — every bolt head is a place where a boundary layer goes wrong. A figure is the
+opposite: at photographic distance the eye reads scale from exactly the seams, fasteners and welds that the mesh
+leaves out, and a casing with none of them looks like a render of a mesh, which is what it is.
+
+`pp.viz.detail` generates them from the geometry you already have, so a detail level is a number in a script rather
+than a second CAD model to keep in sync:
+
+```python
+from pinneapple_tools.visualization.studio import detail as D
+
+sc.surfaces += D.bolt_circle([0, 0, -0.04], (0, 0, -1), radius=0.042, count=6, head_radius=0.0055, height=0.0045)
+sc.surfaces.append(D.seam_ring([0, 0, 0.025], (0, 0, 1), radius=0.211, thickness=0.0022))
+sc.surfaces.append(D.weld_bead(saddle_curve, radius=0.006, material="raw_weld"))
+```
+
+| builder | what it puts where |
+| --- | --- |
+| `hex_bolt(centre, normal, head_radius, height, washer)` | one hex-head bolt standing on a surface, with a washer skirt that makes the head read at a distance |
+| `bolt_circle(centre, normal, radius, count, ...)` | `count` bolts evenly spaced on a circle, the first on the plane's `u` axis, so two runs land in the same places |
+| `weld_bead(points, radius)` | one continuous bead along a polyline: cylinders between the points with a sphere at each joint |
+| `seam_ring(centre, normal, radius, thickness)` | the raised ring where two cast halves meet |
+
+They return ordinary `Surface` objects: they export to glTF/USD, they take any material, and they cost triangles, not
+solver cells. The weld is worth calling out — give it the intersection curve (`sqrt(R² - x²)` around a branch) and the
+bead follows the saddle instead of a circle, which is the difference between a weld and a drawn ring.
+
+### Visual benchmark
+
+`python -m pinneapple_tools.visualization.studio.benchmark --out provas/` renders the reference cases — the impeller
+in cast bronze on the machine-shop HDRI, the pin-fin heat sink in brushed aluminium under the studio light, the A320
+with the material library in the warehouse — and writes, next to each PNG, a record of the time, the device and four
+statistics of the picture: mean luminance, its spread, the fraction of the frame the subject covers and the edge
+energy. `--baseline provas/benchmark.json` on a later run prints the deltas, and `pp.viz.benchmark.compare` does the
+same from Python.
+
+The numbers are the gate, not a pass/fail: they catch what a renderer regression looks like — black, blown out,
+detail-less, subject gone — without the brittleness of a golden-image comparison across GPUs, drivers and Blender
+versions. `pp.viz.benchmark.CASES` is the list; a case is a geometry from the library, its materials, the HDRI and the
+camera preset.
+
 ## Renders
 
 `pp.viz.render(scene, out, field=..., lines=..., slice=..., view="iso", background="studio")` needs
-`pip install "bpy>=4.2"` (Blender as a Python module, CPU Cycles; tested on 4.2 LTS and 5.2, older versions raise
+`pip install "bpy>=4.2"` (Blender as a Python module, Cycles; tested on 4.2 LTS and 5.2, older versions raise
 an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes with their `MATERIALS` /
 `scene.materials` (no glTF import: Blender 4.2's importer crashes the interpreter at exit).
 
@@ -49,6 +151,43 @@ an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes 
   x is the object's length (the flow direction) and z is up. A direction vector also works.
 - **Backgrounds:** `background="studio"` gives a light gradient with true colours; `"sky"` gives a physical sky
   with filmic tone mapping, for the realistic materials.
+- **Device:** `device="auto"` (the default) renders on the first GPU backend this machine exposes — Metal on Apple
+  silicon, OptiX or CUDA on NVIDIA, HIP on AMD, oneAPI on Intel — and falls back to the CPU when there is none, so
+  the same script runs on a laptop and on a headless node. `device="cpu"`, `"gpu"` (whatever the Blender preferences
+  select) or a backend name force the choice. Measured on an M5 against the CPU, on the centrifugal impeller of the
+  geometry library (13 744 triangles, 1600x900, 96 samples, denoised, dark stage with a floor): 62.3 s on the CPU,
+  25.2 s on Metal; on the A320 airliner (34 560 triangles, 64 samples) 75.9 s against 23.5 s. The **first** Metal
+  render on a machine takes minutes longer (the shaders are compiled once); the images are otherwise identical
+  (largest channel difference 3/255, float rounding).
+- **Quality presets:** `quality="preview"` (24 samples, 960x540 — 5.1 s on the same impeller and GPU),
+  `"production"` (96 samples, 1600x900: the default, and the numbers the renderer always used) or `"cinematic"`
+  (512 samples, 3840x2160, 16 bounces). An explicit `samples=` or `size=` wins over the preset.
+- **HDRI environments:** `background="hdri:hall"` loads `hall.hdr` / `.exr` / `.png` from `$PINNEAPPLE_HDRI_DIR`
+  (default: `data/hdri`) — or a path, or a name registered in `pp.viz.HDRIS` — as an environment texture: the image
+  is both the light and what the metals reflect. `hdri_strength` scales it and `hdri_rotation` turns it in degrees
+  around the up axis, which is how one HDRI gives several lighting directions.
+- **Field as a layer, not a repaint:** `field="T"` replaces the surfaces with the colour map (the scientific
+  reading). `field_alpha=0.6` instead mixes the map over each surface's own material, so a bronze or steel part
+  keeps its colour, its roughness and its highlights under a translucent temperature layer: the figure reads as a
+  photograph and as data at the same time.
+- `pp.viz.QUALITY` and `pp.viz.DEVICE_BACKENDS` print the two tables; `pp.viz.hdri_path("hall")` says which file a
+  name resolves to.
+- **Photography presets:** `camera="product"` (85 mm on the third line, f/8), `"hero"` (35 mm from slightly below,
+  f/2.8), `"documentary"` (50 mm, everything in focus, centred), `"head_on"` (100 mm down the object's main axis) or
+  `"wide"` (24 mm establishing shot). A preset fills `lens`, `view`, `distance`, `fstop` and `composition` only where
+  they are not given, so `camera="product", lens=50` gives the 50 mm lens from the product's position.
+  `composition="thirds_left" | "thirds_right" | "thirds_high" | "thirds_low"` moves the subject off centre with a
+  lens shift, which keeps the framing the auto-fit computed; `fstop` opens the aperture on the subject, which is what
+  separates a part from its background at a close distance. `pp.viz.CAMERAS` lists the presets.
+- **Finishing:** `look="low" … "high"`, `"very_high"` or `"punchy"` is an S-curve on the display values (punchy adds a
+  little saturation), `post="bloom"`, `"vignette"` or `"bloom+vignette"` is the light bleeding and the corners
+  falling. Both act on the written PNG/JPEG, after the render, in :mod:`.post` — the scene compositor and the AgX
+  looks changed between Blender 4 and 5, and a figure should not depend on which one is installed. An EXR is left
+  alone: it is the input to a grade, not something to burn a contrast curve into.
+- **Passes and alpha:** `passes=True` with an `.exr` output writes the beauty as a 32-bit OpenEXR and, next to it in
+  `<out>_passes/`, a multilayer file with the depth, normal, mist, diffuse, glossy, emission and transmission passes
+  — what a grade or a compositor needs. `film_transparent=True` drops the world behind the geometry and keeps an
+  alpha, for a figure that goes onto a page of another colour.
 
 Without `bpy` — the usual case, Blender installed as an application — `pp.viz.render_headless(scene, out, **kw)`
 takes the same keyword arguments and renders with the Blender binary: the scene goes to a temporary `.glb` (with its

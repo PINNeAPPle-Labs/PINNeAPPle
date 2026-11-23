@@ -113,17 +113,20 @@ def render_particle_frames(frames: Sequence[dict], d: float, out_dir: str, *,
                            view: Sequence[float] = (-1.0, -1.25, 0.55), distance: float = 1.0, lens: float = 50,
                            size: tuple[int, int] = (960, 720), samples: int = 24, every: int = 1,
                            floor: bool = True, background: tuple[float, float, float] = (0.30, 0.31, 0.33),
-                           log: Callable[[str], None] | None = None) -> list[str]:
+                           device: str = "auto", log: Callable[[str], None] | None = None) -> list[str]:
     """Render every ``every``-th frame to ``out_dir/frame_XXXX.png``; the camera frames the equipment (or the
-    particles) once. Returns the PNG paths."""
+    particles) once. Returns the PNG paths. ``device``: the Cycles compute device, as in
+    :func:`~.blender.render` ("auto" takes the GPU when the machine has one)."""
     import bpy
     from mathutils import Vector
+
+    from .blender import _set_device
 
     os.makedirs(out_dir, exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bs = bpy.context.scene
     bs.render.engine = "CYCLES"
-    bs.cycles.device = "CPU"
+    _set_device(bpy, bs, device)
     bs.cycles.samples = samples
     bs.cycles.use_denoising = True
     bs.render.resolution_x, bs.render.resolution_y = size

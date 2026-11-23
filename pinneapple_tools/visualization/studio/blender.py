@@ -21,6 +21,7 @@ from typing import Optional, Sequence, Tuple, Union
 import numpy as np
 
 from .colormap import colorbar, jet
+from .pbr import SHADERS
 
 VIEWS = {   # direction from the centre to the camera; x is the object's length / the flow direction, z up
     "iso": (-1.0, -1.1, 0.75), "iso_back": (1.0, -1.1, 0.75), "iso_low": (-1.0, -1.1, -0.4),
@@ -61,9 +62,135 @@ def _set_input(node, names, value) -> bool:
     return False
 
 
+#: Cycles GPU backends, in the order ``device="auto"`` tries them: Metal (Apple), OptiX and CUDA (NVIDIA),
+#: HIP (AMD), oneAPI (Intel)
+DEVICE_BACKENDS = ("metal", "optix", "cuda", "hip", "oneapi")
+
+#: ``render(quality=...)``: the samples, the resolution and (where it changes the look) the light-path bounces of the
+#: three looks. ``production`` is the default and the same numbers the renderer had before the presets existed.
+QUALITY = {
+    "preview": {"samples": 24, "size": (960, 540), "bounces": 4},
+    "production": {"samples": 96, "size": (1600, 900), "bounces": None},
+    "cinematic": {"samples": 512, "size": (3840, 2160), "bounces": 16},
+}
+
+#: ``render(camera=...)``: a photography preset -- focal length, where the camera stands, and (for the ones that carry
+#: it) the aperture that separates the subject from the background. "product" is a long lens on the third line, the
+#: catalogue shot; "hero" a wide one from slightly below; "documentary" a 50 mm, everything in focus, centred;
+#: "head_on" a long lens down the object's main axis for a dimensioned figure; "wide" an establishing shot.
+CAMERAS = {
+    "product": {"lens": 85.0, "view": "iso", "distance": 1.05, "fstop": 8.0, "composition": "thirds_right"},
+    "hero": {"lens": 35.0, "view": "iso_low", "distance": 1.25, "fstop": 2.8, "composition": "thirds_low"},
+    "documentary": {"lens": 50.0, "view": "iso", "distance": 1.0, "fstop": None, "composition": "center"},
+    "head_on": {"lens": 100.0, "view": "front", "distance": 1.0, "fstop": 11.0, "composition": "center"},
+    "wide": {"lens": 24.0, "view": "iso", "distance": 1.35, "fstop": 5.6, "composition": "thirds_left"},
+}
+
+#: ``render(composition=...)``: the lens shift that moves the subject off the centre of the frame, in fractions of the
+#: frame's half size -- a sixth is the historical third line
+COMPOSITION = {"center": (0.0, 0.0), "thirds_left": (1 / 6, 0.0), "thirds_right": (-1 / 6, 0.0),
+               "thirds_high": (0.0, -1 / 6), "thirds_low": (0.0, 1 / 6)}
+
+#: ``render(look=...)``: the tone-map contrast, named the way a colourist would, resolved against whatever looks the
+#: view transform in use actually offers (AgX and Filmic name them differently, and not every build has them all)
+LOOKS = {"neutral": "Base Contrast", "low": "Low Contrast", "medium_low": "Medium Low Contrast",
+         "medium_high": "Medium High Contrast", "high": "High Contrast", "very_high": "Very High Contrast",
+         "punchy": "Punchy"}
+
+
+def _set_device(bpy, bs, device: str = "auto") -> str:
+    """Point Cycles at a compute device and return the backend in use (``"cpu"``, ``"metal"``, ``"cuda"``, ...).
+
+    ``device``: "auto" (the first GPU backend this machine exposes, CPU otherwise), "cpu", "gpu" (whatever backend
+    the Blender preferences already select) or a backend name. A backend without a usable device falls back to CPU
+    instead of failing the render, so the same script runs on a laptop, a workstation and a headless node."""
+    bs.cycles.device = "CPU"
+    want = str(device or "auto").strip().lower()
+    if want == "cpu":
+        return "cpu"
+    addon = bpy.context.preferences.addons.get("cycles")
+    cp = getattr(addon, "preferences", None) if addon is not None else None
+    if cp is None:                                              # bpy without the cycles add-on: CPU only
+        return "cpu"
+
+    def types_now():
+        try:
+            return {str(d.type).lower() for d in cp.devices}
+        except (AttributeError, TypeError):
+            return set()
+
+    if want == "gpu":                                           # keep the user's own backend choice
+        want = str(getattr(cp, "compute_device_type", "") or "").strip().lower()
+        want = "auto" if want in ("", "none") else want
+    for t in (DEVICE_BACKENDS if want == "auto" else (want,)):
+        try:
+            cp.compute_device_type = t.upper()
+            cp.refresh_devices()
+        except (AttributeError, TypeError, ValueError):
+            cp.compute_device_type = "NONE"
+            continue
+        if t not in types_now():
+            continue
+        for d in cp.devices:                                    # only this backend's devices are used
+            d.use = str(d.type).lower() == t
+        bs.cycles.device = "GPU"
+        return t
+    try:
+        cp.compute_device_type = "NONE"
+    except (AttributeError, TypeError, ValueError):
+        pass
+    return "cpu"
+
+
+HDRIS: dict = {}       #: name -> image file for ``render(background="hdri:<name>")``; see :func:`hdri_path`
+
+
+def hdri_path(name: str) -> str:
+    """The image behind ``background="hdri:<name>"``: ``name`` itself when it is a file, else ``name`` + ".hdr" /
+    ".exr" / ".png" inside ``$PINNEAPPLE_HDRI_DIR`` (default: ``data/hdri`` of the repository), else a name of
+    :data:`HDRIS`."""
+    cands = []
+    if name in HDRIS:
+        cands.append(HDRIS[name])
+    cands.append(name)
+    if not os.path.splitext(name)[1]:
+        root = os.environ.get("PINNEAPPLE_HDRI_DIR") or os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
+            "data", "hdri")
+        cands += [os.path.join(root, name + ext) for ext in (".hdr", ".exr", ".png")]
+    for c in cands:
+        if os.path.isfile(c):
+            return c
+    raise FileNotFoundError(f"no HDRI named {name!r}: put it in $PINNEAPPLE_HDRI_DIR (data/hdri by default) as "
+                            f"{name}.hdr, or pass a path. Looked in: {', '.join(cands)}")
+
+
+def _hdri_world(bpy, bs, path: str, strength: float = 1.0, rotation: float = 0.0) -> None:
+    """Environment-texture world: the image is both the light and what the metals reflect. ``rotation`` in degrees
+    around z (up), ``strength`` scales the light."""
+    import math
+
+    world = bpy.data.worlds.new("world")
+    bs.world = world
+    world.use_nodes = True
+    nt = world.node_tree
+    env = nt.nodes.new("ShaderNodeTexEnvironment")
+    env.image = bpy.data.images.load(path)
+    tc, mp = nt.nodes.new("ShaderNodeTexCoord"), nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0.0, 0.0, math.radians(float(rotation)))
+    nt.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], env.inputs["Vector"])
+    nt.links.new(env.outputs["Color"], nt.nodes["Background"].inputs["Color"])
+    nt.nodes["Background"].inputs["Strength"].default_value = float(strength)
+    names = [i.identifier for i in bs.view_settings.bl_rna.properties["view_transform"].enum_items]
+    bs.view_settings.view_transform = "AgX" if "AgX" in names else "Filmic"
+
+
 def _table_material(bpy, name: str, st: dict):
     """Principled BSDF material from an entry of ``MATERIALS`` (sRGB colour -> linear unless ``"linear"``, metallic,
-    roughness, clearcoat, transmission, alpha, emissive), as the glTF export of the same table describes it."""
+    roughness, clearcoat, transmission, alpha, emissive), as the glTF export of the same table describes it. An entry
+    with ``"shader"`` naming a recipe of :mod:`.pbr` gets its procedural bump, wear or streaks on top (the rest of
+    the pipeline still sees the numbers alone)."""
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     b = next(n for n in m.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled")
@@ -87,13 +214,39 @@ def _table_material(bpy, name: str, st: dict):
         _set_input(b, ("Emission Strength",), 4.0)
     if st.get("double_sided") is False and hasattr(m, "use_backface_culling"):
         m.use_backface_culling = True
+    nt = m.node_tree
+    for key, socket in (("base_color_map", "Base Color"), ("normal_map", None), ("roughness_map", None)):
+        path = st.get(key)
+        if not path:                                       # a baked map, where the table gives a file
+            continue
+        tex = nt.nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(os.path.expanduser(str(path)), check_existing=True)
+        if key != "base_color_map":
+            tex.image.colorspace_settings.name = "Non-Color"
+        if socket:
+            nt.links.new(tex.outputs["Color"], b.inputs[socket])
+        elif key == "normal_map":
+            nmap = nt.nodes.new("ShaderNodeNormalMap")
+            nt.links.new(tex.outputs["Color"], nmap.inputs["Color"])
+            nt.links.new(nmap.outputs["Normal"], b.inputs["Normal"])
+        else:                                              # roughness: the map modulates the factor
+            mul = nt.nodes.new("ShaderNodeMath")
+            mul.operation = "MULTIPLY"
+            mul.inputs[1].default_value = float(st.get("roughness", 0.5))
+            nt.links.new(tex.outputs["Color"], mul.inputs[0])
+            nt.links.new(mul.outputs["Value"], b.inputs["Roughness"])
+    build = SHADERS.get(str(st.get("shader", "")))          # the procedural detail the exports cannot carry
+    if build is not None:
+        build(bpy, m, st)
     return m
 
 
-def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, names: Sequence[str] | None = None):
+def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, names: Sequence[str] | None = None,
+                   force_uv: bool = False):
     """One mesh object per surface, built directly (no glTF import): vertices in Blender axes, triangles, the
     per-vertex fields as FLOAT point attributes ``_NAME`` (upper case, as the glTF export names them), a material per
-    material name from ``MATERIALS`` + ``materials``. Returns the objects in surface order."""
+    material name from ``MATERIALS`` + ``materials``. Returns the objects in surface order. ``force_uv``: give every
+    mesh texture coordinates, which a bake needs even where no map is declared yet."""
     from .scene import MATERIALS
     table = {**MATERIALS, **(materials or {})}
     B = blender_axes(axes)
@@ -114,6 +267,12 @@ def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, 
         except (AttributeError, TypeError, RuntimeError):
             pass
         me.update(calc_edges=True)
+        from .scene import loop_uvs
+        has_maps = any((table.get(s.material) or {}).get(k)
+                       for k in ("base_color_map", "normal_map", "roughness_map"))
+        if force_uv or has_maps:
+            uvl = me.uv_layers.new(name="UVMap")           # per face corner, in the order the loops were written
+            uvl.data.foreach_set("uv", loop_uvs(s).astype(np.float32).ravel())
         for fname, vals in getattr(s, "fields", {}).items():
             a = np.asarray(vals, np.float32).ravel()
             if len(a) != len(V):
@@ -129,15 +288,70 @@ def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, 
     return out
 
 
+def _compositor(bpy, bs):
+    """The scene's compositor node tree (Blender 5 calls it ``compositing_node_group``; 4.x hangs it on the scene)."""
+    if hasattr(bs, "compositing_node_group"):
+        ng = bpy.data.node_groups.new("post", "CompositorNodeTree")
+        bs.compositing_node_group = ng
+        return ng
+    bs.use_nodes = True
+    return bs.node_tree
+
+
+#: the passes ``render(passes=True)`` writes to ``<out>_passes/``: (socket of the Render Layers node, file name, type)
+PASSES = (("Depth", "depth", "FLOAT"), ("Normal", "normal", "VECTOR"), ("Mist", "mist", "FLOAT"),
+          ("Diffuse Color", "diffuse", "RGBA"), ("Glossy Color", "glossy", "RGBA"),
+          ("Emission", "emission", "RGBA"), ("Transmission Color", "transmission", "RGBA"))
+
+
+def _write_passes(bpy, bs, out: str) -> str:
+    """One EXR per pass into ``<out>_passes/``, through File Output nodes of the compositor: the beauty file stays the
+    beauty, and a grade gets the depth, the normals and the light components to work with. Returns the folder."""
+    folder = os.path.splitext(os.path.abspath(out))[0] + "_passes"
+    os.makedirs(folder, exist_ok=True)
+    ng = _compositor(bpy, bs)
+    rl = ng.nodes.new("CompositorNodeRLayers")
+    fo = ng.nodes.new("CompositorNodeOutputFile")
+    for attr, val in (("directory", folder), ("base_path", folder),
+                      ("file_name", os.path.splitext(os.path.basename(out))[0])):
+        if hasattr(fo, attr):
+            try:
+                setattr(fo, attr, val)
+            except (AttributeError, TypeError, ValueError):
+                pass
+    try:
+        fo.format.image_settings.file_format = "OPEN_EXR"
+        fo.format.image_settings.color_depth = "32"
+    except (AttributeError, TypeError, ValueError):
+        pass
+    items = getattr(fo, "file_output_items", None)          # 5.x
+    for socket, name, kind in PASSES:
+        if socket not in rl.outputs:
+            continue
+        try:
+            if items is not None:
+                items.new(kind, name)
+            sock_out = fo.inputs[name]
+        except (AttributeError, KeyError, TypeError, RuntimeError):
+            continue
+        ng.links.new(rl.outputs[socket], sock_out)
+    return folder
+
+
 def render(scene, out: str, *, field: Optional[str] = None, field_range: Optional[Tuple[float, float]] = None,
            lines: Union[bool, str] = False, line_range: Optional[Tuple[float, float]] = None,
            slice: Optional[str] = None, slice_range: Optional[Tuple[float, float]] = None,
-           view: Union[str, Sequence[float]] = "iso", distance: float = 1.0, lens: float = 50,
-           background: str = "studio", samples: int = 96, size: Tuple[int, int] = (1600, 900),
+           view: Union[str, Sequence[float], None] = None, distance: Optional[float] = None,
+           lens: Optional[float] = None,
+           background: str = "studio", samples: Optional[int] = None, size: Optional[Tuple[int, int]] = None,
            title: Optional[str] = None, colorbar_on: bool = True, lo_txt: str = "", hi_txt: str = "",
            sun_elevation: float = 40.0, ghost: Optional[bool] = None,
            surface_fields: dict | None = None, cmap: str = "jet", floor: bool = False,
-           exposure: Optional[float] = None) -> str:
+           exposure: Optional[float] = None, quality: str = "production", device: str = "auto",
+           field_alpha: Optional[float] = None, hdri_strength: float = 1.0,
+           hdri_rotation: float = 0.0, camera: Optional[str] = None, composition: Optional[str] = None,
+           fstop: Optional[float] = None, look: Optional[str] = None, post: Optional[str] = None,
+           passes: bool = False, film_transparent: bool = False) -> str:
     """Render ``scene`` (a Scene or a .glb path) to ``out`` (.png or .jpg). Returns ``out``.
 
     field: colour the surfaces by this per-vertex field (surfaces without it are grey). lines: True (all) or the
@@ -149,7 +363,26 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     on ``cmap`` (one of :data:`.compose.CMAPS`: "jet", or a diverging "rdbu" / "coolwarm" / "bwr") and adds a
     second colour bar (bottom left) for it. cmap: the colour map of ``field`` (one of :data:`.compose.CMAPS`).
     floor: a glossy floor under the geometry (its reflection; with "dark"). exposure: the AgX exposure in stops
-    (default: 0 on the light stage, -0.5 on "dark"); lower it when a bright colour map blows out under the key light."""
+    (default: 0 on the light stage, -0.5 on "dark"); lower it when a bright colour map blows out under the key light.
+    quality: "preview" (24 samples, 960x540, 4 bounces), "production" (96, 1600x900: the default) or "cinematic"
+    (512, 3840x2160, 16 bounces), used for ``samples`` and ``size`` unless they are given. device: the Cycles compute
+    device -- "auto" (the first GPU backend this machine exposes), "cpu", "gpu" or a backend name ("metal", "cuda",
+    "optix", "hip", "oneapi"); an unavailable backend falls back to CPU.
+    field_alpha: 0..1 draws the field as a translucent layer over the surfaces' own materials instead of replacing
+    them (a steel pipe keeps its steel and its highlights under the temperature map); None = the map replaces them.
+    background may also be ``"hdri:<name-or-path>"``: an environment image as the light and as what the metals
+    reflect (``hdri_strength`` scales it, ``hdri_rotation`` turns it in degrees around z).
+    camera: a photography preset of :data:`CAMERAS` -- "product" (85 mm on the third line), "hero" (35 mm from
+    slightly below, shallow), "documentary" (50 mm, everything in focus, centred), "head_on" (100 mm down the main
+    axis) or "wide" (24 mm establishing shot); it fills ``lens``, ``view``, ``distance``, ``fstop`` and ``composition``
+    wherever they are not given. composition: "thirds_left", "thirds_right", "thirds_high" or "thirds_low" moves the
+    subject off centre with a lens shift, which keeps the framing the auto-fit computed. fstop: open the aperture
+    (depth of field focused on the subject; with "product" and a close camera this is what separates the part from
+    the background). look: the contrast after the render -- "low", "medium_high", "high", "very_high" or "punchy" (an
+    S-curve and, for punchy, saturation). post: "bloom", "vignette" or "bloom+vignette". passes: write the Cycles
+    passes (depth, normal, diffuse, glossy, emission, mist, denoising data) -- with an ``.exr`` output that means a
+    multilayer file, the input to a grade. film_transparent: no world behind the geometry, an alpha to composite on.
+    """
     import bpy
     from mathutils import Vector
 
@@ -158,11 +391,34 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     sc = Scene.from_file(scene) if isinstance(scene, str) else scene
     axes = sc.axes
     studio = background == "studio"
+    q = QUALITY.get(str(quality).strip().lower())
+    if q is None:
+        raise ValueError(f"quality={quality!r}: preview, production or cinematic")
+    samples = int(q["samples"] if samples is None else samples)
+    size = tuple(int(v) for v in (q["size"] if size is None else size))
+    cam_p = None
+    if camera is not None:
+        cam_p = CAMERAS.get(str(camera).strip().lower())
+        if cam_p is None:
+            raise ValueError(f"camera={camera!r}: {', '.join(CAMERAS)}")
+    cam_p = cam_p or {}
+    view = view if view is not None else cam_p.get("view", "iso")
+    distance = float(distance if distance is not None else cam_p.get("distance", 1.0))
+    lens = float(lens if lens is not None else cam_p.get("lens", 50.0))
+    composition = str(composition if composition is not None else cam_p.get("composition", "center")).lower()
+    fstop = fstop if fstop is not None else cam_p.get("fstop")
+    if composition not in COMPOSITION:
+        raise ValueError(f"composition={composition!r}: {', '.join(COMPOSITION)}")
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bs = bpy.context.scene
     bs.render.engine = "CYCLES"
-    bs.cycles.device = "CPU"
+    _set_device(bpy, bs, device)
+    if q["bounces"]:
+        bs.cycles.max_bounces = int(q["bounces"])
+        bs.cycles.glossy_bounces = int(q["bounces"])
+        bs.cycles.transmission_bounces = int(q["bounces"])
+        bs.cycles.transparent_max_bounces = int(q["bounces"])
     bs.cycles.samples = samples
     bs.cycles.use_denoising = True
     bs.render.resolution_x, bs.render.resolution_y = size
@@ -190,9 +446,17 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
         attr = "_" + field.upper().lstrip("_")
         lo, hi = field_range or (sc.field_range(field) if sc else (0.0, 1.0))
         fm, grey = ramp_material(field, attr, lo, hi, cmap), plain("grey", (0.35, 0.37, 0.4))
-        for o in objs:
+        from .scene import MATERIALS
+        table = {**MATERIALS, **(getattr(sc, "materials", None) or {})}
+        alpha = None if field_alpha is None else float(min(1.0, max(0.0, field_alpha)))
+        for o, s in zip(objs, sc.surfaces, strict=False):   # a layer over the surface's own material, or the map
+            has = attr in o.data.attributes
             o.data.materials.clear()
-            o.data.materials.append(fm if attr in o.data.attributes else grey)
+            if has and alpha is not None and alpha < 1.0:
+                o.data.materials.append(_overlay_material(
+                    bpy, f"{s.name}_{field}", table.get(s.material, MATERIALS["grey"]), attr, lo, hi, cmap, alpha))
+            else:
+                o.data.materials.append(fm if has else grey)
         bar = (title or (sc.labels.get(field, field) if sc else field), lo, hi)
 
     from .compose import stops
@@ -302,7 +566,9 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
         if bar is None:
             bar = (title or s.label or slice, lo, hi)
 
-    if background.startswith("lunar"):                  # black sky, one hard Sun (lighting.PRESETS)
+    if background.startswith("hdri:"):                  # an environment image: the light and the reflections
+        _hdri_world(bpy, bs, hdri_path(background[5:].strip()), hdri_strength, hdri_rotation)
+    elif background.startswith("lunar"):                 # black sky, one hard Sun (lighting.PRESETS)
         from .lighting import blender_world
         blender_world(background, bpy)
     elif background == "dark":
@@ -349,19 +615,57 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     fit = float(np.max(k @ d + lat)) * 1.15 * distance
     cam.location = centre + Vector(tuple(d * fit))
     cam_data.clip_start, cam_data.clip_end = fit * 1e-3, fit * 1e3     # small models: the default 0.1 m cuts them
-    look = centre - cam.location
-    cam.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()
+    aim = centre - cam.location
+    cam.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
+    sx, sy = COMPOSITION[composition]
+    if sx or sy:                                         # a lens shift keeps the frame the auto-fit computed
+        cam_data.shift_x, cam_data.shift_y = sx, sy
+        cam.location = centre + Vector(tuple(d * fit)) * (1.0 + 1.6 * max(abs(sx), abs(sy)))
+    if fstop:                                            # depth of field on the subject, not on its bbox
+        cam_data.dof.use_dof = True
+        cam_data.dof.focus_distance = float((cam.location - centre).length)
+        cam_data.dof.aperture_fstop = float(fstop)
     bs.camera = cam
 
-    if out.lower().endswith((".jpg", ".jpeg")):
+    fmt = out.lower().rsplit(".", 1)[-1]
+    if passes:                                           # the layers a grade needs, not just the beauty
+        for vl in bs.view_layers:                        # enabled before the Render Layers node is built: the
+            for p in ("use_pass_z", "use_pass_normal", "use_pass_mist", "use_pass_diffuse_color",
+                      "use_pass_glossy_color", "use_pass_transmission_color", "use_pass_emit",
+                      "use_pass_object_index"):          # node only carries the sockets that were turned on
+                if hasattr(vl, p):
+                    setattr(vl, p, True)
+            if getattr(vl, "cycles", None) is not None and hasattr(vl.cycles, "denoising_store_passes"):
+                vl.cycles.denoising_store_passes = True
+    if fmt in ("jpg", "jpeg"):
         bs.render.image_settings.file_format = "JPEG"
         bs.render.image_settings.quality = 92
+    elif fmt == "exr":
+        bs.render.image_settings.file_format = "OPEN_EXR"
+        for prop, val in (("color_depth", "32"), ("exr_codec", "ZIP"),
+                          ("color_mode", "RGBA" if film_transparent else "RGB")):
+            try:
+                setattr(bs.render.image_settings, prop, val)
+            except (AttributeError, TypeError, ValueError):
+                pass
+        if passes:
+            _write_passes(bpy, bs, out)
+    if film_transparent:
+        bs.render.film_transparent = True
+        if fmt != "exr":
+            bs.render.image_settings.color_mode = "RGBA"
     bs.render.filepath = os.path.abspath(out)
     bpy.ops.render.render(write_still=True)
-    if bar and colorbar_on:
+    from .post import apply as _finish
+    try:                                                 # Blender's own Python has no Pillow: the caller finishes
+        _finish(out, look_name=look, post=post)
+    except ImportError:
+        pass
+    raster = fmt in ("png", "jpg", "jpeg")              # a colour bar needs a raster and Pillow
+    if bar and colorbar_on and raster:
         colorbar(out, bar[0], bar[1], bar[2], None, lo_txt, hi_txt, stops=stops(cmap) if field else None,
                  dark=background == "dark")
-    if bar2 and colorbar_on:
+    if bar2 and colorbar_on and raster:
         colorbar(out, bar2[0], bar2[1], bar2[2], None, corner="bottom-left", stops=bar2[3], dark=background == "dark")
     return out
 
@@ -382,11 +686,14 @@ for name in ("pinneapple_tools", "pinneapple_tools.visualization", "pinneapple_t
     pkg = types.ModuleType(name)
     pkg.__path__ = [os.path.join(root, *name.split("."))]
     sys.modules[name] = pkg
-from pinneapple_tools.visualization.studio.blender import render
 from pinneapple_tools.visualization.studio.scene import Scene
+mod = __import__(cfg.get("module", "pinneapple_tools.visualization.studio.blender"), fromlist=["*"])
+fn = getattr(mod, cfg.get("entry", "render"))
 sc = Scene.from_file(cfg["scene"])
 sc.materials, sc.labels = cfg["materials"], cfg["labels"]     # the glb keeps geometry and fields, not these
-render(sc, cfg["out"], **cfg["kwargs"])
+res = fn(sc, cfg["out"], **cfg["kwargs"])
+if cfg.get("result"):
+    json.dump(res, open(cfg["result"], "w"))
 '''
 
 
@@ -430,6 +737,7 @@ def render_headless(scene, out: str, *, exe: Optional[str] = None, timeout: floa
     glb = os.path.join(work, "scene.glb")
     sc = scene if isinstance(scene, Scene) else Scene.from_file(scene)
     sc.save(glb)
+    finish = {k: kwargs.pop(k) for k in ("look", "post") if k in kwargs}   # Pillow lives here, not in Blender
     cfg_path = os.path.join(work, "render.json")
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     out = os.path.abspath(out)
@@ -445,17 +753,16 @@ def render_headless(scene, out: str, *, exe: Optional[str] = None, timeout: floa
     if proc.returncode != 0 or not os.path.exists(out):
         tail = "\n".join((proc.stderr or proc.stdout or "").strip().splitlines()[-8:])
         raise RuntimeError(f"Blender failed on {os.path.basename(out)} (exit {proc.returncode}):\n{tail}")
+    if finish:
+        from .post import apply as _finish
+        _finish(out, look_name=finish.get("look"), post=finish.get("post"))
     return out
 
 
-def _ramp_material(bpy, name: str, attr: str, lo: float, hi: float, cmap: str = "jet"):
-    """Principled material coloured on ``cmap`` (jet, coolwarm, bwr) by the mesh attribute ``attr`` mapped from
-    lo..hi."""
+def _ramp_color_nodes(bpy, nt, attr: str, lo: float, hi: float, cmap: str = "jet"):
+    """Attribute -> map range -> colour ramp (on ``cmap``, lo..hi) inside the node tree ``nt``; returns the output
+    socket of the colour."""
     from .compose import stops
-    mat = bpy.data.materials.new(name)
-    mat.use_nodes = True
-    nt = mat.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
     a = nt.nodes.new("ShaderNodeAttribute")
     a.attribute_name = attr
     mr = nt.nodes.new("ShaderNodeMapRange")
@@ -471,11 +778,45 @@ def _ramp_material(bpy, name: str, attr: str, lo: float, hi: float, cmap: str = 
         e.color = rgb(c)
     nt.links.new(a.outputs["Fac"], mr.inputs["Value"])
     nt.links.new(mr.outputs["Result"], rp.inputs["Fac"])
-    nt.links.new(rp.outputs["Color"], bsdf.inputs["Base Color"])
-    nt.links.new(rp.outputs["Color"], bsdf.inputs["Emission Color"])
+    return rp.outputs["Color"]
+
+
+def _ramp_material(bpy, name: str, attr: str, lo: float, hi: float, cmap: str = "jet"):
+    """Principled material coloured on ``cmap`` (jet, coolwarm, bwr) by the mesh attribute ``attr`` mapped from
+    lo..hi."""
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nt = mat.node_tree
+    bsdf = nt.nodes["Principled BSDF"]
+    col = _ramp_color_nodes(bpy, nt, attr, lo, hi, cmap)
+    nt.links.new(col, bsdf.inputs["Base Color"])
+    nt.links.new(col, bsdf.inputs["Emission Color"])
     bsdf.inputs["Emission Strength"].default_value = 0.35               # readable in shadow
     bsdf.inputs["Roughness"].default_value = 0.45
     return mat
+
+
+def _overlay_material(bpy, name: str, st: dict, attr: str, lo: float, hi: float, cmap: str = "jet",
+                      alpha: float = 0.6):
+    """The material of ``st`` (an entry of ``MATERIALS``) with the field's colour map mixed over it at ``alpha``: the
+    steel stays steel and its highlights and reflections remain, the temperature reads on top. Contrast with
+    :func:`_ramp_material`, which replaces the surface with the map (the scientific reading, no material)."""
+    m = _table_material(bpy, name, st)
+    nt = m.node_tree
+    out = next(n for n in nt.nodes if n.bl_idname == "ShaderNodeOutputMaterial")
+    base = next(n for n in nt.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled")
+    col = _ramp_color_nodes(bpy, nt, attr, lo, hi, cmap)
+    lay = nt.nodes.new("ShaderNodeBsdfPrincipled")                     # the layer: the map, lit like the surface
+    nt.links.new(col, lay.inputs["Base Color"])
+    nt.links.new(col, lay.inputs["Emission Color"])
+    lay.inputs["Emission Strength"].default_value = 0.25
+    lay.inputs["Roughness"].default_value = 0.45
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    mix.inputs["Fac"].default_value = float(alpha)
+    nt.links.new(base.outputs["BSDF"], mix.inputs[1])
+    nt.links.new(lay.outputs["BSDF"], mix.inputs[2])
+    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    return m
 
 
 def _plain(bpy, name, rgb, alpha=1.0):
@@ -947,7 +1288,7 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
                      lines: bool | Sequence[bool] = True,
                      colorbars: bool | dict | Sequence[str] = True, colorbar_on: bool = True,
                      motion_blur: bool | float = False, dof: float | None = None, haze: float | None = None,
-                     exposure: float | None = None, crf: int = 27, smooth: bool = True,
+                     exposure: float | None = None, crf: int = 27, smooth: bool = True, device: str = "auto",
                      name: str = "animation", log=None, _render_mask: Sequence[bool] | None = None) -> dict:
     """Render ``scene.animation`` (an :class:`~.animation.Animation`) frame by frame with Cycles (CPU, denoised),
     burn the HUD into each PNG and encode an MP4 (and a GIF). Returns ``{"frames": [png, ...], "mp4": path | None,
@@ -1018,7 +1359,7 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
     bpy.context.preferences.edit.keyframe_new_interpolation_type = "LINEAR"
     bs = bpy.context.scene
     bs.render.engine = "CYCLES"
-    bs.cycles.device = "CPU"
+    _set_device(bpy, bs, device)
     bs.cycles.samples = max(1, int(samples))
     bs.cycles.use_denoising = True
     try:

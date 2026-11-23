@@ -387,8 +387,8 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
                                "Install the extra (pip install 'pinneapple[timeseries]') or hand the study a "
                                "different set of families"], "refused", rows=rows, baseline=baseline,
                         wall_s=time.perf_counter() - started)
-    tell({"event": "surrogate", "done": len(rows), "planned": spec.budget.max_evaluations,
-          "chosen": dict(board.chosen)})
+    tell({"event": "surrogate", "done": len(rows), "planned": spec.budget.max_evaluations, "design": None,
+          "ok": None, "outputs": {}, "chosen": dict(board.chosen)})
     surrogate = {"families": list(spec.model.families), "n_train": board.n_train, "folds": spec.verifier.folds,
                  "chosen": dict(board.chosen), "outputs": {}, "table": {k: v for k, v in board.table.items()}}
     for out in targets:
@@ -497,8 +497,8 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
             row = evaluate(d, "verification", predicted=mean, predicted_std=std)
             if row["ok"]:
                 verified_designs.append(row)
-    tell({"event": "optimize" if spec.kind == "optimize" else "surrogate", "done": len(rows),
-          "planned": spec.budget.max_evaluations})
+    tell({"event": "optimize" if spec.kind == "optimize" else "measured", "done": len(rows),
+          "planned": spec.budget.max_evaluations, "design": None, "ok": None, "outputs": {}})
 
     # ------------------------------------------------------------------ measured answer
     _, Xm, Ym = measured_arrays()

@@ -731,6 +731,7 @@ class DesignStudy:
                 "evaluator": {"tool": self.evaluator.tool, "fidelity": self.evaluator.fidelity,
                               "outputs": [q.to_dict() for q in self.evaluator.outputs]},
                 "objectives": [o.to_dict() | {"unit": self.evaluator.unit_of(o.output)} for o in self.objectives],
-                "constraints": [c.to_dict() | {"text": c.describe()} for c in self.constraints],
+                "constraints": [c.to_dict() | {"text": c.describe(), "relative": c.relative}
+                                for c in self.constraints],
                 "budget": {**self.budget.to_dict(), "plan": p},
                 "verifier": self.verifier.to_dict(), "model": self.model.to_dict()}

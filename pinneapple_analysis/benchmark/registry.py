@@ -24,6 +24,8 @@ from typing import Any
 
 import numpy as np
 
+from pinneapple_core.errors import NotSupported, UnknownName
+
 __all__ = ["Check", "Column", "Problem", "Method", "register_problem", "register_method", "get_problem",
            "get_method", "problems", "methods"]
 
@@ -185,13 +187,17 @@ class Method:
     def space(self, problem: Problem) -> dict[str, list]:
         sp = getattr(problem, f"space_{self.id}", None)
         if sp is None:
-            raise NotImplementedError(f"{self.id} has no hyper-parameter space for {problem.id}")
+            raise NotSupported(f"{self.id} declares no hyper-parameter grid for {problem.id}",
+                               fix=f"train it without a search (no search over space), or add space_{self.id}() "
+                                   f"to {type(problem).__name__}")
         return sp() if callable(sp) else sp
 
     def train(self, problem: Problem, prepared: Path, cfg: dict, seed: int, budget, **job) -> dict:
         hook = getattr(problem, f"train_{self.id}", None)
         if hook is None:
-            raise NotImplementedError(f"{self.id} cannot train on {problem.id}")
+            raise NotSupported(f"{self.id} has no implementation on {problem.id}",
+                               fix=f"pick a pair the problem implements (see problem.pairs()), or add "
+                                   f"train_{self.id}() to {type(problem).__name__}")
         return hook(prepared, cfg, seed, budget, **job)
 
     def architecture_checks(self, problem: Problem, prepared: Path, cfg: dict) -> list[Check]:
@@ -227,7 +233,8 @@ def get_problem(p) -> Problem:
         return p
     _builtins()
     if p not in _PROBLEMS:
-        raise KeyError(f"unknown problem {p!r}; registered: {sorted(_PROBLEMS)}")
+        raise UnknownName(f"unknown benchmark problem {p!r}",
+                          fix=f"call pp.benchmark.problems() and use one of {sorted(_PROBLEMS)}")
     return _PROBLEMS[p]()
 
 
@@ -236,7 +243,8 @@ def get_method(m) -> Method:
         return m
     _builtins()
     if m not in _METHODS:
-        raise KeyError(f"unknown method {m!r}; registered: {sorted(_METHODS)}")
+        raise UnknownName(f"unknown benchmark method {m!r}",
+                          fix=f"call pp.benchmark.methods() and use one of {sorted(_METHODS)}")
     return _METHODS[m]()
 
 

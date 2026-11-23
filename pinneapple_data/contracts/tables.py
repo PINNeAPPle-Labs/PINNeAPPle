@@ -14,6 +14,8 @@ from pathlib import Path
 
 import numpy as np
 
+from pinneapple_core.errors import MissingExtra
+
 from .models import Contract, from_dict
 
 SIDECAR_SUFFIX = ".contract.json"
@@ -137,7 +139,8 @@ def _pyarrow():
         import pyarrow as pa
         import pyarrow.parquet as pq
     except ImportError as exc:  # pragma: no cover - depends on the environment
-        raise ImportError("Parquet needs pyarrow: pip install pyarrow") from exc
+        raise MissingExtra("Parquet needs pyarrow, which is not installed",
+                           fix="pip install pyarrow  (or write the table as .csv/.h5, which need no extra)") from exc
     return pa, pq
 
 
@@ -145,5 +148,6 @@ def _h5py():
     try:
         import h5py
     except ImportError as exc:  # pragma: no cover - depends on the environment
-        raise ImportError("HDF5 needs h5py: pip install h5py") from exc
+        raise MissingExtra("HDF5 needs h5py, which is not installed",
+                           fix="pip install h5py  (or write the table as .parquet/.csv)") from exc
     return h5py

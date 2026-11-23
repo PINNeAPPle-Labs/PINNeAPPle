@@ -1,0 +1,80 @@
+name: CalculiX image (multi-platform, real ccx case)
+
+# Builds pinneapple_simulation/external_solvers/calculix/Dockerfile for both architectures the project runs on and runs
+# a real CalculiX case inside each image (a C3D20R cantilever whose tip deflection Timoshenko's theory fixes to 1 %).
+# This is roadmap item F3: an image nobody runs is a file, not a solver.
+#
+# While this repository's Actions runners are unavailable, the same gate runs locally and is the one to quote in a
+# pull request:
+#
+#     python scripts/calculix_docker_smoke.py --platforms linux/amd64 linux/arm64
+#
+# That script calls the same function this workflow calls (runner.image_smoke), so the two cannot drift.
+on:
+  push:
+    paths:
+      - "pinneapple_simulation/external_solvers/calculix/**"
+      - "scripts/calculix_docker_smoke.py"
+      - ".github/workflows/calculix-image.yml"
+  pull_request:
+    paths:
+      - "pinneapple_simulation/external_solvers/calculix/**"
+      - "scripts/calculix_docker_smoke.py"
+      - ".github/workflows/calculix-image.yml"
+  schedule:
+    - cron: "23 5 * * 0"          # weekly: a Debian point release or a moved mirror shows up here, not in a release
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Docker platforms to build and test (space separated)"
+        required: false
+        default: "linux/amd64 linux/arm64"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calculix-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    # One job per architecture, so a failure names the architecture that broke instead of "the image".
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      # The runner is x86_64: linux/amd64 builds natively, linux/arm64 needs the emulator registered with the kernel.
+      - name: Register the emulator
+        uses: docker/setup-qemu-action@v3
+      - name: Buildx builder (the default driver is enough for one platform at a time)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install the package (the smoke imports the bridge, no torch needed)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "." numpy scipy
+
+      - name: Build the image for ${{ matrix.platform }} and run a ccx case inside it
+        run: python scripts/calculix_docker_smoke.py --platforms "${{ matrix.platform }}" --json | tee smoke.json
+
+      - name: The image says which solver and which architecture it is
+        run: |
+          docker run --rm --platform "${{ matrix.platform }}" \
+            "$(python -c 'import json;print(json.load(open("smoke.json"))[0]["image"])')" -v
+          docker image inspect --format '{{json .Config.Labels}}' \
+            "$(python -c 'import json;print(json.load(open("smoke.json"))[0]["image"])')"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: calculix-image-${{ strategy.job-index }}
+          path: smoke.json

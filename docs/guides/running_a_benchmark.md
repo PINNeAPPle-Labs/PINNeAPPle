@@ -189,5 +189,43 @@ class MyProblem(pp.benchmark.FieldOperatorProblem):
 ```
 
 The built-in problems: `burgers`, `darcy`, `navier_stokes` (the operator-learning standards), `airfoil` (the aero app's
-RANS airfoil; needs OpenFOAM), `inverse_heat` (h from sensors). Methods: `pinn`, `fno`, `deeponet`, `mgn`, `mlp`,
-`mlp_fields`, `pinn_rans`. See [Choosing a method](choosing_a_method.md) for what the published benchmark found.
+RANS airfoil; needs OpenFOAM), `inverse_heat` (h from sensors), `calculix_beam` and `calculix_bracket` (structural FEM
+with CalculiX as the reference solver; needs `ccx`, see below). Methods: `pinn`, `fno`, `deeponet`, `mgn`, `mlp`,
+`mlp_fields`, `pinn_rans`, `mlp_calculix`, `pod_mlp_calculix`. See [Choosing a method](choosing_a_method.md) for what
+the published benchmark found.
+
+## Structural: CalculiX as the reference solver
+
+`calculix_beam` (a cantilever box beam, load spread over the tip face) and `calculix_bracket` (an L bracket, base
+clamped, side load on the upright) sweep the geometry and the load in a Latin hypercube and solve every sample with
+`ccx` -- the same protocol as the airfoil's OpenFOAM campaign, on the implicit side of the house. Each sample keeps the
+nodal displacement, the von Mises field and two integrals (the free face's displacement, the bending stress of the mid
+section); the meshes are structured C3D8I hexahedra whose topology does not change with the design, so a surrogate maps
+the four design numbers to the fields directly.
+
+```python
+res = pp.benchmark.run(problems=["calculix_beam", "calculix_bracket"],
+                       methods=["mlp_calculix", "pod_mlp_calculix"],
+                       budget=pp.ComputeBudget(wall_s=120), seeds=3, n_workers=4, out_dir="results/ccx")
+```
+
+The report's cost table carries what a structural result has to carry: the solver's version (the native binary, or
+`2.20` from the bundled image) and the wall time of one `ccx` run, which is the "time per new instance" the surrogates
+are measured against. The tables also carry **beam theory** as a no-data row (Timoshenko's deflection, M c / I): a
+surrogate has to beat it on the same columns to be worth its data.
+
+Needs `ccx`: a native binary on `PATH`, or Docker, in which case
+`pinneapple_simulation.external_solvers.calculix.runner` builds the bundled Debian image. On macOS, raise `JOB_MAX_PROCS`
+(the RLIMIT_NPROC) if `ccx` fails to create its processes.
+
+The image itself has a gate, because an image nobody runs is a file:
+
+```bash
+python scripts/calculix_docker_smoke.py                                      # the host's platform
+python scripts/calculix_docker_smoke.py --platforms linux/amd64 linux/arm64  # both, the x86 one under emulation
+```
+
+It builds the image for that platform and runs a real cantilever inside it, comparing the tip deflection with
+Timoshenko's (measured: `ccx` 2.20, -1.5128 mm against 1.5268 mm, -0.92 %). This is the same function
+`.github/workflows/calculix-image.yml` calls on a runner; while the repository's runners are unavailable it is the gate
+to quote, and `tests/test_calculix_image.py` runs it too (skipping without Docker).

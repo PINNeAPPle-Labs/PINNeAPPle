@@ -164,12 +164,13 @@ def _step(part: str, d: dict, m):
     return Static(fix=[(base, (1, 2, 3))], loads=[(top, (-d["P"], 0.0, 0.0))])
 
 
-def _mid_plane(v: np.ndarray, length: float, at: float = 0.5) -> np.ndarray:
+def _mid_plane(v: np.ndarray, length: float, at: float = 0.5, tol: float = 1e-6) -> np.ndarray:
     """The single node plane closest to ``at * length`` along ``v``: the mid section where M c / I is exact (a band
-    would put the peak of the section's moment inside the section's own definition)."""
+    would put the peak of the section's moment inside the section's own definition). ``tol`` is relative to the length:
+    a stored field's coordinates come back in single precision."""
     u = np.unique(np.round(v, 9))
     mid = u[int(np.argmin(np.abs(u - at * length)))]
-    return np.abs(v - mid) <= 1e-9 * max(1.0, length)
+    return np.abs(v - mid) <= tol * max(1e-9, abs(length))
 
 
 #: The normal stress that carries the bending, in the order of ``Result.stress`` (xx, yy, zz, xy, yz, zx): the beam
@@ -183,10 +184,10 @@ def _section(part: str, d: dict, X: np.ndarray):
     is a node plane of the protocol mesh, so M c / I and the solved field are read at the same place."""
     if part == "beam":
         n = float(d["L"])
-        return X[:, 0] > n - 1e-9, _mid_plane(X[:, 0], n), n, 0.5 * n
+        return X[:, 0] >= n * (1 - 1e-6), _mid_plane(X[:, 0], n), n, 0.5 * n
     n = float(d["b"])
     at = 0.5 * (1.0 + d["t"] / n)                    # the middle of the upright, not of the whole bracket
-    return X[:, 2] > n - 1e-9, _mid_plane(X[:, 2], n, at=at), n, n * (1.0 - at)
+    return X[:, 2] >= n * (1 - 1e-6), _mid_plane(X[:, 2], n, at=at), n, n * (1.0 - at)
 
 
 def _selections(part: str, d: dict, m):
@@ -236,7 +237,7 @@ def _one(args) -> tuple[str, str, float]:
                "seconds": time.time() - t0, "status": "ok", "nodes": int(len(m.nodes)),
                "elements": int(len(m.elements)), "dofs": int(3 * len(m.nodes)), "solver": r.info.get("solver"),
                "field_scale": {"length": length, "stress": E_STEEL}, "outside": _outside(part, job["features"])}
-        np.savez_compressed(os.path.join(out, "runs", job["id"] + ".npz"), x=m.nodes.astype(np.float32),
+        np.savez_compressed(os.path.join(out, "runs", job["id"] + ".npz"), x=m.nodes.astype(np.float64),
                             u=(r.u / length).astype(np.float32), vm=(vm / E_STEEL).astype(np.float32))
     except Exception as e:                                       # a failed sample is recorded, never dropped silently
         rec = {**job, "design": d, "status": f"failed: {e!r}", "seconds": time.time() - t0}
@@ -278,9 +279,11 @@ def _fields(rec: dict) -> np.ndarray:
 
 
 def _channel_stats(Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Mean and standard deviation of each of the four channels (ux, uy, uz, von Mises), laid out channel-major as
+    ``_fields`` builds them, so both can be subtracted from a whole field vector."""
     n, d = Y.shape
-    ch = Y.reshape(n, -1, d // 4)
-    return ch.mean(0).ravel(), ch.reshape(n, -1, 4).std(0).repeat(d // 4)
+    ch = Y.reshape(n, 4, d // 4)
+    return ch.mean(axis=(0, 2)).repeat(d // 4), ch.std(axis=(0, 2)).repeat(d // 4)
 
 
 # ====================================================================== trainers
@@ -696,21 +699,19 @@ class _Structural(Problem):
             return json.loads(cache.read_text())
         S = _records(out)
         t0 = time.perf_counter()
-        ext = {}
+        ext, n = {}, 0
         for split in SETS:
-            vals = {"w": [], "sigma": [], "ids": []}
-            for r in S.get(split, []):
-                ref = _analytic(self.part, r["design"])
-                vals["sigma"].append(abs(ref["sigma"] - r["sigma"]) / r["sigma"])
-                if ref["w"]:
-                    vals["w"].append(abs(ref["w"] - r["w"]) / r["w"])
-                vals["ids"].append(r["id"])
-            if vals["ids"]:
-                if not vals["w"]:
-                    del vals["w"]
-                ext[split] = vals
-        elapsed = (time.perf_counter() - t0) / max(1, sum(len(v["ids"]) for v in ext.values()))
-        row = {"title": ("Beam theory (Timoshenko, M c / I; no data)"), "seeds": [ext],
+            recs = S.get(split, [])
+            if not recs:
+                continue
+            ew = [abs(_analytic(self.part, r["design"])["w"] - r["w"]) / r["w"] for r in recs
+                  if _analytic(self.part, r["design"])["w"]]
+            es = [abs(_analytic(self.part, r["design"])["sigma"] - r["sigma"]) / r["sigma"] for r in recs]
+            ids = [r["id"] for r in recs]
+            ext[split] = {k: {"values": v, "ids": ids} for k, v in (("w", ew), ("sigma", es)) if v}
+            n += len(ids)
+        elapsed = (time.perf_counter() - t0) / max(1, n)
+        row = {"title": "Beam theory (Timoshenko, M c / I; no data)", "seeds": [ext],
                "time_per_instance_s": float(elapsed)}
         cache.write_text(json.dumps(row))
         return row

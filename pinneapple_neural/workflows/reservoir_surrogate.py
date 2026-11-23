@@ -124,6 +124,21 @@ def _string_list(dataset) -> list[str]:
     return [item.decode("utf-8") if isinstance(item, bytes) else str(item) for item in dataset[:]]
 
 
+def _parameter_names(handle) -> list[str]:
+    """The column order of ``scenarios/params``, under either of its two spellings.
+
+    It is the contract between whoever wrote the dataset and whoever trains on it, and it
+    travels as an HDF5 attribute: ``params_columns`` in the reference campaign's files,
+    ``param_names`` in the ones this project writes. Both are read; guessing the order
+    would make a model learn the wrong control with no error anywhere.
+    """
+    for owner in (handle["scenarios/params"], handle["scenarios"]):
+        for key in ("params_columns", "param_names"):
+            if key in owner.attrs:
+                return _string_list(owner.attrs[key])
+    return []
+
+
 def read_reservoir_dataset(path: str | Path, n_times: int | None = None) -> ReservoirDataset:
     """Read the campaign's HDF5 into arrays, failing closed on anything inconsistent.
 
@@ -146,19 +161,9 @@ def read_reservoir_dataset(path: str | Path, n_times: int | None = None) -> Rese
         steps = time_days.size if n_times is None else min(int(n_times), time_days.size)
         swat = np.asarray(handle["scenarios/swat"][:, :steps], dtype=np.float32)
         pressure = np.asarray(handle["scenarios/pressure"][:, :steps], dtype=np.float32)
-        names = handle["scenarios/params"]
-        # The column order is the contract between whoever generated the dataset and
-        # whoever trains on it. It travels as an HDF5 attribute, on the dataset in some
-        # writers and on the parent group in the campaign's own files; both are read
-        # because silently falling back to p0, p1 would make the model learn the wrong
-        # control with no error anywhere.
-        attributes = names.attrs
-        if "params_columns" not in attributes:
-            attributes = handle["scenarios"].attrs
-        parameter_names = (
-            _string_list(attributes["params_columns"]) if "params_columns" in attributes
-            else [f"p{index}" for index in range(params.shape[1])]
-        )
+        parameter_names = _parameter_names(handle)
+        if not parameter_names:
+            parameter_names = [f"p{index}" for index in range(params.shape[1])]
 
     if swat.shape[2:] != actnum.shape:
         raise ValueError(f"swat grid {swat.shape[2:]} does not match actnum grid {actnum.shape}")

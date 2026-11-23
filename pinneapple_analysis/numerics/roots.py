@@ -116,6 +116,8 @@ class SystemRootResult:
     residual_norms: tuple[float, ...]
     order: OrderEstimate | None = None
     linear_rate: float | None = None
+    step_norms: tuple[float, ...] = ()
+    iterates: tuple[np.ndarray, ...] = ()
     diagnostics: tuple[Diagnostic, ...] = field(default_factory=tuple)
 
     @property
@@ -132,6 +134,7 @@ class SystemRootResult:
             "iterations": self.iterations,
             "function_evaluations": self.function_evaluations,
             "residual": self.residual,
+            "step_norms": [float(v) for v in self.step_norms],
             "order": self.order.to_dict() if self.order else None,
             "linear_rate": self.linear_rate,
             "diagnostics": [d.to_dict() for d in self.diagnostics],
@@ -689,8 +692,10 @@ def newton_system(
 ) -> SystemRootResult:
     """Newton's method for ``F(x) = 0``, with an optional backtracking line search.
 
-    The order is 2 for a simple root as long as the Jacobian is well conditioned; the residual-norm
-    history is used to measure it. A **singular Jacobian** stops the iteration with the
+    The order is 2 for a simple root as long as the Jacobian is well conditioned, and it is measured on
+    the **step norms** ``||x_{k+1} - x_k||`` -- the practical error estimate, because the residual norm
+    only tracks the error once the asymptotic regime is reached (a far start reads an order of ~1.6). A
+    **singular Jacobian** stops the iteration with the
     ``ROOTS.JACOBIAN_SINGULAR`` diagnosis -- either the model degenerates here, or the iteration reached
     a fold of the solution branch, where the fix is continuation, not a better linear solver.
 
@@ -706,20 +711,30 @@ def newton_system(
     diagnostics: list[Diagnostic] = []
     rate: float | None = None
 
+    steps: list[float] = []
+    iterates: list[np.ndarray] = [x.copy()]
+
+    def finish(*args: Any, **kwargs: Any) -> SystemRootResult:
+        return _system_result(*args, steps=steps, iterates=iterates, **kwargs)
+
     for _ in range(max_iter):
         if norms[-1] <= tol:
-            return _system_result("newton", x, norms, True, evaluations, diagnostics, rate)
-        jac = np.asarray(J(x) if J is not None else numerical_jacobian(F, x), dtype=np.float64)
+            return finish("newton", x, norms, True, evaluations, diagnostics, rate)
+        if J is None:
+            jac = numerical_jacobian(F, x)
+            evaluations += x.size  # the finite-difference Jacobian costs n residual evaluations
+        else:
+            jac = np.asarray(J(x), dtype=np.float64)
         try:
             step = np.linalg.solve(jac, -Fx)
         except np.linalg.LinAlgError:
             diagnostics.append(explain("ROOTS.JACOBIAN_SINGULAR", method="newton", x=list(x),
                                        residual=norms[-1]))
-            return _system_result("newton", x, norms, False, evaluations, diagnostics, None)
+            return finish("newton", x, norms, False, evaluations, diagnostics, None)
         if not np.all(np.isfinite(step)):
             diagnostics.append(explain("ROOTS.JACOBIAN_SINGULAR", method="newton", x=list(x),
                                        residual=norms[-1]))
-            return _system_result("newton", x, norms, False, evaluations, diagnostics, None)
+            return finish("newton", x, norms, False, evaluations, diagnostics, None)
 
         alpha = 1.0
         if line_search:
@@ -733,18 +748,20 @@ def newton_system(
             else:
                 alpha = 1.0
         x = x + alpha * step
+        steps.append(float(np.linalg.norm(alpha * step)))
+        iterates.append(x.copy())
         Fx = np.asarray(F(x), dtype=np.float64).ravel()
         evaluations += 1
         norms.append(float(np.linalg.norm(Fx)))
         if norms[-1] == 0.0:
-            return _system_result("newton", x, norms, True, evaluations, diagnostics, rate)
+            return finish("newton", x, norms, True, evaluations, diagnostics, rate)
         if np.linalg.norm(alpha * step) <= tol * max(1.0, float(np.linalg.norm(x))):
             converged = norms[-1] <= max(tol, 1e-10)
-            return _system_result("newton", x, norms, converged, evaluations, diagnostics, rate)
+            return finish("newton", x, norms, converged, evaluations, diagnostics, rate)
 
     diagnostics.append(explain("ROOTS.NOT_CONVERGED", method="newton", iterations=max_iter,
                                residual=norms[-1]))
-    return _system_result("newton", x, norms, False, evaluations, diagnostics, rate)
+    return finish("newton", x, norms, False, evaluations, diagnostics, rate)
 
 
 def _system_result(
@@ -755,9 +772,19 @@ def _system_result(
     evaluations: int,
     diagnostics: list[Diagnostic],
     rate: float | None,
+    steps: list[float] | None = None,
+    iterates: list[np.ndarray] | None = None,
 ) -> SystemRootResult:
-    """Join the residual history into an :class:`OrderEstimate` (nan-safe: fewer than 4 norms is NaN)."""
-    order, linear_rate = _measure_order(norms, 0.0, method) if len(norms) >= 4 else (None, None)
+    """Join the history into an :class:`OrderEstimate`.
+
+    The order is measured on the **step norms** ``||x_{k+1} - x_k||`` when they were recorded, because for
+    a converging iteration the step is the practical estimate of the error (``||Delta x_k|| ~ e_k``), while
+    the residual norm only tracks the error once the asymptotic regime is reached: from a far start it
+    reports an order lower than the method's. With no steps, the residual norms are used instead, which
+    is honest but weaker -- and fewer than three usable values give ``None``, not a guess.
+    """
+    history: list[float] = list(steps) if steps else list(norms)
+    order, linear_rate = _measure_order(history, 0.0, method) if len(history) >= 3 else (None, None)
     if rate is not None:
         linear_rate = rate
     return SystemRootResult(
@@ -769,6 +796,8 @@ def _system_result(
         residual_norms=tuple(float(v) for v in norms),
         order=order,
         linear_rate=linear_rate,
+        step_norms=tuple(float(v) for v in (steps or [])),
+        iterates=tuple(np.asarray(v, dtype=np.float64).copy() for v in (iterates or [])),
         diagnostics=tuple(diagnostics),
     )
 
@@ -804,16 +833,22 @@ def broyden(
         if B.shape != (n, n):
             raise ValueError(f"B0 must be {n}x{n}; got {B.shape}")
     norms = [float(np.linalg.norm(Fx))]
+
+    steps: list[float] = []
+    iterates: list[np.ndarray] = [x.copy()]
+
+    def finish(*args: Any, **kwargs: Any) -> SystemRootResult:
+        return _system_result(*args, steps=steps, iterates=iterates, **kwargs)
     diagnostics: list[Diagnostic] = []
 
     for _ in range(max_iter):
         if norms[-1] <= tol:
-            return _system_result("broyden", x, norms, True, evaluations, diagnostics, None)
+            return finish("broyden", x, norms, True, evaluations, diagnostics, None)
         try:
             s = np.linalg.solve(B, -Fx)
         except np.linalg.LinAlgError:
             diagnostics.append(explain("ROOTS.JACOBIAN_SINGULAR", method="broyden", x=list(x)))
-            return _system_result("broyden", x, norms, False, evaluations, diagnostics, None)
+            return finish("broyden", x, norms, False, evaluations, diagnostics, None)
         x_new = x + s
         F_new = np.asarray(F(x_new), dtype=np.float64).ravel()
         evaluations += 1
@@ -822,16 +857,18 @@ def broyden(
         if denom > 0.0:
             B = B + np.outer(y - B @ s, s) / denom
         x, Fx = x_new, F_new
+        steps.append(float(np.linalg.norm(s)))
+        iterates.append(x.copy())
         norms.append(float(np.linalg.norm(Fx)))
         if norms[-1] == 0.0:
-            return _system_result("broyden", x, norms, True, evaluations, diagnostics, None)
+            return finish("broyden", x, norms, True, evaluations, diagnostics, None)
         if float(np.linalg.norm(s)) <= tol * max(1.0, float(np.linalg.norm(x))):
-            return _system_result("broyden", x, norms, norms[-1] <= max(tol, 1e-8), evaluations,
+            return finish("broyden", x, norms, norms[-1] <= max(tol, 1e-8), evaluations,
                                   diagnostics, None)
 
     diagnostics.append(explain("ROOTS.NOT_CONVERGED", method="broyden", iterations=max_iter,
                                residual=norms[-1]))
-    return _system_result("broyden", x, norms, False, evaluations, diagnostics, None)
+    return finish("broyden", x, norms, False, evaluations, diagnostics, None)
 
 
 def jfnk(
@@ -858,6 +895,12 @@ def jfnk(
     evaluations = 1
     norms = [float(np.linalg.norm(Fx))]
     diagnostics: list[Diagnostic] = []
+
+    steps: list[float] = []
+    iterates: list[np.ndarray] = [x.copy()]
+
+    def finish(*args: Any, **kwargs: Any) -> SystemRootResult:
+        return _system_result(*args, steps=steps, iterates=iterates, **kwargs)
     eps = float(np.sqrt(np.finfo(float).eps))
 
     def matvec(v: np.ndarray) -> np.ndarray:
@@ -873,25 +916,27 @@ def jfnk(
 
     for _ in range(max_iter):
         if norms[-1] <= tol:
-            return _system_result("jfnk", x, norms, True, evaluations, diagnostics, None)
+            return finish("jfnk", x, norms, True, evaluations, diagnostics, None)
         step, info = gmres(matvec, -Fx, tol=forcing * max(norms[-1], tol), restart=krylov_dim)
         if info > 0:
             diagnostics.append(explain("LINALG.NO_CONVERGENCE", method="jfnk (inner GMRES)",
                                        iterations=krylov_dim))
-            return _system_result("jfnk", x, norms, False, evaluations, diagnostics, None)
+            return finish("jfnk", x, norms, False, evaluations, diagnostics, None)
         x = x + step
+        steps.append(float(np.linalg.norm(step)))
+        iterates.append(x.copy())
         Fx = np.asarray(F(x), dtype=np.float64).ravel()
         evaluations += 1
         norms.append(float(np.linalg.norm(Fx)))
         if norms[-1] == 0.0:
-            return _system_result("jfnk", x, norms, True, evaluations, diagnostics, None)
+            return finish("jfnk", x, norms, True, evaluations, diagnostics, None)
         if float(np.linalg.norm(step)) <= tol * max(1.0, float(np.linalg.norm(x))):
-            return _system_result("jfnk", x, norms, norms[-1] <= max(tol, 1e-9), evaluations,
+            return finish("jfnk", x, norms, norms[-1] <= max(tol, 1e-9), evaluations,
                                   diagnostics, None)
 
     diagnostics.append(explain("ROOTS.NOT_CONVERGED", method="jfnk", iterations=max_iter,
                                residual=norms[-1]))
-    return _system_result("jfnk", x, norms, False, evaluations, diagnostics, None)
+    return finish("jfnk", x, norms, False, evaluations, diagnostics, None)
 
 
 # --------------------------------------------------------------------------- continuation
@@ -1015,6 +1060,7 @@ def pseudo_arclength_continuation(
     ds: float = 0.1,
     tol: float = 1e-10,
     max_iter: int = 50,
+    direction: int = 1,
 ) -> ContinuationResult:
     """Pseudo-arclength continuation: treats ``lambda`` as an unknown and passes through folds.
 
@@ -1024,14 +1070,21 @@ def pseudo_arclength_continuation(
     back: ``lambda`` is allowed to decrease. :attr:`ContinuationResult.parameters` is therefore not
     monotone, which is the signature of having gone through a fold.
 
-    Raises ``ValueError`` for a non-positive ``ds`` or ``steps``.
+    ``direction`` (+1 or -1) fixes which way the parameter moves on the first step; the tangent's sign
+    is otherwise arbitrary and a caller that wants "increase lambda until it turns" must say so.
+
+    Raises ``ValueError`` for a non-positive ``ds`` or ``steps``, or a ``direction`` that is not +-1.
     """
     if ds <= 0 or steps <= 0:
         raise ValueError("ds and steps must be positive")
+    if direction not in (-1, 1):
+        raise ValueError(f"direction must be +1 or -1; got {direction}")
     x = np.asarray(x0, dtype=np.float64).ravel().copy()
     lam = float(lam0)
     n = x.size
     tangent = _tangent(F, x, lam)
+    if direction * tangent[-1] < 0.0:
+        tangent = -tangent  # orient the first step so that lambda moves the way the caller asked
     z = np.concatenate([x, [lam]])
     path = [z.copy()]
     diagnostics: list[Diagnostic] = []
@@ -1176,9 +1229,11 @@ def wilkinson_sensitivity(*, degree: int = 20, relative_perturbation: float = 2.
     """Wilkinson's polynomial: how far the roots move when one coefficient moves in its last bit.
 
     ``prod_{i=1..20}(x-i)`` has roots 1..20, and its coefficients are huge (the constant term is 20!).
-    Perturbing the coefficient of ``x^{n-1}`` by a single float32 ulp (``2**-23``) moves some roots by
-    *whole units*: the standard demonstration that computing roots from coefficients is ill-posed, and
-    the reason ``numpy.roots`` cannot be blamed for the answer.
+    Two measurements come out of it: the *unperturbed* roots already differ from the integers, because
+    20! does not fit in 53 bits, so the coefficients are rounded before any root finding starts; and
+    perturbing the coefficient of ``x^{n-1}`` by a single float32 ulp (``2**-23``) moves some roots by
+    *whole units*. That is the standard demonstration that computing roots from coefficients is
+    ill-posed, and the reason ``numpy.roots`` cannot be blamed for the answer.
 
     Returns the unperturbed and perturbed roots, the measured displacement of each, and the predicted
     displacement ``kappa * relative_perturbation * |r|`` from the coefficient condition number -- so the

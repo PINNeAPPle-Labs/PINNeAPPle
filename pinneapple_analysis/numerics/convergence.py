@@ -151,9 +151,10 @@ class VCurveResult:
     """The truncation/round-off trade-off, measured.
 
     ``optimal_step`` is the step at which the measured error is smallest, ``truncation_order`` the
-    measured order on the truncation-dominated branch (steps below the optimum), and
-    ``roundoff_slope`` the measured exponent on the round-off-dominated branch (positive: the error
-    *grows* as the step shrinks, typically like ``eps/h`` or ``eps/sqrt(h)``).
+    measured order on the truncation-dominated branch (steps *above* the optimum, where the error grows
+    with ``h``), and ``roundoff_slope`` the measured exponent on the round-off-dominated branch (steps
+    below the optimum, negative because the error *grows* as the step shrinks, typically like
+    ``eps/h`` -- slope -1 -- or ``eps/sqrt(h)`` -- slope -1/2).
     """
 
     steps: np.ndarray
@@ -228,7 +229,8 @@ def fit_order(
             f"{h.size} usable of {np.size(steps)} -- a zero error usually means the computation reached the "
             "exact value (or the exact value was used by mistake)."
         )
-    if np.allclose(h, h[0]):
+    # relative, not np.allclose: its default atol of 1e-8 would call every set of steps below 1e-8 equal
+    if float(np.max(h) - np.min(h)) <= 1e-12 * float(np.max(h)):
         raise ValueError("all step sizes are equal: the order is not identifiable from a single step size")
 
     x = np.log(h)
@@ -383,13 +385,18 @@ def truncation_roundoff_balance(
     roundoff_slope = float("nan")
     predicted: float | None = None
 
+    # steps are ascending, so the round-off-dominated branch is on the left (error falls as h grows) and
+    # the truncation-dominated branch on the right (error rises with h)
+    tiny = np.finfo(float).tiny
     if i_min >= 1:
-        truncation_order = fit_order(h[: i_min + 1], np.maximum(e[: i_min + 1], np.finfo(float).tiny), name=name).order
-    if i_min < h.size - 1 and i_min >= 1:
-        roundoff_slope = fit_order(h[i_min:], np.maximum(e[i_min:], np.finfo(float).tiny), name=name).order
+        left = fit_order(h[: i_min + 1], np.maximum(e[: i_min + 1], tiny), name=name)
+        roundoff_slope = left.order
+    if i_min < h.size - 1:
+        right = fit_order(h[i_min:], np.maximum(e[i_min:], tiny), name=name)
+        truncation_order = right.order
     if np.isfinite(truncation_order) and np.isfinite(roundoff_slope) and roundoff_slope < 0.0 and truncation_order > 0.0:
         # C from the truncation branch, using the model e = C h^p + r, with r read at the optimum.
-        c = max((e[0] - optimal_error) / h[0] ** truncation_order, np.finfo(float).tiny)
+        c = max((e[-1] - optimal_error) / h[-1] ** truncation_order, np.finfo(float).tiny)
         q = -roundoff_slope
         predicted = float((q * eps * scale / (truncation_order * c)) ** (1.0 / (truncation_order + q)))
         diagnostics.append(

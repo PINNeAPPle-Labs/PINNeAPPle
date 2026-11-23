@@ -38,7 +38,7 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
            "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
-           "bake_materials_headless", "benchmark"]
+           "bake_materials_headless", "benchmark", "detail"]
 
 
 def __getattr__(name):
@@ -54,6 +54,9 @@ def __getattr__(name):
     if name == "benchmark":                                 # the reference scenes and their records
         import importlib                                    # not `from . import`: that would land back here
         return importlib.import_module(".benchmark", __name__)
+    if name == "detail":                                    # bolts, welds and cast seams: pp.viz.detail.hex_bolt(...)
+        import importlib
+        return importlib.import_module(".detail", __name__)
     raise AttributeError(name)
 
 

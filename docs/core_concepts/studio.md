@@ -92,6 +92,38 @@ is enough for a plate, a duct or a housing. Whichever is used, the same numbers 
 export (as `TEXCOORD_0`, with the vertices split at the seams because glTF indexes one UV per vertex) and the browser
 viewer — the reader reads `TEXCOORD_0` back, so a scene saved and reloaded carries its layout.
 
+In glTF the images travel inside the GLB (`images` + `textures`), so the browser viewer needs no side-car files; in
+USD the base colour map is a `UsdUVTexture` over `primvars:st`. Roughness and normal maps are Blender and glTF only
+for now — glTF wants roughness packed with metalness in one texture, and USD wants a scale/bias for the normal.
+
+### Mechanical detail
+
+A solver mesh is right to be smooth — every bolt head is a place where a boundary layer goes wrong. A figure is the
+opposite: at photographic distance the eye reads scale from exactly the seams, fasteners and welds that the mesh
+leaves out, and a casing with none of them looks like a render of a mesh, which is what it is.
+
+`pp.viz.detail` generates them from the geometry you already have, so a detail level is a number in a script rather
+than a second CAD model to keep in sync:
+
+```python
+from pinneapple_tools.visualization.studio import detail as D
+
+sc.surfaces += D.bolt_circle([0, 0, -0.04], (0, 0, -1), radius=0.042, count=6, head_radius=0.0055, height=0.0045)
+sc.surfaces.append(D.seam_ring([0, 0, 0.025], (0, 0, 1), radius=0.211, thickness=0.0022))
+sc.surfaces.append(D.weld_bead(saddle_curve, radius=0.006, material="raw_weld"))
+```
+
+| builder | what it puts where |
+| --- | --- |
+| `hex_bolt(centre, normal, head_radius, height, washer)` | one hex-head bolt standing on a surface, with a washer skirt that makes the head read at a distance |
+| `bolt_circle(centre, normal, radius, count, ...)` | `count` bolts evenly spaced on a circle, the first on the plane's `u` axis, so two runs land in the same places |
+| `weld_bead(points, radius)` | one continuous bead along a polyline: cylinders between the points with a sphere at each joint |
+| `seam_ring(centre, normal, radius, thickness)` | the raised ring where two cast halves meet |
+
+They return ordinary `Surface` objects: they export to glTF/USD, they take any material, and they cost triangles, not
+solver cells. The weld is worth calling out — give it the intersection curve (`sqrt(R² - x²)` around a branch) and the
+bead follows the saddle instead of a circle, which is the difference between a weld and a drawn ring.
+
 ### Visual benchmark
 
 `python -m pinneapple_tools.visualization.studio.benchmark --out provas/` renders the reference cases — the impeller
@@ -105,10 +137,6 @@ The numbers are the gate, not a pass/fail: they catch what a renderer regression
 detail-less, subject gone — without the brittleness of a golden-image comparison across GPUs, drivers and Blender
 versions. `pp.viz.benchmark.CASES` is the list; a case is a geometry from the library, its materials, the HDRI and the
 camera preset.
-
-In glTF the images travel inside the GLB (`images` + `textures`), so the browser viewer needs no side-car files; in
-USD the base colour map is a `UsdUVTexture` over `primvars:st`. Roughness and normal maps are Blender and glTF only
-for now — glTF wants roughness packed with metalness in one texture, and USD wants a scale/bias for the normal.
 
 ## Renders
 

@@ -2,6 +2,14 @@ from .base import NeuralOperatorBase, OperatorOutput
 from .registry import NeuralOperatorCatalog
 from .fno import FourierNeuralOperator, FNO2d, MLPFNOSurrogate
 from .transolver import Transolver, TransolverLite, PhysicsAttention
+from .chebyshev import (
+    ChebyshevPolynomialNeuralOperator,
+    ChebyshevBranchOperator,
+    HadamardDeepONet,
+    ModulatedPolynomialLayer,
+    chebyshev_basis,
+    chebyshev_features,
+)
 
 # Noether (Emmi AI) — optional; None if emmiai-noether is not installed
 try:
@@ -37,6 +45,12 @@ __all__ = [
     "Transolver",
     "TransolverLite",
     "PhysicsAttention",
+    "ChebyshevPolynomialNeuralOperator",
+    "ChebyshevBranchOperator",
+    "HadamardDeepONet",
+    "ModulatedPolynomialLayer",
+    "chebyshev_basis",
+    "chebyshev_features",
     # Noether
     "NoetherUPT",
     "NoetherABUPT",

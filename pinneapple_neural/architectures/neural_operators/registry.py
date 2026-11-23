@@ -5,6 +5,11 @@ from dataclasses import dataclass
 from typing import Dict, Type
 
 from .base import NeuralOperatorBase
+from .chebyshev import (
+    ChebyshevBranchOperator,
+    ChebyshevPolynomialNeuralOperator,
+    HadamardDeepONet,
+)
 from .deeponet import DeepONet
 from .fno import FourierNeuralOperator, FNO2d, FNO3d
 from .gno import GalerkinNeuralOperator
@@ -36,6 +41,13 @@ _REGISTRY: Dict[str, Type[NeuralOperatorBase]] = {
     "transolver_native": Transolver,
     "physics_attention_transolver": Transolver,
     "transolver_lite": TransolverLite,
+
+    # Chebyshev-basis operators (arXiv:2602.01737) and the Hadamard branch/trunk
+    # variant used for multiphase flow (arXiv:2511.02962).
+    "cpno": ChebyshevPolynomialNeuralOperator,
+    "chebyshev_polynomial_neural_operator": ChebyshevPolynomialNeuralOperator,
+    "chebyshev_branch_trunk": ChebyshevBranchOperator,
+    "hadamard_deeponet": HadamardDeepONet,
 }
 
 # Noether (Emmi AI) models — registered lazily so emmiai-noether is optional
@@ -88,6 +100,18 @@ def register_into_global() -> None:
 
         if key in ("transolver_native", "physics_attention_transolver", "transolver_lite"):
             caps.update({"input_kind": "point_cloud", "expects": ["point_features"]})
+            return caps
+
+        if key in ("cpno", "chebyshev_polynomial_neural_operator"):
+            caps.update({"input_kind": "point_operator", "expects": ["coords", "theta"]})
+            return caps
+
+        if key == "chebyshev_branch_trunk":
+            caps.update({"input_kind": "grid_2d_temporal", "expects": ["field_coords", "theta", "times"]})
+            return caps
+
+        if key == "hadamard_deeponet":
+            caps.update({"input_kind": "grid_2d_temporal", "expects": ["branch_fields", "times"]})
             return caps
 
         if key.startswith("noether") or key in _NOETHER_KEYS:

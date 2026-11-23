@@ -32,6 +32,16 @@ decision
     ``decision_card`` that states a verdict. A field error says how wrong
     a model is; these say whether it changes the design.
 
+posterior
+    Bayesian inference on a small model: HMC (gradient, dual-averaged step
+    size, adapted mass matrix) and an adaptive random walk, with the
+    convergence diagnostics that decide whether the posterior can be quoted
+    -- rank-normalised split R-hat, bulk effective sample size with Geyer's
+    initial positive sequence, the Monte Carlo standard error of the mean,
+    divergences, and the ``converged`` verdict they add up to. Imported
+    explicitly as ``pinneapple_analysis.posterior``, so a run that never
+    samples a posterior never pays for it.
+
 Integration helpers
 -------------------
 ``analyze_model(model, spec, x, ...)``

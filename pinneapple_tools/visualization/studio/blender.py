@@ -74,6 +74,29 @@ QUALITY = {
     "cinematic": {"samples": 512, "size": (3840, 2160), "bounces": 16},
 }
 
+#: ``render(camera=...)``: a photography preset -- focal length, where the camera stands, and (for the ones that carry
+#: it) the aperture that separates the subject from the background. "product" is a long lens on the third line, the
+#: catalogue shot; "hero" a wide one from slightly below; "documentary" a 50 mm, everything in focus, centred;
+#: "head_on" a long lens down the object's main axis for a dimensioned figure; "wide" an establishing shot.
+CAMERAS = {
+    "product": {"lens": 85.0, "view": "iso", "distance": 1.05, "fstop": 8.0, "composition": "thirds_right"},
+    "hero": {"lens": 35.0, "view": "iso_low", "distance": 1.25, "fstop": 2.8, "composition": "thirds_low"},
+    "documentary": {"lens": 50.0, "view": "iso", "distance": 1.0, "fstop": None, "composition": "center"},
+    "head_on": {"lens": 100.0, "view": "front", "distance": 1.0, "fstop": 11.0, "composition": "center"},
+    "wide": {"lens": 24.0, "view": "iso", "distance": 1.35, "fstop": 5.6, "composition": "thirds_left"},
+}
+
+#: ``render(composition=...)``: the lens shift that moves the subject off the centre of the frame, in fractions of the
+#: frame's half size -- a sixth is the historical third line
+COMPOSITION = {"center": (0.0, 0.0), "thirds_left": (1 / 6, 0.0), "thirds_right": (-1 / 6, 0.0),
+               "thirds_high": (0.0, -1 / 6), "thirds_low": (0.0, 1 / 6)}
+
+#: ``render(look=...)``: the tone-map contrast, named the way a colourist would, resolved against whatever looks the
+#: view transform in use actually offers (AgX and Filmic name them differently, and not every build has them all)
+LOOKS = {"neutral": "Base Contrast", "low": "Low Contrast", "medium_low": "Medium Low Contrast",
+         "medium_high": "Medium High Contrast", "high": "High Contrast", "very_high": "Very High Contrast",
+         "punchy": "Punchy"}
+
 
 def _set_device(bpy, bs, device: str = "auto") -> str:
     """Point Cycles at a compute device and return the backend in use (``"cpu"``, ``"metal"``, ``"cuda"``, ...).
@@ -236,17 +259,70 @@ def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, 
     return out
 
 
+def _compositor(bpy, bs):
+    """The scene's compositor node tree (Blender 5 calls it ``compositing_node_group``; 4.x hangs it on the scene)."""
+    if hasattr(bs, "compositing_node_group"):
+        ng = bpy.data.node_groups.new("post", "CompositorNodeTree")
+        bs.compositing_node_group = ng
+        return ng
+    bs.use_nodes = True
+    return bs.node_tree
+
+
+#: the passes ``render(passes=True)`` writes to ``<out>_passes/``: (socket of the Render Layers node, file name, type)
+PASSES = (("Depth", "depth", "FLOAT"), ("Normal", "normal", "VECTOR"), ("Mist", "mist", "FLOAT"),
+          ("Diffuse Color", "diffuse", "RGBA"), ("Glossy Color", "glossy", "RGBA"),
+          ("Emission", "emission", "RGBA"), ("Transmission Color", "transmission", "RGBA"))
+
+
+def _write_passes(bpy, bs, out: str) -> str:
+    """One EXR per pass into ``<out>_passes/``, through File Output nodes of the compositor: the beauty file stays the
+    beauty, and a grade gets the depth, the normals and the light components to work with. Returns the folder."""
+    folder = os.path.splitext(os.path.abspath(out))[0] + "_passes"
+    os.makedirs(folder, exist_ok=True)
+    ng = _compositor(bpy, bs)
+    rl = ng.nodes.new("CompositorNodeRLayers")
+    fo = ng.nodes.new("CompositorNodeOutputFile")
+    for attr, val in (("directory", folder), ("base_path", folder),
+                      ("file_name", os.path.splitext(os.path.basename(out))[0])):
+        if hasattr(fo, attr):
+            try:
+                setattr(fo, attr, val)
+            except (AttributeError, TypeError, ValueError):
+                pass
+    try:
+        fo.format.image_settings.file_format = "OPEN_EXR"
+        fo.format.image_settings.color_depth = "32"
+    except (AttributeError, TypeError, ValueError):
+        pass
+    items = getattr(fo, "file_output_items", None)          # 5.x
+    for socket, name, kind in PASSES:
+        if socket not in rl.outputs:
+            continue
+        try:
+            if items is not None:
+                items.new(kind, name)
+            sock_out = fo.inputs[name]
+        except (AttributeError, KeyError, TypeError, RuntimeError):
+            continue
+        ng.links.new(rl.outputs[socket], sock_out)
+    return folder
+
+
 def render(scene, out: str, *, field: Optional[str] = None, field_range: Optional[Tuple[float, float]] = None,
            lines: Union[bool, str] = False, line_range: Optional[Tuple[float, float]] = None,
            slice: Optional[str] = None, slice_range: Optional[Tuple[float, float]] = None,
-           view: Union[str, Sequence[float]] = "iso", distance: float = 1.0, lens: float = 50,
+           view: Union[str, Sequence[float], None] = None, distance: Optional[float] = None,
+           lens: Optional[float] = None,
            background: str = "studio", samples: Optional[int] = None, size: Optional[Tuple[int, int]] = None,
            title: Optional[str] = None, colorbar_on: bool = True, lo_txt: str = "", hi_txt: str = "",
            sun_elevation: float = 40.0, ghost: Optional[bool] = None,
            surface_fields: dict | None = None, cmap: str = "jet", floor: bool = False,
            exposure: Optional[float] = None, quality: str = "production", device: str = "auto",
            field_alpha: Optional[float] = None, hdri_strength: float = 1.0,
-           hdri_rotation: float = 0.0) -> str:
+           hdri_rotation: float = 0.0, camera: Optional[str] = None, composition: Optional[str] = None,
+           fstop: Optional[float] = None, look: Optional[str] = None, post: Optional[str] = None,
+           passes: bool = False, film_transparent: bool = False) -> str:
     """Render ``scene`` (a Scene or a .glb path) to ``out`` (.png or .jpg). Returns ``out``.
 
     field: colour the surfaces by this per-vertex field (surfaces without it are grey). lines: True (all) or the
@@ -266,7 +342,18 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     field_alpha: 0..1 draws the field as a translucent layer over the surfaces' own materials instead of replacing
     them (a steel pipe keeps its steel and its highlights under the temperature map); None = the map replaces them.
     background may also be ``"hdri:<name-or-path>"``: an environment image as the light and as what the metals
-    reflect (``hdri_strength`` scales it, ``hdri_rotation`` turns it in degrees around z)."""
+    reflect (``hdri_strength`` scales it, ``hdri_rotation`` turns it in degrees around z).
+    camera: a photography preset of :data:`CAMERAS` -- "product" (85 mm on the third line), "hero" (35 mm from
+    slightly below, shallow), "documentary" (50 mm, everything in focus, centred), "head_on" (100 mm down the main
+    axis) or "wide" (24 mm establishing shot); it fills ``lens``, ``view``, ``distance``, ``fstop`` and ``composition``
+    wherever they are not given. composition: "thirds_left", "thirds_right", "thirds_high" or "thirds_low" moves the
+    subject off centre with a lens shift, which keeps the framing the auto-fit computed. fstop: open the aperture
+    (depth of field focused on the subject; with "product" and a close camera this is what separates the part from
+    the background). look: the contrast after the render -- "low", "medium_high", "high", "very_high" or "punchy" (an
+    S-curve and, for punchy, saturation). post: "bloom", "vignette" or "bloom+vignette". passes: write the Cycles
+    passes (depth, normal, diffuse, glossy, emission, mist, denoising data) -- with an ``.exr`` output that means a
+    multilayer file, the input to a grade. film_transparent: no world behind the geometry, an alpha to composite on.
+    """
     import bpy
     from mathutils import Vector
 
@@ -280,6 +367,19 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
         raise ValueError(f"quality={quality!r}: preview, production or cinematic")
     samples = int(q["samples"] if samples is None else samples)
     size = tuple(int(v) for v in (q["size"] if size is None else size))
+    cam_p = None
+    if camera is not None:
+        cam_p = CAMERAS.get(str(camera).strip().lower())
+        if cam_p is None:
+            raise ValueError(f"camera={camera!r}: {', '.join(CAMERAS)}")
+    cam_p = cam_p or {}
+    view = view if view is not None else cam_p.get("view", "iso")
+    distance = float(distance if distance is not None else cam_p.get("distance", 1.0))
+    lens = float(lens if lens is not None else cam_p.get("lens", 50.0))
+    composition = str(composition if composition is not None else cam_p.get("composition", "center")).lower()
+    fstop = fstop if fstop is not None else cam_p.get("fstop")
+    if composition not in COMPOSITION:
+        raise ValueError(f"composition={composition!r}: {', '.join(COMPOSITION)}")
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bs = bpy.context.scene
@@ -486,19 +586,57 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     fit = float(np.max(k @ d + lat)) * 1.15 * distance
     cam.location = centre + Vector(tuple(d * fit))
     cam_data.clip_start, cam_data.clip_end = fit * 1e-3, fit * 1e3     # small models: the default 0.1 m cuts them
-    look = centre - cam.location
-    cam.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()
+    aim = centre - cam.location
+    cam.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
+    sx, sy = COMPOSITION[composition]
+    if sx or sy:                                         # a lens shift keeps the frame the auto-fit computed
+        cam_data.shift_x, cam_data.shift_y = sx, sy
+        cam.location = centre + Vector(tuple(d * fit)) * (1.0 + 1.6 * max(abs(sx), abs(sy)))
+    if fstop:                                            # depth of field on the subject, not on its bbox
+        cam_data.dof.use_dof = True
+        cam_data.dof.focus_distance = float((cam.location - centre).length)
+        cam_data.dof.aperture_fstop = float(fstop)
     bs.camera = cam
 
-    if out.lower().endswith((".jpg", ".jpeg")):
+    fmt = out.lower().rsplit(".", 1)[-1]
+    if passes:                                           # the layers a grade needs, not just the beauty
+        for vl in bs.view_layers:                        # enabled before the Render Layers node is built: the
+            for p in ("use_pass_z", "use_pass_normal", "use_pass_mist", "use_pass_diffuse_color",
+                      "use_pass_glossy_color", "use_pass_transmission_color", "use_pass_emit",
+                      "use_pass_object_index"):          # node only carries the sockets that were turned on
+                if hasattr(vl, p):
+                    setattr(vl, p, True)
+            if getattr(vl, "cycles", None) is not None and hasattr(vl.cycles, "denoising_store_passes"):
+                vl.cycles.denoising_store_passes = True
+    if fmt in ("jpg", "jpeg"):
         bs.render.image_settings.file_format = "JPEG"
         bs.render.image_settings.quality = 92
+    elif fmt == "exr":
+        bs.render.image_settings.file_format = "OPEN_EXR"
+        for prop, val in (("color_depth", "32"), ("exr_codec", "ZIP"),
+                          ("color_mode", "RGBA" if film_transparent else "RGB")):
+            try:
+                setattr(bs.render.image_settings, prop, val)
+            except (AttributeError, TypeError, ValueError):
+                pass
+        if passes:
+            _write_passes(bpy, bs, out)
+    if film_transparent:
+        bs.render.film_transparent = True
+        if fmt != "exr":
+            bs.render.image_settings.color_mode = "RGBA"
     bs.render.filepath = os.path.abspath(out)
     bpy.ops.render.render(write_still=True)
-    if bar and colorbar_on:
+    from .post import apply as _finish
+    try:                                                 # Blender's own Python has no Pillow: the caller finishes
+        _finish(out, look_name=look, post=post)
+    except ImportError:
+        pass
+    raster = fmt in ("png", "jpg", "jpeg")              # a colour bar needs a raster and Pillow
+    if bar and colorbar_on and raster:
         colorbar(out, bar[0], bar[1], bar[2], None, lo_txt, hi_txt, stops=stops(cmap) if field else None,
                  dark=background == "dark")
-    if bar2 and colorbar_on:
+    if bar2 and colorbar_on and raster:
         colorbar(out, bar2[0], bar2[1], bar2[2], None, corner="bottom-left", stops=bar2[3], dark=background == "dark")
     return out
 
@@ -567,6 +705,7 @@ def render_headless(scene, out: str, *, exe: Optional[str] = None, timeout: floa
     glb = os.path.join(work, "scene.glb")
     sc = scene if isinstance(scene, Scene) else Scene.from_file(scene)
     sc.save(glb)
+    finish = {k: kwargs.pop(k) for k in ("look", "post") if k in kwargs}   # Pillow lives here, not in Blender
     cfg_path = os.path.join(work, "render.json")
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     out = os.path.abspath(out)
@@ -582,6 +721,9 @@ def render_headless(scene, out: str, *, exe: Optional[str] = None, timeout: floa
     if proc.returncode != 0 or not os.path.exists(out):
         tail = "\n".join((proc.stderr or proc.stdout or "").strip().splitlines()[-8:])
         raise RuntimeError(f"Blender failed on {os.path.basename(out)} (exit {proc.returncode}):\n{tail}")
+    if finish:
+        from .post import apply as _finish
+        _finish(out, look_name=finish.get("look"), post=finish.get("post"))
     return out
 
 

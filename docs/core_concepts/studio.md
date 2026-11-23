@@ -102,6 +102,22 @@ an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes 
   photograph and as data at the same time.
 - `pp.viz.QUALITY` and `pp.viz.DEVICE_BACKENDS` print the two tables; `pp.viz.hdri_path("hall")` says which file a
   name resolves to.
+- **Photography presets:** `camera="product"` (85 mm on the third line, f/8), `"hero"` (35 mm from slightly below,
+  f/2.8), `"documentary"` (50 mm, everything in focus, centred), `"head_on"` (100 mm down the object's main axis) or
+  `"wide"` (24 mm establishing shot). A preset fills `lens`, `view`, `distance`, `fstop` and `composition` only where
+  they are not given, so `camera="product", lens=50` gives the 50 mm lens from the product's position.
+  `composition="thirds_left" | "thirds_right" | "thirds_high" | "thirds_low"` moves the subject off centre with a
+  lens shift, which keeps the framing the auto-fit computed; `fstop` opens the aperture on the subject, which is what
+  separates a part from its background at a close distance. `pp.viz.CAMERAS` lists the presets.
+- **Finishing:** `look="low" … "high"`, `"very_high"` or `"punchy"` is an S-curve on the display values (punchy adds a
+  little saturation), `post="bloom"`, `"vignette"` or `"bloom+vignette"` is the light bleeding and the corners
+  falling. Both act on the written PNG/JPEG, after the render, in :mod:`.post` — the scene compositor and the AgX
+  looks changed between Blender 4 and 5, and a figure should not depend on which one is installed. An EXR is left
+  alone: it is the input to a grade, not something to burn a contrast curve into.
+- **Passes and alpha:** `passes=True` with an `.exr` output writes the beauty as a 32-bit OpenEXR and, next to it in
+  `<out>_passes/`, a multilayer file with the depth, normal, mist, diffuse, glossy, emission and transmission passes
+  — what a grade or a compositor needs. `film_transparent=True` drops the world behind the geometry and keeps an
+  alpha, for a figure that goes onto a page of another colour.
 
 Without `bpy` — the usual case, Blender installed as an application — `pp.viz.render_headless(scene, out, **kw)`
 takes the same keyword arguments and renders with the Blender binary: the scene goes to a temporary `.glb` (with its

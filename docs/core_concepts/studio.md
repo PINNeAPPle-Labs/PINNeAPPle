@@ -84,12 +84,13 @@ two BSDFs mixed, and the base colour is the DIFFUSE albedo plus the GLOSSY tint 
 so the paint and the bare metal it wears through to are both in the image. The entries keep their flat numbers as the
 fallback and for anything that cannot read a map.
 
-The maps live against **box-projected UVs** (`scene.box_uvs`): each triangle projected on the plane of its dominant
-normal axis, the extents mapped to 0..1. It needs no unwrap step and gives the same numbers to the Blender render, the
-glTF export (as `TEXCOORD_0`) and the browser viewer, which is what makes a baked map land the same way in all three.
-The limitation is honest: a bbox-shaped part (a plate, a duct, a housing) projects cleanly, while a closed or strongly
-curved body folds its UV islands onto each other and shows seams where the surface turns 45 degrees. A per-loop UV
-model and a real unwrap are the next step.
+The maps live against **per-corner UVs**. `bake_materials` unwraps by default (`uv="smart"`): Blender's smart
+projection, packed per material, stored back on `Surface.uv` — one pair per face corner, which is why the layout comes
+back from a headless bake and the render here follows it. `uv="box"` keeps the projection of `scene.box_uvs` (each
+triangle on the plane of its dominant normal axis, every face getting the whole square), which needs no unwrap pass and
+is enough for a plate, a duct or a housing. Whichever is used, the same numbers reach the Blender render, the glTF
+export (as `TEXCOORD_0`, with the vertices split at the seams because glTF indexes one UV per vertex) and the browser
+viewer — the reader reads `TEXCOORD_0` back, so a scene saved and reloaded carries its layout.
 
 In glTF the images travel inside the GLB (`images` + `textures`), so the browser viewer needs no side-car files; in
 USD the base colour map is a `UsdUVTexture` over `primvars:st`. Roughness and normal maps are Blender and glTF only

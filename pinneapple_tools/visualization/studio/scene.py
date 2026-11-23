@@ -74,7 +74,8 @@ AXES = {   # engineering axes -> glTF (y up); Blender's importer maps glTF back 
 @dataclass
 class Surface:
     """One triangulated surface. ``fields``: name -> one value per vertex. ``uv``: optional texture coordinates
-    (one pair per vertex); when absent they come from :func:`box_uvs`, so a material with a map needs no unwrap."""
+    (per face corner, or per vertex); when absent they come from :func:`box_uvs`, so a material with a map needs
+    no unwrap step."""
     name: str
     vertices: np.ndarray
     faces: np.ndarray
@@ -95,36 +96,45 @@ _UV_AXES = ((1, 2), (0, 2), (0, 1))
 
 
 def box_uvs(vertices, faces) -> np.ndarray:
-    """Texture coordinates by box projection: each triangle is projected on the plane of its dominant normal axis,
-    the extents of each pair mapped to 0..1 and averaged at the vertices they share. No unwrap step, no external
-    tool, and the same numbers everywhere -- which is what lets a map baked in Blender line up in glTF and in the
-    browser viewer. The seams fall where a surface turns 45 degrees, so a map with large features shows a crease
-    there; a bbox-shaped part (a plate, a duct, a housing) projects cleanly."""
+    """Texture coordinates by box projection, one pair per face corner (three per triangle): each triangle is
+    projected on the plane of its dominant normal axis and the extents of that pair mapped to 0..1. No unwrap step and
+    no external tool, and the same numbers everywhere -- which is what lets a map baked in Blender line up in glTF and
+    in the browser viewer. Every face gets the whole square, so a seam falls exactly where the projection changes
+    instead of being averaged across it. An island per axis is what a box-shaped part wants; a closed or strongly
+    curved body overlaps its islands and is better served by :func:`~.bake.unwrap_scene`."""
     V = np.asarray(vertices, float).reshape(-1, 3)
     F = np.asarray(faces, np.int64).reshape(-1, 3)
     if len(V) == 0 or len(F) == 0:
-        return np.zeros((len(V), 2))
+        return np.zeros((3 * len(F), 2))
     n = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
     axis = np.argmax(np.abs(n), axis=1)
-    uv, weight = np.zeros((len(V), 2)), np.zeros(len(V))
+    uv = np.zeros((3 * len(F), 2))
     for ax, (i, j) in enumerate(_UV_AXES):
-        m = axis == ax
-        if not m.any():
+        which = np.nonzero(axis == ax)[0]
+        if not len(which):
             continue
         P = V[:, [i, j]]
         lo, hi = P.min(0), P.max(0)
         span = np.where((hi - lo) > 1e-12, hi - lo, 1.0)
-        corner = (P - lo) / span                         # this axis pair, in the unit square
-        pts = F[m]
-        np.add.at(uv, pts, corner[pts])
-        np.add.at(weight, pts.ravel(), 1.0)
-    return uv / np.maximum(weight, 1e-12)[:, None]
+        uv[which[:, None] * 3 + np.arange(3)] = ((P - lo) / span)[F[which]]
+    return uv
 
 
-def surface_uvs(s) -> np.ndarray:
-    """The ``uv`` a surface carries, or :func:`box_uvs` of its geometry."""
+def loop_uvs(s) -> np.ndarray:
+    """The UVs a surface carries, one pair per face corner (three per triangle, in the order of ``faces.ravel()``): its
+    own ``uv`` -- given per corner, or per vertex, in which case it is expanded -- or :func:`box_uvs` of its geometry.
+    A bake stores the layout it used here (:func:`~.bake.unwrap_scene`), so the render and the exports follow it."""
     uv = getattr(s, "uv", None)
-    return np.asarray(uv, float).reshape(-1, 2) if uv is not None else box_uvs(s.vertices, s.faces)
+    if uv is not None:
+        uv = np.asarray(uv, float).reshape(-1, 2)
+        if len(uv) == len(s.faces) * 3:
+            return uv
+        if len(uv) == len(s.vertices):
+            return uv[np.asarray(s.faces, np.int64).ravel()]
+    return box_uvs(s.vertices, s.faces)
+
+
+surface_uvs = loop_uvs      # the name this had while the UVs were per vertex
 
 
 @dataclass
@@ -612,6 +622,10 @@ def read_gltf(path: str, axes: str = "z_up") -> List[Surface]:
                 mname = mats[prim["material"]].get("name", "grey") if "material" in prim and mats else "grey"
                 nm = mesh.get("name") or node.get("name") or f"mesh{len(out)}"
                 srf = Surface(nm if len(mesh["primitives"]) == 1 else f"{nm}_{pi}", P, F.astype(np.int64), mname)
+                if "TEXCOORD_0" in prim["attributes"]:      # the layout a baked map was written against
+                    uv = accessor(prim["attributes"]["TEXCOORD_0"]).astype(float)
+                    uv[:, 1] = 1.0 - uv[:, 1]               # glTF's origin is the top left, ours the bottom
+                    srf.uv = uv
                 names = prim.get("extras", {}).get("fields", {})
                 for k, ai in prim["attributes"].items():
                     if k.startswith("_"):
@@ -721,17 +735,28 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
     for s in surfaces:
         V = (s.vertices @ T.T).astype(np.float32)
         N = (vertex_normals(s.vertices, s.faces) @ T.T).astype(np.float32)
-        attrs = {"POSITION": add(V, 34962, 5126, "VEC3", True), "NORMAL": add(N, 34962, 5126, "VEC3")}
-        if need_uv:
-            UV = surface_uvs(s).astype(np.float32)
-            UV[:, 1] = 1.0 - UV[:, 1]                # glTF puts the image origin at the top left, Blender at the
-            attrs["TEXCOORD_0"] = add(UV, 34962, 5126, "VEC2")   # bottom: the same map has to land the same way
+        loops = s.faces.ravel()
         names = {}
-        for an, vals in getattr(s, "fields", {}).items():
-            key = "_" + an.upper().lstrip("_")
-            attrs[key] = add(np.asarray(vals, np.float32), 34962, 5126, "SCALAR")
-            names[key] = an
-        idx = add(s.faces.astype(np.uint32).ravel(), 34963, 5125, "SCALAR")
+        if need_uv:
+            # glTF indexes one UV per vertex, so a per-corner layout splits the vertices at the seams: same
+            # positions, same normals, same field values, one copy per corner that disagrees with its neighbour
+            UV = loop_uvs(s).astype(np.float32)
+            UV[:, 1] = 1.0 - UV[:, 1]              # glTF puts the image origin at the top left, Blender at the bottom
+            attrs = {"POSITION": add(V[loops], 34962, 5126, "VEC3", True),
+                     "NORMAL": add(N[loops], 34962, 5126, "VEC3"),
+                     "TEXCOORD_0": add(UV, 34962, 5126, "VEC2")}
+            for an, vals in getattr(s, "fields", {}).items():
+                key = "_" + an.upper().lstrip("_")
+                attrs[key] = add(np.asarray(vals, np.float32)[loops], 34962, 5126, "SCALAR")
+                names[key] = an
+            idx = add(np.arange(len(loops), dtype=np.uint32), 34963, 5125, "SCALAR")
+        else:
+            attrs = {"POSITION": add(V, 34962, 5126, "VEC3", True), "NORMAL": add(N, 34962, 5126, "VEC3")}
+            for an, vals in getattr(s, "fields", {}).items():
+                key = "_" + an.upper().lstrip("_")
+                attrs[key] = add(np.asarray(vals, np.float32), 34962, 5126, "SCALAR")
+                names[key] = an
+            idx = add(s.faces.astype(np.uint32).ravel(), 34963, 5125, "SCALAR")
         prim = {"attributes": attrs, "indices": idx, "material": mats.index(s.material)}
         if names:
             prim["extras"] = {"fields": names}                  # original field names (attributes are upper case)
@@ -830,8 +855,8 @@ def write_usda(surfaces, materials: Dict[str, Dict[str, Any]], title: str = "sce
             L += [f'        float[] primvars:{pv} = [{", ".join(f"{v:.6g}" for v in np.asarray(vals, float))}] (',
                   '            interpolation = "vertex"', '        )']
         if any((materials.get(s.material, {}) or {}).get(k) for k in ("base_color_map", "normal_map", "roughness_map")):
-            st_uv = "".join(f"({u:.5f}, {v:.5f})" for u, v in surface_uvs(s))
-            L += [f'        texCoord2f[] primvars:st = [{st_uv}] (', '            interpolation = "vertex"', '        )']
+            st_uv = "".join(f"({u:.5f}, {v:.5f})" for u, v in loop_uvs(s))
+            L += [f'        texCoord2f[] primvars:st = [{st_uv}] (', '            interpolation = "faceVarying"', '        )']
         L += ['        uniform token subdivisionScheme = "none"', f'        rel material:binding = </{root}/Looks/{s.material}>', '    }']
     L += ['}', '']
     return "\n".join(L)

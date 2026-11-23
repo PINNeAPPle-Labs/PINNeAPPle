@@ -23,7 +23,7 @@ def test_box_uvs_stay_inside_the_square_and_use_its_extent():
     V = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [2.0, 1.0, 0.0], [0.0, 1.0, 0.0]])
     F = np.array([[0, 1, 2], [0, 2, 3]])
     uv = S.box_uvs(V, F)
-    assert uv.shape == (4, 2)
+    assert uv.shape == (6, 2), "one pair per face corner"
     assert uv.min() >= -1e-9 and uv.max() <= 1.0 + 1e-9
     assert uv[:, 0].min() == pytest.approx(0.0) and uv[:, 0].max() == pytest.approx(1.0)
     assert uv[:, 1].min() == pytest.approx(0.0) and uv[:, 1].max() == pytest.approx(1.0)
@@ -38,10 +38,23 @@ def test_box_uvs_project_each_axis_on_its_own_plane():
         assert np.ptp(uv[:, 0]) > 0.9 and np.ptp(uv[:, 1]) > 0.9
 
 
-def test_a_surface_keeps_the_uvs_it_was_given():
-    uv = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]])
-    s = S.Surface("s", np.zeros((3, 3)), np.array([[0, 1, 2]]), uv=uv)
-    assert np.allclose(S.surface_uvs(s), uv)
+def test_every_face_gets_the_whole_square_so_seams_are_not_averaged():
+    """A wall and a floor sharing an edge used to average their UVs at the shared vertices, smearing the map across
+    the corner; per corner each face keeps its own square and the seam is a seam."""
+    wall = S.Surface("wall", np.array([[0.0, 0, 0], [0, 1, 0], [0, 1, 1], [0, 0, 1]]), np.array([[0, 1, 2], [0, 2, 3]]))
+    uv = S.loop_uvs(wall)
+    first, second = uv[:3], uv[3:]
+    assert first[:, 1].min() == pytest.approx(0.0) and first[:, 1].max() == pytest.approx(1.0)
+    assert second[:, 1].min() == pytest.approx(0.0) and second[:, 1].max() == pytest.approx(1.0)
+
+
+def test_a_surface_keeps_the_uvs_it_was_given_per_corner_or_per_vertex():
+    per_corner = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]])
+    s = S.Surface("s", np.zeros((3, 3)), np.array([[0, 1, 2]]), uv=per_corner)
+    assert np.allclose(S.loop_uvs(s), per_corner)
+    per_vertex = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+    s = S.Surface("s", np.zeros((3, 3)), np.array([[0, 1, 2]]), uv=per_vertex)
+    assert np.allclose(S.loop_uvs(s), per_vertex[[0, 1, 2]])
 
 
 def _gltf(glb: bytes) -> dict:
@@ -54,7 +67,12 @@ def test_gltf_embeds_the_map_and_a_texture_coordinate(tmp_path):
     glb = S.write_glb([srf], S.AXES["z_up"], {"m": {"color": [1, 1, 1], "metallic": 0.0, "roughness": 0.5,
                                                     "base_color_map": png, "normal_map": png}})
     g = _gltf(glb)
-    assert "TEXCOORD_0" in g["meshes"][0]["primitives"][0]["attributes"]
+    prim = g["meshes"][0]["primitives"][0]
+    tex = prim["attributes"]["TEXCOORD_0"]
+    corners = g["accessors"][tex]["count"]
+    pos = g["accessors"][prim["attributes"]["POSITION"]]["count"]
+    assert corners == pos, "a per-corner layout splits the vertices: one position per corner"
+    assert corners % 3 == 0
     assert len(g["images"]) == 1, "the same file is embedded once, not once per slot"
     assert g["images"][0]["mimeType"] == "image/png"
     mat = g["materials"][0]
@@ -119,3 +137,20 @@ def test_a_baked_scene_carries_the_maps_to_gltf(tmp_path):
     sc.materials["cast_iron"].update(maps["cast_iron"])
     g = _gltf(sc.to_glb())
     assert g["images"] and g["materials"][0]["pbrMetallicRoughness"]["baseColorTexture"]["index"] == 0
+
+
+@pytest.mark.skipif(B.blender_executable() is None, reason="needs a Blender binary on this machine")
+def test_the_bake_stores_the_layout_it_used_and_the_caller_follows_it(tmp_path):
+    """A headless bake happens in another interpreter: the layout has to come back, or the render here would use box
+    UVs and the map would land somewhere else."""
+    from pinneapple_tools.visualization.studio import bake as BK
+    srf = S.sphere_surface((0.0, 0.0, 0.0), 0.3, material="cast_iron")
+    sc = S.Scene(surfaces=[srf], materials={"cast_iron": {"color": [0.2, 0.2, 0.21], "metallic": 0.75,
+                                                          "roughness": 0.62, "shader": "cast_metal"}})
+    assert srf.uv is None
+    maps = BK.bake_materials_headless(sc, str(tmp_path / "maps"), size=64, samples=2)
+    assert maps and srf.uv is not None, "the unwrapped layout comes back on the surface"
+    assert len(srf.uv) == len(srf.faces) * 3
+    assert srf.uv.min() >= -1e-6 and srf.uv.max() <= 1.0 + 1e-6
+    # islands are packed, so the corners of one triangle disagree with the box projection
+    assert not np.allclose(S.loop_uvs(srf), S.box_uvs(srf.vertices, srf.faces))

@@ -267,12 +267,12 @@ def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, 
         except (AttributeError, TypeError, RuntimeError):
             pass
         me.update(calc_edges=True)
-        from .scene import surface_uvs
+        from .scene import loop_uvs
         has_maps = any((table.get(s.material) or {}).get(k)
                        for k in ("base_color_map", "normal_map", "roughness_map"))
         if force_uv or has_maps:
-            uvl = me.uv_layers.new(name="UVMap")           # the projections box_uvs gives, per loop
-            uvl.data.foreach_set("uv", surface_uvs(s).astype(np.float32)[F].reshape(-1, 2).ravel())
+            uvl = me.uv_layers.new(name="UVMap")           # per face corner, in the order the loops were written
+            uvl.data.foreach_set("uv", loop_uvs(s).astype(np.float32).ravel())
         for fname, vals in getattr(s, "fields", {}).items():
             a = np.asarray(vals, np.float32).ravel()
             if len(a) != len(V):

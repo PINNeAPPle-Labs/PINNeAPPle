@@ -81,6 +81,17 @@ def _save(bpy, arr, path: str, colorspace: str, name: str) -> str:
     return path
 
 
+def _bake_and_export(scene, out_dir: str, **kwargs):
+    """The entry the bootstrap calls: bake, and return the maps together with the UV layout they were baked on, so
+    the calling process can put the same layout back on its own surfaces (a headless bake happens in another
+    interpreter; without this the render here would use box UVs and the map would land elsewhere)."""
+    import numpy as np
+
+    maps = bake_materials(scene, out_dir, **kwargs)
+    return {"maps": maps,
+            "uv": [None if s.uv is None else np.asarray(s.uv, float).ravel().tolist() for s in scene.surfaces]}
+
+
 def bake_materials_headless(scene, out_dir: str, *, exe: Optional[str] = None, timeout: float = 3600.0,
                             **kwargs) -> Dict[str, Dict[str, str]]:
     """:func:`bake_materials` on a machine where ``bpy`` is not importable: the scene goes to a ``.glb``, the Blender
@@ -112,7 +123,7 @@ def bake_materials_headless(scene, out_dir: str, *, exe: Optional[str] = None, t
     with open(cfg_path, "w", encoding="utf-8") as fh:
         json.dump({"root": root, "scene": glb, "out": os.path.abspath(out_dir), "kwargs": kwargs,
                    "materials": sc.materials, "labels": dict(getattr(sc, "labels", {}) or {}),
-                   "module": "pinneapple_tools.visualization.studio.bake", "entry": "bake_materials",
+                   "module": "pinneapple_tools.visualization.studio.bake", "entry": "_bake_and_export",
                    "result": result}, fh)
     script = os.path.join(work, "bake_bootstrap.py")
     with open(script, "w", encoding="utf-8") as fh:
@@ -123,15 +134,70 @@ def bake_materials_headless(scene, out_dir: str, *, exe: Optional[str] = None, t
         tail = "\n".join((proc.stderr or proc.stdout or "").strip().splitlines()[-8:])
         raise RuntimeError(f"Blender failed to bake (exit {proc.returncode}):\n{tail}")
     with open(result, encoding="utf-8") as fh:
-        return json.load(fh)
+        (maps, uv) = (lambda r: (r["maps"], r.get("uv") or []))(json.load(fh))
+    import numpy as np
+
+    for srf, uvs in zip(sc.surfaces, uv, strict=False):
+        if uvs:
+            srf.uv = np.asarray(uvs, float).reshape(-1, 2)
+    return maps
+
+
+def _unwrap_group(bpy, pairs, angle: float, margin: float) -> None:
+    """Unwrap the objects of one material together and write the layout back on their surfaces: unwrapped as a group
+    they pack into one square, so a bake into a single image does not collide, and the surfaces carry the layout the
+    bake used, which is what the render and the exports then follow."""
+    import math
+
+    import numpy as np
+
+    objs = [o for o, _ in pairs]
+    if not objs:
+        return
+    for o in bpy.context.view_layer.objects:
+        o.select_set(False)
+    for o in objs:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = objs[0]
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.smart_project(angle_limit=math.radians(float(angle)), island_margin=float(margin))
+    bpy.ops.object.mode_set(mode="OBJECT")
+    for o, s in pairs:
+        uv = np.empty(len(o.data.loops) * 2, np.float32)
+        o.data.uv_layers.active.data.foreach_get("uv", uv)
+        s.uv = uv.reshape(-1, 2)
+
+
+def unwrap_scene(scene, *, angle: float = 66.0, margin: float = 0.02) -> "object":
+    """Give every surface of ``scene`` its own UV layout (needs ``bpy``): Blender's smart projection, packed into the
+    square and stored back on ``Surface.uv`` per face corner. This is what a closed or strongly curved body needs --
+    the box projection of :func:`.scene.box_uvs` folds its islands onto each other -- and the returned scene carries
+    the layout, so :func:`~.blender.render`, the glTF and the USD all agree with it."""
+    import bpy
+
+    from .blender import _build_objects, _check_bpy
+    from .scene import Scene
+
+    _check_bpy(bpy)
+    sc = Scene.from_file(scene) if isinstance(scene, str) else scene
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bs = bpy.context.scene
+    objs = _build_objects(bpy, bs, sc.surfaces, sc.axes, materials=getattr(sc, "materials", None), force_uv=True)
+    _unwrap_group(bpy, list(zip(objs, sc.surfaces, strict=False)), angle, margin)
+    return sc
 
 
 def bake_materials(scene, out_dir: str, *, materials: Optional[Sequence[str]] = None, size: int = 1024,
-                   samples: int = 16, margin: int = 8, log=None) -> Dict[str, Dict[str, str]]:
+                   samples: int = 16, margin: int = 8, uv: str = "smart", log=None) -> Dict[str, Dict[str, str]]:
     """Bake every material whose entry names a ``shader`` (or the ones listed in ``materials``) into
     ``out_dir/<material>_<signal>.png``. Needs ``bpy``. Returns ``{material: {"base_color_map": path, ...}}``, ready
     to merge into ``scene.materials``: the entries keep their flat numbers, which stay the fallback and what the
-    exporters use when a map is missing."""
+    exporters use when a map is missing.
+
+    ``uv``: "smart" (default) unwraps each material's surfaces with Blender's projection, packed as a group, and
+    stores the layout on ``Surface.uv`` -- what a curved or closed body needs; "box" keeps the box projection of
+    :func:`.scene.box_uvs`, which is enough for a plate, a duct or a housing and needs no unwrap pass."""
     import bpy
     import numpy as np
 
@@ -158,9 +224,14 @@ def bake_materials(scene, out_dir: str, *, materials: Optional[Sequence[str]] = 
     _smooth(objs)
 
     by_mat: Dict[str, list] = {}
+    pairs_by_mat: Dict[str, list] = {}
     for o, s in zip(objs, sc.surfaces, strict=False):
         if s.material in wanted:
             by_mat.setdefault(s.material, []).append(o)
+            pairs_by_mat.setdefault(s.material, []).append((o, s))
+    if str(uv).lower() == "smart":
+        for pairs in pairs_by_mat.values():
+            _unwrap_group(bpy, pairs, 66.0, 0.02)
 
     say = log or (lambda *_: None)
     out: Dict[str, Dict[str, str]] = {}

@@ -214,16 +214,39 @@ def _table_material(bpy, name: str, st: dict):
         _set_input(b, ("Emission Strength",), 4.0)
     if st.get("double_sided") is False and hasattr(m, "use_backface_culling"):
         m.use_backface_culling = True
+    nt = m.node_tree
+    for key, socket in (("base_color_map", "Base Color"), ("normal_map", None), ("roughness_map", None)):
+        path = st.get(key)
+        if not path:                                       # a baked map, where the table gives a file
+            continue
+        tex = nt.nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(os.path.expanduser(str(path)), check_existing=True)
+        if key != "base_color_map":
+            tex.image.colorspace_settings.name = "Non-Color"
+        if socket:
+            nt.links.new(tex.outputs["Color"], b.inputs[socket])
+        elif key == "normal_map":
+            nmap = nt.nodes.new("ShaderNodeNormalMap")
+            nt.links.new(tex.outputs["Color"], nmap.inputs["Color"])
+            nt.links.new(nmap.outputs["Normal"], b.inputs["Normal"])
+        else:                                              # roughness: the map modulates the factor
+            mul = nt.nodes.new("ShaderNodeMath")
+            mul.operation = "MULTIPLY"
+            mul.inputs[1].default_value = float(st.get("roughness", 0.5))
+            nt.links.new(tex.outputs["Color"], mul.inputs[0])
+            nt.links.new(mul.outputs["Value"], b.inputs["Roughness"])
     build = SHADERS.get(str(st.get("shader", "")))          # the procedural detail the exports cannot carry
     if build is not None:
         build(bpy, m, st)
     return m
 
 
-def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, names: Sequence[str] | None = None):
+def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, names: Sequence[str] | None = None,
+                   force_uv: bool = False):
     """One mesh object per surface, built directly (no glTF import): vertices in Blender axes, triangles, the
     per-vertex fields as FLOAT point attributes ``_NAME`` (upper case, as the glTF export names them), a material per
-    material name from ``MATERIALS`` + ``materials``. Returns the objects in surface order."""
+    material name from ``MATERIALS`` + ``materials``. Returns the objects in surface order. ``force_uv``: give every
+    mesh texture coordinates, which a bake needs even where no map is declared yet."""
     from .scene import MATERIALS
     table = {**MATERIALS, **(materials or {})}
     B = blender_axes(axes)
@@ -244,6 +267,12 @@ def _build_objects(bpy, bs, surfaces, axes: str, materials: dict | None = None, 
         except (AttributeError, TypeError, RuntimeError):
             pass
         me.update(calc_edges=True)
+        from .scene import surface_uvs
+        has_maps = any((table.get(s.material) or {}).get(k)
+                       for k in ("base_color_map", "normal_map", "roughness_map"))
+        if force_uv or has_maps:
+            uvl = me.uv_layers.new(name="UVMap")           # the projections box_uvs gives, per loop
+            uvl.data.foreach_set("uv", surface_uvs(s).astype(np.float32)[F].reshape(-1, 2).ravel())
         for fname, vals in getattr(s, "fields", {}).items():
             a = np.asarray(vals, np.float32).ravel()
             if len(a) != len(V):
@@ -657,11 +686,14 @@ for name in ("pinneapple_tools", "pinneapple_tools.visualization", "pinneapple_t
     pkg = types.ModuleType(name)
     pkg.__path__ = [os.path.join(root, *name.split("."))]
     sys.modules[name] = pkg
-from pinneapple_tools.visualization.studio.blender import render
 from pinneapple_tools.visualization.studio.scene import Scene
+mod = __import__(cfg.get("module", "pinneapple_tools.visualization.studio.blender"), fromlist=["*"])
+fn = getattr(mod, cfg.get("entry", "render"))
 sc = Scene.from_file(cfg["scene"])
 sc.materials, sc.labels = cfg["materials"], cfg["labels"]     # the glb keeps geometry and fields, not these
-render(sc, cfg["out"], **cfg["kwargs"])
+res = fn(sc, cfg["out"], **cfg["kwargs"])
+if cfg.get("result"):
+    json.dump(res, open(cfg["result"], "w"))
 '''
 
 

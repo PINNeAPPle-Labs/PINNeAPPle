@@ -37,7 +37,8 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "LIGHTING_PRESETS", "LightingPreset", "Dashboard", "field_view", "FieldView", "VIEW_MAX_FACES",
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
-           "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS"]
+           "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
+           "bake_materials_headless"]
 
 
 def __getattr__(name):
@@ -51,6 +52,19 @@ def __getattr__(name):
         from .pbr import SHADERS
         return SHADERS
     raise AttributeError(name)
+
+
+def bake_materials(*a, **kw):
+    """Bake the procedural material shaders into base colour, roughness and normal maps; see
+    :func:`.bake.bake_materials` (needs bpy)."""
+    from .bake import bake_materials as _b
+    return _b(*a, **kw)
+
+
+def bake_materials_headless(*a, **kw):
+    """The same through the Blender binary, for a machine without bpy; see :func:`.bake.bake_materials_headless`."""
+    from .bake import bake_materials_headless as _b
+    return _b(*a, **kw)
 
 
 def hdri_path(*a, **kw):

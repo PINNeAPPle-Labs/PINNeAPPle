@@ -73,17 +73,58 @@ AXES = {   # engineering axes -> glTF (y up); Blender's importer maps glTF back 
 
 @dataclass
 class Surface:
-    """One triangulated surface. ``fields``: name -> one value per vertex."""
+    """One triangulated surface. ``fields``: name -> one value per vertex. ``uv``: optional texture coordinates
+    (one pair per vertex); when absent they come from :func:`box_uvs`, so a material with a map needs no unwrap."""
     name: str
     vertices: np.ndarray
     faces: np.ndarray
     material: str = "grey"
     fields: Dict[str, np.ndarray] = field(default_factory=dict)
     group: str = ""                         # free tag ("propeller" parts spin in the aero viewer)
+    uv: Optional[np.ndarray] = None
 
     def __post_init__(self):
         self.vertices = np.asarray(self.vertices, float).reshape(-1, 3)
         self.faces = np.asarray(self.faces, np.int64).reshape(-1, 3)
+        if self.uv is not None:
+            self.uv = np.asarray(self.uv, float).reshape(-1, 2)
+
+
+#: the two coordinates that a triangle's dominant axis is projected on: x -> (y, z), y -> (x, z), z -> (x, y)
+_UV_AXES = ((1, 2), (0, 2), (0, 1))
+
+
+def box_uvs(vertices, faces) -> np.ndarray:
+    """Texture coordinates by box projection: each triangle is projected on the plane of its dominant normal axis,
+    the extents of each pair mapped to 0..1 and averaged at the vertices they share. No unwrap step, no external
+    tool, and the same numbers everywhere -- which is what lets a map baked in Blender line up in glTF and in the
+    browser viewer. The seams fall where a surface turns 45 degrees, so a map with large features shows a crease
+    there; a bbox-shaped part (a plate, a duct, a housing) projects cleanly."""
+    V = np.asarray(vertices, float).reshape(-1, 3)
+    F = np.asarray(faces, np.int64).reshape(-1, 3)
+    if len(V) == 0 or len(F) == 0:
+        return np.zeros((len(V), 2))
+    n = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
+    axis = np.argmax(np.abs(n), axis=1)
+    uv, weight = np.zeros((len(V), 2)), np.zeros(len(V))
+    for ax, (i, j) in enumerate(_UV_AXES):
+        m = axis == ax
+        if not m.any():
+            continue
+        P = V[:, [i, j]]
+        lo, hi = P.min(0), P.max(0)
+        span = np.where((hi - lo) > 1e-12, hi - lo, 1.0)
+        corner = (P - lo) / span                         # this axis pair, in the unit square
+        pts = F[m]
+        np.add.at(uv, pts, corner[pts])
+        np.add.at(weight, pts.ravel(), 1.0)
+    return uv / np.maximum(weight, 1e-12)[:, None]
+
+
+def surface_uvs(s) -> np.ndarray:
+    """The ``uv`` a surface carries, or :func:`box_uvs` of its geometry."""
+    uv = getattr(s, "uv", None)
+    return np.asarray(uv, float).reshape(-1, 2) if uv is not None else box_uvs(s.vertices, s.faces)
 
 
 @dataclass
@@ -634,6 +675,33 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
     mats = list(dict.fromkeys(s.material for s in surfaces))
     buf = bytearray()
     views, accessors, meshes, nodes = [], [], [], []
+    images, textures = [], []
+    tex_of: Dict[str, int] = {}
+    need_uv = any(materials.get(m, {}).get(k) for m in mats
+                  for k in ("base_color_map", "normal_map", "roughness_map"))
+
+    def add_bytes(data: bytes) -> int:
+        nonlocal buf
+        while len(buf) % 4:
+            buf += b"\0"
+        off = len(buf)
+        buf += data
+        views.append({"buffer": 0, "byteOffset": off, "byteLength": len(data)})
+        return len(views) - 1
+
+    def texture(path: str) -> int:
+        """A texture for the image at ``path``, embedded in the GLB (a viewer then needs no side-car files)."""
+        key = os.path.expanduser(str(path))
+        if key in tex_of:
+            return tex_of[key]
+        with open(key, "rb") as fh:
+            data = fh.read()
+        ext = os.path.splitext(key)[1].lower()
+        mime = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}.get(ext, "image/png")
+        images.append({"bufferView": add_bytes(data), "mimeType": mime})
+        textures.append({"sampler": 0, "source": len(images) - 1})
+        tex_of[key] = len(textures) - 1
+        return tex_of[key]
 
     def add(arr: np.ndarray, target: int, comp: int, typ: str, minmax=False):
         nonlocal buf
@@ -654,6 +722,10 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
         V = (s.vertices @ T.T).astype(np.float32)
         N = (vertex_normals(s.vertices, s.faces) @ T.T).astype(np.float32)
         attrs = {"POSITION": add(V, 34962, 5126, "VEC3", True), "NORMAL": add(N, 34962, 5126, "VEC3")}
+        if need_uv:
+            UV = surface_uvs(s).astype(np.float32)
+            UV[:, 1] = 1.0 - UV[:, 1]                # glTF puts the image origin at the top left, Blender at the
+            attrs["TEXCOORD_0"] = add(UV, 34962, 5126, "VEC2")   # bottom: the same map has to land the same way
         names = {}
         for an, vals in getattr(s, "fields", {}).items():
             key = "_" + an.upper().lstrip("_")
@@ -674,6 +746,10 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
                                                    "metallicFactor": st.get("metallic", 0.0),
                                                    "roughnessFactor": st.get("roughness", 0.5)}}
         ext = {}
+        if st.get("base_color_map"):
+            mat["pbrMetallicRoughness"]["baseColorTexture"] = {"index": texture(st["base_color_map"])}
+        if st.get("normal_map"):
+            mat["normalTexture"] = {"index": texture(st["normal_map"])}
         if st.get("clearcoat"):
             ext["KHR_materials_clearcoat"] = {"clearcoatFactor": st["clearcoat"], "clearcoatRoughnessFactor": 0.05}
         if st.get("transmission"):
@@ -697,6 +773,10 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
             "scene": 0, "scenes": [{"nodes": top}], "nodes": nodes, "meshes": meshes, "materials": materials_out,
             "accessors": accessors, "bufferViews": views, "buffers": [{"byteLength": len(buf)}],
             "extensionsUsed": ["KHR_materials_clearcoat", "KHR_materials_transmission", "KHR_materials_emissive_strength"]}
+    if images:
+        gltf["images"] = images
+        gltf["textures"] = textures
+        gltf["samplers"] = [{"magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497}]
     js = json.dumps(gltf, separators=(",", ":")).encode()
     js += b" " * ((4 - len(js) % 4) % 4)
     while len(buf) % 4:
@@ -714,13 +794,26 @@ def write_usda(surfaces, materials: Dict[str, Dict[str, Any]], title: str = "sce
     for m in dict.fromkeys(s.material for s in surfaces):
         st = materials.get(m, MATERIALS["grey"])
         c = [round(v ** 2.2, 5) for v in st["color"]]                     # UsdPreviewSurface colours are linear
+        tex = st.get("base_color_map")
+        diffuse = (f'color3f inputs:diffuseColor.connect = </{root}/Looks/{m}/baseColorTexture.outputs:rgb>'
+                   if tex else f'color3f inputs:diffuseColor = ({c[0]}, {c[1]}, {c[2]})')
         L += [f'        def Material "{m}"', '        {',
               f'            token outputs:surface.connect = </{root}/Looks/{m}/Surface.outputs:surface>',
               '            def Shader "Surface"', '            {', '                uniform token info:id = "UsdPreviewSurface"',
-              f'                color3f inputs:diffuseColor = ({c[0]}, {c[1]}, {c[2]})',
+              f'                {diffuse}',
               f'                float inputs:metallic = {st.get("metallic", 0.0)}', f'                float inputs:roughness = {st.get("roughness", 0.5)}',
               f'                float inputs:clearcoat = {st.get("clearcoat", 0.0)}', f'                float inputs:opacity = {st.get("alpha", 1.0)}',
-              '                token outputs:surface', '            }', '        }']
+              '                token outputs:surface', '            }']
+        if tex:                                                            # the base colour map, read by st
+            L += ['            def Shader "stReader"', '            {',
+                  '                uniform token info:id = "UsdPrimvarReader_float2"',
+                  '                token inputs:varname = "st"', '                float2 outputs:result', '            }',
+                  '            def Shader "baseColorTexture"', '            {',
+                  '                uniform token info:id = "UsdUVTexture"',
+                  f'                asset inputs:file = @{os.path.abspath(os.path.expanduser(str(tex)))}@',
+                  f'                float2 inputs:st.connect = </{root}/Looks/{m}/stReader.outputs:result>',
+                  '                token inputs:sourceColorSpace = "sRGB"', '                float3 outputs:rgb', '            }']
+        L += ['        }']
     L += ['    }']
     for s in surfaces:
         nm = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in s.name) or "mesh"
@@ -736,6 +829,9 @@ def write_usda(surfaces, materials: Dict[str, Dict[str, Any]], title: str = "sce
             pv = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in k)
             L += [f'        float[] primvars:{pv} = [{", ".join(f"{v:.6g}" for v in np.asarray(vals, float))}] (',
                   '            interpolation = "vertex"', '        )']
+        if any((materials.get(s.material, {}) or {}).get(k) for k in ("base_color_map", "normal_map", "roughness_map")):
+            st_uv = "".join(f"({u:.5f}, {v:.5f})" for u, v in surface_uvs(s))
+            L += [f'        texCoord2f[] primvars:st = [{st_uv}] (', '            interpolation = "vertex"', '        )']
         L += ['        uniform token subdivisionScheme = "none"', f'        rel material:binding = </{root}/Looks/{s.material}>', '    }']
     L += ['}', '']
     return "\n".join(L)

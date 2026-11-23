@@ -68,6 +68,33 @@ The procedural detail costs about 15-20% of the render, not a multiple: on the i
 `@pbr.shader("name")`), so a project can add its own. The recipes came out of the industrial pump-station example,
 [`examples/use_cases/physics_data_factory/blender_factory_render.py`](../../../examples/use_cases/physics_data_factory/blender_factory_render.py).
 
+### Baked maps
+
+A shader is detail only Blender can read. `pp.viz.bake_materials(scene, "maps/")` (or
+`bake_materials_headless` where `bpy` is not importable) bakes each material that names a shader into three images —
+base colour, roughness and normal — and returns the entries ready to merge:
+
+```python
+maps = pp.viz.bake_materials(sc, "maps/", size=1024, samples=16)
+sc.materials.update({k: {**sc.materials.get(k, {}), **v} for k, v in maps.items()})
+```
+
+The signals come from Cycles' own passes, not from reading one node of the tree: a shader such as `painted_metal` is
+two BSDFs mixed, and the base colour is the DIFFUSE albedo plus the GLOSSY tint (a metal's diffuse albedo is black),
+so the paint and the bare metal it wears through to are both in the image. The entries keep their flat numbers as the
+fallback and for anything that cannot read a map.
+
+The maps live against **box-projected UVs** (`scene.box_uvs`): each triangle projected on the plane of its dominant
+normal axis, the extents mapped to 0..1. It needs no unwrap step and gives the same numbers to the Blender render, the
+glTF export (as `TEXCOORD_0`) and the browser viewer, which is what makes a baked map land the same way in all three.
+The limitation is honest: a bbox-shaped part (a plate, a duct, a housing) projects cleanly, while a closed or strongly
+curved body folds its UV islands onto each other and shows seams where the surface turns 45 degrees. A per-loop UV
+model and a real unwrap are the next step.
+
+In glTF the images travel inside the GLB (`images` + `textures`), so the browser viewer needs no side-car files; in
+USD the base colour map is a `UsdUVTexture` over `primvars:st`. Roughness and normal maps are Blender and glTF only
+for now — glTF wants roughness packed with metalness in one texture, and USD wants a scale/bias for the normal.
+
 ## Renders
 
 `pp.viz.render(scene, out, field=..., lines=..., slice=..., view="iso", background="studio")` needs

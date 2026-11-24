@@ -78,6 +78,33 @@ Guide: [Physics checks in CI](physics_checks_in_ci.md). Every tolerance is relat
 
 `trust_report.from_trust_score` turns these scores into checks with a design threshold of 0.7.
 
+`pinneapple_analysis.trust.drift.DriftMonitor` asks the same question after deployment, over a window of live
+traffic (#114): the baseline is a held-out validation split (predictions, the model's own predictive uncertainty and,
+when labels exist, the residuals), and each window is compared against it with the two-sample Kolmogorov–Smirnov
+statistic per output column, maximum over columns.
+
+| Check | What it needs | Critical | Answers |
+|---|---|---|---|
+| `input_drift` | the live inputs | no | are the requests still the kind of point the model was fitted on |
+| `prediction_drift` | the outputs | no | did the output distribution leave the baseline, with no labels |
+| `uncertainty_drift` | a model returning `(mean, std)` | no | did the model's own spread leave the baseline |
+| `error_drift` | labels | **yes** | did the residuals grow (RMSE ratio is recorded) |
+| `envelope` | `TrustGate` fitted on the baseline | **yes** | what fraction of inputs is outside the fitted distribution |
+
+The limits are not hand-picked: `calibrate` draws windows of the deployment size from a **second** held-out split,
+measures each against the baseline, and takes the 0.99 quantile of that null distribution — so "drift" means further
+from the baseline than 99 % of genuinely in-distribution windows were. Measuring before calibrating raises; a
+quantity the model cannot support (no uncertainty, no labels) is reported as **not run**, never as a pass.
+
+The verdict is documented rather than implied: a critical alarm (`error_drift`, `envelope`) is `RETRAIN`; two or
+more label-free alarms together are `RETRAIN` without any label; one alone is `REVIEW`; nothing is `STABLE`.
+`write_record` appends the window, its statistics, its thresholds and the decision with the reason as one JSON line.
+Measured on the synthetic surrogate in `tests/test_model_monitoring_drift.py` (thresholds from 100 held-out windows
+of 300 points): an in-distribution window scores 0.044 input / 0.043 prediction / 0.030 uncertainty against limits of
+0.099 / 0.093 / 0.094 and stays `STABLE`; a window shifted by 0.15 scores 0.172 / 0.100 / 0.172 and returns
+`RETRAIN`; inputs from outside the box (3–4 in a domain of 0–1) put the envelope fraction at 1.0 and return
+`RETRAIN`.
+
 ## 4. Model validation (`pinneapple_analysis.validation`)
 
 `PhysicsValidator` evaluates a model (with autograd) at sampled points. Each check defaults to `tolerance=1e-3`.

@@ -42,9 +42,10 @@ the declared conditions):
   :class:`pinneapple_autolab.simulator.Simulator`, whose checks are run before the solver is called;
 * an object with an ``evaluate(params)`` method (the same contract as the callable).
 
-Dependencies: numpy at import time; the surrogate families, the optimiser and the trust report are imported where
-they are used, so validating a spec never loads torch or scikit-learn. The surrogate step needs scikit-learn (the
-``[timeseries]`` extra), and says so instead of falling back to a straight line.
+Dependencies: numpy at import time; the surrogate board (scikit-learn), the validated domain and the optimiser of
+``pinneapple_autolab`` / ``pinneapple_design`` are imported where they are used, so importing this module or validating
+a spec pays for none of them. The surrogate step needs scikit-learn (the ``[timeseries]`` extra) and says so, instead
+of falling back to a straight line.
 
     >>> run = run_study(spec, my_tool)                       # doctest: +SKIP
     >>> run.status, run.trust["decision"]                    # doctest: +SKIP

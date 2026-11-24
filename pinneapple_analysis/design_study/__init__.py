@@ -25,6 +25,7 @@ The schema is the contract the Studio wizard and the Engineer fill (#1036); this
 """
 from __future__ import annotations
 
+from . import examples
 from .spec import (
     BASE_KINDS,
     FIDELITIES,
@@ -48,5 +49,5 @@ from .study import RUNNABLE_KINDS, StudyRefused, StudyRun, run_study
 __all__ = [
     "SCHEMA", "KINDS", "KINDS_BEYOND_OPTIMISATION", "BASE_KINDS", "FIDELITIES", "SURROGATE_FAMILIES",
     "RUNNABLE_KINDS", "Quantity", "Variable", "Base", "Evaluator", "Objective", "Limit", "Budget", "Verifier",
-    "Model", "DesignStudy", "StudyRun", "StudyRefused", "run_study",
+    "Model", "DesignStudy", "StudyRun", "StudyRefused", "run_study", "examples",
 ]

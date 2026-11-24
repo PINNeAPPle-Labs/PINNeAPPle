@@ -18,8 +18,9 @@ Why a schema of its own instead of the library's classes
 The spec is a *wire format*: the Studio wizard, the Engineer and a saved file all speak it, and a stored study has to
 stay readable after the library's internal classes move. It is therefore frozen at ``v1`` and validated here, and the
 conversions to the classes that do the work (``pinneapple_design.design_optimizer.study.Variable`` / ``Constraint``,
-``pinneapple_autolab.mission.Limit``) live in :mod:`.study`, which imports them lazily. Validating a spec never loads
-torch or scikit-learn, which is what lets a wizard refuse a broken study before spending a second on an import.
+``pinneapple_autolab.mission.Limit``) live in :mod:`.study`, which imports them lazily. This module imports nothing but
+the standard library, so a wizard can refuse a broken study without loading the optimiser, the surrogate board or the
+lab (the parent ``pinneapple_analysis`` package does import torch for its own reasons; nothing here adds to that).
 
 What it refuses, instead of assuming
 ------------------------------------

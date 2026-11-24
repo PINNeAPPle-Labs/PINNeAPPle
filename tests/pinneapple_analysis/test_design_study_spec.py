@@ -189,3 +189,23 @@ def test_the_three_examples_are_an_optimisation_pair_and_a_surrogate():
     assert wing_study().kind == "optimize" and heatsink_study().kind == "optimize"
     assert polar_study().kind == "surrogate"
     assert Verifier().min_verified == 1 and polar_study().verifier.min_verified == 0
+
+
+def test_validating_a_spec_loads_nothing_of_the_study_itself():
+    """The wizard refuses a broken study without paying for the surrogate, the optimiser or the lab.
+
+    ``pinneapple_analysis`` itself already imports torch (its uncertainty and inverse-problem modules do), so what is
+    checked here is what *this* package brings: importing it and validating a spec pulls neither scikit-learn (the
+    surrogate board) nor ``pinneapple_autolab`` (the validated domain), which are imported where they are used.
+    """
+    import subprocess
+    import sys
+
+    code = ("import sys, pinneapple_analysis.design_study as ds\n"
+            "spec = ds.DesignStudy.from_dict(ds.examples.wing_study().to_dict())\n"
+            "assert spec.digest() and spec.kind == 'optimize'\n"
+            "print(sorted(m for m in ('sklearn', 'pinneapple_autolab', 'pinneapple_design') if m in sys.modules))\n")
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=300,
+                         cwd=str(__import__("pathlib").Path(__file__).resolve().parents[2]))
+    assert out.returncode == 0, out.stderr
+    assert out.stdout.strip() == "[]", out.stdout

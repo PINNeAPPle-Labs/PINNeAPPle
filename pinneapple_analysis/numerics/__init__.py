@@ -81,7 +81,7 @@ References for the claims made in the docstrings
 """
 from __future__ import annotations
 
-from . import convergence, diagnostics, floating_point, linalg, roots
+from . import convergence, diagnostics, floating_point, interpolation, linalg, quadrature, roots
 from .convergence import (
     ErrorCurve,
     OrderEstimate,
@@ -105,7 +105,9 @@ __all__ = [
     "explain",
     "fit_order",
     "floating_point",
+    "interpolation",
     "linalg",
+    "quadrature",
     "order_from_iterates",
     "richardson_extrapolate",
     "roots",

@@ -219,8 +219,8 @@ def lebesgue_constant(nodes: Sequence[float], *, samples: int = 2001) -> float:
     with np.errstate(divide="ignore", invalid="ignore"):
         # L_j(x) = (w_j/(x-x_j)) / sum_k (w_k/(x-x_k)): the second barycentric form, term by term
         terms = w[None, :] / (grid[:, None] - xn[None, :])
-    denominator = np.abs(terms.sum(axis=1))
-    sums = np.abs(terms).sum(axis=1) / denominator
+        # on a node both sums are infinite, and the ratio below is 0/0 -- handled right after
+        sums = np.abs(terms).sum(axis=1) / np.abs(terms.sum(axis=1))
     on_node = np.isin(grid, xn)
     sums[on_node] = 1.0  # exactly on a node one cardinal function is 1 and the rest vanish
     finite = sums[np.isfinite(sums)]

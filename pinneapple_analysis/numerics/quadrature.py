@@ -304,7 +304,6 @@ def gauss_legendre_nodes(n: int) -> tuple[np.ndarray, np.ndarray]:
     """Nodes and weights of the ``n``-point Gauss-Legendre rule on ``[-1, 1]`` (exact to degree ``2n-1``)."""
     if n < 1:
         raise ValueError(f"n must be at least 1; got {n}")
-    k = np.arange(n, dtype=np.float64)
     diagonal = np.zeros(n)
     off_diagonal = np.ones(n)
     if n > 1:

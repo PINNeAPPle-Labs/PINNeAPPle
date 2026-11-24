@@ -48,10 +48,13 @@ Layout
     the CFL limit with the blow-up just above it, upwind/Lax-Friedrichs/Lax-Wendroff with their measured
     numerical diffusion and dispersion, TVD limiters, and manufactured solutions reporting the observed
     order.
-``lab``
-    The glue the app calls: a catalogue of (problem, method) pairs, and one function that returns the
-    error-against-step and error-against-cost curves, the observed order with its interval and the
-    diagnostics, all JSON-able.
+Not here yet
+------------
+The app-facing glue (#29): a catalogue of (problem, method) pairs and a single call that returns the
+error-against-step and error-against-cost curves, the observed order with its interval and the
+diagnostics as one JSON-able record. Everything it needs is in these modules -- ``convergence`` measures,
+``diagnostics`` explains, each module exposes the curves -- but the catalogue itself is not written, so
+nothing here claims to be that entry point.
 
 Design rules this package follows
 ---------------------------------
@@ -81,7 +84,17 @@ References for the claims made in the docstrings
 """
 from __future__ import annotations
 
-from . import convergence, diagnostics, floating_point, interpolation, linalg, quadrature, roots
+from . import (
+    convergence,
+    diagnostics,
+    floating_point,
+    interpolation,
+    linalg,
+    ode,
+    pde,
+    quadrature,
+    roots,
+)
 from .convergence import (
     ErrorCurve,
     OrderEstimate,
@@ -107,8 +120,10 @@ __all__ = [
     "floating_point",
     "interpolation",
     "linalg",
-    "quadrature",
+    "ode",
     "order_from_iterates",
+    "pde",
+    "quadrature",
     "richardson_extrapolate",
     "roots",
     "truncation_roundoff_balance",

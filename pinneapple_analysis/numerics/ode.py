@@ -269,10 +269,13 @@ def _integrate_explicit(
     ys = np.zeros((n_steps + 1, y.size))
     ys[0] = y
     evaluations = 0
-    for i in range(1, n_steps + 1):
-        y, _, used = _explicit_step(rhs, ts[i - 1], y, h, tableau)
-        ys[i] = y
-        evaluations += used
+    # an unstable step legitimately overflows, and the diagnostic below is what reports it: silencing the
+    # warning here keeps the blow-up a measured result instead of a wall of numpy warnings
+    with np.errstate(over="ignore", invalid="ignore"):
+        for i in range(1, n_steps + 1):
+            y, _, used = _explicit_step(rhs, ts[i - 1], y, h, tableau)
+            ys[i] = y
+            evaluations += used
     diagnostics: list[Diagnostic] = []
     if not np.all(np.isfinite(ys)):
         diagnostics.append(explain("ODE.STABILITY_LIMIT", method=tableau.name, step_size=h))
@@ -1059,7 +1062,7 @@ def energy_drift_study(
     p = _as_state(p0)
 
     def energy(qs: np.ndarray, ps: np.ndarray) -> np.ndarray:
-        return np.array([0.5 * float(pp @ pp) + float(potential(qq)) for qq, pp in zip(qs, ps)])
+        return np.array([0.5 * float(pp @ pp) + float(potential(qq)) for qq, pp in zip(qs, ps, strict=True)])
 
     e0 = 0.5 * float(p @ p) + float(potential(q))
     results: dict[str, Any] = {}
@@ -1152,7 +1155,7 @@ def integrate_with_events(
         if previous_value * new_value < 0.0:
             # bisect in time for the crossing, re-integrating from the last accepted point
             low, high = 0.0, size
-            low_state, high_state = y, new_state
+            high_state = new_state
             for _ in range(60):
                 if high - low <= tolerance * max(1.0, abs(time)):
                     break
@@ -1161,7 +1164,7 @@ def integrate_with_events(
                 evaluations += used_mid
                 value = float(event(time + mid, mid_state))
                 if np.sign(value) == np.sign(previous_value):
-                    low, low_state = mid, mid_state
+                    low = mid
                 else:
                     high, high_state = mid, mid_state
             time = time + high

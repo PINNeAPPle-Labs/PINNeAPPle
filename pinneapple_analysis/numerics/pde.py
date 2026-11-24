@@ -226,6 +226,7 @@ def heat_1d_explicit(
     mode: int = 1,
     steps: int | None = None,
     t_end: float | None = None,
+    initial: Callable[[np.ndarray], np.ndarray] | None = None,
 ) -> HeatResult:
     """Explicit (FTCS) finite differences for ``u_t = alpha u_xx`` on ``[0, 1]``.
 
@@ -233,12 +234,20 @@ def heat_1d_explicit(
     ``r <= 1/2``; above it the highest mode is amplified by ``|1 - 4r|`` per step, so the solution grows
     geometrically and reaches overflow in a few hundred steps -- the ``PDE.CFL_VIOLATION`` diagnostic
     reports the measured amplification rather than merely complaining.
+
+    Worth knowing: with the default smooth datum (one sine mode) an ``r`` slightly above 1/2 looks *fine*,
+    because the unstable modes are not excited. The blow-up appears only once a grid-scale component is
+    present -- from a rough initial datum, a boundary condition, or round-off. That is why the diagnostic
+    is reported on the amplification and not on the observed growth.
     """
     if nx < 3:
         raise ValueError(f"nx must be at least 3; got {nx}")
     dx = 1.0 / nx
     r = alpha * dt / dx**2
     x, u = _initial_mode(nx, mode)
+    if initial is not None:
+        u = np.asarray(initial(x), dtype=np.float64).copy()
+        u[0] = u[-1] = 0.0
     if steps is None:
         steps = int(round(t_end / dt)) if t_end is not None else 1
     amplification = max_amplification("heat_explicit", r=r)
@@ -261,6 +270,7 @@ def heat_1d_crank_nicolson(
     mode: int = 1,
     steps: int | None = None,
     t_end: float | None = None,
+    initial: Callable[[np.ndarray], np.ndarray] | None = None,
 ) -> HeatResult:
     """Crank-Nicolson for the heat equation: second order in time, and stable for **every** ``dt``.
 
@@ -273,6 +283,9 @@ def heat_1d_crank_nicolson(
     dx = 1.0 / nx
     r = alpha * dt / dx**2
     x, u = _initial_mode(nx, mode)
+    if initial is not None:
+        u = np.asarray(initial(x), dtype=np.float64).copy()
+        u[0] = u[-1] = 0.0
     if steps is None:
         steps = int(round(t_end / dt)) if t_end is not None else 1
     n = u.size - 2
@@ -329,19 +342,26 @@ def heat_convergence(
     """
     solver = heat_1d_explicit if scheme == "explicit" else heat_1d_crank_nicolson
     errors: list[float] = []
-    steps_used: list[float] = []
+    spacings: list[float] = []
+    time_steps: list[float] = []
     for nx in nx_values:
         dx = 1.0 / nx
-        dt = r * dx**2 / alpha if scheme == "explicit" else r * dx**2 / alpha
+        dt = r * dx**2 / alpha
         steps = int(round(t_end / dt))
         result = solver(alpha, nx, t_end / steps, steps=steps, mode=1)
         exact = heat_1d_exact_mode(alpha, t_end, result.x, mode=1)
         errors.append(float(np.max(np.abs(result.u - exact))))
-        steps_used.append(dt)
-    estimate = fit_order(np.asarray(steps_used), np.asarray(errors), name=f"heat {scheme}")
+        spacings.append(dx)
+        time_steps.append(t_end / steps)
+    # the abscissa is dx: with dt = O(dx^2) the error is O(dt) = O(dx^2), so this fit returns 2 while a
+    # fit against dt would return 1 -- the same data, two different questions, and only one of them is
+    # the convergence order in the mesh
+    estimate = fit_order(np.asarray(spacings), np.asarray(errors), name=f"heat {scheme}")
     return {
         "scheme": scheme,
         "nx_values": [int(v) for v in nx_values],
+        "spacings": [float(v) for v in spacings],
+        "time_steps": [float(v) for v in time_steps],
         "errors": errors,
         "order": estimate.order,
         "ci95": list(estimate.ci95),
@@ -375,8 +395,15 @@ def advection_1d(
 
     The initial datum defaults to a square pulse at ``x in [0.2, 0.4]``, which carries both a jump and a
     smooth part -- the case where the scheme's diffusion (smearing) and dispersion (ripples) show up in
-    different places. ``scheme="tvd"`` applies the minmod-limited Lax-Wendroff flux, which is second order
-    where the solution is smooth and first order at the jumps, so no new extremum is created.
+    different places. ``scheme="tvd"`` applies the minmod-limited Lax-Wendroff flux: it creates no new
+    extremum at a jump and keeps the total variation close to the initial one, while Lax-Wendroff
+    overshoots and raises it by tens of percent.
+
+    Honesty note: the limited flux is the Sweby form, ``F = F_upwind + phi(r) 0.5 (1 - C)(u_{j+1} - u_j)``
+    with ``r`` the ratio of successive slopes, and the limiters here are the usual three, all inside the
+    Sweby region for this linear problem -- which is why the measured total variation does not grow
+    (1.9998 against 2 for the initial step) and no new extremum appears. That is evidence on this datum,
+    not a proof, and it says nothing about a nonlinear flux or a multidimensional sweep.
 
     Raises ``ValueError`` for an unknown scheme, ``courant > 1`` is allowed but reported as unstable.
     """
@@ -392,6 +419,7 @@ def advection_1d(
     else:
         u = np.asarray(initial(x), dtype=np.float64).copy()
 
+    initial_field = u.copy()  # the overshoot is measured against the datum actually used, custom or not
     base = "lax_wendroff" if scheme == "tvd" else scheme
     amplification = max_amplification(base, courant=courant)
 
@@ -410,11 +438,20 @@ def advection_1d(
                 with np.errstate(divide="ignore", invalid="ignore"):
                     ratio = np.where(np.abs(forward) > 1e-14, backward / np.where(forward == 0, 1e-14, forward), 0.0)
                 phi = _limiter(limiter, ratio)
+                # Sweby: the flux is upwind plus a limited fraction of the (Lax-Wendroff - upwind) correction,
+                # F = F_upwind + phi * 0.5 (1 - C) (u_{j+1} - u_j); with phi = 1 it is Lax-Wendroff and with
+                # phi = 0 it is first-order upwind. Adding the correction on top of Lax-Wendroff would
+                # double-count it, which is what the measured overshoot of 8 percent on the first step showed.
                 flux = 0.5 * (u + np.roll(u, -1)) - 0.5 * courant * (np.roll(u, -1) - u) \
-                    - 0.5 * courant * (1.0 - courant) * phi * forward
+                    - 0.5 * (1.0 - courant) * (1.0 - phi) * forward
                 u = u - courant * (flux - np.roll(flux, 1))
 
-    overshoot = float(max(np.max(u) - 1.0, 0.0)) if initial is None else 0.0
+    # a new extremum above the datum's maximum (or below its minimum) is what a non-TVD scheme creates
+    overshoot = float(max(
+        np.max(u) - np.max(initial_field),
+        np.min(initial_field) - np.min(u),
+        0.0,
+    ))
     diagnostics: list[Diagnostic] = []
     if amplification > 1.0 + 1e-12:
         diagnostics.append(explain("PDE.CFL_VIOLATION", scheme=scheme, courant=courant,
@@ -507,14 +544,15 @@ def wave_1d(
     """
     if nx < 8:
         raise ValueError(f"nx must be at least 8; got {nx}")
-    dx = 1.0 / nx
     x = np.linspace(0.0, 1.0, int(nx), endpoint=False)
     u0 = np.sin(2.0 * np.pi * x) if initial is None else np.asarray(initial(x), dtype=np.float64)
     previous = u0.copy()
     # zero initial velocity: the first step is the Taylor expansion u^1 = u^0 + dt^2/2 c^2 u_xx
     current = u0 + 0.5 * courant**2 * (np.roll(u0, -1) - 2.0 * u0 + np.roll(u0, 1))
     with np.errstate(over="ignore", invalid="ignore"):
-        for _ in range(int(steps)):
+        # `steps` advances in all, so the returned field is at t = steps * dt like the heat and advection
+        # solvers; the loop starts from (u^0, u^1) and therefore runs steps - 1 times.
+        for _ in range(max(int(steps) - 1, 0)):
             laplacian = np.roll(current, -1) - 2.0 * current + np.roll(current, 1)
             following = 2.0 * current - previous + courant**2 * laplacian
             previous, current = current, following

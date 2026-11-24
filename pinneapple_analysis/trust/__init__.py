@@ -34,3 +34,12 @@ from .corrections import (  # noqa: E402  (correção de especialista como checa
 )
 
 __all__ += ["Correction", "CorrectionStore", "correction_checks", "with_corrections"]
+
+from .flow_card import (  # noqa: E402  (conservação de massa e energia medidas na previsão, #159)
+    FlowSpec,
+    energy_balance,
+    flow_checks,
+    mass_balance,
+)
+
+__all__ += ["FlowSpec", "energy_balance", "flow_checks", "mass_balance"]

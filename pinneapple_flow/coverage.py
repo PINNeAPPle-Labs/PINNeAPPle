@@ -49,6 +49,9 @@ REASONS: dict[str, str] = {
     "pinneapple_analysis.trust.corrections": "a reviewer's correction stored as a rule and run as a check of the "
                                              "trust report: it is the record of what an engineer decided, cited by "
                                              "the report, not a computation step of a flow",
+    "pinneapple_analysis.trust.flow_card": "mass and energy conservation and the boundary-condition violation "
+                                           "measured on a predicted field: it is a check of a result against the "
+                                           "physics its spec states, like the scalar card next to it",
     "pinneapple_analysis.inverse_problems.recovery": "a recovered parameter with an interval, a warning when the "
                                                      "data cannot separate it from another, and the coverage that "
                                                      "interval was measured to have: it is the evidence a calibration "

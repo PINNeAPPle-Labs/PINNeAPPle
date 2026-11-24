@@ -36,14 +36,47 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "web_viewer", "serve", "turntable", "headless", "figure_caption",
            "LIGHTING_PRESETS", "LightingPreset", "Dashboard", "field_view", "FieldView", "VIEW_MAX_FACES",
            "cached_view", "view_paths", "save_view", "prune_views",
-           "sphere_surface", "rod_surface", "disc_surface"]
+           "sphere_surface", "rod_surface", "disc_surface",
+           "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
+           "bake_materials_headless", "benchmark", "detail"]
 
 
 def __getattr__(name):
     if name == "Dashboard":                        # pp.viz.Dashboard: the animation-centred dashboard
         from ..dashboard import Dashboard
         return Dashboard
+    if name in ("QUALITY", "DEVICE_BACKENDS", "HDRIS"):     # render() presets, backends and HDRI registry
+        from . import blender as _b
+        return getattr(_b, name)
+    if name == "SHADERS":                                   # the procedural recipes of the material library
+        from .pbr import SHADERS
+        return SHADERS
+    if name == "benchmark":                                 # the reference scenes and their records
+        import importlib                                    # not `from . import`: that would land back here
+        return importlib.import_module(".benchmark", __name__)
+    if name == "detail":                                    # bolts, welds and cast seams: pp.viz.detail.hex_bolt(...)
+        import importlib
+        return importlib.import_module(".detail", __name__)
     raise AttributeError(name)
+
+
+def bake_materials(*a, **kw):
+    """Bake the procedural material shaders into base colour, roughness and normal maps; see
+    :func:`.bake.bake_materials` (needs bpy)."""
+    from .bake import bake_materials as _b
+    return _b(*a, **kw)
+
+
+def bake_materials_headless(*a, **kw):
+    """The same through the Blender binary, for a machine without bpy; see :func:`.bake.bake_materials_headless`."""
+    from .bake import bake_materials_headless as _b
+    return _b(*a, **kw)
+
+
+def hdri_path(*a, **kw):
+    """The image behind ``render(background="hdri:<name>")``; see :func:`.blender.hdri_path`."""
+    from .blender import hdri_path as _h
+    return _h(*a, **kw)
 
 
 def turntable(*a, **kw):

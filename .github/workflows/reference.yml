@@ -54,6 +54,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0       # the next steps diff the pull request against its base commit, which a shallow
+                               # clone does not have: `git diff BASE...HEAD` fails on it for every pull request
 
       - uses: actions/setup-python@v7
         with:

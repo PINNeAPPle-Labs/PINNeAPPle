@@ -21,6 +21,9 @@ from pinneapple_design.topology import (  # noqa: E402
     ThermalCompliance2D,
     optimize,
 )
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 OUT = Path(__file__).parent / "results"
 OUT.mkdir(exist_ok=True)

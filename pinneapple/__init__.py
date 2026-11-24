@@ -609,6 +609,8 @@ _SUBMODULES = {
     "decision":   "pinneapple_decision",
     # Bayesian optimization and sequential design of experiments (#102)
     "bayesopt":   "pinneapple_analysis.bayesopt",
+    # simulation campaign: thousands of runs through one queue, with content addressing, retries and accounting
+    "campaign":   "pinneapple_orchestration.campaign",
     # one error-metric convention for the whole library
     "metrics":    "pinneapple_physics.metrics",
     # reproducing a recorded run: reproduced / divergent / refused (#1480)

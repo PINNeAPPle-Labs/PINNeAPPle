@@ -62,6 +62,9 @@ REASONS: dict[str, str] = {
                              "node that trains a graph model builds it inside the node",
     "pinneapple_data.schema": "the data contract a bundle carries -- manifest, fields, locations, units, gates; it "
                               "is a type the adapters fill and the gates read, not a computation step of its own",
+    "pinneapple_data.astro": "the yt reader (#515): one Enzo/FLASH/RAMSES/GADGET/Athena++ output as a "
+                             "PhysicalSample, which is the data step the flows already have a node for; a node of its "
+                             "own would carry the dataset path and the yt install as parameters",
     "pinneapple_simulation.launch": "ascent trajectories for the launch vertical: the flight profile, its atmosphere "
                                     "and its visuals are arranged by examples/rocket_launch, which no node wraps",
     "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "
@@ -176,6 +179,27 @@ REASONS: dict[str, str] = {
                                     "regret and the failure map take the truth and prediction arrays of a whole "
                                     "design sweep, which a flow form cannot hold (the reason "
                                     "pinneapple_data.multifidelity already has)",
+    # The five modules the merges of 2026-11-24 brought in without a node and without a reason, which turned
+    # tests/test_flow_library_nodes.py red on main for every frente. Each one is a shape a node cannot hold, and the
+    # reason says which shape -- the debt that is left is the node, not the sentence.
+    "pinneapple_analysis.design_study": "the study specification and run_study of #1036: it takes a whole study "
+                                        "(objective, variables with bounds, a runner per point) and a folder, and "
+                                        "the app's wizard (#31) is the caller -- a node of it would be the study "
+                                        "itself, not a step inside one",
+    "pinneapple_analysis.numerics": "the numerical lab of #1048/#1056-#1062: a catalogue of (problem, method) pairs "
+                                    "with the order measured against step size and against cost, which the app reads "
+                                    "as a table (#29); choosing a method happens before the run, not inside it",
+    "pinneapple_analysis.posterior": "posterior sampling with the diagnostics that say whether the posterior is "
+                                     "there: HMC and adaptive chains take a log-posterior callable and return chains "
+                                     "plus R-hat and effective sample size, which is a study of its own; the node "
+                                     "belongs with the inverse-problems one that owns the likelihood",
+    "pinneapple_data.co_kriging": "the Kennedy-O'Hagan co-kriging of #103: it takes the arrays of two fidelity levels "
+                                  "and returns a fitted surrogate with the discrepancy learned rather than assumed, "
+                                  "which is the whole multi-fidelity study -- the sampling step is the one "
+                                  "pinneapple_data.multifidelity already covers",
+    "pinneapple_neural.physics_model": "the common PhysicsModel interface of #155: it is the type the five model "
+                                       "families are, so a node uses it the way a node uses a dataclass, not as a "
+                                       "computation of its own",
 }
 
 

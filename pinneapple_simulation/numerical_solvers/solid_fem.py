@@ -384,7 +384,13 @@ def fea_figure(res: FEMResult, field: str = "von_mises", scale: float | None = N
     cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax, ticks=lev)
     cb.ax.set_yticklabels([f"{v:+.3e}" for v in lev], fontsize=7, family="monospace")
     cb.ax.set_title(name + "\n(Avg: 100%)", fontsize=8, loc="left", family="monospace")
-    fig.text(0.04, 0.04, f"{title}\nDeformed shape: U, deformation scale factor {scale:.4g}\n"
+    # The caption is printed on the image, not only in the legend: the field, its unit, the range and the
+    # exaggeration of the deformed shape, in the form the library reads back (#67).
+    from pinneapple_tools.visualization.caption import figure_caption
+    quantity = {"von_mises": "von Mises", "displacement": "displacement", "sxx": "S11"}[field]
+    cap = figure_caption(label or quantity, "mm" if field == "displacement" and label is None else unit,
+                         value_range=(lo, hi), deform=scale if umax > 0 else None)
+    fig.text(0.04, 0.04, f"{title}\n{cap.text()}\n"
              f"{res.info.get('element', 'C3D8I')} elements: {res.info.get('elements', 0)}, DOF: "
              f"{res.info.get('dofs', 0)}", fontsize=7.5, family="monospace", color="#333")
     _triad(fig)

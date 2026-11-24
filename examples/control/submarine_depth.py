@@ -38,6 +38,9 @@ from pinneapple_simulation.naval import (  # noqa: E402
 )
 from pinneapple_simulation.naval.submarine import SubmarineDepth  # noqa: E402
 from pinneapple_systems.control import simulate_loop, tune_by_optimization  # noqa: E402
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 

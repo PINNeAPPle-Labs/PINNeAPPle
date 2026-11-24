@@ -29,6 +29,8 @@ SOLVERS = {
     "laplacianFoam": ("scalar", "SIMPLE", ["T"], False, "transportProperties"),
     "buoyantSimpleFoam": ("compressible", "SIMPLE", ["U", "p", "p_rgh", "T"], True, "thermophysicalProperties"),
     "buoyantPimpleFoam": ("compressible", "PIMPLE", ["U", "p", "p_rgh", "T"], True, "thermophysicalProperties"),
+    "interFoam": ("multiphase", "PISO", ["U", "p_rgh", "alpha.water"], True, "transportProperties"),
+    "interIsoFoam": ("multiphase", "PISO", ["U", "p_rgh", "alpha.water"], True, "transportProperties"),
     "rhoSimpleFoam": ("compressible", "SIMPLE", ["U", "p", "T"], True, "thermophysicalProperties"),
     "rhoPimpleFoam": ("compressible", "PIMPLE", ["U", "p", "T"], True, "thermophysicalProperties"),
 }
@@ -64,6 +66,16 @@ EVIDENCE = {
     "no_nu": "icoFoam stops at start-up: \"Entry 'nu' not found in dictionary ... transportProperties\"",
     "courant": "icoFoam on the cavity ran to the end at Courant 3.4 and even 50, but the transient is wrong: "
                "above 1 PISO loses time accuracy, and convection-dominated flows diverge",
+    # issue #132: traced on OpenFOAM v2606, cases in tests/test_openfoam_limits.py
+    "wall_dist": "interFoam on the dam-break case switched from kEpsilon to kOmegaSST stops: \"Entry 'method' not "
+                 "found in dictionary system/fvSchemes/wallDist\"",
+    "omega_schemes": "the same case then stops twice: \"Entry 'div(rhoPhi,omega)' not found in dictionary "
+                     "system/fvSchemes/divSchemes\" and \"Entry 'omegaFinal' not found in dictionary "
+                     "system/fvSolution/solvers\"",
+    "rho_solver": "buoyantPimpleFoam stops before the first step: \"Entry 'rho' not found in dictionary "
+                  "system/fvSolution/solvers\"",
+    "correct_phi": "buoyantPimpleFoam on the hotRoom case without correctPhi/pcorr completes with no warning, but "
+                   "the first step's local continuity error is 0.00161 against 0.000129 with the correction (12x)",
 }
 
 
@@ -316,7 +328,7 @@ def check(fs: Dict[str, bytes], root: str = "") -> Report:
                 "patches)", rule="bc_coverage")
     # ---------------------------------------------------------------- solver settings
     _solver(rep, fs, root, ctrl, ctrl_t, app, kind, algo, required, turb_fields, p_fixed_somewhere, U_ref, mesh,
-            nonorth_max)
+            nonorth_max, turb_model)
     return rep
 
 
@@ -387,7 +399,8 @@ def _algo_dict(fv: Dict[str, Any], algo: Optional[str]) -> Dict[str, Any]:
     return {}
 
 
-def _solver(rep, fs, root, ctrl, ctrl_t, app, kind, algo, required, turb_fields, p_fixed, U_ref, mesh, nonorth_max):
+def _solver(rep, fs, root, ctrl, ctrl_t, app, kind, algo, required, turb_fields, p_fixed, U_ref, mesh, nonorth_max,
+            turb_model: Optional[str] = None):
     fv, fv_t = _dict(fs, root + "system/fvSolution")
     sc, sc_t = _dict(fs, root + "system/fvSchemes")
     for name, d in (("system/controlDict", ctrl), ("system/fvSolution", fv), ("system/fvSchemes", sc)):
@@ -467,8 +480,11 @@ def _solver(rep, fs, root, ctrl, ctrl_t, app, kind, algo, required, turb_fields,
                 need = [f for f in need if f not in ("T",)] + ["h|e", "K"]
             miss = []
             for f in need:
-                if not any(_match(div, f"div(phi,{x})") for x in f.split("|")):
+                # a compressible or multiphase case names the flux rhoPhi; both spellings are the same term
+                if not any(_match(div, f"div(phi,{x})") or _match(div, f"div(rhoPhi,{x})") for x in f.split("|")):
                     miss.append(f"div(phi,{f.split('|')[0]})")
+            if kind == "multiphase" and not (_match(div, "div(phi,alpha)") or _match(div, "div(phi,alpha.water)")):
+                miss.append("div(phi,alpha)")
             if kind == "incompressible" and app not in ("icoFoam", "nonNewtonianIcoFoam") and \
                     not _match(div, "div((nuEff*dev2(T(grad(U)))))") and not _match(div, "div((nuEff*dev(T(grad(U)))))"):
                 miss.append("div((nuEff*dev2(T(grad(U)))))")
@@ -514,6 +530,58 @@ def _solver(rep, fs, root, ctrl, ctrl_t, app, kind, algo, required, turb_fields,
                     "Above 70° the explicit non-orthogonal part of the Laplacian is large; without correctors the "
                     "pressure equation is inaccurate and can diverge.", "Set nNonOrthogonalCorrectors 2 and use "
                     "laplacian/snGrad 'corrected' limited 0.33 or 0.5.", rule="nonorth_correctors", file="system/fvSolution")
+    # free surface with k-omega SST and the transient buoyant start-up: the limits measured in issue #132
+    if app in SOLVERS:
+        omega_model = bool(turb_model and turb_model.startswith(("kOmega", "komega")))
+        if kind == "multiphase" and omega_model and sc and not sc.get("__error__"):
+            wd = sc.get("wallDist")
+            if not isinstance(wd, dict) or not wd.get("method"):
+                rep.add("solver", "fail", f"Turbulence model {turb_model} without wallDist in fvSchemes",
+                        "k-omega models need a wall distance to evaluate omega at the wall; kEpsilon does not, so "
+                        "switching the model on an existing free-surface case stops it at start-up.",
+                        "Add wallDist { method meshWave; } to system/fvSchemes.", rule="wall_dist",
+                        file="system/fvSchemes", evidence=EVIDENCE["wall_dist"])
+            else:
+                rep.add("solver", "pass", f"Wall distance declared for {turb_model}", rule="wall_dist_ok",
+                        file="system/fvSchemes")
+            div = sc.get("divSchemes") or {}
+            omega_div = (_match(div, "div(rhoPhi,omega)") if isinstance(div, dict) else None) or \
+                (_match(div, "div(phi,omega)") if isinstance(div, dict) else None)
+            omega_solver = bool(_match(fv.get("solvers", {}), "omega") and _match(fv.get("solvers", {}), "omegaFinal")) \
+                if isinstance(fv.get("solvers"), dict) else False
+            if not omega_div:
+                rep.add("solver", "fail", f"{turb_model}: divSchemes has no omega convection term",
+                        "With 'default none' the omega equation stops at its first solve, exactly as kOmegaSST did "
+                        "on the dam-break case; kEpsilon's div(rhoPhi,epsilon) does not cover it.",
+                        "Add div(rhoPhi,omega) Gauss upwind; next to the k entry.", rule="omega_schemes",
+                        file="system/fvSchemes", evidence=EVIDENCE["omega_schemes"])
+            if not omega_solver:
+                rep.add("solver", "fail", f"{turb_model}: no linear solver for omega/omegaFinal",
+                        "The solver stops with \"Entry 'omegaFinal' not found\" as soon as it solves omega.",
+                        "Use \"(U|k|omega).*\" (or explicit omega and omegaFinal entries) in system/fvSolution.",
+                        rule="omega_solver", file="system/fvSolution", evidence=EVIDENCE["omega_schemes"])
+            if omega_div and omega_solver:
+                rep.add("solver", "pass", f"{turb_model}: omega convection and linear solver declared",
+                        rule="omega_ok", file="system/fvSolution")
+        if kind == "compressible" and algo == "PIMPLE" and isinstance(fv.get("solvers"), dict):
+            sv = fv["solvers"]
+            if not _match(sv, "rho"):
+                rep.add("solver", "fail", "Transient compressible case without a rho linear solver",
+                        "buoyantPimpleFoam solves a density equation before the first time step and stops when the "
+                        "entry is missing.", "Add rho { solver PCG; preconditioner DIC; tolerance 1e-5; relTol 0; }",
+                        rule="rho_solver", file="system/fvSolution", evidence=EVIDENCE["rho_solver"])
+            else:
+                rep.add("solver", "pass", "Density equation has a linear solver", rule="rho_ok",
+                        file="system/fvSolution")
+            pimple = _algo_dict(fv, algo) or {}
+            correct = str(pimple.get("correctPhi", "no")).lower() in ("yes", "on", "true")
+            has_pcorr = bool(_match(sv, "pcorr"))
+            if not (correct and has_pcorr):
+                rep.add("solver", "warn", "Start-up flux not corrected (correctPhi/pcorr)",
+                        "The run completes and reports nothing, but the initial mass imbalance stays: the first "
+                        "step's local continuity error is 12x larger without the correction (measured on hotRoom).",
+                        "Keep correctPhi yes in the PIMPLE block and a pcorr solver in fvSolution.",
+                        rule="correct_phi", file="system/fvSolution", evidence=EVIDENCE["correct_phi"])
     # Courant number (transient)
     if algo in ("PISO", "PIMPLE") and ctrl and mesh is not None and U_ref is not None:
         dt = num(ctrl.get("deltaT"))

@@ -16,6 +16,7 @@ put the same facts in a JSON sidecar, an HTML tooltip or a paper's figure list w
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -117,4 +118,99 @@ def figure_caption(field: str, unit: str, *, label: str = "", kind: str = "value
                          method=str(method), status=str(status), source=str(source))
 
 
-__all__ = ["FigureCaption", "figure_caption", "DIMENSIONLESS", "STATUSES"]
+#: ``"Temperature [K]"`` -> name and unit; the bracket group may be followed by the rest of a caption
+#: (``"von Mises [MPa], 0 to 512 MPa, deformation x25"``). A label with no brackets declares no unit.
+_LABELLED = re.compile(r"^(?P<name>.+?)\s*\[(?P<unit>[^\]]+)\]")
+#: what a figure prints when it draws a deformed shape: the exaggeration and the unit its coordinates are in
+_DEFORM = re.compile(r"deformation\s*x\s*(?P<value>[\d.eE+-]+)")
+_LENGTH = re.compile(r"lengths in (?P<value>[A-Za-z]+)")
+
+
+def _declaration(text: str) -> tuple[str, str] | None:
+    """The (name, unit) a label declares, or None when it declares no unit.
+
+    A caption printed on the figure runs over several lines, so each line is a candidate: the first that reads
+    ``name [unit]`` is the declaration.
+    """
+    for line in str(text or "").splitlines():
+        match = _LABELLED.match(line.strip())
+        if match:
+            return (match.group("name").strip(), match.group("unit").strip())
+    return None
+
+
+def caption_from_figure(fig, *, filename: str = "", deform: float | None = None, length_unit: str = "m",
+                        method: str = "", status: str = "", source: str = "") -> FigureCaption:
+    """Read the caption back out of a figure that is already drawn, refusing one that declares no unit (#67).
+
+    The catalogue saves figures whose caption nobody wrote down, so the figure itself has to be the witness: the
+    colour bar's label first (it is the field the colours mean), then the y axis, then the x axis, then the title.
+    A label declares a unit the way this library writes it -- ``"Contact pressure [MPa]"`` -- and the first one that
+    does wins.
+
+    Raises
+    ------
+    ValueError
+        When no label on the figure declares a unit. That is the case the issue is about: the figure is then a
+        picture of colours, and the fix is in the drawing code, not here -- so this refuses instead of guessing.
+    """
+    import matplotlib.pyplot as plt  # noqa: F401  (only to keep the import local: caption.py stays light)
+
+    candidates: list[str] = []
+    for ax in fig.axes:
+        # a colour bar is an axes whose label is the quantity the colours read as
+        if getattr(ax, "_colorbar", None) is not None or ax.get_label() == "<colorbar>":
+            candidates.insert(0, ax.get_ylabel())
+    for ax in fig.axes:
+        if getattr(ax, "_colorbar", None) is None:
+            candidates.extend([ax.get_ylabel(), ax.get_xlabel(), ax.get_title()])
+    if getattr(fig, "_suptitle", None) is not None:
+        candidates.append(fig._suptitle.get_text())
+    # a caption the figure already prints on itself is the most explicit declaration there is
+    candidates.extend(text.get_text() for text in getattr(fig, "texts", []))
+
+    for text in candidates:
+        found = _declaration(text)
+        if found is not None:
+            name, unit = found
+            # the figure may have printed the exaggeration itself ("deformation x25, lengths in mm"): keep it, or the
+            # caption would drop the one fact that says the shape is not drawn true to scale
+            printed = [line for text_ in candidates for line in str(text_ or "").splitlines()]
+            if deform is None:
+                deform = _printed(printed, _DEFORM, float)
+            if length_unit == "m":
+                length_unit = _printed(printed, _LENGTH, str) or length_unit
+            return figure_caption(name, unit, label="", value_range=_colour_range(fig), deform=deform,
+                                  length_unit=length_unit, method=method, status=status, source=source)
+    where = f" {filename}" if filename else ""
+    raise ValueError(
+        f"figure{where} declares no unit on any label: a colour bar or an axis has to read 'quantity [unit]' "
+        f"(or '[-]' for a dimensionless quantity). Labels found: {[c for c in candidates if c]}")
+
+
+def _printed(lines, pattern, cast):
+    """The first value a figure printed for ``pattern``, or None when it printed none."""
+    for line in lines:
+        match = pattern.search(line)
+        if match:
+            try:
+                return cast(match.group("value"))
+            except ValueError:
+                continue
+    return None
+
+
+def _colour_range(fig) -> tuple[float, float] | None:
+    """The range the colours cover, from the figure's colour bar, when it has one."""
+    for ax in fig.axes:
+        if getattr(ax, "_colorbar", None) is not None:
+            try:
+                lo, hi = ax._colorbar.mappable.get_clim()
+            except AttributeError:                       # pragma: no cover - a colour bar without a mappable
+                continue
+            if hi > lo:
+                return (float(lo), float(hi))
+    return None
+
+
+__all__ = ["FigureCaption", "figure_caption", "caption_from_figure", "DIMENSIONLESS", "STATUSES"]

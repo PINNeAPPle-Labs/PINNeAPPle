@@ -500,7 +500,11 @@ def aircraft_glb(x: str, field: str = Query("", pattern="^(|cp|cf|all)$")):
         af = airliner_from(v)
         for k in (("cp", "cf") if field == "all" else (field,)):
             fields["_" + k.upper()] = surface_scalars(af, parts, {"xyz": z["xyz"], k: z[k]}, key=k)
-    return Response(to_glb(parts, fields=fields), media_type="model/gltf-binary",
+    from pinneapple_tools.visualization.studio import Scene, export_gltf      # the shared glTF layer (#281)
+    prop = [i for i, p in enumerate(parts) if p.group == "propeller"]
+    scene = Scene.from_parts(parts, axes="aircraft", title="airliner")
+    return Response(export_gltf(scene, fields, groups={"propeller": prop} if prop else None),
+                    media_type="model/gltf-binary",
                     headers={"Content-Disposition": 'inline; filename="airliner.glb"', "Cache-Control": "max-age=3600"})
 
 

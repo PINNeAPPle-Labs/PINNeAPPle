@@ -398,6 +398,50 @@ an import map). It opens from disk (`file://`) with no server and can be mailed;
 **Layers.** When the surfaces carry two or more `group` names, scene.json lists them and the panel gets a *Layers*
 row with one checkbox per group (`window.studio.setLayer(name, on)` from scripts).
 
+## Adding a viewer to a new example: `pp.viz.export_gltf`, `viewer_html`, `blender_render`
+
+The three calls a new example needs, whatever the geometry came from (#281). They are the geometry-agnostic part of
+the aircraft app's 3-D presentation; the aircraft specifics (its parts, materials, propeller group, axes) stay in
+`pinneapple_design.aero.airframe`, which calls the same `write_glb`.
+
+```python
+import pinneapple as pp
+
+glb  = pp.viz.export_gltf("wing.stl", {"cp": cp})                  # bytes; the field is the vertex attribute _CP
+page = pp.viz.viewer_html(grid, {"cp": cp}, "viewer/")             # index.html + scene.glb, the page of the section above
+pp.viz.blender_render("wing.stl", "wing.png", field="cp", samples=96)   # Cycles, jet scale, colour bar
+```
+
+The input is a mesh in any of the shapes the repository already produces:
+
+| You have | Pass |
+|---|---|
+| an STL, OBJ, glTF/GLB, VTK/VTP file, or anything `pinneapple_data.cae` reads | the path |
+| a PyVista grid (what `pp.viz.read_openfoam` returns, #60) or a PolyData | the object |
+| vertices and triangles in arrays | `(vertices, faces)` |
+| a `pinneapple_data.cae` mesh | the mesh object |
+| a scene already built with materials and lines | the `Scene` |
+
+`fields` is `{name: values}`: one value per vertex, or per cell (the lengths decide; a volume grid's cell values are
+interpolated to the nodes of its boundary), vectors as their magnitude, tensors as von Mises. A multi-surface scene
+takes `{name: {surface_name: values}}`, which is how the airliner passes one skin-pressure field per part.
+
+Things worth knowing before wiring it into an example:
+
+- **The colour range is not in the glb.** `viewer_html` writes the ranges in `scene.json` and the page computes them
+  (1st-99th percentile by default, *Full* on demand); a range baked into the geometry cannot be changed without
+  exporting again. `blender_render(field_range=(lo, hi))` pins the render's scale.
+- **A cell value is averaged onto the vertices** of the triangles it touches. A vertex colour cannot carry two values
+  at the same vertex; averaging is the honest way to say so, and the field's range is unchanged by it.
+- **The page has a size guide** (the table above): `viewer_html(..., max_faces=...)` decimates a copy for the page and
+  says so; above about 1 M triangles decimate the scene yourself with `scene.decimate(n)`.
+- **A render says why it cannot happen.** Without `bpy` and without a Blender binary, `blender_render` raises with the
+  install line; it never returns a path to a picture that was not rendered.
+- **The app viewers share the page module.** If the example is an app, serve the same `studio-core.js` (colour scale,
+  colour bar, tubes, slice textures, edges) and `fieldview3d.js` (`apps/_shared/static/shared/`) instead of writing a
+  second viewer: the aircraft app's `static/viewer3d.js` imports `/studio/studio-core.js` and keeps only its aircraft
+  modes, and its `/api/aircraft.glb` route now calls `pp.viz.export_gltf` with the propeller group.
+
 ## Fields, errors and deformed shapes in the apps: `pp.viz.field_view`
 
 The apps show a result on its mesh with one shared page module, `apps/_shared/static/shared/fieldview3d.js`, served at

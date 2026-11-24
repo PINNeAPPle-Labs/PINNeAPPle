@@ -13,6 +13,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from pinneapple_tools.visualization.fields import field_error_metrics
+
 # matplotlib imported lazily to respect dark_theme flag before pyplot import
 _DARK_SETUP_DONE = False
 
@@ -153,6 +155,7 @@ def plot_field_comparison(
             pred = res["pred"]
             pred_f = pred[:, fi] if pred.ndim > 1 else pred.ravel()
             err_f = np.abs(pred_f - ref_f)
+            m = field_error_metrics(ref_f, pred_f)      # the same numbers pp.viz.compare_solutions quotes (#63)
 
             model_name = res.get("name", f"Model{mi+1}")
             col_pred = 1 + 2 * mi
@@ -198,7 +201,7 @@ def plot_field_comparison(
 
             ax_p.set_title(f"{model_name}  {fname}")
             ax_p.set_xlabel("x")
-            ax_e.set_title(f"|Error|  {model_name}  {fname}")
+            ax_e.set_title(f"|Error|  {model_name}  {fname}\nL2 = {m['l2']:.3g}  ({100 * m['l2_relative']:.1f} % of RMS)")
             ax_e.set_xlabel("x")
 
     fig.suptitle(f"Arena Benchmark — {problem_name}", fontsize=15, y=1.01)

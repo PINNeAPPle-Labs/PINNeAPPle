@@ -117,11 +117,20 @@ def _from_soup(tris: np.ndarray, fmt: str) -> Mesh:
 
 # ------------------------------------------------------------------------------------------------ meshio
 def read_meshio(name: str, b: bytes) -> Mesh:
+    ext = os.path.splitext(name)[1].lower()
+    if ext in (".xdmf", ".xmf") and b.lstrip()[:1] == b"<":
+        # An XDMF3 file whose numbers are inline in the XML is read without meshio (#115); one that points at a
+        # companion HDF5 file is not, and falls through to meshio, which reads both.
+        from .xdmf import XdmfError, read_xdmf
+
+        try:
+            return read_xdmf(b)
+        except XdmfError:
+            pass
     try:
         import meshio
     except ImportError as e:                                           # pragma: no cover
         raise FormatError("reading this format needs meshio (pip install meshio)") from e
-    ext = os.path.splitext(name)[1].lower()
     with tempfile.TemporaryDirectory() as d:
         p = os.path.join(d, "upload" + ext)
         with open(p, "wb") as f:

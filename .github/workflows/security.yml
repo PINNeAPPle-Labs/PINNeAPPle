@@ -1,6 +1,7 @@
 name: Security
 
-# Static analysis, dependency and secret scans, Dockerfile lint, base-image scan, the security tests, and SBOMs.
+# Static analysis, dependency and secret scans, the supply-chain audit, Dockerfile lint, base-image scan, the
+# security tests, and SBOMs.
 # Fails on: a high-severity bandit finding, a known-vulnerable Python dependency, a committed secret, a Dockerfile
 # error, a critical fixable CVE in a base image, or a failing security test. Findings and the reasoning behind
 # the gates: docs/security/audit.md.
@@ -52,6 +53,11 @@ jobs:
           bandit -r apps pinneapple_security pinneapple_core/service -f json -o bandit.json || true
           bandit -r apps pinneapple_security pinneapple_core/service -lll -ii
 
+      - name: supply chain (#96: every declared dependency has a floor and a licence on record; copyleft is a decision)
+        # No network and no environment beyond this one: the same tree gives the same answer, which is what makes
+        # this the half that can run on a laptop as well as here. `make audit` is the same command.
+        run: python scripts/licensing/supply_chain.py --check --json > supply-chain.json
+
       - name: pip-audit (every app's requirements and the core package, resolved as the images install them)
         run: |
           cat apps/*/requirements.txt | sed 's/#.*//' | grep -v '^\s*$' | sort -u > app-requirements.txt
@@ -101,6 +107,7 @@ jobs:
           path: |
             bandit.json
             pip-audit-apps.json
+            supply-chain.json
             sbom-*.cdx.json
 
   tests:

@@ -14,7 +14,7 @@ PINN), ``limits`` (validity bounds, OOD gate, error concentration), ``model`` (`
 ``StudyResult`` of ``pinneapple_data.contracts``; imported on use). Needs ``pip install "pinneapple[surrogate]"``
 (scikit-learn; Parquet, HDF5 and ONNX support).
 """
-from . import examples
+from . import deploy, examples
 from .data import (
            SurrogateData,
            field_columns,
@@ -36,4 +36,4 @@ from .study import DEFAULT_TARGETS, StudyResult, evaluate, run_study
 __all__ = ["SurrogateData", "read_table", "from_table", "from_arrays", "field_columns", "inspect_table", "grid_coords",
            "from_snapshots", "snapshot_values", "Splits", "make_splits",
            "CANDIDATES", "applicable", "candidate_ids", "PDE_TYPES", "parse_pde", "OODGate", "limitations",
-           "SurrogateModel", "MODEL_KIND", "run_study", "StudyResult", "evaluate", "DEFAULT_TARGETS", "examples"]
+           "SurrogateModel", "MODEL_KIND", "run_study", "StudyResult", "evaluate", "DEFAULT_TARGETS", "examples", "deploy"]

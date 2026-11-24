@@ -191,6 +191,38 @@ A unit the reader can only report as "model units (length)" (CalculiX without a 
 `unknown` sentinel and **fails the `units` gate with a message naming the field** — a verdict a reviewer needs,
 rather than a conversion nobody declared. `bundle_from_mesh(units={"DISP": "mm"})` passes the override.
 
+### 5.1 Format interoperability — what round-trips, and what is declared instead (#115)
+
+A format is supported here when a field written into it reads back equal, not when a reader exists. Both directions
+are in `tests/test_format_round_trip.py`, and the tolerance is stated rather than implied.
+
+| Format | Write | Read | Round trip | Tolerance |
+|---|---|---|---|---|
+| **XDMF3** (inline XML) | `pinneapple_data.cae.xdmf.write_xdmf` | `read_xdmf` | points, connectivity, node and cell fields, one or several cell blocks | **exact** (`%.17g`, the round-trip precision of a double) |
+| **CGNS** (CGNS/HDF5, 3.4) | `cfd_formats.cgns_writer.write_cgns` | `cfd_formats.cgns_reader.read_cgns_mesh_and_fields` | node coordinates, element connectivity, vertex fields, one unstructured zone | **exact** (`R8`/`I8` both sides) |
+| **CGNS** from a `Mesh` | `cgns_writer.mesh_to_cgns` | the reader above | one chosen cell block and the point fields | **exact** |
+| VTU / HDF5 / NPZ / Parquet / CSV / JSON / bundle | `schema.cae.export_bundle` | `bundle_to_mesh` | section 5 above | per exporter |
+| **STEP** | — | `convert.detect_format` only | **not implemented, declared** | — |
+| **SSP** | — | — | **not implemented, declared** | — |
+
+The files `cgns_writer` produces were checked with the **CGNS project's own validator** (`cgnscheck`, libcgns 4.5.2
+via Homebrew): **0 errors**, and the same 7 benign warnings the reference-written fixture
+(`tests/fixtures/cfd_formats/real_cgns_mll.cgns`) gets. That is what pinned the attribute encoding down — `label` and
+`name` are 33-byte NULL-terminated strings, `type` is exactly `len(value) + 1`, and a first version of the writer
+that made all three 33 bytes **segfaulted** the validator rather than reporting anything.
+
+**STEP** is declared, not half-done. Reading one means evaluating a B-rep through an OpenCascade binding
+(`cadquery`/`OCP`, in the `cfd` and `cad` extras); writing one means constructing or tessellating one. Neither is in
+this library's dependency set, so the honest state is: the suffix is recognised (`detect_format("x.stp") == "step"`)
+and the CAD-consuming path (`pinneapple_blender.step_extension`, `pinneapple_design`) carries its own handling. A full
+STEP reader/writer belongs behind an optional extra with a NURBS-aware tolerance, which is a project rather than a
+patch.
+
+**SSP** (FMI's System Structure and Parameterization) is declared for the same reason: it is an XML+zip container for
+*system structure and parameter sets*, next to the FMU support in
+`pinneapple_simulation.external_solvers.modelica.fmu_inspect`. It is not a field format, nothing in this repository
+produces or consumes one today, and a half-written schema would be worse than saying so out loud.
+
 ## 6. Model-side gates (INT-005, second half) — a surrogate asked the same questions
 
 `pinneapple_veriphysics.surrogate_gates.run_surrogate_gates(predicted, ...)` takes a trained model's output and
@@ -254,6 +286,23 @@ the VeriPhysics evidence ledger.
   graph is the real-arithmetic copy, not the FFT one, and its input size is fixed.
   A pointwise surrogate (a PINN MLP) takes the first attempt and serves normally. The `onnxruntime` leg is not
   measured on a machine without it, and the report says that too.
+* **Compression for deployment (K13)** — `pinneapple_analysis.surrogate.deploy` returns a `DeploymentReport` with
+  both sides of a compression in one object: the relative L2 it cost and the p50 latency it bought, on the same
+  rows, plus the bytes before and after and whether the error stayed inside the tolerance the caller set. Three
+  paths, each measured rather than assumed (one thread, M-series CPU, batch of 4000 rows unless stated):
+
+  | Path | Error lost | Latency gained | Where it runs |
+  |---|---|---|---|
+  | `onnx-int8` (dynamic int8 weights, ONNX Runtime) | **0.40–0.54 %** | **1.5x** (1.24–1.89x across runs), 3.7x smaller on disk | any CPU with the `export` extra |
+  | `structured-prune` (whole hidden units removed) | 11.6 % at 95 % kept, **81 % at 50 %** | 1.16x, **2.15x** at 50 % (50 000 rows) | torch only |
+  | `torch-int8` (torch's dynamic int8) | 0.5–1.4 % | **0.77–1.16x** — it depends on the size, and on this stack it does not pay | torch only |
+
+  The numbers are the argument for the shape of the module. Quantization is the deployable path here; **pruning
+  without fine-tuning is not** — it is fast and it destroys the answer, and the report says so instead of the
+  module only offering the fast half. int8 wins on *batched* inference and loses on a single row (batch 1 measured
+  0.90x), so the report records the batch it measured and puts the single-row numbers in `details`: a "3x faster"
+  claim with the batch hidden is what this module exists to prevent. TensorRT is not executed — there is no NVIDIA
+  GPU here — and `tensorrt_status()` says that in the report rather than leaving a gap.
 
 ## 8. PhysicsNeMo bridge (INT-014) — the dictionary, not the package
 

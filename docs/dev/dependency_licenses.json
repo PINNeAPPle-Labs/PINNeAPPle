@@ -1,0 +1,207 @@
+{
+ "environment": "CPython 3.11.16 on darwin",
+ "note": "Licences are read from installed metadata: PEP 639 License-Expression, else the trove classifier, else the short License field. `unobserved` names the dependencies this environment did not have installed; they are not guessed.",
+ "packages": {
+  "fastapi": {
+   "licence": "MIT",
+   "version": "0.162.4"
+  },
+  "gmsh": {
+   "licence": "GNU General Public License v2 or later (GPLv2+)",
+   "version": "4.15.2"
+  },
+  "h5py": {
+   "licence": "BSD-3-Clause",
+   "version": "3.16.0"
+  },
+  "httpx": {
+   "licence": "BSD License",
+   "version": "0.28.1"
+  },
+  "huggingface_hub": {
+   "licence": "Apache Software License",
+   "version": "2.4.0"
+  },
+  "joblib": {
+   "licence": "BSD-3-Clause",
+   "version": "1.6.0"
+  },
+  "matplotlib": {
+   "licence": "Python Software Foundation License",
+   "version": "3.11.2"
+  },
+  "numpy": {
+   "licence": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+   "version": "2.4.6"
+  },
+  "onnx": {
+   "licence": "Apache-2.0",
+   "version": "1.23.2"
+  },
+  "pandas": {
+   "licence": "BSD License",
+   "version": "3.0.5"
+  },
+  "pillow": {
+   "licence": "MIT-CMU",
+   "version": "13.0.0"
+  },
+  "plotly": {
+   "licence": "MIT",
+   "version": "7.1.0"
+  },
+  "psutil": {
+   "licence": "BSD-3-Clause",
+   "version": "7.2.2"
+  },
+  "pydantic": {
+   "licence": "MIT",
+   "version": "2.14.3"
+  },
+  "pytest": {
+   "licence": "MIT",
+   "version": "9.1.1"
+  },
+  "pyvista": {
+   "licence": "MIT",
+   "version": "0.49.2"
+  },
+  "pyyaml": {
+   "licence": "MIT License",
+   "version": "6.0.3"
+  },
+  "reportlab": {
+   "licence": "BSD License",
+   "version": "5.1.0"
+  },
+  "requests": {
+   "licence": "Apache Software License",
+   "version": "2.34.2"
+  },
+  "ruff": {
+   "licence": "MIT",
+   "version": "0.17.5"
+  },
+  "safetensors": {
+   "licence": "Apache Software License",
+   "version": "0.8.0"
+  },
+  "scikit-learn": {
+   "licence": "BSD-3-Clause",
+   "version": "1.9.1"
+  },
+  "scipy": {
+   "licence": "BSD License",
+   "version": "1.17.1"
+  },
+  "sqlalchemy": {
+   "licence": "MIT",
+   "version": "2.1.8"
+  },
+  "sympy": {
+   "licence": "BSD License",
+   "version": "1.14.0"
+  },
+  "torch": {
+   "licence": "Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND ISC AND MIT AND Zlib",
+   "version": "2.15.0"
+  },
+  "tqdm": {
+   "licence": "MPL-2.0 AND MIT",
+   "version": "4.70.1"
+  },
+  "typing-extensions": {
+   "licence": "PSF-2.0",
+   "version": "4.16.0"
+  },
+  "uvicorn": {
+   "licence": "BSD-3-Clause",
+   "version": "0.54.0"
+  },
+  "warp-lang": {
+   "licence": "Apache-2.0",
+   "version": "1.19.0"
+  },
+  "xarray": {
+   "licence": "Apache-2.0",
+   "version": "2026.7.0"
+  },
+  "zarr": {
+   "licence": "MIT",
+   "version": "3.1.6"
+  }
+ },
+ "recorded": "2026-11-24",
+ "schema": "pinneapple.supply_chain/1",
+ "unobserved": [
+  "CoolProp",
+  "PyWavelets",
+  "accelerate",
+  "anthropic",
+  "argon2-cffi",
+  "astroML",
+  "astropy",
+  "asyncua",
+  "basyx-python-sdk",
+  "build",
+  "cadquery",
+  "cryptography",
+  "datasets",
+  "earthaccess",
+  "emmiai-noether",
+  "fast-simplification",
+  "fenics-dolfinx",
+  "fmpy",
+  "genesis-world",
+  "imageio",
+  "ipykernel",
+  "jax",
+  "jax-cfd",
+  "jupyter",
+  "kafka-python",
+  "kaleido",
+  "manifold3d",
+  "mapbox-earcut",
+  "mcp",
+  "meshio",
+  "miepython",
+  "mlflow",
+  "mpi4py",
+  "mujoco",
+  "mujoco-mjx",
+  "mypy",
+  "newton",
+  "numba",
+  "onnxruntime",
+  "open3d",
+  "openai",
+  "optuna",
+  "paho-mqtt",
+  "pdfminer.six",
+  "peft",
+  "petsc4py",
+  "pmdarima",
+  "prefect",
+  "pyarrow",
+  "pymodbus",
+  "pymsis",
+  "pytest-cov",
+  "pythonfmu",
+  "rerun-sdk",
+  "sentence-transformers",
+  "sgp4",
+  "skyfield",
+  "skyfield-data",
+  "smlibpy",
+  "statsmodels",
+  "tomli",
+  "trame",
+  "trame-vtk",
+  "trame-vuetify",
+  "transformers",
+  "trimesh",
+  "twine",
+  "wandb",
+  "yt"
+ ]
+}

@@ -61,7 +61,7 @@ locally means the same thing as a green workflow:
 | `make test-full` | `tests/`, the same selection the full-suite workflow runs | minutes |
 | `make lint` | the ruff selection CI enforces (`E9`: what ruff reports when a file does not parse) | ~2 s |
 | `make lint-backlog` | the wider selection declared in `pyproject.toml` (`E`, `F`, `I`, `B`, `UP`), as a statistic | ~2 s |
-| `make gates` | `scripts/changelog.py check`, `scripts/reference/build.py --check`, the licensing check | ~5 s |
+| `make gates` | `scripts/changelog.py check`, `scripts/reference/build.py --check`, the licensing check, the supply-chain audit (`make audit`) | ~6 s |
 | `make docs` | regenerate the module reference and build the site (needs `pip install -r requirements-docs.txt`) | minutes |
 | `make clean` | build and cache output, keeping `.venv` | — |
 
@@ -93,7 +93,7 @@ pytest tests/  # everything
 pytest tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.py \
        tests/test_agents_md.py tests/test_changelog_fragments.py tests/test_licensing_policy.py \
        tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py \
-       tests/test_turntable.py -q
+       tests/test_turntable.py tests/test_supply_chain_audit.py -q
 ```
 
 The fast suite is deliberately short: anything that trains a network, renders an image or needs an external solver

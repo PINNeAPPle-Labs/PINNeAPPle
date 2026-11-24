@@ -132,8 +132,27 @@ solver geometry as it is, `review` adds the cast seam, `cinematic` the fasteners
 the script applies the builders with the measurements of the part, because where a rib goes is a question about the
 part. The same spool body at the three levels is what the gallery shows side by side.
 
-What this does not do is chamfer an edge that already exists in the mesh: a bevel is a mesh operation on the body, not
-something a builder can add beside it.
+### The edge that is not a builder
+
+Everything above adds a surface beside the body. A chamfer is not that — it is the same body with material cut off its
+edges, and it needs the mesh's topology. `pp.viz.bevel_scene` is the one studio operation that edits the body:
+
+```python
+from pinneapple_tools.visualization.studio import bevel_scene
+sc = bevel_scene(sc, angle=35, width=0.0015, segments=2)   # a Scene you can render and export as usual
+```
+
+It welds the surfaces first (a mesh that came back from glTF has split vertices at every seam, and a bevel on those
+would cut a groove instead of an edge), then applies the bevel modifier through Blender with an angle limit — only
+edges sharper than `angle` are cut, so the facets of a curved wall stay a surface instead of turning into a bead. The
+result is read back as a `Scene`, materials and all.
+
+A machined edge is never perfectly sharp: at photographic distance the highlight along it is how a viewer tells a
+machined part from an extruded one, and it is the first thing that looks wrong in a figure of a casting.
+
+Two limits: the bevel rebuilds the mesh, so per-vertex fields do not survive it (it refuses to run unless you pass
+`drop_fields=True` — do it before mapping a result onto the body); and it needs Blender, in-process (`bpy`) or through
+the binary.
 
 ### Visual benchmark
 

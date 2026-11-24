@@ -9,7 +9,8 @@
     540
    ]
   },
-  "recorded_at": "2026-11-24T10:45:27Z",
+  "reason": "primeiro baseline do gate: as tres cenas de referencia do studio como estao depois da frente de fotorrealismo",
+  "recorded_at": "2026-11-24T12:11:21Z",
   "tolerances": {
    "coverage": 0.06,
    "edge_energy": 0.12,

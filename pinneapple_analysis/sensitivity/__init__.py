@@ -34,8 +34,19 @@ from pinneapple_analysis.sensitivity.sobol import (
     sobol_indices,
 )
 from pinneapple_analysis.sensitivity.study import sensitivity_study, study_cost
+from pinneapple_analysis.sensitivity.surrogate_error import (
+    SurrogateError,
+    ensemble_paths,
+    gp_posterior_paths,
+    paths_from_residuals,
+    ranking_stability,
+    sobol_from_paths,
+    sobol_with_paths,
+)
 
 __all__ = ["SobolIndices", "sobol_indices", "saltelli_design", "sobol_from_evaluations", "sobol_from_runs",
            "first_order_given_data",
            "MorrisResult", "morris", "morris_design", "effect_curves", "local_derivatives", "freeze_recommendation",
-           "verify_freeze", "testfunctions", "sensitivity_study", "study_cost"]
+           "verify_freeze", "testfunctions", "sensitivity_study", "study_cost",
+           "SurrogateError", "gp_posterior_paths", "ensemble_paths", "paths_from_residuals", "ranking_stability",
+           "sobol_from_paths", "sobol_with_paths"]

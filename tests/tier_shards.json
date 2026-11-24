@@ -387,6 +387,7 @@
     "tests/test_core_contracts_presets_support.py",
     "tests/test_core_contracts_small_gaps.py",
     "tests/test_core_contracts_validation_misc.py",
+    "tests/test_corrections.py",
     "tests/test_cost_columns.py",
     "tests/test_cost_regression_gate.py",
     "tests/test_cost_validation.py",

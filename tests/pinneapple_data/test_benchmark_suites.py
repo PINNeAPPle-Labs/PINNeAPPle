@@ -9,7 +9,12 @@ from __future__ import annotations
 
 import pytest
 
-from pinneapple_data.benchmark_suites import NASA_TMR_CASES, audit_nasa_tmr, nasa_tmr_cases, nasa_tmr_splits
+from pinneapple_data.benchmark_suites import (
+    NASA_TMR_CASES,
+    audit_nasa_tmr,
+    nasa_tmr_cases,
+    nasa_tmr_splits,
+)
 
 
 def test_the_suite_keeps_every_published_number_and_no_guessed_one():

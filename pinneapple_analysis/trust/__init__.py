@@ -25,3 +25,12 @@ __all__ += ["FieldTrustCard", "field_checks", "trust_card"]
 from .drift import DriftBaseline, DriftMonitor, DriftReport, DriftThresholds, RetrainDecision  # noqa: E402
 
 __all__ += ["DriftBaseline", "DriftMonitor", "DriftReport", "DriftThresholds", "RetrainDecision"]
+
+from .corrections import (  # noqa: E402  (correção de especialista como checagem do relatório)
+    Correction,
+    CorrectionStore,
+    correction_checks,
+    with_corrections,
+)
+
+__all__ += ["Correction", "CorrectionStore", "correction_checks", "with_corrections"]

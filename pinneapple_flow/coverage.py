@@ -46,6 +46,9 @@ REASONS: dict[str, str] = {
     "pinneapple_data.benchmark_suites": "the published freestream conditions of a public validation suite (NASA "
                                         "TMR), read as the input of that same audit: a reference table, not a step "
                                         "of a flow",
+    "pinneapple_analysis.trust.corrections": "a reviewer's correction stored as a rule and run as a check of the "
+                                             "trust report: it is the record of what an engineer decided, cited by "
+                                             "the report, not a computation step of a flow",
     "pinneapple_analysis.inverse_problems.recovery": "a recovered parameter with an interval, a warning when the "
                                                      "data cannot separate it from another, and the coverage that "
                                                      "interval was measured to have: it is the evidence a calibration "

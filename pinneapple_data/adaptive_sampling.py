@@ -39,6 +39,7 @@ from scipy.spatial import cKDTree
 
 from pinneapple_data.doe.designs import greedy_maximin
 
+
 # ---------------------------------------------------------------------------------------------- the cost functions
 def boundary_layer(X) -> np.ndarray:
     """A layer of thickness 0.05 against the ``x1 = 0`` face: almost all of the variation sits in 5 % of the box, which
@@ -279,7 +280,6 @@ def adapt(fn: Callable, space, budget: int = 64, *, n_initial: int = 16, batch: 
         raise ValueError(f"n_initial={n_initial} leaves nothing to adapt in a budget of {budget}")
 
     from scipy.stats import qmc
-    rng = np.random.default_rng(seed)
     if initial_design == "sobol":
         u0 = qmc.Sobol(d=d, scramble=True, seed=seed).random(2 ** int(np.ceil(np.log2(max(n_initial, 2)))))
         X = lo + u0[:n_initial] * width
@@ -403,5 +403,5 @@ def benchmark_adaptive(problem: str = "layer", budget: int = 64, repeats: int = 
             "n_test": int(n_test)}
 
 
-__all__ = ["adapt", "AdaptiveDesign", "Signal", "GPSurrogate", "benchmark_adaptive", "layer", "smooth",
-           "twin_ridge", "PROBLEMS"]
+__all__ = ["adapt", "AdaptiveDesign", "Signal", "GPSurrogate", "benchmark_adaptive", "boundary_layer", "smooth",
+           "buried_bump", "PROBLEMS"]

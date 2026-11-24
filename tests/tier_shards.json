@@ -277,6 +277,7 @@
     "tests/test_accelerated_foam.py",
     "tests/test_adaptation_and_active_learning.py",
     "tests/test_adaptive_forecasting.py",
+    "tests/test_adaptive_sampling.py",
     "tests/test_adding_guides.py",
     "tests/test_admin_router.py",
     "tests/test_aero_aircraft_surrogate.py",

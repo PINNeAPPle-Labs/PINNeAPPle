@@ -69,6 +69,9 @@ REASONS: dict[str, str] = {
     "pinneapple_data.graph": "the module builds the Graph objects the graph networks train on, from arrays and from "
                              "simulation records; a Graph is not something a flow's parameter form holds, so the "
                              "node that trains a graph model builds it inside the node",
+    "pinneapple_data.adaptive_sampling": "the loop that decides which simulation to run next (multi-signal adaptive "
+                                         "sampling of #209): it chooses the calls a campaign makes, it is not one of "
+                                         "them, in the same way as pinneapple_analysis.bayesopt",
     "pinneapple_data.schema": "the data contract a bundle carries -- manifest, fields, locations, units, gates; it "
                               "is a type the adapters fill and the gates read, not a computation step of its own",
     "pinneapple_data.astro": "the yt reader (#515): one Enzo/FLASH/RAMSES/GADGET/Athena++ output as a "

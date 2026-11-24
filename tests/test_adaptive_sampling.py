@@ -35,8 +35,8 @@ from pinneapple_data.adaptive_sampling import (  # noqa: E402
     Signal,
     _builtin_signals,
     adapt,
-    boundary_layer,
     benchmark_adaptive,
+    boundary_layer,
     smooth,
 )
 

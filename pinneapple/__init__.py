@@ -635,6 +635,8 @@ _SUBMODULES = {
     # external flow around any body in OpenFOAM (STL -> mesh -> forces, skin fields, streamlines, slices)
     "cfd":        "pinneapple_simulation.numerical_solvers.external_flow",
     "benchmark":  "pinneapple_analysis.benchmark",
+    # the linear-algebra layer: operators, POD, modal analysis, Krylov, condition estimate, adjoint (#202)
+    "linalg":     "pinneapple_analysis.linalg",
     # CalculiX studies: gmsh or hexahedral meshes, sets by geometry, static / modal / buckling / heat, results
     "fea":        "pinneapple_simulation.external_solvers.calculix.study",
     # CAE files: OpenFOAM, CalculiX/Abaqus, Gmsh, VTK readers, mesh quality, comparison, neutral dataset
@@ -892,6 +894,8 @@ __all__ = [
     "inference", "pinn", "dt", "arena", "design_opt",
     # Lazy submodule aliases (advanced)
     "uq", "transfer", "meta", "validate", "export",
+    # linear algebra (#202)
+    "linalg",
     # Quantum
     "quantum",
     # ---- v0.5 new features ----

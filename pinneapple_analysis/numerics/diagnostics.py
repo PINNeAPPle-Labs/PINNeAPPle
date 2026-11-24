@@ -350,6 +350,17 @@ _CATALOGUE: dict[str, tuple[Severity, str, str, str]] = {
         "amplified by the elimination order.",
         "Reorder (or equilibrate) the matrix before factorising.",
     ),
+    "LINALG.NEAR_DEFECTIVE": (
+        "warning",
+        "The matrix is near-defective: its eigenvalues are ill-conditioned",
+        "The eigenvectors are close to linearly dependent (the condition number of the eigenvector matrix is "
+        "large), so a perturbation of the matrix of size ``eps`` moves the eigenvalues by something like "
+        "``eps ** (1/m)`` for a Jordan block of size ``m`` -- not ``eps``. The eigenvalues are therefore not "
+        "a continuous function of the matrix entries in the way a well-conditioned matrix's are, and digits "
+        "that look significant in the computation need not be significant in the answer.",
+        "Do not read individual eigenvalues as physical modes when they sit in a defective cluster: report "
+        "the invariant subspace instead, or perturb the model to break the degeneracy on purpose.",
+    ),
     "LINALG.MULTIGRID_H_DEPENDENT": (
         "warning",
         "Multigrid convergence depends on the mesh",

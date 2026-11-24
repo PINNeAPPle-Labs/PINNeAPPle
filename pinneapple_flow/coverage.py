@@ -43,6 +43,9 @@ REASONS: dict[str, str] = {
                                     "constraints): it chooses the calls a campaign makes, it is not one of them",
     "pinneapple_data.regimes": "which bands of Reynolds, Mach and the other dimensionless numbers a dataset reaches: "
                                "it is part of the dataset audit, a check on the data before a flow runs on it",
+    "pinneapple_data.benchmark_suites": "the published freestream conditions of a public validation suite (NASA "
+                                        "TMR), read as the input of that same audit: a reference table, not a step "
+                                        "of a flow",
     "pinneapple_analysis.inverse_problems.recovery": "a recovered parameter with an interval, a warning when the "
                                                      "data cannot separate it from another, and the coverage that "
                                                      "interval was measured to have: it is the evidence a calibration "

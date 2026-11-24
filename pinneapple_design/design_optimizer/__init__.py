@@ -41,6 +41,15 @@ from .adjoint import (
     naca_parametric,
 )
 from .pareto import ParetoFront, pareto_dominates, compute_pareto_front, representatives
+from .robust import (
+    RobustPareto,
+    RobustSolution,
+    chance_constrained,
+    mean_plus_k_sigma,
+    pareto_with_uncertainty,
+    reliability_based,
+    verify_robust,
+)
 from .objective import (
     ObjectiveBase,
     DragObjective,
@@ -92,6 +101,9 @@ __all__ = [
     "naca_parametric",
     # Pareto / multi-objective
     "ParetoFront", "pareto_dominates", "compute_pareto_front", "representatives",
+    # robust design under uncertainty (#80)
+    "RobustSolution", "RobustPareto", "mean_plus_k_sigma", "chance_constrained", "reliability_based",
+    "verify_robust", "pareto_with_uncertainty",
     "ObjectiveBase", "DragObjective", "ThermalEfficiencyObjective",
     "StructuralObjective", "WeightMinimizationObjective", "CompositeObjective",
     "ConstraintBase", "BoxConstraint", "MassConservationConstraint",

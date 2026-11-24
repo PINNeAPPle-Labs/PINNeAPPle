@@ -20,17 +20,13 @@ examples/biology/cardiac_activation_mapping.py
 examples/black_hole_weather/evaluate.py
 examples/carcrashnet_pole_impact/run.py
 examples/condensation_falsification/run.py
-examples/control/cartpole_swing_up.py
-examples/control/submarine_depth.py
 examples/dynamics_toolkit/dynamics_toolkit.py
 examples/electrodynamics/10_pmsm_prius.py
 examples/electrodynamics/11_prius_drive.py
-examples/electrodynamics/12_prius_rotor_design.py
 examples/electrodynamics/13_prius_thermal.py
 examples/electrodynamics/14_prius_getdp_crosscheck.py
 examples/electrodynamics/15_prius_skew.py
 examples/electrodynamics/16_prius_end_effects.py
-examples/electrodynamics/17_prius_tolerances.py
 examples/electrodynamics/18_emachine_slides.py
 examples/electrodynamics/19_edge3d_verification.py
 examples/electrodynamics/24_afpm_quasi3d.py
@@ -38,8 +34,6 @@ examples/electrodynamics/25_afpm_surrogates.py
 examples/electrodynamics/26_charged_particles.py
 examples/free_surface/01_runner_slope_study.py
 examples/geomechanics/01_granular_column_collapse.py
-examples/geometry_library/02_wind_turbine_bem.py
-examples/geophysics/01_sphere_and_assimilation.py
 examples/handoff_cases/airfoil_ld/geometry/make_geometry.py
 examples/handoff_cases/airfoil_ld/simulation/plot_results.py
 examples/handoff_cases/airfoil_ld/simulation/summarise_baseline.py
@@ -49,7 +43,6 @@ examples/lbm/01_sphere_wind_tunnel.py
 examples/meshgraphnet/02_cylinder_flow_deepmind.py
 examples/modelica/02_ladle_surrogate.py
 examples/modelica/03_tank_inverse_pinn.py
-examples/motor_magnetics/01_spm_cogging_and_torque.py
 examples/motor_magnetics/03_multiphysics3d_surrogate.py
 examples/nvidia/03_robotsim_pick_and_place/run.py
 examples/nvidia/04_worldmodel_physics_video/run.py
@@ -64,7 +57,6 @@ examples/nvidia/17_omniverse_robotsim_worldmodel_perception/run.py
 examples/nvidia/18_all_stacks_heatsink_cell/run.py
 examples/pde_environment/05_kepler_orbit_validation.py
 examples/pde_environment/06_space_debris_cw_validation.py
-examples/physics_audit/pipe_regimes.py
 examples/physics_ensemble/compare_lookahead_gif.py
 examples/physics_ensemble/fno_pinn_gnn_solvers.py
 examples/physics_ensemble/sensor_noise_gif.py
@@ -82,10 +74,6 @@ examples/reproductions/xtfc_schiassi2021/run_xtfc.py
 examples/time_series/01_FNO.py
 examples/time_series/07_fft_lstm_hybrid.py
 examples/time_series/08_hht_lstm_hybrid.py
-examples/time_series/adaptive_forecasting.py
-examples/topology_optimization/01_mbb_beam.py
-examples/topology_optimization/02_heat_and_stokes_flow.py
-examples/topology_optimization/03_reluctance_rotor.py
 examples/use_cases/antennas/compact_range_2ghz.py
 examples/use_cases/antennas/compact_range_qz.py
 examples/use_cases/antennas/compact_range_two_fidelity.py

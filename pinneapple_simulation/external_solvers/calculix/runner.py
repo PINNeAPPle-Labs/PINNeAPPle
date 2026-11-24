@@ -76,12 +76,16 @@ def platform_tag(platform: str, image: str = IMAGE) -> str:
     return f"{image}-{platform.rsplit('/', 1)[-1]}"
 
 
-def ensure_image(image: str = IMAGE, attempts: int = 3, platform: str | None = None) -> str:
+def ensure_image(image: str = IMAGE, attempts: int = 3, platform: str | None = None,
+                 rebuild: bool = False) -> str:
     """Build the image if it is missing, for ``platform`` (the host's by default). The build downloads the base image
     and the Debian package, so a failed attempt is retried, each time from the next registry of :data:`BASE_IMAGES`
-    (registry or mirror hiccups and rate limits); the last failure is raised with Docker's own output."""
+    (registry or mirror hiccups and rate limits); the last failure is raised with Docker's own output.
+
+    ``rebuild`` builds even when an image of that name exists: a gate that tests whatever image happens to be in the
+    store is testing an older Dockerfile. Docker's layer cache keeps that cheap when nothing changed."""
     env = _docker_env()
-    if subprocess.run(["docker", "image", "inspect", image], capture_output=True, env=env).returncode == 0:
+    if not rebuild and subprocess.run(["docker", "image", "inspect", image], capture_output=True, env=env).returncode == 0:
         return image
     bases, plat = _bases(), platform or host_platform()
     for k in range(max(1, attempts)):
@@ -96,11 +100,11 @@ def ensure_image(image: str = IMAGE, attempts: int = 3, platform: str | None = N
                        f"{', '.join(bases[:max(1, attempts)])}); last output:\n{(p.stdout + p.stderr)[-4000:]}")
 
 
-def build_for(platform: str, image: str = IMAGE, attempts: int = 3) -> str:
+def build_for(platform: str, image: str = IMAGE, attempts: int = 3, rebuild: bool = True) -> str:
     """Build the image for one platform under its own tag (:func:`platform_tag`) and return that tag. The multi-platform
     entry point: on an arm64 machine ``linux/amd64`` is built under emulation (Docker Desktop's qemu or Rosetta), which
     is how the x86 image gets tested from a laptop."""
-    return ensure_image(platform_tag(platform, image), attempts=attempts, platform=platform)
+    return ensure_image(platform_tag(platform, image), attempts=attempts, platform=platform, rebuild=rebuild)
 
 
 def ccx_backend() -> str | None:

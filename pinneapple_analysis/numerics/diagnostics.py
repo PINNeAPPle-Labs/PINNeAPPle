@@ -419,6 +419,83 @@ _CATALOGUE: dict[str, tuple[Severity, str, str, str]] = {
         "Use a TVD limiter (minmod, van Leer, superbee) or a WENO reconstruction where the solution is "
         "non-smooth.",
     ),
+    # ---------------------------------------------------------------- regimes (which strategy fits the problem)
+    "REGIME.BOUNDARY_LAYER": (
+        "warning",
+        "Thin layer at a boundary",
+        "The field changes over a thickness that is a small fraction of the domain, and the change happens "
+        "against a wall or an edge. Uniform sampling spends almost every point on the region where the "
+        "solution is flat and a handful on the one where it is not, so the loss is dominated by the flat "
+        "part and the layer is learned late or not at all.",
+        "Concentrate points in the layer (residual- or curvature-based resampling), scale the wall-normal "
+        "coordinate so the layer has thickness O(1) before training, or ramp the problem: a thickened layer "
+        "first, the true one afterwards.",
+    ),
+    "REGIME.SHOCK": (
+        "warning",
+        "Interior jump in the field",
+        "The field goes from one plateau to another across a thickness that is a small fraction of the "
+        "domain, away from any boundary. A smooth-network residual is large in a band around the jump and "
+        "the minimisation spreads that error over the whole domain.",
+        "Add points where the residual is largest, enforce time causality when the jump forms in time, "
+        "split the domain (XPINN) at the jump, or continue in viscosity: solve a smeared jump first and "
+        "reduce the viscosity towards the target.",
+    ),
+    "REGIME.OSCILLATORY": (
+        "warning",
+        "The solution turns before it decays",
+        "The local Jacobian has an eigenvalue whose imaginary part is comparable to its modulus, so the "
+        "dynamics rotate: the solution oscillates on the same time scale on which it decays. A monotone "
+        "decay is a poor model for it, and in an oscillatory problem the phase error is as important as "
+        "the amplitude error.",
+        "Give the model sinusoidal features at the measured frequency, weight time so that earlier times "
+        "are learned first, and sample where the residual is largest over a cycle.",
+    ),
+    "REGIME.HIGH_FREQUENCY": (
+        "warning",
+        "Oscillatory field",
+        "The field oscillates across the domain, so the number of points per wavelength is what limits how "
+        "much of it any model can represent. A plain MLP is spectrally biased towards low frequencies: it "
+        "fits the envelope and misses the oscillation.",
+        "Provide Fourier features or a sinusoidal activation, check that the sampling resolves every "
+        "wavelength, and evaluate the error per wavelength rather than as one global number.",
+    ),
+    "REGIME.SHARP_FEATURE": (
+        "warning",
+        "Thin interior feature with no net change",
+        "The field has a core thinner than a small fraction of the domain, in the interior, and returns to "
+        "the level it started from -- a bump, a spot, a hot streak. There is no jump, so this is not a "
+        "shock and the shock-specific remedies do not apply, but the residual has the same shape: large in "
+        "a band around the core and averaged away by a global loss.",
+        "Add points around the core, or split the domain so one network is responsible for it; measure the "
+        "thickness again after each cycle, because the measured one is a lower bound.",
+    ),
+    "REGIME.MULTISCALE": (
+        "warning",
+        "Two separated scales in the spectrum",
+        "The spectrum has two bands with a gap between them: the field is a large-scale structure plus a "
+        "fine scale that carries a small but non-negligible part of the energy. Training on the large "
+        "scale first and then adding the fine one is not the same problem as training on both at once.",
+        "Use a curriculum (large scale first, fine scale added afterwards), or domain decomposition so "
+        "that each network sees one scale.",
+    ),
+    "REGIME.UNRESOLVED": (
+        "warning",
+        "The layer is not resolved on this grid",
+        "Fewer than three grid points lie across the layer, so the measured thickness is close to the grid "
+        "spacing and not the feature. The sharpness, the thickness and the strategies derived from them are "
+        "therefore lower bounds.",
+        "Refine the grid across the layer before drawing a conclusion from the numbers, or read them as "
+        "'at least this thin'.",
+    ),
+    "REGIME.SMOOTH": (
+        "info",
+        "No difficult regime detected",
+        "The stiffness ratio, the gradient concentration, the layer thickness and the spectrum are all "
+        "inside the bands where a uniform method behaves well. This is a statement about the evidence that "
+        "was measured, not a guarantee: a regime these detectors do not test for can still be present.",
+        "Nothing to change on the basis of this evidence.",
+    ),
 }
 
 

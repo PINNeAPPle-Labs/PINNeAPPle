@@ -48,6 +48,11 @@ Layout
     the CFL limit with the blow-up just above it, upwind/Lax-Friedrichs/Lax-Wendroff with their measured
     numerical diffusion and dispersion, TVD limiters, and manufactured solutions reporting the observed
     order.
+``regimes``
+    Which regime a problem is in and which strategy answers it (#207): the stiffness ratio and the Jacobian
+    spectrum for an ODE, the gradient concentration, layer thickness, location, jump, turning points and
+    two-band spectrum for a field, and a rule table that turns the numbers into ``stiff``, ``oscillatory``,
+    ``boundary_layer``, ``shock``, ``high_frequency`` or ``multiscale`` with the remedies attached.
 Not here yet
 ------------
 The app-facing glue (#29): a catalogue of (problem, method) pairs and a single call that returns the
@@ -93,6 +98,7 @@ from . import (
     ode,
     pde,
     quadrature,
+    regimes,
     roots,
 )
 from .convergence import (
@@ -124,6 +130,7 @@ __all__ = [
     "order_from_iterates",
     "pde",
     "quadrature",
+    "regimes",
     "richardson_extrapolate",
     "roots",
     "truncation_roundoff_balance",

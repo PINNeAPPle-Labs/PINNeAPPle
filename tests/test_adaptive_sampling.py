@@ -16,6 +16,9 @@ smooth           7.0e-4              4.1e-4                   0.57
 buried_bump      5.6e-2              6.4e-2                   1.14
 ===============  ==================  =======================  ==============
 
+The boundary layer against the other fixed designs, same run: LHS 0.30 (worst seed 0.61), uniform random 0.32
+(worst 0.52) — the gain is the adaptive rule, not the Sobol' sequence.
+
 Adding ``boundary_distance`` on the boundary layer: 0.27 (worst seed 0.40). The two signals' ablation on the same
 problem, at 4 repeats: ``boundary_distance + uncertainty`` alone 6.93, plus ``diversity`` 0.39 — the distance term is
 what stops the batch from collapsing onto the wall.
@@ -72,6 +75,16 @@ def test_adaptive_beats_sobol_at_equal_budget_on_the_boundary_layer():
     assert r["median_ratio"] < 0.65, r
     assert r["worst_ratio"] < 1.6, r                     # one seed may lose; the median is the claim
     assert all(row["rmse_sobol"] > 0 for row in r["rows"])
+
+
+def test_the_gain_is_not_an_artefact_of_the_sobol_baseline():
+    """Against a Latin hypercube and against plain uniform random, at the same budget: measured, all three."""
+    got = {b: benchmark_adaptive("boundary_layer", budget=64, repeats=6, baseline=b) for b in ("lhs", "random")}
+    assert got["lhs"]["median_ratio"] < 0.6, got["lhs"]
+    assert got["random"]["median_ratio"] < 0.6, got["random"]
+    assert all(r["rmse_fixed"] > 0 for b in got.values() for r in b["rows"])
+    with pytest.raises(ValueError, match="baseline must be"):
+        benchmark_adaptive("boundary_layer", budget=16, repeats=1, baseline="halton")
 
 
 def test_the_boundary_signal_makes_it_better_still():

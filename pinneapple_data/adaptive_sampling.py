@@ -349,9 +349,13 @@ def adapt(fn: Callable, space, budget: int = 64, *, n_initial: int = 16, batch: 
 
 
 # ---------------------------------------------------------------------------------------------- the benchmark
-def benchmark_adaptive(problem: str = "layer", budget: int = 64, repeats: int = 5, n_test: int = 4000,
-                       seed: int = 0, **kw) -> dict:
-    """The gain of :func:`adapt` over a Sobol' design at the *same* budget, on a named problem.
+def benchmark_adaptive(problem: str = "boundary_layer", budget: int = 64, repeats: int = 5, n_test: int = 4000,
+                       seed: int = 0, baseline: str = "sobol", **kw) -> dict:
+    """The gain of :func:`adapt` over a fixed design at the *same* budget, on a named problem.
+
+    ``baseline`` is the fixed design it is compared with: ``"sobol"`` (scrambled Sobol', the default), ``"lhs"``
+    (Latin hypercube) or ``"random"`` (plain uniform). On the boundary layer all three lose for the same reason —
+    the layer is 5 % of the box, so 5 % of the budget lands in it — and the benchmark reports each one.
 
     For every repeat, a Sobol' design and an adaptive design of ``budget`` points are drawn, the same surrogate
     (:class:`GPSurrogate`) is fitted to each, and both are scored by RMSE on ``n_test`` held-out Sobol' points of the
@@ -369,8 +373,10 @@ def benchmark_adaptive(problem: str = "layer", budget: int = 64, repeats: int = 
     ===============  ==========================  ========================  ==============
 
     ``boundary_layer`` is the case the issue asks for: a 5 % layer against a face, where adaptive sampling is 2.5x
-    more accurate at the same budget. Adding ``boundary_distance`` to the signals on that problem takes the median
-    ratio to **0.27** (worst seed 0.40) — the signal that needs no surrogate at all is the best one there.
+    more accurate at the same budget. It is not a Sobol' artefact: against the other fixed designs the same run gives
+    a median ratio of 0.30 (LHS, worst seed 0.61) and 0.32 (uniform random, worst 0.52). Adding ``boundary_distance``
+    to the signals on that problem takes the Sobol' median ratio to **0.27** (worst seed 0.40) — the signal that needs
+    no surrogate at all is the best one there.
     ``buried_bump`` is the measured non-result and belongs in the documentation as much as the win: a feature the
     surrogate has already smoothed away reports neither uncertainty nor gradient, so the design never goes to look
     (1.14, i.e. no gain). ``smooth`` is the guard: nothing to find, no loss.
@@ -384,20 +390,29 @@ def benchmark_adaptive(problem: str = "layer", budget: int = 64, repeats: int = 
     Xt = lo + qmc.Sobol(d=d, scramble=True, seed=seed + 99).random(2 ** int(np.ceil(np.log2(max(n_test, 2)))))
     Xt = Xt[:n_test]
     yt = f(Xt)
+    if baseline not in ("sobol", "lhs", "random"):
+        raise ValueError(f"baseline must be 'sobol', 'lhs' or 'random'; got {baseline!r}")
     rows = []
     for r in range(int(repeats)):
-        Xs = lo + qmc.Sobol(d=d, scramble=True, seed=seed + r).random(
-            2 ** int(np.ceil(np.log2(max(budget, 2)))))[:budget]
+        n_base = 2 ** int(np.ceil(np.log2(max(budget, 2))))
+        if baseline == "sobol":
+            Xs = lo + qmc.Sobol(d=d, scramble=True, seed=seed + r).random(n_base)[:budget]
+        elif baseline == "lhs":
+            Xs = lo + qmc.LatinHypercube(d=d, seed=seed + r).random(budget)
+        else:
+            Xs = lo + np.random.default_rng(seed + r).random((budget, d))
         ms = GPSurrogate(d, seed=r).fit(Xs, f(Xs))
-        rmse_sobol = float(np.sqrt(np.mean((ms.predict(Xt)[0] - yt) ** 2)))
+        rmse_fixed = float(np.sqrt(np.mean((ms.predict(Xt)[0] - yt) ** 2)))
         ad = adapt(f, list(zip(lo, hi, strict=True)), budget, seed=seed + 7 * r + 1, **kw)
         ma = GPSurrogate(d, seed=r).fit(ad.X, ad.y)
         rmse_adapt = float(np.sqrt(np.mean((ma.predict(Xt)[0] - yt) ** 2)))
-        rows.append({"repeat": r, "rmse_sobol": rmse_sobol, "rmse_adaptive": rmse_adapt,
-                     "ratio": rmse_adapt / rmse_sobol if rmse_sobol else float("nan")})
+        rows.append({"repeat": r, "baseline": baseline, "rmse_fixed": rmse_fixed, "rmse_sobol": rmse_fixed,
+                     "rmse_adaptive": rmse_adapt,
+                     "ratio": rmse_adapt / rmse_fixed if rmse_fixed else float("nan")})
     ratios = np.array([r["ratio"] for r in rows])
-    return {"problem": problem, "budget": int(budget), "repeats": int(repeats), "rows": rows,
-            "rmse_sobol": float(np.median([r["rmse_sobol"] for r in rows])),
+    return {"problem": problem, "budget": int(budget), "repeats": int(repeats), "baseline": baseline, "rows": rows,
+            "rmse_sobol": float(np.median([r["rmse_fixed"] for r in rows])),
+            "rmse_fixed": float(np.median([r["rmse_fixed"] for r in rows])),
             "rmse_adaptive": float(np.median([r["rmse_adaptive"] for r in rows])),
             "median_ratio": float(np.median(ratios)), "worst_ratio": float(np.max(ratios)),
             "n_test": int(n_test)}

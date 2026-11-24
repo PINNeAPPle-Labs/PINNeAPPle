@@ -36,6 +36,9 @@ from .fields import (
     plot_streamlines,
     compare_fields,
     plot_error,
+    compare_solutions,
+    field_error_metrics,
+    SolutionComparison,
     render_field,
     write_vtu,
 )
@@ -128,6 +131,8 @@ __all__ = [
     # Scalar / vector fields
     "plot_scalar", "plot_scalar_3d", "plot_vectors", "plot_streamlines",
     "compare_fields", "plot_error",
+    # Reference x surrogate x error, the standard comparison figure of a benchmark (#63)
+    "compare_solutions", "field_error_metrics", "SolutionComparison",
     # A field on an arbitrary domain: the picture and the VTU of the same numbers (#61)
     "render_field", "write_vtu",
     # PINN

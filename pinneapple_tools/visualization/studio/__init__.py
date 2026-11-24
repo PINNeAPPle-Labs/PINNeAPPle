@@ -9,6 +9,7 @@
     pp.viz.LIGHTING_PRESETS["lunar_south_pole"]         # black sky, low hard Sun (also: studio, lunar_low_sun, ...)
     pp.viz.field_view(mesh, fields, deform=..., markers=...)   # fields, errors and deformed shapes for the apps' views
     pp.viz.read_openfoam("case/")                       # an OpenFOAM case as a PyVista grid with its fields (#60)
+    pp.viz.compare_solutions(ref, pred, ...)           # reference, surrogate and the error map, L2 in the title (#63)
 
 Planetary surfaces (heightfield terrain, Sun shadows, Lunar-Lambert regolith): :mod:`.planetary`, :mod:`.shadows`.
 """
@@ -42,7 +43,8 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture",
            # #60: an OpenFOAM case, a .foam pointer or a VTK file as a PyVista grid
            "read_openfoam", "read_openfoam_patches", "read_grid", "read_vtk", "openfoam_times", "case_folder",
-]
+           # #63: reference, surrogate and the error map, with the L2 error as a number
+           "compare_solutions", "field_error_metrics"]
 
 _REEXPORT = {   # name -> (submodule of .visualization, attribute): imported on first use
     "read_openfoam": ("openfoam", "read_openfoam"),
@@ -51,6 +53,8 @@ _REEXPORT = {   # name -> (submodule of .visualization, attribute): imported on 
     "read_vtk": ("openfoam", "read_vtk"),
     "openfoam_times": ("openfoam", "openfoam_times"),
     "case_folder": ("openfoam", "case_folder"),
+    "compare_solutions": ("fields", "compare_solutions"),
+    "field_error_metrics": ("fields", "field_error_metrics"),
 }
 
 

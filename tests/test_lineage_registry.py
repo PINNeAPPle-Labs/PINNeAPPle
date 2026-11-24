@@ -157,3 +157,55 @@ def test_a_simple_chain_reads_the_new_keys():
     answer = g.trace("PRED-1")
     assert answer["problem"] and answer["geometry"] and answer["simulations"]
     assert answer["missing"] == ["datasets", "models", "validation"], answer["missing"]
+
+
+# ── the validation record: a real ValidationReport, and the trust report alternative ─────────────────────
+def _report(passed: bool, name: str = "mass_conservation"):
+    from pinneapple_analysis.validation.core import CheckResult, ValidationReport
+
+    report = ValidationReport.create("pipe_net")
+    report.checks.append(CheckResult(name=name, passed=passed, value=1e-6 if passed else 1e-1,
+                                     threshold=1e-4, description="residual of the continuity check"))
+    return report
+
+
+def test_a_real_validation_report_backs_the_version(registry):
+    registry.problems.save_from_preset(PROBLEM, "pipe_flow_3d")
+    scenario = _dataset(registry, geometry="pipe_rev_B")
+    version = registry.models.save(PROBLEM, torch.nn.Linear(2, 1), metadata={"datasets": [scenario]},
+                                   trust_report=_report(True))
+
+    g = from_registry(registry, PROBLEM, prediction="PRED-007", model_version=version)
+    node = g.nodes[f"validation:{PROBLEM}@{version}"]
+    assert node.parameters["verdict"] == "PASS", node.parameters
+    assert node.parameters["n_passed"] == 1 and node.parameters["checks"] == 1
+    assert node.timestamp, "the report says when it ran; the node keeps it"
+    answer = g.trace("PRED-007")
+    assert [v["id"] for v in answer["validation"]] == [node.id]
+    assert answer["complete"] is True, answer["missing"]
+
+
+def test_a_failing_validation_report_reads_as_fail(registry):
+    registry.problems.save_from_preset(PROBLEM, "pipe_flow_3d")
+    version = registry.models.save(PROBLEM, torch.nn.Linear(2, 1), trust_report=_report(False))
+    g = from_registry(registry, PROBLEM, prediction="PRED-008", model_version=version)
+    assert g.nodes[f"validation:{PROBLEM}@{version}"].parameters["verdict"] == "FAIL"
+
+
+def test_a_hand_written_trust_report_is_still_read(registry):
+    registry.problems.save_from_preset(PROBLEM, "pipe_flow_3d")
+    scenario = _dataset(registry, geometry="pipe_rev_B")
+    version = registry.models.save(PROBLEM, torch.nn.Linear(2, 1), metadata={"datasets": [scenario]},
+                                   trust_report={"status": "PASS", "n_passed": 4, "n_failed": 0})
+    g = from_registry(registry, PROBLEM, prediction="PRED-009", model_version=version)
+    node = g.nodes[f"validation:{PROBLEM}@{version}"]
+    assert node.parameters == {"verdict": "PASS", "n_passed": 4, "n_failed": 0}, node.parameters
+
+
+def test_a_validation_block_without_a_verdict_says_so(registry):
+    registry.problems.save_from_preset(PROBLEM, "pipe_flow_3d")
+    version = registry.models.save(PROBLEM, torch.nn.Linear(2, 1), metadata={"validation": {"checks": [{"name": "x"}]}})
+    g = from_registry(registry, PROBLEM, prediction="PRED-010", model_version=version)
+    node = g.nodes[f"validation:{PROBLEM}@{version}"]
+    assert "verdict" not in node.parameters, node.parameters
+    assert "no verdict" in node.notes, node.notes

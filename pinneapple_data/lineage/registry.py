@@ -140,22 +140,50 @@ def _model_nodes(registry: Any, problem_id: str, datasets: Dict[str, str], probl
     return out
 
 
+def _verdict(report: Dict[str, Any]) -> str:
+    """One word for the outcome, from whichever shape the report was stored in.
+
+    A ``ValidationReport.to_dict()`` carries ``passed``; a trust report carries ``status``; a hand-written record may
+    carry ``verdict`` or ``grade``. Nothing is invented when none of them is there: the word stays empty, and the
+    node says so instead of showing a blank that reads as fine.
+    """
+    for key in ("status", "verdict", "grade"):
+        if report.get(key):
+            return str(report[key])
+    if "passed" in report:
+        return "PASS" if report["passed"] else "FAIL"
+    return ""
+
+
 def _validation_nodes(registry: Any, problem_id: str, models: List[Artifact]) -> List[Artifact]:
-    """The validation record stored with each model version: its trust report, or its ``validation`` block."""
+    """The validation record stored with each model version: its trust report, or its ``validation`` block.
+
+    Both shapes are read because both are written in the library: ``ModelStore.save(trust_report=...)`` stores a
+    ``TrustReport`` (or its ``to_dict()``) under ``trust_report``, and a ``ValidationReport`` — the physics checks of
+    ``pinneapple_analysis.validation`` — under the same key or under ``validation``. The node keeps the verdict and
+    the counts of either, so a trace says which record backed the version and how it came out.
+    """
     out: List[Artifact] = []
     for model in models:
         meta = _json(f"{registry.models.root}/{problem_id}/{model.version}/metadata.json") or {}
         report = meta.get("trust_report") or meta.get("validation")
         if not report:
             continue
-        verdict = ""
-        if isinstance(report, dict):
-            verdict = str(report.get("status") or report.get("verdict") or report.get("grade") or "")
+        report = report if isinstance(report, dict) else (
+            report.to_dict() if hasattr(report, "to_dict") else {"raw": str(report)})
+        counts: Dict[str, Any] = {k: report[k] for k in ("n_passed", "n_failed", "n_not_run") if k in report}
+        if isinstance(report.get("checks"), list):
+            counts["checks"] = len(report["checks"])
+        params: Dict[str, Any] = {}
+        verdict = _verdict(report)
+        if verdict:
+            params["verdict"] = verdict
+        params.update(counts)
         out.append(Artifact(id=f"validation:{problem_id}@{model.version}", kind="validation",
                             name=f"validation of {model.version}", version=model.version,
                             item=f"{problem_id}@{model.version}", origin=registry.models.root,
-                            inputs=[model.id], parameters={"verdict": verdict} if verdict else {},
-                            notes=str(report)[:400] if not isinstance(report, dict) else None))
+                            timestamp=report.get("timestamp") or None, inputs=[model.id], parameters=params,
+                            notes=None if verdict else "the stored validation record carries no verdict"))
     return out
 
 

@@ -42,8 +42,8 @@ dependencies = [
   "matplotlib>=3.8",
   "torch>=2.2",
   "sympy>=1.12",     # SymbolicPDE / ProblemBuilder: "describe your own PDE" is a base feature
-  "xarray",
-  "zarr",
+  "xarray>=2024.1",  # PhysicalSample and the bundles: the release line the round trips run against (#96)
+  "zarr>=2.16",      # zarr_store serves both majors (_ZARR_MAJOR); 2.16 is the oldest it handles (#96)
   "tomli>=2.0; python_version < '3.11'",
 ]
 

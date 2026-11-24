@@ -758,6 +758,7 @@
     "tests/test_studio_units_electromagnetics.py",
     "tests/test_studio_units_systems.py",
     "tests/test_study_contracts.py",
+    "tests/test_supply_chain_audit.py",
     "tests/test_support_matrix.py",
     "tests/test_surrogate_contracts.py",
     "tests/test_surrogate_drift.py",

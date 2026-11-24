@@ -6,7 +6,7 @@
 #   make test-full    everything, the same selection the full-suite workflow runs
 #   make lint         the ruff selection CI enforces (syntax-level, expected to pass)
 #   make lint-backlog the wider selection declared in pyproject.toml (a backlog, not a gate)
-#   make gates        the repository's own checks: changelog, module reference, licensing
+#   make gates        the repository's own checks: changelog, module reference, licensing, supply chain
 #   make cost-table   remeasure the catalog cost table (#52, about two minutes) and refresh the module reference
 #   make cost-gate    the cost regression gate (#53): measure again and fail if an operation got more expensive
 #   make docs         regenerate the module reference and build the documentation site
@@ -31,9 +31,9 @@ TORCH_INDEX ?=
 FAST = tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.py \
        tests/test_agents_md.py tests/test_changelog_fragments.py tests/test_licensing_policy.py \
        tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py \
-       tests/test_turntable.py
+       tests/test_turntable.py tests/test_supply_chain_audit.py
 
-.PHONY: help setup test e2e test-full lint lint-backlog gates cost-table cost-gate docs clean
+.PHONY: help setup test e2e test-full lint lint-backlog gates audit cost-table cost-gate docs clean
 
 help:
 	@grep -E '^[a-z-]+:' $(MAKEFILE_LIST) | grep -v '^\.' | awk -F: '{printf "  make %-13s\n", $$1}'
@@ -73,6 +73,12 @@ gates:
 	$(PY) scripts/changelog.py check
 	$(PY) scripts/reference/build.py --check
 	$(PY) scripts/licensing/dependency_licenses.py --fail-on-copyleft
+	$(PY) scripts/licensing/supply_chain.py --check
+
+# #96: the dependency and licence audit on its own -- the floors every declaration promises are tested
+# (constraints/floors.txt, installed by .github/workflows/floors.yml) and the licence of each one is on record.
+audit:
+	$(PY) scripts/licensing/supply_chain.py --check
 
 # #52: measure the cost of every catalog method that has a probe, then refresh the module reference for the file's
 # own page. About two minutes; the table records the machine, so it belongs on the machine that produced the baseline

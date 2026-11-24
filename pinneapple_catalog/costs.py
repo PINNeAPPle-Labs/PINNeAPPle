@@ -41,7 +41,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from pinneapple_analysis.cost import CostLedger, ScalingStudy, scaling_study
+from pinneapple_analysis.cost import ScalingStudy, scaling_study
 from pinneapple_core.errors import BadValue, UnknownName
 
 from . import methods as _methods
@@ -398,27 +398,31 @@ def coverage(path: Path = COSTS_PATH) -> list[dict[str, Any]]:
     return rows
 
 
-def compare_with_baseline(current: dict[str, Any], baseline: dict[str, Any]) -> list[dict[str, Any]]:
+def compare_with_baseline(current: dict[str, Any], baseline: dict[str, Any], *, flops_factor: float = 1.05,
+                          time_factor: float = 1.5, mem_factor: float = 1.5) -> list[dict[str, Any]]:
     """Regressions between two ``method_costs.json`` documents on the same machine (issue #53's gate).
 
-    FLOPs gate tightly (they are deterministic), time and memory loosely. A different machine is refused rather than
-    compared: the same code measured on two CPUs is two measurements, not a regression.
+    FLOPs gate tightly (``flops_factor`` 1.05: they are deterministic, so a 6 % rise is a real 6 % rise); time and
+    memory gate loosely (1.5: the same code on the same machine still moves by tens of percent between runs). A
+    different machine is refused rather than compared: the same code measured on two CPUs is two measurements, not a
+    regression.
     """
     if current.get("machine", {}).get("platform") != baseline.get("machine", {}).get("platform"):
         raise BadValue(
             "the two cost tables were measured on different machines",
             fix="remeasure on the machine that produced the baseline "
                 "(scripts/measure_method_costs.py), or take that machine's file as the baseline")
-    ledger_now, ledger_base = CostLedger(), CostLedger()
-    from pinneapple_analysis.cost import CostRecord
-    for doc, ledger in ((baseline, ledger_base), (current, ledger_now)):
-        for mid, rec in doc.get("methods", {}).items():
-            if rec.get("status") != "measured":
-                continue
-            ledger.records[mid] = CostRecord(
-                name=rec["probe"], n_runs=rec.get("n_runs", 1), time_s=float(rec["median_time_s"]),
-                time_min_s=float(rec["median_time_s"]), time_iqr_s=0.0, peak_mem_bytes=rec.get("peak_mem_bytes"),
-                mem_source=rec.get("mem_source", ""), flops=rec.get("flops"), flops_source=rec.get("flops_source", ""))
-    return [{"method_id": r.name if r.name in ledger_base.records else r.name, "quantity": r.quantity,
-             "baseline": r.baseline, "current": r.current, "ratio": r.ratio}
-            for r in ledger_now.compare(ledger_base)]
+    rows: list[dict[str, Any]] = []
+    for mid, cur in current.get("methods", {}).items():
+        base = baseline.get("methods", {}).get(mid)
+        if not base or cur.get("status") != "measured" or base.get("status") != "measured":
+            continue
+        for quantity, b, c, factor in (("flops", base.get("flops"), cur.get("flops"), flops_factor),
+                                       ("time_s", base.get("median_time_s"), cur.get("median_time_s"), time_factor),
+                                       ("peak_mem_bytes", base.get("peak_mem_bytes"), cur.get("peak_mem_bytes"),
+                                        mem_factor)):
+            if b and c and c > b * factor:
+                rows.append({"method_id": mid, "probe": cur.get("probe", ""), "quantity": quantity,
+                             "baseline": float(b), "current": float(c), "ratio": float(c) / float(b),
+                             "factor": factor})
+    return rows

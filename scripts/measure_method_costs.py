@@ -13,7 +13,9 @@ fails when an operation got more expensive -- FLOPs strictly (5 %), time and mem
 from __future__ import annotations
 
 import argparse
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -38,17 +40,29 @@ def _check(path: Path) -> int:
     return 1 if missing or any(not str(r.get("reason") or "").strip() for r in unmeasured) else 0
 
 
-def _gate(current_path: Path, baseline_path: Path) -> int:
+def _gate(only, baseline_path: Path, repeats: int) -> int:
+    """Measure now, compare with the versioned baseline, fail on a regression: the local stand-in for the CI job
+    the repository cannot run (GitHub Actions is off for billing). Two minutes on a laptop, or less with ``--only``.
+
+    The fresh table goes to a file of its own every run, so a leftover from an earlier invocation can never be
+    compared as if it had just been measured, and ``--only`` compares exactly the methods it measured.
+    """
     if not baseline_path.exists():
-        print(f"no baseline at {baseline_path}: measure once and copy the table there to start the gate")
+        print(f"no baseline at {baseline_path}: measure once and copy that table there to start the gate")
         return 1
-    current, baseline = costs.load_costs(current_path), costs.load_costs(baseline_path)
-    rows = costs.compare_with_baseline(current, baseline)
+    baseline = costs.load_costs(baseline_path)
+    out = Path(os.environ.get("COST_GATE_OUT") or Path(tempfile.mkdtemp(prefix="cost-gate-")) / "method_costs.json")
+    fresh = costs.measure_all(only, repeats=repeats, path=out)
+    if only:
+        fresh = {**fresh, "methods": {mid: r for mid, r in fresh["methods"].items() if mid in set(only)}}
+    rows = costs.compare_with_baseline(fresh, baseline)
     for r in rows:
-        limit = "5 % (FLOPs are deterministic)" if r["quantity"] == "flops" else "50 % (wall time and memory are noisy)"
+        limit = ("5 % (FLOPs are deterministic)" if r["quantity"] == "flops"
+                 else "50 % (wall time and memory move between runs)")
         print(f"REGRESSION {r['method_id']}: {r['quantity']} {r['baseline']:.4g} -> {r['current']:.4g} "
               f"(x{r['ratio']:.2f}, limit {limit})")
-    print(f"cost gate: {len(rows)} regression(s)")
+    measured = sum(1 for r in fresh["methods"].values() if r.get("status") == "measured")
+    print(f"cost gate: {len(rows)} regression(s) over {measured} measured method(s); fresh table at {out}")
     return 1 if rows else 0
 
 
@@ -56,17 +70,16 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", default=str(costs.COSTS_PATH), help="where to write the cost table")
     ap.add_argument("--only", nargs="+", default=None, help="measure only these method ids")
-    ap.add_argument("--repeats", type=int, default=5, help="timed runs per size")
+    ap.add_argument("--repeats", type=int, default=None, help="timed runs per size (default: the probe's own)")
     ap.add_argument("--check", action="store_true", help="gate: every catalog method measured or explained")
     ap.add_argument("--gate", action="store_true", help="compare against the versioned baseline and fail on a regression")
     ap.add_argument("--baseline", default=str(BASELINE), help="the baseline the gate compares against")
     a = ap.parse_args()
 
     out = Path(a.out)
-    if not a.check and not a.gate:
-        costs.measure_all(a.only, repeats=a.repeats, path=out)
-        print(f"wrote {out} ({sum(1 for r in costs.coverage(out) if r['status'] == 'measured')} measured)")
     if a.check:
-        sys.exit(_check(out))
+        sys.exit(_check(Path(a.out)))
     if a.gate:
-        sys.exit(_gate(out, Path(a.baseline)))
+        sys.exit(_gate(a.only, Path(a.baseline), a.repeats))
+    costs.measure_all(a.only, repeats=a.repeats, path=out)
+    print(f"wrote {out} ({sum(1 for r in costs.coverage(out) if r['status'] == 'measured')} measured)")

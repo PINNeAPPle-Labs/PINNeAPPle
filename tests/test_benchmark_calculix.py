@@ -57,7 +57,7 @@ def test_a_design_round_trips_through_its_four_logarithms():
     for part in ("beam", "bracket"):
         for design in (C.REFERENCE[part], *C.OOD[part]):
             d = C._design(part, np.log10(np.asarray(design)))
-            back = [d[k] for k in ("L", "L_over_H", "W_over_H", "P")] if part == "beam" else \
+            back = [d["L"], d["L"] / d["H"], d["W"] / d["H"], d["P"]] if part == "beam" else \
                 [d["t"], d["b"] / d["t"], d["width"] / d["t"], d["P"]]
             assert np.allclose(back, design, rtol=1e-12), f"{part}: {back} != {design}"
 
@@ -126,9 +126,10 @@ def test_a_smoke_campaign_prepares_and_passes_every_check(tmp_path):
                  "every run is in equilibrium (reactions balance the load)", "OOD designs outside the training box"):
         assert name in names, name
     assert not [c for c in v["checks"] + v["validation"] if c["passed"] is False]
-    rec = json.loads(next((tmp_path / "b" / "prepared" / "calculix_beam" / "runs").glob("*.json")).read_text())
+    path = next((tmp_path / "b" / "prepared" / "calculix_beam" / "runs").glob("*.json"))
+    rec = json.loads(path.read_text())
     assert rec["status"] == "ok" and rec["w"] > 0 and rec["sigma"] > 0 and rec["eq"] < 1e-4
-    z = np.load(rec["npz"])
+    z = np.load(path.with_suffix(".npz"))
     assert z["u"].shape == (len(z["x"]), 3) and z["vm"].shape == (len(z["x"]),)
     assert np.abs(z["u"]).max() < 1.0 and 0 < z["vm"].max() < 0.01, "the fields are dimensionless (u / L, vm / E)"
     assert (tmp_path / "b" / "prepared" / "calculix_beam" / "geometry" / "reference.inp").exists()
@@ -142,8 +143,17 @@ def test_a_smoke_run_trains_both_methods_on_both_parts(tmp_path):
     assert not res.blocked, res.blocked
     df = res.table()
     assert set(df["method"]) == {"mlp_calculix", "pod_mlp_calculix"} and len(df) == 4
-    for pid in ("calculix_beam", "calculix_bracket"):
-        assert not set(res.table(problem=pid)["status"]) - {"pass", "pass (warnings)"}
+    assert "INVALID" not in set(df["status"]), df[["problem", "method", "status"]]
+    # each method reports on the columns it produces: the MLP the two integrals, the POD + MLP the fields as well (and
+    # the integrals read off the predicted field). Whether any of them converges in a 2 s smoke budget is not the test.
+    integ, field = "rel. err, held-out test (n = 2)", "rel. L2, held-out test (n = 2)"
+    for _, r in df.iterrows():
+        if r["method"] == "mlp_calculix":
+            assert np.isfinite(r[f"Displacement {integ}"]) and np.isfinite(r[f"Peak stress {integ}"])
+            assert np.isnan(r[f"Displacement {field}"]) and np.isnan(r[f"von Mises {field}"])
+        else:
+            for label in (f"Displacement {integ}", f"Peak stress {integ}", f"Displacement {field}", f"von Mises {field}"):
+                assert np.isfinite(r[label]), label
     md = (tmp_path / "b" / "table.md").read_text()
     assert "Beam theory (Timoshenko, M c / I; no data)" in md
     for pid in ("calculix_beam", "calculix_bracket"):

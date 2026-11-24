@@ -15,6 +15,9 @@ GP training points  coverage, bootstrap     coverage, combined     surrogate var
 300                 1.000                   1.000                  0.079
 =================  ======================  =====================  =====================
 
+Sobol' G (a = 1, 2, 5), same design and 8 training sets: 0.77 -> 0.88 at 25 points (surrogate share 0.79), 0.98 at 120
+points (share 0.29).
+
 The residual gap at 30 and 100 points is the surrogate's *bias*: :func:`gp_posterior_paths` is itself calibrated
 pointwise (94-95 % of the truth inside its own 95 % band, checked below), so what the combined interval does not
 cover is the part of the model error the model does not know about. That is why the study also reports which source
@@ -47,6 +50,9 @@ from pinneapple_analysis.sensitivity.testfunctions import (  # noqa: E402
     ishigami,
     ishigami_indices,
     ishigami_space,
+    sobol_g,
+    sobol_g_indices,
+    sobol_g_space,
 )
 from pinneapple_analysis.study_models import StudyModel  # noqa: E402
 
@@ -139,6 +145,35 @@ def test_combined_interval_covers_the_exact_ishigami_indices_at_a_higher_rate_th
     assert got[30]["share"] > got[100]["share"] > got[300]["share"], got
     assert got[300]["share"] < 0.30, got
     assert got[300]["combined"] >= 0.90, got
+
+
+def test_sobol_g_with_surrogates_of_controlled_quality():
+    """The same counting on the second benchmark, 6 indices x 8 training sets: 0.77 -> 0.88 at 25 points, 0.98 at 120."""
+    a = np.array([1.0, 2.0, 5.0])
+    space, exact = sobol_g_space(3), sobol_g_indices(a)
+    got = {}
+    for n_train, R in ((25, 8), (120, 8)):
+        boot = comp = share = 0.0
+        for r in range(R):
+            rng = np.random.default_rng(3000 + r)
+            Xd, layout = saltelli_design(space, 256, False, 0)
+            Xtr = rng.uniform(0.0, 1.0, (n_train, 3))
+            kernel = (ConstantKernel(1.0, (1e-3, 1e3)) * Matern(np.ones(3), (1e-1, 1e1), nu=2.5)
+                      + WhiteKernel(1e-4, (1e-6, 1e-1)))
+            gp = GaussianProcessRegressor(kernel, normalize_y=True, n_restarts_optimizer=1,
+                                          random_state=0).fit(Xtr, sobol_g(Xtr, a))
+            s = sobol_from_paths(gp_posterior_paths(gp, Xd, n_paths=100, seed=r), layout, n_draws=100, seed=r)
+            e = s.surrogate_error
+            for j in range(3):
+                boot += _inside(e.bootstrap_only["ST_ci"], exact["ST"][j], 0, j)
+                boot += _inside(e.bootstrap_only["S1_ci"], exact["S1"][j], 0, j)
+                comp += _inside(s.ST_ci, exact["ST"][j], 0, j)
+                comp += _inside(s.S1_ci, exact["S1"][j], 0, j)
+            share += float(np.mean(e.variance_share["surrogate"]["ST"][0]))
+        got[n_train] = {"bootstrap": boot / (6 * R), "combined": comp / (6 * R), "share": share / R}
+    assert got[25]["combined"] > got[25]["bootstrap"] + 0.08, got
+    assert got[25]["share"] > 0.6 and got[120]["share"] < 0.35, got
+    assert got[120]["combined"] >= 0.90, got
 
 
 def test_a_poor_surrogate_is_reported_as_dominating_the_interval():

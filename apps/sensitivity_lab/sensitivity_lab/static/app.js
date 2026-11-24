@@ -199,7 +199,14 @@ function render() {
       <table><tr><th>Parameter</th><th class="num">S1 estimated</th><th class="num">S1 exact</th><th class="num">ST estimated</th><th class="num">ST exact</th></tr>
       ${s.names.map((n, i) => `<tr><td>${esc(n)}</td><td class="num">${fmt(s.S1[0][i])} <span class="why">(${fmt(s.S1_ci[0][0][i])}–${fmt(s.S1_ci[1][0][i])})</span></td><td class="num">${fmt(R.exact.S1[i])}</td><td class="num">${fmt(s.ST[0][i])} <span class="why">(${fmt(s.ST_ci[0][0][i])}–${fmt(s.ST_ci[1][0][i])})</span></td><td class="num">${fmt(R.exact.ST[i])}</td></tr>`).join("")}</table></div>`;
   }
+  if (R.sobol.surrogate_error) h += surrogatePanel(R);
 
+  if (R.sobol.surrogate_error) {
+    const bo = R.sobol.surrogate_error.bootstrap_only, nm = R.sobol.names;
+    R.surrogate_split = {};
+    nm.forEach((n, i) => { R.surrogate_split[n] = { S1: [bo.S1_ci[0][OUT][i], bo.S1_ci[1][OUT][i]],
+                                                   ST: [bo.ST_ci[0][OUT][i], bo.ST_ci[1][OUT][i]] }; });
+  }
   h += `<div class="panel" style="margin-top:14px"><div class="sec"><h3>Importance ranking: ${esc(o)}</h3>
       <div class="meta">Sobol indices, ${Math.round(100 * s.level)} % bootstrap intervals (${s.n_boot} resamples). First order: the parameter alone. Total: with every interaction.</div>
       <div class="legend" style="margin:6px 0"><span><i class="s1"></i>first order S1</span><span><i class="st"></i>total ST</span><span>— threshold ${R.threshold}</span></div>
@@ -244,10 +251,29 @@ function render() {
 
 function barSvg(r) {
   const X = (v) => 2 + Math.max(0, Math.min(1, v)) * 96, th = Math.max(0, Math.min(1, R.threshold));
+  // with a surrogate-error interval the combined bar is drawn outside and the Monte Carlo part inside it, so the two
+  // sources of the width are read off the same bar (R.surrogate_split holds the resampling-only bounds per parameter)
+  const b = (R.surrogate_split || {})[r.name];
+  const inner = b ? `<line x1="${X(b.S1[0])}" x2="${X(b.S1[1])}" y1="9.5" y2="9.5" stroke="#64748b" stroke-width="1.6"/><line x1="${X(b.ST[0])}" x2="${X(b.ST[1])}" y1="19.5" y2="19.5" stroke="#64748b" stroke-width="1.6"/>` : "";
   return `<svg viewBox="0 0 100 26" preserveAspectRatio="none"><rect x="0" y="0" width="100" height="26" fill="#f8fafc"/>
     <rect x="2" y="4" width="${X(r.S1) - 2}" height="7" fill="var(--s1)"/><rect x="2" y="14" width="${X(r.ST) - 2}" height="7" fill="var(--st)"/>
     <line x1="${X(r.S1_ci[0])}" x2="${X(r.S1_ci[1])}" y1="7.5" y2="7.5" stroke="#1f2937" stroke-width="0.8"/><line x1="${X(r.ST_ci[0])}" x2="${X(r.ST_ci[1])}" y1="17.5" y2="17.5" stroke="#1f2937" stroke-width="0.8"/>
+    ${inner}
     ${R.threshold ? `<line x1="${X(th)}" x2="${X(th)}" y1="0" y2="26" stroke="#1a7f4b" stroke-dasharray="1.5 1.5" stroke-width="0.6"/>` : ""}</svg>`;
+}
+
+function surrogatePanel(R) {
+  const se = R.sobol.surrogate_error, o = R.outputs[OUT], rows = (R.surrogate_error_tables || {})[o] || [];
+  const rk = (R.ranking_stability || {})[o] || {}, pct = (v) => (v == null ? "–" : `${(100 * v).toFixed(0)} %`);
+  return `<div class="panel" style="margin-top:14px"><div class="sec"><h3>Where the width of the interval comes from: ${esc(o)}</h3>
+    <div class="meta">${esc(se.method)}, sources: ${esc(se.sources.join(" + "))}; ${se.n_paths} surrogate paths × ${se.n_draws} resamples of the ${R.sobol.n_base}-row design. The outer bar is the ${Math.round(100 * se.level)} % interval with both sources; the inner grey bar is what the resampling alone gives, which is the interval this app reports for a model taken as given.</div>
+    ${se.dominates ? `<div class="banner warn" style="font-weight:500">The surrogate's error dominates this interval: improve the model before trusting this ranking.</div>` : ""}
+    <div class="tblwrap"><table><tr><th>Parameter</th><th class="num">ST (both sources)</th><th class="num">width, resampling only</th><th class="num">width, surrogate only</th><th class="num">width, both</th><th class="num">surrogate share</th><th class="num">P(rank unchanged)</th><th class="num">P(top 2)</th></tr>
+    ${rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="num">${fmt(r.ST_combined)} <span class="why">(${fmt(r.ST_ci_combined[0])}–${fmt(r.ST_ci_combined[1])})</span></td><td class="num">${fmt(r.width_bootstrap_only)}</td><td class="num">${fmt(r.width_surrogate_only)}</td><td class="num">${fmt(r.width_combined)}</td><td class="num">${pct(r.share_surrogate)}</td><td class="num">${pct(r.rank_stability)}</td><td class="num">${pct(r.top_k ? r.top_k["2"] : null)}</td></tr>`).join("")}</table></div></div>
+    <div class="sec" style="margin-top:12px"><h3>Ranking stability</h3>
+    <div class="meta">Reference ranking by the median total index: ${esc((rk.reference || []).join(" > "))}. Kendall τ across the draws: ${rk.kendall_tau ? `${fmt(rk.kendall_tau.mean, 2)} (5–95 %: ${fmt(rk.kendall_tau.p05, 2)}–${fmt(rk.kendall_tau.p95, 2)})` : "–"}.</div>
+    <div class="bars">${(rk.reference || []).map((n) => { const j = se.names.indexOf(n), w = rk.rank_stability ? rk.rank_stability[j] : 0;
+      return `<span class="nm">${esc(n)}</span><svg viewBox="0 0 100 14" preserveAspectRatio="none"><rect x="0" y="2" width="100" height="10" fill="#f1f5f9"/><rect x="0" y="2" width="${(100 * Math.max(0, Math.min(1, w))).toFixed(1)}" height="10" fill="var(--st)"/></svg><span class="num">${pct(w)}</span>`; }).join("")}</div></div></div>`;
 }
 
 function heatmap(s) {

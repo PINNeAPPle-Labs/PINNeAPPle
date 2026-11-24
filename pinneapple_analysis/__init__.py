@@ -123,6 +123,9 @@ from .inverse_problems import (
 # ── trust re-exports ──────────────────────────────────────────────────────────
 from .trust import TrustGate, TrustScore
 
+# ── adaptive fidelity (#161): surrogate or solver per request, with the reason recorded
+from .fidelity import FidelityPolicy, FidelityReport, audit, serve  # noqa: E402
+
 
 # ── Integration helpers ────────────────────────────────────────────────────────
 
@@ -159,7 +162,8 @@ def invert(model, y_obs, sensor_locs, *,
 
 __all__ = [
     # Sub-modules (new names)
-    "uncertainty", "validation", "inverse_problems", "trust", "decision",
+    "uncertainty", "validation", "inverse_problems", "trust", "decision", "fidelity",
+    "serve", "audit", "FidelityPolicy", "FidelityReport",
     # Sub-modules (old aliases — backward compat)
     "uq", "validate", "inverse",
     # Integration

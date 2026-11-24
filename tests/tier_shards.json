@@ -760,6 +760,7 @@
     "tests/test_twin3d_scan.py",
     "tests/test_twin3d_usd_physics.py",
     "tests/test_twin3d_wear.py",
+    "tests/test_ugs.py",
     "tests/test_uncertainty_lab_app.py",
     "tests/test_uncertainty_study.py",
     "tests/test_unified_physics_agent.py",

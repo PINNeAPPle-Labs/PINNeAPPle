@@ -26,6 +26,10 @@ REASONS: dict[str, str] = {
     "pinneapple_registry": "artifact store and model gateway services (deployment, not a computation step)",
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",
+    "pinneapple_core.errors": "what a failure tells you to do about it: the action is carried by the exception, not "
+                              "computed by a step of a flow",
+    "pinneapple_core.run_record": "the record of one run and the command that redoes it: it is what a run leaves "
+                                  "behind, not a step inside one",
     "pinneapple_flow.reproducibility": "the record of a finished flow run and its reproducer: it re-runs a saved "
                                        "document to compare it with what was recorded, which is a check on a run, "
                                        "not a step of one",

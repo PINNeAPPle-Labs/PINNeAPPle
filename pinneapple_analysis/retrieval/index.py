@@ -25,6 +25,7 @@ from typing import List, Optional
 import numpy as np
 
 from pinneapple_analysis.retrieval.corpus import Document
+from pinneapple_core.errors import MissingExtra, install_hint
 
 __all__ = ["SearchResult", "RetrievalIndex", "DEFAULT_MODEL_NAME"]
 
@@ -38,10 +39,8 @@ def _require_sentence_transformers():
     try:
         import sentence_transformers
     except ImportError as e:
-        raise ImportError(
-            "pinneapple_analysis.retrieval requires the 'retrieval' extra: "
-            "pip install 'pinneapple[retrieval]' (installs sentence-transformers)."
-        ) from e
+        raise MissingExtra("the retrieval index embeds text with sentence-transformers, which is not installed",
+                           fix=install_hint("retrieval", "sentence-transformers")) from e
     return sentence_transformers
 
 

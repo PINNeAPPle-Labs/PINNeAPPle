@@ -7,6 +7,8 @@
 #   make lint         the ruff selection CI enforces (syntax-level, expected to pass)
 #   make lint-backlog the wider selection declared in pyproject.toml (a backlog, not a gate)
 #   make gates        the repository's own checks: changelog, module reference, licensing
+#   make cost-table   remeasure the catalog cost table (#52, about two minutes) and refresh the module reference
+#   make cost-gate    the cost regression gate (#53): measure again and fail if an operation got more expensive
 #   make docs         regenerate the module reference and build the documentation site
 #   make clean        remove build and cache output (keeps .venv)
 #
@@ -31,7 +33,7 @@ FAST = tests/test_public_api.py tests/test_front_door.py tests/test_onboarding.p
        tests/test_stability.py tests/test_solve_guide.py tests/test_dev_environment.py \
        tests/test_turntable.py
 
-.PHONY: help setup test e2e test-full lint lint-backlog gates docs clean
+.PHONY: help setup test e2e test-full lint lint-backlog gates cost-table cost-gate docs clean
 
 help:
 	@grep -E '^[a-z-]+:' $(MAKEFILE_LIST) | grep -v '^\.' | awk -F: '{printf "  make %-13s\n", $$1}'
@@ -71,6 +73,19 @@ gates:
 	$(PY) scripts/changelog.py check
 	$(PY) scripts/reference/build.py --check
 	$(PY) scripts/licensing/dependency_licenses.py --fail-on-copyleft
+
+# #52: measure the cost of every catalog method that has a probe, then refresh the module reference for the file's
+# own page. About two minutes; the table records the machine, so it belongs on the machine that produced the baseline
+# in pinneapple_catalog/method_costs_baseline.json.
+cost-table:
+	$(PY) scripts/measure_method_costs.py
+	$(PY) scripts/reference/build.py
+
+# #53: the regression gate. FLOPs strictly (5 %), time and memory loosely (50 %), on this machine only. `make
+# cost-gate` measures everything; `make cost-gate ONLY="S9 S19"` checks a couple of methods in seconds. This is the
+# local stand-in for the CI job the repository cannot run while GitHub Actions is off for billing.
+cost-gate:
+	$(PY) scripts/measure_method_costs.py --gate $(if $(ONLY),--only $(ONLY),)
 
 docs:
 	@$(PY) -c "import mkdocs" 2>/dev/null || \

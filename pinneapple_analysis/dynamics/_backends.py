@@ -19,6 +19,8 @@ from typing import Any
 
 import numpy as np
 
+from pinneapple_core.errors import BadValue, MissingExtra
+
 __all__ = ["BackendUnavailable", "Capabilities", "capabilities", "require", "to_numpy"]
 
 _INSTALL = {
@@ -29,7 +31,7 @@ _INSTALL = {
 }
 
 
-class BackendUnavailable(ImportError):
+class BackendUnavailable(MissingExtra):
     """A method was asked to use a backend that is not installed."""
 
 
@@ -74,10 +76,12 @@ def require(backend: str, purpose: str = ""):
     """Import and return ``backend`` (``"torch"``, ``"jax"``, ``"sympy"``, ``"scipy"``), or raise
     :class:`BackendUnavailable` with the install command and what it was needed for."""
     if backend not in _INSTALL:
-        raise ValueError(f"unknown backend {backend!r}; one of {sorted(_INSTALL)}")
+        raise BadValue(f"unknown backend {backend!r}",
+                       fix=f"ask for one of {sorted(_INSTALL)}; capabilities() shows which are already installed")
     if importlib.util.find_spec(backend) is None:
         why = f" for {purpose}" if purpose else ""
-        raise BackendUnavailable(f"{backend} is needed{why} but is not installed: {_INSTALL[backend]}")
+        raise BackendUnavailable(f"{backend} is needed{why} but is not installed",
+                                 fix=_INSTALL[backend])
     return importlib.import_module(backend)
 
 

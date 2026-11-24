@@ -29,6 +29,8 @@ import os
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
+from pinneapple_core.errors import UnknownName
+
 CATEGORIES = {"S": "solver", "T": "training", "E": "equation", "P": "problem"}
 
 
@@ -611,7 +613,10 @@ def get_method(method_id: str) -> Method:
     try:
         return _BY_ID[method_id]
     except KeyError:
-        raise KeyError(f"unknown method '{method_id}'") from None
+        near = [i for i in _BY_ID if str(method_id).upper() in i] or sorted(_BY_ID)[:8]
+        raise UnknownName(f"unknown method {method_id!r}: no entry with that id in the catalog",
+                          fix=f"call list_methods(category) and use one of its ids; the closest entries are {near}"
+                          ) from None
 
 
 def list_methods(category: Optional[str] = None) -> List[Method]:

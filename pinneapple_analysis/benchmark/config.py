@@ -10,6 +10,7 @@ from typing import Any
 import yaml
 
 from pinneapple_analysis.cost.equal_budget import ComputeBudget
+from pinneapple_core.errors import BadValue
 
 __all__ = ["BenchmarkConfig"]
 
@@ -67,13 +68,18 @@ class BenchmarkConfig:
     def __post_init__(self):
         self.budget = _budget_dict(self.budget)
         if not self.budget:
-            raise ValueError("budget is required (wall_s, flops or steps)")
+            raise BadValue("a benchmark run needs a compute budget: it is what makes two methods comparable",
+                           fix="pass budget={'wall_s': 60} (or flops=... / steps=...)")
         self.problem_budgets = {k: _budget_dict(v) for k, v in (self.problem_budgets or {}).items()}
         self.budget_levels = sorted(float(x) for x in (self.budget_levels or [1.0]))
         if abs(self.budget_levels[-1] - 1.0) > 1e-9 or self.budget_levels[0] <= 0:
-            raise ValueError("budget_levels must be fractions in (0, 1] and include 1.0")
+            raise BadValue(f"budget_levels must be fractions in (0, 1] ending at 1.0, got {self.budget_levels}",
+                           fix="use e.g. [0.25, 0.5, 1.0]: each level is a fraction of the budget, and the last "
+                               "one has to be the full budget")
         if self.seeds < 1 or self.n_trials < 1 or not 0 < self.search_fraction <= 1:
-            raise ValueError("seeds >= 1, n_trials >= 1 and 0 < search_fraction <= 1 are required")
+            raise BadValue(f"invalid run shape: seeds={self.seeds}, n_trials={self.n_trials}, "
+                           f"search_fraction={self.search_fraction}",
+                           fix="use seeds >= 1, n_trials >= 1 and 0 < search_fraction <= 1 (1/3 is the default)")
         if isinstance(self.problems, (str, bytes)) or not isinstance(self.problems, (list, tuple)):
             self.problems = [self.problems]
         if isinstance(self.methods, (str, bytes)) or not isinstance(self.methods, (list, tuple)):
@@ -143,5 +149,6 @@ class BenchmarkConfig:
         names = {f.name for f in fields(cls)}
         unknown = set(d) - names
         if unknown:
-            raise ValueError(f"unknown benchmark config fields: {sorted(unknown)}; known: {sorted(names)}")
+            raise BadValue(f"unknown benchmark config field(s) {sorted(unknown)}",
+                           fix=f"drop or rename them; the known fields are {sorted(names)}")
         return cls(**d)

@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Measure the cost of every catalog method that has a probe, and gate the table (#52, #53; roadmap D1, D2).
+
+    python scripts/measure_method_costs.py                      # measure everything with a probe, rewrite the table
+    python scripts/measure_method_costs.py --only S4 S19        # remeasure a few, leave the rest as they are
+    python scripts/measure_method_costs.py --check              # every method measured, or unmeasured with a reason
+    python scripts/measure_method_costs.py --gate               # the regression gate against the versioned baseline
+
+``--gate`` is the local stand-in for the CI workflow the repository cannot run (GitHub Actions is off for billing):
+it compares a fresh measurement of the probed methods with ``pinneapple_catalog/method_costs_baseline.json`` and
+fails when an operation got more expensive -- FLOPs strictly (5 %), time and memory loosely, since they are noisy.
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from pinneapple_catalog import costs  # noqa: E402
+
+BASELINE = costs.HERE / "method_costs_baseline.json"
+
+
+def _check(path: Path) -> int:
+    rows = costs.coverage(path)
+    missing = [r for r in rows if r["status"] == "missing"]
+    unmeasured = [r for r in rows if r["status"] == "unmeasured"]
+    measured = [r for r in rows if r["status"] == "measured"]
+    for r in missing:
+        print(f"MISSING  {r['id']:<6} {r['name']}: {r['reason']}")
+    for r in unmeasured:
+        if not str(r.get("reason") or "").strip():
+            print(f"NO REASON {r['id']:<6} {r['name']}: an unmeasured method must say why")
+    print(f"{len(measured)} measured, {len(unmeasured)} unmeasured with a reason, {len(missing)} missing")
+    return 1 if missing or any(not str(r.get("reason") or "").strip() for r in unmeasured) else 0
+
+
+def _gate(only, baseline_path: Path, repeats: int) -> int:
+    """Measure now, compare with the versioned baseline, fail on a regression: the local stand-in for the CI job
+    the repository cannot run (GitHub Actions is off for billing). Two minutes on a laptop, or less with ``--only``.
+
+    The fresh table goes to a file of its own every run, so a leftover from an earlier invocation can never be
+    compared as if it had just been measured, and ``--only`` compares exactly the methods it measured.
+    """
+    if not baseline_path.exists():
+        print(f"no baseline at {baseline_path}: measure once and copy that table there to start the gate")
+        return 1
+    baseline = costs.load_costs(baseline_path)
+    out = Path(os.environ.get("COST_GATE_OUT") or Path(tempfile.mkdtemp(prefix="cost-gate-")) / "method_costs.json")
+    fresh = costs.measure_all(only, repeats=repeats, path=out)
+    if only:
+        fresh = {**fresh, "methods": {mid: r for mid, r in fresh["methods"].items() if mid in set(only)}}
+    rows = costs.compare_with_baseline(fresh, baseline)
+    for r in rows:
+        limit = ("5 % (FLOPs are deterministic)" if r["quantity"] == "flops"
+                 else "50 % (wall time and memory move between runs)")
+        print(f"REGRESSION {r['method_id']}: {r['quantity']} {r['baseline']:.4g} -> {r['current']:.4g} "
+              f"(x{r['ratio']:.2f}, limit {limit})")
+    measured = sum(1 for r in fresh["methods"].values() if r.get("status") == "measured")
+    print(f"cost gate: {len(rows)} regression(s) over {measured} measured method(s); fresh table at {out}")
+    return 1 if rows else 0
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--out", default=str(costs.COSTS_PATH), help="where to write the cost table")
+    ap.add_argument("--only", nargs="+", default=None, help="measure only these method ids")
+    ap.add_argument("--repeats", type=int, default=None, help="timed runs per size (default: the probe's own)")
+    ap.add_argument("--check", action="store_true", help="gate: every catalog method measured or explained")
+    ap.add_argument("--gate", action="store_true", help="compare against the versioned baseline and fail on a regression")
+    ap.add_argument("--baseline", default=str(BASELINE), help="the baseline the gate compares against")
+    a = ap.parse_args()
+
+    out = Path(a.out)
+    if a.check:
+        sys.exit(_check(Path(a.out)))
+    if a.gate:
+        sys.exit(_gate(a.only, Path(a.baseline), a.repeats))
+    costs.measure_all(a.only, repeats=a.repeats, path=out)
+    print(f"wrote {out} ({sum(1 for r in costs.coverage(out) if r['status'] == 'measured')} measured)")

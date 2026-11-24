@@ -146,10 +146,14 @@ class PhysicsTensor(torch.Tensor):
     def convert(self, units: str) -> "PhysicsTensor":
         """The same physical quantity written in another unit of the same dimension (``km/h`` from ``m/s``)."""
         if self.unit is None:
-            raise UnitError(f"'{self.name or 'tensor'}' has no unit to convert from")
+            raise UnitError(f"'{self.name or 'tensor'}' has no unit to convert from",
+                            fix=f"build it with pp.tensor(..., units='{units}'), or drop convert() and use the "
+                                f"values as they are")
         target = parse_unit(units)
         if target.dim != self.unit.dim:
-            raise UnitError(f"cannot convert '{self.units}' to '{units}': the dimensions differ")
+            raise UnitError(f"cannot convert '{self.units}' to '{units}': the dimensions differ",
+                            fix="convert only inside one dimension (m -> km, Pa -> bar); a different dimension is "
+                                "a different quantity, so build the tensor with the unit you meant")
         with torch._C.DisableTorchFunctionSubclass():
             values = (self.without_labels() * self.unit.factor + self.unit.offset - target.offset) / target.factor
         return PhysicsTensor(values, name=self.name, units=units, domain=self.domain, coords=self.coords,
@@ -199,7 +203,9 @@ def _same_dimension(op: str, args: Any) -> None:
     for first, second in zip(labelled, labelled[1:]):
         if first.unit.dim != second.unit.dim:
             raise UnitError(f"cannot apply '{op.rstrip('_')}' to {_describe(first)} and {_describe(second)}: "
-                            f"the dimensions differ")
+                            f"the dimensions differ",
+                            fix="add or compare only quantities of the same dimension; convert one first "
+                                "(u.convert('km/h')) or work on the raw values with .without_labels()")
 
 
 def _describe(t: PhysicsTensor) -> str:
@@ -214,8 +220,8 @@ def _no_unit_product(op: str, args: Any) -> None:
         first, second = with_units[0], with_units[1]
         raise UnitError(
             f"cannot apply '{op.rstrip('_')}' to {_describe(first)} and {_describe(second)}: the unit of a product "
-            f"is not defined here; multiply the raw values (.without_labels()) and build the result with "
-            f"pp.tensor(..., units=...)")
+            f"is not defined here",
+            fix="multiply the raw values (.without_labels()) and label the result with pp.tensor(..., units=...)")
 
 
 def _relabel_like(out: Any, args: Any) -> Any:

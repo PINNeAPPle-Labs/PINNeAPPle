@@ -14,6 +14,8 @@ import inspect
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Type
 
+from pinneapple_core.errors import BadType, UnknownName
+
 from .base import SolverBase, entry_point
 
 
@@ -54,7 +56,9 @@ class SolverRegistry:
     def spec(cls, name: str) -> SolverSpec:
         key = str(name).lower().strip()
         if key not in cls._REG:
-            raise KeyError(f"Unknown solver '{name}'. Available: {cls.list()}")
+            raise UnknownName(f"unknown solver {name!r}: nothing with that name is registered",
+                              fix=f"call SolverRegistry.list() (or SolverCatalog().list()) and use one of "
+                                  f"{cls.list()}; run register_all() first if the list looks short")
         return cls._REG[key]
 
     @classmethod
@@ -71,8 +75,10 @@ class SolverRegistry:
         try:
             inspect.signature(spec.cls).bind(**kwargs)
         except TypeError as e:
-            raise TypeError(f"SolverRegistry.build({name!r}): {e}. The constructor is "
-                            f"{spec.cls.__name__}{inspect.signature(spec.cls)}") from None
+            raise BadType(f"SolverRegistry.build({name!r}): {e}",
+                          fix=f"pass the constructor's own arguments: {spec.cls.__name__}"
+                              f"{inspect.signature(spec.cls)} -- SolverRegistry.describe({name!r}) prints the call "
+                              f"the solver expects") from None
         return spec.cls(**kwargs)
 
     @classmethod

@@ -77,6 +77,52 @@ def test_a_seam_ring_is_a_torus_of_the_radius_and_thickness_asked_for():
     assert s.faces.max() < len(s.vertices)
 
 
+def test_a_pad_is_a_machined_boss_with_a_chamfered_top():
+    s = D.pad([0, 0, 0], (0, 0, 1), radius=0.02, height=0.006, chamfer=0.0015)
+    assert s.vertices[:, 2].min() == pytest.approx(0.0) and s.vertices[:, 2].max() == pytest.approx(0.006)
+    r = np.linalg.norm(s.vertices[:, :2], axis=1)
+    assert r.max() == pytest.approx(0.02)
+    top = s.vertices[np.isclose(s.vertices[:, 2], 0.006)]
+    assert np.linalg.norm(top[:, :2], axis=1).max() == pytest.approx(0.0185), \
+        "the top face is smaller than the wall: that ring is the chamfer"
+    assert s.faces.max() < len(s.vertices)
+
+
+def test_a_gusset_is_the_triangle_extruded_along_its_own_normal():
+    s = D.gusset([0, 0, 0], [0.1, 0, 0], [0, 0, 0.1], thickness=0.006)
+    assert len(s.vertices) == 6 and len(s.faces) == 8
+    assert s.vertices[:, 1].min() == pytest.approx(-0.006) and s.vertices[:, 1].max() == pytest.approx(0.0), \
+        "the rib grows to one side of the plane it was given"
+    # the extrusion really is perpendicular to the triangle
+    n = np.cross(s.vertices[1] - s.vertices[0], s.vertices[2] - s.vertices[0])
+    v = s.vertices[3] - s.vertices[0]
+    assert abs(np.dot(n / np.linalg.norm(n), v / np.linalg.norm(v))) == pytest.approx(1.0)
+
+
+def test_a_gusset_needs_three_points_off_a_line():
+    with pytest.raises(ValueError):
+        D.gusset([0, 0, 0], [1, 0, 0], [2, 0, 0])
+
+
+def test_a_pipe_flange_is_the_whole_joint_not_a_disc():
+    parts = D.pipe_flange([0, 0, 0], (0, 0, 1), pipe_radius=0.035, flange_radius=0.075, thickness=0.018,
+                          raised_face=0.002, neck=0.03, bolts=4)
+    names = [p.name for p in parts]
+    assert names[:3] == ["flange", "flange_face", "flange_neck"]
+    assert sum(1 for n in names if n.startswith("flange_bolt")) == 4
+    z = np.concatenate([p.vertices[:, 2] for p in parts])
+    assert z.min() == pytest.approx(-0.03) and z.max() == pytest.approx(0.02 + 0.008 * 0.8), \
+        "the neck reaches back into the pipe, the bolt heads stand on the raised face"
+
+
+def test_the_cinematic_level_names_builders_that_exist():
+    for level, builders in D.LEVELS.items():
+        for b in builders:
+            assert callable(getattr(D, b, None)), f"{level}: {b} is not a builder"
+    assert D.LEVELS["draft"] == (), "the solver geometry as it is has no detail"
+    assert "pipe_flange" in D.LEVELS["cinematic"]
+
+
 def test_detail_survives_a_gltf_round_trip(tmp_path):
     s = D.hex_bolt([0.0, 0.0, 0.5], (0, 0, 1))
     sc = Scene(surfaces=[s], materials={"steel": {"color": [0.8, 0.8, 0.8], "metallic": 1.0, "roughness": 0.3}})

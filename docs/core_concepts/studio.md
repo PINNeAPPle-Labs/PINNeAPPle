@@ -119,10 +119,21 @@ sc.surfaces.append(D.weld_bead(saddle_curve, radius=0.006, material="raw_weld"))
 | `bolt_circle(centre, normal, radius, count, ...)` | `count` bolts evenly spaced on a circle, the first on the plane's `u` axis, so two runs land in the same places |
 | `weld_bead(points, radius)` | one continuous bead along a polyline: cylinders between the points with a sphere at each joint |
 | `seam_ring(centre, normal, radius, thickness)` | the raised ring where two cast halves meet |
+| `pad(centre, normal, radius, height, chamfer)` | a machined pad — a boss with a chamfered top edge, where a sensor or a name plate lands flat |
+| `gusset(a, b, c, thickness)` | a stiffening rib: the triangle extruded along its own normal, across the corner of a frame |
+| `pipe_flange(centre, axis, ...)` | the whole joint, as a list: plate, raised face, weld neck tapering into the pipe, and the bolts on the face |
 
 They return ordinary `Surface` objects: they export to glTF/USD, they take any material, and they cost triangles, not
 solver cells. The weld is worth calling out — give it the intersection curve (`sqrt(R² - x²)` around a branch) and the
 bead follows the saddle instead of a circle, which is the difference between a weld and a drawn ring.
+
+A detail level is a recipe, not a switch. `pp.viz.detail.LEVELS` names what each one puts on a body — `draft` is the
+solver geometry as it is, `review` adds the cast seam, `cinematic` the fasteners, welds, pads, ribs and flanges — but
+the script applies the builders with the measurements of the part, because where a rib goes is a question about the
+part. The same spool body at the three levels is what the gallery shows side by side.
+
+What this does not do is chamfer an edge that already exists in the mesh: a bevel is a mesh operation on the body, not
+something a builder can add beside it.
 
 ### Visual benchmark
 
@@ -137,6 +148,28 @@ The numbers are the gate, not a pass/fail: they catch what a renderer regression
 detail-less, subject gone — without the brittleness of a golden-image comparison across GPUs, drivers and Blender
 versions. `pp.viz.benchmark.CASES` is the list; a case is a geometry from the library, its materials, the HDRI and the
 camera preset.
+
+The gate itself is `--gate` against a committed baseline, and it runs in CI on every pull request that touches the
+studio (`Visual benchmark`): `data/benchmark/baseline.json` holds the four statistics of each case, recorded in the
+canonical configuration (`GATE`: 960×540, 32 samples, preview) so today's record is comparable with last month's.
+`pp.viz.benchmark.gate` compares a record with it and returns the differences beyond `TOLERANCES` (`mean` ±8,
+`std` ±4, `coverage` ±0.06, `edge_energy` ±0.12 — absolute, in each statistic's own units); the command exits non-zero
+when there are any. The time is recorded and reported but never gated: it belongs to the machine.
+
+Recording a new baseline is deliberate, after a change that is meant to move the pictures:
+
+```bash
+python -m pinneapple_tools.visualization.studio.benchmark \
+    --out /tmp/benchmark --gate --record-baseline   # rewrites data/benchmark/baseline.json
+```
+
+The file carries a `_meta` line with the date, the Blender version, the gate configuration and the tolerances, so the
+next reader knows what drew the reference. When the gate fails it says so and points at `--record-baseline`: the two
+outcomes of a red gate are a bug to fix or a move to accept on purpose, and the commit message is where that choice is
+written down.
+
+CPU and GPU agree: the same case rendered on either gives the same four numbers to the second decimal (the pixels
+differ by at most 3/255), so the baseline recorded on a laptop is the one CI compares against on a runner.
 
 ## Renders
 

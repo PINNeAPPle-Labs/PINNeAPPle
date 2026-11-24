@@ -17,7 +17,18 @@ import argparse
 import json
 import os
 import time
-from typing import Dict, Optional
+from typing import Dict, List, Optional
+
+#: The configuration the gate compares in: one size, one sample count, one preset, so the record of today can be
+#: compared with the record of last month. Small enough to run on a CPU in CI in a few minutes.
+GATE = {"quality": "preview", "size": [960, 540], "samples": 32}
+
+#: How far a statistic may move before the gate calls it a regression. Absolute: the four statistics are already in
+#: their own units (luminance 0-255, coverage 0-1, edge energy a mean gradient).
+TOLERANCES: Dict[str, float] = {"mean": 8.0, "std": 4.0, "coverage": 0.06, "edge_energy": 0.12}
+
+#: Where the committed baseline lives, relative to the repository root.
+BASELINE = os.path.join("data", "benchmark", "baseline.json")
 
 #: name -> (geometry in ``data/geometries``, its materials, background and camera). The values are the ones a figure
 #: of that part would use, so the benchmark measures the look the product actually ships.
@@ -100,10 +111,17 @@ def picture_stats(path: str) -> dict:
 
 
 def run(out_dir: str, *, scenes: Optional[list] = None, quality: str = "preview", device: str = "auto",
-        samples: Optional[int] = None, size: Optional[tuple] = None, log=None) -> dict:
-    """Render every case into ``out_dir`` and return the record: ``{case: {seconds, device, picture..., png}}``."""
+        samples: Optional[int] = None, size: Optional[tuple] = None, gate: bool = False,
+        log=None) -> dict:
+    """Render every case into ``out_dir`` and return the record: ``{case: {seconds, device, picture..., png}}``.
+
+    ``gate=True`` renders the canonical :data:`GATE` configuration instead of the arguments, so the numbers are the
+    ones :data:`BASELINE` was recorded with -- a comparison has to be an apples-to-apples render, not whatever preset
+    the caller happened to use."""
     from .blender import render_headless
 
+    if gate:
+        quality, size, samples = GATE["quality"], tuple(GATE["size"]), GATE["samples"]
     say = log or print
     os.makedirs(out_dir, exist_ok=True)
     record: dict = {}
@@ -122,6 +140,68 @@ def run(out_dir: str, *, scenes: Optional[list] = None, quality: str = "preview"
     with open(os.path.join(os.path.abspath(out_dir), "benchmark.json"), "w", encoding="utf-8") as fh:
         json.dump(record, fh, indent=1)
     return record
+
+
+def baseline_of(record: dict, *, blender: Optional[str] = None) -> dict:
+    """What a record keeps when it is committed as the reference: the picture statistics and the configuration they
+    were measured with, plus a ``_meta`` line saying when and with what -- a gate whose reference has no date is a
+    number nobody can judge.
+
+    The time and the absolute path stay out: one is the machine's, the other is a folder that does not exist anywhere
+    else."""
+    out = {name: {k: v for k, v in case.items() if k in ("quality", "size", "mean", "std", "coverage",
+                                                         "edge_energy")}
+           for name, case in record.items()}
+    out["_meta"] = {"recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    "gate": dict(GATE), "tolerances": dict(TOLERANCES),
+                    "blender": blender if blender is not None else _blender_version()}
+    return out
+
+
+def _blender_version() -> str:
+    """The renderer's version, so a baseline records what drew it (``"unknown"`` when there is no binary here)."""
+    from .blender import blender_executable
+
+    exe = blender_executable()
+    if not exe:
+        return "unknown"
+    try:
+        import subprocess
+        out = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=120).stdout
+        return (out.splitlines() or ["unknown"])[0].strip() or "unknown"
+    except Exception:                      # noqa: BLE001 -- a version string must never break a recording
+        return "unknown"
+
+
+def cases_of(record: dict) -> List[str]:
+    """The case names in a record or a baseline: everything but the bookkeeping keys, which start with ``_``."""
+    return [name for name in record if not name.startswith("_")]
+
+
+def gate(current: dict, baseline: dict, *, tolerances: Optional[dict] = None) -> List[str]:
+    """The differences between a record and the committed baseline that are too large to be noise.
+
+    Absolute tolerances, chosen to pass a CPU render on another machine and to fail a regression: a picture that went
+    black, blew out, lost its micro-detail or stopped showing the subject moves these by far more than they allow.
+    The time is not compared -- it is the machine's, not the renderer's."""
+    tol = dict(TOLERANCES if tolerances is None else tolerances)
+    problems: List[str] = []
+    for name in sorted(CASES):
+        if name not in current:
+            problems.append(f"{name}: not rendered")
+            continue
+        if name not in baseline:
+            problems.append(f"{name}: no baseline to compare against")
+            continue
+        cur, base = current[name], baseline[name]
+        for key, allowed in tol.items():
+            if key not in cur or key not in base:
+                continue
+            delta = abs(float(cur[key]) - float(base[key]))
+            if delta > allowed:
+                problems.append(f"{name}: {key} moved {delta:+.3f} ({base[key]} -> {cur[key]}), "
+                                f"allowed {allowed:+.3f}")
+    return problems
 
 
 def compare(current: dict, baseline: dict) -> dict:
@@ -144,12 +224,32 @@ def main(argv=None) -> int:
     ap.add_argument("--quality", default="preview", choices=["preview", "production", "cinematic"])
     ap.add_argument("--device", default="auto")
     ap.add_argument("--baseline", default=None, help="a previous benchmark.json to compare against")
+    ap.add_argument("--gate", action="store_true",
+                    help=f"render the canonical configuration ({GATE['size'][0]}x{GATE['size'][1]}, "
+                         f"{GATE['samples']} samples) and fail when a statistic leaves its tolerance")
+    ap.add_argument("--record-baseline", action="store_true",
+                    help=f"write the run to {BASELINE} in the shape the gate compares against")
     a = ap.parse_args(argv)
-    rec = run(a.out, scenes=a.scenes, quality=a.quality, device=a.device)
+    rec = run(a.out, scenes=a.scenes, quality=a.quality, device=a.device, gate=a.gate)
+    if a.record_baseline:
+        path = os.path.join(repository_root(), BASELINE)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(baseline_of(rec), fh, indent=1, sort_keys=True)
+        print(f"wrote {path}")
     if a.baseline:
         with open(a.baseline, encoding="utf-8") as fh:
-            deltas = compare(rec, json.load(fh))
-        print(json.dumps(deltas, indent=1))
+            base = json.load(fh)
+        print(json.dumps(compare(rec, base), indent=1))
+        if a.gate:
+            problems = gate(rec, base)
+            for p in problems:
+                print(f"regression: {p}")
+            if problems:
+                print("If the pictures were meant to move, record a new baseline on purpose and say why in the "
+                      "commit:  --record-baseline")
+                return 1
+            print(f"gate ok: every statistic within {TOLERANCES}")
     return 0
 
 

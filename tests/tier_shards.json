@@ -724,6 +724,7 @@
     "tests/test_studio.py",
     "tests/test_studio_animation.py",
     "tests/test_studio_benchmark.py",
+    "tests/test_studio_bevel.py",
     "tests/test_studio_camera.py",
     "tests/test_studio_detail.py",
     "tests/test_studio_external_flow.py",

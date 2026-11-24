@@ -38,7 +38,7 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
            "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
-           "bake_materials_headless", "benchmark", "detail"]
+           "bake_materials_headless", "benchmark", "detail", "bevel_scene"]
 
 
 def __getattr__(name):
@@ -70,6 +70,13 @@ def bake_materials(*a, **kw):
 def bake_materials_headless(*a, **kw):
     """The same through the Blender binary, for a machine without bpy; see :func:`.bake.bake_materials_headless`."""
     from .bake import bake_materials_headless as _b
+    return _b(*a, **kw)
+
+
+def bevel_scene(*a, **kw):
+    """The same scene with its sharp edges chamfered -- a mesh operation, not a surface beside the body; see
+    :func:`.bevel.bevel_scene`."""
+    from .bevel import bevel_scene as _b
     return _b(*a, **kw)
 
 

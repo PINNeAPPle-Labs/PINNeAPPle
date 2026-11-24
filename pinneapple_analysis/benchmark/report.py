@@ -153,6 +153,36 @@ def _fmt(c, pct=False):
     return s
 
 
+def _extrapolation(seeds: dict, prob) -> dict | None:
+    """Error outside the case's validity envelope over the error inside it (#58): measured, from the sets the problem
+    already evaluates, with the envelope it declared. ``None`` when the case declares no extrapolation spec."""
+    spec = prob.extrapolation() if hasattr(prob, "extrapolation") else None
+    if not spec:
+        return None
+    (in_set, in_metric), (out_set, out_metric), tolerance = spec
+    inside = cell(seeds, in_set, in_metric)
+    outside = cell(seeds, out_set, out_metric)
+    if not inside or not outside:
+        return None
+    base = float(inside["mean"])
+    return {"inside_set": in_set, "inside_metric": in_metric, "outside_set": out_set,
+            "outside_metric": out_metric, "tolerance": tolerance, "inside": base, "outside": float(outside["mean"]),
+            "inside_n": inside.get("n"), "outside_n": outside.get("n"),
+            "factor": (float(outside["mean"]) / base) if base > 0 else None,
+            "holds_outside": bool(base > 0 and float(outside["mean"]) / base <= tolerance)}
+
+
+def _extrap_cell(ext: dict | None) -> str:
+    """The extrapolation column: the factor, then whether the OOD error stays within the case's tolerance."""
+    if not ext:
+        return "-"
+    f = ext.get("factor")
+    if f is None:
+        return "-"
+    tail = "holds" if ext.get("holds_outside") else f"x{ext['tolerance']:g} budget"
+    return f"x{f:.2f} ({ext['outside_set']}/{ext['inside_set']}; {tail})"
+
+
 def build_tables(plan, col, row_status: dict) -> dict:
     """Rows per problem: {method: {column key: cell, ...}} plus costs and statuses."""
     tables = {}
@@ -183,13 +213,18 @@ def build_tables(plan, col, row_status: dict) -> dict:
             if r["did_not_converge"] and r["status"].startswith("pass"):
                 r["status"] = "did not converge"
             r["outputs"] = prob.method_outputs(meth)
+            r["records"] = plan.ws.records_for(pid, mid)          # every number above traces back to these (#38)
+            r["extrapolation"] = _extrapolation(seeds, prob)      # error outside the envelope vs inside (#58)
             rows[mid] = r
         ref = prob.reference_row(plan.ws.prepared(pid)) if hasattr(prob, "reference_row") else None
         if ref:
             seeds = dict(enumerate(ref["seeds"]))
             ref = {"title": ref["title"], "cells": {c.key: cell(seeds, c.set, c.metric) for c in prob.columns()}}
+        domain = prob.validity_domain(plan.ws.prepared(pid)) if hasattr(prob, "validity_domain") else None
         tables[pid] = {"rows": rows, "solver_time_per_instance_s": prob.solver_time_per_instance_s(plan.ws.prepared(pid)),
-                       "data_core_s": data_s, "reference": ref, "equal_flops": equal_flops_table(plan, col, pid)}
+                       "data_core_s": data_s, "reference": ref, "equal_flops": equal_flops_table(plan, col, pid),
+                       "validity_domain": domain.to_dict() if domain else None,
+                       "validity_text": domain.describe() if domain else ""}
     return tables
 
 
@@ -225,13 +260,17 @@ def markdown(plan, tables, checks, validation, trust, diagnoses, banners, studie
         prob = plan.P[pid]
         b = cfg.budget_for(pid)
         L += [f"## {prob.title} (budget per run: {_budget_str(b)})", ""]
+        if t.get("validity_text"):
+            L += [f"Validity domain -- {t['validity_text']}", ""]
         cols = prob.columns()
         for kind, head in (("field", "Fields"), ("integral", "Integral quantities")):
             cs = [c for c in cols if c.kind == kind]
             if not cs:
                 continue
-            L += [f"### {head}", "", "| Method | " + " | ".join(c.label for c in cs) + " | Checks |",
-                  "|---|" + "---|" * (len(cs) + 1)]
+            has_extrap = any(r.get("extrapolation") for r in t["rows"].values())
+            head_cols = " | ".join(c.label for c in cs) + (" | Extrapolation" if has_extrap else "")
+            L += [f"### {head}", "", "| Method | " + head_cols + " | Checks |",
+                  "|---|" + "---|" * (len(cs) + 1 + (1 if has_extrap else 0))]
             for mid, r in t["rows"].items():
                 meth = plan.M[mid]
                 outs = prob.method_outputs(meth)
@@ -247,10 +286,14 @@ def markdown(plan, tables, checks, validation, trust, diagnoses, banners, studie
                         if v and v.get("n") is not None and expected is not None and v["n"] != expected:
                             s += f" [n={v['n']}]"
                         vals.append(s)
+                if has_extrap:
+                    vals.append(_extrap_cell(r.get("extrapolation")))
                 L.append(f"| {prob.method_title(meth)} | " + " | ".join(vals) + f" | {_badge(r['status'])} |")
             if t.get("reference"):
-                L.append(f"| {t['reference']['title']} | " + " | ".join(_fmt(t["reference"]["cells"].get(c.key), c.pct)
-                                                                       for c in cs) + " | reference |")
+                ref_vals = [_fmt(t["reference"]["cells"].get(c.key), c.pct) for c in cs]
+                if has_extrap:
+                    ref_vals.append("-")
+                L.append(f"| {t['reference']['title']} | " + " | ".join(ref_vals) + " | reference |")
             L.append("")
         L += ["### Cost", "", "| Method | Training (s) | Training FLOPs | Simulation data (core-s) | Time per new instance "
               "| Break-even vs per-instance (queries) |", "|---|---|---|---|---|---|"]

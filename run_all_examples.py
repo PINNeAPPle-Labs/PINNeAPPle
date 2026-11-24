@@ -445,7 +445,34 @@ def run_script(script: Script, out_dir: Path, device: str, seed: int) -> RunResu
         result.error_msg = str(e)
         result.elapsed_s = time.time() - t0
 
+    result.record = _write_record(result, script, cmd, run_dir, out_dir, device, seed)
     return result
+
+
+def _write_record(result: RunResult, script: Script, cmd: list[str], run_dir: Path, out_dir: Path,
+                  device: str, seed: int) -> str:
+    """Write ``records/<name>.record.json``: the evidence behind this run's numbers (#38).
+
+    It carries the command that re-executes the script, the parameters it ran with, the environment, the sha256 of
+    the files it wrote, and the two numbers the report publishes about it (exit code, elapsed time). The report's
+    every row names its record, so a published number can be traced to a file and a command.
+    """
+    try:
+        from pinneapple_core import run_record
+    except Exception:                                    # the runner still works without the record module
+        return ""
+    try:
+        rec = run_record.record(
+            "example", f"{script.category}/{script.name}", root=out_dir,
+            outputs=[run_dir / "stdout.txt", run_dir / "stderr.txt"], command=cmd,
+            parameters={"script": script.path, "args": list(script.args), "mode": script.mode,
+                        "device": device, "seed": seed, "timeout_s": script.timeout, "status": result.status},
+            metrics={"exit_code": int(result.exit_code), "elapsed_s": round(float(result.elapsed_s), 6),
+                     "status": result.status},
+            note=result.error_msg[:200])
+        return str(rec.write(run_dir / f"{script.name}.record.json").relative_to(out_dir))
+    except Exception:
+        return ""
 
 
 # ============================================================================
@@ -519,13 +546,27 @@ def save_report(results: List[RunResult], out_dir: Path, args: argparse.Namespac
     for cat, cat_results in sorted(by_cat.items()):
         n_pass = sum(1 for r in cat_results if r.status == "passed")
         md_lines += [f"### {cat}  ({n_pass}/{len(cat_results)} passed)", ""]
-        md_lines += ["| Script | Status | Time |", "|--------|--------|------|"]
+        md_lines += ["| Script | Status | Time | Record | Notes |", "|--------|--------|------|--------|-------|"]
         for r in cat_results:
             icon = {"passed":"✓","failed":"✗","skipped":"−","timeout":"⏱","error":"!"}.get(r.status,"?")
             t = f"{r.elapsed_s:.1f}s" if r.elapsed_s else "—"
             note = r.error_msg[:60] if r.status not in ("passed","skipped") else r.skip_reason[:40]
-            md_lines.append(f"| `{r.name}` | {icon} {r.status} | {t} | {note} |")
+            rec = f"`{r.record}`" if r.record else "—"
+            md_lines.append(f"| `{r.name}` | {icon} {r.status} | {t} | {rec} | {note} |")
         md_lines.append("")
+
+    md_lines += [
+        "",
+        "## Evidence",
+        "",
+        "Every row above names its record: a JSON file with the command that re-executes the script, the parameters it",
+        "ran with, the environment, and the sha256 of the files it wrote (#38). Check them with:",
+        "",
+        "```",
+        f"python -m pinneapple_core.run_record verify {out_dir.name}",
+        "```",
+        "",
+    ]
 
     md_path = out_dir / "report.md"
     md_path.write_text("\n".join(md_lines), encoding="utf-8")

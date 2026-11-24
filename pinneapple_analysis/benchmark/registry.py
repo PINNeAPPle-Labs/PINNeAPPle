@@ -130,6 +130,27 @@ class Problem:
         "val" (the search instance), "final" (every budget level), "full_only" (full budget only), "seed0_only"."""
         return {"val": [], "final": [], "full_only": [], "seed0_only": []}
 
+    def validity_domain(self, prepared: Path | None = None):
+        """Where this case holds (#58): a ``validity.ValidityDomain``, or ``None`` if the case has not declared one.
+
+        ``None`` is printed as "not stated" in the report, not silently omitted: a case that does not say where it
+        holds has not said anything about extrapolation either.
+        """
+        return None
+
+    def extrapolation(self) -> tuple[tuple[str, str], tuple[str, str], float] | None:
+        """``((inside set, metric), (outside set, metric), max factor)`` for the extrapolation column (#58).
+
+        The default pairs the case's own in-domain and out-of-domain sets, which every benchmark problem evaluates
+        anyway; ``extrapolation_factor`` sets how much worse the out-of-domain error may be before the column says the
+        model does not hold there.
+        """
+        main = self.main_metric() if hasattr(self, "main_metric") else None
+        ood = self.ood_metric() if hasattr(self, "ood_metric") else None
+        return (main, ood, self.extrapolation_factor) if main and ood else None
+
+    extrapolation_factor: float = 2.0
+
     def main_metric_for(self, method_id: str) -> tuple[str, str] | None:
         """The (set, metric) that decides "did not converge", the seed spread and "budget-limited" for one method
         (default: the problem's ``main_metric``; a problem whose methods predict different things overrides it)."""

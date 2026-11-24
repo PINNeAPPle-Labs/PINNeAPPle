@@ -126,6 +126,11 @@ from .trust import TrustGate, TrustScore
 # ── adaptive fidelity (#161): surrogate or solver per request, with the reason recorded
 from .fidelity import FidelityPolicy, FidelityReport, audit, serve  # noqa: E402
 
+# ── two data levels in one workflow (#35): the co-kriging model, the equal-cost comparison and the router
+from .multifidelity_workflow import (  # noqa: E402
+    FidelityPlan, MultiFidelityRun, MultiFidelityWorkflow, benchmark_multifidelity_workflow, rod_fidelities,
+)
+
 
 # ── Integration helpers ────────────────────────────────────────────────────────
 
@@ -164,6 +169,8 @@ __all__ = [
     # Sub-modules (new names)
     "uncertainty", "validation", "inverse_problems", "trust", "decision", "fidelity",
     "serve", "audit", "FidelityPolicy", "FidelityReport",
+    "multifidelity_workflow", "FidelityPlan", "MultiFidelityRun", "MultiFidelityWorkflow",
+    "benchmark_multifidelity_workflow", "rod_fidelities",
     # Sub-modules (old aliases — backward compat)
     "uq", "validate", "inverse",
     # Integration

@@ -85,6 +85,11 @@ REASONS: dict[str, str] = {
     "pinneapple_analysis.fidelity": "the choice between the surrogate and the solver for each request (#161), with "
                                     "the reason kept in the request's record: it is the router a flow calls, not a "
                                     "computation a node performs",
+    "pinneapple_analysis.multifidelity_workflow": "the two data levels of #35 as one workflow -- a nested design, the "
+                                                  "co-kriging model against a high-fidelity-only one at equal cost, "
+                                                  "and the break-even that decides whether the cheap level pays: it is "
+                                                  "the study a campaign runs before it buys solver time, so it chooses "
+                                                  "the calls rather than being one of them",
     "pinneapple_data.adaptive_sampling": "the loop that decides which simulation to run next (multi-signal adaptive "
                                          "sampling of #209): it chooses the calls a campaign makes, it is not one of "
                                          "them, in the same way as pinneapple_analysis.bayesopt",

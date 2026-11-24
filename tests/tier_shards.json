@@ -597,6 +597,7 @@
     "tests/test_mujoco_integration.py",
     "tests/test_multiadam.py",
     "tests/test_multichannel_normalization.py",
+    "tests/test_multifidelity_workflow.py",
     "tests/test_multiphysics_workflow.py",
     "tests/test_multiscale.py",
     "tests/test_naval.py",

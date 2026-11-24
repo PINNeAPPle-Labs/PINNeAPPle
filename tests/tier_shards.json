@@ -828,6 +828,7 @@
     "tests/test_warp_backend.py",
     "tests/test_weather_clients.py",
     "tests/test_weather_forecasting.py",
+    "tests/test_workflow_events.py",
     "tests/test_xtfc_general.py",
     "tests/test_xtfc_honest_modes.py",
     "tests/test_xtfc_inverse.py",

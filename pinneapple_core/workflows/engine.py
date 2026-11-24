@@ -33,6 +33,7 @@ from typing import Any
 from ..service.db import LocalDB, transaction
 from .adapters import StepCancelled, StepContext, StepFailed, get_adapter
 from .dag import Step, Workflow
+from .events import EventStream, MeteredExecutor, dag_hash, event_file, host_name, tail_of
 from .executors import get_executor
 
 STATES = ("pending", "running", "done", "failed", "skipped", "cancelled")
@@ -51,6 +52,20 @@ CREATE TABLE IF NOT EXISTS cache (
     hash TEXT PRIMARY KEY, outputs TEXT, workdir TEXT, run_id TEXT, step_id TEXT, finished REAL, seconds REAL
 );
 """
+
+
+def _plugin_set() -> list[dict[str, Any]]:
+    """The plugins that participated in this process, for the run's provenance (#1475).
+
+    Only what is already activated: a run does not import plugin code to describe itself. If nothing asked for a
+    registry first, the list is empty and says nothing it does not know.
+    """
+    try:
+        from pinneapple_plugins import active, provenance
+
+        return provenance() if active() is not None else []
+    except Exception:                                   # noqa: BLE001 - provenance is a record, not a dependency
+        return []
 
 
 def sha256_file(path: str | Path) -> str:
@@ -73,12 +88,15 @@ def step_hash(step: Step, upstream_hashes: dict[str, str], root: Path | None = N
 
 
 class WorkflowRunner:
-    def __init__(self, root: str | Path, *, cache: bool = True, input_root: str | Path | None = None):
+    def __init__(self, root: str | Path, *, cache: bool = True, input_root: str | Path | None = None,
+                 events: bool = True):
         self.root = Path(root)
         (self.root / "runs").mkdir(parents=True, exist_ok=True)
         self.db = LocalDB(self.root / "runner.sqlite", _SCHEMA)
         self.cache = cache
         self.input_root = Path(input_root) if input_root else None
+        self.events = events
+        self._stream: EventStream | None = None
         self._log_lock = threading.Lock()
 
     # -- queries --------------------------------------------------------------------------------------------------
@@ -147,11 +165,45 @@ class WorkflowRunner:
             if workflow is None:
                 raise ValueError("a new run needs a workflow")
             run_id = self.create(workflow, run_id, metadata)
-        self._set_run(run_id, status="running", started=time.time())
-        status = self._execute(workflow, run_id, should_stop, progress)
+        started = time.time()
+        self._set_run(run_id, status="running", started=started)
+        self._stream = EventStream(event_file(self.root / "runs" / run_id), enabled=self.events)
+        self._emit("run.started", run_id=run_id, name=workflow.name, dag=dag_hash(workflow.to_dict()),
+                   host=host_name(), executor=sorted({s.executor for s in workflow.steps}),
+                   steps=len(workflow.steps), plugins=_plugin_set(), resumed=bool(exists))
+        status = "failed"
+        try:
+            status = self._execute(workflow, run_id, should_stop, progress)
+        finally:
+            counts = {s: 0 for s in STATES}
+            for row in self.db.conn.execute("SELECT status, COUNT(*) n FROM steps WHERE run_id=? GROUP BY status",
+                                            (run_id,)):
+                counts[row["status"]] = row["n"]
+            self._emit("run.finished", run_id=run_id, status=status, seconds=round(time.time() - started, 6),
+                       counts={k: v for k, v in counts.items() if v}, events=bool(self.events))
+            if self._stream is not None:
+                self._stream.close()
+                self._stream = None
         self._set_run(run_id, status=status, finished=time.time())
         self._write_manifest(run_id)
         return self.get_run(run_id)
+
+    # -- events ------------------------------------------------------------------------------------------------
+    def _emit(self, event: str, **fields: Any) -> None:
+        """Write one event if the stream is open. Never raises: a run is not lost for a log line (#1481)."""
+        stream = self._stream
+        if stream is None:
+            return
+        try:
+            stream.emit(event, **fields)
+        except Exception:                               # noqa: BLE001 - see the module docstring
+            pass
+
+    def events_of(self, run_id: str) -> list[dict[str, Any]]:
+        """The structured events of a run, in the order they were written (empty when events were off)."""
+        from .events import read_events
+
+        return read_events(self.root / "runs" / run_id)
 
     def _write_manifest(self, run_id: str) -> None:
         """``runs/<id>/experiment.json``: the run in the experiment-manifest format the Lab site reads."""
@@ -217,11 +269,14 @@ class WorkflowRunner:
                     if any(s in ("failed", "cancelled") for s in dep):
                         status[sid] = "cancelled"
                         self._set_step(run_id, sid, status="cancelled", error="a step it needs did not finish")
+                        self._emit("step.cancelled", run_id=run_id, step_id=sid, why="a step it needs did not finish",
+                                   needs=[d for d in step.needs if status[d] in ("failed", "cancelled")])
                         continue
                     if stop or (wf.fail_fast and failed_any):
                         status[sid] = "cancelled"
-                        self._set_step(run_id, sid, status="cancelled",
-                                       error="cancelled" if stop else "stopped after a failure (fail_fast)")
+                        why = "cancelled" if stop else "stopped after a failure (fail_fast)"
+                        self._set_step(run_id, sid, status="cancelled", error=why)
+                        self._emit("step.cancelled", run_id=run_id, step_id=sid, why=why)
                         continue
                     if len(running) >= max(1, wf.max_parallel):
                         continue
@@ -287,6 +342,8 @@ class WorkflowRunner:
                        error=None)
         self._append_log(run_id, step.id, f"skipped: same content hash as {row['run_id']}/{row['step_id']} "
                                           f"({h[:12]})")
+        self._emit("step.finished", run_id=run_id, step_id=step.id, status="skipped", seconds=0.0,
+                   reused_from=f"{row['run_id']}/{row['step_id']}", hash=h)
         return True
 
     def _run_step(self, run_id: str, step: Step, h: str, upstream: dict, should_stop) -> tuple[str, str]:
@@ -304,8 +361,12 @@ class WorkflowRunner:
             t0 = time.time()
             self._set_step(run_id, step.id, status="running", hash=h, attempts=attempt, started=t0, error=None)
             log(f"attempt {attempt}: {step.kind} on {step.executor}")
+            self._emit("step.started", run_id=run_id, step_id=step.id, kind=step.kind, attempt=attempt,
+                       executor=step.executor, group=step.group or None)
+            metered = MeteredExecutor(None)
             try:
-                executor = get_executor(step.executor, **step.executor_options)
+                inner = get_executor(step.executor, **step.executor_options)
+                executor = metered = MeteredExecutor(inner)
                 adapter = get_adapter(step.kind)
                 ok, why = adapter.available(step) if executor.name == "local" else executor.available()
                 if not ok:
@@ -314,9 +375,11 @@ class WorkflowRunner:
                 outputs = adapter.run(ctx)
                 json.dumps(outputs, default=_jsonable)
             except StepCancelled:
-                self._set_step(run_id, step.id, status="cancelled", finished=time.time(),
-                               seconds=time.time() - t0, error="cancelled")
+                now = time.time()
+                self._set_step(run_id, step.id, status="cancelled", finished=now,
+                               seconds=now - t0, error="cancelled")
                 log("cancelled")
+                self._emit_step_finished(run_id, step, "cancelled", metered, t0, now, attempt, error="cancelled")
                 return "cancelled", h
             except Exception as exc:  # noqa: BLE001 - every failure is the step's error
                 error = f"{type(exc).__name__}: {exc}"
@@ -327,10 +390,13 @@ class WorkflowRunner:
                 if should_stop():
                     break
                 if k < step.retries:
+                    self._emit("step.retry", run_id=run_id, step_id=step.id, attempt=attempt,
+                               next_attempt=attempt + 1, why=error)
                     time.sleep(min(0.2 * 2 ** k, 5.0))
                 continue
             now = time.time()
             self._set_step(run_id, step.id, status="done", outputs=outputs, finished=now, seconds=now - t0)
+            self._emit_step_finished(run_id, step, "done", metered, t0, now, attempt)
             if self.cache:
                 self.db.conn.execute("INSERT OR REPLACE INTO cache(hash, outputs, workdir, run_id, step_id, finished,"
                                      " seconds) VALUES (?,?,?,?,?,?,?)",
@@ -338,8 +404,27 @@ class WorkflowRunner:
                                       now - t0))
             log(f"done in {now - t0:.2f} s")
             return "done", h
-        self._set_step(run_id, step.id, status="failed", finished=time.time(), error=error)
+        failed_at = time.time()
+        self._set_step(run_id, step.id, status="failed", finished=failed_at, error=error)
+        self._emit_step_finished(run_id, step, "failed", metered, t0, failed_at, attempt,
+                                 error=f"{error} (after {attempts_before + step.retries + 1} attempt(s))")
+        if self._stream is not None:                      # the evidence an operator reads at 03:00
+            self._emit("step.log", run_id=run_id, step_id=step.id, reason="failed",
+                       tail=tail_of(self.log(run_id, step.id)))
         return "failed", h
+
+    def _emit_step_finished(self, run_id: str, step: Step, status: str, metered: MeteredExecutor, t0: float,
+                            now: float, attempt: int, error: str = "") -> None:
+        """``step.finished`` with what the executor actually measured: wall time always, exit code and peak memory
+        when the executor produced them (absent, never zero, when it cannot — #1481)."""
+        result = metered.last()
+        metrics = dict(getattr(result, "metrics", None) or {})
+        self._emit("step.finished", run_id=run_id, step_id=step.id, status=status, attempt=attempt,
+                   executor=step.executor, seconds=round(now - t0, 6),
+                   exit_code=getattr(result, "returncode", None) if result is not None else None,
+                   timed_out=getattr(result, "timed_out", None) if result is not None else None,
+                   peak_rss_bytes=metrics.get("peak_rss_bytes"), error=error or None,
+                   memory_note=(getattr(result, "details", {}) or {}).get("memory_note") if result else None)
 
     def compute_seconds(self, run_id: str) -> float:
         """Seconds the steps of this run actually ran (reused steps count 0)."""

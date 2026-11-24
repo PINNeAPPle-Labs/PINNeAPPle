@@ -1,0 +1,15 @@
+{
+ "deform": null,
+ "field": "x/c",
+ "kind": "value",
+ "label": "",
+ "length_unit": "m",
+ "method": "",
+ "source": "",
+ "status": "",
+ "text": "x/c [dimensionless]",
+ "time": null,
+ "time_unit": "s",
+ "unit": "-",
+ "value_range": null
+}

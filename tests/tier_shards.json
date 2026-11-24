@@ -688,6 +688,7 @@
     "tests/test_reason.py",
     "tests/test_reduced_order_workflow.py",
     "tests/test_reference_figure_captions.py",
+    "tests/test_reference_figures.py",
     "tests/test_reference_fixes.py",
     "tests/test_reflector_design.py",
     "tests/test_reflector_exact.py",

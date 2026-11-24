@@ -164,7 +164,7 @@ def gusset(a, b, c, *, thickness: float = 0.006, material: str = "steel", name: 
     return Surface(name, V, np.asarray(F, np.int64), material)
 
 
-def _cone(a, b, r0: float, r1: float, *, name: str, material: str, n: int = 48) -> Surface:
+def cone(a, b, r0: float, r1: float, *, name: str, material: str, n: int = 48) -> Surface:
     """A truncated cone from ``a`` (radius ``r0``) to ``b`` (radius ``r1``): a weld neck, a reducer, a handrail foot."""
     A, B = np.asarray(a, float).reshape(3), np.asarray(b, float).reshape(3)
     d = B - A
@@ -203,7 +203,7 @@ def pipe_flange(centre, axis=(0.0, 0.0, 1.0), *, pipe_radius: float = 0.035, fla
            rod_surface(face, face + ax * float(raised_face), float(flange_radius) * 0.72,
                        name=f"{name}_face", material=material, n=n)]
     if neck > 0.0:
-        out.append(_cone(c - ax * float(neck), c, float(pipe_radius) * 1.25, float(pipe_radius) * 1.05,
+        out.append(cone(c - ax * float(neck), c, float(pipe_radius) * 1.25, float(pipe_radius) * 1.05,
                          name=f"{name}_neck", material=material, n=max(24, n // 2)))
     out += bolt_circle(face + ax * float(raised_face), ax, radius=bolt_radius, count=int(bolts),
                        head_radius=float(head_radius), height=float(head_radius) * 0.8, washer=True,
@@ -221,5 +221,6 @@ LEVELS = {
 }
 
 
-__all__ = ["hex_bolt", "bolt_circle", "weld_bead", "seam_ring", "pad", "gusset", "pipe_flange", "LEVELS"]
+__all__ = ["hex_bolt", "bolt_circle", "weld_bead", "seam_ring", "pad", "gusset", "cone", "pipe_flange",
+           "LEVELS"]
 

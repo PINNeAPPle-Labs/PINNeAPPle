@@ -739,6 +739,7 @@
     "tests/test_studio_i18n.py",
     "tests/test_studio_i18n_tools.py",
     "tests/test_studio_lunar.py",
+    "tests/test_studio_manufacture.py",
     "tests/test_studio_maps.py",
     "tests/test_studio_pbr.py",
     "tests/test_studio_post.py",

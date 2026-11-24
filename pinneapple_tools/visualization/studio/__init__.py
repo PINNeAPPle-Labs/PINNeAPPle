@@ -38,7 +38,7 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
            "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
-           "bake_materials_headless", "benchmark", "detail", "bevel_scene"]
+           "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture"]
 
 
 def __getattr__(name):
@@ -57,6 +57,9 @@ def __getattr__(name):
     if name == "detail":                                    # bolts, welds and cast seams: pp.viz.detail.hex_bolt(...)
         import importlib
         return importlib.import_module(".detail", __name__)
+    if name == "manufacture":                               # a body with a manufacturing history: pp.viz.manufacture
+        import importlib
+        return importlib.import_module(".manufacture", __name__)
     raise AttributeError(name)
 
 

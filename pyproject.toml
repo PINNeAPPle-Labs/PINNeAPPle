@@ -214,9 +214,11 @@ process = [
 ]
 
 # Astropy-backed unit-safe constants/coordinate transforms
-# (pinneapple_physics.pde_environment.presets.astropy_bridge)
+# (pinneapple_physics.pde_environment.presets.astropy_bridge) and the yt reader for the output of the astrophysics
+# codes -- Enzo, FLASH, RAMSES, GADGET, AREPO, Athena++, more than thirty formats (#515)
 astro = [
   "astropy>=6.0",
+  "yt>=4.3",
 ]
 
 # JAX-CFD differentiable CFD solver

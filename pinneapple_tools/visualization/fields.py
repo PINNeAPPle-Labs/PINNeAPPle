@@ -10,6 +10,7 @@ plot_vectors(xc, yc, ux, uy, title="Velocity field")
 plot_streamlines(xc, yc, ux, uy)
 """
 from __future__ import annotations
+from dataclasses import dataclass
 from typing import Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -18,7 +19,8 @@ import matplotlib.tri as mtri
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from .style import get_cmap, make_figure, DEFAULT_CMAP
+from .style import (DEFAULT_CMAP, colorbar, field_cmap, get_cmap, label, make_figure, make_panel_figure,
+                    panel_letters, source_note)
 
 
 def _to_np(t):
@@ -358,6 +360,188 @@ def plot_error(
 
     fig = plot_scalar(x, y, err, title=title, label=label, cmap=cmap, show=show)
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Reference x surrogate x error, the standard comparison figure of a benchmark (#63)
+# ---------------------------------------------------------------------------
+
+def field_error_metrics(reference, prediction) -> dict:
+    """The aggregate error of one field against its reference: ``l2`` (absolute), ``l2_relative`` (the L2 norm over
+    the reference's RMS -- the number to quote), ``linf``, ``r2`` and ``n`` (the finite points compared).
+
+    One definition for the figure and for every benchmark that quotes an error, so two tables cannot disagree.
+    Non-finite values are left out: a masked wall or an empty patch is not an error of zero.
+    """
+    r = _to_np(reference).ravel().astype(float)
+    p = _to_np(prediction).ravel().astype(float)
+    if r.shape != p.shape:
+        raise ValueError(f"prediction {p.shape} and reference {r.shape} differ: compare one value per point")
+    ok = np.isfinite(r) & np.isfinite(p)
+    if ok.sum() < 2:
+        raise ValueError("fewer than two finite points: there is nothing to compare")
+    r, p = r[ok], p[ok]
+    diff = p - r
+    l2 = float(np.sqrt(np.mean(diff ** 2)))
+    rms = float(np.sqrt(np.mean(r ** 2)))
+    denom = float(np.sum((r - r.mean()) ** 2))
+    return {"n": int(ok.sum()), "l2": l2, "l2_relative": float(l2 / rms) if rms > 0 else float("nan"),
+            "linf": float(np.abs(diff).max()), "r2": float(1.0 - np.sum(diff ** 2) / denom) if denom > 0
+            else float("nan")}
+
+
+@dataclass
+class SolutionComparison:
+    """The comparison figure and the numbers behind it: ``l2`` (absolute), ``l2_relative`` (of the reference's RMS),
+    ``linf``, ``r2``, the number of points compared, and whether the error panel's scale was clipped."""
+
+    figure: Figure
+    l2: float
+    l2_relative: float
+    linf: float
+    r2: float
+    n: int
+    clipped: bool
+    percentile: float
+    error_max: float
+
+    @property
+    def metrics(self) -> dict:
+        """The numbers as a record a benchmark can store (JSON-ready, no arrays)."""
+        return {"n": self.n, "l2": self.l2, "l2_relative": self.l2_relative, "linf": self.linf,
+                "r2": self.r2, "error_max": self.error_max, "error_clipped": self.clipped,
+                "error_percentile": self.percentile}
+
+    def __float__(self) -> float:
+        return float(self.l2_relative)
+
+
+def _contour_panel(ax, x, y, f, *, levels, cmap, vmin, vmax, n_lines: int = 0):
+    """Filled contours of ``f`` on ``(x, y)``: a structured grid when the points form one, else triangulated."""
+    n = len(f)
+    xs, ys = np.unique(np.round(x, 10)), np.unique(np.round(y, 10))
+    if n and len(xs) * len(ys) == n:
+        X, Y = x.reshape(len(xs), len(ys)), y.reshape(len(xs), len(ys))
+        if np.allclose(X, xs[:, None]) and np.allclose(Y, ys[None, :]):     # x fastest, then y: a product grid
+            F = f.reshape(len(xs), len(ys))
+            cf = ax.contourf(X, Y, F, levels=levels, cmap=cmap, vmin=vmin, vmax=vmax)
+            if n_lines:
+                ax.contour(X, Y, F, levels=n_lines, colors="white", linewidths=0.4, alpha=0.5)
+            return cf
+    tri = mtri.Triangulation(x, y)
+    cf = ax.tricontourf(tri, f, levels=levels, cmap=cmap, vmin=vmin, vmax=vmax)
+    if n_lines:
+        ax.tricontour(tri, f, levels=n_lines, colors="white", linewidths=0.4, alpha=0.5)
+    return cf
+
+
+def compare_solutions(
+    x: "ArrayLike",
+    y: "ArrayLike",
+    reference: "ArrayLike",
+    prediction: "ArrayLike",
+    *,
+    quantity: str = "field",
+    unit: str = "",
+    labels: Tuple[str, str] = ("Reference", "Surrogate"),
+    cmap: Optional[str] = None,
+    error_cmap: str = "magma",
+    percentile: float = 99.0,
+    coord_unit: str = "m",
+    vmin: Optional[float] = None,
+    vmax: Optional[float] = None,
+    source: str = "",
+    suptitle: str = "",
+    figsize: Optional[Tuple[float, float]] = None,
+    show: bool = False,
+) -> SolutionComparison:
+    """Reference, surrogate and |surrogate - reference| side by side, with the L2 error as a number (#63).
+
+    x, y            : coordinates of the values, cell centres or nodes (1-D, or 2-D as a product grid)
+    reference       : the trusted solution
+    prediction      : the surrogate's answer on the same points
+    quantity, unit  : what the colour bars say (``unit=""`` for a dimensionless field); the colour map is the
+                      one the house theme registers for that quantity (``cmap=None``), or the one given
+    percentile      : the error panel runs from 0 to this percentile of the error, and says when it clipped
+
+    The two solution panels share one colour scale, computed over both, so the same colour means the same number in
+    either: comparing them with two scales is what makes a wrong figure look right. The error panel has a scale of its
+    own from zero (no zero-point is good news: the panel is a magnitude, not a difference in sign), clipped at
+    ``percentile`` and labelled with the true maximum when it is clipped. The aggregate error is in the title and in
+    the returned :class:`SolutionComparison` -- ``l2`` (absolute, in ``unit``), ``l2_relative`` (the L2 norm over the
+    reference's RMS, which is the number to quote), ``linf``, ``r2`` and ``metrics`` for a benchmark record.
+
+    Non-finite values (a masked wall, an empty patch) are left out of the numbers and out of the scale.
+    """
+    x_ = _to_np(x).ravel().astype(float)
+    y_ = _to_np(y).ravel().astype(float)
+    ref = _to_np(reference).ravel().astype(float)
+    pred = _to_np(prediction).ravel().astype(float)
+    if not (len(x_) == len(y_) == len(ref) == len(pred)):
+        raise ValueError(f"x, y, reference and prediction must have one value per point: "
+                         f"{len(x_)}, {len(y_)}, {len(ref)}, {len(pred)}")
+    ok = np.isfinite(ref) & np.isfinite(pred)
+    if ok.sum() < 2:
+        raise ValueError("fewer than two finite points: there is nothing to compare")
+    m = field_error_metrics(ref, pred)
+    l2, linf, r2, rel = m["l2"], m["linf"], m["r2"], m["l2_relative"]
+    rms = l2 / rel if rel > 0 else float("nan")
+    err = np.abs(pred - ref)
+    max_err = float(err[ok].max())
+    hi_err = float(np.percentile(err[ok], percentile))
+    if hi_err <= 0:                                  # every point right but one: the scale cannot be zero-wide
+        hi_err, clipped = max_err if max_err > 0 else 1.0, max_err > 0
+    else:
+        clipped = max_err > hi_err * (1 + 1e-9)
+
+    if cmap is None:                                       # the house map for the quantity, else the default
+        try:
+            cmap = field_cmap(quantity)
+        except KeyError:
+            cmap = get_cmap(DEFAULT_CMAP)
+    else:
+        cmap = get_cmap(cmap)
+    error_cmap = get_cmap(error_cmap)
+
+    lo = float(min(ref[ok].min(), pred[ok].min())) if vmin is None else float(vmin)
+    hi = float(max(ref[ok].max(), pred[ok].max())) if vmax is None else float(vmax)
+    if hi <= lo:
+        hi = lo + (abs(lo) * 0.01 or 1.0)
+
+    fig, axes = make_panel_figure(ncols=3, **({"figsize": figsize} if figsize else {}))
+    axes = list(np.ravel(axes))
+    levels = np.linspace(lo, hi, 65)
+    err_levels = np.linspace(0.0, hi_err if hi_err > 0 else 1.0, 65)
+    cf = None
+    for ax, values, name in ((axes[0], ref, labels[0]), (axes[1], pred, labels[1])):
+        cf = _contour_panel(ax, x_, y_, values, levels=levels, cmap=cmap, vmin=lo, vmax=hi)
+        ax.set_title(name)
+        ax.set_aspect("equal", adjustable="box")
+        label(ax, ("x", coord_unit), ("y", coord_unit))
+    ce = _contour_panel(axes[2], x_, y_, err, levels=err_levels, cmap=error_cmap, vmin=0.0, vmax=err_levels[-1])
+    axes[2].set_title(f"|{labels[1]} - {labels[0]}|")
+    axes[2].set_aspect("equal", adjustable="box")
+    label(axes[2], ("x", coord_unit), ("y", coord_unit))
+
+    colorbar(axes[1], cf, quantity, unit)                    # one colour bar for the two panels that share a scale
+    colorbar(axes[2], ce, f"|{labels[1]} - {labels[0]}|", unit)
+    panel_letters(fig, axes, xy=(0.03, 0.97), va="top", ha="left")
+    fig.suptitle(suptitle or f"{quantity}: {labels[0]} and {labels[1]}, L2 = {l2:.4g} "
+                             f"({100.0 * rel:.2f} % of the reference's RMS)", fontsize=11)
+    note = (f"L2 = {l2:.4g}" + (f" {unit}" if unit else "") + f"   L2/RMS(ref) = {rel:.3f}"
+            f"   max = {linf:.4g}" + (f" {unit}" if unit else "") + f"   R2 = {r2:.4f}   n = {m['n']}")
+    if clipped:                                  # an honest scale says where it stopped and what was cut
+        note += f"   error scale clipped at the {percentile:g}th percentile (max {err[ok].max():.3g})"
+    fig.text(0.5, -0.02, note, ha="center", va="top", fontsize=8)
+    if source:
+        source_note(fig, source, y=-0.06)
+    fig.tight_layout()
+    if show:
+        plt.show()
+    return SolutionComparison(figure=fig, l2=l2, l2_relative=rel,
+                              linf=linf, r2=r2, n=m["n"], clipped=clipped, percentile=percentile,
+                              error_max=float(err.max()))
+
 
 
 # ---------------------------------------------------------------------------

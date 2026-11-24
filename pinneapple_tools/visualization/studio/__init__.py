@@ -8,9 +8,16 @@
     pp.viz.web_viewer(sc, "viewer/")                    # interactive three.js page: surfaces, streamlines, slices
     pp.viz.LIGHTING_PRESETS["lunar_south_pole"]         # black sky, low hard Sun (also: studio, lunar_low_sun, ...)
     pp.viz.field_view(mesh, fields, deform=..., markers=...)   # fields, errors and deformed shapes for the apps' views
+    pp.viz.export_gltf("wing.stl", {"cp": cp})          # glTF/GLB bytes, the field as a _CP vertex attribute (#281)
+    pp.viz.viewer_html(grid, {"cp": cp}, "viewer/")     # the three.js page for any mesh and any field
+    pp.viz.blender_render("wing.stl", "wing.png", field="cp")          # Blender Cycles, jet scale, colour bar
+    pp.viz.read_openfoam("case/")                       # an OpenFOAM case as a PyVista grid with its fields (#60)
+    pp.viz.compare_solutions(ref, pred, ...)           # reference, surrogate and the error map, L2 in the title (#63)
 
 Planetary surfaces (heightfield terrain, Sun shadows, Lunar-Lambert regolith): :mod:`.planetary`, :mod:`.shadows`.
 """
+from .api import MAX_FACES as SCENE_MAX_FACES
+from .api import blender_render, export_gltf, to_scene, viewer_html
 from .colormap import JET, colorbar, jet, magma
 from .compose import CMAPS, stops
 from .fieldview import VIEW_MAX_FACES, FieldView, field_view
@@ -38,10 +45,31 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
            "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
-           "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture"]
+           "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture",
+           # #60: an OpenFOAM case, a .foam pointer or a VTK file as a PyVista grid
+           "read_openfoam", "read_openfoam_patches", "read_grid", "read_vtk", "openfoam_times", "case_folder",
+           # #63: reference, surrogate and the error map, with the L2 error as a number
+           "compare_solutions", "field_error_metrics",
+           # #281: a mesh and its fields -> glTF, a browser page, a Blender render
+           "export_gltf", "viewer_html", "blender_render", "to_scene", "SCENE_MAX_FACES"]
+
+_REEXPORT = {   # name -> (submodule of .visualization, attribute): imported on first use
+    "read_openfoam": ("openfoam", "read_openfoam"),
+    "read_openfoam_patches": ("openfoam", "read_openfoam_patches"),
+    "read_grid": ("openfoam", "read_grid"),
+    "read_vtk": ("openfoam", "read_vtk"),
+    "openfoam_times": ("openfoam", "openfoam_times"),
+    "case_folder": ("openfoam", "case_folder"),
+    "compare_solutions": ("fields", "compare_solutions"),
+    "field_error_metrics": ("fields", "field_error_metrics"),
+}
 
 
 def __getattr__(name):
+    if name in _REEXPORT:                          # the readers and the comparison live one level up, not here
+        import importlib
+        mod, attr = _REEXPORT[name]
+        return getattr(importlib.import_module(".." + mod, __name__), attr)
     if name == "Dashboard":                        # pp.viz.Dashboard: the animation-centred dashboard
         from ..dashboard import Dashboard
         return Dashboard

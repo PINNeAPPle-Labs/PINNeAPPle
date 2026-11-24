@@ -62,6 +62,9 @@ REASONS: dict[str, str] = {
                              "node that trains a graph model builds it inside the node",
     "pinneapple_data.schema": "the data contract a bundle carries -- manifest, fields, locations, units, gates; it "
                               "is a type the adapters fill and the gates read, not a computation step of its own",
+    "pinneapple_data.astro": "the yt reader (#515): one Enzo/FLASH/RAMSES/GADGET/Athena++ output as a "
+                             "PhysicalSample, which is the data step the flows already have a node for; a node of its "
+                             "own would carry the dataset path and the yt install as parameters",
     "pinneapple_simulation.launch": "ascent trajectories for the launch vertical: the flight profile, its atmosphere "
                                     "and its visuals are arranged by examples/rocket_launch, which no node wraps",
     "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "

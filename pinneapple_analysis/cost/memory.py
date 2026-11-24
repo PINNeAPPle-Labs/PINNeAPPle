@@ -40,6 +40,26 @@ time grows RSS by 45 % of the peak at one size and 12 % at another (the allocato
 freed), while the live-allocation peak does not move at all — which is the correct answer, since the operation
 allocates the same bytes. RSS is the footprint to provision a machine with; live allocation is what the code
 asks for. This module measures the second and says so.
+
+RSS or peak, and the unit of ``ru_maxrss``
+------------------------------------------
+Two different questions hide behind "memory of an operation", and this module answers the second:
+
+* **RSS (sampled, ``rss``)** is the resident footprint now, sampled every 2 ms. Its peak is what a machine is
+  provisioned with, and it is a *lower bound* on what the code asked for: an allocation shorter than the poll
+  interval is missed and a reused arena never appears twice.
+* **Peak of live allocations (``torch``, ``tracemalloc``, ``cuda``, ``process``)** is the high-water mark of what
+  the operation held at once, which is the number a budget, a scaling fit or a memory limit is about. This is the
+  default and what ``exact`` marks.
+
+The kernel reports the second of those, per process, as ``getrusage().ru_maxrss`` — but **in different units
+per platform**: kibibytes on Linux (and on the other Linux-like systems CPython follows) and plain bytes on
+macOS and the BSDs. Reading it with the wrong factor is a silent factor-1024 error, the kind of mistake that
+turns 200 MiB into 200 KiB and makes a budget pass. :func:`rusage_unit_bytes` is the single place that decides,
+:func:`to_bytes` applies it, and both are tested against the Linux and the macOS convention
+(``test_ru_maxrss_unit_is_kib_on_linux_and_bytes_on_darwin``). ``process`` is additionally cross-checked against
+the kernel's number for a *separate* process (``test_process_peak_agrees_with_the_kernel_number_of_a_separate_process``),
+so the value is not merely self-consistent.
 """
 from __future__ import annotations
 
@@ -204,11 +224,24 @@ def process_peak(fn: Callable[[], Any]) -> int | None:
     text = b"".join(chunks).decode(errors="replace").strip()
     status, _, detail = text.partition(" ")
     if status == "ok" and detail.isdigit():
-        return int(detail) * _RUSAGE_UNIT
+        return to_bytes(int(detail))
     return None
 
 
-_RUSAGE_UNIT = 1 if sys.platform.startswith(("darwin", "freebsd")) else 1024   # ru_maxrss is bytes on macOS, KiB on Linux
+def rusage_unit_bytes(platform_name: str | None = None) -> int:
+    """Bytes in one unit of ``getrusage().ru_maxrss`` on ``platform_name`` (``sys.platform`` by default).
+
+    ``ru_maxrss`` is a *number of kilobytes* on Linux and a *number of bytes* on macOS and the BSDs; the two
+    conventions differ by 1024, so the unit is decided in one function instead of being assumed at each call site.
+    Anything else is treated as bytes (the POSIX-bytes convention), which is what CPython's own test suite does.
+    """
+    name = (sys.platform if platform_name is None else platform_name).lower()
+    return 1024 if name.startswith("linux") else 1
+
+
+def to_bytes(ru_maxrss: int, platform_name: str | None = None) -> int:
+    """``ru_maxrss`` in bytes, with the platform's unit applied (``rusage_unit_bytes``)."""
+    return int(ru_maxrss) * rusage_unit_bytes(platform_name)
 
 
 # --------------------------------------------------------------------------- sampled RSS

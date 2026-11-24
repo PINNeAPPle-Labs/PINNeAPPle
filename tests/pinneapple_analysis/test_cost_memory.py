@@ -6,6 +6,8 @@ method, because those limits are the reason ``measure_peak`` defaults to what it
 tensors, the PyTorch profiler is blind to NumPy, and the forked-child method cannot run autograd.
 """
 import os
+import resource
+import subprocess
 import sys
 
 import numpy as np
@@ -17,6 +19,8 @@ from pinneapple_analysis.cost.memory import (
     cuda_peak,
     process_peak,
     rss_peak,
+    rusage_unit_bytes,
+    to_bytes,
     torch_peak,
     traced_peak,
 )
@@ -198,6 +202,61 @@ def test_forked_child_cannot_run_autograd_and_returns_none_instead_of_a_number()
     assert process_peak(op) is None
     assert measure_peak(op, method="process").source == "unknown"
     assert measure_peak(op, method="process").bytes is None
+
+
+# --------------------------------------------------------------------------- the unit of the kernel's number
+def test_ru_maxrss_unit_is_kib_on_linux_and_bytes_on_darwin():
+    """The platform convention, pinned: 64 MiB of ``ru_maxrss`` is 65536 on Linux and 67108864 on macOS.
+
+    This is the mistake the old code could make silently: one number, two conventions, a factor of 1024 between
+    them. A Linux value read with the macOS factor (or the reverse) is exactly 1024x wrong, which turns a 200 MiB
+    peak into 200 KiB — a budget that passes on a measurement that is two orders of magnitude too small.
+    """
+    target = 64 * MB
+    assert rusage_unit_bytes("linux") == 1024
+    assert rusage_unit_bytes("linux2") == 1024
+    assert rusage_unit_bytes("darwin") == 1
+    assert rusage_unit_bytes("freebsd13") == 1
+    assert to_bytes(target // 1024, "linux") == target              # 65536 KiB on Linux
+    assert to_bytes(target, "darwin") == target                     # 67108864 bytes on macOS
+    assert to_bytes(target // 1024, "darwin") * 1024 == target      # the same number, the other convention
+    assert to_bytes(target, "linux") // 1024 == target
+    assert rusage_unit_bytes() == (1024 if sys.platform.startswith("linux") else 1)
+
+
+def _self_reported_child_peak(code: str) -> int:
+    """RSS watermark, in bytes, that the OS reports to a *fresh interpreter* about itself.
+
+    Nothing of this module is in the measurement: a new process allocates, asks ``getrusage(RUSAGE_SELF)`` for its
+    own high-water mark and prints it. Used as the external number the in-process ``process`` method is held to.
+    """
+    script = (code + "\nimport resource, sys\n"
+              "sys.stdout.write(str(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss))\n")
+    out = subprocess.run([sys.executable, "-c", script], check=True, capture_output=True, text=True)
+    return to_bytes(int(out.stdout.strip()), sys.platform)
+
+
+@pytest.mark.skipif(not hasattr(os, "fork") or sys.platform.startswith("win"), reason="needs fork")
+def test_process_peak_agrees_with_the_kernel_number_of_a_separate_process():
+    """The reference comes from outside this module: the same allocation, timed by a process that reports itself.
+
+    Two fresh interpreters differ only by the array they allocate, so the difference between their self-reported
+    watermarks is the size of that array as the kernel sees it. ``process_peak`` (a forked child, base subtracted)
+    has to land within the issue's 10 % of that number — which is what makes ``process`` a cross-check and not
+    merely a self-consistent number.
+    """
+    target = 192 * MB
+    allocate = (f"import numpy as np\na = np.ones({target // 8}, dtype=np.float64)\n"
+                "assert a[0] == 1.0 and a.shape[0] > 0\n")
+    external = _self_reported_child_peak(allocate) - _self_reported_child_peak("import numpy as np\n")
+    assert within_ten_percent(external, target), f"external reference {external} vs {target}"
+
+    def op():
+        return float(np.ones(target // 8).sum())
+
+    measured = process_peak(op)
+    assert measured is not None
+    assert within_ten_percent(measured, external), f"process {measured} vs external {external}"
 
 
 def test_rss_sampling_is_labelled_a_lower_bound_and_missing_psutil_is_not_a_zero():

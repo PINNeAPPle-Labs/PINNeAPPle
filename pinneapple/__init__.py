@@ -737,6 +737,10 @@ _LAZY_ATTRS = {
     # which simulation to run next: Bayesian optimization with constraints (#102)
     "BayesianOptimizer": ("pinneapple_analysis.bayesopt", "BayesianOptimizer"),
     # one dimension for every term of an equation, checked before training (#205)
+    # event-driven simulation: an impact, a valve opening, a failure threshold (#210)
+    "Event": ("pinneapple_simulation.events", "Event"),
+    "Reaction": ("pinneapple_simulation.events", "Reaction"),
+    "run_events": ("pinneapple_simulation.events", "run_events"),
     "check_dimensions": ("pinneapple_physics.dimensions", "check_dimensions"),
     # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
     # data readiness: may this dataset start a training run? and the engineering review record (#1491, #1493)
@@ -847,6 +851,8 @@ __all__ = [
     "plugins",
     # Dimensional consistency of an equation before training (X21, #205)
     "check_dimensions",
+    # Event-driven simulation: condition and action, located between steps (X26, #210)
+    "Event", "Reaction", "run_events",
     # Bayesian optimization and sequential design of experiments (K3, #102)
     "BayesianOptimizer", "bayesopt",
     # Inverse problems

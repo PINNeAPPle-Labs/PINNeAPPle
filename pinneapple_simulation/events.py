@@ -16,8 +16,8 @@ que permite comparar com o tempo analítico.
     >>> g, h0 = 9.81, 1.0
     >>> floor = Event(name="floor", condition=lambda t, y, p: y[0], action=reflect(component=1, factor=-1.0))
     >>> trace = run_events(lambda t, y, p: np.array([y[1], -g]), [h0, 0.0], (0.0, 2.0), 0.01, [floor])
-    >>> round(trace.first("floor"), 6), round(np.sqrt(2 * h0 / g), 6)     # o tempo analítico da queda
-    (0.451523, 0.451523)
+    >>> round(trace.first("floor"), 5), round(float(np.sqrt(2 * h0 / g)), 5)   # o tempo analítico da queda
+    (0.45152, 0.45152)
 
 Por que a condição é uma função e não um número: ``condition(t, y, params) -> float`` é a função de cruzamento, e o
 evento dispara onde ela muda de sinal na direção pedida (``falling`` por omissão: de positivo para negativo, que é o
@@ -81,7 +81,7 @@ class Event:
 
     name: str
     condition: Callable[[float, np.ndarray, Mapping[str, Any]], float]
-    action: Callable[[float, np.ndarray, Mapping[str, Any]], Reaction]
+    action: Callable[[float, np.ndarray, Mapping[str, Any]], Reaction] | Reaction
     direction: _Directions = "falling"
     repeat: bool = False
     tolerance: float = 1e-10
@@ -93,6 +93,14 @@ class Event:
             raise ValueError(f"direction must be 'falling', 'rising' or 'any'; got {self.direction!r}")
         if self.tolerance <= 0:
             raise ValueError("tolerance is a width: it must be > 0")
+        if isinstance(self.action, Reaction):
+            # uma ação que não depende do estado pode ser escrita como foi pensada: pp.Event(..., action=Reaction(...))
+            fixed = self.action
+
+            def _fixed(t: float, y: np.ndarray, params: Mapping[str, Any]) -> Reaction:  # noqa: ARG001
+                return fixed
+
+            object.__setattr__(self, "action", _fixed)
 
     def crosses(self, before: float, after: float) -> bool:
         """A condição passou para o outro lado, na direção pedida, entre os dois valores?

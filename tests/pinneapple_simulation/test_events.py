@@ -113,7 +113,8 @@ def test_the_valve_closes_at_the_analytic_solution_of_the_drain_equation():
     """Depois de abrir, ``dh/dt = (Q - k h)/A`` tem solução fechada, e o instante de fechar sai dela."""
     trace = run_events(tank_rhs, [0.0], (0.0, 80.0), 0.05, valve_events(), params={"Q": Q_IN, "k": 0.0})
     t_open = H_OPEN * A_TANK / Q_IN
-    t_close = t_open + np.log((H_OPEN - Q_IN / K_OUT) / (H_CLOSE - Q_IN / K_OUT)) / (-K_OUT)
+    # dh/dt = (Q - k h)/A  =>  h(t) = Q/k + (h_open - Q/k) exp(-k (t - t_open)/A)
+    t_close = t_open + (A_TANK / K_OUT) * np.log((H_OPEN - Q_IN / K_OUT) / (H_CLOSE - Q_IN / K_OUT))
     assert trace.first("close") == pytest.approx(t_close, abs=1e-6)
     # e o nível está no limiar no instante em que a válvula fechou
     assert trace.state_at(trace.first("close"))[0] == pytest.approx(H_CLOSE, abs=1e-3)

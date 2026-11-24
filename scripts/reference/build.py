@@ -236,11 +236,26 @@ def _build() -> None:
     html = tpl.replace("/*__INDEX__*/null", json.dumps(index, separators=(",", ":")).replace("</", "<\\/"))
     open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(html)
     used = {f.split("/")[-1] for p in packages for e in p["examples"] for f in e["figures"]}
-    for f in os.listdir(os.path.join(OUT, "figures")):
-        if f not in used:
-            os.remove(os.path.join(OUT, "figures", f))
+    prune_figures(OUT, used)
     print(f"{len(packages)} packages, {totals[0]} modules, {totals[1]} public classes and functions, "
           f"{totals[2]} examples -> {os.path.relpath(OUT, ROOT)}")
+
+
+def prune_figures(out_dir: str, used: set[str]) -> None:
+    """Remove the images no example lists any more, and touch nothing else.
+
+    The ``.json`` next to an image is the caption sidecar written by ``run_examples.py`` (the figure saying what it
+    measures, in what unit, #67). ``build.py`` cannot regenerate one -- the caption is read back from the drawn figure
+    -- so deleting it here is deleting work: that is what happened to fifteen of them when this loop did not
+    discriminate (#2344), and the caption test was red for two hours until somebody found out why.
+    """
+    figures = os.path.join(out_dir, "figures")
+    if not os.path.isdir(figures):
+        return
+    for f in os.listdir(figures):
+        if os.path.splitext(f)[1].lower() == ".json" or f in used:
+            continue
+        os.remove(os.path.join(figures, f))
 
 
 def _stale_files(built: str, committed: str) -> list[str]:

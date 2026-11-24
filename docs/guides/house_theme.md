@@ -45,6 +45,57 @@ quantity raises, because a silent fallback is exactly how two figures of the
 same quantity end up with different colours. To add a quantity, add a line to
 `FIELD_CMAPS`.
 
+## One theme file, three renderers
+
+Roadmap item #65. The colours above do not live in `style.py` any more:
+`pinneapple_tools/visualization/theme.json` is the file, and everything that
+draws reads it through `pinneapple_tools.visualization.theme`.
+
+```json
+"brand":  {"ink": "#262626", "blue": "#0081be", "ember": "#a23a00"},
+"surface": {"light": {"plot": "#e9ecf1", "paper": "#ffffff", ...},
+            "dark":  {"plot": "#0b1220", "paper": "#1a1a2e", ...}},
+"categorical": ["#0072B2", "#E69F00", ...],
+"colormaps": {"cfd_sequential": {"kind": "sequential", "stops": [...]}, ...}
+```
+
+| Renderer | Reads it through |
+|---|---|
+| matplotlib / PyVista figures | `style.py` (`use_theme`, `field_cmap`, `CMAPS`), `pyvista_bridge.BACKGROUND` |
+| the studio viewer and the apps (`/studio`) | `studio/web/theme.js`, generated, imported by `studio-core.js` |
+| the twin3d viewer (`pinneapple_twin3d.Viewer`) | `pinneapple_twin3d/viewer/theme.js`, generated, imported by `viewer.js` |
+| the apps' page chrome and charts | `apps/_shared/static/shared/theme.css`, generated, imported by `app.css` |
+
+A browser page cannot read the JSON, and `pp.viz`'s single-file page inlines its
+modules, so the file is copied into those three places in their own language by
+`scripts/build_theme.py`:
+
+```bash
+python scripts/build_theme.py            # rewrite the three generated copies
+python scripts/build_theme.py --check    # the gate: fail when one has drifted
+```
+
+The copies are checked in, so a page needs no fetch to draw. `--check` is what
+keeps "one theme file" true: a colour changed in `theme.json` and not rebuilt is
+a consumer drawing yesterday's palette.
+
+The plot background is the theme's, and there is one of it: `#0b1220` dark,
+`#e9ecf1` light, for the PyVista renders, the studio viewer and the twin3d
+viewer alike. The twin3d page no longer declares `--viewport` in its own CSS;
+`viewer.js` writes it from the theme, so the canvas and the page around it agree.
+
+The brand face, Oxanium, is used where the site uses it — the app title — and
+only if the machine has it: no webfont is shipped with the library, so the stack
+falls back to the system sans.
+
+`tests/test_house_theme_shared.py` checks both ends of that seam: that the
+matplotlib maps are the file's, that the generated copies are in step, that a
+stop means the same colour in Python and in the browser to 1/255, and that the
+palette stays separable under simulated protanopia, deuteranopia and tritanopia
+(the same Viénot/Brettel/Mollon approximation `scripts/render_house_theme.py`
+draws with; the worst pair of the palette is 0.127 in linear RGB, the test's
+floor is 0.10).
+
 ## Helpers
 
 | Helper | Does |

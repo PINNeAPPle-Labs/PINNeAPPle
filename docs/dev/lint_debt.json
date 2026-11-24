@@ -1,17 +1,17 @@
 {
  "schema": "pinneapple.lint_debt/1",
- "recorded_at": "2026-11-24T16:25:58Z",
+ "recorded_at": "2026-11-24T17:15:38Z",
  "how": "ruff check . (selection from pyproject.toml), one count per file and rule",
- "total": 21339,
+ "total": 21324,
  "by_rule": {
-  "UP006": 8135,
-  "UP045": 3100,
-  "UP035": 2173,
+  "UP006": 8133,
+  "UP045": 3095,
+  "UP035": 2171,
   "I001": 1783,
   "E402": 1389,
-  "F401": 1203,
+  "F401": 1202,
   "E702": 1173,
-  "UP037": 666,
+  "UP037": 661,
   "B905": 367,
   "UP007": 209,
   "F841": 197,
@@ -8187,13 +8187,6 @@
    "UP006": 2,
    "UP035": 2,
    "UP045": 2
-  },
-  "pinneapple_tools/visualization/studio/manufacture.py": {
-   "F401": 1,
-   "UP006": 2,
-   "UP035": 2,
-   "UP037": 5,
-   "UP045": 5
   },
   "pinneapple_tools/visualization/studio/pbr.py": {
    "UP006": 1,

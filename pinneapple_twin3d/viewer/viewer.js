@@ -82,8 +82,15 @@ scene3.add(sun);
 const sensorGroup = new THREE.Group();
 scene3.add(sensorGroup);
 
-function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-function applyTheme() { scene3.background = new THREE.Color(cssVar("--viewport") || "#e9ecf1"); }
+// The plot background is the theme's, not a second palette: the same colour the studio viewer and the PyVista
+// renders use. --viewport stays a page variable so the CSS around the canvas follows, and the theme writes it.
+function applyTheme() {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+    (!document.documentElement.hasAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+  const viewport = THEME.surface[dark ? "dark" : "light"].plot;
+  document.documentElement.style.setProperty("--viewport", viewport);
+  scene3.background = new THREE.Color(viewport);
+}
 
 function resize() {
   const w = viewport.clientWidth, h = viewport.clientHeight;
@@ -160,6 +167,11 @@ const fmt = (v) => (Math.abs(v) >= 1e4 || (Math.abs(v) < 1e-3 && v !== 0)) ? v.t
 
 function buildUi() {
   const m = state.manifest;
+  // the maps come from the theme file, so the viewer never offers a scale the figures do not have
+  const mapSel = $("cmap");
+  mapSel.innerHTML = Object.keys(CMAPS).map((name) =>
+    `<option value="${name}">${name.replace(/_/g, " ")}</option>`).join("");
+  mapSel.value = state.cmap;
   const sel = $("field");
   sel.innerHTML = `<option value="">(no field: part colour)</option>` +
     fieldNames().map((n) => `<option value="${n}">${n}${fieldUnit(n) ? ` [${fieldUnit(n)}]` : ""}</option>`).join("");

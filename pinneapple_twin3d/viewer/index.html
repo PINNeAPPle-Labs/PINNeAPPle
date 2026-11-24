@@ -5,19 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PINNeAPPle Twin3D</title>
 <style>
+  /* --viewport (the plot background) is written by viewer.js from the house theme, not declared here */
   :root {
     --bg: #f4f5f7; --panel: #ffffff; --text: #1d2330; --muted: #5c6475; --line: #d9dde5;
-    --accent: #2f6fde; --alarm: #d6453d; --ok: #1f9d55; --viewport: #e9ecf1;
+    --accent: #2f6fde; --alarm: #d6453d; --ok: #1f9d55;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #12151b; --panel: #1b2029; --text: #e6e9ef; --muted: #9aa3b5; --line: #2c3340;
-      --accent: #6b9cff; --alarm: #ff6b62; --ok: #4cc983; --viewport: #0e1116;
+      --accent: #6b9cff; --alarm: #ff6b62; --ok: #4cc983;
     }
   }
   :root[data-theme="dark"] {
     --bg: #12151b; --panel: #1b2029; --text: #e6e9ef; --muted: #9aa3b5; --line: #2c3340;
-    --accent: #6b9cff; --alarm: #ff6b62; --ok: #4cc983; --viewport: #0e1116;
+    --accent: #6b9cff; --alarm: #ff6b62; --ok: #4cc983;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow-x: hidden; background: var(--bg); color: var(--text);

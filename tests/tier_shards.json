@@ -417,6 +417,7 @@
     "tests/test_dev_environment.py",
     "tests/test_digital_twin_library.py",
     "tests/test_digital_twin_product.py",
+    "tests/test_digital_twin_end_to_end.py",
     "tests/test_digital_twin_prognostics.py",
     "tests/test_digital_twin_streams_live.py",
     "tests/test_digital_twin_streams_scada_live.py",

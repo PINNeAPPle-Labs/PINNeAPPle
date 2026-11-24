@@ -110,7 +110,12 @@ def use_cfd_style(dark: bool = True) -> None:
 
 
 def get_cmap(name: str = DEFAULT_CMAP):
-    """Return a matplotlib colormap by PINNeAPPle alias or standard name."""
+    """Return a matplotlib colormap by PINNeAPPle alias or standard name.
+
+    A colormap already in hand is returned unchanged: PyVista accepts either, and a caller passing a
+    ``Colormap`` to ``render_png`` must not find it turned into a missing-name error."""
+    if not isinstance(name, str):
+        return name
     if name in CMAPS:
         return CMAPS[name]
     return plt.get_cmap(name)

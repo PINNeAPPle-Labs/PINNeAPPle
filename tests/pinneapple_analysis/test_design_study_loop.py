@@ -17,6 +17,7 @@ import pytest
 from pinneapple_analysis.design_study import StopRule, decide, run_study
 from pinneapple_analysis.design_study.examples import beam_fdm, beam_study, polar_study
 
+
 # ---------------------------------------------------------------------------------------------- the rule, as data
 def test_the_rule_refuses_numbers_that_do_not_mean_anything():
     assert StopRule().to_dict() == {"min_improvement": 0.01, "patience": 2, "max_rounds": 6, "per_round": 1,

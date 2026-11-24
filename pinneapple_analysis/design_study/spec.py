@@ -59,8 +59,9 @@ __all__ = [
 
 SCHEMA = "pinneapple-design-study/v1"
 
-#: The kinds of study the schema describes. ``optimize`` and ``surrogate`` are the two :func:`.study.run_study`
-#: runs today; the other three are described here and refused with the reason that is missing (see ``.study``).
+#: The kinds of study the schema describes. ``optimize``, ``surrogate`` and ``pinn`` are what
+#: :func:`.study.run_study` runs today; ``inverse`` and ``twin`` are described here and refused with the reason that
+#: is missing (see ``.study``).
 KINDS = ("optimize", "surrogate", "pinn", "inverse", "twin")
 KINDS_BEYOND_OPTIMISATION = ("surrogate", "pinn", "inverse", "twin")
 

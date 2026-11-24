@@ -167,8 +167,8 @@ def test_a_parameter_cannot_be_varied_and_fixed_at_once():
 
 
 # ---------------------------------------------------------------------------------------------- what runs today
-@pytest.mark.parametrize("kind", ["pinn", "inverse", "twin"])
-def test_kinds_beyond_the_two_that_run_are_described_and_refused_with_the_reason(kind):
+@pytest.mark.parametrize("kind", ["inverse", "twin"])
+def test_the_kinds_that_do_not_run_are_described_and_refused_with_the_reason(kind):
     spec = toy(kind=kind, model=Model(pde={"type": "laplace_2d", "coords": {"x": "x", "y": "y"}}))
     run = run_study(spec, lambda p: {"f": 1.0, "g": 2.0})
     assert run.status == "refused" and not run.rows

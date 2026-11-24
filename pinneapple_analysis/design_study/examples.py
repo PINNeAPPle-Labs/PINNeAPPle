@@ -21,8 +21,11 @@ from the catalog tool.
   it measures, fits and cross-validates, and does not optimise.
 * :func:`beam_study` / :func:`beam_fdm` — a cantilever box beam whose section is designed against **a numerical
   solver** (the 4th-order finite-difference Euler-Bernoulli solve of ``pinneapple_simulation.numerical_solvers``,
-  not a closed-form formula): the reference here is solve of the BVP, so a study that verifies on it verifies on a
-  solver. It is the case #79 asks for: mass against deflection, a stress cap and a deflection cap.
+  not a closed-form formula): the reference here is the solve of the BVP, so a study that verifies on it verifies on
+  a solver. It is the case #79 asks for: mass against deflection, a stress cap and a deflection cap.
+* :func:`slab_study` / :func:`slab_cooling` — a **pinn** study: the temperature field of a cooling slab over
+  diffusivity and amplitude, returned with its (x, t) mesh and fitted by a physics-informed network informed by the
+  heat equation (#136). It is the only example whose evaluator returns fields.
 """
 from __future__ import annotations
 
@@ -306,13 +309,80 @@ def beam_study() -> DesignStudy:
         metadata={"example": "beam", "model": "the FDM solver in pinneapple_simulation is the reference"})
 
 
+# =========================================================================== the slab, with fields (kind pinn)
+#: The slab: one metre of material, cooled for 0.1 s, on a 7 x 5 mesh of (x, t) points. The mesh is fixed by the
+#: study, which is what lets a PINN compare designs: every design's field lives on the same points.
+_SLAB = {"length_m": 1.0, "end_time_s": 0.1, "n_x": 7, "n_t": 5}
+
+
+def slab_cooling(params: Mapping[str, float]) -> dict[str, Any]:
+    """The analytic cooling of a slab, returned **with its mesh**: the field a ``pinn`` study fits.
+
+    ``u(x, t) = A exp(-a pi^2 t / L^2) sin(pi x / L)`` solves the 1-D heat equation ``u_t = a u_xx`` exactly for any
+    amplitude ``A`` [K] and diffusivity ``a`` [-], which is the point: the study's two variables appear in the field
+    *and* one of them is the equation's own coefficient, so the physics the PINN is told is the physics the data
+    obeys. The scalar outputs are the hot end of the slab (``t_end_max`` [K]) and its centre at the end time
+    (``t_centre_end`` [K]); ``"__fields__"``/``"__coords__"`` carry the temperature field and the 7 x 5 mesh the
+    ``pinn`` kind fits (:mod:`.pinn`), in ``ij`` order (x slowest) so the mesh is a tensor-product lattice.
+    """
+    import numpy as np
+
+    amp, alpha = float(params["amplitude"]), float(params["alpha"])
+    ell = float(params.get("length_m", _SLAB["length_m"]))
+    end = float(params.get("end_time_s", _SLAB["end_time_s"]))
+    n_x, n_t = int(params.get("n_x", _SLAB["n_x"])), int(params.get("n_t", _SLAB["n_t"]))
+    x = np.linspace(0.0, ell, n_x)
+    t = np.linspace(0.0, end, n_t)
+    xx, tt = np.meshgrid(x, t, indexing="ij")
+    u = amp * np.exp(-alpha * math.pi ** 2 * tt / ell ** 2) * np.sin(math.pi * xx / ell)
+    return {"t_end_max": float(u[:, -1].max()), "t_centre_end": float(u[n_x // 2, -1]),
+            "__fields__": {"T": u.ravel()}, "__coords__": {"x": xx.ravel(), "t": tt.ravel()}}
+
+
+def slab_study() -> DesignStudy:
+    """A **pinn** study: the field over (x, t) is fitted by a physics-informed network, informed by ``u_t = a u_xx``.
+
+    The hyperparameters live in ``evaluator.settings`` because the v1 schema has no model-options field, and the
+    training seconds per fold are part of the study's record rather than a default nobody can see: a fit that is
+    reported has to be reproducible from its spec. ``Verifier.surrogate_target`` is the field's relative L2 here,
+    the same number it is for the scalar outputs' nRMSE (both are unit-free, which is why it can be one number).
+    """
+    return DesignStudy.create(
+        kind="pinn", title="Slab cooling: a PINN of the temperature field over diffusivity and amplitude",
+        statement="Fit the temperature field of a cooling slab over diffusivity and initial amplitude, informed by "
+                  "the heat equation, accurate enough to choose a diffusivity with.",
+        base=Base(kind="geometry", ref="pp.geometries:slab_1d",
+                  variables=[Variable("alpha", 0.15, 0.35, unit="1", description="thermal diffusivity [-]"),
+                             Variable("amplitude", 60.0, 140.0, unit="K", description="initial amplitude")],
+                  fixed={"length_m": _SLAB["length_m"], "end_time_s": _SLAB["end_time_s"]},
+                  baseline={"alpha": 0.25, "amplitude": 100.0},
+                  description="1 m slab, analytic solution of the heat equation, fixed (x, t) mesh"),
+        evaluator=Evaluator(tool="heat.slab_analytic", fidelity="model",
+                            inputs={"alpha": "alpha", "amplitude": "amplitude"},
+                            conditions={"length_m": _SLAB["length_m"], "end_time_s": _SLAB["end_time_s"],
+                                        "n_x": _SLAB["n_x"], "n_t": _SLAB["n_t"]},
+                            outputs=[Quantity("t_end_max", "K", label="hot end at the end time"),
+                                     Quantity("t_centre_end", "K", label="centre at the end time")],
+                            settings={"pinn_train_s": 1.5,
+                                      "pinn": {"lr": 0.01, "depth": 3, "hidden": 32, "pde_weight": 0.1}},
+                            description="analytic heat equation on a slab, returned with its (x, t) field"),
+        objectives=[Objective("t_end_max", "min", label="hot end")],
+        constraints=[],
+        budget=Budget(max_evaluations=13, n_doe=12, n_verify=0, surrogate_evaluations=100, seed=2),
+        verifier=Verifier(surrogate_target=0.15, min_verified=0, folds=3),
+        model=Model(families=("gp", "quadratic"),
+                    pde={"type": "heat", "coords": {"x": "x", "t": "t"}, "coefficients": {"alpha": "alpha"}}),
+        metadata={"example": "slab", "model": "the analytic solution of the heat equation, not a CFD solve"})
+
+
 #: The examples by name: ``(spec, evaluator)``, ready for :func:`run_study`.
 EXAMPLES = {"wing": (wing_study, wing_vlm), "heatsink": (heatsink_study, heatsink_model),
-            "polar": (polar_study, polar_model), "beam": (beam_study, beam_fdm)}
+            "polar": (polar_study, polar_model), "beam": (beam_study, beam_fdm), "slab": (slab_study, slab_cooling),
+            }
 
 
 def example(name: str) -> tuple[DesignStudy, Any]:
-    """``(spec, evaluator)`` of one example, by name (``wing``, ``heatsink``, ``polar``, ``beam``)."""
+    """``(spec, evaluator)`` of one example, by name (``wing``, ``heatsink``, ``polar``, ``beam``, ``slab``)."""
     try:
         make = EXAMPLES[name][0]
     except KeyError:

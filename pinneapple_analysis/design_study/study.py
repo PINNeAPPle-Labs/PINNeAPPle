@@ -26,6 +26,10 @@ The cycle, and what each step is allowed to say
 5. **Verification.** The designs that would be recommended are run on the reference evaluator, with the prediction
    recorded *before* the run. The study's answer is a measured design; a design that was only predicted says so.
 
+A ``pinn`` study adds one step between 2 and 3 and skips 4 and 5: the fields the evaluator returned are fitted by a
+physics-informed network, cross-validated by design against the reference fields (:mod:`.pinn`), and the scalar
+outputs keep the whole cycle above, so the trust verdict reads both the field's held-out error and the outputs'.
+
 The result (:class:`StudyRun`) carries the Pareto front (each member flagged measured or predicted), every rejected
 design with the reason it was rejected (the evaluator refused it, a limit is violated, or it lies outside the
 validated domain), the trust verdict (:class:`pinneapple_analysis.trust.TrustReport`) and the validated domain. The
@@ -75,14 +79,15 @@ from typing import Any
 
 import numpy as np
 
-from .spec import KINDS, DesignStudy
 from .loop import StopRule, decide
+from .spec import KINDS, DesignStudy
 
 __all__ = ["run_study", "StudyRun", "StudyRefused", "RUNNABLE_KINDS", "StopRule"]
 
 #: The kinds this module runs today. The others are described by the schema and refused with the reason that is
-#: missing, instead of being silently treated as an optimisation.
-RUNNABLE_KINDS = ("optimize", "surrogate")
+#: missing, instead of being silently treated as an optimisation. ``pinn`` is a surrogate kind with an equation
+#: behind it: it fits the fields the study measured (:mod:`.pinn`).
+RUNNABLE_KINDS = ("optimize", "surrogate", "pinn")
 
 _VERIFY_MIN_DISTANCE = 0.05          # designs closer than this in the unit cube are the same design
 _FRONT_MIN_DISTANCE = 0.01           # the same, for merging near-identical members of the predicted front
@@ -102,6 +107,7 @@ class _Outcome:
     message: str = ""
     wall_s: float = 0.0
     fields: dict[str, np.ndarray] | None = None
+    coords: dict[str, np.ndarray] | None = None
 
 
 class _Tool:
@@ -133,6 +139,7 @@ class _Tool:
             return _Outcome({}, False, f"{type(e).__name__}: {e}", time.perf_counter() - t0)
         wall = time.perf_counter() - t0
         fields = getattr(res, "fields", None)
+        coords = getattr(res, "coords", None)
         if hasattr(res, "ok"):                                   # an autolab SimOutcome
             wall = float(getattr(res, "cost_s", 0.0) or wall)
             if not res.ok:
@@ -145,6 +152,7 @@ class _Tool:
             return _Outcome({}, False, str(res.get("message") or "the evaluator failed"), wall, fields)
         wall = float(res.pop("__cost_s__", wall) or wall)
         fields = res.pop("__fields__", fields)
+        coords = res.pop("__coords__", coords)
         missing = [o for o in self.outputs if o not in res]
         if missing:
             return _Outcome({}, False, f"the evaluator did not return {missing}", wall, fields)
@@ -155,7 +163,8 @@ class _Tool:
         bad = sorted(k for k, v in vals.items() if not np.isfinite(v))
         if bad:
             return _Outcome({}, False, f"non-finite outputs {bad}", wall, fields)
-        return _Outcome(vals, True, "", wall, {k: np.asarray(v, float) for k, v in (fields or {}).items()})
+        return _Outcome(vals, True, "", wall, {k: np.asarray(v, float) for k, v in (fields or {}).items()},
+                        None if coords is None else {str(k): np.asarray(v, float) for k, v in dict(coords).items()})
 
 
 # --------------------------------------------------------------------------- the run
@@ -262,6 +271,23 @@ class StudyRun:
                 out.append(f"- {out_name}: {row['family']}, held-out nRMSE {f(row['nrmse'])} "
                            f"(target {self.spec.verifier.surrogate_target:g}), R² {f(row['r2'])}, "
                            f"95 % coverage {100 * row['coverage95']:.0f} %")
+        p = self.surrogate.get("pinn") or {}
+        if p:
+            e, mesh, r = p["error"], p["mesh"], p["residual"] or {}
+            out += ["", "## Physics-informed field", "",
+                    f"`{mesh['field']}` on {mesh['n_points']} mesh point(s) "
+                    f"({', '.join(mesh['coords'])}) over {p['n_samples']} measured design(s); "
+                    f"{p['folds']}-fold cross-validation by design, {p['n_heldout']} held-out prediction(s) "
+                    f"against the reference fields, {p['train_s_mean']:.2f} s of training per fold.", "",
+                    "| metric | value |", "|---|---|",
+                    f"| held-out relative L2 (mean) | {100 * e['rel_l2_mean']:.2f} % |",
+                    f"| held-out relative L2 (median) | {100 * e['rel_l2_median']:.2f} % |",
+                    f"| held-out relative L2 (worst design) | {100 * e['rel_l2_max']:.2f} % |",
+                    f"| PDE | `{p['pde']['type']}` |"]
+            if r:
+                out += [f"| PDE residual of the predictions (mean) | {r['pred_mean']:.4g} |",
+                        f"| PDE residual of the reference fields (the floor) | {r['data_mean']:.4g} |",
+                        f"| ratio prediction / reference | {r['ratio']:.3g} |"]
         rounds = self.loop.get("rounds") or []
         if rounds:
             stop = self.stop
@@ -400,6 +426,8 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
     units = spec.units()
     rows: list[dict[str, Any]] = []
     notes: list[str] = []
+    #: the per-sample fields a pinn study fits: {"params", "fields", "coords"} per design that returned them
+    samples: list[dict[str, Any]] = []
     created = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
     def evaluate(design: Mapping[str, float], tag: str, predicted: Mapping[str, float] | None = None,
@@ -415,6 +443,9 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
                "predicted": None if predicted is None else {k: float(v) for k, v in predicted.items()},
                "predicted_std": None if predicted_std is None else {k: float(v) for k, v in predicted_std.items()}}
         rows.append(row)
+        if out.ok and out.fields:
+            samples.append({"index": row["index"], "params": dict(row["params"]), "fields": out.fields,
+                            "coords": out.coords})
         tell({"event": tag, "done": len(rows), "planned": spec.budget.max_evaluations, "design": dict(row["params"]),
               "ok": row["ok"], "outputs": dict(row["outputs"])})
         return row
@@ -463,6 +494,34 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
     verified_designs: list[dict[str, Any]] = []
     ev = None
 
+    # ------------------------------------------------------------------ the physics-informed fit (#136)
+    # A pinn study fits the fields it measured, cross-validated by design, before anything is reported. It runs once:
+    # the field model is the study's answer, and refitting it round by round would report the last round's model as
+    # if it were the study's.
+    pinn: dict[str, Any] = {}
+    if spec.kind == "pinn":
+        from .pinn import collect, fit_field
+        try:
+            fs = collect(samples, names)
+            pinn = fit_field(spec, fs, folds=spec.verifier.folds, seed=spec.budget.seed,
+                             wall_s=float(spec.evaluator.settings.get("pinn_train_s", 1.0)),
+                             options=dict(spec.evaluator.settings.get("pinn", {}) or {}))
+        except ImportError as e:
+            return _refused(spec, [f"the pinn study needs PyTorch (pinneapple_analysis.surrogate.methods): {e}"],
+                            "refused", rows=rows, baseline=baseline, wall_s=time.perf_counter() - started)
+        except ValueError as e:
+            return _refused(spec, [str(e)], "refused", rows=rows, baseline=baseline,
+                            wall_s=time.perf_counter() - started)
+        notes.append(f"The PINN was fitted to {pinn['mesh']['field']} on {pinn['mesh']['n_points']} mesh point(s) "
+                     f"over {pinn['n_samples']} design(s), cross-validated by design in {pinn['folds']} fold(s) "
+                     f"({pinn['n_heldout']} held-out prediction(s) against the reference fields): relative L2 "
+                     f"{100 * pinn['error']['rel_l2_mean']:.2f} % on average, {100 * pinn['error']['rel_l2_max']:.2f} % "
+                     f"on the worst design. Training runs on a wall clock ({pinn['train_s_mean']:.2f} s a fold), so "
+                     "the fit moves by a few percent between runs; the mean is the check, the worst design is the "
+                     "evidence beside it.")
+        tell({"event": "pinn", "done": len(rows), "planned": spec.budget.max_evaluations, "design": None, "ok": None,
+              "outputs": {}, "rel_l2_mean": pinn["error"]["rel_l2_mean"]})
+
     from pinneapple_autolab.domain import ValidatedDomain
     from pinneapple_design.design_optimizer.study import VALID, FunctionEvaluator
     try:
@@ -493,6 +552,8 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
                                       "coverage95": float(m["coverage95"]), "rel_mae": float(m["rel_mae"]),
                                       "sd": sd}
         # bounds so the verdicts speak in physical units ("taper_ratio = 0.30 is below the simulated range")
+        if pinn:
+            report["pinn"] = pinn
         return board_, report, ValidatedDomain(Um, names, bounds=space.bounds)
 
     # ------------------------------------------------------------------ 3..5. the rounds
@@ -741,6 +802,17 @@ def _trust(spec: DesignStudy, surrogate, targets, pareto, verified, domain_info,
     )
     checks: list[Check] = []
     tol = spec.verifier
+    p = surrogate.get("pinn") or {}
+    if p:
+        e = p["error"]
+        checks.append(Check(f"PINN held-out relative L2 of {p['mesh']['field']} <= {tol.surrogate_target:g}",
+                            SUPPORTS if e["rel_l2_mean"] <= tol.surrogate_target else CONTRADICTS,
+                            value=e["rel_l2_mean"], limit=tol.surrogate_target, critical=True,
+                            source=f"{p['folds']}-fold cross-validation by design over {p['n_heldout']} held-out "
+                                   "prediction(s), measured against the reference fields"))
+        # The worst design is reported, not checked: training runs on a wall clock (the same budget every candidate
+        # gets), so the fit moves by a few percent between runs, and a check that flips with it would be a coin toss
+        # dressed as a verdict. The number is in the report and in the note beside it.
     for out in targets:
         row = surrogate["outputs"][out]
         checks.append(Check(f"surrogate held-out nRMSE of {out} <= {tol.surrogate_target:g}",

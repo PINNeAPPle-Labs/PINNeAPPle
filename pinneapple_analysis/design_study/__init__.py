@@ -17,12 +17,15 @@ What is here:
   baseline, budget, verifier. ``to_dict`` / ``from_dict`` are strict, and an output without a unit is refused;
 * :func:`.study.run_study` — the cycle and its answer (:class:`.study.StudyRun`): Pareto front with each member
   flagged measured or predicted, rejected designs with the reason, the trust verdict and the validated domain.
-  ``optimize`` and ``surrogate`` run today; the other kinds are described and refused with what is missing.
+  ``optimize`` and ``surrogate`` run today, and ``pinn`` (:mod:`.pinn`) fits the fields a study measured with a
+  physics-informed network; ``inverse`` and ``twin`` are described and refused with what is missing.
   With a :class:`.loop.StopRule` the cycle runs in rounds, refitting on everything measured each time, and stops on
   the first number that says another round buys nothing (:attr:`.study.StudyRun.loop` says which);
 * :mod:`.loop` — that rule and its decision (:func:`.loop.decide`), as data: four reasons, each decided on a number;
-* :mod:`.examples` — two optimisation studies (a wing on a lifting-line model, a forced-convection heatsink) and a
-  surrogate study, each with the analytic evaluator the tests run.
+* :mod:`.pinn` — the per-sample fields a parametric study fits, the collocation of the physics loss on the mesh the
+  study measured, and the error of the fit measured against the reference fields (#136);
+* :mod:`.examples` — five studies with the evaluator the tests run: a wing and a heatsink on closed-form models, a
+  cantilever beam on a numerical solver, a polar (surrogate) and a cooling slab (pinn, with fields).
 
 The schema is the contract the Studio wizard and the Engineer fill (#1036); this package is the library side of it.
 """

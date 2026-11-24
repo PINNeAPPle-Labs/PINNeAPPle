@@ -88,6 +88,10 @@ REASONS: dict[str, str] = {
     "pinneapple_data.adaptive_sampling": "the loop that decides which simulation to run next (multi-signal adaptive "
                                          "sampling of #209): it chooses the calls a campaign makes, it is not one of "
                                          "them, in the same way as pinneapple_analysis.bayesopt",
+    "pinneapple_physics.active_design": "the same loop behind the option it is reached by (Experiment(active=...) in "
+                                        "#34 and #153): it spends a budget of solver runs over the problem's design "
+                                        "box and records why, which chooses the calls a flow makes instead of being "
+                                        "one of them -- the reason pinneapple_data.adaptive_sampling already gives",
     "pinneapple_data.schema": "the data contract a bundle carries -- manifest, fields, locations, units, gates; it "
                               "is a type the adapters fill and the gates read, not a computation step of its own",
     "pinneapple_data.astro": "the yt reader (#515): one Enzo/FLASH/RAMSES/GADGET/Athena++ output as a "

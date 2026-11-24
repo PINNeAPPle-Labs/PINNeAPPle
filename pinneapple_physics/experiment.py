@@ -34,6 +34,25 @@ from .solving import Solution, as_problem, solve
 __all__ = ["Experiment", "ExperimentResult"]
 
 
+def _as_active(active: Any) -> Any:
+    """``False``, ``True`` or a mapping of :class:`~pinneapple_physics.active_design.ActivePolicy` keywords.
+
+    A mapping is checked here, when the experiment is built, and not in the middle of a study: an unknown keyword or
+    a budget smaller than its initial design is a mistake about the run, and it is cheaper to hear about it before the
+    first solve.
+    """
+    if active is None or active is False:
+        return False
+    if active is True:
+        return True
+    if isinstance(active, Mapping):
+        from .active_design import ActivePolicy
+        ActivePolicy(**dict(active))
+        return dict(active)
+    raise TypeError("active must be False, True or a mapping of ActivePolicy keywords "
+                    f"(budget, n_initial, batch, signals, quantity, space, target, seed); got {type(active).__name__}")
+
+
 @contextlib.contextmanager
 def _seeded(seed: int):
     random.seed(seed)
@@ -86,12 +105,18 @@ class ExperimentResult:
     environment: Dict[str, Any]
     n_eval_points: int = 0
     tracker_run_id: Optional[Any] = None
+    #: the record of an active run (``Experiment(active=...)``): the design, its rounds, the simulations it cost and
+    #: the error against the reference. ``None`` for a run that solved the problem once.
+    active: dict[str, Any] | None = None
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"config": self.config, "problem_fingerprint": self.problem_fingerprint, "metrics": self.metrics,
-                "wall_time_s": self.wall_time_s, "started_at": self.started_at, "environment": self.environment,
-                "n_eval_points": self.n_eval_points, "method_info": self.solution.info,
-                "problem": self.solution.problem.to_dict()}
+        out = {"config": self.config, "problem_fingerprint": self.problem_fingerprint, "metrics": self.metrics,
+               "wall_time_s": self.wall_time_s, "started_at": self.started_at, "environment": self.environment,
+               "n_eval_points": self.n_eval_points, "method_info": self.solution.info,
+               "problem": self.solution.problem.to_dict()}
+        if self.active is not None:
+            out["active"] = self.active
+        return out
 
     def save(self, directory: str) -> str:
         """Write ``result.json`` (and ``model.pt`` when the solution has a PyTorch model) to ``directory``."""
@@ -114,7 +139,17 @@ class ExperimentResult:
 
 @dataclass
 class Experiment:
-    """A method applied to a problem, with a seed, options and an optional reference to score against."""
+    """A method applied to a problem, with a seed, options and an optional reference to score against.
+
+    ``active`` turns the single solve into a **study over the problem's design box** (#34, #153): instead of one solve
+    the run spends ``budget`` simulations on the points that
+    :func:`~pinneapple_data.adaptive_sampling.adapt` picks, and the answer is the retrained surrogate over the box.
+    Its fields are the keywords of :class:`~pinneapple_physics.active_design.ActivePolicy`
+    (``budget``, ``n_initial``, ``batch``, ``signals``, ``quantity``, ``space``, ``target``, ``seed``); the axes are
+    the parameters whose role is ``"design"`` or ``"uncertain"`` and that carry bounds. ``active=True`` uses the
+    defaults, and the measured cost of that choice is in :func:`~pinneapple_physics.active_design.benchmark_active_design`.
+    """
+
     problem: Union[PhysicalProblem, Any, str]
     method: str = "pinn"
     options: Dict[str, Any] = field(default_factory=dict)
@@ -127,6 +162,11 @@ class Experiment:
     # experiment tracker: "mlflow", "wandb" or a callable f(result) (see pinneapple_physics.tracking)
     tracker: Optional[Any] = None
     tracker_options: Dict[str, Any] = field(default_factory=dict)
+    # active design over the problem's design parameters (#34, #153): False, True, or ActivePolicy keywords
+    active: bool | dict[str, Any] = False
+    #: passed as ``ctx`` to every solve of an active run (a source function the problem does not carry, the design
+    #: point); also the only sane place for a coefficient the PDE reads from the context
+    active_context: dict[str, Any] = field(default_factory=dict)
     # the preset the problem was built from, when it was one: what makes a saved experiment runnable again
     _preset: Optional[str] = field(default=None, init=False, repr=False, compare=False)
 
@@ -135,11 +175,12 @@ class Experiment:
         self.problem = as_problem(self.problem)
         if not self.name:
             self.name = f"{self.problem.name}/{self.method}/seed{self.seed}"
+        self.active = _as_active(self.active)
 
     def config(self) -> Dict[str, Any]:
         return {"name": self.name, "problem": self.problem.name, "method": self.method, "options": dict(self.options),
                 "seed": self.seed, "reference": self.reference, "reference_options": dict(self.reference_options),
-                "n_eval": self.n_eval, "metric_names": list(self.metric_names)}
+                "n_eval": self.n_eval, "metric_names": list(self.metric_names), "active": self.active}
 
     # ------------------------------------------------------------------ persistence
     def to_dict(self) -> Dict[str, Any]:
@@ -154,10 +195,14 @@ class Experiment:
         """
         detached = [f"{c.name}.{k}" for c in self.problem.conditions for k in ("selector", "value_fn")
                     if callable(getattr(c, k, None))]
+        active = self.active
+        if isinstance(active, Mapping):
+            detached += [f"active.{k}" for k, v in active.items() if callable(v)]
+            active = {k: (getattr(v, "__name__", "__callable__") if callable(v) else v) for k, v in active.items()}
         d: Dict[str, Any] = {
             "name": self.name, "method": self.method, "options": dict(self.options), "seed": self.seed,
             "reference": self.reference, "reference_options": dict(self.reference_options), "n_eval": self.n_eval,
-            "metric_names": list(self.metric_names), "problem": self.problem.to_dict(),
+            "metric_names": list(self.metric_names), "problem": self.problem.to_dict(), "active": active,
             "problem_fingerprint": self.problem.fingerprint(),
             "resumable": bool(self._preset) or (not detached and self.problem.geometry is None),
         }
@@ -192,7 +237,7 @@ class Experiment:
                          seed=int(d.get("seed", 0)), reference=d.get("reference"),
                          reference_options=dict(d.get("reference_options") or {}), n_eval=int(d.get("n_eval", 4096)),
                          metric_names=tuple(d.get("metric_names") or ("relative_l2", "rmse", "max_abs")),
-                         name=d.get("name", ""))
+                         name=d.get("name", ""), active=d.get("active", False))
         experiment._preset = source.get("preset")
         return experiment
 
@@ -225,6 +270,8 @@ class Experiment:
         return lo + (hi - lo) * rng.random((self.n_eval, len(self.problem.coords)))
 
     def run(self) -> ExperimentResult:
+        if self.active:
+            return self.run_active()
         started = datetime.now(timezone.utc).isoformat(timespec="seconds")
         opts = dict(self.options)
         opts.setdefault("seed", self.seed)
@@ -244,6 +291,44 @@ class Experiment:
         result = ExperimentResult(config=self.config(), problem_fingerprint=self.problem.fingerprint(), solution=sol,
                                   metrics=scores, wall_time_s=elapsed, started_at=started, environment=_environment(),
                                   n_eval_points=n_pts)
+        if self.tracker is not None:
+            from .tracking import log_result
+            result.tracker_run_id = log_result(result, self.tracker, **self.tracker_options)
+        return result
+
+    def run_active(self) -> ExperimentResult:
+        """Spend the budget over the problem's design box instead of solving once (``active=...``, #34 and #153).
+
+        The loop, its signals and its surrogate are :mod:`pinneapple_physics.active_design`'s; this method only turns
+        the experiment into the call it needs and wraps the answer in the same :class:`ExperimentResult` every other
+        run returns, so a tracker, a metric list and ``save`` keep working. ``solution`` is the solve at the **best
+        measured design** (a real solution, with the same ``predict`` contract as any other), and ``active`` is the
+        record of the study: the design, its rounds, the number of simulations it cost, and -- when ``reference``
+        names a method -- the surrogate's relative error against it over the box.
+        """
+        from .active_design import ActivePolicy, active_design
+
+        started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        policy = ActivePolicy(**self.active) if isinstance(self.active, Mapping) else ActivePolicy()
+        opts = dict(self.options)
+        opts.setdefault("seed", self.seed)
+        t0 = time.perf_counter()
+        run = active_design(self.problem, method=self.method, options={k: v for k, v in opts.items() if k != "seed"},
+                            policy=ActivePolicy(**{**policy.__dict__, "seed": self.seed}), reference=self.reference,
+                            reference_options=dict(self.reference_options), context=dict(self.active_context))
+        elapsed = time.perf_counter() - t0
+        best = int(np.argmax(np.abs(run.y)))
+        params = {n: float(v) for n, v in zip(run.names, run.X[best], strict=True)}
+        point = self.problem.with_parameters(**params) if params else self.problem
+        call = {k: v for k, v in opts.items() if k != "seed"}
+        if self.active_context:
+            call["ctx"] = {**dict(self.active_context), **params}
+        with _seeded(self.seed):
+            solution = solve(point, self.method, **call)
+        result = ExperimentResult(config=self.config(), problem_fingerprint=point.fingerprint(), solution=solution,
+                                 metrics=None, wall_time_s=elapsed, started_at=started, environment=_environment(),
+                                 n_eval_points=0, active=run.to_dict())
+        result.active["best_design"] = params
         if self.tracker is not None:
             from .tracking import log_result
             result.tracker_run_id = log_result(result, self.tracker, **self.tracker_options)

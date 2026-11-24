@@ -42,7 +42,8 @@
     {
       "python": "3.10",
       "torch": "current",
-      "os": "linux"
+      "os": "linux",
+      "note": "the image has no numcodecs wheel: the install stops before the smoke"
     },
     {
       "python": "3.11",
@@ -72,7 +73,8 @@
     {
       "python": "3.11",
       "torch": "current",
-      "os": "windows"
+      "os": "windows",
+      "note": "no Windows machine or runner here"
     }
   ],
   "runs": [
@@ -92,6 +94,40 @@
       "failed": [],
       "seconds": 5.6,
       "note": "Debian slim container on the same Mac (Docker linux engine), torch CPU wheel from download.pytorch.org: the first Linux cell"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.12.16",
+      "torch": "2.15.0+cpu",
+      "os": "linux",
+      "arch": "aarch64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 10.1,
+      "note": "Debian slim container on the same Mac (Docker linux engine), torch CPU wheel from download.pytorch.org: the Linux cell for python 3.12"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.13.18",
+      "torch": "2.15.0+cpu",
+      "os": "linux",
+      "arch": "aarch64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 7.9,
+      "note": "Debian slim container on the same Mac (Docker linux engine), torch CPU wheel from download.pytorch.org: the Linux cell for python 3.13"
     },
     {
       "at": "2026-11-24",

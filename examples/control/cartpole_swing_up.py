@@ -22,6 +22,9 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from pinneapple_systems.control.cartpole import cartpole_study  # noqa: E402
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 

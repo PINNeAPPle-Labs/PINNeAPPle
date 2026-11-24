@@ -34,6 +34,9 @@ from pinneapple_design.topology import (  # noqa: E402
 from pinneapple_design.topology.magnetic import RotorTorqueProblem  # noqa: E402
 from pinneapple_simulation.electromagnetics import LinearMaterial, illustrative_steel  # noqa: E402
 from pinneapple_simulation.electromagnetics.machine import SPMMachine  # noqa: E402
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 OUT = Path(__file__).parent / "results"
 OUT.mkdir(exist_ok=True)

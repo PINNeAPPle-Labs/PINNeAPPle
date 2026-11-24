@@ -1,0 +1,18 @@
+{
+ "deform": null,
+ "field": "u",
+ "kind": "value",
+ "label": "",
+ "length_unit": "m",
+ "method": "",
+ "source": "",
+ "status": "",
+ "text": "u [dimensionless], 0 to 1",
+ "time": null,
+ "time_unit": "s",
+ "unit": "-",
+ "value_range": [
+  0.0,
+  1.0
+ ]
+}

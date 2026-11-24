@@ -22,7 +22,7 @@ sys.path.insert(0, HERE)
 from content import PACKAGES  # noqa: E402
 
 WRAP = r'''
-import os, sys, warnings
+import json, os, sys, warnings
 warnings.filterwarnings("ignore")
 os.environ["MPLBACKEND"] = "Agg"
 import matplotlib
@@ -31,8 +31,16 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({"figure.dpi": 110, "savefig.bbox": "tight", "font.size": 9})
 sys.path.insert(0, ROOT_)
 exec(compile(open(CODE_).read(), "example", "exec"))
+# Every figure the catalogue keeps is saved with its caption beside it, read back out of the figure's own labels
+# (#67). A figure that declares no unit fails the run instead of being catalogued as a picture of colours.
+from pinneapple_tools.visualization.caption import caption_from_figure
 for k, n in enumerate(plt.get_fignums()):
-    plt.figure(n).savefig(FIG_.format(k), dpi=110, facecolor="white")
+    fig = plt.figure(n)
+    path = FIG_.format(k)
+    fig.savefig(path, dpi=110, facecolor="white")
+    cap = caption_from_figure(fig, filename=os.path.basename(path))
+    with open(path[:-4] + ".json", "w") as fh:
+        json.dump(cap.to_dict(), fh, indent=1, sort_keys=True)
 '''
 
 

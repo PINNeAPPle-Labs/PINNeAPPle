@@ -89,7 +89,7 @@ print("u at random points:", np.round(f.interpolate(pts), 4))
 fig, ax = plt.subplots(1, 2, figsize=(8, 3.4))
 for a, val, t in [(ax[0], u, "u = sin(pi x) sin(pi y)"), (ax[1], np.hypot(g[..., 0], g[..., 1]), "|grad u|")]:
     im = a.pcolormesh(X, Y, val, shading="auto", cmap="viridis"); a.set_title(t); a.set_aspect("equal")
-    fig.colorbar(im, ax=a, shrink=0.85)
+    fig.colorbar(im, ax=a, shrink=0.85, label="u [-]")
 ''', plot=True)],
 )
 
@@ -137,9 +137,9 @@ print(f"peak pressure {res['p_max'][0]:.1f} -> {res['p_max'][-1]:.2f} MPa (flat 
 fig, ax = plt.subplots(1, 2, figsize=(8.5, 3.2))
 for s, p in zip(res["s_saved"], res["pressures"]):
     ax[0].plot(res["x"], p, label=f"s = {s:.0f} m")
-ax[0].set_xlabel("x along the bar end (mm)"); ax[0].set_ylabel("contact pressure (MPa)"); ax[0].legend(fontsize=7)
+ax[0].set_xlabel("x along the bar end [mm]"); ax[0].set_ylabel("contact pressure [MPa]"); ax[0].legend(fontsize=7)
 ax[1].plot(res["s"], res["p_max"]); ax[1].axhline(0.25, ls="--", c="k", lw=0.8)
-ax[1].set_xlabel("sliding distance (m)"); ax[1].set_ylabel("peak pressure (MPa)"); ax[1].set_yscale("log")
+ax[1].set_xlabel("sliding distance [m]"); ax[1].set_ylabel("peak pressure [MPa]"); ax[1].set_yscale("log")
 ax[1].set_title("running-in to the flat-punch pressure")
 ''', plot=True),
     ],
@@ -233,7 +233,7 @@ print("DMD frequencies (Hz):", np.round(np.sort(np.abs(dmd.frequencies(dt=0.05).
 fig, ax = plt.subplots(1, 2, figsize=(8.5, 3.2), sharey=True)
 ax[0].imshow(U[160:], aspect="auto", cmap="RdBu_r", extent=[0, 2 * np.pi, t[-1], t[160]]); ax[0].set_title("truth")
 ax[1].imshow(pred.numpy(), aspect="auto", cmap="RdBu_r", extent=[0, 2 * np.pi, t[-1], t[160]]); ax[1].set_title("DMD forecast")
-ax[0].set_ylabel("t (unseen)"); [a.set_xlabel("x") for a in ax]
+ax[0].set_ylabel("t [s] (unseen)"); [a.set_xlabel("x [-]") for a in ax]
 ''', plot=True),
         dict(title="Parametric POD with Gaussian-process uncertainty, against the nearest-design baseline",
              code='''import numpy as np
@@ -378,7 +378,7 @@ print("true:  a + 4x = -0.2 v - 0.01 x   (x = exp(-0.1 t) cos 2t solves x'' + 0.
 
 fig, ax = plt.subplots(figsize=(7, 2.8))
 ax.plot(t, b, lw=2, label="residual from data"); ax.plot(t, Theta @ res.coefficients, "--", label="SINDy model")
-ax.set_xlabel("t"); ax.legend(); ax.set_title("discovered damping term")
+ax.set_xlabel("t [s]"); ax.set_ylabel("damping [-]"); ax.legend(); ax.set_title("discovered damping term")
 ''', plot=True),
         dict(title="Extended Kalman filter tracking a pendulum from noisy angle readings",
              code='''import numpy as np
@@ -408,7 +408,7 @@ print(f"angular velocity is never measured; filter RMS error {np.sqrt(np.mean((e
 tt = np.arange(len(truth)) * dt
 fig, ax = plt.subplots(figsize=(7, 2.8))
 ax.plot(tt, obs[:, 0], ".", ms=2, c="0.6", label="readings"); ax.plot(tt, truth[:, 0], label="truth")
-ax.plot(tt, est[:, 0], "--", label="EKF"); ax.set_xlabel("t (s)"); ax.set_ylabel("angle (rad)"); ax.legend(ncol=3, fontsize=7)
+ax.plot(tt, est[:, 0], "--", label="EKF"); ax.set_xlabel("t [s]"); ax.set_ylabel("angle [rad]"); ax.legend(ncol=3, fontsize=7)
 ''', plot=True),
     ],
 )
@@ -443,6 +443,7 @@ for a, strategy in zip(ax, ("uniform", "lhs")):
     if pts is None:
         print("batch keys:", list(batch.keys())); break
     a.plot(pts[:, 0], pts[:, 1], ".", ms=4); a.set_title(strategy); a.set_aspect("equal")
+    a.set_xlabel("x [-]"); a.set_ylabel("y [-]")
     # discrepancy proxy: largest empty cell of a 10 x 10 grid
     H, _, _ = np.histogram2d(pts[:, 0], pts[:, 1], bins=10, range=[[0, 1], [0, 1]])
     print(f"{strategy:8s}: empty cells of a 10x10 grid = {(H == 0).sum()}")
@@ -486,7 +487,7 @@ print(f"area of the part: {area:.3f}")
 print(f"signed distance at the centre of the big hole: {d[n // 2, int((-0.8 + 1.2) / 2.4 * n)]:.3f} (radius 0.2 -> +0.2)")
 fig, ax = plt.subplots(figsize=(7, 3.4))
 im = ax.contourf(X, Y, d, levels=30, cmap="RdBu"); ax.contour(X, Y, d, levels=[0], colors="k")
-ax.set_aspect("equal"); fig.colorbar(im, ax=ax, label="signed distance"); ax.set_title("bracket = plate U boss - holes")
+ax.set_aspect("equal"); fig.colorbar(im, ax=ax, label="signed distance [m]"); ax.set_title("bracket = plate U boss - holes")
 ''', plot=True),
         dict(title="NACA four-digit airfoils",
              code='''import matplotlib.pyplot as plt
@@ -497,7 +498,7 @@ for m, p, t, name in [(0, 0, 0.12, "0012"), (0.02, 0.4, 0.12, "2412"), (0.04, 0.
     xy = naca_parametric(m=m, p=p, t_c=t, n_pts=120).numpy()
     ax.plot(xy[:, 0], xy[:, 1], label=f"NACA {name}")
     print(f"NACA {name}: {xy.shape[0]} points, max thickness {xy[:, 1].max() - xy[:, 1].min():.3f} c")
-ax.set_aspect("equal"); ax.legend(fontsize=7); ax.set_xlabel("x / c")
+ax.set_aspect("equal"); ax.legend(fontsize=7); ax.set_xlabel("x/c [-]")
 ''', plot=True),
     ],
 )
@@ -534,7 +535,8 @@ for model in (NaiveForecaster(), SeasonalNaiveForecaster(season_length=24), Drif
     p = model.fit(train).predict(24)
     print(f"{type(model).__name__:26s} MAE over 24 h: {np.mean(np.abs(p - test)):.2f}")
     ax.plot(t[216:], p, "--", label=type(model).__name__)
-ax.axvline(216, c="0.5", lw=0.8); ax.legend(fontsize=7); ax.set_xlabel("hour")
+ax.axvline(216, c="0.5", lw=0.8); ax.legend(fontsize=7)
+ax.set_xlabel("time [h]"); ax.set_ylabel("temperature [°C]")
 ''', plot=True),
     ],
 )
@@ -570,7 +572,8 @@ print(f"max |vorticity| {np.abs(w).max():.3f} (exact 2), Q > 0 in {100 * (q > 0)
 
 fig, ax = plt.subplots(1, 2, figsize=(8.5, 3.6))
 ax[0].contourf(X, Y, w, 40, cmap="RdBu_r"); ax[0].streamplot(x, y, u, v, color="k", density=0.8, linewidth=0.5)
-ax[0].set_title("vorticity + streamlines"); ax[1].contourf(X, Y, q, 40, cmap="viridis"); ax[1].set_title("Q-criterion")
+ax[0].set_title("vorticity [1/s] + streamlines"); ax[1].contourf(X, Y, q, 40, cmap="viridis")
+ax[1].set_title("Q-criterion [1/s²]")
 [a.set_aspect("equal") for a in ax]
 ''', plot=True),
         dict(title="Export a model to TorchScript and check it reproduces the outputs",
@@ -726,7 +729,7 @@ for n in range(4):
     norm = float(torch.trapz(psi.squeeze() ** 2, x.squeeze()))
     print(f"n = {n}: E = {E:.2f} (hbar omega (n + 1/2)), norm = {norm:.4f}")
     ax.plot(x, 0.6 * psi.squeeze() + E, label=f"n = {n}"); ax.axhline(E, c="0.8", lw=0.6)
-ax.plot(x, 0.5 * x ** 2, "k", lw=0.8); ax.set_ylim(0, 4.5); ax.set_xlabel("x"); ax.set_ylabel("E, psi (offset)")
+ax.plot(x, 0.5 * x ** 2, "k", lw=0.8); ax.set_ylim(0, 4.5); ax.set_xlabel("x [-]"); ax.set_ylabel("E and psi (offset) [-]")
 ''', plot=True),
     ],
 )
@@ -934,7 +937,7 @@ print(f"{np.size(r['u'])} windows, median displacement u = {np.median(r['u']):.2
 
 fig, ax = plt.subplots(figsize=(4.2, 4.2))
 ax.imshow(a, cmap="gray", origin="upper"); ax.quiver(r["x"], r["y"], r["u"], r["v"], color="tab:orange", angles="xy")
-ax.set_title("PIV vectors on frame A"); ax.axis("off")
+ax.set_title("PIV vectors on frame A [px]"); ax.axis("off")
 ''', plot=True),
     ],
 )
@@ -1011,6 +1014,7 @@ for k, v in pts.items():
     if k not in ("interior", "boundary"):
         ax.plot(v[:, 0], v[:, 1], ".", ms=3, label=k)
 ax.set_aspect("equal"); ax.legend(fontsize=7, ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.3))
+ax.set_xlabel("x [m]"); ax.set_ylabel("y [m]")   # the channel is built in metres
 ''', plot=True),
     ],
 )
@@ -1117,7 +1121,8 @@ for t in (0.0, 0.25, 0.5, 0.75):
     X = np.column_stack([x, np.full_like(x, t)])
     l, = ax.plot(x, exact.predict(X)[:, 0], lw=2.2, alpha=0.5)
     ax.plot(x, pinn.predict(X)[:, 0], "--", c=l.get_color(), label=f"t = {t}")
-ax.set_xlabel("x"); ax.set_ylabel("u"); ax.legend(fontsize=7); ax.set_title("PINN (dashed) vs Cole-Hopf (solid)")
+ax.set_xlabel("x [-]"); ax.set_ylabel("u [-]"); ax.legend(fontsize=7)
+ax.set_title("PINN (dashed) vs Cole-Hopf (solid)")
 ''', plot=True))
 
 # One-line descriptions of the subpackages whose __init__ has no docstring (shown in the menus and contents lists).

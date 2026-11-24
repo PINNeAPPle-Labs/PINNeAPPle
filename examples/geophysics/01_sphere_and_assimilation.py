@@ -20,6 +20,9 @@ from pinneapple_simulation.geophysics import (
     solve_richards,
     williamson_case6,
 )
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 
 def main(days: float = 4.0, out: str = "sphere_and_assimilation.png") -> dict:

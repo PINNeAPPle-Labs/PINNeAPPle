@@ -17,10 +17,17 @@ from typing import Dict, Optional, Sequence
 
 import numpy as np
 
+from .theme import viewport as _viewport
+
 # VTK cell types for the CalculiX/Abaqus element families (node order is identical, see tests)
 _VTK_CELL = {"C3D4": 10, "C3D10": 24, "C3D8": 12, "C3D8R": 12, "C3D8I": 12, "C3D20": 25, "C3D20R": 25}
 
 _INSTALL_HINT = 'PyVista is not installed: pip install "pinneapple[pyvista]"'
+
+# The plot background is the house theme's, the same colour the studio and twin3d viewers draw on (#65).
+BACKGROUND = _viewport(dark=True)
+#: the map a 3-D field gets unless the caller asks for another: the same one the 2-D figures use (#65)
+HOUSE_CMAP = "cfd_sequential"
 
 
 def _pv():
@@ -146,12 +153,15 @@ def _require_rendering() -> None:
 
 
 def _plotter(mesh, scalars, cmap, title, show_edges, window_size, background, scalar_bar_title, clim):
+    from .style import get_cmap
+
     pv = _pv()
     pl = pv.Plotter(off_screen=True, window_size=list(window_size))
     pl.set_background(background)
     kw = dict(show_edges=show_edges, smooth_shading=not show_edges)
     if scalars is not None:
-        kw.update(scalars=scalars, cmap=cmap, clim=clim,
+        # a theme map name ("cfd_sequential") resolves here, so PyVista draws the same scale as the 2-D figures
+        kw.update(scalars=scalars, cmap=get_cmap(cmap), clim=clim,
                   scalar_bar_args=dict(title=scalar_bar_title or scalars, n_labels=4, fmt="%.3g",
                                        color="white" if _is_dark(background) else "black"))
     pl.add_mesh(mesh, **kw)
@@ -166,8 +176,8 @@ def _is_dark(background: str) -> bool:
     return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5
 
 
-def render_png(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = "turbo", title: str = "",
-               show_edges: bool = False, window_size: Sequence[int] = (1400, 900), background: str = "#0b1220",
+def render_png(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = HOUSE_CMAP, title: str = "",
+               show_edges: bool = False, window_size: Sequence[int] = (1400, 900), background: str = BACKGROUND,
                scalar_bar_title: Optional[str] = None, clim: Optional[Sequence[float]] = None,
                camera_position: Optional[str] = "iso") -> str:
     """Render ``mesh`` (grid, PolyData or MultiBlock) to a PNG. ``scalars`` is a point/cell array name."""
@@ -180,9 +190,9 @@ def render_png(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = "t
     return path
 
 
-def render_gif(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = "turbo", title: str = "",
+def render_gif(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = HOUSE_CMAP, title: str = "",
                n_frames: int = 60, elevation: float = 25.0, window_size: Sequence[int] = (1000, 700),
-               background: str = "#0b1220", clim: Optional[Sequence[float]] = None, fps: int = 20) -> str:
+               background: str = BACKGROUND, clim: Optional[Sequence[float]] = None, fps: int = 20) -> str:
     """Orbit camera around ``mesh`` and write an animated GIF (turntable)."""
     _require_rendering()
     pl = _plotter(mesh, scalars, cmap, title, False, window_size, background, None, clim)

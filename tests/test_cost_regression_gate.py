@@ -86,15 +86,13 @@ def test_an_unmeasured_method_is_not_compared():
     assert costs.compare_with_baseline(current, _table()) == []
 
 
-def test_the_gate_message_names_the_method_the_quantity_and_the_limit():
-    """The message is the part a contributor reads in a failed run: it has to be usable as it stands."""
-    baseline = _table()
-    current = _table(flops=int(10_000_000 * 1.06))
+def test_the_gate_script_runs_end_to_end_and_prints_its_verdict():
+    """The message is the part a contributor reads in a failed run: the script has to print it and set the exit code."""
     out = subprocess.run([sys.executable, str(SCRIPT), "--gate", "--only", "S13", "--repeats", "1"],
                          cwd=REPO, capture_output=True, text=True,
                          env={"PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "PYTHONPATH": str(REPO),
-                              "COST_GATE_OUT": "/tmp/cost_gate_test.json", "HOME": str(Path.home())})
-    # The gate itself is exercised above; here the script has to run end to end and print the gate's verdict.
+                              "HOME": str(Path.home())})
+    # The comparison itself is exercised above; here the script runs end to end and prints the gate's verdict.
     assert "cost gate:" in out.stdout + out.stderr, out.stdout + out.stderr
     assert out.returncode in (0, 1), out.stderr
 

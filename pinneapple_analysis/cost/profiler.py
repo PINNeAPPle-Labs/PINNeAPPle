@@ -18,10 +18,12 @@ What is and is not measured (read before trusting a number):
   attention, ...). NumPy / SciPy / pure-Python work reports ``flops=None``, never a guess. Around
   ``torch.autograd.grad`` the flop counter cannot run, so the profiler's matmul/conv count is used and
   ``flops_source="profiler"`` marks it as a lower bound.
-- Peak memory: CUDA via ``torch.cuda.max_memory_allocated``; CPU via sampled process RSS when ``psutil`` is
-  installed (``mem_source="rss"``), otherwise ``tracemalloc`` (Python + NumPy only, ``mem_source=
-  "tracemalloc"``, which does not see PyTorch CPU tensors). RSS sampling can miss allocations that are
-  reused or shorter than the sampling interval, so treat CPU memory as a lower bound.
+- Peak memory: CUDA via ``torch.cuda.max_memory_allocated``; on CPU the PyTorch profiler's allocation records
+  (exact for CPU tensors) plus ``tracemalloc`` (exact for Python and NumPy, which reports to it), summed —
+  ``mem_source="torch+trace"``. Neither is blind guessing and neither is a sampled lower bound; the limits of
+  each method, and why the in-process RSS watermark cannot be reused, are measured in ``memory`` (issue #54).
+  Sampled process RSS (``mem_source="rss"``, needs ``psutil``) is kept as a labelled lower bound for the cases
+  the two methods cannot cover, for example native libraries.
 - Time is wall clock on the machine that runs it; compare numbers only across runs on the same machine.
 """
 from __future__ import annotations
@@ -30,15 +32,14 @@ import json
 import math
 import os
 import platform
-import threading
 import time
-import tracemalloc
 from dataclasses import asdict, dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 
 from pinneapple_core.errors import BadValue
+from .memory import measure_peak
 
 
 # --------------------------------------------------------------------------- records
@@ -52,6 +53,8 @@ class CostRecord:
     times_s: List[float] = field(default_factory=list)
     peak_mem_bytes: Optional[int] = None
     mem_source: str = ""
+    mem_exact: bool = False            # True when the peak is a measured value, not a lower bound
+    mem_components: dict[str, int] = field(default_factory=dict)   # allocator -> bytes it contributed
     flops: Optional[int] = None        # PyTorch operators only; None when not countable
     flops_source: str = ""             # "flop_counter" (exact) | "profiler" (matmul/conv only, lower bound)
     size: Optional[float] = None
@@ -104,63 +107,10 @@ def _count_flops(fn: Callable[[], Any]):
         return None, ""
 
 
-class _PeakRSS:
-    """Samples process RSS on a thread; ``peak`` is the increase over the starting RSS."""
-
-    def __init__(self, interval: float = 0.002):
-        import psutil
-        self._p = psutil.Process()
-        self._interval = interval
-        self._stop = threading.Event()
-        self.peak = 0
-
-    def __enter__(self):
-        self._base = self._p.memory_info().rss
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._thread.start()
-        return self
-
-    def _run(self):
-        while not self._stop.is_set():
-            self.peak = max(self.peak, self._p.memory_info().rss - self._base)
-            time.sleep(self._interval)
-
-    def __exit__(self, *exc):
-        self._stop.set()
-        self._thread.join()
-        self.peak = max(self.peak, self._p.memory_info().rss - self._base)
-
-
-def _measure_memory(fn: Callable[[], Any]) -> (Optional[int], str):
-    try:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.synchronize()
-            torch.cuda.reset_peak_memory_stats()
-            base = torch.cuda.memory_allocated()
-            fn()
-            torch.cuda.synchronize()
-            return int(torch.cuda.max_memory_allocated() - base), "cuda"
-    except Exception:
-        pass
-    try:
-        with _PeakRSS() as r:
-            fn()
-        return int(r.peak), "rss"
-    except ImportError:
-        pass
-    started = tracemalloc.is_tracing()
-    if not started:
-        tracemalloc.start()
-    tracemalloc.reset_peak()
-    base = tracemalloc.get_traced_memory()[0]
-    try:
-        fn()
-        peak = tracemalloc.get_traced_memory()[1] - base
-    finally:
-        if not started:
-            tracemalloc.stop()
-    return int(peak), "tracemalloc"
+def _measure_memory(fn: Callable[[], Any], method: str = "auto") -> tuple[int | None, str, bool, dict[str, int]]:
+    """``(bytes, source, exact, components)`` for one call; ``method`` is passed to ``memory.measure_peak``."""
+    peak = measure_peak(fn, method=method)
+    return peak.bytes, peak.source, peak.exact, dict(peak.components)
 
 
 def _sync() -> None:
@@ -173,11 +123,14 @@ def _sync() -> None:
 
 
 def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, name: Optional[str] = None,
-            flops: bool = True, memory: bool = True, size: Optional[float] = None, **kwargs) -> CostRecord:
+            flops: bool = True, memory: bool = True, size: Optional[float] = None, mem_method: str = "auto",
+            **kwargs) -> CostRecord:
     """Cost of one operation ``fn(*args, **kwargs)``.
 
     Time is the median of ``repeats`` timed runs after ``warmup`` untimed ones; FLOPs and peak memory are
-    measured in separate runs so they do not perturb the timing.
+    measured in separate runs so they do not perturb the timing. ``mem_method`` picks how the peak is measured
+    (see ``memory.measure_peak``); the default is exact for tensors and for NumPy. When the peak cannot be
+    measured it is ``None`` with ``mem_source="unknown"``, never a plausible number.
     """
     if repeats < 1:
         raise BadValue("measure() needs at least one timed run", fix="pass repeats=5 (the default) or any integer >= 1")
@@ -192,11 +145,12 @@ def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, na
         _sync()
         times.append(time.perf_counter() - t0)
     q1, med, q3 = np.percentile(times, [25, 50, 75])
-    mem, src = _measure_memory(call) if memory else (None, "")
+    mem, src, exact, components = _measure_memory(call, mem_method) if memory else (None, "", False, {})
     n_flops, flops_src = _count_flops(call) if flops else (None, "")
     return CostRecord(name=name or getattr(fn, "__name__", "operation"), n_runs=repeats, time_s=float(med),
                       time_min_s=float(min(times)), time_iqr_s=float(q3 - q1), times_s=[float(t) for t in times],
-                      peak_mem_bytes=mem, mem_source=src, flops=n_flops, flops_source=flops_src, size=size)
+                      peak_mem_bytes=mem, mem_source=src, mem_exact=exact, mem_components=components,
+                      flops=n_flops, flops_source=flops_src, size=size)
 
 
 # --------------------------------------------------------------------------- scaling

@@ -541,6 +541,7 @@
     "tests/test_lab.py",
     "tests/test_lab_curation_sources.py",
     "tests/test_lab_grades.py",
+    "tests/test_lab_quality.py",
     "tests/test_lab_seal.py",
     "tests/test_lab_showcase.py",
     "tests/test_lane_emden_numerical_validation.py",

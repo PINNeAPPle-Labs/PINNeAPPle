@@ -556,9 +556,11 @@ def examples() -> list[dict[str, Any]]:
             "quality": ({"letter": tier, "label": f"Lab seal {tier} · {e.get('tier_name', '')}",
                          "reason": (e.get("seal") or {}).get("reason", ""), "stages": e.get("stages", {}),
                          "next_steps": e.get("next_steps", [])[:4], "ready": e.get("ready", []),
-                         "source": "pinneapple_lab curation"} if tier else
-                        {"letter": None, "label": "not curated", "source": "pinneapple_lab curation",
-                         "how": e.get("curate") or ""}),
+                         # the nine-item checklist and its badge (#923): items met, not a score
+                         "checklist": e.get("checklist"),
+                         "source": "pinneapple_lab curation + quality"} if tier else
+                        {"letter": None, "label": "not curated", "checklist": e.get("checklist"),
+                         "source": "pinneapple_lab curation + quality", "how": e.get("curate") or ""}),
             "code": S.lab_item(key) if lab_item else S.example(folders.get(key, key)),
             "run_cmd": (f"python {script}" if not lab_item and script.endswith(".py") and (ROOT / script).exists()
                         else ""),

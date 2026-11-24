@@ -95,6 +95,9 @@ REASONS: dict[str, str] = {
                              "own would carry the dataset path and the yt install as parameters",
     "pinneapple_simulation.launch": "ascent trajectories for the launch vertical: the flight profile, its atmosphere "
                                     "and its visuals are arranged by examples/rocket_launch, which no node wraps",
+    "pinneapple_core.ontology": "the formal types a problem, a dataset manifest and a model card are all filled into, "
+                                "and the JSON schema they are published with (#204): it is the vocabulary the steps "
+                                "speak, not a step of its own",
     "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "
                               "apps and data reports use, not a computation step)",
     "pinneapple_core.onboarding": "the first hour: doctor / recommend / card / new run before a problem "

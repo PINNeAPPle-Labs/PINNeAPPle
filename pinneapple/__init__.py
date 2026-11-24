@@ -672,6 +672,8 @@ _SUBMODULES = {
     "dashboard":  "pinneapple_tools.visualization.dashboard",
     # Field, Mesh, Domain, Geometry primitives
     "core":       "pinneapple_core",
+    # the formal types a problem, a dataset and a model card are filled into, and their published JSON schema (#204)
+    "ontology":   "pinneapple_core.ontology",
     "loss":       "pinneapple_core.loss",
     "transforms": "pinneapple_core.transforms",
     "distributed": "pinneapple_core.distributed",

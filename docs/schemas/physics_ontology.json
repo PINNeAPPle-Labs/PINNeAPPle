@@ -1,0 +1,786 @@
+{
+  "$defs": {
+    "Axis": {
+      "additionalProperties": false,
+      "description": "Um eixo do domínio: o nome (``x``, ``t``), a unidade das suas coordenadas e, quando conhecidos, os limites.",
+      "properties": {
+        "bounds": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bounds"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "default": "1",
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Axis",
+      "type": "object"
+    },
+    "BoundaryCondition": {
+      "additionalProperties": false,
+      "description": "Uma condição de contorno: qual campo, em qual região, de qual tipo, com que valor ou expressão.",
+      "properties": {
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "expression": {
+          "default": "",
+          "title": "Expression",
+          "type": "string"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "kind": {
+          "default": "dirichlet",
+          "enum": [
+            "dirichlet",
+            "neumann",
+            "robin",
+            "periodic",
+            "wall",
+            "inlet",
+            "outlet",
+            "symmetry",
+            "open",
+            "interface"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "region": {
+          "minLength": 1,
+          "title": "Region",
+          "type": "string"
+        },
+        "unit": {
+          "default": "1",
+          "title": "Unit",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "field",
+        "region"
+      ],
+      "title": "BoundaryCondition",
+      "type": "object"
+    },
+    "ConstitutiveLaw": {
+      "additionalProperties": false,
+      "description": "A relação constitutiva (``tau = mu du/dy``, ``q = -k grad T``) e a que campo ou equação ela se aplica.",
+      "properties": {
+        "applies_to": {
+          "default": "",
+          "title": "Applies To",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "expression": {
+          "default": "",
+          "title": "Expression",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "parameters": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Parameters",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ConstitutiveLaw",
+      "type": "object"
+    },
+    "Domain": {
+      "additionalProperties": false,
+      "description": "O domínio do sistema: os eixos que o definem, cada um com a sua unidade.",
+      "properties": {
+        "axes": {
+          "items": {
+            "$ref": "#/$defs/Axis"
+          },
+          "title": "Axes",
+          "type": "array"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "title": "Domain",
+      "type": "object"
+    },
+    "Field": {
+      "additionalProperties": false,
+      "description": "Uma variável do sistema: nome, unidade, componentes, eixos que ela indexa e o papel que ela tem.\n\n``role`` responde \"por que este campo existe no sistema\": ``solution`` é o que se resolve, ``input`` é o que se\nimpõe, ``derived`` é calculado a partir dos outros e ``observed`` é o que se mede.",
+      "properties": {
+        "axes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Axes",
+          "type": "array"
+        },
+        "components": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "role": {
+          "default": "solution",
+          "enum": [
+            "solution",
+            "input",
+            "derived",
+            "observed"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "symbol": {
+          "default": "",
+          "title": "Symbol",
+          "type": "string"
+        },
+        "unit": {
+          "default": "1",
+          "title": "Unit",
+          "type": "string"
+        },
+        "value_range": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Range"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Field",
+      "type": "object"
+    },
+    "Geometry": {
+      "additionalProperties": false,
+      "description": "A forma do domínio e os arquivos que a descrevem, com a unidade em que esses arquivos estão.\n\n``units`` é a unidade do arquivo, não a da simulação: um STEP em ``mm`` resolvido em ``m`` registra ``\"mm\"`` aqui\ne ``\"m\"`` no eixo — é a diferença que some e multiplica um coeficiente de arrasto por ``1e-3``.",
+      "properties": {
+        "bounding_box": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bounding Box"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "dimension": {
+          "default": 1,
+          "maximum": 3,
+          "minimum": 0,
+          "title": "Dimension",
+          "type": "integer"
+        },
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Files",
+          "type": "array"
+        },
+        "kind": {
+          "default": "analytic",
+          "enum": [
+            "cad",
+            "mesh",
+            "structured-grid",
+            "analytic",
+            "none"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "units": {
+          "default": "m",
+          "title": "Units",
+          "type": "string"
+        }
+      },
+      "title": "Geometry",
+      "type": "object"
+    },
+    "GoverningEquation": {
+      "additionalProperties": false,
+      "description": "A equação que o sistema satisfaz, com os campos e parâmetros que ela cita.\n\n``expression`` é o texto da equação (``\"u_t + u u_x = nu u_xx\"``): este esquema não finge analisar EDPs — quem\nfaz isso é :mod:`pinneapple_physics.pde_environment` —, ele registra o enunciado para que a checagem a jusante\nsaiba contra o que está checando.",
+      "properties": {
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "expression": {
+          "default": "",
+          "title": "Expression",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "kind": {
+          "default": "pde",
+          "enum": [
+            "pde",
+            "ode",
+            "algebraic",
+            "constraint"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "parameters": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Parameters",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "GoverningEquation",
+      "type": "object"
+    },
+    "InitialCondition": {
+      "additionalProperties": false,
+      "description": "O estado de onde um caso transiente parte.",
+      "properties": {
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "expression": {
+          "default": "",
+          "title": "Expression",
+          "type": "string"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "default": "1",
+          "title": "Unit",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "InitialCondition",
+      "type": "object"
+    },
+    "Material": {
+      "additionalProperties": false,
+      "description": "Um material nomeado com as suas propriedades e a unidade de cada uma.",
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "properties": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Properties",
+          "type": "object"
+        },
+        "units": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Units",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Material",
+      "type": "object"
+    },
+    "Model": {
+      "additionalProperties": false,
+      "description": "O que se treinou: a família, os campos que ele prevê e sobre o que ele foi treinado.",
+      "properties": {
+        "family": {
+          "default": "",
+          "title": "Family",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "predicts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Predicts",
+          "type": "array"
+        },
+        "settings": {
+          "additionalProperties": true,
+          "title": "Settings",
+          "type": "object"
+        },
+        "trained_on": {
+          "default": "",
+          "title": "Trained On",
+          "type": "string"
+        },
+        "uncertainty_method": {
+          "default": "",
+          "title": "Uncertainty Method",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Model",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "description": "Uma medida de um campo, e a incerteza que ela carrega (``None`` = não declarada, que não é zero).",
+      "properties": {
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "kind": {
+          "default": "experiment",
+          "enum": [
+            "experiment",
+            "simulation",
+            "field",
+            "scalar"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "default": "",
+          "title": "Source",
+          "type": "string"
+        },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uncertainty"
+        },
+        "unit": {
+          "default": "1",
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "field"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "Parameter": {
+      "additionalProperties": false,
+      "description": "Um parâmetro do caso (uma viscosidade, uma condutividade), com a unidade e de onde ele veio.",
+      "properties": {
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "default": "",
+          "title": "Source",
+          "type": "string"
+        },
+        "unit": {
+          "default": "1",
+          "title": "Unit",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Parameter",
+      "type": "object"
+    },
+    "Solver": {
+      "additionalProperties": false,
+      "description": "Quem resolve o sistema: a família numérica, a biblioteca e os ajustes que de fato foram usados.",
+      "properties": {
+        "family": {
+          "default": "other",
+          "enum": [
+            "fdm",
+            "fem",
+            "fvm",
+            "lbm",
+            "spectral",
+            "pinn",
+            "neural-operator",
+            "rom",
+            "hybrid",
+            "closed-form",
+            "other"
+          ],
+          "title": "Family",
+          "type": "string"
+        },
+        "library": {
+          "default": "",
+          "title": "Library",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "settings": {
+          "additionalProperties": true,
+          "title": "Settings",
+          "type": "object"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "title": "Solver",
+      "type": "object"
+    }
+  },
+  "$id": "pinneapple.physics-ontology/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "O sistema físico inteiro, e a hora em que as referências cruzadas são conferidas.\n\nCada lista é opcional porque um dataset de tabela não tem equação governante e um cartão de modelo não tem malha.\nO que não é opcional é a coerência do que está declarado: tudo o que é citado (campo, parâmetro, eixo) tem de\nexistir no próprio sistema.",
+  "properties": {
+    "boundary_conditions": {
+      "items": {
+        "$ref": "#/$defs/BoundaryCondition"
+      },
+      "title": "Boundary Conditions",
+      "type": "array"
+    },
+    "constitutive_laws": {
+      "items": {
+        "$ref": "#/$defs/ConstitutiveLaw"
+      },
+      "title": "Constitutive Laws",
+      "type": "array"
+    },
+    "domain": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Domain"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "fields": {
+      "items": {
+        "$ref": "#/$defs/Field"
+      },
+      "title": "Fields",
+      "type": "array"
+    },
+    "geometry": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Geometry"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "governing_equations": {
+      "items": {
+        "$ref": "#/$defs/GoverningEquation"
+      },
+      "title": "Governing Equations",
+      "type": "array"
+    },
+    "initial_conditions": {
+      "items": {
+        "$ref": "#/$defs/InitialCondition"
+      },
+      "title": "Initial Conditions",
+      "type": "array"
+    },
+    "materials": {
+      "items": {
+        "$ref": "#/$defs/Material"
+      },
+      "title": "Materials",
+      "type": "array"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Model"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "notes": {
+      "default": "",
+      "title": "Notes",
+      "type": "string"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/Observation"
+      },
+      "title": "Observations",
+      "type": "array"
+    },
+    "parameters": {
+      "items": {
+        "$ref": "#/$defs/Parameter"
+      },
+      "title": "Parameters",
+      "type": "array"
+    },
+    "solver": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Solver"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "PhysicalSystem",
+  "type": "object"
+}

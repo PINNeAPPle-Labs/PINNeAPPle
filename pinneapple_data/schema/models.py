@@ -36,10 +36,29 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from pydantic import Field as PField
 
-from ..physical_units import UnitError, parse_unit
+from pinneapple_core.ontology import (
+    BoundaryCondition as _OntologyBoundaryCondition,
+)
+from pinneapple_core.ontology import (
+    Field as _OntologyField,
+)
+from pinneapple_core.ontology import (
+    Geometry as _OntologyGeometry,
+)
+from pinneapple_core.ontology import (
+    InitialCondition as _OntologyInitialCondition,
+)
+from pinneapple_core.ontology import (
+    Material as _OntologyMaterial,
+)
+from pinneapple_core.ontology import (
+    Parameter as _OntologyParameter,
+)
+from pinneapple_core.ontology import (
+    unit_or_dimensionless,
+)
 
 SCHEMA_VERSION = "1.0"
-DIMENSIONLESS = frozenset({"1", "-", "", "dimensionless", "[-]"})
 #: A unit that is known to be *some* unit but was not recorded (a CalculiX deck in "model units"). It is a real
 #: value, and the `units` gate fails it: it must not be confused with dimensionless, which is a measurement.
 UNKNOWN_UNIT = "unknown"
@@ -52,23 +71,8 @@ def _now() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-def unit_or_dimensionless(text: str) -> str:
-    """Return ``text`` if it parses as a unit, means dimensionless, or is ``"unknown"``; raise otherwise.
-
-    ``"1"`` and ``"-"`` are the two spellings of dimensionless that appear in practice (NASA CFL3D and OpenFOAM
-    respectively); both are normalised to ``"1"`` so a bundle has exactly one of them. ``"unknown"`` is accepted
-    because a solver deck in "model units" genuinely has a unit nobody wrote down -- and the ``units`` gate fails
-    it, which is the difference between "I do not know" and "it is dimensionless"."""
-    raw = (text or "").strip()
-    if raw.lower() in DIMENSIONLESS:
-        return "1"
-    if raw.lower() == UNKNOWN_UNIT:
-        return UNKNOWN_UNIT
-    try:
-        parse_unit(raw)
-    except UnitError as exc:
-        raise ValueError(f"'{text}' is not a unit this library knows ({exc}); use \"1\" for dimensionless") from exc
-    return raw
+# ``unit_or_dimensionless`` is re-exported here because this module was its home until the physics ontology (#204)
+# took the rule in: a dataset unit and a system unit are the same question, so they are answered by one function.
 
 
 class _Model(BaseModel):
@@ -280,22 +284,21 @@ class Region(_Model):
     description: str = ""
 
 
-class Geometry(_Model):
+class Geometry(_OntologyGeometry):
     """The physical domain: what it is, in what units, and the files that describe it.
 
     ``units`` is the length unit of the geometry files themselves. A STEP part in ``mm`` solved in ``m``
     records ``units="mm"`` here and ``unit="m"`` on the axes: the conversion is then visible instead of lost.
+
+    The concept (kind, dimension, units, bounding box) is the ontology's; what a *stored* bundle adds is the file list
+    with its hashes and the named regions.
     """
 
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
+
     kind: Literal["cad", "mesh", "structured-grid", "analytic", "none"] = "structured-grid"
-    dimension: int = PField(default=1, ge=0, le=3)
-    units: str = "m"
     files: list[FileRef] = PField(default_factory=list)
     regions: list[Region] = PField(default_factory=list)
-    bounding_box: tuple[float, ...] | None = None
-    description: str = ""
-
-    _units = field_validator("units")(lambda cls, v: unit_or_dimensionless(v))
 
     @model_validator(mode="after")
     def _bbox(self) -> Geometry:
@@ -312,54 +315,34 @@ class Geometry(_Model):
         return {f"d{i}": (self.bounding_box[i], self.bounding_box[i + d]) for i in range(d)}
 
 
-class Parameter(_Model):
+# The five concept classes below are the ontology's (#204): a parameter, a boundary condition, an initial condition,
+# a material, a field and a geometry mean the same thing in a dataset manifest as in a ProblemSpec or a model card, so
+# the definition lives in ``pinneapple_core.ontology`` and the dataset schema only adds what a *stored bundle* needs
+# (where the array lives, whether the field is nodal, which regions the geometry declares).
+
+
+class Parameter(_OntologyParameter):
     """A physical parameter of the case (a viscosity, a conductivity), with its unit and where it came from."""
 
-    name: str = PField(min_length=1)
-    value: float | int | None = None
-    unit: str = "1"
-    source: str = ""
-    description: str = ""
-
-    _unit = field_validator("unit")(lambda cls, v: unit_or_dimensionless(v))
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
 
-class BoundaryCondition(_Model):
+class BoundaryCondition(_OntologyBoundaryCondition):
     """One boundary condition: which field, on which region, of which kind, with what value."""
 
-    field: str = PField(min_length=1)
-    region: str = PField(min_length=1)
-    kind: Literal["dirichlet", "neumann", "robin", "periodic", "wall", "inlet", "outlet", "symmetry", "open"] = (
-        "dirichlet")
-    value: float | int | Sequence[float] | None = None
-    unit: str = "1"
-    description: str = ""
-
-    _unit = field_validator("unit")(lambda cls, v: unit_or_dimensionless(v))
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
 
-class InitialCondition(_Model):
+class InitialCondition(_OntologyInitialCondition):
     """The state a transient case starts from."""
 
-    field: str = PField(min_length=1)
-    value: float | int | Sequence[float] | None = None
-    unit: str = "1"
-    description: str = ""
-
-    _unit = field_validator("unit")(lambda cls, v: unit_or_dimensionless(v))
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
 
-class Material(_Model):
+class Material(_OntologyMaterial):
     """A named material with its properties and their units."""
 
-    name: str = PField(min_length=1)
-    properties: dict[str, float] = PField(default_factory=dict)
-    units: dict[str, str] = PField(default_factory=dict)
-
-    @field_validator("units")
-    @classmethod
-    def _units(cls, v: dict[str, str]) -> dict[str, str]:
-        return {k: unit_or_dimensionless(u) for k, u in v.items()}
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
 
 class Physics(_Model):
@@ -385,25 +368,22 @@ class Physics(_Model):
         raise KeyError(f"parameter '{name}' not recorded")
 
 
-class Field(_Model):
+class Field(_OntologyField):
     """One variable of the dataset: what it is called, its unit, and where its values live.
 
     ``location`` is ``"nodal"`` (one value per node of the mesh) or ``"cell"`` (one value per cell centre) and
     is not cosmetic: comparing a cell-centred pressure with a nodal reference is a half-cell shift that shows up
     as a first-order error. ``components`` names the components of a vector field (``["u", "v"]``), and the last
     axis of the array indexes them.
+
+    The concept -- name, symbol, unit, components, axes -- is the ontology's; what a *stored* bundle adds is where the
+    values live (:attr:`data`) and whether they sit on nodes or cell centres.
     """
 
-    name: str = PField(min_length=1)
-    symbol: str = ""
-    unit: str = "1"
-    location: Location = "nodal"
-    components: list[str] = PField(default_factory=list)
-    axes: list[str] = PField(default_factory=list)
-    data: ArrayRef
-    description: str = ""
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
-    _unit = field_validator("unit")(lambda cls, v: unit_or_dimensionless(v))
+    location: Location = "nodal"
+    data: ArrayRef
 
     @classmethod
     def from_array(cls, name: str, array: np.ndarray, *, unit: str = "1", location: Location = "nodal",
@@ -572,6 +552,18 @@ class BundleManifest(_Model):
     @property
     def axes(self) -> list[str]:
         return self.mesh.axis_names
+
+    def physical_system(self) -> Any:
+        """This dataset as a :class:`pinneapple_core.ontology.PhysicalSystem` (#204).
+
+        The manifest keeps its own wire format -- it is what a bundle writes to disk -- but the *concepts* it records
+        (fields with their units, parameters, boundary and initial conditions, materials, the governing equation) are
+        the ontology's, so a dataset, a ``ProblemSpec`` and a model card describing the same case produce the same
+        objects instead of three mutually-unintelligible descriptions of it.
+        """
+        from pinneapple_core.ontology import PhysicalSystem
+
+        return PhysicalSystem.from_bundle_manifest(self)
 
     def json_schema_dict(self) -> dict[str, Any]:
         """JSON Schema (draft 2020-12) of the manifest, for other languages and the REST APIs."""

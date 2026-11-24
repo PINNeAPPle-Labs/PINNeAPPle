@@ -20,6 +20,15 @@ REASONS: dict[str, str] = {
     "pinneapple_train": "shim: re-exports pinneapple_neural.trainer (covered there)",
     "pinneapple_solvers": "shim: re-exports pinneapple_simulation.numerical_solvers (covered there)",
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
+    "pinneapple_plugins": "the plugin contract and its loader: what an installed package may contribute and whether it "
+                          "works on this machine. It decides which steps exist and reports on them; it is not a step",
+    "pinneapple_plugins.contract": "the declarations a plugin makes (name, contract version, requirements, "
+                                   "capabilities) and the version check: a type a loader validates, not a computation",
+    "pinneapple_plugins.discovery": "reading the 'pinneapple.plugins' entry-point group from distribution metadata: it "
+                                    "finds what is installed, without importing it",
+    "pinneapple_plugins.manager": "loading, recording and diagnosing plugins (list, inspect, doctor, enable, disable): "
+                                  "the state of the platform, which 'pinneapple plugins' reports",
+    "pinneapple_plugins.cli": "the 'pinneapple plugins' command line: a front end over the manager, like Flow Studio",
     "pinneapple_mcp": "the MCP server for coding agents (a protocol front end, like Flow Studio)",
     "pinneapple_flow": "this package",
     "pinneapple_stability": "what the library promises (core vs experimental); metadata, not a computation step",

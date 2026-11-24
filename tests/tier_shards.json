@@ -657,6 +657,7 @@
     "tests/test_pipe_stress_mechanics.py",
     "tests/test_piv_tools.py",
     "tests/test_playground.py",
+    "tests/test_plugins.py",
     "tests/test_posterior.py",
     "tests/test_posterior_metrics.py",
     "tests/test_postprocessing_gallery.py",

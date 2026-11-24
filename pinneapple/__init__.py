@@ -153,8 +153,23 @@ except Exception:  # pragma: no cover
 try:
     from pinneapple_neural.architectures import ModelRegistry
 
+    def _activate_plugins() -> None:
+        """Give the installed plugins one chance to register before a registry is listed (#100).
+
+        Runs once per process (``pinneapple_plugins.activate`` remembers), imports only enabled plugins, and swallows
+        nothing else: a plugin that raises is a record in ``pp.plugins.doctor()``, never an exception here. Set
+        ``PINNEAPPLE_PLUGINS=0`` to list only what this installation ships.
+        """
+        try:
+            from pinneapple_plugins import activate
+
+            activate()
+        except Exception:  # noqa: BLE001 - a plugin must never break listing what is installed
+            pass
+
     def list_models():
-        """Return sorted list of all registered model names."""
+        """Return sorted list of all registered model names (built-in and from installed plugins)."""
+        _activate_plugins()
         return ModelRegistry.list()
 
     def build_model(name: str, **kwargs):
@@ -686,6 +701,8 @@ _SUBMODULES = {
     "science":    "pinneapple_science",
     # derivative trees from a potential: Legendre transforms, Maxwell relations, consistency checks, adapters
     "potential":  "pinneapple_physics.potential",
+    # plugins installed from packages (the `pinneapple.plugins` entry point): list, inspect, doctor, enable, disable
+    "plugins":    "pinneapple_plugins",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not
@@ -824,6 +841,8 @@ __all__ = [
     "readiness", "require_readiness", "ReadinessError", "ReviewRecord", "ReviewStore",
     # One registry protocol for every extensible object type (X16)
     "register", "unregister", "registered", "resolve", "Registry", "catalog",
+    # plugins installed from packages: the entry point, the contract and the diagnostics (K1/E3, #100/#1474)
+    "plugins",
     # Dimensional consistency of an equation before training (X21, #205)
     "check_dimensions",
     # Bayesian optimization and sequential design of experiments (K3, #102)

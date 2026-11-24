@@ -8,8 +8,10 @@
     pp.viz.read_openfoam("case/", time=0.5, fields=["p", "U"])  # one time, two fields
     pp.viz.read_openfoam("case/", all_times=True)               # one block per time directory, named t=<time>
     pp.viz.read_openfoam_patches("case/")                       # the boundary, one surface per patch
+    pp.viz.read_openfoam_patches("case/", include_empty=True)   # also the empty (2-D thickness) patches
     pp.viz.read_grid("case.foam")                               # a .foam file: its folder, no VTK reader needed
     pp.viz.read_grid("results.vtu")                             # VTK files go through PyVista itself
+    pp.viz.read_openfoam("examples/physics_check/pass/cases/cavity")   # a case committed in this repository
 
 The case is read by ``pinneapple_data.cae.foam`` (ASCII and binary ``polyMesh``, gzipped or not), so the grid is the
 mesh as OpenFOAM wrote it: every cell keeps its own faces (VTK polyhedra, not the hexes of a converted mesh), a volume
@@ -40,8 +42,13 @@ def _pv():
 
 
 # --------------------------------------------------------------------------------------- finding the case
+def _has(d: str, name: str) -> bool:
+    """Whether ``name`` or ``name.gz`` is in ``d``: a case written with ``writeCompression on`` is all ``.gz``."""
+    return os.path.isfile(os.path.join(d, name)) or os.path.isfile(os.path.join(d, name + ".gz"))
+
+
 def _is_polymesh(d: str) -> bool:
-    return os.path.isfile(os.path.join(d, "points")) and os.path.isfile(os.path.join(d, "owner"))
+    return _has(d, "points") and _has(d, "owner")
 
 
 def case_folder(path: str) -> str:
@@ -264,24 +271,27 @@ def _volume(path: str, time=None, fields: Optional[Sequence[str]] = None):
 
 
 def read_openfoam_patches(path: str, *, names: Optional[Sequence[str]] = None, time=None,
-                          fields: Optional[Sequence[str]] = None, all_times: bool = False):
+                          fields: Optional[Sequence[str]] = None, all_times: bool = False,
+                          include_empty: bool = False):
     """The boundary of an OpenFOAM case as a ``pyvista.MultiBlock``: one surface per patch, one value per face.
 
-    ``names`` keeps only those patches; every patch with faces by default (``empty`` ones have none). Values come from
-    the boundaryField of the time directory, so a wall value is the wall value and not the neighbouring cell's.
-    With ``all_times=True`` the result is one block per time directory, each holding the patches.
+    ``names`` keeps only those patches; every patch with faces by default. ``empty`` patches -- the two caps that make
+    a 2-D case two-dimensional -- are left out unless ``include_empty=True``: they are not a surface of the geometry,
+    and drawn they hide the field behind them (ParaView hides them too). Values come from the boundaryField of the time
+    directory, so a wall value is the wall value and not the neighbouring cell's. With ``all_times=True`` the result is
+    one block per time directory, each holding the patches.
     """
     if not all_times:
-        return _patches(path, names=names, time=time, fields=fields)
+        return _patches(path, names=names, time=time, fields=fields, include_empty=include_empty)
     outer = _pv().MultiBlock()
     for t in openfoam_times(path):
-        inner = _patches(path, names=names, time=t, fields=fields)
+        inner = _patches(path, names=names, time=t, fields=fields, include_empty=include_empty)
         if inner.n_blocks:
             outer[f"t={t:g}"] = inner
     return outer
 
 
-def _patches(path: str, names=None, time=None, fields=None):
+def _patches(path: str, names=None, time=None, fields=None, include_empty: bool = False):
     mesh, _ = _read_mesh(path, time=time, fields=fields)
     poly = mesh.poly
     have = [p["name"] for p in poly.patches]
@@ -292,6 +302,8 @@ def _patches(path: str, names=None, time=None, fields=None):
     out = _pv().MultiBlock()
     for patch in poly.patches:
         if patch["name"] not in keep or int(patch["nFaces"]) == 0:
+            continue
+        if patch["type"] == "empty" and not include_empty:
             continue
         out[patch["name"]] = _surface_from_patch(mesh, patch, mesh.boundary_values)
     return out

@@ -372,3 +372,85 @@ def test_three_lines_of_code_make_an_image(stacked_case, tmp_path):
     render_png(grid, out, scalars="p", title="p")            # 2, 3
     assert os.path.getsize(out) > 1000
 
+
+# ------------------------------------------------------- the real cases committed in this repository
+HERE = os.path.dirname(os.path.abspath(__file__))
+CAVITY = os.path.join(HERE, "..", "examples", "physics_check", "pass", "cases", "cavity")
+CAVITY_BINARY = os.path.join(HERE, "fixtures", "openfoam", "cavity_binary")
+
+
+def test_a_case_committed_in_the_repository_becomes_a_grid_with_its_fields():
+    """The lid-driven cavity of ``examples/physics_check``, run by icoFoam and committed as it was written: 400
+    hexahedral cells in a 1 x 1 x 0.1 m box, ``p`` and ``U`` at t = 0, 4.9 and 5."""
+    pv = pytest.importorskip("pyvista")
+    grid = read_openfoam(CAVITY)
+    assert isinstance(grid, pv.UnstructuredGrid)
+    assert grid.n_cells == 400 and grid.n_points == 882
+    assert grid.volume == pytest.approx(0.1, rel=1e-9)                    # 1 x 1 x 0.1, the polyhedra close
+    assert grid.bounds == (0.0, 1.0, 0.0, 1.0, 0.0, 0.1)
+    assert float(grid.field_data["time"][0]) == 5.0                       # the latest time directory
+    assert {"p", "U"} <= set(grid.array_names)
+    assert grid["U"].shape == (400, 3)
+    assert openfoam_times(CAVITY) == [0.0, 4.9, 5.0]
+    # the field is the solution and not a placeholder: the lid drags it, so the fastest cell sits near the top wall
+    speed = np.linalg.norm(grid["U"], axis=1)
+    assert speed.max() > 0.1 and grid.points[grid.cell_centers().points[:, 2].argmax()][2] <= 0.1
+    assert grid.cell_centers().points[speed.argmax()][2] > 0.05
+    assert np.all(np.isfinite(grid["p"]))
+    # icoFoam also writes phi, a surfaceScalarField: reported as skipped, never fatal
+    assert float(read_openfoam(CAVITY, time=0)["p"].max()) <= float(grid["p"].max())
+
+
+def test_the_binary_layout_openfoam_writes_reads_the_same_as_the_ascii_case():
+    """``tests/fixtures/openfoam/cavity_binary`` is the same case through ``foamFormatConvert``: every polyMesh file
+    and every field is binary, which is what OpenFOAM writes by default on a real run."""
+    pytest.importorskip("pyvista")
+    ascii_grid = read_openfoam(CAVITY, time=0)
+    binary_grid = read_openfoam(CAVITY_BINARY)
+    assert binary_grid.n_cells == 400 and binary_grid.n_points == 882
+    assert binary_grid.volume == pytest.approx(0.1, rel=1e-9)
+    np.testing.assert_allclose(binary_grid["p"], read_openfoam(CAVITY, time=5)["p"])
+    np.testing.assert_allclose(binary_grid["U"], read_openfoam(CAVITY, time=5)["U"])
+    np.testing.assert_allclose(read_openfoam(CAVITY_BINARY, time=0)["U"], ascii_grid["U"])
+    assert os.path.isfile(os.path.join(CAVITY_BINARY, "constant", "polyMesh", "faces"))
+
+
+def test_a_gzipped_binary_case_reads_the_same(tmp_path):
+    """A case that came out of a solver run is often gzipped in place; the reader looks for ``<name>.gz`` too."""
+    pytest.importorskip("pyvista")
+    import gzip
+    import shutil
+
+    case = str(tmp_path / "case")
+    shutil.copytree(CAVITY_BINARY, case)
+    pm = os.path.join(case, "constant", "polyMesh")
+    for name in ("points", "faces", "owner", "neighbour"):
+        with open(os.path.join(pm, name), "rb") as fh:
+            data = fh.read()
+        with gzip.open(os.path.join(pm, name + ".gz"), "wb") as fh:
+            fh.write(data)
+        os.remove(os.path.join(pm, name))
+    grid = read_openfoam(case)
+    np.testing.assert_allclose(grid["p"], read_openfoam(CAVITY_BINARY)["p"])
+    assert grid.n_cells == 400
+
+
+def test_the_boundary_keeps_every_patch_and_hides_the_empty_ones():
+    """The wall value is the wall value: the cavity's walls are noSlip, so ``U`` is zero on them and not the value of
+    the cell behind. The ``empty`` patch of a 2-D case is left out unless asked for."""
+    pytest.importorskip("pyvista")
+    patches = read_openfoam_patches(CAVITY)
+    assert list(patches.keys()) == ["movingWall", "fixedWalls"]
+    walls = patches["fixedWalls"]
+    assert walls["U"].shape == (walls.n_cells, 3) and not walls["U"].any()
+    # the lid moves: noSlip on movingWall in icoFoam is (1 0 0); read back from the lift, which carries the lid speed
+    lift = read_openfoam(CAVITY)["U"]
+    lid = lift[np.abs(read_openfoam(CAVITY).cell_centers().points[:, 1] - 1.0) < 0.06]
+    assert np.abs(lid[:, 0]).max() > 0.5
+    both = read_openfoam_patches(CAVITY, include_empty=True)
+    assert list(both.keys()) == ["movingWall", "fixedWalls", "frontAndBack"]
+    assert both["frontAndBack"].n_cells == 800 * 2 and not np.isfinite(both["frontAndBack"]["p"]).any()
+    only = read_openfoam_patches(CAVITY, names=["movingWall"])
+    assert list(only.keys()) == ["movingWall"]
+
+

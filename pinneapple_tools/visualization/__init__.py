@@ -108,6 +108,16 @@ from .vortex import (
     plot_flow_panel,
 )
 
+# An OpenFOAM case, a .foam pointer or a VTK file into a PyVista grid with the fields of each time (#60)
+from .openfoam import (
+    case_folder,
+    openfoam_times,
+    read_grid,
+    read_openfoam,
+    read_openfoam_patches,
+    read_vtk,
+)
+
 __all__ = [
     # Style
     "use_cfd_style", "get_cmap", "make_figure", "CMAPS", "DEFAULT_CMAP",
@@ -142,4 +152,7 @@ __all__ = [
     # PyVista bridge
     "calculix_grid", "scene_to_multiblock", "grid_from_arrays", "von_mises",
     "export_vtk", "can_render", "render_png", "render_gif",
+    # An OpenFOAM case (or a .foam / VTK file) as a PyVista grid, one field per cell, one time per block (#60)
+    "read_openfoam", "read_openfoam_patches", "read_grid", "read_vtk",
+    "openfoam_times", "case_folder",
 ]

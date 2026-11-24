@@ -8,6 +8,7 @@
     pp.viz.web_viewer(sc, "viewer/")                    # interactive three.js page: surfaces, streamlines, slices
     pp.viz.LIGHTING_PRESETS["lunar_south_pole"]         # black sky, low hard Sun (also: studio, lunar_low_sun, ...)
     pp.viz.field_view(mesh, fields, deform=..., markers=...)   # fields, errors and deformed shapes for the apps' views
+    pp.viz.read_openfoam("case/")                       # an OpenFOAM case as a PyVista grid with its fields (#60)
 
 Planetary surfaces (heightfield terrain, Sun shadows, Lunar-Lambert regolith): :mod:`.planetary`, :mod:`.shadows`.
 """
@@ -38,10 +39,26 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
            "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
-           "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture"]
+           "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture",
+           # #60: an OpenFOAM case, a .foam pointer or a VTK file as a PyVista grid
+           "read_openfoam", "read_openfoam_patches", "read_grid", "read_vtk", "openfoam_times", "case_folder",
+]
+
+_REEXPORT = {   # name -> (submodule of .visualization, attribute): imported on first use
+    "read_openfoam": ("openfoam", "read_openfoam"),
+    "read_openfoam_patches": ("openfoam", "read_openfoam_patches"),
+    "read_grid": ("openfoam", "read_grid"),
+    "read_vtk": ("openfoam", "read_vtk"),
+    "openfoam_times": ("openfoam", "openfoam_times"),
+    "case_folder": ("openfoam", "case_folder"),
+}
 
 
 def __getattr__(name):
+    if name in _REEXPORT:                          # the readers and the comparison live one level up, not here
+        import importlib
+        mod, attr = _REEXPORT[name]
+        return getattr(importlib.import_module(".." + mod, __name__), attr)
     if name == "Dashboard":                        # pp.viz.Dashboard: the animation-centred dashboard
         from ..dashboard import Dashboard
         return Dashboard

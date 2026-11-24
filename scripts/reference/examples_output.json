@@ -227,6 +227,14 @@
   "stderr": "",
   "stdout": "specific wear rate K = 6.32e-04 mm^3/(N m)\nworn volume 12.632 mm^3  vs  K F s = 12.632 mm^3\npeak pressure 6.2 -> 0.27 MPa (flat punch F/A = 0.25 MPa)"
  },
+ "pinneapple_plugins__0": {
+  "code_hash": "64929ad3c15caabd",
+  "figures": [],
+  "ok": true,
+  "seconds": 7.1,
+  "stderr": "",
+  "stdout": "ready - 0.1.0 - unrecorded distribution\nworks by capability: [Match(plugin='my-solver', capability='solver', values=['cfd', 'steady_state'])]\ncontract 1.0 compatible: True\ndoctor: [('my-solver', 'ready')]"
+ },
  "pinneapple_problemdesign__0": {
   "code_hash": "5d99e27ee85902eb",
   "figures": [],

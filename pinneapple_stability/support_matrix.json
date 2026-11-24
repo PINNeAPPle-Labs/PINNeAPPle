@@ -79,6 +79,23 @@
     {
       "at": "2026-11-24",
       "python": "3.11.16",
+      "torch": "2.14.1",
+      "os": "macos",
+      "arch": "arm64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 8.8,
+      "note": "a venv with torch 2.14.1 on the same machine and interpreter as the run before it: the previous line"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.11.16",
       "torch": "2.15.0",
       "os": "macos",
       "arch": "arm64",
@@ -91,7 +108,41 @@
       ],
       "failed": [],
       "seconds": 6.6,
-      "note": "macOS 26 arm64, homebrew python, torch from PyPI"
+      "note": "macOS arm64, Homebrew Python, torch from PyPI: the middle cell, both a supported Python and the current torch line"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.14.6",
+      "torch": "2.13.0",
+      "os": "macos",
+      "arch": "arm64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 8.7,
+      "note": "outside the declared range (3.14 > 3.13): the library runs, and the matrix promises nothing about it"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.15.0",
+      "torch": "2.15.0",
+      "os": "macos",
+      "arch": "arm64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 10.7,
+      "note": "outside the declared range (3.15 > 3.13) with the current torch: the library runs, and the matrix promises nothing about it"
     }
   ]
 }

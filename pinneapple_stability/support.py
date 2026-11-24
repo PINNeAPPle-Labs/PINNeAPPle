@@ -29,7 +29,7 @@ from typing import Any
 
 __all__ = [
     "SCHEMA", "MATRIX_PATH", "matrix", "cells", "runs", "Cell", "Verdict", "classify", "probe", "record",
-    "render_markdown", "os_name", "version_line",
+    "render_markdown", "os_name", "version_line", "version_tuple", "reload",
 ]
 
 SCHEMA = "pinneapple.support_matrix/1"
@@ -52,11 +52,11 @@ def matrix(path: str | os.PathLike[str] | None = None) -> dict[str, Any]:
     return _CACHE
 
 
-def _reload(path: str | os.PathLike[str] | None = None) -> dict[str, Any]:
+def reload(path: str | os.PathLike[str] | None = None) -> dict[str, Any]:
     """Drop the cache (after a record, so the next call sees the new run)."""
     global _CACHE
-    _CACHE = None
-    return matrix(path)
+    _CACHE = json.loads(Path(path or MATRIX_PATH).read_text(encoding="utf-8"))
+    return _CACHE
 
 
 def _write(data: dict[str, Any], path: str | os.PathLike[str] | None = None) -> Path:
@@ -81,7 +81,8 @@ def version_line(version: Any) -> str:
     return ".".join(str(p) for p in parts[:2])
 
 
-def _tuple(version: Any) -> tuple[int, ...]:
+def version_tuple(version: Any) -> tuple[int, ...]:
+    """``"3.11.16"`` -> ``(3, 11)``, the form the comparisons against the declared range use."""
     return tuple(int(p) for p in version_line(version).split(".")) if version_line(version) else ()
 
 
@@ -205,16 +206,16 @@ def classify(env: dict[str, Any] | None = None) -> Verdict:
 
     if not line:
         return Verdict(env, "incomplete", ("the Python version could not be read",))
-    if _tuple(line) < _tuple(py_min):
+    if version_tuple(line) < version_tuple(py_min):
         return Verdict(env, "outside", (f"python {line} is older than the oldest declared version, {py_min}",))
-    if _tuple(line) > _tuple(py_max):
+    if version_tuple(line) > version_tuple(py_max):
         return Verdict(env, "outside", (
             f"python {line} is newer than the newest declared version, {py_max}",
             "the package installs there (requires-python has no upper bound) but the matrix says nothing about it",
         ))
     if not torch_line:
         return Verdict(env, "incomplete", ("torch is not installed in this interpreter",))
-    if floor and _tuple(torch_line) < _tuple(floor):
+    if floor and version_tuple(torch_line) < version_tuple(floor):
         return Verdict(env, "outside", (f"torch {torch_line} is older than the declared floor, {floor}",))
 
     want = os_name(str(env.get("os") or ""))
@@ -267,7 +268,7 @@ def record(env: dict[str, Any], results: list[dict[str, Any]], *, at: str | None
     data["runs"] = sorted(kept + [run], key=lambda r: (r.get("os", ""), version_line(r.get("python")),
                                                        version_line(r.get("torch"))))
     _write(data, path)
-    _reload()
+    reload()
     return run
 
 
@@ -287,6 +288,13 @@ def render_markdown() -> str:
     floor = data["torch"]["floor"]
     lines = ", ".join(f"**{k}** {v}" for k, v in data["torch"]["lines"].items())
     missing_os = sorted({c.os for c in cells_ if c.status == "declared"})
+    cover = []
+    for name in data["os"]:
+        here = [c for c in cells_ if c.os == name]
+        if here:
+            pys = sorted({c.python for c in here}, key=version_tuple)
+            torch_lines = sorted({c.torch for c in here})
+            cover.append((name, pys, torch_lines))
 
     out = [
         "# Supported versions: the matrix, and what was actually run",
@@ -311,8 +319,9 @@ def render_markdown() -> str:
         "",
         "## The minimal matrix",
         "",
-        f"{total} cells. Every Python version in the range is covered once on Linux, both torch lines are covered "
-        f"on macOS, and Windows is covered on the middle Python version.",
+        f"{total} cells, enough to cover every axis without running the whole product:",
+        "",
+        *[f"- **{name}** — python {', '.join(pys)}; torch {', '.join(torch_lines)}" for name, pys, torch_lines in cover],
         "",
         "| OS | Python | Torch | Status | Run |",
         "|---|---|---|---|---|",
@@ -353,8 +362,14 @@ def render_markdown() -> str:
         out.append("")
         for run in runs():
             if run.get("note"):
-                out.append(f"- {run.get('os')} python {version_line(run.get('python'))}: {run['note']}")
+                out.append(f"- {run.get('os')}·python {version_line(run.get('python'))}·"
+                           f"torch {version_line(run.get('torch')) or 'none'}: {run['note']}")
         out.append("")
+        out += [
+            "A run outside the declared axes is evidence that the library runs there, not a promise: it does not "
+            "make a cell executed, and it says nothing about the versions it did not try.",
+            "",
+        ]
 
     out += [
         "## Running the check",

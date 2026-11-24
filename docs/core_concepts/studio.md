@@ -163,9 +163,56 @@ Three things make it a history and not a pile of parts:
   rendered at any point of its process — blank, three operations in, finished — and the pictures compare the part, not
   three different models. `body.describe()` is the line a figure caption can carry.
 
-One honest limit: this is not a mesh kernel. `bore` is **drawn, not cut** — a dark throat under a chamfered mouth,
-which reads as a hole at photographic distance because a hole is a shadow with a bright lip. When a real modeller is in
-the stack, `bore` is the operation that should call it.
+`bore` **cuts when it can and draws when it cannot**, and the history says which: `furado (cortado)` or
+`furado (desenhado)`. A drawn bore is a dark throat under a chamfered mouth — what a hole looks like at photographic
+distance, because a hole is a shadow with a bright lip — and it has no other side. A cut bore has an interior wall and a
+silhouette that changes with the camera. See *Solids and a real boolean* below for what the cut needs.
+
+### Solids and a real boolean
+
+`pp.viz.solid` is the kernel side: closed primitives, a manifold check, and a boolean.
+
+```python
+from pinneapple_tools.visualization.studio import solid
+
+solid.is_closed(shaft)                    # every edge shared by exactly two triangles, or it is not an operand
+cut = solid.cutter_cylinder([0, 0, -0.02], [0, 0, 0.12], 0.018)
+sc = solid.boolean(scene, [cut], op="difference")     # difference, union or intersect
+```
+
+Blender's exact solver does the work, headless — the same route `bevel_scene` takes, so the requirement is the same
+binary. There is no bundled mesh kernel in this package; `trimesh` with `manifold3d` does this too, and the shapes here
+are ordinary `Surface` objects it can eat.
+
+Two rules the module enforces instead of documenting and hoping:
+
+* **closed on both sides.** `boolean` runs `is_closed` on the body and on every cutter first and refuses an open shell
+  by name. A boolean on an open shell does not fail loudly; it produces a plausible mess, and a mess that looks like a
+  result is the worst thing a gate can hand you.
+* **no vertex on the axis.** A drum capped with a fan whose centre sits on the axis meets a centred cutter at a
+  degenerate corner, and the cut comes out non-manifold. `solid_drum` caps from the ring instead, and there is a test
+  that says why.
+
+`machine_face` and `pad` produce closed solids too, so a bore cut into a machined face works; `cast_blank(closed=True)`
+is a closed body by construction, which is why `body.bore(...)` cuts by default there.
+
+### Organic shapes: a loft through sections
+
+`solid.loft(stations)` is the skin through a sequence of profiles — a duct transition from a round inlet to a
+rectangular outlet, a volute, a casing. Every station is an `(n, 3)` array with the same `n`, and `caps=True` closes
+the ends so the result is a solid a boolean can cut.
+
+```python
+duct = solid.loft([solid.circle_profile([0, 0, 0], 0.05, n=24),
+                   solid.rounded_rect_profile([0, 0, 0.20], 0.09, 0.06, n=24, roundness=0.55)])
+```
+
+The interpolation between stations is linear, on purpose: a station is a measurement, and a spline through measurements
+invents the shape in between. Put the stations where the geometry bends and the linear joint is invisible.
+
+What this still is not: a B-rep modeller. There is no fillet on a lofted edge (use `bevel_scene`), no shelling, no
+parametric sketch, and nothing that reads a STEP file. Those are CAD, and the day one is in the stack it plugs in at
+`solid.boolean` and `manufacture` — the vocabulary of operations is already the right shape for it.
 
 ### The edge that is not a builder
 

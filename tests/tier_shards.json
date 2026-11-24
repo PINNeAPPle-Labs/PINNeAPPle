@@ -752,6 +752,7 @@
     "tests/test_studio_pbr.py",
     "tests/test_studio_post.py",
     "tests/test_studio_scene_geometry.py",
+    "tests/test_studio_solid.py",
     "tests/test_studio_units.py",
     "tests/test_studio_units_design.py",
     "tests/test_studio_units_electromagnetics.py",

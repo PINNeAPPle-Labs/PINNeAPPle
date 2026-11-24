@@ -135,14 +135,15 @@ def pad(centre, normal=(0.0, 0.0, 1.0), *, radius: float = 0.02, height: float =
     shoulder = c + nn * (height - ch) + ring * radius
     top = c + nn * height + ring * (radius - ch)
     m = len(ang)
-    V = np.vstack([base, shoulder, top, c + nn * height])          # 3 rings and the centre of the top face
-    apex = 3 * m
+    V = np.vstack([base, shoulder, top, c + nn * height, c])       # 3 rings and the centre of each flat face
+    apex, foot = 3 * m, 3 * m + 1
     F = []
     for i in range(m):
         j = (i + 1) % m
         F += [[i, j, m + j], [i, m + j, m + i]]                    # the wall
         F += [[m + i, m + j, 2 * m + j], [m + i, 2 * m + j, 2 * m + i]]   # the chamfer
         F.append([2 * m + i, 2 * m + j, apex])                     # the face, fanned from its centre
+        F.append([foot, j, i])                                     # the bottom: a solid is what a cut needs
     return Surface(name, V, np.asarray(F, np.int64), material)
 
 

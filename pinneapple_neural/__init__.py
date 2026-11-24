@@ -38,6 +38,19 @@ from . import architectures
 from . import trainer
 from . import predictor
 
+# ── the common interface over the families (issue #155) ──────────────────────
+from .physics_model import (
+    FAMILIES,
+    ExportNotAvailable,
+    FitReport,
+    NotAPhysicsModel,
+    PhysicsModel,
+    Prediction,
+    UncertaintyNotAvailable,
+    as_physics_model,
+    family_of,
+)
+
 # backward-compat aliases (old names still work)
 models    = architectures
 train     = trainer
@@ -210,6 +223,9 @@ __all__ = [
     "models", "train", "inference",
     # Integration
     "build_model", "train_model", "predict", "train_and_predict",
+    # The common interface over the families (#155)
+    "FAMILIES", "PhysicsModel", "Prediction", "FitReport", "UncertaintyNotAvailable",
+    "ExportNotAvailable", "NotAPhysicsModel", "as_physics_model", "family_of",
     # architectures
     "BaseModel", "ModelOutput", "ModelRegistry", "ModelSpec",
     "InstantiateReport", "ModelCatalog", "select_adapter",

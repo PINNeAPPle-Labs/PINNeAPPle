@@ -109,16 +109,21 @@ def _coords(s: Mapping[str, Any]):
     return np.stack([np.asarray(v, float).ravel() for v in c.values()], 1)
 
 
-def fit_field(spec, fs: FieldSamples, *, folds: int = 5, wall_s: float = DEFAULT_TRAIN_S, seed: int = 0,
-              options: Mapping[str, Any] | None = None) -> dict[str, Any]:
+def fit_field(spec, fs: FieldSamples, *, folds: int = 5, wall_s: float = DEFAULT_TRAIN_S, steps: int | None = None,
+              seed: int = 0, options: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Cross-validate a PINN over the measured designs and report the error against the reference fields.
 
-    Every fold trains on the other designs (same wall-clock budget each) and predicts the held-out ones, so the
+    Every fold trains on the other designs (same budget each) and predicts the held-out ones, so the
     ``rel_l2`` reported for a design is of a model that never saw it. ``rel_l2`` per design is
-    ``||pred - true|| / ||true||`` over the mesh, which is scale-free and comparable across designs; its mean and
-    worst are what the trust check reads. The PDE residual of the held-out predictions, and of the reference fields
+    ``||pred - true|| / ||true||`` over the mesh, which is scale-free and comparable across designs; its mean is
+    what the trust check reads. The PDE residual of the held-out predictions, and of the reference fields
     themselves, are reported with the ratio between them: the reference's residual is the discretisation floor of
     the comparison, not zero.
+
+    The training budget is ``steps`` optimiser steps when the study gives them
+    (``evaluator.settings["pinn_steps"]``) and a wall clock otherwise. Steps are the choice for a study whose numbers
+    are compared across runs: a wall clock buys a different number of steps on a busy machine, which moves the error
+    by enough to change a verdict.
     """
     from pinneapple_analysis.cost.equal_budget import ComputeBudget
     from pinneapple_analysis.surrogate.methods import TrainContext, fit_candidate
@@ -129,7 +134,7 @@ def fit_field(spec, fs: FieldSamples, *, folds: int = 5, wall_s: float = DEFAULT
         raise ValueError("a pinn study needs model.pde: without the equation the model is an ordinary regressor")
     n = len(fs)
     k = max(2, min(int(folds), n))
-    budget = ComputeBudget(wall_s=float(wall_s))
+    budget = ComputeBudget(steps=int(steps)) if steps else ComputeBudget(wall_s=float(wall_s))
     held: list[np.ndarray] = []
     per_sample: list[dict[str, Any]] = []
     train_s: list[float] = []
@@ -158,7 +163,8 @@ def fit_field(spec, fs: FieldSamples, *, folds: int = 5, wall_s: float = DEFAULT
         "method": "pinn", "family": "physics-informed", "n_samples": n, "folds": k, "n_heldout": int(len(idx)),
         "pde": pde.to_dict(), "error": {"rel_l2_mean": float(np.mean(rel)), "rel_l2_max": float(np.max(rel)),
                                         "rel_l2_median": float(np.median(rel))},
-        "train_s_mean": float(np.mean(train_s)), "train_wall_s_budget": float(wall_s),
+        "train_s_mean": float(np.mean(train_s)),
+        "budget": {"steps": int(steps) if steps else None, "wall_s": float(wall_s) if not steps else None},
         "per_sample": sorted(per_sample, key=lambda d: d["design"]),
         "mesh": fs.summary(), "residual": None}
     if fs.grid_shape is not None and len(fs.grid_shape) >= 2:

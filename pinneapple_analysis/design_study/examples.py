@@ -363,7 +363,7 @@ def slab_study() -> DesignStudy:
                                         "n_x": _SLAB["n_x"], "n_t": _SLAB["n_t"]},
                             outputs=[Quantity("t_end_max", "K", label="hot end at the end time"),
                                      Quantity("t_centre_end", "K", label="centre at the end time")],
-                            settings={"pinn_train_s": 1.5,
+                            settings={"pinn_steps": 250,
                                       "pinn": {"lr": 0.01, "depth": 3, "hidden": 32, "pde_weight": 0.1}},
                             description="analytic heat equation on a slab, returned with its (x, t) field"),
         objectives=[Objective("t_end_max", "min", label="hot end")],

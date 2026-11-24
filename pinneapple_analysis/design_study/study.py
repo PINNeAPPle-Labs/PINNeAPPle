@@ -505,6 +505,7 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
             fs = collect(samples, names)
             pinn = fit_field(spec, fs, folds=spec.verifier.folds, seed=spec.budget.seed,
                              wall_s=float(spec.evaluator.settings.get("pinn_train_s", 1.0)),
+                             steps=spec.evaluator.settings.get("pinn_steps"),
                              options=dict(spec.evaluator.settings.get("pinn", {}) or {}))
         except ImportError as e:
             return _refused(spec, [f"the pinn study needs PyTorch (pinneapple_analysis.surrogate.methods): {e}"],
@@ -516,9 +517,11 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
                      f"over {pinn['n_samples']} design(s), cross-validated by design in {pinn['folds']} fold(s) "
                      f"({pinn['n_heldout']} held-out prediction(s) against the reference fields): relative L2 "
                      f"{100 * pinn['error']['rel_l2_mean']:.2f} % on average, {100 * pinn['error']['rel_l2_max']:.2f} % "
-                     f"on the worst design. Training runs on a wall clock ({pinn['train_s_mean']:.2f} s a fold), so "
-                     "the fit moves by a few percent between runs; the mean is the check, the worst design is the "
-                     "evidence beside it.")
+                     f"on the worst design. The training budget is "
+                     + (f"{pinn['budget']['steps']} step(s) a fold" if pinn["budget"]["steps"]
+                        else f"{pinn['budget']['wall_s']:.2f} s a fold, on a wall clock")
+                     + f" ({pinn['train_s_mean']:.2f} s of compute a fold); the mean is the check, the worst design is "
+                       "the evidence beside it.")
         tell({"event": "pinn", "done": len(rows), "planned": spec.budget.max_evaluations, "design": None, "ok": None,
               "outputs": {}, "rel_l2_mean": pinn["error"]["rel_l2_mean"]})
 

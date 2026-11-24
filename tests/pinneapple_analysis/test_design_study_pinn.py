@@ -3,9 +3,9 @@ reference fields.
 
 Two things are tested and they fail differently. The *refusals* are cheap and exact: a ``pinn`` study whose evaluator
 returns no field, or two different meshes, cannot be fitted, and says so before training anything. The *fit* is a
-measurement: the slab example is trained for a wall-clock budget per fold, so its held-out error moves by a few
-percent between runs — what is asserted is that it is inside the study's target and that every held-out prediction
-belongs to a design the fold did not train on, not a fixed third decimal.
+measurement: the slab example trains for a fixed number of optimiser steps a fold (``evaluator.settings["pinn_steps"]``,
+not a wall clock), so its held-out numbers are the same on a busy machine as on an idle one, and every held-out
+prediction belongs to a design the fold did not train on.
 """
 from __future__ import annotations
 
@@ -41,6 +41,8 @@ def test_the_slab_field_is_fitted_by_a_pinn_and_the_error_is_against_the_referen
     assert e["rel_l2_mean"] < 0.20
     assert e["rel_l2_median"] <= e["rel_l2_max"]
     assert p["train_s_mean"] > 0
+    # the training budget is in steps, which is what makes the number above the same on a busy machine
+    assert p["budget"] == {"steps": slab_study().evaluator.settings["pinn_steps"], "wall_s": None}
 
     # the trust verdict reads the field check, not only the scalar outputs
     names = [c["name"] for c in run.trust["checks"]]
@@ -145,7 +147,7 @@ def test_a_field_whose_mesh_is_not_a_lattice_is_still_fitted_and_says_the_residu
                             "inputs": {"alpha": "alpha", "amplitude": "amplitude"},
                             "conditions": {"length_m": 1.0, "end_time_s": 0.1},
                             "outputs": [{"name": "t_end_max", "unit": "K"}],
-                            "settings": {"pinn_train_s": 0.05, "pinn": {"depth": 2, "hidden": 8}}})
+                            "settings": {"pinn_steps": 40, "pinn": {"depth": 2, "hidden": 8}}})
     assert isinstance(spec, DesignStudy)
 
     def scattered(params):

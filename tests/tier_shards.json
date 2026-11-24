@@ -482,6 +482,7 @@
     "tests/test_fno_padding.py",
     "tests/test_football_physics.py",
     "tests/test_forecasting_foundation_models.py",
+    "tests/test_format_round_trip.py",
     "tests/test_formfill.py",
     "tests/test_formula_car.py",
     "tests/test_free_surface.py",

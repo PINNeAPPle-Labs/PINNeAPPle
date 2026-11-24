@@ -191,6 +191,38 @@ A unit the reader can only report as "model units (length)" (CalculiX without a 
 `unknown` sentinel and **fails the `units` gate with a message naming the field** — a verdict a reviewer needs,
 rather than a conversion nobody declared. `bundle_from_mesh(units={"DISP": "mm"})` passes the override.
 
+### 5.1 Format interoperability — what round-trips, and what is declared instead (#115)
+
+A format is supported here when a field written into it reads back equal, not when a reader exists. Both directions
+are in `tests/test_format_round_trip.py`, and the tolerance is stated rather than implied.
+
+| Format | Write | Read | Round trip | Tolerance |
+|---|---|---|---|---|
+| **XDMF3** (inline XML) | `pinneapple_data.cae.xdmf.write_xdmf` | `read_xdmf` | points, connectivity, node and cell fields, one or several cell blocks | **exact** (`%.17g`, the round-trip precision of a double) |
+| **CGNS** (CGNS/HDF5, 3.4) | `cfd_formats.cgns_writer.write_cgns` | `cfd_formats.cgns_reader.read_cgns_mesh_and_fields` | node coordinates, element connectivity, vertex fields, one unstructured zone | **exact** (`R8`/`I8` both sides) |
+| **CGNS** from a `Mesh` | `cgns_writer.mesh_to_cgns` | the reader above | one chosen cell block and the point fields | **exact** |
+| VTU / HDF5 / NPZ / Parquet / CSV / JSON / bundle | `schema.cae.export_bundle` | `bundle_to_mesh` | section 5 above | per exporter |
+| **STEP** | — | `convert.detect_format` only | **not implemented, declared** | — |
+| **SSP** | — | — | **not implemented, declared** | — |
+
+The files `cgns_writer` produces were checked with the **CGNS project's own validator** (`cgnscheck`, libcgns 4.5.2
+via Homebrew): **0 errors**, and the same 7 benign warnings the reference-written fixture
+(`tests/fixtures/cfd_formats/real_cgns_mll.cgns`) gets. That is what pinned the attribute encoding down — `label` and
+`name` are 33-byte NULL-terminated strings, `type` is exactly `len(value) + 1`, and a first version of the writer
+that made all three 33 bytes **segfaulted** the validator rather than reporting anything.
+
+**STEP** is declared, not half-done. Reading one means evaluating a B-rep through an OpenCascade binding
+(`cadquery`/`OCP`, in the `cfd` and `cad` extras); writing one means constructing or tessellating one. Neither is in
+this library's dependency set, so the honest state is: the suffix is recognised (`detect_format("x.stp") == "step"`)
+and the CAD-consuming path (`pinneapple_blender.step_extension`, `pinneapple_design`) carries its own handling. A full
+STEP reader/writer belongs behind an optional extra with a NURBS-aware tolerance, which is a project rather than a
+patch.
+
+**SSP** (FMI's System Structure and Parameterization) is declared for the same reason: it is an XML+zip container for
+*system structure and parameter sets*, next to the FMU support in
+`pinneapple_simulation.external_solvers.modelica.fmu_inspect`. It is not a field format, nothing in this repository
+produces or consumes one today, and a half-written schema would be worse than saying so out loud.
+
 ## 6. Model-side gates (INT-005, second half) — a surrogate asked the same questions
 
 `pinneapple_veriphysics.surrogate_gates.run_surrogate_gates(predicted, ...)` takes a trained model's output and

@@ -54,6 +54,26 @@ CREATE TABLE IF NOT EXISTS cache (
 """
 
 
+def _remote_refusal(executor: Any, adapter: Any, step: Step) -> str:
+    """Why this step cannot be handed to this executor, or ``""`` (#1479).
+
+    A remote executor can be told what it cannot carry: the cluster cannot see the step's directory, the batch service
+    gets no upload, or the adapter itself needs this machine (a GUI, a local-only file). Saying so before the command
+    leaves is the difference between "step solve cannot run on kubernetes: ..." and a timeout at 03:00.
+    """
+    if not getattr(executor, "remote", False):
+        return ""
+    limits = getattr(executor, "remote_limits", None)
+    if callable(limits):
+        why = str(limits(step) or "")
+        if why:
+            return f"step {step.id!r} cannot run on executor {step.executor!r}: {why}"
+    if getattr(adapter, "local_only", False):
+        return (f"step {step.id!r} cannot run on executor {step.executor!r}: the {step.kind!r} adapter runs on this "
+                f"machine only (GUI or a local-only file), so it cannot be handed to a remote executor")
+    return ""
+
+
 def _plugin_set() -> list[dict[str, Any]]:
     """The plugins that participated in this process, for the run's provenance (#1475).
 
@@ -368,6 +388,9 @@ class WorkflowRunner:
                 inner = get_executor(step.executor, **step.executor_options)
                 executor = metered = MeteredExecutor(inner)
                 adapter = get_adapter(step.kind)
+                reason = _remote_refusal(executor, adapter, step)
+                if reason:
+                    raise StepFailed(reason)             # named, not a timeout somewhere inside the cluster
                 ok, why = adapter.available(step) if executor.name == "local" else executor.available()
                 if not ok:
                     raise StepFailed(why)

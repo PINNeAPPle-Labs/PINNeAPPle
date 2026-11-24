@@ -4,6 +4,8 @@
 ``local``      a subprocess on this machine: timeout, environment, working directory, output to the step log
 ``docker``     ``docker run --rm`` with the step directory mounted at /work (no network, memory/CPU limits)
 ``slurm``      an sbatch script per step; ``dry_run=True`` (default) writes the script and does not submit it
+``kubernetes`` one Job per step through ``kubectl``, logs streamed back, cancellation deletes the Job (#1479)
+``batch``      one job per step on a cloud batch service, through a ``BatchProvider`` (#1479)
 =============  ==================================================================================================
 
 Write your own::
@@ -238,6 +240,13 @@ class SlurmExecutor(Executor):
 
 
 EXECUTORS: dict[str, type[Executor]] = {"local": LocalExecutor, "docker": DockerExecutor, "slurm": SlurmExecutor}
+
+# The remote executors live in their own module (they import Executor from here, so they come after the classes above);
+# registering them here keeps one map of what a step may name.
+from .executors_remote import BatchExecutor, KubernetesExecutor  # noqa: E402
+
+EXECUTORS["kubernetes"] = KubernetesExecutor
+EXECUTORS["batch"] = BatchExecutor
 
 
 def register_executor(name: str, cls: type[Executor]) -> None:

@@ -29,6 +29,10 @@ REASONS: dict[str, str] = {
     "pinneapple_plugins.manager": "loading, recording and diagnosing plugins (list, inspect, doctor, enable, disable): "
                                   "the state of the platform, which 'pinneapple plugins' reports",
     "pinneapple_plugins.cli": "the 'pinneapple plugins' command line: a front end over the manager, like Flow Studio",
+    "pinneapple_neural.model_provider": "one interface over the doors a trained model arrives through (PyTorch, "
+                                        "TorchScript, ONNX, JAX, PhysicsNeMo, Hugging Face): it opens a saved file "
+                                        "and hands back a model with its provenance, which is what a comparison reads "
+                                        "rather than a computation step",
     "pinneapple_mcp": "the MCP server for coding agents (a protocol front end, like Flow Studio)",
     "pinneapple_flow": "this package",
     "pinneapple_stability": "what the library promises (core vs experimental); metadata, not a computation step",

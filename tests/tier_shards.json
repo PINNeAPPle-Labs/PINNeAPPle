@@ -580,6 +580,7 @@
     "tests/test_model_compression.py",
     "tests/test_model_lineage.py",
     "tests/test_model_monitoring_drift.py",
+    "tests/test_model_provider.py",
     "tests/test_model_source.py",
     "tests/test_model_source_onnx.py",
     "tests/test_model_zoo.py",

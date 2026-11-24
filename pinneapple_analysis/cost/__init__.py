@@ -10,21 +10,11 @@
 Equal-budget method comparisons (PINN vs neural operators vs graph networks): ``equal_budget`` --
 ``ComputeBudget``, ``train_within_budget``, ``count_flops``, ``equal_budget_search``, ``AmortizedCost``.
 
+Peak memory, measured per allocator (issue #54): ``memory`` -- ``measure_peak``, ``PeakMemory``,
+``traced_peak``, ``torch_peak``, ``cuda_peak``, ``process_peak``, ``rss_peak``.
+
 See ``profiler`` for exactly what is and is not measured.
 """
-from .profiler import (
-    Budget,
-    BudgetExceeded,
-    CostLedger,
-    CostRecord,
-    Regression,
-    ScalingFit,
-    ScalingStudy,
-    expected_exponent,
-    measure,
-    scaling_study,
-)
-from .torch_ops import pinn_operation_costs, profile_ops
 from .equal_budget import (
     AmortizedCost,
     BudgetRun,
@@ -40,10 +30,33 @@ from .equal_budget import (
     time_per_query,
     train_within_budget,
 )
+from .memory import (
+    PeakMemory,
+    cuda_peak,
+    measure_peak,
+    process_peak,
+    rss_peak,
+    torch_peak,
+    traced_peak,
+)
+from .profiler import (
+    Budget,
+    BudgetExceeded,
+    CostLedger,
+    CostRecord,
+    Regression,
+    ScalingFit,
+    ScalingStudy,
+    expected_exponent,
+    measure,
+    scaling_study,
+)
+from .torch_ops import pinn_operation_costs, profile_ops
 
 __all__ = [
     "Budget", "BudgetExceeded", "CostLedger", "CostRecord", "Regression", "ScalingFit", "ScalingStudy",
     "expected_exponent", "measure", "scaling_study", "pinn_operation_costs", "profile_ops",
+    "PeakMemory", "cuda_peak", "measure_peak", "process_peak", "rss_peak", "torch_peak", "traced_peak",
     "AmortizedCost", "BudgetRun", "ComputeBudget", "SearchResult", "SearchTrial", "cosine_lr", "count_flops",
     "equal_budget_search", "hardware_record", "relative_l2", "set_lr", "time_per_query", "train_within_budget",
 ]

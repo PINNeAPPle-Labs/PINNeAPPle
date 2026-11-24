@@ -234,7 +234,7 @@ def dimensionless_groups(parameters: Mapping[str, float]) -> tuple[dict[str, flo
         if value is not None and name not in groups and np.isfinite(value):
             groups[name] = float(value)
 
-    for name, needed in _GROUP_INPUTS.items():
+    for name in _GROUP_INPUTS:
         if name in groups:
             continue
         absent = _still_missing(name, p, nu)

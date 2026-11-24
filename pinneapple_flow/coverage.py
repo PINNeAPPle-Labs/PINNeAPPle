@@ -69,6 +69,9 @@ REASONS: dict[str, str] = {
     "pinneapple_data.graph": "the module builds the Graph objects the graph networks train on, from arrays and from "
                              "simulation records; a Graph is not something a flow's parameter form holds, so the "
                              "node that trains a graph model builds it inside the node",
+    "pinneapple_analysis.fidelity": "the choice between the surrogate and the solver for each request (#161), with "
+                                    "the reason kept in the request's record: it is the router a flow calls, not a "
+                                    "computation a node performs",
     "pinneapple_data.adaptive_sampling": "the loop that decides which simulation to run next (multi-signal adaptive "
                                          "sampling of #209): it chooses the calls a campaign makes, it is not one of "
                                          "them, in the same way as pinneapple_analysis.bayesopt",

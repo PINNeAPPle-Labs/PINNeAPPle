@@ -465,6 +465,7 @@
     "tests/test_fatigue_analysis.py",
     "tests/test_fault_injection.py",
     "tests/test_fdtd.py",
+    "tests/test_fidelity.py",
     "tests/test_field_card.py",
     "tests/test_field_lines.py",
     "tests/test_field_view.py",

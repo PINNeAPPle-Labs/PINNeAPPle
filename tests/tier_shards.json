@@ -222,7 +222,8 @@
     "tests/test_astro_conjunction.py",
     "tests/test_astro_facts.py",
     "tests/test_astro_journey.py",
-    "tests/test_astro_observing.py"
+    "tests/test_astro_observing.py",
+    "tests/test_astro_yt_reader.py"
    ],
    "reason": "not measured green yet: see docs/dev/test_shards.md"
   },
@@ -307,6 +308,7 @@
     "tests/test_as_tensor.py",
     "tests/test_asme_vv20.py",
     "tests/test_astro_yt_reader.py",
+    "tests/test_astro_yt_reader.py is claimed by both astro and root",
     "tests/test_astroml_bridge.py",
     "tests/test_astrophysics_validation.py",
     "tests/test_astropy_bridge.py",
@@ -543,6 +545,7 @@
     "tests/test_lbm_wall_pressure.py",
     "tests/test_licensing_policy.py",
     "tests/test_lineage_registry.py",
+    "tests/test_lint_debt.py",
     "tests/test_llm_agent_loop.py",
     "tests/test_llm_cad_booleans.py",
     "tests/test_llm_cad_generation.py",

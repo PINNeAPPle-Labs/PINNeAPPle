@@ -50,7 +50,7 @@ def gp_posterior_paths(gp, X, n_paths: int = 100, seed: int = 0, jitter: float =
     paths of the *latent* function rather than of a noisy observation of it (the default matches what
     ``gp.predict(return_std=True)`` reports).
     """
-    gps = [gp] if hasattr(gp, "kernel_") else list(gp)
+    gps = [gp] if hasattr(gp, "predict") else list(gp)
     if not gps:
         raise ValueError("give at least one fitted Gaussian process")
     X = np.atleast_2d(np.asarray(X, dtype=float))

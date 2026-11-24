@@ -718,6 +718,7 @@
     "tests/test_self_scaled_qn.py",
     "tests/test_sensitivity.py",
     "tests/test_sensitivity_lab_app.py",
+    "tests/test_sensitivity_surrogate_error.py",
     "tests/test_sensor_placement.py",
     "tests/test_serialization_compressed.py",
     "tests/test_shakura_sunyaev_disk_validation.py",

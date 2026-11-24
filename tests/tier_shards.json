@@ -574,6 +574,7 @@
     "tests/test_metrics_pooled.py",
     "tests/test_missing_presets_registered.py",
     "tests/test_model_benchmark.py",
+    "tests/test_model_compression.py",
     "tests/test_model_lineage.py",
     "tests/test_model_monitoring_drift.py",
     "tests/test_model_source.py",

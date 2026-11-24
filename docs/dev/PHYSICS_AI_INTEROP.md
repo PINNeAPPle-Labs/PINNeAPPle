@@ -286,6 +286,23 @@ the VeriPhysics evidence ledger.
   graph is the real-arithmetic copy, not the FFT one, and its input size is fixed.
   A pointwise surrogate (a PINN MLP) takes the first attempt and serves normally. The `onnxruntime` leg is not
   measured on a machine without it, and the report says that too.
+* **Compression for deployment (K13)** — `pinneapple_analysis.surrogate.deploy` returns a `DeploymentReport` with
+  both sides of a compression in one object: the relative L2 it cost and the p50 latency it bought, on the same
+  rows, plus the bytes before and after and whether the error stayed inside the tolerance the caller set. Three
+  paths, each measured rather than assumed (one thread, M-series CPU, batch of 4000 rows unless stated):
+
+  | Path | Error lost | Latency gained | Where it runs |
+  |---|---|---|---|
+  | `onnx-int8` (dynamic int8 weights, ONNX Runtime) | **0.40–0.54 %** | **1.5x** (1.24–1.89x across runs), 3.7x smaller on disk | any CPU with the `export` extra |
+  | `structured-prune` (whole hidden units removed) | 11.6 % at 95 % kept, **81 % at 50 %** | 1.16x, **2.15x** at 50 % (50 000 rows) | torch only |
+  | `torch-int8` (torch's dynamic int8) | 0.5–1.4 % | **0.77–1.16x** — it depends on the size, and on this stack it does not pay | torch only |
+
+  The numbers are the argument for the shape of the module. Quantization is the deployable path here; **pruning
+  without fine-tuning is not** — it is fast and it destroys the answer, and the report says so instead of the
+  module only offering the fast half. int8 wins on *batched* inference and loses on a single row (batch 1 measured
+  0.90x), so the report records the batch it measured and puts the single-row numbers in `details`: a "3x faster"
+  claim with the batch hidden is what this module exists to prevent. TensorRT is not executed — there is no NVIDIA
+  GPU here — and `tensorrt_status()` says that in the report rather than leaving a gap.
 
 ## 8. PhysicsNeMo bridge (INT-014) — the dictionary, not the package
 

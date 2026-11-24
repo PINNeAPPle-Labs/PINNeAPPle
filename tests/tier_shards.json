@@ -307,8 +307,6 @@
     "tests/test_artifact_registry.py",
     "tests/test_as_tensor.py",
     "tests/test_asme_vv20.py",
-    "tests/test_astro_yt_reader.py",
-    "tests/test_astro_yt_reader.py is claimed by both astro and root",
     "tests/test_astroml_bridge.py",
     "tests/test_astrophysics_validation.py",
     "tests/test_astropy_bridge.py",

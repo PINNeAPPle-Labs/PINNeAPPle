@@ -4,55 +4,51 @@ Two layers live here. ``use_cfd_style`` is the older dark CFD theme and is kept
 for the figures that already use it. ``use_theme`` is the house theme described
 in #918: one font stack, one colour-blind-safe palette, perceptually uniform
 maps, and helpers that make the quantity and its unit part of the figure.
+
+No colour is written down in this module. Every palette entry, colour map stop,
+figure size and font comes from :mod:`pinneapple_tools.visualization.theme`, the
+one file the studio viewer, the twin3d viewer and the apps read as well (#65), so
+a figure in a report and a field in a browser cannot disagree.
 """
 from __future__ import annotations
 
 import string
 
 import matplotlib as mpl
-import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
+
+from . import theme as _theme
 
 # ---------------------------------------------------------------------------
 # CFD colormaps
+#
+# The stops are the theme's (theme.json, key "colormaps"); this module only
+# turns them into matplotlib maps and gives them their names.
 # ---------------------------------------------------------------------------
 
-_RAINBOW_DATA = [
-    (0.0,   (0.000, 0.000, 0.550)),
-    (0.125, (0.000, 0.000, 1.000)),
-    (0.250, (0.000, 0.500, 1.000)),
-    (0.375, (0.000, 1.000, 0.500)),
-    (0.500, (0.000, 1.000, 0.000)),
-    (0.625, (0.500, 1.000, 0.000)),
-    (0.750, (1.000, 1.000, 0.000)),
-    (0.875, (1.000, 0.500, 0.000)),
-    (1.000, (1.000, 0.000, 0.000)),
-]
+_cfd_rainbow = _theme.colormap("cfd_rainbow")
+_cfd_coolwarm = _theme.colormap("cfd_coolwarm")
+_cfd_sequential = _theme.colormap("cfd_sequential")
+_cfd_diverging = _theme.colormap("cfd_diverging")
+_cfd_cyclic = _theme.colormap("cfd_cyclic")
 
-_cfd_rainbow = mcolors.LinearSegmentedColormap.from_list(
-    "cfd_rainbow",
-    [(v[0], v[1]) for v in _RAINBOW_DATA],
-    N=256,
-)
-
-_COOL_WARM_DATA = [
-    (0.0, (0.085, 0.532, 0.201)),
-    (0.25,(0.017, 0.427, 0.969)),
-    (0.5, (0.929, 0.929, 0.929)),
-    (0.75,(0.969, 0.266, 0.105)),
-    (1.0, (0.655, 0.047, 0.047)),
-]
-_cfd_coolwarm = mcolors.LinearSegmentedColormap.from_list(
-    "cfd_coolwarm", [(v[0], v[1]) for v in _COOL_WARM_DATA], N=256,
-)
-
-# Paraview-esque blue→white→red (diverging, for pressure/vorticity)
 CMAPS: dict = {
     "rainbow":   _cfd_rainbow,
-    "coolwarm":  _cfd_coolwarm,
+    "cfd_rainbow": _cfd_rainbow,
+    "coolwarm":  _theme.colormap("coolwarm"),   # the diverging map the viewers draw
+    "cfd_coolwarm": _cfd_coolwarm,               # the older Python table, kept by name
+    "cfd_sequential": _cfd_sequential,
+    "cfd_diverging": _cfd_diverging,
+    "cfd_cyclic": _cfd_cyclic,
+    # the maps the studio viewer and the apps draw, so a figure can take the same one
+    "jet":       _theme.colormap("jet"),
+    "magma":     _theme.colormap("magma"),
+    "bwr":       _theme.colormap("bwr"),
+    "rdbu":      _theme.colormap("rdbu"),
+    "err":       _theme.colormap("err"),
+    # matplotlib's own, left as they are: nobody authors these
     "viridis":   plt.cm.viridis,
     "plasma":    plt.cm.plasma,
-    "jet":       plt.cm.jet,
     "inferno":   plt.cm.inferno,
     "turbo":     plt.cm.turbo,
     "grayscale": plt.cm.gray,
@@ -135,106 +131,40 @@ def make_figure(nrows: int = 1, ncols: int = 1, **kwargs):
 # the same colour in every example.
 # ---------------------------------------------------------------------------
 
-# Okabe-Ito: eight colours that stay distinguishable under deuteranopia,
-# protanopia and tritanopia. Never reorder: the first three carry most figures.
-PALETTE = (
-    "#0072B2",  # blue
-    "#E69F00",  # orange
-    "#009E73",  # bluish green
-    "#CC79A7",  # reddish purple
-    "#56B4E9",  # sky blue
-    "#D55E00",  # vermilion
-    "#F0E442",  # yellow
-    "#000000",  # black
-)
+# Okabe-Ito, read from the theme file: eight colours that stay distinguishable
+# under deuteranopia, protanopia and tritanopia. Never reorder: the first three
+# carry most figures.
+PALETTE = _theme.palette()
 
-# Perceptually uniform maps, built from anchors rather than sampled from a
-# rainbow: monotone lightness, so a printed grey-scale copy keeps the ordering.
-_SEQUENTIAL_DATA = [
-    (0.00, (0.267, 0.005, 0.329)),
-    (0.25, (0.229, 0.322, 0.545)),
-    (0.50, (0.128, 0.567, 0.551)),
-    (0.75, (0.369, 0.789, 0.383)),
-    (1.00, (0.993, 0.906, 0.144)),
-]
-_DIVERGING_DATA = [
-    (0.00, (0.230, 0.299, 0.754)),
-    (0.25, (0.552, 0.690, 0.996)),
-    (0.50, (0.968, 0.968, 0.968)),
-    (0.75, (0.956, 0.598, 0.477)),
-    (1.00, (0.706, 0.016, 0.150)),
-]
-_CYCLIC_DATA = [
-    (0.000, (0.128, 0.567, 0.551)),
-    (0.250, (0.369, 0.789, 0.383)),
-    (0.500, (0.993, 0.906, 0.144)),
-    (0.750, (0.847, 0.432, 0.145)),
-    (1.000, (0.128, 0.567, 0.551)),
-]
+# The house maps, built by theme.py from the file's anchors rather than sampled
+# from a rainbow: monotone lightness, so a printed grey-scale copy keeps the
+# ordering. ``cfd_sequential``/``cfd_diverging``/``cfd_cyclic`` are already in
+# CMAPS above; these aliases are what the rest of this module reads.
+_SEQUENTIAL_DATA = _theme.colormap_stops("cfd_sequential")
+_DIVERGING_DATA = _theme.colormap_stops("cfd_diverging")
+_CYCLIC_DATA = _theme.colormap_stops("cfd_cyclic")
 
-_cfd_sequential = mcolors.LinearSegmentedColormap.from_list(
-    "cfd_sequential", [(v[0], v[1]) for v in _SEQUENTIAL_DATA], N=256,
-)
-_cfd_diverging = mcolors.LinearSegmentedColormap.from_list(
-    "cfd_diverging", [(v[0], v[1]) for v in _DIVERGING_DATA], N=256,
-)
-_cfd_cyclic = mcolors.LinearSegmentedColormap.from_list(
-    "cfd_cyclic", [(v[0], v[1]) for v in _CYCLIC_DATA], N=256,
-)
+# One quantity, one map, from the same file. A new quantity is added to
+# theme.json, never chosen ad hoc in a figure, and the error always reads on a
+# sequential map because "more error" has no sign.
+FIELD_CMAPS: dict = _theme.field_cmaps()
 
-CMAPS.update({
-    "cfd_sequential": _cfd_sequential,
-    "cfd_diverging":  _cfd_diverging,
-    "cfd_cyclic":     _cfd_cyclic,
-})
-
-# One quantity, one map. A new quantity is added here, never chosen ad hoc in a
-# figure, and the error always reads on a sequential map because "more error"
-# has no sign.
-FIELD_CMAPS: dict = {
-    # sequential: a magnitude, no meaningful zero
-    "temperature": "cfd_sequential",
-    "pressure": "cfd_sequential",
-    "density": "cfd_sequential",
-    "speed": "cfd_sequential",
-    "velocity_magnitude": "cfd_sequential",
-    "turbulent_kinetic_energy": "cfd_sequential",
-    "stress": "cfd_sequential",
-    "damage": "cfd_sequential",
-    "concentration": "cfd_sequential",
-    "error": "cfd_sequential",
-    "residual": "cfd_sequential",
-    # diverging: a signed quantity around a meaningful zero
-    "pressure_coefficient": "cfd_diverging",
-    "vorticity": "cfd_diverging",
-    "displacement": "cfd_diverging",
-    "temperature_difference": "cfd_diverging",
-    "stress_difference": "cfd_diverging",
-    "signed_error": "cfd_diverging",
-    # cyclic: an angle
-    "angle": "cfd_cyclic",
-    "phase": "cfd_cyclic",
-}
-
-_THEME_KINDS = ("report", "slide", "paper")
+_THEME_KINDS = tuple(_theme.theme()["figure"]["scale"])
 
 # Relative sizes per output medium: a report is read at 100 %, a slide is
 # projected, a paper is printed at column width. The base body size is the one
 # that stays readable at 50 % zoom.
-_THEME_SCALE = {"report": 1.00, "slide": 1.35, "paper": 0.90}
+_THEME_SCALE = dict(_theme.theme()["figure"]["scale"])
 
-_THEME_FIGSIZE = {
-    "report": {"single": (6.4, 4.0), "double": (9.6, 4.0), "triple": (12.8, 4.0)},
-    "slide":  {"single": (9.0, 5.5), "double": (14.0, 5.5), "triple": (18.0, 5.5)},
-    "paper":  {"single": (3.5, 2.6), "double": (7.16, 2.8), "triple": (7.16, 2.4)},
-}
+_THEME_FIGSIZE = {kind: {k: tuple(v) for k, v in sizes.items()}
+                  for kind, sizes in _theme.theme()["figure"]["sizes"].items()}
 
-_FONT_STACK = ["DejaVu Sans", "Helvetica", "Arial", "sans-serif"]
+_FONT_STACK = list(_theme.font()["stack"])
 
 
 def _theme_rc(kind: str, dark: bool) -> dict:
     scale = _THEME_SCALE[kind]
-    base = 10.0 * scale
+    base = _theme.font()["base_size"] * scale
     rc = {
         "font.family": "sans-serif",
         "font.sans-serif": list(_FONT_STACK),
@@ -254,37 +184,40 @@ def _theme_rc(kind: str, dark: bool) -> dict:
         "axes.linewidth": 0.8,
         "axes.prop_cycle": mpl.cycler(color=list(PALETTE)),
         "image.cmap": "cfd_sequential",
-        "figure.dpi": 110,
-        "savefig.dpi": 200,
+        "figure.dpi": _theme.figure(kind)["dpi"]["screen"],
+        "savefig.dpi": _theme.figure(kind)["dpi"]["save"],
         "savefig.bbox": "tight",
         "lines.linewidth": 1.6,
         "legend.frameon": False,
         "errorbar.capsize": 2.5,
     }
+    # the surface and the ink are the theme's: the same near-black text and the same grid colour a browser legend
+    # uses, so a figure and its HTML twin do not read as two documents (#65)
+    ink, line, paper = _theme.surface(dark)["ink"], _theme.surface(dark)["line"], _theme.surface(dark)["paper"]
     if dark:
         rc.update({
-            "figure.facecolor": "#1a1a2e",
+            "figure.facecolor": paper,
             "axes.facecolor":   "#16213e",
-            "axes.edgecolor":   "#5a6b8c",
-            "axes.labelcolor":  "#e8e8e8",
+            "axes.edgecolor":   line,
+            "axes.labelcolor":  ink,
             "axes.titlecolor":  "#ffffff",
-            "xtick.color":      "#d8d8d8",
-            "ytick.color":      "#d8d8d8",
-            "text.color":       "#e8e8e8",
-            "grid.color":       "#3a4a6b",
-            "legend.edgecolor": "#5a6b8c",
+            "xtick.color":      ink,
+            "ytick.color":      ink,
+            "text.color":       ink,
+            "grid.color":       line,
+            "legend.edgecolor": line,
         })
     else:
         rc.update({
-            "figure.facecolor": "#ffffff",
-            "axes.facecolor":   "#ffffff",
+            "figure.facecolor": paper,
+            "axes.facecolor":   paper,
             "axes.edgecolor":   "#4d4d4d",
-            "axes.labelcolor":  "#222222",
+            "axes.labelcolor":  ink,
             "axes.titlecolor":  "#111111",
-            "xtick.color":      "#333333",
-            "ytick.color":      "#333333",
-            "text.color":       "#111111",
-            "grid.color":       "#c8c8c8",
+            "xtick.color":      ink,
+            "ytick.color":      ink,
+            "text.color":       ink,
+            "grid.color":       line,
             "legend.edgecolor": "#4d4d4d",
         })
     return rc

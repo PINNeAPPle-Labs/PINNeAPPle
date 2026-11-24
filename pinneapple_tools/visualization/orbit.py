@@ -25,6 +25,7 @@ from pathlib import Path
 import numpy as np
 
 from .style import DEFAULT_CMAP, get_cmap
+from .theme import viewport as _viewport
 
 DEFAULT_SIZE = (1920, 1080)
 # Degrees the camera sweeps over the clip (one full turn by default) and the azimuth it starts at.
@@ -88,7 +89,7 @@ def turntable(field, path: str | Path | None = None, *, x=None, y=None, t=None, 
               unit: str = "", time_unit: str = "s", size: Sequence[int] = DEFAULT_SIZE, dpi: int = 100,
               frames: int | None = None, fps: float = 24.0, cmap: str = DEFAULT_CMAP, clim=None,
               deform: float = 0.25, elevation: float = 28.0, orbit: float = DEFAULT_ORBIT,
-              azimuth: float = DEFAULT_AZIMUTH, zoom: float = 1.25, background: str = "#0b1220",
+              azimuth: float = DEFAULT_AZIMUTH, zoom: float = 1.25, background: str = _viewport(dark=True),
               mark: str = "PINNeAPPle", mark_alpha: float = 0.45, caption: bool = True,
               colorbar: bool = True, colors: int = 255):
     """Write a turntable animation of ``field`` to ``path`` (``.gif`` or ``.mp4``), or return its frames.

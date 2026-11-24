@@ -17,10 +17,15 @@ from typing import Dict, Optional, Sequence
 
 import numpy as np
 
+from .theme import viewport as _viewport
+
 # VTK cell types for the CalculiX/Abaqus element families (node order is identical, see tests)
 _VTK_CELL = {"C3D4": 10, "C3D10": 24, "C3D8": 12, "C3D8R": 12, "C3D8I": 12, "C3D20": 25, "C3D20R": 25}
 
 _INSTALL_HINT = 'PyVista is not installed: pip install "pinneapple[pyvista]"'
+
+# The plot background is the house theme's, the same colour the studio and twin3d viewers draw on (#65).
+BACKGROUND = _viewport(dark=True)
 
 
 def _pv():
@@ -167,7 +172,7 @@ def _is_dark(background: str) -> bool:
 
 
 def render_png(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = "turbo", title: str = "",
-               show_edges: bool = False, window_size: Sequence[int] = (1400, 900), background: str = "#0b1220",
+               show_edges: bool = False, window_size: Sequence[int] = (1400, 900), background: str = BACKGROUND,
                scalar_bar_title: Optional[str] = None, clim: Optional[Sequence[float]] = None,
                camera_position: Optional[str] = "iso") -> str:
     """Render ``mesh`` (grid, PolyData or MultiBlock) to a PNG. ``scalars`` is a point/cell array name."""
@@ -182,7 +187,7 @@ def render_png(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = "t
 
 def render_gif(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = "turbo", title: str = "",
                n_frames: int = 60, elevation: float = 25.0, window_size: Sequence[int] = (1000, 700),
-               background: str = "#0b1220", clim: Optional[Sequence[float]] = None, fps: int = 20) -> str:
+               background: str = BACKGROUND, clim: Optional[Sequence[float]] = None, fps: int = 20) -> str:
     """Orbit camera around ``mesh`` and write an animated GIF (turntable)."""
     _require_rendering()
     pl = _plotter(mesh, scalars, cmap, title, False, window_size, background, None, clim)

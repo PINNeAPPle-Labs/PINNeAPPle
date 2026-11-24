@@ -33,6 +33,7 @@ from __future__ import annotations
 
 from . import examples
 from .loop import StopRule, decide
+from .pipeline import DesignPipeline, PipelineRun, select
 from .spec import (
     BASE_KINDS,
     FIDELITIES,
@@ -56,5 +57,6 @@ from .study import RUNNABLE_KINDS, StudyRefused, StudyRun, run_study
 __all__ = [
     "SCHEMA", "KINDS", "KINDS_BEYOND_OPTIMISATION", "BASE_KINDS", "FIDELITIES", "SURROGATE_FAMILIES",
     "RUNNABLE_KINDS", "Quantity", "Variable", "Base", "Evaluator", "Objective", "Limit", "Budget", "Verifier",
-    "Model", "DesignStudy", "StudyRun", "StudyRefused", "run_study", "StopRule", "decide", "examples",
+    "Model", "DesignStudy", "StudyRun", "StudyRefused", "run_study", "StopRule", "decide", "DesignPipeline",
+    "PipelineRun", "select", "examples",
 ]

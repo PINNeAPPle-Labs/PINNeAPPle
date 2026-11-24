@@ -123,9 +123,10 @@ so a change that breaks them fails before the picture is looked at.
 dark theme, for comparison pictures against commercial CAE. It is no longer the
 default: `DEFAULT_CMAP` is `cfd_sequential`.
 
-The examples migrate in batches, and both halves are mechanical, because 151 of
-them import matplotlib and 23 used the style module: an edit anybody can review
-line by line, and a gate that reads the files so the number only goes down.
+The examples migrate in batches, and both halves are mechanical — 146 scripts
+under `examples/` import matplotlib, 37 call `use_theme` and 102 are still on the
+debt list — so the edit is one anybody can review line by line, and the gate
+reads the files so the number only goes down.
 
 ```bash
 python scripts/apply_house_theme.py examples/a.py examples/b/c.py   # migrate
@@ -150,8 +151,17 @@ that table against the theme's own `rc`, so the two cannot drift.
 The gate fails on an example that draws and calls neither `use_theme` nor
 `use_cfd_style`, unless it is listed in `examples/.house_theme_baseline`. It
 fails the other way too: a baseline line for a file that is themed, or that no
-longer exists, has to go. The baseline is the debt, and it only shrinks — 114
-examples are left after two batches.
+longer exists, has to go. The baseline is the debt, and it only shrinks — 102
+examples are left after three batches.
+
+What is left is not a special case. Of the 102, two draw with PyVista
+(`use_cases/fin_convection_inverse/plots_2d3d.py`,
+`use_cases/physics_data_factory/ultrarealistic_digital_twin.py`) and eight write
+an animation (`FuncAnimation`, a GIF, or a frame loop); the rest is plain
+matplotlib that enters a batch like the ones before it. The two families wait
+for a batch of their own because they need a second thing the 2-D batches did
+not: the first a PyVista scene on the theme's surface, the second a map whose
+stops the frames share with the figures beside them.
 
 ### Batches
 

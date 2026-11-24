@@ -138,6 +138,23 @@ detail-less, subject gone — without the brittleness of a golden-image comparis
 versions. `pp.viz.benchmark.CASES` is the list; a case is a geometry from the library, its materials, the HDRI and the
 camera preset.
 
+The gate itself is `--gate` against a committed baseline, and it runs in CI on every pull request that touches the
+studio (`Visual benchmark`): `data/benchmark/baseline.json` holds the four statistics of each case, recorded in the
+canonical configuration (`GATE`: 960×540, 32 samples, preview) so today's record is comparable with last month's.
+`pp.viz.benchmark.gate` compares a record with it and returns the differences beyond `TOLERANCES` (`mean` ±8,
+`std` ±4, `coverage` ±0.06, `edge_energy` ±0.12 — absolute, in each statistic's own units); the command exits non-zero
+when there are any. The time is recorded and reported but never gated: it belongs to the machine.
+
+Recording a new baseline is deliberate, after a change that is meant to move the pictures:
+
+```bash
+python -m pinneapple_tools.visualization.studio.benchmark \
+    --out /tmp/benchmark --gate --record-baseline   # rewrites data/benchmark/baseline.json
+```
+
+CPU and GPU agree: the same case rendered on either gives the same four numbers to the second decimal (the pixels
+differ by at most 3/255), so the baseline recorded on a laptop is the one CI compares against on a runner.
+
 ## Renders
 
 `pp.viz.render(scene, out, field=..., lines=..., slice=..., view="iso", background="studio")` needs

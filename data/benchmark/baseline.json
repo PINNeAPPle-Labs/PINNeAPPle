@@ -1,0 +1,35 @@
+{
+ "airliner_library": {
+  "coverage": 0.8529,
+  "edge_energy": 1.728,
+  "mean": 136.44,
+  "quality": "preview",
+  "size": [
+   960,
+   540
+  ],
+  "std": 26.57
+ },
+ "heatsink_aluminium": {
+  "coverage": 0.5806,
+  "edge_energy": 1.278,
+  "mean": 193.69,
+  "quality": "preview",
+  "size": [
+   960,
+   540
+  ],
+  "std": 14.85
+ },
+ "impeller_bronze": {
+  "coverage": 0.6784,
+  "edge_energy": 1.162,
+  "mean": 109.14,
+  "quality": "preview",
+  "size": [
+   960,
+   540
+  ],
+  "std": 23.62
+ }
+}

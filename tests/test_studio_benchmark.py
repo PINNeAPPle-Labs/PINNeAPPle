@@ -33,6 +33,68 @@ def test_compare_subtracts_every_statistic():
     assert BM.compare(a, {}) == {}, "a case the baseline does not have is skipped, not invented"
 
 
+def _case(**kw):
+    base = {"quality": "preview", "size": [960, 540], "mean": 109.0, "std": 23.6, "coverage": 0.68,
+            "edge_energy": 1.16, "seconds": 4.0, "png": "/tmp/x.png"}
+    base.update(kw)
+    return base
+
+
+def test_the_gate_passes_a_record_against_itself():
+    rec = {name: _case() for name in BM.CASES}
+    assert BM.gate(rec, BM.baseline_of(rec)) == []
+
+
+def test_the_gate_catches_a_picture_that_went_black():
+    base = BM.baseline_of({name: _case() for name in BM.CASES})
+    rec = {name: _case() for name in BM.CASES}
+    rec["impeller_bronze"].update(mean=2.0, std=0.4, coverage=0.0, edge_energy=0.01)
+    problems = BM.gate(rec, base)
+    assert any("impeller_bronze" in p and "mean" in p for p in problems)
+    assert any("coverage" in p for p in problems)
+    assert not any("heatsink_aluminium" in p for p in problems), "the other cases are untouched"
+
+
+def test_the_gate_catches_a_picture_that_lost_its_micro_detail():
+    base = BM.baseline_of({name: _case() for name in BM.CASES})
+    rec = {name: _case() for name in BM.CASES}
+    rec["airliner_library"]["edge_energy"] = 1.16 * 0.5
+    problems = BM.gate(rec, base)
+    assert any("airliner_library" in p and "edge_energy" in p for p in problems)
+
+
+def test_the_gate_says_so_when_a_case_is_missing_on_either_side():
+    rec = {name: _case() for name in BM.CASES if name != "airliner_library"}
+    assert any("airliner_library: not rendered" in p for p in BM.gate(rec, BM.baseline_of({n: _case()
+                                                                                          for n in
+                                                                                          BM.CASES})))
+    assert any("no baseline" in p for p in BM.gate({name: _case() for name in BM.CASES}, {"impeller_bronze":
+                                                                                          _case()}))
+
+
+def test_the_time_is_not_gated():
+    rec = {name: _case(seconds=900.0) for name in BM.CASES}
+    assert BM.gate(rec, BM.baseline_of({name: _case() for name in BM.CASES})) == [], \
+        "a slow machine is not a regression in the picture"
+
+
+def test_a_committed_baseline_keeps_the_statistics_and_drops_the_machine():
+    b = BM.baseline_of({name: _case() for name in BM.CASES})
+    assert set(b["impeller_bronze"]) == {"quality", "size", "mean", "std", "coverage", "edge_energy"}
+    assert "seconds" not in b["impeller_bronze"] and "png" not in b["impeller_bronze"]
+
+
+def test_the_repository_ships_a_baseline_for_every_case_in_the_gate_configuration():
+    path = os.path.join(BM.repository_root(), BM.BASELINE)
+    assert os.path.isfile(path), f"{BM.BASELINE} is what the CI gate compares against"
+    with open(path, encoding="utf-8") as fh:
+        base = json.load(fh)
+    assert set(base) == set(BM.CASES), "every case, or the gate would have nothing to compare"
+    for name, case in base.items():
+        assert case["size"] == BM.GATE["size"], f"{name}: the baseline is not in the gate's size"
+        assert case["quality"] == BM.GATE["quality"], f"{name}: the baseline is not in the gate's preset"
+
+
 def test_picture_stats_read_a_flat_image_and_a_busy_one(tmp_path):
     from PIL import Image
     import numpy as np

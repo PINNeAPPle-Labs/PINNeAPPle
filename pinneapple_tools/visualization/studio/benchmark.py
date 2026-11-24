@@ -142,13 +142,40 @@ def run(out_dir: str, *, scenes: Optional[list] = None, quality: str = "preview"
     return record
 
 
-def baseline_of(record: dict) -> dict:
+def baseline_of(record: dict, *, blender: Optional[str] = None) -> dict:
     """What a record keeps when it is committed as the reference: the picture statistics and the configuration they
-    were measured with. The time and the absolute path stay out -- one is the machine's, the other is a folder that
-    does not exist anywhere else."""
-    return {name: {k: v for k, v in case.items() if k in ("quality", "size", "mean", "std", "coverage",
-                                                          "edge_energy")}
-            for name, case in record.items()}
+    were measured with, plus a ``_meta`` line saying when and with what -- a gate whose reference has no date is a
+    number nobody can judge.
+
+    The time and the absolute path stay out: one is the machine's, the other is a folder that does not exist anywhere
+    else."""
+    out = {name: {k: v for k, v in case.items() if k in ("quality", "size", "mean", "std", "coverage",
+                                                         "edge_energy")}
+           for name, case in record.items()}
+    out["_meta"] = {"recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    "gate": dict(GATE), "tolerances": dict(TOLERANCES),
+                    "blender": blender if blender is not None else _blender_version()}
+    return out
+
+
+def _blender_version() -> str:
+    """The renderer's version, so a baseline records what drew it (``"unknown"`` when there is no binary here)."""
+    from .blender import blender_executable
+
+    exe = blender_executable()
+    if not exe:
+        return "unknown"
+    try:
+        import subprocess
+        out = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=120).stdout
+        return (out.splitlines() or ["unknown"])[0].strip() or "unknown"
+    except Exception:                      # noqa: BLE001 -- a version string must never break a recording
+        return "unknown"
+
+
+def cases_of(record: dict) -> List[str]:
+    """The case names in a record or a baseline: everything but the bookkeeping keys, which start with ``_``."""
+    return [name for name in record if not name.startswith("_")]
 
 
 def gate(current: dict, baseline: dict, *, tolerances: Optional[dict] = None) -> List[str]:
@@ -219,6 +246,8 @@ def main(argv=None) -> int:
             for p in problems:
                 print(f"regression: {p}")
             if problems:
+                print("If the pictures were meant to move, record a new baseline on purpose and say why in the "
+                      "commit:  --record-baseline")
                 return 1
             print(f"gate ok: every statistic within {TOLERANCES}")
     return 0

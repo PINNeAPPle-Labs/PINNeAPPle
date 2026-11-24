@@ -163,6 +163,11 @@ python -m pinneapple_tools.visualization.studio.benchmark \
     --out /tmp/benchmark --gate --record-baseline   # rewrites data/benchmark/baseline.json
 ```
 
+The file carries a `_meta` line with the date, the Blender version, the gate configuration and the tolerances, so the
+next reader knows what drew the reference. When the gate fails it says so and points at `--record-baseline`: the two
+outcomes of a red gate are a bug to fix or a move to accept on purpose, and the commit message is where that choice is
+written down.
+
 CPU and GPU agree: the same case rendered on either gives the same four numbers to the second decimal (the pixels
 differ by at most 3/255), so the baseline recorded on a laptop is the one CI compares against on a runner.
 

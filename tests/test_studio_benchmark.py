@@ -79,9 +79,13 @@ def test_the_time_is_not_gated():
 
 
 def test_a_committed_baseline_keeps_the_statistics_and_drops_the_machine():
-    b = BM.baseline_of({name: _case() for name in BM.CASES})
+    b = BM.baseline_of({name: _case() for name in BM.CASES}, blender="Blender 5.2.1 LTS")
     assert set(b["impeller_bronze"]) == {"quality", "size", "mean", "std", "coverage", "edge_energy"}
     assert "seconds" not in b["impeller_bronze"] and "png" not in b["impeller_bronze"]
+    meta = b["_meta"]
+    assert meta["blender"] == "Blender 5.2.1 LTS" and meta["gate"] == BM.GATE
+    assert BM.cases_of(b) == list(BM.CASES), "the bookkeeping keys are not cases"
+    assert meta["recorded_at"].endswith("Z") and len(meta["recorded_at"]) == 20
 
 
 def test_the_repository_ships_a_baseline_for_every_case_in_the_gate_configuration():
@@ -89,10 +93,12 @@ def test_the_repository_ships_a_baseline_for_every_case_in_the_gate_configuratio
     assert os.path.isfile(path), f"{BM.BASELINE} is what the CI gate compares against"
     with open(path, encoding="utf-8") as fh:
         base = json.load(fh)
-    assert set(base) == set(BM.CASES), "every case, or the gate would have nothing to compare"
-    for name, case in base.items():
+    assert set(BM.cases_of(base)) == set(BM.CASES), "every case, or the gate would have nothing to compare"
+    for name in BM.cases_of(base):
+        case = base[name]
         assert case["size"] == BM.GATE["size"], f"{name}: the baseline is not in the gate's size"
         assert case["quality"] == BM.GATE["quality"], f"{name}: the baseline is not in the gate's preset"
+    assert "recorded_at" in base.get("_meta", {}), "a baseline with no date is a number nobody can judge"
 
 
 def test_picture_stats_read_a_flat_image_and_a_busy_one(tmp_path):

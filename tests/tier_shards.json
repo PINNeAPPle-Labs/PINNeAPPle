@@ -536,6 +536,7 @@
     "tests/test_lbm_tunnel.py",
     "tests/test_lbm_wall_pressure.py",
     "tests/test_licensing_policy.py",
+    "tests/test_lineage_registry.py",
     "tests/test_llm_agent_loop.py",
     "tests/test_llm_cad_booleans.py",
     "tests/test_llm_cad_generation.py",

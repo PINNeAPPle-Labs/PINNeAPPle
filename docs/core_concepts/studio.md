@@ -132,6 +132,41 @@ solver geometry as it is, `review` adds the cast seam, `cinematic` the fasteners
 the script applies the builders with the measurements of the part, because where a rib goes is a question about the
 part. The same spool body at the three levels is what the gallery shows side by side.
 
+### A body with a manufacturing history
+
+Everything above adds something from the outside. A part that reads as real is the other way round: it carries the
+record of how it was made. `pp.viz.manufacture` builds that record as operations, each leaving geometry and a line in
+the history:
+
+```python
+from pinneapple_tools.visualization.studio import manufacture as M
+
+body = (M.cast_blank(radius=0.11, height=0.09, draft=2.0)     # a drafted wall, an as-cast skin, a parting line
+        .machine_face([0, 0, 0.09], (0, 0, 1), radius=0.095)  # bright, tool-marked, chamfered rim
+        .bore([0, 0, 0.0944], (0, 0, 1), diameter=0.036)      # a throat and a chamfered mouth
+        .bolt_pattern([0, 0, 0.0944], (0, 0, 1), radius=0.08, count=6)
+        .weld(path)                                           # a bead and the tinted band beside it
+        .finish())                                            # every remaining sharp edge broken
+sc = body.scene
+body.describe(" | ")     # -> "fundido bruto Ø220 × 90 mm, saída 2.0° | face usinada Ø190 mm | ..."
+```
+
+Three things make it a history and not a pile of parts:
+
+* **the materials differ by operation.** A cast skin (`as_cast`) has sand grain and a dull, mottled roughness; a
+  machined face (`machined`) is bright with tool marks in one direction; the band beside a weld (`heat_tint`) is straw
+  and blue. The same light that dulls the casting runs down the cut, and that contrast is what a viewer reads as
+  "manufactured".
+* **the draft is geometry, not texture.** A casting that comes out of a mould cannot have a vertical wall, and
+  `cast_blank` tapers it by `draft` degrees.
+* **the history survives.** Every operation appends to `body.history` and returns the same body, so the part can be
+  rendered at any point of its process — blank, three operations in, finished — and the pictures compare the part, not
+  three different models. `body.describe()` is the line a figure caption can carry.
+
+One honest limit: this is not a mesh kernel. `bore` is **drawn, not cut** — a dark throat under a chamfered mouth,
+which reads as a hole at photographic distance because a hole is a shadow with a bright lip. When a real modeller is in
+the stack, `bore` is the operation that should call it.
+
 ### The edge that is not a builder
 
 Everything above adds a surface beside the body. A chamfer is not that — it is the same body with material cut off its

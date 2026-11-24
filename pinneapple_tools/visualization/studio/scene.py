@@ -50,6 +50,12 @@ MATERIALS: Dict[str, Dict[str, Any]] = {
     "rubber": {"color": [0.05, 0.05, 0.055], "metallic": 0.0, "roughness": 0.85, "shader": "rubber"},
     "industrial_glass": {"color": [0.02, 0.035, 0.05], "metallic": 0.0, "roughness": 0.03, "transmission": 0.9,
                          "clearcoat": 1.0},
+    # a part with a manufacturing history (see .manufacture): the same body, two kinds of skin
+    "as_cast": {"color": [0.26, 0.26, 0.27], "metallic": 0.35, "roughness": 0.72, "shader": "as_cast"},
+    "machined": {"color": [0.78, 0.79, 0.80], "metallic": 1.0, "roughness": 0.16, "shader": "machined"},
+    "heat_tint": {"color": [0.70, 0.71, 0.72], "metallic": 1.0, "roughness": 0.40, "shader": "heat_tint"},
+    "bore": {"color": [0.015, 0.015, 0.017], "metallic": 0.0, "roughness": 0.92},
+    "raw_weld": {"color": [0.55, 0.56, 0.57], "metallic": 1.0, "roughness": 0.45, "shader": "cast_metal"},
     # spacecraft and lunar surface (vehicle CAD, lunar presets)
     "white_paint": {"color": [0.88, 0.88, 0.86], "metallic": 0.0, "roughness": 0.45},
     "anodized_black": {"color": [0.06, 0.06, 0.065], "metallic": 0.6, "roughness": 0.45},

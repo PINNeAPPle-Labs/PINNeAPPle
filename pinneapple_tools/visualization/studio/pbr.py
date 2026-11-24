@@ -239,5 +239,50 @@ def rubber(bpy, mat, st):
     return mat
 
 
+@shader("as_cast")
+def as_cast(bpy, mat, st):
+    """The skin a part has the moment it leaves the mould: a sand grain too fine to see as bumps, a dull roughness that
+    varies in patches, and no highlight sharp enough to read as machined. ``grain`` is the sand; ``mottle`` how much the
+    roughness wanders (a casting is never uniform)."""
+    nt, out, b = _tree(mat)
+    vec = _coords(nt)
+    sand = _noise(nt, vec, float(st.get("grain", 260.0)), detail=8.0, rough=0.7)
+    nt.links.new(_bump(nt, _socket(sand, "Factor", "Fac"), 0.22, 0.0006), b.inputs["Normal"])
+    patch = _noise(nt, vec, float(st.get("mottle", 14.0)), detail=4.0, rough=0.6)
+    _roughness_by(nt, b, _socket(patch, "Factor", "Fac"), 0.9, 1.25, float(st.get("roughness", 0.72)))
+    return mat
+
+
+@shader("machined")
+def machined(bpy, mat, st):
+    """A machined face: tool marks in one direction, a roughness that is low and even, and the fine chatter of a
+    cutter that is never perfectly still. The contrast with :func:`as_cast` on the same part is the point -- it is how
+    a viewer reads which faces were cut and which were merely cast."""
+    nt, out, b = _tree(mat)
+    step = float(st.get("step", 420.0))          # lines per metre: a face mill's step-over
+    vec = _coords(nt, scale=(1.0, step, step))
+    marks = _noise(nt, vec, float(st.get("grain", 12.0)), detail=3.0, rough=0.5)
+    nt.links.new(_bump(nt, _socket(marks, "Factor", "Fac"), 0.10, 0.0004), b.inputs["Normal"])
+    chatter = _noise(nt, _coords(nt, scale=(1.0, 1.0, 1.0)), float(st.get("chatter", 6.0)), detail=2.0, rough=0.4)
+    _roughness_by(nt, b, _socket(chatter, "Factor", "Fac"), 0.85, 1.3, float(st.get("roughness", 0.16)))
+    return mat
+
+
+@shader("heat_tint")
+def heat_tint(bpy, mat, st):
+    """The straw and blue a weld leaves beside the bead: the entry's colour is the metal, ``tint`` the oxide, and the
+    band follows a stretched noise so it is never a painted stripe."""
+    nt, out, metal = _tree(mat)
+    vec = _coords(nt, scale=(1.0, float(st.get("band", 40.0)), float(st.get("band", 40.0))))
+    n = _noise(nt, vec, 30.0, detail=5.0, rough=0.6)
+    mask = _threshold(nt, _socket(n, "Factor", "Fac"), float(st.get("amount", 0.45)), 0.35, hard=False)
+    oxide = nt.nodes.new("ShaderNodeBsdfPrincipled")
+    oxide.inputs["Base Color"].default_value = (*_lin(st.get("tint", (0.36, 0.28, 0.42))), 1.0)
+    oxide.inputs["Metallic"].default_value = 0.85
+    oxide.inputs["Roughness"].default_value = 0.45
+    _mix_over(nt, out, metal, oxide, mask)
+    return mat
+
+
 __all__ = ["SHADERS", "shader", "painted_metal", "brushed_metal", "cast_metal", "oxidized_metal", "concrete",
-           "galvanized", "rubber"]
+           "galvanized", "rubber", "as_cast", "machined", "heat_tint"]

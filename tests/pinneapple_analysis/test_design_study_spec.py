@@ -177,12 +177,18 @@ def test_kinds_beyond_the_two_that_run_are_described_and_refused_with_the_reason
     assert run.to_dict()["spec"]["kind"] == kind
 
 
-def test_the_examples_name_their_model_and_it_is_not_a_solver():
+def test_the_examples_name_their_model_and_say_which_ones_are_not_a_solver():
+    """Three examples are models and say so; the beam is the one whose evaluator *is* a solver, and says that."""
     for name, (make, evaluator) in EXAMPLES.items():
         spec = make()
-        assert spec.evaluator.fidelity == "model", name
-        assert "not a" in spec.metadata["model"], name
+        assert spec.metadata["model"], name
         assert callable(evaluator)
+        if name == "beam":
+            assert spec.evaluator.fidelity == "reference"
+            assert "pinneapple_simulation" in spec.metadata["model"]
+        else:
+            assert spec.evaluator.fidelity == "model", name
+            assert "not a" in spec.metadata["model"], name
 
 
 def test_the_three_examples_are_an_optimisation_pair_and_a_surrogate():

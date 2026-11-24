@@ -17,7 +17,10 @@ What is here:
   baseline, budget, verifier. ``to_dict`` / ``from_dict`` are strict, and an output without a unit is refused;
 * :func:`.study.run_study` — the cycle and its answer (:class:`.study.StudyRun`): Pareto front with each member
   flagged measured or predicted, rejected designs with the reason, the trust verdict and the validated domain.
-  ``optimize`` and ``surrogate`` run today; the other kinds are described and refused with what is missing;
+  ``optimize`` and ``surrogate`` run today; the other kinds are described and refused with what is missing.
+  With a :class:`.loop.StopRule` the cycle runs in rounds, refitting on everything measured each time, and stops on
+  the first number that says another round buys nothing (:attr:`.study.StudyRun.loop` says which);
+* :mod:`.loop` — that rule and its decision (:func:`.loop.decide`), as data: four reasons, each decided on a number;
 * :mod:`.examples` — two optimisation studies (a wing on a lifting-line model, a forced-convection heatsink) and a
   surrogate study, each with the analytic evaluator the tests run.
 
@@ -26,6 +29,7 @@ The schema is the contract the Studio wizard and the Engineer fill (#1036); this
 from __future__ import annotations
 
 from . import examples
+from .loop import StopRule, decide
 from .spec import (
     BASE_KINDS,
     FIDELITIES,
@@ -49,5 +53,5 @@ from .study import RUNNABLE_KINDS, StudyRefused, StudyRun, run_study
 __all__ = [
     "SCHEMA", "KINDS", "KINDS_BEYOND_OPTIMISATION", "BASE_KINDS", "FIDELITIES", "SURROGATE_FAMILIES",
     "RUNNABLE_KINDS", "Quantity", "Variable", "Base", "Evaluator", "Objective", "Limit", "Budget", "Verifier",
-    "Model", "DesignStudy", "StudyRun", "StudyRefused", "run_study", "examples",
+    "Model", "DesignStudy", "StudyRun", "StudyRefused", "run_study", "StopRule", "decide", "examples",
 ]

@@ -19,6 +19,10 @@ from the catalog tool.
   limits: pressure drop and thermal resistance relative to the baseline; the model refuses laminar-invalid channels.
 * :func:`polar_study` / :func:`polar_model` — an airfoil polar over Mach and angle of attack, a **surrogate** study:
   it measures, fits and cross-validates, and does not optimise.
+* :func:`beam_study` / :func:`beam_fdm` — a cantilever box beam whose section is designed against **a numerical
+  solver** (the 4th-order finite-difference Euler-Bernoulli solve of ``pinneapple_simulation.numerical_solvers``,
+  not a closed-form formula): the reference here is solve of the BVP, so a study that verifies on it verifies on a
+  solver. It is the case #79 asks for: mass against deflection, a stress cap and a deflection cap.
 """
 from __future__ import annotations
 
@@ -39,8 +43,8 @@ from .spec import (
     Verifier,
 )
 
-__all__ = ["wing_study", "wing_vlm", "heatsink_study", "heatsink_model", "polar_study", "polar_model", "EXAMPLES",
-           "example"]
+__all__ = ["wing_study", "wing_vlm", "heatsink_study", "heatsink_model", "polar_study", "polar_model", "beam_study",
+           "beam_fdm", "EXAMPLES", "example"]
 
 
 # =========================================================================== the wing
@@ -230,13 +234,85 @@ def polar_study() -> DesignStudy:
         metadata={"example": "polar", "model": "thin-airfoil polar, not a RANS solve"})
 
 
+# =========================================================================== the beam, on a numerical solver
+#: Aluminium 6082-T6, and the load the beam carries: a 2 m cantilever under 2 kN/m, which is the condition the
+#: study never varies.
+_BEAM = {"length_m": 2.0, "load_n_per_m": 2000.0, "E_gpa": 69.0, "rho_kg_m3": 2700.0, "nx": 200}
+
+
+def beam_fdm(params: Mapping[str, float]) -> dict[str, Any]:
+    """A cantilever box beam solved, not approximated: the 4th-order finite-difference Euler-Bernoulli BVP.
+
+    This is the reference the study verifies against — ``pinneapple_simulation.numerical_solvers.beam_bvp_fdm``
+    solves ``E I w'''' = q`` on a 200-point grid for a uniform load (sparse direct solve), and the section
+    (``SectionProps.rectangular``) is the one its stresses are computed with, so ``I``, the extreme-fibre distance
+    and the deflection describe the same beam.
+
+    Variables: section width ``b_mm`` [mm] and height ``h_mm`` [mm]. Outputs: ``mass_kg`` [kg] (2700 kg/m^3 over
+    the volume), ``deflection_mm`` [mm] (the largest |w|) and ``sigma_vm_mpa`` [MPa] (the von Mises stress at the
+    extreme fibre, largest over the span).
+    """
+    from pinneapple_simulation.numerical_solvers.beam_bvp_fdm import (
+        BC_CANTILEVER,
+        SectionProps,
+        solve_euler_bernoulli_beam_1d,
+    )
+
+    b = float(params["b_mm"]) / 1000.0
+    h = float(params["h_mm"]) / 1000.0
+    ell = float(params.get("length_m", _BEAM["length_m"]))
+    if b <= 0 or h <= 0:
+        return {"ok": False, "message": f"a section of {b * 1000:.1f} x {h * 1000:.1f} mm has no area"}
+    section = SectionProps.rectangular(b, h)
+    res = solve_euler_bernoulli_beam_1d(
+        L_m=ell, E_Pa=float(params.get("E_gpa", _BEAM["E_gpa"])) * 1e9, I_m4=section.I_m4,
+        q_N_per_m=float(params.get("load_n_per_m", _BEAM["load_n_per_m"])), nx=int(params.get("nx", _BEAM["nx"])),
+        bc_type=BC_CANTILEVER, section=section,
+        yield_Pa=float(params.get("yield_mpa", 0.0)) * 1e6 if params.get("yield_mpa") else 0.0)
+    return {"mass_kg": float(params.get("rho_kg_m3", _BEAM["rho_kg_m3"])) * section.A_m2 * ell,
+            "deflection_mm": float(abs(res["deflection_m"]).max()) * 1000.0,
+            "sigma_vm_mpa": float(res["sigma_vm_Pa"].max()) / 1e6}
+
+
+def beam_study() -> DesignStudy:
+    """Mass against deflection, a stress cap at 150 MPa and a deflection cap at L/80, on a solver."""
+    return DesignStudy.create(
+        kind="optimize", title="Cantilever box beam: mass against deflection",
+        statement="Find the smallest section that keeps the tip deflection under 30 mm and the von Mises stress "
+                  "under 150 MPa, for a 2 m aluminium cantilever under 2 kN/m.",
+        base=Base(kind="geometry", ref="pp.geometries:cantilever_box",
+                  variables=[Variable("b_mm", 30.0, 80.0, unit="mm", description="section width"),
+                             Variable("h_mm", 50.0, 120.0, unit="mm", description="section height")],
+                  fixed={"length_m": _BEAM["length_m"]},
+                  baseline={"b_mm": 50.0, "h_mm": 80.0},
+                  description="2 m aluminium cantilever, rectangular box section, uniform load"),
+        evaluator=Evaluator(tool="beam.euler_bernoulli_fdm", fidelity="reference",
+                            inputs={"b_mm": "b_mm", "h_mm": "h_mm"},
+                            conditions={"length_m": _BEAM["length_m"], "load_n_per_m": _BEAM["load_n_per_m"],
+                                        "E_gpa": _BEAM["E_gpa"], "rho_kg_m3": _BEAM["rho_kg_m3"], "nx": 200},
+                            outputs=[Quantity("mass_kg", "kg", label="mass"),
+                                     Quantity("deflection_mm", "mm", label="tip deflection"),
+                                     Quantity("sigma_vm_mpa", "MPa", label="von Mises stress")],
+                            settings={"solver": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm",
+                                      "stencil": "4th-order finite differences, sparse direct solve"},
+                            description="Euler-Bernoulli BVP solved by FDM, not a closed-form formula"),
+        objectives=[Objective("mass_kg", "min", label="mass"),
+                    Objective("deflection_mm", "min", label="tip deflection")],
+        constraints=[Limit("sigma_vm_mpa", upper=150.0, label="von Mises stress"),
+                     Limit("deflection_mm", upper=30.0, label="tip deflection")],
+        budget=Budget(max_evaluations=30, n_doe=20, n_verify=2, surrogate_evaluations=400, seed=0),
+        verifier=Verifier(surrogate_target=0.10, min_verified=1, folds=5),
+        model=Model(families=("gp", "quadratic")),
+        metadata={"example": "beam", "model": "the FDM solver in pinneapple_simulation is the reference"})
+
+
 #: The examples by name: ``(spec, evaluator)``, ready for :func:`run_study`.
 EXAMPLES = {"wing": (wing_study, wing_vlm), "heatsink": (heatsink_study, heatsink_model),
-            "polar": (polar_study, polar_model)}
+            "polar": (polar_study, polar_model), "beam": (beam_study, beam_fdm)}
 
 
 def example(name: str) -> tuple[DesignStudy, Any]:
-    """``(spec, evaluator)`` of one example, by name (``wing``, ``heatsink``, ``polar``)."""
+    """``(spec, evaluator)`` of one example, by name (``wing``, ``heatsink``, ``polar``, ``beam``)."""
     try:
         make = EXAMPLES[name][0]
     except KeyError:

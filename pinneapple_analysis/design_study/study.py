@@ -1,4 +1,5 @@
-"""``run_study(spec, evaluator)``: baseline -> DOE -> surrogate -> optimiser -> verification of the chosen designs.
+"""``run_study(spec, evaluator)``: baseline -> DOE -> surrogate -> optimiser -> verification of the chosen designs,
+once, or in rounds while a :class:`.loop.StopRule` says the reference budget still buys something.
 
 The module owns the *study*: how the budget splits, what is measured, what the surrogate may be trusted with, and
 what is signed. It owns no *physics*: the evaluator is injected, so the same run drives a catalog tool, an OpenFOAM
@@ -30,6 +31,15 @@ design with the reason it was rejected (the evaluator refused it, a limit is vio
 validated domain), the trust verdict (:class:`pinneapple_analysis.trust.TrustReport`) and the validated domain. The
 status is ``done`` only when the trust verdict is ``APPROVED``; ``inconclusive`` means the run happened but a critical
 check could not run or failed, and ``refused`` means nothing could be measured. There is no third way to say "fine".
+
+The loop, when a stop rule is given (#79)
+-----------------------------------------
+Passing ``stop=StopRule(...)`` turns the cycle into rounds: each round refits the surrogate on **everything measured
+so far**, optimises on it, and measures what it recommends on the reference evaluator — so the search's share of the
+budget is spent on evidence instead of being left over. :func:`.loop.decide` ends the loop on the first of four
+numbers (the budget, a decision-grade surrogate, an objective that stopped moving, the round cap) and the reason,
+with the value and the limit it compared, is :attr:`StudyRun.loop`. Without a stop rule the cycle runs exactly once,
+which is the run this module has always done.
 
 The evaluator
 -------------
@@ -66,8 +76,9 @@ from typing import Any
 import numpy as np
 
 from .spec import KINDS, DesignStudy
+from .loop import StopRule, decide
 
-__all__ = ["run_study", "StudyRun", "StudyRefused", "RUNNABLE_KINDS"]
+__all__ = ["run_study", "StudyRun", "StudyRefused", "RUNNABLE_KINDS", "StopRule"]
 
 #: The kinds this module runs today. The others are described by the schema and refused with the reason that is
 #: missing, instead of being silently treated as an optimisation.
@@ -155,7 +166,8 @@ class StudyRun:
     ``rows`` are all reference evaluations (baseline, DOE, verifications) in the order they happened; ``pareto`` the
     answer (measured designs first, then the ones the surrogate recommends and the reference has not confirmed);
     ``rejected`` the designs that were refused or violated something, each with its reason; ``trust`` the verdict;
-    ``domain`` the region of the design space the measured designs cover.
+    ``domain`` the region of the design space the measured designs cover; ``loop`` the rounds and the stop decision
+    (``rule``, ``rounds`` and ``stop``: the reason, the value that decided it and the limit it was compared with).
     """
 
     spec: DesignStudy
@@ -172,6 +184,7 @@ class StudyRun:
     trust: dict[str, Any] = field(default_factory=dict)
     domain: dict[str, Any] = field(default_factory=dict)
     budget: dict[str, Any] = field(default_factory=dict)
+    loop: dict[str, Any] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
     wall_s: float = 0.0
 
@@ -185,6 +198,12 @@ class StudyRun:
         return self.status == "done" and self.decision == "APPROVED"
 
     @property
+    def stop(self) -> dict[str, Any]:
+        """Why the loop stopped: ``reason`` (``budget``/``decision``/``no_improvement``/``max_rounds``/
+        ``single_pass``), the ``round`` it stopped on and the ``value`` against the ``limit`` that decided it."""
+        return dict(self.loop.get("stop") or {})
+
+    @property
     def measured(self) -> list[dict[str, Any]]:
         return [r for r in self.rows if r["ok"]]
 
@@ -194,7 +213,9 @@ class StudyRun:
                 "digest": self.spec.digest(), "evaluations": {"used": len(self.rows), **p,
                                                               "max": self.spec.budget.max_evaluations},
                 "n_pareto": len(self.pareto), "n_pareto_verified": sum(1 for d in self.pareto if d["verified"]),
-                "n_rejected": len(self.rejected), "reasons": list(self.reasons), "wall_s": round(self.wall_s, 3)}
+                "n_rejected": len(self.rejected), "rounds": len(self.loop.get("rounds") or []),
+                "stop": str(self.stop.get("reason", "")), "reasons": list(self.reasons),
+                "wall_s": round(self.wall_s, 3)}
 
     def to_dict(self) -> dict[str, Any]:
         return {"spec": self.spec.to_dict(), "summary": self.summary(), "status": self.status,
@@ -202,7 +223,8 @@ class StudyRun:
                 "constraints": list(self.constraints), "rows": list(self.rows), "pareto": list(self.pareto),
                 "rejected": list(self.rejected), "surrogate": dict(self.surrogate),
                 "optimizer": dict(self.optimizer), "trust": dict(self.trust), "domain": dict(self.domain),
-                "budget": dict(self.budget), "notes": list(self.notes), "wall_s": self.wall_s}
+                "budget": dict(self.budget), "loop": dict(self.loop), "notes": list(self.notes),
+                "wall_s": self.wall_s}
 
     def to_markdown(self) -> str:
         """The study as a page a reviewer reads: what was measured, what is on the front, what was rejected, why."""
@@ -240,6 +262,25 @@ class StudyRun:
                 out.append(f"- {out_name}: {row['family']}, held-out nRMSE {f(row['nrmse'])} "
                            f"(target {self.spec.verifier.surrogate_target:g}), R² {f(row['r2'])}, "
                            f"95 % coverage {100 * row['coverage95']:.0f} %")
+        rounds = self.loop.get("rounds") or []
+        if rounds:
+            stop = self.stop
+            out += ["", "## Budgeted loop", "",
+                    f"{len(rounds)} round(s); stopped on **{stop.get('reason', '—')}**"
+                    + (f" after round {stop['round']}" if stop.get("round") else "")
+                    + (f" ({stop['text']})" if stop.get("text") else "") + ".", "",
+                    "| round | evaluations | primary objective (best measured) | gain | held-out nRMSE | regret |",
+                    "|---" * 6 + "|"]
+            for r in rounds:
+                g = r.get("improvement")
+                rg = r.get("regret")
+                prim = r.get("primary") or ""
+                per = (r.get("surrogate") or {}).get(prim) or {}
+                out.append(f"| {r['round']} | {r['evaluations']} of {self.spec.budget.max_evaluations} | "
+                           f"{f(r.get('best', {}).get(prim))} {u.get(prim, '')} | "
+                           + (f"{100 * g:.2f} %" if g is not None else "—") + " | "
+                           + f"{f(per.get('nrmse'))} | "
+                           + (f"{100 * rg:.2f} %" if rg is not None else "—") + " |")
         out += ["", "## Trust checks", ""]
         for c in self.trust.get("checks", []):
             out.append(f"- {c['status']}: {c['name']} (value {f(c['value'])}"
@@ -288,29 +329,71 @@ def _relative_error(pred: float, true: float) -> float:
     return abs(pred - true) / max(abs(true), 1e-12)
 
 
+def _round_record(spec: DesignStudy, rows: list[dict[str, Any]], constraints, index: int, board,
+                  surrogate: Mapping[str, Any], verified: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """What one round cost and what it bought, as a line a reader can check instead of trusting the runner.
+
+    ``best``: the best *measured* value of every objective, over the measured designs that satisfy the limits (or
+    over all of them when none does, so the number is never silently empty). ``regret``: the decision layer's answer
+    over the designs this loop recommended and the reference then measured
+    (:func:`pinneapple_analysis.decision.regret`) — what the recommendation gave up against the best value the
+    reference found among them, as a fraction of that set's spread. The predictions were recorded before the runs,
+    so the regret is measured on predictions the model had not been trained on; it stays ``None`` until the reference
+    has measured at least two recommendations, which is what makes it a number instead of an anecdote.
+    """
+    measured = [r for r in rows if r["ok"]]
+    feasible = [r for r in measured if _satisfies(constraints, r["outputs"])] or measured
+    best: dict[str, float] = {}
+    for o in spec.objectives:
+        vals = [float(r["outputs"][o.output]) for r in feasible]
+        if vals:
+            best[o.output] = min(vals) if o.sense == "min" else max(vals)
+    primary = spec.objectives[0]
+    rec: dict[str, Any] = {"round": index, "evaluations": len(rows), "n_measured": len(measured), "best": best,
+                           "primary": primary.output, "improvement": None, "regret": None, "measured": 0,
+                           "surrogate": {k: {"family": v["family"], "nrmse": v["nrmse"]}
+                                         for k, v in surrogate["outputs"].items()}}
+    checked = [r for r in verified if r.get("predicted") and r["ok"] and primary.output in r["predicted"]]
+    if len(checked) >= 2:
+        from pinneapple_analysis.decision import regret
+        truth = np.array([r["outputs"][primary.output] for r in checked], float)
+        pred = np.array([r["predicted"][primary.output] for r in checked], float)
+        try:
+            r = regret(truth, pred, lower_is_better=primary.sense == "min")
+            rec["regret"] = float(r.relative) if np.isfinite(r.relative) else None
+        except ValueError:                          # fewer usable points than the metric needs
+            rec["regret"] = None
+    return rec
+
+
 def run_study(spec: DesignStudy | Mapping, evaluator: Any, *, progress: Callable[[dict], None] | None = None,
-              workdir: str | None = None) -> StudyRun:
+              workdir: str | None = None, stop: StopRule | Mapping | None = None) -> StudyRun:
     """Run one study. See the module docstring for the cycle; ``progress`` is called with a dict after each step
     (``{"event", "done", "planned", "design", "outputs"}``) and ``workdir`` is the scratch folder handed to a
-    Simulator-shaped evaluator (a temporary one is created and removed when it is not given)."""
+    Simulator-shaped evaluator (a temporary one is created and removed when it is not given).
+
+    ``stop``: the loop's rule (:class:`.loop.StopRule`, or its dict form). One round when it is not given; with it,
+    the study refits on everything measured after each round and keeps measuring the surrogate's recommendation until
+    the rule's number says the budget has bought all it can."""
     spec = spec if isinstance(spec, DesignStudy) else DesignStudy.from_dict(spec)
     if spec.kind not in RUNNABLE_KINDS:
         return _refused(spec, [f"a {spec.kind!r} study is described by the schema "
                                f"({', '.join(KINDS)}) but not run yet: this module runs {', '.join(RUNNABLE_KINDS)}. "
                                "What is missing is named in the issue (#1036), item by item."])
+    rule = stop if stop is None or isinstance(stop, StopRule) else StopRule.from_dict(dict(stop))
     tell = progress or (lambda event: None)
     started = time.perf_counter()
     own_dir = workdir is None
     workdir = workdir or tempfile.mkdtemp(prefix="pinneapple-design-study-")
     try:
-        return _run(spec, _Tool(evaluator, spec), tell, workdir, started)
+        return _run(spec, _Tool(evaluator, spec), tell, workdir, started, rule)
     finally:
         if own_dir:
             shutil.rmtree(workdir, ignore_errors=True)
 
 
 def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: str,
-         started: float) -> StudyRun:
+         started: float, rule: StopRule | None = None) -> StudyRun:
     names = spec.base.names
     plan = spec.budget.planned(len(names))
     space = _space(spec)
@@ -374,135 +457,186 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
                                "surrogate needs at least 3"], "inconclusive", rows=rows, baseline=baseline,
                         wall_s=time.perf_counter() - started)
     targets = spec.outputs or spec.evaluator.output_names
-    X = np.array([[r["params"][k] for k in names] for r in ok_rows], float)
-    Y = {k: np.array([r["outputs"][k] for r in ok_rows], float) for k in targets}
-    U = space.to_unit(X)
-
-    # ------------------------------------------------------------------ 3. surrogate
-    try:
-        from pinneapple_autolab.surrogates import compare_models
-        board = compare_models(U, Y, families=list(spec.model.families), k=spec.verifier.folds,
-                               seed=spec.budget.seed)
-    except ImportError as e:
-        return _refused(spec, [f"the surrogate step needs scikit-learn (pinneapple_autolab.surrogates): {e}. "
-                               "Install the extra (pip install 'pinneapple[timeseries]') or hand the study a "
-                               "different set of families"], "refused", rows=rows, baseline=baseline,
-                        wall_s=time.perf_counter() - started)
-    tell({"event": "surrogate", "done": len(rows), "planned": spec.budget.max_evaluations, "design": None,
-          "ok": None, "outputs": {}, "chosen": dict(board.chosen)})
-    surrogate = {"families": list(spec.model.families), "n_train": board.n_train, "folds": spec.verifier.folds,
-                 "chosen": dict(board.chosen), "outputs": {}, "table": {k: v for k, v in board.table.items()}}
-    for out in targets:
-        fam = board.chosen[out]
-        m = board.table[out][fam]
-        sd = float(np.std(Y[out], ddof=1)) if len(Y[out]) > 1 else 0.0
-        surrogate["outputs"][out] = {"family": fam, "unit": units.get(out, ""), "nrmse": float(m["rmse"] / sd)
-                                     if sd > 0 else float("inf"), "rmse": float(m["rmse"]), "r2": float(m["r2"]),
-                                     "coverage95": float(m["coverage95"]), "rel_mae": float(m["rel_mae"]),
-                                     "sd": sd}
-
-    from pinneapple_autolab.domain import ValidatedDomain
-    from pinneapple_design.design_optimizer.study import VALID, FunctionEvaluator
-    # bounds so the verdicts speak in physical units ("taper_ratio = 0.30 is below the simulated range")
-    domain = ValidatedDomain(U, names, bounds=space.bounds)
-    domain_info = {"n_simulated": int(len(U)), "spacing": float(domain.spacing),
-                   "rule": f"inside the simulated ranges (widened by {domain.margin:g}) and no farther than "
-                           f"{domain.max_ratio:g} x the typical spacing from the nearest measured design"}
-
-    def predict(Xq: np.ndarray) -> dict[str, np.ndarray]:
-        Uq = space.to_unit(np.atleast_2d(Xq))
-        means = {k: v[0] for k, v in board.predict(Uq).items()}
-        means[VALID] = np.array([v.inside for v in domain.assess(Uq)], dtype=bool)
-        return means
-
-    surrogate_evaluator = FunctionEvaluator(predict, targets, name="surrogate", fidelity="surrogate",
-                                            description="the study's cross-validated surrogate")
-    # An optimum sits *on* a limit, and there the surrogate's own error decides feasibility: a design whose predicted
-    # margin is thinner than the model's held-out error is a coin toss, not a feasible design. So the surrogate
-    # optimises against the limits tightened by that error, while the answer is judged against the real ones.
-    tightened, margins = [], {}
-    for c in constraints:
-        rel = max(surrogate["outputs"].get(c.name, {}).get("nrmse", 0.0) or 0.0, 0.0)
-        margins[c.name] = rel
-        up = None if c.upper is None else c.upper - abs(c.upper) * rel
-        lo = None if c.lower is None else c.lower + abs(c.lower) * rel
-        if (up is not None and lo is not None and up <= lo) or rel == 0:
-            tightened.append(c)
-        else:
-            tightened.append(type(c)(c.name, upper=up, lower=lo, unit=c.unit, kind=c.kind, label=c.label))
-    problem = _problem(spec, constraints, surrogate_evaluator)                  # judges the measured designs
-    optimizer_problem = _problem(spec, tightened, surrogate_evaluator)          # the surrogate searches inside
-    if any(m > 0 for m in margins.values()):
-        notes.append("The surrogate searched against the limits tightened by its own held-out error ("
-                     + ", ".join(f"{k} {100 * v:.1f} %" for k, v in margins.items() if v > 0)
-                     + "): a margin thinner than the model's error is not a margin. The answer is judged against "
-                       "the limits as written.")
-
     pareto: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
     optimizer: dict[str, Any] = {}
     verified_designs: list[dict[str, Any]] = []
     ev = None
 
-    def measured_arrays():
-        rs = [r for r in rows if r["ok"]]
-        Xm = np.array([[r["params"][k] for k in names] for r in rs], float)
-        Ym = {k: np.array([r["outputs"][k] for r in rs], float) for k in spec.evaluator.output_names}
-        Ym[VALID] = np.ones(len(rs), bool)
-        return rs, Xm, Ym
+    from pinneapple_autolab.domain import ValidatedDomain
+    from pinneapple_design.design_optimizer.study import VALID, FunctionEvaluator
+    try:
+        from pinneapple_autolab.surrogates import compare_models
+    except ImportError as e:
+        return _refused(spec, [f"the surrogate step needs scikit-learn (pinneapple_autolab.surrogates): {e}. "
+                               "Install the extra (pip install 'pinneapple[timeseries]') or hand the study a "
+                               "different set of families"], "refused", rows=rows, baseline=baseline,
+                        wall_s=time.perf_counter() - started)
 
-    # ------------------------------------------------------------------ 4. optimiser
-    if spec.kind == "optimize":
-        from pinneapple_design.design_optimizer import methods as optimizers
-        result = optimizers.run(optimizer_problem, "nsga2", budget=spec.budget.surrogate_evaluations, seed=spec.budget.seed,
-                                initial=X)
-        optimizer = result.summary() | {"n_initial": int(len(X))}
-        front = result.pareto()
-        ev = result.evaluations
-        # designs the surrogate could reach but the evidence does not cover: rejected with that reason
-        if ev is not None and len(ev):
-            feasible = np.all(ev.G <= 0, 1) & np.all(np.isfinite(ev.F), 1)
-            valid = np.asarray(ev.Y.get(VALID, np.ones(len(ev), bool)), dtype=bool)
-            outside = np.where(feasible & ~valid)[0]
-            if len(outside):
-                verdicts = domain.assess(space.to_unit(ev.X[outside]))
-                for i, v in zip(outside[:_MAX_REJECTED_LISTED], verdicts[:_MAX_REJECTED_LISTED], strict=True):
-                    rejected.append({"params": space.as_dicts(ev.X[i])[0], "source": "domain",
-                                     "outputs": {k: float(ev.Y[k][i]) for k in targets},
-                                     "reasons": v.reasons or ["outside the validated domain"]})
-                if len(outside) > _MAX_REJECTED_LISTED:
-                    rejected.append({"params": {}, "source": "domain", "outputs": {},
-                                     "reasons": [f"{len(outside) - _MAX_REJECTED_LISTED} more predicted designs "
-                                                 "were outside the validated domain"]})
+    def fit_round(measured_rows: list[dict[str, Any]]) -> tuple[Any, dict[str, Any], Any]:
+        """Cross-validate the declared families on **everything measured so far**: the board, its report, and the
+        domain the measured designs cover."""
+        Xm = np.array([[r["params"][k] for k in names] for r in measured_rows], float)
+        Ym = {k: np.array([r["outputs"][k] for r in measured_rows], float) for k in targets}
+        Um = space.to_unit(Xm)
+        board_ = compare_models(Um, Ym, families=list(spec.model.families), k=spec.verifier.folds,
+                                seed=spec.budget.seed)
+        report = {"families": list(spec.model.families), "n_train": board_.n_train, "folds": spec.verifier.folds,
+                  "chosen": dict(board_.chosen), "outputs": {}, "table": {k: v for k, v in board_.table.items()}}
+        for out in targets:
+            fam = board_.chosen[out]
+            m = board_.table[out][fam]
+            sd = float(np.std(Ym[out], ddof=1)) if len(Ym[out]) > 1 else 0.0
+            report["outputs"][out] = {"family": fam, "unit": units.get(out, ""),
+                                      "nrmse": float(m["rmse"] / sd) if sd > 0 else float("inf"),
+                                      "rmse": float(m["rmse"]), "r2": float(m["r2"]),
+                                      "coverage95": float(m["coverage95"]), "rel_mae": float(m["rel_mae"]),
+                                      "sd": sd}
+        # bounds so the verdicts speak in physical units ("taper_ratio = 0.30 is below the simulated range")
+        return board_, report, ValidatedDomain(Um, names, bounds=space.bounds)
 
-        # ------------------------------------------------------------------ 5. verification
-        order = list(front) if len(front) else np.array([i for i in [result.best(0)] if i is not None], int)
-        chosen: list[int] = []
-        for i in order:
-            u = space.to_unit(ev.X[i:i + 1])[0]
-            if all(np.linalg.norm(u - space.to_unit(ev.X[j:j + 1])[0]) > _VERIFY_MIN_DISTANCE for j in chosen):
-                chosen.append(int(i))
-            if len(chosen) >= plan["verify"]:
-                break
-        for i in chosen:
-            d = space.as_dicts(ev.X[i])[0]
-            if len(rows) >= spec.budget.max_evaluations:
-                rejected.append({"params": d, "source": "budget", "outputs": {},
-                                 "reasons": ["the reference budget was spent before this design could be measured"]})
-                continue
-            mean = {k: float(ev.Y[k][i]) for k in targets}
-            std = {}
-            for k in targets:
-                pred = board.predict(space.to_unit(ev.X[i:i + 1])).get(k)
-                std[k] = float(pred[1][0]) if pred is not None else float("nan")
-            row = evaluate(d, "verification", predicted=mean, predicted_std=std)
-            if row["ok"]:
-                verified_designs.append(row)
-    tell({"event": "optimize" if spec.kind == "optimize" else "measured", "done": len(rows),
-          "planned": spec.budget.max_evaluations, "design": None, "ok": None, "outputs": {}})
+    # ------------------------------------------------------------------ 3..5. the rounds
+    primary = spec.objectives[0]
+    rounds: list[dict[str, Any]] = []
+    stop_info: dict[str, Any] = {}
+    incumbent: float | None = None
+    board = domain = problem = None
+    front: np.ndarray = np.zeros(0, int)
+    noted_tightening = False
+    # a surrogate study does not optimise: with no prediction to measure there is nothing for another round to buy
+    max_rounds = 1 if rule is None or spec.kind != "optimize" else rule.max_rounds
+    for index in range(1, max_rounds + 1):
+        measured_rows = [r for r in rows if r["ok"]]
+        board, surrogate, domain = fit_round(measured_rows)
+        tell({"event": "surrogate", "done": len(rows), "planned": spec.budget.max_evaluations, "design": None,
+              "ok": None, "outputs": {}, "chosen": dict(surrogate["chosen"]), "round": index})
+
+        def predict(Xq: np.ndarray, board=board, domain=domain) -> dict[str, np.ndarray]:
+            Uq = space.to_unit(np.atleast_2d(Xq))
+            means = {k: v[0] for k, v in board.predict(Uq).items()}
+            means[VALID] = np.array([v.inside for v in domain.assess(Uq)], dtype=bool)
+            return means
+
+        surrogate_evaluator = FunctionEvaluator(predict, targets, name="surrogate", fidelity="surrogate",
+                                                description="the study's cross-validated surrogate")
+        # An optimum sits *on* a limit, and there the surrogate's own error decides feasibility: a design whose
+        # predicted margin is thinner than the model's held-out error is a coin toss, not a feasible design. So the
+        # surrogate optimises against the limits tightened by that error, while the answer is judged against the real
+        # ones.
+        tightened, margins = [], {}
+        for c in constraints:
+            rel = max(surrogate["outputs"].get(c.name, {}).get("nrmse", 0.0) or 0.0, 0.0)
+            margins[c.name] = rel
+            up = None if c.upper is None else c.upper - abs(c.upper) * rel
+            lo = None if c.lower is None else c.lower + abs(c.lower) * rel
+            if (up is not None and lo is not None and up <= lo) or rel == 0:
+                tightened.append(c)
+            else:
+                tightened.append(type(c)(c.name, upper=up, lower=lo, unit=c.unit, kind=c.kind, label=c.label))
+        problem = _problem(spec, constraints, surrogate_evaluator)                  # judges the measured designs
+        optimizer_problem = _problem(spec, tightened, surrogate_evaluator)          # the surrogate searches inside
+        if any(m > 0 for m in margins.values()) and not noted_tightening:
+            noted_tightening = True
+            notes.append("The surrogate searched against the limits tightened by its own held-out error ("
+                         + ", ".join(f"{k} {100 * v:.1f} %" for k, v in margins.items() if v > 0)
+                         + "): a margin thinner than the model's error is not a margin. The answer is judged "
+                           "against the limits as written.")
+
+        n_before = len(verified_designs)
+        if spec.kind == "optimize":
+            from pinneapple_design.design_optimizer import methods as optimizers
+            result = optimizers.run(optimizer_problem, "nsga2", budget=spec.budget.surrogate_evaluations,
+                                    seed=spec.budget.seed + index - 1,
+                                    initial=np.array([[r["params"][k] for k in names] for r in measured_rows],
+                                                     float))
+            optimizer = result.summary() | {"n_initial": int(len(measured_rows)), "rounds": index}
+            front = result.pareto()
+            ev = result.evaluations
+            # designs the surrogate could reach but the evidence does not cover: rejected with that reason
+            if ev is not None and len(ev):
+                feasible = np.all(ev.G <= 0, 1) & np.all(np.isfinite(ev.F), 1)
+                valid = np.asarray(ev.Y.get(VALID, np.ones(len(ev), bool)), dtype=bool)
+                outside = np.where(feasible & ~valid)[0]
+                if len(outside):
+                    verdicts = domain.assess(space.to_unit(ev.X[outside]))
+                    for i, v in zip(outside[:_MAX_REJECTED_LISTED], verdicts[:_MAX_REJECTED_LISTED], strict=True):
+                        rejected.append({"params": space.as_dicts(ev.X[i])[0], "source": "domain",
+                                         "outputs": {k: float(ev.Y[k][i]) for k in targets},
+                                         "reasons": v.reasons or ["outside the validated domain"]})
+                    if len(outside) > _MAX_REJECTED_LISTED:
+                        rejected.append({"params": {}, "source": "domain", "outputs": {},
+                                         "reasons": [f"{len(outside) - _MAX_REJECTED_LISTED} more predicted designs "
+                                                     "were outside the validated domain"]})
+
+            # ------------------------------------------------------------------ 5. verification
+            # The round measures designs the reference has not seen: spending a reference evaluation on a design
+            # already measured would buy nothing and would show up as a round with no progress.
+            tried = [space.to_unit(np.array([[r["params"][k] for k in names]]))[0] for r in measured_rows]
+            order = list(front) if len(front) else np.array([i for i in [result.best(0)] if i is not None], int)
+            chosen: list[int] = []
+            wanted = plan["verify"] if rule is None else rule.per_round
+            for i in order:
+                u = space.to_unit(ev.X[i:i + 1])[0]
+                if any(np.linalg.norm(u - t) <= _VERIFY_MIN_DISTANCE for t in tried):
+                    continue
+                if all(np.linalg.norm(u - space.to_unit(ev.X[j:j + 1])[0]) > _VERIFY_MIN_DISTANCE for j in chosen):
+                    chosen.append(int(i))
+                if len(chosen) >= wanted:
+                    break
+            for i in chosen:
+                d = space.as_dicts(ev.X[i])[0]
+                if len(rows) >= spec.budget.max_evaluations:
+                    rejected.append({"params": d, "source": "budget", "outputs": {},
+                                     "reasons": ["the reference budget was spent before this design could be "
+                                                 "measured"]})
+                    continue
+                mean = {k: float(ev.Y[k][i]) for k in targets}
+                std = {}
+                for k in targets:
+                    pred = board.predict(space.to_unit(ev.X[i:i + 1])).get(k)
+                    std[k] = float(pred[1][0]) if pred is not None else float("nan")
+                row = evaluate(d, "verification", predicted=mean, predicted_std=std)
+                if row["ok"]:
+                    verified_designs.append(row)
+        tell({"event": "optimize" if spec.kind == "optimize" else "measured", "done": len(rows),
+              "planned": spec.budget.max_evaluations, "design": None, "ok": None, "outputs": {},
+              "round": index})
+
+        # ------------------------------------------------------------------ did the round buy anything?
+        rec = _round_record(spec, rows, constraints, index, board, surrogate, verified_designs)
+        if incumbent is not None:
+            cur = rec["best"].get(primary.output)
+            if cur is not None:
+                den = abs(incumbent) if incumbent else 1.0
+                rec["improvement"] = ((incumbent - cur) if primary.sense == "min" else (cur - incumbent)) / den
+        inc = rec["best"].get(primary.output)
+        if inc is not None:
+            incumbent = inc
+        rec["measured"] = len(verified_designs) - n_before
+        rounds.append(rec)
+        budget_left = spec.budget.max_evaluations - len(rows)
+        if rule is None:
+            stop_info = {"stop": True, "reason": "single_pass", "round": index, "evaluations": len(rows),
+                         "budget_left": int(budget_left), "value": None, "limit": None,
+                         "text": "one cycle: baseline, DOE, surrogate, NSGA-II and the verifications (no StopRule "
+                                 "was given)"}
+        elif spec.kind != "optimize":
+            stop_info = {"stop": True, "reason": "single_pass", "round": index, "evaluations": len(rows),
+                         "budget_left": int(budget_left), "value": None, "limit": None,
+                         "text": f"a {spec.kind} study does not optimise: there is no recommendation for another "
+                                 "round to measure"}
+        else:
+            stop_info = decide(rule, rounds, budget_left=budget_left)
+        tell({"event": "round", "done": len(rows), "planned": spec.budget.max_evaluations, "design": None,
+              "ok": None, "outputs": {}, "round": index, "stop": dict(stop_info)})
+        if stop_info["stop"]:
+            break
 
     # ------------------------------------------------------------------ measured answer
-    _, Xm, Ym = measured_arrays()
+    measured_rows = [r for r in rows if r["ok"]]
+    Xm = np.array([[r["params"][k] for k in names] for r in measured_rows], float)
+    Ym = {k: np.array([r["outputs"][k] for r in measured_rows], float) for k in spec.evaluator.output_names}
+    Ym[VALID] = np.ones(len(measured_rows), bool)
     measured = problem.record(Xm, Ym, fidelity="reference")
     from pinneapple_design.design_optimizer.study import feasibility_report
     front_measured = measured.pareto()
@@ -558,7 +692,10 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
                              "reasons": [r["message"] or "the evaluator refused the design"]})
 
     # ------------------------------------------------------------------ domain and trust
-    domain_info["verified"] = []
+    domain_info = {"n_simulated": int(len(measured_rows)), "spacing": float(domain.spacing),
+                   "rule": f"inside the simulated ranges (widened by {domain.margin:g}) and no farther than "
+                           f"{domain.max_ratio:g} x the typical spacing from the nearest measured design",
+                   "verified": []}
     for r in verified_designs:
         v = domain.assess(space.to_unit(np.array([[r["params"][k] for k in names]])))[0]
         domain_info["verified"].append({"params": dict(r["params"]), "inside": bool(v.inside),
@@ -575,13 +712,17 @@ def _run(spec: DesignStudy, tool: _Tool, tell: Callable[[dict], None], workdir: 
                      "front and nothing had to be verified against a prediction.")
     if not verified_designs and spec.kind == "optimize":
         notes.append("No design was re-measured: the front is the surrogate's, and says so.")
+    loop = {"rule": None if rule is None else rule.to_dict(), "rounds": rounds, "stop": stop_info}
+    if rule is not None and spec.kind == "optimize":
+        notes.append(f"The loop ran {len(rounds)} round(s) of {max_rounds} and stopped on {stop_info['reason']}: "
+                     f"{stop_info.get('text', '')}")
     return StudyRun(spec=spec, status=status, reasons=reasons, created=created, baseline=baseline,
                     constraints=[{"output": c.name, "lower": c.lower, "upper": c.upper, "unit": c.unit,
                                   "kind": c.kind, "label": c.label, "text": c.describe(),
                                   "relative": any(lim.relative for lim in spec.constraints
                                                   if lim.output == c.name)} for c in constraints],
                     rows=rows, pareto=pareto, rejected=rejected, surrogate=surrogate, optimizer=optimizer,
-                    trust=_trust_dict(trust), domain=domain_info,
+                    trust=_trust_dict(trust), domain=domain_info, loop=loop,
                     budget={"planned": plan, "max_evaluations": spec.budget.max_evaluations,
                             "used": len(rows),
                             "wall_s": round(sum(r["wall_s"] for r in rows), 4),

@@ -360,7 +360,7 @@ def train_pod_mlp_calculix(problem, prepared, cfg: dict, seed: int, budget, *, f
     Y = np.stack([_fields(r) for r in tr]).astype(np.float32)                 # (n, 4N)
     fm, fs = _channel_stats(Y)
     fs = np.where(fs > 0, fs, 1.0)
-    Z = (Y - fm) / fs
+    Z = (Y.astype(np.float64) - fm) / fs                                      # float64: the basis is orthonormal to 1e-15
     _, sv, Vt = np.linalg.svd(Z, full_matrices=False)
     K = int(min(cfg["modes"], len(Z), Z.shape[1]))
     basis = Vt[:K]
@@ -778,7 +778,7 @@ class _Structural(Problem):
             return [Check("POD basis orthonormal", "architecture", subj, None, detail="no training fields prepared")]
         fm, fs = _channel_stats(Y)
         fs = np.where(fs > 0, fs, 1.0)
-        Z = (Y - fm) / fs
+        Z = (Y.astype(np.float64) - fm) / fs
         _, sv, Vt = np.linalg.svd(Z, full_matrices=False)
         K = int(min(cfg["modes"], len(Z), Z.shape[1]))
         B = Vt[:K]
@@ -788,9 +788,9 @@ class _Structural(Problem):
         torch.manual_seed(0)
         net = _mlp(4, K, cfg["width"])
         x, t = torch.rand(6, 4), torch.rand(6, K)
-        return [Check("POD basis orthonormal", "architecture", subj, ortho < 1e-6, value=f"{ortho:.1e}", threshold=1e-6),
+        return [Check("POD basis orthonormal", "architecture", subj, ortho < 1e-8, value=f"{ortho:.1e}", threshold=1e-8),
                 Check("POD reconstruction error = sqrt(1 - energy kept)", "architecture", subj,
-                      abs(rec - (1 - energy) ** 0.5) < 1e-5, value=f"{rec:.4f} vs {(1 - energy) ** 0.5:.4f}",
+                      abs(rec - (1 - energy) ** 0.5) < 1e-6, value=f"{rec:.4f} vs {(1 - energy) ** 0.5:.4f}",
                       detail=f"{K} modes of {len(Y)} training fields"),
                 Check("forward shape", "architecture", subj, tuple(net(x).shape) == (6, K), value=tuple(net(x).shape)),
                 Check("parameter count", "architecture", subj, True, value=int(sum(p.numel() for p in net.parameters())),

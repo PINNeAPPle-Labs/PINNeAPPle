@@ -178,11 +178,19 @@ class FactoryQc:
                             reason="" if not duplicated else f"{duplicated} design(s) were evaluated twice"))
 
         for name, wanted in (("converged", "convergence"), ("mesh quality", "mesh")):
-            have = [r for r in rows if self._status(r, name) != NOT_RUN]
-            checks.append(Check(f"{wanted} evidence on every row", SUPPORTS if n and len(have) == n else NOT_RUN,
-                                value=float(len(have)), limit=float(n), source="SimOutcome.meta",
-                                reason="" if n and len(have) == n else
-                                f"{len(have)} of {n} rows record it; the others are kept and flagged"))
+            statuses = [self._status(r, name) for r in rows]
+            if any(s == CONTRADICTS for s in statuses):
+                checks.append(Check(f"{wanted} evidence on every row", CONTRADICTS, critical=False,
+                                    value=float(statuses.count(SUPPORTS)), limit=float(n),
+                                    source="SimOutcome.meta",
+                                    reason=f"{statuses.count(CONTRADICTS)} of {n} rows contradict it; the rows are "
+                                           "kept and the dataset is not signed"))
+            else:
+                recorded = statuses.count(SUPPORTS)
+                checks.append(Check(f"{wanted} evidence on every row", SUPPORTS if n and recorded == n else NOT_RUN,
+                                    value=float(recorded), limit=float(n), source="SimOutcome.meta",
+                                    reason="" if n and recorded == n else
+                                    f"{recorded} of {n} rows record it; the others are kept and flagged"))
 
         return TrustReport(checks, model=f"factory run of {getattr(spec, 'title', '') or 'the case'}")
 

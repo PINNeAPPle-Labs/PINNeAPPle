@@ -240,9 +240,9 @@ def _trust_dict(rep) -> dict[str, Any]:    return {"decision": rep.decisao, "sco
                      "score below it -> REVIEW; else APPROVED (pinneapple_analysis.trust.TrustReport)"}
 
 
-def _refused(spec: DesignStudy, reasons: Sequence[str], **kw) -> FactoryRun:
-    return FactoryRun(spec=spec, status=Status.REFUSED, reasons=list(reasons),
-                      created=datetime.now(timezone.utc).isoformat(timespec="seconds"), **kw)
+def _refused(spec: DesignStudy, reasons: Sequence[str], **kw: Any) -> FactoryRun:
+    kw.setdefault("created", datetime.now(timezone.utc).isoformat(timespec="seconds"))
+    return FactoryRun(spec=spec, status=Status.REFUSED, reasons=list(reasons), **kw)
 
 
 def default_geometry(spec: DesignStudy) -> Geometry:

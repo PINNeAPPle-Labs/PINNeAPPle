@@ -407,7 +407,7 @@ class StudyDatasetWriter:
 
         inputs = [v.name for v in spec.base.variables]
         outputs = spec.evaluator.output_names
-        units = spec.units()
+        units = {**{v.name: v.unit for v in spec.base.variables}, **spec.units()}
         os.makedirs(folder, exist_ok=True)
         ds = build_dataset([r.record() for r in kept], inputs, outputs, units=units,
                            bounds={v.name: (float(v.lower), float(v.upper)) for v in spec.base.variables},

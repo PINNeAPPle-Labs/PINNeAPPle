@@ -745,6 +745,7 @@
     "tests/test_surrogate_library.py",
     "tests/test_surrogate_policy.py",
     "tests/test_surrogate_workflow.py",
+    "tests/test_support_matrix.py",
     "tests/test_tag_solve_kwargs.py",
     "tests/test_team7.py",
     "tests/test_telemetry_conditioning.py",

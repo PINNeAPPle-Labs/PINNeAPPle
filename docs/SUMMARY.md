@@ -65,6 +65,7 @@
   * [Data readiness: may this dataset start a training run?](core_concepts/data_readiness.md)
   * [Reduced-order models](core_concepts/reduced_order_models.md)
 * [Validation status](validation_status.md)
+* [Supported versions: the matrix, and what was actually run](support_matrix.md)
 * [Official benchmark cases: protocol and published table](benchmark_cases.md)
 * [Backlog: this repository, by scope](backlog.md)
 * Guides

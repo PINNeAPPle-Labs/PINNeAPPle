@@ -96,6 +96,11 @@
   "reason": "API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed",
   "status": "not_convertible"
  },
+ "data_readiness": {
+  "domain": "data",
+  "reason": "the data-readiness gate end to end (#1491/#1493): run.py assesses a dataset, refuses it, records an engineer's acceptance and trains. The gate is the step *before* a training node reads its verdict, not a node of its own (see pinneapple_data.readiness in pinneapple_flow/coverage.py), and the run threads a review record created inside the script",
+  "status": "not_convertible"
+ },
  "design_from_intent": {
   "domain": "design",
   "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
@@ -367,8 +372,8 @@
  },
  "rocket_launch": {
   "domain": "flight dynamics",
-  "status": "not_convertible",
-  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet."
+  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet.",
+  "status": "not_convertible"
  },
  "science": {
   "domain": "science",

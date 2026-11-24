@@ -97,6 +97,9 @@ SECTION_OF: dict[str, str] = {
     "potential.eos_tree": "equations", "potential.hyperelastic": "equations",
     "potential.double_pendulum": "solvers", "potential.machine_coenergy": "validation",
     "potential.co2_surrogates": "surrogates",
+    # One season of an underground gas store runs the reference simulator end to end (#1083): it belongs where the
+    # solvers are, not in the collapsed library section, which is for the generated calls that have no place of their own.
+    "ugs.storage_season": "solvers",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)

@@ -404,6 +404,7 @@
     "tests/test_dashboard.py",
     "tests/test_data_apps.py",
     "tests/test_data_assimilation_conservation.py",
+    "tests/test_data_registry.py",
     "tests/test_dataset_audit.py",
     "tests/test_decision_adapter_tree_arena.py",
     "tests/test_decision_catalog_families.py",

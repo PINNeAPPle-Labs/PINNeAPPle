@@ -205,13 +205,20 @@ class RunContext:
 
     # -- datasets ----------------------------------------------------------
     def dataset(self, name: str, *, description: str = "", units: dict[str, str] | None = None,
-                shard_size: int = 256, license: str = "") -> DatasetWriter:
-        """A dataset of samples (dicts of arrays and scalars) produced by this run, written in shards."""
+                shard_size: int = 256, license: str = "",
+                provenance: dict[str, Any] | None = None) -> DatasetWriter:
+        """A dataset of samples (dicts of arrays and scalars) produced by this run, written in shards.
+
+        ``provenance`` is merged into the card's provenance (the experiment, run id and params are always there),
+        which is how a run records where its data came from: ``pinneapple_data.registry.record(ctx, "pdebench")``
+        puts the licence, the citation and the checksums of a registered dataset there (#528).
+        """
         if name not in self.datasets:
             self.datasets[name] = DatasetWriter(
                 os.path.join(self.dir, "datasets", name), name=name, description=description, units=units or {},
                 shard_size=shard_size, license=license,
-                provenance={"experiment": self.experiment, "run_id": self.run_id, "params": self.params})
+                provenance={"experiment": self.experiment, "run_id": self.run_id, "params": self.params,
+                            **dict(provenance or {})})
         return self.datasets[name]
 
     def close(self) -> None:

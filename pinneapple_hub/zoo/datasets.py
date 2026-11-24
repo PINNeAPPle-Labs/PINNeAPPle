@@ -162,7 +162,14 @@ def _read(name: str, offline: bool | None, split: str | None = None) -> dict[str
 
 
 def load(name: str, split: str | None = None, *, offline: bool | None = None):
-    """A split (:class:`DatasetSplit`), or ``{split: DatasetSplit}`` for all of them when ``split`` is None."""
+    """A split (:class:`DatasetSplit`), or ``{split: DatasetSplit}`` for all of them when ``split`` is None.
+
+    A name that is not a zoo dataset is looked up in :mod:`pinneapple_data.registry` (#528), so
+    ``pp.datasets.load("pdebench")`` answers with that entry's licence and the reader that reads it instead of a bare
+    ``KeyError``; the zoo stays the only place its own artifacts are read from.
+    """
+    if name not in list():
+        return _from_registry(name, split, offline)
     ds_info = info(name)
     if split is not None and split not in ds_info.splits:
         raise KeyError(f"{name} has no split {split!r}; splits: {sorted(ds_info.splits)}")
@@ -172,6 +179,25 @@ def load(name: str, split: str | None = None, *, offline: bool | None = None):
     if split not in data:
         raise KeyError(f"{name} has no split {split!r}; splits: {sorted(data)}")
     return DatasetSplit(data[split], name, split, ds_info)
+
+
+def _from_registry(name: str, split: str | None, offline: bool | None):
+    """The non-zoo name, through the registry: an entry loads, an entry without a reader says why, and an unknown name
+    still raises the ``KeyError`` a caller expects."""
+    entry = None
+    try:
+        from pinneapple_data import registry as R
+        entry = R.get(name)
+    except KeyError:
+        entry = None
+    except Exception:                            # noqa: BLE001 - a registry that does not import is not a zoo error
+        entry = None
+    if entry is None:
+        raise KeyError(f"{name!r} is not a zoo dataset (see pp.zoo.datasets.list()) nor a registry entry "
+                       f"(see pinneapple_data.registry.list())") from None
+    if entry.kind != "dataset":
+        raise KeyError(f"{name!r} is a {entry.kind} in the registry, not a dataset")
+    return R.load(name, split=split, offline=offline, quiet=True)
 
 
 def status(name: str) -> dict[str, str]:

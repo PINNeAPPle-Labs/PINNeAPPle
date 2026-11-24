@@ -23,7 +23,8 @@ of filling the hole.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Iterable, List, Optional
+from collections.abc import Iterable
+from typing import Any
 
 from .graph import Artifact, Lineage
 
@@ -40,7 +41,7 @@ MODEL_KEYS = ("metrics", "stage", "n_params", "width")
 DATASET_KEYS_KEPT = ("field_names", "stats", "n_samples")
 
 
-def _names(value: Any) -> List[str]:
+def _names(value: Any) -> list[str]:
     """One metadata value as a list of names: a string, a list of them, or the keys of a dict."""
     if value is None:
         return []
@@ -53,7 +54,7 @@ def _names(value: Any) -> List[str]:
     return [str(value)]
 
 
-def _json(path: str) -> Dict[str, Any]:
+def _json(path: str) -> dict[str, Any]:
     try:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
@@ -63,15 +64,15 @@ def _json(path: str) -> Dict[str, Any]:
 
 
 def _store(registry: Any) -> Any:
-    from pinneapple_registry import ArtifactRegistry          # local: pinneapple_data does not depend on it
+    from pinneapple_registry import ArtifactRegistry  # local: pinneapple_data does not depend on it
 
     return registry if not isinstance(registry, str) else ArtifactRegistry(registry)
 
 
-def _problem_nodes(registry: Any, problem_id: str) -> tuple[List[Artifact], Optional[str]]:
+def _problem_nodes(registry: Any, problem_id: str) -> tuple[list[Artifact], str | None]:
     """One node per stored version of the problem, and the id of the newest (the one the other records link to)."""
-    out: List[Artifact] = []
-    newest: Optional[str] = None
+    out: list[Artifact] = []
+    newest: str | None = None
     for version in registry.problems.versions(problem_id):
         folder = f"{registry.problems.root}/{problem_id}/{version}"
         preset = _json(f"{folder}/preset.json")
@@ -84,14 +85,14 @@ def _problem_nodes(registry: Any, problem_id: str) -> tuple[List[Artifact], Opti
     return out, newest
 
 
-def _dataset_nodes(registry: Any, problem_id: str, problem: Optional[str]) -> tuple[List[Artifact], Dict[str, str]]:
+def _dataset_nodes(registry: Any, problem_id: str, problem: str | None) -> tuple[list[Artifact], dict[str, str]]:
     """One node per stored dataset — one simulation run's worth of arrays — plus the geometry each one names.
 
     Returns the nodes and the lookup from a name a model metadata may use (``scenario`` or ``problem/scenario``) to
     the node id.
     """
-    nodes: List[Artifact] = []
-    index: Dict[str, str] = {}
+    nodes: list[Artifact] = []
+    index: dict[str, str] = {}
     for scenario in registry.datasets.list_scenarios(problem_id):
         meta = _json(f"{registry.datasets.root}/{problem_id}/{scenario}/metadata.json")
         version = str(meta.get("version") or meta.get("created_at") or scenario)
@@ -113,13 +114,13 @@ def _dataset_nodes(registry: Any, problem_id: str, problem: Optional[str]) -> tu
     return nodes, index
 
 
-def _model_nodes(registry: Any, problem_id: str, datasets: Dict[str, str], problem: Optional[str],
-                 experiments: Dict[str, str]) -> List[Artifact]:
+def _model_nodes(registry: Any, problem_id: str, datasets: dict[str, str], problem: str | None,
+                 experiments: dict[str, str]) -> list[Artifact]:
     """One node per stored model version, linked to the datasets its metadata names and to its training run."""
-    out: List[Artifact] = []
+    out: list[Artifact] = []
     for version in registry.models.versions(problem_id):
         meta = _json(f"{registry.models.root}/{problem_id}/{version}/metadata.json") or {}
-        named: List[str] = []
+        named: list[str] = []
         for key in DATASET_KEYS:
             named += _names(meta.get(key))
         inputs = list(dict.fromkeys(datasets[n] for n in named if n in datasets))
@@ -140,7 +141,7 @@ def _model_nodes(registry: Any, problem_id: str, datasets: Dict[str, str], probl
     return out
 
 
-def _verdict(report: Dict[str, Any]) -> str:
+def _verdict(report: dict[str, Any]) -> str:
     """One word for the outcome, from whichever shape the report was stored in.
 
     A ``ValidationReport.to_dict()`` carries ``passed``; a trust report carries ``status``; a hand-written record may
@@ -155,7 +156,7 @@ def _verdict(report: Dict[str, Any]) -> str:
     return ""
 
 
-def _validation_nodes(registry: Any, problem_id: str, models: List[Artifact]) -> List[Artifact]:
+def _validation_nodes(registry: Any, problem_id: str, models: list[Artifact]) -> list[Artifact]:
     """The validation record stored with each model version: its trust report, or its ``validation`` block.
 
     Both shapes are read because both are written in the library: ``ModelStore.save(trust_report=...)`` stores a
@@ -163,7 +164,7 @@ def _validation_nodes(registry: Any, problem_id: str, models: List[Artifact]) ->
     ``pinneapple_analysis.validation`` — under the same key or under ``validation``. The node keeps the verdict and
     the counts of either, so a trace says which record backed the version and how it came out.
     """
-    out: List[Artifact] = []
+    out: list[Artifact] = []
     for model in models:
         meta = _json(f"{registry.models.root}/{problem_id}/{model.version}/metadata.json") or {}
         report = meta.get("trust_report") or meta.get("validation")
@@ -171,10 +172,10 @@ def _validation_nodes(registry: Any, problem_id: str, models: List[Artifact]) ->
             continue
         report = report if isinstance(report, dict) else (
             report.to_dict() if hasattr(report, "to_dict") else {"raw": str(report)})
-        counts: Dict[str, Any] = {k: report[k] for k in ("n_passed", "n_failed", "n_not_run") if k in report}
+        counts: dict[str, Any] = {k: report[k] for k in ("n_passed", "n_failed", "n_not_run") if k in report}
         if isinstance(report.get("checks"), list):
             counts["checks"] = len(report["checks"])
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         verdict = _verdict(report)
         if verdict:
             params["verdict"] = verdict
@@ -187,10 +188,10 @@ def _validation_nodes(registry: Any, problem_id: str, models: List[Artifact]) ->
     return out
 
 
-def _experiment_nodes(registry: Any, problem_id: str, problem: Optional[str]) -> tuple[List[Artifact], Dict[str, str]]:
+def _experiment_nodes(registry: Any, problem_id: str, problem: str | None) -> tuple[list[Artifact], dict[str, str]]:
     """One node per training run in the experiment store, and the lookup ``problem#run`` -> node id."""
-    nodes: List[Artifact] = []
-    index: Dict[str, str] = {}
+    nodes: list[Artifact] = []
+    index: dict[str, str] = {}
     try:
         stored = registry.experiments.list_runs(problem_id)
     except Exception:                                       # noqa: BLE001 - a store that cannot answer has no runs
@@ -206,8 +207,8 @@ def _experiment_nodes(registry: Any, problem_id: str, problem: Optional[str]) ->
     return nodes, index
 
 
-def from_registry(registry: Any, problem_id: str, *, prediction: Optional[str] = None,
-                  model_version: Optional[str] = None) -> Lineage:
+def from_registry(registry: Any, problem_id: str, *, prediction: str | None = None,
+                  model_version: str | None = None) -> Lineage:
     """Build the lineage of one problem from the four stores: the problem versions, the datasets (the simulation runs)
     and the geometry they name, the model versions with the datasets and the run they came from, and the validation
     record of each model version.
@@ -223,7 +224,7 @@ def from_registry(registry: Any, problem_id: str, *, prediction: Optional[str] =
     models = _model_nodes(reg, problem_id, dataset_index, newest, experiment_index)
     validations = _validation_nodes(reg, problem_id, models)
 
-    artifacts: List[Artifact] = problems + experiments + datasets + models + validations
+    artifacts: list[Artifact] = problems + experiments + datasets + models + validations
 
     if prediction:
         source = next((m for m in models if model_version and m.version == model_version), None)

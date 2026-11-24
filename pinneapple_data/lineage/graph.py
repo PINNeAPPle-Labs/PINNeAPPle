@@ -13,8 +13,9 @@ import datetime as _dt
 import hashlib
 import re
 from collections import deque
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
+from typing import Any
 
 KINDS = ["problem", "geometry", "mesh", "simulation", "result", "experiment", "post-processing", "dataset", "model",
          "prediction", "validation", "report", "code", "file"]
@@ -39,21 +40,21 @@ class Artifact:
     id: str
     kind: str = "file"
     name: str = ""
-    file: Optional[str] = None
-    version: Optional[str] = None
-    software: Optional[str] = None
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    timestamp: Optional[str] = None            # ISO 8601
-    hash: Optional[str] = None                 # sha256 (hex, full or prefix) of the file as recorded
-    owner: Optional[str] = None
-    origin: Optional[str] = None               # where it lives / came from (path, URL, system)
-    inputs: List[str] = field(default_factory=list)
-    item: Optional[str] = None                 # the thing this is a revision of ("bracket CAD"); revisions share it
-    notes: Optional[str] = None
-    detected: Optional[str] = None             # how it was found (auto-detection rule), if not declared
-    actual_hash: Optional[str] = None          # sha256 of the uploaded file, when the file was uploaded
+    file: str | None = None
+    version: str | None = None
+    software: str | None = None
+    parameters: dict[str, Any] = field(default_factory=dict)
+    timestamp: str | None = None            # ISO 8601
+    hash: str | None = None                 # sha256 (hex, full or prefix) of the file as recorded
+    owner: str | None = None
+    origin: str | None = None               # where it lives / came from (path, URL, system)
+    inputs: list[str] = field(default_factory=list)
+    item: str | None = None                 # the thing this is a revision of ("bracket CAD"); revisions share it
+    notes: str | None = None
+    detected: str | None = None             # how it was found (auto-detection rule), if not declared
+    actual_hash: str | None = None          # sha256 of the uploaded file, when the file was uploaded
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {k: v for k, v in asdict(self).items() if v not in (None, "", [], {})}
 
     def completeness(self) -> float:
@@ -69,7 +70,7 @@ class Artifact:
         return act.startswith(rec[:16]) or rec.startswith(act[:16])
 
 
-def _ts(s: Optional[str]) -> Optional[_dt.datetime]:
+def _ts(s: str | None) -> _dt.datetime | None:
     if not s:
         return None
     try:
@@ -86,7 +87,7 @@ def sha256(b: bytes) -> str:
 class Lineage:
     def __init__(self, artifacts: Iterable[Artifact] = (), project: str = ""):
         self.project = project
-        self.nodes: Dict[str, Artifact] = {}
+        self.nodes: dict[str, Artifact] = {}
         for a in artifacts:
             self.add(a)
 
@@ -110,7 +111,7 @@ class Lineage:
         return a
 
     @classmethod
-    def from_json(cls, obj: Dict[str, Any]) -> "Lineage":
+    def from_json(cls, obj: dict[str, Any]) -> Lineage:
         if "artifacts" in obj:
             arts = []
             for raw in obj["artifacts"]:
@@ -131,7 +132,7 @@ class Lineage:
             parts = solver.split()
             solver = ({"software": " ".join(parts[:-1]), "version": parts[-1]}
                       if len(parts) > 1 and re.match(r"^v?\d", parts[-1]) else {"software": solver})
-        prev: Optional[str] = None
+        prev: str | None = None
         for key, kind in CHAIN_KEYS:
             if key not in obj:
                 continue
@@ -151,21 +152,21 @@ class Lineage:
                              + ", ".join(k for k, _ in CHAIN_KEYS))
         return g
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         return {"schema": "pinneapple.lineage/1", "project": self.project,
                 "artifacts": [a.to_dict() for a in self.nodes.values()]}
 
     # ------------------------------------------------------------------ structure
-    def edges(self) -> List[Tuple[str, str]]:
+    def edges(self) -> list[tuple[str, str]]:
         return [(i, a.id) for a in self.nodes.values() for i in a.inputs if i in self.nodes]
 
-    def children(self, aid: str) -> List[str]:
+    def children(self, aid: str) -> list[str]:
         return [a.id for a in self.nodes.values() if aid in a.inputs]
 
-    def _cycles(self) -> List[List[str]]:
-        color: Dict[str, int] = {}
-        stack: List[str] = []
-        found: List[List[str]] = []
+    def _cycles(self) -> list[list[str]]:
+        color: dict[str, int] = {}
+        stack: list[str] = []
+        found: list[list[str]] = []
 
         def visit(n: str):
             color[n] = 1
@@ -182,11 +183,11 @@ class Lineage:
                 visit(n)
         return found
 
-    def layers(self) -> Dict[str, int]:
+    def layers(self) -> dict[str, int]:
         """Column of each node for a left-to-right layout (longest path from a source); cycles broken."""
-        depth: Dict[str, int] = {}
+        depth: dict[str, int] = {}
 
-        def d(n: str, seen: Set[str]) -> int:
+        def d(n: str, seen: set[str]) -> int:
             if n in depth:
                 return depth[n]
             if n in seen:
@@ -200,7 +201,7 @@ class Lineage:
         return depth
 
     # ------------------------------------------------------------------ questions
-    def upstream(self, aid: str) -> List[str]:
+    def upstream(self, aid: str) -> list[str]:
         """Everything this artifact was produced from, nearest first ("how was this produced?")."""
         out, q, seen = [], deque(self.nodes[aid].inputs), {aid}
         while q:
@@ -212,7 +213,7 @@ class Lineage:
             q.extend(self.nodes[n].inputs)
         return out
 
-    def downstream(self, aid: str) -> List[str]:
+    def downstream(self, aid: str) -> list[str]:
         """Everything derived from this artifact ("what does a change here affect?")."""
         out, q, seen = [], deque(self.children(aid)), {aid}
         while q:
@@ -224,14 +225,14 @@ class Lineage:
             q.extend(self.children(n))
         return out
 
-    def sources_of_kind(self, aid: str, kind: str) -> List[str]:
+    def sources_of_kind(self, aid: str, kind: str) -> list[str]:
         """E.g. which simulations a model was trained on: upstream artifacts of a kind."""
         return [n for n in self.upstream(aid) if self.nodes[n].kind == kind]
 
-    def brief(self, aid: str) -> Dict[str, Any]:
+    def brief(self, aid: str) -> dict[str, Any]:
         """The short form of an artifact, for an answer: what it is, which version, where it lives."""
         a = self.nodes[aid]
-        d: Dict[str, Any] = {"id": a.id, "kind": a.kind, "name": a.name or a.id}
+        d: dict[str, Any] = {"id": a.id, "kind": a.kind, "name": a.name or a.id}
         for f in ("version", "file", "software", "timestamp", "hash", "origin", "item"):
             if getattr(a, f):
                 d[f] = getattr(a, f)
@@ -239,7 +240,7 @@ class Lineage:
             d["derived_from"] = list(a.inputs)
         return d
 
-    def trace(self, aid: str) -> Dict[str, Any]:
+    def trace(self, aid: str) -> dict[str, Any]:
         """Everything this prediction was built from, grouped by the question it answers (issue #156).
 
         ``{"prediction": ..., "problem": [...], "geometry": [...], "simulations": [...], "datasets": [...],
@@ -258,8 +259,8 @@ class Lineage:
         validations = [n for n in upstream if self.nodes[n].kind == "validation"]
         for model in [n for n in upstream if self.nodes[n].kind == "model"]:
             validations += [c for c in self.children(model) if self.nodes[c].kind == "validation"]
-        out: Dict[str, Any] = {"prediction": self.brief(aid)}
-        missing: List[str] = []
+        out: dict[str, Any] = {"prediction": self.brief(aid)}
+        missing: list[str] = []
         for group in TRACE_GROUPS:
             if group == "validation":
                 found = [self.brief(n) for n in dict.fromkeys(validations)]
@@ -273,8 +274,8 @@ class Lineage:
         return out
 
     # ------------------------------------------------------------------ checks
-    def checks(self) -> List[Dict[str, Any]]:
-        out: List[Dict[str, Any]] = []
+    def checks(self) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
         add = lambda status, rule, aid, title, detail="", fix="": out.append(  # noqa: E731
             {"status": status, "rule": rule, "artifact": aid, "title": title, "detail": detail, "fix": fix})
         for a in self.nodes.values():
@@ -314,7 +315,7 @@ class Lineage:
             if a.kind not in ("dataset", "model", "prediction"):
                 continue                                              # comparisons/reports mix revisions on purpose
             up = self.upstream(a.id)
-            by_item: Dict[str, Set[str]] = {}
+            by_item: dict[str, set[str]] = {}
             for n in up:
                 it = self.nodes[n].item
                 if it:
@@ -334,15 +335,15 @@ class Lineage:
         return out
 
     # ------------------------------------------------------------------ exports
-    def flags(self, checks: Optional[List[Dict[str, Any]]] = None) -> Dict[str, str]:
+    def flags(self, checks: list[dict[str, Any]] | None = None) -> dict[str, str]:
         """Worst check status per artifact: ``{artifact id: "fail" | "warn"}`` (artifacts that pass are absent)."""
-        flag: Dict[str, str] = {}
+        flag: dict[str, str] = {}
         for c in self.checks() if checks is None else checks:
             if c.get("artifact") and c["status"] in ("fail", "warn") and flag.get(c["artifact"]) != "fail":
                 flag[c["artifact"]] = c["status"]
         return flag
 
-    def report(self) -> Dict[str, Any]:
+    def report(self) -> dict[str, Any]:
         """Everything a viewer needs: the nodes (each with its layer, completeness, outputs, flag and hash
         verification), the edges, the checks, the overall status (PASS / WARNING / FAIL) and a summary (artifact and
         link counts, artifacts per kind, verified hashes, mean completeness)."""
@@ -365,10 +366,10 @@ class Lineage:
                             "completeness": round(sum(a.completeness() for a in self.nodes.values())
                                                   / max(len(self.nodes), 1), 2)}}
 
-    def to_prov(self) -> Dict[str, Any]:
+    def to_prov(self) -> dict[str, Any]:
         """W3C PROV-JSON: artifacts as entities, their production as activities, owners as agents."""
         ns = "pinneapple"
-        doc: Dict[str, Any] = {"prefix": {ns: "https://pinneapple.org/lineage#"}, "entity": {}, "activity": {},
+        doc: dict[str, Any] = {"prefix": {ns: "https://pinneapple.org/lineage#"}, "entity": {}, "activity": {},
                                "agent": {}, "wasDerivedFrom": {}, "wasGeneratedBy": {}, "wasAttributedTo": {},
                                "used": {}}
         k = 0

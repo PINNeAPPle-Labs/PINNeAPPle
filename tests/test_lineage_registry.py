@@ -35,7 +35,7 @@ def _model(registry, **metadata):
 def test_a_prediction_traces_back_to_all_six_groups(registry):
     registry.problems.save_from_preset(PROBLEM, "pipe_flow_3d", diameter=0.05)
     scenario = _dataset(registry, geometry="pipe_rev_B")
-    version = _model(registry, datasets=[scenario], metrics={"rmse": 0.02})
+    _model(registry, datasets=[scenario], metrics={"rmse": 0.02})
     newest = registry.models.save(PROBLEM, torch.nn.Linear(2, 1), metadata={"datasets": [scenario]},
                                   trust_report={"status": "PASS", "checks": 4})
 

@@ -371,6 +371,22 @@ class AirfoilProblem(Problem):
             cols.append(Column(f"p_{s}", f"Pressure rel. L2, {lab} (n = {n[s]})", s, "p"))
         return cols
 
+    def validity_domain(self, prepared=None):
+        """Where the case holds (#58): the generators' own ranges -- the angle bins the campaign samples and the CST
+        box the sections are drawn from. Outside them sits the OOD set: AoA -4 deg and NACA sections outside the box.
+        """
+        from pinneapple_design.aero.geometry import BOUNDS, LABELS
+
+        from ..validity import ValidityDomain
+        bounds = {"angle of attack [deg]": (float(min(b[0] for b in ALPHA_BINS)), float(max(b[1] for b in ALPHA_BINS)))}
+        for label, (lo, hi) in zip(LABELS.values(), BOUNDS, strict=True):
+            bounds[label] = (float(lo), float(hi))
+        return ValidityDomain(
+            "airfoil", bounds,
+            source="declared by the case's generator: ALPHA_BINS for the angle and pinneapple_design.aero.geometry."
+                   "BOUNDS for the CST parameters",
+            note="the OOD set is generated outside it (AoA -4 deg, sections outside the CST box)")
+
     def main_metric(self):
         return "test4", "cd"
 

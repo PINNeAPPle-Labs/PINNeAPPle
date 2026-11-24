@@ -27,6 +27,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
+from pinneapple_core.errors import BadValue, MissingExtra, install_hint
 from pinneapple_neural._licencas import require_research_use
 
 CHECKED_ON = "2026-09-24"
@@ -444,14 +445,16 @@ def fetch(resource_id: str, *, allow_patterns=None, local_dir: Optional[str] = N
     """
     res = require_allowed(resource_id)
     if res.hf_repo is None:
-        raise ValueError(
-            f"{res.name} is not hosted on the Hugging Face Hub; get it from {res.url} "
-            "(see PINNeAPPle-CFD/docs/7.Recursos-publicos.md section 8 for the access plan)."
+        raise BadValue(
+            f"{res.name} is not hosted on the Hugging Face Hub, so fetch() cannot download it",
+            fix=f"get it from {res.url} (see PINNeAPPle-CFD/docs/7.Recursos-publicos.md section 8 for the access "
+                f"plan), and hand the local path to the loader",
         )
     try:
         from huggingface_hub import snapshot_download
     except ImportError as e:
-        raise ImportError('fetch requires the "hub" extra: pip install "pinneapple[hub]"') from e
+        raise MissingExtra("fetch() downloads from the Hub, which needs huggingface_hub",
+                           fix=install_hint("hub", "huggingface_hub")) from e
     repo_id, repo_type = res.hf_repo
     return snapshot_download(repo_id=repo_id, repo_type=repo_type, allow_patterns=allow_patterns,
                              local_dir=local_dir, token=token, revision=revision)

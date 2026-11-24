@@ -24,6 +24,8 @@ from typing import Any
 
 import numpy as np
 
+from pinneapple_core.errors import NotSupported, UnknownName
+
 __all__ = ["Check", "Column", "Problem", "Method", "register_problem", "register_method", "get_problem",
            "get_method", "problems", "methods"]
 
@@ -128,6 +130,33 @@ class Problem:
         "val" (the search instance), "final" (every budget level), "full_only" (full budget only), "seed0_only"."""
         return {"val": [], "final": [], "full_only": [], "seed0_only": []}
 
+    def validity_domain(self, prepared: Path | None = None):
+        """Where this case holds (#58): a ``validity.ValidityDomain``, or ``None`` if the case has not declared one.
+
+        ``None`` is printed in the report with :attr:`validity_note` instead of being silently omitted: a case that
+        does not say where it holds has not said anything about extrapolation either, and the note says which of the
+        two it is.
+        """
+        return None
+
+    #: Why this case does not declare a validity domain, when it does not. A case with neither a domain nor a note is
+    #: reported as "not stated, no reason given", which is the state #58 exists to remove.
+    validity_note: str = ("not declared by this case: its inputs are configuration files the user brings, so the "
+                         "envelope has to come from the campaign that defines them (#58)")
+
+    def extrapolation(self) -> tuple[tuple[str, str], tuple[str, str], float] | None:
+        """``((inside set, metric), (outside set, metric), max factor)`` for the extrapolation column (#58).
+
+        The default pairs the case's own in-domain and out-of-domain sets, which every benchmark problem evaluates
+        anyway; ``extrapolation_factor`` sets how much worse the out-of-domain error may be before the column says the
+        model does not hold there.
+        """
+        main = self.main_metric() if hasattr(self, "main_metric") else None
+        ood = self.ood_metric() if hasattr(self, "ood_metric") else None
+        return (main, ood, self.extrapolation_factor) if main and ood else None
+
+    extrapolation_factor: float = 2.0
+
     def main_metric_for(self, method_id: str) -> tuple[str, str] | None:
         """The (set, metric) that decides "did not converge", the seed spread and "budget-limited" for one method
         (default: the problem's ``main_metric``; a problem whose methods predict different things overrides it)."""
@@ -185,13 +214,17 @@ class Method:
     def space(self, problem: Problem) -> dict[str, list]:
         sp = getattr(problem, f"space_{self.id}", None)
         if sp is None:
-            raise NotImplementedError(f"{self.id} has no hyper-parameter space for {problem.id}")
+            raise NotSupported(f"{self.id} declares no hyper-parameter grid for {problem.id}",
+                               fix=f"train it without a search (no search over space), or add space_{self.id}() "
+                                   f"to {type(problem).__name__}")
         return sp() if callable(sp) else sp
 
     def train(self, problem: Problem, prepared: Path, cfg: dict, seed: int, budget, **job) -> dict:
         hook = getattr(problem, f"train_{self.id}", None)
         if hook is None:
-            raise NotImplementedError(f"{self.id} cannot train on {problem.id}")
+            raise NotSupported(f"{self.id} has no implementation on {problem.id}",
+                               fix=f"pick a pair the problem implements (see problem.pairs()), or add "
+                                   f"train_{self.id}() to {type(problem).__name__}")
         return hook(prepared, cfg, seed, budget, **job)
 
     def architecture_checks(self, problem: Problem, prepared: Path, cfg: dict) -> list[Check]:
@@ -227,7 +260,8 @@ def get_problem(p) -> Problem:
         return p
     _builtins()
     if p not in _PROBLEMS:
-        raise KeyError(f"unknown problem {p!r}; registered: {sorted(_PROBLEMS)}")
+        raise UnknownName(f"unknown benchmark problem {p!r}",
+                          fix=f"call pp.benchmark.problems() and use one of {sorted(_PROBLEMS)}")
     return _PROBLEMS[p]()
 
 
@@ -236,7 +270,8 @@ def get_method(m) -> Method:
         return m
     _builtins()
     if m not in _METHODS:
-        raise KeyError(f"unknown method {m!r}; registered: {sorted(_METHODS)}")
+        raise UnknownName(f"unknown benchmark method {m!r}",
+                          fix=f"call pp.benchmark.methods() and use one of {sorted(_METHODS)}")
     return _METHODS[m]()
 
 

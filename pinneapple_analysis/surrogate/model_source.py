@@ -20,6 +20,8 @@ from typing import Any
 
 import numpy as np
 
+from pinneapple_core.errors import MissingExtra
+
 
 @dataclass
 class Predictor:
@@ -150,8 +152,9 @@ def onnx_function(path: str, inputs: Sequence[str], outputs: Sequence[str]
     try:
         import onnxruntime as ort
     except ImportError as e:
-        raise RuntimeError("an ONNX model needs onnxruntime (pip install onnxruntime, or the [onnx] extra); "
-                           "TorchScript or a callable work without it") from e
+        raise MissingExtra("an ONNX model needs onnxruntime, which is not installed",
+                           fix='pip install onnxruntime (or "pinneapple[onnx]"); a TorchScript file or a plain '
+                               'callable needs nothing extra') from e
     inputs, outputs = list(inputs), list(outputs)
     sess = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
     ins, outs = sess.get_inputs(), sess.get_outputs()

@@ -12,6 +12,7 @@ outputs complete                     yes        the run came back without one of
 converged                            no         the recorded residuals are above the limit, or ``converged`` is False
 mesh quality                         no         ``checkMesh`` failed or the cell count is zero
 mesh convergence (GCI)               no         the grid-convergence index is above the limit
+conservation                         yes        the mass (or energy) the run reports is not the mass it moved
 ===================================  =========  ==================================================================
 
 A row with a critical contradiction is **rejected**: it is listed with its reasons and never written to the
@@ -23,14 +24,17 @@ The solver contract this reads is :class:`~pinneapple_autolab.simulator.SimOutco
 
 * ``converged`` (bool), or ``final_residuals`` / ``residuals`` as ``{name: value}`` against ``residual_limit``;
 * ``mesh`` as ``{"cells": int, "ok": bool}``, or ``mesh_ok`` and ``cells`` at the top of ``meta``;
-* ``gci`` (the grid-convergence index of the quantity the decision is made on) against ``gci_limit``.
+* ``gci`` (the grid-convergence index of the quantity the decision is made on) against ``gci_limit``;
+* ``mass_balance_error`` (the relative error of what the run conserved) against ``mass_balance_limit`` — a solver
+  that reports no conservation statement cannot claim one, and the check says ``not_run``.
 
 A solver that records none of them is not penalised for being honest: every one of those checks comes back
 ``not_run`` with the reason, and the dataset says so instead of assuming the run converged.
 
-The two limits that are project decisions, not physics, are in :data:`LIMITS` and can be passed in: the residual
-floor is the one the Ahmed campaign uses, and 10 % of the answer is what a study here accepts as numerical
-uncertainty (both overridable per run through ``meta``, which is what a solver that knows its own numbers does).
+The limits that are project decisions, not physics, are in :data:`LIMITS` and can be passed in: the residual
+floor and the mass-balance tolerance are the ones the Ahmed campaign uses, and 10 % of the answer is what a study
+here accepts as numerical uncertainty (all overridable per run through ``meta``, which is what a solver that knows
+its own numbers does).
 """
 from __future__ import annotations
 
@@ -48,9 +52,9 @@ from pinneapple_analysis.trust.trust_report import (
 
 __all__ = ["LIMITS", "KEPT", "REJECTED", "FactoryQc", "row_verdict"]
 
-#: Default limits of the two checks that are not physics: the residual floor of the Ahmed campaign and the share of
-#: the answer a study accepts as mesh-induced uncertainty. ``meta`` overrides both per run.
-LIMITS = {"residual": 1e-3, "gci": 0.10}
+#: Default limits of the checks that are not physics: the residual floor and the mass-balance tolerance of the Ahmed
+#: campaign, and the share of the answer a study accepts as mesh-induced uncertainty. ``meta`` overrides all three.
+LIMITS = {"residual": 1e-3, "gci": 0.10, "mass_balance": 1e-3}
 
 #: What happened to a row.
 KEPT, REJECTED = "kept", "rejected"
@@ -100,7 +104,21 @@ class FactoryQc:
         checks.append(self._converged(meta))
         checks.append(self._mesh(meta))
         checks.append(self._gci(meta))
+        checks.append(self._conservation(meta))
         return checks
+
+    def _conservation(self, meta: Mapping[str, Any]) -> Check:
+        """What the run moved against what it says it conserved: a failed balance is a failed run."""
+        limit = float(meta.get("mass_balance_limit", self.limits["mass_balance"]))
+        err = meta.get("mass_balance_error")
+        if err is None:
+            return Check("conservation", NOT_RUN, limit=limit, source="SimOutcome.meta",
+                         reason="the solver made no conservation statement; nothing here says the mass was "
+                                "balanced")
+        e = abs(float(err))
+        return Check("conservation", SUPPORTS if e <= limit else CONTRADICTS, critical=True, value=e, limit=limit,
+                     source="SimOutcome.meta['mass_balance_error']",
+                     reason=f"relative mass-balance error {e:.2e} against a {limit:.0e} tolerance")
 
     def _converged(self, meta: Mapping[str, Any]) -> Check:
         limit = float(meta.get("residual_limit", self.limits["residual"]))
@@ -177,7 +195,8 @@ class FactoryQc:
                             value=float(duplicated), limit=0.0, source="the DOE that produced them",
                             reason="" if not duplicated else f"{duplicated} design(s) were evaluated twice"))
 
-        for name, wanted in (("converged", "convergence"), ("mesh quality", "mesh")):
+        for name, wanted in (("converged", "convergence"), ("mesh quality", "mesh"),
+                             ("conservation", "conservation")):
             statuses = [self._status(r, name) for r in rows]
             if any(s == CONTRADICTS for s in statuses):
                 checks.append(Check(f"{wanted} evidence on every row", CONTRADICTS, critical=False,

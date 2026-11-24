@@ -20,6 +20,7 @@
   * [Distributed physics: sweeps, partitioned meshes, decomposed training](core_concepts/distributed.md)
   * [The .ppx container: a result that reproduces elsewhere](core_concepts/artifact.md)
   * [One registry for every extensible object type](core_concepts/registry.md)
+  * [The physical data graph: from a prediction back to the problem](core_concepts/physical_data_graph.md)
   * [PhysicsOptimizer](core_concepts/physics_optimizer.md)
   * [Model](core_concepts/model.md)
   * [PINN / Physics](core_concepts/pinn.md)

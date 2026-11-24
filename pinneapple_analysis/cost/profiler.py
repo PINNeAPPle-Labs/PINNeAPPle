@@ -38,6 +38,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 
+from pinneapple_core.errors import BadValue
+
 
 # --------------------------------------------------------------------------- records
 @dataclass
@@ -178,7 +180,7 @@ def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, na
     measured in separate runs so they do not perturb the timing.
     """
     if repeats < 1:
-        raise ValueError("repeats must be >= 1")
+        raise BadValue("measure() needs at least one timed run", fix="pass repeats=5 (the default) or any integer >= 1")
     call = lambda: fn(*args, **kwargs)  # noqa: E731
     for _ in range(warmup):
         call()
@@ -225,7 +227,8 @@ def expected_exponent(declared: Union[str, float], sizes: Sequence[float]) -> fl
         return float(declared)
     key = declared.strip().lower().replace("**", "^").replace("o(", "").rstrip(")")
     if key not in _COMPLEXITY:
-        raise ValueError(f"unknown complexity {declared!r}; use a number or one of {sorted(_COMPLEXITY)}")
+        raise BadValue(f"unknown complexity {declared!r}",
+                       fix=f"declare one of {sorted(_COMPLEXITY)} or give the exponent as a number")
     n = np.asarray(sizes, dtype=float)
     if key == "1":
         return 0.0
@@ -290,7 +293,9 @@ def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence
     """
     sizes = [int(s) for s in sizes]
     if len(sizes) < 3 or len(set(sizes)) != len(sizes):
-        raise ValueError("need at least 3 distinct sizes")
+        raise BadValue(
+            f"a scaling fit needs at least 3 distinct sizes, got {len(set(sizes))} distinct of {len(sizes)}",
+            fix="pass at least 3 distinct sizes spanning a factor of 10 or more, e.g. [10**3, 10**4, 10**5]")
     records = [measure(make_call(n), repeats=repeats, warmup=warmup, name=f"{name}[n={n}]", size=float(n),
                        memory=memory) for n in sizes]
     n_arr = np.array(sizes, dtype=float)
@@ -354,11 +359,23 @@ class Budget:
     def validate(self, result: Union[CostRecord, ScalingStudy]) -> None:
         violations = self.check(result)
         if violations:
-            raise BudgetExceeded("; ".join(violations))
+            raise BudgetExceeded(
+                "; ".join(violations),
+                fix="raise the limit in Budget(...) or shrink the problem; each violation above names the quantity "
+                    "that went over, and CostLedger.compare() shows the same number as a regression ratio")
 
 
 class BudgetExceeded(AssertionError):
-    pass
+    """The operation went over a ``Budget``. Carries ``fix``, the action that clears the violation."""
+
+    def __init__(self, message: str, *, fix: str = ""):
+        self.what = message
+        self.fix = fix
+        self.message = f"{message}\n  Fix: {fix}" if fix else message
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return self.message
 
 
 # --------------------------------------------------------------------------- ledger

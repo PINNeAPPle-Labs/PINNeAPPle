@@ -15,6 +15,7 @@ import hashlib
 import json
 import multiprocessing as mp
 import os
+import sys
 import time
 import traceback
 from collections.abc import Callable
@@ -73,12 +74,25 @@ class Workspace:
     def __init__(self, out_dir: str | Path, config: BenchmarkConfig):
         self.root = Path(out_dir)
         self.cfg = config
-        for d in ("prepared", "validation", "runs", "figures"):
+        for d in ("prepared", "validation", "runs", "figures", "records"):
             (self.root / d).mkdir(parents=True, exist_ok=True)
 
     @property
     def runs(self) -> Path:
         return self.root / "runs"
+
+    @property
+    def records(self) -> Path:
+        """One verifiable record per job (#38): what ran, on what, the files by hash, and how to re-run it."""
+        return self.root / "records"
+
+    def record_path(self, job_id: str) -> Path:
+        return self.records / f"{job_id}.record.json"
+
+    def records_for(self, problem_id: str, method_id: str) -> list[str]:
+        """The records behind one (problem, method) row of the report, relative to the workspace."""
+        tag = f"__{problem_id}__{method_id}__"
+        return sorted(str(p.relative_to(self.root)) for p in self.records.glob("*.record.json") if tag in p.name)
 
     def prepared(self, pid: str) -> Path:
         return self.root / "prepared" / pid
@@ -197,6 +211,8 @@ def run_job(spec: dict, out_dir: str, objects: dict | None = None) -> str:
     runs = Path(out_dir) / "runs"
     path = runs / f"{spec['id']}.json"
     if path.exists():
+        if not (Path(out_dir) / "records" / f"{spec['id']}.record.json").exists():
+            write_job_record(spec, out_dir)                       # a cached result earns its record too
         return spec["id"] + " (cached)"
     t0 = time.time()
     try:
@@ -214,7 +230,33 @@ def run_job(spec: dict, out_dir: str, objects: dict | None = None) -> str:
         out = {"spec": spec, "ok": False, "error": traceback.format_exc()}
     out.update(hardware=hw(), job_wall_s=time.time() - t0, finished=time.strftime("%Y-%m-%d %H:%M:%S"))
     _jdump(path, out)
+    write_job_record(spec, out_dir)
     return spec["id"] + (" ok" if out["ok"] else " FAILED")
+
+
+def write_job_record(spec: dict, out_dir: str, *, root: Path | None = None) -> Path:
+    """Write ``records/<job id>.record.json``: the evidence behind one published number of the benchmark (#38).
+
+    It names the job's parameters (problem, method, stage, seed, budget, instance), the environment and commit, the
+    files the job produced with their sha256, and the command that re-executes it. ``python -m
+    pinneapple_core.run_record verify <out_dir>`` checks every record of a run in one call.
+    """
+    from pinneapple_core import run_record
+
+    root = Path(root or out_dir)
+    job_id = spec["id"]
+    files = [root / "runs" / f"{job_id}.json"]
+    ckpt = root / "runs" / f"{job_id}.ckpt.pt"
+    if ckpt.exists():                                            # a checkpoint is an output too, when there is one
+        files.append(ckpt)
+    rec = run_record.record(
+        "benchmark-run", job_id, root=root, outputs=files,
+        command=[sys.executable, "-m", "pinneapple_analysis.benchmark", "run", "--config", str(root / "config.yaml"),
+                 "--out", str(root), "--force"],
+        parameters={k: v for k, v in spec.items() if k != "id"},
+        note=f"runs/{job_id}.json is cached: delete it to re-execute this job (the command above resumes the rest)",
+    )
+    return rec.write(root / "records" / f"{job_id}.record.json")
 
 
 def execute_jobs(ws: Workspace, jobs: list[dict], *, n_workers: int, objects: dict | None = None,

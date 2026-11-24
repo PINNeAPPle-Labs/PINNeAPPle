@@ -101,6 +101,9 @@ REASONS: dict[str, str] = {
     "pinneapple_core.ontology": "the formal types a problem, a dataset manifest and a model card are all filled into, "
                                 "and the JSON schema they are published with (#204): it is the vocabulary the steps "
                                 "speak, not a step of its own",
+    "pinneapple_neural.hybrid_closure": "the closure arrangement of the #211: a base model plus a learned residual. "
+                                        "A flow node would carry a torch training run whose base is a callable, "
+                                        "which is what the pinn / train nodes already do",
     "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "
                               "apps and data reports use, not a computation step)",
     "pinneapple_core.onboarding": "the first hour: doctor / recommend / card / new run before a problem "

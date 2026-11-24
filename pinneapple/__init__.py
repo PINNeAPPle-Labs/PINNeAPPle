@@ -737,6 +737,9 @@ _LAZY_ATTRS = {
     # which simulation to run next: Bayesian optimization with constraints (#102)
     "BayesianOptimizer": ("pinneapple_analysis.bayesopt", "BayesianOptimizer"),
     # one dimension for every term of an equation, checked before training (#205)
+    # hybrid: known physics (or a ROM surrogate) plus a learned closure of what it does not explain (#211)
+    "HybridModel": ("pinneapple_neural.hybrid_closure", "HybridModel"),
+    "ClosureBlock": ("pinneapple_neural.hybrid_closure", "ClosureBlock"),
     # event-driven simulation: an impact, a valve opening, a failure threshold (#210)
     "Event": ("pinneapple_simulation.events", "Event"),
     "Reaction": ("pinneapple_simulation.events", "Reaction"),
@@ -853,6 +856,8 @@ __all__ = [
     "check_dimensions",
     # Event-driven simulation: condition and action, located between steps (X26, #210)
     "Event", "Reaction", "run_events",
+    # Hybrid: base (physics or ROM) plus a learned closure of the residual (X27, #211)
+    "HybridModel", "ClosureBlock",
     # Bayesian optimization and sequential design of experiments (K3, #102)
     "BayesianOptimizer", "bayesopt",
     # Inverse problems

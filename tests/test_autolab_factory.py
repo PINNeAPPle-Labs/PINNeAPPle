@@ -8,6 +8,7 @@ factory did not evaluate.
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import math
 import os
@@ -169,6 +170,46 @@ def test_a_solver_that_raises_is_a_failed_run_not_a_crash(tmp_path):
     run = run_factory(bend_spec(n_doe=3), FunctionSimulator(boom, ["dp", "er"]), out=str(tmp_path / "out"))
     assert run.rows and all(not r.accepted for r in run.rows)
     assert run.status == "refused" and "nothing to put in a dataset" in run.reasons[-1]
+
+
+def test_the_parameters_the_case_fixes_reach_the_geometry_and_not_the_tool(tmp_path):
+    """``Base.fixed`` is the case's own geometry — the runs a line needs before and after a bend — so the factory
+    hands it to the CAD arrow, keeps it out of the dataset's columns and leaves the solver's inputs alone."""
+    spec = dataclasses.replace(bend_spec(), base=dataclasses.replace(
+        bend_spec().base, fixed={"inlet_length": 1.5, "outlet_length": 1.0}))
+    run = run_factory(spec, bend_simulator(), out=str(tmp_path / "out"),
+                      doe=GivenDesigns([{"diameter": 0.05, "bend_ratio": 1.5}]))
+    for row in run.rows:
+        d, r = row.params["diameter"], 1.5 * row.params["diameter"]
+        assert row.artifact.params["inlet_length"] == pytest.approx(1.5)    # the case's own run, not the template's
+        assert row.artifact.params["outlet_length"] == pytest.approx(1.0)   # default of 5 D, 0.25-1.0 m here
+        assert row.artifact.metrics["volume_m3_exact"] == pytest.approx(
+            math.pi * d ** 2 / 4 * (1.5 + 1.0 + math.pi * r / 2))
+        assert "inlet_length" not in row.tool_params                        # the tool's inputs are the evaluator's
+    assert [row.params for row in run.rows][-1] == {"diameter": 0.05, "bend_ratio": 1.5}   # the design as given
+    from pinneapple_autolab.study.dataset import StudyDataset
+    assert StudyDataset.load(os.path.join(str(tmp_path / "out"), "dataset")).inputs == ["diameter", "bend_ratio"]
+
+
+def test_a_fixed_parameter_the_geometry_does_not_know_refuses_the_row_instead_of_being_dropped(tmp_path):
+    spec = dataclasses.replace(bend_spec(), base=dataclasses.replace(bend_spec().base, fixed={"span": 0.1}))
+    run = run_factory(spec, bend_simulator(), out=str(tmp_path / "out"))
+    assert run.rows and all(not r.accepted and r.artifact.status == "refused" for r in run.rows)
+    assert all(r.verdict == REJECTED for r in run.rows)                    # a refused design is rejected, not kept
+    assert all("span" in " ".join(r.reasons) for r in run.rows)            # the reason names the parameter
+    assert all(not r.outputs for r in run.rows)                            # and nothing was simulated
+    assert run.status == "refused"
+
+
+def test_the_fixed_parameters_are_part_of_what_provenance_records(tmp_path):
+    def hashed(inlet: float, folder: str) -> str:
+        spec = dataclasses.replace(bend_spec(), base=dataclasses.replace(
+            bend_spec().base, fixed={"inlet_length": inlet, "outlet_length": 1.0}))
+        run = run_factory(spec, bend_simulator(), out=str(tmp_path / folder),
+                          doe=GivenDesigns([{"diameter": 0.05, "bend_ratio": 1.5}]))
+        return run.rows[0].provenance["data_hash"]
+
+    assert hashed(1.5, "a") != hashed(1.6, "b")        # two cases that differ only in a fixed size differ in the hash
 
 
 # ---------------------------------------------------------------------------------------------- quality control

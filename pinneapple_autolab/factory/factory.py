@@ -14,7 +14,9 @@ The five steps, and what each one is allowed to say
 --------------------------------------------------
 1. **CAD.** ``geometry.prepare(design)`` turns the design into a case (parameters completed and derived, the exact
    volume, the smallest feature, the boundary patches, a point inside the fluid) and checks it against the
-   template's published limits. A design the geometry refuses is a row with the reason, never a dropped case.
+   template's published limits. The design is the study's variables plus the base's ``fixed`` parameters — the ones
+   the case declares but never varies, such as the inlet and outlet runs or the diameter of a product's case. A
+   design the geometry refuses is a row with the reason, never a dropped case.
 2. **DOE.** The plan is the study's own: ``budget.planned(d)["doe"]`` designs from the DOE interface, plus the
    reference design first. The plan's space-filling metrics are recorded as measured (``run.doe``), not graded.
 3. **Solver.** ``Simulator.check`` before ``Simulator.run``: the lab never runs a design its own checks reject.
@@ -377,13 +379,17 @@ def _evaluate(spec: DesignStudy, solver: Any, geo: Geometry, qc: FactoryQc, desi
 
     t0 = time.perf_counter()
     try:
-        row.artifact = geo.prepare(row.params, workdir)
+        # the design is the variables; the base's ``fixed`` are the parameters the case never varies (a 10-diameter
+        # inlet run, the diameter of the product's case), and a geometry that does not know one refuses the row
+        row.artifact = geo.prepare({**dict(spec.base.fixed), **row.params}, workdir)
     except ValueError as exc:                      # the geometry does not know a parameter, or refuses the design
-        row.artifact = GeometryArtifact(ref=str(spec.base.ref), params=dict(row.params), status="refused",
+        row.artifact = GeometryArtifact(ref=str(spec.base.ref),
+                                        params={**dict(spec.base.fixed), **row.params}, status="refused",
                                         checks=[Check("geometry", "contradicts", critical=True, reason=str(exc))])
     if not row.artifact.ok:
         row.message = "; ".join(row.artifact.reasons) or "the geometry refused the design"
         row.checks = list(row.artifact.checks)
+        row.verdict, row.reasons = row_verdict(row.checks)         # a refused design is rejected, with its reason
     else:
         issues = _check(solver, row.tool_params)
         if issues:

@@ -2,7 +2,7 @@
 
 The wide suite blocks in the parts that have been measured green, and says why the rest does not. `python scripts/tier_shards.py --check` is the gate; the pull-request job runs `--run-blocking`.
 
-**Blocking: 11 of 23 shards · tests covered: 789 files.**
+**Blocking: 11 of 23 shards · tests covered: 793 files.**
 
 ## Blocking (every pull request runs these)
 

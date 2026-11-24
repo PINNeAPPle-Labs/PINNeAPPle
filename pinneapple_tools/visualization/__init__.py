@@ -29,6 +29,9 @@ from .style import (
     DEFAULT_CMAP,
 )
 
+# The single theme file every renderer reads (#65): theme.json next to this package
+from .theme import colormap_stops, palette, surface, viewport, field_cmaps
+
 from .fields import (
     plot_scalar,
     plot_scalar_3d,
@@ -115,6 +118,8 @@ __all__ = [
     "use_theme", "make_panel_figure", "figure_sizes", "field_cmap",
     "colorbar", "label", "annotate_verdict", "panel_letters", "source_note",
     "save_figure", "FIELD_CMAPS", "PALETTE",
+    # The shared theme file (#65): surfaces, palette and stops, for a renderer that is not matplotlib
+    "palette", "surface", "viewport", "colormap_stops", "field_cmaps",
     # Scalar / vector fields
     "plot_scalar", "plot_scalar_3d", "plot_vectors", "plot_streamlines",
     "compare_fields", "plot_error",

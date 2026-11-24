@@ -1,5 +1,5 @@
 {
-  "commit": "1ea06f8a7",
+  "commit": "b4c32e8c9",
   "how": "python scripts/measure_method_costs.py [--only ID ...]",
   "machine": {
     "cpu_count": 10,
@@ -13,7 +13,7 @@
     "system": "Darwin",
     "torch": "2.15.0"
   },
-  "measured_at": "2026-11-23T19:37:04+00:00",
+  "measured_at": "2026-11-24T00:47:11+00:00",
   "methods": {
     "S1": {
       "reason": "needs a ProblemSpec preset (geometry and boundary conditions per case); the benchmark harness measures it on real cases instead",
@@ -992,8 +992,95 @@
       "status": "unmeasured"
     },
     "S9": {
-      "reason": "the discrete-time PINN trains per call, same reason as S8",
-      "status": "unmeasured"
+      "declared": "n",
+      "exponent": 1.249704259201684,
+      "exponent_ci": [
+        1.1947035160842006,
+        1.2974420007871548
+      ],
+      "fits": {
+        "flops": {
+          "ci": [
+            0.9740330669190801,
+            0.9740330669190801
+          ],
+          "coefficient": 7421373.383724149,
+          "exponent": 0.9740330669190801,
+          "r2": 0.9988331627442291
+        },
+        "memory": {
+          "ci": [
+            0.37428248836889894,
+            0.37428248836889894
+          ],
+          "coefficient": 77104.67961761929,
+          "exponent": 0.37428248836889894,
+          "r2": 0.8894421455260153
+        },
+        "time": {
+          "ci": [
+            1.1947035160842006,
+            1.2974420007871548
+          ],
+          "coefficient": 0.005508357570387584,
+          "exponent": 1.249704259201684,
+          "r2": 0.9930062128559414
+        }
+      },
+      "flops": 35257728,
+      "flops_source": "flop_counter",
+      "median_time_s": 0.2566145000018878,
+      "mem_source": "tracemalloc",
+      "peak_mem_bytes": 275598,
+      "per_size": [
+        {
+          "flops": 35257728,
+          "mem_bytes": 127910,
+          "n": 5.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.006027082999935374,
+          "time_min_s": 0.039176082998892525,
+          "time_s": 0.043129749999934575
+        },
+        {
+          "flops": 69387456,
+          "mem_bytes": 198844,
+          "n": 10.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.012258792001375696,
+          "time_min_s": 0.07408450000002631,
+          "time_s": 0.08693100000164122
+        },
+        {
+          "flops": 143335200,
+          "mem_bytes": 266134,
+          "n": 20.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.013927916003012797,
+          "time_min_s": 0.2328500420007913,
+          "time_s": 0.2566145000018878
+        },
+        {
+          "flops": 262789248,
+          "mem_bytes": 275598,
+          "n": 40.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.014317874996777391,
+          "time_min_s": 0.5273124999985157,
+          "time_s": 0.5395971670004656
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.discrete_time_pinn.DiscreteTimePINNSolver (one implicit step, trained to a fixed iteration cap)",
+      "r2": 0.9930062128559414,
+      "size_axis": "n (iterations of the implicit step, q = 32 fixed)",
+      "sizes": [
+        5.0,
+        10.0,
+        20.0,
+        40.0
+      ],
+      "status": "measured",
+      "verdict": "worse than declared"
     },
     "T1": {
       "reason": "no probe written for this method yet",

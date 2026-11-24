@@ -36,9 +36,10 @@ import json
 import os
 import platform
 import subprocess
-from dataclasses import dataclass, field
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any
 
 from pinneapple_analysis.cost import CostLedger, ScalingStudy, scaling_study
 from pinneapple_core.errors import BadValue, UnknownName
@@ -48,14 +49,14 @@ from . import methods as _methods
 HERE = Path(__file__).resolve().parent
 COSTS_PATH = HERE / "method_costs.json"
 
-__all__ = ["Probe", "PROBES", "UNMEASURED", "all_costs", "compare_with_baseline", "coverage", "load_cost",
+__all__ = ["Probe", "PROBES", "UNMEASURED", "all_costs", "compare_with_baseline", "coverage", "load_costs",
            "machine", "measure_all", "method_cost"]
 
 
 # --------------------------------------------------------------------------- the machine
-def machine() -> Dict[str, Any]:
+def machine() -> dict[str, Any]:
     """What has to travel with a wall time for it to mean anything: the CPU, the cores, the platform, the versions."""
-    info: Dict[str, Any] = {
+    info: dict[str, Any] = {
         "platform": platform.platform(),
         "system": platform.system(),
         "release": platform.release(),
@@ -101,7 +102,7 @@ class Probe:
     size_axis: str
     sizes: Sequence[int]
     build: Callable[[int], Callable[[], Any]]
-    declared: Optional[str] = None
+    declared: str | None = None
     repeats: int = 5
 
 
@@ -218,7 +219,21 @@ def _probe_s27(n):
     return lambda: sim.step(u, 0.0)
 
 
-UNMEASURED: Dict[str, str] = {
+@_probe("S9", "pinneapple_simulation.numerical_solvers.discrete_time_pinn.DiscreteTimePINNSolver "
+        "(one implicit step, trained to a fixed iteration cap)",
+        "n (iterations of the implicit step, q = 32 fixed)", [5, 10, 20, 40], declared="n", repeats=3)
+def _probe_s9(n):
+    import numpy as np
+    import torch
+
+    from pinneapple_simulation.numerical_solvers.discrete_time_pinn import DiscreteTimePINNSolver
+    x = torch.tensor(np.linspace(-1.0, 1.0, 32), dtype=torch.float32)
+    u = torch.sin(torch.pi * x)
+    solver = DiscreteTimePINNSolver(pde="burgers_1d", q=32, max_iter=int(n), seed=0)
+    return lambda: solver(x, u, 0.01)
+
+
+UNMEASURED: dict[str, str] = {
     "S2": "the FEM solver needs a ProblemSpec preset; measured through S1's probe in the benchmark (see "
           "pinneapple_analysis.benchmark), not on its own here",
     "S3": "same as S2: the finite-volume solver runs from a ProblemSpec preset",
@@ -230,7 +245,6 @@ UNMEASURED: Dict[str, str] = {
           "a probe here would need a settled configuration to be comparable",
     "S7": "the Kansa RBF solver runs from a ProblemSpec plus interior/boundary point sets",
     "S8": "X-TFC trains a network per call: its cost is a training budget, measured by the trainer probes (T*)",
-    "S9": "the discrete-time PINN trains per call, same reason as S8",
     "S10": "rfk45 stiff kinetics: the module exposes the steppers per problem, no single entry point to time",
     "S11": "TVD advection runs from a ProblemSpec preset",
     "S12": "immersed boundary wraps an FDM flow solve (spec-driven, see S1)",
@@ -265,19 +279,20 @@ UNMEASURED: Dict[str, str] = {
 }
 
 # The probes above run anywhere, on a laptop, without a case the user has to build first.
-PROBES: Dict[str, Probe] = {p.method_id: p for p in (
+PROBES: dict[str, Probe] = {p.method_id: p for p in (
     _probe_s4, _probe_s19, _probe_s13, _probe_s15, _probe_s34, _probe_s35, _probe_s33, _probe_s28, _probe_s26,
-    _probe_s27,
+    _probe_s27, _probe_s9,
 ) if p.method_id in {m.id for m in _methods.METHODS}}
 
 
 # --------------------------------------------------------------------------- measuring
-def _study(probe: Probe, repeats: int = 5) -> ScalingStudy:
-    return scaling_study(probe.build, list(probe.sizes), name=probe.what, repeats=repeats,
+def _study(probe: Probe, repeats: int | None = None) -> ScalingStudy:
+    return scaling_study(probe.build, list(probe.sizes), name=probe.what,
+                         repeats=probe.repeats if repeats is None else repeats,
                          declared=probe.declared, memory=True)
 
 
-def _record(probe: Probe, study: ScalingStudy) -> Dict[str, Any]:
+def _record(probe: Probe, study: ScalingStudy) -> dict[str, Any]:
     per_size = []
     for n, rec in zip(study.sizes, study.records, strict=True):
         per_size.append({
@@ -307,8 +322,8 @@ def _record(probe: Probe, study: ScalingStudy) -> Dict[str, Any]:
     }
 
 
-def measure_all(only: Optional[Sequence[str]] = None, *, repeats: int = 5,
-                path: Path = COSTS_PATH) -> Dict[str, Any]:
+def measure_all(only: Sequence[str] | None = None, *, repeats: int | None = None,
+                path: Path = COSTS_PATH) -> dict[str, Any]:
     """Measure every method that has a probe and write ``path``: the measured records plus the reasons for the rest.
 
     ``only`` restricts the run to some ids, leaving the other measured records as they are on disk (so one solver can
@@ -344,13 +359,13 @@ def measure_all(only: Optional[Sequence[str]] = None, *, repeats: int = 5,
 
 
 # --------------------------------------------------------------------------- reading
-def load_costs(path: Path = COSTS_PATH) -> Dict[str, Any]:
+def load_costs(path: Path = COSTS_PATH) -> dict[str, Any]:
     if not path.exists():
         return {"methods": {}}
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def method_cost(method_id: str, path: Path = COSTS_PATH) -> Dict[str, Any]:
+def method_cost(method_id: str, path: Path = COSTS_PATH) -> dict[str, Any]:
     """One method's record (``measure_all`` does not invent an entry for an id the catalog does not have)."""
     _methods.get_method(method_id)
     try:
@@ -361,11 +376,11 @@ def method_cost(method_id: str, path: Path = COSTS_PATH) -> Dict[str, Any]:
                               f"{method_id} to measure just this one)") from None
 
 
-def all_costs(path: Path = COSTS_PATH) -> Dict[str, Dict[str, Any]]:
+def all_costs(path: Path = COSTS_PATH) -> dict[str, dict[str, Any]]:
     return dict(load_costs(path).get("methods", {}))
 
 
-def coverage(path: Path = COSTS_PATH) -> List[Dict[str, Any]]:
+def coverage(path: Path = COSTS_PATH) -> list[dict[str, Any]]:
     """One row per catalog method (solvers and training methods): measured, or unmeasured and why."""
     costs = all_costs(path)
     rows = []
@@ -383,7 +398,7 @@ def coverage(path: Path = COSTS_PATH) -> List[Dict[str, Any]]:
     return rows
 
 
-def compare_with_baseline(current: Dict[str, Any], baseline: Dict[str, Any]) -> List[Dict[str, Any]]:
+def compare_with_baseline(current: dict[str, Any], baseline: dict[str, Any]) -> list[dict[str, Any]]:
     """Regressions between two ``method_costs.json`` documents on the same machine (issue #53's gate).
 
     FLOPs gate tightly (they are deterministic), time and memory loosely. A different machine is refused rather than

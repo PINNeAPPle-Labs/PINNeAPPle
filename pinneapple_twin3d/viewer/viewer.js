@@ -82,14 +82,31 @@ scene3.add(sun);
 const sensorGroup = new THREE.Group();
 scene3.add(sensorGroup);
 
-// The plot background is the theme's, not a second palette: the same colour the studio viewer and the PyVista
-// renders use. --viewport stays a page variable so the CSS around the canvas follows, and the theme writes it.
+// Every colour the page shows is the theme's, not a literal in index.html: the surface the model is drawn on, the
+// chrome around it, and the two status colours, which are the brand's ember and the palette's green. The set is one
+// object so a variable the page uses and nobody sets is visible in one place instead of a colour that silently
+// stays at its browser default.
+function pageVars(dark) {
+  const s = THEME.surface[dark ? "dark" : "light"];
+  return {
+    "--viewport": s.plot,
+    "--bg": s.plot,                              // the recessed surface the panels sit on
+    "--panel": s.paper,
+    "--text": s.ink,
+    "--muted": s.muted,
+    "--line": s.line,
+    "--accent": dark ? THEME.categorical[4] : THEME.brand.blue,
+    "--alarm": dark ? THEME.brand.ember_lifted : THEME.brand.ember,
+    "--ok": THEME.categorical[2],
+  };
+}
+
 function applyTheme() {
   const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
     (!document.documentElement.hasAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
-  const viewport = THEME.surface[dark ? "dark" : "light"].plot;
-  document.documentElement.style.setProperty("--viewport", viewport);
-  scene3.background = new THREE.Color(viewport);
+  const vars = pageVars(dark);
+  for (const [name, value] of Object.entries(vars)) document.documentElement.style.setProperty(name, value);
+  scene3.background = new THREE.Color(vars["--viewport"]);
 }
 
 function resize() {

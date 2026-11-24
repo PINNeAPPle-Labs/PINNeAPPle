@@ -1,12 +1,14 @@
 @import url("theme.css");
 :root {
-  --bg: #f4f6f9; --panel: #ffffff; --muted: #5d6b82; --line: #e1e6ee;
+  /* The surfaces are the theme's, aliased rather than copied: theme.css, generated from
+     pinneapple_tools/visualization/theme.json by scripts/build_theme.py, supplies --plot, --paper, --ink, --muted,
+     --line, --house-* and --series-1..8. A literal here would be the second palette #65 forbids -- this file used
+     to declare its own --line and --muted, which is drift by definition. --ok/--warn/--bad stay literal on
+     purpose: they are the meaning of a result, not a colour of the house, and the theme has no opinion on them. */
+  --bg: var(--plot); --panel: var(--paper);
   --ok: #1a7f4b; --ok-bg: #e5f5ec; --warn: #9a6200;
   --warn-bg: #fff4dc; --bad: #b42318; --bad-bg: #fde8e7; --na: #7a8599;
   --radius: 10px; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  /* --house-ink, --house-blue and --house-ember, plus --plot and --series-1..8, come from theme.css, generated
-     from pinneapple_tools/visualization/theme.json by scripts/build_theme.py, so the app chrome, the charts and
-     the figures take their colours from one file (#65). */
   --brand-ink: #ffffff;
   --brand: var(--house-blue);
   --ink: var(--house-ink);

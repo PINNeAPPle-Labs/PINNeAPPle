@@ -159,13 +159,20 @@ examples are left after two batches.
 |---|---|---|
 | 1 | `first_example`, `pinn_solver/03_symbolic_pde_hard_bc`, `physics_learning_verification/run_study`, `physics_query/run_demo`, `electrodynamics/{20,21,22,23}` | 8 scripts on the theme, 4 redundant `rcParams.update` lines removed |
 | 2 | `electrodynamics/01`–`06`, `geometry/07_csg_domain_demo`, `getting_started/01`–`10` | 17 scripts; each one run on both sides for the sheet (`getting_started/04` trains for over an hour and was left running past the check window) |
+| 3 | `topology_optimization/01`–`03`, `control/{cartpole_swing_up,submarine_depth}`, `time_series/adaptive_forecasting`, `geophysics/01_sphere_and_assimilation`, `electrodynamics/17_prius_tolerances`, `geometry_library/02_wind_turbine_bem`, `motor_magnetics/01_spm_cogging_and_torque`, `physics_audit/pipe_regimes` | 12 scripts; the run and the sheet are one command (`scripts/run_theme_batch.py`), which is the whole cost of a batch now. The debt went from 114 to 102 |
 
 ![Batch 1, before and after](assets/house_theme/batch1_antes_depois.png)
 
 ![Batch 2, before and after](assets/house_theme/batch2_antes_depois.png)
 
-The sheet comes from `scripts/render_theme_migration.py`, which takes the same
-figure from two runs — the branch and `origin/main` — and puts them side by side
-at the same height. What it shows is that the content did not move: same curves,
+![Batch 3, before and after](assets/house_theme/batch3_antes_depois.png)
+
+The two runs and the sheet are one command, `scripts/run_theme_batch.py`: it copies each example into two
+scratch trees (the branch's file and the same file out of `origin/main`), runs both with matplotlib on Agg,
+picks the figure each side wrote, and calls `scripts/render_theme_migration.py` with the pairs. An example that
+fails on either side is reported and left out of the sheet, so a batch never looks complete when it is not.
+
+The sheet itself puts the same figure from two runs — the branch and `origin/main` — side by side at the same
+height. What it shows is that the content did not move: same curves,
 same axes, one look.
 

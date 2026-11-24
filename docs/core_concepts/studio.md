@@ -119,10 +119,21 @@ sc.surfaces.append(D.weld_bead(saddle_curve, radius=0.006, material="raw_weld"))
 | `bolt_circle(centre, normal, radius, count, ...)` | `count` bolts evenly spaced on a circle, the first on the plane's `u` axis, so two runs land in the same places |
 | `weld_bead(points, radius)` | one continuous bead along a polyline: cylinders between the points with a sphere at each joint |
 | `seam_ring(centre, normal, radius, thickness)` | the raised ring where two cast halves meet |
+| `pad(centre, normal, radius, height, chamfer)` | a machined pad — a boss with a chamfered top edge, where a sensor or a name plate lands flat |
+| `gusset(a, b, c, thickness)` | a stiffening rib: the triangle extruded along its own normal, across the corner of a frame |
+| `pipe_flange(centre, axis, ...)` | the whole joint, as a list: plate, raised face, weld neck tapering into the pipe, and the bolts on the face |
 
 They return ordinary `Surface` objects: they export to glTF/USD, they take any material, and they cost triangles, not
 solver cells. The weld is worth calling out — give it the intersection curve (`sqrt(R² - x²)` around a branch) and the
 bead follows the saddle instead of a circle, which is the difference between a weld and a drawn ring.
+
+A detail level is a recipe, not a switch. `pp.viz.detail.LEVELS` names what each one puts on a body — `draft` is the
+solver geometry as it is, `review` adds the cast seam, `cinematic` the fasteners, welds, pads, ribs and flanges — but
+the script applies the builders with the measurements of the part, because where a rib goes is a question about the
+part. The same spool body at the three levels is what the gallery shows side by side.
+
+What this does not do is chamfer an edge that already exists in the mesh: a bevel is a mesh operation on the body, not
+something a builder can add beside it.
 
 ### Visual benchmark
 

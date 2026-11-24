@@ -16,7 +16,7 @@ second CAD model to keep in sync.
 """
 from __future__ import annotations
 
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 
 import numpy as np
 
@@ -122,4 +122,104 @@ def seam_ring(centre, normal=(0.0, 0.0, 1.0), *, radius: float = 0.1, thickness:
     return Surface(name, np.asarray(V, float), np.asarray(F, np.int64), material)
 
 
-__all__ = ["hex_bolt", "bolt_circle", "weld_bead", "seam_ring"]
+def pad(centre, normal=(0.0, 0.0, 1.0), *, radius: float = 0.02, height: float = 0.006, chamfer: float = 0.0015,
+        material: str = "steel", name: str = "pad", n: int = 40) -> Surface:
+    """A machined pad: a boss that stands proud of a casting so a bolt or a cover has something flat to land on. The
+    top edge is chamfered, which is the difference between a machined face and an extruded circle."""
+    c = np.asarray(centre, float)
+    nn, u, v = _basis(normal)
+    ang = np.linspace(0.0, 2.0 * np.pi, int(n), endpoint=False)
+    ring = np.cos(ang)[:, None] * u + np.sin(ang)[:, None] * v
+    ch = min(chamfer, height * 0.5, radius * 0.5)
+    base = c + ring * radius
+    shoulder = c + nn * (height - ch) + ring * radius
+    top = c + nn * height + ring * (radius - ch)
+    m = len(ang)
+    V = np.vstack([base, shoulder, top, c + nn * height])          # 3 rings and the centre of the top face
+    apex = 3 * m
+    F = []
+    for i in range(m):
+        j = (i + 1) % m
+        F += [[i, j, m + j], [i, m + j, m + i]]                    # the wall
+        F += [[m + i, m + j, 2 * m + j], [m + i, 2 * m + j, 2 * m + i]]   # the chamfer
+        F.append([2 * m + i, 2 * m + j, apex])                     # the face, fanned from its centre
+    return Surface(name, V, np.asarray(F, np.int64), material)
+
+
+def gusset(a, b, c, *, thickness: float = 0.006, material: str = "steel", name: str = "gusset") -> Surface:
+    """A stiffening rib: the triangle ``a``-``b``-``c``, extruded ``thickness`` along its own normal. Two plates at a
+    right angle and a rib across the corner is how a welded frame gets its stiffness, and the triangle is what a viewer
+    reads as one."""
+    A, B, C = (np.asarray(p, float).reshape(3) for p in (a, b, c))
+    nv = np.cross(B - A, C - A)
+    L = float(np.linalg.norm(nv))
+    if L < 1e-12:
+        raise ValueError("a gusset needs three points that are not on a line")
+    nv = nv / L * float(thickness)
+    V = np.vstack([A, B, C, A + nv, B + nv, C + nv])
+    F = [[0, 1, 2], [3, 5, 4],
+         [0, 3, 4], [0, 4, 1],        # A-B edge
+         [1, 4, 5], [1, 5, 2],        # B-C edge
+         [2, 5, 3], [2, 3, 0]]        # C-A edge
+    return Surface(name, V, np.asarray(F, np.int64), material)
+
+
+def _cone(a, b, r0: float, r1: float, *, name: str, material: str, n: int = 48) -> Surface:
+    """A truncated cone from ``a`` (radius ``r0``) to ``b`` (radius ``r1``): a weld neck, a reducer, a handrail foot."""
+    A, B = np.asarray(a, float).reshape(3), np.asarray(b, float).reshape(3)
+    d = B - A
+    L = float(np.linalg.norm(d))
+    d = d / (L or 1.0)
+    u = np.cross(d, [0.0, 0.0, 1.0])
+    u = u / np.linalg.norm(u) if np.linalg.norm(u) > 1e-9 else np.array([1.0, 0.0, 0.0])
+    v = np.cross(d, u)
+    ph = np.linspace(0.0, 2.0 * np.pi, int(n), endpoint=False)
+    ring = np.cos(ph)[:, None] * u + np.sin(ph)[:, None] * v
+    V = np.vstack([A + r0 * ring, B + r1 * ring])
+    F = []
+    for i in range(int(n)):
+        j = (i + 1) % int(n)
+        F += [[i, j, int(n) + j], [i, int(n) + j, int(n) + i]]
+    return Surface(name, V, np.asarray(F, np.int64), material)
+
+
+def pipe_flange(centre, axis=(0.0, 0.0, 1.0), *, pipe_radius: float = 0.035, flange_radius: float = 0.075,
+                thickness: float = 0.018, raised_face: float = 0.002, neck: float = 0.03, bolts: int = 4,
+                bolt_radius: Optional[float] = None, head_radius: float = 0.008, material: str = "steel",
+                bolt_material: Optional[str] = None, name: str = "flange",
+                n: int = 64) -> List[Surface]:
+    """A whole connection, not a disc: the plate, the raised face the gasket sits on, the weld neck that tapers into the
+    pipe and the bolts on the face. This is the item the audit called "conexões" — a flange drawn as one cylinder reads
+    as a puck, and the three parts together read as a joint.
+
+    Returns the surfaces; add them to the scene with ``sc.surfaces += ...``."""
+    c = np.asarray(centre, float).reshape(3)
+    ax = np.asarray(axis, float).reshape(3)
+    ax = ax / (np.linalg.norm(ax) or 1.0)
+    bolt_material = bolt_material or material
+    bolt_radius = flange_radius * 0.78 if bolt_radius is None else float(bolt_radius)
+    face = c + ax * float(thickness)
+    out = [rod_surface(c, face, float(flange_radius), name=name, material=material, n=n),
+           rod_surface(face, face + ax * float(raised_face), float(flange_radius) * 0.72,
+                       name=f"{name}_face", material=material, n=n)]
+    if neck > 0.0:
+        out.append(_cone(c - ax * float(neck), c, float(pipe_radius) * 1.25, float(pipe_radius) * 1.05,
+                         name=f"{name}_neck", material=material, n=max(24, n // 2)))
+    out += bolt_circle(face + ax * float(raised_face), ax, radius=bolt_radius, count=int(bolts),
+                       head_radius=float(head_radius), height=float(head_radius) * 0.8, washer=True,
+                       material=bolt_material, name=f"{name}_bolt")
+    return out
+
+
+#: What each detail level puts on a body. A level is a recipe, not a switch: the figure script applies the builders
+#: with the measurements of the part, because where a rib goes is a question about the part. ``draft`` is the solver
+#: geometry as it is; from ``review`` up the picture carries what a fabricator would have added.
+LEVELS = {
+    "draft": (),
+    "review": ("seam_ring",),
+    "cinematic": ("seam_ring", "bolt_circle", "weld_bead", "pad", "gusset", "pipe_flange"),
+}
+
+
+__all__ = ["hex_bolt", "bolt_circle", "weld_bead", "seam_ring", "pad", "gusset", "pipe_flange", "LEVELS"]
+

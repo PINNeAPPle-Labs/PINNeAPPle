@@ -9,6 +9,11 @@ import os
 import numpy as np
 import pytest
 
+# Every entry here is built through the geometry kernel, which is manifold3d, and manifold3d lives in the `geometry`
+# and `cfd` extras: without one of them the whole file died with 94 import errors, which in the shard report is
+# indistinguishable from a geometry library that is broken (#625).
+pytest.importorskip("manifold3d", reason="'geometry' extra not installed (manifold3d): pip install -e '.[geometry]'")
+
 from pinneapple_design import geometry_library as gl
 from pinneapple_design.geometry_library import exporters, meshops, store
 

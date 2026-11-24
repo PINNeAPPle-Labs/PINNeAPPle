@@ -18,6 +18,16 @@ mesh_intelligence
     explicitly-labeled y+-driven required-first-cell-height ESTIMATE,
     and a structured ``MeshQualityReport`` of what failed and why.
 
+discrepancy_decomposition
+    The four parts of a discrepancy, measured instead of assumed: numerical
+    error (Richardson over three refinements plus Roache's GCI band), model
+    error (the observation mean against the extrapolated value) and
+    measurement noise (pure error between replicates), each with an
+    interval, plus the two identities that make the split checkable --
+    ``MSE = bias^2 + noise^2`` and ``bias = numerical + model_form``,
+    point by point. See the module's docstring for what it refuses to
+    separate.
+
 causal_discrepancy
     Two independent tools: ``run_intervention``, a causal/intervention
     engine ("what happens if I change parameter X?") that retrains and
@@ -192,6 +202,13 @@ from pinneapple_analysis.verification.dimensional_analysis import (
     classify_flow_regime,
     compute_dimensionless_numbers,
 )
+from pinneapple_analysis.verification.discrepancy_decomposition import (
+    COMPONENTS,
+    ComponentEstimate,
+    DiscrepancyDecomposition,
+    PointDecomposition,
+    decompose_discrepancy,
+)
 from pinneapple_analysis.verification.evidence_graph import (
     build_evidence_graph,
     evidence_summary,
@@ -296,6 +313,12 @@ __all__ = [
     "MeshQualityReport",
     "estimate_required_first_cell_height",
     "assess_mesh_quality",
+    # discrepancy_decomposition
+    "COMPONENTS",
+    "ComponentEstimate",
+    "DiscrepancyDecomposition",
+    "PointDecomposition",
+    "decompose_discrepancy",
     # causal_discrepancy
     "InterventionRunResult",
     "InterventionReport",

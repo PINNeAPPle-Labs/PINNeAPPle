@@ -93,8 +93,17 @@ REASONS: dict[str, str] = {
     "pinneapple_data.astro": "the yt reader (#515): one Enzo/FLASH/RAMSES/GADGET/Athena++ output as a "
                              "PhysicalSample, which is the data step the flows already have a node for; a node of its "
                              "own would carry the dataset path and the yt install as parameters",
+    "pinneapple_simulation.events": "an event-driven integrator whose inputs are Python callables (the right-hand "
+                                    "side and the actions): a flow's parameter form cannot hold them, so a node that "
+                                    "runs a case defines its events inside the node",
     "pinneapple_simulation.launch": "ascent trajectories for the launch vertical: the flight profile, its atmosphere "
                                     "and its visuals are arranged by examples/rocket_launch, which no node wraps",
+    "pinneapple_core.ontology": "the formal types a problem, a dataset manifest and a model card are all filled into, "
+                                "and the JSON schema they are published with (#204): it is the vocabulary the steps "
+                                "speak, not a step of its own",
+    "pinneapple_neural.hybrid_closure": "the closure arrangement of the #211: a base model plus a learned residual. "
+                                        "A flow node would carry a torch training run whose base is a callable, "
+                                        "which is what the pinn / train nodes already do",
     "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "
                               "apps and data reports use, not a computation step)",
     "pinneapple_core.onboarding": "the first hour: doctor / recommend / card / new run before a problem "

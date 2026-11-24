@@ -49,3 +49,16 @@ class ProblemSpec:
     solver_spec: Dict[str, Any] = field(default_factory=dict)
     meta: Dict[str, Any] = field(default_factory=dict)
     problem_id: str = ""  # alias for name used by quickstart / arena
+
+    def to_system(self) -> Any:
+        """The physics ontology view of this problem (#204): domain, fields, parameters, equation, conditions, solver.
+
+        A ``ProblemSpec`` is what the compiler and the presets speak, and it keeps its shape. What changed is that the
+        *concepts* it declares -- a field, a parameter, a governing equation, a boundary condition -- are now the
+        ontology's types, so a dataset manifest or a model card describing the same case produces the same objects.
+        Units come from ``meta["units"]`` when the problem carries them; without it they are recorded as ``"1"``
+        (dimensionless) rather than guessed from the field name.
+        """
+        from pinneapple_core.ontology import PhysicalSystem
+
+        return PhysicalSystem.from_problem_spec(self)

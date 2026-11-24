@@ -138,6 +138,18 @@ class ModelCard:
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
+    def to_system(self) -> Any:
+        """The physics ontology view of this card (#204).
+
+        ``inputs``/``outputs`` become fields whose unit is *parsed* (a card that says ``unit="furlongs"`` fails here
+        instead of being published), ``equations`` become the governing equation, ``boundary_conditions`` and
+        ``initial_condition`` become typed conditions, and ``architecture`` becomes the model family. A card that
+        predicts a field it does not list as an output is refused, which is the kind of card that cannot be re-checked.
+        """
+        from pinneapple_core.ontology import PhysicalSystem
+
+        return PhysicalSystem.from_model_card(self)
+
     def save(self, path: str) -> None:
         os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
         with open(path, "w") as f:

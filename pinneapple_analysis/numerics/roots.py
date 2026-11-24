@@ -27,6 +27,7 @@ converging in three steps has too few clean iterates to measure its order at all
 """
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -1264,4 +1265,80 @@ def wilkinson_sensitivity(*, degree: int = 20, relative_perturbation: float = 2.
         "max_displacement": float(displacement.max()),
         "max_condition_number": float(np.max(reference.condition_numbers)),
         "diagnostics": [d.to_dict() for d in poly_roots_companion(perturbed).diagnostics],
+    }
+
+
+# --------------------------------------------------------------------------- buckling
+def von_mises_truss_load(
+    displacement: float | np.ndarray,
+    *,
+    ea: float = 1.0,
+    length: float = 1.0,
+    angle: float = math.pi / 3.0,
+) -> np.ndarray:
+    """Vertical load carried by a two-bar (von Mises) truss at a given apex displacement.
+
+    Two linear-elastic bars of initial length ``length`` meet at the apex at ``angle`` to the horizontal,
+    and the apex is pushed down by ``displacement``. The bar length becomes
+    ``l = sqrt((length cos angle)^2 + (length sin angle - displacement)^2)``, the axial force is
+    ``EA (l - length) / length`` and vertical equilibrium gives
+
+    ``P(u) = -2 EA (l - length) / length * (h - u) / l``, ``h = length sin angle``,
+
+    with the sign that compression (``l < length``) pushes the apex *up*, i.e. resists a downward load.
+    ``P(0) = P(h) = 0`` and ``P`` has a maximum in between: that maximum is the snap-through limit point,
+    and past it the equilibrium path turns back -- ``P`` is not a function of ``u`` there, which is the
+    fold the continuation methods are built to trace.
+
+    The maximum has a closed form. Writing ``v = h - u`` and ``l^2 = b^2 + v^2`` (``b = length cos angle``),
+    ``dP/dv = 0`` reduces to ``l^3 = length * b^2``, so the critical bar length is
+    ``(length b^2)^(1/3)`` -- see :func:`von_mises_truss_critical_load`.
+    """
+    u = np.asarray(displacement, dtype=np.float64)
+    h = length * math.sin(angle)
+    b = length * math.cos(angle)
+    bar = np.sqrt(b**2 + (h - u) ** 2)
+    return -2.0 * ea * (bar - length) / length * (h - u) / bar
+
+
+def von_mises_truss_residual(
+    displacement: Sequence[float] | np.ndarray,
+    load: float,
+    *,
+    ea: float = 1.0,
+    length: float = 1.0,
+    angle: float = math.pi / 3.0,
+) -> np.ndarray:
+    """Residual ``load - P(u)`` for the continuation routines; the unknown is the apex displacement.
+
+    Shaped for :func:`natural_parameter_continuation` and :func:`pseudo_arclength_continuation`, with
+    ``x = [u]`` and ``lambda = load``. The natural-parameter method stalls at the limit load (the Jacobian
+    ``dP/du`` vanishes there) and the pseudo-arclength method walks around it.
+    """
+    u = float(np.ravel(displacement)[0])
+    return np.array([load - float(von_mises_truss_load(u, ea=ea, length=length, angle=angle))])
+
+
+def von_mises_truss_critical_load(
+    *,
+    ea: float = 1.0,
+    length: float = 1.0,
+    angle: float = math.pi / 3.0,
+) -> dict[str, Any]:
+    """The limit point of the two-bar truss in closed form, as the reference a continuation must reach.
+
+    ``l_crit = (length b^2)^(1/3)``, ``u_crit = length sin angle - sqrt(l_crit^2 - b^2)`` and
+    ``P_crit = 2 EA (l_crit - length) / length * sqrt(l_crit^2 - b^2) / l_crit``. Returned rather than
+    asserted, so a test can compare it with the numeric maximum and with the traced branch.
+    """
+    h = length * math.sin(angle)
+    b = length * math.cos(angle)
+    bar = (length * b**2) ** (1.0 / 3.0)
+    v = math.sqrt(bar**2 - b**2)
+    return {
+        "displacement": h - v,
+        "load": float(von_mises_truss_load(h - v, ea=ea, length=length, angle=angle)),
+        "bar_length": bar,
+        "apex_height": h,
+        "half_span": b,
     }

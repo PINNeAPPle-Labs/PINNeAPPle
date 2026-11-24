@@ -30,6 +30,9 @@ from pinneapple_analysis.numerics.roots import (
     regula_falsi,
     scan_for_bracket,
     secant,
+    von_mises_truss_critical_load,
+    von_mises_truss_load,
+    von_mises_truss_residual,
     wilkinson_sensitivity,
 )
 
@@ -305,3 +308,60 @@ def test_wilkinson_roots_move_by_whole_units_for_a_last_bit_change() -> None:
     predicted = np.asarray(report["predicted_displacement"])
     measured = np.asarray(report["displacement"])
     assert np.corrcoef(np.log10(predicted + 1e-30), np.log10(measured + 1e-30))[0, 1] > 0.8
+
+
+# --------------------------------------------------------------------------- buckling
+def test_von_mises_truss_limit_point_is_the_closed_form_and_the_numeric_maximum() -> None:
+    """Snap-through buckling: the load-displacement curve turns over, and three independent values agree.
+
+    The closed form (``l^3 = L b^2``) is compared with a golden-section search on the load itself and with
+    the load the closed-form displacement carries -- so the reference the continuation is judged against
+    is not taken on faith.
+    """
+    critical = von_mises_truss_critical_load()
+    assert von_mises_truss_load(0.0) == pytest.approx(0.0, abs=1e-15)
+    assert von_mises_truss_load(critical["apex_height"]) == pytest.approx(0.0, abs=1e-15)
+
+    low, high = 1e-12, critical["apex_height"]
+    ratio = (np.sqrt(5.0) - 1.0) / 2.0
+    for _ in range(200):
+        left = high - ratio * (high - low)
+        right = low + ratio * (high - low)
+        if float(von_mises_truss_load(left)) < float(von_mises_truss_load(right)):
+            low = left
+        else:
+            high = right
+    measured_displacement = 0.5 * (low + high)
+    measured_load = float(von_mises_truss_load(measured_displacement))
+    assert measured_displacement == pytest.approx(critical["displacement"], rel=1e-8)
+    assert measured_load == pytest.approx(critical["load"], rel=1e-8)
+    assert measured_load == pytest.approx(0.45019646437, rel=1e-9)
+
+
+def test_natural_continuation_jumps_the_branch_and_arclength_walks_around_the_fold() -> None:
+    """The buckling lesson, measured: fixing the load gives a converged answer on the *wrong* branch.
+
+    Past the limit load there is no equilibrium on the shallow branch, but Newton does not say so -- it
+    converges to the far branch, and the traced path has a jump of more than one unit of displacement
+    between two consecutive load steps. Pseudo-arclength instead steps around the turning point: the load
+    becomes non-monotone (its maximum is the critical load) and consecutive displacements stay of the
+    order of the arclength step.
+    """
+    loads = np.linspace(0.01, 1.0, 20)
+    natural = natural_parameter_continuation(von_mises_truss_residual, [0.02], loads)
+    assert natural.converged  # it does not fail: that is the trap
+    displacements = natural.path[:, 0]
+    jump = float(np.max(np.abs(np.diff(displacements))))
+    assert jump > 1.0  # the snap-through, crossed silently in one step
+
+    critical = von_mises_truss_critical_load()
+    step = 0.01
+    arc = pseudo_arclength_continuation(
+        von_mises_truss_residual, [0.05], 0.02, steps=150, ds=step
+    )
+    assert arc.converged
+    assert not np.all(np.diff(arc.parameters) > 0)  # the load turns back: the fold was passed
+    assert float(np.max(arc.parameters)) == pytest.approx(critical["load"], abs=5e-3)
+    assert float(np.max(np.abs(np.diff(arc.path[:, 0])))) < 10.0 * step
+    # the branch continues past the fold instead of jumping: the displacement keeps growing smoothly
+    assert float(np.max(arc.path[:, 0])) > 0.9

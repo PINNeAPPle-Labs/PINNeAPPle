@@ -167,8 +167,8 @@ def test_a_parameter_cannot_be_varied_and_fixed_at_once():
 
 
 # ---------------------------------------------------------------------------------------------- what runs today
-@pytest.mark.parametrize("kind", ["pinn", "inverse", "twin"])
-def test_kinds_beyond_the_two_that_run_are_described_and_refused_with_the_reason(kind):
+@pytest.mark.parametrize("kind", ["inverse", "twin"])
+def test_the_kinds_that_do_not_run_are_described_and_refused_with_the_reason(kind):
     spec = toy(kind=kind, model=Model(pde={"type": "laplace_2d", "coords": {"x": "x", "y": "y"}}))
     run = run_study(spec, lambda p: {"f": 1.0, "g": 2.0})
     assert run.status == "refused" and not run.rows
@@ -177,12 +177,18 @@ def test_kinds_beyond_the_two_that_run_are_described_and_refused_with_the_reason
     assert run.to_dict()["spec"]["kind"] == kind
 
 
-def test_the_examples_name_their_model_and_it_is_not_a_solver():
+def test_the_examples_name_their_model_and_say_which_ones_are_not_a_solver():
+    """Three examples are models and say so; the beam is the one whose evaluator *is* a solver, and says that."""
     for name, (make, evaluator) in EXAMPLES.items():
         spec = make()
-        assert spec.evaluator.fidelity == "model", name
-        assert "not a" in spec.metadata["model"], name
+        assert spec.metadata["model"], name
         assert callable(evaluator)
+        if name == "beam":
+            assert spec.evaluator.fidelity == "reference"
+            assert "pinneapple_simulation" in spec.metadata["model"]
+        else:
+            assert spec.evaluator.fidelity == "model", name
+            assert "not a" in spec.metadata["model"], name
 
 
 def test_the_three_examples_are_an_optimisation_pair_and_a_surrogate():

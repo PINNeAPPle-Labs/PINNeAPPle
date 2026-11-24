@@ -33,10 +33,11 @@ from pinneapple_autolab.factory import (
     ProvenanceError,
     StudyDatasetWriter,
     TemplateGeometry,
+    row_verdict,
     run_factory,
     template_names,
 )
-from pinneapple_autolab.factory.domains import pipe_erosion
+from pinneapple_autolab.factory.domains import pipe_erosion, ugs
 
 
 # ---------------------------------------------------------------------------------------------- the case
@@ -115,7 +116,8 @@ def test_a_design_outside_the_template_limits_is_refused_with_the_limit():
 # ---------------------------------------------------------------------------------------------- end to end
 def test_the_factory_writes_one_dataset_row_per_run_with_its_provenance(tmp_path):
     run = run_factory(bend_spec(), bend_simulator(), out=str(tmp_path / "out"))
-    assert run.status == "done" and run.decision == "APPROVED" and run.approved
+    # a model that records no convergence, mesh or conservation evidence is written but not signed
+    assert run.status == "inconclusive" and run.decision == "REVIEW"
     assert len(run.rows) == 5 and len(run.accepted) == 5 and run.dataset["n_rows"] == 5
 
     from pinneapple_autolab.study.dataset import StudyDataset
@@ -238,7 +240,8 @@ def test_the_run_renders_as_a_page():
     import tempfile
     run = run_factory(bend_spec(n_doe=3), bend_simulator(), out=tempfile.mkdtemp())
     page = run.to_markdown()
-    assert page.startswith("# Factory run: bend") and "**done**" in page and "| baseline000 | baseline |" in page
+    assert page.startswith("# Factory run: bend") and "Status **inconclusive**" in page
+    assert "| baseline000 | baseline |" in page
     assert "## Quality control" in page and "every row has provenance" in page
 
 
@@ -275,3 +278,66 @@ def test_the_pipe_erosion_spec_declares_units_and_the_reference_object():
     assert spec.base.baseline == {"diameter": 0.0762, "bend_ratio": 1.5}     # the Vieira et al. object
     assert "Vieira" in pipe_erosion.REFERENCE
     assert spec.digest() == pipe_erosion.spec().digest()                      # the case is a value, not a run
+
+
+# ---------------------------------------------------------------------------------------------- the in-house solver
+def test_the_reservoir_grid_is_built_and_measured():
+    art = ugs.geometry().prepare({"permeability_md": 100.0, "porosity": 0.2})
+    m = art.metrics
+    assert art.status == "built" and art.ok and m["cells"] == 21 * 21
+    assert m["bulk_volume_m3"] == pytest.approx(21 * 21 * 40.0 * 40.0 * 1.0)                 # 40 x 40 x 1 m cells
+    assert m["pore_volume_m3"] == pytest.approx(m["bulk_volume_m3"] * 0.2)                  # phi0 = 0.2
+    assert m["transmissibility_min"] > 0 and m["transmissibility_min"] == pytest.approx(
+        40.0 * 1.0 * 100.0 * ugs.MD / 40.0)                                                 # A k / d
+    assert m["well_index_m3"] > 0 and m["ports"]["well"].startswith("P1")
+    assert [c.status for c in art.checks] == ["supports", "supports"]
+
+
+def test_a_porosity_that_is_not_a_porous_medium_is_refused_by_the_grid():
+    art = ugs.geometry().prepare({"permeability_md": 100.0, "porosity": 1.0})
+    assert art.status == "refused" and "porosity" in art.reasons[0]
+
+
+def test_the_solver_refuses_a_design_it_cannot_simulate():
+    bad = ugs.solver().check({"permeability_md": 0.0, "porosity": 0.2})
+    assert bad and "cannot flow" in bad[0]
+    assert ugs.solver().check({"permeability_md": 100.0, "porosity": 1.5})                   # outside (0, 1)
+    assert ugs.solver().check({"permeability_md": 100.0, "porosity": 0.2,
+                               "bhp_floor_Pa": 2.0e7, "initial_pressure_Pa": 1.2e7})          # floor above p0
+    assert ugs.solver().check({"permeability_md": 100.0, "porosity": 0.2}) == []
+
+
+def test_the_storage_case_carries_the_chain_through_the_library_solver(tmp_path):
+    run = run_factory(ugs.spec(n_doe=3), ugs.solver(), out=str(tmp_path / "out"), geometry=ugs.geometry())
+    assert run.status == "done" and run.decision == "APPROVED" and run.approved
+    assert len(run.rows) == 4 and run.dataset["n_rows"] == 4          # 1 baseline + 3 DOE, all written
+    assert run.geometry["name"] == "ugs grid" and run.geometry["build"].startswith("pinneapple_simulation.ugs")
+
+    base = run.rows[0]
+    assert base.purpose == "baseline" and base.params == {"permeability_md": 100.0, "porosity": 0.2}
+    assert base.outputs["peak_deliverability"] == pytest.approx(199_305.5, rel=1e-4)
+    assert base.outputs["pressure_drop"] == pytest.approx(1.9, rel=5e-2)
+    checks = {c.name: c.status for c in base.checks}
+    assert checks["converged"] == "supports" and checks["conservation"] == "supports"
+    assert checks["mesh quality"] == "supports" and checks["mesh convergence (GCI)"] == "not_run"
+    assert base.provenance["uses_a_mesh"] is True and base.provenance["mesh"] == {"cells": 441}
+
+    ds_dir = os.path.join(str(tmp_path / "out"))
+    rows = json.load(open(os.path.join(ds_dir, "rows.json")))
+    assert len(rows) == 4 and all(r["outputs"]["peak_deliverability"] > 0 for r in rows)
+    # what the dataset carries is what the library's simulator returned for that design
+    sim = ugs.solver()
+    for row in run.rows[1:]:
+        again = sim.run(ugs.spec().evaluator.tool_params(row.params), str(tmp_path / "again"))
+        assert again.outputs["peak_deliverability"] == pytest.approx(row.outputs["peak_deliverability"], rel=1e-9)
+
+
+def test_a_run_that_does_not_conserve_mass_is_rejected():
+    class Leaky:
+        ok, outputs, message, meta = True, {"peak_deliverability": 1.0, "pressure_drop": 2.0}, "", {
+            "converged": True, "mass_balance_error": 0.5, "mesh": {"cells": 441, "ok": True}}
+
+    checks = FactoryQc().row_checks(ugs.geometry().prepare({"permeability_md": 100.0, "porosity": 0.2}), Leaky(),
+                                    ugs.spec())
+    verdict, reasons = row_verdict(checks)
+    assert verdict == "rejected" and any("mass-balance" in r for r in reasons)

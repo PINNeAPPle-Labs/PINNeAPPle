@@ -25,6 +25,11 @@ except Exception:
     pass
 
 try:
+    from .adaptive_sampling import AdaptiveDesign, Signal, adapt, benchmark_adaptive
+except Exception:
+    pass
+
+try:
     from .active_learning import (
         ActiveLearningConfig,
         AdaptiveCollocationTrainer,
@@ -94,6 +99,11 @@ __all__ = [
     "VarianceBasedAL",
     "CombinedAL",
     "AdaptiveCollocationTrainer",
+    # Adaptive multi-signal sampling (#209)
+    "adapt",
+    "AdaptiveDesign",
+    "Signal",
+    "benchmark_adaptive",
     # Transforms / normalizers
     "Normalizer",
     "StandardScaler",

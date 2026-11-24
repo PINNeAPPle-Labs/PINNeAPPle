@@ -16,11 +16,11 @@ import numpy as np
 import pytest
 
 from pinneapple_simulation.cfd_validation import (
+    DEV_VAHL_DAVIS_NU,
     GHIA_RE,
     GHIA_U,
     GHIA_V,
     PROFILES,
-    DEV_VAHL_DAVIS_NU,
     cavity,
     foam,
     nu_for_grashof,
@@ -29,8 +29,8 @@ from pinneapple_simulation.cfd_validation import (
     profile_error,
     reference,
     step,
+    warm_start,
 )
-from pinneapple_simulation.cfd_validation import warm_start
 
 needs_foam = pytest.mark.skipif(not foam.available("simpleFoam"),
                                 reason="no OpenFOAM installation found (set FOAM_BASHRC)")
@@ -41,7 +41,7 @@ def test_every_profile_is_the_length_it_claims_and_its_coordinates_increase():
     for p in PROFILES:
         assert len(p.points) == len(p.values), p.quantity
         assert len(p.points) >= 10, p.quantity
-        assert all(b > a for a, b in zip(p.points, p.points[1:])), p
+        assert all(b > a for a, b in zip(p.points, p.points[1:], strict=False)), p
         assert np.all(np.isfinite(p.values)), p.quantity
         assert len(p.citation) > 40 and "1982" in p.citation, p.citation
 
@@ -262,3 +262,95 @@ def test_a_warm_start_saves_iterations_and_does_not_change_the_answer(tmp_path):
     assert got.cold_converged and got.warm_converged, got.note
     assert got.warm_iterations < got.cold_iterations, got.to_dict()
     assert got.field_difference["U"] < 0.05, got.to_dict()
+
+
+# --------------------------------------------------------------------------------------------- the ladder
+def _rows(truth, bias=0.0, scale=1.0):
+    """A synthetic ladder: a coarse rung that is an affine function of the fine one."""
+    rows = []
+    for alpha, cl in truth.items():
+        rows.append({"design": {"section": "0012", "alpha": alpha}, "rung": "rans-fine", "CL": cl, "CD": 0.01})
+        rows.append({"design": {"section": "0012", "alpha": alpha}, "rung": "rans-coarse",
+                     "CL": scale * cl + bias, "CD": 0.01})
+    return rows
+
+
+def test_a_constant_bias_cannot_change_a_ranking_and_the_ladder_says_so():
+    from pinneapple_simulation.cfd_validation import ladder
+    truth = {0.0: 0.0, 4.0: 0.44, 8.0: 0.85}
+    got = ladder.calibrate(_rows(truth, bias=0.05), "rans-coarse")
+    assert got["offset"] == pytest.approx(-0.05)                 # fine - coarse, the sign the table needs
+    assert got["spearman_before"] == pytest.approx(1.0)
+    assert got["spearman_after"] == pytest.approx(1.0)
+
+
+def test_a_bias_that_varies_with_the_design_does_move_the_ranking():
+    from pinneapple_simulation.cfd_validation import ladder
+    truth = {0.0: 0.0, 4.0: 0.44, 8.0: 0.85}
+    rows = _rows(truth, bias=0.0, scale=-1.0)                    # a rung that ranks the designs backwards
+    got = ladder.calibrate(rows, "rans-coarse")
+    assert got["spearman_before"] == pytest.approx(-1.0)
+    assert got["slope"] < 0
+
+
+def test_spearman_is_the_rank_correlation_with_ties_averaged():
+    from pinneapple_simulation.cfd_validation import ladder
+    assert ladder.spearman([1, 2, 3], [10, 20, 30]) == pytest.approx(1.0)
+    assert ladder.spearman([1, 2, 3], [30, 20, 10]) == pytest.approx(-1.0)
+    assert np.isnan(ladder.spearman([1, 2, 3], [5, 5, 5]))       # a rung that says nothing cannot rank
+    assert np.isnan(ladder.spearman([1, 2], [1, 2, 3]))          # different lengths are not a correlation
+    assert ladder.spearman([1, 2, 3, 4], [1, 1, 4, 4]) == pytest.approx(0.8944, rel=1e-3)   # ties averaged
+
+
+def test_the_cheapest_rung_is_the_closed_form_one():
+    from pinneapple_simulation.cfd_validation import ladder
+    got = ladder.thin_airfoil("0012", 4.0)
+    assert got["CL"] == pytest.approx(2 * np.pi * np.sin(np.radians(4.0)))
+    assert got["cells"] == 0 and got["seconds"] == 0.0
+    assert ladder.thin_airfoil("0012", 0.0)["CL"] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_the_ladder_exports_itself_as_data_levels_for_the_multifidelity_workflow():
+    from pinneapple_simulation.cfd_validation import ladder
+    names = [lv["name"] for lv in ladder.MULTIFIDELITY["levels"]]
+    assert names[0] == "thin-airfoil" and names == sorted(names, key=lambda n: -1 if n == "thin-airfoil" else 0)
+    costs = [lv["cost"] for lv in ladder.MULTIFIDELITY["levels"]]
+    assert costs == sorted(costs), "the levels must be ordered by cost for a sampler to choose between them"
+
+
+# --------------------------------------------------------------------------------------------- the TMR plate
+def test_the_flat_plate_puts_its_first_cell_in_the_log_layer(tmp_path):
+    """``simpleGrading`` takes the last-to-first ratio, not the per-cell one: a case that gets this wrong puts the
+    wall function at ``y+ ~ 3000`` and the skin friction comes out three orders of magnitude low."""
+    from pinneapple_simulation.cfd_validation import tmr
+    case = str(tmp_path / "plate")
+    params = tmr.write_case(case, tmr.PLATE_RE, level=tmr.LEVELS[0], model="kOmegaSST")
+    u_tau = params["u_tau_estimate"]
+    assert params["first_cell_height"] * u_tau / params["nu"] == pytest.approx(tmr.YPLUS, rel=1e-6)
+    assert params["grading"] > 1.0
+    per_cell = params["grading"] ** (1.0 / (params["ny"] - 1))         # the growth ratio a cell sees
+    total = params["first_cell_height"] * (per_cell ** params["ny"] - 1) / (per_cell - 1)
+    assert total == pytest.approx(params["height"], rel=0.02)          # the cells really do reach the far field
+    with open(f"{case}/system/blockMeshDict") as fh:
+        assert "simpleGrading (1 " in fh.read()
+
+
+def test_the_tmr_reference_reader_takes_two_columns_and_skips_a_header(tmp_path):
+    from pinneapple_simulation.cfd_validation import tmr
+    path = tmp_path / "plate.dat"
+    path.write_text("# x cf\n0.1 0.005\n0.5 0.003\n0.9 0.0025\n")
+    got = tmr.read_reference(str(path))
+    assert list(got["x"]) == pytest.approx([0.1, 0.5, 0.9])
+    assert list(got["cf"]) == pytest.approx([0.005, 0.003, 0.0025])
+    bad = tmp_path / "bad.dat"
+    bad.write_text("nothing here\n")
+    with pytest.raises(ValueError, match="no x cf"):
+        tmr.read_reference(str(bad))
+
+
+def test_the_one_percent_power_law_is_where_the_plate_is_judged():
+    """The check that needs no reference file: the 1/7-power law at the sampling station, quoted with its citation."""
+    from pinneapple_simulation.cfd_validation import tmr
+    law = tmr.CF_LAW["coefficient"] * (tmr.PLATE_RE * 0.97) ** tmr.CF_LAW["exponent"]
+    assert 0.002 < law < 0.004
+    assert "Schlichting" in tmr.CF_LAW["citation"]

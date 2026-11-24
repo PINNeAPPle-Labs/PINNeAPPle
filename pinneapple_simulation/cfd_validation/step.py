@@ -30,8 +30,9 @@ depend on the table is measured here, and the rest waits for the numbers to be e
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -48,7 +49,7 @@ MESHES = (8, 16, 32)
 
 
 def write_case(case: str, reynolds: float, cells_per_step: int = 16, *, expansion: float = EXPANSION,
-               lin: float = 5.0, lout: float = 30.0, iterations: int = 20000) -> Dict[str, Any]:
+               lin: float = 5.0, lout: float = 30.0, iterations: int = 20000) -> dict[str, Any]:
     """Write the step case: one block, then the cut. ``lin``/``lout`` are the inlet and outlet lengths in step
     heights, and are this package's choice rather than Armaly's rig (recorded with every run)."""
     m = int(cells_per_step)
@@ -168,7 +169,7 @@ boundaryField
             "note": "lin and lout are this package's choice, not Armaly's rig"}
 
 
-def inlet_face_centres(case: str, patch: str = "inlet") -> Dict[str, Any]:
+def inlet_face_centres(case: str, patch: str = "inlet") -> dict[str, Any]:
     """The faces of one patch, read from the mesh: their centres, and the ``y`` extent of their *nodes*.
 
     Read from ``constant/polyMesh`` rather than assumed, because the profile has to be written on the faces the mesh
@@ -209,7 +210,7 @@ def inlet_face_centres(case: str, patch: str = "inlet") -> Dict[str, Any]:
     return {"centres": np.asarray(centres, dtype=float), "y_min": min(ys), "y_max": max(ys), "faces": len(centres)}
 
 
-def write_inlet(case: str, mean_velocity: float = 1.0, *, patch: str = "inlet") -> Dict[str, Any]:
+def write_inlet(case: str, mean_velocity: float = 1.0, *, patch: str = "inlet") -> dict[str, Any]:
     """Write the parabolic inlet profile over the faces the cut left, and return what it wrote.
 
     ``u(y) = 6 U s (1 - s)`` with ``s`` the fraction of the inlet height, which is the fully developed laminar channel
@@ -233,7 +234,7 @@ def write_inlet(case: str, mean_velocity: float = 1.0, *, patch: str = "inlet") 
 
 
 def run(case: str, reynolds: float, cells_per_step: int = 16, *, mean_velocity: float = 1.0,
-        timeout: float = 3600.0) -> Dict[str, Any]:
+        timeout: float = 3600.0) -> dict[str, Any]:
     """Mesh, cut the step, write the inlet profile, solve, and write the cell centres."""
     mesh = foam.run_case(case, commands=["blockMesh", "topoSet", 'subsetMesh -overwrite fluidCells -patches "(walls)"'],
                          timeout=timeout)
@@ -249,7 +250,16 @@ def run(case: str, reynolds: float, cells_per_step: int = 16, *, mean_velocity: 
             "reynolds": float(reynolds), "inlet": inlet}
 
 
-def reattachment_length(case: str, *, step_height: float = 1.0) -> Dict[str, Any]:
+def _log_text(case: str) -> str:
+    path = os.path.join(case, "log.simpleFoam")
+    try:
+        with open(path, errors="replace") as fh:
+            return fh.read()
+    except OSError:
+        return ""
+
+
+def reattachment_length(case: str, *, step_height: float = 1.0) -> dict[str, Any]:
     """``x1 / S`` behind the step: where the streamwise velocity on the first cell row changes sign.
 
     On the first row the velocity is the wall shear up to its sign (no-slip at ``y = 0``), so the reattachment point is
@@ -290,12 +300,12 @@ class StepRun:
     iterations: int
     converged: bool
     seconds: float
-    x1_over_S: Optional[float] = None
-    u_min: Optional[float] = None
-    residuals: Dict[str, float] = field(default_factory=dict)
+    x1_over_S: float | None = None
+    u_min: float | None = None
+    residuals: dict[str, float] = field(default_factory=dict)
     note: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {"reynolds": self.reynolds, "cells_per_step": self.cells_per_step, "cells": self.cells,
                 "iterations": self.iterations, "converged": self.converged, "seconds": round(self.seconds, 3),
                 "x1_over_S": None if self.x1_over_S is None else float(self.x1_over_S),
@@ -304,7 +314,7 @@ class StepRun:
 
 
 def study(reynolds: float, root: str, *, meshes: Sequence[int] = MESHES, lin: float = 5.0, lout: float = 30.0,
-          timeout: float = 3600.0) -> Dict[str, Any]:
+          timeout: float = 3600.0, reuse: bool = False) -> dict[str, Any]:
     """Run the step at ``reynolds`` on a ladder of meshes and report ``x1/S`` on each.
 
     No error column: the published reattachment curve is not transcribed (see the module docstring), so what this
@@ -314,7 +324,12 @@ def study(reynolds: float, root: str, *, meshes: Sequence[int] = MESHES, lin: fl
     for m in meshes:
         case = os.path.join(root, f"step_re{int(reynolds)}_m{m}")
         params = write_case(case, reynolds, m, lin=lin, lout=lout)
-        info = run(case, reynolds, m, timeout=timeout)
+        solved = foam.cells_available(case)
+        if reuse and solved:
+            info = {"ok": True, "failed": None, "seconds": 0.0,
+                    "solver": foam.solver_log(_log_text(case)), "log": "", "inlet": None}
+        else:
+            info = run(case, reynolds, m, timeout=timeout)
         log = info["solver"]
         run_ = StepRun(reynolds=float(reynolds), cells_per_step=int(m), cells=int(params["cells"]),
                        iterations=int(log["iterations"]), converged=bool(log["converged"]),

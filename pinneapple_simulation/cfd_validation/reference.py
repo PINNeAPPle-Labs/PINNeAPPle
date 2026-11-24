@@ -66,7 +66,7 @@ class Profile:
                              f"{len(self.values)} values")
         if len(self.points) < 3:
             raise ValueError(f"{self.case} Re={self.reynolds} {self.quantity}: a profile of {len(self.points)} points")
-        for a, b in zip(self.points, self.points[1:]):
+        for a, b in zip(self.points, self.points[1:], strict=False):
             if not b > a:
                 raise ValueError(f"{self.case} Re={self.reynolds} {self.quantity}: the coordinates are not "
                                  f"increasing ({a} then {b})")

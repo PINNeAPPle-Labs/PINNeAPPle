@@ -31,10 +31,11 @@ made per case, and none is claimed here.
 from __future__ import annotations
 
 import os
-import re
+import re as _re
 import time
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -52,7 +53,7 @@ def _block(text: str, key: str) -> tuple[int, int]:
     (0 0 0);``) or as a dictionary of braces, so the span ends at the first ``;`` after the keyword — and a
     ``nonuniform List<...>`` of values contains no ``;`` of its own, which is why that is enough.
     """
-    m = re.search(rf"^[ \t]*{key}\b", text, flags=re.M)
+    m = _re.search(rf"^[ \t]*{key}\b", text, flags=_re.M)
     if not m:
         raise KeyError(f"no {key!r} entry")
     end = text.find(";", m.end())
@@ -61,7 +62,7 @@ def _block(text: str, key: str) -> tuple[int, int]:
     return m.start(), end + 1
 
 
-def set_internal_field(case: str, name: str, values: np.ndarray) -> Dict[str, Any]:
+def set_internal_field(case: str, name: str, values: np.ndarray) -> dict[str, Any]:
     """Replace only the ``internalField`` of ``case/0/<name>``; the ``boundaryField`` is left byte for byte.
 
     ``values`` is ``(n_cells,)`` for a scalar and ``(n_cells, 3)`` for a vector. Returns what it wrote — the field,
@@ -87,7 +88,7 @@ def set_internal_field(case: str, name: str, values: np.ndarray) -> Dict[str, An
     return {"field": name, "cells": int(v.shape[0]), "min": float(v.min()), "max": float(v.max())}
 
 
-def write_fields(case: str, fields: Dict[str, np.ndarray]) -> Dict[str, Any]:
+def write_fields(case: str, fields: dict[str, np.ndarray]) -> dict[str, Any]:
     """Map a whole predicted state onto time zero of ``case``: one :func:`set_internal_field` per field."""
     return {name: set_internal_field(case, name, values) for name, values in fields.items()}
 
@@ -109,14 +110,14 @@ class OperatorSurrogate:
     """
 
     modes: int = 8
-    mean: Dict[str, np.ndarray] = field(default_factory=dict)
-    basis: Dict[str, np.ndarray] = field(default_factory=dict)      # (modes, n_cells * comp)
-    coefficients: Dict[str, np.ndarray] = field(default_factory=dict)  # (n_snapshots, modes)
+    mean: dict[str, np.ndarray] = field(default_factory=dict)
+    basis: dict[str, np.ndarray] = field(default_factory=dict)      # (modes, n_cells * comp)
+    coefficients: dict[str, np.ndarray] = field(default_factory=dict)  # (n_snapshots, modes)
     reynolds: np.ndarray = field(default_factory=lambda: np.zeros(0))
-    shapes: Dict[str, tuple] = field(default_factory=dict)
+    shapes: dict[str, tuple] = field(default_factory=dict)
     fitted_seconds: float = 0.0
 
-    def fit(self, snapshots: Dict[float, Dict[str, np.ndarray]], *, modes: Optional[int] = None) -> "OperatorSurrogate":
+    def fit(self, snapshots: dict[float, dict[str, np.ndarray]], *, modes: int | None = None) -> OperatorSurrogate:
         """Decompose each field of the snapshots and fit its coefficients against the parameter."""
         t0 = time.time()
         self.reynolds = np.asarray(sorted(snapshots), dtype=float)
@@ -126,10 +127,10 @@ class OperatorSurrogate:
         m = int(modes or self.modes)
         for name in names:
             stack = []
-            for re in self.reynolds:
-                s = snapshots[float(re)].get(name)
+            for reynolds in self.reynolds:
+                s = snapshots[float(reynolds)].get(name)
                 if s is None:
-                    raise KeyError(f"Re = {re:g}: no {name!r} in the snapshot set")
+                    raise KeyError(f"Re = {reynolds:g}: no {name!r} in the snapshot set")
                 a = np.asarray(s, dtype=float)
                 self.shapes.setdefault(name, a.shape)
                 if a.shape != self.shapes[name]:
@@ -148,7 +149,7 @@ class OperatorSurrogate:
         self.fitted_seconds = time.time() - t0
         return self
 
-    def predict(self, reynolds: float, *, modes: Optional[int] = None) -> Dict[str, np.ndarray]:
+    def predict(self, reynolds: float, *, modes: int | None = None) -> dict[str, np.ndarray]:
         """The field at ``reynolds``: the mean plus the interpolated modes, in the shape the snapshots had."""
         if not self.basis:
             raise RuntimeError("the surrogate has not been fitted")
@@ -162,11 +163,11 @@ class OperatorSurrogate:
 
     # ------------------------------------------------------------------ diagnostics
     @property
-    def energy(self) -> Dict[str, float]:
+    def energy(self) -> dict[str, float]:
         """The fraction of the snapshot energy the kept modes capture, per field."""
         return dict(getattr(self, "_energy", {}))
 
-    def error(self, reynolds: float, truth: Dict[str, np.ndarray]) -> Dict[str, float]:
+    def error(self, reynolds: float, truth: dict[str, np.ndarray]) -> dict[str, float]:
         """Relative L2 error of the prediction against a solved field at the same parameter."""
         pred = self.predict(reynolds)
         out = {}
@@ -189,8 +190,8 @@ class WarmStartResult:
     warm_seconds: float
     cold_converged: bool
     warm_converged: bool
-    predicted_error: Dict[str, float] = field(default_factory=dict)
-    field_difference: Dict[str, float] = field(default_factory=dict)
+    predicted_error: dict[str, float] = field(default_factory=dict)
+    field_difference: dict[str, float] = field(default_factory=dict)
     note: str = ""
 
     @property
@@ -201,7 +202,7 @@ class WarmStartResult:
     def iteration_ratio(self) -> float:
         return self.cold_iterations / self.warm_iterations if self.warm_iterations else float("nan")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {"reynolds": self.reynolds, "cold_iterations": self.cold_iterations,
                 "warm_iterations": self.warm_iterations, "cold_seconds": round(self.cold_seconds, 3),
                 "warm_seconds": round(self.warm_seconds, 3), "speedup": round(self.speedup, 3),
@@ -257,15 +258,15 @@ def benchmark(reynolds: float, surrogate: OperatorSurrogate, root: str, *, n: in
 
 
 def snapshots(root: str, reynolds: Sequence[float], *, n: int = 64, fields: Sequence[str] = ("U", "p"),
-              timeout: float = 3600.0) -> Dict[float, Dict[str, np.ndarray]]:
+              timeout: float = 3600.0) -> dict[float, dict[str, np.ndarray]]:
     """Solve the cavity at each Reynolds number on one mesh and keep the converged fields as snapshots."""
-    out: Dict[float, Dict[str, np.ndarray]] = {}
-    for re in reynolds:
-        case = os.path.join(root, f"snapshot_re{int(re)}_{n}")
-        cavity.write_case(case, re, n)
-        info = cavity.run(case, re, n, timeout=timeout)
+    out: dict[float, dict[str, np.ndarray]] = {}
+    for case_re in reynolds:
+        case = os.path.join(root, f"snapshot_re{int(case_re)}_{n}")
+        cavity.write_case(case, case_re, n)
+        info = cavity.run(case, case_re, n, timeout=timeout)
         if not info["ok"]:
-            raise RuntimeError(f"Re = {re:g}: {info['failed']} failed: {info['log'][-800:]}")
+            raise RuntimeError(f"Re = {case_re:g}: {info['failed']} failed: {info['log'][-800:]}")
         data = foam.cells(case, fields=list(fields))
-        out[float(re)] = {name: np.asarray(data[name], dtype=float) for name in fields}
+        out[float(case_re)] = {name: np.asarray(data[name], dtype=float) for name in fields}
     return out

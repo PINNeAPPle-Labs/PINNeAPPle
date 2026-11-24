@@ -32,12 +32,13 @@ import os
 import re
 import subprocess
 import time
-from typing import Any, Dict, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
 
 __all__ = ["bashrc", "available", "command", "sh", "run_case", "cells", "case_files", "solver_log",
-           "FOAM_APP_CANDIDATES"]
+           "time_dirs", "last_time", "cells_available", "patch_centres", "patch_values", "FOAM_APP_CANDIDATES"]
 
 
 def _candidates() -> list[str]:
@@ -55,7 +56,7 @@ def _candidates() -> list[str]:
 FOAM_APP_CANDIDATES = tuple(_candidates())
 
 
-def bashrc() -> Optional[str]:
+def bashrc() -> str | None:
     """The bashrc of the installed OpenFOAM, or ``None``. Answer the question, never raise: a caller that needs the
     solver asks :func:`available` and skips, and a caller that only reports asks the same thing."""
     for cand in FOAM_APP_CANDIDATES:
@@ -64,7 +65,7 @@ def bashrc() -> Optional[str]:
     return None
 
 
-def command(name: str) -> Optional[str]:
+def command(name: str) -> str | None:
     """Absolute path of one OpenFOAM executable (``simpleFoam``, ``blockMesh``...) under the install, or ``None``."""
     env = bashrc()
     if env is None:
@@ -101,7 +102,7 @@ def sh(case: str, cmd: str, *, timeout: float = 3600.0, log: str = "log", check:
     return r
 
 
-def _tail(path: str, n: Optional[int] = 4000) -> str:
+def _tail(path: str, n: int | None = 4000) -> str:
     """The log's text (``n=None``) or its last ``n`` characters, which is what an error message needs."""
     try:
         with open(path, errors="replace") as fh:
@@ -111,7 +112,7 @@ def _tail(path: str, n: Optional[int] = 4000) -> str:
     return text if n is None else text[-n:]
 
 
-def run_case(case: str, *, commands: Sequence[str], timeout: float = 3600.0) -> Dict[str, Any]:
+def run_case(case: str, *, commands: Sequence[str], timeout: float = 3600.0) -> dict[str, Any]:
     """Run ``commands`` in order in ``case``; the wall time of each, and whether all of them ended cleanly."""
     timings = {}
     text, tail = [], []
@@ -127,7 +128,7 @@ def run_case(case: str, *, commands: Sequence[str], timeout: float = 3600.0) -> 
     return {"ok": True, "failed": None, "seconds": timings, "log": "\n".join(tail), "text": "\n".join(text)}
 
 
-def solver_log(text: str) -> Dict[str, Any]:
+def solver_log(text: str) -> dict[str, Any]:
     """The numbers a solver run leaves in its log: iterations, whether it converged, and the last residual.
 
     OpenFOAM prints one ``Time = n`` per outer iteration and either ``SIMPLE solution converged in N iterations`` or
@@ -155,7 +156,7 @@ def solver_log(text: str) -> Dict[str, Any]:
 _TIME_RE = re.compile(r"^\d+(\.\d+)?$")
 
 
-def case_files(case: str, time: Optional[str] = None) -> Dict[str, bytes]:
+def case_files(case: str, time: str | None = None) -> dict[str, bytes]:
     """The bytes of one case, keyed by path relative to its root — what the repository's readers take.
 
     The mesh (``constant/polyMesh``), the ``system`` and ``constant`` dictionaries and the time directories: enough
@@ -164,7 +165,7 @@ def case_files(case: str, time: Optional[str] = None) -> Dict[str, bytes]:
     solver is spent on it. ``time`` selects one numeric directory (default: every one of them).
     """
     root = os.path.abspath(case)
-    fs: Dict[str, bytes] = {}
+    fs: dict[str, bytes] = {}
     for sub in ("constant/polyMesh/", "polyMesh/", ""):
         d = os.path.join(root, sub) if sub else root
         if not os.path.isdir(d):
@@ -200,7 +201,92 @@ def case_files(case: str, time: Optional[str] = None) -> Dict[str, bytes]:
     return fs
 
 
-def cells(case: str, time: Optional[str] = None, fields: Optional[Sequence[str]] = None) -> Dict[str, np.ndarray]:
+def time_dirs(case: str) -> list[str]:
+    """The numeric time directories of a case, ascending."""
+    root = os.path.abspath(case)
+    if not os.path.isdir(root):
+        return []
+    return sorted([d for d in os.listdir(root) if _TIME_RE.match(d) and os.path.isdir(os.path.join(root, d))],
+                  key=float)
+
+
+def last_time(case: str) -> str | None:
+    """The last numeric time directory, or ``None``."""
+    got = time_dirs(case)
+    return got[-1] if got else None
+
+
+def cells_available(case: str) -> bool:
+    """Whether a case has a solved time directory with the cell centres in it (:func:`run` asks for them)."""
+    t = last_time(case)
+    return bool(t) and t != "0" and os.path.isfile(os.path.join(case, t, "C"))
+
+
+def patch_centres(case: str, patch: str) -> dict[str, Any]:
+    """The faces of one patch: their centres, the ``y`` extent of their *nodes*, and how many there are.
+
+    Read from ``constant/polyMesh`` rather than assumed, because a boundary value has to be placed where the mesh put
+    the face, in the mesh's own order. The extent comes from the nodes and not from the centres: half a cell at each
+    end is the difference between a profile that reaches zero at a wall and one that reaches zero at the first cell.
+    """
+    from pinneapple_data.cae import foam as reader
+
+    root = os.path.abspath(case)
+    fs = {k: v for k, v in case_files(root, time=None).items()
+          if k.endswith("points") or k.endswith("faces") or k.endswith("owner")
+          or k.endswith("neighbour") or k.endswith("boundary")}
+    if not fs:
+        raise FileNotFoundError(f"{root}: no polyMesh (run blockMesh first)")
+    mesh = reader.read_polymesh(fs, "")
+    found = [p for p in mesh.poly.patches if p["name"] == patch]
+    if not found:
+        raise KeyError(f"{root}: no patch {patch!r} (have: {', '.join(p['name'] for p in mesh.poly.patches)})")
+    p = found[0]
+    start, count = int(p["startFace"]), int(p["nFaces"])
+    centres, ys = [], []
+    for f in range(start, start + count):
+        a, b = int(mesh.poly.face_offsets[f]), int(mesh.poly.face_offsets[f + 1])
+        nodes = mesh.points[mesh.poly.face_nodes[a:b]]
+        centres.append(nodes.mean(axis=0))
+        ys += [float(v) for v in nodes[:, 1]]
+    if not centres:
+        raise ValueError(f"{root}: patch {patch!r} has no faces")
+    return {"centres": np.asarray(centres, dtype=float), "y_min": min(ys), "y_max": max(ys),
+            "faces": len(centres), "start": start, "count": count}
+
+
+def patch_values(case: str, field: str, patch: str, time: str | None = None) -> np.ndarray:
+    """The boundary values of one field on one patch, as ``(n_faces, components)``.
+
+    Reads the field's ``boundaryField`` with :func:`pinneapple_data.cae.foam.read_boundary_values`, which is how a
+    wall-quantity the solver wrote (``wallShearStress``) comes back as numbers instead of as a file to be eyeballed.
+    """
+    from pinneapple_data.cae import foam as reader
+
+    root = os.path.abspath(case)
+    t = time or last_time(root)
+    if t is None:
+        raise FileNotFoundError(f"{root}: no time directory")
+    fs = case_files(root, time=t)
+    mesh = reader.read_polymesh(fs, "")
+    key = f"{t}/{field}"
+    if key not in fs:
+        raise KeyError(f"{root}: no {field!r} in time {t} (did the post-processing write it?)")
+    arr, unit, cls = reader.read_field(fs[key], mesh.n_cells)
+    width = 1 if np.ndim(arr) == 1 else int(np.shape(arr)[1])
+    mesh.cell_data_tmp = np.asarray(arr)
+    try:
+        values = reader.read_boundary_values(fs[key], mesh, width)
+    finally:
+        del mesh.cell_data_tmp
+    if values is None:
+        raise ValueError(f"{root}: {field!r} has no boundaryField to read")
+    got = patch_centres(root, patch)
+    a = got["start"] - mesh.poly.n_internal
+    return np.asarray(values[a:a + got["count"]], dtype=float)
+
+
+def cells(case: str, time: str | None = None, fields: Sequence[str] | None = None) -> dict[str, np.ndarray]:
     """Every volume field of one time directory of ``case`` as arrays over the mesh cells, plus ``C`` (cell centres).
 
     ``time`` defaults to the last numeric time directory the solver wrote. Reads with

@@ -18,7 +18,15 @@ import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
 
-from pinneapple_simulation.cfd_validation import cavity, foam, reference, step     # noqa: E402
+from pinneapple_simulation.cfd_validation import (  # noqa: E402
+    cavity,
+    foam,
+    ladder,
+    reference,
+    step,
+    tmr,
+    warm_start,
+)
 
 
 def _dump(path: str, obj) -> None:
@@ -39,13 +47,52 @@ def do_reference(out: str) -> None:
                                    "values": {}, "note": "the published curve is a figure; not transcribed"}})
 
 
-def do_cavity(out: str, reynolds: list[int], meshes: list[int]) -> None:
+def do_warm(out: str, cases: str) -> None:
+    """#494: a surrogate over Re fitted from solved cases, then a cold and a warm run at held-out Reynolds numbers."""
+    print("warm start: snapshots at Re 50..800 on 64 x 64, benchmark at Re 400 and 1000 (held out)")
+    snaps = warm_start.snapshots(os.path.join(cases, "warm"), (50, 100, 200, 300, 600, 800), n=64)
+    surrogate = warm_start.OperatorSurrogate(modes=8).fit(snaps)
+    result = {"surrogate": {"modes": 8, "fitted_on": [float(r) for r in sorted(snaps)],
+                            "energy": surrogate.energy, "seconds": round(surrogate.fitted_seconds, 2)},
+              "benchmarks": []}
+    for re in (400, 1000):
+        got = warm_start.benchmark(re, surrogate, os.path.join(cases, "warm"), n=64)
+        print(f"  Re = {re}: cold {got.cold_iterations} it / {got.cold_seconds:.1f} s, "
+              f"warm {got.warm_iterations} it / {got.warm_seconds:.1f} s -> {got.iteration_ratio:.2f}x iterations, "
+              f"{got.speedup:.2f}x wall time; field difference {got.field_difference}")
+        result["benchmarks"].append(got.to_dict())
+    _dump(os.path.join(out, "warm_start.json"), result)
+
+
+def do_ladder(out: str, cases: str) -> None:
+    """#294: the cost-accuracy table, and the calibration's effect on the ranking."""
+    print("ladder: NACA 0012 at alpha = 0, 4, 8 on three RANS levels")
+    designs = [ladder.design("0012", a) for a in (0.0, 4.0, 8.0)]
+    got = ladder.ladder(designs, os.path.join(cases, "ladder"), log=lambda m: print(m))
+    got["calibration"] = ladder.calibrate(got["rows"], "rans-coarse", designs=[0.0, 4.0])
+    for row in got["table"]:
+        print(f"  {row['rung']:<14} {row['cells']:>7} cells  {row['seconds_per_design']:>7.1f} s/design  "
+              f"CL err {row['CL_error_rel']}  spearman {row['spearman_CL']}")
+    _dump(os.path.join(out, "ladder.json"), got)
+
+
+def do_tmr(out: str, cases: str) -> None:
+    """#265: the TMR flat plate with Spalart-Allmaras and k-omega SST on three grids."""
+    print("NASA TMR 2DZP flat plate: SpalartAllmaras and kOmegaSST on three grids")
+    got = tmr.study(os.path.join(cases, "tmr"))
+    for model, entry in got["models"].items():
+        print(f"  {model:<16} cf(0.97) = {[round(v, 6) for v in entry['cf']]}  order {entry.get('observed_order')}"
+              f"  extrapolated {entry.get('extrapolated')}  law {entry['cf_law']:.6f}")
+    _dump(os.path.join(out, "tmr_flat_plate.json"), got)
+
+
+def do_cavity(out: str, reynolds: list[int], meshes: list[int], cases: str, *, reuse: bool = False) -> None:
     result = {"case": "ghia-1982", "solver": "simpleFoam", "scheme": "linearUpwind grad(U)",
               "case_dir": "system/ in pinneapple_simulation.cfd_validation.cavity", "runs": []}
     for re in reynolds:
         print(f"cavity Re = {re}: meshes {meshes}")
         t0 = time.time()
-        got = cavity.study(re, os.path.join(out, "_cases"), meshes=meshes)
+        got = cavity.study(re, os.path.join(cases, "cavity"), meshes=meshes, reuse=reuse)
         got["wall_seconds"] = round(time.time() - t0, 1)
         for rec in got["runs"]:
             print(f"  n = {rec['n']:>4}  {rec['cells']:>6} cells  {rec['iterations']:>6} it  "
@@ -57,12 +104,12 @@ def do_cavity(out: str, reynolds: list[int], meshes: list[int]) -> None:
     _dump(os.path.join(out, "cavity.json"), result)
 
 
-def do_step(out: str, reynolds: list[int], meshes: list[int]) -> None:
+def do_step(out: str, reynolds: list[int], meshes: list[int], cases: str) -> None:
     result = {"case": "armaly-1983", "solver": "simpleFoam", "scheme": "linearUpwind grad(U)", "runs": []}
     for re in reynolds:
         print(f"step Re = {re}: meshes {meshes}")
         t0 = time.time()
-        got = step.study(re, os.path.join(out, "_cases"), meshes=meshes)
+        got = step.study(re, os.path.join(cases, "step"), meshes=meshes)
         got["wall_seconds"] = round(time.time() - t0, 1)
         for rec in got["runs"]:
             print(f"  m = {rec['cells_per_step']:>3}  {rec['cells']:>6} cells  {rec['iterations']:>6} it  "
@@ -73,9 +120,13 @@ def do_step(out: str, reynolds: list[int], meshes: list[int]) -> None:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "results"))
-    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step"],
-                    choices=["reference", "cavity", "step"])
+    ap.add_argument("--out", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "results"),
+                    help="where the JSON lands (the numbers committed next to the README)")
+    ap.add_argument("--cases", default="/tmp/pinneapple-cfd-cases",
+                    help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
+    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr"],
+                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr"])
+    ap.add_argument("--reuse", action="store_true", help="read the cases already solved under --cases")
     ap.add_argument("--re", nargs="+", type=int, default=[100, 400, 1000], help="Reynolds numbers for the cavity")
     ap.add_argument("--meshes", nargs="+", type=int, default=list(cavity.MESHES))
     ap.add_argument("--step-re", nargs="+", type=int, default=[100, 200, 400, 800])
@@ -83,6 +134,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     os.makedirs(args.out, exist_ok=True)
+    os.makedirs(args.cases, exist_ok=True)
     if "reference" in args.only:
         do_reference(args.out)
     if "cavity" in args.only or "step" in args.only:
@@ -92,9 +144,15 @@ def main(argv=None) -> int:
             return 1
         print(f"OpenFOAM: {found}")
     if "cavity" in args.only:
-        do_cavity(args.out, args.re, args.meshes)
+        do_cavity(args.out, args.re, args.meshes, args.cases, reuse=args.reuse)
     if "step" in args.only:
-        do_step(args.out, args.step_re, args.step_meshes)
+        do_step(args.out, args.step_re, args.step_meshes, args.cases)
+    if "warm" in args.only:
+        do_warm(args.out, args.cases)
+    if "ladder" in args.only:
+        do_ladder(args.out, args.cases)
+    if "tmr" in args.only:
+        do_tmr(args.out, args.cases)
     return 0
 
 

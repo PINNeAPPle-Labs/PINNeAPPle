@@ -31,9 +31,9 @@ from __future__ import annotations
 
 import math
 import os
-import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -85,8 +85,8 @@ def _growth_for(first: float, height: float, n: int) -> float:
     return r
 
 
-def write_case(case: str, reynolds: float = PLATE_RE, *, level: Dict[str, Any] = LEVELS[0],
-               model: str = "kOmegaSST", iterations: int = 4000) -> Dict[str, Any]:
+def write_case(case: str, reynolds: float = PLATE_RE, *, level: dict[str, Any] = LEVELS[0],
+               model: str = "kOmegaSST", iterations: int = 6000) -> dict[str, Any]:
     """Write the flat-plate case: graded in ``y`` from a first cell that puts ``y+`` near one at ``Re = 5e6``.
 
     The first cell height follows ``y+ = 1`` for a flat plate, ``h1 = y+ nu / u_tau`` with ``u_tau`` from the 1/7-power
@@ -138,6 +138,16 @@ writeFormat ascii;
 writePrecision 10;
 writeCompression off;
 runTimeModifiable true;
+functions
+{{
+    wallShearStress1
+    {{
+        type            wallShearStress;
+        libs            ("libfieldFunctionObjects.so");
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }}
+}}
 """)
     divs = """    div(phi,U) Gauss linearUpwind grad(U);
     div(phi,k) Gauss upwind;
@@ -162,7 +172,14 @@ runTimeModifiable true;
     else:
         solvers += """    nuTilda { solver smoothSolver; smoother symGaussSeidel; tolerance 1e-9; relTol 0.1; }
 """
-    extra = "k 1e-5; omega 1e-5; " if model == "kOmegaSST" else "nuTilda 1e-5; "
+    # The residual control is on ``p`` and ``U`` only. A turbulence equation's normalised residual does not fall the
+    # way the momentum one does — the SA runs of this very case stall around 1e-5 and would spin to the cap for a
+    # change in the sixth digit — so the model fields are reported and not used as a stopping rule.
+    extra = ""
+    # The relaxation entry is per **field**, not per model: ``kOmegaSST 0.7`` is an entry OpenFOAM ignores, which leaves
+    # k and omega at 1.0 — the measured cause of the first version of this case never converging (residuals oscillating
+    # between 0.11 and 0.26 for six thousand iterations).
+    relax = "k 0.7; omega 0.7;" if model == "kOmegaSST" else "nuTilda 0.7;"
     _write(case, "system/fvSolution", "dictionary", f"""solvers
 {{
 {solvers}}}
@@ -174,7 +191,7 @@ SIMPLE
 relaxationFactors
 {{
     fields {{ p 0.3; }}
-    equations {{ U 0.7; {model} 0.7; }}
+    equations {{ U 0.7; {relax} }}
 }}
 """)
     _write(case, "constant/transportProperties", "dictionary",
@@ -232,16 +249,16 @@ boundaryField
     frontAndBack {{ type empty; }}
 }}
 """)
-        _write(case, "0/nut", "volScalarField", f"""dimensions [0 2 -1 0 0 0 0];
+        _write(case, "0/nut", "volScalarField", """dimensions [0 2 -1 0 0 0 0];
 internalField uniform 0;
 boundaryField
-{{
-    inlet {{ type calculated; value uniform 0; }}
-    outlet {{ type calculated; value uniform 0; }}
-    plate {{ type nutUSpaldingWallFunction; value uniform 0; }}
-    farfield {{ type calculated; value uniform 0; }}
-    frontAndBack {{ type empty; }}
-}}
+{
+    inlet { type calculated; value uniform 0; }
+    outlet { type calculated; value uniform 0; }
+    plate { type nutUSpaldingWallFunction; value uniform 0; }
+    farfield { type calculated; value uniform 0; }
+    frontAndBack { type empty; }
+}
 """)
     else:
         ninf = 3.0 * nu
@@ -274,7 +291,7 @@ boundaryField
             "cf_law_at_re": cf, "u_tau_estimate": u_tau}
 
 
-def run(case: str, *, timeout: float = 3600.0) -> Dict[str, Any]:
+def run(case: str, *, timeout: float = 3600.0) -> dict[str, Any]:
     """``blockMesh``, ``simpleFoam``, cell centres — the same three commands as every other laminar case here."""
     out = foam.run_case(case, commands=["blockMesh", "simpleFoam", "postProcess -func writeCellCentres"],
                         timeout=timeout)
@@ -282,33 +299,29 @@ def run(case: str, *, timeout: float = 3600.0) -> Dict[str, Any]:
             "solver": foam.solver_log(out["text"]), "log": out["log"], "case": case}
 
 
-def skin_friction(case: str, *, u_inf: float = 1.0, nu: float = 2e-7) -> Dict[str, np.ndarray]:
-    """``cf(x)`` on the plate from the first cell row: ``cf = 2 tau_w / U^2``, ``tau_w = (nu + nut) du/dy``.
+def skin_friction(case: str, *, u_inf: float = 1.0, nu: float = 2e-7) -> dict[str, np.ndarray]:
+    """``cf(x)`` on the plate from the wall shear stress the solver wrote: ``cf = 2 tau_w / U^2``.
 
-    The **effective** viscosity is what matters here: with a wall function the first cell sits in the log layer, where
-    ``nu du/dy`` alone under-predicts the wall shear by orders of magnitude (measured: 2.8e-5 against a law that says
-    3.0e-3) — the turbulent viscosity at that cell is what carries the momentum. ``du/dy`` is ``u_1 / y_1`` from the
-    no-slip wall, first-order accurate and the estimate the mesh supports. ``x`` comes back with the values so a caller
-    can sample any station.
+    ``tau_w`` is the ``wallShearStress`` function object's answer — the shear the solver itself used, which is the only
+    value that is right when a wall function is in play. Estimating it from the first cell (``(nu + nut) du/dy``) was
+    measured to over-predict by 5.6x with Spalart-Allmaras and 2.0x with k-omega SST at ``y+ ~ 30``: the effective
+    viscosity at a log-layer cell is not the wall's. ``nu`` is kept in the signature so a caller can compare the two.
     """
-    data = foam.cells(case)
-    C = np.asarray(data["C"], dtype=float)
-    U = np.asarray(data["U"], dtype=float)[:, 0]
-    nut = np.asarray(data.get("nut", np.zeros(len(C))), dtype=float).reshape(len(C))
-    on_plate = np.isclose(C[:, 1], C[:, 1].min(), atol=1e-12) & (C[:, 0] > 0.0)
-    if not on_plate.any():
-        raise ValueError(f"{case}: no cells on the plate")
-    y = C[on_plate, 1]
-    x = C[on_plate, 0]
-    u = U[on_plate]
-    nu_eff = nu + nut[on_plate]
+    got = foam.patch_centres(case, "plate")
+    tau = foam.patch_values(case, "wallShearStress", "plate")
+    x = got["centres"][:, 0]
     order = np.argsort(x)
-    x, y, u, nu_eff = x[order], y[order], u[order], nu_eff[order]
-    cf = 2.0 * nu_eff * u / y / (u_inf ** 2)
-    return {"x": x, "cf": cf, "y_first": y, "nut": nut[on_plate][order]}
+    x = x[order]
+    tw = np.asarray(tau, dtype=float)[order, 0]
+    # OpenFOAM's wallShearStress is the traction on the wall, so its sign is opposite to the flow for a plate in +x:
+    # the magnitude is the skin friction and the sign is a convention, and it is recorded rather than silently dropped.
+    cf = 2.0 * np.abs(tw) / (u_inf ** 2)
+    plate = x > 0.0
+    return {"x": x[plate], "cf": cf[plate], "tau_w": tw[plate], "tau_sign": float(np.sign(np.median(tw[plate]))),
+            "y_first": np.full(int(plate.sum()), float("nan")), "nu": nu}
 
 
-def read_reference(path: str) -> Dict[str, np.ndarray]:
+def read_reference(path: str) -> dict[str, np.ndarray]:
     """A TMR ``cf`` table as ``{"x", "cf"}``: two whitespace-separated columns, one station per line.
 
     The TMR publishes its reference results as plain text files next to each case. They are not in this repository (and
@@ -342,9 +355,9 @@ class PlateRun:
     iterations: int
     converged: bool
     seconds: float
-    x: Optional[np.ndarray] = None
-    cf: Optional[np.ndarray] = None
-    residuals: Dict[str, float] = field(default_factory=dict)
+    x: np.ndarray | None = None
+    cf: np.ndarray | None = None
+    residuals: dict[str, float] = field(default_factory=dict)
     note: str = ""
 
     def at(self, station: float) -> float:
@@ -353,15 +366,15 @@ class PlateRun:
             return float("nan")
         return float(np.interp(station, self.x, self.cf))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {"model": self.model, "level": self.level, "cells": self.cells, "iterations": self.iterations,
                 "converged": self.converged, "seconds": round(self.seconds, 2),
                 "cf_at_0.97": self.at(0.97), "residuals": self.residuals, "note": self.note}
 
 
-def study(root: str, *, reynolds: float = PLATE_RE, levels: Sequence[Dict[str, Any]] = LEVELS,
-          models: Sequence[str] = MODELS, station: float = 0.97, reference: Optional[str] = None,
-          timeout: float = 3600.0) -> Dict[str, Any]:
+def study(root: str, *, reynolds: float = PLATE_RE, levels: Sequence[dict[str, Any]] = LEVELS,
+          models: Sequence[str] = MODELS, station: float = 0.97, reference: str | None = None,
+          timeout: float = 3600.0) -> dict[str, Any]:
     """Run both models on every level, and report the observed order and the Richardson-extrapolated ``cf``.
 
     The station defaults to ``x = 0.97``: far enough downstream that the boundary layer is developed and far enough
@@ -371,11 +384,11 @@ def study(root: str, *, reynolds: float = PLATE_RE, levels: Sequence[Dict[str, A
     """
     from pinneapple_analysis.verification.convergence import richardson_extrapolate
 
-    out: Dict[str, Any] = {"case": "nasa-tmr-2DZP", "reynolds": float(reynolds), "station": station,
+    out: dict[str, Any] = {"case": "nasa-tmr-2DZP", "reynolds": float(reynolds), "station": station,
                            "cf_law": CF_LAW, "models": {}, "levels": [lv["name"] for lv in levels],
                            "reference": reference or "", "note": ""}
     for model in models:
-        runs: List[PlateRun] = []
+        runs: list[PlateRun] = []
         for level in levels:
             case = os.path.join(root, f"plate_{model}_{level['name']}")
             params = write_case(case, reynolds, level=level, model=model)

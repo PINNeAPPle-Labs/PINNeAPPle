@@ -26,8 +26,9 @@ from __future__ import annotations
 
 import os
 import time
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -53,8 +54,8 @@ def _write(case: str, rel: str, cls: str, body: str) -> None:
         fh.write(_HDR % (cls, os.path.basename(rel).split(".")[0]) + body)
 
 
-def write_case(case: str, reynolds: float, n: int = 64, *, iterations: Optional[int] = None,
-               residual: float = 1e-6) -> Dict[str, Any]:
+def write_case(case: str, reynolds: float, n: int = 64, *, iterations: int | None = None,
+               residual: float = 1e-6) -> dict[str, Any]:
     """Write a complete, runnable cavity case: ``n x n x 1`` cells on the unit square, laminar, ``nu = 1/Re``.
 
     ``residual`` is the normalised residual that ends the run. ``1e-6`` is the control these runs use: continuing
@@ -162,13 +163,13 @@ class CavityRun:
     iterations: int
     converged: bool
     seconds: float
-    residuals: Dict[str, float] = field(default_factory=dict)
-    u: Optional[np.ndarray] = None            # u at each of GHIA_U[re].points (some NaN where the table has none)
-    v: Optional[np.ndarray] = None
+    residuals: dict[str, float] = field(default_factory=dict)
+    u: np.ndarray | None = None            # u at each of GHIA_U[re].points (some NaN where the table has none)
+    v: np.ndarray | None = None
     case: str = ""
     note: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {"reynolds": self.reynolds, "n": self.n, "cells": self.cells, "iterations": self.iterations,
                 "converged": self.converged, "seconds": round(self.seconds, 3), "residuals": self.residuals,
                 "u": None if self.u is None else [None if not np.isfinite(x) else float(x) for x in self.u],
@@ -176,7 +177,7 @@ class CavityRun:
                 "case": self.case, "note": self.note}
 
 
-def run(case: str, reynolds: float, n: int = 64, *, timeout: float = 3600.0) -> Dict[str, Any]:
+def run(case: str, reynolds: float, n: int = 64, *, timeout: float = 3600.0) -> dict[str, Any]:
     """``blockMesh``, ``simpleFoam`` and ``writeCellCentres`` in ``case``; the wall time and the solver's own report.
 
     The cell centres are asked of OpenFOAM rather than assumed: every extraction below interpolates the answer onto
@@ -211,7 +212,7 @@ def _lattice(C: np.ndarray, values: np.ndarray) -> tuple[np.ndarray, np.ndarray,
     return x, y, grid
 
 
-def sample(case: str, reynolds: float) -> Dict[str, np.ndarray]:
+def sample(case: str, reynolds: float) -> dict[str, np.ndarray]:
     """``u`` along ``x = 0.5`` and ``v`` along ``y = 0.5``, interpolated to Ghia's stations.
 
     Returns ``{"y", "u", "x", "v"}``: the station coordinates and the measured values at them. Bi-linear: the field is
@@ -244,7 +245,7 @@ def sample(case: str, reynolds: float) -> Dict[str, np.ndarray]:
 
 
 def profile_error(profile: Profile, measured: np.ndarray, *, interior_only: bool = True,
-                  drop_disputed: bool = True) -> Dict[str, float]:
+                  drop_disputed: bool = True) -> dict[str, float]:
     """The error of a measured profile against the published one: ``l2``, ``linf`` and the relative ``l2``.
 
     ``interior_only`` leaves out the two stations on the walls, where the published value is the boundary condition
@@ -273,19 +274,27 @@ def profile_error(profile: Profile, measured: np.ndarray, *, interior_only: bool
             "points": int(keep.sum()), "worse_at": float(profile.points[int(np.argmax(np.abs(got - ref)))])}
 
 
-def study(reynolds: float, root: str, *, meshes: Sequence[int] = MESHES, timeout: float = 3600.0) -> Dict[str, Any]:
+def study(reynolds: float, root: str, *, meshes: Sequence[int] = MESHES, timeout: float = 3600.0,
+          reuse: bool = False) -> dict[str, Any]:
     """Run the case on a ladder of meshes and compare each with the published table.
 
     Returns the runs (one :class:`CavityRun` each, as records), the error of each against Ghia's profiles, and the
     ratio of successive errors — the convergence of the *error*, which is what a mesh study is: a refinement that
     halves the error is a second-order scheme, and the ladder is what shows whether that is what happened.
+
+    ``reuse`` reads a case that is already solved on disk instead of solving it again, which is what a re-analysis of
+    a committed run needs: reading the fields back takes a second, and re-solving takes the wall time in the table.
     """
     runs: list[CavityRun] = []
     for n in meshes:
         case = os.path.join(root, f"cavity_re{int(reynolds)}_{n}")
-        params = write_case(case, reynolds, n)
-        info = run(case, reynolds, n, timeout=timeout)
-        rec = CavityRun(reynolds=float(reynolds), n=int(n), cells=params["cells"],
+        if reuse and _solved(case):
+            info = {"ok": True, "failed": None, "seconds": float("nan"), "solver": foam.solver_log(_log_text(case))}
+            cells = _cells(case)
+        else:
+            info = run(case, reynolds, n, timeout=timeout)
+            cells = write_case(case, reynolds, n)["cells"] if not _solved(case) else _cells(case)
+        rec = CavityRun(reynolds=float(reynolds), n=int(n), cells=int(cells),
                         iterations=int(info["solver"]["iterations"]), converged=bool(info["solver"]["converged"]),
                         seconds=float(info["seconds"]), residuals=dict(info["solver"]["residuals"]), case=case)
         if not info["solver"]["iterations"]:
@@ -305,9 +314,58 @@ def study(reynolds: float, root: str, *, meshes: Sequence[int] = MESHES, timeout
                          "v": profile_error(GHIA_V[int(round(reynolds))], rec.v)}
     ratios = {}
     ns = sorted(errors)
-    for a, b in zip(ns, ns[1:]):
+    for a, b in zip(ns, ns[1:], strict=False):
         ratios[f"{a}_{b}"] = {q: errors[a][q]["l2"] / errors[b][q]["l2"] if errors[b][q]["l2"] else float("inf")
                               for q in ("u", "v")}
     return {"case": "ghia-1982", "reynolds": float(reynolds), "meshes": list(meshes),
             "citation": GHIA_U[int(round(reynolds))].citation,
-            "runs": [r.to_dict() for r in runs], "errors": errors, "error_ratios": ratios}
+            "runs": [r.to_dict() for r in runs], "errors": errors, "error_ratios": ratios,
+            "self_convergence": _self_convergence(runs)}
+
+
+def _solved(case: str) -> bool:
+    """Whether ``case`` already has a solved time directory with the cell centres (:func:`run` writes them)."""
+    return os.path.isdir(case) and bool(foam.cells_available(case))
+
+
+def _log_text(case: str) -> str:
+    path = os.path.join(case, "log.simpleFoam")
+    try:
+        with open(path, errors="replace") as fh:
+            return fh.read()
+    except OSError:
+        return ""
+
+
+def _cells(case: str) -> int:
+    try:
+        return int(len(foam.cells(case, time=foam.last_time(case))["C"]))
+    except (KeyError, FileNotFoundError):
+        return 0
+
+
+def _self_convergence(runs: Sequence[CavityRun]) -> dict[str, Any]:
+    """The observed order of the *solution* between the three meshes, which is the part no table is needed for.
+
+    The error against Ghia's table has a floor — the table's own rounding and the difference between their scheme and
+    ours — so it does not fall with refinement once a mesh is fine enough, and reading an order off it would report
+    that floor rather than the discretisation. Refining the solution against *itself* is what a grid-convergence study
+    does, and it is the number the GCI is computed from: ``richardson_extrapolate`` on the three measured profiles.
+    """
+    from pinneapple_analysis.verification.convergence import richardson_extrapolate
+
+    usable = [r for r in runs if r.u is not None and r.v is not None]
+    if len(usable) < 3:
+        return {"available": False, "reason": f"{len(usable)} of {len(runs)} meshes produced a profile"}
+    coarse, medium, fine = usable[0], usable[1], usable[2]
+    out: dict[str, Any] = {"available": True, "meshes": [coarse.n, medium.n, fine.n],
+                           "station": "the Ghia stations of the profile"}
+    for name in ("u", "v"):
+        try:
+            conv = richardson_extrapolate(getattr(coarse, name), getattr(medium, name), getattr(fine, name), 2.0)
+            out[name] = {"observed_order": float(conv.observed_order), "gci_fine": float(conv.gci_fine),
+                         "gci_coarse": float(conv.gci_coarse), "asymptotic": bool(conv.is_asymptotic),
+                         "extrapolated": [float(x) for x in np.asarray(conv.extrapolated_value).ravel()]}
+        except ValueError as exc:
+            out[name] = {"error": str(exc)}
+    return out

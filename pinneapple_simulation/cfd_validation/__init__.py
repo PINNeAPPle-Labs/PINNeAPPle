@@ -27,7 +27,9 @@ solver at all.
 from __future__ import annotations
 
 from . import cavity, foam, reference, step
-from .cavity import CavityRun, profile_error, sample, study as cavity_study, write_case as write_cavity_case
+from .cavity import CavityRun, profile_error, sample
+from .cavity import study as cavity_study
+from .cavity import write_case as write_cavity_case
 from .reference import (
     ARMALY_REATTACHMENT,
     DEV_VAHL_DAVIS_NU,
@@ -39,7 +41,9 @@ from .reference import (
     nu_for_grashof,
     profile,
 )
-from .step import StepRun, reattachment_length, study as step_study, write_case as write_step_case
+from .step import StepRun, reattachment_length
+from .step import study as step_study
+from .step import write_case as write_step_case
 
 __all__ = [
     # where OpenFOAM is, and how a case runs
@@ -74,7 +78,7 @@ def require(*needs: str) -> str:
     return foam.bashrc() or ""
 
 
-def observed_order(errors: "list[float]", ratio: float = 2.0) -> "list[float]":
+def observed_order(errors: list[float], ratio: float = 2.0) -> list[float]:
     """The observed order of accuracy from the error on successive refinements: ``log(e_i/e_{i+1}) / log(r)``.
 
     The error against a published table should fall by ``r**p`` per refinement, where ``p`` is the order of the
@@ -83,7 +87,7 @@ def observed_order(errors: "list[float]", ratio: float = 2.0) -> "list[float]":
     they are: an error that does not fall is the finding, not something to filter.
     """
     out = []
-    for a, b in zip(errors, errors[1:]):
+    for a, b in zip(errors, errors[1:], strict=False):
         if b <= 0:
             out.append(float("inf") if a > 0 else float("nan"))
         elif a <= 0:

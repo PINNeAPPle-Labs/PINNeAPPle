@@ -42,11 +42,11 @@ def _case(**kw):
 
 def test_the_gate_passes_a_record_against_itself():
     rec = {name: _case() for name in BM.CASES}
-    assert BM.gate(rec, BM.baseline_of(rec)) == []
+    assert BM.gate(rec, BM.baseline_of(rec, reason="same run")) == []
 
 
 def test_the_gate_catches_a_picture_that_went_black():
-    base = BM.baseline_of({name: _case() for name in BM.CASES})
+    base = BM.baseline_of({name: _case() for name in BM.CASES}, reason="reference")
     rec = {name: _case() for name in BM.CASES}
     rec["impeller_bronze"].update(mean=2.0, std=0.4, coverage=0.0, edge_energy=0.01)
     problems = BM.gate(rec, base)
@@ -56,7 +56,7 @@ def test_the_gate_catches_a_picture_that_went_black():
 
 
 def test_the_gate_catches_a_picture_that_lost_its_micro_detail():
-    base = BM.baseline_of({name: _case() for name in BM.CASES})
+    base = BM.baseline_of({name: _case() for name in BM.CASES}, reason="reference")
     rec = {name: _case() for name in BM.CASES}
     rec["airliner_library"]["edge_energy"] = 1.16 * 0.5
     problems = BM.gate(rec, base)
@@ -65,27 +65,33 @@ def test_the_gate_catches_a_picture_that_lost_its_micro_detail():
 
 def test_the_gate_says_so_when_a_case_is_missing_on_either_side():
     rec = {name: _case() for name in BM.CASES if name != "airliner_library"}
-    assert any("airliner_library: not rendered" in p for p in BM.gate(rec, BM.baseline_of({n: _case()
-                                                                                          for n in
-                                                                                          BM.CASES})))
+    full = BM.baseline_of({name: _case() for name in BM.CASES}, reason="reference")
+    assert any("airliner_library: not rendered" in p for p in BM.gate(rec, full))
     assert any("no baseline" in p for p in BM.gate({name: _case() for name in BM.CASES}, {"impeller_bronze":
                                                                                           _case()}))
 
 
 def test_the_time_is_not_gated():
     rec = {name: _case(seconds=900.0) for name in BM.CASES}
-    assert BM.gate(rec, BM.baseline_of({name: _case() for name in BM.CASES})) == [], \
+    assert BM.gate(rec, BM.baseline_of({name: _case() for name in BM.CASES}, reason="reference")) == [], \
         "a slow machine is not a regression in the picture"
 
 
 def test_a_committed_baseline_keeps_the_statistics_and_drops_the_machine():
-    b = BM.baseline_of({name: _case() for name in BM.CASES}, blender="Blender 5.2.1 LTS")
+    b = BM.baseline_of({name: _case() for name in BM.CASES}, reason="shaders rewritten",
+                       blender="Blender 5.2.1 LTS")
     assert set(b["impeller_bronze"]) == {"quality", "size", "mean", "std", "coverage", "edge_energy"}
     assert "seconds" not in b["impeller_bronze"] and "png" not in b["impeller_bronze"]
     meta = b["_meta"]
     assert meta["blender"] == "Blender 5.2.1 LTS" and meta["gate"] == BM.GATE
     assert BM.cases_of(b) == list(BM.CASES), "the bookkeeping keys are not cases"
     assert meta["recorded_at"].endswith("Z") and len(meta["recorded_at"]) == 20
+    assert meta["reason"] == "shaders rewritten"
+
+
+def test_a_baseline_without_a_reason_is_refused():
+    with pytest.raises(ValueError, match="why"):
+        BM.baseline_of({name: _case() for name in BM.CASES}, reason="   ")
 
 
 def test_the_repository_ships_a_baseline_for_every_case_in_the_gate_configuration():
@@ -99,6 +105,7 @@ def test_the_repository_ships_a_baseline_for_every_case_in_the_gate_configuratio
         assert case["size"] == BM.GATE["size"], f"{name}: the baseline is not in the gate's size"
         assert case["quality"] == BM.GATE["quality"], f"{name}: the baseline is not in the gate's preset"
     assert "recorded_at" in base.get("_meta", {}), "a baseline with no date is a number nobody can judge"
+    assert base["_meta"].get("reason", "").strip(), "a baseline with no reason is a decision nobody can audit"
 
 
 def test_picture_stats_read_a_flat_image_and_a_busy_one(tmp_path):

@@ -175,17 +175,20 @@ canonical configuration (`GATE`: 960×540, 32 samples, preview) so today's recor
 `std` ±4, `coverage` ±0.06, `edge_energy` ±0.12 — absolute, in each statistic's own units); the command exits non-zero
 when there are any. The time is recorded and reported but never gated: it belongs to the machine.
 
-Recording a new baseline is deliberate, after a change that is meant to move the pictures:
+Recording a new baseline is deliberate, after a change that is meant to move the pictures, and it asks why:
 
 ```bash
 python -m pinneapple_tools.visualization.studio.benchmark \
-    --out /tmp/benchmark --gate --record-baseline   # rewrites data/benchmark/baseline.json
+    --out /tmp/benchmark --gate --record-baseline \
+    --why "shaders rewritten: cast_metal now has a finer grain"   # rewrites data/benchmark/baseline.json
 ```
 
-The file carries a `_meta` line with the date, the Blender version, the gate configuration and the tolerances, so the
-next reader knows what drew the reference. When the gate fails it says so and points at `--record-baseline`: the two
-outcomes of a red gate are a bug to fix or a move to accept on purpose, and the commit message is where that choice is
-written down.
+The reason is not a convention, it is required: `--record-baseline` without `--why` stops with an error, and the string
+goes into the file's `_meta` together with the date, the Blender version, the gate configuration and the tolerances.
+Every gate run then prints what it is comparing against — `baseline: 2026-11-24T12:11:21Z, Blender 5.2.1 LTS --
+primeiro baseline do gate ...` — so a reader of a red run sees when the reference was drawn, with what, and why it
+moved last time. The two outcomes of a red gate are a bug to fix or a move to accept on purpose; the second one leaves
+a trace.
 
 CPU and GPU agree: the same case rendered on either gives the same four numbers to the second decimal (the pixels
 differ by at most 3/255), so the baseline recorded on a laptop is the one CI compares against on a runner.

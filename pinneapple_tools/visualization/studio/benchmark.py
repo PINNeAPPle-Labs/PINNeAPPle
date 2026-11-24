@@ -142,18 +142,24 @@ def run(out_dir: str, *, scenes: Optional[list] = None, quality: str = "preview"
     return record
 
 
-def baseline_of(record: dict, *, blender: Optional[str] = None) -> dict:
+def baseline_of(record: dict, *, reason: str, blender: Optional[str] = None) -> dict:
     """What a record keeps when it is committed as the reference: the picture statistics and the configuration they
-    were measured with, plus a ``_meta`` line saying when and with what -- a gate whose reference has no date is a
-    number nobody can judge.
+    were measured with, plus a ``_meta`` line saying when, with what and **why** -- a gate whose reference has no date
+    and no reason is a number nobody can judge.
+
+    ``reason`` is required on purpose: a baseline moves because somebody decided the pictures should look different,
+    and that decision is the one piece of the record a machine cannot supply.
 
     The time and the absolute path stay out: one is the machine's, the other is a folder that does not exist anywhere
     else."""
+    reason = (reason or "").strip()
+    if not reason:
+        raise ValueError("a baseline records why the pictures moved: pass reason= (the command line takes --why)")
     out = {name: {k: v for k, v in case.items() if k in ("quality", "size", "mean", "std", "coverage",
                                                          "edge_energy")}
            for name, case in record.items()}
     out["_meta"] = {"recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                    "gate": dict(GATE), "tolerances": dict(TOLERANCES),
+                    "reason": reason, "gate": dict(GATE), "tolerances": dict(TOLERANCES),
                     "blender": blender if blender is not None else _blender_version()}
     return out
 
@@ -228,26 +234,33 @@ def main(argv=None) -> int:
                     help=f"render the canonical configuration ({GATE['size'][0]}x{GATE['size'][1]}, "
                          f"{GATE['samples']} samples) and fail when a statistic leaves its tolerance")
     ap.add_argument("--record-baseline", action="store_true",
-                    help=f"write the run to {BASELINE} in the shape the gate compares against")
+                    help=f"write the run to {BASELINE} in the shape the gate compares against (needs --why)")
+    ap.add_argument("--why", default="", help="why the pictures are meant to move; goes into the baseline itself")
     a = ap.parse_args(argv)
+    if a.record_baseline and not a.why.strip():
+        ap.error("--record-baseline needs --why: a new baseline is a decision, and the record keeps the reason")
     rec = run(a.out, scenes=a.scenes, quality=a.quality, device=a.device, gate=a.gate)
     if a.record_baseline:
         path = os.path.join(repository_root(), BASELINE)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as fh:
-            json.dump(baseline_of(rec), fh, indent=1, sort_keys=True)
-        print(f"wrote {path}")
+            json.dump(baseline_of(rec, reason=a.why), fh, indent=1, sort_keys=True)
+        print(f"wrote {path}: {a.why.strip()}")
     if a.baseline:
         with open(a.baseline, encoding="utf-8") as fh:
             base = json.load(fh)
+        meta = base.get("_meta", {})
+        if meta:
+            say = f"baseline: {meta.get('recorded_at', '?')}, {meta.get('blender', '?')}"
+            print(f"{say} -- {meta.get('reason', 'no reason recorded')}")
         print(json.dumps(compare(rec, base), indent=1))
         if a.gate:
             problems = gate(rec, base)
             for p in problems:
                 print(f"regression: {p}")
             if problems:
-                print("If the pictures were meant to move, record a new baseline on purpose and say why in the "
-                      "commit:  --record-baseline")
+                print("If the pictures were meant to move, record a new baseline on purpose and say why: "
+                      "--record-baseline --why \"...\"")
                 return 1
             print(f"gate ok: every statistic within {TOLERANCES}")
     return 0

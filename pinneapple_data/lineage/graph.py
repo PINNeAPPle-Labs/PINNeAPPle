@@ -16,13 +16,22 @@ from collections import deque
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-KINDS = ["geometry", "mesh", "simulation", "result", "experiment", "post-processing", "dataset", "model", "prediction",
-         "report", "code", "file"]
-CHAIN_KEYS = [("geometry", "geometry"), ("cad", "geometry"), ("mesh", "mesh"),
+KINDS = ["problem", "geometry", "mesh", "simulation", "result", "experiment", "post-processing", "dataset", "model",
+         "prediction", "validation", "report", "code", "file"]
+CHAIN_KEYS = [("problem", "problem"), ("geometry", "geometry"), ("cad", "geometry"), ("mesh", "mesh"),
               ("simulation", "simulation"), ("postprocessing", "post-processing"), ("post_processing", "post-processing"),
               ("dataset", "dataset"), ("model", "model"), ("prediction", "prediction"), ("result", "prediction"),
               ("report", "report")]
+# the chain form is one straight line and a validation record is a branch off the model, so it has no key here:
+# write it as an artifact ({"artifacts": [{"kind": "validation", "inputs": ["MODEL"]}]}) or let
+# pinneapple_data.lineage.from_registry build it from the trust report stored with a model version
 PROVENANCE_FIELDS = ("file", "version", "software", "timestamp", "hash", "owner", "origin")
+# what a prediction is asked to answer for, in the order of the question (issue #156)
+TRACE_GROUPS = ("problem", "geometry", "simulations", "datasets", "models", "validation")
+# the kinds that answer each group. A stored dataset is one simulation run's arrays (DatasetStore), so it answers for
+# the run as well when the lineage has no separate simulation node; a mesh answers for the geometry.
+TRACE_KINDS = {"problem": ("problem",), "geometry": ("geometry", "mesh"), "simulations": ("simulation", "dataset"),
+               "datasets": ("dataset",), "models": ("model",), "validation": ("validation",)}
 
 
 @dataclass
@@ -218,6 +227,50 @@ class Lineage:
     def sources_of_kind(self, aid: str, kind: str) -> List[str]:
         """E.g. which simulations a model was trained on: upstream artifacts of a kind."""
         return [n for n in self.upstream(aid) if self.nodes[n].kind == kind]
+
+    def brief(self, aid: str) -> Dict[str, Any]:
+        """The short form of an artifact, for an answer: what it is, which version, where it lives."""
+        a = self.nodes[aid]
+        d: Dict[str, Any] = {"id": a.id, "kind": a.kind, "name": a.name or a.id}
+        for f in ("version", "file", "software", "timestamp", "hash", "origin", "item"):
+            if getattr(a, f):
+                d[f] = getattr(a, f)
+        if a.inputs:
+            d["derived_from"] = list(a.inputs)
+        return d
+
+    def trace(self, aid: str) -> Dict[str, Any]:
+        """Everything this prediction was built from, grouped by the question it answers (issue #156).
+
+        ``{"prediction": ..., "problem": [...], "geometry": [...], "simulations": [...], "datasets": [...],
+        "models": [...], "validation": [...], "missing": [...], "complete": bool}``
+
+        Each group holds the upstream artifacts of its kind, nearest first, in the short form of :meth:`brief`, so a
+        dataset arrives with its version and a model with the version that produced the prediction. ``missing`` names
+        the groups nothing in the lineage answers, and ``complete`` is false when there is at least one: the answer
+        says what is not known instead of leaving a hole to be read as "fine".
+        """
+        if aid not in self.nodes:
+            raise KeyError(f"{aid} is not in the lineage")
+        upstream = self.upstream(aid)
+        # a validation record hangs off the model it validates, so it is downstream of the model and never upstream
+        # of the prediction: gather the ones attached to the models this artifact was produced from
+        validations = [n for n in upstream if self.nodes[n].kind == "validation"]
+        for model in [n for n in upstream if self.nodes[n].kind == "model"]:
+            validations += [c for c in self.children(model) if self.nodes[c].kind == "validation"]
+        out: Dict[str, Any] = {"prediction": self.brief(aid)}
+        missing: List[str] = []
+        for group in TRACE_GROUPS:
+            if group == "validation":
+                found = [self.brief(n) for n in dict.fromkeys(validations)]
+            else:
+                found = [self.brief(n) for n in upstream if self.nodes[n].kind in TRACE_KINDS[group]]
+            out[group] = found
+            if not found:
+                missing.append(group)
+        out["missing"] = missing
+        out["complete"] = not missing
+        return out
 
     # ------------------------------------------------------------------ checks
     def checks(self) -> List[Dict[str, Any]]:

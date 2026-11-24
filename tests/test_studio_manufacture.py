@@ -12,10 +12,20 @@ def _names(body):
 
 
 def test_a_cast_blank_is_a_drafted_shell_with_a_parting_line():
-    b = M.cast_blank(radius=0.11, height=0.09, draft=2.0)
+    b = M.cast_blank(radius=0.11, height=0.09, draft=2.0, closed=False)
     assert [op.name for op in b.history] == ["cast"]
     assert "saída 2.0°" in b.describe(), "the draft is part of what the part is, not a decoration"
     assert set(_names(b)) == {"blank_skin", "blank_top", "blank_base", "blank_parting"}
+
+
+def test_a_closed_blank_is_a_solid_a_boolean_can_cut():
+    from pinneapple_tools.visualization.studio import solid as S
+
+    b = M.cast_blank(closed=True)
+    assert set(_names(b)) == {"blank_skin", "blank_base", "blank_parting"}
+    assert all(S.is_closed(s) for s in b.scene.surfaces)
+    assert not all(S.is_closed(s) for s in M.cast_blank(closed=False).scene.surfaces), \
+        "the open shell keeps its flat top, which is the one a boolean cannot use"
     # the wall really tapers: the top ring is narrower than the bottom one
     skin = next(s for s in b.scene.surfaces if s.name == "blank_skin")
     r = np.linalg.norm(skin.vertices[:, :2], axis=1)
@@ -33,14 +43,33 @@ def test_machining_a_face_stands_proud_and_uses_the_cut_material():
     assert "face usinada Ø100 mm" in b.describe()
 
 
-def test_a_bore_is_a_dark_throat_under_a_chamfered_mouth():
-    b = M.cast_blank().machine_face([0, 0, 0.09], (0, 0, 1), radius=0.05)
+def test_a_drawn_bore_is_a_dark_throat_under_a_chamfered_mouth():
+    b = M.cast_blank(closed=False).machine_face([0, 0, 0.09], (0, 0, 1), radius=0.05)
     b.bore([0, 0, 0.0944], (0, 0, 1), diameter=0.03, depth=0.04)
     throat, mouth = b.scene.surfaces[-2], b.scene.surfaces[-1]
     assert throat.material == "bore" and mouth.material == "machined"
-    assert "furado Ø30 mm × 40 mm" in b.describe()
+    assert "furado (desenhado) Ø30 mm × 40 mm" in b.describe(), \
+        "the history says drawn, because a figure must not claim a cut it did not make"
     with pytest.raises(ValueError):
         b.bore([0, 0, 0], (0, 0, 1), diameter=0)
+
+
+def test_cutting_an_open_body_is_refused_rather_than_guessed():
+    b = M.cast_blank(closed=False)
+    with pytest.raises(ValueError, match="closed"):
+        b.bore([0, 0, 0.09], (0, 0, 1), diameter=0.03, cut=True)
+
+
+@pytest.mark.skipif(B.blender_executable() is None, reason="needs a Blender binary on this machine")
+def test_a_cut_bore_is_a_real_opening():
+    from pinneapple_tools.visualization.studio import solid as S
+
+    b = M.cast_blank(closed=True)
+    faces_before = sum(len(s.faces) for s in b.scene.surfaces)
+    b.bore([0, 0, 0.09], (0, 0, 1), diameter=0.036, depth=0.05)
+    assert "furado (cortado)" in b.describe()
+    assert sum(len(s.faces) for s in b.scene.surfaces) > faces_before, "a cut adds the interior wall"
+    assert all(S.is_closed(s) for s in b.scene.surfaces), "and the body stays a solid"
 
 
 def test_a_weld_leaves_a_bead_and_the_tinted_band_beside_it():
@@ -89,3 +118,24 @@ def test_finishing_breaks_the_edges_and_keeps_the_history():
     assert len(b.scene.surfaces) == before, "a bevel rebuilds the skin, it does not add parts"
     assert sum(len(s.faces) for s in b.scene.surfaces) > faces_before
     assert "machined" in b.scene.materials, "the materials come back with the finished body"
+
+
+def test_the_history_can_be_written_down_and_replayed():
+    b = (M.cast_blank(radius=0.08, height=0.06)
+         .machine_face([0, 0, 0.06], (0, 0, 1), radius=0.05)
+         .bolt_pattern([0, 0, 0.06], (0, 0, 1), radius=0.06, count=4)
+         .weld([[0, 0, 0], [0.05, 0, 0]], radius=0.004))
+    spec = b.spec()
+    assert spec["blank"]["radius"] == 0.08
+    assert [step["op"] for step in spec["operations"]] == ["machine_face", "bolt_pattern", "weld"]
+    import json
+    assert json.dumps(spec), "a route sheet is data: it has to survive a file"
+
+    again = M.build(spec)
+    assert again.describe(" | ") == b.describe(" | "), "the same sheet renders the same part"
+    assert len(again.scene.surfaces) == len(b.scene.surfaces)
+
+
+def test_a_spec_cannot_call_something_that_is_not_an_operation():
+    with pytest.raises(ValueError, match="not an operation"):
+        M.build({"blank": {"radius": 0.05, "height": 0.04}, "operations": [{"op": "polish", "params": {}}]})

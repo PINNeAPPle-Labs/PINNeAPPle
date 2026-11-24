@@ -25,3 +25,21 @@ __all__ += ["FieldTrustCard", "field_checks", "trust_card"]
 from .drift import DriftBaseline, DriftMonitor, DriftReport, DriftThresholds, RetrainDecision  # noqa: E402
 
 __all__ += ["DriftBaseline", "DriftMonitor", "DriftReport", "DriftThresholds", "RetrainDecision"]
+
+from .corrections import (  # noqa: E402  (correção de especialista como checagem do relatório)
+    Correction,
+    CorrectionStore,
+    correction_checks,
+    with_corrections,
+)
+
+__all__ += ["Correction", "CorrectionStore", "correction_checks", "with_corrections"]
+
+from .flow_card import (  # noqa: E402  (conservação de massa e energia medidas na previsão, #159)
+    FlowSpec,
+    energy_balance,
+    flow_checks,
+    mass_balance,
+)
+
+__all__ += ["FlowSpec", "energy_balance", "flow_checks", "mass_balance"]

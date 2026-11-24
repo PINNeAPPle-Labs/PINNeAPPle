@@ -43,6 +43,15 @@ REASONS: dict[str, str] = {
                                     "constraints): it chooses the calls a campaign makes, it is not one of them",
     "pinneapple_data.regimes": "which bands of Reynolds, Mach and the other dimensionless numbers a dataset reaches: "
                                "it is part of the dataset audit, a check on the data before a flow runs on it",
+    "pinneapple_data.benchmark_suites": "the published freestream conditions of a public validation suite (NASA "
+                                        "TMR), read as the input of that same audit: a reference table, not a step "
+                                        "of a flow",
+    "pinneapple_analysis.trust.corrections": "a reviewer's correction stored as a rule and run as a check of the "
+                                             "trust report: it is the record of what an engineer decided, cited by "
+                                             "the report, not a computation step of a flow",
+    "pinneapple_analysis.trust.flow_card": "mass and energy conservation and the boundary-condition violation "
+                                           "measured on a predicted field: it is a check of a result against the "
+                                           "physics its spec states, like the scalar card next to it",
     "pinneapple_analysis.inverse_problems.recovery": "a recovered parameter with an interval, a warning when the "
                                                      "data cannot separate it from another, and the coverage that "
                                                      "interval was measured to have: it is the evidence a calibration "
@@ -101,6 +110,9 @@ REASONS: dict[str, str] = {
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
     "pinneapple_design.surrogate_inverse": "inverse design through a surrogate trained per case at start-up "
                                            "(seconds to minutes of MLP training); served by the apps/*_ai apps",
+    "pinneapple_design.design_gate": "the staged gate a generated design passes through (geometry, mesh, "
+                                     "convergence, physics, objectives) and the record of which stage rejected it: it "
+                                     "wraps the steps of a design campaign rather than computing one",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
     "pinneapple_autolab": "mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by "

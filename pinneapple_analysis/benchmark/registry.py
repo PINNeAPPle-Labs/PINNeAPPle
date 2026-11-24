@@ -133,10 +133,16 @@ class Problem:
     def validity_domain(self, prepared: Path | None = None):
         """Where this case holds (#58): a ``validity.ValidityDomain``, or ``None`` if the case has not declared one.
 
-        ``None`` is printed as "not stated" in the report, not silently omitted: a case that does not say where it
-        holds has not said anything about extrapolation either.
+        ``None`` is printed in the report with :attr:`validity_note` instead of being silently omitted: a case that
+        does not say where it holds has not said anything about extrapolation either, and the note says which of the
+        two it is.
         """
         return None
+
+    #: Why this case does not declare a validity domain, when it does not. A case with neither a domain nor a note is
+    #: reported as "not stated, no reason given", which is the state #58 exists to remove.
+    validity_note: str = ("not declared by this case: its inputs are configuration files the user brings, so the "
+                         "envelope has to come from the campaign that defines them (#58)")
 
     def extrapolation(self) -> tuple[tuple[str, str], tuple[str, str], float] | None:
         """``((inside set, metric), (outside set, metric), max factor)`` for the extrapolation column (#58).

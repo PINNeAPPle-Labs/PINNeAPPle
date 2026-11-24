@@ -224,7 +224,8 @@ def build_tables(plan, col, row_status: dict) -> dict:
         tables[pid] = {"rows": rows, "solver_time_per_instance_s": prob.solver_time_per_instance_s(plan.ws.prepared(pid)),
                        "data_core_s": data_s, "reference": ref, "equal_flops": equal_flops_table(plan, col, pid),
                        "validity_domain": domain.to_dict() if domain else None,
-                       "validity_text": domain.describe() if domain else ""}
+                       "validity_text": domain.describe() if domain
+                                        else getattr(prob, "validity_note", "not stated")}
     return tables
 
 

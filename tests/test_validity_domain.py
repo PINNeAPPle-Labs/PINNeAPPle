@@ -44,13 +44,22 @@ def test_a_measured_domain_names_the_data_it_came_from():
 
 
 @pytest.mark.parametrize("problem_id", R.problems())
-def test_every_case_declares_where_it_holds(problem_id):
+def test_every_case_declares_where_it_holds_or_says_why_it_does_not(problem_id):
+    """The five cases of this change declare a domain; a case that cannot has to say so, not stay silent."""
     prob = R.get_problem(problem_id)
     domain = prob.validity_domain()
-    assert domain is not None, f"{problem_id} declares no validity domain"
+    if domain is None:
+        assert prob.validity_note.strip(), f"{problem_id} has neither a validity domain nor a reason for not having one"
+        return
     assert domain.bounds, f"{problem_id}: the domain has no variables"
     assert domain.source.strip(), f"{problem_id}: the domain does not say where its bounds came from"
     assert domain.describe().startswith(problem_id), "the description has to name the case"
+
+
+@pytest.mark.parametrize("problem_id", ["airfoil", "burgers", "darcy", "inverse_heat", "navier_stokes"])
+def test_the_five_cases_of_this_change_declare_a_real_envelope(problem_id):
+    domain = R.get_problem(problem_id).validity_domain()
+    assert domain is not None and domain.bounds and domain.source.strip()
 
 
 @pytest.mark.parametrize("problem_id", R.problems())

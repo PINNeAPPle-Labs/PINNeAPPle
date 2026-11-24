@@ -234,6 +234,8 @@ class FieldOperatorProblem(Problem):
     def search_score(self, method_id: str, result: dict) -> float:
         return result["val"]["rel_l2_mean"]
 
+    validity_note = "the case measures its envelope from its own data (see validity_domain)"
+
     def validity_domain(self, prepared=None):
         """Where the case holds (#58): the range of input values in the training split, measured from the prepared
         data. It is stated this way, rather than hardcoded, because for a grid-to-grid problem the data -- not a

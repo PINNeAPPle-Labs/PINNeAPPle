@@ -187,3 +187,25 @@ def test_visibility_counts_the_pages_that_name_the_example():
     docs = [("docs/flight.md", "see examples/flight_dynamics for the 6-DOF model"), ("README.md", "nothing")]
     assert quality.visibility(m, docs) == 1
     assert quality.visibility(Manifest(id="examples/absent", title="Absent"), docs) == 0
+
+
+def test_the_dataset_gate_is_quoted_not_re_run(tmp_path):
+    """#923 composes ``pinneapple_data.readiness``: the report the Trainer already produced is evidence on the
+    provenance item, and a refused dataset turns into a missing item instead of a second dataset gate."""
+    from pinneapple_data import readiness as RD
+
+    d = _manifest(checks=[{"name": "finite", "passed": True, "kind": "sanity"}])
+    report = {"status": "PASS", "score": {"overall": 100.0}, "findings": []}
+    prov = quality.assess(_write(tmp_path, d), readiness=report).by_id("provenance")
+    assert prov.status == quality.MET and any("dataset readiness: PASS" in x for x in prov.evidence)
+
+    bad = {"status": "FAIL", "score": {"overall": 40.0},
+           "findings": [{"id": "units.missing", "severity": "critical", "title": "a column has no unit"}]}
+    prov2 = quality.assess(_write(tmp_path, d, name="demo2"), readiness=bad).by_id("provenance")
+    assert prov2.status == quality.MISSING and "readiness" in prov2.fix
+    assert any("units.missing" in x for x in prov2.evidence)
+    # the default policy is the library's own (the report shape is readiness's, not a new one)
+    assert RD.default_policy().name == "default"
+    # no report, no invented evidence
+    assert not any("dataset readiness" in x for x in
+                   quality.assess(_write(tmp_path, d, name="demo3")).by_id("provenance").evidence)

@@ -13,6 +13,8 @@ failure.
 The scale is the same one curation and ``pinneapple_data.readiness`` use: a status that is not a function of a
 number, and an evidence line per item. That is why the seal of this package is still ``pinneapple_lab.seal`` /
 ``curation`` and the dataset gate is still ``pinneapple_data.readiness``: the badge below is their checklist view.
+:func:`assess` takes the readiness report when the run has one and quotes it on the provenance item -- composed, never
+re-run, so there is one dataset gate and one letter, with a count of protocol items beside them.
 
     >>> from pinneapple_lab import quality
     >>> c = quality.assess("examples/base_workflows/equation_discovery")     # doctest: +SKIP
@@ -286,11 +288,18 @@ def _is_solver(m: Manifest) -> bool:
 
 
 # ---------------------------------------------------------------------------------------------- the nine items
-def assess(subject: str | Manifest, *, base: str | None = None) -> Checklist:
+def assess(subject: str | Manifest, *, base: str | None = None,
+           readiness: Mapping[str, Any] | None = None) -> Checklist:
     """The checklist of one folder (a path, a manifest, or a run folder with a ``manifest``).
 
     ``base`` is the folder the manifest's relative paths and markdown live in; it is derived from a path argument and
     defaults to the checkout's ``examples/<id>`` for a bare :class:`Manifest`.
+
+    ``readiness`` is the report of :mod:`pinneapple_data.readiness` when the run has one
+    (``ReadinessReport.to_dict()``). It is **composed, never re-run**: the dataset gate is readiness and stays
+    readiness, so the checklist only quotes its verdict as evidence on the provenance item (where the data's licence,
+    hashes and versions belong) and turns a ``FAIL``/``NOT_ASSESSED`` into a missing item that names the readiness
+    finding. Nothing is inferred when the report is absent.
     """
     if isinstance(subject, Manifest):
         m, path = subject, base or os.path.join(REPO, *(subject.id.split("/")))
@@ -301,10 +310,10 @@ def assess(subject: str | Manifest, *, base: str | None = None) -> Checklist:
         base = os.path.dirname(os.path.abspath(path))
     else:
         base = os.path.abspath(path)
-    return _assess_manifest(m, base)
+    return _assess_manifest(m, base, readiness)
 
 
-def _assess_manifest(m: Manifest, base: str) -> Checklist:
+def _assess_manifest(m: Manifest, base: str, readiness: Mapping[str, Any] | None = None) -> Checklist:
     q = declaration_of(m)
     checks = _checks(m)
     metrics = _metrics(m)
@@ -439,8 +448,15 @@ def _assess_manifest(m: Manifest, base: str) -> Checklist:
     evidence = [x for x in (f"git {git}" if git else "", f"written {created}" if created else "",
                             f"python {env.get('python') or '?'} on {env.get('platform') or '?'}" if env else "",
                             f"reproduce: {command}" if command else "") if x]
-    if git and command:
+    ready = _readiness_evidence(readiness)
+    if ready:
+        evidence += ready
+    fails = bool(ready) and _readiness_failed(readiness)
+    if git and command and not fails:
         items.append(Item("provenance", MET, evidence))
+    elif fails:
+        items.append(Item("provenance", MISSING, evidence,
+                          "fix the data before the run: the dataset gate (pinneapple_data.readiness) refused it"))
     else:
         lacks = [x for x, ok in (("the git commit", git), ("the reproduce command", command)) if not ok]
         items.append(Item("provenance", MISSING, evidence + [f"missing {', '.join(lacks)}"], FIXES["provenance"]))
@@ -485,6 +501,26 @@ def _heading(text: str) -> str:
         if line.lstrip().startswith("#") and _NOT_MEASURED.search(line):
             return line.strip("# ").strip()[:70]
     return ""
+
+
+def _readiness_evidence(readiness: Mapping[str, Any] | None) -> list[str]:
+    """What :mod:`pinneapple_data.readiness` said about the data of this run, as evidence lines.
+
+    The report is the one the Trainer already computes (``ReadinessReport.to_dict()``); this module never re-runs the
+    dataset gate, it quotes it. Absent report, absent line -- a quota is not a silence."""
+    if not isinstance(readiness, Mapping) or not readiness.get("status"):
+        return []
+    out = [f"dataset readiness: {readiness['status']} (score {readiness.get('score', {}).get('overall', '?')})"]
+    for f in (readiness.get("findings") or [])[:2]:
+        if isinstance(f, Mapping) and f.get("id"):
+            out.append(f"readiness {f.get('severity', '')} {f['id']}: {f.get('title', '')}".strip())
+    return out
+
+
+def _readiness_failed(readiness: Mapping[str, Any] | None) -> bool:
+    """``FAIL`` and ``NOT_ASSESSED`` both stop a training run (:func:`pinneapple_data.readiness.require`), so a run
+    that records one did not have data it could vouch for."""
+    return bool(isinstance(readiness, Mapping) and readiness.get("status") in ("FAIL", "NOT_ASSESSED"))
 
 
 # ---------------------------------------------------------------------------------------------- the whole repo

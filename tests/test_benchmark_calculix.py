@@ -161,3 +161,21 @@ def test_a_smoke_run_trains_both_methods_on_both_parts(tmp_path):
         for block in row["seeds"][0].values():
             assert "sigma" in block and 0 <= np.mean(block["sigma"]["values"]) < 1
         assert ("w" in row["seeds"][0].get("test", {})) == (pid == "calculix_beam")
+
+
+def test_a_field_vector_reshapes_back_into_nodes_and_channels(tmp_path):
+    """The trainer's layout: a channel-major vector reshaped to (samples, nodes, 4) comes back interleaved, and every
+    field metric would then be measured on a scrambled field while the training loss still fell to zero."""
+    n = 5
+    u = np.arange(3 * n, dtype=np.float32).reshape(n, 3) / 100
+    vm = (np.arange(n, dtype=np.float32) + 1) / 1e5
+    path = tmp_path / "s.npz"
+    np.savez_compressed(path, x=np.zeros((n, 3)), u=u, vm=vm)
+    F = C._fields({"npz": str(path)})
+    assert F.shape == (4 * n,)
+    back = F.reshape(1, -1, 4)[0]
+    assert np.array_equal(back[:, :3], u) and np.array_equal(back[:, 3], vm)
+    mean, std = C._channel_stats(np.stack([F, 2 * F]))          # one mean and one std per channel, tiled per node
+    per_node = mean.reshape(-1, 4)
+    assert per_node.shape == (n, 4) and np.allclose(per_node[:, 0], 1.5 * u[:, 0].mean())
+    assert np.allclose(per_node[:, 3], 1.5 * vm.mean()) and np.all(std.reshape(-1, 4) > 0)

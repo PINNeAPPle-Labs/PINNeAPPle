@@ -273,17 +273,19 @@ def _records(root) -> dict[str, list[dict]]:
 
 
 def _fields(rec: dict) -> np.ndarray:
-    """A sample's field vector: the three displacement components and the von Mises, node by node (4 N)."""
+    """A sample's field vector, node by node: (ux, uy, uz, von Mises) at every node, in that order (4 N). The layout
+    is what makes ``.reshape(n, -1, 4)`` give back the nodes -- a channel-major vector would come back interleaved and
+    every field metric would be measured on a scrambled field."""
     z = np.load(rec["npz"])
-    return np.concatenate([z["u"].astype(np.float32).ravel(), z["vm"].astype(np.float32)])
+    return np.concatenate([z["u"].astype(np.float32), z["vm"].astype(np.float32)[:, None]], axis=1).ravel()
 
 
 def _channel_stats(Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Mean and standard deviation of each of the four channels (ux, uy, uz, von Mises), laid out channel-major as
-    ``_fields`` builds them, so both can be subtracted from a whole field vector."""
-    n, d = Y.shape
-    ch = Y.reshape(n, 4, d // 4)
-    return ch.mean(axis=(0, 2)).repeat(d // 4), ch.std(axis=(0, 2)).repeat(d // 4)
+    """Mean and standard deviation of each of the four channels over the samples and the nodes, tiled back to the
+    layout of ``_fields`` so both can be subtracted from (and divided into) a whole field vector."""
+    ch = Y.reshape(len(Y), -1, 4)
+    d = Y.shape[1]
+    return np.tile(ch.mean(axis=(0, 1)), d // 4), np.tile(ch.std(axis=(0, 1)), d // 4)
 
 
 # ====================================================================== trainers

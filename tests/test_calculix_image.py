@@ -45,10 +45,12 @@ def test_the_solver_version_is_pinned_and_asserted_at_build_time():
     assert 'ENTRYPOINT ["ccx"]' in text
 
 
-def test_the_platform_is_declared_and_recorded_in_the_image():
+def test_the_architecture_the_image_really_is_written_at_build_time():
+    """BuildKit's TARGETPLATFORM only arrives with a buildx builder, so the image records what dpkg installed -- the
+    architecture of the bytes -- and refuses to build for one this project does not test."""
     text = DOCKERFILE.read_text(encoding="utf-8")
-    assert _arg("TARGETPLATFORM"), "BuildKit's TARGETPLATFORM is not consumed"
-    assert 'org.pinneapple.platform="${TARGETPLATFORM}"' in text, "the image does not say which architecture it is"
+    assert 'dpkg --print-architecture' in text and '/etc/pinneapple-arch' in text
+    assert "case \"${arch}\" in amd64|arm64)" in text, "the build accepts architectures nobody tests"
     assert runner.PLATFORMS == ("linux/amd64", "linux/arm64")
 
 
@@ -86,6 +88,7 @@ def test_the_build_and_the_run_say_which_platform_they_mean(monkeypatch):
 def test_the_image_runs_a_real_ccx_case():
     row = runner.image_smoke(runner.host_platform())
     assert row["version"] == runner.IMAGE_VERSION.split("-")[0], f"the image runs ccx {row['version']}: {row['log']}"
+    assert row["arch"] == row["expected_arch"], f"the image is {row['arch']}, the platform asked {row['platform']}"
     assert row["ok"], f"tip deflection {row['tip_deflection_m']} vs Timoshenko {row['timoshenko_m']}: {row['log']}"
     assert row["rel_err"] == pytest.approx(0.0, abs=0.02)
     assert row["image"].endswith(runner.host_platform().rsplit("/", 1)[-1])

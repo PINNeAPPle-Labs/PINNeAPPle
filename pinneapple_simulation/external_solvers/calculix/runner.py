@@ -149,6 +149,16 @@ def image_version(image: str = IMAGE, platform: str | None = None) -> str:
     return m.group(1) if m else ""
 
 
+def image_arch(image: str = IMAGE, platform: str | None = None) -> str:
+    """The architecture the image is really built for: the ``Dockerfile`` writes ``dpkg --print-architecture`` into
+    ``/etc/pinneapple-arch`` at build time, so this is a fact about the bytes and not the declaration a build argument
+    would be (under the plain docker driver BuildKit's ``TARGETPLATFORM`` never arrives)."""
+    cmd = ["docker", "run", "--rm"] + (["--platform", platform] if platform else []) + \
+          ["--entrypoint", "cat", image, "/etc/pinneapple-arch"]   # the image's entrypoint is ccx itself
+    p = subprocess.run(cmd, capture_output=True, text=True, env=_docker_env(), timeout=300)
+    return p.stdout.strip()
+
+
 def image_smoke(platform: str, image: str = IMAGE, timeout: float = 1800.0) -> dict:
     """The gate: build the image for one platform, run a real CalculiX case in it -- a C3D20R cantilever 1 x 0.1 x
     0.05 m under a 1 kN tip load, whose deflection Timoshenko's theory fixes to 1 % -- and compare. Returns what it
@@ -163,6 +173,7 @@ def image_smoke(platform: str, image: str = IMAGE, timeout: float = 1800.0) -> d
     t0 = time.time()
     tag = build_for(platform, image)
     version = image_version(tag, platform)
+    arch = image_arch(tag, platform)
     work = tempfile.mkdtemp(prefix="ccx-smoke-")
     try:
         L, B, H, P = 1.0, 0.1, 0.05, 1000.0
@@ -180,9 +191,11 @@ def image_smoke(platform: str, image: str = IMAGE, timeout: float = 1800.0) -> d
             got = float(real.field("DISP")[np.isin(real.node_ids, m.nsets["TIP"]), 2].mean())
     finally:
         shutil.rmtree(work, ignore_errors=True)
-    ok = bool(got is not None and abs(abs(got) / expected - 1) < 0.02 and version == IMAGE_VERSION.split("-")[0])
+    want_arch = platform.rsplit("/", 1)[-1]
+    ok = bool(got is not None and abs(abs(got) / expected - 1) < 0.02 and arch == want_arch
+              and version == IMAGE_VERSION.split("-")[0])
     return {"platform": platform, "image": tag, "version": version, "expected_version": IMAGE_VERSION.split("-")[0],
-            "tip_deflection_m": got, "timoshenko_m": expected,
+            "arch": arch, "expected_arch": want_arch, "tip_deflection_m": got, "timoshenko_m": expected,
             "rel_err": None if got is None else float(abs(got) / expected - 1),
             "returncode": run.returncode, "ok": ok, "seconds": round(time.time() - t0, 1),
             "log": "" if ok else run.stdout[-2000:]}

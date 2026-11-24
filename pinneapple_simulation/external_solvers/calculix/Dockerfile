@@ -16,9 +16,11 @@
 ARG BASE=public.ecr.aws/docker/library/debian:bookworm-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc
 FROM ${BASE}
 
-# Set by BuildKit for every build; recorded so `docker image inspect` says which architecture an image is for.
-ARG TARGETPLATFORM=linux/amd64
 ARG CALCULIX_VERSION=2.20-1
+# BuildKit's platform meta-args, for the label only. They are empty under the plain docker driver (`docker build`, which
+# is what runner.ensure_image uses without a buildx builder), so the architecture this image really is comes from dpkg
+# below and is written into /etc/pinneapple-arch -- a fact about the bytes, not a declaration about the build.
+ARG TARGETPLATFORM
 
 LABEL org.opencontainers.image.title="pinneapple/calculix" \
       org.opencontainers.image.description="CalculiX CrunchiX (ccx) from the Debian package, linux/amd64 and linux/arm64" \
@@ -28,13 +30,18 @@ LABEL org.opencontainers.image.title="pinneapple/calculix" \
       org.pinneapple.solver.plain-version="2.20" \
       org.pinneapple.platform="${TARGETPLATFORM}"
 
-# The Debian version is asserted, and then the binary itself: a mirror that serves another build fails here instead of
-# in somebody's benchmark.
-RUN apt-get -o Acquire::Retries=5 update \
- && apt-get -o Acquire::Retries=5 install -y --no-install-recommends "calculix-ccx=${CALCULIX_VERSION}" \
- && rm -rf /var/lib/apt/lists/* \
- && dpkg -s calculix-ccx | grep -qx "Version: ${CALCULIX_VERSION}" \
- && ccx -v 2>&1 | grep -q "Version ${CALCULIX_VERSION%-*}"
+# The architecture is recorded and restricted to the two this project tests (an image for an untested architecture is a
+# promise nobody checked); the Debian version is asserted; and then the binary itself, so a mirror that serves another
+# build fails here instead of in somebody's benchmark.
+RUN set -eu; \
+    arch="$(dpkg --print-architecture)"; \
+    case "${arch}" in amd64|arm64) ;; *) echo "unsupported architecture: ${arch}" >&2; exit 1 ;; esac; \
+    printf '%s\n' "${arch}" > /etc/pinneapple-arch; \
+    apt-get -o Acquire::Retries=5 update; \
+    apt-get -o Acquire::Retries=5 install -y --no-install-recommends "calculix-ccx=${CALCULIX_VERSION}"; \
+    rm -rf /var/lib/apt/lists/*; \
+    dpkg -s calculix-ccx | grep -qx "Version: ${CALCULIX_VERSION}"; \
+    ccx -v 2>&1 | grep -q "Version ${CALCULIX_VERSION%-*}"
 
 WORKDIR /work
 ENTRYPOINT ["ccx"]

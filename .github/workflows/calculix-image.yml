@@ -68,10 +68,10 @@ jobs:
 
       - name: The image says which solver and which architecture it is
         run: |
-          docker run --rm --platform "${{ matrix.platform }}" \
-            "$(python -c 'import json;print(json.load(open("smoke.json"))[0]["image"])')" -v
-          docker image inspect --format '{{json .Config.Labels}}' \
-            "$(python -c 'import json;print(json.load(open("smoke.json"))[0]["image"])')"
+          tag="$(python -c 'import json;print(json.load(open("smoke.json"))[0]["image"])')"
+          docker run --rm --platform "${{ matrix.platform }}" "$tag" -v
+          docker run --rm --platform "${{ matrix.platform }}" "$tag" cat /etc/pinneapple-arch
+          docker image inspect --format '{{json .Config.Labels}}' "$tag"
 
       - uses: actions/upload-artifact@v7
         if: always()

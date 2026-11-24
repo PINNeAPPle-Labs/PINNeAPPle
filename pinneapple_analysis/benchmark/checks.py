@@ -66,7 +66,10 @@ def job_checks(rec: dict) -> list[Check]:
     dec = fin and last < first
     C.append(Check("loss decreasing", "training", subj, dec if len(L) >= 3 else None, value=f"{first:.3g} -> {last:.3g}",
                    severity="warning", detail=spec["id"]))
-    div = (not fin) or (_finite(L[-1]) and L[-1] > 10 * max(min(L), 1e-30))
+    # Divergence: the final loss is ten times the minimum the run reached *and* still above a thousandth of where it
+    # started. Without the second half, a run that reached the noise floor (a loss of 1e-11 in float32 after starting
+    # at 0.2) is labelled divergent for a 1e-8 wobble: nothing blew up, the arithmetic ran out of digits.
+    div = (not fin) or (_finite(L[-1]) and L[-1] > 10 * max(min(L), 1e-30) and L[-1] > 1e-3 * max(L[0], 1e-30))
     C.append(Check("no divergence", "training", subj, not div, value=f"final {L[-1]:.3g}, min {min(L):.3g}",
                    detail=spec["id"]))
     lvl = spec.get("level")

@@ -84,6 +84,17 @@ The plot background is the theme's, and there is one of it: `#0b1220` dark,
 viewer alike. The twin3d page no longer declares `--viewport` in its own CSS;
 `viewer.js` writes it from the theme, so the canvas and the page around it agree.
 
+The rest of the page followed: `pinneapple_twin3d/viewer/index.html` has no
+hexadecimal left. Its background, panels, text, borders and the two status
+colours are written by `pageVars()` in `viewer.js` out of `theme.js` — alarm is
+the brand's ember, ok is the palette's green — with CSS system colours as the
+first paint, before the module runs. In `apps/_shared/static/shared/app.css` the
+surfaces are aliased to the generated `theme.css` (`--bg` to `--plot`, `--panel`
+to `--paper`) instead of being copied: `--line` and `--muted` were copies, and
+`--line` had already drifted to a colour the theme does not have. `--ok`,
+`--warn` and `--bad` stay literal because they are the meaning of a result, not
+a colour of the house. `tests/test_theme_chrome.py` holds both ends of that.
+
 The brand face, Oxanium, is used where the site uses it — the app title — and
 only if the machine has it: no webfont is shipped with the library, so the stack
 falls back to the system sans.

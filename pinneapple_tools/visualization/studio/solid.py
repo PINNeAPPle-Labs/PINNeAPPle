@@ -23,7 +23,7 @@ import json
 import os
 import subprocess
 import tempfile
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -67,7 +67,7 @@ def _ring(centre, axis, radius: float, n: int):
     return c + radius * (np.cos(ph)[:, None] * u + np.sin(ph)[:, None] * v)
 
 
-def solid_drum(centre, radius: float, height: float, *, radius_top: Optional[float] = None, n: int = 64,
+def solid_drum(centre, radius: float, height: float, *, radius_top: float | None = None, n: int = 64,
                axis=(0.0, 0.0, 1.0), name: str = "drum", material: str = "grey") -> Surface:
     """A closed cylinder: wall, bottom and top. The workhorse of a real cut -- a boss, a pad, a body in the rough.
 
@@ -79,7 +79,7 @@ def solid_drum(centre, radius: float, height: float, *, radius_top: Optional[flo
     r1 = float(radius) if radius_top is None else float(radius_top)
     bottom, top = _ring(c, a, float(radius), m), _ring(c + a * float(height), a, r1, m)
     V = np.vstack([bottom, top])
-    F: List[List[int]] = []
+    F: list[list[int]] = []
     for i in range(m):
         j = (i + 1) % m
         F += [[i, j, m + j], [i, m + j, m + i]]                # the wall
@@ -141,7 +141,7 @@ def loft(stations, *, caps: bool = True, name: str = "loft", material: str = "gr
     if any(len(s) != m for s in S):
         raise ValueError("every station needs the same number of points, or there is nothing to loft between")
     V = np.vstack(S)
-    F: List[List[int]] = []
+    F: list[list[int]] = []
     for k in range(len(S) - 1):
         o, p = k * m, (k + 1) * m
         for i in range(m):
@@ -165,7 +165,7 @@ def cutter_cylinder(a, b, radius: float, *, n: int = 48, name: str = "cutter", m
 
 
 # ------------------------------------------------------------------ the kernel
-def boolean(scene, cutters: Sequence[Surface], *, op: str = "difference", exe: Optional[str] = None,
+def boolean(scene, cutters: Sequence[Surface], *, op: str = "difference", exe: str | None = None,
             timeout: float = 1800.0, log=None) -> Scene:
     """``scene`` with every closed ``cutter`` combined into it (``difference``, ``union`` or ``intersect``).
 
@@ -227,11 +227,10 @@ def boolean(scene, cutters: Sequence[Surface], *, op: str = "difference", exe: O
 
 def _boolean_and_export(scene, out_path: str, *, cutters, op="difference") -> dict:
     """The entry the bootstrap calls: build the body and the tools, cut, drop the tools, export."""
+    import bmesh
     import bpy
 
     from .blender import _build_objects
-
-    import bmesh
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     targets = _build_objects(bpy, bpy.context.scene, scene.surfaces, scene.axes, scene.materials)

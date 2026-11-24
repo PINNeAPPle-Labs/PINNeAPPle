@@ -25,7 +25,6 @@ day one is in the stack, ``bore`` is the operation that should call it.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Sequence
 
 import numpy as np
 
@@ -41,7 +40,7 @@ class Operation:
 
     name: str
     detail: str
-    surfaces: List[str] = field(default_factory=list)
+    surfaces: list[str] = field(default_factory=list)
     params: dict = field(default_factory=dict)
 
     def __str__(self) -> str:
@@ -69,16 +68,16 @@ class Body:
     """A scene and the history that made it. Every method returns ``self``, so the operations read as a process."""
 
     scene: Scene
-    history: List[Operation] = field(default_factory=list)
+    history: list[Operation] = field(default_factory=list)
     material_of_skin: str = "as_cast"
     material_of_cut: str = "machined"
     blank_params: dict = field(default_factory=dict)
 
     # ------------------------------------------------------------------ bookkeeping
-    def _record(self, name: str, detail: str, before: int, params: Optional[dict] = None) -> None:
+    def _record(self, name: str, detail: str, before: int, params: dict | None = None) -> None:
         self.history.append(Operation(name, detail, [s.name for s in self.scene.surfaces[before:]], params or {}))
 
-    def spec(self, *, blank: Optional[dict] = None) -> dict:
+    def spec(self, *, blank: dict | None = None) -> dict:
         """The body as data: the blank's parameters and every operation with its numbers, in order. ``build`` replays
         it, so a route sheet is a file instead of a script."""
         return {"blank": _jsonable(blank or self.blank_params), "operations": [op.as_spec() for op in self.history[1:]]}
@@ -95,7 +94,7 @@ class Body:
 
     # ------------------------------------------------------------------ operations
     def machine_face(self, centre, normal, *, radius: float, height: float = 0.003, chamfer: float = 0.0012,
-                     name: Optional[str] = None) -> "Body":
+                     name: str | None = None) -> Body:
         """Cut a face: a pad standing proud of the casting with a chamfered rim, in the machined material. It is the
         contrast that does the work -- the same light that dulls the cast skin runs down the cut."""
         before = len(self.scene.surfaces)
@@ -110,7 +109,7 @@ class Body:
         return self
 
     def bore(self, centre, normal, *, diameter: float, depth: float = 0.02, csk: float = 0.0015,
-             cut: Optional[bool] = None, name: Optional[str] = None) -> "Body":
+             cut: bool | None = None, name: str | None = None) -> Body:
         """Bore a hole. With a kernel it is **cut**: :mod:`.solid.boolean` subtracts a closed cylinder and leaves an
         opening with an interior wall and a silhouette that changes with the camera. Without one -- or on a body whose
         shells are open -- it is **drawn**: a dark throat under a chamfered mouth, which is what a hole looks like at
@@ -151,7 +150,7 @@ class Body:
                       "cut": False})
         return self
 
-    def shell(self, *, thickness: float = 0.010, floor: float = 0.010, name: Optional[str] = None) -> "Body":
+    def shell(self, *, thickness: float = 0.010, floor: float = 0.010, name: str | None = None) -> Body:
         """Hollow the casting: subtract an inner volume so the body has a wall of ``thickness`` and a floor of
         ``floor``. This is the operation a boolean was needed for -- the geometry inside did not exist before, and no
         amount of surface detail can stand in for it."""
@@ -161,7 +160,6 @@ class Body:
             raise ValueError("a shell needs a wall thickness greater than zero and a floor that is not negative")
         if not all(is_closed(s) for s in self.scene.surfaces):
             raise ValueError("shelling needs a closed body: cast_blank(closed=True)")
-        before = len(self.scene.surfaces)
         # the body's own extent, so the inner volume follows whatever blank it is: no hard-coded dimensions
         V = np.vstack([s.vertices for s in self.scene.surfaces])
         z0, z1 = float(V[:, 2].min()), float(V[:, 2].max())
@@ -178,7 +176,7 @@ class Body:
                      {"thickness": thickness, "floor": floor})
         return self
 
-    def weld(self, points, *, radius: float = 0.005, tint: float = 1.35, name: Optional[str] = None) -> "Body":
+    def weld(self, points, *, radius: float = 0.005, tint: float = 1.35, name: str | None = None) -> Body:
         """Weld along a path: the bead, and the heat-tinted band beside it. The band is what makes a weld look welded
         rather than glued -- the metal around the bead is not the metal of the plate."""
         before = len(self.scene.surfaces)
@@ -193,7 +191,7 @@ class Body:
         return self
 
     def bolt_pattern(self, centre, normal, *, radius: float, count: int, head_radius: float = 0.008,
-                     name: Optional[str] = None) -> "Body":
+                     name: str | None = None) -> Body:
         """Drill and fit a bolt pattern on a face: the machined face, the bolts and the chamfered mouths."""
         before = len(self.scene.surfaces)
         nb = np.asarray(normal, float).reshape(3)
@@ -205,7 +203,7 @@ class Body:
                               "head_radius": head_radius})
         return self
 
-    def finish(self, *, angle: float = 30.0, width: float = 0.0015, segments: int = 2, log=None) -> "Body":
+    def finish(self, *, angle: float = 30.0, width: float = 0.0015, segments: int = 2, log=None) -> Body:
         """Break every remaining sharp edge -- the last thing a shop does to a part -- by beveling the whole body.
 
         This is the one operation that rebuilds the mesh, so it returns the same :class:`Body` with a new scene and
@@ -222,7 +220,7 @@ class Body:
 
 
 def cast_blank(*, radius: float = 0.11, height: float = 0.09, draft: float = 2.0, base: float = 1.16,
-               running: float = 0.012, material: Optional[str] = None, name: str = "blank",
+               running: float = 0.012, material: str | None = None, name: str = "blank",
                closed: bool = True) -> Body:
     """A housing as it leaves the mould: a drum with a drafted wall, a wider base and the as-cast skin.
 

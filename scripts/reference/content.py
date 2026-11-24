@@ -825,6 +825,53 @@ print(redact("run by maria.silva@example.com, CPF 123.456.789-09, phone +55 11 9
 )
 
 pkg(
+    name="pinneapple_plugins",
+    group="workflow",
+    title="Plugins",
+    tagline="What an installed package must implement to extend the library, and the diagnostics that say whether it "
+            "works here.",
+    about=[
+        "The contract (`Plugin`: name, version, contract version, requirements, capabilities, permissions, "
+        "`initialize`, `shutdown`) lives in a package with no dependencies, so a light third-party package imports it "
+        "without pulling the core. Discovery reads distribution metadata from the `pinneapple.plugins` entry-point "
+        "group and never imports anything; loading is per plugin, and a plugin that fails is a record rather than an "
+        "exception.",
+        "`PluginManager` (and `pinneapple plugins list | inspect | doctor | enable | disable`) answers the operator's "
+        "questions: what is installed, where it came from, why it is broken, and which ones are disabled. Disabling "
+        "writes a configuration file; nothing is uninstalled.",
+    ],
+    use_when=["You are shipping a solver, model, benchmark or adapter as its own package.",
+              "An installed plugin stopped working and you need to know why, without taking the others down."],
+    examples=[
+        dict(title="Declare a plugin and diagnose it",
+             code='''from pinneapple_plugins import CONTRACT_VERSION, Entry, Plugin, PluginManager, contract_compatible
+
+
+class MySolver(Plugin):
+    name = "my-solver"
+    version = "0.1.0"
+    contract_version = CONTRACT_VERSION          # the version of the contract it was written against
+    capabilities = {"solver": ["cfd", "steady_state"], "geometry": ["stl"]}
+
+    def initialize(self, context):
+        context.log("my-solver registered")
+
+    def shutdown(self):
+        pass
+
+
+manager = PluginManager(entries=[Entry(name="my-solver", loader=MySolver)],
+                        config="/tmp/pinneapple-plugins.json")
+record = manager.load_all()["my-solver"]
+print(record.state, "-", record.version, "-", record.source)     # ready - 0.1.0 - unrecorded distribution
+print("works by capability:", manager.find(capability="solver", domain="cfd"))
+print("contract 1.0 compatible:", contract_compatible("1.0")[0])
+print("doctor:", [(r.name, r.state) for r in manager.doctor()])
+'''),
+    ],
+)
+
+pkg(
     name="pinneapple_registry",
     group="workflow",
     title="Registry",

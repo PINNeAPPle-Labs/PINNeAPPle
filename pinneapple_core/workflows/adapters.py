@@ -83,6 +83,9 @@ class StepCancelled(RuntimeError):
 
 class Adapter(ABC):
     kind: str = ""
+    #: True when the step only works on this machine (a GUI-driven adapter, a step that reads a local-only file):
+    #: a remote executor refuses it by name instead of timing out (#1479).
+    local_only: bool = False
 
     def available(self, step: Step | None = None) -> tuple[bool, str]:
         return True, ""

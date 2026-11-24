@@ -408,7 +408,7 @@ print(f"angular velocity is never measured; filter RMS error {np.sqrt(np.mean((e
 tt = np.arange(len(truth)) * dt
 fig, ax = plt.subplots(figsize=(7, 2.8))
 ax.plot(tt, obs[:, 0], ".", ms=2, c="0.6", label="readings"); ax.plot(tt, truth[:, 0], label="truth")
-ax.plot(tt, est[:, 0], "--", label="EKF"); ax.set_xlabel("t (s)"); ax.set_ylabel("angle (rad)"); ax.legend(ncol=3, fontsize=7)
+ax.plot(tt, est[:, 0], "--", label="EKF"); ax.set_xlabel("t [s]"); ax.set_ylabel("angle [rad]"); ax.legend(ncol=3, fontsize=7)
 ''', plot=True),
     ],
 )
@@ -1014,6 +1014,7 @@ for k, v in pts.items():
     if k not in ("interior", "boundary"):
         ax.plot(v[:, 0], v[:, 1], ".", ms=3, label=k)
 ax.set_aspect("equal"); ax.legend(fontsize=7, ncol=5, loc="upper center", bbox_to_anchor=(0.5, 1.3))
+ax.set_xlabel("x [m]"); ax.set_ylabel("y [m]")   # the channel is built in metres
 ''', plot=True),
     ],
 )

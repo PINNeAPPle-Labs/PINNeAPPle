@@ -127,7 +127,9 @@ def test_every_image_in_the_catalogue_has_a_caption(image):
     cap = json.loads(sidecar.read_text(encoding="utf-8"))
     assert cap["field"].strip(), f"{image.name}: caption names no field"
     assert cap["unit"].strip(), f"{image.name}: caption declares no unit ('-' says dimensionless)"
-    assert f"[{cap['unit']}]" in cap["text"], f"{image.name}: caption text does not print its unit"
+    # a dimensionless field is printed as "dimensionless", not "[-]": either form states the unit of the picture
+    forms = [f"[{cap['unit']}]", "[dimensionless]"]
+    assert any(form in cap["text"] for form in forms), f"{image.name}: caption text does not print its unit"
 
 
 @pytest.mark.parametrize("image", _images(), ids=lambda p: p.stem)

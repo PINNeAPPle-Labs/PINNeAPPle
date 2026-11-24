@@ -108,6 +108,7 @@ class Cell:
     os: str
     status: str         # "executed" (a run matches it) or "declared" (nobody ran it yet)
     run: dict[str, Any] | None = None
+    note: str = ""      # why a declared cell is declared, when the declaration says so
 
     @property
     def torch_version(self) -> str:
@@ -141,7 +142,8 @@ def cells() -> list[Cell]:
     out = []
     for cell in matrix()["cells"]:
         run = executed(cell["python"], matrix()["torch"]["lines"].get(cell["torch"]), cell["os"])
-        out.append(Cell(cell["python"], cell["torch"], cell["os"], "executed" if run else "declared", run))
+        out.append(Cell(cell["python"], cell["torch"], cell["os"], "executed" if run else "declared", run,
+                        str(cell.get("note") or "")))
     return out
 
 
@@ -275,7 +277,7 @@ def record(env: dict[str, Any], results: list[dict[str, Any]], *, at: str | None
 # ── the page ─────────────────────────────────────────────────────────────────────────────────────────────
 def _row(cell: Cell) -> str:
     mark = "✅ executed" if cell.status == "executed" else "⬜ declared"
-    when = cell.run.get("at", "") if cell.run else ""
+    when = cell.run.get("at", "") if cell.run else cell.note
     return f"| {cell.os} | {cell.python} | {cell.torch} ({cell.torch_version}) | {mark} | {when} |"
 
 
@@ -287,7 +289,8 @@ def render_markdown() -> str:
     py_min, py_max = data["python"]["min"], data["python"]["max"]
     floor = data["torch"]["floor"]
     lines = ", ".join(f"**{k}** {v}" for k, v in data["torch"]["lines"].items())
-    missing_os = sorted({c.os for c in cells_ if c.status == "declared"})
+    empties = "; ".join(f"{c.os} python {c.python} torch {c.torch}" for c in cells_ if c.status == "declared") \
+        or "none"
     cover = []
     for name in data["os"]:
         here = [c for c in cells_ if c.os == name]
@@ -327,8 +330,8 @@ def render_markdown() -> str:
         "|---|---|---|---|---|",
         *[_row(c) for c in cells_],
         "",
-        f"**{done} of {total} cells executed.** The other {total - done} are declared only: nothing has been run "
-        f"on {' or '.join(missing_os) if missing_os else 'no OS'}, so this page does not claim they work.",
+        f"**{done} of {total} cells executed.** The {total - done} declared only ({empties}) were never run, so this "
+        f"page does not claim they work.",
         "",
         "## What the smoke runs",
         "",

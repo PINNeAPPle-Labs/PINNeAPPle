@@ -118,14 +118,25 @@ def figure_caption(field: str, unit: str, *, label: str = "", kind: str = "value
                          method=str(method), status=str(status), source=str(source))
 
 
-#: ``"Temperature [K]"`` -> name and unit; a label without brackets declares no unit and is not a declaration
-_LABELLED = re.compile(r"^(?P<name>.+?)\s*\[(?P<unit>[^\]]+)\]$")
+#: ``"Temperature [K]"`` -> name and unit; the bracket group may be followed by the rest of a caption
+#: (``"von Mises [MPa], 0 to 512 MPa, deformation x25"``). A label with no brackets declares no unit.
+_LABELLED = re.compile(r"^(?P<name>.+?)\s*\[(?P<unit>[^\]]+)\]")
+#: what a figure prints when it draws a deformed shape: the exaggeration and the unit its coordinates are in
+_DEFORM = re.compile(r"deformation\s*x\s*(?P<value>[\d.eE+-]+)")
+_LENGTH = re.compile(r"lengths in (?P<value>[A-Za-z]+)")
 
 
 def _declaration(text: str) -> tuple[str, str] | None:
-    """The (name, unit) a label declares, or None when it declares no unit."""
-    match = _LABELLED.match((text or "").strip())
-    return (match.group("name").strip(), match.group("unit").strip()) if match else None
+    """The (name, unit) a label declares, or None when it declares no unit.
+
+    A caption printed on the figure runs over several lines, so each line is a candidate: the first that reads
+    ``name [unit]`` is the declaration.
+    """
+    for line in str(text or "").splitlines():
+        match = _LABELLED.match(line.strip())
+        if match:
+            return (match.group("name").strip(), match.group("unit").strip())
+    return None
 
 
 def caption_from_figure(fig, *, filename: str = "", deform: float | None = None, length_unit: str = "m",
@@ -155,18 +166,38 @@ def caption_from_figure(fig, *, filename: str = "", deform: float | None = None,
             candidates.extend([ax.get_ylabel(), ax.get_xlabel(), ax.get_title()])
     if getattr(fig, "_suptitle", None) is not None:
         candidates.append(fig._suptitle.get_text())
+    # a caption the figure already prints on itself is the most explicit declaration there is
+    candidates.extend(text.get_text() for text in getattr(fig, "texts", []))
 
     for text in candidates:
         found = _declaration(text)
         if found is not None:
             name, unit = found
-            value_range = _colour_range(fig)
-            return figure_caption(name, unit, label="", value_range=value_range, deform=deform,
+            # the figure may have printed the exaggeration itself ("deformation x25, lengths in mm"): keep it, or the
+            # caption would drop the one fact that says the shape is not drawn true to scale
+            printed = [line for text_ in candidates for line in str(text_ or "").splitlines()]
+            if deform is None:
+                deform = _printed(printed, _DEFORM, float)
+            if length_unit == "m":
+                length_unit = _printed(printed, _LENGTH, str) or length_unit
+            return figure_caption(name, unit, label="", value_range=_colour_range(fig), deform=deform,
                                   length_unit=length_unit, method=method, status=status, source=source)
     where = f" {filename}" if filename else ""
     raise ValueError(
         f"figure{where} declares no unit on any label: a colour bar or an axis has to read 'quantity [unit]' "
         f"(or '[-]' for a dimensionless quantity). Labels found: {[c for c in candidates if c]}")
+
+
+def _printed(lines, pattern, cast):
+    """The first value a figure printed for ``pattern``, or None when it printed none."""
+    for line in lines:
+        match = pattern.search(line)
+        if match:
+            try:
+                return cast(match.group("value"))
+            except ValueError:
+                continue
+    return None
 
 
 def _colour_range(fig) -> tuple[float, float] | None:

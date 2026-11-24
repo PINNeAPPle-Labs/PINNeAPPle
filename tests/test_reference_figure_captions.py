@@ -73,6 +73,24 @@ def test_a_dimensionless_field_has_to_say_so():
     assert caption_from_figure(fig).dimensionless
 
 
+def test_an_exaggeration_the_figure_prints_is_kept_in_the_caption():
+    """A deformed shape drawn x25 that says nothing is a lie of proportion: the caption keeps what the figure says."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1])
+    fig.text(0.04, 0.04, "von Mises [MPa], 0.1 to 512 MPa, deformation x25, lengths in mm")
+    cap = caption_from_figure(fig, filename="beam.png")
+    assert cap.deform == 25.0
+    assert cap.length_unit == "mm"
+    assert "deformation x25" in cap.text() and "lengths in mm" in cap.text()
+
+
+def test_a_caption_the_figure_prints_itself_is_read_back():
+    fig, ax = plt.subplots()
+    ax.set_title("Contact pressure [MPa]")
+    cap = caption_from_figure(fig)
+    assert (cap.field, cap.unit) == ("Contact pressure", "MPa")
+
+
 def test_a_figure_that_declares_no_unit_is_refused():
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1])

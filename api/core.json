@@ -4626,6 +4626,27 @@
    },
    "thin_airfoil_zero_lift": "def(code)"
   },
+  "pinneapple_presets.cases.contact": {
+   "BoltedJoint": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "case_params": "(p)",
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "references": "()",
+     "validate": "()",
+     "convergence": "(values=(4, 6, 8))",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "case_run_dir": "def(name)",
+   "runs_dir": "def(name)"
+  },
   "pinneapple_presets.cases.eddy_current": {
    "EddyCurrentInspection": {
     "class": [

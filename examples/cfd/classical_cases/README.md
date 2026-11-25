@@ -162,14 +162,141 @@ The vortex-lattice and LBM rungs are **not** on this family: a lattice gives a f
 the LBM solver works in a low-Reynolds regime while this family is at `Re = 4e6`. `ladder.MULTIFIDELITY` exports the
 rungs as data levels (name and relative cost) for the multi-fidelity workflow (#35).
 
+### 6. The same cavity solved by a network — `results/cavity_pinn.json` (#272)
+
+Everything above measures a *discretisation* against Ghia's table. This section measures a method that has no
+discretisation at all: a tanh perceptron (4 hidden layers of 64) trained on the strong form of the steady
+incompressible equations at random collocation points, with no-slip on the three fixed walls and the moving lid as a
+penalty rather than an ansatz, and the pressure held to zero mean. **No solved field is ever shown to it** — not the
+OpenFOAM result, not the table.
+
+    python examples/cfd/classical_cases/run_cases.py --only pinn --pinn-steps 10000
+
+It is scored through the same door as the meshes: `cavity.profile_error` at Ghia's own 17 stations, the two wall
+stations excluded, the disputed `Re = 400` station dropped, the RMS of the table in the denominator. The network is
+asked for `u` at `x = 0.5` itself where the mesh interpolates from two neighbouring columns; the stations and the norm
+— the two things that decide whether two numbers may share a column — are identical.
+
+**What was trained, and at what cost.** 4 hidden layers of 64 (12 867 parameters), float32 on a CPU, 2 000 collocation
+points redrawn every 200 steps, 250 boundary points per wall, the boundary conditions and the zero-mean pressure as
+penalties, Adam at 2e-3 with a cosine decay, **10 000 steps** — 36 minutes of wall time per model on this machine, and
+the budget the machine had at the time rather than one chosen to make the table look good. The network is asked for
+`u` at `x = 0.5` itself where the mesh interpolates from two neighbouring columns; the stations and the norm — the two
+things that decide whether two numbers may share a column — are identical.
+
+| model | Re | u error | v error | training |
+|---|---:|---:|---:|---:|
+| one network per Re | 100 | 16.31 % | 53.99 % | 2 179 s |
+| one network per Re | 400 | 54.60 % | 96.97 % | 2 181 s |
+| one network per Re | 1 000 | 71.48 % | 98.72 % | 2 176 s |
+| one operator, `Re` as an input | 100 | 30.71 % | 89.38 % | 2 179 s, one model for all three |
+| one operator, `Re` as an input | 400 | 47.46 % | 96.08 % | — (the same model) |
+| one operator, `Re` as an input | 1 000 | 62.12 % | 98.16 % | — (the same model) |
+
+**The result is negative, and it is the finding the issue asked for.** At this budget neither model matches the table
+at any of the three Reynolds numbers: not at 5 % — the level a middling mesh reaches in section 1 — and not at 1 %.
+`stops_matching` therefore reports `below the lowest measured Reynolds number` for both, which is what it is for: a
+bracket between two *measured* numbers, or the statement that there is none. Two things in the rows are worth more
+than the headline error:
+
+* **`u` degrades with `Re` and it is wrong everywhere rather than unresolved somewhere.** 16 % at Re = 100, 55 % at
+  400, 71 % at 1 000 — and the four stations nearest the moving lid, where a 64-cell grid would be expected to lose the
+  layer, carry only 13 %, 32 % and 35 % of the squared error. This is not the boundary layer: the whole column is off.
+* **`v` is not learned at the two higher Reynolds numbers.** The strongest cross-flow the network returns is 0.022 at
+  Re = 400 and 0.021 at 1 000 against 0.450 and 0.515 in the table — a factor of twenty. That is the family the
+  equations admit for free (`u = u(y)`, `v = 0`, `p = p(x)`), where the side walls' no-slip condition is only weakly
+  enforced, and it is what the module's `balance` switch (Wang, Teng and Perdikaris, 2021) exists to break out of: tried
+  at a quarter of this budget it came out worse (44 % against 34 % in `u` at Re = 100), so it is off in the run above.
+
+The cost is the other half of the comparison: 2 176–2 181 s of CPU per model against 2.1–46.8 s for `simpleFoam` on the
+three meshes of section 1, for a worse answer. What this section contributes is not a faster method — it is not one —
+but a measurement of how far the method gets at a budget of minutes, on the same ruler as the solver, which is the
+number a reader deciding whether to use a PINN for this problem actually needs.
+
+**The operator, asked where the table is silent.** A network whose input carries `Re` can answer anywhere in its
+training range, and the three published columns are a thin test of that: they are the points it was asked to
+reproduce. So the same network is asked at `Re = 250` and `Re = 750` — no column of Ghia's table has either — and
+scored against the case *solved* there (`simpleFoam`, two meshes, `results/cavity_pinn.json` keeps both), through the
+same stations, the same exclusion of the walls and the same norm, with the solved profile where the published one
+would be.
+
+| Re (no published column) | solver | u error | v error |
+|---:|---|---:|---:|
+| 250 | 64² and 128², converged in 1 256 / 3 683 iterations | 41.20 % | 95.46 % |
+| 750 | 64² and 128², converged in 1 378 / 3 424 iterations | 57.09 % | 97.83 % |
+
+The reference is not what the error is made of: the two meshes differ by 0.44 % in `u` at Re = 250 and 1.85 % at 750
+(0.89 % and 2.55 % in `v`), an order of magnitude below the operator's numbers. What those two rows show is not
+accuracy — there is none — but that the operator **is** a function of `Re` and not three profiles wearing one hat: its
+error at 250 (41 %) lands between the error at the two columns that bracket it (31 % at 100 and 47 % at 400), and 57 %
+at 750 between 47 % and 62 %. A model that had fitted the three columns separately would have no reason to be ordered
+that way in between.
+
+**Where it stops.** The answer, for both models and at both tolerances, is "below the lowest measured Reynolds
+number": the network does not clear 5 % anywhere it was measured, and the honest row is the failure rather than a
+crossing nobody observed. Making this a bracket rather than a floor needs a run that converges at `Re = 100` first,
+and the budget for that is the open item — not a different reading of these three columns.
+
+### 7. The CFDBench cavity family, scored with the same ruler — `results/cfdbench.json` (#272)
+
+CFDBench (Luo, Chen and Zhang, 2023) is a machine-learning benchmark rather than a validation case, and the issue asks
+for its numbers beside ours. It is published on HuggingFace (`chen-yingfa/CFDBench`, licence `apache-2.0` in the
+dataset card), one zip per problem. The archive answers at
+
+    https://huggingface.co/datasets/chen-yingfa/CFDBench/resolve/main/cavity.zip      # 786 MB; tube 213 MB, dam 1.4 GB
+
+and the addresses that fail are the *per-case* ones: the repository ships seven zips and no loose `u.npy`, so a path
+like `.../resolve/main/cavity/bc/case0000/u.npy` is a 404 even though the dataset is there (checked: the dataset page
+and the zip both answer 200, that file path does not).
+
+    python examples/cfd/classical_cases/run_cases.py --only cfdbench --cfdbench ~/cfdbench-data/cavity
+
+The 158 cavity cases are read through the project's own loader (`pinneapple_data.datasets.cfdbench`, which was written
+against the project's repository layout and is what this case uses — a second reader would measure the reader), the
+last frame of each is sampled at Ghia's stations, and the profile is divided by the case's own lid speed so it is in
+the table's normalisation. Then it goes through `cavity.profile_error` exactly as our own solution does.
+
+| Re | cases in the archive | u error | v error | u error, lid stations left out |
+|---:|---:|---:|---:|---:|
+| 100 | 5 | 13.28 % | 9.85 % | 10.89 % |
+| 400 | 2 | 19.93 % | 12.54 % | 4.19 % |
+| 1 000 | 6 | 25.47–25.55 % | 15.35–15.39 % | 3.43–3.65 % |
+
+Three things had to be got right to read it at all, and each of them shows up as error if it is not:
+
+* **the Reynolds number includes the density.** `case.json` gives `vel_top`, `width`, `density` and `viscosity`, so
+  `Re = rho U L / mu`. The `prop` family varies the density *and* the viscosity: read as `U L / nu`, six different
+  flows come out as one Reynolds number, and they span 13 % to 44 % against the same column of the table. With the
+  density in, the cases that share a Reynolds number agree with each other to the last digit (which is also why the
+  table has 5, 2 and 6 rows of the same number: the archive reaches the same flow through different parameter
+  combinations, and that is kept rather than deduplicated).
+* **the grid is 64 x 64 and it is where the difference is.** The archive interpolates its fields to 64 x 64, and the
+  whole of the large error sits in the four stations nearest the moving lid (`y >= 0.9531`) — the layer a 64-cell grid
+  cannot resolve. Leaving those four stations out takes the `u` error to 3.4–4.2 % at Re = 400 and 1 000. Both
+  readings are reported: quoting only the first blames the data for the grid, quoting only the second hides it. At
+  Re = 100 the difference is not confined to the lid (10.9 % without those stations either), and the case is the one
+  where the archive's own field is furthest from the table away from any wall.
+* **what is on disk is a transient, not a solution.** The cavity cases keep 4 to 1 000 frames (the ones at the three
+  Reynolds numbers compared here keep 4 to 10); `results/cfdbench.json` records the frame index and the largest change
+  between the last two frames (`drift`, 1.1e-3 to 4.9e-3 in lid speeds) so a reader can see that "the last frame" is
+  an approximation of the steady answer rather than the steady answer.
+
+Beside ours, at the finest mesh of the ladder, the same ruler gives 0.31–0.94 % in `u` and 0.83–3.35 % in `v`: the
+benchmark's own fields sit an order of magnitude further from the table than a 128 x 128 `simpleFoam` run, which is
+what 64 interpolated cells cost, and the reason a dataset built for training surrogates is not a substitute for a
+mesh-converged case when the question is the flow.
+
+**The other families load and are not scored.** `cfdbench.families(root)` opens every unpacked family of the archive
+through the same adapter and records its case count, subsets and field shape — the cavity (158 cases) and the tube
+(175, `64 x 64`, 10 to 107 frames) are what has been unpacked here. Only the cavity has a published table transcribed
+in this repository, so only the cavity has a column beside ours; the tube's answer would need a reference nobody has
+transcribed, and inventing one is the thing this folder exists not to do.
+
 ## What is not here
 
-* **A PINN for the cavity at Re = 100, 400, 1000** (#272's other half). Not done: the tables, the cases and the mesh
-  study are the part that had to exist first, and a PINN trained here would have been scored against the same table
-  this file reads. The parametric operator over `Re` **is** done, as the surrogate of section 4: it predicts the field
-  at a `Re` it was not fitted on, and its error against the solver is reported there.
-* **The CFDBench subset.** Not done: the licence could not be confirmed offline, and the dataset is not in this
-  repository.
+* **The `dam` and `cylinder` families of CFDBench.** Not downloaded: 1.4 GB and 12 GB of zips (three for the
+  cylinder) against 25 GB free on this machine, and neither has a reference table here to be scored against. The
+  reader is the one all four go through and `cfdbench.PROBLEMS` holds the four archives' addresses.
 * **The TMR bump-in-channel, NACA 0012 and backward-facing-step cases of #265**, and the TMR reference tables: the
   flat plate is the case whose verification stands without an external file, and the other three need the published
   grids and tables this machine could not download. `tmr.read_reference(path)` is the reader for when they arrive.

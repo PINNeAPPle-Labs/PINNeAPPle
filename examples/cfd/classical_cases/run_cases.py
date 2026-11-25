@@ -3,10 +3,12 @@
     python examples/cfd/classical_cases/run_cases.py --out examples/cfd/classical_cases/results
     python examples/cfd/classical_cases/run_cases.py --only reference          # no solver needed
     python examples/cfd/classical_cases/run_cases.py --only cavity --re 100 400
+    python examples/cfd/classical_cases/run_cases.py --only pinn               # the network, no solver needed
+    python examples/cfd/classical_cases/run_cases.py --only cfdbench          # the benchmark's archive, once unpacked
 
 It writes one JSON per case next to the tables it was compared with, so the README's table can be regenerated and the
-numbers in it can be checked. Without OpenFOAM the ``reference`` part still runs (it is transcribed data) and the
-solver parts say so instead of failing.
+numbers in it can be checked. Without OpenFOAM the ``reference`` part still runs (it is transcribed data), the ``pinn``
+part still runs (a network is trained, not solved) and the solver parts say so instead of failing.
 """
 from __future__ import annotations
 
@@ -20,8 +22,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from pinneapple_simulation.cfd_validation import (  # noqa: E402
     cavity,
+    cfdbench,
     foam,
     ladder,
+    pinn,
     reference,
     step,
     tmr,
@@ -104,6 +108,139 @@ def do_cavity(out: str, reynolds: list[int], meshes: list[int], cases: str, *, r
     _dump(os.path.join(out, "cavity.json"), result)
 
 
+def _machine() -> dict:
+    """What the run cost was paid on, so the seconds in the table have a machine next to them."""
+    import platform
+
+    import torch
+
+    return {"device": "cpu", "threads": int(torch.get_num_threads()), "cores": os.cpu_count() or 0,
+            "platform": f"{platform.system()} {platform.machine()}", "torch": torch.__version__}
+
+
+def do_pinn(out: str, reynolds: list[int], cases: str, *, steps: int | None = None) -> None:
+    """#272: the same cavity with a network, scored through the same stations and the same norm as the meshes.
+
+    Two models: one network per Reynolds number, and one operator whose input carries ``Re``. Each is measured
+    against the table the meshes were measured against, so the two numbers sit in one table. The finding is the
+    Reynolds number at which each stops matching (:func:`pinn.stops_matching`), not the average error.
+    """
+    if not steps:
+        steps = pinn.Config.steps
+    cfg = pinn.Config(steps=int(steps), checkpoint=os.path.join(cases, "pinn", "checkpoint.pt"))
+    os.makedirs(os.path.dirname(cfg.checkpoint), exist_ok=True)
+    record = {"case": "ghia-1982", "method": "physics-informed network",
+              "what": "the steady incompressible equations in strong form at collocation points, with the boundary "
+                      "conditions as a penalty and the pressure held to zero mean. No solved field is shown to the "
+                      "network: the only thing it is given is the problem statement",
+              "machine": _machine(), "protocol": pinn.PROTOCOL, "config": cfg.to_dict()}
+
+    def on_step(model, step, losses) -> None:
+        if step % (cfg.steps // 10) == 0 or step == cfg.steps - 1:
+            print(f"    step {int(step):>6}  pde {losses['pde']:.2e}  bc {losses['bc']:.2e}  "
+                  f"{losses['seconds']:>7.0f} s", flush=True)
+
+    record["single"] = pinn.study(tuple(reynolds), parametric=False, config=cfg, on_step=on_step)
+    _dump(os.path.join(out, "cavity_pinn.json"), record)
+    for row in record["single"]["rows"]:
+        e = row["errors"]
+        print(f"  Re = {row['reynolds']:>6.0f}: u {100 * e['u']['l2_relative']:6.2f} %  "
+              f"v {100 * e['v']['l2_relative']:6.2f} %")
+    solved, record["off_sample_solver"] = _off_sample_solver(cases)
+    record["parametric"] = pinn.study(tuple(reynolds), parametric=True, config=cfg, on_step=on_step,
+                                      probe=pinn.OFF_SAMPLE, solved=solved)
+    for row in record["parametric"]["rows"]:
+        e = row["errors"]
+        print(f"  operator Re = {row['reynolds']:>6.0f}: u {100 * e['u']['l2_relative']:6.2f} %  "
+              f"v {100 * e['v']['l2_relative']:6.2f} %")
+    for row in record["parametric"]["off_sample"]:
+        e = row["errors"]
+        print(f"  operator Re = {row['reynolds']:>6.0f} (no table, against the solver): "
+              f"u {100 * e['u']['l2_relative']:6.2f} %  v {100 * e['v']['l2_relative']:6.2f} %")
+    record["comparison"] = _comparison(record, out)
+    _dump(os.path.join(out, "cavity_pinn.json"), record)
+
+
+def _off_sample_solver(cases: str, meshes: tuple[int, ...] = (64, 128)):
+    """A function that solves the cavity at a Reynolds number the table does not publish, and its record.
+
+    The operator is claimed to answer for every ``Re`` in its range, and the three published columns cannot test that:
+    they are the points it was measured on. So the same case is solved at :data:`pinn.OFF_SAMPLE` — between the
+    published columns — and the operator is scored against *that*, with the two meshes kept so the reference's own
+    discretisation error is visible next to the model's. Without OpenFOAM the probe is skipped and says why.
+    """
+    record: dict = {"reynolds": list(pinn.OFF_SAMPLE), "meshes": list(meshes), "runs": [],
+                    "skipped": None}
+    if foam.bashrc() is None:
+        record["skipped"] = "no OpenFOAM installation found (set FOAM_BASHRC): the operator is not probed off the table"
+        print(f"  {record['skipped']}", file=sys.stderr)
+        return None, record
+    stations = pinn.reference_stations(100)                  # the stations are the same at every column
+    wanted = {"y": [float(v) for v in stations["y"]], "x": [float(v) for v in stations["x"]]}
+
+    def solve(reynolds: float) -> dict:
+        got = None
+        for n in meshes:
+            case = os.path.join(cases, "cavity", f"cavity_re{int(round(reynolds))}_{n}")
+            print(f"  solving Re = {reynolds:g} on {n}x{n} for the operator's off-table station", flush=True)
+            cavity.write_case(case, reynolds, n)          # the dictionaries first: ``run`` only runs them
+            info = cavity.run(case, reynolds, n)
+            solution = cavity.sample(case, reynolds, stations=wanted)
+            record["runs"].append({"reynolds": float(reynolds), "mesh": int(n), "seconds": round(info["seconds"], 1),
+                                   "iterations": int(info["solver"]["iterations"]),
+                                   "converged": bool(info["solver"]["converged"]),
+                                   "y": [float(v) for v in solution["y"]], "u": [float(v) for v in solution["u"]],
+                                   "x": [float(v) for v in solution["x"]], "v": [float(v) for v in solution["v"]]})
+            got = solution
+        return got
+
+    return solve, record
+
+
+def do_cfdbench(out: str, root: str) -> None:
+    """#272: the CFDBench cavity family, loaded from its own archive and scored against the table ours is scored on."""
+    print(f"CFDBench cavity, loaded from {root}")
+    got = cfdbench.study(root)
+    for name, entry in got["families"].items():
+        print(f"  family {name}: {entry}")
+    for row in got["rows"]:
+        for case in row["cases"]:
+            e = case["errors"]
+            print(f"  Re = {row['reynolds']:>6.0f}  {case['case']:<20s} u {100 * e['u']['l2_relative']:6.2f} %  "
+                  f"v {100 * e['v']['l2_relative']:6.2f} %  u without the lid stations "
+                  f"{100 * e['u_without_lid']['l2_relative']:6.2f} %")
+    _dump(os.path.join(out, "cfdbench.json"), got)
+
+
+def _comparison(record: dict, out: str) -> list[dict]:
+    """The one table the README prints: every method at every Reynolds number, on the same ruler.
+
+    The solver's rows are read from ``cavity.json`` when it is there (it is a committed result), at the finest mesh of
+    the ladder, so the network is quoted next to the best number the meshes produced rather than a convenient one.
+    """
+    rows: list[dict] = []
+    path = os.path.join(out, "cavity.json")
+    if os.path.exists(path):
+        with open(path) as fh:
+            solved = json.load(fh)
+        for run in solved.get("runs", []):
+            finest = max(int(n) for n in run.get("errors", {})) if run.get("errors") else None
+            if finest is None:
+                continue
+            err = run["errors"][str(finest)]
+            seconds = next((r.get("seconds") for r in run.get("runs", []) if int(r.get("n", 0)) == finest), None)
+            rows.append({"method": f"simpleFoam {finest}x{finest}", "reynolds": run["reynolds"],
+                         "u": err["u"]["l2_relative"], "v": err["v"]["l2_relative"], "seconds": seconds})
+    for mode, label in (("single", "PINN"), ("parametric", "PINN, operator over Re")):
+        models = record.get(mode, {}).get("models", [])
+        for i, row in enumerate(record.get(mode, {}).get("rows", [])):
+            # one network per Re in ``single`` (row i is model i), one shared network in ``parametric``
+            seconds = (models[i] if i < len(models) else models[0]).get("seconds") if models else None
+            rows.append({"method": label, "reynolds": row["reynolds"], "u": row["errors"]["u"]["l2_relative"],
+                         "v": row["errors"]["v"]["l2_relative"], "seconds": seconds})
+    return sorted(rows, key=lambda r: (float(r["reynolds"]), r["method"]))
+
+
 def do_step(out: str, reynolds: list[int], meshes: list[int], cases: str) -> None:
     result = {"case": "armaly-1983", "solver": "simpleFoam", "scheme": "linearUpwind grad(U)", "runs": []}
     for re in reynolds:
@@ -124,13 +261,20 @@ def main(argv=None) -> int:
                     help="where the JSON lands (the numbers committed next to the README)")
     ap.add_argument("--cases", default="/tmp/pinneapple-cfd-cases",
                     help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
-    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr"],
-                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr"])
+    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"],
+                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn", "cfdbench"],
+                    help="the parts to run; cfdbench is not in the default list because it needs the benchmark's own "
+                         "786 MB archive unpacked, which this folder never fetches")
     ap.add_argument("--reuse", action="store_true", help="read the cases already solved under --cases")
     ap.add_argument("--re", nargs="+", type=int, default=[100, 400, 1000], help="Reynolds numbers for the cavity")
     ap.add_argument("--meshes", nargs="+", type=int, default=list(cavity.MESHES))
     ap.add_argument("--step-re", nargs="+", type=int, default=[100, 200, 400, 800])
     ap.add_argument("--step-meshes", nargs="+", type=int, default=list(step.MESHES))
+    ap.add_argument("--pinn-steps", type=int, default=pinn.Config.steps,
+                    help="Adam steps of the network: the training budget the machine allowed, recorded with the "
+                         "result (the checkpoint under --cases resumes an interrupted run)")
+    ap.add_argument("--cfdbench", default=os.path.expanduser("~/cfdbench-data/cavity"),
+                    help="where the CFDBench cavity archive was unzipped (never committed: 800 MB)")
     args = ap.parse_args(argv)
 
     os.makedirs(args.out, exist_ok=True)
@@ -153,6 +297,15 @@ def main(argv=None) -> int:
         do_ladder(args.out, args.cases)
     if "tmr" in args.only:
         do_tmr(args.out, args.cases)
+    if "pinn" in args.only:
+        do_pinn(args.out, args.re, args.cases, steps=args.pinn_steps)
+    if "cfdbench" in args.only:
+        if os.path.isdir(args.cfdbench):
+            do_cfdbench(args.out, args.cfdbench)
+        else:
+            print(f"the CFDBench archive is not at {args.cfdbench}: unzip "
+                  f"{cfdbench.ARCHIVE} there, or point --cfdbench at it", file=sys.stderr)
+            return 1
     return 0
 
 

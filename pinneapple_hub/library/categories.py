@@ -19,10 +19,12 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
       "lib:pinneapple_design.fitmesh", "lib:pinneapple_design.bricks")),
     ("equations", "Equations and PDE environments", "PDE systems, boundary and initial conditions, test environments",
      ("node:equations.", "lib:pinneapple_physics.pde_environment", "lib:pinneapple_physics.non_hermitian")),
+    # node:vortex. is the viscous vortex domains: 2-D Navier-Stokes without a mesh. node:ugs. is the underground gas
+    # store, which runs pinneapple_simulation.ugs end to end — a solver by the same rule as lib:pinneapple_simulation.
     ("classical", "Classical solvers", "Finite differences, FEM, LBM, meshless, OpenFOAM, CalculiX, FMU",
      ("node:solver.", "node:lib.solver.", "node:lib.solve.", "node:lib.robot.", "fn:pp.solve", "mcp:solve",
       "lib:pinneapple_simulation.", "lib:pinneapple_physics.solid", "node:condense.", "node:query.",
-      "fn:pinneapple_condense.", "node:vortex.")),   # viscous vortex domains: 2-D Navier-Stokes, no mesh
+      "fn:pinneapple_condense.", "node:vortex.", "node:ugs.")),
     ("pinn", "PINNs and neural training", "Train, fine-tune and transfer physics-informed networks",
      ("node:train.", "node:transfer.", "node:meta.", "node:gnn.", "node:lib.model.", "lib:pinneapple_physics.pinn_solver",
       "lib:pinneapple_physics.deepxde_bridge", "lib:pinneapple_neural.", "lib:pinneapple_core.loss",
@@ -133,6 +135,7 @@ RECIPES: dict[str, str] = {
     "recipe:pinneapple_physics__0": "pinn",                     # Burgers PINN against Cole-Hopf
     "recipe:pinneapple_physics__1": "checks",                   # closed-form engineering checks
     "recipe:pinneapple_physics__2": "vehicles",                 # Archard sliding wear
+    "recipe:pinneapple_plugins__0": "automation",               # declare a plugin and diagnose it
     "recipe:pinneapple_problemdesign__0": "automation",         # consequential actions need approval
     "recipe:pinneapple_quantum__0": "verification",             # exact oscillator states as reference
     "recipe:pinneapple_registry__0": "zoo",

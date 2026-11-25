@@ -1,0 +1,12 @@
+{
+ "code_hash": "1ffdee5f62866ed3",
+ "figures": [],
+ "id": "example:examples/digital_twin_end_to_end",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin end to end: a simulated stream with a truth, and a real gauge | digital twins | not curated\nbenchmark.state_error 0.0 verdict\nbenchmark.latency 0.0 verdict\nbenchmark.noise 0.0 verdict\nbenchmark.sensor_failure 0.0 verdict\nbenchmark.anomaly 0.0 verdict",
+ "timed_out": false
+}

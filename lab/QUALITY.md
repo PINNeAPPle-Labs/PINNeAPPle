@@ -1,37 +1,38 @@
 # Experiment quality checklist
 
-178 folders · 373 met · 643 missing · 125 not applicable · 461 not assessed
+179 folders · 378 met · 647 missing · 125 not applicable · 461 not assessed
 
 The nine items of #923, checked from the files of each folder (manifest, checks, params, metrics,
 provenance, markdown). A checklist, not a score: the letter is the curation's, and no item is a gate.
 
 | experiment | badge | Reference or baseline | Held-out or extrapolation split | Repeats | Equal budget across the methods compared | Ablation | Convergence | Provenance and the reproduce command | Verdict computed from results, losses included | An explicit list of what was not measured |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `examples/physics_module` (218) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/solver_api` (185) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/geometry` (120) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/benchmark` (111) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/physics_module` (222) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/solver_api` (187) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/geometry` (121) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/benchmark` (112) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/validation` (108) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/solvers` (106) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/solvers` (107) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/cfd` (80) | QUALITY 5/9 · missing: repeats, ablation, provenance, not measured | yes | yes | **no** | yes | **no** | yes | **no** | yes | **no** |
 | `examples/studio` (76) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/control` (70) | QUALITY 2/9 · missing: reference, held-out, repeats, budget, ablation, convergence, not measured | **no** | **no** | **no** | **no** | **no** | **no** | yes | yes | **no** |
+| `examples/control` (71) | QUALITY 2/9 · missing: reference, held-out, repeats, budget, ablation, convergence, not measured | **no** | **no** | **no** | **no** | **no** | **no** | yes | yes | **no** |
 | `examples/systems` (62) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/numerical_solvers` (47) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/architectures` (46) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/numerical_solvers` (46) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/lbm` (43) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/trainer` (43) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/nvidia` (41) | QUALITY 5/9 · missing: reference, repeats, ablation, not measured | **no** | yes | **no** | yes | **no** | yes | yes | yes | **no** |
-| `examples/industrial` (33) | QUALITY 1/6 · missing: reference, held-out, repeats, provenance, not measured | **no** | **no** | **no** | n/a | n/a | n/a | **no** | yes | **no** |
+| `examples/trainer` (45) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/lbm` (44) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/nvidia` (42) | QUALITY 5/9 · missing: reference, repeats, ablation, not measured | **no** | yes | **no** | yes | **no** | yes | yes | yes | **no** |
+| `examples/industrial` (34) | QUALITY 1/6 · missing: reference, held-out, repeats, provenance, not measured | **no** | **no** | **no** | n/a | n/a | n/a | **no** | yes | **no** |
+| `examples/security` (34) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/meshgraphnet` (33) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/security` (33) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/pde_environment` (29) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/worldmodel` (27) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/pinn_solver` (26) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/use_cases` (25) | QUALITY 0/2 · missing: provenance, not measured | ? | ? | ? | ? | ? | ? | **no** | ? | **no** |
+| `examples/modelica` (24) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/use_cases` (24) | QUALITY 0/2 · missing: provenance, not measured | ? | ? | ? | ? | ? | ? | **no** | ? | **no** |
+| `examples/mujoco` (23) | QUALITY 4/9 · missing: held-out, repeats, budget, ablation, not measured | yes | **no** | **no** | **no** | **no** | yes | yes | yes | **no** |
 | `examples/physics_audit` (23) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/physics_check` (23) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/modelica` (22) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/mujoco` (22) | QUALITY 4/9 · missing: held-out, repeats, budget, ablation, not measured | yes | **no** | **no** | **no** | **no** | yes | yes | yes | **no** |
 | `examples/end_to_end` (21) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/latent` (21) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/quickstart` (21) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
@@ -40,8 +41,8 @@ provenance, markdown). A checklist, not a score: the letter is the curation's, a
 | `examples/science` (20) | QUALITY 2/6 · missing: held-out, repeats, provenance, not measured | yes | **no** | **no** | n/a | n/a | n/a | **no** | yes | **no** |
 | `examples/time_series` (20) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/benchmark_suite` (19) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/molecular` (18) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/qualitative` (18) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/molecular` (17) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/getting_started` (16) | QUALITY 1/5 · missing: reference, held-out, repeats, not measured | **no** | **no** | **no** | n/a | n/a | n/a | yes | ? | **no** |
 | `examples/inspection` (16) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/hpo_experiments` (15) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
@@ -50,12 +51,12 @@ provenance, markdown). A checklist, not a score: the letter is the curation's, a
 | `examples/geophysics` (14) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/free_surface` (13) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/physics_ensemble` (13) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
+| `examples/biology` (12) | QUALITY 1/8 · missing: reference, held-out, budget, ablation, convergence, provenance, not measured | **no** | **no** | yes | **no** | **no** | **no** | **no** | ? | **no** |
 | `examples/bricks` (12) | QUALITY 3/6 · missing: held-out, repeats, not measured | yes | **no** | **no** | n/a | n/a | n/a | yes | yes | **no** |
 | `examples/data_pipeline` (12) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/non_hermitian` (12) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/vs_physicsnemo` (12) | QUALITY 0/2 · missing: provenance, not measured | ? | ? | ? | ? | ? | ? | **no** | ? | **no** |
 | `examples/arena_pipelines` (11) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
-| `examples/biology` (11) | QUALITY 1/8 · missing: reference, held-out, budget, ablation, convergence, provenance, not measured | **no** | **no** | yes | **no** | **no** | **no** | **no** | ? | **no** |
 | `examples/motor_magnetics` (11) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/physics_optimizer` (11) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
 | `examples/rigid_body` (11) | QUALITY 1/2 · missing: not measured | ? | ? | ? | ? | ? | ? | yes | ? | **no** |
@@ -108,6 +109,7 @@ provenance, markdown). A checklist, not a score: the letter is the curation's, a
 | `examples/autolab_aero_agent` (4) | QUALITY 3/9 · missing: reference, held-out, repeats, ablation, convergence, not measured | **no** | **no** | **no** | yes | **no** | **no** | yes | yes | **no** |
 | `examples/autolab_rover` (4) | QUALITY 4/9 · missing: reference, held-out, repeats, ablation, not measured | **no** | **no** | **no** | yes | **no** | yes | yes | yes | **no** |
 | `examples/base_workflows/model_benchmarking` (4) | QUALITY 2/6 · missing: reference, held-out, provenance, not measured | **no** | **no** | yes | n/a | n/a | n/a | **no** | yes | **no** |
+| `examples/digital_twin_end_to_end` (4) | QUALITY 4/8 · missing: reference, budget, ablation, not measured | **no** | yes | yes | **no** | **no** | n/a | yes | yes | **no** |
 | `examples/industrial_presets/water_hammer_valve_closure` (4) | QUALITY 3/9 · missing: repeats, budget, ablation, convergence, provenance, not measured | yes | yes | **no** | **no** | **no** | **no** | **no** | yes | **no** |
 | `examples/science/electromagnetism/ampere_law` (4) | QUALITY 2/7 · missing: held-out, repeats, convergence, provenance, not measured | yes | **no** | **no** | n/a | n/a | **no** | **no** | yes | **no** |
 | `examples/science/electromagnetism/bench_mu0_solenoid` (4) | QUALITY 3/8 · missing: held-out, ablation, convergence, provenance, not measured | yes | **no** | yes | n/a | **no** | **no** | **no** | yes | **no** |
@@ -130,7 +132,6 @@ provenance, markdown). A checklist, not a score: the letter is the curation's, a
 | `examples/base_workflows/equation_discovery` (3) | QUALITY 2/6 · missing: reference, repeats, provenance, not measured | **no** | yes | **no** | n/a | n/a | n/a | **no** | yes | **no** |
 | `examples/carbench_surface_pressure` (3) | QUALITY 4/9 · missing: reference, held-out, ablation, convergence, not measured | **no** | **no** | yes | yes | **no** | **no** | yes | yes | **no** |
 | `examples/carcrashnet_pole_impact` (3) | QUALITY 3/9 · missing: reference, held-out, budget, ablation, convergence, not measured | **no** | **no** | yes | **no** | **no** | **no** | yes | yes | **no** |
-| `examples/digital_twin_end_to_end` (3) | QUALITY 4/8 · missing: reference, budget, ablation, not measured | **no** | yes | yes | **no** | **no** | n/a | yes | yes | **no** |
 | `examples/fno_coldplate` (3) | QUALITY 4/8 · missing: repeats, ablation, convergence, not measured | yes | yes | **no** | n/a | **no** | **no** | yes | yes | **no** |
 | `examples/industrial/wing_design` (3) | QUALITY 1/7 · missing: reference, held-out, repeats, ablation, provenance, not measured | **no** | **no** | **no** | n/a | **no** | n/a | **no** | yes | **no** |
 | `examples/industrial_presets/water_distribution_network` (3) | QUALITY 2/9 · missing: held-out, repeats, budget, ablation, convergence, provenance, not measured | yes | **no** | **no** | **no** | **no** | **no** | **no** | yes | **no** |

@@ -1,0 +1,74 @@
+[
+ {
+  "name": "fno_beats_nearest_design",
+  "passed": true,
+  "value": 0.00933051947504282,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.037849076092243195,
+  "min": null,
+  "detail": "",
+  "kind": "baseline"
+ },
+ {
+  "name": "fno_field_error",
+  "passed": true,
+  "value": 0.00933051947504282,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.15,
+  "min": null,
+  "detail": "relative L2 of |u| on unseen designs",
+  "kind": "generalization"
+ },
+ {
+  "name": "Cd_surrogate_error",
+  "passed": true,
+  "value": 0.01766829400614221,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.08,
+  "min": null,
+  "detail": "mean |error| on unseen designs",
+  "kind": "generalization"
+ },
+ {
+  "name": "Cd_surrogate_beats_linear",
+  "passed": false,
+  "value": 0.01766829400614221,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.007727488180427265,
+  "min": null,
+  "detail": "",
+  "kind": "baseline"
+ },
+ {
+  "name": "optimum_prediction_verified",
+  "passed": true,
+  "value": 0.057373408146247695,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.1,
+  "min": null,
+  "detail": "surrogate vs a new LBM run of the chosen design",
+  "kind": "generalization"
+ },
+ {
+  "name": "optimum_below_median_design",
+  "passed": true,
+  "value": 1.3162738468963653,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.527591787938339,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ }
+]

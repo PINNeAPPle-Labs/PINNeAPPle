@@ -19,6 +19,16 @@ from pinneapple_neural.workflows.parametric_dense_volume_operator import (
     predict_single_step_parametric,
     rollout_parametric_dense_volume_operator,
 )
+from pinneapple_neural.workflows.reservoir_surrogate import (
+    ReservoirDataset,
+    ReservoirSurrogateConfig,
+    breakthrough_time,
+    load_reservoir_surrogate,
+    predict_reservoir_field,
+    read_reservoir_dataset,
+    relative_l2,
+    train_reservoir_surrogate,
+)
 from pinneapple_neural.workflows.hybrid_surrogate_physics import (
     CallablePostModel,
     GaussianProcessSurrogate,
@@ -32,6 +42,14 @@ from pinneapple_neural.workflows.hybrid_surrogate_physics import (
 )
 
 __all__ = [
+    "ReservoirDataset",
+    "ReservoirSurrogateConfig",
+    "train_reservoir_surrogate",
+    "load_reservoir_surrogate",
+    "predict_reservoir_field",
+    "read_reservoir_dataset",
+    "relative_l2",
+    "breakthrough_time",
     "DenseVolumeOperatorConfig",
     "train_dense_volume_operator",
     "rollout_dense_volume_operator",

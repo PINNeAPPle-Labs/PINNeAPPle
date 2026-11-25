@@ -332,6 +332,7 @@
     "tests/test_benchmark_api.py",
     "tests/test_benchmark_calculix.py",
     "tests/test_benchmark_cases.py",
+    "tests/test_benchmark_comparison.py",
     "tests/test_bio_workflow.py",
     "tests/test_biology_inference.py",
     "tests/test_biology_models.py",

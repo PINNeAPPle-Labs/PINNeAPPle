@@ -1,5 +1,6 @@
 """The benchmark report: tables (n in every header, integral quantities and fields apart, data cost, break-even,
-a checks badge per row), the Checks, Validation, Trust card and Diagnostics sections, figures and summary.json."""
+a checks badge per row), the Checks, Validation, Trust card and Diagnostics sections, the field comparison figure of
+every case that has one, the report's figures and summary.json."""
 from __future__ import annotations
 
 import csv
@@ -12,6 +13,7 @@ import numpy as np
 
 from pinneapple_analysis.cost.equal_budget import AmortizedCost
 
+from . import comparison
 from .checks import DID_NOT_CONVERGE
 
 COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"]
@@ -245,7 +247,7 @@ def _badge(status: str) -> str:
             "did not converge": "⚠ did not converge", "checks skipped": "⚠ checks skipped"}.get(status, status)
 
 
-def markdown(plan, tables, checks, validation, trust, diagnoses, banners, studies=None) -> str:
+def markdown(plan, tables, checks, validation, trust, diagnoses, banners, studies=None, fields=None) -> str:
     cfg = plan.cfg
     L = ["# Benchmark results", ""]
     for b in banners:
@@ -325,6 +327,7 @@ def markdown(plan, tables, checks, validation, trust, diagnoses, banners, studie
                          f"{r['flops']:.3g} | {fmt_s(r['wall_s'])} | {', '.join(r['stopped_by'])} |")
             L.append("")
     L += studies_markdown(plan, studies or {})
+    L += comparison.markdown(fields or {})
     L += ["## Diagnostics and suggestions", ""]
     if diagnoses:
         L += [f"- {d.line()}" for d in sorted(diagnoses, key=lambda d: ("error", "warning", "info").index(d.severity))]

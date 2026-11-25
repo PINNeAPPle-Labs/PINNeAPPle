@@ -268,6 +268,10 @@ class FieldOperatorProblem(Problem):
     def main_metric(self) -> tuple[str, str]:
         return "pinn_test", "rel_l2"
 
+    def comparison_labels(self) -> tuple[str, str]:
+        """(quantity, unit) of the field the report's standard comparison figure shows: what the colour bar says."""
+        return "field", ""
+
     def ood_metric(self) -> tuple[str, str]:
         return "pinn_ood", "rel_l2"
 
@@ -371,8 +375,10 @@ def _operator_model(method: str, cfg: dict, shape):
 
 
 def train_operator(problem: FieldOperatorProblem, prepared: Path, method: str, cfg: dict, seed: int, budget, *,
-                   final: bool = True, **_) -> dict:
+                   final: bool = True, comparison_path=None, **_) -> dict:
     import torch
+
+    from ..comparison import grid_coordinates, save_comparison
     D = FieldData(prepared)
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
@@ -409,6 +415,13 @@ def train_operator(problem: FieldOperatorProblem, prepared: Path, method: str, c
                 continue
             pred = torch.cat([D.decode(model(xb)) for xb in torch.split(D.x(split), 50)]).numpy()
             out[split] = problem.scores(pred, D.raw[f"{split}_y"])
+            if final and split == "test":                # the report's standard field comparison (#63)
+                y = D.raw["test_y"][0]
+                if y.ndim == 2:                          # a planar field: the 1-D profiles declare why instead
+                    quantity, unit = problem.comparison_labels()
+                    X, Y = grid_coordinates(y.shape)
+                    save_comparison(comparison_path, y, pred[0], x=X, y=Y, quantity=quantity, unit=unit,
+                                    instance="test0")
         x1 = D.x("val")[:1]
         out["infer_batch1"] = time_per_query(lambda: model(x1), repeats=30, warmup=5)
     return out
@@ -560,10 +573,12 @@ class PINNMethod(Method):
         return pinn_checks(problem, prepared, cfg)
 
 
-def train_field_pinn(problem, prepared, cfg, seed, budget, *, split, instance, **_):
+def train_field_pinn(problem, prepared, cfg, seed, budget, *, split, instance, comparison_path=None, **_):
     import torch
 
     from pinneapple_physics.pinn_solver.factory.pinn_factory import PINNFactory
+
+    from ..comparison import grid_coordinates, save_comparison
     z = np.load(Path(prepared) / "data.npz")
     x_in, y_true = z[f"{split}_x"][instance].astype(np.float64), z[f"{split}_y"][instance]
     torch.manual_seed(seed)
@@ -585,6 +600,11 @@ def train_field_pinn(problem, prepared, cfg, seed, budget, *, split, instance, *
     out = {"train": run.to_dict(), "n_params": sum(p.numel() for p in model.parameters()),
            split: problem.scores(pred[None], y_true[None]), "split": split, "instance": instance}
     out["infer_eval_grid"] = time_per_query(lambda: evaluate(model), repeats=10, warmup=2)
+    if split == "test" and np.ndim(y_true) == 2:               # the report's standard comparison figure (#63)
+        quantity, unit = problem.comparison_labels()
+        X, Y = grid_coordinates(np.shape(y_true))
+        save_comparison(comparison_path, y_true, pred, x=X, y=Y, quantity=quantity, unit=unit,
+                        instance=f"test{instance}")
     return out
 
 

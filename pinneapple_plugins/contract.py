@@ -20,6 +20,8 @@ A plugin is an object with four declarations and two calls::
                     "python": ["numpy"],        # modules that must import
                     "config": ["case_root"]}    # keys the user must have configured
         capabilities = {"solver": ["cfd", "steady_state"], "geometry": ["stl", "step"]}
+        registers = {"solver": ["openfoam_case"],   # what `initialize` adds to the registry, kind -> names
+                     "model": ["komega_sst"]}       # checked against what it actually registers (#1475)
         permissions = ("read", "run")           # recorded and shown, never enforced (see #1475)
 
         def initialize(self, context: PluginContext) -> None:
@@ -40,7 +42,14 @@ Rules the loader holds itself to
 * **An incompatible ``contract_version`` is refused by name**, with both versions in the message, before
   ``initialize`` runs.
 * **A missing declared dependency is reported, not guessed around.**
+* **What a plugin registers must be what it declared.** ``initialize`` adds entries through the registry protocol
+  (``pp.register``); the loader diffs the registry around the call and refuses a plugin that registers something it
+  did not declare under ``registers``, or declares something it did not register — the honest plugin written against
+  last year's API that would otherwise run half its steps and look successful (#1475).
 * ``shutdown()`` is called for every plugin that was initialized, including when a later plugin fails.
+
+What loading a plugin does **not** do — no isolation, no resource limit, no enforcement of the declared permissions,
+no revocation — is stated once, in :mod:`pinneapple_plugins.policy`, and printed by ``pinneapple plugins policy``.
 """
 from __future__ import annotations
 
@@ -67,11 +76,13 @@ __all__ = [
 
 #: The version of the contract this module implements. A plugin declares the version it was written against; bump
 #: the minor for an addition that old plugins survive, the major for anything that breaks them.
-CONTRACT_VERSION = "1.0"
+CONTRACT_VERSION = "1.1"
 
 #: What changed, so a refusal can say more than "incompatible".
 CONTRACT_HISTORY: dict[str, str] = {
     "1.0": "first version: name, version, contract_version, requires, capabilities, permissions, initialize, shutdown",
+    "1.1": "`registers` (kind -> names) is checked against what initialize() adds to the registry (#1475); a plugin "
+           "written against 1.0 stays compatible, and its registrations are recorded but not verified",
 }
 
 #: The permission names a plugin may declare. Recorded and shown by ``plugins doctor``; nothing enforces them
@@ -228,8 +239,14 @@ class Plugin:
     #: ``plugins`` (other plugin names), ``executables`` (programs on PATH), ``python`` (importable modules) and
     #: ``config`` (keys that must be present in the plugin's configuration section).
     requires: Mapping[str, Any] = {}
-    #: What the plugin provides, as a mapping of capability -> what it can do (see ``pp.plugins.find``).
+    #: What the plugin provides, as a mapping of capability -> what it can do (see ``pp.plugins.find``). These values
+    #: are the plugin's own vocabulary (``"cfd"``, ``"steady_state"``, ``"stl"``) and are not verified.
     capabilities: Mapping[str, Sequence[str]] = {}
+    #: What ``initialize`` adds to the library's registry, as ``kind -> names`` (``{"solver": ["my_solver"]}``, the
+    #: kinds of ``pp.registry``). The loader diffs the registry around ``initialize`` and refuses a plugin whose
+    #: registrations and declarations disagree — in either direction (#1475). Empty means "declared nothing", and then
+    #: what the plugin registers is recorded but not verified.
+    registers: Mapping[str, Sequence[str]] = {}
     #: Declared permissions (a subset of :data:`PERMISSIONS`); recorded, shown, and deliberately not enforced.
     permissions: Sequence[str] = ()
 
@@ -244,6 +261,7 @@ class Plugin:
         return {"name": self.name, "version": self.version, "contract_version": self.contract_version,
                 "requires": dict(self.requires or {}), "capabilities": {k: list(v) for k, v in
                                                                        (self.capabilities or {}).items()},
+                "registers": {k: list(v) for k, v in (self.registers or {}).items()},
                 "permissions": list(self.permissions or ())}
 
 
@@ -280,6 +298,18 @@ def check_declaration(obj: Any) -> dict[str, Any]:
         if isinstance(values, str) or not isinstance(values, Sequence):
             raise InvalidDeclaration(f"plugin {name!r}: capability {cap!r} must be a list of strings, not "
                                      f"{type(values).__name__} (one capability per key, several values in the list)")
+    registers = getattr(obj, "registers", {}) or {}
+    if not isinstance(registers, Mapping):
+        raise InvalidDeclaration(f"plugin {name!r}: `registers` must be a mapping kind -> list of names, got "
+                                 f"{type(registers).__name__}")
+    for kind, values in registers.items():
+        if isinstance(values, str) or not isinstance(values, Sequence):
+            raise InvalidDeclaration(f"plugin {name!r}: `registers[{kind!r}]` must be a list of registry names, not "
+                                     f"{type(values).__name__} (one kind per key, the names it registers in the list)")
+        for value in values:
+            if not isinstance(value, str) or not value.strip():
+                raise InvalidDeclaration(f"plugin {name!r}: `registers[{kind!r}]` holds {value!r}; a registry name is a "
+                                         f"non-empty string")
     perms = list(getattr(obj, "permissions", ()) or ())
     unknown = [p for p in perms if p not in PERMISSIONS]
     if unknown:
@@ -290,4 +320,5 @@ def check_declaration(obj: Any) -> dict[str, Any]:
     return {"name": name, "version": str(obj.version), "contract_version": str(obj.contract_version),
             "requires": dict(requires), "capabilities": {str(k): [str(v) for v in values]
                                                         for k, values in caps.items()},
+            "registers": {str(k): [str(v) for v in values] for k, values in registers.items()},
             "permissions": perms}

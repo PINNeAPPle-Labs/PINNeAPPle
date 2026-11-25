@@ -29,14 +29,107 @@
  },
  "modules": {
   "pinneapple_analysis.trust": {
+   "ArtifactMismatch": "from .signed_report import ArtifactMismatch",
    "Check": "from .trust_report import Check",
+   "Correction": "from .corrections import Correction",
+   "CorrectionStore": "from .corrections import CorrectionStore",
+   "DriftBaseline": "from .drift import DriftBaseline",
+   "DriftMonitor": "from .drift import DriftMonitor",
+   "DriftReport": "from .drift import DriftReport",
+   "DriftThresholds": "from .drift import DriftThresholds",
    "FieldTrustCard": "from .field_card import FieldTrustCard",
+   "FlowSpec": "from .flow_card import FlowSpec",
+   "ResidualMismatch": "from .signed_report import ResidualMismatch",
+   "ResidualNotComputable": "from .signed_report import ResidualNotComputable",
+   "ResidualSpec": "from .signed_report import ResidualSpec",
+   "RetrainDecision": "from .drift import RetrainDecision",
+   "SignatureFailure": "from .signed_report import SignatureFailure",
+   "SignedReportError": "from .signed_report import SignedReportError",
+   "SignedTrustReport": "from .signed_report import SignedTrustReport",
    "TrustGate": "from .trust_gate import TrustGate",
    "TrustReport": "from .trust_report import TrustReport",
+   "TrustReportVerification": "from .signed_report import TrustReportVerification",
    "TrustScore": "from .trust_gate import TrustScore",
    "annotations": "from __future__ import annotations",
+   "correction_checks": "from .corrections import correction_checks",
+   "energy_balance": "from .flow_card import energy_balance",
    "field_checks": "from .field_card import field_checks",
-   "trust_card": "from .field_card import trust_card"
+   "flow_checks": "from .flow_card import flow_checks",
+   "mass_balance": "from .flow_card import mass_balance",
+   "trust_card": "from .field_card import trust_card",
+   "with_corrections": "from .corrections import with_corrections"
+  },
+  "pinneapple_analysis.trust.corrections": {
+   "Correction": {
+    "class": [],
+    "methods": {
+     "names": "()",
+     "applies_to": "(case)",
+     "holds": "(columns)",
+     "check": "(columns)",
+     "id": "()",
+     "to_dict": "()",
+     "from_dict": "(row)"
+    }
+   },
+   "CorrectionError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "CorrectionStore": {
+    "class": [],
+    "methods": {
+     "__init__": "(path)",
+     "records": "()",
+     "save": "(correction)",
+     "rules": "(case=None)",
+     "verify": "()"
+    }
+   },
+   "correction_checks": "def(rules, columns, *, case='')",
+   "with_corrections": "def(report, rules, columns, *, case='')"
+  },
+  "pinneapple_analysis.trust.drift": {
+   "DriftBaseline": {
+    "class": [],
+    "methods": {
+     "size": "()"
+    }
+   },
+   "DriftMonitor": {
+    "class": [],
+    "methods": {
+     "__init__": "(baseline, thresholds=None, *, envelope_level=0.01, quantile=0.99)",
+     "from_validation": "(model, inputs, labels=None, *, envelope_level=0.01, quantile=0.99, source=None)",
+     "calibrate": "(model, inputs, labels=None, *, window=None, windows=200, seed=0)",
+     "check": "(model, inputs, labels=None)",
+     "evaluate": "(inputs, predictions, *, uncertainty=None, errors=None)"
+    }
+   },
+   "DriftReport": {
+    "class": [],
+    "methods": {
+     "alarms": "()",
+     "has_alarm": "()",
+     "to_dict": "()"
+    }
+   },
+   "DriftThresholds": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "RetrainDecision": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "ks_distance": "def(reference, window)",
+   "write_record": "def(report, path)"
   },
   "pinneapple_analysis.trust.field_card": {
    "FieldCheck": {
@@ -56,6 +149,77 @@
    },
    "field_checks": "def(grid, values, *, pde=None, source=None, alpha=1.0, time_coord='t', dirichlet=None, reference=None, value_range=None, train_bounds=None, query_points=None, tolerances=None)",
    "trust_card": "def(grid, values, *, name='field', is_ml=True, limitations=(), min_coverage=0.5, **kwargs)"
+  },
+  "pinneapple_analysis.trust.flow_card": {
+   "FlowSpec": {
+    "class": [],
+    "methods": {
+     "mass": "(components, **kw)",
+     "energy": "(name='T', axis='x', **kw)"
+    }
+   },
+   "energy_balance": "def(grid, temperature, *, name='T', axis='x', spec=None, **kw)",
+   "flow_checks": "def(grid, fields, *, spec)",
+   "mass_balance": "def(grid, velocity, *, spec=None, **kw)"
+  },
+  "pinneapple_analysis.trust.signed_report": {
+   "ArtifactMismatch": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "ResidualMismatch": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "ResidualNotComputable": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "ResidualSpec": {
+    "class": [],
+    "methods": {
+     "to_dict": "()",
+     "from_dict": "(data)"
+    }
+   },
+   "SignatureFailure": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "SignedReportError": {
+    "class": [
+     "Exception"
+    ],
+    "methods": {}
+   },
+   "SignedTrustReport": {
+    "class": [],
+    "methods": {
+     "__init__": "(*, envelope, model_blob, inputs_blob)",
+     "create": "(report, *, model, inputs, key, residual=None)",
+     "dumps": "()",
+     "save": "(path)",
+     "loads": "(text)",
+     "load": "(path)",
+     "verify": "(key, *, model_factory=None)"
+    }
+   },
+   "TrustReportVerification": {
+    "class": [],
+    "methods": {
+     "ok": "()",
+     "to_dict": "()"
+    }
+   },
+   "residual_value": "def(model, grid, spec)"
   },
   "pinneapple_analysis.trust.trust_gate": {
    "TrustGate": {
@@ -1055,6 +1219,16 @@
   },
   "pinneapple_data.cae.upload": {
    "expand": "def(files, max_unzipped=MAX_UNZIPPED)"
+  },
+  "pinneapple_data.cae.xdmf": {
+   "XdmfError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "read_xdmf": "def(source)",
+   "write_xdmf": "def(mesh, path)"
   },
   "pinneapple_data.contracts": {
    "CONTRACTS": "from .models import CONTRACTS",
@@ -3884,7 +4058,9 @@
    },
    "ProblemSpec": {
     "class": [],
-    "methods": {}
+    "methods": {
+     "to_system": "()"
+    }
    }
   },
   "pinneapple_physics.pde_environment.turbulence_presets": {

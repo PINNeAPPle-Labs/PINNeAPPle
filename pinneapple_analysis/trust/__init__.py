@@ -43,3 +43,17 @@ from .flow_card import (  # noqa: E402  (conservação de massa e energia medida
 )
 
 __all__ += ["FlowSpec", "energy_balance", "flow_checks", "mass_balance"]
+
+from .signed_report import (  # noqa: E402  (relatório assinado com o modelo e as entradas, resíduo revisto ao abrir)
+    ArtifactMismatch,
+    ResidualMismatch,
+    ResidualNotComputable,
+    ResidualSpec,
+    SignatureFailure,
+    SignedReportError,
+    SignedTrustReport,
+    TrustReportVerification,
+)
+
+__all__ += ["ArtifactMismatch", "ResidualMismatch", "ResidualNotComputable", "ResidualSpec", "SignatureFailure",
+            "SignedReportError", "SignedTrustReport", "TrustReportVerification"]

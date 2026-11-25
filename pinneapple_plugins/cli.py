@@ -37,6 +37,7 @@ def _parser() -> argparse.ArgumentParser:
     p_doctor = sub.add_parser("doctor", help="the per-plugin checks, in the order the loader applies them")
     p_doctor.add_argument("name", nargs="?", help="only this plugin")
     p_doctor.add_argument("--verbose", action="store_true", help="print the traceback of a plugin that failed")
+    sub.add_parser("policy", help="what loading a plugin checks, and what it deliberately does not provide (#1475)")
     for verb, text in (("enable", "remove a plugin from the disabled list (it loads next time)"),
                        ("disable", "add a plugin to the disabled list; nothing is uninstalled")):
         p = sub.add_parser(verb, help=text)
@@ -80,8 +81,12 @@ def _inspect(manager: PluginManager, name: str) -> int:
     print(f"source          {r.source or '-'}")
     print(f"entry point     {r.entry_point or '-'}")
     print(f"capabilities    {caps}")
+    print(f"registers       {'; '.join(f'{k}={v}' for k, v in sorted(r.registers.items())) or '-'}"
+          f" (what initialize adds through pp.register)")
     print(f"permissions     {', '.join(r.permissions) or '-'} (recorded, not enforced)")
     print(f"requires        {requires}")
+    if r.details.get("registered"):
+        print("registered      " + "; ".join(f"{k}={v}" for k, v in sorted(r.details["registered"].items())))
     if r.details.get("executables"):
         print("executables     " + "; ".join(f"{k}: {v}" for k, v in r.details["executables"].items()))
     if r.details.get("python"):
@@ -144,6 +149,11 @@ def _toggle(manager: PluginManager, verb: str, name: str) -> int:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(list(argv) if argv is not None else None)
+    if args.command == "policy":
+        from .policy import policy_dict, policy_text
+
+        print(json.dumps(policy_dict(), indent=2) if args.json else policy_text())
+        return 0
     try:
         manager = PluginManager(config=args.config)
         manager.records()

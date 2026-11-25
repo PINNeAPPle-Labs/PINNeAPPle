@@ -9,9 +9,9 @@ Protocol: 200 readings at dt = 1 s, 80 members, seed 0, plant at {'H': 42.0}, se
 | state error | mean NIS against its band [1.72, 2.3] | 2.17 | pass |
 | state error | H: estimate 42.009 against the plant's 42 | 0.02% | — |
 | state error | NEES check / forecast coverage | pass / pass | — |
-| latency | per reading (mean / p95 / max) | 0.22 / 0.43 / 1.30 ms | — |
+| latency | per reading (mean / p95 / max) | 0.12 / 0.17 / 0.25 ms | — |
 | latency | readings over the 1000 ms data period | 0.0% | pass |
-| latency | one recalibration (inverse workflow) | 3.79 s against a 50.0 s window | pass |
+| latency | one recalibration (inverse workflow) | 2.33 s against a 50.0 s window | pass |
 | noise | plant readings at 0.5x the sigma the twin was told: RMSE 0.02692 (0.69x), mean NIS 0.577 | outside the band | — |
 | noise | plant readings at 1x the sigma the twin was told: RMSE 0.03909 (1.00x), mean NIS 2.17 | consistent | — |
 | noise | plant readings at 2x the sigma the twin was told: RMSE 0.0564 (1.44x), mean NIS 8.37 | outside the band | — |
@@ -27,4 +27,4 @@ Protocol: 200 readings at dt = 1 s, 80 members, seed 0, plant at {'H': 42.0}, se
 | decision | limits warn/stop 70.11/91.61 | the 60th and 85th percentile of the true outlet over the record (the exercise needs all three action classes to occur) | — |
 
 Verdicts: state_error pass, latency pass, noise pass, sensor_failure pass, anomaly review, rul not_measurable, decision pass.
-Measured in 25.77 s (quick sizes) on a synthetic plant.
+Measured in 12.89 s (quick sizes) on a synthetic plant.

@@ -2,7 +2,7 @@
 
 Every folder under `examples/` is either run by CI or marked manual with a reason. The reasons are measured, not assumed: `python scripts/example_catalog.py --measure` runs each example and records what happened, and `--check` is the gate that keeps this page true.
 
-**In the CI tier: 9 · manual: 93 · budget: 660 s.**
+**In the CI tier: 9 · manual: 94 · budget: 660 s.**
 
 ## Runs in CI
 
@@ -94,6 +94,7 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/proof_graph` | takes longer than 12 s (pt_chain_no_go.py): too slow for the ci tier |
 | `examples/qualitative` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
 | `examples/quickstart` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
+| `examples/reactor_twin` | takes longer than 12 s (reactor_twin_benchmark.py): runs the 11-case protocol in about 70 s, too slow for the ci tier |
 | `examples/reproductions` | fails when run: /opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/ |
 | `examples/rigid_body` | fails when run: ModuleNotFoundError: No module named 'newton' |
 | `examples/rocket_launch` | runs clean in 2.2 s but is not in the ci tier yet: promote it with --promote |

@@ -757,6 +757,7 @@
     "tests/test_starccm_reader.py",
     "tests/test_state_estimation.py",
     "tests/test_state_estimator.py",
+    "tests/test_stirred_reactor_twin.py",
     "tests/test_studio.py",
     "tests/test_studio_animation.py",
     "tests/test_studio_benchmark.py",

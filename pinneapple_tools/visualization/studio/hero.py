@@ -527,6 +527,7 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
         "field": ({"name": fname, "label": lab, "unit": uni, "range": list(clim) if clim else None,
                    "house_cmap": preset.quantity, "cmap": colormap or preset.cmap} if fname else None),
         "warp": warp, "backend": None, "fallback": "", "stills": {}, "turntable": None, "gltf": None,
+        "renderers": {},
         "viewer": None, "hardware": _machine(),
         "honesty": {"smoothing": "none: the mesh is drawn as it is; shading is the material's, the shape is not",
                     "colour_range": "the field's own min..max (symmetric about zero for a diverging map)",
@@ -537,6 +538,8 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
     # -- back end for the stills
     cycles_ok, cycles_why = _blender_available()
     pv_ok, pv_why = _pyvista_available()
+    result_doc["renderers"] = {"cycles": cycles_ok, "cycles_why": cycles_why, "pyvista": pv_ok,
+                               "pyvista_why": pv_why, "ffmpeg": bool(_ffmpeg())}
     want = str(backend).lower()
     if want not in ("auto", "cycles", "pyvista"):
         raise ValueError(f'backend={backend!r}: "auto", "cycles" or "pyvista"')

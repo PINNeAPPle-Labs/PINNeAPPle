@@ -470,7 +470,8 @@ dl.meta{{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));g
 dl.meta div{{border-left:3px solid var(--line);padding-left:10px}}
 dl.meta dt{{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}}
 dl.meta dd{{margin:2px 0 0;font-size:14px;font-variant-numeric:tabular-nums}}
-.cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px}}
+.cards{{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:14px}}
+@media(max-width:820px){{.cards{{grid-template-columns:1fr}}}}
 .card{{border:1px solid var(--line);border-top:4px solid var(--neutral);border-radius:8px;padding:12px 14px;
 background:var(--plot)}}
 .card.pass{{border-top-color:var(--pass)}} .card.fail{{border-top-color:var(--fail)}}
@@ -545,7 +546,8 @@ def render_html(data: dict[str, Any], *, theme: str = "light") -> str:
 
     # -- KPI cards
     if data["kpis"]:
-        parts.append('<h2 id="kpis">Headline numbers</h2><div class="cards">')
+        parts.append(f'<h2 id="kpis">Headline numbers</h2>'
+                     f'<div class="cards" style="--n:{min(3, max(1, len(data["kpis"])))}">')
         for k in data["kpis"]:
             band = ""
             if k.get("band"):

@@ -24,8 +24,9 @@ direction the geometry cannot take, which is what keeps a sampler from proposing
 """
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -243,6 +244,6 @@ class FFD:
         return np.nonzero(flat >= 0)[0]
 
     def __repr__(self) -> str:
-        c = "x".join(str(n + 1) for n in self.control.shape[:3])
+        c = "x".join(str(n) for n in self.control.shape[:3])
         return (f"FFD({c} control points, {self.n_parameters} parameters"
                 f"{', symmetric' if self.symmetry else ''})")

@@ -100,6 +100,7 @@
     * [Example catalog: what runs in CI, and why the rest does not](guides/example_catalog.md)
     * [The front door: six functions](guides/front_door.md)
     * [Geometry library](guides/geometry_library.md)
+    * [Morphing a surface mesh: a design space on an existing body](guides/geometry_morphing.md)
     * [Design studies: optimisers and verified candidates](guides/design_studies.md)
     * [Colab notebooks](guides/colab_notebooks.md)
     * [PINNeAPPle from coding agents (MCP server)](guides/mcp_server.md)

@@ -103,9 +103,9 @@ def _candidate_pairs(V: np.ndarray, F: np.ndarray, cell: float | None) -> np.nda
     return p
 
 
-def _segment_triangle(O: np.ndarray, D: np.ndarray, tri: np.ndarray,
+def _segment_triangle(orig: np.ndarray, D: np.ndarray, tri: np.ndarray,
                       eps: float = 1e-12) -> tuple[np.ndarray, np.ndarray]:
-    """Möller-Trumbore for segments ``O + t D`` with ``t`` in [0, 1] against the triangles ``tri`` (p, 3 vertices).
+    """Möller-Trumbore for segments ``orig + t D`` with ``t`` in [0, 1] against ``tri`` (p, 3 vertices).
 
     Returns the hit mask and ``t`` (the parameter along the segment, in units of ``|D|``)."""
     e1 = tri[:, 1] - tri[:, 0]
@@ -114,7 +114,7 @@ def _segment_triangle(O: np.ndarray, D: np.ndarray, tri: np.ndarray,
     a = np.einsum("ij,ij->i", e1, h)
     ok = np.abs(a) > eps
     inv = np.where(ok, 1.0 / np.where(ok, a, 1.0), 0.0)
-    s = O - tri[:, 0]
+    s = orig - tri[:, 0]
     u = inv * np.einsum("ij,ij->i", s, h)
     q = np.cross(s, e1)
     v = inv * np.einsum("ij,ij->i", D, q)
@@ -166,15 +166,15 @@ def self_intersections(V: np.ndarray, F: np.ndarray, *, cell: float | None = Non
     A, B = _triangles(V, F[pairs[:, 0]]), _triangles(V, F[pairs[:, 1]])
     hit = np.zeros(len(pairs), dtype=bool)
     for k in range(3):
-        O = A[:, k]
+        orig = A[:, k]
         D = A[:, (k + 1) % 3] - A[:, k]
-        hit |= _segment_triangle(O, D, B)[0]
+        hit |= _segment_triangle(orig, D, B)[0]
     if not hit.all():                                   # the other direction (mutual crossing, not containment)
         rest = np.nonzero(~hit)[0]
         for k in range(3):
-            O = B[rest, k]
+            orig = B[rest, k]
             D = B[rest, (k + 1) % 3] - B[rest, k]
-            hit[rest] |= _segment_triangle(O, D, A[rest])[0]
+            hit[rest] |= _segment_triangle(orig, D, A[rest])[0]
     # coplanar overlap: the ray test is blind to it, so project the flagged pairs and cross their edges in 2-D
     if not hit.all():
         cand = np.nonzero(~hit)[0]
@@ -245,9 +245,9 @@ def thickness(V: np.ndarray, F: np.ndarray, *, samples: int = 128, seed: int = 0
     best = np.inf
     missed = 0
     for i in take:
-        O = np.repeat(tri[i].mean(0)[None, :], len(T), 0)
+        orig = np.repeat(tri[i].mean(0)[None, :], len(T), 0)
         D = np.repeat((-n[i] * reach)[None, :], len(T), 0)
-        hit, t = _segment_triangle(O, D, T)
+        hit, t = _segment_triangle(orig, D, T)
         shared = (F[targets][:, :, None] == F[i][None, None, :]).any(axis=(1, 2))
         hit &= ~shared
         if not hit.any():

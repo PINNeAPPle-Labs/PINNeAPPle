@@ -16,7 +16,8 @@ family instead of extrapolating into shapes nobody simulated.
 """
 from __future__ import annotations
 
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 import numpy as np
 
@@ -106,11 +107,15 @@ class ShapeModes:
         return self.modes @ ((V - self.reference).ravel() - self.mean)
 
     def residual(self, vertices: Any) -> float:
-        """Relative L2 distance between a mesh and its reconstruction from the kept modes."""
+        """How much of a mesh the kept modes cannot express, relative to the family's own variation.
+
+        The denominator is the distance from the family mean, not the size of the mesh: the question is what part of
+        the *shape change* is left out, and a car measured against its own bounding box would look reconstructed when
+        it is not."""
         V = np.asarray(vertices, dtype=np.float64).reshape(-1, 3)
-        back = self.deform(self.project(V))
-        scale = float(np.linalg.norm((V - V.mean(0)).ravel()))
-        return float(np.linalg.norm((V - back).ravel()) / max(scale, 1e-300))
+        d = (V - self.reference).ravel() - self.mean
+        back = self.modes.T @ (self.modes @ d)
+        return float(np.linalg.norm(d - back) / max(np.linalg.norm(d), 1e-300))
 
     def modal_energy(self) -> list[float]:
         """The fraction of the family's variance each kept mode explains, largest first."""

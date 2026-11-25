@@ -21,7 +21,7 @@ ten handles that is 0.33 M flops, measured at the same order as one FFD evaluati
 """
 from __future__ import annotations
 
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 import numpy as np
 

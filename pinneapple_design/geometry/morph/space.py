@@ -13,8 +13,10 @@ silent slowdown.
 """
 from __future__ import annotations
 
+import re
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -22,6 +24,13 @@ from .surface import Surface
 from .validity import Reference, ValidityReport, check_surface
 
 __all__ = ["DesignSpace", "DesignSpaceReport"]
+
+
+def _reason_kind(reason: str) -> str:
+    """The refusal without its number: ``"106 face pairs intersect ..."`` counts as ``"face pairs intersect ..."``, so a
+    study reads how often each check refused instead of one bucket per value."""
+    text = re.sub(r"^\d+ ", "", reason).split(" (")[0]
+    return text[0].upper() + text[1:] if text else text
 
 
 @dataclass
@@ -61,15 +70,17 @@ class DesignSpace:
         reference position. That is how a mounting face, a symmetry wall or a region graded for another purpose stays
         put while the rest of the body is free.
     gate: extra keyword arguments for :func:`check_surface` (``max_volume_change``, ``allow_flipped``, ...).
+    gate_reference: a :class:`Reference` already measured on ``reference``; a study with several spaces over one
+        surface passes it so the watertightness, area and self-intersection counts are computed once.
     """
 
     def __init__(self, morph: Any, faces: Any, reference: Any, *, lo: Any = None, hi: Any = None,
                  keep_out: Sequence[Sequence[Any]] = (), gate: dict[str, Any] | None = None,
-                 names: Sequence[str] | None = None):
+                 names: Sequence[str] | None = None, gate_reference: Reference | None = None):
         self.morph = morph
         self.reference = np.asarray(reference, dtype=np.float64).reshape(-1, 3)
         self.faces = np.asarray(faces, dtype=np.int64).reshape(-1, 3)
-        dim = int(getattr(morph, "n_parameters"))
+        dim = int(morph.n_parameters)
         if lo is None or hi is None:
             blo, bhi = morph.bounds()
         else:
@@ -84,8 +95,8 @@ class DesignSpace:
                                                                  [f"x{i}" for i in range(dim)])
         self._keep_out_masks = [self._mask(blo_, bhi_) for blo_, bhi_, _ in self.keep_out]
         # the reference numbers do not change between samples: measure them once
-        self._reference = Reference.build(self.reference, self.faces,
-                                          direction=self.gate.get("direction", (1.0, 0.0, 0.0)))
+        self._reference = gate_reference if gate_reference is not None else Reference.build(
+            self.reference, self.faces, direction=self.gate.get("direction", (1.0, 0.0, 0.0)))
 
     # ------------------------------------------------------------------------------------- shape
     def _mask(self, lo: Any, hi: Any) -> np.ndarray:
@@ -182,8 +193,8 @@ class DesignSpace:
         draws = 0
         while len(kept) < n and draws < limit:
             block = self.sample(min(max(n - len(kept), 1) * 2, 64), seed=seed + draws, method=method)
-            draws += len(block)
             for x in block:
+                draws += 1
                 V = self.morph.deform(x)
                 report = self._check(V)
                 if report.ok:
@@ -195,7 +206,7 @@ class DesignSpace:
                         break
                 else:
                     for r in report.reasons:
-                        key = r.split(" (")[0]
+                        key = _reason_kind(r)
                         rejected[key] = rejected.get(key, 0) + 1
         return DesignSpaceReport(parameters=np.asarray(kept).reshape(-1, self.dim), reports=reports,
                                  draws=draws, rejected=rejected, seconds=time.perf_counter() - t0)

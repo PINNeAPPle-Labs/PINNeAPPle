@@ -37,7 +37,14 @@ from .modes import ShapeModes
 from .rbf import RBFMorph
 from .space import DesignSpace, DesignSpaceReport
 from .surface import Surface, as_surface
-from .validity import Reference, ValidityReport, check_surface, frontal_area, self_intersections, thickness
+from .validity import (
+    Reference,
+    ValidityReport,
+    check_surface,
+    frontal_area,
+    self_intersections,
+    thickness,
+)
 
 __all__ = [
     "FFD",

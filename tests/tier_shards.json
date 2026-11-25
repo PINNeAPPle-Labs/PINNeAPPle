@@ -122,7 +122,8 @@
    "id": "solvers",
    "measured": "2026-11-20: 4 passed in 60.04s (0:01:00) (62.3 s wall)",
    "paths": [
-    "tests/pinneapple_solvers"
+    "tests/pinneapple_solvers",
+    "tests/test_solver_contract.py"
    ]
   },
   {
@@ -148,7 +149,8 @@
    "ceiling": 0,
    "id": "veriphysics",
    "paths": [
-    "tests/pinneapple_veriphysics"
+    "tests/pinneapple_veriphysics",
+    "tests/test_veriphysics_validated_domain.py"
    ],
    "reason": "not measured green yet: see docs/dev/test_shards.md"
   },

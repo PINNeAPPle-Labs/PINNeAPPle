@@ -11,7 +11,10 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection  # noqa: E402
 
+from pinneapple_tools.visualization.style import use_theme  # noqa: E402
 from pinneapple_twin3d import gallery  # noqa: E402
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 FIELD = {"runner_channel": "wear_depth", "mixing_tank": "tracer_concentration", "oil_pipeline": "wall_loss",
          "airliner": "skin_temperature", "rocket": "heat_flux", "drone": "temperature", "lunar_rover": "temperature",

@@ -96,7 +96,9 @@ def main() -> dict:
 def figure(out: dict) -> None:
     import matplotlib.pyplot as plt
 
-    plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False})
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     colours = {"3d": "#2a78d6", "q1": "#eb6834", "q5": "#1baf7a"}
     labels = {"3d": "3-D", "q1": "quasi-3D, 1 slice", "q5": "quasi-3D, 5 slices"}
     fig, ax = plt.subplots(1, 2, figsize=(12, 4.3), facecolor="#fcfcfb")

@@ -32,6 +32,9 @@ sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
 from pinneapple_physics.pde_environment import ProblemBuilder, ProblemSpec
 from pinneapple_physics.pde_environment import get_preset, list_presets
 from pinneapple_tools.benchmark_suite import Arena, ArenaResult
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 OUTPUT_DIR = Path(__file__).parent / "outputs"
 OUTPUT_DIR.mkdir(exist_ok=True)

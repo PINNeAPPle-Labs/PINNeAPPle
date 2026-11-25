@@ -106,6 +106,9 @@ def _plot(result, reynolds: int, out: str) -> str:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     u = centerline(result.component("u")[-1], direction="vertical")
     v = centerline(result.component("v")[-1], direction="horizontal")
     x0, y0, x1, y1 = result.case_summary["bounds"]

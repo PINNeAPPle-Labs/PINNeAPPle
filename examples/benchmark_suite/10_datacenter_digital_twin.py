@@ -323,6 +323,9 @@ try:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     fig, axes = plt.subplots(1, 3, figsize=(16, 4))
 
     # Current T field

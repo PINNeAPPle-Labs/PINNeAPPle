@@ -643,6 +643,9 @@ ALL_COLORS_TITLE = ["white"] + COLORS
 mag_vmax = np.sqrt(U_ref**2 + V_ref**2).max()
 
 import scipy.interpolate as si
+from pinneapple_tools.visualization.style import use_theme  # noqa: E402
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 def _streamax(ax, u, v, name, col):
     ax.set_facecolor("#0d1117")

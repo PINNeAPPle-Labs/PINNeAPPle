@@ -31,6 +31,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 
 from pinneapple_analysis.validation import compare_to_analytical
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 ALPHA   = 0.05
 T_MAX   = 0.5

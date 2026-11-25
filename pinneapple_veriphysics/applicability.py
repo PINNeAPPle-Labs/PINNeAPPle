@@ -106,6 +106,8 @@ class ApplicabilityMap:
     # tolerances used for PASS/FAIL, and which of them came from the request (#6)
     tolerances: dict[str, Any] = field(default_factory=dict)
 
+    joint_domain: dict[str, Any] | None = None
+
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
@@ -198,6 +200,8 @@ def build_applicability_map(
     parameter_shift: dict[str, Any] | None = None,
     weight_sensitivity: dict[str, Any] | None = None,
     condition_coverage: dict[str, Any] | None = None,
+    validated_domain: Any = None,
+    geometry_query: dict[str, float] | None = None,
 ) -> ApplicabilityMap:
     """Classify the facts of one run. ``heldout_error`` (optional) is
     ``{"metric": str, "value": float, "threshold": float, "description": str}``
@@ -391,8 +395,8 @@ def build_applicability_map(
     for name, rng in (parameter_ranges or {}).items():
         lo, hi = float(rng[0]), float(rng[1])
         envelope.append(VariableEnvelope(
-            name, "parameter", (lo, hi), None, False,
-            "Trained across this interval; outside it nothing was checked for this parameter."))
+            name, "parameter", None, None, False,
+            f"Training interval [{lo:g}, {hi:g}]; joint validation requires independent evidence."))
         unsupported.append(f"{name} outside [{lo:g}, {hi:g}].")
     for f in fields:
         envelope.append(VariableEnvelope(f, "field", None, None, False, "Predicted output; no range claim made."))
@@ -493,5 +497,15 @@ def build_applicability_map(
         inferred.append(f"Robustness studies ran in FAST mode: study trainings at {study_epochs} epochs (the main run "
                         f"used {epochs}) and no parameter-shift retraining, so the spread and weight-sensitivity "
                         "numbers describe shorter trainings and parameter generalization is not measured.")
+    joint = None
+    if geometry_query is not None:
+        joint = (validated_domain.assess(geometry_query) if validated_domain is not None else
+                 {"status": "UNSUPPORTED", "reason": "no_joint_domain_evidence"})
+        ok = joint["status"] == "EMPIRICALLY_SUPPORTED"
+        checklist.append(ChecklistItem("joint_geometry", "Is this geometry empirically supported?",
+                                       PASS if ok else FAIL, VERIFIED if ok else UNSUPPORTED,
+                                       joint["reason"]))
+        if not ok:
+            unsupported.append("Requested joint geometry: " + joint["reason"])
     return ApplicabilityMap(checklist, envelope, verified, inferred, unsupported,
-                            tolerances={"used": asdict(tol), "from_request": tol.custom()})
+                            tolerances={"used": asdict(tol), "from_request": tol.custom()}, joint_domain=joint)

@@ -169,17 +169,17 @@ class InverseHeatProblem(Problem):
         return float(np.mean([c["calibration_s"] for r in results.values() for c in r.get("cases", [])]))
 
     # ------------------------------------------------------------------ trainers
-    def train_pinn(self, prepared, cfg, seed, budget, *, kind, case, **_):
+    def train_pinn(self, prepared, cfg, seed, budget, *, kind, case, comparison_path=None, **_):
         self._set(prepared)
-        return H.pinn_job(cfg, seed, budget, kind=kind, case=case)
+        return H.pinn_job(cfg, seed, budget, kind=kind, case=case, comparison_path=comparison_path)
 
-    def train_mlp(self, prepared, cfg, seed, budget, *, final=True, **_):
+    def train_mlp(self, prepared, cfg, seed, budget, *, final=True, comparison_path=None, **_):
         self._set(prepared)
-        return H.surrogate_job("mlp", cfg, seed, budget, final=final)
+        return H.surrogate_job("mlp", cfg, seed, budget, final=final, comparison_path=comparison_path)
 
-    def train_deeponet(self, prepared, cfg, seed, budget, *, final=True, **_):
+    def train_deeponet(self, prepared, cfg, seed, budget, *, final=True, comparison_path=None, **_):
         self._set(prepared)
-        return H.surrogate_job("deeponet", cfg, seed, budget, final=final)
+        return H.surrogate_job("deeponet", cfg, seed, budget, final=final, comparison_path=comparison_path)
 
     # ------------------------------------------------------------------ gates
     def checks_pinn(self, prepared, cfg):

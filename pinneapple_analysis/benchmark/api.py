@@ -15,6 +15,9 @@ from typing import Any
 
 from .advisor import Diagnosis, apply_suggestions, diagnose
 from .checks import architecture_gates, determinism_check, row_status, seed_spread, training_gates
+from .comparison import as_records
+from .comparison import figures as comparison_figures
+from .comparison import select as select_comparison
 from .config import BenchmarkConfig
 from .registry import Check, get_method, get_problem
 from .report import (
@@ -239,7 +242,8 @@ class BenchmarkResult:
                 trust[pid] = {"error": {"title": "trust card", "question": "", "status": "failed",
                                         "evidence": [repr(e)]}}
         self._built = {"col": col, "tables": tables, "checks": all_checks, "validation": validation,
-                       "diagnoses": diags, "trust": trust, "per_pair": per_pair, "studies": collect_studies(self.plan)}
+                       "diagnoses": diags, "trust": trust, "per_pair": per_pair, "studies": collect_studies(self.plan),
+                       "comparison": select_comparison(self.plan, tables)}
         return self._built
 
     # ------------------------------------------------------------------ outputs
@@ -257,7 +261,7 @@ class BenchmarkResult:
     def to_markdown(self) -> str:
         b = self._build()
         return markdown(self.plan, b["tables"], b["checks"], b["validation"], b["trust"], b["diagnoses"], self.banners,
-                        b["studies"])
+                        b["studies"], b["comparison"])
 
     def to_csv(self, path: str | Path | None = None) -> Path:
         path = Path(path or self.ws.root / "table.csv")
@@ -266,16 +270,17 @@ class BenchmarkResult:
 
     def report(self) -> dict[str, Any]:
         b = self._build()
-        (self.ws.root / "table.md").write_text(self.to_markdown())
-        self.to_csv()
         figs = figures(self.plan, b["col"], b["tables"], self.ws.root / "figures", self.banners)
         figs += studies_figure(self.plan, b["studies"], self.ws.root / "figures")
+        figs += comparison_figures(self.plan, b["comparison"], self.ws.root / "figures")
+        (self.ws.root / "table.md").write_text(self.to_markdown())
+        self.to_csv()
         summary = {"config": self.config.to_dict(), "banners": self.banners,
                    "tables": {pid: {**t, "rows": {m: {k: v for k, v in r.items()} for m, r in t["rows"].items()}}
                               for pid, t in b["tables"].items()},
                    "checks": [c.to_dict() for c in b["checks"]], "validation": b["validation"],
                    "trust_card": b["trust"], "diagnostics": [d.to_dict() for d in b["diagnoses"]], "studies": b["studies"],
-                   "figures": figs}
+                   "comparison": as_records(b["comparison"]), "figures": figs}
         _jdump(self.ws.root / "summary.json", summary)
         return summary
 

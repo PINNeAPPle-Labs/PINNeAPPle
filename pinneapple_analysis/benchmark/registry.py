@@ -70,6 +70,10 @@ class Problem:
     title: str = "Problem"
     kind: str = "field_operator"     # field_operator | geometry | inverse
     budget_note: str = ""
+    #: Empty when the case has a planar field the report's standard comparison figure can show (its trainers store
+    #: the arrays with ``comparison.save_comparison``). Otherwise the reason it has none -- printed in the report
+    #: instead of a figure, so a case without a 2-D field says so rather than getting a picture that means nothing.
+    comparison_absent: str = ""
 
     def __init__(self, **options):
         self.options = {**self.default_options(), **options}

@@ -32,6 +32,16 @@ def _demo_pinn(problem, steps: int):
     return model
 
 
+def enforce_grade(decision: str, mode: str = "require_approved") -> None:
+    """Stop execution unless explicitly running in diagnostic mode."""
+    from pinneapple_core.workflows import StepFailed
+
+    if mode not in ("require_approved", "report_only"):
+        raise StepFailed(f"Unknown VeriPhysics enforcement mode: {mode}")
+    if mode == "require_approved" and decision != "APPROVED":
+        raise StepFailed(f"VeriPhysics gate blocked execution: {decision}")
+
+
 @node("veriphysics.grade", "VeriPhysics grade of a model trained elsewhere", category="Validation",
       outputs=[Port("metrics", "metrics")],
       params=[Param("model", "enum", "demo_pinn", choices=["demo_pinn", "torchscript", "onnx", "tool",
@@ -43,6 +53,9 @@ def _demo_pinn(problem, steps: int):
               Param("validity", "dict", {}, help="the model's declared validity box"),
               Param("policy", "dict", {}, help="the approval rules: GradePolicy fields over your saved default "
                                                "(empty: your default, else the library's); 'path' names a JSON"),
+              Param("enforcement", "enum", "report_only",
+                    choices=["report_only", "require_approved"],
+                    help="require_approved stops the workflow on any non-APPROVED decision"),
               Param("steps", "int", 1500, minimum=10, advanced=True)],
       calls="pinneapple_veriphysics.model_grade.grade_model / grade_predictions")
 def veriphysics_grade(ctx, inputs, params):
@@ -112,6 +125,7 @@ def veriphysics_grade(ctx, inputs, params):
             for row in c["value"]:
                 ctx.metric(f"{c['code']}.{row.get('equation') or row.get('condition')}", row["rel_rms"])
     ctx.summary(f"{kind}: {g['decision']}")
+    enforce_grade(g["decision"], params.get("enforcement", "report_only"))
     return {"metrics": ctx.report["metrics"]}
 
 

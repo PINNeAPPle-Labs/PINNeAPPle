@@ -184,6 +184,34 @@ class EvidenceLedger:
             return NOT_RUN
         return PASSED if e.passed else FAILED
 
+    def admission(self, required_checks: Iterable[str], *, inputs_sha256: str) -> dict[str, str]:
+        """Strict admission statuses for the exact input artifact.
+
+        Unlike reporting via latest(), never fall back to an older valid
+        entry when the most recent matching attempt crashed or was altered.
+        This is an integrity check, not authentication of the producer.
+        """
+        checks = tuple(required_checks)
+        if not checks or any(not c.strip() for c in checks):
+            raise ValueError("At least one named mandatory check is required")
+        if not _HEX64.fullmatch(inputs_sha256):
+            raise ValueError("Expected SHA-256 of the exact inputs")
+        result = {}
+        for check in checks:
+            entry = next((e for e in reversed(self.entries)
+                          if e.check_id == check), None)
+            if (entry is None or entry.inputs_sha256 != inputs_sha256
+                    or not entry.valid or type(entry.passed) is not bool):
+                result[check] = NOT_RUN
+            else:
+                result[check] = PASSED if entry.passed else FAILED
+        return result
+
+    def admits(self, required_checks: Iterable[str], *, inputs_sha256: str) -> bool:
+        """True only when every mandatory check has current intact evidence."""
+        return all(s == PASSED for s in self.admission(
+            required_checks, inputs_sha256=inputs_sha256).values())
+
     def claim(self, check_id: str) -> str:
         """One line a report may print about ``check_id``; "not run" unless the ledger proves otherwise."""
         e = self.latest(check_id)

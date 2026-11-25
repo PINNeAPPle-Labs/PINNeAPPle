@@ -515,8 +515,11 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
         from .compose import default_range
 
         clim = default_range(values, preset.cmap if not colormap else colormap)
-    lab = label or preset.label
-    uni = preset.unit if unit is None else unit
+    # the preset's quantity names its own field; a field the preset does not know is labelled by its own name, never
+    # by the preset's -- a pressure field must not come out titled "velocity magnitude"
+    known = fname is not None and fname.lower() in [c.lower() for c in preset.fields]
+    lab = label if label is not None else (preset.label if known else (fname or preset.label))
+    uni = (preset.unit if known else "") if unit is None else unit
     title = _bar_title(lab, uni, warp)
 
     out_dir = os.path.abspath(out_dir or os.path.join(os.getcwd(), name))

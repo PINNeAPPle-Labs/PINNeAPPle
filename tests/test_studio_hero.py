@@ -173,3 +173,24 @@ def test_the_cycles_call_is_built_without_a_sample_count(monkeypatch, tmp_path):
     assert r["backend"] == "cycles" and len(seen) == 1
     assert seen[0]["samples"] is None                                # not 0, not an exception
     assert seen[0]["field"] == "cp" and seen[0]["clim"] is not None
+
+
+def test_a_field_the_preset_does_not_know_is_labelled_by_its_own_name(monkeypatch, tmp_path):
+    """`hero(mesh, "internal_flow", field="p")` must not title the colour bar "velocity magnitude"."""
+    titles: list[str] = []
+
+    def fake(scene, path, **kw):
+        titles.append(kw["title"])
+        open(path, "wb").write(b"\x89PNG" + b"0" * 64)
+        return {"path": path, "seconds": 0.0, "backend": "cycles (fake)"}
+
+    monkeypatch.setattr(H, "_cycles_still", fake)
+    monkeypatch.setattr(H, "_blender_available", lambda: (True, ""))
+    monkeypatch.setattr(H, "_importable", lambda name: True)
+    r = hero_fn(_scene(), "internal_flow", field="cp", out_dir=str(tmp_path), backend="cycles",
+                stills=((64, 36),), turntable=False, gltf=False)
+    assert r["field"]["name"] == "cp" and r["field"]["label"] == "cp"      # its own name, not "velocity magnitude"
+    assert r["field"]["unit"] == "" and "velocity" not in titles[0]
+    r2 = hero_fn(_scene(), "external_aero", out_dir=str(tmp_path / "ok"), backend="cycles",
+                 stills=((64, 36),), turntable=False, gltf=False)
+    assert r2["field"]["label"] == "surface pressure coefficient Cp"        # a field the preset knows keeps its label

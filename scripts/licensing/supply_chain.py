@@ -16,9 +16,11 @@ Two records are committed, and this gate keeps the tree honest against them:
 
 `docs/dev/dependency_licenses.json`
     the licence each declared dependency declares, read from its installed metadata when it was recorded,
-    plus the dependencies the recording environment did not have (named, not guessed). A dependency that is
-    installed here and copyleft -- GPL, AGPL, LGPL, SSPL, EUPL -- fails unless it is a decision written in
-    ``docs/licensing.md`` first. An unknown licence fails the same way.
+    plus the dependencies the recording environment did not have and the ones it had installed while their
+    metadata named no licence (both named, neither guessed). A dependency that is installed here and
+    copyleft -- GPL, AGPL, LGPL, SSPL, EUPL -- fails unless it is a decision written in
+    ``docs/licensing.md`` first. An unreadable licence fails the same way when it is a core dependency,
+    because a core dependency is installed wherever the package is.
 
 The table in ``docs/licensing.md`` between the ``dependency-licences`` markers is generated from the record,
 so the licences are listed in the documentation rather than in a JSON file nobody reads.
@@ -125,6 +127,14 @@ def load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
 
 
+def _version(name: str) -> str:
+    """The installed version of ``name``, or ``""`` when this interpreter does not have it."""
+    try:
+        return metadata.version(name)
+    except metadata.PackageNotFoundError:
+        return ""
+
+
 def record_floors(deps: dict[str, dict[str, Any]], pyproject: Path = PYPROJECT) -> dict[str, Any]:
     """The floors record, regenerated from ``pyproject.toml``; the policy text survives a re-record."""
     previous = load(FLOORS)
@@ -148,14 +158,24 @@ def record_floors(deps: dict[str, dict[str, Any]], pyproject: Path = PYPROJECT) 
 
 
 def record_licences(deps: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    """The licence of what is installed, and the names of what was not."""
-    packages, unobserved = {}, []
+    """The licence of what is installed, and why the rest is not there.
+
+    Three states, kept apart because they say different things: ``packages`` is a licence that was read;
+    ``unobserved`` is a dependency this environment never had installed, so there was nothing to read;
+    ``unreadable`` is one that *is* installed and whose metadata names no licence at all. The last two are
+    not the same problem -- a distribution can ship an Apache-2.0 licence file and still declare nothing a
+    machine can read -- so the record names the reason instead of folding them together.
+    """
+    packages, unobserved, unreadable = {}, [], {}
     for key in deps:
         name = deps[key]["name"]
         licence = licence_of(name)
-        if licence.startswith(("not installed", "unknown")):
+        if licence.startswith("not installed"):
             if name not in unobserved:
                 unobserved.append(name)
+            continue
+        if licence.startswith("unknown"):
+            unreadable[name] = licence
             continue
         try:
             version = metadata.version(name)
@@ -168,9 +188,11 @@ def record_licences(deps: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "environment": f"CPython {sys.version.split()[0]} on {sys.platform}",
         "note": "Licences are read from installed metadata: PEP 639 License-Expression, else the trove "
                 "classifier, else the short License field. `unobserved` names the dependencies this "
-                "environment did not have installed; they are not guessed.",
+                "environment did not have installed; `unreadable` the ones it had, whose metadata declares "
+                "no licence. Neither is guessed.",
         "packages": dict(sorted(packages.items())),
         "unobserved": sorted(unobserved),
+        "unreadable": dict(sorted(unreadable.items())),
     }
 
 
@@ -195,6 +217,7 @@ def markdown_table(licences: dict[str, Any]) -> str:
     """The table published in ``docs/licensing.md``: what was observed, then what was not and why."""
     packages = licences.get("packages") or {}
     unobserved = sorted(licences.get("unobserved") or [])
+    unreadable = licences.get("unreadable") or {}
     rows = ["| Dependency | Licence it declares |", "|---|---|"]
     for name in sorted(packages):
         rows.append(f"| `{name}` | {packages[name]['licence']} |")
@@ -203,6 +226,12 @@ def markdown_table(licences: dict[str, Any]) -> str:
         rows.append("Not observed yet, because no recording environment has had them installed, so their licence "
                     "was not read rather than assumed: " + ", ".join(f"`{n}`" for n in unobserved) +
                     ". Run `python scripts/licensing/supply_chain.py --record` where they are installed.")
+    if unreadable:
+        rows.append("")
+        rows.append("Installed, but declaring no machine-readable licence, so nothing was read from their metadata: "
+                    + ", ".join(f"`{n}` ({unreadable[n]})" for n in sorted(unreadable)) +
+                    ". Where a distribution ships a licence file, reading it is a human's job; the record does "
+                    "not fill the row in.")
     return "\n".join(rows)
 
 
@@ -250,14 +279,19 @@ def audit(deps: dict[str, dict[str, Any]], floors: dict[str, Any], licences: dic
     # every declared dependency is in the licence record, observed or explicitly listed as not seen
     packages = licences.get("packages") or {}
     unobserved = set(licences.get("unobserved") or [])
+    unreadable = set(licences.get("unreadable") or {})
     core_names = {entry["name"] for entry in deps.values() if "core" in entry["extras"] and not entry["marker"]}
     for name in sorted({entry["name"] for entry in deps.values()}):
-        if name in packages or name in unobserved:
+        if name in packages or name in unobserved or name in unreadable:
             continue
         problems.append(f"{name}: declared but not in docs/dev/dependency_licenses.json -- run --record")
     for name in sorted(core_names & unobserved):
         problems.append(f"{name}: a core dependency with no recorded licence; it is installed wherever the package "
                         f"is, so there is no reason for it to be unobserved -- run --record")
+    for name in sorted(core_names & unreadable):
+        problems.append(f"{name}: a core dependency whose metadata declares no machine-readable licence, and it is "
+                        f"installed wherever the package is -- name its licence in {POLICY.relative_to(ROOT)} or "
+                        f"replace the dependency")
 
     accepted = {n.lower() for n in accepted_copyleft(policy)}
     for name, licence in live.items():
@@ -266,9 +300,16 @@ def audit(deps: dict[str, dict[str, Any]], floors: dict[str, Any], licences: dic
                 problems.append(f"{name}: installed, but declares no machine-readable licence "
                                 f"({licence}); name it in {POLICY.relative_to(ROOT)} or replace it")
             continue
-        if packages.get(name, {}).get("licence") not in (None, licence):
+        recorded = packages.get(name) or {}
+        other_release = recorded.get("version") not in (None, "", _version(name))
+        if recorded.get("licence") not in (None, licence) and other_release:
+            # a different release of the same dependency: it declares its own licence, and the record names the
+            # release it was read from (pandas 3.0.5 says "BSD License", 3.1.1 says "BSD-3-Clause"). Comparing the
+            # two strings would call a true record wrong because this interpreter holds another wheel.
+            continue
+        if recorded.get("licence") not in (None, licence):
             problems.append(f"{name}: docs/dev/dependency_licenses.json says "
-                            f"{packages[name]['licence']!r}, the installed distribution says {licence!r} -- "
+                            f"{recorded['licence']!r}, the installed distribution says {licence!r} -- "
                             f"run --record")
         if is_copyleft(licence) and name.lower() not in accepted:
             problems.append(f"{name}: copyleft licence {licence!r}; add it under {COPYLEFT_HEADING!r} in "
@@ -282,8 +323,10 @@ def coverage(deps: dict[str, dict[str, Any]], licences: dict[str, Any]) -> dict[
     names = {entry["name"] for entry in deps.values()}
     packages = set(licences.get("packages") or {})
     unobserved = set(licences.get("unobserved") or [])
+    unreadable = set(licences.get("unreadable") or {})
     return {"declared": len(names), "observed": len(names & packages),
-            "unobserved": len(names & unobserved), "unaccounted": len(names - packages - unobserved)}
+            "unobserved": len(names & unobserved), "unreadable": len(names & unreadable),
+            "unaccounted": len(names - packages - unobserved - unreadable)}
 
 
 def published_matches(policy: Path = POLICY, table: str | None = None) -> bool:
@@ -326,7 +369,8 @@ def main(argv: list[str] | None = None) -> int:
             write_published(POLICY, markdown_table(licences))
         counts = coverage(deps, licences)
         print(f"recorded {len(deps)} declared dependencies: {counts['observed']} with a licence, "
-              f"{counts['unobserved']} not installed here")
+              f"{counts['unobserved']} not installed here"
+              + (f", {counts['unreadable']} installed without a readable licence" if counts["unreadable"] else ""))
         return 0
 
     floors, licences = load(FLOORS), load(LICENCES)
@@ -346,6 +390,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"{counts['declared']} declared dependencies, {counts['observed']} with a licence on record, "
           f"{counts['unobserved']} not installed here"
+          + (f", {counts['unreadable']} installed without a readable licence" if counts["unreadable"] else "")
           + (f", {counts['unaccounted']} unaccounted" if counts["unaccounted"] else ""))
     if problems:
         print(f"\n{len(problems)} problem(s):", file=sys.stderr)

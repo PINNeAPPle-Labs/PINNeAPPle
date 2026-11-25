@@ -4,6 +4,7 @@
     python examples/cfd/classical_cases/run_cases.py --only reference          # no solver needed
     python examples/cfd/classical_cases/run_cases.py --only cavity --re 100 400
     python examples/cfd/classical_cases/run_cases.py --only pinn               # the network, no solver needed
+    python examples/cfd/classical_cases/run_cases.py --only cfdbench          # the benchmark's archive, once unpacked
 
 It writes one JSON per case next to the tables it was compared with, so the README's table can be regenerated and the
 numbers in it can be checked. Without OpenFOAM the ``reference`` part still runs (it is transcribed data), the ``pinn``
@@ -260,9 +261,10 @@ def main(argv=None) -> int:
                     help="where the JSON lands (the numbers committed next to the README)")
     ap.add_argument("--cases", default="/tmp/pinneapple-cfd-cases",
                     help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
-    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn",
-                                                  "cfdbench"],
-                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn", "cfdbench"])
+    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"],
+                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn", "cfdbench"],
+                    help="the parts to run; cfdbench is not in the default list because it needs the benchmark's own "
+                         "786 MB archive unpacked, which this folder never fetches")
     ap.add_argument("--reuse", action="store_true", help="read the cases already solved under --cases")
     ap.add_argument("--re", nargs="+", type=int, default=[100, 400, 1000], help="Reynolds numbers for the cavity")
     ap.add_argument("--meshes", nargs="+", type=int, default=list(cavity.MESHES))

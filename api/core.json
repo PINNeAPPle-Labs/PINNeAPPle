@@ -29,7 +29,6 @@
  },
  "modules": {
   "pinneapple_analysis.trust": {
-   "ArtifactMismatch": "from .signed_report import ArtifactMismatch",
    "Check": "from .trust_report import Check",
    "Correction": "from .corrections import Correction",
    "CorrectionStore": "from .corrections import CorrectionStore",
@@ -39,16 +38,9 @@
    "DriftThresholds": "from .drift import DriftThresholds",
    "FieldTrustCard": "from .field_card import FieldTrustCard",
    "FlowSpec": "from .flow_card import FlowSpec",
-   "ResidualMismatch": "from .signed_report import ResidualMismatch",
-   "ResidualNotComputable": "from .signed_report import ResidualNotComputable",
-   "ResidualSpec": "from .signed_report import ResidualSpec",
    "RetrainDecision": "from .drift import RetrainDecision",
-   "SignatureFailure": "from .signed_report import SignatureFailure",
-   "SignedReportError": "from .signed_report import SignedReportError",
-   "SignedTrustReport": "from .signed_report import SignedTrustReport",
    "TrustGate": "from .trust_gate import TrustGate",
    "TrustReport": "from .trust_report import TrustReport",
-   "TrustReportVerification": "from .signed_report import TrustReportVerification",
    "TrustScore": "from .trust_gate import TrustScore",
    "annotations": "from __future__ import annotations",
    "correction_checks": "from .corrections import correction_checks",
@@ -161,65 +153,6 @@
    "energy_balance": "def(grid, temperature, *, name='T', axis='x', spec=None, **kw)",
    "flow_checks": "def(grid, fields, *, spec)",
    "mass_balance": "def(grid, velocity, *, spec=None, **kw)"
-  },
-  "pinneapple_analysis.trust.signed_report": {
-   "ArtifactMismatch": {
-    "class": [
-     "SignedReportError"
-    ],
-    "methods": {}
-   },
-   "ResidualMismatch": {
-    "class": [
-     "SignedReportError"
-    ],
-    "methods": {}
-   },
-   "ResidualNotComputable": {
-    "class": [
-     "SignedReportError"
-    ],
-    "methods": {}
-   },
-   "ResidualSpec": {
-    "class": [],
-    "methods": {
-     "to_dict": "()",
-     "from_dict": "(data)"
-    }
-   },
-   "SignatureFailure": {
-    "class": [
-     "SignedReportError"
-    ],
-    "methods": {}
-   },
-   "SignedReportError": {
-    "class": [
-     "Exception"
-    ],
-    "methods": {}
-   },
-   "SignedTrustReport": {
-    "class": [],
-    "methods": {
-     "__init__": "(*, envelope, model_blob, inputs_blob)",
-     "create": "(report, *, model, inputs, key, residual=None)",
-     "dumps": "()",
-     "save": "(path)",
-     "loads": "(text)",
-     "load": "(path)",
-     "verify": "(key, *, model_factory=None)"
-    }
-   },
-   "TrustReportVerification": {
-    "class": [],
-    "methods": {
-     "ok": "()",
-     "to_dict": "()"
-    }
-   },
-   "residual_value": "def(model, grid, spec)"
   },
   "pinneapple_analysis.trust.trust_gate": {
    "TrustGate": {
@@ -1017,18 +950,30 @@
    "recommend": "def(text, *, top=3)"
   },
   "pinneapple_data.cae": {
+   "CONTACT_FIELDS": "from .frd import CONTACT_FIELDS",
    "CellBlock": "from .model import CellBlock",
+   "FINISHED": "from .ccx import FINISHED",
    "FormatError": "from .io import FormatError",
+   "GIVE_UP": "from .ccx import GIVE_UP",
    "METRICS": "from .quality import METRICS",
    "Mesh": "from .model import Mesh",
    "PolyMesh": "from .model import PolyMesh",
    "RepairPlan": "from .repair import RepairPlan",
    "RepairResult": "from .repair import RepairResult",
+   "ResultBlock": "from .frd import ResultBlock",
+   "Status": "from .ccx import Status",
+   "Totals": "from .ccx import Totals",
+   "Verdict": "from .ccx import Verdict",
    "close_holes": "from .repair import close_holes",
+   "contact": "from .frd import contact",
+   "coordinates": "from .frd import coordinates",
+   "coulomb_ratio": "from .frd import coulomb_ratio",
    "courant_number": "from .metrics import courant_number",
+   "displacement": "from .frd import displacement",
    "drop_degenerate_faces": "from .repair import drop_degenerate_faces",
    "drop_duplicate_faces": "from .repair import drop_duplicate_faces",
    "element_metrics": "from .quality import element_metrics",
+   "finite": "from .ccx import finite",
    "fv_metrics": "from .quality import fv_metrics",
    "kind_of": "from .io import kind_of",
    "merge_vertices": "from .repair import merge_vertices",
@@ -1037,15 +982,46 @@
    "mesh_wall_distance": "from .metrics import mesh_wall_distance",
    "orient_consistently": "from .repair import orient_consistently",
    "read_any": "from .io import read_any",
+   "read_blocks": "from .frd import read_blocks",
+   "read_displacements": "from .ccx import read_displacements",
+   "read_log": "from .ccx import read_log",
    "read_meshio": "from .io import read_meshio",
    "read_points": "from .io import read_points",
+   "read_status": "from .ccx import read_status",
    "read_stl": "from .io import read_stl",
+   "read_totals": "from .ccx import read_totals",
    "repair": "from . import repair",
    "repair_surface": "from .repair import repair_surface",
+   "stress": "from .frd import stress",
    "surface_checks": "from .quality import surface_checks",
    "surface_summary": "from .repair import surface_summary",
    "view_payload": "from .report import view_payload",
    "wall_distance": "from .metrics import wall_distance"
+  },
+  "pinneapple_data.cae.ccx": {
+   "Status": {
+    "class": [],
+    "methods": {
+     "converged": "()"
+    }
+   },
+   "Totals": {
+    "class": [],
+    "methods": {
+     "at": "(time, tol=1e-09)"
+    }
+   },
+   "Verdict": {
+    "class": [],
+    "methods": {
+     "ok": "()"
+    }
+   },
+   "finite": "def(*values)",
+   "read_displacements": "def(dat)",
+   "read_log": "def(log, status=None, produced=True)",
+   "read_status": "def(sta)",
+   "read_totals": "def(dat)"
   },
   "pinneapple_data.cae.compare": {
    "Interpolator": {
@@ -1095,7 +1071,19 @@
    "time_dirs": "def(fs, root='')"
   },
   "pinneapple_data.cae.frd": {
-   "read_frd": "def(b)"
+   "ResultBlock": {
+    "class": [],
+    "methods": {
+     "column": "(component)"
+    }
+   },
+   "contact": "def(b, until=None)",
+   "coordinates": "def(b)",
+   "coulomb_ratio": "def(rows, nodes=None, min_fraction=0.05)",
+   "displacement": "def(b)",
+   "read_blocks": "def(b)",
+   "read_frd": "def(b)",
+   "stress": "def(b)"
   },
   "pinneapple_data.cae.geometry": {
    "FaceMesh": {

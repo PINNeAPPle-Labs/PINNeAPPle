@@ -237,13 +237,15 @@ def _verdict(fit_ci, expected: float, tol: float) -> str:
 def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence[int], *, name: str = "operation",
                   repeats: int = 5, warmup: int = 1, declared: Optional[Union[str, float]] = None,
                   declared_flops: Optional[Union[str, float]] = None, tolerance: float = 0.15,
-                  n_boot: int = 300, seed: int = 0, memory: bool = False) -> ScalingStudy:
+                  n_boot: int = 300, seed: int = 0, memory: bool = False, flops: bool = True) -> ScalingStudy:
     """Measure an operation over problem sizes and fit ``cost ~ n^k`` for time (and FLOPs when countable).
 
     ``make_call(n)`` builds the inputs for size ``n`` and returns a zero-argument callable; the setup is not
     timed. Use at least 4 sizes spanning a factor of 10 or more, and sizes large enough that the run takes well
     over a millisecond, otherwise fixed overheads flatten the fit (the R2 and the CI width say so).
-    ``tolerance`` is the slack in the exponent when comparing with ``declared``.
+    ``tolerance`` is the slack in the exponent when comparing with ``declared``. ``flops=False`` skips the FLOP
+    count, which the counter's per-operator hooks make more expensive than the work for an operation that issues
+    thousands of small operators; the record then carries ``flops=None`` with an empty source.
     """
     sizes = [int(s) for s in sizes]
     if len(sizes) < 3 or len(set(sizes)) != len(sizes):
@@ -251,7 +253,7 @@ def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence
             f"a scaling fit needs at least 3 distinct sizes, got {len(set(sizes))} distinct of {len(sizes)}",
             fix="pass at least 3 distinct sizes spanning a factor of 10 or more, e.g. [10**3, 10**4, 10**5]")
     records = [measure(make_call(n), repeats=repeats, warmup=warmup, name=f"{name}[n={n}]", size=float(n),
-                       memory=memory) for n in sizes]
+                       memory=memory, flops=flops) for n in sizes]
     n_arr = np.array(sizes, dtype=float)
     fits: Dict[str, ScalingFit] = {}
     rng = np.random.default_rng(seed)

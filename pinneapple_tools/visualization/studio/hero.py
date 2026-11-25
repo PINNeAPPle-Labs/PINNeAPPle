@@ -293,21 +293,25 @@ def _pyvista_available() -> tuple[bool, str]:
 
 
 def _cycles_still(scene, path: str, *, size: tuple[int, int], field: str | None, clim, preset: Preset, title: str,
-                  samples: int | None, device: str, view: str, floor: bool) -> dict[str, Any]:
+                  samples: int | None, device: str, view: str, floor: bool,
+                  camera: str | None = None) -> dict[str, Any]:
     """One Cycles render through :func:`.blender.render` / ``render_headless`` (colour bar drawn afterwards)."""
     from .blender import blender_executable, render, render_headless
 
-    kw: dict[str, Any] = dict(background=preset.background, camera=preset.camera, view=view, size=tuple(size),
-                              device=device, floor=floor, cmap=preset.cmap, colorbar_on=False, title=title)
+    kw: dict[str, Any] = dict(background=preset.background, camera=camera or preset.camera, view=view,
+                              size=tuple(size), device=device, floor=floor, cmap=preset.cmap, colorbar_on=False,
+                              title=title)
     if samples is not None:                                    # None: the quality preset's own sample count
         kw["samples"] = int(samples)
     if field is not None:
-        body = next((s for s in scene.surfaces if field in s.fields), None)
-        ghosted = body is not None and any(not s.fields for s in scene.surfaces)
-        if ghosted and clim is not None:
-            # `field=` gives every surface without it the plain grey default, which would paint over the
-            # undeformed ghost and, at a small exaggeration, over the coloured body too. Naming the surface keeps
-            # the ghost's own translucent material (_build_objects built it) and still ramps the one that has data.
+        bodies = [s for s in scene.surfaces if field in s.fields]
+        if len(bodies) == 1 and len(scene.surfaces) > 1 and clim is not None:
+            # one body carries the field and the rest are context -- the warped part and its undeformed ghost, and
+            # the only case where `field=` would be wrong: it paints every fieldless surface opaque grey, which
+            # covers the ghost and, at a small exaggeration, part of the body. Naming the surface keeps the other
+            # parts' own materials and still ramps the one that has data. An assembly, where several parts carry
+            # the field, takes `field=` below: it ramps all of them and greys the frames, the fans and the glass.
+            body = bodies[0]
             kw["surface_fields"] = {body.name: (field, float(clim[0]), float(clim[1]), preset.cmap,
                                                 title.replace("\n", " · "))}
         else:
@@ -463,11 +467,39 @@ def _bar_title(label: str, unit: str, warp: dict | None) -> str:
     return f"{t}\n{warp['statement']}" if warp else t
 
 
+def _drop_surfaces(scene, patterns: Sequence[str]):
+    """The scene without the surfaces whose name contains one of ``patterns``, and what was dropped.
+
+    A case that models its enclosure -- the glass box, the cabinet, the outer skin -- puts it around everything that
+    carries the field, so a faithful render of the whole assembly shows a lid and no result. Dropping a named part is
+    the honest way to open it: the caller says which part is left out, the list goes back in ``hidden``, and a pattern
+    that matches nothing raises instead of silently drawing what the caller believes it hid.
+    """
+    import copy
+
+    out = copy.copy(scene)
+    keep, gone = [], []
+    for s in scene.surfaces:
+        pat = next((p for p in patterns if str(p).lower() in s.name.lower()), None)
+        if pat is None:
+            keep.append(s)
+        else:
+            gone.append({"name": s.name, "pattern": pat, "material": s.material, "carried": sorted(s.fields)})
+    if not gone:
+        raise KeyError(f"hide={list(patterns)!r}: no surface of the scene has that in its name "
+                       f"(have: {', '.join(s.name for s in scene.surfaces) or 'none'})")
+    if not keep:
+        raise ValueError(f"hide={list(patterns)!r} would leave nothing to draw")
+    out.surfaces = keep
+    return out, gone
+
+
 def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, out_dir: str | None = None,
          stills: Sequence[Sequence[int]] = STILLS, samples: int | None = None, device: str = "auto",
          backend: str = "auto", turntable: bool = True, seconds: float = 8.0, fps: float = 24.0,
          turntable_backend: str = "auto", gltf: bool = True, viewer: bool = False, unit: str | None = None,
          label: str | None = None, exaggeration: float = 0.05, colormap: str | None = None,
+         hide: Sequence[str] | None = None, camera: str | None = None,
          name: str = "hero") -> dict[str, Any]:
     """Write the hero assets of one result: two stills, a turntable and a glTF, with the preset of ``kind``.
 
@@ -477,7 +509,11 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
     field is coloured (default: the preset's first candidate the result has, and its range from the data).
     ``unit`` and ``label`` override what the colour bar says; ``exaggeration`` is how much of the model's diagonal
     the largest displacement is drawn at (``structural``, when the result carries one; the factor and the measured
-    peak go into ``warp`` and into the bar's title).
+    peak go into ``warp`` and into the bar's title). ``hide`` leaves out the parts whose name contains one of the
+    given strings -- the enclosure around the board, the cabinet around the ducts -- because a closed case renders as
+    a lid; what was left out is listed in ``hidden`` and nothing is hidden silently. ``camera`` overrides the
+    photography preset (``product``, ``hero``, ``documentary``, ``head_on``, ``wide``): a thin, long subject such as
+    an airfoil section does not fit the preset's framing, and the one actually used is recorded in ``camera``.
 
     The returned dict -- also written as ``out_dir/hero.json`` -- says what was really produced:
 
@@ -496,15 +532,29 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
         the three.js page beside it.
     ``field`` / ``warp`` / ``preset`` / ``hardware`` / ``seconds``
         what was coloured, how the shape was scaled, the look that was used, the machine and the measured times.
+    ``hidden``
+        the parts ``hide`` left out (name, matching pattern, material, which fields they carried), also said in
+        ``honesty["hidden"]`` and in the caption; empty when the whole result is drawn.
+    ``camera``
+        the photography preset the stills were framed with.
 
     >>> from pinneapple_tools.visualization.studio import hero                      # doctest: +SKIP
     >>> h = hero("examples/calculix_cantilever/beam.frd", "structural")              # doctest: +SKIP
     >>> h["backend"], h["warp"]["scale_factor"], h["stills"]["1920x1080"]            # doctest: +SKIP
     """
     preset = _resolve_kind(kind)
+    if camera is not None:                          # a typo must not be silently ignored on the PyVista path
+        from .blender import CAMERAS
+
+        if str(camera).strip().lower() not in CAMERAS:
+            raise ValueError(f"camera={camera!r}: {', '.join(CAMERAS)}")
+        camera = str(camera).strip().lower()
     t_start = time.time()
     scene = _as_scene(result)
     scene_src = os.fspath(result) if isinstance(result, (str, os.PathLike)) else type(result).__name__
+    hidden: list[dict[str, Any]] = []
+    if hide:
+        scene, hidden = _drop_surfaces(scene, hide)
     warp = None
     if preset.warp:
         scene, warp = _deform(scene, preset.warp, exaggeration, _displacements(result, scene))
@@ -530,12 +580,14 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
         "field": ({"name": fname, "label": lab, "unit": uni, "range": list(clim) if clim else None,
                    "house_cmap": preset.quantity, "cmap": colormap or preset.cmap} if fname else None),
         "warp": warp, "backend": None, "fallback": "", "stills": {}, "turntable": None, "gltf": None,
-        "renderers": {},
+        "renderers": {}, "hidden": hidden, "camera": camera or preset.camera,
         "viewer": None, "hardware": _machine(),
         "honesty": {"smoothing": "none: the mesh is drawn as it is; shading is the material's, the shape is not",
                     "colour_range": "the field's own min..max (symmetric about zero for a diverging map)",
                     "deformation": (warp or {}).get("statement") or "not deformed: the result carries no "
-                                                                    "displacement field"},
+                                                                    "displacement field",
+                    "hidden": (f"left out of the picture: {', '.join(h['name'] for h in hidden)}"
+                               if hidden else "nothing: every part of the result is drawn")},
         "seconds": {}}
 
     # -- back end for the stills
@@ -570,7 +622,7 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
         if use_cycles:
             _cycles_still(scene, path, size=(int(size[0]), int(size[1])), field=fname, clim=clim,
                                  preset=preset, title=bar, samples=samples, device=device,
-                                 view=preset.view, floor=preset.floor)
+                                 view=preset.view, floor=preset.floor, camera=camera)
             if not _importable("bpy"):                    # Blender's Python has no Pillow: the bar is drawn here
                 from .colormap import colorbar
                 from .compose import CMAPS
@@ -636,7 +688,7 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
                         view = tuple(float(x) for x in (eye - centre))      # the direction the camera looks from
                         _cycles_still(scene, p, size=size, field=fname, clim=clim, preset=preset, title=bar,
                                       samples=max(8, min(int(samples or 24), 24)), device=device,
-                                      view=view, floor=preset.floor)
+                                      view=view, floor=preset.floor, camera=camera)
                     tt["backend"] = "cycles"
                 tt["per_frame_s"] = round((time.time() - t0) / n, 2)
                 tt["mp4"] = _encode_mp4(paths, os.path.join(out_dir, "turntable.mp4"), float(fps))
@@ -652,6 +704,8 @@ def hero(result: Any, kind: str = "external_aero", *, field: str | None = None, 
                              + (f" ({uni})" if uni and uni not in ("-", "1") else "")
                              + f" on {os.path.basename(scene_src) if isinstance(scene_src, str) else 'the result'}, "
                              + (warp["statement"] if warp else "drawn at its own scale")
+                             + (f"; {len(hidden)} part(s) left out: {', '.join(h['name'] for h in hidden)}"
+                                if hidden else "")
                              + f"; {result_doc['backend'] or 'no renderer'}.")
     with open(os.path.join(out_dir, "hero.json"), "w", encoding="utf-8") as fh:
         json.dump(result_doc, fh, indent=1, default=str)

@@ -194,3 +194,54 @@ def test_a_field_the_preset_does_not_know_is_labelled_by_its_own_name(monkeypatc
     r2 = hero_fn(_scene(), "external_aero", out_dir=str(tmp_path / "ok"), backend="cycles",
                  stills=((64, 36),), turntable=False, gltf=False)
     assert r2["field"]["label"] == "surface pressure coefficient Cp"        # a field the preset knows keeps its label
+
+
+def test_an_enclosure_can_be_left_out_and_the_book_says_so(monkeypatch, tmp_path):
+    """A closed case renders as a lid: `hide=` opens it, and the parts left out are named, never dropped silently."""
+    board = _scene()
+    from pinneapple_tools.visualization.studio.scene import Surface
+
+    box = Surface(name="enclosure", vertices=np.array([[-2.0, -2.0, -2.0], [2.0, -2.0, -2.0], [2.0, 2.0, 2.0],
+                                                       [-2.0, 2.0, 2.0]]),
+                  faces=np.array([[0, 1, 2], [0, 2, 3]]), material="enclosure_glass")
+    board.surfaces.append(box)
+    monkeypatch.setattr(H, "_blender_available", lambda: (True, ""))
+    monkeypatch.setattr(H, "_importable", lambda name: True)
+    monkeypatch.setattr(H, "_cycles_still", lambda scene, path, **kw: (
+        open(path, "wb").write(b"\x89PNG" + b"0" * 64) or {"path": path, "seconds": 0.0, "backend": "cycles (fake)"}))
+    r = hero_fn(board, "conjugate_heat", hide=["enclosure"], out_dir=str(tmp_path / "open"), backend="cycles",
+                stills=((64, 36),), turntable=False)
+    assert [h["name"] for h in r["hidden"]] == ["enclosure"]
+    assert r["hidden"][0]["material"] == "enclosure_glass" and r["hidden"][0]["carried"] == []
+    assert "enclosure" in r["honesty"]["hidden"] and "enclosure" in r["caption"]
+    assert Scene.from_file(r["gltf"]).surfaces and len(Scene.from_file(r["gltf"]).surfaces) == 1   # board only
+    with pytest.raises(KeyError, match="no surface of the scene has that"):
+        hero_fn(board, "conjugate_heat", hide=["nothing_like_this"], out_dir=str(tmp_path / "x"), backend="cycles",
+                stills=((64, 36),), turntable=False, gltf=False)
+    whole = hero_fn(board, "conjugate_heat", out_dir=str(tmp_path / "whole"), backend="cycles",
+                    stills=((64, 36),), turntable=False, gltf=False)
+    assert whole["hidden"] == [] and "every part" in whole["honesty"]["hidden"]
+
+
+def test_the_framing_can_be_asked_for_and_is_recorded(monkeypatch, tmp_path):
+    """A thin subject (an airfoil section) does not fit the preset's camera; the one used goes into the record."""
+    seen: list[dict] = []
+
+    def fake(scene, path, **kw):
+        seen.append(kw)
+        open(path, "wb").write(b"\x89PNG" + b"0" * 64)
+        return {"path": path, "seconds": 0.0, "backend": "cycles (fake)"}
+
+    monkeypatch.setattr(H, "_cycles_still", fake)
+    monkeypatch.setattr(H, "_blender_available", lambda: (True, ""))
+    monkeypatch.setattr(H, "_importable", lambda name: True)
+    r = hero_fn(_scene(), "external_aero", camera="documentary", out_dir=str(tmp_path), backend="cycles",
+                stills=((64, 36),), turntable=False, gltf=False)
+    assert seen[0]["camera"] == "documentary" and r["camera"] == "documentary"
+    assert PRESETS["external_aero"].camera == "product"                  # the preset itself is not changed
+    dflt = hero_fn(_scene(), "external_aero", out_dir=str(tmp_path / "d"), backend="cycles",
+                   stills=((64, 36),), turntable=False, gltf=False)
+    assert dflt["camera"] == "product"                                   # the preset's own camera, recorded
+    with pytest.raises(ValueError, match="camera="):
+        hero_fn(_scene(), "external_aero", camera="telephoto", out_dir=str(tmp_path / "x"), backend="cycles",
+                stills=((64, 36),), turntable=False, gltf=False)

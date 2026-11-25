@@ -1017,18 +1017,30 @@
    "recommend": "def(text, *, top=3)"
   },
   "pinneapple_data.cae": {
+   "CONTACT_FIELDS": "from .frd import CONTACT_FIELDS",
    "CellBlock": "from .model import CellBlock",
+   "FINISHED": "from .ccx import FINISHED",
    "FormatError": "from .io import FormatError",
+   "GIVE_UP": "from .ccx import GIVE_UP",
    "METRICS": "from .quality import METRICS",
    "Mesh": "from .model import Mesh",
    "PolyMesh": "from .model import PolyMesh",
    "RepairPlan": "from .repair import RepairPlan",
    "RepairResult": "from .repair import RepairResult",
+   "ResultBlock": "from .frd import ResultBlock",
+   "Status": "from .ccx import Status",
+   "Totals": "from .ccx import Totals",
+   "Verdict": "from .ccx import Verdict",
    "close_holes": "from .repair import close_holes",
+   "contact": "from .frd import contact",
+   "coordinates": "from .frd import coordinates",
+   "coulomb_ratio": "from .frd import coulomb_ratio",
    "courant_number": "from .metrics import courant_number",
+   "displacement": "from .frd import displacement",
    "drop_degenerate_faces": "from .repair import drop_degenerate_faces",
    "drop_duplicate_faces": "from .repair import drop_duplicate_faces",
    "element_metrics": "from .quality import element_metrics",
+   "finite": "from .ccx import finite",
    "fv_metrics": "from .quality import fv_metrics",
    "kind_of": "from .io import kind_of",
    "merge_vertices": "from .repair import merge_vertices",
@@ -1037,15 +1049,46 @@
    "mesh_wall_distance": "from .metrics import mesh_wall_distance",
    "orient_consistently": "from .repair import orient_consistently",
    "read_any": "from .io import read_any",
+   "read_blocks": "from .frd import read_blocks",
+   "read_displacements": "from .ccx import read_displacements",
+   "read_log": "from .ccx import read_log",
    "read_meshio": "from .io import read_meshio",
    "read_points": "from .io import read_points",
+   "read_status": "from .ccx import read_status",
    "read_stl": "from .io import read_stl",
+   "read_totals": "from .ccx import read_totals",
    "repair": "from . import repair",
    "repair_surface": "from .repair import repair_surface",
+   "stress": "from .frd import stress",
    "surface_checks": "from .quality import surface_checks",
    "surface_summary": "from .repair import surface_summary",
    "view_payload": "from .report import view_payload",
    "wall_distance": "from .metrics import wall_distance"
+  },
+  "pinneapple_data.cae.ccx": {
+   "Status": {
+    "class": [],
+    "methods": {
+     "converged": "()"
+    }
+   },
+   "Totals": {
+    "class": [],
+    "methods": {
+     "at": "(time, tol=1e-09)"
+    }
+   },
+   "Verdict": {
+    "class": [],
+    "methods": {
+     "ok": "()"
+    }
+   },
+   "finite": "def(*values)",
+   "read_displacements": "def(dat)",
+   "read_log": "def(log, status=None, produced=True)",
+   "read_status": "def(sta)",
+   "read_totals": "def(dat)"
   },
   "pinneapple_data.cae.compare": {
    "Interpolator": {
@@ -1095,7 +1138,19 @@
    "time_dirs": "def(fs, root='')"
   },
   "pinneapple_data.cae.frd": {
-   "read_frd": "def(b)"
+   "ResultBlock": {
+    "class": [],
+    "methods": {
+     "column": "(component)"
+    }
+   },
+   "contact": "def(b, until=None)",
+   "coordinates": "def(b)",
+   "coulomb_ratio": "def(rows, nodes=None, min_fraction=0.05)",
+   "displacement": "def(b)",
+   "read_blocks": "def(b)",
+   "read_frd": "def(b)",
+   "stress": "def(b)"
   },
   "pinneapple_data.cae.geometry": {
    "FaceMesh": {

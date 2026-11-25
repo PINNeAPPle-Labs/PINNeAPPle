@@ -278,6 +278,23 @@ REASONS: dict[str, str] = {
                                           "itself is the 'pinn' method node (and pp.solve), which is what this "
                                           "backend calls; what it adds is the choice of engine, the artifact and "
                                           "the provenance, which the node already carries",
+    # The CalculiX run files, and the three modules the merges of 2026-11-25 put into api/core.json without a node:
+    # what a verification reads *after* a solve, and what a study carries around one. A node is a step that produces
+    # a result; these decide whether the result may be believed, and the solve itself is the node.
+    "pinneapple_data.cae.ccx": "the files a CalculiX run leaves beside the deck -- the reaction totals and printed "
+                               "displacements of the .dat, the increment summary of the .sta and the solver log, "
+                               "with the verdict that classifies the run (#1508): a reader a verification compares "
+                               "against, after the node that solves",
+    "pinneapple_data.cae.xdmf": "the XDMF3 reader: an inline-XML mesh with its attributes into the same Mesh type "
+                                "every other CAE reader returns, which is the input a solver node takes rather than "
+                                "a step of its own",
+    "pinneapple_analysis.trust.drift": "the drift baseline and monitor of a deployed model: it takes a window of "
+                                       "inputs and predictions and returns whether the model still applies, with the "
+                                       "retraining decision -- a judgement about a result, like the correction "
+                                       "rules beside it",
+    "pinneapple_analysis.trust.signed_report": "the signed trust report: it binds a report to the artifact and the "
+                                               "residuals it was computed from and verifies the signature, which is "
+                                               "the integrity of the evidence a node already produced",
 }
 
 

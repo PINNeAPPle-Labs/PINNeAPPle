@@ -34,6 +34,7 @@ from pinneapple_simulation.external_solvers import (
     SolverUnavailable,
     check_all,
     classify_run,
+    conduction_profile,
     get_solver,
     solver_names,
 )
@@ -54,6 +55,23 @@ def timoshenko_tip() -> float:
     i = B * H ** 3 / 12
     g = E / (2 * (1 + NU))
     return P * L ** 3 / (3 * E * i) + P * L / (5 / 6 * g * B * H)
+
+
+def _version_tuple(text: str):
+    import re
+
+    m = re.match(r"\s*(\d+)\.(\d+)", str(text or ""))
+    return (int(m.group(1)), int(m.group(2))) if m else None
+
+
+def _module_requirement_available(names):
+    for name in names:
+        try:
+            __import__(name)
+        except Exception:                             # noqa: BLE001 - absent is the answer
+            continue
+        return name
+    return None
 
 
 def _fake_bin(directory: Path, name: str, body: str) -> Path:
@@ -294,13 +312,17 @@ def test_a_case_the_backend_cannot_express_is_named(tmp_path):
 
 
 def test_check_all_reports_every_backend_without_raising(tmp_path, monkeypatch):
+    """One call, every backend, an answer for each: what is missing here is a sentence with a fix, never an exception,
+    and a backend that is ready says so without an empty "why"."""
     _no_solvers(monkeypatch, tmp_path)
     reports = check_all()
     assert set(reports) == set(solver_names())
-    assert all(isinstance(r, EnvironmentReport) for r in reports.values())
-    assert not reports["calculix"].ok and not reports["fenicsx"].ok and not reports["matlab"].ok
-    assert sum(1 for r in reports.values() if not r.ok) >= 3
-
+    for name, report in reports.items():
+        assert isinstance(report, EnvironmentReport)
+        assert report.ok == (not report.missing), name
+        assert bool(report.why()) != report.ok, name          # a missing item always explains itself
+        assert report.explain().startswith(get_solver(name).name)      # it names the backend, not the registry key
+    assert sum(1 for r in reports.values() if not r.ok) >= 2    # no ccx, no matlab, no licence on this box
 
 # ---------------------------------------------------------------------------------------------- the same physics, two backends
 def _run(name: str, case: SolverCase, workdir: Path):
@@ -385,15 +407,131 @@ def test_real_openfoam_runs_a_case_through_the_contract(tmp_path):
     assert results.to_upd().provenance["backend"] == "openfoam"
 
 
-def test_fenicsx_reports_its_absence_and_names_the_fix_on_a_machine_without_it(tmp_path):
-    """The Python-module family: no executable to look for, and no licence either -- what must be missing is the module,
-    and the fix names the package that provides it."""
+def test_fenicsx_reports_what_it_lacks_and_names_the_fix(tmp_path):
+    """The Python-module family: no executable to look for and no licence either. What can be missing is the module --
+    and, once it is installed, the version: DOLFINx 0.10 removed the API the bridge speaks, so "installed" and
+    "usable" are different answers and the report has to tell them apart."""
     report = get_solver("fenicsx", workdir=tmp_path).check_environment()
     if report.ok:
-        assert report.version and "FEniCS" in get_solver("fenicsx", workdir=tmp_path).results.__doc__
-        pytest.skip("FEniCS is installed here; the plane-stress case is covered by the bridge's own tests")
-    assert any(r.kind == "module" and not r.ok for r in report.missing)
+        assert report.version and _version_tuple(report.version) <= (0, 9)
+        pytest.skip("FEniCS 0.8/0.9 is installed here; the runs are in the closed-form test below")
+    kinds = {r.kind for r in report.missing}
+    assert kinds <= {"module", "version"}
     assert "fenics-dolfinx" in report.explain()
+    if "version" in kinds:
+        # the module is there, the API is not: the fix pins the release, it does not say "install FEniCS"
+        version = next(r for r in report.missing if r.kind == "version")
+        assert "outside what this bridge speaks" in version.detail and "fenics-dolfinx=0.9" in version.fix
+
+
+def test_fenicsx_version_requirement_follows_the_bridge_range(tmp_path):
+    """A version requirement that cannot be satisfied by ``pip install`` alone is the point: the range is read off the
+    bridge's own calls, and the report says which releases it speaks."""
+    from pinneapple_simulation.external_solvers.backends import FEniCSxBackend
+
+    backend = FEniCSxBackend(workdir=tmp_path)
+    found = _module_requirement_available(("dolfinx", "dolfin"))
+    if found is None:
+        pytest.skip("no FEniCS here")
+    released = _version_tuple(next(r.detail for r in backend.check_environment().requirements
+                                   if r.kind == "module" and r.ok))
+    ok = backend.check_environment().ok
+    assert ok == (released is None or backend.DOLFINX_RANGE[0] <= released <= backend.DOLFINX_RANGE[1])
+
+
+def test_a_too_new_dolfinx_is_a_missing_version_not_a_crash(tmp_path, monkeypatch):
+    """The gate itself, on any machine: when the installed release is the one the bridge cannot speak (0.10 changed
+    ``FunctionSpace`` and ``dolfinx.fem.petsc``), the answer is a missing *version* with the pin in the fix -- not a
+    ``TypeError`` raised from inside ``prepare()`` a hundred cases into a campaign."""
+    from pinneapple_simulation.external_solvers import backends
+
+    def newer(name, *, fix="", kind="module"):
+        return Requirement(kind, name, True, "0.11.0", "")
+
+    monkeypatch.setattr(backends, "_module_requirement", newer)
+    report = backends.FEniCSxBackend(workdir=tmp_path).check_environment()
+    assert not report.ok
+    version = next(r for r in report.missing if r.kind == "version")
+    assert "0.11.0" in version.detail and "outside what this bridge speaks" in version.detail
+    assert "fenics-dolfinx=0.9" in version.fix
+    assert report.version is None                      # an unusable release is not a version for provenance
+
+
+def test_fenicsx_plane_case_gives_every_value_a_point(tmp_path):
+    """The plane-stress path returns its field *with* the coordinates of its degrees of freedom, in the same order --
+    a vector space lists each node once while the field lists its components, so the contract repeats the row per
+    component. The number is not compared with beam theory on purpose: P1 triangles lock, and the closed-form check is
+    the conduction case below."""
+    solver = get_solver("fenicsx", workdir=tmp_path)
+    if not solver.check_environment().ok:
+        pytest.skip("FEniCSx not usable here")
+    case = SolverCase.plane_cantilever(L=1.0, h=0.1, b=0.1, q=100.0, nx=16, ny=4)
+    solver.prepare(case)
+    solver.run()
+    assert solver.wait().ok, solver.status().explain()
+    results = solver.results()
+    u = np.asarray(results.fields["u"])
+    x = np.asarray(results.coords["x"])
+    assert u.size == x.size                                  # one point per component entry, in the same order
+    assert np.asarray(results.fields["uy"]).size * 2 == u.size   # the components are interleaved per node
+    assert np.asarray(results.coords["y"]).size == u.size
+    assert results.scalars["max_deflection"] > 0
+
+
+def test_fenicsx_runs_a_closed_form_case_through_the_contract(tmp_path):
+    """#2477: the FEniCSx backend exercised numerically, against an answer that is known rather than against another
+    solver. ``-k T'' = source`` on a rectangle with two held sides has the closed form ``conduction_profile``: a linear
+    exact solution (no source) is *in* the P1 space, so it comes back to solver precision, and a sourced one (whose
+    exact solution is quadratic, so outside the space) is reproduced at the nodes to ~1e-6 of the range at every
+    refinement -- P1 is nodal-superconvergent for this configuration, and what remains lives inside the elements, where
+    the degrees of freedom cannot see it."""
+    import numpy as np
+
+    solver = get_solver("fenicsx", workdir=tmp_path)
+    report = solver.check_environment()
+    if not report.ok:
+        pytest.skip(f"FEniCSx not usable here: {report.why()[:120]}")
+
+    linear = SolverCase.conduction(L=1.0, H=0.5, k=2.0, source=0.0, T_left=0.0, T_right=100.0, nx=8, ny=4)
+    solver.prepare(linear)
+    solver.run()
+    status = solver.wait()
+    assert status.ok, status.explain()
+    results = solver.results()
+    assert "T" in results.fields and results.coords, results.summary()
+    x = np.asarray(results.coords["x"])
+    exact = conduction_profile(linear, x)
+    error = float(np.abs(np.asarray(results.fields["T"]) - exact).max())
+    assert error / 100.0 < 1e-5, error                # 1.8e-6 of the range here: the Krylov tolerance, not the mesh
+    assert float(np.abs(np.asarray(results.fields["T"]).max() - 100.0)) / 100.0 < 1e-5
+
+    for nx in (8, 16, 32):
+        case = SolverCase.conduction(L=1.0, H=0.5, k=1.0, source=1.0, T_left=0.0, T_right=1.0, nx=nx, ny=nx // 2)
+        s = get_solver("fenicsx", workdir=tmp_path / f"src{nx}")
+        s.prepare(case)
+        s.run()
+        assert s.wait().ok, s.status().explain()
+        r = s.results()
+        x = np.asarray(r.coords["x"])
+        values = np.asarray(r.fields["T"])
+        assert values.size == x.size
+        assert float(np.abs(values - conduction_profile(case, x)).max()) < 1e-4, nx   # the closed form, on the range
+        assert float(values.max()) == pytest.approx(float(conduction_profile(case, 1.0)), abs=1e-4)
+
+
+def test_comsol_is_out_of_scope_and_the_absence_is_explicit():
+    """#2477, the decision: COMSOL has no backend and the interface does not pretend otherwise. Asking for one names the
+    six that exist instead of failing somewhere inside a run, and the scope is written down in the contract and in the
+    guide, not only in an issue that closes."""
+    from pinneapple_simulation.external_solvers import contract
+
+    assert "comsol" not in solver_names()
+    with pytest.raises(KeyError) as excinfo:
+        get_solver("comsol")
+    assert "openfoam" in str(excinfo.value) and "solid-fem" in str(excinfo.value)   # it lists what does exist
+    assert "COMSOL" in (contract.__doc__ or "")
+    guide = HERE.parent / "docs" / "guides" / "external_solver_contract.md"
+    assert guide.is_file() and "COMSOL is out of scope" in guide.read_text()
 
 
 def test_ansys_reports_the_licence_it_cannot_see(tmp_path, monkeypatch):

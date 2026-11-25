@@ -12,6 +12,10 @@ Docker image) and :class:`SolidFEMBackend` (the in-process hexahedral elasticity
 ``numerical_solvers.solid_fem``, which needs no executable and no licence). They take the same
 :meth:`~.contract.SolverCase.cantilever`, and their displacement fields arrive in the same schema with provenance
 naming each backend and its version -- which is what makes two solvers comparable rather than merely both installed.
+
+COMSOL is not among them on purpose: no implementation of it exists in this repository, its Python coupling needs a
+licensed commercial client and its model files are binary, so it cannot be exercised here -- see the module docstring
+of :mod:`.contract` and ``docs/guides/external_solver_contract.md``.
 """
 from __future__ import annotations
 
@@ -63,6 +67,12 @@ def _module_requirement(name: str, *, fix: str, kind: str = MODULE) -> Requireme
     except Exception as exc:                          # noqa: BLE001 - a probe answer, not a failure
         return Requirement(kind, name, False, f"{type(exc).__name__}: {exc}", fix)
     return Requirement(kind, name, True, str(getattr(module, "__version__", "installed")), "")
+
+
+def _version_tuple(text: str) -> tuple[int, int] | None:
+    """``"0.9.0"`` -> ``(0, 9)``: the major/minor a version requirement compares, or None when there is no number."""
+    m = re.match(r"\s*(\d+)\.(\d+)", str(text or ""))
+    return (int(m.group(1)), int(m.group(2))) if m else None
 
 
 def _first_line(text: str, default: str = "") -> str:
@@ -500,13 +510,22 @@ class SolidFEMBackend(ExternalSolver):
 
 # ---------------------------------------------------------------------------------------------- FEniCSx / DOLFINx
 class FEniCSxBackend(ExternalSolver):
-    """Plane elasticity through ``numerical_solvers.fenics_bridge`` (DOLFINx, or legacy FEniCS when that is what the
-    machine has).
+    """Plane elasticity and steady conduction through ``numerical_solvers.fenics_bridge`` (DOLFINx, or legacy FEniCS
+    when that is what the machine has).
 
     The bridge forms plane stress/strain with a body force and Dirichlet boundaries -- no traction term -- so the
-    neutral case it takes is :meth:`~.contract.SolverCase.plane_cantilever`, whose uniform load becomes the body force
-    ``q / h``. Its labels come from the bridge's own supported kinds: anything else is
-    :class:`~.contract.CaseUnsupported` rather than a guess.
+    neutral cases it takes are :meth:`~.contract.SolverCase.plane_cantilever`, whose uniform load becomes the body
+    force ``q / h``, and :meth:`~.contract.SolverCase.conduction`, whose closed form the field can be measured against.
+    Its labels come from the bridge's own supported kinds: anything else is :class:`~.contract.CaseUnsupported`.
+
+    Read the plane case for what it is: P1 triangles lock in bending, so a slender cantilever comes back far too stiff
+    (L/h = 10 under-predicts the tip deflection by an order of magnitude here). That is a property of the discretisation,
+    not of the contract -- measure this backend against a closed form (the conduction case) and use
+    :mod:`.openfoam`/:class:`CalculiXBackend` for the structural claims, which are checked against beam theory.
+
+    The DOLFINx API is pinned by a version requirement, not discovered by a crash: the bridge calls
+    ``dolfinx.fem.petsc.LinearProblem``, which DOLFINx 0.10 removed. A newer DOLFINx is reported as a missing version
+    with the pin in the fix, because "installed" and "usable" are different answers.
     """
 
     name = "fenicsx"
@@ -518,21 +537,33 @@ class FEniCSxBackend(ExternalSolver):
              (LINEAR_ELASTICITY, "plane_strain"): "linear_elasticity_plane_strain",
              (HEAT_TRANSFER, None): "heat_equation_steady"}
 
+    #: The DOLFINx releases the bridge speaks, inclusive.
+    DOLFINX_RANGE = ((0, 8), (0, 9))
+    #: What to install instead, in the report and in the fix.
+    DOLFINX_FIX = ("conda install -c conda-forge fenics-dolfinx=0.9 mpich pyvista "
+                   "(or port numerical_solvers.fenics_bridge to 0.10+)")
+
     def _requirements(self) -> Sequence[Requirement]:
         found = None
         for name in ("dolfinx", "dolfin"):
-            req = _module_requirement(name, fix="conda install -c conda-forge fenics-dolfinx mpich pyvista "
-                                                "(or build FEniCSx from source)")
+            req = _module_requirement(name, fix=self.DOLFINX_FIX)
             if req.ok:
                 found = req
                 break
+        licence = Requirement(LICENCE, "FEniCS licence", True, "none: FEniCS is free software (LGPL)")
         if found is None:
             return (Requirement(MODULE, "dolfinx (or legacy dolfin)", False,
-                                "neither dolfinx nor dolfin is importable",
-                                "conda install -c conda-forge fenics-dolfinx mpich pyvista"),
-                    Requirement(LICENCE, "FEniCS licence", True, "none: FEniCS is free software (LGPL)"))
-        return (found, Requirement(VERSION, "FEniCS version", True, found.detail),
-                Requirement(LICENCE, "FEniCS licence", True, "none: FEniCS is free software (LGPL)"))
+                                "neither dolfinx nor dolfin is importable", self.DOLFINX_FIX), licence)
+        version = Requirement(VERSION, "FEniCS version", True, found.detail)
+        released = _version_tuple(found.detail)
+        low, high = self.DOLFINX_RANGE
+        if found.name == "dolfinx" and released is not None and not low <= released <= high:
+            version = Requirement(
+                VERSION, "dolfinx version", False,
+                f"{found.detail} is outside what this bridge speaks ({low[0]}.{low[1]}-{high[0]}.{high[1]}: 0.10 "
+                "removed dolfinx.fem.petsc.LinearProblem and made the C++ space a required argument of "
+                "FunctionSpace)", self.DOLFINX_FIX)
+        return (found, version, licence)
 
     def prepare(self, case: SolverCase) -> Path:
         if case.physics == LINEAR_ELASTICITY and case.dimension == 2:
@@ -542,25 +573,36 @@ class FEniCSxBackend(ExternalSolver):
         else:
             raise CaseUnsupported(f"fenicsx runs the bridge's plane elasticity (2-D) or steady heat, not "
                                   f"{case.physics!r} in {case.dimension}-D")
+        scalar = kind == self._PDES[(HEAT_TRANSFER, None)]
         g, m = case.geometry, case.mesh
-        bounds = (0.0, 0.0, g.get("L", 1.0), g.get("h", g.get("H", 1.0)))
+        bounds = (0.0, 0.0, float(g.get("L", 1.0)), float(g.get("h", g.get("H", 1.0))))
         conditions = {}
         for i, bc in enumerate(case.boundary_conditions):
             side = {"x-": "left", "x+": "right", "y-": "bottom", "y+": "top"}.get(bc.get("side"), "left")
-            conditions[bc.get("name", f"bc{i}")] = SimpleNamespace(type=bc.get("type", "dirichlet"), side=side,
-                                                                   value=list(bc.get("value", [0.0, 0.0])))
-        parameters = {"E": float(case.material.get("E", 1e6)), "nu": float(case.material.get("nu", 0.3))}
-        for load in case.loads:
-            if load.get("type") == "uniform_load":     # a load per length over the depth of the beam
-                depth = bounds[3] - bounds[1]
-                direction = load.get("direction", [0.0, -1.0])
-                parameters["f"] = [float(direction[0]) * float(load["value"]) / depth,
-                                   float(direction[1]) * float(load["value"]) / depth]
+            value = bc.get("value", 0.0)
+            if isinstance(value, (list, tuple)):
+                value = float(value[0]) if scalar else list(value)
             else:
-                raise CaseUnsupported(f"the FEniCS bridge carries a body force, not a {load.get('type')!r} load")
-        parameters.update({k: v for k, v in case.parameters.items() if k in ("k", "mu")})
+                value = float(value) if scalar else [float(value), 0.0]
+            conditions[bc.get("name", f"bc{i}")] = SimpleNamespace(type=bc.get("type", "dirichlet"), side=side,
+                                                                   value=value)
+        if scalar:
+            parameters = {"k": float(case.material.get("k", case.parameters.get("k", 1.0))),
+                          "f": float(case.parameters.get("source", 0.0))}
+        else:
+            parameters = {"E": float(case.material.get("E", 1e6)), "nu": float(case.material.get("nu", 0.3))}
+            for load in case.loads:
+                if load.get("type") == "uniform_load":     # a load per length over the depth of the beam
+                    depth = bounds[3] - bounds[1]
+                    direction = load.get("direction", [0.0, -1.0])
+                    parameters["f"] = [float(direction[0]) * float(load["value"]) / depth,
+                                       float(direction[1]) * float(load["value"]) / depth]
+                else:
+                    raise CaseUnsupported(f"the FEniCS bridge carries a body force, not a {load.get('type')!r} load")
+            parameters.update({k: v for k, v in case.parameters.items() if k in ("mu",)})
         self._spec = SimpleNamespace(kind=kind, domain_bounds=bounds, conditions=conditions, parameters=parameters)
-        self._mesh_size = (m.get("nx", 32), m.get("ny", 32))
+        self._mesh_size = (int(m.get("nx", 32)), int(m.get("ny", 32)))
+        self._scalar = scalar
         self.case = case
         return self.workdir
 
@@ -585,6 +627,8 @@ class FEniCSxBackend(ExternalSolver):
                                   version=self._known_version())
             return RunHandle.new(self.name, self.workdir, log_path=self.log_path, status=status)
         self._fields = fields
+        coordinates = output.extras.get("dof_coordinates")
+        self._coords = np.asarray(coordinates) if coordinates is not None else np.empty((0, 0))
         self.log_path.write_text(f"solved: {output.extras.get('dofs')} dofs, kind {self._spec.kind}\n"
                                  + ("" if finite else "non-finite values in the solution\n"))
         status = classify_run(backend=self.name, log=self.log_path.read_text(), returncode=0,
@@ -601,15 +645,24 @@ class FEniCSxBackend(ExternalSolver):
         import numpy as np
 
         fields = {k: np.asarray(v, dtype=float) for k, v in self._fields.items() if not k.startswith("_")}
-        scalars: dict[str, float | int] = {"dofs": int(fields.get("u", np.empty(0)).size)}
+        if self._scalar and "u" in fields:                    # the bridge names the scalar solution "u": a
+            fields = {"T": fields.pop("u"), **fields}         # temperature reads as T in the neutral schema
+        primary = fields.get("T", fields.get("u", np.empty(0)))
+        scalars: dict[str, float | int] = {"dofs": int(np.asarray(primary).size)}
         for name in ("uy", "uz"):
             if name in fields:
                 scalars["max_deflection"] = float(np.abs(fields[name]).max())
                 break
+        coords: dict[str, Any] = {}
+        xy = np.asarray(self._coords)
+        if xy.ndim == 2 and xy.size and xy.shape[0] == len(np.asarray(primary)):
+            coords = {n: xy[:, i] for i, n in enumerate(("x", "y", "z")[: xy.shape[1]])}
+        units = {"T": "K"} if self._scalar else {"u": "m", "max_deflection": "m"}
         return SolverResults(backend=self.name, version=self.version(), fields=fields, scalars=scalars,
-                             units={"u": "m", "max_deflection": "m"},
-                             provenance={"physics_domain": "structural", "pde": self._spec.kind,
-                                         "dofs_not_coordinates": True, "status": "converged"})
+                             coords=coords, units=units,
+                             provenance={"physics_domain": "thermal" if self._scalar else "structural",
+                                         "pde": self._spec.kind, "physics": self.case.physics
+                                         if self.case else None, "status": "converged"})
 
 
 # ---------------------------------------------------------------------------------------------- ANSYS Fluent

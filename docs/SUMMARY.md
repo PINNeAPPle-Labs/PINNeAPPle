@@ -131,6 +131,7 @@
     * [Simulation Workflow Runner: campaigns as traceable, resumable workflows](guides/workflow_runner.md)
     * [Simulation Campaign Planner: which simulations need to run](guides/campaign_planner.md)
     * [Numerical limits of the OpenFOAM connector](guides/openfoam_numerical_limits.md)
+    * [External solvers: one interface, six backends, and what is out of scope](guides/external_solver_contract.md)
     * [Choose a model by the scale of the question](guides/scale_aware_ensembles.md)
     * [Identifiability, calibration and inverse problems](guides/identifiability_calibration_inversion.md)
     * [Dynamics toolkit: the shared foundation](guides/dynamics_toolkit.md)

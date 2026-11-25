@@ -105,12 +105,18 @@ except Exception:
 try:
     from .fenics import (
         FEniCSConfig,
+        FEniCSUnavailable,
         FEniCSWorkflow,
         dof_to_upd,
         solve_and_package,
     )
+    from .fenics import (
+        problem_spec as fenics_problem_spec,
+    )
 except Exception:
     FEniCSConfig = None       # type: ignore
+    FEniCSUnavailable = None  # type: ignore
+    fenics_problem_spec = None  # type: ignore
     solve_and_package = None  # type: ignore
     dof_to_upd = None         # type: ignore
     FEniCSWorkflow = None     # type: ignore
@@ -224,6 +230,7 @@ from .contract import (
     SolverUnavailable,
     check_all,
     classify_run,
+    conduction_profile,
     get_solver,
     register_solver,
     solver_names,
@@ -246,7 +253,8 @@ from .pict import (
 
 __all__ = [
     # The solver contract and its backends
-    "SolverCase", "SolverState", "SolverStatus", "SolverResults", "RunHandle", "EnvironmentReport", "Requirement",
+    "SolverCase", "conduction_profile", "SolverState", "SolverStatus", "SolverResults", "RunHandle",
+    "EnvironmentReport", "Requirement",
     "ExternalSolver", "SolverError", "SolverUnavailable", "CaseUnsupported", "RunUnusable", "classify_run",
     "SOLVERS", "register_solver", "solver_names", "get_solver", "check_all",
     "OpenFOAMBackend", "CalculiXBackend", "FEniCSxBackend", "AnsysFluentBackend", "MatlabBackend", "SolidFEMBackend",
@@ -284,6 +292,8 @@ __all__ = [
     "modelica_result_to_upd",
     # FEniCS
     "FEniCSConfig",
+    "FEniCSUnavailable",
+    "fenics_problem_spec",
     "solve_and_package",
     "dof_to_upd",
     "FEniCSWorkflow",

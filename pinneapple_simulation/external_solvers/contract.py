@@ -36,6 +36,15 @@ cannot disagree about whether a solver is installed::
 
 A new backend subclasses :class:`ExternalSolver`, supplies ``_requirements``, ``prepare``, ``_start``, ``_results`` and
 declares its log markers, then registers itself with :func:`register_solver`.
+
+What is *not* here, deliberately: **COMSOL**. This interface does not pretend to cover it. There is no COMSOL
+implementation in this repository and there cannot be an honest one here -- its Python coupling (``mph``/LiveLink)
+needs the commercial client installed and licensed, and its model files are binary and proprietary, so nothing about it
+could be exercised or verified by this repository's tests. A backend nobody can run is worse than no backend: it moves
+the failure from :meth:`ExternalSolver.check_environment` to the middle of a run, which is the problem this contract
+exists to fix. COMSOL is therefore out of scope until a licensed client can be exercised (see
+``docs/guides/external_solver_contract.md``), and adding it later is one class plus :func:`register_solver` --
+``get_solver("comsol")`` says so today with a ``KeyError`` that names the backends which do exist.
 """
 from __future__ import annotations
 
@@ -54,7 +63,7 @@ from typing import Any
 
 __all__ = [
     # the neutral description
-    "SolverCase",
+    "SolverCase", "conduction_profile",
     "LINEAR_ELASTICITY", "INCOMPRESSIBLE_FLOW", "HEAT_TRANSFER", "OPAQUE",
     # what the environment says
     "Requirement", "EnvironmentReport", "EXECUTABLE", "VERSION", "LICENCE", "ENVIRONMENT", "MODULE",
@@ -130,6 +139,23 @@ class SolverCase:
                    outputs=("U",))
 
     @classmethod
+    def conduction(cls, *, L: float = 1.0, H: float = 1.0, k: float = 1.0, source: float = 0.0,
+                   T_left: float = 0.0, T_right: float = 1.0, nx: int = 16, ny: int = 16) -> SolverCase:
+        """Steady conduction through a rectangle: ``-div(k grad T) = source`` with the vertical sides held at
+        ``T_left`` and ``T_right``.
+
+        The one-dimensional answer is a polynomial, so a backend's field can be measured against a closed form with
+        :func:`conduction_profile` rather than against another solver -- with ``source = 0`` a linear finite-element
+        space reproduces it exactly, and with a source the error is the discretisation's own, which is what a mesh
+        study should show falling.
+        """
+        return cls(physics=HEAT_TRANSFER, dimension=2, geometry={"L": L, "H": H}, material={"k": k},
+                   mesh={"nx": nx, "ny": ny},
+                   boundary_conditions=[{"type": "dirichlet", "side": "x-", "value": T_left},
+                                        {"type": "dirichlet", "side": "x+", "value": T_right}],
+                   parameters={"source": source}, outputs=("T",))
+
+    @classmethod
     def case_directory(cls, path: str | Path, *, physics: str = OPAQUE, **parameters: Any) -> SolverCase:
         """A case that already exists on disk (a case directory, a deck, a script): the backend stages it its own way."""
         return cls(physics=physics, source=str(path), parameters=dict(parameters))
@@ -139,6 +165,26 @@ class SolverCase:
                 "material": self.material, "mesh": self.mesh, "boundary_conditions": self.boundary_conditions,
                 "loads": self.loads, "parameters": self.parameters, "outputs": list(self.outputs),
                 "source": self.source}
+
+
+def conduction_profile(case: SolverCase, x: Any) -> Any:
+    """The closed-form temperature of a :meth:`SolverCase.conduction` case at ``x``.
+
+    ``T(x) = T0 + (T1 - T0) x / L + source x (L - x) / (2 k)``: the solution of ``-k T'' = source`` with ``T(0) = T0``
+    and ``T(L) = T1``, which is what a backend's field is measured against. Raises :class:`CaseUnsupported` when the
+    case is not a conduction case, so a call that cannot have a closed form says so instead of returning numbers.
+    """
+    if case.physics != HEAT_TRANSFER or "L" not in case.geometry:
+        raise CaseUnsupported(f"a closed-form profile is defined for a conduction case, not {case.physics!r}")
+    import numpy as np
+
+    length = float(case.geometry["L"])
+    left = float(next((bc.get("value", 0.0) for bc in case.boundary_conditions if bc.get("side") == "x-"), 0.0))
+    right = float(next((bc.get("value", 1.0) for bc in case.boundary_conditions if bc.get("side") == "x+"), 1.0))
+    k = float(case.material.get("k", 1.0))
+    source = float(case.parameters.get("source", 0.0))
+    x = np.asarray(x, dtype=float)
+    return left + (right - left) * x / length + source * x * (length - x) / (2.0 * k)
 
 
 # ---------------------------------------------------------------------------------------------- what the environment says

@@ -308,8 +308,9 @@ def study(reynolds: float, root: str, *, meshes: Sequence[int] = MESHES, timeout
             info = {"ok": True, "failed": None, "seconds": float("nan"), "solver": foam.solver_log(_log_text(case))}
             cells = _cells(case)
         else:
-            info = run(case, reynolds, n, timeout=timeout)
-            cells = write_case(case, reynolds, n)["cells"] if not _solved(case) else _cells(case)
+            cells = write_case(case, reynolds, n)["cells"]      # the dictionaries first: ``run`` only runs them, so a
+            info = run(case, reynolds, n, timeout=timeout)      # fresh directory used to record a failed run and to
+            #                                                     succeed only on the second call
         rec = CavityRun(reynolds=float(reynolds), n=int(n), cells=int(cells),
                         iterations=int(info["solver"]["iterations"]), converged=bool(info["solver"]["converged"]),
                         seconds=float(info["seconds"]), residuals=dict(info["solver"]["residuals"]), case=case)

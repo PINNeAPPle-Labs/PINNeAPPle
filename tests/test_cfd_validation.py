@@ -240,6 +240,17 @@ def test_refining_the_mesh_reduces_the_error_against_the_table(tmp_path):
 
 
 @needs_foam
+def test_a_fresh_directory_is_solved_on_the_first_call(tmp_path):
+    """``study`` writes the case before it runs it. It did not: the first call on an empty directory recorded a failed
+    run (``blockMesh`` in a directory with no dictionaries) and a second call produced the solution, which reads as the
+    solver's failure in a JSON that is only a day old."""
+    got = cavity.study(100, str(tmp_path / "fresh"), meshes=(32,))
+    rec = got["runs"][0]
+    assert rec["iterations"] > 0 and rec["converged"], rec.get("note")
+    assert got["errors"][32]["u"]["l2_relative"] < 0.02, got["errors"][32]
+
+
+@needs_foam
 def test_the_step_reattaches_behind_the_step(tmp_path):
     """``x1/S`` is what the case exists to produce: a separated bubble that closes again well inside the outlet."""
     case = str(tmp_path / "step")

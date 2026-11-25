@@ -47,6 +47,7 @@
   * [Add something to PINNeAPPle: six extension points](dev/adding_to_pinneapple.md)
   * [Test shards: what blocks a pull request, and why the rest does not](dev/test_shards.md)
   * [Add a preset, end to end](dev/adding_a_preset.md)
+  * [Measured cost per catalog method: time, memory, FLOPs, scaling exponent and the machine](dev/METHOD_COSTS.md)
   * [D1 — the three problem specifications, reconciled](strategy/D1_problem_specs.md)
   * [Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry](dev/PHYSICS_AI_INTEROP.md)
   * [The physics-AI workflow, stage by stage: open tools and public datasets](dev/PHYSICS_AI_STAGE_MAP.md)

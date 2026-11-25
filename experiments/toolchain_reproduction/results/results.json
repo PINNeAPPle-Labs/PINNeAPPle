@@ -1,0 +1,556 @@
+{
+ "toolchain": {
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "packages": {
+   "numpy": "2.4.6",
+   "scipy": "1.17.1",
+   "matplotlib": "3.11.2",
+   "torch": "2.15.0",
+   "pyvista": "0.49.2"
+  },
+  "licences_paid": 0,
+  "external_solvers_installed_but_not_used": [
+   "ccx (CalculiX)",
+   "openfoam"
+  ]
+ },
+ "clock_s": {
+  "toolchain audit": 0.26766079204389825,
+  "lid-driven cavity": 352.6701820839662,
+  "water hammer": 0.057686083018779755,
+  "cantilever": 74.90843770798529,
+  "plate with a hole": 27.31628566602012,
+  "post-processing": 79.39567929098848
+ },
+ "total_s": 539.4256001670146,
+ "rows": [
+  {
+   "case": "cavity Re=100",
+   "quantity": "rms of u(x=0.5) vs Ghia",
+   "value": 0.0013823290144452077,
+   "textbook": null,
+   "error": null,
+   "relative_error": null,
+   "tolerance": 0.05,
+   "kind": "absolute",
+   "unit": "U",
+   "passed": true,
+   "seconds": 29.258343833032995
+  },
+  {
+   "case": "cavity Re=100",
+   "quantity": "rms of v(y=0.5) vs Ghia",
+   "value": 0.0028387343921316725,
+   "textbook": null,
+   "error": null,
+   "relative_error": null,
+   "tolerance": 0.05,
+   "kind": "absolute",
+   "unit": "U",
+   "passed": true,
+   "seconds": 29.258343833032995
+  },
+  {
+   "case": "cavity Re=100",
+   "quantity": "discrete du/dx + dv/dy",
+   "value": 3.552713678800501e-15,
+   "textbook": 0.0,
+   "error": 3.552713678800501e-15,
+   "relative_error": null,
+   "tolerance": 1e-12,
+   "kind": "absolute",
+   "unit": "U/L",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "cavity Re=1000",
+   "quantity": "rms of u(x=0.5) vs Ghia",
+   "value": 0.012128440816589923,
+   "textbook": null,
+   "error": null,
+   "relative_error": null,
+   "tolerance": 0.05,
+   "kind": "absolute",
+   "unit": "U",
+   "passed": true,
+   "seconds": 301.56681483401917
+  },
+  {
+   "case": "cavity Re=1000",
+   "quantity": "rms of v(y=0.5) vs Ghia",
+   "value": 0.009659034034979346,
+   "textbook": null,
+   "error": null,
+   "relative_error": null,
+   "tolerance": 0.05,
+   "kind": "absolute",
+   "unit": "U",
+   "passed": true,
+   "seconds": 301.56681483401917
+  },
+  {
+   "case": "cavity Re=1000",
+   "quantity": "discrete du/dx + dv/dy",
+   "value": 7.105427357601002e-15,
+   "textbook": 0.0,
+   "error": 7.105427357601002e-15,
+   "relative_error": null,
+   "tolerance": 1e-12,
+   "kind": "absolute",
+   "unit": "U/L",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "water hammer",
+   "quantity": "surge after an instantaneous closure",
+   "value": 108.19525056425681,
+   "textbook": 108.19525056425678,
+   "error": 2.842170943040401e-14,
+   "relative_error": 2.62689067054052e-16,
+   "tolerance": 1e-06,
+   "kind": "relative",
+   "unit": "m",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "water hammer",
+   "quantity": "peak head, Darcy friction (f = 0.02)",
+   "value": 228.09950411690107,
+   "textbook": 228.19525056425678,
+   "error": -0.09574644735570814,
+   "relative_error": -0.00041958124509145823,
+   "tolerance": 0.01,
+   "kind": "relative",
+   "unit": "m",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "water hammer",
+   "quantity": "surge after a slow closure (inside the classical bracket)",
+   "value": 6.404171821165548,
+   "textbook": 9.016270880354734,
+   "error": -2.6120990591891857,
+   "relative_error": -0.28970947011814,
+   "tolerance": 0.5,
+   "kind": "relative",
+   "unit": "m",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "cantilever",
+   "quantity": "tip deflection, uniform load (Hermite FE)",
+   "value": 0.01785714285701255,
+   "textbook": 0.017857142857142853,
+   "error": -1.303020191745219e-13,
+   "relative_error": -7.296913073773227e-12,
+   "tolerance": 1e-09,
+   "kind": "relative",
+   "unit": "m",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "cantilever",
+   "quantity": "first natural frequency",
+   "value": 16.71033193947129,
+   "textbook": 16.71033188888161,
+   "error": 5.058968000071218e-08,
+   "relative_error": 3.0274491456613463e-09,
+   "tolerance": 1e-06,
+   "kind": "relative",
+   "unit": "Hz",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "cantilever 3-D",
+   "quantity": "tip deflection, hexahedra 20x2x2",
+   "value": 0.04705866401763375,
+   "textbook": 0.0476190476190476,
+   "error": -0.0005603836014138538,
+   "relative_error": -0.011768055629690934,
+   "tolerance": 0.02,
+   "kind": "relative",
+   "unit": "m",
+   "passed": true,
+   "seconds": 2.9348182909889147
+  },
+  {
+   "case": "cantilever 3-D",
+   "quantity": "tip deflection, hexahedra 40x4x4",
+   "value": 0.04727986791971347,
+   "textbook": 0.0476190476190476,
+   "error": -0.0003391796993341342,
+   "relative_error": -0.007122773686016821,
+   "tolerance": 0.02,
+   "kind": "relative",
+   "unit": "m",
+   "passed": true,
+   "seconds": 19.004182291973848
+  },
+  {
+   "case": "cantilever 3-D",
+   "quantity": "tip deflection, hexahedra 60x6x6",
+   "value": 0.04735461995826814,
+   "textbook": 0.0476190476190476,
+   "error": -0.0002644276607794635,
+   "relative_error": -0.005552980876368735,
+   "tolerance": 0.02,
+   "kind": "relative",
+   "unit": "m",
+   "passed": true,
+   "seconds": 52.80197150004096
+  },
+  {
+   "case": "cantilever 3-D",
+   "quantity": "bending stress at mid-span, finest 3-D mesh",
+   "value": 149999999.74156147,
+   "textbook": 149999999.99999997,
+   "error": -0.25843849778175354,
+   "relative_error": -1.722923318545024e-09,
+   "tolerance": 0.005,
+   "kind": "relative",
+   "unit": "Pa",
+   "passed": true,
+   "seconds": null
+  },
+  {
+   "case": "plate with a hole",
+   "quantity": "force balance (reaction / applied)",
+   "value": 1.0000000000000957,
+   "textbook": 1.0,
+   "error": 9.57012247226885e-14,
+   "relative_error": 9.57012247226885e-14,
+   "tolerance": 1e-06,
+   "kind": "relative",
+   "unit": "",
+   "passed": true,
+   "seconds": 10.846835042000748
+  },
+  {
+   "case": "plate with a hole",
+   "quantity": "Kt_net, 1156 nodes",
+   "value": 2.255227907047308,
+   "textbook": 2.2962962962962963,
+   "error": -0.04106838924898826,
+   "relative_error": -0.0178846211245594,
+   "tolerance": 0.15,
+   "kind": "relative",
+   "unit": "",
+   "passed": true,
+   "seconds": 1.16784870903939
+  },
+  {
+   "case": "plate with a hole",
+   "quantity": "Kt_net, 4356 nodes",
+   "value": 2.302262305279355,
+   "textbook": 2.2962962962962963,
+   "error": 0.005966008983058657,
+   "relative_error": 0.0025981006861707056,
+   "tolerance": 0.15,
+   "kind": "relative",
+   "unit": "",
+   "passed": true,
+   "seconds": 2.12549270800082
+  },
+  {
+   "case": "plate with a hole",
+   "quantity": "Kt_net, 16900 nodes",
+   "value": 2.315044144227272,
+   "textbook": 2.2962962962962963,
+   "error": 0.018747847930975503,
+   "relative_error": 0.008164385389295783,
+   "tolerance": 0.15,
+   "kind": "relative",
+   "unit": "",
+   "passed": true,
+   "seconds": 10.846835042000748
+  },
+  {
+   "case": "plate with a hole",
+   "quantity": "Kt_net, Richardson",
+   "value": 2.3198138726885893,
+   "textbook": 2.2962962962962963,
+   "error": 0.023517576392293016,
+   "relative_error": 0.010241525203095346,
+   "tolerance": 0.03,
+   "kind": "relative",
+   "unit": "",
+   "passed": true,
+   "seconds": null
+  }
+ ],
+ "cavity": {
+  "100": {
+   "cells": 64,
+   "checks": {
+    "continuity": {
+     "value": 3.552713678800501e-15,
+     "tol": 0.01,
+     "passed": true
+    },
+    "lid": {
+     "value": 0.9692307692307692,
+     "expected": 1.0,
+     "tol": 0.1,
+     "passed": true
+    },
+    "walls": {
+     "value": 0.0,
+     "tol": 0.05,
+     "passed": true
+    },
+    "ghia_u": {
+     "reynolds": 100,
+     "component": "u",
+     "rms": 0.0013823290144452077,
+     "max": 0.00277683188722036,
+     "tol": 0.05,
+     "passed": true,
+     "reference": "Ghia et al. (1982)"
+    },
+    "ghia_v": {
+     "reynolds": 100,
+     "component": "v",
+     "rms": 0.0028387343921316725,
+     "max": 0.005902767433647177,
+     "tol": 0.05,
+     "passed": true,
+     "reference": "Ghia et al. (1982)"
+    },
+    "passed": true
+   },
+   "wall_time_s": 29.258343833032995,
+   "steps": 4052,
+   "final_residual": 9.797582727818129e-06,
+   "converged": true
+  },
+  "1000": {
+   "cells": 128,
+   "checks": {
+    "continuity": {
+     "value": 7.105427357601002e-15,
+     "tol": 0.01,
+     "passed": true
+    },
+    "lid": {
+     "value": 0.9844961240310077,
+     "expected": 1.0,
+     "tol": 0.1,
+     "passed": true
+    },
+    "walls": {
+     "value": 0.0,
+     "tol": 0.05,
+     "passed": true
+    },
+    "ghia_u": {
+     "reynolds": 1000,
+     "component": "u",
+     "rms": 0.012128440816589923,
+     "max": 0.02099743500666096,
+     "tol": 0.05,
+     "passed": true,
+     "reference": "Ghia et al. (1982)"
+    },
+    "ghia_v": {
+     "reynolds": 1000,
+     "component": "v",
+     "rms": 0.009659034034979346,
+     "max": 0.01590896790910884,
+     "tol": 0.05,
+     "passed": true,
+     "reference": "Ghia et al. (1982)"
+    },
+    "passed": true
+   },
+   "wall_time_s": 301.56681483401917,
+   "steps": 9000,
+   "final_residual": 0.04164940627074127,
+   "converged": false
+  }
+ },
+ "water_hammer": {
+  "joukowsky_m": 108.19525056425678,
+  "michaud_m": 9.016270880354734,
+  "surge_instant_m": 108.19525056425681,
+  "surge_slow_m": 6.404171821165548,
+  "rigid_column_m": 4.508135440177367,
+  "t_close_s": 28.799999999999997,
+  "peak_head_damped_m": 228.09950411690107,
+  "peak_head_damped_expected_m": 228.19525056425678,
+  "period_s": 2.4,
+  "v0_m_s": 1.0610329539459689
+ },
+ "cantilever": {
+  "I_m4": 3.333333333333334e-08,
+  "w_udl_fem_m": 0.01785714285701255,
+  "w_udl_exact_m": 0.017857142857142853,
+  "w_tip_point_m": 0.0476190476190476,
+  "sigma_midspan_Pa": 149999999.99999997,
+  "f1_fem_hz": 16.71033193947129,
+  "f1_exact_hz": 16.71033188888161,
+  "x": [
+   0.0,
+   0.025,
+   0.05,
+   0.07500000000000001,
+   0.1,
+   0.125,
+   0.15000000000000002,
+   0.17500000000000002,
+   0.2,
+   0.225,
+   0.25,
+   0.275,
+   0.30000000000000004,
+   0.325,
+   0.35000000000000003,
+   0.375,
+   0.4,
+   0.42500000000000004,
+   0.45,
+   0.47500000000000003,
+   0.5,
+   0.525,
+   0.55,
+   0.5750000000000001,
+   0.6000000000000001,
+   0.625,
+   0.65,
+   0.675,
+   0.7000000000000001,
+   0.7250000000000001,
+   0.75,
+   0.775,
+   0.8,
+   0.8250000000000001,
+   0.8500000000000001,
+   0.875,
+   0.9,
+   0.925,
+   0.9500000000000001,
+   0.9750000000000001,
+   1.0
+  ],
+  "w": [
+   0.0,
+   2.1951729910792378e-05,
+   8.634672619082923e-05,
+   0.00019103655134016708,
+   0.0003339285714302829,
+   0.0005129859561040821,
+   0.0007262276785753287,
+   0.0009717285156292145,
+   0.0012476190476229307,
+   0.0015520856584850984,
+   0.0018833705357157652,
+   0.0022397716703864094,
+   0.0026196428571399347,
+   0.003021393694190678,
+   0.0034434895833244153,
+   0.0038844517298983285,
+   0.0043428571428409946,
+   0.004817338634652447,
+   0.005306584821404182,
+   0.005809340122739113,
+   0.00632440476187161,
+   0.006850634765587363,
+   0.007386941964243521,
+   0.007932293991768707,
+   0.008485714285662945,
+   0.009046282086997618,
+   0.009613132440415409,
+   0.010185456194130728,
+   0.010762499999929455,
+   0.011343566313168716,
+   0.01192801339277705,
+   0.012515255301254552,
+   0.013104761904672458,
+   0.013696058872673457,
+   0.014288727678472,
+   0.014882405598853819,
+   0.01547678571417607,
+   0.016071616908367344,
+   0.01666670386892765,
+   0.01726190708692843,
+   0.01785714285701255
+  ],
+  "w3d": {
+   "20x2x2": {
+    "nodes": 189,
+    "elements": 80,
+    "tip_deflection_m": 0.04705866401763375,
+    "bending_stress_midspan_Pa": 150000034.11049315,
+    "wall_time_s": 2.9348182909889147
+   },
+   "40x4x4": {
+    "nodes": 1025,
+    "elements": 640,
+    "tip_deflection_m": 0.04727986791971347,
+    "bending_stress_midspan_Pa": 149999977.0561682,
+    "wall_time_s": 19.004182291973848
+   },
+   "60x6x6": {
+    "nodes": 2989,
+    "elements": 2160,
+    "tip_deflection_m": 0.04735461995826814,
+    "bending_stress_midspan_Pa": 149999999.74156147,
+    "wall_time_s": 52.80197150004096
+   }
+  }
+ },
+ "plate": {
+  "rows": [
+   {
+    "n_theta": 64,
+    "points_around_hole": 68,
+    "nodes": 1156,
+    "elements": 2176,
+    "kt_net": 2.255227907047308,
+    "force_balance": 0.9999999999999535,
+    "sigma_xx_peak_Pa": 33828418.60570963,
+    "wall_time_s": 1.16784870903939
+   },
+   {
+    "n_theta": 128,
+    "points_around_hole": 132,
+    "nodes": 4356,
+    "elements": 8448,
+    "kt_net": 2.302262305279355,
+    "force_balance": 1.0000000000002907,
+    "sigma_xx_peak_Pa": 34533934.57919033,
+    "wall_time_s": 2.12549270800082
+   },
+   {
+    "n_theta": 256,
+    "points_around_hole": 260,
+    "nodes": 16900,
+    "elements": 33280,
+    "kt_net": 2.315044144227272,
+    "force_balance": 1.0000000000000957,
+    "sigma_xx_peak_Pa": 34725662.163409084,
+    "wall_time_s": 10.846835042000748
+   }
+  ],
+  "kt_net_heywood": 2.2962962962962963,
+  "kt_kirsch": 3.0,
+  "kt_net_richardson": 2.3198138726885893,
+  "observed_order": 1.8796208317654983,
+  "d_over_W": 0.33333333333333337
+ },
+ "passed": true,
+ "figures": [
+  "/Users/yanbarros/Documents/GitHub/pinneapple-labs/PINNeAPPle/experiments/toolchain_reproduction/results/cavity_vs_ghia.png",
+  "/Users/yanbarros/Documents/GitHub/pinneapple-labs/PINNeAPPle/experiments/toolchain_reproduction/results/water_hammer.png",
+  "/Users/yanbarros/Documents/GitHub/pinneapple-labs/PINNeAPPle/experiments/toolchain_reproduction/results/cantilever.png",
+  "/Users/yanbarros/Documents/GitHub/pinneapple-labs/PINNeAPPle/experiments/toolchain_reproduction/results/plate_hole.png",
+  "/Users/yanbarros/Documents/GitHub/pinneapple-labs/PINNeAPPle/experiments/toolchain_reproduction/results/cantilever_3d.png"
+ ]
+}

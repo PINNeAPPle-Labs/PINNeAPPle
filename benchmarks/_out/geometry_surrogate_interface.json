@@ -1,0 +1,136 @@
+{
+ "schema": "pinneapple.geometry_surrogate_interface/1",
+ "protocol": {
+  "train_shapes": 36,
+  "held_shapes": 8,
+  "alphas_deg": [
+   0.0,
+   4.0,
+   8.0
+  ],
+  "n_per_side": 60,
+  "epochs": 60,
+  "batch": 8,
+  "lr": 0.002,
+  "hidden": 96,
+  "depth": 4,
+  "slices": 16,
+  "seeds": [
+   0,
+   1
+  ],
+  "families": [
+   "transolver",
+   "pointnet"
+  ]
+ },
+ "data": {
+  "train_samples": 108,
+  "held_samples": 24,
+  "points_per_body": 120,
+  "solver": "pinneapple_design.aero.panel.panel_solve (Hess-Smith), Cp on the panel mid-points",
+  "label_seconds": 1.512907250002172,
+  "integrator_matches_solver": 0.11798105457176636
+ },
+ "families": {
+  "transolver": {
+   "name": "transolver",
+   "implemented": true,
+   "source": "Wu et al., 'Transolver: A Fast Transformer Solver for PDEs on General Geometries', ICML 2024 (arXiv:2402.02366)",
+   "note": "physics-attention: every point is softly assigned to learned slices, attention runs on the slices, the result is scattered back. Cost O(N M + M^2), so it scales to the tens of thousands of surface points of a car. The library's implementation is pinneapple_neural.architectures.neural_operators.transolver and is wrapped, not reimplemented."
+  },
+  "pointnet": {
+   "name": "pointnet",
+   "implemented": true,
+   "source": "Qi et al., 'PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation', CVPR 2017 (arXiv:1612.00593)",
+   "note": "shared per-point MLP, a global max pool, and the pooled code concatenated back to every point. The cheap baseline: no geometric message passing, so it is the row that shows what the attention buys."
+  },
+  "gino": {
+   "name": "gino",
+   "implemented": false,
+   "source": "Li et al., 'Geometry-Informed Neural Operator for Large-Scale 3D PDEs' (GINO), NeurIPS 2023 (arXiv:2309.00583)",
+   "note": "OPEN. A graph encoder, a Fourier neural operator on a latent regular grid and a graph decoder. It needs a regridding step (the FNO part sees a grid, the geometry arrives as a graph) and the reference implementation pulls in torch-scatter and torch-geometric, which the library does not depend on. The interface here already carries what it needs \u2014 arbitrary points, per-point normals, a variable count \u2014 so a GINO backend implements the same three methods and nothing else changes."
+  },
+  "meshgraphnet": {
+   "name": "meshgraphnet",
+   "implemented": false,
+   "source": "Pfaff et al., 'Learning Mesh-Based Simulation with Graph Networks', ICLR 2021 (arXiv:2010.03409)",
+   "note": "ALREADY IN THE LIBRARY, not wrapped here: pinneapple_neural.architectures.graphnn.MeshGraphNet (with #236's world-space edges) is the baseline the aero app runs. It is a fixed-topology model \u2014 it learns on the edges of one mesh \u2014 so putting it behind this interface would mean either re-triangulating every shape to a common connectivity (which is a different promise: 'geometry-agnostic' would become 'one topology') or rebuilding the graph per shape. Both are reasonable; neither is done, and wrapping it badly would make the comparison dishonest. It stays the reference row of the benchmark, trained on the shared mesh."
+  }
+ },
+ "models": {
+  "transolver": {
+   "seeds": [
+    {
+     "seed": 0,
+     "parameters": 294241,
+     "fit_seconds": 160.55632783400142,
+     "loss_first": 0.4796118372016483,
+     "loss_last": 0.01217393642636361,
+     "relative_l2_mean": 0.1443055034504197,
+     "relative_l2_worst": 0.3449595388072459,
+     "cl_error_mean": 0.03748980848824177,
+     "cl_error_worst": 0.09882058164175,
+     "rank_r2": 0.1531190926275992,
+     "peak_rss_mb": 376.96875,
+     "predict_seconds": 0.007631917000253452
+    },
+    {
+     "seed": 1,
+     "parameters": 294241,
+     "fit_seconds": 153.28768299999865,
+     "loss_first": 0.8503969179259406,
+     "loss_last": 0.01756483312972166,
+     "relative_l2_mean": 0.16448172488655852,
+     "relative_l2_worst": 0.35947172614426914,
+     "cl_error_mean": 0.041628076877211165,
+     "cl_error_worst": 0.15831078334404908,
+     "rank_r2": 0.07598412098298676,
+     "peak_rss_mb": 376.96875,
+     "predict_seconds": 0.0051008750015171245
+    }
+   ],
+   "relative_l2_mean": 0.15439361416848912,
+   "cl_error_mean": 0.03955894268272647,
+   "fit_seconds_mean": 156.92200541700004,
+   "parameters": 294241
+  },
+  "pointnet": {
+   "seeds": [
+    {
+     "seed": 0,
+     "parameters": 121825,
+     "fit_seconds": 42.53831258399805,
+     "loss_first": 0.8516866321916934,
+     "loss_last": 0.08196297812241095,
+     "relative_l2_mean": 0.24299932256518209,
+     "relative_l2_worst": 0.5513181216671452,
+     "cl_error_mean": 0.08134201875870782,
+     "cl_error_worst": 0.30403613156473885,
+     "rank_r2": 0.5527599243856332,
+     "peak_rss_mb": 376.96875,
+     "predict_seconds": 0.0009240830004273448
+    },
+    {
+     "seed": 1,
+     "parameters": 121825,
+     "fit_seconds": 46.52681291599947,
+     "loss_first": 0.8639690147505866,
+     "loss_last": 0.07168511149507982,
+     "relative_l2_mean": 0.23911649577575145,
+     "relative_l2_worst": 0.5373954646597708,
+     "cl_error_mean": 0.0758662816146435,
+     "cl_error_worst": 0.14893176144596887,
+     "rank_r2": 0.6511788279773157,
+     "peak_rss_mb": 376.96875,
+     "predict_seconds": 0.001126541003031889
+    }
+   ],
+   "relative_l2_mean": 0.24105790917046677,
+   "cl_error_mean": 0.07860415018667566,
+   "fit_seconds_mean": 44.53256274999876,
+   "parameters": 121825
+  }
+ },
+ "mode": "protocol"
+}

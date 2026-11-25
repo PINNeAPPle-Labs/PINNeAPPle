@@ -214,7 +214,7 @@ number a reader deciding whether to use a PINN for this problem actually needs.
 **Is it the budget?** 16 % at `Re = 100` with 10 000 Adam steps invites the reading that the network simply needed more
 steps, so the obvious next measurement is the budget itself, swept at the cheapest column of the table:
 
-    python examples/cfd/classical_cases/run_cases.py --only pinn-budget --budgets 10000 20000 40000
+    python examples/cfd/classical_cases/run_cases.py --only pinn-budget --budgets 10000 20000 40000 80000
 
 Same seed, same widths, same penalty weights, and a cosine decay set over each run's *own* budget — a short run stopped
 under a long schedule would be a different experiment reported as this one. Each run writes its row into
@@ -225,38 +225,44 @@ under a long schedule would be a different experiment reported as this one. Each
 | 10 000 | 100 | 17.11 % | 58.35 % | no | 1 552 s |
 | 20 000 | 100 | 19.13 % | 54.68 % | no | 2 926 s |
 | 40 000 | 100 | 20.74 % | 59.89 % | no | 5 489 s |
+| 80 000 | 100 | 18.67 % | 52.33 % | no | 15 767 s |
 
-**Four times the budget does not buy a better answer, and this is the finding.** Across 10 000 to 40 000 steps the `u`
-error moves between 17 % and 21 % — a spread smaller than the 1 % disagreement between two runs of the *same* budget on
-a different thread count (this machine's 10 000-step run gives 17.11 % where the committed one gives 16.31 %, float32
-reductions not being associative) — and it does not trend toward the 5 % that would make it a match; it drifts the
-wrong way. The physics residual does keep falling over the same range, which is the part that matters: the network is
-minimising the quantity it was given, and the minimum of that penalty is not the solution of the equations. So the
-diagnosis recorded against this case — that the network had not been trained long enough — is **refuted by its own
-experiment**, and the budget is not what to spend next.
+**Eight times the budget does not buy a better answer, and this is the finding.** Across 10 000 to 80 000 steps the `u`
+error stays between 17 % and 21 % — a spread no larger than the 1 % disagreement between two runs of the *same* budget
+on a different thread count (this machine's 10 000-step run gives 17.11 % where the committed one gives 16.31 %,
+float32 reductions not being associative) — and it never trends toward the 5 % that would make it a match. `v` moves
+from 58 % to 52 %, which is the one number that improves, and it improves from "not learned" to "not learned". The
+physics residual keeps falling over the same range, which is the part that matters: the network is minimising the
+quantity it was given, and the minimum of that penalty is not the solution of the equations. So the diagnosis recorded
+against this case — that the network had not been trained long enough — is **refuted by its own experiment**, and the
+budget is not what to spend next. It also costs what it looks like: 4.4 hours of wall time for the 80 000-step run
+against 26 minutes for the 10 000-step one, on the same machine.
 
 What the failure is instead is the one the module already names: a fixed-weight penalty spends the optimisation on
 whichever term owns the largest gradient at the start, and `Config.balance` (Wang, Teng and Perdikaris, 2021, which
 rescales the three terms by their own gradient norms) is the documented remedy. It is carried off by default because
 at a quarter of this budget it measured *worse* (44 % against 34 % in `u` at `Re = 100`) — a comparison made at 2 500
 steps against a shorter run, which is exactly the confound this sweep removes. So the second arm re-measures it at the
-same budget, and both arms live in one record so the comparison is budget against budget rather than against a
+same budgets, and both arms live in one record so the comparison is budget against budget rather than against a
 remembered number:
 
-    python examples/cfd/classical_cases/run_cases.py --only pinn-budget --budgets 10000 --balance
+    python examples/cfd/classical_cases/run_cases.py --only pinn-budget --budgets 10000 20000 --balance
 
 | Re | budget | gradient balancing | u error | v error | training |
 |---:|---:|---|---:|---:|---:|
 | 100 | 10 000 | off | 17.11 % | 58.35 % | 1 552 s |
 | 100 | 10 000 | **on** | **64.00 %** | **96.90 %** | 1 341 s |
+| 100 | 20 000 | off | 19.13 % | 54.68 % | 2 926 s |
+| 100 | 20 000 | **on** | **44.57 %** | **85.25 %** | 2 685 s |
 
 **The other lever does not work either, and now it is measurable at the right budget.** Balancing the three terms
-makes the answer nearly four times worse in `u` and twice worse in `v` at the same 10 000 steps. It is not a matter of
+makes the answer 3.7 times worse in `u` and 1.7 times worse in `v` at 10 000 steps, and 2.3 times worse in `u` at
+20 000 — it is losing at both budgets, so the gap is not one unlucky learning rate. It is not a matter of
 tuning: the physics residual blows up when the weights start moving (from `1.1e-2` at step 3 000 to `6.8e0` at step
 10 000), because the term that was smallest at the start — continuity, through the pressure — gets the largest weight
 and the two momentum equations are driven away. So at `Re = 100` this network does not match Ghia's table at 5 % with
-four times the budget, or with the gradient balancing that the literature offers for precisely this failure. Those are
-the two levers, both measured, both negative; what is left is a different formulation (an ansatz that carries the
+eight times the budget, or with the gradient balancing that the literature offers for precisely this failure. Those
+are the two levers, both measured, both negative; what is left is a different formulation (an ansatz that carries the
 walls, a two-phase curriculum, or a solver in the loop), not another run of this one.
 
 **The operator, asked where the table is silent.** A network whose input carries `Re` can answer anywhere in its

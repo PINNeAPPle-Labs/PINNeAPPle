@@ -224,3 +224,15 @@ def test_the_sandbox_runs_from_a_thread_and_the_limits_land_inside_the_snippet()
         r = pool.submit(run_snippet, code, timeout=120).result()
     assert r["ok"], r["stderr"]
     assert int(r["stdout"]) == 200 * 2**20
+
+
+def test_a_limit_the_platform_refuses_does_not_kill_the_run():
+    """The Hub asks for a 6 GiB address-space cap on every validation. macOS keeps a virtual mapping of hundreds of
+    gigabytes per interpreter and refuses the limit with ``EINVAL``; refusing to start the snippet for that turned
+    every validation into "Exception occurred in preexec_fn" in the job log (#625). The run happens, and the refusal
+    is said out loud instead of silently dropped."""
+    r = run_snippet("print('ran')", timeout=120, memory_mb=6144)
+    assert r["ok"] and r["stdout"] == "ran", r["stderr"]
+    assert "preexec" not in r["stderr"]
+    if "could not be applied" in r["stderr"]:            # the platform said no (macOS); elsewhere the cap holds
+        assert "address space" in r["stderr"]

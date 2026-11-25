@@ -148,6 +148,7 @@ def test_ground_border_is_never_visible_from_the_cameras_used():
 
 # ---------------------------------------------------------------------- dashboard at social-feed size
 def test_dashboard_small_layout_and_compact_gif(tmp_path):
+    pytest.importorskip("imageio", reason="the GIF/MP4 writer is imageio: pip install -e '.[pyvista]'")
     from pinneapple_tools.visualization.dashboard import Chart, Dashboard, Param, Series, Tile
     from pinneapple_tools.visualization.dashboard.static import write_gif, write_png
     t = np.linspace(0, 10, 12)

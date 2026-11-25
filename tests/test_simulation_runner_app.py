@@ -67,8 +67,11 @@ def test_example_run_rerun_dataset(client):
     d = c.get(f"/api/runs/{start['run_id']}/dataset-spec?format=json").json()
     assert d["spec"]["kind"] == "DatasetSpec" and d["spec"]["status"] == "complete" and len(d["preview"]) == 6
     assert {"T_mid", "T_mean"} <= {col["name"] for col in d["spec"]["columns"] if col["role"] == "output"}
-    pq = c.get(f"/api/runs/{start['run_id']}/dataset?format=parquet")
-    assert pq.status_code == 200 and pq.content[:4] == b"PAR1"
+    # parquet needs pyarrow (extra `hub`/`enterprise`); without it the endpoint cannot write the table at all, which
+    # says nothing about the run (#625)
+    if importlib.util.find_spec("pyarrow") is not None:
+        pq = c.get(f"/api/runs/{start['run_id']}/dataset?format=parquet")
+        assert pq.status_code == 200 and pq.content[:4] == b"PAR1"
     assert c.get("/api/usage").json()["units"]["jobs_run"]["used"] == 2
 
 

@@ -1,12 +1,18 @@
 """A drafted part with a hole is built with a real boolean or refused (PINNeAPPle-apps#5): without a boolean engine
 build_mesh concatenated the hole onto the part, so a washer and a plate with a hole came out with the hole's volume
 added. References: the exact volumes pi (R^2 - r^2) h and a h w - pi r^2 h, within the faceting error."""
+import importlib.util
 import math
 
 import pytest
 
 from pinneapple_design.geometry.gen import primitives as P
 from pinneapple_llm.cad_draft import CadRecipeResult, measure_part
+
+#: ``measure_part`` reads the triangle mesh with trimesh (extras `cfd`, `geom`, `synth`) before it can say anything
+#: about the boolean engine, so without it there is no measurement to make (#625).
+NEEDS_TRIMESH = pytest.mark.skipif(importlib.util.find_spec("trimesh") is None,
+                                   reason="measure_part reads the mesh with trimesh: pip install -e '.[geom]'")
 
 WASHER = {"boolean": {"op": "cut",
                       "base": {"name": "cylinder", "params": {"radius": 10.0, "height": 2.0, "sections": 256}},
@@ -17,6 +23,7 @@ PLATE = {"boolean": {"op": "cut",
 EXACT = {"washer": math.pi * (10 ** 2 - 4 ** 2) * 2.0, "plate": 40 * 30 * 5 - math.pi * 5 ** 2 * 5}
 
 
+@NEEDS_TRIMESH
 @pytest.mark.parametrize("name,recipe", [("washer", WASHER), ("plate", PLATE)])
 def test_parts_with_holes_have_the_requested_volume(name, recipe):
     if not P._boolean_engines_available():
@@ -25,6 +32,7 @@ def test_parts_with_holes_have_the_requested_volume(name, recipe):
     assert m["volume"] == pytest.approx(EXACT[name], rel=0.005) and m["watertight"]
 
 
+@NEEDS_TRIMESH
 @pytest.mark.parametrize("recipe", [WASHER, PLATE])
 def test_without_a_boolean_engine_a_hole_is_refused_not_concatenated(recipe, monkeypatch):
     monkeypatch.setattr(P, "_boolean_engines_available", lambda: ())

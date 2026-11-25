@@ -1,108 +1,982 @@
 {
-  "commit": "b4c32e8c9",
+  "commit": "b07f48db0",
   "how": "python scripts/measure_method_costs.py [--only ID ...]",
   "machine": {
+    "cpu": "Apple M5",
     "cpu_count": 10,
     "cuda": false,
     "machine": "arm64",
-    "memory_bytes": null,
-    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "memory_bytes": 17179869184,
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
     "processor": "arm",
-    "python": "3.15.0",
+    "python": "3.11.16",
     "release": "25.5.0",
     "system": "Darwin",
     "torch": "2.15.0"
   },
-  "measured_at": "2026-11-24T00:47:11+00:00",
+  "measured_at": "2026-11-25T02:34:00+00:00",
   "methods": {
+    "E1": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E10": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E11": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E12": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E13": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E14": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E15": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E16": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E17": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E18": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E19": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E2": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E20": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E21": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E22": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E23": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E24": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E25": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E26": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E27": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E28": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E29": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E3": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E30": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E31": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E32": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E33": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E34": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E35": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E36": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E37": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E38": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E39": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E4": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E40": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E41": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E42": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E43": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E44": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E45": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E46": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E47": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E48": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E49": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E5": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E50": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E51": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E52": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E53": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E54": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E55": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E56": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E57": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E58": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E59": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E6": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E60": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E61": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E62": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E63": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E64": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E65": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E66": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E67": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E68": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E69": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E7": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E70": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E71": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E72": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E73": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E8": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "E9": {
+      "blocker": "definition",
+      "reason": "equation definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.10": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.11": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.12": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.13": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.5": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.6": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.7": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.8": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P1.9": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P10.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P10.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P10.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P10.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.10": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.11": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.12": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.13": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.5": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.6": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.7": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.8": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P2.9": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P3.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P3.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P3.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P3.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P3.5": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P3.6": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P3.7": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P4.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P4.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P4.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P4.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.5": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.6": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.7": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P5.8": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.5": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.6": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.7": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.8": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P6.9": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.10": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.2": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.3": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.4": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.5": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.6": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.7": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.8": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P7.9": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P8.1": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
+    "P9": {
+      "blocker": "definition",
+      "reason": "problem definition: not an executable of its own, its cost belongs to the solver that discretizes it",
+      "status": "unmeasured"
+    },
     "S1": {
-      "reason": "needs a ProblemSpec preset (geometry and boundary conditions per case); the benchmark harness measures it on real cases instead",
-      "status": "unmeasured"
-    },
-    "S10": {
-      "reason": "rfk45 stiff kinetics: the module exposes the steppers per problem, no single entry point to time",
-      "status": "unmeasured"
-    },
-    "S11": {
-      "reason": "TVD advection runs from a ProblemSpec preset",
-      "status": "unmeasured"
-    },
-    "S12": {
-      "reason": "immersed boundary wraps an FDM flow solve (spec-driven, see S1)",
-      "status": "unmeasured"
-    },
-    "S13": {
-      "declared": "n",
-      "exponent": 0.9890499085631174,
+      "declared": "n^2",
+      "exponent": 1.9443493984953786,
       "exponent_ci": [
-        0.765469762154115,
-        1.036948272000035
+        1.0061239410690572,
+        2.3350822335921837
       ],
       "fits": {
         "memory": {
           "ci": [
-            1.0453608385142859,
-            1.0453608385142859
+            1.902347907244304,
+            1.902347907244304
           ],
-          "coefficient": 365.630565202495,
-          "exponent": 1.0453608385142859,
-          "r2": 0.99853007172659
+          "coefficient": 104.66569199995556,
+          "exponent": 1.902347907244304,
+          "r2": 0.9998318363833442
         },
         "time": {
           "ci": [
-            0.765469762154115,
-            1.036948272000035
+            1.0061239410690572,
+            2.3350822335921837
           ],
-          "coefficient": 1.1157441132637058e-05,
-          "exponent": 0.9890499085631174,
-          "r2": 0.9988447392015727
+          "coefficient": 3.077272299073723e-06,
+          "exponent": 1.9443493984953786,
+          "r2": 0.9849222681135332
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.007943083001009654,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 845843,
+      "median_time_s": 0.1340824579965556,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 15235954,
       "per_size": [
         {
           "flops": null,
-          "mem_bytes": 95163,
+          "mem_bytes": 289778,
+          "n": 64.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.01608262601075694,
+          "time_min_s": 0.0059474999870872125,
+          "time_s": 0.012252291009644978
+        },
+        {
+          "flops": null,
+          "mem_bytes": 1059218,
+          "n": 128.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.009176791980280541,
+          "time_min_s": 0.022802499996032566,
+          "time_s": 0.029828792001353577
+        },
+        {
+          "flops": null,
+          "mem_bytes": 3883385,
+          "n": 256.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.02229454198095482,
+          "time_min_s": 0.10654049999720883,
+          "time_s": 0.1340824579965556
+        },
+        {
+          "flops": null,
+          "mem_bytes": 15235954,
+          "n": 512.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.16553637498873286,
+          "time_min_s": 0.4630114999890793,
+          "time_s": 0.6632289999979548
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.fdm.FDMSolver.forward (the direct 2-D Poisson path: 50 red-black SOR sweeps on an n x n grid)",
+      "r2": 0.9849222681135332,
+      "size_axis": "n (grid points per side)",
+      "sizes": [
+        64.0,
+        128.0,
+        256.0,
+        512.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
+    },
+    "S10": {
+      "blocker": "not_a_single_operation",
+      "reason": "rfk45 stiff kinetics: the module exposes the steppers per problem, no single entry point to time",
+      "status": "unmeasured"
+    },
+    "S11": {
+      "declared": "n",
+      "exponent": 1.2458668584498642,
+      "exponent_ci": [
+        1.082956539791593,
+        1.349237380339649
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            0.9999429689437025,
+            0.9999429689437025
+          ],
+          "coefficient": 48.04008109936096,
+          "exponent": 0.9999429689437025,
+          "r2": 0.9999999991261704
+        },
+        "time": {
+          "ci": [
+            1.082956539791593,
+            1.349237380339649
+          ],
+          "coefficient": 6.618519860929245e-10,
+          "exponent": 1.2458668584498642,
+          "r2": 0.998139345288868
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.023987916996702552,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 201327384,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 3146520,
+          "n": 65536.0,
+          "n_runs": 5,
+          "time_iqr_s": 9.417010005563498e-06,
+          "time_min_s": 0.0006516670109704137,
+          "time_s": 0.0006660419894615188
+        },
+        {
+          "flops": null,
+          "mem_bytes": 12583704,
+          "n": 262144.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.009964208991732448,
+          "time_min_s": 0.002712250003241934,
+          "time_s": 0.0034616669872775674
+        },
+        {
+          "flops": null,
+          "mem_bytes": 50332440,
+          "n": 1048576.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.008951708994572982,
+          "time_min_s": 0.01762091601267457,
+          "time_s": 0.023987916996702552
+        },
+        {
+          "flops": null,
+          "mem_bytes": 201327384,
+          "n": 4194304.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.0500458750029793,
+          "time_min_s": 0.09820916599710472,
+          "time_s": 0.1105489170004148
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.tvd_advection.tvd_advection_rhs (one second-order TVD upwind evaluation of df/dt)",
+      "r2": 0.998139345288868,
+      "size_axis": "n (1-D grid points)",
+      "sizes": [
+        65536.0,
+        262144.0,
+        1048576.0,
+        4194304.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
+    },
+    "S12": {
+      "blocker": "needs_input",
+      "reason": "immersed boundary wraps an FDM flow solve, so it needs the case's geometry and boundary set (S1 measures the FDM sweep underneath)",
+      "status": "unmeasured"
+    },
+    "S13": {
+      "declared": "n",
+      "exponent": 1.357534101576536,
+      "exponent_ci": [
+        0.224039439635323,
+        2.1295490297414688
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            1.1042644674096098,
+            1.1042644674096098
+          ],
+          "coefficient": 285.6850978040258,
+          "exponent": 1.1042644674096098,
+          "r2": 0.9996913115469491
+        },
+        "time": {
+          "ci": [
+            0.224039439635323,
+            2.1295490297414688
+          ],
+          "coefficient": 1.7945399658594883e-06,
+          "exponent": 1.357534101576536,
+          "r2": 0.9939151981571414
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.014088583993725479,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 970463,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 98055,
           "n": 200.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0008084169967332855,
-          "time_min_s": 0.001972499998373678,
-          "time_s": 0.00211387500166893
+          "time_iqr_s": 0.004553082981146872,
+          "time_min_s": 0.0020660000009229407,
+          "time_s": 0.0022905419900780544
         },
         {
           "flops": null,
-          "mem_bytes": 189619,
+          "mem_bytes": 215215,
           "n": 400.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0003397489963390399,
-          "time_min_s": 0.0038552080004592426,
-          "time_s": 0.004246667002007598
+          "time_iqr_s": 0.006217541013029404,
+          "time_min_s": 0.004060584004037082,
+          "time_s": 0.006855125000583939
         },
         {
           "flops": null,
-          "mem_bytes": 378675,
+          "mem_bytes": 468287,
           "n": 800.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0001565000020491425,
-          "time_min_s": 0.007810208000591956,
-          "time_s": 0.007943083001009654
+          "time_iqr_s": 0.024229916991316713,
+          "time_min_s": 0.009929584004567005,
+          "time_s": 0.014088583993725479
         },
         {
           "flops": null,
-          "mem_bytes": 845843,
+          "mem_bytes": 970463,
           "n": 1600.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0010300829999323469,
-          "time_min_s": 0.016374167000321904,
-          "time_s": 0.016860791998624336
+          "time_iqr_s": 0.019619915998191573,
+          "time_min_s": 0.01704391599923838,
+          "time_s": 0.04148100000747945
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.BeamBVPFDMSolver.forward",
-      "r2": 0.9988447392015727,
+      "r2": 0.9939151981571414,
       "size_axis": "n (1-D grid points along the beam)",
       "sizes": [
         200.0,
@@ -114,81 +988,82 @@
       "verdict": "consistent"
     },
     "S14": {
+      "blocker": "needs_input",
       "reason": "the eddy-current FDM needs a coil/material field set; the probe would measure the field builder",
       "status": "unmeasured"
     },
     "S15": {
       "declared": "n",
-      "exponent": 0.65381233948733,
+      "exponent": 0.5386367234992497,
       "exponent_ci": [
-        0.3024330942645568,
-        1.043546342066501
+        -0.0932560969586028,
+        1.1336328419999038
       ],
       "fits": {
         "memory": {
           "ci": [
-            -0.03222510242314437,
-            -0.03222510242314437
+            0.997803255783507,
+            0.997803255783507
           ],
-          "coefficient": 7967.5939086228045,
-          "exponent": -0.03222510242314437,
-          "r2": 0.47574840112137373
+          "coefficient": 4426.352790044611,
+          "exponent": 0.997803255783507,
+          "r2": 0.9999995652266044
         },
         "time": {
           "ci": [
-            0.3024330942645568,
-            1.043546342066501
+            -0.0932560969586028,
+            1.1336328419999038
           ],
-          "coefficient": 0.00025687714336251655,
-          "exponent": 0.65381233948733,
-          "r2": 0.9266928803396207
+          "coefficient": 0.0004505951053418089,
+          "exponent": 0.5386367234992497,
+          "r2": 0.7842102911712604
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.024205249999795342,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 6857,
+      "median_time_s": 0.022087707999162376,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 8918631,
       "per_size": [
         {
           "flops": null,
-          "mem_bytes": 6857,
+          "mem_bytes": 1120038,
           "n": 256.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0008977080033218954,
-          "time_min_s": 0.00932916599776945,
-          "time_s": 0.011206125000171596
+          "time_iqr_s": 0.02796041700639762,
+          "time_min_s": 0.0038551250036107376,
+          "time_s": 0.010783124991576187
         },
         {
           "flops": null,
-          "mem_bytes": 6286,
+          "mem_bytes": 2234018,
           "n": 512.0,
           "n_runs": 5,
-          "time_iqr_s": 0.00045570799920824356,
-          "time_min_s": 0.007490666001103818,
-          "time_s": 0.012030500001856126
+          "time_iqr_s": 0.002745458987192251,
+          "time_min_s": 0.007817999998223968,
+          "time_s": 0.009035625000251457
         },
         {
           "flops": null,
-          "mem_bytes": 6286,
+          "mem_bytes": 4462492,
           "n": 1024.0,
           "n_runs": 5,
-          "time_iqr_s": 0.09554433299854281,
-          "time_min_s": 0.010996000000886852,
-          "time_s": 0.024205249999795342
+          "time_iqr_s": 0.001686292001977563,
+          "time_min_s": 0.015752832987345755,
+          "time_s": 0.022087707999162376
         },
         {
           "flops": null,
-          "mem_bytes": 6365,
+          "mem_bytes": 8918631,
           "n": 2048.0,
           "n_runs": 5,
-          "time_iqr_s": 0.026685666998673696,
-          "time_min_s": 0.019189999999071006,
-          "time_s": 0.040207207999628736
+          "time_iqr_s": 0.00820804201066494,
+          "time_min_s": 0.020459749997826293,
+          "time_s": 0.027786457998445258
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.bekker_wong.BekkerWongSolver.forward",
-      "r2": 0.9266928803396207,
+      "r2": 0.7842102911712604,
       "size_axis": "n (slip ratios evaluated in one call)",
       "sizes": [
         256.0,
@@ -200,89 +1075,101 @@
       "verdict": "consistent"
     },
     "S16": {
-      "reason": "(nbody_rebound) needs the REBOUND package, which is not installed here",
+      "blocker": "needs_optional_package",
+      "reason": "nbody_rebound needs the REBOUND package, which is not installed here",
       "status": "unmeasured"
     },
     "S17": {
+      "blocker": "needs_optional_package",
       "reason": "JAX-CFD needs jax, which is not installed here",
       "status": "unmeasured"
     },
     "S18": {
+      "blocker": "needs_input",
       "reason": "particle dynamics: MPM / rigid bodies / MD each need their own configuration",
       "status": "unmeasured"
     },
     "S19": {
       "declared": "n log n",
-      "exponent": 1.0773150567653111,
+      "exponent": 1.360694788095927,
       "exponent_ci": [
-        0.996801489680747,
-        1.1483870713445623
+        0.982437637198295,
+        1.55741693439533
       ],
       "fits": {
+        "flops": {
+          "ci": [
+            1.078486818222352,
+            1.078486818222352
+          ],
+          "coefficient": 16.81110769816913,
+          "exponent": 1.078486818222352,
+          "r2": 0.9999928234412139
+        },
         "memory": {
           "ci": [
-            3.39920781686424e-17,
-            3.39920781686424e-17
+            0.9994389368485673,
+            0.9994389368485673
           ],
-          "coefficient": 1066.9999999999964,
-          "exponent": 3.39920781686424e-17,
-          "r2": 1.0
+          "coefficient": 12.095938482347032,
+          "exponent": 0.9994389368485673,
+          "r2": 0.9999999452235132
         },
         "time": {
           "ci": [
-            0.996801489680747,
-            1.1483870713445623
+            0.982437637198295,
+            1.55741693439533
           ],
-          "coefficient": 9.783633219685058e-09,
-          "exponent": 1.0773150567653111,
-          "r2": 0.9922769841237419
+          "coefficient": 2.893873825620456e-10,
+          "exponent": 1.360694788095927,
+          "r2": 0.9469911081298857
         }
       },
-      "flops": null,
-      "flops_source": "",
-      "median_time_s": 0.03450895800051512,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 1067,
+      "flops": 2621440,
+      "flops_source": "dispatch_counter",
+      "median_time_s": 0.06202462498913519,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 25166935,
       "per_size": [
         {
-          "flops": null,
-          "mem_bytes": 1067,
+          "flops": 2621440,
+          "mem_bytes": 788040,
           "n": 65536.0,
           "n_runs": 5,
-          "time_iqr_s": 0.00023779200273565948,
-          "time_min_s": 0.0014137500002107117,
-          "time_s": 0.001645000000280561
+          "time_iqr_s": 0.0006604170048376545,
+          "time_min_s": 0.0012525420024758205,
+          "time_s": 0.0014857499918434769
         },
         {
-          "flops": null,
-          "mem_bytes": 1067,
+          "flops": 11796480,
+          "mem_bytes": 3147248,
           "n": 262144.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0007586249994346872,
-          "time_min_s": 0.004339249997428851,
-          "time_s": 0.005574332997639431
+          "time_iqr_s": 0.0002698749885894358,
+          "time_min_s": 0.003164084002492018,
+          "time_s": 0.003364999996847473
         },
         {
-          "flops": null,
-          "mem_bytes": 1067,
+          "flops": 52428800,
+          "mem_bytes": 12584360,
           "n": 1048576.0,
           "n_runs": 5,
-          "time_iqr_s": 0.011947457001951989,
-          "time_min_s": 0.021948749999864958,
-          "time_s": 0.03450895800051512
+          "time_iqr_s": 0.026027957996120676,
+          "time_min_s": 0.01881574999424629,
+          "time_s": 0.06202462498913519
         },
         {
-          "flops": null,
-          "mem_bytes": 1067,
+          "flops": 110100480,
+          "mem_bytes": 25166935,
           "n": 2097152.0,
           "n_runs": 5,
-          "time_iqr_s": 0.00884879200020805,
-          "time_min_s": 0.04458974999943166,
-          "time_s": 0.06088649999946938
+          "time_iqr_s": 0.06690574900130741,
+          "time_min_s": 0.043138790992088616,
+          "time_s": 0.11889658399741165
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.fft.FFTSolver.forward (the FFT member of the family)",
-      "r2": 0.9922769841237419,
+      "r2": 0.9469911081298857,
       "size_axis": "n (signal samples)",
       "sizes": [
         65536.0,
@@ -294,105 +1181,179 @@
       "verdict": "consistent"
     },
     "S2": {
-      "reason": "the FEM solver needs a ProblemSpec preset; measured through S1's probe in the benchmark (see pinneapple_analysis.benchmark), not on its own here",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 2.8023854749362735,
+      "exponent_ci": [
+        2.320463793737528,
+        3.3653758210200277
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            3.403712181643238,
+            3.403712181643238
+          ],
+          "coefficient": 29.92053529829158,
+          "exponent": 3.403712181643238,
+          "r2": 0.9999352385972919
+        },
+        "time": {
+          "ci": [
+            2.320463793737528,
+            3.3653758210200277
+          ],
+          "coefficient": 0.0004998186241466297,
+          "exponent": 2.8023854749362735,
+          "r2": 0.8774647151330992
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.8037171659962041,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 377774,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 35629,
+          "n": 8.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.032667624996975064,
+          "time_min_s": 0.11588150000898167,
+          "time_s": 0.1425864159973571
+        },
+        {
+          "flops": null,
+          "mem_bytes": 139454,
+          "n": 12.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.02661333349533379,
+          "time_min_s": 0.7568221670080675,
+          "time_s": 0.8037171659962041
+        },
+        {
+          "flops": null,
+          "mem_bytes": 377774,
+          "n": 16.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.13322608349699294,
+          "time_min_s": 0.8474464580067433,
+          "time_s": 0.9263015000033192
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.fem.FEMSolver.solve_from_spec (Q1 assembly of a Poisson case, then 50 CG iterations)",
+      "r2": 0.8774647151330992,
+      "size_axis": "n (elements per side)",
+      "sizes": [
+        8.0,
+        12.0,
+        16.0
+      ],
+      "status": "measured",
+      "verdict": "worse than declared"
     },
     "S20": {
+      "blocker": "not_a_single_operation",
       "reason": "co-simulation: the cost is the coupling graph the user builds, measured by the case itself",
       "status": "unmeasured"
     },
     "S21": {
+      "blocker": "needs_input",
       "reason": "state estimation: cost is set by the state dimension and the number of steps of the run",
       "status": "unmeasured"
     },
     "S22": {
+      "blocker": "not_a_single_operation",
       "reason": "1-D process components: the network is user-built; no single operation to time",
       "status": "unmeasured"
     },
     "S23": {
+      "blocker": "not_a_single_operation",
       "reason": "explicit equation system: cost is the size of the system the user writes",
       "status": "unmeasured"
     },
     "S24": {
+      "blocker": "needs_external_solver",
       "reason": "external solvers (OpenFOAM, FEniCS, ANSYS, MATLAB, Modelica, MuJoCo) are not installed here",
       "status": "unmeasured"
     },
     "S25": {
+      "blocker": "not_a_single_operation",
       "reason": "telemetry conditioning: the cost is per-sample and dominated by the caller's loop",
       "status": "unmeasured"
     },
     "S26": {
       "declared": "n^2",
-      "exponent": 1.9374175024498967,
+      "exponent": 1.874599041151869,
       "exponent_ci": [
-        1.8371135747283769,
-        2.114217669561889
+        1.4046269251862236,
+        2.248865803691862
       ],
       "fits": {
         "memory": {
           "ci": [
-            1.995625635525818,
-            1.995625635525818
+            1.995264723253182,
+            1.995264723253182
           ],
-          "coefficient": 423.1473166754701,
-          "exponent": 1.995625635525818,
-          "r2": 0.9999991497388533
+          "coefficient": 424.0547417830253,
+          "exponent": 1.995264723253182,
+          "r2": 0.9999989685095401
         },
         "time": {
           "ci": [
-            1.8371135747283769,
-            2.114217669561889
+            1.4046269251862236,
+            2.248865803691862
           ],
-          "coefficient": 1.748952841709522e-06,
-          "exponent": 1.9374175024498967,
-          "r2": 0.9887803455000012
+          "coefficient": 5.166952995860742e-06,
+          "exponent": 1.874599041151869,
+          "r2": 0.9807365842299695
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.06689333300164435,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 108074056,
+      "median_time_s": 0.13030983299540821,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 108075472,
       "per_size": [
         {
           "flops": null,
-          "mem_bytes": 1704576,
+          "mem_bytes": 1705936,
           "n": 64.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0011063759957323782,
-          "time_min_s": 0.004256249998434214,
-          "time_s": 0.006395250002242392
+          "time_iqr_s": 0.005836917000124231,
+          "time_min_s": 0.005173958008526824,
+          "time_s": 0.011323667000397108
         },
         {
           "flops": null,
-          "mem_bytes": 6774912,
+          "mem_bytes": 6776272,
           "n": 128.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0012090419986634515,
-          "time_min_s": 0.017181708000862272,
-          "time_s": 0.018675499999517342
+          "time_iqr_s": 0.021680250982171856,
+          "time_min_s": 0.01686729099310469,
+          "time_s": 0.06129783399228472
         },
         {
           "flops": null,
-          "mem_bytes": 27040840,
+          "mem_bytes": 27042256,
           "n": 256.0,
           "n_runs": 5,
-          "time_iqr_s": 0.002142167002602946,
-          "time_min_s": 0.06486075000066194,
-          "time_s": 0.06689333300164435
+          "time_iqr_s": 0.0033421260013710707,
+          "time_min_s": 0.11791341700882185,
+          "time_s": 0.13030983299540821
         },
         {
           "flops": null,
-          "mem_bytes": 108074056,
+          "mem_bytes": 108075472,
           "n": 512.0,
           "n_runs": 5,
-          "time_iqr_s": 0.05461479099903954,
-          "time_min_s": 0.29161466600271524,
-          "time_s": 0.3674711669991666
+          "time_iqr_s": 0.041563083010260016,
+          "time_min_s": 0.42700016700837296,
+          "time_s": 0.6696453749900684
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.shallow_water_fv.ShallowWater2D (one step)",
-      "r2": 0.9887803455000012,
+      "r2": 0.9807365842299695,
       "size_axis": "n (cells per side)",
       "sizes": [
         64.0,
@@ -405,10 +1366,10 @@
     },
     "S27": {
       "declared": "n log n",
-      "exponent": 1.679277209733987,
+      "exponent": 1.0148328381188816,
       "exponent_ci": [
-        0.8791696064094086,
-        1.7863515797608636
+        0.8455954626102066,
+        1.233137800312381
       ],
       "fits": {
         "memory": {
@@ -422,18 +1383,18 @@
         },
         "time": {
           "ci": [
-            0.8791696064094086,
-            1.7863515797608636
+            0.8455954626102066,
+            1.233137800312381
           ],
-          "coefficient": 1.1869036035882303e-09,
-          "exponent": 1.679277209733987,
-          "r2": 0.8483733458968139
+          "coefficient": 9.817752701846972e-08,
+          "exponent": 1.0148328381188816,
+          "r2": 0.9922116708994061
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.00019158400027663447,
-      "mem_source": "tracemalloc",
+      "median_time_s": 0.0002128329942934215,
+      "mem_source": "torch+trace",
       "peak_mem_bytes": 328792,
       "per_size": [
         {
@@ -441,40 +1402,40 @@
           "mem_bytes": 42072,
           "n": 512.0,
           "n_runs": 5,
-          "time_iqr_s": 6.457998097175732e-06,
-          "time_min_s": 6.129200119175948e-05,
-          "time_s": 6.233299791347235e-05
+          "time_iqr_s": 1.624997821636498e-06,
+          "time_min_s": 5.874999624211341e-05,
+          "time_s": 5.93330041738227e-05
         },
         {
           "flops": null,
           "mem_bytes": 83032,
           "n": 1024.0,
           "n_runs": 5,
-          "time_iqr_s": 4.582001565722749e-06,
-          "time_min_s": 0.00010333300087950192,
-          "time_s": 0.00011216599887120537
+          "time_iqr_s": 2.500164555385709e-07,
+          "time_min_s": 0.0001017500035231933,
+          "time_s": 0.00010266700701322407
         },
         {
           "flops": null,
           "mem_bytes": 164952,
           "n": 2048.0,
           "n_runs": 5,
-          "time_iqr_s": 3.249999281251803e-06,
-          "time_min_s": 0.00018791700131259859,
-          "time_s": 0.00019158400027663447
+          "time_iqr_s": 0.00016633400809951127,
+          "time_min_s": 0.00019845800125040114,
+          "time_s": 0.0002128329942934215
         },
         {
           "flops": null,
           "mem_bytes": 328792,
           "n": 4096.0,
           "n_runs": 5,
-          "time_iqr_s": 0.002033542001299793,
-          "time_min_s": 0.00040445899867336266,
-          "time_s": 0.002524999999877764
+          "time_iqr_s": 8.779199561104178e-05,
+          "time_min_s": 0.000328291003825143,
+          "time_s": 0.0004853749996982515
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.etdrk4.ETDRK4 (one step of the stiff semilinear problem)",
-      "r2": 0.8483733458968139,
+      "r2": 0.9922116708994061,
       "size_axis": "n (points on the periodic grid)",
       "sizes": [
         512.0,
@@ -487,76 +1448,76 @@
     },
     "S28": {
       "declared": "n^2",
-      "exponent": 2.0304517616832056,
+      "exponent": 2.4929451526583857,
       "exponent_ci": [
-        1.7708261500249982,
-        2.1641309085866918
+        2.3470744033091506,
+        2.6428660055257955
       ],
       "fits": {
         "memory": {
           "ci": [
-            1.975883308325757,
-            1.975883308325757
+            1.9757868868085935,
+            1.9757868868085935
           ],
-          "coefficient": 174.7822156770645,
-          "exponent": 1.975883308325757,
-          "r2": 0.999907620243819
+          "coefficient": 174.89119975743847,
+          "exponent": 1.9757868868085935,
+          "r2": 0.9999080655618315
         },
         "time": {
           "ci": [
-            1.7708261500249982,
-            2.1641309085866918
+            2.3470744033091506,
+            2.6428660055257955
           ],
-          "coefficient": 3.392995172162535e-07,
-          "exponent": 2.0304517616832056,
-          "r2": 0.985777253029204
+          "coefficient": 5.408364855228455e-08,
+          "exponent": 2.4929451526583857,
+          "r2": 0.9883882509498427
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.02117891700254404,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 39849048,
+      "median_time_s": 0.07583066700317431,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 39849736,
       "per_size": [
         {
           "flops": null,
-          "mem_bytes": 658112,
+          "mem_bytes": 658232,
           "n": 64.0,
           "n_runs": 5,
-          "time_iqr_s": 3.0583996704081073e-05,
-          "time_min_s": 0.0018575829999463167,
-          "time_s": 0.0018842080025933683
+          "time_iqr_s": 5.623995093628764e-06,
+          "time_min_s": 0.0017388340056641027,
+          "time_s": 0.001771208000718616
         },
         {
           "flops": null,
-          "mem_bytes": 2493528,
+          "mem_bytes": 2494104,
           "n": 128.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0015358330019807909,
-          "time_min_s": 0.004983750000974396,
-          "time_s": 0.005503542000951711
+          "time_iqr_s": 0.0015987079968908802,
+          "time_min_s": 0.005754292011260986,
+          "time_s": 0.007868582993978634
         },
         {
           "flops": null,
-          "mem_bytes": 9964632,
+          "mem_bytes": 9965208,
           "n": 256.0,
           "n_runs": 5,
-          "time_iqr_s": 0.012581834002048708,
-          "time_min_s": 0.019672874997922918,
-          "time_s": 0.02117891700254404
+          "time_iqr_s": 0.05388441700779367,
+          "time_min_s": 0.042816792003577575,
+          "time_s": 0.07583066700317431
         },
         {
           "flops": null,
-          "mem_bytes": 39849048,
+          "mem_bytes": 39849736,
           "n": 512.0,
           "n_runs": 5,
-          "time_iqr_s": 0.019519832996593323,
-          "time_min_s": 0.12187120800081175,
-          "time_s": 0.13105833300141967
+          "time_iqr_s": 0.004026125985546969,
+          "time_min_s": 0.20141158299520612,
+          "time_s": 0.26411375000316184
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.stable_fluids.StableFluids2D (one full step)",
-      "r2": 0.985777253029204,
+      "r2": 0.9883882509498427,
       "size_axis": "n (cells per side)",
       "sizes": [
         64.0,
@@ -565,34 +1526,116 @@
         512.0
       ],
       "status": "measured",
-      "verdict": "consistent"
+      "verdict": "worse than declared"
     },
     "S29": {
+      "blocker": "needs_input",
       "reason": "2-D magnetostatics FEM needs a mesh and materials; measured through its validation case",
       "status": "unmeasured"
     },
     "S3": {
-      "reason": "same as S2: the finite-volume solver runs from a ProblemSpec preset",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 1.4913175822277567,
+      "exponent_ci": [
+        1.0987647409942043,
+        1.673961290903814
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            1.997481803685765,
+            1.997481803685765
+          ],
+          "coefficient": 178.66960596389475,
+          "exponent": 1.997481803685765,
+          "r2": 0.9999996161483645
+        },
+        "time": {
+          "ci": [
+            1.0987647409942043,
+            1.673961290903814
+          ],
+          "coefficient": 6.471115998749892e-06,
+          "exponent": 1.4913175822277567,
+          "r2": 0.9701944182329205
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.020489000002271496,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 46144989,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 724957,
+          "n": 64.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.000455000001238659,
+          "time_min_s": 0.0025503329961793497,
+          "time_s": 0.002777041998342611
+        },
+        {
+          "flops": null,
+          "mem_bytes": 2888157,
+          "n": 128.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.0012012499937554821,
+          "time_min_s": 0.007695374995819293,
+          "time_s": 0.012314874998992309
+        },
+        {
+          "flops": null,
+          "mem_bytes": 11539933,
+          "n": 256.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.005322999990312383,
+          "time_min_s": 0.015350000001490116,
+          "time_s": 0.020489000002271496
+        },
+        {
+          "flops": null,
+          "mem_bytes": 46144989,
+          "n": 512.0,
+          "n_runs": 5,
+          "time_iqr_s": 0.045495541009586304,
+          "time_min_s": 0.040529709003749304,
+          "time_s": 0.0735060830047587
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.fvm.FVMSolver.forward (explicit Euler, 20 steps of a 2-D heat case)",
+      "r2": 0.9701944182329205,
+      "size_axis": "n (cells per side)",
+      "sizes": [
+        64.0,
+        128.0,
+        256.0,
+        512.0
+      ],
+      "status": "measured",
+      "verdict": "better than declared"
     },
     "S30": {
+      "blocker": "needs_input",
       "reason": "time-harmonic eddy currents: same as S29",
       "status": "unmeasured"
     },
     "S31": {
+      "blocker": "needs_input",
       "reason": "surface-PM machine model: cost is set by the harmonic set of the run",
       "status": "unmeasured"
     },
     "S32": {
+      "blocker": "needs_input",
       "reason": "2-D electrostatics FEM: same as S29",
       "status": "unmeasured"
     },
     "S33": {
       "declared": "n",
-      "exponent": 1.1404141143735045,
+      "exponent": 1.3188411692649082,
       "exponent_ci": [
-        1.0781479233426672,
-        1.1780975517369139
+        1.2287573645993064,
+        1.3821934635238646
       ],
       "fits": {
         "memory": {
@@ -606,18 +1649,18 @@
         },
         "time": {
           "ci": [
-            1.0781479233426672,
-            1.1780975517369139
+            1.2287573645993064,
+            1.3821934635238646
           ],
-          "coefficient": 2.218584872833783e-09,
-          "exponent": 1.1404141143735045,
-          "r2": 0.9929099185484322
+          "coefficient": 3.259296084348173e-10,
+          "exponent": 1.3188411692649082,
+          "r2": 0.9639069910092175
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.0028878329976578243,
-      "mem_source": "tracemalloc",
+      "median_time_s": 0.008376208003028296,
+      "mem_source": "torch+trace",
       "peak_mem_bytes": 41943528,
       "per_size": [
         {
@@ -625,40 +1668,40 @@
           "mem_bytes": 786816,
           "n": 16384.0,
           "n_runs": 5,
-          "time_iqr_s": 9.169998520519584e-07,
-          "time_min_s": 0.0001262499972654041,
-          "time_s": 0.00012762500045937486
+          "time_iqr_s": 1.9579892978072166e-06,
+          "time_min_s": 0.0001272919907933101,
+          "time_s": 0.00012783400597982109
         },
         {
           "flops": null,
           "mem_bytes": 2621928,
           "n": 65536.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0007559579971712083,
-          "time_min_s": 0.0007501250001951121,
-          "time_s": 0.0008725409970793407
+          "time_iqr_s": 1.558400981593877e-05,
+          "time_min_s": 0.000457499991171062,
+          "time_s": 0.0004790410021087155
         },
         {
           "flops": null,
           "mem_bytes": 10486248,
           "n": 262144.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0006717499963997398,
-          "time_min_s": 0.0022288330001174472,
-          "time_s": 0.0028878329976578243
+          "time_iqr_s": 0.006348082984914072,
+          "time_min_s": 0.00603679200867191,
+          "time_s": 0.008376208003028296
         },
         {
           "flops": null,
           "mem_bytes": 41943528,
           "n": 1048576.0,
           "n_runs": 5,
-          "time_iqr_s": 0.001956166001036763,
-          "time_min_s": 0.015048249999381369,
-          "time_s": 0.016646874999423744
+          "time_iqr_s": 0.007469625008525327,
+          "time_min_s": 0.015679333999287337,
+          "time_s": 0.021835333012859337
         }
       ],
       "probe": "pinneapple_simulation.electromagnetics.statics.infinite_wire_B",
-      "r2": 0.9929099185484322,
+      "r2": 0.9639069910092175,
       "size_axis": "n (field points)",
       "sizes": [
         16384.0,
@@ -667,80 +1710,80 @@
         1048576.0
       ],
       "status": "measured",
-      "verdict": "consistent"
+      "verdict": "worse than declared"
     },
     "S34": {
       "declared": "n",
-      "exponent": 0.877006560295863,
+      "exponent": 1.0155345445559947,
       "exponent_ci": [
-        0.7279607078396471,
-        1.1784213372779988
+        0.6678567793562026,
+        1.278452383564373
       ],
       "fits": {
         "memory": {
           "ci": [
-            0.912653768513556,
-            0.912653768513556
+            0.9112848168394778,
+            0.9112848168394778
           ],
-          "coefficient": 282.705574862002,
-          "exponent": 0.912653768513556,
-          "r2": 0.998474418771035
+          "coefficient": 285.7617275455466,
+          "exponent": 0.9112848168394778,
+          "r2": 0.9984380052464593
         },
         "time": {
           "ci": [
-            0.7279607078396471,
-            1.1784213372779988
+            0.6678567793562026,
+            1.278452383564373
           ],
-          "coefficient": 4.806067052951446e-06,
-          "exponent": 0.877006560295863,
-          "r2": 0.9901729382247061
+          "coefficient": 3.170621349530443e-06,
+          "exponent": 1.0155345445559947,
+          "r2": 0.8975082188596083
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.0013532499979191925,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 469536,
+      "median_time_s": 0.0014309580001281574,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 469664,
       "per_size": [
         {
           "flops": null,
-          "mem_bytes": 10656,
+          "mem_bytes": 10720,
           "n": 50.0,
           "n_runs": 5,
-          "time_iqr_s": 1.8749997252598405e-06,
-          "time_min_s": 0.00015129200255614705,
-          "time_s": 0.00015779199748067185
+          "time_iqr_s": 6.325000140350312e-05,
+          "time_min_s": 0.0001698340056464076,
+          "time_s": 0.00026854200405068696
         },
         {
           "flops": null,
-          "mem_bytes": 33216,
+          "mem_bytes": 33312,
           "n": 200.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0005123330010974314,
-          "time_min_s": 0.00038245899850153364,
-          "time_s": 0.000511207999807084
+          "time_iqr_s": 9.483199391979724e-05,
+          "time_min_s": 0.00036733401066157967,
+          "time_s": 0.00047975000052247196
         },
         {
           "flops": null,
-          "mem_bytes": 121296,
+          "mem_bytes": 121424,
           "n": 800.0,
           "n_runs": 5,
-          "time_iqr_s": 0.00015575100042042322,
-          "time_min_s": 0.0012055419974785764,
-          "time_s": 0.0013532499979191925
+          "time_iqr_s": 0.0005907500017201528,
+          "time_min_s": 0.001392958001815714,
+          "time_s": 0.0014309580001281574
         },
         {
           "flops": null,
-          "mem_bytes": 469536,
+          "mem_bytes": 469664,
           "n": 3200.0,
           "n_runs": 5,
-          "time_iqr_s": 0.003585875001590466,
-          "time_min_s": 0.0047114999979385175,
-          "time_s": 0.006564375002199085
+          "time_iqr_s": 0.019209457997931167,
+          "time_min_s": 0.007101208000676706,
+          "time_s": 0.02036341700295452
         }
       ],
       "probe": "pinneapple_simulation.electromagnetics.mie.mie",
-      "r2": 0.9901729382247061,
+      "r2": 0.8975082188596083,
       "size_axis": "x (size parameter; the series needs ~x + 4x^(1/3) terms)",
       "sizes": [
         50.0,
@@ -753,76 +1796,76 @@
     },
     "S35": {
       "declared": "n",
-      "exponent": 1.1550580018351324,
+      "exponent": 1.280096227151666,
       "exponent_ci": [
-        0.9983181339173814,
-        1.221749718343399
+        1.0320447428387407,
+        1.3640667124586534
       ],
       "fits": {
         "memory": {
           "ci": [
-            1.7437245250787595e-16,
-            1.7437245250787595e-16
+            -3.487449050157519e-16,
+            -3.487449050157519e-16
           ],
-          "coefficient": 3336.9999999999877,
-          "exponent": 1.7437245250787595e-16,
-          "r2": 1.0
+          "coefficient": 3440.916302382261,
+          "exponent": -3.487449050157519e-16,
+          "r2": 0.0
         },
         "time": {
           "ci": [
-            0.9983181339173814,
-            1.221749718343399
+            1.0320447428387407,
+            1.3640667124586534
           ],
-          "coefficient": 1.1020196935754814e-05,
-          "exponent": 1.1550580018351324,
-          "r2": 0.9961979560653903
+          "coefficient": 6.444105214422674e-06,
+          "exponent": 1.280096227151666,
+          "r2": 0.9770607841975594
         }
       },
       "flops": null,
       "flops_source": "",
-      "median_time_s": 0.006718958000419661,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 3337,
+      "median_time_s": 0.005318208000971936,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 3465,
       "per_size": [
         {
           "flops": null,
-          "mem_bytes": 3337,
+          "mem_bytes": 3417,
           "n": 16.0,
           "n_runs": 5,
-          "time_iqr_s": 3.837500116787851e-05,
-          "time_min_s": 0.0002953750008600764,
-          "time_s": 0.0003046669989998918
+          "time_iqr_s": 3.375000960659236e-05,
+          "time_min_s": 0.0002640000020619482,
+          "time_s": 0.00029329099925234914
         },
         {
           "flops": null,
-          "mem_bytes": 3337,
+          "mem_bytes": 3465,
           "n": 64.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0006359589970088564,
-          "time_min_s": 0.0010577920002106111,
-          "time_s": 0.0011232920005568303
+          "time_iqr_s": 0.0003250829904573038,
+          "time_min_s": 0.0010537499911151826,
+          "time_s": 0.0010695839882828295
         },
         {
           "flops": null,
-          "mem_bytes": 3337,
+          "mem_bytes": 3465,
           "n": 256.0,
           "n_runs": 5,
-          "time_iqr_s": 0.010777791001601145,
-          "time_min_s": 0.004276084000593983,
-          "time_s": 0.006718958000419661
+          "time_iqr_s": 0.001793917006580159,
+          "time_min_s": 0.004483209006139077,
+          "time_s": 0.005318208000971936
         },
         {
           "flops": null,
-          "mem_bytes": 3337,
+          "mem_bytes": 3417,
           "n": 1024.0,
           "n_runs": 5,
-          "time_iqr_s": 0.00736295800015796,
-          "time_min_s": 0.025677125002403045,
-          "time_s": 0.03490891600085888
+          "time_iqr_s": 0.02134345799277071,
+          "time_min_s": 0.032730791994254105,
+          "time_s": 0.06369387499580625
         }
       ],
       "probe": "pinneapple_simulation.electromagnetics.waves.multilayer",
-      "r2": 0.9961979560653903,
+      "r2": 0.9770607841975594,
       "size_axis": "n (layers in the stack)",
       "sizes": [
         16.0,
@@ -834,93 +1877,106 @@
       "verdict": "consistent"
     },
     "S36": {
+      "blocker": "needs_input",
       "reason": "Jiles-Atherton hysteresis: the cost is the applied-field path the user supplies",
       "status": "unmeasured"
     },
     "S37": {
+      "blocker": "not_a_single_operation",
       "reason": "dispersive media: coefficient arithmetic, measured by the FDTD run that uses it",
       "status": "unmeasured"
     },
     "S38": {
+      "blocker": "needs_input",
       "reason": "Maxwell checks: cost is the field the user hands in",
       "status": "unmeasured"
     },
     "S39": {
+      "blocker": "not_a_single_operation",
       "reason": "topology optimisation: the cost is iterations x cells, measured by each design study",
       "status": "unmeasured"
     },
     "S4": {
       "declared": "n^2",
-      "exponent": 1.4612041990837508,
+      "exponent": 1.531108078220827,
       "exponent_ci": [
-        1.187933146869545,
-        1.5996129283826368
+        1.330394357005802,
+        2.593574566134458
       ],
       "fits": {
+        "flops": {
+          "ci": [
+            2.1947532580105857,
+            2.1947532580105857
+          ],
+          "coefficient": 53.88602512436517,
+          "exponent": 2.1947532580105857,
+          "r2": 0.9999713238450785
+        },
         "memory": {
           "ci": [
-            -8.449107538296367e-17,
-            -8.449107538296367e-17
+            1.9959907575857632,
+            1.9959907575857632
           ],
-          "coefficient": 1655.9999999999984,
-          "exponent": -8.449107538296367e-17,
-          "r2": 1.0
+          "coefficient": 82.00989725379317,
+          "exponent": 1.9959907575857632,
+          "r2": 0.9999994379890881
         },
         "time": {
           "ci": [
-            1.187933146869545,
-            1.5996129283826368
+            1.330394357005802,
+            2.593574566134458
           ],
-          "coefficient": 1.6227808024540196e-06,
-          "exponent": 1.4612041990837508,
-          "r2": 0.9423370066146444
+          "coefficient": 8.122653955037984e-07,
+          "exponent": 1.531108078220827,
+          "r2": 0.9414499538386837
         }
       },
-      "flops": null,
-      "flops_source": "",
-      "median_time_s": 0.004028209001262439,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 1656,
+      "flops": 491520,
+      "flops_source": "dispatch_counter",
+      "median_time_s": 0.0027967080095550045,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 20989008,
       "per_size": [
         {
-          "flops": null,
-          "mem_bytes": 1656,
+          "flops": 491520,
+          "mem_bytes": 330768,
           "n": 64.0,
           "n_runs": 5,
-          "time_iqr_s": 8.216700007324107e-05,
-          "time_min_s": 0.0004457079994608648,
-          "time_s": 0.0005808749992866069
+          "time_iqr_s": 0.0002141659933840856,
+          "time_min_s": 0.0004745420010294765,
+          "time_s": 0.0006235420005396008
         },
         {
-          "flops": null,
-          "mem_bytes": 1656,
+          "flops": 2293760,
+          "mem_bytes": 1315856,
           "n": 128.0,
           "n_runs": 5,
-          "time_iqr_s": 0.009339083997474518,
-          "time_min_s": 0.0016062079994298983,
-          "time_s": 0.003015958998730639
+          "time_iqr_s": 2.762502117548138e-05,
+          "time_min_s": 0.0010554589971434325,
+          "time_s": 0.0010756249976111576
         },
         {
-          "flops": null,
-          "mem_bytes": 1656,
+          "flops": 10485760,
+          "mem_bytes": 5252112,
           "n": 256.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0008437919968855567,
-          "time_min_s": 0.0035003329976461828,
-          "time_s": 0.004028209001262439
+          "time_iqr_s": 0.000535333005245775,
+          "time_min_s": 0.0026944160053972155,
+          "time_s": 0.0027967080095550045
         },
         {
-          "flops": null,
-          "mem_bytes": 1656,
+          "flops": 47185920,
+          "mem_bytes": 20989008,
           "n": 512.0,
           "n_runs": 5,
-          "time_iqr_s": 0.0015752090002933983,
-          "time_min_s": 0.013984917000925634,
-          "time_s": 0.01543149999997695
+          "time_iqr_s": 0.004764623983646743,
+          "time_min_s": 0.010805833007907495,
+          "time_s": 0.015591999996104278
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.spectral.poisson_periodic_fft",
-      "r2": 0.9423370066146444,
+      "r2": 0.9414499538386837,
       "size_axis": "n (grid points per side, periodic square)",
       "sizes": [
         64.0,
@@ -929,74 +1985,166 @@
         512.0
       ],
       "status": "measured",
-      "verdict": "better than declared"
+      "verdict": "consistent"
     },
     "S40": {
+      "blocker": "needs_input",
       "reason": "Yee FDTD: cost is grid x steps; a probe would need a canonical case kept with the campaign",
       "status": "unmeasured"
     },
     "S41": {
+      "blocker": "needs_input",
       "reason": "the near-to-far transform runs on an FDTD box (see S40)",
       "status": "unmeasured"
     },
     "S42": {
+      "blocker": "needs_input",
       "reason": "first passage: cost is the number of paths the user asks for",
       "status": "unmeasured"
     },
     "S43": {
-      "reason": "no probe written for this method yet",
-      "status": "unmeasured"
+      "declared": "n^3",
+      "exponent": 2.3799606760374634,
+      "exponent_ci": [
+        0.8874731164806843,
+        4.103179691269634
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            0.021922199617776736,
+            0.021922199617776736
+          ],
+          "coefficient": 611707.2873040438,
+          "exponent": 0.021922199617776736,
+          "r2": 0.9906897841169258
+        },
+        "time": {
+          "ci": [
+            0.8874731164806843,
+            4.103179691269634
+          ],
+          "coefficient": 0.00024004881844475503,
+          "exponent": 2.3799606760374634,
+          "r2": 0.8926227402141387
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.18911912500334438,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 653726,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 640651,
+          "n": 8.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.0663111879985081,
+          "time_min_s": 0.009867165994364768,
+          "time_s": 0.04342637500667479
+        },
+        {
+          "flops": null,
+          "mem_bytes": 645332,
+          "n": 12.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.05551266700058477,
+          "time_min_s": 0.044903540998348035,
+          "time_s": 0.05512395799451042
+        },
+        {
+          "flops": null,
+          "mem_bytes": 649753,
+          "n": 16.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.03576216699730139,
+          "time_min_s": 0.15578000000095926,
+          "time_s": 0.18911912500334438
+        },
+        {
+          "flops": null,
+          "mem_bytes": 653726,
+          "n": 20.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.0423074584978167,
+          "time_min_s": 0.30435583301004954,
+          "time_s": 0.3509577920049196
+        }
+      ],
+      "probe": "pinneapple_analysis.dynamics.dimensional.BuckinghamPiAnalyzer.analyze (pi groups by Rayleigh's method over n quantities, in exact Fractions)",
+      "r2": 0.8926227402141387,
+      "size_axis": "n (quantities in the analysis)",
+      "sizes": [
+        8.0,
+        12.0,
+        16.0,
+        20.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
     },
     "S44": {
+      "blocker": "needs_input",
       "reason": "Fisher information: needs a model and a design matrix from the caller",
       "status": "unmeasured"
     },
     "S45": {
+      "blocker": "not_a_single_operation",
       "reason": "early warning: per-window cost, dominated by the series length the user passes",
       "status": "unmeasured"
     },
     "S46": {
+      "blocker": "needs_input",
       "reason": "Koopman: needs snapshot data from the caller",
       "status": "unmeasured"
     },
     "S47": {
+      "blocker": "needs_cuda",
       "reason": "NVIDIA Newton needs the Warp stack and a GPU",
       "status": "unmeasured"
     },
     "S48": {
+      "blocker": "needs_input",
       "reason": "the PICT local solver needs the case's grid and boundary set",
       "status": "unmeasured"
     },
     "S49": {
+      "blocker": "needs_cuda",
       "reason": "PICT needs CUDA",
       "status": "unmeasured"
     },
     "S5": {
+      "blocker": "needs_input",
       "reason": "the LBM needs a spec plus the number of steps to be meaningful; a fixed-step probe would measure the step count, not the method",
       "status": "unmeasured"
     },
     "S50": {
+      "blocker": "needs_cuda",
       "reason": "NVIDIA Warp kernels need the warp package and a GPU",
       "status": "unmeasured"
     },
     "S6": {
+      "blocker": "needs_input",
       "reason": "SPH / ISPH / DFSPH are particle methods whose cost is set by the particle count and the time step; a probe here would need a settled configuration to be comparable",
       "status": "unmeasured"
     },
     "S7": {
+      "blocker": "needs_input",
       "reason": "the Kansa RBF solver runs from a ProblemSpec plus interior/boundary point sets",
       "status": "unmeasured"
     },
     "S8": {
+      "blocker": "not_a_single_operation",
       "reason": "X-TFC trains a network per call: its cost is a training budget, measured by the trainer probes (T*)",
       "status": "unmeasured"
     },
     "S9": {
       "declared": "n",
-      "exponent": 1.249704259201684,
+      "exponent": 0.5631011648837849,
       "exponent_ci": [
-        1.1947035160842006,
-        1.2974420007871548
+        0.4537648540694826,
+        0.6277585208185372
       ],
       "fits": {
         "flops": {
@@ -1010,68 +2158,68 @@
         },
         "memory": {
           "ci": [
-            0.37428248836889894,
-            0.37428248836889894
+            0.6100519505772778,
+            0.6100519505772778
           ],
-          "coefficient": 77104.67961761929,
-          "exponent": 0.37428248836889894,
-          "r2": 0.8894421455260153
+          "coefficient": 129515.81436192943,
+          "exponent": 0.6100519505772778,
+          "r2": 0.9976507379541876
         },
         "time": {
           "ci": [
-            1.1947035160842006,
-            1.2974420007871548
+            0.4537648540694826,
+            0.6277585208185372
           ],
-          "coefficient": 0.005508357570387584,
-          "exponent": 1.249704259201684,
-          "r2": 0.9930062128559414
+          "coefficient": 0.12725910663680068,
+          "exponent": 0.5631011648837849,
+          "r2": 0.7924549833481566
         }
       },
       "flops": 35257728,
       "flops_source": "flop_counter",
-      "median_time_s": 0.2566145000018878,
-      "mem_source": "tracemalloc",
-      "peak_mem_bytes": 275598,
+      "median_time_s": 0.8240511670010164,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 1256981,
       "per_size": [
         {
           "flops": 35257728,
-          "mem_bytes": 127910,
+          "mem_bytes": 347854,
           "n": 5.0,
-          "n_runs": 5,
-          "time_iqr_s": 0.006027082999935374,
-          "time_min_s": 0.039176082998892525,
-          "time_s": 0.043129749999934575
+          "n_runs": 3,
+          "time_iqr_s": 0.009787353999854531,
+          "time_min_s": 0.24540574999991804,
+          "time_s": 0.24926341700484045
         },
         {
           "flops": 69387456,
-          "mem_bytes": 198844,
+          "mem_bytes": 532977,
           "n": 10.0,
-          "n_runs": 5,
-          "time_iqr_s": 0.012258792001375696,
-          "time_min_s": 0.07408450000002631,
-          "time_s": 0.08693100000164122
+          "n_runs": 3,
+          "time_iqr_s": 0.10427100049855653,
+          "time_min_s": 0.4035145410016412,
+          "time_s": 0.6028035419876687
         },
         {
           "flops": 143335200,
-          "mem_bytes": 266134,
+          "mem_bytes": 775091,
           "n": 20.0,
-          "n_runs": 5,
-          "time_iqr_s": 0.013927916003012797,
-          "time_min_s": 0.2328500420007913,
-          "time_s": 0.2566145000018878
+          "n_runs": 3,
+          "time_iqr_s": 0.1397878124989802,
+          "time_min_s": 0.5744685000099707,
+          "time_s": 0.8267844579968369
         },
         {
           "flops": 262789248,
-          "mem_bytes": 275598,
+          "mem_bytes": 1256981,
           "n": 40.0,
-          "n_runs": 5,
-          "time_iqr_s": 0.014317874996777391,
-          "time_min_s": 0.5273124999985157,
-          "time_s": 0.5395971670004656
+          "n_runs": 3,
+          "time_iqr_s": 0.057094562995189335,
+          "time_min_s": 0.7190864580043126,
+          "time_s": 0.8240511670010164
         }
       ],
       "probe": "pinneapple_simulation.numerical_solvers.discrete_time_pinn.DiscreteTimePINNSolver (one implicit step, trained to a fixed iteration cap)",
-      "r2": 0.9930062128559414,
+      "r2": 0.7924549833481566,
       "size_axis": "n (iterations of the implicit step, q = 32 fixed)",
       "sizes": [
         5.0,
@@ -1080,98 +2228,197 @@
         40.0
       ],
       "status": "measured",
-      "verdict": "worse than declared"
+      "verdict": "better than declared"
     },
     "T1": {
-      "reason": "no probe written for this method yet",
-      "status": "unmeasured"
+      "declared": "n",
+      "exponent": 0.5514943653535854,
+      "exponent_ci": [
+        0.5165717883249965,
+        1.0946973354408474
+      ],
+      "fits": {
+        "flops": {
+          "ci": [
+            1.0,
+            1.0
+          ],
+          "coefficient": 607.9999999999997,
+          "exponent": 1.0,
+          "r2": 1.0
+        },
+        "memory": {
+          "ci": [
+            0.1769519418914325,
+            0.1769519418914325
+          ],
+          "coefficient": 16840.212072330734,
+          "exponent": 0.1769519418914325,
+          "r2": 0.2656684684654885
+        },
+        "time": {
+          "ci": [
+            0.5165717883249965,
+            1.0946973354408474
+          ],
+          "coefficient": 0.002038132005021895,
+          "exponent": 0.5514943653535854,
+          "r2": 0.9553252766517655
+        }
+      },
+      "flops": 1245184,
+      "flops_source": "flop_counter",
+      "median_time_s": 0.24240137499873526,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 132847,
+      "per_size": [
+        {
+          "flops": 1245184,
+          "mem_bytes": 51290,
+          "n": 2048.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.055764874996384606,
+          "time_min_s": 0.03939437499502674,
+          "time_s": 0.15026816599129234
+        },
+        {
+          "flops": 4980736,
+          "mem_bytes": 132847,
+          "n": 8192.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.03316114599874709,
+          "time_min_s": 0.1768744169967249,
+          "time_s": 0.24240137499873526
+        },
+        {
+          "flops": 19922944,
+          "mem_bytes": 83773,
+          "n": 32768.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.09373962499375921,
+          "time_min_s": 0.6320815000071889,
+          "time_s": 0.6933178339968435
+        }
+      ],
+      "probe": "pinneapple_neural.trainer.trainer.Trainer.fit (one epoch of a 8-16-1 tanh MLP on CPU, batch 64)",
+      "r2": 0.9553252766517655,
+      "size_axis": "n (training samples in the epoch)",
+      "sizes": [
+        2048.0,
+        8192.0,
+        32768.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
     },
     "T10": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "XPINN / DoMINO decompose the domain the user supplies into subdomains",
       "status": "unmeasured"
     },
     "T11": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "the inverse PINN needs a data set to invert against",
       "status": "unmeasured"
     },
     "T12": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_optional_package",
+      "reason": "the gray-box path calls PySR, which is not installed here",
       "status": "unmeasured"
     },
     "T13": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "heteroscedastic / B-PINN / MC-dropout / deep ensembles multiply the training cost by the number of samples or members",
       "status": "unmeasured"
     },
     "T14": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "SINDy fits from a trajectory data set the caller provides",
       "status": "unmeasured"
     },
     "T15": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "the sweep and architecture search run many training jobs: the cost is the number of trials",
       "status": "unmeasured"
     },
     "T16": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "the Noether trainer needs a symmetry declaration and the residual it is applied to",
       "status": "unmeasured"
     },
     "T17": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "the advisor and the audit read a finished run's history; there is no one call to time",
       "status": "unmeasured"
     },
     "T18": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "MAML / Reptile are an inner loop per task: the cost is tasks x inner steps",
       "status": "unmeasured"
     },
     "T19": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "transfer learning needs a source checkpoint and a target data set",
       "status": "unmeasured"
     },
     "T2": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "DDP / FSDP / SLURM / torchrun: the cost is the number of ranks the job is launched with, not one process's call",
       "status": "unmeasured"
     },
     "T20": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "the self-scaled quasi-Newton methods need the objective and its gradient from the caller",
       "status": "unmeasured"
     },
     "T21": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "the autoresearch loop runs a budget of trials: the cost is the budget",
       "status": "unmeasured"
     },
     "T22": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "the large-physics-model blocks are sized by the field and the neighbourhood the caller builds",
       "status": "unmeasured"
     },
     "T23": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "MultiAdam keeps per-term moments inside the training step, so its cost is a fraction of the backward pass T1 measures",
       "status": "unmeasured"
     },
     "T3": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "causal training schedules the collocation points of a trainer run; it is a policy inside T1's loop",
       "status": "unmeasured"
     },
     "T4": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "time marching trains one window per step, so the cost is the number of windows of the case",
       "status": "unmeasured"
     },
     "T5": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "the two-phase schedule (Adam then L-BFGS) needs a model, a loss and a data set from the caller",
       "status": "unmeasured"
     },
     "T6": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "multi-restart is the training cost multiplied by the number of restarts",
       "status": "unmeasured"
     },
     "T7": {
-      "reason": "no probe written for this method yet",
+      "blocker": "needs_input",
+      "reason": "adaptive collocation needs the residual it resamples, i.e. a trainer run to measure",
       "status": "unmeasured"
     },
     "T8": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "the loss balancers (ReLoBRaLo, SoftAdapt, PCGrad, ...) are scalar or gradient operations inside the training step: their cost is a fraction of the backward pass T1 measures",
       "status": "unmeasured"
     },
     "T9": {
-      "reason": "no probe written for this method yet",
+      "blocker": "not_a_single_operation",
+      "reason": "the weight schedulers (SA-PINN, GradNorm, LossRatio, NTK) run inside the training step, on quantities the backward pass produces",
       "status": "unmeasured"
     }
   },

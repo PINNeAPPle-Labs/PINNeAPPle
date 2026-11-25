@@ -121,9 +121,12 @@ def test_at_least_one_method_has_counted_flops_so_the_gate_can_bite():
     assert counted, "no method in the table has a counted FLOP number"
 
 
-def test_a_method_without_a_record_gets_an_actionable_error():
+def test_a_method_without_a_record_gets_an_actionable_error(tmp_path):
+    """Every catalog entry has a row now, so the missing-record path is exercised on a table that lost one."""
+    empty = tmp_path / "method_costs.json"
+    empty.write_text('{"methods": {}}', encoding="utf-8")
     with pytest.raises(UnknownName, match="no cost record"):
-        costs.method_cost("P1.1")
+        costs.method_cost("S4", empty)
 
 
 def test_a_probe_runs_live_and_returns_a_record():

@@ -76,7 +76,9 @@ def _count_flops(fn: Callable[[], Any]):
     """``(flops, source)``. ``flop_counter`` is exact for the operators it knows; it cannot run around
     ``torch.autograd.grad`` (its module hooks fail there), so then ``equal_budget.count_flops`` is used: the same
     per-operator formulas without module hooks, plus FFTs. The profiler's count (matmul/conv only) is the last
-    resort."""
+    resort. A zero from the flop counter is not an answer -- it knows matmul, conv and attention and nothing else, so
+    an FFT or an elementwise kernel counts as zero there while the hook-free dispatch counter sees them -- so a zero
+    falls through to the next counter instead of ending the chain."""
     try:
         from torch.utils.flop_counter import FlopCounterMode
     except Exception:
@@ -87,7 +89,6 @@ def _count_flops(fn: Callable[[], Any]):
         total = int(counter.get_total_flops())
         if total > 0:
             return total, "flop_counter"
-        return None, ""
     except Exception:
         pass
     try:

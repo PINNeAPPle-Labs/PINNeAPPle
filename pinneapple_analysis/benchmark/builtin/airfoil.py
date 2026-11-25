@@ -481,13 +481,13 @@ class AirfoilProblem(Problem):
         self._set(prepared)
         return A.train_mlp(cfg, seed, budget, final=final)
 
-    def train_mgn(self, prepared, cfg, seed, budget, *, final=True, **_):
+    def train_mgn(self, prepared, cfg, seed, budget, *, final=True, comparison_path=None, **_):
         self._set(prepared)
-        return A.train_mgn(cfg, seed, budget, final=final)
+        return A.train_mgn(cfg, seed, budget, final=final, comparison_path=comparison_path)
 
-    def train_mlp_fields(self, prepared, cfg, seed, budget, *, final=True, **_):
+    def train_mlp_fields(self, prepared, cfg, seed, budget, *, final=True, comparison_path=None, **_):
         self._set(prepared)
-        return A.train_mlp_fields(cfg, seed, budget, final=final)
+        return A.train_mlp_fields(cfg, seed, budget, final=final, comparison_path=comparison_path)
 
     def train_pinn(self, prepared, cfg, seed, budget, *, case, ckpt=None, **_):
         self._set(prepared)

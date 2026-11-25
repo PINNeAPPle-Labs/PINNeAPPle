@@ -413,6 +413,9 @@ class _Structural(Problem):
     form, the data checks, the validation stack, the table and the two trainers."""
     kind = "geometry"
     part = "beam"
+    comparison_absent = ("the field lives on the part's three-dimensional node cloud (displacement and von Mises at "
+                         "every node of a C3D8I mesh), not on a plane: the standard reference / surrogate / error "
+                         "panels would have to pick an arbitrary section and would show that section, not the case")
     outputs_mlp_calculix = "integrals"
     outputs_pod_mlp_calculix = "both"
     title_mlp_calculix = "MLP (displacement, peak stress)"

@@ -51,9 +51,9 @@ Options of `run`: `--force` (reuse an `out_dir` made with another configuration)
 | `hardware.json` | CPU, cores, memory, GPU, library versions |
 | `prepared/<problem>/` | solver configuration, data, geometry (for the airfoil: shapes, a complete OpenFOAM case), data-generation cost, `manifest.json` with the SHA-256 of every file and the validation status |
 | `validation/` | per problem: solver verification, data checks, the validation stack; `architecture.json`, `determinism.json` |
-| `runs/` | one JSON per training job (spec, result, hardware, wall time): the cache |
+| `runs/` | one JSON per training job (spec, result, hardware, wall time): the cache. A job that evaluated its final model also leaves `runs/<job>.npz` (the reference and predicted field of the instance the report draws, in the same ndarray sidecar the problems' own campaigns use) |
 | `table.md`, `table.csv`, `summary.json` | the report |
-| `figures/` | `summary_table.png` (shareable), `error_vs_budget.png`, `pareto_error_vs_inference.png` |
+| `figures/` | `summary_table.png` (shareable), `error_vs_budget.png`, `pareto_error_vs_inference.png`, and `comparison_<problem>.png` for every case with a planar field |
 
 ## Stage 1: prepare
 
@@ -136,6 +136,26 @@ and adds those points to the seed-0 runs of `budget_levels`: a table per instanc
 `ablations` trains the best configuration with each change at the full budget on the problem's audit instance and
 puts it next to the unchanged run (the **Setup audit** table). Both only add jobs: adding budgets, problems, methods or variants to them reuses an existing `out_dir`;
 changing or removing an entry is refused like any other configuration change (it would reinterpret cached runs).
+
+### Field comparison
+
+Every case that has a planar field gets the same picture in `figures/comparison_<problem>.png` -- the reference, the
+surrogate and `|surrogate - reference|` side by side, the two solutions on **one shared colour scale**, and the error
+as a number in the title -- drawn with `pp.viz.compare_solutions` and measured with `pp.viz.field_error_metrics`, so
+the figure and the table cannot quote two different errors. The surrogate is the case's best field model on the metric
+that judges it (integrals-only methods and rows that failed a gate are left out), from its full-budget, seed-0 run;
+the reference is the case's own. The report's **Field comparison** section says how many cases have the figure and, for
+every case that has not, why: `burgers` is a 1-D profile and the two CalculiX parts carry their fields on a 3-D node
+cloud, so they declare it in `Problem.comparison_absent` instead of getting a picture that means nothing.
+
+```python
+@pp.benchmark.register_problem("my_case")
+class MyCase(pp.benchmark.FieldOperatorProblem):
+    comparison_absent = ""          # empty: the figure applies. A case without a 2-D field writes the reason here
+```
+
+A problem that has the field stores it with `comparison.save_comparison(path, reference, prediction, x=..., y=...,
+quantity=..., unit=...)` from its trainer (the job's `comparison_path`), and the report draws it.
 
 ### Example: what the gates and the advisor said on PINNeAPPle-Benchmark experiment 09
 

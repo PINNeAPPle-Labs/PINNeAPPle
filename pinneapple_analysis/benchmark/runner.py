@@ -224,7 +224,8 @@ def run_job(spec: dict, out_dir: str, objects: dict | None = None) -> str:
         prepared = Path(out_dir) / "prepared" / spec["problem"]
         kw = dict(spec.get("instance") or {})
         res = meth.train(prob, prepared, spec["cfg"], spec["seed"], _job_budget(spec),
-                         final=spec["stage"] != "search", ckpt=str(runs / f"{spec['id']}.ckpt.pt"), **kw)
+                         final=spec["stage"] != "search", ckpt=str(runs / f"{spec['id']}.ckpt.pt"),
+                         comparison_path=str(runs / f"{spec['id']}.npz"), **kw)
         out = {"spec": spec, "result": res, "ok": True}
     except Exception:                                            # failures are recorded, never hidden
         out = {"spec": spec, "ok": False, "error": traceback.format_exc()}
@@ -249,6 +250,9 @@ def write_job_record(spec: dict, out_dir: str, *, root: Path | None = None) -> P
     ckpt = root / "runs" / f"{job_id}.ckpt.pt"
     if ckpt.exists():                                            # a checkpoint is an output too, when there is one
         files.append(ckpt)
+    fields = root / "runs" / f"{job_id}.npz"
+    if fields.exists():                                          # the field behind the report's comparison figure
+        files.append(fields)
     rec = run_record.record(
         "benchmark-run", job_id, root=root, outputs=files,
         command=[sys.executable, "-m", "pinneapple_analysis.benchmark", "run", "--config", str(root / "config.yaml"),

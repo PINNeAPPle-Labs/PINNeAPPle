@@ -144,6 +144,40 @@ def hertz_line(P: float, R: float, length: float, E: float, nu: float, rigid: bo
     return {"b": b, "p0": 2 * P / (math.pi * b * length), "e_star": e_star}
 
 
+def von_mises(sx: float, sy: float, sz: float, sxy: float = 0.0, syz: float = 0.0, szx: float = 0.0) -> float:
+    """The equivalent (von Mises) stress of a stress state, tension positive — the quantity ``*PLASTIC`` compares
+    with the yield stress."""
+    return math.sqrt(0.5 * ((sx - sy) ** 2 + (sy - sz) ** 2 + (sz - sx) ** 2)
+                     + 3.0 * (sxy * sxy + syz * syz + szx * szx))
+
+
+def hertz_line_axis(zeta: float, nu: float = 0.3) -> tuple[float, float, float]:
+    """The principal stresses on the loaded axis under a 2-D Hertz line contact, in units of ``p0``.
+
+    ``zeta = z/b``, ``z`` measured from the surface into the body, compression negative. The classical field
+    (Johnson, *Contact Mechanics*, 1985) written out on the axis, where the shear vanishes and the three principal
+    stresses are ``sigma_x`` (across the contact), ``sigma_y = nu (sigma_x + sigma_z)`` (out of plane, plane strain)
+    and ``sigma_z`` (into the body).
+    """
+    root = math.sqrt(1.0 + zeta * zeta)
+    sx = -((1.0 + 2.0 * zeta * zeta) / root - 2.0 * zeta)
+    sz = -1.0 / root
+    return sx, nu * (sx + sz), sz
+
+
+def first_yield_factor(nu: float = 0.3, steps: int = 4000, z_max: float = 4.0) -> float:
+    """``p0 / sigma_y`` at the onset of yield in a 2-D Hertz line contact — Johnson's classic factor.
+
+    The peak of the equivalent stress sits *below* the surface, so the factor is not ``1``: the field above is
+    scanned along the axis and the factor is ``1 / max(von Mises / p0)``. For ``nu = 0.3`` it comes out **1.79** by
+    von Mises (the criterion CalculiX uses), with the peak at ``z = 0.70 b``; by Tresca it is 1.67 ``sigma_y``, the
+    peak shear being ``0.30 p0`` at ``z = 0.79 b``. Same numbers as Johnson, *Contact Mechanics* (Cambridge, 1985),
+    the section on the onset of yield.
+    """
+    peak = max(von_mises(*hertz_line_axis(z_max * i / steps, nu)) for i in range(1, steps + 1))
+    return 1.0 / peak if peak > 0 else 0.0
+
+
 def lame_shrink_fit(interference: float, a: float, b: float, c: float, E: float, nu: float,
                     plane_strain: bool = True, *, E_ring: float | None = None,
                     nu_ring: float | None = None) -> float:

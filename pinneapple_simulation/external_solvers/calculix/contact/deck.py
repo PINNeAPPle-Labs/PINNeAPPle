@@ -116,6 +116,40 @@ def section(deck: Deck, elset: str, material_name: str) -> None:
     deck.block(f"*SOLID SECTION, ELSET={elset}, MATERIAL={material_name}")
 
 
+def plastic(deck: Deck, sigma_y: float, hardening: float = 0.0) -> None:
+    """``*PLASTIC`` under the material just declared, as an elastic-**perfectly** plastic card.
+
+    The curve is written with two points and no slope between them (``sigma_y`` at zero plastic strain and the same
+    stress at 1.0), which is what "perfectly plastic" means: the material carries ``sigma_y`` and no more, however far
+    it is pushed. It has to follow the ``*ELASTIC`` of the same material — a ``*PLASTIC`` card attaches to the
+    preceding ``*MATERIAL``, and writing another material in between silently gives the yield to the wrong body.
+    """
+    if sigma_y <= 0:
+        raise ValueError("the yield stress must be positive")
+    points = [(sigma_y, 0.0), (sigma_y + hardening, 1.0)]
+    deck.block("*PLASTIC, HARDENING=ISOTROPIC", *[f"{s:.8g}, {e:.6g}" for s, e in points])
+
+
+def distributing_coupling(deck: Deck, elset: str, element: int, ref: int, weights: dict[int, float]) -> None:
+    """``*DISTRIBUTING COUPLING``: a load put at ``ref`` spread over the listed nodes instead of entering at one.
+
+    The keyword needs an element set holding exactly one ``DCOUP3D`` element, whose single node is the reference;
+    what is applied there — a force by ``*CLOAD`` or a displacement by ``*BOUNDARY`` — is distributed over the nodes
+    below it with the weights given. Area weights (each node's tributary area) make the traction uniform, which is
+    the point when the coupling stands for a bolt head or a nut face: a single node dents the plate, a weighted
+    footprint presses it.
+
+    CalculiX builds one multiple point constraint per direction with every listed node in it, so the equation is
+    fully populated and the manual recommends staying under about 50 nodes — a footprint, not a whole face.
+    """
+    if not weights:
+        raise ValueError(f"the distributing coupling {elset!r} has no node to distribute the load over")
+    if any(w <= 0 for w in weights.values()):
+        raise ValueError("a distributing coupling weight has to be positive")
+    deck.block(f"*ELEMENT, TYPE=DCOUP3D, ELSET={elset}", f"{element}, {ref}")
+    deck.block(f"*DISTRIBUTING COUPLING, ELSET={elset}", *[f"{n}, {w:.8g}" for n, w in sorted(weights.items())])
+
+
 def plane_strain(deck: Deck, faces: Sequence[int], dof: int = 3) -> None:
     """``*BOUNDARY`` inside the step that holds the out-of-plane displacement on both thickness faces.
 

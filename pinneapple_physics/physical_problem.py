@@ -325,6 +325,28 @@ class PhysicalProblem:
                     distribution=distribution if distribution is not None else p.distribution)
         return replace(self, parameters={**self.parameters, name: p})
 
+    # ------------------------------------------------------------------ training backends (#75)
+    def backend(self, backend: str = "pytorch", **options: Any) -> Any:
+        """The trainer for this problem on ``backend``: ``"pytorch"``, ``"jax"`` or ``"physicsnemo"``.
+
+        The problem is the description; this is the engine that fits it, and the same problem object drives all
+        three::
+
+            problem = pp.PhysicalProblem.from_preset("heat_1d")
+            jax_run = problem.backend("jax", ...)      # a ProblemBackend; options go to its constructor
+            report = jax_run.fit(epochs=300, seed=0)   # a FitReport
+            y = jax_run.predict(X)                     # a Prediction, (N, len(fields))
+            jax_run.save("heat_1d.npz")                # reloaded by pinneapple_neural.model_provider.load
+
+        Training options (``epochs``, ``n_collocation``, ``lr``, ``seed``, ``hidden_dim``, ``n_layers``) belong to
+        ``fit``; ``options`` here are the backend's own constructor arguments (``architecture=`` on pytorch). A
+        backend whose package is missing, and a PDE kind or condition the backend does not build a residual for, are
+        refused by name -- see :mod:`pinneapple_neural.problem_backends`.
+        """
+        from pinneapple_neural.problem_backends import problem_backend
+
+        return problem_backend(self, backend, **options)
+
     # ------------------------------------------------------------------ units (#110)
     def unit_names(self) -> list[str]:
         """Every name in the problem that can carry a unit: coordinates, fields and parameters."""

@@ -2,7 +2,7 @@
 
 Every folder under `examples/` is either run by CI or marked manual with a reason. The reasons are measured, not assumed: `python scripts/example_catalog.py --measure` runs each example and records what happened, and `--check` is the gate that keeps this page true.
 
-**In the CI tier: 9 · manual: 93 · budget: 660 s.**
+**In the CI tier: 9 · manual: 95 · budget: 660 s.**
 
 ## Runs in CI
 
@@ -38,12 +38,14 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/capsule_aeroheating` | takes longer than 12 s (01_multifidelity.py): too slow for the ci tier |
 | `examples/carbench_surface_pressure` | fails when run: RuntimeError: no design completed: see the failures listed above |
 | `examples/carcrashnet_pole_impact` | takes longer than 12 s (run.py): too slow for the ci tier |
+| `examples/cfd` | takes longer than 12 s (run_cases.py): too slow for the ci tier |
 | `examples/chain_of_whys` | takes longer than 12 s (chain_of_whys.py): too slow for the ci tier |
 | `examples/condensation_falsification` | runs clean in 1.5 s but is not in the ci tier yet: promote it with --promote |
 | `examples/control` | runs clean in 2.5 s but is not in the ci tier yet: promote it with --promote |
 | `examples/core_primitives` | takes longer than 12 s (01_poisson_pinn.py): too slow for the ci tier |
 | `examples/data_api` | runs clean in 5.2 s but is not in the ci tier yet: promote it with --promote |
 | `examples/design_from_intent` | takes longer than 12 s (design_from_intent.py): too slow for the ci tier |
+| `examples/digital_twin_end_to_end` | takes longer than 12 s (twin_on_real_sensors.py): too slow for the ci tier |
 | `examples/digital_twin_library` | runs clean in 4.6 s but is not in the ci tier yet: promote it with --promote |
 | `examples/dynamics_toolkit` | takes longer than 12 s (dynamics_toolkit.py): too slow for the ci tier |
 | `examples/electrodynamics` | takes longer than 12 s (01_laplace_capacitor.py): too slow for the ci tier |

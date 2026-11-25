@@ -153,7 +153,10 @@ def classify(folder: Path, broken: set[str], run: bool = False) -> dict[str, Any
         return entry
     only = files[0]
     started = time.perf_counter()
-    proc = _run([sys.executable, only.name], folder, MEASURE_TIMEOUT)
+    # A declared script can sit in a subfolder of the example (``classical_cases/run_cases.py``), so it is run by its
+    # path inside the folder, not by its bare name: with the bare name every example that keeps its scripts one level
+    # down was measured as "can't open file" and filed as failing (#625).
+    proc = _run([sys.executable, only.relative_to(folder).as_posix()], folder, MEASURE_TIMEOUT)
     if proc is None:
         entry["reason"] = f"takes longer than {MEASURE_TIMEOUT} s ({only.name}): too slow for the ci tier"
         return entry

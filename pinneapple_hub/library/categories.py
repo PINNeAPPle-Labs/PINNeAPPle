@@ -36,10 +36,15 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("checks", "Physics checks and trust cards", "Residuals, conservation, boundary checks, trust cards",
      ("lib:pinneapple_physics.physics_audit", "lib:pinneapple_physics.darcy_checks", "fn:pp.trust_card",
       "fn:pp.validate", "mcp:trust_card", "fn:pinneapple_analysis.validation", "lib:pinneapple.check",
-      "node:analysis.physics_learning")),
+      "node:analysis.physics_learning",
+      # the generated calls of the closed-form checks and of the trust report: same rule as the recipes that come from
+      # those two modules ("closed-form engineering checks" and the trust cards), which is where an engineer looks
+      # for them (#625)
+      "lib:pinneapple_physics.closed_form.", "lib:pinneapple_analysis.trust.")),
     ("verification", "Verification and convergence", "Convergence studies, reference comparisons, Lab seals",
      ("node:verify.", "node:validate.", "node:forecast.lab", "node:science.", "fn:pp.science", "lib:pinneapple_analysis.verification",
       "lib:pinneapple_analysis.inspection", "fn:pinneapple_catalog.", "mcp:describe_method",
+      "lib:pinneapple_analysis.validation",   # the arena, the fault matrix and the report schema: generated calls too
       "mcp:list_methods")),
     ("benchmarks", "Benchmarks", "Equal-budget comparisons of methods",
      ("node:benchmark.", "node:lib.compare.", "fn:pp.benchmark", "fn:pp.compare", "mcp:benchmark",

@@ -43,7 +43,15 @@ import time
 
 import numpy as np
 
-from pinneapple_design.aero.geometry import BOUNDS, LABELS, PARAMS, REFERENCE, latin_hypercube, properties, valid
+from pinneapple_design.aero.geometry import (
+    BOUNDS,
+    LABELS,
+    PARAMS,
+    REFERENCE,
+    latin_hypercube,
+    properties,
+    valid,
+)
 from pinneapple_design.aero.panel import airfoil_nodes, panel_solve
 from pinneapple_neural.lpm import Design, LargePhysicsModel, fit
 
@@ -197,24 +205,19 @@ def _score(model: LargePhysicsModel, solved: dict, alpha_deg: float) -> dict:
             "shape": [float(v) for v in solved["shape"]]}
 
 
-def _train_score(seed: int, p: dict, box: np.ndarray, sets: dict) -> dict:
-    """One training seed over the one design set: fit the model, then score every body of it."""
+def _train_score(seed: int, p: dict, box: np.ndarray, labelled: dict[str, list[dict]]) -> dict:
+    """One training seed over the one labelled design set: fit the model, then score every body of it."""
     import torch
-
-    train = bodies(sets["train"], p["panels_per_side"], p["alpha_deg"])
-    unseen = bodies(sets["unseen"], p["panels_per_side"], p["alpha_deg"])
-    new = bodies(sets["new"], p["panels_per_side"], p["alpha_deg"])
 
     torch.manual_seed(seed)
     model = LargePhysicsModel(dim=2, n_fields=1, radii=(0.1, 0.4, 1.2), width=p["width"], code=p["code"],
                               n_heads=p["heads"])
     t0 = time.perf_counter()
-    history = fit(model, [design(b) for b in train], epochs=p["epochs"], lr=p["lr"], seed=seed)
+    history = fit(model, [design(b) for b in labelled["train"]], epochs=p["epochs"], lr=p["lr"], seed=seed)
     train_s = time.perf_counter() - t0
 
-    scored = {"train": [_score(model, b, p["alpha_deg"]) for b in train],
-              "unseen": [_score(model, b, p["alpha_deg"]) for b in unseen],
-              "new": [_score(model, b, p["alpha_deg"]) for b in new]}
+    scored = {group: [_score(model, b, p["alpha_deg"]) for b in group_bodies]
+              for group, group_bodies in labelled.items()}
     for group, rows in scored.items():
         for row in rows:
             row["group"] = group
@@ -244,7 +247,7 @@ def _merge(per_seed: list[dict]) -> dict[str, list[dict]]:
         for run_i in per_seed:
             for row in run_i["rows"][group]:
                 by_name.setdefault(row["name"], []).append(row)
-        for name, variants in by_name.items():
+        for variants in by_name.values():
             first = dict(variants[0])
             rel = [v["relative_l2"] for v in variants]
             first["relative_l2"] = float(np.mean(rel))
@@ -269,8 +272,10 @@ def run(protocol: dict | None = None, *, write: bool = False, out_path: str | No
     box = _train_box(p["box_shrink"])
     t0 = time.perf_counter()
     sets = split(p)
+    labelled = {group: bodies(group_shapes, p["panels_per_side"], p["alpha_deg"])
+                for group, group_shapes in sets.items()}       # the labels are shared by every seed
     label_s = time.perf_counter() - t0
-    per_seed = [_train_score(seed, p, box, sets) for seed in p["seeds"]]
+    per_seed = [_train_score(seed, p, box, labelled) for seed in p["seeds"]]
     merged = _merge(per_seed)
 
     def group_block(group: str) -> dict:

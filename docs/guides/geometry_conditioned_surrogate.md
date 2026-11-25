@@ -35,7 +35,8 @@ six CST weights are only how this page happens to generate the family.
   `T0..T2` and camber weights `M0..M2`, from `pinneapple_design.aero.geometry` with its documented bounds;
 * **label** — the pressure coefficient `Cp` on every panel, from the Hess-Smith panel method
   (`pinneapple_design.aero.panel.panel_solve`): the inviscid potential-flow reference, which is what any
-  potential-flow or neural model can at best reach. 100 panels per body, 0.06 s for the whole design set;
+  potential-flow or neural model can at best reach. 100 panels per body, and the whole design set is labelled in
+  under a tenth of a second;
 * **the split** — training bodies are a Latin hypercube inside the *training box*: the documented parameter ranges
   pulled back by 20 % at each end. Held out are bodies inside that box (interpolation), **new geometries** drawn in
   the outer band so that at least one weight is outside everything the model was trained on, and two named real

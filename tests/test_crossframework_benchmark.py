@@ -253,6 +253,9 @@ def test_solve_pde_evaluates_the_collocation_points_once_per_step():
 
 
 # --------------------------------------------------------------------------- runner smoke tests
+# The physicsnemo runners import ``physicsnemo.sym.domain``; physicsnemo 2.x ships ``physicsnemo.sym`` as a shim without
+# that submodule, so probing only ``physicsnemo.sym`` let the smoke test start the runner and fail on the import inside
+# it ("ModuleNotFoundError: No module named 'physicsnemo.sym.domain'") instead of skipping (#625).
 def _run_runner(module, tmp_path, *extra):
     cmd = [sys.executable, "-m", f"benchmarks.vs_frameworks.{module}", "--root", str(tmp_path), "--out",
            str(tmp_path / "runs"), "--run-id", "smoke", *extra]
@@ -264,7 +267,7 @@ def _run_runner(module, tmp_path, *extra):
 
 
 @pytest.mark.parametrize("module,pkg", [("track_a_pinneapple", "torch"), ("track_a_deepxde", "deepxde"),
-                                        ("track_a_physicsnemo_sym", "physicsnemo.sym")])
+                                        ("track_a_physicsnemo_sym", "physicsnemo.sym.domain")])
 def test_track_a1_runner_smoke(module, pkg, tmp_path):
     pytest.importorskip(pkg)
     meta, arr = _run_runner(module, tmp_path, "--problem", "poisson", "--mode", "a1", "--iters", "3")
@@ -275,7 +278,7 @@ def test_track_a1_runner_smoke(module, pkg, tmp_path):
 
 @SLOW
 @pytest.mark.parametrize("module,pkg", [("track_a_pinneapple", "torch"), ("track_a_deepxde", "deepxde"),
-                                        ("track_a_physicsnemo_sym", "physicsnemo.sym")])
+                                        ("track_a_physicsnemo_sym", "physicsnemo.sym.domain")])
 def test_track_a2_runner_smoke(module, pkg, tmp_path):
     pytest.importorskip(pkg)
     meta, _ = _run_runner(module, tmp_path, "--problem", "burgers", "--mode", "a2", "--cap-s", "5")
@@ -283,7 +286,7 @@ def test_track_a2_runner_smoke(module, pkg, tmp_path):
 
 
 @pytest.mark.parametrize("module,pkg", [("track_c_pinneapple", "torch"), ("track_c_deepxde", "deepxde"),
-                                        ("track_c_physicsnemo_sym", "physicsnemo.sym")])
+                                        ("track_c_physicsnemo_sym", "physicsnemo.sym.domain")])
 def test_track_c_runner_smoke(module, pkg, tmp_path):
     pytest.importorskip(pkg)
     meta, arr = _run_runner(module, tmp_path, "--problem", "burgers_inverse", "--mode", "c", "--iters", "3")

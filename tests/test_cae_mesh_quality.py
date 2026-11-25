@@ -44,7 +44,16 @@ def test_sheared_channel_matches_checkmesh_failure():
     assert sum(g["cells"] for g in r["regions"]) == 22 and all(g["nearest_patch"] == "walls" for g in r["regions"])
 
 
+def _needs_meshio() -> None:
+    """The .msh and .vtu examples are read through meshio, which lives in the `cfd`/`geom`/`check` extras.
+
+    Without it ``read_any`` raises ``FormatError("reading this format needs meshio")`` — the library saying the extra
+    is missing, not a broken reader (#625)."""
+    pytest.importorskip("meshio", reason="the .msh and .vtu examples need meshio: pip install -e '.[geom]'")
+
+
 def test_gmsh_tets_read_directly_match_checkmesh_after_gmshToFoam():
+    _needs_meshio()
     m = _mesh("gmsh_bracket_tet.msh")
     r = mesh_report(m, target="cfd")
     mt = r["metrics"]
@@ -67,6 +76,7 @@ def test_scaled_jacobian_ideal_elements_both_conventions(t):
 
 
 def test_inverted_element_stray_part_and_hinge():
+    _needs_meshio()
     r = mesh_report(_mesh("assembly_with_errors.vtu"))
     assert r["status"] == "FAIL"
     st = {c["key"]: c for c in r["checks"]}
@@ -90,6 +100,7 @@ def test_calculix_deck():
 
 def test_api_examples():
     pytest.importorskip("fastapi")
+    _needs_meshio()          # two of the six examples the app serves are read by meshio (.msh, .vtu)
     sys.path.insert(0, APP)
     from fastapi.testclient import TestClient
     from mesh_quality.api import app

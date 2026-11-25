@@ -610,6 +610,8 @@ _SUBMODULES = {
     # core
     "env":        "pinneapple_physics.pde_environment",
     "inverse":    "pinneapple_analysis.inverse_problems",
+    # surrogate in the loop: pp.optimize.loop(space, surrogate, solver, budget=N) (#297)
+    "optimize":   "pinneapple_analysis.surrogate_loop",
     "design_opt": "pinneapple_design.design_optimizer",
     "models":    "pinneapple_models",
     "train":     "pinneapple_train",
@@ -828,6 +830,8 @@ __all__ = [
     # Front door: solve, compare, run reproducible experiments, score with one metrics convention
     "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method", "list_methods",
     "Experiment", "ExperimentResult", "metrics", "StateEstimator", "experiments",
+    # surrogate in the loop with a verification budget (#297)
+    "optimize",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # First hour: is this machine ready, what should I run, what does it take, where do I put it

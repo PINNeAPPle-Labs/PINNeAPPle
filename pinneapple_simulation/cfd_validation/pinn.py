@@ -139,7 +139,7 @@ class Config:
     fourier_scale: float = 3.0
     collocation: int = 2000                 # PDE residual points per step
     boundary: int = 250                     # points per wall
-    steps: int = 6000
+    steps: int = 10000                      # the budget the committed measurement had: 36 minutes of a CPU per model
     lr: float = 2e-3
     resample: int = 200                     # the collocation points are redrawn this often
     pde_weight: float = 1.0

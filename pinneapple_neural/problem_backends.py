@@ -351,9 +351,9 @@ class JaxProblemBackend(ProblemBackend):
             **options: Any) -> FitReport:
         """Train on the problem's residual with Adam, ``epochs`` steps of ``n_collocation`` fresh points.
 
-        ``n_fourier``/``sigma`` shape the fixed Fourier embedding in front of the tanh stack. ``sigma=0.5`` is the
-        default because the registry's ``1.0`` puts most of the band above the frequency of the benchmark cases'
-        solutions: on case 02, at the same budget, it measured 0.074 in-domain relative L2 against 0.25 with 1.0.
+        Fora o ``n_fourier``/``sigma``, the budget is the benchmark protocol's. ``sigma=0.5`` is the default because
+        the registry's ``1.0`` puts most of the band above the frequency of the benchmark cases' solutions: on case
+        02 at seed 0 and 300 epochs it measured 0.074 in-domain relative L2 against 0.25 with 1.0.
         """
         if data is not None:
             raise TypeError(f"{self.name}: pass data as a 'data' condition on the problem, not to fit()")

@@ -81,6 +81,13 @@ def test_an_unverified_licence_never_points_at_the_github_licence_api():
                 f"{tool.id} says its licence was read through the API but is not marked verified")
 
 
+def test_a_licence_that_forbids_commercial_use_is_not_counted_as_open():
+    """FluidX3D is source-available and free for research, and its licence says commercial use is not allowed, so
+    the row cannot answer that it is open just because it is not called proprietary."""
+    assert not stages.get("fluidx3d").is_open
+    assert stages.get("genesis").is_open, "an Apache-2.0 entry has to stay open for this to mean anything"
+
+
 def test_the_licence_of_an_entry_that_overlaps_the_recommendation_catalogue_is_really_there():
     """No duplicated tool pages: an entry that overlaps ``TOOL_CATALOG`` names the id, and the id must exist."""
     from pinneapple_analysis.verification.tool_recommendation import TOOL_CATALOG

@@ -1,6 +1,6 @@
 # PINNeAPPle Lab catalogue
 
-271 runs, generated 2026-11-25 10:37.
+271 runs, generated 2026-11-25 13:54.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
@@ -12,7 +12,7 @@
 | [bricks](#bricks) | 3 | 3 | 0 | 0 | - |
 | [calculix_case](#calculix_case) | 5 | 5 | 0 | 0 | fields (5) |
 | [car_lbm](#car_lbm) | 76 | 76 | 0 | 0 | flow (76), vorticity (3648) |
-| [car_surrogate](#car_surrogate) | 1 | 0 | 0 | 0 | - |
+| [car_surrogate](#car_surrogate) | 1 | 0 | 1 | 0 | predictions (36) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
 | [em_pinn](#em_pinn) | 4 | 2 | 2 | 0 | - |
 | [example_script](#example_script) | 8 | 5 | 0 | 3 | - |
@@ -186,9 +186,11 @@ Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parame
 
 Physics AI on car geometry: an FNO maps the car shape to its mean flow (data-only and with a mass-conservation / no-slip physics loss), an MLP ensemble maps the design parameters to drag and lift; scored on unseen designs against baselines, then used to find a low-drag shape that a new LBM run verifies.
 
-| run | status | ensemble | epochs | holdout | modes | physics_weight | search_samples | seed | verify | width | checks |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| [3db2de4d123b](runs/car_surrogate/car_surrogate-3db2de4d123b) | running | 5 | 300 | 0.2 | 16 | 0.5 | 4000 | 0 | True | 24 | 0/0 |
+| run | status | ensemble | epochs | holdout | modes | physics_weight | search_samples | seed | verify | width | Cd_mape_linear | Cd_mape_mlp_ensemble | Cd_mape_nearest_design | Cl_mae_mlp_ensemble | divergence_fno_data_only | divergence_fno_physics | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [3db2de4d123b](runs/car_surrogate/car_surrogate-3db2de4d123b) | failed_validation | 5 | 300 | 0.2 | 16 | 0.5 | 4000 | 0 | True | 24 | 0.007727 | 0.01767 | 0.04194 | 0.0557 | 0.00314 | 0.001527 | 5/6 |
+
+![car_surrogate](runs/car_surrogate/car_surrogate-3db2de4d123b/figures/coefficient_parity.png)
 
 ## cylinder_lbm
 

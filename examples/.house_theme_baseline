@@ -19,11 +19,7 @@ examples/electrodynamics/15_prius_skew.py
 examples/electrodynamics/16_prius_end_effects.py
 examples/electrodynamics/18_emachine_slides.py
 examples/electrodynamics/19_edge3d_verification.py
-examples/electrodynamics/24_afpm_quasi3d.py
-examples/electrodynamics/25_afpm_surrogates.py
-examples/electrodynamics/26_charged_particles.py
 examples/free_surface/01_runner_slope_study.py
-examples/geomechanics/01_granular_column_collapse.py
 examples/handoff_cases/airfoil_ld/geometry/make_geometry.py
 examples/handoff_cases/airfoil_ld/simulation/plot_results.py
 examples/handoff_cases/airfoil_ld/simulation/summarise_baseline.py
@@ -33,7 +29,6 @@ examples/lbm/01_sphere_wind_tunnel.py
 examples/meshgraphnet/02_cylinder_flow_deepmind.py
 examples/modelica/02_ladle_surrogate.py
 examples/modelica/03_tank_inverse_pinn.py
-examples/motor_magnetics/03_multiphysics3d_surrogate.py
 examples/nvidia/03_robotsim_pick_and_place/run.py
 examples/nvidia/04_worldmodel_physics_video/run.py
 examples/nvidia/05_brep_plate_with_hole/run.py

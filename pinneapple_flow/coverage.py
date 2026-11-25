@@ -69,6 +69,13 @@ REASONS: dict[str, str] = {
                                                      "data cannot separate it from another, and the coverage that "
                                                      "interval was measured to have: it is the evidence a calibration "
                                                      "is reported with, not a step of a flow",
+    "pinneapple_analysis.condition": "what the scales and the loss weights should be before a run starts: it "
+                                     "answers a question about the setup of a problem, and the training node "
+                                     "consumes the numbers -- the run it changes is the node's, not this",
+    "pinneapple_analysis.linalg": "the linear-algebra layer the steps above are built from: an operator, a POD basis, "
+                                  "a spectrum, a condition estimate and an adjoint derivative are what a node calls "
+                                  "inside its own computation, not a computation a flow chooses to run -- the "
+                                  "reduced-order and sensitivity nodes are the steps that use them",
     "pinneapple_physics.dimensions": "a dimensional check of one equation before training: it reads a statement and "
                                      "reports which term broke the units, which is a review of a problem rather "
                                      "than a step of a flow",

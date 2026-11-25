@@ -66,6 +66,7 @@ __all__ = [
     "integrate_with_events",
     "is_a_stable",
     "is_l_stable",
+    "jacobian_spectrum",
     "measure_order",
     "pendulum_cartesian_index1",
     "radau_iia",
@@ -930,6 +931,19 @@ def _jacobian_eigenvalues(
     return np.linalg.eigvals(jacobian)
 
 
+def jacobian_spectrum(rhs: Callable[[float, np.ndarray], Any], t: float,
+                      y: Sequence[float] | float, *, step: float = 1e-7) -> np.ndarray:
+    """The eigenvalues of the local Jacobian at ``(t, y)``, by forward differences.
+
+    The public face of the measurement the stiffness diagnostics are built on: the real parts are the decay
+    rates (their spread is the stiffness ratio) and the imaginary parts are the frequencies. A forward
+    difference puts the small eigenvalues at the level of ``sqrt(eps)`` relative noise, so a mode that is
+    much slower than the fastest one is measured with few digits -- which is why the ratio is reported as a
+    lower bound in :func:`stiffness_report`.
+    """
+    return _jacobian_eigenvalues(rhs, float(t), _as_state(y), step=step)
+
+
 def stiffness_ratio(rhs: Callable[[float, np.ndarray], Any], t: float,
                     y: Sequence[float] | float) -> float:
     """``max|Re lambda| / min|Re lambda|`` of the local Jacobian: the ratio of the fastest to the slowest mode.
@@ -962,14 +976,20 @@ def stiffness_report(
 
     The trajectory comes from an implicit run at coarse resolution (stability does not matter for the
     *diagnosis*), so the report is available before choosing a solver -- which is when it is useful.
+
+    ``states`` is the state at each sampled time, returned so that a caller can measure something else on
+    the same trajectory (the Jacobian spectrum, for one: :func:`~.regimes.diagnose_ode` does) without
+    integrating a second time.
     """
     result = backward_euler(rhs, y0, t_span, max(4, int(samples) - 1))
     times = np.linspace(float(t_span[0]), float(t_span[1]), int(samples))
     state = _as_state(y0)
     ratios: list[float] = []
+    states: list[list[float]] = []
     for t in times:
         index = int(np.argmin(np.abs(result.t - t)))
         state = _as_state(result.y[index])
+        states.append([float(v) for v in state])
         ratios.append(stiffness_ratio(rhs, float(t), state))
     worst = float(np.max(ratios))
     diagnostics: list[Diagnostic] = []
@@ -978,6 +998,7 @@ def stiffness_report(
                                    threshold=threshold))
     return {
         "times": [float(t) for t in times],
+        "states": states,
         "stiffness_ratios": ratios,
         "max_stiffness_ratio": worst,
         "is_stiff": bool(worst >= threshold),

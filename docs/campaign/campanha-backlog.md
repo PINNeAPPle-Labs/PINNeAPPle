@@ -52,7 +52,7 @@ quando o critério de aceite pedia, página de documentação — e nenhuma fech
 | 201 | [X17] Public namespace layout and positioning (pp.physics, … | S | P1 | **feito** | docs/architecture/public_namespace.md + README + ROADMAP §13 + tests/test_public_namespace.py. Commit 61f7e834b. |
 | 227 | [X40] Architecture decision rule: seven planes (Physics IR,… | S | P1 | **feito** | docs/architecture/seven_planes.md + CONTRIBUTING + ROADMAP §13. Commit 61f7e834b. |
 | 38 | [B12] run_results as verifiable evidence | M | P1 | **PR** | PR #2275 abre o manifesto de integridade determinístico de run_results; revisar e integrar. |
-| 159 | [S10] Automatic conservation and boundary-condition checks | M | P1 | **PR** | Seis PRs abertos (#2276–#2283) cobrem conservação 1D/2D/3D, malha não estruturada e OpenFOAM; revisar e integrar em ordem. |
+| 159 | [S10] Automatic conservation and boundary-condition checks | M | P1 | **feito** | Fechada pelo #2355: conservação de massa e de energia e violação de contorno **medidas** no campo previsto, em `pinneapple_analysis/trust/flow_card.py` (`FlowSpec`, `flow_checks`, com a checagem `local` do pior volume), com dois benchmarks de solução exata em `tests/pinneapple_analysis/test_flow_conservation.py`. O lado do caso resolvido já existia em `pinneapple_check` (desde 2026-10-13): `fields.py::read_surface_scalar` lê o `phi` em ASCII e binário, `fv.py::FV`/`fv_mass_balance`/`fv_residuals` fecham o balanço, e as regras PC101/PC102/PC103 dão o veredito. A pilha antiga (#2276–#2284) foi fechada em 2026-11-25, cada PR com o que tinha e o que se perdeu. |
 | 933 | QA pipeline: repair re-validates the source but does not re… | M | P1 | **feito** | QualityPipeline(rebuild_from_source=...): cada tentativa repara, executa, reconstrói o bundle e valida contra os dados novos, com bundle_source fresh/stale e rebuild_error; 8 testes (c35d9fcb4). |
 | 1494 | [PDI 4] Mesh repair: turn the report's suggested fix into a… | M | P1 | **feito** | pinneapple_data/cae/repair.py (merge em #2285): merge_vertices, drop_degenerate_faces, drop_duplicate_faces, orient_consistently, close_holes e repair_surface; cada uma devolve o resultado com antes/depois, garantias, o que não corrige e o que regrediu. |
 | 1871 | Decision-level surrogate validation: flip rate, ranking pre… | M | P1 | **feito** | pinneapple_analysis/decision: flip_rate, rank_preservation, regret, failure_map e decision_card com limiares explícitos; 20 testes (7b4d60747). |
@@ -175,7 +175,10 @@ quando o critério de aceite pedia, página de documentação — e nenhuma fech
   não tinham nó nem razão. Corrigido junto com os módulos desta branch (#1494, #1871), com a razão que cada módulo
   de fato tem.
 - **A campanha paralela já abriu PR por issue em algumas frentes.** Antes de implementar qualquer item,
-  consultar os PRs abertos: #2275–#2283 (conservação e evidência) na biblioteca, #779, #780 e #781 na API.
+  consultar os PRs abertos. Da pilha de conservação e evidência (#2276–#2284) não sobrou nenhum: os nove foram
+  fechados em 2026-11-25 por estarem superados por `pinneapple_check` (leitura de `phi`, `FV`, PC101/PC102/PC103) e
+  pelo `flow_card` do #2355. Segue aberto só o #2275, que é o manifesto de `run_results` (#38) — outro assunto. Na
+  API, #779, #780 e #781.
 
 ## Cadência
 

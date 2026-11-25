@@ -161,6 +161,100 @@ def do_pinn(out: str, reynolds: list[int], cases: str, *, steps: int | None = No
     _dump(os.path.join(out, "cavity_pinn.json"), record)
 
 
+def do_pinn_budget(out: str, reynolds: float, budgets: list[int], cases: str) -> None:
+    """#272: the training budget, swept — the measurement that says what convergence costs, and where it stops.
+
+    The committed measurement of :func:`do_pinn` used 10 000 Adam steps, which is the budget the machine allowed at
+    the time, and reached no better than 16 % on ``u`` at the easiest Reynolds number of the table. That leaves the
+    obvious question open: is the network's error a property of the method or of the budget it was given? This sweep
+    answers it by training the *same* configuration — same seed, same widths, same penalty weights, same cosine decay
+    — for longer, and measuring each run through :func:`pinn.measure`, which is the identical ruler the meshes and the
+    committed pin are scored with.
+
+    Two things make the sweep a measurement rather than a search for a flattering number. The cosine decay is set over
+    each run's own budget and not over the longest one, because a short run under a long schedule is still at a large
+    learning rate when it is stopped and would be quoted as "10 000 steps does not converge" when it means "10 000
+    steps of a different schedule does not". And every run starts from the same seed, so the only thing that changes
+    between rows is :attr:`pinn.Config.steps`.
+
+    Each run writes its own row into ``results/pinn_budget.json``, merged under a file lock, so several budgets can be
+    trained at once — which is how the sweep fits in a session — and an interrupted one can be restarted without
+    losing the rows already measured. The checkpoint of a run is tagged with its budget: a shared path would have a
+    20 000-step run resume the weights of the 10 000-step one and report the longer budget with the shorter run inside.
+    """
+    path = os.path.join(out, "pinn_budget.json")
+    os.makedirs(out, exist_ok=True)
+    lock = path + ".lock"
+    re_tag = f"{reynolds:g}"
+    for budget in budgets:
+        budget = int(budget)
+        cfg = pinn.Config(steps=budget,
+                          checkpoint=os.path.join(cases, "pinn", f"budget_re{re_tag}_{budget}.pt"))
+        os.makedirs(os.path.dirname(cfg.checkpoint), exist_ok=True)
+        print(f"PINN budget: Re = {re_tag}, {budget} Adam steps", flush=True)
+
+        def on_step(model, step, losses, _budget=budget) -> None:
+            print(f"    step {int(step):>7}  pde {losses['pde']:.2e}  bc {losses['bc']:.2e}  "
+                  f"{losses['seconds']:>7.0f} s", flush=True)
+
+        t0 = time.time()
+        model = pinn.train(reynolds, config=cfg, on_step=on_step)
+        row = pinn.measure(model, reynolds)
+        row["steps"] = budget
+        row["seconds"] = round(model.seconds, 1)
+        row["wall_seconds"] = round(time.time() - t0, 1)
+        row["parameters"] = int(sum(p.numel() for p in model.parameters()))
+        row["converged"] = pinn.matches(row, max(pinn.MATCH_TOLERANCES))
+        row["history"] = model.history
+        e = row["errors"]
+        print(f"  {budget:>7} steps, {model.seconds:>7.0f} s: u {100 * e['u']['l2_relative']:6.2f} %  "
+              f"v {100 * e['v']['l2_relative']:6.2f} %  converged at {100 * max(pinn.MATCH_TOLERANCES):g} %: "
+              f"{row['converged']}", flush=True)
+
+        _merge_budget_row(path, lock, row, reynolds)
+        with open(path) as fh:
+            merged = json.load(fh)
+        print(f"  {path} now holds {len(merged['rows'])} row(s)", flush=True)
+
+
+def _merge_budget_row(path: str, lock: str, row: dict, reynolds: float) -> None:
+    """Add or replace one (Reynolds number, budget) row in the sweep's record, under an exclusive lock.
+
+    The read and the write are both inside the lock, so a run that finishes while another is writing cannot be lost;
+    that is what lets the sweep be trained as several processes at once.
+    """
+    import fcntl
+
+    header = {"case": "ghia-1982", "method": "physics-informed network",
+              "question": "what does the network cost to converge at this Reynolds number, and does it",
+              "reynolds": float(reynolds),
+              "protocol": pinn.PROTOCOL,
+              "converged_at": f"both profiles within {100 * max(pinn.MATCH_TOLERANCES):g} % relative L2",
+              "machine": _machine(), "rows": []}
+    with open(lock, "a+") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        record = dict(header)
+        if os.path.exists(path):
+            with open(path) as old:
+                record = json.load(old)
+            record.setdefault("rows", [])
+        key = lambda r: (float(r["reynolds"]), int(r["steps"]))  # noqa: E731
+        rows = [r for r in record["rows"] if (float(r["reynolds"]), int(r["steps"])) != (float(reynolds), int(row["steps"]))]
+        rows.append(row)
+        record["rows"] = sorted(rows, key=key)
+        record["machine"] = _machine()
+        # the smallest budget that clears the tolerance, which is the answer the sweep exists to produce
+        clearing = [int(r["steps"]) for r in record["rows"]
+                    if float(r["reynolds"]) == float(reynolds) and r.get("converged")]
+        record["cheapest_converged"] = min(clearing) if clearing else None
+        tmp = path + ".tmp"
+        with open(tmp, "w") as out:
+            json.dump(record, out, indent=1, sort_keys=True)
+            out.write("\n")
+        os.replace(tmp, path)
+        fcntl.flock(fh, fcntl.LOCK_UN)
+
+
 def _off_sample_solver(cases: str, meshes: tuple[int, ...] = (64, 128)):
     """A function that solves the cavity at a Reynolds number the table does not publish, and its record.
 
@@ -262,9 +356,11 @@ def main(argv=None) -> int:
     ap.add_argument("--cases", default="/tmp/pinneapple-cfd-cases",
                     help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
     ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"],
-                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn", "cfdbench"],
+                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn", "pinn-budget",
+                             "cfdbench"],
                     help="the parts to run; cfdbench is not in the default list because it needs the benchmark's own "
-                         "786 MB archive unpacked, which this folder never fetches")
+                         "786 MB archive unpacked, which this folder never fetches; pinn-budget trains one network per "
+                         "budget, so it is long and asked for by name")
     ap.add_argument("--reuse", action="store_true", help="read the cases already solved under --cases")
     ap.add_argument("--re", nargs="+", type=int, default=[100, 400, 1000], help="Reynolds numbers for the cavity")
     ap.add_argument("--meshes", nargs="+", type=int, default=list(cavity.MESHES))
@@ -273,6 +369,11 @@ def main(argv=None) -> int:
     ap.add_argument("--pinn-steps", type=int, default=pinn.Config.steps,
                     help="Adam steps of the network: the training budget the machine allowed, recorded with the "
                          "result (the checkpoint under --cases resumes an interrupted run)")
+    ap.add_argument("--budgets", nargs="+", type=int, default=[10000, 20000, 40000, 80000],
+                    help="the training budgets of --only pinn-budget, in Adam steps; one network is trained per "
+                         "budget, so the command costs the sum of them")
+    ap.add_argument("--budget-re", type=float, default=float(min(pinn.REYNOLDS)),
+                    help="the Reynolds number the budget sweep is run at (the cheapest column of the table)")
     ap.add_argument("--cfdbench", default=os.path.expanduser("~/cfdbench-data/cavity"),
                     help="where the CFDBench cavity archive was unzipped (never committed: 800 MB)")
     args = ap.parse_args(argv)
@@ -299,6 +400,8 @@ def main(argv=None) -> int:
         do_tmr(args.out, args.cases)
     if "pinn" in args.only:
         do_pinn(args.out, args.re, args.cases, steps=args.pinn_steps)
+    if "pinn-budget" in args.only:
+        do_pinn_budget(args.out, args.budget_re, args.budgets, args.cases)
     if "cfdbench" in args.only:
         if os.path.isdir(args.cfdbench):
             do_cfdbench(args.out, args.cfdbench)

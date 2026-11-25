@@ -1,17 +1,24 @@
 """The classical CFD validation cases: the published tables, and a real solver compared with them (#272, #494).
 
-Two layers, because the issue asks for both and only one of them needs a machine:
+Three layers, because the issue asks for all of them and only one needs a machine:
 
 * the **tables** (``pinneapple_simulation.cfd_validation.reference``) are checked against what a table of a
   lid-driven cavity must be true of on its own — the lid moves at ``u = 1``, the walls do not move, the coordinates
   increase, one sign change along the centreline — so a transcription error is caught with no solver at all;
 * the **runs** are here too, against a real OpenFOAM when one is installed (skipped otherwise, the same way
   ``tests/test_openfoam_limits.py`` skips): the case at Re = 100 agreeing with Ghia's profile, the error falling as
-  the mesh refines, the step reattaching, and a warm start saving iterations without changing the answer.
+  the mesh refines, the step reattaching, and a warm start saving iterations without changing the answer;
+* the **network** (#272's other half) is not retrained here — a training run is minutes of a machine, not a test —
+  so what is held is the protocol: the committed ``results/cavity_pinn.json`` is re-scored from its own stored
+  profiles through the *same* :func:`profile_error` the meshes go through, and the number the README quotes is
+  recomputed from data rather than trusted.
 
 The numbers the runs produce are the ones in ``examples/cfd/classical_cases/README.md``: the tests are the check that
 the tables and the case builders still say what the README says they say.
 """
+import json
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -354,3 +361,77 @@ def test_the_one_percent_power_law_is_where_the_plate_is_judged():
     law = tmr.CF_LAW["coefficient"] * (tmr.PLATE_RE * 0.97) ** tmr.CF_LAW["exponent"]
     assert 0.002 < law < 0.004
     assert "Schlichting" in tmr.CF_LAW["citation"]
+
+
+# --------------------------------------------------------------------------------------------- the network (#272)
+RESULT = Path(__file__).resolve().parents[1] / "examples" / "cfd" / "classical_cases" / "results" / "cavity_pinn.json"
+
+
+def _record() -> dict:
+    return json.loads(RESULT.read_text(encoding="utf-8"))
+
+
+def test_the_network_is_scored_at_the_published_stations_through_the_norm_the_meshes_use():
+    """The two numbers in the README share a column, so they have to share a ruler.
+
+    The stored profiles are re-scored here with :func:`profile_error` — the function the OpenFOAM study calls — and
+    have to give back the errors the record carries. A hand-edited error, a station list that drifted off Ghia's, or
+    a norm that quietly changed to the relative-to-the-maximum variant all fail this, without retraining anything.
+    """
+    record = _record()
+    seen = set()
+    for mode in ("single", "parametric"):
+        for row in record[mode]["rows"]:
+            re = int(row["reynolds"])
+            seen.add(re)
+            assert row["y"] == pytest.approx(list(GHIA_U[re].points)), "u is sampled at Ghia's y stations"
+            assert row["x"] == pytest.approx(list(GHIA_V[re].points)), "v is sampled at Ghia's x stations"
+            for quantity, ref in (("u", GHIA_U[re]), ("v", GHIA_V[re])):
+                again = profile_error(ref, np.asarray(row[quantity], dtype=float))
+                stored = row["errors"][quantity]
+                assert again["l2_relative"] == pytest.approx(stored["l2_relative"], rel=1e-9), (mode, re, quantity)
+                assert again["l2"] == pytest.approx(stored["l2"], rel=1e-9), (mode, re, quantity)
+                assert stored["points"] == len(ref.values) - 2 - len(ref.disputed)
+    assert seen == set(GHIA_RE[:3]), "the three Table I columns, and no number the paper did not publish"
+
+
+def test_the_number_is_of_the_published_profile_and_not_of_a_solved_field():
+    """A PINN scored against the solver's answer measures the distance between two approximations; this one is
+    scored against the table, which is the whole point of putting it next to the mesh study."""
+    record = _record()
+    assert "no solved field" in record["what"].lower()
+    assert record["case"] == "ghia-1982"
+    assert "relative L2" in record["protocol"]["norm"]
+    assert set(record["protocol"]) >= {"stations", "norm", "excluded", "comparable_with"}
+
+
+def test_where_each_model_stops_matching_is_read_off_its_measured_rows_and_never_interpolated():
+    """The finding of the case is a *bracket* between two measured Reynolds numbers, recomputed here from the stored
+    errors: a model that fails everywhere says so instead of inventing a crossing."""
+    from pinneapple_simulation.cfd_validation import pinn
+    record = _record()
+    for mode in ("single", "parametric"):
+        for tolerance, stored in record[mode]["stops_matching"].items():
+            assert pinn.stops_matching(record[mode]["rows"], float(tolerance)) == stored
+
+
+def test_matching_needs_both_profiles_and_the_bar_is_the_solvers_own():
+    """The two tolerances are the level the mesh table reaches: 5 % on a middling mesh, 1 % on the finest one."""
+    from pinneapple_simulation.cfd_validation import pinn
+    ok = {"reynolds": 100.0, "errors": {"u": {"l2_relative": 0.01}, "v": {"l2_relative": 0.049}}}
+    half = {"reynolds": 400.0, "errors": {"u": {"l2_relative": 0.01}, "v": {"l2_relative": 0.30}}}
+    assert pinn.matches(ok, 0.05)
+    assert not pinn.matches(half, 0.05), "u alone clearing the bar is not the model matching the table"
+    got = pinn.stops_matching([ok, half], 0.05)
+    assert got["bracket"] == [100.0, 400.0]
+    assert pinn.MATCH_TOLERANCES == (0.05, 0.01)
+    assert pinn.REYNOLDS == (100, 400, 1000)
+
+
+def test_a_model_that_matches_nowhere_says_so_instead_of_naming_a_reynolds_number():
+    from pinneapple_simulation.cfd_validation import pinn
+    bad = {"reynolds": 100.0, "errors": {"u": {"l2_relative": 0.9}, "v": {"l2_relative": 0.9}}}
+    got = pinn.stops_matching([bad], 0.05)
+    assert got["bracket"] is None
+    assert got["stops"] == "below the lowest measured Reynolds number"
+

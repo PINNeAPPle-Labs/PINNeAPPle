@@ -26,10 +26,14 @@ solver at all.
 """
 from __future__ import annotations
 
-from . import cavity, foam, reference, step
+from . import cavity, foam, pinn, reference, step
 from .cavity import CavityRun, profile_error, sample
 from .cavity import study as cavity_study
 from .cavity import write_case as write_cavity_case
+from .pinn import CavityPINN
+from .pinn import measure as pinn_measure
+from .pinn import study as pinn_study
+from .pinn import train as train_pinn
 from .reference import (
     ARMALY_REATTACHMENT,
     DEV_VAHL_DAVIS_NU,
@@ -55,6 +59,8 @@ __all__ = [
     "cavity", "cavity_study", "write_cavity_case", "sample", "profile_error", "CavityRun",
     # the backward-facing step
     "step", "step_study", "write_step_case", "reattachment_length", "StepRun",
+    # the network, scored with the same ruler (#272)
+    "pinn", "pinn_study", "train_pinn", "pinn_measure", "CavityPINN",
     # convergence
     "observed_order",
 ]

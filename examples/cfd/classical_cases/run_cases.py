@@ -22,6 +22,7 @@ from pinneapple_simulation.cfd_validation import (  # noqa: E402
     cavity,
     foam,
     ladder,
+    pinn,
     reference,
     step,
     tmr,
@@ -104,6 +105,79 @@ def do_cavity(out: str, reynolds: list[int], meshes: list[int], cases: str, *, r
     _dump(os.path.join(out, "cavity.json"), result)
 
 
+def _machine() -> dict:
+    """What the run cost was paid on, so the seconds in the table have a machine next to them."""
+    import platform
+
+    import torch
+
+    return {"device": "cpu", "threads": int(torch.get_num_threads()), "cores": os.cpu_count() or 0,
+            "platform": f"{platform.system()} {platform.machine()}", "torch": torch.__version__}
+
+
+def do_pinn(out: str, reynolds: list[int], cases: str, *, steps: int | None = None) -> None:
+    """#272: the same cavity with a network, scored through the same stations and the same norm as the meshes.
+
+    Two models: one network per Reynolds number, and one operator whose input carries ``Re``. Each is measured
+    against the table the meshes were measured against, so the two numbers sit in one table. The finding is the
+    Reynolds number at which each stops matching (:func:`pinn.stops_matching`), not the average error.
+    """
+    if not steps:
+        steps = pinn.Config.steps
+    cfg = pinn.Config(steps=int(steps), checkpoint=os.path.join(cases, "pinn", "checkpoint.pt"))
+    os.makedirs(os.path.dirname(cfg.checkpoint), exist_ok=True)
+    record = {"case": "ghia-1982", "method": "physics-informed network",
+              "what": "the steady incompressible equations in strong form at collocation points, with the boundary "
+                      "conditions as a penalty and the pressure held to zero mean. No solved field is shown to the "
+                      "network: the only thing it is given is the problem statement",
+              "machine": _machine(), "protocol": pinn.PROTOCOL, "config": cfg.to_dict()}
+
+    def on_step(model, step, losses) -> None:
+        if step % (cfg.steps // 10) == 0 or step == cfg.steps - 1:
+            print(f"    step {int(step):>6}  pde {losses['pde']:.2e}  bc {losses['bc']:.2e}  "
+                  f"{losses['seconds']:>7.0f} s", flush=True)
+
+    record["single"] = pinn.study(tuple(reynolds), parametric=False, config=cfg, on_step=on_step)
+    _dump(os.path.join(out, "cavity_pinn.json"), record)
+    for row in record["single"]["rows"]:
+        e = row["errors"]
+        print(f"  Re = {row['reynolds']:>6.0f}: u {100 * e['u']['l2_relative']:6.2f} %  "
+              f"v {100 * e['v']['l2_relative']:6.2f} %")
+    record["parametric"] = pinn.study(tuple(reynolds), parametric=True, config=cfg, on_step=on_step)
+    for row in record["parametric"]["rows"]:
+        e = row["errors"]
+        print(f"  operator Re = {row['reynolds']:>6.0f}: u {100 * e['u']['l2_relative']:6.2f} %  "
+              f"v {100 * e['v']['l2_relative']:6.2f} %")
+    record["comparison"] = _comparison(record, out)
+    _dump(os.path.join(out, "cavity_pinn.json"), record)
+
+
+def _comparison(record: dict, out: str) -> list[dict]:
+    """The one table the README prints: every method at every Reynolds number, on the same ruler.
+
+    The solver's rows are read from ``cavity.json`` when it is there (it is a committed result), at the finest mesh of
+    the ladder, so the network is quoted next to the best number the meshes produced rather than a convenient one.
+    """
+    rows: list[dict] = []
+    path = os.path.join(out, "cavity.json")
+    if os.path.exists(path):
+        with open(path) as fh:
+            solved = json.load(fh)
+        for run in solved.get("runs", []):
+            finest = max(int(n) for n in run.get("errors", {})) if run.get("errors") else None
+            if finest is None:
+                continue
+            err = run["errors"][str(finest)]
+            rows.append({"method": f"simpleFoam {finest}x{finest}", "reynolds": run["reynolds"],
+                         "u": err["u"]["l2_relative"], "v": err["v"]["l2_relative"]})
+    for mode, label in (("single", "PINN"), ("parametric", "PINN, operator over Re")):
+        for row in record.get(mode, {}).get("rows", []):
+            rows.append({"method": label, "reynolds": row["reynolds"], "u": row["errors"]["u"]["l2_relative"],
+                         "v": row["errors"]["v"]["l2_relative"],
+                         "seconds": record.get(mode, {}).get("models", [{}])[0].get("seconds")})
+    return sorted(rows, key=lambda r: (float(r["reynolds"]), r["method"]))
+
+
 def do_step(out: str, reynolds: list[int], meshes: list[int], cases: str) -> None:
     result = {"case": "armaly-1983", "solver": "simpleFoam", "scheme": "linearUpwind grad(U)", "runs": []}
     for re in reynolds:
@@ -124,13 +198,16 @@ def main(argv=None) -> int:
                     help="where the JSON lands (the numbers committed next to the README)")
     ap.add_argument("--cases", default="/tmp/pinneapple-cfd-cases",
                     help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
-    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr"],
-                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr"])
+    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"],
+                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"])
     ap.add_argument("--reuse", action="store_true", help="read the cases already solved under --cases")
     ap.add_argument("--re", nargs="+", type=int, default=[100, 400, 1000], help="Reynolds numbers for the cavity")
     ap.add_argument("--meshes", nargs="+", type=int, default=list(cavity.MESHES))
     ap.add_argument("--step-re", nargs="+", type=int, default=[100, 200, 400, 800])
     ap.add_argument("--step-meshes", nargs="+", type=int, default=list(step.MESHES))
+    ap.add_argument("--pinn-steps", type=int, default=pinn.Config.steps,
+                    help="Adam steps of the network: the training budget the machine allowed, recorded with the "
+                         "result (the checkpoint under --cases resumes an interrupted run)")
     args = ap.parse_args(argv)
 
     os.makedirs(args.out, exist_ok=True)
@@ -153,6 +230,8 @@ def main(argv=None) -> int:
         do_ladder(args.out, args.cases)
     if "tmr" in args.only:
         do_tmr(args.out, args.cases)
+    if "pinn" in args.only:
+        do_pinn(args.out, args.re, args.cases, steps=args.pinn_steps)
     return 0
 
 

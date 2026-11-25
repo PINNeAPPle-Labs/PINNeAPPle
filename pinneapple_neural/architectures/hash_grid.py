@@ -7,7 +7,6 @@ Reference: Müller et al. 2022
 """
 
 import math
-from typing import List
 
 import torch
 import torch.nn as nn
@@ -70,7 +69,7 @@ class HashGridEncoding(nn.Module):
             nn.init.uniform_(emb.weight, -1e-4, 1e-4)
 
         # Spatial hash primes (one per dimension beyond the first)
-        self._primes: List[int] = [1, 2654435761, 805459861, 3674653429]
+        self._primes: list[int] = [1, 2654435761, 805459861, 3674653429]
 
     # ------------------------------------------------------------------
     # Internal helpers

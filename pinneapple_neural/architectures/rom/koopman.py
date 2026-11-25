@@ -24,7 +24,7 @@ Reference
 Lusch, B., Kutz, J. N., & Brunton, S. L. (2018).
 Deep learning for universal linear embeddings of nonlinear dynamics. Nature Comm.
 """
-from typing import Dict, Literal, Optional
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -191,7 +191,7 @@ class KoopmanAutoencoder(ROMBase):
     # Loss computation
     # ------------------------------------------------------------------
 
-    def compute_losses(self, X: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def compute_losses(self, X: torch.Tensor) -> dict[str, torch.Tensor]:
         """
         Compute all training losses from trajectory X of shape (B, T, D).
         """
@@ -247,7 +247,7 @@ class KoopmanAutoencoder(ROMBase):
             raise ValueError(f"Expected X with shape (B,T,D) or (T,D), got {tuple(X.shape)}")
         B, T, D = X.shape
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         if return_loss:
             losses = self.compute_losses(X)
         else:

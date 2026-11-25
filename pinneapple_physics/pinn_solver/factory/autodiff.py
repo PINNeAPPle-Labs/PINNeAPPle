@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Sequence, Tuple, Union
+from collections.abc import Sequence
 
 import torch
 import sympy as sp
@@ -53,7 +53,7 @@ class DerivativeKey:
       - wrt: [("x", 1), ("t", 2)] means d^3 u / dx dt^2
     """
     base: str
-    wrt: Tuple[Tuple[str, int], ...]
+    wrt: tuple[tuple[str, int], ...]
 
 
 class DerivativeComputer:
@@ -68,10 +68,10 @@ class DerivativeComputer:
 
     def __init__(
         self,
-        independent_vars: List[str],
-        dependent_vars: List[str],
+        independent_vars: list[str],
+        dependent_vars: list[str],
         device: torch.device,
-        coord_scales: Union[Dict[str, float], None] = None,
+        coord_scales: dict[str, float] | None = None,
     ) -> None:
         self.independent_vars = list(independent_vars)
         self.dependent_vars = list(dependent_vars)
@@ -93,7 +93,7 @@ class DerivativeComputer:
         # base_expr is usually u(x,t) a sympy.Function applied to ind vars
         base_name = str(base_expr.func)
 
-        counts: Dict[str, int] = {}
+        counts: dict[str, int] = {}
         for var, order in d.args[1:]:
             v = var.name if hasattr(var, "name") else str(var)
             counts[v] = counts.get(v, 0) + int(order)
@@ -104,10 +104,10 @@ class DerivativeComputer:
     def compute(
         self,
         model: torch.nn.Module,
-        inputs: Tuple[Tensor, ...],
+        inputs: tuple[Tensor, ...],
         required_derivatives: Sequence[sp.Derivative],
-        dep_symbols: Dict[str, sp.Basic],
-    ) -> Dict[Union[sp.Basic, sp.Derivative], Tensor]:
+        dep_symbols: dict[str, sp.Basic],
+    ) -> dict[sp.Basic | sp.Derivative, Tensor]:
         """
         Returns mapping:
           - dep symbol (e.g. u(x,t)) -> predicted tensor (N,1)
@@ -117,7 +117,7 @@ class DerivativeComputer:
         """
         ensure_requires_grad(inputs)
 
-        cache: Dict[Union[sp.Basic, sp.Derivative], Tensor] = {}
+        cache: dict[sp.Basic | sp.Derivative, Tensor] = {}
 
         # Forward pass once
         pred = model(*inputs)  # shape (N, n_dep)
@@ -134,7 +134,7 @@ class DerivativeComputer:
             cache[dep_symbols[name]] = pred_split[i]
 
         # Build derivative graph with caching by DerivativeKey
-        torch_cache: Dict[DerivativeKey, Tensor] = {}
+        torch_cache: dict[DerivativeKey, Tensor] = {}
 
         # Ensure deterministic order: by string repr
         for d in sorted(list(required_derivatives), key=str):

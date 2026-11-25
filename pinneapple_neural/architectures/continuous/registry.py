@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for continuous-time model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import ContinuousModelBase
 from .neural_ode import NeuralODE
@@ -18,7 +17,7 @@ from .deep_state_space import DeepStateSpaceModel
 from .neural_gp import NeuralGaussianProcess
 
 
-_REGISTRY: Dict[str, Type[ContinuousModelBase]] = {
+_REGISTRY: dict[str, type[ContinuousModelBase]] = {
     "neural_ode": NeuralODE,
     "latent_ode": LatentODE,
     "ode_rnn": ODERNN,
@@ -61,7 +60,7 @@ def register_into_global() -> None:
 
 @dataclass
 class ContinuousCatalog:
-    registry: Dict[str, Type[ContinuousModelBase]] = None
+    registry: dict[str, type[ContinuousModelBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -69,7 +68,7 @@ class ContinuousCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[ContinuousModelBase]:
+    def get(self, name: str) -> type[ContinuousModelBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown continuous model '{name}'. Available: {self.list()}")

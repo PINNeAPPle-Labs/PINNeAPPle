@@ -1,6 +1,5 @@
 """Hilbert-Huang transform (EMD + Hilbert) solver for time series."""
 from __future__ import annotations
-from typing import Dict, Optional, Tuple
 
 import torch
 
@@ -120,7 +119,7 @@ class HilbertHuangSolver(SolverBase):
         self.dt = float(dt)
 
     @torch.no_grad()
-    def emd(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def emd(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """
         x: (T,) float
         returns:

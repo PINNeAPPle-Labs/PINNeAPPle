@@ -1,7 +1,6 @@
 """Mesh simplification via trimesh or Open3D quadric decimation."""
 from __future__ import annotations
 
-from typing import Optional
 import numpy as np
 
 from pinneapple_design.geometry.core.mesh import MeshData
@@ -85,7 +84,7 @@ def simplify_mesh(
     # -------------------------
     # 1) trimesh path
     # -------------------------
-    def _try_trimesh() -> Optional[MeshData]:
+    def _try_trimesh() -> MeshData | None:
         try:
             import trimesh  # noqa
             tm = _to_trimesh(mesh)
@@ -134,7 +133,7 @@ def simplify_mesh(
     # -------------------------
     # 2) open3d path
     # -------------------------
-    def _try_open3d() -> Optional[MeshData]:
+    def _try_open3d() -> MeshData | None:
         if not _open3d_available():
             return None
         try:

@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for autoencoder model family."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Type
 
 from .base import AEBase
 from .dense_ae import DenseAutoencoder
@@ -13,7 +12,7 @@ from .koopman_pi_ae import PhysicsInformedKoopmanAutoencoder
 from .ae_rom_hybrid import AEROMHybrid
 
 
-_REGISTRY: Dict[str, Type[AEBase]] = {
+_REGISTRY: dict[str, type[AEBase]] = {
     "dense_ae": DenseAutoencoder,
     "dense": DenseAutoencoder,
     "ae": DenseAutoencoder,
@@ -50,7 +49,7 @@ class AutoencoderCatalog:
       cat = AutoencoderCatalog()
       model = cat.build("vae", input_dim=..., latent_dim=...)
     """
-    registry: Dict[str, Type[AEBase]] = None
+    registry: dict[str, type[AEBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -58,7 +57,7 @@ class AutoencoderCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[AEBase]:
+    def get(self, name: str) -> type[AEBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown autoencoder '{name}'. Available: {self.list()[:20]} ...")

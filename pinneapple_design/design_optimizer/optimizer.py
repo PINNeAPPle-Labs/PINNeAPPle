@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -17,10 +16,10 @@ from .pareto import crowding_distance, fast_non_dominated_sort
 @dataclass
 class ParamSpace:
     """Box-bounded design parameter space."""
-    bounds: Dict[str, Tuple[float, float]]
-    x0: Dict[str, float]
+    bounds: dict[str, tuple[float, float]]
+    x0: dict[str, float]
 
-    def clip(self, x: Dict[str, float]) -> Dict[str, float]:
+    def clip(self, x: dict[str, float]) -> dict[str, float]:
         out = {}
         for k, v in x.items():
             lo, hi = self.bounds[k]
@@ -32,9 +31,9 @@ class ParamSpace:
 class OptState:
     """Snapshot of optimizer state at one iteration."""
     step: int
-    best_x: Dict[str, float]
+    best_x: dict[str, float]
     best_y: float
-    last_x: Dict[str, float]
+    last_x: dict[str, float]
     last_y: float
 
 
@@ -140,9 +139,9 @@ class GradientDesignOptimizer:
         self,
         surrogate: object,
         objective: object,
-        constraints: Optional[object],
+        constraints: object | None,
         theta_np: np.ndarray,
-    ) -> Tuple[np.ndarray, float]:
+    ) -> tuple[np.ndarray, float]:
         """Perform one gradient update and return the new theta and loss value.
 
         Parameters
@@ -169,7 +168,7 @@ class GradientDesignOptimizer:
 
         cfg = self.cfg
 
-        def _closure() -> "torch.Tensor":
+        def _closure() -> torch.Tensor:
             self._opt.zero_grad()
             u = surrogate.model(self._theta.unsqueeze(0)).squeeze(0)
             loss = objective(self._theta, u)
@@ -206,8 +205,8 @@ class _NumpyGP:
 
     def __init__(self, noise: float = 1e-4) -> None:
         self.noise = noise
-        self._X: Optional[np.ndarray] = None
-        self._alpha: Optional[np.ndarray] = None
+        self._X: np.ndarray | None = None
+        self._alpha: np.ndarray | None = None
         self._length_scale: float = 1.0
 
     def _kernel(self, A: np.ndarray, B: np.ndarray) -> np.ndarray:
@@ -238,7 +237,7 @@ class _NumpyGP:
             self._alpha = np.linalg.solve(K, y)
             self._L = None
 
-    def predict(self, X_new: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, X_new: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Return (mean, std) predictions for *X_new*."""
         K_s = self._kernel(X_new, self._X)           # (m, n)
         mu = K_s @ self._alpha
@@ -282,11 +281,11 @@ class BayesianDesignOptimizer:
         self.cfg = cfg
         self.rng = np.random.default_rng(int(seed))
         self._gp_seed = int(seed)
-        self.X_obs: List[np.ndarray] = []
-        self.y_obs: List[float] = []
-        self.Y_obs: List[np.ndarray] = []
-        self._penalties: List[float] = []
-        self._gp: Optional[object] = None
+        self.X_obs: list[np.ndarray] = []
+        self.y_obs: list[float] = []
+        self.Y_obs: list[np.ndarray] = []
+        self._penalties: list[float] = []
+        self._gp: object | None = None
         self._use_sklearn = False
 
         try:
@@ -319,7 +318,7 @@ class BayesianDesignOptimizer:
         else:
             self._numpy_gp.fit(X, y)
 
-    def _gp_predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def _gp_predict(self, X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         if self._use_sklearn:
             return self._gp.predict(X, return_std=True)  # type: ignore[union-attr]
         else:
@@ -404,7 +403,7 @@ class BayesianDesignOptimizer:
         z = imp / (sigma + 1e-9)
         return imp * norm.cdf(z) + sigma * norm.pdf(z)
 
-    def update(self, x: np.ndarray, obj_vals: "float | List[float]", penalty: float = 0.0) -> None:
+    def update(self, x: np.ndarray, obj_vals: float | list[float], penalty: float = 0.0) -> None:
         """Record a new design/objective observation.
 
         Parameters
@@ -469,10 +468,10 @@ class EvolutionaryDesignOptimizer:
         self._multi_objective = multi_objective
         self._use_cma = False
         self._cma_es = None
-        self._population: List[np.ndarray] = []
-        self._fitness: List[float] = []
-        self._obj_vecs: Optional[List[List[float]]] = None
-        self._penalties: Optional[List[float]] = None
+        self._population: list[np.ndarray] = []
+        self._fitness: list[float] = []
+        self._obj_vecs: list[list[float]] | None = None
+        self._penalties: list[float] | None = None
 
         if not multi_objective:
             try:
@@ -492,7 +491,7 @@ class EvolutionaryDesignOptimizer:
 
     # ------------------------------------------------------------------
 
-    def ask(self, bounds: np.ndarray, n: int) -> List[np.ndarray]:
+    def ask(self, bounds: np.ndarray, n: int) -> list[np.ndarray]:
         """Return *n* candidate design vectors.
 
         Parameters
@@ -520,7 +519,7 @@ class EvolutionaryDesignOptimizer:
             self._population = [self.rng.uniform(lo, hi) for _ in range(self.cfg.population_size)]
             return self._population[:n]
 
-        candidates: List[np.ndarray] = []
+        candidates: list[np.ndarray] = []
         pop = self._population
         fit = self._fitness if self._fitness else [0.0] * len(pop)
 
@@ -548,10 +547,10 @@ class EvolutionaryDesignOptimizer:
 
     def tell(
         self,
-        xs: List[np.ndarray],
-        ys: List[float],
-        obj_vecs: Optional[List[List[float]]] = None,
-        penalties: Optional[List[float]] = None,
+        xs: list[np.ndarray],
+        ys: list[float],
+        obj_vecs: list[list[float]] | None = None,
+        penalties: list[float] | None = None,
     ) -> None:
         """Inform the optimizer of objective values for the last candidates.
 
@@ -642,7 +641,7 @@ class EvolutionaryDesignOptimizer:
         feas_idx = np.where(feasible)[0]
         infeas_idx = np.where(~feasible)[0]
 
-        selected: List[int] = []
+        selected: list[int] = []
         if len(feas_idx) > 0:
             fronts = fast_non_dominated_sort(objectives[feas_idx])
             for front in fronts:

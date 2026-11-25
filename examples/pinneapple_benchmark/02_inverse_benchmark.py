@@ -37,7 +37,6 @@ import math
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -105,7 +104,7 @@ class InversePINNModel(nn.Module):
         self,
         in_dim:     int,
         out_dim:    int,
-        hidden:     List[int],
+        hidden:     list[int],
         param_name: str,
         init_guess: float,
         true_val:   float,
@@ -147,7 +146,7 @@ class InverseHeatProblem:
         t = torch.FloatTensor(n, 1).uniform_(0.0, self.t_end)
         return torch.cat([x, t], dim=1)
 
-    def sample_bc(self, n: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def sample_bc(self, n: int) -> tuple[torch.Tensor, torch.Tensor]:
         t = torch.FloatTensor(n, 1).uniform_(0.0, self.t_end)
         pts = torch.cat([
             torch.cat([torch.zeros(n, 1), t], dim=1),
@@ -155,14 +154,14 @@ class InverseHeatProblem:
         ], dim=0)
         return pts, torch.zeros(2 * n, 1)
 
-    def sample_ic(self, n: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def sample_ic(self, n: int) -> tuple[torch.Tensor, torch.Tensor]:
         x   = torch.FloatTensor(n, 1).uniform_(0.0, self.x_end)
         pts = torch.cat([x, torch.zeros(n, 1)], dim=1)
         return pts, torch.sin(math.pi * x)
 
     def generate_observations(
         self, n: int, noise: float = NOISE
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         x   = torch.FloatTensor(n, 1).uniform_(0.0, self.x_end)
         t   = torch.FloatTensor(n, 1).uniform_(0.0, self.t_end)
         pts = torch.cat([x, t], dim=1)
@@ -185,7 +184,7 @@ class InverseHeatProblem:
 
     def evaluate(
         self, model: InversePINNModel
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Return (L2 field error, param recovery %)."""
         Ng   = 60
         x    = np.linspace(0, self.x_end, Ng)
@@ -206,7 +205,7 @@ class InverseHeatProblem:
         ) / self.true_val * 100.0
         return l2_rel, k_err_pct
 
-    def ref_data(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def ref_data(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """(x, t, u) for pcolormesh."""
         Ng   = 80
         x    = np.linspace(0, self.x_end, Ng)
@@ -267,7 +266,7 @@ class InverseBurgersProblem:
         t = torch.FloatTensor(n, 1).uniform_( 0.0, 1.0)
         return torch.cat([x, t], dim=1)
 
-    def sample_bc(self, n: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def sample_bc(self, n: int) -> tuple[torch.Tensor, torch.Tensor]:
         t   = torch.FloatTensor(n, 1).uniform_(0.0, 1.0)
         pts = torch.cat([
             torch.cat([torch.full((n, 1), -1.0), t], dim=1),
@@ -275,14 +274,14 @@ class InverseBurgersProblem:
         ], dim=0)
         return pts, torch.zeros(2 * n, 1)
 
-    def sample_ic(self, n: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def sample_ic(self, n: int) -> tuple[torch.Tensor, torch.Tensor]:
         x   = torch.FloatTensor(n, 1).uniform_(-1.0, 1.0)
         pts = torch.cat([x, torch.zeros(n, 1)], dim=1)
         return pts, -torch.sin(math.pi * x)
 
     def generate_observations(
         self, n: int, noise: float = NOISE
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Sample random (x,t) from the reference grid and add noise."""
         Nt, Nx  = self._u.shape
         idx_t   = np.random.randint(0, Nt, n)
@@ -305,7 +304,7 @@ class InverseBurgersProblem:
         u_xx = _grad(u_x, pts)[:, 0:1]
         return u_t + u * u_x - nu * u_xx
 
-    def evaluate(self, model: InversePINNModel) -> Tuple[float, float]:
+    def evaluate(self, model: InversePINNModel) -> tuple[float, float]:
         Nt, Nx   = self._u.shape
         X, T     = np.meshgrid(self._x, self._t)
         pts      = torch.tensor(
@@ -323,7 +322,7 @@ class InverseBurgersProblem:
         ) / self.true_nu * 100.0
         return l2_rel, nu_err_pct
 
-    def ref_data(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def ref_data(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return self._x, self._t, self._u    # (Nx,) (Nt,) (Nt, Nx)
 
 
@@ -337,7 +336,7 @@ def run_inverse(
     *,
     epochs:    int   = EPOCHS,
     log_every: int   = 500,
-) -> Dict:
+) -> dict:
     """Train one (problem, n_data) pair. Return results dict."""
     torch.manual_seed(0)
     np.random.seed(0)
@@ -361,8 +360,8 @@ def run_inverse(
     ic_data        = problem.sample_ic(N_IC)
     pts_obs, u_obs = problem.generate_observations(n_data)
 
-    param_hist: List[float] = []
-    loss_hist:  List[float] = []
+    param_hist: list[float] = []
+    loss_hist:  list[float] = []
     model.train()
     t0 = time.time()
 
@@ -423,7 +422,7 @@ def run_inverse(
 # ============================================================
 
 PROBLEMS = [InverseHeatProblem(), InverseBurgersProblem()]
-all_results: Dict[Tuple[str, int], Dict] = {}
+all_results: dict[tuple[str, int], dict] = {}
 
 print("=" * 68)
 print("  PINNeAPPle — Inverse Problem Benchmark")

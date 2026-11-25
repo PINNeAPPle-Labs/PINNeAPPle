@@ -1,10 +1,8 @@
 from __future__ import annotations
 """Temporal convolutional network for time series."""
-from typing import Dict, Optional, List
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .base import ClassicalTSBase, ClassicalTSOutput
 
@@ -58,7 +56,7 @@ class TCN(ClassicalTSBase):
         in_dim: int,
         out_dim: int,
         *,
-        channels: List[int] = (64, 64, 64),
+        channels: list[int] = (64, 64, 64),
         kernel: int = 3,
         dropout: float = 0.1,
     ):
@@ -74,13 +72,13 @@ class TCN(ClassicalTSBase):
         self.net = nn.Sequential(*layers)
         self.head = nn.Conv1d(c_prev, self.out_dim, kernel_size=1)
 
-    def forward(self, x: torch.Tensor, *, y_true: Optional[torch.Tensor] = None, return_loss: bool = False) -> ClassicalTSOutput:
+    def forward(self, x: torch.Tensor, *, y_true: torch.Tensor | None = None, return_loss: bool = False) -> ClassicalTSOutput:
         # x: (B,T,D) -> (B,D,T)
         xt = x.transpose(1, 2)
         h = self.net(xt)
         y = self.head(h).transpose(1, 2)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

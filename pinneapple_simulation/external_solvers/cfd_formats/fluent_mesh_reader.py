@@ -62,7 +62,6 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Optional
 
 _SECTION10_RE = re.compile(
     r"\(10\s*\(\s*([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+([0-9a-fA-F]+)\s+(\d+)\s*(\d+)?\s*\)\s*\((.*?)\)\s*\)",

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator, Sequence, Union
+from collections.abc import Iterator, Sequence
 import torch
 
 

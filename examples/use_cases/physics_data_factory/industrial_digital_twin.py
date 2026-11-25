@@ -37,7 +37,6 @@ import math
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # path bootstrap
 _REPO = Path(__file__).resolve().parents[3]
@@ -48,9 +47,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import matplotlib.patheffects as pe
-from matplotlib.patches import FancyArrowPatch, Arc, FancyBboxPatch, Circle
-from matplotlib.collections import PatchCollection
+from matplotlib.patches import FancyBboxPatch, Circle
 import numpy as np
 import torch
 import torch.nn as nn
@@ -91,7 +88,7 @@ class PlantGeometry:
     PUMPS = [(1.0, 6.0), (1.0, 3.5), (1.0, 1.0)]
 
     # Pipe segments: (x0,y0) -> (x1,y1), label
-    PIPES: List[Tuple] = [
+    PIPES: list[tuple] = [
         # intake headers
         (0.0, 6.0, 1.0, 6.0, "intake_A"),
         (0.0, 3.5, 1.0, 3.5, "intake_B"),
@@ -139,7 +136,7 @@ def simulate_pump_station(
     n_timesteps: int = 120,
     dt: float = 0.05,
     n_pumps_on: int = 3,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     Simplified 1-D pipe network + heat transfer simulation.
 
@@ -212,7 +209,7 @@ class PumpStationPINN(nn.Module):
         return self.net(x)
 
 
-def train_surrogate(sim: Dict[str, np.ndarray], epochs: int = 800) -> PumpStationPINN:
+def train_surrogate(sim: dict[str, np.ndarray], epochs: int = 800) -> PumpStationPINN:
     """Train a PINN surrogate on the simulation data."""
     T = sim["t"].shape[0]
     p_state = torch.tensor(sim["pump_state"], dtype=torch.float32)
@@ -267,7 +264,7 @@ class ParticleSystem:
                 if RNG.random() < 0.3:
                     self.pipe_idx[i] = RNG.integers(0, len(PlantGeometry.PIPES))
 
-    def positions(self) -> Tuple[np.ndarray, np.ndarray]:
+    def positions(self) -> tuple[np.ndarray, np.ndarray]:
         """Return (x, y) arrays for all particles."""
         xs, ys = [], []
         for i in range(self.n):
@@ -307,11 +304,11 @@ def _temp_colour(t_norm: float) -> str:
 
 def render_frame(
     t_idx:      int,
-    sim:        Dict[str, np.ndarray],
+    sim:        dict[str, np.ndarray],
     particles:  ParticleSystem,
-    surrogate:  Optional[PumpStationPINN],
+    surrogate:  PumpStationPINN | None,
     dpi:        int = 100,
-    figsize:    Tuple = (16, 9),
+    figsize:    tuple = (16, 9),
 ) -> np.ndarray:
     """Render one digital-twin frame to a numpy array (H, W, 3) uint8."""
     fig = plt.figure(figsize=figsize, dpi=dpi, facecolor=BG)

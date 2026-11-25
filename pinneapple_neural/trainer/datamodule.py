@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Any
+from collections.abc import Callable, Sequence
 
 import torch
 from torch.utils.data import Dataset, DataLoader, Subset
@@ -29,7 +30,7 @@ class ItemAdapter:
       - optional "meta": dict
       - optional "physics": dict (for PINN hooks)
     """
-    def __call__(self, item: Any) -> Dict[str, Any]:
+    def __call__(self, item: Any) -> dict[str, Any]:
         if isinstance(item, dict):
             return item
         if isinstance(item, (tuple, list)) and len(item) >= 2:
@@ -50,13 +51,13 @@ class FnAdapter(ItemAdapter):
         self,
         x_fn: Callable[[Any], torch.Tensor],
         y_fn: Callable[[Any], torch.Tensor],
-        meta_fn: Optional[Callable[[Any], Dict[str, Any]]] = None,
+        meta_fn: Callable[[Any], dict[str, Any]] | None = None,
     ):
         self.x_fn = x_fn
         self.y_fn = y_fn
         self.meta_fn = meta_fn or (lambda s: {})
 
-    def __call__(self, sample: Any) -> Dict[str, Any]:
+    def __call__(self, sample: Any) -> dict[str, Any]:
         return {"x": self.x_fn(sample), "y": self.y_fn(sample), "meta": self.meta_fn(sample)}
 
 
@@ -72,7 +73,7 @@ class AdaptedSequenceDataset(Dataset):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         return self.adapter(self.samples[idx])
 
 
@@ -89,11 +90,11 @@ class DataModule:
       - split default uses default_factory (Python 3.13 dataclasses).
       - Caches split subsets after first setup().
     """
-    dataset: Union[Dataset, Sequence[Any]]
+    dataset: Dataset | Sequence[Any]
     split: SplitSpec = field(default_factory=SplitSpec)
 
     # if you want leakage-free splits by group
-    group_ids: Optional[Sequence[str]] = None
+    group_ids: Sequence[str] | None = None
 
     batch_size: int = 64
     num_workers: int = 0
@@ -102,9 +103,9 @@ class DataModule:
     drop_last: bool = False
 
     adapter: ItemAdapter = field(default_factory=ItemAdapter)
-    preprocess: Optional[PreprocessPipeline] = None
+    preprocess: PreprocessPipeline | None = None
 
-    _cached: Optional[Tuple[Dataset, Dataset, Dataset]] = field(default=None, init=False, repr=False)
+    _cached: tuple[Dataset, Dataset, Dataset] | None = field(default=None, init=False, repr=False)
 
     def _as_dataset(self) -> Dataset:
         # If user passed a raw sequence, wrap it into a Dataset.
@@ -112,7 +113,7 @@ class DataModule:
             return self.dataset
         return AdaptedSequenceDataset(self.dataset, adapter=self.adapter)
 
-    def setup(self) -> Tuple[Dataset, Dataset, Dataset]:
+    def setup(self) -> tuple[Dataset, Dataset, Dataset]:
         if self._cached is not None:
             return self._cached
 
@@ -151,7 +152,7 @@ class DataModule:
             return _collate_pinn(items)
 
         # minimal fallback
-        out: Dict[str, Any] = {}
+        out: dict[str, Any] = {}
         keys = set().union(*[it.keys() for it in items])
         for k in keys:
             vals = [it.get(k) for it in items]

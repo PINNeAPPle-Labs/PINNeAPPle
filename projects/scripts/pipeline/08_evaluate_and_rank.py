@@ -4,9 +4,6 @@ import pandas as pd
 import numpy as np
 import torch
 
-from pinneapple_neural.architectures.pinns.registry import PINNCatalog
-from pinneapple_neural.architectures.neural_operators.fno import FourierNeuralOperator
-from pinneapple_neural.trainer.checkpoint import load_checkpoint
 from pinneapple_neural.trainer.parallel import best_device
 from pinneapple_physics.metrics import rmse
 

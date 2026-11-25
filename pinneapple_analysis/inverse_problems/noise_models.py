@@ -23,10 +23,8 @@ References
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 import torch
-import torch.nn as nn
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -81,16 +79,16 @@ class GaussianMisfit(DataMisfitBase):
 
     def __init__(
         self,
-        noise_cov: Optional[torch.Tensor] = None,
+        noise_cov: torch.Tensor | None = None,
         noise_std: float = 1.0,
         reduction: str = "mean",
     ) -> None:
         self.noise_cov = noise_cov
         self.noise_var = float(noise_std) ** 2
         self.reduction = reduction
-        self._cov_inv: Optional[torch.Tensor] = None
+        self._cov_inv: torch.Tensor | None = None
 
-    def _get_cov_inv(self, device) -> Optional[torch.Tensor]:
+    def _get_cov_inv(self, device) -> torch.Tensor | None:
         if self.noise_cov is None:
             return None
         if self._cov_inv is None:

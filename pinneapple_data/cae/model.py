@@ -7,7 +7,7 @@ centres and volumes, a face list for finite-volume metrics and the fields define
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -41,7 +41,7 @@ CELL_EDGES = {
 class CellBlock:
     type: str                  # VTK element name (linear or higher order)
     conn: np.ndarray           # (n, nodes) int, VTK ordering
-    ids: Optional[np.ndarray] = None   # element numbers in the source file (for messages)
+    ids: np.ndarray | None = None   # element numbers in the source file (for messages)
 
     @property
     def linear(self) -> str:
@@ -64,7 +64,7 @@ class PolyMesh:
     owner: np.ndarray          # (n_faces,)
     neighbour: np.ndarray      # (n_internal,)
     n_cells: int
-    patches: List[Dict[str, Any]]   # {name, type, startFace, nFaces}
+    patches: list[dict[str, Any]]   # {name, type, startFace, nFaces}
 
     @property
     def n_faces(self) -> int:
@@ -78,17 +78,17 @@ class PolyMesh:
 @dataclass
 class Mesh:
     points: np.ndarray                                  # (n, 3)
-    blocks: List[CellBlock] = field(default_factory=list)   # FE-style cells (volume or surface)
-    poly: Optional[PolyMesh] = None                     # finite-volume polyhedral mesh (OpenFOAM)
-    boundary_blocks: List[Tuple[str, CellBlock]] = field(default_factory=list)   # named lower-dim groups
-    cell_sets: Dict[str, np.ndarray] = field(default_factory=dict)    # name -> global cell indices
-    node_sets: Dict[str, np.ndarray] = field(default_factory=dict)
-    point_data: Dict[str, np.ndarray] = field(default_factory=dict)
-    cell_data: Dict[str, np.ndarray] = field(default_factory=dict)    # one value (row) per cell, global order
-    units: Dict[str, str] = field(default_factory=dict)              # field name -> unit
-    boundary_values: Dict[str, np.ndarray] = field(default_factory=dict)  # OpenFOAM: value on each boundary face
-    source: Dict[str, Any] = field(default_factory=dict)             # format, files, solver, time, notes
-    _cache: Dict[str, Any] = field(default_factory=dict, repr=False)
+    blocks: list[CellBlock] = field(default_factory=list)   # FE-style cells (volume or surface)
+    poly: PolyMesh | None = None                     # finite-volume polyhedral mesh (OpenFOAM)
+    boundary_blocks: list[tuple[str, CellBlock]] = field(default_factory=list)   # named lower-dim groups
+    cell_sets: dict[str, np.ndarray] = field(default_factory=dict)    # name -> global cell indices
+    node_sets: dict[str, np.ndarray] = field(default_factory=dict)
+    point_data: dict[str, np.ndarray] = field(default_factory=dict)
+    cell_data: dict[str, np.ndarray] = field(default_factory=dict)    # one value (row) per cell, global order
+    units: dict[str, str] = field(default_factory=dict)              # field name -> unit
+    boundary_values: dict[str, np.ndarray] = field(default_factory=dict)  # OpenFOAM: value on each boundary face
+    source: dict[str, Any] = field(default_factory=dict)             # format, files, solver, time, notes
+    _cache: dict[str, Any] = field(default_factory=dict, repr=False)
 
     # ------------------------------------------------------------------ basic properties
     @property
@@ -125,19 +125,19 @@ class Mesh:
     def n_points(self) -> int:
         return len(self.points)
 
-    def bbox(self) -> Dict[str, List[float]]:
+    def bbox(self) -> dict[str, list[float]]:
         mn, mx = self.points.min(0), self.points.max(0)
         return {"min": mn.tolist(), "max": mx.tolist(), "size": (mx - mn).tolist()}
 
-    def element_counts(self) -> Dict[str, int]:
+    def element_counts(self) -> dict[str, int]:
         if self.poly is not None:
             return self._cache.setdefault("poly_counts", _poly_cell_types(self))
-        out: Dict[str, int] = {}
+        out: dict[str, int] = {}
         for b in self.blocks:
             out[b.type] = out.get(b.type, 0) + len(b.conn)
         return out
 
-    def cell_block_index(self, cell: int) -> Tuple[int, int]:
+    def cell_block_index(self, cell: int) -> tuple[int, int]:
         """(block number, row in block) of a global cell index (FE meshes)."""
         start = 0
         for k, b in enumerate(self.blocks):
@@ -155,7 +155,7 @@ class Mesh:
         return f"element {int(b.ids[r])}" if b.ids is not None else f"{b.linear} {cell}"
 
 
-def _poly_cell_types(m: Mesh) -> Dict[str, int]:
+def _poly_cell_types(m: Mesh) -> dict[str, int]:
     """Classify polyhedral cells by face/node counts like checkMesh (hexahedra, prisms, tets, polyhedra...)."""
     p = m.poly
     nf = np.diff(p.face_offsets)

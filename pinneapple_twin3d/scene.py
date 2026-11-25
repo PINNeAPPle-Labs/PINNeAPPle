@@ -38,7 +38,7 @@ class Part:
     fields: dict[str, np.ndarray] = field(default_factory=dict)  # name -> (V,) or (T, V)
     motion: np.ndarray | None = None  # (T, 7): position (3) + quaternion (w, x, y, z) per time step
     visibility: np.ndarray | None = None  # (T,) 1 = drawn, 0 = hidden at that time step
-    physics: "PhysicsProps | None" = None  # rigid body / collider / material, exported as UsdPhysics
+    physics: PhysicsProps | None = None  # rigid body / collider / material, exported as UsdPhysics
 
 
 @dataclass

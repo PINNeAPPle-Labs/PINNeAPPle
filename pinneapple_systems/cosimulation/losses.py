@@ -32,7 +32,6 @@ Usage::
 """
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -58,8 +57,8 @@ class DataLoss(nn.Module):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
     ) -> torch.Tensor:
         """Compute mean MSE over all (node.port, target) pairs present in both dicts.
 
@@ -131,7 +130,7 @@ class CouplingLoss(nn.Module):
 
     def forward(
         self,
-        port_values: Dict[str, Dict[str, torch.Tensor]],
+        port_values: dict[str, dict[str, torch.Tensor]],
         graph: CoSimGraph,
     ) -> torch.Tensor:
         """Compute coupling residuals over all graph connections.
@@ -187,10 +186,10 @@ class CoSimLoss(nn.Module):
 
     def forward(
         self,
-        port_values: Dict[str, Dict[str, torch.Tensor]],
+        port_values: dict[str, dict[str, torch.Tensor]],
         graph: CoSimGraph,
-        targets: Optional[Dict[str, torch.Tensor]] = None,
-    ) -> Tuple[torch.Tensor, Dict[str, float]]:
+        targets: dict[str, torch.Tensor] | None = None,
+    ) -> tuple[torch.Tensor, dict[str, float]]:
         """Compute weighted composite loss.
 
         Args:
@@ -203,7 +202,7 @@ class CoSimLoss(nn.Module):
             keys ``"data"``, ``"physics"``, ``"coupling"``, ``"total"``.
         """
         # Flatten port values to "node.port" keys for DataLoss
-        flat: Dict[str, torch.Tensor] = {
+        flat: dict[str, torch.Tensor] = {
             f"{node}.{port}": val
             for node, ports in port_values.items()
             for port, val in ports.items()
@@ -215,7 +214,7 @@ class CoSimLoss(nn.Module):
 
         total = data_l + physics_l + coupling_l
 
-        breakdown: Dict[str, float] = {
+        breakdown: dict[str, float] = {
             "data":     float(data_l.detach()),
             "physics":  float(physics_l.detach()),
             "coupling": float(coupling_l.detach()),

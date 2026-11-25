@@ -16,11 +16,11 @@ body moves, and always has a physical scale in metres).
 """
 from __future__ import annotations
 
-from typing import Callable, Dict
+from collections.abc import Callable
 
 #: name -> builder(``bpy``, material, entry of ``MATERIALS``); each builder augments the Principled node tree the
 #: flat material already has and returns the material
-SHADERS: Dict[str, Callable] = {}
+SHADERS: dict[str, Callable] = {}
 
 
 def shader(name: str):

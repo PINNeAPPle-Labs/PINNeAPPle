@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Optional
 
 import numpy as np
 
@@ -37,7 +36,7 @@ def remaining_life_fields(ds: WearDataset, cap: float, **kw) -> dict:
     return out
 
 
-def scene_from_wear(ds: WearDataset, *, life_cap: Optional[float] = None, **fit_kw) -> Scene:
+def scene_from_wear(ds: WearDataset, *, life_cap: float | None = None, **fit_kw) -> Scene:
     spec = ds.spec
     title = spec.title + ("  [SYNTHETIC DATA]" if ds.origin == SYNTHETIC else "")
     sc = Scene(title, length_unit="m", times=ds.x, time_unit=spec.x_name,
@@ -56,7 +55,7 @@ def scene_from_wear(ds: WearDataset, *, life_cap: Optional[float] = None, **fit_
     return sc
 
 
-def report(ds: WearDataset, cfg: Optional[OptimizerConfig] = None, **fit_kw) -> dict:
+def report(ds: WearDataset, cfg: OptimizerConfig | None = None, **fit_kw) -> dict:
     """Observed / predicted / recommended, kept apart on purpose."""
     cfg = cfg or OptimizerConfig()
     fc = forecast(ds, **fit_kw)
@@ -83,7 +82,7 @@ def report(ds: WearDataset, cfg: Optional[OptimizerConfig] = None, **fit_kw) -> 
     }
 
 
-def export_wear_twin(ds: WearDataset, folder: str, *, cfg: Optional[OptimizerConfig] = None, usd: bool = False, **fit_kw) -> str:
+def export_wear_twin(ds: WearDataset, folder: str, *, cfg: OptimizerConfig | None = None, usd: bool = False, **fit_kw) -> str:
     """Write the 3D viewer scene, ``wear_dataset.json`` (hub contract) and ``report.json`` to ``folder``."""
     sc = scene_from_wear(ds, **fit_kw)
     path = sc.export(folder, usd=usd)

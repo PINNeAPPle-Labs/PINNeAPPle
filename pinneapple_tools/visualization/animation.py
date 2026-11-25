@@ -1,12 +1,11 @@
 """Time-evolution animations for PDE solutions — CFD style."""
 from __future__ import annotations
-from typing import Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
 from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as mplanim
-from matplotlib.figure import Figure
 
 from .style import get_cmap, make_figure, DEFAULT_CMAP
 
@@ -19,19 +18,19 @@ def _to_np(t):
 
 
 def animate_scalar_field(
-    trajectory: "ArrayLike",
-    x: Optional["ArrayLike"] = None,
-    y: Optional["ArrayLike"] = None,
+    trajectory: ArrayLike,
+    x: ArrayLike | None = None,
+    y: ArrayLike | None = None,
     *,
-    t_vals: Optional["ArrayLike"] = None,
+    t_vals: ArrayLike | None = None,
     title: str = "Field evolution",
     field_label: str = "u",
     cmap: str = DEFAULT_CMAP,
     interval_ms: int = 80,
     repeat: bool = True,
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    save_path: Optional[Union[str, Path]] = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
+    save_path: str | Path | None = None,
     dpi: int = 100,
     writer: str = "pillow",
 ) -> mplanim.FuncAnimation:
@@ -115,18 +114,18 @@ def animate_scalar_field(
 
 
 def animate_streamlines(
-    u_traj: "ArrayLike",
-    v_traj: "ArrayLike",
-    x: Optional["ArrayLike"] = None,
-    y: Optional["ArrayLike"] = None,
+    u_traj: ArrayLike,
+    v_traj: ArrayLike,
+    x: ArrayLike | None = None,
+    y: ArrayLike | None = None,
     *,
-    speed_traj: Optional["ArrayLike"] = None,
-    t_vals: Optional["ArrayLike"] = None,
+    speed_traj: ArrayLike | None = None,
+    t_vals: ArrayLike | None = None,
     title: str = "Velocity evolution",
     cmap: str = "plasma",
     density: float = 1.2,
     interval_ms: int = 120,
-    save_path: Optional[Union[str, Path]] = None,
+    save_path: str | Path | None = None,
     writer: str = "pillow",
     dpi: int = 90,
 ) -> mplanim.FuncAnimation:
@@ -184,12 +183,12 @@ def animate_streamlines(
 
 
 def make_gif(
-    frames: Sequence["ArrayLike"],
-    x: "ArrayLike",
-    y: "ArrayLike",
-    save_path: Union[str, Path],
+    frames: Sequence[ArrayLike],
+    x: ArrayLike,
+    y: ArrayLike,
+    save_path: str | Path,
     *,
-    t_vals: Optional[Sequence] = None,
+    t_vals: Sequence | None = None,
     cmap: str = DEFAULT_CMAP,
     dpi: int = 80,
     fps: int = 10,

@@ -1,6 +1,5 @@
 from __future__ import annotations
 """ARIMA model for univariate time series forecasting."""
-from typing import Dict, Optional, List
 
 import torch
 import torch.nn as nn
@@ -54,7 +53,7 @@ class ARIMA(ClassicalTSBase):
             y = y[:, 1:, :] - y[:, :-1, :]
         return y
 
-    def _last_diff_states(self, x_hist: torch.Tensor) -> List[torch.Tensor]:
+    def _last_diff_states(self, x_hist: torch.Tensor) -> list[torch.Tensor]:
         """
         Builds integration state for undifferencing up to order d-1.
 
@@ -72,7 +71,7 @@ class ARIMA(ClassicalTSBase):
                 f"Need at least d+1={self.d+1} points in x_hist to undifference, got T={x_hist.shape[1]}."
             )
 
-        states: List[torch.Tensor] = []
+        states: list[torch.Tensor] = []
         cur = x_hist  # (B,T,D)
 
         # order 0: last level
@@ -140,7 +139,7 @@ class ARIMA(ClassicalTSBase):
         return torch.cat([x[:, t, :] for t in range(self.p, x.shape[1])], dim=0)
 
     @torch.no_grad()
-    def fit(self, x: torch.Tensor) -> "ARIMA":
+    def fit(self, x: torch.Tensor) -> ARIMA:
         if x.shape[-1] != self.dim:
             raise ValueError(f"Expected dim={self.dim}, got {x.shape[-1]}")
 
@@ -186,7 +185,7 @@ class ARIMA(ClassicalTSBase):
         self,
         x: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False
     ) -> ClassicalTSOutput:
         """
@@ -215,7 +214,7 @@ class ARIMA(ClassicalTSBase):
             y_out = self._undifference_forecast(base_hist, yhat_d)
             start = self.p + self.d
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
 
         if return_loss and y_true is not None:
             if y_true.shape != x.shape:

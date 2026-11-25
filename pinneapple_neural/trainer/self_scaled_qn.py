@@ -30,7 +30,7 @@ the gains (a few thousand parameters); memory grows as n^2.
 from __future__ import annotations
 
 import math
-from typing import Callable, Dict, Iterable, Optional
+from collections.abc import Callable, Iterable
 
 import torch
 from torch.optim import Optimizer
@@ -86,7 +86,7 @@ class SelfScaledQuasiNewton(Optimizer):
 
     def __init__(self, params: Iterable, variant: str = "ssbroyden", max_iter: int = 20,
                  tolerance_grad: float = 1e-12, tolerance_change: float = 1e-14,
-                 max_eval: Optional[int] = None):
+                 max_eval: int | None = None):
         if variant not in VARIANTS:
             raise ValueError(f"variant must be one of {VARIANTS}")
         defaults = dict(variant=variant, max_iter=max_iter, tolerance_grad=tolerance_grad,
@@ -125,7 +125,7 @@ class SelfScaledQuasiNewton(Optimizer):
         return loss, flat_grad
 
     @property
-    def inverse_hessian(self) -> Optional[torch.Tensor]:
+    def inverse_hessian(self) -> torch.Tensor | None:
         return self.state.get("H")
 
     @torch.no_grad()

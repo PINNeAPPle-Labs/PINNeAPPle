@@ -1,6 +1,5 @@
 from __future__ import annotations
 """Vector autoregression model for multivariate time series."""
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -93,7 +92,7 @@ class VAR(ClassicalTSBase):
         return W
 
     @torch.no_grad()
-    def fit(self, x: torch.Tensor) -> "VAR":
+    def fit(self, x: torch.Tensor) -> VAR:
         X = self._make_design(x)
         Y = self._targets(x)
         W = self._ridge_solve(X, Y, self.l2)
@@ -136,7 +135,7 @@ class VAR(ClassicalTSBase):
         self,
         x: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False
     ) -> ClassicalTSOutput:
         if not self._fitted:
@@ -154,7 +153,7 @@ class VAR(ClassicalTSBase):
 
         y_hat = Yhat.reshape(B, T - self.p, D)  # (B, T-p, D); rows are batch-major, matching _make_design
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             if y_true.shape != x.shape:
                 raise ValueError(f"y_true must have same shape as x. Got {tuple(y_true.shape)} vs {tuple(x.shape)}")

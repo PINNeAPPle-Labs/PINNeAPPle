@@ -4,8 +4,6 @@ from __future__ import annotations
 import os
 import re
 import urllib.request
-from dataclasses import dataclass
-from typing import Dict, Optional
 
 try:
     from pdfminer.high_level import extract_text
@@ -44,7 +42,7 @@ def extract_pdf_text(pdf_path: str) -> str:
     return extract_text(pdf_path) or ""
 
 
-def split_sections(text: str) -> Dict[str, str]:
+def split_sections(text: str) -> dict[str, str]:
     """
     Heuristic: find headings by keyword matches; slice between them.
     Works “ok” for many arXiv PDFs but not perfect (PDF layout can be messy).
@@ -68,7 +66,7 @@ def split_sections(text: str) -> Dict[str, str]:
         return {"full_text": t}
 
     # ensure abstract starts near beginning if exists
-    sections: Dict[str, str] = {}
+    sections: dict[str, str] = {}
     for i, (pos, name) in enumerate(hits):
         end = hits[i + 1][0] if i + 1 < len(hits) else len(t)
         chunk = t[pos:end].strip()

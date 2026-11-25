@@ -4,10 +4,9 @@ metric, plus the bad cells)."""
 from __future__ import annotations
 
 import string
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
-import scipy.sparse as sp
 from scipy.sparse.csgraph import connected_components
 
 from . import geometry as G
@@ -48,7 +47,7 @@ FV_KEYS = ("non_orthogonality", "skewness", "aspect_ratio", "volume")
 FE_KEYS = ("scaled_jacobian", "element_skewness", "edge_ratio")
 
 
-def _status(v: float, spec: Dict[str, Any]) -> str:
+def _status(v: float, spec: dict[str, Any]) -> str:
     if spec["better"] == "low":
         if spec["fail"] is not None and v > spec["fail"]:
             return "fail"
@@ -62,25 +61,25 @@ def _status(v: float, spec: Dict[str, Any]) -> str:
     return "pass"
 
 
-def _bad_mask(v: np.ndarray, spec: Dict[str, Any]) -> np.ndarray:
+def _bad_mask(v: np.ndarray, spec: dict[str, Any]) -> np.ndarray:
     t = spec["warn"] if spec["warn"] is not None else spec["fail"]
     if t is None:
         return np.zeros(len(v), bool)
     return (v > t) if spec["better"] == "low" else (v < t) if spec["warn"] is not None else (v <= t)
 
 
-def build(mesh: Mesh, target: str = "auto", max_regions: int = 12) -> Dict[str, Any]:
+def build(mesh: Mesh, target: str = "auto", max_regions: int = 12) -> dict[str, Any]:
     """target: 'cfd' (finite-volume thresholds lead), 'fea' (element-shape thresholds lead) or 'auto'."""
     if target == "auto":
         target = "cfd" if mesh.poly is not None or mesh.source.get("kind") in ("openfoam", "openfoam_polymesh") else \
             "surface" if mesh.is_surface else "fea"
-    out: Dict[str, Any] = {"summary": {"kind": mesh.kind, "format": mesh.source.get("format"), "dim": mesh.dim,
+    out: dict[str, Any] = {"summary": {"kind": mesh.kind, "format": mesh.source.get("format"), "dim": mesh.dim,
                                        "cells": mesh.n_cells, "points": mesh.n_points,
                                        "element_types": mesh.element_counts(), "bounding_box": mesh.bbox(),
                                        "target": target},
                            "checks": [], "metrics": {}, "regions": [], "notes": []}
     checks = out["checks"]
-    cell_vals: Dict[str, np.ndarray] = {}
+    cell_vals: dict[str, np.ndarray] = {}
     adj = None
     centres = None
     if mesh.dim == 3:
@@ -211,14 +210,14 @@ def build(mesh: Mesh, target: str = "auto", max_regions: int = 12) -> Dict[str, 
     return out
 
 
-def _fmt(v: Optional[float]) -> str:
+def _fmt(v: float | None) -> str:
     if v is None:
         return "—"
     a = abs(v)
     return f"{v:.3g}" if (a >= 1e-3 and a < 1e5) or a == 0 else f"{v:.2e}"
 
 
-def _check(key: str, status: str, message: str, why: str, action: str = "", **extra) -> Dict[str, Any]:
+def _check(key: str, status: str, message: str, why: str, action: str = "", **extra) -> dict[str, Any]:
     return {"key": key, "status": status, "message": message, "why": why, "action": action, **extra}
 
 
@@ -226,7 +225,7 @@ def _fe_centres(mesh: Mesh) -> np.ndarray:
     return np.concatenate([mesh.points[b.corners].mean(1) for b in mesh.blocks])
 
 
-def _problem_regions(mesh: Mesh, vals: Dict[str, np.ndarray], lead, adj, centres, max_regions) -> List[Dict[str, Any]]:
+def _problem_regions(mesh: Mesh, vals: dict[str, np.ndarray], lead, adj, centres, max_regions) -> list[dict[str, Any]]:
     bad = np.zeros(mesh.n_cells, bool)
     severity = np.zeros(mesh.n_cells)
     why = {}
@@ -280,7 +279,7 @@ def _problem_regions(mesh: Mesh, vals: Dict[str, np.ndarray], lead, adj, centres
     return out
 
 
-def _nearest_patch(mesh: Mesh, centre) -> Optional[str]:
+def _nearest_patch(mesh: Mesh, centre) -> str | None:
     try:
         fm = G.face_mesh(mesh) if mesh.dim == 3 else None
     except Exception:
@@ -300,7 +299,7 @@ def _nearest_patch(mesh: Mesh, centre) -> Optional[str]:
 
 
 # ------------------------------------------------------------------------------------------ 3D view payload
-def view_payload(mesh: Mesh, rep: Dict[str, Any], max_tris: int = 250_000) -> Dict[str, Any]:
+def view_payload(mesh: Mesh, rep: dict[str, Any], max_tris: int = 250_000) -> dict[str, Any]:
     """Boundary surface (triangles) with each face's owner-cell metric values, and the problem regions' cells."""
     vals = rep["_cell_values"]
     if mesh.dim == 3:
@@ -347,7 +346,7 @@ def view_payload(mesh: Mesh, rep: Dict[str, Any], max_tris: int = 250_000) -> Di
     return out
 
 
-def worst_cells(mesh: Mesh, rep: Dict[str, Any], n: int = 40) -> List[Dict[str, Any]]:
+def worst_cells(mesh: Mesh, rep: dict[str, Any], n: int = 40) -> list[dict[str, Any]]:
     """The ``n`` worst cells of every metric in a report from :func:`build`, worst first.
 
     "Worst" follows the metric's direction (``METRICS[k]["better"]``: highest value for ``"low"`` metrics such as
@@ -355,7 +354,7 @@ def worst_cells(mesh: Mesh, rep: Dict[str, Any], n: int = 40) -> List[Dict[str, 
     index and label, the value and the cell centre (``None`` when the report has no centres).
     """
     vals, cents = rep["_cell_values"], rep.get("_centres")
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     for k, v in vals.items():
         if not np.isfinite(v).any():
             continue

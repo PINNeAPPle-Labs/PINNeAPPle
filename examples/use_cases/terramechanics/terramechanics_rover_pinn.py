@@ -218,7 +218,7 @@ class Normalizer:
     lo: np.ndarray
     hi: np.ndarray
 
-    def fit(self, X: np.ndarray) -> "Normalizer":
+    def fit(self, X: np.ndarray) -> Normalizer:
         self.lo = X.min(axis=0).astype(np.float32)
         self.hi = X.max(axis=0).astype(np.float32)
         return self

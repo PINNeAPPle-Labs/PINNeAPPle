@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -13,7 +13,6 @@ from .optimizer import (
     DesignOptimizerConfig,
     EvolutionaryDesignOptimizer,
     GradientDesignOptimizer,
-    ParamSpace,
 )
 from .pareto import ParetoFront, compute_pareto_front
 from .refinement import PINNRefinement, RefinementResult
@@ -34,7 +33,7 @@ class _ScalarizedObjective:
 
     def __init__(
         self,
-        objectives: List[ObjectiveBase],
+        objectives: list[ObjectiveBase],
         weights: np.ndarray,
         lo: np.ndarray,
         hi: np.ndarray,
@@ -89,7 +88,7 @@ class DesignOptConfig:
     verbose: bool = True
     convergence_tol: float = 1e-6
     seed: int = 0
-    checkpoint_dir: Optional[str] = None
+    checkpoint_dir: str | None = None
 
 
 @dataclass
@@ -124,17 +123,17 @@ class DesignOptResult:
 
     best_theta: np.ndarray
     best_objective: float
-    history_theta: List[np.ndarray]
-    history_objectives: List[float]
-    history_all_objectives: List[List[float]]
-    pareto_front: Optional[ParetoFront] = None
-    refinement_results: Optional[List[RefinementResult]] = None
-    convergence_iter: Optional[int] = None
+    history_theta: list[np.ndarray]
+    history_objectives: list[float]
+    history_all_objectives: list[list[float]]
+    pareto_front: ParetoFront | None = None
+    refinement_results: list[RefinementResult] | None = None
+    convergence_iter: int | None = None
     elapsed_s: float = 0.0
 
     # ------------------------------------------------------------------
 
-    def plot_convergence(self, save_path: Optional[str] = None) -> Any:
+    def plot_convergence(self, save_path: str | None = None) -> Any:
         """Plot the best-so-far objective over iterations.
 
         Parameters
@@ -171,9 +170,9 @@ class DesignOptResult:
 
         return ax
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """Return a concise summary dictionary of the optimization run."""
-        out: Dict[str, Any] = {
+        out: dict[str, Any] = {
             "best_objective": float(self.best_objective),
             "best_theta": self.best_theta.tolist(),
             "n_iterations": len(self.history_objectives),
@@ -229,15 +228,15 @@ class DesignOptLoop:
         self,
         param_space: Any,
         surrogate: PhysicsSurrogate,
-        objective: Union[ObjectiveBase, List[ObjectiveBase]],
+        objective: ObjectiveBase | list[ObjectiveBase],
         *,
-        constraints: Optional[ConstraintSet] = None,
-        refinement: Optional[PINNRefinement] = None,
-        cfg: Optional[DesignOptConfig] = None,
+        constraints: ConstraintSet | None = None,
+        refinement: PINNRefinement | None = None,
+        cfg: DesignOptConfig | None = None,
     ) -> None:
         self.param_space = param_space
         self.surrogate = surrogate
-        self.objectives: List[ObjectiveBase] = (
+        self.objectives: list[ObjectiveBase] = (
             objective if isinstance(objective, list) else [objective]
         )
         self._multi_objective = isinstance(objective, list) and len(objective) > 1
@@ -277,7 +276,7 @@ class DesignOptLoop:
         theta_t = torch.from_numpy(theta_np.astype(np.float32))
         u_t = self.surrogate.predict(theta_t)
 
-        obj_vals: List[float] = []
+        obj_vals: list[float] = []
         for obj in self.objectives:
             v = obj(theta_t, u_t)
             obj_vals.append(float(v.item()))
@@ -339,17 +338,17 @@ class DesignOptLoop:
 
         optimizer = self._build_optimizer(theta)
 
-        history_theta: List[np.ndarray] = []
-        history_objectives: List[float] = []
-        history_all_objectives: List[List[float]] = []
+        history_theta: list[np.ndarray] = []
+        history_objectives: list[float] = []
+        history_all_objectives: list[list[float]] = []
 
         # For multi-objective: accumulate all evaluated (theta, obj_vec) pairs.
-        all_thetas: List[np.ndarray] = []
-        all_obj_vecs: List[List[float]] = []
+        all_thetas: list[np.ndarray] = []
+        all_obj_vecs: list[list[float]] = []
 
         best_theta = theta.copy()
         best_obj = float("inf")
-        convergence_iter: Optional[int] = None
+        convergence_iter: int | None = None
         stagnation_count = 0
 
         for it in range(cfg.n_iterations):
@@ -388,9 +387,9 @@ class DesignOptLoop:
             elif method == "evolutionary":
                 n_pop = opt_cfg.population_size
                 xs = optimizer.ask(bounds, n_pop)
-                ys: List[float] = []
-                all_obj_vecs_iter: List[List[float]] = []
-                penalties_iter: List[float] = []
+                ys: list[float] = []
+                all_obj_vecs_iter: list[list[float]] = []
+                penalties_iter: list[float] = []
                 for x in xs:
                     pv, ov, pen = self._evaluate(x)
                     ys.append(pv)
@@ -453,7 +452,7 @@ class DesignOptLoop:
                 break
 
         # ---- Pareto front (multi-objective) ----
-        pareto_front: Optional[ParetoFront] = None
+        pareto_front: ParetoFront | None = None
         if self._multi_objective and all_obj_vecs:
             obj_matrix = np.array(all_obj_vecs, dtype=np.float64)
             theta_matrix = np.array(all_thetas, dtype=np.float64)
@@ -472,7 +471,7 @@ class DesignOptLoop:
                 best_obj = float(pareto_obj[best_pareto_idx, 0])
 
         # ---- PINN refinement ----
-        refinement_results: Optional[List[RefinementResult]] = None
+        refinement_results: list[RefinementResult] | None = None
         if cfg.refine_top_k > 0 and self.refinement is not None:
             # Gather top-k thetas sorted by objective.
             if history_theta:

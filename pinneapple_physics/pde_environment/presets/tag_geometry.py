@@ -51,7 +51,7 @@ entry's comment is.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
@@ -67,7 +67,7 @@ from ..spec import ProblemSpec
 # established convention, not inventing a new one.
 # ---------------------------------------------------------------------------
 
-TAG_GEOMETRY_FIXTURES: Dict[str, Dict[str, Any]] = {
+TAG_GEOMETRY_FIXTURES: dict[str, dict[str, Any]] = {
     # ---- CFD: box/rectangle domains with docstring-literal face maps ----
     "channel_flow_3d": {
         # Docstring: "Inlet at x=0... Outlet at x=length... Four walls
@@ -457,7 +457,7 @@ TAG_GEOMETRY_FIXTURES: Dict[str, Dict[str, Any]] = {
 # preset's own text left the tag ambiguous) rather than reading an existing,
 # preset-stated fact -- see AUDIT_REPORT.md for the full discussion. Kept
 # separate from the inline comments above so this is impossible to miss.
-CHOSEN_CONVENTIONS: Dict[str, str] = {
+CHOSEN_CONVENTIONS: dict[str, str] = {
     "linear_elasticity_3d": (
         "'fixed'/'load' have no stated face in the preset. Chose the "
         "canonical cantilever convention: fixed = domain-min face of the "
@@ -521,7 +521,7 @@ CHOSEN_CONVENTIONS: Dict[str, str] = {
 # normal_stress_field; see AUDIT_REPORT.md's Fourth follow-up pass). All
 # three now have real TAG_GEOMETRY_FIXTURES entries above and train
 # end-to-end for real.
-NOT_FIXABLE_WITHOUT_REAL_GEOMETRY: Dict[str, str] = {
+NOT_FIXABLE_WITHOUT_REAL_GEOMETRY: dict[str, str] = {
     "car_suspension_fatigue": "wishbone-arm geometry; 'mounting_fixed'/'wheel_hub_load'/'free_edges' are not tied to specific faces of the given rectangle anywhere in the preset.",
     "cpu_heatsink_thermal": "real heatsink fin geometry ('fin_surfaces' vs 'cpu_base' vs 'insulated_sides') -- fins are not a box face. NOTE: the q_heat/h/T_ref fields ARE now resolvable via ConditionSpec.thermal_bc (Fourth follow-up pass) -- this preset's remaining blocker is geometry only, not the compiler.",
     "datacenter_airflow_2d": "'server_surfaces' are internal rack objects inside the airflow channel, not a face of the bounding box.",
@@ -540,7 +540,7 @@ def build_tag_batch(
     n_col: int = 20_000,
     n_bc_per_face: int = 3_000,
     seed: int = 7,
-    user_ctx: Optional[Dict[str, Any]] = None,
+    user_ctx: dict[str, Any] | None = None,
 ):
     """Build a real-geometry batch for preset ``name`` using its
     :data:`TAG_GEOMETRY_FIXTURES` entry. Raises ``KeyError`` if ``name``
@@ -633,7 +633,7 @@ def build_tag_batch(
             user_ctx=user_ctx,
         )
     if fixture["shape"] == "box_with_curve":
-        curve_tags: Dict[str, Any] = {}
+        curve_tags: dict[str, Any] = {}
         if name == "aircraft_wing_aerodynamics":
             chord = float(spec.meta["chord"])
             naca_t = float(spec.meta.get("naca_thickness", 0.12))
@@ -704,7 +704,7 @@ def build_tag_batch(
     raise ValueError(f"Unknown fixture shape {fixture['shape']!r} for preset {name!r}")
 
 
-def tag_solve_kwargs(name: str, spec: ProblemSpec, *, n_bc_per_face: int = 1_000, seed: int = 7) -> Dict[str, Any]:
+def tag_solve_kwargs(name: str, spec: ProblemSpec, *, n_bc_per_face: int = 1_000, seed: int = 7) -> dict[str, Any]:
     """The extra ``solve_pde`` keyword arguments preset ``name`` needs: ``{}`` when ``spec`` has no
     ``selector_type="tag"`` condition, the :func:`build_tag_batch` geometry when it has a fixture here, and
     ``KeyError`` otherwise (the honest failure: no geometry is invented)::
@@ -718,7 +718,7 @@ def tag_solve_kwargs(name: str, spec: ProblemSpec, *, n_bc_per_face: int = 1_000
     return solve_pde_kwargs_from_batch(build_tag_batch(name, spec, n_col=1, n_bc_per_face=n_bc_per_face, seed=seed))
 
 
-def solve_pde_kwargs_from_batch(batch: Dict[str, Any]) -> Dict[str, Any]:
+def solve_pde_kwargs_from_batch(batch: dict[str, Any]) -> dict[str, Any]:
     """Strip the ``x_col`` key (``solve_pde`` samples its own collocation
     points from ``spec.domain_bounds`` and doesn't accept one) and convert
     numpy arrays to torch tensors, ready to splat into
@@ -782,7 +782,7 @@ def has_default_geometry(spec: ProblemSpec) -> bool:
 
 
 def default_geometry(spec: ProblemSpec, *, n_bc_per_face: int = 1_000,
-                     seed: int = 7) -> Dict[str, Any]:
+                     seed: int = 7) -> dict[str, Any]:
     """The ``solve_pde`` keyword arguments that satisfy this spec's tag conditions with the preset's
     own box or cylinder geometry, or ``{}`` when the spec has no fixture.
 

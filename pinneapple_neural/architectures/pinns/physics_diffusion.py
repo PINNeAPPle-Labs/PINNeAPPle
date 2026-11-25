@@ -62,11 +62,10 @@ Quick start
 
 import math
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .base import PINNBase, PINNOutput
 
@@ -96,7 +95,7 @@ class NoiseSchedulerBase:
 
     def add_noise(
         self, x0: torch.Tensor, t: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Return (x_t, noise) where x_t ~ q(x_t | x_0)."""
         raise NotImplementedError
 
@@ -144,7 +143,7 @@ class VPNoiseScheduler(NoiseSchedulerBase):
 
     def add_noise(
         self, x0: torch.Tensor, t: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         a = self.alpha(t).view(-1, *([1] * (x0.ndim - 1)))
         s = self.sigma(t).view(-1, *([1] * (x0.ndim - 1)))
         eps = torch.randn_like(x0)
@@ -199,7 +198,7 @@ class EDMNoiseScheduler(NoiseSchedulerBase):
 
     def add_noise(
         self, x0: torch.Tensor, sigma: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         eps = torch.randn_like(x0)
         s = sigma.view(-1, *([1] * (x0.ndim - 1)))
         return x0 + s * eps, eps
@@ -264,7 +263,7 @@ class MLPDenoiser(nn.Module):
         self,
         x_dim: int,
         t_emb_dim: int = 64,
-        hidden: List[int] = (256, 256, 256),
+        hidden: list[int] = (256, 256, 256),
         activation: str = "gelu",
         predict_x0: bool = False,
     ):
@@ -298,7 +297,7 @@ class MLPDenoiser(nn.Module):
         self,
         xt: torch.Tensor,
         t: torch.Tensor,
-        cond: Optional[torch.Tensor] = None,
+        cond: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """
         Parameters
@@ -334,7 +333,7 @@ class DSMLoss(nn.Module):
         self,
         denoiser: nn.Module,
         scheduler: NoiseSchedulerBase,
-        loss_weight_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        loss_weight_fn: Callable[[torch.Tensor], torch.Tensor] | None = None,
     ):
         super().__init__()
         self.denoiser = denoiser
@@ -344,7 +343,7 @@ class DSMLoss(nn.Module):
     def forward(
         self,
         x0: torch.Tensor,
-        cond: Optional[torch.Tensor] = None,
+        cond: torch.Tensor | None = None,
     ) -> torch.Tensor:
         B = x0.shape[0]
         device = x0.device
@@ -491,8 +490,8 @@ def _ddim_step(
     xt: torch.Tensor,
     t_curr: torch.Tensor,
     t_next: torch.Tensor,
-    cond: Optional[torch.Tensor],
-    guidance: Optional[GuidanceBase],
+    cond: torch.Tensor | None,
+    guidance: GuidanceBase | None,
     eta: float = 0.0,
 ) -> torch.Tensor:
     """One DDIM step (η=0 → deterministic, η=1 → DDPM)."""
@@ -533,8 +532,8 @@ def _edm_euler_step(
     xt: torch.Tensor,
     sigma: torch.Tensor,
     sigma_next: torch.Tensor,
-    cond: Optional[torch.Tensor],
-    guidance: Optional[GuidanceBase],
+    cond: torch.Tensor | None,
+    guidance: GuidanceBase | None,
 ) -> torch.Tensor:
     """One EDM Euler step (Karras et al., Algorithm 1)."""
     B = xt.shape[0]
@@ -560,7 +559,7 @@ def _edm_euler_step(
 class PIDiffConfig:
     x_dim: int = 64
     t_emb_dim: int = 64
-    hidden: List[int] = None
+    hidden: list[int] = None
     activation: str = "gelu"
     scheduler_type: str = "vp"          # "vp" | "edm"
     T: int = 1000
@@ -609,12 +608,12 @@ class PhysicsInformedDiffusion(PINNBase):
     def __init__(
         self,
         x_dim: int = 64,
-        hidden: List[int] = (256, 256, 256),
+        hidden: list[int] = (256, 256, 256),
         activation: str = "gelu",
         *,
-        denoiser: Optional[nn.Module] = None,
-        scheduler: Optional[NoiseSchedulerBase] = None,
-        config: Optional[PIDiffConfig] = None,
+        denoiser: nn.Module | None = None,
+        scheduler: NoiseSchedulerBase | None = None,
+        config: PIDiffConfig | None = None,
         scheduler_type: str = "vp",
         T: int = 1000,
     ):
@@ -655,9 +654,9 @@ class PhysicsInformedDiffusion(PINNBase):
     def forward(
         self,
         *inputs: torch.Tensor,
-        physics_fn: Optional[Callable] = None,
-        physics_data: Optional[Dict] = None,
-        cond: Optional[torch.Tensor] = None,
+        physics_fn: Callable | None = None,
+        physics_data: dict | None = None,
+        cond: torch.Tensor | None = None,
     ) -> PINNOutput:
         """
         When called with a single noisy-field tensor and a noise-level tensor:
@@ -680,14 +679,14 @@ class PhysicsInformedDiffusion(PINNBase):
     def sample(
         self,
         n_samples: int = 1,
-        x_dim: Optional[int] = None,
+        x_dim: int | None = None,
         n_steps: int = 50,
-        guidance: Optional[GuidanceBase] = None,
-        cond: Optional[torch.Tensor] = None,
+        guidance: GuidanceBase | None = None,
+        cond: torch.Tensor | None = None,
         eta: float = 0.0,
-        device: Optional[torch.device] = None,
+        device: torch.device | None = None,
         return_trajectory: bool = False,
-    ) -> Union[torch.Tensor, List[torch.Tensor]]:
+    ) -> torch.Tensor | list[torch.Tensor]:
         """Generate samples from the learned distribution.
 
         Parameters
@@ -752,11 +751,11 @@ class PhysicsInformedDiffusion(PINNBase):
     def sample_ensemble(
         self,
         n_samples: int = 64,
-        x_dim: Optional[int] = None,
+        x_dim: int | None = None,
         n_steps: int = 50,
-        guidance: Optional[GuidanceBase] = None,
+        guidance: GuidanceBase | None = None,
         **kwargs,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Draw large ensemble → (mean, std).
 
         Returns

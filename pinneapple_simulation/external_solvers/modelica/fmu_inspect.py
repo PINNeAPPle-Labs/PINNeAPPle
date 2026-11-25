@@ -31,7 +31,6 @@ import xml.etree.ElementTree as ET
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Set
 
 __all__ = ["FMUReport", "inspect_fmu", "elf_exported_functions", "REQUIRED_FUNCTIONS"]
 
@@ -69,7 +68,7 @@ _FMI3_COMMON = ({"fmi3GetVersion", "fmi3SetDebugLogging", "fmi3FreeInstance", "f
                 | {f"fmi3Get{t}" for t in _T} | {f"fmi3Set{t}" for t in _T})
 
 #: ``REQUIRED_FUNCTIONS[version][interface]`` (interface: "common", "ME", "CS", "SE").
-REQUIRED_FUNCTIONS: Dict[str, Dict[str, Set[str]]] = {
+REQUIRED_FUNCTIONS: dict[str, dict[str, set[str]]] = {
     "2": {"common": _FMI2_COMMON, "ME": _FMI2_ME, "CS": _FMI2_CS},
     "3": {"common": _FMI3_COMMON, "ME": _FMI3_ME, "CS": _FMI3_CS, "SE": _FMI3_SE},
 }
@@ -82,8 +81,8 @@ class BinaryCheck:
     platform: str
     path: str
     format: str                       # "elf64", "pe", "macho", "unknown"
-    exported: Optional[List[str]]     # None when the format is not parsed
-    missing: List[str] = field(default_factory=list)
+    exported: list[str] | None     # None when the format is not parsed
+    missing: list[str] = field(default_factory=list)
 
     @property
     def status(self) -> str:
@@ -97,9 +96,9 @@ class FMUReport:
     path: str
     fmi_version: str
     model_name: str
-    interfaces: Dict[str, str]        # "ME"/"CS"/"SE" -> modelIdentifier
-    binaries: List[BinaryCheck] = field(default_factory=list)
-    problems: List[str] = field(default_factory=list)
+    interfaces: dict[str, str]        # "ME"/"CS"/"SE" -> modelIdentifier
+    binaries: list[BinaryCheck] = field(default_factory=list)
+    problems: list[str] = field(default_factory=list)
     n_variables: int = 0
 
     @property
@@ -116,7 +115,7 @@ class FMUReport:
         return "\n".join(lines)
 
 
-def elf_exported_functions(data: bytes) -> List[str]:
+def elf_exported_functions(data: bytes) -> list[str]:
     """Names of defined, global/weak, default-visibility FUNC symbols in the
     ``.dynsym`` table of a little-endian ELF64 object. Raises ValueError for
     anything else."""
@@ -133,7 +132,7 @@ def elf_exported_functions(data: bytes) -> List[str]:
             "<IIQQQQIIQQ", data, off)
         sections.append((sh_type, sh_offset, sh_size, sh_link, sh_entsize))
     SHT_DYNSYM = 11
-    out: List[str] = []
+    out: list[str] = []
     for sh_type, off, size, link, entsize in sections:
         if sh_type != SHT_DYNSYM:
             continue
@@ -179,8 +178,8 @@ def inspect_fmu(path: str | Path) -> FMUReport:
         mv = root.find("ModelVariables")
         variables = list(mv) if mv is not None else []
         rep.n_variables = len(variables)
-        vrs: Dict[str, int] = {}
-        causality_by_index: Dict[int, str] = {}
+        vrs: dict[str, int] = {}
+        causality_by_index: dict[int, str] = {}
         for i, v in enumerate(variables, start=1):
             key = v.get("valueReference")
             if version == "3":   # FMI 3: references are per variable type, unique overall
@@ -219,7 +218,7 @@ def inspect_fmu(path: str | Path) -> FMUReport:
             found_any = True
             blob = z.read(n)
             fmt = _format(blob)
-            exported: Optional[List[str]] = None
+            exported: list[str] | None = None
             if fmt == "elf64":
                 try:
                     exported = elf_exported_functions(blob)

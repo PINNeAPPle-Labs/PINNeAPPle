@@ -14,15 +14,13 @@ loss = sum(v.mean() for v in r_dict.values())
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
-import numpy as np
 import torch
 import torch.nn as nn
 
 from .registry import register_preset
 from ..spec import PDETermSpec, ProblemSpec
-from ..conditions import InitialCondition
 
 
 class TerramechanicsResiduals:
@@ -63,8 +61,8 @@ class TerramechanicsResiduals:
         b_m: float = 0.060,
         n_phys: int = 256,
         R_factor: float = 0.06,
-        slip_range: Tuple[float, float] = (0.0, 0.75),
-        sink_range: Tuple[float, float] = (0.002, 0.058),
+        slip_range: tuple[float, float] = (0.0, 0.75),
+        sink_range: tuple[float, float] = (0.002, 0.058),
     ):
         self.c = c_Pa
         self.tan_phi = math.tan(math.radians(phi_deg))
@@ -84,8 +82,8 @@ class TerramechanicsResiduals:
         model: nn.Module,
         norm_x: Any,
         norm_y: Any,
-        device: Optional[torch.device] = None,
-    ) -> Dict[str, torch.Tensor]:
+        device: torch.device | None = None,
+    ) -> dict[str, torch.Tensor]:
         """Compute all physics residuals.
 
         Parameters

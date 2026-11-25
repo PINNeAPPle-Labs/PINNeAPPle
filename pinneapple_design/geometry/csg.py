@@ -26,7 +26,6 @@ Quick examples::
 from __future__ import annotations
 
 import math
-from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -45,8 +44,8 @@ class SDFShape:
         bounds_min / bounds_max : axis-aligned bounding box
     """
 
-    bounds_min: Tuple[float, float] = (-1.0, -1.0)
-    bounds_max: Tuple[float, float] = (1.0,  1.0)
+    bounds_min: tuple[float, float] = (-1.0, -1.0)
+    bounds_max: tuple[float, float] = (1.0,  1.0)
 
     def sdf(self, x: np.ndarray) -> np.ndarray:
         """Signed distance function.  Negative inside, 0 on boundary, positive outside."""
@@ -72,15 +71,15 @@ class SDFShape:
     # CSG operators  (return new SDFShape objects)
     # ------------------------------------------------------------------
 
-    def __add__(self, other: "SDFShape") -> "CSGUnion":
+    def __add__(self, other: SDFShape) -> CSGUnion:
         """Union: a + b."""
         return CSGUnion(self, other)
 
-    def __mul__(self, other: "SDFShape") -> "CSGIntersection":
+    def __mul__(self, other: SDFShape) -> CSGIntersection:
         """Intersection: a * b."""
         return CSGIntersection(self, other)
 
-    def __sub__(self, other: "SDFShape") -> "CSGDifference":
+    def __sub__(self, other: SDFShape) -> CSGDifference:
         """Difference: a - b."""
         return CSGDifference(self, other)
 
@@ -97,7 +96,7 @@ class SDFShape:
         rng = np.random.default_rng(seed)
         bmin = np.asarray(self.bounds_min, dtype=np.float64)
         bmax = np.asarray(self.bounds_max, dtype=np.float64)
-        collected: List[np.ndarray] = []
+        collected: list[np.ndarray] = []
         total = 0
         while total < n:
             cands = bmin + rng.random((n * oversample, 2)) * (bmax - bmin)
@@ -124,7 +123,7 @@ class SDFShape:
         bmin = np.asarray(self.bounds_min, dtype=np.float64)
         bmax = np.asarray(self.bounds_max, dtype=np.float64)
         scale = np.linalg.norm(bmax - bmin)
-        collected: List[np.ndarray] = []
+        collected: list[np.ndarray] = []
         total = 0
         while total < n:
             cands = bmin + rng.random((n * oversample, 2)) * (bmax - bmin)

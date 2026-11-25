@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union, List, Literal, Callable
+from typing import Any, Literal
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -16,7 +17,7 @@ SDFMode = Literal["mesh_proximity", "callable"]
 
 @dataclass(frozen=True)
 class VoxelInsideConfig:
-    pitch: Optional[float] = None
+    pitch: float | None = None
     target_resolution: int = 96
     fill: bool = True
 
@@ -24,7 +25,7 @@ class VoxelInsideConfig:
 @dataclass(frozen=True)
 class SDFConfig:
     mode: SDFMode = "mesh_proximity"
-    sdf_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None
+    sdf_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None
     inside_if_leq: float = 0.0
 
 
@@ -38,12 +39,12 @@ class TagHeuristics:
     require_normal_alignment: bool = False
     normal_alignment_cos: float = 0.6
 
-    fixed_axis: Optional[int] = None
+    fixed_axis: int | None = None
     fixed_is_min: bool = True
 
     enable_clustering: bool = False
     n_clusters: int = 4
-    cluster_tag_map: Dict[int, str] = field(default_factory=dict)
+    cluster_tag_map: dict[int, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -74,7 +75,7 @@ class STLDomainBatchBuilder:
     def __init__(self, cfg: STLDomainBatchConfig):
         self.cfg = cfg
 
-    def _load_trimesh(self, stl_path: Union[str, Path]):
+    def _load_trimesh(self, stl_path: str | Path):
         import trimesh
 
         p = Path(stl_path).expanduser().resolve()
@@ -115,11 +116,11 @@ class STLDomainBatchBuilder:
             m.apply_scale(1.0 / scale)
         return m
 
-    def _bbox(self, mesh) -> Tuple[np.ndarray, np.ndarray]:
+    def _bbox(self, mesh) -> tuple[np.ndarray, np.ndarray]:
         b = np.asarray(mesh.bounds, dtype=np.float32)
         return b[0], b[1]
 
-    def _sample_surface_with_normals(self, mesh, n: int) -> Tuple[np.ndarray, np.ndarray]:
+    def _sample_surface_with_normals(self, mesh, n: int) -> tuple[np.ndarray, np.ndarray]:
         import trimesh
 
         Xb, face_idx = trimesh.sample.sample_surface(mesh, n)
@@ -132,7 +133,7 @@ class STLDomainBatchBuilder:
     def _inside_bbox(self, X: np.ndarray, bmin: np.ndarray, bmax: np.ndarray) -> np.ndarray:
         return np.all((X >= bmin[None, :]) & (X <= bmax[None, :]), axis=1)
 
-    def _inside_trimesh_contains(self, mesh, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def _inside_trimesh_contains(self, mesh, X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         try:
             keep = mesh.contains(X.astype(np.float64))
             return np.asarray(keep, dtype=bool)
@@ -149,7 +150,7 @@ class STLDomainBatchBuilder:
             pitch = float(self.cfg.voxel.pitch)
         return max(pitch, 1e-6)
 
-    def _inside_voxel_occupancy(self, mesh, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def _inside_voxel_occupancy(self, mesh, X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         import trimesh  # noqa: F401
 
         bmin, bmax = self._bbox(mesh)
@@ -166,7 +167,7 @@ class STLDomainBatchBuilder:
             ctx.setdefault("warnings", []).append(f"voxel_occupancy failed: {e}")
             return np.zeros((X.shape[0],), dtype=bool)
 
-    def _sdf_values(self, mesh, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def _sdf_values(self, mesh, X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         if self.cfg.sdf.mode == "callable":
             if self.cfg.sdf.sdf_fn is None:
                 raise ValueError("SDF mode 'callable' requires cfg.sdf.sdf_fn.")
@@ -188,12 +189,12 @@ class STLDomainBatchBuilder:
                 ctx.setdefault("warnings", []).append(f"nearest.on_surface failed: {e2}")
                 return np.full((X.shape[0],), np.inf, dtype=np.float32)
 
-    def _inside_sdf(self, mesh, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def _inside_sdf(self, mesh, X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         sdf = self._sdf_values(mesh, X, ctx)
         thr = float(self.cfg.sdf.inside_if_leq)
         return (sdf <= thr)
 
-    def _inside(self, mesh, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def _inside(self, mesh, X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         mode = self.cfg.inside_mode
         if mode == "bbox":
             bmin, bmax = self._bbox(mesh)
@@ -208,7 +209,7 @@ class STLDomainBatchBuilder:
             return self._inside_sdf(mesh, X, ctx)
         raise ValueError(f"Unknown inside_mode: {mode}")
 
-    def _sample_interior(self, mesh, n: int, bmin: np.ndarray, bmax: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def _sample_interior(self, mesh, n: int, bmin: np.ndarray, bmax: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         rng = np.random.default_rng(7)
         need = n
         chunks = []
@@ -261,7 +262,7 @@ class STLDomainBatchBuilder:
 
         return m
 
-    def _cluster_tags(self, Xb: np.ndarray, n_clusters: int, ctx: Dict[str, Any]) -> np.ndarray:
+    def _cluster_tags(self, Xb: np.ndarray, n_clusters: int, ctx: dict[str, Any]) -> np.ndarray:
         rng = np.random.default_rng(7)
         N = Xb.shape[0]
         k = max(2, int(n_clusters))
@@ -283,8 +284,8 @@ class STLDomainBatchBuilder:
         ctx.setdefault("clusters", {})["centers"] = centers.astype(np.float32)
         return labels.astype(np.int64)
 
-    def _make_tag_masks(self, Xb: np.ndarray, Nb: np.ndarray, bmin: np.ndarray, bmax: np.ndarray, ctx: Dict[str, Any]) -> Dict[str, np.ndarray]:
-        tags: Dict[str, np.ndarray] = {}
+    def _make_tag_masks(self, Xb: np.ndarray, Nb: np.ndarray, bmin: np.ndarray, bmax: np.ndarray, ctx: dict[str, Any]) -> dict[str, np.ndarray]:
+        tags: dict[str, np.ndarray] = {}
         tags["boundary"] = np.ones((Xb.shape[0],), dtype=bool)
 
         if not self.cfg.tags.enabled:
@@ -339,11 +340,11 @@ class STLDomainBatchBuilder:
         self,
         spec: ProblemSpec,
         Xb: np.ndarray,
-        ctx: Dict[str, Any],
-    ) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
+        ctx: dict[str, Any],
+    ) -> tuple[np.ndarray, dict[str, np.ndarray]]:
         out_dim = len(spec.fields)
         y_bc = np.full((Xb.shape[0], out_dim), np.nan, dtype=np.float32)
-        masks: Dict[str, np.ndarray] = {}
+        masks: dict[str, np.ndarray] = {}
 
         ctx_local = dict(ctx)
         ctx_local.setdefault("tag_masks", {})
@@ -394,15 +395,15 @@ class STLDomainBatchBuilder:
     def build(
         self,
         spec: ProblemSpec,
-        stl_path: Union[str, Path],
+        stl_path: str | Path,
         *,
-        user_ctx: Optional[Dict[str, Any]] = None,
-        x_data: Optional[np.ndarray] = None,
-        y_data: Optional[np.ndarray] = None,
-        x_ic: Optional[np.ndarray] = None,
-        y_ic: Optional[np.ndarray] = None,
-    ) -> Dict[str, Any]:
-        ctx: Dict[str, Any] = {}
+        user_ctx: dict[str, Any] | None = None,
+        x_data: np.ndarray | None = None,
+        y_data: np.ndarray | None = None,
+        x_ic: np.ndarray | None = None,
+        y_ic: np.ndarray | None = None,
+    ) -> dict[str, Any]:
+        ctx: dict[str, Any] = {}
         if user_ctx:
             ctx.update(user_ctx)
         ctx.setdefault("warnings", [])
@@ -445,7 +446,7 @@ class STLDomainBatchBuilder:
         dev = torch.device(self.cfg.device)
         dtype = self.cfg.dtype
 
-        batch: Dict[str, Any] = {
+        batch: dict[str, Any] = {
             "x_col": torch.as_tensor(Xc, device=dev, dtype=dtype),
             "x_bc": torch.as_tensor(Xb, device=dev, dtype=dtype),
             "y_bc": torch.as_tensor(y_bc, device=dev, dtype=dtype),

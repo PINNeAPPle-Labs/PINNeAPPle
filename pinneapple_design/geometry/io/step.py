@@ -19,9 +19,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Literal
 
-import numpy as np
 
 from pinneapple_design.geometry.core.mesh import MeshData
 from pinneapple_design.geometry.io.meshio_bridge import load_meshio, _require_meshio
@@ -55,8 +54,8 @@ def _require_gmsh():
 def step_to_mesh(
     step_path: str | Path,
     *,
-    cfg: Optional[StepImportConfig] = None,
-    cache_dir: Optional[str | Path] = None,
+    cfg: StepImportConfig | None = None,
+    cache_dir: str | Path | None = None,
 ) -> MeshData:
     """Convert a STEP file into MeshData via gmsh.
 

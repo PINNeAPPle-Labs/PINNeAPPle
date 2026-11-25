@@ -13,12 +13,11 @@
 10. rga_matrix            — Relative Gain Array (MV-CV interaction matrix)
 """
 from __future__ import annotations
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 from matplotlib.figure import Figure
 
 
@@ -31,11 +30,11 @@ def _ax(axes, i):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def plot_trend(
-    y: Union[pd.Series, np.ndarray],
+    y: pd.Series | np.ndarray,
     *,
     window: int = 24,
     title: str = "Trend Analysis",
-    figsize: Tuple = (12, 6),
+    figsize: tuple = (12, 6),
     show: bool = False,
 ) -> Figure:
     """Raw series + rolling mean + rolling std band."""
@@ -59,12 +58,12 @@ def plot_trend(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def track_setpoint(
-    actual: Union[pd.Series, np.ndarray],
-    setpoint: Union[pd.Series, np.ndarray, float],
+    actual: pd.Series | np.ndarray,
+    setpoint: pd.Series | np.ndarray | float,
     *,
     tolerance: float = 0.05,
     title: str = "Setpoint Tracking",
-    figsize: Tuple = (12, 5),
+    figsize: tuple = (12, 5),
     show: bool = False,
 ) -> Figure:
     """Actual vs setpoint with deviation shading and tolerance band."""
@@ -95,12 +94,12 @@ def track_setpoint(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def rolling_statistics(
-    y: Union[pd.Series, np.ndarray],
+    y: pd.Series | np.ndarray,
     windows: Sequence[int] = (8, 24, 96),
     *,
     stats: Sequence[str] = ("mean", "std"),
     title: str = "Rolling Statistics",
-    figsize: Tuple = (12, 6),
+    figsize: tuple = (12, 6),
     show: bool = False,
 ) -> Figure:
     """Multi-window rolling statistics overlay."""
@@ -128,11 +127,11 @@ def rolling_statistics(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def step_response(
-    y: Union[pd.Series, np.ndarray],
-    step_idx: Optional[int] = None,
+    y: pd.Series | np.ndarray,
+    step_idx: int | None = None,
     *,
     title: str = "Step Response",
-    figsize: Tuple = (12, 5),
+    figsize: tuple = (12, 5),
     show: bool = False,
 ) -> Figure:
     """
@@ -175,12 +174,12 @@ def step_response(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def power_spectrum(
-    y: Union[pd.Series, np.ndarray],
+    y: pd.Series | np.ndarray,
     *,
     fs: float = 1.0,
     n_top: int = 5,
     title: str = "FFT Power Spectrum",
-    figsize: Tuple = (12, 5),
+    figsize: tuple = (12, 5),
     show: bool = False,
 ) -> Figure:
     """Log-scale FFT power spectrum with top-N dominant frequencies annotated."""
@@ -209,12 +208,12 @@ def power_spectrum(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def plot_acf_pacf(
-    y: Union[pd.Series, np.ndarray],
+    y: pd.Series | np.ndarray,
     nlags: int = 40,
     *,
     alpha: float = 0.05,
     title: str = "ACF / PACF",
-    figsize: Tuple = (12, 5),
+    figsize: tuple = (12, 5),
     show: bool = False,
 ) -> Figure:
     """Side-by-side ACF and PACF with confidence bounds."""
@@ -255,10 +254,10 @@ def plot_acf_pacf(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def stationarity_report(
-    y: Union[pd.Series, np.ndarray],
+    y: pd.Series | np.ndarray,
     *,
     title: str = "Stationarity Tests",
-    figsize: Tuple = (10, 4),
+    figsize: tuple = (10, 4),
     show: bool = False,
 ) -> Figure:
     """Runs ADF, KPSS, and PP tests and renders a summary table."""
@@ -301,12 +300,12 @@ def stationarity_report(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def changepoint_plot(
-    y: Union[pd.Series, np.ndarray],
+    y: pd.Series | np.ndarray,
     n_bkps: int = 3,
     *,
     model: str = "rbf",
     title: str = "Change Point Detection",
-    figsize: Tuple = (12, 5),
+    figsize: tuple = (12, 5),
     show: bool = False,
 ) -> Figure:
     """Visualize change points detected via the ruptures library."""
@@ -342,11 +341,11 @@ def changepoint_plot(
 
 def cross_correlation(
     df: pd.DataFrame,
-    cols: Optional[List[str]] = None,
+    cols: list[str] | None = None,
     max_lag: int = 20,
     *,
     title: str = "Cross-Correlation",
-    figsize: Tuple = (12, 6),
+    figsize: tuple = (12, 6),
     show: bool = False,
 ) -> Figure:
     """
@@ -400,11 +399,11 @@ def cross_correlation(
 
 def rga_matrix(
     K: np.ndarray,
-    mv_labels: Optional[List[str]] = None,
-    cv_labels: Optional[List[str]] = None,
+    mv_labels: list[str] | None = None,
+    cv_labels: list[str] | None = None,
     *,
     title: str = "Relative Gain Array (RGA)",
-    figsize: Tuple = (8, 6),
+    figsize: tuple = (8, 6),
     show: bool = False,
 ) -> Figure:
     """

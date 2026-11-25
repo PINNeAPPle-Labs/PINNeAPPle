@@ -12,7 +12,6 @@ data diverged from RMSE=24.9% of std at rollout step 1 to >4000% by step
 from __future__ import annotations
 
 import numpy as np
-import pytest
 import torch
 
 from pinneapple_neural.workflows.dense_volume_operator import (

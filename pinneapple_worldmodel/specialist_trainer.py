@@ -34,16 +34,15 @@ import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
-from torch import Tensor
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 
 from .dataset import WorldModelDataset
 from .model import PhysicsWorldModel, WorldModelConfig
-from .trainer import WorldModelTrainer, WorldModelTrainConfig, WorldModelLoss
+from .trainer import WorldModelTrainer, WorldModelTrainConfig
 from .model_zoo import ModelZoo, ZooEntry
 from .dataset_factory import DatasetCatalog
 
@@ -88,7 +87,7 @@ class SpecialistConfig:
     use_transfer: bool = False
     use_uq: bool = False
     validate_physics: bool = False
-    save_dir: Optional[str] = None
+    save_dir: str | None = None
     log_every: int = 10
     verbose: bool = True
 
@@ -119,8 +118,8 @@ class SpecialistTrainer:
         self,
         config: SpecialistConfig,
         *,
-        physics_loss_fn: Optional[Callable] = None,
-        pretrained_zoo: Optional[ModelZoo] = None,
+        physics_loss_fn: Callable | None = None,
+        pretrained_zoo: ModelZoo | None = None,
     ) -> None:
         self.config = config
         self.physics_loss_fn = physics_loss_fn
@@ -175,7 +174,7 @@ class SpecialistTrainer:
         name: str,
         dataset: WorldModelDataset,
         *,
-        physics_tags: Optional[List[str]] = None,
+        physics_tags: list[str] | None = None,
     ) -> ZooEntry:
         """Train a single specialist on *dataset*.
 
@@ -336,10 +335,10 @@ class SpecialistTrainer:
         self,
         model: PhysicsWorldModel,
         dataset: WorldModelDataset,
-        history: List[Dict[str, float]],
-    ) -> Dict[str, float]:
+        history: list[dict[str, float]],
+    ) -> dict[str, float]:
         """Compute validation RMSE and relative-L2 from training history."""
-        metrics: Dict[str, float] = {}
+        metrics: dict[str, float] = {}
         if history:
             best_val = min(
                 (h.get("val_total", float("inf")) for h in history),
@@ -382,7 +381,7 @@ class SpecialistTrainer:
         model: PhysicsWorldModel,
         dataset: WorldModelDataset,
         scenario_name: str,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Run pinneapple_validate conservation-law checks."""
         try:
             from pinneapple_analysis.validation import PhysicsValidator  # type: ignore
@@ -408,7 +407,7 @@ class SpecialistTrainer:
     # ------------------------------------------------------------------
 
     def _merge_datasets(
-        self, datasets: List[WorldModelDataset]
+        self, datasets: list[WorldModelDataset]
     ) -> WorldModelDataset:
         if len(datasets) == 1:
             return datasets[0]

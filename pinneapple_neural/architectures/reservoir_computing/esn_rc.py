@@ -1,6 +1,5 @@
 from __future__ import annotations
 """ESN-RC hybrid for reservoir computing with readout regression."""
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -71,7 +70,7 @@ class ESNRC(RCBase):
         return torch.cat(feats, dim=-1)
 
     @torch.no_grad()
-    def fit(self, x: torch.Tensor, y: torch.Tensor, *, washout: int = 0) -> "ESNRC":
+    def fit(self, x: torch.Tensor, y: torch.Tensor, *, washout: int = 0) -> ESNRC:
         B, T, _ = x.shape
         h = torch.zeros((B, self.reservoir_dim), device=x.device, dtype=x.dtype)
 
@@ -89,7 +88,7 @@ class ESNRC(RCBase):
         self._fitted = True
         return self
 
-    def forward(self, x: torch.Tensor, *, y_true: Optional[torch.Tensor] = None, return_loss: bool = False, washout: int = 0) -> RCOutput:
+    def forward(self, x: torch.Tensor, *, y_true: torch.Tensor | None = None, return_loss: bool = False, washout: int = 0) -> RCOutput:
         B, T, _ = x.shape
         h = torch.zeros((B, self.reservoir_dim), device=x.device, dtype=x.dtype)
 
@@ -101,7 +100,7 @@ class ESNRC(RCBase):
 
         y_hat = torch.stack(ys, dim=1)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             if washout > 0:
                 losses["mse"] = torch.mean((y_hat[:, washout:, :] - y_true[:, washout:, :]) ** 2)

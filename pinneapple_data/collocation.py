@@ -17,8 +17,9 @@ compatible with the PINN training pipeline.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from dataclasses import dataclass
+from typing import Any
+from collections.abc import Callable
 import numpy as np
 
 
@@ -101,7 +102,7 @@ class CollocationConfig:
     seed: int = 0
     oversample_bc: int = 5    # multiplier for rejection-based boundary sampling
     include_time: bool = False
-    t_range: Tuple[float, float] = (0.0, 1.0)
+    t_range: tuple[float, float] = (0.0, 1.0)
 
 
 class CollocationSampler:
@@ -132,13 +133,13 @@ class CollocationSampler:
     def __init__(
         self,
         *,
-        bounds: Dict[str, Tuple[float, float]],
-        coord_names: Tuple[str, ...],
-        sdf_fn: Optional[Callable[[np.ndarray], np.ndarray]] = None,
-        boundary_samplers: Optional[Dict[str, Callable]] = None,
-        condition_value_fns: Optional[Dict[str, Callable]] = None,
-        condition_fields: Optional[Dict[str, Tuple[str, ...]]] = None,
-        fields: Tuple[str, ...] = ("u",),
+        bounds: dict[str, tuple[float, float]],
+        coord_names: tuple[str, ...],
+        sdf_fn: Callable[[np.ndarray], np.ndarray] | None = None,
+        boundary_samplers: dict[str, Callable] | None = None,
+        condition_value_fns: dict[str, Callable] | None = None,
+        condition_fields: dict[str, tuple[str, ...]] | None = None,
+        fields: tuple[str, ...] = ("u",),
         strategy: str = "lhs",
         seed: int = 0,
     ):
@@ -169,11 +170,11 @@ class CollocationSampler:
     @classmethod
     def from_bounds(
         cls,
-        bounds: Dict[str, Tuple[float, float]],
-        fields: Tuple[str, ...] = ("u",),
+        bounds: dict[str, tuple[float, float]],
+        fields: tuple[str, ...] = ("u",),
         strategy: str = "lhs",
         seed: int = 0,
-    ) -> "CollocationSampler":
+    ) -> CollocationSampler:
         """Create from explicit coord->range dict."""
         coord_names = tuple(bounds.keys())
         return cls(
@@ -190,7 +191,7 @@ class CollocationSampler:
         spec,
         strategy: str = "lhs",
         seed: int = 0,
-    ) -> "CollocationSampler":
+    ) -> CollocationSampler:
         """Create from a PDE ``ProblemSpec`` or from a ``PhysicalProblem`` (the unified description, #27).
 
         Both carry what this needs -- ``domain_bounds``, ``coords``, ``fields`` and the conditions -- so a problem
@@ -256,10 +257,10 @@ class CollocationSampler:
     def from_domain(
         cls,
         domain,  # PhysicsDomain2D
-        fields: Tuple[str, ...] = ("u", "v", "p"),
+        fields: tuple[str, ...] = ("u", "v", "p"),
         strategy: str = "lhs",
         seed: int = 0,
-    ) -> "CollocationSampler":
+    ) -> CollocationSampler:
         """Create from a pinneapple_geom PhysicsDomain2D."""
         bmin = domain.bounds_min
         bmax = domain.bounds_max
@@ -291,10 +292,10 @@ class CollocationSampler:
     def from_mesh(
         cls,
         mesh,  # Mesh2D
-        fields: Tuple[str, ...] = ("u",),
+        fields: tuple[str, ...] = ("u",),
         strategy: str = "lhs",
         seed: int = 0,
-    ) -> "CollocationSampler":
+    ) -> CollocationSampler:
         """Create from a pinneapple_geom Mesh2D."""
         v = mesh.vertices
         bounds = {"x": (float(v[:, 0].min()), float(v[:, 0].max())),
@@ -333,10 +334,10 @@ class CollocationSampler:
     def from_stl(
         cls,
         stl_path: str,
-        fields: Tuple[str, ...] = ("u", "v", "p"),
+        fields: tuple[str, ...] = ("u", "v", "p"),
         strategy: str = "lhs",
         seed: int = 0,
-    ) -> "CollocationSampler":
+    ) -> CollocationSampler:
         """Create from an STL file using pinneapple_geom.sample surface samplers."""
         try:
             from pinneapple_design.geometry.sample import sample_surface_points
@@ -407,13 +408,13 @@ class CollocationSampler:
 
     def sample(
         self,
-        n_col: Optional[int] = None,
-        n_bc: Optional[int] = None,
-        n_bc_per_region: Optional[int] = None,
-        n_ic: Optional[int] = None,
-        seed: Optional[int] = None,
-        residual_fn: Optional[Callable] = None,
-    ) -> Dict[str, Any]:
+        n_col: int | None = None,
+        n_bc: int | None = None,
+        n_bc_per_region: int | None = None,
+        n_ic: int | None = None,
+        seed: int | None = None,
+        residual_fn: Callable | None = None,
+    ) -> dict[str, Any]:
         """Generate a full PINN training batch.
 
         Parameters
@@ -531,7 +532,7 @@ class CollocationSampler:
         n_bc: int = 1024,
         seed: int = 0,
         device: str = "cpu",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Adaptive sampling using current model residuals.
 
         Requires a trained model callable (numpy in -> numpy out).

@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pandas as pd
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -87,7 +87,7 @@ def scope() -> dict:
             ]}
 
 
-def _check_sizes(files: List[Tuple[str, bytes]]) -> None:
+def _check_sizes(files: list[tuple[str, bytes]]) -> None:
     if not files:
         raise HTTPException(422, "No files uploaded.")
     if len(files) > MAX_FILES:
@@ -96,7 +96,7 @@ def _check_sizes(files: List[Tuple[str, bytes]]) -> None:
         raise HTTPException(413, f"Upload larger than {MAX_MB:g} MB in total.")
 
 
-def _load(files: List[Tuple[str, bytes]]):
+def _load(files: list[tuple[str, bytes]]):
     out = []
     for name, raw in files:
         try:
@@ -107,11 +107,11 @@ def _load(files: List[Tuple[str, bytes]]):
     return out
 
 
-def _preview_rows(df: pd.DataFrame, k: int = 6) -> List[List[str]]:
+def _preview_rows(df: pd.DataFrame, k: int = 6) -> list[list[str]]:
     return [[("" if pd.isna(v) else str(v))[:40] for v in row] for row in df.head(k).itertuples(index=False)]
 
 
-def _inspect(files: List[Tuple[str, bytes]], system: str, tz: Dict[str, str]) -> Dict[str, Any]:
+def _inspect(files: list[tuple[str, bytes]], system: str, tz: dict[str, str]) -> dict[str, Any]:
     _check_sizes(files)
     if system not in UNIT_SYSTEMS:
         raise HTTPException(422, f"Unknown unit system '{system}'.")
@@ -126,7 +126,7 @@ def _inspect(files: List[Tuple[str, bytes]], system: str, tz: Dict[str, str]) ->
     return {"sources": out, "recipe": make_recipe([s["mapping"] for s in out], system=system), "scope": scope()}
 
 
-def _standardize(files: List[Tuple[str, bytes]], recipe_text: str, fmt: str, layout: str):
+def _standardize(files: list[tuple[str, bytes]], recipe_text: str, fmt: str, layout: str):
     _check_sizes(files)
     try:
         recipe = json.loads(recipe_text)
@@ -151,11 +151,11 @@ def _standardize(files: List[Tuple[str, bytes]], recipe_text: str, fmt: str, lay
         return Response(data, media_type=media, headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
 
-async def _read(files: List[UploadFile]) -> List[Tuple[str, bytes]]:
+async def _read(files: list[UploadFile]) -> list[tuple[str, bytes]]:
     return [(f.filename or f"upload_{i}.csv", await f.read()) for i, f in enumerate(files)]
 
 
-def _example_files() -> List[Tuple[str, bytes]]:
+def _example_files() -> list[tuple[str, bytes]]:
     return example_sources()
 
 
@@ -178,15 +178,15 @@ def api_convert(src: str, dst: str, difference: bool = False):
 
 
 @app.post("/api/inspect")
-async def api_inspect(files: List[UploadFile] = File(...), system: str = Form("metric"),
-                      timezones: Optional[str] = Form(None)):
+async def api_inspect(files: list[UploadFile] = File(...), system: str = Form("metric"),
+                      timezones: str | None = Form(None)):
     """Read the files and draft a mapping (the recipe) from their headers."""
     tz = json.loads(timezones) if timezones else {}
     return _inspect(await _read(files), system, tz)
 
 
 @app.post("/api/standardize")
-async def api_standardize(files: List[UploadFile] = File(...), recipe: str = Form(...), format: str = Form("zip"),
+async def api_standardize(files: list[UploadFile] = File(...), recipe: str = Form(...), format: str = Form("zip"),
                           layout: str = Form("wide")):
     """Apply a recipe. format: preview (JSON summary) | csv | parquet | hdf5 | json | zip | manifest | recipe."""
     return _standardize(await _read(files), recipe, format, layout)

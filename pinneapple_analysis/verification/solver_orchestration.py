@@ -60,14 +60,14 @@ from __future__ import annotations
 import os
 import shutil
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any
 
 
 # ═══════════════════════════════════════════════════════════════════════
 # 1. Live availability introspection
 # ═══════════════════════════════════════════════════════════════════════
 
-def list_available_solver_families() -> Dict[str, dict]:
+def list_available_solver_families() -> dict[str, dict]:
     """Introspect, RIGHT NOW, which solver families this process can
     actually exercise on this machine. Every entry is computed live --
     nothing here is a hardcoded table that could drift out of sync with
@@ -103,7 +103,7 @@ def list_available_solver_families() -> Dict[str, dict]:
       for the same reason -- the bridge module itself is pure-Python and
       always importable regardless of whether FEniCS is installed.
     """
-    families: Dict[str, dict] = {}
+    families: dict[str, dict] = {}
 
     # -- PINN: always available in this codebase -------------------------
     try:
@@ -127,7 +127,7 @@ def list_available_solver_families() -> Dict[str, dict]:
         import_failures = register_all()  # {module_name: error_str}, real and current
         registered_names = SolverRegistry.list()  # real, current -- SolverRegistry's own machinery
 
-        by_family: Dict[str, List[str]] = {}
+        by_family: dict[str, list[str]] = {}
         for name in registered_names:
             spec = SolverRegistry.spec(name)
             by_family.setdefault(spec.family, []).append(name)
@@ -160,8 +160,8 @@ def list_available_solver_families() -> Dict[str, dict]:
 
     # -- OpenFOAM: real PATH probe, not "module imports" -------------------
     probed_bins = ["simpleFoam", "icoFoam", "blockMesh", "openfoam"]
-    found_path: Optional[str] = None
-    found_bin: Optional[str] = None
+    found_path: str | None = None
+    found_bin: str | None = None
     for b in probed_bins:
         p = shutil.which(b)
         if p:
@@ -200,9 +200,9 @@ def list_available_solver_families() -> Dict[str, dict]:
     # the Blender bpy bridge, and OpenFOAM's own `openfoam` CLI wrapper
     # above) -- a real subprocess call to that environment's own python,
     # not an in-process import.
-    backend: Optional[str] = None
-    external_python: Optional[str] = None
-    errs: List[str] = []
+    backend: str | None = None
+    external_python: str | None = None
+    errs: list[str] = []
     try:
         import dolfinx  # noqa: F401
         backend = "dolfinx"
@@ -258,7 +258,7 @@ def list_available_solver_families() -> Dict[str, dict]:
     return families
 
 
-def _discover_conda_dolfinx_candidates() -> List[str]:
+def _discover_conda_dolfinx_candidates() -> list[str]:
     """Real conda/mamba environment discovery -- not a hardcoded guess at
     one environment name. Returns each discovered environment's own
     python executable path, most-recently-modified first (a mild
@@ -290,7 +290,7 @@ def _discover_conda_dolfinx_candidates() -> List[str]:
     return [py for _, py in candidates]
 
 
-def _probe_external_dolfinx(python_path: str) -> Tuple[bool, str]:
+def _probe_external_dolfinx(python_path: str) -> tuple[bool, str]:
     """A REAL functional probe, not just an import check: actually solves
     a tiny Poisson problem in the external interpreter and checks the
     result is numerically sane, so "available" means "can genuinely
@@ -332,8 +332,8 @@ class SolverRecommendation:
     recommended_family: str
     reasoning: str
     matched_rule: str
-    fallback_families: List[str] = field(default_factory=list)
-    caveats: List[str] = field(default_factory=list)
+    fallback_families: list[str] = field(default_factory=list)
+    caveats: list[str] = field(default_factory=list)
 
 
 # The following table is NOT introspected from the registry (there is no
@@ -351,7 +351,7 @@ class SolverRecommendation:
 # ``solve_from_spec`` dispatches (e.g. ``FDMSolver.solve_from_spec``
 # does ``if "burgers" in kind: ...``), so a match here is a real claim
 # that the solver's own code would take that branch, not a guess.
-_CLASSICAL_SOLVER_SCOPE: Dict[str, Dict[str, Any]] = {
+_CLASSICAL_SOLVER_SCOPE: dict[str, dict[str, Any]] = {
     "fem": {
         "kind_substrings": ["poisson", "laplace", "helmholtz", "axisymmetric_linear_elasticity"],
         "dims": {2},
@@ -433,9 +433,9 @@ _FAMILY_PREFERENCE_ORDER = ["fem", "lbm", "fvm", "fdm", "fenics", "openfoam"]
 
 def select_solver_family(
     spec: Any,
-    dimensionless_numbers: Optional[Any] = None,
+    dimensionless_numbers: Any | None = None,
     *,
-    catalog: Optional[Dict[str, dict]] = None,
+    catalog: dict[str, dict] | None = None,
 ) -> SolverRecommendation:
     """Recommend which currently-available solver family to use for
     *spec* (a ``pinneapple_physics.ProblemSpec``), and say exactly why.
@@ -479,7 +479,7 @@ def select_solver_family(
         entry = catalog.get("numerical_solvers", {})
         return name in entry.get("registered_names", [])
 
-    matches: List[str] = []
+    matches: list[str] = []
     for family in _FAMILY_PREFERENCE_ORDER:
         scope = _CLASSICAL_SOLVER_SCOPE[family]
         kind_hit = any(sub in kind for sub in scope["kind_substrings"])
@@ -504,7 +504,7 @@ def select_solver_family(
         if is_runnable:
             matches.append(family)
 
-    caveats: List[str] = []
+    caveats: list[str] = []
     if any(sub in kind for sub in ("poisson", "laplace")) and "spectral" not in matches:
         caveats.append(
             "spectral (FFT-based) also covers periodic-BC Poisson problems but is "
@@ -601,7 +601,7 @@ class ComparisonReport:
     summary: str
 
 
-def _as_array(x: Any, query_points: Optional[Any] = None) -> "Any":
+def _as_array(x: Any, query_points: Any | None = None) -> Any:
     """Resolve *x* to a flat numpy array of prediction values.
 
     Accepts, in order of how this orchestration layer actually produces
@@ -651,8 +651,8 @@ def compare_solvers(
     model_or_result_a: Any,
     model_or_result_b: Any,
     *,
-    query_points: Optional[Any] = None,
-    labels: Tuple[str, str] = ("solver_a", "solver_b"),
+    query_points: Any | None = None,
+    labels: tuple[str, str] = ("solver_a", "solver_b"),
 ) -> ComparisonReport:
     """Compare two already-produced results for the SAME ``ProblemSpec``
     *spec*, evaluated at the SAME set of query points, and report real,

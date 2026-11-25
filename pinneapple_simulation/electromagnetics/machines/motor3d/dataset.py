@@ -29,7 +29,7 @@ from typing import Any
 
 import numpy as np
 
-from .design import BOUNDS, NAMES, VARIABLES, Motor3DDesign, from_matrix
+from .design import NAMES, VARIABLES, Motor3DDesign
 from .model import OUTPUTS, PROFILES, SCALARS, Motor3DModel
 
 __all__ = ["parameter_space", "MotorDataset", "build_dataset", "evaluate_chunk"]

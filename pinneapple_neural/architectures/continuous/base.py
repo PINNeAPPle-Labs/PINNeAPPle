@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes for continuous-time dynamics models."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -19,8 +19,8 @@ class ContOutput:
       - if probabilistic, store params in extras["dist"]
     """
     y: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class ContinuousModelBase(nn.Module):

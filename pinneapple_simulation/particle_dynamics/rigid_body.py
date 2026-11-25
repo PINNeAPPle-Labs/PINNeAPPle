@@ -14,9 +14,6 @@ Coordinates
 """
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -70,7 +67,7 @@ class RigidBodyState:
 
         if dim == 2:
             self.angle = torch.zeros(n_bodies, device=device, dtype=dtype)
-            self.quat: Optional[torch.Tensor] = None
+            self.quat: torch.Tensor | None = None
         else:
             self.angle = torch.zeros(n_bodies, device=device, dtype=dtype)
             # Identity quaternion (w=1, x=y=z=0)
@@ -81,7 +78,7 @@ class RigidBodyState:
         self.omega = torch.zeros(n_bodies, device=device, dtype=dtype) if dim == 2 \
             else torch.zeros(n_bodies, 3, device=device, dtype=dtype)
 
-    def clone(self) -> "RigidBodyState":
+    def clone(self) -> RigidBodyState:
         """Return a deep copy of this state."""
         s = RigidBodyState(self.n_bodies, self.dim, self.device, self.dtype)
         s.pos = self.pos.clone()
@@ -225,8 +222,8 @@ class RigidBodySystem(nn.Module):
 
     def __init__(
         self,
-        bodies: List[RigidBody],
-        gravity: Tuple[float, ...] = (0.0, -9.81, 0.0),
+        bodies: list[RigidBody],
+        gravity: tuple[float, ...] = (0.0, -9.81, 0.0),
     ) -> None:
         super().__init__()
         self.bodies = nn.ModuleList(bodies)
@@ -234,10 +231,10 @@ class RigidBodySystem(nn.Module):
 
     def forward(
         self,
-        states: List[RigidBodyState],
-        forces: List[torch.Tensor],
+        states: list[RigidBodyState],
+        forces: list[torch.Tensor],
         dt: float,
-    ) -> List[RigidBodyState]:
+    ) -> list[RigidBodyState]:
         """Step all bodies forward by *dt*.
 
         Gravity is added automatically to each body's force.

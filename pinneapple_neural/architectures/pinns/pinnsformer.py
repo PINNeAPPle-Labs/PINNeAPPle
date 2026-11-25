@@ -24,7 +24,6 @@ Standard interface
 Both cases return ``(N, out_dim)`` flat (or ``(B, T, out_dim)`` if pre-batched).
 """
 
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -133,8 +132,8 @@ class PINNsFormer(PINNBase):
     def set_masks(
         self,
         *,
-        attn_mask: Optional[Tensor] = None,
-        key_padding_mask: Optional[Tensor] = None,
+        attn_mask: Tensor | None = None,
+        key_padding_mask: Tensor | None = None,
     ) -> None:
         """Set optional attention / key-padding masks for the transformer."""
         self._attn_mask = attn_mask

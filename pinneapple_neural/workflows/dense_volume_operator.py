@@ -31,15 +31,15 @@ pushforward fix's effect on it).
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 import torch
 import torch.nn as nn
 
 from pinneapple_neural.architectures.neural_operators.fno import FNO3d
-from pinneapple_neural.trainer.checkpoint import Checkpoint, save_checkpoint, load_checkpoint
+from pinneapple_neural.trainer.checkpoint import Checkpoint
 
 __all__ = [
     "DenseVolumeOperatorConfig",
@@ -80,7 +80,7 @@ def _best_device(pref: str = "auto") -> str:
     return "cpu"
 
 
-def _make_pairs(frames_n: np.ndarray, max_k: int) -> List[Tuple[int, int]]:
+def _make_pairs(frames_n: np.ndarray, max_k: int) -> list[tuple[int, int]]:
     """(start_index, k) pairs such that frames_n[start : start+k+1] is a
     valid, in-bounds (k+1)-length rollout window."""
     T = frames_n.shape[0]
@@ -91,7 +91,7 @@ def train_dense_volume_operator(
     frames: np.ndarray,  # (T, C, D, H, W) real, NOT normalized
     cfg: DenseVolumeOperatorConfig,
     *, seed: int = 0,
-) -> Tuple[Checkpoint, List[Dict[str, Any]]]:
+) -> tuple[Checkpoint, list[dict[str, Any]]]:
     """Train an :class:`FNO3d` on a real dense volume time series.
 
     Returns ``(checkpoint, history)`` -- ``checkpoint`` is NOT saved to
@@ -131,7 +131,7 @@ def train_dense_volume_operator(
     X_val = X_all[n_train:n_train + n_val].to(device)
     Y_val = X_all[n_train + 1:n_train + 1 + n_val].to(device)
 
-    history: List[Dict[str, Any]] = []
+    history: list[dict[str, Any]] = []
     t_start = time.time()
     bs = max(1, cfg.batch_size)
 

@@ -11,7 +11,7 @@ the actual FEM assembly and solve. This module adds:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -31,10 +31,10 @@ class FEniCSConfig:
     solver_opts : additional solver options forwarded to FEniCSBridge
     """
     pde: str
-    domain: Dict[str, Any]
-    bcs: List[Dict[str, Any]]
-    params: Dict[str, float] = field(default_factory=dict)
-    solver_opts: Dict[str, Any] = field(default_factory=dict)
+    domain: dict[str, Any]
+    bcs: list[dict[str, Any]]
+    params: dict[str, float] = field(default_factory=dict)
+    solver_opts: dict[str, Any] = field(default_factory=dict)
 
 
 def solve_and_package(config: FEniCSConfig):
@@ -67,8 +67,8 @@ def _output_to_upd(solver_output: Any, config: FEniCSConfig):
     import torch
     from pinneapple_data.physical_sample import PhysicalSample
 
-    fields: Dict[str, "torch.Tensor"] = {}
-    coords: Dict[str, np.ndarray] = {}
+    fields: dict[str, torch.Tensor] = {}
+    coords: dict[str, np.ndarray] = {}
 
     if hasattr(solver_output, "fields"):
         for k, v in solver_output.fields.items():
@@ -143,7 +143,7 @@ class FEniCSWorkflow:
     def __init__(self, base_config: FEniCSConfig) -> None:
         self.base_config = base_config
 
-    def solve(self, param_override: Optional[Dict[str, float]] = None):
+    def solve(self, param_override: dict[str, float] | None = None):
         """Run a single solve with optional parameter override."""
         cfg = self.base_config
         if param_override:
@@ -156,7 +156,7 @@ class FEniCSWorkflow:
             )
         return solve_and_package(cfg)
 
-    def sweep(self, param_grid: Dict[str, List[float]]) -> List[Any]:
+    def sweep(self, param_grid: dict[str, list[float]]) -> list[Any]:
         """Solve for each combination in a parameter grid.
 
         Parameters

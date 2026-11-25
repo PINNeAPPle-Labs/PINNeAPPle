@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Literal
+from typing import Literal
 
 
 StageName = Literal[
@@ -21,10 +21,10 @@ StageName = Literal[
 class Stage:
     name: StageName
     description: str
-    required_fields: List[str]
+    required_fields: list[str]
 
 
-STAGES_ORDER: List[Stage] = [
+STAGES_ORDER: list[Stage] = [
     Stage(
         name="intake",
         description="Capture goal, context, and success definition.",

@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Equivariant graph neural network for symmetry-preserving learning."""
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -121,7 +121,7 @@ class EquivariantGNN(GraphModelBase):
         self,
         g: GraphBatch,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> GraphOutput:
         if g.pos is None:
@@ -136,7 +136,7 @@ class EquivariantGNN(GraphModelBase):
 
         # Node mask for padded graphs (recommended):
         # g.mask expected shape (B,N) with 1/0 or bool.
-        node_mask: Optional[torch.Tensor] = None
+        node_mask: torch.Tensor | None = None
         if g.mask is not None:
             node_mask = g.mask.to(dtype=h.dtype, device=h.device)  # (B,N)
             # ensure padded nodes stay neutral
@@ -198,7 +198,7 @@ class EquivariantGNN(GraphModelBase):
 
         y = self.out(h)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
         if return_loss and y_true is not None:
             if g.mask is not None:
                 mask = g.mask[..., None].to(y.dtype)
@@ -209,7 +209,7 @@ class EquivariantGNN(GraphModelBase):
 
         return GraphOutput(y=y, losses=losses, extras={"h": h, "pos": p})
 
-    def forward_batch(self, batch: Dict[str, Any]) -> GraphOutput:
+    def forward_batch(self, batch: dict[str, Any]) -> GraphOutput:
         """Dict-based interface used by Arena / GNNAdapter.
 
         Required keys: ``x`` (or ``node_features``), ``edge_index``, ``pos``.

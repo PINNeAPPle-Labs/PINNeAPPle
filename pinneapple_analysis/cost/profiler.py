@@ -34,7 +34,8 @@ import os
 import platform
 import time
 from dataclasses import asdict, dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
@@ -50,24 +51,24 @@ class CostRecord:
     time_s: float                      # median over repeats
     time_min_s: float
     time_iqr_s: float                  # interquartile range, a robust spread
-    times_s: List[float] = field(default_factory=list)
-    peak_mem_bytes: Optional[int] = None
+    times_s: list[float] = field(default_factory=list)
+    peak_mem_bytes: int | None = None
     mem_source: str = ""
     mem_exact: bool = False            # True when the peak is a measured value, not a lower bound
     mem_components: dict[str, int] = field(default_factory=dict)   # allocator -> bytes it contributed
-    flops: Optional[int] = None        # PyTorch operators only; None when not countable
+    flops: int | None = None        # PyTorch operators only; None when not countable
     flops_source: str = ""             # "flop_counter" (exact) | "profiler" (matmul/conv only, lower bound)
-    size: Optional[float] = None
+    size: float | None = None
 
     @property
     def relative_spread(self) -> float:
         return self.time_iqr_s / self.time_s if self.time_s > 0 else float("nan")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "CostRecord":
+    def from_dict(cls, d: dict[str, Any]) -> CostRecord:
         return cls(**d)
 
 
@@ -123,8 +124,8 @@ def _sync() -> None:
         pass
 
 
-def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, name: Optional[str] = None,
-            flops: bool = True, memory: bool = True, size: Optional[float] = None, mem_method: str = "auto",
+def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, name: str | None = None,
+            flops: bool = True, memory: bool = True, size: float | None = None, mem_method: str = "auto",
             **kwargs) -> CostRecord:
     """Cost of one operation ``fn(*args, **kwargs)``.
 
@@ -138,7 +139,7 @@ def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, na
     call = lambda: fn(*args, **kwargs)  # noqa: E731
     for _ in range(warmup):
         call()
-    times: List[float] = []
+    times: list[float] = []
     for _ in range(repeats):
         _sync()
         t0 = time.perf_counter()
@@ -176,7 +177,7 @@ def _fit_exponent(sizes: np.ndarray, y: np.ndarray):
     return float(slope), float(intercept), r2
 
 
-def expected_exponent(declared: Union[str, float], sizes: Sequence[float]) -> float:
+def expected_exponent(declared: str | float, sizes: Sequence[float]) -> float:
     """Log-log slope of the declared complexity over the sizes actually used (``n log n`` is not 1.0)."""
     if isinstance(declared, (int, float)):
         return float(declared)
@@ -197,8 +198,8 @@ class ScalingFit:
     ci: (float, float)
     r2: float
     coefficient: float                 # cost ~ coefficient * n^exponent
-    declared: Optional[str] = None
-    expected_exponent: Optional[float] = None
+    declared: str | None = None
+    expected_exponent: float | None = None
     verdict: str = ""                  # consistent | worse than declared | better than declared | undeclared
 
     def predict(self, n: float) -> float:
@@ -214,9 +215,9 @@ class ScalingFit:
 @dataclass
 class ScalingStudy:
     name: str
-    sizes: List[float]
-    records: List[CostRecord]
-    fits: Dict[str, ScalingFit]
+    sizes: list[float]
+    records: list[CostRecord]
+    fits: dict[str, ScalingFit]
 
     def summary(self) -> str:
         lines = [f"scaling study: {self.name}"]
@@ -236,8 +237,8 @@ def _verdict(fit_ci, expected: float, tol: float) -> str:
 
 
 def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence[int], *, name: str = "operation",
-                  repeats: int = 5, warmup: int = 1, declared: Optional[Union[str, float]] = None,
-                  declared_flops: Optional[Union[str, float]] = None, tolerance: float = 0.15,
+                  repeats: int = 5, warmup: int = 1, declared: str | float | None = None,
+                  declared_flops: str | float | None = None, tolerance: float = 0.15,
                   n_boot: int = 300, seed: int = 0, memory: bool = False, flops: bool = True) -> ScalingStudy:
     """Measure an operation over problem sizes and fit ``cost ~ n^k`` for time (and FLOPs when countable).
 
@@ -256,10 +257,10 @@ def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence
     records = [measure(make_call(n), repeats=repeats, warmup=warmup, name=f"{name}[n={n}]", size=float(n),
                        memory=memory, flops=flops) for n in sizes]
     n_arr = np.array(sizes, dtype=float)
-    fits: Dict[str, ScalingFit] = {}
+    fits: dict[str, ScalingFit] = {}
     rng = np.random.default_rng(seed)
 
-    def add(quantity: str, y: np.ndarray, boot_samples: Optional[List[np.ndarray]], decl):
+    def add(quantity: str, y: np.ndarray, boot_samples: list[np.ndarray] | None, decl):
         k, b, r2 = _fit_exponent(n_arr, y)
         ci = (k, k)
         if boot_samples is not None:
@@ -289,14 +290,14 @@ def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence
 @dataclass
 class Budget:
     """Limits for one operation. Any limit left as ``None`` is not checked."""
-    max_time_s: Optional[float] = None
-    max_mem_bytes: Optional[int] = None
-    max_flops: Optional[int] = None
-    max_time_exponent: Optional[float] = None   # checked against the CI's lower bound, so noise cannot fail it
+    max_time_s: float | None = None
+    max_mem_bytes: int | None = None
+    max_flops: int | None = None
+    max_time_exponent: float | None = None   # checked against the CI's lower bound, so noise cannot fail it
 
-    def check(self, result: Union[CostRecord, ScalingStudy]) -> List[str]:
+    def check(self, result: CostRecord | ScalingStudy) -> list[str]:
         """Violations as readable strings; an empty list means the budget holds."""
-        out: List[str] = []
+        out: list[str] = []
         records = result.records if isinstance(result, ScalingStudy) else [result]
         for r in records:
             tag = f"{r.name}: "
@@ -313,7 +314,7 @@ class Budget:
                            f"exceeds {self.max_time_exponent:.2f}")
         return out
 
-    def validate(self, result: Union[CostRecord, ScalingStudy]) -> None:
+    def validate(self, result: CostRecord | ScalingStudy) -> None:
         violations = self.check(result)
         if violations:
             raise BudgetExceeded(
@@ -352,7 +353,7 @@ class CostLedger:
     """Named operations with their costs; save a baseline, compare later runs against it."""
 
     def __init__(self):
-        self.records: Dict[str, CostRecord] = {}
+        self.records: dict[str, CostRecord] = {}
         self.environment = {"python": platform.python_version(), "machine": platform.machine(),
                             "system": platform.system(), "cpu_count": os.cpu_count()}
 
@@ -361,14 +362,14 @@ class CostLedger:
         self.records[name] = rec
         return rec
 
-    def track(self, name: Optional[str] = None, *, repeats: int = 3, **measure_kwargs):
+    def track(self, name: str | None = None, *, repeats: int = 3, **measure_kwargs):
         """Decorator: each call measures the function (it runs ``warmup + repeats`` times plus one run each for
         FLOPs and memory, so use it on side-effect-free operations), stores the record and returns the result."""
         def deco(fn):
             label = name or fn.__name__
 
             def wrapper(*a, **kw):
-                box: Dict[str, Any] = {}
+                box: dict[str, Any] = {}
 
                 def run():
                     box["v"] = fn(*a, **kw)
@@ -385,7 +386,7 @@ class CostLedger:
         return path
 
     @classmethod
-    def load(cls, path: str) -> "CostLedger":
+    def load(cls, path: str) -> CostLedger:
         with open(path) as f:
             raw = json.load(f)
         ledger = cls()
@@ -393,11 +394,11 @@ class CostLedger:
         ledger.records = {k: CostRecord.from_dict(v) for k, v in raw["records"].items()}
         return ledger
 
-    def compare(self, baseline: "CostLedger", *, time_factor: float = 1.5, flops_factor: float = 1.05,
-                mem_factor: float = 1.5) -> List[Regression]:
+    def compare(self, baseline: CostLedger, *, time_factor: float = 1.5, flops_factor: float = 1.05,
+                mem_factor: float = 1.5) -> list[Regression]:
         """Operations that got worse than ``baseline``. FLOPs gate tightly (deterministic), time and memory
         loosely (noisy). Operations missing from either side are ignored."""
-        out: List[Regression] = []
+        out: list[Regression] = []
         for name, cur in self.records.items():
             base = baseline.records.get(name)
             if base is None:

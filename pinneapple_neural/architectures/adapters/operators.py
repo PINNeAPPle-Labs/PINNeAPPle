@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 import torch.nn as nn
 
 from pinneapple_neural.architectures.registry import ModelSpec
@@ -20,7 +20,7 @@ class OperatorAdapter:
     def can_handle(self, spec: ModelSpec) -> bool:
         return (spec.family or "") == "neural_operators"
 
-    def forward_batch(self, model: nn.Module, batch: Dict[str, Any]) -> Any:
+    def forward_batch(self, model: nn.Module, batch: dict[str, Any]) -> Any:
         y_true = batch.get("y_true", None)
 
         # DeepONet / MultiScaleDeepONet

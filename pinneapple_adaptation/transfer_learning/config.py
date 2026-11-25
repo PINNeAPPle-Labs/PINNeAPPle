@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List
 
 
 @dataclass
@@ -70,9 +69,9 @@ class TransferConfig:
     """
 
     strategy: str = "finetune"
-    freeze_prefix: List[str] = field(default_factory=list)
-    unfreeze_prefix: List[str] = field(default_factory=list)
-    layer_lr_scale: Dict[str, float] = field(default_factory=dict)
+    freeze_prefix: list[str] = field(default_factory=list)
+    unfreeze_prefix: list[str] = field(default_factory=list)
+    layer_lr_scale: dict[str, float] = field(default_factory=dict)
     base_lr: float = 1e-4
     finetune_lr: float = 1e-5
     epochs: int = 500

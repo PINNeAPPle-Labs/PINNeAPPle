@@ -1,7 +1,7 @@
 """Distribution-based synthetic generator for Gaussian, uniform, and mixture-of-Gaussians sampling."""
 from __future__ import annotations
 
-from typing import List, Optional, Callable
+from collections.abc import Callable
 import torch
 
 from .base import SynthConfig, SynthOutput
@@ -35,7 +35,7 @@ class DistributionSynthGenerator:
       - mixture of gaussians (simple)
     Output as PhysicalSample-like objects: fields={"x":..., "y":...} etc.
     """
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """
         Initialize the distribution-based synthetic generator.
 
@@ -67,10 +67,10 @@ class DistributionSynthGenerator:
         std: float = 1.0,
         low: float = -1.0,
         high: float = 1.0,
-        mixture_means: Optional[List[List[float]]] = None,
-        mixture_stds: Optional[List[float]] = None,
-        mixture_weights: Optional[List[float]] = None,
-        y_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        mixture_means: list[list[float]] | None = None,
+        mixture_stds: list[float] | None = None,
+        mixture_weights: list[float] | None = None,
+        y_fn: Callable[[torch.Tensor], torch.Tensor] | None = None,
     ) -> SynthOutput:
         """
         Generate synthetic samples from a specified distribution and compute targets.

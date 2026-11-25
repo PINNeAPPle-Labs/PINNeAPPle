@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..conditions import DirichletBC, NeumannBC, DataConstraint, ConditionSpec
+from ..conditions import DirichletBC, NeumannBC
 from ..scales import ScaleSpec
 from ..spec import PDETermSpec, ProblemSpec
 from ..environment_typing import CoordNames

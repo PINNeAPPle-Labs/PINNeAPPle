@@ -40,7 +40,7 @@ single, clean equation.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -87,8 +87,8 @@ def generate_acoustic_synthetic(
     excite_position: float = 0.02,  # fraction of L
     n_supervised: int = 400,
     n_collocation: int = 200,
-    seed: Optional[int] = 0,
-) -> Dict[str, Any]:
+    seed: int | None = 0,
+) -> dict[str, Any]:
     """Generate a synthetic impact-echo / resonance condition-spectrum
     dataset via 1D FDTD. Returns baseline (no-defect) and defect-case
     time traces and spectra, plus InspectionPINN training data for the
@@ -174,7 +174,7 @@ def make_acoustic_physics_loss(x_grid: np.ndarray, c_field: np.ndarray) -> Physi
     def c_of_x(x_np: np.ndarray) -> np.ndarray:
         return np.interp(x_np, x_grid, c_field)
 
-    def physics_loss_fn(model: torch.nn.Module, batch: Dict[str, Any]):
+    def physics_loss_fn(model: torch.nn.Module, batch: dict[str, Any]):
         x_col = batch["x_col"]
         if not x_col.requires_grad:
             x_col = x_col.clone().requires_grad_(True)
@@ -199,20 +199,20 @@ def make_acoustic_physics_loss(x_grid: np.ndarray, c_field: np.ndarray) -> Physi
 
 
 def train_acoustic(
-    synthetic_data: Optional[Dict[str, Any]] = None,
+    synthetic_data: dict[str, Any] | None = None,
     *,
     hidden=(64, 64, 64),
     epochs: int = 200,
     lr: float = 1e-3,
     batch_size: int = 32,
     device: str = "cpu",
-    seed: Optional[int] = 0,
+    seed: int | None = 0,
     log_dir: str = "runs/inspection_acoustic",
     run_name: str = "acoustic_pinn",
     w_supervised: float = 1.0,
     w_physics: float = 1.0,
     **synthetic_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if synthetic_data is None:
         synthetic_data = generate_acoustic_synthetic(seed=seed, **synthetic_kwargs)
 

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 
-def ensure_float_dict(d: Dict[str, Any]) -> Dict[str, float]:
+def ensure_float_dict(d: dict[str, Any]) -> dict[str, float]:
     """
     Convert dictionary values to floats when possible.
 
@@ -20,7 +19,7 @@ def ensure_float_dict(d: Dict[str, Any]) -> Dict[str, float]:
         could be successfully converted to float. Keys are
         coerced to strings. Non-numeric values are silently skipped.
     """
-    out: Dict[str, float] = {}
+    out: dict[str, float] = {}
     for k, v in d.items():
         try:
             out[str(k)] = float(v)

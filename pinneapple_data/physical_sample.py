@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Union, Iterable, Mapping
+from typing import Any
+from collections.abc import Iterable
 
 import xarray as xr
 
@@ -34,12 +35,12 @@ class PhysicalSample:
         Extensible container for additional artifacts such as
         feature caches, mesh labels, SDFs, etc.
     """
-    state: Union[xr.Dataset, Dict[str, Any]]
-    geometry: Optional[Any] = None
-    schema: Dict[str, Any] = field(default_factory=dict)
-    domain: Dict[str, Any] = field(default_factory=dict)
-    provenance: Dict[str, Any] = field(default_factory=dict)
-    extras: Dict[str, Any] = field(default_factory=dict)
+    state: xr.Dataset | dict[str, Any]
+    geometry: Any | None = None
+    schema: dict[str, Any] = field(default_factory=dict)
+    domain: dict[str, Any] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
+    extras: dict[str, Any] = field(default_factory=dict)
 
     # -------------------------
     # Domain helpers
@@ -110,7 +111,7 @@ class PhysicalSample:
             return [str(k) for k in self.state.keys()]
         return []
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """
         Generate a structured summary of this PhysicalSample.
 
@@ -145,10 +146,10 @@ class PhysicalSample:
         self,
         *,
         x_vars: Iterable[str],
-        y_vars: Optional[Iterable[str]] = None,
-        coords: Optional[Iterable[str]] = None,
-        time_dim: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        y_vars: Iterable[str] | None = None,
+        coords: Iterable[str] | None = None,
+        time_dim: str | None = None,
+    ) -> dict[str, Any]:
         """
         Convert this PhysicalSample into a canonical training dictionary.
 
@@ -203,7 +204,7 @@ class PhysicalSample:
             import numpy as np
             return np.stack(arrs, axis=-1)
 
-        def _stack_from_dict(d: Dict[str, Any], vars_: list[str]):
+        def _stack_from_dict(d: dict[str, Any], vars_: list[str]):
             """
             Stack variables from a dictionary-based state.
             """

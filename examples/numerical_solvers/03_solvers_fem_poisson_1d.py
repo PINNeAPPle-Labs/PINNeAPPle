@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, Any, Tuple
+from typing import Any
 
 import torch
 
@@ -38,7 +38,7 @@ class LineMesh1D:
     elements: torch.Tensor  # (E,2) long
 
 
-def assemble_poisson_1d(mesh: LineMesh1D, params: Dict[str, Any]) -> Tuple[torch.Tensor, torch.Tensor]:
+def assemble_poisson_1d(mesh: LineMesh1D, params: dict[str, Any]) -> tuple[torch.Tensor, torch.Tensor]:
     """Linear FEM assembly for -u''=f on [0,1] with P1 elements."""
     x = mesh.nodes
     elems = mesh.elements
@@ -75,7 +75,7 @@ def assemble_poisson_1d(mesh: LineMesh1D, params: Dict[str, Any]) -> Tuple[torch
     return K, f
 
 
-def apply_dirichlet(mesh: LineMesh1D, K: torch.Tensor, f: torch.Tensor, params: Dict[str, Any]):
+def apply_dirichlet(mesh: LineMesh1D, K: torch.Tensor, f: torch.Tensor, params: dict[str, Any]):
     """Strong Dirichlet BCs at x=0 and x=1 (nodes 0 and N-1)."""
     N = mesh.nodes.numel()
     bc_nodes = params.get("bc_nodes", [0, N - 1])

@@ -9,7 +9,6 @@ needing a full 2D closed-form solution.
 """
 
 import numpy as np
-import pytest
 from scipy.optimize import brentq
 
 from pinneapple_physics.pde_environment.conditions import DirichletBC, RobinBC

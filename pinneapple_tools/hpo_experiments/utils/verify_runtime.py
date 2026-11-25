@@ -1,11 +1,9 @@
 """Runtime verification: project tree, py_compile, smoke run."""
 from __future__ import annotations
 
-import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple
 
 
 @dataclass
@@ -17,7 +15,7 @@ class RunResult:
     stderr: str
 
 
-def _run(cmd: List[str], cwd: str, timeout_s: int) -> RunResult:
+def _run(cmd: list[str], cwd: str, timeout_s: int) -> RunResult:
     try:
         p = subprocess.run(
             cmd,

@@ -1273,7 +1273,7 @@ def test_breadth_file_watch_stream(tmp_path):
     path.write_text('{"timestamp": 0.0, "p": 1.0}\n')
 
     stream = FileWatchStream(str(path), sensor_id="s1", field_names=["p"], poll_interval=0.05)
-    q: "queue.Queue" = queue.Queue()
+    q: queue.Queue = queue.Queue()
     stream.start(q)
     time_mod.sleep(0.2)
     stream.stop()
@@ -1302,7 +1302,7 @@ def test_breadth_http_poll_stream():
     stream = HTTPPollStream(
         "http://127.0.0.1:1/does-not-exist", sensor_id="s1", field_names=["p"], poll_interval=0.05,
     )
-    q: "queue.Queue" = queue.Queue()
+    q: queue.Queue = queue.Queue()
     stream.start(q)
     time_mod.sleep(0.15)
     stream.stop()
@@ -1317,7 +1317,7 @@ def test_breadth_mock_stream():
         return {"p": 1.0 + 0.1 * t}
 
     stream = MockStream("s1", field_names=["p"], generator_fn=gen, tick_interval=0.02)
-    q: "queue.Queue" = queue.Queue()
+    q: queue.Queue = queue.Queue()
     stream.start(q)
     time_mod.sleep(0.15)
     stream.stop()
@@ -3025,11 +3025,11 @@ def _generic_value_for_type(tp):
         if non_none:
             return _generic_value_for_type(non_none[0])
         return True, None
-    if origin in (list, _typing.List):
+    if origin in (list, list):
         return True, []
-    if origin in (dict, _typing.Dict):
+    if origin in (dict, dict):
         return True, {}
-    if origin in (tuple, _typing.Tuple):
+    if origin in (tuple, tuple):
         return True, ()
 
     if "Optional" in s or s == "None" or "NoneType" in s:

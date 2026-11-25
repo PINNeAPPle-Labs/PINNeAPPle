@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Type, Any
+from typing import Any
 
 from .pde import PDESynthGenerator
 from .distributions import DistributionSynthGenerator
@@ -12,7 +12,7 @@ from .geometry import GeometrySynthGenerator
 from .pde_symbolic import SymbolicFDSynthGenerator
 from .geometry_cadquery import STLTemplateSynthGenerator, ParametricCadQuerySynthGenerator
 
-_REGISTRY: Dict[str, Type] = {
+_REGISTRY: dict[str, type] = {
     "pde": PDESynthGenerator,
     "distributions": DistributionSynthGenerator,
     "curvefit": CurveFitSynthGenerator,
@@ -38,7 +38,7 @@ class SynthCatalog:
                   If not explicitly provided, it is initialized from
                   the internal `_REGISTRY`.
     """
-    registry: Dict[str, Type] = None
+    registry: dict[str, type] = None
 
     def __post_init__(self):
         """Initialize the catalog registry from the default internal mapping."""

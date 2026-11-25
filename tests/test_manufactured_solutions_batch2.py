@@ -8,7 +8,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-import pytest
 import torch
 import torch.nn as nn
 

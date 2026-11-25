@@ -7,8 +7,8 @@ altitude (Gagg-Ferrar), fuel from the brake-specific fuel consumption, CO2 from 
 from __future__ import annotations
 
 import math
-from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import asdict, dataclass
+from typing import Any
 
 import numpy as np
 
@@ -59,7 +59,7 @@ class Requirements:
     max_abs_cm: float = 0.10                # trim drag and tail size
     max_cruise_cl_ratio: float = 0.70       # cruise cl <= 70 % of clmax (gust and manoeuvre margin)
 
-    def as_dict(self) -> Dict[str, float]:
+    def as_dict(self) -> dict[str, float]:
         return asdict(self)
 
 
@@ -79,7 +79,7 @@ class Polar:
     def alpha_for(self, cl: float) -> float:
         return float(np.interp(cl, self._cl, self._a, left=np.nan, right=np.nan))
 
-    def at_cl(self, cl: float) -> Dict[str, float]:
+    def at_cl(self, cl: float) -> dict[str, float]:
         if cl < self._cl[0] or cl > self._cl[-1]:
             # linear extrapolation in cl, flagged
             i = (0, 1) if cl < self._cl[0] else (-2, -1)
@@ -89,7 +89,7 @@ class Polar:
                 "cm": float(np.interp(cl, self._cl, self._cm)), "extrapolated": False}
 
 
-def performance(polar: Polar, ac: Aircraft = Aircraft(), req: Requirements = Requirements()) -> Dict[str, Any]:
+def performance(polar: Polar, ac: Aircraft = Aircraft(), req: Requirements = Requirements()) -> dict[str, Any]:
     S, W, AR, e = ac.wing_area, ac.weight, ac.aspect_ratio, ac.oswald
     k_ind = 1 / (math.pi * e * AR)
 
@@ -140,8 +140,8 @@ def performance(polar: Polar, ac: Aircraft = Aircraft(), req: Requirements = Req
             "vmax_cl": CLv, "power_at_altitude_kw": P / 1e3}
 
 
-def evaluate(shape_props: Dict[str, float], polar: Polar, ac: Aircraft = Aircraft(),
-             req: Requirements = Requirements()) -> Dict[str, Any]:
+def evaluate(shape_props: dict[str, float], polar: Polar, ac: Aircraft = Aircraft(),
+             req: Requirements = Requirements()) -> dict[str, Any]:
     """Performance plus the geometric requirement; feasible when every check passes."""
     perf = performance(polar, ac, req)
     t = shape_props["thickness"]

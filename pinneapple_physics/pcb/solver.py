@@ -20,7 +20,7 @@ AMG-preconditioned conjugate gradients (direct solve as fallback). Energy balanc
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import scipy.sparse as sps
@@ -48,18 +48,18 @@ class Component:
     package: str = "QFN-32 5x5"
     side: str = "top"
     tj_max_c: float = 125.0
-    theta_jb: Optional[float] = None  # K/W, default from package
-    theta_jc: Optional[float] = None  # K/W (junction to case top)
-    w_mm: Optional[float] = None
-    d_mm: Optional[float] = None
-    h_mm: Optional[float] = None
+    theta_jb: float | None = None  # K/W, default from package
+    theta_jc: float | None = None  # K/W (junction to case top)
+    w_mm: float | None = None
+    d_mm: float | None = None
+    h_mm: float | None = None
     vias: int = 0                    # thermal vias under the part
     via_drill_mm: float = 0.3
     via_plating_um: float = 25.0
-    r_top_k_w: Optional[float] = None  # case top to ambient through an attached heat sink (TIM + sink), K/W;
+    r_top_k_w: float | None = None  # case top to ambient through an attached heat sink (TIM + sink), K/W;
     #                                    None: convection from the bare case top
 
-    def resolved(self) -> "Component":
+    def resolved(self) -> Component:
         p = PACKAGES.get(self.package, PACKAGES["QFN-32 5x5"])
         return Component(**{**self.__dict__,
                             "theta_jb": self.theta_jb if self.theta_jb is not None else p["theta_jb"],
@@ -79,10 +79,10 @@ class Board:
     outer_coverage: float = 0.3
     inner_coverage: float = 0.9
     chassis_edges: bool = False      # edges clamped to a chassis
-    chassis_t_c: Optional[float] = None  # default: ambient
+    chassis_t_c: float | None = None  # default: ambient
     edge_h_w_m2k: float = 2000.0     # contact conductance of the clamped edges
 
-    def layers(self) -> List[Layer]:
+    def layers(self) -> list[Layer]:
         return stackup(self.n_copper, self.thickness_mm, self.outer_oz, self.inner_oz,
                        self.outer_coverage, self.inner_coverage)
 
@@ -91,7 +91,7 @@ def _overlap(edges: np.ndarray, lo: float, hi: float) -> np.ndarray:
     return np.clip(np.minimum(edges[1:], hi) - np.maximum(edges[:-1], lo), 0.0, None)
 
 
-def validate(board: Board, comps: List[Component]) -> List[str]:
+def validate(board: Board, comps: list[Component]) -> list[str]:
     errs = []
     if board.width_mm <= 0 or board.depth_mm <= 0 or board.thickness_mm <= 0:
         errs.append("board dimensions must be positive")
@@ -111,7 +111,7 @@ def validate(board: Board, comps: List[Component]) -> List[str]:
     return errs
 
 
-def overlaps(comps: List[Component]) -> List[str]:
+def overlaps(comps: list[Component]) -> list[str]:
     """Same-side component pairs whose footprints overlap (a layout error the
     heat model would otherwise silently superpose)."""
     rs = [c.resolved() for c in comps]
@@ -141,7 +141,7 @@ def _linear_solve(M: sps.csr_matrix, b: np.ndarray) -> np.ndarray:
 class _Model:
     """Discretisation of one board + component set on one grid."""
 
-    def __init__(self, board: Board, comps: List[Component], env: Environment, n_cells: int,
+    def __init__(self, board: Board, comps: list[Component], env: Environment, n_cells: int,
                  k_xy_scale: float):
         self.board, self.comps, self.env = board, comps, env
         layers = self.layers = board.layers()
@@ -218,7 +218,7 @@ class _Model:
         self.base = sps.csr_matrix((np.concatenate(vals), (np.concatenate(rows),
                                     np.concatenate(cols))), shape=(nb + nc, nb + nc))
 
-    def solve_h(self, h: Dict[str, float]) -> Dict[str, Any]:
+    def solve_h(self, h: dict[str, float]) -> dict[str, Any]:
         d, b = self.diag.copy(), self.rhs.copy()
         g_face = {}
         for s, k in self.face_layer.items():
@@ -239,14 +239,14 @@ class _Model:
         return {"theta": theta, "th": th, "g_face": g_face, "g_air": g_air, "ts": ts, "h": h}
 
 
-def _h_for(model: _Model, ts: Dict[str, float], h_scale: float):
+def _h_for(model: _Model, ts: dict[str, float], h_scale: float):
     info = convection_coefficients(model.W, model.D, (ts["top"], ts["bottom"]), model.env)
     return {"top": info["h_top"] * h_scale, "bottom": info["h_bottom"] * h_scale}, info
 
 
-def solve(board: Board, comps: List[Component], env: Environment, *, n_cells: int = 60,
-          h_override: Optional[Dict[str, float]] = None, k_xy_scale: float = 1.0,
-          h_scale: float = 1.0, max_iter: int = 40, coarse_cells: int = 24) -> Dict[str, Any]:
+def solve(board: Board, comps: list[Component], env: Environment, *, n_cells: int = 60,
+          h_override: dict[str, float] | None = None, k_xy_scale: float = 1.0,
+          h_scale: float = 1.0, max_iter: int = 40, coarse_cells: int = 24) -> dict[str, Any]:
     """Steady temperatures. ``h_override`` fixes {'top','bottom'} coefficients
     (tests / calibration); ``k_xy_scale`` / ``h_scale`` scale the in-plane
     conductivity and the surface coefficients (calibration / uncertainty).
@@ -260,7 +260,7 @@ def solve(board: Board, comps: List[Component], env: Environment, *, n_cells: in
         raise ValueError("; ".join(errs))
     comps = [c.resolved() for c in comps]
     Ta = env.t_ambient_c
-    info: Dict[str, Any] = {"warnings": []}
+    info: dict[str, Any] = {"warnings": []}
     iters, converged = 0, True
     if h_override:
         h = {"top": h_override["top"], "bottom": h_override["bottom"]}
@@ -288,8 +288,8 @@ def solve(board: Board, comps: List[Component], env: Environment, *, n_cells: in
     return _post(model, sol, info, iters, converged)
 
 
-def _post(model: _Model, sol: Dict[str, Any], info: Dict[str, Any], iters: int,
-          converged: bool) -> Dict[str, Any]:
+def _post(model: _Model, sol: dict[str, Any], info: dict[str, Any], iters: int,
+          converged: bool) -> dict[str, Any]:
     comps, Ta = model.comps, model.env.t_ambient_c
     th, theta, g_face, g_air, h = sol["th"], sol["theta"], sol["g_face"], sol["g_air"], sol["h"]
     tj = theta[model.nb:]

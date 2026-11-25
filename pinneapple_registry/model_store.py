@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 VALID_STAGES = ("development", "staging", "production", "archived")
 
@@ -22,11 +22,11 @@ VALID_STAGES = ("development", "staging", "production", "archived")
 PUBLISHED_STAGES = ("staging", "production")
 
 
-def _report_dict(report: Any) -> Dict[str, Any]:
+def _report_dict(report: Any) -> dict[str, Any]:
     return report.to_dict() if hasattr(report, "to_dict") else dict(report)
 
 
-def _check_publishable(meta: Dict[str, Any], problem_id: str, stage: str, override_reason: Optional[str]) -> None:
+def _check_publishable(meta: dict[str, Any], problem_id: str, stage: str, override_reason: str | None) -> None:
     """A REJECT TrustReport blocks publication unless overridden with a recorded reason (mutates ``meta``)."""
     report = meta.get("trust_report") or {}
     if stage not in PUBLISHED_STAGES or report.get("decisao") != "REJECT":
@@ -61,10 +61,10 @@ class ModelStore:
         problem_id: str,
         model: Any,
         *,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
         stage: str = "development",
-        sample_input: Optional[Any] = None,
-        trust_report: Optional[Any] = None,
+        sample_input: Any | None = None,
+        trust_report: Any | None = None,
     ) -> str:
         """Save a trained model as a new timestamped version. If ``model``
         has a ``save_checkpoint`` (any ``BaseModel``, including
@@ -112,14 +112,14 @@ class ModelStore:
         with open(self._latest_path(problem_id), "w") as f:
             json.dump({"version": version}, f)
 
-    def latest(self, problem_id: str) -> Optional[str]:
+    def latest(self, problem_id: str) -> str | None:
         path = self._latest_path(problem_id)
         if not os.path.exists(path):
             return None
         with open(path) as f:
             return json.load(f)["version"]
 
-    def versions(self, problem_id: str) -> List[str]:
+    def versions(self, problem_id: str) -> list[str]:
         d = self._problem_dir(problem_id)
         if not os.path.isdir(d):
             return []
@@ -128,22 +128,22 @@ class ModelStore:
             if v.startswith("v") and os.path.isdir(os.path.join(d, v))
         )
 
-    def _resolve_version(self, problem_id: str, version: Optional[str]) -> str:
+    def _resolve_version(self, problem_id: str, version: str | None) -> str:
         v = version or self.latest(problem_id)
         if v is None:
             raise KeyError(f"No versions saved for problem_id='{problem_id}'")
         return v
 
-    def metadata(self, problem_id: str, version: Optional[str] = None) -> Dict[str, Any]:
+    def metadata(self, problem_id: str, version: str | None = None) -> dict[str, Any]:
         v = self._resolve_version(problem_id, version)
         with open(os.path.join(self._version_dir(problem_id, v), "metadata.json")) as f:
             return json.load(f)
 
-    def checkpoint_path(self, problem_id: str, version: Optional[str] = None) -> str:
+    def checkpoint_path(self, problem_id: str, version: str | None = None) -> str:
         v = self._resolve_version(problem_id, version)
         return os.path.join(self._version_dir(problem_id, v), "model.pt")
 
-    def load(self, problem_id: str, version: Optional[str] = None, model_cls: Optional[Any] = None, **init_kwargs: Any):
+    def load(self, problem_id: str, version: str | None = None, model_cls: Any | None = None, **init_kwargs: Any):
         """Load a checkpoint back into a live model. If ``model_cls`` is
         given, calls ``model_cls.load_checkpoint(path, **init_kwargs)``
         (works for any ``BaseModel``/``ComponentModel`` subclass);
@@ -156,7 +156,7 @@ class ModelStore:
 
     # -- stage promotion ---------------------------------------------------
 
-    def promote(self, problem_id: str, version: str, stage: str, *, override_reason: Optional[str] = None) -> None:
+    def promote(self, problem_id: str, version: str, stage: str, *, override_reason: str | None = None) -> None:
         """Move a version to ``stage``. Publishing (staging/production) a version whose latest TrustReport is
         REJECT raises ``PermissionError`` unless ``override_reason`` is given; the override is recorded."""
         if stage not in VALID_STAGES:
@@ -176,25 +176,25 @@ class ModelStore:
         meta.pop("trust_override", None)
         self._write_metadata(problem_id, version, meta)
 
-    def trust_report(self, problem_id: str, version: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def trust_report(self, problem_id: str, version: str | None = None) -> dict[str, Any] | None:
         return self.metadata(problem_id, version).get("trust_report")
 
-    def _write_metadata(self, problem_id: str, version: str, meta: Dict[str, Any]) -> None:
+    def _write_metadata(self, problem_id: str, version: str, meta: dict[str, Any]) -> None:
         with open(os.path.join(self._version_dir(problem_id, version), "metadata.json"), "w") as f:
             json.dump(meta, f, indent=2)
 
-    def by_stage(self, problem_id: str, stage: str) -> List[str]:
+    def by_stage(self, problem_id: str, stage: str) -> list[str]:
         return [v for v in self.versions(problem_id) if self.metadata(problem_id, v).get("stage") == stage]
 
     # -- comparison ----------------------------------------------------
 
-    def compare(self, problem_id: str, metric: Optional[str] = None) -> List[Dict[str, Any]]:
+    def compare(self, problem_id: str, metric: str | None = None) -> list[dict[str, Any]]:
         """Every version's metadata, sorted by ``metric`` (ascending) if
         given and present, else by version string (== creation order,
         since versions are timestamp-sortable)."""
         rows = [self.metadata(problem_id, v) for v in self.versions(problem_id)]
         if metric:
-            def _key(row: Dict[str, Any]) -> Any:
+            def _key(row: dict[str, Any]) -> Any:
                 metrics = row.get("metrics", {})
                 val = metrics.get(metric, row.get(metric))
                 return (val is None, val)
@@ -210,8 +210,8 @@ class ModelStore:
         problem_id: str,
         sample_input: Any,
         *,
-        version: Optional[str] = None,
-        model_cls: Optional[Any] = None,
+        version: str | None = None,
+        model_cls: Any | None = None,
         **init_kwargs: Any,
     ) -> str:
         """Exports the given (or latest) version's model to ONNX next to

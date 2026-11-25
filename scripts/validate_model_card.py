@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import List
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
@@ -30,14 +29,14 @@ sys.path.insert(0, str(_REPO_ROOT))
 from pinneapple_hub.model_card import ModelCard  # noqa: E402
 
 
-def _discover_model_cards() -> List[Path]:
+def _discover_model_cards() -> list[Path]:
     return sorted(
         p for p in _REPO_ROOT.rglob("*model_card*.json")
         if ".git" not in p.parts and "node_modules" not in p.parts
     )
 
 
-def validate_one(path: Path) -> List[str]:
+def validate_one(path: Path) -> list[str]:
     """Return a list of problems (empty = passes). Never raises for a
     schema issue -- only for a file that isn't readable/parseable JSON at
     all, which is itself reported as a single problem rather than a stack
@@ -49,7 +48,7 @@ def validate_one(path: Path) -> List[str]:
     return card.validate()
 
 
-def main(argv: List[str]) -> int:
+def main(argv: list[str]) -> int:
     paths = [Path(a) for a in argv] if argv else _discover_model_cards()
     if not paths:
         print("validate_model_card: no model_card.json files found -- nothing to check.")

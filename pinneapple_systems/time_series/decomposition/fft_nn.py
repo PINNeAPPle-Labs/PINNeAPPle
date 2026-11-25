@@ -1,6 +1,6 @@
 """FFT + Neural Network on residual decomposition forecaster."""
 from __future__ import annotations
-from typing import Optional, Dict, Any
+from typing import Any
 
 import numpy as np
 
@@ -28,11 +28,11 @@ class FFTNNForecaster:
         detrend: bool = True,
         input_len: int = 32,
         horizon: int = 16,
-        nn_model: Optional[Any] = None,
+        nn_model: Any | None = None,
         nn_epochs: int = 50,
         nn_lr: float = 1e-3,
         nn_batch: int = 32,
-        device: Optional[str] = None,
+        device: str | None = None,
     ):
         self.n_harmonics = n_harmonics
         self.detrend     = detrend
@@ -44,7 +44,7 @@ class FFTNNForecaster:
         self._device     = device
         self._nn_model   = nn_model  # external model; if None, default MLP is built
         self._fft_model  = None
-        self._y_train: Optional[np.ndarray] = None
+        self._y_train: np.ndarray | None = None
 
     # ------------------------------------------------------------------
     def _default_nn(self):
@@ -61,7 +61,7 @@ class FFTNNForecaster:
         return window_features(residual, self.input_len, self.horizon)
 
     # ------------------------------------------------------------------
-    def fit(self, y: np.ndarray) -> "FFTNNForecaster":
+    def fit(self, y: np.ndarray) -> FFTNNForecaster:
         y = np.asarray(y, dtype=float).ravel()
         self._y_train = y
 

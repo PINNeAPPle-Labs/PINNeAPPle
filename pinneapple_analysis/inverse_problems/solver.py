@@ -27,8 +27,9 @@ Quick start
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -36,7 +37,7 @@ import torch.nn as nn
 
 from .noise_models import DataMisfitBase, GaussianMisfit
 from .regularization import RegularizerBase
-from .obs_operator import ObsOperatorBase, PointObsOperator
+from .obs_operator import ObsOperatorBase
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -89,7 +90,7 @@ class InverseSolverConfig:
     eki_noise_std: float = 0.01
     eki_lambda_reg: float = 0.0
     eki_init_spread: float = 0.1
-    seed: Optional[int] = None
+    seed: int | None = None
 
 
 @dataclass
@@ -113,7 +114,7 @@ class InverseSolverResult:
     final_misfit: float
     final_regularization: float
     final_total_loss: float
-    loss_history: List[float]
+    loss_history: list[float]
     n_iters: int
     method: str
     converged: bool = False
@@ -147,10 +148,10 @@ class InverseProblemSolver:
         self,
         model: nn.Module,
         obs_operator: ObsOperatorBase,
-        data_misfit: Optional[DataMisfitBase] = None,
-        regularizer: Optional[RegularizerBase] = None,
-        config: Optional[InverseSolverConfig] = None,
-        extra_loss_fn: Optional[Callable] = None,
+        data_misfit: DataMisfitBase | None = None,
+        regularizer: RegularizerBase | None = None,
+        config: InverseSolverConfig | None = None,
+        extra_loss_fn: Callable | None = None,
     ) -> None:
         self.model = model
         self.obs_operator = obs_operator
@@ -161,7 +162,7 @@ class InverseProblemSolver:
 
     # ── Private helpers ───────────────────────────────────────────────────────
 
-    def _get_inverse_params(self) -> Optional[nn.ParameterDict]:
+    def _get_inverse_params(self) -> nn.ParameterDict | None:
         """Return the nn.ParameterDict if the model exposes one."""
         if hasattr(self.model, "inverse_params"):
             return self.model.inverse_params
@@ -232,7 +233,7 @@ class InverseProblemSolver:
         params = list(pd.values()) if pd is not None else list(self.model.parameters())
         opt = torch.optim.Adam(params, lr=cfg.lr)
 
-        loss_history: List[float] = []
+        loss_history: list[float] = []
 
         for i in range(1, cfg.n_iters + 1):
             opt.zero_grad()
@@ -277,8 +278,8 @@ class InverseProblemSolver:
             line_search_fn="strong_wolfe",
         )
 
-        loss_history: List[float] = []
-        _last_loss: List[float] = [float("inf")]
+        loss_history: list[float] = []
+        _last_loss: list[float] = [float("inf")]
 
         for i in range(1, cfg.n_iters + 1):
             def closure():
@@ -353,7 +354,7 @@ class InverseProblemSolver:
 
     # ── Result builder ────────────────────────────────────────────────────────
 
-    def _build_result(self, method: str, loss_history: List[float]) -> InverseSolverResult:
+    def _build_result(self, method: str, loss_history: list[float]) -> InverseSolverResult:
         pd = self._get_inverse_params()
         if pd is not None:
             theta_opt = {k: v.detach().cpu().numpy() for k, v in pd.items()}
@@ -377,9 +378,9 @@ class InverseProblemSolver:
     def solve(
         self,
         y_obs: torch.Tensor,
-        x_obs: Optional[torch.Tensor] = None,
+        x_obs: torch.Tensor | None = None,
         *,
-        theta_init: Optional[np.ndarray] = None,
+        theta_init: np.ndarray | None = None,
     ) -> InverseSolverResult:
         """Solve the inverse problem.
 

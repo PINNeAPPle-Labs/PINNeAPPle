@@ -10,7 +10,7 @@ convergence is checked by solving on two grids (``convergence``).
 """
 from __future__ import annotations
 
-from typing import Callable, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import scipy.sparse as sp
@@ -41,7 +41,7 @@ _footprint_area = footprint_area      # former private name, kept for existing i
 
 
 def plate_2d(h: float, *, lx: float, ly: float, t: float, k: float, power: float, t_air: float,
-             device: Tuple[float, float, float, float], nx: int = 200, ny: int = 120):
+             device: tuple[float, float, float, float], nx: int = 200, ny: int = 120):
     """Temperature (°C) at the cell centres of an (ny, nx) grid; returns (x, y, T)."""
     xc, yc, half, width = device
     q_flux = power / footprint_area(xc, yc, half, width, lx, ly)           # W/m2 so that the total is ``power``
@@ -68,7 +68,7 @@ def plate_2d(h: float, *, lx: float, ly: float, t: float, k: float, power: float
 
 
 def block_3d(h: float, *, lx: float, ly: float, lz: float, k: float, power: float, t_air: float,
-             device: Tuple[float, float, float, float], nx: int = 40, ny: int = 40, nz: int = 12):
+             device: tuple[float, float, float, float], nx: int = 40, ny: int = 40, nz: int = 12):
     """Temperature (°C) at the cell centres of an (nz, ny, nx) grid; returns (x, y, z, T)."""
     xc, yc, half, width = device
     q_flux = power / footprint_area(xc, yc, half, width, lx, ly)

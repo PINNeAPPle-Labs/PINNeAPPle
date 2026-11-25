@@ -19,8 +19,9 @@ Quick start
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -46,8 +47,8 @@ class SolverOutput3D:
         Solver parameters and diagnostics (CFL, max_div, etc.).
     """
     u: np.ndarray
-    coords: Dict[str, np.ndarray]
-    meta: Dict[str, Any]
+    coords: dict[str, np.ndarray]
+    meta: dict[str, Any]
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -130,8 +131,8 @@ class HeatConfig3D:
     lz: float = 1.0
     dt: float = 1e-4
     alpha: float = 1e-4
-    ic_fn: Optional[Callable] = None
-    source_fn: Optional[Callable] = None
+    ic_fn: Callable | None = None
+    source_fn: Callable | None = None
 
 
 class HeatConduction3D:
@@ -142,7 +143,7 @@ class HeatConduction3D:
     Boundary conditions: Dirichlet zero on all 6 faces (T=0 at walls).
     """
 
-    def __init__(self, cfg: Optional[HeatConfig3D] = None):
+    def __init__(self, cfg: HeatConfig3D | None = None):
         self.cfg = cfg or HeatConfig3D()
 
     def solve(self) -> SolverOutput3D:
@@ -243,8 +244,8 @@ class NavierStokesConfig3D:
     nu: float = 1e-3
     rho: float = 1.0
     pressure_iters: int = 50
-    ic_fn: Optional[Callable] = None
-    force_fn: Optional[Callable] = None
+    ic_fn: Callable | None = None
+    force_fn: Callable | None = None
 
 
 class NavierStokes3D:
@@ -254,7 +255,7 @@ class NavierStokes3D:
     [vx, vy, vz].  Pressure is available in ``meta["p_final"]``.
     """
 
-    def __init__(self, cfg: Optional[NavierStokesConfig3D] = None):
+    def __init__(self, cfg: NavierStokesConfig3D | None = None):
         self.cfg = cfg or NavierStokesConfig3D()
 
     def _advect(self, v: np.ndarray, vx: np.ndarray, vy: np.ndarray, vz: np.ndarray,
@@ -394,9 +395,9 @@ class ElasticWaveConfig3D:
     lz: float = 1.0
     dt: float = 5e-4
     c: float = 1.0
-    ic_u_fn: Optional[Callable] = None
-    ic_du_fn: Optional[Callable] = None
-    source_fn: Optional[Callable] = None
+    ic_u_fn: Callable | None = None
+    ic_du_fn: Callable | None = None
+    source_fn: Callable | None = None
 
 
 class ElasticWave3D:
@@ -410,7 +411,7 @@ class ElasticWave3D:
     Output ``u`` has shape ``(nt+1, nx, ny, nz)``.
     """
 
-    def __init__(self, cfg: Optional[ElasticWaveConfig3D] = None):
+    def __init__(self, cfg: ElasticWaveConfig3D | None = None):
         self.cfg = cfg or ElasticWaveConfig3D()
 
     def solve(self) -> SolverOutput3D:
@@ -536,7 +537,7 @@ class LidDrivenCavitySolver3D:
     [vx, vy, vz, p].
     """
 
-    def __init__(self, cfg: Optional[LidDrivenCavityConfig3D] = None):
+    def __init__(self, cfg: LidDrivenCavityConfig3D | None = None):
         self.cfg = cfg or LidDrivenCavityConfig3D()
 
     # ------------------------------------------------------------------
@@ -569,7 +570,7 @@ class LidDrivenCavitySolver3D:
         vx: np.ndarray,
         vy: np.ndarray,
         vz: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Enforce lid and no-slip boundary conditions in-place."""
         cfg = self.cfg
         U = cfg.lid_velocity
@@ -755,7 +756,7 @@ class ChannelFlowSolver3D:
     [vx, vy, vz].
     """
 
-    def __init__(self, cfg: Optional[ChannelFlowConfig3D] = None):
+    def __init__(self, cfg: ChannelFlowConfig3D | None = None):
         self.cfg = cfg or ChannelFlowConfig3D()
 
     # ------------------------------------------------------------------
@@ -788,7 +789,7 @@ class ChannelFlowSolver3D:
         vx: np.ndarray,
         vy: np.ndarray,
         vz: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Enforce no-slip on the four y- and z-walls."""
         # y-walls: y=0 (index 0) and y=ny-1
         vx[:, 0, :] = 0.0;  vy[:, 0, :] = 0.0;  vz[:, 0, :] = 0.0

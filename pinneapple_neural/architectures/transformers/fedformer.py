@@ -1,7 +1,6 @@
 from __future__ import annotations
 """FEDformer-inspired MVP: FFT top-k features + lightweight MLP head."""
 
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -50,8 +49,8 @@ class FEDformer(TimeSeriesModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        x_future: Optional[torch.Tensor] = None,
-        y_future: Optional[torch.Tensor] = None,
+        x_future: torch.Tensor | None = None,
+        y_future: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> TSOutput:
         B, L, D = x_past.shape
@@ -81,7 +80,7 @@ class FEDformer(TimeSeriesModelBase):
         dec = feat[:, None, :] + self.h_emb(t)[None, :, :]    # (B,H,d_model)
         y_hat = self.out(dec)                      # (B,H,out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
         if return_loss and y_future is not None:
             losses["mse"] = self.mse(y_hat, y_future)
             losses["total"] = losses["mse"]

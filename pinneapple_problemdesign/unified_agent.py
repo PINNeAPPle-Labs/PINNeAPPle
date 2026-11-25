@@ -117,7 +117,7 @@ validation.acceptance_criteria                              default) plus ``"val
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .agent import DesignAgent
 from .protocol import LLMProvider
@@ -142,7 +142,7 @@ from pinneapple_worldmodel.orchestrator import (
 # ``control``, ``anomaly_detection``, ``other``) have no confident match
 # among PhysicsOrchestrator's eight ``kind`` values and must be supplied
 # explicitly via ``kind=`` to avoid inventing a wrong one.
-_TASK_TYPE_TO_KIND: Dict[str, str] = {
+_TASK_TYPE_TO_KIND: dict[str, str] = {
     "forecasting": "forecast",
     "inverse_problem": "inverse",
     "pde_solution": "forward",
@@ -193,13 +193,13 @@ class UnifiedAgentResult:
         Populated only for ``status == "execution_failed"``.
     """
     status: str
-    design_report: Optional[DesignReport] = None
-    problem_statement: Optional[ProblemStatement] = None
-    execution_result: Optional[OrchestratorResult] = None
-    design_state: Optional[DesignState] = None
-    gaps: List[Gap] = field(default_factory=list)
+    design_report: DesignReport | None = None
+    problem_statement: ProblemStatement | None = None
+    execution_result: OrchestratorResult | None = None
+    design_state: DesignState | None = None
+    gaps: list[Gap] = field(default_factory=list)
     questions_text: str = ""
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class UnifiedPhysicsAgent:
@@ -235,7 +235,7 @@ class UnifiedPhysicsAgent:
         llm: LLMProvider,
         *,
         use_orchestrator_bridge: bool = True,
-        orchestrator: Optional[PhysicsOrchestrator] = None,
+        orchestrator: PhysicsOrchestrator | None = None,
         orchestrator_verbose: bool = True,
     ) -> None:
         self.design_agent = DesignAgent(llm, use_orchestrator_bridge=use_orchestrator_bridge)
@@ -266,7 +266,7 @@ class UnifiedPhysicsAgent:
         """Delegates to ``DesignAgent.ingest_user_message()``."""
         self.design_agent.ingest_user_message(state, user_text)
 
-    def step(self, state: DesignState) -> Dict[str, Any]:
+    def step(self, state: DesignState) -> dict[str, Any]:
         """Delegates to ``DesignAgent.step()``."""
         return self.design_agent.step(state)
 
@@ -278,9 +278,9 @@ class UnifiedPhysicsAgent:
         self,
         user_text: str,
         *,
-        initial_spec: Optional[ProblemSpec] = None,
-        max_stage_advances: Optional[int] = None,
-    ) -> Dict[str, Any]:
+        initial_spec: ProblemSpec | None = None,
+        max_stage_advances: int | None = None,
+    ) -> dict[str, Any]:
         """Drive one starting message through ``DesignAgent`` as far as it
         will go *without further human input*.
 
@@ -351,7 +351,7 @@ class UnifiedPhysicsAgent:
             state.spec = initial_spec
         self.design_agent.ingest_user_message(state, user_text)
 
-        out: Dict[str, Any] = {"type": "questions", "questions": [], "questions_text": ""}
+        out: dict[str, Any] = {"type": "questions", "questions": [], "questions_text": ""}
         prev_stage = state.stage
         for _ in range(max_stage_advances):
             out = self.design_agent.step(state)
@@ -376,7 +376,7 @@ class UnifiedPhysicsAgent:
         self,
         spec: ProblemSpec,
         *,
-        kind: Optional[str] = None,
+        kind: str | None = None,
         observations: Any = None,
         **overrides: Any,
     ) -> ProblemStatement:
@@ -430,7 +430,7 @@ class UnifiedPhysicsAgent:
 
         description = (spec.goal or "").strip() or (spec.title or "").strip()
 
-        kwargs: Dict[str, Any] = dict(kind=resolved_kind, description=description)
+        kwargs: dict[str, Any] = dict(kind=resolved_kind, description=description)
 
         if "domain_hint" not in overrides:
             raw_domain = (spec.geometry.domain or "").strip()
@@ -524,7 +524,7 @@ class UnifiedPhysicsAgent:
             max_stage_advances=max_stage_advances,
         )
         state: DesignState = driven["state"]
-        out: Dict[str, Any] = driven["result"]
+        out: dict[str, Any] = driven["result"]
 
         if out["type"] != "report":
             return UnifiedAgentResult(

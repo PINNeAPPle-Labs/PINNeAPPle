@@ -24,7 +24,7 @@ Install: ``pip install "pinneapple[pyvista]"``. Rendering needs an OpenGL contex
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -66,7 +66,7 @@ def case_folder(path: str) -> str:
     raise FileNotFoundError(f"{p}: not a case folder and not a .foam file")
 
 
-def _polymesh_dir(root: str) -> Tuple[str, str]:
+def _polymesh_dir(root: str) -> tuple[str, str]:
     """(prefix the polyMesh files are stored under, the polyMesh folder)."""
     for prefix, d in (("constant/polyMesh/", os.path.join(root, "constant", "polyMesh")),
                       ("polyMesh/", os.path.join(root, "polyMesh")),
@@ -76,7 +76,7 @@ def _polymesh_dir(root: str) -> Tuple[str, str]:
     raise FileNotFoundError(f"{root}: no polyMesh (points, owner) in constant/polyMesh, polyMesh or the folder itself")
 
 
-def _numeric_dirs(root: str) -> List[Tuple[float, str]]:
+def _numeric_dirs(root: str) -> list[tuple[float, str]]:
     """``[(time, folder name)]`` for every numeric time directory, ascending."""
     out = []
     for name in os.listdir(root):
@@ -89,12 +89,12 @@ def _numeric_dirs(root: str) -> List[Tuple[float, str]]:
     return sorted(out)
 
 
-def openfoam_times(path: str) -> List[float]:
+def openfoam_times(path: str) -> list[float]:
     """The time directories of the case, ascending (``[]`` for a bare polyMesh)."""
     return [t for t, _ in _numeric_dirs(case_folder(path))]
 
 
-def _time_name(root: str, time) -> Optional[str]:
+def _time_name(root: str, time) -> str | None:
     """The time directory name for ``time`` (a number, a name or None for the latest); None if the case has none."""
     dirs = _numeric_dirs(root)
     if not dirs:
@@ -122,10 +122,10 @@ def _looks_numeric(s: str) -> bool:
     return True
 
 
-def _case_files(root: str, time: Optional[str] = None) -> Dict[str, bytes]:
+def _case_files(root: str, time: str | None = None) -> dict[str, bytes]:
     """The bytes ``pinneapple_data.cae.foam`` reads, keyed by path relative to the case root (one time directory)."""
     prefix, _ = _polymesh_dir(root)
-    fs: Dict[str, bytes] = {}
+    fs: dict[str, bytes] = {}
     for name in POLY_FILES:
         for cand in (name, name + ".gz"):
             p = os.path.join(root, prefix, cand)
@@ -145,7 +145,7 @@ def _case_files(root: str, time: Optional[str] = None) -> Dict[str, bytes]:
     return fs
 
 
-def _read_mesh(path: str, time=None, fields: Optional[Sequence[str]] = None):
+def _read_mesh(path: str, time=None, fields: Sequence[str] | None = None):
     """(the ``pinneapple_data.cae.Mesh``, ``{"time", "fields", "skipped"}``) for one time directory."""
     from pinneapple_data.cae import foam
 
@@ -161,19 +161,19 @@ def _read_mesh(path: str, time=None, fields: Optional[Sequence[str]] = None):
 
 
 # ------------------------------------------------------------------------------- pure NumPy: the two conversions
-def polyhedron_cells(poly) -> Tuple[np.ndarray, np.ndarray]:
+def polyhedron_cells(poly) -> tuple[np.ndarray, np.ndarray]:
     """Per-cell VTK polyhedron face streams ``[nFaces, nPts, ids..., nPts, ids..., ...]`` and their offsets.
 
     Every face is written once for the cell that owns it and, reversed, for the neighbour cell: a face's node order in
     ``polyMesh`` is outward from the owner and therefore inward from the neighbour, and VTK wants it outward on both.
     """
-    cells: List[List[np.ndarray]] = [[] for _ in range(poly.n_cells)]
+    cells: list[list[np.ndarray]] = [[] for _ in range(poly.n_cells)]
     for f in range(poly.n_faces):
         nodes = poly.face_nodes[poly.face_offsets[f]: poly.face_offsets[f + 1]]
         cells[int(poly.owner[f])].append(nodes)
         if f < poly.n_internal:
             cells[int(poly.neighbour[f])].append(nodes[::-1])
-    stream: List[int] = []
+    stream: list[int] = []
     offsets = [0]
     for faces in cells:
         stream.append(len(faces))
@@ -185,7 +185,7 @@ def polyhedron_cells(poly) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def patch_surface(points: np.ndarray, face_nodes: np.ndarray, face_offsets: np.ndarray, start: int, n: int
-                  ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """One boundary patch as (vertices duplicated per face, fan triangles, the local face of each triangle).
 
     Duplicating the vertices keeps a per-face value exact: nothing is averaged across a face edge.
@@ -228,7 +228,7 @@ def _grid_from_polyhedra(mesh):
     return grid
 
 
-def _surface_from_patch(mesh, patch, values: Optional[Dict[str, np.ndarray]] = None):
+def _surface_from_patch(mesh, patch, values: dict[str, np.ndarray] | None = None):
     """One patch as a ``pyvista.PolyData``: triangles per face, the value of each face as cell data."""
     pv = _pv()
     poly = mesh.poly
@@ -247,7 +247,7 @@ def _surface_from_patch(mesh, patch, values: Optional[Dict[str, np.ndarray]] = N
 
 
 # ------------------------------------------------------------------------------------------------------ readers
-def read_openfoam(path: str, *, time=None, fields: Optional[Sequence[str]] = None, all_times: bool = False):
+def read_openfoam(path: str, *, time=None, fields: Sequence[str] | None = None, all_times: bool = False):
     """The volume mesh of an OpenFOAM case as a ``pyvista.UnstructuredGrid``, one cell per OpenFOAM cell.
 
     ``time`` is a time directory (number or name); the latest one by default. ``fields`` keeps only those volume
@@ -261,7 +261,7 @@ def read_openfoam(path: str, *, time=None, fields: Optional[Sequence[str]] = Non
     return blocks
 
 
-def _volume(path: str, time=None, fields: Optional[Sequence[str]] = None):
+def _volume(path: str, time=None, fields: Sequence[str] | None = None):
     mesh, info = _read_mesh(path, time=time, fields=fields)
     grid = _grid_from_polyhedra(mesh)
     grid.field_data["source"] = np.array([f"OpenFOAM case {mesh.source['case']}"])
@@ -270,8 +270,8 @@ def _volume(path: str, time=None, fields: Optional[Sequence[str]] = None):
     return grid
 
 
-def read_openfoam_patches(path: str, *, names: Optional[Sequence[str]] = None, time=None,
-                          fields: Optional[Sequence[str]] = None, all_times: bool = False,
+def read_openfoam_patches(path: str, *, names: Sequence[str] | None = None, time=None,
+                          fields: Sequence[str] | None = None, all_times: bool = False,
                           include_empty: bool = False):
     """The boundary of an OpenFOAM case as a ``pyvista.MultiBlock``: one surface per patch, one value per face.
 

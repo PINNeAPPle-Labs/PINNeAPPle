@@ -57,13 +57,13 @@ is also accepted and normalized into a ``Workplane`` on the way in.
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from pinneapple_design.geometry.gen.cadquery_gen import cadquery_available
 
 
-EdgeSelector = Optional[Union[str, Any]]
-FaceSelector = Optional[Union[str, Any]]
+EdgeSelector = Optional[str | Any]
+FaceSelector = Optional[str | Any]
 
 
 def _require_cadquery():

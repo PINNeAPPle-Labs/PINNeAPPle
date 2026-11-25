@@ -10,7 +10,6 @@ Saída: docs/pt/mapa_completo.pdf (e uma linha com páginas e seções).
 from __future__ import annotations
 
 import argparse
-import html
 import os
 import re
 import subprocess

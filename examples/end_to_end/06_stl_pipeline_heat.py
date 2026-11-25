@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-import torch
 
 from pinneapple_physics.pde_environment.presets.industry import steady_heat_conduction_3d_default
 from pinneapple_design.geometry.builders.stl_domain_batch_builder import STLDomainBatchBuilder, STLDomainBatchConfig

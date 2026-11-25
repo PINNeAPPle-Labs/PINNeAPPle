@@ -25,7 +25,7 @@ import os
 import re
 import time
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import asdict, dataclass, field, replace
+from dataclasses import asdict, dataclass, replace
 from typing import Any
 
 import numpy as np
@@ -386,7 +386,6 @@ def cut_metrics_at(cr, z: float | None = None, *, half: float | None = None, poi
 # ==================================================================================================
 def _study_validation(p: Problem, log) -> dict[str, Any]:
     from pinneapple_simulation.electromagnetics.reflector import analytic, geometry, po
-    from pinneapple_simulation.electromagnetics.reflector.compact_range import go_check
     from pinneapple_simulation.electromagnetics.reflector.study import validate
 
     cr = p.cr()
@@ -609,7 +608,6 @@ def _study_axial(p: Problem, log) -> dict[str, Any]:
 
 
 def _study_bandwidth(p: Problem, log) -> dict[str, Any]:
-    from pinneapple_simulation.electromagnetics.reflector.qz import qz_metrics
 
     lo, hi = p.band_hz
     freqs = np.linspace(lo, hi, 6)

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, fields as dataclass_fields
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ._dispatch import call_llm
 
@@ -39,7 +39,7 @@ of them (e.g. `assimilation` only accepts "none"/"ekf"/"enkf").
 
 @dataclass
 class TwinDraftResult:
-    config_kwargs: Dict[str, Any]
+    config_kwargs: dict[str, Any]
     reasoning: str
     raw_response: str
 
@@ -57,8 +57,8 @@ def draft_digital_twin(
     description: str,
     *,
     provider: str = "anthropic",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     conversation_store=None,
 ) -> TwinDraftResult:
     """Ask an LLM to propose ``DigitalTwinConfig`` kwargs for a
@@ -109,7 +109,7 @@ def build_3d_live_twin(
     *,
     export_dir: str,
     points,
-    config_kwargs: Optional[Dict[str, Any]] = None,
+    config_kwargs: dict[str, Any] | None = None,
     **build_kwargs,
 ):
     """Build a real ``DigitalTwin`` (``pinneapple_systems.digital_twin

@@ -7,7 +7,7 @@ the metadata extractor, here only the data lists are read.
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -28,16 +28,16 @@ def _text(b: bytes) -> str:
     return b.decode("latin-1")
 
 
-def header(text: str) -> Dict[str, str]:
+def header(text: str) -> dict[str, str]:
     m = re.search(r"FoamFile\s*\{(.*?)\}", text, re.S)
-    out: Dict[str, str] = {}
+    out: dict[str, str] = {}
     if m:
         for k, v in re.findall(r"(\w+)\s+([^;]+);", m.group(1)):
             out[k] = v.strip().strip('"')
     return out
 
 
-def _arch(h: Dict[str, str]) -> Tuple[np.dtype, np.dtype]:
+def _arch(h: dict[str, str]) -> tuple[np.dtype, np.dtype]:
     a = h.get("arch", "")
     lab = np.dtype("<i8") if "label=64" in a else np.dtype("<i4")
     sca = np.dtype("<f4") if "scalar=32" in a else np.dtype("<f8")
@@ -54,7 +54,7 @@ def _body_start(text: str) -> int:
     return m.end() if m else 0
 
 
-def _list_at(text: str, pos: int, binary: bool, dtype: np.dtype, width: int) -> Tuple[np.ndarray, int]:
+def _list_at(text: str, pos: int, binary: bool, dtype: np.dtype, width: int) -> tuple[np.ndarray, int]:
     """Read ``N ( ... )`` (or ``N{value}``) starting at ``pos``; returns (array, position after it)."""
     m = _LIST.match(text, pos)
     if not m:
@@ -100,7 +100,7 @@ def read_labels(b: bytes) -> np.ndarray:
     return np.asarray(arr, np.int64)
 
 
-def read_faces(b: bytes) -> Tuple[np.ndarray, np.ndarray]:
+def read_faces(b: bytes) -> tuple[np.ndarray, np.ndarray]:
     """Faces as (flat node list, offsets)."""
     t = _text(b)
     h = header(t)
@@ -128,7 +128,7 @@ def read_faces(b: bytes) -> Tuple[np.ndarray, np.ndarray]:
     return flat_idx[: offsets[-1]], offsets
 
 
-def read_boundary(b: bytes) -> List[Dict[str, Any]]:
+def read_boundary(b: bytes) -> list[dict[str, Any]]:
     t = _text(b)
     body = t[_body_start(t):]
     out = []
@@ -140,18 +140,18 @@ def read_boundary(b: bytes) -> List[Dict[str, Any]]:
     return out
 
 
-def _poly_dir(fs: Dict[str, bytes], root: str) -> Optional[str]:
+def _poly_dir(fs: dict[str, bytes], root: str) -> str | None:
     for cand in (root + "constant/polyMesh/", root + "polyMesh/", root):
         if any(k.startswith(cand + "points") for k in fs) and any(k.startswith(cand + "owner") for k in fs):
             return cand
     return None
 
 
-def _get(fs: Dict[str, bytes], base: str) -> Optional[bytes]:
+def _get(fs: dict[str, bytes], base: str) -> bytes | None:
     return fs.get(base) if base in fs else fs.get(base + ".gz")
 
 
-def read_polymesh(fs: Dict[str, bytes], root: str = "") -> Mesh:
+def read_polymesh(fs: dict[str, bytes], root: str = "") -> Mesh:
     d = _poly_dir(fs, root)
     if d is None:
         raise ValueError("no constant/polyMesh (points, faces, owner, neighbour, boundary) in the upload; "
@@ -175,7 +175,7 @@ def read_polymesh(fs: Dict[str, bytes], root: str = "") -> Mesh:
     return m
 
 
-def _zones(t: str) -> Dict[str, np.ndarray]:
+def _zones(t: str) -> dict[str, np.ndarray]:
     out = {}
     for name, blk in re.findall(r"(\w+)\s*\{(.*?)\}", t[_body_start(t):], re.S):
         m = re.search(r"cellLabels\s+List<label>\s+(\d+)\s*\((.*?)\)", blk, re.S)
@@ -185,7 +185,7 @@ def _zones(t: str) -> Dict[str, np.ndarray]:
 
 
 # ------------------------------------------------------------------------------------------------- fields
-def dims_unit(dims: str) -> Optional[str]:
+def dims_unit(dims: str) -> str | None:
     v = re.findall(r"-?\d+(?:\.\d+)?", dims or "")
     if len(v) < 5:
         return None
@@ -197,7 +197,7 @@ def dims_unit(dims: str) -> Optional[str]:
     return (".".join(num) or "1") + ("/" + ".".join(den) if den else "")
 
 
-def read_boundary_values(b: bytes, mesh: "Mesh", width: int) -> Optional[np.ndarray]:
+def read_boundary_values(b: bytes, mesh: Mesh, width: int) -> np.ndarray | None:
     """Value on every boundary face (NaN for empty patches), from the boundaryField of a field file: the written
     'value' (uniform or a list), zero for noSlip, the owner-cell value where nothing is written (zeroGradient)."""
     t = _text(b)
@@ -254,7 +254,7 @@ def read_boundary_values(b: bytes, mesh: "Mesh", width: int) -> Optional[np.ndar
     return out
 
 
-def read_field(b: bytes, n_cells: int) -> Tuple[np.ndarray, Optional[str], str]:
+def read_field(b: bytes, n_cells: int) -> tuple[np.ndarray, str | None, str]:
     """internalField of a vol*Field: (values per cell, unit, class)."""
     t = _text(b)
     h = header(t)
@@ -283,7 +283,7 @@ def read_field(b: bytes, n_cells: int) -> Tuple[np.ndarray, Optional[str], str]:
     return arr, unit, cls
 
 
-def time_dirs(fs: Dict[str, bytes], root: str = "") -> List[str]:
+def time_dirs(fs: dict[str, bytes], root: str = "") -> list[str]:
     """Numeric time directories under the case root, ascending."""
     names = set()
     for k in fs:
@@ -299,8 +299,8 @@ def time_dirs(fs: Dict[str, bytes], root: str = "") -> List[str]:
     return sorted(names, key=float)
 
 
-def read_time(fs: Dict[str, bytes], mesh: Mesh, root: str = "", time: Optional[str] = None,
-              only: Optional[List[str]] = None) -> Dict[str, Any]:
+def read_time(fs: dict[str, bytes], mesh: Mesh, root: str = "", time: str | None = None,
+              only: list[str] | None = None) -> dict[str, Any]:
     """Load the volume fields of one time directory (latest by default) into ``mesh.cell_data``."""
     times = time_dirs(fs, root)
     if not times:
@@ -336,8 +336,8 @@ def read_time(fs: Dict[str, bytes], mesh: Mesh, root: str = "", time: Optional[s
     return {"time": float(t), "fields": loaded, "skipped": skipped}
 
 
-def boundary_conditions(fs: Dict[str, bytes], mesh: Mesh, root: str = "", time: Optional[str] = None
-                        ) -> Dict[str, Dict[str, str]]:
+def boundary_conditions(fs: dict[str, bytes], mesh: Mesh, root: str = "", time: str | None = None
+                        ) -> dict[str, dict[str, str]]:
     """Patch -> field -> condition as written in the boundaryField of each field of one time directory (the first,
     which holds the initial and boundary conditions, by default): ``"fixedValue uniform (1 0 0)"``, ``"noSlip"``,
     ``"zeroGradient"``. Empty patches are left out."""
@@ -345,7 +345,7 @@ def boundary_conditions(fs: Dict[str, bytes], mesh: Mesh, root: str = "", time: 
     if not times:
         return {}
     t0 = time if time is not None else times[0]
-    out: Dict[str, Dict[str, str]] = {p["name"]: {} for p in mesh.poly.patches if p["type"] != "empty"} \
+    out: dict[str, dict[str, str]] = {p["name"]: {} for p in mesh.poly.patches if p["type"] != "empty"} \
         if mesh.poly is not None else {}
     for k in sorted(fs):
         if not k.startswith(f"{root}{t0}/") or k.count("/") != root.count("/") + 1:

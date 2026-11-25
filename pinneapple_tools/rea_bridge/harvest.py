@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .licenses import POLICIES
 
@@ -42,10 +42,10 @@ class LicenseGateError(ValueError):
 class Finding:
     title: str
     summary: str
-    source_refs: List[str]
+    source_refs: list[str]
     status: str = "idea"
     method: str = "manual"
-    pinneapple_refs: List[str] = field(default_factory=list)
+    pinneapple_refs: list[str] = field(default_factory=list)
     note: str = ""
 
     def __post_init__(self) -> None:
@@ -62,13 +62,13 @@ class HarvestEntry:
     project: str
     url: str
     commit: str
-    licenses: List[str]
+    licenses: list[str]
     policy: str
-    findings: List[Finding] = field(default_factory=list)
-    rea_version: Optional[str] = None
-    evidence_id: Optional[str] = None
-    subject_sha256: Optional[str] = None
-    studied_on: Optional[str] = None
+    findings: list[Finding] = field(default_factory=list)
+    rea_version: str | None = None
+    evidence_id: str | None = None
+    subject_sha256: str | None = None
+    studied_on: str | None = None
     note: str = ""
 
     def __post_init__(self) -> None:
@@ -97,7 +97,7 @@ class HarvestLedger:
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
-        self.entries: Dict[str, HarvestEntry] = {}
+        self.entries: dict[str, HarvestEntry] = {}
         if self.path.is_file():
             raw = json.loads(self.path.read_text())
             for e in raw.get("entries", []):
@@ -115,10 +115,10 @@ class HarvestLedger:
         self.path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
         return self.path
 
-    def summary(self) -> Dict[str, Any]:
-        out: Dict[str, Any] = {}
+    def summary(self) -> dict[str, Any]:
+        out: dict[str, Any] = {}
         for e in self.entries.values():
-            counts: Dict[str, int] = {}
+            counts: dict[str, int] = {}
             for f in e.findings:
                 counts[f.status] = counts.get(f.status, 0) + 1
             out[e.project] = {"policy": e.policy, "findings": counts}

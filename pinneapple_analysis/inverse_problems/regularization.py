@@ -20,14 +20,12 @@ References
 """
 from __future__ import annotations
 
-import warnings
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from collections.abc import Callable
 
 import numpy as np
 import torch
-import torch.nn as nn
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -52,7 +50,7 @@ class RegularizerBase(ABC):
             Scalar penalty.
         """
 
-    def weight(self, lam: float) -> "CompositeRegularizer":
+    def weight(self, lam: float) -> CompositeRegularizer:
         """Shorthand: scale this regularizer and return a composite."""
         return CompositeRegularizer([(lam, self)])
 
@@ -78,15 +76,15 @@ class TikhonovRegularizer(RegularizerBase):
     def __init__(
         self,
         lambda_reg: float,
-        prior: Optional[torch.Tensor] = None,
-        covariance: Optional[torch.Tensor] = None,
+        prior: torch.Tensor | None = None,
+        covariance: torch.Tensor | None = None,
     ) -> None:
         self.lambda_reg = float(lambda_reg)
         self.prior = prior
         self.covariance = covariance
-        self._cov_inv: Optional[torch.Tensor] = None
+        self._cov_inv: torch.Tensor | None = None
 
-    def _get_cov_inv(self, device) -> Optional[torch.Tensor]:
+    def _get_cov_inv(self, device) -> torch.Tensor | None:
         if self.covariance is None:
             return None
         if self._cov_inv is None:
@@ -193,10 +191,10 @@ class CompositeRegularizer(RegularizerBase):
     terms : list of (weight, RegularizerBase)
     """
 
-    def __init__(self, terms: Optional[List[Tuple[float, RegularizerBase]]] = None) -> None:
-        self.terms: List[Tuple[float, RegularizerBase]] = list(terms) if terms else []
+    def __init__(self, terms: list[tuple[float, RegularizerBase]] | None = None) -> None:
+        self.terms: list[tuple[float, RegularizerBase]] = list(terms) if terms else []
 
-    def add(self, weight: float, reg: RegularizerBase) -> "CompositeRegularizer":
+    def add(self, weight: float, reg: RegularizerBase) -> CompositeRegularizer:
         """Append a weighted regularizer in-place and return self."""
         self.terms.append((weight, reg))
         return self
@@ -229,11 +227,11 @@ class LCurveResult:
     curvatures : list of float
         Discrete curvature estimate for each λ.
     """
-    lambdas: List[float]
-    data_misfits: List[float]
-    regularization_norms: List[float]
+    lambdas: list[float]
+    data_misfits: list[float]
+    regularization_norms: list[float]
     optimal_lambda: float
-    curvatures: List[float]
+    curvatures: list[float]
 
 
 class LCurveSelector:
@@ -260,16 +258,16 @@ class LCurveSelector:
 
     def __init__(
         self,
-        train_fn: Callable[[float], Tuple[float, float]],
-        lambdas: Optional[List[float]] = None,
+        train_fn: Callable[[float], tuple[float, float]],
+        lambdas: list[float] | None = None,
     ) -> None:
         self.train_fn = train_fn
         self.lambdas = lambdas or list(np.logspace(-6, 2, 30))
 
     def select(self, verbose: bool = True) -> LCurveResult:
         """Run the L-curve sweep and return the result."""
-        data_misfits: List[float] = []
-        reg_norms: List[float] = []
+        data_misfits: list[float] = []
+        reg_norms: list[float] = []
 
         for i, lam in enumerate(self.lambdas):
             dm, rn = self.train_fn(float(lam))

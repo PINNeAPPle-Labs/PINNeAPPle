@@ -28,17 +28,14 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 import pickle
 import time
 from pathlib import Path
-from typing import List, Optional
 
-import torch
 
 from .scenario import BUILTIN_SCENARIOS, PhysicsScenario
 from .simulator import PhysicsSimulator
-from .dataset import WorldModelDataset, DatasetConfig
+from .dataset import WorldModelDataset
 from .dataset_factory import (
     DatasetCatalog,
     DatasetEntry,
@@ -52,8 +49,8 @@ log = logging.getLogger(__name__)
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 def _build_factory_config(
-    scenarios: List[str],
-    sources: List[str],
+    scenarios: list[str],
+    sources: list[str],
     n_samples: int,
     device: str,
     validate: bool,
@@ -157,14 +154,14 @@ _SOURCE_FN = {
 # ── main generation function ──────────────────────────────────────────────────
 
 def generate(
-    scenarios: Optional[List[str]] = None,
-    sources: Optional[List[str]] = None,
+    scenarios: list[str] | None = None,
+    sources: list[str] | None = None,
     n_samples: int = 100,
     output_dir: str = "./data/worldmodel",
     device: str = "cpu",
     validate: bool = True,
     seed: int = 42,
-    catalog_path: Optional[str] = None,
+    catalog_path: str | None = None,
     verbose: bool = True,
 ) -> DatasetCatalog:
     """Generate multi-source physics datasets and return a DatasetCatalog.
@@ -295,8 +292,8 @@ def generate(
 # ── rich-source generation using PhysicsDatasetFactory ───────────────────────
 
 def generate_via_factory(
-    scenarios: Optional[List[str]] = None,
-    sources: Optional[List[str]] = None,
+    scenarios: list[str] | None = None,
+    sources: list[str] | None = None,
     n_samples: int = 100,
     output_dir: str = "./data/worldmodel",
     device: str = "cpu",

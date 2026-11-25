@@ -15,7 +15,8 @@ the native Noether ``HydraRunner``.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -53,14 +54,14 @@ class NoetherTrainConfig:
     batch_size: int = 8
     lr: float = 1e-4
     weight_decay: float = 1e-5
-    field_weights: Dict[str, float] = field(default_factory=lambda: {"y": 1.0})
+    field_weights: dict[str, float] = field(default_factory=lambda: {"y": 1.0})
     loss_fn: str = "mse"
     warmup_steps: int = 0
     grad_clip: float = 1.0
-    device: Optional[str] = None
+    device: str | None = None
     num_workers: int = 0
     tracker: str = "none"
-    wandb_project: Optional[str] = None
+    wandb_project: str | None = None
     checkpoint_dir: str = "checkpoints/noether"
     save_best: bool = True
     log_interval: int = 50
@@ -74,12 +75,12 @@ class NoetherTrainConfig:
 @dataclass
 class NoetherTrainResult:
     """Summary returned by ``NoetherSurrogateTrainer.train()``."""
-    train_losses: List[float]
-    val_losses: List[float]
+    train_losses: list[float]
+    val_losses: list[float]
     best_val_loss: float
     best_epoch: int
-    checkpoint_path: Optional[str] = None
-    extras: Dict[str, Any] = field(default_factory=dict)
+    checkpoint_path: str | None = None
+    extras: dict[str, Any] = field(default_factory=dict)
 
     def summary(self) -> str:
         lines = [
@@ -123,9 +124,9 @@ class NoetherSurrogateTrainer:
     def __init__(
         self,
         model: nn.Module,
-        train_loader: "torch.utils.data.DataLoader",
-        val_loader: Optional["torch.utils.data.DataLoader"] = None,
-        config: Optional[NoetherTrainConfig] = None,
+        train_loader: torch.utils.data.DataLoader,
+        val_loader: torch.utils.data.DataLoader | None = None,
+        config: NoetherTrainConfig | None = None,
     ) -> None:
         from .._licencas import require_research_use
         require_research_use("NoetherSurrogateTrainer")
@@ -161,7 +162,7 @@ class NoetherSurrogateTrainer:
 
     def _compute_batch_loss(
         self,
-        batch: Dict[str, torch.Tensor],
+        batch: dict[str, torch.Tensor],
         loss_fn: Callable,
     ) -> torch.Tensor:
         """Forward pass + weighted loss across all fields in the batch.
@@ -235,11 +236,11 @@ class NoetherSurrogateTrainer:
                 pass
 
         loss_fn = self._loss_fn()
-        train_losses: List[float] = []
-        val_losses: List[float] = []
+        train_losses: list[float] = []
+        val_losses: list[float] = []
         best_val = float("inf")
         best_epoch = 0
-        checkpoint_path: Optional[str] = None
+        checkpoint_path: str | None = None
 
         import os
 
@@ -301,7 +302,7 @@ class NoetherSurrogateTrainer:
         )
 
     @classmethod
-    def from_hydra_config(cls, config_path: str, overrides: Optional[List[str]] = None):
+    def from_hydra_config(cls, config_path: str, overrides: list[str] | None = None):
         """Launch training natively via Noether's HydraRunner.
 
         This delegates *everything* to noether's own config-driven pipeline

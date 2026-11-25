@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from typing import List, Optional
 
 from .catalog import card as _card
 from .catalog import domains, format_card
@@ -21,7 +20,7 @@ from .recommend import recommend as _recommend
 __all__ = ["main", "doctor_main", "recommend_main", "card_main", "new_main"]
 
 
-def doctor_main(argv: List[str]) -> int:
+def doctor_main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="pinneapple doctor",
                                  description="Check this installation against what you intend to do.")
     ap.add_argument("profile", nargs="?", default="start",
@@ -39,7 +38,7 @@ def doctor_main(argv: List[str]) -> int:
     return 0 if report.ok else 1
 
 
-def recommend_main(argv: List[str]) -> int:
+def recommend_main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="pinneapple recommend",
                                  description="Turn a problem described in a sentence into a preset, "
                                              "a method and a model.")
@@ -67,7 +66,7 @@ def recommend_main(argv: List[str]) -> int:
     return 0 if rec.preset else 1
 
 
-def card_main(argv: List[str]) -> int:
+def card_main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="pinneapple card",
                                  description="What a preset takes, what it gives back, and the "
                                              "smallest program that uses it.")
@@ -94,7 +93,7 @@ def card_main(argv: List[str]) -> int:
     return 0
 
 
-def new_main(argv: List[str]) -> int:
+def new_main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(prog="pinneapple new",
                                  description="Create a project of your own (outside this repository).")
     ap.add_argument("name", help="folder name: lowercase letters, digits and underscores")
@@ -124,7 +123,7 @@ def new_main(argv: List[str]) -> int:
     return 0
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """``pinneapple <doctor|recommend|card|new> ...``"""
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv or argv[0] in ("-h", "--help"):

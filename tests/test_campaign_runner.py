@@ -25,7 +25,6 @@ from pinneapple_orchestration.campaign import (
     CloudBatchBackend,
     CommandResult,
     Job,
-    LocalBackend,
     Outcome,
     RunCache,
     SlurmBackend,

@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..models import ExtractedProblemSolution
 
 
-def to_problemdesign_dict(x: ExtractedProblemSolution) -> Dict[str, Any]:
+def to_problemdesign_dict(x: ExtractedProblemSolution) -> dict[str, Any]:
     """
     ProblemDesign-like schema (stable, explicit):
       - source
@@ -55,7 +55,7 @@ def to_problemdesign_dict(x: ExtractedProblemSolution) -> Dict[str, Any]:
     }
 
 
-def _to_partial_problem_spec(x: ExtractedProblemSolution) -> Dict[str, Any]:
+def _to_partial_problem_spec(x: ExtractedProblemSolution) -> dict[str, Any]:
     """Best-effort mapping from researcher findings → partial ProblemSpec dict.
 
     This is intentionally partial: fields that cannot be reliably inferred from
@@ -97,7 +97,7 @@ def _to_partial_problem_spec(x: ExtractedProblemSolution) -> Dict[str, Any]:
 
 
 def export_problemdesign(
-    items: List[ExtractedProblemSolution],
+    items: list[ExtractedProblemSolution],
     *,
     out_path: str,
 ) -> str:
@@ -132,11 +132,11 @@ def export_problemdesign(
     try:
         from pinneapple_problemdesign import ProblemSpec, build_pinneapple_spec
 
-        spec_records: List[Dict[str, Any]] = []
+        spec_records: list[dict[str, Any]] = []
         for x in items:
             partial = _to_partial_problem_spec(x)
 
-            pinneapple_spec_dict: Optional[Dict[str, Any]] = None
+            pinneapple_spec_dict: dict[str, Any] | None = None
             if x.equations:
                 # Enough physics info to attempt code generation
                 try:

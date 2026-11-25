@@ -28,11 +28,9 @@ Quick start::
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import torch
 
-from .scenario import PhysicsScenario, BUILTIN_SCENARIOS
 from .dataset import DatasetBuilder, DatasetConfig, WorldModelDataset
 from .model import PhysicsWorldModel, WorldModelConfig
 from .trainer import WorldModelTrainer, WorldModelTrainConfig
@@ -56,7 +54,7 @@ class CurriculumStage:
     rollout_steps : int — multi-step unrolling for this stage.
     description : str
     """
-    scenarios: List[Any]
+    scenarios: list[Any]
     n_samples: int = 500
     epochs: int = 50
     target_val_loss: float = 1e-3
@@ -83,16 +81,16 @@ class CurriculumConfig:
     save_dir : str or None — directory for stage checkpoints.
     verbose : bool
     """
-    stages: List[CurriculumStage] = field(default_factory=lambda: _default_stages())
+    stages: list[CurriculumStage] = field(default_factory=lambda: _default_stages())
     model_config: WorldModelConfig = field(default_factory=WorldModelConfig)
     device: str = "cpu"
     batch_size: int = 32
     patience: int = 10
-    save_dir: Optional[str] = None
+    save_dir: str | None = None
     verbose: bool = True
 
 
-def _default_stages() -> List[CurriculumStage]:
+def _default_stages() -> list[CurriculumStage]:
     return [
         CurriculumStage(
             scenarios=["heat_2d"],
@@ -167,8 +165,8 @@ class PhysicsCurriculum:
 
     def __init__(self, config: CurriculumConfig) -> None:
         self.config = config
-        self.model: Optional[PhysicsWorldModel] = None
-        self.stage_histories: List[List[Dict]] = []
+        self.model: PhysicsWorldModel | None = None
+        self.stage_histories: list[list[dict]] = []
         self.current_stage: int = 0
 
     # ------------------------------------------------------------------
@@ -267,7 +265,7 @@ class PhysicsCurriculum:
             grid_shape=dataset.grid_shape,
         )
 
-    def summary(self) -> Dict:
+    def summary(self) -> dict:
         """Return a summary of all completed stages."""
         out = {}
         for i, history in enumerate(self.stage_histories):

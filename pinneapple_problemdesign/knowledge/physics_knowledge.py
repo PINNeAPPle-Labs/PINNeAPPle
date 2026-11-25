@@ -23,7 +23,6 @@ Usage
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 
 @dataclass(frozen=True)
@@ -54,8 +53,8 @@ class PhenomenonEntry:
 
     phenomenon: str
     governing_equation: str
-    typical_parameters: Dict[str, str]
-    assumptions: Tuple[str, ...]
+    typical_parameters: dict[str, str]
+    assumptions: tuple[str, ...]
     preset_module: str
     preset_function: str
 
@@ -66,7 +65,7 @@ _SOLID_MECHANICS = "pinneapple_physics.pde_environment.presets.solid_mechanics"
 _ASTROPHYSICS = "pinneapple_physics.pde_environment.presets.astrophysics"
 
 
-PHENOMENON_KNOWLEDGE_BASE: Tuple[PhenomenonEntry, ...] = (
+PHENOMENON_KNOWLEDGE_BASE: tuple[PhenomenonEntry, ...] = (
     # ------------------------------------------------------------------
     # CFD  (pinneapple_physics/pde_environment/presets/cfd.py)
     # ------------------------------------------------------------------
@@ -577,7 +576,7 @@ PHENOMENON_KNOWLEDGE_BASE: Tuple[PhenomenonEntry, ...] = (
 )
 
 
-def lookup_phenomenon(name_or_keyword: str) -> List[PhenomenonEntry]:
+def lookup_phenomenon(name_or_keyword: str) -> list[PhenomenonEntry]:
     """Look up knowledge-base entries by a case-insensitive keyword.
 
     Matches against ``phenomenon``, ``governing_equation``, and
@@ -599,7 +598,7 @@ def lookup_phenomenon(name_or_keyword: str) -> List[PhenomenonEntry]:
     if not name_or_keyword:
         return []
     kw = name_or_keyword.strip().lower()
-    hits: List[PhenomenonEntry] = []
+    hits: list[PhenomenonEntry] = []
     for entry in PHENOMENON_KNOWLEDGE_BASE:
         haystack = " ".join([
             entry.phenomenon,

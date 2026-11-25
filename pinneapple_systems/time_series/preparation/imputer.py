@@ -1,6 +1,5 @@
 """Missing value treatment with layered interpolation strategies."""
 from __future__ import annotations
-from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -26,7 +25,7 @@ class TimeSeriesImputer:
     def __init__(
         self,
         strategy: str = "layered",
-        max_gap: Optional[int] = None,
+        max_gap: int | None = None,
         verbose: bool = False,
     ):
         if strategy not in _STRATEGIES:
@@ -40,8 +39,8 @@ class TimeSeriesImputer:
     def fit_transform(
         self,
         df: pd.DataFrame,
-        target_cols: Optional[List[str]] = None,
-        time_col: Optional[str] = None,
+        target_cols: list[str] | None = None,
+        time_col: str | None = None,
     ) -> pd.DataFrame:
         """
         Impute missing values in-place (returns a copy).

@@ -30,7 +30,7 @@ itself) and this module only points at them.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -72,14 +72,14 @@ class BenchmarkComparison:
     """
 
     benchmark: str
-    x_vars: Tuple[str, ...]
-    y_vars: Tuple[str, ...]
+    x_vars: tuple[str, ...]
+    y_vars: tuple[str, ...]
     n_reference_points: int
     n_compared_points: int
     rmse: float
     relative_l2_error: float
-    per_variable_rmse: Dict[str, float]
-    per_variable_relative_error: Dict[str, float]
+    per_variable_rmse: dict[str, float]
+    per_variable_relative_error: dict[str, float]
     note: str = ""
 
 
@@ -127,21 +127,21 @@ class PhysicsCase:
     """
 
     name: str = ""
-    geometry: Optional[Any] = None
-    geometry_kind: Optional[str] = None
-    physics: Optional[ProblemSpec] = None
-    solver: Optional[str] = None
-    solver_config: Optional[Dict[str, Any]] = None
-    results: Optional[Any] = None
-    reference_benchmark: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    geometry: Any | None = None
+    geometry_kind: str | None = None
+    physics: ProblemSpec | None = None
+    solver: str | None = None
+    solver_config: dict[str, Any] | None = None
+    results: Any | None = None
+    reference_benchmark: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------------------
     # Benchmark validation
     # ------------------------------------------------------------------
     def _extract_xy_from_results(
-        self, x_vars: Tuple[str, ...], y_vars: Tuple[str, ...]
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        self, x_vars: tuple[str, ...], y_vars: tuple[str, ...]
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Pull ``(x, y)`` arrays shaped ``(N, len(x_vars))``/``(N,
         len(y_vars))`` out of ``self.results``, whatever concrete UPD-family
         type it happens to be. Supports, in order:
@@ -260,8 +260,8 @@ class PhysicsCase:
         ref_norm = float(np.sqrt(np.mean(ref_y**2)))
         relative_l2 = float(rmse / ref_norm) if ref_norm > 0 else float("nan")
 
-        per_var_rmse: Dict[str, float] = {}
-        per_var_rel: Dict[str, float] = {}
+        per_var_rmse: dict[str, float] = {}
+        per_var_rel: dict[str, float] = {}
         for j, yv in enumerate(entry.y_vars):
             col_rmse = float(np.sqrt(np.mean(diff[:, j] ** 2)))
             col_norm = float(np.sqrt(np.mean(ref_y[:, j] ** 2)))
@@ -284,7 +284,7 @@ class PhysicsCase:
     # ------------------------------------------------------------------
     # Serialization
     # ------------------------------------------------------------------
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize this case to a plain ``dict``, following the same
         ``dataclasses.asdict``-based convention already used elsewhere in
         ``pinneapple_data`` (see ``pinneapple_data.zarr_store``).
@@ -311,7 +311,7 @@ class PhysicsCase:
         round trip works, but the result is not literal JSON unless every
         condition is callable-free.
         """
-        out: Dict[str, Any] = {
+        out: dict[str, Any] = {
             "name": self.name,
             "geometry_kind": self.geometry_kind,
             "solver": self.solver,
@@ -325,10 +325,10 @@ class PhysicsCase:
         return out
 
     @staticmethod
-    def _describe_ref(obj: Any) -> Optional[Dict[str, Any]]:
+    def _describe_ref(obj: Any) -> dict[str, Any] | None:
         if obj is None:
             return None
-        desc: Dict[str, Any] = {"type": type(obj).__name__}
+        desc: dict[str, Any] = {"type": type(obj).__name__}
         summary = getattr(obj, "summary", None)
         if callable(summary):
             try:
@@ -344,7 +344,7 @@ class PhysicsCase:
         return desc
 
     @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "PhysicsCase":
+    def from_dict(d: dict[str, Any]) -> PhysicsCase:
         """Reconstruct a ``PhysicsCase`` from a dict produced by
         ``to_dict()``.
 
@@ -371,7 +371,7 @@ class PhysicsCase:
         )
 
 
-def _problem_spec_from_dict(d: Dict[str, Any]) -> ProblemSpec:
+def _problem_spec_from_dict(d: dict[str, Any]) -> ProblemSpec:
     """Rebuild a real ``ProblemSpec`` from the nested dict produced by
     ``dataclasses.asdict(problem_spec)``. Only used by ``PhysicsCase.from_dict``."""
     d = dict(d)

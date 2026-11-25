@@ -27,11 +27,10 @@ Para o preset de acoplamento, substitua o caminho para solution.npy pelo seu dat
 """
 from __future__ import annotations
 
-import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -40,7 +39,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
-import matplotlib.colors as mcolors
 
 # ── PINNeAPPle imports ─────────────────────────────────────────────────────
 from pinneapple_physics.pde_environment import ProblemBuilder, ProblemSpec
@@ -75,8 +73,8 @@ class AxiSymElasticityPINN(nn.Module):
 
     def __init__(
         self,
-        r_bounds: Tuple[float, float] = (10.0, 50.0),
-        z_bounds: Tuple[float, float] = (0.0, 100.0),
+        r_bounds: tuple[float, float] = (10.0, 50.0),
+        z_bounds: tuple[float, float] = (0.0, 100.0),
         u_scale: float = 0.1,           # mm — escala característica de deslocamento
         hidden: int = 128,
         n_layers: int = 6,
@@ -193,8 +191,8 @@ class SolidMechanicsResult:
     """Resultado do pipeline de mecânica dos sólidos."""
     spec: ProblemSpec
     model: nn.Module
-    history: List[Dict[str, float]]
-    metrics: Dict[str, float] = field(default_factory=dict)
+    history: list[dict[str, float]]
+    metrics: dict[str, float] = field(default_factory=dict)
     elapsed_s: float = 0.0
 
     def summary(self) -> str:
@@ -243,9 +241,9 @@ class SolidMechanicsPipeline:
     def __init__(
         self,
         spec: ProblemSpec,
-        fem_coords: Optional[np.ndarray] = None,
-        fem_disp: Optional[np.ndarray] = None,
-        fem_vm: Optional[np.ndarray] = None,
+        fem_coords: np.ndarray | None = None,
+        fem_disp: np.ndarray | None = None,
+        fem_vm: np.ndarray | None = None,
     ):
         self.spec      = spec
         self.fem_coords = fem_coords   # (N, 2): r, z
@@ -255,7 +253,7 @@ class SolidMechanicsPipeline:
     # ── Construtores ──────────────────────────────────────────────────────────
 
     @classmethod
-    def from_preset(cls, preset_id: str, **params) -> "SolidMechanicsPipeline":
+    def from_preset(cls, preset_id: str, **params) -> SolidMechanicsPipeline:
         """Cria pipeline a partir de preset registrado."""
         spec = get_preset(preset_id, **params)
         return cls(spec)
@@ -263,10 +261,10 @@ class SolidMechanicsPipeline:
     @classmethod
     def from_fem_solution(
         cls,
-        solution_npy: Union[str, Path],
-        preset: Union[str, ProblemSpec] = "axisymmetric_linear_elasticity_2d",
-        preset_params: Optional[Dict[str, Any]] = None,
-    ) -> "SolidMechanicsPipeline":
+        solution_npy: str | Path,
+        preset: str | ProblemSpec = "axisymmetric_linear_elasticity_2d",
+        preset_params: dict[str, Any] | None = None,
+    ) -> SolidMechanicsPipeline:
         """
         Cria pipeline carregando dados FEM de solution.npy.
 
@@ -315,7 +313,7 @@ class SolidMechanicsPipeline:
         return cls(spec, fem_coords=coords, fem_disp=disp, fem_vm=vm)
 
     @classmethod
-    def from_builder(cls, builder) -> "SolidMechanicsPipeline":
+    def from_builder(cls, builder) -> SolidMechanicsPipeline:
         """Cria pipeline a partir de um ProblemBuilder já configurado."""
         return cls(builder.build())
 
@@ -348,9 +346,9 @@ class SolidMechanicsPipeline:
         self,
         epochs: int = 5000,
         lr: float = 1e-3,
-        n_col: Optional[int] = None,
-        n_bc: Optional[int] = None,
-        n_data: Optional[int] = None,
+        n_col: int | None = None,
+        n_bc: int | None = None,
+        n_data: int | None = None,
         batch_size: int = 2048,
         w_phys: float = 1e-8,   # peso do resíduo físico (Pa² normalizado)
         w_data: float = 1.0,    # peso dos dados FEM
@@ -421,7 +419,7 @@ class SolidMechanicsPipeline:
             print(f"  Col: {_n_col}  |  BC: {_n_bc}  |  FEM data: {_n_data if has_fem else 0}")
             print(f"  Pesos: phys={w_phys:.1e}  data={w_data:.1e}  bc={w_bc:.1e}")
 
-        history: List[Dict[str, float]] = []
+        history: list[dict[str, float]] = []
         t0 = time.time()
 
         for ep in range(1, epochs + 1):
@@ -515,7 +513,7 @@ class SolidMechanicsPipeline:
         self,
         result: SolidMechanicsResult,
         analytical_fn=None,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Avalia o PINN treinado.
 
@@ -531,7 +529,7 @@ class SolidMechanicsPipeline:
         nu     = float(spec.pde.params.get("nu", 0.3))
         device = next(model.parameters()).device
 
-        metrics: Dict[str, float] = {}
+        metrics: dict[str, float] = {}
 
         # ── Avaliação vs FEM ──────────────────────────────────────────────────
         if self.fem_coords is not None and self.fem_disp is not None:
@@ -595,7 +593,7 @@ class SolidMechanicsPipeline:
     def visualize(
         self,
         result: SolidMechanicsResult,
-        output_path: Optional[Path] = None,
+        output_path: Path | None = None,
         show: bool = False,
     ) -> Path:
         """

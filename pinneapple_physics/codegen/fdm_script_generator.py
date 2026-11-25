@@ -76,7 +76,7 @@ from __future__ import annotations
 import datetime as _dt
 from dataclasses import dataclass
 from string import Template
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 
 # ---------------------------------------------------------------------------
@@ -90,9 +90,9 @@ class _FDMTemplateSpec:
 
     template: str          # "heat_1d" | "burgers_1d" | "poisson_2d"
     field: str              # primary field name, e.g. "u", "T"
-    coord_names: Tuple[str, ...]
-    domain_bounds: Dict[str, Tuple[float, float]]
-    params: Dict[str, Any]
+    coord_names: tuple[str, ...]
+    domain_bounds: dict[str, tuple[float, float]]
+    params: dict[str, Any]
     kind: str
     name: str
 
@@ -495,7 +495,7 @@ class FDMScriptGenerator:
     that set is deliberately curated rather than fully general.
     """
 
-    def __init__(self, parser: Optional[PDEParser] = None) -> None:
+    def __init__(self, parser: PDEParser | None = None) -> None:
         self.parser = parser or PDEParser()
 
     def generate(self, spec: Any, *, module_name: str = "generated_fdm_solver", **overrides: Any) -> str:
@@ -535,7 +535,7 @@ class FDMScriptGenerator:
         footer = _MAIN_FOOTER.substitute(default_out=f"{module_name}_output.npz", field=tspec.field)
         return header + body + footer
 
-    def write(self, spec: Any, path: str, *, module_name: Optional[str] = None, **overrides: Any) -> str:
+    def write(self, spec: Any, path: str, *, module_name: str | None = None, **overrides: Any) -> str:
         """Generate and write the script to ``path``; returns ``path``."""
         import os
 

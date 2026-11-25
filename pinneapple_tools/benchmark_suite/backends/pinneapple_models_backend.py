@@ -12,7 +12,7 @@ This backend is meant to be the "multi-model" workhorse for Arena:
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -42,7 +42,7 @@ class _XYFromBundle:
     def fit(self, batch_list):
         return self
 
-    def apply(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def apply(self, batch: dict[str, Any]) -> dict[str, Any]:
         out = dict(batch)
 
         # Prefer sensor/data supervision if available.
@@ -64,7 +64,7 @@ class PinneappleModelsBackend:
 
     name = "pinneapple_models"
 
-    def train(self, bundle: BundleData, run_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    def train(self, bundle: BundleData, run_cfg: dict[str, Any]) -> dict[str, Any]:
         # Ensure global registry is populated.
         register_all()
 
@@ -107,9 +107,9 @@ class PinneappleModelsBackend:
             def __init__(self, inner: torch.nn.Module):
                 super().__init__()
                 self.inner = inner
-                self._last_batch: Optional[Dict[str, Any]] = None
+                self._last_batch: dict[str, Any] | None = None
 
-            def set_batch(self, batch: Dict[str, Any]):
+            def set_batch(self, batch: dict[str, Any]):
                 self._last_batch = batch
 
             def forward(self, x: torch.Tensor):
@@ -157,7 +157,7 @@ class PinneappleModelsBackend:
         # Use preprocess to select supervised x/y. Also inject batch into wrapper per step.
         pre = _XYFromBundle(prefer_data=True)
 
-        def loss_fn(model_mod: torch.nn.Module, y_hat: torch.Tensor, batch: Dict[str, Any]):
+        def loss_fn(model_mod: torch.nn.Module, y_hat: torch.Tensor, batch: dict[str, Any]):
             # ensure wrapper sees full batch
             if hasattr(model_mod, "set_batch"):
                 model_mod.set_batch(batch)  # type: ignore[attr-defined]

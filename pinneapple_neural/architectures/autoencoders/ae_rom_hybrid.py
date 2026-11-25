@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Autoencoder-ROM hybrid for dimensionality reduction and dynamics."""
 
-from typing import Dict, List, Optional, Union
 
 import torch
 import torch.nn as nn
@@ -10,7 +9,7 @@ from .base import AEBase, AEOutput
 from .dense_ae import _mlp
 
 
-def _as_dt(dt: Union[float, torch.Tensor], batch_size: int, device: torch.device, dtype: torch.dtype) -> torch.Tensor:
+def _as_dt(dt: float | torch.Tensor, batch_size: int, device: torch.device, dtype: torch.dtype) -> torch.Tensor:
     """
     Normaliza dt para shape (B,).
     Aceita:
@@ -53,7 +52,7 @@ class AEROMHybrid(AEBase):
         self,
         input_dim: int,
         latent_dim: int,
-        hidden: List[int] = (512, 256),
+        hidden: list[int] = (512, 256),
         activation: str = "gelu",
         # pesos de loss
         rom_weight: float = 1.0,          # loss no latente (1-step)
@@ -103,7 +102,7 @@ class AEROMHybrid(AEBase):
     # -------------------------
     # ROM helpers
     # -------------------------
-    def latent_step(self, z: torch.Tensor, dt: Union[float, torch.Tensor]) -> torch.Tensor:
+    def latent_step(self, z: torch.Tensor, dt: float | torch.Tensor) -> torch.Tensor:
         """
         Um passo Euler no latente:
           z_next = z + dt*(K z + c)
@@ -118,9 +117,9 @@ class AEROMHybrid(AEBase):
         self,
         z: torch.Tensor,
         z_next: torch.Tensor,
-        dt: Union[float, torch.Tensor],
-        ridge: Optional[float] = None,
-    ) -> Dict[str, torch.Tensor]:
+        dt: float | torch.Tensor,
+        ridge: float | None = None,
+    ) -> dict[str, torch.Tensor]:
         """
         Ajusta K,c por least squares (ridge) no modelo:
           (z_next - z)/dt = z @ K^T + c
@@ -183,11 +182,11 @@ class AEROMHybrid(AEBase):
         self,
         x: torch.Tensor,
         *,
-        x_next: Optional[torch.Tensor] = None,
-        dt: Union[float, torch.Tensor] = 1.0,
+        x_next: torch.Tensor | None = None,
+        dt: float | torch.Tensor = 1.0,
         # rollout
-        x_seq: Optional[torch.Tensor] = None,
-        dt_seq: Optional[Union[float, torch.Tensor]] = None,
+        x_seq: torch.Tensor | None = None,
+        dt_seq: float | torch.Tensor | None = None,
     ) -> AEOutput:
         """
         x: (B, ...) -> recon
@@ -198,7 +197,7 @@ class AEROMHybrid(AEBase):
         x_hat = self.decode(z)
         losses = self.loss_from_parts(x_hat=x_hat, z=z, x=x)
 
-        extras: Dict[str, torch.Tensor] = {
+        extras: dict[str, torch.Tensor] = {
             "K": self.K,
             "c": self.c,
             "z": z,

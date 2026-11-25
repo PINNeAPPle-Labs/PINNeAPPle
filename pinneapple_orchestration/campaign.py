@@ -174,7 +174,7 @@ class CacheRecord:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, d: Mapping[str, Any]) -> "CacheRecord":
+    def from_dict(cls, d: Mapping[str, Any]) -> CacheRecord:
         return cls(**{k: d[k] for k in ("key", "case_id", "solver", "status", "outputs", "outputs_sha256", "wall_s",
                                         "cores", "created")})
 
@@ -216,7 +216,7 @@ class RunCache:
         self.hits += 1
         return rec
 
-    def store(self, outcome: "Outcome", *, solver: str = "") -> CacheRecord:
+    def store(self, outcome: Outcome, *, solver: str = "") -> CacheRecord:
         outs = to_jsonable(outcome.outputs or {})
         rec = CacheRecord(key=outcome.key, case_id=outcome.case_id, solver=solver, status="done", outputs=outs,
                           outputs_sha256=sha256(_canon(outs).encode()), wall_s=outcome.wall_s,

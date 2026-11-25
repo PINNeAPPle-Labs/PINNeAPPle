@@ -1,6 +1,5 @@
 from __future__ import annotations
 """ODE-RNN hybrid for continuous-time sequence modeling."""
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -27,7 +26,7 @@ class ODERNN(ContinuousModelBase):
         x: torch.Tensor,     # (B,T,input_dim)
         t: torch.Tensor,     # (T,)
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> ContOutput:
         B, T, D = x.shape
@@ -45,7 +44,7 @@ class ODERNN(ContinuousModelBase):
         h_path = torch.stack(hs, dim=1)     # (B,T,H)
         y_hat = self.head(h_path)           # (B,T,D)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y_hat, y_true)
             losses["total"] = losses["mse"]

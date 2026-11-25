@@ -1,7 +1,7 @@
 from __future__ import annotations
 """Neural Gaussian process for Bayesian continuous dynamics."""
 
-from typing import Dict, Optional, Literal, Tuple
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -117,7 +117,7 @@ class NeuralGaussianProcess(ContinuousModelBase):
         self.register_buffer("_M", torch.empty(0))
         self._posterior_ready: bool = False
 
-    def _flatten(self, x: torch.Tensor) -> Tuple[torch.Tensor, Tuple[int, ...]]:
+    def _flatten(self, x: torch.Tensor) -> tuple[torch.Tensor, tuple[int, ...]]:
         shape = x.shape
         x2 = x.reshape(-1, shape[-1])
         return x2, shape[:-1]
@@ -140,8 +140,8 @@ class NeuralGaussianProcess(ContinuousModelBase):
         x_train: torch.Tensor,          # (..., in_dim)
         y_train: torch.Tensor,          # (..., out_dim)
         *,
-        alpha: Optional[float] = None,
-        noise_var: Optional[float] = None,
+        alpha: float | None = None,
+        noise_var: float | None = None,
     ) -> None:
         """
         Computes posterior for Bayesian linear head given training data.
@@ -181,7 +181,7 @@ class NeuralGaussianProcess(ContinuousModelBase):
         self._M = M
         self._posterior_ready = True
 
-    def _predict_posterior(self, Phi: torch.Tensor, sigma2: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _predict_posterior(self, Phi: torch.Tensor, sigma2: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Phi: (N, m)
         returns:
@@ -203,7 +203,7 @@ class NeuralGaussianProcess(ContinuousModelBase):
         self,
         x: torch.Tensor,  # (..., in_dim)
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
         use_nll: bool = True,
         # if posterior not set, optionally condition on (x,y_true) inside forward
@@ -234,7 +234,7 @@ class NeuralGaussianProcess(ContinuousModelBase):
         logvar = torch.log(var.clamp_min(1e-12))
         logvar = torch.clamp(logvar, self.min_logvar, self.max_logvar)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             if use_nll:
                 # NLL under the posterior predictive Normal(mu, var)

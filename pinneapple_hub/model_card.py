@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -28,48 +28,48 @@ class ModelCard:
     # -- what the model does and where it may be used (model-zoo fields; optional for any other card) ---------
     task: str = ""
     version: str = ""
-    inputs: List[Dict[str, Any]] = field(default_factory=list)    # [{"name", "unit", "description"}]
-    outputs: List[Dict[str, Any]] = field(default_factory=list)
-    validity_range: Dict[str, Any] = field(default_factory=dict)  # input -> [lo, hi], plus regime notes
-    known_limitations: List[str] = field(default_factory=list)
+    inputs: list[dict[str, Any]] = field(default_factory=list)    # [{"name", "unit", "description"}]
+    outputs: list[dict[str, Any]] = field(default_factory=list)
+    validity_range: dict[str, Any] = field(default_factory=dict)  # input -> [lo, hi], plus regime notes
+    known_limitations: list[str] = field(default_factory=list)
 
     # -- architecture --------------------------------------------------
     architecture: str = ""  # ModelRegistry name, e.g. "modified_mlp"
-    architecture_config: Dict[str, Any] = field(default_factory=dict)  # in_dim/out_dim/hidden_dim/...
+    architecture_config: dict[str, Any] = field(default_factory=dict)  # in_dim/out_dim/hidden_dim/...
 
     # -- physics --------------------------------------------------------
-    equations: List[str] = field(default_factory=list)
-    domain_bounds: Dict[str, Any] = field(default_factory=dict)
-    boundary_conditions: Dict[str, Any] = field(default_factory=dict)
-    initial_condition: Dict[str, Any] = field(default_factory=dict)
+    equations: list[str] = field(default_factory=list)
+    domain_bounds: dict[str, Any] = field(default_factory=dict)
+    boundary_conditions: dict[str, Any] = field(default_factory=dict)
+    initial_condition: dict[str, Any] = field(default_factory=dict)
 
     # -- training ---------------------------------------------------------
-    training_config: Dict[str, Any] = field(default_factory=dict)
+    training_config: dict[str, Any] = field(default_factory=dict)
 
     # -- data lineage -----------------------------------------------------
-    data_lineage: Dict[str, Any] = field(default_factory=dict)  # source file(s)/dataset(s), hashes, time window
+    data_lineage: dict[str, Any] = field(default_factory=dict)  # source file(s)/dataset(s), hashes, time window
 
     # -- cost: what it took, measured (#40) --------------------------------
     cost: dict[str, Any] = field(default_factory=dict)  # wall_time_s, trainable_parameters, epochs, ...
 
     # -- validation (the part that has to be a computed number, not prose) --
-    validation_metrics: Dict[str, float] = field(default_factory=dict)
+    validation_metrics: dict[str, float] = field(default_factory=dict)
     reference_source: str = ""  # citation for whatever the validation_metrics were computed against
 
     # -- provenance (issue #39): what computed the numbers, with which code, seed and inputs --
     # the fields and the rule live in pinneapple_data.provenance; a card without them cannot be re-derived
-    provenance: Dict[str, Any] = field(default_factory=dict)
+    provenance: dict[str, Any] = field(default_factory=dict)
 
     # -- misc ---------------------------------------------------------------
     citation: str = ""
     license: str = "apache-2.0"
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     pinneapple_version: str = ""
 
     # -- trust (decision D2) ----------------------------------------------------
     # latest TrustReport (``TrustReport.to_dict()``) and, if a REJECT is published anyway, the recorded override
-    trust_report: Dict[str, Any] = field(default_factory=dict)
-    trust_override: Dict[str, Any] = field(default_factory=dict)
+    trust_report: dict[str, Any] = field(default_factory=dict)
+    trust_override: dict[str, Any] = field(default_factory=dict)
 
     def attach_trust_report(self, report: Any) -> None:
         """Store the latest TrustReport (a ``TrustReport`` or its ``to_dict()``); a new report clears an old override."""
@@ -89,7 +89,7 @@ class ModelCard:
     def trust_decision(self) -> str:
         return self.trust_report.get("decisao", "")
 
-    def validate(self, *, require_cost: bool = False, require_validity: bool = False) -> List[str]:
+    def validate(self, *, require_cost: bool = False, require_validity: bool = False) -> list[str]:
         """Return a list of schema problems (empty = passes). Does not
         raise -- callers (e.g. a CI governance check, see
         ``scripts/validate_model_card.py``) decide whether to treat a
@@ -135,7 +135,7 @@ class ModelCard:
                             "overridden with a recorded reason (ModelCard.override_trust)")
         return problems
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     def to_system(self) -> Any:
@@ -156,12 +156,12 @@ class ModelCard:
             json.dump(self.to_dict(), f, indent=2)
 
     @staticmethod
-    def load(path: str) -> "ModelCard":
+    def load(path: str) -> ModelCard:
         with open(path, "r") as f:
             data = json.load(f)
         return ModelCard(**data)
 
-    def _trust_markdown(self) -> List[str]:
+    def _trust_markdown(self) -> list[str]:
         if not self.trust_report:
             return []
         r = self.trust_report
@@ -173,8 +173,8 @@ class ModelCard:
             out += ["", f"Published despite {self.trust_override.get('decision')}: {self.trust_override['reason']}"]
         return out + [""]
 
-    def _io_markdown(self) -> List[str]:
-        out: List[str] = []
+    def _io_markdown(self) -> list[str]:
+        out: list[str] = []
         for title, rows in (("Inputs", self.inputs), ("Outputs", self.outputs)):
             if rows:
                 out += [f"## {title}", "", "| Name | Unit | Description |", "|---|---|---|",

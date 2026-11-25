@@ -33,14 +33,13 @@ import math
 import sys
 import time
 from pathlib import Path
-from typing import Optional, Tuple, Dict, List
 
 _REPO = Path(__file__).resolve().parents[3]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 import numpy as np
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image, ImageFilter
 import pyvista as pv
 import torch
 import torch.nn as nn
@@ -145,7 +144,7 @@ def unsharp_mask(img: np.ndarray, amount: float = 0.65, radius: int = 1) -> np.n
     return np.clip(sharp, 0, 255).astype(np.uint8)
 
 
-def lens_flare(img: np.ndarray, light_positions: List[Tuple[int, int]],
+def lens_flare(img: np.ndarray, light_positions: list[tuple[int, int]],
                frame_idx: int) -> np.ndarray:
     """Subtle lens flares on overhead lights."""
     out = img.copy().astype(np.float32)
@@ -172,7 +171,7 @@ def lens_flare(img: np.ndarray, light_positions: List[Tuple[int, int]],
 def full_post_process(
     img:           np.ndarray,
     frame_idx:     int,
-    light_pix:     Optional[List[Tuple[int, int]]] = None,
+    light_pix:     list[tuple[int, int]] | None = None,
     dof:           bool = True,
     grain:         bool = True,
 ) -> np.ndarray:
@@ -751,11 +750,11 @@ class VideoPhysicsEncoder(nn.Module):
 
 
 def train_physics_extractor(
-    frames:   List[np.ndarray],   # list of (H, W, 3) uint8 frames
-    sim:      Dict[str, np.ndarray],
+    frames:   list[np.ndarray],   # list of (H, W, 3) uint8 frames
+    sim:      dict[str, np.ndarray],
     epochs:   int = 600,
     lr:       float = 2e-3,
-) -> Tuple[VideoPhysicsEncoder, Dict]:
+) -> tuple[VideoPhysicsEncoder, dict]:
     """Train the inverse model: frame → (P_mean, T_in_norm, T_out_norm)."""
     print("  [Extraction] Preparing training pairs...")
 

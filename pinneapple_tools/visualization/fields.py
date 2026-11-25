@@ -11,7 +11,7 @@ plot_streamlines(xc, yc, ux, uy)
 """
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,9 +35,9 @@ def _to_np(t):
 # ---------------------------------------------------------------------------
 
 def plot_scalar(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    field: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    field: ArrayLike,
     *,
     title: str = "Scalar field",
     label: str = "",
@@ -45,10 +45,10 @@ def plot_scalar(
     n_levels: int = 64,
     show_contour_lines: bool = True,
     n_lines: int = 12,
-    axes: Optional[Axes] = None,
-    figsize: Tuple[int, int] = (8, 6),
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
+    axes: Axes | None = None,
+    figsize: tuple[int, int] = (8, 6),
+    vmin: float | None = None,
+    vmax: float | None = None,
     show: bool = False,
 ) -> Figure:
     """
@@ -105,13 +105,13 @@ def plot_scalar(
 
 
 def plot_scalar_3d(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    z: "ArrayLike",
-    field: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    z: ArrayLike,
+    field: ArrayLike,
     *,
     slice_axis: str = "z",
-    slice_val: Optional[float] = None,
+    slice_val: float | None = None,
     title: str = "Scalar field (3-D slice)",
     cmap: str = DEFAULT_CMAP,
     show: bool = False,
@@ -148,21 +148,21 @@ def plot_scalar_3d(
 # ---------------------------------------------------------------------------
 
 def plot_vectors(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    u: "ArrayLike",
-    v: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    u: ArrayLike,
+    v: ArrayLike,
     *,
     title: str = "Vector field",
-    scale: Optional[float] = None,
+    scale: float | None = None,
     density: int = 20,
     color_by_mag: bool = True,
     cmap: str = "rainbow",
-    background_field: Optional["ArrayLike"] = None,
+    background_field: ArrayLike | None = None,
     bg_cmap: str = "coolwarm",
     bg_label: str = "",
-    axes: Optional[Axes] = None,
-    figsize: Tuple[int, int] = (8, 6),
+    axes: Axes | None = None,
+    figsize: tuple[int, int] = (8, 6),
     show: bool = False,
 ) -> Figure:
     """
@@ -218,20 +218,20 @@ def plot_vectors(
 # ---------------------------------------------------------------------------
 
 def plot_streamlines(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    u: "ArrayLike",
-    v: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    u: ArrayLike,
+    v: ArrayLike,
     *,
     title: str = "Streamlines",
     density: float = 1.5,
     color_by_mag: bool = True,
     cmap: str = "plasma",
     linewidth_scale: float = 1.5,
-    background_field: Optional["ArrayLike"] = None,
+    background_field: ArrayLike | None = None,
     bg_cmap: str = "coolwarm",
-    axes: Optional[Axes] = None,
-    figsize: Tuple[int, int] = (8, 6),
+    axes: Axes | None = None,
+    figsize: tuple[int, int] = (8, 6),
     show: bool = False,
 ) -> Figure:
     """
@@ -294,13 +294,13 @@ def plot_streamlines(
 # ---------------------------------------------------------------------------
 
 def compare_fields(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    fields: Sequence[Tuple[str, "ArrayLike"]],
+    x: ArrayLike,
+    y: ArrayLike,
+    fields: Sequence[tuple[str, ArrayLike]],
     *,
     cmap: str = DEFAULT_CMAP,
     n_cols: int = 3,
-    figsize_per_panel: Tuple[int, int] = (5, 4),
+    figsize_per_panel: tuple[int, int] = (5, 4),
     suptitle: str = "",
     show: bool = False,
 ) -> Figure:
@@ -337,10 +337,10 @@ def compare_fields(
 # ---------------------------------------------------------------------------
 
 def plot_error(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    pred: "ArrayLike",
-    ref: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    pred: ArrayLike,
+    ref: ArrayLike,
     *,
     relative: bool = True,
     title: str = "Prediction error",
@@ -436,23 +436,23 @@ def _contour_panel(ax, x, y, f, *, levels, cmap, vmin, vmax, n_lines: int = 0):
 
 
 def compare_solutions(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    reference: "ArrayLike",
-    prediction: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    reference: ArrayLike,
+    prediction: ArrayLike,
     *,
     quantity: str = "field",
     unit: str = "",
-    labels: Tuple[str, str] = ("Reference", "Surrogate"),
-    cmap: Optional[str] = None,
+    labels: tuple[str, str] = ("Reference", "Surrogate"),
+    cmap: str | None = None,
     error_cmap: str = "magma",
     percentile: float = 99.0,
     coord_unit: str = "m",
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
+    vmin: float | None = None,
+    vmax: float | None = None,
     source: str = "",
     suptitle: str = "",
-    figsize: Optional[Tuple[float, float]] = None,
+    figsize: tuple[float, float] | None = None,
     show: bool = False,
 ) -> SolutionComparison:
     """Reference, surrogate and |surrogate - reference| side by side, with the L2 error as a number (#63).

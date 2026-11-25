@@ -36,7 +36,6 @@ Options
 from __future__ import annotations
 
 import argparse
-import os
 import shutil
 import subprocess
 import sys
@@ -48,7 +47,7 @@ import numpy as np
 HERE = Path(__file__).parent
 
 
-def find_blender() -> Optional[Path]:
+def find_blender() -> Path | None:
     # 1. Check PATH
     b = shutil.which("blender") or shutil.which("blender.exe")
     if b:
@@ -67,7 +66,6 @@ def find_blender() -> Optional[Path]:
     return None
 
 
-from typing import Optional
 
 
 def render(args: argparse.Namespace) -> Path:

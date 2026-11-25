@@ -5,14 +5,15 @@ inference and immediately visualizes the result, without requiring the caller
 to handle ``torch.no_grad`` / device placement manually.
 """
 from __future__ import annotations
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
-from .style import get_cmap, make_figure, DEFAULT_CMAP
-from .fields import plot_scalar, plot_error
+from .style import make_figure, DEFAULT_CMAP
+from .fields import plot_scalar
 
 
 def _to_np(t):
@@ -27,9 +28,9 @@ def _to_np(t):
 # ---------------------------------------------------------------------------
 
 def plot_loss_history(
-    history: List[Dict[str, float]],
+    history: list[dict[str, float]],
     *,
-    keys: Optional[Sequence[str]] = None,
+    keys: Sequence[str] | None = None,
     log_scale: bool = True,
     title: str = "Training loss history",
     show: bool = False,
@@ -70,9 +71,9 @@ def plot_loss_history(
 
 
 def plot_multi_loss(
-    history: List[Dict[str, float]],
+    history: list[dict[str, float]],
     *,
-    groups: Optional[Dict[str, Sequence[str]]] = None,
+    groups: dict[str, Sequence[str]] | None = None,
     log_scale: bool = True,
     title: str = "Loss components",
     show: bool = False,
@@ -116,10 +117,10 @@ def plot_multi_loss(
 # ---------------------------------------------------------------------------
 
 def plot_collocation(
-    interior_pts: "ArrayLike",
-    boundary_pts: Optional["ArrayLike"] = None,
-    initial_pts: Optional["ArrayLike"] = None,
-    data_pts: Optional["ArrayLike"] = None,
+    interior_pts: ArrayLike,
+    boundary_pts: ArrayLike | None = None,
+    initial_pts: ArrayLike | None = None,
+    data_pts: ArrayLike | None = None,
     *,
     title: str = "Collocation points",
     show: bool = False,
@@ -162,10 +163,10 @@ def plot_collocation(
 # ---------------------------------------------------------------------------
 
 def plot_pinn_prediction(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    pred: "ArrayLike",
-    ref: Optional["ArrayLike"] = None,
+    x: ArrayLike,
+    y: ArrayLike,
+    pred: ArrayLike,
+    ref: ArrayLike | None = None,
     *,
     field_name: str = "u",
     cmap: str = DEFAULT_CMAP,
@@ -204,9 +205,9 @@ def plot_pinn_prediction(
 # ---------------------------------------------------------------------------
 
 def plot_pde_residual(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    residual: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    residual: ArrayLike,
     *,
     title: str = "PDE residual",
     cmap: str = "hot",
@@ -232,10 +233,10 @@ def plot_pde_residual(
 # ---------------------------------------------------------------------------
 
 def plot_gradient_magnitude(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    grad_x: "ArrayLike",
-    grad_y: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    grad_x: ArrayLike,
+    grad_y: ArrayLike,
     *,
     title: str = "Gradient magnitude |∇u|",
     cmap: str = "plasma",
@@ -254,12 +255,12 @@ def plot_gradient_magnitude(
 
 def predict_and_plot(
     model: Any,
-    x_coords: "ArrayLike",
-    y_coords: "ArrayLike",
+    x_coords: ArrayLike,
+    y_coords: ArrayLike,
     *,
-    ref: Optional["ArrayLike"] = None,
+    ref: ArrayLike | None = None,
     field_name: str = "u",
-    device: Optional[str] = None,
+    device: str | None = None,
     cmap: str = DEFAULT_CMAP,
     show: bool = False,
 ) -> Figure:
@@ -295,7 +296,6 @@ def predict_and_plot(
     """
     try:
         import torch
-        import torch.nn as nn
 
         x_np = _to_np(x_coords)
         y_np = _to_np(y_coords)

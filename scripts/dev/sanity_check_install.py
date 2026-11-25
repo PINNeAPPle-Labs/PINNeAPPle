@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib
-import sys
 
 
 def _check(mod: str) -> bool:

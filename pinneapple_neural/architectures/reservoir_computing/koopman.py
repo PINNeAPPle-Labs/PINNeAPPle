@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Koopman operator for linearized dynamics in lifted space."""
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -95,7 +95,7 @@ class KoopmanOperator(RCBase):
         return torch.cat(feats, dim=-1)
 
     @torch.no_grad()
-    def fit(self, x: torch.Tensor) -> "KoopmanOperator":
+    def fit(self, x: torch.Tensor) -> KoopmanOperator:
         """
         x: (B,T,in_dim) trajectory batch.
         Fit K using EDMD: Z1 ~ K Z0
@@ -140,13 +140,13 @@ class KoopmanOperator(RCBase):
         self,
         x: torch.Tensor,  # (B,T,in_dim)
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> RCOutput:
         B, T, D = x.shape
         y_hat = self.rollout(x[:, 0, :], steps=T - 1)  # (B,T,D)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y_hat, y_true)
             losses["total"] = losses["mse"]

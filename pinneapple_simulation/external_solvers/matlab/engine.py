@@ -9,7 +9,7 @@ Or (R2022a+):
 """
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any
 import numpy as np
 
 
@@ -39,7 +39,7 @@ class MATLABEngine:
     ...     result = eng.run_function("solve_heat", x_array, nargout=1)
     """
 
-    def __init__(self, start_options: Optional[List[str]] = None) -> None:
+    def __init__(self, start_options: list[str] | None = None) -> None:
         try:
             import matlab.engine as _me
         except ImportError:
@@ -80,7 +80,7 @@ class MATLABEngine:
     def quit(self) -> None:
         self._eng.quit()
 
-    def __enter__(self) -> "MATLABEngine":
+    def __enter__(self) -> MATLABEngine:
         return self
 
     def __exit__(self, *_: Any) -> None:

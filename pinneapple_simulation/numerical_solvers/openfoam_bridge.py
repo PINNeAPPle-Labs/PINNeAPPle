@@ -18,7 +18,7 @@ import shutil
 import subprocess
 import warnings
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import torch
 
@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _which_openfoam(openfoam_bin: Optional[str] = None) -> Optional[Path]:
+def _which_openfoam(openfoam_bin: str | None = None) -> Path | None:
     """Return path to an OpenFOAM executable (blockMesh used as probe)."""
     probe = openfoam_bin or "blockMesh"
     found = shutil.which(probe)
@@ -48,7 +48,7 @@ def _write_file(path: Path, content: str) -> None:
 # Module-level convenience wrappers (documented in module docstring)
 # ---------------------------------------------------------------------------
 
-def generate_case(problem_spec: Any, case_dir: Path, mesh_cfg: Optional[Dict] = None) -> Path:
+def generate_case(problem_spec: Any, case_dir: Path, mesh_cfg: dict | None = None) -> Path:
     """Generate an OpenFOAM case directory from *problem_spec*.
 
     Parameters
@@ -74,7 +74,7 @@ def run_openfoam(
     solver: str = "simpleFoam",
     n_cores: int = 1,
     n_iter: int = 500,
-) -> "subprocess.CompletedProcess[str]":
+) -> subprocess.CompletedProcess[str]:
     """Run an OpenFOAM solver inside *case_dir*.
 
     Returns
@@ -92,8 +92,8 @@ def run_openfoam(
 def extract_fields(
     case_dir: Path,
     time: str = "latestTime",
-    field_names: Optional[List[str]] = None,
-) -> Dict[str, "Any"]:
+    field_names: list[str] | None = None,
+) -> dict[str, Any]:
     """Extract field arrays from a finished OpenFOAM run.
 
     Returns
@@ -107,9 +107,9 @@ def extract_fields(
 
 def openfoam_to_dataset(
     case_dir: Path,
-    field_names: Optional[List[str]] = None,
+    field_names: list[str] | None = None,
     time: str = "latestTime",
-) -> Dict[str, "Any"]:
+) -> dict[str, Any]:
     """High-level helper: extract fields and return as a flat dataset dict."""
     return extract_fields(case_dir, time=time, field_names=field_names)
 
@@ -290,9 +290,9 @@ boundaryField
 """
 
 
-def _build_u_bc_entries(conditions: Dict[str, Any]) -> str:
+def _build_u_bc_entries(conditions: dict[str, Any]) -> str:
     """Convert problem_spec.conditions to OpenFOAM U boundary entries."""
-    lines: List[str] = []
+    lines: list[str] = []
     seen: set = set()
     for cond_name, cond in conditions.items():
         patch = getattr(cond, "patch", cond_name)
@@ -332,9 +332,9 @@ def _build_u_bc_entries(conditions: Dict[str, Any]) -> str:
     return "".join(lines)
 
 
-def _build_p_bc_entries(conditions: Dict[str, Any]) -> str:
+def _build_p_bc_entries(conditions: dict[str, Any]) -> str:
     """Convert problem_spec.conditions to OpenFOAM p boundary entries."""
-    lines: List[str] = []
+    lines: list[str] = []
     seen: set = set()
     for cond_name, cond in conditions.items():
         patch = getattr(cond, "patch", cond_name)
@@ -396,7 +396,7 @@ class OpenFOAMBridge(SolverBase):
         solver: str = "simpleFoam",
         n_cores: int = 1,
         n_iterations: int = 500,
-        openfoam_bin: Optional[str] = None,
+        openfoam_bin: str | None = None,
     ) -> None:
         super().__init__()
         self.solver = solver
@@ -449,7 +449,6 @@ class OpenFOAMBridge(SolverBase):
         # Flatten field arrays into a single tensor for the result slot.
         tensors = []
         try:
-            import numpy as np
             for arr in fields.values():
                 tensors.append(torch.as_tensor(arr.ravel(), dtype=torch.float32))
         except Exception:
@@ -495,7 +494,7 @@ class OpenFOAMBridge(SolverBase):
         case_dir.mkdir(parents=True, exist_ok=True)
 
         nu = float(getattr(problem_spec, "nu", 1e-5))
-        conditions: Dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
+        conditions: dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
 
         # -- system/controlDict --
         _write_file(
@@ -534,7 +533,7 @@ class OpenFOAMBridge(SolverBase):
     # Running the solver
     # ------------------------------------------------------------------
 
-    def run_solver(self, case_dir: Path) -> Dict[str, Any]:
+    def run_solver(self, case_dir: Path) -> dict[str, Any]:
         """Run ``blockMesh`` followed by the configured OpenFOAM solver.
 
         Parameters
@@ -548,9 +547,9 @@ class OpenFOAMBridge(SolverBase):
             Keys: ``returncode``, ``converged`` (bool), ``stdout``, ``stderr``.
         """
         case_dir = Path(case_dir).resolve()
-        info: Dict[str, Any] = {"returncode": -1, "converged": False, "stdout": "", "stderr": ""}
+        info: dict[str, Any] = {"returncode": -1, "converged": False, "stdout": "", "stderr": ""}
 
-        def _run(cmd: List[str]) -> subprocess.CompletedProcess:
+        def _run(cmd: list[str]) -> subprocess.CompletedProcess:
             return subprocess.run(
                 cmd,
                 cwd=str(case_dir),
@@ -598,8 +597,8 @@ class OpenFOAMBridge(SolverBase):
         self,
         case_dir: Path,
         time: str = "latestTime",
-        field_names: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        field_names: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Extract field data from a finished OpenFOAM run.
 
         Attempts (in order):
@@ -649,7 +648,7 @@ class OpenFOAMBridge(SolverBase):
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _resolve_time_dir(self, case_dir: Path, time: str) -> Optional[Path]:
+    def _resolve_time_dir(self, case_dir: Path, time: str) -> Path | None:
         """Return the Path of the requested time directory."""
         if time == "latestTime":
             candidates = []
@@ -670,9 +669,9 @@ class OpenFOAMBridge(SolverBase):
         self,
         case_dir: Path,
         time_dir: Path,
-        field_names: List[str],
+        field_names: list[str],
         np: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run foamToVTK and parse result with pyvista or vtk."""
         vtk_dir = case_dir / "VTK"
         try:
@@ -692,7 +691,7 @@ class OpenFOAMBridge(SolverBase):
         except ImportError:
             return {}
 
-        fields: Dict[str, Any] = {}
+        fields: dict[str, Any] = {}
         for vtk_file in sorted(vtk_dir.rglob("*.vtk")):
             try:
                 mesh = pv.read(str(vtk_file))
@@ -706,11 +705,11 @@ class OpenFOAMBridge(SolverBase):
     def _extract_ascii(
         self,
         time_dir: Path,
-        field_names: List[str],
+        field_names: list[str],
         np: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Naive parser for OpenFOAM ASCII field files (internalField only)."""
-        fields: Dict[str, Any] = {}
+        fields: dict[str, Any] = {}
         for fname in field_names:
             fpath = time_dir / fname
             if not fpath.exists():
@@ -737,7 +736,7 @@ class OpenFOAMBridge(SolverBase):
                 if paren == -1:
                     continue
                 raw = block[paren + 1:end_paren].strip()
-                values: List[float] = []
+                values: list[float] = []
                 for token in raw.split():
                     try:
                         values.append(float(token))

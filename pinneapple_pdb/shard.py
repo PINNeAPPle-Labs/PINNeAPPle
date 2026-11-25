@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Iterator, Optional, Tuple
+from collections.abc import Iterator
 
 import numpy as np
 import pandas as pd
@@ -13,12 +13,12 @@ class ShardSpec:
     """Specification for time-window and optional spatial tiling of datasets."""
 
     time_window: str = "6H"  # pandas offset alias
-    tile_deg: Optional[Tuple[float, float]] = None  # (dlat, dlon) e.g. (30, 30)
+    tile_deg: tuple[float, float] | None = None  # (dlat, dlon) e.g. (30, 30)
     add_regime_tags: bool = True     # MVP: only tags in metadata
 
 def iter_time_windows(
     time_values, window: str
-) -> Iterator[Tuple[pd.Timestamp, pd.Timestamp]]:
+) -> Iterator[tuple[pd.Timestamp, pd.Timestamp]]:
     """Yield (start, end) time pairs for non-overlapping windows over time_values."""
     t = pd.to_datetime(time_values)
     if len(t) == 0:

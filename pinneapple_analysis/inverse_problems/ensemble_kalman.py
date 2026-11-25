@@ -44,9 +44,8 @@ References
 """
 from __future__ import annotations
 
-import warnings
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 
@@ -89,14 +88,14 @@ class EKIConfig:
     """
     n_ensemble: int = 100
     n_iterations: int = 50
-    noise_cov: Optional[np.ndarray] = None
+    noise_cov: np.ndarray | None = None
     noise_std: float = 0.01
     init_spread: float = 0.1
     lambda_reg: float = 0.0
-    prior_mean: Optional[np.ndarray] = None
-    prior_cov: Optional[np.ndarray] = None
+    prior_mean: np.ndarray | None = None
+    prior_cov: np.ndarray | None = None
     tol_collapse: float = 1e-8
-    seed: Optional[int] = None
+    seed: int | None = None
     verbose: bool = True
     print_every: int = 10
 
@@ -116,10 +115,10 @@ class EKIHistory:
     theta_mean_history : list[np.ndarray]
         Ensemble mean at each stored iteration.
     """
-    iterations: List[int] = field(default_factory=list)
-    data_misfit: List[float] = field(default_factory=list)
-    ensemble_spread: List[float] = field(default_factory=list)
-    theta_mean_history: List[np.ndarray] = field(default_factory=list)
+    iterations: list[int] = field(default_factory=list)
+    data_misfit: list[float] = field(default_factory=list)
+    ensemble_spread: list[float] = field(default_factory=list)
+    theta_mean_history: list[np.ndarray] = field(default_factory=list)
 
     def final_misfit(self) -> float:
         return self.data_misfit[-1] if self.data_misfit else float("nan")
@@ -145,7 +144,7 @@ def _build_noise_cov(cfg: EKIConfig, k: int) -> np.ndarray:
 def _ensemble_covariances(
     theta: np.ndarray,   # (J, p)
     g: np.ndarray,       # (J, k)
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Return C_θg ∈ (p, k) and C_gg ∈ (k, k)."""
     J = theta.shape[0]
     theta_bar = theta.mean(axis=0, keepdims=True)   # (1, p)
@@ -187,12 +186,12 @@ class EnsembleKalmanInversion:
     def __init__(
         self,
         forward_fn: Callable[[np.ndarray], np.ndarray],
-        config: Optional[EKIConfig] = None,
+        config: EKIConfig | None = None,
     ) -> None:
         self.forward_fn = forward_fn
         self.cfg = config or EKIConfig()
         self._rng = np.random.default_rng(self.cfg.seed)
-        self.theta: Optional[np.ndarray] = None   # (J, p) current ensemble
+        self.theta: np.ndarray | None = None   # (J, p) current ensemble
         self.history = EKIHistory()
 
     # ── Public interface ──────────────────────────────────────────────────────
@@ -201,7 +200,7 @@ class EnsembleKalmanInversion:
         self,
         theta_init: np.ndarray,
         *,
-        ensemble: Optional[np.ndarray] = None,
+        ensemble: np.ndarray | None = None,
     ) -> None:
         """Set up the ensemble.
 
@@ -291,7 +290,7 @@ class EnsembleKalmanInversion:
         y: np.ndarray,
         theta_init: np.ndarray,
         *,
-        ensemble: Optional[np.ndarray] = None,
+        ensemble: np.ndarray | None = None,
     ) -> EKIHistory:
         """Run full EKI until convergence or max iterations.
 
@@ -367,7 +366,7 @@ class IteratedEKI(EnsembleKalmanInversion):
         y: np.ndarray,
         theta_init: np.ndarray,
         *,
-        ensemble: Optional[np.ndarray] = None,
+        ensemble: np.ndarray | None = None,
     ) -> EKIHistory:
         self.initialize(theta_init, ensemble=ensemble)
         cfg = self.cfg

@@ -63,7 +63,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 try:
     import resource  # POSIX only
@@ -83,8 +83,8 @@ except ImportError:  # pragma: no cover -- exercised only on Windows
 # dicts with a "/"-joined key and reverse that on load, so the caller gets
 # back the same nested shape ``solve()`` produced.
 
-def _flatten_for_npz(value: Any, prefix: str = "") -> Dict[str, Any]:
-    flat: Dict[str, Any] = {}
+def _flatten_for_npz(value: Any, prefix: str = "") -> dict[str, Any]:
+    flat: dict[str, Any] = {}
     if isinstance(value, dict):
         for k, v in value.items():
             flat.update(_flatten_for_npz(v, f"{prefix}{k}/"))
@@ -104,8 +104,8 @@ def _to_npz_array(value: Any):
         return np.array(str(value))
 
 
-def _unflatten_from_npz(npz: Any) -> Dict[str, Any]:
-    result: Dict[str, Any] = {}
+def _unflatten_from_npz(npz: Any) -> dict[str, Any]:
+    result: dict[str, Any] = {}
     for key in npz.files:
         parts = key.split("/")
         node = result
@@ -123,7 +123,7 @@ def _unflatten_from_npz(npz: Any) -> Dict[str, Any]:
 # __main__ block is at the bottom)
 # ---------------------------------------------------------------------------
 
-def _child_main(argv: Optional[list] = None) -> None:
+def _child_main(argv: list | None = None) -> None:
     """Runs INSIDE the resource-limited subprocess: load the target
     script, call its solve(params), and report the outcome via a status
     JSON file (never via a raised exception escaping this process, so the
@@ -140,7 +140,7 @@ def _child_main(argv: Optional[list] = None) -> None:
     ap.add_argument("--status-json", required=True)
     args = ap.parse_args(argv)
 
-    status: Dict[str, Any] = {"ok": False}
+    status: dict[str, Any] = {"ok": False}
     try:
         params = json.loads(args.params_json)
         namespace = runpy.run_path(args.script, run_name="__pinneapple_custom_solver__")
@@ -179,11 +179,11 @@ def _child_main(argv: Optional[list] = None) -> None:
 
 def run_custom_solver(
     script_path: str,
-    params: Optional[Dict[str, Any]] = None,
+    params: dict[str, Any] | None = None,
     *,
     timeout: float = 60.0,
     memory_limit_mb: int = 512,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Run ``script_path``'s ``solve(params)`` in a separate, resource-
     limited subprocess. See the module docstring's SECURITY WARNING for
     exactly what protection this does (and does not) provide.

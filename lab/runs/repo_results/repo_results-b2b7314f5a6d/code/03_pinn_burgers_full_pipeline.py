@@ -34,11 +34,8 @@ import torch
 import torch.nn as nn
 
 from pinneapple_physics.pde_environment import get_preset
-from pinneapple_train import Trainer, TrainConfig
 from pinneapple_neural import (
-    best_device, maybe_compile, ThroughputMonitor,
-    build_metrics_from_cfg,
-    infer_on_grid_2d,
+    best_device, ThroughputMonitor,
 )
 
 

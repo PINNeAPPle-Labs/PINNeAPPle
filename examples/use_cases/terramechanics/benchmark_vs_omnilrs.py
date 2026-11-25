@@ -42,9 +42,8 @@ from __future__ import annotations
 import json
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -149,7 +148,7 @@ class OmniLRSSolver:
 
     # ── internal helpers matching OmniLRS method names ────────────────────────
 
-    def _contact_angles(self, z: float, slip: float) -> Tuple[float, float, float]:
+    def _contact_angles(self, z: float, slip: float) -> tuple[float, float, float]:
         R  = self.wheel.R
         z  = max(z, 1e-6)
         tf = math.acos(max(-1.0, min(1.0, 1.0 - z / R)))
@@ -179,7 +178,7 @@ class OmniLRSSolver:
         tau = (self.soil.c + sig * self.soil.tan_phi) * (1.0 - np.exp(-j / self.soil.K))
         return np.maximum(tau, 0.0)
 
-    def getForces(self, slip: float, z: float) -> Tuple[float, float, float]:
+    def getForces(self, slip: float, z: float) -> tuple[float, float, float]:
         """Compute (Fx, Fz, My) [N, N, Nm] via vectorised trapezoidal quadrature."""
         tf, tr, _ = self._contact_angles(z, slip)
         theta = np.linspace(tr, tf, self.n_theta)
@@ -197,7 +196,7 @@ class OmniLRSSolver:
         self,
         slips:    np.ndarray,
         sinkages: np.ndarray,
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """Evaluate over all (slip, sinkage) combinations."""
         Fx_arr = np.zeros(len(slips), dtype=np.float64)
         Fz_arr = np.zeros_like(Fx_arr)
@@ -224,7 +223,7 @@ class PINNeAPPleSolver:
         self.soil  = soil
         self.wheel = wheel
 
-    def _contact_angles(self, z: float, slip: float) -> Tuple[float, float, float]:
+    def _contact_angles(self, z: float, slip: float) -> tuple[float, float, float]:
         R  = self.wheel.R
         z  = max(z, 1e-6)
         tf = math.acos(max(-1.0, min(1.0, 1.0 - z / R)))
@@ -250,7 +249,7 @@ class PINNeAPPleSolver:
         j = R * ((tf - theta) - (1.0 - slip) * (math.sin(tf) - math.sin(theta)))
         return (self.soil.c + sig * self.soil.tan_phi) * (1.0 - math.exp(-j / self.soil.K))
 
-    def getForces(self, slip: float, z: float) -> Tuple[float, float, float]:
+    def getForces(self, slip: float, z: float) -> tuple[float, float, float]:
         if not _SCIPY:
             raise RuntimeError("scipy required for PINNeAPPleSolver")
         tf, tr, _ = self._contact_angles(z, slip)
@@ -263,7 +262,7 @@ class PINNeAPPleSolver:
         My, _ = _quad(lambda th: self._tau(th, z, slip), tr, tf, limit=lim)
         return R * b * Fx, R * b * Fz, R**2 * b * My
 
-    def sweep(self, slips: np.ndarray, sinkages: np.ndarray) -> Dict[str, np.ndarray]:
+    def sweep(self, slips: np.ndarray, sinkages: np.ndarray) -> dict[str, np.ndarray]:
         Fx_arr = np.zeros(len(slips))
         Fz_arr = np.zeros_like(Fx_arr)
         My_arr = np.zeros_like(Fx_arr)
@@ -280,7 +279,7 @@ class PINNeAPPleSolver:
 # ══════════════════════════════════════════════════════════════════════════════
 
 class Normalizer:
-    def fit(self, X: np.ndarray) -> "Normalizer":
+    def fit(self, X: np.ndarray) -> Normalizer:
         self.lo = X.min(axis=0).astype(np.float32)
         self.hi = X.max(axis=0).astype(np.float32)
         return self
@@ -323,12 +322,12 @@ class TerraMechanicsPINN(nn.Module):
 
 
 def train_pinn(
-    data:       Dict[str, np.ndarray],
+    data:       dict[str, np.ndarray],
     device:     torch.device,
     epochs:     int   = 3_000,
     batch_size: int   = 512,
     lr:         float = 5e-4,
-) -> Tuple[TerraMechanicsPINN, Normalizer, Normalizer]:
+) -> tuple[TerraMechanicsPINN, Normalizer, Normalizer]:
     """Train PINN surrogate on reference data."""
     X_raw = np.column_stack([data["slip"], data["sinkage"]]).astype(np.float32)
     Y_raw = np.column_stack([data["Fx"],   data["Fz"],   data["My"]]).astype(np.float32)
@@ -367,7 +366,7 @@ def pinn_predict(
     slips:  np.ndarray,
     sinkages: np.ndarray,
     device: torch.device,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     X_raw = np.column_stack([slips, sinkages]).astype(np.float32)
     X_n   = torch.tensor(norm_x.transform(X_raw), device=device)
     model.eval()
@@ -386,7 +385,7 @@ SINKAGE_RANGE = (0.002, 0.058)
 N_BENCH       = 30   # points per axis → 900 evaluation pairs
 
 
-def build_grid() -> Tuple[np.ndarray, np.ndarray]:
+def build_grid() -> tuple[np.ndarray, np.ndarray]:
     s = np.linspace(*SLIP_RANGE,    N_BENCH)
     z = np.linspace(*SINKAGE_RANGE, N_BENCH)
     SS, ZZ = np.meshgrid(s, z, indexing="ij")
@@ -398,7 +397,7 @@ def timed_sweep(
     slips:    np.ndarray,
     sinkages: np.ndarray,
     n_repeats: int = 3,
-) -> Tuple[Dict[str, np.ndarray], float]:
+) -> tuple[dict[str, np.ndarray], float]:
     """Run solver and return (results, evaluations_per_second)."""
     for _ in range(max(1, n_repeats - 1)):
         solver_fn(slips, sinkages)
@@ -409,9 +408,9 @@ def timed_sweep(
     return out, eps
 
 
-def compute_metrics(ref: Dict[str, np.ndarray], pred: Dict[str, np.ndarray]) -> Dict[str, float]:
+def compute_metrics(ref: dict[str, np.ndarray], pred: dict[str, np.ndarray]) -> dict[str, float]:
     """Compute RMSE and relative error for each force component."""
-    metrics: Dict[str, float] = {}
+    metrics: dict[str, float] = {}
     for key in ["Fx", "Fz", "My"]:
         r = ref[key].astype(np.float64)
         p = pred[key].astype(np.float64)
@@ -422,7 +421,7 @@ def compute_metrics(ref: Dict[str, np.ndarray], pred: Dict[str, np.ndarray]) -> 
     return metrics
 
 
-def physics_coverage(pred: Dict[str, np.ndarray], slips: np.ndarray) -> Dict[str, float]:
+def physics_coverage(pred: dict[str, np.ndarray], slips: np.ndarray) -> dict[str, float]:
     """Check what fraction of predictions satisfy key physics constraints."""
     # Constraint 1: Fx ≥ 0 when slip > 0
     ok_fx = float(np.mean(pred["Fx"][slips > 0.01] >= 0.0) * 100)
@@ -450,8 +449,8 @@ def _setup_dark():
 
 def plot_traction_curves(
     slips:       np.ndarray,
-    results:     Dict[str, Dict[str, np.ndarray]],
-    sinkage_vals: List[float],
+    results:     dict[str, dict[str, np.ndarray]],
+    sinkage_vals: list[float],
     out_path:    Path,
 ):
     """Fx(slip) traction curves for 3 fixed sinkages."""
@@ -491,8 +490,8 @@ def plot_traction_curves(
 def plot_error_heatmap(
     slips:    np.ndarray,
     sinkages: np.ndarray,
-    ref:      Dict[str, np.ndarray],
-    pred:     Dict[str, np.ndarray],
+    ref:      dict[str, np.ndarray],
+    pred:     dict[str, np.ndarray],
     label:    str,
     out_path: Path,
 ):
@@ -515,7 +514,7 @@ def plot_error_heatmap(
     print(f"  saved ->{out_path}")
 
 
-def plot_throughput(throughputs: Dict[str, float], out_path: Path):
+def plot_throughput(throughputs: dict[str, float], out_path: Path):
     _setup_dark()
     fig, ax = plt.subplots(figsize=(7, 4), facecolor=DARK_BG)
     names  = list(throughputs.keys())
@@ -537,7 +536,7 @@ def plot_throughput(throughputs: Dict[str, float], out_path: Path):
     print(f"  saved ->{out_path}")
 
 
-def plot_physics_coverage(coverage: Dict[str, Dict[str, float]], out_path: Path):
+def plot_physics_coverage(coverage: dict[str, dict[str, float]], out_path: Path):
     _setup_dark()
     labels   = list(coverage.keys())
     metrics  = list(next(iter(coverage.values())).keys())

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -26,7 +25,7 @@ _ETYPES = [
 ]
 
 
-def vtk_type(abq: str) -> Optional[str]:
+def vtk_type(abq: str) -> str | None:
     t = abq.upper()
     for pat, v in _ETYPES:
         if re.match(pat, t):
@@ -37,23 +36,23 @@ def vtk_type(abq: str) -> Optional[str]:
 @dataclass
 class Block:
     keyword: str                    # upper case, without '*'
-    params: Dict[str, str]          # upper-case keys, raw values
-    data: List[List[str]]           # comma-split data lines
+    params: dict[str, str]          # upper-case keys, raw values
+    data: list[list[str]]           # comma-split data lines
     line: int                       # 1-based line of the keyword in its file
     file: str
 
 
 @dataclass
 class Deck:
-    blocks: List[Block] = field(default_factory=list)
-    includes: List[str] = field(default_factory=list)
-    missing_includes: List[str] = field(default_factory=list)
+    blocks: list[Block] = field(default_factory=list)
+    includes: list[str] = field(default_factory=list)
+    missing_includes: list[str] = field(default_factory=list)
 
-    def find(self, kw: str) -> List[Block]:
+    def find(self, kw: str) -> list[Block]:
         return [b for b in self.blocks if b.keyword == kw]
 
 
-def _kw(line: str) -> Tuple[str, Dict[str, str]]:
+def _kw(line: str) -> tuple[str, dict[str, str]]:
     parts = [p.strip() for p in line[1:].split(",")]
     params = {}
     for p in parts[1:]:
@@ -64,10 +63,10 @@ def _kw(line: str) -> Tuple[str, Dict[str, str]]:
     return parts[0].upper(), params
 
 
-def read_deck(text: str, name: str = "model.inp", files: Optional[Dict[str, str]] = None, _depth: int = 0) -> Deck:
+def read_deck(text: str, name: str = "model.inp", files: dict[str, str] | None = None, _depth: int = 0) -> Deck:
     deck = Deck()
     lines = text.splitlines()
-    cur: Optional[Block] = None
+    cur: Block | None = None
     for i, raw in enumerate(lines, 1):
         s = raw.strip()
         if not s or s.startswith("**"):
@@ -93,7 +92,7 @@ def read_deck(text: str, name: str = "model.inp", files: Optional[Dict[str, str]
     return deck
 
 
-def _set_members(b: Block) -> List[str]:
+def _set_members(b: Block) -> list[str]:
     vals = [x for row in b.data for x in row if x]
     if "GENERATE" in b.params:
         out = []
@@ -107,9 +106,9 @@ def _set_members(b: Block) -> List[str]:
     return vals
 
 
-def resolve_sets(deck: Deck, kind: str) -> Dict[str, List[str]]:
+def resolve_sets(deck: Deck, kind: str) -> dict[str, list[str]]:
     """NSET or ELSET name (upper case) -> member labels; sets may contain other sets' names."""
-    raw: Dict[str, List[str]] = {}
+    raw: dict[str, list[str]] = {}
     for b in deck.find(kind):
         name = b.params.get(kind, "").upper()
         raw.setdefault(name, []).extend(_set_members(b))
@@ -121,9 +120,9 @@ def resolve_sets(deck: Deck, kind: str) -> Dict[str, List[str]]:
         for b in deck.find("NODE"):
             if "NSET" in b.params:
                 raw.setdefault(b.params["NSET"].upper(), []).extend(r[0] for r in b.data if r and r[0])
-    out: Dict[str, List[str]] = {}
+    out: dict[str, list[str]] = {}
 
-    def expand(name: str, depth: int = 0) -> List[str]:
+    def expand(name: str, depth: int = 0) -> list[str]:
         if name in out:
             return out[name]
         res = []
@@ -153,14 +152,14 @@ def deck_mesh(deck: Deck) -> Mesh:
     pts = np.array(coords, float)
     lut = np.full(nid.max() + 1, -1, np.int64)
     lut[nid] = np.arange(len(nid))
-    by_type: Dict[str, Tuple[List[int], List[List[int]]]] = {}
-    skipped: Dict[str, int] = {}
-    elset_of: Dict[int, str] = {}
+    by_type: dict[str, tuple[list[int], list[list[int]]]] = {}
+    skipped: dict[str, int] = {}
+    elset_of: dict[int, str] = {}
     for b in deck.find("ELEMENT"):
         abq = b.params.get("TYPE", "").upper()
         vt = vtk_type(abq)
-        rows: List[List[int]] = []
-        cur: List[int] = []
+        rows: list[list[int]] = []
+        cur: list[int] = []
         want = None
         for r in b.data:                                               # element rows may continue on next lines
             vals = [int(float(x)) for x in r if x]
@@ -216,14 +215,14 @@ _DOF = {1: "ux", 2: "uy", 3: "uz", 4: "rx", 5: "ry", 6: "rz", 11: "T"}
 _BODY_LOADS = {"GRAV", "CENTRIF", "NEWTON", "CORIO", "BX", "BY", "BZ", "BF", "BFNU"}
 
 
-def _num(s: str) -> Optional[float]:
+def _num(s: str) -> float | None:
     try:
         return float(s)
     except (TypeError, ValueError):
         return None
 
 
-def deck_conditions(deck: Deck) -> List[Dict[str, object]]:
+def deck_conditions(deck: Deck) -> list[dict[str, object]]:
     """The supports and loads of a deck as node ids (labels of ``*NODE``), one entry per keyword block and kind:
     ``*BOUNDARY`` (kind ``bc``: the constrained degrees of freedom and their values), ``*CLOAD`` / ``*CFLUX`` (kind
     ``load``: the sum of the nodal forces or fluxes per direction), ``*DLOAD`` / ``*DFLUX`` / ``*FILM`` on element sets or
@@ -231,24 +230,24 @@ def deck_conditions(deck: Deck) -> List[Dict[str, object]]:
     CENTRIF) carry no nodes and are listed with ``nodes == []``. Each entry: ``name``, ``kind``, ``keyword``, ``line``,
     ``node_ids``, ``detail``."""
     nsets, elsets = resolve_sets(deck, "NSET"), resolve_sets(deck, "ELSET")
-    el_nodes: Dict[int, List[int]] = {}
+    el_nodes: dict[int, list[int]] = {}
     for b in deck.find("ELEMENT"):
         vt = vtk_type(b.params.get("TYPE", ""))
         want = _nodes_for(vt) if vt else None
-        cur: List[int] = []
+        cur: list[int] = []
         for r in b.data:
             cur += [int(float(x)) for x in r if x]
             if want and len(cur) >= want + 1:
                 el_nodes[cur[0]] = cur[1:want + 1]
                 cur = []
 
-    def targets(t: str, sets: Dict[str, List[str]]) -> List[int]:
+    def targets(t: str, sets: dict[str, list[str]]) -> list[int]:
         t = t.strip()
         if re.fullmatch(r"-?\d+", t):
             return [int(t)]
         return [int(x) for x in sets.get(t.upper(), [])]
 
-    out: List[Dict[str, object]] = []
+    out: list[dict[str, object]] = []
     for b in deck.blocks:
         kw = b.keyword
         rows = [r for r in b.data if r and r[0]]

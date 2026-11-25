@@ -50,7 +50,6 @@ import sys
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional
 
 REPO = Path(__file__).parent
 PYTHON = sys.executable
@@ -66,14 +65,14 @@ class Script:
     path:       str                  # relative to REPO
     category:   str
     name:       str
-    args:       List[str] = field(default_factory=list)
+    args:       list[str] = field(default_factory=list)
     timeout:    int        = 180     # seconds
     mode:       str        = "fast"  # fast | medium | slow
-    requires:   List[str]  = field(default_factory=list)  # pip packages
-    skip_if:    List[str]  = field(default_factory=list)  # executables
+    requires:   list[str]  = field(default_factory=list)  # pip packages
+    skip_if:    list[str]  = field(default_factory=list)  # executables
 
 
-def catalog() -> List[Script]:
+def catalog() -> list[Script]:
     """Full catalog of runnable scripts, ordered fast → slow."""
     return [
 
@@ -501,7 +500,7 @@ def print_result(r: RunResult, verbose: bool = False):
     _safe_print(msg)
 
 
-def save_report(results: List[RunResult], out_dir: Path, args: argparse.Namespace):
+def save_report(results: list[RunResult], out_dir: Path, args: argparse.Namespace):
     totals = {s: sum(1 for r in results if r.status == s)
               for s in ("passed","failed","skipped","timeout","error")}
     total_elapsed = sum(r.elapsed_s for r in results)
@@ -539,7 +538,7 @@ def save_report(results: List[RunResult], out_dir: Path, args: argparse.Namespac
         "## Results by Category",
         "",
     ]
-    by_cat: Dict[str, List[RunResult]] = {}
+    by_cat: dict[str, list[RunResult]] = {}
     for r in results:
         by_cat.setdefault(r.category, []).append(r)
 
@@ -625,7 +624,7 @@ def main():
         print(f"\n  Total: {len(all_scripts)} scripts")
         return
 
-    results: List[RunResult] = []
+    results: list[RunResult] = []
     t_start = time.time()
 
     for i, script in enumerate(all_scripts, 1):

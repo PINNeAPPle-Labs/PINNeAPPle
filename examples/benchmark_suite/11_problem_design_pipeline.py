@@ -29,7 +29,7 @@ import sys
 from pathlib import Path as _Path
 sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
 
-from pinneapple_physics.pde_environment import ProblemBuilder, ProblemSpec, PDETermSpec
+from pinneapple_physics.pde_environment import ProblemBuilder, ProblemSpec
 from pinneapple_physics.pde_environment import get_preset, list_presets
 from pinneapple_tools.benchmark_suite import Arena, ArenaResult
 

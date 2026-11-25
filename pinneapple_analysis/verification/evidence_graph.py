@@ -47,7 +47,7 @@ already-decided verdicts into a queryable shape.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import networkx as nx
 
@@ -57,8 +57,8 @@ __all__ = ["build_evidence_graph", "evidence_summary", "explain_trust"]
 def build_evidence_graph(
     provenance,
     confidence=None,
-    comparisons: Optional[List[Any]] = None,
-) -> "nx.DiGraph":
+    comparisons: list[Any] | None = None,
+) -> nx.DiGraph:
     """Build a small evidence graph for one run.
 
     Parameters
@@ -154,7 +154,7 @@ def build_evidence_graph(
     return g
 
 
-def evidence_summary(g: "nx.DiGraph") -> Dict[str, Any]:
+def evidence_summary(g: nx.DiGraph) -> dict[str, Any]:
     """A structured summary of an evidence graph -- counts of evidence
     nodes by kind and by supports/contradicts, plus the claim's own
     stated trustworthiness. Never re-derives trustworthiness itself."""
@@ -167,7 +167,7 @@ def evidence_summary(g: "nx.DiGraph") -> Dict[str, Any]:
     claim_id = claim_nodes[0]
     claim = g.nodes[claim_id]
 
-    evidence_by_kind: Dict[str, int] = {}
+    evidence_by_kind: dict[str, int] = {}
     n_supports = 0
     n_contradicts = 0
     for _, _, data in g.edges(data=True):
@@ -192,7 +192,7 @@ def evidence_summary(g: "nx.DiGraph") -> Dict[str, Any]:
     }
 
 
-def explain_trust(g: "nx.DiGraph") -> str:
+def explain_trust(g: nx.DiGraph) -> str:
     """A plain-text "why should I trust this" rendering of an evidence
     graph -- mirrors ``knowledge_graph.explain_preset``'s pattern of
     producing an LLM-context-ready string from real graph contents, but

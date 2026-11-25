@@ -88,7 +88,7 @@ from __future__ import annotations
 
 import datetime as _dt
 from string import Template
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 # ---------------------------------------------------------------------------
@@ -549,7 +549,7 @@ _BODIES = {
     "elasticity_contact": (_ELASTICITY_CONTACT_BODY, False),
 }
 
-_DEFAULTS: Dict[str, Dict[str, Any]] = {
+_DEFAULTS: dict[str, dict[str, Any]] = {
     "diffusion": dict(nx=32, ny=32, domain=(0.0, 0.0, 1.0, 1.0), k=1.0, f=0.0, g_left=0.0, g_right=1.0),
     "stokes": dict(nx=24, ny=24, domain=(0.0, 0.0, 1.0, 1.0), mu=1e-3, lid_velocity=1.0),
     "elasticity": dict(nx=32, ny=8, domain=(0.0, 0.0, 4.0, 1.0), E=2.1e5, nu=0.3, fx=0.0, fy=-1.0),
@@ -602,7 +602,7 @@ class FEniCSScriptGenerator:
         footer = _FOOTER.substitute(field=field if template_key != "stokes" else "u")
         return header + body + footer
 
-    def write(self, spec: Any, path: str, *, module_name: Optional[str] = None, **overrides: Any) -> str:
+    def write(self, spec: Any, path: str, *, module_name: str | None = None, **overrides: Any) -> str:
         import os
 
         if module_name is None:

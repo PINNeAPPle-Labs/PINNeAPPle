@@ -13,7 +13,7 @@ from __future__ import annotations
 import functools
 import subprocess
 import sys
-from typing import Dict, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -48,7 +48,7 @@ def von_mises(stress6: np.ndarray) -> np.ndarray:
 
 
 def grid_from_arrays(points: np.ndarray, cells: np.ndarray, vtk_cell_type: int,
-                     point_data: Optional[Dict[str, np.ndarray]] = None):
+                     point_data: dict[str, np.ndarray] | None = None):
     """Unstructured grid from ``points (N, 3)`` and ``cells (M, k)`` (0-based point indices)."""
     pv = _pv()
     points = np.asarray(points, dtype=float)
@@ -69,7 +69,7 @@ def grid_from_arrays(points: np.ndarray, cells: np.ndarray, vtk_cell_type: int,
     return grid
 
 
-def calculix_grid(model, frd=None, step: int = -1, warp: Optional[float] = None):
+def calculix_grid(model, frd=None, step: int = -1, warp: float | None = None):
     """PyVista grid of a CalculiX model, with ``DISP``, ``|U|``, ``STRESS`` and ``VON_MISES`` if present.
 
     ``model`` is a ``CalculixModel`` (from ``read_inp``), ``frd`` an optional ``FrdResults``. ``warp`` is a
@@ -82,7 +82,7 @@ def calculix_grid(model, frd=None, step: int = -1, warp: Optional[float] = None)
     ids, xyz = model.node_array()
     index = {int(n): i for i, n in enumerate(ids)}
     cells = np.array([[index[int(n)] for n in model.elements[e]] for e in sorted(model.elements)], dtype=np.int64)
-    data: Dict[str, np.ndarray] = {}
+    data: dict[str, np.ndarray] = {}
     if frd is not None:
         order = {int(n): i for i, n in enumerate(frd.node_ids)}
         missing = [n for n in ids if int(n) not in order]
@@ -106,7 +106,7 @@ def calculix_grid(model, frd=None, step: int = -1, warp: Optional[float] = None)
     return grid
 
 
-def scene_to_multiblock(scene, time_index: int = 0, field_name: Optional[str] = None):
+def scene_to_multiblock(scene, time_index: int = 0, field_name: str | None = None):
     """``pinneapple_twin3d.Scene`` to a ``pyvista.MultiBlock`` (one surface per part).
 
     Fields of shape ``(T, V)`` are sliced at ``time_index``; ``(V,)`` fields are used as is.
@@ -176,10 +176,10 @@ def _is_dark(background: str) -> bool:
     return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5
 
 
-def render_png(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = HOUSE_CMAP, title: str = "",
+def render_png(mesh, path: str, *, scalars: str | None = None, cmap: str = HOUSE_CMAP, title: str = "",
                show_edges: bool = False, window_size: Sequence[int] = (1400, 900), background: str = BACKGROUND,
-               scalar_bar_title: Optional[str] = None, clim: Optional[Sequence[float]] = None,
-               camera_position: Optional[str] = "iso") -> str:
+               scalar_bar_title: str | None = None, clim: Sequence[float] | None = None,
+               camera_position: str | None = "iso") -> str:
     """Render ``mesh`` (grid, PolyData or MultiBlock) to a PNG. ``scalars`` is a point/cell array name."""
     _require_rendering()
     pl = _plotter(mesh, scalars, cmap, title, show_edges, window_size, background, scalar_bar_title, clim)
@@ -190,9 +190,9 @@ def render_png(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = HO
     return path
 
 
-def render_gif(mesh, path: str, *, scalars: Optional[str] = None, cmap: str = HOUSE_CMAP, title: str = "",
+def render_gif(mesh, path: str, *, scalars: str | None = None, cmap: str = HOUSE_CMAP, title: str = "",
                n_frames: int = 60, elevation: float = 25.0, window_size: Sequence[int] = (1000, 700),
-               background: str = BACKGROUND, clim: Optional[Sequence[float]] = None, fps: int = 20) -> str:
+               background: str = BACKGROUND, clim: Sequence[float] | None = None, fps: int = 20) -> str:
     """Orbit camera around ``mesh`` and write an animated GIF (turntable)."""
     _require_rendering()
     pl = _plotter(mesh, scalars, cmap, title, False, window_size, background, None, clim)

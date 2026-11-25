@@ -7,7 +7,6 @@ Reference: Wang et al. 2022
 """
 
 import math
-from typing import Type
 
 import torch
 import torch.nn as nn
@@ -95,7 +94,7 @@ class ModifiedMLP(BaseModel):
         n_layers: int = 6,
         n_fourier: int = 32,
         sigma: float = 1.0,
-        activation: Type[nn.Module] | str = nn.Tanh,
+        activation: type[nn.Module] | str = nn.Tanh,
         trainable_fourier: bool = False,
     ):
         super().__init__()

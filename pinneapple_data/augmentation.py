@@ -7,7 +7,7 @@ No framework/storage coupling — callers own loading and persisting datasets.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -45,11 +45,11 @@ def _sample_inside_hull(coords: np.ndarray, n_target: int, rng: np.random.Genera
 
 def augment_noise(
     coords: np.ndarray,
-    fields: Dict[str, np.ndarray],
+    fields: dict[str, np.ndarray],
     n_copies: int,
     std_fraction: float = 0.05,
     seed: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add Gaussian noise (scaled to each field's own std) to `n_copies`
     tiled copies of the dataset. Coordinates are unchanged; only field values
     are perturbed."""
@@ -71,12 +71,12 @@ def augment_noise(
 
 def augment_transform(
     coords: np.ndarray,
-    fields: Dict[str, np.ndarray],
+    fields: dict[str, np.ndarray],
     n_copies: int,
     max_rotation_deg: float = 15.0,
-    scale_range: Tuple[float, float] = (0.9, 1.1),
+    scale_range: tuple[float, float] = (0.9, 1.1),
     seed: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Random in-plane rotation (about the first two coordinate axes) plus
     isotropic scaling of the coordinate frame, `n_copies` times. Field values
     are treated as physical quantities sampled at each point, not
@@ -110,11 +110,11 @@ def augment_transform(
 
 def augment_interpolation(
     coords: np.ndarray,
-    fields: Dict[str, np.ndarray],
+    fields: dict[str, np.ndarray],
     n_new_points: int,
     method: str = "linear",
     seed: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate `n_new_points` new samples inside the convex hull of the
     original point cloud, with field values estimated via scattered-data
     interpolation (falling back to nearest-neighbor wherever the requested

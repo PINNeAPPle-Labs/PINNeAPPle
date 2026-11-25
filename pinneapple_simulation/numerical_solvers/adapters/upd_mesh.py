@@ -1,7 +1,7 @@
 """UPD mesh adapter for solver inputs (vertices, faces, topology)."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import torch
 
@@ -18,7 +18,7 @@ def _to_torch(x, device=None, dtype=None) -> torch.Tensor:
     return t
 
 
-def _extract_mesh_arrays(mesh: Any) -> Tuple[Any, Any]:
+def _extract_mesh_arrays(mesh: Any) -> tuple[Any, Any]:
     """
     Duck-typed mesh extraction.
 
@@ -51,7 +51,7 @@ def mesh_to_fvm_topology(
     *,
     device=None,
     dtype=None,
-) -> Dict[str, torch.Tensor]:
+) -> dict[str, torch.Tensor]:
     """
     Build a minimal FVM topology from a surface mesh (triangles/quads).
 
@@ -101,7 +101,7 @@ def mesh_to_fvm_topology(
                 eds.append((v, u))
         return eds
 
-    edge_to_faces: Dict[tuple, list] = {}
+    edge_to_faces: dict[tuple, list] = {}
     for fidx in range(Ft.shape[0]):
         eds = face_edges(Ft[fidx])
         for e in eds:
@@ -149,7 +149,7 @@ def mesh_to_fem_assembly_inputs(
     *,
     device=None,
     dtype=None,
-) -> Dict[str, torch.Tensor]:
+) -> dict[str, torch.Tensor]:
     """
     Minimal FEM assembly inputs (MVP):
       - nodes (N,3)

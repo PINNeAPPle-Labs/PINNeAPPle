@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Union
+from typing import Any, Union
 
 try:
     import requests
@@ -12,7 +12,7 @@ except Exception:  # pragma: no cover
     requests = None
 
 
-JSONLike = Union[str, Dict[str, Any]]
+JSONLike = Union[str, dict[str, Any]]
 
 
 @dataclass(frozen=True)
@@ -21,11 +21,11 @@ class GeminiProviderConfig:
     api_version: str = "v1beta"
     model: str = "models/gemini-2.5-flash"
 
-    api_key: Optional[str] = None
+    api_key: str | None = None
     timeout_s: int = 120
 
     # Optional gateway mode (legacy)
-    gateway_base_url: Optional[str] = None
+    gateway_base_url: str | None = None
     gateway_route: str = "/generate"
 
 
@@ -42,14 +42,14 @@ class GeminiProvider:
     def __init__(
         self,
         *,
-        api_key: Optional[str] = None,
-        model: Optional[str] = None,
-        api_base: Optional[str] = None,
-        api_version: Optional[str] = None,
-        timeout_s: Optional[int] = None,
-        gateway_base_url: Optional[str] = None,
-        gateway_route: Optional[str] = None,
-        session: Optional["requests.Session"] = None,
+        api_key: str | None = None,
+        model: str | None = None,
+        api_base: str | None = None,
+        api_version: str | None = None,
+        timeout_s: int | None = None,
+        gateway_base_url: str | None = None,
+        gateway_route: str | None = None,
+        session: requests.Session | None = None,
     ):
         if requests is None:
             raise RuntimeError("GeminiProvider requires 'requests'. Install: pip install -e \".[research]\"")
@@ -75,11 +75,11 @@ class GeminiProvider:
         self,
         *,
         prompt: str,
-        system: Optional[str] = None,
-        schema: Optional[JSONLike] = None,
+        system: str | None = None,
+        schema: JSONLike | None = None,
         temperature: float = 0.2,
         max_tokens: int = 4096,
-        extra: Optional[Dict[str, Any]] = None,
+        extra: dict[str, Any] | None = None,
     ) -> str:
         if self.cfg.gateway_base_url:
             return self._generate_via_gateway(
@@ -103,11 +103,11 @@ class GeminiProvider:
         self,
         *,
         prompt: str,
-        system: Optional[str],
-        schema: Optional[JSONLike],
+        system: str | None,
+        schema: JSONLike | None,
         temperature: float,
         max_tokens: int,
-        extra: Optional[Dict[str, Any]],
+        extra: dict[str, Any] | None,
     ) -> str:
         if not self.cfg.api_key:
             raise RuntimeError(
@@ -121,7 +121,7 @@ class GeminiProvider:
             raise RuntimeError("Invalid model. Expected 'models/<name>' (example: models/gemini-2.5-flash).")
 
         # Request: contents[].parts[].text :contentReference[oaicite:2]{index=2}
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "contents": [{"role": "user", "parts": [{"text": str(prompt)}]}],
             "generationConfig": {
                 "temperature": float(temperature),
@@ -171,7 +171,7 @@ class GeminiProvider:
         return text
 
     @staticmethod
-    def _coerce_schema(schema: JSONLike) -> Dict[str, Any]:
+    def _coerce_schema(schema: JSONLike) -> dict[str, Any]:
         if isinstance(schema, dict):
             return schema
         if isinstance(schema, str):
@@ -187,7 +187,7 @@ class GeminiProvider:
         raise RuntimeError("schema must be a dict or a JSON string")
 
     @staticmethod
-    def _extract_text(data: Dict[str, Any]) -> str:
+    def _extract_text(data: dict[str, Any]) -> str:
         cands = data.get("candidates") or []
         if not cands:
             return ""
@@ -205,17 +205,17 @@ class GeminiProvider:
         self,
         *,
         prompt: str,
-        system: Optional[str],
-        schema: Optional[JSONLike],
+        system: str | None,
+        schema: JSONLike | None,
         temperature: float,
         max_tokens: int,
-        extra: Optional[Dict[str, Any]],
+        extra: dict[str, Any] | None,
     ) -> str:
         base = (self.cfg.gateway_base_url or "").rstrip("/")
         route = self.cfg.gateway_route if self.cfg.gateway_route.startswith("/") else ("/" + self.cfg.gateway_route)
         url = base + route
 
-        payload: Dict[str, Any] = {
+        payload: dict[str, Any] = {
             "prompt": str(prompt),
             "system": (str(system) if system is not None else None),
             "schema": schema,  # gateway may ignore or use it

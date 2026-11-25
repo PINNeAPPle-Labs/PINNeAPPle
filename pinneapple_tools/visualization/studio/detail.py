@@ -16,7 +16,7 @@ second CAD model to keep in sync.
 """
 from __future__ import annotations
 
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -66,7 +66,7 @@ def hex_bolt(centre, normal=(0.0, 0.0, 1.0), *, head_radius: float = 0.01, heigh
 
 def bolt_circle(centre, normal=(0.0, 0.0, 1.0), *, radius: float = 0.1, count: int = 8,
                 head_radius: float = 0.01, height: float = 0.006, washer: bool = True,
-                material: str = "steel", name: str = "bolts") -> List[Surface]:
+                material: str = "steel", name: str = "bolts") -> list[Surface]:
     """``count`` bolts evenly spaced on a circle of ``radius`` around ``centre``, in the plane of ``normal``, the first
     one on the ``u`` axis of that plane (so two runs with the same arguments put them in the same places)."""
     c = np.asarray(centre, float)
@@ -186,9 +186,9 @@ def cone(a, b, r0: float, r1: float, *, name: str, material: str, n: int = 48) -
 
 def pipe_flange(centre, axis=(0.0, 0.0, 1.0), *, pipe_radius: float = 0.035, flange_radius: float = 0.075,
                 thickness: float = 0.018, raised_face: float = 0.002, neck: float = 0.03, bolts: int = 4,
-                bolt_radius: Optional[float] = None, head_radius: float = 0.008, material: str = "steel",
-                bolt_material: Optional[str] = None, name: str = "flange",
-                n: int = 64) -> List[Surface]:
+                bolt_radius: float | None = None, head_radius: float = 0.008, material: str = "steel",
+                bolt_material: str | None = None, name: str = "flange",
+                n: int = 64) -> list[Surface]:
     """A whole connection, not a disc: the plate, the raised face the gasket sits on, the weld neck that tapers into the
     pipe and the bolts on the face. This is the item the audit called "conexões" — a flange drawn as one cylinder reads
     as a puck, and the three parts together read as a joint.

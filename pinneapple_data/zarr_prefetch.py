@@ -2,14 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Iterator, Optional, Sequence, List
+from typing import Any
+from collections.abc import Iterator, Sequence
 import threading
 import queue
 
 import torch
 from torch.utils.data import IterableDataset, get_worker_info
 
-from .zarr_cached_store import CachedUPDZarrStore, ZarrCacheConfig
+from .zarr_cached_store import ZarrCacheConfig
 from .device import pin_sample, to_device_sample
 
 def _compat_fields(sample: Any) -> Any:
@@ -73,15 +74,15 @@ class PrefetchZarrUPDIterable(IterableDataset):
         self,
         root: str,
         *,
-        fields: Optional[Sequence[str]] = None,
-        coords: Optional[Sequence[str]] = None,
-        dtype: Optional[torch.dtype] = None,
+        fields: Sequence[str] | None = None,
+        coords: Sequence[str] | None = None,
+        dtype: torch.dtype | None = None,
         start: int = 0,
-        end: Optional[int] = None,
+        end: int | None = None,
         stride: int = 1,
         sample_ctor: Any = None,
-        cache: Optional[ZarrCacheConfig] = None,
-        prefetch_cfg: Optional[PrefetchConfig] = None,
+        cache: ZarrCacheConfig | None = None,
+        prefetch_cfg: PrefetchConfig | None = None,
     ):
         """
         Initialize the prefetch iterable dataset.
@@ -145,9 +146,9 @@ class PrefetchZarrUPDIterable(IterableDataset):
             step = num_workers * self.stride
             indices = list(range(base, end, step))
 
-        q: "queue.Queue[Any]" = queue.Queue(maxsize=self.prefetch_cfg.queue_max)
+        q: queue.Queue[Any] = queue.Queue(maxsize=self.prefetch_cfg.queue_max)
         stop = threading.Event()
-        err_holder: List[BaseException] = []
+        err_holder: list[BaseException] = []
 
         # Always read in CPU first for Zarr IO
         io_device = "cpu"

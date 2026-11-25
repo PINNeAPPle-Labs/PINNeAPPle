@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for graph neural network model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import GraphModelBase
 from .gnn import GraphNeuralNetwork
@@ -13,7 +12,7 @@ from .graphcast import GraphCast
 from .mesh_graph_net import MeshGraphNet
 
 
-_REGISTRY: Dict[str, Type[GraphModelBase]] = {
+_REGISTRY: dict[str, type[GraphModelBase]] = {
     "gnn": GraphNeuralNetwork,
     "graph_neural_network": GraphNeuralNetwork,
 
@@ -45,7 +44,7 @@ def register_into_global() -> None:
 
 @dataclass
 class GraphCatalog:
-    registry: Dict[str, Type[GraphModelBase]] = None
+    registry: dict[str, type[GraphModelBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -53,7 +52,7 @@ class GraphCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[GraphModelBase]:
+    def get(self, name: str) -> type[GraphModelBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown graph model '{name}'. Available: {self.list()}")

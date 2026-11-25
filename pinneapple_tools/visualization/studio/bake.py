@@ -23,7 +23,7 @@ the same way in the render, in the .glb and in the browser.
 from __future__ import annotations
 
 import os
-from typing import Dict, Optional, Sequence
+from collections.abc import Sequence
 
 MAP_KEYS = ("base_color_map", "roughness_map", "normal_map")
 
@@ -41,7 +41,7 @@ def _target_node(mat, image):
     return node
 
 
-def _bake_pass(bpy, bs, group, size: int, bake_type: str, extra: Optional[dict] = None, tag: str = ""):
+def _bake_pass(bpy, bs, group, size: int, bake_type: str, extra: dict | None = None, tag: str = ""):
     """Run one bake over ``group`` and return its pixels as an (h, w, 3) float array (linear, bottom row first as
     Blender stores them -- every pass is read and written the same way, so the orientation round-trips)."""
     import numpy as np
@@ -92,8 +92,8 @@ def _bake_and_export(scene, out_dir: str, **kwargs):
             "uv": [None if s.uv is None else np.asarray(s.uv, float).ravel().tolist() for s in scene.surfaces]}
 
 
-def bake_materials_headless(scene, out_dir: str, *, exe: Optional[str] = None, timeout: float = 3600.0,
-                            **kwargs) -> Dict[str, Dict[str, str]]:
+def bake_materials_headless(scene, out_dir: str, *, exe: str | None = None, timeout: float = 3600.0,
+                            **kwargs) -> dict[str, dict[str, str]]:
     """:func:`bake_materials` on a machine where ``bpy`` is not importable: the scene goes to a ``.glb``, the Blender
     binary bakes it, and the map paths come back. ``kwargs`` go to :func:`bake_materials` and must be
     JSON-serialisable (``materials``, ``size``, ``samples``, ``margin``)."""
@@ -169,7 +169,7 @@ def _unwrap_group(bpy, pairs, angle: float, margin: float) -> None:
         s.uv = uv.reshape(-1, 2)
 
 
-def unwrap_scene(scene, *, angle: float = 66.0, margin: float = 0.02) -> "object":
+def unwrap_scene(scene, *, angle: float = 66.0, margin: float = 0.02) -> object:
     """Give every surface of ``scene`` its own UV layout (needs ``bpy``): Blender's smart projection, packed into the
     square and stored back on ``Surface.uv`` per face corner. This is what a closed or strongly curved body needs --
     the box projection of :func:`.scene.box_uvs` folds its islands onto each other -- and the returned scene carries
@@ -188,8 +188,8 @@ def unwrap_scene(scene, *, angle: float = 66.0, margin: float = 0.02) -> "object
     return sc
 
 
-def bake_materials(scene, out_dir: str, *, materials: Optional[Sequence[str]] = None, size: int = 1024,
-                   samples: int = 16, margin: int = 8, uv: str = "smart", log=None) -> Dict[str, Dict[str, str]]:
+def bake_materials(scene, out_dir: str, *, materials: Sequence[str] | None = None, size: int = 1024,
+                   samples: int = 16, margin: int = 8, uv: str = "smart", log=None) -> dict[str, dict[str, str]]:
     """Bake every material whose entry names a ``shader`` (or the ones listed in ``materials``) into
     ``out_dir/<material>_<signal>.png``. Needs ``bpy``. Returns ``{material: {"base_color_map": path, ...}}``, ready
     to merge into ``scene.materials``: the entries keep their flat numbers, which stay the fallback and what the
@@ -223,8 +223,8 @@ def bake_materials(scene, out_dir: str, *, materials: Optional[Sequence[str]] = 
     objs = _build_objects(bpy, bs, sc.surfaces, sc.axes, materials=getattr(sc, "materials", None), force_uv=True)
     _smooth(objs)
 
-    by_mat: Dict[str, list] = {}
-    pairs_by_mat: Dict[str, list] = {}
+    by_mat: dict[str, list] = {}
+    pairs_by_mat: dict[str, list] = {}
     for o, s in zip(objs, sc.surfaces, strict=False):
         if s.material in wanted:
             by_mat.setdefault(s.material, []).append(o)
@@ -234,7 +234,7 @@ def bake_materials(scene, out_dir: str, *, materials: Optional[Sequence[str]] = 
             _unwrap_group(bpy, pairs, 66.0, 0.02)
 
     say = log or (lambda *_: None)
-    out: Dict[str, Dict[str, str]] = {}
+    out: dict[str, dict[str, str]] = {}
     for name, group in by_mat.items():
         diffuse = _bake_pass(bpy, bs, group, size, "DIFFUSE", {"pass_filter": {"COLOR"}}, tag=f"{name}_d")
         glossy = _bake_pass(bpy, bs, group, size, "GLOSSY", {"pass_filter": {"COLOR"}}, tag=f"{name}_g")

@@ -32,11 +32,8 @@ Usage
 """
 from __future__ import annotations
 
-import math
-import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -82,7 +79,7 @@ class ConnectionSpec:
     z_shoulder_top: float        # mm — total length (shoulder at top)
     thread: ThreadProfile
     body: str = "BOX"            # "BOX" or "PIN"
-    n_threads: Optional[int] = None  # if None, computed from geometry
+    n_threads: int | None = None  # if None, computed from geometry
 
     @property
     def z_total(self) -> float:
@@ -97,7 +94,7 @@ class ConnectionSpec:
 
 
 # Standard NC connections
-_TC_SPECS: Dict[str, Dict[str, ConnectionSpec]] = {
+_TC_SPECS: dict[str, dict[str, ConnectionSpec]] = {
     "TC50": {
         "BOX": ConnectionSpec(
             name="TC50_BOX",
@@ -155,8 +152,8 @@ _TC_SPECS: Dict[str, Dict[str, ConnectionSpec]] = {
 
 def build_thread_polygon(
     spec: ConnectionSpec,
-    n_threads: Optional[int] = None,
-) -> List[Tuple[float, float]]:
+    n_threads: int | None = None,
+) -> list[tuple[float, float]]:
     """
     Builds the (r, z) polygon that describes the threaded surface profile.
 
@@ -256,7 +253,7 @@ class ThreadedConnectionMesher:
         self,
         spec: ConnectionSpec,
         lc: float = 1.0,
-        lc_thread: Optional[float] = None,
+        lc_thread: float | None = None,
     ):
         self.spec = spec
         self.lc = lc
@@ -393,7 +390,7 @@ class ThreadedConnectionMesher:
 
 class TC50Geometry(ThreadedConnectionMesher):
     """TC50 threaded coupling geometry (large-diameter)."""
-    def __init__(self, body: str = "BOX", lc: float = 0.8, lc_thread: Optional[float] = None):
+    def __init__(self, body: str = "BOX", lc: float = 0.8, lc_thread: float | None = None):
         body = body.upper()
         if body not in ("BOX", "PIN"):
             raise ValueError("body deve ser 'BOX' ou 'PIN'")
@@ -402,14 +399,14 @@ class TC50Geometry(ThreadedConnectionMesher):
 
 class TC46Geometry(ThreadedConnectionMesher):
     """TC46 threaded coupling geometry (medium-diameter)."""
-    def __init__(self, body: str = "BOX", lc: float = 0.8, lc_thread: Optional[float] = None):
+    def __init__(self, body: str = "BOX", lc: float = 0.8, lc_thread: float | None = None):
         body = body.upper()
         super().__init__(_TC_SPECS["TC46"][body], lc=lc, lc_thread=lc_thread)
 
 
 class TC38Geometry(ThreadedConnectionMesher):
     """TC38 threaded coupling geometry (standard)."""
-    def __init__(self, body: str = "BOX", lc: float = 0.8, lc_thread: Optional[float] = None):
+    def __init__(self, body: str = "BOX", lc: float = 0.8, lc_thread: float | None = None):
         body = body.upper()
         super().__init__(_TC_SPECS["TC38"][body], lc=lc, lc_thread=lc_thread)
 

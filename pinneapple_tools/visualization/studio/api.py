@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Mapping, Sequence
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -174,8 +174,8 @@ def to_scene(mesh, fields=None, *, material: str = "grey", name: str = "body", a
 
 
 # ----------------------------------------------------------------------------------------------- glTF, page, render
-def export_gltf(mesh, fields=None, *, out: Optional[str] = None, materials: Optional[dict] = None,
-                groups: Optional[Mapping[str, Sequence[int]]] = None, generator: str = "PINNeAPPle",
+def export_gltf(mesh, fields=None, *, out: str | None = None, materials: dict | None = None,
+                groups: Mapping[str, Sequence[int]] | None = None, generator: str = "PINNeAPPle",
                 **scene_kw) -> bytes:
     """The mesh as glTF 2.0 binary, every field a float vertex attribute ``_NAME`` (upper case, what the viewers read).
 
@@ -202,8 +202,8 @@ def export_gltf(mesh, fields=None, *, out: Optional[str] = None, materials: Opti
     return data
 
 
-def viewer_html(mesh, fields=None, out_dir: Optional[str] = None, *, single_file: bool = False,
-                max_faces: Optional[int] = MAX_FACES, title: Optional[str] = None, **scene_kw) -> str:
+def viewer_html(mesh, fields=None, out_dir: str | None = None, *, single_file: bool = False,
+                max_faces: int | None = MAX_FACES, title: str | None = None, **scene_kw) -> str:
     """Write the interactive three.js page for ``mesh``; returns the path of its ``index.html``.
 
     ``out_dir`` defaults to a temporary folder (the page is then throw-away until it is served). ``single_file=True``
@@ -220,8 +220,8 @@ def viewer_html(mesh, fields=None, out_dir: Optional[str] = None, *, single_file
     return web_viewer(sc, out_dir, title=title, max_faces=max_faces, single_file=single_file)
 
 
-def blender_render(mesh, out: str, *, fields=None, field: Optional[str] = None, field_range=None, cmap: str = "jet",
-                   samples: int = 64, size: Sequence[int] = (1600, 900), headless: Optional[bool] = None,
+def blender_render(mesh, out: str, *, fields=None, field: str | None = None, field_range=None, cmap: str = "jet",
+                   samples: int = 64, size: Sequence[int] = (1600, 900), headless: bool | None = None,
                    **scene_kw) -> str:
     """A Blender Cycles picture of ``mesh`` from the same data as the page; returns the path written.
 

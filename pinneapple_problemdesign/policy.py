@@ -1,12 +1,12 @@
 """Non-invention policy: apply assumptions and gaps to design state."""
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 from .schema import Gap, Assumption
 
 
-def _dedup_by_id(gaps: List[Gap]) -> List[Gap]:
+def _dedup_by_id(gaps: list[Gap]) -> list[Gap]:
     out = []
     seen = set()
     for g in gaps:
@@ -20,9 +20,9 @@ def _dedup_by_id(gaps: List[Gap]) -> List[Gap]:
 def apply_non_invention_policy(
     state,
     *,
-    unknown_fields: List[str],
-    assumptions_suggested: List[str],
-    gaps_suggested: List[Dict[str, Any]],
+    unknown_fields: list[str],
+    assumptions_suggested: list[str],
+    gaps_suggested: list[dict[str, Any]],
 ) -> None:
     # Suggested assumptions become explicit assumptions requiring confirmation
     for s in assumptions_suggested:

@@ -36,7 +36,7 @@ import argparse
 import math
 import os
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -74,7 +74,7 @@ def _laplacian_3d(u, xyz):
     return u_xx + u_yy + u_zz
 
 
-def _eval_slice_2d(xy_eval_3d: np.ndarray, n_grid: int) -> Tuple[np.ndarray, np.ndarray]:
+def _eval_slice_2d(xy_eval_3d: np.ndarray, n_grid: int) -> tuple[np.ndarray, np.ndarray]:
     """Take an (N,3) 3D eval array and return a 2D z=0.5 cross-section grid for plotting.
 
     Returns (xy_slice, mask) where xy_slice is (M,3) with z=0.5.
@@ -429,12 +429,12 @@ def _make_config(
     problem_name: str,
     epochs: int,
     output_prefix: str,
-    models: Optional[List[Dict]] = None,
+    models: list[dict] | None = None,
     grid_n: int = 20,
     n_col: int = 800,
     n_bc: int = 600,
     n_train: int = 600,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if models is None:
         models = [
             {

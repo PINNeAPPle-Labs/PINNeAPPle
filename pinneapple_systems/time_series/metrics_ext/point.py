@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 import numpy as np
 
@@ -57,15 +56,15 @@ class PointMetrics:
         *,
         y_pred: np.ndarray,
         y_true: np.ndarray,
-        y_train: Optional[np.ndarray] = None,
-    ) -> Dict[str, float]:
+        y_train: np.ndarray | None = None,
+    ) -> dict[str, float]:
         out = {"mae": mae(y_pred, y_true), "rmse": rmse(y_pred, y_true), "mape": mape(y_pred, y_true), "smape": smape(y_pred, y_true)}
         if y_train is not None:
             out["mase"] = mase(y_pred, y_true, y_train, season_length=self.season_length)
         return out
 
 
-def multi_horizon_mae(y_pred: np.ndarray, y_true: np.ndarray) -> Dict[str, float]:
+def multi_horizon_mae(y_pred: np.ndarray, y_true: np.ndarray) -> dict[str, float]:
     """Overall MAE and MAE per horizon step for (N,H) or (N,H,C)."""
     yp = np.asarray(y_pred, dtype=float)
     yt = np.asarray(y_true, dtype=float)
@@ -74,7 +73,7 @@ def multi_horizon_mae(y_pred: np.ndarray, y_true: np.ndarray) -> Dict[str, float
         yp = np.nanmean(yp, axis=2)
         yt = np.nanmean(yt, axis=2)
 
-    out: Dict[str, float] = {"mae": float(np.nanmean(np.abs(yp - yt)))}
+    out: dict[str, float] = {"mae": float(np.nanmean(np.abs(yp - yt)))}
     H = yp.shape[1]
     for h in range(H):
         out[f"mae_h{h+1}"] = float(np.nanmean(np.abs(yp[:, h] - yt[:, h])))

@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 import torch.nn as nn
 
 from pinneapple_neural.architectures.registry import ModelRegistry
 from .models.fno_forecaster import FNOForecaster, FNOForecastConfig
+import builtins
 
 
 # ---------------------------------------------------------
@@ -36,14 +36,14 @@ _ensure_ts_fno_registered()
 # ---------------------------------------------------------
 @dataclass
 class TSModelCatalog:
-    families: Optional[List[str]] = None
+    families: builtins.list[str] | None = None
     default_name: str = "ts_fno"
 
     def __post_init__(self):
         if self.families is None:
             self.families = ["timeseries", "neural_operators", "recurrent", "transformers", "classical_ts", "pinns"]
 
-    def list(self) -> List[str]:
+    def list(self) -> builtins.list[str]:
         out = []
         for fam in self.families:
             try:

@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -149,12 +148,12 @@ class VLMSolution:
     cl_strip: np.ndarray   # (3, Nstrips) local cl
     Q: np.ndarray          # (3, 3) induced drag quadratic form: CDi = u^T Q u, u = [1, a, i_t]
 
-    def coefficients(self, alpha: float, it: float) -> Dict[str, float]:
+    def coefficients(self, alpha: float, it: float) -> dict[str, float]:
         u = np.array([1.0, alpha, it])
         return {"CL": float(self.CL @ u), "Cm": float(self.Cm @ u), "CDi": float(u @ self.Q @ u),
                 "CLw": float(self.CLw @ u)}
 
-    def trim(self, CL: float) -> Tuple[float, float]:
+    def trim(self, CL: float) -> tuple[float, float]:
         """(alpha, i_t) in radians giving this CL with zero pitching moment."""
         A = np.array([[self.CL[1], self.CL[2]], [self.Cm[1], self.Cm[2]]])
         b = np.array([CL - self.CL[0], -self.Cm[0]])

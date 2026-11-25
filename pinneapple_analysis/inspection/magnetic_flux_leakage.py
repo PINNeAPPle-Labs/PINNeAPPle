@@ -47,7 +47,7 @@ sensor rather than solving the field in the air gap above the plate.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -84,7 +84,7 @@ def _assemble_variable_coeff_laplacian(mu: np.ndarray, dx: float, dy: float):
                 M[n, n] = 1.0
                 continue
             mu_c = mu[i, j]
-            coeffs: Dict[Tuple[int, int], float] = {}
+            coeffs: dict[tuple[int, int], float] = {}
             diag = 0.0
 
             # x-direction faces (always present: i in [1, nx-2])
@@ -122,7 +122,7 @@ def solve_mfl_nonlinear(
     H_sat: float,
     defect_mask: np.ndarray,
     n_picard: int = 6,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Solve the nonlinear MFL magnetostatic scalar-potential problem via
     Picard iteration. `defect_mask` (nx, ny) bool marks the low-permeability
     flaw region (held fixed at mu0, never updated by the saturation law).
@@ -173,8 +173,8 @@ def generate_magnetic_flux_leakage_synthetic(
     n_picard: int = 6,
     n_supervised: int = 300,
     n_collocation: int = 150,
-    seed: Optional[int] = 0,
-) -> Dict[str, Any]:
+    seed: int | None = 0,
+) -> dict[str, Any]:
     """Generate a synthetic MFL scan: solves the nonlinear magnetostatic
     FDM ground truth above, then reads off the surface leakage field Bz
     as the "probe scan" signal along x.
@@ -254,7 +254,7 @@ def make_mfl_physics_loss(x_grid: np.ndarray, y_grid: np.ndarray, mu_field: np.n
         (x_grid, y_grid), mu_field, bounds_error=False, fill_value=None,
     )
 
-    def physics_loss_fn(model: torch.nn.Module, batch: Dict[str, Any]):
+    def physics_loss_fn(model: torch.nn.Module, batch: dict[str, Any]):
         x_col = batch["x_col"]
         if not x_col.requires_grad:
             x_col = x_col.clone().requires_grad_(True)
@@ -280,20 +280,20 @@ def make_mfl_physics_loss(x_grid: np.ndarray, y_grid: np.ndarray, mu_field: np.n
 
 
 def train_magnetic_flux_leakage(
-    synthetic_data: Optional[Dict[str, Any]] = None,
+    synthetic_data: dict[str, Any] | None = None,
     *,
     hidden=(64, 64, 64),
     epochs: int = 200,
     lr: float = 1e-3,
     batch_size: int = 32,
     device: str = "cpu",
-    seed: Optional[int] = 0,
+    seed: int | None = 0,
     log_dir: str = "runs/inspection_mfl",
     run_name: str = "mfl_pinn",
     w_supervised: float = 1.0,
     w_physics: float = 1.0,
     **synthetic_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if synthetic_data is None:
         synthetic_data = generate_magnetic_flux_leakage_synthetic(seed=seed, **synthetic_kwargs)
 

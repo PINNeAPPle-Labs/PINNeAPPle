@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for recurrent model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import RecurrentModelBase
 from .gru import GRUModel, BiGRUModel
@@ -10,7 +9,7 @@ from .lstm import LSTMModel, BiLSTMModel
 from .seq2seq import Seq2SeqRNN
 
 
-_REGISTRY: Dict[str, Type[RecurrentModelBase]] = {
+_REGISTRY: dict[str, type[RecurrentModelBase]] = {
     "gru": GRUModel,
     "bidirectional_gru": BiGRUModel,
     "bigru": BiGRUModel,
@@ -37,7 +36,7 @@ def register_into_global() -> None:
 
 @dataclass
 class RecurrentCatalog:
-    registry: Dict[str, Type[RecurrentModelBase]] = None
+    registry: dict[str, type[RecurrentModelBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -45,7 +44,7 @@ class RecurrentCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[RecurrentModelBase]:
+    def get(self, name: str) -> type[RecurrentModelBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown recurrent model '{name}'. Available: {self.list()[:20]} ...")

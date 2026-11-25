@@ -41,13 +41,10 @@ Estrutura de saída
 from __future__ import annotations
 
 import argparse
-import os
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 # ── PINNeAPPle ─────────────────────────────────────────────────────────────
 # Importa os parâmetros base do preset em vez de duplicar aqui
-from pinneapple_physics.pde_environment import get_preset
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Parâmetros TC50 base
@@ -91,7 +88,7 @@ def _thread_r(base_r: float, phase: float, thread_height: float) -> float:
 def build_box_profile(
     clearance: float,
     thread_height: float,
-) -> List[Tuple[float, float]]:
+) -> list[tuple[float, float]]:
     """
     Polígono (r, z) do BOX — sentido CCW.
 
@@ -102,7 +99,7 @@ def build_box_profile(
     z_top      = LENGTH_THREAD + LENGTH_SHOULDER
     dz         = PITCH / 6
 
-    pts_inner: List[Tuple[float, float]] = []
+    pts_inner: list[tuple[float, float]] = []
     z = 0.0
     while z <= LENGTH_THREAD + 1e-9:
         base_r = (PIN_MAJOR_D / 2 + clearance + 0.05) - TAPER * z
@@ -117,7 +114,7 @@ def build_box_profile(
     return pts_inner
 
 
-def build_pin_profile(thread_height: float) -> List[Tuple[float, float]]:
+def build_pin_profile(thread_height: float) -> list[tuple[float, float]]:
     """
     Polígono (r, z) do PIN — sentido CCW.
 
@@ -127,7 +124,7 @@ def build_pin_profile(thread_height: float) -> List[Tuple[float, float]]:
     z_top      = LENGTH_THREAD + LENGTH_SHOULDER
     dz         = PITCH / 6
 
-    pts_up: List[Tuple[float, float]] = []
+    pts_up: list[tuple[float, float]] = []
     z = 0.0
     while z <= LENGTH_THREAD + 1e-9:
         base_r = (PIN_MAJOR_D / 2) - TAPER * z
@@ -150,7 +147,7 @@ def build_pin_profile(thread_height: float) -> List[Tuple[float, float]]:
 # Geração de mesh gmsh
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _add_gmsh_surface(gmsh, polygon: List[Tuple[float, float]]) -> int:
+def _add_gmsh_surface(gmsh, polygon: list[tuple[float, float]]) -> int:
     """Adiciona um polígono como superfície plana no modelo gmsh ativo."""
     pt_tags = [gmsh.model.geo.addPoint(r, z, 0) for r, z in polygon]
     n = len(pt_tags)
@@ -334,9 +331,9 @@ def generate_stl(
 
 def run(
     dataset_dir: str | Path = "dataset",
-    clearances: List[float]     = CLEARANCES,
-    thread_heights: List[float] = THREAD_HEIGHTS,
-    offsets: List[float]        = OFFSETS,
+    clearances: list[float]     = CLEARANCES,
+    thread_heights: list[float] = THREAD_HEIGHTS,
+    offsets: list[float]        = OFFSETS,
     generate_stl_flag: bool     = True,
     force: bool                 = False,
 ) -> None:

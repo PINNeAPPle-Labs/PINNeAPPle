@@ -1,9 +1,8 @@
 from __future__ import annotations
 """Operator inference for data-driven reduced-order modeling."""
-from typing import Dict, Optional, Literal, Tuple
+from typing import Literal
 
 import torch
-import torch.nn as nn
 
 from .base import ROMBase, ROMOutput
 
@@ -136,7 +135,7 @@ class OperatorInference(ROMBase):
     # ----------------------------
     # Parameter accessors: A, H, b
     # ----------------------------
-    def _split_W(self) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]:
+    def _split_W(self) -> tuple[torch.Tensor, torch.Tensor | None, torch.Tensor | None]:
         """
         Returns:
           A_T: (r, r)  (because W is (F,r), first r rows correspond to A^T)
@@ -166,7 +165,7 @@ class OperatorInference(ROMBase):
         return A_T.transpose(0, 1).contiguous()
 
     @property
-    def H(self) -> Optional[torch.Tensor]:
+    def H(self) -> torch.Tensor | None:
         """Quadratic operator H with shape (r, r*r), or None if disabled."""
         _, H_T, _ = self._split_W()
         if H_T is None:
@@ -174,7 +173,7 @@ class OperatorInference(ROMBase):
         return H_T.transpose(0, 1).contiguous()
 
     @property
-    def b(self) -> Optional[torch.Tensor]:
+    def b(self) -> torch.Tensor | None:
         """Bias b with shape (r,), or None if disabled."""
         _, _, b_T = self._split_W()
         if b_T is None:
@@ -185,7 +184,7 @@ class OperatorInference(ROMBase):
     # Discrete-time fit/rollout
     # ----------------------------
     @torch.no_grad()
-    def fit(self, a: torch.Tensor) -> "OperatorInference":
+    def fit(self, a: torch.Tensor) -> OperatorInference:
         """
         Fit discrete map using pairs (a_t -> a_{t+1}).
         a: (B, T, r)
@@ -264,7 +263,7 @@ class OperatorInference(ROMBase):
         dt: float,
         diff: Literal["forward", "central"] = "central",
         drop_ends: bool = True,
-    ) -> "OperatorInference":
+    ) -> OperatorInference:
         """
         Fit continuous-time ODE using regression on da/dt.
 
@@ -377,7 +376,7 @@ class OperatorInference(ROMBase):
         B, T, r = a.shape
         yhat = self.rollout(a[:, 0, :], steps=T - 1)
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         if return_loss:
             losses["mse"] = self.mse(yhat, a)
             losses["total"] = losses["mse"]

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import torch
 
@@ -155,7 +155,6 @@ class FEnicsBridge(SolverBase):
             )
 
         try:
-            import numpy as np
             tensors = [torch.as_tensor(arr.ravel(), dtype=torch.float32) for arr in fields.values()]
             result = torch.cat(tensors) if tensors else torch.empty(0)
         except Exception:
@@ -196,7 +195,6 @@ class FEnicsBridge(SolverBase):
         if self.solver_backend == "dolfinx" and _DOLFINX_AVAILABLE:
             from dolfinx.mesh import create_rectangle, CellType  # type: ignore[import]
             from mpi4py import MPI  # type: ignore[import]
-            import numpy as np
             mesh = create_rectangle(
                 MPI.COMM_WORLD,
                 [[x0, y0], [x1, y1]],
@@ -223,7 +221,7 @@ class FEnicsBridge(SolverBase):
         problem_spec: Any,
         V: Any,
         mesh: Any,
-    ) -> Tuple[Any, Any]:
+    ) -> tuple[Any, Any]:
         """Return ``(a, L)`` bilinear and linear form for the PDE kind.
 
         Dispatches to one of:
@@ -240,7 +238,7 @@ class FEnicsBridge(SolverBase):
             return self._form_navier_stokes(problem_spec, V)
         raise ValueError(f"No variational form defined for kind='{kind}'.")
 
-    def _form_heat_equation(self, problem_spec: Any, V: Any) -> Tuple[Any, Any]:
+    def _form_heat_equation(self, problem_spec: Any, V: Any) -> tuple[Any, Any]:
         """Steady heat equation: -∇·(k ∇T) = f.
 
         DirichletBC sets T on marked boundaries; NeumannBC contributes to L
@@ -272,7 +270,7 @@ class FEnicsBridge(SolverBase):
             L = f * v * dx
 
         # Neumann contributions
-        conditions: Dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
+        conditions: dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
         for cond in conditions.values():
             cond_type = getattr(cond, "type", "")
             if "neumann" in str(cond_type).lower() or "heat_flux" in str(cond_type).lower():
@@ -294,7 +292,7 @@ class FEnicsBridge(SolverBase):
         problem_spec: Any,
         V: Any,
         kind: str,
-    ) -> Tuple[Any, Any]:
+    ) -> tuple[Any, Any]:
         """Plane stress or plane strain linear elasticity: -∇·σ = f."""
         params = getattr(problem_spec, "parameters", {}) or {}
         E_val = float(params.get("E", 1e6))
@@ -356,7 +354,7 @@ class FEnicsBridge(SolverBase):
 
         return a, L
 
-    def _form_navier_stokes(self, problem_spec: Any, V: Any) -> Tuple[Any, Any]:
+    def _form_navier_stokes(self, problem_spec: Any, V: Any) -> tuple[Any, Any]:
         """Simplified Stokes (linearised Navier-Stokes) equations."""
         params = getattr(problem_spec, "parameters", {}) or {}
         mu_val = float(params.get("mu", 1e-3))
@@ -400,7 +398,7 @@ class FEnicsBridge(SolverBase):
         problem_spec: Any,
         V: Any,
         mesh: Any,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Convert problem_spec.conditions to FEniCS DirichletBC objects.
 
         NeumannBC and Robin conditions are handled through the linear form L
@@ -420,8 +418,8 @@ class FEnicsBridge(SolverBase):
         list
             List of FEniCS BC objects ready to pass to ``solve()``.
         """
-        bcs: List[Any] = []
-        conditions: Dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
+        bcs: list[Any] = []
+        conditions: dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
         kind = getattr(problem_spec, "kind", "heat_equation_steady")
         is_vector = kind in ("linear_elasticity_plane_stress", "linear_elasticity_plane_strain")
 
@@ -451,7 +449,7 @@ class FEnicsBridge(SolverBase):
         mesh: Any,
         value: Any,
         is_vector: bool,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Build dolfinx DirichletBC for a single condition."""
         try:
             from dolfinx.fem import (  # type: ignore[import]
@@ -500,7 +498,7 @@ class FEnicsBridge(SolverBase):
         mesh: Any,
         value: Any,
         is_vector: bool,
-    ) -> Optional[Any]:
+    ) -> Any | None:
         """Build legacy FEniCS DirichletBC for a single condition."""
         try:
             from fenics import DirichletBC, Constant, CompiledSubDomain  # type: ignore[import]
@@ -540,8 +538,8 @@ class FEnicsBridge(SolverBase):
     def _extract_fields(
         self,
         solution: Any,
-        field_names: Optional[List[str]],
-    ) -> Dict[str, Any]:
+        field_names: list[str] | None,
+    ) -> dict[str, Any]:
         """Convert FEniCS solution to a dict of numpy arrays.
 
         Parameters
@@ -561,7 +559,7 @@ class FEnicsBridge(SolverBase):
         except ImportError:
             return {}
 
-        fields: Dict[str, Any] = {}
+        fields: dict[str, Any] = {}
         try:
             if _DOLFINX_AVAILABLE and self.solver_backend == "dolfinx":
                 dofs = solution.x.array.copy()
@@ -594,10 +592,10 @@ class FEnicsBridge(SolverBase):
 
     def _solve_dolfinx(
         self, problem_spec: Any, kind: str
-    ) -> Tuple[Any, Dict[str, Any]]:
+    ) -> tuple[Any, dict[str, Any]]:
         """Build and solve the problem using the dolfinx API."""
         from dolfinx.fem import (  # type: ignore[import]
-            FunctionSpace, Function, form,
+            FunctionSpace,
         )
         from dolfinx.fem.petsc import (  # type: ignore[import]
             LinearProblem,
@@ -619,12 +617,12 @@ class FEnicsBridge(SolverBase):
 
         problem = LinearProblem(a_form, L_form, bcs=bcs)
         uh = problem.solve()
-        meta: Dict[str, Any] = {"dofs": uh.x.array.shape, "mesh_cells": mesh.topology.index_map(mesh.topology.dim).size_local}
+        meta: dict[str, Any] = {"dofs": uh.x.array.shape, "mesh_cells": mesh.topology.index_map(mesh.topology.dim).size_local}
         return uh, meta
 
     def _solve_legacy(
         self, problem_spec: Any, kind: str
-    ) -> Tuple[Any, Dict[str, Any]]:
+    ) -> tuple[Any, dict[str, Any]]:
         """Build and solve the problem using the legacy FEniCS API."""
         from fenics import (  # type: ignore[import]
             FunctionSpace, VectorFunctionSpace, Function, solve,
@@ -642,5 +640,5 @@ class FEnicsBridge(SolverBase):
 
         u = Function(V)
         solve(a_form == L_form, u, bcs)
-        meta: Dict[str, Any] = {"dofs": u.vector().size()}
+        meta: dict[str, Any] = {"dofs": u.vector().size()}
         return u, meta

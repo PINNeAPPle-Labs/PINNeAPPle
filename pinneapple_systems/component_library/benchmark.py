@@ -15,7 +15,7 @@ the shared ``Trainer``.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import torch
 
@@ -25,9 +25,9 @@ from .registry import ComponentRegistry
 @dataclass
 class ComponentBenchmarkResult:
     component_type: str
-    ranked: List[Dict[str, Any]] = field(default_factory=list)
+    ranked: list[dict[str, Any]] = field(default_factory=list)
 
-    def best(self) -> Optional[Dict[str, Any]]:
+    def best(self) -> dict[str, Any] | None:
         return self.ranked[0] if self.ranked else None
 
 
@@ -38,9 +38,9 @@ def benchmark_component_type(
     *,
     epochs: int = 50,
     lr: float = 1e-3,
-    eval_coords: Optional[torch.Tensor] = None,
-    eval_targets: Optional[torch.Tensor] = None,
-    log_dir: Optional[str] = None,
+    eval_coords: torch.Tensor | None = None,
+    eval_targets: torch.Tensor | None = None,
+    log_dir: str | None = None,
 ) -> ComponentBenchmarkResult:
     """Trains every architecture registered for ``component_type`` on the
     same data and ranks them by final validation loss (ascending — lower
@@ -60,14 +60,14 @@ def benchmark_component_type(
 
     resolved_log_dir = log_dir or tempfile.mkdtemp(prefix="pinneapple_component_benchmark_")
 
-    rows: List[Dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     for spec in specs:
         model = ComponentRegistry.build(spec.name)
         result = model.fit(
             train_loader, val_loader, epochs=epochs, lr=lr,
             run_name=f"bench_{spec.name}", log_dir=resolved_log_dir,
         )
-        row: Dict[str, Any] = {"name": spec.name, "final_loss": result["best_val"]}
+        row: dict[str, Any] = {"name": spec.name, "final_loss": result["best_val"]}
         if eval_coords is not None and eval_targets is not None:
             row["metrics"] = model.evaluate(eval_coords, eval_targets)
         rows.append(row)

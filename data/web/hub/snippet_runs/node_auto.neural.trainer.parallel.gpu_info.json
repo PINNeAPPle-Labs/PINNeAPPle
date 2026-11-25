@@ -1,0 +1,12 @@
+{
+ "code_hash": "c801c1686e31b35c",
+ "figures": [],
+ "id": "node:auto.neural.trainer.parallel.gpu_info",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 16.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[]",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "420fe0a32f3e81de",
+ "figures": [],
+ "id": "node:auto.neural.trainer.metrics.default_metrics",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 25.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "default metrics -> pinneapple_neural.trainer.metrics:default_metrics\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

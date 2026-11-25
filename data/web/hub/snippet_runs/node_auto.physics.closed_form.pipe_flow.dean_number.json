@@ -1,0 +1,12 @@
+{
+ "code_hash": "380c8c9fdf6eed4f",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pipe_flow.dean_number",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.69,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n0.7071067811865476",
+ "timed_out": false
+}

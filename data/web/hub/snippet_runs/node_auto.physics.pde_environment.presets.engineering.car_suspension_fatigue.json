@@ -1,0 +1,12 @@
+{
+ "code_hash": "03741c5a1eaa8257",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.car_suspension_fatigue",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.59,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='car_suspension_fatigue', dim=2, coords=('x', 'y'), fields=('ux', 'uy'), pde=PDETermSpec(kind='linear_elasticity_plane_stress', fields=('ux', 'uy'), coords=('x', 'y'), params={'E': 210000000000.0, 'nu': 0.3, 'lambda': 121153846153.84615, 'mu': 80769230769.23077}, meta={}), conditions=(ConditionSpec(name='mounting_fixed', kind='dirichlet', fields=('ux', 'uy'), selector_type='tag', selector={'tag': 'mounting_fixed'}, value_fn=<function _const_value_fn.<locals>._fn at 0x105ad0c20>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='wheel_hub_load', kind='neumann', fields=('ty', 'tx'), selector_type='tag', selector={'tag': 'wheel_hub_load'}, value_fn=<function _const_value_fn.<locals",
+ "timed_out": false
+}

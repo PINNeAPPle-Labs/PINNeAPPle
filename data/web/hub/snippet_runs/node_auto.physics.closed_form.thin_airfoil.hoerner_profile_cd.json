@@ -1,0 +1,12 @@
+{
+ "code_hash": "04666e1b8c136a15",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.thin_airfoil.hoerner_profile_cd",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.04,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n9.324",
+ "timed_out": false
+}

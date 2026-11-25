@@ -1,0 +1,12 @@
+{
+ "code_hash": "8d9c9aa0e0cb83c7",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.capabilities.get_pde_family",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 25.53,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get pde family -> pinneapple_physics.pde_environment.capabilities:get_pde_family\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'kind_or_alias': ''}",
+ "timed_out": false
+}

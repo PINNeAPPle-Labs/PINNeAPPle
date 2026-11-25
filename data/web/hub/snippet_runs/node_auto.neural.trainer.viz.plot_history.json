@@ -1,0 +1,12 @@
+{
+ "code_hash": "9580568a708dce42",
+ "figures": [],
+ "id": "node:auto.neural.trainer.viz.plot_history",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "plot history -> pinneapple_neural.trainer.viz:plot_history\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'history': [], 'keys': ['train_total', 'val_total'], 'log_scale': True, 'show': True}",
+ "timed_out": false
+}

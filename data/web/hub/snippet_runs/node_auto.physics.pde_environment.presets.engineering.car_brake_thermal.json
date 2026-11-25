@@ -1,0 +1,12 @@
+{
+ "code_hash": "d2949cfb97a8e79b",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.car_brake_thermal",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='car_brake_thermal', dim=2, coords=('r', 'z', 't'), fields=('T',), pde=PDETermSpec(kind='heat_equation_transient', fields=('T',), coords=('r', 'z', 't'), params={'k': 55.0, 'rho': 7100.0, 'cp': 500.0, 'alpha': 1.5492957746478872e-05}, meta={}), conditions=(ConditionSpec(name='friction_surface', kind='neumann', fields=('q_heat',), selector_type='tag', selector={'tag': 'friction_surface'}, value_fn=<function _const_value_fn.<locals>._fn at 0x119391440>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc={'kind': 'flux', 'T_field': 'T'}), ConditionSpec(name='cooling_surface', kind='neumann', fields=('h', 'T_ref'), selector_type='tag', selector={'tag': 'cooling_surface'}, value_fn=<function _const_value_fn.<lo",
+ "timed_out": false
+}

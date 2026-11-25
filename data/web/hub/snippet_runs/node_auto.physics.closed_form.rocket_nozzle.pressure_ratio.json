@@ -1,0 +1,12 @@
+{
+ "code_hash": "da69f421ea5b05b2",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.rocket_nozzle.pressure_ratio",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pressure ratio -> pinneapple_physics.closed_form.rocket_nozzle:pressure_ratio\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'M': 1.0, 'gamma': 1.0}",
+ "timed_out": false
+}

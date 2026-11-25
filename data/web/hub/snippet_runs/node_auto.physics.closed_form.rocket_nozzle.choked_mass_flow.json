@@ -1,0 +1,12 @@
+{
+ "code_hash": "22bca5acffacd27e",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.rocket_nozzle.choked_mass_flow",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 26.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "choked mass flow -> pinneapple_physics.closed_form.rocket_nozzle:choked_mass_flow\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'p0': 1.0, 'throat_area': 1.0, 'gamma': 1.0, 'R_gas': 1.0, 'T0': 1.0}",
+ "timed_out": false
+}

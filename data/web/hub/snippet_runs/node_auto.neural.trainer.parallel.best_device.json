@@ -1,0 +1,12 @@
+{
+ "code_hash": "3af7f3085b94d20b",
+ "figures": [],
+ "id": "node:auto.neural.trainer.parallel.best_device",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 21.55,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "device\ndevice(type='mps')",
+ "timed_out": false
+}

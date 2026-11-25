@@ -1,0 +1,12 @@
+{
+ "code_hash": "3efc11ae90aaf120",
+ "figures": [],
+ "id": "node:auto.analysis.validation.schema.spec_of",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.41,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "spec of -> pinneapple_analysis.validation.schema:spec_of\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'check_id': ''}",
+ "timed_out": false
+}

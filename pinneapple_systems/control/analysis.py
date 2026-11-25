@@ -32,7 +32,7 @@ import numpy as np
 from scipy import optimize, signal
 
 __all__ = ["equilibrium", "linearize", "stability", "controllability", "observability", "transfer_function",
-           "loop_margins", "step_metrics", "simulate_linear_step"]
+           "loop_margins", "root_locus", "step_metrics", "simulate_linear_step"]
 
 Model = Callable[[np.ndarray, np.ndarray, np.ndarray, float], np.ndarray]
 
@@ -482,3 +482,153 @@ def simulate_linear_step(A, B, C, D=None, t_end: float = 10.0, n: int = 2001, am
     u = amplitude * np.ones((n, B.shape[1]))
     _, y, x = signal.lsim((A, B, C, D), u, t)
     return {"t": t, "y": np.atleast_2d(np.asarray(y).T).T, "x": np.asarray(x)}
+
+
+def _track(poles: np.ndarray, reference: np.ndarray) -> np.ndarray:
+    """Reorder ``poles`` so that branch ``i`` continues from ``reference[i]``: the pair closest in the plane wins.
+
+    ``np.roots`` returns its roots in an arbitrary order, so a sweep drawn straight from it zigzags between branches
+    that never cross. Greedy nearest matching is enough here because the gain step is what keeps the branches apart;
+    when two poles meet, the pair that swaps is a genuine crossing and either order is right.
+    """
+    out = np.empty_like(poles)
+    taken: set[int] = set()
+    for i, ref in enumerate(reference):
+        free = [j for j in range(len(poles)) if j not in taken]
+        j = min(free, key=lambda k: abs(poles[k] - ref)) if free else i
+        taken.add(j)
+        out[i] = poles[j]
+    return out
+
+
+def root_locus(num, den, gains, *, discrete: bool = False, refine: int = 60) -> dict[str, Any]:
+    """Where the closed-loop poles go as the gain sweeps, and the gain at which the loop crosses over.
+
+    The closed loop is unit negative feedback around ``K * num(s) / den(s)``, so its poles are the roots of
+    ``den(s) + K * num(s)``. For each gain in ``gains`` this returns those roots, the branches ordered so each one
+    continues from the previous gain, and -- when the sweep passes through it -- the gain at which a pole reaches
+    the stability boundary (the imaginary axis in continuous time, the unit circle in the z plane), found by
+    bisection on the sign change and reported with the pole it lands on.
+
+    Parameters
+    ----------
+    num, den : sequence
+        Open-loop numerator and denominator, highest power first, in consistent units (``s`` or ``z``).
+    gains : sequence
+        The gains to sweep, non-negative and in the order they should be swept (they are sorted).
+    discrete : bool
+        ``True`` for a discrete-time plant: the boundary is ``|z| = 1`` instead of ``Re(s) = 0``.
+    refine : int
+        Bisection steps used to pin the crossing gain between two samples of the sweep.
+
+    Returns
+    -------
+    gains : ndarray
+        The sweep, sorted.
+    poles : ndarray, complex, shape (len(gains), degree)
+        Closed-loop poles, one row per gain, branch-ordered along the sweep.
+    open_loop_poles : ndarray
+        Roots of ``den`` (the gain-zero poles what every branch departs from).
+    crossing_gain : float or None
+        The gain where a pole reaches the boundary, ``None`` when the sweep never does.
+    crossing_pole : complex or None
+        The pole on the boundary at that gain.
+    boundary : str
+        ``"imaginary axis"`` or ``"unit circle"``, so a reader knows what was crossed.
+    notes : list of str
+        What limited the answer, in the degenerate cases: a numerator of zero (feedback has no effect), an improper
+        loop (more zeros than poles, the closed loop has more poles than the plant), a sweep that starts on the
+        boundary, or one that never crosses.
+
+    Examples
+    --------
+    A first-order plant ``1 / (s + a)`` has a closed-loop pole at exactly ``-a - K``::
+
+        locus = root_locus([1.0], [1.0, a], np.linspace(0, 10, 51))
+        locus["poles"][:, 0] == -a - locus["gains"]
+
+    Discrete time, ``1 / (z - 0.5)`` with unity feedback: ``z = 0.5 - K`` leaves the unit circle at ``K = 1.5``.
+
+    The reference for the continuous case is Astrom & Murray, *Feedback Systems* (2nd ed., 2021), ch. 10; the
+    branch-departure geometry (``n_poles - n_zeros`` branches leaving towards infinity) is not drawn here -- the
+    returned poles are the finite roots at each gain, which is what a plot and a stability verdict need.
+    """
+    den = np.atleast_1d(np.asarray(den, float)).ravel()
+    num = np.atleast_1d(np.asarray(num, float)).ravel()
+    gains = np.atleast_1d(np.asarray(gains, float)).ravel()
+    if den.size == 0 or not np.any(den):
+        raise ValueError("the denominator must be a non-zero polynomial: it is the open loop without the gain")
+    if gains.size == 0:
+        raise ValueError("a root locus needs at least one gain to sweep")
+    if np.any(gains < 0):
+        raise ValueError("a root locus sweeps a non-negative gain: a negative gain is positive feedback, not this")
+    gains = np.sort(gains)
+
+    notes: list[str] = []
+    num_zero = not np.any(num)
+    if num_zero:
+        notes.append("the numerator is zero: the gain does not reach the loop, so the poles are the open-loop ones")
+
+    def poles_at(k: float) -> np.ndarray:
+        if num_zero:
+            return np.roots(den)
+        c = np.polyadd(den, k * num) if num.size else den
+        # a trailing zero is a root at the origin (an integrator), not something to trim away
+        return np.roots(c) if np.any(c) else np.array([], dtype=complex)
+
+    rows: list[np.ndarray] = []
+    previous: np.ndarray | None = None
+    for k in gains:
+        p = np.asarray(poles_at(float(k)), dtype=complex)
+        if previous is not None and p.size == previous.size:
+            p = _track(p, previous)
+        rows.append(p)
+        previous = p
+    if not rows:
+        poles = np.empty((0, 0), complex)
+    else:
+        # An improper loop has fewer closed-loop poles at K = 0 than at K > 0: the extra ones are at infinity, so
+        # the width of the array is the widest gain and the missing entries are NaN -- a branch that does not exist
+        # yet, which a plot must not draw as zero.
+        width = max(r.size for r in rows)
+        poles = np.full((len(rows), width), np.nan + 0j, dtype=complex)
+        for j, p in enumerate(rows):
+            poles[j, :p.size] = p
+        if any(r.size != width for r in rows):
+            notes.append(f"the number of closed-loop poles changes along the sweep ({min(r.size for r in rows)} to "
+                         f"{width}): the missing branches are NaN, meaning a pole at infinity")
+
+    def boundary_value(p: np.ndarray) -> float:
+        """Signed distance to the boundary: > 0 outside (unstable), < 0 inside."""
+        return float(np.max(np.abs(p) - 1.0)) if discrete else float(np.max(p.real))
+
+    f = np.array([boundary_value(p) for p in poles])
+    crossing_gain: float | None = None
+    crossing_pole: complex | None = None
+    # A crossing is a gain at or inside the boundary followed by one outside it. A loop that merely *starts* on the
+    # boundary (an open-loop pole at the origin, as any plant with an integrator has at K = 0) is not a crossing:
+    # the sweep leaves the boundary going inwards, and the gain that matters is the one it comes back out at.
+    i = np.flatnonzero((f[:-1] <= 0.0) & (f[1:] > 0.0))
+    if i.size:
+        a = gains[i[0]]
+        b = gains[i[0] + 1]
+        for _ in range(max(1, int(refine))):
+            mid = 0.5 * (a + b)
+            fm = boundary_value(np.asarray(poles_at(float(mid)), dtype=complex))
+            if fm <= 0.0:
+                a = mid
+            else:
+                b = mid
+        crossing_gain = float(0.5 * (a + b))
+        p = np.asarray(poles_at(crossing_gain), dtype=complex)
+        crossing_pole = complex(p[np.argmax(np.abs(p) - 1.0) if discrete else np.argmax(p.real)])
+    elif f.size and abs(f[0]) <= 1e-12:
+        notes.append("the sweep starts on the stability boundary: the crossing gain is the first gain")
+    else:
+        notes.append("the sweep never crosses the stability boundary at these gains")
+    if not num_zero and num.size > den.size:
+        notes.append(f"improper loop ({num.size - 1} zeros for {den.size - 1} poles): the closed loop has "
+                     f"{num.size - 1} poles and they are all returned")
+    return {"gains": gains, "poles": poles, "open_loop_poles": np.roots(den), "crossing_gain": crossing_gain,
+            "crossing_pole": crossing_pole, "boundary": "unit circle" if discrete else "imaginary axis",
+            "notes": notes}

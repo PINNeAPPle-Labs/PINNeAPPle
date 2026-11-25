@@ -120,9 +120,10 @@
    "blocking": true,
    "ceiling": 0,
    "id": "solvers",
-   "measured": "2026-11-20: 4 passed in 60.04s (0:01:00) (62.3 s wall)",
+   "measured": "2026-11-25: 26 passed, 5 skipped in 186.59s (0:03:06) (205.9 s wall)",
    "paths": [
     "tests/pinneapple_solvers",
+    "tests/test_fenics_workflow.py",
     "tests/test_solver_contract.py"
    ]
   },

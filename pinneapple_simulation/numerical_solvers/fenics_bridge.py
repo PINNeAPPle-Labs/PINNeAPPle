@@ -145,7 +145,8 @@ class FEnicsBridge(SolverBase):
             else:
                 solution, meta = self._solve_legacy(problem_spec, kind)
 
-            fields = self._extract_fields(solution, field_names)
+            vector = kind in ("linear_elasticity_plane_stress", "linear_elasticity_plane_strain")
+            fields = self._extract_fields(solution, field_names, vector=vector)
         except Exception as exc:
             log.exception("FEniCS solve failed: %s", exc)
             return SolverOutput(
@@ -160,6 +161,14 @@ class FEnicsBridge(SolverBase):
         except Exception:
             result = torch.empty(0)
 
+        import numpy as np
+
+        try:
+            dof_coords = self._dof_coordinates(solution)
+        except Exception as exc:                     # noqa: BLE001 - the solution is worth keeping without them
+            log.debug("Dof coordinates unavailable: %s", exc)
+            dof_coords = np.empty((0, 0))
+
         return SolverOutput(
             result=result,
             losses={},
@@ -168,9 +177,36 @@ class FEnicsBridge(SolverBase):
                 "backend": self.solver_backend,
                 "kind": kind,
                 "fields": fields,
+                "dof_coordinates": dof_coords,
                 **meta,
             },
         )
+
+    def _dof_coordinates(self, solution: Any) -> Any:
+        """Where each entry of the field vectors lives: ``(n_dofs, gdim)``, in the same order as
+        ``extras["fields"]["u"]``.
+
+        A solution without its points cannot be compared with a closed form, plotted or packaged: the DOF vector alone
+        says what the values are but not where. A blocked (vector) space lists each *node* once while the field lists
+        its components, so the rows are repeated for that case -- ``dof_coordinates[i]`` is then the point of
+        ``fields["u"][i]`` and ``i % gdim`` its component. Coordinates are trimmed to the mesh's dimension (DOLFINx
+        tabulates a third coordinate that is zero in 2-D).
+        """
+        import numpy as np
+
+        if _DOLFINX_AVAILABLE and self.solver_backend == "dolfinx":
+            space = solution.function_space
+            gdim = int(space.mesh.geometry.dim)
+            rows = np.asarray(space.tabulate_dof_coordinates())[:, :gdim]
+            n_dofs = int(solution.x.array.size)
+        else:
+            space = solution.function_space()
+            rows = np.asarray(space.tabulate_dof_coordinates())
+            n_dofs = int(solution.vector().get_local().size)
+            gdim = rows.shape[1] if rows.ndim == 2 else 1
+        if rows.ndim == 2 and gdim > 1 and n_dofs == rows.shape[0] * gdim:
+            rows = np.repeat(rows, gdim, axis=0)      # one row per dof, not one per node
+        return rows
 
     # ------------------------------------------------------------------
     # Mesh construction
@@ -539,6 +575,7 @@ class FEnicsBridge(SolverBase):
         self,
         solution: Any,
         field_names: list[str] | None,
+        vector: bool = True,
     ) -> dict[str, Any]:
         """Convert FEniCS solution to a dict of numpy arrays.
 
@@ -549,6 +586,10 @@ class FEnicsBridge(SolverBase):
         field_names:
             Optional subset of fields to return.  If ``None`` the whole
             DOF vector is returned as a single entry under ``"u"``.
+        vector:
+            Whether the function space is vector-valued, i.e. whether the DOF vector may be split into ``ux``/``uy``
+            components. False for a scalar solution such as a temperature field, whose entries are values and not
+            components.
 
         Returns
         -------
@@ -569,8 +610,10 @@ class FEnicsBridge(SolverBase):
             key = field_names[0] if (field_names and len(field_names) == 1) else "u"
             fields[key] = dofs
 
-            # If vector-valued, also split components
-            if dofs.ndim == 1:
+            # If vector-valued, also split components. A scalar solution (the heat equation) is not split by the
+            # geometric dimension: doing that turns 45 temperatures into 22 pairs of "ux"/"uy" that are not components
+            # of anything, and a caller cannot tell them from real fields.
+            if dofs.ndim == 1 and vector:
                 try:
                     gdim = solution.geometric_dimension() if hasattr(solution, "geometric_dimension") else 2
                     n_nodes = len(dofs) // gdim
@@ -594,9 +637,7 @@ class FEnicsBridge(SolverBase):
         self, problem_spec: Any, kind: str
     ) -> tuple[Any, dict[str, Any]]:
         """Build and solve the problem using the dolfinx API."""
-        from dolfinx.fem import (  # type: ignore[import]
-            FunctionSpace,
-        )
+        from dolfinx.fem import functionspace  # type: ignore[import]
         from dolfinx.fem.petsc import (  # type: ignore[import]
             LinearProblem,
         )
@@ -606,11 +647,12 @@ class FEnicsBridge(SolverBase):
         if kind in ("linear_elasticity_plane_stress", "linear_elasticity_plane_strain"):
             from basix.ufl import element as ufl_element  # type: ignore[import]
             el = ufl_element("Lagrange", mesh.topology.cell_name(), self.element_degree, shape=(mesh.geometry.dim,))
-            V = FunctionSpace(mesh, el)
         else:
             from basix.ufl import element as ufl_element  # type: ignore[import]
             el = ufl_element("Lagrange", mesh.topology.cell_name(), self.element_degree)
-            V = FunctionSpace(mesh, el)
+        # ``functionspace()`` rather than ``FunctionSpace(mesh, element)``: 0.9 made the C++ space a required third
+        # argument of the class while keeping the factory, so the factory is the call that works on 0.8 and 0.9.
+        V = functionspace(mesh, el)
 
         a_form, L_form = self._build_variational_form(problem_spec, V, mesh)
         bcs = self._apply_bcs(problem_spec, V, mesh)

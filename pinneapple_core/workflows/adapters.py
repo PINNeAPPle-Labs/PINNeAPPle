@@ -12,6 +12,11 @@ executor and returns its outputs (a JSON-able dict).
                reads the .frd (``calculix.frd.read_frd``): maximum displacement, node count
 =============  ==================================================================================================
 
+The two external solvers answer "is it installed, and why not" through the solver contract
+(``pinneapple_simulation.external_solvers.contract``), so a step and the library cannot disagree about whether OpenFOAM
+or CalculiX is usable on this machine: the adapter runs the case its own way and asks the contract only for the
+environment verdict (``check_environment()``, which reports what is missing instead of raising).
+
 A new kind::
 
     class GuiStep(Adapter):
@@ -21,10 +26,8 @@ A new kind::
 """
 from __future__ import annotations
 
-import glob
 import importlib
 import json
-import os
 import shutil
 import sys
 from abc import ABC, abstractmethod
@@ -152,23 +155,22 @@ def resolve_function(ref: str) -> Callable:
     return obj
 
 
-_FOAM_BASHRCS = ("/usr/share/openfoam/etc/bashrc", "/usr/lib/openfoam/openfoam*/etc/bashrc",
-                 "/opt/openfoam*/etc/bashrc", "/opt/OpenFOAM-*/etc/bashrc")
-
-
 def _foam_bashrc(p: dict) -> str | None:
     """The OpenFOAM bashrc to source before the commands: the step's ``bashrc``, else ``FOAM_BASHRC``, else (when the
-    environment is not loaded already) the first installation found in the usual places. None: nothing to source."""
-    for b in (p.get("bashrc"), os.environ.get("FOAM_BASHRC")):
-        if b and Path(b).is_file():
-            return str(b)
-    if os.environ.get("WM_PROJECT_DIR"):
-        return None
-    for pattern in _FOAM_BASHRCS:
-        found = sorted(glob.glob(pattern))
-        if found:
-            return found[-1]
-    return None
+    environment is not loaded already) the first installation found in the usual places. None: nothing to source.
+
+    The search itself lives in ``external_solvers.openfoam.environment``, where the solver contract's OpenFOAM backend
+    uses it too: one list of installation paths, two callers."""
+    from pinneapple_simulation.external_solvers.openfoam.environment import find_bashrc
+
+    return find_bashrc(p.get("bashrc"), patterns=_FOAM_BASHRCS)
+
+
+#: The usual installation paths, spelled here so this module keeps importing nothing heavy (the whole of
+#: ``pinneapple_simulation`` pulls in torch); ``tests/test_solver_contract.py`` asserts it is
+#: ``external_solvers.openfoam.environment.FOAM_BASHRCS``, so the two cannot drift.
+_FOAM_BASHRCS = ("/usr/share/openfoam/etc/bashrc", "/usr/lib/openfoam/openfoam*/etc/bashrc",
+                 "/opt/openfoam*/etc/bashrc", "/opt/OpenFOAM-*/etc/bashrc", "/Volumes/OpenFOAM*/etc/bashrc")
 
 
 class OpenFOAMAdapter(Adapter):
@@ -178,17 +180,14 @@ class OpenFOAMAdapter(Adapter):
     kind = "openfoam"
 
     def available(self, step=None):
+        """The contract's environment verdict: distribution packages put the binaries on PATH, but they only run with
+        the environment loaded, so ``check_environment()`` sources the bashrc and asks the environment itself."""
+        from pinneapple_simulation.external_solvers.backends import OpenFOAMBackend
+
         p = step.params if step else {}
-        if _foam_bashrc(p):
-            return True, ""
-        solver = p.get("solver", "icoFoam")
-        if not (shutil.which(solver) and shutil.which("blockMesh")):
-            return False, f"OpenFOAM not found ({solver} not on PATH and no bashrc)"
-        if not os.environ.get("WM_PROJECT_DIR"):
-            # distribution packages put the binaries on PATH, but they only run with the environment loaded
-            return False, (f"{solver} is on PATH but the OpenFOAM environment is not loaded and no bashrc was found: "
-                           "source it, or set FOAM_BASHRC or the step's bashrc")
-        return True, ""
+        backend = OpenFOAMBackend(solver=p.get("solver", "icoFoam"), bashrc=p.get("bashrc"), patterns=_FOAM_BASHRCS)
+        report = backend.check_environment()
+        return report.ok, "" if report.ok else report.why()
 
     def run(self, ctx):
         from pinneapple_simulation.external_solvers.openfoam.campaign import (
@@ -234,9 +233,11 @@ class CalculiXAdapter(Adapter):
     kind = "calculix"
 
     def available(self, step=None):
-        if shutil.which("ccx"):
-            return True, ""
-        return False, "CalculiX (ccx) not on PATH"
+        """The contract's environment verdict, so ``ccx``, the bundled Docker image and ``pp.doctor`` agree."""
+        from pinneapple_simulation.external_solvers.backends import CalculiXBackend
+
+        report = CalculiXBackend().check_environment()
+        return report.ok, "" if report.ok else report.why()
 
     def run(self, ctx):
         import numpy as np

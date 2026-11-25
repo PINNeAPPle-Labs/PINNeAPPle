@@ -211,7 +211,7 @@
  },
  "industrial_presets": {
   "domain": "engineering presets",
-  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs"
+  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs. bolted_joint_preload has no flow on purpose: its deck is solved by an external CalculiX (ccx) binary, so on a machine without one the flow would record a written deck and no measurement — a quick configuration that never reproduces the committed numbers is worse than the stated reason"
  },
  "inspection": {
   "domain": "inspection",

@@ -183,6 +183,9 @@ class Preset:
     missing: dict[str, str] = {}                  # capability -> why the preset does not have it
     limitations: Sequence[str] = ()
     reason_case: str | None = None             # pinneapple_reason case that explains the design, if any
+    #: external binaries this preset solves with ("ccx" for a CalculiX deck); a test skips the run without them and
+    #: the run itself says nothing was solved instead of passing on the absence of a measurement
+    needs: Sequence[str] = ()
 
     # ----------------------------------------------------------------- to implement
     def solve(self, p: dict) -> dict:
@@ -315,6 +318,7 @@ class Preset:
                              "inversion": self.has_inversion, "optimization": self.has_optimization,
                              "variants": self.has_variants, "reason": self.reason_case is not None},
             "missing": dict(self.missing), "reason_case": self.reason_case,
+            "needs": list(self.needs),
             "references": [asdict(r) for r in self.references()],
             "usage": {"python": f'import pinneapple as pp\nr = pp.presets.load("{self.name}").run()\nprint(r)',
                       "cli": f"python -m pinneapple_presets run {self.name}",

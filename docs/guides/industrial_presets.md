@@ -48,6 +48,44 @@ regenerated from the stored results, so every number in it was measured. Each pr
 the data sheet, the measured outputs, the validation table, the surrogate hold-out error, the inversion, the
 optimisation, the variants and the figures.
 
+## A preset whose solver is an external binary
+
+`bolted_joint_preload` is the one preset that cannot be solved in Python: its deck — a preloaded bolted joint, with
+the preload from a `*PRE-TENSION SECTION` and the head and nut joined to the plates by a `*DISTRIBUTING COUPLING`
+over the washer footprint — is CalculiX's, and the result comes back through `pinneapple_data.cae`. The case library
+it wraps is `pinneapple_simulation.external_solvers.calculix.contact`, the same one the PrePoMax app calls; the
+preset adds the data sheet, the engineering decision and the references.
+
+A preset declares what it needs to solve:
+
+```python
+class BoltedJoint(Preset):
+    needs = ("ccx",)                 # the CalculiX binary; CCX_BIN points at the one PrePoMax ships
+```
+
+`card()["needs"]` publishes that, and everything else follows from it. Without a `ccx`:
+
+- `run()` still builds and writes the deck, and returns the closed-form design numbers (`mu` times the preload) with
+  every measured output `None`;
+- the trust report carries a **critical** check, "CalculiX (ccx) disponível", in `contradicts`, so the decision is
+  `REJECT` — never an approval by absence of measurement;
+- `validate()` returns `all_pass: False` and the reason instead of an empty pass;
+- `tests/test_presets.py` skips the runs of that preset (`_require(name)`), and the Flow example list says why it has
+  no flow.
+
+With a `ccx` on `PATH` (or `CCX_BIN` pointing at one):
+
+```bash
+export PATH="$HOME/ccx-env/bin:$PATH"          # CalculiX 2.23, the one PrePoMax distributes
+python -m pinneapple_presets run bolted_joint_preload preload=6000 mu=0.2
+python -m pinneapple_presets validate bolted_joint_preload
+```
+
+The measured numbers of the default case, the references and the mesh study are in
+[examples/industrial_presets/bolted_joint_preload/README.md](../../examples/industrial_presets/bolted_joint_preload/README.md).
+The pronounced warning on macOS is `JOB_MAX_PROCS`: the solver forks a child per core, and a low process limit makes
+that fork fail rather than the analysis.
+
 ## Surrogates
 
 `SurrogateSpec(inputs, outputs, n_train, n_test, bounds, log, log_outputs)` declares the surrogate.

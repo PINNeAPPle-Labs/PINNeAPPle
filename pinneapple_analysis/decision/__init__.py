@@ -9,6 +9,9 @@ that answer the second question, measured against the reference solver on the cu
     in the design space.
 ``decision_card``, ``DecisionCard``, ``DecisionThresholds``
     the same numbers as a one page card with a verdict, printable with ``to_markdown()``.
+``decision_report``, ``DecisionReport``
+    the ensemble report (#219): the distribution of the quantity of interest, the probability of violating each hard
+    constraint, the inputs that drive the risk and a recommendation with its validity domain and trust status.
 
 The reference values must come from a test split disjoint from the split the surrogate was fitted on, and the
 flip rate is only a measurement when it is quoted with the tolerance that produced it.
@@ -32,6 +35,7 @@ from .metrics import (
     rank_preservation,
     regret,
 )
+from .report import Combination, DecisionReport, EnsembleMember, InputDriver, decision_report
 
 __all__ = [
     "FlipRate",
@@ -45,4 +49,9 @@ __all__ = [
     "DecisionThresholds",
     "DecisionCard",
     "decision_card",
+    "Combination",
+    "EnsembleMember",
+    "InputDriver",
+    "DecisionReport",
+    "decision_report",
 ]

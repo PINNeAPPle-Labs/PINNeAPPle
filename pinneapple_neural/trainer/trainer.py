@@ -90,6 +90,7 @@ class Trainer:
         loss_balancer: Any = None,
         readiness: Any = None,
         review: Any = None,
+        constraints: Any = None,
     ):
         self.model = model
         # both are optional and both are saved/restored, because a resumed run that restarts the learning rate or the
@@ -100,6 +101,10 @@ class Trainer:
         # accept its warnings. Without a report nothing changes -- existing runs keep running.
         self.readiness = readiness
         self.review = review
+        # the limits the model has to respect (#221): the same ``pp.Constraint`` objects the optimizer receives and
+        # the deployment guard enforces. They enter as a differentiable penalty term, so the network learns them
+        # instead of being told about them afterwards.
+        self.constraints = list(constraints or ())
         self.loss_fn = loss_fn
         self.preprocess = preprocess
         self.early_stopping = early_stopping
@@ -151,6 +156,25 @@ class Trainer:
                 raise ValueError("loss_fn returned dict but missing 'total'.")
             return loss_out
         raise TypeError("loss_fn must return torch.Tensor or dict[str, torch.Tensor].")
+
+    def _add_constraint_penalty(self, losses: dict[str, torch.Tensor], y_hat: torch.Tensor,
+                                batch: dict[str, Any]) -> dict[str, torch.Tensor]:
+        """Add the constraint term to ``total`` and record it under ``"constraint"`` (#221).
+
+        The trainer is one of the three places the *same* ``pp.Constraint`` objects are applied -- the others are
+        ``PhysicsOptimizer(constraints=...)`` and a ``ConstraintGuard`` at serving time. Here they are a penalty, so
+        the network learns the limit; the report a run leaves behind keeps the term separate from the data loss, so
+        "the model fits and violates" is visible in the history instead of averaged away.
+        """
+        if not self.constraints:
+            return losses
+        from pinneapple_physics.constraint_engine import penalty
+
+        term = penalty(self.constraints, y_hat, values=batch)
+        out = dict(losses)
+        out["constraint"] = term
+        out["total"] = out["total"] + term
+        return out
 
     def _ddp_info(self) -> dict[str, int]:
         return {
@@ -340,6 +364,7 @@ class Trainer:
                     y_hat = self._unwrap_pred(y_hat_raw, batch=batch)
                     loss_out = self.loss_fn(self.model, y_hat, batch)
                     losses = self._parse_loss(loss_out)
+                    losses = self._add_constraint_penalty(losses, y_hat, batch)
                     loss = losses["total"]
 
                 scaler.scale(loss).backward()
@@ -401,6 +426,7 @@ class Trainer:
 
                     loss_out = self.loss_fn(self.model, y_hat, batch)
                     losses = self._parse_loss(loss_out)
+                    losses = self._add_constraint_penalty(losses, y_hat, batch)
                     loss = losses["total"]
 
                 bs = int(x.shape[0]) if isinstance(x, torch.Tensor) and x.ndim > 0 else 1

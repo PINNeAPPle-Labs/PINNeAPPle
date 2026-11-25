@@ -29,6 +29,7 @@ import argparse
 import os
 
 import pinneapple_lab
+from pinneapple_systems.digital_twin.benchmark import list_benchmark, twin_benchmark
 from pinneapple_systems.digital_twin.end_to_end import end_to_end_twin
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -59,7 +60,9 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", choices=("usgs", "synthetic"), default="usgs",
                     help="the river case: the live USGS gauge, or the labelled synthetic recession")
-    ap.add_argument("--only", choices=("both", "simulated", "river"), default="both")
+    ap.add_argument("--only", choices=("both", "simulated", "river", "benchmark"), default="both")
+    ap.add_argument("--no-benchmark", action="store_true",
+                    help="skip the twin benchmark (#57): six sections against the case's own truth")
     ap.add_argument("--members", type=int, default=200)
     ap.add_argument("--out", default=os.path.join(HERE, "_out"))
     a = ap.parse_args()
@@ -89,6 +92,20 @@ def main() -> None:
             label = "real USGS gauge" if src == "usgs" else "synthetic recession (SYNTHETIC)"
             _print_case(f"river ({label})", r)
 
+        bench = None
+        if (a.only in ("both", "simulated") or a.only == "benchmark") and not a.no_benchmark:
+            bench = twin_benchmark(quick=True, seed=0)
+            table = list_benchmark(bench)
+            print("\n" + table)
+            os.makedirs(a.out, exist_ok=True)
+            with open(os.path.join(a.out, "benchmark.md"), "w") as f:
+                f.write(table + "\n")
+            for section, verdict in bench["verdicts"].items():
+                ex.log_metric(f"benchmark.{section}", 0.0, "verdict", verdict)
+            ex.check("benchmark: every section measured", all(v in ("pass", "review", "partial", "not_measurable")
+                                                              for v in bench["verdicts"].values()),
+                     detail=", ".join(f"{k} {v}" for k, v in bench["verdicts"].items()), kind="verification")
+            ex.add_file(os.path.join(a.out, "benchmark.md"))
         for name, r in cases.items():
             o = r["origin"]
             ex.log_metric(f"{name}.readings", r["n_steps"], "readings", f"dt {o['dt']:.6g} {o['dt_unit']}")

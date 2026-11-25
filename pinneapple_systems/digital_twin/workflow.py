@@ -783,7 +783,8 @@ def digital_twin_workflow(*, model: str | StateSpaceModel = "thermal_plant", mod
            "cusum": {"k": cusum_k, "h": cusum_h, "arl0": cusum_arl0(cusum_k, cusum_h)},
            "nis": {"before": nis_pre, "after": nis_post}}
     if truth is not None:
-        out["truth"] = {"params": truth["params"][:n].tolist(), "drift": truth["drift"], "spike": truth["spike"]}
+        out["truth"] = {"params": truth["params"][:n].tolist(), "states": truth["states"][:n].tolist(),
+                        "drift": truth["drift"], "spike": truth["spike"]}
     final = filt.summary()
     out["final"] = {"theta": dict(zip(m.params, final["theta"].tolist(), strict=True)),
                     "theta_90": {p: [float(final["theta_lo"][i]), float(final["theta_hi"][i])]

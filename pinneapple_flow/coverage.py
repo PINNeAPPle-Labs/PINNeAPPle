@@ -265,6 +265,10 @@ REASONS: dict[str, str] = {
     "pinneapple_neural.physics_model": "the common PhysicsModel interface of #155: it is the type the five model "
                                        "families are, so a node uses it the way a node uses a dataclass, not as a "
                                        "computation of its own",
+    "pinneapple_neural.problem_backends": "a problem trained on PyTorch, JAX or PhysicsNeMo (#75): the training "
+                                          "itself is the 'pinn' method node (and pp.solve), which is what this "
+                                          "backend calls; what it adds is the choice of engine, the artifact and "
+                                          "the provenance, which the node already carries",
 }
 
 

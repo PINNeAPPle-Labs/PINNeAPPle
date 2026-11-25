@@ -427,7 +427,7 @@ class JaxProblemBackend(ProblemBackend):
         if array.ndim != 2 or array.shape[1] != len(self.problem.coords):
             raise ValueError(f"{self.name}: x must be (N, {len(self.problem.coords)}), got {array.shape}")
         y = np.asarray(jax_forward(self._params, array))
-        return Prediction(mean=torch.as_tensor(y, dtype=torch.float32))
+        return Prediction(mean=torch.as_tensor(np.array(y, dtype=np.float32, copy=True)))
 
     def save(self, path: str | Path) -> Path:
         """An ``.npz`` with one entry per parameter array plus ``function``, which is the ``jax`` door's format."""

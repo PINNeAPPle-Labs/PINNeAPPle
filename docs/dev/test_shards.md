@@ -2,7 +2,7 @@
 
 The wide suite blocks in the parts that have been measured green, and says why the rest does not. `python scripts/tier_shards.py --check` is the gate; the pull-request job runs `--run-blocking`.
 
-**Blocking: 11 of 23 shards · tests covered: 804 files.**
+**Blocking: 11 of 23 shards · tests covered: 805 files.**
 
 ## Blocking (every pull request runs these)
 
@@ -15,7 +15,7 @@ The wide suite blocks in the parts that have been measured green, and says why t
 | `models` | `tests/pinneapple_models` | 2026-11-20: 1 passed in 5.22s (7.4 s wall) |
 | `neural` | `tests/pinneapple_neural` | 2026-11-20: 126 passed in 53.06s (56.0 s wall) |
 | `physics` | `tests/pinneapple_physics`, `tests/test_physical_problem_consumers.py`, `tests/test_physical_problem_facade.py`, `tests/test_problem_spec_reconcile.py` | 2026-11-20: 116 passed, 1 skipped in 3.15s (4.2 s wall) |
-| `simulation` | `tests/pinneapple_simulation` | 2026-11-20: 15 passed, 1 skipped in 9.16s (11.9 s wall) |
+| `simulation` | `tests/pinneapple_simulation`, `tests/test_cfd_validation.py` | 2026-11-20: 15 passed, 1 skipped in 9.16s (11.9 s wall) |
 | `solvers` | `tests/pinneapple_solvers` | 2026-11-20: 4 passed in 60.04s (0:01:00) (62.3 s wall) |
 | `tools` | `tests/pinneapple_tools` | 2026-11-20: 40 passed, 1 skipped in 7.20s (9.4 s wall) |
 | `e2e` | `tests/e2e` | 2026-11-20: 11 passed in 10.93s (12.3 s wall) |

@@ -39,9 +39,13 @@ from .pde_environment.scales import ScaleSpec
 from .pde_environment.spec import PDETermSpec, ProblemSpec
 
 __all__ = ["Parameter", "Quantity", "Objective", "Constraint", "Fidelity", "PhysicalProblem",
-           "PARAMETER_ROLES"]
+           "PARAMETER_ROLES", "CONSTRAINT_FAMILIES"]
 
 PARAMETER_ROLES = ("fixed", "design", "uncertain", "unknown")
+
+#: the six kinds of limit #221 names, plus ``""`` for a constraint written before the vocabulary existed. The label
+#: travels with the constraint into training, the optimizer and the deployment guard; it never changes the arithmetic.
+CONSTRAINT_FAMILIES = ("", "physical", "conservation", "operational", "material", "actuator", "safety")
 
 
 # --------------------------------------------------------------------------- building blocks
@@ -127,10 +131,22 @@ class Objective:
 
 @dataclass
 class Constraint:
-    """A limit the answer has to satisfy: a bound on a quantity, or an expression over parameters (#151).
+    """A limit the answer has to satisfy: a bound on a quantity, or an expression over parameters (#151, #221).
 
     ``kind="bound"`` uses ``quantity``/``op``/``value``; ``kind="expression"`` uses ``expression`` (free text, the
     same form the elicited description and the design-of-experiments ``ParameterSpace`` already accept).
+
+    ``family`` says **what kind of limit** it is -- ``"physical"`` (a physical limit: a temperature or a yield
+    stress), ``"conservation"`` (a conserved total), ``"operational"`` (a derating or an operating envelope),
+    ``"material"``, ``"actuator"`` (a stroke or a rate) or ``"safety"`` -- and ``""`` leaves it unlabelled for the
+    constraints that predate the vocabulary. The family does not change how the limit is *checked*: that is the
+    point of #221, one object and one arithmetic applied in training, in an optimizer and in a deployment guard
+    (:mod:`pinneapple_physics.constraint_engine`). It is the label the report groups by, the optimizer names its
+    constraint with, and the guard puts in its refusal.
+
+    ``weight`` scales the penalty the constraint contributes during training, and ``hard`` says whether a violation
+    is fatal: a hard constraint stops a deployment and rejects a design, a soft one is reported and penalised but
+    lets the answer through.
     """
     name: str
     kind: str = "bound"              # bound | expression
@@ -140,10 +156,19 @@ class Constraint:
     expression: str = ""
     unit: Optional[str] = None
     description: str = ""
+    # -- #221: what kind of limit this is, and how it is paid for and enforced -------------------------------
+    family: str = ""                 # physical | conservation | operational | material | actuator | safety | ""
+    weight: float = 1.0              # penalty coefficient during training
+    hard: bool = True                # a violation is fatal for a deployment / rejects a design
 
     def __post_init__(self) -> None:
         if self.kind not in ("bound", "expression"):
             raise ValueError(f"constraint {self.name!r}: kind must be bound or expression, got {self.kind!r}")
+        if self.family not in CONSTRAINT_FAMILIES:
+            raise ValueError(f"constraint {self.name!r}: family must be one of {CONSTRAINT_FAMILIES} "
+                             f"(or '' for unlabelled), got {self.family!r}")
+        if not float(self.weight) > 0:
+            raise ValueError(f"constraint {self.name!r}: weight must be positive, got {self.weight}")
         if self.kind == "bound":
             if self.op not in ("<=", ">=", "=="):
                 raise ValueError(f"constraint {self.name!r}: op must be <=, >= or ==, got {self.op!r}")

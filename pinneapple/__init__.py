@@ -356,6 +356,18 @@ try:
 except Exception:  # pragma: no cover
     pass
 
+# One constraint object, applied in training, in an optimizer and in a deployment guard (#221)
+try:
+    from pinneapple_physics.constraint_engine import (
+        ConstraintCheck,
+        ConstraintGuard,
+        ConstraintReport,
+        ConstraintViolation,
+        optimizer_constraints,
+    )
+except Exception:  # pragma: no cover
+    pass
+
 # Streamline / isosurface post-processing (Feature 17)
 try:
     from pinneapple_neural.predictor import (
@@ -880,6 +892,9 @@ __all__ = [
     "DragObjective", "ThermalEfficiencyObjective", "StructuralObjective",
     "WeightMinimizationObjective", "CompositeObjective",
     "BoxConstraint", "MassConservationConstraint", "ConstraintSet",
+    # One constraint object applied in training, in an optimizer and in a deploy guard (X34, #221)
+    "Constraint", "ConstraintCheck", "ConstraintReport", "ConstraintViolation", "ConstraintGuard",
+    "optimizer_constraints",
     "DesignOptimizerConfig", "ParetoFront", "compute_pareto_front",
     "PINNRefinement",
     # Benchmark suite

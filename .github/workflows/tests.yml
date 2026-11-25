@@ -25,7 +25,10 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry,brep,distributed]"
           pip install pytest datasets
-          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+          # calculix-ccx too: the runner has Docker but no CalculiX, and the environment verdict accepts the bundled
+          # image, so without a binary the beam template below is offered and then has no `ccx` to run. Tier C
+          # installs the same package for the CalculiX bridge.
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb calculix-ccx
 
       - name: App runtime and data contracts (must pass)
         run: |

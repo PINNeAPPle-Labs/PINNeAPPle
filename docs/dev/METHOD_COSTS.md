@@ -51,9 +51,9 @@ A wall time without its machine cannot be compared with anything, so it travels 
 | `cuda` | False |
 | `memory_bytes` | 17179869184 |
 
-Measured at `2026-11-25T02:34:00+00:00` on commit `b07f48db0`.
+Measured at `2026-11-25T13:41:40+00:00` on commit `556c526b6`.
 
-## Measured (17 of 216)
+## Measured (29 of 216)
 
 Each `id` is the key of that method's record in `pinneapple_catalog/method_costs.json`, where the per-size
 times with their interquartile range live.
@@ -64,72 +64,74 @@ times with their interquartile range live.
 | **S2** | Finite elements (linear) + nonlinear beam FEM | pinneapple_simulation.numerical_solvers.fem.FEMSolver.solve_from_spec (Q1 assembly of a Poisson case, then 50 CG iterations) | n (elements per side) | 8, 12, 16 | 2.80 | [2.32, 3.37] | 0.877 | n^2 | worse than declared | 803.7 ms | 368.9 KiB | — (not countable) |
 | **S3** | Finite volumes | pinneapple_simulation.numerical_solvers.fvm.FVMSolver.forward (explicit Euler, 20 steps of a 2-D heat case) | n (cells per side) | 64, 128, 256, 512 | 1.49 | [1.10, 1.67] | 0.970 | n^2 | better than declared | 20.5 ms | 44.0 MiB | — (not countable) |
 | **S4** | Spectral (Fourier pseudo-spectral) | pinneapple_simulation.numerical_solvers.spectral.poisson_periodic_fft | n (grid points per side, periodic square) | 64, 128, 256, 512 | 1.53 | [1.33, 2.59] | 0.941 | n^2 | consistent | 2.8 ms | 20.0 MiB | 491,520 (dispatch_counter) |
+| **S7** | Meshfree RBF collocation (Kansa) | pinneapple_simulation.numerical_solvers.meshfree.RBFCollocationSolver.forward (Gaussian Kansa collocation of a Poisson case: the dense RBF solve) | n (collocation points on a square grid) | 100, 400, 900, 1600 | 2.46 | [2.28, 2.56] | 0.947 | — | undeclared | 170.8 ms | 156.3 MiB | — (not countable) |
 | **S9** | Discrete-time PINN / implicit Runge-Kutta Gauss-Legendre | pinneapple_simulation.numerical_solvers.discrete_time_pinn.DiscreteTimePINNSolver (one implicit step, trained to a fixed iteration cap) | n (iterations of the implicit step, q = 32 fixed) | 5, 10, 20, 40 | 0.56 | [0.45, 0.63] | 0.792 | n | better than declared | 824.1 ms | 1.2 MiB | 35,257,728 (flop_counter) |
 | **S11** | TVD advection | pinneapple_simulation.numerical_solvers.tvd_advection.tvd_advection_rhs (one second-order TVD upwind evaluation of df/dt) | n (1-D grid points) | 65536, 262144, 1048576, 4194304 | 1.25 | [1.08, 1.35] | 0.998 | n | consistent | 24.0 ms | 192.0 MiB | — (not countable) |
 | **S13** | Beam BVP FDM / 3D elasticity FDM | pinneapple_simulation.numerical_solvers.beam_bvp_fdm.BeamBVPFDMSolver.forward | n (1-D grid points along the beam) | 200, 400, 800, 1600 | 1.36 | [0.22, 2.13] | 0.994 | n | consistent | 14.1 ms | 947.7 KiB | — (not countable) |
+| **S14** | Eddy current FDM | pinneapple_simulation.numerical_solvers.eddy_current_fdm.solve_axisymmetric_eddy_current (one complex Helmholtz solve on a coil/material field set) | n (grid points per side) | 24, 48, 96 | 1.98 | [0.92, 3.66] | 0.999 | — | undeclared | 179.7 ms | 6.7 MiB | — (not countable) |
 | **S15** | Bekker-Wong terramechanics | pinneapple_simulation.numerical_solvers.bekker_wong.BekkerWongSolver.forward | n (slip ratios evaluated in one call) | 256, 512, 1024, 2048 | 0.54 | [-0.09, 1.13] | 0.784 | n | consistent | 22.1 ms | 8.5 MiB | — (not countable) |
+| **S18** | Particle dynamics: rigid body, MPM, molecular dynamics | pinneapple_simulation.particle_dynamics.molecular_dynamics.MolecularDynamicsSimulator.step (the molecular-dynamics member of the rigid body / MPM / MD family: one velocity-Verlet step of a Lennard-Jones gas) | n (particles) | 256, 1024, 4096 | 2.53 | [2.46, 2.63] | 0.993 | n^2 | worse than declared | 174.7 ms | 576.1 MiB | — (not countable) |
 | **S19** | Signal decomposition: CEEMDAN, EEMD, VMD, HHT, SSA, SST, STL, FFT, wavelet | pinneapple_simulation.numerical_solvers.fft.FFTSolver.forward (the FFT member of the family) | n (signal samples) | 65536, 262144, 1048576, 2097152 | 1.36 | [0.98, 1.56] | 0.947 | n log n | consistent | 62.0 ms | 24.0 MiB | 2,621,440 (dispatch_counter) |
 | **S26** | 2D shallow-water finite volumes (MUSCL + HLL, wet/dry, walls, gates, virtual sensors, health checks) | pinneapple_simulation.numerical_solvers.shallow_water_fv.ShallowWater2D (one step) | n (cells per side) | 64, 128, 256, 512 | 1.87 | [1.40, 2.25] | 0.981 | n^2 | consistent | 130.3 ms | 103.1 MiB | — (not countable) |
 | **S27** | ETDRK4 exponential integrator for stiff semilinear PDEs (contour phi-functions, blow-up guard) | pinneapple_simulation.numerical_solvers.etdrk4.ETDRK4 (one step of the stiff semilinear problem) | n (points on the periodic grid) | 512, 1024, 2048, 4096 | 1.01 | [0.85, 1.23] | 0.992 | n log n | consistent | 212.8 µs | 321.1 KiB | — (not countable) |
 | **S28** | Stable fluids 2D (semi-Lagrangian advection, spectral projection, vorticity confinement) | pinneapple_simulation.numerical_solvers.stable_fluids.StableFluids2D (one full step) | n (cells per side) | 64, 128, 256, 512 | 2.49 | [2.35, 2.64] | 0.988 | n^2 | worse than declared | 75.8 ms | 38.0 MiB | — (not countable) |
+| **S29** | 2-D A_z magnetostatics, P1 FEM with Newton (nonlinear B-H, magnets, (anti-)periodic constraints) | pinneapple_simulation.electromagnetics.electrostatics.solve_magnetostatic (P1 FEM assembly and solve of a rectangular A_z magnetostatics mesh) | n (mesh points per side) | 16, 32, 48, 64 | 3.31 | [2.27, 3.62] | 0.952 | n^2 | worse than declared | 53.2 ms | 5.0 MiB | — (not countable) |
+| **S32** | 2-D electrostatics, P1 FEM (capacitance from field energy) | pinneapple_simulation.electromagnetics.electrostatics.solve_electrostatic (P1 FEM solve of a rectangular electrostatic mesh) | n (mesh points per side) | 16, 32, 48, 64 | 2.49 | [1.48, 3.09] | 0.903 | n^2 | consistent | 7.8 ms | 4.6 MiB | — (not countable) |
 | **S33** | Biot-Savart integration of straight filament segments, loop and solenoid fields | pinneapple_simulation.electromagnetics.statics.infinite_wire_B | n (field points) | 16384, 65536, 262144, 1048576 | 1.32 | [1.23, 1.38] | 0.964 | n | worse than declared | 8.4 ms | 40.0 MiB | — (not countable) |
 | **S34** | Mie series for dielectric and perfectly conducting spheres | pinneapple_simulation.electromagnetics.mie.mie | x (size parameter; the series needs ~x + 4x^(1/3) terms) | 50, 200, 800, 3200 | 1.02 | [0.67, 1.28] | 0.898 | n | consistent | 1.4 ms | 458.7 KiB | — (not countable) |
 | **S35** | Fresnel coefficients and characteristic matrices of planar multilayers | pinneapple_simulation.electromagnetics.waves.multilayer | n (layers in the stack) | 16, 64, 256, 1024 | 1.28 | [1.03, 1.36] | 0.977 | n | consistent | 5.3 ms | 3.4 KiB | — (not countable) |
+| **S36** | Jiles-Atherton hysteresis model (RK4 along an applied field path) | pinneapple_simulation.electromagnetics.hysteresis.JilesAtherton.major_loop (RK4 along a two-cycle applied-field path) | n (field points per branch) | 64, 128, 256 | 0.91 | [0.59, 1.38] | 1.000 | n | consistent | 1.13 s | 25.8 KiB | — (not countable) |
+| **S37** | Dispersive media (Drude, Lorentz, Debye) and their auxiliary-differential-equation coefficients | pinneapple_simulation.electromagnetics.media.Medium.eps_r (Drude and Lorentz pole sums over a frequency vector) | n (frequencies evaluated) | 16384, 65536, 262144, 1048576 | 1.63 | [1.40, 1.75] | 0.960 | n | worse than declared | 105.2 ms | 64.0 MiB | — (not countable) |
+| **S38** | Maxwell physics checks of predicted fields (Gauss, Faraday, Ampere-Maxwell, continuity, Poynting, interfaces, reciprocity, passivity) | pinneapple_physics.maxwell_checks.gauss_magnetic (the divergence check over every interior face of a uniform 3-D field) | n (grid points per side) | 16, 32, 48, 64 | 3.90 | [2.81, 4.29] | 0.959 | n^3 | consistent | 26.8 ms | 16.0 MiB | — (not countable) |
+| **S40** | Yee FDTD in 1-D/2-D/3-D (CPML, Courant check, Drude/Lorentz/Debye ADE, PEC/PMC/periodic/Bloch, TF/SF plane waves, DFT monitors, sub-cell averaging) | pinneapple_simulation.electromagnetics.fdtd.FDTD.run (20 Yee steps of a 3-D box with a soft Ez source; no PML, so the step count alone sets the cost) | n (cells per side) | 16, 24, 32, 40 | 1.74 | [0.96, 3.66] | 0.935 | — | undeclared | 225.0 ms | 7.8 MiB | — (not countable) |
+| **S42** | First-passage times: crossing, Kaplan-Meier, SDE Monte Carlo with Brownian bridge, Fokker-Planck survival from a PDE solution | pinneapple_analysis.dynamics.first_passage.FirstPassageAnalyzer.monte_carlo (Brownian paths to a threshold, fixed dt) | n (simulated paths) | 500, 2000, 8000 | 0.46 | [0.35, 0.74] | 0.997 | n | better than declared | 198.4 ms | 1.3 MiB | — (not countable) |
 | **S43** | Dimensional analysis: exact Buckingham pi groups, homogeneity checks, curve collapse | pinneapple_analysis.dynamics.dimensional.BuckinghamPiAnalyzer.analyze (pi groups by Rayleigh's method over n quantities, in exact Fractions) | n (quantities in the analysis) | 8, 12, 16, 20 | 2.38 | [0.89, 4.10] | 0.893 | n^3 | consistent | 189.1 ms | 638.4 KiB | — (not countable) |
+| **S46** | Koopman operator from data: exact / TLS DMD, EDMD, generator EDMD, ResDMD residuals | pinneapple_analysis.dynamics.koopman.DMD.fit (rank-8 exact DMD of a 32-state damped linear trajectory) | n (snapshots) | 2048, 8192, 32768 | 1.39 | [1.34, 1.47] | 0.975 | n | worse than declared | 156.2 ms | 52.0 MiB | — (not countable) |
 | **T1** | Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler | pinneapple_neural.trainer.trainer.Trainer.fit (one epoch of a 8-16-1 tanh MLP on CPU, batch 64) | n (training samples in the epoch) | 2048, 8192, 32768 | 0.55 | [0.52, 1.09] | 0.955 | n | consistent | 242.4 ms | 129.7 KiB | 1,245,184 (flop_counter) |
+| **T22** | Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, ensemble UQ, OOD score, fine-tuning) | pinneapple_neural.lpm.FourierEncoding.__call__ (the large-physics-model positional encoding over a point cloud) | n (query points) | 16384, 65536, 262144 | 1.08 | [0.91, 1.73] | 0.997 | n | consistent | 2.9 ms | 93.0 MiB | — (not countable) |
 
 The median time is the median over the sizes' medians, so it is the order of magnitude of one call, not one
 size; the per-size numbers (with the IQR) are in the JSON under `per_size`. The exponent is the log-log slope
 of time against `n` over the sizes listed, and `declared` is the complexity the probe says the method has,
 with `verdict` saying whether the fit agrees with it inside the interval.
 
-## Unmeasured (199 of 216)
+## Unmeasured (187 of 216)
 
 A closed set of blockers, so the gap can be counted and cannot be waved away:
 
 | blocker | methods | what it means |
 |---|---|---|
 | `definition` | 143 | an equation or a problem of the catalog: a description, not an executable; its cost belongs to the solver that discretizes it |
+| `instrument_overhead` | 1 | the probe exists and runs, but the memory instrument costs more than the work it measures: it serialises every operator, so a method whose step issues thousands of small ones cannot be profiled at a size that fits a laptop run |
 | `needs_cuda` | 3 | the entry point runs on a GPU (a CUDA kernel, or a package built on one); this machine has none |
 | `needs_external_solver` | 1 | the work happens in a program the repository only bridges to (OpenFOAM, FEniCS, ANSYS, MATLAB, Modelica, MuJoCo, NVIDIA Newton, PICT) |
-| `needs_input` | 30 | the entry point needs a configuration a probe cannot synthesize on its own (a mesh, a material set, a geometry, a dataset, a boundary set) |
+| `needs_input` | 16 | the entry point needs a configuration a probe cannot synthesize on its own (a mesh, a material set, a geometry, a dataset, a boundary set) |
 | `needs_optional_package` | 3 | the module needs a package that is not a dependency of the library (jax, rebound, warp, pysr) |
-| `not_a_single_operation` | 19 | the cost is set by a loop or an orchestration the caller writes, so there is no one call whose time is the method's |
+| `not_a_single_operation` | 20 | the cost is set by a loop or an orchestration the caller writes, so there is no one call whose time is the method's |
 
 | id | method | blocker | why there is no number |
 |---|---|---|---|
-| **S5** | Lattice Boltzmann D2Q9 / D3Q19 (+ Smagorinsky LES) | `needs_input` | the LBM needs a spec plus the number of steps to be meaningful; a fixed-step probe would measure the step count, not the method |
-| **S6** | SPH / ISPH / DFSPH | `needs_input` | SPH / ISPH / DFSPH are particle methods whose cost is set by the particle count and the time step; a probe here would need a settled configuration to be comparable |
-| **S7** | Meshfree RBF collocation (Kansa) | `needs_input` | the Kansa RBF solver runs from a ProblemSpec plus interior/boundary point sets |
+| **S5** | Lattice Boltzmann D2Q9 / D3Q19 (+ Smagorinsky LES) | `needs_input` | the LBM needs a grid big enough for one step's tensor work to outweigh the per-step operator overhead: a fixed-step probe timed 30 ms from 32 to 128 cells, which is the overhead and not the method, so there is no exponent to publish |
+| **S6** | SPH / ISPH / DFSPH | `instrument_overhead` | the SPH / ISPH / DFSPH step runs and scales (128 to 1536 particles took 0.14 to 2.5 s), but one 128-particle step costs 40 s under the torch profiler the memory figure comes from, so the study cannot finish: the number is missing because of the instrument, not because of the method |
 | **S8** | X-TFC (IVP, PDE, subdomains) | `not_a_single_operation` | X-TFC trains a network per call: its cost is a training budget, measured by the trainer probes (T*) |
-| **S10** | Stiff kinetics ODE | `not_a_single_operation` | rfk45 stiff kinetics: the module exposes the steppers per problem, no single entry point to time |
-| **S12** | Immersed boundary (FDM) | `needs_input` | immersed boundary wraps an FDM flow solve, so it needs the case's geometry and boundary set (S1 measures the FDM sweep underneath) |
-| **S14** | Eddy current FDM | `needs_input` | the eddy-current FDM needs a coil/material field set; the probe would measure the field builder |
+| **S10** | Stiff kinetics ODE | `not_a_single_operation` | the stiff integrator's cost is set by the steps the stiffness forces, not by the number of species: solve_stiff_reaction_network took the same ~50 ms from 8 to 128 species, so a fit here would report noise as an exponent |
+| **S12** | Immersed boundary (FDM) | `needs_input` | the immersed-boundary solve needs a case whose Poisson work outweighs the projection overhead: at a pinned iteration count, boxes from 12^3 to 28^3 moved from 120 to 210 ms (about n^0.5), so the probe was timing the setup, not the method |
 | **S16** | N-body (REBOUND) | `needs_optional_package` | nbody_rebound needs the REBOUND package, which is not installed here |
 | **S17** | JAX-CFD | `needs_optional_package` | JAX-CFD needs jax, which is not installed here |
-| **S18** | Particle dynamics: rigid body, MPM, molecular dynamics | `needs_input` | particle dynamics: MPM / rigid bodies / MD each need their own configuration |
 | **S20** | Co-simulation (graph + engine, algebraic loops by Tarjan SCC) | `not_a_single_operation` | co-simulation: the cost is the coupling graph the user builds, measured by the case itself |
 | **S21** | Digital twin state estimation: KF/EKF/UKF/EnKF, prognostics, signal reconstruction | `needs_input` | state estimation: cost is set by the state dimension and the number of steps of the run |
 | **S22** | 1D process components (pipe network, transient pipe, heat exchanger, valve, reaction, polytropic path, compressor map) | `not_a_single_operation` | 1-D process components: the network is user-built; no single operation to time |
 | **S23** | Explicit equation-system solver (evaluation order) | `not_a_single_operation` | explicit equation system: cost is the size of the system the user writes |
 | **S24** | External solvers: OpenFOAM, FEniCS, ANSYS/CFD formats, MATLAB, Modelica/FMI, MuJoCo, Genesis, TurboDesigner | `needs_external_solver` | external solvers (OpenFOAM, FEniCS, ANSYS, MATLAB, Modelica, MuJoCo) are not installed here |
 | **S25** | Causal telemetry conditioning (Hampel one-step, rate limit, first-order filter, gaps) | `not_a_single_operation` | telemetry conditioning: the cost is per-sample and dominated by the caller's loop |
-| **S29** | 2-D A_z magnetostatics, P1 FEM with Newton (nonlinear B-H, magnets, (anti-)periodic constraints) | `needs_input` | 2-D magnetostatics FEM needs a mesh and materials; measured through its validation case |
 | **S30** | Time-harmonic 2-D eddy currents (A_z, solid conductors with imposed net currents) | `needs_input` | time-harmonic eddy currents: same as S29 |
 | **S31** | Surface-PM machine model: Maxwell-stress and co-energy torque, cogging, back-EMF, losses | `needs_input` | surface-PM machine model: cost is set by the harmonic set of the run |
-| **S32** | 2-D electrostatics, P1 FEM (capacitance from field energy) | `needs_input` | 2-D electrostatics FEM: same as S29 |
-| **S36** | Jiles-Atherton hysteresis model (RK4 along an applied field path) | `needs_input` | Jiles-Atherton hysteresis: the cost is the applied-field path the user supplies |
-| **S37** | Dispersive media (Drude, Lorentz, Debye) and their auxiliary-differential-equation coefficients | `not_a_single_operation` | dispersive media: coefficient arithmetic, measured by the FDTD run that uses it |
-| **S38** | Maxwell physics checks of predicted fields (Gauss, Faraday, Ampere-Maxwell, continuity, Poynting, interfaces, reciprocity, passivity) | `needs_input` | Maxwell checks: cost is the field the user hands in |
 | **S39** | Density-based topology optimisation (SIMP, filter, projection, OC, MMA; compliance, thermal, Stokes-Brinkman, machine rotor) | `not_a_single_operation` | topology optimisation: the cost is iterations x cells, measured by each design study |
-| **S40** | Yee FDTD in 1-D/2-D/3-D (CPML, Courant check, Drude/Lorentz/Debye ADE, PEC/PMC/periodic/Bloch, TF/SF plane waves, DFT monitors, sub-cell averaging) | `needs_input` | Yee FDTD: cost is grid x steps; a probe would need a canonical case kept with the campaign |
 | **S41** | Near-to-far-field transform on a closed box (FDTD radiation patterns) | `needs_input` | the near-to-far transform runs on an FDTD box (see S40) |
-| **S42** | First-passage times: crossing, Kaplan-Meier, SDE Monte Carlo with Brownian bridge, Fokker-Planck survival from a PDE solution | `needs_input` | first passage: cost is the number of paths the user asks for |
 | **S44** | Fisher information, Cramer-Rao bounds and optimal experimental design (D/A/E/c, Fedorov exchange) | `needs_input` | Fisher information: needs a model and a design matrix from the caller |
 | **S45** | Early-warning indicators of critical slowing down (rolling variance / AC1, surrogate tests) | `not_a_single_operation` | early warning: per-window cost, dominated by the series length the user passes |
-| **S46** | Koopman operator from data: exact / TLS DMD, EDMD, generator EDMD, ResDMD residuals | `needs_input` | Koopman: needs snapshot data from the caller |
 | **S47** | NVIDIA Newton rigid-body solvers: XPBD, semi-implicit with penalty contacts, Featherstone, MuJoCo-Warp | `needs_cuda` | NVIDIA Newton needs the Warp stack and a GPU |
-| **S48** | Lid-driven cavity by vorticity-streamfunction (local, CPU/GPU-free engine for the PICT bridge) | `needs_input` | the PICT local solver needs the case's grid and boundary set |
+| **S48** | Lid-driven cavity by vorticity-streamfunction (local, CPU/GPU-free engine for the PICT bridge) | `needs_input` | the PICT local solver stops on max_steps rather than on the grid: a 16^2 and a 24^2 cavity both cost ~40 ms at the same step cap, so the wall time is the iteration count the caller passes, not the method's grid cost |
 | **S49** | PICT: differentiable multi-block PISO on a structured grid (external, CUDA) | `needs_cuda` | PICT needs CUDA |
 | **S50** | NVIDIA Warp kernels: warp.fem weak forms, reverse-mode tape, zero-copy torch buffers | `needs_cuda` | NVIDIA Warp kernels need the warp package and a GPU |
 | **T2** | Distributed: DDP, FSDP, SLURM, torchrun, PowerSGD | `not_a_single_operation` | DDP / FSDP / SLURM / torchrun: the cost is the number of ranks the job is launched with, not one process's call |
@@ -144,15 +146,14 @@ A closed set of blockers, so the gap can be counted and cannot be waved away:
 | **T11** | Inverse PINN (learnable physical parameters) | `needs_input` | the inverse PINN needs a data set to invert against |
 | **T12** | Gray-box + symbolic regression (PySR) | `needs_optional_package` | the gray-box path calls PySR, which is not installed here |
 | **T13** | Uncertainty: heteroscedastic, B-PINN, MC Dropout, deep ensembles | `not_a_single_operation` | heteroscedastic / B-PINN / MC-dropout / deep ensembles multiply the training cost by the number of samples or members |
-| **T14** | SINDy | `needs_input` | SINDy fits from a trajectory data set the caller provides |
+| **T14** | SINDy | `not_a_single_operation` | SINDy's STLSQ cost is set by the library size and its iteration cap, not by the sample count: trajectories of 2k to 32k samples all took ~3.5 ms, so a fit over samples would report overhead as an exponent |
 | **T15** | Adaptive hyperparameter sweep / architecture search (arena NAS) | `not_a_single_operation` | the sweep and architecture search run many training jobs: the cost is the number of trials |
 | **T16** | Noether trainer (research only) | `needs_input` | the Noether trainer needs a symmetry declaration and the residual it is applied to |
 | **T17** | Post-training advisor / audit | `not_a_single_operation` | the advisor and the audit read a finished run's history; there is no one call to time |
 | **T18** | Meta-learning: MAML, Reptile | `not_a_single_operation` | MAML / Reptile are an inner loop per task: the cost is tasks x inner steps |
 | **T19** | Transfer learning (freeze, adapters, parametric) | `needs_input` | transfer learning needs a source checkpoint and a target data set |
-| **T20** | Self-scaled quasi-Newton: BFGS / SSBFGS / SSBroyden (new, 2026-09-24) | `needs_input` | the self-scaled quasi-Newton methods need the objective and its gradient from the caller |
+| **T20** | Self-scaled quasi-Newton: BFGS / SSBFGS / SSBroyden (new, 2026-09-24) | `not_a_single_operation` | the self-scaled quasi-Newton step converges in one or two iterations whatever the parameter count is, so its cost is set by the caller's objective: a quadratic in 64, 256 and 1024 parameters all took 0.19 ms |
 | **T21** | Autoresearch loop (fixed-budget trials, keep/revert, random or LLM proposer) | `not_a_single_operation` | the autoresearch loop runs a budget of trials: the cost is the budget |
-| **T22** | Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, ensemble UQ, OOD score, fine-tuning) | `needs_input` | the large-physics-model blocks are sized by the field and the neighbourhood the caller builds |
 | **T23** | MultiAdam: per-loss-term Adam moments for multi-term PINN losses | `not_a_single_operation` | MultiAdam keeps per-term moments inside the training step, so its cost is a fraction of the backward pass T1 measures |
 | **E1** | Laplace | `definition` | equation definition: not an executable of its own, its cost belongs to the solver that discretizes it |
 | **E2** | Poisson | `definition` | equation definition: not an executable of its own, its cost belongs to the solver that discretizes it |

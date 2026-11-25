@@ -71,11 +71,6 @@ def read_comparison(path) -> dict[str, Any]:
     return d
 
 
-def _text(value) -> str:
-    """An npz holds strings as 0-d arrays of numpy strings; the report wants the Python string."""
-    return str(value.item()) if isinstance(value, np.ndarray) and value.ndim == 0 else str(value)
-
-
 def _best_field_method(plan, tables, pid) -> tuple[str | None, str]:
     """The case's field method with the lowest error on the metric that judges it, and, when there is none, why.
 
@@ -138,6 +133,11 @@ def select(plan, tables) -> dict[str, dict]:
     for pid, prob in plan.P.items():
         entry = {"problem": pid, "title": prob.title, "method": None, "method_title": "", "figure": None,
                  "npz": None, "instance": "", "metrics": None, "reason": ""}
+        declared = getattr(prob, "comparison_absent", "")     # the case says it has no planar field: that is the row
+        if declared:
+            entry["reason"] = declared
+            out[pid] = entry
+            continue
         mid, why = _best_field_method(plan, tables, pid)
         if mid is None:
             entry["reason"] = why
@@ -146,9 +146,8 @@ def select(plan, tables) -> dict[str, dict]:
         entry["method"], entry["method_title"] = mid, prob.method_title(plan.M[mid])
         path = _npz_path(plan, pid, mid)
         if not path.exists():
-            entry["reason"] = getattr(prob, "comparison_absent", "") or (
-                "no comparison field was stored with this run: it appears once the case is re-run at full budget "
-                f"({path.name})")
+            entry["reason"] = ("no comparison field was stored with this run: it appears once the case is re-run "
+                               f"at full budget ({path.name})")
             out[pid] = entry
             continue
         try:
@@ -180,7 +179,7 @@ def figures(plan, entries: dict[str, dict], fig_dir) -> list[str]:
         if not entry.get("npz") or not entry.get("metrics"):
             continue
         d = read_comparison(plan.ws.runs / entry["npz"])
-        quantity, unit = _text(d["quantity"]) or "field", _text(d["unit"])
+        quantity, unit = d["quantity"] or "field", d["unit"]
         c = compare_solutions(d["x"], d["y"], d["reference"], d["prediction"], quantity=quantity, unit=unit,
                               labels=("Reference", entry["method_title"]), coord_unit="",
                               suptitle=f"{entry['title']}: {entry['method_title']} against the reference",

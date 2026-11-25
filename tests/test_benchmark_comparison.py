@@ -91,9 +91,13 @@ def test_a_two_dimensional_case_gets_the_standard_figure_and_the_number_behind_i
 
 
 def test_a_one_dimensional_case_is_declared_instead_of_drawn(tmp_path):
-    """``burgers`` is a real case of the registry, and its field is a profile: the report prints its reason."""
+    """``burgers`` is a real case of the registry, its FNO row is a valid one, and its field is a profile: the report
+    prints the case's reason and draws nothing."""
     out = tmp_path / "b"
-    B.run(problems=["burgers"], methods=["fno"], out_dir=out, smoke=True, **FAST)
+    res = B.run(problems=["burgers"], methods=["fno"], out_dir=out, smoke=True, method_options=FNO_2D,
+                problem_options={"burgers": {"n_solve": 64, "n_out": 32}}, **FAST)
+    assert res._build()["tables"]["burgers"]["rows"]["fno"]["status"].startswith("pass")
+    assert (out / "runs" / "final__burgers__fno__L1.000__s0.json").exists(), "the run itself is a valid one"
     md = (out / "table.md").read_text()
     assert "## Field comparison (0 of 1 case(s))" in md
     assert "Cases with no comparison figure, and why:" in md
@@ -105,11 +109,44 @@ def test_a_one_dimensional_case_is_declared_instead_of_drawn(tmp_path):
 
 
 def test_the_case_with_the_lowest_field_error_is_the_one_drawn(tmp_path):
-    """The picture is of the case's best field model, not of whichever method comes first: a model that predicts
-    zeros scores worst and is left out."""
-    @B.register_method("flat")
-    class Flat(B.Method):
-        title = "Flat (zeros)"
+    """Two field methods, one that reproduces the reference and one that predicts zeros: the figure is of the first
+    -- the case's best on its own column -- and it is that method's stored field the report read. The two stubs make
+    the ranking exact, so the test does not depend on how far a real model got in one second."""
+    from pinneapple_analysis.benchmark.builtin.fields import FieldData
+    from pinneapple_analysis.benchmark.comparison import grid_coordinates, save_comparison
+    from pinneapple_analysis.cost import train_within_budget
+
+    @B.register_method("mirror")
+    class Mirror(B.Method):
+        """Predicts the reference exactly: the best a field method can do on any column."""
+        title = "Mirror (the reference itself)"
+
+        def supports(self, problem):
+            return isinstance(problem, B.FieldOperatorProblem)
+
+        def space(self, problem):
+            return {"lr": [1e-3]}
+
+        def train(self, problem, prepared, cfg, seed, budget, final=True, comparison_path=None, **_):
+            run = train_within_budget(lambda p: 1.0, budget, flops_per_step=1.0)
+            D = FieldData(prepared)
+            out = {"train": run.to_dict(), "infer_batch1": {"median_s": 1e-6}}
+            for split in (("val", "test", "ood") if final else ("val",)):
+                y = D.raw[f"{split}_y"]
+                out[split] = problem.scores(y, y)
+            if final:
+                y = D.raw["test_y"][0]
+                X, Y = grid_coordinates(y.shape)
+                save_comparison(comparison_path, y, y, x=X, y=Y, quantity="field", instance="test0")
+            return out
+
+        def architecture_checks(self, problem, prepared, cfg):
+            return [B.Check("forward shape", "architecture", f"{problem.id}/mirror", True)]
+
+    @B.register_method("zeros")
+    class Zeros(B.Method):
+        """Predicts a field of zeros: a relative L2 of exactly 1, which loses to anything that has learned."""
+        title = "Zeros"
 
         def supports(self, problem):
             return isinstance(problem, B.FieldOperatorProblem)
@@ -118,8 +155,6 @@ def test_the_case_with_the_lowest_field_error_is_the_one_drawn(tmp_path):
             return {"lr": [1e-3]}
 
         def train(self, problem, prepared, cfg, seed, budget, final=True, **_):
-            from pinneapple_analysis.benchmark.builtin.fields import FieldData
-            from pinneapple_analysis.cost import train_within_budget
             run = train_within_budget(lambda p: 1.0, budget, flops_per_step=1.0)
             D = FieldData(prepared)
             out = {"train": run.to_dict(), "infer_batch1": {"median_s": 1e-6}}
@@ -129,16 +164,17 @@ def test_the_case_with_the_lowest_field_error_is_the_one_drawn(tmp_path):
             return out
 
         def architecture_checks(self, problem, prepared, cfg):
-            return [B.Check("forward shape", "architecture", f"{problem.id}/flat", True)]
+            return [B.Check("forward shape", "architecture", f"{problem.id}/zeros", True)]
 
     out = tmp_path / "b"
-    B.run(problems=[_problem_2d("smooth2d_best")], methods=["fno", "flat"], out_dir=out, method_options=FNO_2D,
-          **FAST)
-    entry = json.loads((out / "summary.json").read_text())["comparison"]["smooth2d_best"]
-    assert entry["method"] == "fno" and entry["method_title"] == "FNO"
-    assert entry["npz"] == "final__smooth2d_best__fno__L1.000__s0.npz"
-    assert (out / "runs" / entry["npz"]).exists()
-    assert entry["metrics"]["l2_relative"] < 1.0, "the zeros model's relative L2 is 1 by construction"
+    B.run(problems=[_problem_2d("smooth2d_best")], methods=["mirror", "zeros"], out_dir=out, **FAST)
+    summary = json.loads((out / "summary.json").read_text())
+    entry = summary["comparison"]["smooth2d_best"]
+    assert entry["method"] == "mirror" and entry["method_title"] == "Mirror (the reference itself)"
+    assert entry["npz"] == "final__smooth2d_best__mirror__L1.000__s0.npz"
+    assert entry["metrics"]["l2"] == 0.0 and entry["metrics"]["l2_relative"] == 0.0
+    assert summary["tables"]["smooth2d_best"]["rows"]["zeros"]["cells"], "the zeros model was measured too"
+    assert (out / "figures" / "comparison_smooth2d_best.png").exists()
 
 
 def test_a_case_without_a_stored_field_says_so_instead_of_failing(tmp_path):

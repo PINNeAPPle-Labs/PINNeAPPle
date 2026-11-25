@@ -87,9 +87,9 @@ class Preset:
 #: the presets of the issue, keyed by ``kind``; the aliases at the bottom are what a caller naturally types
 PRESETS: dict[str, Preset] = {
     "external_aero": Preset(
-        "external_aero", ("cp", "pressure_coefficient", "p", "pressure", "pressure_pa"), "surface pressure", "-",
-        "pressure_coefficient", _DIVERGING, camera="hero", lines=True, slice=True,
-        note="surface field, streamlines and the wake slice when the result carries them"),
+        "external_aero", ("cp", "pressure_coefficient", "p", "pressure", "pressure_pa"),
+        "surface pressure coefficient Cp", "-", "pressure_coefficient", _DIVERGING, camera="product", lines=True,
+        slice=True, note="surface field, streamlines and the wake slice when the result carries them"),
     "internal_flow": Preset(
         "internal_flow", ("u", "velocity", "speed", "u_magnitude", "velocity_magnitude"), "velocity magnitude", "m/s",
         "velocity_magnitude", _SEQUENTIAL, background="studio", camera="product", slice=True, lines=True,

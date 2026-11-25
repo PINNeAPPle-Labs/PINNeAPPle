@@ -520,8 +520,8 @@ def render_html(data: dict[str, Any], *, theme: str = "light") -> str:
     h = data["header"]
     ttl = _esc(h["title"] or data["header"].get("id") or "Experiment")
     wall = h.get("wall_seconds")
-    wall_txt = "-" if wall is None else (f"{wall / 3600:.2f} h" if wall >= 3600 else
-                                        f"{wall / 60:.1f} min" if wall >= 60 else f"{wall:.1f} s")
+    wall_txt = ("not recorded" if not wall else f"{wall / 3600:.2f} h" if wall >= 3600 else
+                f"{wall / 60:.1f} min" if wall >= 60 else f"{wall:.1f} s")
     cost_txt = ("not priced (no rate given)" if not h.get("cost") else
                 f"US$ {h['cost']['usd']:.2f} at {h['cost']['rate']:.2f}/h")
     hw = h.get("hardware") or {}
@@ -718,8 +718,8 @@ def render_pdf(data: dict[str, Any], path: str, *, theme: str = "light") -> str:
     h = data["header"]
     story: list = [P(h["title"] or "Experiment", title), P(h.get("question") or "", sub)]
     wall = h.get("wall_seconds")
-    wall_txt = "-" if wall is None else (f"{wall / 3600:.2f} h" if wall >= 3600 else
-                                        f"{wall / 60:.1f} min" if wall >= 60 else f"{wall:.1f} s")
+    wall_txt = ("not recorded" if not wall else f"{wall / 3600:.2f} h" if wall >= 3600 else
+                f"{wall / 60:.1f} min" if wall >= 60 else f"{wall:.1f} s")
     hw = h.get("hardware") or {}
     hw_txt = ", ".join(x for x in (hw.get("cpu"), f"{hw.get('cpu_count')} cores" if hw.get("cpu_count") else "",
                                    hw.get("platform")) if x)
@@ -745,8 +745,9 @@ def render_pdf(data: dict[str, Any], path: str, *, theme: str = "light") -> str:
                 lo, hi = k["band"]
                 band = f"{_fmt(lo) if lo != float('-inf') else '-inf'} .. {_fmt(hi) if hi != float('inf') else 'inf'}"
             cells.append([Paragraph(f'<b>{_esc(k["name"])}</b>', small),
-                          Paragraph(f'<font size="13"><b>{_esc(_fmt(k["value"]))}</b></font> '
-                                    f'<font size="8" color="{s["muted"]}">{_esc(k.get("unit") or "")}</font>', body),
+                          Paragraph(f'<font size="13"><b>{_esc(_fmt(k["value"]))}</b></font>'
+                                    + (f' <font size="8" color="{s["muted"]}">{_esc(k["unit"])}</font>'
+                                       if str(k.get("unit") or "") not in ("", "-", "1") else ""), body),
                           P(band + (f" ({k['target']})" if k.get("target") else ""), small),
                           Paragraph(f'<font color="{_hx(ink_c)}"><b>{label}</b></font>', small)])
         half = (len(cells) + 1) // 2

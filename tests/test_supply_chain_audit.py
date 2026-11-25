@@ -137,6 +137,22 @@ def test_a_licence_that_disagrees_with_the_record_fails(project):
     assert any("numpy: docs/dev/dependency_licenses.json says 'BSD-3-Clause'" in p for p in problems)
 
 
+def test_another_release_of_a_dependency_is_not_called_a_licence_change(project):
+    """Two releases of one package spell the same licence differently -- pandas says "BSD License" in 3.0.5 and
+    "BSD-3-Clause" in 3.1.1. The record names the release it was read from, so another wheel here is not a
+    problem; the release the record names disagreeing with itself is."""
+    floors, licences = _records(supply_chain.declared(project),
+                                packages={"numpy": {"licence": "BSD-3-Clause",
+                                                    "version": "999.0.a-release-this-interpreter-lacks"}})
+    problems = _audit(project, floors, licences, installed={"numpy": "BSD License"})
+    assert not [p for p in problems if p.startswith("numpy: docs/dev/dependency_licenses.json says")]
+
+    licences["packages"]["numpy"]["version"] = supply_chain._version("numpy")
+    if licences["packages"]["numpy"]["version"]:
+        problems = _audit(project, floors, licences, installed={"numpy": "BSD License"})
+        assert any("numpy: docs/dev/dependency_licenses.json says" in p for p in problems)
+
+
 def test_a_core_dependency_may_not_be_unobserved(project):
     """tomli is core but carries a marker, so it is absent on 3.11+ and that is not a problem; numpy is not."""
     floors, licences = _records(supply_chain.declared(project), unobserved=("numpy", "tomli"))
@@ -150,6 +166,32 @@ def test_an_unreadable_licence_is_a_failure_not_an_assumption(project):
     problems = _audit(project, floors, licences,
                       installed={"numpy": "unknown (see the distribution's licence file)"})
     assert any("numpy: installed, but declares no machine-readable licence" in p for p in problems)
+
+
+def test_an_installed_dependency_with_no_readable_licence_is_not_called_absent(project, monkeypatch):
+    """`unobserved` means "not installed here"; an installed distribution that declares nothing is a different
+    fact, and a record that folds the two together reads as a claim nobody checked."""
+    declared = supply_chain.declared(project)
+    licences = {"numpy": "MIT", "plotly": "not installed"}
+    monkeypatch.setattr(supply_chain, "licence_of",
+                        lambda name: licences.get(name, "unknown (see the distribution's licence file)"))
+    record = supply_chain.record_licences(declared)
+    assert record["packages"]["numpy"]["licence"] == "MIT"
+    assert record["unobserved"] == ["plotly"]
+    assert set(record["unreadable"]) == {"tomli", "mujoco"}
+    assert supply_chain.coverage(declared, record)["unaccounted"] == 0
+    assert "Installed, but declaring no machine-readable licence" in supply_chain.markdown_table(record)
+
+
+def test_a_core_dependency_may_not_be_unreadable_but_an_extra_may(project):
+    floors, licences = _records(supply_chain.declared(project))
+    licences["unreadable"] = {"numpy": "unknown (see the distribution's licence file)",
+                              "plotly": "unknown (see the distribution's licence file)"}
+    del licences["packages"]["numpy"], licences["packages"]["plotly"]
+    problems = _audit(project, floors, licences)
+    assert any(p.startswith("numpy: a core dependency whose metadata declares no machine-readable licence")
+               for p in problems)
+    assert not any(p.startswith(("plotly:", "mujoco:", "tomli:")) for p in problems)
 
 
 # ---------------------------------------------------------------- the tree as it is

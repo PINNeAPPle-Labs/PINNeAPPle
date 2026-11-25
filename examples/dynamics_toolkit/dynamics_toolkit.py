@@ -38,6 +38,9 @@ from pinneapple_analysis.inverse_problems.forward import (  # noqa: E402
     Parameter,
 )
 from pinneapple_physics import ProblemBuilder  # noqa: E402
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FIG = os.path.join(HERE, "figures")

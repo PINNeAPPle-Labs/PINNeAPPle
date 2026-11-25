@@ -2,25 +2,15 @@
 # One path per line, relative to the repository root. A line goes when its file is migrated:
 #     python scripts/apply_house_theme.py <files> && python scripts/apply_house_theme.py --baseline
 # so this list only shrinks.
-examples/architectures/02_autoencoders.py
-examples/architectures/03_classical_ts.py
 examples/architectures/04_pinns.py
 examples/architectures/05_continuous.py
-examples/arena_pipelines/03_kovasznay_ns_benchmark.py
-examples/benchmark_suite/03_pinn_burgers_full_pipeline.py
 examples/benchmark_suite/04_digital_twin_flow.py
 examples/benchmark_suite/05_surrogate_deeponet_multifield.py
-examples/benchmark_suite/07_xtfc_1d_ode.py
 examples/benchmark_suite/08_hyperparameter_sweep_parallel.py
-examples/benchmark_suite/10_datacenter_digital_twin.py
-examples/benchmark_suite/11_problem_design_pipeline.py
-examples/benchmark_suite/14_physics_simulation_surrogate_workflow.py
 examples/biology/aorta_windkessel.py
 examples/biology/cardiac_activation_mapping.py
 examples/black_hole_weather/evaluate.py
 examples/carcrashnet_pole_impact/run.py
-examples/condensation_falsification/run.py
-examples/dynamics_toolkit/dynamics_toolkit.py
 examples/electrodynamics/10_pmsm_prius.py
 examples/electrodynamics/11_prius_drive.py
 examples/electrodynamics/13_prius_thermal.py

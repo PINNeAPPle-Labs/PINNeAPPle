@@ -597,12 +597,24 @@ def render_html(data: dict[str, Any], *, theme: str = "light") -> str:
     parts.append('<h2 id="figures">Figures</h2>')
     if hero_path and os.path.exists(hero_path):
         rel = os.path.relpath(hero_path, data["out"]).replace(os.sep, "/")
+        extra = []
+        for label, path in (("turntable", (hero.get("turntable") or {}).get("mp4")),
+                            ("glTF", hero.get("gltf")), ("viewer", hero.get("viewer"))):
+            if not path:
+                continue
+            full = path if os.path.isabs(path) else os.path.join(data["out"], path)
+            if os.path.exists(full):
+                if label == "viewer" and os.path.isdir(full):        # web_viewer returns the page itself
+                    full = os.path.join(full, "index.html")
+                href = os.path.relpath(full, data["out"]).replace(os.sep, "/")
+                extra.append(f'<a href="{_esc(href)}">{label}</a>')
         parts.append(f'<figure><img src="{_esc(rel)}" alt="{ttl}: studio hero render of the result, '
                      f'{_esc(hero.get("backend", "unknown"))} backend">'
                      f'<figcaption>Hero render ({_esc(hero.get("backend", "unknown"))}, '
                      f'{_esc(hero.get("field", {}).get("label", "") if isinstance(hero.get("field"), dict) else "")}'
                      f'): {_esc(hero.get("caption", "the same data as the 2-D figures, in three dimensions."))}'
-                     f'</figcaption></figure>')
+                     + (f'<br>{" · ".join(extra)}.' if extra else "")
+                     + "</figcaption></figure>")
     if data["figures"]:
         for f in data["figures"]:
             parts.append(f'<figure><img src="{_esc(f["path"])}" alt="{ttl}: {_esc(f["caption"])}">'

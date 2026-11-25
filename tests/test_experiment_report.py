@@ -164,11 +164,16 @@ def test_the_hero_render_of_the_studio_lands_in_the_report(tmp_path):
     with open(still, "wb") as fh:
         fh.write(bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010802000000907753"
                                "de0000000c4944415408d763f8ffff3f0005fe02fea735cd7c0000000049454e44ae426082"))
+    mp4 = os.path.join(out, "hero", "turntable.mp4")
+    with open(mp4, "wb") as fh:
+        fh.write(b"\x00\x00\x00\x18ftypmp42" + b"0" * 64)
     with open(os.path.join(out, "hero", "hero.json"), "w") as fh:
         json.dump({"schema": "pinneapple.hero/1", "backend": "cycles", "stills": {"1920x1080": still},
                    "field": {"label": "von Mises stress", "unit": "Pa"}, "warp": None,
+                   "turntable": {"mp4": mp4, "frames": 192, "fps": 24.0, "backend": "pyvista"},
                    "caption": "von Mises stress (Pa) on the beam, drawn at its own scale; cycles."}, fh)
     r = experiment_report(folder, out=out, pdf=False)
     page = open(r.html, encoding="utf-8").read()
     assert "hero/still_1920x1080.png" in page and "Hero render (cycles" in page
+    assert 'href="hero/turntable.mp4">turntable</a>' in page            # the clip is reachable from the page
     assert 'alt="Toy check: studio hero render' in page

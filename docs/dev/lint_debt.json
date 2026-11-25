@@ -1,17 +1,17 @@
 {
  "schema": "pinneapple.lint_debt/1",
- "recorded_at": "2026-11-25T02:43:03Z",
+ "recorded_at": "2026-11-25T15:26:14Z",
  "how": "ruff check . (selection from pyproject.toml), one count per file and rule",
- "total": 9480,
+ "total": 9479,
  "by_rule": {
-  "UP006": 1933,
-  "I001": 1736,
+  "UP006": 1928,
+  "I001": 1738,
   "E402": 1290,
   "E702": 1173,
   "UP045": 839,
-  "UP035": 576,
-  "B905": 367,
-  "F401": 236,
+  "UP035": 575,
+  "B905": 371,
+  "F401": 235,
   "F841": 197,
   "E731": 137,
   "UP037": 131,
@@ -2083,7 +2083,7 @@
   },
   "pinneapple/__init__.py": {
    "E402": 2,
-   "F401": 4,
+   "F401": 3,
    "F541": 1,
    "F841": 1,
    "I001": 26
@@ -2538,10 +2538,6 @@
   },
   "pinneapple_data/cae/foam.py": {
    "B905": 2
-  },
-  "pinneapple_data/cae/frd.py": {
-   "UP006": 5,
-   "UP035": 2
   },
   "pinneapple_data/cae/geometry.py": {
    "B905": 1
@@ -5569,6 +5565,11 @@
   "pinneapple_veriphysics/usecase.py": {
    "UP035": 1
   },
+  "pinneapple_veriphysics/validated_domain.py": {
+   "B905": 4,
+   "I001": 1,
+   "UP035": 1
+  },
   "pinneapple_veriphysics/validation_case.py": {
    "UP035": 1
   },
@@ -6418,6 +6419,9 @@
   "tests/test_validate_model_card.py": {
    "E402": 1,
    "F401": 2,
+   "I001": 1
+  },
+  "tests/test_veriphysics_validated_domain.py": {
    "I001": 1
   },
   "tests/test_xtfc_pde.py": {

@@ -148,7 +148,8 @@
    "ceiling": 0,
    "id": "veriphysics",
    "paths": [
-    "tests/pinneapple_veriphysics"
+    "tests/pinneapple_veriphysics",
+    "tests/test_veriphysics_validated_domain.py"
    ],
    "reason": "not measured green yet: see docs/dev/test_shards.md"
   },

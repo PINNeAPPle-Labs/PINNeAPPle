@@ -306,6 +306,29 @@ def do_cfdbench(out: str, root: str) -> None:
     _dump(os.path.join(out, "cfdbench.json"), got)
 
 
+def do_cfdbench_tube(out: str, root: str) -> None:
+    """#272: the CFDBench tube family held against the operating parameters its paper publishes (Table 3).
+
+    There is no table of answers for the tube — it is a water-air two-phase flow, and the paper scores its neural
+    operators against the archive's own fields — so this cannot put a column beside our numbers. What it can do is
+    establish that the cases on disk are the cases the paper says were generated, which is the part of the issue the
+    tube can support.
+    """
+    print(f"CFDBench tube, held against Table 3, loaded from {root}")
+    got = cfdbench.tube_against_table(root)
+    for entry in got["parameters"]:
+        print(f"  {entry['parameter']:<16} {len(entry['found']):>3} on disk / {len(entry['published']):>3} published"
+              f"  agrees: {entry['agrees']}")
+        if entry["published_but_absent"]:
+            print(f"      published, absent from the archive: {entry['published_but_absent']}")
+        if entry["present_but_unpublished"]:
+            print(f"      in the archive, not in the table:    {entry['present_but_unpublished']}")
+    print(f"  cases on disk: {got['cases']} against the published {got['cases_published']}")
+    for line in got["unreadable"]:
+        print(f"  unreadable: {line}")
+    _dump(os.path.join(out, "cfdbench_tube.json"), got)
+
+
 def _comparison(record: dict, out: str) -> list[dict]:
     """The one table the README prints: every method at every Reynolds number, on the same ruler.
 
@@ -357,7 +380,7 @@ def main(argv=None) -> int:
                     help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
     ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"],
                     choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn", "pinn-budget",
-                             "cfdbench"],
+                             "cfdbench", "cfdbench-tube"],
                     help="the parts to run; cfdbench is not in the default list because it needs the benchmark's own "
                          "786 MB archive unpacked, which this folder never fetches; pinn-budget trains one network per "
                          "budget, so it is long and asked for by name")
@@ -376,6 +399,8 @@ def main(argv=None) -> int:
                     help="the Reynolds number the budget sweep is run at (the cheapest column of the table)")
     ap.add_argument("--cfdbench", default=os.path.expanduser("~/cfdbench-data/cavity"),
                     help="where the CFDBench cavity archive was unzipped (never committed: 800 MB)")
+    ap.add_argument("--cfdbench-tube", default=os.path.expanduser("~/cfdbench-data/tube"),
+                    help="where the CFDBench tube archive was unzipped (never committed: 213 MB)")
     args = ap.parse_args(argv)
 
     os.makedirs(args.out, exist_ok=True)
@@ -402,6 +427,12 @@ def main(argv=None) -> int:
         do_pinn(args.out, args.re, args.cases, steps=args.pinn_steps)
     if "pinn-budget" in args.only:
         do_pinn_budget(args.out, args.budget_re, args.budgets, args.cases)
+    if "cfdbench-tube" in args.only:
+        if not os.path.isdir(args.cfdbench_tube):
+            print(f"the CFDBench tube archive is not at {args.cfdbench_tube}: unzip "
+                  f"{cfdbench.PROBLEMS['tube']} there, or point --cfdbench-tube at it", file=sys.stderr)
+            return 1
+        do_cfdbench_tube(args.out, args.cfdbench_tube)
     if "cfdbench" in args.only:
         if os.path.isdir(args.cfdbench):
             do_cfdbench(args.out, args.cfdbench)

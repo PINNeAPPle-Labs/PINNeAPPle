@@ -1,0 +1,229 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/cfd",
+ "title": "Classical CFD validation cases against their published tables",
+ "description": "The lid-driven cavity of Ghia, Ghia and Shin (1982), the backward-facing step of Armaly et al. (1983), the NASA TMR flat plate, a surrogate warm start and a low-fidelity ladder: each case is written as an OpenFOAM case, solved on a ladder of meshes and compared with the published table or, where the table is not transcribed, with itself and with an independent law. The numbers are in classical_cases/README.md and in classical_cases/results/*.json.",
+ "domain": "validation and benchmarks",
+ "methods": [
+  "OpenFOAM simpleFoam",
+  "grid convergence (Richardson / GCI)",
+  "proper orthogonal decomposition over Reynolds number"
+ ],
+ "modules": [
+  "pinneapple_simulation.cfd_validation",
+  "pinneapple_analysis.verification.convergence",
+  "pinneapple_design.aero.case",
+  "pinneapple_data.cae.foam",
+  "pinneapple_data.preflight.openfoam"
+ ],
+ "params": {
+  "cavity_reynolds": [
+   100,
+   400,
+   1000
+  ],
+  "cavity_meshes": [
+   32,
+   64,
+   128
+  ],
+  "residual_control": 1e-06,
+  "step_reynolds": [
+   100,
+   200,
+   400
+  ],
+  "step_cells_per_step_height": [
+   8,
+   16,
+   32
+  ],
+  "tmr_reynolds_per_unit_length": 5000000.0,
+  "warm_start_snapshot_reynolds": [
+   50,
+   100,
+   200,
+   300,
+   600,
+   800
+  ],
+  "warm_start_held_out": [
+   400,
+   1000
+  ],
+  "ladder_reynolds": 4000000.0,
+  "ladder_angles": [
+   0.0,
+   4.0,
+   8.0
+  ]
+ },
+ "scripts": [
+  "classical_cases/run_cases.py"
+ ],
+ "metrics": [
+  {
+   "name": "cavity_u_l2_relative_re100_128",
+   "value": 0.0056,
+   "unit": "1",
+   "how": "L2 of the measured u profile against Ghia (1982) Table I at 17 stations, over the RMS of the table, wall stations excluded; OpenFOAM v2606 simpleFoam, 128x128, residual 1e-6"
+  },
+  {
+   "name": "cavity_u_l2_relative_re1000_128",
+   "value": 0.0094,
+   "unit": "1",
+   "how": "same comparison at Re = 1000, 128x128 cells"
+  },
+  {
+   "name": "cavity_observed_order_re1000",
+   "value": 1.43,
+   "unit": "1",
+   "how": "Richardson extrapolation (Roache GCI) over the measured profiles at 32, 64 and 128 cells per side, refinement ratio 2"
+  },
+  {
+   "name": "cavity_gci_fine_re1000",
+   "value": 0.0338,
+   "unit": "1",
+   "how": "GCI of the 128x128 mesh from the same three-mesh study, safety factor 1.25"
+  },
+  {
+   "name": "step_x1_over_S_re400_32",
+   "value": 8.137,
+   "unit": "S",
+   "how": "reattachment length of the backward-facing step at Re = 400 from the sign change of the first-cell-row velocity, 32 cells per step height"
+  },
+  {
+   "name": "step_convergence_16_to_32_re200",
+   "value": 0.008,
+   "unit": "1",
+   "how": "relative change of x1/S from 16 to 32 cells per step height at Re = 200"
+  },
+  {
+   "name": "tmr_cf_extrapolated_spalart_allmaras",
+   "value": 0.002988,
+   "unit": "1",
+   "how": "Richardson-extrapolated skin friction at x = 0.97 on the NASA TMR flat plate, Re = 5e6, three grids refined by two, wallShearStress function object"
+  },
+  {
+   "name": "tmr_cf_extrapolated_komega_sst",
+   "value": 0.002687,
+   "unit": "1",
+   "how": "the same extrapolation with kOmegaSST; the 1/7-power law at the station is 0.002994"
+  },
+  {
+   "name": "tmr_observed_order_spalart_allmaras",
+   "value": 2.104,
+   "unit": "1",
+   "how": "apparent order of accuracy from the three grid levels"
+  },
+  {
+   "name": "warm_start_speedup_re400",
+   "value": 1.63,
+   "unit": "1",
+   "how": "wall time of the cold cavity run over the warm one at Re = 400, which the POD surrogate was not fitted on"
+  },
+  {
+   "name": "warm_start_speedup_re1000",
+   "value": 1.37,
+   "unit": "1",
+   "how": "same ratio at Re = 1000; the converged fields differ by 6.3e-4 relative in U"
+  },
+  {
+   "name": "ladder_spearman_cl_thin_airfoil",
+   "value": 1.0,
+   "unit": "1",
+   "how": "Spearman rank correlation of the three NACA 0012 designs by CL between the closed-form rung and the finest RANS level"
+  },
+  {
+   "name": "ladder_seconds_per_design_rans_fine",
+   "value": 79.64,
+   "unit": "s",
+   "how": "wall time of one RANS level at the fine resolution, simpleFoam kOmegaSST at Re = 4e6"
+  },
+  {
+   "name": "ladder_cl_error_abs_thin_airfoil",
+   "value": 0.0036,
+   "unit": "1",
+   "how": "mean absolute CL difference of thin-airfoil theory against the finest RANS level over NACA 0012 at alpha = 0, 4, 8 deg, Re = 4e6"
+  },
+  {
+   "name": "ladder_cl_error_abs_rans_coarse",
+   "value": 0.0238,
+   "unit": "1",
+   "how": "the same difference for the coarse RANS level (2624 cells, 20.3 s per design)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the transcribed tables are internally consistent (lid at u = 1, walls at rest, one centreline crossing)",
+   "passed": true,
+   "kind": "data"
+  },
+  {
+   "name": "a coarse cavity at Re = 100 agrees with Ghia to 2 % in u and 5 % in v",
+   "passed": true,
+   "kind": "reference"
+  },
+  {
+   "name": "refining the cavity mesh reduces the error against the table at Re = 400 and 1000",
+   "passed": true,
+   "kind": "reference"
+  },
+  {
+   "name": "the step reattaches and the length is converged to 1 % between the two finest meshes",
+   "passed": true,
+   "kind": "verification"
+  },
+  {
+   "name": "both turbulence models converge on the TMR plate with a GCI below 1 %",
+   "passed": true,
+   "kind": "verification"
+  },
+  {
+   "name": "a warm start saves iterations and converges to the same field as a cold start",
+   "passed": true,
+   "kind": "verification"
+  },
+  {
+   "name": "one transcribed station of the Re = 400 v column disagrees with the converged run and is recorded, not corrected",
+   "passed": true,
+   "kind": "note"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "classical_cases/results/reference.json",
+   "classical_cases/results/cavity.json",
+   "classical_cases/results/step.json",
+   "classical_cases/results/tmr_flat_plate.json",
+   "classical_cases/results/warm_start.json",
+   "classical_cases/results/ladder.json"
+  ]
+ },
+ "links": {
+  "guide": "examples/cfd/classical_cases/README.md",
+  "script": "examples/cfd/classical_cases/run_cases.py",
+  "pr": []
+ },
+ "references": [
+  "Ghia, Ghia and Shin (1982), J. Comput. Phys. 48(3), 387-411",
+  "Armaly et al. (1983), J. Fluid Mech. 127, 473-496",
+  "de Vahl Davis (1983), Int. J. Numer. Methods Fluids 3(3), 249-264",
+  "Roache (1994), ASME J. Fluids Eng. 116(3), 405-413",
+  "Obiols-Sales et al. (2020), CFDNet, ICS"
+ ],
+ "status": "curated",
+ "provenance": {
+  "source": "experiment()",
+  "created": "2026-11-24T21:40:00Z",
+  "seconds": 2600.0,
+  "environment": {
+   "python": "3.11",
+   "openfoam": "v2606",
+   "platform": "macOS arm64"
+  }
+ }
+}

@@ -112,7 +112,8 @@
    "id": "simulation",
    "measured": "2026-11-20: 15 passed, 1 skipped in 9.16s (11.9 s wall)",
    "paths": [
-    "tests/pinneapple_simulation"
+    "tests/pinneapple_simulation",
+    "tests/test_cfd_validation.py"
    ]
   },
   {

@@ -69,6 +69,11 @@
   "reason": "a pole-impact dataset of a bumper-beam coupon (seven design variables to the crashworthiness quantities, and the undeformed mesh plus the design vector to the displacement of every node at every frame), labelled by the library's explicit crash solver and then used to rank tabular and field surrogates on one campaign, with the design kept as a per-node channel so a held-out design can be asked about and its peak displacement scored. No node wraps a transient solver sweep followed by a model benchmark, so it runs from its script",
   "status": "not_convertible"
  },
+ "cfd": {
+  "domain": "validation and benchmarks",
+  "reason": "classical_cases/run_cases.py runs a validation campaign: three OpenFOAM meshes per Reynolds number (the lid-driven cavity of Ghia 1982, the backward-facing step, the NASA TMR flat plate), plus the surrogate warm-start benchmark and the low-fidelity ladder. Each case writes its own dictionaries, runs a solver for tens of minutes and reads the answer back as a profile compared with a published table; the artifact is the validation report, not a computation step, and the reference tables themselves need no solver",
+  "status": "not_convertible"
+ },
  "chain_of_whys": {
   "domain": "design reasoning",
   "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"

@@ -1,0 +1,193 @@
+{
+ "case": "armaly-1983",
+ "solver": "simpleFoam",
+ "scheme": "linearUpwind grad(U)",
+ "runs": [
+  {
+   "case": "armaly-1983",
+   "reynolds": 100.0,
+   "meshes": [
+    8,
+    16,
+    32
+   ],
+   "expansion_paper": 1.9423,
+   "reference": "not transcribed: the published curve is a figure (see the module docstring)",
+   "runs": [
+    {
+     "reynolds": 100.0,
+     "cells_per_step": 8,
+     "cells": 4160,
+     "iterations": 237,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 2.8175075584913825,
+     "u_min": -0.0689837324,
+     "residuals": {
+      "Ux": 3.681318478e-07,
+      "Uy": 9.803831774e-07,
+      "p": 1.462524185e-07
+     },
+     "note": ""
+    },
+    {
+     "reynolds": 100.0,
+     "cells_per_step": 16,
+     "cells": 17200,
+     "iterations": 700,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 2.825490016902216,
+     "u_min": -0.03391276532,
+     "residuals": {
+      "Ux": 2.286914494e-07,
+      "Uy": 9.960184857e-07,
+      "p": 8.524620317e-08
+     },
+     "note": ""
+    },
+    {
+     "reynolds": 100.0,
+     "cells_per_step": 32,
+     "cells": 68800,
+     "iterations": 2143,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 2.84892844008793,
+     "u_min": -0.01729915459,
+     "residuals": {
+      "Ux": 1.952270857e-07,
+      "Uy": 9.997795101e-07,
+      "p": 5.280482427e-08
+     },
+     "note": ""
+    }
+   ],
+   "wall_seconds": 0.0
+  },
+  {
+   "case": "armaly-1983",
+   "reynolds": 200.0,
+   "meshes": [
+    8,
+    16,
+    32
+   ],
+   "expansion_paper": 1.9423,
+   "reference": "not transcribed: the published curve is a figure (see the module docstring)",
+   "runs": [
+    {
+     "reynolds": 200.0,
+     "cells_per_step": 8,
+     "cells": 4160,
+     "iterations": 375,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 4.7508331049769135,
+     "u_min": -0.08567755112,
+     "residuals": {
+      "Ux": 9.942535997e-07,
+      "Uy": 9.290332029e-07,
+      "p": 4.562636627e-07
+     },
+     "note": ""
+    },
+    {
+     "reynolds": 200.0,
+     "cells_per_step": 16,
+     "cells": 17200,
+     "iterations": 888,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 4.830564083208869,
+     "u_min": -0.04128402428,
+     "residuals": {
+      "Ux": 9.984846141e-07,
+      "Uy": 6.807992276e-07,
+      "p": 1.635571926e-07
+     },
+     "note": ""
+    },
+    {
+     "reynolds": 200.0,
+     "cells_per_step": 32,
+     "cells": 68800,
+     "iterations": 2406,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 4.8698686042461246,
+     "u_min": -0.02090991104,
+     "residuals": {
+      "Ux": 9.596202195e-07,
+      "Uy": 9.963632828e-07,
+      "p": 1.058809112e-07
+     },
+     "note": ""
+    }
+   ],
+   "wall_seconds": 0.0
+  },
+  {
+   "case": "armaly-1983",
+   "reynolds": 400.0,
+   "meshes": [
+    8,
+    16,
+    32
+   ],
+   "expansion_paper": 1.9423,
+   "reference": "not transcribed: the published curve is a figure (see the module docstring)",
+   "runs": [
+    {
+     "reynolds": 400.0,
+     "cells_per_step": 8,
+     "cells": 4160,
+     "iterations": 1016,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 7.42301053389771,
+     "u_min": -0.1068588039,
+     "residuals": {
+      "Ux": 1.859376154e-07,
+      "Uy": 3.616414563e-07,
+      "p": 9.962361593e-07
+     },
+     "note": ""
+    },
+    {
+     "reynolds": 400.0,
+     "cells_per_step": 16,
+     "cells": 17200,
+     "iterations": 1820,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 8.018456800030673,
+     "u_min": -0.04830350275,
+     "residuals": {
+      "Ux": 4.594216363e-07,
+      "Uy": 6.647865715e-07,
+      "p": 9.999004338e-07
+     },
+     "note": ""
+    },
+    {
+     "reynolds": 400.0,
+     "cells_per_step": 32,
+     "cells": 68800,
+     "iterations": 4251,
+     "converged": true,
+     "seconds": 0.0,
+     "x1_over_S": 8.136511032307808,
+     "u_min": -0.02426433622,
+     "residuals": {
+      "Ux": 6.890616645e-07,
+      "Uy": 9.988382838e-07,
+      "p": 9.249106789e-07
+     },
+     "note": ""
+    }
+   ],
+   "wall_seconds": 0.0
+  }
+ ]
+}

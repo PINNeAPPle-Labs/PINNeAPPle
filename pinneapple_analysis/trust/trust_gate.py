@@ -208,3 +208,38 @@ class TrustGate:
         wsum = sum(weights)
         combined = sum(p * w for p, w in zip(parts, weights, strict=True)) / wsum
         return TrustScore(combined=combined, ood_score=ood, residual_score=residual, ensemble_score=ens, details=details)
+
+
+    def authorize(
+        self,
+        model: Any,
+        x: torch.Tensor,
+        *,
+        residual_fn: Callable[..., torch.Tensor],
+        max_residual_rmse: float,
+        residual_kwargs: dict[str, Any] | None = None,
+    ) -> tuple[bool, tuple[str, ...]]:
+        """Strict batch authorization; no weighted score can override a veto.
+
+        Requires fitted OOD evidence and a finite physical residual. The
+        residual tolerance is in the units of the supplied residual.
+        Exceptions from a verifier propagate: callers must not consume
+        predictions when authorization cannot complete.
+        """
+        if not np.isfinite(max_residual_rmse) or max_residual_rmse < 0:
+            raise ValueError("max_residual_rmse must be finite and nonnegative")
+        reasons = []
+        if x.numel() == 0 or not bool(torch.isfinite(x).all()):
+            return False, ("empty or nonfinite input",)
+        if self._mean is None:
+            reasons.append("OOD reference missing")
+        else:
+            p = self.ood_p_values(x)
+            if not p.size or not np.all(p >= self.ood_level):
+                reasons.append("out-of-distribution input")
+        r = residual_fn(model, x, **(residual_kwargs or {}))
+        if r.numel() == 0 or not bool(torch.isfinite(r).all()):
+            reasons.append("empty or nonfinite physical residual")
+        elif float(torch.sqrt(r.double().square().mean()).item()) > max_residual_rmse:
+            reasons.append("physical residual exceeds tolerance")
+        return not reasons, tuple(reasons)

@@ -105,9 +105,14 @@
   "domain": "design",
   "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
  },
+ "digital_twin_end_to_end": {
+  "domain": "digital twin",
+  "reason": "the demo is the twin.workflow node run on records it fetches itself (a live USGS gauge through pinneapple_systems.digital_twin.io.usgs, or a labelled synthetic recession) plus the drift verdict of pinneapple_analysis.trust.drift on the residuals; the node's source is simulated/csv/connected stream, so a flow would need the USGS connector as a node of its own, and the run would depend on the network. tests/test_digital_twin_end_to_end.py runs the same paths offline with a recorded payload",
+  "status": "not_convertible"
+ },
  "digital_twin_library": {
   "domain": "digital twins",
-  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share \u2014 two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list \u2014 which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
+  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share — two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list — which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
  },
  "dynamics_toolkit": {
   "domain": "dynamical systems",
@@ -185,7 +190,7 @@
  },
  "granular_dem": {
   "domain": "process engineering",
-  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign \u2014 drum, charge, liner facets, a bonded agglomerate and its breakage \u2014 and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
+  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign — drum, charge, liner facets, a bonded agglomerate and its breakage — and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
   "status": "not_convertible"
  },
  "handoff_cases": {

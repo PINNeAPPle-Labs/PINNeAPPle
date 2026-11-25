@@ -4,13 +4,17 @@ forecast with intervals, what-if runs and a dashboard page.
 
 **Model.** A :class:`StateSpaceModel`: states, slow parameters, known inputs and measured outputs, with a batched
 step ``x' = step(x, u, theta, dt)`` and an observation ``y = observe(x, theta)``. Any library solver, formulated
-model, surrogate or zoo model wraps into one by writing those two functions; :func:`thermal_plant` is the built-in
-one (a lumped heated body, exact zero-order-hold discretisation of ``C dT/dt = Q - UA (T - T_amb)``).
+model, surrogate or zoo model wraps into one by writing those two functions; the built-ins are :func:`thermal_plant`
+(a lumped heated body, exact zero-order-hold discretisation of ``C dT/dt = Q - UA (T - T_amb)``),
+:func:`heated_channel` (two temperature sensors around a fouling wall conductance: the case of the twin benchmark,
+where one sensor can be lost) and :func:`linear_reservoir` (the baseflow recession a river gauge follows).
 
 **Data.** A simulated plant (the same model, with process noise, a known parameter drift and an injected sensor
 spike: the truth is known, so every check can be scored), a CSV replay (columns ``t``, the inputs, the outputs), or
-arrays (``{"t": [...], <input>: [...], <output>: [...]}``) from a live adapter (MQTT, OPC-UA, REST:
-:mod:`pinneapple_systems.digital_twin.io.stream`, the ``twin.connect`` node).
+arrays (``{"t": [...], <input>: [...], <output>: [...]}``) from a live adapter (MQTT, OPC-UA, REST, a public gauge:
+:mod:`pinneapple_systems.digital_twin.io.stream`, the ``twin.connect`` node). A reading that did not arrive is
+carried as a gap, never filled in: the members keep forecasting, nothing is assimilated, the drift chart does not
+move, and a recalibration window that contains a gap is refused rather than fitted.
 
 **Assimilation.** An ensemble Kalman filter of the states augmented with the logarithms of the slow parameters,
 which follow a random walk (positive parameters, slow drift tracked): the deterministic ensemble transform analysis
@@ -97,7 +101,74 @@ def thermal_plant(C: float = 2.0e4, T_amb: float = 20.0, UA: float = 50.0) -> St
         description=f"lumped heated body, C = {C:g} J/K, T_amb = {T_amb:g} degC, exact zero-order-hold step")
 
 
-MODELS: dict[str, Callable[..., StateSpaceModel]] = {"thermal_plant": thermal_plant}
+def heated_channel(C1: float = 1.2e3, C2: float = 2.4e3, H: float = 40.0, UA: float = 3.0, T_amb: float = 20.0,
+                   Q_nominal: float = 1500.0) -> StateSpaceModel:
+    """A heated channel with two temperature sensors (#57's twin case): an upstream node taking the heater power and
+    a downstream node losing heat to the ambient, coupled by the wall conductance ``H``::
+
+        C1 dT1/dt = Q - UA (T1 - T_amb) - H (T1 - T2)
+        C2 dT2/dt =            H (T1 - T2) - UA (T2 - T_amb)
+
+    ``H`` is the slow parameter (fouling of the channel walls lowers it). Two outputs, so a reading can be lost,
+    frozen or biased on one sensor and the other still reports: the case the twin benchmark scores. Explicit Euler,
+    the smallest time constant being ``C1 / (UA + H)`` = 28 s against ``dt`` = 1 s.
+    """
+
+    def step(x, u, theta, dt):
+        h = theta[:, 0]
+        t1, t2 = x[:, 0], x[:, 1]
+        q = float(u[0])
+        d1 = (q - UA * (t1 - T_amb) - h * (t1 - t2)) / C1
+        d2 = (h * (t1 - t2) - UA * (t2 - T_amb)) / C2
+        return np.column_stack([t1 + dt * d1, t2 + dt * d2])
+
+    def observe(x, theta):
+        return x[:, :2]
+
+    return StateSpaceModel(
+        name="heated_channel", states=["T1", "T2"], params=["H"], inputs=["Q"], outputs=["T1", "T2"], step=step,
+        observe=observe, nominal={"H": float(H)}, x0=[T_amb, T_amb], process_std=[0.01, 0.01],
+        sensor_std=[0.15, 0.15], state_range=[(T_amb - 20.0, T_amb + 300.0)] * 2,
+        units={"T1": "degC", "T2": "degC", "H": "W/K", "Q": "W"},
+        description=f"two-node heated channel, C1 = {C1:g} J/K, C2 = {C2:g} J/K, UA = {UA:g} W/K, "
+                    f"T_amb = {T_amb:g} degC, Q = {Q_nominal:g} W nominal, explicit Euler")
+
+
+def linear_reservoir(k_per_hour: float = 0.0035, q_reference: float = 1000.0, sensor_std: float | None = None,
+                     process_std: float | None = None) -> StateSpaceModel:
+    """A linear reservoir (first-order storage; the baseflow-recession model of hydrograph analysis)::
+
+        dQ/dt = -k (Q - Q_base)      exactly:  Q' = Q_base + (Q - Q_base) exp(-k dt)
+
+    ``k`` (1/h) is the slow parameter and ``Q_base`` the known inflow, so the twin assimilates a river gauge
+    (:mod:`pinneapple_systems.digital_twin.io.usgs`) with the same filter, alarms and recalibration as the thermal
+    cases. ``dt`` is in hours. The reading uncertainty of a gauge is not published per sample, so ``sensor_std``
+    is a stated assumption (2 % of ``q_reference`` by default), not a measurement: the benchmark's noise sweep
+    shows what it changes. The process noise is small (0.05 % per step) because the unmeasured inflow varies over
+    hours, not samples; a twin that cannot fit the recession shows it as a NIS above its band, which is the honest
+    reading of a model that does not describe the river.
+    """
+    q = float(q_reference)
+    rs = float(sensor_std if sensor_std is not None else 0.02 * q)
+    qs = float(process_std if process_std is not None else 0.0005 * q)
+
+    def step(x, u, theta, dt):
+        a = np.exp(-theta[:, 0] * dt)
+        return (float(u[0]) + (x[:, 0] - float(u[0])) * a)[:, None]
+
+    def observe(x, theta):
+        return x[:, :1]
+
+    return StateSpaceModel(
+        name="linear_reservoir", states=["Q"], params=["k"], inputs=["Q_base"], outputs=["Q"], step=step,
+        observe=observe, nominal={"k": float(k_per_hour)}, x0=[q], process_std=[qs], sensor_std=[rs],
+        state_range=[(0.01 * q, 100.0 * q)], units={"Q": "flow units", "k": "1/h", "Q_base": "flow units"},
+        description=f"linear reservoir, k = {k_per_hour:g} 1/h, reference flow {q:g}, exact zero-order hold")
+
+
+MODELS: dict[str, Callable[..., StateSpaceModel]] = {"thermal_plant": thermal_plant,
+                                                    "heated_channel": heated_channel,
+                                                    "linear_reservoir": linear_reservoir}
 
 
 def resolve_model(model: str | StateSpaceModel | Callable[..., StateSpaceModel],
@@ -185,11 +256,19 @@ def read_csv_record(path: str, model: StateSpaceModel) -> dict[str, Any]:
 # ---------------------------------------------------------------------------------------------- statistics
 
 
-def chi2_band(dof: int, n: int, level: float = 0.95) -> tuple[float, float]:
-    """Two-sided band of the mean of ``n`` independent chi-square(dof) values."""
+def chi2_band_total(dof_total: int, n: int, level: float = 0.95) -> tuple[float, float]:
+    """Two-sided band of the mean of ``n`` readings whose normalised innovation squares add up to a chi-square with
+    ``dof_total`` degrees of freedom: the general case, when some readings carry fewer sensors than others (the sum
+    of independent NIS is chi-square with the summed degrees of freedom, and the mean over ``n`` readings is that
+    divided by ``n``)."""
     from scipy.stats import chi2
     a = (1 - level) / 2
-    return float(chi2.ppf(a, dof * n) / n), float(chi2.ppf(1 - a, dof * n) / n)
+    return float(chi2.ppf(a, dof_total) / n), float(chi2.ppf(1 - a, dof_total) / n)
+
+
+def chi2_band(dof: int, n: int, level: float = 0.95) -> tuple[float, float]:
+    """Two-sided band of the mean of ``n`` independent chi-square(dof) values."""
+    return chi2_band_total(int(dof) * int(n), int(n), level)
 
 
 def cusum_arl0(k: float, h: float) -> float:
@@ -266,21 +345,32 @@ class TwinFilter:
         L = self.E[:, self.nx:] + self.walk * self.rng.standard_normal((self.N, self.np_))
         self.E = np.column_stack([X, L])
 
-    def innovation(self, y: np.ndarray) -> dict[str, Any]:
+    def innovation(self, y: np.ndarray, mask: np.ndarray | None = None) -> dict[str, Any]:
+        """``v``, ``S``, the NIS and the normalised innovations of one reading. ``mask`` selects the sensors that
+        reported (a lost, frozen or rejected reading is left out instead of being invented); the returned ``mean``
+        and ``std`` cover those sensors only."""
         hx = self.m.observe(self.E[:, :self.nx], self.theta)
+        y = np.asarray(y, float)
+        r = self.r
+        if mask is not None:
+            hx, y, r = hx[:, mask], y[mask], r[mask]
         mu = hx.mean(0)
-        S = np.atleast_2d(np.cov(hx.T, ddof=1)) + np.diag(self.r)
+        S = np.atleast_2d(np.cov(hx.T, ddof=1)) + np.diag(r)
         v = y - mu
         nis = float(v @ np.linalg.solve(S, v))
         z = v / np.sqrt(np.diag(S))
-        return {"hx": hx, "v": v, "S": S, "nis": nis, "z": z, "mean": mu, "std": np.sqrt(np.diag(S))}
+        return {"hx": hx, "v": v, "S": S, "nis": nis, "z": z, "mean": mu, "std": np.sqrt(np.diag(S)),
+                "mask": mask}
 
-    def analyse(self, y: np.ndarray, hx: np.ndarray) -> None:
+    def analyse(self, y: np.ndarray, hx: np.ndarray, mask: np.ndarray | None = None) -> None:
+        y, r = np.asarray(y, float), self.r
+        if mask is not None:
+            y, hx, r = y[mask], hx[:, mask], r[mask]
         if self.scheme == "stochastic":
             from pinneapple_analysis.state_estimation.kalman import enkf_analysis
-            self.E = enkf_analysis(self.E, y, hx, self.r, inflation=self.inflation, rng=self.rng)
+            self.E = enkf_analysis(self.E, y, hx, r, inflation=self.inflation, rng=self.rng)
             return
-        self.E = etkf_analysis(self.E, y, hx, self.r, inflation=self.inflation)
+        self.E = etkf_analysis(self.E, y, hx, r, inflation=self.inflation)
 
     def summary(self) -> dict[str, np.ndarray]:
         P = np.atleast_2d(np.cov(self.E.T, ddof=1))
@@ -305,7 +395,8 @@ def nees_monte_carlo(model: StateSpaceModel, plant_params: Mapping[str, float], 
         Y = np.column_stack([rec[k] for k in model.outputs])
         f = TwinFilter(model, members=members, param_walk=param_walk, x0=Y[0, :len(model.states)], seed=seed + r)
         for k in range(len(U)):
-            f.forecast(U[k], dt)
+            if k:                            # the first reading initialises the filter (see digital_twin_workflow)
+                f.forecast(U[k], dt)
             inn = f.innovation(Y[k])
             f.analyse(Y[k], inn["hx"])
             e = np.concatenate([tr["states"][k], np.log(tr["params"][k])]) - f.E.mean(0)
@@ -321,11 +412,13 @@ def nees_monte_carlo(model: StateSpaceModel, plant_params: Mapping[str, float], 
 
 
 def _window_tool(model: StateSpaceModel, U: np.ndarray, dt: float, output: int = 0):
-    """A keyword tool for the inverse workflow: the output at window step ``k`` of a deterministic run from initial
-    states ``x0_<state>`` with parameters ``<param>`` (the trajectory of one parameter set is cached)."""
+    """A keyword tool for the inverse workflow: the output at window step ``sample`` of a deterministic run from
+    initial states ``x0_<state>`` with parameters ``<param>`` (the trajectory of one parameter set is cached). The
+    index keyword is ``sample`` and not ``k``: a model parameter may well be called ``k`` (the recession constant of
+    a linear reservoir is), and two keyword arguments of the same name would collide."""
     cache: dict[tuple, np.ndarray] = {}
 
-    def tool(k: float, **kw):
+    def tool(sample: float, **kw):
         th = np.array([[float(kw[p]) for p in model.params]])
         x = np.array([[float(kw[f"x0_{s}"]) for s in model.states]])
         key = tuple(np.round(np.concatenate([th[0], x[0]]), 12))
@@ -339,7 +432,7 @@ def _window_tool(model: StateSpaceModel, U: np.ndarray, dt: float, output: int =
             if len(cache) > 4096:
                 cache.clear()
             cache[key] = traj
-        return {model.outputs[output]: float(traj[int(round(k))])}
+        return {model.outputs[output]: float(traj[int(round(sample))])}
     return tool
 
 
@@ -356,7 +449,7 @@ def recalibrate(model: StateSpaceModel, U: np.ndarray, Y: np.ndarray, dt: float,
         lo, hi = model.state_range[i] if i < len(model.state_range) else (-1e9, 1e9)
         x = float(np.clip(x_start[i], lo, hi))
         pars[f"x0_{s}"] = {"lower": lo, "upper": hi, "initial": x, "unit": model.units.get(s, "")}
-    meas = {"inputs": {"k": np.arange(len(Y)).astype(float).tolist()}, "values": np.asarray(Y, float)[:, 0].tolist(),
+    meas = {"inputs": {"sample": np.arange(len(Y)).astype(float).tolist()}, "values": np.asarray(Y, float)[:, 0].tolist(),
             "sigma": float(model.sensor_std[0])}
     return inverse_workflow(tool=tool, measurements=meas, output=model.outputs[0], parameters=pars,
                             holdout_fraction=0.2, bootstrap=bootstrap, n_recovery=n_recovery, seed=seed)
@@ -423,58 +516,100 @@ def digital_twin_workflow(*, model: str | StateSpaceModel = "thermal_plant", mod
     U = np.column_stack([np.asarray(rec[k], float) for k in m.inputs])
     Y = np.column_stack([np.asarray(rec[k], float) for k in m.outputs])
     n, ny = len(Y), Y.shape[1]
-    filt = TwinFilter(m, members=members, param_walk=param_walk, x0=Y[0, :len(m.states)] if ny >= len(m.states)
-                      else None, seed=seed)
+    # a record may open with missing readings: the filter starts at the first one that reported
+    first_ok = next((k for k in range(n) if np.all(np.isfinite(Y[k]))), 0)
+    filt = TwinFilter(m, members=members, param_walk=param_walk,
+                      x0=Y[first_ok, :len(m.states)] if ny >= len(m.states) and np.all(
+                          np.isfinite(Y[first_ok, :len(m.states)])) else None, seed=seed)
     rng = np.random.default_rng(seed + 7)
     trace: dict[str, list] = {k: [] for k in ("nis", "z", "y_mean", "y_std", "x", "theta", "theta_lo", "theta_hi",
-                                              "cusum_pos", "cusum_neg", "nees", "assimilated")}
+                                              "cusum_pos", "cusum_neg", "nees", "assimilated", "present")}
     events: list[dict[str, Any]] = []
     recals: list[dict[str, Any]] = []
+    gaps: list[dict[str, Any]] = []          # readings that did not arrive, per sensor
     gp = gn = 0.0
     run = 0
     pending: int | None = None               # step of the alarm whose recalibration window is being collected
     phase = np.zeros(n, int)                 # 0 before the first alarm, 1 while collecting, 2 after recalibration
     current = 0
+    u_last = None                            # the last input that arrived: held across a missing input reading
     for k in range(n):
-        filt.forecast(U[k], dt)
-        inn = filt.innovation(Y[k])
-        zmax = float(np.max(np.abs(inn["z"])))
-        run = run + 1 if zmax > anomaly_z else 0
-        # an isolated outlier; a longer run is a level change, and no reading is gated while an alarm's
-        # recalibration window is collected (the level is known to be moving)
-        anomalous = 0 < run < persist and pending is None
-        if anomalous:
-            events.append({"step": k, "t": float(rec["t"][k]), "kind": "anomaly",
-                           "detail": f"normalised innovation {zmax:.3g} > {anomaly_z:g}: reading flagged and not "
-                                     "assimilated"})
+        if not np.all(np.isfinite(U[k])):
+            if u_last is None:               # nothing to hold: the first input itself is missing
+                raise ValueError(f"step {k}: the input {dict(zip(m.inputs, U[k], strict=True))} is not finite and "
+                                 "there is no earlier value to hold")
+            U[k] = u_last
+        u_last = U[k]
+        if k:
+            filt.forecast(U[k], dt)
+        # the first reading initialises the filter instead of testing it: the ensemble starts at that reading, so
+        # forecasting first would compare a state one step ahead with the reading that produced it
+        mask = np.isfinite(Y[k])
+        present = np.nonzero(mask)[0]
+        if len(present) == 0:
+            # no reading arrived: the members keep forecasting, nothing is assimilated and the drift chart does not
+            # move (a gap is not evidence of a changed process). The state uncertainty grows with the process noise.
+            gaps.append({"step": k, "t": float(rec["t"][k]), "sensors": list(m.outputs)})
+            events.append({"step": k, "t": float(rec["t"][k]), "kind": "missing",
+                           "detail": f"no reading from {', '.join(m.outputs)}: the twin forecast across the gap and "
+                                     "assimilated nothing"})
+            inn = None
         else:
-            filt.analyse(Y[k], inn["hx"])
-        zc = float(np.clip(inn["z"][0], -anomaly_z, anomaly_z))   # one outlier moves the CUSUM by < anomaly_z - k
-        gp, gn = max(0.0, gp + zc - cusum_k), max(0.0, gn - zc - cusum_k)
-        if (gp > cusum_h or gn > cusum_h) and pending is None:
-            events.append({"step": k, "t": float(rec["t"][k]), "kind": "drift",
-                           "detail": f"CUSUM {'up' if gp > cusum_h else 'down'} {max(gp, gn):.3g} > {cusum_h:g}"})
-            pending, current = k + 1, 1
-            gp = gn = 0.0
+            if len(present) < ny:
+                gaps.append({"step": k, "t": float(rec["t"][k]),
+                             "sensors": [m.outputs[j] for j in range(ny) if not mask[j]]})
+            inn = filt.innovation(Y[k], None if len(present) == ny else present)
+            zmax = float(np.max(np.abs(inn["z"])))
+            run = run + 1 if zmax > anomaly_z else 0
+            # an isolated outlier; a longer run is a level change, and no reading is gated while an alarm's
+            # recalibration window is collected (the level is known to be moving)
+            anomalous = 0 < run < persist and pending is None
+            if anomalous:
+                events.append({"step": k, "t": float(rec["t"][k]), "kind": "anomaly",
+                               "detail": f"normalised innovation {zmax:.3g} > {anomaly_z:g}: reading flagged and not "
+                                         "assimilated"})
+            else:
+                filt.analyse(Y[k], inn["hx"], None if len(present) == ny else present)
+            zc = float(np.clip(inn["z"][0], -anomaly_z, anomaly_z))  # one outlier moves the CUSUM by < anomaly_z - k
+            gp, gn = max(0.0, gp + zc - cusum_k), max(0.0, gn - zc - cusum_k)
+            if (gp > cusum_h or gn > cusum_h) and pending is None:
+                events.append({"step": k, "t": float(rec["t"][k]), "kind": "drift",
+                               "detail": f"CUSUM {'up' if gp > cusum_h else 'down'} {max(gp, gn):.3g} > {cusum_h:g}"})
+                pending, current = k + 1, 1
+                gp = gn = 0.0
         s = filt.summary()
         if truth is not None:                # joint NEES of what the filter estimates: states and log parameters
             e = np.concatenate([truth["states"][k], np.log(truth["params"][k])]) - filt.E.mean(0)
             trace["nees"].append(float(e @ np.linalg.solve(np.atleast_2d(np.cov(filt.E.T, ddof=1)), e)))
-        trace["nis"].append(inn["nis"])
-        trace["z"].append(float(inn["z"][0]))
-        trace["y_mean"].append(float(inn["mean"][0]))
-        trace["y_std"].append(float(inn["std"][0]))
+        trace["nis"].append(np.nan if inn is None else inn["nis"])
+        trace["z"].append(np.nan if inn is None else float(inn["z"][0]))
+        trace["y_mean"].append(np.nan if inn is None else float(inn["mean"][0]))
+        trace["y_std"].append(np.nan if inn is None else float(inn["std"][0]))
         trace["x"].append(s["x"].tolist())
         trace["theta"].append(s["theta"].tolist())
         trace["theta_lo"].append(s["theta_lo"].tolist())
         trace["theta_hi"].append(s["theta_hi"].tolist())
         trace["cusum_pos"].append(gp)
         trace["cusum_neg"].append(gn)
-        trace["assimilated"].append(not anomalous)
+        trace["assimilated"].append(inn is not None and not anomalous)
+        trace["present"].append(int(mask.sum()))
         phase[k] = current
         if pending is not None and k + 1 - pending >= recalibration_window:
             a, b = pending, k + 1
             x_start = np.asarray(trace["x"][a - 1], float)
+            if not np.all(np.isfinite(Y[a:b])):
+                # the inverse workflow fits a complete window: a gap inside it is refused, not filled in
+                gaps_in_window = int(np.sum(~np.isfinite(Y[a:b]).all(axis=1)))
+                events.append({"step": k, "t": float(rec["t"][k]), "kind": "recalibration_refused",
+                               "detail": f"the recalibration window {a}-{b - 1} has {gaps_in_window} incomplete "
+                                         "reading(s): kept the parameters"})
+                recals.append({"alarm_step": a - 1, "window": [a, b],
+                               "result": {"estimate": None, "intervals": {}, "checks": [],
+                                          "reason": "incomplete recalibration window"}})
+                pending, current = None, 2
+                gp = gn = 0.0
+                phase[k] = current
+                continue
             r = recalibrate(m, U[a:b], Y[a:b], dt, x_start=x_start, theta_start=s["theta"],
                             bootstrap=bootstrap, n_recovery=n_recovery, seed=seed)
             item = {"alarm_step": a - 1, "window": [a, b], "result": r}
@@ -558,9 +693,11 @@ def digital_twin_workflow(*, model: str | StateSpaceModel = "thermal_plant", mod
             chk(code, None, f"{label}: {len(sel)} assimilated readings (< 10)")
             return None
         mean = float(np.mean(trace_np["nis"][sel]))
-        lo, hi = chi2_band(ny, len(sel))
+        # readings that arrived with fewer sensors carry fewer degrees of freedom: the band follows the total
+        dof_total = int(np.sum(trace_np["present"][sel])) or ny * len(sel)
+        lo, hi = chi2_band_total(dof_total, len(sel))
         chk(code, lo <= mean <= hi, f"{label}: mean NIS {mean:.3g} over {len(sel)} readings, 95 % chi-square band "
-                                    f"[{lo:.3g}, {hi:.3g}] ({ny} dof)", mean)
+                                    f"[{lo:.3g}, {hi:.3g}] ({dof_total} dof over the window)", mean)
         return mean
     end_pre = first_alarm if first_alarm is not None else n
     if truth is not None and truth["drift"]:
@@ -624,12 +761,20 @@ def digital_twin_workflow(*, model: str | StateSpaceModel = "thermal_plant", mod
     else:
         chk("twin.truth", None, "no truth for a replayed or live record: drift recovery, NEES and forecast coverage "
                                 "are scored only on a simulated plant")
+    if gaps:
+        lost = sorted({s for g in gaps for s in g["sensors"]})
+        whole = int(sum(1 for g in gaps if len(g["sensors"]) == ny))
+        finite_x = bool(np.all(np.isfinite(trace_np["x"])))
+        chk("twin.missing_readings", finite_x,
+            f"{len(gaps)} incomplete reading(s) ({whole} with no sensor reporting) on {', '.join(lost)}: the twin "
+            f"forecast across them, assimilated nothing and kept a finite state"
+            + ("" if finite_x else "; its state estimate went non-finite"), len(gaps))
     failed = [c["code"] for c in checks if c["status"] == "fail"]
     out = {"model": {"name": m.name, "states": m.states, "params": m.params, "inputs": m.inputs,
                      "outputs": m.outputs, "nominal": m.nominal, "description": m.description},
            "source": source, "n_steps": n, "dt": dt, "members": members,
            "trace": {k: v.tolist() for k, v in trace_np.items()}, "t": np.asarray(rec["t"]).tolist(),
-           "measured": Y[:, 0].tolist(), "inputs": U[:, 0].tolist(), "events": events,
+           "measured": Y[:, 0].tolist(), "inputs": U[:, 0].tolist(), "events": events, "gaps": gaps,
            "recalibrations": [{"alarm_step": r["alarm_step"], "window": r["window"], "applied": r.get("applied"),
                                "estimate": r["result"].get("estimate"), "intervals": r["result"].get("intervals"),
                                "checks": r["result"].get("checks")} for r in recals],
@@ -638,13 +783,15 @@ def digital_twin_workflow(*, model: str | StateSpaceModel = "thermal_plant", mod
            "cusum": {"k": cusum_k, "h": cusum_h, "arl0": cusum_arl0(cusum_k, cusum_h)},
            "nis": {"before": nis_pre, "after": nis_post}}
     if truth is not None:
-        out["truth"] = {"params": truth["params"][:n].tolist(), "drift": truth["drift"], "spike": truth["spike"]}
+        out["truth"] = {"params": truth["params"][:n].tolist(), "states": truth["states"][:n].tolist(),
+                        "drift": truth["drift"], "spike": truth["spike"]}
     final = filt.summary()
     out["final"] = {"theta": dict(zip(m.params, final["theta"].tolist(), strict=True)),
                     "theta_90": {p: [float(final["theta_lo"][i]), float(final["theta_hi"][i])]
                                  for i, p in enumerate(m.params)}}
     out["summary"] = (f"{m.name}: {n} readings, {sum(e['kind'] == 'anomaly' for e in events)} anomalies, "
-                      f"{sum(e['kind'] == 'drift' for e in events)} drift alarms, {len(after)} recalibrations; "
+                      f"{sum(e['kind'] == 'drift' for e in events)} drift alarms, {len(after)} recalibrations"
+                      + (f", {len(gaps)} incomplete readings" if gaps else "") + "; "
                       + (f"fail: {', '.join(failed)}" if failed else "every check passes"))
     if out_dir:
         out["dashboard"] = write_dashboard(out, out_dir)

@@ -778,15 +778,15 @@
   "seconds": 0.0
  },
  "pinneapple_systems.digital_twin.workflow:chi2_band": {
-  "code_hash": "1f2e8c4ec30a3cb1",
+  "code_hash": "7ea37f0ba4703d2b",
   "inputs": {
    "dof": 1,
    "n": 100
   },
   "ok": true,
-  "recorded": "2026-11-03",
+  "recorded": "2026-11-24",
   "returned": "tuple",
-  "seconds": 3.15
+  "seconds": 22.16
  },
  "pinneapple_systems.digital_twin.workflow:cusum_arl0": {
   "code_hash": "07d604b99e119f86",
@@ -800,12 +800,12 @@
   "seconds": 0.0
  },
  "pinneapple_systems.digital_twin.workflow:digital_twin_workflow": {
-  "code_hash": "b89a7f279e368d9e",
+  "code_hash": "3f788067410fb5e9",
   "inputs": {},
   "ok": true,
-  "recorded": "2026-11-03",
+  "recorded": "2026-11-24",
   "returned": "dict",
-  "seconds": 4.65
+  "seconds": 1.88
  },
  "pinneapple_systems.digital_twin.workflow:square_wave": {
   "code_hash": "6c8b51556124cb84",

@@ -1,0 +1,274 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/digital_twin_end_to_end",
+ "title": "Digital twin end to end: a simulated stream with a truth, and a real gauge",
+ "description": "The heated-channel twin (two sensors, fouling conductance, known drift and spike) scored against its truth, and the same workflow on a linear reservoir commissioned on a live USGS gauge, with the drift verdict of pinneapple_analysis.trust on the residuals.",
+ "domain": "digital twins",
+ "methods": [
+  "ensemble transform Kalman filter",
+  "NIS / NEES consistency",
+  "Page CUSUM",
+  "inverse workflow recalibration",
+  "Kolmogorov-Smirnov drift monitoring"
+ ],
+ "modules": [
+  "pinneapple_systems.digital_twin.end_to_end",
+  "pinneapple_analysis.trust.drift"
+ ],
+ "params": {},
+ "scripts": [
+  "twin_on_real_sensors.py"
+ ],
+ "metrics": [
+  {
+   "name": "benchmark.state_error",
+   "value": 0.0,
+   "unit": "verdict",
+   "how": "pass"
+  },
+  {
+   "name": "benchmark.latency",
+   "value": 0.0,
+   "unit": "verdict",
+   "how": "pass"
+  },
+  {
+   "name": "benchmark.noise",
+   "value": 0.0,
+   "unit": "verdict",
+   "how": "pass"
+  },
+  {
+   "name": "benchmark.sensor_failure",
+   "value": 0.0,
+   "unit": "verdict",
+   "how": "pass"
+  },
+  {
+   "name": "benchmark.anomaly",
+   "value": 0.0,
+   "unit": "verdict",
+   "how": "review"
+  },
+  {
+   "name": "benchmark.rul",
+   "value": 0.0,
+   "unit": "verdict",
+   "how": "not_measurable"
+  },
+  {
+   "name": "benchmark.decision",
+   "value": 0.0,
+   "unit": "verdict",
+   "how": "pass"
+  },
+  {
+   "name": "simulated.readings",
+   "value": 300.0,
+   "unit": "readings",
+   "how": "dt 1 s"
+  },
+  {
+   "name": "simulated.checks_passed",
+   "value": 7.0,
+   "unit": "checks",
+   "how": "7 checks, 0 inconclusive"
+  },
+  {
+   "name": "simulated.twin.nis_consistent",
+   "value": 2.2070977744321087,
+   "unit": "",
+   "how": "before the drift: mean NIS 2.21 over 129 readings, 95 % chi-square band [1.67, 2.36] (258 dof over the window)"
+  },
+  {
+   "name": "simulated.twin.nis_after_recalibration",
+   "value": 1.6693833113881378,
+   "unit": "",
+   "how": "after the recalibration: mean NIS 1.67 over 97 readings, 95 % chi-square band [1.62, 2.42] (194 dof over the window)"
+  },
+  {
+   "name": "simulated.twin.nees_consistent",
+   "value": 0.9692307692307692,
+   "unit": "",
+   "how": "NEES of the states and log parameters, 20 independent plants (truth known), averaged over the runs at each of 130 steps: 97% of the steps inside the 95 % band [2.02, 4.16] (3 dof; >= 85 %); mean 3.06"
+  },
+  {
+   "name": "simulated.twin.drift_detected",
+   "value": 2.0,
+   "unit": "",
+   "how": "drift of H at step 150 detected at step 152 (delay 2 steps, <= 20); in-control ARL of the CUSUM 9.56e+03 steps"
+  },
+  {
+   "name": "simulated.twin.recalibrated",
+   "value": 0.00849821615583503,
+   "unit": "",
+   "how": "inverse workflow on steps 153-202: H = 27.762 (95 % [24.69, 31.216]) against the true 28 (0.85%); its checks pass"
+  },
+  {
+   "name": "simulated.twin.anomaly_flagged",
+   "value": 2.0,
+   "unit": "",
+   "how": "injected spike of 12 sigma at step 90: flagged; 2 other readings flagged at |z| > 4"
+  },
+  {
+   "name": "simulated.twin.forecast_coverage",
+   "value": 0.8833333333333333,
+   "unit": "",
+   "how": "60-step forecast: 88% of the withheld readings inside the 90 % interval (|coverage - 90 %| <= 13%, readings are correlated); RMSE 0.163"
+  },
+  {
+   "name": "simulated.drift.mean_abs_innovation",
+   "value": 3.684248131819971,
+   "unit": "",
+   "how": "5 windows, 0 with an alarm; STABLE"
+  },
+  {
+   "name": "river.readings",
+   "value": 2009.0,
+   "unit": "readings",
+   "how": "dt 0.0833333 h"
+  },
+  {
+   "name": "river.checks_passed",
+   "value": 1.0,
+   "unit": "checks",
+   "how": "3 checks, 1 inconclusive"
+  },
+  {
+   "name": "river.twin.nis_consistent",
+   "value": 0.8409016480317764,
+   "unit": "",
+   "how": "before the first alarm: mean NIS 0.841 over 1982 readings, 95 % chi-square band [0.939, 1.06] (1982 dof over the window)"
+  },
+  {
+   "name": "river.twin.missing_readings",
+   "value": 4.0,
+   "unit": "",
+   "how": "4 incomplete reading(s) (4 with no sensor reporting) on Q: the twin forecast across them, assimilated nothing and kept a finite state"
+  },
+  {
+   "name": "river.drift.mean_abs_innovation",
+   "value": 0.5063206580619207,
+   "unit": "",
+   "how": "5 windows, 5 with an alarm; RETRAIN"
+  }
+ ],
+ "checks": [
+  {
+   "name": "benchmark: every section measured",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "state_error pass, latency pass, noise pass, sensor_failure pass, anomaly review, rul not_measurable, decision pass",
+   "kind": "verification"
+  },
+  {
+   "name": "simulated: provenance stated",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "simulated: simulated plant: heated_channel",
+   "kind": "reproducibility"
+  },
+  {
+   "name": "river: provenance stated",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "real: POTOMAC RIVER NEAR WASH, DC LITTLE FALLS PUMP STA",
+   "kind": "reproducibility"
+  },
+  {
+   "name": "simulated stream: every truth-scored check passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "every check passes",
+   "kind": "verification"
+  },
+  {
+   "name": "river: the drift block ran on the residuals",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "error_drift, envelope contradicted on validated ground (error or envelope): the model is being asked outside what it was validated on, so retrain before serving it further",
+   "kind": "verification"
+  },
+  {
+   "name": "river: no reading was invented",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "4 incomplete readings carried as gaps",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [
+   "_out/simulated/dashboard.html",
+   "_out/simulated/twin_end_to_end.html",
+   "_out/river/dashboard.html",
+   "_out/river/twin_end_to_end.html"
+  ],
+  "data": [
+   "_out/benchmark.md"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/digital_twin_end_to_end.md",
+  "script": "examples/digital_twin_end_to_end/twin_on_real_sensors.py"
+ },
+ "references": [
+  {
+   "title": "USGS Water Services, instantaneous values API (site 01646500)",
+   "kind": "dataset",
+   "url": "https://waterservices.usgs.gov/nwis/iv/",
+   "note": "public domain, downloaded at run time, never stored in this repository"
+  },
+  {
+   "title": "pinneapple_analysis.trust.drift (#114)",
+   "kind": "module",
+   "url": "",
+   "note": "DriftMonitor: KS statistics with thresholds calibrated on a second held-out split"
+  }
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "2871ecbaf",
+  "created": "2026-11-25T00:29:27Z",
+  "seconds": 37.428,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

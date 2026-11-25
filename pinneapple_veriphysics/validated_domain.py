@@ -3,9 +3,9 @@
 Local support is an empirical screening criterion, not a mathematical error bound.
 All distances use the declared training scales; no marginal range implies validation.
 """
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from math import isfinite, dist
-from typing import Mapping, Sequence
+from math import dist, isfinite
 
 
 @dataclass(frozen=True)
@@ -64,14 +64,14 @@ class ValidatedDomain:
     def _normalize(self, point):
         if len(point) != len(self.names) or not all(isfinite(x) for x in point):
             raise ValueError("Invalid point or parameter schema")
-        return tuple((x-a)/(b-a) for x, (a,b) in zip(point, self.bounds))
+        return tuple((x-a)/(b-a) for x, (a,b) in zip(point, self.bounds, strict=True))
 
     def _passes(self, e):
         values = (e.reference_error, *e.physics_errors, e.uncertainty)
         limits = (self.policy.reference_tol, *self.policy.physics_tols,
                   self.policy.uncertainty_tol)
         return bool(e.independent and e.reference_id and
-                    all(isfinite(v) and 0 <= v <= t for v,t in zip(values, limits)))
+                    all(isfinite(v) and 0 <= v <= t for v,t in zip(values, limits, strict=True)))
 
     def assess(self, query: Mapping[str, float]):
         if set(query) != set(self.names):
@@ -98,9 +98,9 @@ class ValidatedDomain:
 
     def extend(self, evidence: Sequence[GeometryEvidence]):
         """Return a new snapshot; failed observations are retained."""
-        training = [tuple(a+x*(b-a) for x,(a,b) in zip(p,self.bounds))
+        training = [tuple(a+x*(b-a) for x,(a,b) in zip(p,self.bounds, strict=True))
                     for p in self.training]
-        return ValidatedDomain(dict(zip(self.names,self.bounds)), self.model_id,
+        return ValidatedDomain(dict(zip(self.names,self.bounds, strict=True)), self.model_id,
                                self.policy, training, self.evidence + tuple(evidence))
 
     def prioritize(self, candidates: Sequence[Mapping[str, float]]):

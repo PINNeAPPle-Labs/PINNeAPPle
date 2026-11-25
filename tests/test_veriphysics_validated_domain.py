@@ -1,5 +1,7 @@
 from pinneapple_veriphysics.validated_domain import (
-    DomainPolicy, GeometryEvidence, ValidatedDomain,
+    DomainPolicy,
+    GeometryEvidence,
+    ValidatedDomain,
 )
 
 

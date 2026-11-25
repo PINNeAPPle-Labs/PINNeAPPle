@@ -1,15 +1,15 @@
 {
  "schema": "pinneapple.lint_debt/1",
- "recorded_at": "2026-11-25T02:43:03Z",
+ "recorded_at": "2026-11-25T15:34:33Z",
  "how": "ruff check . (selection from pyproject.toml), one count per file and rule",
- "total": 9480,
+ "total": 9472,
  "by_rule": {
-  "UP006": 1933,
-  "I001": 1736,
+  "UP006": 1928,
+  "I001": 1735,
   "E402": 1290,
   "E702": 1173,
   "UP045": 839,
-  "UP035": 576,
+  "UP035": 574,
   "B905": 367,
   "F401": 236,
   "F841": 197,
@@ -2539,10 +2539,6 @@
   "pinneapple_data/cae/foam.py": {
    "B905": 2
   },
-  "pinneapple_data/cae/frd.py": {
-   "UP006": 5,
-   "UP035": 2
-  },
   "pinneapple_data/cae/geometry.py": {
    "B905": 1
   },
@@ -4417,9 +4413,6 @@
    "I001": 1
   },
   "pinneapple_simulation/electromagnetics/verification.py": {
-   "I001": 1
-  },
-  "pinneapple_simulation/external_solvers/__init__.py": {
    "I001": 1
   },
   "pinneapple_simulation/external_solvers/ansys/journal_builder.py": {

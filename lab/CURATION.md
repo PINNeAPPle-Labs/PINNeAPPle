@@ -1,6 +1,6 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-11-02 19:48 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-11-25 13:37 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D/E/F) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|
@@ -14,7 +14,7 @@ Generated 2026-11-02 19:48 UTC. Tiers: **A flagship** (product / paper / marketi
 | `benchmark_case` | **B** solid | 100.0 | 0/7/0/0/0/0 | 100 % | - | - | - | - | no |
 | `rom_study` | **B** solid | 98.0 | 0/2/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `bricks` | **B** solid | 94.7 | 0/3/0/0/0/0 | 100 % | - | - | - | - | no |
-| `car_lbm` | **B** solid | 94.3 | 0/40/0/0/0/0 | 100 % | - | - | - | ready | no |
+| `car_lbm` | **B** solid | 94.3 | 0/76/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `vehicle_cfd` | **B** solid | 93.8 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `pendulum_video` | **B** solid | 92.9 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `bar_wear_ranking` | **B** solid | 92.0 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |

@@ -160,6 +160,17 @@ def test_sweep_grid_and_samples_export_and_catalog(tmp_path):
     assert LabStore(root).reindex() == 9
 
 
+def test_samples_skip_runs_whose_arrays_are_not_on_disk(tmp_path):
+    """Dataset shards are not versioned: a run committed as metadata only must not break the iterator, or no
+    surrogate can be retrained from a fresh clone (car_surrogate over the 40 committed car LBM runs)."""
+    root = str(tmp_path)
+    res = sweep("_test_square", grid={"a": [1.0], "n": [3, 4]}, root=root)
+    store = LabStore(root)
+    assert len(list(store.samples("_test_square", "curves"))) == 3 + 4
+    os.remove(os.path.join(store.run_dir("_test_square", res[0].run_id), "datasets", "curves", "samples.jsonl"))
+    assert len(list(store.samples("_test_square", "curves"))) == 4
+
+
 def test_builtin_experiments_run(tmp_path):
     root = str(tmp_path)
     assert {"oscillator", "heat_xtfc", "bondi_accretion", "accretion_flow", "cylinder_lbm"} <= set(available())

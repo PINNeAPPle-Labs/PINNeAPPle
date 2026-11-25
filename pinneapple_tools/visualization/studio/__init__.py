@@ -6,6 +6,7 @@
     pp.viz.render(sc, "stress.jpg", field="STRESS")     # Blender Cycles, jet colour scale, colour bar
     pp.viz.render_headless(sc, "stress.png", field="STRESS")   # same, through the Blender binary (no bpy needed)
     pp.viz.web_viewer(sc, "viewer/")                    # interactive three.js page: surfaces, streamlines, slices
+    pp.viz.hero("case.frd", "structural")               # two stills, a turntable and a glTF, one call (#920)
     pp.viz.LIGHTING_PRESETS["lunar_south_pole"]         # black sky, low hard Sun (also: studio, lunar_low_sun, ...)
     pp.viz.field_view(mesh, fields, deform=..., markers=...)   # fields, errors and deformed shapes for the apps' views
     pp.viz.export_gltf("wing.stl", {"cp": cp})          # glTF/GLB bytes, the field as a _CP vertex attribute (#281)
@@ -21,6 +22,8 @@ from .api import blender_render, export_gltf, to_scene, viewer_html
 from .colormap import JET, colorbar, jet, magma
 from .compose import CMAPS, stops
 from .fieldview import VIEW_MAX_FACES, FieldView, field_view
+from .hero import PRESETS as HERO_PRESETS
+from .hero import hero, hero_from_experiment
 from .lighting import PRESETS as LIGHTING_PRESETS
 from .lighting import LightingPreset
 from .scene import (
@@ -51,7 +54,9 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            # #63: reference, surrogate and the error map, with the L2 error as a number
            "compare_solutions", "field_error_metrics",
            # #281: a mesh and its fields -> glTF, a browser page, a Blender render
-           "export_gltf", "viewer_html", "blender_render", "to_scene", "SCENE_MAX_FACES"]
+           "export_gltf", "viewer_html", "blender_render", "to_scene", "SCENE_MAX_FACES",
+           # #920: the hero assets of one experiment -- two stills, a turntable and a glTF, per physics preset
+           "hero", "hero_from_experiment", "HERO_PRESETS"]
 
 _REEXPORT = {   # name -> (submodule of .visualization, attribute): imported on first use
     "read_openfoam": ("openfoam", "read_openfoam"),

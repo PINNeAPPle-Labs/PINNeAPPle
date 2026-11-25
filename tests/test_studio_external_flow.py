@@ -195,8 +195,9 @@ def test_studio_core_js_matches_python(tmp_path):
     node = shutil.which("node")
     if not node:
         pytest.skip("node not installed")
-    core = os.path.join(ROOT, "pinneapple_tools", "visualization", "studio", "web", "studio-core.js")
-    shutil.copy(core, tmp_path / "studio-core.mjs")                 # .mjs: ES module on every node version
+    web = os.path.join(ROOT, "pinneapple_tools", "visualization", "studio", "web")
+    shutil.copy(os.path.join(web, "studio-core.js"), tmp_path / "studio-core.mjs")   # .mjs: ES module on every version
+    shutil.copy(os.path.join(web, "theme.js"), tmp_path / "theme.js")               # studio-core.js imports it
     src = open(os.path.join(ROOT, "tests", "js", "studio_core.test.mjs")).read()
     (tmp_path / "t.test.mjs").write_text(src.replace("../../pinneapple_tools/visualization/studio/web/studio-core.js", "./studio-core.mjs"))
     r = subprocess.run([node, "--test", str(tmp_path / "t.test.mjs")], capture_output=True, text=True, timeout=120)

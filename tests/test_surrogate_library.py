@@ -30,9 +30,6 @@ def test_read_table_formats_and_fields(tmp_path):
     for name, raw in [("t.csv", df.to_csv(index=False).encode()), ("t.json", df.to_json(orient="records").encode())]:
         back = S.read_table(raw, name)
         assert list(back.columns) == list(df.columns)
-    buf = io.BytesIO()
-    df.to_parquet(buf)
-    assert S.read_table(buf.getvalue(), "t.parquet").shape == df.shape
     np.savez(tmp_path / "a.npz", p=df.p.to_numpy(), u=df[["u_0", "u_1", "u_2", "u_3"]].to_numpy())
     assert S.field_columns(S.read_table(tmp_path / "a.npz").columns, "u") == ["u_0", "u_1", "u_2", "u_3"]
     h5py = pytest.importorskip("h5py")
@@ -46,6 +43,14 @@ def test_read_table_formats_and_fields(tmp_path):
     assert s.kind == "scalar" and s.Y.shape == (3, 2)
     with pytest.raises(ValueError, match="not found"):
         S.from_table(df, ["p"], ["missing"])
+
+
+def test_read_table_of_a_parquet_needs_the_pyarrow_extra():
+    pytest.importorskip("pyarrow", reason="read_table of Parquet goes through pandas+pyarrow (extra: pip install pyarrow)")
+    df = pd.DataFrame({"p": [1.0, 2.0, 3.0], "q": [0.1, 0.2, 0.3]})
+    buf = io.BytesIO()
+    df.to_parquet(buf)
+    assert S.read_table(buf.getvalue(), "t.parquet").shape == df.shape
 
 
 def test_inspect_table_and_grid_coords():

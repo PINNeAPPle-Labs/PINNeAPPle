@@ -76,10 +76,22 @@ def test_solve_refuses_an_inconsistent_problem():
         pp.solve("industrial_furnace_thermal", "pinn")
 
 
-def test_reference_method_refuses_a_partial_grid():
-    """The preset's FDM path returns a grid over x only (time dropped); comparing it would be wrong."""
+def test_reference_method_refuses_a_partial_grid(monkeypatch):
+    """A reference solver that drops an axis must be refused, not interpolated: the comparison would be at the wrong
+    points. The preset's FDM path now returns x and t, so the partial grid is stubbed here."""
+    import pinneapple_simulation.numerical_solvers.problem_runner as pr
+
+    monkeypatch.setattr(pr, "_run_reference_solver",
+                        lambda spec, cfg, rng: {"coords": {"x": np.linspace(0.0, 1.0, 5)}, "u": np.zeros((5, 1))})
     with pytest.raises(MethodNotAvailable, match="partial grid"):
         pp.solve("burgers_1d", "reference")
+
+
+def test_reference_method_returns_the_whole_grid():
+    s = pp.solve("burgers_1d", "reference")
+    assert set(s.grid) == {"x", "t"} and s.grid["t"].size > 1
+    exact = burgers_sine_exact(np.array([0.5]), np.array([0.2]), NU)
+    assert s.predict(np.array([[0.5, 0.2]]))[0, 0] == pytest.approx(exact[0], abs=0.05)
 
 
 def test_analytic_is_unavailable_when_no_closed_form_matches():

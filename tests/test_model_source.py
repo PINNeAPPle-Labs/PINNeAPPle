@@ -83,8 +83,10 @@ def test_a_torchscript_file_with_its_card(tmp_path):
 
 def test_onnx_without_onnxruntime_says_what_to_install(tmp_path, monkeypatch):
     import sys
+
+    from pinneapple_core.errors import MissingExtra
     monkeypatch.setitem(sys.modules, "onnxruntime", None)          # as if not installed: import raises ImportError
-    with pytest.raises(RuntimeError, match="onnxruntime"):
+    with pytest.raises(MissingExtra, match="onnxruntime"):
         open_model("onnx", path=str(tmp_path / "x.onnx"), inputs=["a"], outputs=["y"], bounds={"a": (0, 1)})
 
 

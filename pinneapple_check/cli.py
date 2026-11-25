@@ -178,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
               "    benchmark            equal-budget benchmarks of physics-AI methods (when installed)\n"
               "    design               design from a plain-language goal (pinneapple design --help)\n"
               "  platform\n"
-              "    plugins <verb>       installed plugins: list, inspect, doctor, enable, disable\n"
+              "    plugins <verb>       installed plugins: list, inspect, doctor, policy, enable, disable\n"
               "    runs <verb>          a workflow run: show <id>, why <id>\n")
         return 0 if argv else 2
     if argv[0] == "--version":

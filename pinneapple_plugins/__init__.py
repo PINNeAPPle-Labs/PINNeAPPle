@@ -16,8 +16,11 @@ The three parts, and which issue they answer:
     pp.plugins.inspect("openfoam")                      # state, source, contract, why it is broken
     pp.plugins.doctor()                                 # the per-plugin checks, in order
 
-What loading a plugin does and does not guarantee is stated in ``docs/tutorials/plugins.md`` in the same words the
-CLI uses: there is no isolation, no resource limit, no revocation beyond disable/uninstall (#1475).
+What loading a plugin does and does not guarantee is stated once, in :mod:`pinneapple_plugins.policy`, printed by
+``pinneapple plugins policy`` and quoted sentence for sentence by ``docs/core_concepts/plugins.md``: the declarations
+are checked (dependencies, contract version, the registrations it makes, where it came from), and there is no
+isolation, no resource limit, no enforcement of the declared permissions and no revocation beyond disable or uninstall
+(#1475).
 
 ``activate()`` is what the library calls the first time a registry is listed. It runs **once per process**, imports
 only plugins that are enabled, and records every failure instead of raising: a broken plugin never takes down
@@ -54,12 +57,18 @@ from .manager import (
     UnknownPlugin,
     config_path,
     load_config,
+    registration_problem,
     save_config,
 )
+from .policy import CHECKED, NOT_PROVIDED, ONE_SENTENCE, RECORDED, policy_dict, policy_text
 
 __all__ = [
+    "CHECKED",
     "CONTRACT_VERSION",
     "CONTRACT_HISTORY",
+    "NOT_PROVIDED",
+    "ONE_SENTENCE",
+    "RECORDED",
     "ENTRY_GROUP",
     "PERMISSIONS",
     "STATES",
@@ -93,6 +102,9 @@ __all__ = [
     "load",
     "load_config",
     "names",
+    "policy_dict",
+    "policy_text",
+    "registration_problem",
     "records",
     "save_config",
     "satisfies",

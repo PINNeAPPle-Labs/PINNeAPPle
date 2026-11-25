@@ -42,7 +42,7 @@ from .contract import (
 from .discovery import ENTRY_GROUP, Entry, discover
 
 __all__ = ["ConfigSchema", "PluginManager", "PluginRecord", "UnknownPlugin", "Match", "AmbiguousCapability",
-           "config_path", "load_config", "save_config"]
+           "config_path", "load_config", "save_config", "registration_problem"]
 
 #: The states a plugin can be in. ``not_installed`` is the answer to "inspect a name nothing provides".
 STATES: tuple[str, ...] = ("ready", "broken", "disabled", "not_installed")
@@ -92,11 +92,12 @@ class PluginRecord:
     capabilities: dict[str, list[str]] = field(default_factory=dict)
     permissions: list[str] = field(default_factory=list)
     requires: dict[str, Any] = field(default_factory=dict)
+    registers: dict[str, list[str]] = field(default_factory=dict)
     checks: list[dict[str, Any]] = field(default_factory=list)
     details: dict[str, Any] = field(default_factory=dict)
 
-    #: How many checks a complete diagnosis has (import, contract, dependencies, config, initialize).
-    CHECKS: tuple[str, ...] = ("import", "contract", "dependencies", "config", "initialize")
+    #: How many checks a complete diagnosis has (import, contract, dependencies, config, initialize, registers).
+    CHECKS: tuple[str, ...] = ("import", "contract", "dependencies", "config", "initialize", "registers")
 
     @property
     def ok(self) -> bool:
@@ -114,7 +115,8 @@ class PluginRecord:
         return {"name": self.name, "state": self.state, "version": self.version,
                 "contract_version": self.contract_version, "source": self.source, "entry_point": self.entry_point,
                 "reason": self.reason, "stage": self.stage, "capabilities": self.capabilities,
-                "permissions": self.permissions, "requires": self.requires, "checks": self.checks,
+                "permissions": self.permissions, "requires": self.requires, "registers": self.registers,
+                "checks": self.checks,
                 "details": self.details}
 
 
@@ -276,6 +278,7 @@ class PluginManager:
         record.capabilities = declared["capabilities"]
         record.permissions = declared["permissions"]
         record.requires = declared["requires"]
+        record.registers = declared["registers"]
         ok, why = contract_compatible(record.contract_version, CONTRACT_VERSION)
         if not ok:
             return self._broken(record, "contract", why)
@@ -304,19 +307,46 @@ class PluginManager:
         record.checks.append(_check("config", True, f"{len(record.requires.get('config') or [])} required key(s) "
                                                    "present"))
 
-        # 5. initialize --------------------------------------------------------------------------------------------
+        # 5. initialize, watching what it registers ----------------------------------------------------------------
         ctx = replace(self.context, config=options, logger=self.log,
                       paths={**dict(self.context.paths), "plugin": self._data_dir(record.name)})
+        registered: dict[str, list[str]] = {}
         try:
-            obj.initialize(ctx)
+            with _watch_registry(registered):
+                obj.initialize(ctx)
         except Exception as exc:                        # noqa: BLE001 - the plugin's failure, not the library's
+            self._roll_back(record, registered)
             self._shutdown_quietly(record.name, obj)
             return self._broken(record, "initialize", f"{type(exc).__name__}: {exc}", traceback_text=_tb())
+        record.details["registered"] = registered
         record.checks.append(_check("initialize", True, "initialized"))
+
+        # 6. the registrations it declared, against the ones it made ------------------------------------------------
+        problem = _unknown_kinds(record.registers) or registration_problem(record.registers, registered)
+        if problem:
+            self._roll_back(record, registered)
+            self._shutdown_quietly(record.name, obj)
+            return self._broken(record, "registers", problem)
+        record.checks.append(_check("registers", True, _registered_summary(record.registers, registered)))
         record.state = "ready"
         self._objects[record.name] = obj
         self.log(f"plugin {record.name} {record.version}: ready ({record.source})")
         return record
+
+    def _roll_back(self, record: PluginRecord, registered: Mapping[str, Sequence[str]]) -> None:
+        """Undo what a plugin registered: half a plugin left in the registry is the failure this check exists for."""
+        if not registered:
+            return
+        from pinneapple_core.registry import unregister
+
+        for kind, names in registered.items():
+            for name in names:
+                try:
+                    unregister(kind, name)
+                except Exception as exc:                # noqa: BLE001 - removing what is not there is not a failure
+                    self.log(f"plugin {record.name}: could not roll back {kind} {name!r}: "
+                             f"{type(exc).__name__}: {exc}")
+        self.log(f"plugin {record.name}: rolled back {_registered_summary({}, registered)}")
 
     def _broken(self, record: PluginRecord, stage: str, reason: str, *, traceback_text: str = "") -> PluginRecord:
         record.state = "broken"
@@ -505,6 +535,91 @@ class PluginManager:
 # ----------------------------------------------------------------------------------------------- helpers
 def _check(name: str, ok: bool, detail: str) -> dict[str, Any]:
     return {"check": name, "ok": bool(ok), "detail": str(detail)}
+
+
+def _watch_registry(into: dict[str, list[str]]) -> Any:
+    """Record what a plugin registers while ``initialize`` runs, through the library's registry protocol.
+
+    ``pp.register`` reports every registration as it happens (:func:`pinneapple_core.registry.observe`), so this is
+    what the plugin itself added — not the presets and models that a first import of a library module may register
+    while it is imported inside ``initialize``.
+    """
+    from pinneapple_core.registry import observe
+
+    def listener(action: str, kind: str, name: str) -> None:
+        names = into.setdefault(kind, [])
+        if action == "register":
+            if name not in names:
+                names.append(name)
+        elif name in names:                             # unregistered within the same initialize
+            names.remove(name)
+            if not names:
+                into.pop(kind, None)
+
+    return observe(listener)
+
+
+def registration_problem(declared: Mapping[str, Sequence[str]],
+                         registered: Mapping[str, Sequence[str]]) -> str:
+    """The refusal message when a plugin's ``registers`` and its actual registrations disagree, else ``""``.
+
+    Both directions matter, and only one of them looks like a bug at load time: a plugin that registers what it never
+    declared adds to the library silently, and a plugin that declares what it never registers is the plugin written
+    against last year's API — it loads, does half its steps, and looks successful. Nothing here is a warning: a
+    capability the library can find but that is not there is worse than a plugin that refuses to load.
+
+    A plugin that declares nothing at all (contract ``1.0``, written before ``registers`` existed) is compatible and is
+    not refused: what it registers is recorded, shown by ``doctor``, and says plainly that it was not verified — there
+    is no declaration to hold it to, and deriving one from what it happened to register would verify nothing.
+    """
+    if not declared:
+        return ""
+    extra = {k: [n for n in v if n not in (declared.get(k) or ())] for k, v in registered.items()}
+    extra = {k: v for k, v in extra.items() if v}
+    missing = {k: [n for n in v if n not in (registered.get(k) or ())] for k, v in declared.items()}
+    missing = {k: v for k, v in missing.items() if v}
+    if not extra and not missing:
+        return ""
+    parts = []
+    if extra:
+        parts.append(f"registered but not declared in `registers`: {_pairs(extra)}")
+    if missing:
+        parts.append(f"declared in `registers` but not registered: {_pairs(missing)}")
+    return ("; ".join(parts) + ". The plugin was refused and its registrations were rolled back: a plugin that does "
+            "half of what it declares loads and looks successful, which is worse than one that refuses to load. "
+            "Declare what `initialize` registers through `pp.register` (kind -> names) and register what you declare, "
+            "or drop it from `registers`.")
+
+
+def _unknown_kinds(declared: Mapping[str, Sequence[str]]) -> str:
+    """A ``registers`` key that is not one of the registry's kinds, named as such — a typo there would otherwise read
+    as "declared but not registered" about a kind the library does not have."""
+    if not declared:
+        return ""
+    try:
+        from pinneapple_core.registry import kinds
+    except ImportError:                                 # pragma: no cover - the registry ships with the library
+        return ""
+    known = kinds()
+    unknown = sorted(str(k) for k in declared if str(k) not in known)
+    if not unknown:
+        return ""
+    return (f"`registers` names kind(s) the registry does not have: {unknown}; known kinds: {known}. The plugin was "
+            f"refused before anything it registered was kept")
+
+
+def _pairs(table: Mapping[str, Sequence[str]]) -> str:
+    return ", ".join(f"{kind}={list(names)}" for kind, names in sorted(table.items()))
+
+
+def _registered_summary(declared: Mapping[str, Sequence[str]],
+                        registered: Mapping[str, Sequence[str]]) -> str:
+    if not declared and not registered:
+        return "nothing registered (and nothing declared)"
+    if not declared:
+        return (f"registered {_pairs(registered)}, declared nothing: recorded, not verified — declare `registers` to "
+                f"have this checked")
+    return f"matches `registers`: {_pairs(registered) or 'nothing'}"
 
 
 def _summary(details: Mapping[str, Any]) -> str:

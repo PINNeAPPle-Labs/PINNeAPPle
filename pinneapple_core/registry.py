@@ -32,11 +32,13 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Callable, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Any
 
 __all__ = ["Registry", "KINDS", "kinds", "register", "unregister", "registered", "resolve", "resolve_kind", "RegistryError",
-           "UnknownKind", "UnknownName", "AlreadyRegistered", "WrongType", "AmbiguousKind"]
+           "UnknownKind", "UnknownName", "AlreadyRegistered", "WrongType", "AmbiguousKind", "add_listener",
+           "remove_listener", "observe"]
 
 
 class RegistryError(Exception):
@@ -148,6 +150,45 @@ class Registry:
 
 
 _MISSING = object()
+
+
+# --------------------------------------------------------------------------- who is registering
+#: ``listener(action, kind, name)`` with ``action`` in ``("register", "unregister")``. The plugin loader watches this
+#: protocol while a plugin initializes, to compare what the plugin registered with what it declared (#1475).
+_LISTENERS: list[Callable[[str, str, str], None]] = []
+
+
+def add_listener(listener: Callable[[str, str, str], None]) -> None:
+    """Report every registration and removal through this protocol to ``listener``.
+
+    A listener never breaks a registration: an exception it raises is swallowed and it is dropped from the list, so a
+    watcher cannot make ``pp.register`` fail.
+    """
+    if listener not in _LISTENERS:
+        _LISTENERS.append(listener)
+
+
+def remove_listener(listener: Callable[[str, str, str], None]) -> None:
+    while listener in _LISTENERS:
+        _LISTENERS.remove(listener)
+
+
+@contextmanager
+def observe(listener: Callable[[str, str, str], None]):
+    """``with observe(fn): ...`` — listen for the duration of the block, and remove the listener even on a raise."""
+    add_listener(listener)
+    try:
+        yield listener
+    finally:
+        remove_listener(listener)
+
+
+def _announce(action: str, kind: str, name: str) -> None:
+    for listener in list(_LISTENERS):
+        try:
+            listener(action, kind, name)
+        except Exception:                               # noqa: BLE001 - a watcher must not break a registration
+            remove_listener(listener)
 
 
 def _key(name: Any) -> str:
@@ -424,12 +465,18 @@ def register(obj: Any = None, *, kind: str | None = None, name: str | None = Non
             return register(target, kind=kind, name=name, replace=replace, **meta)
         return decorator
     registry = resolve_kind(kind or _infer(obj))
-    return registry.register(_name_of(obj, name), obj, replace=replace, **meta)
+    key = _name_of(obj, name)
+    got = registry.register(key, obj, replace=replace, **meta)
+    _announce("register", registry.kind, key)
+    return got
 
 
 def unregister(kind: str, name: str) -> Any:
     """Remove a name from a kind, and from the library home it was bridged to."""
-    return resolve_kind(kind).unregister(name)
+    registry = resolve_kind(kind)
+    dropped = registry.unregister(name)
+    _announce("unregister", registry.kind, _key(name))
+    return dropped
 
 
 def registered(kind: str | None = None) -> list[str] | dict[str, list[str]]:

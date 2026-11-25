@@ -127,6 +127,7 @@ def test_a_plugin_registers_a_model_visible_in_list_models_and_the_benchmark(tmp
             name = "demo"
             version = "1.2.0"
             capabilities = {"model": ["pointwise_coords"], "benchmark": ["demo"]}
+            registers = {"model": ["plugin_demo_net"]}      # what initialize adds through pp.register
 
             def initialize(self, context):
                 pp.register(DemoSolver, kind="model", name="plugin_demo_net", family="plugin")
@@ -337,6 +338,8 @@ def test_cli_lists_inspects_and_doctors(tmp_path, config_file, monkeypatch, caps
     assert plugins_cli.main(["inspect", "tiny"]) == 0
     out = capsys.readouterr().out
     assert "solver=['cfd', 'steady_state']" in out and "permissions     read, run" in out
+    assert "registers       - (what initialize adds through pp.register)" in out, \
+        "the diagnostics say what the plugin declared it registers, and that it declared nothing"
 
     assert plugins_cli.main(["inspect", "missing"]) == 1
     assert "not_installed" in capsys.readouterr().out
@@ -352,3 +355,203 @@ def test_plugin_context_is_read_only_and_answers_its_paths(tmp_path):
     assert ctx.path("work") == tmp_path
     assert ctx.path("absent", str(tmp_path)) == tmp_path
     assert ctx.as_dict()["config_keys"] == ["a"]
+
+
+# ------------------------------------------------------------------------------------------------ #1475
+def _manager(tmp_path, *entries, running_version=None):
+    return PluginManager(entries=list(entries), config=tmp_path / "plugins.json",
+                         running_version=running_version)
+
+
+def test_an_old_plugin_that_would_run_half_is_refused_by_its_version_specifier(tmp_path):
+    """The dangerous plugin is the honest one written against last year's API: it installs and half of it works.
+
+    Its `initialize` registers what still exists and silently skips what does not. The check that catches it is the
+    version specifier it declared: the library it was written for is not the one installed, so the loading stops
+    before `initialize` runs and nothing half-registered is ever in the registry.
+    """
+    calls: list[str] = []
+
+    class OldApi(Plugin):
+        name = "old-api"
+        version = "0.4"
+        contract_version = "1.0"
+        requires = {"pinneapple": ">=0.6,<0.7"}
+        capabilities = {"solver": ["cfd", "erosion"]}
+        registers = {"solver": ["old_cfd", "old_erosion"]}
+
+        def initialize(self, context):
+            import pinneapple as pp
+
+            pp.register(lambda problem, **options: 1.0, kind="solver", name="old_cfd")
+            calls.append("old_cfd")
+            # `register_erosion_model` was the 2025 API; the old code wrapped it in a `try/except ImportError: pass`
+
+    manager = _manager(tmp_path, Entry(name="old-api", value="old:PLUGIN", loader=lambda: OldApi()),
+                       running_version="0.8.0")
+    record = manager.load_all()["old-api"]
+    assert record.state == "broken" and record.stage == "dependencies"
+    assert ">=0.6,<0.7" in record.reason and "0.8.0" in record.reason and "does not satisfy" in record.reason
+    assert calls == [], "initialize never ran, so nothing half-loaded"
+    assert "old_cfd" not in manager.capabilities().get("solver", [])
+    assert not any("old_cfd" in names for names in manager.capabilities().values())
+
+
+def test_a_plugin_that_declares_two_solvers_and_registers_one_is_refused(tmp_path):
+    """The half plugin of this year's API: it loads, registers one of its two solvers, and would look successful."""
+    from pinneapple_core.registry import registered as registered_names
+
+    class HalfWritten(Plugin):
+        name = "half"
+        version = "2.0"
+        capabilities = {"solver": ["cfd", "erosion"]}
+        registers = {"solver": ["half_case", "half_erosion"]}
+
+        def initialize(self, context):
+            import pinneapple as pp
+
+            pp.register(lambda problem, **options: 1.0, kind="solver", name="half_case")   # half_erosion: forgotten
+
+    manager = _manager(tmp_path, Entry(name="half", value="half:PLUGIN", loader=lambda: HalfWritten()))
+    record = manager.load_all()["half"]
+    assert record.state == "broken" and record.stage == "registers"
+    assert "declared in `registers` but not registered: solver=['half_erosion']" in record.reason
+    assert "half of what it declares" in record.reason, "the message says why this is a refusal, not a warning"
+    assert record.details["registered"] == {"solver": ["half_case"]}
+    assert "half_case" not in registered_names("solver"), "what the half plugin did register was rolled back"
+
+
+def test_a_plugin_that_registers_what_it_never_declared_is_refused(tmp_path):
+    from pinneapple_core.registry import registered as registered_names
+
+    class Sneaky(Plugin):
+        name = "sneaky"
+        version = "1"
+        registers = {"model": ["declared_net"]}
+
+        def initialize(self, context):
+            import torch
+
+            import pinneapple as pp
+
+            class Declared(torch.nn.Module):
+                def forward(self, x):
+                    return x
+
+            pp.register(Declared, kind="model", name="declared_net", family="plugin")
+            pp.register(Declared, kind="model", name="sneaky_net", family="plugin")      # never declared
+
+    manager = _manager(tmp_path, Entry(name="sneaky", value="sneaky:PLUGIN", loader=lambda: Sneaky()))
+    record = manager.load_all()["sneaky"]
+    assert record.state == "broken" and record.stage == "registers"
+    assert "registered but not declared in `registers`: model=['sneaky_net']" in record.reason
+    assert "declared_net" not in registered_names("model") and "sneaky_net" not in registered_names("model")
+
+
+def test_a_contract_1_0_plugin_loads_and_what_it_registers_is_recorded_not_verified(tmp_path):
+    """Compatibility is additive: a plugin written against 1.0 has no `registers`, so there is nothing to check it
+    against. Saying that plainly (recorded, not verified) is the honest answer, not a silent pass."""
+    from pinneapple_core.registry import unregister
+
+    class WithoutDeclarations(Plugin):
+        name = "old-1-0"
+        version = "1"
+        contract_version = "1.0"
+
+        def initialize(self, context):
+            import pinneapple as pp
+
+            pp.register(lambda problem, **options: 1.0, kind="solver", name="old_1_0_solver")
+
+    manager = _manager(tmp_path, Entry(name="old-1-0", value="old:PLUGIN", loader=lambda: WithoutDeclarations()))
+    record = manager.load_all()["old-1-0"]
+    try:
+        assert record.state == "ready" and record.contract_version == "1.0"
+        assert record.details["registered"] == {"solver": ["old_1_0_solver"]}
+        assert "declared nothing: recorded, not verified" in record.check("registers")["detail"]
+        assert "contract_note" in record.details
+    finally:
+        unregister("solver", "old_1_0_solver")
+
+
+def test_the_registry_listener_never_breaks_a_registration():
+    """A watcher with a bug is dropped, not allowed to make pp.register fail: the loader's check must not be able to
+    break a plugin that is fine."""
+    from pinneapple_core.registry import observe, register, registered, unregister
+
+    def explode(action, kind, name):
+        raise RuntimeError("a watcher with a bug")
+
+    with observe(explode):
+        register(lambda problem, **options: 2.0, kind="solver", name="listener_survivor")
+    try:
+        assert "listener_survivor" in registered("solver")
+    finally:
+        unregister("solver", "listener_survivor")
+
+
+def test_provenance_names_each_ready_plugin_with_its_distribution(tmp_path, monkeypatch):
+    entries = [Entry(name="tiny", value="tiny:PLUGIN", distribution="pinneapple-tiny", version="0.1.0",
+                     loader=lambda: TinySolver()),
+               Entry(name="broken", value="nowhere:PLUGIN", distribution="pinneapple-broken", version="0.1",
+                     loader=lambda: (_ for _ in ()).throw(ImportError("boom")))]
+    manager = _manager(tmp_path, *entries)
+    manager.load_all()
+    monkeypatch.setattr("pinneapple_plugins._ACTIVE", manager)
+    import pinneapple_plugins as plugins
+
+    assert plugins.provenance() == [{"name": "tiny", "version": "0.1.0", "contract_version": CONTRACT_VERSION,
+                                     "source": "pinneapple-tiny 0.1.0", "entry_point": "tiny:PLUGIN"}], \
+        "a broken plugin took part in nothing, so it is not in the provenance"
+
+
+def test_the_policy_is_the_same_words_in_the_cli_and_the_page(capsys):
+    from pinneapple_plugins.policy import CHECKED, NOT_PROVIDED, ONE_SENTENCE, RECORDED
+
+    assert plugins_cli.main(["policy"]) == 0
+    out = capsys.readouterr().out
+    page = _repo_file("docs/core_concepts/plugins.md").read_text(encoding="utf-8")
+    flat_page = " ".join(page.replace("> ", "").split())
+    for sentence in [text for _, text in CHECKED] + list(NOT_PROVIDED) + list(RECORDED) + [ONE_SENTENCE]:
+        one_line = " ".join(sentence.split())
+        assert one_line in out, f"the CLI prints it: {one_line[:60]}"
+        assert one_line in flat_page, f"the page quotes it word for word: {one_line[:60]}"
+
+
+def test_nothing_describes_loading_a_plugin_as_sandboxed():
+    """#1475: the acceptance line is also that no text claims isolation. Each mention has to be a denial."""
+    import re
+
+    pages = sorted(_repo_file("pinneapple_plugins").glob("*.py")) + [_repo_file("docs/core_concepts/plugins.md")]
+    for path in pages:
+        flat = " ".join(path.read_text(encoding="utf-8").split()).lower()
+        for match in re.finditer("sandbox", flat):
+            window = flat[max(0, match.start() - 150): match.end() + 150]
+            assert any(denial in window for denial in ("not a sandbox", "no sandbox", "does not sandbox")), \
+                f"{path}: 'sandbox' is used without denying it: …{flat[max(0, match.start() - 60):match.end() + 60]}…"
+
+
+def _repo_file(relative: str):
+    from pathlib import Path
+
+    return Path(__file__).resolve().parents[1] / relative
+
+
+def test_a_registers_key_that_is_not_a_registry_kind_says_so(tmp_path):
+    class Typo(Plugin):
+        name = "typo"
+        version = "1"
+        registers = {"solvers": ["typo_case"]}          # the kind is "solver"
+
+        def initialize(self, context):
+            import pinneapple as pp
+
+            pp.register(lambda problem, **options: 1.0, kind="solver", name="typo_case")
+
+    from pinneapple_core.registry import registered as registered_names
+
+    manager = _manager(tmp_path, Entry(name="typo", value="typo:PLUGIN", loader=lambda: Typo()))
+    record = manager.load_all()["typo"]
+    assert record.state == "broken" and record.stage == "registers"
+    assert "solvers" in record.reason and "known kinds" in record.reason
+    assert "typo_case" not in registered_names("solver")

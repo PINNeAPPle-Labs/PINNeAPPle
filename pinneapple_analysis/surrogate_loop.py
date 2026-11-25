@@ -39,8 +39,10 @@ there are what the promise rests on.
 from __future__ import annotations
 
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -49,6 +51,7 @@ from pinneapple_data.adaptive_sampling import GPSurrogate, _as_bounds
 from pinneapple_data.doe.designs import greedy_maximin
 
 __all__ = ["Constraint", "Design", "LoopResult", "Round", "loop", "benchmark_loop", "airfoil_solver",
+           "campaign_solver",
            "GaussianProcessSurrogate", "EnsembleSurrogate"]
 
 _EPS = 1e-12
@@ -391,6 +394,82 @@ def _solver_outputs(solver: Callable, X: np.ndarray, k: int) -> np.ndarray:
         raise ValueError(f"the solver returned {out.shape[1]} outputs per design but the loop expects {k} "
                          f"(objective + {k - 1} constraints); check the constraints' order")
     return out
+
+
+def campaign_solver(evaluate: Callable[..., Any], outputs: Sequence[str], *, names: Sequence[str] = (),
+                    workers: int = 4, cache_dir: str | Path | None = None, backend: Any = "local",
+                    settings: Mapping[str, Any] | None = None, conditions: Mapping[str, Any] | None = None,
+                    workroot: str | Path | None = None, max_attempts: int = 2,
+                    timeout_s: float | None = None) -> Callable[[np.ndarray], np.ndarray]:
+    """A ``solver(X) -> (n, k)`` for :func:`loop` whose batch goes through the campaign runner (#295). (#297)
+
+    The loop hands a batch to the solver once a round; what the batch is *for* is a parallel run, and the campaign
+    runner is this library's execution layer for that — it owns the queue, the retries, the concurrency, and the
+    content-addressed cache. This function is the adapter, so a loop over real runs does not grow a second, worse
+    version of any of it:
+
+        solver = campaign_solver(openfoam_case, ["CD", "CL"], names=("slant_deg", "clearance", "speed"),
+                                 workers=8, cache_dir="cache")
+        result = loop(AHMED_SPACE, EnsembleSurrogate(3, 2), solver, budget=24, batch=4)
+
+    ``evaluate`` is a campaign solver in the runner's own sense — ``(params, workdir) -> mapping`` — and ``outputs``
+    names the columns it returns, the objective first and the constraints after it, which is the order :func:`loop`
+    requires. ``names`` names the design columns of ``X``; a design that the runner answers from its cache costs no
+    wall time and no cores, which is what makes a re-run of an identical design free rather than merely fast.
+
+    The result of every design is the runner's own row, failures included: a run that failed is **not** silently
+    turned into a zero. :func:`loop`'s contract has no way to say "this design did not run", and a zero would be read
+    as an excellent optimum, so a failed batch raises with the case identifiers and the runner's own failure
+    classification attached.
+
+    The returned callable carries ``calls`` — how many designs it has been asked to solve — and ``sources`` — how many
+    of them the runner executed and how many it answered from the cache — so a report can say which.
+    """
+    from pinneapple_orchestration.campaign import Case
+    from pinneapple_orchestration.campaign import run as run_campaign
+
+    out_names = [str(o) for o in outputs]
+    if not out_names:
+        raise ValueError("give at least the objective's output name; _solver_outputs needs one column per design")
+    design_names = [str(n) for n in names]
+    tally = {"calls": 0, "executed": 0, "cached": 0}
+
+    def solver(X: np.ndarray) -> np.ndarray:
+        designs = np.atleast_2d(np.asarray(X, dtype=float))
+        if design_names and len(design_names) != designs.shape[1]:
+            raise ValueError(f"{designs.shape[1]} design columns but {len(design_names)} names given")
+        cases = [Case(id=f"d{i:05d}",
+                      params={n: float(v) for n, v in zip(design_names, row, strict=True)} if design_names
+                             else {f"x{j}": float(v) for j, v in enumerate(row)},
+                      settings=dict(settings or {}), conditions=dict(conditions or {}))
+                 for i, row in enumerate(designs)]
+        got = run_campaign(cases, evaluate, backend=backend, workers=workers, cache_dir=cache_dir,
+                           workroot=workroot, max_attempts=max_attempts, timeout_s=timeout_s)
+        # the runner returns the rows in the order the cases were submitted, but the answer is matched by id so a
+        # future change to that ordering cannot silently pair a design with another design's drag
+        by_id = {row["case_id"]: row for row in got.rows}
+        failed = [f"{row['case_id']} ({row['failure'] or row['status']}: {row['error']})"
+                  for row in got.rows if not row.get("ok")]
+        if failed:
+            raise RuntimeError(f"{len(failed)} of {len(cases)} designs did not run, so the batch has no answer for "
+                               f"them and a zero would be read as an optimum: {', '.join(failed[:5])}"
+                               f"{' ...' if len(failed) > 5 else ''}")
+        y = np.empty((len(cases), len(out_names)), dtype=float)
+        for i, case in enumerate(cases):
+            row = by_id[case.id]
+            missing = [o for o in out_names if o not in row["outputs"]]
+            if missing:
+                raise KeyError(f"{case.id}: the solver ran but did not return {', '.join(missing)}; it returned "
+                               f"{sorted(row['outputs'])}")
+            y[i, :] = [float(row["outputs"][o]) for o in out_names]
+        tally["calls"] += len(cases)
+        tally["cached"] += sum(1 for row in got.rows if row.get("cached"))
+        tally["executed"] += sum(1 for row in got.rows if not row.get("cached"))
+        return y
+
+    solver.calls = lambda: tally["calls"]                      # type: ignore[attr-defined]
+    solver.sources = lambda: dict(tally)                       # type: ignore[attr-defined]
+    return solver
 
 
 def loop(space, surrogate, solver: Callable, budget: int = 32, *, n_initial: int = 8, batch: int = 2,

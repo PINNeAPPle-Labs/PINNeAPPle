@@ -129,7 +129,7 @@ saving a saving: the solver still produces the answer. The speedup is smaller th
 CFDNet (Obiols-Sales et al., ICS 2020) — that work warm-starts RANS cases whose potential-flow start is much further
 from the answer than a POD prediction of the same case is.
 
-### 5. The low-fidelity ladder — `results/ladder.json` (#294)
+### 5. The low-fidelity ladder, family one — `results/ladder.json` (#294)
 
 NACA 0012 at `alpha = 0, 4, 8` degrees, `Re = 4e6` (k-omega SST, the app's O-grid), three RANS resolutions plus the
 closed-form rung (`CL = 2 pi sin(alpha)`). "Error" is against the finest RANS level, which is the rung's job: being a
@@ -161,6 +161,80 @@ absolute differences). At `alpha = 4` the absolute differences are 0.014 (coarse
 The vortex-lattice and LBM rungs are **not** on this family: a lattice gives a finite wing's `CL`, not a section's, and
 the LBM solver works in a low-Reynolds regime while this family is at `Re = 4e6`. `ladder.MULTIFIDELITY` exports the
 rungs as data levels (name and relative cost) for the multi-fidelity workflow (#35).
+
+### 6. The low-fidelity ladder, family two — the Ahmed body's variants, `results/ladder_ahmed.json` (#294)
+
+The same question asked of the family this repository runs a campaign on: the Ahmed body, whose slant angle is the
+design variable, at the six angles Ahmed, Ramm & Faltin (1984) measured (0, 12.5, 25, 30, 35, 40 degrees, 60 m/s,
+50 mm clearance, `Re = 4.2e6` on the length). The rungs are levels of the same case at fewer cells — the campaign mesh
+(`L1`, the one the design of experiments runs on) and the fine mesh (`L2`) — and every number below is read from that
+campaign's committed records (`examples/end_to_end/ahmed_body/results/cfd_runs`), not re-measured here:
+`ladder_ahmed.ladder()` reads the record of each run, the value that is not in a record was not measured.
+
+| rung | cells | wall time per design | mean rel. CD error | mean abs. CL error | Cp rms | Cp max | Spearman CD | rel. CD error vs experiment |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| ahmed-L1 (campaign) | 208 253 | 273.5 s | 9.7 % | 0.066 | 0.103 | 3.30 | **0.94** | 16.9 % |
+| ahmed-L2 (reference) | 537 539 | 1077.7 s | — (reference) | — | — (reference) | — | 1.00 | 23.7 % |
+
+Every cost in that table belongs to the campaign's machine (4-core Xeon at 2.10 GHz, OpenFOAM v1912) and is the wall
+time of the run at 800 iterations; it is recorded in the records themselves and in `measured_on` in the JSON. The rungs
+are priced in the solver's own CPU seconds too, because a wall time measured on a busy box prices the load.
+
+**The rank correlation is not 1 on this family.** The campaign mesh orders five of the six designs exactly as the fine
+mesh does and inverts one pair: it puts the 40 degree body at `CD = 0.3005` and the 30 degree at `0.3378`, while the
+fine mesh has them the other way round (`0.3958` and `0.3184`). Both are separated bodies, and the inverted pair is
+exactly where a coarse mesh's wake is decided by its first cell rather than by the geometry. That is the finding this
+family exists for: the campaign mesh is a 4x cheaper stand-in for `L2` on this family, but it is **not** a rank
+preserving one at the separated end of the slant range, and a design search that trusts it will prefer a 40 degree
+body over a 30 degree one when the fine mesh does not.
+
+**The `Cp` column, and the region it falls in.** The skin pressure is stored on the same 1 751 template vertices for
+every run, so the rungs are compared vertex to vertex with no interpolation; the norms are `rms = sqrt(mean(dCp^2))`
+and `max = max(|dCp|)`, in units of the free-stream dynamic pressure. The mean is 0.103 and the worst 3.30, at the
+**roof** of the 35 degree body — where the coarse mesh's separation point and the fine one's disagree — and the rms by
+region grows with the separation: 0.047 at the roof at 0 degrees against 0.248 at 40, and 0.013 to 0.148 at the sides
+between the same two ends. The front face sits at about 0.10 on every design, including the attached ones; part of that
+is physics (the coarse mesh's thicker first cell moves the stagnation pressure through the wall function) and part is
+the comparison itself, since each vertex takes the nearest wall face of its own mesh and a coarser surface mesh has
+coarser faces to be nearest to. It is reported that way rather than assumed away.
+
+**The distance to the measurement, as a second reference.** Against Ahmed et al.'s measured drag the campaign mesh is
+16.9 % off on average and the fine mesh 23.7 % — refining moves *away* from the measurement overall, and the per-design
+columns say why:
+
+| slant | measured | L1 | L2 | error L1 | error L2 |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 0.250 | 0.2693 | 0.2547 | 7.7 % | **1.9 %** |
+| 12.5 | 0.230 | 0.2557 | 0.2399 | 11.2 % | **4.3 %** |
+| 25 | 0.285 | 0.2973 | 0.2715 | **4.3 %** | 4.7 % |
+| 30 | 0.378 | 0.3378 | 0.3184 | **10.6 %** | 15.8 % |
+| 35 | 0.260 | 0.3835 | 0.4079 | **47.5 %** | 56.9 % |
+| 40 | 0.250 | 0.3005 | 0.3958 | **20.2 %** | 58.3 % |
+
+On the attached bodies (0 and 12.5 degrees) the refinement halves the error, and on the separated ones it makes it
+worse: steady RANS with wall functions has no way to give the 35 degree body its measured drag *dip* (0.260 against
+0.38 and 0.41), so a finer mesh resolves the wrong wake more sharply. The remaining error there is the **model's**, not
+the mesh's, and no rung of this ladder can close it — which is the answer to "is the coarse rung good enough?" being
+different for drag than for ranking.
+
+**Calibration.** Fitting the campaign mesh's drag on two designs (25 and 35 degrees) gives an offset of `-0.0007` and
+takes the mean absolute error from 0.0325 to 0.0323; fitting all six gives a slope of 1.20 with an offset of `+0.0074`
+and takes it to 0.0303. Neither moves the rank correlation, and cannot: a correction that is the same function of the
+rung for every design is monotone, so it cannot reorder anything. The inverted pair is not a bias, and calibration does
+not fix it.
+
+**What is not in this table** (`not_in_the_table` in the JSON, with the reason for each): the coarse mesh `L0` and the
+finest `L3`, which the campaign solved at the baseline design only — one design cannot be ranked, and a native ladder
+on this machine ran at 2.3 s an iteration under a load average of 29-39 (the campaign's machine did 0.13 s an
+iteration), about three hours for six designs with a cost column that would have measured the machine's contention
+rather than the mesh. The mesh-convergence curve at the baseline design is in `results/mesh_study.json`
+(`L0` 84 223 cells, CD 0.2890, 132 s; `L1` 207 080, 0.2966, 448 s; `L2` 534 472, 0.2707, 1 157 s; `L3` 1 398 073,
+0.2640, 6 410 s), and `ladder_ahmed.MESH_STUDY` carries those numbers. The vortex lattice is not here either: it is a
+lifting-surface method and this family has no wing — the wings family it belongs to (`apps/aero_optimizer`) holds
+committed 3-D solutions for two aircraft, two points cannot be rank-correlated, and re-running enough designs was not
+possible on this machine. The LBM solver is a low-Reynolds method and this family is at `Re = 4.2e6`. The surrogate
+trained on the campaign is a fit to 64 runs, not a rung: it does not solve the same case at fewer cells.
+`ladder_ahmed.MULTIFIDELITY` exports this family's rungs as data levels for #35, as the first family's does.
 
 ## What is not here
 

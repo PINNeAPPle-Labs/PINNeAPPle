@@ -318,6 +318,122 @@ def test_the_ladder_exports_itself_as_data_levels_for_the_multifidelity_workflow
     assert costs == sorted(costs), "the levels must be ordered by cost for a sampler to choose between them"
 
 
+def _wall(cp, x0=0.0):
+    """A row's wall loop: a straight run of stations along x, so the arclength is the coordinate."""
+    x = np.linspace(x0, x0 + 1.0, len(cp))
+    return {"Cp": list(cp), "x": list(x), "y": [0.0] * len(cp)}
+
+
+def test_the_cp_error_is_the_difference_of_the_same_distribution_on_the_same_stations():
+    from pinneapple_simulation.cfd_validation import ladder
+    ref = _wall(np.linspace(-1.0, 1.0, 81))
+    assert ladder.cp_error(ref, ref)["rms"] == pytest.approx(0.0)
+    shifted = _wall(np.linspace(-1.0, 1.0, 41) + 0.25)
+    got = ladder.cp_error(ref, shifted)
+    assert got["rms"] == pytest.approx(0.25)                 # a constant shift is a constant error
+    assert got["max_abs"] == pytest.approx(0.25)
+    assert got["stations"] == 81                             # compared on the reference's stations
+
+
+def test_a_rung_without_a_pressure_field_is_not_a_zero_error():
+    from pinneapple_simulation.cfd_validation import ladder
+    got = ladder.cp_error(_wall(np.zeros(11)), {"Cp": None, "x": None, "y": None})
+    assert got == {"rms": None, "max_abs": None, "stations": 0}
+
+
+def test_a_relative_error_is_the_one_that_reads_the_fine_rungs_cp_and_a_coarse_one_is_not():
+    from pinneapple_simulation.cfd_validation import ladder
+    ref = _wall(np.linspace(0.0, -2.0, 161))                 # a suction peak the coarse rung cannot resolve
+    coarse = _wall(np.linspace(0.0, -1.4, 41))
+    got = ladder.cp_error(ref, coarse)
+    assert got["max_abs"] > 0.4 and got["rms"] > 0.2, got   # a coarse mesh undershoots the peak, it does not tie it
+
+
+def test_a_rans_rung_carries_its_wall_pressure_and_the_cpu_it_cost(monkeypatch, tmp_path):
+    """The row is what the table is built from: without ``Cp`` and the solver's own CPU seconds on it, the two columns
+    the issue asks for cannot exist — and a row with no log says so instead of inventing a cost."""
+    from pinneapple_design.aero import case as aero_case
+    from pinneapple_simulation.cfd_validation import ladder
+    monkeypatch.setattr(ladder.foam, "bashrc", lambda: "/nonexistent/etc/bashrc")
+
+    def fake(case, shape, alpha, **kw):
+        return {"Cl": 0.44, "Cd": 0.008, "status": "converged", "converged_in": 120,
+                "wall": {"Cp": [0.5, -1.0, -0.5], "x": [0.0, 0.5, 1.0], "y": [0.0, 0.05, 0.0]}}
+
+    monkeypatch.setattr(aero_case, "run_case", fake)
+    row = ladder.rans_airfoil("0012", 4.0, ladder.LEVELS[0], str(tmp_path))
+    assert row["CL"] == pytest.approx(0.44) and row["CD"] == pytest.approx(0.008)
+    assert row["Cp"] == [0.5, -1.0, -0.5] and row["x"][1] == pytest.approx(0.5)
+    assert row["cells"] > 0
+    assert row["cpu_seconds"] is None                        # no log on disk, no CPU seconds claimed
+
+
+# ----------------------------------------------------------------------------- the second family (#294)
+def _ahmed_records():
+    from pinneapple_simulation.cfd_validation import ladder_ahmed
+    return ladder_ahmed.default_records()
+
+
+def test_the_ahmed_family_reads_two_rungs_of_the_same_six_designs():
+    from pinneapple_simulation.cfd_validation import ladder_ahmed as LA
+    got = LA.ladder(log=lambda m: None)
+    names = [row["rung"] for row in got["table"]]
+    assert names == [lv["name"] for lv in LA.LEVELS]
+    for row in got["table"]:
+        assert row["designs"] == len(LA.SLANTS) and row["measured"] == len(LA.SLANTS), row
+        assert row["seconds_per_design"] > 0
+    costs = [row["seconds_per_design"] for row in got["table"]]
+    assert costs == sorted(costs), "the rungs must be ordered by cost for a sampler to choose between them"
+
+
+def test_the_ahmed_cp_column_is_a_difference_on_the_shared_vertices():
+    from pinneapple_simulation.cfd_validation import ladder_ahmed as LA
+    got = LA.ladder(log=lambda m: None)
+    coarse, fine = got["table"]
+    assert coarse["Cp_error_rms"] > 0.05, "a 2.5x coarser mesh must show in the skin pressure"
+    assert coarse["Cp_error_max_abs"] >= coarse["Cp_error_rms"]
+    assert fine["Cp_error_rms"] == 0.0                       # the reference against itself
+    regions = list(got["cp_by_design"].values())
+    assert regions and all(r["region"] in {None, "front", "roof", "slant", "base", "side", "underbody"}
+                           for r in regions), regions
+
+
+def test_the_coarse_ahmed_mesh_does_not_rank_the_separated_designs_like_the_fine_one():
+    """The finding of the second family: the campaign mesh inverts the 30 and 40 deg pair, and the table says so
+    instead of reporting a Spearman of 1."""
+    from pinneapple_simulation.cfd_validation import ladder_ahmed as LA
+    got = LA.ladder(log=lambda m: None)
+    coarse = got["table"][0]
+    assert coarse["spearman_CD"] < 1.0
+    assert coarse["CD_error_rel"] > 0.05
+    cd = {row["design"]["slant_deg"]: row["CD"] for row in got["rows"] if row["rung"] == "ahmed-L1"}
+    ref = {row["design"]["slant_deg"]: row["CD"] for row in got["rows"] if row["rung"] == "ahmed-L2"}
+    assert (cd[30.0] > cd[40.0]) and (ref[30.0] < ref[40.0]), "the inverted pair is 30 and 40 deg"
+
+
+def test_the_ahmed_family_says_what_it_did_not_measure_and_on_which_machine_it_did():
+    from pinneapple_simulation.cfd_validation import ladder_ahmed as LA
+    got = LA.ladder(log=lambda m: None)
+    assert set(got["not_in_the_table"]) == {"ahmed-L0", "ahmed-L3", "vlm", "lbm", "surrogate"}
+    assert all(isinstance(v, str) and v for v in got["not_in_the_table"].values())
+    assert got["measured_on"]["cpu_count"] == 4, "every cost in the table belongs to the campaign's machine"
+    assert got["measured_on"]["openfoam"].startswith("v1912")
+
+
+def test_the_ahmed_experimental_column_is_a_separate_reference_from_the_fine_rung():
+    from pinneapple_simulation.cfd_validation import ladder_ahmed as LA
+    got = LA.ladder(log=lambda m: None)
+    for row in got["table"]:
+        assert row["CD_error_rel_vs_experiment"] is not None and row["CD_error_rel_vs_experiment"] > 0.05
+    assert got["table"][1]["CD_error_rel"] == 0.0, "the fine rung is the reference for the mesh error"
+
+
+def test_a_missing_record_is_reported_not_skipped(tmp_path):
+    from pinneapple_simulation.cfd_validation import ladder_ahmed as LA
+    row = LA.read_rung(str(tmp_path), LA.LEVELS[0], LA.AhmedDesign(25.0))
+    assert row["CD"] is None and row["status"] == "missing record" and row["error"].startswith("no val_25.0")
+
+
 # --------------------------------------------------------------------------------------------- the TMR plate
 def test_the_flat_plate_puts_its_first_cell_in_the_log_layer(tmp_path):
     """``simpleGrading`` takes the last-to-first ratio, not the per-cell one: a case that gets this wrong puts the

@@ -3,6 +3,7 @@
     python examples/cfd/classical_cases/run_cases.py --out examples/cfd/classical_cases/results
     python examples/cfd/classical_cases/run_cases.py --only reference          # no solver needed
     python examples/cfd/classical_cases/run_cases.py --only cavity --re 100 400
+    python examples/cfd/classical_cases/run_cases.py --only ladder-ahmed       # reads the Ahmed campaign's records
 
 It writes one JSON per case next to the tables it was compared with, so the README's table can be regenerated and the
 numbers in it can be checked. Without OpenFOAM the ``reference`` part still runs (it is transcribed data) and the
@@ -22,6 +23,7 @@ from pinneapple_simulation.cfd_validation import (  # noqa: E402
     cavity,
     foam,
     ladder,
+    ladder_ahmed,
     reference,
     step,
     tmr,
@@ -64,16 +66,26 @@ def do_warm(out: str, cases: str) -> None:
     _dump(os.path.join(out, "warm_start.json"), result)
 
 
-def do_ladder(out: str, cases: str) -> None:
+def do_ladder(out: str, cases: str, *, reuse: bool = False) -> None:
     """#294: the cost-accuracy table, and the calibration's effect on the ranking."""
     print("ladder: NACA 0012 at alpha = 0, 4, 8 on three RANS levels")
     designs = [ladder.design("0012", a) for a in (0.0, 4.0, 8.0)]
-    got = ladder.ladder(designs, os.path.join(cases, "ladder"), log=lambda m: print(m))
+    got = ladder.ladder(designs, os.path.join(cases, "ladder"), log=lambda m: print(m), reuse=reuse)
     got["calibration"] = ladder.calibrate(got["rows"], "rans-coarse", designs=[0.0, 4.0])
     for row in got["table"]:
         print(f"  {row['rung']:<14} {row['cells']:>7} cells  {row['seconds_per_design']:>7.1f} s/design  "
-              f"CL err {row['CL_error_rel']}  spearman {row['spearman_CL']}")
+              f"CL err {row['CL_error_rel']}  spearman {row['spearman_CL']}  Cp rms {row['Cp_error_rms']}")
     _dump(os.path.join(out, "ladder.json"), got)
+
+
+def do_ladder_ahmed(out: str) -> None:
+    """#294: the same table on the second family, the Ahmed body's variants, read from its campaign's records."""
+    print("ladder: Ahmed body at the six slant angles of Ahmed et al. (1984), campaign and L2 meshes")
+    got = ladder_ahmed.ladder(log=lambda m: print(m))
+    for row in got["table"]:
+        print(f"  {row['rung']:<10} {row['cells']:>7} cells  {row['seconds_per_design']:>7.1f} s/design  "
+              f"CD err {row['CD_error_rel']}  Cp rms {row['Cp_error_rms']}  spearman {row['spearman_CD']}")
+    _dump(os.path.join(out, "ladder_ahmed.json"), got)
 
 
 def do_tmr(out: str, cases: str) -> None:
@@ -124,8 +136,9 @@ def main(argv=None) -> int:
                     help="where the JSON lands (the numbers committed next to the README)")
     ap.add_argument("--cases", default="/tmp/pinneapple-cfd-cases",
                     help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
-    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr"],
-                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr"])
+    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "ladder-ahmed",
+                                                  "tmr"],
+                    choices=["reference", "cavity", "step", "warm", "ladder", "ladder-ahmed", "tmr"])
     ap.add_argument("--reuse", action="store_true", help="read the cases already solved under --cases")
     ap.add_argument("--re", nargs="+", type=int, default=[100, 400, 1000], help="Reynolds numbers for the cavity")
     ap.add_argument("--meshes", nargs="+", type=int, default=list(cavity.MESHES))
@@ -137,7 +150,7 @@ def main(argv=None) -> int:
     os.makedirs(args.cases, exist_ok=True)
     if "reference" in args.only:
         do_reference(args.out)
-    if "cavity" in args.only or "step" in args.only:
+    if "cavity" in args.only or "step" in args.only or "ladder" in args.only:
         found = foam.bashrc()
         if found is None:
             print("no OpenFOAM installation found (set FOAM_BASHRC): the solver cases are skipped", file=sys.stderr)
@@ -150,7 +163,9 @@ def main(argv=None) -> int:
     if "warm" in args.only:
         do_warm(args.out, args.cases)
     if "ladder" in args.only:
-        do_ladder(args.out, args.cases)
+        do_ladder(args.out, args.cases, reuse=args.reuse)
+    if "ladder-ahmed" in args.only:
+        do_ladder_ahmed(args.out)
     if "tmr" in args.only:
         do_tmr(args.out, args.cases)
     return 0

@@ -15,9 +15,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from pinneapple_neural.model_provider import ModelNotLoadable, load
+from pinneapple_neural.model_provider import load
+from pinneapple_neural.physics_model import PhysicsModel
 from pinneapple_neural.problem_backends import (
-    JAX_KINDS,
     BackendNotInstalled,
     ProblemBackend,
     UnsupportedProblem,
@@ -26,7 +26,6 @@ from pinneapple_neural.problem_backends import (
     jax_function_ref,
     problem_backend,
 )
-from pinneapple_neural.physics_model import PhysicsModel
 from pinneapple_tools.benchmark_suite.cases import _score, get_case
 
 CASE_ID = "02"                                   # heat_2d, the case the issue names
@@ -244,4 +243,4 @@ def test_the_door_unwraps_the_family_output_instead_of_returning_the_dataclass(t
     other.save_checkpoint(str(tmp_path / "other.pt"), {})
     # a registry architecture that belongs to no family is refused by name, not wrapped in an empty adapter
     with pytest.raises(NotAPhysicsModel, match="ModifiedMLP"):
-        load(tmp_path / "other.pt").physics_model
+        assert load(tmp_path / "other.pt").physics_model is not None

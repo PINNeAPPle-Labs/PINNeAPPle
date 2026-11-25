@@ -42,12 +42,17 @@ from __future__ import annotations
 import time
 from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
 
-from pinneapple_neural.physics_model import FitReport, PhysicsModel, Prediction, UncertaintyNotAvailable
+from pinneapple_neural.physics_model import (
+    FitReport,
+    PhysicsModel,
+    Prediction,
+    UncertaintyNotAvailable,
+)
 
 __all__ = [
     "BACKENDS",
@@ -76,13 +81,13 @@ class UnsupportedProblem(RuntimeError):
 
 
 #: The backends ``problem.backend()`` accepts, in the order the issue names them.
-BACKENDS: Tuple[str, ...] = ("pytorch", "jax", "physicsnemo")
+BACKENDS: tuple[str, ...] = ("pytorch", "jax", "physicsnemo")
 
 #: PDE kinds the JAX residual is written for. Everything else is refused by name, never approximated.
-JAX_KINDS: Tuple[str, ...] = ("heat_equation", "poisson", "laplace", "burgers", "inviscid_burgers")
+JAX_KINDS: tuple[str, ...] = ("heat_equation", "poisson", "laplace", "burgers", "inviscid_burgers")
 
 #: Conditions the JAX residual turns into a loss term (``neumann``/``robin``/``interface`` need a boundary normal).
-JAX_CONDITIONS: Tuple[str, ...] = ("dirichlet", "initial", "data")
+JAX_CONDITIONS: tuple[str, ...] = ("dirichlet", "initial", "data")
 
 #: The weights :func:`pinneapple_physics.pinn_solver.compiler.compile_problem` applies by default, kept identical here
 #: so the two engines minimise the same objective.
@@ -98,7 +103,7 @@ def _package_version(name: str) -> str:
         return ""
 
 
-def _installed(name: str) -> Tuple[bool, str]:
+def _installed(name: str) -> tuple[bool, str]:
     """``(usable, detail)`` for a distribution: a missing package is reported, never raised from inside a train."""
     import importlib.util
 
@@ -133,20 +138,20 @@ class ProblemBackend(PhysicsModel):
         super().__init__(None, name=name or f"{getattr(problem, 'name', '?')} ({self.backend_name})",
                          backend=self.backend_name)
         self.problem = problem
-        self.history: List[Dict[str, float]] = []
-        self.report: Optional[FitReport] = None
+        self.history: list[dict[str, float]] = []
+        self.report: FitReport | None = None
 
     # -- identity ------------------------------------------------------------------------------------------
     def __repr__(self) -> str:
         return f"<{type(self).__name__} {self.name} backend={self.backend_name!r}>"
 
-    def available(self) -> Tuple[bool, str]:
+    def available(self) -> tuple[bool, str]:
         """Whether this backend can train here at all, and what is missing when it cannot."""
         if not self.package:
             return True, ""
         return _installed(self.package)
 
-    def describe(self) -> Dict[str, Any]:
+    def describe(self) -> dict[str, Any]:
         ok, detail = self.available()
         return {"backend": self.backend_name, "available": ok, "detail": detail,
                 "package": self.package, "artifact": self.suffix, "problem": getattr(self.problem, "name", ""),
@@ -154,7 +159,7 @@ class ProblemBackend(PhysicsModel):
                 "fields": list(getattr(self.problem, "fields", ())),
                 "trainable": self.capabilities()}
 
-    def capabilities(self) -> Dict[str, str]:
+    def capabilities(self) -> dict[str, str]:
         ok, detail = self.available()
         return {"fit": "yes" if ok else f"no: {detail}", "predict": "yes" if ok else f"no: {detail}",
                 "uncertainty": "no: a PINN trained on the problem's residual carries no sampler; fit members and "
@@ -292,7 +297,7 @@ class TorchProblemBackend(ProblemBackend):
         path.parent.mkdir(parents=True, exist_ok=True)
         return Path(save(str(path), self._metadata()))
 
-    def _metadata(self) -> Dict[str, Any]:
+    def _metadata(self) -> dict[str, Any]:
         return {"pinneapple_problem": getattr(self.problem, "name", ""),
                 "pinneapple_fingerprint": self.problem.fingerprint() if hasattr(self.problem, "fingerprint") else "",
                 "pinneapple_backend": self.backend_name,
@@ -300,7 +305,7 @@ class TorchProblemBackend(ProblemBackend):
                 "pinneapple_fields": list(self.problem.fields)}
 
 
-def _history_values(history: Any) -> List[float]:
+def _history_values(history: Any) -> list[float]:
     """The ``total`` (else ``loss``) series out of whatever a solve returned."""
     if isinstance(history, Mapping):
         for key in ("total", "loss", "train_total"):
@@ -330,7 +335,7 @@ class JaxProblemBackend(ProblemBackend):
     def __init__(self, problem: Any, **options: Any):
         super().__init__(problem)
         self.options = dict(options)
-        self._params: Optional[Dict[str, Any]] = None
+        self._params: dict[str, Any] | None = None
 
     @property
     def model(self) -> Any:
@@ -378,16 +383,16 @@ class JaxProblemBackend(ProblemBackend):
         batches = _condition_batches(self.problem, n=max(64, int(n_collocation) // 4), rng=rng)
         residual = _jax_residual(self.problem)
 
-        def loss_fn(params: Dict[str, Any], x_col: Any):
+        def loss_fn(params: dict[str, Any], x_col: Any):
             res = residual(params, x_col)
             l_pde = jnp.mean(res ** 2)
             terms = {"pde": l_pde}
             total = W_PDE * l_pde
             for name, (x_c, y_c, weight, cond_kind) in batches.items():
                 pred = _jax_mlp(params, x_c)
-                l = jnp.mean((pred - y_c) ** 2)
-                terms[name] = l
-                total = total + (_cond_weight(cond_kind) * weight) * l
+                term = jnp.mean((pred - y_c) ** 2)
+                terms[name] = term
+                total = total + (_cond_weight(cond_kind) * weight) * term
             return total, terms
 
         state = _jax_adam_init(params)
@@ -469,7 +474,7 @@ def _jax_mlp(params: Mapping[str, Any], x: Any) -> Any:
 
 
 def _jax_init_params(key: Any, *, in_dim: int, out_dim: int, width: int, depth: int, n_fourier: int = 32,
-                     sigma: float = 0.5) -> Dict[str, Any]:
+                     sigma: float = 0.5) -> dict[str, Any]:
     """LeCun-scaled weights and zero biases, one split of the key per layer (the ``jax_pinn`` backend's scheme).
 
     With ``n_fourier > 0`` the input first goes through a fixed random Fourier projection (``embed_b``), matching
@@ -481,7 +486,7 @@ def _jax_init_params(key: Any, *, in_dim: int, out_dim: int, width: int, depth: 
     if depth < 1:
         raise ValueError(f"depth must be at least 1, got {depth}")
     keys = jax.random.split(key, depth + 2)
-    params: Dict[str, Any] = {}
+    params: dict[str, Any] = {}
     d_in = int(in_dim)
     if int(n_fourier) > 0:
         params["embed_b"] = jax.random.normal(keys[0], (d_in, int(n_fourier)), dtype=jnp.float32) * float(sigma)
@@ -497,7 +502,7 @@ def _jax_init_params(key: Any, *, in_dim: int, out_dim: int, width: int, depth: 
     return params
 
 
-def _jax_adam_init(params: Mapping[str, Any]) -> Dict[str, Any]:
+def _jax_adam_init(params: Mapping[str, Any]) -> dict[str, Any]:
     import jax.numpy as jnp
 
     return {"m": {k: jnp.zeros_like(v) for k, v in params.items()},
@@ -592,7 +597,7 @@ def _cond_weight(kind: str) -> float:
     return {"dirichlet": W_BC, "initial": W_IC}.get(kind, W_DATA)
 
 
-def _condition_batches(problem: Any, *, n: int, rng: np.random.Generator) -> Dict[str, Tuple[Any, Any, float, str]]:
+def _condition_batches(problem: Any, *, n: int, rng: np.random.Generator) -> dict[str, tuple[Any, Any, float, str]]:
     """``{condition name: (x, y, weight, kind)}`` sampled once, so the compiled JAX step keeps its shapes.
 
     Points come from :func:`pinneapple_physics.pde_environment.condition_sampling.sample_condition_points`, the
@@ -604,7 +609,7 @@ def _condition_batches(problem: Any, *, n: int, rng: np.random.Generator) -> Dic
 
     from pinneapple_physics.pde_environment.condition_sampling import sample_condition_points
 
-    batches: Dict[str, Tuple[Any, Any, float, str]] = {}
+    batches: dict[str, tuple[Any, Any, float, str]] = {}
     for cond in problem.conditions:
         x = sample_condition_points(lambda X, _c=cond: _c.mask(X, {}), problem.domain_bounds, problem.coords,
                                     int(n), rng)
@@ -750,7 +755,7 @@ def _first_tensor(out: Any) -> np.ndarray:
 
 
 # --------------------------------------------------------------------------------------------- the factory
-_BACKENDS: Dict[str, Callable[..., ProblemBackend]] = {
+_BACKENDS: dict[str, Callable[..., ProblemBackend]] = {
     "pytorch": TorchProblemBackend,
     "jax": JaxProblemBackend,
     "physicsnemo": PhysicsNeMoProblemBackend,
@@ -770,14 +775,14 @@ def problem_backend(problem: Any, backend: str = "pytorch", **options: Any) -> P
     return _BACKENDS[key](problem, **options)
 
 
-def backends() -> List[str]:
+def backends() -> list[str]:
     """The backend names ``problem.backend()`` accepts."""
     return sorted(_BACKENDS)
 
 
-def available_backends() -> Dict[str, Dict[str, Any]]:
+def available_backends() -> dict[str, dict[str, Any]]:
     """What each backend says about itself here: usable or not, with the reason, and what it writes."""
-    out: Dict[str, Dict[str, Any]] = {}
+    out: dict[str, dict[str, Any]] = {}
     for name in backends():
         cls = _BACKENDS[name]
         ok, detail = _installed(cls.package) if cls.package else (True, "")

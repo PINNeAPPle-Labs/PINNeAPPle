@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
-def load_leaderboard(path: str | Path) -> List[Dict[str, Any]]:
+def load_leaderboard(path: str | Path) -> list[dict[str, Any]]:
     """
     Load a leaderboard JSON file.
 
@@ -32,7 +32,7 @@ def load_leaderboard(path: str | Path) -> List[Dict[str, Any]]:
     return [r for r in data if isinstance(r, dict)]
 
 
-def update_leaderboard(path: str | Path, row: Dict[str, Any]) -> None:
+def update_leaderboard(path: str | Path, row: dict[str, Any]) -> None:
     """
     Append a new entry to the leaderboard JSON file.
     """

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Any
+from typing import Any
 
 import math
 
@@ -22,7 +22,7 @@ class LatencyStats:
     max_ms: float
 
 
-def latency_summary(lat_ms: List[float]) -> Dict[str, Any]:
+def latency_summary(lat_ms: list[float]) -> dict[str, Any]:
     if len(lat_ms) == 0:
         return {
             "count": 0,

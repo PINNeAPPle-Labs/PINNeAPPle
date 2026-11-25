@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for PINN model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import PINNBase
 from .vanilla import VanillaPINN
@@ -16,7 +15,7 @@ from .xpinn import XPINN
 from .xtfc import XTFC
 
 
-_REGISTRY: Dict[str, Type[PINNBase]] = {
+_REGISTRY: dict[str, type[PINNBase]] = {
     "vanilla_pinn": VanillaPINN,
     "pinn": VanillaPINN,
     "vanilla": VanillaPINN,
@@ -66,7 +65,7 @@ def register_into_global() -> None:
 
 @dataclass
 class PINNCatalog:
-    registry: Dict[str, Type[PINNBase]] = None
+    registry: dict[str, type[PINNBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -74,7 +73,7 @@ class PINNCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[PINNBase]:
+    def get(self, name: str) -> type[PINNBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown pinn model '{name}'. Available: {self.list()[:20]} ...")

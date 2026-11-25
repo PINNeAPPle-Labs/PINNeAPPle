@@ -1,7 +1,7 @@
 """Design agent for interactive problem elicitation via LLM."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .protocol import LLMProvider, LLMMessage
 from .state import DesignState
@@ -22,7 +22,7 @@ from .renderers.report_md import render_markdown_report
 _EMPTY = (None, "", [], {})
 
 
-def _deep_get(d: Dict[str, Any], path: str) -> Any:
+def _deep_get(d: dict[str, Any], path: str) -> Any:
     cur: Any = d
     for part in path.split("."):
         if not isinstance(cur, dict):
@@ -31,7 +31,7 @@ def _deep_get(d: Dict[str, Any], path: str) -> Any:
     return cur
 
 
-def _stage_required_satisfied(spec_dict: Dict[str, Any], required_fields: List[str]) -> bool:
+def _stage_required_satisfied(spec_dict: dict[str, Any], required_fields: list[str]) -> bool:
     for f in required_fields:
         val = _deep_get(spec_dict, f) if "." in f else spec_dict.get(f)
         if val in _EMPTY:
@@ -39,8 +39,8 @@ def _stage_required_satisfied(spec_dict: Dict[str, Any], required_fields: List[s
     return True
 
 
-def _dedup_gaps(gaps: List[Gap]) -> List[Gap]:
-    out: List[Gap] = []
+def _dedup_gaps(gaps: list[Gap]) -> list[Gap]:
+    out: list[Gap] = []
     seen = set()
     for g in gaps:
         if g.id in seen:
@@ -90,7 +90,7 @@ class DesignAgent:
             gaps_suggested=meta.get("gaps_suggested", []),
         )
 
-    def step(self, state: DesignState) -> Dict[str, Any]:
+    def step(self, state: DesignState) -> dict[str, Any]:
         if state.done:
             report = state.to_report()
             warnings, _ = validate_and_suggest(report.spec)
@@ -165,7 +165,7 @@ class DesignAgent:
             return "finalization"
         return names[i + 1]
 
-    def _rewrite_questions(self, state: DesignState, gaps: List[Gap]) -> str:
+    def _rewrite_questions(self, state: DesignState, gaps: list[Gap]) -> str:
         if not gaps:
             return "No questions."
 

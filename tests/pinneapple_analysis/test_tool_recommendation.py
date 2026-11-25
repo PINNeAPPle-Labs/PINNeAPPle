@@ -8,7 +8,6 @@ match nothing in the catalog).
 """
 from __future__ import annotations
 
-import pytest
 
 from pinneapple_analysis.verification.tool_recommendation import (
     TOOL_CATALOG,

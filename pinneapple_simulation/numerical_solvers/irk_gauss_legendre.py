@@ -47,7 +47,6 @@ from __future__ import annotations
 
 import numpy as np
 from pathlib import Path
-from typing import Optional, Tuple, Union
 from scipy.special import eval_legendre
 
 
@@ -69,7 +68,7 @@ def _rhs_vector(c_i: float, q: int) -> np.ndarray:
     return rhs
 
 
-def build_gauss_legendre_tableau(q: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def build_gauss_legendre_tableau(q: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Build the q-stage Gauss-Legendre IRK tableau (A, b, c) on [0,1].
 
     Returns A (q,q), b (q,), c (q,) as float64 arrays.
@@ -146,7 +145,7 @@ def validate_tableau(A: np.ndarray, b: np.ndarray, c: np.ndarray, q: int, tol: f
     return diagnostics
 
 
-def get_irk_tableau(q: int, cache_dir: Optional[Union[str, Path]] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def get_irk_tableau(q: int, cache_dir: str | Path | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Build-or-load-cached, then validate, the q-stage Gauss-Legendre IRK
     tableau. Raises loudly (AssertionError/RuntimeError) rather than
     returning a silently-wrong tableau.

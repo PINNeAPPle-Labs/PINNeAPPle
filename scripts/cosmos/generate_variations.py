@@ -4,7 +4,7 @@ import argparse
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 import yaml
@@ -35,7 +35,7 @@ def main() -> int:
     if not args.base_url:
         # local deterministic variations (no placeholders): just sweep nu
         base = yaml.safe_load(spec_yaml)
-        variations: List[Dict[str, Any]] = []
+        variations: list[dict[str, Any]] = []
         nu0 = float(base["parameters"]["nu"])
         for i in range(int(args.n)):
             nu = max(1e-6, nu0 * (0.7 + 0.03 * i))

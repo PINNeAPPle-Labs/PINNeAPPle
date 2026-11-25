@@ -15,7 +15,7 @@ the CSG shapes of :mod:`pinneapple_design.geometry.csg` (2D).
 """
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
@@ -42,7 +42,7 @@ class Domain:
         lo: Sequence[float],
         hi: Sequence[float],
         *,
-        sdf: Optional[SdfFn] = None,
+        sdf: SdfFn | None = None,
         shape=None,
     ) -> None:
         self.lo = np.atleast_1d(np.asarray(lo, dtype=np.float64))
@@ -59,20 +59,20 @@ class Domain:
             sdf = _shape_sdf(shape)
         self._sdf = sdf
         self._shape = shape  # the CSG shape itself, for boundary sampling
-        self._volume: Optional[float] = None
+        self._volume: float | None = None
 
     # -- constructors -------------------------------------------------------
     @classmethod
-    def box(cls, lo: Sequence[float], hi: Sequence[float]) -> "Domain":
+    def box(cls, lo: Sequence[float], hi: Sequence[float]) -> Domain:
         """Axis-aligned box in any dimension."""
         return cls(lo, hi)
 
     @classmethod
-    def interval(cls, a: float, b: float) -> "Domain":
+    def interval(cls, a: float, b: float) -> Domain:
         return cls([a], [b])
 
     @classmethod
-    def from_sdf(cls, shape) -> "Domain":
+    def from_sdf(cls, shape) -> Domain:
         """Wrap a 2D CSG shape (``pinneapple_design.geometry.csg``) as a Domain."""
         lo = np.asarray(shape.bounds_min, dtype=np.float64)
         hi = np.asarray(shape.bounds_max, dtype=np.float64)
@@ -88,7 +88,7 @@ class Domain:
         return self._sdf is None
 
     @property
-    def bounds(self) -> Tuple[np.ndarray, np.ndarray]:
+    def bounds(self) -> tuple[np.ndarray, np.ndarray]:
         return self.lo, self.hi
 
     def volume(self) -> float:
@@ -150,7 +150,7 @@ class Domain:
 
     def sample_boundary(
         self, n: int, *, seed: int = 0, return_normals: bool = False
-    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """``(n, dim)`` points on the boundary, uniform in boundary measure.
 
         Boxes also return outward unit normals with ``return_normals=True``;
@@ -170,7 +170,7 @@ class Domain:
             raise NotImplementedError("boundary sampling needs a box or a CSG shape")
         return (pts, nrm) if return_normals else pts
 
-    def _box_boundary(self, n: int, rng) -> Tuple[np.ndarray, np.ndarray]:
+    def _box_boundary(self, n: int, rng) -> tuple[np.ndarray, np.ndarray]:
         d = self.dim
         span = self.hi - self.lo
         # face (axis, side) has measure prod of the other extents (1 for d == 1)

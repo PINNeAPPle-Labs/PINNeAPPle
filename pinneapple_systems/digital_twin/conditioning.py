@@ -32,7 +32,6 @@ from __future__ import annotations
 import math
 from collections import deque
 from dataclasses import dataclass, field, replace
-from typing import Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -46,12 +45,12 @@ class SignalProfile:
     hampel_window: int = 9  # recent accepted readings kept for the outlier test; 0 disables it
     hampel_k: float = 3.0
     max_consecutive_outliers: int = 3
-    max_rate: Optional[float] = None  # units per second
-    valid_range: Optional[Tuple[float, float]] = None
+    max_rate: float | None = None  # units per second
+    valid_range: tuple[float, float] | None = None
     max_gap_s: float = 60.0
 
 
-PROFILES: Dict[str, SignalProfile] = {
+PROFILES: dict[str, SignalProfile] = {
     # slow, smooth: strong smoothing, tight rate limit, gaps tolerated for minutes
     "thermal": SignalProfile("thermal", tau_s=30.0, hampel_window=11, hampel_k=3.0, max_gap_s=300.0),
     # fast, spiky: light smoothing so transients survive, outliers removed
@@ -68,7 +67,7 @@ class ConditionedSample:
     t: float
     raw: float
     value: float
-    flags: List[str] = field(default_factory=list)
+    flags: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -81,12 +80,12 @@ class StreamingConditioner:
     def __init__(self, profile: SignalProfile | str = "generic", **overrides):
         base = PROFILES.get(profile, SignalProfile()) if isinstance(profile, str) else profile
         self.profile = replace(base, **overrides) if overrides else base
-        self._rates: Deque[float] = deque(maxlen=max(self.profile.hampel_window, 1))
-        self._acc: Optional[Tuple[float, float]] = None  # last accepted (t, value) for the outlier test
+        self._rates: deque[float] = deque(maxlen=max(self.profile.hampel_window, 1))
+        self._acc: tuple[float, float] | None = None  # last accepted (t, value) for the outlier test
         self._n_out = 0
-        self._t: Optional[float] = None
-        self._y: Optional[float] = None
-        self._last_real_t: Optional[float] = None
+        self._t: float | None = None
+        self._y: float | None = None
+        self._last_real_t: float | None = None
 
     def reset(self) -> None:
         self._rates.clear()
@@ -94,9 +93,9 @@ class StreamingConditioner:
         self._n_out = 0
         self._t = self._y = self._last_real_t = None
 
-    def update(self, t: float, raw: Optional[float]) -> ConditionedSample:
+    def update(self, t: float, raw: float | None) -> ConditionedSample:
         p = self.profile
-        flags: List[str] = []
+        flags: list[str] = []
         x = float("nan") if raw is None else float(raw)
         if math.isfinite(x) and p.valid_range is not None and not (p.valid_range[0] <= x <= p.valid_range[1]):
             flags.append("out_of_range")
@@ -160,12 +159,12 @@ class TelemetryConditioner:
     ``SignalProfile`` (most specific wins); anything unmapped uses ``default``.
     """
 
-    def __init__(self, profiles: Optional[Dict[str, SignalProfile | str]] = None,
+    def __init__(self, profiles: dict[str, SignalProfile | str] | None = None,
                  default: SignalProfile | str = "generic"):
         self.profiles = dict(profiles or {})
         self.default = default
-        self._cond: Dict[Tuple[str, str], StreamingConditioner] = {}
-        self.counts: Dict[str, int] = {}
+        self._cond: dict[tuple[str, str], StreamingConditioner] = {}
+        self.counts: dict[str, int] = {}
 
     def _get(self, sensor_id: str, name: str) -> StreamingConditioner:
         key = (sensor_id, name)
@@ -174,7 +173,7 @@ class TelemetryConditioner:
             self._cond[key] = StreamingConditioner(prof)
         return self._cond[key]
 
-    def process(self, sensor_id: str, t: float, values: Dict[str, float]) -> Dict[str, ConditionedSample]:
+    def process(self, sensor_id: str, t: float, values: dict[str, float]) -> dict[str, ConditionedSample]:
         out = {}
         for name, v in values.items():
             s = self._get(sensor_id, name).update(t, v)

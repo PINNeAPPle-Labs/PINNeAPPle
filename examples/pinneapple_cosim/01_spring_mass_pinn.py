@@ -40,7 +40,6 @@ from __future__ import annotations
 import math
 import sys
 from pathlib import Path
-from typing import Dict
 
 import numpy as np
 import torch
@@ -248,7 +247,7 @@ print(f"Mass 2: {_m2_name}  "
 #    Normalised loss:    ((a_pred − a_true) / A_scale)²
 # ============================================================
 
-def mass1_physics(node: PINNNode, inputs: Dict, t: float, dt: float) -> torch.Tensor:
+def mass1_physics(node: PINNNode, inputs: dict, t: float, dt: float) -> torch.Tensor:
     x1 = inputs["x1_prev"]
     v1 = inputs["v1_prev"]
     F  = inputs["F_ext"]
@@ -260,7 +259,7 @@ def mass1_physics(node: PINNNode, inputs: Dict, t: float, dt: float) -> torch.Te
     return ((a1_pred - a1_true) / _A1S).pow(2).mean()
 
 
-def mass2_physics(node: PINNNode, inputs: Dict, t: float, dt: float) -> torch.Tensor:
+def mass2_physics(node: PINNNode, inputs: dict, t: float, dt: float) -> torch.Tensor:
     x2 = inputs["x2_prev"]
     v2 = inputs["v2_prev"]
     x1 = inputs.get("x1_in", torch.zeros_like(x2))
@@ -359,7 +358,7 @@ print(f"\n=== Training ({EPOCHS} epochs, window={N_UNROLL}, p_ref 1.0→{P_REF_M
 print(f"  Graph cycles:    {graph.has_cycles()}")
 print(f"  Execution order: {graph.execution_order()}")
 
-history: Dict = {"loss": [], "physics": [], "data": [], "p_ref": []}
+history: dict = {"loss": [], "physics": [], "data": [], "p_ref": []}
 
 for epoch in range(EPOCHS):
     optimizer.zero_grad()

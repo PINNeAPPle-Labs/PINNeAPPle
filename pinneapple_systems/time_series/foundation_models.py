@@ -54,7 +54,7 @@ quantile/sample forecasts the upstream packages compute, via
 """
 from __future__ import annotations
 
-from typing import List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -113,7 +113,7 @@ class ChronosForecaster:
         self,
         model_id: str = "amazon/chronos-t5-tiny",
         device_map: str = "cpu",
-        dtype: Optional["torch.dtype"] = None,
+        dtype: torch.dtype | None = None,
         **pipeline_kwargs,
     ):
         if not _CHRONOS_AVAILABLE or not _TORCH_AVAILABLE:
@@ -123,7 +123,7 @@ class ChronosForecaster:
         self.dtype = dtype if dtype is not None else torch.float32
         self._pipeline_kwargs = dict(pipeline_kwargs)
         self._pipeline = None
-        self._context_: Optional[np.ndarray] = None
+        self._context_: np.ndarray | None = None
 
     # -- lifecycle ---------------------------------------------------------
 
@@ -137,7 +137,7 @@ class ChronosForecaster:
             )
         return self._pipeline
 
-    def fit(self, y: np.ndarray) -> "ChronosForecaster":
+    def fit(self, y: np.ndarray) -> ChronosForecaster:
         """Store the context series and load the real pretrained checkpoint.
 
         Documented no-op re: model weights (see class docstring) -- Chronos
@@ -186,7 +186,7 @@ class ChronosForecaster:
 
     def predict_quantiles(
         self, horizon: int, quantile_levels: Sequence[float] = (0.1, 0.5, 0.9)
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Real quantile forecast.
 
         Returns ``(quantiles, mean)`` where ``quantiles`` has shape
@@ -216,7 +216,7 @@ class ChronosForecaster:
 
     def predict_with_uncertainty(
         self, horizon: int, num_samples: int = 100
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Real ``(mean, std)`` over the forecast horizon.
 
         Mirrors ``ForecastModel.predict_with_uncertainty`` used by the
@@ -289,7 +289,7 @@ class TimesFMForecaster:
         self.torch_compile = torch_compile
         self._forecast_config_kwargs = dict(forecast_config_kwargs)
         self._model = None
-        self._context_: Optional[np.ndarray] = None
+        self._context_: np.ndarray | None = None
 
     def _load_model(self):
         if self._model is None:
@@ -310,7 +310,7 @@ class TimesFMForecaster:
             self._model = model
         return self._model
 
-    def fit(self, y: np.ndarray) -> "TimesFMForecaster":
+    def fit(self, y: np.ndarray) -> TimesFMForecaster:
         """Store the context series and load the real pretrained checkpoint.
 
         Documented no-op re: model weights -- TimesFM is used zero-shot,
@@ -325,7 +325,7 @@ class TimesFMForecaster:
         self._load_model()
         return self
 
-    def _forecast(self, horizon: int) -> Tuple[np.ndarray, np.ndarray]:
+    def _forecast(self, horizon: int) -> tuple[np.ndarray, np.ndarray]:
         if self._context_ is None or self._model is None:
             raise RuntimeError("Call fit() before predict().")
         h = int(horizon)
@@ -366,7 +366,7 @@ class TimesFMForecaster:
 
     def predict_with_uncertainty(
         self, horizon: int
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Real ``(mean, std)`` over the forecast horizon, from the model's
         own quantile spread (approximated from the 10/90 deciles)."""
         point, quantiles = self._forecast(horizon)

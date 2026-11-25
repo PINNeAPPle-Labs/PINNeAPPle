@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Union
 
 import xarray as xr
 
@@ -14,13 +14,13 @@ import xarray as xr
 #  - already-opened xarray.Dataset + meta dict
 #  - UPDItem (from pinneapple_pinn.io) with .open_dataset() / .load_meta()
 UPDInput = Union[
-    Tuple[str, str],
-    Dict[str, Any],
+    tuple[str, str],
+    dict[str, Any],
     Any,
 ]
 
 
-def load_upd_item(upd: UPDInput) -> Tuple[xr.Dataset, Dict[str, Any]]:
+def load_upd_item(upd: UPDInput) -> tuple[xr.Dataset, dict[str, Any]]:
     """
     Load a UPD shard dataset and its associated metadata.
 
@@ -81,7 +81,7 @@ def load_upd_item(upd: UPDInput) -> Tuple[xr.Dataset, Dict[str, Any]]:
     raise TypeError(f"Unsupported UPD input type: {type(upd)}")
 
 
-def _load_paths(zarr_path: str, meta_path: str) -> Tuple[xr.Dataset, Dict[str, Any]]:
+def _load_paths(zarr_path: str, meta_path: str) -> tuple[xr.Dataset, dict[str, Any]]:
     """
     Load a Zarr dataset and corresponding JSON metadata from filesystem paths.
 
@@ -102,7 +102,7 @@ def _load_paths(zarr_path: str, meta_path: str) -> Tuple[xr.Dataset, Dict[str, A
     return ds, meta
 
 
-def _infer_domain_from_upd(ds: xr.Dataset) -> Dict[str, Any]:
+def _infer_domain_from_upd(ds: xr.Dataset) -> dict[str, Any]:
     """
     Infer domain metadata from a UPD xarray Dataset.
 
@@ -129,7 +129,7 @@ def _infer_domain_from_upd(ds: xr.Dataset) -> Dict[str, Any]:
     coords = set(ds.coords)
     dims = dict(ds.sizes)
 
-    domain: Dict[str, Any] = {"type": "grid"}
+    domain: dict[str, Any] = {"type": "grid"}
 
     # common cases
     if {"lat", "lon"}.issubset(coords):
@@ -150,8 +150,8 @@ def _infer_domain_from_upd(ds: xr.Dataset) -> Dict[str, Any]:
 def upd_to_physical_sample(
     upd: UPDInput,
     *,
-    schema_override: Optional[Dict[str, Any]] = None,
-    provenance_extra: Optional[Dict[str, Any]] = None,
+    schema_override: dict[str, Any] | None = None,
+    provenance_extra: dict[str, Any] | None = None,
 ) -> Any:
     """
     Convert a UPD shard into a PhysicalSample instance.

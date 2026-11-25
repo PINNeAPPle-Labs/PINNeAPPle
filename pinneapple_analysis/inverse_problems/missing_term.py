@@ -25,7 +25,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from itertools import combinations_with_replacement
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -56,13 +57,13 @@ class CandidateLibrary:
         self,
         poly_order: int = 2,
         include_trig: bool = False,
-        custom_terms: Optional[List[Tuple[str, Callable]]] = None,
+        custom_terms: list[tuple[str, Callable]] | None = None,
     ) -> None:
         self.poly_order = poly_order
         self.include_trig = include_trig
         self.custom_terms = custom_terms or []
 
-    def build(self, X: np.ndarray) -> Tuple[np.ndarray, List[str]]:
+    def build(self, X: np.ndarray) -> tuple[np.ndarray, list[str]]:
         """Build the library matrix and term name list.
 
         Parameters
@@ -75,8 +76,8 @@ class CandidateLibrary:
         names : list of L strings
         """
         N, d = X.shape
-        cols: List[np.ndarray] = []
-        names: List[str] = []
+        cols: list[np.ndarray] = []
+        names: list[str] = []
 
         cols.append(np.ones(N))
         names.append("1")
@@ -108,7 +109,7 @@ class CandidateLibrary:
 class SINDyResult:
     """Result of a SINDy sparse regression."""
     coefficients: np.ndarray        # (L,) full coefficient vector
-    active_terms: List[str]         # names of nonzero-coefficient terms
+    active_terms: list[str]         # names of nonzero-coefficient terms
     active_coefficients: np.ndarray # values of nonzero coefficients
     residual_norm: float            # ‖b - Θ ξ‖₂
     n_terms_selected: int
@@ -153,7 +154,7 @@ class SINDyIdentifier:
         self,
         Theta: np.ndarray,
         b: np.ndarray,
-        term_names: Optional[List[str]] = None,
+        term_names: list[str] | None = None,
     ) -> SINDyResult:
         """Fit sparse coefficients.
 
@@ -234,7 +235,7 @@ class SINDyIdentifier:
 class ResidualAnalysisResult:
     """Output of ResidualAnalyzer.analyze()."""
     residual_field: np.ndarray   # (N,) PDE residual at collocation points
-    sindy_result: Optional[SINDyResult]
+    sindy_result: SINDyResult | None
     coords: np.ndarray           # (N, d)
     mean_abs_residual: float
     max_abs_residual: float
@@ -269,8 +270,8 @@ class ResidualAnalyzer:
     def __init__(
         self,
         pde_residual_fn: Callable,
-        library: Optional[CandidateLibrary] = None,
-        identifier: Optional[SINDyIdentifier] = None,
+        library: CandidateLibrary | None = None,
+        identifier: SINDyIdentifier | None = None,
     ) -> None:
         self.pde_residual_fn = pde_residual_fn
         self.library = library
@@ -334,7 +335,7 @@ class NeuralTermConfig:
     lr : Adam learning rate
     device : torch device
     """
-    hidden_dims: List[int] = field(default_factory=lambda: [32, 32])
+    hidden_dims: list[int] = field(default_factory=lambda: [32, 32])
     activation: str = "tanh"
     term_weight: float = 1.0
     data_weight: float = 1.0
@@ -367,7 +368,7 @@ class NeuralTermDiscovery:
     def __init__(
         self,
         known_residual_fn: Callable,
-        config: Optional[NeuralTermConfig] = None,
+        config: NeuralTermConfig | None = None,
     ) -> None:
         self.known_residual_fn = known_residual_fn
         self.config = config or NeuralTermConfig()
@@ -375,9 +376,9 @@ class NeuralTermDiscovery:
 
     # ------------------------------------------------------------------
 
-    def _build_term_net(self, in_dim: int) -> "torch.nn.Module":
+    def _build_term_net(self, in_dim: int) -> torch.nn.Module:
         import torch.nn as nn
-        acts: Dict[str, Any] = {"tanh": nn.Tanh, "relu": nn.ReLU, "silu": nn.SiLU}
+        acts: dict[str, Any] = {"tanh": nn.Tanh, "relu": nn.ReLU, "silu": nn.SiLU}
         Act = acts.get(self.config.activation, nn.Tanh)
         dims = [in_dim] + self.config.hidden_dims + [1]
         layers = []
@@ -391,7 +392,7 @@ class NeuralTermDiscovery:
         pinn_model: Any,
         x_data: np.ndarray,
         y_data: np.ndarray,
-    ) -> "NeuralTermDiscovery":
+    ) -> NeuralTermDiscovery:
         """Joint training of the PINN and the term network.
 
         Parameters
@@ -458,8 +459,8 @@ class NeuralTermDiscovery:
     def distill(
         self,
         x: np.ndarray,
-        library: Optional[CandidateLibrary] = None,
-        identifier: Optional[SINDyIdentifier] = None,
+        library: CandidateLibrary | None = None,
+        identifier: SINDyIdentifier | None = None,
     ) -> SINDyResult:
         """Distill the neural term into a symbolic form via SINDy.
 
@@ -483,7 +484,7 @@ class NeuralTermDiscovery:
         return sid.fit(Theta, tau_vals, term_names=names)
 
     @property
-    def term_network(self) -> Optional[Any]:
+    def term_network(self) -> Any | None:
         """The trained term neural network (nn.Module), or None before fit()."""
         return self._term_net
 

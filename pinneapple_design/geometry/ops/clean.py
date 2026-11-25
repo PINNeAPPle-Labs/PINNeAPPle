@@ -34,8 +34,8 @@ Usage
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -91,7 +91,7 @@ class CleanMeshConfig:
 
     # Decimation
     decimate: bool = False
-    target_faces: Optional[int] = None   # None = no decimation
+    target_faces: int | None = None   # None = no decimation
     decimate_ratio: float = 0.5          # fraction of faces to keep
 
 
@@ -99,7 +99,7 @@ class CleanMeshConfig:
 # Quality report
 # ─────────────────────────────────────────────────────────────────────────────
 
-def mesh_quality_report_3d(mesh: MeshData) -> Dict[str, Any]:
+def mesh_quality_report_3d(mesh: MeshData) -> dict[str, Any]:
     """
     Comprehensive quality report for a 3D surface mesh.
 
@@ -141,7 +141,7 @@ def mesh_quality_report_3d(mesh: MeshData) -> Dict[str, Any]:
 
         ar = _aspect_ratio(mesh.vertices, mesh.faces)
 
-        report: Dict[str, Any] = {
+        report: dict[str, Any] = {
             "n_vertices": len(mesh.vertices),
             "n_faces": len(mesh.faces),
             "n_edges": len(tm.edges_unique),
@@ -356,7 +356,7 @@ def keep_largest_component(mesh: MeshData) -> MeshData:
 def decimate_mesh(
     mesh: MeshData,
     *,
-    target_faces: Optional[int] = None,
+    target_faces: int | None = None,
     ratio: float = 0.5,
 ) -> MeshData:
     """
@@ -440,7 +440,7 @@ def remove_self_intersections(mesh: MeshData) -> MeshData:
 def clean_mesh(
     mesh: MeshData,
     *,
-    config: Optional[CleanMeshConfig] = None,
+    config: CleanMeshConfig | None = None,
     verbose: bool = False,
 ) -> MeshData:
     """

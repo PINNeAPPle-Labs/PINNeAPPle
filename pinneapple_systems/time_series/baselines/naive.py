@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -9,9 +8,9 @@ import numpy as np
 @dataclass
 class NaiveForecaster:
     """Predicts the last observed value for all future steps."""
-    last_value_: Optional[float] = None
+    last_value_: float | None = None
 
-    def fit(self, y: np.ndarray) -> "NaiveForecaster":
+    def fit(self, y: np.ndarray) -> NaiveForecaster:
         y = np.asarray(y, dtype=float).reshape(-1)
         self.last_value_ = float(y[~np.isnan(y)][-1])
         return self
@@ -26,9 +25,9 @@ class NaiveForecaster:
 class SeasonalNaiveForecaster:
     """Repeats the value from the same season in the last cycle."""
     season_length: int = 12
-    history_: Optional[np.ndarray] = None
+    history_: np.ndarray | None = None
 
-    def fit(self, y: np.ndarray) -> "SeasonalNaiveForecaster":
+    def fit(self, y: np.ndarray) -> SeasonalNaiveForecaster:
         y = np.asarray(y, dtype=float).reshape(-1)
         self.history_ = y.copy()
         return self
@@ -49,11 +48,11 @@ class SeasonalNaiveForecaster:
 @dataclass
 class DriftForecaster:
     """Linearly extrapolates from the first to the last training point."""
-    first_: Optional[float] = None
-    last_: Optional[float] = None
-    n_: Optional[int] = None
+    first_: float | None = None
+    last_: float | None = None
+    n_: int | None = None
 
-    def fit(self, y: np.ndarray) -> "DriftForecaster":
+    def fit(self, y: np.ndarray) -> DriftForecaster:
         y = np.asarray(y, dtype=float).reshape(-1)
         yv = y[~np.isnan(y)]
         if len(yv) < 2:

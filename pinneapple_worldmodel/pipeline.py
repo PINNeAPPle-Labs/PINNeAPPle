@@ -60,17 +60,14 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-import torch
 
-from .scenario import BUILTIN_SCENARIOS, PhysicsScenario
-from .dataset import DatasetConfig, DatasetBuilder, WorldModelDataset
-from .model import PhysicsWorldModel, WorldModelConfig
+from .model import PhysicsWorldModel
 from .trainer import WorldModelTrainer, WorldModelTrainConfig
 from .curriculum import PhysicsCurriculum, CurriculumConfig
 from .dataset_factory import PhysicsDatasetFactory, FactoryConfig, DatasetCatalog
-from .model_zoo import ModelZoo, ZooEntry
+from .model_zoo import ModelZoo
 from .specialist_trainer import SpecialistTrainer, SpecialistConfig
 from .meta_learning import MetaLearner, MetaConfig
 from .mega_model import PhysicsFoundationModel, FoundationConfig
@@ -131,13 +128,13 @@ class PhysicsAIConfig:
     verbose : bool
     """
     # Core
-    scenarios: List[Any] = field(
+    scenarios: list[Any] = field(
         default_factory=lambda: ["heat_2d", "burgers_1d", "advection_2d"]
     )
-    sources: List[str] = field(default_factory=lambda: ["solver"])
+    sources: list[str] = field(default_factory=lambda: ["solver"])
     n_samples: int = 500
     device: str = "cpu"
-    save_dir: Optional[str] = None
+    save_dir: str | None = None
 
     # Specialist
     specialist_epochs: int = 50
@@ -163,7 +160,7 @@ class PhysicsAIConfig:
 
     # Legacy
     use_curriculum: bool = False
-    curriculum: Optional[CurriculumConfig] = None
+    curriculum: CurriculumConfig | None = None
 
     verbose: bool = True
 
@@ -185,11 +182,11 @@ class PhysicsAIPipelineResult:
     benchmark : dict or None — benchmark results.
     elapsed_s : float — total wall-clock time.
     """
-    catalog: Optional[DatasetCatalog] = None
-    zoo: Optional[ModelZoo] = None
-    meta_model: Optional[PhysicsWorldModel] = None
-    mega_model: Optional[PhysicsFoundationModel] = None
-    benchmark: Optional[Dict[str, BenchmarkResult]] = None
+    catalog: DatasetCatalog | None = None
+    zoo: ModelZoo | None = None
+    meta_model: PhysicsWorldModel | None = None
+    mega_model: PhysicsFoundationModel | None = None
+    benchmark: dict[str, BenchmarkResult] | None = None
     elapsed_s: float = 0.0
 
     def summary(self) -> None:
@@ -342,7 +339,7 @@ class PhysicsAIPipeline:
     # Stage 3: Meta-learning
     # ------------------------------------------------------------------
 
-    def _meta_learn(self, catalog: DatasetCatalog) -> Optional[PhysicsWorldModel]:
+    def _meta_learn(self, catalog: DatasetCatalog) -> PhysicsWorldModel | None:
         cfg = self.config
         try:
             meta_cfg = MetaConfig(
@@ -421,7 +418,7 @@ class PhysicsAIPipeline:
     # Stage 5: Benchmark
     # ------------------------------------------------------------------
 
-    def _run_benchmark(self) -> Optional[Dict[str, BenchmarkResult]]:
+    def _run_benchmark(self) -> dict[str, BenchmarkResult] | None:
         cfg = self.config
         model = self._result.mega_model or (
             self._result.zoo.get(cfg.scenarios[0])
@@ -467,15 +464,15 @@ class PhysicsAIPipeline:
             print(f"[PhysicsAIPipeline] {msg}")
 
     @property
-    def mega_model(self) -> Optional[PhysicsFoundationModel]:
+    def mega_model(self) -> PhysicsFoundationModel | None:
         return self._result.mega_model
 
     @property
-    def zoo(self) -> Optional[ModelZoo]:
+    def zoo(self) -> ModelZoo | None:
         return self._result.zoo
 
     @property
-    def catalog(self) -> Optional[DatasetCatalog]:
+    def catalog(self) -> DatasetCatalog | None:
         return self._result.catalog
 
     # ------------------------------------------------------------------

@@ -17,7 +17,6 @@ import argparse
 import json
 import os
 import time
-from typing import Dict, List, Optional
 
 #: The configuration the gate compares in: one size, one sample count, one preset, so the record of today can be
 #: compared with the record of last month. Small enough to run on a CPU in CI in a few minutes.
@@ -25,14 +24,14 @@ GATE = {"quality": "preview", "size": [960, 540], "samples": 32}
 
 #: How far a statistic may move before the gate calls it a regression. Absolute: the four statistics are already in
 #: their own units (luminance 0-255, coverage 0-1, edge energy a mean gradient).
-TOLERANCES: Dict[str, float] = {"mean": 8.0, "std": 4.0, "coverage": 0.06, "edge_energy": 0.12}
+TOLERANCES: dict[str, float] = {"mean": 8.0, "std": 4.0, "coverage": 0.06, "edge_energy": 0.12}
 
 #: Where the committed baseline lives, relative to the repository root.
 BASELINE = os.path.join("data", "benchmark", "baseline.json")
 
 #: name -> (geometry in ``data/geometries``, its materials, background and camera). The values are the ones a figure
 #: of that part would use, so the benchmark measures the look the product actually ships.
-CASES: Dict[str, dict] = {
+CASES: dict[str, dict] = {
     "impeller_bronze": {
         "geometry": "centrifugal_impeller",
         "materials": {"cast_bronze": {"color": [0.72, 0.45, 0.24], "metallic": 1.0, "roughness": 0.34,
@@ -110,8 +109,8 @@ def picture_stats(path: str) -> dict:
             "size": [int(a.shape[1]), int(a.shape[0])]}
 
 
-def run(out_dir: str, *, scenes: Optional[list] = None, quality: str = "preview", device: str = "auto",
-        samples: Optional[int] = None, size: Optional[tuple] = None, gate: bool = False,
+def run(out_dir: str, *, scenes: list | None = None, quality: str = "preview", device: str = "auto",
+        samples: int | None = None, size: tuple | None = None, gate: bool = False,
         log=None) -> dict:
     """Render every case into ``out_dir`` and return the record: ``{case: {seconds, device, picture..., png}}``.
 
@@ -142,7 +141,7 @@ def run(out_dir: str, *, scenes: Optional[list] = None, quality: str = "preview"
     return record
 
 
-def baseline_of(record: dict, *, reason: str, blender: Optional[str] = None) -> dict:
+def baseline_of(record: dict, *, reason: str, blender: str | None = None) -> dict:
     """What a record keeps when it is committed as the reference: the picture statistics and the configuration they
     were measured with, plus a ``_meta`` line saying when, with what and **why** -- a gate whose reference has no date
     and no reason is a number nobody can judge.
@@ -179,19 +178,19 @@ def _blender_version() -> str:
         return "unknown"
 
 
-def cases_of(record: dict) -> List[str]:
+def cases_of(record: dict) -> list[str]:
     """The case names in a record or a baseline: everything but the bookkeeping keys, which start with ``_``."""
     return [name for name in record if not name.startswith("_")]
 
 
-def gate(current: dict, baseline: dict, *, tolerances: Optional[dict] = None) -> List[str]:
+def gate(current: dict, baseline: dict, *, tolerances: dict | None = None) -> list[str]:
     """The differences between a record and the committed baseline that are too large to be noise.
 
     Absolute tolerances, chosen to pass a CPU render on another machine and to fail a regression: a picture that went
     black, blew out, lost its micro-detail or stopped showing the subject moves these by far more than they allow.
     The time is not compared -- it is the machine's, not the renderer's."""
     tol = dict(TOLERANCES if tolerances is None else tolerances)
-    problems: List[str] = []
+    problems: list[str] = []
     for name in sorted(CASES):
         if name not in current:
             problems.append(f"{name}: not rendered")

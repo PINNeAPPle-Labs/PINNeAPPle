@@ -21,7 +21,6 @@ import tempfile
 import threading
 import warnings
 import webbrowser
-from typing import Optional
 
 HERE = os.path.join(os.path.dirname(__file__), "web")
 
@@ -29,7 +28,7 @@ HERE = os.path.join(os.path.dirname(__file__), "web")
 MAX_FACES = 1_000_000          # beyond this a browser on a laptop stutters; see docs/core_concepts/studio.md
 
 
-def web_viewer(scene, out_dir: str, title: Optional[str] = None, max_faces: Optional[int] = MAX_FACES,
+def web_viewer(scene, out_dir: str, title: str | None = None, max_faces: int | None = MAX_FACES,
                single_file: bool = False, filename: str = "index.html") -> str:
     """Write the viewer for ``scene`` into ``out_dir``; returns the path of its index.html. Surfaces above
     ``max_faces`` triangles in total are decimated for the page (the scene itself is not changed); None keeps all.
@@ -97,8 +96,8 @@ def _single_page(scene) -> str:
                         f'<script>window.STUDIO_EMBED = {embed};</script>\n<script type="module">import "pp/viewer";</script>')
 
 
-def serve(scene, port: int = 8000, open_browser: bool = True, block: bool = True, out_dir: Optional[str] = None,
-          max_faces: Optional[int] = MAX_FACES):
+def serve(scene, port: int = 8000, open_browser: bool = True, block: bool = True, out_dir: str | None = None,
+          max_faces: int | None = MAX_FACES):
     """Write the viewer (to ``out_dir`` or a temporary folder) and serve it on ``port``. ``block=False`` returns the
     server (call ``.shutdown()``); otherwise serves until Ctrl+C."""
     d = out_dir or tempfile.mkdtemp(prefix="pinneapple_viewer_")

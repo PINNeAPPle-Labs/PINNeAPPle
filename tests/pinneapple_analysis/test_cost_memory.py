@@ -6,7 +6,6 @@ method, because those limits are the reason ``measure_peak`` defaults to what it
 tensors, the PyTorch profiler is blind to NumPy, and the forked-child method cannot run autograd.
 """
 import os
-import resource
 import subprocess
 import sys
 

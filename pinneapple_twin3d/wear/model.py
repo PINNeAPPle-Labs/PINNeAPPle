@@ -13,8 +13,7 @@ from __future__ import annotations
 
 import csv
 import io
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -26,12 +25,12 @@ MEASURED = "measured"
 class ZoneSpec:
     name: str
     label: str
-    profile: Tuple[Tuple[float, float], ...]  # (r, y) points from first row to last row, metres
+    profile: tuple[tuple[float, float], ...]  # (r, y) points from first row to last row, metres
     n_rows: int
     n_sectors: int
     e0: float  # new lining thickness [mm]
     emin: float  # minimum allowed thickness [mm]
-    center: Tuple[float, float] = (0.0, 0.0)  # (x, z) of the revolution axis
+    center: tuple[float, float] = (0.0, 0.0)  # (x, z) of the revolution axis
     theta0: float = 0.0  # angle of sector 0 [rad]
     group: str = ""
 
@@ -48,7 +47,7 @@ class ZoneSpec:
         return self.e0 - self.emin
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def shape(self) -> tuple[int, int]:
         return (self.n_rows, self.n_sectors)
 
 
@@ -56,7 +55,7 @@ class ZoneSpec:
 class VesselSpec:
     key: str
     title: str
-    zones: Tuple[ZoneSpec, ...]
+    zones: tuple[ZoneSpec, ...]
     x_name: str = "heat"  # what ``x`` counts
     wear_unit: str = "mm"
     notes: str = ""
@@ -79,9 +78,9 @@ class WearDataset:
 
     spec: VesselSpec
     x: np.ndarray  # (T,) strictly increasing
-    wear: Dict[str, np.ndarray]
+    wear: dict[str, np.ndarray]
     origin: str = MEASURED
-    labels: Optional[List[str]] = None
+    labels: list[str] | None = None
     note: str = ""
 
     def __post_init__(self):
@@ -106,7 +105,7 @@ class WearDataset:
             raise ValueError("labels must have one entry per reading")
 
     @property
-    def zone_names(self) -> List[str]:
+    def zone_names(self) -> list[str]:
         return [z.name for z in self.spec.zones if z.name in self.wear]
 
     # ---- web-hub contract (digital-solutions/shared/bridge.js) -----------------------------
@@ -122,7 +121,7 @@ class WearDataset:
                 "zones": zones, "snaps": snaps}
 
     @classmethod
-    def from_contract(cls, spec: VesselSpec, d: dict) -> "WearDataset":
+    def from_contract(cls, spec: VesselSpec, d: dict) -> WearDataset:
         if "snaps" not in d or "zones" not in d:
             raise ValueError("contract needs 'zones' and 'snaps'")
         snaps = d["snaps"]
@@ -142,7 +141,7 @@ class WearDataset:
 
     # ---- CSV: zona,fiada,setor,valor,corrida (same columns as the reference apps) ----------
     @classmethod
-    def from_csv(cls, spec: VesselSpec, text: str) -> "WearDataset":
+    def from_csv(cls, spec: VesselSpec, text: str) -> WearDataset:
         rd = csv.reader(io.StringIO(text), delimiter=";" if ";" in text.split("\n", 1)[0] else ",")
         rows = [r for r in rd if r and not r[0].lstrip().startswith("#")]
         head = [h.strip().lower() for h in rows[0]]
@@ -152,7 +151,7 @@ class WearDataset:
         ix = {h: head.index(h) for h in need}
         xs = sorted({float(r[ix["corrida"]]) for r in rows[1:]})
         pos = {x: k for k, x in enumerate(xs)}
-        wear: Dict[str, np.ndarray] = {}
+        wear: dict[str, np.ndarray] = {}
         for r in rows[1:]:
             z = spec.zone(r[ix["zona"]].strip())
             i, j = int(r[ix["fiada"]]) - 1, int(r[ix["setor"]]) - 1

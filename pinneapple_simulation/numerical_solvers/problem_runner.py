@@ -10,7 +10,7 @@ It handles:
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -19,7 +19,7 @@ def _sample_uniform(lo: float, hi: float, n: int, rng: np.random.Generator) -> n
     return rng.uniform(lo, hi, n).astype(np.float32)
 
 
-def _make_ctx(domain_bounds: Dict[str, Tuple[float, float]]) -> Dict[str, Any]:
+def _make_ctx(domain_bounds: dict[str, tuple[float, float]]) -> dict[str, Any]:
     """Build a ctx dict from domain_bounds, used by condition value_fns."""
     coords = list(domain_bounds.keys())
     bmin = [domain_bounds[c][0] for c in coords]
@@ -35,8 +35,8 @@ def _make_ctx(domain_bounds: Dict[str, Tuple[float, float]]) -> Dict[str, Any]:
 
 
 def _sample_collocation(
-    domain_bounds: Dict[str, Tuple[float, float]],
-    coord_names: Tuple[str, ...],
+    domain_bounds: dict[str, tuple[float, float]],
+    coord_names: tuple[str, ...],
     n: int,
     rng: np.random.Generator,
 ) -> np.ndarray:
@@ -51,8 +51,8 @@ def _sample_collocation(
 
 def _sample_boundary_tag(
     tag: str,
-    domain_bounds: Dict[str, Tuple[float, float]],
-    coord_names: Tuple[str, ...],
+    domain_bounds: dict[str, tuple[float, float]],
+    coord_names: tuple[str, ...],
     n: int,
     rng: np.random.Generator,
 ) -> np.ndarray:
@@ -147,11 +147,11 @@ def _sample_boundary_tag(
 
 def _sample_callable_condition(
     selector_fn,
-    domain_bounds: Dict[str, Tuple[float, float]],
-    coord_names: Tuple[str, ...],
+    domain_bounds: dict[str, tuple[float, float]],
+    coord_names: tuple[str, ...],
     n: int,
     rng: np.random.Generator,
-    ctx: Dict[str, Any],
+    ctx: dict[str, Any],
     oversample: int = 10,
 ) -> np.ndarray:
     """Points accepted by a callable selector, drawn inside the box and on its faces.
@@ -172,13 +172,13 @@ def _sample_callable_condition(
 def generate_pinn_dataset(
     problem_spec: Any,
     *,
-    n_col: Optional[int] = None,
-    n_bc: Optional[int] = None,
-    n_ic: Optional[int] = None,
+    n_col: int | None = None,
+    n_bc: int | None = None,
+    n_ic: int | None = None,
     n_data: int = 0,
     seed: int = 0,
-    solver_cfg_override: Optional[Dict[str, Any]] = None,
-) -> Dict[str, np.ndarray]:
+    solver_cfg_override: dict[str, Any] | None = None,
+) -> dict[str, np.ndarray]:
     """Generate a PINN training dataset from a ProblemSpec.
 
     Samples collocation points in the problem domain and boundary/initial
@@ -201,9 +201,9 @@ def generate_pinn_dataset(
     """
     rng = np.random.default_rng(seed)
 
-    domain_bounds: Dict[str, Tuple[float, float]] = dict(getattr(problem_spec, "domain_bounds", {}))
-    coord_names: Tuple[str, ...] = tuple(problem_spec.coords)
-    fields: Tuple[str, ...] = tuple(problem_spec.fields)
+    domain_bounds: dict[str, tuple[float, float]] = dict(getattr(problem_spec, "domain_bounds", {}))
+    coord_names: tuple[str, ...] = tuple(problem_spec.coords)
+    fields: tuple[str, ...] = tuple(problem_spec.fields)
     conditions = problem_spec.conditions
 
     # Fill in missing bounds with defaults [0, 1]
@@ -226,13 +226,13 @@ def generate_pinn_dataset(
     x_col = _sample_collocation(domain_bounds, coord_names, n_col, rng)
 
     n_fields_out = len(fields)
-    field_col: Dict[str, int] = {f: i for i, f in enumerate(fields)}
+    field_col: dict[str, int] = {f: i for i, f in enumerate(fields)}
 
     # 2. Boundary / initial condition points
-    x_bc_list: List[np.ndarray] = []
-    y_bc_list: List[np.ndarray] = []
-    x_ic_list: List[np.ndarray] = []
-    y_ic_list: List[np.ndarray] = []
+    x_bc_list: list[np.ndarray] = []
+    y_bc_list: list[np.ndarray] = []
+    x_ic_list: list[np.ndarray] = []
+    y_ic_list: list[np.ndarray] = []
 
     for cond in conditions:
         is_ic = getattr(cond, "kind", "") == "initial"
@@ -298,7 +298,7 @@ def generate_pinn_dataset(
         target_list_x.append(pts)
         target_list_y.append(targets)
 
-    def _concat_or_empty(lst: List[np.ndarray], ncols: int) -> np.ndarray:
+    def _concat_or_empty(lst: list[np.ndarray], ncols: int) -> np.ndarray:
         if lst:
             return np.concatenate(lst, axis=0).astype(np.float32)
         return np.zeros((0, ncols), dtype=np.float32)
@@ -310,7 +310,7 @@ def generate_pinn_dataset(
     x_ic = _concat_or_empty(x_ic_list, n_dims)
     y_ic = _concat_or_empty(y_ic_list, n_fields_out)
 
-    batch: Dict[str, Any] = {
+    batch: dict[str, Any] = {
         "x_col": x_col,
         "x_bc": x_bc,
         "y_bc": y_bc,
@@ -335,9 +335,9 @@ def generate_pinn_dataset(
 
 def _run_reference_solver(
     problem_spec: Any,
-    solver_cfg_override: Optional[Dict[str, Any]],
+    solver_cfg_override: dict[str, Any] | None,
     rng: np.random.Generator,
-) -> Optional[Dict[str, np.ndarray]]:
+) -> dict[str, np.ndarray] | None:
     """Run the problem's associated solver and return a reference field dict.
 
     Routing priority:
@@ -361,7 +361,6 @@ def _run_reference_solver(
 
     if solver_name == "fdm":
         try:
-            import torch
             from .fdm import FDMSolver
             solver = FDMSolver.from_problem_spec(problem_spec, nx=nx, ny=ny, nt=nt)
             out = solver.solve_from_spec(problem_spec)
@@ -371,7 +370,6 @@ def _run_reference_solver(
 
     if solver_name == "fem":
         try:
-            import torch
             from .fem import FEMSolver
             solver = FEMSolver.from_problem_spec(problem_spec, nx=nx, ny=ny)
             out = solver.solve_from_spec(problem_spec)
@@ -381,7 +379,6 @@ def _run_reference_solver(
 
     if solver_name == "fvm":
         try:
-            import torch
             from .fvm import FVMSolver
             solver = FVMSolver.from_problem_spec(problem_spec, nx=nx, ny=ny, nt=nt)
             out = solver.solve_from_spec(problem_spec)
@@ -404,7 +401,7 @@ def _run_reference_solver(
 def _solver_output_to_ref(
     output: Any,
     problem_spec: Any,
-) -> Optional[Dict[str, np.ndarray]]:
+) -> dict[str, np.ndarray] | None:
     """Convert a SolverOutput to the reference dict format expected by _sample_reference."""
     try:
         import torch
@@ -419,7 +416,7 @@ def _solver_output_to_ref(
             return np.asarray(t, dtype=np.float32)
 
         # Build coordinate arrays
-        coords: Dict[str, np.ndarray] = {}
+        coords: dict[str, np.ndarray] = {}
         if "xc" in extras and "yc" in extras:
             coords["x"] = _np(extras["xc"][:, 0])
             coords["y"] = _np(extras["yc"][0, :])
@@ -429,7 +426,7 @@ def _solver_output_to_ref(
                     continue
                 coords[axis] = np.linspace(lo, hi, res.shape[0] if res.ndim >= 1 else 64, dtype=np.float32)
 
-        ref: Dict[str, Any] = {"coords": coords}
+        ref: dict[str, Any] = {"coords": coords}
         res_np = _np(res)
         # a solver that reports its own axes (a space-time trajectory, #942): use them, in the array's axis order
         ec = extras.get("coords") if isinstance(extras, dict) else None
@@ -450,9 +447,9 @@ def _solver_output_to_ref(
 
 def _solve_burgers_1d(
     problem_spec: Any,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     rng: np.random.Generator,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Simple FTCS (explicit) solver for viscous Burgers 1D.
 
     u_t + u*u_x = nu * u_xx
@@ -495,9 +492,9 @@ def _solve_burgers_1d(
 
 def _solve_poisson_2d(
     problem_spec: Any,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     rng: np.random.Generator,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Jacobi iterative solver for Laplace equation (nabla^2 u = 0) with u=0 BC."""
     domain_bounds = dict(getattr(problem_spec, "domain_bounds", {"x": (0.0, 1.0), "y": (0.0, 1.0)}))
     nx = int(params.get("nx", 64))
@@ -533,12 +530,12 @@ def _solve_poisson_2d(
 
 
 def _sample_reference(
-    ref: Dict[str, np.ndarray],
+    ref: dict[str, np.ndarray],
     n: int,
-    coord_names: Tuple[str, ...],
-    fields: Tuple[str, ...],
+    coord_names: tuple[str, ...],
+    fields: tuple[str, ...],
     rng: np.random.Generator,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Sample n (x, y) pairs from a reference solution grid."""
     coords_dict = ref["coords"]
     coord_keys = list(coords_dict.keys())

@@ -22,13 +22,13 @@ convergence_epoch : first epoch where pde_residual < threshold
 """
 from __future__ import annotations
 
-import copy
 import json
 import math
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -40,7 +40,6 @@ from pinneapple_adaptation.transfer_learning.freeze import (
     count_trainable,
     freeze_all_except,
     freeze_layers,
-    layer_lr_groups,
 )
 from pinneapple_adaptation.transfer_learning.config import TransferConfig
 from pinneapple_adaptation.transfer_learning.trainer import TransferTrainer
@@ -48,7 +47,6 @@ from pinneapple_adaptation.transfer_learning.trainer import TransferTrainer
 from pinneapple_tools.benchmark_suite.benchmark import (
     BenchmarkTaskBase,
     _build_mlp,
-    _ResNetPINN,
     _resolve_device,
 )
 
@@ -70,7 +68,7 @@ class TransferBenchmarkConfig:
     lr_scratch: float = 1e-3
 
     # Strategies to compare (always includes scratch baselines)
-    strategies: List[str] = field(default_factory=lambda: [
+    strategies: list[str] = field(default_factory=lambda: [
         "finetune", "partial_freeze", "feature_extract", "progressive"
     ])
 
@@ -88,7 +86,7 @@ class TransferBenchmarkConfig:
     weight_ic: float = 10.0
 
     # Model architecture (for MLP)
-    hidden: Tuple[int, ...] = (128, 128, 128, 128)
+    hidden: tuple[int, ...] = (128, 128, 128, 128)
 
     # Evaluation
     n_eval: int = 10000
@@ -105,9 +103,9 @@ class TransferScenario:
     """One transfer scenario: one source task and N target tasks."""
     name: str
     source_task: BenchmarkTaskBase
-    target_tasks: List[BenchmarkTaskBase]
+    target_tasks: list[BenchmarkTaskBase]
     source_label: str = ""
-    target_labels: List[str] = field(default_factory=list)
+    target_labels: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -115,13 +113,13 @@ class TransferBenchmarkResult:
     scenario_name: str
     target_label: str
     strategy: str
-    metrics: Dict[str, float] = field(default_factory=dict)
-    history: List[Dict[str, float]] = field(default_factory=list)
+    metrics: dict[str, float] = field(default_factory=dict)
+    history: list[dict[str, float]] = field(default_factory=list)
     elapsed_s: float = 0.0
     n_params_trainable: int = 0
     n_params_total: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "scenario": self.scenario_name,
             "target": self.target_label,
@@ -137,9 +135,9 @@ class TransferBenchmarkResult:
 # Layer-freezing helpers (architecture-aware)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _get_linear_param_prefixes(model: nn.Module) -> List[str]:
+def _get_linear_param_prefixes(model: nn.Module) -> list[str]:
     """Return sorted parameter-name prefixes for each Linear layer."""
-    prefixes: List[str] = []
+    prefixes: list[str] = []
     seen: set = set()
     for name, module in model.named_modules():
         if isinstance(module, nn.Linear):
@@ -186,14 +184,14 @@ def _make_physics_fn(
     X_col: torch.Tensor,
     X_bc: torch.Tensor,
     Y_bc: torch.Tensor,
-    X_ic: Optional[torch.Tensor],
-    Y_ic: Optional[torch.Tensor],
+    X_ic: torch.Tensor | None,
+    Y_ic: torch.Tensor | None,
     weight_pde: float,
     weight_bc: float,
     weight_ic: float,
 ) -> Callable:
     """Return a closure-based physics_fn compatible with TransferTrainer."""
-    def physics_fn(model: nn.Module, _batch: Dict) -> Dict[str, torch.Tensor]:
+    def physics_fn(model: nn.Module, _batch: dict) -> dict[str, torch.Tensor]:
         # PDE residual
         X_req = X_col.detach().requires_grad_(True)
         pde_loss = task.pde_residual(model, X_req)
@@ -229,7 +227,7 @@ def _sample_task_data(
     task: BenchmarkTaskBase,
     n_col: int, n_bc: int, n_ic: int,
     seed: int, device: torch.device,
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]:
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor | None, torch.Tensor | None]:
     X_col = torch.tensor(task.sample_collocation(n_col, seed), device=device)
     Xb_np, Yb_np = task.sample_boundary(n_bc, seed)
     X_bc = torch.tensor(Xb_np, device=device)
@@ -252,17 +250,17 @@ def _train_scratch(
     task: BenchmarkTaskBase,
     X_col: torch.Tensor,
     X_bc: torch.Tensor, Y_bc: torch.Tensor,
-    X_ic: Optional[torch.Tensor], Y_ic: Optional[torch.Tensor],
+    X_ic: torch.Tensor | None, Y_ic: torch.Tensor | None,
     n_epochs: int,
     lr: float,
     cfg: TransferBenchmarkConfig,
     verbose: bool = False,
-) -> Tuple[List[Dict], int]:
+) -> tuple[list[dict], int]:
     """Train a model from scratch with Adam + cosine LR decay."""
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = CosineAnnealingLR(optimizer, T_max=n_epochs, eta_min=lr * 1e-2)
     convergence_epoch = -1
-    history: List[Dict] = []
+    history: list[dict] = []
 
     for ep in range(1, n_epochs + 1):
         model.train()
@@ -335,12 +333,12 @@ class TransferBenchmarkPipeline:
 
     def __init__(
         self,
-        scenarios: List[TransferScenario],
-        config: Optional[TransferBenchmarkConfig] = None,
+        scenarios: list[TransferScenario],
+        config: TransferBenchmarkConfig | None = None,
     ) -> None:
         self.scenarios = scenarios
         self.config = config or TransferBenchmarkConfig()
-        self.results: List[TransferBenchmarkResult] = []
+        self.results: list[TransferBenchmarkResult] = []
 
     # ── Model factory ─────────────────────────────────────────────────────────
 
@@ -348,7 +346,7 @@ class TransferBenchmarkPipeline:
         cfg = self.config
         return _build_mlp(in_dim, out_dim, list(cfg.hidden), activation="tanh")
 
-    def _eval_model(self, model: nn.Module, task: BenchmarkTaskBase, device: torch.device) -> Dict[str, float]:
+    def _eval_model(self, model: nn.Module, task: BenchmarkTaskBase, device: torch.device) -> dict[str, float]:
         X_eval, U_exact = task.eval_grid(self.config.n_eval)
         X_t = torch.tensor(X_eval, dtype=torch.float32, device=device)
         U_ref = torch.tensor(U_exact, dtype=torch.float32, device=device)
@@ -364,10 +362,10 @@ class TransferBenchmarkPipeline:
 
     # ── Run ───────────────────────────────────────────────────────────────────
 
-    def run(self, verbose: bool = True) -> List[TransferBenchmarkResult]:
+    def run(self, verbose: bool = True) -> list[TransferBenchmarkResult]:
         cfg = self.config
         device = _resolve_device(cfg.device)
-        all_results: List[TransferBenchmarkResult] = []
+        all_results: list[TransferBenchmarkResult] = []
 
         n_strategies = len(cfg.strategies) + 2  # +2 for scratch_budget, scratch_full
 
@@ -586,7 +584,7 @@ class TransferBenchmarkPipeline:
 
     def _compute_speedup(self) -> None:
         """Compute speedup_factor = steps_scratch_budget / steps_transfer per (scenario, target)."""
-        by_key: Dict[Tuple[str, str], List[TransferBenchmarkResult]] = {}
+        by_key: dict[tuple[str, str], list[TransferBenchmarkResult]] = {}
         for r in self.results:
             k = (r.scenario_name, r.target_label)
             by_key.setdefault(k, []).append(r)
@@ -610,11 +608,11 @@ class TransferBenchmarkPipeline:
         if not self.results:
             return "(no results)"
 
-        by_key: Dict[Tuple[str, str], List[TransferBenchmarkResult]] = {}
+        by_key: dict[tuple[str, str], list[TransferBenchmarkResult]] = {}
         for r in self.results:
             by_key.setdefault((r.scenario_name, r.target_label), []).append(r)
 
-        lines: List[str] = ["\n  Transfer Learning Benchmark Results"]
+        lines: list[str] = ["\n  Transfer Learning Benchmark Results"]
         all_strategies = list(dict.fromkeys(r.strategy for r in self.results))
 
         for (scene, target), runs in by_key.items():
@@ -638,9 +636,9 @@ class TransferBenchmarkPipeline:
 
     def plot_comparison(
         self,
-        scenario_name: Optional[str] = None,
+        scenario_name: str | None = None,
         metric: str = "rel_l2",
-        save_path: Optional[str] = None,
+        save_path: str | None = None,
     ) -> None:
         """Bar chart comparing strategies on each target."""
         try:
@@ -685,9 +683,9 @@ class TransferBenchmarkPipeline:
 
     def plot_convergence(
         self,
-        scenario_name: Optional[str] = None,
-        target_label: Optional[str] = None,
-        save_path: Optional[str] = None,
+        scenario_name: str | None = None,
+        target_label: str | None = None,
+        save_path: str | None = None,
     ) -> None:
         """Loss convergence curves for all strategies on a target."""
         try:
@@ -730,7 +728,7 @@ class TransferBenchmarkPipeline:
         print(f"[transfer_benchmark] Results saved: {p}")
 
     @classmethod
-    def load_results(cls, path: str) -> List[Dict]:
+    def load_results(cls, path: str) -> list[dict]:
         return json.loads(Path(path).read_text(encoding="utf-8"))
 
     # ── Default scenarios ─────────────────────────────────────────────────────
@@ -738,11 +736,11 @@ class TransferBenchmarkPipeline:
     @classmethod
     def default(
         cls,
-        scenarios: Optional[List[str]] = None,
+        scenarios: list[str] | None = None,
         epochs_source: int = 3000,
         epochs_finetune: int = 1000,
         device: str = "auto",
-    ) -> "TransferBenchmarkPipeline":
+    ) -> TransferBenchmarkPipeline:
         """
         Standard benchmark scenarios.
 
@@ -752,7 +750,7 @@ class TransferBenchmarkPipeline:
         from pinneapple_tools.benchmark_suite.tasks.heat_1d import Heat1DTask
         from pinneapple_tools.benchmark_suite.tasks.wave_1d import Wave1DTask
 
-        all_scenarios: Dict[str, TransferScenario] = {
+        all_scenarios: dict[str, TransferScenario] = {
             "burgers_nu": TransferScenario(
                 name="burgers_nu",
                 source_task=Burgers1DTask(nu=0.01 / np.pi, build_reference=False),

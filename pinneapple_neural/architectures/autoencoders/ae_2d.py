@@ -1,7 +1,6 @@
 from __future__ import annotations
 """2D convolutional autoencoder for spatial data."""
 
-from typing import Tuple, Optional
 
 import torch
 import torch.nn as nn
@@ -30,13 +29,13 @@ class Autoencoder2D(AEBase):
         self,
         in_channels: int,
         latent_dim: int,
-        img_size: Tuple[int, int],
+        img_size: tuple[int, int],
         base_channels: int = 32,
-        norm: Optional[str] = "group",          # "group", "batch", or None
+        norm: str | None = "group",          # "group", "batch", or None
         gn_groups: int = 8,                    # used if norm == "group"
-        output_activation: Optional[str] = None,  # None, "sigmoid", "tanh"
+        output_activation: str | None = None,  # None, "sigmoid", "tanh"
         resize_mode: str = "bilinear",         # interpolate mode used if output size mismatches
-        align_corners: Optional[bool] = False, # only relevant for some interpolate modes
+        align_corners: bool | None = False, # only relevant for some interpolate modes
     ):
         super().__init__()
         H, W = img_size

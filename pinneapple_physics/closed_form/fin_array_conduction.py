@@ -31,7 +31,6 @@ brake rotor) -- the same real physics, two different real geometries.
 from __future__ import annotations
 
 import math
-from typing import Dict, Optional
 
 FLOAT_FLOOR = 1e-9
 
@@ -46,7 +45,7 @@ def fin_array_profile_params(
     spacing_extent_m: float,
     base_thickness_m: float,
     power_w: float,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Shared real intermediate quantities behind the fin-array model.
     Computed once so a scalar ground-truth temperature and a spatial
     (position-dependent) profile evaluated from the SAME real physics
@@ -79,7 +78,7 @@ def fin_array_profile_params(
     }
 
 
-def fin_array_base_temperature_c(params: Dict[str, float], t_ambient_c: float, power_w: float) -> float:
+def fin_array_base_temperature_c(params: dict[str, float], t_ambient_c: float, power_w: float) -> float:
     """The real, closed-form scalar ground truth: temperature at the
     base of the fin array (before any further, separate resistance --
     e.g. a downstream product's own die-to-base spreading term -- is
@@ -94,10 +93,10 @@ def fin_array_base_temperature_c(params: Dict[str, float], t_ambient_c: float, p
 
 
 def fin_array_temperature_at_position_c(
-    params: Dict[str, float],
+    params: dict[str, float],
     t_ambient_c: float,
     x_from_root_m: float,
-    corrected_length_m: Optional[float] = None,
+    corrected_length_m: float | None = None,
 ) -> float:
     """Real spatial temperature profile *inside* the same fin equation
     ``fin_array_base_temperature_c`` is built on -- not a

@@ -39,7 +39,6 @@ References
 from __future__ import annotations
 
 import math
-from typing import Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -90,8 +89,8 @@ class BekkerWongSolver(SolverBase):
 
     def __init__(
         self,
-        soil: Optional[SoilParams] = None,
-        wheel: Optional[WheelParams] = None,
+        soil: SoilParams | None = None,
+        wheel: WheelParams | None = None,
         rear_angle_ratio: float = 1.0 / 3.0,
     ):
         super().__init__()
@@ -112,11 +111,11 @@ class BekkerWongSolver(SolverBase):
         if not (-1.0 <= slip < 1.0):
             raise ValueError(f"slip must be in [-1, 1), got {slip}")
 
-    def _contact_angles(self, z: float) -> Tuple[float, float, float]:
+    def _contact_angles(self, z: float) -> tuple[float, float, float]:
         """Entry, mid (at s=0) and rear contact angles for sinkage z [m]."""
         return self._contact_angles_slip(z, 0.0)
 
-    def _contact_angles_slip(self, z: float, slip: float) -> Tuple[float, float, float]:
+    def _contact_angles_slip(self, z: float, slip: float) -> tuple[float, float, float]:
         """Contact angles accounting for slip ratio."""
         R = self.wheel.R
         s = self.soil
@@ -216,7 +215,7 @@ class BekkerWongSolver(SolverBase):
         W: float,
         slip: float,
         z_lo: float = 1e-6,
-        z_hi: Optional[float] = None,
+        z_hi: float | None = None,
         xtol: float = 1e-9,
         **_legacy,
     ) -> float:
@@ -242,13 +241,13 @@ class BekkerWongSolver(SolverBase):
         self,
         n_slip: int = 40,
         n_sink: int = 30,
-        slip_range: Tuple[float, float] = (0.0, 0.75),
-        sink_range: Tuple[float, float] = (0.002, 0.058),
+        slip_range: tuple[float, float] = (0.0, 0.75),
+        sink_range: tuple[float, float] = (0.002, 0.058),
         n_lhs: int = 500,
         seed: int = 42,
         strict: bool = True,
-        report: Optional[Dict] = None,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        report: dict | None = None,
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Generate (slip, sinkage) -> (F_x, F_z, M_y) dataset (grid + Latin hypercube).
 
         A failed evaluation raises when ``strict`` (default); otherwise the point is dropped and
@@ -295,7 +294,7 @@ class BekkerWongSolver(SolverBase):
 # Vectorised / differentiable quadrature
 # ----------------------------------------------------------------------------
 
-_GL_CACHE: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
+_GL_CACHE: dict[int, tuple[np.ndarray, np.ndarray]] = {}
 
 
 def _gl(n: int):

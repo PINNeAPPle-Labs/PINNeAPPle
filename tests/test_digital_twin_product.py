@@ -6,7 +6,6 @@ end-to-end run on the HX-201 exchanger in ``apps/twin_ops`` — the same path a 
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -19,11 +18,9 @@ from pinneapple_systems.digital_twin.product import (
     DriftMonitor,
     DriftPolicy,
     FieldSpec,
-    LatentStateTwin,
     ModelSpec,
     SensorSpec,
     SpecError,
-    TwinEvidence,
     TwinMode,
     TwinSpec,
     commission,

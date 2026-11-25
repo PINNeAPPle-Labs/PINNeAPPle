@@ -24,7 +24,6 @@ import json
 import os
 import subprocess
 import tempfile
-from typing import Optional
 
 #: The values a machined edge of a part measured in metres usually wants: a 35° limit catches the edges that are
 #: meant to be edges (not the facets of a curved wall), 1.5 mm is a real chamfer, and two segments is a chamfer with a
@@ -34,7 +33,7 @@ DEFAULTS = {"angle": 35.0, "width": 0.0015, "segments": 2, "weld": 1e-5}
 
 def bevel_scene(scene, *, angle: float = DEFAULTS["angle"], width: float = DEFAULTS["width"],
                 segments: int = DEFAULTS["segments"], weld: float = DEFAULTS["weld"], clamp: bool = True,
-                drop_fields: bool = False, exe: Optional[str] = None, timeout: float = 3600.0,
+                drop_fields: bool = False, exe: str | None = None, timeout: float = 3600.0,
                 log=None):
     """The same scene with every sharp edge chamfered, as a :class:`~.scene.Scene` you can render and export.
 

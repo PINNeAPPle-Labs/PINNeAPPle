@@ -1,7 +1,7 @@
 """Base TSOutput and TSModelBase for time series models."""
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any
 import torch
 import torch.nn as nn
 
@@ -11,7 +11,7 @@ class TSOutput:
     """Standard output for time series model predictions."""
 
     y_hat: torch.Tensor
-    extras: Dict[str, Any]
+    extras: dict[str, Any]
 
 
 class TSModelBase(nn.Module):

@@ -1,7 +1,7 @@
 """HybridModel — classical neural network + variational quantum circuit."""
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -58,7 +58,7 @@ class HybridModel(nn.Module):
         classical_net: nn.Module,
         quantum_model: QuantumModel,
         mode: Literal["classical_first", "quantum_first", "parallel"] = "classical_first",
-        out_dim: Optional[int] = None,
+        out_dim: int | None = None,
     ):
         super().__init__()
         self.classical_net  = classical_net

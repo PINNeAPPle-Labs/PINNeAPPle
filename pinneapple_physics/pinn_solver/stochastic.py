@@ -63,7 +63,7 @@ per-point-i.i.d. behaviour exactly).
 from __future__ import annotations
 
 import math
-from typing import Dict, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import torch
 import torch.nn as nn
@@ -92,7 +92,7 @@ class LatentConditionedModel(nn.Module):
         self.base = base
         self.latent_dim = int(latent_dim)
 
-    def forward(self, x: torch.Tensor, xi: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, xi: torch.Tensor | None = None) -> torch.Tensor:
         if self.latent_dim <= 0:
             return self.base(x)
         if xi is None:
@@ -105,7 +105,7 @@ def sample_latent(n: int, latent_dim: int, device=None, dtype=torch.float32) -> 
     return torch.randn(n, latent_dim, device=device, dtype=dtype)
 
 
-def _gaussian_kernel1d(sigma_cells: float, device, dtype) -> Tuple[torch.Tensor, int]:
+def _gaussian_kernel1d(sigma_cells: float, device, dtype) -> tuple[torch.Tensor, int]:
     radius = max(1, int(math.ceil(3.0 * sigma_cells)))
     xs = torch.arange(-radius, radius + 1, device=device, dtype=dtype)
     k = torch.exp(-0.5 * (xs / max(sigma_cells, 1e-6)) ** 2)
@@ -172,7 +172,7 @@ class CorrelatedLatentField:
     grid_res : coarse grid resolution per spatial axis.
     """
 
-    def __init__(self, bounds: Dict[str, Sequence[float]], coord_order: Sequence[str],
+    def __init__(self, bounds: dict[str, Sequence[float]], coord_order: Sequence[str],
                  spatial_axes: Sequence[str], periodic_axes: Sequence[str], latent_dim: int,
                  grid_res: Sequence[int] = (64, 24, 32), length_scale=0.75):
         self.coord_order = list(coord_order)
@@ -252,7 +252,7 @@ class CorrelatedLatentField:
 
 
 def ensemble_forward(model, x: torch.Tensor, latent_dim: int, n_samples: int,
-                      latent_sampler: Optional["CorrelatedLatentField"] = None) -> torch.Tensor:
+                      latent_sampler: CorrelatedLatentField | None = None) -> torch.Tensor:
     """Evaluate ``n_samples`` latent draws at every point in ``x`` (N, D) in
     a single batched forward pass. Returns ``(N, n_samples, out_dim)``.
 
@@ -284,7 +284,7 @@ def ensemble_forward(model, x: torch.Tensor, latent_dim: int, n_samples: int,
 #: surrogate reading such a field straight off disk can pass this directly
 #: as ``cov_index_pairs`` to :func:`mean_covariance_loss` without having to
 #: work out the index pairing by hand.
-OPENFOAM_SYMM_TENSOR_PAIRS: Sequence[Tuple[int, int]] = ((0, 0), (0, 1), (0, 2), (1, 1), (1, 2), (2, 2))
+OPENFOAM_SYMM_TENSOR_PAIRS: Sequence[tuple[int, int]] = ((0, 0), (0, 1), (0, 2), (1, 1), (1, 2), (2, 2))
 
 
 def mean_covariance_loss(
@@ -293,12 +293,12 @@ def mean_covariance_loss(
     latent_dim: int,
     n_samples: int,
     mean_target: torch.Tensor,
-    cov_target: Optional[torch.Tensor] = None,
-    cov_index_pairs: Optional[Sequence[Tuple[int, int]]] = None,
+    cov_target: torch.Tensor | None = None,
+    cov_index_pairs: Sequence[tuple[int, int]] | None = None,
     field_slice: slice = slice(None),
-    latent_sampler: Optional["CorrelatedLatentField"] = None,
-    ens: Optional[torch.Tensor] = None,
-) -> Dict[str, torch.Tensor]:
+    latent_sampler: CorrelatedLatentField | None = None,
+    ens: torch.Tensor | None = None,
+) -> dict[str, torch.Tensor]:
     """Monte-Carlo mean and (optionally) covariance of the model's own
     latent ensemble at ``x``, matched (MSE) against externally supplied
     real statistics.

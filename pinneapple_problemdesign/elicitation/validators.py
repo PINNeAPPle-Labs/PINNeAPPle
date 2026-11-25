@@ -1,13 +1,12 @@
 """Validation and suggestion for ProblemSpec (warnings, assumptions)."""
 from __future__ import annotations
 
-from typing import List, Tuple
 from ..schema import ProblemSpec, Assumption
 
 
-def validate_and_suggest(spec: ProblemSpec) -> Tuple[List[str], List[Assumption]]:
-    warnings: List[str] = []
-    assumptions: List[Assumption] = []
+def validate_and_suggest(spec: ProblemSpec) -> tuple[list[str], list[Assumption]]:
+    warnings: list[str] = []
+    assumptions: list[Assumption] = []
 
     # Time-series sanity
     if spec.task_type in ("forecasting", "neural_operator"):

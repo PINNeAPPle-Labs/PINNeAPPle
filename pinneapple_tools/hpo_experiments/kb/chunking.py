@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, List
 
 
 @dataclass
@@ -11,12 +10,12 @@ class TextChunk:
     text: str
 
 
-def chunk_text(text: str, *, chunk_chars: int = 1800, overlap: int = 200) -> List[TextChunk]:
+def chunk_text(text: str, *, chunk_chars: int = 1800, overlap: int = 200) -> list[TextChunk]:
     text = text or ""
     if chunk_chars <= 0:
         return [TextChunk(chunk_id="0", text=text)]
 
-    out: List[TextChunk] = []
+    out: list[TextChunk] = []
     step = max(1, chunk_chars - max(0, overlap))
     i = 0
     idx = 0

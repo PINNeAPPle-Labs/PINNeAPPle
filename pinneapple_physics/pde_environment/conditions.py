@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional, Union, Literal
+from typing import Any, Literal
+from collections.abc import Callable
 
 import numpy as np
 
@@ -138,17 +139,17 @@ class ConditionSpec:
     kind: str
     fields: FieldNames
     selector_type: SelectorType = "all"
-    selector: Optional[Union[Dict[str, Any], Callable[[np.ndarray, Dict[str, Any]], np.ndarray]]] = None
-    value_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None
+    selector: dict[str, Any] | Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None
+    value_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None
     weight: float = 1.0
     order: int = 1
-    deriv_coord: Optional[str] = None
-    interface_coeffs: Optional[Dict[str, float]] = None
-    traction_map: Optional[Dict[str, str]] = None
-    normal_stress_field: Optional[str] = None
-    thermal_bc: Optional[Dict[str, str]] = None
+    deriv_coord: str | None = None
+    interface_coeffs: dict[str, float] | None = None
+    traction_map: dict[str, str] | None = None
+    normal_stress_field: str | None = None
+    thermal_bc: dict[str, str] | None = None
 
-    def mask(self, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def mask(self, X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         if self.selector_type == "all":
             return np.ones((X.shape[0],), dtype=bool)
 
@@ -173,7 +174,7 @@ class ConditionSpec:
 
         raise ValueError(f"Unknown selector_type: {self.selector_type}")
 
-    def values(self, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def values(self, X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         if self.value_fn is None:
             # default zeros
             return np.zeros((X.shape[0], len(self.fields)), dtype=np.float32)
@@ -188,11 +189,11 @@ class ConditionSpec:
 # Internal helper: build a value_fn from a dict of {field: scalar} values.
 # ---------------------------------------------------------------------------
 
-def _value_fn_from_dict(values: Dict[str, float]) -> Callable[[np.ndarray, Dict[str, Any]], np.ndarray]:
+def _value_fn_from_dict(values: dict[str, float]) -> Callable[[np.ndarray, dict[str, Any]], np.ndarray]:
     """Return a value_fn that outputs a constant array from a {field: value} dict."""
     vals = list(values.values())
     n_fields = len(vals)
-    def _fn(X: np.ndarray, ctx: Dict[str, Any], _vals=vals, _nf=n_fields) -> np.ndarray:
+    def _fn(X: np.ndarray, ctx: dict[str, Any], _vals=vals, _nf=n_fields) -> np.ndarray:
         out = np.zeros((X.shape[0], _nf), dtype=np.float32)
         for i, v in enumerate(_vals):
             out[:, i] = float(v)
@@ -212,11 +213,11 @@ def _value_fn_from_dict(values: Dict[str, float]) -> Callable[[np.ndarray, Dict[
 
 
 def DirichletBC(
-    name: Union[str, Dict[str, float]],
-    fields: Optional[FieldNames] = None,
+    name: str | dict[str, float],
+    fields: FieldNames | None = None,
     selector_type: SelectorType = "all",
-    selector: Optional[Union[Dict[str, Any], Callable[[np.ndarray, Dict[str, Any]], np.ndarray]]] = None,
-    value_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None,
+    selector: dict[str, Any] | Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
+    value_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
     weight: float = 1.0,
 ) -> ConditionSpec:
     """Construct a Dirichlet boundary condition.
@@ -254,17 +255,17 @@ def DirichletBC(
 
 
 def NeumannBC(
-    name: Union[str, Dict[str, float]],
-    fields: Optional[FieldNames] = None,
+    name: str | dict[str, float],
+    fields: FieldNames | None = None,
     selector_type: SelectorType = "all",
-    selector: Optional[Union[Dict[str, Any], Callable[[np.ndarray, Dict[str, Any]], np.ndarray]]] = None,
-    value_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None,
+    selector: dict[str, Any] | Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
+    value_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
     weight: float = 1.0,
     order: int = 1,
-    deriv_coord: Optional[str] = None,
-    traction_map: Optional[Dict[str, str]] = None,
-    normal_stress_field: Optional[str] = None,
-    thermal_bc: Optional[Dict[str, str]] = None,
+    deriv_coord: str | None = None,
+    traction_map: dict[str, str] | None = None,
+    normal_stress_field: str | None = None,
+    thermal_bc: dict[str, str] | None = None,
 ) -> ConditionSpec:
     """Construct a Neumann boundary condition.
 
@@ -326,11 +327,11 @@ def NeumannBC(
 
 
 def RobinBC(
-    name: Union[str, Dict[str, float]],
-    fields: Optional[FieldNames] = None,
+    name: str | dict[str, float],
+    fields: FieldNames | None = None,
     selector_type: SelectorType = "all",
-    selector: Optional[Union[Dict[str, Any], Callable[[np.ndarray, Dict[str, Any]], np.ndarray]]] = None,
-    value_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None,
+    selector: dict[str, Any] | Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
+    value_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
     weight: float = 1.0,
 ) -> ConditionSpec:
     """Construct a Robin boundary condition."""
@@ -361,8 +362,8 @@ def InterfaceBC(
     name: str,
     fields: FieldNames,
     selector_type: SelectorType = "all",
-    selector: Optional[Union[Dict[str, Any], Callable[[np.ndarray, Dict[str, Any]], np.ndarray]]] = None,
-    value_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None,
+    selector: dict[str, Any] | Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
+    value_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
     weight: float = 1.0,
     k_a: float = 1.0,
     k_b: float = 1.0,
@@ -427,11 +428,11 @@ def InterfaceBC(
 
 
 def InitialCondition(
-    name: Union[str, Dict[str, float]],
-    fields: Optional[FieldNames] = None,
+    name: str | dict[str, float],
+    fields: FieldNames | None = None,
     selector_type: SelectorType = "all",
-    selector: Optional[Union[Dict[str, Any], Callable[[np.ndarray, Dict[str, Any]], np.ndarray]]] = None,
-    value_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None,
+    selector: dict[str, Any] | Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
+    value_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
     weight: float = 1.0,
 ) -> ConditionSpec:
     """Construct an initial condition.
@@ -464,11 +465,11 @@ def InitialCondition(
 
 
 def DataConstraint(
-    name: Union[str, Dict[str, float]],
-    fields: Optional[FieldNames] = None,
+    name: str | dict[str, float],
+    fields: FieldNames | None = None,
     selector_type: SelectorType = "all",
-    selector: Optional[Union[Dict[str, Any], Callable[[np.ndarray, Dict[str, Any]], np.ndarray]]] = None,
-    value_fn: Optional[Callable[[np.ndarray, Dict[str, Any]], np.ndarray]] = None,
+    selector: dict[str, Any] | Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
+    value_fn: Callable[[np.ndarray, dict[str, Any]], np.ndarray] | None = None,
     weight: float = 1.0,
 ) -> ConditionSpec:
     """Construct a data constraint (supervised loss at specific points)."""

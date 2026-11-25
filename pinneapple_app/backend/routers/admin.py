@@ -8,7 +8,7 @@ email-domain allowlist).
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -24,16 +24,16 @@ def _registry_root() -> str:
 
 class ModelSummaryItem(BaseModel):
     problem_id: str
-    latest_model_version: Optional[str]
-    stage: Optional[str] = None
-    dataset_scenarios: List[str]
+    latest_model_version: str | None
+    stage: str | None = None
+    dataset_scenarios: list[str]
 
 
 class AdminSummaryResponse(BaseModel):
     registry_root: str
     n_presets: int
     n_architectures: int
-    models: List[ModelSummaryItem]
+    models: list[ModelSummaryItem]
 
 
 @router.get("/summary", response_model=AdminSummaryResponse)
@@ -70,7 +70,7 @@ class PromoteRequest(BaseModel):
 
 
 @router.post("/models/promote")
-def promote_model(req: PromoteRequest) -> Dict[str, Any]:
+def promote_model(req: PromoteRequest) -> dict[str, Any]:
     """Promotes a stored model version to a new stage. Being behind
     ``require_admin`` already IS the confirmation gate here (unlike
     ``pinneapple_orchestration``'s flow-level ``confirm=True`` flag, which

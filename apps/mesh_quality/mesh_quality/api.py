@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import List, Tuple
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.gzip import GZipMiddleware
@@ -99,7 +98,7 @@ def scope() -> dict:
             ]}
 
 
-def _run(files: List[Tuple[str, bytes]], target: str) -> dict:
+def _run(files: list[tuple[str, bytes]], target: str) -> dict:
     if not files:
         raise HTTPException(422, "No files uploaded.")
     if sum(len(b) for _, b in files) > MAX_MB * 1024 * 1024:
@@ -142,7 +141,7 @@ def meta():
 
 
 @app.post("/api/check")
-async def api_check(files: List[UploadFile] = File(...), target: str = Form("auto")):
+async def api_check(files: list[UploadFile] = File(...), target: str = Form("auto")):
     """One mesh: a file (.msh, .vtk, .vtu, .stl, .inp, .frd, ...) or an OpenFOAM case / polyMesh folder as a zip or
     loose files. ``target``: auto, cfd (finite-volume thresholds), fea (element shape) or surface."""
     return _run([(f.filename or f"upload_{i}", await f.read()) for i, f in enumerate(files)], target)

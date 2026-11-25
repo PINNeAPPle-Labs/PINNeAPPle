@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Sequence, Optional
+from collections.abc import Sequence
 import subprocess
 import pandas as pd
 
@@ -64,7 +64,7 @@ sets
     return out
 
 
-def run_sampling(case_dir: str | Path, foam_bashrc: str, *, time: Optional[str] = None) -> None:
+def run_sampling(case_dir: str | Path, foam_bashrc: str, *, time: str | None = None) -> None:
     """
     Runs: postProcess -func sample (latestTime by default)
     """

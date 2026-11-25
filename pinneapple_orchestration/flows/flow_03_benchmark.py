@@ -2,7 +2,7 @@
 component_type."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .._prefect_compat import flow
 from ..common.provenance import flow_run_manifest
@@ -13,12 +13,12 @@ from ..tasks import benchmark_component_type_task
 def flow_benchmark(
     component_type: str,
     train_loader: Any,
-    val_loader: Optional[Any] = None,
+    val_loader: Any | None = None,
     *,
     epochs: int = 50,
     lr: float = 1e-3,
     manifest_dir: str = "data/manifests",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     with flow_run_manifest(
         "flow_03_benchmark", {"component_type": component_type, "epochs": epochs}, manifest_dir=manifest_dir
     ) as manifest:

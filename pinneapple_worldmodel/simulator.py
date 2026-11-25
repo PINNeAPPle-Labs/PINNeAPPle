@@ -17,10 +17,9 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import torch
-import torch.nn.functional as F
 
 from .scenario import PhysicsScenario
 
@@ -44,9 +43,9 @@ class TrajectoryData:
         Solver info, wall-clock time, etc.
     """
     states: torch.Tensor
-    params: Dict[str, float]
+    params: dict[str, float]
     scenario_name: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def n_steps(self) -> int:
@@ -56,7 +55,7 @@ class TrajectoryData:
     def n_fields(self) -> int:
         return self.states.shape[1]
 
-    def transitions(self, horizon: int = 1) -> List[Tuple[torch.Tensor, torch.Tensor]]:
+    def transitions(self, horizon: int = 1) -> list[tuple[torch.Tensor, torch.Tensor]]:
         """Return all ``(state_t, state_{t+horizon})`` pairs."""
         out = []
         T = self.states.shape[0]
@@ -97,8 +96,8 @@ class PhysicsSimulator:
 
     def generate_trajectory(
         self,
-        params: Optional[Dict[str, float]] = None,
-        seed: Optional[int] = None,
+        params: dict[str, float] | None = None,
+        seed: int | None = None,
     ) -> TrajectoryData:
         """Generate one trajectory with the given (or randomly sampled) params.
 
@@ -130,7 +129,7 @@ class PhysicsSimulator:
         n_samples: int,
         *,
         base_seed: int = 0,
-    ) -> List[TrajectoryData]:
+    ) -> list[TrajectoryData]:
         """Generate *n_samples* trajectories with random parameters.
 
         Parameters
@@ -188,7 +187,7 @@ class PhysicsSimulator:
 
         sc = self.scenario
 
-        def _run(params: Dict[str, float], seed: Optional[int]) -> torch.Tensor:
+        def _run(params: dict[str, float], seed: int | None) -> torch.Tensor:
             if seed is not None:
                 torch.manual_seed(seed)
             cfg = {
@@ -214,7 +213,7 @@ class PhysicsSimulator:
 
         sc = self.scenario
 
-        def _run(params: Dict[str, float], seed: Optional[int]) -> torch.Tensor:
+        def _run(params: dict[str, float], seed: int | None) -> torch.Tensor:
             if seed is not None:
                 torch.manual_seed(seed)
             Re = params.get("Re", 400.0)
@@ -232,7 +231,7 @@ class PhysicsSimulator:
 
         sc = self.scenario
 
-        def _run(params: Dict[str, float], seed: Optional[int]) -> torch.Tensor:
+        def _run(params: dict[str, float], seed: int | None) -> torch.Tensor:
             if seed is not None:
                 torch.manual_seed(seed)
             solver = FEMSolver(grid_shape=sc.grid_shape, params=params,
@@ -267,7 +266,7 @@ class PhysicsSimulator:
     # -- Heat equation: ∂T/∂t = α∇²T ----------------------------------------
 
     def _solve_heat(
-        self, params: Dict[str, float], seed: Optional[int]
+        self, params: dict[str, float], seed: int | None
     ) -> torch.Tensor:
         sc = self.scenario
         alpha = params.get("alpha", 0.01)
@@ -294,7 +293,7 @@ class PhysicsSimulator:
     # -- Viscous Burgers: ∂u/∂t + u·∂u/∂x = ν·∂²u/∂x² ----------------------
 
     def _solve_burgers(
-        self, params: Dict[str, float], seed: Optional[int]
+        self, params: dict[str, float], seed: int | None
     ) -> torch.Tensor:
         sc = self.scenario
         nu = params.get("nu", 0.01)
@@ -330,7 +329,7 @@ class PhysicsSimulator:
     # -- Wave equation: ∂²u/∂t² = c²∇²u (Leapfrog) --------------------------
 
     def _solve_wave(
-        self, params: Dict[str, float], seed: Optional[int]
+        self, params: dict[str, float], seed: int | None
     ) -> torch.Tensor:
         sc = self.scenario
         c = params.get("c", 1.0)
@@ -361,7 +360,7 @@ class PhysicsSimulator:
     # -- Linear advection: ∂φ/∂t + v·∇φ = 0 (upwind) -------------------------
 
     def _solve_advection(
-        self, params: Dict[str, float], seed: Optional[int]
+        self, params: dict[str, float], seed: int | None
     ) -> torch.Tensor:
         sc = self.scenario
         vx = params.get("vx", 0.5)
@@ -404,7 +403,7 @@ class PhysicsSimulator:
     # -- Simplified 2D Navier-Stokes (vorticity-stream formulation) -----------
 
     def _solve_ns2d(
-        self, params: Dict[str, float], seed: Optional[int]
+        self, params: dict[str, float], seed: int | None
     ) -> torch.Tensor:
         """2D incompressible NS via vorticity-stream function.
 
@@ -452,8 +451,8 @@ class PhysicsSimulator:
     # Parameter sampling
     # ------------------------------------------------------------------
 
-    def _sample_params(self, overrides: Optional[Dict[str, float]]) -> Dict[str, float]:
-        out: Dict[str, float] = {}
+    def _sample_params(self, overrides: dict[str, float] | None) -> dict[str, float]:
+        out: dict[str, float] = {}
         for k, (lo, hi) in self.scenario.param_ranges.items():
             out[k] = float(torch.empty(1).uniform_(lo, hi).item())
         if overrides:
@@ -465,7 +464,7 @@ class PhysicsSimulator:
 # Grid / IC helpers
 # ---------------------------------------------------------------------------
 
-def _make_ic(scenario: PhysicsScenario, seed: Optional[int]) -> torch.Tensor:
+def _make_ic(scenario: PhysicsScenario, seed: int | None) -> torch.Tensor:
     """Generate an initial condition field ``(C, *grid_shape)``."""
     if seed is not None:
         torch.manual_seed(seed)
@@ -492,7 +491,7 @@ def _make_ic(scenario: PhysicsScenario, seed: Optional[int]) -> torch.Tensor:
     return torch.zeros(shape)
 
 
-def _smooth_random_field(shape: Tuple, device: torch.device) -> torch.Tensor:
+def _smooth_random_field(shape: tuple, device: torch.device) -> torch.Tensor:
     """Gaussian-filtered random field for smooth ICs."""
     u = torch.randn(shape, device=device)
     # Smooth via FFT: multiply by Gaussian in frequency domain
@@ -508,7 +507,7 @@ def _smooth_random_field(shape: Tuple, device: torch.device) -> torch.Tensor:
     return u
 
 
-def _gaussian_bump(shape: Tuple) -> torch.Tensor:
+def _gaussian_bump(shape: tuple) -> torch.Tensor:
     u = torch.zeros(shape)
     C = shape[0]
     for c in range(C):
@@ -525,7 +524,7 @@ def _gaussian_bump(shape: Tuple) -> torch.Tensor:
     return u
 
 
-def _sine_ic(shape: Tuple) -> torch.Tensor:
+def _sine_ic(shape: tuple) -> torch.Tensor:
     u = torch.zeros(shape)
     k = 1 + int(3 * torch.rand(1).item())
     x = torch.linspace(0, 2 * math.pi, shape[-1])
@@ -539,7 +538,7 @@ def _sine_ic(shape: Tuple) -> torch.Tensor:
     return u
 
 
-def _step_ic(shape: Tuple) -> torch.Tensor:
+def _step_ic(shape: tuple) -> torch.Tensor:
     u = torch.zeros(shape)
     cut = 0.2 + 0.6 * torch.rand(1).item()
     idx = int(cut * shape[-1])

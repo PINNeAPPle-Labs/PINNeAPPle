@@ -22,7 +22,7 @@ the numbered sequence becomes a Blender animation.
 from __future__ import annotations
 
 import os
-from typing import Dict, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -64,8 +64,8 @@ def _colormap(values: np.ndarray, cmap_name: str = "viridis") -> np.ndarray:
         return np.stack([gray, gray, gray], axis=1)
 
 
-def write_ply(path: str, points: np.ndarray, colors: Optional[np.ndarray] = None,
-              scalar_fields: Optional[Dict[str, np.ndarray]] = None) -> None:
+def write_ply(path: str, points: np.ndarray, colors: np.ndarray | None = None,
+              scalar_fields: dict[str, np.ndarray] | None = None) -> None:
     """Write a point cloud (no faces -- a vertex-only PLY, which Blender's
     importer turns into a mesh with only vertices, ready for a Point Cloud
     Visualizer-style geometry-nodes setup, or straightforward as a
@@ -108,7 +108,7 @@ def export_scene(
     field_name: str = "field",
     cmap: str = "viridis",
     frame_index: int = 0,
-    extra_fields: Optional[Dict[str, np.ndarray]] = None,
+    extra_fields: dict[str, np.ndarray] | None = None,
 ) -> str:
     """Export one frame (one time instant / one realisation) as
     ``<out_dir>/frame_<NNNN>.ply``. Call once per frame with increasing

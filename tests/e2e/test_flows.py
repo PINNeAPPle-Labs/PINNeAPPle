@@ -28,7 +28,6 @@ import time
 from pathlib import Path
 
 import numpy as np
-import pytest
 
 import pinneapple as pp
 from pinneapple_data.provenance import build_provenance

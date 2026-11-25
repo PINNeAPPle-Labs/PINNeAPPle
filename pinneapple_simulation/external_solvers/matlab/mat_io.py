@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 import numpy as np
 
 
-def load_mat(path: Union[str, Path]) -> Dict[str, np.ndarray]:
+def load_mat(path: str | Path) -> dict[str, np.ndarray]:
     """Load a .mat file and return a dict of numpy arrays.
 
     MATLAB internal variables (starting with '__') are filtered out.
@@ -24,7 +24,7 @@ def load_mat(path: Union[str, Path]) -> Dict[str, np.ndarray]:
     }
 
 
-def save_mat(path: Union[str, Path], arrays: Dict[str, Any]) -> None:
+def save_mat(path: str | Path, arrays: dict[str, Any]) -> None:
     """Save a dict of numpy arrays (or scalars) to a .mat file."""
     try:
         import scipy.io as sio

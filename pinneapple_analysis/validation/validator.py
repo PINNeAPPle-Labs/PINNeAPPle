@@ -5,8 +5,9 @@ Collects check specifications, executes them in order, and produces a
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -24,19 +25,19 @@ from .symmetry import SymmetryCheck
 @dataclass
 class _ConservationSpec:
     kind: str  # "mass" | "energy" | "integral"
-    kwargs: Dict[str, Any]
+    kwargs: dict[str, Any]
 
 
 @dataclass
 class _BoundarySpec:
     kind: str  # "dirichlet" | "neumann" | "periodicity"
-    kwargs: Dict[str, Any]
+    kwargs: dict[str, Any]
 
 
 @dataclass
 class _SymmetrySpec:
     kind: str  # "reflection" | "rotational"
-    kwargs: Dict[str, Any]
+    kwargs: dict[str, Any]
 
 
 @dataclass
@@ -63,7 +64,7 @@ class _CustomSpec:
     fn: Callable[..., Any]
     name: str
     threshold: float
-    kwargs: Dict[str, Any]
+    kwargs: dict[str, Any]
 
 
 # ---------------------------------------------------------------------------
@@ -99,8 +100,8 @@ class PhysicsValidator:
     def __init__(
         self,
         model: object,
-        coord_names: List[str],
-        domain_bounds: Dict[str, Tuple[float, float]],
+        coord_names: list[str],
+        domain_bounds: dict[str, tuple[float, float]],
         device: str = "cpu",
     ) -> None:
         self.model = model
@@ -108,18 +109,18 @@ class PhysicsValidator:
         self.domain_bounds = domain_bounds
         self.device = device
 
-        self._conservation_specs: List[_ConservationSpec] = []
-        self._boundary_specs: List[_BoundarySpec] = []
-        self._symmetry_specs: List[_SymmetrySpec] = []
+        self._conservation_specs: list[_ConservationSpec] = []
+        self._boundary_specs: list[_BoundarySpec] = []
+        self._symmetry_specs: list[_SymmetrySpec] = []
         self._dimensional_specs: list[_DimensionalSpec] = []
         self._ood_specs: list[_OODSpec] = []
-        self._custom_specs: List[_CustomSpec] = []
+        self._custom_specs: list[_CustomSpec] = []
 
     # ------------------------------------------------------------------
     # Registration
     # ------------------------------------------------------------------
 
-    def add_conservation_check(self, kind: str = "mass", **kwargs: Any) -> "PhysicsValidator":
+    def add_conservation_check(self, kind: str = "mass", **kwargs: Any) -> PhysicsValidator:
         """Register a conservation check.
 
         Parameters
@@ -138,7 +139,7 @@ class PhysicsValidator:
         self._conservation_specs.append(_ConservationSpec(kind=kind, kwargs=kwargs))
         return self
 
-    def add_boundary_check(self, kind: str = "dirichlet", **kwargs: Any) -> "PhysicsValidator":
+    def add_boundary_check(self, kind: str = "dirichlet", **kwargs: Any) -> PhysicsValidator:
         """Register a boundary condition check.
 
         Parameters
@@ -155,7 +156,7 @@ class PhysicsValidator:
         self._boundary_specs.append(_BoundarySpec(kind=kind, kwargs=kwargs))
         return self
 
-    def add_symmetry_check(self, kind: str = "reflection", **kwargs: Any) -> "PhysicsValidator":
+    def add_symmetry_check(self, kind: str = "reflection", **kwargs: Any) -> PhysicsValidator:
         """Register a symmetry check.
 
         Parameters
@@ -228,7 +229,7 @@ class PhysicsValidator:
         name: str,
         threshold: float,
         **kwargs: Any,
-    ) -> "PhysicsValidator":
+    ) -> PhysicsValidator:
         """Register a custom check function.
 
         The function must accept ``(model, coord_names, domain_bounds, **kwargs)``
@@ -259,7 +260,7 @@ class PhysicsValidator:
     # Execution
     # ------------------------------------------------------------------
 
-    def validate(self, model_name: Optional[str] = None) -> ValidationReport:
+    def validate(self, model_name: str | None = None) -> ValidationReport:
         """Run all registered checks and return a :class:`ValidationReport`.
 
         Parameters
@@ -484,8 +485,8 @@ class PhysicsValidator:
 def validate_model(
     model: object,
     spec: Any,
-    coord_names: Optional[List[str]] = None,
-    domain_bounds: Optional[Dict[str, Tuple[float, float]]] = None,
+    coord_names: list[str] | None = None,
+    domain_bounds: dict[str, tuple[float, float]] | None = None,
     device: str = "cpu",
 ) -> ValidationReport:
     """Quick one-shot validation from a ProblemSpec or explicit arguments.

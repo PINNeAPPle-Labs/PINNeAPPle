@@ -1,6 +1,5 @@
 """Models API router."""
 from __future__ import annotations
-from typing import List, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -12,8 +11,8 @@ class ModelListItem(BaseModel):
     family: str
     description: str
     supports_physics_loss: bool
-    tags: List[str]
-    recommended_for: List[str]
+    tags: list[str]
+    recommended_for: list[str]
 
 
 class MetricItem(BaseModel):
@@ -21,8 +20,8 @@ class MetricItem(BaseModel):
     label: str
 
 
-@router.get("", response_model=List[ModelListItem])
-def list_models(family: Optional[str] = None):
+@router.get("", response_model=list[ModelListItem])
+def list_models(family: str | None = None):
     """Return all available models, optionally filtered by family."""
     from ..core.model_catalog import list_models as _list
     return [

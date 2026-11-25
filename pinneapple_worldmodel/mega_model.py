@@ -46,9 +46,8 @@ Quick start::
 from __future__ import annotations
 
 import logging
-import math
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from dataclasses import dataclass
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -179,7 +178,7 @@ class PhysicsDescriptorEncoder(nn.Module):
 
     def forward(
         self,
-        descriptor: Union[Tensor, Dict[str, Any]],
+        descriptor: Tensor | dict[str, Any],
         batch_size: int = 1,
     ) -> Tensor:
         """Encode descriptor to ``(B, context_dim)`` tensor.
@@ -309,7 +308,7 @@ class FoundationFNOBlock(nn.Module):
 
         self.spatial_dim = spatial_dim
 
-    def forward(self, x: Tensor, context: Optional[Tensor] = None) -> Tensor:
+    def forward(self, x: Tensor, context: Tensor | None = None) -> Tensor:
         # x: (B, width, *spatial)
         h = self.spectral(x) + self.bypass(x)
 
@@ -364,7 +363,7 @@ class PhysicsFoundationModel(nn.Module):
         config: FoundationConfig,
         *,
         n_fields: int = 1,
-        grid_shape: Tuple[int, ...] = (64, 64),
+        grid_shape: tuple[int, ...] = (64, 64),
     ) -> None:
         super().__init__()
         self.config = config
@@ -426,7 +425,7 @@ class PhysicsFoundationModel(nn.Module):
             self.upsample_skip = nn.Upsample(scale_factor=2)
 
         # Optional aleatoric head
-        self.aleatoric_head: Optional[nn.Module] = None
+        self.aleatoric_head: nn.Module | None = None
         if config.use_aleatoric:
             self.aleatoric_head = (
                 nn.Conv2d(w, n_fields, 1) if self.spatial_dim == 2
@@ -443,7 +442,7 @@ class PhysicsFoundationModel(nn.Module):
     def forward(
         self,
         state_t: Tensor,
-        descriptor: Union[Tensor, Dict[str, Any], None] = None,
+        descriptor: Tensor | dict[str, Any] | None = None,
     ) -> Tensor:
         """Predict ``state_{t+1}`` from ``state_t`` and physics descriptor.
 
@@ -509,7 +508,7 @@ class PhysicsFoundationModel(nn.Module):
     def rollout(
         self,
         state_0: Tensor,
-        descriptor: Union[Tensor, Dict[str, Any], None] = None,
+        descriptor: Tensor | dict[str, Any] | None = None,
         *,
         n_steps: int = 20,
     ) -> Tensor:
@@ -562,10 +561,10 @@ class PhysicsFoundationModel(nn.Module):
     def predict_with_uncertainty(
         self,
         state_t: Tensor,
-        descriptor: Union[Tensor, Dict[str, Any], None] = None,
+        descriptor: Tensor | dict[str, Any] | None = None,
         *,
         n_samples: int = 20,
-    ) -> Tuple[Tensor, Tensor]:
+    ) -> tuple[Tensor, Tensor]:
         """MC-Dropout uncertainty estimate.
 
         Parameters
@@ -593,8 +592,8 @@ class PhysicsFoundationModel(nn.Module):
         config: FoundationConfig,
         *,
         n_fields: int = 1,
-        grid_shape: Tuple[int, ...] = (64, 64),
-    ) -> "PhysicsFoundationModel":
+        grid_shape: tuple[int, ...] = (64, 64),
+    ) -> PhysicsFoundationModel:
         """Swap the FNO backbone for AFNO (Adaptive Fourier Neural Operator).
 
         Requires ``pinneapple_models.AFNO``.  Falls back silently to the
@@ -616,7 +615,7 @@ class PhysicsFoundationModel(nn.Module):
                     self.afno = afno
                     self.ctx_proj = nn.Linear(ctx_dim, w)
 
-                def forward(self, x: Tensor, context: Optional[Tensor] = None) -> Tensor:
+                def forward(self, x: Tensor, context: Tensor | None = None) -> Tensor:
                     h = self.afno(x)
                     if context is not None:
                         bias = self.ctx_proj(context).unsqueeze(-1).unsqueeze(-1)
@@ -659,7 +658,7 @@ class PhysicsFoundationModel(nn.Module):
         }, path)
 
     @classmethod
-    def load(cls, path: str, map_location: str = "cpu") -> "PhysicsFoundationModel":
+    def load(cls, path: str, map_location: str = "cpu") -> PhysicsFoundationModel:
         ckpt = torch.load(path, map_location=map_location)
         model = cls(ckpt["config"], n_fields=ckpt["n_fields"],
                     grid_shape=ckpt["grid_shape"])

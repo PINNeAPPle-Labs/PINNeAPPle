@@ -1,13 +1,12 @@
 """Visualise SolverOutput objects from FDM / FEM / FVM / meshfree solvers."""
 from __future__ import annotations
-from typing import Optional, Sequence, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 from .style import get_cmap, make_figure, DEFAULT_CMAP
-from .fields import plot_scalar, plot_vectors, plot_streamlines, compare_fields
+from .fields import plot_scalar, compare_fields
 
 
 def _to_np(t):
@@ -24,8 +23,8 @@ def _to_np(t):
 def plot_solver_output(
     output,  # SolverOutput
     *,
-    x: Optional["ArrayLike"] = None,
-    y: Optional["ArrayLike"] = None,
+    x: ArrayLike | None = None,
+    y: ArrayLike | None = None,
     title: str = "Solver result",
     cmap: str = DEFAULT_CMAP,
     show: bool = False,

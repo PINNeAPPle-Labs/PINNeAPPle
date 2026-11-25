@@ -19,14 +19,12 @@ Shao & Lo (2003), Advances in Water Resources 26, 787-800.
 
 from __future__ import annotations
 
-from typing import Optional
 
 import torch
 
 from .base import SolverBase, SolverOutput
 from .sph import SPHState, _poly6, _spiky_grad
 from .neighbors import build_neighbor_list
-from .sph_boundaries import wall_repulsion_force
 from .registry import SolverRegistry
 
 
@@ -153,9 +151,9 @@ class ISPHSolver(SolverBase):
         mass: float = 1.0,
         rho0: float = 1000.0,
         mu: float = 0.02,
-        gravity: Optional[list] = None,
-        boundary_lo: Optional[list] = None,
-        boundary_hi: Optional[list] = None,
+        gravity: list | None = None,
+        boundary_lo: list | None = None,
+        boundary_hi: list | None = None,
         ppe_iters: int = 30,
     ):
         super().__init__()
@@ -228,7 +226,7 @@ class ISPHSolver(SolverBase):
     def forward(
         self,
         pos0: torch.Tensor,
-        vel0: Optional[torch.Tensor] = None,
+        vel0: torch.Tensor | None = None,
         *,
         dt: float = 1e-3,
         steps: int = 10,

@@ -22,7 +22,7 @@ import importlib
 import json
 import os
 import sys
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 import numpy as np
 
@@ -34,7 +34,7 @@ class OutOfEnvelope(RuntimeError):
     pass
 
 
-def check_envelope(model: CalculixModel, coords: np.ndarray, envelope: Optional[dict], tol: float = 1e-6) -> None:
+def check_envelope(model: CalculixModel, coords: np.ndarray, envelope: dict | None, tol: float = 1e-6) -> None:
     if not envelope:
         return
     problems = []
@@ -54,7 +54,7 @@ def check_envelope(model: CalculixModel, coords: np.ndarray, envelope: Optional[
         raise OutOfEnvelope("; ".join(problems))
 
 
-def predict_to_frd(inp_path: str, predictor: Callable, frd_path: Optional[str] = None) -> str:
+def predict_to_frd(inp_path: str, predictor: Callable, frd_path: str | None = None) -> str:
     """Read ``inp_path``, predict nodal fields, write the matching ``.frd``; returns its path."""
     model = read_inp(inp_path)
     ids, coords = model.node_array()

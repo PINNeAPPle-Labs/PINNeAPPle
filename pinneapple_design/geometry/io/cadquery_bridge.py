@@ -1,7 +1,7 @@
 """CadQuery solid-to-PhysicalSample conversion via tessellation."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 import torch
 from pinneapple_data.physical_sample import PhysicalSample
 
@@ -12,12 +12,11 @@ def cadquery_solid_to_upd(
     tess_linear_deflection: float = 0.2,
     tess_angular_deflection: float = 0.3,
     units: str = "mm",
-    meta: Optional[Dict[str, Any]] = None,
+    meta: dict[str, Any] | None = None,
 ) -> PhysicalSample:
     """
     Convert a CadQuery solid/workplane to a triangle mesh and wrap as PhysicalSample.
     """
-    import cadquery as cq  # optional
 
     shape = solid.val() if hasattr(solid, "val") else solid
     tess = shape.tessellate(tess_linear_deflection, tess_angular_deflection)

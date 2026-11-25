@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 import shutil
 
 
@@ -28,7 +28,7 @@ def stage_case_for_scenario(
     *,
     tpl: OpenFOAMCaseTemplate,
     out_case_dir: Path,
-    scenario: Dict[str, Any],   # expects T_inlet, T_outlet, k, scenario_id
+    scenario: dict[str, Any],   # expects T_inlet, T_outlet, k, scenario_id
 ) -> None:
     """
     Copies template -> out_case_dir and writes scenario-specific 0/T and transportProperties.

@@ -45,7 +45,7 @@ import sqlite3
 from contextlib import closing
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .experiment_store import ExperimentStore
 
@@ -83,13 +83,13 @@ class ExperimentRecord:
     physics_domain: str
     approach_summary: str
     outcome: str
-    confidence_score: Optional[float] = None
-    metrics: Dict[str, float] = field(default_factory=dict)
+    confidence_score: float | None = None
+    metrics: dict[str, float] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-    lessons_learned: Optional[str] = None
+    lessons_learned: str | None = None
 
 
-def _record_to_payload(record: ExperimentRecord) -> Dict[str, Any]:
+def _record_to_payload(record: ExperimentRecord) -> dict[str, Any]:
     return {
         "problem_description": record.problem_description,
         "physics_domain": record.physics_domain,
@@ -102,7 +102,7 @@ def _record_to_payload(record: ExperimentRecord) -> Dict[str, Any]:
     }
 
 
-def _payload_to_record(payload: Dict[str, Any]) -> ExperimentRecord:
+def _payload_to_record(payload: dict[str, Any]) -> ExperimentRecord:
     return ExperimentRecord(
         problem_description=payload.get("problem_description", ""),
         physics_domain=payload.get("physics_domain", "unknown"),
@@ -130,7 +130,7 @@ class ExperimentMemory:
         memory = ExperimentMemory(db_path="./my_registry/experiments.db")
     """
 
-    def __init__(self, store: Optional[ExperimentStore] = None, *, db_path: Optional[str] = None):
+    def __init__(self, store: ExperimentStore | None = None, *, db_path: str | None = None):
         if store is not None and db_path is not None:
             raise ValueError("Pass either `store` or `db_path`, not both.")
         if store is None:
@@ -157,7 +157,7 @@ class ExperimentMemory:
 
     # -- retrieval -------------------------------------------------------
 
-    def _list_problem_ids(self) -> List[str]:
+    def _list_problem_ids(self) -> list[str]:
         """Every distinct ``problem_id`` (== physics_domain) the store has
         ever seen. ``ExperimentStore`` has no method for this, so this
         reads the store's own ``experiments`` table directly -- read-only,
@@ -166,12 +166,12 @@ class ExperimentMemory:
             rows = conn.execute("SELECT DISTINCT problem_id FROM experiments").fetchall()
         return [row[0] for row in rows]
 
-    def _all_records(self) -> List[ExperimentRecord]:
+    def _all_records(self) -> list[ExperimentRecord]:
         """Every ``ExperimentRecord`` logged so far, reconstructed from the
         real ``ExperimentStore.list_runs`` output. Runs with no
         ``final_metrics`` (i.e. never finished via ``log_experiment``) are
         skipped -- they carry no record payload to reconstruct."""
-        records: List[ExperimentRecord] = []
+        records: list[ExperimentRecord] = []
         for problem_id in self._list_problem_ids():
             for run in self._store.list_runs(problem_id):
                 payload = run.get("final_metrics")
@@ -184,9 +184,9 @@ class ExperimentMemory:
         self,
         problem_description: str,
         *,
-        physics_domain: Optional[str] = None,
+        physics_domain: str | None = None,
         top_k: int = 5,
-    ) -> List[Tuple[ExperimentRecord, float]]:
+    ) -> list[tuple[ExperimentRecord, float]]:
         """Real, honest **lexical** similarity search: TF-IDF cosine
         similarity of ``problem_description`` against every stored
         record's ``problem_description``, with a small additive score
@@ -220,7 +220,7 @@ class ExperimentMemory:
         corpus_vecs = tfidf[:-1]
         sims = cosine_similarity(query_vec, corpus_vecs)[0]
 
-        scored: List[Tuple[ExperimentRecord, float]] = list(zip(records, sims.tolist()))
+        scored: list[tuple[ExperimentRecord, float]] = list(zip(records, sims.tolist()))
         if physics_domain:
             domain_q = physics_domain.lower()
             boosted = []
@@ -237,7 +237,7 @@ class ExperimentMemory:
         scored.sort(key=lambda pair: pair[1], reverse=True)
         return scored[:top_k]
 
-    def get_lessons_for_domain(self, physics_domain: str) -> List[str]:
+    def get_lessons_for_domain(self, physics_domain: str) -> list[str]:
         """Every non-empty ``lessons_learned`` string logged under a
         ``physics_domain`` that case-insensitively matches ``physics_domain``,
         aggregated from the real stored records (most recent last, in the

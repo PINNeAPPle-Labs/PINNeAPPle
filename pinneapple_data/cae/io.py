@@ -10,7 +10,6 @@ import io as _io
 import os
 import struct
 import tempfile
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -26,7 +25,7 @@ class FormatError(ValueError):
     pass
 
 
-def kind_of(fs: Dict[str, bytes]) -> Tuple[str, Optional[str]]:
+def kind_of(fs: dict[str, bytes]) -> tuple[str, str | None]:
     """(kind, main file or case root). Kinds: openfoam, inp, frd, stl, meshio, points."""
     names = list(fs)
     roots = [n[: -len("system/controlDict")] for n in names if n.endswith("system/controlDict")]
@@ -53,7 +52,7 @@ def kind_of(fs: Dict[str, bytes]) -> Tuple[str, Optional[str]]:
                       ".inp or .frd file, or a CSV/HDF5 point table")
 
 
-def read_any(fs: Dict[str, bytes], fields: bool = True, time: Optional[str] = None) -> Mesh:
+def read_any(fs: dict[str, bytes], fields: bool = True, time: str | None = None) -> Mesh:
     k, main = kind_of(fs)
     if k == "openfoam":
         m = foam.read_polymesh(fs, main)
@@ -207,8 +206,8 @@ def read_points(name: str, b: bytes) -> Mesh:
         return _points_from_arrays({k: z[k] for k in z.files}, name)
     else:
         return _points_from_hdf5(b, name)
-    units: Dict[str, str] = {}
-    clean: Dict[str, str] = {}
+    units: dict[str, str] = {}
+    clean: dict[str, str] = {}
     import re
     for c in cols:
         mm = re.match(r"^\s*(.+?)\s*[\[(]\s*([^\])]+)\s*[\])]\s*$", str(c))
@@ -241,14 +240,14 @@ def read_points(name: str, b: bytes) -> Mesh:
     return m
 
 
-def _group_vectors(cols: List[str]) -> Dict[str, List[str]]:
+def _group_vectors(cols: list[str]) -> dict[str, list[str]]:
     """'U:0','U:1','U:2' / 'U_x','U_y','U_z' / 'Ux','Uy','Uz' -> one vector field U."""
     import re
-    out: Dict[str, List[str]] = {}
+    out: dict[str, list[str]] = {}
     used = set()
     pats = [r"^(.+?)[:_](0|1|2)$", r"^(.+?)[_]?(x|y|z)$", r"^(.+?)[_]?(X|Y|Z)$"]
     for pat in pats:
-        groups: Dict[str, Dict[str, str]] = {}
+        groups: dict[str, dict[str, str]] = {}
         for c in cols:
             mm = re.match(pat, c)
             if mm and c not in used:
@@ -264,7 +263,7 @@ def _group_vectors(cols: List[str]) -> Dict[str, List[str]]:
     return out
 
 
-def _points_from_arrays(arrs: Dict[str, np.ndarray], name: str) -> Mesh:
+def _points_from_arrays(arrs: dict[str, np.ndarray], name: str) -> Mesh:
     pts = None
     for k in ("points", "coordinates", "coords", "xyz", "x"):
         if k in arrs and np.asarray(arrs[k]).ndim == 2:
@@ -288,8 +287,8 @@ def _points_from_arrays(arrs: Dict[str, np.ndarray], name: str) -> Mesh:
 
 def _points_from_hdf5(b: bytes, name: str) -> Mesh:
     import h5py
-    arrs: Dict[str, np.ndarray] = {}
-    units: Dict[str, str] = {}
+    arrs: dict[str, np.ndarray] = {}
+    units: dict[str, str] = {}
     with h5py.File(_io.BytesIO(b), "r") as h:
         def visit(path, obj):
             if isinstance(obj, h5py.Dataset) and obj.ndim in (1, 2) and obj.size < 5e8:

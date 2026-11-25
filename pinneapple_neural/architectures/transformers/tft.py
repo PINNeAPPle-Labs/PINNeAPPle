@@ -1,7 +1,6 @@
 from __future__ import annotations
 """TFT-lite (strong): GRN + grouped variable selection + causal encoder + cross-attentive decoder."""
 
-from typing import Dict, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -75,7 +74,7 @@ class GroupVSN(nn.Module):
         self.score = nn.Linear(d_model, num_groups)
         self.drop = nn.Dropout(float(dropout))
 
-    def forward(self, groups: Tuple[torch.Tensor, ...]) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, groups: tuple[torch.Tensor, ...]) -> tuple[torch.Tensor, torch.Tensor]:
         """
         groups: tuple of (B,L,d_model), length = num_groups
         returns:
@@ -189,8 +188,8 @@ class TemporalFusionTransformer(TimeSeriesModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        x_future: Optional[torch.Tensor] = None,
-        y_future: Optional[torch.Tensor] = None,
+        x_future: torch.Tensor | None = None,
+        y_future: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> TSOutput:
         """
@@ -242,7 +241,7 @@ class TemporalFusionTransformer(TimeSeriesModelBase):
 
         y_hat = self.out(dec)  # (B,H,out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
         if return_loss and y_future is not None:
             losses["mse"] = self.mse(y_hat, y_future)
             losses["total"] = losses["mse"]

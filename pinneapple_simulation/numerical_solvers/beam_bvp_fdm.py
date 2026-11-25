@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 import torch
@@ -66,14 +65,14 @@ class SectionProps:
     A_m2: float
 
     @classmethod
-    def rectangular(cls, b: float, h: float) -> "SectionProps":
+    def rectangular(cls, b: float, h: float) -> SectionProps:
         I = b * h ** 3 / 12
         c = h / 2
         Q = b * c ** 2 / 2
         return cls(I, c, Q, b, b * h)
 
     @classmethod
-    def hollow_rectangular(cls, b: float, h: float, t: float) -> "SectionProps":
+    def hollow_rectangular(cls, b: float, h: float, t: float) -> SectionProps:
         """Rectangular tube ``b`` wide, ``h`` deep (bending about the width axis), wall ``t``."""
         bi, hi = b - 2 * t, h - 2 * t
         i_m4 = (b * h ** 3 - bi * hi ** 3) / 12
@@ -81,7 +80,7 @@ class SectionProps:
         return cls(i_m4, h / 2, q_m3, 2 * t, b * h - bi * hi)
 
     @classmethod
-    def hollow_circle(cls, OD: float, ID: float) -> "SectionProps":
+    def hollow_circle(cls, OD: float, ID: float) -> SectionProps:
         ro, ri = OD / 2.0, ID / 2.0
         I = math.pi * (OD ** 4 - ID ** 4) / 64.0
         Q = (2.0 / 3.0) * (ro ** 3 - ri ** 3)
@@ -90,7 +89,7 @@ class SectionProps:
         return cls(I, ro, Q, t, A)
 
     @classmethod
-    def solid_circle(cls, D: float) -> "SectionProps":
+    def solid_circle(cls, D: float) -> SectionProps:
         r = D / 2.0
         I = math.pi * D ** 4 / 64.0
         Q = (2.0 / 3.0) * r ** 3
@@ -200,7 +199,7 @@ def solve_euler_bernoulli_beam_1d(
     q_N_per_m: float = 1000.0,
     nx: int = 200,
     bc_type: int = BC_SIMPLY_SUPPORTED,
-    section: Optional[SectionProps] = None,
+    section: SectionProps | None = None,
     yield_Pa: float = 0.0,
 ) -> dict:
     """Solve the 1D Euler-Bernoulli beam BVP EI*w''''=q under a uniform
@@ -281,7 +280,7 @@ class BeamBVPFDMSolver(SolverBase):
         E_Pa: float,
         I_m4: float,
         q_N_per_m: float,
-        section: Optional[SectionProps] = None,
+        section: SectionProps | None = None,
         yield_Pa: float = 0.0,
     ) -> SolverOutput:
         res = solve_euler_bernoulli_beam_1d(

@@ -19,7 +19,7 @@ from __future__ import annotations
 import os
 
 from dataclasses import dataclass
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 
@@ -33,12 +33,12 @@ SDF2D = Callable[[np.ndarray], np.ndarray]
 
 @dataclass
 class SDFGrid2D:
-    bounds_min: Tuple[float, float] = (-1.0, -1.0)
-    bounds_max: Tuple[float, float] = (1.0, 1.0)
+    bounds_min: tuple[float, float] = (-1.0, -1.0)
+    bounds_max: tuple[float, float] = (1.0, 1.0)
     resolution: int = 256
 
 
-def _grid_points(cfg: SDFGrid2D) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _grid_points(cfg: SDFGrid2D) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     xs = np.linspace(cfg.bounds_min[0], cfg.bounds_max[0], cfg.resolution)
     ys = np.linspace(cfg.bounds_min[1], cfg.bounds_max[1], cfg.resolution)
     xx, yy = np.meshgrid(xs, ys, indexing="xy")
@@ -49,9 +49,9 @@ def _grid_points(cfg: SDFGrid2D) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 def sample_boundary_points_sdf2d(
     sdf: SDF2D,
     *,
-    grid: Optional[SDFGrid2D] = None,
+    grid: SDFGrid2D | None = None,
     n: int = 2048,
-    rng: Optional[np.random.Generator] = None,
+    rng: np.random.Generator | None = None,
     band: float = 0.01,
 ) -> np.ndarray:
     """Sample boundary points from a 2D SDF by rejection within a thin band."""
@@ -74,7 +74,7 @@ def sample_boundary_points_sdf2d(
 def marching_squares_contours(
     sdf: SDF2D,
     *,
-    grid: Optional[SDFGrid2D] = None,
+    grid: SDFGrid2D | None = None,
     level: float = 0.0,
 ) -> list[np.ndarray]:
     """Extract contour polylines for the level set sdf(x)=level.
@@ -115,9 +115,9 @@ def _require_gmsh():
 def sdf2d_to_tri_mesh(
     sdf: SDF2D,
     *,
-    grid: Optional[SDFGrid2D] = None,
+    grid: SDFGrid2D | None = None,
     mesh_size: float = 0.03,
-    cache_path: Optional[str] = None,
+    cache_path: str | None = None,
 ) -> MeshData:
     """Build a 2D triangulated mesh of the zero level-set using gmsh.
 

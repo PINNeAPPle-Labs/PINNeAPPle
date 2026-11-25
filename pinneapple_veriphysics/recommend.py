@@ -14,7 +14,7 @@ about what formulation/method intelligence step 1-3 produced.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pinneapple_analysis.verification.dimensional_analysis import (
     compute_dimensionless_numbers,
@@ -51,9 +51,9 @@ class CandidateDetail:
     when_to_use: str = ""  # architectures only
     license: str = ""  # tools only: "open-source" | "commercial"
     typical_cost_tier: str = ""  # tools only: "free" | "$" | "$$" | "$$$"
-    player: Optional[str] = None  # tools only: the real company behind it, or None (community/consortium)
-    strengths: List[str] = field(default_factory=list)
-    weaknesses: List[str] = field(default_factory=list)  # architectures: "weaknesses"; tools: "caveats"
+    player: str | None = None  # tools only: the real company behind it, or None (community/consortium)
+    strengths: list[str] = field(default_factory=list)
+    weaknesses: list[str] = field(default_factory=list)  # architectures: "weaknesses"; tools: "caveats"
     source: str = ""
 
 
@@ -62,29 +62,29 @@ class RecommendationResult:
     rejected: bool
     rejection_reason: str = ""
 
-    dimensionless_numbers: Dict[str, Any] = None
-    flow_regime: Optional[str] = None
+    dimensionless_numbers: dict[str, Any] = None
+    flow_regime: str | None = None
 
-    drafted_preset: Optional[str] = None
-    drafted_preset_kwargs: Optional[Dict[str, Any]] = None
+    drafted_preset: str | None = None
+    drafted_preset_kwargs: dict[str, Any] | None = None
     draft_reasoning: str = ""
     spec: Any = None
 
     # Internal method intelligence
-    recommended_solver_family: Optional[str] = None
+    recommended_solver_family: str | None = None
     solver_reasoning: str = ""
-    solver_fallback_families: List[str] = None
+    solver_fallback_families: list[str] = None
 
-    recommended_architectures: List[str] = None  # real registry_keys, e.g. "vanilla_pinn"
+    recommended_architectures: list[str] = None  # real registry_keys, e.g. "vanilla_pinn"
     architecture_reasoning: str = ""
-    architecture_alternatives: List[Dict[str, Any]] = None
-    architecture_details: List[CandidateDetail] = None  # recommended + alternatives, full real detail
+    architecture_alternatives: list[dict[str, Any]] = None
+    architecture_details: list[CandidateDetail] = None  # recommended + alternatives, full real detail
 
     # External method intelligence
-    recommended_tools: List[str] = None
+    recommended_tools: list[str] = None
     tool_reasoning: str = ""
-    tool_alternatives: List[Dict[str, Any]] = None
-    tool_details: List[CandidateDetail] = None  # recommended + alternatives, full real detail
+    tool_alternatives: list[dict[str, Any]] = None
+    tool_details: list[CandidateDetail] = None  # recommended + alternatives, full real detail
 
     # A real, synthesized end-to-end pipeline string combining the
     # internal architecture pick with any recommended external data-
@@ -95,8 +95,8 @@ class RecommendationResult:
     recommended_pipeline: str = ""
 
 
-def _architecture_details(arch_rec, recommended_architectures: List[str]) -> List[CandidateDetail]:
-    details: List[CandidateDetail] = []
+def _architecture_details(arch_rec, recommended_architectures: list[str]) -> list[CandidateDetail]:
+    details: list[CandidateDetail] = []
     seen = set()
     for key in arch_rec.recommended:
         candidate = ARCHITECTURE_CATALOG.get(key)
@@ -125,8 +125,8 @@ def _architecture_details(arch_rec, recommended_architectures: List[str]) -> Lis
     return details
 
 
-def _tool_details(tool_rec) -> List[CandidateDetail]:
-    details: List[CandidateDetail] = []
+def _tool_details(tool_rec) -> list[CandidateDetail]:
+    details: list[CandidateDetail] = []
     seen = set()
     for key in tool_rec.recommended:
         tool = TOOL_CATALOG.get(key)
@@ -156,7 +156,7 @@ def _tool_details(tool_rec) -> List[CandidateDetail]:
     return details
 
 
-def _synthesize_pipeline(recommended_architectures: List[str], recommended_tools: List[str]) -> str:
+def _synthesize_pipeline(recommended_architectures: list[str], recommended_tools: list[str]) -> str:
     if not recommended_architectures:
         return ""
     arch = recommended_architectures[0]
@@ -178,16 +178,16 @@ def _synthesize_pipeline(recommended_architectures: List[str], recommended_tools
 def formulate_and_recommend(
     description: str,
     *,
-    physical_parameters: Optional[Dict[str, float]] = None,
+    physical_parameters: dict[str, float] | None = None,
     flow_geometry: str = "internal_pipe",
     provider: str = "ollama",
-    model_name: Optional[str] = None,
-    has_lots_of_data: Optional[bool] = None,
+    model_name: str | None = None,
+    has_lots_of_data: bool | None = None,
     needs_parameter_generalization: bool = False,
     geometry_varies: bool = False,
     is_inverse_problem: bool = False,
-    example_case: Optional[str] = None,
-    log: Optional[LogCollector] = None,
+    example_case: str | None = None,
+    log: LogCollector | None = None,
 ) -> RecommendationResult:
     """Formulate the problem (dimensional analysis + LLM preset draft) and
     compute internal + external method-intelligence recommendations --

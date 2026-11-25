@@ -27,14 +27,14 @@ import hashlib
 import json
 import time
 from collections.abc import Sequence
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from .design import BOUNDS, NAMES, Motor3DDesign
-from .model import OUTPUTS, PROFILES, SCALARS
+from .model import OUTPUTS, PROFILES
 
 __all__ = ["SurrogateConfig", "MotorSurrogate3D", "load_pretrained", "pretrained_path", "PRETRAINED_VERSION"]
 

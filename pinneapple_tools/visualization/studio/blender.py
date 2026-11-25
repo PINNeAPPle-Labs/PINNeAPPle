@@ -16,7 +16,7 @@ from __future__ import annotations
 import math
 import os
 import tempfile
-from typing import Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -338,19 +338,19 @@ def _write_passes(bpy, bs, out: str) -> str:
     return folder
 
 
-def render(scene, out: str, *, field: Optional[str] = None, field_range: Optional[Tuple[float, float]] = None,
-           lines: Union[bool, str] = False, line_range: Optional[Tuple[float, float]] = None,
-           slice: Optional[str] = None, slice_range: Optional[Tuple[float, float]] = None,
-           view: Union[str, Sequence[float], None] = None, distance: Optional[float] = None,
-           lens: Optional[float] = None,
-           background: str = "studio", samples: Optional[int] = None, size: Optional[Tuple[int, int]] = None,
-           title: Optional[str] = None, colorbar_on: bool = True, lo_txt: str = "", hi_txt: str = "",
-           sun_elevation: float = 40.0, ghost: Optional[bool] = None,
+def render(scene, out: str, *, field: str | None = None, field_range: tuple[float, float] | None = None,
+           lines: bool | str = False, line_range: tuple[float, float] | None = None,
+           slice: str | None = None, slice_range: tuple[float, float] | None = None,
+           view: str | Sequence[float] | None = None, distance: float | None = None,
+           lens: float | None = None,
+           background: str = "studio", samples: int | None = None, size: tuple[int, int] | None = None,
+           title: str | None = None, colorbar_on: bool = True, lo_txt: str = "", hi_txt: str = "",
+           sun_elevation: float = 40.0, ghost: bool | None = None,
            surface_fields: dict | None = None, cmap: str = "jet", floor: bool = False,
-           exposure: Optional[float] = None, quality: str = "production", device: str = "auto",
-           field_alpha: Optional[float] = None, hdri_strength: float = 1.0,
-           hdri_rotation: float = 0.0, camera: Optional[str] = None, composition: Optional[str] = None,
-           fstop: Optional[float] = None, look: Optional[str] = None, post: Optional[str] = None,
+           exposure: float | None = None, quality: str = "production", device: str = "auto",
+           field_alpha: float | None = None, hdri_strength: float = 1.0,
+           hdri_rotation: float = 0.0, camera: str | None = None, composition: str | None = None,
+           fstop: float | None = None, look: str | None = None, post: str | None = None,
            passes: bool = False, film_transparent: bool = False) -> str:
     """Render ``scene`` (a Scene or a .glb path) to ``out`` (.png or .jpg). Returns ``out``.
 
@@ -697,7 +697,7 @@ if cfg.get("result"):
 '''
 
 
-def blender_executable() -> Optional[str]:
+def blender_executable() -> str | None:
     """The Blender executable: ``$BLENDER``, then ``blender`` on ``PATH``, then the usual install locations
     (macOS app bundle, ``/usr/bin``, ``/snap``, ``C:\\Program Files\\Blender Foundation``). ``None`` if there is
     none, in which case :func:`render` needs ``pip install bpy`` and :func:`render_headless` cannot run."""
@@ -708,7 +708,7 @@ def blender_executable() -> Optional[str]:
     return None
 
 
-def render_headless(scene, out: str, *, exe: Optional[str] = None, timeout: float = 3600.0, **kwargs) -> str:
+def render_headless(scene, out: str, *, exe: str | None = None, timeout: float = 3600.0, **kwargs) -> str:
     """:func:`render` on a machine where ``bpy`` is not importable: the scene goes to a ``.glb``, Blender renders it
     from the command line, and ``out`` is written and returned.
 

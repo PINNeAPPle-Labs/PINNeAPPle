@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 
@@ -30,17 +29,17 @@ class FMUSimConfig:
     """
     start_time: float = 0.0
     stop_time: float = 1.0
-    step_size: Optional[float] = None
-    output_interval: Optional[float] = None
-    parameters: Dict[str, float] = field(default_factory=dict)
-    output_variables: Optional[List[str]] = None
-    fmi_type: Optional[str] = None
+    step_size: float | None = None
+    output_interval: float | None = None
+    parameters: dict[str, float] = field(default_factory=dict)
+    output_variables: list[str] | None = None
+    fmi_type: str | None = None
 
 
 def simulate_fmu(
-    fmu_path: Union[str, Path],
+    fmu_path: str | Path,
     config: FMUSimConfig,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Simulate an FMU and return output variables as numpy arrays.
 
     Parameters
@@ -73,7 +72,7 @@ def simulate_fmu(
 
 
 def fmu_to_upd(
-    fmu_path: Union[str, Path],
+    fmu_path: str | Path,
     config: FMUSimConfig,
 ):
     """Simulate an FMU and package results as a UPD PhysicalSample.

@@ -16,7 +16,7 @@ Entry point
 from __future__ import annotations
 
 import textwrap
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .schema import ProblemSpec as DesignSpec, PinneappleSpec, uses_pinn_approach
 
@@ -32,7 +32,7 @@ _UNRESOLVED_PARAM = "REPLACE_ME"
 # ---------------------------------------------------------------------------
 
 # (model_name, model_kwargs)
-_TASK_MODEL: Dict[str, Tuple[str, Dict[str, Any]]] = {
+_TASK_MODEL: dict[str, tuple[str, dict[str, Any]]] = {
     "pde_solution":      ("VanillaPINN", {"hidden": [64, 64, 64, 64]}),
     "inverse_problem":   ("VanillaPINN", {"hidden": [64, 64, 64]}),
     "forecasting":       ("FNO",         {"modes": 16, "width": 64, "depth": 4}),
@@ -43,7 +43,7 @@ _TASK_MODEL: Dict[str, Tuple[str, Dict[str, Any]]] = {
     "other":             ("VanillaPINN", {"hidden": [64, 64, 64]}),
 }
 
-_TASK_TRAIN: Dict[str, Dict[str, Any]] = {
+_TASK_TRAIN: dict[str, dict[str, Any]] = {
     "pde_solution":      {"epochs": 5000, "lr": 1e-3,  "amp": False},
     "inverse_problem":   {"epochs": 8000, "lr": 5e-4,  "amp": False},
     "forecasting":       {"epochs": 200,  "lr": 1e-3,  "amp": True},
@@ -54,7 +54,7 @@ _TASK_TRAIN: Dict[str, Dict[str, Any]] = {
     "other":             {"epochs": 1000, "lr": 1e-3,  "amp": False},
 }
 
-_TASK_COLLOCATION: Dict[str, Dict[str, Any]] = {
+_TASK_COLLOCATION: dict[str, dict[str, Any]] = {
     "pde_solution":      {"n_col": 8000, "n_bc": 500,  "n_ic": 500,  "strategy": "lhs"},
     "inverse_problem":   {"n_col": 6000, "n_bc": 1000, "n_ic": 500,  "strategy": "lhs"},
     "forecasting":       {"n_col": 0,    "n_bc": 0,    "n_ic": 0,    "strategy": "uniform"},
@@ -69,7 +69,7 @@ _TASK_COLLOCATION: Dict[str, Dict[str, Any]] = {
 # PDE identification helper
 # ---------------------------------------------------------------------------
 
-def _identify_pde(design_spec: DesignSpec) -> Dict[str, Any]:
+def _identify_pde(design_spec: DesignSpec) -> dict[str, Any]:
     """Run suggest_problem_spec against physics + domain context.
 
     Falls back gracefully if pinneapple_environment is not installed.
@@ -83,7 +83,7 @@ def _identify_pde(design_spec: DesignSpec) -> Dict[str, Any]:
         }
 
     # Build a description from everything the user told us about the physics
-    fragments: List[str] = []
+    fragments: list[str] = []
     if design_spec.domain_context:
         fragments.append(design_spec.domain_context)
     fragments.extend(design_spec.physics.governing_equations)
@@ -102,9 +102,9 @@ def _identify_pde(design_spec: DesignSpec) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def _infer_dims(
-    pde_hint: Dict[str, Any],
+    pde_hint: dict[str, Any],
     design_spec: DesignSpec,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """Infer (in_dim, out_dim) for model construction."""
     coords = pde_hint.get("coords") or []
     fields = pde_hint.get("fields") or []
@@ -303,9 +303,9 @@ def build_pinneapple_spec(design_spec: DesignSpec) -> PinneappleSpec:
     pde_hint = _identify_pde(design_spec)
     pde_kind = pde_hint.get("kind", "custom")
     pde_confidence = float(pde_hint.get("confidence", 0.0))
-    coords: List[str] = list(pde_hint.get("coords") or ["x"])
-    fields: List[str] = list(pde_hint.get("fields") or ["u"])
-    pde_params: Dict[str, Any] = dict(pde_hint.get("default_params") or {})
+    coords: list[str] = list(pde_hint.get("coords") or ["x"])
+    fields: list[str] = list(pde_hint.get("fields") or ["u"])
+    pde_params: dict[str, Any] = dict(pde_hint.get("default_params") or {})
 
     # Override with explicitly elicited values when present
     if design_spec.inputs:
@@ -337,7 +337,7 @@ def build_pinneapple_spec(design_spec: DesignSpec) -> PinneappleSpec:
     # --- Environment kwargs ---
     dim = len(coords)
     problem_name = (design_spec.title or "my_problem").lower().replace(" ", "_")
-    environment_kwargs: Dict[str, Any] = {
+    environment_kwargs: dict[str, Any] = {
         "name": problem_name,
         "dim": dim,
         "coords": tuple(coords),

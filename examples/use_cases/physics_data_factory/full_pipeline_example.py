@@ -39,14 +39,12 @@ _REPO_ROOT = _Path(__file__).resolve().parents[3]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 from pathlib import Path
-from typing import Any, Dict
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
-import torch
 
 # -- PINNeAPPle world-model imports --------------------------------------------
 from pinneapple_worldmodel import (
@@ -64,12 +62,9 @@ from pinneapple_worldmodel import (
     # Stage 7
     PhotorealisticEnhancer, EnhancerConfig,
     # Stage 8
-    DatasetPackager, PackagerConfig,
-    # Stage 9
     TrainingHooks,
     # Main factory (all-in-one)
     SyntheticDataFactory, SyntheticFactoryConfig,
-    FactoryResult,
 )
 
 import shutil

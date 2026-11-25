@@ -6,16 +6,16 @@ The arena started as an MVP with hard-coded task/backend selection.
 This module makes the system extensible while keeping simple APIs.
 """
 
-from typing import Dict, List, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 # -----------------------------
 # Tasks
 # -----------------------------
 
-TASK_REGISTRY: Dict[str, Type["ArenaTask"]] = {}
+TASK_REGISTRY: dict[str, type[ArenaTask]] = {}
 
 
-def register_task(task_cls: Type["ArenaTask"]) -> Type["ArenaTask"]:
+def register_task(task_cls: type[ArenaTask]) -> type[ArenaTask]:
     """Decorator to register a task by its ``task_id``."""
     task_id = getattr(task_cls, "task_id", None)
     if not isinstance(task_id, str) or not task_id.strip():
@@ -29,14 +29,14 @@ def register_task(task_cls: Type["ArenaTask"]) -> Type["ArenaTask"]:
     return task_cls
 
 
-def get_task(task_id: str) -> Type["ArenaTask"]:
+def get_task(task_id: str) -> type[ArenaTask]:
     if task_id not in TASK_REGISTRY:
         available = ", ".join(sorted(TASK_REGISTRY.keys()))
         raise KeyError(f"Unknown task_id='{task_id}'. Available: [{available}]")
     return TASK_REGISTRY[task_id]
 
 
-def list_tasks() -> List[str]:
+def list_tasks() -> list[str]:
     return sorted(TASK_REGISTRY.keys())
 
 
@@ -44,10 +44,10 @@ def list_tasks() -> List[str]:
 # Backends
 # -----------------------------
 
-BACKEND_REGISTRY: Dict[str, Type["Backend"]] = {}
+BACKEND_REGISTRY: dict[str, type[Backend]] = {}
 
 
-def register_backend(backend_cls: Type["Backend"]) -> Type["Backend"]:
+def register_backend(backend_cls: type[Backend]) -> type[Backend]:
     """Decorator to register a backend by its ``name``."""
     name = getattr(backend_cls, "name", None)
     if not isinstance(name, str) or not name.strip():
@@ -61,14 +61,14 @@ def register_backend(backend_cls: Type["Backend"]) -> Type["Backend"]:
     return backend_cls
 
 
-def get_backend(name: str) -> Type["Backend"]:
+def get_backend(name: str) -> type[Backend]:
     if name not in BACKEND_REGISTRY:
         available = ", ".join(sorted(BACKEND_REGISTRY.keys()))
         raise KeyError(f"Unknown backend='{name}'. Available: [{available}]")
     return BACKEND_REGISTRY[name]
 
 
-def list_backends() -> List[str]:
+def list_backends() -> list[str]:
     return sorted(BACKEND_REGISTRY.keys())
 
 

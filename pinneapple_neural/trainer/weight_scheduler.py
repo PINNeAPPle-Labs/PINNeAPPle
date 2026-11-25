@@ -55,7 +55,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -92,7 +92,7 @@ class WeightSchedulerConfig:
         EMA factor for running loss statistics (LossRatio method).
     """
     method: str = "self_adaptive"
-    initial_weights: Dict[str, float] = field(
+    initial_weights: dict[str, float] = field(
         default_factory=lambda: {"pde": 1.0, "bc": 10.0, "ic": 10.0, "data": 1.0}
     )
     update_every: int = 100
@@ -126,7 +126,7 @@ class SelfAdaptiveWeights(nn.Module):
         weight_opt.step()   # ascend weights
     """
 
-    def __init__(self, loss_names: List[str], config: WeightSchedulerConfig) -> None:
+    def __init__(self, loss_names: list[str], config: WeightSchedulerConfig) -> None:
         super().__init__()
         init = config.initial_weights
         self.log_weights = nn.ParameterDict({
@@ -134,22 +134,22 @@ class SelfAdaptiveWeights(nn.Module):
             for name in loss_names
         })
         self.config = config
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._history: dict[str, list[float]] = defaultdict(list)
 
     @property
-    def weights(self) -> Dict[str, torch.Tensor]:
+    def weights(self) -> dict[str, torch.Tensor]:
         """Current weights as tensors (always positive via exp)."""
         return {k: torch.exp(v) for k, v in self.log_weights.items()}
 
-    def weight_dict(self) -> Dict[str, float]:
+    def weight_dict(self) -> dict[str, float]:
         """Current weight values as floats."""
         return {k: float(torch.exp(v).item()) for k, v in self.log_weights.items()}
 
-    def weight_params(self) -> List[nn.Parameter]:
+    def weight_params(self) -> list[nn.Parameter]:
         """Parameters for the weight optimiser."""
         return list(self.log_weights.values())
 
-    def forward(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def forward(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         """Return λᵀ · L (weighted sum of losses)."""
         total = None
         for name, lam in self.weights.items():
@@ -164,7 +164,7 @@ class SelfAdaptiveWeights(nn.Module):
             total = ref.new_zeros(())
         return total
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -190,9 +190,9 @@ class GradNormBalancer:
     def __init__(
         self,
         model: nn.Module,
-        loss_names: List[str],
-        shared_layer: Optional[nn.Module] = None,
-        config: Optional[WeightSchedulerConfig] = None,
+        loss_names: list[str],
+        shared_layer: nn.Module | None = None,
+        config: WeightSchedulerConfig | None = None,
     ) -> None:
         self.model = model
         self.loss_names = loss_names
@@ -207,12 +207,12 @@ class GradNormBalancer:
             self.shared_layer = self._find_last_layer(model)
 
         init = cfg.initial_weights
-        self._weights: Dict[str, float] = {n: float(init.get(n, 1.0)) for n in loss_names}
-        self._initial_task_losses: Dict[str, Optional[float]] = {n: None for n in loss_names}
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._weights: dict[str, float] = {n: float(init.get(n, 1.0)) for n in loss_names}
+        self._initial_task_losses: dict[str, float | None] = {n: None for n in loss_names}
+        self._history: dict[str, list[float]] = defaultdict(list)
 
     @staticmethod
-    def _find_last_layer(model: nn.Module) -> Optional[nn.Module]:
+    def _find_last_layer(model: nn.Module) -> nn.Module | None:
         last = None
         for m in model.modules():
             if isinstance(m, (nn.Linear, nn.Conv1d, nn.Conv2d)):
@@ -238,9 +238,9 @@ class GradNormBalancer:
 
     def update_weights(
         self,
-        losses: Dict[str, torch.Tensor],
+        losses: dict[str, torch.Tensor],
         step: int,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Recompute weights based on gradient norms.
 
         Only runs every ``config.update_every`` steps.
@@ -248,7 +248,7 @@ class GradNormBalancer:
         if step % self.config.update_every != 0:
             return dict(self._weights)
 
-        grad_norms: Dict[str, float] = {}
+        grad_norms: dict[str, float] = {}
         for name in self.loss_names:
             if name not in losses:
                 continue
@@ -267,7 +267,7 @@ class GradNormBalancer:
         # Inverse training rate L~_i(t) = L_i(t) / L_i(0) per task, normalised
         # by its mean across tasks to give the relative rate r_i(t) that
         # GradNorm's target-norm formula is defined in terms of.
-        loss_ratios: Dict[str, float] = {}
+        loss_ratios: dict[str, float] = {}
         for name in grad_norms:
             l0 = self._initial_task_losses.get(name) or 1.0
             l_cur = float(losses[name].item()) + 1e-12
@@ -292,7 +292,7 @@ class GradNormBalancer:
 
         return dict(self._weights)
 
-    def apply(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def apply(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         """Return weighted sum using current weights."""
         total = None
         for name, w in self._weights.items():
@@ -305,7 +305,7 @@ class GradNormBalancer:
             total = ref.new_zeros(())
         return total
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -330,21 +330,21 @@ class LossRatioBalancer:
 
     def __init__(
         self,
-        loss_names: List[str],
-        target_ratios: Optional[Dict[str, float]] = None,
-        config: Optional[WeightSchedulerConfig] = None,
+        loss_names: list[str],
+        target_ratios: dict[str, float] | None = None,
+        config: WeightSchedulerConfig | None = None,
     ) -> None:
         cfg = config or WeightSchedulerConfig()
         self.config = cfg
         self.loss_names = loss_names
         init = cfg.initial_weights
-        self._weights: Dict[str, float] = {n: float(init.get(n, 1.0)) for n in loss_names}
-        self._target_ratios: Dict[str, float] = target_ratios or {n: 1.0 for n in loss_names}
-        self._ema: Dict[str, float] = {n: 0.0 for n in loss_names}
+        self._weights: dict[str, float] = {n: float(init.get(n, 1.0)) for n in loss_names}
+        self._target_ratios: dict[str, float] = target_ratios or {n: 1.0 for n in loss_names}
+        self._ema: dict[str, float] = {n: 0.0 for n in loss_names}
         self._ema_init = False
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._history: dict[str, list[float]] = defaultdict(list)
 
-    def update(self, losses: Dict[str, torch.Tensor], step: int) -> Dict[str, float]:
+    def update(self, losses: dict[str, torch.Tensor], step: int) -> dict[str, float]:
         """Update weights based on current loss ratios."""
         gamma = self.config.ema_decay
 
@@ -382,7 +382,7 @@ class LossRatioBalancer:
 
         return dict(self._weights)
 
-    def apply(self, losses: Dict[str, torch.Tensor], weights: Optional[Dict[str, float]] = None) -> torch.Tensor:
+    def apply(self, losses: dict[str, torch.Tensor], weights: dict[str, float] | None = None) -> torch.Tensor:
         w = weights or self._weights
         total = None
         for name, wval in w.items():
@@ -395,7 +395,7 @@ class LossRatioBalancer:
             total = ref.new_zeros(())
         return total
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -426,9 +426,9 @@ class NTKWeightBalancer:
     def __init__(
         self,
         model: nn.Module,
-        loss_names: List[str],
+        loss_names: list[str],
         n_proj: int = 50,
-        config: Optional[WeightSchedulerConfig] = None,
+        config: WeightSchedulerConfig | None = None,
     ) -> None:
         self.model = model
         self.loss_names = loss_names
@@ -436,8 +436,8 @@ class NTKWeightBalancer:
         cfg = config or WeightSchedulerConfig()
         self.config = cfg
         init = cfg.initial_weights
-        self._weights: Dict[str, float] = {n: float(init.get(n, 1.0)) for n in loss_names}
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._weights: dict[str, float] = {n: float(init.get(n, 1.0)) for n in loss_names}
+        self._history: dict[str, list[float]] = defaultdict(list)
 
     def _estimate_ntk_trace(self, loss: torch.Tensor) -> float:
         """Approximate tr(K) via Hutchinson estimator over model parameters."""
@@ -467,9 +467,9 @@ class NTKWeightBalancer:
 
     def compute_weights(
         self,
-        loss_fns: Dict[str, Any],
-        x_batches: Dict[str, torch.Tensor],
-    ) -> Dict[str, float]:
+        loss_fns: dict[str, Any],
+        x_batches: dict[str, torch.Tensor],
+    ) -> dict[str, float]:
         """Compute NTK-based weights.
 
         Parameters
@@ -500,7 +500,7 @@ class NTKWeightBalancer:
 
         return dict(self._weights)
 
-    def apply(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def apply(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         total = None
         for name, w in self._weights.items():
             if name not in losses:
@@ -512,7 +512,7 @@ class NTKWeightBalancer:
             total = ref.new_zeros(())
         return total
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -551,8 +551,8 @@ class WeightScheduler:
     def __init__(
         self,
         model: nn.Module,
-        loss_names: List[str],
-        config: Optional[WeightSchedulerConfig] = None,
+        loss_names: list[str],
+        config: WeightSchedulerConfig | None = None,
     ) -> None:
         cfg = config or WeightSchedulerConfig()
         self.model = model
@@ -658,7 +658,7 @@ class WeightScheduler:
             )
 
         # Fixed weights dict for "fixed" method
-        self._fixed_weights: Dict[str, float] = dict(cfg.initial_weights)
+        self._fixed_weights: dict[str, float] = dict(cfg.initial_weights)
 
     # ------------------------------------------------------------------
     # Main interface
@@ -666,9 +666,9 @@ class WeightScheduler:
 
     def step(
         self,
-        losses: Dict[str, torch.Tensor],
-        step: Optional[int] = None,
-        optimizer: Optional[torch.optim.Optimizer] = None,
+        losses: dict[str, torch.Tensor],
+        step: int | None = None,
+        optimizer: torch.optim.Optimizer | None = None,
     ) -> torch.Tensor:
         """Apply current weights to *losses* and return weighted total.
 
@@ -716,7 +716,7 @@ class WeightScheduler:
 
         return self._apply_fixed(losses)
 
-    def _apply_fixed(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def _apply_fixed(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         total = None
         for name, w in self._fixed_weights.items():
             if name not in losses:
@@ -733,7 +733,7 @@ class WeightScheduler:
     # ------------------------------------------------------------------
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         """Current weight values as floats."""
         if self._method == "fixed":
             return dict(self._fixed_weights)
@@ -745,7 +745,7 @@ class WeightScheduler:
             return dict(self._impl._weights)  # type: ignore[union-attr]
         return {}
 
-    def weight_history(self) -> Dict[str, List[float]]:
+    def weight_history(self) -> dict[str, list[float]]:
         """History of weight values per loss term across all steps."""
         if self._impl is not None and hasattr(self._impl, "history"):
             return self._impl.history()
@@ -769,7 +769,7 @@ class WeightScheduler:
         """True when weight params should be added to the model's own optimiser."""
         return self._method == "joint_adaptive"
 
-    def weight_params(self) -> List[nn.Parameter]:
+    def weight_params(self) -> list[nn.Parameter]:
         """Return learnable weight parameters.
 
         * ``self_adaptive``: place in a separate optimiser with gradient ascent::
@@ -789,7 +789,7 @@ class WeightScheduler:
             return []
         return self._impl.weight_params()  # type: ignore[union-attr]
 
-    def optimizer_param_groups(self, lr: Optional[float] = None) -> List[dict]:
+    def optimizer_param_groups(self, lr: float | None = None) -> list[dict]:
         """Param groups for a weight optimiser (SA-PINN only)."""
         params = self.weight_params()
         if not params:

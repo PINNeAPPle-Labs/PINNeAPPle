@@ -20,7 +20,6 @@ already know from the 2D NACA path.
 from __future__ import annotations
 
 import math
-from typing import Dict, Tuple, Union
 
 import numpy as np
 import torch
@@ -118,8 +117,8 @@ def _to_trimesh(mesh):
 
 def mesh_to_obstacle_mask(
     mesh,
-    bounds: Dict[str, Tuple[float, float]],
-    resolution: Union[int, Tuple[int, int, int]],
+    bounds: dict[str, tuple[float, float]],
+    resolution: int | tuple[int, int, int],
     *,
     aoa_deg: float = 0.0,
     rotation_axis: str = "y",

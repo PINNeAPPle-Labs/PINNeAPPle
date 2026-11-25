@@ -26,9 +26,8 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass
-from typing import Dict, Tuple
 
-Dim = Tuple[int, int, int, int, int, int, int]
+Dim = tuple[int, int, int, int, int, int, int]
 
 _DIM_NAMES = ("L", "T", "M", "Theta", "I", "N", "J")
 _DIMENSIONLESS: Dim = (0, 0, 0, 0, 0, 0, 0)
@@ -66,7 +65,7 @@ class Unit:
     def from_si(self, si_value: float) -> float:
         return (float(si_value) - self.offset) / self.scale
 
-    def compatible_with(self, other: "Unit") -> bool:
+    def compatible_with(self, other: Unit) -> bool:
         return self.dim == other.dim
 
     def dimension_str(self) -> str:
@@ -75,7 +74,7 @@ class Unit:
 
 
 # --- base units -----------------------------------------------------------
-_BASE: Dict[str, Unit] = {
+_BASE: dict[str, Unit] = {
     "m": Unit("m", _d(1, 0, 0, 0, 0, 0, 0)),
     "s": Unit("s", _d(0, 1, 0, 0, 0, 0, 0)),
     "kg": Unit("kg", _d(0, 0, 1, 0, 0, 0, 0)),
@@ -93,7 +92,7 @@ _BASE: Dict[str, Unit] = {
 }
 
 # --- named units, all expressed in SI base terms --------------------------
-_UNITS: Dict[str, Unit] = dict(_BASE)
+_UNITS: dict[str, Unit] = dict(_BASE)
 _UNITS.update({
     # length
     "in": Unit("in", _d(1, 0, 0, 0, 0, 0, 0), scale=0.0254),
@@ -189,7 +188,7 @@ def _lookup(name: str) -> Unit:
     )
 
 
-def _split_top_level(text: str) -> Tuple[str, list]:
+def _split_top_level(text: str) -> tuple[str, list]:
     """Split ``"W/(m*K)"`` into numerator ``"W"`` and denominator factors."""
     # strip one level of redundant parentheses around the whole expression
     t = text.strip()

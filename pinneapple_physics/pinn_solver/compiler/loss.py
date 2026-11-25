@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
 
 
 @dataclass(frozen=True)
@@ -61,17 +60,17 @@ class AdaptiveWeights:
     ...     aw.update({k: float(v.item()) for k, v in raw_losses.items()})
     """
 
-    base_weights: Dict[str, float]
+    base_weights: dict[str, float]
     momentum: float = 0.9
     eps: float = 1e-6
     max_ratio: float = 20.0
     enabled: bool = True
-    _ema: Dict[str, Optional[float]] = field(default_factory=dict)
+    _ema: dict[str, float | None] = field(default_factory=dict)
 
     def __post_init__(self):
         self._ema = {k: None for k in self.base_weights}
 
-    def current(self) -> Dict[str, float]:
+    def current(self) -> dict[str, float]:
         """Effective weights for *this* step, from the EMA state left by
         the previous step's :meth:`update`."""
         if not self.enabled:
@@ -91,7 +90,7 @@ class AdaptiveWeights:
             out[name] = base * multiplier
         return out
 
-    def update(self, raw_values: Dict[str, float]) -> None:
+    def update(self, raw_values: dict[str, float]) -> None:
         """Fold this step's *detached* raw loss values into the EMA, for
         the *next* step's :meth:`current`."""
         if not self.enabled:
@@ -102,5 +101,5 @@ class AdaptiveWeights:
             prev = self._ema.get(name)
             self._ema[name] = val if prev is None else self.momentum * prev + (1 - self.momentum) * val
 
-    def state_dict(self) -> Dict[str, float]:
+    def state_dict(self) -> dict[str, float]:
         return dict(self._ema)

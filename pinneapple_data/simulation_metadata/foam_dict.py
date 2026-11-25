@@ -8,7 +8,7 @@ Returns nested Python dicts. Scalars, words and vectors are kept as strings (``"
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 _TOKEN = re.compile(r'''
     (?P<ws>\s+)
@@ -21,9 +21,9 @@ _TOKEN = re.compile(r'''
 ''', re.S | re.X)
 
 
-def _tokens(text: str) -> List[str]:
+def _tokens(text: str) -> list[str]:
     """Tokens; a word glued to an opening parenthesis (``div(phi,U)``, ``"(U|k)"``) stays one token."""
-    out: List[str] = []
+    out: list[str] = []
     i, n = 0, len(text)
     while i < n:
         m = _TOKEN.match(text, i)
@@ -54,14 +54,14 @@ def _tokens(text: str) -> List[str]:
     return out
 
 
-def parse(text: str, max_list: int = 2000) -> Dict[str, Any]:
+def parse(text: str, max_list: int = 2000) -> dict[str, Any]:
     """Parse a FoamFile. Very long lists (mesh points, nonuniform fields) are summarised as
     ``"<list of N>"`` beyond ``max_list`` entries to keep the result small."""
     toks = _tokens(text)
     pos = 0
-    directives: List[str] = []
+    directives: list[str] = []
 
-    def skip_list(i: int) -> Tuple[str, int]:
+    def skip_list(i: int) -> tuple[str, int]:
         depth, start = 0, i
         n_items = 0
         while i < len(toks):
@@ -80,8 +80,8 @@ def parse(text: str, max_list: int = 2000) -> Dict[str, Any]:
             return f"<list of {n_items}>", i + 1
         return " ".join(span).replace("( ", "(").replace(" )", ")"), i + 1
 
-    def block(i: int, end: Optional[str]) -> Tuple[Dict[str, Any], int]:
-        d: Dict[str, Any] = {}
+    def block(i: int, end: str | None) -> tuple[dict[str, Any], int]:
+        d: dict[str, Any] = {}
         while i < len(toks):
             t = toks[i]
             if t == end:
@@ -127,7 +127,7 @@ def parse(text: str, max_list: int = 2000) -> Dict[str, Any]:
     return result
 
 
-def header(text: str) -> Dict[str, str]:
+def header(text: str) -> dict[str, str]:
     """The FoamFile header (class, object, format, note) without parsing the body."""
     m = re.search(r"FoamFile\s*\{(.*?)\}", text, re.S)
     if not m:
@@ -135,7 +135,7 @@ def header(text: str) -> Dict[str, str]:
     return {k: v.strip('"') for k, v in re.findall(r"(\w+)\s+([^;]+);", m.group(1))}
 
 
-def scalar(v: Any) -> Optional[float]:
+def scalar(v: Any) -> float | None:
     """Last number in an entry: 'nu [0 2 -1 0 0 0 0] 1e-05' -> 1e-05; 'uniform 0' -> 0.0."""
     if v is None or isinstance(v, dict):
         return None
@@ -143,7 +143,7 @@ def scalar(v: Any) -> Optional[float]:
     return float(nums[-1]) if nums else None
 
 
-def vector(v: Any) -> Optional[List[float]]:
+def vector(v: Any) -> list[float] | None:
     """'uniform (10 0 0)' -> [10, 0, 0]."""
     if v is None or isinstance(v, dict):
         return None
@@ -156,11 +156,11 @@ def vector(v: Any) -> Optional[List[float]]:
         return None
 
 
-def words(v: Any) -> List[str]:
+def words(v: Any) -> list[str]:
     return [] if v is None or isinstance(v, dict) else str(v).split()
 
 
-def boundary(text: str) -> List[Dict[str, Any]]:
+def boundary(text: str) -> list[dict[str, Any]]:
     """Patches of a polyMesh/boundary file: name, type, nFaces, startFace, inGroups."""
     body = text[text.find("}", text.find("FoamFile")) + 1:] if "FoamFile" in text else text
     out = []

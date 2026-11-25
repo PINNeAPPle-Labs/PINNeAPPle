@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
 
 import numpy as np
 import xarray as xr
@@ -13,13 +12,13 @@ EARTH_R = 6_371_000.0  # m
 class DerivedSpec:
     """Specification for derived variables to add (e.g. vorticity, divergence)."""
 
-    derived: List[str] = field(default_factory=list)  # ["vorticity", "divergence"]
-    u_name: Optional[str] = None
-    v_name: Optional[str] = None
+    derived: list[str] = field(default_factory=list)  # ["vorticity", "divergence"]
+    u_name: str | None = None
+    v_name: str | None = None
 
 def _infer_uv(
-    ds: xr.Dataset, u_name: Optional[str], v_name: Optional[str]
-) -> Tuple[str, str]:
+    ds: xr.Dataset, u_name: str | None, v_name: str | None
+) -> tuple[str, str]:
     """Infer U/V variable names from dataset (prefers U850/V850, etc.)."""
     if u_name and v_name:
         if u_name not in ds.data_vars or v_name not in ds.data_vars:
@@ -38,7 +37,7 @@ def _infer_uv(
     return candidates_u[0], candidates_v[0]
 
 def add_vorticity_divergence(
-    ds: xr.Dataset, u_name: Optional[str] = None, v_name: Optional[str] = None
+    ds: xr.Dataset, u_name: str | None = None, v_name: str | None = None
 ) -> xr.Dataset:
     """Add vorticity and divergence from U/V on lat/lon grid; returns new dataset."""
     if "lat" not in ds.coords or "lon" not in ds.coords:

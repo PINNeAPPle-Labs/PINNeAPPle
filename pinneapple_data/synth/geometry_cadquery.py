@@ -1,7 +1,8 @@
 """CadQuery-based geometry synthesis: parametric templates and STL-driven variants."""
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any
+from collections.abc import Callable
 import math
 import numpy as np
 import torch
@@ -174,7 +175,7 @@ class ParametricCadQuerySynthGenerator:
       fields: vertices (N,3), faces (F,3), params (dict)
       meta: template name, ranges
     """
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """
         Initialize the parametric CadQuery geometry generator.
 
@@ -188,8 +189,8 @@ class ParametricCadQuerySynthGenerator:
     def generate(
         self,
         *,
-        template_fn: Callable[[Dict[str, float]], Any],
-        param_ranges: Dict[str, Tuple[float, float]],
+        template_fn: Callable[[dict[str, float]], Any],
+        param_ranges: dict[str, tuple[float, float]],
         n_variants: int = 16,
         tess_linear_deflection: float = 0.2,
         tess_angular_deflection: float = 0.3,
@@ -299,7 +300,7 @@ class STLTemplateSynthGenerator:
     If cadquery not available:
       - does similarity-preserving transforms (scale/axis-scale/rot/noise) on original mesh vertices.
     """
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """
         Initialize the STL template generator.
 
@@ -310,7 +311,7 @@ class STLTemplateSynthGenerator:
         """
         self.cfg = cfg or SynthConfig()
 
-    def _load_mesh(self, mesh_or_path: Union[str, Any]) -> Any:
+    def _load_mesh(self, mesh_or_path: str | Any) -> Any:
         """
         Load a mesh from a filesystem path or pass through an in-memory mesh object.
 
@@ -339,7 +340,7 @@ class STLTemplateSynthGenerator:
     def generate(
         self,
         *,
-        mesh_or_path: Union[str, Any],
+        mesh_or_path: str | Any,
         n_variants: int = 16,
         template: str = "box",  # "box" | "cylinder" | "capsule" | "augment"
         param_jitter: float = 0.08,

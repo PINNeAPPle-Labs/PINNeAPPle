@@ -7,14 +7,13 @@ Provides:
 """
 from __future__ import annotations
 
-from typing import Dict, List, Set, Tuple
 
 
 # ---------------------------------------------------------------------------
 # Tarjan's SCC (iterative — avoids Python recursion limit)
 # ---------------------------------------------------------------------------
 
-def tarjan_scc(adj: Dict[str, List[str]]) -> List[List[str]]:
+def tarjan_scc(adj: dict[str, list[str]]) -> list[list[str]]:
     """Find all Strongly Connected Components using Tarjan's algorithm.
 
     Args:
@@ -26,11 +25,11 @@ def tarjan_scc(adj: Dict[str, List[str]]) -> List[List[str]]:
         List of SCCs in *reverse* topological order (sources last).
         Each SCC is a list of node names.
     """
-    index: Dict[str, int] = {}
-    lowlink: Dict[str, int] = {}
-    on_stack: Dict[str, bool] = {}
-    stack: List[str] = []
-    sccs: List[List[str]] = []
+    index: dict[str, int] = {}
+    lowlink: dict[str, int] = {}
+    on_stack: dict[str, bool] = {}
+    stack: list[str] = []
+    sccs: list[list[str]] = []
     counter = [0]
 
     # Iterative DFS using an explicit call stack
@@ -70,7 +69,7 @@ def tarjan_scc(adj: Dict[str, List[str]]) -> List[List[str]]:
 
                 # Check if v is a root of an SCC
                 if lowlink[v] == index[v]:
-                    scc: List[str] = []
+                    scc: list[str] = []
                     while True:
                         w = stack.pop()
                         on_stack[w] = False
@@ -87,8 +86,8 @@ def tarjan_scc(adj: Dict[str, List[str]]) -> List[List[str]]:
 # ---------------------------------------------------------------------------
 
 def condensation_order(
-    adj: Dict[str, List[str]],
-) -> Tuple[List[List[str]], List[List[str]]]:
+    adj: dict[str, list[str]],
+) -> tuple[list[list[str]], list[list[str]]]:
     """Compute execution order via SCC condensation.
 
     Steps:
@@ -107,13 +106,13 @@ def condensation_order(
     sccs = tarjan_scc(adj)
 
     # Map node → SCC index
-    node_to_scc: Dict[str, int] = {}
+    node_to_scc: dict[str, int] = {}
     for i, scc in enumerate(sccs):
         for node in scc:
             node_to_scc[node] = i
 
     n = len(sccs)
-    scc_adj: Dict[int, Set[int]] = {i: set() for i in range(n)}
+    scc_adj: dict[int, set[int]] = {i: set() for i in range(n)}
     for src, neighbors in adj.items():
         s = node_to_scc[src]
         for dst in neighbors:
@@ -128,7 +127,7 @@ def condensation_order(
             in_degree[d] += 1
 
     queue = [i for i in range(n) if in_degree[i] == 0]
-    topo: List[int] = []
+    topo: list[int] = []
     while queue:
         node_idx = queue.pop(0)
         topo.append(node_idx)
@@ -145,7 +144,7 @@ def condensation_order(
     return sccs, [sccs[i] for i in topo]
 
 
-def topological_sort(adj: Dict[str, List[str]]) -> List[str]:
+def topological_sort(adj: dict[str, list[str]]) -> list[str]:
     """Topological sort for pure DAGs (no cycles).
 
     Raises:
@@ -155,13 +154,13 @@ def topological_sort(adj: Dict[str, List[str]]) -> List[str]:
     for neighbors in adj.values():
         all_nodes.update(neighbors)
 
-    in_degree: Dict[str, int] = {v: 0 for v in all_nodes}
+    in_degree: dict[str, int] = {v: 0 for v in all_nodes}
     for v in adj:
         for w in adj[v]:
             in_degree[w] += 1
 
     queue = [v for v, d in in_degree.items() if d == 0]
-    order: List[str] = []
+    order: list[str] = []
     while queue:
         v = queue.pop(0)
         order.append(v)

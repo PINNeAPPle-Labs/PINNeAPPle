@@ -14,7 +14,6 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import Dict, List, Optional, Tuple
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.gzip import GZipMiddleware
@@ -111,7 +110,7 @@ def scope() -> dict:
             ]}
 
 
-def _load(files: List[Tuple[str, bytes]], time: Optional[str]) -> object:
+def _load(files: list[tuple[str, bytes]], time: str | None) -> object:
     fs = expand(files)
     m = read_any(fs, fields=True, time=time or None)
     if not m.source.get("file") or m.source.get("kind", "").startswith("openfoam"):
@@ -172,7 +171,7 @@ def meta():
 
 
 @app.post("/api/compare")
-async def api_compare(reference: List[UploadFile] = File(...), candidate: List[UploadFile] = File(...),
+async def api_compare(reference: list[UploadFile] = File(...), candidate: list[UploadFile] = File(...),
                       mode: str = Form("sim-sim"), mapping: str = Form(""), method: str = Form("auto"),
                       tolerance: float = Form(5.0), reference_time: str = Form(""), candidate_time: str = Form("")):
     """reference / candidate: the files of each result (a case zip, a .vtu, a .frd, a CSV with x,y,z columns...).

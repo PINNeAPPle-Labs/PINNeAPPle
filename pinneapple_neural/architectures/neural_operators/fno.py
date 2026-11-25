@@ -2,7 +2,6 @@ from __future__ import annotations
 """Fourier neural operator for global spectral learning (1D and 2D)."""
 
 from collections.abc import Sequence
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -140,7 +139,7 @@ class FourierNeuralOperator(NeuralOperatorBase):
         self,
         u: torch.Tensor,  # (B, C, L)
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         x = u
@@ -294,7 +293,7 @@ class FNO2d(NeuralOperatorBase):
         self,
         u: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         x = u
@@ -438,7 +437,7 @@ class FNO3d(NeuralOperatorBase):
         self,
         u: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         x = u

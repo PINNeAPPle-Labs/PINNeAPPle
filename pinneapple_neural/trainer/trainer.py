@@ -7,7 +7,8 @@ Key capabilities:
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, Optional, List, Callable, Union
+from typing import Any, Union
+from collections.abc import Callable
 
 import os
 import time
@@ -31,7 +32,7 @@ from .checkpoint import Checkpoint, load_checkpoint, restore_rng, rng_state, sav
 from .metrics import Metrics, Metric, default_metrics, MetricBundle
 
 
-LossOut = Union[torch.Tensor, Dict[str, torch.Tensor]]
+LossOut = Union[torch.Tensor, dict[str, torch.Tensor]]
 
 
 @dataclass
@@ -44,7 +45,7 @@ class TrainConfig:
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
 
     # auditability
-    seed: Optional[int] = None
+    seed: int | None = None
     deterministic: bool = False
     log_dir: str = "runs"
     run_name: str = "run"
@@ -52,8 +53,8 @@ class TrainConfig:
 
     # Resuming (#76): ``resume_from`` is a checkpoint written by ``save_last``; ``epochs`` is then the *total* the
     # run should reach, not the number of extra epochs, and the history comes back with the epochs already done.
-    resume_from: Optional[str] = None
-    save_last: Optional[str] = None
+    resume_from: str | None = None
+    save_last: str | None = None
 
     # DistributedDataParallel
     ddp: bool = False
@@ -80,11 +81,11 @@ class Trainer:
     def __init__(
         self,
         model: nn.Module,
-        loss_fn: Callable[[nn.Module, torch.Tensor, Dict[str, Any]], LossOut],
-        metrics: Optional[Union[Metrics, List[Metric]]] = None,
-        preprocess: Optional[PreprocessPipeline] = None,
-        early_stopping: Optional[EarlyStopping] = None,
-        checkpoint: Optional[ModelCheckpoint] = None,
+        loss_fn: Callable[[nn.Module, torch.Tensor, dict[str, Any]], LossOut],
+        metrics: Metrics | list[Metric] | None = None,
+        preprocess: PreprocessPipeline | None = None,
+        early_stopping: EarlyStopping | None = None,
+        checkpoint: ModelCheckpoint | None = None,
         scheduler: Any = None,
         loss_balancer: Any = None,
         readiness: Any = None,
@@ -105,13 +106,13 @@ class Trainer:
         self.checkpoint = checkpoint
 
         if metrics is None:
-            self.metrics_obj: Optional[Metrics] = MetricBundle(default_metrics())
+            self.metrics_obj: Metrics | None = MetricBundle(default_metrics())
         elif isinstance(metrics, list):
             self.metrics_obj = MetricBundle(metrics)
         else:
             self.metrics_obj = metrics
 
-    def _xy_batch(self, batch: Any) -> Dict[str, Any]:
+    def _xy_batch(self, batch: Any) -> dict[str, Any]:
         if isinstance(batch, dict):
             return batch
         if isinstance(batch, (tuple, list)) and len(batch) >= 2:
@@ -123,7 +124,7 @@ class Trainer:
             return obj.to(device)
         return obj
 
-    def _move_batch(self, batch: Dict[str, Any], device: torch.device) -> Dict[str, Any]:
+    def _move_batch(self, batch: dict[str, Any], device: torch.device) -> dict[str, Any]:
         out = {}
         for k, v in batch.items():
             if isinstance(v, dict):
@@ -132,7 +133,7 @@ class Trainer:
                 out[k] = self._move(v, device)
         return out
 
-    def _unwrap_pred(self, y_hat: Any, batch: Optional[Dict[str, Any]] = None) -> torch.Tensor:
+    def _unwrap_pred(self, y_hat: Any, batch: dict[str, Any] | None = None) -> torch.Tensor:
         if isinstance(y_hat, torch.Tensor):
             return y_hat
         for attr in ("y", "pred", "logits", "x_hat", "recon", "out"):
@@ -142,7 +143,7 @@ class Trainer:
                     return v
         raise TypeError("Model output is not a torch.Tensor and has no known tensor attribute.")
 
-    def _parse_loss(self, loss_out: LossOut) -> Dict[str, torch.Tensor]:
+    def _parse_loss(self, loss_out: LossOut) -> dict[str, torch.Tensor]:
         if isinstance(loss_out, torch.Tensor):
             return {"total": loss_out}
         if isinstance(loss_out, dict):
@@ -151,14 +152,14 @@ class Trainer:
             return loss_out
         raise TypeError("loss_fn must return torch.Tensor or dict[str, torch.Tensor].")
 
-    def _ddp_info(self) -> Dict[str, int]:
+    def _ddp_info(self) -> dict[str, int]:
         return {
             "rank": int(os.environ.get("RANK", "0")),
             "world": int(os.environ.get("WORLD_SIZE", "1")),
             "local_rank": int(os.environ.get("LOCAL_RANK", "0")),
         }
 
-    def _ddp_init(self, cfg: TrainConfig) -> Dict[str, int]:
+    def _ddp_init(self, cfg: TrainConfig) -> dict[str, int]:
         if dist is None:
             raise ImportError("torch.distributed is not available.")
         info = self._ddp_info()
@@ -166,7 +167,7 @@ class Trainer:
             dist.init_process_group(backend=cfg.ddp_backend)
         return info
 
-    def _ddp_wrap(self, cfg: TrainConfig, info: Dict[str, int]) -> nn.Module:
+    def _ddp_wrap(self, cfg: TrainConfig, info: dict[str, int]) -> nn.Module:
         if DDP is None:
             raise ImportError("DistributedDataParallel is not available.")
         if cfg.device.startswith("cuda"):
@@ -193,7 +194,7 @@ class Trainer:
             drop_last=getattr(loader, "drop_last", False),
         )
 
-    def fit(self, train_loader, val_loader=None, cfg: Optional[TrainConfig] = None) -> Dict[str, Any]:
+    def fit(self, train_loader, val_loader=None, cfg: TrainConfig | None = None) -> dict[str, Any]:
         """Train ``self.model`` for ``cfg.epochs`` epochs.
 
         Args:
@@ -262,7 +263,7 @@ class Trainer:
             logger.save_artifact(f"{cfg.run_name}.env.json", env_fingerprint())
 
         # ----- the gate (#1491): no training on a dataset with no verdict, a failed verdict, or unreviewed warnings
-        readiness_result: Optional[Dict[str, Any]] = None
+        readiness_result: dict[str, Any] | None = None
         if self.readiness is not None:
             from pinneapple_data.readiness import require as require_readiness
 
@@ -274,7 +275,7 @@ class Trainer:
                 logger.save_artifact("readiness.json", verdict.to_dict())
 
         best_val = float("inf")
-        best_path: Optional[str] = None
+        best_path: str | None = None
         # Per-epoch history: previously not returned at all (only the
         # final best_val/best_path), even though RunLogger already
         # persists this same data to disk per epoch -- found via
@@ -282,7 +283,7 @@ class Trainer:
         # "history" key that never existed. Kept lightweight (train/val
         # totals only, not the full metrics dict) to avoid duplicating
         # RunLogger's own more detailed on-disk log.
-        history: List[Dict[str, float]] = []
+        history: list[dict[str, float]] = []
 
         # ----- resume (#76): weights, optimizer, RNG, scheduler, balancer, history and the epoch to continue from
         start_epoch = 0
@@ -316,7 +317,7 @@ class Trainer:
             # ----- train
             self.model.train()
             tr_total, n_tr = 0.0, 0
-            tr_parts: Dict[str, float] = {}
+            tr_parts: dict[str, float] = {}
 
             for raw in train_loader:
                 batch = self._xy_batch(raw)
@@ -370,7 +371,7 @@ class Trainer:
             # ----- val
             self.model.eval()
             va_total, n_va = 0.0, 0
-            va_parts: Dict[str, float] = {}
+            va_parts: dict[str, float] = {}
             yhat_acc, y_acc = [], []
 
             for raw in (val_loader if validated else ()):
@@ -423,7 +424,7 @@ class Trainer:
                 dist.all_reduce(t, op=dist.ReduceOp.SUM)
                 val_total = float((t / ddp_info["world"]).item())
 
-            metrics_dict: Dict[str, float] = {}
+            metrics_dict: dict[str, float] = {}
             if self.metrics_obj is not None and yhat_acc and y_acc:
                 yhat_all = torch.cat(yhat_acc, dim=0)
                 y_all = torch.cat(y_acc, dim=0)

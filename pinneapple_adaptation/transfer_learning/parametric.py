@@ -23,7 +23,6 @@ Example
 from __future__ import annotations
 
 import copy
-from typing import ClassVar, Dict, List, Optional
 
 import torch
 import torch.nn as nn
@@ -46,7 +45,7 @@ class ParametricFamilyTransfer:
         self.param_name = param_name
         self.base_model: nn.Module = copy.deepcopy(base_model)
         # Ordered mapping: param_value -> fine-tuned model (deep-copied on add)
-        self._variants: Dict[float, nn.Module] = {}
+        self._variants: dict[float, nn.Module] = {}
 
     # ------------------------------------------------------------------
     # Variant management
@@ -145,8 +144,8 @@ class ParametricFamilyTransfer:
             return copy.deepcopy(self._variants[sorted_vals[-1]])
 
         # Find bracketing pair.
-        v_lo: Optional[float] = None
-        v_hi: Optional[float] = None
+        v_lo: float | None = None
+        v_hi: float | None = None
         for v in sorted_vals:
             if v <= q:
                 v_lo = v
@@ -177,7 +176,7 @@ class ParametricFamilyTransfer:
         new_model.load_state_dict(interp_sd)
         return new_model
 
-    def list_variants(self) -> List[float]:
+    def list_variants(self) -> list[float]:
         """Return a sorted list of all registered parameter values.
 
         Returns
@@ -217,8 +216,8 @@ class ParametricFamilyTransfer:
         cls,
         path: str,
         base_model: nn.Module,
-        map_location: Optional[str] = None,
-    ) -> "ParametricFamilyTransfer":
+        map_location: str | None = None,
+    ) -> ParametricFamilyTransfer:
         """Load a previously saved family from *path*.
 
         Parameters

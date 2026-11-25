@@ -26,8 +26,7 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
 
 from pinneapple_core.errors import UnknownName
 
@@ -38,18 +37,18 @@ CATEGORIES = {"S": "solver", "T": "training", "E": "equation", "P": "problem"}
 class Method:
     id: str
     name: str
-    code: Tuple[str, ...]
-    probes: Tuple[str, ...]  # strings whose presence in a test file means the test exercises this item
-    refs_in_code: Tuple[str, ...] = ()
-    refs_added: Tuple[str, ...] = ()
-    equations: Tuple[str, ...] = ()  # problems only: the E ids they use
+    code: tuple[str, ...]
+    probes: tuple[str, ...]  # strings whose presence in a test file means the test exercises this item
+    refs_in_code: tuple[str, ...] = ()
+    refs_added: tuple[str, ...] = ()
+    equations: tuple[str, ...] = ()  # problems only: the E ids they use
 
     @property
     def category(self) -> str:
         return CATEGORIES[self.id[0]]
 
     @property
-    def references(self) -> Tuple[str, ...]:
+    def references(self) -> tuple[str, ...]:
         return self.refs_in_code + self.refs_added
 
 
@@ -91,7 +90,7 @@ RAISSI_I = "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (Pa
 WONG = "Wong, Theory of Ground Vehicles, Wiley, 1978 (4th ed. 2008)"
 BEKKER = "Bekker, Introduction to Terrain-Vehicle Systems, University of Michigan Press, 1969"
 
-METHODS: List[Method] = [
+METHODS: list[Method] = [
     # ── A. Solvers ───────────────────────────────────────────────────────
     _m("S1", "Finite differences 1D/2D/3D", [NS + "fdm.py", NS + "fdm3d.py"], ["numerical_solvers.fdm", "'fdm'", '"fdm"'],
        refs_added=[LEVEQUE_FD]),
@@ -600,7 +599,7 @@ for _pid, (_group, _presets) in _PRESET_GROUPS.items():
 METHODS.append(_m("P9", "PINNeAPPle-CFD v1: pipes + particle erosion (CFD-04 pilot)",
                   ["PINNeAPPle-CFD/pinneapple_cfd/"], ["CFD-04"], equations=["E10", "E45", "E46", "E47", "E48", "E50"]))
 
-_BY_ID: Dict[str, Method] = {}
+_BY_ID: dict[str, Method] = {}
 for _meth in METHODS:
     if _meth.id in _BY_ID:
         raise ValueError(f"duplicate method id: {_meth.id}")
@@ -619,13 +618,13 @@ def get_method(method_id: str) -> Method:
                           ) from None
 
 
-def list_methods(category: Optional[str] = None) -> List[Method]:
+def list_methods(category: str | None = None) -> list[Method]:
     if category is None:
         return list(METHODS)
     return [m for m in METHODS if m.category == category]
 
 
-def method_status() -> Dict[str, Dict]:
+def method_status() -> dict[str, dict]:
     """``{id: {"status": ..., "reference_tests": [...], "other_tests": [...]}}`` from the last scan."""
     try:
         with open(_STATUS_PATH) as f:
@@ -634,7 +633,7 @@ def method_status() -> Dict[str, Dict]:
         return {}
 
 
-def validated_methods(category: Optional[str] = None) -> List[Method]:
+def validated_methods(category: str | None = None) -> list[Method]:
     """The official list: only items whose last scan found a reference-comparison test."""
     status = method_status()
     return [m for m in list_methods(category) if status.get(m.id, {}).get("status") == "validated"]

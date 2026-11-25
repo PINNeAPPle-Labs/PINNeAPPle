@@ -10,27 +10,27 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 import os
 import torch
 
 
 @dataclass
 class Checkpoint:
-    model_state: Dict[str, Any]
-    optim_state: Optional[Dict[str, Any]]
-    cfg: Dict[str, Any]
-    meta: Dict[str, Any]
-    normalizers: Optional[Dict[str, Any]] = None
-    resume: Optional[Dict[str, Any]] = None       # everything else a continuation needs; see :func:`rng_state`
+    model_state: dict[str, Any]
+    optim_state: dict[str, Any] | None
+    cfg: dict[str, Any]
+    meta: dict[str, Any]
+    normalizers: dict[str, Any] | None = None
+    resume: dict[str, Any] | None = None       # everything else a continuation needs; see :func:`rng_state`
 
 
-def rng_state() -> Dict[str, Any]:
+def rng_state() -> dict[str, Any]:
     """The RNG state of torch, numpy and ``random`` as plain tensors and numbers, so ``torch.load`` keeps it."""
     import numpy as np
 
     py = random.getstate()
-    state: Dict[str, Any] = {
+    state: dict[str, Any] = {
         "torch": torch.get_rng_state(),
         "python": [int(x) for x in py[1]],
         "python_version": int(py[0]),
@@ -48,7 +48,7 @@ def rng_state() -> Dict[str, Any]:
     return state
 
 
-def restore_rng(state: Optional[Dict[str, Any]]) -> None:
+def restore_rng(state: dict[str, Any] | None) -> None:
     """Put torch, numpy and ``random`` back where they were when :func:`rng_state` was taken."""
     if not state:
         return

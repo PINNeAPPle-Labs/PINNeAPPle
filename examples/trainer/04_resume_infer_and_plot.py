@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 import math
 import os
-from typing import Dict, Any, List
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -47,8 +47,8 @@ class TinyMLP(nn.Module):
         return self.net(x)
 
 
-def read_jsonl(path: str) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
+def read_jsonl(path: str) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             out.append(json.loads(line))

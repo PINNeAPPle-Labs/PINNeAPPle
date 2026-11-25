@@ -2,7 +2,7 @@
 registry-stored, stage-gated model."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pinneapple_registry import ArtifactRegistry
 from pinneapple_systems.digital_twin import DigitalTwin
@@ -16,14 +16,14 @@ from ..tasks import prepare_digital_twin_task
 def flow_digital_twin_prep(
     registry: ArtifactRegistry,
     problem_id: str,
-    field_names: List[str],
-    coord_names: Optional[List[str]] = None,
+    field_names: list[str],
+    coord_names: list[str] | None = None,
     *,
-    version: Optional[str] = None,
-    require_stage: Optional[str] = "production",
+    version: str | None = None,
+    require_stage: str | None = "production",
     manifest_dir: str = "data/manifests",
     **init_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     with flow_run_manifest(
         "flow_05_digital_twin_prep", {"problem_id": problem_id, "require_stage": require_stage}, manifest_dir=manifest_dir
     ) as manifest:

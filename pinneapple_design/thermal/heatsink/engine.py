@@ -10,7 +10,7 @@ other, and each check is reported with a pass/warn/fail status.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -53,8 +53,8 @@ class OperatingInput:
     air_velocity_m_s: float = 2.0          # 0 = natural convection
     source_width_mm: float = 30.0
     source_depth_mm: float = 30.0
-    source_x_mm: Optional[float] = None    # centre of the source; default = centred
-    source_y_mm: Optional[float] = None
+    source_x_mm: float | None = None    # centre of the source; default = centred
+    source_y_mm: float | None = None
     tim_k_mm2_w: float = 10.0              # interface resistance R'' in K*mm^2/W (grease ~5-20)
     t_limit_c: float = 85.0                # max allowed source/case temperature
 
@@ -67,12 +67,12 @@ class OperatingInput:
         )
 
 
-def _check(name: str, status: str, value: Any, detail: str, law: str = "") -> Dict[str, Any]:
+def _check(name: str, status: str, value: Any, detail: str, law: str = "") -> dict[str, Any]:
     return {"name": name, "status": status, "value": value, "detail": detail, "law": law}
 
 
 def base_theta(g: HeatSinkGeometry, op: OperatingInput, r_conv: float, n: int = 40,
-               ) -> Dict[str, Any]:
+               ) -> dict[str, Any]:
     return solve_base_field(
         base_width=g.base_width, base_depth=g.base_depth, base_thickness=g.base_thickness,
         k=MATERIALS[g.material]["k"], power_w=op.power_w, r_fins_k_w=r_conv,
@@ -83,7 +83,7 @@ def base_theta(g: HeatSinkGeometry, op: OperatingInput, r_conv: float, n: int = 
     )
 
 
-def physics_resistance(design: DesignInput, op: OperatingInput, n: int = 36) -> Dict[str, float]:
+def physics_resistance(design: DesignInput, op: OperatingInput, n: int = 36) -> dict[str, float]:
     """Base-to-ambient resistance (no TIM) from the FVM-resolved hotspot, plus
     pressure drop -- the quantity the surrogate is trained to reproduce."""
     g, o = design.geometry(), op.operating()
@@ -93,9 +93,9 @@ def physics_resistance(design: DesignInput, op: OperatingInput, n: int = 36) -> 
             "mass_kg": net["mass_kg"]}
 
 
-def field_3d(g: HeatSinkGeometry, op: OperatingInput, fvm: Dict[str, Any],
-             nominal: Dict[str, Any], t_amb: float, max_cells: int = 64, n_z: int = 14,
-             ) -> Dict[str, Any]:
+def field_3d(g: HeatSinkGeometry, op: OperatingInput, fvm: dict[str, Any],
+             nominal: dict[str, Any], t_amb: float, max_cells: int = 64, n_z: int = 14,
+             ) -> dict[str, Any]:
     """Surface temperatures of the whole heat sink for the 3D viewer.
 
     * Base: bottom and top faces straight from the 3D finite-volume solve.
@@ -154,7 +154,7 @@ VALIDATION = [
 ]
 
 
-def model_scope(mode: str) -> Dict[str, Any]:
+def model_scope(mode: str) -> dict[str, Any]:
     """What the model covers, which way each simplification errs, what to do
     about it today and what is planned -- shown in every report."""
     items = []
@@ -196,7 +196,7 @@ def model_scope(mode: str) -> Dict[str, Any]:
 
 
 def evaluate_design(design: DesignInput, op: OperatingInput, *, grid: int = 48,
-                    map_size: int = 40) -> Dict[str, Any]:
+                    map_size: int = 40) -> dict[str, Any]:
     g, o = design.geometry(), op.operating()
     errs = geometry_errors(g, o)
     if errs:
@@ -226,7 +226,7 @@ def evaluate_design(design: DesignInput, op: OperatingInput, *, grid: int = 48,
     r_sp_fvm = theta / Q - r_conv
 
     # ── checks ──────────────────────────────────────────────────────────────
-    checks: List[Dict[str, Any]] = []
+    checks: list[dict[str, Any]] = []
     eb = fvm["energy_balance_rel_error"]
     checks.append(_check("energy_balance", "pass" if eb < 1e-6 else "fail", eb,
                          "Heat leaving through the fins / heat injected by the source - 1 (FVM).",

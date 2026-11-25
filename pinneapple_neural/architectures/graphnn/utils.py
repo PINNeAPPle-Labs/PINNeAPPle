@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Utility functions for graph neural network operations."""
 import torch
-from typing import List, Optional, Tuple
 
 def scatter_add(src: torch.Tensor, index: torch.Tensor, dim_size: int) -> torch.Tensor:
     """Scatter-add with shared-graph batching.
@@ -33,11 +32,11 @@ def scatter_add_flat(src: torch.Tensor, index: torch.Tensor, dim_size: int) -> t
 
 
 def flatten_graph_batch(
-    x_list: List[torch.Tensor],
-    edge_index_list: List[torch.Tensor],
-    pos_list: Optional[List[torch.Tensor]] = None,
-    edge_attr_list: Optional[List[torch.Tensor]] = None,
-) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], torch.Tensor]:
+    x_list: list[torch.Tensor],
+    edge_index_list: list[torch.Tensor],
+    pos_list: list[torch.Tensor] | None = None,
+    edge_attr_list: list[torch.Tensor] | None = None,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None, torch.Tensor | None, torch.Tensor]:
     """
     Turns per-sample graphs into a single flattened graph with node index offsets.
 

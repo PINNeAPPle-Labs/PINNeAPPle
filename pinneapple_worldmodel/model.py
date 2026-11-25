@@ -32,12 +32,10 @@ Quick start::
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch import Tensor
 
 
@@ -193,7 +191,7 @@ class PhysicsWorldModel(nn.Module):
         config: WorldModelConfig,
         *,
         n_fields: int,
-        grid_shape: Tuple[int, ...],
+        grid_shape: tuple[int, ...],
     ) -> None:
         super().__init__()
         self.config = config
@@ -205,7 +203,7 @@ class PhysicsWorldModel(nn.Module):
         in_ch = n_fields + embed_dim
 
         # Context encoder
-        self.ctx_enc: Optional[nn.Module] = None
+        self.ctx_enc: nn.Module | None = None
         if config.context_dim > 0:
             self.ctx_enc = _ContextEncoder(config.context_dim, embed_dim)
 
@@ -235,7 +233,7 @@ class PhysicsWorldModel(nn.Module):
     def forward(
         self,
         state_t: Tensor,
-        context: Optional[Tensor] = None,
+        context: Tensor | None = None,
     ) -> Tensor:
         """Predict next state.
 
@@ -271,7 +269,7 @@ class PhysicsWorldModel(nn.Module):
     def rollout(
         self,
         state_0: Tensor,
-        context: Optional[Tensor],
+        context: Tensor | None,
         n_steps: int,
     ) -> Tensor:
         """Auto-regressive rollout.
@@ -297,7 +295,7 @@ class PhysicsWorldModel(nn.Module):
     # Helpers
     # ------------------------------------------------------------------
 
-    def _broadcast_embed(self, embed: Tensor, state_shape: Tuple) -> Tensor:
+    def _broadcast_embed(self, embed: Tensor, state_shape: tuple) -> Tensor:
         """Expand (B, embed_dim) → (B, embed_dim, *grid_shape)."""
         B, D = embed.shape
         view = embed

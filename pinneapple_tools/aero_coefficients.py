@@ -51,7 +51,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional, Tuple
 
 import numpy as np
 
@@ -92,7 +91,7 @@ def compute_cp(
 
 def _face_areas_and_centroids(
     vertices: np.ndarray, faces: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Triangle areas (M,) and centroids (M,3) from a (N,3)/(M,3) mesh."""
     v0 = vertices[faces[:, 0]]
     v1 = vertices[faces[:, 1]]
@@ -108,9 +107,9 @@ def integrate_surface_forces(
     faces: np.ndarray,
     face_normals: np.ndarray,
     face_pressure: np.ndarray,
-    face_shear: Optional[np.ndarray] = None,
-    moment_center: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+    face_shear: np.ndarray | None = None,
+    moment_center: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
     """Integrate per-face pressure (and optional shear) into a net force and
     moment over a triangulated surface.
 
@@ -209,7 +208,7 @@ def force_to_coefficients(
     *,
     drag_axis: str = "x",
     lift_axis: str = "z",
-    moment_axis: Optional[str] = None,
+    moment_axis: str | None = None,
 ) -> AeroCoefficients:
     """Convert a net body-axis force/moment into wind-axis CL/CD/CM.
 

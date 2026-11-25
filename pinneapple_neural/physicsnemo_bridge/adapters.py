@@ -17,7 +17,8 @@ raises a clear, actionable ``ImportError`` if the package is missing.
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence
+from typing import Any
+from collections.abc import Sequence
 
 import torch
 import torch.nn as nn
@@ -172,9 +173,9 @@ class PhysicsNemoModelAdapter(nn.Module):
 
 def wrap_for_uq(
     model: nn.Module,
-    field_names: Optional[Sequence[str]] = None,
+    field_names: Sequence[str] | None = None,
     *,
-    mc_dropout_config: Optional[MCDropoutConfig] = None,
+    mc_dropout_config: MCDropoutConfig | None = None,
 ) -> MCDropoutWrapper:
     """Wrap a trained model for MC-Dropout uncertainty quantification.
 
@@ -210,9 +211,9 @@ def wrap_for_uq(
 def build_digital_twin_for_model(
     model: nn.Module,
     field_names: Sequence[str],
-    coord_names: Optional[Sequence[str]] = None,
+    coord_names: Sequence[str] | None = None,
     *,
-    config: Optional[DigitalTwinConfig] = None,
+    config: DigitalTwinConfig | None = None,
 ) -> DigitalTwin:
     """Wrap a trained model into a :class:`DigitalTwin`.
 

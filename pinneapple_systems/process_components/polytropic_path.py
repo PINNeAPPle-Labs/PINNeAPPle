@@ -57,7 +57,6 @@ from pinneapple_systems.process_components.real_gas_eos import (
     GasState,
     state_from_Ph,
     state_from_Ps,
-    state_from_PT,
 )
 
 

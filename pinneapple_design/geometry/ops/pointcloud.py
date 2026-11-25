@@ -14,7 +14,6 @@ This module bridges geometry (mesh/SDF) -> point clouds usable by:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Callable, Tuple
 
 import numpy as np
 import torch
@@ -27,8 +26,8 @@ from pinneapple_design.geometry.io.sdf_meshing import sample_boundary_points_sdf
 @dataclass
 class PointCloud:
     points: torch.Tensor          # (N,D)
-    normals: Optional[torch.Tensor] = None  # (N,3)
-    features: Optional[torch.Tensor] = None # (N,F)
+    normals: torch.Tensor | None = None  # (N,3)
+    features: torch.Tensor | None = None # (N,F)
 
 
 def mesh_to_pointcloud(
@@ -36,7 +35,7 @@ def mesh_to_pointcloud(
     *,
     n_surface: int = 4096,
     seed: int = 0,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
     include_normals: bool = True,
 ) -> PointCloud:
@@ -66,11 +65,11 @@ def sample_pointcloud_from_mesh(points: np.ndarray, cells, *, n: int = 8192, see
 def sdf2d_to_pointcloud(
     sdf: SDF2D,
     *,
-    grid: Optional[SDFGrid2D] = None,
+    grid: SDFGrid2D | None = None,
     n_boundary: int = 4096,
     band: float = 0.01,
     seed: int = 0,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
 ) -> PointCloud:
     rng = np.random.default_rng(int(seed))

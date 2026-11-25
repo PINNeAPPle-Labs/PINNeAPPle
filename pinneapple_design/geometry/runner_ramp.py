@@ -44,7 +44,7 @@ def piso(s):
     return float(z) if z.ndim == 0 else z
 
 
-def perfil(r: "Rampa", s):
+def perfil(r: Rampa, s):
     """Cota do topo da rampa em s, vetorizado (``nan`` fora do trecho). Ordem das variantes de ``CASOS``."""
     import numpy as np
     a, reto, pe, _ = r.trechos()
@@ -60,7 +60,7 @@ def perfil(r: "Rampa", s):
     return float(z) if z.ndim == 0 else z
 
 
-def dentro(r: "Rampa", x, y, z) -> object:
+def dentro(r: Rampa, x, y, z) -> object:
     """Máscara vetorizada: os pontos (x, y, z) estão dentro do sólido? (mesma regra do ``Rampa.contem``)"""
     import numpy as np
     s = np.asarray(y, dtype=float) - r.y_origem

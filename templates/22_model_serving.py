@@ -15,7 +15,6 @@ Run this script to start the server, then query it via:
 import math
 import torch
 import torch.nn as nn
-import numpy as np
 
 from pinneapple_serve.server import ModelServer
 from pinneapple_serve.config import ServeConfig

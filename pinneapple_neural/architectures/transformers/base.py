@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes for time series transformer models."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -14,8 +14,8 @@ class TSOutput:
     Standard output for time-series transformers in Pinneapple.
     """
     y: torch.Tensor               # (B, H, out_dim) or (B, T, out_dim) depending on mode
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class TimeSeriesModelBase(nn.Module):
@@ -36,8 +36,8 @@ class TimeSeriesModelBase(nn.Module):
         self,
         x_past: torch.Tensor,
         *,
-        x_future: Optional[torch.Tensor] = None,
-        y_future: Optional[torch.Tensor] = None,  # optional teacher forcing / loss computation
+        x_future: torch.Tensor | None = None,
+        y_future: torch.Tensor | None = None,  # optional teacher forcing / loss computation
         return_loss: bool = False,
     ) -> TSOutput:
         raise NotImplementedError

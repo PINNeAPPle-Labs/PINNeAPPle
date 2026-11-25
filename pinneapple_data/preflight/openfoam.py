@@ -7,7 +7,7 @@ broken copies of tutorial cases (the error text is in ``evidence``).
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -79,7 +79,7 @@ EVIDENCE = {
 }
 
 
-def _txt(fs: Dict[str, bytes], path: str) -> Optional[str]:
+def _txt(fs: dict[str, bytes], path: str) -> str | None:
     b = fs.get(path)
     if b is None:
         b = fs.get(path + ".gz")
@@ -89,7 +89,7 @@ def _txt(fs: Dict[str, bytes], path: str) -> Optional[str]:
     return b.decode("latin-1") if b is not None else None
 
 
-def _dict(fs, path) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+def _dict(fs, path) -> tuple[dict[str, Any] | None, str | None]:
     t = _txt(fs, path)
     if t is None:
         return None, None
@@ -99,7 +99,7 @@ def _dict(fs, path) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
         return {"__error__": True}, t
 
 
-def _match(d: Dict[str, Any], name: str, groups: List[str] = ()) -> Optional[Tuple[str, Any]]:
+def _match(d: dict[str, Any], name: str, groups: list[str] = ()) -> tuple[str, Any] | None:
     """Dictionary entry for a name: exact key, then patch groups, then regex keys (OpenFOAM's precedence)."""
     if name in d:
         return name, d[name]
@@ -118,7 +118,7 @@ def _match(d: Dict[str, Any], name: str, groups: List[str] = ()) -> Optional[Tup
     return None
 
 
-def _patches(fs, root) -> Tuple[List[Dict[str, Any]], str]:
+def _patches(fs, root) -> tuple[list[dict[str, Any]], str]:
     from pinneapple_data.cae.foam import read_boundary
     for p in (root + "constant/polyMesh/boundary", root + "constant/polyMesh/boundary.gz"):
         if p in fs:
@@ -139,7 +139,7 @@ def _patches(fs, root) -> Tuple[List[Dict[str, Any]], str]:
     return [], ""
 
 
-def check(fs: Dict[str, bytes], root: str = "") -> Report:
+def check(fs: dict[str, bytes], root: str = "") -> Report:
     ctrl, ctrl_t = _dict(fs, root + "system/controlDict")
     app = (ctrl or {}).get("application", "?")
     rep = Report(solver=f"OpenFOAM {app}")
@@ -390,7 +390,7 @@ def _materials(rep: Report, fs, root, kind, props, app):
                     "Add constant/g (e.g. value (0 -9.81 0)).", rule="no_g", file="constant/g")
 
 
-def _algo_dict(fv: Dict[str, Any], algo: Optional[str]) -> Dict[str, Any]:
+def _algo_dict(fv: dict[str, Any], algo: str | None) -> dict[str, Any]:
     if not fv:
         return {}
     for a in ([algo] if algo else []) + ["SIMPLE", "PIMPLE", "PISO"]:
@@ -400,7 +400,7 @@ def _algo_dict(fv: Dict[str, Any], algo: Optional[str]) -> Dict[str, Any]:
 
 
 def _solver(rep, fs, root, ctrl, ctrl_t, app, kind, algo, required, turb_fields, p_fixed, U_ref, mesh, nonorth_max,
-            turb_model: Optional[str] = None):
+            turb_model: str | None = None):
     fv, fv_t = _dict(fs, root + "system/fvSolution")
     sc, sc_t = _dict(fs, root + "system/fvSchemes")
     for name, d in (("system/controlDict", ctrl), ("system/fvSolution", fv), ("system/fvSchemes", sc)):

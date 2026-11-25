@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 import subprocess
-from typing import Optional
 
 _ADDON_SCRIPT = os.path.join(os.path.dirname(__file__), "blender_addon", "import_pinneapple_sequence.py")
 
@@ -16,7 +15,7 @@ _ADDON_SCRIPT = os.path.join(os.path.dirname(__file__), "blender_addon", "import
 def build_scene(
     ply_dir: str,
     *,
-    output_blend: Optional[str] = None,
+    output_blend: str | None = None,
     blender_executable: str = "blender",
     timeout: int = 600,
 ) -> str:

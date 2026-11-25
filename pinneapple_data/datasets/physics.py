@@ -6,7 +6,6 @@ No external data files required — everything is reproducible from code.
 from __future__ import annotations
 
 import math
-from typing import Dict
 
 import numpy as np
 
@@ -19,7 +18,7 @@ from .registry import DatasetInfo, DatasetRegistry
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_burgers_1d(Nx: int = 128, Nt: int = 101,
-                     nu: float = 0.01 / math.pi) -> Dict[str, np.ndarray]:
+                     nu: float = 0.01 / math.pi) -> dict[str, np.ndarray]:
     x = np.linspace(-1.0, 1.0, Nx)
     dx = x[1] - x[0]
 
@@ -81,7 +80,7 @@ def _load_burgers_1d(Nx: int = 128, Nt: int = 101,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_heat_1d(Nx: int = 64, Nt: int = 64,
-                  k: float = 0.4) -> Dict[str, np.ndarray]:
+                  k: float = 0.4) -> dict[str, np.ndarray]:
     x = np.linspace(0.0, 1.0, Nx)
     t = np.linspace(0.0, 0.5, Nt)
     X, T = np.meshgrid(x, t)
@@ -102,7 +101,7 @@ def _load_heat_1d(Nx: int = 64, Nt: int = 64,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_heat_2d(N: int = 32, Nt: int = 32,
-                  k: float = 0.1) -> Dict[str, np.ndarray]:
+                  k: float = 0.1) -> dict[str, np.ndarray]:
     x = np.linspace(0.0, 1.0, N)
     y = np.linspace(0.0, 1.0, N)
     t = np.linspace(0.0, 0.5, Nt)
@@ -125,7 +124,7 @@ def _load_heat_2d(N: int = 32, Nt: int = 32,
 #    Exact: u = sin(πx)·sin(πy)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _load_poisson_2d(N: int = 64) -> Dict[str, np.ndarray]:
+def _load_poisson_2d(N: int = 64) -> dict[str, np.ndarray]:
     x = np.linspace(0.0, 1.0, N)
     y = np.linspace(0.0, 1.0, N)
     X, Y = np.meshgrid(x, y, indexing="ij")
@@ -148,7 +147,7 @@ def _load_poisson_2d(N: int = 64) -> Dict[str, np.ndarray]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_wave_1d(Nx: int = 64, Nt: int = 64,
-                  c: float = 1.0) -> Dict[str, np.ndarray]:
+                  c: float = 1.0) -> dict[str, np.ndarray]:
     x = np.linspace(0.0, 1.0, Nx)
     t = np.linspace(0.0, 1.0, Nt)
     X, T = np.meshgrid(x, t)
@@ -170,7 +169,7 @@ def _load_wave_1d(Nx: int = 64, Nt: int = 64,
 #    p = (1 - exp(2λx))/2
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _load_kovasznay_ns(N: int = 64, Re: float = 40.0) -> Dict[str, np.ndarray]:
+def _load_kovasznay_ns(N: int = 64, Re: float = 40.0) -> dict[str, np.ndarray]:
     lam = Re / 2.0 - math.sqrt(Re**2 / 4.0 + 4.0 * math.pi**2)
     x = np.linspace(-0.5, 1.0, N)
     y = np.linspace(-0.5, 1.5, N)
@@ -196,7 +195,7 @@ def _load_kovasznay_ns(N: int = 64, Re: float = 40.0) -> Dict[str, np.ndarray]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_allen_cahn_1d(Nx: int = 128, Nt: int = 101,
-                        eps: float = 0.01) -> Dict[str, np.ndarray]:
+                        eps: float = 0.01) -> dict[str, np.ndarray]:
     x = np.linspace(-1.0, 1.0, Nx, endpoint=False)
     dx = x[1] - x[0]
 
@@ -256,7 +255,7 @@ def _load_allen_cahn_1d(Nx: int = 128, Nt: int = 101,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_helmholtz_2d(N: int = 64, k: float = 1.0,
-                       a1: float = 1.0, a2: float = 1.0) -> Dict[str, np.ndarray]:
+                       a1: float = 1.0, a2: float = 1.0) -> dict[str, np.ndarray]:
     x = np.linspace(0.0, 1.0, N)
     y = np.linspace(0.0, 1.0, N)
     X, Y = np.meshgrid(x, y, indexing="ij")

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import copy
 import math
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -30,7 +30,7 @@ def _fixed_h_tj(board, comps, env, h, n_cells, **kw) -> np.ndarray:
     return np.array([c["t_junction_c"] for c in r["components"]])
 
 
-def _downsample(a: np.ndarray, n: int = 64) -> List[List[float]]:
+def _downsample(a: np.ndarray, n: int = 64) -> list[list[float]]:
     iy = np.linspace(0, a.shape[0] - 1, min(n, a.shape[0])).round().astype(int)
     ix = np.linspace(0, a.shape[1] - 1, min(n, a.shape[1])).round().astype(int)
     return np.round(a[np.ix_(iy, ix)], 2).tolist()
@@ -45,7 +45,7 @@ VALIDATION = [
 ]
 
 
-def model_scope(comps: List[Component], env: Environment) -> Dict[str, Any]:
+def model_scope(comps: list[Component], env: Environment) -> dict[str, Any]:
     """What the model covers, which way each simplification errs, what to do
     about it today and what is planned -- shown in every report."""
     items = []
@@ -90,8 +90,8 @@ def model_scope(comps: List[Component], env: Environment) -> Dict[str, Any]:
                     "is already included in the verdict; calibration replaces it with your measured value."}
 
 
-def evaluate(board: Board, comps: List[Component], env: Environment, *, quick: bool = False,
-             n_cells: int = 60) -> Dict[str, Any]:
+def evaluate(board: Board, comps: list[Component], env: Environment, *, quick: bool = False,
+             n_cells: int = 60) -> dict[str, Any]:
     """``quick``: one solve on a coarser grid (interactive dragging). Full: band + checks."""
     if not comps:
         raise ValueError("Add at least one component.")
@@ -100,7 +100,7 @@ def evaluate(board: Board, comps: List[Component], env: Environment, *, quick: b
     names = [c["name"] for c in r["components"]]
     tj = np.array([c["t_junction_c"] for c in r["components"]])
     crit = int(np.argmin([c["margin_c"] for c in r["components"]]))
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "components": r["components"],
         "critical": names[crit],
         "maps": {"top_c": _downsample(r["t_top_c"]), "bottom_c": _downsample(r["t_bottom_c"]),
@@ -166,7 +166,7 @@ def evaluate(board: Board, comps: List[Component], env: Environment, *, quick: b
     return out
 
 
-def field_3d(board: Board, out: Dict[str, Any]) -> Dict[str, Any]:
+def field_3d(board: Board, out: dict[str, Any]) -> dict[str, Any]:
     return {"width_mm": board.width_mm, "depth_mm": board.depth_mm,
             "thickness_mm": board.thickness_mm, "top_c": out["maps"]["top_c"],
             "bottom_c": out["maps"]["bottom_c"],
@@ -177,8 +177,8 @@ def field_3d(board: Board, out: Dict[str, Any]) -> Dict[str, Any]:
 
 # ── what-if studies ──────────────────────────────────────────────────────────
 
-def what_if(board: Board, comps: List[Component], env: Environment,
-            n_cells: int = 48) -> Dict[str, Any]:
+def what_if(board: Board, comps: list[Component], env: Environment,
+            n_cells: int = 48) -> dict[str, Any]:
     """Re-solve the board with common fixes and report the effect on the
     critical component (and on every junction)."""
     base = solve(board, comps, env, n_cells=n_cells)
@@ -236,11 +236,11 @@ def _interp_map(t: np.ndarray, W: float, D: float, x: float, y: float) -> float:
                  + (1 - ax) * ay * t[j1, i0] + ax * ay * t[j1, i1])
 
 
-def calibrate(board: Board, comps: List[Component], env: Environment,
-              measurements: List[Dict[str, Any]], *, noise_std_c: float = 1.0,
+def calibrate(board: Board, comps: list[Component], env: Environment,
+              measurements: list[dict[str, Any]], *, noise_std_c: float = 1.0,
               n_ensemble: int = 16, n_iterations: int = 8, seed: int = 0,
               n_cells: int = 24, n_cells_final: int = 60,
-              prior_std_log: float = 0.5) -> Dict[str, Any]:
+              prior_std_log: float = 0.5) -> dict[str, Any]:
     """Fit surface-cooling and in-plane-spreading scale factors to measured
     temperatures with PINNeAPPle's Ensemble Kalman Inversion.
 
@@ -271,7 +271,7 @@ def calibrate(board: Board, comps: List[Component], env: Environment,
     h0 = {"top": nominal["h"]["top"], "bottom": nominal["h"]["bottom"]}
     W, D = board.width_mm, board.depth_mm
 
-    def predict(theta: np.ndarray, which: List[int], n: int = n_cells) -> Dict[str, Any]:
+    def predict(theta: np.ndarray, which: list[int], n: int = n_cells) -> dict[str, Any]:
         h = {s: v * math.exp(theta[0]) for s, v in h0.items()}
         r = solve(board, comps, env, n_cells=n, h_override=h, k_xy_scale=math.exp(theta[1]))
         tj = {c["name"]: c["t_junction_c"] for c in r["components"]}

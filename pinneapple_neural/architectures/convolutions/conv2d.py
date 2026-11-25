@@ -1,7 +1,7 @@
 from __future__ import annotations
 """2D convolutional model for spatial data."""
 
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -124,7 +124,7 @@ class Conv2DModel(ConvModelBase):
         self,
         x: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> ConvOutput:
         h = self.in_proj(x)
@@ -140,7 +140,7 @@ class Conv2DModel(ConvModelBase):
         y = self.out_proj(h)
 
         # Mantém seu contrato (sempre tem "total"), mas evita tensor CPU/dtype fixo
-        losses: Dict[str, torch.Tensor] = {"total": y.new_zeros(())}
+        losses: dict[str, torch.Tensor] = {"total": y.new_zeros(())}
         if return_loss and (y_true is not None):
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

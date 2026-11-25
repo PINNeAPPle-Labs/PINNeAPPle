@@ -1,6 +1,5 @@
 """Visualisation of VoxelGrid objects."""
 from __future__ import annotations
-from typing import Optional, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,7 +19,7 @@ def plot_voxel_slice(
     grid,   # VoxelGrid
     *,
     axis: str = "z",
-    index: Optional[int] = None,
+    index: int | None = None,
     cmap: str = DEFAULT_CMAP,
     title: str = "",
     show: bool = False,

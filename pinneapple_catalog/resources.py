@@ -25,7 +25,6 @@ Rules, matching the research doc:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 from pinneapple_core.errors import BadValue, MissingExtra, install_hint
 from pinneapple_neural._licencas import require_research_use
@@ -48,11 +47,11 @@ class Resource:
     commercial: str
     url: str
     rating: str
-    paper: Optional[str] = None
-    size: Optional[str] = None
-    hf_repo: Optional[Tuple[str, str]] = None  # (repo_id, "dataset" | "model")
+    paper: str | None = None
+    size: str | None = None
+    hf_repo: tuple[str, str] | None = None  # (repo_id, "dataset" | "model")
     notes: str = ""
-    tags: Tuple[str, ...] = field(default_factory=tuple)
+    tags: tuple[str, ...] = field(default_factory=tuple)
 
     @property
     def research_only(self) -> bool:
@@ -71,7 +70,7 @@ def _r(**kw) -> Resource:
     return Resource(**kw)
 
 
-_RESOURCES: List[Resource] = [
+_RESOURCES: list[Resource] = [
     # ── Fluids / CFD datasets ────────────────────────────────────────────
     _r(id="pdebench", name="PDEBench", kind="dataset", domain="cfd",
        summary="Advection, Burgers, diffusion-reaction, Darcy 2D, shallow water, compressible NS 1D/2D/3D, "
@@ -394,7 +393,7 @@ _RESOURCES: List[Resource] = [
        url="https://github.com/MDIL-SNU/SevenNet", rating="skip"),
 ]
 
-_BY_ID: Dict[str, Resource] = {}
+_BY_ID: dict[str, Resource] = {}
 for _res in _RESOURCES:
     if _res.id in _BY_ID:
         raise ValueError(f"duplicate resource id: {_res.id}")
@@ -404,11 +403,11 @@ for _res in _RESOURCES:
 
 
 def list_resources(
-    kind: Optional[str] = None,
-    domain: Optional[str] = None,
-    rating: Optional[str] = None,
+    kind: str | None = None,
+    domain: str | None = None,
+    rating: str | None = None,
     commercial_only: bool = False,
-) -> List[Resource]:
+) -> list[Resource]:
     """Resources filtered by kind/domain/rating; ``commercial_only`` keeps ``commercial == "yes"``."""
     out = list(_RESOURCES)
     if kind is not None:
@@ -437,8 +436,8 @@ def require_allowed(resource_id: str) -> Resource:
     return res
 
 
-def fetch(resource_id: str, *, allow_patterns=None, local_dir: Optional[str] = None,
-          token: Optional[str] = None, revision: Optional[str] = None) -> str:
+def fetch(resource_id: str, *, allow_patterns=None, local_dir: str | None = None,
+          token: str | None = None, revision: str | None = None) -> str:
     """Download a Hugging Face-hosted resource (after the license gate); returns the local path.
 
     Use ``allow_patterns`` to fetch a subset: several datasets here are terabytes.

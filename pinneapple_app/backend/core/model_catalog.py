@@ -1,7 +1,7 @@
 """Model catalog: lists available models, enriches with metadata, and recommends."""
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -10,12 +10,12 @@ class ModelEntry:
     family: str
     description: str
     supports_physics_loss: bool
-    tags: List[str]
-    recommended_for: List[str]   # problem families
+    tags: list[str]
+    recommended_for: list[str]   # problem families
 
 
 # ── Extended model descriptions ──────────────────────────────────────────
-_MODEL_META: Dict[str, Dict[str, Any]] = {
+_MODEL_META: dict[str, dict[str, Any]] = {
     "vanilla_pinn": {
         "family": "pinns",
         "description": "Standard PINN: fully-connected MLP + physics residual loss.",
@@ -144,7 +144,7 @@ AVAILABLE_METRICS = {
 DEFAULT_METRICS = ["l2_relative", "mse", "pde_residual", "bc_residual", "train_time_s", "n_params"]
 
 
-def list_models(family: Optional[str] = None) -> List[ModelEntry]:
+def list_models(family: str | None = None) -> list[ModelEntry]:
     """Return all available models, optionally filtered by family."""
     try:
         from pinneapple_neural.architectures import ModelRegistry
@@ -179,7 +179,7 @@ def list_models(family: Optional[str] = None) -> List[ModelEntry]:
     return result
 
 
-def recommend_for_problem(problem_family: str, n: int = 5) -> List[str]:
+def recommend_for_problem(problem_family: str, n: int = 5) -> list[str]:
     """Return top-N recommended model names for a given problem family."""
     candidates = [
         entry.name for entry in list_models()
@@ -190,6 +190,6 @@ def recommend_for_problem(problem_family: str, n: int = 5) -> List[str]:
     return candidates[:n]
 
 
-def get_model_info(name: str) -> Optional[ModelEntry]:
+def get_model_info(name: str) -> ModelEntry | None:
     entries = [e for e in list_models() if e.name == name]
     return entries[0] if entries else None

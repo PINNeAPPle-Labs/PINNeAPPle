@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-from typing import List, Optional
 
 from ..config import ResearcherConfig
 from ..models import DiscoveryResult, RankedItem
@@ -17,7 +16,7 @@ except Exception:  # pragma: no cover
     GithubFetcher = None
 
 
-def _repo_quality_from_tree(paths: List[str]) -> dict:
+def _repo_quality_from_tree(paths: list[str]) -> dict:
     """
     Light heuristics from repo tree paths.
     """
@@ -71,7 +70,7 @@ def discover(cfg: ResearcherConfig) -> DiscoveryResult:
     )
 
     # ---------- Papers ----------
-    papers: List[RankedItem] = []
+    papers: list[RankedItem] = []
     for p in papers_raw:
         lex = lexical_overlap_score(cfg.topic, f"{p.title}\n{p.summary}")
         fr = freshness_score(safe_parse_iso8601(p.published), half_life_days=365.0)
@@ -110,7 +109,7 @@ def discover(cfg: ResearcherConfig) -> DiscoveryResult:
     if deep_quality_enabled:
         fetcher = GithubFetcher(token=token)
 
-    repos: List[RankedItem] = []
+    repos: list[RankedItem] = []
     for r in repos_raw:
         lex = lexical_overlap_score(cfg.topic, f"{r.title}\n{r.description}")
         fr = freshness_score(safe_parse_iso8601(r.updated_at), half_life_days=365.0)

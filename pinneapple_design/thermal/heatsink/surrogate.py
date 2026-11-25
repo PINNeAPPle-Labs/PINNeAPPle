@@ -26,7 +26,6 @@ import tempfile
 import time
 from dataclasses import dataclass
 from multiprocessing import Pool
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -38,7 +37,7 @@ ARTIFACTS = os.environ.get("PINNEAPPLE_HEATSINK_ARTIFACTS") or os.path.join(os.p
                                                                             "heatsink")
 
 # Design space the surrogates are trained (and therefore valid) on. mm, W, C, m/s.
-COMMON_RANGES: Dict[str, Tuple[float, float]] = {
+COMMON_RANGES: dict[str, tuple[float, float]] = {
     "base_width_mm": (30.0, 200.0),
     "base_depth_mm": (30.0, 200.0),
     "base_thickness_mm": (2.0, 15.0),
@@ -49,7 +48,7 @@ COMMON_RANGES: Dict[str, Tuple[float, float]] = {
     "source_frac_d": (0.15, 1.0),
     "t_ambient_c": (0.0, 50.0),
 }
-MODE_RANGES: Dict[str, Dict[str, Tuple[float, float]]] = {
+MODE_RANGES: dict[str, dict[str, tuple[float, float]]] = {
     "forced": {"fin_gap_mm": (0.8, 10.0), "air_velocity_m_s": (0.5, 6.0), "power_w": (10.0, 400.0)},
     "natural": {"fin_gap_mm": (2.5, 20.0), "power_w": (1.0, 80.0)},
 }
@@ -88,7 +87,7 @@ def _material_for_k(k: float) -> str:
     return min(MATERIALS, key=lambda m: abs(MATERIALS[m]["k"] - k))
 
 
-def _one(args) -> Optional[Dict[str, float]]:
+def _one(args) -> dict[str, float] | None:
     mode, p = args
     from pinneapple_physics.closed_form import plate_fin_heatsink as pfh
     N = int(n_fins_for(p["base_width_mm"], p["fin_gap_mm"], p["fin_thickness_mm"]))
@@ -141,7 +140,7 @@ def reference_solve_batch(X, names, output: str = "r_base_k_w", mode: str = "for
     return out
 
 
-def generate_dataset(mode: str, n: int, seed: int = 0, workers: int = 4) -> List[Dict[str, float]]:
+def generate_dataset(mode: str, n: int, seed: int = 0, workers: int = 4) -> list[dict[str, float]]:
     from pinneapple_data.parameter_sampling import sample_parameters
     ranges = {**COMMON_RANGES, **MODE_RANGES[mode]}
     # sample log-uniformly for positive scale parameters
@@ -154,7 +153,7 @@ def generate_dataset(mode: str, n: int, seed: int = 0, workers: int = 4) -> List
     return [r for r in rows if r is not None]
 
 
-def rows_to_xy(mode: str, rows: List[Dict[str, float]]) -> Tuple[np.ndarray, np.ndarray]:
+def rows_to_xy(mode: str, rows: list[dict[str, float]]) -> tuple[np.ndarray, np.ndarray]:
     a = {k: np.array([r[k] for r in rows]) for k in rows[0]}
     X = features(mode, a["base_width_mm"], a["base_depth_mm"], a["base_thickness_mm"], a["n_fins"],
                  a["fin_thickness_mm"], a["fin_height_mm"], a["k_w_mk"],
@@ -176,8 +175,8 @@ class Surrogate:
     x_std: np.ndarray
     y_mean: np.ndarray
     y_std: np.ndarray
-    conformal_log_q: Dict[str, float]      # {"90": q, "95": q} on log R
-    report: Dict
+    conformal_log_q: dict[str, float]      # {"90": q, "95": q} on log R
+    report: dict
 
     def predict_log(self, X: np.ndarray) -> np.ndarray:
         with torch.no_grad():
@@ -186,7 +185,7 @@ class Surrogate:
             y = (y.y if hasattr(y, "y") else y).numpy()
         return y * self.y_std + self.y_mean
 
-    def predict(self, X: np.ndarray) -> Dict[str, np.ndarray]:
+    def predict(self, X: np.ndarray) -> dict[str, np.ndarray]:
         y = self.predict_log(X)
         out = {"r_base_k_w": np.exp(y[:, 0])}
         if self.mode == "forced":
@@ -200,7 +199,7 @@ class Surrogate:
                     "arch": ARCH, "report": self.report}, path)
 
     @classmethod
-    def load(cls, path: str) -> "Surrogate":
+    def load(cls, path: str) -> Surrogate:
         obj = torch.load(path, map_location="cpu", weights_only=False)
         model = _build(len(FEATURES[obj["mode"]]), len(TARGETS[obj["mode"]]))
         model.load_state_dict(obj["state"])
@@ -219,7 +218,7 @@ def _build(in_dim: int, out_dim: int) -> torch.nn.Module:
                                depth=ARCH["depth"], act=ARCH["act"])
 
 
-def train(mode: str, rows: List[Dict[str, float]], seed: int = 0, epochs: int = 400) -> Surrogate:
+def train(mode: str, rows: list[dict[str, float]], seed: int = 0, epochs: int = 400) -> Surrogate:
     from torch.utils.data import DataLoader, TensorDataset
     from pinneapple_neural.trainer import TrainConfig, Trainer
     from pinneapple_neural.trainer.lbfgs_finetune import multi_round_lbfgs
@@ -289,7 +288,7 @@ def train(mode: str, rows: List[Dict[str, float]], seed: int = 0, epochs: int = 
     return sur
 
 
-def load_surrogates(directory: str | None = None) -> Dict[str, Surrogate]:
+def load_surrogates(directory: str | None = None) -> dict[str, Surrogate]:
     """The trained surrogates found in ``directory`` (default ``ARTIFACTS``), by cooling mode."""
     out = {}
     for mode in ("forced", "natural"):

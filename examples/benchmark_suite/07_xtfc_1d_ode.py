@@ -37,8 +37,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import torch
 import torch.nn as nn
 
-from pinneapple_neural.architectures.pinns.xtfc import XTFC, XTFCConfig, build_xtfc, tfc_available
-from pinneapple_models import VanillaPINN
+from pinneapple_neural.architectures.pinns.xtfc import build_xtfc, tfc_available
 import torch as _torch
 
 DEVICE = _torch.device("cuda" if _torch.cuda.is_available() else "cpu")

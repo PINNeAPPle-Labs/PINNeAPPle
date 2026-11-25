@@ -14,7 +14,6 @@ for regime changes.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -119,16 +118,16 @@ class ZoneForecast:
     min_remaining: float  # in x units; inf = no wear trend
     rate: float  # wear rate [mm per x] of the critical cell
     usable: float
-    critical_cell: Optional[tuple]
+    critical_cell: tuple | None
     confidence: str
     r2: float
     remaining_lo: float = float("nan")  # 90 % interval of the critical cell's remaining life
     remaining_hi: float = float("nan")
 
 
-def forecast(ds: WearDataset, s: Optional[int] = None, **kw) -> Dict[str, ZoneForecast]:
+def forecast(ds: WearDataset, s: int | None = None, **kw) -> dict[str, ZoneForecast]:
     s = len(ds.x) - 1 if s is None else s
-    out: Dict[str, ZoneForecast] = {}
+    out: dict[str, ZoneForecast] = {}
     for name in ds.zone_names:
         z = ds.spec.zone(name)
         fit = fit_zone(ds, name, s, **kw)
@@ -150,7 +149,7 @@ def forecast(ds: WearDataset, s: Optional[int] = None, **kw) -> Dict[str, ZoneFo
     return out
 
 
-def forecast_history(ds: WearDataset, **kw) -> List[dict]:
+def forecast_history(ds: WearDataset, **kw) -> list[dict]:
     """Minimum predicted remaining life recomputed at every reading (how the forecast evolved)."""
     hist = []
     for s in range(len(ds.x)):

@@ -13,14 +13,13 @@ from __future__ import annotations
 
 import json
 
-import pytest
 
 from pinneapple_problemdesign.autonomy import AutonomyLevel
 from pinneapple_problemdesign.research_loop import AutonomousResearchAgent, ResearchLoopResult
 from pinneapple_problemdesign.schema import DataSpec, GeometrySpec, ProblemSpec, ValidationSpec
 from pinneapple_problemdesign.protocol import LLMResponse
 
-from pinneapple_worldmodel.orchestrator import OrchestratorResult, PhysicsOrchestrator, ProblemStatement
+from pinneapple_worldmodel.orchestrator import OrchestratorResult, PhysicsOrchestrator
 
 
 class _FixedJSONProvider:

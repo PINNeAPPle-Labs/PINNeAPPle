@@ -26,7 +26,7 @@ never got one from this function.
 from __future__ import annotations
 
 import os
-from typing import Dict, Sequence
+from collections.abc import Sequence
 
 from . import binary_reader as _bin
 from . import mesh_reader as _mesh
@@ -107,7 +107,7 @@ def openfoam_case_to_upd(
             mesh = None  # fall back to the C-field / no-coords path below
 
     n_cells_hint = mesh.nodes.shape[0] if mesh is not None else None
-    out_fields: Dict[str, "torch.Tensor"] = {}
+    out_fields: dict[str, torch.Tensor] = {}
     for f in fields:
         path = os.path.join(tdir, f)
         if os.path.exists(path):
@@ -140,7 +140,7 @@ def openfoam_case_to_upd(
         )
 
     # No polyMesh found: fall back to the original C-field-or-nothing path.
-    coords: Dict[str, "torch.Tensor"] = {}
+    coords: dict[str, torch.Tensor] = {}
     c_path = os.path.join(tdir, "C")
     n_cells = next((v.shape[0] for v in out_fields.values() if v.ndim >= 1), None)
     if os.path.exists(c_path):

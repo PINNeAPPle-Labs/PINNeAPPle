@@ -24,7 +24,7 @@ from __future__ import annotations
 import math
 import os
 from dataclasses import dataclass
-from typing import Dict, Any, List
+from typing import Any
 
 import torch
 from torch import nn
@@ -48,16 +48,16 @@ from pinneapple_neural.trainer.preprocess import PreprocessPipeline, MissingValu
 class WindowItem:
     x: torch.Tensor  # (T, D)
     y: torch.Tensor  # (1,) regression target
-    meta: Dict[str, Any]
+    meta: dict[str, Any]
 
 
-def make_windows(*, n_series: int = 12, T: int = 64, D: int = 3, window: int = 24) -> List[Dict[str, Any]]:
+def make_windows(*, n_series: int = 12, T: int = 64, D: int = 3, window: int = 24) -> list[dict[str, Any]]:
     """Create windowed samples from multiple synthetic series.
 
     Each item is a dict compatible with pinneapple_neural.trainer.ItemAdapter.
     """
     g = torch.Generator().manual_seed(123)
-    items: List[Dict[str, Any]] = []
+    items: list[dict[str, Any]] = []
 
     for sid in range(n_series):
         # Base signal: mixture of sines + drift + noise

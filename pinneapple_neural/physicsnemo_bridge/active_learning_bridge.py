@@ -29,7 +29,7 @@ importable.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -62,14 +62,14 @@ class ALRoundResult:
     n_points_added: int
     n_points_total: int
     mean_train_loss: float
-    train_losses: List[float] = field(default_factory=list)
+    train_losses: list[float] = field(default_factory=list)
 
 
 @dataclass
 class ALRetrainResult:
     """Full result of :func:`active_learning_retrain_loop`."""
 
-    rounds: List[ALRoundResult]
+    rounds: list[ALRoundResult]
     x_collocation: np.ndarray
     final_loss: float
 
@@ -79,7 +79,7 @@ class ALRetrainResult:
 # ---------------------------------------------------------------------------
 
 def _seed_initial_points(
-    bounds: Dict[str, Tuple[float, float]], n: int, seed: int
+    bounds: dict[str, tuple[float, float]], n: int, seed: int
 ) -> np.ndarray:
     """Latin Hypercube seed points for the initial collocation set.
 
@@ -111,12 +111,12 @@ def active_learning_retrain_loop(
     model: torch.nn.Module,
     loss_fn: Callable[[torch.nn.Module, torch.Tensor], torch.Tensor],
     residual_fn: Callable[[np.ndarray], np.ndarray],
-    bounds: Dict[str, Tuple[float, float]],
+    bounds: dict[str, tuple[float, float]],
     *,
-    x_initial: Optional[np.ndarray] = None,
-    al_config: Optional[ActiveLearningConfig] = None,
-    retrain_config: Optional[RetrainConfig] = None,
-    optimizer: Optional[torch.optim.Optimizer] = None,
+    x_initial: np.ndarray | None = None,
+    al_config: ActiveLearningConfig | None = None,
+    retrain_config: RetrainConfig | None = None,
+    optimizer: torch.optim.Optimizer | None = None,
 ) -> ALRetrainResult:
     """Run the "AL selects -> retrains -> AL selects -> ..." loop (Padrao 2).
 
@@ -178,16 +178,16 @@ def active_learning_retrain_loop(
     opt = optimizer or torch.optim.Adam(model.parameters(), lr=rc.lr)
     rng = np.random.default_rng(al_cfg.seed)
 
-    rounds: List[ALRoundResult] = []
+    rounds: list[ALRoundResult] = []
     final_loss = float("nan")
 
     for round_idx in range(1, rc.n_rounds + 1):
         model.train()
-        epoch_losses: List[float] = []
+        epoch_losses: list[float] = []
         n = len(x_col)
         for _epoch in range(rc.n_epochs_per_round):
             perm = rng.permutation(n)
-            batch_losses: List[float] = []
+            batch_losses: list[float] = []
             for start in range(0, n, rc.batch_size):
                 idx = perm[start:start + rc.batch_size]
                 xb = torch.from_numpy(x_col[idx]).to(rc.device)

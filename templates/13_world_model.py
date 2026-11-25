@@ -11,9 +11,7 @@ To use the NVIDIA NIM API, set COSMOS_API_KEY in your environment and pass
 use_api=True to WorldModelConfig.
 """
 
-import os
 import math
-import numpy as np
 import torch
 import torch.nn as nn
 import matplotlib

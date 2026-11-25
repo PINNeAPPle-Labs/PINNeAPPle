@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -56,7 +56,7 @@ ANOMALY_RATE_MM_PER_YEAR = 2.4
 def hollow_pipe_mesh(*, radius: float = OUTER_DIAMETER_M / 2,
                      thickness: float = WALL_THICKNESS_M,
                      length: float = LENGTH_M,
-                     n_theta: int = 64) -> Tuple[np.ndarray, np.ndarray]:
+                     n_theta: int = 64) -> tuple[np.ndarray, np.ndarray]:
     """A genuinely hollow pipe: outer wall, inner wall and two end annuli.
 
     The profile is a closed polyline revolved around the y axis, which the
@@ -76,7 +76,7 @@ def hollow_pipe_mesh(*, radius: float = OUTER_DIAMETER_M / 2,
 
 def solid_pipe_mesh(*, radius: float = OUTER_DIAMETER_M / 2,
                     length: float = LENGTH_M, n_theta: int = 64
-                    ) -> Tuple[np.ndarray, np.ndarray]:
+                    ) -> tuple[np.ndarray, np.ndarray]:
     """A filled cylinder of the same outer dimensions.
 
     Used by the tests as the deliberate failure the geometry validator must
@@ -170,7 +170,7 @@ def build_spec(*, anomaly: bool = False) -> PhysicalSpecification:
 # ---------------------------------------------------------------------------
 # Twin construction (stage B, done by code here instead of an LLM)
 # ---------------------------------------------------------------------------
-def build_twin(*, anomaly: bool = False) -> Dict[str, Any]:
+def build_twin(*, anomaly: bool = False) -> dict[str, Any]:
     from pinneapple_twin3d.wear.build import scene_from_wear
     from pinneapple_twin3d.wear.geometry import cell_centers, cell_mesh, cell_to_vertex
     from pinneapple_twin3d.wear.model import SYNTHETIC, VesselSpec, WearDataset, ZoneSpec
@@ -263,7 +263,7 @@ def build_twin(*, anomaly: bool = False) -> Dict[str, Any]:
     }
 
 
-def export_twin(bundle: Dict[str, Any], output_dir: Optional[str] = None) -> str:
+def export_twin(bundle: dict[str, Any], output_dir: str | None = None) -> str:
     """Write the real viewer files and the hub contract; returns ``scene.json``.
 
     No ``except: pass`` anywhere: if the scene cannot be exported the caller
@@ -281,7 +281,7 @@ def export_twin(bundle: Dict[str, Any], output_dir: Optional[str] = None) -> str
 # ---------------------------------------------------------------------------
 # Analytical reference (stage F)
 # ---------------------------------------------------------------------------
-def analytical_reference(bundle: Dict[str, Any]) -> ReferenceData:
+def analytical_reference(bundle: dict[str, Any]) -> ReferenceData:
     """Closed-form uniform-wear residual thickness, per cell and per time.
 
     This is a *verification* reference for the nominal condition: it derives
@@ -314,8 +314,8 @@ def analytical_reference(bundle: Dict[str, Any]) -> ReferenceData:
 # ---------------------------------------------------------------------------
 # Full run
 # ---------------------------------------------------------------------------
-def run_example(*, output_dir: Optional[str] = None, anomaly: bool = False,
-                write_report: bool = True) -> Tuple[QualityReport, Dict[str, Any]]:
+def run_example(*, output_dir: str | None = None, anomaly: bool = False,
+                write_report: bool = True) -> tuple[QualityReport, dict[str, Any]]:
     """Run stages A-G over the synthetic pipe twin and return the report."""
     bundle = build_twin(anomaly=anomaly)
     pipeline = QualityPipeline(

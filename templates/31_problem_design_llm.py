@@ -9,14 +9,13 @@ Demonstrates:
 """
 
 import torch
-import torch.nn as nn
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from pinneapple_problemdesign.designer import ProblemDesigner, DesignerConfig
-from pinneapple_problemdesign.spec import ProblemSpec, PDESpec, BoundaryConditionSpec
+from pinneapple_problemdesign.spec import ProblemSpec
 from pinneapple_problemdesign.builder import AutoPINNBuilder
 from pinneapple_problemdesign.llm_backend import LLMBackend, LLMBackendConfig
 

@@ -25,8 +25,8 @@ from typing import Any
 import numpy as np
 
 from .dataset import MotorDataset, build_dataset
-from .design import BOUNDS, NAMES, VARIABLES, Motor3DDesign
-from .model import OUTPUTS, PROFILES, SCALARS, Motor3DModel
+from .design import BOUNDS, NAMES, Motor3DDesign
+from .model import SCALARS, Motor3DModel
 from .optimize import benchmark, design_problem, optimize, verify_front
 from .surrogate import SurrogateConfig, MotorSurrogate3D, load_pretrained
 

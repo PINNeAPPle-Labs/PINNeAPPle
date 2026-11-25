@@ -8,7 +8,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
-from typing import List
 
 
 @dataclass
@@ -91,7 +90,7 @@ class ValidationReport:
 
     model_name: str
     timestamp: str
-    checks: List[CheckResult] = field(default_factory=list)
+    checks: list[CheckResult] = field(default_factory=list)
 
     # ------------------------------------------------------------------
     # Convenience constructors
@@ -140,7 +139,7 @@ class ValidationReport:
 
     def summary(self) -> str:
         """Return a pretty-printed table of all check results."""
-        lines: List[str] = []
+        lines: list[str] = []
         sep = "-" * 72
         lines.append(sep)
         lines.append(

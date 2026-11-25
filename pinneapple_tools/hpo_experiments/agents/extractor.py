@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..models import ExtractedProblemSolution, KBIndex
 from ..providers.gemini_provider import GeminiProvider
@@ -49,9 +48,9 @@ class ExtractorAgent:
         max_items: int = 20,
         temperature: float = 0.2,
         max_tokens: int = 4096,
-    ) -> List[ExtractedProblemSolution]:
+    ) -> list[ExtractedProblemSolution]:
         # Load a small sample of chunks (v0.1)
-        sample_rows: List[Dict[str, Any]] = []
+        sample_rows: list[dict[str, Any]] = []
         with open(kb_index.chunks_path, "r", encoding="utf-8") as f:
             for i, line in enumerate(f):
                 if i >= 60:  # keep prompt bounded
@@ -80,7 +79,7 @@ class ExtractorAgent:
         )
         data = json.loads(raw)
         items = data.get("items", [])
-        out: List[ExtractedProblemSolution] = []
+        out: list[ExtractedProblemSolution] = []
         for it in items[:max_items]:
             out.append(
                 ExtractedProblemSolution(

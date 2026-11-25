@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -28,7 +28,7 @@ LEVEL = {"converged": "ok", "completed": "ok", "still_falling": "warn", "stalled
          "diverged": "bad", "crashed": "bad", "failed": "bad", "unknown": "warn"}
 
 
-def _target(field: str, rc: Optional[Dict[str, Any]]) -> Optional[float]:
+def _target(field: str, rc: dict[str, Any] | None) -> float | None:
     if not rc:
         return None
     for k, v in rc.items():
@@ -49,18 +49,18 @@ def _slope(y: np.ndarray, x: np.ndarray) -> float:
     return float(np.polyfit(x[m], np.log10(y[m]), 1)[0] * 100)
 
 
-def downsample(x: List[float], series: Dict[str, List[float]], k: int = 1500) -> Dict[str, Any]:
+def downsample(x: list[float], series: dict[str, list[float]], k: int = 1500) -> dict[str, Any]:
     idx = downsample_indices(len(x), k, "even")
     clean = lambda v: None if v is None or not np.isfinite(v) else float(v)   # noqa: E731
     return {"x": [float(x[i]) for i in idx], "fields": {f: [clean(v[i]) for i in idx] for f, v in series.items()}}
 
 
-def assess_steady(log: Dict[str, Any], targets: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def assess_steady(log: dict[str, Any], targets: dict[str, Any] | None) -> dict[str, Any]:
     it = np.arange(1, len(log["time_steps"]) + 1, dtype=float)
     res = {f: np.array(v, dtype=float) for f, v in log["residuals"].items()}
-    out: Dict[str, Any] = {"iterations": int(len(it)), "fields": {}}
-    reasons: List[str] = []
-    recs: List[str] = []
+    out: dict[str, Any] = {"iterations": int(len(it)), "fields": {}}
+    reasons: list[str] = []
+    recs: list[str] = []
     if not len(it) or not res:
         return {**out, "status": "unknown", "reasons": ["No residuals found in the log."], "recommendations": []}
     met_all, any_target = True, False
@@ -154,12 +154,12 @@ def assess_steady(log: Dict[str, Any], targets: Optional[Dict[str, Any]]) -> Dic
     return {**out, "status": status, "reasons": reasons, "recommendations": recs}
 
 
-def assess_transient(log: Dict[str, Any], tolerances: Dict[str, Optional[float]], max_co: Optional[float],
-                     algorithm: Optional[str], reached_end: Optional[bool]) -> Dict[str, Any]:
+def assess_transient(log: dict[str, Any], tolerances: dict[str, float | None], max_co: float | None,
+                     algorithm: str | None, reached_end: bool | None) -> dict[str, Any]:
     steps = log["time_steps"]
-    out: Dict[str, Any] = {"time_steps": len(steps), "fields": {}}
-    reasons: List[str] = []
-    recs: List[str] = []
+    out: dict[str, Any] = {"time_steps": len(steps), "fields": {}}
+    reasons: list[str] = []
+    recs: list[str] = []
     if log.get("floating_point_exception") or log.get("fatal"):
         status = "crashed"
         reasons.append("The run stopped with " + ("a floating-point exception" if log.get("floating_point_exception")
@@ -216,7 +216,7 @@ def _safe_match(pat: str, f: str) -> bool:
         return False
 
 
-def assess_table(iters: List[float], residuals: Dict[str, List[float]], is_log10: bool) -> Dict[str, Any]:
+def assess_table(iters: list[float], residuals: dict[str, list[float]], is_log10: bool) -> dict[str, Any]:
     """Generic residual history (Fluent / STAR-CCM+ / SU2 exports)."""
     res = {f: (10.0 ** np.array(v, dtype=float) if is_log10 else np.array(v, dtype=float)) for f, v in residuals.items()}
     log = {"time_steps": iters, "residuals": {f: r.tolist() for f, r in res.items()}, "ended": True}

@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Proper Orthogonal Decomposition (POD) via SVD — robust ROM compression."""
 
-from typing import Dict, Optional, Tuple
 
 import torch
 
@@ -34,7 +33,7 @@ class POD(ROMBase):
         self,
         r: int = 64,
         center: bool = True,
-        energy: Optional[float] = None,
+        energy: float | None = None,
         randomised: bool = False,
         random_seed: int = 0,
     ):
@@ -72,7 +71,7 @@ class POD(ROMBase):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _flatten(X: torch.Tensor) -> Tuple[torch.Tensor, Optional[Tuple]]:
+    def _flatten(X: torch.Tensor) -> tuple[torch.Tensor, tuple | None]:
         if X.ndim == 3:
             B, T, D = X.shape
             return X.reshape(B * T, D), (B, T, D)
@@ -80,7 +79,7 @@ class POD(ROMBase):
             return X, None
         raise ValueError(f"Expected X with ndim 2 or 3, got {X.ndim}.")
 
-    def _svd(self, Xc: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _svd(self, Xc: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Returns (S, Vh) respecting the randomised flag."""
         if self.randomised:
             gen = torch.Generator(device=Xc.device)
@@ -112,7 +111,7 @@ class POD(ROMBase):
     # ------------------------------------------------------------------
 
     @torch.no_grad()
-    def fit(self, X: torch.Tensor) -> "POD":
+    def fit(self, X: torch.Tensor) -> POD:
         """Fit POD basis from snapshots X of shape (N, D) or (B, T, D)."""
         X2, _ = self._flatten(X)
 
@@ -137,7 +136,7 @@ class POD(ROMBase):
         return self
 
     @torch.no_grad()
-    def fit_incremental(self, X_new: torch.Tensor, *, weight: float = 0.5) -> "POD":
+    def fit_incremental(self, X_new: torch.Tensor, *, weight: float = 0.5) -> POD:
         """
         Incremental POD update: merge a new batch of snapshots with the
         existing basis via a rank-doubling + re-truncation approach.
@@ -187,7 +186,7 @@ class POD(ROMBase):
         X2, _ = self._flatten(X)
         return (X2 - self.mean_) @ self.basis_
 
-    def decode(self, a: torch.Tensor, *, shape: Optional[tuple] = None) -> torch.Tensor:
+    def decode(self, a: torch.Tensor, *, shape: tuple | None = None) -> torch.Tensor:
         if not self._fitted:
             raise RuntimeError("POD not fitted.")
         X = a @ self.basis_.t() + self.mean_
@@ -198,14 +197,14 @@ class POD(ROMBase):
     # ------------------------------------------------------------------
 
     @property
-    def explained_variance_ratio_(self) -> Optional[torch.Tensor]:
+    def explained_variance_ratio_(self) -> torch.Tensor | None:
         """Energy fraction of the ORIGINAL (untruncated) spectrum captured by each retained mode."""
         if not self._fitted or self.sv_.numel() == 0:
             return None
         s2 = self.sv_ ** 2
         return s2 / self.total_energy_.clamp_min(1e-12)
 
-    def reconstruction_error(self, X: torch.Tensor) -> Dict[str, float]:
+    def reconstruction_error(self, X: torch.Tensor) -> dict[str, float]:
         """
         Compute reconstruction quality metrics for snapshot matrix X.
         Returns dict with 'mse', 'relative_l2', 'max_abs'.
@@ -232,7 +231,7 @@ class POD(ROMBase):
         Xhat = self.decode(a)
         y    = Xhat.reshape(*orig) if orig else Xhat
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         if return_loss:
             mse = self.mse(y, X)
             losses = {"mse": mse, "total": mse}

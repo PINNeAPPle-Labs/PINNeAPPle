@@ -1,7 +1,7 @@
 """Data generation pipeline — runs a solver to produce synthetic training data."""
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 import numpy as np
 
 
@@ -20,10 +20,10 @@ class DataBundle:
     """Output of the data pipeline, consumed by ExperimentRunner."""
     x_col: np.ndarray      # interior collocation points (N, D)
     x_bnd: np.ndarray      # boundary points            (M, D)
-    x_ic:  Optional[np.ndarray] = None    # IC points  (K, D)
-    u_ref: Optional[np.ndarray] = None    # reference field (N, C) from solver
-    solver_outputs: List[Any] = field(default_factory=list)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    x_ic:  np.ndarray | None = None    # IC points  (K, D)
+    u_ref: np.ndarray | None = None    # reference field (N, C) from solver
+    solver_outputs: list[Any] = field(default_factory=list)
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 def run_data_pipeline(
@@ -139,7 +139,7 @@ def _run_solver(
         return [], None
 
 
-def _interpolate_solver_to_pts(solver_out, x_pts: np.ndarray) -> Optional[np.ndarray]:
+def _interpolate_solver_to_pts(solver_out, x_pts: np.ndarray) -> np.ndarray | None:
     """Best-effort interpolation of solver field onto collocation points."""
     try:
         from scipy.interpolate import RegularGridInterpolator

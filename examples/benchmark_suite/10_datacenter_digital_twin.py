@@ -34,10 +34,8 @@ import torch.nn as nn
 
 from pinneapple_physics.pde_environment import get_preset
 from pinneapple_systems.digital_twin import (
-    DigitalTwin, DigitalTwinConfig, build_digital_twin,
-    MockStream, Sensor, SensorRegistry,
-    ThresholdDetector, ZScoreDetector,
-    EnsembleKalmanFilter, Observation,
+    DigitalTwin, DigitalTwinConfig, MockStream, ThresholdDetector, ZScoreDetector,
+    EnsembleKalmanFilter,
 )
 from pinneapple_neural import best_device
 

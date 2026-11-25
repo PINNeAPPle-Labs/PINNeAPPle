@@ -12,14 +12,12 @@ Output images are written to examples/pinneapple_design.geometry/_out/.
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 # ---------------------------------------------------------------------------
 # Import CSG API
@@ -27,12 +25,10 @@ import matplotlib.patches as mpatches
 from pinneapple_design.geometry.csg import (
     CSGRectangle,
     CSGCircle,
-    CSGEllipse,
     CSGPolygon,
     lshape,
     annulus,
     channel_with_hole,
-    t_junction,
 )
 from pinneapple_tools.visualization.style import use_theme
 

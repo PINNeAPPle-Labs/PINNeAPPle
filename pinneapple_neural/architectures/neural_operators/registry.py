@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for neural operator model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import NeuralOperatorBase
 from .deeponet import DeepONet
@@ -14,7 +13,7 @@ from .uno import UniversalUNO
 from .transolver import Transolver, TransolverLite
 
 
-_REGISTRY: Dict[str, Type[NeuralOperatorBase]] = {
+_REGISTRY: dict[str, type[NeuralOperatorBase]] = {
     "deeponet": DeepONet,
     "multiscale_deeponet": MultiScaleDeepONet,
 
@@ -104,7 +103,7 @@ def register_into_global() -> None:
 
 @dataclass
 class NeuralOperatorCatalog:
-    registry: Dict[str, Type[NeuralOperatorBase]] = None
+    registry: dict[str, type[NeuralOperatorBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -112,7 +111,7 @@ class NeuralOperatorCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[NeuralOperatorBase]:
+    def get(self, name: str) -> type[NeuralOperatorBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown neural operator '{name}'. Available: {self.list()}")

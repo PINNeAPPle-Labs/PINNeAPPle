@@ -8,7 +8,7 @@ metrics = build_metrics_from_cfg(["mse", "rmse", "rel_l2", "r2"])
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from .metrics import (
     Metric,
@@ -23,7 +23,7 @@ from .metrics import (
     default_metrics,
 )
 
-_METRIC_CLASSES: Dict[str, type] = {
+_METRIC_CLASSES: dict[str, type] = {
     "mse": MSE,
     "mae": MAE,
     "rmse": RMSE,
@@ -34,7 +34,7 @@ _METRIC_CLASSES: Dict[str, type] = {
 
 
 def build_metrics_from_cfg(
-    cfg: List[Union[str, Dict[str, Any]]],
+    cfg: list[str | dict[str, Any]],
 ) -> Metrics:
     """Build a MetricBundle from a list of metric names or config dicts.
 
@@ -57,7 +57,7 @@ def build_metrics_from_cfg(
     if not cfg:
         return MetricBundle(default_metrics())
 
-    metrics: List[Metric] = []
+    metrics: list[Metric] = []
     for entry in cfg:
         if isinstance(entry, str):
             name = entry.strip().lower()

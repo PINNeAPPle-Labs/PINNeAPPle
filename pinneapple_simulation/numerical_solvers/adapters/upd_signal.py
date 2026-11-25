@@ -1,8 +1,7 @@
 """UPD signal/sample adapter for solver field extraction and stacking."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import torch
 
@@ -19,7 +18,7 @@ def _as_tensor(x: Any, device=None, dtype=None) -> torch.Tensor:
     return t
 
 
-def list_field_vars(sample: Any) -> List[str]:
+def list_field_vars(sample: Any) -> list[str]:
     """
     Tries to list available physical field variables from a PhysicalSample-like object.
 
@@ -43,7 +42,7 @@ def _get_field(sample: Any, var: str) -> Any:
     raise KeyError(f"Variable '{var}' not found. Available: {list_field_vars(sample)}")
 
 
-def list_signal_axes(sample: Any, var: str) -> List[str]:
+def list_signal_axes(sample: Any, var: str) -> list[str]:
     """
     Best-effort axis naming for a field.
     If sample has sample.axes[var] or sample.dims[var], use it.
@@ -68,12 +67,12 @@ def extract_1d_signal(
     sample: Any,
     *,
     var: str,
-    axis: Union[int, str] = -1,
+    axis: int | str = -1,
     reduce: str = "mean",
-    index: Optional[int] = None,
+    index: int | None = None,
     device=None,
     dtype=None,
-) -> Tuple[torch.Tensor, Dict[str, Any]]:
+) -> tuple[torch.Tensor, dict[str, Any]]:
     """
     Extract a 1D signal from a (possibly multi-dim) physical field.
 
@@ -130,7 +129,7 @@ def extract_1d_signal(
 
     signal = x.contiguous().view(-1)
 
-    meta: Dict[str, Any] = {
+    meta: dict[str, Any] = {
         "var": var,
         "axis": axis_name,
         "reduce": reduce,
@@ -151,15 +150,15 @@ def extract_1d_signal(
 
 
 def to_signal_batch(
-    samples: List[Any],
+    samples: list[Any],
     *,
     var: str,
-    axis: Union[int, str] = -1,
+    axis: int | str = -1,
     reduce: str = "mean",
-    index: Optional[int] = None,
+    index: int | None = None,
     device=None,
     dtype=None,
-) -> Tuple[torch.Tensor, List[Dict[str, Any]]]:
+) -> tuple[torch.Tensor, list[dict[str, Any]]]:
     """
     Convert a list of samples into a padded batch tensor (B,Tmax).
 

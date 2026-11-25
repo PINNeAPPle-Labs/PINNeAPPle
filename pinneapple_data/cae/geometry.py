@@ -6,7 +6,6 @@ finite-volume metrics (non-orthogonality, skewness, aspect ratio) apply to Gmsh,
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 import numpy as np
 import scipy.sparse as sp
@@ -28,10 +27,10 @@ class FaceMesh:
     neighbour: np.ndarray           # (n_internal,), faces 0..n_internal-1 are internal
     n_cells: int
     patch_of_face: np.ndarray       # (nf - n_internal,) patch index of each boundary face, -1 if none
-    patch_names: List[str]
-    patch_types: List[str]
+    patch_names: list[str]
+    patch_types: list[str]
     nonmanifold_faces: int = 0      # FE faces shared by more than two cells
-    flipped_blocks: List[str] = None
+    flipped_blocks: list[str] = None
 
     @property
     def n_faces(self) -> int:
@@ -56,7 +55,7 @@ def signed_volume_sign(btype: str, pts: np.ndarray, conn: np.ndarray) -> np.ndar
     return np.sign(vol)
 
 
-def oriented_blocks(mesh: Mesh) -> List[str]:
+def oriented_blocks(mesh: Mesh) -> list[str]:
     """Element node-order conventions differ (VTK, Gmsh, Abaqus wedges...). If most elements of a block come out with
     negative volume, the whole block uses the opposite convention: flip it, so only truly inverted elements stay
     negative. Returns the names of the flipped blocks."""
@@ -151,7 +150,7 @@ def face_mesh(mesh: Mesh) -> FaceMesh:
     return fm
 
 
-def face_geometry(fm: FaceMesh) -> Dict[str, np.ndarray]:
+def face_geometry(fm: FaceMesh) -> dict[str, np.ndarray]:
     """Face centres (nf,3), area vectors (nf,3), and the per-face corner groups used later."""
     nf = fm.n_faces
     sizes = np.diff(fm.face_offsets)
@@ -184,7 +183,7 @@ def face_geometry(fm: FaceMesh) -> Dict[str, np.ndarray]:
     return {"centres": ctr, "areas": area, "flatness": flat_area_ratio}
 
 
-def cell_geometry(fm: FaceMesh, fg: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+def cell_geometry(fm: FaceMesh, fg: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
     nc, ni = fm.n_cells, fm.n_internal
     own, nei = fm.owner, fm.neighbour
     fc, sf = fg["centres"], fg["areas"]
@@ -237,7 +236,7 @@ def element_adjacency_by_nodes(mesh: Mesh) -> sp.csr_matrix:
     return (inc @ inc.T).tocsr()
 
 
-def solution_dirs(fm: FaceMesh, fg: Dict[str, np.ndarray]) -> Optional[np.ndarray]:
+def solution_dirs(fm: FaceMesh, fg: dict[str, np.ndarray]) -> np.ndarray | None:
     """Directions with no 'empty' patch (OpenFOAM 2D/1D cases): boolean (3,)."""
     if "empty" not in fm.patch_types:
         return np.ones(3, bool)

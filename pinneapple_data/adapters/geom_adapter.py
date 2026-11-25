@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union, overload
+from typing import Any, Union
 
 
 # Accepts:
@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional, Tuple, Union, overload
 #  - path to mesh file (.vtu, .vtk, .msh, ...)
 #  - dict spec {"kind": "...", ...}
 #  - already-built GeometryAsset (from pinneapple_geom)
-GeometryInput = Union[str, Path, Dict[str, Any], Any]
+GeometryInput = Union[str, Path, dict[str, Any], Any]
 
 
 @dataclass
@@ -48,9 +48,9 @@ class GeometryLoadOptions:
     Note: operations such as remeshing/decimation are expected to live in pinneapple_geom.ops.
     """
     # transforms
-    scale: Optional[float] = None
-    translate: Optional[Tuple[float, float, float]] = None
-    rotate_euler_deg: Optional[Tuple[float, float, float]] = None  # (rx, ry, rz) degrees
+    scale: float | None = None
+    translate: tuple[float, float, float] | None = None
+    rotate_euler_deg: tuple[float, float, float] | None = None  # (rx, ry, rz) degrees
 
     # optional processing flags
     repair: bool = True
@@ -58,7 +58,7 @@ class GeometryLoadOptions:
 
     # optional labeling (boundary groups)
     # e.g., {"inlet": [...], "wall": [...]} (format depends on geom module)
-    boundary_labels: Optional[Dict[str, Any]] = None
+    boundary_labels: dict[str, Any] | None = None
 
 
 def _is_pathlike(x: Any) -> bool:
@@ -83,7 +83,7 @@ def _is_pathlike(x: Any) -> bool:
         return False
 
 
-def _default_spec_from_path(p: Union[str, Path]) -> Dict[str, Any]:
+def _default_spec_from_path(p: str | Path) -> dict[str, Any]:
     """
     Infer a geometry specification dictionary from a file path.
 
@@ -115,7 +115,7 @@ def _default_spec_from_path(p: Union[str, Path]) -> Dict[str, Any]:
 def load_geometry_asset(
     geom: GeometryInput,
     *,
-    options: Optional[GeometryLoadOptions] = None,
+    options: GeometryLoadOptions | None = None,
 ) -> Any:
     """
     Load or construct a GeometryAsset via pinneapple_geom.
@@ -185,7 +185,7 @@ def load_geometry_asset(
 
 
 def stl_to_upd(
-    path: Union[str, Path],
+    path: str | Path,
     *,
     repair: bool = True,
     compute_normals: bool = True,

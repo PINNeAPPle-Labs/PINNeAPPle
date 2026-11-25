@@ -30,7 +30,6 @@ Typical usage::
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 import torch
@@ -48,11 +47,11 @@ class TimeSeriesScaler:
     """
 
     def __init__(self) -> None:
-        self.mean_: Optional[np.ndarray] = None   # (F,)
-        self.std_:  Optional[np.ndarray] = None   # (F,)
+        self.mean_: np.ndarray | None = None   # (F,)
+        self.std_:  np.ndarray | None = None   # (F,)
 
     # ------------------------------------------------------------------
-    def fit(self, y: np.ndarray) -> "TimeSeriesScaler":
+    def fit(self, y: np.ndarray) -> TimeSeriesScaler:
         """Compute channel statistics from training data.  y: (T, F) or (T,)."""
         y = np.asarray(y, dtype=float)
         if y.ndim == 1:
@@ -95,16 +94,16 @@ class TimeSeriesScaler:
 # ---------------------------------------------------------------------------
 
 def load_timeseries_csv(
-    path: Union[str, Path],
+    path: str | Path,
     *,
-    target_cols: Optional[List[str]] = None,
-    feature_cols: Optional[List[str]] = None,
-    time_col: Optional[str] = None,
+    target_cols: list[str] | None = None,
+    feature_cols: list[str] | None = None,
+    time_col: str | None = None,
     fill_method: str = "ffill",
     normalize: bool = True,
     train_ratio: float = 0.70,
     val_ratio: float = 0.15,
-) -> Dict:
+) -> dict:
     """Load a CSV file and return train / val / test tensors ready for PINNeAPPle.
 
     The split is strictly temporal (no shuffling) to prevent look-ahead leakage.
@@ -178,7 +177,7 @@ def load_timeseries_csv(
             raise ValueError(f"feature_cols not found in CSV: {missing}")
 
     # Deduplicated ordered column list: targets first, then extra features
-    all_cols: List[str] = list(dict.fromkeys(target_cols + feature_cols))
+    all_cols: list[str] = list(dict.fromkeys(target_cols + feature_cols))
     df_sel = df[all_cols].copy()
 
     # --- Impute missing values ---
@@ -210,7 +209,7 @@ def load_timeseries_csv(
     test_data  = data[n_train + n_val :].copy()
 
     # Normalise: fit ONLY on train, apply to all
-    scaler: Optional[TimeSeriesScaler] = None
+    scaler: TimeSeriesScaler | None = None
     if normalize:
         scaler = TimeSeriesScaler()
         train_data = scaler.fit_transform(train_data)
@@ -253,7 +252,7 @@ def load_timeseries_csv(
 # ---------------------------------------------------------------------------
 
 def generate_synthetic_csv(
-    path: Union[str, Path],
+    path: str | Path,
     T: int = 1000,
     seed: int = 42,
     freq: str = "D",

@@ -9,7 +9,7 @@ Produces the same style as 03_kovasznay_ns_benchmark.py:
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -64,7 +64,7 @@ LOSS_COLORS  = ["#58a6ff", "#3fb950", "#ff7b72", "#d2a8ff",
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def _grid_shape(n: int) -> Tuple[int, int]:
+def _grid_shape(n: int) -> tuple[int, int]:
     side = int(np.round(np.sqrt(n)))
     if side * side == n:
         return side, side
@@ -72,7 +72,7 @@ def _grid_shape(n: int) -> Tuple[int, int]:
     return side, side
 
 
-def _to_2d(arr: np.ndarray, grid_n: int) -> Optional[np.ndarray]:
+def _to_2d(arr: np.ndarray, grid_n: int) -> np.ndarray | None:
     """Reshape flat (N,) array into (grid_n, grid_n) if possible."""
     if arr.size == grid_n * grid_n:
         return arr.reshape(grid_n, grid_n)
@@ -85,14 +85,14 @@ def _to_2d(arr: np.ndarray, grid_n: int) -> Optional[np.ndarray]:
 # ── main figure: field grids ───────────────────────────────────────────────────
 
 def plot_field_comparison(
-    eval_results: List[Dict[str, Any]],
-    field_names: List[str],
+    eval_results: list[dict[str, Any]],
+    field_names: list[str],
     xy_eval: np.ndarray,
     grid_n: int,
     problem_name: str,
     dark_theme: bool = True,
     dpi: int = 150,
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
     show: bool = False,
 ):
     """Multi-panel field comparison: reference | model1 | model2 | … | error."""
@@ -218,10 +218,10 @@ def plot_field_comparison(
 # ── training loss curves ───────────────────────────────────────────────────────
 
 def plot_loss_curves(
-    train_results: List[Any],
+    train_results: list[Any],
     dark_theme: bool = True,
     dpi: int = 150,
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
     show: bool = False,
 ):
     if dark_theme:
@@ -252,12 +252,12 @@ def plot_loss_curves(
 # ── metrics table ──────────────────────────────────────────────────────────────
 
 def plot_metrics_table(
-    eval_results: List[Dict[str, Any]],
-    field_names: List[str],
-    train_results: List[Any],
+    eval_results: list[dict[str, Any]],
+    field_names: list[str],
+    train_results: list[Any],
     dark_theme: bool = True,
     dpi: int = 150,
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
     show: bool = False,
 ):
     if dark_theme:
@@ -318,16 +318,16 @@ def plot_metrics_table(
 # ── streamline overlay (2D NS flows) ──────────────────────────────────────────
 
 def plot_streamlines(
-    eval_results: List[Dict[str, Any]],
+    eval_results: list[dict[str, Any]],
     xy_eval: np.ndarray,
     grid_n: int,
     u_field: str = "u",
     v_field: str = "v",
-    field_names: List[str] = None,
+    field_names: list[str] = None,
     problem_name: str = "",
     dark_theme: bool = True,
     dpi: int = 150,
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
     show: bool = False,
 ):
     if field_names is None:
@@ -344,7 +344,6 @@ def plot_streamlines(
         _setup_light()
 
     import matplotlib.pyplot as plt
-    from matplotlib.colors import Normalize
     from scipy.interpolate import griddata
 
     n_cols = len(eval_results) + 1
@@ -395,12 +394,12 @@ def plot_streamlines(
 def plot_uq(
     uq_result: Any,
     xy_eval: np.ndarray,
-    field_names: List[str],
-    grid_n: Optional[int] = None,
+    field_names: list[str],
+    grid_n: int | None = None,
     title: str = "UQ",
     dark_theme: bool = True,
     dpi: int = 150,
-    save_path: Optional[str] = None,
+    save_path: str | None = None,
     show: bool = False,
 ):
     """Plot UQ mean +/- std from a pinneapple_analysis UQResult."""

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from .environment_typing import CoordNames, FieldNames
 from .conditions import ConditionSpec
@@ -22,8 +22,8 @@ class PDETermSpec:
     kind: str
     fields: FieldNames
     coords: CoordNames
-    params: Dict[str, Any] = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -39,15 +39,15 @@ class ProblemSpec:
     coords: CoordNames
     fields: FieldNames
     pde: PDETermSpec
-    conditions: Tuple[ConditionSpec, ...] = field(default_factory=tuple)
+    conditions: tuple[ConditionSpec, ...] = field(default_factory=tuple)
 
-    sample_defaults: Dict[str, int] = field(default_factory=dict)
+    sample_defaults: dict[str, int] = field(default_factory=dict)
     scales: ScaleSpec = field(default_factory=ScaleSpec)
-    field_ranges: Dict[str, Tuple[float, float]] = field(default_factory=dict)
-    references: Tuple[str, ...] = field(default_factory=tuple)
-    domain_bounds: Dict[str, Tuple[float, float]] = field(default_factory=dict)
-    solver_spec: Dict[str, Any] = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    field_ranges: dict[str, tuple[float, float]] = field(default_factory=dict)
+    references: tuple[str, ...] = field(default_factory=tuple)
+    domain_bounds: dict[str, tuple[float, float]] = field(default_factory=dict)
+    solver_spec: dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
     problem_id: str = ""  # alias for name used by quickstart / arena
 
     def to_system(self) -> Any:

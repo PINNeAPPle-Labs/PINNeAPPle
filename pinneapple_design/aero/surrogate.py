@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -67,7 +66,7 @@ class Layout:
         return cc[self.j_sel][:, self.i_sel].reshape(-1, 2)
 
 
-def node_features(lay: Layout, shape: np.ndarray, alpha: float, pos: Optional[np.ndarray] = None) -> np.ndarray:
+def node_features(lay: Layout, shape: np.ndarray, alpha: float, pos: np.ndarray | None = None) -> np.ndarray:
     pos = lay.positions(shape) if pos is None else pos
     nj, ni = lay.shape2
     a = math.radians(alpha)

@@ -21,7 +21,7 @@ import importlib
 import inspect
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 import torch
 import torch.nn as nn
 
@@ -29,8 +29,8 @@ import torch.nn as nn
 @dataclass
 class ModelOutput:
     y: torch.Tensor
-    losses: Optional[Dict[str, torch.Tensor]] = None
-    extras: Optional[Dict[str, Any]] = None
+    losses: dict[str, torch.Tensor] | None = None
+    extras: dict[str, Any] | None = None
 
 
 class BaseModel(nn.Module):
@@ -74,7 +74,7 @@ class BaseModel(nn.Module):
     def forward(self, *args, **kwargs) -> ModelOutput | torch.Tensor:
         raise NotImplementedError
 
-    def forward_batch(self, batch: Dict[str, Any]) -> ModelOutput | torch.Tensor:
+    def forward_batch(self, batch: dict[str, Any]) -> ModelOutput | torch.Tensor:
         """Default batch execution.
 
         The Trainer/Arena can provide a dict batch. This default implementation
@@ -94,7 +94,7 @@ class BaseModel(nn.Module):
     # Checkpoint I/O — available to all model families
     # ------------------------------------------------------------------
 
-    def save_checkpoint(self, path: str, metadata: Optional[Dict[str, Any]] = None) -> str:
+    def save_checkpoint(self, path: str, metadata: dict[str, Any] | None = None) -> str:
         """Save model weights + metadata as a pinneapple checkpoint.
 
         The checkpoint dict contains:
@@ -119,7 +119,7 @@ class BaseModel(nn.Module):
         return path
 
     @classmethod
-    def load_checkpoint(cls, path: str, **init_kwargs) -> "BaseModel":
+    def load_checkpoint(cls, path: str, **init_kwargs) -> BaseModel:
         """Load a model from a pinneapple checkpoint.
 
         Usage::
@@ -131,7 +131,7 @@ class BaseModel(nn.Module):
         return model
 
 
-def _registry_name(cls) -> Optional[str]:
+def _registry_name(cls) -> str | None:
     try:
         from .registry import ModelRegistry
         return next((k for k, sp in ModelRegistry._REGISTRY.items() if sp.cls is cls), None)

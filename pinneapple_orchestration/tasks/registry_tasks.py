@@ -9,7 +9,7 @@ an otherwise-automated pipeline running to completion.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pinneapple_registry import ArtifactRegistry
 
@@ -22,11 +22,11 @@ def publish_model_task(
     problem_id: str,
     model: Any,
     *,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: dict[str, Any] | None = None,
     stage: str = "staging",
     confirm: bool = False,
-    trust_report: Optional[Any] = None,
-    override_reason: Optional[str] = None,
+    trust_report: Any | None = None,
+    override_reason: str | None = None,
 ) -> str:
     """Saves ``model`` into ``registry.models`` and (only if
     ``confirm=True``) promotes it to ``stage``. Raises ``PermissionError``

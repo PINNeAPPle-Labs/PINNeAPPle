@@ -32,7 +32,6 @@ Social Systems
 from __future__ import annotations
 
 import math
-from typing import Any, Dict
 
 import numpy as np
 

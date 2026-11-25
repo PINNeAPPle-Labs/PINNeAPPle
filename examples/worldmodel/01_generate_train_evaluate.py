@@ -19,7 +19,6 @@ Run
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 import time
 from pathlib import Path
@@ -149,7 +148,6 @@ def step_evaluate(zoo, catalog, test_sets: dict, cfg: dict) -> dict:
     print("  STEP 3 — Evaluation")
     print("=" * 60)
 
-    from pinneapple_worldmodel.model_zoo import ModelZoo
 
     results: dict[str, dict] = {}
 

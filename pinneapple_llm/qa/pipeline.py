@@ -50,7 +50,8 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence
+from typing import Any
+from collections.abc import Callable, Iterable, Sequence
 
 import numpy as np
 
@@ -58,8 +59,7 @@ from . import levels as _levels
 from .generation import GeneratedArtifact, check_claims
 from .references import ReferenceData, compare
 from .repair import RepairAttempt, RepairLoop, RepairOutcome
-from .report import (ArtifactRecord, Finding, QualityReport, Status, StepOutcome,
-                     environment_snapshot)
+from .report import (ArtifactRecord, Finding, QualityReport, Status, environment_snapshot)
 from .sandbox import SandboxExecutor
 from .spec import PhysicalSpecification
 from .static import StaticPolicy, validate_json_artifact, validate_python_artifact
@@ -100,20 +100,20 @@ class QualityPipeline:
     """
 
     def __init__(self, spec: PhysicalSpecification, *,
-                 validators: Optional[Sequence[str]] = None,
-                 sandbox: Optional[SandboxExecutor] = None,
+                 validators: Sequence[str] | None = None,
+                 sandbox: SandboxExecutor | None = None,
                  run_artifacts: bool = False,
-                 static_policy: Optional[StaticPolicy] = None,
-                 reference: Optional[ReferenceData] = None,
-                 reference_criteria: Optional[Dict[str, float]] = None,
+                 static_policy: StaticPolicy | None = None,
+                 reference: ReferenceData | None = None,
+                 reference_criteria: dict[str, float] | None = None,
                  reference_subset: str = "validation",
-                 reference_field: Optional[str] = None,
-                 operational_evidence: Optional[Dict[str, Any]] = None,
+                 reference_field: str | None = None,
+                 operational_evidence: dict[str, Any] | None = None,
                  max_repair_attempts: int = 0,
                  repair: Any = None,
-                 rebuild_from_source: Optional[Callable[[str], Any]] = None,
+                 rebuild_from_source: Callable[[str], Any] | None = None,
                  source_name: str = "artifact.py",
-                 required_validations: Optional[Sequence[str]] = None):
+                 required_validations: Sequence[str] | None = None):
         self.spec = spec
         self.validators = tuple(validators) if validators is not None else _DEFAULT_VALIDATORS
         self.sandbox = sandbox
@@ -138,21 +138,21 @@ class QualityPipeline:
             raise ValueError(f"unknown validator(s) {unknown}; available: {available()}")
 
     # ------------------------------------------------------------------
-    def run(self, *, source: Optional[str] = None,
-            generated: Optional[GeneratedArtifact] = None,
-            meshes: Optional[Dict[str, Any]] = None,
-            fields: Optional[Dict[str, Any]] = None,
-            field_units: Optional[Dict[str, str]] = None,
-            times: Optional[Iterable[float]] = None,
+    def run(self, *, source: str | None = None,
+            generated: GeneratedArtifact | None = None,
+            meshes: dict[str, Any] | None = None,
+            fields: dict[str, Any] | None = None,
+            field_units: dict[str, str] | None = None,
+            times: Iterable[float] | None = None,
             time_unit: str = "s",
-            sensors: Optional[Sequence[Any]] = None,
-            payload: Optional[Dict[str, Any]] = None,
-            json_schema: Optional[Dict[str, Any]] = None,
+            sensors: Sequence[Any] | None = None,
+            payload: dict[str, Any] | None = None,
+            json_schema: dict[str, Any] | None = None,
             model: Any = None,
-            extra: Optional[Dict[str, Any]] = None,
-            exporter: Optional[Any] = None,
-            output_dir: Optional[str] = None,
-            output_manifest: Optional[str] = None) -> QualityReport:
+            extra: dict[str, Any] | None = None,
+            exporter: Any | None = None,
+            output_dir: str | None = None,
+            output_manifest: str | None = None) -> QualityReport:
         report = QualityReport(
             spec_id=self.spec.spec_id,
             spec_hash=self.spec.content_hash(),
@@ -289,8 +289,8 @@ class QualityPipeline:
             status = Status.FAIL if any(f.blocks for f in findings) else Status.PASS
             report.record(step, status, findings, duration_s=elapsed)
 
-    def _record_payload_step(self, report: QualityReport, payload: Dict[str, Any],
-                             schema: Optional[Dict[str, Any]]) -> None:
+    def _record_payload_step(self, report: QualityReport, payload: dict[str, Any],
+                             schema: dict[str, Any] | None) -> None:
         if schema is None:
             return
         started = time.monotonic()
@@ -300,7 +300,7 @@ class QualityPipeline:
                       duration_s=time.monotonic() - started)
 
     def _record_execution_step(self, report: QualityReport, source: str,
-                               extra: Dict[str, Any]) -> None:
+                               extra: dict[str, Any]) -> None:
         started = time.monotonic()
         executor = self.sandbox or SandboxExecutor(allow_execution=self.run_artifacts)
         result = executor.run_python(source, files=extra.get("sandbox_files"),
@@ -329,7 +329,7 @@ class QualityPipeline:
         report.limitations.extend(result.limitations)
 
     def _record_export_step(self, report: QualityReport, exporter: Any,
-                            output_dir: Optional[str]) -> None:
+                            output_dir: str | None) -> None:
         """Run the caller's export step; a failure is recorded, never swallowed.
 
         ``exporter(output_dir) -> path`` must return the path it produced.
@@ -351,7 +351,7 @@ class QualityPipeline:
             return
 
         paths = [produced] if isinstance(produced, str) else list(produced or [])
-        findings: List[Finding] = []
+        findings: list[Finding] = []
         status = Status.PASS
         for path in paths:
             if not path or not os.path.exists(path):
@@ -373,7 +373,7 @@ class QualityPipeline:
                       output_dir=output_dir, files=[os.path.basename(p) for p in paths])
 
     def _record_validator_steps(self, report: QualityReport,
-                                ctx: ValidationContext) -> Dict[str, Any]:
+                                ctx: ValidationContext) -> dict[str, Any]:
         results = {}
         for name in self.validators:
             result = run_validator(name, ctx)
@@ -386,7 +386,7 @@ class QualityPipeline:
                           duration_s=result.duration_s, evidence=result.evidence)
         return {"results": results, "ctx": ctx}
 
-    def _record_reference_step(self, report: QualityReport, payload: Dict[str, Any]) -> None:
+    def _record_reference_step(self, report: QualityReport, payload: dict[str, Any]) -> None:
         ctx: ValidationContext = payload["ctx"]
         try:
             predictions = _predictions_for_reference(ctx, self.reference, self.reference_field)
@@ -647,7 +647,7 @@ def _as_reading(sensor: Any) -> SensorReading:
 
 
 def _predictions_for_reference(ctx: ValidationContext, reference: ReferenceData,
-                               field: Optional[str] = None):
+                               field: str | None = None):
     if not ctx.fields:
         return None
     if field is not None:

@@ -8,11 +8,8 @@ Requires:
 """
 from __future__ import annotations
 
-import asyncio
-import json
 import math
 import time
-from typing import Any, Dict
 
 import pytest
 

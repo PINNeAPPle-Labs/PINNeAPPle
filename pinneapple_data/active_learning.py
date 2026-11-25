@@ -10,8 +10,9 @@ Strategies:
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
+from collections.abc import Callable
 import numpy as np
 
 
@@ -51,7 +52,7 @@ def _uniform(bounds_arr: np.ndarray, n: int, rng: np.random.Generator) -> np.nda
     return (lo + rng.random((n, d)) * (hi - lo)).astype(np.float32)
 
 
-def _bounds_to_arr(bounds: Dict[str, Tuple[float, float]]) -> np.ndarray:
+def _bounds_to_arr(bounds: dict[str, tuple[float, float]]) -> np.ndarray:
     return np.array([[lo, hi] for lo, hi in bounds.values()], dtype=np.float64)
 
 
@@ -81,16 +82,16 @@ class ResidualBasedAL:
     def __init__(
         self,
         config: ActiveLearningConfig,
-        bounds: Dict[str, Tuple[float, float]],
+        bounds: dict[str, tuple[float, float]],
     ) -> None:
         self.config = config
         self.bounds = bounds
         self._bounds_arr = _bounds_to_arr(bounds)
-        self._coord_names: List[str] = list(bounds.keys())
+        self._coord_names: list[str] = list(bounds.keys())
         self._rng = np.random.default_rng(config.seed)
 
         # Candidate pool — populated lazily / on demand
-        self._pool: Optional[np.ndarray] = None
+        self._pool: np.ndarray | None = None
 
     # ------------------------------------------------------------------
     # Public API
@@ -100,7 +101,7 @@ class ResidualBasedAL:
         self,
         model=None,           # unused, kept for API symmetry
         coord_names=None,     # unused — we already have self._coord_names
-        n_candidates: Optional[int] = None,
+        n_candidates: int | None = None,
     ) -> None:
         """Refresh the candidate pool using LHS sampling from bounds."""
         n = n_candidates or self.config.n_candidates
@@ -109,7 +110,7 @@ class ResidualBasedAL:
     def select(
         self,
         residual_fn: Callable[[np.ndarray], np.ndarray],
-        n_select: Optional[int] = None,
+        n_select: int | None = None,
         mode: str = "weighted",  # "top_k" | "weighted"
     ) -> np.ndarray:
         """Select new collocation points based on PDE residuals.
@@ -187,7 +188,7 @@ class VarianceBasedAL:
     def __init__(
         self,
         config: ActiveLearningConfig,
-        bounds: Dict[str, Tuple[float, float]],
+        bounds: dict[str, tuple[float, float]],
     ) -> None:
         self.config = config
         self.bounds = bounds
@@ -197,7 +198,7 @@ class VarianceBasedAL:
     def select(
         self,
         variance_fn: Callable[[np.ndarray], np.ndarray],
-        n_select: Optional[int] = None,
+        n_select: int | None = None,
     ) -> np.ndarray:
         """Select points where output variance is highest.
 
@@ -260,7 +261,7 @@ class CombinedAL:
     def __init__(
         self,
         config: ActiveLearningConfig,
-        bounds: Dict[str, Tuple[float, float]],
+        bounds: dict[str, tuple[float, float]],
         residual_weight: float = 0.6,
         variance_weight: float = 0.3,
         diversity_weight: float = 0.1,
@@ -322,8 +323,8 @@ class CombinedAL:
     def select(
         self,
         residual_fn: Callable,
-        variance_fn: Optional[Callable] = None,
-        n_select: Optional[int] = None,
+        variance_fn: Callable | None = None,
+        n_select: int | None = None,
     ) -> np.ndarray:
         """Select new collocation points via the combined score.
 
@@ -424,7 +425,7 @@ class AdaptiveCollocationTrainer:
         model,
         physics_fn: Callable,
         sampler,                              # CollocationSampler
-        al_config: Optional[ActiveLearningConfig] = None,
+        al_config: ActiveLearningConfig | None = None,
         optimizer=None,
         device: str = "cpu",
     ) -> None:
@@ -436,7 +437,7 @@ class AdaptiveCollocationTrainer:
         self.device = device
 
         # Determine bounds from sampler
-        self._bounds: Dict[str, Tuple[float, float]] = dict(sampler.bounds)
+        self._bounds: dict[str, tuple[float, float]] = dict(sampler.bounds)
         self._bounds_arr = _bounds_to_arr(self._bounds)
 
         # Build the strategy object
@@ -460,7 +461,7 @@ class AdaptiveCollocationTrainer:
             )
 
         # Current collocation set (set during train())
-        self._x_col: Optional[np.ndarray] = None
+        self._x_col: np.ndarray | None = None
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -550,7 +551,7 @@ class AdaptiveCollocationTrainer:
         n_bc: int = 512,
         lr: float = 1e-3,
         verbose: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Train the PINN with periodic active-learning collocation refinement.
 
         Parameters
@@ -585,9 +586,9 @@ class AdaptiveCollocationTrainer:
         self._x_col = _lhs(self._bounds_arr, n_initial, rng)
 
         # --- Tracking --------------------------------------------------------
-        loss_history: List[float] = []
-        n_col_history: List[int] = []
-        al_events: List[Dict[str, Any]] = []
+        loss_history: list[float] = []
+        n_col_history: list[int] = []
+        al_events: list[dict[str, Any]] = []
 
         model = self.model
         model.to(self.device)

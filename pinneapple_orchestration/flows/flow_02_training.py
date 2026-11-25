@@ -2,7 +2,7 @@
 ExperimentStore."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pinneapple_registry import ExperimentStore
 
@@ -15,14 +15,14 @@ from ..tasks import train_component_task
 def flow_training(
     component_name: str,
     train_loader: Any,
-    val_loader: Optional[Any] = None,
+    val_loader: Any | None = None,
     *,
-    experiment_store: Optional[ExperimentStore] = None,
+    experiment_store: ExperimentStore | None = None,
     epochs: int = 100,
     lr: float = 1e-3,
     manifest_dir: str = "data/manifests",
     **build_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     with flow_run_manifest(
         "flow_02_training", {"component_name": component_name, "epochs": epochs, "lr": lr}, manifest_dir=manifest_dir
     ) as manifest:

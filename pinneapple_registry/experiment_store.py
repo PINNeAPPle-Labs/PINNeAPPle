@@ -16,7 +16,7 @@ import os
 import sqlite3
 from contextlib import closing
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS experiments (
@@ -59,7 +59,7 @@ class ExperimentStore:
         conn.row_factory = sqlite3.Row
         return conn
 
-    def find_or_create_experiment(self, problem_id: str, name: Optional[str] = None) -> int:
+    def find_or_create_experiment(self, problem_id: str, name: str | None = None) -> int:
         with closing(self._conn()) as conn:
             row = conn.execute(
                 "SELECT id FROM experiments WHERE problem_id=? AND name IS ?", (problem_id, name)
@@ -73,7 +73,7 @@ class ExperimentStore:
             conn.commit()
             return int(cur.lastrowid)
 
-    def start_run(self, problem_id: str, name: Optional[str] = None) -> int:
+    def start_run(self, problem_id: str, name: str | None = None) -> int:
         experiment_id = self.find_or_create_experiment(problem_id, name)
         with closing(self._conn()) as conn:
             cur = conn.execute(
@@ -83,7 +83,7 @@ class ExperimentStore:
             conn.commit()
             return int(cur.lastrowid)
 
-    def log_metrics(self, run_id: int, metrics: Dict[str, float], step: Optional[int] = None) -> None:
+    def log_metrics(self, run_id: int, metrics: dict[str, float], step: int | None = None) -> None:
         now = datetime.now().isoformat()
         with closing(self._conn()) as conn:
             conn.executemany(
@@ -92,7 +92,7 @@ class ExperimentStore:
             )
             conn.commit()
 
-    def finish_run(self, run_id: int, final_metrics: Optional[Dict[str, float]] = None, status: str = "finished") -> None:
+    def finish_run(self, run_id: int, final_metrics: dict[str, float] | None = None, status: str = "finished") -> None:
         with closing(self._conn()) as conn:
             conn.execute(
                 "UPDATE runs SET status=?, finished_at=?, final_metrics=? WHERE id=?",
@@ -100,12 +100,12 @@ class ExperimentStore:
             )
             conn.commit()
 
-    def run_metrics(self, run_id: int) -> List[Dict[str, Any]]:
+    def run_metrics(self, run_id: int) -> list[dict[str, Any]]:
         with closing(self._conn()) as conn:
             rows = conn.execute("SELECT step, name, value, logged_at FROM metrics WHERE run_id=?", (run_id,)).fetchall()
             return [dict(r) for r in rows]
 
-    def get_best_run(self, problem_id: str, metric: str, mode: str = "min") -> Optional[Dict[str, Any]]:
+    def get_best_run(self, problem_id: str, metric: str, mode: str = "min") -> dict[str, Any] | None:
         """Best run for ``problem_id`` by a metric found in ``final_metrics``.
         ``mode`` is ``"min"`` or ``"max"``."""
         if mode not in ("min", "max"):
@@ -117,8 +117,8 @@ class ExperimentStore:
                 (problem_id,),
             ).fetchall()
 
-        best: Optional[Dict[str, Any]] = None
-        best_val: Optional[float] = None
+        best: dict[str, Any] | None = None
+        best_val: float | None = None
         for row in rows:
             metrics = json.loads(row["final_metrics"] or "{}")
             if metric not in metrics:
@@ -128,7 +128,7 @@ class ExperimentStore:
                 best_val, best = val, {**dict(row), "final_metrics": metrics}
         return best
 
-    def list_runs(self, problem_id: str) -> List[Dict[str, Any]]:
+    def list_runs(self, problem_id: str) -> list[dict[str, Any]]:
         with closing(self._conn()) as conn:
             rows = conn.execute(
                 """SELECT r.* FROM runs r JOIN experiments e ON r.experiment_id = e.id

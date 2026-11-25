@@ -35,7 +35,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -62,10 +63,10 @@ class Mesh3D:
     meta       : free-form metadata
     """
     vertices: np.ndarray            # (N, 3) float32
-    tets: Optional[np.ndarray]      # (M, 4) int32 — None for surface-only
+    tets: np.ndarray | None      # (M, 4) int32 — None for surface-only
     surface_faces: np.ndarray       # (K, 3) int32
-    boundary_groups: Dict[str, List[int]] = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    boundary_groups: dict[str, list[int]] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
     @property
     def n_vertices(self) -> int:
@@ -79,7 +80,7 @@ class Mesh3D:
     def n_surface_faces(self) -> int:
         return len(self.surface_faces)
 
-    def tet_volumes(self) -> Optional[np.ndarray]:
+    def tet_volumes(self) -> np.ndarray | None:
         """(M,) volume of each tetrahedron. None if no tets."""
         if self.tets is None:
             return None
@@ -90,8 +91,8 @@ class Mesh3D:
         c = v[t[:, 3]] - v[t[:, 0]]
         return np.abs(np.einsum("ni,ni->n", a, np.cross(b, c))) / 6.0
 
-    def quality_stats(self) -> Dict[str, Any]:
-        stats: Dict[str, Any] = {
+    def quality_stats(self) -> dict[str, Any]:
+        stats: dict[str, Any] = {
             "n_vertices": self.n_vertices,
             "n_tets": self.n_tets,
             "n_surface_faces": self.n_surface_faces,
@@ -178,11 +179,11 @@ class PhysicsPointCloud3D:
     """
     interior: np.ndarray
     boundary: np.ndarray
-    boundary_normals: Optional[np.ndarray] = None
-    near_wall: Optional[np.ndarray] = None
-    near_wall_dist: Optional[np.ndarray] = None
-    boundary_groups: Dict[str, np.ndarray] = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    boundary_normals: np.ndarray | None = None
+    near_wall: np.ndarray | None = None
+    near_wall_dist: np.ndarray | None = None
+    boundary_groups: dict[str, np.ndarray] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
     @property
     def n_interior(self) -> int:
@@ -196,8 +197,8 @@ class PhysicsPointCloud3D:
         """All interior + boundary points concatenated. (N+M, 3)."""
         return np.concatenate([self.interior, self.boundary], axis=0)
 
-    def to_dict(self) -> Dict[str, Any]:
-        d: Dict[str, Any] = {
+    def to_dict(self) -> dict[str, Any]:
+        d: dict[str, Any] = {
             "interior": self.interior,
             "boundary": self.boundary,
             "n_interior": self.n_interior,
@@ -227,7 +228,7 @@ def mesh_from_surface(
     optimize: bool = True,
     algorithm_3d: int = 4,          # gmsh: 4=Frontal, 1=Delaunay
     feature_angle: float = 40.0,    # degrees: edges sharper than this stay sharp (box corners)
-) -> Optional[Mesh3D]:
+) -> Mesh3D | None:
     """
     Generate a tetrahedral volume mesh from a closed 3D surface mesh.
 
@@ -303,7 +304,7 @@ def _mesh_gmsh_3d(
     algorithm_3d: int,
     feature_angle: float = 40.0,
     netgen: bool = True,
-) -> Optional[Mesh3D]:
+) -> Mesh3D | None:
     try:
         import gmsh
     except ImportError:
@@ -407,7 +408,7 @@ def _mesh_gmsh_3d(
         return None
 
 
-def _mesh_tetgen(surface: MeshData, *, mesh_size: float) -> Optional[Mesh3D]:
+def _mesh_tetgen(surface: MeshData, *, mesh_size: float) -> Mesh3D | None:
     try:
         import pyvista as pv
         import tetgen
@@ -442,14 +443,14 @@ def _mesh_tetgen(surface: MeshData, *, mesh_size: float) -> Optional[Mesh3D]:
 
 def mesh_from_sdf_3d(
     sdf_fn: Callable[[np.ndarray], np.ndarray],
-    bounds_min: Tuple[float, float, float],
-    bounds_max: Tuple[float, float, float],
+    bounds_min: tuple[float, float, float],
+    bounds_max: tuple[float, float, float],
     *,
     resolution: int = 64,
     mesh_size: float = 0.0,
     clean: bool = True,
     volume: bool = True,
-) -> Optional[Mesh3D]:
+) -> Mesh3D | None:
     """
     Extract a surface from a 3D SDF via marching cubes, then volume-mesh it.
 
@@ -530,7 +531,7 @@ def mesh_from_sdf_3d(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def sample_physics_points(
-    mesh: "MeshData | Mesh3D",
+    mesh: MeshData | Mesh3D,
     *,
     n_interior: int = 10000,
     n_boundary: int = 2000,
@@ -624,7 +625,7 @@ def _sample_surface(
     *,
     rng: np.random.Generator,
     curvature_refinement: bool = False,
-) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+) -> tuple[np.ndarray, np.ndarray | None]:
     """Sample n points on surface triangles, return (points, normals)."""
     a = verts[faces[:, 1]] - verts[faces[:, 0]]
     b = verts[faces[:, 2]] - verts[faces[:, 0]]
@@ -663,7 +664,7 @@ def _sample_near_wall(
     thickness: float,
     *,
     rng: np.random.Generator,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Sample points offset inward from boundary by a random fraction of thickness."""
     idx = rng.choice(len(boundary_pts), size=n, replace=True)
     offsets = rng.uniform(0.01 * thickness, thickness, n).astype(np.float32)
@@ -690,7 +691,7 @@ def _sample_interior_rejection(
     try:
         import trimesh
         tm = trimesh.Trimesh(vertices=verts, faces=faces, process=False)
-        collected: List[np.ndarray] = []
+        collected: list[np.ndarray] = []
         total = 0
         for _ in range(max_attempts):
             batch = (bbox_min + rng.random((n * 4, 3)) * (bbox_max - bbox_min)).astype(np.float32)
@@ -718,12 +719,12 @@ def _sample_interior_rejection(
 def surface_from_pointcloud(
     points: np.ndarray,
     *,
-    normals: Optional[np.ndarray] = None,
+    normals: np.ndarray | None = None,
     method: str = "poisson",    # "poisson" | "ball_pivot" | "alpha_shape"
     depth: int = 8,             # Poisson reconstruction depth
     alpha: float = 0.0,         # alpha shape radius (0 = auto)
     density_quantile: float = 0.05,
-) -> Optional[MeshData]:
+) -> MeshData | None:
     """
     Reconstruct a surface mesh from a point cloud.
 
@@ -795,8 +796,6 @@ def surface_from_pointcloud(
     if method == "alpha_shape":
         try:
             import trimesh
-            from trimesh.sample import sample_surface
-            import trimesh.creation as tc
             if alpha <= 0.0:
                 from scipy.spatial import ConvexHull
                 hull = ConvexHull(pts)
@@ -837,7 +836,7 @@ def surface_from_pointcloud(
 def _circumsphere(
     pts: np.ndarray,
     tets: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Circumsphere centres and radii for each tetrahedron."""
     a = pts[tets[:, 0]]
     b = pts[tets[:, 1]]

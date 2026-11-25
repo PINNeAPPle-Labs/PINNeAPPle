@@ -17,7 +17,7 @@ Run:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import torch
 from torch.utils.data import DataLoader, Dataset
@@ -34,7 +34,7 @@ class ToyPINNItem:
     n_ic: int
     n_data: int
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         # collocation: (t,x)
         t = torch.rand(self.n_col, 1)
         x = torch.rand(self.n_col, 1)
@@ -68,7 +68,7 @@ class ToyPINNDataset(Dataset):
     def __len__(self) -> int:
         return self.n
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         # Variable sizes per item to demonstrate concat behavior
         n_col = 64 + (idx % 3) * 32
         n_bc = 16
@@ -83,7 +83,7 @@ def main() -> None:
 
     batch = next(iter(dl))
     (t_col, x_col) = batch["collocation"]
-    conds: List[Tuple[torch.Tensor, ...]] = batch["conditions"]
+    conds: list[tuple[torch.Tensor, ...]] = batch["conditions"]
     (data_tx, data_u) = batch["data"]
     metas = batch["meta"]
 

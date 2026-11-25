@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Iterator, Sequence
 import os
 import json
 
@@ -35,7 +36,7 @@ class ShardAwareConfig:
     use_sample_cache: bool = True
 
 
-def _load_index(root: str) -> List[Tuple[str, int]]:
+def _load_index(root: str) -> list[tuple[str, int]]:
     """
     Returns a flat list of (zarr_path, count) from root/index.json
     """
@@ -43,7 +44,7 @@ def _load_index(root: str) -> List[Tuple[str, int]]:
     with open(index_path, "r", encoding="utf-8") as f:
         idx = json.load(f)
 
-    parts: List[Tuple[str, int]] = []
+    parts: list[tuple[str, int]] = []
     shards = idx.get("shards", {})
     for _k, arr in shards.items():
         for item in arr:
@@ -51,11 +52,11 @@ def _load_index(root: str) -> List[Tuple[str, int]]:
     return parts
 
 
-def _greedy_balance(parts: List[Tuple[str, int]], num_bins: int) -> List[List[Tuple[str, int]]]:
+def _greedy_balance(parts: list[tuple[str, int]], num_bins: int) -> list[list[tuple[str, int]]]:
     """
     Greedy bin packing by count (approx load).
     """
-    bins: List[List[Tuple[str, int]]] = [[] for _ in range(num_bins)]
+    bins: list[list[tuple[str, int]]] = [[] for _ in range(num_bins)]
     loads = [0 for _ in range(num_bins)]
 
     parts_sorted = sorted(parts, key=lambda x: x[1], reverse=True)
@@ -82,12 +83,12 @@ class ShardAwareZarrUPDIterable(IterableDataset):
         self,
         root: str,
         *,
-        fields: Optional[Sequence[str]] = None,
-        coords: Optional[Sequence[str]] = None,
-        dtype: Optional[torch.dtype] = None,
+        fields: Sequence[str] | None = None,
+        coords: Sequence[str] | None = None,
+        dtype: torch.dtype | None = None,
         sample_ctor: Any = None,
-        cache: Optional[ZarrByteCacheConfig] = None,
-        cfg: Optional[ShardAwareConfig] = None,
+        cache: ZarrByteCacheConfig | None = None,
+        cfg: ShardAwareConfig | None = None,
     ):
         """
         Initialize the shard-aware iterable dataset.

@@ -11,7 +11,7 @@ import sys
 import numpy as np
 import pytest
 
-from pinneapple_design.aero.aircraft3d import Aircraft3D, Requirements3D, airframe_from, baseline_x
+from pinneapple_design.aero.aircraft3d import Requirements3D, baseline_x
 from pinneapple_design.aero.airframe import Airframe, _signed_volume, to_glb, to_stl, to_usda
 from pinneapple_design.aero.geometry import REFERENCE
 from pinneapple_design.aero.vlm import solve, streamlines

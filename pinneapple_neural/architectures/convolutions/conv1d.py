@@ -1,8 +1,7 @@
 from __future__ import annotations
 """1D convolutional model for sequence data (forecasting, denoising, operator learning, PDE surrogate)."""
 
-from dataclasses import dataclass
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -166,7 +165,7 @@ class Conv1DModel(ConvModelBase):
         activation: Literal["gelu", "silu", "relu"] = "gelu",
         dilation_schedule: DilationSchedule = "constant",
         dilation_base: int = 1,
-        causal: Optional[bool] = None,  # if None: inferred from mode
+        causal: bool | None = None,  # if None: inferred from mode
         forecast_horizon: int = 0,       # if > 0, returns last H steps (useful for forecasting)
         enforce_odd_kernel: bool = True, # recommended to ensure true "same-length" when non-causal
     ):
@@ -234,8 +233,8 @@ class Conv1DModel(ConvModelBase):
         self,
         x: torch.Tensor,
         *,
-        cond: Optional[torch.Tensor] = None,
-        y_true: Optional[torch.Tensor] = None,
+        cond: torch.Tensor | None = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> ConvOutput:
         if cond is not None:
@@ -257,7 +256,7 @@ class Conv1DModel(ConvModelBase):
         if self.mode == "causal_forecast" and self.forecast_horizon > 0:
             y = y[..., -self.forecast_horizon :]
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

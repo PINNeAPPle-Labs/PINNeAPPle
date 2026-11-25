@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Callable, Sequence
 import os
 import json
 import re
@@ -80,7 +81,7 @@ class UPDZarrShardedWriter:
         os.makedirs(self.shards_dir, exist_ok=True)
         self.index_path = os.path.join(self.root, index_filename)
 
-        self._index: Dict[str, Any] = {
+        self._index: dict[str, Any] = {
             "format": "pinneapple.upd.shards",
             "version": "0.1",
             "root": os.path.basename(self.root.rstrip("/\\")),
@@ -94,12 +95,12 @@ class UPDZarrShardedWriter:
         *,
         upd_version: str = "0.1",
         overwrite: bool = True,
-        chunks: Optional[Dict[str, Tuple[int, ...]]] = None,
+        chunks: dict[str, tuple[int, ...]] | None = None,
     ) -> None:
         """
         Partition samples by shard_spec.key_fn and write each part to its own Zarr store.
         """
-        buckets: Dict[str, List[Any]] = {}
+        buckets: dict[str, list[Any]] = {}
         for s in samples:
             k = _safe_path_component(self.shard_spec.key_fn(s))
             buckets.setdefault(k, []).append(s)

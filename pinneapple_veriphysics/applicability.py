@@ -26,7 +26,8 @@ never a neutral pass. It deliberately imports nothing from
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Sequence
 
 # Status of one checklist item.
 PASS, FAIL, NOT_RUN, INFO = "PASS", "FAIL", "NOT_RUN", "INFO"
@@ -56,7 +57,7 @@ class Tolerances:
     coverage: float = COVERAGE_TOL           # |empirical - target| interval coverage
 
     @classmethod
-    def from_any(cls, value: "Optional[Tolerances | Dict[str, float]]") -> "Tolerances":
+    def from_any(cls, value: Tolerances | dict[str, float] | None) -> Tolerances:
         if value is None:
             return cls()
         if isinstance(value, Tolerances):
@@ -69,7 +70,7 @@ class Tolerances:
                 raise ValueError(f"tolerance {k} must be a number in (0, 1), got {v!r}")
         return cls(**{k: float(v) for k, v in value.items()})
 
-    def custom(self) -> Dict[str, float]:
+    def custom(self) -> dict[str, float]:
         """The tolerances that differ from the defaults."""
         d = Tolerances()
         return {k: v for k, v in asdict(self).items() if v != getattr(d, k)}
@@ -82,30 +83,30 @@ class ChecklistItem:
     status: str
     tier: str
     summary: str
-    evidence: List[str] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=list)
 
 
 @dataclass
 class VariableEnvelope:
     name: str
     kind: str  # "coordinate" | "parameter" | "field"
-    verified_range: Optional[Tuple[float, float]]  # None for a single point / unknown
-    verified_point: Optional[float]
+    verified_range: tuple[float, float] | None  # None for a single point / unknown
+    verified_point: float | None
     extrapolation_supported: bool
     note: str
 
 
 @dataclass
 class ApplicabilityMap:
-    checklist: List[ChecklistItem]
-    envelope: List[VariableEnvelope]
-    verified: List[str]
-    inferred: List[str]
-    unsupported: List[str]
+    checklist: list[ChecklistItem]
+    envelope: list[VariableEnvelope]
+    verified: list[str]
+    inferred: list[str]
+    unsupported: list[str]
     # tolerances used for PASS/FAIL, and which of them came from the request (#6)
-    tolerances: Dict[str, Any] = field(default_factory=dict)
+    tolerances: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     def render(self) -> str:
@@ -137,7 +138,7 @@ class ApplicabilityMap:
         return "\n".join(lines)
 
 
-def _tail_plateau(history: Sequence[float]) -> Optional[float]:
+def _tail_plateau(history: Sequence[float]) -> float | None:
     """Relative change between the mean loss of the last 10% of epochs and the mean of the preceding 10%, minus
     what the epoch-to-epoch noise alone could produce, or None.
 
@@ -162,11 +163,11 @@ def _tail_plateau(history: Sequence[float]) -> Optional[float]:
     return beyond_noise / (abs(prev) or 1e-30)
 
 
-def _by_prefix(checks: Sequence[Dict[str, Any]], prefix: str) -> List[Dict[str, Any]]:
+def _by_prefix(checks: Sequence[dict[str, Any]], prefix: str) -> list[dict[str, Any]]:
     return [c for c in checks if str(c.get("name", "")).startswith(prefix)]
 
 
-def _check_line(c: Dict[str, Any]) -> str:
+def _check_line(c: dict[str, Any]) -> str:
     return f"{c['name']}: {'passed' if c.get('passed') else 'FAILED'} -- {c.get('detail', '')}"
 
 
@@ -175,28 +176,28 @@ def build_applicability_map(
     architecture: str,
     coords: Sequence[str],
     fields: Sequence[str],
-    domain_bounds: Dict[str, Tuple[float, float]],
-    physical_parameters: Optional[Dict[str, float]],
-    guardrail_checks: Sequence[Dict[str, Any]],
-    confidence_components: Sequence[Dict[str, Any]],
-    parameter_ranges: Optional[Dict[str, Tuple[float, float]]] = None,
-    final_loss: Optional[float] = None,
-    loss_history: Optional[Sequence[float]] = None,
-    epochs: Optional[int] = None,
-    n_collocation: Optional[int] = None,
-    n_parameters: Optional[int] = None,
-    loss_weights: Optional[Dict[str, float]] = None,
-    convergence: Optional[Dict[str, Any]] = None,
-    tolerances: "Optional[Tolerances | Dict[str, float]]" = None,
-    robustness_mode: Optional[str] = None,
-    study_epochs: Optional[int] = None,
-    heldout_error: Optional[Dict[str, Any]] = None,
-    extrapolation: Optional[Dict[str, Any]] = None,
-    ensemble: Optional[Dict[str, Any]] = None,
-    calibration: Optional[Dict[str, Any]] = None,
-    parameter_shift: Optional[Dict[str, Any]] = None,
-    weight_sensitivity: Optional[Dict[str, Any]] = None,
-    condition_coverage: Optional[Dict[str, Any]] = None,
+    domain_bounds: dict[str, tuple[float, float]],
+    physical_parameters: dict[str, float] | None,
+    guardrail_checks: Sequence[dict[str, Any]],
+    confidence_components: Sequence[dict[str, Any]],
+    parameter_ranges: dict[str, tuple[float, float]] | None = None,
+    final_loss: float | None = None,
+    loss_history: Sequence[float] | None = None,
+    epochs: int | None = None,
+    n_collocation: int | None = None,
+    n_parameters: int | None = None,
+    loss_weights: dict[str, float] | None = None,
+    convergence: dict[str, Any] | None = None,
+    tolerances: Tolerances | dict[str, float] | None = None,
+    robustness_mode: str | None = None,
+    study_epochs: int | None = None,
+    heldout_error: dict[str, Any] | None = None,
+    extrapolation: dict[str, Any] | None = None,
+    ensemble: dict[str, Any] | None = None,
+    calibration: dict[str, Any] | None = None,
+    parameter_shift: dict[str, Any] | None = None,
+    weight_sensitivity: dict[str, Any] | None = None,
+    condition_coverage: dict[str, Any] | None = None,
 ) -> ApplicabilityMap:
     """Classify the facts of one run. ``heldout_error`` (optional) is
     ``{"metric": str, "value": float, "threshold": float, "description": str}``
@@ -209,10 +210,10 @@ def build_applicability_map(
     is not generalization."""
     tol = Tolerances.from_any(tolerances)
     comps = {c["name"]: c for c in confidence_components}
-    checklist: List[ChecklistItem] = []
-    verified: List[str] = []
-    inferred: List[str] = []
-    unsupported: List[str] = []
+    checklist: list[ChecklistItem] = []
+    verified: list[str] = []
+    inferred: list[str] = []
+    unsupported: list[str] = []
 
     # 0. Well-posedness: were the boundary/initial conditions ever enforced? -----
     if condition_coverage is not None:
@@ -245,7 +246,7 @@ def build_applicability_map(
     # 2. Error ---------------------------------------------------------
     resid = next((c for c in guardrail_checks if c.get("name") == "pde_residual"), None)
     ref = next((c for c in guardrail_checks if c.get("name") == "reference_data_match"), None)
-    err_ev: List[str] = []
+    err_ev: list[str] = []
     err_status, err_tier = NOT_RUN, UNSUPPORTED
     if resid is not None:
         err_ev.append(_check_line(resid))
@@ -268,7 +269,7 @@ def build_applicability_map(
         "Residual and/or reference mismatch below." if err_ev else "No error check ran.", err_ev))
 
     # 3. Convergence ---------------------------------------------------
-    conv_ev: List[str] = []
+    conv_ev: list[str] = []
     conv_status, conv_tier = NOT_RUN, UNSUPPORTED
     plateau = _tail_plateau(loss_history) if loss_history else None
     if plateau is not None:
@@ -295,7 +296,7 @@ def build_applicability_map(
 
     # 4. Generalization -----------------------------------------------
     margin_m = None
-    _param_limits: Dict[str, float] = {}
+    _param_limits: dict[str, float] = {}
     if heldout_error:
         ok = heldout_error["value"] <= heldout_error["threshold"]
         checklist.append(ChecklistItem(
@@ -305,8 +306,8 @@ def build_applicability_map(
             [heldout_error.get("description", "")]))
         verified.append(f"Held-out test: {heldout_error.get('description', heldout_error.get('metric', ''))}")
     elif extrapolation or parameter_shift:
-        ev: List[str] = []
-        parts: List[str] = []
+        ev: list[str] = []
+        parts: list[str] = []
         any_supported = False
         if extrapolation:
             margin_m = extrapolation["supported_margin"]
@@ -322,7 +323,7 @@ def build_applicability_map(
                 unsupported.append(f"Coordinates beyond +{margin_m:.0%} outside the trained range.")
             else:
                 unsupported.append("Any coordinate outside the trained range (fails in the first shell).")
-        param_limits: Dict[str, float] = {}
+        param_limits: dict[str, float] = {}
         if parameter_shift:
             for pr in parameter_shift["parameters"]:
                 param_limits[pr["parameter"]] = pr["supported_shift"]
@@ -360,7 +361,7 @@ def build_applicability_map(
         unsupported.append("Any parameter, geometry or regime not explicitly tested (no held-out test ran).")
 
     # 5. Variables -----------------------------------------------------
-    envelope: List[VariableEnvelope] = []
+    envelope: list[VariableEnvelope] = []
     for c in coords:
         b = domain_bounds.get(c)
         envelope.append(VariableEnvelope(

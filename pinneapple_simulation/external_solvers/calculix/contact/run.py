@@ -94,16 +94,15 @@ def read_results(deck_path: Path, times: dict[str, float] | None = None) -> dict
     workdir, stem = deck_path.parent, deck_path.stem
     frd = _read(workdir / f"{stem}.frd")
     dat = _read(workdir / f"{stem}.dat")
+    status = cae.read_status(_read(workdir / f"{stem}.sta"))
     return {"totals": cae.read_totals(dat) if dat else {},
             "contact": cae.contact(frd) if frd else {},
             "contact_until": {name: cae.contact(frd, until=t) for name, t in (times or {}).items()} if frd else {},
             "displacement": cae.displacement(frd) if frd else {},
             "stress": cae.stress(frd) if frd else {},
             "printed_displacements": cae.read_displacements(dat) if dat else {},
-            "status": cae.read_status(_read(workdir / f"{stem}.sta")),
-            "verdict": cae.read_log(_read(workdir / "ccx.log"),
-                                    cae.read_status(_read(workdir / f"{stem}.sta")),
-                                    produced=(workdir / f"{stem}.dat").is_file())}
+            "status": status,
+            "verdict": cae.read_log(_read(workdir / "ccx.log"), status, produced=bool(dat))}
 
 
 def run_case(case_id: str | None, params: dict[str, Any] | None, out_dir: Path, binary: str | None = None,

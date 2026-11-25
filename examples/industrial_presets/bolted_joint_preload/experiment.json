@@ -1,0 +1,127 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/bolted_joint_preload",
+ "title": "Junta aparafusada com pr\u00e9-tens\u00e3o: a carga de escorregamento da liga\u00e7\u00e3o, medida no CalculiX",
+ "description": "Quanta for\u00e7a cisalhante esta junta transmite antes de escorregar, a pr\u00e9-tens\u00e3o chega mesmo \u00e0s chapas, e a cabe\u00e7a pressiona como \u00e1rea ou morde um n\u00f3? A junta atende a carga de servi\u00e7o com o fator de seguran\u00e7a pedido, e qual pr\u00e9-tens\u00e3o seria necess\u00e1ria se n\u00e3o atendesse?",
+ "domain": "Estrutural / liga\u00e7\u00f5es aparafusadas, m\u00e1quinas e estruturas met\u00e1licas",
+ "methods": [
+  "pinneapple_simulation.external_solvers.calculix.contact.run_case",
+  "pinneapple_data.cae.contact"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 11.754471291998925
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[aperto = pr\u00e9-tens\u00e3o (8 kN)]",
+   "value": 0.017412773625220552,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: equil\u00edbrio do *PRE-TENSION SECTION: a for\u00e7a que o parafuso devolve \u00e0s chapas \u00e9 a pr\u00e9-tens\u00e3o (medido -1,7 %, a mesma perda que a checagem do caso declara em 3 %) (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)"
+  },
+  {
+   "name": "rel_error[escorregamento em mu x N com mu = 0,5 e 4 kN]",
+   "value": 0.0012944999999999708,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: Coulomb: a interface escorrega quando a for\u00e7a tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)"
+  },
+  {
+   "name": "rel_error[escorregamento em mu x N com mu = 0,15 e 6 kN (junta oleada)]",
+   "value": 0.0009857777777777857,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: Coulomb: a interface escorrega quando a for\u00e7a tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)"
+  },
+  {
+   "name": "rel_error[cone de Coulomb: |tau|/p na interface igual a mu = 0,5]",
+   "value": 3.1690847728249594e-06,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: cada n\u00f3 carregado fica dentro do cone de atrito, e o maior |tau|/p o toca quando a interface desliza (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "aperto = pr\u00e9-tens\u00e3o (8 kN)",
+   "passed": true,
+   "value": 7860.697810998236,
+   "reference": 8000.0,
+   "rtol": 0.03,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "escorregamento em mu x N com mu = 0,5 e 4 kN",
+   "passed": true,
+   "value": 1997.411,
+   "reference": 2000.0,
+   "rtol": 0.03,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "escorregamento em mu x N com mu = 0,15 e 6 kN (junta oleada)",
+   "passed": true,
+   "value": 899.1128,
+   "reference": 900.0,
+   "rtol": 0.03,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "cone de Coulomb: |tau|/p na interface igual a mu = 0,5",
+   "passed": true,
+   "value": 0.5000015845423864,
+   "reference": 0.5,
+   "rtol": 0.05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/joint.png",
+   "results/variants.png",
+   "results/3d/bolted_joint_preload_3d_p.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "equil\u00edbrio do *PRE-TENSION SECTION: a for\u00e7a que o parafuso devolve \u00e0s chapas \u00e9 a pr\u00e9-tens\u00e3o (medido -1,7 %, a mesma perda que a checagem do caso declara em 3 %) (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+  "Coulomb: a interface escorrega quando a for\u00e7a tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+  "Coulomb: a interface escorrega quando a for\u00e7a tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+  "cada n\u00f3 carregado fica dentro do cone de atrito, e o maior |tau|/p o toca quando a interface desliza (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "76d1c864f",
+  "created": "2026-11-25T21:59:14Z",
+  "seconds": 0.069,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ },
+ "quality": {}
+}

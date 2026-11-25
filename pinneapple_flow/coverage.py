@@ -92,6 +92,11 @@ REASONS: dict[str, str] = {
     "pinneapple_physics.dimensions": "a dimensional check of one equation before training: it reads a statement and "
                                      "reports which term broke the units, which is a review of a problem rather "
                                      "than a step of a flow",
+    "pinneapple_physics.constraint_engine": "one Constraint object applied at the three places a response can break a "
+                                            "limit -- the trainer's penalty, the optimizer's ineq/eq and the deploy "
+                                            "guard's refusal (#221), with one residual arithmetic behind all three: "
+                                            "it is the rule those steps apply, not a step that runs on its own; the "
+                                            "count of violations over an ensemble is read by the decision report",
     "pinneapple_physics.experiments": "reproducing a recorded run (reproduced / divergent / refused): the definition "
                                       "of the three outcomes, read by pp.experiments rather than placed in a flow",
     # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for
@@ -113,6 +118,11 @@ REASONS: dict[str, str] = {
     "pinneapple_data.adaptive_sampling": "the loop that decides which simulation to run next (multi-signal adaptive "
                                          "sampling of #209): it chooses the calls a campaign makes, it is not one of "
                                          "them, in the same way as pinneapple_analysis.bayesopt",
+    "pinneapple_analysis.surrogate_loop": "the same loop behind a verification budget (#297): it searches on the "
+                                          "surrogate, sends the most promising and most uncertain designs to the "
+                                          "solver, refits and stops when the verified optimum settles, so it chooses "
+                                          "the calls a campaign makes rather than being one of them -- the reason "
+                                          "pinneapple_data.adaptive_sampling already gives",
     "pinneapple_physics.active_design": "the same loop behind the option it is reached by (Experiment(active=...) in "
                                         "#34 and #153): it spends a budget of solver runs over the problem's design "
                                         "box and records why, which chooses the calls a flow makes instead of being "
@@ -220,6 +230,10 @@ REASONS: dict[str, str] = {
     "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
+    "pinneapple_analysis.report": "the one-page experiment report and its PDF (#919): every section is a view of "
+                                   "something the repository already computes -- the manifest, the curation trust "
+                                   "card, the quality checklist and the run's costs.json -- so it is the document a "
+                                   "reviewer reads rather than a computation a node performs",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
                                          "examples/paper_reproductions runners, not a flow step",
     "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "

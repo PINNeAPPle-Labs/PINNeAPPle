@@ -409,6 +409,11 @@
   "domain": "visualization",
   "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"
  },
+ "structural_ingestion": {
+  "domain": "structural CAE data",
+  "reason": "run.py drives the library's explicit crash solver over three coupon impacts and then reads each run back twice (the legacy-VTK time series and the staged OpenRadioss layout, both written by the example itself) before build_training_set normalises the campaign into a training set (#1500). Its first three steps have no node: nothing in the catalog wraps CrashSolver, StructuralRun.from_crash_result or build_training_set (the cae nodes are readers -- inp.vtk_type, dataset.describe, compare.tolerance_verdicts), and coupon(), staged_case() and the discrepancy table are script-side over the files the run wrote. ~25 s per run",
+  "status": "not_convertible"
+ },
  "systems": {
   "domain": "systems",
   "notes": "the example fits random targets (an API demonstration); nothing to compare"

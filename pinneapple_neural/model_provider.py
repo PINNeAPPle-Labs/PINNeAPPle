@@ -488,6 +488,12 @@ def _first_array(out: Any) -> np.ndarray:
 
     if isinstance(out, torch.Tensor):
         return out.detach().cpu().numpy()
+    # the library's own families return a dataclass (``ModelOutput(y=..., losses=..., extras=...)``) whose ``.y`` is
+    # the tensor: without this branch ``np.asarray`` turned it into a 0-d object array holding the dataclass, so a
+    # checkpoint of a registry model loaded through this door predicted a Python object rather than a field.
+    y = getattr(out, "y", None)
+    if isinstance(y, torch.Tensor):
+        return y.detach().cpu().numpy()
     if isinstance(out, Mapping):
         first = next(iter(out.values()))
         return _first_array(first)
@@ -521,6 +527,19 @@ class LoadedModel:
     def describe(self) -> dict[str, Any]:
         return {"model": self.name, "provenance": self.provenance.to_dict(),
                 "targets": list(self.provider.targets)}
+
+    @property
+    def physics_model(self) -> Any:
+        """This model as a :class:`~pinneapple_neural.physics_model.PhysicsModel`, when it belongs to one of the
+        families that interface covers (a PINN, an operator, a GNN, a ROM, a hybrid).
+
+        That is where the two interfaces meet: the door loads it, the family interface fits, predicts with an
+        uncertainty and exports it. An object of no family is refused by ``as_physics_model`` naming what it is,
+        rather than wrapped in an adapter that would have nothing to call.
+        """
+        from pinneapple_neural.physics_model import as_physics_model
+
+        return as_physics_model(self.model)
 
     def predict(self, x: Any) -> np.ndarray:
         return self.provider.predict(self.model, x)

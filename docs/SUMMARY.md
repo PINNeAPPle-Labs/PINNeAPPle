@@ -88,6 +88,7 @@
     * [Running a benchmark](guides/running_a_benchmark.md)
     * [Crash and surface-pressure benchmarks, recreated](guides/crash_and_surface_benchmarks.md)
     * [Viscous vortex domains: 2-D Navier-Stokes without a mesh](guides/vortex_domains.md)
+    * [FITS, units and sky coordinates: astronomy data as a `PhysicalSample`](guides/astropy_fits.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [A surrogate conditioned on the geometry, and the error on a body it never saw](guides/geometry_conditioned_surrogate.md)
     * [MuJoCo 4.0: trajectories, checks and the robot backend](guides/mujoco.md)

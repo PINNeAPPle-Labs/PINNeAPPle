@@ -20,10 +20,8 @@ examples/electrodynamics/16_prius_end_effects.py
 examples/electrodynamics/18_emachine_slides.py
 examples/electrodynamics/19_edge3d_verification.py
 examples/free_surface/01_runner_slope_study.py
-examples/handoff_cases/airfoil_ld/geometry/make_geometry.py
 examples/handoff_cases/airfoil_ld/simulation/plot_results.py
 examples/handoff_cases/airfoil_ld/simulation/summarise_baseline.py
-examples/handoff_cases/free_surface_trough/geometry/make_geometry.py
 examples/handoff_cases/free_surface_trough/simulation/trough_case.py
 examples/lbm/01_sphere_wind_tunnel.py
 examples/meshgraphnet/02_cylinder_flow_deepmind.py
@@ -40,16 +38,11 @@ examples/nvidia/13_omniverse_worldmodel_inspection/run.py
 examples/nvidia/15_model_services_brep_bracket/run.py
 examples/nvidia/17_omniverse_robotsim_worldmodel_perception/run.py
 examples/nvidia/18_all_stacks_heatsink_cell/run.py
-examples/pde_environment/05_kepler_orbit_validation.py
-examples/pde_environment/06_space_debris_cw_validation.py
 examples/physics_ensemble/compare_lookahead_gif.py
-examples/physics_ensemble/fno_pinn_gnn_solvers.py
 examples/physics_ensemble/sensor_noise_gif.py
-examples/pict_cavity/run.py
 examples/pinneapple_and_physicsnemo/pinneapple/pinneapple.py
 examples/pinneapple_benchmark/01_pde_comparison.py
 examples/pinneapple_benchmark/02_inverse_benchmark.py
-examples/pinneapple_cosim/01_spring_mass_pinn.py
 examples/quickstart/11_visualisation.py
 examples/reproductions/deflorio2024/run_deflorio.py
 examples/reproductions/gated_xtfc_dwivedi2025/run_gated.py

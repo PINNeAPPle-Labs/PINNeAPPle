@@ -59,6 +59,22 @@ UNOBSERVED = "not installed in the recording environment, so its metadata was ne
 
 
 # ---------------------------------------------------------------- what the tree declares
+def _toml(pyproject: Path) -> dict[str, Any]:
+    """``pyproject.toml`` as data, on any Python this repository supports.
+
+    ``tomllib`` is the stdlib reader and arrived in 3.11; the floors job deliberately runs on **3.10**, the
+    declared floor, which is exactly where ``tomllib`` does not exist. ``tomli`` is the same parser for that
+    range and the sibling scripts (``check_dist.py``, ``dependency_licenses.py``) already fall back the same
+    way. Without the fallback the whole gate died on the import, on 3.10, for every pull request that touched
+    ``pyproject.toml`` -- a gate that never ran and looked like a broken dependency instead.
+    """
+    try:
+        import tomllib
+    except ImportError:                                   # Python 3.10, where the floors job runs
+        import tomli as tomllib
+    return tomllib.loads(pyproject.read_text(encoding="utf-8"))
+
+
 def _requirement(text: str):
     from packaging.requirements import Requirement
 
@@ -74,9 +90,7 @@ def declared(pyproject: Path = PYPROJECT) -> dict[str, dict[str, Any]]:
     ``extra`` is ``"core"`` or the name of the extra; a dependency that appears in several extras keeps the
     sorted list, so the record says where it is used.
     """
-    import tomllib
-
-    project = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]
+    project = _toml(pyproject)["project"]
     table: dict[str, dict[str, Any]] = {}
 
     def add(requirement: str, extra: str) -> None:
@@ -115,9 +129,7 @@ def _floor(req, requirement: str) -> str | None:
 
 
 def _python_floor(pyproject: Path = PYPROJECT) -> str:
-    import tomllib
-
-    requires = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"].get("requires-python", "")
+    requires = _toml(pyproject)["project"].get("requires-python", "")
     found = re.search(r">=\s*([0-9]+\.[0-9]+)", requires)
     return found.group(1) if found else ""
 

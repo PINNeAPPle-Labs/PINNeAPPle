@@ -228,6 +228,27 @@ REASONS: dict[str, str] = {
                                       "case): examples/granular_dem runs the mill, the wear calibration and the "
                                       "breakage test, and tests/test_granular_*.py check each layer",
     "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
+    "pinneapple_data.cae.structural": "``StructuralRun`` -- one explicit-FEA run as a single object (frames sharing one "
+                                      "connectivity, a time axis in seconds, named parts with their elements, a unit "
+                                      "per field, provenance and the dropped/eroded/contact masks) and the four "
+                                      "constructors that build it from a CrashResult, a legacy VTK series, a staged "
+                                      "OpenRadioss case or an LS-DYNA ASCII run: it is the object the readers return "
+                                      "and the trainers consume (a form cannot hold a run), introduced with #1500 "
+                                      "and shown end to end by examples/structural_ingestion",
+    "pinneapple_data.cae.training_set": "the normalisation between a run and a training set (deduplication, node "
+                                        "decimation with the error it introduces, unit conversion, "
+                                        "non-dimensionalisation and a split by geometry family), each step reported "
+                                        "rather than done silently: it takes the StructuralRun objects of a campaign, "
+                                        "not the scalars of a flow form -- examples/structural_ingestion runs it",
+    "pinneapple_data.cae.lsdyna": "the open ASCII half of an LS-DYNA run (the keyword deck with its *PART, "
+                                  "*SECTION_SHELL and *MAT sections, the nodout history, and the deck's own mesh): "
+                                  "file readers for a solver's output, with the proprietary d3plot family "
+                                  "deliberately out of scope (#1500), so they take a directory and a printed "
+                                  "history rather than flow parameters",
+    "pinneapple_data.cae.vtk_series": "the legacy-VTK time series the campaign writers leave behind (one file per "
+                                      "instant, the ``anim_to_vtk`` layout): read_vtk_series/write_vtk_series are a "
+                                      "file round trip over a StructuralRun, with no dependency on meshio, and the "
+                                      "values they carry are checked by examples/structural_ingestion",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
     "pinneapple_analysis.report": "the one-page experiment report and its PDF (#919): every section is a view of "

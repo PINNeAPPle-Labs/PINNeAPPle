@@ -180,9 +180,7 @@ asked for `u` at `x = 0.5` itself where the mesh interpolates from two neighbour
 **What was trained, and at what cost.** 4 hidden layers of 64 (12 867 parameters), float32 on a CPU, 2 000 collocation
 points redrawn every 200 steps, 250 boundary points per wall, the boundary conditions and the zero-mean pressure as
 penalties, Adam at 2e-3 with a cosine decay, **10 000 steps** — 36 minutes of wall time per model on this machine, and
-the budget the machine had at the time rather than one chosen to make the table look good. The network is asked for
-`u` at `x = 0.5` itself where the mesh interpolates from two neighbouring columns; the stations and the norm — the two
-things that decide whether two numbers may share a column — are identical.
+the budget the machine had at the time rather than one chosen to make the table look good.
 
 | model | Re | u error | v error | training |
 |---|---:|---:|---:|---:|
@@ -286,11 +284,39 @@ benchmark's own fields sit an order of magnitude further from the table than a 1
 what 64 interpolated cells cost, and the reason a dataset built for training surrogates is not a substitute for a
 mesh-converged case when the question is the flow.
 
-**The other families load and are not scored.** `cfdbench.families(root)` opens every unpacked family of the archive
-through the same adapter and records its case count, subsets and field shape — the cavity (158 cases) and the tube
-(175, `64 x 64`, 10 to 107 frames) are what has been unpacked here. Only the cavity has a published table transcribed
-in this repository, so only the cavity has a column beside ours; the tube's answer would need a reference nobody has
-transcribed, and inventing one is the thing this folder exists not to do.
+**The other families load, and the tube has a table of its own.** `cfdbench.families(root)` opens every unpacked
+family of the archive through the same adapter and records its case count, subsets and field shape — the cavity (158
+cases) and the tube (175, `64 x 64`, 10 to 107 frames) are what has been unpacked here. Only the cavity has a table of
+*answers* to be scored against, so only the cavity has a column beside ours. The tube has something weaker, which the
+paper does publish and this repository now transcribes:
+
+    python examples/cfd/classical_cases/run_cases.py --only cfdbench-tube --cfdbench-tube ~/cfdbench-data/tube
+
+CFDBench's Table 3 gives the **operating parameters** of the tube's cases — the baseline tube (`l = 1 m`, `d = 0.1 m`,
+`rho = 100`, `mu = 0.1`, `u_in = 1 m/s`, velocity inlet, pressure outlet), the fifty inlet velocities `0.1 … 5 m/s` by
+`0.1`, the 10 x 10 grid of density `10 … 1000 kg/m3` by `110` against viscosity `0.01 … 1 Pa s` by `0.11`, and the five
+diameters by the ten length-to-diameter ratios that make the paper's 25 geometries. It is not a table of answers and
+is not treated as one: the tube is a water-air two-phase flow solved in Fluent, so the paper's tube tables (12 and 13)
+are neural operators' NMSE against the archive's own fields, and a physical solution to put beside `simpleFoam` does
+not exist. What transcribing the parameters buys is that the archive can be held against the paper that describes it,
+case by case, and `cfdbench.tube_against_table` does that (`results/cfdbench_tube.json`):
+
+| parameter | on disk | published | agrees |
+|---|---|---|---:|
+| `bc` inlet velocity | 50 values, 0.1 … 5.0 | 50 values, 0.1 … 5.0 by 0.1 | yes |
+| `prop` viscosity | 10 values, 0.01 … 1.0 | 10 values, 0.01 … 1.0 by 0.11 | yes |
+| `geo` diameter (`height`) | 5 values | 5 values, 0.01 … 0.5 | yes |
+| `geo` ratio (`width/height`) | all 10 | all 10, 1 … 100 | yes |
+| `prop` density | **the index 0 … 9** | **10 … 1000 kg/m3 by 110** | **no** |
+| case counts (`bc`/`prop`/`geo`) | 50 / 100 / 25 | 50 / 100 / 25 | yes |
+
+The one disagreement is in the data rather than in the transcription, and it matters to anyone reading that family:
+its `case.json` stores the **density as the ten-value index**, not as the value, while storing the viscosity as the
+value. So `Re = rho U L / mu` computed from `case.json` comes out a hundredfold short for all hundred `prop` cases,
+and `cfdbench.reynolds` — which is right for the cavity, whose `prop` family stores the physical density — is not a
+Reynolds number for this one. The archive does not state the mapping, so this repository does not assume it: the
+family is reported as labelled-with-an-index and is not scored. Everything else in the tube matches Table 3 value for
+value, which is the whole of what a family with no published answer can be asked to prove.
 
 ## What is not here
 
@@ -311,6 +337,7 @@ transcribed, and inventing one is the thing this folder exists not to do.
 | `GHIA_U`, `GHIA_V` | `u` along `x = 0.5` and `v` along `y = 0.5`, Re = 100, 400, 1000, 10000 | Ghia, Ghia and Shin (1982), *J. Comput. Phys.* 48(3), 387–411, Tables I–II, doi:10.1016/0021-9991(82)90058-4 |
 | `DEV_VAHL_DAVIS_NU` | mean Nusselt number of the square cavity, Ra = 1e3…1e6 | de Vahl Davis (1983), *Int. J. Numer. Methods Fluids* 3(3), 249–264, Table I, doi:10.1002/fld.1650030305 |
 | `ARMALY_REATTACHMENT` | reattachment length against Re | Armaly et al. (1983), *J. Fluid Mech.* 127, 473–496 — **empty**: the published curve is a figure |
+| `CFDBENCH_TUBE` | the tube flow's operating parameters: baseline case, 50 inlet velocities, the 10 x 10 density/viscosity grid, 5 diameters x 10 ratios | Luo, Chen and Zhang (2023), arXiv:2310.05963, Table 3 — a table of **cases**, not of answers |
 
 The tables are checked on their own, with no solver: the lid moves at `u = 1`, the walls do not move, the coordinates
 increase, `u` crosses the centreline exactly once, and the strongest backflow is below the centreline

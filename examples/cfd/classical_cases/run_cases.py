@@ -161,7 +161,8 @@ def do_pinn(out: str, reynolds: list[int], cases: str, *, steps: int | None = No
     _dump(os.path.join(out, "cavity_pinn.json"), record)
 
 
-def do_pinn_budget(out: str, reynolds: float, budgets: list[int], cases: str) -> None:
+def do_pinn_budget(out: str, reynolds: float, budgets: list[int], cases: str, *,
+                   balance: bool = False) -> None:
     """#272: the training budget, swept — the measurement that says what convergence costs, and where it stops.
 
     The committed measurement of :func:`do_pinn` used 10 000 Adam steps, which is the budget the machine allowed at
@@ -188,12 +189,14 @@ def do_pinn_budget(out: str, reynolds: float, budgets: list[int], cases: str) ->
     re_tag = f"{reynolds:g}"
     for budget in budgets:
         budget = int(budget)
-        cfg = pinn.Config(steps=budget,
-                          checkpoint=os.path.join(cases, "pinn", f"budget_re{re_tag}_{budget}.pt"))
+        cfg = pinn.Config(steps=budget, balance=balance,
+                          checkpoint=os.path.join(cases, "pinn",
+                                                  f"budget_re{re_tag}_{budget}{'_balanced' if balance else ''}.pt"))
         os.makedirs(os.path.dirname(cfg.checkpoint), exist_ok=True)
-        print(f"PINN budget: Re = {re_tag}, {budget} Adam steps", flush=True)
+        print(f"PINN budget: Re = {re_tag}, {budget} Adam steps"
+              f"{', gradient balancing on' if balance else ''}", flush=True)
 
-        def on_step(model, step, losses, _budget=budget) -> None:
+        def on_step(model, step, losses) -> None:
             print(f"    step {int(step):>7}  pde {losses['pde']:.2e}  bc {losses['bc']:.2e}  "
                   f"{losses['seconds']:>7.0f} s", flush=True)
 
@@ -201,6 +204,7 @@ def do_pinn_budget(out: str, reynolds: float, budgets: list[int], cases: str) ->
         model = pinn.train(reynolds, config=cfg, on_step=on_step)
         row = pinn.measure(model, reynolds)
         row["steps"] = budget
+        row["balance"] = bool(balance)
         row["seconds"] = round(model.seconds, 1)
         row["wall_seconds"] = round(time.time() - t0, 1)
         row["parameters"] = int(sum(p.numel() for p in model.parameters()))
@@ -238,14 +242,16 @@ def _merge_budget_row(path: str, lock: str, row: dict, reynolds: float) -> None:
             with open(path) as old:
                 record = json.load(old)
             record.setdefault("rows", [])
-        key = lambda r: (float(r["reynolds"]), int(r["steps"]))  # noqa: E731
-        rows = [r for r in record["rows"] if (float(r["reynolds"]), int(r["steps"])) != (float(reynolds), int(row["steps"]))]
+        key = lambda r: (float(r["reynolds"]), int(r["steps"]), bool(r.get("balance", False)))  # noqa: E731
+        rows = [r for r in record["rows"]
+                if key(r) != (float(reynolds), int(row["steps"]), bool(row.get("balance", False)))]
         rows.append(row)
         record["rows"] = sorted(rows, key=key)
         record["machine"] = _machine()
         # the smallest budget that clears the tolerance, which is the answer the sweep exists to produce
         clearing = [int(r["steps"]) for r in record["rows"]
-                    if float(r["reynolds"]) == float(reynolds) and r.get("converged")]
+                    if float(r["reynolds"]) == float(reynolds) and r.get("converged")
+                    and not r.get("balance", False)]
         record["cheapest_converged"] = min(clearing) if clearing else None
         tmp = path + ".tmp"
         with open(tmp, "w") as out:
@@ -395,6 +401,9 @@ def main(argv=None) -> int:
     ap.add_argument("--budgets", nargs="+", type=int, default=[10000, 20000, 40000, 80000],
                     help="the training budgets of --only pinn-budget, in Adam steps; one network is trained per "
                          "budget, so the command costs the sum of them")
+    ap.add_argument("--balance", action="store_true",
+                    help="turn on Config.balance (Wang, Teng and Perdikaris gradient balancing) for --only "
+                         "pinn-budget; the rows are tagged so both arms can sit in one record")
     ap.add_argument("--budget-re", type=float, default=float(min(pinn.REYNOLDS)),
                     help="the Reynolds number the budget sweep is run at (the cheapest column of the table)")
     ap.add_argument("--cfdbench", default=os.path.expanduser("~/cfdbench-data/cavity"),
@@ -426,7 +435,7 @@ def main(argv=None) -> int:
     if "pinn" in args.only:
         do_pinn(args.out, args.re, args.cases, steps=args.pinn_steps)
     if "pinn-budget" in args.only:
-        do_pinn_budget(args.out, args.budget_re, args.budgets, args.cases)
+        do_pinn_budget(args.out, args.budget_re, args.budgets, args.cases, balance=args.balance)
     if "cfdbench-tube" in args.only:
         if not os.path.isdir(args.cfdbench_tube):
             print(f"the CFDBench tube archive is not at {args.cfdbench_tube}: unzip "

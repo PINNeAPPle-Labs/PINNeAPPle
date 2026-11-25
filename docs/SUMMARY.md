@@ -86,6 +86,7 @@
     * [Crash and surface-pressure benchmarks, recreated](guides/crash_and_surface_benchmarks.md)
     * [Viscous vortex domains: 2-D Navier-Stokes without a mesh](guides/vortex_domains.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
+    * [A surrogate conditioned on the geometry, and the error on a body it never saw](guides/geometry_conditioned_surrogate.md)
     * [MuJoCo 4.0: trajectories, checks and the robot backend](guides/mujoco.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
     * [Granular DEM: volume-based contact, breakage, mills and wear](granular_dem.md)

@@ -496,6 +496,7 @@
     "tests/test_full_library_matrix.py",
     "tests/test_gated_xtfc.py",
     "tests/test_geo_mpm.py",
+    "tests/test_geometry_conditioned_surrogate.py",
     "tests/test_geometry_library.py",
     "tests/test_geometry_ood_guardrail.py",
     "tests/test_geometry_retrieval.py",

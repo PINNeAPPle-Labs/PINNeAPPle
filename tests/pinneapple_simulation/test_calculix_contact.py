@@ -41,10 +41,10 @@ def test_the_parameters_are_checked_against_the_range_the_case_is_built_for(case
         case.resolve({"nao_existe": 1.0})
 
 
-def test_the_catalog_is_the_menu_of_the_six_cases():
+def test_the_catalog_is_the_menu_of_the_seven_cases():
     catalog = K.catalog()
     assert {c["id"] for c in catalog["cases"]} == {"bloco_plano", "junta_dupla", "cilindro_hertz", "rampa",
-                                                  "parafuso_pretensao", "ajuste_forcado"}
+                                                  "parafuso_pretensao", "ajuste_forcado", "plastificacao_hertz"}
     assert catalog["units"].startswith("mm, N, MPa")
     for entry in catalog["cases"]:
         assert entry["references"] and entry["params"] and entry["assumptions"]
@@ -166,7 +166,7 @@ def test_without_a_solver_the_deck_is_written_and_nothing_is_invented(tmp_path, 
 
 
 @needs_solver
-@pytest.mark.parametrize("case_id", ["bloco_plano", "parafuso_pretensao"])
+@pytest.mark.parametrize("case_id", ["bloco_plano", "parafuso_pretensao", "plastificacao_hertz"])
 def test_the_deck_solves_and_every_closed_form_check_passes(case_id, tmp_path):
     result = K.run_case(case_id, {}, tmp_path, binary=SOLVER, timeout=600)
     assert result["ok"], result.get("error") or result.get("detail")
@@ -198,3 +198,87 @@ def test_the_results_are_read_by_the_data_layer_and_not_by_a_second_parser(tmp_p
     totals = cae.read_totals((tmp_path / "bloco_plano.dat").read_bytes())
     assert result["measured"]["coulomb_ratio"] == cae.coulomb_ratio(contact, result["interface"])
     assert result["measured"]["reactions"]["BFIX"]["fx"] == totals["BFIX"].values[0]
+
+
+# ------------------------------------------------------------------- the bolt head as a footprint, and the yield
+def test_the_first_yield_of_a_line_contact_is_johnsons_factor():
+    """The reference of the plastic case: not ``p0 = sigma_y`` but 1.79 ``sigma_y``, because the peak of the equivalent
+    stress sits below the surface. The factor is derived from the Hertz field, not typed in."""
+    assert V.first_yield_factor(0.3) == pytest.approx(1.79, abs=0.01)
+    # the peak is below the surface, at z = 0.70 b, and that is the whole reason the factor is > 1
+    peak = max(range(1, 4000), key=lambda i: V.von_mises(*V.hertz_line_axis(i / 1000.0)))
+    assert peak / 1000.0 == pytest.approx(0.70, abs=0.02)
+    # Tresca puts the peak shear at 0.30 p0 (z = 0.79 b), which is where Johnson's 1.67 sigma_y comes from
+    sx, _, sz = V.hertz_line_axis(0.786)
+    assert -(sz - sx) / 2 == pytest.approx(0.30, abs=1e-3)
+    assert 0.5 / 0.30 == pytest.approx(1.67, abs=0.01)
+
+
+def test_the_von_mises_stress_matches_the_textbook_tensor():
+    assert V.von_mises(100.0, 0.0, 0.0) == pytest.approx(100.0)          # uniaxial: the equivalent is the stress
+    assert V.von_mises(-100.0, -100.0, -100.0) == pytest.approx(0.0)     # hydrostatic: no equivalent stress
+    assert V.von_mises(0.0, 0.0, 0.0, sxy=100.0) == pytest.approx(100.0 * 3 ** 0.5)
+
+
+def test_the_bolt_head_is_a_footprint_and_not_a_node():
+    """The preload used to reach the plates through one node each. Now each end of the beam is joined to its plate by
+    a *DISTRIBUTING COUPLING over the washer footprint, which is what the CalculiX manual asks for."""
+    case, params, built = K.build("parafuso_pretensao", {})
+    deck = built.deck
+    assert deck.count("*DISTRIBUTING COUPLING") == 2                     # the head and the nut
+    assert deck.count("*ELEMENT, TYPE=DCOUP3D") == 2
+    assert len(built.footprint) >= 4 and built.footprint_radius == params["raio_pegada"]
+    # the weights are areas, so the traction over the footprint is uniform rather than spiked
+    weights = V.tributary_areas(built.coords, built.footprint, plane="y")
+    assert sum(weights.values()) == pytest.approx(built.analytic["footprint_area"])
+    assert max(weights.values()) / min(weights.values()) == pytest.approx(4.0)   # centre owns 4x a corner
+
+
+def test_a_washer_footprint_too_small_to_hold_four_nodes_is_refused():
+    case = K.get("parafuso_pretensao")
+    params = case.resolve({"raio_pegada": 0.5, "malha": 3})
+    with pytest.raises(ValueError, match="at least 4 nodes"):
+        case.build(params)
+
+
+def test_the_footprint_check_separates_a_spread_load_from_a_spike():
+    """The head check is a shape comparison: flat under the footprint passes, one node carrying everything does not."""
+    case, params, built = K.build("parafuso_pretensao", {})
+    nodes = list(built.footprint)
+    flat = {n: {"pressure": 100.0 + 5.0 * ((i % 3) - 1)} for i, n in enumerate(nodes)}
+    spike = {node: {"pressure": 1000.0 if i == 0 else 20.0} for i, node in enumerate(nodes)}
+
+    def gather(state):
+        checks = case.checks(params, built, {"contact_until": {"preload": state}})
+        return {c.name: c.outcome for c in checks}
+
+    assert gather(flat)["parafuso.pegada"] == V.PASS
+    assert gather(spike)["parafuso.pegada"] == V.FAIL
+    assert gather({})["parafuso.pegada"] == V.INCONCLUSIVE
+
+
+def test_the_plastic_case_puts_the_yield_on_the_block_and_not_on_an_elastic_neighbour():
+    """A *PLASTIC card belongs to the *MATERIAL above it: written after the rigid indenter's material it would give the
+    yield to the wrong body and the case would still converge — wrong."""
+    case, params, built = K.build("plastificacao_hertz", {})
+    lines = built.deck.splitlines()
+    plastic = lines.index("*PLASTIC, HARDENING=ISOTROPIC")
+    above = [ln for ln in lines[:plastic] if ln.startswith("*MATERIAL")]
+    assert above[-1] == "*MATERIAL, NAME=ACO"
+    assert lines[plastic + 1].startswith(f"{params['tensao_escoamento']:g}, 0")
+    # the two points have the same stress: perfectly plastic, no hardening
+    assert lines[plastic + 2].startswith(f"{params['tensao_escoamento']:g}, 1")
+
+
+def test_the_plastic_case_asks_for_the_load_the_closed_form_names():
+    """The first step is computed backwards from p0 = k sigma_y, so the run is asked for the state the theory names."""
+    case, params, built = K.build("plastificacao_hertz", {"tensao_escoamento": 400.0})
+    a = built.analytic
+    assert a["yield_factor"] == pytest.approx(V.first_yield_factor(params["nu"]))
+    assert a["yield_pressure"] == pytest.approx(1.7937 * 400.0, rel=1e-3)
+    e_star = params["E"] / (1 - params["nu"] ** 2)                     # Hertz inverted: P = p0^2 pi L R / E*
+    assert a["load_onset"] == pytest.approx(a["yield_pressure"] ** 2 * math.pi * params["raio"] / e_star, rel=1e-6)
+    assert a["load_deep"] == pytest.approx(params["sobrecarga"] * a["load_onset"])
+    # halving the yield stress quarters the load: the factor enters twice, through p0 and through P
+    _, _, weak = K.build("plastificacao_hertz", {"tensao_escoamento": 200.0})
+    assert weak.analytic["load_onset"] == pytest.approx(a["load_onset"] / 4.0, rel=1e-6)

@@ -49,6 +49,10 @@ class Built:
     extra: dict[str, float] = field(default_factory=dict)
     #: node sets whose displacement the checks read (the loaded face, a free surface), name -> what it is
     surfaces: dict[str, list[int]] = field(default_factory=dict)
+    #: the footprint a load spreads over instead of entering at one node (under a bolt head), and its radius: the
+    #: report prints the pressure under it, which is what shows the head is an area and not a point
+    footprint: tuple[int, ...] = ()
+    footprint_radius: float = 0.0
 
 
 @dataclass(frozen=True)

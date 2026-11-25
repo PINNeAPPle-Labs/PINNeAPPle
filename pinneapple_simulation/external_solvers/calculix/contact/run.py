@@ -8,6 +8,7 @@ fixed columns.
 """
 from __future__ import annotations
 
+import math
 import os
 import re
 import shutil
@@ -87,8 +88,9 @@ def _read(path: Path) -> bytes:
 def read_results(deck_path: Path, times: dict[str, float] | None = None) -> dict[str, Any]:
     """Everything a verification reads out of one run, through :mod:`pinneapple_data.cae`.
 
-    ``contact_until`` holds the contact state at each step time a case asks for, which is how a two-step case reads
-    what the preload did apart from what the pull did.
+    ``contact_until`` and ``stress_until`` hold the contact state and the stress field at each step time a case asks
+    for, which is how a two-step case reads what the preload did apart from what the pull did — and what the material
+    had already done by then.
     """
     deck_path = Path(deck_path)
     workdir, stem = deck_path.parent, deck_path.stem
@@ -98,6 +100,7 @@ def read_results(deck_path: Path, times: dict[str, float] | None = None) -> dict
     return {"totals": cae.read_totals(dat) if dat else {},
             "contact": cae.contact(frd) if frd else {},
             "contact_until": {name: cae.contact(frd, until=t) for name, t in (times or {}).items()} if frd else {},
+            "stress_until": {name: cae.stress(frd, until=t) for name, t in (times or {}).items()} if frd else {},
             "displacement": cae.displacement(frd) if frd else {},
             "stress": cae.stress(frd) if frd else {},
             "printed_displacements": cae.read_displacements(dat) if dat else {},
@@ -164,4 +167,24 @@ def measured(parsed: dict[str, Any], built: C.Built) -> dict[str, Any]:
             "peak_pressure": max(pressures) if pressures else None,
             "max_shear": max((abs(r["shear1"]) for r in rows), default=None),
             "max_slip": max((abs(r["slip1"]) for r in rows), default=None),
-            "coulomb_ratio": cae.coulomb_ratio(parsed.get("contact") or {}, built.interface or None)}
+            "coulomb_ratio": cae.coulomb_ratio(parsed.get("contact") or {}, built.interface or None),
+            "footprint": footprint(parsed, built)}
+
+
+def footprint(parsed: dict[str, Any], built: C.Built) -> list[dict[str, Any]]:
+    """The contact pressure under the footprint a load spreads over, in distance from its axis.
+
+    It is the table that shows a head is an area and not a point: a load entering at one node leaves a spike at
+    ``r = 0`` and a tail everywhere else, while a footprint presses with a pressure. It reads the state the checks
+    read — the end of the preload step when the case has one, because a joint that is pulled afterwards has two
+    reasons for its pressure and the table should name the one the head produced.
+    """
+    if not built.footprint:
+        return []
+    keep = set(built.footprint)
+    state = (parsed.get("contact_until") or {}).get("preload") or parsed.get("contact") or {}
+    axis_x = sum(built.coords[n][0] for n in keep) / len(keep)
+    axis_z = sum(built.coords[n][2] for n in keep) / len(keep)
+    rows = [{"radius": math.hypot(built.coords[n][0] - axis_x, built.coords[n][2] - axis_z),
+             "pressure": row.get("pressure", 0.0)} for n, row in state.items() if n in keep]
+    return sorted(rows, key=lambda r: (r["radius"], -r["pressure"]))

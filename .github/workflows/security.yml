@@ -53,7 +53,9 @@ jobs:
           bandit -r apps pinneapple_security pinneapple_core/service -f json -o bandit.json || true
           bandit -r apps pinneapple_security pinneapple_core/service -lll -ii
 
-      - name: supply chain (#96: every declared dependency has a floor and a licence on record; copyleft is a decision)
+      # The step name is quoted: `#96: ...` is a plain scalar with a colon and a space in it, which YAML reads as a
+      # mapping and the whole workflow file fails to parse ("This run likely failed because of a workflow file issue").
+      - name: "supply chain (#96: every declared dependency has a floor and a licence on record; copyleft is a decision)"
         # No network and no environment beyond this one: the same tree gives the same answer, which is what makes
         # this the half that can run on a laptop as well as here. `make audit` is the same command.
         run: python scripts/licensing/supply_chain.py --check --json > supply-chain.json

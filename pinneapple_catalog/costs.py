@@ -19,7 +19,7 @@ without its machine cannot be compared with anything. Two runs on two machines a
 Coverage is a first-class value, not an afterthought: :func:`coverage` returns one row per catalog entry -- every
 solver, training method, equation and problem -- and a row is ``measured`` or ``unmeasured`` **with a blocker from the
 closed set** :data:`BLOCKERS` (``needs_cuda``, ``needs_external_solver``, ``needs_optional_package``, ``needs_input``,
-``not_a_single_operation``, ``definition``) plus the specific reason: an external solver that is not installed, a GPU
+``not_a_single_operation``, ``instrument_overhead``, ``definition``) plus the specific reason: an external solver that is not installed, a GPU
 kernel, an entry point that needs a case the probe cannot build. A vague motive cannot hide behind the closed set, and
 the gaps can be counted. ``scripts/measure_method_costs.py --check`` fails when a catalog method is missing from the
 file, when the table has lost the machine its wall times came from, and when an unmeasured row has no blocker or no
@@ -366,6 +366,175 @@ def _probe_s43(n):
     return lambda: analyzer.analyze()
 
 
+# The null entries of the first pass were mostly not impossible -- each needed a canonical case kept here, the way
+# S1/S3 keep their minimal ProblemSpec, and an iteration count pinned the way S1 pins its sweep count: the measured cost
+# is one call at this size, not however many iterations a particular right-hand side happened to need. Four that were
+# tried and are still listed in UNMEASURED are there because the probe measured operator overhead and not the method:
+# the reason says which and at what sizes.
+@_probe("S7", "pinneapple_simulation.numerical_solvers.meshfree.RBFCollocationSolver.forward (Gaussian Kansa "
+        "collocation of a Poisson case: the dense RBF solve)", "n (collocation points on a square grid)",
+        [100, 400, 900, 1600], repeats=3, flops=False)
+def _probe_s7(n):
+    import torch
+
+    from pinneapple_simulation.numerical_solvers.meshfree import RBFCollocationSolver
+    side = int(round(n ** 0.5))
+    xs = torch.linspace(0.0, 1.0, side, dtype=torch.float64)
+    gx, gy = torch.meshgrid(xs, xs, indexing="ij")
+    pts = torch.stack([gx.ravel(), gy.ravel()], dim=1)
+    on_boundary = (pts[:, 0] == 0) | (pts[:, 0] == 1) | (pts[:, 1] == 0) | (pts[:, 1] == 1)
+    solver = RBFCollocationSolver(rbf="gaussian", eps=3.0)
+    spec = _poisson_spec(f"kansa_cost_probe_{n}")
+    # no declared exponent: at a few hundred points the dense solve is still mixed with the RBF assembly, and the fit
+    # says so instead of the probe claiming a cube it cannot show at these sizes.
+    return lambda: solver.forward(spec=spec, interior_pts=pts[~on_boundary].clone(),
+                                  boundary_pts=pts[on_boundary].clone())
+
+
+@_probe("S14", "pinneapple_simulation.numerical_solvers.eddy_current_fdm.solve_axisymmetric_eddy_current (one "
+        "complex Helmholtz solve on a coil/material field set)", "n (grid points per side)",
+        [24, 48, 96], flops=False)
+def _probe_s14(n):
+    import numpy as np
+
+    from pinneapple_simulation.numerical_solvers.eddy_current_fdm import (
+        solve_axisymmetric_eddy_current,
+    )
+    r = np.linspace(0.01, 0.1, n)
+    z = np.linspace(-0.05, 0.05, n)
+    R, _ = np.meshgrid(r, z, indexing="ij")
+    mu = np.full(R.shape, 4e-7 * np.pi)
+    sigma = np.where((R > 0.03) & (R < 0.06), 5.8e7, 0.0)      # a conducting sleeve in a vacuum box
+    source = np.where((R > 0.02) & (R < 0.03), 1e6, 0.0)
+    return lambda: solve_axisymmetric_eddy_current(r, z, 2.0 * np.pi * 50.0, mu, sigma, source)
+
+
+@_probe("S18", "pinneapple_simulation.particle_dynamics.molecular_dynamics.MolecularDynamicsSimulator.step (the "
+        "molecular-dynamics member of the rigid body / MPM / MD family: one velocity-Verlet step of a "
+        "Lennard-Jones gas)", "n (particles)", [256, 1024, 4096], declared="n^2", repeats=3, flops=False)
+def _probe_s18(n):
+    import torch
+
+    from pinneapple_simulation.particle_dynamics.molecular_dynamics import (
+        MDState,
+        MolecularDynamicsSimulator,
+    )
+    sim = MolecularDynamicsSimulator(box_size=(10.0, 10.0, 10.0))
+    state = MDState(pos=torch.rand(n, 3) * 10.0, vel=torch.zeros(n, 3))
+    return lambda: sim.step(state, 1e-3)
+
+
+@_probe("S29", "pinneapple_simulation.electromagnetics.electrostatics.solve_magnetostatic (P1 FEM assembly and solve "
+        "of a rectangular A_z magnetostatics mesh)", "n (mesh points per side)", [16, 32, 48, 64], declared="n^2",
+        flops=False)
+def _probe_s29(n):
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.electrostatics import solve_magnetostatic
+    from pinneapple_simulation.electromagnetics.mesh import rect_mesh
+    mesh = rect_mesh(np.linspace(0.0, 1.0, n), np.linspace(0.0, 1.0, n))
+    return lambda: solve_magnetostatic(mesh, np.ones(len(mesh.tris)), np.ones(len(mesh.tris)))
+
+
+@_probe("S32", "pinneapple_simulation.electromagnetics.electrostatics.solve_electrostatic (P1 FEM solve of a "
+        "rectangular electrostatic mesh)", "n (mesh points per side)", [16, 32, 48, 64], declared="n^2",
+        flops=False)
+def _probe_s32(n):
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.electrostatics import solve_electrostatic
+    from pinneapple_simulation.electromagnetics.mesh import rect_mesh
+    mesh = rect_mesh(np.linspace(0.0, 1.0, n), np.linspace(0.0, 1.0, n))
+    return lambda: solve_electrostatic(mesh, np.ones(len(mesh.tris)))
+
+
+@_probe("S36", "pinneapple_simulation.electromagnetics.hysteresis.JilesAtherton.major_loop (RK4 along a two-cycle "
+        "applied-field path)", "n (field points per branch)", [64, 128, 256], declared="n", repeats=3, flops=False)
+def _probe_s36(n):
+    from pinneapple_simulation.electromagnetics.hysteresis import JilesAtherton
+    model = JilesAtherton(Ms=1.7e6, a=1000.0, k=2000.0, c=0.1, alpha=1e-6)
+    return lambda: model.major_loop(2.0e4, n=n)
+
+
+@_probe("S37", "pinneapple_simulation.electromagnetics.media.Medium.eps_r (Drude and Lorentz pole sums over a "
+        "frequency vector)", "n (frequencies evaluated)", [2 ** 14, 2 ** 16, 2 ** 18, 2 ** 20], declared="n",
+        flops=False)
+def _probe_s37(n):
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.media import Drude, Lorentz, Medium
+    poles = tuple(Drude(1e15, 1e13) if i % 2 else Lorentz(1e15, 5e13, 1e12) for i in range(4))
+    medium = Medium(eps_inf=2.0, sigma=1e-3, poles=poles)
+    omegas = np.linspace(1e12, 1e16, n)
+    return lambda: medium.eps_r(omegas)
+
+
+@_probe("S38", "pinneapple_physics.maxwell_checks.gauss_magnetic (the divergence check over every interior face "
+        "of a uniform 3-D field)", "n (grid points per side)", [16, 32, 48, 64], declared="n^3", flops=False)
+def _probe_s38(n):
+    import numpy as np
+
+    from pinneapple_physics.maxwell_checks import gauss_magnetic
+    axes = np.linspace(-1.0, 1.0, n)
+    grid = {"x": axes, "y": axes, "z": axes}
+    fields = {"bx": np.zeros((n, n, n)), "by": np.zeros((n, n, n)), "bz": np.ones((n, n, n))}
+    return lambda: gauss_magnetic(grid, fields)
+
+
+@_probe("S40", "pinneapple_simulation.electromagnetics.fdtd.FDTD.run (20 Yee steps of a 3-D box with a soft Ez "
+        "source; no PML, so the step count alone sets the cost)", "n (cells per side)", [16, 24, 32, 40],
+        flops=False)
+def _probe_s40(n):
+    from pinneapple_simulation.electromagnetics.fdtd import FDTD, YeeGrid, gaussian_pulse
+    grid = YeeGrid((n, n, n), (0.01, 0.01, 0.01))
+    sim = FDTD(grid)
+    sim.add_source("Ez", (n // 2, n // 2, n // 2), gaussian_pulse(0.0, 1e-11))
+    return lambda: sim.run(20)
+
+
+@_probe("S42", "pinneapple_analysis.dynamics.first_passage.FirstPassageAnalyzer.monte_carlo (Brownian paths to a "
+        "threshold, fixed dt)", "n (simulated paths)", [500, 2000, 8000], declared="n", flops=False)
+def _probe_s42(n):
+    import numpy as np
+
+    from pinneapple_analysis.dynamics.first_passage import (
+        SDE,
+        BoundaryCondition,
+        FirstPassageAnalyzer,
+    )
+    sde = SDE(lambda t, x: np.zeros_like(x), lambda t, x: np.ones_like(x), dim=1, name="brownian")
+    analyzer = FirstPassageAnalyzer(BoundaryCondition("threshold", "hit", component=0, level=1.0))
+    return lambda: analyzer.monte_carlo(sde, 0.0, t_max=1.0, dt=0.01, n_paths=n)
+
+
+@_probe("S46", "pinneapple_analysis.dynamics.koopman.DMD.fit (rank-8 exact DMD of a 32-state damped linear "
+        "trajectory)", "n (snapshots)", [2048, 8192, 32768], declared="n", flops=False)
+def _probe_s46(n):
+    import numpy as np
+
+    from pinneapple_analysis.dynamics.koopman import DMD, Trajectory
+    rng = np.random.default_rng(0)
+    state_dim = 32
+    advance = np.eye(state_dim) * 0.95 + 0.01 * rng.standard_normal((state_dim, state_dim))
+    x = np.zeros((n, state_dim))
+    x[0] = rng.standard_normal(state_dim)
+    for i in range(1, n):
+        x[i] = advance @ x[i - 1]
+    trajectory = Trajectory(t=np.arange(n) * 0.1, x=x)
+    return lambda: DMD(rank=8).fit(trajectory)
+
+
+@_probe("T22", "pinneapple_neural.lpm.FourierEncoding.__call__ (the large-physics-model positional encoding over "
+        "a point cloud)", "n (query points)", [16384, 65536, 262144], declared="n", flops=False)
+def _probe_t22(n):
+    import torch
+
+    from pinneapple_neural.lpm import FourierEncoding
+    encoding = FourierEncoding(n_freq=6)
+    query = torch.rand(n, 3)
+    return lambda: encoding(query)
+
+
 # Why a method has no measured cost. A closed set, so the reasons can be counted and a vague one cannot hide: the
 # gate rejects an unmeasured record whose blocker is not in this table, and every value here is used by at least one
 # method.
@@ -379,27 +548,31 @@ BLOCKERS: dict[str, str] = {
                    "set, a geometry, a dataset, a boundary set)",
     "not_a_single_operation": "the cost is set by a loop or an orchestration the caller writes, so there is no one "
                               "call whose time is the method's",
+    "instrument_overhead": "the probe exists and runs, but the memory instrument costs more than the work it "
+                           "measures: it serialises every operator, so a method whose step issues thousands of small "
+                           "ones cannot be profiled at a size that fits a laptop run",
     "definition": "an equation or a problem of the catalog: a description, not an executable; its cost belongs to "
                   "the solver that discretizes it",
 }
 
 UNMEASURED: dict[str, tuple[str, str]] = {
-    "S5": ("needs_input", "the LBM needs a spec plus the number of steps to be meaningful; a fixed-step probe would "
-                          "measure the step count, not the method"),
-    "S6": ("needs_input", "SPH / ISPH / DFSPH are particle methods whose cost is set by the particle count and the "
-                          "time step; a probe here would need a settled configuration to be comparable"),
-    "S7": ("needs_input", "the Kansa RBF solver runs from a ProblemSpec plus interior/boundary point sets"),
+    "S5": ("needs_input", "the LBM needs a grid big enough for one step's tensor work to outweigh the per-step "
+                          "operator overhead: a fixed-step probe timed 30 ms from 32 to 128 cells, which is the "
+                          "overhead and not the method, so there is no exponent to publish"),
+    "S6": ("instrument_overhead", "the SPH / ISPH / DFSPH step runs and scales (128 to 1536 particles took 0.14 to "
+                                   "2.5 s), but one 128-particle step costs 40 s under the torch profiler the memory "
+                                   "figure comes from, so the study cannot finish: the number is missing because of "
+                                   "the instrument, not because of the method"),
     "S8": ("not_a_single_operation", "X-TFC trains a network per call: its cost is a training budget, measured by "
                                      "the trainer probes (T*)"),
-    "S10": ("not_a_single_operation", "rfk45 stiff kinetics: the module exposes the steppers per problem, no single "
-                                      "entry point to time"),
-    "S12": ("needs_input", "immersed boundary wraps an FDM flow solve, so it needs the case's geometry and boundary "
-                           "set (S1 measures the FDM sweep underneath)"),
-    "S14": ("needs_input", "the eddy-current FDM needs a coil/material field set; the probe would measure the field "
-                           "builder"),
+    "S10": ("not_a_single_operation", "the stiff integrator's cost is set by the steps the stiffness forces, not by "
+                                      "the number of species: solve_stiff_reaction_network took the same ~50 ms "
+                                      "from 8 to 128 species, so a fit here would report noise as an exponent"),
+    "S12": ("needs_input", "the immersed-boundary solve needs a case whose Poisson work outweighs the projection "
+                           "overhead: at a pinned iteration count, boxes from 12^3 to 28^3 moved from 120 to 210 ms "
+                           "(about n^0.5), so the probe was timing the setup, not the method"),
     "S16": ("needs_optional_package", "nbody_rebound needs the REBOUND package, which is not installed here"),
     "S17": ("needs_optional_package", "JAX-CFD needs jax, which is not installed here"),
-    "S18": ("needs_input", "particle dynamics: MPM / rigid bodies / MD each need their own configuration"),
     "S20": ("not_a_single_operation", "co-simulation: the cost is the coupling graph the user builds, measured by "
                                       "the case itself"),
     "S21": ("needs_input", "state estimation: cost is set by the state dimension and the number of steps of the run"),
@@ -410,26 +583,18 @@ UNMEASURED: dict[str, tuple[str, str]] = {
                                      "installed here"),
     "S25": ("not_a_single_operation", "telemetry conditioning: the cost is per-sample and dominated by the caller's "
                                       "loop"),
-    "S29": ("needs_input", "2-D magnetostatics FEM needs a mesh and materials; measured through its validation case"),
     "S30": ("needs_input", "time-harmonic eddy currents: same as S29"),
     "S31": ("needs_input", "surface-PM machine model: cost is set by the harmonic set of the run"),
-    "S32": ("needs_input", "2-D electrostatics FEM: same as S29"),
-    "S36": ("needs_input", "Jiles-Atherton hysteresis: the cost is the applied-field path the user supplies"),
-    "S37": ("not_a_single_operation", "dispersive media: coefficient arithmetic, measured by the FDTD run that uses "
-                                      "it"),
-    "S38": ("needs_input", "Maxwell checks: cost is the field the user hands in"),
     "S39": ("not_a_single_operation", "topology optimisation: the cost is iterations x cells, measured by each "
                                       "design study"),
-    "S40": ("needs_input", "Yee FDTD: cost is grid x steps; a probe would need a canonical case kept with the "
-                           "campaign"),
     "S41": ("needs_input", "the near-to-far transform runs on an FDTD box (see S40)"),
-    "S42": ("needs_input", "first passage: cost is the number of paths the user asks for"),
     "S44": ("needs_input", "Fisher information: needs a model and a design matrix from the caller"),
     "S45": ("not_a_single_operation", "early warning: per-window cost, dominated by the series length the user "
                                       "passes"),
-    "S46": ("needs_input", "Koopman: needs snapshot data from the caller"),
     "S47": ("needs_cuda", "NVIDIA Newton needs the Warp stack and a GPU"),
-    "S48": ("needs_input", "the PICT local solver needs the case's grid and boundary set"),
+    "S48": ("needs_input", "the PICT local solver stops on max_steps rather than on the grid: a 16^2 and a 24^2 "
+                           "cavity both cost ~40 ms at the same step cap, so the wall time is the iteration count "
+                           "the caller passes, not the method's grid cost"),
     "S49": ("needs_cuda", "PICT needs CUDA"),
     "S50": ("needs_cuda", "NVIDIA Warp kernels need the warp package and a GPU"),
     "T2": ("not_a_single_operation", "DDP / FSDP / SLURM / torchrun: the cost is the number of ranks the job is "
@@ -452,7 +617,9 @@ UNMEASURED: dict[str, tuple[str, str]] = {
     "T12": ("needs_optional_package", "the gray-box path calls PySR, which is not installed here"),
     "T13": ("not_a_single_operation", "heteroscedastic / B-PINN / MC-dropout / deep ensembles multiply the training "
                                        "cost by the number of samples or members"),
-    "T14": ("needs_input", "SINDy fits from a trajectory data set the caller provides"),
+    "T14": ("not_a_single_operation", "SINDy's STLSQ cost is set by the library size and its iteration cap, not by "
+                                      "the sample count: trajectories of 2k to 32k samples all took ~3.5 ms, so a "
+                                      "fit over samples would report overhead as an exponent"),
     "T15": ("not_a_single_operation", "the sweep and architecture search run many training jobs: the cost is the "
                                       "number of trials"),
     "T16": ("needs_input", "the Noether trainer needs a symmetry declaration and the residual it is applied to"),
@@ -460,11 +627,10 @@ UNMEASURED: dict[str, tuple[str, str]] = {
                                       "to time"),
     "T18": ("not_a_single_operation", "MAML / Reptile are an inner loop per task: the cost is tasks x inner steps"),
     "T19": ("needs_input", "transfer learning needs a source checkpoint and a target data set"),
-    "T20": ("needs_input", "the self-scaled quasi-Newton methods need the objective and its gradient from the "
-                           "caller"),
+    "T20": ("not_a_single_operation", "the self-scaled quasi-Newton step converges in one or two iterations whatever "
+                                      "the parameter count is, so its cost is set by the caller's objective: a "
+                                      "quadratic in 64, 256 and 1024 parameters all took 0.19 ms"),
     "T21": ("not_a_single_operation", "the autoresearch loop runs a budget of trials: the cost is the budget"),
-    "T22": ("needs_input", "the large-physics-model blocks are sized by the field and the neighbourhood the caller "
-                           "builds"),
     "T23": ("not_a_single_operation", "MultiAdam keeps per-term moments inside the training step, so its cost is a "
                                        "fraction of the backward pass T1 measures"),
 }
@@ -473,6 +639,8 @@ UNMEASURED: dict[str, tuple[str, str]] = {
 PROBES: dict[str, Probe] = {p.method_id: p for p in (
     _probe_s4, _probe_s19, _probe_s13, _probe_s15, _probe_s34, _probe_s35, _probe_s33, _probe_s28, _probe_s26,
     _probe_s27, _probe_s9, _probe_s1, _probe_s2, _probe_s3, _probe_s11, _probe_t1, _probe_s43,
+    _probe_s7, _probe_s14, _probe_s18, _probe_s29, _probe_s32, _probe_s36,
+    _probe_s37, _probe_s38, _probe_s40, _probe_s42, _probe_s46, _probe_t22,
 ) if p.method_id in {m.id for m in _methods.METHODS}}
 
 

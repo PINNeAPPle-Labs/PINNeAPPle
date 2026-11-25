@@ -377,6 +377,7 @@
     "tests/test_component_library.py",
     "tests/test_condense.py",
     "tests/test_condense_falsify.py",
+    "tests/test_config_refusals.py",
     "tests/test_control_engineering.py",
     "tests/test_control_literal_calls.py",
     "tests/test_convenience_layer_bugfixes.py",

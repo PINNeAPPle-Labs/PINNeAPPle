@@ -112,6 +112,40 @@ def test_no_public_module_is_left_unreached():
     assert not any(r["reason"] in (None, "None") for r in rows)
 
 
+def test_the_sweep_reaches_a_module_four_levels_down():
+    """#1883: the sweep stopped at the first level, so ``pinneapple_physics.pinn_solver.compiler.integral_kinds``
+    was neither a row nor the node-or-reason gate's business, and a capability the core API lists went unlisted."""
+    from pinneapple_flow.coverage import coverage, modules, owing
+    deep = "pinneapple_physics.pinn_solver.compiler.integral_kinds"
+    assert deep in modules("pinneapple_physics")
+    row = next((r for r in coverage() if r["module"] == deep), None)
+    assert row is not None, "a module four levels down is not a row of the coverage table"
+    assert owing(deep), "a module the core API lists has to owe a node or a stated reason"
+    assert row["nodes"] or row["reason"], row
+
+
+def test_the_sweep_skips_private_modules_and_still_lists_every_package():
+    from pinneapple_flow.coverage import modules, packages
+    for pkg in packages():
+        found = modules(pkg)
+        assert found, pkg
+        assert all(m.startswith(pkg + ".") for m in found), pkg
+    found = modules("pinneapple_flow")
+    assert "pinneapple_flow.coverage" in found and "pinneapple_flow.planner.heuristic" in found
+    assert not [m for m in found if any(part.startswith("_") for part in m.split("."))]
+
+
+def test_a_deep_module_outside_the_core_api_is_listed_as_internal_instead_of_failing_the_gate():
+    """The walk is any-depth, but only the first level and what ``api/core.json`` lists owe a node or a reason:
+    the rest are counted as ``internal`` and say so in the table, instead of demanding a thousand reasons."""
+    from pinneapple_flow.coverage import counts, coverage, markdown
+    rows = coverage()
+    deep = [r for r in rows if r["module"].count(".") >= 2]
+    assert deep and any(not r["owing"] for r in deep)
+    assert counts(rows)["internal"] == sum(1 for r in deep if not r["owing"] and not r["nodes"] and not r["reason"])
+    assert "internal: reached through the package above" in markdown()
+
+
 def test_generated_nodes_are_safe_and_run(tmp_path):
     from pinneapple_flow.autocalls import RISKY_NAME, RISKY_PARAM, load
     data = load()
@@ -122,10 +156,9 @@ def test_generated_nodes_are_safe_and_run(tmp_path):
         assert not any(RISKY_PARAM.search(p["name"]) for p in c["params"]), c["target"]
         assert c["check"].startswith(("runs with its defaults", "needs input")), c["key"]
         assert pf.REGISTRY.get(c["key"]) is not None
-    key = "auto.analysis.data_assimilation.twin_experiment"
-    assert key in pf.REGISTRY
-    r = pf.run(pf.Flow("auto", nodes=[{"id": "n", "type": key, "params": {"n": 16, "window_steps": 4}}]),
-               workdir=tmp_path)
+    key = "auto.analysis.cost.hardware_record"       # a generated node from the sweep, not a curated one
+    assert key in pf.REGISTRY and any(c["key"] == key for c in data["calls"])
+    r = pf.run(pf.Flow("auto", nodes=[{"id": "n", "type": key, "params": {}}]), workdir=tmp_path)
     assert r.status == "done", r.nodes["n"]["error"]
     assert r.nodes["n"]["report"]["metrics"]
 

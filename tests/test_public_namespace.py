@@ -32,6 +32,8 @@ RESOLVES = (
     "artifact",
     # reproduced / divergent / refused for a recorded run (#1480)
     "experiments",
+    # LinearOperator, Arnoldi, POD, modal analysis, conditioning (#202)
+    "linalg",
 )
 
 # Namespaces in the target map that do not exist yet. Each is a line of the
@@ -41,7 +43,6 @@ NOT_YET = (
     "physics",
     "nn",
     "optim",
-    "linalg",
     "sparse",
     "geometry",
     "mesh",

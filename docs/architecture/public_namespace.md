@@ -32,7 +32,7 @@ decided to train a neural network.
 | `pp.data` | `PhysicalSample`, collation, collocation, dataset audit, lineage | Lazy: `pp.data` → `pinneapple_data` |
 | `pp.nn` | Architectures, training policy, losses, weight balancers | Missing. `pp.models` (`pinneapple_models`) and `pp.train` (`pinneapple_train`) exist |
 | `pp.optim` | Optimizers, schedulers, design optimization, Bayesian optimization | Missing. Spread over `pp.design_opt` and `pinneapple_neural` |
-| `pp.linalg` | Linear algebra the physics code needs and NumPy does not name | Does not exist |
+| `pp.linalg` | Linear algebra the physics code needs and NumPy does not name | Exists: `pp.linalg` → `pinneapple_analysis.linalg` — `LinearOperator`, `arnoldi`, `pod`, `modal_analysis`, `condition_estimate`, `adjoint_sensitivity` (#202) |
 | `pp.sparse` | Sparse operators, assembly, matrix-free products | Does not exist |
 | `pp.geometry` | SDF/CSG primitives, parametric geometries, CAD import | Missing. `pp.geom` and `pp.geometries` exist; `pp.circle`, `pp.rectangle` are top level |
 | `pp.mesh` | Mesh containers, quality, repair, meshing adapters | Missing. `pp.cae` → `pinneapple_data.cae` |

@@ -228,12 +228,17 @@ class LabStore:
     def samples(self, experiment: str, name: str, *, status: str = "completed",
                 with_params: bool = True) -> Iterator[dict[str, Any]]:
         """Iterate over every sample of dataset ``name`` across the runs of ``experiment`` (default: completed
-        runs only, so a failed or unvalidated run does not leak into a training set)."""
+        runs only, so a failed or unvalidated run does not leak into a training set). A run whose arrays are not
+        on disk is skipped: the shards are not versioned, so a fresh clone or a reindex sees the cards of runs
+        that were committed as metadata only, and rebuilding them is ``sweep <experiment> --force``."""
         runs = {r["run_id"]: r for r in self.runs(experiment, status=status)}
         for d in self.datasets(experiment, name):
             if d["run_id"] not in runs:
                 continue
-            for s in read_dataset(os.path.join(self.root, d["path"])):
+            folder = os.path.join(self.root, d["path"])
+            if not os.path.exists(os.path.join(folder, "samples.jsonl")):
+                continue
+            for s in read_dataset(folder):
                 s["_run_id"] = d["run_id"]
                 if with_params:
                     s.update({f"param.{k}": v for k, v in runs[d["run_id"]]["params"].items()})

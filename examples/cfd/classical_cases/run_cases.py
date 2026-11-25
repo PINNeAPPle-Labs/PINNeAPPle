@@ -176,7 +176,12 @@ def do_pinn_budget(out: str, reynolds: float, budgets: list[int], cases: str, *,
     each run's own budget and not over the longest one, because a short run under a long schedule is still at a large
     learning rate when it is stopped and would be quoted as "10 000 steps does not converge" when it means "10 000
     steps of a different schedule does not". And every run starts from the same seed, so the only thing that changes
-    between rows is :attr:`pinn.Config.steps`.
+    between two rows of the same arm is :attr:`pinn.Config.steps`.
+
+    ``balance`` adds a **second arm** rather than a longer run: the same budgets with :attr:`pinn.Config.balance` on,
+    which is the gradient balancing of Wang, Teng and Perdikaris (2021) that :mod:`~pinneapple_simulation.cfd_validation.pinn`
+    carries for exactly the failure this sweep can name. The rows are tagged, so one record holds both arms and the
+    comparison is budget against budget rather than one long run against a remembered number.
 
     Each run writes its own row into ``results/pinn_budget.json``, merged under a file lock, so several budgets can be
     trained at once — which is how the sweep fits in a session — and an interrupted one can be restarted without

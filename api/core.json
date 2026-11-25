@@ -30,13 +30,98 @@
  "modules": {
   "pinneapple_analysis.trust": {
    "Check": "from .trust_report import Check",
+   "Correction": "from .corrections import Correction",
+   "CorrectionStore": "from .corrections import CorrectionStore",
+   "DriftBaseline": "from .drift import DriftBaseline",
+   "DriftMonitor": "from .drift import DriftMonitor",
+   "DriftReport": "from .drift import DriftReport",
+   "DriftThresholds": "from .drift import DriftThresholds",
    "FieldTrustCard": "from .field_card import FieldTrustCard",
+   "FlowSpec": "from .flow_card import FlowSpec",
+   "RetrainDecision": "from .drift import RetrainDecision",
    "TrustGate": "from .trust_gate import TrustGate",
    "TrustReport": "from .trust_report import TrustReport",
    "TrustScore": "from .trust_gate import TrustScore",
    "annotations": "from __future__ import annotations",
+   "correction_checks": "from .corrections import correction_checks",
+   "energy_balance": "from .flow_card import energy_balance",
    "field_checks": "from .field_card import field_checks",
-   "trust_card": "from .field_card import trust_card"
+   "flow_checks": "from .flow_card import flow_checks",
+   "mass_balance": "from .flow_card import mass_balance",
+   "trust_card": "from .field_card import trust_card",
+   "with_corrections": "from .corrections import with_corrections"
+  },
+  "pinneapple_analysis.trust.corrections": {
+   "Correction": {
+    "class": [],
+    "methods": {
+     "names": "()",
+     "applies_to": "(case)",
+     "holds": "(columns)",
+     "check": "(columns)",
+     "id": "()",
+     "to_dict": "()",
+     "from_dict": "(row)"
+    }
+   },
+   "CorrectionError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "CorrectionStore": {
+    "class": [],
+    "methods": {
+     "__init__": "(path)",
+     "records": "()",
+     "save": "(correction)",
+     "rules": "(case=None)",
+     "verify": "()"
+    }
+   },
+   "correction_checks": "def(rules, columns, *, case='')",
+   "with_corrections": "def(report, rules, columns, *, case='')"
+  },
+  "pinneapple_analysis.trust.drift": {
+   "DriftBaseline": {
+    "class": [],
+    "methods": {
+     "size": "()"
+    }
+   },
+   "DriftMonitor": {
+    "class": [],
+    "methods": {
+     "__init__": "(baseline, thresholds=None, *, envelope_level=0.01, quantile=0.99)",
+     "from_validation": "(model, inputs, labels=None, *, envelope_level=0.01, quantile=0.99, source=None)",
+     "calibrate": "(model, inputs, labels=None, *, window=None, windows=200, seed=0)",
+     "check": "(model, inputs, labels=None)",
+     "evaluate": "(inputs, predictions, *, uncertainty=None, errors=None)"
+    }
+   },
+   "DriftReport": {
+    "class": [],
+    "methods": {
+     "alarms": "()",
+     "has_alarm": "()",
+     "to_dict": "()"
+    }
+   },
+   "DriftThresholds": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "RetrainDecision": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "ks_distance": "def(reference, window)",
+   "write_record": "def(report, path)"
   },
   "pinneapple_analysis.trust.field_card": {
    "FieldCheck": {
@@ -56,6 +141,18 @@
    },
    "field_checks": "def(grid, values, *, pde=None, source=None, alpha=1.0, time_coord='t', dirichlet=None, reference=None, value_range=None, train_bounds=None, query_points=None, tolerances=None)",
    "trust_card": "def(grid, values, *, name='field', is_ml=True, limitations=(), min_coverage=0.5, **kwargs)"
+  },
+  "pinneapple_analysis.trust.flow_card": {
+   "FlowSpec": {
+    "class": [],
+    "methods": {
+     "mass": "(components, **kw)",
+     "energy": "(name='T', axis='x', **kw)"
+    }
+   },
+   "energy_balance": "def(grid, temperature, *, name='T', axis='x', spec=None, **kw)",
+   "flow_checks": "def(grid, fields, *, spec)",
+   "mass_balance": "def(grid, velocity, *, spec=None, **kw)"
   },
   "pinneapple_analysis.trust.trust_gate": {
    "TrustGate": {
@@ -853,18 +950,30 @@
    "recommend": "def(text, *, top=3)"
   },
   "pinneapple_data.cae": {
+   "CONTACT_FIELDS": "from .frd import CONTACT_FIELDS",
    "CellBlock": "from .model import CellBlock",
+   "FINISHED": "from .ccx import FINISHED",
    "FormatError": "from .io import FormatError",
+   "GIVE_UP": "from .ccx import GIVE_UP",
    "METRICS": "from .quality import METRICS",
    "Mesh": "from .model import Mesh",
    "PolyMesh": "from .model import PolyMesh",
    "RepairPlan": "from .repair import RepairPlan",
    "RepairResult": "from .repair import RepairResult",
+   "ResultBlock": "from .frd import ResultBlock",
+   "Status": "from .ccx import Status",
+   "Totals": "from .ccx import Totals",
+   "Verdict": "from .ccx import Verdict",
    "close_holes": "from .repair import close_holes",
+   "contact": "from .frd import contact",
+   "coordinates": "from .frd import coordinates",
+   "coulomb_ratio": "from .frd import coulomb_ratio",
    "courant_number": "from .metrics import courant_number",
+   "displacement": "from .frd import displacement",
    "drop_degenerate_faces": "from .repair import drop_degenerate_faces",
    "drop_duplicate_faces": "from .repair import drop_duplicate_faces",
    "element_metrics": "from .quality import element_metrics",
+   "finite": "from .ccx import finite",
    "fv_metrics": "from .quality import fv_metrics",
    "kind_of": "from .io import kind_of",
    "merge_vertices": "from .repair import merge_vertices",
@@ -873,15 +982,46 @@
    "mesh_wall_distance": "from .metrics import mesh_wall_distance",
    "orient_consistently": "from .repair import orient_consistently",
    "read_any": "from .io import read_any",
+   "read_blocks": "from .frd import read_blocks",
+   "read_displacements": "from .ccx import read_displacements",
+   "read_log": "from .ccx import read_log",
    "read_meshio": "from .io import read_meshio",
    "read_points": "from .io import read_points",
+   "read_status": "from .ccx import read_status",
    "read_stl": "from .io import read_stl",
+   "read_totals": "from .ccx import read_totals",
    "repair": "from . import repair",
    "repair_surface": "from .repair import repair_surface",
+   "stress": "from .frd import stress",
    "surface_checks": "from .quality import surface_checks",
    "surface_summary": "from .repair import surface_summary",
    "view_payload": "from .report import view_payload",
    "wall_distance": "from .metrics import wall_distance"
+  },
+  "pinneapple_data.cae.ccx": {
+   "Status": {
+    "class": [],
+    "methods": {
+     "converged": "()"
+    }
+   },
+   "Totals": {
+    "class": [],
+    "methods": {
+     "at": "(time, tol=1e-09)"
+    }
+   },
+   "Verdict": {
+    "class": [],
+    "methods": {
+     "ok": "()"
+    }
+   },
+   "finite": "def(*values)",
+   "read_displacements": "def(dat)",
+   "read_log": "def(log, status=None, produced=True)",
+   "read_status": "def(sta)",
+   "read_totals": "def(dat)"
   },
   "pinneapple_data.cae.compare": {
    "Interpolator": {
@@ -931,7 +1071,19 @@
    "time_dirs": "def(fs, root='')"
   },
   "pinneapple_data.cae.frd": {
-   "read_frd": "def(b)"
+   "ResultBlock": {
+    "class": [],
+    "methods": {
+     "column": "(component)"
+    }
+   },
+   "contact": "def(b, until=None)",
+   "coordinates": "def(b)",
+   "coulomb_ratio": "def(rows, nodes=None, min_fraction=0.05)",
+   "displacement": "def(b)",
+   "read_blocks": "def(b)",
+   "read_frd": "def(b)",
+   "stress": "def(b)"
   },
   "pinneapple_data.cae.geometry": {
    "FaceMesh": {
@@ -1055,6 +1207,16 @@
   },
   "pinneapple_data.cae.upload": {
    "expand": "def(files, max_unzipped=MAX_UNZIPPED)"
+  },
+  "pinneapple_data.cae.xdmf": {
+   "XdmfError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "read_xdmf": "def(source)",
+   "write_xdmf": "def(mesh, path)"
   },
   "pinneapple_data.contracts": {
    "CONTRACTS": "from .models import CONTRACTS",
@@ -3884,7 +4046,9 @@
    },
    "ProblemSpec": {
     "class": [],
-    "methods": {}
+    "methods": {
+     "to_system": "()"
+    }
    }
   },
   "pinneapple_physics.pde_environment.turbulence_presets": {

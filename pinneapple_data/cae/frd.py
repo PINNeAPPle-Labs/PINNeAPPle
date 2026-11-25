@@ -91,6 +91,25 @@ def _rows(lines: list[str], i: int, ncomp: int) -> tuple[dict[int, list[float]],
     return out, i
 
 
+def _component_count(head: str) -> int:
+    """The number of components a ``-4`` header announces.
+
+    Read from its columns, and from a plain split when the columns do not line up: ``ccx`` writes the name in a
+    12-character field, and a deck writer (or a hand-written fixture) may pad it to 10, which moves the count five
+    columns left. Reading the number as 0 there would silently turn six contact components into one.
+    """
+    for slice_ in (head[13:18], head[13:19], head[13:]):
+        try:
+            return int(slice_)
+        except ValueError:
+            continue
+    parts = head[13:].split()
+    try:
+        return int(parts[0]) if parts else 0
+    except ValueError:
+        return 0
+
+
 def read_blocks(b: bytes) -> list[ResultBlock]:
     """Every result block of the ``.frd``, oldest first, each with the time of the increment it belongs to.
 
@@ -111,10 +130,7 @@ def read_blocks(b: bytes) -> list[ResultBlock]:
             i += 1
             continue
         name = ln[5:13].strip()
-        try:
-            ncomp = int(ln[13:18])
-        except ValueError:
-            ncomp = 0
+        ncomp = _component_count(ln)
         comps: list[str] = []
         i += 1
         while i < n and lines[i][:3] == " -5":

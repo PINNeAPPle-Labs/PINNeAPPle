@@ -30,8 +30,6 @@ examples/modelica/03_tank_inverse_pinn.py
 examples/nvidia/03_robotsim_pick_and_place/run.py
 examples/nvidia/04_worldmodel_physics_video/run.py
 examples/nvidia/05_brep_plate_with_hole/run.py
-examples/nvidia/06_model_services_zoo/run.py
-examples/nvidia/09_worldmodel_physicsnemo_state/run.py
 examples/nvidia/10_brep_physicsnemo_heatsink/run.py
 examples/nvidia/11_model_services_physicsnemo_operator/run.py
 examples/nvidia/13_omniverse_worldmodel_inspection/run.py
@@ -46,8 +44,6 @@ examples/pinneapple_benchmark/02_inverse_benchmark.py
 examples/quickstart/11_visualisation.py
 examples/reproductions/deflorio2024/run_deflorio.py
 examples/reproductions/gated_xtfc_dwivedi2025/run_gated.py
-examples/reproductions/pinnsformer_zhao2024/run_pinnsformer.py
-examples/reproductions/schiassi_epi2020/run_epi.py
 examples/reproductions/xtfc_schiassi2021/run_xtfc.py
 examples/time_series/01_FNO.py
 examples/time_series/07_fft_lstm_hybrid.py
@@ -77,8 +73,6 @@ examples/visualizations/viz_05_wave_2d.py
 examples/visualizations/viz_06_structural.py
 examples/vs_physicsnemo/01_pinneapple_uq_digital_twin/example.py
 examples/vs_physicsnemo/02_pinneapple_meta_transfer/example.py
-examples/vs_physicsnemo/03_pinneapple_active_weight_sched/example.py
 examples/vs_physicsnemo/04_physicsnemo_fno_operator/example.py
 examples/vs_physicsnemo/05_combined_fno_digital_twin/example.py
-examples/vs_physicsnemo/06_combined_meshgraphnet_valid/example.py
 examples/worldmodel/01_generate_train_evaluate.py

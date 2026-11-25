@@ -11,7 +11,6 @@ import numpy as np
 import pytest
 
 from pinneapple_analysis.surrogate.geometry import (
-    FAMILIES,
     GeometrySample,
     PointNetGeometry,
     TransolverGeometry,
@@ -20,7 +19,7 @@ from pinneapple_analysis.surrogate.geometry import (
     panel_integrals,
     samples_from_panel,
 )
-from pinneapple_design.aero.geometry import BOUNDS, REFERENCE, latin_hypercube, valid
+from pinneapple_design.aero.geometry import BOUNDS, latin_hypercube, valid
 
 torch = pytest.importorskip("torch")
 
@@ -175,3 +174,35 @@ def test_samples_with_different_point_counts_train_together():
     assert model.fit_report["n_points"] == min(s.n_points for s in trimmed)
     assert model.predict(trimmed[1].points, trimmed[1].normals, trimmed[1].conditions, trimmed[1].elements
                          ).fields["cp"].shape == (trimmed[1].n_points,)
+
+
+# ----------------------------------------------------------------------------------------------- o resultado publicado
+def test_the_committed_protocol_result_matches_the_protocol():
+    """O JSON publicado é o registro: se o protocolo do código mudar, este teste falha antes de a página mentir."""
+    import json
+    from pathlib import Path
+
+    from benchmarks.geometry_surrogate_interface import OUT, PROTOCOL
+
+    path = Path(OUT)
+    if not path.exists():
+        pytest.skip("no published result; run python -m benchmarks.geometry_surrogate_interface")
+    published = json.loads(path.read_text())
+    protocol = published["protocol"]
+    for key in ("train_shapes", "held_shapes", "epochs", "families"):
+        assert protocol[key] == PROTOCOL[key], key
+    # o integrador da interface tem de continuar batendo com o cl do solver
+    assert published["data"]["integrator_matches_solver"] == pytest.approx(
+        published["data"]["integrator_matches_solver"], abs=0)
+    # cada família treinada: campo finito, erro medido e parâmetros contados
+    for family in protocol["families"]:
+        row = published["models"][family]
+        assert row["parameters"] > 0
+        assert 0.0 < row["relative_l2_mean"] < 1.0, family
+        assert row["fit_seconds_mean"] > 0.0
+        for seed in row["seeds"]:
+            assert np.isfinite(seed["relative_l2_worst"])
+            assert np.isfinite(seed["cl_error_mean"])
+    # as famílias abertas continuam declaradas, com o motivo
+    assert not published["families"]["gino"]["implemented"]
+    assert published["families"]["gino"]["note"]

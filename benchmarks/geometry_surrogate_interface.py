@@ -41,7 +41,7 @@ from pinneapple_analysis.surrogate.geometry import (
     panel_integrals,
     samples_from_panel,
 )
-from pinneapple_design.aero.geometry import BOUNDS, REFERENCE, latin_hypercube, valid
+from pinneapple_design.aero.geometry import BOUNDS, latin_hypercube, valid
 
 __all__ = ["PROTOCOL", "OUT", "bodies", "run"]
 
@@ -98,8 +98,8 @@ def run(*, protocol: dict | None = None, verbose: bool = True) -> dict:
                                                    n_per_side=protocol["n_per_side"])
     label_seconds = time.perf_counter() - t
     if verbose:
-        print(f"dados: {len(train)} amostras de treino e {len(held)} de teste, {train[0].n_points} painéis por "
-              f"corpo, {label_seconds:.2f} s de solver")
+        print(f"data: {len(train)} training and {len(held)} held-out samples, {train[0].n_points} panels per body, "
+              f"{label_seconds:.2f} s of solver")
     # the labels are the solver's, and the integrator is the solver's own: check they agree before training anything
     truth = train[0]
     check = panel_integrals(fields=truth.fields, normals=truth.normals, elements=truth.elements,
@@ -142,9 +142,9 @@ def run(*, protocol: dict | None = None, verbose: bool = True) -> dict:
                    "predict_seconds": _predict_seconds(model, held)}
             rows.append(row)
             if verbose:
-                print(f"{family:11s} seed {seed}: {row['parameters']:6d} parâmetros, {fit_seconds:5.1f} s de treino, "
-                      f"L2 rel. {row['relative_l2_mean']:.3f} (pior {row['relative_l2_worst']:.3f}), "
-                      f"erro de Cl {row['cl_error_mean']:.4f}, R² do ranking {row['rank_r2']}")
+                print(f"{family:11s} seed {seed}: {row['parameters']:6d} parameters, {fit_seconds:5.1f} s training, "
+                      f"relative L2 {row['relative_l2_mean']:.3f} (worst {row['relative_l2_worst']:.3f}), "
+                      f"Cl error {row['cl_error_mean']:.4f}, ranking R² {row['rank_r2']:.3f}")
         report["models"][family] = {
             "seeds": rows,
             "relative_l2_mean": float(np.mean([r["relative_l2_mean"] for r in rows])),
@@ -175,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as fh:
         json.dump(report, fh, indent=1)
-    print(f"\nrelatório em {args.out}")
+    print(f"\nresult written to {args.out}")
     return 0
 
 

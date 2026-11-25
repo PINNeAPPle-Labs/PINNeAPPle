@@ -91,6 +91,7 @@
     * [FITS, units and sky coordinates: astronomy data as a `PhysicalSample`](guides/astropy_fits.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)
     * [A surrogate conditioned on the geometry, and the error on a body it never saw](guides/geometry_conditioned_surrogate.md)
+    * [Which geometry surrogate, and what it costs](guides/geometry_surrogate_families.md)
     * [MuJoCo 4.0: trajectories, checks and the robot backend](guides/mujoco.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
     * [Granular DEM: volume-based contact, breakage, mills and wear](granular_dem.md)

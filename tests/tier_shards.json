@@ -275,6 +275,7 @@
    "paths": [
     "tests/pinneapple_catalog/test_stages.py",
     "tests/test_accelerated_foam.py",
+    "tests/test_active_design.py",
     "tests/test_adaptation_and_active_learning.py",
     "tests/test_adaptive_forecasting.py",
     "tests/test_adaptive_sampling.py",
@@ -596,6 +597,7 @@
     "tests/test_mujoco_integration.py",
     "tests/test_multiadam.py",
     "tests/test_multichannel_normalization.py",
+    "tests/test_multifidelity_workflow.py",
     "tests/test_multiphysics_workflow.py",
     "tests/test_multiscale.py",
     "tests/test_naval.py",

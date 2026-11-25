@@ -608,6 +608,8 @@ def pipeline(
 __all__ = [
     "metrics", "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method",
     "list_methods", "Experiment", "ExperimentResult",
+    # the active design behind Experiment(active=...) (#34, #153)
+    "ActivePolicy", "ActiveRun", "active_design", "benchmark_active_design", "design_box", "probe", "source_rod",
     "PhysicalProblem", "Parameter", "Quantity", "PARAMETER_ROLES",
     # Sub-modules (new names)
     "pde_environment", "pinn_solver", "symbolic_pde", "closed_form",
@@ -645,3 +647,6 @@ from .solving import (  # noqa: E402
     Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
 )
 from .experiment import Experiment, ExperimentResult  # noqa: E402
+from .active_design import (  # noqa: E402
+    ActivePolicy, ActiveRun, active_design, benchmark_active_design, design_box, probe, source_rod,
+)

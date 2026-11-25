@@ -297,6 +297,28 @@
   "returned": "dict",
   "seconds": 0.0
  },
+ "pinneapple_systems.digital_twin.library.carbon_capture:flue_molar_mass": {
+  "code_hash": "da68d30e2ec0e419",
+  "inputs": {
+   "co2_fraction": 0.12
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 17.32
+ },
+ "pinneapple_systems.digital_twin.library.carbon_capture:solvent_capacity": {
+  "code_hash": "74ae10f67743f8d2",
+  "inputs": {
+   "circulation_mass_flow": 660.0,
+   "loading_window": 0.26,
+   "mea_mass_fraction": 0.3
+  },
+  "ok": true,
+  "recorded": "2026-11-17",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_systems.digital_twin.library.chemical_plant:equilibrium_constant": {
   "code_hash": "30ece628ad73d765",
   "inputs": {
@@ -646,12 +668,12 @@
   "seconds": 0.0
  },
  "pinneapple_systems.digital_twin.library.scenarios:manifest": {
-  "code_hash": "28b324995adb400b",
+  "code_hash": "8be2f19ae33f1ed1",
   "inputs": {},
   "ok": true,
   "recorded": "2026-11-17",
   "returned": "dict",
-  "seconds": 1.31
+  "seconds": 3.54
  },
  "pinneapple_systems.digital_twin.library.scenarios:run_scenario": {
   "code_hash": "2345d2ac137729d1",

@@ -5,7 +5,7 @@ What this package is
 Each module here is a *reference model* of a real system written to be read, run and checked
 in seconds: FPSO and subsea production, a blast furnace, a chemical plant, a reusable
 booster, a lunar base, a gas pipeline network, a compression station, a green hydrogen plant, a
-desalination train, an industrial refrigeration plant and a data centre. They share :class:`~.base.ReferenceModel`, so every one of them takes
+desalination train, an industrial refrigeration plant, a data centre and a carbon capture island. They share :class:`~.base.ReferenceModel`, so every one of them takes
 SI parameters with declared ranges, returns a machine-readable :class:`~.base.TwinRun` with
 its conservation balances and its invariants, and states the limits of its own physics.
 
@@ -48,6 +48,7 @@ from .base import (
     relative_error,
 )
 from .blast_furnace import BlastFurnace
+from .carbon_capture import CarbonCapturePlant
 from .chemical_plant import ChemicalPlant
 from .compression_station import CompressionStation
 from .data_center import DataCentre
@@ -80,5 +81,5 @@ __all__ = [
     # systems
     "FPSOSubsea", "BlastFurnace", "ChemicalPlant", "ReusableBooster", "LunarBase",
     "PipelineNetwork", "CompressionStation", "GreenHydrogenPlant", "DesalinationPlant",
-    "RefrigerationPlant", "DataCentre",
+    "RefrigerationPlant", "DataCentre", "CarbonCapturePlant",
 ]

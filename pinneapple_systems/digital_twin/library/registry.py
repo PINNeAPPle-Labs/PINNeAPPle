@@ -15,6 +15,7 @@ from typing import Any
 
 from .base import LibraryError, ReferenceModel, TwinRun
 from .blast_furnace import BlastFurnace
+from .carbon_capture import CarbonCapturePlant
 from .chemical_plant import ChemicalPlant
 from .compression_station import CompressionStation
 from .data_center import DataCentre
@@ -41,6 +42,7 @@ TWINS: dict[str, type[ReferenceModel]] = {
     DesalinationPlant.slug: DesalinationPlant,
     RefrigerationPlant.slug: RefrigerationPlant,
     DataCentre.slug: DataCentre,
+    CarbonCapturePlant.slug: CarbonCapturePlant,
 }
 
 
@@ -84,6 +86,7 @@ _LADDER = {
     "desalination_plant": ("0D", "reference model; a membrane transport model with fouling is the next rung"),
     "industrial_refrigeration": ("0D", "reference model; a real property database and a compressor map are the next rung"),
     "data_center_cooling": ("0D", "reference model; the hall's air distribution needs CFD, which is the next rung"),
+    "carbon_capture_plant": ("0D", "reference model; absorber kinetics and a column model are the next rung"),
 }
 
 

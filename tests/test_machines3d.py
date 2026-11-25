@@ -301,3 +301,83 @@ def test_fraction_edges_turn_the_rotor_by_any_angle():
     _, Br = model.materials(0.5 * model.step)
     _, Br0 = model.materials(0.0)
     assert not np.allclose(Br, Br0)                                           # half a step is not rounded away
+
+
+# ------------------------------------------------------------------------------- load: the armature source
+def test_current_density_integrates_to_the_ampere_turns(one_layer):
+    """``int J dA = N I`` in every slot, with the sign of the coil side: the current of a slot is the turns times
+    the phase current, and it is axial (a stranded coil, no radial current)."""
+    m = one_layer.machine
+    cur = (140.0, -70.0, -70.0)
+    J = one_layer.current_density(cur)
+    assert np.allclose(J[:, :2], 0.0)                                   # axial: a stranded coil, no radial current
+    lab = one_layer.slot_labels()
+    vol = one_layer.space.vol
+    L = m.length
+    for k in range(m.slots):
+        tet = one_layer._in_stack[one_layer._lay] & np.isin(one_layer._tri, np.flatnonzero(lab == f"slot{k}"))
+        total = float(np.sum(J[tet, 2] * vol[tet])) / L                  # A over the cross-section
+        ph, sg = m.winding[k]
+        assert total == pytest.approx(sg * m.turns_per_slot * cur[ph], rel=1e-9)
+    assert not one_layer.current_density((0.0, 0.0, 0.0)).any()          # no current, no source
+
+
+def test_load_torque_matches_the_2d_code_at_one_layer(one_layer):
+    """One straight layer, no end region: the 3-D model and the 2-D code are the same problem, so the same torque
+    (the residual is the cross-section discretisation: 0.03 % measured at 72 steps)."""
+    m = one_layer.machine
+    cur = m.phase_currents(0.0, 200.0, 0.0)
+    assert one_layer.torque(one_layer.solve(0.0, currents=cur)) == pytest.approx(m.torque(m.solve(0.0, cur)), rel=0.01)
+    assert one_layer.torque(one_layer.solve(0.0)) == pytest.approx(m.torque(m.solve(0.0)), abs=1e-6)
+
+
+def test_currents_are_a_second_source_on_top_of_the_magnets(one_layer):
+    """Zero current is no load exactly; the magnet part is the mean of the two current directions (linear iron, so
+    the armature torque is odd in the current and the magnet torque does not depend on it)."""
+    m = one_layer.machine
+    th = one_layer.step                                            # off the aligned position, where T is not zero
+    i = np.array(m.phase_currents(th, 160.0, 0.0))
+    zero = one_layer.torque(one_layer.solve(th, currents=(0.0, 0.0, 0.0)))
+    assert zero == pytest.approx(one_layer.torque(one_layer.solve(th)), rel=1e-9)      # the source is exactly zero
+    plus = one_layer.torque(one_layer.solve(th, currents=tuple(i)))
+    minus = one_layer.torque(one_layer.solve(th, currents=tuple(-i)))
+    assert 0.5 * (plus + minus) == pytest.approx(zero, abs=5e-3 * abs(plus - zero))
+    assert plus > zero > minus                                     # the machine motors, and regenerates reversed
+
+
+def test_load_study_reports_the_ripple_of_its_own_curves(tmp_path):
+    from pinneapple_simulation.electromagnetics.machines3d.load import load_study, ripple
+
+    m = SPMMachine(iron=LinearMaterial(mu_r=1000.0), n_theta=144)
+    s = SPM3D(m, n_theta=144, stack_layers=2)
+    cur = lambda th: m.phase_currents(th, 150.0, 0.0)          # noqa: E731
+    th = [s.step, 2 * s.step, 3 * s.step]
+    ck = tmp_path / "rows.jsonl"
+    res = load_study(s, [0.0, 2 * s.step], kinds=("step2",), thetas=th, currents_of=cur, checkpoint=ck)
+    assert len(ck.read_text().splitlines()) == 2
+    st, sk = res["rows"]
+    for row in (st, sk):
+        mean, pkpk, rip = ripple(row["torque_3d"])
+        assert (row["mean_3d"], row["pkpk_3d"], row["ripple_3d"]) == (mean, pkpk, rip)
+        assert row["mean_3d"] > 0 and row["ripple_3d"] >= 0
+    assert sk["mean_3d"] != pytest.approx(st["mean_3d"], rel=1e-6)   # the skew changes the curve it averages
+    assert all(abs(r["d_mean"]) < 0.05 for r in res["rows"])         # multi-slice on the same mesh: the same torque
+    msgs = []
+    again = load_study(s, [0.0, 2 * s.step], kinds=("step2",), thetas=th, currents_of=cur, checkpoint=ck,
+                       progress=msgs.append)
+    assert all("checkpoint" in x for x in msgs) and len(msgs) == 2
+    assert [r["mean_3d"] for r in res["rows"]] == [r["mean_3d"] for r in again["rows"]]
+    other = load_study(s, [0.0], kinds=("step2",), thetas=th,
+                       currents_of=lambda t: m.phase_currents(t, 120.0, 0.0))
+    assert other["rows"][0]["mean_3d"] != pytest.approx(st["mean_3d"], rel=1e-6)   # another current, another answer
+
+
+def test_multislice_slices_carry_the_same_currents(one_layer):
+    m = one_layer.machine
+    m3 = SPM3D(m, n_theta=72, stack_layers=2)
+    th = [one_layer.step]
+    off = np.array([-one_layer.step, one_layer.step])
+    cur = m.phase_currents(th[0], 180.0, 0.0)
+    ms = m3.multislice(th, off, slice_model=one_layer, currents_of=lambda t: m.phase_currents(t, 180.0, 0.0))
+    ref = 0.5 * sum(one_layer.torque(one_layer.solve(th[0] + d, currents=cur)) for d in off)
+    assert ms[0] == pytest.approx(ref, rel=1e-6)

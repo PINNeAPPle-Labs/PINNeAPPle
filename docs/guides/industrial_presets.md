@@ -83,8 +83,8 @@ python -m pinneapple_presets validate bolted_joint_preload
 
 The measured numbers of the default case, the references and the mesh study are in
 [examples/industrial_presets/bolted_joint_preload/README.md](../../examples/industrial_presets/bolted_joint_preload/README.md).
-The pronounced warning on macOS is `JOB_MAX_PROCS`: the solver forks a child per core, and a low process limit makes
-that fork fail rather than the analysis.
+On macOS the solver forks a child per core: with a low process limit (`ulimit -u`, `RLIMIT_NPROC`) that fork fails
+before the analysis does, so `JOB_MAX_PROCS` has to stay under what the shell allows.
 
 ## Surrogates
 

@@ -3,6 +3,7 @@ public-mode restrictions)."""
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import sys
 import time
 from pathlib import Path

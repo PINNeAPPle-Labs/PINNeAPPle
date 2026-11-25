@@ -168,13 +168,16 @@ def _comparison(record: dict, out: str) -> list[dict]:
             if finest is None:
                 continue
             err = run["errors"][str(finest)]
+            seconds = next((r.get("seconds") for r in run.get("runs", []) if int(r.get("n", 0)) == finest), None)
             rows.append({"method": f"simpleFoam {finest}x{finest}", "reynolds": run["reynolds"],
-                         "u": err["u"]["l2_relative"], "v": err["v"]["l2_relative"]})
+                         "u": err["u"]["l2_relative"], "v": err["v"]["l2_relative"], "seconds": seconds})
     for mode, label in (("single", "PINN"), ("parametric", "PINN, operator over Re")):
-        for row in record.get(mode, {}).get("rows", []):
+        models = record.get(mode, {}).get("models", [])
+        for i, row in enumerate(record.get(mode, {}).get("rows", [])):
+            # one network per Re in ``single`` (row i is model i), one shared network in ``parametric``
+            seconds = (models[i] if i < len(models) else models[0]).get("seconds") if models else None
             rows.append({"method": label, "reynolds": row["reynolds"], "u": row["errors"]["u"]["l2_relative"],
-                         "v": row["errors"]["v"]["l2_relative"],
-                         "seconds": record.get(mode, {}).get("models", [{}])[0].get("seconds")})
+                         "v": row["errors"]["v"]["l2_relative"], "seconds": seconds})
     return sorted(rows, key=lambda r: (float(r["reynolds"]), r["method"]))
 
 

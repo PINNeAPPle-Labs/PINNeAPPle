@@ -162,12 +162,25 @@ The vortex-lattice and LBM rungs are **not** on this family: a lattice gives a f
 the LBM solver works in a low-Reynolds regime while this family is at `Re = 4e6`. `ladder.MULTIFIDELITY` exports the
 rungs as data levels (name and relative cost) for the multi-fidelity workflow (#35).
 
+### 6. The same cavity solved by a network — `results/cavity_pinn.json` (#272)
+
+Everything above measures a *discretisation* against Ghia's table. This section measures a method that has no
+discretisation at all: a tanh perceptron (4 hidden layers of 64) trained on the strong form of the steady
+incompressible equations at random collocation points, with no-slip on the three fixed walls and the moving lid as a
+penalty rather than an ansatz, and the pressure held to zero mean. **No solved field is ever shown to it** — not the
+OpenFOAM result, not the table.
+
+    python examples/cfd/classical_cases/run_cases.py --only pinn --pinn-steps 10000
+
+It is scored through the same door as the meshes: `cavity.profile_error` at Ghia's own 17 stations, the two wall
+stations excluded, the disputed `Re = 400` station dropped, the RMS of the table in the denominator. The network is
+asked for `u` at `x = 0.5` itself where the mesh interpolates from two neighbouring columns; the stations and the norm
+— the two things that decide whether two numbers may share a column — are identical.
+
+PINN_TABLE
+
 ## What is not here
 
-* **A PINN for the cavity at Re = 100, 400, 1000** (#272's other half). Not done: the tables, the cases and the mesh
-  study are the part that had to exist first, and a PINN trained here would have been scored against the same table
-  this file reads. The parametric operator over `Re` **is** done, as the surrogate of section 4: it predicts the field
-  at a `Re` it was not fitted on, and its error against the solver is reported there.
 * **The CFDBench subset.** Not done: the licence could not be confirmed offline, and the dataset is not in this
   repository.
 * **The TMR bump-in-channel, NACA 0012 and backward-facing-step cases of #265**, and the TMR reference tables: the

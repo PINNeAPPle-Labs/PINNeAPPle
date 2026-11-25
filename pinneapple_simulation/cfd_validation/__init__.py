@@ -1,13 +1,15 @@
 """Classical CFD validation cases with their published numbers, run against a real solver (issues #272, #265, #294, #494).
 
 Every learned model and every surrogate in this repository is scored against a reference; this package is where the
-reference itself is checked. It holds four things and keeps them apart:
+reference itself is checked. It holds five things and keeps them apart:
 
 * the published tables (:mod:`~pinneapple_simulation.cfd_validation.reference`), transcribed as data with the table
   they came from, and never re-derived from a run;
 * the cases that can be compared with them (:mod:`~pinneapple_simulation.cfd_validation.cavity`,
   :mod:`~pinneapple_simulation.cfd_validation.step`), which write their own OpenFOAM dictionaries and read the answer
   back as cell-centred numbers;
+* the same cavity solved by a network instead of a mesh (:mod:`~pinneapple_simulation.cfd_validation.pinn`), scored
+  through the same stations and the same norm, so the two numbers can be read in one column;
 * the convergence arithmetic that turns three refined runs into an observed order and a Richardson-extrapolated value
   (:func:`observed_order`, over :func:`~pinneapple_analysis.verification.convergence.richardson_extrapolate`, which
   the repository already had for exactly this);
@@ -18,6 +20,9 @@ reference itself is checked. It holds four things and keeps them apart:
 
     out = pp.cfd.validation.cavity_study(100, "runs/cavity")   # three meshes, errors against Ghia (1982)
     out["errors"][64]["u"]["l2_relative"]                       # the number to quote, at 64 x 64
+
+    net = pp.cfd.validation.pinn_study((100, 400, 1000))        # the same case, trained (minutes on a CPU)
+    net["stops_matching"]["0.05"]["stops"]                      # where it stops matching the same table
 
 Without OpenFOAM (:func:`~pinneapple_simulation.cfd_validation.foam.available`) the studies raise
 :class:`OpenFOAMMissing`, which the tests turn into a skip and a caller reads as "this machine cannot run the

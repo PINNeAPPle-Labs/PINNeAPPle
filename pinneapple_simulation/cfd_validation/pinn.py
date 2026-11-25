@@ -34,16 +34,17 @@ Where it stops
 --------------
 The finding this module exists to produce is the Reynolds number at which each model stops matching the reference
 (:func:`stops_matching`), not the average error. A network that is good at ``Re = 100`` and useless at ``Re = 1000``
-is the state of the art in this problem and is reported as measured: :attr:`Config` is fixed once, at ``Re = 100``,
-and the same configuration is used at every Reynolds number, because a per-``Re`` search would measure the search.
+is the state of the art in this problem and is reported as measured. :attr:`Config` was chosen once, on ``Re = 100``
+(where a run is cheapest), and the same configuration is used at every Reynolds number: a per-``Re`` search would
+measure the search, and a configuration tuned at the hardest Reynolds number would flatter the easy one.
 
 What is not claimed
 -------------------
 The network is not a solver. It has no discretisation, no residual norm that says "converged", and no guarantee that
 what it returns satisfies the equations it was trained on — the physics residual at the end of training is reported
 in :attr:`CavityPINN.history` as the network's own claim about itself, and the profiles at Ghia's stations as the
-evidence. A run of this module on a CPU takes minutes where ``simpleFoam`` takes seconds; the value of the number is
-that it says how well the *method* does against the same table, not that the method is faster.
+evidence. A run of this module costs tens of minutes of a CPU where ``simpleFoam`` takes seconds; the value of the
+number is that it says how well the *method* does against the same table, not that the method is faster.
 
 The cost of a run is recorded with it (``seconds``, ``steps``, the machine class), so it can be read next to the
 solver's wall time in the same table.
@@ -52,7 +53,7 @@ from __future__ import annotations
 
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -112,9 +113,11 @@ class Config:
     """Everything a run is defined by, so a number can be reproduced without reading the code that produced it.
 
     The defaults are the configuration the committed measurement used. :attr:`fourier` defaults to zero because the
-    random Fourier features were measured not to pay for themselves here: what the layer could buy is a thinner
-    feature near the lid, and what it costs is a noisier residual everywhere else (the measurement is in the
-    README's PINN section).
+    random Fourier map could not be used as it stood: it multiplies the PDE residual by the square of its own
+    frequency, and at ``fourier_scale = 2`` the residual at the first step came out at ``8.5e1`` against ``2.1e-1``
+    for the plain network, so the run starts a hundred times further from a solution than the thing it was meant to
+    improve. Making it pay needs the output scaled to match, which was not measured — so it is not on by default, and
+    the README's PINN section says exactly that rather than claiming a result.
     """
 
     width: int = 64
@@ -131,13 +134,17 @@ class Config:
     gauge_weight: float = 1.0
     balance: bool = False                   # scale the three loss terms by their gradient norms as training runs
     balance_every: int = 200
+    curriculum_from: float = 0.0            # start the physics at this Reynolds number and ramp to the target;
+    curriculum: float = 0.5                 # 0 is no ramp, and this is the fraction of the run the ramp takes.
+                                            # Measured off: the ramp reaches a nicer field halfway and a worse one
+                                            # at the end (the README's PINN section has the numbers)
     seed: int = 0
     checkpoint: str = ""                    # where to save and resume a long run; "" trains without touching disk
     dtype: str = "float32"                  # the residual is a second derivative of a small network: float32 is
                                             # enough for a field measured to 1e-3, and twice the throughput
 
     def to_dict(self) -> dict[str, object]:
-        return {k: getattr(self, k) for k in self.__dataclass_fields__}
+        return {k: getattr(self, k) for k in self.__dataclass_fields__ if k != "checkpoint"}
 
 
 if torch is not None:                                    # the class body needs torch to exist
@@ -287,12 +294,21 @@ def train(reynolds: float | None = None, *, config: Config | None = None,
     gen = torch.Generator().manual_seed(int(cfg.seed) + 1)
     lo, hi = float(np.log10(reynolds_range[0])), float(np.log10(reynolds_range[1]))
 
-    def draw_re() -> float:
-        """One Reynolds number for this step: the trained one, or a fresh draw over the range (log-uniform)."""
-        if reynolds is not None:
-            return float(reynolds)
-        return float(10.0 ** (lo + (hi - lo) * float(torch.rand(1, generator=gen))))
+    def draw_re(step: int) -> float:
+        """The Reynolds number this step's residual is taken at.
 
+        The operator draws a fresh one over the range every step, which is what makes it an operator. A single-``Re``
+        network uses its own — unless :attr:`Config.curriculum_from` asked for the ramp, in which case the first
+        ``Config.curriculum`` of the run is spent sliding from that easier Reynolds number to the target.
+        """
+        if reynolds is None:
+            return float(10.0 ** (lo + (hi - lo) * float(torch.rand(1, generator=gen))))
+        if not cfg.curriculum_from or float(reynolds) <= 0 or cfg.curriculum_from <= 0:
+            return float(reynolds)
+        span = max(1.0, float(cfg.curriculum) * int(cfg.steps))
+        t = min(1.0, step / span)
+        start_log = float(np.log10(cfg.curriculum_from))
+        return float(10.0 ** (start_log + t * (float(np.log10(reynolds)) - start_log)))
     def set_re(value: float) -> None:
         model.reynolds = value
 
@@ -318,7 +334,7 @@ def train(reynolds: float | None = None, *, config: Config | None = None,
         if cfg.resample and step and step % int(cfg.resample) == 0:
             x = torch.rand(int(cfg.collocation), 1, generator=gen, dtype=real)
             y = torch.rand(int(cfg.collocation), 1, generator=gen, dtype=real)
-        nu = 1.0 / draw_re()
+        nu = 1.0 / draw_re(step)
         if model.parametric:
             set_re(1.0 / nu)
         r = _residual(model, x, y, nu)
@@ -438,16 +454,28 @@ def study(reynolds: tuple[int, ...] = REYNOLDS, *, parametric: bool = False, con
     rows: list[dict[str, object]] = []
     models: list[dict[str, object]] = []
     if parametric:
-        model = train(None, config=cfg, reynolds_range=(float(min(reynolds)), float(max(reynolds))),
-                      on_step=on_step)
+        model = train(None, config=_for(cfg, "operator", reynolds), on_step=on_step,
+                      reynolds_range=(float(min(reynolds)), float(max(reynolds))))
         models.append(model.to_dict())
         for re in reynolds:
             rows.append(measure(model, re))
     else:
         for re in reynolds:
-            model = train(re, config=cfg, on_step=on_step)
+            model = train(re, config=_for(cfg, "single", re), on_step=on_step)
             models.append(model.to_dict())
             rows.append(measure(model, re))
     return {"what": "parametric operator over Re" if parametric else "one network per Reynolds number",
             "models": models, "rows": rows,
             "stops_matching": {f"{t:g}": stops_matching(rows, t) for t in MATCH_TOLERANCES}}
+
+
+def _for(cfg: Config, mode: str, reynolds: object) -> Config:
+    """``cfg`` with its own checkpoint path, so an interrupted study resumes each model where it stopped.
+
+    One path for the whole study would have the operator try to load the weights of a network with a different input
+    width, which is a crash in the middle of a long run rather than a resume.
+    """
+    if not cfg.checkpoint:
+        return cfg
+    tag = "operator" if mode == "operator" else f"re{int(round(float(reynolds)))}"
+    return replace(cfg, checkpoint=f"{cfg.checkpoint}.{tag}.pt")

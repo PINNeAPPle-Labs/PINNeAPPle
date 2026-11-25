@@ -177,3 +177,25 @@ def test_the_hero_render_of_the_studio_lands_in_the_report(tmp_path):
     assert "hero/still_1920x1080.png" in page and "Hero render (cycles" in page
     assert 'href="hero/turntable.mp4">turntable</a>' in page            # the clip is reachable from the page
     assert 'alt="Toy check: studio hero render' in page
+
+
+def test_a_reference_written_as_an_object_still_renders_as_a_line(tmp_path):
+    """One example writes `references` as {title, url, note} objects although the schema documents strings."""
+    folder = _write(str(tmp_path / "objs"), references=[
+        {"title": "USGS Water Services", "kind": "dataset", "url": "https://waterservices.usgs.gov/nwis/iv/",
+         "note": "public domain"},
+        {"title": "pinneapple_analysis.trust.drift (#114)", "kind": "module", "url": "", "note": ""}])
+    r = experiment_report(folder, out=str(tmp_path / "out"))
+    page = open(r.html, encoding="utf-8").read()
+    assert "dataset: USGS Water Services (https://waterservices.usgs.gov/nwis/iv/) — public domain" in page
+    assert "module: pinneapple_analysis.trust.drift (#114)" in page
+    assert X._refs([]) == "none recorded" and X._ref("plain") == "plain"
+    assert os.path.getsize(r.pdf) > 4000                          # the PDF takes the same line, not a crash
+
+
+def test_the_real_object_reference_example_renders(tmp_path):
+    """The folder that found the bug: `examples/digital_twin_end_to_end` must render, not raise."""
+    folder = os.path.join(ROOT, "examples", "digital_twin_end_to_end")
+    r = experiment_report(folder, out=str(tmp_path / "out"), pdf=False, figures=[])
+    page = open(r.html, encoding="utf-8").read()
+    assert "USGS Water Services" in page

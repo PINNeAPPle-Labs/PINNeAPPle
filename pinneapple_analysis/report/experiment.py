@@ -98,6 +98,36 @@ def _slug(folder: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", os.path.basename(os.path.normpath(folder)).lower()).strip("-") or "experiment"
 
 
+def _ref(item: Any) -> str:
+    """One reference as a line of text: the manifest's own string, or the title, url and note of a richer entry.
+
+    ``references`` is documented as a list of strings and one example in the repository writes a list of
+    ``{title, kind, url, note}`` objects instead; a report of that folder must still come out, so both shapes are
+    read rather than the page failing on the manifest of somebody else.
+    """
+    if isinstance(item, str):
+        return item.strip()
+    if isinstance(item, dict):
+        title = str(item.get("title") or item.get("name") or item.get("id") or "").strip()
+        url = str(item.get("url") or "").strip()
+        note = str(item.get("note") or "").strip()
+        kind = str(item.get("kind") or "").strip()
+        line = title or url or "reference"
+        if url and url not in line:
+            line += f" ({url})"
+        if kind:
+            line = f"{kind}: {line}"
+        if note:
+            line += f" — {note}"
+        return line
+    return str(item)
+
+
+def _refs(items: Any) -> str:
+    lines = [_ref(x) for x in (items or [])]
+    return "; ".join(line for line in lines if line) or "none recorded"
+
+
 def _norm(text: str) -> list[str]:
     """The words of a name, with the numbers kept: ``Re_50_CD`` and ``Re_200_CD`` are two different checks."""
     return [t for t in re.split(r"[^a-z0-9]+", str(text).lower()) if len(t) > 2 or t.isdigit()]
@@ -668,7 +698,7 @@ def render_html(data: dict[str, Any], *, theme: str = "light") -> str:
             ("measuring machine", ", ".join(f"{k} {v}" for k, v in (p.get("machine") or {}).items()) or "-"),
             ("costs", h.get("costs_file") or "the manifest's own seconds"),
             ("modules", ", ".join(p.get("modules") or []) or "-"),
-            ("references", "; ".join(p.get("references") or []) or "none recorded"),
+            ("references", _refs(p.get("references"))),
             ("data files", ", ".join(p.get("data") or []) or "none recorded"),
             ("reproduce", f'<code>{_esc(data["reproduce"])}</code>')]
     for k, val in rows:
@@ -855,7 +885,7 @@ def render_pdf(data: dict[str, Any], path: str, *, theme: str = "light") -> str:
                                             or "-", body)],
             [P("measuring machine", small), P(", ".join(f"{k} {v}" for k, v in (p.get("machine") or {}).items())
                                               or "-", body)],
-            [P("references", small), P("; ".join(p.get("references") or []) or "none recorded", body)],
+            [P("references", small), P(_refs(p.get("references")), body)],
             [P("data files", small), P(", ".join(p.get("data") or []) or "none recorded", body)],
             [P("reproduce", small), P(data["reproduce"], body)]]
     t = Table(rows, colWidths=[32 * mm, 142 * mm])

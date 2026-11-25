@@ -12,4 +12,11 @@ título da barra de cores, e a malha não sofre suavização nenhuma além do so
 `ffmpeg` estiver no PATH (os frames do PyVista custam ~0,06 s cada, então um clipe de 8 s a 24 fps leva segundos;
 frames do Cycles custam dezenas de segundos cada e o tempo medido vai em `per_frame_s`). Também há
 `hero_from_experiment(folder)`, que acha a geometria pelo manifesto e grava em `<folder>/report/hero`, onde
-`experiment_report` a encontra sozinho.
+`experiment_report` a encontra sozinho. `hide=["enclosure", "fan"]` deixa de fora as peças cujo nome contém um dos
+padrões — um caso fechado rende uma tampa e nenhum resultado — e o que ficou de fora é nomeado em `hidden`, em
+`honesty["hidden"]` e na legenda, nunca omitido em silêncio; um padrão que não casa com nenhuma superfície levanta em
+vez de desenhar o que o chamador acredita ter escondido. E um conjunto com várias peças exibindo o campo usa `field=` e
+colore todas elas (antes só a primeira saía colorida e as outras, cinza). `camera="documentary"` troca o enquadramento
+do preset pelo de um preset de fotografia nomeado, e o que foi usado vai em `camera`, no registro — uma seção de
+aerofólio, fina e comprida, não cabe no enquadramento do preset, e um nome errado levanta em vez de ser ignorado no
+caminho do PyVista.

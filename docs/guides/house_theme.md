@@ -135,7 +135,7 @@ dark theme, for comparison pictures against commercial CAE. It is no longer the
 default: `DEFAULT_CMAP` is `cfd_sequential`.
 
 The examples migrate in batches, and both halves are mechanical — 146 scripts
-under `examples/` import matplotlib, 82 call `use_theme` and 64 are still on the
+under `examples/` import matplotlib, 83 call `use_theme` and 63 are still on the
 debt list — so the edit is one anybody can review line by line, and the gate
 reads the files so the number only goes down.
 
@@ -170,15 +170,14 @@ The gate fails on an example that draws and calls neither `use_theme` nor
 `use_cfd_style`, unless it is listed in `examples/.house_theme_baseline`. It
 fails the other way too: a baseline line for a file that is themed, or that no
 longer exists, has to go. The baseline is the debt, and it only shrinks — three
-batches left it at 102, and the fourth migrated 38 of those and left 64.
+batches left it at 102, and the fourth migrated 39 of those and left 63.
 
-The examples that are left are not a special case of the theme: every one of
-them fails on `origin/main` exactly as it fails here, with the theme lines taken
-out again. Each was put back as it is in `HEAD`, run with the same command, and
-failed the same way, so they stay on the list — and stay unmigrated — until the
-failure they already have is fixed. A figure that cannot be drawn is not
-evidence that the theme draws it right. What they are missing falls in five
-groups:
+The 39 of them that fail are not a special case of the theme: every one fails on
+`origin/main` exactly as it fails here, with the theme lines taken out again.
+Each was put back as it is in `HEAD`, run with the same command, and failed the
+same way, so they stay on the list — and stay unmigrated — until the failure
+they already have is fixed. A figure that cannot be drawn is not evidence that
+the theme draws it right. What they are missing falls in five groups:
 
 | What is missing | Examples | What the run says |
 |---|---|---|
@@ -188,10 +187,12 @@ groups:
 | inputs the script is given, not born with | 6 | a results directory, a case name, `--part`, the `ff_*.npz` of a previous run, `--runs/--model/--test` |
 | a defect in the example or in the library it calls | 9 | `InverseHeatProblem.true_val`, `Tensor.__format__`, `MockStream(interval=)`, an FNO given a rank-3 input, an empty reshape, `lstm_mps_backward` on Apple's GPU |
 
-Separately from those, 25 examples finish nothing inside the window this
-batch could give them: they train or solve for longer than half an hour, with
-the theme and without it. They wait for a batch that can watch them run to the
-end, for the same reason `getting_started/04` did in batch 2.
+Separately from those, 24 examples finish nothing inside the window this
+batch could give them: they train or solve for hours — three of them were still
+running after eight — with the theme and without it. They wait for a batch that
+can watch them to the end, which is how the one that did finish came off the
+list: `biology/cardiac_activation_mapping.py`, five hours and twelve minutes,
+exit 0.
 
 ### Batches
 
@@ -200,7 +201,7 @@ end, for the same reason `getting_started/04` did in batch 2.
 | 1 | `first_example`, `pinn_solver/03_symbolic_pde_hard_bc`, `physics_learning_verification/run_study`, `physics_query/run_demo`, `electrodynamics/{20,21,22,23}` | 8 scripts on the theme, 4 redundant `rcParams.update` lines removed |
 | 2 | `electrodynamics/01`–`06`, `geometry/07_csg_domain_demo`, `getting_started/01`–`10` | 17 scripts; each one run on both sides for the sheet (`getting_started/04` trains for over an hour and was left running past the check window) |
 | 3 | `topology_optimization/01`–`03`, `control/{cartpole_swing_up,submarine_depth}`, `time_series/adaptive_forecasting`, `geophysics/01_sphere_and_assimilation`, `electrodynamics/17_prius_tolerances`, `geometry_library/02_wind_turbine_bem`, `motor_magnetics/01_spm_cogging_and_torque`, `physics_audit/pipe_regimes` | 12 scripts; the run and the sheet are one command (`scripts/run_theme_batch.py`), which is the whole cost of a batch now. The debt went from 114 to 102 |
-| 4 | the whole remaining list (102 scripts) | 38 scripts on the theme in five commits by directory, each one run after the edit; two more redundant `rcParams.update` lines removed; the debt went from 102 to 64, and what is left is listed above |
+| 4 | the whole remaining list (102 scripts) | 39 scripts on the theme in five commits by directory, each one run after the edit; two more redundant `rcParams.update` lines removed; the debt went from 102 to 63, and what is left is listed above |
 
 ![Batch 1, before and after](assets/house_theme/batch1_antes_depois.png)
 

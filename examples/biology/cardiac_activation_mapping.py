@@ -103,6 +103,9 @@ def main(argv=None):
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
+        from pinneapple_tools.visualization.style import use_theme
+        use_theme("report")   # one theme for every figure of the library (#918)
+
         fig, ax = plt.subplots(1, 3, figsize=(13, 4))
         maps = [T, np.full(T.shape, np.nan), np.full(T.shape, np.nan)]
         maps[1][tissue], maps[2][tissue] = base, Tp

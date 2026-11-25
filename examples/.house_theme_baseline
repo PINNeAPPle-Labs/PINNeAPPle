@@ -8,7 +8,6 @@ examples/benchmark_suite/04_digital_twin_flow.py
 examples/benchmark_suite/05_surrogate_deeponet_multifield.py
 examples/benchmark_suite/08_hyperparameter_sweep_parallel.py
 examples/biology/aorta_windkessel.py
-examples/biology/cardiac_activation_mapping.py
 examples/black_hole_weather/evaluate.py
 examples/carcrashnet_pole_impact/run.py
 examples/electrodynamics/10_pmsm_prius.py

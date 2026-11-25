@@ -163,7 +163,7 @@ def compare_rollouts(model: MeshDynamicsMGN, vel_traj: torch.Tensor, graph: Mesh
         return report
     native = native_rollout(native_step, vel_traj, graph, n, free_types=tuple(free_types))
     report["native_rmse"] = _rmse(native, vel_traj[: n + 1], free)
-    denom = float(native[:, free].norm()) or 1.0
-    report["pinn_agreement_with_native"] = float((pred - native)[:, free].norm()) / denom
+    denom = float(native[:, free].norm().detach()) or 1.0
+    report["pinn_agreement_with_native"] = float((pred - native)[:, free].norm().detach()) / denom
     report["native"]["provider"] = report["native"]["provider"] or "callable"
     return report

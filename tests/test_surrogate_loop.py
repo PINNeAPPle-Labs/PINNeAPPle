@@ -186,3 +186,99 @@ def test_airfoil_a_binding_constraint_widens_the_gap_between_the_loop_and_a_fixe
     assert out["loop"]["best_cd"] < out["fixed"]["best_cd"]
     assert out["gain"] > 1.0
     assert out["loop"]["solver_calls"][0] <= 12
+
+
+# ------------------------------------------------------- the batch goes through the campaign runner (#295, #297)
+def _cheap_case(params, workdir):
+    """A fast stand-in for an expensive run: ``(x0 - 0.2)^2 + (x1 - 0.8)^2`` and ``x1``, as a campaign solver."""
+    return {"f": (params["x0"] - 0.2) ** 2 + (params["x1"] - 0.8) ** 2, "x1": params["x1"]}
+
+
+def test_the_loop_reaches_the_same_optimum_through_the_campaign_runner(tmp_path):
+    """The adapter is a transport, not a change of method: the same loop, the same seed, the same answer.
+
+    The campaign runner owns the queue, the retries and the cache; nothing about the acquisition or the stopping rule
+    is different for having been routed through it, and this is the assertion that says so.
+    """
+    from pinneapple_analysis.surrogate_loop import campaign_solver, loop
+
+    space = [{"name": "x0", "low": 0.0, "high": 1.0}, {"name": "x1", "low": 0.0, "high": 1.0}]
+    cons = [Constraint("x1_max", 0.5, sense="<=")]
+
+    def model():
+        return EnsembleSurrogate(2, 2, n_members=3, hidden=16, epochs=150, seed=3)
+
+    direct = loop(space, model(), bowl, budget=12, n_initial=6, batch=3, constraints=cons, seed=1)
+    through = campaign_solver(_cheap_case, ["f", "x1"], names=("x0", "x1"), workers=4,
+                             cache_dir=tmp_path / "cache")
+    routed = loop(space, model(), through, budget=12, n_initial=6, batch=3, constraints=cons, seed=1)
+
+    assert routed.best.objective == pytest.approx(direct.best.objective, rel=1e-9)
+    assert routed.best.x == pytest.approx(direct.best.x)
+    assert routed.solver_calls == direct.solver_calls
+    assert through.sources()["calls"] == routed.solver_calls, "every verified design went through the runner"
+    assert through.sources()["executed"] == routed.solver_calls
+
+
+def test_the_campaign_runner_runs_a_rounds_batch_in_parallel_and_caches_the_repeat(tmp_path):
+    """The point of routing the batch through the runner: it is one submission of ``batch`` jobs, not a loop.
+
+    Two things are measured. The designs of a batch overlap in time (``workers`` designs are in the solver at once),
+    which a plain ``solver(X)`` over a Python loop would never do; and a second identical loop costs no solver time,
+    because the runner's key is the content of the run and every design was seen before.
+    """
+    import threading
+    import time
+
+    from pinneapple_analysis.surrogate_loop import campaign_solver
+
+    live, peak, lock = [0], [0], threading.Lock()
+
+    def slow_case(params, workdir):
+        with lock:
+            live[0] += 1
+            peak[0] = max(peak[0], live[0])
+        time.sleep(0.05)
+        with lock:
+            live[0] -= 1
+        return {"f": (params["x0"] - 0.2) ** 2 + (params["x1"] - 0.8) ** 2, "x1": params["x1"]}
+
+    solver = campaign_solver(slow_case, ["f", "x1"], names=("x0", "x1"), workers=4, cache_dir=tmp_path / "c")
+    X = np.array([[0.1 * i, 0.1 * j] for i in range(8) for j in (1, 2)])
+    first = solver(X)
+    assert first.shape == (len(X), 2)
+    assert peak[0] > 1, f"the batch never ran more than {peak[0]} design at a time"
+    assert peak[0] <= 4, "more designs in flight than the workers asked for"
+    assert solver.sources() == {"calls": len(X), "executed": len(X), "cached": 0}
+
+    again = solver(X)
+    assert again == pytest.approx(first), "the same designs must give the same numbers from the cache"
+    assert solver.sources()["cached"] == len(X), "the second submission is answered from the cache, not re-run"
+
+
+def test_a_design_that_did_not_run_raises_instead_of_becoming_a_zero(tmp_path):
+    """A failed run has no objective, and :func:`loop` has no way to say so — a zero would be read as the optimum.
+
+    So the adapter refuses the batch rather than guess, and the message carries the runner's own classification.
+    """
+    from pinneapple_analysis.surrogate_loop import campaign_solver
+
+    def half_broken(params, workdir):
+        if params["x0"] > 0.5:
+            raise RuntimeError("the mesher gave up")
+        return {"f": params["x0"], "x1": params["x1"]}
+
+    solver = campaign_solver(half_broken, ["f", "x1"], names=("x0", "x1"), workers=2,
+                             cache_dir=tmp_path / "c")
+    with pytest.raises(RuntimeError, match="did not run"):
+        solver(np.array([[0.1, 0.1], [0.9, 0.1]]))
+
+
+def test_the_campaign_adapter_refuses_a_batch_it_cannot_name_the_columns_of(tmp_path):
+    from pinneapple_analysis.surrogate_loop import campaign_solver
+
+    with pytest.raises(ValueError, match="at least the objective"):
+        campaign_solver(_cheap_case, [], names=("x0", "x1"))
+    solver = campaign_solver(_cheap_case, ["f", "x1"], names=("x0",), cache_dir=tmp_path / "c")
+    with pytest.raises(ValueError, match="design columns"):
+        solver(np.array([[0.1, 0.2]]))

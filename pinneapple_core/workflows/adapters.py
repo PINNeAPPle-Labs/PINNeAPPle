@@ -228,7 +228,7 @@ class OpenFOAMAdapter(Adapter):
 
 class CalculiXAdapter(Adapter):
     """params: ``inp`` (file) or ``inp_from`` (upstream step id holding ``<job>.inp``), ``job`` (default "job"),
-    ``threads`` (1)."""
+    ``threads`` (1), ``backend`` ("native", "docker", or unset: the binary on ``PATH``, else the bundled image)."""
 
     kind = "calculix"
 
@@ -239,17 +239,36 @@ class CalculiXAdapter(Adapter):
         report = CalculiXBackend().check_environment()
         return report.ok, "" if report.ok else report.why()
 
+    def ccx_argv(self, ctx, job: str, threads: int, backend: str | None = None) -> list[str]:
+        """The command line that actually starts ``ccx``, from the same resolution the contract reports.
+
+        ``available()`` says yes when either the binary is on ``PATH`` or Docker can run the bundled image, so a step
+        that only ever spelled ``ccx -i <job>`` disagreed with its own verdict: on a machine with Docker and without
+        CalculiX the run was offered, accepted and then failed with exit 127. ``runner.ccx_command`` is the one place
+        that knows both lines. A step on a remote executor keeps the plain binary: an sbatch script or a Kubernetes
+        Job runs the line on another machine, which does not have this machine's Docker.
+        """
+        from pinneapple_simulation.external_solvers.calculix.runner import ccx_command
+
+        if backend or getattr(ctx.executor, "name", "local") == "local":
+            return ccx_command(str(ctx.workdir), job, threads=threads, backend=backend)
+        return ["ccx", "-i", job]
+
     def run(self, ctx):
         import numpy as np
 
         from pinneapple_simulation.external_solvers.calculix.frd import read_frd
         p = ctx.params
         job = p.get("job", "job")
+        threads = int(p.get("threads", 1))
         src = ctx.upstream_dir(p["inp_from"]) / f"{job}.inp" if p.get("inp_from") else Path(p["inp"])
         if not src.is_file():
             raise StepFailed(f"CalculiX input {src} not found")
         shutil.copy(src, ctx.workdir / f"{job}.inp")
-        res = ctx.execute(["ccx", "-i", job], env={"OMP_NUM_THREADS": str(p.get("threads", 1))})
+        argv = self.ccx_argv(ctx, job, threads, p.get("backend"))
+        if argv[0] == "docker":
+            ctx.log("ccx: no CalculiX binary on PATH, running the bundled Docker image")
+        res = ctx.execute(argv, env={"OMP_NUM_THREADS": str(threads)})
         if res.dry_run:
             return {"dry_run": True}
         frd = ctx.workdir / f"{job}.frd"

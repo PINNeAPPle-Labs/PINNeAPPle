@@ -131,8 +131,22 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None = 
     if os.path.exists(rj) and not force:
         prev = json.load(open(rj))
         if prev.get("status") in ("completed", "failed_validation") and _shards_present(d, prev):
-            mets = json.load(open(os.path.join(d, "metrics.json"))) if os.path.exists(os.path.join(d, "metrics.json")) else {}
-            return RunResult(rid, cls.name, "cached:" + prev["status"], d, mets, 0.0)
+            # A present integrity receipt must verify before a cached result is trusted.
+            # Legacy runs without receipts retain their existing cache behavior.
+            receipt_path = os.path.join(d, "evidence-manifest.json")
+            if os.path.exists(receipt_path):
+                from .experiments.evidence_manifest import verify_manifest
+                try:
+                    with open(receipt_path, encoding="utf-8") as receipt_file:
+                        receipt = json.load(receipt_file)
+                    verified = verify_manifest(d, receipt)["valid"]
+                except (OSError, ValueError, TypeError, KeyError):
+                    verified = False
+                if not verified:
+                    force = True
+            if not force:
+                mets = json.load(open(os.path.join(d, "metrics.json"))) if os.path.exists(os.path.join(d, "metrics.json")) else {}
+                return RunResult(rid, cls.name, "cached:" + prev["status"], d, mets, 0.0)
     if os.path.isdir(d):
         shutil.rmtree(d)
     os.makedirs(d)
@@ -181,6 +195,8 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None = 
     store.index_run(record, ctx.metrics, cards)
     from .manifest import write_for_run
     write_for_run(d)                                             # experiment.json: the run as a manifest
+    from .experiments.evidence_manifest import write_manifest
+    write_manifest(d)  # integrity receipt only; not independent physics verification
     if error and raise_errors:
         raise RuntimeError(f"{rid} failed:\n{error}")
     return RunResult(rid, cls.name, status, d, ctx.metrics, record["seconds"], error)

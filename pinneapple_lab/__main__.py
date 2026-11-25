@@ -22,6 +22,7 @@
     python -m pinneapple_lab register examples/my_study                             # manifest -> Lab item, curated
     python -m pinneapple_lab scaffold my_study                                      # a new example, wired
     python -m pinneapple_lab manifests --check                                      # the CI gate
+    python -m pinneapple_lab quality -o lab/QUALITY.md --backlog docs/quality_backlog.md   # the nine-item badge
     python -m pinneapple_lab site --out site                                        # catalogue + site/experiments
     python -m pinneapple_lab coverage -o docs/lab/coverage.md                       # experiment -> curated yes/no
     python -m pinneapple_lab showcase --lang en,pt --out docs/assets/showcase         # the animated panel
@@ -159,6 +160,14 @@ def main(argv=None) -> int:
     mf = sub.add_parser("manifests", help="list the experiment manifests; --check is the CI gate")
     mf.add_argument("--check", action="store_true", help="exit 1 if a folder lacks a valid manifest")
     mf.add_argument("roots", nargs="*")
+    ql = sub.add_parser("quality", help="the nine-item experiment quality checklist and its badge (#923)")
+    ql.add_argument("items", nargs="*", help="folders to check (default: every examples/* folder)")
+    ql.add_argument("--explain", action="store_true", help="one line per item, with the evidence and the fix")
+    ql.add_argument("--json", default=None, help="write the checklists as JSON to this path (- for stdout)")
+    ql.add_argument("-o", "--out", default=None, help="write the badge table (lab/QUALITY.md)")
+    ql.add_argument("--backlog", default=None, help="write the gaps per example, most visible first")
+    ql.add_argument("--limit", type=int, default=None, help="with --backlog: only the N most visible")
+    ql.add_argument("--min-visible", type=int, default=0, help="with --backlog: skip the least visible examples")
     lg = sub.add_parser("legend", help="the legend of the six seals, A to F (PNG)")
     lg.add_argument("-o", "--out", required=True)
     lg.add_argument("--lang", default="en", choices=["en", "pt"])
@@ -230,6 +239,37 @@ def main(argv=None) -> int:
             return 1 if problems else 0
         for _path, m in mfs.scan(a.roots or None, lab=LabStore(a.root).root):
             print(f"{m.status:12s} {m.domain[:22]:22s} {m.id}")
+        return 0
+    if a.cmd == "quality":
+        from . import quality as q
+        if a.items:
+            lists = [q.assess(x) for x in a.items]
+            rows = [(c, 0) for c in lists]
+        else:
+            rows = q.assess_all()
+        if a.explain:
+            for c, _vis in rows:
+                print(c.explain())
+                print()
+        if a.json:
+            text = json.dumps({"schema": q.SCHEMA, "folders": [c.to_dict() for c, _v in rows]}, indent=1)
+            if a.json == "-":
+                print(text)
+            else:
+                os.makedirs(os.path.dirname(os.path.abspath(a.json)), exist_ok=True)
+                with open(a.json, "w") as f:
+                    f.write(text + "\n")
+        if a.out:
+            os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+            with open(a.out, "w") as f:
+                f.write(q.render_markdown([c for c, _v in rows], wider={c.subject: v for c, v in rows}))
+        if a.backlog:
+            os.makedirs(os.path.dirname(os.path.abspath(a.backlog)), exist_ok=True)
+            with open(a.backlog, "w") as f:
+                f.write(q.backlog(rows, limit=a.limit, min_visible=a.min_visible))
+        if not any((a.explain, a.json, a.out, a.backlog)):
+            for c, _vis in rows:
+                print(f"{c.badge():48s} {c.subject}")
         return 0
     if a.cmd == "improve":
         from .improve import improve

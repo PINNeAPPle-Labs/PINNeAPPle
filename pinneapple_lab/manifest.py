@@ -33,11 +33,14 @@ Format (``schema`` "pinneapple.experiment/1"; paths relative to the manifest's f
      "links": {"guide": "docs/guides/flight_dynamics.md", "script": "...", "pr": [844, 847]},
      "references": ["MIL-F-8785C"], "status": "curated" | "not curated",
      "lab": {"item": "...", "experiment": "...", "run_id": "..."},
+     "quality": {"schema": "pinneapple.quality.declaration/1", "not_measured": ["..."],
+                 "not_applicable": {"convergence": "no solver: the data are measured"}},
      "provenance": {"source": "experiment()", "git": "...", "created": "...", "seconds": 1.2, "environment": {...}}}
 
 A metric always has a measured value (never a placeholder) and says how it was measured; a missing file or a metric
 without a value fails :func:`validate`, and :func:`check_repo` fails CI for an ``examples/*`` folder without a valid
-manifest.
+manifest. ``quality`` is optional and read by :mod:`pinneapple_lab.quality` (#923): the checklist it feeds is
+computed from the folder, so a manifest without the block stays valid and shows the items it can support.
 """
 from __future__ import annotations
 
@@ -104,6 +107,9 @@ class Manifest:
     status: str = "not curated"
     lab: dict[str, Any] = field(default_factory=dict)
     provenance: dict[str, Any] = field(default_factory=dict)
+    #: what the folder declares about its own protocol -- ``not_applicable`` and ``not_measured`` (#923, format
+    #: ``pinneapple.quality.declaration/1`` in :mod:`pinneapple_lab.quality`); empty in every older manifest
+    quality: dict[str, Any] = field(default_factory=dict)
     schema: str = SCHEMA
 
     def to_dict(self) -> dict[str, Any]:

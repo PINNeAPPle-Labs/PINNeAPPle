@@ -82,6 +82,27 @@ def _class_meta(exp: str) -> dict[str, Any]:
         return {"tags": [], "description": "", "module": ""}
 
 
+def _checklist(m: M.Manifest, base: str) -> dict[str, Any] | None:
+    """The nine-item quality checklist and badge of a folder (#923), or None when it cannot be computed: the badge
+    is a view of the manifest and its folder, never a separate record, so a failure to read one folder must not
+    take the page down with it."""
+    try:
+        from .quality import assess
+        return assess(m, base=base).to_dict()
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _run_manifest(run_dir: str) -> tuple[M.Manifest, str]:
+    """A Lab run folder as a manifest, for the checklist: the run already records every check, metric and the git
+    commit, so a run is an experiment with a badge and no extra step (#923). A folder that does not read as one
+    gets an empty manifest, which the checklist reports as not assessed rather than as a failure."""
+    try:
+        return M.from_run_dir(run_dir), run_dir
+    except Exception:  # noqa: BLE001
+        return M.Manifest(id=os.path.basename(run_dir), title=os.path.basename(run_dir)), run_dir
+
+
 def _lab_entry(key: str, rec: dict[str, Any], cur: dict[str, Any], root: str) -> dict[str, Any]:
     exp, rid = rec["experiment"], rec.get("best_run", "")
     run_dir = os.path.join(root, "runs", exp, rid)
@@ -126,6 +147,7 @@ def _lab_entry(key: str, rec: dict[str, Any], cur: dict[str, Any], root: str) ->
         "media": media, "viewers": viewers,
         "links": {"guide": docs[0] if docs else "", "script": script or "", "pr": []},
         "date": run.get("started") or 0, "experiment": exp, "run": rid, "seal_key": key,
+        "checklist": _checklist(*_run_manifest(run_dir)),
     }
 
 
@@ -162,6 +184,7 @@ def _manifest_entry(path: str, m: M.Manifest, cur: dict[str, Any], root: str) ->
                   "pr": list(m.links.get("pr", []))},
         "items": [], "curate": None if tier else f"python -m pinneapple_lab register {rel}",
         "date": 0, "modules": m.modules, "scripts": m.scripts, "seal_key": keys[0] if keys else None,
+        "checklist": _checklist(m, base),
     }
     for k in keys:                                                 # the Lab items that grade the folder
         try:

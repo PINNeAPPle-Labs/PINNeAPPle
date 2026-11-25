@@ -21,6 +21,7 @@
   * [The .ppx container: a result that reproduces elsewhere](core_concepts/artifact.md)
   * [One registry for every extensible object type](core_concepts/registry.md)
   * [The physical data graph: from a prediction back to the problem](core_concepts/physical_data_graph.md)
+  * [Datasets and models: the registry](core_concepts/datasets_and_models.md)
   * [PhysicsOptimizer](core_concepts/physics_optimizer.md)
   * [Model](core_concepts/model.md)
   * [PINN / Physics](core_concepts/pinn.md)

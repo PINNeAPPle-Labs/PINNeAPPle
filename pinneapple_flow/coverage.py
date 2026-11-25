@@ -231,6 +231,11 @@ REASONS: dict[str, str] = {
                                  "node that trains, which reads its verdict",
     "pinneapple_data.review": "the engineering review record -- a named person approving a specific set of evidence "
                               "(#1493): a judgement and an audit trail, not a computation step",
+    "pinneapple_data.registry": "one list of the public datasets and the pre-trained models with the licence, the "
+                                "citation and the checksums, and the load of one of them (#528): what it returns is "
+                                "the arrays a data node already takes (auto.data.datasets.*), and the choice -- which "
+                                "dataset, under which licence -- is made before a flow is drawn and is written into "
+                                "the run's record, not recomputed inside it",
     "pinneapple_analysis.decision": "decision-level surrogate validation (#1871): flip rate, ranking preservation, "
                                     "regret and the failure map take the truth and prediction arrays of a whole "
                                     "design sweep, which a flow form cannot hold (the reason "

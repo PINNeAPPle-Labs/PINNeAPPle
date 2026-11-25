@@ -24,6 +24,10 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 MAX_OUTPUT = 6000
+#: One matplotlib cache for every snippet, not one per run. With a cache directory inside the run's temporary directory,
+#: matplotlib rebuilt its font cache on every snippet — two "Matplotlib is building the font cache" lines and, on a
+#: loaded machine, the whole 300 s the slowest graded snippet is allowed (#625).
+MPL_CACHE = Path(tempfile.gettempdir()) / "pinneapple-sandbox-mpl"
 
 _WRAP = r'''
 import os, sys, warnings
@@ -115,8 +119,10 @@ def run_snippet(code: str, *, timeout: float = 60.0, memory_mb: int | None = Non
             text = text.replace(name, value)
         wrap.write_text(text)
         run_env = {k: v for k, v in os.environ.items() if not k.endswith(("_PASSWORD", "_TOKEN", "_KEY", "_SECRET"))}
+        with contextlib.suppress(OSError):
+            MPL_CACHE.mkdir(parents=True, exist_ok=True)
         run_env.update({"PYTHONHASHSEED": "0", "CUDA_VISIBLE_DEVICES": "", "MPLBACKEND": "Agg",
-                        "MPLCONFIGDIR": str(Path(tmp) / "mpl"), "OMP_NUM_THREADS": "2", **(env or {})})
+                        "MPLCONFIGDIR": str(MPL_CACHE), "OMP_NUM_THREADS": "2", **(env or {})})
         t0 = time.time()
         refused = Path(tmp) / "limits-not-applied.txt"
         # start_new_session gives the snippet its own session and process group (the timeout kills its children too)

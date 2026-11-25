@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -236,3 +237,14 @@ def test_a_limit_the_platform_refuses_does_not_kill_the_run():
     assert "preexec" not in r["stderr"]
     if "could not be applied" in r["stderr"]:            # the platform said no (macOS); elsewhere the cap holds
         assert "address space" in r["stderr"]
+
+
+def test_the_matplotlib_cache_survives_between_runs():
+    """The cache directory used to live inside the run's temporary directory, so every snippet rebuilt the font cache:
+    two "Matplotlib is building the font cache" lines per run, and on a loaded machine the whole 300 s of the slowest
+    graded snippet went to it (#625). One directory, the same one on every run."""
+    code = "import os\nprint(os.environ['MPLCONFIGDIR'])"
+    first, second = run_snippet(code, timeout=120), run_snippet(code, timeout=120)
+    assert first["ok"] and second["ok"], first["stderr"] + second["stderr"]
+    assert first["stdout"] == second["stdout"]
+    assert Path(first["stdout"]).is_dir()

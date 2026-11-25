@@ -56,7 +56,17 @@
    0.0,
    4.0,
    8.0
-  ]
+  ],
+  "ladder_ahmed_slants": [
+   0.0,
+   12.5,
+   25.0,
+   30.0,
+   35.0,
+   40.0
+  ],
+  "ladder_ahmed_speed": 60.0,
+  "ladder_ahmed_clearance": 0.05
  },
  "scripts": [
   "classical_cases/run_cases.py"
@@ -151,6 +161,36 @@
    "value": 0.0238,
    "unit": "1",
    "how": "the same difference for the coarse RANS level (2624 cells, 20.3 s per design)"
+  },
+  {
+   "name": "ladder_ahmed_spearman_cd_campaign_mesh",
+   "value": 0.9429,
+   "unit": "1",
+   "how": "Spearman rank correlation of the six Ahmed slant angles by CD between the campaign mesh (L1) and the L2 mesh, read from the campaign's committed records (800 iterations, OpenFOAM v1912, 4-core Xeon)"
+  },
+  {
+   "name": "ladder_ahmed_cd_error_rel_campaign_mesh",
+   "value": 0.0965,
+   "unit": "1",
+   "how": "mean relative CD difference of the campaign mesh against the L2 mesh over the six slant angles of Ahmed et al. (1984) at 60 m/s and 50 mm; the mean absolute difference is 0.0325"
+  },
+  {
+   "name": "ladder_ahmed_cp_rms_campaign_mesh",
+   "value": 0.1031,
+   "unit": "1",
+   "how": "sqrt(mean(dCp^2)) of the campaign mesh's skin pressure against the L2 mesh's, vertex by vertex on the 1751 template vertices, in units of the dynamic pressure; the worst vertex differs by 3.30, at the roof of the 35 degree body"
+  },
+  {
+   "name": "ladder_ahmed_cd_error_rel_vs_experiment_campaign_mesh",
+   "value": 0.1693,
+   "unit": "1",
+   "how": "mean relative CD difference of the campaign mesh against the drag measured by Ahmed, Ramm & Faltin (1984) for the same six slant angles"
+  },
+  {
+   "name": "ladder_ahmed_cd_error_rel_vs_experiment_l2",
+   "value": 0.2365,
+   "unit": "1",
+   "how": "the same distance for the fine (L2) mesh: refining halves the error on the attached bodies (0 and 12.5 deg) and increases it on the separated ones (35 and 40 deg)"
   }
  ],
  "checks": [
@@ -200,7 +240,8 @@
    "classical_cases/results/step.json",
    "classical_cases/results/tmr_flat_plate.json",
    "classical_cases/results/warm_start.json",
-   "classical_cases/results/ladder.json"
+   "classical_cases/results/ladder.json",
+   "classical_cases/results/ladder_ahmed.json"
   ]
  },
  "links": {

@@ -1,0 +1,759 @@
+{
+ "calibration": {
+  "CD": {
+   "all six (offset and slope)": {
+    "fitted_on": [
+     0.0,
+     12.5,
+     25.0,
+     30.0,
+     35.0,
+     40.0
+    ],
+    "intercept": -0.055339324121902234,
+    "mean_abs_error_after": 0.030263264318196245,
+    "mean_abs_error_before": 0.032520187994455184,
+    "offset": 0.007377042769484657,
+    "quantity": "CD",
+    "rung": "ahmed-L1",
+    "slope": 1.2040576120141189,
+    "spearman_after": 0.9428571428571428,
+    "spearman_before": 0.9428571428571428
+   },
+   "two designs (offset)": {
+    "fitted_on": [
+     25.0,
+     35.0
+    ],
+    "intercept": 0.0,
+    "mean_abs_error_after": 0.032293597344575084,
+    "mean_abs_error_before": 0.032520187994455184,
+    "offset": -0.0006797719496402788,
+    "quantity": "CD",
+    "rung": "ahmed-L1",
+    "slope": 1.0,
+    "spearman_after": 0.9428571428571428,
+    "spearman_before": 0.9428571428571428
+   }
+  },
+  "CL": {
+   "all six (offset and slope)": {
+    "fitted_on": [
+     0.0,
+     12.5,
+     25.0,
+     30.0,
+     35.0,
+     40.0
+    ],
+    "intercept": 0.08206577175813316,
+    "mean_abs_error_after": 0.0776959456004276,
+    "mean_abs_error_before": 0.06556352678651241,
+    "offset": 0.06556352678651241,
+    "quantity": "CL",
+    "rung": "ahmed-L1",
+    "slope": 0.8725771205639504,
+    "spearman_after": 0.9428571428571428,
+    "spearman_before": 0.9428571428571428
+   },
+   "two designs (offset)": {
+    "fitted_on": [
+     25.0,
+     35.0
+    ],
+    "intercept": 0.0,
+    "mean_abs_error_after": 0.05905641375352331,
+    "mean_abs_error_before": 0.06556352678651241,
+    "offset": 0.01867354595967624,
+    "quantity": "CL",
+    "rung": "ahmed-L1",
+    "slope": 1.0,
+    "spearman_after": 0.9428571428571428,
+    "spearman_before": 0.9428571428571428
+   }
+  }
+ },
+ "cp_by_design": {
+  "ahmed-L1@0": {
+   "max_abs": 0.4789383574345045,
+   "region": "roof",
+   "rms": 0.05530872374880815,
+   "rms_by_region": {
+    "base": 0.06199786872352562,
+    "front": 0.09899233579181402,
+    "roof": 0.04676338850157452,
+    "side": 0.012565845227505642,
+    "underbody": 0.03076075179088134
+   },
+   "vertices": 1751
+  },
+  "ahmed-L1@12.5": {
+   "max_abs": 0.506517542334202,
+   "region": "slant",
+   "rms": 0.06295469646986868,
+   "rms_by_region": {
+    "base": 0.050762921530015506,
+    "front": 0.09930361083463571,
+    "roof": 0.0690072531024975,
+    "side": 0.026875750744920608,
+    "slant": 0.08119499939952875,
+    "underbody": 0.03091201072336463
+   },
+   "vertices": 1751
+  },
+  "ahmed-L1@25": {
+   "max_abs": 1.2850840413345725,
+   "region": "side",
+   "rms": 0.1145601762779639,
+   "rms_by_region": {
+    "base": 0.045996720292039744,
+    "front": 0.09961265536389714,
+    "roof": 0.1558289848599208,
+    "side": 0.10191543693578621,
+    "slant": 0.21793205166114643,
+    "underbody": 0.030537153700759764
+   },
+   "vertices": 1751
+  },
+  "ahmed-L1@30": {
+   "max_abs": 1.0644178470813521,
+   "region": "roof",
+   "rms": 0.10995642783004864,
+   "rms_by_region": {
+    "base": 0.05249860902114903,
+    "front": 0.09952118697288626,
+    "roof": 0.1413539875967631,
+    "side": 0.1082084071740424,
+    "slant": 0.19268013800809516,
+    "underbody": 0.035062229930934316
+   },
+   "vertices": 1751
+  },
+  "ahmed-L1@35": {
+   "max_abs": 3.300682444754095,
+   "region": "roof",
+   "rms": 0.1486276435919902,
+   "rms_by_region": {
+    "base": 0.16181708191023872,
+    "front": 0.09931567337591678,
+    "roof": 0.24633776833797077,
+    "side": 0.14826758100261142,
+    "slant": 0.21258499650738602,
+    "underbody": 0.035108119201176284
+   },
+   "vertices": 1751
+  },
+  "ahmed-L1@40": {
+   "max_abs": 1.5483847138232936,
+   "region": "roof",
+   "rms": 0.12734205534583332,
+   "rms_by_region": {
+    "base": 0.07620305852864726,
+    "front": 0.09977943528450742,
+    "roof": 0.24787470341919957,
+    "side": 0.07708566974230413,
+    "slant": 0.18599005028707055,
+    "underbody": 0.0388914145707821
+   },
+   "vertices": 1751
+  }
+ },
+ "designs": [
+  {
+   "clearance": 0.05,
+   "slant_deg": 0.0,
+   "speed": 60.0
+  },
+  {
+   "clearance": 0.05,
+   "slant_deg": 12.5,
+   "speed": 60.0
+  },
+  {
+   "clearance": 0.05,
+   "slant_deg": 25.0,
+   "speed": 60.0
+  },
+  {
+   "clearance": 0.05,
+   "slant_deg": 30.0,
+   "speed": 60.0
+  },
+  {
+   "clearance": 0.05,
+   "slant_deg": 35.0,
+   "speed": 60.0
+  },
+  {
+   "clearance": 0.05,
+   "slant_deg": 40.0,
+   "speed": 60.0
+  }
+ ],
+ "family": "Ahmed body, Re = 4.18e+06 on the length, slant angle",
+ "measured_on": {
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "git_commit": "09ceeb5835ab9f449e2fe580cf01bef38314ee6f",
+  "openfoam": "v1912 (the campaign's image; see examples/end_to_end/ahmed_body/README.md)",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.13.17",
+  "records": "examples/end_to_end/ahmed_body/results/cfd_runs"
+ },
+ "mesh_study": [
+  {
+   "CD": 0.28899965610083705,
+   "cells": 84223,
+   "rung": "ahmed-L0",
+   "seconds": 132.1
+  },
+  {
+   "CD": 0.29656455281749244,
+   "cells": 207080,
+   "rung": "ahmed-L1",
+   "seconds": 448.4
+  },
+  {
+   "CD": 0.2707438409326792,
+   "cells": 534472,
+   "rung": "ahmed-L2",
+   "seconds": 1157.1
+  },
+  {
+   "CD": 0.2639794841992436,
+   "cells": 1398073,
+   "rung": "ahmed-L3",
+   "seconds": 6410.1
+  }
+ ],
+ "multifidelity": {
+  "levels": [
+   {
+    "cost": 274,
+    "name": "ahmed-L1"
+   },
+   {
+    "cost": 1157,
+    "name": "ahmed-L2"
+   }
+  ],
+  "note": "wall seconds per design on the campaign's machine (4-core Xeon, OpenFOAM v1912), from the measured table in examples/end_to_end/ahmed_body/results",
+  "quantity": "CD"
+ },
+ "not_in_the_table": {
+  "ahmed-L0": "solved at the baseline design only; a native ladder on this machine ran at 2.3 s/iteration under load average 29-39 (campaign: 0.13 s/iteration), about 3 h for six designs, and its cost column would measure contention rather than the mesh",
+  "ahmed-L3": "solved at the baseline design only, 6410 s for that one design",
+  "lbm": "a low-Reynolds method; this family is at Re = 4.2e6 on the length",
+  "surrogate": "a fit to the campaign's 64 runs, not a solver rung: it does not solve the same case at fewer cells",
+  "vlm": "a lifting-surface method: the Ahmed body has no wing, and the wings family it belongs to (apps/aero_optimizer) holds committed 3-D solutions for two aircraft \u2014 too few to rank"
+ },
+ "reference_rung": "ahmed-L2",
+ "rows": [
+  {
+   "CD": 0.2692701796397162,
+   "CD_error_abs": 0.014546419812988542,
+   "CD_error_rel": 0.05710664691383145,
+   "CD_error_rel_vs_experiment": 0.07708071855886489,
+   "CD_friction": 0.039583678212344056,
+   "CD_iteration_std": 6.1264425589972e-05,
+   "CD_pressure": 0.22965957677424215,
+   "CL": -0.2258299828489742,
+   "CL_error_abs": 0.005601506257852551,
+   "Cp_error": {
+    "max_abs": 0.4789383574345045,
+    "region": "roof",
+    "rms": 0.05530872374880815,
+    "rms_by_region": {
+     "base": 0.06199786872352562,
+     "front": 0.09899233579181402,
+     "roof": 0.04676338850157452,
+     "side": 0.012565845227505642,
+     "underbody": 0.03076075179088134
+    },
+    "vertices": 1751
+   },
+   "cells": 208253,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 0.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "val_00.0",
+   "iterations": 800,
+   "mesh": "campaign",
+   "rung": "ahmed-L1",
+   "same_iterations": true,
+   "seconds": 260.9761827809998,
+   "status": "measured"
+  },
+  {
+   "CD": 0.2547237598267277,
+   "CD_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_rel_vs_experiment": 0.01889503930691072,
+   "CD_friction": 0.04094480822339055,
+   "CD_iteration_std": 0.0006972326641219585,
+   "CD_pressure": 0.21293877363630723,
+   "CL": -0.22022847659112166,
+   "CL_error_abs": 0.0,
+   "Cp_error": {
+    "max_abs": 0.0,
+    "region": "front",
+    "rms": 0.0,
+    "rms_by_region": {
+     "base": 0.0,
+     "front": 0.0,
+     "roof": 0.0,
+     "side": 0.0,
+     "underbody": 0.0
+    },
+    "vertices": 1751
+   },
+   "cells": 537539,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 0.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "valL2_00.0",
+   "iterations": 800,
+   "mesh": "L2",
+   "rung": "ahmed-L2",
+   "same_iterations": true,
+   "seconds": 1244.903800138,
+   "status": "measured"
+  },
+  {
+   "CD": 0.25572677605998007,
+   "CD_error_abs": 0.0157827109860825,
+   "CD_error_rel": 0.06577662581994585,
+   "CD_error_rel_vs_experiment": 0.1118555480868698,
+   "CD_friction": 0.04069330718320212,
+   "CD_iteration_std": 0.0016031874834060915,
+   "CD_pressure": 0.21263113677551607,
+   "CL": 0.023043451601998804,
+   "CL_error_abs": 0.0032858285749843563,
+   "Cp_error": {
+    "max_abs": 0.506517542334202,
+    "region": "slant",
+    "rms": 0.06295469646986868,
+    "rms_by_region": {
+     "base": 0.050762921530015506,
+     "front": 0.09930361083463571,
+     "roof": 0.0690072531024975,
+     "side": 0.026875750744920608,
+     "slant": 0.08119499939952875,
+     "underbody": 0.03091201072336463
+    },
+    "vertices": 1751
+   },
+   "cells": 206991,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 12.5,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "val_12.5",
+   "iterations": 800,
+   "mesh": "campaign",
+   "rung": "ahmed-L1",
+   "same_iterations": true,
+   "seconds": 268.896803566,
+   "status": "measured"
+  },
+  {
+   "CD": 0.23994406507389757,
+   "CD_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_rel_vs_experiment": 0.04323506553868503,
+   "CD_friction": 0.04206140869146033,
+   "CD_iteration_std": 0.0011287877856180264,
+   "CD_pressure": 0.19740523847001362,
+   "CL": 0.02632928017698316,
+   "CL_error_abs": 0.0,
+   "Cp_error": {
+    "max_abs": 0.0,
+    "region": "front",
+    "rms": 0.0,
+    "rms_by_region": {
+     "base": 0.0,
+     "front": 0.0,
+     "roof": 0.0,
+     "side": 0.0,
+     "slant": 0.0,
+     "underbody": 0.0
+    },
+    "vertices": 1751
+   },
+   "cells": 534258,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 12.5,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "valL2_12.5",
+   "iterations": 800,
+   "mesh": "L2",
+   "rung": "ahmed-L2",
+   "same_iterations": true,
+   "seconds": 1216.7495896949997,
+   "status": "measured"
+  },
+  {
+   "CD": 0.29727774864524137,
+   "CD_error_abs": 0.025728235187755466,
+   "CD_error_rel": 0.09474601836023362,
+   "CD_error_rel_vs_experiment": 0.04307981980786454,
+   "CD_friction": 0.03970610838055728,
+   "CD_iteration_std": 0.0014939666153269578,
+   "CD_pressure": 0.25986969351009437,
+   "CL": 0.2822818003664232,
+   "CL_error_abs": 0.01063400426613037,
+   "Cp_error": {
+    "max_abs": 1.2850840413345725,
+    "region": "side",
+    "rms": 0.1145601762779639,
+    "rms_by_region": {
+     "base": 0.045996720292039744,
+     "front": 0.09961265536389714,
+     "roof": 0.1558289848599208,
+     "side": 0.10191543693578621,
+     "slant": 0.21793205166114643,
+     "underbody": 0.030537153700759764
+    },
+    "vertices": 1751
+   },
+   "cells": 207080,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 25.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "val_25.0",
+   "iterations": 800,
+   "mesh": "campaign",
+   "rung": "ahmed-L1",
+   "same_iterations": true,
+   "seconds": 274.7792944869998,
+   "status": "measured"
+  },
+  {
+   "CD": 0.2715495134574859,
+   "CD_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_rel_vs_experiment": 0.0471946896228564,
+   "CD_friction": 0.04213256617753185,
+   "CD_iteration_std": 0.0023689139800657146,
+   "CD_pressure": 0.2298399267782444,
+   "CL": 0.29291580463255357,
+   "CL_error_abs": 0.0,
+   "Cp_error": {
+    "max_abs": 0.0,
+    "region": "front",
+    "rms": 0.0,
+    "rms_by_region": {
+     "base": 0.0,
+     "front": 0.0,
+     "roof": 0.0,
+     "side": 0.0,
+     "slant": 0.0,
+     "underbody": 0.0
+    },
+    "vertices": 1751
+   },
+   "cells": 534472,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 25.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "valL2_25.0",
+   "iterations": 800,
+   "mesh": "L2",
+   "rung": "ahmed-L2",
+   "same_iterations": true,
+   "seconds": 1318.9432111670003,
+   "status": "measured"
+  },
+  {
+   "CD": 0.33777833866973556,
+   "CD_error_abs": 0.01937206968808508,
+   "CD_error_rel": 0.06084072951843005,
+   "CD_error_rel_vs_experiment": 0.10640651145572605,
+   "CD_friction": 0.03936294014783634,
+   "CD_iteration_std": 0.0029845452165554076,
+   "CD_pressure": 0.3012098197753745,
+   "CL": 0.3452978028386463,
+   "CL_error_abs": 0.028679876345234556,
+   "Cp_error": {
+    "max_abs": 1.0644178470813521,
+    "region": "roof",
+    "rms": 0.10995642783004864,
+    "rms_by_region": {
+     "base": 0.05249860902114903,
+     "front": 0.09952118697288626,
+     "roof": 0.1413539875967631,
+     "side": 0.1082084071740424,
+     "slant": 0.19268013800809516,
+     "underbody": 0.035062229930934316
+    },
+    "vertices": 1751
+   },
+   "cells": 206760,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 30.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "val_30.0",
+   "iterations": 800,
+   "mesh": "campaign",
+   "rung": "ahmed-L1",
+   "same_iterations": true,
+   "seconds": 283.651592662,
+   "status": "measured"
+  },
+  {
+   "CD": 0.3184062689816505,
+   "CD_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_rel_vs_experiment": 0.15765537306441674,
+   "CD_friction": 0.040986330041592335,
+   "CD_iteration_std": 0.005528606372132158,
+   "CD_pressure": 0.2861163982949752,
+   "CL": 0.37397767918388086,
+   "CL_error_abs": 0.0,
+   "Cp_error": {
+    "max_abs": 0.0,
+    "region": "front",
+    "rms": 0.0,
+    "rms_by_region": {
+     "base": 0.0,
+     "front": 0.0,
+     "roof": 0.0,
+     "side": 0.0,
+     "slant": 0.0,
+     "underbody": 0.0
+    },
+    "vertices": 1751
+   },
+   "cells": 533562,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 30.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "valL2_30.0",
+   "iterations": 800,
+   "mesh": "L2",
+   "rung": "ahmed-L2",
+   "same_iterations": true,
+   "seconds": 1226.7715505720003,
+   "status": "measured"
+  },
+  {
+   "CD": 0.3835143024839079,
+   "CD_error_abs": 0.02436869128847491,
+   "CD_error_rel": 0.05974431800427978,
+   "CD_error_rel_vs_experiment": 0.47505500955349184,
+   "CD_friction": 0.03742681150767393,
+   "CD_iteration_std": 0.00577222147296328,
+   "CD_pressure": 0.3371574058782658,
+   "CL": 0.3782551666693679,
+   "CL_error_abs": 0.026713087653222112,
+   "Cp_error": {
+    "max_abs": 3.300682444754095,
+    "region": "roof",
+    "rms": 0.1486276435919902,
+    "rms_by_region": {
+     "base": 0.16181708191023872,
+     "front": 0.09931567337591678,
+     "roof": 0.24633776833797077,
+     "side": 0.14826758100261142,
+     "slant": 0.21258499650738602,
+     "underbody": 0.035108119201176284
+    },
+    "vertices": 1751
+   },
+   "cells": 207973,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 35.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "val_35.0",
+   "iterations": 800,
+   "mesh": "campaign",
+   "rung": "ahmed-L1",
+   "same_iterations": true,
+   "seconds": 274.6007004390003,
+   "status": "measured"
+  },
+  {
+   "CD": 0.4078829937723828,
+   "CD_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_rel_vs_experiment": 0.5687807452783953,
+   "CD_friction": 0.03948169554831587,
+   "CD_iteration_std": 0.00982271964544682,
+   "CD_pressure": 0.3645604252275458,
+   "CL": 0.40496825432259004,
+   "CL_error_abs": 0.0,
+   "Cp_error": {
+    "max_abs": 0.0,
+    "region": "front",
+    "rms": 0.0,
+    "rms_by_region": {
+     "base": 0.0,
+     "front": 0.0,
+     "roof": 0.0,
+     "side": 0.0,
+     "slant": 0.0,
+     "underbody": 0.0
+    },
+    "vertices": 1751
+   },
+   "cells": 535840,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 35.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "valL2_35.0",
+   "iterations": 800,
+   "mesh": "L2",
+   "rung": "ahmed-L2",
+   "same_iterations": true,
+   "seconds": 790.107821626,
+   "status": "measured"
+  },
+  {
+   "CD": 0.3005108912019697,
+   "CD_error_abs": 0.09532300100334462,
+   "CD_error_rel": 0.24081566253023556,
+   "CD_error_rel_vs_experiment": 0.20204356480787888,
+   "CD_friction": 0.0371246540219518,
+   "CD_iteration_std": 0.014464202929131798,
+   "CD_pressure": 0.25264262405091387,
+   "CL": -0.02600199490780942,
+   "CL_error_abs": 0.3184668576216505,
+   "Cp_error": {
+    "max_abs": 1.5483847138232936,
+    "region": "roof",
+    "rms": 0.12734205534583332,
+    "rms_by_region": {
+     "base": 0.07620305852864726,
+     "front": 0.09977943528450742,
+     "roof": 0.24787470341919957,
+     "side": 0.07708566974230413,
+     "slant": 0.18599005028707055,
+     "underbody": 0.0388914145707821
+    },
+    "vertices": 1751
+   },
+   "cells": 206983,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 40.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "val_40.0",
+   "iterations": 800,
+   "mesh": "campaign",
+   "rung": "ahmed-L1",
+   "same_iterations": true,
+   "seconds": 278.0813585820006,
+   "status": "measured"
+  },
+  {
+   "CD": 0.39583389220531434,
+   "CD_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_rel_vs_experiment": 0.5833355688212574,
+   "CD_friction": 0.038951391287705465,
+   "CD_iteration_std": 0.0229688047135153,
+   "CD_pressure": 0.3227999735591042,
+   "CL": 0.2924648627138411,
+   "CL_error_abs": 0.0,
+   "Cp_error": {
+    "max_abs": 0.0,
+    "region": "front",
+    "rms": 0.0,
+    "rms_by_region": {
+     "base": 0.0,
+     "front": 0.0,
+     "roof": 0.0,
+     "side": 0.0,
+     "slant": 0.0,
+     "underbody": 0.0
+    },
+    "vertices": 1751
+   },
+   "cells": 535694,
+   "design": {
+    "clearance": 0.05,
+    "slant_deg": 40.0,
+    "speed": 60.0
+   },
+   "error": null,
+   "id": "valL2_40.0",
+   "iterations": 800,
+   "mesh": "L2",
+   "rung": "ahmed-L2",
+   "same_iterations": true,
+   "seconds": 668.552678806,
+   "status": "measured"
+  }
+ ],
+ "table": [
+  {
+   "CD_error_abs": 0.032520187994455184,
+   "CD_error_rel": 0.09650500019115937,
+   "CD_error_rel_vs_experiment": 0.16925352871178267,
+   "CD_iteration_std": 0.004396564690495585,
+   "CL_error_abs": 0.06556352678651241,
+   "Cp_error_max_abs": 3.300682444754095,
+   "Cp_error_rms": 0.10312495387741882,
+   "cells": 208253,
+   "designs": 6,
+   "iterations": 800,
+   "measured": 6,
+   "mesh": "campaign",
+   "rung": "ahmed-L1",
+   "same_definition": true,
+   "seconds_per_design": 273.5,
+   "spearman_CD": 0.9428571428571428,
+   "spearman_CL": 0.9428571428571428
+  },
+  {
+   "CD_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_rel_vs_experiment": 0.23651608027208693,
+   "CD_iteration_std": 0.00708584419348333,
+   "CL_error_abs": 0.0,
+   "Cp_error_max_abs": 0.0,
+   "Cp_error_rms": 0.0,
+   "cells": 537539,
+   "designs": 6,
+   "iterations": 800,
+   "measured": 6,
+   "mesh": "L2",
+   "rung": "ahmed-L2",
+   "same_definition": true,
+   "seconds_per_design": 1077.7,
+   "spearman_CD": 1.0,
+   "spearman_CL": 1.0
+  }
+ ]
+}

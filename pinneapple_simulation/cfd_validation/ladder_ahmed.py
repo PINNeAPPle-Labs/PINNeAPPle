@@ -60,10 +60,11 @@ SLANTS = (0.0, 12.5, 25.0, 30.0, 35.0, 40.0)
 CLEARANCE, SPEED = 0.05, 60.0
 DESIGN_ITERATIONS = 800
 
-#: The rungs of the table, cheapest first. ``prefix`` is the id the campaign's records gave that mesh's runs.
+#: The rungs of the table, cheapest first. ``prefix`` is the id the campaign's records gave that mesh's runs; the cell
+#: count is read from each record rather than written here, so the table cannot disagree with the run it is built from.
 LEVELS = (
-    {"name": "ahmed-L1", "mesh": "campaign", "prefix": "val", "cells": 212048},
-    {"name": "ahmed-L2", "mesh": "L2", "prefix": "valL2", "cells": 534472},
+    {"name": "ahmed-L1", "mesh": "campaign", "prefix": "val"},
+    {"name": "ahmed-L2", "mesh": "L2", "prefix": "valL2"},
 )
 
 #: The whole grid-convergence family at the baseline design (25 deg, 50 mm, 60 m/s, 1000 iterations), from the
@@ -125,7 +126,13 @@ def _environment(records: str) -> dict[str, Any]:
     in the table belongs to that machine, and saying so is the difference between a cost column and a guess."""
     path = os.path.join(records, "environment.json")
     env = json.load(open(path)) if os.path.exists(path) else {}
-    return {"records": records, "cpu": env.get("cpu"), "cpu_count": env.get("cpu_count"),
+    root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+    try:                                    # a relative path in the JSON: an absolute one says where this was run
+        where = os.path.relpath(os.path.abspath(records), root)
+    except ValueError:
+        where = records
+    return {"records": records if where.startswith("..") else where,
+            "cpu": env.get("cpu"), "cpu_count": env.get("cpu_count"),
             "platform": env.get("platform"), "python": env.get("python"),
             "openfoam": "v1912 (the campaign's image; see examples/end_to_end/ahmed_body/README.md)",
             "git_commit": env.get("git_commit")}
@@ -154,7 +161,11 @@ def read_rung(records: str, level: Mapping[str, Any], design: AhmedDesign) -> di
                            "CD_pressure": rec["outputs"].get("CD_pressure"),
                            "CD_friction": rec["outputs"].get("CD_friction"),
                            "cells": int(rec["meta"].get("cells") or 0), "seconds": float(rec["cost_s"]),
+                           "mesh": rec["meta"].get("mesh"),
+                           # the rung is only comparable if it solved the same problem: the campaign's
+                           # validation runs are all 800 iterations, and a record that is not says so
                            "iterations": rec["meta"].get("iterations"),
+                           "same_iterations": rec["meta"].get("iterations") == DESIGN_ITERATIONS,
                            "CD_iteration_std": (rec["meta"].get("iteration_std") or {}).get("CD"),
                            "status": "measured" if rec["ok"] else "failed", "error": rec["message"]
                            if not rec["ok"] else None}
@@ -209,12 +220,13 @@ def ladder(records: str | None = None, *, designs: Sequence[AhmedDesign] | None 
     ref = {(r["design"]["slant_deg"], r["rung"]): r for r in rows if r["rung"] == finest}
     for r in rows:
         base = ref.get((r["design"]["slant_deg"], finest))
+        regions = r.pop("_regions")                 # borrowed, not part of the row: a numpy array does not JSON
         cd, cd_ref = r.get("CD"), (base or {}).get("CD")
         r["CD_error_rel"] = None if cd is None or cd_ref in (None, 0) else float(abs(cd - cd_ref) / abs(cd_ref))
         r["CD_error_abs"] = None if cd is None or cd_ref is None else float(abs(cd - cd_ref))
         cl, cl_ref = r.get("CL"), (base or {}).get("CL")
         r["CL_error_abs"] = None if cl is None or cl_ref is None else float(abs(cl - cl_ref))
-        r["Cp_error"] = cp_error(base, r, r.pop("_regions")) if base else \
+        r["Cp_error"] = cp_error(base, r, regions) if base else \
             {"rms": None, "max_abs": None, "region": None, "rms_by_region": {}, "vertices": 0}
         measured = AHMED_1984_CD.get(round(float(r["design"]["slant_deg"]), 1))
         r["CD_error_rel_vs_experiment"] = (None if cd is None or not measured
@@ -228,6 +240,7 @@ def ladder(records: str | None = None, *, designs: Sequence[AhmedDesign] | None 
             "rung": name, "mesh": level["mesh"], "designs": len(mine), "measured": len(ok),
             "cells": int(mine[0]["cells"]) if mine else 0,
             "iterations": mine[0].get("iterations") if mine else None,
+            "same_definition": all(r.get("same_iterations") for r in ok),
             "seconds_per_design": round(float(np.mean([r["seconds"] for r in ok])), 1) if ok else None,
             "CD_error_rel": _stat([r.get("CD_error_rel") for r in ok]) if name != finest else 0.0,
             "CD_error_abs": _stat([r.get("CD_error_abs") for r in ok]) if name != finest else 0.0,

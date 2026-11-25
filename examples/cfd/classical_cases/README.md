@@ -180,6 +180,10 @@ Every cost in that table belongs to the campaign's machine (4-core Xeon at 2.10 
 time of the run at 800 iterations; it is recorded in the records themselves and in `measured_on` in the JSON. The rungs
 are priced in the solver's own CPU seconds too, because a wall time measured on a busy box prices the load.
 
+The runs are steady but they are not still: the standard deviation of the last nine averaged iteration values is 0.0044
+in `CD` on the campaign mesh and 0.0071 on `L2`, an order of magnitude below the 0.0325 mean difference between the two
+meshes, so the columns above are reading the mesh and not the oscillation.
+
 **The rank correlation is not 1 on this family.** The campaign mesh orders five of the six designs exactly as the fine
 mesh does and inverts one pair: it puts the 40 degree body at `CD = 0.3005` and the 30 degree at `0.3378`, while the
 fine mesh has them the other way round (`0.3958` and `0.3184`). Both are separated bodies, and the inverted pair is
@@ -247,7 +251,23 @@ trained on the campaign is a fit to 64 runs, not a rung: it does not solve the s
 * **The TMR bump-in-channel, NACA 0012 and backward-facing-step cases of #265**, and the TMR reference tables: the
   flat plate is the case whose verification stands without an external file, and the other three need the published
   grids and tables this machine could not download. `tmr.read_reference(path)` is the reader for when they arrive.
-* **The VLM and LBM rungs on the same family as the RANS rungs** (#294), for the reasons in section 5.
+* **The VLM and LBM rungs on the same family as the RANS rungs** (#294), for the reasons in section 5 and in
+  `ladder_ahmed.NOT_MEASURED`: neither belongs to either measured family — a lattice is a lifting-surface method and
+  the LBM is a low-Reynolds solver — so the rung that would carry them is a *wing* family at a Reynolds number the
+  lattice and the LBM can both reach, and the repository's fine rung for wings (a 3-D RANS of a whole aircraft) was
+  not measurable here. The wings family's committed 3-D solutions cover two aircraft, which cannot be rank-correlated.
+
+## The ladder, both families, in one place
+
+| | family one | family two |
+|---|---|---|
+| designs | NACA 0012 at `alpha = 0, 4, 8` deg | Ahmed body at slant 0, 12.5, 25, 30, 35, 40 deg |
+| `Re` | 4e6 (chord) | 4.2e6 (length) |
+| rungs | thin-airfoil (0 cells) · RANS 2 624 · 5 130 · 10 368 | campaign mesh 208 253 · L2 537 539 |
+| reference | `rans-fine` | `ahmed-L2` |
+| cheapest rung that ranks | thin-airfoil, Spearman 1.00 | campaign mesh, Spearman 0.94 |
+| `Cp` rms of the cheapest rung | see section 5 | 0.103 |
+| measured where | `run_cases.py --only ladder`, this machine | `run_cases.py --only ladder-ahmed`, the campaign's records |
 
 ## The tables
 

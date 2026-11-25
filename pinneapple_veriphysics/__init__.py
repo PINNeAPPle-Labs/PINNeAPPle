@@ -32,7 +32,7 @@ import importlib as _importlib
 
 __all__ = ["decision", "evidence_report", "applicability", "scope", "robustness", "recommend", "execution_log",
            "example_cases", "ledger", "validation_lab", "evidence_package", "usecase", "findings", "maturity",
-           "validation_case", "dossier", "surrogate_gates"]
+           "validation_case", "dossier", "surrogate_gates", "validated_domain"]
 
 
 def __getattr__(name: str):

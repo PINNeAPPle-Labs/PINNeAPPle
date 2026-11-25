@@ -109,8 +109,9 @@ class Tool:
 
     @property
     def is_open(self) -> bool:
-        """Whether the licence is an open-source one, by the id's own family."""
-        return not self.license.lower().startswith(("commercial", "proprietary"))
+        """Whether the licence is an open-source one, by the id's own family (a custom licence that forbids
+        commercial use is not, however source-available it is)."""
+        return not self.license.lower().startswith(("commercial", "proprietary", "custom", "non-commercial"))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -238,20 +239,25 @@ _RAW: tuple[dict[str, Any], ...] = (
          notes="Wired as a pipeline: a FreeCAD model becomes an OpenFOAM case. GPL-2.0 applies to the FreeCAD "
                "application itself, LGPL-2.1 to its libraries."),
     dict(id="gmsh", name="Gmsh", stages=("problem", "solvers"), kind="mesher",
-         license="GPL-2.0-or-later (with a linking exception)", license_verified=False,
-         license_source="project headers; not read on this checkout (the canonical repository is not on GitHub)",
+         license="GPL-2.0-or-later (with the Gmsh linking exception)", license_verified=True,
+         license_source="read 2026-11-25 at gitlab.onelab.info/gmsh/gmsh/-/raw/master/LICENSE.txt: GPL version 2 "
+                        "or later, plus an exception for code that links the Gmsh libraries",
          homepage="https://gmsh.info/", language="C++", integration="named", surface="pinneapple",
          notes="The default mesher for the FEM path; the linking exception is what lets it be driven from a "
-               "script without GPL-ing the caller."),
+               "script without GPL-ing the caller. Commercial use is fine, and the GPL reaches a modified Gmsh "
+               "and the Gmsh code itself, not the caller the exception names."),
     dict(id="trimesh", name="trimesh", stages=("problem", "viz"), kind="geometry IO",
          license="MIT", license_verified=True, license_source=_GH,
          homepage="https://github.com/mikedh/trimesh", language="Python", integration="named", surface="pinneapple",
          notes="STL/OBJ/PLY in and out; the interchange format for surface geometry."),
     dict(id="salome", name="SALOME", stages=("problem",), kind="CAD/meshing platform",
-         license="LGPL-2.1", license_verified=False,
-         license_source="stated on salome-platform.org; not read on this checkout",
+         license="LGPL-2.1", license_verified=True,
+         license_source="read 2026-11-25 at salome-platform.org/?page_id=2622 (Legal information): GNU Lesser "
+                        "General Public License version 2.1",
          homepage="https://www.salome-platform.org/", language="C++/Python",
-         notes="OCCT-based CAD plus meshing in one application; the shape-side alternative to a FreeCAD pipeline."),
+         notes="OCCT-based CAD plus meshing in one application; the shape-side alternative to a FreeCAD pipeline. "
+               "Commercial use is fine; a modified SALOME stays LGPL, and linking to the libraries does not reach "
+               "the caller's own code."),
 
     # ── equations ───────────────────────────────────────────────────────────────────────────────────────────
     dict(id="sympy", name="SymPy", stages=("equations",), kind="computer algebra",
@@ -376,43 +382,59 @@ _RAW: tuple[dict[str, Any], ...] = (
          surface="pinneapple_arena.external.finetune",
          notes="Embedded DSL that compiles to CUDA/Vulkan; the MPM and SPH demos here use it."),
     dict(id="fluidx3d", name="FluidX3D", stages=("solvers",), kind="lattice Boltzmann CFD",
-         license="unverified (custom licence, see repository)", license_verified=False,
-         license_source="not read on this checkout", homepage="https://github.com/ProjectPhysX/FluidX3D",
-         language="OpenCL/C++", integration="wired",
+         license="custom, non-commercial (no SPDX id)", license_verified=True,
+         license_source="read 2026-11-25 at github.com/ProjectPhysX/FluidX3D/blob/master/LICENSE.md: free for "
+                        "public research, education and personal use, 'Commercial use is not allowed', no military "
+                        "use, no AI training on the source; altered versions that are published must publish "
+                        "their source too",
+         homepage="https://github.com/ProjectPhysX/FluidX3D", language="OpenCL/C++", integration="wired",
          surface="pinneapple_simulation.external_solvers.fluidx3d",
-         notes="GPU LBM with a stated non-commercial condition; the licence has to be read before it is used in "
-               "delivery, which is why it is not marked verified here."),
+         notes="GPU LBM, and the one catalogue entry whose licence forbids the delivery this repository sells: a "
+               "paid study may read and compare it, but may not run or ship it without the author's permission. "
+               "Not an open-source licence, so it is not a dependency of anything distributed here."),
     dict(id="openradioss", name="OpenRadioss", stages=("solvers",), kind="explicit crash/impact",
-         license="AGPL-3.0 (OpenRadioss licence terms)", license_verified=False,
-         license_source="stated in the distribution; not read on this checkout",
+         license="AGPL-3.0-or-later", license_verified=True,
+         license_source="read 2026-11-25 at github.com/gabrielrussell/OpenRadioss (mirror of the distribution, "
+                        "archived 2026-10-01): COPYRIGHT.md says AGPL version 3 or later, (C) 2026 SISW Siemens; "
+                        "openradioss.org and the OpenRadioss repository were withdrawn in 2026-10",
          homepage="https://openradioss.org/", language="Fortran/C", integration="wired",
          surface="pinneapple_simulation.external_solvers.openradioss",
          notes="Explicit dynamics for crash and impact — the counterpart of the explicit solver in this library, "
-               "and an AGPL code, which is the strictest decision on this page."),
+               "and an AGPL code, which is the strictest decision on this page: a modified binary offered as a "
+               "network service must publish its source. Siemens names Simcenter Radioss as the commercial "
+               "alternative, and withdrew the open distribution in 2026-10, so the homepage no longer serves it."),
     dict(id="mujoco", name="MuJoCo", stages=("solvers", "twin"), kind="rigid-body simulation",
          license="Apache-2.0", license_verified=True, license_source=_GH,
          homepage="https://mujoco.org/", language="C/Python", integration="wired",
          surface="pinneapple_simulation.external_solvers.mujoco",
          notes="Contact-rich rigid-body dynamics at interactive rates; the physics a controller is trained in."),
     dict(id="newton", name="Newton Physics", stages=("solvers", "physics_ai"), kind="GPU physics engine",
-         license="Apache-2.0", license_verified=False,
-         license_source="stated on the project page; not read on this checkout",
+         license="Apache-2.0", license_verified=True,
+         license_source="read 2026-11-25 at raw.githubusercontent.com/newton-physics/newton/main/LICENSE.md: "
+                        "Apache License version 2.0",
          homepage="https://github.com/newton-physics/newton", language="Python/CUDA", integration="wired",
          surface="pinneapple_simulation.external_solvers.newton_physics",
-         notes="Differentiable, GPU-native rigid/soft body engine built on Warp."),
+         notes="Differentiable, GPU-native rigid/soft body engine built on Warp. Apache-2.0 allows commercial use "
+               "and redistribution, including inside a closed product, as long as the notice and the statement of "
+               "changes travel with it."),
     dict(id="rebound", name="REBOUND", stages=("solvers",), kind="N-body",
-         license="GPL-3.0", license_verified=False,
-         license_source="stated in the distribution; not read on this checkout",
+         license="GPL-3.0-or-later", license_verified=True,
+         license_source="read 2026-11-25 at github.com/hannorein/rebound LICENSE (GPL version 3) and src/rebound.h "
+                        "('either version 3 of the License, or (at your option) any later version')",
          homepage="https://github.com/hannorein/rebound", language="C/Python", integration="wired",
          surface="pinneapple_simulation.numerical_solvers.nbody_rebound",
-         notes="Symplectic N-body integrators; the reference under the symplectic-model family."),
+         notes="Symplectic N-body integrators; the reference under the symplectic-model family. GPL-3.0-or-later, "
+               "and the Python module links the C library, so shipping it inside a product makes that product "
+               "GPL: usable in a study, a decision before it becomes a dependency of delivered software."),
     dict(id="genesis", name="Genesis", stages=("solvers", "twin"), kind="physics engine",
-         license="Apache-2.0", license_verified=False,
-         license_source="stated on the project page; not read on this checkout",
+         license="Apache-2.0", license_verified=True,
+         license_source="read 2026-11-25 at raw.githubusercontent.com/Genesis-Embodied-AI/Genesis/main/LICENSE: "
+                        "Apache License version 2.0",
          homepage="https://github.com/Genesis-Embodied-AI/Genesis", language="Python", integration="wired",
          surface="pinneapple_simulation.external_solvers.genesis",
          notes="Generative physics engine for robotics scenes; young, and its licence history has changed once — "
-               "read it at the pin you install."),
+               "Apache-2.0 today, which permits commercial use and redistribution with the notice kept, but read "
+               "it at the pin you install."),
 
     # ── physics_ai ─────────────────────────────────────────────────────────────────────────────────────────
     dict(id="deepxde", name="DeepXDE", stages=("physics_ai",), kind="PINN library",
@@ -704,12 +726,16 @@ _RAW: tuple[dict[str, Any], ...] = (
          homepage="https://www.paraview.org/", language="C++/Python",
          notes="The viewer an engineer already has; being readable by it is the requirement, not a feature."),
     dict(id="matplotlib", name="Matplotlib", stages=("viz", "export"), kind="2-D plotting",
-         license="Matplotlib (PSF-based)", license_verified=False,
-         license_source="the project's own licence agreement; not read on this checkout",
+         license="Matplotlib (PSF-based, no SPDX id)", license_verified=True,
+         license_source="read 2026-11-25 at raw.githubusercontent.com/matplotlib/matplotlib/main/LICENSE/LICENSE: "
+                        "the Matplotlib Development Team's own agreement for versions 1.3.0 and later, plus a "
+                        "separate one for the versions before it",
          homepage="https://matplotlib.org/", language="Python", integration="wired",
          surface="pinneapple_lab",
-         notes="The figure in every experiment manifest; its licence is BSD-style but not an SPDX id GitHub "
-               "recognises."),
+         notes="The figure in every experiment manifest. Permissive and business-friendly, but not the BSD licence "
+               "this row used to call it: use, modification and distribution are granted provided the agreement "
+               "and the MDT copyright notice are kept, and a derivative work carries a brief summary of the "
+               "changes made."),
     dict(id="plotly", name="Plotly", stages=("viz",), kind="interactive charts",
          license="MIT", license_verified=True, license_source=_GH,
          homepage="https://plotly.com/python/", language="Python/JavaScript", integration="candidate",
@@ -733,12 +759,15 @@ _RAW: tuple[dict[str, Any], ...] = (
          homepage="https://napari.org/", language="Python", integration="candidate",
          notes="n-dimensional viewer; the practical way to look at a 3-D field slice by slice."),
     dict(id="blender", name="Blender", stages=("viz", "export"), kind="rendering",
-         license="GPL-2.0-or-later", license_verified=False,
-         license_source="LICENSE points at doc/license/GPL-license.txt; the version was not read here",
+         license="GPL-2.0-or-later", license_verified=True,
+         license_source="read 2026-11-25 at github.com/blender/blender: COPYING points at "
+                        "doc/license/GPL-license.txt (GNU GPL version 2), and the source headers carry "
+                        "'SPDX-License-Identifier: GPL-2.0-or-later'",
          homepage="https://www.blender.org/", language="C++/Python", integration="wired",
          surface="pinneapple_blender",
-         notes="Rendered stills and clips for a report or a deck. The GPL covers the application; a rendered image "
-               "is not a derived work."),
+         notes="Rendered stills and clips for a report or a deck. The GPL covers the application and any add-on "
+               "that ships inside it, not the image it renders, so a render is not a derived work and can be sold "
+               "or published freely."),
     dict(id="f3d", name="F3D", stages=("viz",), kind="fast 3-D viewer",
          license="BSD-3-Clause", license_verified=True, license_source=_GH,
          homepage="https://f3d.app/", language="C++", integration="candidate",
@@ -772,10 +801,14 @@ _RAW: tuple[dict[str, Any], ...] = (
          notes="The licence is a modified Apache-2.0 and is not an SPDX id anyone should assume; a scene graph "
                "for downstream 3-D tools."),
     dict(id="cgnslib", name="CGNS", stages=("export", "data"), kind="CFD data standard",
-         license="unverified (CGNS licence, see the project)", license_verified=False,
-         license_source="not read on this checkout", homepage="https://cgns.github.io/", language="C/Fortran",
-         integration="candidate",
-         notes="The standard CFD exchange format, and what NASA's verification cases are published in."),
+         license="Zlib-style (CGNS licence, derived from zlib/libpng)", license_verified=True,
+         license_source="read 2026-11-25 at raw.githubusercontent.com/CGNS/CGNS/develop/license.txt: use for any "
+                        "purpose, commercial included, with altered versions marked and the notice kept; the text "
+                        "says it is borrowed from the zlib/libpng licence and supersedes the LGPL",
+         homepage="https://cgns.github.io/", language="C/Fortran", integration="candidate",
+         notes="The standard CFD exchange format, and what NASA's verification cases are published in. Permissive "
+               "with no copyleft, so it can be shipped inside a product provided the notice survives and changes "
+               "to the library are marked."),
     dict(id="python_docx", name="python-docx", stages=("export",), kind="word documents",
          license="MIT", license_verified=True, license_source=_GH,
          homepage="https://github.com/python-openxml/python-docx", language="Python", integration="candidate",

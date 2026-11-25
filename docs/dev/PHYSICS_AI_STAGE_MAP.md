@@ -26,7 +26,7 @@ carried so the lists match exactly, it is marked `kind="internal"`, and it asks 
 | Field | What it says | How it was obtained |
 |---|---|---|
 | `license` | an SPDX id, or the licence's own name where no id exists | read from the artefact that governs the **code**: the repository's `LICENSE` through the GitHub licence API, or the distribution metadata on PyPI for a package that ships none |
-| `license_verified` | whether that read happened **here** | `True` only for the reads above; the ten `False` rows are listed at the end of this page |
+| `license_verified` | whether that read happened **here** | `True` for the reads above; the ten rows that were `False` until 2026-11-25 are listed at the end of this page with what their text says |
 | `integration` | `wired` / `named` / `candidate` | `wired` means a module in this repository calls it, and a test resolves that module's path; `named` means the repository mentions it (a recommender, a lazy export, a docstring) with no path that would run it; `candidate` means nothing here touches it |
 | `also_in` | the `TOOL_CATALOG` id, where the same tool has a page there | so the two catalogues reference each other instead of disagreeing |
 
@@ -84,8 +84,9 @@ Four things are worth saying plainly, because they are the reason to build the m
   needs the *reference optimum* of a case, and no catalogued dataset carries one.
 * **The copyleft list is short and specific**: OpenFOAM (GPL-3.0), FEniCSx and UFL (LGPL-3.0), Firedrake
   (LGPL-3.0-or-later), preCICE (LGPL-3.0), CasADi, RBniCS, dolfin-adjoint and OpenTURNS (LGPL-3.0), OpenRadioss
-  (AGPL), jax-fem and REBOUND (GPL-3.0), DEAP (LGPL-3.0), UltraNest (GPL-3.0), and — new to this page — **AirfRANS
-  under ODbL-1.0**, the one *dataset* whose licence is share-alike.
+  (AGPL-3.0-or-later), jax-fem and REBOUND (GPL-3.0-or-later), DEAP (LGPL-3.0), UltraNest (GPL-3.0), and — new to
+  this page — **AirfRANS under ODbL-1.0**, the one *dataset* whose licence is share-alike. Outside the copyleft
+  list and harder to live with, **FluidX3D forbids commercial use outright**.
 
 ### problem — Problem & geometry
 
@@ -95,11 +96,11 @@ Four things are worth saying plainly, because they are the reason to build the m
 |---|---|---|---|
 | CadQuery | Apache-2.0 | named | problem |
 | FreeCAD | LGPL-2.1 | wired | problem |
-| Gmsh | GPL-2.0-or-later (with a linking exception) | named (licence unread) | problem, solvers |
+| Gmsh | GPL-2.0-or-later (with the Gmsh linking exception) | named | problem, solvers |
 | Open3D | MIT | candidate | viz, problem |
 | OpenCASCADE (OCCT) | LGPL-2.1 | candidate | problem, export |
 | OpenFOAM | GPL-3.0 | wired | problem, solvers, validation |
-| SALOME | LGPL-2.1 | candidate (licence unread) | problem |
+| SALOME | LGPL-2.1 | candidate | problem |
 | trimesh | MIT | named | problem, viz |
 
 Datasets: nasa_tmr, airfrans, flowbench
@@ -130,7 +131,7 @@ Gap: `physics.governing` is text with its symbols defined; nothing here turns th
 
 | Tool | Licence | State | Serves |
 |---|---|---|---|
-| Gmsh | GPL-2.0-or-later (with a linking exception) | named (licence unread) | problem, solvers |
+| Gmsh | GPL-2.0-or-later (with the Gmsh linking exception) | named | problem, solvers |
 | OpenFOAM | GPL-3.0 | wired | problem, solvers, validation |
 | Cantera | BSD-3-Clause | wired | equations, solvers |
 | FEniCSx (DOLFINx) | LGPL-3.0 | wired | equations, solvers |
@@ -140,16 +141,16 @@ Gap: `physics.governing` is text with its symbols defined; nothing here turns th
 | CalculiX | GPL-2.0 | wired | solvers, validation |
 | Diffrax | Apache-2.0 | candidate | physics_ai, solvers |
 | Elmer | GPL-2.0 | candidate | solvers |
-| FluidX3D | unverified (custom licence, see repository) | wired (licence unread) | solvers |
-| Genesis | Apache-2.0 | wired (licence unread) | solvers, twin |
+| FluidX3D | custom, non-commercial (no SPDX id) | wired | solvers |
+| Genesis | Apache-2.0 | wired | solvers, twin |
 | JAX-CFD | Apache-2.0 | wired | solvers, physics_ai |
 | Kratos Multiphysics | BSD-4-Clause (Kratos licence, per application) | candidate | solvers |
 | MuJoCo | Apache-2.0 | wired | solvers, twin |
 | NVIDIA Warp | Apache-2.0 | named | solvers, physics_ai |
-| Newton Physics | Apache-2.0 | wired (licence unread) | solvers, physics_ai |
-| OpenRadioss | AGPL-3.0 (OpenRadioss licence terms) | wired (licence unread) | solvers |
+| Newton Physics | Apache-2.0 | wired | solvers, physics_ai |
+| OpenRadioss | AGPL-3.0-or-later | wired | solvers |
 | Project Chrono | BSD-3-Clause | candidate | solvers |
-| REBOUND | GPL-3.0 | wired (licence unread) | solvers |
+| REBOUND | GPL-3.0-or-later | wired | solvers |
 | SU2 | LGPL-2.1 | named | solvers, optimization |
 | SciPy | BSD-3-Clause | wired | optimization, solvers, data |
 | Taichi | Apache-2.0 | wired | solvers, physics_ai |
@@ -171,7 +172,7 @@ Gap: The bridges are per product (CFD, structural), not one backend contract: a 
 | Diffrax | Apache-2.0 | candidate | physics_ai, solvers |
 | JAX-CFD | Apache-2.0 | wired | solvers, physics_ai |
 | NVIDIA Warp | Apache-2.0 | named | solvers, physics_ai |
-| Newton Physics | Apache-2.0 | wired (licence unread) | solvers, physics_ai |
+| Newton Physics | Apache-2.0 | wired | solvers, physics_ai |
 | Taichi | Apache-2.0 | wired | solvers, physics_ai |
 | Φ-Flow | MIT | candidate | solvers, physics_ai |
 | DGL | Apache-2.0 | candidate | physics_ai |
@@ -220,7 +221,7 @@ Gap: Projection-based ROM (pyMOR, RBniCS, EZyRB) is catalogued and not used; the
 | ADIOS2 | Apache-2.0 | candidate | data |
 | Apache Airflow | Apache-2.0 | candidate | twin, data |
 | Apache Arrow / Parquet | Apache-2.0 | wired | data |
-| CGNS | unverified (CGNS licence, see the project) | candidate (licence unread) | export, data |
+| CGNS | Zlib-style (CGNS licence, derived from zlib/libpng) | candidate | export, data |
 | Chaospy | MIT | candidate | data, validation |
 | DVC | Apache-2.0 | candidate | data |
 | MLflow | Apache-2.0 | candidate | data, validation |
@@ -312,7 +313,7 @@ Gap: Bayesian optimisation is present but not connected to the trust layer: a ca
 |---|---|---|---|
 | Modelica Standard Library | BSD-3-Clause | candidate | equations, twin |
 | OpenModelica | OSMC-PL-1.8 | wired | equations, twin |
-| Genesis | Apache-2.0 | wired (licence unread) | solvers, twin |
+| Genesis | Apache-2.0 | wired | solvers, twin |
 | MuJoCo | Apache-2.0 | wired | solvers, twin |
 | Apache Airflow | Apache-2.0 | candidate | twin, data |
 | Prefect | Apache-2.0 | candidate | twin, data |
@@ -339,9 +340,9 @@ Gap: Streaming is HTTP polling and the telemetry bundle; no message broker, no F
 | Open3D | MIT | candidate | viz, problem |
 | trimesh | MIT | named | problem, viz |
 | VTK | BSD-3-Clause | wired | viz, export, data |
-| Blender | GPL-2.0-or-later | wired (licence unread) | viz, export |
+| Blender | GPL-2.0-or-later | wired | viz, export |
 | F3D | BSD-3-Clause | candidate | viz |
-| Matplotlib | Matplotlib (PSF-based) | wired (licence unread) | viz, export |
+| Matplotlib | Matplotlib (PSF-based, no SPDX id) | wired | viz, export |
 | OpenUSD | TOST-1.0 (Tomorrow Open Source Technology License) | named | export, viz |
 | ParaView | BSD-3-Clause | candidate | viz |
 | Plotly | MIT | candidate | viz |
@@ -359,11 +360,11 @@ Gap: PyVista is wired for the schema's bundles; the CAE readers' own results sti
 | Tool | Licence | State | Serves |
 |---|---|---|---|
 | OpenCASCADE (OCCT) | LGPL-2.1 | candidate | problem, export |
-| CGNS | unverified (CGNS licence, see the project) | candidate (licence unread) | export, data |
+| CGNS | Zlib-style (CGNS licence, derived from zlib/libpng) | candidate | export, data |
 | VTK | BSD-3-Clause | wired | viz, export, data |
 | NVIDIA Triton Inference Server | BSD-3-Clause | candidate | export, twin |
-| Blender | GPL-2.0-or-later | wired (licence unread) | viz, export |
-| Matplotlib | Matplotlib (PSF-based) | wired (licence unread) | viz, export |
+| Blender | GPL-2.0-or-later | wired | viz, export |
+| Matplotlib | Matplotlib (PSF-based, no SPDX id) | wired | viz, export |
 | OpenUSD | TOST-1.0 (Tomorrow Open Source Technology License) | named | export, viz |
 | PyVista | MIT | wired | viz, export |
 | ONNX | Apache-2.0 | wired | export |
@@ -420,27 +421,37 @@ The join degrades instead of failing: without `pinneapple_catalog` installed, `f
 flow spans and says in `reason` why no coverage came back. An empty map would read as "nothing is available
 anywhere", which is a different and wrong statement.
 
-## The ten licences this page did not read
+## The ten licences this page had not read, and what they say
 
-Said as a list rather than a footnote, because a delivery decision cannot be made on any of them yet. Each row's
-`license_source` carries the same sentence, and `stages.tools()` filters on it:
+These ten rows carried a licence nobody here had opened. They were read on 2026-11-25, each one at the place named
+in its `license_source`, and `license_verified` is now `True` on all of them, so
+`stages.coverage()['totals']['license_unverified']` is `0`.
 
-| Tool | What the row states | Where it would be read |
+| Tool | The licence, as its own text says it | What it implies for a paid study and for distribution |
 |---|---|---|
-| Gmsh | GPL-2.0-or-later with a linking exception | the source headers (the canonical repository is not on GitHub) |
-| SALOME | LGPL-2.1 | salome-platform.org's licence page |
-| FluidX3D | custom licence, stated non-commercial | the repository's `LICENSE` |
-| Genesis | Apache-2.0 | the project page (its licence history changed once) |
-| Newton Physics | Apache-2.0 | the project page |
-| OpenRadioss | AGPL-3.0 | the distribution's terms |
-| REBOUND | GPL-3.0 | the distribution |
-| CGNS | the CGNS licence | the project's licence page |
-| Blender | GPL-2.0-or-later | `doc/license/GPL-license.txt` |
-| Matplotlib | its own PSF-based agreement | `LICENSE/` in the repository (no SPDX id) |
+| Gmsh | GPL-2.0-or-later, plus the Gmsh exception | commercial use fine; the GPL reaches a modified Gmsh, and the exception keeps it away from the caller that links it |
+| SALOME | LGPL-2.1 | commercial use fine; a modified SALOME stays LGPL, and linking does not reach the caller |
+| FluidX3D | custom: research, education and personal use, "Commercial use is not allowed" | **not usable in delivery**: nothing may be sold, nor a paid service whose value derives from it; no military use, no AI training on the source |
+| Genesis | Apache-2.0 | commercial use and redistribution fine, notice kept and changes stated |
+| Newton Physics | Apache-2.0 | the same |
+| OpenRadioss | AGPL-3.0-or-later, (C) 2026 SISW Siemens | the strictest here: a modified version offered as a network service must publish its source; Siemens withdrew the open distribution in 2026-10 |
+| REBOUND | GPL-3.0-or-later | shipped inside a product, the product becomes GPL: usable in a study, a decision before it is a dependency |
+| CGNS | the CGNS licence, borrowed from zlib/libpng and superseding the LGPL | permissive with no copyleft: shippable, notice kept and changes marked |
+| Blender | GPL-2.0-or-later | the GPL covers the application and the add-ons inside it, not the image it renders |
+| Matplotlib | the MDT's own PSF-based agreement, no SPDX id | permissive and not BSD: keep the agreement and the MDT notice, and summarise the changes in a derivative |
+
+Two of the reads changed the row rather than confirming it. **REBOUND's own header says "version 3 or any later
+version"**, so `GPL-3.0` became `GPL-3.0-or-later`. **Matplotlib's text is an agreement between the Matplotlib
+Development Team and a licensee**, not a BSD-family licence, and the row that called it "BSD-style" now quotes the
+obligation it actually carries.
+
+FluidX3D is the one entry whose licence forbids what this repository sells, so `is_open` is `False` for it: a
+custom licence that bans commercial use is source-available, not open-source.
 
 ```python
 from pinneapple_catalog import stages
-[t.name for t in stages.tools() if not t.license_verified]
+[(t.id, t.license) for t in stages.tools() if not t.license_verified]   # []
+[t.id for t in stages.tools() if not t.is_open]                         # ['fluidx3d']
 ```
 
 ## Decisions left open, each one a row and not an omission

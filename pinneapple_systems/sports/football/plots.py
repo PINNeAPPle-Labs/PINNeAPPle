@@ -1,5 +1,5 @@
 """Figures of the football studies (matplotlib, static PNG): pitch, pitch-control surface, ball flights in 3-D,
-gravity audit, reliability curves, data-efficiency curves, smoothing errors.
+gravity audit, the broadcast-height correction, reliability curves, data-efficiency curves, smoothing errors.
 
 Colours: a fixed categorical order (blue, orange, aqua, yellow, magenta, green, violet, red) assigned per model
 name so a model keeps its colour across figures; a blue-grey-orange diverging map for control probability.
@@ -12,7 +12,8 @@ from typing import Any
 import numpy as np
 
 __all__ = ["COLORS", "color_of", "draw_pitch", "pitch_control_figure", "flights_3d", "gravity_audit_figure",
-           "reliability_figure", "efficiency_figure", "smoothing_figure", "holdout_figure"]
+           "reliability_figure", "efficiency_figure", "smoothing_figure", "holdout_figure", "height_map_figure",
+           "gravity_histogram_figure"]
 
 COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"]
 SURFACE = "#fcfcfb"
@@ -220,4 +221,44 @@ def holdout_figure(res: dict[str, Any], path, models: list[str] | None = None):
     ax.set_xticks(np.arange(1, len(ms) + 1), ms, fontsize=8)
     _style(ax, "Ball landing point predicted from the first half of each flight (held-out matches)", None,
            "horizontal landing error [m]")
+    return _save(fig, path)
+
+
+def height_map_figure(curves, path, band=None, truth=None, title="", xlabel="height in the broadcast feed [m]",
+                      ylabel="physical height [m]", zlim=None):
+    """``f(z)`` of one or more height models, ``curves`` being ``(feed heights, physical heights, label)`` triples.
+
+    ``band`` is ``(grid, lo, hi)``, the bootstrap interval of the main map (drawn around it); ``truth`` is
+    ``(grid, values, label)``, used by the known-answer test to show the map the distortion really was.
+    """
+    fig, ax = _fig(6.4, 4.6)
+    top = max(float(np.max(c[2])) for c in curves)
+    top = max(top, float(np.max(truth[1]))) if truth is not None else top
+    lim = float(zlim[1]) if zlim else top * 1.02
+    ax.plot([0, lim], [0, lim], color=INK2, lw=1, ls=":", label="feed taken at face value")
+    if band is not None:
+        ax.fill_between(band[0], band[1], band[2], color=COLORS[0], alpha=0.15, lw=0,
+                        label="bootstrap 95 %, matches resampled")
+    for i, (x, y, lab) in enumerate(curves):
+        ax.plot(x, y, color=COLORS[i % len(COLORS)], lw=2, label=lab)
+    if truth is not None:
+        ax.plot(truth[0], truth[1], color=INK, lw=1.4, ls="--", label=truth[2])
+    ax.set_xlim(0, lim)
+    ax.set_ylim(0, top * 1.03)
+    _style(ax, title, xlabel, ylabel)
+    ax.legend(fontsize=8, frameon=False)
+    return _save(fig, path)
+
+
+def gravity_histogram_figure(histograms, path, edges=None, title="", reference: float = 9.81):
+    """Gravity fitted freely to every flight, ``histograms`` being ``(counts, label)`` pairs on shared ``edges``."""
+    edges = np.asarray(edges if edges is not None else np.linspace(0, 16, 33), float)
+    fig, ax = _fig(7, 3.8)
+    for i, (counts, lab) in enumerate(histograms):
+        ax.stairs(np.asarray(counts, float), edges, color=COLORS[i % len(COLORS)],
+                  alpha=0.55, fill=True, lw=1.2, label=lab)
+    ax.axvline(reference, color=INK, lw=1.5, ls="--")
+    ax.text(reference + 0.15, ax.get_ylim()[1] * 0.9, f"g = {reference:g} m/s²", fontsize=8, color=INK)
+    _style(ax, title, "gravity fitted freely to each aerial flight [m/s²]", "flights")
+    ax.legend(fontsize=8, frameon=False)
     return _save(fig, path)

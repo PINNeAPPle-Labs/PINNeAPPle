@@ -90,21 +90,24 @@ def flights_from_skillcorner(match_ids, root=None, **kw) -> list[B.Flight]:
     return fl
 
 
-def _audit_one(f: B.Flight):
+def _audit_one(job):
+    f, kw = job
     c = np.polyfit(f.t, f.xyz[:, 2], 2)
-    fit = B.fit_flight(f.t, f.xyz, "drag_free_g")
+    fit = B.fit_flight(f.t, f.xyz, "drag_free_g", **kw)
     return {"g_vacuum": float(-2 * c[0]), "g_drag": fit.g, "cd": fit.cd, "speed0": fit.speed0, "rmse": fit.rmse,
             "ok": bool(fit.success), "apex": f.apex, "duration": f.duration}
 
 
-def gravity_audit(flights: list[B.Flight], *, max_rmse: float = 0.6, workers: int = 1) -> dict[str, Any]:
+def gravity_audit(flights: list[B.Flight], *, max_rmse: float = 0.6, workers: int = 1,
+                  fit_kw: dict | None = None) -> dict[str, Any]:
     """Gravity fitted freely to each flight (vacuum: quadratic in time; drag: ODE with free ``g``).
 
     Flights whose drag fit leaves a position RMSE above ``max_rmse`` m (deflections, tracking switches) are dropped.
     Returns the per-flight values, their median with a bootstrap 95 % interval, and the median per launch-speed
     band (backspin lift grows with the speed squared; a deficit at low speed cannot be lift).
     """
-    rows = [r for r in _map(_audit_one, flights, workers) if r["ok"] and r["rmse"] <= max_rmse]
+    rows = [r for r in _map(_audit_one, [(f, dict(fit_kw or {})) for f in flights], workers)
+            if r["ok"] and r["rmse"] <= max_rmse]
     col = {k: np.array([r[k] for r in rows], float) for k in ("g_vacuum", "g_drag", "cd", "speed0", "apex",
                                                                "duration")} if rows else {}
     rng = np.random.default_rng(0)

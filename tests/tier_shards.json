@@ -224,6 +224,8 @@
         "tests/test_astro_ai.py",
         "tests/test_astro_conjunction.py",
         "tests/test_astro_facts.py",
+        "tests/test_astro_fits_interop.py",
+        "tests/test_astro_galactic.py",
         "tests/test_astro_journey.py",
         "tests/test_astro_observing.py",
         "tests/test_astro_yt_reader.py"

@@ -104,6 +104,7 @@ that the licence gets named by hand, and an extra stays named in the table inste
 | `earthaccess` | MIT |
 | `fast-simplification` | MIT |
 | `fastapi` | MIT |
+| `galpy` | BSD License |
 | `gmsh` | GNU General Public License v2 or later (GPLv2+) |
 | `h5py` | BSD-3-Clause |
 | `httpx` | BSD License |

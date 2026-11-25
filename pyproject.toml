@@ -214,11 +214,15 @@ process = [
 ]
 
 # Astropy-backed unit-safe constants/coordinate transforms
-# (pinneapple_physics.pde_environment.presets.astropy_bridge) and the yt reader for the output of the astrophysics
-# codes -- Enzo, FLASH, RAMSES, GADGET, AREPO, Athena++, more than thirty formats (#515)
+# (pinneapple_physics.pde_environment.presets.astropy_bridge), FITS images/cubes/tables and units on a PhysicalSample
+# (pinneapple_data.astro.fits, .units, .public_data), the yt reader for the output of the astrophysics codes -- Enzo,
+# FLASH, RAMSES, GADGET, AREPO, Athena++, more than thirty formats (#515) -- and galactic orbits in a mass model
+# (pinneapple_physics.astro.galactic, through galpy). Everything here is imported lazily: none of it is needed to
+# import the library (#522)
 astro = [
   "astropy>=6.0",
   "yt>=4.3",
+  "galpy>=1.9",
 ]
 
 # JAX-CFD differentiable CFD solver

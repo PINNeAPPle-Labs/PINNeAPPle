@@ -2,7 +2,7 @@
 
 The wide suite blocks in the parts that have been measured green, and says why the rest does not. `python scripts/tier_shards.py --check` is the gate; the pull-request job runs `--run-blocking`.
 
-**Blocking: 11 of 23 shards · tests covered: 809 files.**
+**Blocking: 11 of 23 shards · tests covered: 814 files.**
 
 ## Blocking (every pull request runs these)
 
@@ -16,7 +16,7 @@ The wide suite blocks in the parts that have been measured green, and says why t
 | `neural` | `tests/pinneapple_neural` | 2026-11-20: 126 passed in 53.06s (56.0 s wall) |
 | `physics` | `tests/pinneapple_physics`, `tests/test_physical_problem_consumers.py`, `tests/test_physical_problem_facade.py`, `tests/test_problem_spec_reconcile.py` | 2026-11-20: 116 passed, 1 skipped in 3.15s (4.2 s wall) |
 | `simulation` | `tests/pinneapple_simulation`, `tests/test_cfd_validation.py` | 2026-11-20: 15 passed, 1 skipped in 9.16s (11.9 s wall) |
-| `solvers` | `tests/pinneapple_solvers` | 2026-11-20: 4 passed in 60.04s (0:01:00) (62.3 s wall) |
+| `solvers` | `tests/pinneapple_solvers`, `tests/test_solver_contract.py` | 2026-11-20: 4 passed in 60.04s (0:01:00) (62.3 s wall) |
 | `tools` | `tests/pinneapple_tools` | 2026-11-20: 40 passed, 1 skipped in 7.20s (9.4 s wall) |
 | `e2e` | `tests/e2e` | 2026-11-20: 11 passed in 10.93s (12.3 s wall) |
 
@@ -29,7 +29,7 @@ The wide suite blocks in the parts that have been measured green, and says why t
 | `pinn` | `tests/pinneapple_pinn` | 0 | not measured green yet: see docs/dev/test_shards.md |
 | `security` | `tests/pinneapple_security` | 0 | not measured green yet: see docs/dev/test_shards.md |
 | `train` | `tests/pinneapple_train` | 0 | not measured green yet: see docs/dev/test_shards.md |
-| `veriphysics` | `tests/pinneapple_veriphysics` | 0 | not measured green yet: see docs/dev/test_shards.md |
+| `veriphysics` | `tests/pinneapple_veriphysics`, `tests/test_veriphysics_validated_domain.py` | 0 | not measured green yet: see docs/dev/test_shards.md |
 | `worldmodel` | `tests/pinneapple_worldmodel` | 0 | not measured green yet: see docs/dev/test_shards.md |
 | `apps` | `tests/test_app_afpm_designer.py`, `tests/test_app_anomaly_detector.py`, `tests/test_app_backend.py`, `tests/test_app_benchmark_arena.py`, `tests/test_app_brakecool_ai.py`, `tests/test_app_calibration_lab.py`, `tests/test_app_campaign.py`, `tests/test_app_control_lab.py`, `tests/test_app_design_optimization.py`, `tests/test_app_evidence_report.py`, `tests/test_app_experiment_report.py`, `tests/test_app_flowtrace.py`, `tests/test_app_framing.py`, `tests/test_app_governed_card.py`, `tests/test_app_heatsink_inverse_ai.py`, `tests/test_app_helio_tfc.py`, `tests/test_app_helpers.py`, `tests/test_app_helpers_in_library.py`, `tests/test_app_identifiability_lab.py`, `tests/test_app_inverse_studio.py`, `tests/test_app_meshbridge.py`, `tests/test_app_meshless_lab.py`, `tests/test_app_model_benchmarking.py`, `tests/test_app_model_gateway.py`, `tests/test_app_nozzle_screen.py`, `tests/test_app_orbitwatch.py`, `tests/test_app_parameter_discovery.py`, `tests/test_app_patchdose_ai.py`, `tests/test_app_physics_copilot.py`, `tests/test_app_pinn_arena.py`, `tests/test_app_predictive_twin.py`, `tests/test_app_ridetune_ai.py`, `tests/test_app_rom_lab.py`, `tests/test_app_rover_mobility.py`, `tests/test_app_satscreen.py`, `tests/test_app_security.py`, `tests/test_app_soundshape_ai.py`, `tests/test_app_surrogate_speed.py`, `tests/test_app_surrogate_studio.py`, `tests/test_app_text2part.py`, `tests/test_app_twin_runtime.py`, `tests/test_app_validation_lab.py`, `tests/test_app_verification_gap.py`, `tests/test_app_verified_physics.py` | 0 | not measured green yet: see docs/dev/test_shards.md |
 | `astro` | `tests/test_astro_accuracy.py`, `tests/test_astro_ai.py`, `tests/test_astro_conjunction.py`, `tests/test_astro_facts.py`, `tests/test_astro_journey.py`, `tests/test_astro_observing.py`, `tests/test_astro_yt_reader.py` | 0 | not measured green yet: see docs/dev/test_shards.md |

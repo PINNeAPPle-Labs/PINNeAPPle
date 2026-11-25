@@ -209,3 +209,18 @@ def test_sandbox_time_limit_and_figures():
     assert not r["ok"] and r["timed_out"]
     r = run_snippet("import matplotlib.pyplot as plt\nplt.plot([0, 1])\nprint('drawn')", timeout=120)
     assert r["ok"] and r["stdout"] == "drawn" and r["figures"] and r["figures"][0][:4] == b"\x89PNG"
+
+
+@pytest.mark.skipif(os.name != "posix", reason="the limits are setrlimit, which is POSIX")
+def test_the_sandbox_runs_from_a_thread_and_the_limits_land_inside_the_snippet():
+    """The Hub validates a snippet from its job threads. The limits used to be applied by a ``preexec_fn`` — a callback
+    between fork and exec, which Python documents as unsafe once the caller has threads, and which is what the job log
+    showed ("Exception occurred in preexec_fn") instead of a result (#625). The file-size limit is applied by the
+    wrapper now, and the session (the group the timeout kills) comes from ``start_new_session``."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    code = "import resource\nprint(resource.getrlimit(resource.RLIMIT_FSIZE)[0])"
+    with ThreadPoolExecutor(1) as pool:
+        r = pool.submit(run_snippet, code, timeout=120).result()
+    assert r["ok"], r["stderr"]
+    assert int(r["stdout"]) == 200 * 2**20

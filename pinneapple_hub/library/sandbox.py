@@ -28,6 +28,14 @@ _WRAP = r'''
 import os, sys, warnings
 warnings.filterwarnings("ignore")
 os.environ["MPLBACKEND"] = "Agg"
+if FSIZE_B_:
+    # The file-size limit is applied here, inside the fresh interpreter, and not in a preexec_fn of the parent: a
+    # callback between fork and exec is not safe once the caller has threads (the Hub calls this from its job threads),
+    # and when it raised, the caller saw "Exception occurred in preexec_fn" instead of a snippet result (#625). The
+    # address-space and CPU-time limits cannot move here — a limit can only be lowered below what the process already
+    # uses — so they stay in the preexec, and only when a caller asks for one.
+    import resource
+    resource.setrlimit(resource.RLIMIT_FSIZE, (FSIZE_B_, FSIZE_B_))
 sys.path.insert(0, ROOT_)
 try:
     import matplotlib
@@ -48,18 +56,28 @@ def code_hash(code: str) -> str:
     return hashlib.sha256(code.encode()).hexdigest()[:16]
 
 
-def _limits(memory_mb: int | None, cpu_s: int | None):
-    if os.name != "posix":
+def _limits(memory_mb: int | None, cpu_s: int | None) -> dict[str, str]:
+    """The substitutions the wrapper uses to apply the file-size limit (POSIX only; zero elsewhere)."""
+    return {"FSIZE_B_": str(200 * 2**20) if os.name == "posix" else "0"}
+
+
+def _rlimits(memory_mb: int | None, cpu_s: int | None):
+    """``preexec_fn`` for the two limits that must be set before the interpreter grows: address space and CPU time.
+
+    Returns ``None`` when neither was asked for, which is the path every caller in the repository takes today; that
+    keeps the safe ``start_new_session`` route and the fork-time callback out of the Hub's threads (#625). Note that
+    ``RLIMIT_AS`` can only be lowered while the child has not mapped more than the value asked for, which is why the
+    address-space limit needs a generous number (or none at all) on a machine where the interpreter already maps a lot.
+    """
+    if os.name != "posix" or not (memory_mb or cpu_s):
         return None
 
     def apply():
         import resource
-        os.setsid()                                    # own process group: the time limit kills its children too
         if memory_mb:
             resource.setrlimit(resource.RLIMIT_AS, (memory_mb * 2**20, memory_mb * 2**20))
         if cpu_s:
             resource.setrlimit(resource.RLIMIT_CPU, (cpu_s, cpu_s + 1))
-        resource.setrlimit(resource.RLIMIT_FSIZE, (200 * 2**20, 200 * 2**20))
     return apply
 
 
@@ -77,14 +95,21 @@ def run_snippet(code: str, *, timeout: float = 60.0, memory_mb: int | None = Non
         figs.mkdir()
         src.write_text(code)
         wrap = Path(tmp) / "_wrap.py"
-        wrap.write_text(_WRAP.replace("ROOT_", repr(str(ROOT))).replace("CODE_", repr(str(src)))
-                        .replace("FIGS_", repr(str(figs))))
+        limits = _limits(memory_mb, cpu_s)
+        text = _WRAP.replace("ROOT_", repr(str(ROOT))).replace("CODE_", repr(str(src))).replace("FIGS_", repr(str(figs)))
+        for name, value in limits.items():
+            text = text.replace(name, value)
+        wrap.write_text(text)
         run_env = {k: v for k, v in os.environ.items() if not k.endswith(("_PASSWORD", "_TOKEN", "_KEY", "_SECRET"))}
         run_env.update({"PYTHONHASHSEED": "0", "CUDA_VISIBLE_DEVICES": "", "MPLBACKEND": "Agg",
                         "MPLCONFIGDIR": str(Path(tmp) / "mpl"), "OMP_NUM_THREADS": "2", **(env or {})})
         t0 = time.time()
+        # start_new_session gives the snippet its own session and process group (the timeout kills its children too)
+        # without a callback between fork and exec; that is what ``preexec_fn`` used to do for everything, and it raised
+        # under the Hub's job threads (#625).
         proc = subprocess.Popen([sys.executable, str(wrap)], cwd=tmp, env=run_env, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, text=True, preexec_fn=_limits(memory_mb, cpu_s))
+                                stderr=subprocess.PIPE, text=True, start_new_session=True,
+                                preexec_fn=_rlimits(memory_mb, cpu_s))
         timed_out = False
         try:
             out, err = proc.communicate(timeout=timeout)

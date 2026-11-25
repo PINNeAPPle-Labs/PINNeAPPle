@@ -144,7 +144,9 @@ def test_every_catalogued_solver_can_be_run_and_says_how():
     assert type(out).__name__ == "SolverOutput" and torch.isfinite(out.result).all()
     x = torch.sin(torch.linspace(0, 2 * np.pi, 64))
     assert type(cat.build("fft").solve(x)).__name__ == "SolverOutput"
-    with pytest.raises(TypeError, match="constructor is FDMSolver"):
+    # the message moved to the one that teaches (#957 kept this test alive): it now prints the constructor's own
+    # signature and points at describe(), which is a better answer than the old "The constructor is FDMSolver"
+    with pytest.raises(TypeError, match=r"pass the constructor's own arguments: FDMSolver"):
         cat.build("fdm", no_such_argument=1)
 
 

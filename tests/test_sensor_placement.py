@@ -88,3 +88,18 @@ def test_hyperparameter_fit_improves_likelihood():
     assert gp.log_marginal_likelihood() > before
     Xt = rng.uniform(0, 1, size=(200, 2))
     assert np.sqrt(np.mean((gp.predict(Xt) - _field(Xt)) ** 2)) < 0.05
+
+
+def test_hyperparameter_fit_does_not_depend_on_the_starting_guess():
+    """A length scale of twice the domain used to be a local optimum of the likelihood: the fit collapsed one axis
+    (0.025), the likelihood improved and the prediction was the mean far from the samples (0.246 against 0.007)."""
+    rng = np.random.default_rng(3)
+    X = rng.uniform(0, 1, size=(40, 2))
+    y = _field(X)
+    Xt = rng.uniform(0, 1, size=(200, 2))
+    rmses = []
+    for ls in ([2.0, 2.0], [0.3, 0.3], [5.0, 5.0]):
+        gp = GaussianProcessField(ls, variance=0.1, noise=1e-6).fit(X, y)
+        gp.fit_hyperparameters(X, y)
+        rmses.append(float(np.sqrt(np.mean((gp.predict(Xt) - _field(Xt)) ** 2))))
+    assert max(rmses) < 0.05

@@ -3,10 +3,11 @@
     python examples/cfd/classical_cases/run_cases.py --out examples/cfd/classical_cases/results
     python examples/cfd/classical_cases/run_cases.py --only reference          # no solver needed
     python examples/cfd/classical_cases/run_cases.py --only cavity --re 100 400
+    python examples/cfd/classical_cases/run_cases.py --only pinn               # the network, no solver needed
 
 It writes one JSON per case next to the tables it was compared with, so the README's table can be regenerated and the
-numbers in it can be checked. Without OpenFOAM the ``reference`` part still runs (it is transcribed data) and the
-solver parts say so instead of failing.
+numbers in it can be checked. Without OpenFOAM the ``reference`` part still runs (it is transcribed data), the ``pinn``
+part still runs (a network is trained, not solved) and the solver parts say so instead of failing.
 """
 from __future__ import annotations
 
@@ -20,6 +21,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 from pinneapple_simulation.cfd_validation import (  # noqa: E402
     cavity,
+    cfdbench,
     foam,
     ladder,
     pinn,
@@ -143,13 +145,70 @@ def do_pinn(out: str, reynolds: list[int], cases: str, *, steps: int | None = No
         e = row["errors"]
         print(f"  Re = {row['reynolds']:>6.0f}: u {100 * e['u']['l2_relative']:6.2f} %  "
               f"v {100 * e['v']['l2_relative']:6.2f} %")
-    record["parametric"] = pinn.study(tuple(reynolds), parametric=True, config=cfg, on_step=on_step)
+    solved, record["off_sample_solver"] = _off_sample_solver(cases)
+    record["parametric"] = pinn.study(tuple(reynolds), parametric=True, config=cfg, on_step=on_step,
+                                      probe=pinn.OFF_SAMPLE, solved=solved)
     for row in record["parametric"]["rows"]:
         e = row["errors"]
         print(f"  operator Re = {row['reynolds']:>6.0f}: u {100 * e['u']['l2_relative']:6.2f} %  "
               f"v {100 * e['v']['l2_relative']:6.2f} %")
+    for row in record["parametric"]["off_sample"]:
+        e = row["errors"]
+        print(f"  operator Re = {row['reynolds']:>6.0f} (no table, against the solver): "
+              f"u {100 * e['u']['l2_relative']:6.2f} %  v {100 * e['v']['l2_relative']:6.2f} %")
     record["comparison"] = _comparison(record, out)
     _dump(os.path.join(out, "cavity_pinn.json"), record)
+
+
+def _off_sample_solver(cases: str, meshes: tuple[int, ...] = (64, 128)):
+    """A function that solves the cavity at a Reynolds number the table does not publish, and its record.
+
+    The operator is claimed to answer for every ``Re`` in its range, and the three published columns cannot test that:
+    they are the points it was measured on. So the same case is solved at :data:`pinn.OFF_SAMPLE` — between the
+    published columns — and the operator is scored against *that*, with the two meshes kept so the reference's own
+    discretisation error is visible next to the model's. Without OpenFOAM the probe is skipped and says why.
+    """
+    record: dict = {"reynolds": list(pinn.OFF_SAMPLE), "meshes": list(meshes), "runs": [],
+                    "skipped": None}
+    if foam.bashrc() is None:
+        record["skipped"] = "no OpenFOAM installation found (set FOAM_BASHRC): the operator is not probed off the table"
+        print(f"  {record['skipped']}", file=sys.stderr)
+        return None, record
+    stations = pinn.reference_stations(100)                  # the stations are the same at every column
+    wanted = {"y": [float(v) for v in stations["y"]], "x": [float(v) for v in stations["x"]]}
+
+    def solve(reynolds: float) -> dict:
+        got = None
+        for n in meshes:
+            case = os.path.join(cases, "cavity", f"cavity_re{int(round(reynolds))}_{n}")
+            print(f"  solving Re = {reynolds:g} on {n}x{n} for the operator's off-table station", flush=True)
+            cavity.write_case(case, reynolds, n)          # the dictionaries first: ``run`` only runs them
+            info = cavity.run(case, reynolds, n)
+            solution = cavity.sample(case, reynolds, stations=wanted)
+            record["runs"].append({"reynolds": float(reynolds), "mesh": int(n), "seconds": round(info["seconds"], 1),
+                                   "iterations": int(info["solver"]["iterations"]),
+                                   "converged": bool(info["solver"]["converged"]),
+                                   "y": [float(v) for v in solution["y"]], "u": [float(v) for v in solution["u"]],
+                                   "x": [float(v) for v in solution["x"]], "v": [float(v) for v in solution["v"]]})
+            got = solution
+        return got
+
+    return solve, record
+
+
+def do_cfdbench(out: str, root: str) -> None:
+    """#272: the CFDBench cavity family, loaded from its own archive and scored against the table ours is scored on."""
+    print(f"CFDBench cavity, loaded from {root}")
+    got = cfdbench.study(root)
+    for name, entry in got["families"].items():
+        print(f"  family {name}: {entry}")
+    for row in got["rows"]:
+        for case in row["cases"]:
+            e = case["errors"]
+            print(f"  Re = {row['reynolds']:>6.0f}  {case['case']:<20s} u {100 * e['u']['l2_relative']:6.2f} %  "
+                  f"v {100 * e['v']['l2_relative']:6.2f} %  u without the lid stations "
+                  f"{100 * e['u_without_lid']['l2_relative']:6.2f} %")
+    _dump(os.path.join(out, "cfdbench.json"), got)
 
 
 def _comparison(record: dict, out: str) -> list[dict]:
@@ -201,8 +260,9 @@ def main(argv=None) -> int:
                     help="where the JSON lands (the numbers committed next to the README)")
     ap.add_argument("--cases", default="/tmp/pinneapple-cfd-cases",
                     help="where the OpenFOAM cases are written (never committed: they are hundreds of files)")
-    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"],
-                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn"])
+    ap.add_argument("--only", nargs="+", default=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn",
+                                                  "cfdbench"],
+                    choices=["reference", "cavity", "step", "warm", "ladder", "tmr", "pinn", "cfdbench"])
     ap.add_argument("--reuse", action="store_true", help="read the cases already solved under --cases")
     ap.add_argument("--re", nargs="+", type=int, default=[100, 400, 1000], help="Reynolds numbers for the cavity")
     ap.add_argument("--meshes", nargs="+", type=int, default=list(cavity.MESHES))
@@ -211,6 +271,8 @@ def main(argv=None) -> int:
     ap.add_argument("--pinn-steps", type=int, default=pinn.Config.steps,
                     help="Adam steps of the network: the training budget the machine allowed, recorded with the "
                          "result (the checkpoint under --cases resumes an interrupted run)")
+    ap.add_argument("--cfdbench", default=os.path.expanduser("~/cfdbench-data/cavity"),
+                    help="where the CFDBench cavity archive was unzipped (never committed: 800 MB)")
     args = ap.parse_args(argv)
 
     os.makedirs(args.out, exist_ok=True)
@@ -235,6 +297,13 @@ def main(argv=None) -> int:
         do_tmr(args.out, args.cases)
     if "pinn" in args.only:
         do_pinn(args.out, args.re, args.cases, steps=args.pinn_steps)
+    if "cfdbench" in args.only:
+        if os.path.isdir(args.cfdbench):
+            do_cfdbench(args.out, args.cfdbench)
+        else:
+            print(f"the CFDBench archive is not at {args.cfdbench}: unzip "
+                  f"{cfdbench.ARCHIVE} there, or point --cfdbench at it", file=sys.stderr)
+            return 1
     return 0
 
 

@@ -1,7 +1,7 @@
 """Classical CFD validation cases with their published numbers, run against a real solver (issues #272, #265, #294, #494).
 
 Every learned model and every surrogate in this repository is scored against a reference; this package is where the
-reference itself is checked. It holds five things and keeps them apart:
+reference itself is checked. It holds six things and keeps them apart:
 
 * the published tables (:mod:`~pinneapple_simulation.cfd_validation.reference`), transcribed as data with the table
   they came from, and never re-derived from a run;
@@ -10,6 +10,8 @@ reference itself is checked. It holds five things and keeps them apart:
   back as cell-centred numbers;
 * the same cavity solved by a network instead of a mesh (:mod:`~pinneapple_simulation.cfd_validation.pinn`), scored
   through the same stations and the same norm, so the two numbers can be read in one column;
+* the CFDBench cavity family (:mod:`~pinneapple_simulation.cfd_validation.cfdbench`), read from the benchmark's own
+  archive and scored with that same ruler, so a published dataset's numbers can be read in that column too;
 * the convergence arithmetic that turns three refined runs into an observed order and a Richardson-extrapolated value
   (:func:`observed_order`, over :func:`~pinneapple_analysis.verification.convergence.richardson_extrapolate`, which
   the repository already had for exactly this);
@@ -31,10 +33,11 @@ solver at all.
 """
 from __future__ import annotations
 
-from . import cavity, foam, pinn, reference, step
+from . import cavity, cfdbench, foam, pinn, reference, step
 from .cavity import CavityRun, profile_error, sample
 from .cavity import study as cavity_study
 from .cavity import write_case as write_cavity_case
+from .cfdbench import study as cfdbench_study
 from .pinn import CavityPINN
 from .pinn import measure as pinn_measure
 from .pinn import study as pinn_study
@@ -66,6 +69,8 @@ __all__ = [
     "step", "step_study", "write_step_case", "reattachment_length", "StepRun",
     # the network, scored with the same ruler (#272)
     "pinn", "pinn_study", "train_pinn", "pinn_measure", "CavityPINN",
+    # the benchmark's own data, scored with the same ruler (#272)
+    "cfdbench", "cfdbench_study",
     # convergence
     "observed_order",
 ]

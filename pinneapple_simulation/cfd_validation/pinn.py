@@ -30,6 +30,13 @@ answers for every ``Re`` in the trained range. It is trained where the physics i
 draw a Reynolds number over ``[100, 1000]`` at every step — and scored only where Ghia published a table, which is the
 point of an operator: the three published columns are three *points* of one field.
 
+Three columns are also a thin test of a claim about a whole interval, so the operator is asked twice more, at Reynolds
+numbers no column of the table has (:data:`OFF_SAMPLE`, 250 and 750), and scored there against the *solver* by
+:func:`against`: same stations, same exclusion of the walls, same norm, with the `simpleFoam` profile in the place of
+the published one. Those two numbers are the difference between an operator over ``Re`` and three networks wearing one
+hat, and they are the only measurement in this module that could have been an extrapolation — the range of the input
+is fixed at training and asking outside it raises.
+
 Where it stops
 --------------
 The finding this module exists to produce is the Reynolds number at which each model stops matching the reference
@@ -63,13 +70,19 @@ except ImportError:                                     # importable for the doc
     torch = None                                        # machine that only wants ``results/cavity_pinn.json``.
 
 from .cavity import profile_error
-from .reference import GHIA_U, GHIA_V
+from .reference import GHIA_U, GHIA_V, Profile
 
-__all__ = ["REYNOLDS", "MATCH_TOLERANCES", "PROTOCOL", "Config", "CavityPINN", "train", "profiles", "measure",
-           "matches", "stops_matching", "study", "reference_stations", "needs_torch"]
+__all__ = ["REYNOLDS", "OFF_SAMPLE", "MATCH_TOLERANCES", "PROTOCOL", "Config", "CavityPINN", "train", "profiles",
+           "measure", "against", "matches", "stops_matching", "study", "reference_stations", "needs_torch"]
 
 #: The Reynolds numbers the models are trained and scored at: the three Table I columns of Ghia, Ghia and Shin.
 REYNOLDS = (100, 400, 1000)
+
+#: The Reynolds numbers the operator is asked at that no column of the table has — the two either side of the middle
+#: one, where an operator is worth having and a per-``Re`` network has nothing to say. Scored against the solver's own
+#: field at the same stations (there is no published profile here), which is the only reference that exists off the
+#: table: a number at these two says whether the network is a surrogate over ``Re`` or a fit of three profiles.
+OFF_SAMPLE = (250.0, 750.0)
 
 #: What "matches the reference" means here, as the relative L2 of both centreline profiles — the level a solver
 #: reaches on a middling mesh in the same table (5 %), and the level of the finest one (1 %).
@@ -168,8 +181,11 @@ if torch is not None:                                    # the class body needs 
             self.net = torch.nn.Sequential(*layers)
             for m in self.net:
                 if isinstance(m, torch.nn.Linear):
-                    torch.nn.init.xavier_normal_(m.weight)
-                    torch.nn.init.zeros_(m.bias)
+                    torch.nn.init.xavier_normal_(m.weight, generator=gen)   # the generator, not the global RNG: with
+                    torch.nn.init.zeros_(m.bias)                            # the global one ``seed`` does not
+                    #                                                       reproduce the initial weights, and a
+                    #                                                       configuration that does not reproduce
+                    #                                                       its own starting point is not a record
 
         def forward(self, z: torch.Tensor) -> torch.Tensor:
             if self.fourier is not None:
@@ -200,15 +216,18 @@ if torch is not None:                                    # the class body needs 
             self.seconds = 0.0
 
         # ------------------------------------------------------------------ the input and the forward pass
-        def _input(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+        def _input(self, x: torch.Tensor, y: torch.Tensor, reynolds: float | None = None) -> torch.Tensor:
+            """The network's input. The Reynolds number is an argument and not only :attr:`reynolds`, so that an
+            operator can be *asked* at the ``Re`` of a measurement without its state being moved under it."""
             if not self.parametric:
                 return torch.cat([x, y], dim=-1)
+            re = float(self.reynolds if reynolds is None else reynolds)
             lo, hi = float(np.log10(self.reynolds_range[0])), float(np.log10(self.reynolds_range[1]))
-            t = (float(np.log10(self.reynolds)) - lo) / (hi - lo)
+            t = (float(np.log10(re)) - lo) / (hi - lo)
             return torch.cat([x, y, torch.full_like(x, t)], dim=-1)
 
-        def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-            return self.net(self._input(x, y))
+        def forward(self, x: torch.Tensor, y: torch.Tensor, reynolds: float | None = None) -> torch.Tensor:
+            return self.net(self._input(x, y, reynolds))
 
         # ------------------------------------------------------------------ the answer, for a caller
         @torch.no_grad()
@@ -230,7 +249,7 @@ if torch is not None:                                    # the class body needs 
             real = getattr(torch, self.config.dtype)         # the dtype the weights are in: a float64 network
             xt = torch.tensor(xa.ravel(), dtype=real).reshape(-1, 1)   # fed float32 input raises inside the
             yt = torch.tensor(ya.ravel(), dtype=real).reshape(-1, 1)   # first matmul, not here
-            out = self.forward(xt, yt)
+            out = self.forward(xt, yt, reynolds)
             return out[:, 0].double().numpy(), out[:, 1].double().numpy()
 
         def to_dict(self) -> dict[str, object]:
@@ -349,7 +368,9 @@ def train(reynolds: float | None = None, *, config: Config | None = None,
         loss.backward()
         opt.step()
         sched.step()
-        if cfg.checkpoint and step and step % every == 0:
+        if cfg.checkpoint and step and (step % every == 0 or step == int(cfg.steps) - 1):
+            # the last step is saved as well as the round ones: the save a resumed run wants is the one that makes the
+            # next call do nothing, and with only the round saves a 20 000-step model could never be picked up at 20 000
             torch.save({"model": model.state_dict(), "optimizer": opt.state_dict(), "scheduler": sched.state_dict(),
                         "weights": [float(v) for v in w], "history": model.history, "step": step,
                         "seconds": time.time() - t0}, cfg.checkpoint)
@@ -415,8 +436,40 @@ def measure(model: CavityPINN, reynolds: float | None = None) -> dict[str, objec
             "errors": errs}
 
 
+#: What the off-table rows are scored against, written into every one of them.
+_SOLVER_REFERENCE = ("the case solved by simpleFoam at the same Reynolds number, on the finest mesh of the ladder in "
+                     "results/cavity.json (linearUpwind, residual 1e-6), sampled at Ghia's stations by cavity.sample")
+
+
+def against(model: CavityPINN, reynolds: float, solved: dict[str, np.ndarray],
+            *, solver: str = "simpleFoam") -> dict[str, object]:
+    """The model at a Reynolds number **no published column has**, scored against a solver's field at the stations.
+
+    ``solved`` is what :func:`cavity.sample` returns for a run at ``reynolds`` — ``y`` and ``u`` along ``x = 0.5``,
+    ``x`` and ``v`` along ``y = 0.5`` — and it is the reference here because Ghia publishes nothing at this ``Re``:
+    the alternative is to leave the operator untested away from the three columns it is asked to reproduce, which is
+    exactly the claim that needs evidence. The comparison is the same one the table gets — the same stations, the
+    same exclusion of the two wall stations, the same :func:`cavity.profile_error` — with the solved profile in the
+    place of the published one, so the number reads on the same scale. The rows carry both the model's values and the
+    solver's, so the error can be recomputed from the record without the mesh being on disk.
+    """
+    re = float(reynolds)
+    u_model, _ = model.velocity(np.full_like(solved["y"], 0.5, dtype=float), solved["y"], re)
+    _, v_model = model.velocity(solved["x"], np.full_like(solved["x"], 0.5, dtype=float), re)
+    ref_u = Profile(solver, "u", "y", re, tuple(float(p) for p in solved["y"]),
+                    tuple(float(v) for v in solved["u"]), _SOLVER_REFERENCE)
+    ref_v = Profile(solver, "v", "x", re, tuple(float(p) for p in solved["x"]),
+                    tuple(float(v) for v in solved["v"]), _SOLVER_REFERENCE)
+    return {"reynolds": re, "reference": solver, "citation": _SOLVER_REFERENCE,
+            "y": [float(v) for v in solved["y"]], "u": [float(v) for v in u_model],
+            "x": [float(v) for v in solved["x"]], "v": [float(v) for v in v_model],
+            "reference_u": [float(v) for v in solved["u"]], "reference_v": [float(v) for v in solved["v"]],
+            "errors": {"u": profile_error(ref_u, np.asarray(u_model)),
+                       "v": profile_error(ref_v, np.asarray(v_model))}}
+
+
 def matches(row: dict[str, object], tolerance: float) -> bool:
-    """Whether one measured row matches the table at ``tolerance``: **both** profiles have to clear it."""
+    """Whether one measured row matches the reference at ``tolerance``: **both** profiles have to clear it."""
     errors = row["errors"]
     return bool(max(float(errors["u"]["l2_relative"]), float(errors["v"]["l2_relative"])) <= tolerance)  # type: ignore[index]
 
@@ -443,29 +496,42 @@ def stops_matching(rows: list[dict[str, object]], tolerance: float) -> dict[str,
 
 
 def study(reynolds: tuple[int, ...] = REYNOLDS, *, parametric: bool = False, config: Config | None = None,
-          on_step: object = None) -> dict[str, object]:
+          on_step: object = None, probe: tuple[float, ...] = (),
+          solved: object = None) -> dict[str, object]:
     """Train (one network per ``Re``, or the operator) and measure every model against the published profiles.
 
     Returns the record the case's ``results/cavity_pinn.json`` holds: what was trained, at what cost, the profiles it
     produced at Ghia's stations, the errors those profiles give, and — the finding — the Reynolds number each model
     stops matching the table at.
+
+    ``probe`` is a set of Reynolds numbers **not** in the table, and ``solved`` the function that returns the solver's
+    field at one of them (:func:`cavity.sample` at :data:`OFF_SAMPLE`); the operator is then also scored there, which
+    is the measurement that separates an operator from three networks wearing one hat. Only the operator can be asked:
+    a network trained at a single ``Re`` refuses another by construction, and that refusal is the point of it.
     """
     cfg = config or Config()
     rows: list[dict[str, object]] = []
     models: list[dict[str, object]] = []
+    off: list[dict[str, object]] = []
     if parametric:
         model = train(None, config=_for(cfg, "operator", reynolds), on_step=on_step,
                       reynolds_range=(float(min(reynolds)), float(max(reynolds))))
         models.append(model.to_dict())
         for re in reynolds:
             rows.append(measure(model, re))
+        if probe:
+            if not callable(solved):
+                raise ValueError("a probe Reynolds number needs the solved field to score it against: pass "
+                                 "solved=<callable returning cavity.sample's dict>")
+            for re in probe:
+                off.append(against(model, float(re), solved(float(re))))
     else:
         for re in reynolds:
             model = train(re, config=_for(cfg, "single", re), on_step=on_step)
             models.append(model.to_dict())
             rows.append(measure(model, re))
     return {"what": "parametric operator over Re" if parametric else "one network per Reynolds number",
-            "models": models, "rows": rows,
+            "models": models, "rows": rows, "off_sample": off,
             "stops_matching": {f"{t:g}": stops_matching(rows, t) for t in MATCH_TOLERANCES}}
 
 

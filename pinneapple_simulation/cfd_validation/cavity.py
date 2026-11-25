@@ -212,12 +212,19 @@ def _lattice(C: np.ndarray, values: np.ndarray) -> tuple[np.ndarray, np.ndarray,
     return x, y, grid
 
 
-def sample(case: str, reynolds: float) -> dict[str, np.ndarray]:
+def sample(case: str, reynolds: float, *,
+           stations: dict[str, Sequence[float]] | None = None) -> dict[str, np.ndarray]:
     """``u`` along ``x = 0.5`` and ``v`` along ``y = 0.5``, interpolated to Ghia's stations.
 
     Returns ``{"y", "u", "x", "v"}``: the station coordinates and the measured values at them. Bi-linear: the field is
     interpolated to the centreline from the two neighbouring columns (or rows) and then to the station, so the answer
     is a property of the solution rather than of where the cells happen to fall.
+
+    ``stations`` overrides the two station lists (``{"y": ...}`` for ``u``, ``{"x": ...}`` for ``v``). A run at a
+    Reynolds number Ghia did not publish needs it: the stations are the same at every column of the table, so a
+    solution at another ``Re`` can be read at them and put beside a model evaluated at them. Without it the lists of
+    the published column nearest ``reynolds`` are used, and a ``reynolds`` no column has is a :class:`KeyError` — the
+    case is then only readable at stations the caller names, which is what the argument is for.
     """
     data = foam.cells(case)
     for need in ("C", "U"):
@@ -227,8 +234,17 @@ def sample(case: str, reynolds: float) -> dict[str, np.ndarray]:
     U = np.asarray(data["U"], dtype=float)
     x, y, gu = _lattice(C, U[:, 0])
     _, _, gv = _lattice(C, U[:, 1])
-    ref_u: Profile = GHIA_U[int(round(reynolds))]
-    ref_v: Profile = GHIA_V[int(round(reynolds))]
+    given = stations or {}
+    ref_u: Profile | None = GHIA_U.get(int(round(reynolds)))
+    ref_v: Profile | None = GHIA_V.get(int(round(reynolds)))
+    if ref_u is None or ref_v is None:
+        if "y" not in given or "x" not in given:
+            raise KeyError(f"Re = {float(reynolds):g} is not a column of the table: give both station lists "
+                           f"(stations={{'y': ..., 'x': ...}}) to read the case at the ones you mean")
+        y_stations, x_stations = np.asarray(given["y"], dtype=float), np.asarray(given["x"], dtype=float)
+    else:
+        y_stations = np.asarray(given.get("y", ref_u.points), dtype=float)
+        x_stations = np.asarray(given.get("x", ref_v.points), dtype=float)
 
     if not x[0] <= 0.5 <= x[-1] or not y[0] <= 0.5 <= y[-1]:
         raise ValueError(f"{case}: the lattice {x[0]}..{x[-1]} x {y[0]}..{y[-1]} does not contain both centrelines")
@@ -240,8 +256,8 @@ def sample(case: str, reynolds: float) -> dict[str, np.ndarray]:
     i = min(max(np.searchsorted(y, 0.5), 1), len(y) - 1)
     wv = (0.5 - y[i - 1]) / (y[i] - y[i - 1])
     v_mid = (1.0 - wv) * gv[i - 1, :] + wv * gv[i, :]
-    return {"y": np.asarray(ref_u.points), "u": np.interp(np.asarray(ref_u.points), y, u_mid),
-            "x": np.asarray(ref_v.points), "v": np.interp(np.asarray(ref_v.points), x, v_mid)}
+    return {"y": y_stations, "u": np.interp(y_stations, y, u_mid),
+            "x": x_stations, "v": np.interp(x_stations, x, v_mid)}
 
 
 def profile_error(profile: Profile, measured: np.ndarray, *, interior_only: bool = True,

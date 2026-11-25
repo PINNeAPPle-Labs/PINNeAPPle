@@ -435,3 +435,94 @@ def test_a_model_that_matches_nowhere_says_so_instead_of_naming_a_reynolds_numbe
     assert got["bracket"] is None
     assert got["stops"] == "below the lowest measured Reynolds number"
 
+
+def test_the_operator_is_asked_where_no_column_of_the_table_is_and_scored_against_the_solver():
+    """An operator over ``Re`` that is only measured on the three published columns has not been shown to be one: the
+    three are the points it was asked to reproduce. The record also carries the same model at Reynolds numbers Ghia
+    did not publish, scored against a solved field at the same stations, and this re-scores those rows from the two
+    profiles the row stores -- so the number can be checked without the mesh being on disk, and a row that drifted off
+    the stations the table uses fails here."""
+    from pinneapple_simulation.cfd_validation import Profile, pinn
+    record = _record()
+    rows = record["parametric"]["off_sample"]
+    assert rows, "the operator was not probed off the table: the record has to carry that measurement"
+    assert {row["reynolds"] for row in rows} == set(pinn.OFF_SAMPLE)
+    assert not {row["reynolds"] for row in rows} & set(float(r) for r in GHIA_RE)
+    for row in rows:
+        assert row["y"] == pytest.approx(list(GHIA_U[100].points)), "the stations are the table's at every column"
+        assert row["x"] == pytest.approx(list(GHIA_V[100].points))
+        for quantity, ref_points in (("u", row["y"]), ("v", row["x"])):
+            reference_profile = Profile("simpleFoam", quantity, "y" if quantity == "u" else "x", row["reynolds"],
+                                        tuple(ref_points), tuple(row[f"reference_{quantity}"]),
+                                        row["citation"])
+            again = profile_error(reference_profile, np.asarray(row[quantity], dtype=float))
+            assert again["l2_relative"] == pytest.approx(row["errors"][quantity]["l2_relative"], rel=1e-9)
+
+
+def test_the_off_table_rows_carry_the_meshes_the_reference_was_made_on():
+    """The reference at a Reynolds number the table does not publish is a discretisation too: the record keeps both
+    meshes, so the operator's error can be read against the reference's own change between them."""
+    from pinneapple_simulation.cfd_validation import pinn
+    record = _record()
+    solver = record["off_sample_solver"]
+    if solver.get("skipped"):
+        pytest.skip(solver["skipped"])
+    assert solver["reynolds"] == list(pinn.OFF_SAMPLE)
+    per = {}
+    for run in solver["runs"]:
+        per.setdefault(run["reynolds"], []).append(run)
+    for reynolds, runs in per.items():
+        assert sorted(r["mesh"] for r in runs) == sorted(solver["meshes"]), (reynolds, runs)
+        assert all(r["converged"] for r in runs), f"the reference at Re = {reynolds} did not converge"
+
+
+def test_the_benchmark_is_read_with_the_density_in_its_reynolds_number():
+    """CFDBench's ``prop`` family varies the density, so ``Re = rho U L / mu``: a reader that drops it reads six
+    different flows as one Reynolds number, and the error against the table is where that shows."""
+    from pinneapple_simulation.cfd_validation import cfdbench
+
+    class _Case:
+        def __init__(self, **params):
+            self._params = params
+
+        def params(self):
+            return self._params
+
+        def summary(self):
+            return "cavity/prop/case0000"
+
+    case = _Case(vel_top=10.0, width=0.01, height=0.01, density=1.0, viscosity=1e-3)
+    assert cfdbench.reynolds(case) == pytest.approx(100.0)
+    dense = _Case(vel_top=10.0, width=0.01, height=0.01, density=4.0, viscosity=1e-3)
+    assert cfdbench.reynolds(dense) == pytest.approx(400.0), "the density is part of the Reynolds number"
+    with pytest.raises(ValueError):
+        cfdbench.reynolds(_Case(width=0.01, height=0.01))
+
+
+def test_the_benchmark_rows_are_scored_at_the_published_stations_through_the_same_norm():
+    from pinneapple_simulation.cfd_validation import cfdbench
+    record = _cfdbench()
+    assert record["archive"] == cfdbench.ARCHIVE
+    families = record["families"]
+    assert set(families) == set(cfdbench.PROBLEMS), "every family of the archive is accounted for, unpacked or not"
+    assert families["cavity"]["cases"] == record["cases_on_disk"] > 0
+    seen = set()
+    for row in record["rows"]:
+        re = int(round(float(row["reynolds"])))
+        seen.add(re)
+        assert row["found"] == len(row["cases"])
+        for case in row["cases"]:
+            assert case["y"] == pytest.approx(list(GHIA_U[re].points))
+            assert case["x"] == pytest.approx(list(GHIA_V[re].points))
+            for quantity, ref in (("u", GHIA_U[re]), ("v", GHIA_V[re])):
+                again = profile_error(ref, np.asarray(case[quantity], dtype=float))
+                assert again["l2_relative"] == pytest.approx(case["errors"][quantity]["l2_relative"], rel=1e-9)
+            without = case["errors"]["u_without_lid"]
+            assert without["points"] < case["errors"]["u"]["points"], "leaving the lid stations out takes some out"
+            assert 0 < without["l2_relative"] < case["errors"]["u"]["l2_relative"] + 1e-12
+    assert seen == set(GHIA_RE[:3])
+
+
+def _cfdbench() -> dict:
+    path = Path(__file__).resolve().parents[1] / "examples" / "cfd" / "classical_cases" / "results" / "cfdbench.json"
+    return json.loads(path.read_text(encoding="utf-8"))

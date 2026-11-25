@@ -1,0 +1,159 @@
+{
+ "checks": [
+  {
+   "atol": null,
+   "detail": "worst relative discrepancy over every field 3.131e-10",
+   "kind": "regression",
+   "max": null,
+   "min": null,
+   "name": "the same run read by two paths is the same object",
+   "passed": true,
+   "reference": null,
+   "rtol": 1e-06,
+   "value": 3.130736520399811e-10
+  },
+  {
+   "atol": null,
+   "detail": "displacement from the reduced dumps against the in-memory run",
+   "kind": "regression",
+   "max": null,
+   "min": null,
+   "name": "the staged OpenRadioss layout reproduces the run",
+   "passed": true,
+   "reference": null,
+   "rtol": 1e-06,
+   "value": 1.7082862749855777e-07
+  },
+  {
+   "atol": null,
+   "detail": "StructuralRun.checksum() equal before and after the store",
+   "kind": "regression",
+   "max": null,
+   "min": null,
+   "name": "the Zarr round trip is bit-identical at float64",
+   "passed": true,
+   "reference": null,
+   "rtol": null,
+   "value": null
+  },
+  {
+   "atol": null,
+   "detail": "test ['coupon_2'] \u2014 one family, every frame of it",
+   "kind": "protocol",
+   "max": null,
+   "min": null,
+   "name": "the split holds out geometry families, not frames",
+   "passed": true,
+   "reference": null,
+   "rtol": null,
+   "value": null
+  },
+  {
+   "atol": null,
+   "detail": "unit per field and the provenance record compared before and after each path",
+   "kind": "protocol",
+   "max": null,
+   "min": null,
+   "name": "units and provenance survive the trip",
+   "passed": true,
+   "reference": null,
+   "rtol": null,
+   "value": null
+  }
+ ],
+ "description": "Three coupon impacts run by the library's own explicit crash solver are wrapped in StructuralRun and read back through the two paths #1500 names \u2014 a legacy-VTK time series (the format anim_to_vtk writes) and the staged OpenRadioss case layout \u2014 then normalised into a training set: dedup, node decimation with the error it introduces, unit conversion, per-field non-dimensionalisation and a split by geometry family. Every number here is measured by the script on the machine that ran it; the LS-DYNA ASCII path is exercised by the test suite and states the quantities it cannot carry.",
+ "domain": "structural crashworthiness",
+ "files": {
+  "data": [],
+  "figures": [
+   "ingestion.png"
+  ],
+  "videos": [],
+  "viewers": []
+ },
+ "id": "examples/structural_ingestion",
+ "lab": {},
+ "links": {
+  "guide": "docs/guides/structural_ingestion.md",
+  "script": "examples/structural_ingestion/run.py"
+ },
+ "methods": [
+  "explicit hexahedral dynamics (J2 plasticity, penalty contact)",
+  "legacy-VTK time-series ingestion",
+  "OpenRadioss staged-case ingestion",
+  "normalisation to a training set (dedup, decimation, units, non-dimensionalisation, family split)"
+ ],
+ "metrics": [
+  {
+   "how": "coupon impacts of the library's explicit crash solver, one geometry family each",
+   "name": "runs_ingested",
+   "unit": "runs",
+   "value": 3.0
+  },
+  {
+   "how": "frames kept by the solver and carried by StructuralRun, 6 per run",
+   "name": "stored_frames",
+   "unit": "frames",
+   "value": 18.0
+  },
+  {
+   "how": "worst over every field of the run written as a legacy-VTK time series at single precision and read back",
+   "name": "two_path_vtk_discrepancy",
+   "unit": "relative",
+   "value": 3.130736520399811e-10
+  },
+  {
+   "how": "displacement of the staged OpenRadioss layout (frame_000.vtk plus disp_XXX.txt dumps) against the in-memory run",
+   "name": "two_path_openradioss_discrepancy",
+   "unit": "relative",
+   "value": 1.7082862749855777e-07
+  },
+  {
+   "how": "node budget of the decimation step, elements selected by a farthest-point spread over their centroids",
+   "name": "decimated_points",
+   "unit": "nodes",
+   "value": 120.0
+  },
+  {
+   "how": "displacement of every dropped node against its nearest kept node, per run",
+   "name": "decimation_error_displacement",
+   "unit": "relative L2",
+   "value": 0.12718238249950312
+  },
+  {
+   "how": "displacement after a float32 Zarr store and read back, against the float64 run",
+   "name": "zarr_float32_relative",
+   "unit": "relative",
+   "value": 4.077185148223081e-08
+  },
+  {
+   "how": "frames over the normalised runs; the split holds out whole families",
+   "name": "samples_in_training_set",
+   "unit": "samples",
+   "value": 18.0
+  }
+ ],
+ "modules": [
+  "pinneapple_data.cae.structural",
+  "pinneapple_data.cae.vtk_series",
+  "pinneapple_data.cae.training_set",
+  "pinneapple_simulation.numerical_solvers.crash_fem"
+ ],
+ "params": {
+  "cells": 576,
+  "designs": 3,
+  "frames": 18,
+  "points": 975
+ },
+ "provenance": {
+  "note": "measured by the script on macOS arm64; the solver is this library's explicit crash solver, not OpenRadioss or LS-DYNA",
+  "source": "examples/structural_ingestion/run.py"
+ },
+ "references": [],
+ "schema": "pinneapple.experiment/1",
+ "scripts": [
+  "run.py"
+ ],
+ "status": "not curated",
+ "title": "Explicit-FEA ingestion: one run as one object, and the normalisation to a training set"
+}

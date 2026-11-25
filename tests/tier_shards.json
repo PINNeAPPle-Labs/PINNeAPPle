@@ -854,7 +854,7 @@
         "tests/test_zoo_hub_formats.py",
         "tests/test_zoo_web.py"
       ],
-      "reason": "not measured green yet: see docs/dev/test_shards.md"
+      "reason": "measured 2026-11-25 in eight pieces: every failure has its box in #625 and the four library defects are fixed (PR #2459); still not blocking because 577 files take hours and the runner ceiling is 600 s"
     },
     {
       "blocking": true,

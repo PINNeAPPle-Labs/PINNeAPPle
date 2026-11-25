@@ -1,12 +1,12 @@
 {
- "code_hash": "54f9cbdb63a462a2",
+ "code_hash": "6826772df934decd",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.field_range_issues",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.78,
+ "recorded": "2026-11-25",
+ "seconds": 30.14,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
- "stdout": "list\n[]",
+ "stdout": "field range issues -> pinneapple_tools.dataset_quality:field_range_issues\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fields': {}, 'ranges': {}}",
  "timed_out": false
 }

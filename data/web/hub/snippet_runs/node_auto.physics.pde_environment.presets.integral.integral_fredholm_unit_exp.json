@@ -1,0 +1,12 @@
+{
+ "code_hash": "fc69f8494e27a511",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.integral.integral_fredholm_unit_exp",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.2,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='integral_fredholm_unit_exp', dim=1, coords=('x',), fields=('u',), pde=PDETermSpec(kind='fredholm2', fields=('u',), coords=('x',), params={'lambda': 0.5, 'kernel_fn': <function constant_kernel at 0x10e6825c0>, 'f_fn': <function integral_fredholm_unit_exp.<locals>.<lambda> at 0x102630c20>}, meta={'analytic': 'integral_fredholm_unit_exp', 'physics': 'integral_equations'}), conditions=(), sample_defaults={'n_col': 81, 'n_bc': 0, 'n_ic': 0, 'n_data': 0}, scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0), field_ranges={'u': (1.0, 2.718281828459045)}, references=('Atkinson, The Numerical Solution of Integral Equations of the Second Kind, Cambridge University Press, 1997, ch. 3',), domain_bounds={'x': (0.0, 1.0)}, solver_spec={}, meta={}, problem_id='')",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "b5054e50497f92f5",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.multidisciplinary.climate_atmosphere_2d",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 24.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "climate atmosphere 2d -> pinneapple_physics.pde_environment.presets.multidisciplinary:climate_atmosphere_2d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'g': 9.81, 'f': 0.0001, 'H0': 1000.0, 'U_ref': 10.0, 'lon_min': 0.0, 'lon_max': 360.0, 'lat_min': -90.0, 'lat_max': 90.0}",
+ "timed_out": false
+}

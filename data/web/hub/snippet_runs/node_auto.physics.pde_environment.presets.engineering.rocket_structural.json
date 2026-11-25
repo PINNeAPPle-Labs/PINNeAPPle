@@ -1,0 +1,12 @@
+{
+ "code_hash": "91f7e2963bdb5b21",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.rocket_structural",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "rocket structural -> pinneapple_physics.pde_environment.presets.engineering:rocket_structural\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'E': 200000000000.0, 'nu': 0.3, 'p_internal': 10000000.0, 'T_inner': 800.0, 'T_outer': 293.0, 'alpha_T': 1.2e-05, 'inner_radius': 0.2, 'outer_radius': 0.22}",
+ "timed_out": false
+}

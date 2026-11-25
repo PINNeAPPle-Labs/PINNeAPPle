@@ -1,0 +1,12 @@
+{
+ "code_hash": "a100d1b75d9c5815",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.nfw_dark_matter_potential",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.18,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='nfw_dark_matter_potential', dim=3, coords=('x', 'y', 'z'), fields=('Phi',), pde=PDETermSpec(kind='poisson', fields=('Phi',), coords=('x', 'y', 'z'), params={}, meta={'note': 'NFW dark-matter halo gravitational potential (Poisson eq).', 'source_fn_default': \"nfw_dark_matter_potential.source_fn (call with ctx={'source_fn': ...})\"}), conditions=(ConditionSpec(name='Phi_outer_boundary', kind='dirichlet', fields=('Phi',), selector_type='callable', selector=<function nfw_dark_matter_potential.<locals>._boundary_sel at 0x115bcd4e0>, value_fn=<function nfw_dark_matter_potential.<locals>._boundary_val at 0x115bce480>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 60000, 'n_b",
+ "timed_out": false
+}

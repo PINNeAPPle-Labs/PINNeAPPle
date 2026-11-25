@@ -1,0 +1,12 @@
+{
+ "code_hash": "022eb753c776e8de",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pipe_flow.laminar",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n64.0",
+ "timed_out": false
+}

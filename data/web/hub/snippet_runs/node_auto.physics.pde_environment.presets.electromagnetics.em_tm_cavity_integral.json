@@ -1,0 +1,12 @@
+{
+ "code_hash": "81c4369e49c68b71",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.electromagnetics.em_tm_cavity_integral",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='em_tm_cavity_integral', dim=2, coords=('x', 'y', 't'), fields=('Ez', 'Hx', 'Hy'), pde=PDETermSpec(kind='maxwell_tm_integral', fields=('Ez', 'Hx', 'Hy'), coords=('x', 'y', 't'), params={'eps': 1.0, 'mu': 1.0, 'sigma': 0.0, 'm': 1, 'n': 1, 'h': 0.02, 'quad': 4}, meta={'analytic': 'em_tm_cavity_mode', 'physics': 'electrodynamics'}), conditions=(ConditionSpec(name='pec_walls', kind='dirichlet', fields=('Ez',), selector_type='callable', selector=<function _faces.<locals>.<lambda> at 0x117b216c0>, value_fn=<function _cavity.<locals>.<lambda> at 0x117b21760>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='standing_wave_t0', kind='initial', fields=('Ez', 'Hx', 'Hy'), selector_type='",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "d212183ffb800a7d",
+ "figures": [],
+ "id": "node:auto.analysis.validation.fault_injection.run_fault_injection",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "run fault injection -> pinneapple_analysis.validation.fault_injection:run_fault_injection\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'problem': 'darcy_2d', 'n_cases': 50, 'n_datasets': 20, 'dataset_size': [16, 8], 'seed': 0, 'min_rate': 0.9, 'include_data': True}",
+ "timed_out": false
+}

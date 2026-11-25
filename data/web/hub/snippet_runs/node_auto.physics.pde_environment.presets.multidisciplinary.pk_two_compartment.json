@@ -1,0 +1,12 @@
+{
+ "code_hash": "8d39be16000e0d48",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.multidisciplinary.pk_two_compartment",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 21.48,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pk two compartment -> pinneapple_physics.pde_environment.presets.multidisciplinary:pk_two_compartment\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'k12': 0.5, 'k21': 0.3, 'kel': 0.2, 'V1': 10.0, 'dose': 500.0, 't_end': 24.0}",
+ "timed_out": false
+}

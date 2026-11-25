@@ -1,12 +1,12 @@
 {
- "code_hash": "ae9a5120b3750b67",
+ "code_hash": "39bfeafbcb13595d",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.analyze_distribution",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.95,
+ "recorded": "2026-11-25",
+ "seconds": 25.71,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
- "stdout": "dict\n{'per_field': {}}",
+ "stdout": "analyze distribution -> pinneapple_tools.dataset_quality:analyze_distribution\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fields': {}}",
  "timed_out": false
 }

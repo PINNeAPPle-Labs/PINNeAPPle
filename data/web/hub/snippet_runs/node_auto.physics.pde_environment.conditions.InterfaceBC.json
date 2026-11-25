@@ -1,0 +1,12 @@
+{
+ "code_hash": "a37e234953cc14f2",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.conditions.InterfaceBC",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 21.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "InterfaceBC -> pinneapple_physics.pde_environment.conditions:InterfaceBC\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'fields': [], 'selector_type': 'all', 'selector': None, 'weight': 1.0, 'k_a': 1.0, 'k_b': 1.0}",
+ "timed_out": false
+}

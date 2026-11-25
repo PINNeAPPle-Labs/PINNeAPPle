@@ -1,0 +1,12 @@
+{
+ "code_hash": "9b173b744267dc7c",
+ "figures": [],
+ "id": "node:auto.analysis.validation.fault_injection.faults.model_faults",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[Fault(name='bias', target='model', apply=<function _bias at 0x11854e700>, magnitudes=(0.005, 0.01, 0.02, 0.05, 0.1, 0.2), documented=0.05, unit='fraction of max |u|', description='output + m max|u|'), Fault(name='scale', target='model', apply=<function _scale at 0x11854e8e0>, magnitudes=(0.01, 0.02, 0.05, 0.1, 0.2, 0.5), documented=0.2, unit='relative', description='output x (1 + m)'), Fault(name='noise', target='model', apply=<function _noise at 0x11854e980>, magnitudes=(0.001, 0.003, 0.01, 0.03, 0.1, 0.3), documented=0.1, unit='fraction of std(u)', description='white noise of standard deviation m std(u)'), Fault(name='smoothing', target='model', apply=<function _smoothing at 0x11854ea20>, magnitudes=(0.25, 0.5, 1.0, 2.0, 4.0), documented={'darcy_2d': 2.0, 'burgers_1d': 4.0}, unit='cells",
+ "timed_out": false
+}

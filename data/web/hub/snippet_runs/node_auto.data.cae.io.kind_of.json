@@ -1,0 +1,12 @@
+{
+ "code_hash": "a55d363d4aeb30e3",
+ "figures": [],
+ "id": "node:auto.data.cae.io.kind_of",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "kind of -> pinneapple_data.cae.io:kind_of\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fs': {}}",
+ "timed_out": false
+}

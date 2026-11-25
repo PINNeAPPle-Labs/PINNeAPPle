@@ -1,0 +1,12 @@
+{
+ "code_hash": "75623f2cb9b9d685",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.sod_shock_tube_astro",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 16.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='sod_shock_tube_astro', dim=1, coords=('x', 't'), fields=('rho', 'rho_u', 'E'), pde=PDETermSpec(kind='euler_compressible_1d', fields=('rho', 'rho_u', 'E'), coords=('x', 't'), params={'gamma': 1.4}, meta={'note': '1D compressible Euler equations (Sod shock tube).', 'x0': 0.5}), conditions=(ConditionSpec(name='ic_rho', kind='initial', fields=('rho',), selector_type='callable', selector=<function sod_shock_tube_astro.<locals>._ic_sel at 0x106b04fe0>, value_fn=<function sod_shock_tube_astro.<locals>._ic_rho at 0x11527d4e0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='ic_rhou', kind='initial', fields=('rho_u',), selector_type='callable', selector=<function sod_shock_tube_astro.",
+ "timed_out": false
+}

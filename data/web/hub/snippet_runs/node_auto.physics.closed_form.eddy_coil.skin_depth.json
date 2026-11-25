@@ -1,0 +1,12 @@
+{
+ "code_hash": "31ac7c5a1b2357f2",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.eddy_coil.skin_depth",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "skin depth -> pinneapple_physics.closed_form.eddy_coil:skin_depth\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'f': 1.0, 'sigma': 1.0, 'mu_r': 1.0}",
+ "timed_out": false
+}

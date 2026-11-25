@@ -1,0 +1,12 @@
+{
+ "code_hash": "2a6b32ed9c8d5b8f",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pump_npsh.pipe_loss",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 17.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'h': 4.237352704610026, 'v': 1.2732395447351628, 're': 1.2732395447351628, 'f': 50.26548245743669}",
+ "timed_out": false
+}

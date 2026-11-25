@@ -1,0 +1,12 @@
+{
+ "code_hash": "f7536eb1de35c400",
+ "figures": [],
+ "id": "node:auto.neural.trainer.checkpoint.restore_rng",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 17.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
+ "timed_out": false
+}

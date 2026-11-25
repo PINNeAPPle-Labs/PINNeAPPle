@@ -1,0 +1,12 @@
+{
+ "code_hash": "03e8e53e194c5282",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.schwarzschild_deflection_angle_weak_field",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 16.55,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n4.0",
+ "timed_out": false
+}

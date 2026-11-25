@@ -45,6 +45,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
+
 try:
     from pinneapple_train import best_device, maybe_compile
 except ImportError:

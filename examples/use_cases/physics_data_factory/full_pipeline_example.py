@@ -68,6 +68,9 @@ from pinneapple_worldmodel import (
 )
 
 import shutil
+from pinneapple_tools.visualization.style import use_theme  # noqa: E402
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 OUT_DIR = Path(__file__).parent / "outputs"
 # Fresh run: remove old outputs so manifests don't accumulate across runs

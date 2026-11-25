@@ -51,6 +51,9 @@ from matplotlib.patches import FancyBboxPatch, Circle
 import numpy as np
 import torch
 import torch.nn as nn
+from pinneapple_tools.visualization.style import use_theme  # noqa: E402
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 OUT_DIR = Path(__file__).parent / "outputs" / "digital_twin"
 OUT_DIR.mkdir(parents=True, exist_ok=True)

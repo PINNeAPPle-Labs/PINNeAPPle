@@ -109,6 +109,7 @@
     * [Spectral fidelity: what relative L2 does not see](guides/spectral_fidelity.md)
     * [Digital Twin Library: five systems, each with its own conservation laws](guides/digital_twin_library.md)
     * [The twin end to end, on real sensors](guides/digital_twin_end_to_end.md)
+    * [Stirred exothermic reactor: a twin benchmark case, measured](guides/stirred_reactor_twin.md)
     * [Metamorphic tests: checking a surrogate without ground truth](guides/metamorphic_tests.md)
     * [Dataset physics audit: does the data solve its PDE?](guides/dataset_audit.md)
     * [From residual to error bound](guides/residual_error_bound.md)

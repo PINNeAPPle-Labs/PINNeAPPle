@@ -1,0 +1,249 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/reactor_twin",
+ "title": "Stirred exothermic reactor: digital-twin benchmark",
+ "description": "A well-mixed exothermic reactor with a three-blade impeller and five cooling tubes, reduced from the two-dimensional case a third-party post describes, and the digital twin that follows it through three perturbations (sensor noise, a failed cooling tube, the safety margin against a temperature alarm), measured as state error, latency and alarm detection.",
+ "domain": "digital twins",
+ "methods": [
+  "stirred-tank energy and mass balance",
+  "Arrhenius kinetics",
+  "van't Hoff equilibrium",
+  "effectiveness-NTU cooling",
+  "agitated-vessel film correlation",
+  "extended Kalman filter",
+  "predictive alarm"
+ ],
+ "modules": [
+  "pinneapple_systems.digital_twin.stirred_reactor"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "reference_stationary_agreement",
+   "value": 0.17748642488868427,
+   "unit": "mK",
+   "how": "algebraic stationary solve against a 16 h marched transient"
+  },
+  {
+   "name": "reference_tolerance_difference",
+   "value": 5.47416902918485e-08,
+   "unit": "K",
+   "how": "rtol 1e-10 against rtol 1e-12 over a two-hour controlled run"
+  },
+  {
+   "name": "reference_energy_residual",
+   "value": 0.0018734160196002927,
+   "unit": "relative",
+   "how": "first law over a run with a tube isolated and the impeller stopped"
+  },
+  {
+   "name": "unagitated_temperature",
+   "value": 59.14580058489889,
+   "unit": "\u00b0C",
+   "how": "stationary bulk temperature with the impeller stopped, same feed and tubes"
+  },
+  {
+   "name": "unagitated_conversion",
+   "value": 0.5046352741265571,
+   "unit": "fraction",
+   "how": "stationary conversion with the impeller stopped"
+  },
+  {
+   "name": "feed_needed_for_the_post_point",
+   "value": 73.3171089564596,
+   "unit": "\u00b0C",
+   "how": "feed temperature a well-mixed tank needs to sit at the post's 75 \u00b0C with 20 % conversion"
+  },
+  {
+   "name": "state_error_temperature_rms",
+   "value": 0.0740727154390151,
+   "unit": "K",
+   "how": "11 cases: twin against the reference at every sample"
+  },
+  {
+   "name": "state_error_conversion_rms",
+   "value": 0.14207427108239745,
+   "unit": "pp",
+   "how": "twin conversion against the reference, percentage points"
+  },
+  {
+   "name": "sensor_error_for_scale",
+   "value": 0.9991181575960739,
+   "unit": "K",
+   "how": "the RTD alone on the same cases: what there is without a twin"
+  },
+  {
+   "name": "open_loop_error_for_scale",
+   "value": 1.510919273645085,
+   "unit": "K",
+   "how": "the same lumped model with no assimilation, cooling family"
+  },
+  {
+   "name": "latency_median",
+   "value": 0.96766599745024,
+   "unit": "ms",
+   "how": "one twin sample: Kalman predict+update plus the forecast that decides the alarm"
+  },
+  {
+   "name": "latency_share_of_the_cycle",
+   "value": 0.003225553324834133,
+   "unit": "%",
+   "how": "of the 30 s sample period"
+  },
+  {
+   "name": "alarm_cases_that_crossed",
+   "value": 3.0,
+   "unit": "cases",
+   "how": "the plant reached the alarm setpoint"
+  },
+  {
+   "name": "alarm_detected",
+   "value": 3.0,
+   "unit": "cases",
+   "how": "and the twin said so"
+  },
+  {
+   "name": "alarm_false_alarms",
+   "value": 0.0,
+   "unit": "cases",
+   "how": "alarms where the plant never crossed"
+  },
+  {
+   "name": "alarm_missed",
+   "value": 0.0,
+   "unit": "cases",
+   "how": "crossings the twin never reported"
+  },
+  {
+   "name": "alarm_lead_median",
+   "value": 82.5,
+   "unit": "min",
+   "how": "how early the twin's alarm was, median over the detected crossings"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the reference's two routes agree",
+   "passed": true,
+   "value": 0.00017748642488868427,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "",
+   "label": "algebraic stationary point vs marched transient [K]",
+   "kind": "verification"
+  },
+  {
+   "name": "the reference's tolerance is converged",
+   "passed": true,
+   "value": 5.47416902918485e-08,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-05,
+   "min": null,
+   "detail": "",
+   "label": "rtol 1e-10 vs 1e-12 [K]",
+   "kind": "verification"
+  },
+  {
+   "name": "the reference closes the first law",
+   "passed": true,
+   "value": 0.0018734160196002927,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "",
+   "label": "energy residual over a fault run [relative]",
+   "kind": "verification"
+  },
+  {
+   "name": "false alarms",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "0 false alarms in 11 cases",
+   "kind": "physics"
+  },
+  {
+   "name": "no crossing missed",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "3/3 detected",
+   "kind": "physics"
+  },
+  {
+   "name": "twin beats the instrument",
+   "passed": true,
+   "value": 0.0740727154390151,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.9991181575960739,
+   "min": null,
+   "detail": "",
+   "label": "state error against the RTD alone [K]",
+   "kind": "physics"
+  },
+  {
+   "name": "one sample fits the cycle",
+   "passed": true,
+   "value": 0.003225553324834133,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 100.0,
+   "min": null,
+   "detail": "",
+   "label": "twin compute as a share of the sample period [%]",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [
+   "_out/figures/post_points_vs_model.png",
+   "_out/figures/results.png",
+   "_out/figures/impeller_trip.png",
+   "_out/figures/margin_cross.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/report.md",
+   "_out/benchmark.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/stirred_reactor_twin.md",
+  "script": "examples/reactor_twin/reactor_twin_benchmark.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "7d22d9b11",
+  "created": "2026-11-25T11:34:26Z",
+  "seconds": 24.079,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ },
+ "quality": {}
+}

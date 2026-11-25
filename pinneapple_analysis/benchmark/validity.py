@@ -45,6 +45,9 @@ class ValidityDomain:
     note: str = ""
 
     def __post_init__(self):
+        if not isinstance(self.bounds, Mapping):
+            raise ValueError(f"validity domain of {self.name}: bounds must map variable -> (low, high), "
+                             f"got {type(self.bounds).__name__}")
         for var, (lo, hi) in self.bounds.items():
             if not float(lo) < float(hi):
                 raise ValueError(f"validity domain of {self.name}: {var} has an empty range ({lo}, {hi})")

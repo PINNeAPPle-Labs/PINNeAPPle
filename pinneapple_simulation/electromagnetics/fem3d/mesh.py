@@ -31,6 +31,13 @@ class TetMesh:
         self.nodes = np.ascontiguousarray(self.nodes, float)
         self.tets = np.ascontiguousarray(self.tets, np.int64)
         self.region = np.asarray(self.region, np.int64)
+        if self.nodes.ndim != 2 or self.nodes.shape[1] != 3:
+            raise ValueError(f"nodes must be (N, 3) coordinates, got shape {self.nodes.shape}")
+        if self.tets.ndim != 2 or self.tets.shape[1] != 4:
+            raise ValueError(f"tets must be (M, 4) node indices, got shape {self.tets.shape}")
+        if self.region.shape != (len(self.tets),):
+            raise ValueError(f"region must hold one tag per tetrahedron ({len(self.tets)}), "
+                             f"got shape {self.region.shape}")
         J = self.jacobians
         det = np.linalg.det(J)
         flip = det < 0                     # positive orientation: swap two nodes

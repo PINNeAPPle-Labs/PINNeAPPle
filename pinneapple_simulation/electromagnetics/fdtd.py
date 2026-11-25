@@ -153,6 +153,12 @@ class YeeGrid:
     def __post_init__(self):
         self.shape = tuple(int(s) for s in self.shape)
         self.spacing = tuple(float(d) for d in self.spacing)
+        if len(self.shape) != 3 or len(self.spacing) != 3:
+            raise ValueError(f"shape and spacing must each have three entries (1 on an invariant axis), "
+                             f"got {self.shape!r} and {self.spacing!r}")
+        if any(s < 1 for s in self.shape) or any(d <= 0 for d in self.spacing):
+            raise ValueError(f"shape entries must be at least 1 and spacings positive, "
+                             f"got {self.shape!r} and {self.spacing!r}")
         self.active = tuple(s > 1 for s in self.shape)
         self.dt_max = courant_limit(self.spacing, self.active)
         if self.dt is None:

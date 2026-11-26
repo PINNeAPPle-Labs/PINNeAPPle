@@ -182,6 +182,7 @@ class Scene:
     lighting: Optional[Dict[str, Any]] = None                 # a lighting preset for the browser viewer (see .lighting)
     materials: Dict[str, Dict[str, Any]] = field(default_factory=dict)   # extra / overriding entries of MATERIALS
     animation: Any = None                                     # an .animation.Animation (tracks, arrows, HUD per frame)
+    unit: float = 1.0                                         # metres per coordinate unit; see .scale and render(units=)
 
     # ------------------------------------------------------------------ construction
     @classmethod

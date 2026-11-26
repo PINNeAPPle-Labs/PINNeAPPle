@@ -48,7 +48,7 @@ __all__ = ["Scene", "Surface", "Lines", "Slice", "MATERIALS", "read_stl", "read_
            "cached_view", "view_paths", "save_view", "prune_views",
            "sphere_surface", "rod_surface", "disc_surface",
            "QUALITY", "DEVICE_BACKENDS", "HDRIS", "hdri_path", "SHADERS", "bake_materials",
-           "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture", "solid",
+           "bake_materials_headless", "benchmark", "detail", "bevel_scene", "manufacture", "solid", "scale",
            # #60: an OpenFOAM case, a .foam pointer or a VTK file as a PyVista grid
            "read_openfoam", "read_openfoam_patches", "read_grid", "read_vtk", "openfoam_times", "case_folder",
            # #63: reference, surrogate and the error map, with the L2 error as a number
@@ -96,6 +96,9 @@ def __getattr__(name):
     if name == "solid":                                     # closed solids, loft and a real boolean: pp.viz.solid
         import importlib
         return importlib.import_module(".solid", __name__)
+    if name == "scale":                                     # the metres behind a scene: pp.viz.scale.grid_step(0.25)
+        import importlib
+        return importlib.import_module(".scale", __name__)
     raise AttributeError(name)
 
 

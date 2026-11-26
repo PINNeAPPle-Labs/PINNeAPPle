@@ -775,6 +775,7 @@
     "tests/test_studio_maps.py",
     "tests/test_studio_pbr.py",
     "tests/test_studio_post.py",
+    "tests/test_studio_scale.py",
     "tests/test_studio_solid.py",
     "tests/test_studio_units.py",
     "tests/test_studio_units_design.py",

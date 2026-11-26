@@ -122,8 +122,25 @@ def test_picture_stats_read_a_flat_image_and_a_busy_one(tmp_path):
     a[:, 32:] = 255
     Image.fromarray(a).save(busy)
     s = BM.picture_stats(str(busy))
-    assert s["coverage"] > 0.45, "half the frame differs from the corner pixel"
+    assert s["coverage"] > 0.45, "half of every scanline is not what the other half is"
     assert s["edge_energy"] > 0.5
+
+
+def test_coverage_survives_a_background_that_is_not_one_colour(tmp_path):
+    """A render standing on a lit floor has a gradient across the frame, so the corner pixel says nothing about the
+    rest: the subject is measured against its own scanline instead."""
+    import numpy as np
+    from PIL import Image
+
+    h, w = 100, 100
+    a = np.empty((h, w, 3), np.uint8)
+    a[:, :] = np.linspace(40, 200, h)[:, None, None].astype(np.uint8)     # a floor going from dark to bright
+    a[40:60, 30:70] = 0                                                    # a dark part, a fifth of the middle rows
+    path = tmp_path / "graded.png"
+    Image.fromarray(a).save(path)
+    s = BM.picture_stats(str(path))
+    assert s["coverage"] == pytest.approx(0.08, abs=0.01), \
+        "the part is 20 rows x 40 of 100 x 100; a corner pixel would have called the whole gradient the subject"
 
 
 @pytest.mark.skipif(B.blender_executable() is None, reason="needs a Blender binary on this machine")

@@ -36,10 +36,22 @@ rows = deflection_table(body, APOPHIS_2029_JD - 5 * 365.25, APOPHIS_2029_JD,
                         masses_kg=(100.0, 1000.0, 10000.0), speed_km_s=6.1, target_kg=5.4e10)
 ```
 
-Each row is `delta_v` in mm/s and the miss distance it produces. The physics is unforgiving in a way worth seeing: a
-100 kg impactor five years out changes the miss by **21 km** on a 5.4e10 kg body, and the useful regime needs either a
-much smaller target or a much bigger impactor. That is why the same table over a 50 m body (1.3e8 kg) on the same
-orbit is in the example: the same 100 kg is 400 times more effective.
+Each row is `delta_v` in mm/s and the miss distance it produces. Measured, over the undeflected 38 356 km:
+
+| impactor | delta_v | 1 year of warning | 5 years | 10 years |
+|---|---|---|---|---|
+| 30 kg | 0.012 mm/s | 38 357 km | 38 362 km | 38 363 km |
+| 100 kg | 0.041 mm/s | 38 359 km | 38 377 km | 38 380 km |
+| 300 kg | 0.122 mm/s | 38 363 km | 38 417 km | 38 428 km |
+| 1 000 kg | 0.408 mm/s | 38 380 km | 38 560 km | 38 597 km |
+| 3 000 kg | 1.223 mm/s | 38 428 km | 38 969 km | 39 078 km |
+| 10 000 kg | 4.078 mm/s | 38 596 km | 40 401 km | 40 765 km |
+
+The physics is unforgiving in a way worth seeing: on a 5.4e10 kg body even ten tonnes ten years ahead buy **2 409 km**
+on a 38 356 km miss — a few tenths of the Earth's radius, not a guarantee. The same impulse on a 50 m body (1.3e8 kg)
+on the very same orbit buys **87 263 km**: 1 000 kg there is 169 mm/s, and the miss is no longer an encounter. Which is
+the honest summary of planetary defence — it is a problem of *small* targets and *long* warning times, and the useful
+question about a big one is how early you have to go.
 
 ## 3. What can be guaranteed
 
@@ -57,6 +69,13 @@ trust_horizon(warning_days=days, spread_km=spread) # the warning time where the 
 The **trust horizon** is the point of the whole exercise: beyond it, "we will miss" is not a guarantee whatever the
 model says, because the ensemble is wider than the planet. It is the same object as the trust horizon of a forecast,
 applied to a deflection.
+
+Measured on the Apophis deflection with `beta` at ±0.35 and `A2` at ±3e-15 au/day^2 (6 draws): the spread of the miss
+is **2 km at 1 year, 18 km at 5, 21 km at 10**, against the Earth's 6 371 km radius, and the success fraction is 1.00
+at all three. That is a result about *what this ensemble does not contain*: the deflection parameters are far from
+being what limits the guarantee at this scale, and the dominant term for a real object is the uncertainty of the orbit
+solution itself (JPL's own covariance), which this slice does not carry. The horizon function returns the last warning
+time it was given when the ensemble never reaches the Earth — read it as "at least this far", not "exactly".
 
 The Yarkovsky drift is the largest unmodelled acceleration: for Apophis (`A2 = -2.9e-14 au/day^2`) the module gives
 **-166 m a year** of semi-major-axis drift, against the ~170 m/yr published — which is why `A2` is one of the two

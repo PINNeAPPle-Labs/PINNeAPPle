@@ -116,7 +116,12 @@ def test_the_2029_apophis_encounter_is_the_published_one():
 
 
 def test_a_deflection_five_years_out_moves_the_miss_by_the_encounter_geometry():
-    """A 1000 kg impactor at 6.1 km/s is 0.41 mm/s on Apophis: enough to move a 38 000 km flyby by millions of km."""
+    """A 1000 kg impactor at 6.1 km/s is 0.41 mm/s on Apophis: 204 km on a 38 356 km flyby, measured.
+
+    The number is worth reading twice: the impressive-sounding "millions of km" a frame mistake produced is not
+    physics, and 0.4 mm/s over five years buys a few hundred km on a body this heavy -- which is why the regime a
+    real mission works in is a smaller target or a longer warning, and why the table has both.
+    """
     from pinneapple_physics.astro.smallbodies import load_body
 
     body = load_body("apophis")
@@ -128,7 +133,8 @@ def test_a_deflection_five_years_out_moves_the_miss_by_the_encounter_geometry():
     nudged = miss_distance(deflect(body, jd_impact, dv), APOPHIS_2029_JD - 30, APOPHIS_2029_JD + 30, step_days=0.5)
 
     assert nudged["found"] is True
-    assert nudged["dist_km"] > 10 * baseline["dist_km"], "0.4 mm/s over five years is not a small perturbation"
+    assert nudged["dist_km"] > baseline["dist_km"], "the nudge pushes the flyby away"
+    assert nudged["dist_km"] - baseline["dist_km"] == pytest.approx(204.0, abs=40.0)
 
 
 def test_the_deflection_table_reports_one_row_per_impactor_mass():

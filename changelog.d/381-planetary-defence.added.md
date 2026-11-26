@@ -11,7 +11,10 @@
   `success_probability` and `trust_horizon` turn the two uncertain parameters into the fraction of the ensemble that
   clears the Earth and the warning time beyond which the spread is wider than the planet -- after it, "we will miss"
   is not a guarantee whatever the model says. Measured on Apophis, whose 2029-04-13 encounter the shipped propagator
-  reproduces at 38 356 km and 7.41 km/s from the bundled JPL elements: a 100 kg impactor five years out moves that
-  miss by 21 km on a 5.4e10 kg body, and the same mass is 400 times more effective on a 50 m body, which is why the
-  regime a real mission works in is a small target or a long warning. `examples/planetary_defence` runs the three acts
+  reproduces at 38 356 km and 7.41 km/s from the bundled JPL elements: ten tonnes ten years ahead (4.08 mm/s) move
+  that miss by 2 409 km, while the same nudge on a 50 m body (1.3e8 kg) on the same orbit moves it by 87 263 km --
+  planetary defence is a problem of small targets and long warning times. The ensemble over beta (+-0.35) and A2
+  (+-3e-15 au/day^2) spreads 2 km at one year, 18 km at five and 21 km at ten, against the Earth's 6 371 km radius:
+  at this scale the deflection parameters are not what limits the guarantee, which is the honest result and the
+  reason the guide says the dominant term for a real object is the orbit solution's own covariance, not carried here. `examples/planetary_defence` runs the three acts
   and writes the figures and the numbers.

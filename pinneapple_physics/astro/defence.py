@@ -235,6 +235,10 @@ def trust_horizon(*, warning_days: Sequence[float], spread_km: Sequence[float],
     ``spread_km`` is the standard deviation of the miss distance (or of the along-track position) at each warning
     time; the horizon is the last ``warning_days`` where it stays under the Earth's radius -- the age after which a
     "we will miss" cannot be guaranteed, whatever the model.
+
+    When the spread never reaches the Earth over the range given, the answer is the **last date in the range**, i.e.
+    "at least this far": the caller asked a question the range cannot answer, and the number says so instead of
+    inventing a horizon past the data.
     """
     w = np.asarray(list(warning_days), float)
     s = np.asarray(list(spread_km), float)

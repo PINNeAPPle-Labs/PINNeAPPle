@@ -1,0 +1,167 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/quality_diversity",
+ "title": "Where the heat-sink surrogate fails: a quality-diversity map of its own error",
+ "description": "A plate-fin heat sink described by three design numbers (fin count, fin height, approach air speed), an MLP surrogate fitted on a 2000-case ducted-forced-convection campaign (0.8-3.0 m/s), and a MAP-Elites archive over a behaviour space that is not the design space: thermal resistance against mass, both from the closed-form reference. The fitness is the surrogate's own relative error, so the archive returns where the model is wrong as cells with a number, a design and a behaviour condition, with the cases the reference cannot answer refused rather than archived. The same archive with sense=min is the design map: the least fan power that achieves each (Rth, mass) cell. The failure search is compared with random and Latin-hypercube sampling at the same 600-evaluation budget over 5 seeds.",
+ "domain": "heat transfer",
+ "methods": [
+  "quality-diversity search",
+  "MAP-Elites",
+  "neural surrogate",
+  "failure search",
+  "Latin hypercube sampling"
+ ],
+ "modules": [
+  "pinneapple_design.design_optimizer.quality_diversity",
+  "pinneapple_design.design_optimizer.surrogate",
+  "pinneapple_physics.closed_form.plate_fin_heatsink"
+ ],
+ "params": {
+  "default": {
+   "budget": 600,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "train_samples": 2000,
+   "train_epochs": 300,
+   "tolerance": 0.1
+  }
+ },
+ "scripts": [
+  "heat_sink_failure_map.py"
+ ],
+ "metrics": [
+  {
+   "name": "qd_max_error",
+   "value": 0.66382,
+   "unit": "",
+   "how": "largest stored Rth relative error found by the quality-diversity search, mean over 5 seeds at 600 evaluations each (62.4%-72.3% over the seeds)"
+  },
+  {
+   "name": "random_max_error",
+   "value": 0.57675,
+   "unit": "",
+   "how": "the same number for uniform random sampling at the same 600 evaluations, mean over 5 seeds (54.0%-62.0%)"
+  },
+  {
+   "name": "latin_max_error",
+   "value": 0.6255,
+   "unit": "",
+   "how": "the same number for Latin-hypercube sampling at the same 600 evaluations, mean over 5 seeds (55.7%-71.4%)"
+  },
+  {
+   "name": "qd_minus_random_max_error",
+   "value": 0.08711,
+   "unit": "",
+   "how": "paired by seed, qd - random: +4.3, +4.7, +13.7, +8.5, +12.5 points, positive on all five seeds"
+  },
+  {
+   "name": "qd_minus_latin_max_error",
+   "value": 0.03832,
+   "unit": "",
+   "how": "paired by seed, qd - latin: -8.0, +11.0, +16.5, -0.4, +0.1 points: the mean favours qd and three of five seeds do, so the two are within seed noise"
+  },
+  {
+   "name": "qd_failing_cells",
+   "value": 57.8,
+   "unit": "cells",
+   "how": "cells whose elite error is above the 10% tolerance, mean over 5 seeds (random 43.0, latin 40.8)"
+  },
+  {
+   "name": "qd_fill",
+   "value": 0.702,
+   "unit": "",
+   "how": "occupied cells over the 10x10 grid, mean over 5 seeds (random 0.578, latin 0.558)"
+  },
+  {
+   "name": "design_map_cells",
+   "value": 66,
+   "unit": "cells",
+   "how": "cells filled by the design map (sense=min, fitness = fan power), seed 0, 600 evaluations; the map is the committed figure"
+  },
+  {
+   "name": "known_near_pass_error",
+   "value": 0.10464,
+   "unit": "",
+   "how": "the archive's own elite error for the 0.6 m/s near-pass case (14 fins, 30 mm, below the campaign's 0.8 m/s floor), which the search was not told about"
+  }
+ ],
+ "checks": [
+  {
+   "name": "qd_beats_random_at_equal_budget",
+   "passed": true,
+   "value": 0.08711,
+   "min": 0.0,
+   "detail": "paired by seed over 5 seeds: +4.3 to +13.7 points, positive on every seed",
+   "kind": "comparison",
+   "label": "the failure search finds a larger verified error than random sampling at 600 evaluations"
+  },
+  {
+   "name": "qd_beats_latin_at_equal_budget",
+   "passed": false,
+   "value": 0.03832,
+   "min": 0.0,
+   "detail": "mean +3.8 points, but seeds 0, 3 and 4 are -8.0, -0.4 and +0.1: no per-seed advantage over Latin hypercube",
+   "kind": "comparison",
+   "label": "the failure search beats Latin-hypercube sampling on every seed (it does not; only the mean favours it)"
+  },
+  {
+   "name": "inapplicable_cases_refused",
+   "passed": true,
+   "value": 161.0,
+   "detail": "the 0 m/s fan-off case is refused by the reference (natural convection, junction above its limit) instead of being archived at a meaningless error; 161 of 600 cases refused per run",
+   "kind": "sanity",
+   "label": "cases the reference physics cannot answer are refused, not reported as model failures"
+  },
+  {
+   "name": "known_failure_recovered",
+   "passed": true,
+   "value": 0.10464,
+   "min": 0.1,
+   "detail": "the 0.6 m/s near-pass case comes out at 10.5%, in the failing set, without being told about it",
+   "kind": "reference",
+   "label": "a failure already known from the campaign envelope is found by the search"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/heat_sink_failure_map.png",
+   "figures/heat_sink_design_map.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "heat_sink_elites.csv",
+   "heat_sink_qd.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/quality_diversity.md",
+  "script": "examples/quality_diversity/heat_sink_failure_map.py",
+  "issue": "354"
+ },
+ "references": [
+  "Mouret & Clune, Illuminating search spaces by mapping elites, arXiv:1504.04909 (2015)",
+  "Cully et al., Robots that can adapt like animals, Nature 521 (2015)",
+  "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, J. Electron. Manuf. 10 (2000)",
+  "Bar-Cohen & Rohsenow, Thermally optimum spacing of vertical, natural convection cooled, parallel plates, J. Heat Transfer 106 (1984)",
+  "McKay, Beckman & Conover, A comparison of three methods for selecting values of input variables, Technometrics 21 (1979)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "python examples/quality_diversity/heat_sink_failure_map.py",
+  "git": "d375dcce2",
+  "created": "2026-11-26T14:24:41Z",
+  "seconds": 26.5,
+  "error": null,
+  "environment": {
+   "python": "3.15.0",
+   "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  }
+ }
+}

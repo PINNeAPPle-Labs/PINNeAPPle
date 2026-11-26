@@ -103,6 +103,7 @@
     * [Geometry library](guides/geometry_library.md)
     * [Morphing a surface mesh: a design space on an existing body](guides/geometry_morphing.md)
     * [Design studies: optimisers and verified candidates](guides/design_studies.md)
+    * [Quality-diversity: a map of designs, and where a model fails](guides/quality_diversity.md)
     * [Colab notebooks](guides/colab_notebooks.md)
     * [PINNeAPPle from coding agents (MCP server)](guides/mcp_server.md)
     * [Agent Workbench: coding and engineering agents on a local model](guides/agent_workbench.md)

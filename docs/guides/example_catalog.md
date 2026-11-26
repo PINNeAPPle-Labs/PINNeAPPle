@@ -2,7 +2,7 @@
 
 Every folder under `examples/` is either run by CI or marked manual with a reason. The reasons are measured, not assumed: `python scripts/example_catalog.py --measure` runs each example and records what happened, and `--check` is the gate that keeps this page true.
 
-**In the CI tier: 9 · manual: 95 · budget: 660 s.**
+**In the CI tier: 9 · manual: 97 · budget: 660 s.**
 
 ## Runs in CI
 
@@ -95,6 +95,7 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/problem_designer` | fails when run:   $env:GOOGLE_API_KEY=...     (PowerShell) |
 | `examples/proof_graph` | takes longer than 12 s (pt_chain_no_go.py): too slow for the ci tier |
 | `examples/qualitative` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
+| `examples/quality_diversity` | takes longer than 12 s (heat_sink_failure_map.py): too slow for the ci tier |
 | `examples/quickstart` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
 | `examples/reproductions` | fails when run: /opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/ |
 | `examples/rigid_body` | fails when run: ModuleNotFoundError: No module named 'newton' |
@@ -104,6 +105,7 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/solver_api` | takes longer than 12 s (01_classical_vs_pinn.py): too slow for the ci tier |
 | `examples/solvers` | fails when run: KeyError: "Unknown solver 'wavelet'. Available: ['beam_bvp_fdm', 'bekker_wong', 'ceemdan', 'dfsph', 'discrete_time_pinn', 'eddy_current_fdm', 'eemd', 'elasticity3d_fdm', 'fdm', 'fem', 'fenics', 'fft', |
 | `examples/sports` | takes longer than 12 s (01_ball_flight.py): too slow for the ci tier |
+| `examples/structural_ingestion` | takes 26 s: the three coupon impacts and their two ingestions are over the 20 s cap for the ci tier |
 | `examples/studio` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
 | `examples/systems` | runs clean in 2.1 s but is not in the ci tier yet: promote it with --promote |
 | `examples/time_series` | imports a name this repository does not have yet (01_FNO.py, 02_full_pipeline.py, 03_audit_and_features.py, 04_backtest_baselines.py, 05_quantile_uncertainty.py, 07_fft_lstm_hybrid.py, 08_hht_lstm_hybrid.py); listed in scripts/example_imports_baseline.txt |

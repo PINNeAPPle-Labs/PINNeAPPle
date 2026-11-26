@@ -139,6 +139,7 @@
   "examples/problem_designer": "fails when run:   $env:GOOGLE_API_KEY=...     (PowerShell)",
   "examples/proof_graph": "takes longer than 12 s (pt_chain_no_go.py): too slow for the ci tier",
   "examples/qualitative": "runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote",
+  "examples/quality_diversity": "takes longer than 12 s (heat_sink_failure_map.py): too slow for the ci tier",
   "examples/quickstart": "runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote",
   "examples/reproductions": "fails when run: /opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/",
   "examples/rigid_body": "fails when run: ModuleNotFoundError: No module named 'newton'",

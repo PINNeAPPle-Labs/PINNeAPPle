@@ -291,14 +291,16 @@ def uncertainty(path: str, z_scores: np.ndarray, coverage_1s: float, coverage_2s
 
 
 def surface_pressure_3d(path: str, *, params: dict, cp_lattice: np.ndarray, span: float = 0.62,
-                        field_range: tuple[float, float] = (-2.5, 1.0), quality: str = "preview") -> str | None:
+                        field_range: tuple[float, float] = (-2.5, 1.0), quality: str = "preview",
+                        samples: int = 14) -> str | None:
     """The section the campaign solved, extruded for the picture and coloured by the wall Cp the solver returned.
 
     The case is a one-centimetre slice; the span here is a picture span, and the caption says so. The Cp is the
     reference simulation's own wall value at the stations, interpolated onto the section the geometry is built from --
     nothing predicted is drawn, so the picture is evidence of what the campaign measured, not of what the model
     believes. Skips the render and returns ``None`` on a machine without Blender: the rest of the study's figures
-    must not depend on one.
+    must not depend on one. ``samples`` is low on purpose -- the surface is smooth and the noise of a low sample count
+    is not what the picture is about -- because this render runs inside a stage that is otherwise seconds long.
     """
     from pinneapple_simulation.numerical_solvers import airfoil2d as A2
     from pinneapple_tools.visualization import studio
@@ -330,8 +332,8 @@ def surface_pressure_3d(path: str, *, params: dict, cp_lattice: np.ndarray, span
                                                   fields={"cp": np.r_[cp_loop, cp_loop]})],
                          labels={"cp": "pressure coefficient Cp"})
     studio.render_headless(scene, path, field="cp", field_range=field_range, cmap="jet", view="iso",
-                           background="dark", quality=quality, floor=True, colorbar_on=False,
-                           field_alpha=1.0, exposure=-2.0)
+                           background="dark", quality=quality, samples=int(samples), floor=True,
+                           colorbar_on=False, field_alpha=1.0, exposure=-2.0)
     try:                                                     # the bars's own ticks: the range is the labels
         studio.colorbar(path, "pressure coefficient  Cp", *field_range, dark=True)
     except Exception:                                        # a colour bar is a nicety, not the figure

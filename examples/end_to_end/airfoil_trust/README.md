@@ -51,6 +51,8 @@ produced, not a second rendering of it.
 coloured by the wall Cp the solver returned, rendered through `pinneapple_tools.visualization.studio` (Blender
 Cycles). It is drawn from the reference field of one held-out design -- nothing predicted is on it -- and the
 stage skips it and says so when the machine has no Blender, so the rest of the study does not depend on one.
+It is a picture and not a number: Cycles sampling makes successive renders differ in the last bits, so do not
+expect the committed PNG to come back byte for byte.
 
 ## The film
 

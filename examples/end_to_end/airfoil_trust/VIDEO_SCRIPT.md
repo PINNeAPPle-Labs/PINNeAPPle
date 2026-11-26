@@ -8,12 +8,18 @@ nothing is estimated for the camera.
 modules live in is never named in narration, on screen or in the captions; the modules are referred to by what they do
 ("the evidence domain", "the dossier").
 
-**Voice.** One narrator, calm, technical, no sales cadence. Numbers are read exactly as the figure shows them.
+**Voice.** There is none. The narration below is burnt in as subtitles, one cue at a time, in the band under each
+frame: the reader controls the pace of a silent film in a way a viewer of a narrated one cannot, and a page of numbers
+reads better than it listens. The text is written, not dictated -- `4.84 %`, not "four point eight four percent";
+`make_video.py` converts it back to words if a spoken cut is ever wanted again (`--narration voice`).
 
-**Pace.** The technical cut is 1732 words of narration against the timecodes below, which is about 175 words per
-minute -- brisk, and normal for a screencast with the figure carrying half the sentence. If the read comes out slower,
-cut the lattice anecdote in Scene 03 (60 words) and the radius paragraph in Scene 08 (45 words) before cutting any
-number: the numbers are the argument.
+**Sound.** An ambient bed, synthesised by `make_video.py` itself: four slow chords in A minor, soft attacks, no
+percussion, mixed around -29 dB so it never competes with the words. No licensed music, nothing downloaded.
+
+**Pace.** The technical cut is 1732 words, read at 190 words per minute -- the pace of a reader who also has a figure
+to look at, and about nine and a half minutes with the cues. If it needs to be shorter, cut the lattice anecdote in
+Scene 03 (60 words) and the radius paragraph in Scene 08 (45 words) before cutting any number: the numbers are the
+argument.
 
 ---
 
@@ -84,8 +90,7 @@ Command on screen: `python examples/end_to_end/airfoil_trust/01_reference_campai
 >
 > The fields come back on a fixed lattice, so one geometry's output lines up with the next. That
 > lattice is also where this study nearly lied to itself: with the wall normals inverted, two thirds
-> of the probes landed inside the solid, the solver returned minus one times ten to the three
-> hundred, and every force coefficient stayed healthy. The run now rejects a probe it cannot place.
+> of the probes landed inside the solid, the solver returned -1e300, and every force coefficient stayed healthy. The run now rejects a probe it cannot place.
 >
 > Eight POD modes hold 98.87 % of the field energy and reconstruct an unseen field to 4.65 % before
 > any network is involved. Five networks then train with different initialisations. Their
@@ -109,11 +114,11 @@ comparison for that design and the error trace below it.
 > the ensemble flagged it with the largest spread of the sixteen.
 >
 > Here is that case's surface pressure against its reference, and the error along the chord. The
-> model is not uniformly mediocre: it is wrong in the first fifteen percent of the chord, where the
+> model is not uniformly mediocre: it is wrong in the first 15 % of the chord, where the
 > predicted suction at the nose overshoots by eight tenths of a Cp, and past a fifth of the chord
 > the deviation falls to two tenths and keeps its sign.
 >
-> A mean of five percent and a leading edge that far off are the same model. Only one of those facts
+> A mean of 5 % and a leading edge that far off are the same model. Only one of those facts
 > tells you what to do next.
 
 ---
@@ -136,7 +141,7 @@ Command: `python examples/end_to_end/airfoil_trust/03_physics_validation.py`
 > integrate the predicted wall pressure, compare with the lift the same network predicts -- 0.32 apart.
 >
 > Two of these are read as ratios, because at the sample height the solver itself departs from the
-> wall condition by two and a half percent: an absolute bar would fail the reference first.
+> wall condition by 2.5 %: an absolute bar would fail the reference first.
 >
 > And one fails. The field the scalar is integrated from is 14.8 % away in relative L2, against a
 > 4.65 % floor the eight-mode basis imposes on its own. The lift is inside tolerance and the field
@@ -151,7 +156,7 @@ colour, and stays on screen.
 
 **NARRATION.**
 
-> Robustness was measured, not promised: every input of every held-out design is nudged by one percent of its range,
+> Robustness was measured, not promised: every input of every held-out design is nudged by 1 % of its range,
 > and the movement of lift is compared with the ensemble spread. The worst input moves the prediction by 0.72 of what
 > the members disagree by. The model is not memorising points between its data.
 >
@@ -328,7 +333,7 @@ Target: 105 seconds, ~250 words, no terminal commands on screen. Same voice.
 **0:32 - 0:52 -- The model, and what accuracy hides.**
 
 > Sixty simulations train a surrogate over a family of airfoils. On designs held out by design, lift is right to
-> 4.84 % -- inside the five percent this study declared. And four of those sixteen designs are outside it anyway,
+> 4.84 % -- inside the 5 % this study declared. And four of those sixteen designs are outside it anyway,
 > with the error sitting at the leading edge, where an average cannot see it.
 
 **0:52 - 1:12 -- The checks a number cannot make.**

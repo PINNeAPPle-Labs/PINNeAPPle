@@ -49,13 +49,15 @@ report -- so a figure beside a verdict is the figure the run produced, not a sec
 ## The film
 
 `make_video.py` renders the two cuts written in `VIDEO_SCRIPT.md` out of the same files the report is built from: the
-frames are drawn from `results/`, and the narration is synthesised locally with macOS `say`, so no cut can say
-anything the study did not measure. Each frame is regenerated on every run, and the per-scene narrations are written
-next to the output as `scene01.wav` ... so a human read can replace the synthetic voice without touching the script.
+frames are drawn from `results/`, so no cut can say anything the study did not measure. The script is burnt in as
+subtitles -- one cue at a time, in a band under each frame, at a reading pace -- and the sound is an ambient bed the
+script synthesises itself: four slow chords, no percussion, no licensed music, mixed around -29 dB so it never competes
+with the words. `--narration voice` reads the same script with macOS `say` instead, and `--narration none` leaves the
+picture silent.
 
 ```bash
-python examples/end_to_end/airfoil_trust/make_video.py --cut long     # 9 min 54 s, 11 scenes and a closing card
-python examples/end_to_end/airfoil_trust/make_video.py --cut short    # 90 s, for a feed
+python examples/end_to_end/airfoil_trust/make_video.py --cut long     # 9 min 40 s, 13 scenes and a closing card
+python examples/end_to_end/airfoil_trust/make_video.py --cut short    # 96 s, for a feed
 ```
 
 The MP4 is not committed here: twenty megabytes of video in a git history is not a review artefact. The script, the

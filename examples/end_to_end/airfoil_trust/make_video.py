@@ -3,12 +3,15 @@
     python examples/end_to_end/airfoil_trust/make_video.py --cut long --out ~/trust-video
     python examples/end_to_end/airfoil_trust/make_video.py --cut short --out ~/trust-video
 
-The narration is synthesised locally with macOS ``say`` -- nothing is sent anywhere -- and the frames are drawn from
-the same JSON and figures the report is built from, so the film cannot say anything the study did not measure. Every
-frame is regenerated on each run; the narrations are kept as WAV files next to the output so they can be replaced with
-a human read without touching this script.
+The script is burnt in as subtitles by default: a cue at a time, at a reading pace, over the frames the stages drew.
+The sound is an ambient bed synthesised here -- four slow chords, no percussion, mixed low -- so the cut carries no
+licensed music and nothing is sent anywhere. ``--narration voice`` reads the same script with macOS ``say`` instead,
+and ``--narration none`` leaves it silent.
 
-Requires macOS (``say``) and ffmpeg. Silence either with ``--voice none`` for a silent cut with the same timing.
+Every frame is regenerated on each run, from the same JSON and figures the report is built from, so the film cannot
+say anything the study did not measure.
+
+Requires ffmpeg; ``--narration voice`` also needs macOS (``say``).
 """
 from __future__ import annotations
 
@@ -16,10 +19,12 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import wave
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -412,6 +417,112 @@ def short_deck(work: str) -> dict[int, list[tuple[Image.Image, str]]]:
     return {beat: [full[scene][index]] for beat, (scene, index) in picks.items()}
 
 
+# --------------------------------------------------------------------------- subtitles and the bed
+#: reading pace for a subtitle, words per minute; slower than speech, because the eye also reads the figure
+READ_WPM = 190
+#: the shortest time a cue stays on screen, and the pause between two cues
+CUE_MIN, CUE_GAP = 2.4, 0.35
+#: the longest cue, in words: two lines of the band at the size below
+CUE_WORDS = 26
+
+
+def subtitle_layout() -> None:
+    """Reserve the bottom of the frame for the words: frames are drawn 1920x900 and the band is 180 px high."""
+    global H
+    H = 900
+
+
+def cues(text: str) -> list[str]:
+    """Split a scene's narration into subtitle cues -- sentences packed to what fits the band and the eye."""
+    out: list[str] = []
+    line = ""
+    for sentence in (part.strip() for part in re.split(r"(?<=[.!?])\s+", text) if part.strip()):
+        if len((line + " " + sentence).split()) <= CUE_WORDS:
+            line = f"{line} {sentence}".strip()
+            continue
+        if line:
+            out.append(line)
+        line = ""
+        for piece in (part.strip() for part in re.split(r"(?<=[;,])\s+", sentence) if part.strip()):
+            if line and len(f"{line} {piece}".split()) > CUE_WORDS:
+                out.append(line)
+                line = piece
+            else:
+                line = f"{line} {piece}".strip()
+    if line:
+        out.append(line)
+    return [cue.rstrip(",;") for cue in out]          # a continuation reads better without the dangling comma
+
+
+def hold(cue: str) -> float:
+    """How long a cue stays up: what it takes to read at READ_WPM, with a floor for the short ones."""
+    return max(CUE_MIN, 60 * len(cue.split()) / READ_WPM) + CUE_GAP
+
+
+def with_subtitle(frame: Image.Image, text: str) -> Image.Image:
+    """The frame as drawn, plus the band at the bottom carrying one cue."""
+    img = Image.new("RGB", (W, 1080), BG)
+    img.paste(frame, (0, 0))
+    if not text:
+        return img
+    d = ImageDraw.Draw(img)
+    d.line([(0, H), (W, H)], fill=(48, 54, 61), width=2)
+    f = _font(FONT, 38)
+    lines = wrap(d, text, f, W - 460)[:3]
+    y = H + (1080 - H - len(lines) * 50) // 2 - 4
+    for line in lines:
+        d.text(((W - d.textlength(line, font=f)) / 2, y), line, font=f, fill=FG)
+        y += 50
+    return img
+
+
+#: a calm four-chord loop in A minor, no resolution: root, fifth, tenth, ninth
+AMBIENT_CHORDS = ((110.00, 164.81, 220.00, 261.63, 329.63),
+                  (87.31, 130.81, 220.00, 329.63, 392.00),
+                  (130.81, 196.00, 261.63, 329.63, 493.88),
+                  (98.00, 146.83, 196.00, 293.66, 392.00))
+
+
+def ambient(path: str, seconds: float, sr: int = 32000) -> str:
+    """A quiet ambient bed, synthesised here rather than licensed: slow pads, gentle detune, no percussion.
+
+    The samples go to ffmpeg over a pipe and come back as AAC, so the render never needs a hundred megabytes of
+    uncompressed audio on disk for a ten-minute bed.
+    """
+    chord_s, total = 7.5, seconds + 6.0
+    n = int(sr * total)
+    left, right = np.zeros(n), np.zeros(n)
+    k, start = 0, 0.0
+    while start < total:
+        at = int(start * sr)
+        length = min(int((chord_s + 3.0) * sr), n - at)
+        if length <= 0:
+            break
+        t = np.arange(length) / sr
+        ramp = np.clip(t / 2.4, 0, 1) * np.clip((length / sr - t) / 2.4, 0, 1)
+        env = 0.5 - 0.5 * np.cos(np.pi * ramp)                 # smooth in, smooth out, no click
+        trem = 1.0 + 0.10 * np.sin(2 * np.pi * 0.05 * t)
+        for freq in AMBIENT_CHORDS[k % len(AMBIENT_CHORDS)]:
+            for detune, channel in ((0.0, left), (0.31, right)):
+                wave_ = (np.sin(2 * np.pi * (freq + detune) * t)
+                         + 0.18 * np.sin(2 * np.pi * (2 * freq + detune) * t)
+                         + 0.05 * np.sin(2 * np.pi * (3 * freq + detune) * t))
+                channel[at:at + length] += 0.25 * wave_ * env * trem
+        k += 1
+        start += chord_s
+    peak = max(float(np.abs(left).max()), float(np.abs(right).max())) or 1.0
+    for channel in (left, right):
+        channel *= 0.30 / peak                                  # quiet by construction, but present
+    fade_in, fade_out = int(4 * sr), int(6 * sr)
+    for channel in (left, right):
+        channel[:fade_in] *= np.linspace(0.0, 1.0, fade_in)
+        channel[-fade_out:] *= np.linspace(1.0, 0.0, fade_out)
+    pcm = (np.clip(np.stack([left, right], axis=1), -1, 1) * 32767).astype("<i2")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "s16le", "-ar", str(sr), "-ac", "2", "-i", "-",
+                    "-c:a", "aac", "-b:a", "128k", path], input=pcm.tobytes(), check=True)
+    return path
+
+
 # --------------------------------------------------------------------------- audio and assembly
 def narrate(text: str, path: str, voice: str, rate: int) -> float:
     """Synthesise one scene locally and return its duration in seconds."""
@@ -439,7 +550,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--cut", choices=("long", "short"), default="long")
     ap.add_argument("--out", default=os.path.join(os.path.expanduser("~"), "Documents", "GitHub", "trust-video"))
-    ap.add_argument("--voice", default="Samantha", help="a macOS voice, or 'none' for a silent cut")
+    ap.add_argument("--narration", choices=("text", "voice", "none"), default="text",
+                    help="text burns the script in as subtitles over an ambient bed; voice reads it with say; "
+                         "none leaves the picture silent")
+    ap.add_argument("--voice", default="Samantha", help="the macOS voice, when --narration voice")
     ap.add_argument("--rate", type=int, default=170, help="words per minute handed to say")
     ap.add_argument("--gap", type=float, default=0.45, help="silence between scenes, seconds")
     args = ap.parse_args()
@@ -448,6 +562,9 @@ def main() -> int:
     voice_dir = os.path.join(args.out, f"narration-{args.cut}")   # one folder per cut: the WAVs must not collide
     os.makedirs(voice_dir, exist_ok=True)
     work = tempfile.mkdtemp(prefix="trustvideo-")
+    subtitled = args.narration == "text"
+    if subtitled:
+        subtitle_layout()                      # the frames get 900 px of height; the band takes the rest
     scenes = parse_script(args.cut)
     if args.cut == "long":
         scenes = [*scenes, {"n": 13, "title": "closing card", "narration": ""}]
@@ -458,41 +575,59 @@ def main() -> int:
         frames = deck_frames.get(scene["n"])
         if not frames:
             continue
-        wav = os.path.join(voice_dir, f"scene{scene['n']:02d}.wav")
-        if not scene["narration"]:
-            silence(wav, 5.0)
-            duration = 5.0
-        elif args.voice == "none":
-            silence(wav, max(6.0, 3.0 * len(frames)))
-            duration = max(6.0, 3.0 * len(frames))
+        if subtitled:
+            scene_cues = cues(scene["narration"])
+            holds = [hold(cue) for cue in scene_cues] if scene_cues else [5.0]
+            scene_cues = scene_cues or [""]
+            for i, (cue, stay) in enumerate(zip(scene_cues, holds, strict=True)):
+                image = frames[min(len(frames) - 1, i * len(frames) // len(scene_cues))][0]
+                png = os.path.join(work, f"s{scene['n']:02d}_{i:02d}.png")
+                with_subtitle(image, cue).save(png)
+                concat.append(f"file '{png}'\nduration {stay:.3f}")
+            duration = sum(holds)
+            print(f"scene {scene['n']:02d}  {duration:6.1f} s  {len(scene_cues)} cues  {len(frames)} frames  "
+                  f"{labels(frames)}", flush=True)
         else:
-            duration = narrate(scene["narration"], wav, args.voice, args.rate)
-        audio_files.append(wav)
-        silence(os.path.join(work, f"gap{scene['n']:02d}.wav"), args.gap)
-        audio_files.append(os.path.join(work, f"gap{scene['n']:02d}.wav"))
+            wav = os.path.join(voice_dir, f"scene{scene['n']:02d}.wav")
+            if not scene["narration"]:
+                silence(wav, 5.0)
+                duration = 5.0
+            elif args.narration == "none":
+                silence(wav, max(6.0, 3.0 * len(frames)))
+                duration = max(6.0, 3.0 * len(frames))
+            else:
+                duration = narrate(scene["narration"], wav, args.voice, args.rate)
+            audio_files.append(wav)
+            silence(os.path.join(work, f"gap{scene['n']:02d}.wav"), args.gap)
+            audio_files.append(os.path.join(work, f"gap{scene['n']:02d}.wav"))
+            share = duration / len(frames)
+            for k, (image, _label) in enumerate(frames):
+                png = os.path.join(work, f"s{scene['n']:02d}_{k}.png")
+                image.save(png)
+                concat.append(f"file '{png}'\nduration {share:.3f}")
+            duration += args.gap
+            print(f"scene {scene['n']:02d}  {duration:6.1f} s  {len(frames)} frames  {labels(frames)}", flush=True)
+        total += duration
 
-        share = duration / len(frames)
-        for k, (image, _label) in enumerate(frames):
-            png = os.path.join(work, f"s{scene['n']:02d}_{k}.png")
-            image.save(png)
-            hold = share if k < len(frames) - 1 else share + 0.0
-            concat.append(f"file '{png}'\nduration {hold:.3f}")
-        total += duration + args.gap
-        print(f"scene {scene['n']:02d}  {duration:6.1f} s  {len(frames)} frames  {labels(frames)}", flush=True)
-
-    last_png = os.path.join(work, f"s{scenes[-1]['n']:02d}_{len(deck_frames[scenes[-1]['n']]) - 1}.png")
-    concat.append(f"file '{last_png}'\n")
+    last = concat[-1].split("'")[1]
+    concat.append(f"file '{last}'\n")
     lst = os.path.join(work, "frames.txt")
     open(lst, "w").write("\n".join(concat) + "\n")
 
-    alst = os.path.join(work, "audio.txt")
-    open(alst, "w").write("\n".join(f"file '{f}'" for f in audio_files) + "\n")
-
     out = os.path.join(args.out, f"trust-beyond-accuracy-{args.cut}.mp4")
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst,
-                    "-f", "concat", "-safe", "0", "-i", alst,
-                    "-vf", f"scale={W}:{H},format=yuv420p", "-r", "30", "-c:v", "libx264", "-preset", "medium",
-                    "-crf", "20", "-c:a", "aac", "-b:a", "160k", "-shortest", out], check=True)
+    if subtitled:
+        bed = ambient(os.path.join(work, "ambient.m4a"), total)
+        audio = ["-i", bed]
+        sound = ["-af", "lowpass=f=3400,aecho=0.7:0.6:110|230:0.22|0.11"]
+    else:
+        alst = os.path.join(work, "audio.txt")
+        open(alst, "w").write("\n".join(f"file '{f}'" for f in audio_files) + "\n")
+        audio = ["-f", "concat", "-safe", "0", "-i", alst]
+        sound = []
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, *audio,
+                    "-vf", f"scale={W}:1080,format=yuv420p", "-r", "30", "-c:v", "libx264", "-preset", "medium",
+                    "-crf", "20", *sound, "-c:a", "aac", "-b:a", "160k", "-shortest", out], check=True)
+    shutil.rmtree(work, ignore_errors=True)        # every frame is regenerated on the next run
     print(f"\n{out}\n{total / 60:.1f} min, {os.path.getsize(out) / 1e6:.1f} MB")
     return 0
 

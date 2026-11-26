@@ -833,7 +833,6 @@
     "tests/test_valve_joule_thomson.py",
     "tests/test_vehicle_multibody.py",
     "tests/test_veriphysics_model_grade.py",
-    "tests/test_veriphysics_validated_domain.py",
     "tests/test_viper_cad.py",
     "tests/test_viz_layer.py",
     "tests/test_viz_twin_integrations.py",

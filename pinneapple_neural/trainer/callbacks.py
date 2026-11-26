@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Dict, Any
+from typing import Any
 import os
 import torch
 
@@ -13,11 +13,11 @@ class EarlyStopping:
     patience: int = 10
     min_delta: float = 0.0
     mode: str = "min"  # "min" or "max"
-    best: Optional[float] = None
+    best: float | None = None
     bad_epochs: int = 0
     stop: bool = False
 
-    def update(self, logs: Dict[str, float]) -> None:
+    def update(self, logs: dict[str, float]) -> None:
         cur = logs.get(self.monitor)
         if cur is None:
             return
@@ -45,9 +45,9 @@ class ModelCheckpoint:
     path: str
     monitor: str = "val_total"
     mode: str = "min"
-    best: Optional[float] = None
+    best: float | None = None
 
-    def maybe_save(self, model: torch.nn.Module, extra: Dict[str, Any], logs: Dict[str, float]) -> bool:
+    def maybe_save(self, model: torch.nn.Module, extra: dict[str, Any], logs: dict[str, float]) -> bool:
         cur = logs.get(self.monitor)
         if cur is None:
             return False

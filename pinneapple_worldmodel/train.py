@@ -56,16 +56,13 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 import pickle
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import torch
 
 from .scenario import BUILTIN_SCENARIOS
-from .dataset import WorldModelDataset
 from .dataset_factory import DatasetCatalog
 from .model import PhysicsWorldModel, WorldModelConfig
 from .trainer import WorldModelTrainer, WorldModelTrainConfig
@@ -95,7 +92,7 @@ def train_specialist(
     rollout_steps: int = 1,
     checkpoint_interval: int = 10,
     run_benchmark: bool = True,
-) -> "ModelZoo":
+) -> ModelZoo:
     """Train one specialist model per scenario in the catalog.
 
     Parameters
@@ -105,7 +102,6 @@ def train_specialist(
     output_dir : Path
         Directory to save checkpoints and the final zoo.
     """
-    from .model_zoo import ModelZoo
 
     output_dir.mkdir(parents=True, exist_ok=True)
     log.info("Specialist training — %d scenarios", len(catalog.datasets_by_scenario()))
@@ -151,7 +147,7 @@ def train_meta(
     outer_lr: float = 1e-3,
     n_tasks_per_batch: int = 4,
     device: str = "cpu",
-    warm_start_path: Optional[str] = None,
+    warm_start_path: str | None = None,
     n_modes: int = 16,
     width: int = 64,
     depth: int = 4,
@@ -204,7 +200,7 @@ def train_foundation(
     catalog: DatasetCatalog,
     output_dir: Path,
     *,
-    base_ckpt: Optional[str] = None,
+    base_ckpt: str | None = None,
     epochs: int = 30,
     batch_size: int = 16,
     lr: float = 5e-4,
@@ -283,8 +279,8 @@ def train_foundation(
 
 
 def run_pipeline(
-    scenarios: Optional[List[str]] = None,
-    sources: Optional[List[str]] = None,
+    scenarios: list[str] | None = None,
+    sources: list[str] | None = None,
     n_samples: int = 100,
     output_dir: str = "./checkpoints/worldmodel",
     device: str = "cpu",
@@ -292,7 +288,7 @@ def run_pipeline(
     meta_epochs: int = 50,
     seed: int = 42,
     verbose: bool = True,
-) -> "PhysicsAIPipelineResult":
+) -> PhysicsAIPipelineResult:
     """Run the complete 5-stage Physics AI pipeline.
 
     Stages: dataset generation → specialist training → meta-learning →
@@ -376,9 +372,9 @@ def _run_benchmark(model, catalog, output_dir: Path, device: str, prefix: str = 
 # ── dataset loading helper ────────────────────────────────────────────────────
 
 def _load_or_generate_catalog(
-    catalog_path: Optional[str],
-    scenarios: Optional[List[str]],
-    sources: List[str],
+    catalog_path: str | None,
+    scenarios: list[str] | None,
+    sources: list[str],
     n_samples: int,
     output_dir: Path,
     device: str,

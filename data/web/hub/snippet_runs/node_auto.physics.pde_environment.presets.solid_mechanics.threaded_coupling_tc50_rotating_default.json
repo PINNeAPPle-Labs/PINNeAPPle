@@ -1,0 +1,12 @@
+{
+ "code_hash": "c5232babf900ed6e",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.solid_mechanics.threaded_coupling_tc50_rotating_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.5,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "threaded coupling tc50 rotating default -> pinneapple_physics.pde_environment.presets.solid_mechanics:threaded_coupling_tc50_rotating_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'body': 'BOX', 'E': 210000000000.0, 'nu': 0.3, 'p_inner': 20000000.0, 'F_axial': 500000.0, 'T_torque': 40000.0, 'rpm': 90.0}",
+ "timed_out": false
+}

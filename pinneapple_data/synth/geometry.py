@@ -1,7 +1,7 @@
 """Geometry synthesis and mesh augmentation from trimesh-like inputs."""
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple
+from typing import Any
 import math
 import numpy as np
 import torch
@@ -49,7 +49,7 @@ class GeometrySynthGenerator:
       - small random rotation
       - vertex noise (smooth-ish) with amplitude
     """
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """
         Initialize the geometry synthesis generator.
 
@@ -131,8 +131,8 @@ class GeometrySynthGenerator:
         *,
         mesh: Any,
         n_variants: int = 16,
-        scale_range: Tuple[float, float] = (0.9, 1.1),
-        axis_scale_range: Tuple[float, float] = (0.95, 1.05),
+        scale_range: tuple[float, float] = (0.9, 1.1),
+        axis_scale_range: tuple[float, float] = (0.95, 1.05),
         rot_deg: float = 5.0,
         noise_amp: float = 0.002,
         keep_centered: bool = True,
@@ -176,7 +176,7 @@ class GeometrySynthGenerator:
         center = V0.mean(axis=0, keepdims=True)
         Vc = V0 - center if keep_centered else V0.copy()
 
-        samples: List[SimplePhysicalSample] = []
+        samples: list[SimplePhysicalSample] = []
 
         for i in range(int(n_variants)):
             V = Vc.copy()

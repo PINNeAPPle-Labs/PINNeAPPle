@@ -118,6 +118,18 @@ class InverseHeatProblem(Problem):
                 Column("f_id", "Max field err °C, in range (n = 3)", "id", "field"),
                 Column("f_ood", "Max field err °C, out of range (n = 2)", "ood", "field")]
 
+    def validity_domain(self, prepared=None):
+        """Where the case holds (#58): the ranges the case generator draws its training pairs from. The OOD cases put
+        the convection coefficient at 150 and 200 W/m^2K, outside the range the model was fitted on."""
+        from ..validity import ValidityDomain
+        from .inverse_heat_impl import H_RANGE, P_RANGE
+        return ValidityDomain(
+            "inverse_heat",
+            {"power [W]": (float(P_RANGE[0]), float(P_RANGE[1])),
+             "h_true [W/m^2K]": (float(H_RANGE[0]), float(H_RANGE[1]))},
+            source="declared by the case generator (P_RANGE and H_RANGE in inverse_heat_impl)",
+            note="the OOD cases use h_true = 150 and 200 W/m^2K, outside the fitted range")
+
     def main_metric(self):
         return "id", "h"
 
@@ -157,17 +169,17 @@ class InverseHeatProblem(Problem):
         return float(np.mean([c["calibration_s"] for r in results.values() for c in r.get("cases", [])]))
 
     # ------------------------------------------------------------------ trainers
-    def train_pinn(self, prepared, cfg, seed, budget, *, kind, case, **_):
+    def train_pinn(self, prepared, cfg, seed, budget, *, kind, case, comparison_path=None, **_):
         self._set(prepared)
-        return H.pinn_job(cfg, seed, budget, kind=kind, case=case)
+        return H.pinn_job(cfg, seed, budget, kind=kind, case=case, comparison_path=comparison_path)
 
-    def train_mlp(self, prepared, cfg, seed, budget, *, final=True, **_):
+    def train_mlp(self, prepared, cfg, seed, budget, *, final=True, comparison_path=None, **_):
         self._set(prepared)
-        return H.surrogate_job("mlp", cfg, seed, budget, final=final)
+        return H.surrogate_job("mlp", cfg, seed, budget, final=final, comparison_path=comparison_path)
 
-    def train_deeponet(self, prepared, cfg, seed, budget, *, final=True, **_):
+    def train_deeponet(self, prepared, cfg, seed, budget, *, final=True, comparison_path=None, **_):
         self._set(prepared)
-        return H.surrogate_job("deeponet", cfg, seed, budget, final=final)
+        return H.surrogate_job("deeponet", cfg, seed, budget, final=final, comparison_path=comparison_path)
 
     # ------------------------------------------------------------------ gates
     def checks_pinn(self, prepared, cfg):

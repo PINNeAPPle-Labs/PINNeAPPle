@@ -74,6 +74,9 @@ def _figure(runs, base):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     fig, ax = plt.subplots(1, 2, figsize=(12, 4.4))
     for r in runs:
         c = r["fea_only"]["hypervolume_curve"]

@@ -1,6 +1,5 @@
 import torch
 import torch.optim as optim
-import torch.nn as nn
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,6 +11,9 @@ from pinneapple_neural.architectures.classical_ts.kalman import KalmanFilter
 from pinneapple_neural.architectures.classical_ts.tcn import TCN
 from pinneapple_neural.architectures.classical_ts.ukf import UnscentedKalmanFilter
 from pinneapple_neural.architectures.classical_ts.var import VAR
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 # ARIMA
 

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Protocol
 
 try:
     import google.generativeai as genai  # type: ignore
@@ -29,7 +29,7 @@ class LLMMessage:
 @dataclass
 class LLMResponse:
     text: str
-    raw: Optional[Dict[str, Any]] = None
+    raw: dict[str, Any] | None = None
 
 
 class LLMProvider(Protocol):
@@ -37,7 +37,7 @@ class LLMProvider(Protocol):
 
     def generate(
         self,
-        messages: List[LLMMessage],
+        messages: list[LLMMessage],
         *,
         temperature: float = 0.2,
         max_tokens: int = 800,
@@ -70,7 +70,7 @@ class GeminiProvider:
 
     def generate(
         self,
-        messages: List[LLMMessage],
+        messages: list[LLMMessage],
         *,
         temperature: float = 0.2,
         max_tokens: int = 800,

@@ -1,0 +1,12 @@
+{
+ "code_hash": "7f6cfa72ca385bc5",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.multidisciplinary.opinion_dynamics_2d",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "opinion dynamics 2d -> pinneapple_physics.pde_environment.presets.multidisciplinary:opinion_dynamics_2d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'D': 0.01, 'alpha': 1.0, 'Lx': 1.0, 'Ly': 1.0, 't_end': 10.0}",
+ "timed_out": false
+}

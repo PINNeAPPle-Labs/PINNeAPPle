@@ -77,9 +77,9 @@ from __future__ import annotations
 import json
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -130,7 +130,7 @@ class MissileGeometry:
     r_nose_m:     float = 0.005  # nose-tip radius [m]  (bluntness)
     h_canard_m:   float = 0.03   # canard panel semi-span [m]
     h_fin_m:      float = 0.06   # tail-fin panel semi-span [m]
-    A_ref_m2:     Optional[float] = None  # reference area (defaults to πD²/4)
+    A_ref_m2:     float | None = None  # reference area (defaults to πD²/4)
 
     def __post_init__(self):
         if self.A_ref_m2 is None:
@@ -156,7 +156,7 @@ def body_angle_distribution(
     geom: MissileGeometry,
     n_pts: int = 200,
     alpha_rad: float = 0.0,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute arc-length s [m], local half-angle θ [rad], radius R [m]
     along the meridional contour at AoA = alpha.
@@ -235,7 +235,7 @@ def solve_aero(
     alpha_deg: float,
     altitude_m: float = 10_000.0,
     n_pts:   int = 200,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Full aerodynamic solution via Modified Newtonian + Van Driest."""
     alpha_rad = math.radians(alpha_deg)
 
@@ -299,7 +299,7 @@ def generate_dataset(
     n_designs: int = 3_000,
     n_pts:     int = 100,
     seed:      int = 0,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """LHS dataset: inputs (s,M,α,r_n,h_c,h_f) → outputs (Cp, Cf)."""
     rng = np.random.default_rng(seed)
     designs, _ = latin_hypercube(n_designs, {"M": MACH_RANGE, "alpha": ALPHA_RANGE, "r_nose": RNOSE_RANGE,
@@ -374,7 +374,7 @@ class AeroSurrogatePINN(nn.Module):
 
         # Decoder
         in_dim = s_feat + geo_dim
-        dec: List[nn.Module] = [nn.Linear(in_dim, hidden), nn.Tanh()]
+        dec: list[nn.Module] = [nn.Linear(in_dim, hidden), nn.Tanh()]
         for _ in range(n_decode - 2):
             dec += [nn.Linear(hidden, hidden), nn.Tanh()]
         self.decoder = nn.Sequential(*dec)
@@ -429,14 +429,14 @@ def physics_residual(model: AeroSurrogatePINN, x_batch: torch.Tensor) -> torch.T
 
 def train_model(
     model:       AeroSurrogatePINN,
-    data:        Dict[str, np.ndarray],
+    data:        dict[str, np.ndarray],
     device:      torch.device,
     epochs:      int   = 10_000,
     batch_size:  int   = 4_096,
     lr:          float = 3e-4,
     phys_weight: float = 0.05,
     label:       str   = "aero",
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
 
     model = model.to(device)
     X = torch.tensor(data["X"], dtype=torch.float32, device=device)
@@ -446,7 +446,7 @@ def train_model(
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs, eta_min=lr * 0.01)
     mse   = nn.MSELoss()
 
-    history: Dict[str, List[float]] = {"total": [], "data": [], "phys": []}
+    history: dict[str, list[float]] = {"total": [], "data": [], "phys": []}
     n = X.shape[0]
     t0 = time.time()
 
@@ -487,16 +487,16 @@ def train_model(
 def build_aerodb(
     model:    AeroSurrogatePINN,
     device:   torch.device,
-    mach_pts: List[float] = [1.5, 2.0, 2.5, 3.0, 3.5],
-    alpha_pts: List[float] = [0.0, 2.0, 4.0, 6.0, 8.0],
+    mach_pts: list[float] = [1.5, 2.0, 2.5, 3.0, 3.5],
+    alpha_pts: list[float] = [0.0, 2.0, 4.0, 6.0, 8.0],
     n_s:      int = 50,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate AeroDB table (CL, CD, L/D) via surrogate integration."""
 
     def norm(v, lo, hi):
         return (v - lo) / (hi - lo)
 
-    aerodb: Dict[str, Any] = {"mach": mach_pts, "alpha_deg": alpha_pts, "data": []}
+    aerodb: dict[str, Any] = {"mach": mach_pts, "alpha_deg": alpha_pts, "data": []}
 
     model.eval()
     for M in mach_pts:
@@ -549,11 +549,11 @@ def build_aerodb(
 # ══════════════════════════════════════════════════════════════════════════════
 
 def ensemble_uq(
-    models:  List[AeroSurrogatePINN],
+    models:  list[AeroSurrogatePINN],
     X_test:  np.ndarray,
     device:  torch.device,
     alpha:   float = 0.10,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     Xt = torch.tensor(X_test, dtype=torch.float32, device=device)
     preds = []
     for m in models:
@@ -574,14 +574,14 @@ def ensemble_uq(
 # ══════════════════════════════════════════════════════════════════════════════
 
 def run_trajectory(
-    aerodb:      Dict[str, Any],
+    aerodb:      dict[str, Any],
     m_kg:        float = 50.0,
     V0_ms:       float = 680.0,
     gamma0_deg:  float = -5.0,
     h0_m:        float = 10_000.0,
     dt:          float = 0.1,
     t_max:       float = 60.0,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     Point-mass 2D trajectory integration using AeroDB lookup (nearest-neighbor).
     """
@@ -698,7 +698,7 @@ def plot_cp_distribution(
     print(f"  saved → {out_path}")
 
 
-def plot_polar(aerodb: Dict[str, Any], out_path: Path):
+def plot_polar(aerodb: dict[str, Any], out_path: Path):
     use_cfd_style(dark=True)
     fig, axes = make_figure(1, 2, figsize=(12, 5), squeeze=False)
     colors = [ACCENT, ACCENT2, ACCENT3, "#d29922", "#bc8cff"]
@@ -751,7 +751,7 @@ def plot_uq(uq, Y_test, out_path):
     print(f"  saved → {out_path}")
 
 
-def plot_trajectory(traj: Dict[str, np.ndarray], out_path: Path):
+def plot_trajectory(traj: dict[str, np.ndarray], out_path: Path):
     use_cfd_style(dark=True)
     fig, axes = make_figure(1, 2, figsize=(14, 5), squeeze=False)
 
@@ -778,7 +778,7 @@ def plot_trajectory(traj: Dict[str, np.ndarray], out_path: Path):
     print(f"  saved → {out_path}")
 
 
-def plot_training_history(history: Dict[str, List[float]], out_path: Path):
+def plot_training_history(history: dict[str, list[float]], out_path: Path):
     fig, ax = plt.subplots(figsize=(10, 4), facecolor=DARK_BG)
     ax.set_facecolor(DARK_BG)
     for spine in ax.spines.values():
@@ -860,7 +860,6 @@ def main():
 
     # ── Step 5: Ensemble UQ ────────────────────────────────────────────────
     print("\n[5/8] Building 5-model ensemble for UQ …")
-    import copy
     ensemble = [model]
     for seed in range(1, 5):
         m = AeroSurrogatePINN(n_fourier=32, geo_dim=64, hidden=256, n_decode=5)

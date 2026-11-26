@@ -51,7 +51,8 @@ from __future__ import annotations
 import random
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch.nn as nn
@@ -103,12 +104,12 @@ _ACTIVATIONS = ["tanh", "silu", "gelu"]
 _ACTIVATION_CLASSES = {"tanh": nn.Tanh, "silu": nn.SiLU, "gelu": nn.GELU}
 
 
-def _vanilla_pinn_kwargs(params: Dict[str, Any], in_dim: int, out_dim: int) -> Dict[str, Any]:
+def _vanilla_pinn_kwargs(params: dict[str, Any], in_dim: int, out_dim: int) -> dict[str, Any]:
     hidden = [params["width"]] * params["n_layers"]
     return dict(in_dim=in_dim, out_dim=out_dim, hidden=hidden, activation=params["activation"])
 
 
-def _modified_mlp_kwargs(params: Dict[str, Any], in_dim: int, out_dim: int) -> Dict[str, Any]:
+def _modified_mlp_kwargs(params: dict[str, Any], in_dim: int, out_dim: int) -> dict[str, Any]:
     return dict(
         in_dim=in_dim, out_dim=out_dim,
         hidden_dim=params["hidden_dim"], n_layers=params["n_layers"],
@@ -116,7 +117,7 @@ def _modified_mlp_kwargs(params: Dict[str, Any], in_dim: int, out_dim: int) -> D
     )
 
 
-def _siren_kwargs(params: Dict[str, Any], in_dim: int, out_dim: int) -> Dict[str, Any]:
+def _siren_kwargs(params: dict[str, Any], in_dim: int, out_dim: int) -> dict[str, Any]:
     return dict(
         in_dim=in_dim, out_dim=out_dim,
         hidden_dim=params["hidden_dim"], n_layers=params["n_layers"],
@@ -139,11 +140,11 @@ class ArchitectureCandidate:
     has to be exact per architecture rather than generic.
     """
     name: str
-    param_space: Dict[str, ParamSpec]
-    build_kwargs_fn: Callable[[Dict[str, Any], int, int], Dict[str, Any]]
+    param_space: dict[str, ParamSpec]
+    build_kwargs_fn: Callable[[dict[str, Any], int, int], dict[str, Any]]
 
 
-DEFAULT_CANDIDATES: Dict[str, ArchitectureCandidate] = {
+DEFAULT_CANDIDATES: dict[str, ArchitectureCandidate] = {
     "vanilla_pinn": ArchitectureCandidate(
         name="vanilla_pinn",
         param_space={
@@ -183,20 +184,20 @@ class ArchitectureSearchSpace:
     candidate (learning rate isn't architecture-specific, so it lives
     outside `candidates` rather than being duplicated in each one).
     """
-    candidates: Dict[str, ArchitectureCandidate] = field(
+    candidates: dict[str, ArchitectureCandidate] = field(
         default_factory=lambda: dict(DEFAULT_CANDIDATES))
     lr_param_space: ParamSpec = _DEFAULT_LR_SPACE
 
     @property
-    def architecture_names(self) -> List[str]:
+    def architecture_names(self) -> list[str]:
         return sorted(self.candidates)
 
-    def _flat_param_space(self) -> Dict[str, ParamSpec]:
+    def _flat_param_space(self) -> dict[str, ParamSpec]:
         """Flatten into the shape ``AdaptiveSweepConfig.param_space``
         expects: one unconditional entry per parameter, architecture
         candidates' hyperparameters namespaced by ``"<arch>__<param>"`` so
         names never collide across architectures."""
-        space: Dict[str, ParamSpec] = {
+        space: dict[str, ParamSpec] = {
             "architecture": ("categorical", (self.architecture_names,)),
             "lr": self.lr_param_space,
         }
@@ -208,7 +209,7 @@ class ArchitectureSearchSpace:
 
 # ── scoring ──────────────────────────────────────────────────────────────
 
-def _accuracy_score(eval_out: Dict[str, Any], field_names: List[str]) -> float:
+def _accuracy_score(eval_out: dict[str, Any], field_names: list[str]) -> float:
     """Mean relative-L2 error across fields — lower is better. Mirrors
     ``pinneapple_arena.arena._accuracy_score`` exactly (same metric Arena's
     own ranking uses), computed locally here rather than imported since
@@ -220,8 +221,8 @@ def _accuracy_score(eval_out: Dict[str, Any], field_names: List[str]) -> float:
     return float(np.mean(rels))
 
 
-def _score(eval_out: Dict[str, Any], field_names: List[str],
-          physics_residual: Optional[float], physics_aware: bool, lam: float) -> "tuple[float, float]":
+def _score(eval_out: dict[str, Any], field_names: list[str],
+          physics_residual: float | None, physics_aware: bool, lam: float) -> tuple[float, float]:
     """The search objective (lower is better). Returns ``(score, accuracy)``
     — the plain accuracy component is returned alongside the combined score
     so callers (and ``all_trials`` records) can see how much of the score
@@ -258,18 +259,18 @@ def _score(eval_out: Dict[str, Any], field_names: List[str],
 
 @dataclass
 class NASResult:
-    best_architecture: Optional[str]
-    best_hyperparams: Dict[str, Any]
+    best_architecture: str | None
+    best_hyperparams: dict[str, Any]
     best_score: float
-    all_trials: List[Dict[str, Any]]
-    study: Optional[Any] = None  # raw optuna.Study, or None under the random-search fallback
+    all_trials: list[dict[str, Any]]
+    study: Any | None = None  # raw optuna.Study, or None under the random-search fallback
 
 
 # ── the search loop ─────────────────────────────────────────────────────
 
 def search_architecture(
     problem: ArenaProblem,
-    search_space: Optional[ArchitectureSearchSpace] = None,
+    search_space: ArchitectureSearchSpace | None = None,
     n_trials: int = 20,
     physics_aware: bool = False,
     lam: float = 1.0,
@@ -279,8 +280,8 @@ def search_architecture(
     n_col: int = 128,
     grid_n: int = 12,
     device: str = "cpu",
-    seed: Optional[int] = None,
-    timeout: Optional[float] = None,
+    seed: int | None = None,
+    timeout: float | None = None,
     **train_kwargs: Any,
 ) -> NASResult:
     """Search over ``search_space`` (architecture name + each architecture's
@@ -348,14 +349,14 @@ def search_architecture(
     lo, hi = xy_int.min(axis=0), xy_int.max(axis=0)
     xy_col = data_rng.uniform(lo, hi, (n_col, problem.input_dim))
 
-    all_trials: List[Dict[str, Any]] = []
+    all_trials: list[dict[str, Any]] = []
 
-    def _eval_params(params: Dict[str, Any]) -> float:
+    def _eval_params(params: dict[str, Any]) -> float:
         arch_name = params["architecture"]
         lr = params["lr"]
         cand = space.candidates[arch_name]
         arch_params = {p: params[f"{arch_name}__{p}"] for p in cand.param_space}
-        record: Dict[str, Any] = {"architecture": arch_name,
+        record: dict[str, Any] = {"architecture": arch_name,
                                   "hyperparams": dict(arch_params, lr=lr)}
         try:
             build_kwargs = cand.build_kwargs_fn(arch_params, problem.input_dim, problem.output_dim)
@@ -406,9 +407,9 @@ def search_architecture(
     )
 
 
-def _run_optuna(objective_fn: Callable[[Dict[str, Any]], float],
-                flat_space: Dict[str, ParamSpec], n_trials: int,
-                seed: Optional[int], timeout: Optional[float], optuna) -> Any:
+def _run_optuna(objective_fn: Callable[[dict[str, Any]], float],
+                flat_space: dict[str, ParamSpec], n_trials: int,
+                seed: int | None, timeout: float | None, optuna) -> Any:
     """Same sampler/pruner construction as
     ``adaptive_sweep._run_with_optuna``: ``TPESampler`` + ``MedianPruner``.
     Trials here never call ``trial.report``/pruning (no natural
@@ -428,9 +429,9 @@ def _run_optuna(objective_fn: Callable[[Dict[str, Any]], float],
     return study
 
 
-def _run_random_search(objective_fn: Callable[[Dict[str, Any]], float],
-                       flat_space: Dict[str, ParamSpec], n_trials: int,
-                       seed: Optional[int], timeout: Optional[float]) -> None:
+def _run_random_search(objective_fn: Callable[[dict[str, Any]], float],
+                       flat_space: dict[str, ParamSpec], n_trials: int,
+                       seed: int | None, timeout: float | None) -> None:
     """Dependency-free fallback, matching
     ``adaptive_sweep._run_with_random_search``'s behaviour (uniform/random
     sampling, no pruning)."""

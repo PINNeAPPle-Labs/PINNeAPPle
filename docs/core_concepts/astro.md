@@ -79,3 +79,52 @@ computed, how much to trust it") and tested in `tests/test_astro_ai.py`.
 | `stars_ml` | Gaussian-mixture clustering of the HR diagram; k-NN luminosity and spectral class | BSC5 MK spectral types, 5-fold CV | luminosity class 70 % (baseline 40 %), spectral class from B−V 79 % (baseline 25 %), cluster purity 71 % |
 | `conditions` | Open-Meteo ensemble → P(clear), cloud quantiles, transparency, seeing proxy; reliability calibration | none yet (needs a forecast/observation history) | labelled *not verified* |
 | `lensing.trace_thin_disc`, `disc_image`, `accretion_view` | thin disc (ISCO, Novikov-Thorne flux, Keplerian gas, Doppler beaming and gravitational redshift, g⁴ intensity) lensed in front of the real sky; exact null geodesics u'' + u = 3u² | Schwarzschild closed forms: shadow edge at b = 3√3 GM/c², face-on g = √(1 − 3/r) | both to 1 % in the tests |
+
+## Reading a simulation's output: the `yt` reader (`pinneapple_data.astro`)
+
+`pinneapple_physics.astro` looks at the sky; this section is the other end — the output of the codes that compute it.
+One reader covers Enzo, FLASH, RAMSES, GADGET, AREPO, SWIFT, Athena/Athena++, Cholla, ART and generic HDF5, because
+[yt](https://yt-project.org) (Turk et al., ApJS 2011, BSD-3-Clause) already does, and the result is the same
+`PhysicalSample` the CFD readers return, so the trainers and the physics audit take it without a branch.
+
+```bash
+pip install "pinneapple[astro]"      # yt; optional on purpose -- nothing imports it until the reader is called
+```
+
+```python
+from pinneapple_data.astro import yt_reader
+
+yt_reader.available()                                   # (False, 'the yt reader needs yt: pip install yt ...') without it
+yt_reader.list_fields("output_0042")                    # [{"field": "gas_density", "code": "gas", "unit": "g/cm**3"}, ...]
+s = yt_reader.load("output_0042")                       # a PhysicalSample: grid state, yt's units, the box in provenance
+s.state["gas_density"].values                           # xarray, dims (x, y, z) -- one cell per grid cell
+s.schema["units"], s.provenance["dataset_type"], s.provenance["time"]
+
+yt_reader.load("output_0042", level=2)                            # the AMR resampled at level 2
+yt_reader.load("output_0042", fields=["density", ("gas", "temperature")])
+yt_reader.load("output_0042", region=((0, 0, 0), (0.5, 0.5, 0.5)))  # a box, in the dataset's length unit
+yt_reader.load("snapshot_000.hdf5", to="points")                   # particles stay particles (domain type "points")
+yt_reader.load("output_0042", physics_audit=True).extras["physics_audit"]   # mass and energy sums, with their caveat
+```
+
+Decisions worth knowing:
+
+- **A grid sample is resampled, a particle sample is not.** AMR data is sampled onto the uniform grid at `level` (a
+  surrogate wants one array), while particles are returned as a table of point arrays: averaging them would invent
+  positions no particle has.
+- **The axes are (x, y, z), measured not assumed.** yt's grid arrays were checked on yt 4.4.4 with a dataset whose
+  density is a function of `x` alone and whose temperature is a function of `z` alone: `grid[field][:, 0, 0]` walks
+  `x` and `[0, 0, :]` walks `z`, for both `covering_grid` and `arbitrary_grid`. `tests/test_astro_yt_reader.py` keeps
+  it that way, because a silently transposed field is a plot that looks plausible and is wrong.
+- **The units travel.** `schema["units"]` carries yt's unit for every field (`g/cm**3`, `K`, …) and the state records
+  the unit system, so a number is never bare.
+- **`extras["yt_dataset"]` is the live dataset**, for the operations this reader does not wrap (projections, phase
+  plots, radial profiles).
+- **The audit's totals say what they are.** `physics_audit` returns sums of the sampled values with unit, maximum and
+  a note that an integral needs the cell volume; the divergence of B and the virial checks of the issue's plan are the
+  next step, and they are missing rather than silently zero.
+
+Not done yet in #515: the two public sample datasets (an Enzo cosmology box and a FLASH Sedov blast) with the Sedov
+shock radius against the self-similar solution, and the MHD/virial audit hooks. The reading, the units, the axis
+order and the optional dependency are in place and tested; tests that need yt are skipped with the install line when
+it is absent, so the suite stays green on a machine without it.

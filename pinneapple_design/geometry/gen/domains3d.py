@@ -14,7 +14,7 @@ Example usage::
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -37,9 +37,9 @@ class PhysicsDomain3D:
     export helpers.
     """
 
-    bounds_min: Tuple[float, float, float] = (0.0, 0.0, 0.0)
-    bounds_max: Tuple[float, float, float] = (1.0, 1.0, 1.0)
-    boundary_regions: List[BoundaryRegion] = []
+    bounds_min: tuple[float, float, float] = (0.0, 0.0, 0.0)
+    bounds_max: tuple[float, float, float] = (1.0, 1.0, 1.0)
+    boundary_regions: list[BoundaryRegion] = []
 
     def sdf(self, p: np.ndarray) -> np.ndarray:
         raise NotImplementedError
@@ -51,7 +51,7 @@ class PhysicsDomain3D:
         rng = np.random.default_rng(seed)
         bmin = np.asarray(self.bounds_min, dtype=np.float64)
         bmax = np.asarray(self.bounds_max, dtype=np.float64)
-        collected: List[np.ndarray] = []
+        collected: list[np.ndarray] = []
         while sum(len(c) for c in collected) < n:
             cands = bmin + rng.random((n * 5, 3)) * (bmax - bmin)
             mask = self.is_inside(cands)
@@ -63,10 +63,10 @@ class PhysicsDomain3D:
     def sample_boundary_region(self, region_name: str, n: int, *, seed: int = 0) -> np.ndarray:
         raise NotImplementedError(f"sample_boundary_region not implemented for region '{region_name}'")
 
-    def get_region_names(self) -> List[str]:
+    def get_region_names(self) -> list[str]:
         return [r.name for r in self.boundary_regions]
 
-    def get_region_conditions(self, region_name: str) -> Dict[str, Any]:
+    def get_region_conditions(self, region_name: str) -> dict[str, Any]:
         for r in self.boundary_regions:
             if r.name == region_name:
                 return r.conditions
@@ -76,9 +76,9 @@ class PhysicsDomain3D:
         self,
         n_col: int = 4096,
         n_bc_per_region: int = 512,
-        n_bc_total: Optional[int] = None,
+        n_bc_total: int | None = None,
         seed: int = 0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate a full PINN training batch.
 
         Returns
@@ -92,8 +92,8 @@ class PhysicsDomain3D:
         """
         x_col = self.sample_interior(n_col, seed=seed)
 
-        x_bc_parts: List[np.ndarray] = []
-        region_labels: List[str] = []
+        x_bc_parts: list[np.ndarray] = []
+        region_labels: list[str] = []
 
         for i, region in enumerate(self.boundary_regions):
             n_pts = n_bc_total // max(1, len(self.boundary_regions)) if n_bc_total else n_bc_per_region
@@ -105,7 +105,7 @@ class PhysicsDomain3D:
         x_bc = np.concatenate(x_bc_parts, axis=0).astype(np.float32) if x_bc_parts else np.zeros((0, 3), dtype=np.float32)
         y_bc = np.zeros((len(x_bc), 1), dtype=np.float32)
 
-        ctx: Dict[str, Any] = {
+        ctx: dict[str, Any] = {
             "domain_class": type(self).__name__,
             "bounds_min": list(self.bounds_min),
             "bounds_max": list(self.bounds_max),
@@ -120,10 +120,10 @@ class PhysicsDomain3D:
             "ctx": ctx,
         }
 
-    def to_bundle_conditions(self) -> Dict[str, Any]:
-        cond: Dict[str, Any] = {}
+    def to_bundle_conditions(self) -> dict[str, Any]:
+        cond: dict[str, Any] = {}
         for r in self.boundary_regions:
-            entry: Dict[str, Any] = {"type": r.kind}
+            entry: dict[str, Any] = {"type": r.kind}
             entry.update(r.conditions)
             cond[r.name] = entry
         cond["_meta"] = {"domain_class": type(self).__name__}
@@ -159,7 +159,7 @@ class LidDrivenCavityDomain3D(PhysicsDomain3D):
     def __init__(
         self,
         size: float = 1.0,
-        origin: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+        origin: tuple[float, float, float] = (0.0, 0.0, 0.0),
         lid_velocity: float = 1.0,
         lid_axis: str = "x",
     ):
@@ -173,7 +173,7 @@ class LidDrivenCavityDomain3D(PhysicsDomain3D):
         self.bounds_min = (ox, oy, oz)
         self.bounds_max = (ox + L, oy + L, oz + L)
 
-        lid_cond: Dict[str, Any] = {"w": 0.0}
+        lid_cond: dict[str, Any] = {"w": 0.0}
         if self.lid_axis == "x":
             lid_cond["u"] = self.lid_velocity
             lid_cond["v"] = 0.0
@@ -224,7 +224,7 @@ class LidDrivenCavityDomain3D(PhysicsDomain3D):
             )
             n_bot, n_front, n_back, n_left, n_right = counts
 
-            parts: List[np.ndarray] = []
+            parts: list[np.ndarray] = []
 
             if n_bot > 0:
                 x = rng.uniform(ox, ex, n_bot).astype(np.float32)
@@ -283,7 +283,7 @@ class ChannelDomain3D(PhysicsDomain3D):
         length: float = 2.0,
         height: float = 1.0,
         width: float = 1.0,
-        origin: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+        origin: tuple[float, float, float] = (0.0, 0.0, 0.0),
         inlet_velocity: float = 1.0,
         flow_profile: str = "uniform",
     ):
@@ -298,7 +298,7 @@ class ChannelDomain3D(PhysicsDomain3D):
         self.bounds_min = (ox, oy, oz)
         self.bounds_max = (ox + self.length, oy + self.height, oz + self.width)
 
-        inlet_cond: Dict[str, Any] = {
+        inlet_cond: dict[str, Any] = {
             "u": inlet_velocity,
             "v": 0.0,
             "w": 0.0,
@@ -357,7 +357,7 @@ class ChannelDomain3D(PhysicsDomain3D):
             counts = _split_by_area(n, [area_bot, area_top, area_front, area_back], total_area)
             n_bot, n_top, n_front, n_back = counts
 
-            parts: List[np.ndarray] = []
+            parts: list[np.ndarray] = []
 
             if n_bot > 0:
                 x = rng.uniform(ox, ex, n_bot).astype(np.float32)
@@ -412,7 +412,7 @@ class PipeFlowDomain3D(PhysicsDomain3D):
         self,
         radius: float = 0.5,
         length: float = 2.0,
-        origin: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+        origin: tuple[float, float, float] = (0.0, 0.0, 0.0),
         inlet_velocity: float = 1.0,
     ):
         self.radius = float(radius)
@@ -485,7 +485,7 @@ class PipeFlowDomain3D(PhysicsDomain3D):
         cy = self.y_center
         cz = self.z_center
 
-        collected: List[np.ndarray] = []
+        collected: list[np.ndarray] = []
         while sum(len(c) for c in collected) < n:
             batch = n * 5
             x  = rng.uniform(ox, ox + L, batch)
@@ -538,7 +538,7 @@ class PipeFlowDomain3D(PhysicsDomain3D):
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _split_by_area(n: int, areas: List[float], total: float) -> List[int]:
+def _split_by_area(n: int, areas: list[float], total: float) -> list[int]:
     """Distribute n points across faces proportionally to area."""
     if total <= 0.0:
         k = len(areas)
@@ -559,7 +559,7 @@ def _split_by_area(n: int, areas: List[float], total: float) -> List[int]:
 # Registry
 # ---------------------------------------------------------------------------
 
-_DOMAIN_REGISTRY_3D: Dict[str, type] = {
+_DOMAIN_REGISTRY_3D: dict[str, type] = {
     "lid_driven_cavity_3d": LidDrivenCavityDomain3D,
     "channel_3d": ChannelDomain3D,
     "pipe_flow_3d": PipeFlowDomain3D,
@@ -580,7 +580,7 @@ def get_domain_3d(name: str, **kwargs) -> PhysicsDomain3D:
     return _DOMAIN_REGISTRY_3D[key](**kwargs)
 
 
-def list_domains_3d() -> List[str]:
+def list_domains_3d() -> list[str]:
     """List all registered built-in 3D domain names."""
     return sorted(_DOMAIN_REGISTRY_3D.keys())
 

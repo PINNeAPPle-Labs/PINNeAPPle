@@ -78,6 +78,33 @@ Guide: [Physics checks in CI](physics_checks_in_ci.md). Every tolerance is relat
 
 `trust_report.from_trust_score` turns these scores into checks with a design threshold of 0.7.
 
+`pinneapple_analysis.trust.drift.DriftMonitor` asks the same question after deployment, over a window of live
+traffic (#114): the baseline is a held-out validation split (predictions, the model's own predictive uncertainty and,
+when labels exist, the residuals), and each window is compared against it with the two-sample Kolmogorov–Smirnov
+statistic per output column, maximum over columns.
+
+| Check | What it needs | Critical | Answers |
+|---|---|---|---|
+| `input_drift` | the live inputs | no | are the requests still the kind of point the model was fitted on |
+| `prediction_drift` | the outputs | no | did the output distribution leave the baseline, with no labels |
+| `uncertainty_drift` | a model returning `(mean, std)` | no | did the model's own spread leave the baseline |
+| `error_drift` | labels | **yes** | did the residuals grow (RMSE ratio is recorded) |
+| `envelope` | `TrustGate` fitted on the baseline | **yes** | what fraction of inputs is outside the fitted distribution |
+
+The limits are not hand-picked: `calibrate` draws windows of the deployment size from a **second** held-out split,
+measures each against the baseline, and takes the 0.99 quantile of that null distribution — so "drift" means further
+from the baseline than 99 % of genuinely in-distribution windows were. Measuring before calibrating raises; a
+quantity the model cannot support (no uncertainty, no labels) is reported as **not run**, never as a pass.
+
+The verdict is documented rather than implied: a critical alarm (`error_drift`, `envelope`) is `RETRAIN`; two or
+more label-free alarms together are `RETRAIN` without any label; one alone is `REVIEW`; nothing is `STABLE`.
+`write_record` appends the window, its statistics, its thresholds and the decision with the reason as one JSON line.
+Measured on the synthetic surrogate in `tests/test_model_monitoring_drift.py` (thresholds from 100 held-out windows
+of 300 points): an in-distribution window scores 0.044 input / 0.043 prediction / 0.030 uncertainty against limits of
+0.099 / 0.093 / 0.094 and stays `STABLE`; a window shifted by 0.15 scores 0.172 / 0.100 / 0.172 and returns
+`RETRAIN`; inputs from outside the box (3–4 in a domain of 0–1) put the envelope fraction at 1.0 and return
+`RETRAIN`.
+
 ## 4. Model validation (`pinneapple_analysis.validation`)
 
 `PhysicsValidator` evaluates a model (with autograd) at sampled points. Each check defaults to `tolerance=1e-3`.
@@ -85,6 +112,10 @@ Guide: [Physics checks in CI](physics_checks_in_ci.md). Every tolerance is relat
 - **ConservationCheck** (mass, energy, custom integrals): Monte Carlo integration. The estimate has O(n^-1/2) sampling noise, so `n_points` must be large enough that the noise is below the tolerance.
 - **BoundaryCheck** (Dirichlet, Neumann, periodic).
 - **SymmetryCheck** (reflection, 2-D rotation): `max |u(Sx) - s u(x)|`. Use it only when the problem, including its boundary conditions and sources, has the symmetry.
+- **dimensional** (`add_dimensional_check(expected)`): the unit the model returns against the expected one. It can only be asked of a model that returns a unit with its numbers (`pp.tensor`, or anything with a `unit` attribute); a plain tensor comes back as **not run** with that sentence rather than as a pass. Equal units pass, dimensionally equal but scaled units fail and report the factor (km/s where m/s is expected is every number off by a thousand), different dimensions fail saying so.
+- **OOD** (`add_ood_check(training_coords=None, threshold=0.8, max_false_alarm=0.2, margin=1.0, ood_level=0.05)`): fits `TrustGate` on a real sample of training coordinates, or on the domain box when none is given, then probes points placed `margin` ranges outside the bounds. It passes only when the flagged fraction reaches `threshold` **and** the fraction of in-domain points wrongly flagged stays under `max_false_alarm` — recall alone is a detector that answers "out" to everything. Measured on a 2-D unit box with the box fit: margin 0.5 gives 0.60 recall, margin 1.0 gives 0.82 and margin 2.0 gives 0.95, which is why one full range is the default.
+
+`CheckResult.passed` is `None` when a check did not run, and `CheckResult.status` says `passed`, `failed` or `not run`. A report passes only when at least one check ran and every check that ran passed: a report whose checks all declined to run verified nothing.
 - **compare_to_analytical / validate_against_solver**: RMSE, relative L2 and max error against a closed form or solver data.
 
 Limitation: sampled checks can miss narrow features such as boundary layers or shocks. Use the grid checks in sections 2 and 3 on a resolved field when such features matter.
@@ -114,6 +145,8 @@ Limitation: sampled checks can miss narrow features such as boundary layers or s
 - **`geometry_ood_guardrail`**: z-scored geometry descriptors against a reference set.
 - **`physics_confidence_score`**: a bounded combination of calibration, convergence and residual evidence. The weights are design choices, not a standard.
 - **`provenance`**: hashes of the inputs of a run.
+- **ASME V&V 20 validation** (`validation`, `validation_from_gci`): the comparison error `E = S − D` judged against the validation uncertainty `u_val = sqrt(u_num² + u_input² + u_ref²)`. The model is validated when `|E| <= u_val`. This is the step the GCI alone does not make: a simulation 5 % away from the data looks wrong until you learn that the numerical and input contributions are 8 % together. `u_numerical` has no default — a validation without it is the report the standard replaces — and `validation_from_gci` takes it from a mesh study (`u_num = GCI_fine/100 · |S|`). The budget reports which contribution dominates, which is where the next effort goes. `validation_report` writes one row per quantity plus the credibility block.
+- **Credibility matrix** (`CredibilityMatrix`, ASME V&V 40 Table 2): model influence × decision consequence gives the level of evidence the decision needs (*low*, *medium*, *high*); each of the four categories (verification, validation, uncertainty, applicability) records the level it reached and what backs it. The block reports the gaps by name instead of a single score, and is never sufficient while a category is empty — one missing category is not a gap in an otherwise credible model.
 
 ## 7. Veriphysics applicability and robustness (`pinneapple_veriphysics`)
 

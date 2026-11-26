@@ -12,8 +12,6 @@ from __future__ import annotations
 
 import argparse
 import math
-import os
-import sys
 
 from pinneapple_tools.visualization.studio.colormap import (  # noqa: F401  (the CFD jet scale)
     JET,

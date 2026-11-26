@@ -1,8 +1,7 @@
 """Trimesh-based primitive mesh builders and architected geometries (woven, braid)."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional, Protocol, Tuple, Union
+from typing import Any, Protocol
 
 import numpy as np
 
@@ -18,7 +17,7 @@ def _tm_to_meshdata(tm) -> MeshData:
     )
 
 
-def _as_3tuple(v: Any, default: Tuple[float, float, float]) -> Tuple[float, float, float]:
+def _as_3tuple(v: Any, default: tuple[float, float, float]) -> tuple[float, float, float]:
     if v is None:
         return default
     if isinstance(v, (int, float)):
@@ -50,7 +49,7 @@ class MeshBuilder(Protocol):
     def __call__(self, **params): ...  # returns trimesh.Trimesh
 
 
-_BUILDERS: Dict[str, MeshBuilder] = {}
+_BUILDERS: dict[str, MeshBuilder] = {}
 
 
 def register_builder(*names: str):
@@ -100,7 +99,7 @@ def _apply_transform(tm, params: dict):
     return tm
 
 
-def _boolean_engines_available() -> Tuple[str, ...]:
+def _boolean_engines_available() -> tuple[str, ...]:
     """
     Returns a tuple of boolean engines available in trimesh environment.
     Typical names can include: 'manifold', 'blender', 'scad', etc.
@@ -184,7 +183,7 @@ def _boolean_or_fallback(tm_a, tm_b, op: str, *, allow_fallback: bool = True):
 # =============================================================================
 # Pipe / Thread construction (MVP) using capsules along polyline segments
 # =============================================================================
-def _polyline_capsule_tube(points: np.ndarray, radius: Union[float, np.ndarray], sections: int = 16):
+def _polyline_capsule_tube(points: np.ndarray, radius: float | np.ndarray, sections: int = 16):
     """
     Create a "tube" along a polyline by concatenating capsules per segment.
     MVP approach that doesn't require CAD/B-Rep.
@@ -234,7 +233,7 @@ def _normalize(v: np.ndarray, eps: float = 1e-12) -> np.ndarray:
     return v / n
 
 
-def _rmf_frames(centerline: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _rmf_frames(centerline: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute rotation-minimizing frames (RMF) along a polyline centerline.
 
@@ -307,7 +306,7 @@ def _rmf_frames(centerline: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndar
 # =============================================================================
 # Public factory API
 # =============================================================================
-def list_builders() -> Tuple[str, ...]:
+def list_builders() -> tuple[str, ...]:
     """Every registered builder name (all aliases included, e.g. both
     ``"box"`` and ``"cube"``) -- the real, checkable catalog for anything
     that needs to know what :func:`build_mesh` can build without
@@ -732,7 +731,6 @@ def project_points_to_surface(
 
     Raise by default so you don't mistakenly assume it's working.
     """
-    import numpy as np
 
     mesh_vertices = surface.vertices
     mesh_faces = surface.faces if surface.faces is not None else None

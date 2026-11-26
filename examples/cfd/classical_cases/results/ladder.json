@@ -1,0 +1,319 @@
+{
+ "family": "NACA 0012, Re = 4e+06, angles of attack",
+ "reynolds": 4000000.0,
+ "reference_rung": "rans-fine",
+ "table": [
+  {
+   "rung": "thin-airfoil",
+   "designs": 3,
+   "converged": 0,
+   "seconds": 0.0,
+   "seconds_per_design": 0.0,
+   "cells": 0,
+   "CL_error_rel": 0.3388235193205076,
+   "CL_error_abs": 0.00363267953015555,
+   "CD_error_rel": null,
+   "CD_error_abs": null,
+   "spearman_CL": 1.0,
+   "spearman_CD": NaN
+  },
+  {
+   "rung": "rans-coarse",
+   "designs": 3,
+   "converged": 3,
+   "seconds": 60.99,
+   "seconds_per_design": 20.33,
+   "cells": 2624,
+   "CL_error_rel": 0.30012514398963913,
+   "CL_error_abs": 0.023822286405168296,
+   "CD_error_rel": 0.3751960676119235,
+   "CD_error_abs": 0.0045224021410501395,
+   "spearman_CL": 1.0,
+   "spearman_CD": 1.0
+  },
+  {
+   "rung": "rans-medium",
+   "designs": 3,
+   "converged": 3,
+   "seconds": 112.39,
+   "seconds_per_design": 37.46,
+   "cells": 5130,
+   "CL_error_rel": 0.36920925024487294,
+   "CL_error_abs": 0.007006410044081327,
+   "CD_error_rel": 0.11635443564851788,
+   "CD_error_abs": 0.0014192568371232926,
+   "spearman_CL": 1.0,
+   "spearman_CD": 1.0
+  },
+  {
+   "rung": "rans-fine",
+   "designs": 3,
+   "converged": 3,
+   "seconds": 238.91,
+   "seconds_per_design": 79.64,
+   "cells": 10368,
+   "CL_error_rel": 0.0,
+   "CL_error_abs": 0.0,
+   "CD_error_rel": 0.0,
+   "CD_error_abs": 0.0,
+   "spearman_CL": 1.0,
+   "spearman_CD": 1.0
+  }
+ ],
+ "rows": [
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 0.0
+   },
+   "rung": "thin-airfoil",
+   "CL": 0.0,
+   "cells": 0,
+   "seconds": 0.0,
+   "CL_error": 1.0,
+   "CL_error_abs": 9.921656051767647e-05,
+   "CD_error": null,
+   "CD_error_abs": null
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 0.0
+   },
+   "rung": "rans-coarse",
+   "CL": -1.962287310821822e-05,
+   "CD": 0.010399444091912523,
+   "cells": 2624,
+   "seconds": 10.0,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-coarse_naca0012_a+0",
+   "CL_error": 0.802221796383254,
+   "CL_error_abs": 7.959368740945825e-05,
+   "CD_error": 0.17114171299256886,
+   "CD_error_abs": 0.0015196954017738518
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 0.0
+   },
+   "rung": "rans-medium",
+   "CL": 7.823480289562363e-06,
+   "CD": 0.009261499740594748,
+   "cells": 5130,
+   "seconds": 21.95,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-medium_naca0012_a+0",
+   "CL_error": 1.0788525650228373,
+   "CL_error_abs": 0.00010704004080723883,
+   "CD_error": 0.04299119983880025,
+   "CD_error_abs": 0.00038175105045607644
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 0.0
+   },
+   "rung": "rans-fine",
+   "CL": -9.921656051767647e-05,
+   "CD": 0.008879748690138672,
+   "cells": 10368,
+   "seconds": 49.72,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-fine_naca0012_a+0",
+   "CL_error": 0.0,
+   "CL_error_abs": 0.0,
+   "CD_error": 0.0,
+   "CD_error_abs": 0.0
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 4.0
+   },
+   "rung": "thin-airfoil",
+   "CL": 0.4382928509097467,
+   "cells": 0,
+   "seconds": 0.0,
+   "CL_error": 0.008194603759725161,
+   "CL_error_abs": 0.0036213114564014326,
+   "CD_error": null,
+   "CD_error_abs": null
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 4.0
+   },
+   "rung": "rans-coarse",
+   "CL": 0.427640715564278,
+   "CD": 0.013241555850204256,
+   "cells": 2624,
+   "seconds": 23.13,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-coarse_naca0012_a+4",
+   "CL_error": 0.03229913865046901,
+   "CL_error_abs": 0.014273446801870093,
+   "CD_error": 0.3183202274748095,
+   "CD_error_abs": 0.003197292268230751
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 4.0
+   },
+   "rung": "rans-medium",
+   "CL": 0.4377130271505436,
+   "CD": 0.011036801716833407,
+   "cells": 5130,
+   "seconds": 42.17,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-medium_naca0012_a+4",
+   "CL_error": 0.00950667702775194,
+   "CL_error_abs": 0.004201135215604501,
+   "CD_error": 0.0988164166302063,
+   "CD_error_abs": 0.0009925381348599022
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 4.0
+   },
+   "rung": "rans-fine",
+   "CL": 0.4419141623661481,
+   "CD": 0.010044263581973505,
+   "cells": 10368,
+   "seconds": 52.58,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-fine_naca0012_a+4",
+   "CL_error": 0.0,
+   "CL_error_abs": 0.0,
+   "CD_error": 0.0,
+   "CD_error_abs": 0.0
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 8.0
+   },
+   "rung": "thin-airfoil",
+   "CL": 0.8744503831069044,
+   "cells": 0,
+   "seconds": 0.0,
+   "CL_error": 0.008275954201797636,
+   "CL_error_abs": 0.007177510573547541,
+   "CD_error": null,
+   "CD_error_abs": null
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 8.0
+   },
+   "rung": "rans-coarse",
+   "CL": 0.8101590538071315,
+   "CD": 0.022762895019953516,
+   "cells": 2624,
+   "seconds": 27.86,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-coarse_naca0012_a+8",
+   "CL_error": 0.06585449693519457,
+   "CL_error_abs": 0.05711381872622534,
+   "CD_error": 0.6361262623683921,
+   "CD_error_abs": 0.008850218753145817
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 8.0
+   },
+   "rung": "rans-medium",
+   "CL": 0.8505618176575246,
+   "CD": 0.0167961575928616,
+   "cells": 5130,
+   "seconds": 48.27,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-medium_naca0012_a+8",
+   "CL_error": 0.019268508684029555,
+   "CL_error_abs": 0.016711054875832243,
+   "CD_error": 0.2072556904765471,
+   "CD_error_abs": 0.0028834813260538994
+  },
+  {
+   "design": {
+    "section": "0012",
+    "alpha": 8.0
+   },
+   "rung": "rans-fine",
+   "CL": 0.8672728725333568,
+   "CD": 0.0139126762668077,
+   "cells": 10368,
+   "seconds": 136.61,
+   "status": "converged",
+   "converged_in": null,
+   "error": null,
+   "case": "/tmp/pc/cases/ladder/rans-fine_naca0012_a+8",
+   "CL_error": 0.0,
+   "CL_error_abs": 0.0,
+   "CD_error": 0.0,
+   "CD_error_abs": 0.0
+  }
+ ],
+ "multifidelity": {
+  "quantity": "CL",
+  "levels": [
+   {
+    "name": "thin-airfoil",
+    "cost": 1
+   },
+   {
+    "name": "rans-coarse",
+    "cost": 40
+   },
+   {
+    "name": "rans-medium",
+    "cost": 90
+   },
+   {
+    "name": "rans-fine",
+    "cost": 200
+   }
+  ],
+  "note": "relative cost, from the wall time in the measured table"
+ },
+ "not_in_the_table": [
+  "vlm (a finite wing's CL, not a section's)",
+  "lbm (a low-Reynolds regime, not Re = 4e+06)"
+ ],
+ "calibration": {
+  "rung": "rans-coarse",
+  "quantity": "CL",
+  "fitted_on": [
+   0.0,
+   4.0
+  ],
+  "offset": 0.007096926557230317,
+  "slope": 1.0,
+  "intercept": 0.0,
+  "mean_abs_error_before": 0.023822286405168296,
+  "mean_abs_error_after": 0.021456644219424875,
+  "spearman_before": 1.0,
+  "spearman_after": 1.0
+ }
+}

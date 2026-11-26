@@ -68,6 +68,16 @@ Physics-informed neural networks are one tool among several. PINNeAPPle covers t
 Which learned method fits which problem is a question of evidence, not of taste: see
 [Choosing a method](docs/guides/choosing_a_method.md) and the equal-budget benchmark behind it.
 
+## How the library is laid out
+
+PINNeAPPle is a physics computing framework, and a PINN is one method inside it. The code is
+organised into seven planes — Physics IR, Data, Compute, AI, Engineering, Validation and
+Evidence — and a feature enters the core only if it strengthens one of them or a connection
+between two. The public namespaces (`pp.data`, `pp.decision`, `pp.solvers`, `pp.cae`, …) are
+being renamed onto that map; the target, the current state and the rules are in
+[Public namespace](docs/architecture/public_namespace.md), and the admission test is in
+[The seven planes](docs/architecture/seven_planes.md).
+
 ## What makes it different
 
 Most Physics AI libraries stop at the prediction. PINNeAPPle adds a **trust layer**, so a model can say how good it is right now:
@@ -193,7 +203,7 @@ exact = pp.solve(prob, "analytic")                      # Cole-Hopf closed form
 pinn = pp.solve(prob, "pinn", epochs=4000)            # physics-informed network
 print(pp.compare(prob, ["pinn"], reference="analytic", options={"pinn": {"epochs": 4000}}))
 ```
-`pp.Experiment(...).run()` records the result with the problem's fingerprint; add your own method with `@pp.register_method("name")`.
+`pp.Experiment(...).run()` records the result with the problem's fingerprint. To add a method of your own, see [the module index](docs/org/reference/index.html) (`pinneapple_physics.solving.register_method`).
 </details>
 
 <details>

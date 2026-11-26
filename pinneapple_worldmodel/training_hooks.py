@@ -25,9 +25,8 @@ Public API
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -38,14 +37,14 @@ from torch.utils.data import DataLoader, Dataset
 # Manifest loader
 # ---------------------------------------------------------------------------
 
-def _load_manifest(dataset_dir: Path) -> List[Dict[str, Any]]:
+def _load_manifest(dataset_dir: Path) -> list[dict[str, Any]]:
     manifest_path = Path(dataset_dir) / "dataset_manifest.json"
     if not manifest_path.exists():
         raise FileNotFoundError(f"dataset_manifest.json not found in {dataset_dir}")
     return json.loads(manifest_path.read_text())
 
 
-_SEMANTIC_ALIASES: Dict[str, List[str]] = {
+_SEMANTIC_ALIASES: dict[str, list[str]] = {
     # PDE name -> list of semantic field names that contain it
     "u":  ["velocity", "u", "ux"],
     "v":  ["velocity", "v", "uy"],
@@ -57,7 +56,7 @@ _SEMANTIC_ALIASES: Dict[str, List[str]] = {
 _VELOCITY_COMP = {"u": 0, "v": 1, "w": 2}
 
 
-def _load_field(entry: Dict, field_name: str) -> Optional[np.ndarray]:
+def _load_field(entry: dict, field_name: str) -> np.ndarray | None:
     """Load a physical field from a manifest entry.
 
     Handles both PDE-style names ('u', 'v', 'p', 'T') and semantic names
@@ -66,7 +65,7 @@ def _load_field(entry: Dict, field_name: str) -> Optional[np.ndarray]:
     """
     fields = entry.get("fields", {})
 
-    def _read_path(path_str: str) -> Optional[np.ndarray]:
+    def _read_path(path_str: str) -> np.ndarray | None:
         path = Path(path_str)
         if path.suffix == ".zarr" or path.is_dir():
             try:
@@ -101,7 +100,7 @@ def _load_field(entry: Dict, field_name: str) -> Optional[np.ndarray]:
     return None
 
 
-def _load_video_frames(entry: Dict, sensor: str) -> Optional[np.ndarray]:
+def _load_video_frames(entry: dict, sensor: str) -> np.ndarray | None:
     """Load video frames from a manifest entry (returns (T, H, W, 3) uint8)."""
     videos = entry.get("videos", {})
     key = f"cam_0_{sensor}" if f"cam_0_{sensor}" in videos else sensor
@@ -154,9 +153,9 @@ class PhysicsAIDataset(Dataset):
     def __init__(
         self,
         dataset_dir:  Any,
-        fields:       List[str]       = ("u", "v", "p", "T"),
-        sensors:      List[str]       = (),
-        max_samples:  Optional[int]   = None,
+        fields:       list[str]       = ("u", "v", "p", "T"),
+        sensors:      list[str]       = (),
+        max_samples:  int | None   = None,
         device:       str             = "cpu",
     ) -> None:
         self.dataset_dir = Path(dataset_dir)
@@ -170,9 +169,9 @@ class PhysicsAIDataset(Dataset):
     def __len__(self) -> int:
         return len(self.manifest)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         entry = self.manifest[idx]
-        item: Dict[str, torch.Tensor] = {}
+        item: dict[str, torch.Tensor] = {}
 
         for fname in self.fields:
             arr = _load_field(entry, fname)
@@ -215,15 +214,15 @@ class CosmosEncoderDataset(PhysicsAIDataset):
     def __init__(
         self,
         dataset_dir:   Any,
-        video_sensors: List[str] = ("rgb", "thermal"),
-        field_names:   List[str] = ("u", "v", "p", "T"),
+        video_sensors: list[str] = ("rgb", "thermal"),
+        field_names:   list[str] = ("u", "v", "p", "T"),
         **kwargs,
     ) -> None:
         super().__init__(dataset_dir, fields=field_names, sensors=video_sensors, **kwargs)
         self.video_sensors = video_sensors
         self.field_names   = field_names
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         base = super().__getitem__(idx)
         # Stack all fields along channel dimension
         flist = [base[f] for f in self.field_names if f in base]
@@ -258,9 +257,9 @@ class PhysicsDecoderDataset(Dataset):
         self,
         dataset_dir:    Any,
         embedding_dim:  int       = 512,
-        field_names:    List[str] = ("u", "v", "p", "T"),
+        field_names:    list[str] = ("u", "v", "p", "T"),
         device:         str       = "cpu",
-        max_samples:    Optional[int] = None,
+        max_samples:    int | None = None,
     ) -> None:
         self.dataset_dir    = Path(dataset_dir)
         self.field_names    = field_names
@@ -273,7 +272,7 @@ class PhysicsDecoderDataset(Dataset):
     def __len__(self) -> int:
         return len(self.manifest)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         entry = self.manifest[idx]
         sdir  = Path(entry["sample_dir"])
 
@@ -317,7 +316,7 @@ class InversePINNDataset(PhysicsAIDataset):
     def __init__(
         self,
         dataset_dir:   Any,
-        param_keys:    Optional[List[str]] = None,
+        param_keys:    list[str] | None = None,
         video_sensor:  str = "rgb",
         **kwargs,
     ) -> None:
@@ -333,10 +332,10 @@ class InversePINNDataset(PhysicsAIDataset):
                 self.param_keys = list(meta.get("parameters", {}).keys())
 
     @property
-    def param_names(self) -> List[str]:
+    def param_names(self) -> list[str]:
         return self.param_keys or []
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         base  = super().__getitem__(idx)
         entry = self.manifest[idx]
 
@@ -371,11 +370,11 @@ class NeuralOperatorDataset(Dataset):
     def __init__(
         self,
         dataset_dir:  Any,
-        field_names:  List[str] = ("u", "v", "p"),
+        field_names:  list[str] = ("u", "v", "p"),
         horizon:      int       = 1,
         subsample_t:  int       = 1,
         device:       str       = "cpu",
-        max_samples:  Optional[int] = None,
+        max_samples:  int | None = None,
     ) -> None:
         self.dataset_dir = Path(dataset_dir)
         self.field_names = field_names
@@ -387,7 +386,7 @@ class NeuralOperatorDataset(Dataset):
             self.manifest = self.manifest[:max_samples]
 
         # Pre-build index: (sample_idx, t)
-        self._index: List[Tuple[int, int]] = []
+        self._index: list[tuple[int, int]] = []
         for si, entry in enumerate(self.manifest):
             meta_path = Path(entry.get("metadata", ""))
             if meta_path.exists():
@@ -400,7 +399,7 @@ class NeuralOperatorDataset(Dataset):
     def __len__(self) -> int:
         return len(self._index)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         si, t = self._index[idx]
         entry = self.manifest[si]
 

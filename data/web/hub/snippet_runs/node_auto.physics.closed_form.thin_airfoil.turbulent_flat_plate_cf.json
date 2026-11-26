@@ -1,0 +1,12 @@
+{
+ "code_hash": "bd5f2b33c1da9df3",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.thin_airfoil.turbulent_flat_plate_cf",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "turbulent flat plate cf -> pinneapple_physics.closed_form.thin_airfoil:turbulent_flat_plate_cf\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'reynolds': 1.0}",
+ "timed_out": false
+}

@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from pinneapple_design.geometry.runner_ramp import (CASOS, PUBLICADO, Rampa, facetas_abertas, piso, solido,
+from pinneapple_design.geometry.runner_ramp import (CASOS, PUBLICADO, facetas_abertas, piso, solido,
                                                     validar)
 
 

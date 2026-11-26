@@ -3,15 +3,16 @@ from __future__ import annotations
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, AsyncGenerator, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 import numpy as np
 
 
 @dataclass
 class ModelRunConfig:
     name: str                              # model registry name
-    extra_kwargs: Dict[str, Any] = field(default_factory=dict)  # forwarded to ModelRegistry.build
-    weight_override: Optional[Dict[str, float]] = None           # physics loss weights
+    extra_kwargs: dict[str, Any] = field(default_factory=dict)  # forwarded to ModelRegistry.build
+    weight_override: dict[str, float] | None = None           # physics loss weights
 
 
 @dataclass
@@ -19,14 +20,14 @@ class ExperimentConfig:
     """Full configuration for one experimental run (one problem, N models)."""
     experiment_id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
     problem_name: str = ""
-    models: List[ModelRunConfig] = field(default_factory=list)
-    metrics: List[str] = field(default_factory=list)
+    models: list[ModelRunConfig] = field(default_factory=list)
+    metrics: list[str] = field(default_factory=list)
     epochs: int = 2000
     lr: float = 1e-3
     device: str = "cpu"
     batch_size: int = 4096
     seed: int = 42
-    grad_clip: Optional[float] = None       # gradient clipping norm (None = disabled)
+    grad_clip: float | None = None       # gradient clipping norm (None = disabled)
     # Auto-improvement
     auto_improve: bool = True
     max_retrain_rounds: int = 2
@@ -36,25 +37,28 @@ class ExperimentConfig:
 @dataclass
 class ModelResult:
     name: str
-    metrics: Dict[str, float]
-    loss_history: List[float]               # per-epoch total loss
-    physics_loss_history: List[float]
-    bc_loss_history: List[float]
+    metrics: dict[str, float]
+    loss_history: list[float]               # per-epoch total loss
+    physics_loss_history: list[float]
+    bc_loss_history: list[float]
     train_time_s: float
     n_params: int
-    model_state: Optional[Any] = None       # state_dict (serializable)
-    error: Optional[str] = None             # non-None if training failed
+    model_state: Any | None = None       # state_dict (serializable)
+    error: str | None = None             # non-None if training failed
     retrain_rounds: int = 0                 # how many advisor-driven retrains occurred
-    diagnosis: Optional[Dict[str, Any]] = None  # last DiagnosticReport summary
-    report: Optional[Dict[str, Any]] = None     # surrogate_report.build_report output
+    diagnosis: dict[str, Any] | None = None  # last DiagnosticReport summary
+    report: dict[str, Any] | None = None     # surrogate_report.build_report output
 
 
 @dataclass
 class ExperimentResult:
     experiment_id: str
     config: ExperimentConfig
-    model_results: Dict[str, ModelResult]
+    model_results: dict[str, ModelResult]
     completed_at: str = ""
+    # one pp.Experiment record per model (issue #29): the same shape a saved library experiment writes, so an app
+    # run and a script run are described by the same class
+    experiments: list[dict[str, Any]] = field(default_factory=list)
 
     def leaderboard(self) -> list:
         """Rows sorted by held-out l2_relative, then by unseen-point PDE residual."""
@@ -86,10 +90,40 @@ class ExperimentRunner:
         self.data = data_bundle
         self.problem = problem
 
-    async def run(self, progress_cb: Optional[Callable] = None) -> ExperimentResult:
+    def manifests(self) -> list[dict[str, Any]]:
+        """The configured run as ``pp.Experiment`` records -- one per model, built by the library class (#29).
+
+        The training loop stays here (a model registry, per-epoch events and advisor retrains are not what
+        ``pinneapple_physics.Experiment`` abstracts), but the *record* is the library's: ``Experiment.to_dict()``,
+        with the problem fingerprint and the seed, so a run started from the app and one started from a script
+        can be compared and reloaded with ``pp.Experiment.load``. A custom problem has no preset for the library
+        to rebuild, so its record carries no fingerprint and says why.
+        """
+        from pinneapple_physics.experiment import Experiment as LibraryExperiment
+
+        records: list[dict[str, Any]] = []
+        for model_cfg in self.config.models:
+            options = {"epochs": self.config.epochs, "lr": self.config.lr,
+                       "batch_size": self.config.batch_size, "device": self.config.device,
+                       **dict(model_cfg.extra_kwargs)}
+            if model_cfg.weight_override:
+                options["loss_weights"] = dict(model_cfg.weight_override)
+            try:
+                record = LibraryExperiment(self.config.problem_name, method=model_cfg.name, options=options,
+                                           seed=self.config.seed).to_dict()
+            except Exception as exc:  # a custom problem ("__custom__") has no preset to rebuild
+                records.append({"name": f"{self.config.problem_name}/{model_cfg.name}/seed{self.config.seed}",
+                                "problem": self.config.problem_name, "method": model_cfg.name,
+                                "options": options, "seed": self.config.seed, "problem_fingerprint": None,
+                                "resumable": False, "unavailable": str(exc) or type(exc).__name__})
+                continue
+            records.append(record)
+        return records
+
+    async def run(self, progress_cb: Callable | None = None) -> ExperimentResult:
         """Run all models sequentially. Calls ``progress_cb(event_dict)`` after each epoch."""
         import asyncio
-        results: Dict[str, ModelResult] = {}
+        results: dict[str, ModelResult] = {}
 
         for model_cfg in self.config.models:
             if self.config.auto_improve:
@@ -108,6 +142,7 @@ class ExperimentRunner:
             config=self.config,
             model_results=results,
             completed_at=datetime.now(timezone.utc).isoformat(),
+            experiments=self.manifests(),
         )
 
     # ── Auto-improvement loop ─────────────────────────────────────────────────
@@ -122,7 +157,7 @@ class ExperimentRunner:
 
         advisor = TrainingAdvisor()
         current_cfg = self.config
-        best_result: Optional[ModelResult] = None
+        best_result: ModelResult | None = None
         round_num = 0
 
         while True:
@@ -382,7 +417,7 @@ def _result_is_better(new: ModelResult, old: ModelResult) -> bool:
     return new_loss < old_loss
 
 
-def _cfg_to_dict(cfg: ExperimentConfig) -> Dict[str, Any]:
+def _cfg_to_dict(cfg: ExperimentConfig) -> dict[str, Any]:
     return {
         "epochs": cfg.epochs,
         "lr": cfg.lr,
@@ -392,7 +427,7 @@ def _cfg_to_dict(cfg: ExperimentConfig) -> Dict[str, Any]:
     }
 
 
-def _dict_to_cfg(patch: Dict[str, Any], base: ExperimentConfig) -> ExperimentConfig:
+def _dict_to_cfg(patch: dict[str, Any], base: ExperimentConfig) -> ExperimentConfig:
     """Return a copy of base ExperimentConfig with patched fields applied."""
     from dataclasses import replace
     allowed = {"epochs", "lr", "batch_size", "grad_clip"}
@@ -442,11 +477,11 @@ def _split_reference(x_col: np.ndarray, u_ref, n_fields: int, rng: np.random.Gen
     }, None
 
 
-def _compute_metrics(report, raw_unseen, physics, metric_names) -> Dict[str, float]:
+def _compute_metrics(report, raw_unseen, physics, metric_names) -> dict[str, float]:
     """Leaderboard numbers, all measured on held-out data / unseen points."""
     nan = float("nan")
     err = report.get("error", {})
-    metrics: Dict[str, float] = {}
+    metrics: dict[str, float] = {}
     rel = err.get("rel_l2_pct") if err.get("available") else None
     pf = err.get("per_field", {}) if err.get("available") else {}
 

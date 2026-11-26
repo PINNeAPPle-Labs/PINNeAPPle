@@ -70,20 +70,20 @@ generalization is not attempted here.
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
 
 import numpy as np
 import torch
 
 from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry
-from .xtfc_ivp import ACTIVATIONS, chebyshev_gauss_lobatto, _elm_basis, _numerical_jacobian, xtfc_predict
+from .xtfc_ivp import chebyshev_gauss_lobatto, _elm_basis, _numerical_jacobian, xtfc_predict
 
 Array = np.ndarray
 
 
 def log_subdomain_boundaries(t0: float, tf: float, n_subdomains: int,
-                              first_width: "Optional[float]" = None) -> Array:
+                              first_width: float | None = None) -> Array:
     """n_subdomains+1 boundaries [t0, ..., tf] with logarithmically GROWING
     widths -- tiny near t0 (to resolve a fast initial transient spanning many
     decades), geometrically larger towards tf.
@@ -121,7 +121,7 @@ def _solve_one_subdomain(
     max_iter: int,
     tol: float,
     linear: bool,
-    jac_fn: "Optional[Callable[[Array, Array], Array]]",
+    jac_fn: Callable[[Array, Array], Array] | None,
 ) -> dict:
     """One subdomain's X-TFC solve -- the same Newton/Gauss-Newton loop as
     `xtfc_ivp.solve_xtfc_ode`, generalized to accept a PRE-SAMPLED (w, b)
@@ -155,7 +155,7 @@ def _solve_one_subdomain(
         return dxdt_factor * (dpsi_dx @ beta)
 
     beta = np.zeros((n_basis, n_out))
-    residual_history: "list[float]" = []
+    residual_history: list[float] = []
     n_iter_done = 0
     converged = False
     effective_max_iter = 1 if linear else max_iter
@@ -220,9 +220,9 @@ def _solve_one_subdomain(
 def solve_xtfc_subdomains(
     rhs_fn: Callable[[Array, Array], Array],
     y0,
-    t_span: "tuple[float, float]",
+    t_span: tuple[float, float],
     n_subdomains: int = 12,
-    first_width: "Optional[float]" = None,
+    first_width: float | None = None,
     spacing: str = "log",
     n_basis: int = 30,
     n_collocation: int = 40,
@@ -230,14 +230,14 @@ def solve_xtfc_subdomains(
     max_iter: int = 30,
     tol: float = 1e-10,
     seed: int = 0,
-    w_range: "tuple[float, float]" = (-3.0, 3.0),
-    b_range: "tuple[float, float]" = (-3.0, 3.0),
-    w_param_range: "tuple[float, float]" = (-3.0, 3.0),
+    w_range: tuple[float, float] = (-3.0, 3.0),
+    b_range: tuple[float, float] = (-3.0, 3.0),
+    w_param_range: tuple[float, float] = (-3.0, 3.0),
     collocation: str = "chebyshev",
     linear: bool = False,
-    jac_fn: "Optional[Callable[[Array, Array], Array]]" = None,
+    jac_fn: Callable[[Array, Array], Array] | None = None,
     extra_param: float = 0.0,
-    param_range: "tuple[float, float]" = (-1.0, 1.0),
+    param_range: tuple[float, float] = (-1.0, 1.0),
 ) -> dict:
     """Solve a (possibly extremely stiff) dy_i/dt = rhs_fn(t, y)[:, i],
     y_i(t0) = y0[i] IVP over log-spaced subdomains of t_span, chaining
@@ -338,11 +338,11 @@ class XTFCSubdomainSolver(SolverBase):
     the primary entry point.
     """
 
-    def __init__(self, n_subdomains: int = 12, first_width: "Optional[float]" = None,
+    def __init__(self, n_subdomains: int = 12, first_width: float | None = None,
                  spacing: str = "log", n_basis: int = 30, n_collocation: int = 40,
                  activation: str = "tanh", max_iter: int = 30, tol: float = 1e-10,
                  seed: int = 0, collocation: str = "chebyshev", linear: bool = False,
-                 extra_param: float = 0.0, param_range: "tuple[float, float]" = (-1.0, 1.0)):
+                 extra_param: float = 0.0, param_range: tuple[float, float] = (-1.0, 1.0)):
         super().__init__()
         self.n_subdomains = int(n_subdomains)
         self.first_width = first_width
@@ -362,8 +362,8 @@ class XTFCSubdomainSolver(SolverBase):
         self,
         rhs_fn: Callable[[Array, Array], Array],
         y0,
-        t_span: "tuple[float, float]",
-        jac_fn: "Optional[Callable[[Array, Array], Array]]" = None,
+        t_span: tuple[float, float],
+        jac_fn: Callable[[Array, Array], Array] | None = None,
         n_query: int = 200,
     ) -> SolverOutput:
         sol = solve_xtfc_subdomains(

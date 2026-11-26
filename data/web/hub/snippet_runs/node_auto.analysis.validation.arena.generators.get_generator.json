@@ -1,0 +1,12 @@
+{
+ "code_hash": "74bb3aaaccd788fb",
+ "figures": [],
+ "id": "node:auto.analysis.validation.arena.generators.get_generator",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 27.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get generator -> pinneapple_analysis.validation.arena.generators:get_generator\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

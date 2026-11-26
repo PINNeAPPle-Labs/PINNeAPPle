@@ -14,7 +14,6 @@ Usage: python sst_experiment.py [hpo|final|eval|all]
 from __future__ import annotations
 
 import json
-import math
 import os
 import sys
 import time

@@ -1,7 +1,6 @@
 from __future__ import annotations
 """TimesNet-like forecasting with multi-period 2D variation modeling."""
 
-from typing import Dict, Optional, Tuple, List
 
 import torch
 import torch.nn as nn
@@ -12,7 +11,7 @@ from .base import TimeSeriesModelBase, TSOutput
 
 class _InceptionBlock2D(nn.Module):
     """Simple multi-kernel Conv2D inception block with projection."""
-    def __init__(self, d: int, k_sizes: Tuple[int, ...] = (3, 5, 7), dropout: float = 0.0):
+    def __init__(self, d: int, k_sizes: tuple[int, ...] = (3, 5, 7), dropout: float = 0.0):
         super().__init__()
         self.convs = nn.ModuleList([
             nn.Conv2d(d, d, kernel_size=(k, k), padding=(k // 2, k // 2))
@@ -32,7 +31,7 @@ class _InceptionBlock2D(nn.Module):
         return self.drop(y)
 
 
-def _topk_periods_fft(x: torch.Tensor, top_k: int) -> Tuple[torch.Tensor, torch.Tensor]:
+def _topk_periods_fft(x: torch.Tensor, top_k: int) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Estimate Top-K periods using FFT magnitudes.
 
@@ -66,7 +65,7 @@ def _topk_periods_fft(x: torch.Tensor, top_k: int) -> Tuple[torch.Tensor, torch.
     return periods, weights
 
 
-def _reshape_to_2d(x: torch.Tensor, period: int) -> Tuple[torch.Tensor, int]:
+def _reshape_to_2d(x: torch.Tensor, period: int) -> tuple[torch.Tensor, int]:
     """
     Reshape (B, L, D) -> (B, D, n, period) with padding to multiple of period.
 
@@ -149,8 +148,8 @@ class TimesNet(TimeSeriesModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        x_future: Optional[torch.Tensor] = None,
-        y_future: Optional[torch.Tensor] = None,
+        x_future: torch.Tensor | None = None,
+        y_future: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> TSOutput:
         B, L, _ = x_past.shape
@@ -191,7 +190,7 @@ class TimesNet(TimeSeriesModelBase):
         flat = tail.reshape(B, self.head_window * x.shape[-1])  # (B, W*D)
         y_hat = self.head(flat).reshape(B, H, -1)               # (B,H,out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
         if return_loss and y_future is not None:
             losses["mse"] = self.mse(y_hat, y_future)
             losses["total"] = losses["mse"]

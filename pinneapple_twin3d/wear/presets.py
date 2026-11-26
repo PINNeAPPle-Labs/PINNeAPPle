@@ -9,14 +9,14 @@ Replace dimensions with the plant's drawings for a real project - nothing else c
 from __future__ import annotations
 
 import math
-from typing import Callable, Dict, Tuple
+from collections.abc import Callable
 
 import numpy as np
 
 from .model import VesselSpec, ZoneSpec
 from .synthetic import HotSpot
 
-PRESETS: Dict[str, Callable[[], Tuple[VesselSpec, tuple]]] = {}
+PRESETS: dict[str, Callable[[], tuple[VesselSpec, tuple]]] = {}
 
 
 def _register(fn):

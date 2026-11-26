@@ -34,10 +34,8 @@ import torch.nn as nn
 
 from pinneapple_physics.pde_environment import get_preset
 from pinneapple_systems.digital_twin import (
-    DigitalTwin, DigitalTwinConfig, build_digital_twin,
-    MockStream, Sensor, SensorRegistry,
-    ThresholdDetector, ZScoreDetector,
-    EnsembleKalmanFilter, Observation,
+    DigitalTwin, DigitalTwinConfig, MockStream, ThresholdDetector, ZScoreDetector,
+    EnsembleKalmanFilter,
 )
 from pinneapple_neural import best_device
 
@@ -324,6 +322,9 @@ try:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
 
     fig, axes = plt.subplots(1, 3, figsize=(16, 4))
 

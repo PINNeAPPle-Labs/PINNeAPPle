@@ -27,7 +27,7 @@ PyTorch code. See ``docs/dev/rea_harvest/ledger.json``.
 """
 from __future__ import annotations
 
-from typing import Any, Tuple
+from typing import Any
 
 import numpy as np
 from scipy import sparse
@@ -38,7 +38,7 @@ __all__ = [
 ]
 
 
-def _vf(mesh_or_vertices: Any, faces: np.ndarray | None = None) -> Tuple[np.ndarray, np.ndarray]:
+def _vf(mesh_or_vertices: Any, faces: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     if faces is None:  # MeshData-like
         V, F = mesh_or_vertices.vertices, mesh_or_vertices.faces
     else:
@@ -179,7 +179,7 @@ def mean_curvature(mesh_or_vertices: Any, faces: np.ndarray | None = None, *,
     return H
 
 
-def principal_curvatures(mesh_or_vertices: Any, faces: np.ndarray | None = None) -> Tuple[np.ndarray, np.ndarray]:
+def principal_curvatures(mesh_or_vertices: Any, faces: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     V, F = _vf(mesh_or_vertices, faces)
     H = mean_curvature(V, F)
     K = gaussian_curvature(V, F, boundary="nan")

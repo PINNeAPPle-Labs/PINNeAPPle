@@ -5,7 +5,8 @@ Falls back gracefully when JAX is not installed.
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Optional
+from typing import Any
+from collections.abc import Callable
 
 
 # ---------------------------------------------------------------------------

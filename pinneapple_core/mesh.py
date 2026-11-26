@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import itertools
 import math
-from typing import Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import numpy as np
 from scipy.spatial import Delaunay, cKDTree
@@ -44,12 +44,12 @@ class Mesh:
 
     # -- constructors -------------------------------------------------------
     @classmethod
-    def interval(cls, a: float, b: float, n: int) -> "Mesh":
+    def interval(cls, a: float, b: float, n: int) -> Mesh:
         """``n`` equal segments between ``a`` and ``b``."""
         return cls.structured([a], [b], (n,))
 
     @classmethod
-    def structured(cls, lo: Sequence[float], hi: Sequence[float], shape: Sequence[int]) -> "Mesh":
+    def structured(cls, lo: Sequence[float], hi: Sequence[float], shape: Sequence[int]) -> Mesh:
         """Simplex mesh of a box: ``shape`` cells per axis, each cell cut into
         d! simplices along the same diagonal (conforming, Kuhn triangulation)."""
         lo = np.atleast_1d(np.asarray(lo, dtype=np.float64))
@@ -77,7 +77,7 @@ class Mesh:
         return cls(pts, np.concatenate(cells))
 
     @classmethod
-    def from_points(cls, points: np.ndarray, keep=None) -> "Mesh":
+    def from_points(cls, points: np.ndarray, keep=None) -> Mesh:
         """Delaunay mesh of a point set (d >= 2). ``keep(centroids) -> bool mask``
         drops cells outside a non-convex region, e.g. ``domain.contains``."""
         pts = np.asarray(points, dtype=np.float64)
@@ -211,7 +211,7 @@ class Mesh:
         cell_mean = v[self.cells].mean(axis=1)  # (M, k)
         return (cell_mean * self.cell_volumes[:, None]).sum(axis=0)
 
-    def locate(self, x: np.ndarray, k: int = 24) -> Tuple[np.ndarray, np.ndarray]:
+    def locate(self, x: np.ndarray, k: int = 24) -> tuple[np.ndarray, np.ndarray]:
         """Containing cell and barycentric coordinates of each query point.
 
         Returns ``(cell, bary)`` with ``cell == -1`` and NaN coordinates for

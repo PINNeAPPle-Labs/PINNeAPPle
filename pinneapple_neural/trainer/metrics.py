@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 import torch
 
@@ -67,27 +66,27 @@ class MaxError(Metric):
         return float((y_hat - y).abs().max().item())
 
 
-def default_metrics() -> List[Metric]:
+def default_metrics() -> list[Metric]:
     return [MSE(), MAE(), RMSE(), R2(), RelL2(), MaxError()]
 
 
 class Metrics:
-    def compute(self, y_hat: torch.Tensor, y: torch.Tensor) -> Dict[str, float]:
+    def compute(self, y_hat: torch.Tensor, y: torch.Tensor) -> dict[str, float]:
         raise NotImplementedError
 
 
 @dataclass
 class MetricBundle(Metrics):
-    metrics: List[Metric]
+    metrics: list[Metric]
 
-    def compute(self, y_hat: torch.Tensor, y: torch.Tensor) -> Dict[str, float]:
+    def compute(self, y_hat: torch.Tensor, y: torch.Tensor) -> dict[str, float]:
         return {m.name: float(m(y_hat, y)) for m in self.metrics}
 
 @dataclass
 class RegressionMetrics(Metrics):
     eps: float = 1e-12
 
-    def compute(self, y_hat: torch.Tensor, y: torch.Tensor) -> Dict[str, float]:
+    def compute(self, y_hat: torch.Tensor, y: torch.Tensor) -> dict[str, float]:
         # flatten all but last dim
         yh = y_hat.reshape(-1, y_hat.shape[-1])
         yt = y.reshape(-1, y.shape[-1])

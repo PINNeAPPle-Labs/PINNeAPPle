@@ -164,6 +164,9 @@ def block_figures(out: str) -> None:
 def _render_block(field, s, readings, path):
     import pyvista as pv
     from matplotlib.colors import LinearSegmentedColormap
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     pv.OFF_SCREEN = True
     nz, ny, nx = field.shape
     lx, ly, lz = (v * 1000 for v in s["L_m"])

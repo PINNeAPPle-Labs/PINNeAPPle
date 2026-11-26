@@ -24,7 +24,9 @@
    2.5
   ]
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "usd_vs_urdf_motion",

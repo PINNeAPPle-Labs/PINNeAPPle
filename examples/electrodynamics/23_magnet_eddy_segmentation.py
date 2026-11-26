@@ -68,7 +68,9 @@ def main() -> dict:
 def figure(out: dict) -> None:
     import matplotlib.pyplot as plt
 
-    plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False})
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     colours = {1e3: "#2a78d6", 1e4: "#eb6834", 5e4: "#1baf7a"}
     muted = "#52514e"
     fig, ax = plt.subplots(1, 2, figsize=(12, 4.4), facecolor="#fcfcfb")

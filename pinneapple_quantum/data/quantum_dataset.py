@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Tuple
 
 import torch
 from torch.utils.data import Dataset
@@ -28,8 +27,8 @@ class QuantumState:
     """
     coords:   torch.Tensor
     psi_real: torch.Tensor
-    psi_imag: Optional[torch.Tensor] = None
-    meta:     Dict = None  # type: ignore[assignment]
+    psi_imag: torch.Tensor | None = None
+    meta:     dict = None  # type: ignore[assignment]
 
     def __post_init__(self):
         if self.meta is None:
@@ -69,8 +68,8 @@ class QuantumObservable:
         Human-readable names for each observable (e.g. ``["Z₀", "Z₁"]``).
     """
     expectation:    torch.Tensor
-    variance:       Optional[torch.Tensor] = None
-    operator_names: List[str] = None  # type: ignore[assignment]
+    variance:       torch.Tensor | None = None
+    operator_names: list[str] = None  # type: ignore[assignment]
 
     def __post_init__(self):
         if self.operator_names is None:
@@ -87,7 +86,7 @@ def sample_domain_1d(
     n_bc: int = 50,
     device: str = "cpu",
     dtype: torch.dtype = torch.float32,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Sample collocation and boundary points for a 1D quantum domain.
 
@@ -112,7 +111,7 @@ def sample_domain_2d(
     n_bc: int = 200,
     device: str = "cpu",
     dtype: torch.dtype = torch.float32,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Sample collocation and boundary points for a 2D quantum domain.
 
@@ -145,7 +144,7 @@ def exact_eigenstates_1d_harmonic(
     omega: float = 1.0,
     hbar: float = 1.0,
     mass: float = 1.0,
-) -> Tuple[torch.Tensor, float]:
+) -> tuple[torch.Tensor, float]:
     """
     Analytically compute the n-th eigenstate of the 1D harmonic oscillator.
 
@@ -216,7 +215,7 @@ class QuantumCollocationDataset(Dataset):
         self,
         x_col: torch.Tensor,
         x_bc: torch.Tensor,
-        psi_exact: Optional[torch.Tensor] = None,
+        psi_exact: torch.Tensor | None = None,
         batch_size: int = 256,
     ):
         self.x_col      = x_col
@@ -228,7 +227,7 @@ class QuantumCollocationDataset(Dataset):
     def __len__(self) -> int:
         return max(1, self._n // self.batch_size)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         # Random mini-batch of collocation points
         perm  = torch.randperm(self._n)[: self.batch_size]
         batch = {"x_col": self.x_col[perm], "x_bc": self.x_bc}
@@ -282,7 +281,7 @@ class SpinChainDataset(Dataset):
     def __len__(self) -> int:
         return len(self.configs)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         return {
             "config": self.configs[idx],
             "energy": self.energies[idx].unsqueeze(0),

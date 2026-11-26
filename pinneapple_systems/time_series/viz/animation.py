@@ -1,6 +1,6 @@
 """Animated rolling forecast visualization with optional MP4 export."""
 from __future__ import annotations
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -8,13 +8,13 @@ import numpy as np
 def animate_rolling_forecast(
     y_true:    np.ndarray,
     y_pred_seq: np.ndarray,
-    y_std_seq:  Optional[np.ndarray] = None,
+    y_std_seq:  np.ndarray | None = None,
     horizon:    int = 16,
     context_len: int = 64,
     interval:   int = 80,
     sigmas:     Sequence[float] = (1.0, 2.0),
     title:      str = "Rolling Forecast",
-    save_path:  Optional[str] = None,
+    save_path:  str | None = None,
     fps:        int = 10,
     dpi:        int = 150,
     figsize:    tuple = (12, 4),

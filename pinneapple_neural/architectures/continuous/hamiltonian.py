@@ -1,6 +1,5 @@
 from __future__ import annotations
 """Hamiltonian neural network for energy-conserving dynamics."""
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -29,7 +28,7 @@ class HamiltonianNeuralNetwork(ContinuousModelBase):
         self,
         z: torch.Tensor,  # (B, 2*dim_q) = [q, p]
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B, 2*dim_q)
+        y_true: torch.Tensor | None = None,  # (B, 2*dim_q)
         return_loss: bool = False,
     ) -> ContOutput:
         # Make z a leaf tensor requiring grad (safe for autograd.grad)
@@ -51,7 +50,7 @@ class HamiltonianNeuralNetwork(ContinuousModelBase):
         pdot = -grad[:, : self.dim_q]
         dz = torch.cat([qdot, pdot], dim=-1)  # (B, 2*dim_q)
 
-        losses: Dict[str, torch.Tensor] = {
+        losses: dict[str, torch.Tensor] = {
             "total": torch.zeros((), device=z.device, dtype=dz.dtype)
         }
         if return_loss and y_true is not None:

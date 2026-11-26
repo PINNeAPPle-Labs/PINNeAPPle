@@ -1,0 +1,54 @@
+{
+ "_meta": {
+  "blender": "Blender 5.2.1 LTS",
+  "gate": {
+   "quality": "preview",
+   "samples": 32,
+   "size": [
+    960,
+    540
+   ]
+  },
+  "reason": "o set metrico entra nos tres casos de vitrine: ciclorama de revolucao, grade, prop em tamanho real, barra de escala e cotas; o piso deixa de ser ignorado nos fundos HDRI; a cobertura passa a ser medida contra a linha de varredura, nao contra um canto",
+  "recorded_at": "2026-11-26T14:32:54Z",
+  "tolerances": {
+   "coverage": 0.06,
+   "edge_energy": 0.3,
+   "mean": 8.0,
+   "std": 4.0
+  }
+ },
+ "airliner_library": {
+  "coverage": 0.3819,
+  "edge_energy": 3.44,
+  "mean": 114.94,
+  "quality": "preview",
+  "size": [
+   960,
+   540
+  ],
+  "std": 31.88
+ },
+ "heatsink_aluminium": {
+  "coverage": 0.439,
+  "edge_energy": 2.772,
+  "mean": 108.51,
+  "quality": "preview",
+  "size": [
+   960,
+   540
+  ],
+  "std": 31.98
+ },
+ "impeller_bronze": {
+  "coverage": 0.6343,
+  "edge_energy": 3.019,
+  "mean": 140.02,
+  "quality": "preview",
+  "size": [
+   960,
+   540
+  ],
+  "std": 40.23
+ }
+}

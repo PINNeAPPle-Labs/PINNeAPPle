@@ -22,7 +22,8 @@ from __future__ import annotations
 import os
 import warnings
 
-__all__ = ["CORE", "CORE_PP", "LABS", "ExperimentalWarning", "stability", "is_core", "warn_experimental"]
+__all__ = ["CORE", "CORE_PP", "LABS", "ExperimentalWarning", "stability", "is_core", "warn_experimental",
+           "experimental"]
 
 CORE: tuple[str, ...] = (
     "pinneapple",                                       # the pp facade module itself (names: CORE_PP)
@@ -105,6 +106,62 @@ def _importer() -> str:
             return name
         f = f.f_back
     return ""
+
+
+def experimental(reason: str = ""):
+    """Mark one public symbol as experimental, inside a module that is otherwise core.
+
+    The tiers above are per module. This is the per-symbol exception the other direction: a function or class that
+    lives in a core module but is not ready for the compatibility promise -- a fresh API that a core preset needs
+    today and that may change its signature in the next minor release.
+
+    The decorated object keeps working exactly as before; it warns :class:`ExperimentalWarning` once per symbol and
+    process, the first time it is called (or instantiated, for a class), and carries ``__stability__`` so a caller
+    or a check can read the tier without guessing from the module name.
+
+        from pinneapple_stability import experimental
+
+        @experimental("the interface may change while the solver adapters settle")
+        def solve_with(problem, backend): ...
+
+    Silence it the same way as the package-level warning: ``PINNEAPPLE_QUIET_EXPERIMENTAL=1``.
+    """
+    import functools
+
+    def decorate(obj):
+        qualname = f"{getattr(obj, '__module__', '')}.{getattr(obj, '__qualname__', getattr(obj, '__name__', '?'))}"
+        text = f"{qualname} is experimental"
+        if reason:
+            text += f": {reason}"
+        text += f" (see docs/api_stability.md; silence with {QUIET_ENV}=1)"
+
+        def _warn() -> None:
+            if qualname in _warned or os.environ.get(QUIET_ENV, "").strip() not in ("", "0"):
+                return
+            _warned.add(qualname)
+            warnings.warn(text, ExperimentalWarning, stacklevel=3)
+
+        if isinstance(obj, type):
+            original_init = obj.__init__
+
+            @functools.wraps(original_init)
+            def __init__(self, *args, **kwargs):
+                _warn()
+                original_init(self, *args, **kwargs)
+
+            obj.__init__ = __init__
+            wrapped = obj
+        else:
+            @functools.wraps(obj)
+            def wrapper(*args, **kwargs):
+                _warn()
+                return obj(*args, **kwargs)
+
+            wrapped = wrapper
+        wrapped.__stability__ = "experimental"
+        return wrapped
+
+    return decorate
 
 
 def warn_experimental(package: str) -> None:

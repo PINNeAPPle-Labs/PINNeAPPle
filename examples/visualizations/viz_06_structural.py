@@ -46,7 +46,6 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
 
 N_COL   = 3_000
 N_BC    = 400

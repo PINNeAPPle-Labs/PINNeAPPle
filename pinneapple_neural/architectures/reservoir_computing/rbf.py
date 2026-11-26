@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Radial basis function network for reservoir-style regression."""
-from typing import Dict, Optional, Literal
+from typing import Optional, Literal
 
 import torch
 import torch.nn as nn
@@ -30,7 +30,7 @@ class RBFNetwork(RCBase):
         in_dim: int,
         out_dim: int,
         num_centers: int = 512,
-        sigma: Optional[float] = None,
+        sigma: float | None = None,
         l2: float = 1e-6,
         learn_centers: bool = False,
         *,
@@ -124,7 +124,7 @@ class RBFNetwork(RCBase):
         *,
         init_centers_from_data: bool = True,
         set_sigma_with_median_heuristic: bool = True,
-    ) -> "RBFNetwork":
+    ) -> RBFNetwork:
         """
         Closed-form ridge fit for readout. Optionally initializes centers and sigma.
 
@@ -164,7 +164,7 @@ class RBFNetwork(RCBase):
         init_centers_from_data: bool = True,
         set_sigma_with_median_heuristic: bool = True,
         alt_ridge_every: int = 10,
-    ) -> "RBFNetwork":
+    ) -> RBFNetwork:
         """
         Gradient-based training for centers/sigma (and optionally alternating ridge update of readout).
 
@@ -234,14 +234,14 @@ class RBFNetwork(RCBase):
         self,
         x: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> RCOutput:
         x_n = self._maybe_normalize_apply(x)
         Phi = self._design_matrix(x_n)
         y = Phi @ self.W_out
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

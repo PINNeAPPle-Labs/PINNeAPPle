@@ -17,7 +17,6 @@ Usage::
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -37,8 +36,8 @@ class Trajectory:
     def __init__(self, node: str, port: str) -> None:
         self.node = node
         self.port = port
-        self._times: List[float] = []
-        self._values: List[torch.Tensor] = []
+        self._times: list[float] = []
+        self._values: list[torch.Tensor] = []
 
     # ------------------------------------------------------------------
     def record(self, t: float, value: torch.Tensor) -> None:
@@ -88,14 +87,14 @@ class TrajectoryRecorder:
     """
 
     def __init__(self) -> None:
-        self._watched: Dict[str, List[str]] = defaultdict(list)
-        self._data: Dict[Tuple[str, str], Trajectory] = {}
+        self._watched: dict[str, list[str]] = defaultdict(list)
+        self._data: dict[tuple[str, str], Trajectory] = {}
 
     # ------------------------------------------------------------------
     # Registration
     # ------------------------------------------------------------------
 
-    def watch(self, node: str, port: str) -> "TrajectoryRecorder":
+    def watch(self, node: str, port: str) -> TrajectoryRecorder:
         """Register a single (node, port) pair for recording."""
         if port not in self._watched[node]:
             self._watched[node].append(port)
@@ -104,7 +103,7 @@ class TrajectoryRecorder:
             self._data[key] = Trajectory(node, port)
         return self
 
-    def watch_node(self, node: str, ports: List[str]) -> "TrajectoryRecorder":
+    def watch_node(self, node: str, ports: list[str]) -> TrajectoryRecorder:
         """Register multiple ports of the same node at once."""
         for p in ports:
             self.watch(node, p)
@@ -118,7 +117,7 @@ class TrajectoryRecorder:
         self,
         t: float,
         node_name: str,
-        outputs: Dict[str, torch.Tensor],
+        outputs: dict[str, torch.Tensor],
     ) -> None:
         """Store current outputs for watched ports of *node_name* at time *t*."""
         for port in self._watched.get(node_name, []):
@@ -143,11 +142,11 @@ class TrajectoryRecorder:
             )
         return self._data[key]
 
-    def all_trajectories(self) -> List[Trajectory]:
+    def all_trajectories(self) -> list[Trajectory]:
         """Return all recorded Trajectory objects."""
         return list(self._data.values())
 
-    def summary(self) -> Dict[str, int]:
+    def summary(self) -> dict[str, int]:
         """Return {node.port: number_of_recorded_steps} for all watched pairs."""
         return {
             f"{node}.{port}": len(self._data[(node, port)])
@@ -160,7 +159,7 @@ class TrajectoryRecorder:
     # Reset
     # ------------------------------------------------------------------
 
-    def reset(self) -> "TrajectoryRecorder":
+    def reset(self) -> TrajectoryRecorder:
         """Clear all recorded data while keeping the watch list intact."""
         for key in list(self._data.keys()):
             node, port = key

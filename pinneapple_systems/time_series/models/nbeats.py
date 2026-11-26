@@ -1,7 +1,6 @@
 """N-BEATS: Neural Basis Expansion Analysis for Time Series (Oreshkin et al., 2019)."""
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 import torch
 import torch.nn as nn
@@ -15,7 +14,7 @@ class NBeatsConfig:
     input_len:      int   = 64
     horizon:        int   = 16
     n_features:     int   = 1
-    stack_types:    List[str] = field(default_factory=lambda: ["trend", "seasonality", "generic"])
+    stack_types:    list[str] = field(default_factory=lambda: ["trend", "seasonality", "generic"])
     n_blocks:       int   = 3
     n_layers:       int   = 4
     layer_width:    int   = 256
@@ -99,7 +98,7 @@ class NBeats(TSModelBase):
     Output : TSOutput with y_hat (B, H, 1)
     """
 
-    def __init__(self, cfg: Optional[NBeatsConfig] = None, **kw):
+    def __init__(self, cfg: NBeatsConfig | None = None, **kw):
         super().__init__()
         self.cfg = cfg or NBeatsConfig(**kw)
         c = self.cfg

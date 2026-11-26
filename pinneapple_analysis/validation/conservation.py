@@ -6,7 +6,7 @@ for computing spatial derivatives.  ``scipy`` is used for quasi-random
 """
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 from torch import Tensor
@@ -20,12 +20,11 @@ try:
     from scipy.stats.qmc import Sobol as _Sobol  # type: ignore
 
     def _sample_domain(
-        n_points: int, n_dims: int, bounds: List[Tuple[float, float]], device: str
+        n_points: int, n_dims: int, bounds: list[tuple[float, float]], device: str
     ) -> Tensor:
         """Return quasi-random Sobol samples mapped to *bounds*."""
         sampler = _Sobol(d=n_dims, scramble=True)
         raw = sampler.random(n_points)  # (n, d) in [0, 1)
-        import numpy as np  # already available if scipy is
         lo = torch.tensor([b[0] for b in bounds], dtype=torch.float32)
         hi = torch.tensor([b[1] for b in bounds], dtype=torch.float32)
         pts = torch.from_numpy(raw.astype("float32")) * (hi - lo) + lo
@@ -34,7 +33,7 @@ try:
 except ImportError:  # pragma: no cover
 
     def _sample_domain(  # type: ignore[misc]
-        n_points: int, n_dims: int, bounds: List[Tuple[float, float]], device: str
+        n_points: int, n_dims: int, bounds: list[tuple[float, float]], device: str
     ) -> Tensor:
         """Return uniform random samples mapped to *bounds*."""
         lo = torch.tensor([b[0] for b in bounds], dtype=torch.float32, device=device)
@@ -42,7 +41,7 @@ except ImportError:  # pragma: no cover
         return torch.rand(n_points, n_dims, device=device) * (hi - lo) + lo
 
 
-def _domain_volume(bounds: List[Tuple[float, float]]) -> float:
+def _domain_volume(bounds: list[tuple[float, float]]) -> float:
     """Return the hyper-volume of the axis-aligned bounding box."""
     vol = 1.0
     for lo, hi in bounds:
@@ -82,13 +81,13 @@ class ConservationCheck:
     def check_mass_conservation(
         self,
         model: object,
-        coord_names: List[str],
-        domain_bounds: Dict[str, Tuple[float, float]],
+        coord_names: list[str],
+        domain_bounds: dict[str, tuple[float, float]],
         field_name: str = "u",
         n_points: int = 10_000,
         tolerance: float = 1e-3,
-        spatial_coord_names: Optional[List[str]] = None,
-        velocity_indices: Optional[List[int]] = None,
+        spatial_coord_names: list[str] | None = None,
+        velocity_indices: list[int] | None = None,
     ) -> CheckResult:
         """Check mass conservation (∇·u ≈ 0) for incompressible flow.
 
@@ -204,12 +203,12 @@ class ConservationCheck:
     def check_energy_conservation(
         self,
         model: object,
-        coord_names: List[str],
-        domain_bounds: Dict[str, Tuple[float, float]],
+        coord_names: list[str],
+        domain_bounds: dict[str, tuple[float, float]],
         field_name: str = "u",
         n_points: int = 10_000,
         tolerance: float = 1e-3,
-        velocity_indices: Optional[List[int]] = None,
+        velocity_indices: list[int] | None = None,
     ) -> CheckResult:
         """Check the restricted, source-free energy balance: ∂E/∂t + ∇·(uE) ≈ 0.
 
@@ -314,8 +313,8 @@ class ConservationCheck:
     def check_integral_quantity(
         self,
         model: object,
-        coord_names: List[str],
-        domain_bounds: Dict[str, Tuple[float, float]],
+        coord_names: list[str],
+        domain_bounds: dict[str, tuple[float, float]],
         integrand_fn: Callable[[Tensor], Tensor],
         expected_value: float,
         tolerance: float,

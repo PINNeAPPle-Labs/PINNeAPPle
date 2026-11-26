@@ -52,7 +52,10 @@
   "21_team7.py",
   "22_spm_end_effects_3d.py",
   "23_magnet_eddy_segmentation.py",
-  "24_afpm_quasi3d.py"
+  "24_afpm_quasi3d.py",
+  "25_afpm_surrogates.py",
+  "26_charged_particles.py",
+  "27_spm_load_3d.py"
  ],
  "metrics": [],
  "checks": [],

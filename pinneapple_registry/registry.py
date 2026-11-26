@@ -8,10 +8,9 @@ any model exported to ONNX via ``ModelStore.export_onnx``.
 """
 from __future__ import annotations
 
-import json
 import os
 import shutil
-from typing import Any, Optional
+from typing import Any
 
 from .dataset_store import DatasetStore
 from .experiment_store import ExperimentStore
@@ -65,9 +64,9 @@ class ArtifactRegistry:
         problem_id: str,
         sample_input: Any,
         *,
-        version: Optional[str] = None,
-        model_cls: Optional[Any] = None,
-        triton_model_name: Optional[str] = None,
+        version: str | None = None,
+        model_cls: Any | None = None,
+        triton_model_name: str | None = None,
         max_batch_size: int = 0,
         input_name: str = "input",
         output_name: str = "output",

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import List
 
 from pinneapple_tools.benchmark_suite.runner.run_benchmark import run_benchmark
 
@@ -36,7 +35,7 @@ def main() -> None:
     artifacts_dir = _p(args.artifacts_dir)
     task_cfg = _p(args.task)
     schema_cfg = _p(args.schema)
-    run_cfgs: List[Path] = [_p(p) for p in args.runs]
+    run_cfgs: list[Path] = [_p(p) for p in args.runs]
 
     if not task_cfg.exists():
         raise SystemExit(f"Task config not found: {task_cfg}")

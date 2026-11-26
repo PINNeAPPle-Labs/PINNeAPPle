@@ -23,7 +23,9 @@
   ],
   "rollout_steps": 60
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "one_step_rel_l2",

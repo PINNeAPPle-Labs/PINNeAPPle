@@ -31,7 +31,8 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Mapping, Optional, Protocol, Sequence, Tuple, Union, runtime_checkable
+from typing import Protocol, Union, runtime_checkable
+from collections.abc import Callable, Mapping, Sequence
 
 import numpy as np
 
@@ -105,8 +106,8 @@ class SurrogatePrediction:
     """
 
     mean: np.ndarray
-    std: Optional[np.ndarray] = None
-    sampler: Optional[Sampler] = None
+    std: np.ndarray | None = None
+    sampler: Sampler | None = None
 
     @property
     def has_distribution(self) -> bool:
@@ -125,7 +126,7 @@ class Surrogate(Protocol):
     """Minimal surrogate interface: ``fit(X, Y)`` with X (n, d), Y (n, m); ``predict(X)`` returns a
     :class:`SurrogatePrediction`, a ``(mean, std)`` tuple (std may be None) or a mean array."""
 
-    def fit(self, X: np.ndarray, Y: np.ndarray) -> "Surrogate":
+    def fit(self, X: np.ndarray, Y: np.ndarray) -> Surrogate:
         ...
 
     def predict(self, X: np.ndarray):
@@ -202,7 +203,7 @@ class GaussianProcessSurrogate:
     without it, :class:`_NumpyGP`. ``backend`` records which one ran.
     """
 
-    def __init__(self, *, n_restarts: int = 2, random_state: int = 0, use_sklearn: Optional[bool] = None):
+    def __init__(self, *, n_restarts: int = 2, random_state: int = 0, use_sklearn: bool | None = None):
         self.n_restarts, self.random_state = n_restarts, random_state
         if use_sklearn is None:
             try:
@@ -211,7 +212,7 @@ class GaussianProcessSurrogate:
             except ImportError:
                 use_sklearn = False
         self.backend = "sklearn" if use_sklearn else "numpy"
-        self.models: List[object] = []
+        self.models: list[object] = []
 
     def fit(self, X, Y):
         X, Y = np.asarray(X, dtype=float), np.asarray(Y, dtype=float)
@@ -253,7 +254,7 @@ class PCASurrogate:
     is reported in ``explained_variance``, not hidden).
     """
 
-    def __init__(self, base: Surrogate, *, n_components: Optional[int] = None, variance: Optional[float] = None):
+    def __init__(self, base: Surrogate, *, n_components: int | None = None, variance: float | None = None):
         if (n_components is None) == (variance is None):
             raise ValueError("give exactly one of n_components or variance")
         if variance is not None and not 0 < variance <= 1:
@@ -320,7 +321,7 @@ class PerQuantitySurrogate:
     blocks are sampled independently (no cross-block correlation is modelled).
     """
 
-    def __init__(self, blocks: Sequence[Tuple[int, Surrogate]]):
+    def __init__(self, blocks: Sequence[tuple[int, Surrogate]]):
         self.blocks = list(blocks)
 
     def fit(self, X, Y):
@@ -356,17 +357,17 @@ class HybridPrediction:
       (the surrogate gave no predictive distribution, or ``n_samples == 0``).
     """
 
-    intermediates: Dict[str, np.ndarray]
+    intermediates: dict[str, np.ndarray]
     derived_at_mean: np.ndarray
-    derived_mean: Optional[np.ndarray]
-    derived_std: Optional[np.ndarray]
-    derived_lower: Optional[np.ndarray]
-    derived_upper: Optional[np.ndarray]
+    derived_mean: np.ndarray | None
+    derived_std: np.ndarray | None
+    derived_lower: np.ndarray | None
+    derived_upper: np.ndarray | None
     interval: float
     n_samples: int
     uncertainty: str
-    post_model: Dict[str, str]
-    derived_samples: Optional[np.ndarray] = None
+    post_model: dict[str, str]
+    derived_samples: np.ndarray | None = None
 
 
 class HybridSurrogatePhysics:
@@ -382,19 +383,19 @@ class HybridSurrogatePhysics:
     intermediate quantity (e.g. PCA for a histogram, a log-GP for a positive scalar).
     """
 
-    def __init__(self, surrogate: Union[Surrogate, Mapping[str, Surrogate]], post_model: PhysicsPostModel, *,
-                 param_names: Optional[Sequence[str]] = None):
+    def __init__(self, surrogate: Surrogate | Mapping[str, Surrogate], post_model: PhysicsPostModel, *,
+                 param_names: Sequence[str] | None = None):
         _check_post_model(post_model)
         self.surrogates = dict(surrogate) if isinstance(surrogate, Mapping) else None
         self.surrogate, self.post_model = (None if self.surrogates is not None else surrogate), post_model
         self.param_names = list(param_names) if param_names is not None else None
-        self.layout: Optional[List[Tuple[str, Tuple[int, ...]]]] = None
+        self.layout: list[tuple[str, tuple[int, ...]]] | None = None
         self.fitted = False
         self.n_train = 0
 
     # --- data layout -------------------------------------------------------------------------
 
-    def _params(self, params) -> Tuple[np.ndarray, List[str]]:
+    def _params(self, params) -> tuple[np.ndarray, list[str]]:
         if isinstance(params, Mapping):
             names = self.param_names or sorted(params)
             missing = [k for k in names if k not in params]
@@ -418,7 +419,7 @@ class HybridSurrogatePhysics:
             cols.append(a.reshape(n, -1))
         return np.concatenate(cols, axis=1)
 
-    def _unflatten(self, M: np.ndarray) -> Dict[str, np.ndarray]:
+    def _unflatten(self, M: np.ndarray) -> dict[str, np.ndarray]:
         lead = M.shape[:-1]
         out, j = {}, 0
         for name, shape in self.layout:
@@ -429,7 +430,7 @@ class HybridSurrogatePhysics:
 
     # --- API ---------------------------------------------------------------------------------
 
-    def fit(self, params, intermediates: Mapping[str, ArrayLike]) -> "HybridSurrogatePhysics":
+    def fit(self, params, intermediates: Mapping[str, ArrayLike]) -> HybridSurrogatePhysics:
         """Train the surrogate ``params -> intermediates``. The post-model is not involved."""
         if not intermediates:
             raise ValueError("no intermediate quantities to learn")
@@ -450,7 +451,7 @@ class HybridSurrogatePhysics:
         self.fitted, self.n_train = True, n
         return self
 
-    def with_post_model(self, post_model: PhysicsPostModel) -> "HybridSurrogatePhysics":
+    def with_post_model(self, post_model: PhysicsPostModel) -> HybridSurrogatePhysics:
         """A hybrid with the same (already fitted) surrogate and another post-model. Nothing is retrained."""
         _check_post_model(post_model)
         other = HybridSurrogatePhysics(self.surrogate, post_model, param_names=self.param_names)
@@ -458,7 +459,7 @@ class HybridSurrogatePhysics:
         other.layout, other.fitted, other.n_train = self.layout, self.fitted, self.n_train
         return other
 
-    def state(self) -> Dict[str, object]:
+    def state(self) -> dict[str, object]:
         """The fitted surrogate side only (picklable if the surrogates are). The post-model is left out on
         purpose: it is supplied again at load time (:meth:`from_state`), possibly a different one."""
         if not self.fitted:
@@ -467,14 +468,14 @@ class HybridSurrogatePhysics:
                 "param_names": self.param_names, "n_train": self.n_train}
 
     @classmethod
-    def from_state(cls, state: Mapping[str, object], post_model: PhysicsPostModel) -> "HybridSurrogatePhysics":
+    def from_state(cls, state: Mapping[str, object], post_model: PhysicsPostModel) -> HybridSurrogatePhysics:
         """Rebuild a fitted hybrid from :meth:`state` with the given post-model (no retraining)."""
         hyb = cls(state["surrogate"], post_model, param_names=state["param_names"])
         hyb.surrogates = state["surrogates"]
         hyb.layout, hyb.n_train, hyb.fitted = [(k, tuple(sh)) for k, sh in state["layout"]], state["n_train"], True
         return hyb
 
-    def predict_intermediates(self, params) -> Tuple[Dict[str, np.ndarray], SurrogatePrediction, Dict[str, np.ndarray]]:
+    def predict_intermediates(self, params) -> tuple[dict[str, np.ndarray], SurrogatePrediction, dict[str, np.ndarray]]:
         if not self.fitted:
             raise RuntimeError("HybridSurrogatePhysics.predict called before fit")
         X, names = self._params(params)
@@ -484,7 +485,7 @@ class HybridSurrogatePhysics:
             raise ValueError(f"surrogate returned {pred.mean.shape[1]} outputs, layout needs {width}")
         return self._unflatten(pred.mean), pred, {k: X[:, j] for j, k in enumerate(names)}
 
-    def predict(self, params, *, n_samples: int = 1000, interval: float = 0.95, seed: Optional[int] = 0,
+    def predict(self, params, *, n_samples: int = 1000, interval: float = 0.95, seed: int | None = 0,
                 keep_samples: bool = False) -> HybridPrediction:
         """Intermediates + derived quantity; Monte Carlo band when the surrogate gives a distribution."""
         if not 0 < interval < 1:

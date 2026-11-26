@@ -112,7 +112,8 @@ import time
 import warnings
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -174,7 +175,7 @@ class ChannelConfig:
     Pr: float = 1.0              # nu / alpha
     u_in0: float = 1.0           # reference inlet speed
     Q0: float = 0.15             # reference wall heat flux (sets the temperature scale)
-    heater_x_frac: Tuple[float, float] = (0.10, 0.35)   # heated bottom-wall segment
+    heater_x_frac: tuple[float, float] = (0.10, 0.35)   # heated bottom-wall segment
     # time stepping
     dt: float = 0.006
     n_steps: int = 1700          # ~4 convective flow-through times (Lx / u_in0 / dt ~ 417)
@@ -232,7 +233,7 @@ def build_domain() -> ChannelDomain2D:
     return ChannelDomain2D(length=CFG.Lx, height=CFG.Ly, inlet_velocity=CFG.u_in0)
 
 
-def grid_coords(domain: ChannelDomain2D) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def grid_coords(domain: ChannelDomain2D) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     x0, y0 = domain.bounds_min
     x1, y1 = domain.bounds_max
     xs = x0 + (np.arange(CFG.nx) + 0.5) * (x1 - x0) / CFG.nx
@@ -241,7 +242,7 @@ def grid_coords(domain: ChannelDomain2D) -> Tuple[np.ndarray, np.ndarray, np.nda
     return xs.astype(np.float32), ys.astype(np.float32), XX.astype(np.float32), YY.astype(np.float32)
 
 
-def heater_index_range(domain: ChannelDomain2D, nx: int) -> Tuple[int, int]:
+def heater_index_range(domain: ChannelDomain2D, nx: int) -> tuple[int, int]:
     x0, _ = domain.bounds_min
     x1, _ = domain.bounds_max
     ia = int(round(CFG.heater_x_frac[0] * nx))
@@ -273,19 +274,19 @@ class TrajectorySpec:
     name: str
     held_out: bool
     u_shape: str
-    u_kwargs: Dict[str, Any] = field(default_factory=dict)
+    u_kwargs: dict[str, Any] = field(default_factory=dict)
     q_shape: str = ""
-    q_kwargs: Dict[str, Any] = field(default_factory=dict)
+    q_kwargs: dict[str, Any] = field(default_factory=dict)
     seed: int = 0
 
 
-def make_specs() -> List[TrajectorySpec]:
+def make_specs() -> list[TrajectorySpec]:
     """24 training trajectories: the 5 spec-required actuator families, ~5
     parametric variants each (U_in and Q_h given different variants of the
     same family so they are not identical). 6 held-out trajectories from 5
     genuinely different generating families (one family used twice with
     different parameters)."""
-    train: List[TrajectorySpec] = []
+    train: list[TrajectorySpec] = []
     variants = {
         "step": [dict(t0=t) for t in (0.18, 0.30, 0.42, 0.55, 0.68)],
         "ramp": [dict(t1=t) for t in (0.45, 0.6, 0.75, 0.9, 1.0)],
@@ -382,16 +383,16 @@ class TrajectoryData:
     actuator_snap: np.ndarray   # (N_SNAP, 2)
     time_snap: np.ndarray       # (N_SNAP,)  physical time of each snapshot
     fields: np.ndarray          # (N_SNAP, 4, nx, ny) -> [u, v, p, T]  physical units
-    scalars: Dict[str, np.ndarray]  # outlet_T, max_T, dp  each (N_SNAP,)
+    scalars: dict[str, np.ndarray]  # outlet_T, max_T, dp  each (N_SNAP,)
     solver_seconds: float
 
 
 def run_reference_trajectory(
     spec: TrajectorySpec, *,
-    nx: Optional[int] = None, ny: Optional[int] = None,
-    n_steps: Optional[int] = None, snap_every: Optional[int] = None,
-    Q0: Optional[float] = None, alpha_scale: float = 1.0,
-    dt: Optional[float] = None, poisson_iters: Optional[int] = None,
+    nx: int | None = None, ny: int | None = None,
+    n_steps: int | None = None, snap_every: int | None = None,
+    Q0: float | None = None, alpha_scale: float = 1.0,
+    dt: float | None = None, poisson_iters: int | None = None,
 ) -> TrajectoryData:
     """Weakly nothing -- a single monolithic transient solve of the
     incompressible laminar NS + energy system, driven by genuinely
@@ -500,12 +501,12 @@ def run_reference_trajectory(
 # 5. DATASET CONSTRUCTION + PERSISTENCE
 # ══════════════════════════════════════════════════════════════════════════
 
-def _config_hash(specs: List[TrajectorySpec]) -> str:
+def _config_hash(specs: list[TrajectorySpec]) -> str:
     payload = {"cfg": asdict(CFG), "specs": [asdict(s) for s in specs], "solver": "ns2d_projection_v3"}
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
-def generate_or_load_dataset(specs: List[TrajectorySpec], use_cache: bool) -> Dict[str, TrajectoryData]:
+def generate_or_load_dataset(specs: list[TrajectorySpec], use_cache: bool) -> dict[str, TrajectoryData]:
     """Persist the FULL dataset (spec item D): grid coordinates, time vector,
     per-trajectory actuation series and the standardized + physical
     (u,v,p,T) field solutions -- not just metrics."""
@@ -517,7 +518,7 @@ def generate_or_load_dataset(specs: List[TrajectorySpec], use_cache: bool) -> Di
         blob = np.load(DATASET_PATH, allow_pickle=True)
         if str(blob["config_hash"]) == h:
             print(f"    [dataset hit] {DATASET_PATH.name} (hash {h})")
-            out: Dict[str, TrajectoryData] = {}
+            out: dict[str, TrajectoryData] = {}
             for nm in [str(x) for x in blob["names"]]:
                 spec = next(s for s in specs if s.name == nm)
                 out[nm] = TrajectoryData(
@@ -532,7 +533,7 @@ def generate_or_load_dataset(specs: List[TrajectorySpec], use_cache: bool) -> Di
             return out
         print(f"    [dataset stale] hash {blob['config_hash']} -> {h}; regenerating")
 
-    trajs: Dict[str, TrajectoryData] = {}
+    trajs: dict[str, TrajectoryData] = {}
     t0 = time.time()
     for i, spec in enumerate(specs):
         tr = run_reference_trajectory(spec)
@@ -548,7 +549,7 @@ def generate_or_load_dataset(specs: List[TrajectorySpec], use_cache: bool) -> Di
     fmean = allf.mean(axis=(0, 2, 3)).astype(np.float32)
     fstd = (allf.std(axis=(0, 2, 3)) + 1e-8).astype(np.float32)
 
-    save: Dict[str, Any] = {
+    save: dict[str, Any] = {
         "config_hash": h, "names": np.array([s.name for s in specs]),
         "grid_x": xs, "grid_y": ys, "grid_XX": XX, "grid_YY": YY,
         "field_names": np.array(FIELD_NAMES), "field_mean": fmean, "field_std": fstd,
@@ -587,7 +588,7 @@ class Normalizer:
         return (a - self.act_mean) / self.act_std
 
 
-def fit_normalizer(train_trajs: List[TrajectoryData]) -> Normalizer:
+def fit_normalizer(train_trajs: list[TrajectoryData]) -> Normalizer:
     allf = np.concatenate([t.fields for t in train_trajs], 0)
     alla = np.concatenate([t.actuator_snap for t in train_trajs], 0)
     return Normalizer(allf.mean(axis=(0, 2, 3)).astype(np.float32),
@@ -614,7 +615,7 @@ class PreparedTraj:
     actuator_snap: np.ndarray
 
 
-def prepare_trajectories(trajs: List[TrajectoryData], norm: Normalizer, pod: POD) -> List[PreparedTraj]:
+def prepare_trajectories(trajs: list[TrajectoryData], norm: Normalizer, pod: POD) -> list[PreparedTraj]:
     out = []
     for tr in trajs:
         fn = norm.norm_field(tr.fields).astype(np.float32)
@@ -630,7 +631,7 @@ def prepare_trajectories(trajs: List[TrajectoryData], norm: Normalizer, pod: POD
 # 6. CHECKPOINTING
 # ══════════════════════════════════════════════════════════════════════════
 
-def _try_load_ckpt(model: nn.Module, ckpt: Optional[Path], sig: str, force: bool):
+def _try_load_ckpt(model: nn.Module, ckpt: Path | None, sig: str, force: bool):
     if ckpt is None or force or not ckpt.exists():
         return None, False
     try:
@@ -644,13 +645,13 @@ def _try_load_ckpt(model: nn.Module, ckpt: Optional[Path], sig: str, force: bool
     return blob["losses"], True
 
 
-def _save_ckpt(model: nn.Module, ckpt: Optional[Path], sig: str, losses: List[float]):
+def _save_ckpt(model: nn.Module, ckpt: Path | None, sig: str, losses: list[float]):
     if ckpt is not None:
         torch.save({"sig": sig, "state_dict": model.state_dict(), "losses": losses}, ckpt)
 
 
-def _rollout_starts(prep: List[PreparedTraj], K: int, max_n: Optional[int] = None,
-                    rng: Optional[np.random.Generator] = None) -> List[Tuple[int, int]]:
+def _rollout_starts(prep: list[PreparedTraj], K: int, max_n: int | None = None,
+                    rng: np.random.Generator | None = None) -> list[tuple[int, int]]:
     starts = [(ti, t0) for ti in range(len(prep)) for t0 in range(0, N_SNAP - K)]
     if max_n is not None and max_n < len(starts):
         rng = rng or np.random.default_rng(SEED)
@@ -662,16 +663,16 @@ def _rollout_starts(prep: List[PreparedTraj], K: int, max_n: Optional[int] = Non
 # 7. SURROGATE A: POD + GRU latent dynamics
 # ══════════════════════════════════════════════════════════════════════════
 
-def train_pod(train_trajs: List[TrajectoryData], norm: Normalizer, r: int = POD_R) -> POD:
+def train_pod(train_trajs: list[TrajectoryData], norm: Normalizer, r: int = POD_R) -> POD:
     allf = np.concatenate([norm.norm_field(t.fields) for t in train_trajs], 0)
     pod = POD(r=r, center=True)
     pod.fit(torch.from_numpy(allf.reshape(allf.shape[0], -1)).float())
     return pod
 
 
-def _latent_gru_train(prep_train: List[PreparedTraj], latent_of: Callable[[PreparedTraj], np.ndarray],
+def _latent_gru_train(prep_train: list[PreparedTraj], latent_of: Callable[[PreparedTraj], np.ndarray],
                       r: int, epochs: int, lr: float, hidden: int, progress, progress_every,
-                      ckpt, ckpt_sig, force) -> Tuple[GRUModel, List[float]]:
+                      ckpt, ckpt_sig, force) -> tuple[GRUModel, list[float]]:
     """Generic K-step rollout-consistency trainer for a GRU predicting the
     next latent vector.  `latent_of(prep)` returns the (N_SNAP, r) latent
     sequence (POD coefficients OR CAE codes)."""
@@ -786,7 +787,7 @@ def _pde_residuals(state_prev_n, state_next_n, src_phys, norm, dx, dy, dt):
 
 
 def train_fno_rollout(prep_train, norm, epochs=EPOCHS_FNO, lr=2e-3, physics_informed=False,
-                      heater_mask_np: Optional[np.ndarray] = None,
+                      heater_mask_np: np.ndarray | None = None,
                       progress=None, progress_every=25, ckpt=None, ckpt_sig="", force_retrain=False):
     in_c = 4 + 2 * CFG.l_hist
     model = FNO2d(in_channels=in_c, out_channels=4, width=16, modes1=9, modes2=7, layers=3, use_grid=True)
@@ -1021,9 +1022,9 @@ def field_div(fields: np.ndarray) -> np.ndarray:
     return np.abs(d[:, 3:-3, 3:-3]).mean(axis=(1, 2))
 
 
-def rollout_metrics(pred: np.ndarray, true: np.ndarray) -> Dict[str, Any]:
+def rollout_metrics(pred: np.ndarray, true: np.ndarray) -> dict[str, Any]:
     diff = pred[1:] - true[1:]
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for i, nm in enumerate(FIELD_NAMES):
         out[f"rel_l2_{nm}"] = float(np.linalg.norm(diff[:, i]) / (np.linalg.norm(true[1:, i]) + 1e-12))
     out["rel_l2"] = float(np.linalg.norm(diff.reshape(-1)) / (np.linalg.norm(true[1:].reshape(-1)) + 1e-12))
@@ -1046,7 +1047,7 @@ def rollout_metrics(pred: np.ndarray, true: np.ndarray) -> Dict[str, Any]:
 # 12. THERMAL-ENERGY BUDGET (auxiliary physical check)
 # ══════════════════════════════════════════════════════════════════════════
 
-def energy_budget(fields: np.ndarray, actuator_snap: np.ndarray, heater_mask_np: np.ndarray) -> Dict[str, float]:
+def energy_budget(fields: np.ndarray, actuator_snap: np.ndarray, heater_mask_np: np.ndarray) -> dict[str, float]:
     dx, dy = CFG.Lx / CFG.nx, CFG.Ly / CFG.ny
     T = fields[:, 3]; u = fields[:, 0]
     E = T.sum(axis=(1, 2)) * dx * dy
@@ -1068,7 +1069,7 @@ def energy_budget(fields: np.ndarray, actuator_snap: np.ndarray, heater_mask_np:
 # 13. OPERATIONAL METRICS  (outlet T, max T, pressure drop)
 # ══════════════════════════════════════════════════════════════════════════
 
-def operational_metrics(fields: np.ndarray) -> Dict[str, np.ndarray]:
+def operational_metrics(fields: np.ndarray) -> dict[str, np.ndarray]:
     return {
         "outlet_T": fields[:, 3, -1, :].mean(axis=1),
         "max_T": fields[:, 3].max(axis=(1, 2)),
@@ -1076,7 +1077,7 @@ def operational_metrics(fields: np.ndarray) -> Dict[str, np.ndarray]:
     }
 
 
-def operational_error(pred: np.ndarray, true_scalars: Dict[str, np.ndarray]) -> Dict[str, float]:
+def operational_error(pred: np.ndarray, true_scalars: dict[str, np.ndarray]) -> dict[str, float]:
     pm = operational_metrics(pred)
     out = {}
     for k, ref in true_scalars.items():
@@ -1089,7 +1090,7 @@ def operational_error(pred: np.ndarray, true_scalars: Dict[str, np.ndarray]) -> 
 # 14. SPARSE-SENSOR DATA ASSIMILATION -- two methods
 # ══════════════════════════════════════════════════════════════════════════
 
-def sensor_layout() -> Dict[str, List[Tuple[int, int]]]:
+def sensor_layout() -> dict[str, list[tuple[int, int]]]:
     """Sparse virtual sensors -- T probes in the near-wall thermal layer
     downstream of the heated segment, p probes near inlet and mid-channel."""
     nx, ny = CFG.nx, CFG.ny
@@ -1098,7 +1099,7 @@ def sensor_layout() -> Dict[str, List[Tuple[int, int]]]:
     return {"T": [(ix, 1) for ix in t_ix], "p": [(ix, ny // 2) for ix in p_ix]}
 
 
-def verify_sensor_signal(traj: TrajectoryData) -> List[Dict[str, Any]]:
+def verify_sensor_signal(traj: TrajectoryData) -> list[dict[str, Any]]:
     lay = sensor_layout()
     U = traj.actuator_snap[:, 0]; Q = traj.actuator_snap[:, 1]
     rows = []
@@ -1126,7 +1127,7 @@ def _open_loop_latents(prep: PreparedTraj, gru: GRUModel) -> np.ndarray:
     return np.stack(z, 0)
 
 
-def _sensor_H_matrix(pod: POD, norm: Normalizer, n_da: int) -> Tuple[np.ndarray, np.ndarray]:
+def _sensor_H_matrix(pod: POD, norm: Normalizer, n_da: int) -> tuple[np.ndarray, np.ndarray]:
     """Linear observation operator H (n_obs x n_da) mapping the leading POD
     latent modes to the (T,p) sensor readings, plus the constant offset b
     from the POD mean.  Built column-by-column from the (linear) POD decode
@@ -1152,7 +1153,7 @@ def _sensor_H_matrix(pod: POD, norm: Normalizer, n_da: int) -> Tuple[np.ndarray,
 
 def assimilate_latent_innovation(prep: PreparedTraj, traj: TrajectoryData, norm: Normalizer,
                                  pod: POD, gru: GRUModel, sensor_every: int = 2, n_da: int = 8,
-                                 gain: float = 0.6) -> Tuple[np.ndarray, np.ndarray]:
+                                 gain: float = 0.6) -> tuple[np.ndarray, np.ndarray]:
     """METHOD (i): latent-space innovation correction.  At each assimilation
     step, form the innovation (measured - predicted) at the sensors and
     nudge the leading `n_da` POD latent modes by a damped least-squares
@@ -1201,7 +1202,7 @@ def assimilate_latent_innovation(prep: PreparedTraj, traj: TrajectoryData, norm:
 def assimilate_enkf(prep: PreparedTraj, traj: TrajectoryData, norm: Normalizer,
                     pod: POD, gru: GRUModel, sensor_every: int = 2, n_da: int = 8,
                     p0_frac: float = 0.20, q_frac: float = 0.04, inflation: float = 1.05
-                    ) -> Tuple[np.ndarray, np.ndarray]:
+                    ) -> tuple[np.ndarray, np.ndarray]:
     """METHOD (ii): Ensemble Kalman Filter in the reduced POD latent space.
     The leading `n_da` modes are corrected; the trailing modes are carried
     from the open-loop GRU rollout. The ensemble covariance is scaled to
@@ -1267,7 +1268,7 @@ def assimilate_enkf(prep: PreparedTraj, traj: TrajectoryData, norm: Normalizer,
 # 15. GRID-CONVERGENCE STUDY
 # ══════════════════════════════════════════════════════════════════════════
 
-def grid_convergence_study() -> Dict[str, Any]:
+def grid_convergence_study() -> dict[str, Any]:
     """Roache (1994) Richardson / GCI via `mesh_independence_study` on the NS
     solver, three grids at constant refinement ratio 2, QoI = the
     domain-integrated final thermal energy (a smooth global quantity)."""
@@ -1504,7 +1505,7 @@ def plot_demo(traj, pred, best_name, speedup, out):
 # 17. DEMONSTRATOR
 # ══════════════════════════════════════════════════════════════════════════
 
-_DEMO_STATE: Dict[str, Any] = {}
+_DEMO_STATE: dict[str, Any] = {}
 
 
 def demo(trajectory: str = "test_chirp"):
@@ -1701,10 +1702,10 @@ def main():
         "DeepONet": lambda p: rollout_deeponet(p, norm, deeponet),
     }
     results = {s: {"train": [], "held_out": []} for s in rollouts}
-    per_traj: Dict[str, Dict[str, Any]] = {}
-    op_err: Dict[str, Dict[str, Dict[str, float]]] = {s: {} for s in rollouts}
-    latency: Dict[str, float] = {}
-    rollout_cache: Dict[str, Dict[str, np.ndarray]] = {s: {} for s in rollouts}
+    per_traj: dict[str, dict[str, Any]] = {}
+    op_err: dict[str, dict[str, dict[str, float]]] = {s: {} for s in rollouts}
+    latency: dict[str, float] = {}
+    rollout_cache: dict[str, dict[str, np.ndarray]] = {s: {} for s in rollouts}
     for split, preps, trajs in [("train", prep_train, train_trajs), ("held_out", prep_test, test_trajs)]:
         for p, tr in zip(preps, trajs):
             per_traj.setdefault(p.name, {})

@@ -25,7 +25,10 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry,brep,distributed]"
           pip install pytest datasets
-          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+          # calculix-ccx too: the runner has Docker but no CalculiX, and the environment verdict accepts the bundled
+          # image, so without a binary the beam template below is offered and then has no `ccx` to run. Tier C
+          # installs the same package for the CalculiX bridge.
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb calculix-ccx
 
       - name: App runtime and data contracts (must pass)
         run: |
@@ -40,6 +43,15 @@ jobs:
           pinneapple doctor start -q
           pinneapple card burgers_1d --json > /dev/null
           pinneapple recommend "heat sink cooled by a fan" > /dev/null
+
+      # The blocking end-to-end tier (#37): ten flows, each from an input a user has to an artifact they keep, with
+      # its own wall-clock budget. It answers "does the product work", which no unit suite does, so it runs here
+      # rather than in full-suite.yml. Nothing in the tier may skip: the dependencies the flows import are installed
+      # below instead of being skipped over (scipy for the twin, torch for the surrogate design, pandas for tables).
+      - name: End-to-end tier — ten flows from input to kept artifact (must pass)
+        run: |
+          pip install scipy pandas
+          pytest tests/e2e -q -p no:warnings -rA
 
       - name: PINNeAPPle-apps case studies — margin study, recession twin, thin airfoil, two apps (must pass)
         run: |
@@ -63,6 +75,13 @@ jobs:
         run: pytest tests/test_equation_discovery.py -q -p no:warnings
       - name: API stability — core vs experimental, deprecation helpers, the frozen core API snapshot api/core.json (must pass)
         run: pytest tests/test_stability.py tests/test_deprecation_and_api.py -q -p no:warnings
+      # The method-status snapshot is a generated artifact that two readers treat as a contract: the PC901 rule of
+      # pinneapple_check and the fixtures of examples/physics_check/fail. A refresh that moves a status has to move
+      # both, in one reviewable commit, so this reports the drift of a fresh scan against the committed file and
+      # does not fail on it -- the point is to see the divergence while it is small (issue #1884).
+      - name: Method status — drift of a fresh scan against the committed snapshot (informational, never fails)
+        continue-on-error: true
+        run: python scripts/build_method_status.py --check --report
       - name: Core coverage toward 1.0 (#1129) — presets, trainer, front-door catalog, data contracts, CAE readers, diffusion, closed forms, operators, PINO, 2-D mesher, trainer losses/UQ/collocation (must pass)
         run: |
           # the optional backends these tests use, so that none of them is skipped here
@@ -139,6 +158,30 @@ jobs:
           python scripts/check_experiment_manifests.py
           pytest tests/test_experiment_manifests.py tests/test_experiments_site.py -q -p no:warnings
 
+      # The example catalog (#41): every folder under examples/ is either run here or marked manual with a reason
+      # that came from a measurement. The gate is the expensive half's precondition -- it refuses an uncovered
+      # folder, a ci entry that points at nothing, a known-broken import inside the tier, and a tier whose caps
+      # exceed the budget -- and then the tier itself runs, so "it runs in CI" means the example ran.
+      - name: Example catalog — the gate, then the CI tier itself (must pass)
+        run: |
+          python scripts/example_catalog.py --check
+          python scripts/example_catalog.py --run
+
+      # The official benchmark cases (#30): the declaration has to be complete and the published table has to be
+      # the one the results file generates. Training is not in CI -- it is what --reproduce does, and it takes
+      # minutes; what must not drift is the page, the protocol and the declaration.
+      - name: Official benchmark cases — declared and published (must pass)
+        run: |
+          python scripts/benchmark_cases.py --check
+          pytest tests/test_benchmark_cases.py -q -p no:warnings
+
+      # The repository's own backlog page: generated from a snapshot, so the gate is offline and deterministic.
+      # Refreshing the snapshot (--fetch) is a deliberate act, not something CI does on every run.
+      - name: Backlog page — matches the committed snapshot (must pass)
+        run: |
+          python scripts/backlog_report.py --check
+          pytest tests/test_backlog_report.py -q -p no:warnings
+
       - name: NVIDIA integrations — OpenUSD stages, diagrams, water hammer, examples/nvidia smoke (must pass)
         run: |
           pip install usd-core newton newton-usd-schemas
@@ -193,6 +236,12 @@ jobs:
 
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py
+
+      # Provenance (#39): every model card, dataset, study result and model reference in the tree names what computed
+      # the numbers, which library, which seed, which exact inputs (and a hash of the mesh for a meshed solver). The
+      # rule is pinneapple_data.provenance; this is the job that applies it to the repository's own artifacts.
+      - name: Provenance — reject a dataset or model whose numbers cannot be re-derived
+        run: python scripts/validate_provenance.py
 
   generated:
     # The generated files are not committed (AGENTS.md, "Generated files"): a fresh clone generates them here and

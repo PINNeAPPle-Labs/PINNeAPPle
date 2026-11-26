@@ -61,8 +61,7 @@
   "PC101",
   "PC102",
   "PC302",
-  "PC701",
-  "PC901"
+  "PC701"
  ],
  "drag-surrogate": [
   "PC601",
@@ -70,6 +69,9 @@
  ],
  "peak-temperature": [
   "PC303"
+ ],
+ "unvalidated-method": [
+  "PC901"
  ],
  "datasets/darcy.npz": [
   "PC451",

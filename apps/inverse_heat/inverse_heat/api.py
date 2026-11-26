@@ -14,7 +14,6 @@ import sys
 import threading
 import time
 import uuid
-from typing import Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, PlainTextResponse
@@ -39,7 +38,7 @@ app = FastAPI(title="Inverse Heat Lab", version=VERSION,
                           "(2D) and a chip under a block (3D).")
 install(app, prefix="IHL")
 
-_JOBS: Dict[str, Dict] = {}
+_JOBS: dict[str, dict] = {}
 _LOCK = threading.Lock()
 
 VALIDATION = [
@@ -88,8 +87,8 @@ class FinRequest(BaseModel):
     length_mm: float = Field(50.0, gt=0, le=1000)
     t_base: float = Field(80.0, ge=-50, le=1000)
     t_air: float = Field(25.0, ge=-50, le=500)
-    sensors_mm: List[float] = Field(default_factory=lambda: [10, 20, 30, 40, 50])
-    readings: Optional[List[float]] = Field(None, description="your readings (°C); omit to use synthetic ones")
+    sensors_mm: list[float] = Field(default_factory=lambda: [10, 20, 30, 40, 50])
+    readings: list[float] | None = Field(None, description="your readings (°C); omit to use synthetic ones")
     h_true: float = Field(25.0, gt=0, le=5000, description="synthetic mode only")
     noise: float = Field(0.5, ge=0, le=5, description="synthetic mode only, °C")
     h_guess: float = Field(100.0, gt=0, le=5000)
@@ -102,7 +101,7 @@ class PlateRequest(BaseModel):
     h_guess: float = Field(60.0, ge=1, le=500)
 
 
-def _start(kind: str, fn, **kw) -> Dict:
+def _start(kind: str, fn, **kw) -> dict:
     with _LOCK:
         running = sum(j["status"] == "running" for j in _JOBS.values())
         if running >= MAX_JOBS:

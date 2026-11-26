@@ -5,6 +5,8 @@
 >>> result = exp.run()
 >>> result.metrics["relative_l2"]["u"], result.wall_time_s
 >>> result.save("runs/burgers_pinn")          # JSON record (+ model weights when there is a model)
+>>> exp.save("runs/burgers_pinn")             # experiment.json: the definition, reloadable
+>>> same = pp.Experiment.load("runs/burgers_pinn")   # runs again, same predictions
 
 A run fixes every random source it controls (Python, NumPy, PyTorch, and PyTorch's deterministic-algorithms mode
 while it runs), records the problem fingerprint, the library and dependency versions and the machine, and scores
@@ -21,7 +23,7 @@ import random
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, Optional, Sequence, Union
 
 import numpy as np
 
@@ -30,6 +32,25 @@ from .physical_problem import PhysicalProblem
 from .solving import Solution, as_problem, solve
 
 __all__ = ["Experiment", "ExperimentResult"]
+
+
+def _as_active(active: Any) -> Any:
+    """``False``, ``True`` or a mapping of :class:`~pinneapple_physics.active_design.ActivePolicy` keywords.
+
+    A mapping is checked here, when the experiment is built, and not in the middle of a study: an unknown keyword or
+    a budget smaller than its initial design is a mistake about the run, and it is cheaper to hear about it before the
+    first solve.
+    """
+    if active is None or active is False:
+        return False
+    if active is True:
+        return True
+    if isinstance(active, Mapping):
+        from .active_design import ActivePolicy
+        ActivePolicy(**dict(active))
+        return dict(active)
+    raise TypeError("active must be False, True or a mapping of ActivePolicy keywords "
+                    f"(budget, n_initial, batch, signals, quantity, space, target, seed); got {type(active).__name__}")
 
 
 @contextlib.contextmanager
@@ -59,6 +80,12 @@ def _environment() -> Dict[str, Any]:
         env["cuda"] = torch.version.cuda if torch.cuda.is_available() else None
     except ImportError:  # pragma: no cover
         pass
+    # which code ran, not only which version: a released version pins the library, a commit pins the checkout (#39)
+    try:
+        from pinneapple_data.provenance import git_commit
+        env["commit"] = git_commit()
+    except Exception:  # pragma: no cover - pinneapple_data absent in a slim install
+        env["commit"] = ""
     try:
         import pinneapple
         env["pinneapple"] = pinneapple.__version__
@@ -78,12 +105,18 @@ class ExperimentResult:
     environment: Dict[str, Any]
     n_eval_points: int = 0
     tracker_run_id: Optional[Any] = None
+    #: the record of an active run (``Experiment(active=...)``): the design, its rounds, the simulations it cost and
+    #: the error against the reference. ``None`` for a run that solved the problem once.
+    active: dict[str, Any] | None = None
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"config": self.config, "problem_fingerprint": self.problem_fingerprint, "metrics": self.metrics,
-                "wall_time_s": self.wall_time_s, "started_at": self.started_at, "environment": self.environment,
-                "n_eval_points": self.n_eval_points, "method_info": self.solution.info,
-                "problem": self.solution.problem.to_dict()}
+        out = {"config": self.config, "problem_fingerprint": self.problem_fingerprint, "metrics": self.metrics,
+               "wall_time_s": self.wall_time_s, "started_at": self.started_at, "environment": self.environment,
+               "n_eval_points": self.n_eval_points, "method_info": self.solution.info,
+               "problem": self.solution.problem.to_dict()}
+        if self.active is not None:
+            out["active"] = self.active
+        return out
 
     def save(self, directory: str) -> str:
         """Write ``result.json`` (and ``model.pt`` when the solution has a PyTorch model) to ``directory``."""
@@ -106,7 +139,17 @@ class ExperimentResult:
 
 @dataclass
 class Experiment:
-    """A method applied to a problem, with a seed, options and an optional reference to score against."""
+    """A method applied to a problem, with a seed, options and an optional reference to score against.
+
+    ``active`` turns the single solve into a **study over the problem's design box** (#34, #153): instead of one solve
+    the run spends ``budget`` simulations on the points that
+    :func:`~pinneapple_data.adaptive_sampling.adapt` picks, and the answer is the retrained surrogate over the box.
+    Its fields are the keywords of :class:`~pinneapple_physics.active_design.ActivePolicy`
+    (``budget``, ``n_initial``, ``batch``, ``signals``, ``quantity``, ``space``, ``target``, ``seed``); the axes are
+    the parameters whose role is ``"design"`` or ``"uncertain"`` and that carry bounds. ``active=True`` uses the
+    defaults, and the measured cost of that choice is in :func:`~pinneapple_physics.active_design.benchmark_active_design`.
+    """
+
     problem: Union[PhysicalProblem, Any, str]
     method: str = "pinn"
     options: Dict[str, Any] = field(default_factory=dict)
@@ -119,16 +162,100 @@ class Experiment:
     # experiment tracker: "mlflow", "wandb" or a callable f(result) (see pinneapple_physics.tracking)
     tracker: Optional[Any] = None
     tracker_options: Dict[str, Any] = field(default_factory=dict)
+    # active design over the problem's design parameters (#34, #153): False, True, or ActivePolicy keywords
+    active: bool | dict[str, Any] = False
+    #: passed as ``ctx`` to every solve of an active run (a source function the problem does not carry, the design
+    #: point); also the only sane place for a coefficient the PDE reads from the context
+    active_context: dict[str, Any] = field(default_factory=dict)
+    # the preset the problem was built from, when it was one: what makes a saved experiment runnable again
+    _preset: Optional[str] = field(default=None, init=False, repr=False, compare=False)
 
     def __post_init__(self):
+        self._preset = self.problem if isinstance(self.problem, str) else None
         self.problem = as_problem(self.problem)
         if not self.name:
             self.name = f"{self.problem.name}/{self.method}/seed{self.seed}"
+        self.active = _as_active(self.active)
 
     def config(self) -> Dict[str, Any]:
         return {"name": self.name, "problem": self.problem.name, "method": self.method, "options": dict(self.options),
                 "seed": self.seed, "reference": self.reference, "reference_options": dict(self.reference_options),
-                "n_eval": self.n_eval, "metric_names": list(self.metric_names)}
+                "n_eval": self.n_eval, "metric_names": list(self.metric_names), "active": self.active}
+
+    # ------------------------------------------------------------------ persistence
+    def to_dict(self) -> Dict[str, Any]:
+        """The run's definition, JSON-ready: what :meth:`from_dict` rebuilds and :meth:`save` writes.
+
+        ``problem`` is ``PhysicalProblem.to_dict()``, so a Python function inside a condition is stored as its name
+        only (the caveat ``PhysicalProblem.from_dict`` documents). ``problem_source`` is what makes a reload
+        runnable again: it names the preset and the current parameter values, and ``from_dict`` rebuilds through
+        the preset first, falling back to decoding the description. ``resumable`` says which of the two happened,
+        and ``detached`` lists the condition functions a reload cannot restore. The tracker is not saved (it may
+        be a callable).
+        """
+        detached = [f"{c.name}.{k}" for c in self.problem.conditions for k in ("selector", "value_fn")
+                    if callable(getattr(c, k, None))]
+        active = self.active
+        if isinstance(active, Mapping):
+            detached += [f"active.{k}" for k, v in active.items() if callable(v)]
+            active = {k: (getattr(v, "__name__", "__callable__") if callable(v) else v) for k, v in active.items()}
+        d: Dict[str, Any] = {
+            "name": self.name, "method": self.method, "options": dict(self.options), "seed": self.seed,
+            "reference": self.reference, "reference_options": dict(self.reference_options), "n_eval": self.n_eval,
+            "metric_names": list(self.metric_names), "problem": self.problem.to_dict(), "active": active,
+            "problem_fingerprint": self.problem.fingerprint(),
+            "resumable": bool(self._preset) or (not detached and self.problem.geometry is None),
+        }
+        if self._preset:
+            d["problem_source"] = {"preset": self._preset, "parameters": self.problem.parameter_values()}
+        if detached:
+            d["detached"] = detached
+        return d
+
+    @classmethod
+    def from_dict(cls, d: Mapping[str, Any]) -> "Experiment":
+        """Rebuild from :meth:`to_dict`. A problem that came from a preset comes back with its functions attached,
+        so a reloaded experiment runs and reproduces; one that did not keeps its described-only conditions and
+        fails loudly if it is solved."""
+        expected = d.get("problem_fingerprint")
+        source = d.get("problem_source") or {}
+        problem = None
+        if source.get("preset"):
+            try:
+                candidate = (PhysicalProblem.from_preset(source["preset"])
+                             .with_parameters(**(source.get("parameters") or {})))
+            except (KeyError, TypeError, ValueError):
+                candidate = None
+            if candidate is not None and candidate.fingerprint() == expected:
+                problem = candidate
+        if problem is None:
+            problem = PhysicalProblem.from_dict(d["problem"])
+        if expected and problem.fingerprint() != expected:
+            raise ValueError(f"the problem in this record does not match its fingerprint {expected[:12]}: it was "
+                             "edited after the save, or it needs Python functions this record only names")
+        experiment = cls(problem, method=d.get("method", "pinn"), options=dict(d.get("options") or {}),
+                         seed=int(d.get("seed", 0)), reference=d.get("reference"),
+                         reference_options=dict(d.get("reference_options") or {}), n_eval=int(d.get("n_eval", 4096)),
+                         metric_names=tuple(d.get("metric_names") or ("relative_l2", "rmse", "max_abs")),
+                         name=d.get("name", ""), active=d.get("active", False))
+        experiment._preset = source.get("preset")
+        return experiment
+
+    def save(self, directory: str) -> str:
+        """Write ``experiment.json`` to ``directory``; pair it with ``run().save(directory)``'s ``result.json``."""
+        os.makedirs(directory, exist_ok=True)
+        path = os.path.join(directory, "experiment.json")
+        with open(path, "w") as f:
+            json.dump(self.to_dict(), f, indent=2, default=str)
+        return path
+
+    @classmethod
+    def load(cls, path: str) -> "Experiment":
+        """Read a saved experiment: ``path`` is the directory :meth:`save` wrote, or the file itself."""
+        if os.path.isdir(path):
+            path = os.path.join(path, "experiment.json")
+        with open(path) as f:
+            return cls.from_dict(json.load(f))
 
     def evaluation_points(self, reference: Optional[Solution]) -> Optional[np.ndarray]:
         rng = np.random.default_rng(self.seed + 1_000_003)
@@ -143,6 +270,8 @@ class Experiment:
         return lo + (hi - lo) * rng.random((self.n_eval, len(self.problem.coords)))
 
     def run(self) -> ExperimentResult:
+        if self.active:
+            return self.run_active()
         started = datetime.now(timezone.utc).isoformat(timespec="seconds")
         opts = dict(self.options)
         opts.setdefault("seed", self.seed)
@@ -162,6 +291,44 @@ class Experiment:
         result = ExperimentResult(config=self.config(), problem_fingerprint=self.problem.fingerprint(), solution=sol,
                                   metrics=scores, wall_time_s=elapsed, started_at=started, environment=_environment(),
                                   n_eval_points=n_pts)
+        if self.tracker is not None:
+            from .tracking import log_result
+            result.tracker_run_id = log_result(result, self.tracker, **self.tracker_options)
+        return result
+
+    def run_active(self) -> ExperimentResult:
+        """Spend the budget over the problem's design box instead of solving once (``active=...``, #34 and #153).
+
+        The loop, its signals and its surrogate are :mod:`pinneapple_physics.active_design`'s; this method only turns
+        the experiment into the call it needs and wraps the answer in the same :class:`ExperimentResult` every other
+        run returns, so a tracker, a metric list and ``save`` keep working. ``solution`` is the solve at the **best
+        measured design** (a real solution, with the same ``predict`` contract as any other), and ``active`` is the
+        record of the study: the design, its rounds, the number of simulations it cost, and -- when ``reference``
+        names a method -- the surrogate's relative error against it over the box.
+        """
+        from .active_design import ActivePolicy, active_design
+
+        started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        policy = ActivePolicy(**self.active) if isinstance(self.active, Mapping) else ActivePolicy()
+        opts = dict(self.options)
+        opts.setdefault("seed", self.seed)
+        t0 = time.perf_counter()
+        run = active_design(self.problem, method=self.method, options={k: v for k, v in opts.items() if k != "seed"},
+                            policy=ActivePolicy(**{**policy.__dict__, "seed": self.seed}), reference=self.reference,
+                            reference_options=dict(self.reference_options), context=dict(self.active_context))
+        elapsed = time.perf_counter() - t0
+        best = int(np.argmax(np.abs(run.y)))
+        params = {n: float(v) for n, v in zip(run.names, run.X[best], strict=True)}
+        point = self.problem.with_parameters(**params) if params else self.problem
+        call = {k: v for k, v in opts.items() if k != "seed"}
+        if self.active_context:
+            call["ctx"] = {**dict(self.active_context), **params}
+        with _seeded(self.seed):
+            solution = solve(point, self.method, **call)
+        result = ExperimentResult(config=self.config(), problem_fingerprint=point.fingerprint(), solution=solution,
+                                 metrics=None, wall_time_s=elapsed, started_at=started, environment=_environment(),
+                                 n_eval_points=0, active=run.to_dict())
+        result.active["best_design"] = params
         if self.tracker is not None:
             from .tracking import log_result
             result.tracker_run_id = log_result(result, self.tracker, **self.tracker_options)

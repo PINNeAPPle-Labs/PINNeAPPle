@@ -17,7 +17,6 @@ from __future__ import annotations
 import shutil
 import subprocess
 import time
-from typing import Optional
 
 
 def start_server(*, host: str = "127.0.0.1", port: int = 11434, wait_s: float = 10.0) -> subprocess.Popen:
@@ -75,7 +74,7 @@ def ensure_model_pulled(model: str, *, host: str = "127.0.0.1", port: int = 1143
 def call_ollama(
     prompt: str,
     model: str,
-    api_key: Optional[str] = None,  # accepted for call-signature symmetry with the other _call_* helpers; unused
+    api_key: str | None = None,  # accepted for call-signature symmetry with the other _call_* helpers; unused
     system: str = "",
     *,
     host: str = "127.0.0.1",

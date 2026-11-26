@@ -6,7 +6,8 @@ RequirementsAL; trust from the surrogate ensemble spread where the wing sections
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -25,14 +26,14 @@ class EngineAL:
         co = engine.mlp_coefficients(REFERENCE["NACA 0012"][None])
         self.tail_polar = Polar(ALPHAS, co["cl"][0], co["cd"][0], co["cm"][0])
 
-    def evaluate(self, X: np.ndarray, mission: Mission, req: RequirementsAL, fine: bool = False) -> List[Dict[str, Any]]:
+    def evaluate(self, X: np.ndarray, mission: Mission, req: RequirementsAL, fine: bool = False) -> list[dict[str, Any]]:
         X = np.atleast_2d(X)
         co = self.e.mlp_coefficients(X[:, :6])
         lat = dict(nc=6, ns_wing=24, ns_tail=8) if fine else dict(nc=4, ns_wing=12, ns_tail=5)
         out = []
         for k, x in enumerate(X):
             ok, why = valid(x[:6])
-            rec: Dict[str, Any] = {"x": x.tolist(), "props": properties(x[:6]), "plan": dict(zip(PLAN, x[6:13].tolist()))}
+            rec: dict[str, Any] = {"x": x.tolist(), "props": properties(x[:6]), "plan": dict(zip(PLAN, x[6:13].tolist()))}
             if not ok:
                 rec.update(feasible=False, valid=False, violations=[f"invalid geometry: {why}"], penalty=100.0,
                            co2_pkm=float("nan"), mach=float(x[11]), vref_kt=float("nan"), trust="n/a")
@@ -59,13 +60,13 @@ class EngineAL:
         return out
 
     def search(self, mission: Mission = Mission(), req: RequirementsAL = RequirementsAL(), population: int = 48,
-               generations: int = 40, seed: int = 0, progress: Optional[Callable[[int, int], None]] = None) -> Dict[str, Any]:
+               generations: int = 40, seed: int = 0, progress: Callable[[int, int], None] | None = None) -> dict[str, Any]:
         bounds = BOUNDS_AL
         cfg = DesignOptimizerConfig(population_size=population, mutation_std=0.0, crossover_rate=0.9)
         opt = EvolutionaryDesignOptimizer(cfg, seed=seed, multi_objective=True)
         span = bounds[:, 1] - bounds[:, 0]
         rng = np.random.default_rng(seed)
-        recs: List[Dict[str, Any]] = []
+        recs: list[dict[str, Any]] = []
         t0 = time.time()
         for gen in range(generations):
             xs = opt.ask(bounds, population)
@@ -92,7 +93,7 @@ class EngineAL:
         return {"designs": recs, "pareto": front, "seconds": time.time() - t0, "evaluations": len(recs)}
 
 
-def summarize_al(r: Dict[str, Any]) -> Dict[str, Any]:
+def summarize_al(r: dict[str, Any]) -> dict[str, Any]:
     keys = ("co2_pkm", "mach", "speed_kt", "vref_kt", "cruise_ld", "mtow", "feasible", "trust", "violations",
             "generation", "penalty", "static_margin", "stall_station", "span", "fuel_kg")
     s = {k: r.get(k) for k in keys}

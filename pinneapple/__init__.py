@@ -153,8 +153,23 @@ except Exception:  # pragma: no cover
 try:
     from pinneapple_neural.architectures import ModelRegistry
 
+    def _activate_plugins() -> None:
+        """Give the installed plugins one chance to register before a registry is listed (#100).
+
+        Runs once per process (``pinneapple_plugins.activate`` remembers), imports only enabled plugins, and swallows
+        nothing else: a plugin that raises is a record in ``pp.plugins.doctor()``, never an exception here. Set
+        ``PINNEAPPLE_PLUGINS=0`` to list only what this installation ships.
+        """
+        try:
+            from pinneapple_plugins import activate
+
+            activate()
+        except Exception:  # noqa: BLE001 - a plugin must never break listing what is installed
+            pass
+
     def list_models():
-        """Return sorted list of all registered model names."""
+        """Return sorted list of all registered model names (built-in and from installed plugins)."""
+        _activate_plugins()
         return ModelRegistry.list()
 
     def build_model(name: str, **kwargs):
@@ -332,11 +347,24 @@ except Exception:  # pragma: no cover
 
 # Unified problem description (geometry, physics, conditions, parameters with units and roles)
 try:
-    from pinneapple_physics.physical_problem import Parameter, PhysicalProblem, Quantity
+    from pinneapple_physics.physical_problem import (Constraint, Fidelity, Objective, Parameter,
+                                                     PhysicalProblem, Quantity)
     from pinneapple_physics.solving import (
         Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
     )
     from pinneapple_physics.experiment import Experiment, ExperimentResult
+except Exception:  # pragma: no cover
+    pass
+
+# One constraint object, applied in training, in an optimizer and in a deployment guard (#221)
+try:
+    from pinneapple_physics.constraint_engine import (
+        ConstraintCheck,
+        ConstraintGuard,
+        ConstraintReport,
+        ConstraintViolation,
+        optimizer_constraints,
+    )
 except Exception:  # pragma: no cover
     pass
 
@@ -582,6 +610,8 @@ _SUBMODULES = {
     # core
     "env":        "pinneapple_physics.pde_environment",
     "inverse":    "pinneapple_analysis.inverse_problems",
+    # surrogate in the loop: pp.optimize.loop(space, surrogate, solver, budget=N) (#297)
+    "optimize":   "pinneapple_analysis.surrogate_loop",
     "design_opt": "pinneapple_design.design_optimizer",
     "models":    "pinneapple_models",
     "train":     "pinneapple_train",
@@ -606,13 +636,23 @@ _SUBMODULES = {
     "worldmodel": "pinneapple_worldmodel",
     # decision layer (which experiment to run next)
     "decision":   "pinneapple_decision",
+    # Bayesian optimization and sequential design of experiments (#102)
+    "bayesopt":   "pinneapple_analysis.bayesopt",
+    # simulation campaign: thousands of runs through one queue, with content addressing, retries and accounting
+    "campaign":   "pinneapple_orchestration.campaign",
     # one error-metric convention for the whole library
     "metrics":    "pinneapple_physics.metrics",
+    # reproducing a recorded run: reproduced / divergent / refused (#1480)
+    "experiments": "pinneapple_physics.experiments",
     # 3D studio: any geometry and its fields -> glTF/USD/STL, Blender renders, browser viewer
     "viz":        "pinneapple_tools.visualization.studio",
     # external flow around any body in OpenFOAM (STL -> mesh -> forces, skin fields, streamlines, slices)
     "cfd":        "pinneapple_simulation.numerical_solvers.external_flow",
     "benchmark":  "pinneapple_analysis.benchmark",
+    # the linear-algebra layer: operators, POD, modal analysis, Krylov, condition estimate, adjoint (#202)
+    "linalg":     "pinneapple_analysis.linalg",
+    # automatic scaling and conditioning: coordinates, fields, residual weights and Re/Pe groups (#206)
+    "condition":  "pinneapple_analysis.condition",
     # CalculiX studies: gmsh or hexahedral meshes, sets by geometry, static / modal / buckling / heat, results
     "fea":        "pinneapple_simulation.external_solvers.calculix.study",
     # CAE files: OpenFOAM, CalculiX/Abaqus, Gmsh, VTK readers, mesh quality, comparison, neutral dataset
@@ -650,6 +690,8 @@ _SUBMODULES = {
     "dashboard":  "pinneapple_tools.visualization.dashboard",
     # Field, Mesh, Domain, Geometry primitives
     "core":       "pinneapple_core",
+    # the formal types a problem, a dataset and a model card are filled into, and their published JSON schema (#204)
+    "ontology":   "pinneapple_core.ontology",
     "loss":       "pinneapple_core.loss",
     "transforms": "pinneapple_core.transforms",
     "distributed": "pinneapple_core.distributed",
@@ -679,6 +721,8 @@ _SUBMODULES = {
     "science":    "pinneapple_science",
     # derivative trees from a potential: Legendre transforms, Maxwell relations, consistency checks, adapters
     "potential":  "pinneapple_physics.potential",
+    # plugins installed from packages (the `pinneapple.plugins` entry point): list, inspect, doctor, enable, disable
+    "plugins":    "pinneapple_plugins",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not
@@ -687,6 +731,9 @@ _LAZY_ATTRS = {
     "ComputeBudget": ("pinneapple_analysis.cost.equal_budget", "ComputeBudget"),
     # physics checks of a field on a grid -> trust card with a deploy decision
     "trust_card": ("pinneapple_analysis.trust.field_card", "trust_card"),
+    # the trust layer as one object (#345): in-domain, horizon, residuals per law, the readings, the calibrated
+    # interval and the provenance, with to_json() and badge() -- pp.trust(model, data, problem) -> Trust
+    "trust": ("pinneapple_analysis.trust.adapters", "trust"),
     # one call, one validation report with credibility levels (#696)
     # (also the old pp.validate namespace: pp.validate.PhysicsValidator still resolves)
     "validate": ("pinneapple_analysis.validation.validate", "pp_validate"),
@@ -702,8 +749,33 @@ _LAZY_ATTRS = {
     "registered": ("pinneapple_core.registry", "registered"),
     "resolve": ("pinneapple_core.registry", "resolve"),
     "Registry": ("pinneapple_core.registry", "Registry"),
+    # one read-only catalogue over every kind, and over the lists that used to disagree (#1478)
+    "catalog": ("pinneapple_core.catalog", "catalog"),
     "compile": ("pinneapple_physics.compile_api", "compile"),
     "design": ("pinneapple_design.intent", "design"),
+    # one estimator over EKF / UKF / EnKF / particle, for the sensor -> state -> correction loop (#215)
+    "StateEstimator": ("pinneapple_analysis.state_estimation", "StateEstimator"),
+    # which simulation to run next: Bayesian optimization with constraints (#102)
+    "BayesianOptimizer": ("pinneapple_analysis.bayesopt", "BayesianOptimizer"),
+    # one dimension for every term of an equation, checked before training (#205)
+    # hybrid: known physics (or a ROM surrogate) plus a learned closure of what it does not explain (#211)
+    "HybridModel": ("pinneapple_neural.hybrid_closure", "HybridModel"),
+    "ClosureBlock": ("pinneapple_neural.hybrid_closure", "ClosureBlock"),
+    # event-driven simulation: an impact, a valve opening, a failure threshold (#210)
+    "Event": ("pinneapple_simulation.events", "Event"),
+    "Reaction": ("pinneapple_simulation.events", "Reaction"),
+    "run_events": ("pinneapple_simulation.events", "run_events"),
+    "check_dimensions": ("pinneapple_physics.dimensions", "check_dimensions"),
+    # a tensor that knows its name, unit, domain and components, and refuses m/s + Pa (X2, #186)
+    # data readiness: may this dataset start a training run? and the engineering review record (#1491, #1493)
+    "readiness": ("pinneapple_data.readiness", "readiness"),
+    "require_readiness": ("pinneapple_data.readiness", "require"),
+    "ReadinessError": ("pinneapple_data.readiness", "ReadinessError"),
+    "ReviewRecord": ("pinneapple_data.review", "ReviewRecord"),
+    "ReviewStore": ("pinneapple_data.review", "ReviewStore"),
+    "approval_for": ("pinneapple_data.review", "approval_for"),
+    "tensor": ("pinneapple_core.physics_tensor", "tensor"),
+    "PhysicsTensor": ("pinneapple_core.physics_tensor", "PhysicsTensor"),
     "PhysicsModule": ("pinneapple_core.module", "PhysicsModule"),
     "Sequential": ("pinneapple_core.module", "Sequential"),
     "SolverModule": ("pinneapple_core.module", "SolverModule"),
@@ -760,7 +832,9 @@ __all__ = [
     "PhysicalProblem", "Parameter", "Quantity",
     # Front door: solve, compare, run reproducible experiments, score with one metrics convention
     "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method", "list_methods",
-    "Experiment", "ExperimentResult", "metrics",
+    "Experiment", "ExperimentResult", "metrics", "StateEstimator", "experiments",
+    # surrogate in the loop with a verification budget (#297)
+    "optimize",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # First hour: is this machine ready, what should I run, what does it take, where do I put it
@@ -793,8 +867,22 @@ __all__ = [
     "export_torchscript", "export_onnx", "export_csv", "export_npz",
     # The .ppx container: a result with its problem, units, environment and provenance, reproducible elsewhere
     "Artifact", "save", "load", "verify_artifact",
+    # a tensor that knows its name, unit, domain and components (X2, #186)
+    "tensor", "PhysicsTensor",
+    # readiness gate and engineering review (PDI, #1491/#1493)
+    "readiness", "require_readiness", "ReadinessError", "ReviewRecord", "ReviewStore",
     # One registry protocol for every extensible object type (X16)
-    "register", "unregister", "registered", "resolve", "Registry",
+    "register", "unregister", "registered", "resolve", "Registry", "catalog",
+    # plugins installed from packages: the entry point, the contract and the diagnostics (K1/E3, #100/#1474)
+    "plugins",
+    # Dimensional consistency of an equation before training (X21, #205)
+    "check_dimensions",
+    # Event-driven simulation: condition and action, located between steps (X26, #210)
+    "Event", "Reaction", "run_events",
+    # Hybrid: base (physics or ROM) plus a learned closure of the residual (X27, #211)
+    "HybridModel", "ClosureBlock",
+    # Bayesian optimization and sequential design of experiments (K3, #102)
+    "BayesianOptimizer", "bayesopt",
     # Inverse problems
     "GaussianMisfit", "HuberMisfit", "CauchyMisfit", "StudentTMisfit", "HeteroscedasticMisfit",
     "TikhonovRegularizer", "SparsityRegularizer", "TotalVariationRegularizer",
@@ -811,6 +899,9 @@ __all__ = [
     "DragObjective", "ThermalEfficiencyObjective", "StructuralObjective",
     "WeightMinimizationObjective", "CompositeObjective",
     "BoxConstraint", "MassConservationConstraint", "ConstraintSet",
+    # One constraint object applied in training, in an optimizer and in a deploy guard (X34, #221)
+    "Constraint", "ConstraintCheck", "ConstraintReport", "ConstraintViolation", "ConstraintGuard",
+    "optimizer_constraints",
     "DesignOptimizerConfig", "ParetoFront", "compute_pareto_front",
     "PINNRefinement",
     # Benchmark suite
@@ -827,6 +918,8 @@ __all__ = [
     "inference", "pinn", "dt", "arena", "design_opt",
     # Lazy submodule aliases (advanced)
     "uq", "transfer", "meta", "validate", "export",
+    # linear algebra (#202) and the conditioning layer (#206)
+    "linalg", "condition",
     # Quantum
     "quantum",
     # ---- v0.5 new features ----

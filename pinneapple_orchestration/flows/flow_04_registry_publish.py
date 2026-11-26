@@ -2,7 +2,7 @@
 real stage" step."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pinneapple_registry import ArtifactRegistry
 
@@ -17,11 +17,11 @@ def flow_registry_publish(
     problem_id: str,
     model: Any,
     *,
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: dict[str, Any] | None = None,
     stage: str = "staging",
     confirm: bool = False,
     manifest_dir: str = "data/manifests",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     with flow_run_manifest(
         "flow_04_registry_publish", {"problem_id": problem_id, "stage": stage, "confirm": confirm}, manifest_dir=manifest_dir
     ) as manifest:

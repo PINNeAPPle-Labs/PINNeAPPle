@@ -1,0 +1,12 @@
+{
+ "code_hash": "f112d2cd57320c76",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.turbomachinery.axial_compressor_meanline",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='axial_compressor_meanline', dim=1, coords=('s',), fields=('T_t', 'p_t', 'rho', 'u', 'c_theta'), pde=PDETermSpec(kind='compressor_meanline_1d', fields=('T_t', 'p_t', 'rho', 'u', 'c_theta'), coords=('s',), params={'gamma': 1.4, 'R_gas': 287.0, 'c_p': 1004.5000000000001, 'omega': 1047.1975511965977, 'num_stages': 5, 'delta_T_stage': 24.20316296787024, 'W_stage_per_unit_length': 24312.07720122566, 'mass_flow_rate': 4.37, 'hub_to_tip_ratio': 0.5, 'isentropic_efficiency': 0.878}, meta={}), conditions=(ConditionSpec(name='inlet', kind='dirichlet', fields=('T_t', 'p_t', 'u'), selector_type='callable', selector=<function axial_compressor_meanline.<locals>.<lambda> at 0x102778c20>, value_fn=<function axial_compressor_meanline.<locals>.<lambda> at 0x108a4ba60>, weight=10.0, order=1,",
+ "timed_out": false
+}

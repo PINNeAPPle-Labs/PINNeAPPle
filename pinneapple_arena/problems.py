@@ -23,7 +23,8 @@ Each problem exposes:
 from __future__ import annotations
 
 import math
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -75,24 +76,24 @@ class ArenaProblem:
     domain: str = ""        # human-readable physics domain
     input_dim: int = 2
     output_dim: int = 1
-    physics_preset: Optional[str] = None
+    physics_preset: str | None = None
 
     def analytical(self, x: np.ndarray, y: np.ndarray, **params
-                   ) -> Optional[Dict[str, np.ndarray]]:
+                   ) -> dict[str, np.ndarray] | None:
         return None
 
     def pinn_residuals(self, net, xy_int: torch.Tensor, xy_bc: torch.Tensor,
                        uv_bc: torch.Tensor, **params
-                       ) -> Tuple[torch.Tensor, torch.Tensor]:
+                       ) -> tuple[torch.Tensor, torch.Tensor]:
         raise NotImplementedError
 
     def supervised_data(self, n_train: int, n_bc: int, grid_n: int, **params
-                        ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray,
-                                   np.ndarray, np.ndarray, List[str]]:
+                        ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray,
+                                   np.ndarray, np.ndarray, list[str]]:
         raise NotImplementedError
 
-    def compiled_losses(self, physics_preset_override: Optional[str] = None,
-                        **params) -> Optional[Dict[str, Callable]]:
+    def compiled_losses(self, physics_preset_override: str | None = None,
+                        **params) -> dict[str, Callable] | None:
         preset_name = physics_preset_override or self.physics_preset
         if preset_name is None:
             return None
@@ -102,7 +103,7 @@ class ArenaProblem:
         except Exception:
             return None
 
-    def to_problem_spec(self, physics_preset_override: Optional[str] = None, **params):
+    def to_problem_spec(self, physics_preset_override: str | None = None, **params):
         preset_name = physics_preset_override or self.physics_preset
         if preset_name is None:
             return None
@@ -915,7 +916,7 @@ class FitzHughNagumo1D(ArenaProblem):
     output_dim = 2  # (v, w)
     physics_preset = None
 
-    _ref_cache: Dict[tuple, Any] = {}
+    _ref_cache: dict[tuple, Any] = {}
 
     def analytical(self, x, t, a=0.1, eps=0.01, gamma=0.5, I=0.0, **kw):
         # No closed form exists. Reference: method-of-lines solution on 401 points (no-flux ends, BDF, rtol 1e-9),
@@ -1140,7 +1141,7 @@ class AllenCahn(ArenaProblem):
         return xt, Y_int, pts, Y_bc, xy_e, Y_e, ["u"]
 
 
-_PROBLEM_REGISTRY: Dict[str, ArenaProblem] = {}
+_PROBLEM_REGISTRY: dict[str, ArenaProblem] = {}
 
 def _reg(cls):
     inst = cls()
@@ -1184,7 +1185,7 @@ def get_problem(name: str) -> ArenaProblem:
     return _PROBLEM_REGISTRY[name]
 
 
-def register_problem(problem: "ArenaProblem") -> "ArenaProblem":
+def register_problem(problem: ArenaProblem) -> ArenaProblem:
     """Register a custom ArenaProblem instance so Arena can find it by name.
 
     Usage::
@@ -1199,12 +1200,12 @@ def register_problem(problem: "ArenaProblem") -> "ArenaProblem":
     return problem
 
 
-def list_problems() -> List[str]:
+def list_problems() -> list[str]:
     return sorted(_PROBLEM_REGISTRY.keys())
 
 
-def list_problems_by_domain() -> Dict[str, List[str]]:
-    domains: Dict[str, List[str]] = {}
+def list_problems_by_domain() -> dict[str, list[str]]:
+    domains: dict[str, list[str]] = {}
     for name, p in _PROBLEM_REGISTRY.items():
         domains.setdefault(getattr(p, "domain", "Other"), []).append(name)
     return domains

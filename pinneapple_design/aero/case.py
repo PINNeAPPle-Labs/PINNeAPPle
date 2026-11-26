@@ -16,7 +16,7 @@ import subprocess
 import tempfile
 import time
 import zipfile
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
@@ -123,7 +123,7 @@ def read_internal(path: str) -> np.ndarray:
     return np.array(body.split(), float)
 
 
-def wall_geometry(P2: np.ndarray) -> Dict[str, np.ndarray]:
+def wall_geometry(P2: np.ndarray) -> dict[str, np.ndarray]:
     """Per wall face (i = 0..ni-1): centre, length, unit normal into the body, distance of the first cell centre."""
     from .mesh import cell_centres
     w = P2[0]
@@ -137,7 +137,7 @@ def wall_geometry(P2: np.ndarray) -> Dict[str, np.ndarray]:
     return {"centre": c, "length": L, "n_body": n_body, "d": d}
 
 
-def forces(P2: np.ndarray, p_wall: np.ndarray, U_first: np.ndarray, nu: float, alpha_deg: float) -> Dict[str, Any]:
+def forces(P2: np.ndarray, p_wall: np.ndarray, U_first: np.ndarray, nu: float, alpha_deg: float) -> dict[str, Any]:
     """Cl, Cd, Cm (quarter chord, nose-up positive) and the Cp / Cf distributions from the wall-adjacent cells."""
     g = wall_geometry(P2)
     n = g["n_body"]
@@ -171,7 +171,7 @@ def time_dirs(case: str):
     return sorted(out)
 
 
-def read_coefficients(case: str, P2: np.ndarray, nu: float, alpha_deg: float, ni: int) -> Dict[str, Any]:
+def read_coefficients(case: str, P2: np.ndarray, nu: float, alpha_deg: float, ni: int) -> dict[str, Any]:
     """Coefficients at every kept write (convergence check) and the full result at the last one."""
     hist = []
     last = None
@@ -186,7 +186,7 @@ def read_coefficients(case: str, P2: np.ndarray, nu: float, alpha_deg: float, ni
     t, d, r = last
     H = np.array(hist)
     tail = H[-5:]
-    out: Dict[str, Any] = {"iterations": int(t), "Cl": r["Cl"], "Cd": r["Cd"], "Cm": r["Cm"],
+    out: dict[str, Any] = {"iterations": int(t), "Cl": r["Cl"], "Cd": r["Cd"], "Cm": r["Cm"],
                            "Cd_pressure": r["Cd_pressure"], "wall": {k: r[k] for k in ("Cp", "Cf", "x", "y")},
                            "time_dir": d}
     for k, c in (("Cl", 1), ("Cd", 2), ("Cm", 3)):
@@ -196,7 +196,7 @@ def read_coefficients(case: str, P2: np.ndarray, nu: float, alpha_deg: float, ni
 
 
 def run_case(case: str, shape: np.ndarray, alpha_deg: float, reynolds: float = 4e6, iterations: int = 1200,
-             grid: GridSpec = GridSpec(), timeout: float = 1800) -> Dict[str, Any]:
+             grid: GridSpec = GridSpec(), timeout: float = 1800) -> dict[str, Any]:
     """Write, run simpleFoam, return coefficients, convergence verdict, timing."""
     write_case(case, shape, alpha_deg, reynolds, iterations, grid=grid)
     t0 = time.time()

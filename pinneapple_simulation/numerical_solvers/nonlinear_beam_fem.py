@@ -74,8 +74,7 @@ topology the caller constructs.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -328,11 +327,11 @@ class NonlinearBeamNewmarkFEM:
     def __init__(self, num_elements: int, nodes_per_element: int, length: float,
                  area: float, moment_of_inertia: float, E: float, density: float,
                  damping_coeff: float, axial_dist_load: float, transverse_dist_load: float,
-                 boundary: Dict[str, Any], total_time: float, timesteps: int,
+                 boundary: dict[str, Any], total_time: float, timesteps: int,
                  newmark_beta: float, newmark_gamma: float, newton_relaxation: float,
                  newton_iterations: int, newton_tolerance: float, load_steps: int,
-                 initial_disp: Optional[np.ndarray] = None, initial_vel: Optional[np.ndarray] = None,
-                 reference_temperature: float = 0.0, temperature_field: Optional[np.ndarray] = None,
+                 initial_disp: np.ndarray | None = None, initial_vel: np.ndarray | None = None,
+                 reference_temperature: float = 0.0, temperature_field: np.ndarray | None = None,
                  thermal_expansion_coeff: float = 0.0, driving_freq_hz: float = 0.0):
         if nodes_per_element != NODES_PER_ELEMENT:
             raise ValueError(
@@ -693,7 +692,7 @@ class NonlinearBeamNewmarkFEM:
 # --------------------------------------------------------------------------
 
 def solve_nonlinear_beam_transient(
-    boundary: Dict[str, Any],
+    boundary: dict[str, Any],
     L_m: float,
     A_m2: float,
     I_m4: float,
@@ -712,10 +711,10 @@ def solve_nonlinear_beam_transient(
     newton_iterations: int = 10,
     newton_tolerance: float = 1e-3,
     load_steps: int = 1,
-    initial_disp: Optional[np.ndarray] = None,
-    initial_vel: Optional[np.ndarray] = None,
+    initial_disp: np.ndarray | None = None,
+    initial_vel: np.ndarray | None = None,
     reference_temperature: float = 0.0,
-    temperature_field: Optional[np.ndarray] = None,
+    temperature_field: np.ndarray | None = None,
     thermal_expansion_coeff: float = 0.0,
     driving_freq_hz: float = 0.0,
     compute_natural_frequencies: bool = True,
@@ -814,7 +813,7 @@ class NonlinearBeamFEMSolver(SolverBase):
 
     def forward(
         self,
-        boundary: Dict[str, Any],
+        boundary: dict[str, Any],
         L_m: float,
         A_m2: float,
         I_m4: float,

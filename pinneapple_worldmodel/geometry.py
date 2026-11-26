@@ -31,7 +31,7 @@ from __future__ import annotations
 import math
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import torch
 from torch import Tensor
@@ -53,7 +53,7 @@ class GeometryBase(ABC):
         """Return boolean mask ``(N,)`` — True where *points* are inside."""
 
     @abstractmethod
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         """Return ``(lo, hi)`` bounding box tensors, both shape ``(D,)``."""
 
     @property
@@ -65,7 +65,7 @@ class GeometryBase(ABC):
     # Sampling
     # ------------------------------------------------------------------
 
-    def interior_points(self, n: int, *, seed: Optional[int] = None) -> Tensor:
+    def interior_points(self, n: int, *, seed: int | None = None) -> Tensor:
         """Sample *n* points inside the geometry using rejection sampling.
 
         Returns
@@ -76,7 +76,7 @@ class GeometryBase(ABC):
             torch.manual_seed(seed)
         lo, hi = self.bbox()
         D = lo.shape[0]
-        pts: List[Tensor] = []
+        pts: list[Tensor] = []
         batch = max(n * 4, 1000)
         while sum(p.shape[0] for p in pts) < n:
             cands = lo + (hi - lo) * torch.rand(batch, D)
@@ -84,7 +84,7 @@ class GeometryBase(ABC):
             pts.append(cands[mask])
         return torch.cat(pts, dim=0)[:n]
 
-    def boundary_points(self, n: int, *, seed: Optional[int] = None) -> Tensor:
+    def boundary_points(self, n: int, *, seed: int | None = None) -> Tensor:
         """Sample *n* points on the boundary (thin shell ε-rejection).
 
         Uses a thin-shell approach: points just outside the geometry are
@@ -95,7 +95,7 @@ class GeometryBase(ABC):
         lo, hi = self.bbox()
         D = lo.shape[0]
         eps = (hi - lo).min().item() * 1e-3
-        pts: List[Tensor] = []
+        pts: list[Tensor] = []
         while sum(p.shape[0] for p in pts) < n:
             cands = lo + (hi - lo) * torch.rand(n * 8, D)
             inside  = self.contains(cands)
@@ -131,13 +131,13 @@ class GeometryBase(ABC):
     # CSG operators
     # ------------------------------------------------------------------
 
-    def __or__(self, other: "GeometryBase") -> "Union":
+    def __or__(self, other: GeometryBase) -> Union:
         return Union(self, other)
 
-    def __and__(self, other: "GeometryBase") -> "Intersection":
+    def __and__(self, other: GeometryBase) -> Intersection:
         return Intersection(self, other)
 
-    def __sub__(self, other: "GeometryBase") -> "Difference":
+    def __sub__(self, other: GeometryBase) -> Difference:
         return Difference(self, other)
 
 
@@ -165,10 +165,10 @@ class Rectangle(GeometryBase):
     def contains(self, points: Tensor) -> Tensor:
         return ((points >= self._lo) & (points <= self._hi)).all(dim=-1)
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         return self._lo.clone(), self._hi.clone()
 
-    def boundary_points(self, n: int, *, seed: Optional[int] = None) -> Tensor:
+    def boundary_points(self, n: int, *, seed: int | None = None) -> Tensor:
         """Exact uniform sampling on the four edges."""
         if seed is not None:
             torch.manual_seed(seed)
@@ -214,10 +214,10 @@ class Circle(GeometryBase):
     def contains(self, points: Tensor) -> Tensor:
         return ((points - self._c) ** 2).sum(dim=-1) <= self._r ** 2
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         return self._c - self._r, self._c + self._r
 
-    def boundary_points(self, n: int, *, seed: Optional[int] = None) -> Tensor:
+    def boundary_points(self, n: int, *, seed: int | None = None) -> Tensor:
         """Exact uniform sampling on the circumference."""
         if seed is not None:
             torch.manual_seed(seed)
@@ -256,7 +256,7 @@ class Polygon(GeometryBase):
             j = i
         return inside
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         return self._verts.min(dim=0).values, self._verts.max(dim=0).values
 
     def __repr__(self) -> str:
@@ -277,7 +277,7 @@ class Box3D(GeometryBase):
     def contains(self, points: Tensor) -> Tensor:
         return ((points >= self._lo) & (points <= self._hi)).all(dim=-1)
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         return self._lo.clone(), self._hi.clone()
 
 
@@ -291,7 +291,7 @@ class Sphere(GeometryBase):
     def contains(self, points: Tensor) -> Tensor:
         return ((points - self._c) ** 2).sum(dim=-1) <= self._r ** 2
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         return self._c - self._r, self._c + self._r
 
 
@@ -308,7 +308,7 @@ class Union(GeometryBase):
     def contains(self, points: Tensor) -> Tensor:
         return self.a.contains(points) | self.b.contains(points)
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         la, ha = self.a.bbox()
         lb, hb = self.b.bbox()
         return torch.minimum(la, lb), torch.maximum(ha, hb)
@@ -323,7 +323,7 @@ class Intersection(GeometryBase):
     def contains(self, points: Tensor) -> Tensor:
         return self.a.contains(points) & self.b.contains(points)
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         la, ha = self.a.bbox()
         lb, hb = self.b.bbox()
         return torch.maximum(la, lb), torch.minimum(ha, hb)
@@ -338,7 +338,7 @@ class Difference(GeometryBase):
     def contains(self, points: Tensor) -> Tensor:
         return self.a.contains(points) & ~self.b.contains(points)
 
-    def bbox(self) -> Tuple[Tensor, Tensor]:
+    def bbox(self) -> tuple[Tensor, Tensor]:
         return self.a.bbox()
 
 
@@ -360,9 +360,9 @@ class BoundaryRegion:
     name: str
     bc_type: str
     value: float = 0.0
-    sampler: Optional[object] = None  # callable (n) -> Tensor
+    sampler: object | None = None  # callable (n) -> Tensor
 
-    def sample(self, n: int) -> Optional[Tensor]:
+    def sample(self, n: int) -> Tensor | None:
         if self.sampler is not None:
             return self.sampler(n)
         return None
@@ -381,15 +381,15 @@ class PhysicsDomain:
     tags : list of str
     """
     geometry: GeometryBase
-    boundaries: List[BoundaryRegion] = field(default_factory=list)
+    boundaries: list[BoundaryRegion] = field(default_factory=list)
     name: str = "domain"
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
-    def interior_points(self, n: int, *, seed: Optional[int] = None) -> Tensor:
+    def interior_points(self, n: int, *, seed: int | None = None) -> Tensor:
         return self.geometry.interior_points(n, seed=seed)
 
     def boundary_points(
-        self, n: int, region: Optional[str] = None, *, seed: Optional[int] = None
+        self, n: int, region: str | None = None, *, seed: int | None = None
     ) -> Tensor:
         if region is not None:
             for reg in self.boundaries:
@@ -402,13 +402,13 @@ class PhysicsDomain:
         n_interior: int = 4000,
         n_boundary: int = 500,
         *,
-        seed: Optional[int] = None,
-    ) -> Dict[str, Tensor]:
+        seed: int | None = None,
+    ) -> dict[str, Tensor]:
         """Return a dict compatible with ``pinneapple_data.CollocationSampler``.
 
         Keys: ``"interior"``, ``"boundary"``, and one per named region.
         """
-        out: Dict[str, Tensor] = {
+        out: dict[str, Tensor] = {
             "interior": self.interior_points(n_interior, seed=seed),
             "boundary": self.boundary_points(n_boundary, seed=seed),
         }
@@ -479,7 +479,7 @@ def make_channel(
 def make_channel_with_cylinder(
     length: float = 4.0,
     height: float = 1.0,
-    cyl_center: Tuple[float, float] = (1.0, 0.5),
+    cyl_center: tuple[float, float] = (1.0, 0.5),
     cyl_radius: float = 0.1,
 ) -> PhysicsDomain:
     """2-D channel with circular obstacle — classic benchmark."""
@@ -517,7 +517,7 @@ def make_l_shaped() -> PhysicsDomain:
 def make_annulus(
     inner_r: float = 0.3,
     outer_r: float = 1.0,
-    center: Tuple[float, float] = (0.0, 0.0),
+    center: tuple[float, float] = (0.0, 0.0),
 ) -> PhysicsDomain:
     """Annular domain — useful for heat/EM problems in cylindrical geometry."""
     outer = Circle(center, outer_r)
@@ -558,7 +558,7 @@ def _rect_walls(x0, y0, x1, y1, n: int, *, exclude_top: bool = False) -> Tensor:
 # Domain catalog
 # ---------------------------------------------------------------------------
 
-BUILTIN_DOMAINS: Dict[str, object] = {
+BUILTIN_DOMAINS: dict[str, object] = {
     "unit_square":             make_unit_square,
     "cavity":                  make_cavity,
     "channel":                 make_channel,

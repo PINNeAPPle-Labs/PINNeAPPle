@@ -1,0 +1,12 @@
+{
+ "code_hash": "7543e6b8eeaf7c2e",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.conditions.DataConstraint",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 24.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "DataConstraint -> pinneapple_physics.pde_environment.conditions:DataConstraint\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'fields': None, 'selector_type': 'all', 'selector': None, 'weight': 1.0}",
+ "timed_out": false
+}

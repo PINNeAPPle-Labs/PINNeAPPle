@@ -17,6 +17,7 @@ Design principles:
 - Expose a small stable API surface from `__init__`
 """
 
+from . import morph
 from .core.geometry import GeometrySpec, GeometryAsset
 from .core.mesh import MeshData
 from .core.registry import build_geometry_asset, load_geometry_asset
@@ -36,6 +37,8 @@ except Exception:  # optional dependency chain
     STLDomainBatchConfig = None  # type: ignore
 
 __all__ = [
+    # surface morphing: FFD, RBF handles, shape modes and the validity gate (#292)
+    "morph",
     # 3D Collocation
     "MeshCollocator",
     "MeshCollocatorConfig",

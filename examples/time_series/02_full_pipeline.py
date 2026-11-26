@@ -16,9 +16,6 @@ Optional dependencies:
 
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 import numpy as np
 import torch
@@ -118,7 +115,7 @@ def evaluate_baselines_on_split(
     split: Split,
     *,
     season_length: int = 12,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Evaluate baselines on the validation indices of one split.
     Returns MAE/RMSE/sMAPE for each baseline kind.
@@ -142,7 +139,7 @@ def evaluate_baselines_on_split(
         preds["drift"].append(baseline_predict_from_window(x_np, H, "drift", season_length))
 
     y_true = np.asarray(truths, dtype=float)      # (N_val, H)
-    out: Dict[str, float] = {}
+    out: dict[str, float] = {}
 
     for k, arr in preds.items():
         y_pred = np.asarray(arr, dtype=float)     # (N_val, H)

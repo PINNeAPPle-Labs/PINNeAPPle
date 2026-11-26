@@ -23,7 +23,9 @@
    "early_warning"
   ]
  },
- "scripts": [],
+ "scripts": [
+  "dynamics_toolkit.py"
+ ],
  "metrics": [
   {
    "name": "first_passage_pinn_max_abs_error_S",

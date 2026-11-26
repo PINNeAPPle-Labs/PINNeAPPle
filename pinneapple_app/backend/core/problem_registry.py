@@ -1,13 +1,13 @@
 """Problem registry: metadata, solver recommendations, and model suggestions per preset."""
 from __future__ import annotations
-from typing import Dict, Any
+from typing import Any
 
 # ── Problem metadata catalogue ────────────────────────────────────────────
 # key = preset name in pinneapple_environment
 # value = dict with: family, time_dependent, recommended_solver,
 #                    recommended_models, collocation_strategy, description
 
-_REGISTRY: Dict[str, Dict[str, Any]] = {
+_REGISTRY: dict[str, dict[str, Any]] = {
     # ── Fluid dynamics ─────────────────────────────────────────────────────
     "burgers_1d": {
         "family": "fluid", "time_dependent": True,
@@ -433,7 +433,7 @@ SOLVER_MAP = {
 }
 
 
-def get_problem_meta(preset_name: str) -> Dict[str, Any]:
+def get_problem_meta(preset_name: str) -> dict[str, Any]:
     """Return metadata dict for a preset, with sensible defaults for unknowns."""
     base = _REGISTRY.get(preset_name, {})
     if not base:

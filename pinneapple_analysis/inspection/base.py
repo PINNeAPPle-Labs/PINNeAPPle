@@ -28,7 +28,8 @@ here.
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -40,7 +41,7 @@ from pinneapple_neural.trainer.trainer import Trainer, TrainConfig
 from pinneapple_neural.trainer.losses import CombinedLoss, SupervisedLoss, PhysicsLossHook
 from pinneapple_neural.trainer.metrics import default_metrics
 
-PhysicsLossFn = Callable[[nn.Module, Dict[str, Any]], Tuple[torch.Tensor, Dict[str, Any]]]
+PhysicsLossFn = Callable[[nn.Module, dict[str, Any]], tuple[torch.Tensor, dict[str, Any]]]
 
 
 def _act(name: str) -> nn.Module:
@@ -68,7 +69,7 @@ class InspectionPINN(PINNBase):
         self,
         in_dim: int,
         out_dim: int,
-        hidden: List[int] = (64, 64, 64),
+        hidden: list[int] = (64, 64, 64),
         activation: str = "tanh",
         *,
         modality: str = "generic",
@@ -82,14 +83,14 @@ class InspectionPINN(PINNBase):
         self.modality = str(modality)
 
         dims = [self.in_dim, *list(hidden), self.out_dim]
-        layers: List[nn.Module] = []
+        layers: list[nn.Module] = []
         for i in range(len(dims) - 1):
             layers.append(nn.Linear(dims[i], dims[i + 1]))
             if i < len(dims) - 2:
                 layers.append(act)
         self.net = nn.Sequential(*layers)
 
-    def _concat_inputs(self, inputs: Tuple[torch.Tensor, ...]) -> torch.Tensor:
+    def _concat_inputs(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
         if len(inputs) == 0:
             raise ValueError("InspectionPINN.forward expected at least 1 input tensor.")
         if len(inputs) == 1:
@@ -107,8 +108,8 @@ class InspectionPINN(PINNBase):
     def forward(
         self,
         *inputs: torch.Tensor,
-        physics_fn: Optional[Callable[..., Any]] = None,
-        physics_data: Optional[Dict[str, Any]] = None,
+        physics_fn: Callable[..., Any] | None = None,
+        physics_data: dict[str, Any] | None = None,
     ) -> PINNOutput:
         x = self._concat_inputs(inputs)
 
@@ -118,7 +119,7 @@ class InspectionPINN(PINNBase):
         y = self.net(x)
 
         z0 = torch.zeros((), device=y.device, dtype=y.dtype)
-        losses: Dict[str, torch.Tensor] = {"total": z0}
+        losses: dict[str, torch.Tensor] = {"total": z0}
 
         if physics_fn is not None and physics_data is not None:
             total_phys, comps = physics_fn(self, physics_data)
@@ -144,7 +145,7 @@ class _InspectionDataset(Dataset):
     via modulo indexing so DataLoader batching just works regardless of
     how `x`/`x_col` sizes compare."""
 
-    def __init__(self, x: torch.Tensor, y: torch.Tensor, x_col: Optional[torch.Tensor]):
+    def __init__(self, x: torch.Tensor, y: torch.Tensor, x_col: torch.Tensor | None):
         self.x = x
         self.y = y
         self.x_col = x_col
@@ -152,7 +153,7 @@ class _InspectionDataset(Dataset):
     def __len__(self) -> int:
         return self.x.shape[0]
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         item = {"x": self.x[idx], "y": self.y[idx]}
         if self.x_col is not None:
             j = idx % self.x_col.shape[0]
@@ -162,8 +163,8 @@ class _InspectionDataset(Dataset):
 
 def train_generic_inspection_pinn(
     model: InspectionPINN,
-    synthetic_data: Dict[str, Any],
-    physics_loss_fn: Optional[PhysicsLossFn] = None,
+    synthetic_data: dict[str, Any],
+    physics_loss_fn: PhysicsLossFn | None = None,
     *,
     epochs: int = 200,
     lr: float = 1e-3,
@@ -174,8 +175,8 @@ def train_generic_inspection_pinn(
     device: str = "cpu",
     log_dir: str = "runs/inspection",
     run_name: str = "inspection_pinn",
-    seed: Optional[int] = None,
-) -> Dict[str, Any]:
+    seed: int | None = None,
+) -> dict[str, Any]:
     """Train an ``InspectionPINN`` on a synthetic-data dict via
     ``pinneapple_neural.trainer.trainer.Trainer`` -- the same Trainer, the
     same ``CombinedLoss(SupervisedLoss + PhysicsLossHook)`` pattern, used
@@ -234,7 +235,7 @@ def train_generic_inspection_pinn(
         w_physics=w_physics,
     )
 
-    def loss_fn(m: nn.Module, y_hat: Any, batch: Dict[str, Any]):
+    def loss_fn(m: nn.Module, y_hat: Any, batch: dict[str, Any]):
         return combined(m, y_hat, batch)
 
     trainer = Trainer(model=model, loss_fn=loss_fn, metrics=default_metrics())

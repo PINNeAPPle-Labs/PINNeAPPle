@@ -31,22 +31,21 @@ The builder can also register the spec as a named preset::
 """
 from __future__ import annotations
 
-import copy
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
 from .conditions import ConditionSpec, DirichletBC, InitialCondition, NeumannBC, DataConstraint
 from .scales import ScaleSpec
 from .spec import PDETermSpec, ProblemSpec
-from .environment_typing import CoordNames, FieldNames
 
 # ── value helpers ──────────────────────────────────────────────────────────────
 
 def _make_value_fn(
-    value: Union[float, Callable, Dict[str, float]],
+    value: float | Callable | dict[str, float],
     n_fields: int,
-) -> Callable[[np.ndarray, Dict[str, Any]], np.ndarray]:
+) -> Callable[[np.ndarray, dict[str, Any]], np.ndarray]:
     """Convert scalar / callable / dict into a (X, ctx) -> (N, n_fields) callable."""
     if callable(value):
         def _wrap_callable(X, ctx, _fn=value):
@@ -74,10 +73,10 @@ def _make_value_fn(
 
 
 def _make_selector(
-    on: Union[str, Callable, Tuple],
-    domain_bounds: Dict[str, Tuple[float, float]],
-    coords: List[str],
-) -> Tuple[str, Optional[Any]]:
+    on: str | Callable | tuple,
+    domain_bounds: dict[str, tuple[float, float]],
+    coords: list[str],
+) -> tuple[str, Any | None]:
     """
     Convert an `on` spec into (selector_type, selector) pair.
 
@@ -188,22 +187,22 @@ class ProblemBuilder:
 
     def __init__(self, name: str) -> None:
         self._name = name
-        self._coords: List[str] = []
-        self._domain_bounds: Dict[str, Tuple[float, float]] = {}
-        self._fields: List[str] = []
+        self._coords: list[str] = []
+        self._domain_bounds: dict[str, tuple[float, float]] = {}
+        self._fields: list[str] = []
         self._pde_kind: str = ""
-        self._pde_params: Dict[str, Any] = {}
-        self._pde_meta: Dict[str, Any] = {}
-        self._conditions: List[ConditionSpec] = []
-        self._sample_defaults: Dict[str, int] = {}
-        self._field_ranges: Dict[str, Tuple[float, float]] = {}
-        self._solver_spec: Dict[str, Any] = {}
-        self._references: List[str] = []
+        self._pde_params: dict[str, Any] = {}
+        self._pde_meta: dict[str, Any] = {}
+        self._conditions: list[ConditionSpec] = []
+        self._sample_defaults: dict[str, int] = {}
+        self._field_ranges: dict[str, tuple[float, float]] = {}
+        self._solver_spec: dict[str, Any] = {}
+        self._references: list[str] = []
         self._scales: ScaleSpec = ScaleSpec()
 
     # ── Domain ────────────────────────────────────────────────────────────────
 
-    def domain(self, **bounds: Tuple[float, float]) -> "ProblemBuilder":
+    def domain(self, **bounds: tuple[float, float]) -> ProblemBuilder:
         """
         Set coordinate domain bounds via keyword arguments.
 
@@ -215,7 +214,7 @@ class ProblemBuilder:
         self._coords = list(bounds.keys())
         return self
 
-    def domain_bounds(self, bounds: Dict[str, Tuple[float, float]]) -> "ProblemBuilder":
+    def domain_bounds(self, bounds: dict[str, tuple[float, float]]) -> ProblemBuilder:
         """
         Set coordinate domain bounds via a dict (paper-style API).
 
@@ -228,14 +227,14 @@ class ProblemBuilder:
             self._coords = list(bounds.keys())
         return self
 
-    def coords(self, *names: str) -> "ProblemBuilder":
+    def coords(self, *names: str) -> ProblemBuilder:
         """Explicitly set coordinate ordering (optional if using .domain())."""
         self._coords = list(names)
         return self
 
     # ── Fields ────────────────────────────────────────────────────────────────
 
-    def fields(self, *names: str) -> "ProblemBuilder":
+    def fields(self, *names: str) -> ProblemBuilder:
         """
         Set output field names.
 
@@ -246,7 +245,7 @@ class ProblemBuilder:
         self._fields = list(names)
         return self
 
-    def field_range(self, **ranges: Tuple[float, float]) -> "ProblemBuilder":
+    def field_range(self, **ranges: tuple[float, float]) -> ProblemBuilder:
         """Set expected value ranges per field (used for normalisation hints)."""
         self._field_ranges.update({k: (float(v[0]), float(v[1])) for k, v in ranges.items()})
         return self
@@ -257,10 +256,10 @@ class ProblemBuilder:
         self,
         kind: str,
         *,
-        fields: Optional[Sequence[str]] = None,
-        coords: Optional[Sequence[str]] = None,
+        fields: Sequence[str] | None = None,
+        coords: Sequence[str] | None = None,
         **params: Any,
-    ) -> "ProblemBuilder":
+    ) -> ProblemBuilder:
         """
         Set PDE type and parameters.
 
@@ -291,7 +290,7 @@ class ProblemBuilder:
                     self._domain_bounds[c] = (0.0, 1.0)
         return self
 
-    def param(self, name: str, value: Any) -> "ProblemBuilder":
+    def param(self, name: str, value: Any) -> ProblemBuilder:
         """
         Add a single named PDE parameter.
 
@@ -302,7 +301,7 @@ class ProblemBuilder:
         self._pde_params[name] = value
         return self
 
-    def pde_meta(self, **meta: Any) -> "ProblemBuilder":
+    def pde_meta(self, **meta: Any) -> ProblemBuilder:
         """Set optional PDE metadata (passed through to compiler)."""
         self._pde_meta.update(meta)
         return self
@@ -313,12 +312,12 @@ class ProblemBuilder:
         self,
         kind: str = "dirichlet",
         *,
-        field: Union[str, Sequence[str]],
-        value: Union[float, Callable, Dict[str, float]] = 0.0,
-        on: Union[str, Callable, Tuple, None] = "boundary",
+        field: str | Sequence[str],
+        value: float | Callable | dict[str, float] = 0.0,
+        on: str | Callable | tuple | None = "boundary",
         weight: float = 10.0,
-        name: Optional[str] = None,
-    ) -> "ProblemBuilder":
+        name: str | None = None,
+    ) -> ProblemBuilder:
         """
         Add a boundary condition.
 
@@ -368,13 +367,13 @@ class ProblemBuilder:
     def ic(
         self,
         *,
-        field: Union[str, Sequence[str]],
-        fn: Optional[Callable] = None,
-        value: Union[float, Callable, Dict[str, float]] = 0.0,
+        field: str | Sequence[str],
+        fn: Callable | None = None,
+        value: float | Callable | dict[str, float] = 0.0,
         weight: float = 10.0,
-        name: Optional[str] = None,
+        name: str | None = None,
         at_t: float = 0.0,
-    ) -> "ProblemBuilder":
+    ) -> ProblemBuilder:
         """
         Add an initial condition (applied at t=``at_t``).
 
@@ -413,13 +412,13 @@ class ProblemBuilder:
     def data(
         self,
         *,
-        field: Union[str, Sequence[str]],
-        fn: Optional[Callable] = None,
-        value: Union[float, Callable] = 0.0,
-        on: Union[str, Callable, None] = None,
+        field: str | Sequence[str],
+        fn: Callable | None = None,
+        value: float | Callable = 0.0,
+        on: str | Callable | None = None,
         weight: float = 1.0,
-        name: Optional[str] = None,
-    ) -> "ProblemBuilder":
+        name: str | None = None,
+    ) -> ProblemBuilder:
         """Add a data constraint (supervised loss at specific points)."""
         fields_tuple = (field,) if isinstance(field, str) else tuple(field)
         n_fields = len(fields_tuple)
@@ -430,7 +429,7 @@ class ProblemBuilder:
         self._conditions.append(cond)
         return self
 
-    def add_condition(self, cond: ConditionSpec) -> "ProblemBuilder":
+    def add_condition(self, cond: ConditionSpec) -> ProblemBuilder:
         """Add a raw ConditionSpec directly."""
         self._conditions.append(cond)
         return self
@@ -439,7 +438,7 @@ class ProblemBuilder:
         self,
         name: str,
         condition: ConditionSpec,
-    ) -> "ProblemBuilder":
+    ) -> ProblemBuilder:
         """
         Add a named boundary condition (paper-style API).
 
@@ -458,7 +457,7 @@ class ProblemBuilder:
 
     # ── Sampling ──────────────────────────────────────────────────────────────
 
-    def sample(self, **counts: int) -> "ProblemBuilder":
+    def sample(self, **counts: int) -> ProblemBuilder:
         """
         Set default sampling counts.
 
@@ -477,7 +476,7 @@ class ProblemBuilder:
 
     # ── Solver hint ───────────────────────────────────────────────────────────
 
-    def solver(self, name: str = "fdm", method: str = "", **params: Any) -> "ProblemBuilder":
+    def solver(self, name: str = "fdm", method: str = "", **params: Any) -> ProblemBuilder:
         """
         Hint which reference solver to use for generating training data.
 
@@ -491,7 +490,7 @@ class ProblemBuilder:
 
     # ── References ────────────────────────────────────────────────────────────
 
-    def reference(self, *refs: str) -> "ProblemBuilder":
+    def reference(self, *refs: str) -> ProblemBuilder:
         """Add reference strings (papers, notes) for documentation."""
         self._references.extend(refs)
         return self
@@ -554,7 +553,7 @@ class ProblemBuilder:
 
     # ── Registry integration ───────────────────────────────────────────────────
 
-    def register(self, preset_id: Optional[str] = None) -> "ProblemBuilder":
+    def register(self, preset_id: str | None = None) -> ProblemBuilder:
         """
         Register this problem as a named preset in the global registry.
 
@@ -593,12 +592,12 @@ class ProblemBuilder:
         lr: float = 1e-3,
         device: str = "auto",
         seed: int = 42,
-        n_col: Optional[int] = None,
-        n_bc: Optional[int] = None,
-        n_ic: Optional[int] = None,
+        n_col: int | None = None,
+        n_bc: int | None = None,
+        n_ic: int | None = None,
         verbose: bool = True,
         **train_kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Build the spec and run the resolution pipeline in one call.
 

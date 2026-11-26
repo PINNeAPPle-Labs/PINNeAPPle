@@ -42,7 +42,7 @@ from . import closed_form
 from . import pde_environment
 from . import pinn_solver
 from . import symbolic_pde
-from .physical_problem import PARAMETER_ROLES, Parameter, PhysicalProblem, Quantity
+from .physical_problem import PARAMETER_ROLES, Parameter, Objective, Constraint, Fidelity, PhysicalProblem, Quantity
 from . import metrics
 
 # backward-compat aliases (old names still work)
@@ -291,6 +291,15 @@ def solve_pde(
     np.random.seed(seed)
     device_t = torch.device(device)
     model = model.to(device_t)
+    # Everything this loop builds is a batch for the model, so it must be in the model's dtype.
+    # Pinning float32 here meant a `.double()` model died inside the first nn.Linear with a message
+    # that named neither solve_pde nor the dtype (#1885).
+    try:
+        dtype = next(model.parameters()).dtype
+    except StopIteration:
+        dtype = torch.float32
+    if not dtype.is_floating_point:
+        dtype = torch.float32
     coords = list(spec.coords)
     bounds = spec.domain_bounds
     n_fields = len(spec.fields)
@@ -301,19 +310,20 @@ def solve_pde(
     opt = torch.optim.Adam(model.parameters(), lr=lr)
 
     def _sample_domain_np(n: int) -> "np.ndarray":
-        return np.stack([np.random.uniform(*bounds[c], size=n) for c in coords], axis=1).astype(np.float32)
+        return np.stack([np.random.uniform(*bounds[c], size=n) for c in coords], axis=1).astype(np.float64)
 
     def _sample_domain(n: int) -> "torch.Tensor":
-        return torch.as_tensor(_sample_domain_np(n), device=device_t)
+        return torch.as_tensor(_sample_domain_np(n), device=device_t, dtype=dtype)
 
     def _empty_xy():
-        return torch.zeros((0, len(coords)), device=device_t), torch.zeros((0, n_fields), device=device_t)
+        return (torch.zeros((0, len(coords)), device=device_t, dtype=dtype),
+                torch.zeros((0, n_fields), device=device_t, dtype=dtype))
 
     explicit = {"bc": x_bc is not None, "ic": x_ic is not None, "data": x_data is not None}
     explicit_xy = {
-        "bc": (x_bc.to(device_t), y_bc.to(device_t)) if x_bc is not None else None,
-        "ic": (x_ic.to(device_t), y_ic.to(device_t)) if x_ic is not None else None,
-        "data": (x_data.to(device_t), y_data.to(device_t)) if x_data is not None else None,
+        "bc": (x_bc.to(device_t, dtype), y_bc.to(device_t, dtype)) if x_bc is not None else None,
+        "ic": (x_ic.to(device_t, dtype), y_ic.to(device_t, dtype)) if x_ic is not None else None,
+        "data": (x_data.to(device_t, dtype), y_data.to(device_t, dtype)) if x_data is not None else None,
     }
     n_bc_t = n_bc.to(device_t) if n_bc is not None else None
     explicit_masks = {k: v.to(device_t) for k, v in cond_masks.items() if k.startswith("mask_")}
@@ -394,8 +404,8 @@ def solve_pde(
     history = {"loss": []}
     x_col_fixed = None
     if x_col is not None:
-        x_col_fixed = torch.as_tensor(np.asarray(x_col, dtype=np.float32) if not torch.is_tensor(x_col) else x_col,
-                                      dtype=torch.float32, device=device_t)
+        x_col_fixed = torch.as_tensor(np.asarray(x_col, dtype=np.float64) if not torch.is_tensor(x_col) else x_col,
+                                      dtype=dtype, device=device_t)
         if x_col_fixed.ndim != 2 or x_col_fixed.shape[1] != len(coords):
             raise ValueError(f"x_col must have shape (N, {len(coords)}), got {tuple(x_col_fixed.shape)}")
     for _epoch in range(epochs):
@@ -442,9 +452,9 @@ def solve_pde(
                     if x_sel.shape[0] == 0:
                         continue
             y_np = (
-                np.asarray(cond.value_fn(x_sel, ctx), dtype=np.float32)
+                np.asarray(cond.value_fn(x_sel, ctx), dtype=np.float64)
                 if cond.value_fn is not None
-                else np.zeros((x_sel.shape[0], n_fields), dtype=np.float32)
+                else np.zeros((x_sel.shape[0], n_fields), dtype=np.float64)
             )
             if y_np.ndim == 1:
                 y_np = y_np[:, None]
@@ -452,7 +462,7 @@ def solve_pde(
                 # Conditions on different fields (or traction components) are stacked in one y array: lay every
                 # condition out over all model fields, which the compiler slices back by cond.fields. Values of
                 # names that are not model fields are recomputed by the compiler from cond.values.
-                full = np.zeros((y_np.shape[0], n_fields), dtype=np.float32)
+                full = np.zeros((y_np.shape[0], n_fields), dtype=np.float64)
                 cols = [list(spec.fields).index(f) for f in cond.fields if f in spec.fields]
                 if len(cols) == len(cond.fields) == y_np.shape[1]:
                     full[:, cols] = y_np
@@ -467,8 +477,8 @@ def solve_pde(
         for suffix in ("bc", "ic", "data"):
             xs, ys = buckets[suffix]
             if xs:
-                x_cat = torch.as_tensor(np.concatenate(xs, axis=0), device=device_t)
-                y_cat = torch.as_tensor(np.concatenate(ys, axis=0), device=device_t)
+                x_cat = torch.as_tensor(np.concatenate(xs, axis=0), device=device_t, dtype=dtype)
+                y_cat = torch.as_tensor(np.concatenate(ys, axis=0), device=device_t, dtype=dtype)
             else:
                 x_cat, y_cat = _empty_xy()
             auto_xy[suffix] = (x_cat, y_cat)
@@ -528,11 +538,16 @@ class PhysicsPipeline:
 
         self.model.eval()
         with torch.no_grad():
-            x_t = torch.as_tensor(np.asarray(x, dtype="float32"))
+            # Same trap as solve_pde (#1885), one method away: a float32 batch and no device would kill
+            # a model that was trained in double precision, or on a GPU, at the first layer.
+            param = next(self.model.parameters(), None)
+            dtype = param.dtype if param is not None and param.dtype.is_floating_point else torch.float32
+            device = param.device if param is not None else torch.device("cpu")
+            x_t = torch.as_tensor(np.asarray(x, dtype=np.float64), dtype=dtype, device=device)
             y = self.model(x_t)
             if hasattr(y, "y"):
                 y = y.y
-        return y.numpy()
+        return y.detach().cpu().numpy()
 
 
 def pipeline(
@@ -593,6 +608,8 @@ def pipeline(
 __all__ = [
     "metrics", "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method",
     "list_methods", "Experiment", "ExperimentResult",
+    # the active design behind Experiment(active=...) (#34, #153)
+    "ActivePolicy", "ActiveRun", "active_design", "benchmark_active_design", "design_box", "probe", "source_rod",
     "PhysicalProblem", "Parameter", "Quantity", "PARAMETER_ROLES",
     # Sub-modules (new names)
     "pde_environment", "pinn_solver", "symbolic_pde", "closed_form",
@@ -630,3 +647,6 @@ from .solving import (  # noqa: E402
     Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
 )
 from .experiment import Experiment, ExperimentResult  # noqa: E402
+from .active_design import (  # noqa: E402
+    ActivePolicy, ActiveRun, active_design, benchmark_active_design, design_box, probe, source_rod,
+)

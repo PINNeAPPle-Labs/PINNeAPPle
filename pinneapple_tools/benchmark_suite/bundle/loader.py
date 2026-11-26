@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -31,14 +31,14 @@ class BundleData:
         Optional sensor or measurement data.
     """
     root: Path
-    manifest: Dict[str, Any]
-    conditions: Dict[str, Any]
+    manifest: dict[str, Any]
+    conditions: dict[str, Any]
     points_collocation: pd.DataFrame
     points_boundary: pd.DataFrame
-    sensors: Optional[pd.DataFrame] = None
+    sensors: pd.DataFrame | None = None
 
 
-def _read_json(path: Path) -> Dict[str, Any]:
+def _read_json(path: Path) -> dict[str, Any]:
     """
     Read a JSON file using UTF-8 encoding and return its parsed content.
 

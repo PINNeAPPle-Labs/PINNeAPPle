@@ -5,7 +5,7 @@ benchmarking logic lives here.
 """
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from pinneapple_systems.component_library import ComponentBenchmarkResult, benchmark_component_type
 
@@ -16,7 +16,7 @@ from .._prefect_compat import task
 def benchmark_component_type_task(
     component_type: str,
     train_loader: Any,
-    val_loader: Optional[Any] = None,
+    val_loader: Any | None = None,
     *,
     epochs: int = 50,
     lr: float = 1e-3,

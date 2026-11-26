@@ -9,7 +9,7 @@ using the adaptive physics informed neural networks"
 """
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -46,7 +46,7 @@ class TimeMarchingTrainer:
         epochs_per_window: int = 2000,
         n_col: int = 1000,
         ic_weight: float = 10.0,
-        optimizer_kwargs: Optional[Dict] = None,
+        optimizer_kwargs: dict | None = None,
     ):
         self.model_factory = model_factory
         self.t_start = float(t_start)
@@ -58,15 +58,15 @@ class TimeMarchingTrainer:
         self.optimizer_kwargs = optimizer_kwargs or {}
 
         # Computed after march()
-        self.models: List[nn.Module] = []
-        self.window_edges: List[Tuple[float, float]] = []
-        self._t_breaks: List[float] = []
+        self.models: list[nn.Module] = []
+        self.window_edges: list[tuple[float, float]] = []
+        self._t_breaks: list[float] = []
 
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _make_window_edges(self) -> List[Tuple[float, float]]:
+    def _make_window_edges(self) -> list[tuple[float, float]]:
         """Uniform partition of [t_start, t_end] into n_windows intervals."""
         breaks = np.linspace(self.t_start, self.t_end, self.n_windows + 1)
         return [(float(breaks[i]), float(breaks[i + 1])) for i in range(self.n_windows)]
@@ -75,7 +75,7 @@ class TimeMarchingTrainer:
         self,
         t_lo: float,
         t_hi: float,
-        x_domain: Optional[torch.Tensor],
+        x_domain: torch.Tensor | None,
         device: torch.device,
         dtype: torch.dtype,
         seed: int = 0,
@@ -105,7 +105,7 @@ class TimeMarchingTrainer:
     def _sample_ic_points(
         self,
         t_ic: float,
-        x_domain: Optional[torch.Tensor],
+        x_domain: torch.Tensor | None,
         device: torch.device,
         dtype: torch.dtype,
         n_ic: int = 256,
@@ -131,12 +131,12 @@ class TimeMarchingTrainer:
         t_hi: float,
         pde_residual_fn: Callable[[nn.Module, torch.Tensor], torch.Tensor],
         ic_target_fn: Callable[[torch.Tensor], torch.Tensor],
-        bc_fns: Optional[List[Callable[[torch.Tensor], Tuple[torch.Tensor, torch.Tensor]]]],
-        x_domain: Optional[torch.Tensor],
+        bc_fns: list[Callable[[torch.Tensor], tuple[torch.Tensor, torch.Tensor]]] | None,
+        x_domain: torch.Tensor | None,
         device: torch.device,
         dtype: torch.dtype,
         window_idx: int,
-    ) -> Dict[str, List[float]]:
+    ) -> dict[str, list[float]]:
         """Train a single model for time window [t_lo, t_hi]."""
         optimizer = optim.Adam(model.parameters(), lr=1e-3, **self.optimizer_kwargs)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(
@@ -151,7 +151,7 @@ class TimeMarchingTrainer:
             seed=window_idx * 17
         )
 
-        history: Dict[str, List[float]] = {"total": [], "pde": [], "ic": []}
+        history: dict[str, list[float]] = {"total": [], "pde": [], "ic": []}
         print_every = max(1, self.epochs_per_window // 4)
 
         for ep in range(1, self.epochs_per_window + 1):
@@ -202,11 +202,11 @@ class TimeMarchingTrainer:
         self,
         pde_residual_fn: Callable[[nn.Module, torch.Tensor], torch.Tensor],
         ic_fn: Callable[[torch.Tensor], torch.Tensor],
-        bc_fns: Optional[List[Callable]] = None,
-        x_domain: Optional[torch.Tensor] = None,
-        device: Optional[torch.device] = None,
+        bc_fns: list[Callable] | None = None,
+        x_domain: torch.Tensor | None = None,
+        device: torch.device | None = None,
         dtype: torch.dtype = torch.float32,
-    ) -> List[nn.Module]:
+    ) -> list[nn.Module]:
         """Execute time-marching. Returns list of trained models, one per window.
 
         Parameters
@@ -318,10 +318,10 @@ class TimeMarchingTrainer:
 
     @staticmethod
     def plot_spacetime(
-        models: List[nn.Module],
-        window_edges: List[Tuple[float, float]],
-        x_range: Tuple[float, float] = (0, 1),
-        t_range: Tuple[float, float] = (0, 1),
+        models: list[nn.Module],
+        window_edges: list[tuple[float, float]],
+        x_range: tuple[float, float] = (0, 1),
+        t_range: tuple[float, float] = (0, 1),
         n: int = 100,
     ) -> None:
         """Plot full space-time solution across all windows.

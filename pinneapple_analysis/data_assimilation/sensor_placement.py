@@ -140,14 +140,24 @@ class GaussianProcessField:
 
     def fit_hyperparameters(self, X, y, fit_noise: bool = False, log_bounds=(-7.0, 7.0)) -> GaussianProcessField:
         """Maximise the log marginal likelihood over log length scales, log variance (and log noise when
-        ``fit_noise``) with L-BFGS-B, starting from the current values, then :meth:`fit` with the optimum.
-        ``log_bounds`` bounds every natural-log parameter."""
+        ``fit_noise``) with L-BFGS-B, then :meth:`fit` with the optimum. ``log_bounds`` bounds every natural-log
+        parameter.
+
+        The likelihood of a Gaussian process has more than one optimum, and a single run from the caller's guess can
+        land in a degenerate one (a length scale that collapses, so the fit interpolates its samples and predicts the
+        mean everywhere else). The optimiser therefore also starts from the data: a third of each axis' span and the
+        variance of ``y``. The best of the runs wins, so the answer no longer depends on the guess it started from."""
         X = np.asarray(X, dtype=float)
         X = X[:, None] if X.ndim == 1 else X
         d = X.shape[1]
         ls0 = np.broadcast_to(self.lengthscales, (d,)).copy()
         theta0 = np.log(np.r_[ls0, self.variance] if not fit_noise else np.r_[ls0, self.variance,
                                                                                max(self.noise, 1e-10)])
+        span = np.ptp(X, axis=0)
+        span[span <= 0] = 1.0
+        data_start = np.log(np.r_[0.3 * span, max(float(np.var(y)), 1e-12)] if not fit_noise
+                            else np.r_[0.3 * span, max(float(np.var(y)), 1e-12), max(self.noise, 1e-10)])
+        starts = [theta0] if np.allclose(data_start, theta0) else [theta0, data_start]
 
         def nll(theta):
             self.lengthscales, self.variance = np.exp(theta[:d]), float(np.exp(theta[d]))
@@ -158,8 +168,13 @@ class GaussianProcessField:
             except linalg.LinAlgError:
                 return 1e25
 
-        res = optimize.minimize(nll, theta0, method="L-BFGS-B", bounds=[log_bounds] * len(theta0))
-        nll(res.x)
+        best, best_nll = None, np.inf
+        for start in starts:
+            res = optimize.minimize(nll, np.clip(start, *log_bounds), method="L-BFGS-B",
+                                    bounds=[log_bounds] * len(start))
+            if res.fun < best_nll:
+                best, best_nll = res.x, float(res.fun)
+        nll(best)
         return self
 
 

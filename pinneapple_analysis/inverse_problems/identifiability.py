@@ -185,6 +185,34 @@ def _std_from_F(F: np.ndarray, tol: float) -> np.ndarray:
     return std
 
 
+def _interpolated_crossing(d: np.ndarray, zs: np.ndarray, a: int, b: int) -> float:
+    """Where the profile crosses the threshold between grid points ``a`` (inner) and ``b`` (outer).
+
+    The chord between two grid points cuts the corner of a convex profile, so interpolating it linearly reports an
+    interval that is too narrow — by a factor of three for a parameter whose width in ``z`` is much smaller than the
+    grid step, which is exactly the case of a linear parameter (scaled by its nominal value, so ``z`` is of order 1
+    while its interval may not be). The parabola through the three nearest points is exact for a Gaussian profile and
+    is used whenever it has a root inside the bracket; the chord stays as the fallback.
+    """
+    step = 1 if b > a else -1
+    c = b + step if 0 <= b + step < len(zs) else a - step
+    if 0 <= c < len(zs) and len({a, b, c}) == 3:
+        x = zs[[a, b, c]]
+        y = d[[a, b, c]] - CHI2_95
+        with np.errstate(all="ignore"):
+            A, B, C = np.polyfit(x, y, 2)
+            if np.isfinite(A) and abs(A) > 1e-300:
+                disc = B * B - 4 * A * C
+                if disc >= 0:
+                    roots = sorted(((-B - math.sqrt(disc)) / (2 * A), (-B + math.sqrt(disc)) / (2 * A)))
+                    lo, hi = sorted((float(zs[a]), float(zs[b])))
+                    inside = [r for r in roots if lo <= r <= hi]
+                    if inside:
+                        return float(inside[0])
+    t = (CHI2_95 - d[a]) / (d[b] - d[a])
+    return float(zs[a] + t * (zs[b] - zs[a]))
+
+
 def _crossing(d: np.ndarray, zs: np.ndarray, pin: np.ndarray, pairs) -> tuple:
     """Where the profile ``d`` first reaches the 95 % threshold walking ``pairs`` outward: ``(z, None)``, or
     ``(None, z_bound)`` when it rises there only because another parameter sits on its bound, or ``(None, None)``."""
@@ -192,8 +220,7 @@ def _crossing(d: np.ndarray, zs: np.ndarray, pin: np.ndarray, pairs) -> tuple:
         if d[a] < CHI2_95 <= d[b]:
             if pin[b]:
                 return None, float(zs[b])
-            t = (CHI2_95 - d[a]) / (d[b] - d[a])
-            return float(zs[a] + t * (zs[b] - zs[a])), None
+            return _interpolated_crossing(d, zs, a, b), None
     return None, None
 
 

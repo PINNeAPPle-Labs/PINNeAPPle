@@ -1,0 +1,12 @@
+{
+ "code_hash": "7849ddfad502da61",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.electromagnetics.em_wire_az",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='em_wire_az', dim=2, coords=('x', 'y'), fields=('Az',), pde=PDETermSpec(kind='magnetostatics_az', fields=('Az',), coords=('x', 'y'), params={'a': 0.25, 'J': 1.0, 'nu': 1.0, 'J_fn': <function em_wire_az.<locals>.<lambda> at 0x104458c20>}, meta={'analytic': 'em_wire_az', 'physics': 'magnetostatics'}), conditions=(ConditionSpec(name='far_boundary', kind='dirichlet', fields=('Az',), selector_type='callable', selector=<function _faces.<locals>.<lambda> at 0x1192b96c0>, value_fn=<function em_wire_az.<locals>.<lambda> at 0x1192b9760>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 2048, 'n_bc': 512, 'n_ic': 0, 'n_data': 0}, scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0), field_ra",
+ "timed_out": false
+}

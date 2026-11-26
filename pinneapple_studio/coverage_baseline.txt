@@ -1457,8 +1457,6 @@ pinneapple_neural.architectures.rom.steppers:pod_dmd_stepper
 pinneapple_neural.architectures.rom.steppers:pod_opinf_stepper
 pinneapple_neural.architectures.rom.study:ReducedModel
 pinneapple_neural.architectures.transformers.registry:register_into_global
-pinneapple_neural.physicsnemo_bridge.field_operators:physicsnemo_fno
-pinneapple_neural.physicsnemo_bridge.field_operators:physicsnemo_meshgraphnet
 pinneapple_neural.predictor.postprocess:compute_isosurface
 pinneapple_neural.predictor.postprocess:compute_streamlines
 pinneapple_neural.predictor.visualize:plot_centerline_velocity
@@ -3048,8 +3046,3 @@ pinneapple_worldmodel.train:run_pipeline
 pinneapple_worldmodel.train:train_foundation
 pinneapple_worldmodel.train:train_meta
 pinneapple_worldmodel.train:train_specialist
-reproduction:reproductions/binns_lagergren2020
-reproduction:reproductions/deflorio2024
-reproduction:reproductions/gated_xtfc_dwivedi2025
-reproduction:reproductions/sbinn_daneker2022
-reproduction:reproductions/xtfc_schiassi2021

@@ -32,7 +32,7 @@ Usage
 
 import math
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -136,7 +136,7 @@ class BPINNConfig:
     """Configuration for BayesianPINN."""
     in_dim: int = 2
     out_dim: int = 1
-    hidden: List[int] = field(default_factory=lambda: [64, 64, 64])
+    hidden: list[int] = field(default_factory=lambda: [64, 64, 64])
     activation: str = "tanh"
     prior_std: float = 1.0
     init_rho: float = -3.0
@@ -146,8 +146,8 @@ class BPINNConfig:
     # KL annealing (β-VAE style): weight on KL term
     kl_weight: float = 1.0
     # Inverse PDE parameters
-    inverse_params: Optional[List[str]] = None
-    initial_guesses: Optional[Dict[str, float]] = None
+    inverse_params: list[str] | None = None
+    initial_guesses: dict[str, float] | None = None
 
 
 class BayesianPINN(PINNBase):
@@ -182,17 +182,17 @@ class BayesianPINN(PINNBase):
         self,
         in_dim: int = 2,
         out_dim: int = 1,
-        hidden: List[int] = (64, 64, 64),
+        hidden: list[int] = (64, 64, 64),
         activation: str = "tanh",
         *,
-        config: Optional[BPINNConfig] = None,
+        config: BPINNConfig | None = None,
         prior_std: float = 1.0,
         init_rho: float = -3.0,
         noise_pde: float = 0.01,
         noise_obs: float = 0.01,
         kl_weight: float = 1.0,
-        inverse_params_names: Optional[List[str]] = None,
-        initial_guesses: Optional[Dict[str, float]] = None,
+        inverse_params_names: list[str] | None = None,
+        initial_guesses: dict[str, float] | None = None,
     ):
         super().__init__()
 
@@ -213,7 +213,7 @@ class BayesianPINN(PINNBase):
 
         # -- Bayesian MLP
         dims = [cfg.in_dim, *cfg.hidden, cfg.out_dim]
-        layers: List[nn.Module] = []
+        layers: list[nn.Module] = []
         for i in range(len(dims) - 1):
             layers.append(
                 BayesianLinear(dims[i], dims[i + 1],
@@ -245,14 +245,14 @@ class BayesianPINN(PINNBase):
     def forward(
         self,
         *inputs: torch.Tensor,
-        physics_fn: Optional[Callable] = None,
-        physics_data: Optional[Dict] = None,
+        physics_fn: Callable | None = None,
+        physics_data: dict | None = None,
         deterministic: bool = False,
     ) -> PINNOutput:
         x = self._concat_inputs(inputs)
         y = self._apply_layers(x, deterministic=deterministic)
 
-        losses: Dict[str, torch.Tensor] = {"total": self._zeros()}
+        losses: dict[str, torch.Tensor] = {"total": self._zeros()}
 
         if physics_fn is not None and physics_data is not None:
             total_phys, comps = physics_fn(self, physics_data)
@@ -264,7 +264,7 @@ class BayesianPINN(PINNBase):
 
         return PINNOutput(y=y, losses=losses, extras={"deterministic": deterministic})
 
-    def _concat_inputs(self, inputs: Tuple[torch.Tensor, ...]) -> torch.Tensor:
+    def _concat_inputs(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
         if len(inputs) == 1:
             x = inputs[0]
             return x.unsqueeze(-1) if x.ndim == 1 else x
@@ -286,12 +286,12 @@ class BayesianPINN(PINNBase):
 
     def elbo_loss(
         self,
-        inputs: Tuple[torch.Tensor, ...],
-        pde_residual_fn: Optional[Callable[[torch.Tensor, torch.Tensor], torch.Tensor]] = None,
-        obs_inputs: Optional[Tuple[torch.Tensor, ...]] = None,
-        obs_targets: Optional[torch.Tensor] = None,
+        inputs: tuple[torch.Tensor, ...],
+        pde_residual_fn: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] | None = None,
+        obs_inputs: tuple[torch.Tensor, ...] | None = None,
+        obs_targets: torch.Tensor | None = None,
         n_mc: int = 1,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """Compute the (negative) ELBO loss.
 
         ELBO = E_q[log p(R=0|θ) + log p(y_obs|θ)] − β · KL(q‖p)
@@ -358,9 +358,9 @@ class BayesianPINN(PINNBase):
     @torch.no_grad()
     def predict_ensemble(
         self,
-        inputs: Tuple[torch.Tensor, ...],
+        inputs: tuple[torch.Tensor, ...],
         n_samples: int = 100,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Draw *n_samples* posterior predictive samples.
 
         Returns
@@ -376,7 +376,7 @@ class BayesianPINN(PINNBase):
         return stack.mean(0), stack.std(0)
 
     @torch.no_grad()
-    def predict_mean(self, inputs: Tuple[torch.Tensor, ...]) -> torch.Tensor:
+    def predict_mean(self, inputs: tuple[torch.Tensor, ...]) -> torch.Tensor:
         """Deterministic prediction using posterior mean weights."""
         x = self._concat_inputs(inputs)
         return self._apply_layers(x, deterministic=True)

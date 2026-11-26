@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import asdict
-from typing import List, Optional
 
 from ..agents.extractor import ExtractorAgent
 from ..models import ExtractedProblemSolution, KBIndex
@@ -15,9 +14,9 @@ from .export_problemdesign import export_problemdesign
 def extract_problem_solutions(
     *,
     kb_index: KBIndex,
-    out_dir: Optional[str] = None,
+    out_dir: str | None = None,
     max_items: int = 20,
-) -> List[ExtractedProblemSolution]:
+) -> list[ExtractedProblemSolution]:
     provider = GeminiProvider()
     agent = ExtractorAgent(provider)
 

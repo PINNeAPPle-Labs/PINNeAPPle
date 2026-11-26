@@ -1,0 +1,58 @@
+{
+ "benchmarks": [
+  {
+   "cold_converged": true,
+   "cold_iterations": 1165,
+   "cold_seconds": 7.359,
+   "field_difference": {
+    "U": 2.023557137298803e-05,
+    "p": 2.7743487676497213e-05
+   },
+   "iteration_ratio": 1.679,
+   "note": "",
+   "predicted_error": {
+    "U": 0.03146137320579774
+   },
+   "reynolds": 400.0,
+   "speedup": 1.633,
+   "warm_converged": true,
+   "warm_iterations": 694,
+   "warm_seconds": 4.506
+  },
+  {
+   "cold_converged": true,
+   "cold_iterations": 1638,
+   "cold_seconds": 7.478,
+   "field_difference": {
+    "U": 0.0006286356578801995,
+    "p": 0.0010256206412055755
+   },
+   "iteration_ratio": 1.477,
+   "note": "",
+   "predicted_error": {
+    "U": 0.06129008401976672
+   },
+   "reynolds": 1000.0,
+   "speedup": 1.367,
+   "warm_converged": true,
+   "warm_iterations": 1109,
+   "warm_seconds": 5.468
+  }
+ ],
+ "surrogate": {
+  "energy": {
+   "U": 1.0,
+   "p": 1.0
+  },
+  "fitted_on": [
+   50.0,
+   100.0,
+   200.0,
+   300.0,
+   600.0,
+   800.0
+  ],
+  "modes": 8,
+  "seconds": 0.0
+ }
+}

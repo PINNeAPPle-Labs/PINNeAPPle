@@ -5,7 +5,7 @@ A thin ``plot_history`` shim is kept here for backwards compatibility.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 try:
     from pinneapple_tools.visualization.pinn import plot_loss_history as _plot_loss_history, plot_multi_loss
@@ -15,7 +15,7 @@ except ImportError:  # pragma: no cover
 
 
 def plot_history(
-    history: List[Dict[str, float]],
+    history: list[dict[str, float]],
     keys: Sequence[str] = ("train_total", "val_total"),
     *,
     log_scale: bool = True,

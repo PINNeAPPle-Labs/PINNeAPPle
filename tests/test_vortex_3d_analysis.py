@@ -18,7 +18,6 @@ from pinneapple_tools.visualization.vortex import (
     compute_enstrophy,
     compute_q_criterion_3d,
     compute_strain_rate_tensor_3d,
-    compute_vorticity_2d,
     compute_vorticity_3d,
 )
 

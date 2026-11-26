@@ -26,8 +26,9 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+
+from pinneapple_core.errors import UnknownName
 
 CATEGORIES = {"S": "solver", "T": "training", "E": "equation", "P": "problem"}
 
@@ -36,18 +37,18 @@ CATEGORIES = {"S": "solver", "T": "training", "E": "equation", "P": "problem"}
 class Method:
     id: str
     name: str
-    code: Tuple[str, ...]
-    probes: Tuple[str, ...]  # strings whose presence in a test file means the test exercises this item
-    refs_in_code: Tuple[str, ...] = ()
-    refs_added: Tuple[str, ...] = ()
-    equations: Tuple[str, ...] = ()  # problems only: the E ids they use
+    code: tuple[str, ...]
+    probes: tuple[str, ...]  # strings whose presence in a test file means the test exercises this item
+    refs_in_code: tuple[str, ...] = ()
+    refs_added: tuple[str, ...] = ()
+    equations: tuple[str, ...] = ()  # problems only: the E ids they use
 
     @property
     def category(self) -> str:
         return CATEGORIES[self.id[0]]
 
     @property
-    def references(self) -> Tuple[str, ...]:
+    def references(self) -> tuple[str, ...]:
         return self.refs_in_code + self.refs_added
 
 
@@ -61,6 +62,7 @@ PC = "pinneapple_systems/process_components/"
 CF = "pinneapple_physics/closed_form/"
 COMPILE = "pinneapple_physics/pinn_solver/compiler/compile.py"
 EMK = "pinneapple_physics/pinn_solver/compiler/em_kinds.py"
+IK = "pinneapple_physics/pinn_solver/compiler/integral_kinds.py"
 EM = "pinneapple_simulation/electromagnetics/"
 DYN = "pinneapple_analysis/dynamics/"
 
@@ -82,12 +84,13 @@ JIN = "Jin, The Finite Element Method in Electromagnetics, 3rd ed., Wiley-IEEE P
 TAFLOVE = "Taflove & Hagness, Computational Electrodynamics: The Finite-Difference Time-Domain Method, 3rd ed., Artech House, 2005"
 POZAR = "Pozar, Microwave Engineering, 4th ed., Wiley, 2012"
 BOHREN_HUFFMAN = "Bohren & Huffman, Absorption and Scattering of Light by Small Particles, Wiley, 1983"
+ATKINSON = "Atkinson, The Numerical Solution of Integral Equations of the Second Kind, Cambridge University Press, 1997"
 RAISSI = "Raissi, Perdikaris & Karniadakis, Physics-informed neural networks, J. Comput. Phys. 378 (2019) 686-707"
 RAISSI_I = "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (Part I), arXiv:1711.10561"
 WONG = "Wong, Theory of Ground Vehicles, Wiley, 1978 (4th ed. 2008)"
 BEKKER = "Bekker, Introduction to Terrain-Vehicle Systems, University of Michigan Press, 1969"
 
-METHODS: List[Method] = [
+METHODS: list[Method] = [
     # ── A. Solvers ───────────────────────────────────────────────────────
     _m("S1", "Finite differences 1D/2D/3D", [NS + "fdm.py", NS + "fdm3d.py"], ["numerical_solvers.fdm", "'fdm'", '"fdm"'],
        refs_added=[LEVEQUE_FD]),
@@ -544,9 +547,13 @@ METHODS: List[Method] = [
        refs_added=[JACKSON]),
     _m("E71", "Frequency-domain TMz wave equation with complex permittivity", [EMK], ["maxwell_tm_frequency"],
        refs_added=[JIN, "Harrington, Time-Harmonic Electromagnetic Fields, McGraw-Hill, 1961"]),
+    _m("E72", "Fredholm integral equation of the second kind in Nystrom form, bounded and logarithmic kernels",
+       [IK], ["fredholm2"], refs_added=[ATKINSON]),
+    _m("E73", "Volterra integral equation of the second kind in Nystrom form", [IK], ["volterra2"],
+       refs_added=[ATKINSON]),
 ]
 
-# ── D. Problems: the 65 registered presets, grouped; each points at its equations ──
+# ── D. Problems: the registered presets, grouped; each points at its equations ──
 _PRESET_GROUPS = {
     "P1": ("Academic", {
         "burgers_1d": ["E7"], "laplace_2d": ["E1"], "poisson_2d": ["E2"], "reaction_diffusion_2d": ["E8"],
@@ -581,6 +588,9 @@ _PRESET_GROUPS = {
         "schwarzschild_light_bending_weak_field": ["E41"], "nfw_dark_matter_potential": ["E2"],
         "sod_shock_tube_astro": ["E16"]}),
     "P8": ("Terramechanics", {"bekker_wong_surrogate_2d": ["E28"]}),
+    "P10": ("Integral equations", {
+        "integral_fredholm_unit_exp": ["E72"], "integral_fredholm_separable_exp": ["E72"],
+        "integral_volterra_unit_exp": ["E73"], "integral_log_kernel_linear": ["E72"]}),
 }
 for _pid, (_group, _presets) in _PRESET_GROUPS.items():
     for _i, (_preset, _eqs) in enumerate(sorted(_presets.items()), start=1):
@@ -589,7 +599,7 @@ for _pid, (_group, _presets) in _PRESET_GROUPS.items():
 METHODS.append(_m("P9", "PINNeAPPle-CFD v1: pipes + particle erosion (CFD-04 pilot)",
                   ["PINNeAPPle-CFD/pinneapple_cfd/"], ["CFD-04"], equations=["E10", "E45", "E46", "E47", "E48", "E50"]))
 
-_BY_ID: Dict[str, Method] = {}
+_BY_ID: dict[str, Method] = {}
 for _meth in METHODS:
     if _meth.id in _BY_ID:
         raise ValueError(f"duplicate method id: {_meth.id}")
@@ -602,16 +612,19 @@ def get_method(method_id: str) -> Method:
     try:
         return _BY_ID[method_id]
     except KeyError:
-        raise KeyError(f"unknown method '{method_id}'") from None
+        near = [i for i in _BY_ID if str(method_id).upper() in i] or sorted(_BY_ID)[:8]
+        raise UnknownName(f"unknown method {method_id!r}: no entry with that id in the catalog",
+                          fix=f"call list_methods(category) and use one of its ids; the closest entries are {near}"
+                          ) from None
 
 
-def list_methods(category: Optional[str] = None) -> List[Method]:
+def list_methods(category: str | None = None) -> list[Method]:
     if category is None:
         return list(METHODS)
     return [m for m in METHODS if m.category == category]
 
 
-def method_status() -> Dict[str, Dict]:
+def method_status() -> dict[str, dict]:
     """``{id: {"status": ..., "reference_tests": [...], "other_tests": [...]}}`` from the last scan."""
     try:
         with open(_STATUS_PATH) as f:
@@ -620,7 +633,7 @@ def method_status() -> Dict[str, Dict]:
         return {}
 
 
-def validated_methods(category: Optional[str] = None) -> List[Method]:
+def validated_methods(category: str | None = None) -> list[Method]:
     """The official list: only items whose last scan found a reference-comparison test."""
     status = method_status()
     return [m for m in list_methods(category) if status.get(m.id, {}).get("status") == "validated"]

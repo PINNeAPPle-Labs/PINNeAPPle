@@ -12,8 +12,15 @@ def _report(ok: bool) -> TrustReport:
                         checagem_booleana("mass_conservation", True)], model="m")
 
 
+#: since #39 a card also has to say where its numbers came from, or ``validate()`` reports the five missing provenance
+#: facts and this test would be measuring that gate instead of the trust report it is about.
+_PROVENANCE = {"solver": "mlp", "library_version": "0.8.0", "seed": 0,
+               "data_hash": "sha256:" + "0" * 64, "commit": "a" * 40}
+
+
 def _card() -> ModelCard:
-    return ModelCard(name="m", architecture="mlp", validation_metrics={"rel_l2": 0.01}, reference_source="analytic")
+    return ModelCard(name="m", architecture="mlp", validation_metrics={"rel_l2": 0.01}, reference_source="analytic",
+                     provenance=dict(_PROVENANCE))
 
 
 def test_report_round_trips_through_its_dict():

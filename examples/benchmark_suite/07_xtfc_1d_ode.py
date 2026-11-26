@@ -37,8 +37,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import torch
 import torch.nn as nn
 
-from pinneapple_neural.architectures.pinns.xtfc import XTFC, XTFCConfig, build_xtfc, tfc_available
-from pinneapple_models import VanillaPINN
+from pinneapple_neural.architectures.pinns.xtfc import build_xtfc, tfc_available
 import torch as _torch
 
 DEVICE = _torch.device("cuda" if _torch.cuda.is_available() else "cpu")
@@ -193,6 +192,9 @@ try:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
 
     out_dir = REPO_ROOT / "data" / "artifacts" / "examples" / "xtfc_1d_ode"
     out_dir.mkdir(parents=True, exist_ok=True)

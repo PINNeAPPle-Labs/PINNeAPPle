@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
 from .schema import ProblemSpec, Gap, Plan, DesignReport
 
 
@@ -15,9 +14,9 @@ class Turn:
 @dataclass
 class DesignState:
     spec: ProblemSpec = field(default_factory=ProblemSpec)
-    gaps: List[Gap] = field(default_factory=list)
+    gaps: list[Gap] = field(default_factory=list)
     plan: Plan = field(default_factory=Plan)
-    history: List[Turn] = field(default_factory=list)
+    history: list[Turn] = field(default_factory=list)
 
     stage: str = "intake"
     done: bool = False
@@ -25,7 +24,7 @@ class DesignState:
     def add_turn(self, role: str, content: str) -> None:
         self.history.append(Turn(role=role, content=content))
 
-    def unresolved_gaps(self) -> List[Gap]:
+    def unresolved_gaps(self) -> list[Gap]:
         return [g for g in self.gaps if not g.resolved]
 
     def to_report(self) -> DesignReport:

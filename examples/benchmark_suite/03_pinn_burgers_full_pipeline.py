@@ -34,11 +34,8 @@ import torch
 import torch.nn as nn
 
 from pinneapple_physics.pde_environment import get_preset
-from pinneapple_train import Trainer, TrainConfig
 from pinneapple_neural import (
-    best_device, maybe_compile, ThroughputMonitor,
-    build_metrics_from_cfg,
-    infer_on_grid_2d,
+    best_device, ThroughputMonitor,
 )
 
 
@@ -302,6 +299,9 @@ try:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 4))
 

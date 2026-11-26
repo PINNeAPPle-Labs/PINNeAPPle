@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 from pinneapple_neural.architectures.modified_mlp import ModifiedMLP
 
 try:
-    from pinneapple_physics.pde_environment import SpalartAllmarasResiduals
     _SA_AVAILABLE = True
 except Exception:
     _SA_AVAILABLE = False

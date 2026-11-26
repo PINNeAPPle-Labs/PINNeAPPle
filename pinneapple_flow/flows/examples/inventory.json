@@ -69,6 +69,11 @@
   "reason": "a pole-impact dataset of a bumper-beam coupon (seven design variables to the crashworthiness quantities, and the undeformed mesh plus the design vector to the displacement of every node at every frame), labelled by the library's explicit crash solver and then used to rank tabular and field surrogates on one campaign, with the design kept as a per-node channel so a held-out design can be asked about and its peak displacement scored. No node wraps a transient solver sweep followed by a model benchmark, so it runs from its script",
   "status": "not_convertible"
  },
+ "cfd": {
+  "domain": "validation and benchmarks",
+  "reason": "classical_cases/run_cases.py runs a validation campaign: three OpenFOAM meshes per Reynolds number (the lid-driven cavity of Ghia 1982, the backward-facing step, the NASA TMR flat plate), plus the surrogate warm-start benchmark and the low-fidelity ladder. Each case writes its own dictionaries, runs a solver for tens of minutes and reads the answer back as a profile compared with a published table; the artifact is the validation report, not a computation step, and the reference tables themselves need no solver",
+  "status": "not_convertible"
+ },
  "chain_of_whys": {
   "domain": "design reasoning",
   "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"
@@ -96,13 +101,23 @@
   "reason": "API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed",
   "status": "not_convertible"
  },
+ "data_readiness": {
+  "domain": "data",
+  "reason": "the data-readiness gate end to end (#1491/#1493): run.py assesses a dataset, refuses it, records an engineer's acceptance and trains. The gate is the step *before* a training node reads its verdict, not a node of its own (see pinneapple_data.readiness in pinneapple_flow/coverage.py), and the run threads a review record created inside the script",
+  "status": "not_convertible"
+ },
  "design_from_intent": {
   "domain": "design",
   "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
  },
+ "digital_twin_end_to_end": {
+  "domain": "digital twin",
+  "reason": "the demo is the twin.workflow node run on records it fetches itself (a live USGS gauge through pinneapple_systems.digital_twin.io.usgs, or a labelled synthetic recession) plus the drift verdict of pinneapple_analysis.trust.drift on the residuals; the node's source is simulated/csv/connected stream, so a flow would need the USGS connector as a node of its own, and the run would depend on the network. tests/test_digital_twin_end_to_end.py runs the same paths offline with a recorded payload",
+  "status": "not_convertible"
+ },
  "digital_twin_library": {
   "domain": "digital twins",
-  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share \u2014 two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list \u2014 which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
+  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share — two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list — which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
  },
  "dynamics_toolkit": {
   "domain": "dynamical systems",
@@ -180,7 +195,7 @@
  },
  "granular_dem": {
   "domain": "process engineering",
-  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign \u2014 drum, charge, liner facets, a bonded agglomerate and its breakage \u2014 and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
+  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign — drum, charge, liner facets, a bonded agglomerate and its breakage — and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
   "status": "not_convertible"
  },
  "handoff_cases": {
@@ -196,7 +211,7 @@
  },
  "industrial_presets": {
   "domain": "engineering presets",
-  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs"
+  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs. bolted_joint_preload has no flow on purpose: its deck is solved by an external CalculiX (ccx) binary, so on a machine without one the flow would record a written deck and no measurement — a quick configuration that never reproduces the committed numbers is worse than the stated reason"
  },
  "inspection": {
   "domain": "inspection",
@@ -351,6 +366,11 @@
   "domain": "design",
   "notes": "03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts"
  },
+ "quality_diversity": {
+  "domain": "design",
+  "reason": "heat_sink_failure_map.py fits an MLP surrogate on 2000 closed-form heat-sink cases, then runs the quality-diversity search and the random and Latin-hypercube baselines at one budget over five seeds and plots both archives; what the example is about is the comparison between three searches, and the search is one library call (quality_diversity.find_failure_region) rather than a pipeline of node-sized steps, so there is no node graph that would show more than the script does",
+  "status": "not_convertible"
+ },
  "quickstart": {
   "domain": "getting started",
   "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs",
@@ -367,8 +387,8 @@
  },
  "rocket_launch": {
   "domain": "flight dynamics",
-  "status": "not_convertible",
-  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet."
+  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet.",
+  "status": "not_convertible"
  },
  "science": {
   "domain": "science",
@@ -393,6 +413,11 @@
  "studio": {
   "domain": "visualization",
   "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"
+ },
+ "structural_ingestion": {
+  "domain": "structural CAE data",
+  "reason": "run.py drives the library's explicit crash solver over three coupon impacts and then reads each run back twice (the legacy-VTK time series and the staged OpenRadioss layout, both written by the example itself) before build_training_set normalises the campaign into a training set (#1500). Its first three steps have no node: nothing in the catalog wraps CrashSolver, StructuralRun.from_crash_result or build_training_set (the cae nodes are readers -- inp.vtk_type, dataset.describe, compare.tolerance_verdicts), and coupon(), staged_case() and the discrepancy table are script-side over the files the run wrote. ~25 s per run",
+  "status": "not_convertible"
  },
  "systems": {
   "domain": "systems",
@@ -438,8 +463,8 @@
  },
  "weather_forecasting": {
   "domain": "weather",
-  "needs": "ERA5 store (5 GB) + a trained model",
-  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed)",
+  "needs": "ERA5 store (5 GB) + a trained model + network for hurricane_ian.py",
+  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed); hurricane_ian.py reads HURDAT2 from the NHC (7 MB) and the ARCO-ERA5 and WeatherBench2 zarr stores over HTTPS, cached as about 40 MB of crops outside the repository -- minutes and a network, so not in the ci tier",
   "status": "needs"
  },
  "worldmodel": {

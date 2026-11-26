@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -13,7 +13,7 @@ from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry
 
 
-def wavedec_features(x: np.ndarray, wavelet: str = "db4", level: int = 4, mode: str = "periodization") -> Tuple[np.ndarray, Dict[str, Any]]:
+def wavedec_features(x: np.ndarray, wavelet: str = "db4", level: int = 4, mode: str = "periodization") -> tuple[np.ndarray, dict[str, Any]]:
     """Return concatenated detail coefficients as features."""
     coeffs = pywt.wavedec(x, wavelet=wavelet, level=int(level), mode=mode)
     # coeffs[0]=approx, others=details

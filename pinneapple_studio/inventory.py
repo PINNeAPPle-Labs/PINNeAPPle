@@ -23,10 +23,14 @@ import json
 import os
 import re
 import subprocess
+import sys
 from collections import defaultdict
 from pathlib import Path
 
-import tomllib
+if sys.version_info >= (3, 11):
+    import tomllib
+else:                                                                # pragma: no cover -- the declared floor, 3.10
+    import tomli as tomllib
 
 from .outputs import declared_outputs
 

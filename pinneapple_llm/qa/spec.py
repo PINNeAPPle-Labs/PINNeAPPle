@@ -27,7 +27,7 @@ import json
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .units import UnitError, are_compatible, parse_unit
 
@@ -67,7 +67,7 @@ class Quantity:
     unit: str = ""
     provenance: Provenance = Provenance.USER
     source: str = ""
-    uncertainty: Optional[float] = None
+    uncertainty: float | None = None
 
     def __post_init__(self):
         if not isinstance(self.value, (int, float)):
@@ -84,7 +84,7 @@ class Quantity:
     def to_si(self) -> float:
         return parse_unit(self.unit).to_si(self.value)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "value": float(self.value),
             "unit": self.unit,
@@ -94,7 +94,7 @@ class Quantity:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "Quantity":
+    def from_dict(cls, d: dict[str, Any]) -> Quantity:
         return cls(
             value=d["value"], unit=d.get("unit", ""),
             provenance=Provenance(d.get("provenance", "user")),
@@ -109,7 +109,7 @@ class Invariant:
     name: str
     kind: str
     target: str
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     severity: str = "error"
     description: str = ""
 
@@ -122,7 +122,7 @@ class Invariant:
         if self.severity not in SEVERITIES:
             raise SpecError(f"invariant '{self.name}': severity must be one of {SEVERITIES}")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name, "kind": self.kind, "target": self.target,
             "params": dict(self.params), "severity": self.severity,
@@ -130,7 +130,7 @@ class Invariant:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "Invariant":
+    def from_dict(cls, d: dict[str, Any]) -> Invariant:
         return cls(
             name=d["name"], kind=d["kind"], target=d["target"],
             params=dict(d.get("params", {})), severity=d.get("severity", "error"),
@@ -145,10 +145,10 @@ class Observation:
     sensor_id: str
     quantity: str
     unit: str
-    position: Tuple[Quantity, ...]
-    timestamps: Tuple[float, ...]
+    position: tuple[Quantity, ...]
+    timestamps: tuple[float, ...]
     time_unit: str
-    values: Tuple[float, ...]
+    values: tuple[float, ...]
     provenance: Provenance = Provenance.USER
     holdout: bool = False  # reserved for validation, never for calibration
 
@@ -165,7 +165,7 @@ class Observation:
         for p in self.position:
             parse_unit(p.unit)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "sensor_id": self.sensor_id, "quantity": self.quantity, "unit": self.unit,
             "position": [p.to_dict() for p in self.position],
@@ -175,7 +175,7 @@ class Observation:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "Observation":
+    def from_dict(cls, d: dict[str, Any]) -> Observation:
         return cls(
             sensor_id=d["sensor_id"], quantity=d["quantity"], unit=d["unit"],
             position=tuple(Quantity.from_dict(p) for p in d.get("position", [])),
@@ -191,9 +191,9 @@ class GeometrySpec:
 
     kind: str
     coordinate_system: str = "cartesian"
-    dimensions: Dict[str, Quantity] = field(default_factory=dict)
+    dimensions: dict[str, Quantity] = field(default_factory=dict)
     hollow: bool = False
-    wall_thickness: Optional[Quantity] = None
+    wall_thickness: Quantity | None = None
     notes: str = ""
 
     def __post_init__(self):
@@ -207,7 +207,7 @@ class GeometrySpec:
         for q in self.dimensions.values():
             parse_unit(q.unit)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "kind": self.kind, "coordinate_system": self.coordinate_system,
             "dimensions": {k: q.to_dict() for k, q in self.dimensions.items()},
@@ -217,7 +217,7 @@ class GeometrySpec:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "GeometrySpec":
+    def from_dict(cls, d: dict[str, Any]) -> GeometrySpec:
         return cls(
             kind=d["kind"], coordinate_system=d.get("coordinate_system", "cartesian"),
             dimensions={k: Quantity.from_dict(q) for k, q in d.get("dimensions", {}).items()},
@@ -243,31 +243,31 @@ class PhysicalSpecification:
 
     objective: str = ""
     phenomenon: str = ""
-    geometry: Optional[GeometrySpec] = None
-    independent_variables: List[str] = field(default_factory=list)
-    dependent_variables: List[str] = field(default_factory=list)
-    parameters: Dict[str, Quantity] = field(default_factory=dict)
-    materials: Dict[str, Dict[str, Quantity]] = field(default_factory=dict)
-    governing_equations: List[str] = field(default_factory=list)
-    initial_conditions: List[str] = field(default_factory=list)
-    boundary_conditions: List[str] = field(default_factory=list)
-    observations: List[Observation] = field(default_factory=list)
-    spatial_validity: Dict[str, Tuple[Quantity, Quantity]] = field(default_factory=dict)
-    temporal_validity: Optional[Tuple[Quantity, Quantity]] = None
-    invariants: List[Invariant] = field(default_factory=list)
-    numerical_method: Dict[str, Any] = field(default_factory=dict)
-    validation_metrics: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-    assumptions: List[str] = field(default_factory=list)
-    missing_data: List[str] = field(default_factory=list)
+    geometry: GeometrySpec | None = None
+    independent_variables: list[str] = field(default_factory=list)
+    dependent_variables: list[str] = field(default_factory=list)
+    parameters: dict[str, Quantity] = field(default_factory=dict)
+    materials: dict[str, dict[str, Quantity]] = field(default_factory=dict)
+    governing_equations: list[str] = field(default_factory=list)
+    initial_conditions: list[str] = field(default_factory=list)
+    boundary_conditions: list[str] = field(default_factory=list)
+    observations: list[Observation] = field(default_factory=list)
+    spatial_validity: dict[str, tuple[Quantity, Quantity]] = field(default_factory=dict)
+    temporal_validity: tuple[Quantity, Quantity] | None = None
+    invariants: list[Invariant] = field(default_factory=list)
+    numerical_method: dict[str, Any] = field(default_factory=dict)
+    validation_metrics: dict[str, dict[str, Any]] = field(default_factory=dict)
+    assumptions: list[str] = field(default_factory=list)
+    missing_data: list[str] = field(default_factory=list)
     #: Names of the validators the spec itself requires for a Q2 rating. A
     #: validator absent from this list still runs if applicable; being listed
     #: here means its absence blocks the level (it can be NOT_APPLICABLE and
     #: still block, which is the point).
-    required_validations: List[str] = field(default_factory=list)
+    required_validations: list[str] = field(default_factory=list)
     spec_id: str = field(default_factory=lambda: uuid.uuid4().hex)
 
     # -- derivation -------------------------------------------------------
-    def missing_information(self) -> List[str]:
+    def missing_information(self) -> list[str]:
         """Essential fields that are absent or empty, plus declared gaps."""
         missing = list(self.missing_data)
         for name in ESSENTIAL_FIELDS:
@@ -278,7 +278,7 @@ class PhysicalSpecification:
             missing.append("validation_metrics (no acceptance criteria declared)")
         return missing
 
-    def criteria(self) -> Dict[str, Any]:
+    def criteria(self) -> dict[str, Any]:
         """The acceptance criteria and invariants, as a hashable payload.
 
         The repair loop snapshots this before attempting corrections: a
@@ -298,9 +298,9 @@ class PhysicalSpecification:
     def content_hash(self) -> str:
         return _hash_json(self.to_dict())
 
-    def assumptions_provenance_report(self) -> Dict[str, List[str]]:
+    def assumptions_provenance_report(self) -> dict[str, list[str]]:
         """Which claims are user-supplied, sourced, assumed or estimated."""
-        out: Dict[str, List[str]] = {"user": [], "source": [], "assumption": [], "estimated": []}
+        out: dict[str, list[str]] = {"user": [], "source": [], "assumption": [], "estimated": []}
         for name, q in sorted(self.parameters.items()):
             out[q.provenance.value].append(name)
         for name, material in sorted(self.materials.items()):
@@ -310,9 +310,9 @@ class PhysicalSpecification:
             out[obs.provenance.value].append(f"sensor:{obs.sensor_id}")
         return out
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Structural problems with this spec (empty list means well-formed)."""
-        problems: List[str] = []
+        problems: list[str] = []
         names = [i.name for i in self.invariants]
         if len(set(names)) != len(names):
             problems.append("duplicate invariant names")
@@ -363,7 +363,7 @@ class PhysicalSpecification:
         return problems
 
     # -- serialization ----------------------------------------------------
-    def _check_boundary_conditions(self) -> List[str]:
+    def _check_boundary_conditions(self) -> list[str]:
         """Narrow, honest check of declared boundary conditions.
 
         Boundary conditions are free text on purpose -- a parser strong enough
@@ -374,7 +374,7 @@ class PhysicalSpecification:
         declares, and its unit must be compatible with that variable's own
         declared unit when one exists.
         """
-        problems: List[str] = []
+        problems: list[str] = []
         known = set(self.dependent_variables) | set(self.independent_variables)
         for bc in self.boundary_conditions:
             text = str(bc).strip()
@@ -408,7 +408,7 @@ class PhysicalSpecification:
                         f"in '{declared.unit}'")
         return problems
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "spec_id": self.spec_id,
             "objective": self.objective,
@@ -436,7 +436,7 @@ class PhysicalSpecification:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "PhysicalSpecification":
+    def from_dict(cls, d: dict[str, Any]) -> PhysicalSpecification:
         tv = d.get("temporal_validity")
         return cls(
             spec_id=d.get("spec_id") or uuid.uuid4().hex,
@@ -486,9 +486,9 @@ def _json_default(obj: Any):
     return str(obj)
 
 
-def quantity_map(**kwargs: Any) -> Dict[str, Quantity]:
+def quantity_map(**kwargs: Any) -> dict[str, Quantity]:
     """``quantity_map(nu=(1e-6, "m^2/s"))`` -- small construction helper."""
-    out: Dict[str, Quantity] = {}
+    out: dict[str, Quantity] = {}
     for name, spec in kwargs.items():
         value, unit = spec if isinstance(spec, tuple) else (spec, "")
         out[name] = Quantity(float(value), unit)

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Dict, Optional, Union
 
 import numpy as np
 import torch
@@ -39,7 +38,7 @@ class SurrogateConfig:
     hidden_dim: int = 128
     n_layers: int = 4
     device: str = "cpu"
-    checkpoint_path: Optional[str] = None
+    checkpoint_path: str | None = None
 
 
 class PhysicsSurrogate:
@@ -53,7 +52,7 @@ class PhysicsSurrogate:
         Optional surrogate configuration; stored for reference and checkpointing.
     """
 
-    def __init__(self, model: nn.Module, cfg: Optional[SurrogateConfig] = None) -> None:
+    def __init__(self, model: nn.Module, cfg: SurrogateConfig | None = None) -> None:
         self.model = model
         self.cfg = cfg or SurrogateConfig()
         self._device = torch.device(self.cfg.device)
@@ -63,7 +62,7 @@ class PhysicsSurrogate:
     # Inference
     # ------------------------------------------------------------------
 
-    def predict(self, theta: Union[np.ndarray, Tensor]) -> Tensor:
+    def predict(self, theta: np.ndarray | Tensor) -> Tensor:
         """Run a single forward pass and return the output tensor.
 
         Parameters
@@ -138,7 +137,7 @@ class PhysicsSurrogate:
 
     def train_on_dataset(
         self,
-        dataset: Dict[str, Tensor],
+        dataset: dict[str, Tensor],
         *,
         epochs: int = 200,
         lr: float = 1e-3,
@@ -194,7 +193,7 @@ class PhysicsSurrogate:
         )
 
     @classmethod
-    def load(cls, path: str, model: nn.Module) -> "PhysicsSurrogate":
+    def load(cls, path: str, model: nn.Module) -> PhysicsSurrogate:
         """Load a :class:`PhysicsSurrogate` from a checkpoint saved by :meth:`save`.
 
         Parameters
@@ -228,7 +227,7 @@ class PhysicsSurrogate:
         hidden: int = 128,
         layers: int = 4,
         device: str = "cpu",
-    ) -> "PhysicsSurrogate":
+    ) -> PhysicsSurrogate:
         """Build a fully-connected MLP surrogate with Tanh activations.
 
         Parameters

@@ -1,0 +1,12 @@
+{
+ "code_hash": "8e666c00a9fe6a4f",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.particle_drag.clift_sphere_cd",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n28.644",
+ "timed_out": false
+}

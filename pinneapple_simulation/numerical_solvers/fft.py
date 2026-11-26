@@ -1,6 +1,5 @@
 """FFT solver for spectrum computation with rFFT/FFT support."""
 from __future__ import annotations
-from typing import Dict, Optional, Tuple, List
 
 import torch
 
@@ -30,10 +29,10 @@ class FFTSolver(SolverBase):
     def __init__(
         self,
         *,
-        dims: Optional[Tuple[int, ...]] = None,
+        dims: tuple[int, ...] | None = None,
         real_input: bool = True,
         output: str = "magnitude_phase",  # "complex_ri" | "magnitude_phase" | "magnitude"
-        norm: Optional[str] = None,       # None | "forward" | "backward" | "ortho"
+        norm: str | None = None,       # None | "forward" | "backward" | "ortho"
     ):
         super().__init__()
         self.dims = dims
@@ -48,7 +47,7 @@ class FFTSolver(SolverBase):
         self,
         x: torch.Tensor,
         *,
-        d: Optional[float] = None,  # sample spacing (e.g., dt); if given, returns freqs
+        d: float | None = None,  # sample spacing (e.g., dt); if given, returns freqs
     ) -> SolverOutput:
         # Choose dims
         if self.dims is None:
@@ -64,7 +63,7 @@ class FFTSolver(SolverBase):
         else:
             X = torch.fft.fftn(x, dim=dims, norm=self.norm)
 
-        extras: Dict[str, object] = {}
+        extras: dict[str, object] = {}
 
         # Frequencies for 1D convenience when dims is single axis
         if d is not None and len(dims) == 1:

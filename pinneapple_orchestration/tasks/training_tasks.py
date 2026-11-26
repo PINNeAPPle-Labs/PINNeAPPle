@@ -8,7 +8,7 @@ own manifest file.
 from __future__ import annotations
 
 import tempfile
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pinneapple_registry import ExperimentStore
 from pinneapple_systems.component_library import ComponentRegistry, ComponentModel
@@ -20,14 +20,14 @@ from .._prefect_compat import task
 def train_component_task(
     component_name: str,
     train_loader: Any,
-    val_loader: Optional[Any] = None,
+    val_loader: Any | None = None,
     *,
-    experiment_store: Optional[ExperimentStore] = None,
+    experiment_store: ExperimentStore | None = None,
     epochs: int = 100,
     lr: float = 1e-3,
-    log_dir: Optional[str] = None,
+    log_dir: str | None = None,
     **build_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Builds ``component_name`` via ``ComponentRegistry``, trains it, and
     (if ``experiment_store`` is given) logs the run. Returns a dict with
     the trained ``model`` plus ``Trainer.fit()``'s own result dict."""

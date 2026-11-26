@@ -1,0 +1,12 @@
+{
+ "code_hash": "6dd7ef8c96632c0f",
+ "figures": [],
+ "id": "node:ugs.storage_season",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 148.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "Underground gas storage: a season, its peak day and its balance -> pinneapple_simulation.ugs.synthetic_model + UGSSimulator.run + Schedule + Control\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'injection_bhp': 20000000.0, 'withdrawal_bhp': 7000000.0, 'days_injection': 12.0, 'days_withdrawal': 10.0, 'wells_shut': 2, 'seed': 0}",
+ "timed_out": false
+}

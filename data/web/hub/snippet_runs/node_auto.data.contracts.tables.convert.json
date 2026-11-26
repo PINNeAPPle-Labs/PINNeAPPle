@@ -1,0 +1,12 @@
+{
+ "code_hash": "bdb96a1442308fcf",
+ "figures": [],
+ "id": "node:auto.data.contracts.tables.convert",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 25.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "convert -> pinneapple_data.contracts.tables:convert\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'src': '', 'dst': ''}",
+ "timed_out": false
+}

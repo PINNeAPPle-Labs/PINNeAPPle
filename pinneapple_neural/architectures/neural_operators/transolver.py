@@ -20,7 +20,6 @@ unlike ``noether_bridge``):
 Both map point features ``(B, N, in_dim)`` to point outputs ``(B, N, out_dim)`` and are
 invariant to node ordering (no connectivity is used).
 """
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -91,7 +90,7 @@ class Transolver(NeuralOperatorBase):
         self.blocks = nn.ModuleList([TransolverBlock(dim, heads, slices, mlp_ratio, dropout) for _ in range(depth)])
         self.head = nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, dim), nn.GELU(), nn.Linear(dim, out_dim))
 
-    def forward(self, x: torch.Tensor, *, y_true: Optional[torch.Tensor] = None, return_loss: bool = False) -> OperatorOutput:
+    def forward(self, x: torch.Tensor, *, y_true: torch.Tensor | None = None, return_loss: bool = False) -> OperatorOutput:
         h = self.embed(x) + self.placeholder
         for blk in self.blocks:
             h = blk(h)
@@ -134,7 +133,7 @@ class TransolverLite(NeuralOperatorBase):
         self.blocks = nn.ModuleList([_LiteBlock(d_model, n_heads, n_slices, dropout) for _ in range(n_blocks)])
         self.out = nn.Linear(d_model, out_dim)
 
-    def forward(self, x: torch.Tensor, *, y_true: Optional[torch.Tensor] = None, return_loss: bool = False) -> OperatorOutput:
+    def forward(self, x: torch.Tensor, *, y_true: torch.Tensor | None = None, return_loss: bool = False) -> OperatorOutput:
         h = self.inp(x)
         for b in self.blocks:
             h = b(h)

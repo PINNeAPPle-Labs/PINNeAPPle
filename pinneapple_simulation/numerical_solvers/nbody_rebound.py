@@ -32,8 +32,7 @@ A128. https://doi.org/10.1051/0004-6361/201118085
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 import torch
@@ -44,7 +43,7 @@ from .registry import SolverRegistry
 try:
     import rebound  # type: ignore
     _HAS_REBOUND = True
-    _REBOUND_IMPORT_ERROR: Optional[str] = None
+    _REBOUND_IMPORT_ERROR: str | None = None
 except Exception as _e:  # pragma: no cover - exercised only when rebound is absent
     rebound = None  # type: ignore
     _HAS_REBOUND = False
@@ -116,10 +115,10 @@ class NBodySolver(SolverBase):
 
     def __init__(
         self,
-        bodies: List[Dict[str, float]],
+        bodies: list[dict[str, float]],
         integrator: str = "ias15",
         G: float = 1.0,
-        dt: Optional[float] = None,
+        dt: float | None = None,
         move_to_com: bool = True,
     ):
         _require_rebound()
@@ -134,7 +133,7 @@ class NBodySolver(SolverBase):
         self.n_bodies = len(self.body_specs)
 
     # ------------------------------------------------------------------
-    def _build_simulation(self) -> "rebound.Simulation":
+    def _build_simulation(self) -> rebound.Simulation:
         """Construct a fresh `rebound.Simulation` from `self.body_specs`."""
         sim = rebound.Simulation()
         sim.G = self.G
@@ -171,9 +170,9 @@ class NBodySolver(SolverBase):
     # ------------------------------------------------------------------
     def forward(
         self,
-        t_eval: Optional[Sequence[float]] = None,
+        t_eval: Sequence[float] | None = None,
         *,
-        t_end: Optional[float] = None,
+        t_end: float | None = None,
         n_steps: int = 100,
         exact_finish_time: bool = True,
     ) -> SolverOutput:

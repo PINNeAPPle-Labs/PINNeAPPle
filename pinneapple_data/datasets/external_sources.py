@@ -54,7 +54,7 @@ import time
 import urllib.parse
 import urllib.request
 from functools import lru_cache
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -70,7 +70,7 @@ _HEADERS = {"User-Agent": "PINNeAPPle/0.5 (pinneapple-project)"}
 # HTTP helper
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _get_json(url: str, headers: Optional[Dict] = None, timeout: int = _TIMEOUT) -> Any:
+def _get_json(url: str, headers: dict | None = None, timeout: int = _TIMEOUT) -> Any:
     h = dict(_HEADERS)
     if headers:
         h.update(headers)
@@ -126,15 +126,15 @@ class MaterialsProjectClient:
 
     BASE = "https://api.materialsproject.org"
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         self.api_key = api_key or os.environ.get("MP_API_KEY", "")
 
     def query(
         self,
-        criteria: Optional[Dict] = None,
-        fields: Optional[List[str]] = None,
+        criteria: dict | None = None,
+        fields: list[str] | None = None,
         limit: int = 100,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Query materials using mp-api client (preferred) or REST fallback."""
         try:
             from mp_api.client import MPRester
@@ -153,7 +153,7 @@ class MaterialsProjectClient:
             logger.warning(f"MaterialsProjectClient: {exc}")
             return []
 
-    def _rest_query(self, fields: List[str], limit: int) -> List[Dict]:
+    def _rest_query(self, fields: list[str], limit: int) -> list[dict]:
         if not self.api_key:
             return []
         url = (f"{self.BASE}/materials/summary/?_fields="
@@ -167,7 +167,7 @@ class MaterialsProjectClient:
 
 
 @lru_cache(maxsize=1)
-def _load_mp_electronic() -> Dict[str, np.ndarray]:
+def _load_mp_electronic() -> dict[str, np.ndarray]:
     client = MaterialsProjectClient()
     docs = client.query(limit=500, fields=[
         "material_id", "band_gap", "formation_energy_per_atom",
@@ -221,10 +221,10 @@ class NOMADClient:
 
     def search(
         self,
-        query: Optional[Dict] = None,
-        required: Optional[List[str]] = None,
+        query: dict | None = None,
+        required: list[str] | None = None,
         page_size: int = 100,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         try:
             payload = json.dumps({
                 "query": query or {},
@@ -245,7 +245,7 @@ class NOMADClient:
 
 
 @lru_cache(maxsize=1)
-def _load_nomad_dft() -> Dict[str, np.ndarray]:
+def _load_nomad_dft() -> dict[str, np.ndarray]:
     client = NOMADClient()
     entries = client.search(
         query={"results.method.simulation.program_name": "VASP"},
@@ -310,14 +310,14 @@ class NASAClient:
         "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
     )
 
-    def fetch_exoplanets(self) -> List[Dict]:
+    def fetch_exoplanets(self) -> list[dict]:
         try:
             return _get_json(self.EXOPLANET_URL)
         except Exception as exc:
             logger.warning(f"NASA exoplanet: {exc}")
             return []
 
-    def fetch_giss_temp(self) -> Dict[str, np.ndarray]:
+    def fetch_giss_temp(self) -> dict[str, np.ndarray]:
         try:
             raw = _get_bytes(self.GISS_TEMP_URL).decode("utf-8", errors="replace")
             years, anoms = [], []
@@ -342,7 +342,7 @@ class NASAClient:
 
 
 @lru_cache(maxsize=1)
-def _load_nasa_exoplanets() -> Dict[str, np.ndarray]:
+def _load_nasa_exoplanets() -> dict[str, np.ndarray]:
     client = NASAClient()
     rows = client.fetch_exoplanets()
     if not rows:
@@ -367,7 +367,7 @@ def _load_nasa_exoplanets() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_nasa_giss_temp() -> Dict[str, np.ndarray]:
+def _load_nasa_giss_temp() -> dict[str, np.ndarray]:
     client = NASAClient()
     data = client.fetch_giss_temp()
     if not data:
@@ -432,7 +432,7 @@ class NOAAClient:
         "time-series/globe/land_ocean/ytd/12/1880-2023.json"
     )
 
-    def fetch_sst(self) -> Dict[str, np.ndarray]:
+    def fetch_sst(self) -> dict[str, np.ndarray]:
         try:
             data = _get_json(self.WOA_URL)
             rows = data.get("rows", [])
@@ -448,7 +448,7 @@ class NOAAClient:
             logger.warning(f"NOAA SST: {exc}")
             return {}
 
-    def fetch_temp_anomaly(self) -> Dict[str, np.ndarray]:
+    def fetch_temp_anomaly(self) -> dict[str, np.ndarray]:
         try:
             raw = _get_json(self.NCEI_ANOM_URL)
             series = raw.get("data", {})
@@ -462,7 +462,7 @@ class NOAAClient:
 
 
 @lru_cache(maxsize=1)
-def _load_noaa_sst() -> Dict[str, np.ndarray]:
+def _load_noaa_sst() -> dict[str, np.ndarray]:
     data = NOAAClient().fetch_sst()
     if not data:
         rng = np.random.default_rng(31)
@@ -475,7 +475,7 @@ def _load_noaa_sst() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_noaa_climate() -> Dict[str, np.ndarray]:
+def _load_noaa_climate() -> dict[str, np.ndarray]:
     data = NOAAClient().fetch_temp_anomaly()
     if not data:
         rng = np.random.default_rng(37)
@@ -530,7 +530,7 @@ class CopernicusClient:
     )
     OPEN_DATA_URL = "https://dataspace.copernicus.eu/api/v1"
 
-    def fetch_era5_synthetic(self, variable: str = "2m_temperature", n: int = 365) -> Dict[str, np.ndarray]:
+    def fetch_era5_synthetic(self, variable: str = "2m_temperature", n: int = 365) -> dict[str, np.ndarray]:
         """Try cdsapi; fall back to realistic synthetic ERA5-like data."""
         try:
             import cdsapi
@@ -566,7 +566,7 @@ class CopernicusClient:
 
 
 @lru_cache(maxsize=1)
-def _load_copernicus_era5() -> Dict[str, np.ndarray]:
+def _load_copernicus_era5() -> dict[str, np.ndarray]:
     return CopernicusClient().fetch_era5_synthetic()
 
 
@@ -595,14 +595,14 @@ class BrazilDataCubeClient:
 
     STAC_URL = "https://brazildatacube.dpi.inpe.br/stac"
 
-    def fetch_collections(self) -> List[Dict]:
+    def fetch_collections(self) -> list[dict]:
         try:
             return _get_json(f"{self.STAC_URL}/collections").get("collections", [])
         except Exception as exc:
             logger.warning(f"BrazilDataCube: {exc}")
             return []
 
-    def fetch_ndvi_timeseries(self, bbox=(-48.0, -16.0, -47.0, -15.0), limit: int = 50) -> Dict[str, np.ndarray]:
+    def fetch_ndvi_timeseries(self, bbox=(-48.0, -16.0, -47.0, -15.0), limit: int = 50) -> dict[str, np.ndarray]:
         """Fetch synthetic NDVI time series for a Brazil bounding box."""
         try:
             url = (f"{self.STAC_URL}/search?collections=CB4_64_16D_STK-1"
@@ -630,7 +630,7 @@ class BrazilDataCubeClient:
 
 
 @lru_cache(maxsize=1)
-def _load_bdc_ndvi() -> Dict[str, np.ndarray]:
+def _load_bdc_ndvi() -> dict[str, np.ndarray]:
     return BrazilDataCubeClient().fetch_ndvi_timeseries()
 
 
@@ -662,7 +662,7 @@ class CPTECClient:
     # Historical reanalysis data (CFSR-like, simplified endpoint)
     REANALYSIS_URL = "https://ftp.cptec.inpe.br/modelos/tempo/MERGE/GPM/"
 
-    def fetch_precipitation_series(self, n_days: int = 365) -> Dict[str, np.ndarray]:
+    def fetch_precipitation_series(self, n_days: int = 365) -> dict[str, np.ndarray]:
         """Synthetic INPE/MERGE-like precipitation time series (Brazil)."""
         rng = np.random.default_rng(63)
         t = np.arange(n_days, dtype=np.float32)
@@ -673,7 +673,7 @@ class CPTECClient:
 
 
 @lru_cache(maxsize=1)
-def _load_cptec_precip() -> Dict[str, np.ndarray]:
+def _load_cptec_precip() -> dict[str, np.ndarray]:
     return CPTECClient().fetch_precipitation_series()
 
 
@@ -704,7 +704,7 @@ class ONSClient:
     # ONS CKAN dataset IDs
     LOAD_DATASET = "CARGA_ENERGIA_SUBSISTEMA"
 
-    def fetch_load(self, resource_id: str = "CARGA_ENERGIA_SUBSISTEMA", limit: int = 500) -> Dict[str, np.ndarray]:
+    def fetch_load(self, resource_id: str = "CARGA_ENERGIA_SUBSISTEMA", limit: int = 500) -> dict[str, np.ndarray]:
         try:
             url = f"https://dados.ons.org.br/api/action/datastore_search?resource_id={resource_id}&limit={limit}"
             resp = _get_json(url)
@@ -727,7 +727,7 @@ class ONSClient:
 
 
 @lru_cache(maxsize=1)
-def _load_ons_load() -> Dict[str, np.ndarray]:
+def _load_ons_load() -> dict[str, np.ndarray]:
     return ONSClient().fetch_load()
 
 
@@ -761,10 +761,10 @@ class NRELClient:
 
     BASE = "https://developer.nrel.gov/api"
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         self.api_key = api_key or os.environ.get("NREL_API_KEY", "DEMO_KEY")
 
-    def fetch_solar_resource(self, lat: float = 37.5, lon: float = -105.5) -> Dict[str, np.ndarray]:
+    def fetch_solar_resource(self, lat: float = 37.5, lon: float = -105.5) -> dict[str, np.ndarray]:
         try:
             url = (f"{self.BASE}/solar/solar_resource/v1.json"
                    f"?api_key={self.api_key}&lat={lat}&lon={lon}")
@@ -786,7 +786,7 @@ class NRELClient:
         return {"month": months, "direct_normal_irradiance": np.clip(dni, 0, None),
                 "_synthetic": np.array([1])}
 
-    def fetch_wind_resource(self, lat: float = 41.7, lon: float = -100.6) -> Dict[str, np.ndarray]:
+    def fetch_wind_resource(self, lat: float = 41.7, lon: float = -100.6) -> dict[str, np.ndarray]:
         try:
             url = (f"{self.BASE}/wind/wind_toolkit/v2/wind_data.json"
                    f"?api_key={self.api_key}&lat={lat}&lon={lon}&attributes=windspeed_80m&interval=60&years=2012")
@@ -806,12 +806,12 @@ class NRELClient:
 
 
 @lru_cache(maxsize=1)
-def _load_nrel_solar() -> Dict[str, np.ndarray]:
+def _load_nrel_solar() -> dict[str, np.ndarray]:
     return NRELClient().fetch_solar_resource()
 
 
 @lru_cache(maxsize=1)
-def _load_nrel_wind() -> Dict[str, np.ndarray]:
+def _load_nrel_wind() -> dict[str, np.ndarray]:
     return NRELClient().fetch_wind_resource()
 
 
@@ -853,7 +853,7 @@ class DesignSafeClient:
     BASE = "https://agave.designsafe-ci.org"
     PUBLIC_API = "https://www.designsafe-ci.org/api"
 
-    def fetch_earthquake_record(self) -> Dict[str, np.ndarray]:
+    def fetch_earthquake_record(self) -> dict[str, np.ndarray]:
         """Synthetic El Centro 1940 EW-like ground acceleration."""
         rng = np.random.default_rng(89)
         dt = 0.02  # 50 Hz
@@ -868,7 +868,7 @@ class DesignSafeClient:
 
 
 @lru_cache(maxsize=1)
-def _load_designsafe_seismic() -> Dict[str, np.ndarray]:
+def _load_designsafe_seismic() -> dict[str, np.ndarray]:
     return DesignSafeClient().fetch_earthquake_record()
 
 
@@ -901,10 +901,10 @@ class OpenFOAMClient:
     If ``openfoam_data_dir`` is set, attempts to parse actual case output.
     """
 
-    def __init__(self, openfoam_data_dir: Optional[str] = None) -> None:
+    def __init__(self, openfoam_data_dir: str | None = None) -> None:
         self.data_dir = openfoam_data_dir
 
-    def cylinder_drag_curve(self, re_range=(1, 200), n: int = 50) -> Dict[str, np.ndarray]:
+    def cylinder_drag_curve(self, re_range=(1, 200), n: int = 50) -> dict[str, np.ndarray]:
         """Drag coefficient vs Reynolds number for 2D cylinder."""
         re = np.logspace(np.log10(re_range[0]), np.log10(re_range[1]), n, dtype=np.float32)
         # Oseen correction approximation
@@ -912,7 +912,7 @@ class OpenFOAMClient:
         cd = cd.astype(np.float32)
         return {"reynolds_number": re, "drag_coefficient": cd}
 
-    def channel_velocity_profile(self, re_tau: float = 395, n: int = 64) -> Dict[str, np.ndarray]:
+    def channel_velocity_profile(self, re_tau: float = 395, n: int = 64) -> dict[str, np.ndarray]:
         """Turbulent channel flow mean velocity profile (DNS-like, log-law)."""
         y_plus = np.logspace(0, np.log10(re_tau), n, dtype=np.float32)
         # Spalding law-of-the-wall
@@ -924,7 +924,7 @@ class OpenFOAMClient:
         ).astype(np.float32)
         return {"y_plus": y_plus, "u_plus": u_plus}
 
-    def cavity_flow(self, re: float = 1000, n: int = 64) -> Dict[str, np.ndarray]:
+    def cavity_flow(self, re: float = 1000, n: int = 64) -> dict[str, np.ndarray]:
         """Lid-driven cavity: x-velocity along vertical center-line."""
         rng = np.random.default_rng(97)
         y = np.linspace(0, 1, n, dtype=np.float32)
@@ -935,17 +935,17 @@ class OpenFOAMClient:
 
 
 @lru_cache(maxsize=1)
-def _load_of_cylinder() -> Dict[str, np.ndarray]:
+def _load_of_cylinder() -> dict[str, np.ndarray]:
     return OpenFOAMClient().cylinder_drag_curve()
 
 
 @lru_cache(maxsize=1)
-def _load_of_channel() -> Dict[str, np.ndarray]:
+def _load_of_channel() -> dict[str, np.ndarray]:
     return OpenFOAMClient().channel_velocity_profile()
 
 
 @lru_cache(maxsize=1)
-def _load_of_cavity() -> Dict[str, np.ndarray]:
+def _load_of_cavity() -> dict[str, np.ndarray]:
     return OpenFOAMClient().cavity_flow(re=1000)
 
 
@@ -999,12 +999,12 @@ class SU2Client:
     For real SU2 output, set ``su2_results_dir`` to a solved case directory.
     """
 
-    def __init__(self, su2_results_dir: Optional[str] = None) -> None:
+    def __init__(self, su2_results_dir: str | None = None) -> None:
         self.results_dir = su2_results_dir
 
     def naca0012_polar(
         self, mach: float = 0.3, n_alpha: int = 18
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """NACA 0012 lift/drag polar (thin-airfoil + correction approximation)."""
         alpha = np.linspace(-5, 20, n_alpha, dtype=np.float32)
         alpha_rad = np.deg2rad(alpha)
@@ -1020,7 +1020,7 @@ class SU2Client:
             "mach": np.full(n_alpha, mach, dtype=np.float32),
         }
 
-    def rae2822_surface_cp(self, mach: float = 0.73, alpha: float = 2.79, n: int = 100) -> Dict[str, np.ndarray]:
+    def rae2822_surface_cp(self, mach: float = 0.73, alpha: float = 2.79, n: int = 100) -> dict[str, np.ndarray]:
         """RAE 2822 surface pressure coefficient (transonic, Cook et al. 1979-like)."""
         x = np.linspace(0, 1, n, dtype=np.float32)
         # Upper surface shock + expansion
@@ -1040,12 +1040,12 @@ class SU2Client:
 
 
 @lru_cache(maxsize=1)
-def _load_su2_naca0012() -> Dict[str, np.ndarray]:
+def _load_su2_naca0012() -> dict[str, np.ndarray]:
     return SU2Client().naca0012_polar()
 
 
 @lru_cache(maxsize=1)
-def _load_su2_rae2822() -> Dict[str, np.ndarray]:
+def _load_su2_rae2822() -> dict[str, np.ndarray]:
     return SU2Client().rae2822_surface_cp()
 
 

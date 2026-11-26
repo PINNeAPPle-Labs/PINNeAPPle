@@ -19,10 +19,19 @@ For parametric sweeps:
 >>> from pinneapple_simulation.external_solvers.fenics import FEniCSWorkflow
 >>> samples = FEniCSWorkflow(cfg).sweep({"k": [0.5, 1.0, 2.0, 5.0]})
 """
-from .solver import FEniCSConfig, solve_and_package, dof_to_upd, FEniCSWorkflow
+from .solver import (
+    FEniCSConfig,
+    FEniCSUnavailable,
+    FEniCSWorkflow,
+    dof_to_upd,
+    problem_spec,
+    solve_and_package,
+)
 
 __all__ = [
     "FEniCSConfig",
+    "FEniCSUnavailable",
+    "problem_spec",
     "solve_and_package",
     "dof_to_upd",
     "FEniCSWorkflow",

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 import numpy as np
 
 from pinneapple_tools.benchmark_suite.bundle.loader import BundleData
@@ -20,7 +20,7 @@ class DeepXDEBackend:
 
     name: str = "deepxde"
 
-    def train(self, bundle: BundleData, run_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    def train(self, bundle: BundleData, run_cfg: dict[str, Any]) -> dict[str, Any]:
         try:
             import deepxde as dde  # type: ignore
         except Exception as e:
@@ -50,7 +50,7 @@ class DeepXDEBackend:
         if len(tr) == 0:
             raise RuntimeError("No training sensor rows found (split=='train').")
 
-        y_cols: List[str] = [c for c in ["u", "v", "p"] if c in tr.columns]
+        y_cols: list[str] = [c for c in ["u", "v", "p"] if c in tr.columns]
         if not {"u", "v"}.issubset(set(y_cols)):
             raise RuntimeError("Sensors must include at least columns u and v.")
 

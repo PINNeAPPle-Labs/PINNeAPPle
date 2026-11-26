@@ -28,11 +28,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 from string import Template
-from typing import Any, Dict, Optional
+from typing import Any
 
 __all__ = ["TEMPLATES", "new_project", "plan"]
 
-TEMPLATES: Dict[str, str] = {
+TEMPLATES: dict[str, str] = {
     "plain": "edit case.yaml only, never Python",
     "research": "solve, compare, record metrics and checks, keep a notebook",
     "cfd": "sweep a parameter through the reference solver into a CSV and a figure",
@@ -745,11 +745,11 @@ def _sweep_parameter(preset: str) -> tuple[str, str]:
     return "Re", "[50.0, 100.0, 200.0]"
 
 
-def plan(name: str, template: str = "plain", preset: str = "burgers_1d") -> Dict[str, Any]:
+def plan(name: str, template: str = "plain", preset: str = "burgers_1d") -> dict[str, Any]:
     """What ``new_project`` would write, without writing it. Useful for a dry run and for tests."""
     if template not in TEMPLATES:
         raise ValueError(f"unknown template {template!r}; choose one of: {', '.join(TEMPLATES)}")
-    files: Dict[str, str] = {}
+    files: dict[str, str] = {}
     card = None
     try:
         from .catalog import card as _card
@@ -804,7 +804,7 @@ def plan(name: str, template: str = "plain", preset: str = "burgers_1d") -> Dict
             "doctor_profile": _profile_for(template)}
 
 
-def new_project(name: str, *, dir: Optional[str] = None, template: str = "plain",
+def new_project(name: str, *, dir: str | None = None, template: str = "plain",
                 preset: str = "burgers_1d", verbose: bool = True) -> str:
     """Write a standalone project and return its folder.
 

@@ -1,14 +1,14 @@
 """Collate functions for PINN batches and UPD supervision batches."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
 
 import torch
 
 Tensor = torch.Tensor
 
 
-def _stack_or_cat(xs: List[Tensor], dim: int = 0) -> Tensor:
+def _stack_or_cat(xs: list[Tensor], dim: int = 0) -> Tensor:
     """Stack tensors if shapes match; otherwise concatenate along dim."""
     if not xs:
         raise ValueError("Empty tensor list")
@@ -18,7 +18,7 @@ def _stack_or_cat(xs: List[Tensor], dim: int = 0) -> Tensor:
     return torch.cat(xs, dim=dim)
 
 
-def _collate_tuple_of_tensors(items: List[Tuple[Tensor, ...]]) -> Tuple[Tensor, ...]:
+def _collate_tuple_of_tensors(items: list[tuple[Tensor, ...]]) -> tuple[Tensor, ...]:
     """Collate [(t,x), (t,x), ...] -> (T, X) by concatenating each position along dim=0."""
     if not items:
         raise ValueError("No items to collate")
@@ -28,12 +28,12 @@ def _collate_tuple_of_tensors(items: List[Tuple[Tensor, ...]]) -> Tuple[Tensor, 
     return tuple(torch.cat([it[j] for it in items], dim=0) for j in range(k))
 
 
-def collate_pinn_batches(batches: List[Dict[str, Any]]) -> Dict[str, Any]:
+def collate_pinn_batches(batches: list[dict[str, Any]]) -> dict[str, Any]:
     """Collate a list of PINN batch dicts into a single batch dict.
 
     Handles keys: ``collocation``, ``conditions``, ``data``, ``meta``.
     """
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     if not batches:
         return out
 
@@ -64,14 +64,14 @@ def collate_pinn_batches(batches: List[Dict[str, Any]]) -> Dict[str, Any]:
     return out
 
 
-def move_batch_to_device(batch: Dict[str, Any], device: Union[str, torch.device]) -> Dict[str, Any]:
+def move_batch_to_device(batch: dict[str, Any], device: str | torch.device) -> dict[str, Any]:
     """Move all tensors in a collated PINN batch dict to *device*. Leaves ``meta`` unchanged."""
     dev = torch.device(device)
 
     def _t(x: Any) -> Any:
         return x.to(dev) if isinstance(x, torch.Tensor) else x
 
-    out: Dict[str, Any] = dict(batch)
+    out: dict[str, Any] = dict(batch)
 
     if out.get("collocation") is not None:
         out["collocation"] = tuple(_t(t) for t in out["collocation"])
@@ -86,7 +86,7 @@ def move_batch_to_device(batch: Dict[str, Any], device: Union[str, torch.device]
     return out
 
 
-def collate_upd_supervised(samples: List[Any]) -> Dict[str, Any]:
+def collate_upd_supervised(samples: list[Any]) -> dict[str, Any]:
     """Collate a list of PhysicalSample objects for supervised training.
 
     Each ``sample.state`` dict must contain ``"x"`` (Tensor) and optionally ``"y"`` (Tensor).
@@ -95,9 +95,9 @@ def collate_upd_supervised(samples: List[Any]) -> Dict[str, Any]:
     if not samples:
         return {}
 
-    xs: List[Tensor] = []
-    ys: List[Tensor] = []
-    metas: List[Dict[str, Any]] = []
+    xs: list[Tensor] = []
+    ys: list[Tensor] = []
+    metas: list[dict[str, Any]] = []
 
     for s in samples:
         st = getattr(s, "state", None)
@@ -125,7 +125,7 @@ def collate_upd_supervised(samples: List[Any]) -> Dict[str, Any]:
             "schema": getattr(s, "schema", {}) or {},
         })
 
-    out: Dict[str, Any] = {"x": _stack_or_cat(xs, dim=0), "meta": metas}
+    out: dict[str, Any] = {"x": _stack_or_cat(xs, dim=0), "meta": metas}
     if ys:
         out["y"] = _stack_or_cat(ys, dim=0)
     return out

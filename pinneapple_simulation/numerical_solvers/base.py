@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -18,8 +18,8 @@ class SolverOutput:
       - metadata (freqs, imfs, diagnostics, residuals)
     """
     result: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class SolverBase(nn.Module):

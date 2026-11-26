@@ -2,7 +2,6 @@ from __future__ import annotations
 """Fourier neural operator for global spectral learning (1D and 2D)."""
 
 from collections.abc import Sequence
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -39,6 +38,14 @@ def _crop(x: torch.Tensor, p: tuple) -> torch.Tensor:
     if not any(p):
         return x
     return x[(slice(None), slice(None)) + tuple(slice(0, n - v) for n, v in zip(x.shape[2:], p))]
+
+
+def _activation(name: str) -> nn.Module:
+    """Activation of the pointwise heads by name (``identity`` is a no-op module, so the layers stay explicit)."""
+    acts = {"silu": nn.SiLU, "gelu": nn.GELU, "relu": nn.ReLU, "tanh": nn.Tanh, "identity": nn.Identity}
+    if name not in acts:
+        raise ValueError(f"activation is one of {sorted(acts)}, got {name!r}")
+    return acts[name]()
 
 
 class _SpectralConv(nn.Module):
@@ -140,7 +147,7 @@ class FourierNeuralOperator(NeuralOperatorBase):
         self,
         u: torch.Tensor,  # (B, C, L)
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         x = u
@@ -179,7 +186,7 @@ class _SpectralConv2d(nn.Module):
     modes in the penultimate dimension.
     """
 
-    def __init__(self, in_c: int, out_c: int, modes1: int, modes2: int):
+    def __init__(self, in_c: int, out_c: int, modes1: int, modes2: int, init: str = "normal"):
         super().__init__()
         self.in_c   = int(in_c)
         self.out_c  = int(out_c)
@@ -187,12 +194,19 @@ class _SpectralConv2d(nn.Module):
         self.modes2 = int(modes2)
 
         scale = 1.0 / max(1, in_c * out_c)
-        self.weights1 = nn.Parameter(
-            scale * torch.randn(in_c, out_c, self.modes1, self.modes2, dtype=torch.cfloat)
-        )
-        self.weights2 = nn.Parameter(
-            scale * torch.randn(in_c, out_c, self.modes1, self.modes2, dtype=torch.cfloat)
-        )
+        self.weights1 = nn.Parameter(self._draw(scale, init))
+        self.weights2 = nn.Parameter(self._draw(scale, init))
+
+    def _draw(self, scale: float, init: str) -> torch.Tensor:
+        """``init="normal"``: ``scale`` times a complex standard normal (this library's own default).
+        ``init="uniform"``: ``scale`` times a uniform [0, 1) on the real and on the imaginary part, as Li et al.
+        (2021) and PhysicsNeMo draw it — the configuration a model ported from PhysicsNeMo expects."""
+        if init == "normal":
+            return scale * torch.randn(self.in_c, self.out_c, self.modes1, self.modes2, dtype=torch.cfloat)
+        if init == "uniform":
+            real = scale * torch.rand(self.in_c, self.out_c, self.modes1, self.modes2, 2)
+            return torch.view_as_complex(real.contiguous())
+        raise ValueError(f'init is "normal" or "uniform", got {init!r}')
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, C, H, W = x.shape
@@ -249,6 +263,34 @@ class FNO2d(NeuralOperatorBase):
         convolution on a periodic domain; on a non-periodic axis (walls, fixed values on the edges) the padding
         keeps the two opposite edges from interacting through it. 0 on a periodic axis; default 0 (no padding).
         ``FourierNeuralOperator`` (1-D) and ``FNO3d`` take the same argument.
+    lift_hidden : int, optional
+        Width of a hidden layer inside the lifting. ``None`` (default) keeps the single 1x1 convolution; an int
+        builds ``1x1(in) -> GELU -> 1x1(lift_hidden) -> 1x1(width)``, the two-step lifting of the FNO paper's
+        reference code and of ``physicsnemo.models.fno.FNO`` (which uses ``width // 2`` there).
+    final_activation : bool, optional
+        Apply the GELU after the last Fourier layer. Default ``True``. PhysicsNeMo leaves the last block linear
+        (``conv(x) + spectral(x)`` straight into the decoder), so a model ported from it sets this ``False``.
+    decoder_hidden : int, optional
+        Replace the single 1x1 output projection by a pointwise MLP head
+        ``1x1(width) -> decoder_activation -> 1x1(decoder_hidden) -> 1x1(out)``. ``None`` (default) keeps the
+        linear projection.
+    decoder_activation : str
+        Activation of that head: ``"silu"`` (default, PhysicsNeMo's decoder default), ``"gelu"``, ``"relu"``,
+        ``"tanh"`` or ``"identity"``.
+    spectral_init : str
+        Initialisation of the spectral weights: ``"normal"`` (default) or ``"uniform"`` (see
+        :class:`_SpectralConv2d`).
+
+    Notes
+    -----
+    ``lift_hidden``, ``final_activation``, ``decoder_hidden``, ``decoder_activation`` and ``spectral_init`` exist to
+    reproduce another implementation's architecture exactly, which is what a weight transplant from PhysicsNeMo
+    needs (:func:`pinneapple_neural.physicsnemo_bridge.fno_compare.transplant_fno2d_weights`). Their defaults
+    reproduce this class as it was before they existed, down to the parameter names of ``state_dict``.
+
+    The spectral convolution keeps ``modes1 <= H // 2`` and ``modes2 <= W // 2 + 1`` modes whatever is asked: on a
+    grid too coarse for the requested modes it silently uses fewer, and the check is on the padded grid (``H``,
+    ``W`` include :attr:`padding`).
     """
 
     def __init__(
@@ -262,23 +304,43 @@ class FNO2d(NeuralOperatorBase):
         *,
         use_grid: bool = True,
         padding: int | Sequence[int] = 0,
+        lift_hidden: int | None = None,
+        final_activation: bool = True,
+        decoder_hidden: int | None = None,
+        decoder_activation: str = "silu",
+        spectral_init: str = "normal",
     ):
         super().__init__()
         self.use_grid = bool(use_grid)
         self.padding = _pad_widths(padding, 2)
+        self.final_activation = bool(final_activation)
 
         in_c_eff = int(in_channels) + (2 if self.use_grid else 0)
-        self.in_proj = nn.Conv2d(in_c_eff, int(width), kernel_size=1)
+        if lift_hidden is None:
+            self.in_proj = nn.Conv2d(in_c_eff, int(width), kernel_size=1)
+        else:
+            self.in_proj = nn.Sequential(
+                nn.Conv2d(in_c_eff, int(lift_hidden), kernel_size=1),
+                nn.GELU(),
+                nn.Conv2d(int(lift_hidden), int(width), kernel_size=1),
+            )
 
         self.convs = nn.ModuleList([
-            _SpectralConv2d(int(width), int(width), int(modes1), int(modes2))
+            _SpectralConv2d(int(width), int(width), int(modes1), int(modes2), init=spectral_init)
             for _ in range(int(layers))
         ])
         self.ws = nn.ModuleList([
             nn.Conv2d(int(width), int(width), kernel_size=1)
             for _ in range(int(layers))
         ])
-        self.out_proj = nn.Conv2d(int(width), int(out_channels), kernel_size=1)
+        if decoder_hidden is None:
+            self.out_proj = nn.Conv2d(int(width), int(out_channels), kernel_size=1)
+        else:
+            self.out_proj = nn.Sequential(
+                nn.Conv2d(int(width), int(decoder_hidden), kernel_size=1),
+                _activation(decoder_activation),
+                nn.Conv2d(int(decoder_hidden), int(out_channels), kernel_size=1),
+            )
 
     @staticmethod
     def _make_grid_2d(u: torch.Tensor) -> torch.Tensor:
@@ -294,7 +356,7 @@ class FNO2d(NeuralOperatorBase):
         self,
         u: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         x = u
@@ -303,8 +365,10 @@ class FNO2d(NeuralOperatorBase):
             x = torch.cat([x, grid], dim=1)
 
         x = _pad(self.in_proj(x), self.padding)
-        for sc, w in zip(self.convs, self.ws):
-            x = F.gelu(sc(x) + w(x))
+        last = len(self.convs) - 1
+        for i, (sc, w) in enumerate(zip(self.convs, self.ws)):
+            y = sc(x) + w(x)
+            x = F.gelu(y) if (i < last or self.final_activation) else y
         y = self.out_proj(_crop(x, self.padding))
 
         losses = {}
@@ -438,7 +502,7 @@ class FNO3d(NeuralOperatorBase):
         self,
         u: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         x = u

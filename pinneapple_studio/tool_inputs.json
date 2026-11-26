@@ -1367,6 +1367,10 @@
   },
   "source": "tests/test_app_helpers_in_library.py:103"
  },
+ "pinneapple_data.readiness:default_policy": {
+  "inputs": {},
+  "source": "tests/test_data_readiness.py:1"
+ },
  "pinneapple_data.schema.gates:relative_l2": {
   "inputs": {
    "computed": [
@@ -3339,6 +3343,16 @@
   },
   "source": "examples/time_series/07_fft_lstm_hybrid.py:90"
  },
+ "pinneapple_neural.trainer.checkpoint:restore_rng": {
+  "inputs": {
+   "state": null
+  },
+  "source": "tests/pinneapple_train/test_trainer_resume.py:70"
+ },
+ "pinneapple_neural.trainer.checkpoint:rng_state": {
+  "inputs": {},
+  "source": "tests/pinneapple_train/test_trainer_resume.py:70"
+ },
  "pinneapple_neural.trainer.metrics_cfg:build_metrics_from_cfg": {
   "inputs": {
    "cfg": [
@@ -5057,6 +5071,228 @@
    "velocity": 1.0
   },
   "source": "tests/test_physics_audit.py:116"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:constant_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "source": "tests/test_integral_presets.py:190"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:helmholtz2_diag": {
+  "inputs": {
+   "ctx": {
+    "k": 1.0
+   },
+   "width": [
+    0.004
+   ]
+  },
+  "source": "tests/test_integral_kinds.py:117"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:helmholtz2_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {
+    "k": 1.0
+   }
+  },
+  "source": "tests/test_integral_kinds.py:259"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:log_diag": {
+  "inputs": {
+   "ctx": {},
+   "width": [
+    0.1
+   ]
+  },
+  "source": "tests/test_integral_presets.py:196"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:log_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "source": "tests/test_integral_presets.py:190"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:product_kernel": {
+  "inputs": {
+   "S": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "X": [
+    [
+     0.0
+    ],
+    [
+     0.25
+    ],
+    [
+     0.5
+    ],
+    [
+     0.75
+    ],
+    [
+     1.0
+    ]
+   ],
+   "ctx": {}
+  },
+  "source": "tests/test_integral_presets.py:190"
+ },
+ "pinneapple_physics.pinn_solver.compiler.integral_kinds:trapezoid_weights": {
+  "inputs": {
+   "x": [
+    0.0,
+    0.03125,
+    0.0625,
+    0.09375,
+    0.125,
+    0.15625,
+    0.1875,
+    0.21875,
+    0.25,
+    0.28125,
+    0.3125,
+    0.34375,
+    0.375,
+    0.40625,
+    0.4375,
+    0.46875,
+    0.5,
+    0.53125,
+    0.5625,
+    0.59375,
+    0.625,
+    0.65625,
+    0.6875,
+    0.71875,
+    0.75,
+    0.78125,
+    0.8125,
+    0.84375,
+    0.875,
+    0.90625,
+    0.9375,
+    0.96875,
+    1.0
+   ]
+  },
+  "source": "tests/test_integral_kinds.py:78"
  },
  "pinneapple_physics.pinn_solver.io.mappings:build_default_mapping_atmosphere": {
   "inputs": {
@@ -8717,6 +8953,48 @@
    "height": 2.0
   },
   "source": "tests/test_rover_realism.py:128"
+ },
+ "pinneapple_tools.visualization.studio.scale:auto_prop": {
+  "inputs": {
+   "extent_m": 0.25
+  },
+  "source": "tests/test_studio_scale.py:test_the_prop_is_the_largest_that_does_not_dwarf_the_part"
+ },
+ "pinneapple_tools.visualization.studio.scale:decade": {
+  "inputs": {
+   "x": 0.237
+  },
+  "source": "tests/test_studio_scale.py:test_a_round_value_is_snapped_to_1_2_or_5"
+ },
+ "pinneapple_tools.visualization.studio.scale:fmt_length": {
+  "inputs": {
+   "metres": 0.25
+  },
+  "source": "tests/test_studio_scale.py:test_a_length_reads_the_way_an_engineer_writes_it"
+ },
+ "pinneapple_tools.visualization.studio.scale:footprint": {
+  "inputs": {
+   "kind": "human"
+  },
+  "source": "tests/test_studio_scale.py:test_the_props_have_the_size_a_reader_already_knows"
+ },
+ "pinneapple_tools.visualization.studio.scale:grid_step": {
+  "inputs": {
+   "extent_m": 0.25
+  },
+  "source": "tests/test_studio_scale.py:test_the_grid_square_is_a_round_fraction_of_the_subject"
+ },
+ "pinneapple_tools.visualization.studio.scale:prop_size": {
+  "inputs": {
+   "kind": "ruler"
+  },
+  "source": "tests/test_studio_scale.py:test_the_props_have_the_size_a_reader_already_knows"
+ },
+ "pinneapple_tools.visualization.studio.scale:scale_bar_length": {
+  "inputs": {
+   "target_m": 0.237
+  },
+  "source": "tests/test_studio_scale.py:test_a_round_value_is_snapped_to_1_2_or_5"
  },
  "pinneapple_tools.visualization.studio.view_cache:view_paths": {
   "inputs": {

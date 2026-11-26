@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from pinneapple_physics.pinn_solver.io import UPDItem, UPDDataset, SamplingSpec, ConditionSpec, PINNMapping
+from pinneapple_physics.pinn_solver.io import UPDItem, UPDDataset, SamplingSpec, PINNMapping
 
 from .collate import collate_pinn_batches
 from .physical_sample import PhysicalSample
@@ -57,7 +57,7 @@ class _UPDShardTorchDataset(Dataset):
         item: UPDItem,
         mapping: PINNMapping,
         sampling: SamplingSpec,
-        device: Union[str, torch.device] = "cpu",
+        device: str | torch.device = "cpu",
         dtype: torch.dtype = torch.float32,
         length: int = 10_000,
     ):
@@ -100,7 +100,7 @@ class _UPDShardTorchDataset(Dataset):
         """
         return self.length
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         """
         Sample a new batch from the underlying UPDDataset.
 
@@ -128,7 +128,7 @@ class _UPDShardTorchDataset(Dataset):
         )
         b = self._upd.sample(spec)
 
-        out: Dict[str, Any] = {
+        out: dict[str, Any] = {
             "collocation": b.collocation,
             "conditions": b.conditions,
             "data": b.data,
@@ -147,8 +147,8 @@ def build_upd_dataloader(
     meta_path: str,
     mapping: PINNMapping,
     sampling: SamplingSpec,
-    loader: Optional[DataLoaderSpec] = None,
-    device: Union[str, torch.device] = "cpu",
+    loader: DataLoaderSpec | None = None,
+    device: str | torch.device = "cpu",
     dtype: torch.dtype = torch.float32,
     length: int = 10_000,
 ) -> DataLoader:
@@ -209,8 +209,8 @@ def build_physical_sample_dataloader(
     *,
     mapping: PINNMapping,
     sampling: SamplingSpec,
-    loader: Optional[DataLoaderSpec] = None,
-    device: Union[str, torch.device] = "cpu",
+    loader: DataLoaderSpec | None = None,
+    device: str | torch.device = "cpu",
     dtype: torch.dtype = torch.float32,
     length: int = 10_000,
 ) -> DataLoader:

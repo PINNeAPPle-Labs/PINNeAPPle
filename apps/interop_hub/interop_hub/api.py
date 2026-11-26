@@ -19,7 +19,6 @@ import sys
 import tempfile
 import time
 import uuid
-from typing import List, Optional, Tuple
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.gzip import GZipMiddleware
@@ -120,7 +119,7 @@ def _gc():
                 pass
 
 
-def _convert(files: List[Tuple[str, bytes]], time_: str, unit_system: str, to_si: bool, rho: Optional[float],
+def _convert(files: list[tuple[str, bytes]], time_: str, unit_system: str, to_si: bool, rho: float | None,
              location: str) -> dict:
     if not files:
         raise HTTPException(422, "No files uploaded.")
@@ -167,16 +166,16 @@ def meta():
 
 
 @app.post("/api/inspect")
-async def api_inspect(files: List[UploadFile] = File(...), time: str = Form(""), unit_system: str = Form("auto"),
-                      to_si: bool = Form(False), rho: Optional[float] = Form(None), location: str = Form("auto")):
+async def api_inspect(files: list[UploadFile] = File(...), time: str = Form(""), unit_system: str = Form("auto"),
+                      to_si: bool = Form(False), rho: float | None = Form(None), location: str = Form("auto")):
     """Normalise an upload; returns the dataset description and an id for /api/export/{id}/{format}."""
     return _convert([(f.filename or f"upload_{i}", await f.read()) for i, f in enumerate(files)], time, unit_system,
                     to_si, rho, location)
 
 
 @app.post("/api/convert/{fmt}")
-async def api_convert(fmt: str, files: List[UploadFile] = File(...), time: str = Form(""),
-                      unit_system: str = Form("auto"), to_si: bool = Form(False), rho: Optional[float] = Form(None),
+async def api_convert(fmt: str, files: list[UploadFile] = File(...), time: str = Form(""),
+                      unit_system: str = Form("auto"), to_si: bool = Form(False), rho: float | None = Form(None),
                       location: str = Form("auto")):
     """One call: upload and get the file in the chosen format (vtu, hdf5, parquet, csv, npz, json, pinneapple)."""
     r = _convert([(f.filename or f"upload_{i}", await f.read()) for i, f in enumerate(files)], time, unit_system,

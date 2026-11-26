@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Neural ordinary differential equation models with RK4 integration."""
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -54,7 +54,7 @@ class NeuralODE(ContinuousModelBase):
         y0: torch.Tensor,                     # (B,D)
         t: torch.Tensor,                      # (T,) increasing
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,T,D)
+        y_true: torch.Tensor | None = None,  # (B,T,D)
         return_loss: bool = False,
     ) -> ContOutput:
         B, D = y0.shape
@@ -79,7 +79,7 @@ class NeuralODE(ContinuousModelBase):
 
         y_path = torch.stack(ys, dim=1)  # (B,T,D)
 
-        losses: Dict[str, torch.Tensor] = {
+        losses: dict[str, torch.Tensor] = {
             "total": torch.zeros((), device=y_path.device, dtype=y_path.dtype)
         }
         if return_loss and y_true is not None:

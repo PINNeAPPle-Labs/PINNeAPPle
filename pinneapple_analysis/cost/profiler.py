@@ -18,10 +18,12 @@ What is and is not measured (read before trusting a number):
   attention, ...). NumPy / SciPy / pure-Python work reports ``flops=None``, never a guess. Around
   ``torch.autograd.grad`` the flop counter cannot run, so the profiler's matmul/conv count is used and
   ``flops_source="profiler"`` marks it as a lower bound.
-- Peak memory: CUDA via ``torch.cuda.max_memory_allocated``; CPU via sampled process RSS when ``psutil`` is
-  installed (``mem_source="rss"``), otherwise ``tracemalloc`` (Python + NumPy only, ``mem_source=
-  "tracemalloc"``, which does not see PyTorch CPU tensors). RSS sampling can miss allocations that are
-  reused or shorter than the sampling interval, so treat CPU memory as a lower bound.
+- Peak memory: CUDA via ``torch.cuda.max_memory_allocated``; on CPU the PyTorch profiler's allocation records
+  (exact for CPU tensors) plus ``tracemalloc`` (exact for Python and NumPy, which reports to it), summed —
+  ``mem_source="torch+trace"``. Neither is blind guessing and neither is a sampled lower bound; the limits of
+  each method, and why the in-process RSS watermark cannot be reused, are measured in ``memory`` (issue #54).
+  Sampled process RSS (``mem_source="rss"``, needs ``psutil``) is kept as a labelled lower bound for the cases
+  the two methods cannot cover, for example native libraries.
 - Time is wall clock on the machine that runs it; compare numbers only across runs on the same machine.
 """
 from __future__ import annotations
@@ -30,13 +32,15 @@ import json
 import math
 import os
 import platform
-import threading
 import time
-import tracemalloc
 from dataclasses import asdict, dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any
+from collections.abc import Callable, Sequence
 
 import numpy as np
+
+from pinneapple_core.errors import BadValue
+from .memory import measure_peak
 
 
 # --------------------------------------------------------------------------- records
@@ -47,22 +51,24 @@ class CostRecord:
     time_s: float                      # median over repeats
     time_min_s: float
     time_iqr_s: float                  # interquartile range, a robust spread
-    times_s: List[float] = field(default_factory=list)
-    peak_mem_bytes: Optional[int] = None
+    times_s: list[float] = field(default_factory=list)
+    peak_mem_bytes: int | None = None
     mem_source: str = ""
-    flops: Optional[int] = None        # PyTorch operators only; None when not countable
+    mem_exact: bool = False            # True when the peak is a measured value, not a lower bound
+    mem_components: dict[str, int] = field(default_factory=dict)   # allocator -> bytes it contributed
+    flops: int | None = None        # PyTorch operators only; None when not countable
     flops_source: str = ""             # "flop_counter" (exact) | "profiler" (matmul/conv only, lower bound)
-    size: Optional[float] = None
+    size: float | None = None
 
     @property
     def relative_spread(self) -> float:
         return self.time_iqr_s / self.time_s if self.time_s > 0 else float("nan")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "CostRecord":
+    def from_dict(cls, d: dict[str, Any]) -> CostRecord:
         return cls(**d)
 
 
@@ -71,7 +77,9 @@ def _count_flops(fn: Callable[[], Any]):
     """``(flops, source)``. ``flop_counter`` is exact for the operators it knows; it cannot run around
     ``torch.autograd.grad`` (its module hooks fail there), so then ``equal_budget.count_flops`` is used: the same
     per-operator formulas without module hooks, plus FFTs. The profiler's count (matmul/conv only) is the last
-    resort."""
+    resort. A zero from the flop counter is not an answer -- it knows matmul, conv and attention and nothing else, so
+    an FFT or an elementwise kernel counts as zero there while the hook-free dispatch counter sees them -- so a zero
+    falls through to the next counter instead of ending the chain."""
     try:
         from torch.utils.flop_counter import FlopCounterMode
     except Exception:
@@ -82,7 +90,6 @@ def _count_flops(fn: Callable[[], Any]):
         total = int(counter.get_total_flops())
         if total > 0:
             return total, "flop_counter"
-        return None, ""
     except Exception:
         pass
     try:
@@ -102,63 +109,10 @@ def _count_flops(fn: Callable[[], Any]):
         return None, ""
 
 
-class _PeakRSS:
-    """Samples process RSS on a thread; ``peak`` is the increase over the starting RSS."""
-
-    def __init__(self, interval: float = 0.002):
-        import psutil
-        self._p = psutil.Process()
-        self._interval = interval
-        self._stop = threading.Event()
-        self.peak = 0
-
-    def __enter__(self):
-        self._base = self._p.memory_info().rss
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._thread.start()
-        return self
-
-    def _run(self):
-        while not self._stop.is_set():
-            self.peak = max(self.peak, self._p.memory_info().rss - self._base)
-            time.sleep(self._interval)
-
-    def __exit__(self, *exc):
-        self._stop.set()
-        self._thread.join()
-        self.peak = max(self.peak, self._p.memory_info().rss - self._base)
-
-
-def _measure_memory(fn: Callable[[], Any]) -> (Optional[int], str):
-    try:
-        import torch
-        if torch.cuda.is_available():
-            torch.cuda.synchronize()
-            torch.cuda.reset_peak_memory_stats()
-            base = torch.cuda.memory_allocated()
-            fn()
-            torch.cuda.synchronize()
-            return int(torch.cuda.max_memory_allocated() - base), "cuda"
-    except Exception:
-        pass
-    try:
-        with _PeakRSS() as r:
-            fn()
-        return int(r.peak), "rss"
-    except ImportError:
-        pass
-    started = tracemalloc.is_tracing()
-    if not started:
-        tracemalloc.start()
-    tracemalloc.reset_peak()
-    base = tracemalloc.get_traced_memory()[0]
-    try:
-        fn()
-        peak = tracemalloc.get_traced_memory()[1] - base
-    finally:
-        if not started:
-            tracemalloc.stop()
-    return int(peak), "tracemalloc"
+def _measure_memory(fn: Callable[[], Any], method: str = "auto") -> tuple[int | None, str, bool, dict[str, int]]:
+    """``(bytes, source, exact, components)`` for one call; ``method`` is passed to ``memory.measure_peak``."""
+    peak = measure_peak(fn, method=method)
+    return peak.bytes, peak.source, peak.exact, dict(peak.components)
 
 
 def _sync() -> None:
@@ -170,19 +124,22 @@ def _sync() -> None:
         pass
 
 
-def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, name: Optional[str] = None,
-            flops: bool = True, memory: bool = True, size: Optional[float] = None, **kwargs) -> CostRecord:
+def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, name: str | None = None,
+            flops: bool = True, memory: bool = True, size: float | None = None, mem_method: str = "auto",
+            **kwargs) -> CostRecord:
     """Cost of one operation ``fn(*args, **kwargs)``.
 
     Time is the median of ``repeats`` timed runs after ``warmup`` untimed ones; FLOPs and peak memory are
-    measured in separate runs so they do not perturb the timing.
+    measured in separate runs so they do not perturb the timing. ``mem_method`` picks how the peak is measured
+    (see ``memory.measure_peak``); the default is exact for tensors and for NumPy. When the peak cannot be
+    measured it is ``None`` with ``mem_source="unknown"``, never a plausible number.
     """
     if repeats < 1:
-        raise ValueError("repeats must be >= 1")
+        raise BadValue("measure() needs at least one timed run", fix="pass repeats=5 (the default) or any integer >= 1")
     call = lambda: fn(*args, **kwargs)  # noqa: E731
     for _ in range(warmup):
         call()
-    times: List[float] = []
+    times: list[float] = []
     for _ in range(repeats):
         _sync()
         t0 = time.perf_counter()
@@ -190,11 +147,12 @@ def measure(fn: Callable[..., Any], *args, repeats: int = 5, warmup: int = 1, na
         _sync()
         times.append(time.perf_counter() - t0)
     q1, med, q3 = np.percentile(times, [25, 50, 75])
-    mem, src = _measure_memory(call) if memory else (None, "")
+    mem, src, exact, components = _measure_memory(call, mem_method) if memory else (None, "", False, {})
     n_flops, flops_src = _count_flops(call) if flops else (None, "")
     return CostRecord(name=name or getattr(fn, "__name__", "operation"), n_runs=repeats, time_s=float(med),
                       time_min_s=float(min(times)), time_iqr_s=float(q3 - q1), times_s=[float(t) for t in times],
-                      peak_mem_bytes=mem, mem_source=src, flops=n_flops, flops_source=flops_src, size=size)
+                      peak_mem_bytes=mem, mem_source=src, mem_exact=exact, mem_components=components,
+                      flops=n_flops, flops_source=flops_src, size=size)
 
 
 # --------------------------------------------------------------------------- scaling
@@ -219,13 +177,14 @@ def _fit_exponent(sizes: np.ndarray, y: np.ndarray):
     return float(slope), float(intercept), r2
 
 
-def expected_exponent(declared: Union[str, float], sizes: Sequence[float]) -> float:
+def expected_exponent(declared: str | float, sizes: Sequence[float]) -> float:
     """Log-log slope of the declared complexity over the sizes actually used (``n log n`` is not 1.0)."""
     if isinstance(declared, (int, float)):
         return float(declared)
     key = declared.strip().lower().replace("**", "^").replace("o(", "").rstrip(")")
     if key not in _COMPLEXITY:
-        raise ValueError(f"unknown complexity {declared!r}; use a number or one of {sorted(_COMPLEXITY)}")
+        raise BadValue(f"unknown complexity {declared!r}",
+                       fix=f"declare one of {sorted(_COMPLEXITY)} or give the exponent as a number")
     n = np.asarray(sizes, dtype=float)
     if key == "1":
         return 0.0
@@ -239,8 +198,8 @@ class ScalingFit:
     ci: (float, float)
     r2: float
     coefficient: float                 # cost ~ coefficient * n^exponent
-    declared: Optional[str] = None
-    expected_exponent: Optional[float] = None
+    declared: str | None = None
+    expected_exponent: float | None = None
     verdict: str = ""                  # consistent | worse than declared | better than declared | undeclared
 
     def predict(self, n: float) -> float:
@@ -256,9 +215,9 @@ class ScalingFit:
 @dataclass
 class ScalingStudy:
     name: str
-    sizes: List[float]
-    records: List[CostRecord]
-    fits: Dict[str, ScalingFit]
+    sizes: list[float]
+    records: list[CostRecord]
+    fits: dict[str, ScalingFit]
 
     def summary(self) -> str:
         lines = [f"scaling study: {self.name}"]
@@ -278,26 +237,30 @@ def _verdict(fit_ci, expected: float, tol: float) -> str:
 
 
 def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence[int], *, name: str = "operation",
-                  repeats: int = 5, warmup: int = 1, declared: Optional[Union[str, float]] = None,
-                  declared_flops: Optional[Union[str, float]] = None, tolerance: float = 0.15,
-                  n_boot: int = 300, seed: int = 0, memory: bool = False) -> ScalingStudy:
+                  repeats: int = 5, warmup: int = 1, declared: str | float | None = None,
+                  declared_flops: str | float | None = None, tolerance: float = 0.15,
+                  n_boot: int = 300, seed: int = 0, memory: bool = False, flops: bool = True) -> ScalingStudy:
     """Measure an operation over problem sizes and fit ``cost ~ n^k`` for time (and FLOPs when countable).
 
     ``make_call(n)`` builds the inputs for size ``n`` and returns a zero-argument callable; the setup is not
     timed. Use at least 4 sizes spanning a factor of 10 or more, and sizes large enough that the run takes well
     over a millisecond, otherwise fixed overheads flatten the fit (the R2 and the CI width say so).
-    ``tolerance`` is the slack in the exponent when comparing with ``declared``.
+    ``tolerance`` is the slack in the exponent when comparing with ``declared``. ``flops=False`` skips the FLOP
+    count, which the counter's per-operator hooks make more expensive than the work for an operation that issues
+    thousands of small operators; the record then carries ``flops=None`` with an empty source.
     """
     sizes = [int(s) for s in sizes]
     if len(sizes) < 3 or len(set(sizes)) != len(sizes):
-        raise ValueError("need at least 3 distinct sizes")
+        raise BadValue(
+            f"a scaling fit needs at least 3 distinct sizes, got {len(set(sizes))} distinct of {len(sizes)}",
+            fix="pass at least 3 distinct sizes spanning a factor of 10 or more, e.g. [10**3, 10**4, 10**5]")
     records = [measure(make_call(n), repeats=repeats, warmup=warmup, name=f"{name}[n={n}]", size=float(n),
-                       memory=memory) for n in sizes]
+                       memory=memory, flops=flops) for n in sizes]
     n_arr = np.array(sizes, dtype=float)
-    fits: Dict[str, ScalingFit] = {}
+    fits: dict[str, ScalingFit] = {}
     rng = np.random.default_rng(seed)
 
-    def add(quantity: str, y: np.ndarray, boot_samples: Optional[List[np.ndarray]], decl):
+    def add(quantity: str, y: np.ndarray, boot_samples: list[np.ndarray] | None, decl):
         k, b, r2 = _fit_exponent(n_arr, y)
         ci = (k, k)
         if boot_samples is not None:
@@ -327,14 +290,14 @@ def scaling_study(make_call: Callable[[int], Callable[[], Any]], sizes: Sequence
 @dataclass
 class Budget:
     """Limits for one operation. Any limit left as ``None`` is not checked."""
-    max_time_s: Optional[float] = None
-    max_mem_bytes: Optional[int] = None
-    max_flops: Optional[int] = None
-    max_time_exponent: Optional[float] = None   # checked against the CI's lower bound, so noise cannot fail it
+    max_time_s: float | None = None
+    max_mem_bytes: int | None = None
+    max_flops: int | None = None
+    max_time_exponent: float | None = None   # checked against the CI's lower bound, so noise cannot fail it
 
-    def check(self, result: Union[CostRecord, ScalingStudy]) -> List[str]:
+    def check(self, result: CostRecord | ScalingStudy) -> list[str]:
         """Violations as readable strings; an empty list means the budget holds."""
-        out: List[str] = []
+        out: list[str] = []
         records = result.records if isinstance(result, ScalingStudy) else [result]
         for r in records:
             tag = f"{r.name}: "
@@ -351,14 +314,26 @@ class Budget:
                            f"exceeds {self.max_time_exponent:.2f}")
         return out
 
-    def validate(self, result: Union[CostRecord, ScalingStudy]) -> None:
+    def validate(self, result: CostRecord | ScalingStudy) -> None:
         violations = self.check(result)
         if violations:
-            raise BudgetExceeded("; ".join(violations))
+            raise BudgetExceeded(
+                "; ".join(violations),
+                fix="raise the limit in Budget(...) or shrink the problem; each violation above names the quantity "
+                    "that went over, and CostLedger.compare() shows the same number as a regression ratio")
 
 
 class BudgetExceeded(AssertionError):
-    pass
+    """The operation went over a ``Budget``. Carries ``fix``, the action that clears the violation."""
+
+    def __init__(self, message: str, *, fix: str = ""):
+        self.what = message
+        self.fix = fix
+        self.message = f"{message}\n  Fix: {fix}" if fix else message
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return self.message
 
 
 # --------------------------------------------------------------------------- ledger
@@ -378,7 +353,7 @@ class CostLedger:
     """Named operations with their costs; save a baseline, compare later runs against it."""
 
     def __init__(self):
-        self.records: Dict[str, CostRecord] = {}
+        self.records: dict[str, CostRecord] = {}
         self.environment = {"python": platform.python_version(), "machine": platform.machine(),
                             "system": platform.system(), "cpu_count": os.cpu_count()}
 
@@ -387,14 +362,14 @@ class CostLedger:
         self.records[name] = rec
         return rec
 
-    def track(self, name: Optional[str] = None, *, repeats: int = 3, **measure_kwargs):
+    def track(self, name: str | None = None, *, repeats: int = 3, **measure_kwargs):
         """Decorator: each call measures the function (it runs ``warmup + repeats`` times plus one run each for
         FLOPs and memory, so use it on side-effect-free operations), stores the record and returns the result."""
         def deco(fn):
             label = name or fn.__name__
 
             def wrapper(*a, **kw):
-                box: Dict[str, Any] = {}
+                box: dict[str, Any] = {}
 
                 def run():
                     box["v"] = fn(*a, **kw)
@@ -411,7 +386,7 @@ class CostLedger:
         return path
 
     @classmethod
-    def load(cls, path: str) -> "CostLedger":
+    def load(cls, path: str) -> CostLedger:
         with open(path) as f:
             raw = json.load(f)
         ledger = cls()
@@ -419,11 +394,11 @@ class CostLedger:
         ledger.records = {k: CostRecord.from_dict(v) for k, v in raw["records"].items()}
         return ledger
 
-    def compare(self, baseline: "CostLedger", *, time_factor: float = 1.5, flops_factor: float = 1.05,
-                mem_factor: float = 1.5) -> List[Regression]:
+    def compare(self, baseline: CostLedger, *, time_factor: float = 1.5, flops_factor: float = 1.05,
+                mem_factor: float = 1.5) -> list[Regression]:
         """Operations that got worse than ``baseline``. FLOPs gate tightly (deterministic), time and memory
         loosely (noisy). Operations missing from either side are ignored."""
-        out: List[Regression] = []
+        out: list[Regression] = []
         for name, cur in self.records.items():
             base = baseline.records.get(name)
             if base is None:

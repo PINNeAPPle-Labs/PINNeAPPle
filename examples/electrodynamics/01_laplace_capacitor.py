@@ -19,6 +19,9 @@ from pathlib import Path
 
 from pinneapple_neural.trainer.parallel import best_device
 from pinneapple_physics.pinn_solver.compiler.autograd_ops import grad, laplacian
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 DEVICE = best_device()
 RESULTS = Path(__file__).parent / "results"

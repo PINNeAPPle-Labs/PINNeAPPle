@@ -10,7 +10,6 @@ Outputs:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
 
 import numpy as np
 import struct
@@ -22,7 +21,7 @@ class STLMesh:
     faces: np.ndarray
 
 
-def _dedup_vertices(tris: np.ndarray, *, dedup_eps: float) -> Tuple[np.ndarray, np.ndarray]:
+def _dedup_vertices(tris: np.ndarray, *, dedup_eps: float) -> tuple[np.ndarray, np.ndarray]:
     assert tris.ndim == 3 and tris.shape[1:] == (3, 3)
     F = tris.shape[0]
     pts = tris.reshape(-1, 3)

@@ -11,7 +11,7 @@ Window/lag features are expected to be pre-computed by the caller
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -21,7 +21,7 @@ import numpy as np
 # ---------------------------------------------------------------------------
 
 class ForecastModel(ABC):
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "ForecastModel":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> ForecastModel:
         raise NotImplementedError
 
     @abstractmethod
@@ -30,12 +30,12 @@ class ForecastModel(ABC):
 
     def predict_with_uncertainty(
         self, X: np.ndarray, n_samples: int = 100
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Default: returns (predict, zeros) — override for probabilistic models."""
         mu = self.predict(X)
         return mu, np.zeros_like(mu)
 
-    def score(self, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
+    def score(self, X: np.ndarray, y: np.ndarray) -> dict[str, float]:
         from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
         y_hat = self.predict(X)
         return {
@@ -71,7 +71,7 @@ class XGBoostForecaster(ForecastModel):
         )
         self._model = None
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "XGBoostForecaster":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> XGBoostForecaster:
         try:
             import xgboost as xgb
         except ImportError:
@@ -113,7 +113,7 @@ class LightGBMForecaster(ForecastModel):
         )
         self._model = None
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "LightGBMForecaster":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> LightGBMForecaster:
         try:
             import lightgbm as lgb
         except ImportError:
@@ -140,7 +140,7 @@ class RandomForestForecaster(ForecastModel):
     def __init__(
         self,
         n_estimators: int = 200,
-        max_depth: Optional[int] = None,
+        max_depth: int | None = None,
         min_samples_leaf: int = 1,
         **kwargs: Any,
     ):
@@ -153,7 +153,7 @@ class RandomForestForecaster(ForecastModel):
         )
         self._model = None
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "RandomForestForecaster":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> RandomForestForecaster:
         from sklearn.ensemble import RandomForestRegressor
         from sklearn.multioutput import MultiOutputRegressor
         base = RandomForestRegressor(**self._params)
@@ -206,7 +206,7 @@ class CatBoostForecaster(ForecastModel):
         )
         self._model = None
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "CatBoostForecaster":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> CatBoostForecaster:
         try:
             from catboost import CatBoostRegressor
         except ImportError:
@@ -248,7 +248,7 @@ class GPRForecaster(ForecastModel):
         self._norm_y = normalize_y
         self._models: list = []
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "GPRForecaster":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> GPRForecaster:
         from sklearn.gaussian_process import GaussianProcessRegressor
         from sklearn.gaussian_process.kernels import RBF, ConstantKernel, WhiteKernel
         if self._kernel is None:
@@ -298,7 +298,7 @@ class MLPForecaster(ForecastModel):
         )
         self._model = None
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "MLPForecaster":
+    def fit(self, X: np.ndarray, y: np.ndarray) -> MLPForecaster:
         from sklearn.neural_network import MLPRegressor
         from sklearn.multioutput import MultiOutputRegressor
         base = MLPRegressor(**self._params)

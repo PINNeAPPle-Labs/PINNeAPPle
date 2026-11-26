@@ -76,7 +76,8 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -89,8 +90,8 @@ from .problems import ArenaProblem, register_problem
 
 def _build_pde_evaluator(
     pde_str: str,
-    fields: List[str],
-    coord_names: List[str],
+    fields: list[str],
+    coord_names: list[str],
 ) -> Callable:
     """Parse a PDE string and return a callable residual evaluator.
 
@@ -98,7 +99,7 @@ def _build_pde_evaluator(
     at parse time; everything else is evaluated dynamically with coordinate
     tensors and param values injected into the eval namespace.
     """
-    coord_idx: Dict[str, int] = {c: i for i, c in enumerate(coord_names)}
+    coord_idx: dict[str, int] = {c: i for i, c in enumerate(coord_names)}
     coord_chars_re = "".join(re.escape(c) for c in coord_names)
 
     # Replace derivative tokens: field_suffix → _D(_f["field"], _xy, [indices])
@@ -146,7 +147,7 @@ def _build_pde_evaluator(
             raw = torch.stack(list(raw.values()), dim=-1)
 
         # Field tensors
-        _f: Dict[str, Any] = {}
+        _f: dict[str, Any] = {}
         for fi, fname in enumerate(fields):
             if raw.ndim == 1:
                 _f[fname] = raw.unsqueeze(1)
@@ -156,7 +157,7 @@ def _build_pde_evaluator(
                 _f[fname] = raw[:, fi:fi + 1]
 
         import torch as _torch
-        _ns: Dict[str, Any] = {
+        _ns: dict[str, Any] = {
             # autograd helper
             "_D": _D, "_f": _f, "_xy": _xy,
             # math
@@ -196,8 +197,8 @@ def _build_pde_evaluator(
 def _sample_bc_points(
     at: str,
     n: int,
-    coords: Dict[str, Tuple[float, float]],
-    coord_names: List[str],
+    coords: dict[str, tuple[float, float]],
+    coord_names: list[str],
     rng: np.random.Generator,
 ) -> np.ndarray:
     """Sample *n* boundary points for a given location specifier.
@@ -266,8 +267,8 @@ def _sample_bc_points(
 def _eval_bc_value(
     val: Any,
     pts: np.ndarray,
-    coord_names: List[str],
-    params: Dict[str, float],
+    coord_names: list[str],
+    params: dict[str, float],
 ) -> np.ndarray:
     """Evaluate a BC value spec at boundary points → (N,) float32 array."""
     n = len(pts)
@@ -307,12 +308,12 @@ class EasyArenaProblem(ArenaProblem):
         self,
         name: str,
         description: str,
-        coords: Dict[str, Tuple[float, float]],
-        fields: List[str],
+        coords: dict[str, tuple[float, float]],
+        fields: list[str],
         pde_evaluator: Callable,
-        bcs: List[Dict[str, Any]],
-        params: Dict[str, float],
-        analytical_fn: Optional[Callable],
+        bcs: list[dict[str, Any]],
+        params: dict[str, float],
+        analytical_fn: Callable | None,
         bc_weight: float,
     ):
         self.name = name
@@ -331,7 +332,7 @@ class EasyArenaProblem(ArenaProblem):
 
     # ── ArenaProblem interface ────────────────────────────────────────────────
 
-    def analytical(self, *args, **kwargs) -> Optional[Dict[str, np.ndarray]]:
+    def analytical(self, *args, **kwargs) -> dict[str, np.ndarray] | None:
         if self._analytical_fn is None:
             return None
         coord_kw = {cn: args[i] for i, cn in enumerate(self._coord_names) if i < len(args)}
@@ -387,8 +388,8 @@ class EasyArenaProblem(ArenaProblem):
 
         # ── Boundary / initial conditions ─────────────────────────────────────
         n_per_bc = max(n_bc // max(len(self._bcs), 1), 4)
-        bc_x_parts: List[np.ndarray] = []
-        bc_y_parts: List[np.ndarray] = []
+        bc_x_parts: list[np.ndarray] = []
+        bc_y_parts: list[np.ndarray] = []
 
         for bc in self._bcs:
             at = bc.get("at", "boundary")
@@ -444,12 +445,12 @@ class EasyArenaProblem(ArenaProblem):
 
     def solve(
         self,
-        models: Optional[List[Union[str, Dict[str, Any]]]] = None,
+        models: list[str | dict[str, Any]] | None = None,
         epochs: int = 3000,
         lr: float = 1e-3,
-        hidden: Optional[List[int]] = None,
+        hidden: list[int] | None = None,
         output_dir: str = "outputs/custom/",
-        prefix: Optional[str] = None,
+        prefix: str | None = None,
         grid_n: int = 40,
         n_col: int = 1000,
         n_bc: int = 200,
@@ -493,7 +494,7 @@ class EasyArenaProblem(ArenaProblem):
         if prefix is None:
             prefix = re.sub(r'\W+', '_', self.name)
 
-        model_cfgs: List[Dict[str, Any]] = []
+        model_cfgs: list[dict[str, Any]] = []
         for m in models:
             if isinstance(m, dict):
                 model_cfgs.append(m)
@@ -506,7 +507,7 @@ class EasyArenaProblem(ArenaProblem):
                     "training": {"epochs": epochs, "lr": lr},
                 })
 
-        cfg_dict: Dict[str, Any] = {
+        cfg_dict: dict[str, Any] = {
             "problem": {
                 "name": self.name,
                 "params": self._params,
@@ -545,13 +546,13 @@ class EasyArenaProblem(ArenaProblem):
 
 def define_problem(
     name: str,
-    coords: Dict[str, Tuple[float, float]],
-    fields: List[str],
+    coords: dict[str, tuple[float, float]],
+    fields: list[str],
     pde: str,
-    bcs: List[Dict[str, Any]],
-    params: Optional[Dict[str, float]] = None,
+    bcs: list[dict[str, Any]],
+    params: dict[str, float] | None = None,
     description: str = "",
-    analytical: Optional[Callable] = None,
+    analytical: Callable | None = None,
     bc_weight: float = 10.0,
 ) -> EasyArenaProblem:
     """Define a custom physics problem with a declarative, high-level API.

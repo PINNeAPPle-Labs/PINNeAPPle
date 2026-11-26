@@ -9,14 +9,14 @@ from. No framework dependency (no orchestration/task-runner coupling).
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
 
-def analyze_completeness(fields: Dict[str, np.ndarray]) -> Dict[str, Any]:
+def analyze_completeness(fields: dict[str, np.ndarray]) -> dict[str, Any]:
     """NaN/missing-value fraction per field, plus an overall completeness score."""
-    per_field: Dict[str, float] = {}
+    per_field: dict[str, float] = {}
     for name, arr in fields.items():
         arr = np.asarray(arr)
         if np.issubdtype(arr.dtype, np.floating):
@@ -46,9 +46,9 @@ def _looks_monotonic_field(name: str) -> bool:
 
 def validate_consistency(
     coords: np.ndarray,
-    fields: Dict[str, np.ndarray],
+    fields: dict[str, np.ndarray],
     monotonic_name_hints: tuple = _MONOTONIC_NAME_HINTS,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generic cross-field consistency checks:
       - shape consistency: every field array's leading dim must match coords.shape[0]
       - monotonicity heuristic: fields whose *name* suggests a cumulative/
@@ -59,12 +59,12 @@ def validate_consistency(
     coords = np.asarray(coords)
     n_points = coords.shape[0]
 
-    shape_ok: Dict[str, bool] = {}
+    shape_ok: dict[str, bool] = {}
     for name, arr in fields.items():
         arr = np.asarray(arr)
         shape_ok[name] = bool(arr.shape[0] == n_points) if arr.ndim >= 1 else False
 
-    monotonic_checks: Dict[str, Dict[str, Any]] = {}
+    monotonic_checks: dict[str, dict[str, Any]] = {}
     for name, arr in fields.items():
         lname = name.lower()
         if not any(hint in lname for hint in monotonic_name_hints):
@@ -93,11 +93,11 @@ def validate_consistency(
     }
 
 
-def analyze_distribution(fields: Dict[str, np.ndarray]) -> Dict[str, Any]:
+def analyze_distribution(fields: dict[str, np.ndarray]) -> dict[str, Any]:
     """scipy.stats.describe per field (mean/variance/skewness/kurtosis)."""
     from scipy import stats
 
-    per_field: Dict[str, Any] = {}
+    per_field: dict[str, Any] = {}
     for name, arr in fields.items():
         arr = np.asarray(arr).reshape(-1).astype(float)
         arr = arr[np.isfinite(arr)]
@@ -117,14 +117,14 @@ def analyze_distribution(fields: Dict[str, np.ndarray]) -> Dict[str, Any]:
     return {"per_field": per_field}
 
 
-def detect_outliers(fields: Dict[str, np.ndarray], random_state: int = 42) -> Dict[str, Any]:
+def detect_outliers(fields: dict[str, np.ndarray], random_state: int = 42) -> dict[str, Any]:
     """IsolationForest fit jointly across all numeric fields (stacked as a
     feature matrix over points); report the fraction flagged as outliers."""
     from sklearn.ensemble import IsolationForest
 
     numeric_names = []
     columns = []
-    n_points: Optional[int] = None
+    n_points: int | None = None
     for name, arr in fields.items():
         arr = np.asarray(arr)
         if not np.issubdtype(arr.dtype, np.number):
@@ -157,7 +157,7 @@ def detect_outliers(fields: Dict[str, np.ndarray], random_state: int = 42) -> Di
     }
 
 
-def field_range_issues(fields: Dict[str, np.ndarray], ranges: Dict[str, Any]) -> list:
+def field_range_issues(fields: dict[str, np.ndarray], ranges: dict[str, Any]) -> list:
     """Generic per-field physical-range check, keyed by the field's literal
     name: {field_name: (lo, hi)}. Returns a list of human-readable issue
     strings (empty if everything is within bounds)."""
@@ -181,7 +181,7 @@ def field_range_issues(fields: Dict[str, np.ndarray], ranges: Dict[str, Any]) ->
     return issues
 
 
-def build_1d_linear_interpolant(z: np.ndarray, y: np.ndarray) -> "Any":
+def build_1d_linear_interpolant(z: np.ndarray, y: np.ndarray) -> Any:
     """Build a differentiable (torch) piecewise-linear interpolant from a set
     of 1D-coordinate samples `z` and corresponding output samples `y`
     (shape (N,) and (N, k)). Useful for evaluating a differentiable
@@ -201,7 +201,7 @@ def build_1d_linear_interpolant(z: np.ndarray, y: np.ndarray) -> "Any":
     slopes = (y_sorted[1:] - y_sorted[:-1]) / dz.unsqueeze(-1)
 
     class _LinearInterp(torch.nn.Module):
-        def forward(self, coords: "torch.Tensor") -> "torch.Tensor":
+        def forward(self, coords: torch.Tensor) -> torch.Tensor:
             zc = coords[:, 0]
             idx = torch.bucketize(zc.detach(), z_sorted, right=False)
             idx = idx.clamp(1, len(z_sorted) - 1) - 1

@@ -58,6 +58,7 @@ from . import (  # noqa: F401
     surrogate_modeling,
     suspension,
     terramechanics,
+    ugs,
     use_cases,
     validation,
     validation_gallery,

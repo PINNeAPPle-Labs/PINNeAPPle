@@ -24,6 +24,24 @@ trust
     specs) and ``pinneapple_systems.digital_twin``'s live sensor anomaly
     detection. See ``trust.TrustGate``.
 
+decision
+    Decision-level validation of a surrogate against the reference solver:
+    the flip rate over design pairs, the rank preservation (Spearman,
+    Kendall tau-b, top-k kept), the regret of the design it picks, the
+    failure map over the design space, and the one-page
+    ``decision_card`` that states a verdict. A field error says how wrong
+    a model is; these say whether it changes the design.
+
+posterior
+    Bayesian inference on a small model: HMC (gradient, dual-averaged step
+    size, adapted mass matrix) and an adaptive random walk, with the
+    convergence diagnostics that decide whether the posterior can be quoted
+    -- rank-normalised split R-hat, bulk effective sample size with Geyer's
+    initial positive sequence, the Monte Carlo standard error of the mean,
+    divergences, and the ``converged`` verdict they add up to. Imported
+    explicitly as ``pinneapple_analysis.posterior``, so a run that never
+    samples a posterior never pays for it.
+
 Integration helpers
 -------------------
 ``analyze_model(model, spec, x, ...)``
@@ -45,6 +63,12 @@ from . import uncertainty
 from . import validation
 from . import inverse_problems
 from . import trust
+from . import decision
+from .decision import (
+    FlipRate, RankPreservation, Regret, FailureMap,
+    flip_rate, rank_preservation, regret, failure_map,
+    DecisionThresholds, DecisionCard, decision_card,
+)
 
 # backward-compat aliases
 uq       = uncertainty
@@ -99,6 +123,20 @@ from .inverse_problems import (
 # ── trust re-exports ──────────────────────────────────────────────────────────
 from .trust import TrustGate, TrustScore
 
+# ── adaptive fidelity (#161): surrogate or solver per request, with the reason recorded
+from .fidelity import FidelityPolicy, FidelityReport, audit, serve  # noqa: E402
+
+# ── two data levels in one workflow (#35): the co-kriging model, the equal-cost comparison and the router
+from .multifidelity_workflow import (  # noqa: E402
+    FidelityPlan, MultiFidelityRun, MultiFidelityWorkflow, benchmark_multifidelity_workflow, rod_fidelities,
+)
+
+# ── surrogate in the loop with a verification budget (#297): `pp.optimize.loop(space, surrogate, solver, budget=N)`
+from .surrogate_loop import (  # noqa: E402
+    Constraint, Design, EnsembleSurrogate, GaussianProcessSurrogate, LoopResult, Round,
+    airfoil_reference, airfoil_solver, benchmark_loop, loop,
+)
+
 
 # ── Integration helpers ────────────────────────────────────────────────────────
 
@@ -135,7 +173,13 @@ def invert(model, y_obs, sensor_locs, *,
 
 __all__ = [
     # Sub-modules (new names)
-    "uncertainty", "validation", "inverse_problems", "trust",
+    "uncertainty", "validation", "inverse_problems", "trust", "decision", "fidelity",
+    "serve", "audit", "FidelityPolicy", "FidelityReport",
+    "multifidelity_workflow", "FidelityPlan", "MultiFidelityRun", "MultiFidelityWorkflow",
+    "benchmark_multifidelity_workflow", "rod_fidelities",
+    # surrogate in the loop with a verification budget (#297)
+    "surrogate_loop", "loop", "Constraint", "Design", "Round", "LoopResult", "benchmark_loop",
+    "airfoil_solver", "airfoil_reference", "GaussianProcessSurrogate", "EnsembleSurrogate",
     # Sub-modules (old aliases — backward compat)
     "uq", "validate", "inverse",
     # Integration
@@ -169,4 +213,8 @@ __all__ = [
     "NeuralTermConfig", "NeuralTermDiscovery",
     # trust
     "TrustGate", "TrustScore",
+    # decision
+    "FlipRate", "RankPreservation", "Regret", "FailureMap",
+    "flip_rate", "rank_preservation", "regret", "failure_map",
+    "DecisionThresholds", "DecisionCard", "decision_card",
 ]

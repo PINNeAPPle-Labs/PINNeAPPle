@@ -29,14 +29,191 @@
  },
  "modules": {
   "pinneapple_analysis.trust": {
+   "ArtifactMismatch": "from .signed_report import ArtifactMismatch",
    "Check": "from .trust_report import Check",
+   "Correction": "from .corrections import Correction",
+   "CorrectionStore": "from .corrections import CorrectionStore",
+   "DriftBaseline": "from .drift import DriftBaseline",
+   "DriftMonitor": "from .drift import DriftMonitor",
+   "DriftReport": "from .drift import DriftReport",
+   "DriftThresholds": "from .drift import DriftThresholds",
+   "FADING": "from .record import FADING",
    "FieldTrustCard": "from .field_card import FieldTrustCard",
+   "FlowSpec": "from .flow_card import FlowSpec",
+   "GOOD": "from .record import GOOD",
+   "Gate": "from .record import Gate",
+   "Horizon": "from .record import Horizon",
+   "Measurement": "from .record import Measurement",
+   "NO_SKILL": "from .record import NO_SKILL",
+   "Provenance": "from .record import Provenance",
+   "Residual": "from .record import Residual",
+   "ResidualMismatch": "from .signed_report import ResidualMismatch",
+   "ResidualNotComputable": "from .signed_report import ResidualNotComputable",
+   "ResidualSpec": "from .signed_report import ResidualSpec",
+   "RetrainDecision": "from .drift import RetrainDecision",
+   "SCHEMA": "from .record import SCHEMA",
+   "SignatureFailure": "from .signed_report import SignatureFailure",
+   "SignedReportError": "from .signed_report import SignedReportError",
+   "SignedTrustReport": "from .signed_report import SignedTrustReport",
+   "Trust": "from .record import Trust",
    "TrustGate": "from .trust_gate import TrustGate",
    "TrustReport": "from .trust_report import TrustReport",
+   "TrustReportVerification": "from .signed_report import TrustReportVerification",
    "TrustScore": "from .trust_gate import TrustScore",
+   "TrustValue": "from .record import TrustValue",
+   "Uncertainty": "from .record import Uncertainty",
    "annotations": "from __future__ import annotations",
+   "calibration_uncertainty": "from .adapters import calibration_uncertainty",
+   "correction_checks": "from .corrections import correction_checks",
+   "domain_from_gate": "from .adapters import domain_from_gate",
+   "energy_balance": "from .flow_card import energy_balance",
    "field_checks": "from .field_card import field_checks",
-   "trust_card": "from .field_card import trust_card"
+   "fingerprint_query": "from .adapters import fingerprint_query",
+   "flow_checks": "from .flow_card import flow_checks",
+   "from_ensemble": "from .adapters import from_ensemble",
+   "mass_balance": "from .flow_card import mass_balance",
+   "rollout_horizon": "from .adapters import rollout_horizon",
+   "trust": "from .adapters import trust",
+   "trust_card": "from .field_card import trust_card",
+   "verification_measurement": "from .adapters import verification_measurement",
+   "weather_horizon": "from .adapters import weather_horizon",
+   "with_corrections": "from .corrections import with_corrections"
+  },
+  "pinneapple_analysis.trust.adapters": {
+   "calibration_uncertainty": "def(y_pred, y_true, y_std, *, level=None, alpha=None, source='pinneapple_analysis.uncertainty.calibration.CalibrationMetrics')",
+   "domain_from_gate": "def(gate, query, *, threshold=1.0)",
+   "fingerprint_query": "def(query)",
+   "from_ensemble": "def(ensemble, query=None, *, reference=None, gate=None, domain_points=None, problem=None, horizon=None, requested_lead=None)",
+   "rollout_horizon": "def(divergence, *, source='pinneapple_analysis.validation.rollout.divergence_time')",
+   "trust": "def(model, data=None, problem=None, **options)",
+   "verification_measurement": "def(verification, *, source='pinneapple_decision.verifiers')",
+   "weather_horizon": "def(horizons, *, requested_lead=None, source='pinneapple_physics.weather.evaluate.horizons')"
+  },
+  "pinneapple_analysis.trust.certificate": {
+   "Calibration": {
+    "class": [],
+    "methods": {
+     "rate": "(name)",
+     "table": "(names=None)",
+     "gates": "()",
+     "to_dict": "()"
+    }
+   },
+   "CaseResult": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "Certificate": {
+    "class": [],
+    "methods": {
+     "gates": "()",
+     "badge": "()",
+     "verdict": "()",
+     "certified": "()",
+     "failures": "()",
+     "unmeasured": "()",
+     "separating": "()",
+     "to_dict": "()",
+     "to_json": "(*, indent=2)",
+     "from_dict": "(document)",
+     "from_json": "(text)",
+     "write": "(path, *, indent=2)",
+     "summary": "()"
+    }
+   },
+   "Check": {
+    "class": [],
+    "methods": {
+     "passed": "()",
+     "gate": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Problem": {
+    "class": [],
+    "methods": {
+     "limit": "(law)",
+     "to_dict": "()"
+    }
+   },
+   "calibrate": "def(cases)",
+   "read_fields": "def(source, *, problem=None, time=None)",
+   "verify": "def(fields, problem, *, trust=None, time=None)"
+  },
+  "pinneapple_analysis.trust.corrections": {
+   "Correction": {
+    "class": [],
+    "methods": {
+     "names": "()",
+     "applies_to": "(case)",
+     "holds": "(columns)",
+     "check": "(columns)",
+     "id": "()",
+     "to_dict": "()",
+     "from_dict": "(row)"
+    }
+   },
+   "CorrectionError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "CorrectionStore": {
+    "class": [],
+    "methods": {
+     "__init__": "(path)",
+     "records": "()",
+     "save": "(correction)",
+     "rules": "(case=None)",
+     "verify": "()"
+    }
+   },
+   "correction_checks": "def(rules, columns, *, case='')",
+   "with_corrections": "def(report, rules, columns, *, case='')"
+  },
+  "pinneapple_analysis.trust.drift": {
+   "DriftBaseline": {
+    "class": [],
+    "methods": {
+     "size": "()"
+    }
+   },
+   "DriftMonitor": {
+    "class": [],
+    "methods": {
+     "__init__": "(baseline, thresholds=None, *, envelope_level=0.01, quantile=0.99)",
+     "from_validation": "(model, inputs, labels=None, *, envelope_level=0.01, quantile=0.99, source=None)",
+     "calibrate": "(model, inputs, labels=None, *, window=None, windows=200, seed=0)",
+     "check": "(model, inputs, labels=None)",
+     "evaluate": "(inputs, predictions, *, uncertainty=None, errors=None)"
+    }
+   },
+   "DriftReport": {
+    "class": [],
+    "methods": {
+     "alarms": "()",
+     "has_alarm": "()",
+     "to_dict": "()"
+    }
+   },
+   "DriftThresholds": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "RetrainDecision": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "ks_distance": "def(reference, window)",
+   "write_record": "def(report, path)"
   },
   "pinneapple_analysis.trust.field_card": {
    "FieldCheck": {
@@ -56,6 +233,159 @@
    },
    "field_checks": "def(grid, values, *, pde=None, source=None, alpha=1.0, time_coord='t', dirichlet=None, reference=None, value_range=None, train_bounds=None, query_points=None, tolerances=None)",
    "trust_card": "def(grid, values, *, name='field', is_ml=True, limitations=(), min_coverage=0.5, **kwargs)"
+  },
+  "pinneapple_analysis.trust.flow_card": {
+   "FlowSpec": {
+    "class": [],
+    "methods": {
+     "mass": "(components, **kw)",
+     "energy": "(name='T', axis='x', **kw)"
+    }
+   },
+   "energy_balance": "def(grid, temperature, *, name='T', axis='x', spec=None, **kw)",
+   "flow_checks": "def(grid, fields, *, spec)",
+   "mass_balance": "def(grid, velocity, *, spec=None, **kw)"
+  },
+  "pinneapple_analysis.trust.record": {
+   "Gate": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "Horizon": {
+    "class": [],
+    "methods": {
+     "not_measured": "(reason, *, source='', unit='')",
+     "covers": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Measurement": {
+    "class": [],
+    "methods": {
+     "not_measured": "(reason, *, source='')",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Provenance": {
+    "class": [],
+    "methods": {
+     "not_recorded": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Residual": {
+    "class": [],
+    "methods": {
+     "name": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Trust": {
+    "class": [],
+    "methods": {
+     "empty": "(*, kind, model='', reason='no adapter was given for this prediction kind', library=None, created=None, notes=())",
+     "with_": "(**changes)",
+     "residual": "(law, expert='')",
+     "residuals_by_law": "()",
+     "gates": "()",
+     "badge": "()",
+     "badge_text": "()",
+     "badge_reason": "()",
+     "to_dict": "()",
+     "to_json": "(*, indent=2)",
+     "from_dict": "(document)",
+     "from_json": "(text)",
+     "write": "(path, *, indent=2)"
+    }
+   },
+   "TrustValue": {
+    "class": [],
+    "methods": {
+     "measured": "(value, *, source, method='', unit='', reference=None, reference_source='', where='')",
+     "not_measured": "(reason, *, source='', method='')",
+     "is_measured": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Uncertainty": {
+    "class": [],
+    "methods": {
+     "not_measured": "(reason, *, source='')",
+     "calibrated": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "fingerprint_array": "def(array)",
+   "fingerprint_text": "def(text)",
+   "library_version": "def()",
+   "utc_now": "def()"
+  },
+  "pinneapple_analysis.trust.signed_report": {
+   "ArtifactMismatch": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "ResidualMismatch": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "ResidualNotComputable": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "ResidualSpec": {
+    "class": [],
+    "methods": {
+     "to_dict": "()",
+     "from_dict": "(data)"
+    }
+   },
+   "SignatureFailure": {
+    "class": [
+     "SignedReportError"
+    ],
+    "methods": {}
+   },
+   "SignedReportError": {
+    "class": [
+     "Exception"
+    ],
+    "methods": {}
+   },
+   "SignedTrustReport": {
+    "class": [],
+    "methods": {
+     "__init__": "(*, envelope, model_blob, inputs_blob)",
+     "create": "(report, *, model, inputs, key, residual=None)",
+     "dumps": "()",
+     "save": "(path)",
+     "loads": "(text)",
+     "load": "(path)",
+     "verify": "(key, *, model_factory=None)"
+    }
+   },
+   "TrustReportVerification": {
+    "class": [],
+    "methods": {
+     "ok": "()",
+     "to_dict": "()"
+    }
+   },
+   "residual_value": "def(model, grid, spec)"
   },
   "pinneapple_analysis.trust.trust_gate": {
    "TrustGate": {
@@ -291,7 +621,11 @@
   "pinneapple_analysis.validation.core": {
    "CheckResult": {
     "class": [],
-    "methods": {}
+    "methods": {
+     "status": "()",
+     "ran": "()",
+     "not_run": "(name, description, *, threshold=0.0, unit='')"
+    }
    },
    "ValidationReport": {
     "class": [],
@@ -300,6 +634,8 @@
      "passed": "()",
      "n_passed": "()",
      "n_failed": "()",
+     "n_not_run": "()",
+     "failures": "()",
      "summary": "()",
      "to_dict": "()",
      "save": "(path)"
@@ -750,6 +1086,8 @@
      "add_conservation_check": "(kind='mass', **kwargs)",
      "add_boundary_check": "(kind='dirichlet', **kwargs)",
      "add_symmetry_check": "(kind='reflection', **kwargs)",
+     "add_dimensional_check": "(expected, *, name='dimensional', n_points=64, seed=0)",
+     "add_ood_check": "(training_coords=None, *, threshold=0.8, max_false_alarm=0.2, n_points=512, margin=1.0, ood_level=0.05, seed=0)",
      "add_custom_check": "(fn, name, threshold, **kwargs)",
      "validate": "(model_name=None)",
      "validate_from_spec": "(problem_spec)"
@@ -845,25 +1183,91 @@
    "recommend": "def(text, *, top=3)"
   },
   "pinneapple_data.cae": {
+   "CONTACT_FIELDS": "from .frd import CONTACT_FIELDS",
    "CellBlock": "from .model import CellBlock",
+   "DynaDeck": "from .lsdyna import DynaDeck",
+   "DynaHistory": "from .lsdyna import DynaHistory",
+   "FINISHED": "from .ccx import FINISHED",
    "FormatError": "from .io import FormatError",
+   "GIVE_UP": "from .ccx import GIVE_UP",
    "METRICS": "from .quality import METRICS",
    "Mesh": "from .model import Mesh",
+   "Part": "from .structural import Part",
    "PolyMesh": "from .model import PolyMesh",
+   "RepairPlan": "from .repair import RepairPlan",
+   "RepairResult": "from .repair import RepairResult",
+   "ResultBlock": "from .frd import ResultBlock",
+   "Status": "from .ccx import Status",
+   "StructuralRun": "from .structural import StructuralRun",
+   "Totals": "from .ccx import Totals",
+   "TrainingSet": "from .training_set import TrainingSet",
+   "Verdict": "from .ccx import Verdict",
+   "build_training_set": "from .training_set import build_training_set",
+   "close_holes": "from .repair import close_holes",
+   "contact": "from .frd import contact",
+   "coordinates": "from .frd import coordinates",
+   "coulomb_ratio": "from .frd import coulomb_ratio",
    "courant_number": "from .metrics import courant_number",
+   "displacement": "from .frd import displacement",
+   "drop_degenerate_faces": "from .repair import drop_degenerate_faces",
+   "drop_duplicate_faces": "from .repair import drop_duplicate_faces",
    "element_metrics": "from .quality import element_metrics",
+   "finite": "from .ccx import finite",
    "fv_metrics": "from .quality import fv_metrics",
    "kind_of": "from .io import kind_of",
+   "merge_vertices": "from .repair import merge_vertices",
    "mesh_courant_number": "from .metrics import mesh_courant_number",
    "mesh_report": "from .report import build",
    "mesh_wall_distance": "from .metrics import mesh_wall_distance",
+   "orient_consistently": "from .repair import orient_consistently",
    "read_any": "from .io import read_any",
+   "read_blocks": "from .frd import read_blocks",
+   "read_displacements": "from .ccx import read_displacements",
+   "read_keyword_deck": "from .lsdyna import read_keyword_deck",
+   "read_log": "from .ccx import read_log",
+   "read_lsdyna_directory": "from .lsdyna import read_lsdyna_directory",
    "read_meshio": "from .io import read_meshio",
+   "read_nodout": "from .lsdyna import read_nodout",
    "read_points": "from .io import read_points",
+   "read_status": "from .ccx import read_status",
    "read_stl": "from .io import read_stl",
+   "read_totals": "from .ccx import read_totals",
+   "read_vtk_frame": "from .vtk_series import read_vtk_frame",
+   "read_vtk_series": "from .vtk_series import read_vtk_series",
+   "repair": "from . import repair",
+   "repair_surface": "from .repair import repair_surface",
+   "stress": "from .frd import stress",
    "surface_checks": "from .quality import surface_checks",
+   "surface_summary": "from .repair import surface_summary",
    "view_payload": "from .report import view_payload",
-   "wall_distance": "from .metrics import wall_distance"
+   "wall_distance": "from .metrics import wall_distance",
+   "write_vtk_frame": "from .vtk_series import write_vtk_frame",
+   "write_vtk_series": "from .vtk_series import write_vtk_series"
+  },
+  "pinneapple_data.cae.ccx": {
+   "Status": {
+    "class": [],
+    "methods": {
+     "converged": "()"
+    }
+   },
+   "Totals": {
+    "class": [],
+    "methods": {
+     "at": "(time, tol=1e-09)"
+    }
+   },
+   "Verdict": {
+    "class": [],
+    "methods": {
+     "ok": "()"
+    }
+   },
+   "finite": "def(*values)",
+   "read_displacements": "def(dat)",
+   "read_log": "def(log, status=None, produced=True)",
+   "read_status": "def(sta)",
+   "read_totals": "def(dat)"
   },
   "pinneapple_data.cae.compare": {
    "Interpolator": {
@@ -913,7 +1317,19 @@
    "time_dirs": "def(fs, root='')"
   },
   "pinneapple_data.cae.frd": {
-   "read_frd": "def(b)"
+   "ResultBlock": {
+    "class": [],
+    "methods": {
+     "column": "(component)"
+    }
+   },
+   "contact": "def(b, until=None)",
+   "coordinates": "def(b)",
+   "coulomb_ratio": "def(rows, nodes=None, min_fraction=0.05)",
+   "displacement": "def(b)",
+   "read_blocks": "def(b)",
+   "read_frd": "def(b)",
+   "stress": "def(b, until=None)"
   },
   "pinneapple_data.cae.geometry": {
    "FaceMesh": {
@@ -963,6 +1379,38 @@
    "read_points": "def(name, b)",
    "read_stl": "def(b)"
   },
+  "pinneapple_data.cae.lsdyna": {
+   "DynaAsciiRun": {
+    "class": [],
+    "methods": {}
+   },
+   "DynaDeck": {
+    "class": [],
+    "methods": {
+     "part_ids": "()",
+     "thickness_of_part": "(pid)",
+     "summary": "()"
+    }
+   },
+   "DynaFormatError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "DynaHistory": {
+    "class": [],
+    "methods": {
+     "displacement": "()",
+     "velocity": "()"
+    }
+   },
+   "deck_mesh": "def(deck, *, part_ids=None)",
+   "find_database_file": "def(directory, *names)",
+   "read_keyword_deck": "def(source)",
+   "read_lsdyna_directory": "def(directory, *, deck=None)",
+   "read_nodout": "def(path)"
+  },
   "pinneapple_data.cae.metrics": {
    "courant_number": "def(face_area_vectors, face_owner, face_neighbour, U, cell_volumes, dt, where='auto')",
    "mesh_courant_number": "def(mesh, U, dt, where='auto')",
@@ -1005,13 +1453,125 @@
    "fv_metrics": "def(mesh)",
    "surface_checks": "def(mesh)"
   },
+  "pinneapple_data.cae.repair": {
+   "RepairPlan": {
+    "class": [
+     "list"
+    ],
+    "methods": {
+     "__init__": "(results, summary)",
+     "no_op": "()"
+    }
+   },
+   "RepairResult": {
+    "class": [],
+    "methods": {
+     "net_loss": "()",
+     "as_dict": "()"
+    }
+   },
+   "close_holes": "def(mesh, max_edges=100)",
+   "drop_degenerate_faces": "def(mesh, rel_area=1e-12)",
+   "drop_duplicate_faces": "def(mesh)",
+   "merge_vertices": "def(mesh, tol_relative=1e-06)",
+   "orient_consistently": "def(mesh)",
+   "repair_surface": "def(mesh, rel_area=1e-12, tol_relative=1e-06, max_edges=100)",
+   "surface_summary": "def(mesh)"
+  },
   "pinneapple_data.cae.report": {
    "build": "def(mesh, target='auto', max_regions=12)",
    "view_payload": "def(mesh, rep, max_tris=250000)",
    "worst_cells": "def(mesh, rep, n=40)"
   },
+  "pinneapple_data.cae.structural": {
+   "Part": {
+    "class": [],
+    "methods": {
+     "to_dict": "()",
+     "from_dict": "(d)"
+    }
+   },
+   "StructuralRun": {
+    "class": [],
+    "methods": {
+     "n_frames": "()",
+     "n_points": "()",
+     "n_cells": "()",
+     "points": "()",
+     "fields": "()",
+     "data_of": "(name)",
+     "field": "(name)",
+     "frame_field": "(name, k)",
+     "family": "()",
+     "summary": "()",
+     "to_units": "(system)",
+     "part_of_cell": "()",
+     "checksum": "()",
+     "from_crash_result": "(result, *, part_names=None, thickness=None, fixed_nodes=None, units=None, provenance=None, case=None)",
+     "from_vtk_series": "(source, *, units=None, times=None, part_names=None, provenance=None, field_units=None)",
+     "from_openradioss": "(case_dir, *, run_name=None, units='mm-tonne-s', part_names=None, provenance=None, thickness=None)",
+     "from_lsdyna": "(directory, *, deck=None, units=None, provenance=None)",
+     "to_vtk_series": "(out_dir, *, precision='single', prefix='frame')",
+     "to_zarr": "(path, *, dtype='float64')",
+     "from_zarr": "(path)"
+    }
+   },
+   "canonical_field": "def(name)"
+  },
+  "pinneapple_data.cae.training_set": {
+   "TrainingSet": {
+    "class": [],
+    "methods": {
+     "__init__": "(runs, split, scales, provenance=None, dropped=None, info=None)",
+     "families": "()",
+     "n_samples": "()",
+     "part": "(name)",
+     "sample_index": "()",
+     "side_of": "(run)",
+     "table": "()",
+     "summary": "()"
+    }
+   },
+   "build_training_set": "def(runs, *, max_points=None, seed=0, hold_out=(), val_fraction=0.2, system='SI', dedup=True, make_dimensionless=True, keep_cells=True, scales=None, provenance=None)",
+   "decimate": "def(run, max_points, *, seed=0, keep_cells=True)",
+   "decimate_order": "def(run, max_points, *, seed=0)",
+   "deduplicate": "def(run)",
+   "dimensionless": "def(run, scales)",
+   "normalise_units": "def(run, system='SI')",
+   "pu_units": "def(system)"
+  },
   "pinneapple_data.cae.upload": {
    "expand": "def(files, max_unzipped=MAX_UNZIPPED)"
+  },
+  "pinneapple_data.cae.vtk_series": {
+   "VtkFormatError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "VtkFrame": {
+    "class": [],
+    "methods": {
+     "points": "()",
+     "field": "(name)"
+    }
+   },
+   "frame_number": "def(path)",
+   "read_vtk_frame": "def(path)",
+   "read_vtk_series": "def(paths)",
+   "write_vtk_frame": "def(path, mesh, *, time=None, precision='single', title='PINNeAPPle structural frame', part_ids=None)",
+   "write_vtk_series": "def(meshes, out_dir, *, times=None, precision='single', prefix='frame', part_ids=None)"
+  },
+  "pinneapple_data.cae.xdmf": {
+   "XdmfError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "read_xdmf": "def(source)",
+   "write_xdmf": "def(mesh, path)"
   },
   "pinneapple_data.contracts": {
    "CONTRACTS": "from .models import CONTRACTS",
@@ -1136,7 +1696,9 @@
     "class": [
      "_Model"
     ],
-    "methods": {}
+    "methods": {
+     "problems": "()"
+    }
    },
    "Splits": {
     "class": [
@@ -1503,7 +2065,7 @@
      "NeuralOperatorBase"
     ],
     "methods": {
-     "__init__": "(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True, padding=0)",
+     "__init__": "(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True, padding=0, lift_hidden=None, final_activation=True, decoder_hidden=None, decoder_activation='silu', spectral_init='normal')",
      "forward": "(u, *, y_true=None, return_loss=False)"
     }
    },
@@ -2650,6 +3212,8 @@
     "methods": {}
    },
    "load_checkpoint": "def(path)",
+   "restore_rng": "def(state)",
+   "rng_state": "def()",
    "save_checkpoint": "def(path, ckpt)"
   },
   "pinneapple_neural.trainer.collocation": {
@@ -3243,7 +3807,7 @@
    "Trainer": {
     "class": [],
     "methods": {
-     "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None)",
+     "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None, scheduler=None, loss_balancer=None, readiness=None, review=None, constraints=None)",
      "fit": "(train_loader, val_loader=None, cfg=None)"
     }
    }
@@ -3415,6 +3979,18 @@
    "pfr_conversion": "def(D, L, k, Q)",
    "pfr_conversion_ktau": "def(k, tau)",
    "tube_volume": "def(D, L)"
+  },
+  "pinneapple_physics.closed_form.integral_equations": {
+   "fredholm_separable_exp": "def(x, lam=0.5)",
+   "fredholm_separable_exp_source": "def(x, lam=0.5)",
+   "fredholm_unit_exp": "def(x, lam=0.5)",
+   "fredholm_unit_exp_source": "def(x, lam=0.5)",
+   "log_kernel_linear": "def(x, a=1.0, b=0.5)",
+   "log_kernel_linear_source": "def(x, lam=0.5, a=1.0, b=0.5)",
+   "log_kernel_moment0": "def(x)",
+   "log_kernel_moment1": "def(x)",
+   "volterra_unit_exp": "def(x)",
+   "volterra_unit_exp_source": "def(x)"
   },
   "pinneapple_physics.closed_form.membrane_diffusion": {
    "concentration_at_membrane_depth": "def(reservoir_conc_kg_m3, partition_coeff, membrane_thickness_m, z_from_reservoir_m)",
@@ -3739,6 +4315,12 @@
    "transient_heat_3d_default": "def()",
    "wave_ultrasound_3d_default": "def()"
   },
+  "pinneapple_physics.pde_environment.presets.integral": {
+   "integral_fredholm_separable_exp": "def(lam=0.5, n_col=81)",
+   "integral_fredholm_unit_exp": "def(lam=0.5, n_col=81)",
+   "integral_log_kernel_linear": "def(lam=0.5, a=1.0, b=0.5, n_col=81)",
+   "integral_volterra_unit_exp": "def(n_col=81)"
+  },
   "pinneapple_physics.pde_environment.presets.multidisciplinary": {
    "black_scholes_1d": "def(sigma=0.2, r=0.05, K=100.0, T=1.0)",
    "climate_atmosphere_2d": "def(g=9.81, f=0.0001, H0=1000.0, U_ref=10.0, lon_min=0.0, lon_max=360.0, lat_min=-90.0, lat_max=90.0)",
@@ -3796,6 +4378,16 @@
    "axial_compressor_meanline": "def(num_stages=5, pressure_ratio=3.0, mass_flow_rate=4.37, rpm=10000.0, inlet_total_pressure=101325.0, inlet_total_temperature=288.15, isentropic_efficiency=0.878, hub_to_tip_ratio=0.5, axial_velocity=136.0, gamma=1.4, R_gas=287.0)",
    "axial_compressor_stage_3d": "def(rpm=10000.0, pressure_ratio_stage=1.4, mass_flow_rate=4.37, hub_radius=0.1, tip_radius=0.2, axial_length=0.15, inlet_total_pressure=101325.0, inlet_total_temperature=288.15, isentropic_efficiency=0.88, gamma=1.4, R_gas=287.0)"
   },
+  "pinneapple_physics.pde_environment.reconcile": {
+   "ConditionBridge": {
+    "class": [],
+    "methods": {}
+   },
+   "design_to_pde": "def(design, *, pde_kind, coords=None, fields=None, domain_bounds=None)",
+   "pde_condition_to_upd": "def(cond, *, carried=None, n=None)",
+   "pde_to_design": "def(spec)",
+   "upd_condition_to_pde": "def(cond, *, fields, value=None)"
+  },
   "pinneapple_physics.pde_environment.scales": {
    "ScaleSpec": {
     "class": [],
@@ -3809,7 +4401,9 @@
    },
    "ProblemSpec": {
     "class": [],
-    "methods": {}
+    "methods": {
+     "to_system": "()"
+    }
    }
   },
   "pinneapple_physics.pde_environment.turbulence_presets": {
@@ -3895,6 +4489,17 @@
   },
   "pinneapple_physics.pinn_solver.compiler.em_kinds": {
    "em_residuals": "def(kind, *, fields, xcol, coords, params, ctx, model, field_names, split_fields)"
+  },
+  "pinneapple_physics.pinn_solver.compiler.integral_kinds": {
+   "constant_kernel": "def(X, S, ctx)",
+   "helmholtz2_diag": "def(width, ctx)",
+   "helmholtz2_kernel": "def(X, S, ctx)",
+   "integral_residuals": "def(kind, *, fields, xcol, coords, params, ctx, model, field_names, split_fields)",
+   "log_diag": "def(width, ctx)",
+   "log_kernel": "def(X, S, ctx)",
+   "nystrom_matrix": "def(x, kernel_fn, ctx=None, *, diag_fn=None, volterra=False)",
+   "product_kernel": "def(X, S, ctx)",
+   "trapezoid_weights": "def(x)"
   },
   "pinneapple_physics.pinn_solver.compiler.loss": {
    "AdaptiveWeights": {
@@ -4186,6 +4791,27 @@
     "methods": {}
    },
    "thin_airfoil_zero_lift": "def(code)"
+  },
+  "pinneapple_presets.cases.contact": {
+   "BoltedJoint": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "case_params": "(p)",
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "references": "()",
+     "validate": "()",
+     "convergence": "(values=(4, 6, 8))",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "case_run_dir": "def(name)",
+   "runs_dir": "def(name)"
   },
   "pinneapple_presets.cases.eddy_current": {
    "EddyCurrentInspection": {

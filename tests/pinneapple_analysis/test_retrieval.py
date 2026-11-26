@@ -19,7 +19,7 @@ from pinneapple_analysis.retrieval.corpus import (
     fetch_literature_documents,
     build_literature_corpus,
 )
-from pinneapple_analysis.retrieval.index import RetrievalIndex, SearchResult
+from pinneapple_analysis.retrieval.index import RetrievalIndex
 
 
 def _arxiv_reachable() -> bool:

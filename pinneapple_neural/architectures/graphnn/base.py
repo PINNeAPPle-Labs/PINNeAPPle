@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes and GraphBatch for graph neural network models."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -21,9 +21,9 @@ class GraphBatch:
     """
     x: torch.Tensor
     edge_index: torch.Tensor
-    pos: Optional[torch.Tensor] = None
-    edge_attr: Optional[torch.Tensor] = None
-    mask: Optional[torch.Tensor] = None
+    pos: torch.Tensor | None = None
+    edge_attr: torch.Tensor | None = None
+    mask: torch.Tensor | None = None
 
 
 @dataclass
@@ -35,8 +35,8 @@ class GraphOutput:
       - graph-level: (B, out_dim) (not used in this MVP)
     """
     y: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class GraphModelBase(nn.Module):

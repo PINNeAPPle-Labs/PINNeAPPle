@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Sequence, Tuple, Hashable
+from typing import Any
+from collections.abc import Sequence, Hashable
 
 import torch
 
@@ -10,7 +11,7 @@ from .zarr_store import UPDZarrStore
 from .cache_bytes import ByteLRUCache
 
 
-def _norm_keys(keys: Optional[Sequence[str]]) -> Tuple[str, ...]:
+def _norm_keys(keys: Sequence[str] | None) -> tuple[str, ...]:
     """
     Normalize a sequence of keys into a sorted tuple for cache key hashing.
 
@@ -52,7 +53,7 @@ class CachedUPDZarrStoreBytes:
     """
     Cached wrapper around UPDZarrStore using ByteLRUCache.
     """
-    def __init__(self, root: str, *, cache: Optional[ZarrByteCacheConfig] = None, mode: str = "r"):
+    def __init__(self, root: str, *, cache: ZarrByteCacheConfig | None = None, mode: str = "r"):
         """
         Initialize the byte-cached Zarr store.
 
@@ -75,17 +76,17 @@ class CachedUPDZarrStoreBytes:
         """Return the number of samples in the store."""
         return self.store.count()
 
-    def manifest(self) -> Dict[str, Any]:
+    def manifest(self) -> dict[str, Any]:
         """Return the store manifest dictionary."""
         return self.store.manifest()
 
     def _sample_key(
         self,
         i: int,
-        fields: Optional[Sequence[str]],
-        coords: Optional[Sequence[str]],
+        fields: Sequence[str] | None,
+        coords: Sequence[str] | None,
         device: str | torch.device,
-        dtype: Optional[torch.dtype],
+        dtype: torch.dtype | None,
     ) -> Hashable:
         dev = str(device)
         dt = str(dtype) if dtype is not None else ""
@@ -97,7 +98,7 @@ class CachedUPDZarrStoreBytes:
         kind: str,
         name: str,
         device: str | torch.device,
-        dtype: Optional[torch.dtype],
+        dtype: torch.dtype | None,
     ) -> Hashable:
         dev = str(device)
         dt = str(dtype) if dtype is not None else ""
@@ -107,10 +108,10 @@ class CachedUPDZarrStoreBytes:
         self,
         i: int,
         *,
-        fields: Optional[Sequence[str]] = None,
-        coords: Optional[Sequence[str]] = None,
+        fields: Sequence[str] | None = None,
+        coords: Sequence[str] | None = None,
         device: str | torch.device = "cpu",
-        dtype: Optional[torch.dtype] = None,
+        dtype: torch.dtype | None = None,
         sample_ctor=None,
         use_sample_cache: bool = True,
     ):
@@ -151,8 +152,8 @@ class CachedUPDZarrStoreBytes:
             req_fields = list(fields) if fields is not None else fk
             req_coords = list(coords) if coords is not None else ck
 
-            out_fields: Dict[str, torch.Tensor] = {}
-            out_coords: Dict[str, torch.Tensor] = {}
+            out_fields: dict[str, torch.Tensor] = {}
+            out_coords: dict[str, torch.Tensor] = {}
 
             for name in req_fields:
                 k = self._field_key(i, "field", name, device, dtype)
@@ -203,7 +204,7 @@ class CachedUPDZarrStoreBytes:
             self.sample_cache.put(sk, sample)
         return sample
 
-    def cache_stats(self) -> Dict[str, Any]:
+    def cache_stats(self) -> dict[str, Any]:
         """Return cache hit/miss/eviction and byte-usage statistics."""
         return {
             "sample_cache": {

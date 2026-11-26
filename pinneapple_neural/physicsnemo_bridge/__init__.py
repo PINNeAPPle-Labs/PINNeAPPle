@@ -69,6 +69,13 @@ from pinneapple_neural.physicsnemo_bridge.active_learning_bridge import (
     RetrainConfig,
     active_learning_retrain_loop,
 )
+from pinneapple_neural.physicsnemo_bridge.mgn_compare import (
+    compare_rollouts,
+    native_availability,
+    native_mgn_step,
+    native_rollout,
+    normalised_fields,
+)
 
 __all__ = [
     # adapters
@@ -82,4 +89,10 @@ __all__ = [
     "ALRoundResult",
     "ALRetrainResult",
     "active_learning_retrain_loop",
+    # mgn_compare: MeshDynamicsMGN against PhysicsNeMo's native MGN (#231)
+    "compare_rollouts",
+    "native_availability",
+    "native_mgn_step",
+    "native_rollout",
+    "normalised_fields",
 ]

@@ -1,10 +1,8 @@
 from __future__ import annotations
 """Deep UQ ROM with uncertainty quantification."""
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .base import ROMBase, ROMOutput
 
@@ -36,7 +34,7 @@ class DeepUQROM(ROMBase):
         self.mean = nn.Linear(hidden, r)
         self.logvar = nn.Linear(hidden, r)
 
-    def forward(self, a: torch.Tensor, *, a_true: Optional[torch.Tensor] = None, return_loss: bool = False) -> ROMOutput:
+    def forward(self, a: torch.Tensor, *, a_true: torch.Tensor | None = None, return_loss: bool = False) -> ROMOutput:
         # a: (B,T,r) -> predict next-step in a teacher-forcing style (shifted)
         B, T, r = a.shape
         inp = a[:, :-1, :].reshape(-1, r)
@@ -44,7 +42,7 @@ class DeepUQROM(ROMBase):
         mu = self.mean(h).view(B, T - 1, r)
         lv = self.logvar(h).view(B, T - 1, r)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=a.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=a.device)}
         if return_loss and a_true is not None:
             tgt = a_true[:, 1:, :]
             # Gaussian NLL

@@ -20,7 +20,7 @@ optimisation prototypes and tests of larger solvers.
 from __future__ import annotations
 
 import math
-from typing import Callable, Optional, Union
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -54,7 +54,7 @@ def _assemble(n: int, cells, local: Tensor) -> Tensor:
     return out.index_put((rows, cols), local.reshape(-1), accumulate=True)
 
 
-def stiffness(points: Tensor, cells, kappa: Union[float, Tensor] = 1.0) -> Tensor:
+def stiffness(points: Tensor, cells, kappa: float | Tensor = 1.0) -> Tensor:
     """Dense ``(N, N)`` stiffness matrix ``K_ij = integral kappa grad(phi_i) . grad(phi_j)``."""
     vol, g = cell_geometry(points, cells)
     kap = torch.as_tensor(kappa, dtype=points.dtype, device=points.device)
@@ -81,10 +81,10 @@ def integrate_p1(points: Tensor, cells, values: Tensor) -> Tensor:
 def solve_poisson(
     points: Tensor,
     cells,
-    source: Union[float, Tensor, Callable[[Tensor], Tensor]],
+    source: float | Tensor | Callable[[Tensor], Tensor],
     dirichlet_nodes,
-    dirichlet_values: Union[float, Tensor] = 0.0,
-    kappa: Union[float, Tensor] = 1.0,
+    dirichlet_values: float | Tensor = 0.0,
+    kappa: float | Tensor = 1.0,
 ) -> Tensor:
     """Solve ``-div(kappa grad u) = source`` with ``u = g`` on ``dirichlet_nodes``; returns nodal ``u``.
 

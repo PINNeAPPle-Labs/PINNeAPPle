@@ -1,0 +1,12 @@
+{
+ "code_hash": "a6182b9d26a6ecec",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pipe_insulation.heat_loss",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "heat loss -> pinneapple_physics.closed_form.pipe_insulation:heat_loss\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'d_pipe': 1.0, 'thickness': 1.0, 't_in': 1.0, 't_amb': 1.0, 'k0': 1.0, 'k1': 0.0, 'eps': 0.9, 'wind': 0.0}",
+ "timed_out": false
+}

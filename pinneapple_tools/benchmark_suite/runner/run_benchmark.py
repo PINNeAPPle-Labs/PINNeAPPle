@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import time
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from pinneapple_tools.benchmark_suite.io.yamlx import load_yaml
 from pinneapple_tools.benchmark_suite.bundle.schema import load_bundle_schema
@@ -46,7 +46,7 @@ def run_benchmark(
     task_cfg_path: str | Path,
     run_cfg_path: str | Path,
     bundle_schema_path: str | Path,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     artifacts_dir = str(artifacts_dir)
 
     task_cfg = load_yaml(task_cfg_path)
@@ -75,7 +75,7 @@ def run_benchmark(
     backend_outputs = backend.train(bundle, run_cfg)
     task_metrics = task.compute_metrics(bundle, backend_outputs)
 
-    merged: Dict[str, float] = {}
+    merged: dict[str, float] = {}
     merged.update(ensure_float_dict(backend_outputs.get("metrics", {})))
     merged.update(ensure_float_dict(task_metrics))
 

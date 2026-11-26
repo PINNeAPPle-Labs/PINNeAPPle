@@ -1,0 +1,12 @@
+{
+ "code_hash": "60170796ee81db89",
+ "figures": [],
+ "id": "node:auto.design.geometry.brep.tessellate.circle_segments",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 26.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "circle segments -> pinneapple_design.geometry.brep.tessellate:circle_segments\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'radius': 1.0, 'sweep_rad': 1.0, 'tol': 1.0, 'angle_deg': 1.0}",
+ "timed_out": false
+}

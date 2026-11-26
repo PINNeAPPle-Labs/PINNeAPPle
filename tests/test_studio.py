@@ -6,6 +6,7 @@ checkout."""
 from __future__ import annotations
 
 import json
+import os
 import sys
 import textwrap
 from pathlib import Path
@@ -372,6 +373,10 @@ def test_coverage_gate_ratchets(cat, repo, monkeypatch, tmp_path):
 
 def test_smoke_run_records_a_tool(cat, repo, monkeypatch):
     from pinneapple_studio import smoke
+    # The child runs `python -m pinneapple_studio.smoke` in a disposable copy of the fixture repo, which has no
+    # pinneapple_studio of its own: it finds the runner the way the house workflow does, through PYTHONPATH. A test
+    # run launched without one (plain `pytest` from the checkout) would otherwise need the package pip-installed.
+    monkeypatch.setenv("PYTHONPATH", os.pathsep.join(p for p in (os.environ.get("PYTHONPATH"), str(ROOT)) if p))
     stats = smoke.record(cat, ids=["pinneapple_demo.heat:FinStudy"], log=lambda *a: None)
     assert stats == {"batches": 1, "tools": 1, "ok": 1, "failed": 0, "writes": 0}
     rec = smoke.read_runs(repo)["pinneapple_demo.heat:FinStudy"]
@@ -628,3 +633,43 @@ def test_core_coverage_counts_core_tools_and_lists_what_is_left(cat):
     c = coverage.core({**cat, "tools": tools})
     assert c["tools"] == 2 and c["status"] == {"discovered": 1, "verified": 1}
     assert c["discovered_modules"] == 1 and c["worst"] == {"pinneapple_demo.heat": ["FinStudy"]}
+
+
+def test_a_table_driven_test_names_the_symbol_it_exercises(tmp_path):
+    """#1882: a symbol a default test exercises through a table is not "found in the code".
+
+    The four integral presets are imported by name and held in a module-level ``FACTORIES`` dict, so
+    every test body says ``FACTORIES[name]()`` and never mentions the factory again. Read as calls
+    only, that is indistinguishable from nobody testing them."""
+    from pinneapple_studio import catalog as C
+
+    root = tmp_path / "repo"
+    (root / "tests").mkdir(parents=True)
+    (root / "tests" / "test_table.py").write_text(
+        "from pkg.factories import alpha, beta\n"
+        "\n"
+        "FACTORIES = {'alpha': alpha, 'beta': beta}\n"
+        "\n"
+        "\n"
+        "def test_each_factory_builds():\n"
+        "    for name in FACTORIES:\n"
+        "        assert FACTORIES[name]() is not None\n",
+        encoding="utf-8",
+    )
+    test = C.scan_tests(root)[0]
+    assert {"alpha", "beta"} <= test.header, "a module-level table holds the names the test exercises"
+    assert not ({"alpha", "beta"} & test.calls), "and the body never calls them by name"
+
+    named = [{"kind": "named", "path": "tests/test_table.py", "line": 6,
+              "name": "test_each_factory_builds", "runs_by_default": True}]
+    status, reason = C._status(named)
+    assert status == "named" and "never called by name" in reason
+
+    # The ladder still holds around it: a direct call outranks a mention, and no evidence is still discovered.
+    called = named + [{"kind": "test", "path": "tests/t.py", "line": 1, "name": "t", "runs_by_default": True}]
+    assert C._status(called)[0] == "tested"
+    assert C._status([])[0] == "discovered"
+    assert C._status([{"kind": "named", "path": "t.py", "line": 1, "name": "t",
+                       "runs_by_default": False}])[0] == "discovered", "a slow (opt-in) test is not default evidence"
+    assert "named" in C.STATUS_RULES and "named" in __import__("pinneapple_studio.taxonomy",
+                                                              fromlist=["MATURITY"]).MATURITY

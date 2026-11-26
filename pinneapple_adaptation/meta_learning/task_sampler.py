@@ -29,8 +29,7 @@ Example
 """
 from __future__ import annotations
 
-import random
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -92,9 +91,9 @@ class PDETaskSampler:
 
     def __init__(
         self,
-        param_ranges: Dict[str, Tuple[float, float]],
+        param_ranges: dict[str, tuple[float, float]],
         physics_fn_factory: Callable,
-        data_factory: Optional[Callable] = None,
+        data_factory: Callable | None = None,
         n_support: int = 64,
         n_query: int = 64,
         input_dim: int = 1,
@@ -120,14 +119,14 @@ class PDETaskSampler:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _sample_params(self) -> Dict[str, float]:
+    def _sample_params(self) -> dict[str, float]:
         """Draw one set of PDE parameters uniformly from ``param_ranges``."""
         return {
             name: float(self._rng.uniform(lo, hi))
             for name, (lo, hi) in self.param_ranges.items()
         }
 
-    def _make_batch(self, params: Dict[str, float], n_points: int) -> dict:
+    def _make_batch(self, params: dict[str, float], n_points: int) -> dict:
         """Build a data batch for *params* with *n_points* collocation points.
 
         If ``data_factory`` was provided it is called; otherwise collocation
@@ -177,7 +176,7 @@ class PDETaskSampler:
             "physics_fn": physics_fn,
         }
 
-    def sample_batch(self, n_tasks: int) -> List[dict]:
+    def sample_batch(self, n_tasks: int) -> list[dict]:
         """Sample a batch of *n_tasks* independent tasks.
 
         Parameters

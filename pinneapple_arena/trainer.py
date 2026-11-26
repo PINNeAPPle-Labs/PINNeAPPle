@@ -14,7 +14,8 @@ from __future__ import annotations
 import time
 import warnings
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -30,9 +31,9 @@ from .config import ModelConfig, TrainingConfig, InverseConfig, UQConfig
 class TrainResult:
     name: str
     model: nn.Module
-    train_losses: List[float]
+    train_losses: list[float]
     train_time: float
-    metrics: Dict[str, float] = field(default_factory=dict)
+    metrics: dict[str, float] = field(default_factory=dict)
     # Physics-residual (PDE-violation) loss value at the end of training, for
     # PINN-family models only. This is *not* a re-derived quantity — it is
     # the same physics/PDE-residual term the training loop already computes
@@ -41,13 +42,13 @@ class TrainResult:
     # windowed-averaged over the final few epochs for stability. Left as
     # `None` for supervised/graph model families, where no physics residual
     # is computed at all — never fabricated.
-    physics_residual: Optional[float] = None
-    uq_result: Optional[Any] = None
-    inverse_result: Optional[Any] = None
-    extra: Dict[str, Any] = field(default_factory=dict)
+    physics_residual: float | None = None
+    uq_result: Any | None = None
+    inverse_result: Any | None = None
+    extra: dict[str, Any] = field(default_factory=dict)
 
 
-def _windowed_final(values: List[float], window: int = 20) -> Optional[float]:
+def _windowed_final(values: list[float], window: int = 20) -> float | None:
     """Mean of the last ``window`` values — a stable "final" reading that
     smooths step-to-step noise without hiding a residual that never
     converged. Returns ``None`` for an empty history."""
@@ -85,10 +86,10 @@ def train_pinn(
     xy_int: np.ndarray,
     xy_bc: np.ndarray,
     uv_bc: np.ndarray,
-    problem_params: Dict[str, Any],
+    problem_params: dict[str, Any],
     device: str = "cpu",
     log_interval: int = 200,
-    compiled_losses: Optional[Dict[str, Callable]] = None,
+    compiled_losses: dict[str, Callable] | None = None,
 ) -> TrainResult:
     """Train a PINN model.
 
@@ -108,7 +109,7 @@ def train_pinn(
     t_ubc = torch.tensor(uv_bc,  dtype=torch.float32, device=device)
 
     losses = []
-    res_losses: List[float] = []
+    res_losses: list[float] = []
     t0 = time.time()
 
     if compiled_losses is not None:
@@ -266,7 +267,7 @@ def _forward_supervised(model: nn.Module, x: torch.Tensor, cfg: ModelConfig
     return _unwrap_output(model(x))
 
 
-def grid_layout(x) -> Tuple[np.ndarray, int, int]:
+def grid_layout(x) -> tuple[np.ndarray, int, int]:
     """Order of the rows of ``x`` (n, 2) that lays them out as a full tensor grid, y-major: (order, ny, nx).
     Raises ValueError when the points are not a complete grid (an FNO cannot take scattered points)."""
     xa = x.detach().cpu().numpy() if torch.is_tensor(x) else np.asarray(x)
@@ -393,12 +394,12 @@ def evaluate_model(
     cfg: ModelConfig,
     xy_eval: np.ndarray,
     Y_ref: np.ndarray,
-    field_names: List[str],
+    field_names: list[str],
     device: str = "cpu",
-    node_positions: Optional[np.ndarray] = None,
-    edge_index: Optional[np.ndarray] = None,
-    edge_attr: Optional[np.ndarray] = None,
-) -> Dict[str, Any]:
+    node_positions: np.ndarray | None = None,
+    edge_index: np.ndarray | None = None,
+    edge_attr: np.ndarray | None = None,
+) -> dict[str, Any]:
     from .model_factory import is_graph_model
     model = result.model.eval()
 
@@ -478,7 +479,7 @@ def run_uq(
     xy_eval: np.ndarray,
     uq_cfg: UQConfig,
     device: str = "cpu",
-) -> Optional[Any]:
+) -> Any | None:
     """Run UQ analysis using pinneapple_analysis.uq_predict."""
     if not uq_cfg.enabled:
         return None
@@ -516,7 +517,7 @@ def run_inverse(
     Y_ref: np.ndarray,
     inv_cfg: InverseConfig,
     device: str = "cpu",
-) -> Optional[Any]:
+) -> Any | None:
     """Run inverse problem using pinneapple_analysis.invert."""
     if not inv_cfg.enabled:
         return None
@@ -556,12 +557,12 @@ def run_inverse(
 # ── Dataset loading (pinneapple_data) ──────────────────────────────────────────
 
 def load_pinneapple_dataset(dataset_id: str,
-                            input_fields: List[str],
-                            output_fields: List[str],
+                            input_fields: list[str],
+                            output_fields: list[str],
                             n_train: int = 1000,
                             n_val: int = 200,
                             split_seed: int = 42,
-                            ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, List[str]]:
+                            ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, list[str]]:
     """Load a pinneapple_data dataset and split into train/val arrays.
 
     Returns

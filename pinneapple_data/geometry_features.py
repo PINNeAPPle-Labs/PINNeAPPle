@@ -12,7 +12,7 @@ re-implementing).
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
@@ -38,8 +38,8 @@ def compute_sdf_grid(
     vertices: np.ndarray,
     faces: np.ndarray,
     grid_resolution: int = 16,
-    bounds: Optional[np.ndarray] = None,
-) -> Dict[str, Any]:
+    bounds: np.ndarray | None = None,
+) -> dict[str, Any]:
     """Evaluate a signed distance field on a regular grid spanning the mesh's
     bounding box (or a caller-supplied `bounds` = [[xmin,ymin,zmin],
     [xmax,ymax,zmax]], e.g. to featurize several meshes on one shared grid).
@@ -67,11 +67,11 @@ def featurize_mesh(
     faces: np.ndarray,
     n_point_cloud_samples: int = 2048,
     sdf_grid_resolution: int = 16,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Convenience wrapper: point cloud + SDF grid in one call, with
     per-stage errors reported rather than raised (a degenerate/non-watertight
     mesh may still yield a usable point cloud even if the SDF query fails)."""
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
     try:
         result["point_cloud"] = sample_point_cloud(vertices, faces, n_point_cloud_samples)
     except Exception as exc:

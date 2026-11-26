@@ -71,10 +71,20 @@ class ServingReport:
     def get(self, backend: str) -> Latency | None:
         return next((latency for latency in self.latencies if latency.backend == backend), None)
 
+    def _row(self, family: str) -> Latency | None:
+        """The row of a backend *family*: the rows are labelled with the device ("torch (cpu)", "onnxruntime (cpu)").
+
+        ``get`` is exact, which is what a caller who names the row wants; the ratio below asks a wider question --
+        "did PyTorch run, did ONNX run" -- so it cannot ask for the label with the device spelled out, which is how
+        ``speedup`` came to be ``None`` on every measurement that did work (#625).
+        """
+        rows = [latency for latency in self.latencies if latency.backend.split(" (")[0] == family]
+        return next((row for row in rows if row.backend.endswith("(cpu)")), rows[0] if rows else None)
+
     @property
     def speedup(self) -> float | None:
         """``p50(torch) / p50(onnxruntime)``: how many times faster serving is, when both ran."""
-        torch_row, onnx_row = self.get("torch"), self.get("onnxruntime")
+        torch_row, onnx_row = self._row("torch"), self._row("onnxruntime")
         if not torch_row or not onnx_row or not np.isfinite(onnx_row.p50_ms) or onnx_row.p50_ms == 0:
             return None
         return torch_row.p50_ms / onnx_row.p50_ms

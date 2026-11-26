@@ -14,7 +14,9 @@
   "pinneapple_tools.nvidia.physicsnemo"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "rollout_pass_rate",

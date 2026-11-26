@@ -1,0 +1,12 @@
+{
+ "code_hash": "c069ec9660bd76a8",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.structural.rotary_coupling_torsion_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "rotary coupling torsion default -> pinneapple_physics.pde_environment.presets.structural:rotary_coupling_torsion_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'E': 210000000000.0, 'nu': 0.3, 'r_inner': 0.05, 'r_outer': 0.08, 'torque': 10000.0, 'axial_force': 500000.0, 'length': 1.0}",
+ "timed_out": false
+}

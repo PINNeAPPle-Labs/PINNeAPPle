@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple
 
 import torch
 from torch import Tensor
@@ -121,8 +120,8 @@ class CompositeObjective(ObjectiveBase):
         later via :py:meth:`add`.
     """
 
-    def __init__(self, terms: List[Tuple[float, ObjectiveBase]] | None = None) -> None:
-        self._terms: List[Tuple[float, ObjectiveBase]] = list(terms) if terms else []
+    def __init__(self, terms: list[tuple[float, ObjectiveBase]] | None = None) -> None:
+        self._terms: list[tuple[float, ObjectiveBase]] = list(terms) if terms else []
 
     def add(self, weight: float, obj: ObjectiveBase) -> None:
         """Append a new weighted objective."""

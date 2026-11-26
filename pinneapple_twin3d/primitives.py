@@ -6,11 +6,11 @@ glTF material is double sided, so orientation never hides a face.
 """
 from __future__ import annotations
 
-from typing import Sequence, Tuple
+from collections.abc import Sequence
 
 import numpy as np
 
-Mesh = Tuple[np.ndarray, np.ndarray]
+Mesh = tuple[np.ndarray, np.ndarray]
 
 
 def _grid_faces(n_rows: int, n_cols: int, closed_cols: bool) -> np.ndarray:
@@ -30,7 +30,7 @@ def _area(v: np.ndarray, f: np.ndarray) -> np.ndarray:
     return 0.5 * np.linalg.norm(np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]), axis=1)
 
 
-def revolve(profile: Sequence[Tuple[float, float]], n_theta: int = 48, *, cap: bool = False) -> Mesh:
+def revolve(profile: Sequence[tuple[float, float]], n_theta: int = 48, *, cap: bool = False) -> Mesh:
     """Surface of revolution of ``(r, y)`` points around the y axis (``cap`` closes the ends with a fan)."""
     p = np.asarray(profile, dtype=float)
     th = np.linspace(0, 2 * np.pi, n_theta, endpoint=False)
@@ -67,7 +67,7 @@ def _frames(path: np.ndarray, up: Sequence[float]):
     return np.asarray(N), np.asarray(B)
 
 
-def sweep(section: Sequence[Tuple[float, float]], path: Sequence[Sequence[float]], *, closed: bool = True,
+def sweep(section: Sequence[tuple[float, float]], path: Sequence[Sequence[float]], *, closed: bool = True,
           up: Sequence[float] = (0, 1, 0)) -> Mesh:
     """Extrude a 2D section ``(u, v)`` along a 3D path. ``u`` runs along the frame normal (closest to ``up``),
     ``v`` along the binormal. ``closed=False`` leaves an open profile (e.g. a U-channel)."""

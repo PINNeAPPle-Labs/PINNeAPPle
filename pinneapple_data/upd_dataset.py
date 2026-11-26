@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple, Union
+from typing import Any
+from collections.abc import Sequence
 import os
 
 from .physical_sample import PhysicalSample
-from .validators import validate_physical_sample, assert_valid_physical_sample
+from .validators import validate_physical_sample
 from .serialization import (
     save_pt, load_pt,
     save_zarr, load_zarr,
@@ -25,8 +26,8 @@ class UPDDataset:
       - validation pass
       - save/load (pt, zarr, hdf5)
     """
-    samples: List[PhysicalSample]
-    manifest: Dict[str, Any] | None = None
+    samples: list[PhysicalSample]
+    manifest: dict[str, Any] | None = None
 
     def __post_init__(self):
         """Initialize manifest with default version and count."""
@@ -46,12 +47,12 @@ class UPDDataset:
         self,
         *,
         units_policy: str = "warn",
-        required_units: Optional[Sequence[str]] = None,
-        ranges: Optional[Dict[str, Tuple[float, float]]] = None,
-        non_negative: Optional[Sequence[str]] = None,
-        monotonic_dims: Optional[Sequence[str]] = None,
+        required_units: Sequence[str] | None = None,
+        ranges: dict[str, tuple[float, float]] | None = None,
+        non_negative: Sequence[str] | None = None,
+        monotonic_dims: Sequence[str] | None = None,
         raise_on_error: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Validate all samples and aggregate issues into a report.
 
@@ -77,7 +78,7 @@ class UPDDataset:
         """
         total_errors = 0
         total_warnings = 0
-        by_sample: List[Dict[str, Any]] = []
+        by_sample: list[dict[str, Any]] = []
 
         for s in self.samples:
             issues = validate_physical_sample(
@@ -153,7 +154,7 @@ class UPDDataset:
         raise ValueError(f"Unknown format '{format}'. Use: pt|zarr|hdf5")
 
     @staticmethod
-    def load(path: str, *, format: str = "pt") -> "UPDDataset":
+    def load(path: str, *, format: str = "pt") -> UPDDataset:
         """
         Load a UPDDataset from disk.
 

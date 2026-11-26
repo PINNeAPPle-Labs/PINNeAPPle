@@ -9,7 +9,7 @@ Supports:
   * partial feedback into selected input dims when in_dim != out_dim
   * optional future exogenous inputs during rollout
 """
-from typing import Dict, Optional, Sequence, Tuple, List
+from collections.abc import Sequence
 
 import torch
 import torch.nn as nn
@@ -160,8 +160,8 @@ class EchoStateNetwork(RCBase):
         x_base: torch.Tensor,
         y_pred: torch.Tensor,
         *,
-        feedback_idx: Optional[Sequence[int]] = None,
-        y_to_x_idx: Optional[Sequence[int]] = None,
+        feedback_idx: Sequence[int] | None = None,
+        y_to_x_idx: Sequence[int] | None = None,
     ) -> torch.Tensor:
         """
         Put predicted y back into the next x.
@@ -197,13 +197,13 @@ class EchoStateNetwork(RCBase):
     def fit(
         self,
         x: torch.Tensor,                 # (B,T,in_dim)
-        y: Optional[torch.Tensor] = None, # (B,T,out_dim) optional
+        y: torch.Tensor | None = None, # (B,T,out_dim) optional
         *,
         washout: int = 0,
         one_step_ahead: bool = True,
         # If y is None, train to predict x_{t+1} for autoregressive forecasting (requires in_dim == out_dim)
         target_from_input_if_y_none: bool = True,
-    ) -> "EchoStateNetwork":
+    ) -> EchoStateNetwork:
         """
         Training:
         - If one_step_ahead=True: learn mapping from state/features at t to target at t+1.
@@ -220,8 +220,8 @@ class EchoStateNetwork(RCBase):
         B, T, _ = x.shape
         h = torch.zeros((B, self.reservoir_dim), device=x.device, dtype=x.dtype)
 
-        X_list: List[torch.Tensor] = []
-        Y_list: List[torch.Tensor] = []
+        X_list: list[torch.Tensor] = []
+        Y_list: list[torch.Tensor] = []
 
         if one_step_ahead:
             # Need t -> t+1, so last usable t is T-2
@@ -251,9 +251,9 @@ class EchoStateNetwork(RCBase):
         x_context: torch.Tensor,                 # (B,Tc,in_dim) observed context
         steps: int,                              # horizon
         *,
-        future_exog: Optional[torch.Tensor] = None,  # (B,steps,in_dim) optional full inputs for each future step
-        feedback_idx: Optional[Sequence[int]] = None,
-        y_to_x_idx: Optional[Sequence[int]] = None,
+        future_exog: torch.Tensor | None = None,  # (B,steps,in_dim) optional full inputs for each future step
+        feedback_idx: Sequence[int] | None = None,
+        y_to_x_idx: Sequence[int] | None = None,
     ) -> torch.Tensor:
         """
         Multi-step autoregressive rollout.
@@ -280,7 +280,7 @@ class EchoStateNetwork(RCBase):
         # initial x_t for the first generated step
         x_t = x_context[:, -1, :]
 
-        ys: List[torch.Tensor] = []
+        ys: list[torch.Tensor] = []
         for k in range(int(steps)):
             # If we have future exogenous inputs, start from them as base for this step
             if future_exog is not None:
@@ -308,7 +308,7 @@ class EchoStateNetwork(RCBase):
         self,
         x: torch.Tensor,  # (B,T,in_dim)
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
         washout: int = 0,
     ) -> RCOutput:
@@ -320,7 +320,7 @@ class EchoStateNetwork(RCBase):
         B, T, _ = x.shape
         h = torch.zeros((B, self.reservoir_dim), device=x.device, dtype=x.dtype)
 
-        ys: List[torch.Tensor] = []
+        ys: list[torch.Tensor] = []
         for t in range(T):
             h = self._step(x[:, t, :], h)
             feats = self._readout_features(h, x[:, t, :])
@@ -329,7 +329,7 @@ class EchoStateNetwork(RCBase):
 
         y_hat = torch.stack(ys, dim=1)  # (B,T,out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             if washout > 0:
                 losses["mse"] = torch.mean((y_hat[:, washout:, :] - y_true[:, washout:, :]) ** 2)

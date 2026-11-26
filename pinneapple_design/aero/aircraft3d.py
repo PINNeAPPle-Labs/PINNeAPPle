@@ -10,7 +10,7 @@ from __future__ import annotations
 import dataclasses
 import math
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -46,7 +46,7 @@ class Requirements3D:
         return dataclasses.asdict(self)
 
 
-def airframe_from(x: np.ndarray, base: Optional[Airframe] = None) -> Airframe:
+def airframe_from(x: np.ndarray, base: Airframe | None = None) -> Airframe:
     x = np.asarray(x, float)
     kw = dict(zip(PLAN, x[6:12].tolist()))
     return dataclasses.replace(base or Airframe(), section=x[:6].copy(), **kw)
@@ -153,7 +153,7 @@ class Aircraft3D:
     """Evaluate one 3D design given section polars (from the CFD surrogate)."""
 
     def __init__(self, x: np.ndarray, wing_polar: Polar, tail_polar: Polar, ac: Aircraft = Aircraft(),
-                 req: Requirements3D = Requirements3D(), base_weights: Optional[Dict[str, float]] = None,
+                 req: Requirements3D = Requirements3D(), base_weights: dict[str, float] | None = None,
                  nc: int = 4, ns_wing: int = 12, ns_tail: int = 5):
         self.x, self.ac, self.req = np.asarray(x, float), ac, req
         self.af = airframe_from(x)
@@ -202,7 +202,7 @@ class Aircraft3D:
         r = Ainv @ np.array([1.0, 0.0])
         return p, r
 
-    def condition(self, CL: float) -> Dict[str, Any]:
+    def condition(self, CL: float) -> dict[str, Any]:
         p, r = self._trim
         a, it = p + r * CL
         u = np.array([1.0, a, it])
@@ -221,7 +221,7 @@ class Aircraft3D:
         return {"alpha": math.degrees(a), "it": math.degrees(it), "CDi": cdi, "CDp_wing": cd_w, "CDp_tail": cd_t,
                 "cl_wing": clw, "extrapolated": bool(far.any())}
 
-    def drag(self, V: float, rho: float) -> Dict[str, Any]:
+    def drag(self, V: float, rho: float) -> dict[str, Any]:
         q = 0.5 * rho * V * V
         CL = self.mass * G0 / (q * self.af.wing_area)
         c = self.condition(CL)
@@ -231,7 +231,7 @@ class Aircraft3D:
         c.update(CL=CL, CD=CD, CD0_other=cd0, D=q * self.af.wing_area * CD)
         return c
 
-    def at_alpha(self, alpha_deg: float, it_deg: float, V: float, rho: float = 1.225, clean: bool = True) -> Dict[str, float]:
+    def at_alpha(self, alpha_deg: float, it_deg: float, V: float, rho: float = 1.225, clean: bool = True) -> dict[str, float]:
         """Lift and drag at a given angle and tail incidence (what a CFD run of the clean airframe measures):
         induced + section drag strip by strip + fuselage and fin friction; gear/struts/misc left out when clean."""
         a, it = math.radians(alpha_deg), math.radians(it_deg)
@@ -246,7 +246,7 @@ class Aircraft3D:
               + (0.0 if clean else MISC_D_OVER_Q / self.af.wing_area))
         return {"CL": CL, "CD": CD, "CDi": float(u @ self.sol.Q @ u)}
 
-    def stall(self) -> Dict[str, float]:
+    def stall(self) -> dict[str, float]:
         """Critical section: the trimmed CL at which the first wing strip reaches the section cl max."""
         p, r = self._trim
         a_ = self.sol.cl_strip.T @ np.array([1.0, p[0], p[1]])
@@ -260,7 +260,7 @@ class Aircraft3D:
         return {"CLmax": float(CLs[k]), "station": float(self.eta[k]), "ratio": ratio}
 
     # ------------------------------------------------------------------ the aircraft numbers
-    def evaluate(self) -> Dict[str, Any]:
+    def evaluate(self) -> dict[str, Any]:
         ac, req, af = self.ac, self.req, self.af
         rho_c = isa_density(ac.cruise_altitude)
         cr = self.drag(ac.cruise_speed, rho_c)

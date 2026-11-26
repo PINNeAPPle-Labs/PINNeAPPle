@@ -1,0 +1,12 @@
+{
+ "code_hash": "52643e663d5955f5",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.integral.integral_fredholm_separable_exp",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 24.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "integral fredholm separable exp -> pinneapple_physics.pde_environment.presets.integral:integral_fredholm_separable_exp\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'lam': 0.5, 'n_col': 81}",
+ "timed_out": false
+}

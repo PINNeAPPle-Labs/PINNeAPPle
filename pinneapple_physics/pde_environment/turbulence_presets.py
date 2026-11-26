@@ -17,14 +17,14 @@ PINN loss::
 from __future__ import annotations
 
 import torch
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 
 # ---------------------------------------------------------------------------
 # k-omega SST constants  (Menter 1994)
 # ---------------------------------------------------------------------------
 
-SST_CONSTS: Dict[str, float] = {
+SST_CONSTS: dict[str, float] = {
     "sigma_k1":  0.85,
     "sigma_k2":  1.0,
     "sigma_w1":  0.5,
@@ -233,7 +233,7 @@ class KOmegaSSTResiduals:
         self,
         nu: float = 1e-5,
         rho: float = 1.0,
-        consts: Optional[Dict[str, float]] = None,
+        consts: dict[str, float] | None = None,
     ) -> None:
         self.nu = nu          # kinematic viscosity
         self.rho = rho        # density
@@ -282,7 +282,7 @@ class KOmegaSSTResiduals:
         u_tau: float = 1.0,
         delta: float = 1.0,
         F2: float = 1.0,
-    ) -> "tuple[torch.Tensor, torch.Tensor, torch.Tensor]":
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """1D (wall-normal-only) k-omega SST reduction for fully-developed
         plane channel flow -- every streamwise derivative is zero by the
         fully-developed assumption, and the mean-momentum equation reduces
@@ -333,7 +333,7 @@ class KOmegaSSTResiduals:
         x_col: torch.Tensor,
         F1: float = 0.0,
         F2: float = 1.0,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """Compute all RANS + k-omega SST residuals via autograd.
 
         Dispatches on ``x_col.shape[1]``: 2 -> the original 2D closure
@@ -372,7 +372,7 @@ class KOmegaSSTResiduals:
         x_col: torch.Tensor,
         F1: float = 0.0,
         F2: float = 1.0,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """Original 2D steady RANS + k-omega SST closure. See
         :meth:`__call__`/the class docstring for the equations;
         numerically unchanged by the 3D generalization."""
@@ -486,7 +486,7 @@ class KOmegaSSTResiduals:
         x_col: torch.Tensor,
         F1: float = 0.0,
         F2: float = 1.0,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """3D steady RANS + k-omega SST closure. See the class docstring
         for the equations; a genuine 3D generalization of :meth:`_call_2d`
         (third velocity component, z-derivatives, full 3D strain-rate
@@ -647,7 +647,7 @@ class SpalartAllmarasResiduals:
         # r: dict with 'momentum_x', 'momentum_y', 'continuity', 'sa_eq'
     """
 
-    SA_CONSTS: Dict[str, float] = {
+    SA_CONSTS: dict[str, float] = {
         "cb1":   0.1355,
         "cb2":   0.622,
         "sigma": 2.0 / 3.0,
@@ -690,8 +690,8 @@ class SpalartAllmarasResiduals:
         self,
         model: Callable[[torch.Tensor], torch.Tensor],
         x_col: torch.Tensor,
-        wall_distance_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
-    ) -> Dict[str, torch.Tensor]:
+        wall_distance_fn: Callable[[torch.Tensor], torch.Tensor] | None = None,
+    ) -> dict[str, torch.Tensor]:
         """Compute SA residuals.
 
         Parameters
@@ -885,7 +885,7 @@ class WALEResiduals:
             return self.delta(x)
         return torch.full((x.shape[0], 1), float(self.delta), device=x.device, dtype=x.dtype)
 
-    def __call__(self, model, x: torch.Tensor, forcing: torch.Tensor = None) -> Dict[str, torch.Tensor]:
+    def __call__(self, model, x: torch.Tensor, forcing: torch.Tensor = None) -> dict[str, torch.Tensor]:
         sp = self.spatial_indices
         y = model(x)
         u, v, w, p = y[:, 0:1], y[:, 1:2], y[:, 2:3], y[:, 3:4]

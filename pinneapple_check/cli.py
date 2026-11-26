@@ -173,13 +173,32 @@ def main(argv: list[str] | None = None) -> int:
               "    studio               every tool, example and app in one place (pinneapple studio --help)\n"
               "  working with results\n"
               "    check <paths>        physics linter for results and models (pinneapple check --help)\n"
+              "    reproduce <record>   re-run a recorded experiment and say whether it reproduced\n"
+              "    model-card <record>  generate a model card from an experiment record and validate it\n"
               "    benchmark            equal-budget benchmarks of physics-AI methods (when installed)\n"
-              "    design               design from a plain-language goal (pinneapple design --help)\n")
+              "    design               design from a plain-language goal (pinneapple design --help)\n"
+              "  platform\n"
+              "    plugins <verb>       installed plugins: list, inspect, doctor, policy, enable, disable\n"
+              "    runs <verb>          a workflow run: show <id>, why <id>\n")
         return 0 if argv else 2
     if argv[0] == "--version":
         print(f"pinneapple {__version__}")
         return 0
     cmd, rest = argv[0], argv[1:]
+    if cmd == "plugins":
+        try:
+            from pinneapple_plugins.cli import main as plugins_cli
+        except ImportError:
+            print("error: `pinneapple plugins` needs pinneapple_plugins; reinstall pinneapple", file=sys.stderr)
+            return 2
+        return plugins_cli(rest)
+    if cmd == "runs":
+        try:
+            from pinneapple_core.workflows.runs_cli import main as runs_cli
+        except ImportError:
+            print("error: `pinneapple runs` needs pinneapple_core; reinstall pinneapple", file=sys.stderr)
+            return 2
+        return runs_cli(rest)
     if cmd in ("doctor", "recommend", "card", "new"):
         try:
             from pinneapple_core.onboarding.cli import main as onboarding
@@ -189,6 +208,20 @@ def main(argv: list[str] | None = None) -> int:
         return onboarding(argv)
     if cmd == "check":
         return check_main(rest)
+    if cmd == "model-card":
+        try:
+            from pinneapple_hub.experiment_card import cli as card_cli
+        except ImportError:
+            print("error: `pinneapple model-card` needs pinneapple_hub; reinstall pinneapple", file=sys.stderr)
+            return 2
+        return card_cli(rest)
+    if cmd == "reproduce":
+        try:
+            from pinneapple_physics.experiments import cli as reproduce_cli
+        except ImportError:
+            print("error: `pinneapple reproduce` needs pinneapple_physics; reinstall pinneapple", file=sys.stderr)
+            return 2
+        return reproduce_cli(rest)
     if cmd == "studio":
         from pinneapple_studio.cli import main as studio
         return studio(rest)

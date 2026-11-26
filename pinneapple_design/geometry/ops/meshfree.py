@@ -18,7 +18,6 @@ see ``pinneapple_solvers.meshfree``.
 """
 from __future__ import annotations
 
-from typing import Optional
 
 import numpy as np
 
@@ -148,8 +147,8 @@ class RBFInterpolator:
         self.kernel = kernel
         self.eps = float(eps)
         self.reg = float(reg)
-        self._source_pts: Optional[np.ndarray] = None
-        self._coeffs: Optional[np.ndarray] = None
+        self._source_pts: np.ndarray | None = None
+        self._coeffs: np.ndarray | None = None
         self._n_outputs: int = 1
 
     # ------------------------------------------------------------------
@@ -158,7 +157,7 @@ class RBFInterpolator:
         self,
         source_pts: np.ndarray,
         source_vals: np.ndarray,
-    ) -> "RBFInterpolator":
+    ) -> RBFInterpolator:
         """Fit the interpolant to scattered data.
 
         Parameters
@@ -286,8 +285,8 @@ class ImplicitSurfaceRBF:
         self.eps = float(eps)
         self.offset = float(offset)
         self.reg = float(reg)
-        self._interp: Optional[RBFInterpolator] = None
-        self._surface_pts: Optional[np.ndarray] = None
+        self._interp: RBFInterpolator | None = None
+        self._surface_pts: np.ndarray | None = None
 
     # ------------------------------------------------------------------
 
@@ -295,7 +294,7 @@ class ImplicitSurfaceRBF:
         self,
         surface_pts: np.ndarray,
         normals: np.ndarray,
-    ) -> "ImplicitSurfaceRBF":
+    ) -> ImplicitSurfaceRBF:
         """Fit the implicit surface from a point cloud with outward normals.
 
         Parameters

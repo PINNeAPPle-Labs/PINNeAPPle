@@ -39,7 +39,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
 
 import numpy as np
 
@@ -48,7 +48,7 @@ import numpy as np
 # Custom backend registry
 # ---------------------------------------------------------------------------
 
-_CUSTOM_BACKENDS: Dict[str, Callable] = {}
+_CUSTOM_BACKENDS: dict[str, Callable] = {}
 
 
 def register_enhancer(name: str, fn: Callable) -> None:
@@ -104,8 +104,8 @@ class EnhancerConfig:
     model_id:         str        = "stabilityai/stable-diffusion-2-1"
     device:           str        = "cpu"
     batch_size:       int        = 4
-    apply_to_sensors: List[str]  = field(default_factory=list)  # empty = all
-    seed:             Optional[int] = 42
+    apply_to_sensors: list[str]  = field(default_factory=list)  # empty = all
+    seed:             int | None = 42
 
 
 # ---------------------------------------------------------------------------
@@ -134,7 +134,7 @@ class PhotorealisticEnhancer:
         enhanced = enhancer.enhance(frames)
     """
 
-    def __init__(self, config: Optional[EnhancerConfig] = None) -> None:
+    def __init__(self, config: EnhancerConfig | None = None) -> None:
         self.cfg      = config or EnhancerConfig()
         self._backend = self._load_backend()
 
@@ -144,8 +144,8 @@ class PhotorealisticEnhancer:
 
     def enhance(
         self,
-        frames: Dict[str, np.ndarray],   # {sensor -> (T, H, W, 3) uint8}
-    ) -> Dict[str, np.ndarray]:
+        frames: dict[str, np.ndarray],   # {sensor -> (T, H, W, 3) uint8}
+    ) -> dict[str, np.ndarray]:
         """Apply enhancement to all configured sensor channels.
 
         Physical field data is never passed to this method.

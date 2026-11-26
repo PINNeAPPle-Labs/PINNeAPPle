@@ -11,8 +11,6 @@ analysis method.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -23,7 +21,7 @@ from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry
 
 
-def _extrema(x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def _extrema(x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Return indices of local maxima and minima."""
     dx = np.diff(x)
     # sign changes
@@ -50,12 +48,12 @@ def emd_1d(
     max_imfs: int = 10,
     max_sift: int = 50,
     stop_thresh: float = 0.05,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Very small EMD implementation for 1D signals."""
     x = np.asarray(x, dtype=float)
     t = np.arange(len(x), dtype=float)
     residue = x.copy()
-    imfs: List[np.ndarray] = []
+    imfs: list[np.ndarray] = []
 
     for _k in range(int(max_imfs)):
         h = residue.copy()
@@ -91,15 +89,15 @@ def eemd_1d(
     n_ensembles: int = 50,
     noise_std: float = 0.2,
     max_imfs: int = 10,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> np.ndarray:
     """EEMD for 1D: returns imfs array (K, T)."""
     rng = np.random.default_rng(seed)
     x = np.asarray(x, dtype=float)
     T = x.shape[0]
 
-    imf_accum: Optional[np.ndarray] = None
-    counts: Optional[np.ndarray] = None
+    imf_accum: np.ndarray | None = None
+    counts: np.ndarray | None = None
 
     s = np.std(x) + 1e-12
     for _ in range(int(n_ensembles)):
@@ -133,7 +131,7 @@ class EEMDSolver(SolverBase):
         n_ensembles: int = 50,
         noise_std: float = 0.2,
         max_imfs: int = 10,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ):
         super().__init__()
         self.n_ensembles = int(n_ensembles)

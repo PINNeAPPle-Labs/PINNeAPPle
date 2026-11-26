@@ -7,7 +7,7 @@ pinneapple_train.preprocess both re-export from here.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 
@@ -15,7 +15,7 @@ import torch
 class Normalizer:
     """Abstract base for all normalizers (fit / transform / inverse)."""
 
-    def fit(self, x: torch.Tensor) -> "Normalizer":
+    def fit(self, x: torch.Tensor) -> Normalizer:
         raise NotImplementedError
 
     def transform(self, x: torch.Tensor) -> torch.Tensor:
@@ -31,10 +31,10 @@ class Normalizer:
     def decode(self, x: torch.Tensor) -> torch.Tensor:
         return self.inverse(x)
 
-    def state_dict(self) -> Dict[str, Any]:
+    def state_dict(self) -> dict[str, Any]:
         return {}
 
-    def load_state_dict(self, sd: Dict[str, Any]) -> "Normalizer":
+    def load_state_dict(self, sd: dict[str, Any]) -> Normalizer:
         return self
 
 
@@ -51,11 +51,11 @@ class StandardScaler(Normalizer):
     """
 
     eps: float = 1e-8
-    mean_: Optional[torch.Tensor] = None
-    std_: Optional[torch.Tensor] = None
+    mean_: torch.Tensor | None = None
+    std_: torch.Tensor | None = None
 
     # ── instance fit (pinneapple_train.normalizers style) ────────────────────
-    def fit(self, x: torch.Tensor, dim: int | tuple = 0) -> "StandardScaler":  # type: ignore[override]
+    def fit(self, x: torch.Tensor, dim: int | tuple = 0) -> StandardScaler:  # type: ignore[override]
         self.mean_ = x.mean(dim=dim, keepdim=True)
         self.std_ = x.std(dim=dim, keepdim=True).clamp_min(self.eps)
         return self
@@ -71,7 +71,7 @@ class StandardScaler(Normalizer):
         return x * self.std_.to(x.device, x.dtype) + self.mean_.to(x.device, x.dtype)
 
     # ── serialization (pinneapple_train.preprocess style) ────────────────────
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "mean": self.mean_.detach().cpu() if self.mean_ is not None else None,
             "std": self.std_.detach().cpu() if self.std_ is not None else None,
@@ -79,16 +79,16 @@ class StandardScaler(Normalizer):
         }
 
     @staticmethod
-    def from_dict(d: Dict[str, Any]) -> "StandardScaler":
+    def from_dict(d: dict[str, Any]) -> StandardScaler:
         s = StandardScaler(eps=float(d.get("eps", 1e-8)))
         s.mean_ = d.get("mean")
         s.std_ = d.get("std")
         return s
 
-    def state_dict(self) -> Dict[str, Any]:
+    def state_dict(self) -> dict[str, Any]:
         return self.to_dict()
 
-    def load_state_dict(self, sd: Dict[str, Any]) -> "StandardScaler":
+    def load_state_dict(self, sd: dict[str, Any]) -> StandardScaler:
         self.mean_ = sd.get("mean_") or sd.get("mean")
         self.std_ = sd.get("std_") or sd.get("std")
         self.eps = float(sd.get("eps", self.eps))
@@ -100,10 +100,10 @@ class MinMaxScaler(Normalizer):
     """Scales each feature to [0, 1]."""
 
     eps: float = 1e-8
-    min_: Optional[torch.Tensor] = None
-    max_: Optional[torch.Tensor] = None
+    min_: torch.Tensor | None = None
+    max_: torch.Tensor | None = None
 
-    def fit(self, x: torch.Tensor, dim: int | tuple = 0) -> "MinMaxScaler":  # type: ignore[override]
+    def fit(self, x: torch.Tensor, dim: int | tuple = 0) -> MinMaxScaler:  # type: ignore[override]
         self.min_ = x.amin(dim=dim, keepdim=True)
         self.max_ = x.amax(dim=dim, keepdim=True)
         return self
@@ -122,14 +122,14 @@ class MinMaxScaler(Normalizer):
         mx = self.max_.to(x.device, x.dtype)
         return x * (mx - mn) + mn
 
-    def state_dict(self) -> Dict[str, Any]:
+    def state_dict(self) -> dict[str, Any]:
         return {
             "min_": self.min_.detach().cpu() if self.min_ is not None else None,
             "max_": self.max_.detach().cpu() if self.max_ is not None else None,
             "eps": float(self.eps),
         }
 
-    def load_state_dict(self, sd: Dict[str, Any]) -> "MinMaxScaler":
+    def load_state_dict(self, sd: dict[str, Any]) -> MinMaxScaler:
         self.min_ = sd.get("min_")
         self.max_ = sd.get("max_")
         self.eps = float(sd.get("eps", self.eps))

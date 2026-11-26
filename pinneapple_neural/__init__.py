@@ -38,6 +38,19 @@ from . import architectures
 from . import trainer
 from . import predictor
 
+# ── the common interface over the families (issue #155) ──────────────────────
+from .physics_model import (
+    FAMILIES,
+    ExportNotAvailable,
+    FitReport,
+    NotAPhysicsModel,
+    PhysicsModel,
+    Prediction,
+    UncertaintyNotAvailable,
+    as_physics_model,
+    family_of,
+)
+
 # backward-compat aliases (old names still work)
 models    = architectures
 train     = trainer
@@ -175,8 +188,11 @@ def train_model(
     dict with ``best_val``, ``best_path``, and per-epoch ``history`` (see
     ``Trainer.fit``).
     """
+    # readiness/review are the data gate (#1491): the shortcut must not be a way around it
+    readiness = cfg_kwargs.pop("readiness", None)
+    review = cfg_kwargs.pop("review", None)
     cfg = TrainConfig(epochs=epochs, device=device, **cfg_kwargs)
-    t = Trainer(model, loss_fn)
+    t = Trainer(model, loss_fn, readiness=readiness, review=review)
     if val_loader is None:
         val_loader = train_loader
     return t.fit(train_loader, val_loader, cfg)
@@ -207,6 +223,9 @@ __all__ = [
     "models", "train", "inference",
     # Integration
     "build_model", "train_model", "predict", "train_and_predict",
+    # The common interface over the families (#155)
+    "FAMILIES", "PhysicsModel", "Prediction", "FitReport", "UncertaintyNotAvailable",
+    "ExportNotAvailable", "NotAPhysicsModel", "as_physics_model", "family_of",
     # architectures
     "BaseModel", "ModelOutput", "ModelRegistry", "ModelSpec",
     "InstantiateReport", "ModelCatalog", "select_adapter",

@@ -43,8 +43,8 @@
      "bundled": "models/airfoil_cst_rans_mlp/config.json"
     },
     "model_card.json": {
-     "sha256": "c3257991339ecf1604d64cc621ae21a0e26e0cd65e74f23e7f6fe166d0300a34",
-     "size": 9157,
+     "sha256": "d86c9879302a133973c205cd3b2ff323d57f829d2559221d8af84ac76825cc40",
+     "size": 9453,
      "bundled": "models/airfoil_cst_rans_mlp/model_card.json"
     }
    }
@@ -85,8 +85,8 @@
      "bundled": "models/heatsink_forced_mlp/config.json"
     },
     "model_card.json": {
-     "sha256": "9be1bcadccc6ab9e073c0906c3eb4a039be30e6939490b4b8f7f9cefc9ec16b1",
-     "size": 8752,
+     "sha256": "4a796c103014949b5cd5e0eeca4034b2dca551efb9e70392917b23d19aa9459b",
+     "size": 9063,
      "bundled": "models/heatsink_forced_mlp/model_card.json"
     }
    }
@@ -127,8 +127,8 @@
      "bundled": "models/heatsink_natural_mlp/config.json"
     },
     "model_card.json": {
-     "sha256": "2b22ed77d7e1d74a41498544c76b30495263377b4a07d7ab1f97b26ffc3ac5cf",
-     "size": 8274,
+     "sha256": "48c68c5de27d6a15d179fea14b8b5d9e5ffd972742ea8ebae7e31ca7bab4a194",
+     "size": 8586,
      "bundled": "models/heatsink_natural_mlp/model_card.json"
     }
    }
@@ -170,8 +170,8 @@
      "bundled": "models/rover_contact_grc1_viper/config.json"
     },
     "model_card.json": {
-     "sha256": "bd66490d4c88f6477f6322c8b9d7d49591b14f51e2e5e1d4679ac71d0b6a8219",
-     "size": 7637,
+     "sha256": "a38313499eb3996ea85a1921e5c4d7237db20d5174b298d7462a67975ed005a4",
+     "size": 7925,
      "bundled": "models/rover_contact_grc1_viper/model_card.json"
     }
    },

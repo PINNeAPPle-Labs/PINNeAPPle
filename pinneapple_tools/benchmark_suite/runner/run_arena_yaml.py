@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -36,7 +36,7 @@ from pinneapple_tools.benchmark_suite.io.yamlx import load_yaml
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _device(cfg: Dict[str, Any]) -> torch.device:
+def _device(cfg: dict[str, Any]) -> torch.device:
     d = str(cfg.get("device", "cuda" if torch.cuda.is_available() else "cpu"))
     return torch.device(d)
 
@@ -45,7 +45,7 @@ def _to_tensor(arr: np.ndarray, device: torch.device) -> torch.Tensor:
     return torch.from_numpy(arr.astype(np.float32)).to(device)
 
 
-def _load_problem_spec(problem_cfg: Dict[str, Any]):
+def _load_problem_spec(problem_cfg: dict[str, Any]):
     """Load a ProblemSpec from a preset name + optional param overrides."""
     from pinneapple_physics.pde_environment.presets.registry import get_preset
     problem_id = str(problem_cfg.get("id", "burgers_1d"))
@@ -54,11 +54,11 @@ def _load_problem_spec(problem_cfg: Dict[str, Any]):
 
 
 def _build_dataset(
-    problem_cfg: Dict[str, Any],
+    problem_cfg: dict[str, Any],
     problem_spec,
-    arena_cfg: Dict[str, Any],
+    arena_cfg: dict[str, Any],
     device: torch.device,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Build the training batch dict from the chosen data source."""
     data_source = str(problem_cfg.get("data_source", "solver")).lower()
     n_col = int(arena_cfg.get("n_collocation", 8192))
@@ -116,7 +116,7 @@ def _build_dataset(
 
 class _SingleBatchDataset(torch.utils.data.Dataset):
     """Dataset that returns the same full batch every step."""
-    def __init__(self, batch: Dict[str, Any]):
+    def __init__(self, batch: dict[str, Any]):
         self._batch = batch
 
     def __len__(self):
@@ -130,7 +130,7 @@ def _dict_collate(samples):
     return samples[0]
 
 
-def _build_model(model_cfg: Dict[str, Any]):
+def _build_model(model_cfg: dict[str, Any]):
     """Build a model from the model registry or a built-in fallback."""
     model_name = str(model_cfg.get("name", "")).strip()
     model_kwargs = dict(model_cfg.get("kwargs", {}))
@@ -153,7 +153,7 @@ def _build_model(model_cfg: Dict[str, Any]):
     out_dim = int(model_cfg.get("out_dim", 1))
 
     act_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "silu": nn.SiLU, "gelu": nn.GELU}.get(activation.lower(), nn.Tanh)
-    layers: List[nn.Module] = []
+    layers: list[nn.Module] = []
     dims = [in_dim] + list(hidden) + [out_dim]
     for i in range(len(dims) - 1):
         layers.append(nn.Linear(dims[i], dims[i + 1]))
@@ -163,7 +163,7 @@ def _build_model(model_cfg: Dict[str, Any]):
     return model, None
 
 
-def _build_physics_loss(problem_spec, model_spec, weights_cfg: Dict[str, Any]):
+def _build_physics_loss(problem_spec, model_spec, weights_cfg: dict[str, Any]):
     """Compile physics losses from problem spec if model supports it."""
     if problem_spec is None:
         return None
@@ -177,7 +177,7 @@ def _build_physics_loss(problem_spec, model_spec, weights_cfg: Dict[str, Any]):
         return None
 
 
-def _build_loss_fn(problem_spec, model_spec, physics_weights_cfg: Dict[str, Any]):
+def _build_loss_fn(problem_spec, model_spec, physics_weights_cfg: dict[str, Any]):
     """Build a combined loss function for PINN training."""
     physics_loss_fn = _build_physics_loss(problem_spec, model_spec, physics_weights_cfg)
 
@@ -209,7 +209,7 @@ def _build_loss_fn(problem_spec, model_spec, physics_weights_cfg: Dict[str, Any]
                 physics_loss_fn=physics_loss_fn,
             )
 
-            def loss_fn(model: nn.Module, y_hat: Any, batch: Dict[str, Any]):
+            def loss_fn(model: nn.Module, y_hat: Any, batch: dict[str, Any]):
                 return loss_obj(model, y_hat, batch)
 
             return loss_fn
@@ -217,8 +217,8 @@ def _build_loss_fn(problem_spec, model_spec, physics_weights_cfg: Dict[str, Any]
             pass
 
     # Fallback: basic PINN loss using PDE conditions from spec
-    def _basic_pinn_loss(model: nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
-        losses: Dict[str, torch.Tensor] = {}
+    def _basic_pinn_loss(model: nn.Module, y_hat: Any, batch: dict[str, Any]) -> dict[str, torch.Tensor]:
+        losses: dict[str, torch.Tensor] = {}
         device = next(model.parameters()).device
 
         # Data/supervised loss
@@ -265,12 +265,12 @@ def _build_loss_fn(problem_spec, model_spec, physics_weights_cfg: Dict[str, Any]
 def _train_model(
     model: nn.Module,
     loss_fn,
-    batch: Dict[str, Any],
-    train_cfg: Dict[str, Any],
+    batch: dict[str, Any],
+    train_cfg: dict[str, Any],
     run_dir: Path,
     model_id: str,
     metrics_obj=None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Train a single model with the Trainer, return metrics + history."""
     from pinneapple_neural.trainer.trainer import Trainer, TrainConfig
 
@@ -305,9 +305,9 @@ def _train_model(
 def _run_inference(
     model: nn.Module,
     problem_spec,
-    infer_cfg: Dict[str, Any],
+    infer_cfg: dict[str, Any],
     device: torch.device,
-) -> Optional[Any]:
+) -> Any | None:
     """Run grid inference and return InferenceResult."""
     try:
         from pinneapple_neural.predictor import infer_on_grid_1d, infer_on_grid_2d
@@ -363,10 +363,10 @@ def _run_inference(
 
 def _compute_metrics(
     metrics_obj,
-    batch: Dict[str, Any],
+    batch: dict[str, Any],
     model: nn.Module,
     device: torch.device,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Compute evaluation metrics on data points."""
     if metrics_obj is None:
         return {}
@@ -396,10 +396,10 @@ def _compute_metrics(
 # ---------------------------------------------------------------------------
 
 def run_arena_experiment(
-    yaml_path: Union[str, Path],
+    yaml_path: str | Path,
     *,
-    out_dir: Optional[Union[str, Path]] = None,
-) -> Dict[str, Any]:
+    out_dir: str | Path | None = None,
+) -> dict[str, Any]:
     """Run a complete Arena experiment from a YAML config file.
 
     Parameters
@@ -448,7 +448,7 @@ def run_arena_experiment(
     batch = _build_dataset(problem_cfg, problem_spec, arena_cfg, device)
 
     # Train each model
-    all_model_results: Dict[str, Dict[str, Any]] = {}
+    all_model_results: dict[str, dict[str, Any]] = {}
     for model_entry in models_cfg:
         model_id = str(model_entry.get("id", f"model_{len(all_model_results)}"))
         model_cfg = dict(model_entry.get("model", {}))
@@ -504,7 +504,7 @@ def run_arena_experiment(
         torch.save(model.state_dict(), run_dir / "model.pt")
 
     # Visualizations
-    viz_results: Dict[str, str] = {}
+    viz_results: dict[str, str] = {}
     if viz_cfgs:
         try:
             from pinneapple_neural.predictor.visualize import render_visualizations

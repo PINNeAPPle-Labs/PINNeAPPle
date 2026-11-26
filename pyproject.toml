@@ -42,8 +42,8 @@ dependencies = [
   "matplotlib>=3.8",
   "torch>=2.2",
   "sympy>=1.12",     # SymbolicPDE / ProblemBuilder: "describe your own PDE" is a base feature
-  "xarray",
-  "zarr",
+  "xarray>=2024.1",  # PhysicalSample and the bundles: the release line the round trips run against (#96)
+  "zarr>=2.16",      # zarr_store serves both majors (_ZARR_MAJOR); 2.16 is the oldest it handles (#96)
   "tomli>=2.0; python_version < '3.11'",
 ]
 
@@ -214,9 +214,15 @@ process = [
 ]
 
 # Astropy-backed unit-safe constants/coordinate transforms
-# (pinneapple_physics.pde_environment.presets.astropy_bridge)
+# (pinneapple_physics.pde_environment.presets.astropy_bridge), FITS images/cubes/tables and units on a PhysicalSample
+# (pinneapple_data.astro.fits, .units, .public_data), the yt reader for the output of the astrophysics codes -- Enzo,
+# FLASH, RAMSES, GADGET, AREPO, Athena++, more than thirty formats (#515) -- and galactic orbits in a mass model
+# (pinneapple_physics.astro.galactic, through galpy). Everything here is imported lazily: none of it is needed to
+# import the library (#522)
 astro = [
   "astropy>=6.0",
+  "yt>=4.3",
+  "galpy>=1.9",
 ]
 
 # JAX-CFD differentiable CFD solver
@@ -482,6 +488,10 @@ dev = [
   "ipykernel>=6.0",
   "httpx>=0.27",  # required by starlette.testclient.TestClient, used by tests/test_app_backend.py
   "jupyter>=1.0",
+  # The curated examples in scripts/reference/content.py run under `.[dev]` in the Module reference workflow, and
+  # one of them (pinneapple_neural__1) fits ParametricPOD with a GPR, which needs scikit-learn. Without it here the
+  # gate skipped nothing and failed on the import, which read as a broken example rather than a missing dependency.
+  "scikit-learn>=1.4",
 ]
 
 [project.urls]
@@ -545,6 +555,7 @@ packages = [
   "pinneapple_query",        # Physics Query Engine: query(quantity, where, time, conditions, accuracy) with a planner
   "pinneapple_condense",     # Adaptive Physics Condensation: repeated-block static condensation, reduced interfaces
   "pinneapple_studio",       # PINNeAPPle Studio: every public symbol as a tool (catalog, forms, status), gallery, jobs
+  "pinneapple_plugins",      # third-party plugins: the entry-point contract, the loader and `pinneapple plugins` (no deps)
 
   # ── arena + compatibility shims ───────────────────────────────────────────
   "pinneapple_arena",     # YAML/JSON-driven multi-model benchmark runner
@@ -574,6 +585,7 @@ include = [
   "pinneapple_problemdesign/**",
   "pinneapple_core/**",
   "pinneapple_stability/**",
+  "pinneapple_plugins/**",
   "pinneapple_physics/**",
   "pinneapple_neural/**",
   "pinneapple_analysis/**",

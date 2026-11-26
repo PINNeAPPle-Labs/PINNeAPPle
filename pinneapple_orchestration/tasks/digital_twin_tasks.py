@@ -10,7 +10,7 @@ driving what looks like a production twin.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pinneapple_registry import ArtifactRegistry
 from pinneapple_systems.digital_twin import DigitalTwin, DigitalTwinConfig
@@ -22,13 +22,13 @@ from .._prefect_compat import task
 def prepare_digital_twin_task(
     registry: ArtifactRegistry,
     problem_id: str,
-    field_names: List[str],
-    coord_names: Optional[List[str]] = None,
+    field_names: list[str],
+    coord_names: list[str] | None = None,
     *,
-    version: Optional[str] = None,
-    require_stage: Optional[str] = "production",
-    model_cls: Optional[Any] = None,
-    config: Optional[DigitalTwinConfig] = None,
+    version: str | None = None,
+    require_stage: str | None = "production",
+    model_cls: Any | None = None,
+    config: DigitalTwinConfig | None = None,
     **init_kwargs: Any,
 ) -> DigitalTwin:
     v = version or registry.models.latest(problem_id)

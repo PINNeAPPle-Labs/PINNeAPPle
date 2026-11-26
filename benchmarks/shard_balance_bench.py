@@ -4,7 +4,7 @@ import argparse
 import os
 import time
 import json
-from typing import Dict, Any, List
+from typing import Any
 
 import torch
 from torch.utils.data import DataLoader
@@ -116,7 +116,7 @@ def _get_u_from_sample(sample: Any) -> torch.Tensor:
     raise KeyError("Could not find tensor 'u' inside sample (expected sample.state['u']).")
 
 
-def run_iter(root: str, steps: int, workers: int, device: str, latency_max: int) -> Dict[str, Any]:
+def run_iter(root: str, steps: int, workers: int, device: str, latency_max: int) -> dict[str, Any]:
     (
         PhysicalSample,
         UPDZarrShardedWriter,
@@ -150,7 +150,7 @@ def run_iter(root: str, steps: int, workers: int, device: str, latency_max: int)
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
-    lat: List[float] = []
+    lat: list[float] = []
     t0 = time.perf_counter()
     n = 0
     checksum = 0.0

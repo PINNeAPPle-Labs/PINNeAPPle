@@ -15,7 +15,8 @@ import math
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Callable, Sequence
 
 import numpy as np
 import torch
@@ -68,13 +69,13 @@ class ModelSpec:
 class BenchmarkResult:
     problem_id: str
     model_id: str
-    metrics: Dict[str, float] = field(default_factory=dict)
-    history: List[Dict[str, float]] = field(default_factory=list)
+    metrics: dict[str, float] = field(default_factory=dict)
+    history: list[dict[str, float]] = field(default_factory=list)
     elapsed_s: float = 0.0
     n_params: int = 0
     rank: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "problem_id": self.problem_id,
             "model_id": self.model_id,
@@ -98,22 +99,22 @@ class BenchmarkTaskBase:
     def sample_collocation(self, n: int, seed: int) -> np.ndarray:
         raise NotImplementedError
 
-    def sample_boundary(self, n: int, seed: int) -> Tuple[np.ndarray, np.ndarray]:
+    def sample_boundary(self, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
         raise NotImplementedError
 
-    def sample_ic(self, n: int, seed: int) -> Tuple[np.ndarray, np.ndarray]:
+    def sample_ic(self, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
         return np.empty((0, self.in_dim)), np.empty((0, self.out_dim))
 
-    def pde_residual(self, model: nn.Module, X: "torch.Tensor") -> "torch.Tensor":
+    def pde_residual(self, model: nn.Module, X: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError
 
-    def eval_grid(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
+    def eval_grid(self, n: int) -> tuple[np.ndarray, np.ndarray]:
         """Return (X_eval, U_exact) as numpy arrays."""
         raise NotImplementedError
 
     def build_batch(
-        self, input_kind: str, n: int, seed: int, device: "torch.device", split: str = "train"
-    ) -> Optional[Dict[str, Any]]:
+        self, input_kind: str, n: int, seed: int, device: torch.device, split: str = "train"
+    ) -> dict[str, Any] | None:
         """Build a batch dict for a non-pointwise ``input_kind`` (sequence,
         graph, grid*, dynamics — see ``pinneapple_neural.architectures.
         adapters.select_adapter`` for the keys each expects), or ``None`` if
@@ -129,7 +130,7 @@ class BenchmarkTaskBase:
         """
         return None
 
-    def evaluate(self, model: nn.Module, device: "torch.device") -> Dict[str, float]:
+    def evaluate(self, model: nn.Module, device: torch.device) -> dict[str, float]:
         X_eval, U_exact = self.eval_grid(self.n_eval if hasattr(self, 'n_eval') else 10000)
         X_t = torch.tensor(X_eval, dtype=torch.float32, device=device)
         U_ref = torch.tensor(U_exact, dtype=torch.float32, device=device)
@@ -179,7 +180,7 @@ def _act_fn(name: str) -> nn.Module:
 
 def _build_mlp(in_dim: int, out_dim: int, hidden: Sequence[int], activation: str = "tanh") -> nn.Sequential:
     dims = [in_dim, *list(hidden), out_dim]
-    layers: List[nn.Module] = []
+    layers: list[nn.Module] = []
     act = _act_fn(activation)
     for i in range(len(dims) - 1):
         layers.append(nn.Linear(dims[i], dims[i + 1]))
@@ -256,7 +257,7 @@ class _SIREN(nn.Module):
     ) -> None:
         super().__init__()
         dims = [in_dim, *list(hidden)]
-        layers: List[nn.Module] = []
+        layers: list[nn.Module] = []
         for i, (a, b) in enumerate(zip(dims, dims[1:])):
             layers.append(_SIRENLayer(a, b, is_first=(i == 0), omega_0=omega_0))
         layers.append(nn.Linear(dims[-1], out_dim))
@@ -270,7 +271,7 @@ class _SIREN(nn.Module):
 # Default model specs
 # ─────────────────────────────────────────────────────────────────────────────
 
-DEFAULT_MODELS: List[ModelSpec] = [
+DEFAULT_MODELS: list[ModelSpec] = [
     ModelSpec(
         name="VanillaPINN_S",
         factory=lambda i, o: _build_mlp(i, o, [64, 64, 64, 64]),
@@ -332,12 +333,12 @@ class _BuiltinProblemTask(BenchmarkTaskBase):
             hi = np.array([dom[c][1] for c in self._p.coord_names])
             return rng.uniform(lo, hi, (n, self.in_dim)).astype(np.float32)
 
-    def sample_boundary(self, n: int, seed: int) -> Tuple[np.ndarray, np.ndarray]:
+    def sample_boundary(self, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
         from pinneapple_tools.benchmark_suite.physics_pipeline import _make_bc_ic_pts
         x_bc, u_bc, _, _ = _make_bc_ic_pts(self._p, n, 0, seed)
         return x_bc.numpy(), u_bc.numpy()
 
-    def sample_ic(self, n: int, seed: int) -> Tuple[np.ndarray, np.ndarray]:
+    def sample_ic(self, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
         if not self._p.has_time:
             return np.empty((0, self.in_dim)), np.empty((0, self.out_dim))
         from pinneapple_tools.benchmark_suite.physics_pipeline import _make_bc_ic_pts
@@ -351,7 +352,7 @@ class _BuiltinProblemTask(BenchmarkTaskBase):
         res = _physics_residual(self._p, model, X)
         return (res ** 2).mean()
 
-    def eval_grid(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
+    def eval_grid(self, n: int) -> tuple[np.ndarray, np.ndarray]:
         from pinneapple_tools.benchmark_suite.physics_pipeline import (
             _load_reference, _make_eval_grid,
         )
@@ -389,7 +390,7 @@ class _PresetProblemTask(BenchmarkTaskBase):
                 self._spec, weights=LossWeights(w_pde=1.0, w_bc=10.0))
         return self._loss_fn
 
-    def _sample_batch(self, n_col: int, n_bc: int, seed: int) -> Dict[str, Any]:
+    def _sample_batch(self, n_col: int, n_bc: int, seed: int) -> dict[str, Any]:
         try:
             from pinneapple_data.collocation import CollocationSampler
             sampler = CollocationSampler.from_problem_spec(
@@ -420,11 +421,11 @@ class _PresetProblemTask(BenchmarkTaskBase):
     def sample_collocation(self, n: int, seed: int) -> np.ndarray:
         return self._sample_batch(n, 0, seed)["x_col"].numpy()
 
-    def sample_boundary(self, n: int, seed: int) -> Tuple[np.ndarray, np.ndarray]:
+    def sample_boundary(self, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
         b = self._sample_batch(0, n, seed)
         return b["x_bc"].numpy(), b["y_bc"].numpy()
 
-    def sample_ic(self, n: int, seed: int) -> Tuple[np.ndarray, np.ndarray]:
+    def sample_ic(self, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
         if not self._has_time:
             return np.empty((0, self.in_dim)), np.empty((0, self.out_dim))
         try:
@@ -453,7 +454,7 @@ class _PresetProblemTask(BenchmarkTaskBase):
         except Exception:
             return torch.tensor(float("nan"))
 
-    def eval_grid(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
+    def eval_grid(self, n: int) -> tuple[np.ndarray, np.ndarray]:
         # Try pinneapple_data reference first
         try:
             from pinneapple_tools.benchmark_suite.physics_pipeline import _load_reference, _make_eval_grid
@@ -482,7 +483,7 @@ class _PresetProblemTask(BenchmarkTaskBase):
 
 def _make_registry_factory(
     model_name: str, description: str, input_kind: str = "pointwise_coords", family: str = "",
-) -> "ModelSpec":
+) -> ModelSpec:
     """Create a benchmark ModelSpec for a model in ModelRegistry."""
     def factory(in_dim: int, out_dim: int, _n: str = model_name) -> nn.Module:
         from pinneapple_neural.architectures import ModelRegistry
@@ -514,7 +515,7 @@ def _make_registry_factory(
                       input_kind=input_kind, family=family)
 
 
-def _make_pinn_factory(model_name: str, pinn_cls: Any) -> "ModelSpec":
+def _make_pinn_factory(model_name: str, pinn_cls: Any) -> ModelSpec:
     """Create a benchmark ModelSpec for a model in PINNCatalog."""
     def factory(in_dim: int, out_dim: int, _cls: Any = pinn_cls) -> nn.Module:
         for kwargs in [
@@ -530,7 +531,7 @@ def _make_pinn_factory(model_name: str, pinn_cls: Any) -> "ModelSpec":
                      description=f"PINNCatalog: {model_name}")
 
 
-def all_model_specs() -> List[ModelSpec]:
+def all_model_specs() -> list[ModelSpec]:
     """Return a ModelSpec for every model in ``pinneapple_models``, tagged with
     its real ``input_kind`` (pointwise_coords / sequence / graph / grid* /
     dynamics / operator_branch_trunk / autoencoder — see
@@ -556,7 +557,7 @@ def all_model_specs() -> List[ModelSpec]:
         return list(DEFAULT_MODELS)
 
     seen_cls: set = set()
-    specs: List[ModelSpec] = []
+    specs: list[ModelSpec] = []
 
     for name in ModelRegistry.list():
         try:
@@ -572,9 +573,9 @@ def all_model_specs() -> List[ModelSpec]:
 
 
 def _filter_model_specs(
-    all_specs: List["ModelSpec"],
-    names: Optional[List[str]],
-) -> List["ModelSpec"]:
+    all_specs: list[ModelSpec],
+    names: list[str] | None,
+) -> list[ModelSpec]:
     if names is None:
         return all_specs
     by_name = {s.name: s for s in all_specs}
@@ -591,9 +592,9 @@ def _filter_model_specs(
 
 
 def _filter_tasks(
-    all_tasks: Dict[str, "BenchmarkTaskBase"],
-    names: Optional[List[str]],
-) -> List["BenchmarkTaskBase"]:
+    all_tasks: dict[str, BenchmarkTaskBase],
+    names: list[str] | None,
+) -> list[BenchmarkTaskBase]:
     if names is None:
         return list(all_tasks.values())
     result = []
@@ -627,7 +628,7 @@ def _train_benchmark(
     cfg: BenchmarkConfig,
     device: torch.device,
     verbose: bool = False,
-) -> Tuple[List[Dict[str, float]], float]:
+) -> tuple[list[dict[str, float]], float]:
     torch.manual_seed(cfg.seed)
     np.random.seed(cfg.seed)
 
@@ -649,7 +650,7 @@ def _train_benchmark(
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr)
     scheduler = CosineAnnealingLR(optimizer, T_max=cfg.epochs, eta_min=cfg.lr * 1e-2)
 
-    history: List[Dict[str, float]] = []
+    history: list[dict[str, float]] = []
     convergence_epoch = -1
     t0 = time.time()
 
@@ -720,11 +721,11 @@ class NotApplicableError(Exception):
 def _train_benchmark_batch(
     task: BenchmarkTaskBase,
     model: nn.Module,
-    spec: "ModelSpec",
+    spec: ModelSpec,
     cfg: BenchmarkConfig,
     device: torch.device,
     verbose: bool = False,
-) -> Tuple[List[Dict[str, float]], float]:
+) -> tuple[list[dict[str, float]], float]:
     """Training loop for non-pointwise architectures (sequence / graph / grid*
     / dynamics / operator_branch_trunk / autoencoder): builds one batch via
     ``task.build_batch(spec.input_kind, ...)`` and trains with plain
@@ -749,7 +750,7 @@ def _train_benchmark_batch(
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg.lr)
     scheduler = CosineAnnealingLR(optimizer, T_max=cfg.epochs, eta_min=cfg.lr * 1e-2)
 
-    history: List[Dict[str, float]] = []
+    history: list[dict[str, float]] = []
     convergence_epoch = -1
     t0 = time.time()
 
@@ -779,7 +780,7 @@ def _train_benchmark_batch(
     return history, convergence_epoch
 
 
-def _inference_us_per_point(task, model: nn.Module, device: torch.device, spec: "ModelSpec", n: int = 4096) -> float:
+def _inference_us_per_point(task, model: nn.Module, device: torch.device, spec: ModelSpec, n: int = 4096) -> float:
     """Inference cost: best-of-3 wall time of one forward pass, in microseconds per evaluated point (protocol D4).
     Pointwise models get ``n`` random inputs; other kinds go through their adapter on the task's eval batch."""
     import time as _time
@@ -816,8 +817,8 @@ def _inference_us_per_point(task, model: nn.Module, device: torch.device, spec: 
 
 
 def _evaluate_batch(
-    task: BenchmarkTaskBase, model: nn.Module, device: torch.device, spec: "ModelSpec"
-) -> Dict[str, float]:
+    task: BenchmarkTaskBase, model: nn.Module, device: torch.device, spec: ModelSpec
+) -> dict[str, float]:
     """Evaluation counterpart to ``_train_benchmark_batch`` — mirrors
     ``BenchmarkTaskBase.evaluate()``'s metrics but through the adapter/batch
     convention instead of a bare ``model(X_t)`` call."""
@@ -883,21 +884,21 @@ class PINNArenaBenchmark:
 
     def __init__(
         self,
-        tasks: List[BenchmarkTaskBase],
-        model_specs: Optional[List[ModelSpec]] = None,
-        config: Optional[BenchmarkConfig] = None,
+        tasks: list[BenchmarkTaskBase],
+        model_specs: list[ModelSpec] | None = None,
+        config: BenchmarkConfig | None = None,
     ) -> None:
         self.tasks = tasks
         self.model_specs = model_specs or DEFAULT_MODELS
         self.config = config or BenchmarkConfig()
-        self.results: List[BenchmarkResult] = []
+        self.results: list[BenchmarkResult] = []
 
     # ── Running ───────────────────────────────────────────────────────────────
 
-    def run(self, verbose: bool = True) -> List[BenchmarkResult]:
+    def run(self, verbose: bool = True) -> list[BenchmarkResult]:
         """Run all model × problem combinations and store results."""
         device = _resolve_device(self.config.device)
-        all_results: List[BenchmarkResult] = []
+        all_results: list[BenchmarkResult] = []
 
         n_tasks = len(self.tasks)
         n_models = len(self.model_specs)
@@ -1000,7 +1001,7 @@ class PINNArenaBenchmark:
 
     def _assign_ranks(self) -> None:
         """Assign per-problem rank by rel_l2 (lower = better)."""
-        by_problem: Dict[str, List[BenchmarkResult]] = {}
+        by_problem: dict[str, list[BenchmarkResult]] = {}
         for r in self.results:
             by_problem.setdefault(r.problem_id, []).append(r)
 
@@ -1020,8 +1021,8 @@ class PINNArenaBenchmark:
             return "(no results)"
 
         if by_problem:
-            lines: List[str] = []
-            by_prob: Dict[str, List[BenchmarkResult]] = {}
+            lines: list[str] = []
+            by_prob: dict[str, list[BenchmarkResult]] = {}
             for r in self.results:
                 by_prob.setdefault(r.problem_id, []).append(r)
 
@@ -1049,8 +1050,8 @@ class PINNArenaBenchmark:
         # on a single problem swamp an otherwise-good model; average rank
         # (already computed per-problem by _assign_ranks) is scale-free.
         all_models = {r.model_id for r in self.results}
-        avg_rank_by_model: Dict[str, float] = {}
-        avg_metric_by_model: Dict[str, float] = {}
+        avg_rank_by_model: dict[str, float] = {}
+        avg_metric_by_model: dict[str, float] = {}
         for mid in all_models:
             ranks = [r.rank for r in self.results if r.model_id == mid]
             avg_rank_by_model[mid] = float(np.mean(ranks)) if ranks else float("nan")
@@ -1076,12 +1077,12 @@ class PINNArenaBenchmark:
                          f"{_mean(mid, 'n_reference_sims'):>8.0f}")
         return "\n".join(lines)
 
-    def best_per_problem(self, metric: str = "rel_l2") -> Dict[str, str]:
+    def best_per_problem(self, metric: str = "rel_l2") -> dict[str, str]:
         """Return {problem_id: best_model_id} by given metric."""
-        by_prob: Dict[str, List[BenchmarkResult]] = {}
+        by_prob: dict[str, list[BenchmarkResult]] = {}
         for r in self.results:
             by_prob.setdefault(r.problem_id, []).append(r)
-        best: Dict[str, str] = {}
+        best: dict[str, str] = {}
         for pid, runs in by_prob.items():
             valid = [r for r in runs if not math.isnan(r.metrics.get(metric, float("nan")))]
             if valid:
@@ -1096,7 +1097,7 @@ class PINNArenaBenchmark:
         problems = list(dict.fromkeys(r.problem_id for r in self.results))
         models = list(dict.fromkeys(r.model_id for r in self.results))
 
-        idx: Dict[Tuple[str, str], float] = {
+        idx: dict[tuple[str, str], float] = {
             (r.problem_id, r.model_id): r.metrics.get("rel_l2", float("nan"))
             for r in self.results
         }
@@ -1115,7 +1116,7 @@ class PINNArenaBenchmark:
             lines.append(row)
         return "\n".join(lines)
 
-    def plot_leaderboard(self, save_path: Optional[str] = None) -> None:
+    def plot_leaderboard(self, save_path: str | None = None) -> None:
         """Bar chart of average per-problem rank per model.
 
         Uses average rank rather than average rel_l2: rel_l2 scales wildly
@@ -1153,7 +1154,7 @@ class PINNArenaBenchmark:
             plt.show()
         plt.close(fig)
 
-    def plot_convergence(self, problem_id: Optional[str] = None, save_path: Optional[str] = None) -> None:
+    def plot_convergence(self, problem_id: str | None = None, save_path: str | None = None) -> None:
         """Loss convergence curves for all models on one problem."""
         try:
             import matplotlib.pyplot as plt
@@ -1197,7 +1198,7 @@ class PINNArenaBenchmark:
         print(f"[benchmark] Results saved: {p}  ({len(data)} entries)")
 
     @classmethod
-    def load_results(cls, path: str) -> List[Dict[str, Any]]:
+    def load_results(cls, path: str) -> list[dict[str, Any]]:
         return json.loads(Path(path).read_text(encoding="utf-8"))
 
     # ── Default ───────────────────────────────────────────────────────────────
@@ -1205,11 +1206,11 @@ class PINNArenaBenchmark:
     @classmethod
     def default(
         cls,
-        problems: Optional[List[str]] = None,
-        models: Optional[List[str]] = None,
+        problems: list[str] | None = None,
+        models: list[str] | None = None,
         epochs: int = 5000,
         device: str = "auto",
-    ) -> "PINNArenaBenchmark":
+    ) -> PINNArenaBenchmark:
         """Create benchmark from ALL available problems and models.
 
         Problems are loaded from ``pinneapple_environment`` presets + built-in
@@ -1224,7 +1225,7 @@ class PINNArenaBenchmark:
         device   : "auto" | "cpu" | "cuda".
         """
         # ── Problems ──────────────────────────────────────────────────────────
-        all_tasks: Dict[str, BenchmarkTaskBase] = {}
+        all_tasks: dict[str, BenchmarkTaskBase] = {}
 
         # 1. Six original tasks (guaranteed working, own eval grids)
         try:
@@ -1284,9 +1285,9 @@ class PINNArenaBenchmark:
         return cls(tasks=selected_tasks, model_specs=selected_specs, config=cfg)
 
     @classmethod
-    def list_problems(cls) -> List[str]:
+    def list_problems(cls) -> list[str]:
         """Return names of all problems that ``default()`` would load."""
-        names: List[str] = []
+        names: list[str] = []
         for src in ("burgers_1d", "poisson_2d", "heat_1d", "wave_1d",
                     "allen_cahn_1d", "ns_tgv_2d"):
             names.append(src)
@@ -1303,6 +1304,6 @@ class PINNArenaBenchmark:
         return names
 
     @classmethod
-    def list_models(cls) -> List[str]:
+    def list_models(cls) -> list[str]:
         """Return names of all models that ``default()`` would load."""
         return [s.name for s in all_model_specs()]

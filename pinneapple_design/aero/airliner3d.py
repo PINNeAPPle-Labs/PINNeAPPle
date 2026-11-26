@@ -15,7 +15,7 @@ from __future__ import annotations
 import dataclasses
 import math
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
@@ -208,7 +208,7 @@ class AirlinerModel:
         mcrit = mdd - (0.1 / 80) ** (1 / 3)
         return np.where(M > mcrit, 20 * (M - mcrit) ** 4, 0.0), mdd
 
-    def cruise(self, W: float, M: Optional[float] = None) -> Dict[str, Any]:
+    def cruise(self, W: float, M: float | None = None) -> dict[str, Any]:
         M = M or self.mach
         V = M * self.a
         q = 0.5 * self.rho * V * V
@@ -256,7 +256,7 @@ class AirlinerModel:
         return (cdf + cdn + cdv) / af.wing_area + MISC_CD0
 
     # ------------------------------------------------------------------ low speed
-    def stall(self) -> Dict[str, Any]:
+    def stall(self) -> dict[str, Any]:
         sol = self.sol_lo
         A = np.array([[sol.CL[1], sol.CL[2]], [sol.Cm[1] + self.dcma_fus, sol.Cm[2]]])
         Ai = np.linalg.inv(A)
@@ -287,7 +287,7 @@ class AirlinerModel:
         return float(2 * 0.85 * np.trapezoid(box_area * c ** 2, y))
 
     # ------------------------------------------------------------------ the aircraft numbers
-    def evaluate(self) -> Dict[str, Any]:
+    def evaluate(self) -> dict[str, Any]:
         af, mi, req = self.af, self.mi, self.req
         cr = self.cr
         st = self.stall()

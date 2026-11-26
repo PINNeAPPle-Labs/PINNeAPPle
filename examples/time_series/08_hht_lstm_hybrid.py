@@ -50,7 +50,6 @@ from __future__ import annotations
 import math
 import sys
 from pathlib import Path
-from typing import Tuple
 
 # Force UTF-8 output on Windows terminals
 if hasattr(sys.stdout, "reconfigure"):
@@ -368,7 +367,7 @@ def rolling_evaluate_model(
     device: str,
     mode: str = "raw",
     hht_pipeline_: HHTLSTMPipeline | None = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     model.eval()
     T_total = len(series)
     first_window = max(0, test_start - input_len)
@@ -411,7 +410,7 @@ def rolling_evaluate_naive(
     horizon: int,
     test_start: int,
     kind: str = "naive",
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     T_total = len(series)
     first_w = max(0, test_start - input_len)
     last_w  = T_total - input_len - horizon
@@ -445,7 +444,7 @@ def rolling_evaluate_hht_only(
     input_len: int,
     horizon: int,
     test_start: int,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     T_total = len(series)
     first_w = max(0, test_start - input_len)
     last_w  = T_total - input_len - horizon

@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Efficient encoder-only baseline (Informer-like distill) for long TS."""
 
-from typing import Dict, Optional
 
 import math
 import torch
@@ -95,8 +94,8 @@ class Informer(TimeSeriesModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        x_future: Optional[torch.Tensor] = None,
-        y_future: Optional[torch.Tensor] = None,
+        x_future: torch.Tensor | None = None,
+        y_future: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> TSOutput:
         B, L, _ = x_past.shape
@@ -124,7 +123,7 @@ class Informer(TimeSeriesModelBase):
 
         y_hat = self.head(torch.cat([ctx, fut], dim=-1))  # (B, H, out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
         if return_loss and y_future is not None:
             losses["mse"] = self.mse(y_hat, y_future)
             losses["total"] = losses["mse"]

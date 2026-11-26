@@ -21,7 +21,7 @@ new architecture family.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn.functional as F
@@ -46,8 +46,8 @@ class ComponentModel(BaseModel):
         self,
         *,
         architecture: str,
-        architecture_kwargs: Optional[Dict[str, Any]] = None,
-        physics: Optional[Physics] = None,
+        architecture_kwargs: dict[str, Any] | None = None,
+        physics: Physics | None = None,
     ):
         super().__init__()
         from pinneapple_neural.architectures.registry import ModelRegistry
@@ -60,7 +60,7 @@ class ComponentModel(BaseModel):
     def forward(self, *args: Any, **kwargs: Any):
         return self.backbone(*args, **kwargs)
 
-    def forward_batch(self, batch: Dict[str, Any]):
+    def forward_batch(self, batch: dict[str, Any]):
         return self.backbone.forward_batch(batch)
 
     # ------------------------------------------------------------------
@@ -70,11 +70,11 @@ class ComponentModel(BaseModel):
     def _loss_fn(self, data_weight: float, physics_weight: float):
         physics = self.physics
 
-        def loss_fn(model: Any, y_hat: torch.Tensor, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+        def loss_fn(model: Any, y_hat: torch.Tensor, batch: dict[str, Any]) -> dict[str, torch.Tensor]:
             y_hat_t = _unwrap(y_hat)
             ref = y_hat_t if torch.is_tensor(y_hat_t) else next(model.parameters())
             total = ref.new_zeros(())
-            parts: Dict[str, torch.Tensor] = {}
+            parts: dict[str, torch.Tensor] = {}
 
             y = batch.get("y")
             if y is not None:
@@ -83,7 +83,7 @@ class ComponentModel(BaseModel):
                 total = total + data_weight * data_loss
 
             if physics is not None:
-                phys_loss: Optional[torch.Tensor] = None
+                phys_loss: torch.Tensor | None = None
                 try:
                     phys_out = physics(model, y_hat_t, batch)
                     phys_loss = phys_out["total"] if isinstance(phys_out, dict) else phys_out
@@ -111,10 +111,10 @@ class ComponentModel(BaseModel):
         lr: float = 1e-3,
         data_weight: float = 1.0,
         physics_weight: float = 1.0,
-        device: Optional[str] = None,
+        device: str | None = None,
         run_name: str = "component_fit",
         **trainer_kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Single-call training, delegating to the shared ``Trainer``.
         Returns ``Trainer.fit``'s result dict (``best_val``, ``best_path``,
         ``history``, ...)."""
@@ -128,7 +128,7 @@ class ComponentModel(BaseModel):
         trainer = Trainer(self, self._loss_fn(data_weight, physics_weight))
         return trainer.fit(train_loader, val_loader if val_loader is not None else train_loader, cfg)
 
-    def evaluate(self, coords: torch.Tensor, targets: torch.Tensor) -> Dict[str, float]:
+    def evaluate(self, coords: torch.Tensor, targets: torch.Tensor) -> dict[str, float]:
         """RMSE / MAPE / R² against ``targets``."""
         self.eval()
         with torch.no_grad():
@@ -152,14 +152,14 @@ class ComponentModel(BaseModel):
     # ComponentRegistry.build().
     # ------------------------------------------------------------------
 
-    def save_checkpoint(self, path: str, metadata: Optional[Dict[str, Any]] = None) -> str:
+    def save_checkpoint(self, path: str, metadata: dict[str, Any] | None = None) -> str:
         meta = dict(metadata or {})
         meta.setdefault("component_name", getattr(self, "_component_name", None))
         meta.setdefault("init_kwargs", getattr(self, "_init_kwargs", {}))
         return super().save_checkpoint(path, metadata=meta)
 
     @classmethod
-    def load_checkpoint(cls, path: str, **init_kwargs: Any) -> "ComponentModel":
+    def load_checkpoint(cls, path: str, **init_kwargs: Any) -> ComponentModel:
         ckpt = torch.load(path, map_location="cpu", weights_only=False)
         meta = ckpt.get("metadata", {}) or {}
         component_name = meta.get("component_name")

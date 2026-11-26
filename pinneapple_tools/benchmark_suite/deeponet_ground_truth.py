@@ -100,7 +100,7 @@ def solve_diffusion_reaction(
     k: float = 0.01,
     x_max: float = 1.0,
     t_max: float = 1.0,
-) -> "tuple[np.ndarray, np.ndarray, np.ndarray]":
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Crank-Nicolson for the diffusion term + one Picard correction per step
     for the k*s^2 reaction term, tridiagonal (Thomas algorithm) solves.
     Returns (x_grid, t_grid, s) with s.shape == (nt, nx).

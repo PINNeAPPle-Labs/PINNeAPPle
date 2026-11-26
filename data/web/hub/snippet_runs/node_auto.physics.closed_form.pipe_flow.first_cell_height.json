@@ -1,0 +1,12 @@
+{
+ "code_hash": "c4f0da4d9a3088cb",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pipe_flow.first_cell_height",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n0.35355339059327373",
+ "timed_out": false
+}

@@ -75,3 +75,57 @@ def test_an_import_from_inside_the_library_does_not_warn():
     assert "ExperimentalWarning" not in r.stderr, r.stderr
     direct = _run("import pinneapple_reason")
     assert direct.stderr.count("ExperimentalWarning") == 1, direct.stderr
+
+
+def test_the_experimental_decorator_marks_a_symbol_and_warns_once():
+    """The per-symbol tier (#226): a function in a core module that is not ready for the promise. It warns once per
+    symbol and process, on the first call, and carries the tier so a caller does not have to infer it from the
+    module name."""
+    import warnings
+
+    from pinneapple_stability import ExperimentalWarning, experimental
+
+    @experimental("the signature may change while the adapters settle")
+    def fresh_api(x):
+        return x * 2
+
+    assert fresh_api.__stability__ == "experimental"
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        assert fresh_api(2) == 4 and fresh_api(3) == 6
+    assert len([w for w in caught if issubclass(w.category, ExperimentalWarning)]) == 1
+    assert "fresh_api is experimental" in str(caught[0].message)
+    assert "the signature may change" in str(caught[0].message)
+
+
+def test_the_experimental_decorator_works_on_a_class_and_keeps_its_behaviour():
+    import warnings
+
+    from pinneapple_stability import ExperimentalWarning, experimental
+
+    @experimental()
+    class Fresh:
+        def __init__(self, value):
+            self.value = value
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        first, second = Fresh(1), Fresh(2)
+    assert (first.value, second.value) == (1, 2)
+    assert Fresh.__stability__ == "experimental"
+    assert len([w for w in caught if issubclass(w.category, ExperimentalWarning)]) == 1
+
+
+def test_an_undecorated_function_does_not_warn():
+    import warnings
+
+    from pinneapple_stability import ExperimentalWarning
+
+    def plain(x):
+        return x
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        plain(1)
+    assert not [w for w in caught if issubclass(w.category, ExperimentalWarning)]
+    assert not hasattr(plain, "__stability__")

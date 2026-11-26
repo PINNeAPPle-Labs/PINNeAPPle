@@ -95,13 +95,12 @@ precomputed/fabricated result.
 from __future__ import annotations
 
 import json
-import math
 import os
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -243,11 +242,11 @@ class LBMConfig:
     rotation_axis: str = "y"      # spanwise axis; pitch rotates the x-z plane
 
 
-AOA_SWEEP_DEG: List[float] = [0.0, 5.0, 10.0, 15.0, 20.0]
+AOA_SWEEP_DEG: list[float] = [0.0, 5.0, 10.0, 15.0, 20.0]
 PRIMARY_AOA_DEG: float = 10.0  # matches the FluidX3D Concorde case study
 
 
-def domain_bounds(cfg: DeltaWingGeometry) -> Dict[str, Tuple[float, float]]:
+def domain_bounds(cfg: DeltaWingGeometry) -> dict[str, tuple[float, float]]:
     """LBM domain box, sized off the geometry's own scale (root_chord) with
     margins for the wake, spanwise clearance, and AoA rotation clearance."""
     c = cfg.root_chord
@@ -341,7 +340,7 @@ def build_delta_wing_fuselage(cfg: DeltaWingGeometry) -> AircraftGeometry:
 
 def _rotate_mesh_for_aoa(
     mesh: trimesh.Trimesh, aoa_deg: float, rotation_axis: str
-) -> Tuple[trimesh.Trimesh, np.ndarray]:
+) -> tuple[trimesh.Trimesh, np.ndarray]:
     """Reproduce, via `mesh_to_obstacle_mask`'s own `_aoa_rotation_matrix`
     helper, the exact AoA rotation it applies internally before voxelizing --
     so the surface mesh used for pressure integration sits in the identical
@@ -375,7 +374,7 @@ class AoARun:
     ux: np.ndarray
     uy: np.ndarray
     uz: np.ndarray
-    trajectory_speed: List[float]  # mean |u| at each save_every checkpoint
+    trajectory_speed: list[float]  # mean |u| at each save_every checkpoint
     elapsed_s: float
     n_solid_voxels: int
     rotated_mesh: trimesh.Trimesh
@@ -384,7 +383,7 @@ class AoARun:
 
 def run_lbm_at_aoa(
     geom: AircraftGeometry,
-    bounds: Dict[str, Tuple[float, float]],
+    bounds: dict[str, tuple[float, float]],
     lbm_cfg: LBMConfig,
     aoa_deg: float,
     Cs: float,
@@ -461,7 +460,7 @@ class VortexDiagnostics:
 
 
 def analyze_vortex_field(
-    run: AoARun, bounds: Dict[str, Tuple[float, float]], lbm_cfg: LBMConfig
+    run: AoARun, bounds: dict[str, tuple[float, float]], lbm_cfg: LBMConfig
 ) -> VortexDiagnostics:
     """All vortex/turbulence math delegates to pinneapple_tools.visualization.vortex."""
     res = lbm_cfg.resolution
@@ -505,7 +504,7 @@ class AeroResult:
 
 def compute_aero_coefficients(
     run: AoARun,
-    bounds: Dict[str, Tuple[float, float]],
+    bounds: dict[str, tuple[float, float]],
     lbm_cfg: LBMConfig,
     geom: AircraftGeometry,
 ) -> AeroResult:
@@ -640,7 +639,7 @@ def plot_flow_field(run: AoARun, out_path: Path):
 
 
 def plot_vortex_field(
-    run: AoARun, diag: VortexDiagnostics, bounds: Dict[str, Tuple[float, float]],
+    run: AoARun, diag: VortexDiagnostics, bounds: dict[str, tuple[float, float]],
     lbm_cfg: LBMConfig, out_path: Path,
 ):
     """3-D Q-criterion iso-surface via pinneapple_tools.visualization.vortex
@@ -699,7 +698,7 @@ def plot_vortex_field(
         print(f"  saved -> {out_path}")
 
 
-def plot_polar(sweep_results: List[Dict[str, Any]], out_path: Path):
+def plot_polar(sweep_results: list[dict[str, Any]], out_path: Path):
     fig, axes = _dark_fig(1, 3, figsize=(15, 4.5))
     alphas = [r["aoa_deg"] for r in sweep_results]
     CL = [r["CL"] for r in sweep_results]
@@ -722,7 +721,7 @@ def plot_polar(sweep_results: List[Dict[str, Any]], out_path: Path):
     print(f"  saved -> {out_path}")
 
 
-def plot_validation(sweep_results: List[Dict[str, Any]], out_path: Path):
+def plot_validation(sweep_results: list[dict[str, Any]], out_path: Path):
     """CL(alpha) simulated vs. the pinneapple_pdb Polhamus THEORETICAL
     cross-check -- explicitly not real Concorde flight/wind-tunnel data."""
     bench = get_benchmark("concorde_high_aoa")
@@ -805,7 +804,7 @@ def main():
 
     print(f"\n[4/8] Running D3Q19 LBM solve (LBMSolver3D) across AoA sweep {AOA_SWEEP_DEG} deg "
           f"(resolution={lbm_cfg.resolution}^3, steps={lbm_cfg.steps}) ...")
-    runs: Dict[float, AoARun] = {}
+    runs: dict[float, AoARun] = {}
     for aoa in AOA_SWEEP_DEG:
         run = run_lbm_at_aoa(geom, bounds, lbm_cfg, aoa, Cs, device)
         runs[aoa] = run
@@ -824,7 +823,7 @@ def main():
     # ── Step 5: vortex diagnostics ─────────────────────────────────────────
     print("\n[5/8] Computing Q-criterion / vorticity / enstrophy / dissipation "
           "(pinneapple_tools.visualization.vortex) ...")
-    diagnostics: Dict[float, VortexDiagnostics] = {}
+    diagnostics: dict[float, VortexDiagnostics] = {}
     for aoa in AOA_SWEEP_DEG:
         diag = analyze_vortex_field(runs[aoa], bounds, lbm_cfg)
         diagnostics[aoa] = diag
@@ -840,7 +839,7 @@ def main():
     # ── Step 6: surface pressure -> CL/CD/CM ────────────────────────────────
     print("\n[6/8] Extracting surface pressure and integrating aerodynamic coefficients "
           "(pinneapple_tools.aero_coefficients) ...")
-    sweep_results: List[Dict[str, Any]] = []
+    sweep_results: list[dict[str, Any]] = []
     for aoa in AOA_SWEEP_DEG:
         aero = compute_aero_coefficients(runs[aoa], bounds, lbm_cfg, geom)
         diag = diagnostics[aoa]

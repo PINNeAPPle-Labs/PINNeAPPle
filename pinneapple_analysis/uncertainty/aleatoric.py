@@ -28,7 +28,6 @@ Quick start::
 """
 from __future__ import annotations
 
-from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -117,7 +116,7 @@ class AleatoricHead(nn.Module):
             nn.Linear(hidden, out_dim),
         )
 
-    def forward(self, x: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward(self, x: Tensor) -> tuple[Tensor, Tensor]:
         """Return ``(mean, log_var)`` tensors, both shape ``(N, out_dim)``."""
         raw = self.base(x)
         if hasattr(raw, "y"):
@@ -136,7 +135,7 @@ class AleatoricHead(nn.Module):
         self,
         x: Tensor,
         *,
-        device: Optional[torch.device] = None,
+        device: torch.device | None = None,
     ) -> UQResult:
         """Run a deterministic forward pass and return a :class:`UQResult`.
 

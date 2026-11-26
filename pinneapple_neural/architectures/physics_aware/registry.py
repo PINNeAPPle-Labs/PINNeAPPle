@@ -2,14 +2,13 @@ from __future__ import annotations
 """Registry and catalog for physics-aware model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import PhysicsAwareBase
 from .pann import PhysicsAwareNeuralNetwork
 from .spn import StructurePreservingNetwork
 
 
-_REGISTRY: Dict[str, Type[PhysicsAwareBase]] = {
+_REGISTRY: dict[str, type[PhysicsAwareBase]] = {
     "physics_aware_neural_network": PhysicsAwareNeuralNetwork,
     "pann": PhysicsAwareNeuralNetwork,
 
@@ -28,7 +27,7 @@ def register_into_global() -> None:
 
 @dataclass
 class PhysicsAwareCatalog:
-    registry: Dict[str, Type[PhysicsAwareBase]] = None
+    registry: dict[str, type[PhysicsAwareBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -36,7 +35,7 @@ class PhysicsAwareCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[PhysicsAwareBase]:
+    def get(self, name: str) -> type[PhysicsAwareBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown physics_aware model '{name}'. Available: {self.list()}")

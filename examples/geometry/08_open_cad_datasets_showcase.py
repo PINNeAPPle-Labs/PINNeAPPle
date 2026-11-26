@@ -70,11 +70,9 @@ python examples/geometry/08_open_cad_datasets_showcase.py
 """
 from __future__ import annotations
 
-import sys
 import urllib.request
 import urllib.error
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
@@ -127,7 +125,7 @@ def _report_mesh(label: str, verts: np.ndarray, faces: np.ndarray) -> None:
     print(f"  [{label}] bbox min={bbox_min.tolist()} max={bbox_max.tolist()} extent={extent.tolist()}")
 
 
-def demo_thingi10k() -> Optional[tuple[np.ndarray, np.ndarray]]:
+def demo_thingi10k() -> tuple[np.ndarray, np.ndarray] | None:
     print("\n=== Thingi10K (STL, via Hugging Face raw_meshes mirror) ===")
     result = None
     for file_id, url in THINGI10K_FILES:

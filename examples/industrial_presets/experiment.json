@@ -25,6 +25,18 @@
    "kind": "sanity"
   },
   {
+   "name": "bolted_joint_preload: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
    "name": "eddy_current_skin_inspection: validation",
    "passed": true,
    "value": null,
@@ -181,13 +193,14 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "b5a379e1",
-  "created": "2026-10-24T17:03:59Z",
-  "seconds": 0.007,
+  "git": "76d1c864f",
+  "created": "2026-11-25T21:59:14Z",
+  "seconds": 0.125,
   "error": null,
   "environment": {
-   "python": "3.13.17",
-   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
   }
- }
+ },
+ "quality": {}
 }

@@ -1,0 +1,201 @@
+{
+  "schema": "pinneapple.support_matrix/1",
+  "python": {
+    "min": "3.10",
+    "max": "3.13"
+  },
+  "torch": {
+    "floor": "2.2",
+    "lines": {
+      "current": "2.15",
+      "previous": "2.14"
+    }
+  },
+  "os": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "smoke": [
+    {
+      "id": "imports",
+      "what": "import numpy, scipy and torch, and read the versions"
+    },
+    {
+      "id": "facade",
+      "what": "import pinneapple as pp; pp.info() runs and pp.__version__ parses"
+    },
+    {
+      "id": "preset",
+      "what": "pp.get_preset('poisson_2d') builds a problem spec with a PDE, conditions and fields"
+    },
+    {
+      "id": "stability",
+      "what": "pinneapple_stability.stability() classifies a core module as core"
+    },
+    {
+      "id": "autograd",
+      "what": "a PINN forward, a gradient in the inputs and one Adam step through torch autograd"
+    }
+  ],
+  "cells": [
+    {
+      "python": "3.10",
+      "torch": "current",
+      "os": "linux",
+      "note": "the image has no numcodecs wheel: the install stops before the smoke"
+    },
+    {
+      "python": "3.11",
+      "torch": "current",
+      "os": "linux"
+    },
+    {
+      "python": "3.12",
+      "torch": "current",
+      "os": "linux"
+    },
+    {
+      "python": "3.13",
+      "torch": "current",
+      "os": "linux"
+    },
+    {
+      "python": "3.11",
+      "torch": "current",
+      "os": "macos"
+    },
+    {
+      "python": "3.11",
+      "torch": "previous",
+      "os": "macos"
+    },
+    {
+      "python": "3.11",
+      "torch": "current",
+      "os": "windows",
+      "note": "no Windows machine or runner here"
+    }
+  ],
+  "runs": [
+    {
+      "at": "2026-11-24",
+      "python": "3.11.18",
+      "torch": "2.15.0+cpu",
+      "os": "linux",
+      "arch": "aarch64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 5.6,
+      "note": "Debian slim container on the same Mac (Docker linux engine), torch CPU wheel from download.pytorch.org: the first Linux cell"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.12.16",
+      "torch": "2.15.0+cpu",
+      "os": "linux",
+      "arch": "aarch64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 10.1,
+      "note": "Debian slim container on the same Mac (Docker linux engine), torch CPU wheel from download.pytorch.org: the Linux cell for python 3.12"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.13.18",
+      "torch": "2.15.0+cpu",
+      "os": "linux",
+      "arch": "aarch64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 7.9,
+      "note": "Debian slim container on the same Mac (Docker linux engine), torch CPU wheel from download.pytorch.org: the Linux cell for python 3.13"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.11.16",
+      "torch": "2.14.1",
+      "os": "macos",
+      "arch": "arm64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 8.8,
+      "note": "a venv with torch 2.14.1 on the same machine and interpreter as the run before it: the previous line"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.11.16",
+      "torch": "2.15.0",
+      "os": "macos",
+      "arch": "arm64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 6.6,
+      "note": "macOS arm64, Homebrew Python, torch from PyPI: the middle cell, both a supported Python and the current torch line"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.14.6",
+      "torch": "2.13.0",
+      "os": "macos",
+      "arch": "arm64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 8.7,
+      "note": "outside the declared range (3.14 > 3.13): the library runs, and the matrix promises nothing about it"
+    },
+    {
+      "at": "2026-11-24",
+      "python": "3.15.0",
+      "torch": "2.15.0",
+      "os": "macos",
+      "arch": "arm64",
+      "smoke": [
+        "imports",
+        "facade",
+        "preset",
+        "stability",
+        "autograd"
+      ],
+      "failed": [],
+      "seconds": 10.7,
+      "note": "outside the declared range (3.15 > 3.13) with the current torch: the library runs, and the matrix promises nothing about it"
+    }
+  ]
+}

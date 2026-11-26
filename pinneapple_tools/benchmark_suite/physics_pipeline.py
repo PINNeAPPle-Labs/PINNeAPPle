@@ -39,9 +39,10 @@ from __future__ import annotations
 
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any
+from collections.abc import Callable, Sequence
 
 import numpy as np
 import torch
@@ -80,7 +81,7 @@ def _l2_rel(pred: np.ndarray, true: np.ndarray) -> float:
 # -----------------------------------------------------------------------------
 
 def _compute_metrics(pred: np.ndarray, true: np.ndarray,
-                     requested: List[str]) -> Dict[str, float]:
+                     requested: list[str]) -> dict[str, float]:
     """Compute requested metrics using MetricBundle from pinneapple_train.metrics."""
     from pinneapple_neural.trainer.metrics import (
         MSE, MAE, RMSE, R2, RelL2, MaxError, MetricBundle,
@@ -111,8 +112,8 @@ def _compute_metrics(pred: np.ndarray, true: np.ndarray,
 # Collocation sampling  (pinneapple_data.collocation.CollocationSampler)
 # -----------------------------------------------------------------------------
 
-def _col_sample_bounds(bounds_dict: Dict[str, Tuple[float, float]],
-                        fields: Tuple[str, ...],
+def _col_sample_bounds(bounds_dict: dict[str, tuple[float, float]],
+                        fields: tuple[str, ...],
                         n_col: int, strategy: str = "lhs",
                         seed: int = 42) -> np.ndarray:
     """Sample interior collocation points from axis-aligned bounds."""
@@ -133,15 +134,15 @@ class _ProblemDef:
     pde_str: str
     in_dim: int
     out_dim: int
-    coord_names: List[str]
-    field_names: List[str]
-    domain: Dict[str, Tuple[float, float]]
-    params: Dict[str, float]
+    coord_names: list[str]
+    field_names: list[str]
+    domain: dict[str, tuple[float, float]]
+    params: dict[str, float]
     dataset_id: str
     has_time: bool
 
 
-_BUILTIN_PROBLEMS: Dict[str, _ProblemDef] = {
+_BUILTIN_PROBLEMS: dict[str, _ProblemDef] = {
     "burgers_1d": _ProblemDef(
         id="burgers_1d", pde_str="u_t + u*u_x = nu*u_xx",
         in_dim=2, out_dim=1, coord_names=["x", "t"], field_names=["u"],
@@ -204,7 +205,7 @@ _BUILTIN_ALIASES = {
 # -----------------------------------------------------------------------------
 
 # Maps problem-id prefix → (solver_tag, human description, solver_family)
-_SOLVER_MAP: List[Tuple[str, str, str]] = [
+_SOLVER_MAP: list[tuple[str, str, str]] = [
     ("burgers",       "FDM explicit (FTCS) — convection-diffusion",       "fdm"),
     ("heat_1d",       "FDM Crank-Nicolson — 1-D parabolic",               "fdm"),
     ("heat_2d",       "FDM Alternating-Direction-Implicit — 2-D parabolic","fdm"),
@@ -220,7 +221,7 @@ _SOLVER_MAP: List[Tuple[str, str, str]] = [
 ]
 
 
-def _auto_select_solver(prob_id: str) -> Tuple[str, str]:
+def _auto_select_solver(prob_id: str) -> tuple[str, str]:
     """Return (solver_tag, description) for a problem id."""
     pid = prob_id.lower()
     for prefix, description, _ in _SOLVER_MAP:
@@ -232,9 +233,9 @@ def _auto_select_solver(prob_id: str) -> Tuple[str, str]:
 def _generate_synthetic_data(
     solver_tag: str,
     prob_id: str,
-    prob_def: Optional["_ProblemDef"],
-    spec_obj: Optional[Any],
-) -> Optional[Dict[str, np.ndarray]]:
+    prob_def: _ProblemDef | None,
+    spec_obj: Any | None,
+) -> dict[str, np.ndarray] | None:
     """Run the selected solver to produce synthetic reference data.
 
     Falls back to pinneapple_data.datasets if the solver is unavailable.
@@ -271,7 +272,7 @@ def _generate_synthetic_data(
 # Step 6 — Auto-metrics per problem type
 # -----------------------------------------------------------------------------
 
-def _auto_select_metrics(prob_id: str, out_dim: int, has_time: bool) -> List[str]:
+def _auto_select_metrics(prob_id: str, out_dim: int, has_time: bool) -> list[str]:
     """Return the most informative metrics for a given problem type."""
     pid = prob_id.lower()
     base = ["mse", "l2_rel", "max_err"]
@@ -289,7 +290,7 @@ def _auto_select_metrics(prob_id: str, out_dim: int, has_time: bool) -> List[str
 
 def _physics_residual(prob: _ProblemDef, model: nn.Module,
                       pts: torch.Tensor,
-                      inv_params: Optional[Dict[str, nn.Parameter]] = None
+                      inv_params: dict[str, nn.Parameter] | None = None
                       ) -> torch.Tensor:
     from pinneapple_physics.pinn_solver.compiler.autograd_ops import grad as _ag_grad
     u = _pred(model, pts)
@@ -350,9 +351,9 @@ def _physics_residual(prob: _ProblemDef, model: nn.Module,
 
 
 def _make_bc_ic_pts(prob: _ProblemDef, n_bc: int, n_ic: int,
-                    seed: int = 0) -> Tuple[torch.Tensor, torch.Tensor,
-                                            Optional[torch.Tensor],
-                                            Optional[torch.Tensor]]:
+                    seed: int = 0) -> tuple[torch.Tensor, torch.Tensor,
+                                            torch.Tensor | None,
+                                            torch.Tensor | None]:
     rng = np.random.default_rng(seed)
     dom = prob.domain
 
@@ -448,12 +449,12 @@ def _make_bc_ic_pts(prob: _ProblemDef, n_bc: int, n_ic: int,
 
 def _batch_from_builtin(prob: _ProblemDef, x_col_np: np.ndarray,
                         x_bc: torch.Tensor, u_bc: torch.Tensor,
-                        x_ic: Optional[torch.Tensor],
-                        u_ic: Optional[torch.Tensor],
-                        x_obs: Optional[torch.Tensor] = None,
-                        u_obs: Optional[torch.Tensor] = None,
-                        ) -> Dict[str, Any]:
-    batch: Dict[str, Any] = {
+                        x_ic: torch.Tensor | None,
+                        u_ic: torch.Tensor | None,
+                        x_obs: torch.Tensor | None = None,
+                        u_obs: torch.Tensor | None = None,
+                        ) -> dict[str, Any]:
+    batch: dict[str, Any] = {
         "x_col": torch.tensor(x_col_np, dtype=torch.float32),
         "x_bc": x_bc,
         "y_bc": u_bc,
@@ -468,9 +469,9 @@ def _batch_from_builtin(prob: _ProblemDef, x_col_np: np.ndarray,
     return batch
 
 
-def _raw_to_batch(raw: Dict[str, Any]) -> Dict[str, Any]:
+def _raw_to_batch(raw: dict[str, Any]) -> dict[str, Any]:
     """Convert CollocationSampler.sample() numpy output to a tensor batch dict."""
-    batch: Dict[str, Any] = {
+    batch: dict[str, Any] = {
         "x_col": torch.tensor(np.asarray(raw["x_col"]), dtype=torch.float32),
         "ctx": raw.get("ctx", {}),
     }
@@ -482,7 +483,7 @@ def _raw_to_batch(raw: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _batch_from_spec(spec: Any, n_col: int, n_bc: int, n_ic: int,
-                     strategy: str = "lhs", seed: int = 42) -> Dict[str, Any]:
+                     strategy: str = "lhs", seed: int = 42) -> dict[str, Any]:
     """Generate a training batch from a ProblemSpec via CollocationSampler."""
     from pinneapple_data.collocation import CollocationSampler
     sampler = CollocationSampler.from_problem_spec(spec, strategy=strategy, seed=seed)
@@ -490,9 +491,9 @@ def _batch_from_spec(spec: Any, n_col: int, n_bc: int, n_ic: int,
     return _raw_to_batch(raw)
 
 
-def _batch_from_geometry(geometry: Any, fields: List[str],
+def _batch_from_geometry(geometry: Any, fields: list[str],
                           n_col: int, n_bc: int, n_ic: int,
-                          strategy: str = "lhs", seed: int = 42) -> Dict[str, Any]:
+                          strategy: str = "lhs", seed: int = 42) -> dict[str, Any]:
     """Generate a training batch from a geometry/mesh.
 
     Accepts:
@@ -523,7 +524,7 @@ def _batch_from_geometry(geometry: Any, fields: List[str],
 
     # ── STL file path ─────────────────────────────────────────────────────────
     try:
-        from pinneapple_data.stl_import import load_stl, STLMesh
+        from pinneapple_data.stl_import import load_stl
         if isinstance(geometry, str):
             geometry = load_stl(geometry)
         if hasattr(geometry, "sample_collocation"):
@@ -557,18 +558,18 @@ def _make_compiled_loss(spec: Any,
 def _make_builtin_loss(prob: _ProblemDef,
                        w_pde: float = 1.0, w_bc: float = 10.0,
                        w_ic: float = 10.0, w_data: float = 20.0,
-                       inv_params_getter: Optional[Callable] = None
+                       inv_params_getter: Callable | None = None
                        ) -> Callable:
     """Return a loss_fn(model, y_hat, batch) for a built-in _ProblemDef."""
 
     def loss_fn(model: nn.Module, y_hat: Any,
-                batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+                batch: dict[str, Any]) -> dict[str, torch.Tensor]:
         x_col = batch["x_col"]   # has requires_grad=True
         inv_p = inv_params_getter(model) if inv_params_getter else None
 
         res = _physics_residual(prob, model, x_col, inv_p)
         loss_pde = (res ** 2).mean()
-        losses: Dict[str, torch.Tensor] = {"pde": loss_pde}
+        losses: dict[str, torch.Tensor] = {"pde": loss_pde}
         total = w_pde * loss_pde
 
         if "x_bc" in batch and "y_bc" in batch:
@@ -597,7 +598,7 @@ def _make_builtin_loss(prob: _ProblemDef,
 # -----------------------------------------------------------------------------
 
 def _build_model(name: str, in_dim: int, out_dim: int,
-                 hidden: List[int]) -> nn.Module:
+                 hidden: list[int]) -> nn.Module:
     """Build any physics model via ModelRegistry / PINNCatalog / Group-B catalog."""
     from pinneapple_neural.architectures import ModelRegistry, SIREN, ModifiedMLP, HashGridMLP
     from pinneapple_neural.architectures.pinns import VanillaPINN, PINNCatalog
@@ -646,8 +647,8 @@ def _build_model(name: str, in_dim: int, out_dim: int,
 # -----------------------------------------------------------------------------
 
 class _InverseWrapper(nn.Module):
-    def __init__(self, base: nn.Module, var_names: List[str],
-                 init_guesses: Dict[str, float]):
+    def __init__(self, base: nn.Module, var_names: list[str],
+                 init_guesses: dict[str, float]):
         super().__init__()
         self.base = base
         self.var_names = var_names
@@ -660,10 +661,10 @@ class _InverseWrapper(nn.Module):
         return self.base(x)
 
     @property
-    def inv_params(self) -> Dict[str, torch.Tensor]:
+    def inv_params(self) -> dict[str, torch.Tensor]:
         return {k: torch.exp(v) for k, v in self._log_params.items()}
 
-    def param_estimates(self) -> Dict[str, float]:
+    def param_estimates(self) -> dict[str, float]:
         return {k: float(torch.exp(v).item()) for k, v in self._log_params.items()}
 
 
@@ -671,7 +672,7 @@ class _InverseWrapper(nn.Module):
 # Reference data
 # -----------------------------------------------------------------------------
 
-def _load_reference(dataset_id: str) -> Optional[Dict[str, np.ndarray]]:
+def _load_reference(dataset_id: str) -> dict[str, np.ndarray] | None:
     from pinneapple_data.datasets import load_dataset
     try:
         return load_dataset(dataset_id)
@@ -679,9 +680,9 @@ def _load_reference(dataset_id: str) -> Optional[Dict[str, np.ndarray]]:
         return None
 
 
-def _make_eval_grid(coords: List[str], fields: List[str],
-                    ref: Dict[str, np.ndarray]) -> Tuple[
-        Optional[torch.Tensor], Optional[np.ndarray]]:
+def _make_eval_grid(coords: list[str], fields: list[str],
+                    ref: dict[str, np.ndarray]) -> tuple[
+        torch.Tensor | None, np.ndarray | None]:
     arrays = []
     for c in coords:
         if c not in ref:
@@ -702,10 +703,10 @@ def _make_eval_grid(coords: List[str], fields: List[str],
 
 def _train_pinn(model: nn.Module,
                 loss_fn: Callable,
-                batch: Dict[str, Any],
+                batch: dict[str, Any],
                 epochs: int, lr: float,
                 log_every: int = 500,
-                ) -> Tuple[Dict[str, float], List[Dict[str, float]]]:
+                ) -> tuple[dict[str, float], list[dict[str, float]]]:
     """PINN training loop.
 
     loss_fn signature: loss_fn(model, y_hat, batch) → Dict[str, Tensor] with 'total'.
@@ -715,7 +716,7 @@ def _train_pinn(model: nn.Module,
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6)
 
     x_col_base = batch["x_col"]
-    history: List[Dict[str, float]] = []
+    history: list[dict[str, float]] = []
     model.train()
 
     for epoch in range(epochs):
@@ -734,7 +735,7 @@ def _train_pinn(model: nn.Module,
         scheduler.step()
 
         if (epoch + 1) % log_every == 0 or epoch == 0:
-            row: Dict[str, float] = {"epoch": epoch + 1,
+            row: dict[str, float] = {"epoch": epoch + 1,
                                      "loss_total": float(loss.detach())}
             for k, v in losses.items():
                 if k != "total" and isinstance(v, torch.Tensor):
@@ -798,13 +799,13 @@ class PhysicsPipeline:
     # ── Class-level problem catalogue ─────────────────────────────────────────
 
     @classmethod
-    def list_problems(cls) -> Dict[str, str]:
+    def list_problems(cls) -> dict[str, str]:
         """Return {problem_id: pde_string} for all available problems.
 
         Includes both the built-in problems and any preset registered in
         pinneapple_environment.
         """
-        result: Dict[str, str] = {k: v.pde_str for k, v in _BUILTIN_PROBLEMS.items()}
+        result: dict[str, str] = {k: v.pde_str for k, v in _BUILTIN_PROBLEMS.items()}
         result.update({k: k for k in _BUILTIN_ALIASES})
         try:
             from pinneapple_physics.pde_environment.presets.registry import list_presets
@@ -828,11 +829,11 @@ class PhysicsPipeline:
 
     def __init__(
         self,
-        problem: Union[str, Any],
-        geometry: Optional[Any] = None,
+        problem: str | Any,
+        geometry: Any | None = None,
         load_generate_data: str = "generate",
-        source: Optional[str] = None,
-        metrics: Union[Sequence[str], str] = "auto",
+        source: str | None = None,
+        metrics: Sequence[str] | str = "auto",
         collocation_points: str = "sobol",
         models: Sequence[str] = ("vanilla_pinn",),
         inverse: bool = False,
@@ -843,7 +844,7 @@ class PhysicsPipeline:
         n_col: int = 3000,
         n_bc: int = 500,
         n_ic: int = 500,
-        hidden: Optional[List[int]] = None,
+        hidden: list[int] | None = None,
         seed: int = 42,
         output_dir: str = "outputs",
         save_checkpoints: bool = True,
@@ -872,7 +873,7 @@ class PhysicsPipeline:
     # Problem resolution: preset → compile_problem; fallback → builtin residual
     # -------------------------------------------------------------------------
 
-    def _resolve_problem(self) -> Tuple[Any, str]:
+    def _resolve_problem(self) -> tuple[Any, str]:
         """Returns (problem_obj, kind) where kind is 'preset' or 'builtin'."""
         prob = self.problem
 
@@ -912,9 +913,9 @@ class PhysicsPipeline:
     # Observation data (for inverse / data-informed)
     # -------------------------------------------------------------------------
 
-    def _get_obs_data(self, coords: List[str], fields: List[str],
-                      ref: Optional[Dict[str, np.ndarray]]
-                      ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]:
+    def _get_obs_data(self, coords: list[str], fields: list[str],
+                      ref: dict[str, np.ndarray] | None
+                      ) -> tuple[torch.Tensor | None, torch.Tensor | None]:
         if self.load_generate_data != "load" and not self.inverse:
             return None, None
         if ref is None:
@@ -945,11 +946,11 @@ class PhysicsPipeline:
     # -------------------------------------------------------------------------
 
     def _plot_results(self, model: nn.Module,
-                      coords: List[str], fields: List[str],
-                      ref: Optional[Dict[str, np.ndarray]],
+                      coords: list[str], fields: list[str],
+                      ref: dict[str, np.ndarray] | None,
                       model_id: str,
-                      history: List[Dict]) -> List[str]:
-        paths: List[str] = []
+                      history: list[dict]) -> list[str]:
+        paths: list[str] = []
         try:
             import matplotlib.pyplot as plt
         except ImportError:
@@ -1168,7 +1169,7 @@ class PhysicsPipeline:
 
         # ── STEP 6 — Auto-metrics, train, visualize, export, rank ────────────
         # Resolve metrics (auto-selection or user override)
-        resolved_metrics: List[str]
+        resolved_metrics: list[str]
         if self.metrics == "auto":
             resolved_metrics = _auto_select_metrics(prob_id, out_dim, has_time)
             print(f"\n  Step 6/6  Train + evaluate + export")
@@ -1198,8 +1199,8 @@ class PhysicsPipeline:
         }
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        all_plots: List[str] = []
-        checkpoints: Dict[str, str] = {}
+        all_plots: list[str] = []
+        checkpoints: dict[str, str] = {}
 
         for model_name in self.models:
             print(f"\n  > {model_name}")

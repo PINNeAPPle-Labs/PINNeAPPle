@@ -33,7 +33,7 @@ scheme used elsewhere in this package.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -86,8 +86,8 @@ def generate_guided_wave_synthetic(
     defect_beta: float = 2.0e9,     # local impedance/cutoff bump at the defect
     n_supervised: int = 400,
     n_collocation: int = 200,
-    seed: Optional[int] = 0,
-) -> Dict[str, Any]:
+    seed: int | None = 0,
+) -> dict[str, Any]:
     """Generate a synthetic guided-wave pulse-echo dataset: a tone burst
     is injected at x=0 and propagates toward a defect (a local `beta(x)`
     bump), which partially reflects it back to a receiver near the
@@ -155,7 +155,7 @@ def make_guided_wave_physics_loss(x_grid: np.ndarray, beta_field: np.ndarray, c0
     def beta_of_x(x_np: np.ndarray) -> np.ndarray:
         return np.interp(x_np, x_grid, beta_field)
 
-    def physics_loss_fn(model: torch.nn.Module, batch: Dict[str, Any]):
+    def physics_loss_fn(model: torch.nn.Module, batch: dict[str, Any]):
         x_col = batch["x_col"]
         if not x_col.requires_grad:
             x_col = x_col.clone().requires_grad_(True)
@@ -180,20 +180,20 @@ def make_guided_wave_physics_loss(x_grid: np.ndarray, beta_field: np.ndarray, c0
 
 
 def train_guided_wave_ultrasonic(
-    synthetic_data: Optional[Dict[str, Any]] = None,
+    synthetic_data: dict[str, Any] | None = None,
     *,
     hidden=(64, 64, 64),
     epochs: int = 200,
     lr: float = 1e-3,
     batch_size: int = 32,
     device: str = "cpu",
-    seed: Optional[int] = 0,
+    seed: int | None = 0,
     log_dir: str = "runs/inspection_guided_wave",
     run_name: str = "guided_wave_pinn",
     w_supervised: float = 1.0,
     w_physics: float = 1.0,
     **synthetic_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if synthetic_data is None:
         synthetic_data = generate_guided_wave_synthetic(seed=seed, **synthetic_kwargs)
 

@@ -30,7 +30,8 @@ Workflow examples
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 import torch
@@ -62,10 +63,10 @@ class NoetherDatasetBridge(TorchDataset):
     def __init__(
         self,
         noether_dataset,
-        input_fields: Optional[List[str]] = None,
-        target_fields: Optional[List[str]] = None,
+        input_fields: list[str] | None = None,
+        target_fields: list[str] | None = None,
         transform=None,
-        device: Optional[str] = None,
+        device: str | None = None,
     ) -> None:
         from pinneapple_neural._licencas import require_research_use
         require_research_use("NoetherDatasetBridge")
@@ -78,12 +79,12 @@ class NoetherDatasetBridge(TorchDataset):
     def __len__(self) -> int:
         return len(self._ds)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         raw = self._ds[idx]
         if not isinstance(raw, dict):
             raw = {"y": raw}
 
-        out: Dict[str, torch.Tensor] = {}
+        out: dict[str, torch.Tensor] = {}
         for k, v in raw.items():
             t = torch.as_tensor(np.asarray(v), dtype=torch.float32)
             if self.device is not None:
@@ -124,8 +125,8 @@ class PhysicalSampleDataset(TorchDataset):
     def __init__(
         self,
         samples: Sequence,
-        input_fields: Optional[List[str]] = None,
-        output_fields: Optional[List[str]] = None,
+        input_fields: list[str] | None = None,
+        output_fields: list[str] | None = None,
         include_coords: bool = False,
         transform=None,
     ) -> None:
@@ -138,9 +139,9 @@ class PhysicalSampleDataset(TorchDataset):
     def __len__(self) -> int:
         return len(self.samples)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         sample = self.samples[idx]
-        fields: Dict[str, Any] = {}
+        fields: dict[str, Any] = {}
 
         # Fields
         for k, v in sample.fields.items():
@@ -164,10 +165,10 @@ class PhysicalSampleDataset(TorchDataset):
     def from_upd_list(
         cls,
         samples: Sequence,
-        input_fields: Optional[List[str]] = None,
-        output_fields: Optional[List[str]] = None,
+        input_fields: list[str] | None = None,
+        output_fields: list[str] | None = None,
         include_coords: bool = False,
-    ) -> "PhysicalSampleDataset":
+    ) -> PhysicalSampleDataset:
         """Convenience constructor — alias for the standard ``__init__``."""
         return cls(
             samples=samples,
@@ -186,7 +187,7 @@ def split_physical_samples(
     val_fraction: float = 0.1,
     seed: int = 42,
     **dataset_kwargs,
-) -> tuple["PhysicalSampleDataset", "PhysicalSampleDataset"]:
+) -> tuple[PhysicalSampleDataset, PhysicalSampleDataset]:
     """Split a list of PhysicalSamples into train and validation datasets.
 
     Parameters

@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Literal
 
 from pinneapple_design.geometry.core.mesh import MeshData
 from pinneapple_design.geometry.io.meshio_bridge import load_meshio, _require_meshio
@@ -65,8 +65,8 @@ def _require_gmsh():
 def iges_to_mesh(
     iges_path: str | Path,
     *,
-    cfg: Optional[IgesImportConfig] = None,
-    cache_dir: Optional[str | Path] = None,
+    cfg: IgesImportConfig | None = None,
+    cache_dir: str | Path | None = None,
 ) -> MeshData:
     """Convert an IGES file into MeshData via gmsh.
 

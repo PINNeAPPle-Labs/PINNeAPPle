@@ -154,7 +154,18 @@ _SUPERSCRIPT = str.maketrans({"²": "^2", "³": "^3", "¹": "^1", "⁻": "^-", "
 
 
 class UnitError(ValueError):
-    pass
+    """A unit this library cannot work with. ``fix`` (when given) is the action the user can take, rendered as a
+    second line the same way ``pinneapple_core.errors`` renders it -- kept here, without importing that package, so
+    the lowest layer of the library carries no dependency on the one above it."""
+
+    def __init__(self, message: str, *, fix: str = ""):
+        self.what = str(message)
+        self.fix = str(fix)
+        self.message = f"{self.what}\n  Fix: {fix}" if fix else self.what
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return self.message
 
 
 def _lookup(tok: str) -> Optional[Tuple[float, Dim, float]]:

@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-import yaml
 
 from pinneapple_tools.benchmark_suite.bundle.schema import load_bundle_schema
 from pinneapple_tools.benchmark_suite.bundle.loader import load_bundle

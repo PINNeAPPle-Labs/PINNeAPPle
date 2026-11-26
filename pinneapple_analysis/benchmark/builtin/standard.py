@@ -99,6 +99,8 @@ class _GRFProblem(FieldOperatorProblem):
 class Burgers(_GRFProblem):
     title = "Burgers 1-D"
     qoi_label = "Energy ∫u²"
+    comparison_absent = ("the field is a 1-D profile u(x) at the final time: there is no second spatial axis, so the "
+                         "standard reference / surrogate / error panels have nothing to put on the vertical one")
     chunk_fn = staticmethod(_burgers_chunk)
     space_fno = {"width": [32, 64], "modes": [16, 24], "lr": [1e-3, 3e-3]}
 
@@ -207,6 +209,9 @@ class Darcy(_GRFProblem):
         o = self.options
         tau = o["tau_ood"] if split == "ood" else o["tau"]
         return periodic_grf(n, (o["n_solve"],) * 2, alpha=o["alpha"], tau=tau, seed=SPLIT_SEEDS[split])
+
+    def comparison_labels(self):
+        return "u", ""                                     # the pressure head, dimensionless: -div(a grad u) = 1
 
     def verify_solver(self):
         from pinneapple_analysis.verification.convergence import richardson_extrapolate
@@ -319,6 +324,9 @@ class NavierStokes(_GRFProblem):
     def qoi(self, field):
         f = field.reshape(field.shape[0], -1).astype(np.float64)
         return (f ** 2).mean(1)
+
+    def comparison_labels(self):
+        return "ω", "1/s"                                  # the vorticity, the field the operator maps to
 
     def verify_solver(self):
         from pinneapple_simulation.numerical_solvers.operator_benchmarks import (

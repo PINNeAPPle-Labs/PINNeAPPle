@@ -1,0 +1,12 @@
+{
+ "code_hash": "54fb1858bfb43b7b",
+ "figures": [],
+ "id": "node:auto.analysis.validation.fault_injection.get_problem",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get problem -> pinneapple_analysis.validation.fault_injection:get_problem\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'problem': ''}",
+ "timed_out": false
+}

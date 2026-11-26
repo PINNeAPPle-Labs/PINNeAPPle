@@ -28,7 +28,6 @@ from __future__ import annotations
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -36,14 +35,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
 from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
 from pinneapple_train import (
     best_device, maybe_compile, AMPContext,
-    GradAccumConfig, GradAccumTrainer,
-    ThroughputMonitor, batched_inference,
+    ThroughputMonitor,
 )
 
 
@@ -55,7 +52,7 @@ print(f"[Device] {DEVICE}")
 # 1. Dataset: parametric Poisson
 # ------------------------------------------------------------------
 
-def random_rhs_modes(n_samples: int, n_sensors: int, rng: np.random.Generator) -> Tuple[np.ndarray, np.ndarray]:
+def random_rhs_modes(n_samples: int, n_sensors: int, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
     """
     Generate random RHS functions f sampled at sensor points + toy u values.
 

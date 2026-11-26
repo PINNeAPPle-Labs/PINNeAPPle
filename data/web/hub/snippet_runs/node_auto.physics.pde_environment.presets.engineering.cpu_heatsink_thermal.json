@@ -1,0 +1,12 @@
+{
+ "code_hash": "63d3d5b85f6d547d",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.cpu_heatsink_thermal",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='cpu_heatsink_thermal', dim=3, coords=('x', 'y', 'z'), fields=('T',), pde=PDETermSpec(kind='heat_equation_steady', fields=('T',), coords=('x', 'y', 'z'), params={'k': 205.0}, meta={}), conditions=(ConditionSpec(name='cpu_base', kind='neumann', fields=('q_heat',), selector_type='tag', selector={'tag': 'cpu_base'}, value_fn=<function _const_value_fn.<locals>._fn at 0x100f8cc20>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc={'kind': 'flux', 'T_field': 'T'}), ConditionSpec(name='fin_surfaces', kind='neumann', fields=('h', 'T_ref'), selector_type='tag', selector={'tag': 'fin_surfaces'}, value_fn=<function _const_value_fn.<locals>._fn at 0x115e51080>, weight=5.0, order=1, deriv_coord=None, interface_coeffs",
+ "timed_out": false
+}

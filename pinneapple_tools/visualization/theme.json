@@ -1,0 +1,67 @@
+{
+  "name": "pinneapple-house",
+  "version": 1,
+  "brand": {
+    "ink": "#262626",
+    "blue": "#0081be",
+    "ember": "#a23a00",
+    "ember_lifted": "#c2410a"
+  },
+  "surface": {
+    "light": {
+      "plot": "#e9ecf1",
+      "paper": "#ffffff",
+      "ink": "#262626",
+      "muted": "#5d6b82",
+      "line": "#c8c8c8"
+    },
+    "dark": {
+      "plot": "#0b1220",
+      "paper": "#1a1a2e",
+      "ink": "#f2f4f6",
+      "muted": "#9aa6b8",
+      "line": "#5a6b8c"
+    }
+  },
+  "categorical": ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#F0E442", "#000000"],
+  "colormaps": {
+    "cfd_sequential": {"kind": "sequential", "stops": [[0, [0.267, 0.005, 0.329]], [0.25, [0.229, 0.322, 0.545]], [0.5, [0.128, 0.567, 0.551]], [0.75, [0.369, 0.789, 0.383]], [1, [0.993, 0.906, 0.144]]]},
+    "cfd_diverging": {"kind": "diverging", "stops": [[0, [0.23, 0.299, 0.754]], [0.25, [0.552, 0.69, 0.996]], [0.5, [0.968, 0.968, 0.968]], [0.75, [0.956, 0.598, 0.477]], [1, [0.706, 0.016, 0.15]]]},
+    "cfd_cyclic": {"kind": "cyclic", "stops": [[0, [0.128, 0.567, 0.551]], [0.25, [0.369, 0.789, 0.383]], [0.5, [0.993, 0.906, 0.144]], [0.75, [0.847, 0.432, 0.145]], [1, [0.128, 0.567, 0.551]]]},
+    "cfd_rainbow": {"kind": "rainbow", "stops": [[0, [0, 0, 0.55]], [0.125, [0, 0, 1]], [0.25, [0, 0.5, 1]], [0.375, [0, 1, 0.5]], [0.5, [0, 1, 0]], [0.625, [0.5, 1, 0]], [0.75, [1, 1, 0]], [0.875, [1, 0.5, 0]], [1, [1, 0, 0]]]},
+    "cfd_coolwarm": {"kind": "diverging", "stops": [[0, [0.085, 0.532, 0.201]], [0.25, [0.017, 0.427, 0.969]], [0.5, [0.929, 0.929, 0.929]], [0.75, [0.969, 0.266, 0.105]], [1, [0.655, 0.047, 0.047]]]},
+    "jet": {"kind": "rainbow", "stops": [[0, [0, 0, 0.5608]], [0.125, [0, 0, 1]], [0.375, [0, 1, 1]], [0.625, [1, 1, 0]], [0.875, [1, 0, 0]], [1, [0.502, 0, 0]]]},
+    "coolwarm": {"kind": "diverging", "stops": [[0, [0.2314, 0.298, 0.7529]], [0.25, [0.5529, 0.6902, 0.9961]], [0.5, [0.8667, 0.8667, 0.8667]], [0.75, [0.9569, 0.6039, 0.4824]], [1, [0.7059, 0.0157, 0.149]]]},
+    "bwr": {"kind": "diverging", "stops": [[0, [0, 0, 1]], [0.5, [1, 1, 1]], [1, [1, 0, 0]]]},
+    "rdbu": {"kind": "diverging", "stops": [[0, [0.1294, 0.4, 0.6745]], [0.25, [0.4039, 0.6627, 0.8118]], [0.5, [0.9686, 0.9686, 0.9686]], [0.75, [0.9373, 0.5412, 0.3843]], [1, [0.698, 0.0941, 0.1686]]]},
+    "magma": {"kind": "sequential", "stops": [[0, [0, 0, 0.0157]], [0.1, [0.0549, 0.0353, 0.1725]], [0.2, [0.1961, 0.0588, 0.3294]], [0.3, [0.349, 0.0824, 0.4118]], [0.4, [0.5137, 0.149, 0.4118]], [0.5, [0.6941, 0.2235, 0.349]], [0.6, [0.8667, 0.3451, 0.2588]], [0.7, [0.9922, 0.5412, 0.2078]], [0.8, [0.9961, 0.749, 0.2902]], [0.9, [0.9882, 0.9137, 0.5686]], [1, [0.9882, 0.9922, 0.749]]]},
+    "err": {"kind": "sequential", "stops": [[0, [1, 1, 0.898]], [0.2, [1, 0.9294, 0.6275]], [0.4, [0.9961, 0.698, 0.298]], [0.6, [0.9882, 0.3059, 0.1647]], [0.8, [0.7412, 0, 0.149]], [1, [0.4039, 0, 0.051]]]}
+  },
+  "field_cmaps": {
+    "temperature": "cfd_sequential",
+    "pressure": "cfd_sequential",
+    "density": "cfd_sequential",
+    "speed": "cfd_sequential",
+    "velocity_magnitude": "cfd_sequential",
+    "turbulent_kinetic_energy": "cfd_sequential",
+    "stress": "cfd_sequential",
+    "damage": "cfd_sequential",
+    "concentration": "cfd_sequential",
+    "error": "cfd_sequential",
+    "residual": "cfd_sequential",
+    "pressure_coefficient": "cfd_diverging",
+    "vorticity": "cfd_diverging",
+    "displacement": "cfd_diverging",
+    "temperature_difference": "cfd_diverging",
+    "stress_difference": "cfd_diverging",
+    "signed_error": "cfd_diverging",
+    "angle": "cfd_cyclic",
+    "phase": "cfd_cyclic"
+  },
+  "font": {"stack": ["DejaVu Sans", "Helvetica", "Arial", "sans-serif"], "base_size": 10.0},
+  "figure": {
+    "scale": {"report": 1.0, "slide": 1.35, "paper": 0.9},
+    "sizes": {"report": {"single": [6.4, 4.0], "double": [9.6, 4.0], "triple": [12.8, 4.0]}, "slide": {"single": [9.0, 5.5], "double": [14.0, 5.5], "triple": [18.0, 5.5]}, "paper": {"single": [3.5, 2.6], "double": [7.16, 2.8], "triple": [7.16, 2.4]}},
+    "dpi": {"screen": 110, "save": 200}
+  }
+}

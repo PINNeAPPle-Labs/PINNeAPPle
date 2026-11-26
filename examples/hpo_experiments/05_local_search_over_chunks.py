@@ -20,13 +20,13 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from collections.abc import Iterable
 
 
 _TOK = re.compile(r"[a-zA-Z0-9_]+")
 
 
-def _tokens(s: str) -> List[str]:
+def _tokens(s: str) -> list[str]:
     return [t.lower() for t in _TOK.findall(s or "") if len(t) >= 3]
 
 
@@ -51,7 +51,7 @@ class Hit:
     text: str
 
 
-def iter_chunks(path: Path) -> Iterable[Dict]:
+def iter_chunks(path: Path) -> Iterable[dict]:
     with path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -69,7 +69,7 @@ def main() -> None:
     args = ap.parse_args()
 
     p = Path(args.chunks)
-    hits: List[Hit] = []
+    hits: list[Hit] = []
     for row in iter_chunks(p):
         score = _bm25ish_score(args.query, row.get("text", ""))
         if score <= 0:

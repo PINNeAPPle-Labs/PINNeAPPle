@@ -30,7 +30,7 @@ actionable `pip install ...` message), following the pattern already used by
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -55,16 +55,16 @@ class StatsmodelsARIMAForecaster:
         >>> y_hat = f.predict(horizon=10)
     """
 
-    order: Tuple[int, int, int] = (1, 0, 0)
-    seasonal_order: Tuple[int, int, int, int] = (0, 0, 0, 0)
-    trend: Optional[str] = None
+    order: tuple[int, int, int] = (1, 0, 0)
+    seasonal_order: tuple[int, int, int, int] = (0, 0, 0, 0)
+    trend: str | None = None
     enforce_stationarity: bool = True
     enforce_invertibility: bool = True
-    fit_kwargs: Dict[str, Any] = field(default_factory=dict)
+    fit_kwargs: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self._result = None
-        self._n_obs: Optional[int] = None
+        self._n_obs: int | None = None
 
     @staticmethod
     def _import_statsmodels():
@@ -78,7 +78,7 @@ class StatsmodelsARIMAForecaster:
             ) from exc
         return SARIMAX
 
-    def fit(self, y: np.ndarray) -> "StatsmodelsARIMAForecaster":
+    def fit(self, y: np.ndarray) -> StatsmodelsARIMAForecaster:
         SARIMAX = self._import_statsmodels()
         y = np.asarray(y, dtype=float).reshape(-1)
         if np.isnan(y).any():
@@ -111,7 +111,7 @@ class StatsmodelsARIMAForecaster:
 
     def predict_with_uncertainty(
         self, horizon: int, alpha: float = 0.05
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Returns (mean, std) using the model's analytic forecast variance."""
         if self._result is None:
             raise RuntimeError("Call fit() before predict_with_uncertainty().")
@@ -158,12 +158,12 @@ class AutoARIMAForecaster:
     max_D: int = 1
     stepwise: bool = True
     suppress_warnings: bool = True
-    auto_arima_kwargs: Dict[str, Any] = field(default_factory=dict)
+    auto_arima_kwargs: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self._model = None
-        self.order_: Optional[Tuple[int, int, int]] = None
-        self.seasonal_order_: Optional[Tuple[int, int, int, int]] = None
+        self.order_: tuple[int, int, int] | None = None
+        self.seasonal_order_: tuple[int, int, int, int] | None = None
 
     @staticmethod
     def _import_pmdarima():
@@ -177,7 +177,7 @@ class AutoARIMAForecaster:
             ) from exc
         return pm
 
-    def fit(self, y: np.ndarray) -> "AutoARIMAForecaster":
+    def fit(self, y: np.ndarray) -> AutoARIMAForecaster:
         pm = self._import_pmdarima()
         y = np.asarray(y, dtype=float).reshape(-1)
         if np.isnan(y).any():
@@ -219,7 +219,7 @@ class AutoARIMAForecaster:
 
     def predict_with_uncertainty(
         self, horizon: int, alpha: float = 0.05
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Returns (mean, std) derived from pmdarima's confidence intervals."""
         if self._model is None:
             raise RuntimeError("Call fit() before predict_with_uncertainty().")

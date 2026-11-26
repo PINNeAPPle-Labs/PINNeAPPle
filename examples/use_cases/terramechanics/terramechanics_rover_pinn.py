@@ -45,6 +45,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
+
 try:
     from pinneapple_train import best_device, maybe_compile
 except ImportError:
@@ -218,7 +222,7 @@ class Normalizer:
     lo: np.ndarray
     hi: np.ndarray
 
-    def fit(self, X: np.ndarray) -> "Normalizer":
+    def fit(self, X: np.ndarray) -> Normalizer:
         self.lo = X.min(axis=0).astype(np.float32)
         self.hi = X.max(axis=0).astype(np.float32)
         return self

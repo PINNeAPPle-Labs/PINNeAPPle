@@ -1,0 +1,12 @@
+{
+ "code_hash": "e061fdcca7718756",
+ "figures": [],
+ "id": "node:auto.analysis.validation.fault_injection.data_faults",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 21.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[Fault(name='coefficient_drift', target='data', apply=<function _coefficient_drift at 0x118366de0>, magnitudes=(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0), documented={'darcy_2d': 0.1, 'burgers_1d': 0.5}, unit='relative', description='every sample solved with a coefficient off by (1 + m): Darcy y-face transmissibility, Burgers viscosity'), Fault(name='duplicates', target='data', apply=<function _duplicates at 0x118366e80>, magnitudes=(0.05, 0.1, 0.25, 0.5), documented=0.1, unit='fraction of training samples', description='training samples replaced by exact copies of others'), Fault(name='low_diversity', target='data', apply=<function _low_diversity at 0x118366f20>, magnitudes=(0.05, 0.1, 0.25, 0.5), documented=0.1, unit='fraction of training samples', description='training samples replaced by n",
+ "timed_out": false
+}

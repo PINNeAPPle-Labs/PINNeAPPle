@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence, Tuple, Union
+from typing import Any
 
 import torch
 import numpy as np
@@ -26,7 +26,7 @@ def _require_meshio() -> None:
 
 
 def load_meshio(
-    path: Union[str, Path],
+    path: str | Path,
     *,
     require_triangles: bool = True,
 ) -> MeshData:
@@ -78,11 +78,11 @@ def load_meshio(
 
 def save_meshio(
     mesh: MeshData,
-    path: Union[str, Path],
+    path: str | Path,
     *,
-    file_format: Optional[str] = None,
-    point_data: Optional[Dict[str, Any]] = None,
-    cell_data: Optional[Dict[str, Any]] = None,
+    file_format: str | None = None,
+    point_data: dict[str, Any] | None = None,
+    cell_data: dict[str, Any] | None = None,
 ) -> None:
     """
     Save MeshData via meshio.
@@ -126,7 +126,7 @@ def meshio_to_upd(path: str):
             tri = m.cells[0].data
         faces = torch.tensor(tri, dtype=torch.long)
 
-    fields: Dict[str, Any] = {"vertices": vertices}
+    fields: dict[str, Any] = {"vertices": vertices}
     if faces is not None:
         fields["faces"] = faces
 

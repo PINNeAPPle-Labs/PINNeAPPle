@@ -1,17 +1,26 @@
 """Which PINNeAPPle capabilities are flow nodes, and why the others are not.
 
-:func:`coverage` walks every ``pinneapple*`` package and its first-level modules, maps the registered node types onto
-them (by the library calls each node declares) and attaches a curated reason (:data:`REASONS`) to whatever has no
-node. ``python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md`` writes the table (git-ignored: the docs
-build generates it, ``tools/gen_flow_docs.py``) and exits 1 when a module has neither a node nor a reason.
+:func:`coverage` walks every ``pinneapple*`` package and every module under it, at any depth, maps the registered node
+types onto them (by the library calls each node declares) and attaches a curated reason (:data:`REASONS`) to whatever
+has no node. ``python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md`` writes the table (git-ignored: the
+docs build generates it, ``tools/gen_flow_docs.py``) and exits 1 when a module that owes one has neither a node nor a
+reason.
+
+The row set is the whole tree so that a deep module is visible; the rows that *owe* a node or a reason are the
+first-level ones (as before) and every module the frozen core API lists in ``api/core.json``, however deep it sits
+(#1883: ``pinneapple_physics.pinn_solver.compiler.integral_kinds`` introduced an equation family four levels down and
+the one-level sweep never saw it). A module deeper than that, which neither the core API nor a node reaches, is an
+implementation detail of the package above it and is reported without one.
 """
 from __future__ import annotations
 
+import json
 import pkgutil
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CORE_SNAPSHOT = ROOT / "api" / "core.json"
 
 # package or package.module -> why there is no node (or "covered by <node types>" when the coverage is indirect)
 REASONS: dict[str, str] = {
@@ -19,13 +28,94 @@ REASONS: dict[str, str] = {
     "pinneapple_models": "shim: re-exports pinneapple_neural.architectures (covered there)",
     "pinneapple_train": "shim: re-exports pinneapple_neural.trainer (covered there)",
     "pinneapple_solvers": "shim: re-exports pinneapple_simulation.numerical_solvers (covered there)",
+    "pinneapple_physics.pretrained": "the door a model trained somewhere else comes in through (#348): the registry of "
+                                     "open models with their licence, the adapters that load one (WeatherBench2, a "
+                                     "torch checkpoint, a local array archive, the Hugging Face Hub) and the wrap that "
+                                     "returns a PhysicsEnsemble Expert. It is what the ensemble step is given, not a "
+                                     "step of its own: a node here would duplicate the ensemble node it feeds",
+    "pinneapple_physics.domain_checks": "the checks a domain asks of any field without a reference (#348): the part of "
+                                        "a 6-hour change advection does not explain, the drift of a conserved total, "
+                                        "water on terrain (HAND and an admissible flood mask) and frame-to-frame "
+                                        "continuity. They are attachable to PhysicsEnsemble(prediction_checks=...), "
+                                        "which is the node that weights the experts; alone they judge a prediction",
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
+    "pinneapple_analysis.trust.certificate": "verification as a service (#341): it takes somebody else's prediction and "
+                                            "returns the certificate of what the physics says about it -- the "
+                                            "residuals, the units, the boundary and positivity violations, the domain "
+                                            "gate and, per check, the limit it was judged against and where that "
+                                            "number came from. It is the judgement of a field a step already "
+                                            "produced, like the trust record it embeds; a node here would have to be "
+                                            "fed by the node that made the prediction, and would disagree with it",
+    "pinneapple_plugins": "the plugin contract and its loader: what an installed package may contribute and whether it "
+                          "works on this machine. It decides which steps exist and reports on them; it is not a step",
+    "pinneapple_plugins.contract": "the declarations a plugin makes (name, contract version, requirements, "
+                                   "capabilities) and the version check: a type a loader validates, not a computation",
+    "pinneapple_plugins.discovery": "reading the 'pinneapple.plugins' entry-point group from distribution metadata: it "
+                                    "finds what is installed, without importing it",
+    "pinneapple_plugins.manager": "loading, recording and diagnosing plugins (list, inspect, doctor, enable, disable): "
+                                  "the state of the platform, which 'pinneapple plugins' reports",
+    "pinneapple_plugins.cli": "the 'pinneapple plugins' command line: a front end over the manager, like Flow Studio",
+    "pinneapple_neural.model_provider": "one interface over the doors a trained model arrives through (PyTorch, "
+                                        "TorchScript, ONNX, JAX, PhysicsNeMo, Hugging Face): it opens a saved file "
+                                        "and hands back a model with its provenance, which is what a comparison reads "
+                                        "rather than a computation step",
     "pinneapple_mcp": "the MCP server for coding agents (a protocol front end, like Flow Studio)",
     "pinneapple_flow": "this package",
     "pinneapple_stability": "what the library promises (core vs experimental); metadata, not a computation step",
     "pinneapple_registry": "artifact store and model gateway services (deployment, not a computation step)",
     "pinneapple_security": "integrity, signing, web security and audit (infrastructure used by the apps)",
     "pinneapple_core.service": "job queue / API keys of the app servers (infrastructure)",
+    "pinneapple_core.errors": "what a failure tells you to do about it: the action is carried by the exception, not "
+                              "computed by a step of a flow",
+    "pinneapple_core.run_record": "the record of one run and the command that redoes it: it is what a run leaves "
+                                  "behind, not a step inside one",
+    "pinneapple_flow.reproducibility": "the record of a finished flow run and its reproducer: it re-runs a saved "
+                                       "document to compare it with what was recorded, which is a check on a run, "
+                                       "not a step of one",
+    "pinneapple_hub.experiment_card": "a model card generated from an experiment record and validated: it is the "
+                                      "document a model is published with, built from the record of a run rather "
+                                      "than being a step of one",
+    "pinneapple_analysis.verification.asme_vv20": "the ASME V&V 20 validation of one number against one datum, and "
+                                                  "the V&V 40 credibility block: it is a report a reviewer reads, "
+                                                  "built from a mesh study and a data point, not a step of a flow",
+    "pinneapple_analysis.bayesopt": "the loop that decides which simulation to run next (Bayesian optimization with "
+                                    "constraints): it chooses the calls a campaign makes, it is not one of them",
+    "pinneapple_data.regimes": "which bands of Reynolds, Mach and the other dimensionless numbers a dataset reaches: "
+                               "it is part of the dataset audit, a check on the data before a flow runs on it",
+    "pinneapple_simulation.cfd_validation": "the classical validation cases, their published tables and the solver "
+                                            "runs measured against them (#272, #265, #294, #494): verification "
+                                            "evidence a reviewer reads, and a study of hours of OpenFOAM per case, "
+                                            "not a step of a flow",
+    "pinneapple_data.benchmark_suites": "the published freestream conditions of a public validation suite (NASA "
+                                        "TMR), read as the input of that same audit: a reference table, not a step "
+                                        "of a flow",
+    "pinneapple_analysis.trust.corrections": "a reviewer's correction stored as a rule and run as a check of the "
+                                             "trust report: it is the record of what an engineer decided, cited by "
+                                             "the report, not a computation step of a flow",
+    "pinneapple_analysis.trust.flow_card": "mass and energy conservation and the boundary-condition violation "
+                                           "measured on a predicted field: it is a check of a result against the "
+                                           "physics its spec states, like the scalar card next to it",
+    "pinneapple_analysis.inverse_problems.recovery": "a recovered parameter with an interval, a warning when the "
+                                                     "data cannot separate it from another, and the coverage that "
+                                                     "interval was measured to have: it is the evidence a calibration "
+                                                     "is reported with, not a step of a flow",
+    "pinneapple_analysis.condition": "what the scales and the loss weights should be before a run starts: it "
+                                     "answers a question about the setup of a problem, and the training node "
+                                     "consumes the numbers -- the run it changes is the node's, not this",
+    "pinneapple_analysis.linalg": "the linear-algebra layer the steps above are built from: an operator, a POD basis, "
+                                  "a spectrum, a condition estimate and an adjoint derivative are what a node calls "
+                                  "inside its own computation, not a computation a flow chooses to run -- the "
+                                  "reduced-order and sensitivity nodes are the steps that use them",
+    "pinneapple_physics.dimensions": "a dimensional check of one equation before training: it reads a statement and "
+                                     "reports which term broke the units, which is a review of a problem rather "
+                                     "than a step of a flow",
+    "pinneapple_physics.constraint_engine": "one Constraint object applied at the three places a response can break a "
+                                            "limit -- the trainer's penalty, the optimizer's ineq/eq and the deploy "
+                                            "guard's refusal (#221), with one residual arithmetic behind all three: "
+                                            "it is the rule those steps apply, not a step that runs on its own; the "
+                                            "count of violations over an ensemble is read by the decision report",
+    "pinneapple_physics.experiments": "reproducing a recorded run (reproduced / divergent / refused): the definition "
+                                      "of the three outcomes, read by pp.experiments rather than placed in a flow",
     # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for
     "pinneapple_data.multifidelity": "the two-fidelity models -- pairing the cheap and expensive values of the same "
                                      "design, the kernel-ridge correction, and the learning curves over scalar targets "
@@ -34,10 +124,42 @@ REASONS: dict[str, str] = {
     "pinneapple_data.graph": "the module builds the Graph objects the graph networks train on, from arrays and from "
                              "simulation records; a Graph is not something a flow's parameter form holds, so the "
                              "node that trains a graph model builds it inside the node",
+    "pinneapple_analysis.fidelity": "the choice between the surrogate and the solver for each request (#161), with "
+                                    "the reason kept in the request's record: it is the router a flow calls, not a "
+                                    "computation a node performs",
+    "pinneapple_analysis.multifidelity_workflow": "the two data levels of #35 as one workflow -- a nested design, the "
+                                                  "co-kriging model against a high-fidelity-only one at equal cost, "
+                                                  "and the break-even that decides whether the cheap level pays: it is "
+                                                  "the study a campaign runs before it buys solver time, so it chooses "
+                                                  "the calls rather than being one of them",
+    "pinneapple_data.adaptive_sampling": "the loop that decides which simulation to run next (multi-signal adaptive "
+                                         "sampling of #209): it chooses the calls a campaign makes, it is not one of "
+                                         "them, in the same way as pinneapple_analysis.bayesopt",
+    "pinneapple_analysis.surrogate_loop": "the same loop behind a verification budget (#297): it searches on the "
+                                          "surrogate, sends the most promising and most uncertain designs to the "
+                                          "solver, refits and stops when the verified optimum settles, so it chooses "
+                                          "the calls a campaign makes rather than being one of them -- the reason "
+                                          "pinneapple_data.adaptive_sampling already gives",
+    "pinneapple_physics.active_design": "the same loop behind the option it is reached by (Experiment(active=...) in "
+                                        "#34 and #153): it spends a budget of solver runs over the problem's design "
+                                        "box and records why, which chooses the calls a flow makes instead of being "
+                                        "one of them -- the reason pinneapple_data.adaptive_sampling already gives",
     "pinneapple_data.schema": "the data contract a bundle carries -- manifest, fields, locations, units, gates; it "
                               "is a type the adapters fill and the gates read, not a computation step of its own",
+    "pinneapple_data.astro": "the yt reader (#515): one Enzo/FLASH/RAMSES/GADGET/Athena++ output as a "
+                             "PhysicalSample, which is the data step the flows already have a node for; a node of its "
+                             "own would carry the dataset path and the yt install as parameters",
+    "pinneapple_simulation.events": "an event-driven integrator whose inputs are Python callables (the right-hand "
+                                    "side and the actions): a flow's parameter form cannot hold them, so a node that "
+                                    "runs a case defines its events inside the node",
     "pinneapple_simulation.launch": "ascent trajectories for the launch vertical: the flight profile, its atmosphere "
                                     "and its visuals are arranged by examples/rocket_launch, which no node wraps",
+    "pinneapple_core.ontology": "the formal types a problem, a dataset manifest and a model card are all filled into, "
+                                "and the JSON schema they are published with (#204): it is the vocabulary the steps "
+                                "speak, not a step of its own",
+    "pinneapple_neural.hybrid_closure": "the closure arrangement of the #211: a base model plus a learned residual. "
+                                        "A flow node would carry a torch training run whose base is a callable, "
+                                        "which is what the pinn / train nodes already do",
     "pinneapple_core.series": "downsampling of long series for charts and JSON payloads (presentation helper the "
                               "apps and data reports use, not a computation step)",
     "pinneapple_core.onboarding": "the first hour: doctor / recommend / card / new run before a problem "
@@ -72,6 +194,9 @@ REASONS: dict[str, str] = {
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
     "pinneapple_design.surrogate_inverse": "inverse design through a surrogate trained per case at start-up "
                                            "(seconds to minutes of MLP training); served by the apps/*_ai apps",
+    "pinneapple_design.design_gate": "the staged gate a generated design passes through (geometry, mesh, "
+                                     "convergence, physics, objectives) and the record of which stage rejected it: it "
+                                     "wraps the steps of a design campaign rather than computing one",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
     "pinneapple_autolab": "mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by "
@@ -120,8 +245,33 @@ REASONS: dict[str, str] = {
                                       "case): examples/granular_dem runs the mill, the wear calibration and the "
                                       "breakage test, and tests/test_granular_*.py check each layer",
     "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
+    "pinneapple_data.cae.structural": "``StructuralRun`` -- one explicit-FEA run as a single object (frames sharing one "
+                                      "connectivity, a time axis in seconds, named parts with their elements, a unit "
+                                      "per field, provenance and the dropped/eroded/contact masks) and the four "
+                                      "constructors that build it from a CrashResult, a legacy VTK series, a staged "
+                                      "OpenRadioss case or an LS-DYNA ASCII run: it is the object the readers return "
+                                      "and the trainers consume (a form cannot hold a run), introduced with #1500 "
+                                      "and shown end to end by examples/structural_ingestion",
+    "pinneapple_data.cae.training_set": "the normalisation between a run and a training set (deduplication, node "
+                                        "decimation with the error it introduces, unit conversion, "
+                                        "non-dimensionalisation and a split by geometry family), each step reported "
+                                        "rather than done silently: it takes the StructuralRun objects of a campaign, "
+                                        "not the scalars of a flow form -- examples/structural_ingestion runs it",
+    "pinneapple_data.cae.lsdyna": "the open ASCII half of an LS-DYNA run (the keyword deck with its *PART, "
+                                  "*SECTION_SHELL and *MAT sections, the nodout history, and the deck's own mesh): "
+                                  "file readers for a solver's output, with the proprietary d3plot family "
+                                  "deliberately out of scope (#1500), so they take a directory and a printed "
+                                  "history rather than flow parameters",
+    "pinneapple_data.cae.vtk_series": "the legacy-VTK time series the campaign writers leave behind (one file per "
+                                      "instant, the ``anim_to_vtk`` layout): read_vtk_series/write_vtk_series are a "
+                                      "file round trip over a StructuralRun, with no dependency on meshio, and the "
+                                      "values they carry are checked by examples/structural_ingestion",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
+    "pinneapple_analysis.report": "the one-page experiment report and its PDF (#919): every section is a view of "
+                                   "something the repository already computes -- the manifest, the curation trust "
+                                   "card, the quality checklist and the run's costs.json -- so it is the document a "
+                                   "reviewer reads rather than a computation a node performs",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
                                          "examples/paper_reproductions runners, not a flow step",
     "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "
@@ -130,6 +280,82 @@ REASONS: dict[str, str] = {
                                              "by the examples/reproductions/schiassi_epi2020 runner, not a flow step",
     "pinneapple_science.report": "writes the committed examples/science folders, manifests and seals "
                                  "(python -m pinneapple_science report)",
+    # Evidence, types and checks that cannot be a parameter form. The first four were already unreached on main when
+    # the last two arrived (2026-11-22).
+    "pinneapple_core.physics_tensor": "the tensor that knows its name, unit, domain and components (#186): it is the "
+                                      "type the inputs and outputs of a node are, not a computation of its own",
+    "pinneapple_core.catalog": "the read-only catalogue of #1478: it lists what the registry holds and reports where "
+                               "the architecture views disagree; it is a query over other modules, not a step",
+    "pinneapple_core.reproducibility": "the seed, the environment fingerprint and the twice-run check (#59): it is "
+                                       "the evidence a run attaches, and its inputs are a callable and the process, "
+                                       "which a flow form cannot hold",
+    "pinneapple_data.provenance": "the minimum record a dataset, run or model must carry, and its validator (#39): "
+                                  "evidence about a result, the role pinneapple_core.artifact also plays",
+    "pinneapple_data.readiness": "the gate that composes schema, units, CAE quality, preflight and VeriPhysics to "
+                                 "answer whether a dataset may start a training run (#1491): it runs before the "
+                                 "node that trains, which reads its verdict",
+    "pinneapple_data.review": "the engineering review record -- a named person approving a specific set of evidence "
+                              "(#1493): a judgement and an audit trail, not a computation step",
+    "pinneapple_data.registry": "one list of the public datasets and the pre-trained models with the licence, the "
+                                "citation and the checksums, and the load of one of them (#528): what it returns is "
+                                "the arrays a data node already takes (auto.data.datasets.*), and the choice -- which "
+                                "dataset, under which licence -- is made before a flow is drawn and is written into "
+                                "the run's record, not recomputed inside it",
+    "pinneapple_analysis.decision": "decision-level surrogate validation (#1871): flip rate, ranking preservation, "
+                                    "regret and the failure map take the truth and prediction arrays of a whole "
+                                    "design sweep, which a flow form cannot hold (the reason "
+                                    "pinneapple_data.multifidelity already has)",
+    # The five modules the merges of 2026-11-24 brought in without a node and without a reason, which turned
+    # tests/test_flow_library_nodes.py red on main for every frente. Each one is a shape a node cannot hold, and the
+    # reason says which shape -- the debt that is left is the node, not the sentence.
+    "pinneapple_analysis.design_study": "the study specification and run_study of #1036: it takes a whole study "
+                                        "(objective, variables with bounds, a runner per point) and a folder, and "
+                                        "the app's wizard (#31) is the caller -- a node of it would be the study "
+                                        "itself, not a step inside one",
+    "pinneapple_analysis.numerics": "the numerical lab of #1048/#1056-#1062: a catalogue of (problem, method) pairs "
+                                    "with the order measured against step size and against cost, which the app reads "
+                                    "as a table (#29); choosing a method happens before the run, not inside it",
+    # The trust layer of #345. It is read, not run: both modules fill and hand over the record a prediction already
+    # carries, so a node of them would be a second copy of the step that produced the prediction.
+    "pinneapple_analysis.trust.record": "the Trust record itself (#345): the versioned object a prediction carries -- "
+                                        "in_domain, horizon, residuals, measurement, uncertainty and provenance. It is "
+                                        "a data shape, not a step; a node of it would be the prediction it describes",
+    "pinneapple_analysis.trust.adapters": "the readers that fill that record from what the library already computes "
+                                          "(the ensemble's residual lookahead, weather.evaluate's horizons, the "
+                                          "uncertainty module, the decision verifiers). They run where the prediction "
+                                          "is made, so a node here would duplicate that step and could disagree with it",
+    "pinneapple_analysis.posterior": "posterior sampling with the diagnostics that say whether the posterior is "
+                                     "there: HMC and adaptive chains take a log-posterior callable and return chains "
+                                     "plus R-hat and effective sample size, which is a study of its own; the node "
+                                     "belongs with the inverse-problems one that owns the likelihood",
+    "pinneapple_data.co_kriging": "the Kennedy-O'Hagan co-kriging of #103: it takes the arrays of two fidelity levels "
+                                  "and returns a fitted surrogate with the discrepancy learned rather than assumed, "
+                                  "which is the whole multi-fidelity study -- the sampling step is the one "
+                                  "pinneapple_data.multifidelity already covers",
+    "pinneapple_neural.physics_model": "the common PhysicsModel interface of #155: it is the type the five model "
+                                       "families are, so a node uses it the way a node uses a dataclass, not as a "
+                                       "computation of its own",
+    "pinneapple_neural.problem_backends": "a problem trained on PyTorch, JAX or PhysicsNeMo (#75): the training "
+                                          "itself is the 'pinn' method node (and pp.solve), which is what this "
+                                          "backend calls; what it adds is the choice of engine, the artifact and "
+                                          "the provenance, which the node already carries",
+    # The CalculiX run files, and the three modules the merges of 2026-11-25 put into api/core.json without a node:
+    # what a verification reads *after* a solve, and what a study carries around one. A node is a step that produces
+    # a result; these decide whether the result may be believed, and the solve itself is the node.
+    "pinneapple_data.cae.ccx": "the files a CalculiX run leaves beside the deck -- the reaction totals and printed "
+                               "displacements of the .dat, the increment summary of the .sta and the solver log, "
+                               "with the verdict that classifies the run (#1508): a reader a verification compares "
+                               "against, after the node that solves",
+    "pinneapple_data.cae.xdmf": "the XDMF3 reader: an inline-XML mesh with its attributes into the same Mesh type "
+                                "every other CAE reader returns, which is the input a solver node takes rather than "
+                                "a step of its own",
+    "pinneapple_analysis.trust.drift": "the drift baseline and monitor of a deployed model: it takes a window of "
+                                       "inputs and predictions and returns whether the model still applies, with the "
+                                       "retraining decision -- a judgement about a result, like the correction "
+                                       "rules beside it",
+    "pinneapple_analysis.trust.signed_report": "the signed trust report: it binds a report to the artifact and the "
+                                               "residuals it was computed from and verifies the signature, which is "
+                                               "the integrity of the evidence a node already produced",
 }
 
 
@@ -139,8 +365,40 @@ def packages() -> list[str]:
 
 
 def modules(pkg: str) -> list[str]:
-    path = ROOT / pkg
-    return sorted(f"{pkg}.{m.name}" for m in pkgutil.iter_modules([str(path)]) if not m.name.startswith("_"))
+    """Every module under ``pkg``, at **any** depth: the walk descends into sub-packages (a directory with an
+    ``__init__.py``) and skips the names that start with ``_``. ``pkgutil.walk_packages`` would do the same but
+    imports what it visits, and this runs on every coverage read (#1883: the one-level version left
+    ``pinneapple_physics.pinn_solver.compiler.integral_kinds`` out of both the table and the node catalog)."""
+    out: list[str] = []
+
+    def walk(path: Path, prefix: str) -> None:
+        for m in pkgutil.iter_modules([str(path)]):
+            if m.name.startswith("_"):
+                continue
+            full = f"{prefix}.{m.name}"
+            out.append(full)
+            if m.ispkg:
+                walk(path / m.name, full)
+
+    walk(ROOT / pkg, pkg)
+    return sorted(out)
+
+
+def core_modules() -> set[str]:
+    """The modules the frozen core API lists (``api/core.json``, kept current by
+    ``python -m pinneapple_stability.api --write`` and reviewed in every pull request that touches the public API):
+    whatever sits at any depth, these are the modules whose shape is a promise, so the gate follows them down."""
+    try:
+        data = json.loads(CORE_SNAPSHOT.read_text())
+    except (OSError, ValueError):                     # a checkout without the snapshot owes nothing from it
+        return set()
+    return set(data.get("modules") or {})
+
+
+def owing(module: str, core: set[str] | None = None) -> bool:
+    """Whether ``module`` must have a node or a stated reason: every first-level row (the packages and their modules,
+    what the gate has always asked) and every module the core API lists, however deep."""
+    return module.count(".") <= 1 or module in (core_modules() if core is None else core)
 
 
 _MOD = re.compile(r"\bpp\.[a-z_]+|\bpinneapple[a-z_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*")
@@ -163,29 +421,47 @@ def node_targets(auto: bool = True) -> dict[str, set[str]]:
     return out
 
 
-def coverage(auto: bool = True) -> list[dict[str, str]]:
-    """One row per package and first-level module: the node types that reach it, or why there are none (a curated
-    reason, or the one the public-API scan of :mod:`pinneapple_flow.autocalls` recorded)."""
+def _stated_reason(module: str, reasons: dict[str, str]) -> str:
+    """The reason recorded for ``module``: its own, or the one of the nearest package above it (a module deep inside
+    a package that already says why the family has no node is not unreached on its own)."""
+    parts = module.split(".")
+    for i in range(len(parts), 0, -1):
+        reason = reasons.get(".".join(parts[:i]))
+        if reason:
+            return reason
+    return ""
+
+
+def coverage(auto: bool = True) -> list[dict[str, str | bool]]:
+    """One row per package and per module, at any depth: the node types that reach it, or why there are none (a
+    curated reason, or the one the public-API scan of :mod:`pinneapple_flow.autocalls` recorded), and whether the
+    row owes one (:func:`owing`)."""
     targets = node_targets(auto)
     reasons = dict(REASONS)
     if auto:
         from .autocalls import load
         reasons.update(load()["reasons"])
-    rows = []
+    core = core_modules()
+    rows: list[dict[str, str | bool]] = []
     for pkg in packages():
         mods = modules(pkg) or [pkg]
         for m in [pkg] + [x for x in mods if x != pkg]:
             nodes = sorted({t for k, v in targets.items() for t in v if k == m or k.startswith(m + ".")})
-            reason = reasons.get(m) or (reasons.get(pkg) if m != pkg else "") or ""
-            rows.append({"module": m, "nodes": ", ".join(nodes), "reason": reason if not nodes else ""})
+            rows.append({"module": m, "nodes": ", ".join(nodes),
+                         "reason": "" if nodes else _stated_reason(m, reasons), "owing": owing(m, core)})
     return rows
 
 
-def counts(rows: list[dict[str, str]] | None = None) -> dict[str, int]:
+def counts(rows: list[dict[str, str | bool]] | None = None) -> dict[str, int]:
+    """The numbers of the table: ``unreached`` counts the rows that owe a node or a reason and have neither (what the
+    gate and the command fail on); ``internal`` the deeper rows that owe nothing and have neither, which the node
+    catalog does not need to answer for."""
     rows = coverage() if rows is None else rows
+    missing = [r for r in rows if not r["nodes"] and not r["reason"]]
     return {"modules": len(rows), "with_nodes": sum(1 for r in rows if r["nodes"]),
             "with_reason": sum(1 for r in rows if not r["nodes"] and r["reason"]),
-            "unreached": sum(1 for r in rows if not r["nodes"] and not r["reason"])}
+            "unreached": sum(1 for r in missing if r["owing"]),
+            "internal": sum(1 for r in missing if not r["owing"])}
 
 
 def markdown() -> str:
@@ -196,20 +472,25 @@ def markdown() -> str:
     ok = sum(a.get("check", "").startswith("runs") for a in auto)
     out = ["# Flow Studio coverage of the library", "",
            f"**{c['modules']} packages / modules: {c['with_nodes']} with nodes, {c['with_reason']} with a stated "
-           f"reason, {c['unreached']} unreached.**", "",
+           f"reason, {c['unreached']} unreached.** The walk reaches every module at any depth; `internal` in the rows "
+           f"below marks the {c['internal']} deeper modules that owe no row of their own (no first-level gate, no "
+           "entry in `api/core.json`), so a module that introduces a capability four levels down still appears here.",
+           "",
            "Generated by `python -m pinneapple_flow coverage` from the node registry (each node declares the library "
            "calls it wraps), the curated reasons in `pinneapple_flow/coverage.py` and the public-API scan of "
            "`pinneapple_flow/autocalls.py` (`python -m pinneapple_flow autocalls`). Curated nodes come first in each "
            f"row; `auto.*` nodes are generated from type-hinted public functions ({len(auto)} nodes, {ok} of them run "
            "with their default form values, the rest need input: each node shows its check). A module without a node "
            "says why: a curated reason, or what the scan found (only classes, or functions that take objects, files "
-           "or code). `tests/test_flow_library_nodes.py` fails when a public module is neither.", "",
+           "or code). `tests/test_flow_library_nodes.py` fails when a first-level module, or a module the core API "
+           "lists at any depth, is neither.", "",
            "| package / module | node types | why not a node |", "|---|---|---|"]
     for r in rows:
-        nodes = r["nodes"].split(", ") if r["nodes"] else []
+        nodes = str(r["nodes"]).split(", ") if r["nodes"] else []
         cur = [n for n in nodes if not n.startswith("auto.")]
         au = [n for n in nodes if n.startswith("auto.")]
         cell = ", ".join(cur + ([f"{len(au)} auto (" + ", ".join(a.rsplit(".", 1)[1] for a in au[:6])
                                  + (", ..." if len(au) > 6 else "") + ")"] if au else []))
-        out.append(f"| `{r['module']}` | {cell} | {r['reason']} |")
+        why = str(r["reason"]) or ("" if r["owing"] else "internal: reached through the package above")
+        out.append(f"| `{r['module']}` | {cell} | {why} |")
     return "\n".join(out) + "\n"

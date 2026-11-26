@@ -6,7 +6,6 @@ Reference: Guibas et al., ICLR 2022
   https://arxiv.org/abs/2111.13587
 """
 
-from typing import Tuple
 
 import torch
 import torch.nn as nn
@@ -102,7 +101,7 @@ class AFNOLayer(nn.Module):
             nn.Dropout(dropout),
         )
 
-    def _block_mlp(self, x_re: torch.Tensor, x_im: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _block_mlp(self, x_re: torch.Tensor, x_im: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """The shared block-diagonal complex MLP. Inputs/outputs shaped
         ``(B, N, num_blocks, block_size)`` where ``N`` is the number of
         retained frequency locations (flattened)."""

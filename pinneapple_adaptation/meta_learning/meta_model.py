@@ -7,7 +7,7 @@ whether the underlying trainer is MAML or Reptile.
 
 import copy
 import logging
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -51,11 +51,11 @@ class MetaModel:
 
     def adapt(
         self,
-        physics_fn: Optional[Callable] = None,
-        data: Optional[dict] = None,
+        physics_fn: Callable | None = None,
+        data: dict | None = None,
         n_steps: int = 10,
         lr: float = 0.01,
-        task: Optional[dict] = None,
+        task: dict | None = None,
     ) -> nn.Module:
         """Adapt the meta-model to a new task.
 
@@ -91,7 +91,7 @@ class MetaModel:
     def _task_loss(
         self,
         model: nn.Module,
-        physics_fn: Optional[Callable],
+        physics_fn: Callable | None,
         batch: dict,
     ) -> torch.Tensor:
         zero = next(model.parameters()).new_zeros(())
@@ -134,7 +134,7 @@ class MetaModel:
     def predict(
         self,
         x: np.ndarray,
-        adapted_model: Optional[nn.Module] = None,
+        adapted_model: nn.Module | None = None,
     ) -> np.ndarray:
         """Run inference.
 
@@ -172,7 +172,7 @@ class MetaModel:
         logger.info("MetaModel saved to %s", path)
 
     @classmethod
-    def load(cls, path: str, model_factory: Callable[[], nn.Module]) -> "MetaModel":
+    def load(cls, path: str, model_factory: Callable[[], nn.Module]) -> MetaModel:
         """Load a saved MetaModel.
 
         Parameters

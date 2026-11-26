@@ -1,6 +1,6 @@
 """Finite Element Method — problem-agnostic P1/Q1 solver."""
 from __future__ import annotations
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import torch
 
@@ -12,7 +12,7 @@ from .registry import SolverRegistry
 # Mesh helpers
 # ---------------------------------------------------------------------------
 
-def _make_structured_mesh(nx: int, ny: int, bounds: Dict[str, Tuple[float, float]]):
+def _make_structured_mesh(nx: int, ny: int, bounds: dict[str, tuple[float, float]]):
     """Build a regular (nx x ny) quad mesh; returns nodes (N,2) and elem (E,4)."""
     x0, x1 = bounds.get("x", (0.0, 1.0))
     y0, y1 = bounds.get("y", (0.0, 1.0))
@@ -108,7 +108,7 @@ def _assemble_poisson(
     coeff: float,
     k2: float,
     source: float,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Assemble K (N,N) and f (N,) for -(coeff*Δ + k²)u = source."""
     N = nodes.shape[0]
     K = torch.zeros(N, N, device=nodes.device)
@@ -139,7 +139,7 @@ def _assemble_axisym_elasticity(
     elems: torch.Tensor,
     E: float,
     nu: float,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Plane-strain axisymmetric elasticity stiffness (interleaved DOF ordering).
     DOF: [ur0, uz0, ur1, uz1, ...] — 2N total.
@@ -214,7 +214,7 @@ def _apply_dirichlet(K: torch.Tensor, f: torch.Tensor, dofs: torch.Tensor, vals:
     return K, f
 
 
-def _boundary_dofs_rect(nodes: torch.Tensor, bounds: Dict[str, Tuple[float, float]], tol: float = 1e-9):
+def _boundary_dofs_rect(nodes: torch.Tensor, bounds: dict[str, tuple[float, float]], tol: float = 1e-9):
     """Return dict of edge → node indices for rectangular domain."""
     x0, x1 = bounds.get("x", (0.0, 1.0))
     y0, y1 = bounds.get("y", (0.0, 1.0))
@@ -275,7 +275,7 @@ class FEMSolver(SolverBase):
         self.max_iter = int(max_iter)
 
     @classmethod
-    def from_problem_spec(cls, spec, nx: int = 32, ny: int = 32, **kwargs) -> "FEMSolver":
+    def from_problem_spec(cls, spec, nx: int = 32, ny: int = 32, **kwargs) -> FEMSolver:
         return cls(nx=nx, ny=ny, **kwargs)
 
     # ------------------------------------------------------------------
@@ -345,7 +345,7 @@ class FEMSolver(SolverBase):
         )
 
     # ------------------------------------------------------------------
-    def forward(self, *, spec=None, mesh: Any = None, params: Dict[str, Any] = None) -> SolverOutput:
+    def forward(self, *, spec=None, mesh: Any = None, params: dict[str, Any] = None) -> SolverOutput:
         """
         Two call styles:
           forward(spec=problem_spec)                       # problem-agnostic

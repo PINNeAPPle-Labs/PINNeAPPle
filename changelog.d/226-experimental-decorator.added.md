@@ -1,0 +1,1 @@
+- `pinneapple_stability.experimental(reason)` marks a single public function or class as experimental inside a core module: it warns `ExperimentalWarning` once per symbol and process on first use and records `__stability__ = "experimental"`. The per-module tiers already covered whole packages; this covers the one fresh symbol in an otherwise stable module (issue #226).

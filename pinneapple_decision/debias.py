@@ -39,38 +39,38 @@ outcomes.
 from __future__ import annotations
 
 import math
-from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+from collections.abc import Callable, Mapping, Sequence
 
 ScoreFn = Callable[[Sequence[str]], Sequence[float]]  # options in shown order -> scores in same order
 
 
-def log_softmax(xs: Sequence[float]) -> List[float]:
+def log_softmax(xs: Sequence[float]) -> list[float]:
     m = max(xs)
     z = m + math.log(sum(math.exp(x - m) for x in xs))
     return [x - z for x in xs]
 
 
-def softmax_dict(logits: Mapping[str, float]) -> Dict[str, float]:
+def softmax_dict(logits: Mapping[str, float]) -> dict[str, float]:
     keys = list(logits)
     lp = log_softmax([logits[k] for k in keys])
     return {k: math.exp(v) for k, v in zip(keys, lp)}
 
 
-def normalize(p: Mapping[str, float]) -> Dict[str, float]:
+def normalize(p: Mapping[str, float]) -> dict[str, float]:
     s = sum(p.values())
     if s <= 0 or not math.isfinite(s):
         raise ValueError(f"cannot normalize distribution {dict(p)}")
     return {k: v / s for k, v in p.items()}
 
 
-def rotations(options: Sequence[str], max_permutations: Optional[int] = None) -> List[List[str]]:
+def rotations(options: Sequence[str], max_permutations: int | None = None) -> list[list[str]]:
     k = len(options)
     n = k if not max_permutations or max_permutations >= k else max(1, max_permutations)
     shifts = sorted({round(i * k / n) % k for i in range(n)})
     return [list(options[s:]) + list(options[:s]) for s in shifts]
 
 
-def raw_distribution(score_fn: ScoreFn, options: Sequence[str]) -> Dict[str, float]:
+def raw_distribution(score_fn: ScoreFn, options: Sequence[str]) -> dict[str, float]:
     scores = list(score_fn(list(options)))
     _check_scores(scores, options)
     return softmax_dict(dict(zip(options, scores)))
@@ -81,13 +81,13 @@ def permutation_marginalized(
     options: Sequence[str],
     *,
     combine: str = "geometric",
-    max_permutations: Optional[int] = None,
-) -> Tuple[Dict[str, float], Dict[str, object]]:
+    max_permutations: int | None = None,
+) -> tuple[dict[str, float], dict[str, object]]:
     """Distribution averaged over cyclic rotations of the option order."""
     if combine not in ("geometric", "mean"):
         raise ValueError("combine must be 'geometric' or 'mean'")
     rots = rotations(options, max_permutations)
-    per_rot: List[Dict[str, float]] = []
+    per_rot: list[dict[str, float]] = []
     for order in rots:
         scores = list(score_fn(order))
         _check_scores(scores, order)
@@ -108,7 +108,7 @@ def permutation_marginalized(
     return dist, diag
 
 
-def apply_prior(dist: Mapping[str, float], prior: Mapping[str, float], strength: float = 1.0) -> Dict[str, float]:
+def apply_prior(dist: Mapping[str, float], prior: Mapping[str, float], strength: float = 1.0) -> dict[str, float]:
     eps = 1e-12
     return normalize({o: dist[o] / (max(prior[o], eps) ** strength) for o in dist})
 
@@ -118,13 +118,13 @@ class BatchPrior:
 
     def __init__(self, min_prior_n: int = 8):
         self.min_prior_n = min_prior_n
-        self._sum: Dict[Tuple[str, frozenset], Dict[str, float]] = {}
-        self._n: Dict[Tuple[str, frozenset], int] = {}
+        self._sum: dict[tuple[str, frozenset], dict[str, float]] = {}
+        self._n: dict[tuple[str, frozenset], int] = {}
 
-    def key(self, choice: str, options: Sequence[str]) -> Tuple[str, frozenset]:
+    def key(self, choice: str, options: Sequence[str]) -> tuple[str, frozenset]:
         return (choice, frozenset(options))
 
-    def get(self, choice: str, options: Sequence[str]) -> Optional[Dict[str, float]]:
+    def get(self, choice: str, options: Sequence[str]) -> dict[str, float] | None:
         k = self.key(choice, options)
         n = self._n.get(k, 0)
         if n < self.min_prior_n:

@@ -37,7 +37,8 @@ import math
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -66,10 +67,10 @@ class MetaBenchmarkConfig:
     n_tasks_per_batch: int = 4
 
     # K-shot evaluation points
-    k_shots: Tuple[int, ...] = (1, 5, 10, 20, 50, 100, 200)
+    k_shots: tuple[int, ...] = (1, 5, 10, 20, 50, 100, 200)
 
     # Algorithms to compare
-    algorithms: Tuple[str, ...] = ("maml", "reptile")
+    algorithms: tuple[str, ...] = ("maml", "reptile")
 
     # Data
     n_col: int = 1000
@@ -82,7 +83,7 @@ class MetaBenchmarkConfig:
     weight_ic: float = 10.0
 
     # Model
-    hidden: Tuple[int, ...] = (64, 64, 64, 64)
+    hidden: tuple[int, ...] = (64, 64, 64, 64)
 
     # Misc
     device: str = "auto"
@@ -95,23 +96,23 @@ class MetaBenchmarkFamily:
     """A parametric PDE family for meta-learning."""
     name: str
     # factory(param_dict) -> BenchmarkTaskBase (should NOT build FDM reference)
-    train_task_factory: Callable[[Dict[str, float]], BenchmarkTaskBase]
+    train_task_factory: Callable[[dict[str, float]], BenchmarkTaskBase]
     # factory(param_dict) -> BenchmarkTaskBase (WITH reference for evaluation)
-    eval_task_factory: Callable[[Dict[str, float]], BenchmarkTaskBase]
-    param_ranges: Dict[str, Tuple[float, float]]
-    eval_params: List[Dict[str, float]]  # specific param values to evaluate on
+    eval_task_factory: Callable[[dict[str, float]], BenchmarkTaskBase]
+    param_ranges: dict[str, tuple[float, float]]
+    eval_params: list[dict[str, float]]  # specific param values to evaluate on
 
 
 @dataclass
 class MetaBenchmarkResult:
     family_name: str
-    eval_params: Dict[str, float]
+    eval_params: dict[str, float]
     algorithm: str          # "maml", "reptile", "scratch", "scratch_full"
     k_shot: int
-    metrics: Dict[str, float] = field(default_factory=dict)
+    metrics: dict[str, float] = field(default_factory=dict)
     elapsed_s: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "family": self.family_name,
             "eval_params": self.eval_params,
@@ -130,7 +131,7 @@ def _sample_task_data(
     task: BenchmarkTaskBase,
     n_col: int, n_bc: int, n_ic: int,
     seed: int, device: torch.device,
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]:
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor | None, torch.Tensor | None]:
     X_col = torch.tensor(task.sample_collocation(n_col, seed), device=device)
     Xb, Yb = task.sample_boundary(n_bc, seed)
     X_bc = torch.tensor(Xb, device=device)
@@ -149,7 +150,7 @@ def _pinn_loss(
     task: BenchmarkTaskBase,
     X_col: torch.Tensor,
     X_bc: torch.Tensor, Y_bc: torch.Tensor,
-    X_ic: Optional[torch.Tensor], Y_ic: Optional[torch.Tensor],
+    X_ic: torch.Tensor | None, Y_ic: torch.Tensor | None,
     weight_pde: float, weight_bc: float, weight_ic: float,
 ) -> torch.Tensor:
     X_req = X_col.detach().requires_grad_(True)
@@ -175,7 +176,7 @@ def _eval_model(
     task: BenchmarkTaskBase,
     n_eval: int,
     device: torch.device,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     X_eval, U_exact = task.eval_grid(n_eval)
     X_t = torch.tensor(X_eval, dtype=torch.float32, device=device)
     U_ref = torch.tensor(U_exact, dtype=torch.float32, device=device)
@@ -199,11 +200,11 @@ def _maml_inner_loop(
     task: BenchmarkTaskBase,
     X_col: torch.Tensor,
     X_bc: torch.Tensor, Y_bc: torch.Tensor,
-    X_ic: Optional[torch.Tensor], Y_ic: Optional[torch.Tensor],
+    X_ic: torch.Tensor | None, Y_ic: torch.Tensor | None,
     n_steps: int,
     inner_lr: float,
     weight_pde: float, weight_bc: float, weight_ic: float,
-) -> Tuple[nn.Module, float]:
+) -> tuple[nn.Module, float]:
     """Adapt a deep copy of model for n_steps, return (adapted_copy, final_loss)."""
     adapted = copy.deepcopy(model)
     opt = torch.optim.SGD(adapted.parameters(), lr=inner_lr)
@@ -222,7 +223,7 @@ def _family_to_sampler_for_maml(
     family: MetaBenchmarkFamily,
     cfg: MetaBenchmarkConfig,
     device: torch.device,
-    rng: "np.random.Generator",
+    rng: np.random.Generator,
 ):
     """Build a PDETaskSampler for MAMLTrainer from a MetaBenchmarkFamily.
 
@@ -231,7 +232,7 @@ def _family_to_sampler_for_maml(
     """
     from pinneapple_adaptation.meta_learning.task_sampler import PDETaskSampler
 
-    def physics_fn_factory(params: Dict[str, float]) -> Callable:
+    def physics_fn_factory(params: dict[str, float]) -> Callable:
         task = family.train_task_factory(params)
         seed = int(rng.integers(0, 100_000))
         Xb, Yb = task.sample_boundary(cfg.n_bc, seed)
@@ -261,7 +262,7 @@ def _family_to_sampler_for_maml(
 
         return physics_fn
 
-    def data_factory(params: Dict[str, float]) -> Dict[str, torch.Tensor]:
+    def data_factory(params: dict[str, float]) -> dict[str, torch.Tensor]:
         task = family.train_task_factory(params)
         seed = int(rng.integers(0, 100_000))
         x_col_np = task.sample_collocation(cfg.n_col, seed)
@@ -286,7 +287,7 @@ def _family_to_sampler_for_reptile(
     family: MetaBenchmarkFamily,
     cfg: MetaBenchmarkConfig,
     device: torch.device,
-    rng: "np.random.Generator",
+    rng: np.random.Generator,
 ):
     """Build a PDETaskSampler for ReptileTrainer from a MetaBenchmarkFamily.
 
@@ -295,7 +296,7 @@ def _family_to_sampler_for_reptile(
     """
     from pinneapple_adaptation.meta_learning.task_sampler import PDETaskSampler
 
-    def physics_fn_factory(params: Dict[str, float]) -> Callable:
+    def physics_fn_factory(params: dict[str, float]) -> Callable:
         task = family.train_task_factory(params)
         seed = int(rng.integers(0, 100_000))
         Xb, Yb = task.sample_boundary(cfg.n_bc, seed)
@@ -310,7 +311,7 @@ def _family_to_sampler_for_reptile(
 
         def physics_fn(
             model: Any, batch: Any
-        ) -> Tuple[torch.Tensor, Dict]:
+        ) -> tuple[torch.Tensor, dict]:
             x_col = batch["x_col"] if isinstance(batch, dict) else batch
             x_req = x_col.detach().requires_grad_(True)
             pde = task.pde_residual(model, x_req)
@@ -328,7 +329,7 @@ def _family_to_sampler_for_reptile(
 
         return physics_fn
 
-    def data_factory(params: Dict[str, float]) -> Dict[str, torch.Tensor]:
+    def data_factory(params: dict[str, float]) -> dict[str, torch.Tensor]:
         task = family.train_task_factory(params)
         seed = int(rng.integers(0, 100_000))
         x_col_np = task.sample_collocation(cfg.n_col, seed)
@@ -355,7 +356,7 @@ def _maml_meta_train(
     cfg: MetaBenchmarkConfig,
     device: torch.device,
     verbose: bool = False,
-) -> Tuple[nn.Module, List[Dict]]:
+) -> tuple[nn.Module, list[dict]]:
     """Delegate FOMAML meta-training to pinneapple_meta.MAMLTrainer."""
     from pinneapple_adaptation.meta_learning import MAMLTrainer
     from pinneapple_adaptation.meta_learning.config import MAMLConfig
@@ -410,7 +411,7 @@ def _reptile_meta_train(
     cfg: MetaBenchmarkConfig,
     device: torch.device,
     verbose: bool = False,
-) -> Tuple[nn.Module, List[Dict]]:
+) -> tuple[nn.Module, list[dict]]:
     """Delegate Reptile meta-training to pinneapple_meta.ReptileTrainer."""
     from pinneapple_adaptation.meta_learning import ReptileTrainer
     from pinneapple_adaptation.meta_learning.config import ReptileConfig
@@ -466,7 +467,7 @@ def _adapt_and_eval(
     inner_lr: float,
     cfg: MetaBenchmarkConfig,
     device: torch.device,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Adapt init_model for k steps, evaluate, return metrics dict."""
     X_col, X_bc, Y_bc, X_ic, Y_ic = _sample_task_data(
         eval_task, cfg.n_col, cfg.n_bc, cfg.n_ic, cfg.seed + 7, device
@@ -499,7 +500,7 @@ def _scratch_full_oracle(
     n_steps: int,
     cfg: MetaBenchmarkConfig,
     device: torch.device,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Train from random init for n_steps with Adam + cosine decay."""
     torch.manual_seed(cfg.seed + 99)
     model = _build_mlp(in_dim, out_dim, list(cfg.hidden), "tanh").to(device)
@@ -552,24 +553,24 @@ class MetaBenchmarkPipeline:
 
     def __init__(
         self,
-        families: List[MetaBenchmarkFamily],
-        config: Optional[MetaBenchmarkConfig] = None,
+        families: list[MetaBenchmarkFamily],
+        config: MetaBenchmarkConfig | None = None,
     ) -> None:
         self.families = families
         self.config = config or MetaBenchmarkConfig()
-        self.results: List[MetaBenchmarkResult] = []
-        self._meta_models: Dict[Tuple[str, str], nn.Module] = {}   # (family, algo) -> model
-        self._meta_histories: Dict[Tuple[str, str], List[Dict]] = {}
+        self.results: list[MetaBenchmarkResult] = []
+        self._meta_models: dict[tuple[str, str], nn.Module] = {}   # (family, algo) -> model
+        self._meta_histories: dict[tuple[str, str], list[dict]] = {}
 
     def _make_model(self, in_dim: int, out_dim: int) -> nn.Module:
         return _build_mlp(in_dim, out_dim, list(self.config.hidden), "tanh")
 
     # ── Run ───────────────────────────────────────────────────────────────────
 
-    def run(self, verbose: bool = True) -> List[MetaBenchmarkResult]:
+    def run(self, verbose: bool = True) -> list[MetaBenchmarkResult]:
         cfg = self.config
         device = _resolve_device(cfg.device)
-        all_results: List[MetaBenchmarkResult] = []
+        all_results: list[MetaBenchmarkResult] = []
         n_total_meta = cfg.n_meta_epochs * cfg.n_tasks_per_batch * cfg.n_inner_steps
 
         if verbose:
@@ -591,8 +592,8 @@ class MetaBenchmarkPipeline:
             in_dim, out_dim = dummy_task.in_dim, dummy_task.out_dim
 
             # ── Meta-train ───────────────────────────────────────────────
-            meta_models: Dict[str, nn.Module] = {}
-            meta_histories: Dict[str, List[Dict]] = {}
+            meta_models: dict[str, nn.Module] = {}
+            meta_histories: dict[str, list[dict]] = {}
 
             for algo in cfg.algorithms:
                 if verbose:
@@ -704,7 +705,7 @@ class MetaBenchmarkPipeline:
 
     # ── Reporting ─────────────────────────────────────────────────────────────
 
-    def leaderboard(self, k_shot: Optional[int] = None, metric: str = "rel_l2") -> str:
+    def leaderboard(self, k_shot: int | None = None, metric: str = "rel_l2") -> str:
         if not self.results:
             return "(no results)"
 
@@ -713,7 +714,7 @@ class MetaBenchmarkPipeline:
             k_shot = max(r.k_shot for r in self.results
                          if r.algorithm not in ("scratch_full",))
 
-        lines: List[str] = [f"\n  Meta-Learning Leaderboard (K={k_shot}, metric={metric})"]
+        lines: list[str] = [f"\n  Meta-Learning Leaderboard (K={k_shot}, metric={metric})"]
 
         families = list(dict.fromkeys(r.family_name for r in self.results))
         for fam in families:
@@ -739,7 +740,7 @@ class MetaBenchmarkPipeline:
                     lines.append(f"    {r.algorithm:<16} {v:>10.3e}  {li:>10.3e}  {r.elapsed_s:>6.1f}s")
         return "\n".join(lines)
 
-    def summary_k_shot(self, family_name: Optional[str] = None) -> str:
+    def summary_k_shot(self, family_name: str | None = None) -> str:
         """Table: rows=K values, cols=algorithms, cells=avg rel_l2 across eval tasks."""
         results = self.results
         if family_name:
@@ -767,8 +768,8 @@ class MetaBenchmarkPipeline:
 
     def plot_k_shot_curves(
         self,
-        family_name: Optional[str] = None,
-        save_path: Optional[str] = None,
+        family_name: str | None = None,
+        save_path: str | None = None,
     ) -> None:
         """K vs avg_rel_l2 curves for each algorithm."""
         try:
@@ -825,8 +826,8 @@ class MetaBenchmarkPipeline:
 
     def plot_meta_convergence(
         self,
-        family_name: Optional[str] = None,
-        save_path: Optional[str] = None,
+        family_name: str | None = None,
+        save_path: str | None = None,
     ) -> None:
         """Meta-training loss curves for MAML and Reptile."""
         try:
@@ -862,7 +863,7 @@ class MetaBenchmarkPipeline:
         print(f"[meta_benchmark] Results saved: {p}")
 
     @classmethod
-    def load_results(cls, path: str) -> List[Dict]:
+    def load_results(cls, path: str) -> list[dict]:
         return json.loads(Path(path).read_text(encoding="utf-8"))
 
     # ── Default ───────────────────────────────────────────────────────────────
@@ -870,10 +871,10 @@ class MetaBenchmarkPipeline:
     @classmethod
     def default(
         cls,
-        families: Optional[List[str]] = None,
+        families: list[str] | None = None,
         n_meta_epochs: int = 500,
         device: str = "auto",
-    ) -> "MetaBenchmarkPipeline":
+    ) -> MetaBenchmarkPipeline:
         """
         Standard benchmark families.
 
@@ -883,7 +884,7 @@ class MetaBenchmarkPipeline:
         from pinneapple_tools.benchmark_suite.tasks.heat_1d import Heat1DTask
         from pinneapple_tools.benchmark_suite.tasks.wave_1d import Wave1DTask
 
-        all_families: Dict[str, MetaBenchmarkFamily] = {
+        all_families: dict[str, MetaBenchmarkFamily] = {
             "burgers_nu": MetaBenchmarkFamily(
                 name="burgers_nu",
                 train_task_factory=lambda p: Burgers1DTask(nu=p["nu"], build_reference=False),
@@ -931,6 +932,6 @@ class MetaBenchmarkPipeline:
 # Helpers used in plot methods
 # ─────────────────────────────────────────────────────────────────────────────
 
-def cfg_str(results: List[MetaBenchmarkResult]) -> str:
+def cfg_str(results: list[MetaBenchmarkResult]) -> str:
     n = next((r.k_shot for r in results if r.algorithm == "scratch_full"), "?")
     return f"{n} steps"

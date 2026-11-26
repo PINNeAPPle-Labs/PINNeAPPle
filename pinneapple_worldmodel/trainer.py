@@ -20,16 +20,16 @@ Training data format expected by the Trainer::
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
 from torch import Tensor
 from torch.utils.data import DataLoader, random_split
 
-from .model import PhysicsWorldModel, WorldModelConfig
+from .model import PhysicsWorldModel
 from .dataset import WorldModelDataset
 
 
@@ -57,7 +57,7 @@ class WorldModelLoss:
         self,
         rollout_steps: int = 1,
         rollout_weight: float = 0.5,
-        physics_loss_fn: Optional[Callable] = None,
+        physics_loss_fn: Callable | None = None,
         physics_weight: float = 0.01,
     ) -> None:
         self.rollout_steps = rollout_steps
@@ -69,8 +69,8 @@ class WorldModelLoss:
         self,
         model: PhysicsWorldModel,
         pred: Tensor,
-        batch: Dict[str, Tensor],
-    ) -> Dict[str, Tensor]:
+        batch: dict[str, Tensor],
+    ) -> dict[str, Tensor]:
         """Compute loss dict compatible with :class:`~pinneapple_train.Trainer`.
 
         Parameters
@@ -90,7 +90,7 @@ class WorldModelLoss:
         # Next-step MSE
         next_step_loss = torch.mean((pred - target) ** 2)
 
-        losses: Dict[str, Tensor] = {"next_step": next_step_loss}
+        losses: dict[str, Tensor] = {"next_step": next_step_loss}
         total = next_step_loss
 
         # Multi-step rollout loss
@@ -111,8 +111,8 @@ class WorldModelLoss:
     def _rollout_loss(
         self,
         model: PhysicsWorldModel,
-        batch: Dict[str, Tensor],
-        context: Optional[Tensor],
+        batch: dict[str, Tensor],
+        context: Tensor | None,
     ) -> Tensor:
         """Unroll from state_t for (rollout_steps - 1) additional steps."""
         state = batch["state_t"]
@@ -169,7 +169,7 @@ class WorldModelTrainConfig:
     rollout_weight: float = 0.5
     physics_weight: float = 0.0
     patience: int = 20
-    save_best: Optional[str] = None
+    save_best: str | None = None
     log_every: int = 10
 
 
@@ -201,7 +201,7 @@ class WorldModelTrainer:
         model: PhysicsWorldModel,
         config: WorldModelTrainConfig,
         *,
-        physics_loss_fn: Optional[Callable] = None,
+        physics_loss_fn: Callable | None = None,
     ) -> None:
         self.model = model
         self.config = config
@@ -221,8 +221,8 @@ class WorldModelTrainer:
         self,
         dataset: WorldModelDataset,
         *,
-        val_dataset: Optional[WorldModelDataset] = None,
-    ) -> List[Dict[str, float]]:
+        val_dataset: WorldModelDataset | None = None,
+    ) -> list[dict[str, float]]:
         """Train the model and return the history list.
 
         Parameters
@@ -267,7 +267,7 @@ class WorldModelTrainer:
         )
         scaler = torch.cuda.amp.GradScaler(enabled=cfg.amp and self.device.type == "cuda")
 
-        history: List[Dict[str, float]] = []
+        history: list[dict[str, float]] = []
         best_val = float("inf")
         patience_count = 0
 
@@ -277,7 +277,7 @@ class WorldModelTrainer:
             )
             scheduler.step()
 
-            record: Dict[str, float] = {"epoch": float(epoch), **train_metrics}
+            record: dict[str, float] = {"epoch": float(epoch), **train_metrics}
 
             if val_loader is not None:
                 val_metrics = self._eval_epoch(model, val_loader)
@@ -316,9 +316,9 @@ class WorldModelTrainer:
         optimizer: torch.optim.Optimizer,
         scaler,
         cfg: WorldModelTrainConfig,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         model.train()
-        accum: Dict[str, float] = {}
+        accum: dict[str, float] = {}
         n_batches = 0
 
         for batch in loader:
@@ -351,9 +351,9 @@ class WorldModelTrainer:
         self,
         model: PhysicsWorldModel,
         loader: DataLoader,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         model.eval()
-        accum: Dict[str, float] = {}
+        accum: dict[str, float] = {}
         n_batches = 0
 
         for batch in loader:
@@ -401,7 +401,7 @@ class WorldModelTrainer:
         }, path)
 
     @staticmethod
-    def load_checkpoint(path: str, map_location: str = "cpu") -> "PhysicsWorldModel":
+    def load_checkpoint(path: str, map_location: str = "cpu") -> PhysicsWorldModel:
         """Restore a model from a checkpoint saved by :meth:`fit`."""
         ckpt = torch.load(path, map_location=map_location)
         model = PhysicsWorldModel(
@@ -412,7 +412,7 @@ class WorldModelTrainer:
         model.load_state_dict(ckpt["model"])
         return model
 
-    def _log(self, epoch: int, total: int, record: Dict[str, float]) -> None:
+    def _log(self, epoch: int, total: int, record: dict[str, float]) -> None:
         parts = [f"epoch={epoch}/{total}"]
         for k in ("train_total", "val_total", "val_rel_l2"):
             if k in record:

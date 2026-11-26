@@ -42,7 +42,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ._dispatch import call_llm
 
@@ -143,9 +143,9 @@ instead of guessing.
 @dataclass
 class CadRecipeResult:
     kind: str  # "mesh_recipe" | "cadquery_template"
-    recipe: Optional[Dict[str, Any]]  # for "mesh_recipe": the validated node tree (or None)
-    name: Optional[str] = None  # for "cadquery_template": the chosen template name (or None)
-    params: Dict[str, Any] = field(default_factory=dict)  # for "cadquery_template"
+    recipe: dict[str, Any] | None  # for "mesh_recipe": the validated node tree (or None)
+    name: str | None = None  # for "cadquery_template": the chosen template name (or None)
+    params: dict[str, Any] = field(default_factory=dict)  # for "cadquery_template"
     reasoning: str = ""
     raw_response: str = ""
 
@@ -176,7 +176,7 @@ def _normalize_param_value(v: Any) -> Any:
     return v
 
 
-def _normalize_params(params: Dict[str, Any]) -> Dict[str, Any]:
+def _normalize_params(params: dict[str, Any]) -> dict[str, Any]:
     return {k: _normalize_param_value(v) for k, v in (params or {}).items()}
 
 
@@ -311,7 +311,7 @@ def _validate_mesh_node(node: Any, *, builder_names: set, path: str = "recipe") 
         _validate_mesh_node(boolean["other"], builder_names=builder_names, path=f"{path}.boolean.other")
 
 
-def _node_to_build_mesh_kwargs(node: Dict[str, Any]) -> Dict[str, Any]:
+def _node_to_build_mesh_kwargs(node: dict[str, Any]) -> dict[str, Any]:
     """Convert a validated node into the flat ``**params`` shape
     ``primitives.build_mesh`` itself expects (name + its params merged at
     one level, with an optional "boolean" key whose "other" is the same
@@ -352,8 +352,8 @@ def draft_mesh_recipe(
     description: str,
     *,
     provider: str = "anthropic",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     conversation_store=None,
 ) -> CadRecipeResult:
     """Ask an LLM to compose a (possibly CSG-combined) geometry recipe
@@ -399,7 +399,7 @@ def draft_mesh_recipe(
     return CadRecipeResult(kind="mesh_recipe", recipe=recipe, reasoning=reasoning, raw_response=raw)
 
 
-def _cadquery_catalog() -> List[Dict[str, Any]]:
+def _cadquery_catalog() -> list[dict[str, Any]]:
     from pinneapple_design.geometry.gen.cadquery_gen import CadQueryRegistry, register_default_templates
 
     reg = register_default_templates(CadQueryRegistry())
@@ -413,8 +413,8 @@ def draft_cadquery_template(
     description: str,
     *,
     provider: str = "anthropic",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     conversation_store=None,
 ) -> CadRecipeResult:
     """Ask an LLM to pick + parametrise a genuinely parametric CAD
@@ -516,7 +516,7 @@ def build_recipe(result: CadRecipeResult):
     raise ValueError(f"unknown CadRecipeResult.kind: {result.kind!r}")
 
 
-def export_recipe(result: CadRecipeResult, out_path: str, *, fmt: Optional[str] = None) -> str:
+def export_recipe(result: CadRecipeResult, out_path: str, *, fmt: str | None = None) -> str:
     """Export a built recipe to a real CAD/mesh file on disk.
 
     For ``"mesh_recipe"``: writes a genuine triangle-mesh file (``.stl``
@@ -583,7 +583,7 @@ def export_recipe(result: CadRecipeResult, out_path: str, *, fmt: Optional[str] 
     raise ValueError(f"unknown CadRecipeResult.kind: {result.kind!r}")
 
 
-def measure_part(result: CadRecipeResult) -> Dict[str, Any]:
+def measure_part(result: CadRecipeResult) -> dict[str, Any]:
     """Build a ``"mesh_recipe"`` and measure it: volume, bounding-box extents, watertightness, and whether a
     boolean engine was available. Without one (``manifold3d``, extra ``geometry``) ``build_mesh`` replaces every
     cut/union by a concatenation of the parts (a UserWarning only), so a washer comes out as a disk plus its
@@ -605,8 +605,8 @@ def draft_part(
     *,
     tier: str = "quick",
     provider: str = "ollama",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     max_attempts: int = 4,
 ) -> tuple:
     """Draft a buildable part, retrying refused drafts: ``tier="quick"`` asks :func:`draft_mesh_recipe` (CSG of

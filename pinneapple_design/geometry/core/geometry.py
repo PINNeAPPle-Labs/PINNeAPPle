@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any
 import hashlib
 import json
 
@@ -46,7 +46,7 @@ def _hash_array(a: np.ndarray, algo: str = "sha256") -> str:
     return _hash_bytes(payload, algo=algo)
 
 
-def _compute_bounds(vertices: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def _compute_bounds(vertices: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Return (min_xyz, max_xyz) for (N,3) vertex array."""
     v = np.asarray(vertices, dtype=np.float64)
     if v.ndim != 2 or v.shape[1] != 3:
@@ -122,9 +122,9 @@ class GeometrySpec:
       - small convenience helpers
     """
     kind: str
-    name: Optional[str] = None
-    path: Optional[str] = None
-    params: Dict[str, Any] = field(default_factory=dict)
+    name: str | None = None
+    path: str | None = None
+    params: dict[str, Any] = field(default_factory=dict)
 
     def validate(self) -> None:
         if not isinstance(self.kind, str) or not self.kind:
@@ -140,7 +140,7 @@ class GeometrySpec:
         if not isinstance(self.params, dict):
             raise ValueError("GeometrySpec.params must be a dict")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "kind": self.kind,
             "name": self.name,
@@ -186,10 +186,10 @@ class GeometryAsset:
       - safe "manifest" summary for storage (e.g., Zarr index)
     """
     mesh: Any  # MeshData-like: has vertices, faces; may optionally have normals
-    bounds: Tuple[np.ndarray, np.ndarray]
-    units: Optional[str] = None
-    boundary_groups: Dict[str, Any] = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    bounds: tuple[np.ndarray, np.ndarray]
+    units: str | None = None
+    boundary_groups: dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
     # -------------------------
     # Basic geometry helpers
@@ -259,7 +259,7 @@ class GeometryAsset:
         T[:3, 3] = d
         self.apply_transform(T, record=record)
 
-    def scale(self, s: float, about: Optional[Any] = None, record: bool = True) -> None:
+    def scale(self, s: float, about: Any | None = None, record: bool = True) -> None:
         """
         Uniform scale by s, optionally about a point (default: origin).
         """
@@ -281,7 +281,7 @@ class GeometryAsset:
         center_to_origin: bool = True,
         eps: float = 1e-12,
         record: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Normalize geometry to fit inside a cube of edge 'target_size'.
         Useful for stable training + batching.
@@ -347,7 +347,7 @@ class GeometryAsset:
             raise ValueError("boundary group name must be a non-empty string")
         self.boundary_groups[name] = data
 
-    def list_boundary_groups(self) -> List[str]:
+    def list_boundary_groups(self) -> list[str]:
         return sorted(list(self.boundary_groups.keys()))
 
     def get_boundary_group(self, name: str, default: Any = None) -> Any:
@@ -356,7 +356,7 @@ class GeometryAsset:
     # -------------------------
     # Serialization-friendly summaries
     # -------------------------
-    def manifest(self) -> Dict[str, Any]:
+    def manifest(self) -> dict[str, Any]:
         """
         Storage-friendly metadata (no huge arrays). Good for Zarr inspector/manifests.
         """
@@ -379,7 +379,7 @@ class GeometryAsset:
             "mesh_fingerprint": self.mesh_fingerprint(),
         }
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """
         Backwards-compatible summary (keeps your original keys)
         + adds a couple extra low-cost fields.
@@ -404,11 +404,11 @@ class GeometryAsset:
     def from_mesh(
         cls,
         mesh: Any,
-        units: Optional[str] = None,
-        boundary_groups: Optional[Dict[str, Any]] = None,
-        meta: Optional[Dict[str, Any]] = None,
+        units: str | None = None,
+        boundary_groups: dict[str, Any] | None = None,
+        meta: dict[str, Any] | None = None,
         record_fp: bool = True,
-    ) -> "GeometryAsset":
+    ) -> GeometryAsset:
         bounds = _compute_bounds(mesh.vertices)
         obj = cls(
             mesh=mesh,

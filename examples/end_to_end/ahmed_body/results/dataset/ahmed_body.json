@@ -287,9 +287,17 @@
    "val_35.0",
    "val_40.0"
   ],
-  "library_version": "",
+  "library_version": "0.7.0",
   "created": "2026-10-30T19:24:24Z",
-  "notes": ""
+  "notes": "",
+  "solver": "openfoam-simpleFoam",
+  "seed": "deterministic",
+  "data_hash": "sha256:48c14e861c037ee4cbc185555bc2190f2b26ca8c6f5cba79b9121013155fe932",
+  "commit": "7afbdae12494aca7a92b8d1fe9298f93db5c05de",
+  "mesh": {
+   "cells": 207080,
+   "description": "Ahmed body half model, level 1 (campaign), 5 prism layers"
+  }
  },
  "license": "Apache-2.0",
  "status": "complete",

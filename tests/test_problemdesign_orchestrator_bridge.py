@@ -20,8 +20,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import builtins
-import copy
-import importlib
 import subprocess
 import sys
 

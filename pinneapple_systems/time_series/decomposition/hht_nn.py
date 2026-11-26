@@ -1,6 +1,6 @@
 """Hilbert-Huang Transform + Neural Network on residual decomposition forecaster."""
 from __future__ import annotations
-from typing import Optional, Any
+from typing import Any
 
 import numpy as np
 
@@ -25,7 +25,7 @@ class HHTNNForecaster:
         n_imfs: int = 5,
         input_len: int = 32,
         horizon: int = 16,
-        nn_model: Optional[Any] = None,
+        nn_model: Any | None = None,
         nn_epochs: int = 50,
         nn_lr: float = 1e-3,
     ):
@@ -35,13 +35,13 @@ class HHTNNForecaster:
         self.nn_epochs = nn_epochs
         self.nn_lr     = nn_lr
         self._nn_model = nn_model
-        self._imfs: Optional[np.ndarray] = None
-        self._inst_freqs: Optional[np.ndarray] = None
-        self._inst_amps:  Optional[np.ndarray] = None
+        self._imfs: np.ndarray | None = None
+        self._inst_freqs: np.ndarray | None = None
+        self._inst_amps:  np.ndarray | None = None
         self._residual_nn = None
-        self._y_train: Optional[np.ndarray] = None
+        self._y_train: np.ndarray | None = None
         self._n_fit: int = 0
-        self._trend: Optional[np.ndarray] = None
+        self._trend: np.ndarray | None = None
         self._trend_slope: float = 0.0
         self._trend_intercept: float = 0.0
 
@@ -96,7 +96,7 @@ class HHTNNForecaster:
         return amp_est * np.cos(phase_0 + 2 * np.pi * freq_est * t)
 
     # ------------------------------------------------------------------
-    def fit(self, y: np.ndarray) -> "HHTNNForecaster":
+    def fit(self, y: np.ndarray) -> HHTNNForecaster:
         y = np.asarray(y, dtype=float).ravel()
         self._y_train = y
 

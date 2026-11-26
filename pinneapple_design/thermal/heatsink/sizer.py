@@ -16,7 +16,7 @@ from __future__ import annotations
 import math
 import time
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -47,9 +47,9 @@ class SizingRequest:
     max_width_mm: float = 100.0
     max_depth_mm: float = 100.0
     max_height_mm: float = 50.0            # base + fins
-    materials: List[str] = field(default_factory=lambda: ["al6063"])
+    materials: list[str] = field(default_factory=lambda: ["al6063"])
     process: str = "extruded"
-    max_pressure_drop_pa: Optional[float] = None
+    max_pressure_drop_pa: float | None = None
     objective: str = "mass"                 # mass | volume | temperature
     n_candidates: int = 40000
     n_verify: int = 24
@@ -63,7 +63,7 @@ def _round_design(W, D, tb, N, t, H, mat) -> DesignInput:
                        int(N), round(float(t), 1), float(round(float(H))), str(mat))
 
 
-def _surrogate_domain_issues(req: SizingRequest, mode: str) -> List[str]:
+def _surrogate_domain_issues(req: SizingRequest, mode: str) -> list[str]:
     ranges = {**COMMON_RANGES, **MODE_RANGES[mode]}
     issues = []
     lo, hi = ranges["power_w"]
@@ -83,7 +83,7 @@ def _surrogate_domain_issues(req: SizingRequest, mode: str) -> List[str]:
     return issues
 
 
-def _sample(req: SizingRequest, mode: str, rng: np.random.Generator) -> Dict[str, np.ndarray]:
+def _sample(req: SizingRequest, mode: str, rng: np.random.Generator) -> dict[str, np.ndarray]:
     proc = PROCESSES[req.process]
     n = req.n_candidates
     wlo = max(req.source_width_mm, COMMON_RANGES["base_width_mm"][0])
@@ -114,7 +114,7 @@ def _mass_g(c) -> np.ndarray:
     return rho * vol_mm3 * 1e-9 * 1e3
 
 
-def _screen_surrogate(req, mode, c, sur) -> Dict[str, np.ndarray]:
+def _screen_surrogate(req, mode, c, sur) -> dict[str, np.ndarray]:
     k = np.array([MATERIALS[m]["k"] for m in c["mat"]])
     X = features(mode, c["W"], c["D"], c["tb"], c["N"], c["t"], c["H"], k,
                  np.full_like(c["W"], req.source_width_mm), np.full_like(c["W"], req.source_depth_mm),
@@ -128,7 +128,7 @@ def _screen_surrogate(req, mode, c, sur) -> Dict[str, np.ndarray]:
     return out
 
 
-def _screen_closed_form(req, c, limit: int = 6000) -> Dict[str, np.ndarray]:
+def _screen_closed_form(req, c, limit: int = 6000) -> dict[str, np.ndarray]:
     n = min(len(c["W"]), limit)
     for key in c:
         c[key] = c[key][:n]
@@ -145,7 +145,7 @@ def _screen_closed_form(req, c, limit: int = 6000) -> Dict[str, np.ndarray]:
     return {"r_upper": r * 1.15, "r_pred": r, "dp": dp}
 
 
-def size(req: SizingRequest, surrogates: Dict[str, Any]) -> Dict[str, Any]:
+def size(req: SizingRequest, surrogates: dict[str, Any]) -> dict[str, Any]:
     t0 = time.time()
     if req.process not in PROCESSES:
         raise ValueError(f"unknown process '{req.process}'")

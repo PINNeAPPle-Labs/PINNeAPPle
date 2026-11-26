@@ -12,12 +12,10 @@ Or run as a plain Python script for single-process (mp.spawn with n_procs=1):
     python 07_ddp_distributed.py
 """
 
-import os
 import math
 import torch
 import torch.nn as nn
 import torch.multiprocessing as mp
-import numpy as np
 
 from pinneapple_neural.trainer.distributed import DDPPINNTrainer, DDPTrainerConfig, get_rank
 

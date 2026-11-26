@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
-import torch
 import torch.nn as nn
 
 from pinneapple_neural.architectures.registry import ModelSpec
@@ -20,7 +19,7 @@ class PINNAdapter:
     def can_handle(self, spec: ModelSpec) -> bool:
         return (spec.input_kind or "pointwise_coords") == "pointwise_coords"
 
-    def forward_batch(self, model: nn.Module, batch: Dict[str, Any]) -> Any:
+    def forward_batch(self, model: nn.Module, batch: dict[str, Any]) -> Any:
         if hasattr(model, "forward_batch"):
             return model.forward_batch(batch)  # type: ignore[attr-defined]
         x = batch.get("x")

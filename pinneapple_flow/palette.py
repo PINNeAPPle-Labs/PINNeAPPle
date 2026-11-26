@@ -69,6 +69,7 @@ SECTION_OF: dict[str, str] = {
     "surrogate.study": "surrogates", "surrogate.hpo": "surrogates", "rom.fit": "surrogates",
     "lib.rom.compare": "surrogates", "lib.rom.parametric_pod": "surrogates",
     "data.ingest": "data", "data.observe": "data", "data.parametric": "data", "data.grf_burgers": "data",
+    "data.public_dataset": "data",
     "lib.doe.design": "data",
     "inverse.discover": "inverse", "inverse.calibrate": "inverse",
     "validate.compare": "validation", "validate.lab": "validation", "verify.convergence": "validation",
@@ -96,6 +97,9 @@ SECTION_OF: dict[str, str] = {
     "potential.eos_tree": "equations", "potential.hyperelastic": "equations",
     "potential.double_pendulum": "solvers", "potential.machine_coenergy": "validation",
     "potential.co2_surrogates": "surrogates",
+    # One season of an underground gas store runs the reference simulator end to end (#1083): it belongs where the
+    # solvers are, not in the collapsed library section, which is for the generated calls that have no place of their own.
+    "ugs.storage_season": "solvers",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)
@@ -106,7 +110,7 @@ KEYWORDS: dict[str, list[str]] = {
     "validate.compare": ["validate", "validation", "error"], "uq.propagate": ["uq", "uncertainty"],
     "twin.auto": ["twin"], "assimilate.filter": ["kalman", "enkf", "ekf"], "viz.plot": ["plot"],
     "export.report": ["report"], "inverse.discover": ["inverse"], "optimize.nsga2": ["optimize", "pareto"],
-    "data.ingest": ["csv", "data"], "solver.openfoam": ["openfoam", "cfd"], "gnn.meshgraphnet": ["gnn", "graph"],
+    "data.ingest": ["csv", "data"], "data.public_dataset": ["dataset", "archive", "benchmark"], "solver.openfoam": ["openfoam", "cfd"], "gnn.meshgraphnet": ["gnn", "graph"],
     "vehicle.simulate": ["rover", "vehicle"], "rover.learn_planet": ["mission", "autonomous", "stuck"],
     "vehicle.dashboard": ["dashboard"], "terramechanics.soil": ["soil"],
 }

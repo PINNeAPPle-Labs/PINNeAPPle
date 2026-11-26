@@ -13,7 +13,6 @@ data for these problems from analytical mean-line solutions.
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 import numpy as np
 

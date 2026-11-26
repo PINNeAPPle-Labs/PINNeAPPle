@@ -16,13 +16,12 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 from pinneapple_researcher.kb.chunking import chunk_text
 
 
-def _iter_artifact_markdown(run_dir: Path) -> List[Path]:
-    out: List[Path] = []
+def _iter_artifact_markdown(run_dir: Path) -> list[Path]:
+    out: list[Path] = []
     for base in ("papers", "repos"):
         root = run_dir / base
         if not root.exists():
@@ -46,7 +45,7 @@ def main() -> None:
         raise SystemExit("No artifacts found. Did you pass the correct run directory?")
 
     # measure average chunk counts
-    report: List[Dict] = []
+    report: list[dict] = []
     for cc in args.chunk_chars:
         for ov in args.overlap:
             total_chunks = 0

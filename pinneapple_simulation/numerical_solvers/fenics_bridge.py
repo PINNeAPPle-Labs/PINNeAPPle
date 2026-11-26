@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import torch
 
@@ -145,7 +145,8 @@ class FEnicsBridge(SolverBase):
             else:
                 solution, meta = self._solve_legacy(problem_spec, kind)
 
-            fields = self._extract_fields(solution, field_names)
+            vector = kind in ("linear_elasticity_plane_stress", "linear_elasticity_plane_strain")
+            fields = self._extract_fields(solution, field_names, vector=vector)
         except Exception as exc:
             log.exception("FEniCS solve failed: %s", exc)
             return SolverOutput(
@@ -155,11 +156,18 @@ class FEnicsBridge(SolverBase):
             )
 
         try:
-            import numpy as np
             tensors = [torch.as_tensor(arr.ravel(), dtype=torch.float32) for arr in fields.values()]
             result = torch.cat(tensors) if tensors else torch.empty(0)
         except Exception:
             result = torch.empty(0)
+
+        import numpy as np
+
+        try:
+            dof_coords = self._dof_coordinates(solution)
+        except Exception as exc:                     # noqa: BLE001 - the solution is worth keeping without them
+            log.debug("Dof coordinates unavailable: %s", exc)
+            dof_coords = np.empty((0, 0))
 
         return SolverOutput(
             result=result,
@@ -169,9 +177,36 @@ class FEnicsBridge(SolverBase):
                 "backend": self.solver_backend,
                 "kind": kind,
                 "fields": fields,
+                "dof_coordinates": dof_coords,
                 **meta,
             },
         )
+
+    def _dof_coordinates(self, solution: Any) -> Any:
+        """Where each entry of the field vectors lives: ``(n_dofs, gdim)``, in the same order as
+        ``extras["fields"]["u"]``.
+
+        A solution without its points cannot be compared with a closed form, plotted or packaged: the DOF vector alone
+        says what the values are but not where. A blocked (vector) space lists each *node* once while the field lists
+        its components, so the rows are repeated for that case -- ``dof_coordinates[i]`` is then the point of
+        ``fields["u"][i]`` and ``i % gdim`` its component. Coordinates are trimmed to the mesh's dimension (DOLFINx
+        tabulates a third coordinate that is zero in 2-D).
+        """
+        import numpy as np
+
+        if _DOLFINX_AVAILABLE and self.solver_backend == "dolfinx":
+            space = solution.function_space
+            gdim = int(space.mesh.geometry.dim)
+            rows = np.asarray(space.tabulate_dof_coordinates())[:, :gdim]
+            n_dofs = int(solution.x.array.size)
+        else:
+            space = solution.function_space()
+            rows = np.asarray(space.tabulate_dof_coordinates())
+            n_dofs = int(solution.vector().get_local().size)
+            gdim = rows.shape[1] if rows.ndim == 2 else 1
+        if rows.ndim == 2 and gdim > 1 and n_dofs == rows.shape[0] * gdim:
+            rows = np.repeat(rows, gdim, axis=0)      # one row per dof, not one per node
+        return rows
 
     # ------------------------------------------------------------------
     # Mesh construction
@@ -196,7 +231,6 @@ class FEnicsBridge(SolverBase):
         if self.solver_backend == "dolfinx" and _DOLFINX_AVAILABLE:
             from dolfinx.mesh import create_rectangle, CellType  # type: ignore[import]
             from mpi4py import MPI  # type: ignore[import]
-            import numpy as np
             mesh = create_rectangle(
                 MPI.COMM_WORLD,
                 [[x0, y0], [x1, y1]],
@@ -223,7 +257,7 @@ class FEnicsBridge(SolverBase):
         problem_spec: Any,
         V: Any,
         mesh: Any,
-    ) -> Tuple[Any, Any]:
+    ) -> tuple[Any, Any]:
         """Return ``(a, L)`` bilinear and linear form for the PDE kind.
 
         Dispatches to one of:
@@ -240,7 +274,7 @@ class FEnicsBridge(SolverBase):
             return self._form_navier_stokes(problem_spec, V)
         raise ValueError(f"No variational form defined for kind='{kind}'.")
 
-    def _form_heat_equation(self, problem_spec: Any, V: Any) -> Tuple[Any, Any]:
+    def _form_heat_equation(self, problem_spec: Any, V: Any) -> tuple[Any, Any]:
         """Steady heat equation: -∇·(k ∇T) = f.
 
         DirichletBC sets T on marked boundaries; NeumannBC contributes to L
@@ -272,7 +306,7 @@ class FEnicsBridge(SolverBase):
             L = f * v * dx
 
         # Neumann contributions
-        conditions: Dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
+        conditions: dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
         for cond in conditions.values():
             cond_type = getattr(cond, "type", "")
             if "neumann" in str(cond_type).lower() or "heat_flux" in str(cond_type).lower():
@@ -294,7 +328,7 @@ class FEnicsBridge(SolverBase):
         problem_spec: Any,
         V: Any,
         kind: str,
-    ) -> Tuple[Any, Any]:
+    ) -> tuple[Any, Any]:
         """Plane stress or plane strain linear elasticity: -∇·σ = f."""
         params = getattr(problem_spec, "parameters", {}) or {}
         E_val = float(params.get("E", 1e6))
@@ -356,7 +390,7 @@ class FEnicsBridge(SolverBase):
 
         return a, L
 
-    def _form_navier_stokes(self, problem_spec: Any, V: Any) -> Tuple[Any, Any]:
+    def _form_navier_stokes(self, problem_spec: Any, V: Any) -> tuple[Any, Any]:
         """Simplified Stokes (linearised Navier-Stokes) equations."""
         params = getattr(problem_spec, "parameters", {}) or {}
         mu_val = float(params.get("mu", 1e-3))
@@ -400,7 +434,7 @@ class FEnicsBridge(SolverBase):
         problem_spec: Any,
         V: Any,
         mesh: Any,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Convert problem_spec.conditions to FEniCS DirichletBC objects.
 
         NeumannBC and Robin conditions are handled through the linear form L
@@ -420,8 +454,8 @@ class FEnicsBridge(SolverBase):
         list
             List of FEniCS BC objects ready to pass to ``solve()``.
         """
-        bcs: List[Any] = []
-        conditions: Dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
+        bcs: list[Any] = []
+        conditions: dict[str, Any] = getattr(problem_spec, "conditions", {}) or {}
         kind = getattr(problem_spec, "kind", "heat_equation_steady")
         is_vector = kind in ("linear_elasticity_plane_stress", "linear_elasticity_plane_strain")
 
@@ -451,7 +485,7 @@ class FEnicsBridge(SolverBase):
         mesh: Any,
         value: Any,
         is_vector: bool,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Build dolfinx DirichletBC for a single condition."""
         try:
             from dolfinx.fem import (  # type: ignore[import]
@@ -500,7 +534,7 @@ class FEnicsBridge(SolverBase):
         mesh: Any,
         value: Any,
         is_vector: bool,
-    ) -> Optional[Any]:
+    ) -> Any | None:
         """Build legacy FEniCS DirichletBC for a single condition."""
         try:
             from fenics import DirichletBC, Constant, CompiledSubDomain  # type: ignore[import]
@@ -540,8 +574,9 @@ class FEnicsBridge(SolverBase):
     def _extract_fields(
         self,
         solution: Any,
-        field_names: Optional[List[str]],
-    ) -> Dict[str, Any]:
+        field_names: list[str] | None,
+        vector: bool = True,
+    ) -> dict[str, Any]:
         """Convert FEniCS solution to a dict of numpy arrays.
 
         Parameters
@@ -551,6 +586,10 @@ class FEnicsBridge(SolverBase):
         field_names:
             Optional subset of fields to return.  If ``None`` the whole
             DOF vector is returned as a single entry under ``"u"``.
+        vector:
+            Whether the function space is vector-valued, i.e. whether the DOF vector may be split into ``ux``/``uy``
+            components. False for a scalar solution such as a temperature field, whose entries are values and not
+            components.
 
         Returns
         -------
@@ -561,7 +600,7 @@ class FEnicsBridge(SolverBase):
         except ImportError:
             return {}
 
-        fields: Dict[str, Any] = {}
+        fields: dict[str, Any] = {}
         try:
             if _DOLFINX_AVAILABLE and self.solver_backend == "dolfinx":
                 dofs = solution.x.array.copy()
@@ -571,8 +610,10 @@ class FEnicsBridge(SolverBase):
             key = field_names[0] if (field_names and len(field_names) == 1) else "u"
             fields[key] = dofs
 
-            # If vector-valued, also split components
-            if dofs.ndim == 1:
+            # If vector-valued, also split components. A scalar solution (the heat equation) is not split by the
+            # geometric dimension: doing that turns 45 temperatures into 22 pairs of "ux"/"uy" that are not components
+            # of anything, and a caller cannot tell them from real fields.
+            if dofs.ndim == 1 and vector:
                 try:
                     gdim = solution.geometric_dimension() if hasattr(solution, "geometric_dimension") else 2
                     n_nodes = len(dofs) // gdim
@@ -594,11 +635,9 @@ class FEnicsBridge(SolverBase):
 
     def _solve_dolfinx(
         self, problem_spec: Any, kind: str
-    ) -> Tuple[Any, Dict[str, Any]]:
+    ) -> tuple[Any, dict[str, Any]]:
         """Build and solve the problem using the dolfinx API."""
-        from dolfinx.fem import (  # type: ignore[import]
-            FunctionSpace, Function, form,
-        )
+        from dolfinx.fem import functionspace  # type: ignore[import]
         from dolfinx.fem.petsc import (  # type: ignore[import]
             LinearProblem,
         )
@@ -608,23 +647,24 @@ class FEnicsBridge(SolverBase):
         if kind in ("linear_elasticity_plane_stress", "linear_elasticity_plane_strain"):
             from basix.ufl import element as ufl_element  # type: ignore[import]
             el = ufl_element("Lagrange", mesh.topology.cell_name(), self.element_degree, shape=(mesh.geometry.dim,))
-            V = FunctionSpace(mesh, el)
         else:
             from basix.ufl import element as ufl_element  # type: ignore[import]
             el = ufl_element("Lagrange", mesh.topology.cell_name(), self.element_degree)
-            V = FunctionSpace(mesh, el)
+        # ``functionspace()`` rather than ``FunctionSpace(mesh, element)``: 0.9 made the C++ space a required third
+        # argument of the class while keeping the factory, so the factory is the call that works on 0.8 and 0.9.
+        V = functionspace(mesh, el)
 
         a_form, L_form = self._build_variational_form(problem_spec, V, mesh)
         bcs = self._apply_bcs(problem_spec, V, mesh)
 
         problem = LinearProblem(a_form, L_form, bcs=bcs)
         uh = problem.solve()
-        meta: Dict[str, Any] = {"dofs": uh.x.array.shape, "mesh_cells": mesh.topology.index_map(mesh.topology.dim).size_local}
+        meta: dict[str, Any] = {"dofs": uh.x.array.shape, "mesh_cells": mesh.topology.index_map(mesh.topology.dim).size_local}
         return uh, meta
 
     def _solve_legacy(
         self, problem_spec: Any, kind: str
-    ) -> Tuple[Any, Dict[str, Any]]:
+    ) -> tuple[Any, dict[str, Any]]:
         """Build and solve the problem using the legacy FEniCS API."""
         from fenics import (  # type: ignore[import]
             FunctionSpace, VectorFunctionSpace, Function, solve,
@@ -642,5 +682,5 @@ class FEnicsBridge(SolverBase):
 
         u = Function(V)
         solve(a_form == L_form, u, bcs)
-        meta: Dict[str, Any] = {"dofs": u.vector().size()}
+        meta: dict[str, Any] = {"dofs": u.vector().size()}
         return u, meta

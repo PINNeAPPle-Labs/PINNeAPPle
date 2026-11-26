@@ -39,8 +39,7 @@ import json
 import os
 import re
 import subprocess
-import sys
-from typing import Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 
 # ---------------------------------------------------------------------------
@@ -69,13 +68,13 @@ def read_abaqus_inp_mesh(path: str):
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         lines = f.readlines()
 
-    node_ids: List[int] = []
-    coords: List[List[float]] = []
-    elements: Dict[str, Dict[str, list]] = {}
+    node_ids: list[int] = []
+    coords: list[list[float]] = []
+    elements: dict[str, dict[str, list]] = {}
 
     mode = None  # None | "node" | "element"
     current_elem_type = None
-    pending: List[str] = []
+    pending: list[str] = []
 
     def _flush_node(row: str):
         parts = [p.strip() for p in row.split(",") if p.strip() != ""]
@@ -191,7 +190,7 @@ def export_odb_fields(
     odb_path: str,
     out_npz_path: str,
     *,
-    step_name: Optional[str] = None,
+    step_name: str | None = None,
     frame_index: int = -1,
     field_outputs: Sequence[str] = ("U", "S"),
     abaqus_executable: str = "abaqus",

@@ -28,6 +28,33 @@ u.interpolate(np.array([[0.3, 0.4]]))
 Values have shape `(N, *components)`: `(N,)` scalar, `(N, d)` vector, `(N, c, d)` gradient of a vector.
 `gradient()` of a scalar gives `(N, d)`; `divergence()` needs a vector with `d` components.
 
+## `pp.tensor`: a tensor that knows what it is
+
+`Field` and `FunctionField` live on a numpy support. When the values are torch tensors in the middle of a training
+loop, the labels are what usually gets lost, so `pp.tensor(...)` keeps them attached and refuses the operations where
+they do not fit:
+
+```python
+import pinneapple as pp
+
+u = pp.tensor(velocity, name="velocity", units="m/s", coords=("x", "y"), components=("u", "v"))
+p = pp.tensor(pressure, name="pressure", units="Pa")
+
+u * 2.0            # a PhysicsTensor, still m/s
+u.sum()            # a PhysicsTensor, still m/s
+u + p              # UnitError: cannot apply 'add' to 'm/s' (velocity) and 'Pa' (pressure): the dimensions differ
+u + 1.0            # allowed: a number means "in the same unit"
+u.convert("km/h")  # same quantity, another unit of the same dimension
+```
+
+| what | how |
+|---|---|
+| carries | `name`, `units` (and `unit`, parsed), `domain`, `coords`, `components`, `time`, `meta` -- all in `.semantics` |
+| autograd | a labelled leaf with `requires_grad=True` gets its `.grad`; results keep their `grad_fn` and their labels |
+| rejects | additive and comparative operations between two labelled tensors of different dimension |
+| refuses to guess | multiplying two dimensioned tensors (that needs a unit algebra this class does not have) |
+| does not do | labels survive arithmetic, not a trip through `.numpy()` -- they are metadata, not a type system |
+
 ## How each support computes the four operations
 
 | Support | gradient | interpolate | integrate |

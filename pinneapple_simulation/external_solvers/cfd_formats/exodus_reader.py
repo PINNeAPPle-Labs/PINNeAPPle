@@ -44,10 +44,10 @@ wanting cell/element structure can extend this reader with the
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 
-def _decode_name_array(arr) -> List[str]:
+def _decode_name_array(arr) -> list[str]:
     """Exodus stores variable-name arrays as a NetCDF char matrix
     (n_names, name_strlen); decode each row to a plain, stripped string."""
     names = []
@@ -60,7 +60,7 @@ def _decode_name_array(arr) -> List[str]:
     return names
 
 
-def read_exodus(path: str, *, fields: Optional[Sequence[str]] = None, time_index: int = -1):
+def read_exodus(path: str, *, fields: Sequence[str] | None = None, time_index: int = -1):
     """Read node coordinates and nodal fields from a classic-NetCDF Exodus
     II file.
 
@@ -123,7 +123,7 @@ def read_exodus(path: str, *, fields: Optional[Sequence[str]] = None, time_index
             if t.size:
                 time_val = float(t[time_index])
 
-        out_fields: Dict[str, "np.ndarray"] = {}
+        out_fields: dict[str, np.ndarray] = {}
         if "name_nod_var" in variables:
             names = _decode_name_array(np.array(variables["name_nod_var"][:]))
             for k, name in enumerate(names, start=1):
@@ -138,7 +138,7 @@ def read_exodus(path: str, *, fields: Optional[Sequence[str]] = None, time_index
     return {"coords": coords, "fields": out_fields, "time": time_val}
 
 
-def exodus_to_upd(path: str, *, fields: Optional[Sequence[str]] = None, time_index: int = -1):
+def exodus_to_upd(path: str, *, fields: Sequence[str] | None = None, time_index: int = -1):
     """Read an Exodus II file and package it as a UPD ``PhysicalSample``
     (same ``domain={"type": "mesh"}`` / ``geometry.nodes`` contract as
     ``openfoam.field_reader.openfoam_case_to_upd``)."""

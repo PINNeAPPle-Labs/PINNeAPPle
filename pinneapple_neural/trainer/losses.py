@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -44,10 +44,10 @@ class SupervisedLoss:
 class PhysicsLossHook:
     physics_loss_fn: Any
 
-    def __call__(self, model: nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def __call__(self, model: nn.Module, y_hat: Any, batch: dict[str, Any]) -> dict[str, torch.Tensor]:
         # keep y_hat as-is; some physics hooks may want ModelOutput
         fn = self.physics_loss_fn
-        out: Dict[str, torch.Tensor] = {}
+        out: dict[str, torch.Tensor] = {}
         try:
             loss, comps = fn(model, batch)
             out["physics"] = loss
@@ -64,15 +64,15 @@ class PhysicsLossHook:
 @dataclass
 class CombinedLoss:
     supervised: SupervisedLoss = field(default_factory=lambda: SupervisedLoss("mse"))  # <-- Python 3.13 safe
-    physics: Optional[PhysicsLossHook] = None
+    physics: PhysicsLossHook | None = None
     w_supervised: float = 1.0
     w_physics: float = 1.0
 
-    def __call__(self, model: nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def __call__(self, model: nn.Module, y_hat: Any, batch: dict[str, Any]) -> dict[str, torch.Tensor]:
         pred = _unwrap_pred(y_hat)
         y = batch.get("y")
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         total = torch.tensor(0.0, device=pred.device, dtype=pred.dtype)
 
         if y is not None:
@@ -92,11 +92,11 @@ class CombinedLoss:
 
 def build_loss(
     *,
-    problem_spec: Optional[Any],
-    model_capabilities: Optional[Dict[str, Any]] = None,
-    weights: Optional[Dict[str, float]] = None,
+    problem_spec: Any | None,
+    model_capabilities: dict[str, Any] | None = None,
+    weights: dict[str, float] | None = None,
     supervised_kind: str = "mse",
-    physics_loss_fn: Optional[Any] = None,
+    physics_loss_fn: Any | None = None,
 ) -> CombinedLoss:
     """Helper to build a CombinedLoss for Arena.
 

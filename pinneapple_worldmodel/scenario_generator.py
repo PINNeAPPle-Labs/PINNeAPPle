@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from .scenario import PhysicsScenario, BUILTIN_SCENARIOS
 
@@ -39,12 +39,12 @@ class ScenarioSpec:
     """
     scenario:    PhysicsScenario
     domain:      str                        # e.g. "pipe", "cylinder", "cavity"
-    geometry:    Dict[str, Any]             # geometry parameters (length, diameter, …)
-    fluid:       Dict[str, Any]             # fluid properties (density, viscosity, …)
-    boundary_conditions: Dict[str, Any]    # inlet/outlet/wall BCs
-    initial_conditions:  Dict[str, Any]    # IC type + parameters
-    sensor_config: Dict[str, Any]           # suggested camera / sensor setup
-    extra: Dict[str, Any] = field(default_factory=dict)
+    geometry:    dict[str, Any]             # geometry parameters (length, diameter, …)
+    fluid:       dict[str, Any]             # fluid properties (density, viscosity, …)
+    boundary_conditions: dict[str, Any]    # inlet/outlet/wall BCs
+    initial_conditions:  dict[str, Any]    # IC type + parameters
+    sensor_config: dict[str, Any]           # suggested camera / sensor setup
+    extra: dict[str, Any] = field(default_factory=dict)
 
     # Convenience pass-throughs
     @property
@@ -95,7 +95,7 @@ class ScenarioGenerator:
 
     def __init__(
         self,
-        default_grid_2d: Tuple[int, int] = (64, 64),
+        default_grid_2d: tuple[int, int] = (64, 64),
         default_n_steps:  int = 32,
         device:           str = "cpu",
     ) -> None:
@@ -107,7 +107,7 @@ class ScenarioGenerator:
     # Public entry points
     # ------------------------------------------------------------------
 
-    def from_dict(self, spec_dict: Dict[str, Any]) -> ScenarioSpec:
+    def from_dict(self, spec_dict: dict[str, Any]) -> ScenarioSpec:
         """Build a ScenarioSpec from a JSON-like dict."""
         return _dict_to_spec(spec_dict, self.default_grid_2d, self.default_n_steps)
 
@@ -169,7 +169,7 @@ class ScenarioGenerator:
 # Internal builders
 # ---------------------------------------------------------------------------
 
-_FLUID_DB: Dict[str, Dict[str, float]] = {
+_FLUID_DB: dict[str, dict[str, float]] = {
     "water":    {"rho": 997.0,  "mu": 8.9e-4, "Pr": 6.9,   "cp": 4182.0},
     "air":      {"rho": 1.225,  "mu": 1.81e-5, "Pr": 0.71, "cp": 1005.0},
     "oil":      {"rho": 870.0,  "mu": 0.05,    "Pr": 300.0, "cp": 1900.0},
@@ -177,7 +177,7 @@ _FLUID_DB: Dict[str, Dict[str, float]] = {
     "co2":      {"rho": 1.977,  "mu": 1.47e-5, "Pr": 0.77,  "cp": 844.0},
 }
 
-_DOMAIN_TO_PDE: Dict[str, str] = {
+_DOMAIN_TO_PDE: dict[str, str] = {
     "pipe":         "ns2d",
     "cylinder":     "ns2d",
     "cavity":       "ns2d",
@@ -194,7 +194,7 @@ _DOMAIN_TO_PDE: Dict[str, str] = {
     "waveguide":    "wave",
 }
 
-_DOMAIN_TO_BC: Dict[str, Dict[str, Any]] = {
+_DOMAIN_TO_BC: dict[str, dict[str, Any]] = {
     "pipe":     {"inlet": "velocity_inlet", "outlet": "pressure_outlet", "walls": "no_slip"},
     "cylinder": {"farfield": "freestream", "body": "no_slip"},
     "cavity":   {"lid": "moving_wall", "walls": "no_slip"},
@@ -204,8 +204,8 @@ _DOMAIN_TO_BC: Dict[str, Dict[str, Any]] = {
 
 
 def _dict_to_spec(
-    d: Dict[str, Any],
-    default_grid: Tuple[int, int],
+    d: dict[str, Any],
+    default_grid: tuple[int, int],
     default_n_steps: int,
 ) -> ScenarioSpec:
     """Core builder: dict → ScenarioSpec."""
@@ -215,7 +215,7 @@ def _dict_to_spec(
     pde_kind = _DOMAIN_TO_PDE.get(geom_key, "ns2d")
 
     # Geometry
-    geom: Dict[str, Any] = {"type": geom_key}
+    geom: dict[str, Any] = {"type": geom_key}
     for key in ("length", "diameter", "width", "height", "radius",
                 "chord", "span", "thickness", "resolution"):
         if key in d:
@@ -232,7 +232,7 @@ def _dict_to_spec(
     mu   = fluid["mu"]
     rho  = fluid["rho"]
     U    = Re * mu / (rho * Lref)
-    param_ranges: Dict[str, Tuple[float, float]] = {"Re": (Re * 0.5, Re * 2.0)}
+    param_ranges: dict[str, tuple[float, float]] = {"Re": (Re * 0.5, Re * 2.0)}
     if pde_kind == "heat":
         alpha = mu / (rho * fluid.get("cp", 1000.0))
         param_ranges = {"alpha": (alpha * 0.5, alpha * 2.0)}
@@ -293,7 +293,7 @@ def _dict_to_spec(
     )
 
 
-def _prompt_to_dict(prompt: str) -> Dict[str, Any]:
+def _prompt_to_dict(prompt: str) -> dict[str, Any]:
     """Heuristic keyword extractor: prompt → spec dict."""
     p = prompt.lower()
 
@@ -349,7 +349,7 @@ def _infer_domain_from_pde(pde_kind: str) -> str:
     }.get(pde_kind, "fluid_dynamics")
 
 
-def _default_sensor_config() -> Dict[str, Any]:
+def _default_sensor_config() -> dict[str, Any]:
     return {
         "camera_position": [0.5, 0.5, 2.0],
         "fov":             60.0,

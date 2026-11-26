@@ -731,6 +731,9 @@ _LAZY_ATTRS = {
     "ComputeBudget": ("pinneapple_analysis.cost.equal_budget", "ComputeBudget"),
     # physics checks of a field on a grid -> trust card with a deploy decision
     "trust_card": ("pinneapple_analysis.trust.field_card", "trust_card"),
+    # the trust layer as one object (#345): in-domain, horizon, residuals per law, the readings, the calibrated
+    # interval and the provenance, with to_json() and badge() -- pp.trust(model, data, problem) -> Trust
+    "trust": ("pinneapple_analysis.trust.adapters", "trust"),
     # one call, one validation report with credibility levels (#696)
     # (also the old pp.validate namespace: pp.validate.PhysicsValidator still resolves)
     "validate": ("pinneapple_analysis.validation.validate", "pp_validate"),

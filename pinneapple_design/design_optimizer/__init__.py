@@ -92,6 +92,11 @@ from .report import (
     to_parameter_space, designs_frame, study_result, surrogate_from_table, model_ref_for_surrogate, table_evaluator,
     verify_front, write_design_files, chart_points, verify_uploaded_results, DESIGN_FILES,
 )
+from .quality_diversity import (
+    BehaviourAxis, BehaviourSpace, descriptor_vector, descriptor_axes, Evaluation, Elite, DiversityReport,
+    EliteArchive, QDConfig, QDSearchResult, QualityDiversitySearch, BaselineSearch, latin_hypercube,
+    uniform_search, FailingCell, FailureRegion, find_failure_region, plot_archive,
+)
 
 __all__ = [
     # Adjoint shape optimisation (Feature 16)
@@ -124,4 +129,8 @@ __all__ = [
     "to_parameter_space", "designs_frame", "study_result", "surrogate_from_table", "model_ref_for_surrogate",
     "table_evaluator", "verify_front", "write_design_files", "chart_points", "verify_uploaded_results", "DESIGN_FILES",
     "SpecError", "problem_from_spec", "reference_for_spec", "zoo_problem",
+    # Quality-diversity: a map of designs, and the map of where a model fails (#354)
+    "BehaviourAxis", "BehaviourSpace", "descriptor_vector", "descriptor_axes", "Evaluation", "Elite",
+    "DiversityReport", "EliteArchive", "QDConfig", "QDSearchResult", "QualityDiversitySearch", "BaselineSearch",
+    "latin_hypercube", "uniform_search", "FailingCell", "FailureRegion", "find_failure_region", "plot_archive",
 ]

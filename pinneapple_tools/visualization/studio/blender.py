@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 import os
 import tempfile
+import warnings
 from collections.abc import Sequence
 
 import numpy as np
@@ -338,6 +339,15 @@ def _write_passes(bpy, bs, out: str) -> str:
     return folder
 
 
+def _basis(d):
+    """The camera's right and up vectors when it looks along ``-d`` (``d`` points from the subject to the camera)."""
+    fwd = -np.asarray(d, float)
+    upw = np.array([0.0, 0.0, 1.0]) if abs(fwd[2]) < 0.99 else np.array([0.0, 1.0, 0.0])
+    right = np.cross(fwd, upw)
+    right = right / (np.linalg.norm(right) or 1.0)
+    return right, np.cross(right, fwd)
+
+
 def render(scene, out: str, *, field: str | None = None, field_range: tuple[float, float] | None = None,
            lines: bool | str = False, line_range: tuple[float, float] | None = None,
            slice: str | None = None, slice_range: tuple[float, float] | None = None,
@@ -351,7 +361,9 @@ def render(scene, out: str, *, field: str | None = None, field_range: tuple[floa
            field_alpha: float | None = None, hdri_strength: float = 1.0,
            hdri_rotation: float = 0.0, camera: str | None = None, composition: str | None = None,
            fstop: float | None = None, look: str | None = None, post: str | None = None,
-           passes: bool = False, film_transparent: bool = False) -> str:
+           passes: bool = False, film_transparent: bool = False, units=None, backdrop: str | None = None,
+           grid=None, scale_bar: bool = False, scale_ref: str | None = None, dimensions: bool = False,
+           _facts_path: str | None = None) -> str:
     """Render ``scene`` (a Scene or a .glb path) to ``out`` (.png or .jpg). Returns ``out``.
 
     field: colour the surfaces by this per-vertex field (surfaces without it are grey). lines: True (all) or the
@@ -382,6 +394,19 @@ def render(scene, out: str, *, field: str | None = None, field_range: tuple[floa
     S-curve and, for punchy, saturation). post: "bloom", "vignette" or "bloom+vignette". passes: write the Cycles
     passes (depth, normal, diffuse, glossy, emission, mist, denoising data) -- with an ``.exr`` output that means a
     multilayer file, the input to a grade. film_transparent: no world behind the geometry, an alpha to composite on.
+
+    Scale (see :mod:`.scale`), the way a picture becomes measurable. units: metres per scene coordinate unit --
+    ``"mm"``, ``"cm"``, ``"m"``, ``"in"``, ``"ft"`` or a number (``0.001``); None uses ``scene.unit``, which defaults
+    to 1 (a model drawn in metres). backdrop: ``"floor"`` (a plane with a real-scale surface under the geometry) or
+    ``"cyclorama"`` (a seamless cove all the way round, the shape of a photographic studio, sized from the subject's
+    real size); ``floor=True`` alone means ``"floor"``, and a ``"dark"`` stage keeps its glossy black floor. grid:
+    ``True`` for a metric grid on the floor with squares about a tenth of the subject, a number or a string ("25 mm",
+    "1 m") for an explicit spacing. scale_ref: ``"auto"`` (the largest of :data:`.scale.PROPS` that does not dwarf
+    the subject) or one of ``"human"``, ``"ruler"``, ``"a4"``, ``"coin"``, built at its real size on the floor beside
+    the geometry and framed with it. scale_bar: burn a metric bar into the corner of the picture, its length taken
+    from the projection at the subject's distance. dimensions: burn the subject's three extents, its grid square and
+    the props used into the top-left corner. The backdrop and the props need ``units`` to mean anything: without it
+    the scene is unitless and the set is sized from the bounding box alone.
     """
     import bpy
     from mathutils import Vector
@@ -434,6 +459,31 @@ def render(scene, out: str, *, field: str | None = None, field_range: tuple[floa
     mins = Vector((min(min((o.matrix_world @ Vector(c))[i] for c in o.bound_box) for o in objs) for i in range(3)))
     maxs = Vector((max(max((o.matrix_world @ Vector(c))[i] for c in o.bound_box) for o in objs) for i in range(3)))
     centre, size_l = (mins + maxs) / 2, (maxs - mins).length
+
+    from . import scale as _scale
+    unit = _scale.unit_scale(units if units is not None else getattr(sc, "unit", 1.0))
+    ext = np.array([maxs[i] - mins[i] for i in range(3)], float)      # the subject's extent, in scene units
+    real = ext * unit                                                 # ... and in metres
+    big_m = float(real.max()) or float(unit)
+    bg = None if backdrop is None else str(backdrop).strip().lower()
+    bg = None if bg in ("", "none", "world") else bg
+    if bg not in (None, "floor", "cyclorama"):
+        raise ValueError(f"backdrop={backdrop!r}: 'floor', 'cyclorama' or None")
+    kind = bg or ("floor" if floor else None)
+    if grid is None or grid is False or grid == 0 or grid == "":
+        grid_m = None
+    elif grid is True:
+        grid_m = _scale.grid_step(big_m)
+    else:
+        grid_m = _scale.parse_length(grid)
+    prop_kind = None
+    if scale_ref not in (None, False, "", "none"):
+        want = str(scale_ref).strip().lower()
+        prop_kind = None if want == "none" else (_scale.auto_prop(big_m) if want == "auto" else want)
+        if prop_kind is not None and prop_kind not in _scale.PROP_KINDS:
+            raise ValueError(f"scale_ref={scale_ref!r}: 'auto' or one of {', '.join(_scale.PROP_KINDS)}")
+    if (grid_m or prop_kind) and kind is None:
+        kind = "floor"                                   # a grid and a prop stand on something
 
     def ramp_material(name: str, attr: str, lo: float, hi: float, cmap: str = "jet"):
         return _ramp_material(bpy, name, attr, lo, hi, cmap)
@@ -572,7 +622,7 @@ def render(scene, out: str, *, field: str | None = None, field_range: tuple[floa
         from .lighting import blender_world
         blender_world(background, bpy)
     elif background == "dark":
-        _dark_stage(bpy, bs, centre, size_l, mins.z if floor else None)
+        _dark_stage(bpy, bs, centre, size_l)
     else:
         _world(bpy, bs, studio, sun_elevation)
     bs.view_settings.exposure = exp                      # the stage sets its own; the caller has the last word
@@ -594,6 +644,10 @@ def render(scene, out: str, *, field: str | None = None, field_range: tuple[floa
     right /= np.linalg.norm(right)
     up = np.cross(right, fwd)
     c0 = np.array(centre)
+    prop_pts = []                                        # a prop of known size, framed with the subject
+    if prop_kind is not None and d[2] > -0.6:            # nothing stands on a ceiling: a view from below skips it
+        prop_pts.append(_add_props(bpy, bs, prop_kind, centre, floor_z=mins.z, ext=ext, unit=unit, right=right,
+                                   fwd=fwd, dark=background == "dark"))
     pts = []                                             # the visible geometry, not its bounding box
     for o in objs:
         mw = np.array(o.matrix_world)
@@ -606,26 +660,53 @@ def render(scene, out: str, *, field: str | None = None, field_range: tuple[floa
     if slice and sc is not None:                         # frame the whole slice plane, not only the body
         sl = next(x for x in sc.slices if x.name == slice)
         pts.append(_to_blender(np.array([sl.origin, sl.origin + sl.u, sl.origin + sl.u + sl.v, sl.origin + sl.v]), axes))
-    k = np.concatenate(pts) - c0
+    k = np.concatenate(pts + [p for p in prop_pts if len(p)]) - c0
     # aim at the middle of the projected extent, then back off until every vertex is in frame (perspective)
     shift = right * 0.5 * (np.max(k @ right) + np.min(k @ right)) + up * 0.5 * (np.max(k @ up) + np.min(k @ up))
     centre = centre + Vector(tuple(shift))
     k = k - shift
-    lat = np.maximum(np.abs(k @ right) / tx, np.abs(k @ up) / ty)
-    fit = float(np.max(k @ d + lat)) * 1.15 * distance
+    def fit_along(dvec) -> float:
+        """How far back the camera goes along ``dvec`` for every framed vertex to be inside the lens' angle."""
+        f_, u_ = _basis(dvec)
+        lat_ = np.maximum(np.abs(k @ f_) / tx, np.abs(k @ u_) / ty)
+        return float(np.max(k @ dvec + lat_)) * 1.15 * distance
+
+    fit = fit_along(d)
     cam.location = centre + Vector(tuple(d * fit))
     cam_data.clip_start, cam_data.clip_end = fit * 1e-3, fit * 1e3     # small models: the default 0.1 m cuts them
     aim = centre - cam.location
     cam.rotation_euler = aim.to_track_quat("-Z", "Y").to_euler()
     sx, sy = COMPOSITION[composition]
-    if sx or sy:                                         # a lens shift keeps the frame the auto-fit computed
+    pushed = 1.0 + 1.6 * max(abs(sx), abs(sy)) if (sx or sy) else 1.0
+    if pushed > 1.0:                                     # a lens shift keeps the frame the auto-fit computed
         cam_data.shift_x, cam_data.shift_y = sx, sy
-        cam.location = centre + Vector(tuple(d * fit)) * (1.0 + 1.6 * max(abs(sx), abs(sy)))
+        cam.location = centre + Vector(tuple(d * fit)) * pushed
     if fstop:                                            # depth of field on the subject, not on its bbox
         cam_data.dof.use_dof = True
         cam_data.dof.focus_distance = float((cam.location - centre).length)
         cam_data.dof.aperture_fstop = float(fstop)
+    has_set = kind is not None and d[2] > -0.6
+    if has_set:                                          # a set has a floor, and the camera cannot be under it
+        above = float(mins.z) + 0.06 * float(size_l)
+        if float(cam.location[2]) < above:               # a low preset ("hero") would look at the floor's underside
+            warnings.warn(f"backdrop={kind!r}: the camera stood below the floor, so it was raised to it; pass "
+                          f"camera='documentary' (or a higher view) for the angle the preset asked for",
+                          stacklevel=2)
+            cam.location = Vector((float(cam.location[0]), float(cam.location[1]), above))
+            up_d = (np.asarray(cam.location) - np.array(centre))
+            up_d /= np.linalg.norm(up_d) or 1.0
+            # the raise changed the angle, so the distance is the one the *new* angle needs: otherwise what the
+            # old fit framed (the scale prop, the tip of the part) falls out of the picture
+            lift = fit_along(up_d) * pushed
+            cam.location = centre + Vector(tuple(up_d * lift))
+            cam_data.clip_start, cam_data.clip_end = lift * 1e-3, lift * 1e3
+            cam.rotation_euler = (centre - cam.location).to_track_quat("-Z", "Y").to_euler()
+            if fstop:
+                cam_data.dof.focus_distance = float((cam.location - centre).length)
     bs.camera = cam
+    if has_set:                                          # the set, once the camera is where it will render from
+        _stage(bpy, bs, centre, float(mins.z), size_l, unit, kind, grid_m, background == "dark",
+               cam, cam_data, size)
 
     fmt = out.lower().rsplit(".", 1)[-1]
     if passes:                                           # the layers a grade needs, not just the beauty
@@ -667,6 +748,37 @@ def render(scene, out: str, *, field: str | None = None, field_range: tuple[floa
                  dark=background == "dark")
     if bar2 and colorbar_on and raster:
         colorbar(out, bar2[0], bar2[1], bar2[2], None, corner="bottom-left", stops=bar2[3], dark=background == "dark")
+    if (scale_bar or dimensions) and raster:             # the metric reading of the picture, burnt in last
+        facts = {"px_per_m": _scale.px_per_metre(size, cam_data.angle,
+                                                 float((cam.location - centre).length) * unit),
+                 "dark": background == "dark", "scale_bar": bool(scale_bar), "dimensions": bool(dimensions)}
+        if dimensions:
+            rows = [" × ".join(_scale.fmt_length(v) for v in (real[0], real[1], real[2]))]
+            if grid_m:
+                rows.append(f"grid {_scale.fmt_length(grid_m)}")
+            if prop_kind is not None and d[2] > -0.6:
+                rows.append(f"{prop_kind}, {_scale.fmt_length(_scale.prop_size(prop_kind))}")
+            facts["rows"], facts["title"] = rows, (title or None)
+        if _facts_path:                                   # Blender's Python has no Pillow: the caller finishes
+            import json
+            with open(_facts_path, "w", encoding="utf-8") as fh:
+                json.dump(facts, fh)
+        else:
+            try:
+                _draw_scale(out, facts)
+            except ImportError:
+                pass
+    return out
+
+
+def _draw_scale(out: str, facts: dict) -> str:
+    """Burn the metric annotations of a render into the picture: the scale bar and the caption. Split out because
+    Blender's own Python has no Pillow -- :func:`render_headless` calls it here, after the binary has finished."""
+    from .compose import draw_caption, draw_scale_bar
+    if facts.get("scale_bar") and facts.get("px_per_m"):
+        draw_scale_bar(out, facts["px_per_m"], corner="top-right", dark=bool(facts.get("dark")))
+    if facts.get("dimensions") and facts.get("rows"):
+        draw_caption(out, facts["rows"], title=facts.get("title"), dark=bool(facts.get("dark")))
     return out
 
 
@@ -691,6 +803,7 @@ mod = __import__(cfg.get("module", "pinneapple_tools.visualization.studio.blende
 fn = getattr(mod, cfg.get("entry", "render"))
 sc = Scene.from_file(cfg["scene"])
 sc.materials, sc.labels = cfg["materials"], cfg["labels"]     # the glb keeps geometry and fields, not these
+sc.unit = cfg.get("unit", 1.0)                                # ... and not the metres behind a coordinate unit
 res = fn(sc, cfg["out"], **cfg["kwargs"])
 if cfg.get("result"):
     json.dump(res, open(cfg["result"], "w"))
@@ -738,13 +851,17 @@ def render_headless(scene, out: str, *, exe: str | None = None, timeout: float =
     sc = scene if isinstance(scene, Scene) else Scene.from_file(scene)
     sc.save(glb)
     finish = {k: kwargs.pop(k) for k in ("look", "post") if k in kwargs}   # Pillow lives here, not in Blender
+    facts_path = os.path.join(work, "facts.json")
+    if kwargs.get("scale_bar") or kwargs.get("dimensions"):                # ... and so does the scale bar
+        kwargs["_facts_path"] = facts_path
     cfg_path = os.path.join(work, "render.json")
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     out = os.path.abspath(out)
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(cfg_path, "w", encoding="utf-8") as fh:
         _json.dump({"root": root, "scene": glb, "out": out, "kwargs": kwargs,
-                    "materials": sc.materials, "labels": dict(getattr(sc, "labels", {}) or {})}, fh)
+                    "materials": sc.materials, "labels": dict(getattr(sc, "labels", {}) or {}),
+                    "unit": float(getattr(sc, "unit", 1.0) or 1.0)}, fh)
     script = os.path.join(work, "render_bootstrap.py")
     with open(script, "w", encoding="utf-8") as fh:
         fh.write(_BOOT)
@@ -756,6 +873,9 @@ def render_headless(scene, out: str, *, exe: str | None = None, timeout: float =
     if finish:
         from .post import apply as _finish
         _finish(out, look_name=finish.get("look"), post=finish.get("post"))
+    if os.path.exists(facts_path):                       # the metric annotations, drawn where Pillow exists
+        with open(facts_path, encoding="utf-8") as fh:
+            _draw_scale(out, _json.load(fh))
     return out
 
 
@@ -832,9 +952,9 @@ def _plain(bpy, name, rgb, alpha=1.0):
     return m
 
 
-def _dark_stage(bpy, bs, centre, size_l, floor_z=None):
+def _dark_stage(bpy, bs, centre, size_l):
     """Near-black gradient world, a warm key, a cool rim and a soft fill (area lights sized to the model), AgX view
-    transform; with ``floor_z`` a dark glossy floor that reflects the model."""
+    transform. The floor under the geometry is the set's, see :func:`_stage`."""
     import math
 
     from mathutils import Vector
@@ -865,20 +985,106 @@ def _dark_stage(bpy, bs, centre, size_l, floor_z=None):
         ob.location = centre + Vector(tuple(np.array(off) * 1.6 * L))
         ob.rotation_euler = (centre - ob.location).to_track_quat("-Z", "Y").to_euler()
         bs.collection.objects.link(ob)
-    if floor_z is not None:
-        me = bpy.data.meshes.new("floor")
-        R = 6.0 * L
-        me.from_pydata([(centre.x - R, centre.y - R, floor_z), (centre.x + R, centre.y - R, floor_z),
-                        (centre.x + R, centre.y + R, floor_z), (centre.x - R, centre.y + R, floor_z)], [],
-                       [(0, 1, 2, 3)])
-        m = bpy.data.materials.new("floor")
-        m.use_nodes = True
-        b = m.node_tree.nodes["Principled BSDF"]
-        b.inputs["Base Color"].default_value = (0.012, 0.014, 0.018, 1)
-        b.inputs["Roughness"].default_value = 0.18
-        me.materials.append(m)
-        fo = bpy.data.objects.new("floor", me)
-        bs.collection.objects.link(fo)
+
+
+def _add_mesh(bpy, bs, name: str, V, F, material):
+    """One mesh object out of plain arrays and one material (the set, the props)."""
+    V = np.asarray(V, np.float32).reshape(-1, 3)
+    F = np.asarray(F, np.int32).reshape(-1, 3)
+    me = bpy.data.meshes.new(name)
+    me.vertices.add(len(V))
+    me.vertices.foreach_set("co", V.ravel())
+    me.loops.add(3 * len(F))
+    me.loops.foreach_set("vertex_index", F.ravel())
+    me.polygons.add(len(F))
+    me.polygons.foreach_set("loop_start", np.arange(0, 3 * len(F), 3, np.int32))
+    try:
+        me.polygons.foreach_set("loop_total", np.full(len(F), 3, np.int32))
+    except (AttributeError, TypeError, RuntimeError):
+        pass
+    me.update(calc_edges=True)
+    me.materials.append(material)
+    ob = bpy.data.objects.new(name, me)
+    bs.collection.objects.link(ob)
+    return ob
+
+
+def _stage(bpy, bs, centre, floor_z, size_l, unit, kind, grid_m, dark, cam, cam_data, size):
+    """The set the subject stands in, built at real scale: a floor plane or a cyclorama, with an optional metric grid
+    on it.
+
+    The *proportions* come from the subject's bounding box -- a set is composed around its subject, and the same
+    proportions serve a 25 mm pin and a 36 m airliner -- while the grid and every surface texture are sized in the
+    scene's metres, so what a reader measures is real. That split is what makes a small part look small: the same
+    cove, with 25 mm squares and a coin standing on it."""
+    from . import scale as S
+
+    L = float(size_l)
+    inv = 1.0 / float(unit)                                   # metres -> scene units
+    cxy = (float(centre[0]), float(centre[1]))
+    if dark:
+        set_st = {"color": (0.045, 0.048, 0.054), "metallic": 0.0, "roughness": 0.34}
+        floor_st = {"color": (0.022, 0.024, 0.028), "metallic": 0.0, "roughness": 0.22}
+        grid_st = {"color": (0.62, 0.64, 0.68), "metallic": 0.0, "roughness": 0.38}
+    else:
+        set_st = {"color": (0.76, 0.755, 0.74), "metallic": 0.0, "roughness": 0.84,
+                  "shader": "concrete", "aggregate": 45.0 * unit}
+        floor_st = {"color": (0.34, 0.34, 0.335), "metallic": 0.0, "roughness": 0.58,
+                    "shader": "concrete", "aggregate": 20.0 * unit}
+        grid_st = {"color": (0.055, 0.058, 0.062), "metallic": 0.0, "roughness": 0.5}
+    mats: dict = {}
+
+    def mat(name, st):
+        if name not in mats:
+            mats[name] = _table_material(bpy, name, st)
+        return mats[name]
+
+    cam_z = float(cam.location[2])
+    near = float(np.linalg.norm(np.array([float(cam.location[0]), float(cam.location[1]), cam_z])
+                                - np.array([float(centre[0]), float(centre[1]), float(floor_z)])))
+    if kind == "cyclorama":
+        radius = max(2.2 * L, 1.35 * near)                     # the camera has to stand inside the bowl
+        cove = 0.18 * radius
+        half_t = math.tan(0.5 * cam_data.angle)
+        ratio = min(size) / max(size)
+        half_v = half_t * (ratio if size[0] >= size[1] else 1.0)
+        far = near + radius + cove                             # the wall the camera looks at
+        wall = max(1.4 * L, 1.25 * (far * half_v + max(0.0, cam_z - float(floor_z))))
+        V, F = S.cyclorama(cxy, floor_z, radius=radius, cove_radius=cove, wall_height=wall)
+        _add_mesh(bpy, bs, "cyclorama", V, F, mat("studio_cove", set_st))
+        inner = radius
+    else:
+        R = max(6.0 * L, 1.5 * near)
+        V, F = S.floor_plane(cxy, floor_z, R)
+        _add_mesh(bpy, bs, "floor", V, F, mat("studio_floor", floor_st))
+        inner = 0.85 * R
+    if grid_m:
+        step = float(grid_m) * inv
+        width = max(0.012 * step, 6e-4 * L)
+        V, F = S.grid_lines(cxy, floor_z, step=step, radius=inner, width=width,
+                            major_every=5, lift=max(2e-4 * L, 1e-4 * step))
+        _add_mesh(bpy, bs, "grid", V, F, mat("studio_grid", grid_st))
+
+
+def _add_props(bpy, bs, kind, centre, *, floor_z, ext, unit, right, fwd, dark):
+    """A prop of known size standing on the floor beside the subject: a mannequin, a rule, a sheet of A4 or a coin,
+    turned so its long side runs away from the camera and placed clear of the subject's footprint on the side the
+    camera sees. Returns its vertices, so the framing can include it."""
+    from . import scale as S
+
+    _, across = S.footprint(kind)
+    reach = 0.5 * float(np.abs(ext[0] * right[0]) + np.abs(ext[1] * right[1]) + np.abs(ext[2] * right[2]))
+    gap = 0.08 * float(np.max(ext))
+    off = reach + gap + 0.5 * across / float(unit)                      # scene units, all of it
+    w = np.array([fwd[0], fwd[1], 0.0])
+    w = w / (np.linalg.norm(w) or 1.0)
+    turn = math.atan2(w[1], w[0])
+    at = np.array([centre[0], centre[1]]) + np.array([right[0], right[1]]) * off
+    V, F = S.prop(kind, at, float(floor_z), unit=unit, rotate=turn)
+    st = ({"color": (0.10, 0.10, 0.105), "metallic": 0.0, "roughness": 0.55} if dark
+          else {"color": (0.46, 0.46, 0.455), "metallic": 0.0, "roughness": 0.62})
+    _add_mesh(bpy, bs, f"scale_{kind}", V, F, _table_material(bpy, f"scale_{kind}", st))
+    return V
 
 
 def _world(bpy, bs, studio, sun_elevation):

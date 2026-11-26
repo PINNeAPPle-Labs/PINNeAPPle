@@ -101,6 +101,22 @@ from .forward import (
     TabulatedModel,
     jacobian,
 )
+
+# Symbolic regression by genetic programming, with the physics filter and the SINDy comparison
+from .gp_symbolic import (
+    DimensionError,
+    Expression,
+    ExpressionVerdict,
+    GeneticProgramming,
+    PhysicsConstraints,
+    PolicyViolation,
+    SymbolicRegressionResult,
+    advection_diffusion_reaction_case,
+    compare_gp_and_sindy,
+    discover_expression,
+    noise_sweep,
+    parse_expression,
+)
 from .identifiability import (
     IdentifiabilityReport,
     analyze_identifiability,
@@ -226,6 +242,19 @@ __all__ = [
     "ResidualAnalyzer",
     "NeuralTermConfig",
     "NeuralTermDiscovery",
+    # Symbolic regression by genetic programming (#353)
+    "Expression",
+    "ExpressionVerdict",
+    "PhysicsConstraints",
+    "GeneticProgramming",
+    "SymbolicRegressionResult",
+    "DimensionError",
+    "PolicyViolation",
+    "discover_expression",
+    "compare_gp_and_sindy",
+    "parse_expression",
+    "advection_diffusion_reaction_case",
+    "noise_sweep",
     # Identifiability, calibration, inverse studio
     "Parameter",
     "ParameterSet",

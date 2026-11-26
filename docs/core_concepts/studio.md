@@ -254,7 +254,10 @@ The gate itself is `--gate` against a committed baseline, and it runs in CI on e
 studio (`Visual benchmark`): `data/benchmark/baseline.json` holds the four statistics of each case, recorded in the
 canonical configuration (`GATE`: 960×540, 32 samples, preview) so today's record is comparable with last month's.
 `pp.viz.benchmark.gate` compares a record with it and returns the differences beyond `TOLERANCES` (`mean` ±8,
-`std` ±4, `coverage` ±0.06, `edge_energy` ±0.12 — absolute, in each statistic's own units); the command exits non-zero
+`std` ±4, `coverage` ±0.06, `edge_energy` ±0.30 — absolute, in each statistic's own units; the edge energy allows
+more because a metric grid is micro-detail by construction, and how a line a pixel or two wide is sampled and
+denoised moves it by ±0.3 between two machines on the same Blender, which is still far from the zero a picture that
+lost its detail reads); the command exits non-zero
 when there are any. The time is recorded and reported but never gated: it belongs to the machine.
 
 Recording a new baseline is deliberate, after a change that is meant to move the pictures, and it asks why:
@@ -321,6 +324,35 @@ an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes 
   falling. Both act on the written PNG/JPEG, after the render, in :mod:`.post` — the scene compositor and the AgX
   looks changed between Blender 4 and 5, and a figure should not depend on which one is installed. An EXR is left
   alone: it is the input to a grade, not something to burn a contrast curve into.
+- **Scale — making the picture measurable:** a render normalises everything on the model's own bounding box, so on
+  its own a picture of a 25 mm pin and one of a 36 m airliner are indistinguishable and nothing in the frame can be
+  measured. `units=` is metres per scene coordinate unit — `"mm"`, `"cm"`, `"m"`, `"in"`, `"ft"` or a number such as
+  `0.001`; `None` (the default) uses `scene.unit`, which is `1.0`, a model already in metres. With it the renderer
+  knows the subject's real size, and everything below is built from that (`pp.viz.scale` is the module: the unit
+  table, the round-value ladder, and the mesh builders, all pure numpy).
+  - `backdrop="cyclorama"` builds a seamless infinity cove all the way round the subject — floor, curve, wall — the
+    shape a photographic studio has, sized from the subject so the same proportions serve a pin and an airliner.
+    `backdrop="floor"` is a plain plane; `floor=True` alone still means `"floor"`, and a `"dark"` stage keeps its
+    glossy black surface. **`floor` used to be honoured only on `background="dark"` and was silently dropped
+    everywhere else** — including the HDRI cases the render benchmark ships — which is why the parts floated.
+  - `grid=True` paints a metric grid on that floor with squares about a tenth of the subject (snapped to 1, 2 or 5
+    times a power of ten), every fifth line wider; it is clipped by the floor's disc so no line runs up the cove.
+    `grid="25 mm"` (or `0.025`) sets the spacing. The grid is geometry, not a post effect, so it exports in glTF and
+    shows in the browser viewer too.
+  - `scale_ref="auto"` stands the largest prop of known size that does not dwarf the subject on the floor beside it
+    and frames the two together: a 1.75 m mannequin, a 300 mm rule with millimetre graduations, a sheet of A4 or a
+    25.4 mm coin. Naming one (`"human"`, `"ruler"`, `"a4"`, `"coin"`) forces it; a part smaller than every prop gets
+    none, and only the grid and the bar can measure those.
+  - `scale_bar=True` burns a metric bar into the top-right corner, its length snapped to a round value and drawn at
+    the image scale of the subject's plane — `px_per_metre(size, camera_angle, distance)`, so the bar is metrically
+    right where the camera focused, which is the convention a photograph with a scale bar uses. `dimensions=True`
+    burns the subject's three extents, the grid square and the prop into the top-left corner.
+  - The backdrop and the props scale with the subject; the grid, the surface textures and the text are sized in the
+    scene's metres. That split is what makes a small part look small. When the camera would end up *below* the set's
+    floor — which a low preset such as `camera="hero"` does — it is raised to the floor and a warning says so, rather
+    than rendering the underside of a plane.
+  - Annotations are drawn after the render, in Pillow, on both paths: in-process, or by `render_headless` once the
+    Blender binary has exited (Blender's own Python has no Pillow). They need a raster output; an EXR is left alone.
 - **Passes and alpha:** `passes=True` with an `.exr` output writes the beauty as a 32-bit OpenEXR and, next to it in
   `<out>_passes/`, a multilayer file with the depth, normal, mist, diffuse, glossy, emission and transmission passes
   — what a grade or a compositor needs. `film_transparent=True` drops the world behind the geometry and keeps an

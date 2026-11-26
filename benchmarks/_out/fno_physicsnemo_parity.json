@@ -1,0 +1,717 @@
+{
+ "schema": "pinneapple.physicsnemo_fno_parity/1",
+ "issue": 2529,
+ "measured_at": "2026-11-26T15:19:44",
+ "environment": {
+  "pinneapple": "0.8.0",
+  "torch": "2.15.0",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "cpu_count": 10,
+  "threads": 4,
+  "precision": "float32",
+  "device": "cpu",
+  "available": true,
+  "provider": "physicsnemo",
+  "version": "2.2.2",
+  "reason": "",
+  "cpu": "arm"
+ },
+ "protocol": {
+  "grids": [
+   32,
+   64,
+   96
+  ],
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "case": {
+   "n": 64,
+   "n_samples": 256,
+   "n_train": 192,
+   "seed": 7,
+   "n_modes": 6
+  },
+  "steps": 200,
+  "batch_size": 16,
+  "threads": 4,
+  "transfer_grids": [
+   96
+  ],
+  "eval_at": [
+   0.25,
+   0.5,
+   0.75
+  ],
+  "arch": {
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "padding": 8,
+   "decoder_layer_size": 64,
+   "decoder_layers": 1
+  },
+  "tolerance": 0.0001,
+  "problem": "u_t + c.grad u = kappa lap u on the periodic unit square, u0 -> u(t_end), exact Fourier-multiplier reference"
+ },
+ "forward_parity": {
+  "arch": {
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "padding": 8,
+   "decoder_layer_size": 64,
+   "decoder_layers": 1
+  },
+  "grids": [
+   32,
+   64,
+   96
+  ],
+  "relative_l2": {
+   "32": 1.8049046299717245e-07,
+   "64": 1.7886105800187951e-07,
+   "96": 1.7943714589663987e-07
+  },
+  "max_abs": {
+   "32": 4.470348358154297e-08,
+   "64": 5.21540641784668e-08,
+   "96": 5.21540641784668e-08
+  },
+  "field_scale": {
+   "32": 0.07796325534582138,
+   "64": 0.0777144804596901,
+   "96": 0.07953792810440063
+  },
+  "tolerance": 0.0001,
+  "passed": true,
+  "parameters": {
+   "pinneapple": 2366305,
+   "physicsnemo": 2366305
+  },
+  "available": {
+   "available": true,
+   "provider": "physicsnemo",
+   "version": "2.2.2",
+   "reason": ""
+  }
+ },
+ "gradient_parity": {
+  "arch": {
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "padding": 8,
+   "decoder_layer_size": 64,
+   "decoder_layers": 1
+  },
+  "relative_l2": 6.692150529476488e-08,
+  "worst_parameter": "in_proj.0.weight",
+  "worst_relative_l2": 2.735213543012355e-07,
+  "per_parameter": {
+   "in_proj.0.weight": 2.735213543012355e-07,
+   "in_proj.2.weight": 1.6683533292333893e-07,
+   "convs.0.weights1": 6.329389171490209e-08,
+   "convs.0.weights2": 1.567517368513763e-07,
+   "ws.0.weight": 1.4610411713725327e-07,
+   "ws.0.bias": 7.391050262934197e-08,
+   "convs.1.weights1": 4.8968166770631176e-08,
+   "convs.1.weights2": 1.524582318184567e-07,
+   "ws.1.weight": 1.1372986252072153e-07,
+   "ws.1.bias": 5.7230268683413435e-08,
+   "convs.2.weights1": 5.241494477349842e-08,
+   "convs.2.weights2": 1.449438505003177e-07,
+   "ws.2.weight": 1.0301141738661159e-07,
+   "ws.2.bias": 5.275402492966264e-08,
+   "convs.3.weights1": 5.540062249311265e-08,
+   "convs.3.weights2": 1.401409627644944e-07,
+   "ws.3.weight": 1.0191329542976701e-07,
+   "ws.3.bias": 4.475137608521719e-08,
+   "out_proj.0.weight": 8.160202172262673e-08,
+   "out_proj.0.bias": 8.075169505239779e-08,
+   "out_proj.2.weight": 1.7463793408609519e-07,
+   "out_proj.2.bias": 0.0
+  },
+  "trainable": {
+   "in_proj.0.weight": 1,
+   "in_proj.0.bias": 0,
+   "in_proj.2.weight": 1,
+   "in_proj.2.bias": 0,
+   "convs.0.weights1": 1,
+   "convs.0.weights2": 1,
+   "convs.1.weights1": 1,
+   "convs.1.weights2": 1,
+   "convs.2.weights1": 1,
+   "convs.2.weights2": 1,
+   "convs.3.weights1": 1,
+   "convs.3.weights2": 1,
+   "ws.0.weight": 1,
+   "ws.0.bias": 1,
+   "ws.1.weight": 1,
+   "ws.1.bias": 1,
+   "ws.2.weight": 1,
+   "ws.2.bias": 1,
+   "ws.3.weight": 1,
+   "ws.3.bias": 1,
+   "out_proj.0.weight": 1,
+   "out_proj.0.bias": 1,
+   "out_proj.2.weight": 1,
+   "out_proj.2.bias": 1
+  },
+  "tolerance": 0.0001,
+  "passed": true,
+  "available": {
+   "available": true,
+   "provider": "physicsnemo",
+   "version": "2.2.2",
+   "reason": ""
+  }
+ },
+ "trained": {
+  "case": {
+   "n": 64,
+   "n_samples": 256,
+   "n_train": 192,
+   "n_test": 64,
+   "velocity": [
+    0.7,
+    0.3
+   ],
+   "kappa": 0.01,
+   "t_end": 0.5,
+   "n_modes_band": 6,
+   "seed": 7,
+   "units": "dimensionless concentration; velocity in box lengths per time unit; kappa in box lengths squared per time unit; t_end in time units"
+  },
+  "protocol": {
+   "steps": 200,
+   "batch_size": 16,
+   "lr": 0.001,
+   "optimiser": "Adam, weight decay 1e-5, cosine schedule over the steps",
+   "loss": "per-sample relative L2, mean over the batch",
+   "eval_at": [
+    0.25,
+    0.5,
+    0.75
+   ],
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "threads": 4
+  },
+  "config": {
+   "width": 32,
+   "modes": 12,
+   "layers": 4,
+   "padding": 8,
+   "decoder_layer_size": 64,
+   "decoder_layers": 1
+  },
+  "rows": {
+   "parity/pinneapple": {
+    "config": {
+     "pinneapple": false,
+     "parity_weights": true
+    },
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "train_s": {
+     "mean": 132.20333333333335,
+     "std": 21.92287288554024,
+     "min": 114.43,
+     "max": 163.09
+    },
+    "n_parameters": {
+     "mean": 2366305.0,
+     "std": 0.0,
+     "min": 2366305.0,
+     "max": 2366305.0
+    },
+    "rel_l2_mean": {
+     "mean": 0.17080171323450696,
+     "std": 0.002293386217479428,
+     "min": 0.16780253795919645,
+     "max": 0.17337047871740663
+    },
+    "rel_l2_median": {
+     "mean": 0.16610499529081915,
+     "std": 0.0022378121497283886,
+     "min": 0.16366994798996992,
+     "max": 0.16907312263945137
+    },
+    "rel_l2_worst": {
+     "mean": 0.25662743271392874,
+     "std": 0.011421295395657165,
+     "min": 0.2404788520507328,
+     "max": 0.26499581435019276
+    },
+    "mass_drift_mean": {
+     "mean": 0.07918395001563841,
+     "std": 0.0011856414086678505,
+     "min": 0.07766505442904298,
+     "max": 0.08055848761757184
+    },
+    "transfer_96": {
+     "mean": 0.18386777380942407,
+     "std": 0.010299470341346042,
+     "min": 0.1718316588732954,
+     "max": 0.19698988553556002
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "train_s": 163.09,
+      "n_parameters": 2366305,
+      "curve": [
+       0.28129643380729696,
+       0.23143913649311706,
+       0.18296120902057966,
+       0.17337047871740663
+      ],
+      "rel_l2_mean": 0.17337047871740663,
+      "rel_l2_median": 0.16907312263945137,
+      "rel_l2_worst": 0.26499581435019276,
+      "mass_drift_mean": 0.07766505442904298,
+      "transfer_96": 0.19698988553556002
+     },
+     {
+      "seed": 1,
+      "train_s": 119.09,
+      "n_parameters": 2366305,
+      "curve": [
+       0.27355914327408704,
+       0.22497144022437376,
+       0.18231865473951295,
+       0.1712321230269178
+      ],
+      "rel_l2_mean": 0.1712321230269178,
+      "rel_l2_median": 0.16557191524303616,
+      "rel_l2_worst": 0.2644076317408606,
+      "mass_drift_mean": 0.08055848761757184,
+      "transfer_96": 0.18278177701941675
+     },
+     {
+      "seed": 2,
+      "train_s": 114.43,
+      "n_parameters": 2366305,
+      "curve": [
+       0.27016379179319666,
+       0.2077877216857614,
+       0.1731402674731871,
+       0.16780253795919645
+      ],
+      "rel_l2_mean": 0.16780253795919645,
+      "rel_l2_median": 0.16366994798996992,
+      "rel_l2_worst": 0.2404788520507328,
+      "mass_drift_mean": 0.07932830800030041,
+      "transfer_96": 0.1718316588732954
+     }
+    ]
+   },
+   "parity/physicsnemo": {
+    "config": {
+     "pinneapple": false,
+     "parity_weights": true
+    },
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "train_s": {
+     "mean": 112.23666666666666,
+     "std": 3.5951294212525275,
+     "min": 109.61,
+     "max": 117.32
+    },
+    "n_parameters": {
+     "mean": 2366305.0,
+     "std": 0.0,
+     "min": 2366305.0,
+     "max": 2366305.0
+    },
+    "rel_l2_mean": {
+     "mean": 0.1708017136050313,
+     "std": 0.002293386985107381,
+     "min": 0.16780253485271648,
+     "max": 0.17337047598119262
+    },
+    "rel_l2_median": {
+     "mean": 0.16610500128274017,
+     "std": 0.002237803734940354,
+     "min": 0.16366996264184025,
+     "max": 0.1690731172006856
+    },
+    "rel_l2_worst": {
+     "mean": 0.25662744192734804,
+     "std": 0.011421298292135848,
+     "min": 0.24047885718907258,
+     "max": 0.26499582650986536
+    },
+    "mass_drift_mean": {
+     "mean": 0.07918395087741457,
+     "std": 0.0011856422495967669,
+     "min": 0.07766505469651944,
+     "max": 0.08055849010727967
+    },
+    "transfer_96": {
+     "mean": 0.18386777378132843,
+     "std": 0.0102994725094423,
+     "min": 0.1718316560240266,
+     "max": 0.19698988804816497
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "train_s": 117.32,
+      "n_parameters": 2366305,
+      "curve": [
+       0.2812964350404312,
+       0.23143913335279465,
+       0.18296120662081589,
+       0.17337047598119262
+      ],
+      "rel_l2_mean": 0.17337047598119262,
+      "rel_l2_median": 0.1690731172006856,
+      "rel_l2_worst": 0.26499582650986536,
+      "mass_drift_mean": 0.07766505469651944,
+      "transfer_96": 0.19698988804816497
+     },
+     {
+      "seed": 1,
+      "train_s": 109.78,
+      "n_parameters": 2366305,
+      "curve": [
+       0.2735591486749832,
+       0.22497144087396437,
+       0.1823186589939467,
+       0.17123212998118484
+      ],
+      "rel_l2_mean": 0.17123212998118484,
+      "rel_l2_median": 0.1655719240056947,
+      "rel_l2_worst": 0.2644076420831062,
+      "mass_drift_mean": 0.08055849010727967,
+      "transfer_96": 0.1827817772717937
+     },
+     {
+      "seed": 2,
+      "train_s": 109.61,
+      "n_parameters": 2366305,
+      "curve": [
+       0.2701637862389745,
+       0.2077877153963656,
+       0.17314025996638976,
+       0.16780253485271648
+      ],
+      "rel_l2_mean": 0.16780253485271648,
+      "rel_l2_median": 0.16366996264184025,
+      "rel_l2_worst": 0.24047885718907258,
+      "mass_drift_mean": 0.0793283078284446,
+      "transfer_96": 0.1718316560240266
+     }
+    ]
+   },
+   "parity/agreement": {
+    "config": {
+     "pinneapple": false,
+     "parity_weights": true
+    },
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "relative_l2_between_models": {
+     "mean": 1.6070963035717566e-07,
+     "std": 5.677455959764242e-09,
+     "min": 1.5482568419530137e-07,
+     "max": 1.683828445475594e-07
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "relative_l2_between_models": 1.5482568419530137e-07
+     },
+     {
+      "seed": 1,
+      "relative_l2_between_models": 1.683828445475594e-07
+     },
+     {
+      "seed": 2,
+      "relative_l2_between_models": 1.589203623286662e-07
+     }
+    ]
+   },
+   "as_shipped/pinneapple": {
+    "config": {
+     "pinneapple": true,
+     "parity_weights": false
+    },
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "train_s": {
+     "mean": 96.73333333333335,
+     "std": 3.6261672450245412,
+     "min": 92.09,
+     "max": 100.94
+    },
+    "n_parameters": {
+     "mean": 2363681.0,
+     "std": 0.0,
+     "min": 2363681.0,
+     "max": 2363681.0
+    },
+    "rel_l2_mean": {
+     "mean": 0.09788020299515622,
+     "std": 0.01373636883452136,
+     "min": 0.0791747504895122,
+     "max": 0.11177289379148916
+    },
+    "rel_l2_median": {
+     "mean": 0.09708667737580395,
+     "std": 0.01327380809046014,
+     "min": 0.07901886614225251,
+     "max": 0.11053154884544135
+    },
+    "rel_l2_worst": {
+     "mean": 0.15720762659410584,
+     "std": 0.022087165552595524,
+     "min": 0.1273728393854892,
+     "max": 0.18013616414819236
+    },
+    "mass_drift_mean": {
+     "mean": 0.03867826990003357,
+     "std": 0.0047738654576869426,
+     "min": 0.03197929293219793,
+     "max": 0.042754028168845784
+    },
+    "transfer_96": {
+     "mean": 0.16500721876016639,
+     "std": 0.007446639893233262,
+     "min": 0.1544821373483073,
+     "max": 0.17057905625648223
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "train_s": 100.94,
+      "n_parameters": 2363681,
+      "curve": [
+       0.2600434553868666,
+       0.1302732668475603,
+       0.0880306685093391,
+       0.0791747504895122
+      ],
+      "rel_l2_mean": 0.0791747504895122,
+      "rel_l2_median": 0.07901886614225251,
+      "rel_l2_worst": 0.1273728393854892,
+      "mass_drift_mean": 0.03197929293219793,
+      "transfer_96": 0.1544821373483073
+     },
+     {
+      "seed": 1,
+      "train_s": 97.17,
+      "n_parameters": 2363681,
+      "curve": [
+       0.266916065210191,
+       0.1857010530190082,
+       0.12486292234623869,
+       0.11177289379148916
+      ],
+      "rel_l2_mean": 0.11177289379148916,
+      "rel_l2_median": 0.11053154884544135,
+      "rel_l2_worst": 0.18013616414819236,
+      "mass_drift_mean": 0.042754028168845784,
+      "transfer_96": 0.16996046267570963
+     },
+     {
+      "seed": 2,
+      "train_s": 92.09,
+      "n_parameters": 2363681,
+      "curve": [
+       0.26844038258553016,
+       0.17467009608239537,
+       0.11443326025932887,
+       0.1026929647044673
+      ],
+      "rel_l2_mean": 0.1026929647044673,
+      "rel_l2_median": 0.101709617139718,
+      "rel_l2_worst": 0.1641138762486359,
+      "mass_drift_mean": 0.041301488599056996,
+      "transfer_96": 0.17057905625648223
+     }
+    ]
+   },
+   "as_shipped/physicsnemo": {
+    "config": {
+     "pinneapple": true,
+     "parity_weights": false
+    },
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "train_s": {
+     "mean": 102.39333333333333,
+     "std": 3.483832500119501,
+     "min": 98.2,
+     "max": 106.73
+    },
+    "n_parameters": {
+     "mean": 2366305.0,
+     "std": 0.0,
+     "min": 2366305.0,
+     "max": 2366305.0
+    },
+    "rel_l2_mean": {
+     "mean": 0.1708017136050313,
+     "std": 0.002293386985107381,
+     "min": 0.16780253485271648,
+     "max": 0.17337047598119262
+    },
+    "rel_l2_median": {
+     "mean": 0.16610500128274017,
+     "std": 0.002237803734940354,
+     "min": 0.16366996264184025,
+     "max": 0.1690731172006856
+    },
+    "rel_l2_worst": {
+     "mean": 0.25662744192734804,
+     "std": 0.011421298292135848,
+     "min": 0.24047885718907258,
+     "max": 0.26499582650986536
+    },
+    "mass_drift_mean": {
+     "mean": 0.07918395087741457,
+     "std": 0.0011856422495967669,
+     "min": 0.07766505469651944,
+     "max": 0.08055849010727967
+    },
+    "transfer_96": {
+     "mean": 0.18386777378132843,
+     "std": 0.0102994725094423,
+     "min": 0.1718316560240266,
+     "max": 0.19698988804816497
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "train_s": 106.73,
+      "n_parameters": 2366305,
+      "curve": [
+       0.2812964350404312,
+       0.23143913335279465,
+       0.18296120662081589,
+       0.17337047598119262
+      ],
+      "rel_l2_mean": 0.17337047598119262,
+      "rel_l2_median": 0.1690731172006856,
+      "rel_l2_worst": 0.26499582650986536,
+      "mass_drift_mean": 0.07766505469651944,
+      "transfer_96": 0.19698988804816497
+     },
+     {
+      "seed": 1,
+      "train_s": 102.25,
+      "n_parameters": 2366305,
+      "curve": [
+       0.2735591486749832,
+       0.22497144087396437,
+       0.1823186589939467,
+       0.17123212998118484
+      ],
+      "rel_l2_mean": 0.17123212998118484,
+      "rel_l2_median": 0.1655719240056947,
+      "rel_l2_worst": 0.2644076420831062,
+      "mass_drift_mean": 0.08055849010727967,
+      "transfer_96": 0.1827817772717937
+     },
+     {
+      "seed": 2,
+      "train_s": 98.2,
+      "n_parameters": 2366305,
+      "curve": [
+       0.2701637862389745,
+       0.2077877153963656,
+       0.17314025996638976,
+       0.16780253485271648
+      ],
+      "rel_l2_mean": 0.16780253485271648,
+      "rel_l2_median": 0.16366996264184025,
+      "rel_l2_worst": 0.24047885718907258,
+      "mass_drift_mean": 0.0793283078284446,
+      "transfer_96": 0.1718316560240266
+     }
+    ]
+   },
+   "as_shipped/agreement": {
+    "config": {
+     "pinneapple": true,
+     "parity_weights": false
+    },
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "relative_l2_between_models": {
+     "mean": 0.12626153037219315,
+     "std": 0.008612189629063814,
+     "min": 0.11709612432401,
+     "max": 0.13779054279692168
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "relative_l2_between_models": 0.13779054279692168
+     },
+     {
+      "seed": 1,
+      "relative_l2_between_models": 0.11709612432401
+     },
+     {
+      "seed": 2,
+      "relative_l2_between_models": 0.12389792399564782
+     }
+    ]
+   }
+  },
+  "available": {
+   "available": true,
+   "provider": "physicsnemo",
+   "version": "2.2.2",
+   "reason": ""
+  }
+ },
+ "case": {
+  "n": 64,
+  "n_samples": 256,
+  "n_train": 192,
+  "n_test": 64,
+  "velocity": [
+   0.7,
+   0.3
+  ],
+  "kappa": 0.01,
+  "t_end": 0.5,
+  "n_modes_band": 6,
+  "seed": 7,
+  "units": "dimensionless concentration; velocity in box lengths per time unit; kappa in box lengths squared per time unit; t_end in time units"
+ },
+ "timing_s": 1368.7
+}

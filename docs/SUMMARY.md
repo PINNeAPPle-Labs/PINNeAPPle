@@ -71,6 +71,7 @@
 * [Validation status](validation_status.md)
 * [Supported versions: the matrix, and what was actually run](support_matrix.md)
 * [Official benchmark cases: protocol and published table](benchmark_cases.md)
+* [Battle of the models: the scoreboard](battle.md)
 * [Backlog: this repository, by scope](backlog.md)
 * Guides
     * [Solve a problem: describe, solve twice, compare](guides/solve_a_problem.md)
@@ -103,6 +104,7 @@
     * [Geometry library](guides/geometry_library.md)
     * [Morphing a surface mesh: a design space on an existing body](guides/geometry_morphing.md)
     * [Design studies: optimisers and verified candidates](guides/design_studies.md)
+    * [Quality-diversity: a map of designs, and where a model fails](guides/quality_diversity.md)
     * [Colab notebooks](guides/colab_notebooks.md)
     * [PINNeAPPle from coding agents (MCP server)](guides/mcp_server.md)
     * [Agent Workbench: coding and engineering agents on a local model](guides/agent_workbench.md)
@@ -126,6 +128,7 @@
     * [Evidence ledger: a test passed only if it ran](guides/evidence_ledger.md)
     * [A latent surrogate that says when not to trust it](guides/trusted_latent_surrogate.md)
     * [A trust report that can be re-verified later: signed with its model and inputs, residual recomputed on load](guides/signed_trust_report.md)
+    * [The trust of a prediction as one object: every field a number with its source, or an explicit not measured](guides/trust_as_one_object.md)
     * [Reduced-order models and meshless methods, measured](guides/rom_and_meshless_studies.md)
     * [Detect false data injection with physics residuals](guides/physics_residual_attack_detection.md)
     * [The PINNeAPPle Observatory](guides/observatory.md)

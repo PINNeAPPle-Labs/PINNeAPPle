@@ -813,7 +813,7 @@
    "value": 0.00986217082502591,
    "threshold": 0.05,
    "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-   "critical": true,
+   "critical": false,
    "evidence": "results/mesh_study.json"
   },
   {
@@ -823,7 +823,7 @@
    "value": 1.0098300225800185,
    "threshold": 2.0,
    "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-   "critical": true,
+   "critical": false,
    "evidence": "results/physics_v1.json"
   },
   {
@@ -833,7 +833,7 @@
    "value": 0.9871720707991906,
    "threshold": 1.5,
    "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-   "critical": true,
+   "critical": false,
    "evidence": "results/physics_v1.json"
   },
   {
@@ -863,7 +863,7 @@
    "value": 0.048358565675710175,
    "threshold": 0.05,
    "message": "relative L2 on 16 designs held out by design",
-   "critical": true,
+   "critical": false,
    "evidence": "results/analysis_v1.json"
   },
   {
@@ -873,7 +873,7 @@
    "value": 0.14819752094812866,
    "threshold": 0.09290614337417778,
    "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-   "critical": true,
+   "critical": false,
    "evidence": "results/analysis_v1.json"
   },
   {
@@ -931,7 +931,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.911Z"
+   "created_at": "2026-11-26T07:36:48.033Z"
   },
   {
    "evidence_id": "cfd-va001",
@@ -946,7 +946,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.912Z"
+   "created_at": "2026-11-26T07:36:48.033Z"
   },
   {
    "evidence_id": "cfd-va002",
@@ -961,7 +961,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.912Z"
+   "created_at": "2026-11-26T07:36:48.033Z"
   },
   {
    "evidence_id": "cfd-va003",
@@ -976,7 +976,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.913Z"
+   "created_at": "2026-11-26T07:36:48.034Z"
   },
   {
    "evidence_id": "cfd-va004",
@@ -991,7 +991,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.913Z"
+   "created_at": "2026-11-26T07:36:48.034Z"
   },
   {
    "evidence_id": "cfd-va005",
@@ -1006,7 +1006,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.914Z"
+   "created_at": "2026-11-26T07:36:48.034Z"
   },
   {
    "evidence_id": "cfd-va006",
@@ -1021,7 +1021,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.914Z"
+   "created_at": "2026-11-26T07:36:48.035Z"
   },
   {
    "evidence_id": "cfd-va007",
@@ -1036,7 +1036,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.915Z"
+   "created_at": "2026-11-26T07:36:48.035Z"
   },
   {
    "evidence_id": "cfd-va008",
@@ -1051,7 +1051,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.915Z"
+   "created_at": "2026-11-26T07:36:48.036Z"
   },
   {
    "evidence_id": "cfd-va009",
@@ -1066,7 +1066,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.916Z"
+   "created_at": "2026-11-26T07:36:48.037Z"
   },
   {
    "evidence_id": "cfd-va010",
@@ -1081,7 +1081,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.916Z"
+   "created_at": "2026-11-26T07:36:48.037Z"
   },
   {
    "evidence_id": "cfd-va011",
@@ -1096,7 +1096,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.917Z"
+   "created_at": "2026-11-26T07:36:48.038Z"
   },
   {
    "evidence_id": "cfd-va012",
@@ -1111,7 +1111,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.918Z"
+   "created_at": "2026-11-26T07:36:48.039Z"
   },
   {
    "evidence_id": "cfd-va013",
@@ -1126,7 +1126,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.918Z"
+   "created_at": "2026-11-26T07:36:48.039Z"
   },
   {
    "evidence_id": "cfd-va014",
@@ -1141,7 +1141,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.919Z"
+   "created_at": "2026-11-26T07:36:48.040Z"
   },
   {
    "evidence_id": "cfd-va015",
@@ -1156,7 +1156,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T01:29:39.920Z"
+   "created_at": "2026-11-26T07:36:48.040Z"
   },
   {
    "evidence_id": "cfd-held-out-CD",
@@ -1171,7 +1171,7 @@
    "covers": [
     "CD"
    ],
-   "created_at": "2026-11-26T01:29:39.921Z"
+   "created_at": "2026-11-26T07:36:48.041Z"
   }
  ],
  "applicability": {
@@ -1281,17 +1281,17 @@
  "history": [
   {
    "revision": 1,
-   "created_at": "2026-11-26T01:29:39.911Z",
+   "created_at": "2026-11-26T07:36:48.032Z",
    "action": "case opened",
    "actor": "study",
    "note": "",
    "status": "unvalidated",
-   "snapshot_sha256": "fdcd5ad22235b5887928c83fcd97baffb1e3c7787accc3b4370d2a3c51d013ea",
+   "snapshot_sha256": "3e24b43dcfc3d7bbc0f4c3b574d22e64f4c8b67d3d9771542ef4515de7294bd0",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1364,17 +1364,17 @@
   },
   {
    "revision": 2,
-   "created_at": "2026-11-26T01:29:39.911Z",
+   "created_at": "2026-11-26T07:36:48.032Z",
    "action": "checks recorded",
    "actor": "",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "d1abfeaaf1c6451f5a22937ecd30657ebd758350de0391f86952d4e1d2e76c39",
+   "snapshot_sha256": "b532ec2e0e76e9ac690c6862a381b228f8ef7d6e921feaedb3842de79bbb570e",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1444,7 +1444,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -1454,7 +1454,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -1464,7 +1464,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -1494,7 +1494,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -1504,7 +1504,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -1558,17 +1558,17 @@
   },
   {
    "revision": 3,
-   "created_at": "2026-11-26T01:29:39.912Z",
+   "created_at": "2026-11-26T07:36:48.033Z",
    "action": "evidence added: cfd-va000",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "0ee241c0c6e77bbf0fb19663d2226523c5bf35a78051d69f24b17b7fe9df8f2e",
+   "snapshot_sha256": "2bde9af4a2cd313bb7eb4c63c55d8c548c83ef5e8f4089c60ee58f35dedc0366",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1638,7 +1638,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -1648,7 +1648,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -1658,7 +1658,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -1688,7 +1688,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -1698,7 +1698,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -1756,7 +1756,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      }
     ],
     "uncertainty": null,
@@ -1768,17 +1768,17 @@
   },
   {
    "revision": 4,
-   "created_at": "2026-11-26T01:29:39.912Z",
+   "created_at": "2026-11-26T07:36:48.033Z",
    "action": "evidence added: cfd-va001",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "46fc997036c8856bc0a2232ff8fb556b60447a80bfcac899ad867351a0bcc394",
+   "snapshot_sha256": "e7d18f71a93101177a0b7fae7d99cc8a348d381e2bd2db4dbdd220b2213be6a9",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1848,7 +1848,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -1858,7 +1858,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -1868,7 +1868,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -1898,7 +1898,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -1908,7 +1908,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -1966,7 +1966,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -1981,7 +1981,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      }
     ],
     "uncertainty": null,
@@ -1993,17 +1993,17 @@
   },
   {
    "revision": 5,
-   "created_at": "2026-11-26T01:29:39.912Z",
+   "created_at": "2026-11-26T07:36:48.033Z",
    "action": "evidence added: cfd-va002",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "8a130d6e354b85fd08f4bd69fcab6b28908ab9d45280bcacd5234d2d140b5467",
+   "snapshot_sha256": "0b866fc500d5e83dfe294a7fb58c25a2673e4c7fb9ea0f84db8dcaa732484871",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2073,7 +2073,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -2083,7 +2083,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2093,7 +2093,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2123,7 +2123,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2133,7 +2133,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2191,7 +2191,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2206,7 +2206,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2221,7 +2221,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      }
     ],
     "uncertainty": null,
@@ -2233,17 +2233,17 @@
   },
   {
    "revision": 6,
-   "created_at": "2026-11-26T01:29:39.913Z",
+   "created_at": "2026-11-26T07:36:48.034Z",
    "action": "evidence added: cfd-va003",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "27da851ffd7972e0b36ac31f9ffda8f198cc6376f78175d0e187bec893086235",
+   "snapshot_sha256": "9b161255e3dc178b9a9b15e2bfe882e74d921684642a897dcb9c75e499e4f527",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2313,7 +2313,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -2323,7 +2323,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2333,7 +2333,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2363,7 +2363,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2373,7 +2373,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2431,7 +2431,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2446,7 +2446,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2461,7 +2461,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -2476,7 +2476,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      }
     ],
     "uncertainty": null,
@@ -2488,17 +2488,17 @@
   },
   {
    "revision": 7,
-   "created_at": "2026-11-26T01:29:39.913Z",
+   "created_at": "2026-11-26T07:36:48.034Z",
    "action": "evidence added: cfd-va004",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "25916851e8335a45adcf81ba7f74c32dad54ba0d7ad33ee670348fbe88ca576c",
+   "snapshot_sha256": "0dd06e01a6eb7c35fc71168a260930a3d12273e45f508edeecea579438cd0658",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2568,7 +2568,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -2578,7 +2578,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2588,7 +2588,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2618,7 +2618,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2628,7 +2628,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2686,7 +2686,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2701,7 +2701,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2716,7 +2716,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -2731,7 +2731,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -2746,7 +2746,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      }
     ],
     "uncertainty": null,
@@ -2758,17 +2758,17 @@
   },
   {
    "revision": 8,
-   "created_at": "2026-11-26T01:29:39.914Z",
+   "created_at": "2026-11-26T07:36:48.035Z",
    "action": "evidence added: cfd-va005",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "28fdc15039536c47635d1b316e01f5375bad772edff37701393ee47c12176085",
+   "snapshot_sha256": "1a86cfb18f46a568ccdc8232be2bcf7ab9640176a39f122d8c802b8b0c7f865e",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2838,7 +2838,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -2848,7 +2848,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2858,7 +2858,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -2888,7 +2888,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2898,7 +2898,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -2956,7 +2956,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2971,7 +2971,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2986,7 +2986,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3001,7 +3001,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3016,7 +3016,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3031,7 +3031,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      }
     ],
     "uncertainty": null,
@@ -3043,17 +3043,17 @@
   },
   {
    "revision": 9,
-   "created_at": "2026-11-26T01:29:39.915Z",
+   "created_at": "2026-11-26T07:36:48.035Z",
    "action": "evidence added: cfd-va006",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "c0304f648a5252b5e8badc03d069b7c13898f04f11720c8ec0d9d5f324f2ba53",
+   "snapshot_sha256": "cc23591d59374577eafa127a0e285e1428aeb064b773e5eae06d675adaf89a1b",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -3123,7 +3123,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -3133,7 +3133,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -3143,7 +3143,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -3173,7 +3173,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -3183,7 +3183,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -3241,7 +3241,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -3256,7 +3256,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -3271,7 +3271,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3286,7 +3286,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3301,7 +3301,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3316,7 +3316,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -3331,7 +3331,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      }
     ],
     "uncertainty": null,
@@ -3343,17 +3343,17 @@
   },
   {
    "revision": 10,
-   "created_at": "2026-11-26T01:29:39.915Z",
+   "created_at": "2026-11-26T07:36:48.036Z",
    "action": "evidence added: cfd-va007",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "d2aa0080ab82c9df3593d7f14649e1b137effa6b9b97421fea05f3452231d75a",
+   "snapshot_sha256": "1ad4a562ee46ead7dcdb35ac624ed0b41e83259b8ced3a042495ff2819676e7d",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -3423,7 +3423,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -3433,7 +3433,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -3443,7 +3443,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -3473,7 +3473,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -3483,7 +3483,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -3541,7 +3541,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -3556,7 +3556,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -3571,7 +3571,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3586,7 +3586,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3601,7 +3601,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3616,7 +3616,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -3631,7 +3631,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -3646,7 +3646,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      }
     ],
     "uncertainty": null,
@@ -3658,17 +3658,17 @@
   },
   {
    "revision": 11,
-   "created_at": "2026-11-26T01:29:39.915Z",
+   "created_at": "2026-11-26T07:36:48.036Z",
    "action": "evidence added: cfd-va008",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "d627588eed940eb85b0e01134842d1da2cef238d4e532579e49a9f6328c2e04a",
+   "snapshot_sha256": "b0e9f9aa87377f7fb466ecff5e4fa87a09460d030e845b5b5078137579322967",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -3738,7 +3738,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -3748,7 +3748,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -3758,7 +3758,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -3788,7 +3788,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -3798,7 +3798,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -3856,7 +3856,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -3871,7 +3871,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -3886,7 +3886,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3901,7 +3901,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3916,7 +3916,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3931,7 +3931,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -3946,7 +3946,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -3961,7 +3961,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -3976,7 +3976,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      }
     ],
     "uncertainty": null,
@@ -3988,17 +3988,17 @@
   },
   {
    "revision": 12,
-   "created_at": "2026-11-26T01:29:39.916Z",
+   "created_at": "2026-11-26T07:36:48.037Z",
    "action": "evidence added: cfd-va009",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "43326a60f01bb46d7282fb4b4df758fdd19755a25c6d714be2e6cb80f4bffca4",
+   "snapshot_sha256": "d5b7537e104b617daf59ea883a7247d90b752c3e83f7f11478d48c46353ccc92",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -4068,7 +4068,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -4078,7 +4078,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -4088,7 +4088,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -4118,7 +4118,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -4128,7 +4128,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -4186,7 +4186,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -4201,7 +4201,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -4216,7 +4216,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -4231,7 +4231,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -4246,7 +4246,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -4261,7 +4261,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -4276,7 +4276,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -4291,7 +4291,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -4306,7 +4306,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -4321,7 +4321,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      }
     ],
     "uncertainty": null,
@@ -4333,17 +4333,17 @@
   },
   {
    "revision": 13,
-   "created_at": "2026-11-26T01:29:39.917Z",
+   "created_at": "2026-11-26T07:36:48.038Z",
    "action": "evidence added: cfd-va010",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "c20df1c5f9d01649cdf4d1f9f4f2491c56d487a4dff04906d27ddac456e7cf47",
+   "snapshot_sha256": "d5940540b4716593acef2ff9199b019629a5ce22e907567f85fcae3151a42be4",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -4413,7 +4413,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -4423,7 +4423,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -4433,7 +4433,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -4463,7 +4463,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -4473,7 +4473,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -4531,7 +4531,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -4546,7 +4546,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -4561,7 +4561,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -4576,7 +4576,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -4591,7 +4591,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -4606,7 +4606,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -4621,7 +4621,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -4636,7 +4636,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -4651,7 +4651,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -4666,7 +4666,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -4681,7 +4681,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      }
     ],
     "uncertainty": null,
@@ -4693,17 +4693,17 @@
   },
   {
    "revision": 14,
-   "created_at": "2026-11-26T01:29:39.917Z",
+   "created_at": "2026-11-26T07:36:48.038Z",
    "action": "evidence added: cfd-va011",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "644e410b1a56dcf41f06515a930c77949ed34300fe1a7bf9379b02ef4a70f88b",
+   "snapshot_sha256": "b7defd7c50cebce87c2b35e9d69adf1a5783b958db08d2a2065bc1d1e030a218",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -4773,7 +4773,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -4783,7 +4783,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -4793,7 +4793,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -4823,7 +4823,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -4833,7 +4833,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -4891,7 +4891,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -4906,7 +4906,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -4921,7 +4921,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -4936,7 +4936,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -4951,7 +4951,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -4966,7 +4966,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -4981,7 +4981,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -4996,7 +4996,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -5011,7 +5011,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -5026,7 +5026,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -5041,7 +5041,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -5056,7 +5056,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      }
     ],
     "uncertainty": null,
@@ -5068,17 +5068,17 @@
   },
   {
    "revision": 15,
-   "created_at": "2026-11-26T01:29:39.918Z",
+   "created_at": "2026-11-26T07:36:48.039Z",
    "action": "evidence added: cfd-va012",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "02f89dcfa4008e89657e5e1a122f3d4528d72ba46658009b09a0ed632ab01f3c",
+   "snapshot_sha256": "5afe6480be853012bddb9060320456839a822701a252f7507f19d911a19555fa",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -5148,7 +5148,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -5158,7 +5158,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -5168,7 +5168,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -5198,7 +5198,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -5208,7 +5208,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -5266,7 +5266,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -5281,7 +5281,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -5296,7 +5296,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -5311,7 +5311,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -5326,7 +5326,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -5341,7 +5341,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -5356,7 +5356,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -5371,7 +5371,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -5386,7 +5386,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -5401,7 +5401,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -5416,7 +5416,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -5431,7 +5431,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -5446,7 +5446,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      }
     ],
     "uncertainty": null,
@@ -5458,17 +5458,17 @@
   },
   {
    "revision": 16,
-   "created_at": "2026-11-26T01:29:39.919Z",
+   "created_at": "2026-11-26T07:36:48.039Z",
    "action": "evidence added: cfd-va013",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "ce46c7933232b6f66afe16892c4f11e0a198c35cd52601e5c60aff3fbeb69c27",
+   "snapshot_sha256": "9ae888a85ab790f4c8a2e629620f172be2a5b7de61491314ff30c57018a5d115",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -5538,7 +5538,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -5548,7 +5548,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -5558,7 +5558,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -5588,7 +5588,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -5598,7 +5598,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -5656,7 +5656,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -5671,7 +5671,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -5686,7 +5686,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -5701,7 +5701,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -5716,7 +5716,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -5731,7 +5731,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -5746,7 +5746,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -5761,7 +5761,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -5776,7 +5776,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -5791,7 +5791,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -5806,7 +5806,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -5821,7 +5821,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -5836,7 +5836,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -5851,7 +5851,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      }
     ],
     "uncertainty": null,
@@ -5863,17 +5863,17 @@
   },
   {
    "revision": 17,
-   "created_at": "2026-11-26T01:29:39.919Z",
+   "created_at": "2026-11-26T07:36:48.040Z",
    "action": "evidence added: cfd-va014",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "7f9ca89ee98703f4cf2652b827c94e56e9c5e4c78ae3399535612b81065eddfe",
+   "snapshot_sha256": "b371da821c6c120eaec5b14377a7b00b9e84147e13d85444d96d1ff6d9a8aea1",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -5943,7 +5943,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -5953,7 +5953,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -5963,7 +5963,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -5993,7 +5993,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -6003,7 +6003,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -6061,7 +6061,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -6076,7 +6076,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -6091,7 +6091,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -6106,7 +6106,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -6121,7 +6121,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -6136,7 +6136,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -6151,7 +6151,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -6166,7 +6166,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -6181,7 +6181,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -6196,7 +6196,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -6211,7 +6211,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -6226,7 +6226,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -6241,7 +6241,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -6256,7 +6256,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -6271,7 +6271,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.919Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      }
     ],
     "uncertainty": null,
@@ -6283,17 +6283,17 @@
   },
   {
    "revision": 18,
-   "created_at": "2026-11-26T01:29:39.920Z",
+   "created_at": "2026-11-26T07:36:48.041Z",
    "action": "evidence added: cfd-va015",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "95e8cd9bc6f6e176457a2ef2cabe51865c08f2c0307a3dfd09b5b726cc813129",
+   "snapshot_sha256": "1b9c5cc51c3a124f595d7b4e2336b05402124fde170dfa012b476a85fe0b195f",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -6363,7 +6363,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -6373,7 +6373,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -6383,7 +6383,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -6413,7 +6413,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -6423,7 +6423,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -6481,7 +6481,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -6496,7 +6496,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -6511,7 +6511,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -6526,7 +6526,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -6541,7 +6541,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -6556,7 +6556,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -6571,7 +6571,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -6586,7 +6586,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -6601,7 +6601,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -6616,7 +6616,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -6631,7 +6631,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -6646,7 +6646,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -6661,7 +6661,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -6676,7 +6676,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -6691,7 +6691,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.919Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -6706,7 +6706,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.920Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      }
     ],
     "uncertainty": null,
@@ -6718,17 +6718,17 @@
   },
   {
    "revision": 19,
-   "created_at": "2026-11-26T01:29:39.921Z",
+   "created_at": "2026-11-26T07:36:48.042Z",
    "action": "evidence added: cfd-held-out-CD",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "ef4c6462d39241f53be486db7c4b0d1564db2b1bad800d02d8aa81bd289a7fda",
+   "snapshot_sha256": "0f6f34d0d1d4d4ed53cc161e0d8763ab18114879cf1008e51fcc8e153de3ac0e",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -6798,7 +6798,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -6808,7 +6808,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -6818,7 +6818,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -6848,7 +6848,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -6858,7 +6858,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -6916,7 +6916,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -6931,7 +6931,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -6946,7 +6946,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -6961,7 +6961,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -6976,7 +6976,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -6991,7 +6991,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -7006,7 +7006,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -7021,7 +7021,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -7036,7 +7036,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -7051,7 +7051,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -7066,7 +7066,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -7081,7 +7081,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -7096,7 +7096,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -7111,7 +7111,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -7126,7 +7126,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.919Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -7141,7 +7141,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.920Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -7156,7 +7156,7 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T01:29:39.921Z"
+      "created_at": "2026-11-26T07:36:48.041Z"
      }
     ],
     "uncertainty": null,
@@ -7168,17 +7168,17 @@
   },
   {
    "revision": 20,
-   "created_at": "2026-11-26T01:29:39.922Z",
+   "created_at": "2026-11-26T07:36:48.043Z",
    "action": "uncertainty recorded",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "438ae246fda281871584b529b9987034111a5eee8cce4101aaabaaf2718951e8",
+   "snapshot_sha256": "0ed2127500e444b479f0fc7e433d0bed147fd8027f5bc342924089accfb99460",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -7248,7 +7248,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -7258,7 +7258,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -7268,7 +7268,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -7298,7 +7298,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -7308,7 +7308,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -7366,7 +7366,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -7381,7 +7381,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -7396,7 +7396,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -7411,7 +7411,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -7426,7 +7426,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -7441,7 +7441,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -7456,7 +7456,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -7471,7 +7471,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -7486,7 +7486,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -7501,7 +7501,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -7516,7 +7516,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -7531,7 +7531,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -7546,7 +7546,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -7561,7 +7561,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -7576,7 +7576,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.919Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -7591,7 +7591,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.920Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -7606,7 +7606,7 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T01:29:39.921Z"
+      "created_at": "2026-11-26T07:36:48.041Z"
      }
     ],
     "uncertainty": {
@@ -7626,17 +7626,17 @@
   },
   {
    "revision": 21,
-   "created_at": "2026-11-26T01:29:39.922Z",
+   "created_at": "2026-11-26T07:36:48.043Z",
    "action": "applicability recorded",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "b322941c2b4429cb6d62cdb1b00701f24d3644bfe59277a423325844a5446b2c",
+   "snapshot_sha256": "c842bed37fd9fea060aaf7cc668d42ae2c6616cdbd64f48e51a4499c900815fa",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -7706,7 +7706,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -7716,7 +7716,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -7726,7 +7726,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -7756,7 +7756,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -7766,7 +7766,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -7824,7 +7824,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -7839,7 +7839,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -7854,7 +7854,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -7869,7 +7869,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -7884,7 +7884,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -7899,7 +7899,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -7914,7 +7914,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -7929,7 +7929,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -7944,7 +7944,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -7959,7 +7959,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -7974,7 +7974,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -7989,7 +7989,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -8004,7 +8004,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -8019,7 +8019,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -8034,7 +8034,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.919Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -8049,7 +8049,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.920Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -8064,7 +8064,7 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T01:29:39.921Z"
+      "created_at": "2026-11-26T07:36:48.041Z"
      }
     ],
     "uncertainty": {
@@ -8111,17 +8111,17 @@
   },
   {
    "revision": 22,
-   "created_at": "2026-11-26T01:29:39.923Z",
+   "created_at": "2026-11-26T07:36:48.044Z",
    "action": "limitations recorded",
    "actor": "",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "d00b3e97a3217614a8454879614a9fbc7a3f7af996097e1ee06e93fa626ca425",
+   "snapshot_sha256": "ea2ecea6f415fb3178c97ea059fdc72bb14a7c2b14744ab650be0964b7c6f55a",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T01:29:39.910Z",
+    "opened_at": "2026-11-26T07:36:48.032Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -8191,7 +8191,7 @@
       "value": 0.00986217082502591,
       "threshold": 0.05,
       "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
-      "critical": true,
+      "critical": false,
       "evidence": "results/mesh_study.json"
      },
      {
@@ -8201,7 +8201,7 @@
       "value": 1.0098300225800185,
       "threshold": 2.0,
       "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -8211,7 +8211,7 @@
       "value": 0.9871720707991906,
       "threshold": 1.5,
       "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
-      "critical": true,
+      "critical": false,
       "evidence": "results/physics_v1.json"
      },
      {
@@ -8241,7 +8241,7 @@
       "value": 0.048358565675710175,
       "threshold": 0.05,
       "message": "relative L2 on 16 designs held out by design",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -8251,7 +8251,7 @@
       "value": 0.14819752094812866,
       "threshold": 0.09290614337417778,
       "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
-      "critical": true,
+      "critical": false,
       "evidence": "results/analysis_v1.json"
      },
      {
@@ -8309,7 +8309,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.911Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -8324,7 +8324,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -8339,7 +8339,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.912Z"
+      "created_at": "2026-11-26T07:36:48.033Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -8354,7 +8354,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -8369,7 +8369,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.913Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -8384,7 +8384,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.034Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -8399,7 +8399,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.914Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -8414,7 +8414,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.035Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -8429,7 +8429,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.915Z"
+      "created_at": "2026-11-26T07:36:48.036Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -8444,7 +8444,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -8459,7 +8459,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.916Z"
+      "created_at": "2026-11-26T07:36:48.037Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -8474,7 +8474,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.917Z"
+      "created_at": "2026-11-26T07:36:48.038Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -8489,7 +8489,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -8504,7 +8504,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.918Z"
+      "created_at": "2026-11-26T07:36:48.039Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -8519,7 +8519,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.919Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -8534,7 +8534,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T01:29:39.920Z"
+      "created_at": "2026-11-26T07:36:48.040Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -8549,7 +8549,7 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T01:29:39.921Z"
+      "created_at": "2026-11-26T07:36:48.041Z"
      }
     ],
     "uncertainty": {

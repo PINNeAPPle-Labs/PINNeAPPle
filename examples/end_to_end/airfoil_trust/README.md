@@ -247,6 +247,11 @@ measured coverage; the maturity on both axes; the limitations written by whoever
 provenance; and the list of work that has to happen before this model may be used for anything
 beyond a first design pass.
 
+Every verdict in it comes from the evidence ledger: each check that ran is sealed against the SHA-256 of the file
+its number came from, and the dossier reads its verdicts back out of the ledger rather than out of this script. A
+check with no intact record cannot be reported as a pass -- it reads NOT RUN, which is what `reproducibility_rerun`
+does here, and what any check would do if its evidence file changed under it. `results/ledger.json` is that record.
+
 **Status: FAILED (technical)** -- 3 of 11 checks failed (field_accuracy, applicability_domain_measured, uncertainty_calibration_coverage) and 4 of the 16 held-out designs are above the 5 % lift tolerance.
 
 That is the result of the study, and it is the one it should have. The declared use was to rank
@@ -266,8 +271,9 @@ example argues against:
   feeds them back into a campaign. Choosing is engineering judgement here.
 - **Conformal prediction.** The intervals are an ensemble spread with a measured coverage, not distribution-free
   intervals. `calibration_metrics` reports coverage and ECE; it does not produce a bounded guarantee.
-- **Geometry evidence authentication.** Evidence records are plain dataclasses; they are not signed into the ledger
-  against a geometry hash.
+- **Geometry evidence authentication.** The checks are sealed in the ledger, but the evidence records the domain
+  reads are plain dataclasses: they are not signed against a geometry hash, so nothing stops an evidence record being
+  rewritten between the campaign and the assessment.
 - **Closed-loop revalidation.** A new campaign does not trigger a re-assessment automatically.
 - **Inference blocking.** The domain answers questions; it does not sit in front of a prediction and refuse it.
 - **Experimental data.** Nothing here is compared with a wind tunnel. The reference kind is "numerical reference",

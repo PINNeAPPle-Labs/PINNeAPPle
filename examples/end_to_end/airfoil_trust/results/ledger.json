@@ -1,0 +1,185 @@
+{
+ "schema": "pinneapple-evidence-ledger/v1",
+ "entries": [
+  {
+   "check_id": "mesh_convergence_CL",
+   "name": "mesh_convergence_CL",
+   "category": "verification",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "10dffc8aabe3ccd9482fb11c7eed5fb8d95630317ccc15fa9c675305e7db65e0",
+   "outputs": {
+    "value": 0.00986217082502591,
+    "threshold": 0.05,
+    "detail": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.030Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "0e75af1ffec87a188111185fed173fde6591f6a3827744b3af0a2f03cbc8f20e"
+  },
+  {
+   "check_id": "gate_continuity_residual",
+   "name": "gate_continuity_residual",
+   "category": "verification",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "8221b0c42fe325bf75942c1ffaf8ef0015eb05c8a1eb6f853d7844c8542a435a",
+   "outputs": {
+    "value": 1.0098300225800185,
+    "threshold": 2.0,
+    "detail": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.030Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "9adf6bb591eec2123ec0dc5a498b8fd685dbaefeadd74cc89293530806c42241"
+  },
+  {
+   "check_id": "boundary_condition_no_slip",
+   "name": "boundary_condition_no_slip",
+   "category": "verification",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "80db5a41b0d015f6efa3f488f86f584b4f863a07d385ef34e49155676a0dbf02",
+   "outputs": {
+    "value": 0.9871720707991906,
+    "threshold": 1.5,
+    "detail": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.030Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "fa6e0ef2f39e45618628718d092e3773b926a0b20530a0ece55436ca0ae756e1"
+  },
+  {
+   "check_id": "freestream_decay",
+   "name": "freestream_decay",
+   "category": "physics",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "c9711b1a1ee3c78d7ca8d0d46a7f11818ae0a447d1fce859f0531c30ecf873e7",
+   "outputs": {
+    "value": 1.0586927095422187,
+    "threshold": 1.5,
+    "detail": "the outermost ring departs from the freestream by 0.084 of U_inf, against the reference's 0.079 -- the ring is at a quarter chord from the surface, so neither reaches zero"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.030Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "e72105858f5145f59bd704a4f3a7b5eda2c4f1e8f67cf82252876388e2ad4d72"
+  },
+  {
+   "check_id": "pressure_integral_consistency",
+   "name": "pressure_integral_consistency",
+   "category": "physics",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "82f53c0e43c57c605aaf5bfe79e0f3e8d1908be3809c5e82a88cb5c9ad4d2fb9",
+   "outputs": {
+    "value": 1.0160191623655555,
+    "threshold": 1.5,
+    "detail": "lift from integrating the predicted wall pressure differs from the predicted CL by 0.319; the same integral on the reference differs from the reference's CL by 0.314"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.030Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "1728e6a425a20a37bfbe9f1939c9df1b9c12df41163a1eac70c326ace25edfde"
+  },
+  {
+   "check_id": "accuracy_CL",
+   "name": "accuracy_CL",
+   "category": "validation",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "cd247a1403e70c191aa3c2315e7fe1031fdd27eb50235d4ce3261ecd4210cdf0",
+   "outputs": {
+    "value": 0.048358565675710175,
+    "threshold": 0.05,
+    "detail": "relative L2 on 16 designs held out by design"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.031Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "1e8b64b58ab31bb96e316dbbb6732adb1bf2a133d6d440b28858c0af4c1f1a34"
+  },
+  {
+   "check_id": "field_accuracy",
+   "name": "field_accuracy",
+   "category": "validation",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "bf0d004cd2edf141f95399323a23a059ded0d8d49599a9f5c5c1594f0186b0f2",
+   "outputs": {
+    "value": 0.14819752094812866,
+    "threshold": 0.09290614337417778,
+    "detail": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.031Z",
+   "passed": false,
+   "error": "",
+   "entry_sha256": "4bc0f2f7fa32cee2f415bbd65ee8d7a20ac19d6b3b735992024482d95bbad143"
+  },
+  {
+   "check_id": "applicability_domain_measured",
+   "name": "applicability_domain_measured",
+   "category": "applicability",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "07bf28fb86ad2513ef76eca7055d153866e966d7a0abaae3e644b68acd6f5c8b",
+   "outputs": {
+    "value": null,
+    "threshold": null,
+    "detail": "evidence domain queried at {'alpha_deg': 2.0, 'speed': 20.0, 'thickness': 0.12}: UNSUPPORTED (insufficient_local_reference)"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.031Z",
+   "passed": false,
+   "error": "",
+   "entry_sha256": "ca8cb0fc7bc5f6e03f1739ba5cf139be87b02210c99a20aa4c2a3e5c0bab53b8"
+  },
+  {
+   "check_id": "uncertainty_calibration_coverage",
+   "name": "uncertainty_calibration_coverage",
+   "category": "uncertainty",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "2429c9bbedc16c6724826516dcf62a147e762977a0f53977576749d9f9fb3551",
+   "outputs": {
+    "value": 0.43333333333333335,
+    "threshold": 0.68,
+    "detail": "the raw ensemble spread covers 43% of held-out errors at one sigma (narrower than nominal: the bar under-covers)"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.031Z",
+   "passed": false,
+   "error": "",
+   "entry_sha256": "4275ebd0f822e277546b9b0a2a02102abcf1ecc87aadf7f1e05d42dabc779392"
+  },
+  {
+   "check_id": "robustness_input_sensitivity",
+   "name": "robustness_input_sensitivity",
+   "category": "robustness",
+   "tool": "pinneapple_veriphysics",
+   "tool_version": "",
+   "inputs_sha256": "10b1e3769eccc7dc87cfa01d0ea0a6c0ea27093cabbd1de62957cd65236b8cd3",
+   "outputs": {
+    "value": 0.7178471705287193,
+    "threshold": 1.0,
+    "detail": "movement of CL under a 1 % nudge of each input, over the ensemble spread, worst input: alpha_deg 0.72, speed 0.05, thickness 0.05"
+   },
+   "started_at": "2026-11-26T07:36:48.030Z",
+   "finished_at": "2026-11-26T07:36:48.031Z",
+   "passed": true,
+   "error": "",
+   "entry_sha256": "a272e89b62a1dc4f8e3694427481963f2fab47ea7877d7af718451ecf87a5a61"
+  }
+ ]
+}

@@ -14,3 +14,7 @@
 - `ValidationDossier.render_markdown` now carries the applicability, uncertainty, limitations and run-provenance
   sections, as `render_text` and `render_html` already did: the Markdown report of a validation case was silently
   dropping the parts of the record that say what the model may *not* be used for.
+- Stage 7 of the study derives every check verdict from `pinneapple_veriphysics.ledger` instead of asserting it: each
+  check is sealed against the SHA-256 of the file its number came from and read back through
+  `checks_from_ledger`, so a check with no intact record reads "not run" -- which is what the example's
+  reproducibility check does, and what any check would do if its evidence file changed under it.

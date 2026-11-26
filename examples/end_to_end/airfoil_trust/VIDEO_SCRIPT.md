@@ -10,7 +10,7 @@ modules live in is never named in narration, on screen or in the captions; the m
 
 **Voice.** One narrator, calm, technical, no sales cadence. Numbers are read exactly as the figure shows them.
 
-**Pace.** The technical cut is 1694 words of narration against the timecodes below, which is about 175 words per
+**Pace.** The technical cut is 1732 words of narration against the timecodes below, which is about 175 words per
 minute -- brisk, and normal for a screencast with the figure carrying half the sentence. If the read comes out slower,
 cut the lattice anecdote in Scene 03 (60 words) and the radius paragraph in Scene 08 (45 words) before cutting any
 number: the numbers are the argument.
@@ -292,6 +292,9 @@ Command: `python examples/end_to_end/airfoil_trust/07_report.py`
 > less than it claims; because the centre of the design box has no evidence behind it. Each verdict
 > carries the check that produced it and the file where the number lives; the limitations are part
 > of the result.
+>
+> Every verdict in it is backed by a sealed ledger entry against the hash of the file the number came
+> from, which is why the check that did not run reads NOT RUN and not "assumed fine".
 >
 > And it ends with what is missing: the check that did not run, the evidence that was not gathered,
 > the work to happen before this model is used beyond a first design pass.

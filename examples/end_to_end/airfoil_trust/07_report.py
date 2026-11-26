@@ -19,6 +19,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, ROOT)
 
+from dataclasses import replace  # noqa: E402
+
 import matplotlib  # noqa: E402
 import numpy as np  # noqa: E402
 
@@ -34,6 +36,7 @@ from pinneapple_autolab.domains.airfoil_study import (  # noqa: E402
     split_by_design,
 )
 from pinneapple_veriphysics.dossier import ValidationDossier  # noqa: E402
+from pinneapple_veriphysics.ledger import EvidenceLedger, sha256_file, sha256_json, utc_now  # noqa: E402
 from pinneapple_veriphysics.usecase import ValidationProfile  # noqa: E402
 from pinneapple_veriphysics.validated_domain import DomainPolicy, GeometryEvidence, ValidatedDomain  # noqa: E402
 from pinneapple_veriphysics.validation_case import (  # noqa: E402
@@ -44,6 +47,7 @@ from pinneapple_veriphysics.validation_case import (  # noqa: E402
     ReferenceComparison,
     UncertaintyEvidence,
     ValidationCase,
+    checks_from_ledger,
 )
 
 RUNS = os.path.join(HERE, "_runs", "cfd")
@@ -344,6 +348,31 @@ checks = [
                  message="not run in this round: no independent re-execution of the campaign", evidence=""),
 ]
 
+# --------------------------------------------------------------------------- the ledger
+# A check reads "passed" because a sealed record shows that it ran, not because this script says so. Each check that
+# actually ran is recorded against the SHA-256 of the file its number came from, and the verdicts are then derived
+# from the ledger -- so a check whose evidence file has changed under it, or whose record is edited afterwards, comes
+# back as "not run" instead of as a pass. The one check that did not run has no record to derive anything from, and is
+# added back explicitly: dropping it is the failure the ledger exists to prevent.
+LEDGER = EvidenceLedger()
+LEDGER_PATH = os.path.join(RES, "ledger.json")
+_started = utc_now()
+for c in checks:
+    if c.passed is None:
+        continue
+    source = os.path.join(ROOT, c.evidence) if c.evidence else ""
+    LEDGER.record(c.check_id, passed=c.passed, name=c.check_id, category=c.category,
+                  inputs_sha256=(sha256_file(source) if source and os.path.exists(source)
+                                 else sha256_json({"check": c.check_id, "value": c.value})),
+                  outputs={"value": c.value, "threshold": c.threshold, "detail": c.message},
+                  started_at=_started, finished_at=utc_now(), tool="pinneapple_veriphysics",
+                  tool_version=getattr(pinneapple_lab, "__version__", ""))
+_records = {c.check_id: c.evidence for c in checks}
+_not_run = tuple(c for c in checks if c.passed is None)
+checks = tuple(replace(v, evidence=_records.get(v.check_id, v.evidence))
+               for v in checks_from_ledger(LEDGER)) + _not_run
+json.dump(LEDGER.to_dict(), open(LEDGER_PATH, "w"), indent=1)
+
 model_version = ModelVersion(
     name="naca-family-surrogate", version="v1",
     configuration=tuple(sorted({"architecture": "MLP ensemble on POD coefficients",
@@ -506,3 +535,5 @@ print(f"  domain at {query}: {verdict['status']} ({verdict['reason']})")
 print(f"  robustness: worst input-sensitivity ratio {physics['sensitivity_worst']:.2f} "
       f"(movement over ensemble spread)")
 print(f"  figures: {', '.join(os.path.basename(f) for f in figures)}")
+for c in checks:
+    print(f"  {LEDGER.claim(c.check_id) if c.passed is not None else f'{c.check_id}: not run (no record)'}")

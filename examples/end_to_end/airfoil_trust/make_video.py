@@ -20,7 +20,6 @@ import subprocess
 import tempfile
 import wave
 
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -70,10 +69,6 @@ def spoken(text: str) -> str:
     t = t.replace("%", " percent").replace("|", " ").replace("`", "").replace("*", "")
     t = re.sub(r"(?<=\d)[\u2009 ](?=\d{3}\b)", ",", t)      # 16 117 is sixteen thousand, not two numbers
     return re.sub(r"\s{2,}", " ", t)
-
-
-def hexc(colour: tuple[int, int, int]) -> str:
-    return "#{:02x}{:02x}{:02x}".format(*colour)
 
 
 def _word(n: int) -> str:
@@ -193,72 +188,6 @@ def table_frame(title: str, headers: list[str], rows: list[list[str]], colours: 
     return img
 
 
-def doe_frame(path: str) -> Image.Image:
-    """The design space, drawn from the same plan the campaign ran."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
-    plan = load("doe_round1.json")["splits"]
-    fig = plt.figure(figsize=(11.2, 5.6), dpi=150)
-    ax = fig.add_subplot(projection="3d")
-    ax.view_init(elev=22, azim=-58)
-    fig.patch.set_facecolor("#0d1117")
-    ax.set_facecolor("#0d1117")
-    for name, colour in (("train", BLUE), ("calibration", ORANGE), ("validation", GREEN)):
-        pts = plan[name]
-        ax.scatter([p["alpha_deg"] for p in pts], [p["speed"] for p in pts], [p["thickness"] * 100 for p in pts],
-                   s=42, color=hexc(colour), label=f"{name} ({len(pts)})", depthshade=False)
-    ax.set_xlabel("alpha [deg]", color=hexc(MUTED))
-    ax.set_ylabel("speed [m/s]", color=hexc(MUTED))
-    ax.set_zlabel("thickness [% chord]", color=hexc(MUTED))
-    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
-        axis.label.set_color(hexc(MUTED))
-        axis.pane.set_facecolor("#11161d")
-        axis.pane.set_edgecolor("#30363d")
-    ax.tick_params(colors=hexc(MUTED), labelsize=10)
-    leg = ax.legend(fontsize=11, loc="upper left", framealpha=0.15, labelcolor=hexc(FG))
-    if leg is not None:
-        leg.get_frame().set_facecolor("#11161d")
-    fig.subplots_adjust(left=0.02, right=0.95, bottom=0.03, top=0.98)
-    fig.savefig(path, facecolor=fig.get_facecolor())
-    plt.close(fig)
-    return path
-
-
-def pod_frame(path: str) -> Image.Image:
-    """How much of the field the basis keeps, from the singular values the analysis wrote."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
-    basis = load("analysis_v1.json")["basis"]
-    s = np.asarray(basis["singular_values"], float) ** 2
-    frac = s / s.sum()
-    fig, ax = plt.subplots(figsize=(9.6, 4.2), dpi=140)
-    fig.patch.set_facecolor("#0d1117")
-    ax.set_facecolor("#0d1117")
-    ax.bar(np.arange(1, len(frac) + 1), 100 * frac, color=hexc(BLUE))
-    ax.plot(np.arange(1, len(frac) + 1), 100 * np.cumsum(frac), "o-", color=hexc(ORANGE), ms=4, lw=1.3,
-            label="cumulative")
-    ax.axvline(basis["n_modes"] + 0.5, color=hexc(MUTED), ls="--", lw=1)
-    ax.text(basis["n_modes"] + 0.7, 60, f"{basis['n_modes']} modes kept\n{100 * basis['energy_captured']:.2f} % "
-                                        "of the energy", color=hexc(FG), fontsize=9)
-    ax.set_xlabel("POD mode", color=hexc(MUTED))
-    ax.set_ylabel("share of the field energy [%]", color=hexc(MUTED))
-    ax.tick_params(colors=hexc(MUTED), labelsize=8)
-    for side in ("top", "right"):
-        ax.spines[side].set_visible(False)
-    for side in ("left", "bottom"):
-        ax.spines[side].set_color("#30363d")
-    ax.grid(axis="y", color="#21262d", lw=0.6)
-    ax.legend(fontsize=8, framealpha=0.15, labelcolor=hexc(FG))
-    fig.tight_layout()
-    fig.savefig(path, facecolor=fig.get_facecolor())
-    plt.close(fig)
-    return path
-
-
 # --------------------------------------------------------------------------- the deck
 CUTS = {"long": "## The 8-10 minute technical demo", "short": "## The 90-120 second cut"}
 _END = "## Production notes"
@@ -322,13 +251,10 @@ def deck(work: str) -> dict[int, list[tuple[Image.Image, str]]]:
                       accent=BLUE), "mesh convergence"),
     ]
 
-    dpath, ppath = os.path.join(work, "doe.png"), os.path.join(work, "pod.png")
-    doe_frame(dpath)
-    pod_frame(ppath)
     frames[3] = [
-        (figure_frame(dpath, "Sixty designs, split by whole designs", "32 train, 12 calibration, 16 held out",
-                      accent=BLUE), "design space"),
-        (figure_frame(ppath, "Eight modes, 98.87 % of the field energy",
+        (figure_frame(os.path.join(FIG, "doe_plan.png"), "Sixty designs, split by whole designs",
+                      "32 train, 12 calibration, 16 held out", accent=BLUE), "design space"),
+        (figure_frame(os.path.join(FIG, "pod_spectrum.png"), "Eight modes, 98.87 % of the field energy",
                       f"an unseen field reconstructs to {100 * ana['basis']['held_out_reconstruction_rel_l2']:.2f} % "
                       "from the basis alone", accent=BLUE), "POD spectrum"),
     ]
@@ -353,11 +279,11 @@ def deck(work: str) -> dict[int, list[tuple[Image.Image, str]]]:
     frames[5] = [
         (table_frame("Is it a flow, or only a fit?", ["check", "surrogate", "reference", "how it is judged"], rows,
                      colours=[FG, FG, FG, FG, RED], caption="the last one fails: the lift is inside tolerance and the "
-                     "field it integrates is not", accent=ORANGE, widths=[0.3, 0.17, 0.17, 0.36]), "gates"),
-        (figure_frame(os.path.join(FIG, "fields.png"), "The lift is inside tolerance. The field it comes from is not.",
-                      f"relative L2 over u, v and cp: {100 * ana['validation']['field_rel_l2_mean']:.1f} %, against a "
-                      f"{100 * ana['basis']['held_out_reconstruction_rel_l2']:.1f} % floor from the basis alone",
-                      accent=ORANGE), "the field"),
+                     "field it integrates is not", accent=ORANGE, widths=[0.3, 0.17, 0.17, 0.36]), "gate table"),
+        (figure_frame(os.path.join(FIG, "physics_gates.png"), "The same checks, as a picture",
+                      "the surrogate departs from physical behaviour by about as much as the solver that made its "
+                      "training data -- except on the field, where it is "
+                      f"{s['gate_accuracy']['surrogate_mean']:.2f} away", accent=ORANGE), "the gates"),
     ]
 
     checks = dos["checks"]
@@ -366,6 +292,9 @@ def deck(work: str) -> dict[int, list[tuple[Image.Image, str]]]:
             for c in checks]
     colours = [RED if c["passed"] is False else (ORANGE if c["passed"] is None else FG) for c in checks]
     frames[6] = [
+        (figure_frame(os.path.join(FIG, "sensitivity.png"), "Robustness, measured rather than promised",
+                      f"every input nudged by 1 % of its range: the worst movement is "
+                      f"{phy['sensitivity_worst']:.2f} of the ensemble spread", accent=BLUE), "sensitivity"),
         (table_frame("The checks, with one that did not run", ["check", "group", "status"], rows,
                      colours=colours, caption="a check that did not run is not a pass and not an omission",
                      accent=ORANGE, widths=[0.52, 0.24, 0.24]), "check table"),
@@ -422,6 +351,10 @@ def deck(work: str) -> dict[int, list[tuple[Image.Image, str]]]:
         (table_frame("The domain grows without the model moving", ["", "before", "after"], rows,
                      caption="same weights, same version: only the evidence changed", accent=BLUE,
                      widths=[0.56, 0.22, 0.22]), "extend"),
+        (figure_frame(os.path.join(FIG, "extend.png"), "The same weights, more evidence",
+                      f"{rev['domain_after_extend']['evidence'] - rev['domain_before_extend']['evidence']} more "
+                      f"references: {mid['status_changes']} of the {mid['candidates']} geometries they reach "
+                      "became supported, and the rest did not", accent=BLUE), "extension"),
         (card("Two measurements, and only one of them flatters the method",
               f"uniform over the box: {rev['domain_before_extend']['supported']} of 400 supported before, "
               f"{rev['domain_after_extend']['supported']} after\n"
@@ -475,7 +408,7 @@ def findings() -> list[list[str]]:
 def short_deck(work: str) -> dict[int, list[tuple[Image.Image, str]]]:
     """The 90-120 second cut: six frames, one per beat, from the same material."""
     full = deck(work)
-    picks = {1: (1, 0), 2: (2, 1), 3: (4, 0), 4: (6, 0), 5: (8, 1), 6: (13, 0)}
+    picks = {1: (1, 0), 2: (2, 1), 3: (4, 0), 4: (6, 1), 5: (8, 1), 6: (13, 0)}
     return {beat: [full[scene][index]] for beat, (scene, index) in picks.items()}
 
 

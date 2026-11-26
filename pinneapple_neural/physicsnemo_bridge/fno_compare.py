@@ -42,7 +42,12 @@ import torch
 import torch.nn as nn
 
 from .adapters import is_physicsnemo_available
-from .field_operators import GridFieldPredictor, pinneapple_fno, physicsnemo_fno, train_grid_operator
+from .field_operators import (
+    GridFieldPredictor,
+    physicsnemo_fno,
+    pinneapple_fno,
+    train_grid_operator,
+)
 
 __all__ = [
     "PARITY_ARCH",
@@ -59,6 +64,8 @@ __all__ = [
     "transplant_fno2d_weights",
     "matched_pair",
     "fno2d_forward_parity",
+    "GradientParity",
+    "fno2d_gradient_parity",
     "advdiff_case",
     "predict_on_grid",
     "compare_trained",
@@ -205,11 +212,17 @@ def fno2d_weight_map(source: nn.Module) -> list[tuple[str, str, str]]:
 
 
 def transplant_fno2d_weights(source: nn.Module, target: nn.Module) -> list[str]:
-    """Copy a PhysicsNeMo ``FNO``'s weights into a parity-configuration ``FNO2d``; returns the target names written.
+    """Copy a PhysicsNeMo ``FNO``'s weights into a parity-configuration ``FNO2d``, and its frozen/trainable split;
+    returns the target names written.
 
     Every parameter of the target must be covered — a partial copy would leave part of the model at its own random
     initialisation and quietly turn an equivalence test into a similarity test — so a target parameter with no entry
     in :func:`fno2d_weight_map`, or a shape that does not agree, raises instead of being skipped.
+
+    ``requires_grad`` is mirrored because PhysicsNeMo freezes the biases of its 2-D lifting layers
+    (``Conv2dFCLayer.reset_parameters`` zeroes them and then sets ``requires_grad = False``, while its 1-D and 3-D
+    counterparts leave the bias trainable): a model that trains them is not the same model, even when it starts from
+    the same weights.
     """
     src, dst = dict(source.named_parameters()), dict(target.named_parameters())
     mapping = fno2d_weight_map(source)
@@ -233,6 +246,7 @@ def transplant_fno2d_weights(source: nn.Module, target: nn.Module) -> list[str]:
                 raise ValueError(f"{src_name} {tuple(w.shape)} does not fit {dest_name} "
                                  f"{tuple(dst[dest_name].shape)}: the two models are not the same architecture")
             dst[dest_name].copy_(w.to(dst[dest_name].dtype))
+            dst[dest_name].requires_grad_(bool(src[src_name].requires_grad))
             written.append(dest_name)
     covered = set(written)
     missed = sorted(set(dst) - covered)
@@ -309,6 +323,79 @@ def fno2d_forward_parity(n: int, arch: FNOArch = PARITY_ARCH, *, seed: int = 0, 
     report.grids = sorted(worst)
     report.relative_l2 = {str(g): v for g, v in worst.items()}
     report.passed = bool(all(v <= tolerance for v in worst.values()))
+    return report
+
+
+@dataclass
+class GradientParity:
+    """What :func:`fno2d_gradient_parity` measured: the two gradients of the same loss, per shared parameter."""
+
+    arch: dict[str, int]
+    relative_l2: float
+    worst_parameter: str
+    worst_relative_l2: float
+    per_parameter: dict[str, float]
+    trainable: dict[str, int]
+    tolerance: float
+    passed: bool | None
+    available: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+def fno2d_gradient_parity(n: int, arch: FNOArch = PARITY_ARCH, *, seed: int = 0, batch: int = 4,
+                          tolerance: float = PARITY_TOLERANCE) -> GradientParity:
+    """Relative L2 between the **gradients** the two implementations compute for the same loss, per parameter.
+
+    The stronger half of the parity claim: the forward pass agreeing says the two models are the same function, the
+    gradients agreeing says training them is the same computation. Both are measured on one batch of uniform random
+    fields with the FNO paper's loss (per-sample relative L2, mean over the batch), after the same transplant and
+    with the same trainable set. Parameters either implementation freezes are left out of both sides.
+    """
+    report = GradientParity(arch=arch.to_dict(), relative_l2=float("nan"), worst_parameter="",
+                            worst_relative_l2=float("nan"), per_parameter={}, trainable={}, tolerance=float(tolerance),
+                            passed=None, available=availability())
+    if not report.available["available"]:
+        return report
+    pair = matched_pair(n, arch, seed=seed)
+    gen = torch.Generator().manual_seed(int(seed))
+    x = torch.randn(batch, int(n), int(n), generator=gen)
+    y = torch.randn(batch, int(n), int(n), generator=gen)
+    native_net = pair["physicsnemo"].physicsnemo_model
+    grads: dict[str, dict[str, torch.Tensor]] = {"pinneapple": {}, "physicsnemo": {}}
+    for backend, model in (("pinneapple", pair["pinneapple"].module), ("physicsnemo", pair["physicsnemo"].module)):
+        model.train()
+        model.zero_grad(set_to_none=True)
+        out = model(x)
+        loss = (torch.linalg.vector_norm((out - y).flatten(1), dim=1)
+                / torch.linalg.vector_norm(y.flatten(1), dim=1)).mean()
+        loss.backward()
+        grads[backend] = {k.removeprefix("net."): p.grad.detach().clone()
+                          for k, p in model.named_parameters()
+                          if p.grad is not None and p.requires_grad}
+    num = den = 0.0
+    for dest, src, transform in fno2d_weight_map(native_net):
+        if dest not in grads["pinneapple"] or src not in grads["physicsnemo"]:
+            continue                                        # frozen on one side (PhysicsNeMo's lifting biases)
+        mine = grads["pinneapple"][dest]
+        theirs = grads["physicsnemo"][src]
+        if transform == "complex":
+            theirs = torch.view_as_complex(theirs.contiguous())
+        elif transform == "linear":
+            theirs = theirs[:, :, None, None]
+        mine = mine.to(torch.complex128 if mine.is_complex() else torch.float64)
+        theirs = theirs.to(mine.dtype)
+        diff, ref = float((mine - theirs).norm()), float(mine.norm())
+        report.per_parameter[dest] = diff / ref if ref else 0.0
+        num += diff * diff
+        den += ref * ref
+    report.trainable = {k: int(v.requires_grad) for k, v in pair["pinneapple"].module.net.named_parameters()}
+    report.relative_l2 = (num / den) ** 0.5 if den else float("nan")
+    if report.per_parameter:
+        report.worst_parameter = max(report.per_parameter, key=report.per_parameter.get)
+        report.worst_relative_l2 = report.per_parameter[report.worst_parameter]
+    report.passed = bool(report.relative_l2 <= tolerance)
     return report
 
 
@@ -413,7 +500,8 @@ class TrainedComparison:
 
 def compare_trained(case: AdvDiffCase | None = None, arch: FNOArch = PARITY_ARCH, *, seeds: Sequence[int] = (0,),
                     steps: int = 300, batch_size: int = 16, lr: float = 1e-3, threads: int | None = None,
-                    transfer_grids: Sequence[int] = (), as_shipped: bool = True) -> TrainedComparison:
+                    transfer_grids: Sequence[int] = (), as_shipped: bool = True,
+                    eval_at: Sequence[float] = ()) -> TrainedComparison:
     """Train both FNOs on the same samples for the same number of optimiser steps, score both against ``u1``.
 
     What is held equal, for both sides: the samples and their split, the input mean/std and output scale
@@ -426,6 +514,10 @@ def compare_trained(case: AdvDiffCase | None = None, arch: FNOArch = PARITY_ARCH
     ``as_shipped`` adds the row in which each library uses its own default architecture (rather than the parity
     configuration) — the question a user migrating asks, answered with the same protocol. ``transfer_grids`` trains
     at ``case.n`` and additionally scores on a finer/coarser grid, using :func:`predict_on_grid`.
+
+    ``eval_at`` records the held-out error at those fractions of the budget as well as at the end (evaluation time is
+    not charged to the model, see ``train_within_budget``), so the report carries an error-versus-budget curve and
+    not only the number at one arbitrary cut.
     """
     if not is_physicsnemo_available():
         return TrainedComparison(case=(case or advdiff_case()).describe(), protocol={}, config=arch.to_dict(),
@@ -448,8 +540,14 @@ def compare_trained(case: AdvDiffCase | None = None, arch: FNOArch = PARITY_ARCH
                 transplant_fno2d_weights(pair["physicsnemo"].physicsnemo_model, pair["pinneapple"].module.net)
             for backend, pred in pair.items():
                 t0 = time.perf_counter()
+                curve: list[float] = []
+
+                def _evaluate() -> float:
+                    curve.append(score(pred.predict(a_te), u_te)["rel_l2_mean"])
+                    return curve[-1]
+
                 train_grid_operator(pred, a_tr, u_tr, _steps(steps), batch_size=batch_size, lr=lr, seed=int(seed),
-                                    threads=threads)
+                                    threads=threads, evaluate=_evaluate, eval_at=eval_at)
                 elapsed = time.perf_counter() - t0
                 prediction = pred.predict(a_te)
                 per_seed[backend]["predictions"].append(prediction)
@@ -457,6 +555,7 @@ def compare_trained(case: AdvDiffCase | None = None, arch: FNOArch = PARITY_ARCH
                     "seed": int(seed),
                     "train_s": round(elapsed, 2),
                     "n_parameters": real_parameter_count(pred.module.net),
+                    "curve": curve,
                     **score(prediction, u_te),
                     **{f"transfer_{g}": score(predict_on_grid(pred, fields), ref)["rel_l2_mean"]
                        for g, (fields, ref) in transfers.items()},
@@ -475,6 +574,7 @@ def compare_trained(case: AdvDiffCase | None = None, arch: FNOArch = PARITY_ARCH
                              protocol={"steps": int(steps), "batch_size": int(batch_size), "lr": float(lr),
                                        "optimiser": "Adam, weight decay 1e-5, cosine schedule over the steps",
                                        "loss": "per-sample relative L2, mean over the batch",
+                                       "eval_at": [float(f) for f in eval_at],
                                        "seeds": [int(s) for s in seeds], "threads": threads},
                              config=arch.to_dict(), rows=rows, available=availability())
 
@@ -515,8 +615,9 @@ def score(prediction: np.ndarray, reference: np.ndarray) -> dict[str, float]:
     """
     pred = np.asarray(prediction, dtype=np.float64)
     ref = np.asarray(reference, dtype=np.float64)
-    per = [float(np.linalg.norm(p - r)) / (float(np.linalg.norm(r)) or 1.0) for p, r in zip(pred, ref)]
-    drift = [abs(float(p.mean()) - float(r.mean())) / ((float(np.abs(r).mean())) or 1.0) for p, r in zip(pred, ref)]
+    per = [float(np.linalg.norm(p - r)) / (float(np.linalg.norm(r)) or 1.0) for p, r in zip(pred, ref, strict=True)]
+    drift = [abs(float(p.mean()) - float(r.mean())) / ((float(np.abs(r).mean())) or 1.0)
+             for p, r in zip(pred, ref, strict=True)]
     return {"rel_l2_mean": float(np.mean(per)), "rel_l2_median": float(np.median(per)),
             "rel_l2_worst": float(np.max(per)), "mass_drift_mean": float(np.mean(drift))}
 

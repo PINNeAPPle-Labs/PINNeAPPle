@@ -35,7 +35,7 @@ import numpy as np
 from pinneapple_data.schema import PhysicsDataBundle, run_gates
 from pinneapple_data.schema.gates import relative_l2
 
-__all__ = ["BenchConfig", "ModelResult", "BenchReport", "prepare", "run_benchmark", "run_model"]
+__all__ = ["BenchConfig", "ModelResult", "BenchReport", "prepare", "run_benchmark", "run_model", "run_and_predict"]
 
 
 @dataclass(frozen=True)
@@ -70,6 +70,7 @@ class ModelResult:
     model: str
     parameters: int = 0
     seconds: float = 0.0
+    predict_seconds: float = 0.0
     rel_l2: float = float("nan")
     per_sample: list[float] = _dc_field(default_factory=list)
     train_loss: list[float] = _dc_field(default_factory=list)
@@ -299,30 +300,35 @@ def _train_pinn(data: _Data, config: BenchConfig,
 
 
 # ── scoring ────────────────────────────────────────────────────────────────────────────────────────────────
-def _predict_fno(model, data: _Data, config: BenchConfig, mean: float, scale: float) -> np.ndarray:
+def _predict_fno(model, data: _Data, config: BenchConfig, mean: float, scale: float,
+                 steps: np.ndarray | None = None) -> np.ndarray:
     import torch
+    steps = data.test if steps is None else np.asarray(steps)
     X = _fno_inputs(data, config).to(config.device)
     model.eval()
     with torch.no_grad():
-        out = model(X[data.test])
+        out = model(X[torch.as_tensor(steps)])
         pred = out.y if hasattr(out, "y") else out
     return pred.squeeze(1).cpu().numpy() * scale + mean
 
 
-def _predict_pinn(net, data: _Data, config: BenchConfig, mean: float, scale: float) -> np.ndarray:
+def _predict_pinn(net, data: _Data, config: BenchConfig, mean: float, scale: float,
+                  steps: np.ndarray | None = None) -> np.ndarray:
     import torch
+    steps = data.test if steps is None else np.asarray(steps)
     nt, nx = data.nt, data.nx
     tt = torch.tensor(data.t, dtype=torch.float32).view(-1, 1).expand(-1, nx).reshape(-1, 1)
     xx = torch.tensor(data.x, dtype=torch.float32).view(1, -1).expand(nt, -1).reshape(-1, 1)
-    rows = torch.as_tensor(np.concatenate([np.arange(i * nx, (i + 1) * nx) for i in data.test]))
+    rows = torch.as_tensor(np.concatenate([np.arange(i * nx, (i + 1) * nx) for i in steps]))
     with torch.no_grad():
         u = net(torch.cat([tt[rows], xx[rows]], dim=1).to(config.device))
-    return u.reshape(len(data.test), nx).cpu().numpy() * scale + mean
+    return u.reshape(len(steps), nx).cpu().numpy() * scale + mean
 
 
-def run_model(bundle: PhysicsDataBundle, config: BenchConfig, model: str, *,
-              residual: Callable[..., Any] | None = None) -> tuple[ModelResult, np.ndarray, np.ndarray]:
-    """Train one model and return its result, its predictions on the held-out block and the reference block."""
+def _fit(bundle: PhysicsDataBundle, config: BenchConfig, model: str,
+         residual: Callable[..., Any] | None = None) -> tuple[Any, int, list[float], float, _Data]:
+    """Train one model on the training block. The single place that spends the optimiser budget, so
+    :func:`run_model` and :func:`run_and_predict` cannot drift apart on what "the same budget" means."""
     import torch
 
     torch.manual_seed(config.seed)
@@ -335,21 +341,56 @@ def run_model(bundle: PhysicsDataBundle, config: BenchConfig, model: str, *,
         net, losses, params = _train_pinn(data, config, residual=residual)
     else:
         raise ValueError(f"unknown model '{model}'; use 'fno' or 'pinn'")
-    seconds = time.time() - started
+    return net, params, losses, time.time() - started, data
+
+
+def _note(model: str, residual: Callable[..., Any] | None) -> str:
+    return "data-supervised PINN (no PDE residual supplied)" if (model == "pinn" and residual is None) else ""
+
+
+def run_model(bundle: PhysicsDataBundle, config: BenchConfig, model: str, *,
+              residual: Callable[..., Any] | None = None) -> tuple[ModelResult, np.ndarray, np.ndarray]:
+    """Train one model and return its result, its predictions on the held-out block and the reference block."""
+    net, params, losses, seconds, data = _fit(bundle, config, model, residual=residual)
     y = data.y.numpy()
     mean, scale = float(y[data.train].mean()), float(y[data.train].std()) or 1.0
-    if model == "fno":
-        pred = _predict_fno(net, data, config, mean, scale)
-    else:
-        pred = _predict_pinn(net, data, config, mean, scale)
+    started = time.time()
+    pred = (_predict_fno if model == "fno" else _predict_pinn)(net, data, config, mean, scale)
+    predict_seconds = time.time() - started
     ref = y[data.test]
     per_sample = [relative_l2(p, r) if float(np.linalg.norm(r)) > 0 else float("nan") for p, r in zip(pred, ref, strict=True)]
-    result = ModelResult(model=model, parameters=params, seconds=seconds,
+    result = ModelResult(model=model, parameters=params, seconds=seconds, predict_seconds=predict_seconds,
                          rel_l2=float(np.nanmean(per_sample)) if per_sample else float("nan"),
                          per_sample=[float(v) for v in per_sample], train_loss=losses, epochs_run=config.epochs,
-                         note="data-supervised PINN (no PDE residual supplied)" if (model == "pinn" and residual is None)
-                         else "")
+                         note=_note(model, residual))
     return result, pred, ref
+
+
+def run_and_predict(bundle: PhysicsDataBundle, config: BenchConfig, model: str, *,
+                    residual: Callable[..., Any] | None = None
+                    ) -> tuple[ModelResult, np.ndarray, np.ndarray]:
+    """Like :func:`run_model`, but the prediction covers **every** time step, not only the held-out block.
+
+    ``run_model`` scores where the model was not trained, which is the right question for a leaderboard. It is the
+    wrong question for watching a model leave its domain: the exit is a *step*, the calibration of what "leaving"
+    means has to be measured inside the window the model saw, and the step where two models first disagree is
+    usually on the near side of the split. Same training, same budget, same seed -- one prediction the caller can
+    slice in time. ``result.per_sample`` still scores the held-out block, so the two calls stay comparable."""
+    net, params, losses, seconds, data = _fit(bundle, config, model, residual=residual)
+    y = data.y.numpy()
+    mean, scale = float(y[data.train].mean()), float(y[data.train].std()) or 1.0
+    started = time.time()
+    full = (_predict_fno if model == "fno" else _predict_pinn)(net, data, config, mean, scale,
+                                                               steps=np.arange(data.nt))
+    predict_seconds = time.time() - started
+    ref = y[data.test]
+    pred = full[data.test]
+    per_sample = [relative_l2(p, r) if float(np.linalg.norm(r)) > 0 else float("nan") for p, r in zip(pred, ref, strict=True)]
+    result = ModelResult(model=model, parameters=params, seconds=seconds, predict_seconds=predict_seconds,
+                         rel_l2=float(np.nanmean(per_sample)) if per_sample else float("nan"),
+                         per_sample=[float(v) for v in per_sample], train_loss=losses, epochs_run=config.epochs,
+                         note=_note(model, residual))
+    return result, full, y
 
 
 def run_benchmark(bundle: PhysicsDataBundle, config: BenchConfig | None = None, *,

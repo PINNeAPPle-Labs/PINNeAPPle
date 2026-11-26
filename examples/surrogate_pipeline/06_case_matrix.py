@@ -34,6 +34,7 @@ once, or give them a path of their own.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import time
 from pathlib import Path
@@ -44,6 +45,7 @@ sys.path.insert(0, str(REPO))
 import pinneapple as pp  # noqa: E402
 
 OUT = Path(__file__).resolve().parent / "_out" / "matrix"
+BOLD, RESET = ("\033[1m", "\033[0m") if sys.stdout.isatty() and not os.environ.get("NO_COLOR") else ("", "")
 HULL = REPO / "data" / "geometries" / "wigley_hull" / "wigley_hull.light.stl"
 
 #: ``probes`` on a lattice of 64 points and one output name make the dataset a *field* dataset, which is what the
@@ -183,7 +185,7 @@ def main() -> int:
     for key, (description, build) in CASES.items():
         if args.only not in ("all", key):
             continue
-        print(f"\n\033[1m{key}\033[0m — {description}")
+        print(f"\n{BOLD}{key}{RESET} — {description}")
         print("─" * (len(key) + len(description) + 4))
         pipeline = build(args.fast)
         try:

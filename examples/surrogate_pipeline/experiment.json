@@ -2,7 +2,7 @@
  "schema": "pinneapple.experiment/1",
  "id": "examples/surrogate_pipeline",
  "title": "Surrogate pipeline — use cases",
- "description": "Five runs of `pp.SurrogatePipeline`: a parametric surrogate over a reference campaign, a physics-only PINN scored against a closed form and exported to ONNX, a PDE written as text trained and validated by the PINN validation suite, the same pipeline driven from YAML with `run_until` / `resume` / the command line, and a tour that adds adaptive learning, `pinneapple check` as gate evidence and a served model. Every run prints the seven stages and the ten VeriPhysics gates, and the numbers below were measured by those runs (`_out/<name>/report.json`). A sixth script runs the matrix — flow and structural mechanics, geometry built or imported, datasets solved or loaded, FNO, DeepONet and PINN — and writes the figures of every case.",
+ "description": "Five runs of `pp.SurrogatePipeline`: a parametric surrogate over a reference campaign, a physics-only PINN scored against a closed form and exported to ONNX, a PDE written as text trained and validated by the PINN validation suite, the same pipeline driven from YAML with `run_until` / `resume` / the command line, and a tour that adds adaptive learning, `pinneapple check` as gate evidence and a served model. Every run prints the seven stages and the ten VeriPhysics gates, and the numbers below were measured by those runs (`_out/<name>/report.json`). A sixth script runs the matrix — flow and structural mechanics, geometry built or imported, datasets solved or loaded, FNO, DeepONet and PINN — and writes the figures of every case. A seventh script leaves the pipeline: solver data (the library airliner's vortex lattice and 30 pole impacts of the explicit crash solver) goes in, a surrogate comes out, and the two are drawn on the geometry in 3-D.",
  "domain": "surrogate models and verification",
  "methods": [
   "PINN",
@@ -16,6 +16,7 @@
   "pinneapple_analysis.validation.pinn",
   "pinneapple_check",
   "pinneapple_data.doe.designs",
+  "pinneapple_design.aero.vlm",
   "pinneapple_design.geometry.bodies",
   "pinneapple_physics.pde_environment",
   "pinneapple_physics.solving",
@@ -29,6 +30,7 @@
   "pinneapple_pipeline.presets",
   "pinneapple_pipeline.stages",
   "pinneapple_pipeline.verification",
+  "pinneapple_simulation.numerical_solvers.crash_cases",
   "pinneapple_tools.model_export",
   "pinneapple_tools.model_services"
  ],
@@ -37,7 +39,8 @@
   "training budget of 02": "1200 Adam epochs, 2048 collocation points, hidden 48 x 4",
   "training budget of 03": "2000 Adam steps + 400 L-BFGS, 2000 collocation points",
   "tour of 05": "six runs: nrmse/adaptive targets, 1200-epoch PINN, 2000+400 symbolic steps",
-  "matrix of 06": "8 cases: 12-18 reference solves, a 64-point field, 900-epoch bar, 1200-epoch PINN; geometry from the builders and from data/geometries"
+  "matrix of 06": "8 cases: 12-18 reference solves, a 64-point field, 900-epoch bar, 1200-epoch PINN; geometry from the builders and from data/geometries",
+  "cases of 07": "airliner_a320 from the geometry library, 13 incidences of the vortex lattice, 40 strips; 30 pole impacts at 6e-4 s of event, 2783 nodes per design"
  },
  "scripts": [
   "01_parametric_surrogate.py",
@@ -45,7 +48,8 @@
   "03_symbolic_heat.py",
   "04_yaml_and_cli.py",
   "05_every_kind_of_surrogate.py",
-  "06_case_matrix.py"
+  "06_case_matrix.py",
+  "07_aircraft_and_crash.py"
  ],
  "metrics": [
   {
@@ -167,6 +171,30 @@
    "value": 0.001597,
    "unit": "",
    "how": "the dataset of the first case read back: 12 cases, nothing solved, same Gaussian process and the same error"
+  },
+  {
+   "name": "held-out nrmse of the lift distribution surrogate (07)",
+   "value": 3.25e-07,
+   "unit": "",
+   "how": "ridge over 13 vortex-lattice solves of airliner_a320, 40 strips, an incidence held out of the fit"
+  },
+  {
+   "name": "relative L2 of the cl distribution at a new incidence (07)",
+   "value": 1.87e-07,
+   "unit": "",
+   "how": "alpha = 3.5 deg: the surrogate's 40 strip values against the vortex lattice's, worst strip below 1e-3"
+  },
+  {
+   "name": "relative L2 of the crash field surrogate (07)",
+   "value": 0.11,
+   "unit": "",
+   "how": "30 pole impacts, 2783 nodes, a held-out design: the |u| field of the three nearest designs against the solver's"
+  },
+  {
+   "name": "peak displacement of the pole impact (07)",
+   "value": 7.8,
+   "unit": "mm",
+   "how": "explicit crash solver, 6e-4 s of the event, last frame, the design the surrogate is scored on"
   }
  ],
  "checks": [
@@ -194,6 +222,11 @@
    "name": "the matrix of 06 runs every case end to end",
    "passed": true,
    "how": "8 runs in 32 s with --fast: flow (dataset generated, imported, PINN), FNO, DeepONet, structural bar, geometry built and imported; the geometry gate passes 864 and 3958 faces, the structural model 1.5e-2 against its closed form"
+  },
+  {
+   "name": "solver data and its surrogate are compared on the geometry (07)",
+   "passed": true,
+   "how": "the airliner: reference and surrogate cl painted on the same wings, one colour scale; the pole impact: the coupeé warped by the solver and by the surrogate, one colour scale, 11 % field error"
   }
  ],
  "files": {

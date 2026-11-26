@@ -182,6 +182,25 @@ runs `pinneapple_check` over them. That is an independent implementation that lo
 gates quote those outcomes when they exist and fall back to their own measurement when they do not — and the report
 says which one it used. A checker that cannot run becomes a note, never a silent pass.
 
+## Seeing the run: `pipeline.view()`
+
+```python
+pipeline.view()                              # writes <run>/viewer/index.html and opens it
+pipeline.view(open_browser=False)            # the page, without the browser
+```
+
+One `file://` page, no server and no internet: the stages, the ten gates with their values and the reason each one
+gives, the figures the run wrote, the surface the `geometry` gate measured (the library's own three.js viewer, inlined
+as `srcdoc` because a `file://` page cannot frame another), and — the part that moves — the model itself.
+
+The explorer is the model evaluated on a grid of the space it was trained on: the first two inputs of the dataset, or
+the coordinates of a physics-only model. Drag on the map and the readouts follow; two cuts through the point are drawn
+under it (`u(x)` at that `t` and `u(t)` at that `x` for a PINN, each output for a parametric surrogate). Every cell is
+a real query — `pinneapple_pipeline.viewer.payload` calls `predict_array` and rounds what came back — so the page
+cannot show anything the checkpoint does not answer. A run with no trained model still opens, with its gates and a
+note saying why there is nothing to sweep. `scene=False` skips the 3-D surface, which is the slow part of building
+the page.
+
 ## Command line
 
 ```bash
@@ -192,6 +211,7 @@ python -m pinneapple.pipeline run experiment.yaml          # the whole thing, th
 python -m pinneapple.pipeline run experiment.yaml --verbose # ... printing each stage as it finishes
 python -m pinneapple.pipeline resume experiment.yaml
 python -m pinneapple.pipeline report experiment.yaml
+python -m pinneapple.pipeline view runs/demo/burgers_in_viscosity   # the run in a browser
 ```
 
 Exit codes: `0` passed, `1` a stage failed, `2` the configuration is wrong, `3` rejected by a gate.
@@ -212,6 +232,8 @@ with the reason, and a gate that cannot be measured says so.
 * `boundary_conditions` accepts `constant`, `symbolic` and `callable` sources on `preset`/`spec` problems only;
   a `symbolic` problem declares its conditions in `problem.conditions`.
 * `export` for the symbolic backend: there is no portable export of a `PINNProblem` network yet.
+* the viewer's explorer sweeps two inputs at a time (the first two); the rest stay at the middle of their range,
+  and the page says so instead of pretending the others do not exist.
 * `pinneapple check`'s physics rules need the field names its equations know (`T` for heat, `U`/`p` for flow,
   `u`/`v`/`w` or `D` for elasticity); when they do not match, the run records that the declared physics was not
   applied and the `physics` gate measures the residual itself.

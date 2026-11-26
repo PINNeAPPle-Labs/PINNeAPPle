@@ -1,6 +1,6 @@
 # Surrogate pipeline — use cases
 
-Six runs that exercise the pipeline end to end and show what it refuses. Each one prints the stage table and the
+Seven runs that exercise the pipeline end to end and show what it refuses. Each one prints the stage table and the
 VeriPhysics gates; the artefacts land in `_out/<name>/` (git-ignored), with the report at `_out/<name>/report.md`.
 
 | script | what it exercises | backend | time |
@@ -11,6 +11,7 @@ VeriPhysics gates; the artefacts land in `_out/<name>/` (git-ignored), with the 
 | `04_yaml_and_cli.py` | the pipeline as a YAML file: `run_until("data")`, `resume()`, and `python -m pinneapple.pipeline` | `preset` + `simulation` | ~20 s |
 | `05_every_kind_of_surrogate.py` | the tour: parametric surrogate, physics-only PINN, a PDE as text, adaptive learning, `pinneapple check`, and the run served with its own trust | all three | ~2 min |
 | `06_case_matrix.py` | the matrix: flow and structural, geometry built or imported, dataset solved or loaded, FNO, DeepONet, PINN — the same object every time | all three | ~3 min |
+| `07_aircraft_and_crash.py` | solver data → surrogate → both drawn in 3-D: the library airliner through its vortex lattice, and the pole impact through the explicit crash solver | both solvers | ~9 min (or `--reuse`) |
 
 ```bash
 python examples/surrogate_pipeline/01_parametric_surrogate.py
@@ -19,6 +20,7 @@ python examples/surrogate_pipeline/03_symbolic_heat.py
 python examples/surrogate_pipeline/04_yaml_and_cli.py [--config my.yaml]
 python examples/surrogate_pipeline/05_every_kind_of_surrogate.py [--fast] [--only serve]
 python examples/surrogate_pipeline/06_case_matrix.py [--fast] [--only fno]
+python examples/surrogate_pipeline/07_aircraft_and_crash.py [--only aircraft|crash] [--reuse]
 ```
 
 ## What each one is meant to show
@@ -53,6 +55,14 @@ cylinder) and imported (a Wigley hull); the same campaign as a 64-point field fo
 DeepONet; a steel bar under a distributed load with the physics only, scored against its closed form; and a PINN that
 never sees a case at all. The figures of each run are written next to it — held-out parity, where the error sits, the
 training loss, the surface the `geometry` gate measured.
+
+**07** — the shape the pipeline is for, outside the pipeline: a solver the library already ships is the reference,
+a surrogate is fitted to the fields it produced, and the comparison is drawn on the geometry — reference, surrogate
+and the difference on one colour scale — so "the surrogate agrees with the solver" is something you look at. The
+airliner comes from the geometry library and the reference is its vortex lattice (40 strips, held-out nrmse 3e-7 for
+a ridge over the incidences; the VLM is linear in alpha, so the surrogate is exact and the figure says so). The pole
+impact comes from the explicit crash solver: 30 designs of the bumper beam and its crash boxes, and a surrogate that
+reproduces the |u| field of a held-out design to 11 %.
 
 ## Configuration
 

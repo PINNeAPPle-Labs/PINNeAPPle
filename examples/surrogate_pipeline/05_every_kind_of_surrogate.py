@@ -23,6 +23,7 @@ Every number printed comes from the run it just did; nothing here is cached.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import time
 from pathlib import Path
@@ -33,10 +34,11 @@ sys.path.insert(0, str(REPO_ROOT))
 import pinneapple as pp  # noqa: E402
 
 OUT = Path(__file__).resolve().parent / "_out" / "tour"
+BOLD, RESET = ("\033[1m", "\033[0m") if sys.stdout.isatty() and not os.environ.get("NO_COLOR") else ("", "")
 
 
 def rule(title: str) -> None:
-    print(f"\n\033[1m{title}\033[0m\n" + "─" * len(title))
+    print(f"\n{BOLD}{title}{RESET}\n" + "─" * len(title))
 
 
 def gates(result) -> str:

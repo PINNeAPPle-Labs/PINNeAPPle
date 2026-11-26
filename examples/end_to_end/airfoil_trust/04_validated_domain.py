@@ -21,6 +21,7 @@ sys.path.insert(0, ROOT)
 
 import numpy as np  # noqa: E402
 
+from pinneapple_autolab.domains import airfoil_figures as figures  # noqa: E402
 from pinneapple_autolab.domains.airfoil_study import (  # noqa: E402
     QOI,
     PodSurrogate,
@@ -31,8 +32,11 @@ from pinneapple_veriphysics.validated_domain import DomainPolicy, GeometryEviden
 
 RUNS = os.path.join(HERE, "_runs", "cfd")
 RES = os.path.join(HERE, "results")
+FIG = os.path.join(RES, "figures")
 MODELS = os.path.join(HERE, "models")
 MODEL_ID = "naca-family-v1"
+os.makedirs(FIG, exist_ok=True)
+figures.style()
 
 #: The quality bar the study declares before looking at the answer: 5 % on lift, the wall condition within 2 % of
 #: the freestream speed, and continuity no worse than twice the reference's own residual.
@@ -185,6 +189,7 @@ out = {"model_id": MODEL_ID, "policy": {"reference_tol": POLICY.reference_tol,
        "supported_share_of_candidates": float(1 - len(todo) / len(candidates)),
        "radius_sensitivity": {"radii": list(radii), "supported_share": share_by_radius}}
 json.dump(out, open(os.path.join(RES, "domain_v1.json"), "w"), indent=1, default=float)
+domain_fig = figures.domain_map(os.path.join(FIG, "domain_map.png"), domain, [e.point for e in evidence])
 
 print(f"domain {MODEL_ID}: {len(evidence)} evidence records, {len(idx['train'])} training designs, "
       f"radius {POLICY.radius}")
@@ -195,3 +200,4 @@ print(f"  candidates without support: {len(todo)} of {len(candidates)} "
       f"({out['supported_share_of_candidates']:.0%} supported)")
 print("  supported share against the neighbourhood radius: "
       + ", ".join(f"{r:.2f}: {v:.0%}" for r, v in share_by_radius.items()))
+print(f"  figure: {os.path.relpath(domain_fig, ROOT)}")

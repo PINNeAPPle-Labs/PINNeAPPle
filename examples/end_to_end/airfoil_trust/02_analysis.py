@@ -26,6 +26,7 @@ sys.path.insert(0, ROOT)
 
 import numpy as np  # noqa: E402
 
+from pinneapple_autolab.domains import airfoil_figures as figures  # noqa: E402
 from pinneapple_autolab.domains.airfoil import MESH_LEVELS  # noqa: E402
 from pinneapple_autolab.domains.airfoil_study import (  # noqa: E402
     INPUTS,
@@ -43,8 +44,10 @@ from pinneapple_autolab.study.mesh_study import grid_convergence  # noqa: E402
 
 RUNS = os.path.join(HERE, "_runs", "cfd")
 RES = os.path.join(HERE, "results")
+FIG = os.path.join(RES, "figures")
 MODELS = os.path.join(HERE, "models")
-os.makedirs(RES, exist_ok=True)
+os.makedirs(FIG, exist_ok=True)
+figures.style()
 
 def _coverage(pred, ref_y) -> dict[str, float]:
     """How often the held-out error falls inside one and two ensemble standard deviations.
@@ -85,6 +88,7 @@ study["representative_size"] = "first cell height: every spacing is refined by t
 json.dump({"levels": levels, "study": study}, open(os.path.join(RES, "mesh_study.json"), "w"), indent=1)
 print(f"mesh study: {len(levels)} meshes, CL p={study.get('CL', {}).get('p')}, "
       f"CD p={study.get('CD', {}).get('p')}, GCI_fine CL={study.get('CL', {}).get('gci_fine')}")
+mesh_fig = figures.mesh_convergence(os.path.join(FIG, "mesh_convergence.png"), {"levels": levels, "study": study})
 
 # ------------------------------------------------------------------ dataset
 data = load_dataset(RUNS, "doe1")
@@ -96,6 +100,7 @@ print(f"dataset: {len(data['ids'])} designs ({len(data['failed'])} failed), "
 train, calib, valid = idx["train"], idx["calibration"], idx["validation"]
 train_fields = {k: v[train] for k, v in data["fields"].items()}
 basis, basis_info = pod_basis(train_fields, n_modes=8)
+pod_fig = figures.pod_spectrum(os.path.join(FIG, "pod_spectrum.png"), basis_info)
 model = PodSurrogate({"center": basis[0], "modes": basis[1:], **basis_info})
 model.fit(data["X"][train], data["Y"][train], train_fields)
 
@@ -135,6 +140,12 @@ for split_name, ii in (("calibration", calib), ("validation", valid)):
 model.save(os.path.join(MODELS, "v1"))
 json.dump({"inputs": INPUTS, "qoi": QOI, **report}, open(os.path.join(RES, "analysis_v1.json"), "w"), indent=1)
 
+held_pred = model.predict(data["X"][valid])
+parity_fig = figures.accuracy(
+    os.path.join(FIG, "held_out_parity.png"),
+    {q: data["Y"][valid, j] for j, q in enumerate(QOI)}, held_pred["qoi"], held_pred["qoi_std"],
+    [data["ids"][i] for i in valid], {q: report["validation"]["qoi"][f"{q}_rmse"] for q in ("CL", "CD")})
+
 for split_name in ("calibration", "validation"):
     q = report[split_name]["qoi"]
     c = report[split_name]["calibration"]
@@ -147,3 +158,4 @@ for split_name in ("calibration", "validation"):
 print(f"basis: {basis_info['n_modes']} modes, {basis_info['energy_captured']:.2%} energy, "
       f"held-out reconstruction {basis_error:.2%}")
 print(f"model written to {os.path.join(MODELS, 'v1')}")
+print("figures: " + ", ".join(os.path.relpath(p, ROOT) for p in (mesh_fig, pod_fig, parity_fig)))

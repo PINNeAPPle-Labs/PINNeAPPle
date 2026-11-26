@@ -25,6 +25,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, ROOT)
 
+from pinneapple_autolab.domains import airfoil_figures as figures  # noqa: E402
 from pinneapple_autolab.domains.airfoil import BASELINE, MESH_LEVELS, VARIABLES, AirfoilAero  # noqa: E402
 from pinneapple_autolab.study.campaign import (  # noqa: E402
     load_records,
@@ -35,6 +36,7 @@ from pinneapple_autolab.study.campaign import (  # noqa: E402
 
 RUNS = os.path.join(HERE, "_runs", "cfd")
 RES = os.path.join(HERE, "results")
+FIG = os.path.join(RES, "figures")
 ITERATIONS = 1000
 N_TRAIN, N_CALIB, N_VALID = 32, 12, 16
 
@@ -42,7 +44,7 @@ args = [a for a in sys.argv[1:] if not a.startswith("--")]
 workers = int(sys.argv[sys.argv.index("--workers") + 1]) if "--workers" in sys.argv else 4
 shard = int(sys.argv[sys.argv.index("--shard") + 1]) if "--shard" in sys.argv else None
 stages = args or ["mesh", "doe1"]
-os.makedirs(RES, exist_ok=True)
+os.makedirs(FIG, exist_ok=True)
 
 
 def symmetric_plan() -> dict:
@@ -80,13 +82,18 @@ def spawn(script_args: list[str]) -> None:
 
 
 if shard is None:
+    plan = symmetric_plan()
+    figures.style()
+    drawn = figures.doe_plan(os.path.join(FIG, "doe_plan.png"), plan)
+    print(f"plan: {sum(len(v) for v in plan['splits'].values())} designs -> {os.path.relpath(drawn, ROOT)}",
+          flush=True)
     if "mesh" in stages:
         for level in MESH_LEVELS:
             recs = run_campaign(AirfoilAero(mesh=level, iterations=ITERATIONS),
                                 [{"id": f"mesh_{level}", **BASELINE}], RUNS, purpose="mesh_study")
             print(level, [(r.id, r.ok) for r in recs], flush=True)
     if "doe1" in stages:
-        cases = [c for split in symmetric_plan()["splits"].values() for c in split]
+        cases = [c for split in plan["splits"].values() for c in split]
         print(f"doe1: {len(cases)} designs on {workers} workers", flush=True)
         spawn(["doe1"])
         recs = load_records(RUNS, purposes=["doe1"])

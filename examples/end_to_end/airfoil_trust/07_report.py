@@ -25,11 +25,7 @@ sys.path.insert(0, ROOT)
 
 from dataclasses import replace  # noqa: E402
 
-import matplotlib  # noqa: E402
 import numpy as np  # noqa: E402
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
 
 import pinneapple_lab  # noqa: E402
 from pinneapple_autolab.domains.airfoil import STATIONS  # noqa: E402
@@ -61,14 +57,13 @@ FIG = os.path.join(RES, "figures")
 MODELS = os.path.join(HERE, "models")
 os.makedirs(FIG, exist_ok=True)
 
-BLUE, ORANGE, GREY, GREEN = "#58a6ff", "#ffa657", "#8b949e", "#3fb950"
-RED = "#f85149"
 #: as in the domain stage: a relative error stops being one near zero lift
 LIFT_FLOOR = 0.10
-plt.rcParams.update({"figure.dpi": 150, "font.size": 9, "axes.grid": True, "grid.alpha": 0.25,
-                     "axes.edgecolor": "#444", "axes.labelcolor": "#ddd", "text.color": "#ddd",
-                     "xtick.color": "#bbb", "ytick.color": "#bbb", "figure.facecolor": "#0d1117",
-                     "axes.facecolor": "#0d1117", "savefig.facecolor": "#0d1117"})
+# The stage that measured a number drew its figure; this script asks for the same figure, from the same file, so
+# what sits beside a verdict is the picture the run produced and not a second rendering of it.
+from pinneapple_autolab.domains import airfoil_figures as study_figures  # noqa: E402
+
+study_figures.style()
 
 analysis = json.load(open(os.path.join(RES, "analysis_v1.json")))
 physics = json.load(open(os.path.join(RES, "physics_v1.json")))
@@ -103,119 +98,28 @@ coverage_note = ("wider than nominal: the bar is conservative, not sharp" if cov
 
 # --------------------------------------------------------------------------- figures
 def fig_mesh_convergence() -> str:
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.8))
-    for ax, q, colour in ((axes[0], "CL", BLUE), (axes[1], "CD", ORANGE)):
-        cells = [m["cells"] for m in mesh["levels"]]
-        vals = [m["values"][q] for m in mesh["levels"]]
-        ax.semilogx(cells, vals, "o-", color=colour, lw=1.6, ms=5, label="OpenFOAM")
-        ext = mesh["study"][q].get("extrapolated")
-        if ext is not None:
-            ax.axhline(ext, color=GREY, ls="--", lw=1.0, label=f"Richardson {ext:.4f}")
-            gci = mesh["study"][q].get("gci_fine")
-            if gci:
-                ax.fill_between([min(cells) * 0.7, max(cells) * 1.3], ext * (1 - gci), ext * (1 + gci),
-                                color=GREY, alpha=0.15, label=f"GCI {gci:.2%}")
-        ax.set_xticks(cells)
-        ax.set_xticklabels([f"{c / 1000:g}k" for c in cells], fontsize=8)
-        ax.minorticks_off()
-        ax.set_xlabel("cells")
-        ax.set_ylabel(q)
-        ax.legend(fontsize=7, framealpha=0.2)
-        p = mesh["study"][q].get("p")
-        ax.set_title(f"{q}: observed order {p:.2f}" if p
-                     else f"{q}: oscillatory, no order claimed", color="#ddd", fontsize=9)
-    fig.tight_layout()
-    path = os.path.join(FIG, "mesh_convergence.png")
-    fig.savefig(path)
-    plt.close(fig)
-    return path
+    return study_figures.mesh_convergence(os.path.join(FIG, "mesh_convergence.png"), mesh)
 
 
 def fig_accuracy() -> str:
-    fig, axes = plt.subplots(1, 3, figsize=(8.4, 2.8))
-    for ax, q in zip(axes[:2], ("CL", "CD"), strict=False):
-        ref = data["Y"][valid, QOI.index(q)]
-        pr = pred["qoi"][q]
-        lo, hi = float(min(ref.min(), pr.min())), float(max(ref.max(), pr.max()))
-        pad = 0.08 * (hi - lo + 1e-12)
-        ax.plot([lo - pad, hi + pad], [lo - pad, hi + pad], color=GREY, lw=0.8, ls="--")
-        ax.errorbar(ref, pr, yerr=pred["qoi_std"][q], fmt="o", ms=4, color=BLUE, ecolor=GREY, elinewidth=0.7,
-                    capsize=0, label="held-out designs")
-        ax.set_xlabel(f"{q} reference")
-        ax.set_ylabel(f"{q} surrogate")
-        ax.set_title(f"{q}: RMSE {analysis['validation']['qoi'][f'{q}_rmse']:.4f}", color="#ddd", fontsize=9)
-        ax.legend(fontsize=7, framealpha=0.2)
-        if q == "CL":                      # the design the film's error trace belongs to
-            worst = int(np.argmax(np.abs(np.asarray(pr, float) - np.asarray(ref, float))))
-            ax.plot([ref[worst]], [pr[worst]], "o", ms=10, mfc="none", mec=RED, mew=1.4)
-            ax.annotate(f"{data['ids'][valid[worst]]}: {100 * abs(pr[worst] - ref[worst]) / max(abs(ref[worst]), LIFT_FLOOR):.1f} %",
-                        (ref[worst], pr[worst]), textcoords="offset points", xytext=(8, -16), color=RED, fontsize=7,
-                        ha="left")
-    err = np.array([physics["per_design"][k]["cp_integral"]["gap"] for k in range(len(valid))])
-    axes[2].bar(np.arange(len(valid)), err, color=ORANGE)
-    axes[2].set_xlabel("held-out design")
-    axes[2].set_ylabel("|CL from Cp - CL predicted|")
-    axes[2].set_title("pressure integral vs predicted lift", color="#ddd", fontsize=9)
-    fig.tight_layout()
-    path = os.path.join(FIG, "accuracy.png")
-    fig.savefig(path)
-    plt.close(fig)
-    return path
+    gaps = np.array([physics["per_design"][k]["cp_integral"]["gap"] for k in range(len(valid))])
+    return study_figures.accuracy(
+        os.path.join(FIG, "accuracy.png"), {q: data["Y"][valid, j] for j, q in enumerate(QOI)},
+        pred["qoi"], pred["qoi_std"], [data["ids"][i] for i in valid],
+        {q: analysis["validation"]["qoi"][f"{q}_rmse"] for q in ("CL", "CD")}, gaps=gaps, floor=LIFT_FLOOR)
 
 
 def fig_fields() -> str:
+    """The design the pressure integral disagrees with its own network about, point by point along the chord."""
     worst = int(np.argmax([physics["per_design"][k]["cp_integral"]["gap"] for k in range(len(valid))]))
-    i = valid[worst]
-    n_st = len(STATIONS)
-    ref_cp = np.asarray(data["fields"]["cp"][i]).ravel()
-    prd_cp = np.asarray(pred["fields"]["cp"][worst]).ravel()
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.9))
-    for side, label in ((0, "upper"), (1, "lower")):
-        sl = slice(side * n_st, (side + 1) * n_st)
-        style = "-" if side == 0 else "--"
-        axes[0].plot(STATIONS, -ref_cp[sl], style, color=BLUE, lw=1.4, label=f"reference {label}")
-        axes[0].plot(STATIONS, -prd_cp[sl], style, color=ORANGE, lw=1.1, label=f"surrogate {label}")
-        axes[1].plot(STATIONS, prd_cp[sl] - ref_cp[sl], style, color=ORANGE, lw=1.1)
-    axes[0].set_xlabel("x / c")
-    axes[0].set_ylabel("-Cp")
-    axes[0].invert_yaxis()
-    axes[0].legend(fontsize=7, framealpha=0.2)
-    axes[0].set_title(f"surface pressure, {data['ids'][i]}", color="#ddd", fontsize=9)
-    axes[1].axhline(0, color=GREY, lw=0.8)
-    axes[1].set_xlabel("x / c")
-    axes[1].set_ylabel("Cp error")
-    axes[1].set_title("where the model is wrong", color="#ddd", fontsize=9)
-    fig.tight_layout()
-    path = os.path.join(FIG, "fields.png")
-    fig.savefig(path)
-    plt.close(fig)
-    return path
+    return study_figures.error_trace(
+        os.path.join(FIG, "fields.png"), np.asarray(STATIONS, float),
+        np.asarray(data["fields"]["cp"][valid[worst]]).ravel(),
+        np.asarray(pred["fields"]["cp"][worst]).ravel(), data["ids"][valid[worst]])
 
 
 def fig_uncertainty() -> str:
-    """What the ensemble spread is worth: the held-out error in units of the spread, and the coverage it buys."""
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.8))
-    axes[0].hist(np.clip(z_scores, 0, 6), bins=np.linspace(0, 6, 25), color=BLUE, alpha=0.85)
-    for x, lab in ((1.0, f"one sigma ({coverage_1s:.0%})"), (2.0, f"two ({coverage_2s:.0%})")):
-        axes[0].axvline(x, color=ORANGE if x == 1.0 else GREEN, ls="--", lw=1.2, label=lab)
-    axes[0].set_xlabel("|error| / ensemble spread")
-    axes[0].set_ylabel("held-out cases")
-    axes[0].set_title("is the spread the right size?", color="#ddd", fontsize=9)
-    axes[0].legend(fontsize=7, framealpha=0.2)
-    grid = np.linspace(0.05, 3.0, 60)
-    cover = [float(np.mean(z_scores <= g)) for g in grid]
-    axes[1].plot(grid, cover, color=BLUE, lw=1.6, label="measured")
-    axes[1].plot(grid, [1 - np.exp(-0.5 * g ** 2) for g in grid], color=GREY, ls="--", lw=1.0,
-                 label="a calibrated Gaussian")
-    axes[1].set_xlabel("bar width, in ensemble standard deviations")
-    axes[1].set_ylabel("fraction of errors inside")
-    axes[1].set_title("calibration curve", color="#ddd", fontsize=9)
-    axes[1].legend(fontsize=7, framealpha=0.2)
-    fig.tight_layout()
-    path = os.path.join(FIG, "uncertainty.png")
-    fig.savefig(path)
-    plt.close(fig)
-    return path
+    return study_figures.uncertainty(os.path.join(FIG, "uncertainty.png"), z_scores, coverage_1s, coverage_2s)
 
 
 def rebuild_domain() -> ValidatedDomain:
@@ -234,39 +138,11 @@ def rebuild_domain() -> ValidatedDomain:
 
 
 def fig_domain() -> str:
-    """The evidence map at three speeds: the supported region is a shape in the design space, not a range."""
-    dom = rebuild_domain()
-    alphas = np.linspace(-4, 8, 121)      # fine enough to draw the boundary, not to flatter it
-    thick = np.linspace(0.08, 0.16, 81)
-    speeds = (10.0, 20.0, 30.0)
-    fig, axes = plt.subplots(1, len(speeds), figsize=(8.4, 2.9), sharey=True)
-    for ax, speed in zip(axes, speeds, strict=True):
-        grid = np.zeros((len(thick), len(alphas)))
-        for a, al in enumerate(alphas):
-            for t, th in enumerate(thick):
-                r = dom.assess({"alpha_deg": float(al), "speed": float(speed), "thickness": float(th)})
-                grid[t, a] = 1.0 if r["status"] == "EMPIRICALLY_SUPPORTED" else 0.0
-        ax.contourf(alphas, thick * 100, grid, levels=[-0.5, 0.5, 1.5], colors=["#21262d", "#0b3d24"])
-        if grid.max() > 0:
-            ax.contour(alphas, thick * 100, grid, levels=[0.5], colors=[GREEN], linewidths=1.0)
-        near = [e for e in domain_report["evidence"] if abs(e["point"][1] - speed) <= 5.0]
-        ax.plot([e["point"][0] for e in near], [e["point"][2] * 100 for e in near], "o", ms=3.5, color=BLUE,
-                label="independent reference" if speed == speeds[0] else None)
-        ax.set_xlabel("angle of attack [deg]")
-        ax.set_title(f"{speed:.0f} m/s", color="#ddd", fontsize=9)
-        if speed == speeds[0]:
-            ax.set_ylabel("thickness [% chord]")
-            ax.plot([], [], "s", color="#0b3d24", ms=8, label="supported")
-            ax.legend(fontsize=7, framealpha=0.2, loc="lower right")
-    fig.suptitle("where the evidence supports a prediction, at three freestream speeds", color="#ddd", fontsize=9)
-    fig.tight_layout()
-    path = os.path.join(FIG, "domain_map.png")
-    fig.savefig(path)
-    plt.close(fig)
-    return path
+    return study_figures.domain_map(os.path.join(FIG, "domain_map.png"), rebuild_domain(),
+                                    [e["point"] for e in domain_report["evidence"]])
 
 
-figures = [fig_mesh_convergence(), fig_accuracy(), fig_fields(), fig_uncertainty(), fig_domain()]
+figure_files = [fig_mesh_convergence(), fig_accuracy(), fig_fields(), fig_uncertainty(), fig_domain()]
 
 # --------------------------------------------------------------------------- the case
 acc = analysis["validation"]["qoi"]
@@ -560,7 +436,7 @@ with pinneapple_lab.experiment(
              detail="checks declared but not run: " + (", ".join(missing) or "none"))
     ex.check("dossier_status", passed=dossier.assessment.status in ("VALIDATED", "REVIEW_REQUIRED"),
              detail=f"{case.case_id}: {dossier.assessment.status} ({dossier.assessment.reason})")
-    for f in figures:
+    for f in figure_files:
         ex.add_file(f)
     for name in ("dossier.md", "dossier.txt", "dossier.json", "analysis_v1.json", "physics_v1.json",
                  "domain_v1.json", "mesh_study.json", "doe_round1.json"):
@@ -578,6 +454,6 @@ print(f"  uncertainty: one sigma covers {coverage_1s:.0%} of held-out errors, tw
 print(f"  domain at {query}: {verdict['status']} ({verdict['reason']})")
 print(f"  robustness: worst input-sensitivity ratio {physics['sensitivity_worst']:.2f} "
       f"(movement over ensemble spread)")
-print(f"  figures: {', '.join(os.path.basename(f) for f in figures)}")
+print(f"  figures: {', '.join(os.path.basename(f) for f in figure_files)}")
 for c in checks:
     print(f"  {LEDGER.claim(c.check_id) if c.passed is not None else f'{c.check_id}: not run (no record)'}")

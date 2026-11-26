@@ -24,6 +24,7 @@ sys.path.insert(0, ROOT)
 
 import numpy as np  # noqa: E402
 
+from pinneapple_autolab.domains import airfoil_figures as figures  # noqa: E402
 from pinneapple_autolab.domains.airfoil_study import (  # noqa: E402
     INPUTS,
     QOI,
@@ -38,6 +39,7 @@ from pinneapple_veriphysics.validated_domain import DomainPolicy, GeometryEviden
 
 RUNS = os.path.join(HERE, "_runs", "cfd")
 RES = os.path.join(HERE, "results")
+FIG = os.path.join(RES, "figures")
 MODELS = os.path.join(HERE, "models")
 MODEL_ID = "naca-family-v2"
 BOUNDS = {"alpha_deg": (-4.0, 8.0), "speed": (10.0, 30.0), "thickness": (0.08, 0.16), "camber": (0.0, 0.02)}
@@ -200,6 +202,8 @@ out = {**report,
                   "min_neighbors": POLICY.min_neighbors},
        "bounds": BOUNDS}
 json.dump(out, open(os.path.join(RES, "revalidation_v2.json"), "w"), indent=1, default=float)
+figures.style()
+extend_fig = figures.extend(os.path.join(FIG, "extend.png"), out)
 
 q = report["held_out"]
 print(f"v2: trained on {len(X_train)} designs (both rounds), held out {len(held)}")
@@ -217,3 +221,4 @@ if sample:
     s = sample[0]
     print(f"  example: camber {s['query']['camber']:.4f} -> {s['before']['status']} "
           f"({s['before']['reason']}) then {s['after']['status']} ({s['after']['reason']})")
+print(f"  figure: {os.path.relpath(extend_fig, ROOT)}")

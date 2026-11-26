@@ -25,20 +25,26 @@ survive being looked at point by point.
 ## Run it
 
 ```bash
-python examples/end_to_end/airfoil_trust/run_all.py                  # all seven stages, resumable
-python examples/end_to_end/airfoil_trust/01_reference_campaign.py mesh doe1 --workers 5 python
-examples/end_to_end/airfoil_trust/02_analysis.py              # grid convergence, POD, the first
-surrogate python examples/end_to_end/airfoil_trust/03_physics_validation.py    # the model gates,
-and input sensitivity python examples/end_to_end/airfoil_trust/04_validated_domain.py      # where
-the evidence supports a prediction python examples/end_to_end/airfoil_trust/05_camber_round.py
---workers 5   # 68 cambered designs python examples/end_to_end/airfoil_trust/06_revalidation.py
-# the second model, and evidence arriving late python examples/end_to_end/airfoil_trust/07_report.py
-# the dossier, the figures, experiment.json
+python examples/end_to_end/airfoil_trust/run_all.py                      # all seven stages, resumable
+python examples/end_to_end/airfoil_trust/01_reference_campaign.py mesh doe1 --workers 5
+python examples/end_to_end/airfoil_trust/02_analysis.py                  # grid convergence, POD, first surrogate
+python examples/end_to_end/airfoil_trust/03_physics_validation.py        # the gates, and input sensitivity
+python examples/end_to_end/airfoil_trust/04_validated_domain.py          # where the evidence supports a prediction
+python examples/end_to_end/airfoil_trust/05_camber_round.py --workers 5  # 68 cambered designs
+python examples/end_to_end/airfoil_trust/06_revalidation.py              # the second model, evidence arriving late
+python examples/end_to_end/airfoil_trust/07_report.py                    # the dossier, and experiment.json
 ```
 
 Environment used: OpenFOAM v2606 (ESI) native on macOS, gmsh 4.15, Python 3.11 with numpy, torch and
 matplotlib, 10 cores. The two campaigns are the expensive stages (64 and 68 solves); everything
 after them is minutes. Records, fields and cases go to `_runs/` and are not committed.
+
+Every stage also draws what it just measured, into `results/figures`: the design plan (stage 1), the
+grid-convergence study, the POD spectrum and the held-out parity (stage 2), the gates, the pressure trace and
+the input sensitivity (stage 3), the evidence map (stage 4), the before and after of the extension (stage 6),
+and the calibration the report rests on (stage 7). The drawing code is one module in the library,
+`pinneapple_autolab.domains.airfoil_figures`, called by the stage that owns the number and again by the
+report -- so a figure beside a verdict is the figure the run produced, not a second rendering of it.
 
 ## The film
 

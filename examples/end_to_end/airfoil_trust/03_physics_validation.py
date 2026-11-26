@@ -38,7 +38,8 @@ sys.path.insert(0, ROOT)
 
 import numpy as np  # noqa: E402
 
-from pinneapple_autolab.domains.airfoil import VARIABLES  # noqa: E402
+from pinneapple_autolab.domains import airfoil_figures as figures  # noqa: E402
+from pinneapple_autolab.domains.airfoil import STATIONS, VARIABLES  # noqa: E402
 from pinneapple_autolab.domains.airfoil_study import (  # noqa: E402
     INPUTS,
     QOI,
@@ -50,6 +51,10 @@ from pinneapple_autolab.domains.airfoil_study import (  # noqa: E402
 )
 
 RUNS = os.path.join(HERE, "_runs", "cfd")
+RES = os.path.join(HERE, "results")
+FIG = os.path.join(RES, "figures")
+os.makedirs(FIG, exist_ok=True)
+figures.style()
 RES = os.path.join(HERE, "results")
 MODELS = os.path.join(HERE, "models")
 
@@ -100,6 +105,20 @@ report["sensitivity"] = sensitivity_rows
 report["sensitivity_worst"] = max(r["ratio"] for r in sensitivity_rows.values())
 json.dump(report, open(os.path.join(RES, "physics_v1.json"), "w"), indent=1)
 
+gates_fig = figures.physics_gates(os.path.join(FIG, "physics_gates.png"), summary, (
+    ("gate_accuracy", "field accuracy (Cp)"), ("gate_boundary", "no-slip wall edge"),
+    ("gate_residual", "continuity residual"), ("wall_condition", "|U| at the wall"),
+    ("freestream", "freestream decay")))
+worst_row = max((d for d in report["per_design"] if d["split"] == "validation"),
+                key=lambda d: d["cp_integral"]["gap"])
+held_ids = [data["ids"][i] for i in held]
+k_worst = held_ids.index(worst_row["id"])
+trace_fig = figures.error_trace(
+    os.path.join(FIG, "fields.png"), np.asarray(STATIONS, float),
+    np.asarray(data["fields"]["cp"][int(held[k_worst])]).ravel(),
+    np.asarray(pred["fields"]["cp"][k_worst]).ravel(), worst_row["id"])
+sens_fig = figures.sensitivity(os.path.join(FIG, "sensitivity.png"), sensitivity_rows)
+
 print(f"physics on {len(held)} evidence designs ({len(idx['validation'])} held out, "
       f"{len(idx['calibration'])} calibration); the summary is over the held-out split:")
 for key in keys:
@@ -113,3 +132,4 @@ print("input sensitivity, the movement of CL under a 1 % nudge of each input, ov
 for name, row in sensitivity_rows.items():
     print(f"  {name:10s} step {row['step']:.4f}  change {row['relative_change_CL']:.2e}  "
           f"spread {row['ensemble_spread_CL']:.2e}  ratio {row['ratio']:.2f}")
+print("figures: " + ", ".join(os.path.relpath(p, ROOT) for p in (gates_fig, trace_fig, sens_fig)))

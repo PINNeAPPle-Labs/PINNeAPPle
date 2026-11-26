@@ -36,6 +36,8 @@
   "05_camber_round.py",
   "06_revalidation.py",
   "07_report.py",
+  "figures.py",
+  "make_video.py",
   "run_all.py"
  ],
  "metrics": [
@@ -317,9 +319,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "2b9d94780",
-  "created": "2026-11-26T07:51:01Z",
-  "seconds": 0.054,
+  "git": "1577decb7",
+  "created": "2026-11-26T13:05:59Z",
+  "seconds": 0.041,
   "error": null,
   "environment": {
    "python": "3.11.16",

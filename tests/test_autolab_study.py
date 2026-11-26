@@ -326,3 +326,38 @@ def test_report_and_evidence_package(tmp_path):
     assert "missing figure: nope.png" in page and "0.1235" in page and "REVIEW" in page
     pkg = R.evidence_package("Toy", [spec, str(csv)], str(tmp_path / "e.zip"))
     assert pkg["problems"] == [] and os.path.getsize(tmp_path / "e.zip") > 0
+
+
+def test_airfoil_lattice_measures_the_flow_and_not_the_solid():
+    """Every sample of the lattice must sit outside the section, and the wall samples must sit on it.
+
+    The lattice is what a field surrogate is trained on and what the physics checks are evaluated on. A normal with
+    the wrong sign puts most of it *inside* the body, where OpenFOAM finds no cell: the probes then return its
+    "not found" sentinel for two thirds of the samples, and nothing downstream notices -- the error is a number like
+    any other. This is the regression test for that.
+    """
+    from pinneapple_autolab.domains import airfoil as AF
+
+    def inside(points: np.ndarray, loop: np.ndarray) -> np.ndarray:
+        """Even-odd ray casting, in the +x direction."""
+        x, y = points[:, 0], points[:, 1]
+        result = np.zeros(len(points), bool)
+        for k in range(len(loop)):
+            x1, y1 = loop[k]
+            x2, y2 = loop[(k + 1) % len(loop)]
+            crosses = (y1 > y) != (y2 > y)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                x_at = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            result ^= crosses & (x < x_at)
+        return result
+
+    for params in (AF.BASELINE, {**AF.BASELINE, "thickness": 0.08},
+                   {**AF.BASELINE, "thickness": 0.16, "camber": 0.02}):
+        pts, on_wall = AF.sample_lattice(params)
+        loop = AF.section_loop(params)
+        inside_body = inside(pts[:, :2], loop)
+        assert not inside_body[~on_wall].any(), f"{int(inside_body[~on_wall].sum())} off-wall samples are inside"
+        # a wall sample is on the surface: its distance to the loop is below the section's own resolution
+        off = pts[on_wall][:, :2]
+        d = np.min(np.linalg.norm(off[:, None, :] - loop[None, :, :], axis=-1), axis=1)
+        assert d.max() < 5e-3, f"a wall sample is {d.max():.2e} from the section"

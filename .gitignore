@@ -92,6 +92,9 @@ examples/freecad_openfoam/_work/
 # Ahmed-body end-to-end study: OpenFOAM runs and fields (results/ is committed)
 examples/end_to_end/ahmed_body/_runs/
 examples/end_to_end/ahmed_body/results/cad/*.stl
+# trust study: OpenFOAM runs, fields and trained ensembles (results/, the dossier and experiment.json are committed)
+examples/end_to_end/airfoil_trust/_runs/
+examples/end_to_end/airfoil_trust/models/
 # Generated files: built where they are used, never committed (AGENTS.md, "Generated files")
 data/web/hub/index.json
 docs/flow_studio/COVERAGE.md

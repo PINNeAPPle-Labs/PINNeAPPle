@@ -1,0 +1,235 @@
+{
+ "levels": [
+  {
+   "name": "L0",
+   "cells": 6427,
+   "values": {
+    "CL": 0.4522118935586035,
+    "CD": 0.00550001961563591
+   },
+   "cost_s": 64.14895083400188,
+   "nonorth_avg": 6.7777304,
+   "nonorth_max": 40.77076,
+   "skew_max": 1.3487597,
+   "checkMesh_ok": true
+  },
+  {
+   "name": "L1",
+   "cells": 8603,
+   "values": {
+    "CL": 0.4430536708354115,
+    "CD": 0.010562611486533665
+   },
+   "cost_s": 89.85559149999608,
+   "nonorth_avg": 6.5679031,
+   "nonorth_max": 46.010872,
+   "skew_max": 1.4036326,
+   "checkMesh_ok": true
+  },
+  {
+   "name": "L2",
+   "cells": 11540,
+   "values": {
+    "CL": 0.4466503373790524,
+    "CD": 0.011080722070324189
+   },
+   "cost_s": 231.83582070800185,
+   "nonorth_avg": 6.7430546,
+   "nonorth_max": 45.551715,
+   "skew_max": 1.2922201,
+   "checkMesh_ok": true
+  },
+  {
+   "name": "L3",
+   "cells": 16117,
+   "values": {
+    "CL": 0.4422884134912718,
+    "CD": 0.012043500793516208
+   },
+   "cost_s": 0.0,
+   "nonorth_avg": 6.7093132,
+   "nonorth_max": 45.248812,
+   "skew_max": 1.7659517,
+   "checkMesh_ok": true
+  }
+ ],
+ "study": {
+  "meshes": [
+   {
+    "name": "L0",
+    "cells": 6427,
+    "h_rel": 1.0,
+    "cost_s": 64.14895083400188
+   },
+   {
+    "name": "L1",
+    "cells": 8603,
+    "h_rel": 0.6875000000000001,
+    "cost_s": 89.85559149999608
+   },
+   {
+    "name": "L2",
+    "cells": 11540,
+    "h_rel": 0.4791666666666667,
+    "cost_s": 231.83582070800185
+   },
+   {
+    "name": "L3",
+    "cells": 16117,
+    "h_rel": 0.33333333333333337,
+    "cost_s": 0.0
+   }
+  ],
+  "CL": {
+   "values": [
+    0.4522118935586035,
+    0.4430536708354115,
+    0.4466503373790524,
+    0.4422884134912718
+   ],
+   "triplets": [
+    {
+     "meshes": [
+      "L0",
+      "L1",
+      "L2"
+     ],
+     "values": [
+      0.4466503373790524,
+      0.4430536708354115,
+      0.4522118935586035
+     ],
+     "sizes": [
+      0.4791666666666667,
+      0.6875000000000001,
+      1.0
+     ],
+     "r21": 1.4347826086956523,
+     "r32": 1.4545454545454544,
+     "status": "warn",
+     "note": "oscillatory convergence: the GCI formula does not apply; report the range 0.443054 to 0.452212"
+    },
+    {
+     "meshes": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "values": [
+      0.4422884134912718,
+      0.4466503373790524,
+      0.4430536708354115
+     ],
+     "sizes": [
+      0.33333333333333337,
+      0.4791666666666667,
+      0.6875000000000001
+     ],
+     "r21": 1.4375,
+     "r32": 1.4347826086956523,
+     "status": "warn",
+     "note": "oscillatory convergence: the GCI formula does not apply; report the range 0.442288 to 0.44665"
+    }
+   ],
+   "status": "warn",
+   "p": null,
+   "extrapolated": null,
+   "gci_fine": null,
+   "note": "oscillatory convergence: the GCI formula does not apply; report the range 0.442288 to 0.44665",
+   "error_vs_extrapolated": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "error_vs_finest": [
+    0.022436672010010754,
+    0.0017302224539390565,
+    0.00986217082502591,
+    0.0
+   ]
+  },
+  "CD": {
+   "values": [
+    0.00550001961563591,
+    0.010562611486533665,
+    0.011080722070324189,
+    0.012043500793516208
+   ],
+   "triplets": [
+    {
+     "meshes": [
+      "L0",
+      "L1",
+      "L2"
+     ],
+     "values": [
+      0.011080722070324189,
+      0.010562611486533665,
+      0.00550001961563591
+     ],
+     "sizes": [
+      0.4791666666666667,
+      0.6875000000000001,
+      1.0
+     ],
+     "r21": 1.4347826086956523,
+     "r32": 1.4545454545454544,
+     "p": 6.056780229225441,
+     "extrapolated": 0.011146266747782008,
+     "gci_fine": 0.007393998902083931,
+     "gci_medium": 0.06907089951121577,
+     "asymptotic_ratio": 1.0490513718582484,
+     "safety_factor": 1.25,
+     "status": "pass",
+     "note": "fine-mesh numerical uncertainty about 0.74% (observed order 6.06); in the asymptotic range"
+    },
+    {
+     "meshes": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "values": [
+      0.012043500793516208,
+      0.011080722070324189,
+      0.010562611486533665
+     ],
+     "sizes": [
+      0.33333333333333337,
+      0.4791666666666667,
+      0.6875000000000001
+     ],
+     "r21": 1.4375,
+     "r32": 1.4347826086956523,
+     "p": 1.6881766646020997,
+     "extrapolated": 0.013182462818285452,
+     "gci_fine": 0.11821334638247602,
+     "gci_medium": 0.06962757904177815,
+     "asymptotic_ratio": 0.31918677096732867,
+     "safety_factor": 1.25,
+     "status": "warn",
+     "note": "fine-mesh numerical uncertainty about 11.82% (observed order 1.69); not yet in the asymptotic range: refine further before quoting the uncertainty"
+    }
+   ],
+   "status": "warn",
+   "p": 1.6881766646020997,
+   "extrapolated": 0.013182462818285452,
+   "gci_fine": 0.11821334638247602,
+   "note": "fine-mesh numerical uncertainty about 11.82% (observed order 1.69); not yet in the asymptotic range: refine further before quoting the uncertainty",
+   "error_vs_extrapolated": [
+    0.5827775362273877,
+    0.19873762345210483,
+    0.15943460466627904,
+    0.08639979042378826
+   ],
+   "error_vs_finest": [
+    0.5433205253245863,
+    0.12296169796242308,
+    0.07994176607771265,
+    0.0
+   ]
+  },
+  "representative_size": "first cell height: every spacing is refined by the same factor 1.45 per level"
+ }
+}

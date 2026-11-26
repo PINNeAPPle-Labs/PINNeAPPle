@@ -7,10 +7,9 @@ to be done, and :mod:`pinneapple_pipeline.adapters` maps it onto the modules tha
 reference solvers, ``pinneapple_neural`` architectures and trainer, ``pinneapple_check``, ``pinneapple_tools``
 model export).
 
-Only the blocks the pipeline actually runs are here. ``GeometryConfig``, ``MaterialConfig``, ``OptimizationConfig``
-(HPO), ``AdaptiveLearningConfig`` and ``DeploymentConfig`` are not: each needs a backend the library does not have
-for this path yet, and a configuration field that silently does nothing is worse than an absent one (see
-``docs/guides/surrogate_pipeline.md``).
+Every block here is run by the pipeline: a configuration field that silently does nothing is worse than an absent
+one, so a block that the library cannot back yet raises :class:`ConfigError` with the reason instead of being
+accepted (``geometry.repair``, ``materials.temperature_dependent``).
 """
 from __future__ import annotations
 
@@ -22,10 +21,11 @@ from pathlib import Path
 from typing import Any
 
 __all__ = [
-    "DimensionConfig", "ProblemConfig", "PhysicsConfig", "BoundaryConditionConfig", "ParameterSpaceConfig",
-    "SamplingConfig", "SolverConfig", "DataConfig", "ArchitectureConfig", "TrainingConfig", "LossConfig",
-    "ExecutionConfig", "VerificationConfig", "UncertaintyConfig", "ExportConfig", "VisualizationConfig",
-    "SurrogateConfig", "PipelineConfig", "DIMENSION_KEYS",
+    "DimensionConfig", "ProblemConfig", "PhysicsConfig", "BoundaryConditionConfig", "GeometryConfig",
+    "MaterialConfig", "ParameterSpaceConfig", "SamplingConfig", "SolverConfig", "DataConfig",
+    "ArchitectureConfig", "TrainingConfig", "LossConfig", "OptimizationConfig", "AdaptiveLearningConfig",
+    "ExecutionConfig", "VerificationConfig", "UncertaintyConfig", "DeploymentConfig", "ExportConfig",
+    "VisualizationConfig", "SurrogateConfig", "PipelineConfig", "DIMENSION_KEYS",
 ]
 
 DIMENSION_KEYS = ("spatial", "temporal", "coordinate_system", "axisymmetric", "time_domain")
@@ -143,6 +143,11 @@ class ProblemConfig(_Block):
 
     ``formulation`` is recorded with the run (strong form is what the pipeline trains) and ``regime``
     (``steady``/``transient``) is taken from the coordinates unless stated.
+
+    A symbolic problem may also declare the exact solution it is supposed to have, which is what turns the ``model``
+    gate from *not evaluated* into a measured error: ``exact_expression`` is a Python expression in the coordinates
+    (``"exp(-2*alpha*pi**2*t) * sin(pi*x) * sin(pi*y)"``), or pass a callable ``X -> (n, len(fields))`` as
+    ``exact`` from Python. It is used by ``validate_pinn`` (the ``pinn.exact`` check) and therefore by the gate.
     """
 
     source: str = "preset"
@@ -155,6 +160,8 @@ class ProblemConfig(_Block):
     equations: tuple[str, ...] = ()
     constants: dict[str, float] = field(default_factory=dict)
     conditions: tuple[dict[str, Any], ...] = ()      # symbolic conditions: {"kind", "on", "equation"}
+    exact_expression: str = ""
+    exact: Any = None                         # X -> (n, len(fields)), for a manufactured/known solution
     formulation: str = "strong"
     regime: str = ""                          # "" = from the coordinates; or steady | transient
     problem_type: str = "forward"
@@ -181,6 +188,8 @@ class ProblemConfig(_Block):
                 raise ConfigError(f"problem.domain_bounds has no range for coordinate(s) {missing}")
         if self.regime and self.regime not in ("steady", "transient"):
             raise ConfigError(f"problem.regime must be steady or transient, got {self.regime!r}")
+        if self.exact_expression and self.source != "symbolic":
+            raise ConfigError("problem.exact_expression only applies to a symbolic problem (source: symbolic)")
         if self.formulation != "strong":
             raise ConfigError(f"the pipeline trains the strong form of the equations; formulation={self.formulation!r} "
                               "is accepted in the schema but not implemented")
@@ -299,8 +308,8 @@ def _face_selector(on: Any, coords: Sequence[str], bounds: Mapping[str, tuple[fl
     return mask
 
 
-def _expression_fn(expression: str, coords: Sequence[str]):
-    """``value_fn`` from a Python expression in the coordinate names (``t`` included)."""
+def _expression_fn(expression: str, coords: Sequence[str], constants: Mapping[str, float] | None = None):
+    """``value_fn`` from a Python expression in the coordinate names (``t`` included) and the problem's constants."""
     import numpy as np
 
     code = compile(expression, "<condition expression>", "eval")
@@ -310,6 +319,7 @@ def _expression_fn(expression: str, coords: Sequence[str]):
         env = {str(c): X[:, i] for i, c in enumerate(coords)}
         env.update(np=np, sin=np.sin, cos=np.cos, tan=np.tan, exp=np.exp, log=np.log, sqrt=np.sqrt,
                    pi=np.pi, abs=np.abs, tanh=np.tanh)
+        env.update({str(k): float(v) for k, v in dict(constants or {}).items()})
         out = eval(code, {"__builtins__": {}}, env)               # noqa: S307 - the expression is the user's own config
         arr = np.asarray(out, dtype=float)
         if arr.ndim == 0:
@@ -510,7 +520,17 @@ class ArchitectureConfig(_Block):
 # --------------------------------------------------------------------------------------------------- training
 @dataclass
 class TrainingConfig(_Block):
-    """Training budget and optimiser settings, in the vocabulary of the backends that run them."""
+    """Training budget and optimiser settings, in the vocabulary of the backends that run them.
+
+    ``early_stopping`` stops the run when the monitored quantity stops improving for ``patience`` checks:
+
+    * ``preset``/``spec`` problems: a held-out physics batch (the same compiled loss on points the model is not
+      trained on), every ``check_every`` epochs — ``Trainer`` + ``EarlyStopping``;
+    * ``symbolic`` problems: the PINN validation suite every ``check_every`` steps — ``PINNMonitor``, which stops on
+      a repeated *physics* failure (a trivial solution, boundary or initial conditions lost), not on the loss;
+    * parametric surrogates: the study backend already stops at ``budget_seconds`` per candidate, so the flag is
+      recorded and has no second meaning there.
+    """
 
     epochs: int = 2000
     lr: float = 1e-3
@@ -526,7 +546,9 @@ class TrainingConfig(_Block):
     budget_seconds: float | None = None          # per training run, for the study backend
     lbfgs_steps: int = 0                         # symbolic backend: quasi-Newton polish after Adam
     early_stopping: bool = False
-    patience: int = 100
+    patience: int = 5                            # checks without improvement before stopping
+    check_every: int = 100                       # epochs between two checks
+    min_delta: float = 0.0
 
     def validate(self) -> None:
         if self.epochs < 1:
@@ -540,8 +562,13 @@ class TrainingConfig(_Block):
         if self.device not in ("auto", "cpu", "cuda", "mps"):
             raise ConfigError(f"training.device must be auto, cpu, cuda or mps, got {self.device!r}")
         if self.early_stopping:
-            raise ConfigError("training.early_stopping is not implemented: the backends train for a fixed budget "
-                              "(use training.epochs, or training.budget_seconds on the study backend)")
+            if self.patience < 1:
+                raise ConfigError(f"training.patience must be at least 1 check, got {self.patience}")
+            if self.check_every < 1:
+                raise ConfigError(f"training.check_every must be at least 1 epoch, got {self.check_every}")
+            if self.check_every >= self.epochs:
+                raise ConfigError(f"training.check_every ({self.check_every}) is not smaller than training.epochs "
+                                  f"({self.epochs}): no check would ever run")
 
     def resolved_device(self) -> str:
         if self.device != "auto":
@@ -607,6 +634,9 @@ class ExecutionConfig(_Block):
 _GATE_NAMES = ("problem", "geometry", "discretization", "simulation", "dataset", "model", "physics", "applicability",
                "export", "inference")
 
+#: ``pinneapple_check``'s own physics names (``verification.check_physics``).
+_CHECK_PHYSICS = ("none", "incompressible-flow", "heat", "elasticity", "conservation", "darcy", "maxwell")
+
 
 @dataclass
 class VerificationConfig(_Block):
@@ -631,6 +661,8 @@ class VerificationConfig(_Block):
     gates: dict[str, bool] = field(default_factory=dict)     # name -> run it (default: every applicable gate)
     validation_queries: int = 256
     run_checks: bool = True                    # also run `pinneapple check` over the run folder
+    check_physics: str = "none"                # the model's own physics, for pinneapple check's PC2xx/PC3xx
+    check_queries: int = 32                    # queries the check runs through the model
 
     def validate(self) -> None:
         if self.mode not in ("strict", "balanced", "report"):
@@ -644,6 +676,11 @@ class VerificationConfig(_Block):
         for k, v in self.acceptance.items():
             if v < 0:
                 raise ConfigError(f"verification.acceptance[{k!r}] must be non-negative, got {v}")
+        if self.check_physics not in _CHECK_PHYSICS:
+            raise ConfigError(f"verification.check_physics must be one of {list(_CHECK_PHYSICS)}, got "
+                              f"{self.check_physics!r}")
+        if self.check_queries < 1:
+            raise ConfigError(f"verification.check_queries must be at least 1, got {self.check_queries}")
 
     def threshold(self, name: str, default: float) -> float:
         return float(self.acceptance.get(name, default))
@@ -711,6 +748,301 @@ class VisualizationConfig(_Block):
         self.plots, self.formats = _as_tuple(self.plots), _as_tuple(self.formats) or ("png",)
 
 
+# --------------------------------------------------------------------------------------------------- geometry
+@dataclass
+class GeometryConfig(_Block):
+    """A geometry read from a file, checked before anything is trained on it.
+
+    ``source="file"`` loads a surface with ``pinneapple_data.cae.io.read_stl`` and runs
+    ``pinneapple_data.cae.quality.surface_checks`` on it: watertightness, open and non-manifold edges, the bounding
+    box and the area. The result is the ``geometry`` gate's evidence — a surface that is not closed cannot bound a
+    volume, and the run says so instead of meshing it. ``source="none"`` (the default) means the problem is a box
+    and there is nothing to check.
+
+    ``units`` scales the file to metres (``mm``, ``cm``, ``m``, ``in``); ``scale`` multiplies on top of it, for a
+    file whose units are unknown. This pipeline verifies the surface, it does not mesh it: a volume mesh is
+    ``pinneapple_design.geometry.mesh``'s job, called from a stage of your own.
+    """
+
+    source: str = "none"
+    path: str = ""
+    format: str = "stl"
+    units: str = "m"
+    scale: float = 1.0
+    repair: bool = False
+    regions: tuple[str, ...] = ()
+
+    _UNITS = {"m": 1.0, "cm": 0.01, "mm": 1e-3, "um": 1e-6, "in": 0.0254, "ft": 0.3048}
+
+    def validate(self) -> None:
+        self.source = str(self.source).lower()
+        self.regions = _as_tuple(self.regions)
+        if self.source not in ("none", "file"):
+            raise ConfigError(f"geometry.source must be 'none' (a box) or 'file', got {self.source!r}")
+        if self.source == "file":
+            if not self.path:
+                raise ConfigError("geometry.source is 'file' but geometry.path is empty")
+            if self.format.lower() != "stl":
+                raise ConfigError(f"geometry.format {self.format!r} is not read yet: the surface loader here is STL "
+                                  "(pinneapple_data.cae.io.read_stl); convert the file or load it in a stage of your "
+                                  "own")
+            self.format = "stl"
+        if self.units not in self._UNITS:
+            raise ConfigError(f"geometry.units must be one of {sorted(self._UNITS)}, got {self.units!r}")
+        if self.scale <= 0:
+            raise ConfigError(f"geometry.scale must be positive, got {self.scale}")
+        if self.repair:
+            raise ConfigError("geometry.repair is not implemented: a surface that is not watertight is reported by "
+                              "the geometry gate, not silently stitched (pinneapple_design.geometry has the repair "
+                              "tools if you want to run them yourself)")
+
+    @property
+    def length_scale(self) -> float:
+        """Metres per unit of the file."""
+        return self._UNITS[self.units] * float(self.scale)
+
+
+# --------------------------------------------------------------------------------------------------- materials
+@dataclass
+class MaterialConfig(_Block):
+    """A material from the catalogue (``pinneapple_design.intent.materials.MATERIALS``, 7 of them) applied to the
+    problem's own parameters.
+
+    ``materials`` maps a body name to a catalogue key (``steel_1018``, ``al6061_t6``, ``ss304``, ``zamak3``,
+    ``pla_4043d``, ``balsa``, ``al6063_t5``) or to explicit properties::
+
+        materials:
+          materials:
+            body: al6061_t6                      # everything the problem declares, from the catalogue
+            insert: {youngs_modulus: 1.2e11, poisson: 0.34}
+          assignments: {body: {E: youngs_modulus, nu: poisson}}
+
+    A property is applied to a problem parameter of the same name when the problem has it; ``assignments`` adds
+    explicit pairs for a problem that names its parameters differently (``E``, ``k_eff``...). Every value comes with
+    the catalogue's provenance (the datasheet it was read from), which the model card records.
+    """
+
+    materials: dict[str, Any] = field(default_factory=dict)
+    assignments: dict[str, dict[str, str]] = field(default_factory=dict)
+    properties: tuple[str, ...] = ()
+    temperature_dependent: bool = False
+
+    def validate(self) -> None:
+        self.materials = {str(k): v for k, v in _mapping(self.materials).items()}
+        self.assignments = {str(body): {str(p): str(prop) for p, prop in _mapping(pairs).items()}
+                            for body, pairs in _mapping(self.assignments).items()}
+        self.properties = _as_tuple(self.properties)
+        if self.temperature_dependent:
+            raise ConfigError("materials.temperature_dependent is not implemented: the catalogue carries "
+                              "single-temperature properties, and a temperature-dependent law needs its own model")
+        unknown = sorted(set(self.assignments) - set(self.materials))
+        if unknown:
+            raise ConfigError(f"materials.assignments names {unknown}, which materials.materials does not define")
+        for body, spec in self.materials.items():
+            if isinstance(spec, str):
+                continue
+            if not isinstance(spec, Mapping) or not spec:
+                raise ConfigError(f"material {body!r} must be a catalogue key (a string) or a mapping of property "
+                                  "values")
+
+    def resolve(self) -> dict[str, dict[str, Any]]:
+        """``{body: {property: value}}`` from the catalogue (with provenance) or from the config's own values."""
+        from pinneapple_design.intent.materials import MATERIALS
+
+        out: dict[str, dict[str, Any]] = {}
+        for body, spec in self.materials.items():
+            if isinstance(spec, str):
+                if spec not in MATERIALS:
+                    raise ConfigError(f"material {body!r}: {spec!r} is not in the catalogue {sorted(MATERIALS)}")
+                material = MATERIALS[spec]
+                out[body] = {name: {"value": prop.value, "unit": prop.unit, "source": prop.source,
+                                    "label": material.label, "key": spec}
+                             for name, prop in material.props.items()}
+            else:
+                out[body] = {str(k): {"value": float(v), "unit": "", "source": "the pipeline configuration"}
+                             for k, v in spec.items()}
+        return out
+
+    _ALIASES = {"E": "youngs_modulus", "young": "youngs_modulus", "youngs_modulus": "youngs_modulus",
+                "nu": "poisson", "poisson": "poisson", "rho": "density", "density": "density",
+                "k": "conductivity", "conductivity": "conductivity", "thermal_conductivity": "conductivity",
+                "sy": "yield_strength", "yield_strength": "yield_strength",
+                "su": "tensile_strength", "tensile_strength": "tensile_strength"}
+
+    def targets(self, parameter_names: set[str] | Sequence[str]) -> dict[str, dict[str, Any]]:
+        """``{problem parameter: {value, unit, source, body}}`` — what the materials set on the problem itself.
+
+        A catalogue property lands on the parameter of **the same name** — only the exact names, because ``nu`` is
+        the Poisson ratio of a solid and the kinematic viscosity of a flow, and guessing from the name is how a
+        material silently changes the physics. Anything named differently goes through ``assignments``. The Lamé
+        constants derived from ``E`` and ``nu`` (``lame_lambda``/``mu``) are recomputed when the problem declares
+        them, so changing the material cannot leave them stale.
+        """
+        names = set(parameter_names)
+        resolved = self.resolve()
+        out: dict[str, dict[str, Any]] = {}
+        for body, props in resolved.items():
+            pairs: dict[str, str] = dict(self.assignments.get(body, {}))
+            for param in names - set(pairs):
+                if param in props:
+                    pairs[param] = param
+            for param, prop in pairs.items():
+                if prop not in props:
+                    raise ConfigError(f"material {body!r} has no property {prop!r}; it has {sorted(props)}")
+                if param not in names:
+                    raise ConfigError(f"materials.assignments sends {body!r}.{prop} to parameter {param!r}, which the "
+                                      f"problem does not declare; it declares {sorted(names) or 'nothing'}")
+                if param in out:
+                    raise ConfigError(f"parameter {param!r} is set by both {out[param]['body']!r} and {body!r}")
+                out[param] = {**props[prop], "body": body, "property": prop}
+        youngs = next((p for p in out if out[p]["property"] == "youngs_modulus"), None)
+        poisson = next((p for p in out if out[p]["property"] == "poisson"), None)
+        if youngs is not None and poisson is not None:
+            e, nu = float(out[youngs]["value"]), float(out[poisson]["value"])
+            if not -1.0 < nu < 0.5:
+                raise ConfigError(f"the Poisson ratio of {out[poisson]['body']!r} is {nu}: it must be in (-1, 0.5) for "
+                                  "the Lamé constants to exist")
+            lame_lambda = e * nu / ((1.0 + nu) * (1.0 - 2.0 * nu))
+            derived = {"lame_lambda": lame_lambda, "lambda_lame": lame_lambda, "mu": e / (2.0 * (1.0 + nu))}
+            for param, value in derived.items():
+                if param not in names or param in out:
+                    continue
+                out[param] = {"value": value, "unit": "", "body": out[youngs]["body"],
+                              "property": f"derived from {youngs} and {poisson}",
+                              "source": "Lamé constants computed from the catalogue's E and nu"}
+        return out
+
+
+# --------------------------------------------------------------------------------------------------- optimization
+@dataclass
+class OptimizationConfig(_Block):
+    """Hyperparameter search over the training and architecture settings, scored on validation data only.
+
+    ``strategy="grid"`` (every point of ``search_space``) or ``"random"`` (``n_trials`` samples; a pair
+    ``[min, max]`` is sampled uniformly, a list is sampled from). The objective is the held-out error of each trial —
+    ``relative_l2`` against the reference on a validation set for a physics model, the validation split error for a
+    parametric surrogate — never the test data. ``n_jobs`` runs the trials with
+    ``pinneapple_neural.trainer.run_parallel_sweep``; keep it at 1 when the trials use torch on CPU.
+
+    The parameter names are the ones the backend takes: ``epochs``, ``lr``, ``n_collocation``, ``hidden_dim``,
+    ``n_layers``, ``architecture`` (physics) or a method's own options (supervised).
+    """
+
+    enabled: bool = False
+    strategy: str = "grid"
+    n_trials: int = 8
+    n_jobs: int = 1
+    objectives: tuple[str, ...] = ("validation_error",)
+    search_space: dict[str, Any] = field(default_factory=dict)
+    seed: int = 0
+
+    def validate(self) -> None:
+        if not self.enabled:
+            return
+        if self.strategy not in ("grid", "random"):
+            raise ConfigError(f"optimization.strategy must be grid or random, got {self.strategy!r}")
+        if not self.search_space:
+            raise ConfigError("optimization.enabled is true but optimization.search_space is empty")
+        for name, values in self.search_space.items():
+            if not isinstance(values, (list, tuple)) or not values:
+                raise ConfigError(f"optimization.search_space[{name!r}] must be a non-empty list of values or a "
+                                  "[min, max] pair")
+        if self.strategy == "random" and self.n_trials < 1:
+            raise ConfigError(f"optimization.n_trials must be at least 1, got {self.n_trials}")
+        if self.n_jobs < 1:
+            raise ConfigError(f"optimization.n_jobs must be at least 1, got {self.n_jobs}")
+
+    def grid(self) -> list[dict[str, Any]]:
+        """The parameter sets to try (the grid, or ``n_trials`` random draws)."""
+        import numpy as np
+        names = list(self.search_space)
+        if self.strategy == "grid":
+            import itertools
+            return [dict(zip(names, combo, strict=True))
+                    for combo in itertools.product(*(self.search_space[n] for n in names))]
+        rng = np.random.default_rng(self.seed)
+        out = []
+        for _ in range(self.n_trials):
+            trial = {}
+            for name in names:
+                values = self.search_space[name]
+                if len(values) == 2 and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in values):
+                    lo, hi = float(values[0]), float(values[1])
+                    trial[name] = float(rng.uniform(lo, hi)) if not (lo == int(lo) and hi == int(hi)) \
+                        else int(rng.integers(int(lo), int(hi) + 1))
+                else:
+                    trial[name] = values[int(rng.integers(0, len(values)))]
+            out.append(trial)
+        return out
+
+
+# ----------------------------------------------------------------------------------------------- adaptive learning
+@dataclass
+class AdaptiveLearningConfig(_Block):
+    """Add cases where the surrogate is worst, until it reaches the target or the budget runs out.
+
+    Each round asks ``pinneapple_data.doe.design(method="infill")`` for the points farthest from the cases already
+    solved (weighted by where the outputs vary most among neighbours), solves them with the reference solver,
+    appends them to the dataset and retrains. The loop ends on the held-out target
+    (``verification.acceptance.nrmse`` unless ``target_error`` says otherwise), on ``max_rounds`` or on
+    ``max_total_simulations``. Every round is recorded in the report, with the error that justified the next one.
+
+    Only the parametric path can adapt: a physics-only model has no case to add.
+    """
+
+    enabled: bool = False
+    strategy: str = "infill"
+    max_rounds: int = 3
+    samples_per_round: int = 4
+    max_total_simulations: int = 60
+    target_error: float | None = None
+
+    def validate(self) -> None:
+        if not self.enabled:
+            return
+        if self.strategy != "infill":
+            raise ConfigError(f"adaptive_learning.strategy must be 'infill' (the only one wired), got "
+                              f"{self.strategy!r}")
+        if self.max_rounds < 1:
+            raise ConfigError(f"adaptive_learning.max_rounds must be at least 1, got {self.max_rounds}")
+        if self.samples_per_round < 1:
+            raise ConfigError(f"adaptive_learning.samples_per_round must be at least 1, got {self.samples_per_round}")
+        if self.target_error is not None and self.target_error <= 0:
+            raise ConfigError(f"adaptive_learning.target_error must be positive, got {self.target_error}")
+
+
+# --------------------------------------------------------------------------------------------------- deployment
+@dataclass
+class DeploymentConfig(_Block):
+    """Serve the trained model through ``pinneapple_tools.model_services``.
+
+    The service answers ``predict`` with the model and a ``trust`` verdict computed from the validated domain and
+    the gates of the run: a query outside the parameter space is refused (``on_ood="reject"``) or flagged
+    (``"flag"``), and a run whose gates did not pass is served with ``trust.decision`` set to that verdict rather
+    than hidden. ``target="local"`` builds the ``ModelService`` and returns it; ``target="http"`` also starts
+    ``make_server`` (``serve_in_thread``) or writes a ``serve.py`` next to the model.
+    """
+
+    enabled: bool = False
+    target: str = "local"
+    host: str = "127.0.0.1"
+    port: int = 0                                # 0: the server picks a free port
+    api_key: str = ""
+    on_ood: str = "reject"
+    enforce_validated_domain: bool = True
+    serve_in_thread: bool = True
+
+    def validate(self) -> None:
+        if not self.enabled:
+            return
+        if self.target not in ("local", "http"):
+            raise ConfigError(f"deployment.target must be local or http, got {self.target!r}")
+        if self.on_ood not in ("reject", "flag"):
+            raise ConfigError(f"deployment.on_ood must be reject or flag, got {self.on_ood!r}")
+        if self.target == "http" and not (0 <= self.port <= 65535):
+            raise ConfigError(f"deployment.port must be 0..65535, got {self.port}")
+
+
 # --------------------------------------------------------------------------------------------------- aggregate
 @dataclass
 class SurrogateConfig(_Block):
@@ -730,6 +1062,8 @@ class SurrogateConfig(_Block):
     dimension: DimensionConfig = field(default_factory=DimensionConfig)
     physics: PhysicsConfig = field(default_factory=PhysicsConfig)
     boundary_conditions: tuple[BoundaryConditionConfig, ...] = ()
+    geometry: GeometryConfig = field(default_factory=GeometryConfig)
+    materials: MaterialConfig = field(default_factory=MaterialConfig)
     parameters: ParameterSpaceConfig = field(default_factory=ParameterSpaceConfig)
     sampling: SamplingConfig = field(default_factory=SamplingConfig)
     solver: SolverConfig = field(default_factory=SolverConfig)
@@ -737,16 +1071,20 @@ class SurrogateConfig(_Block):
     architecture: ArchitectureConfig = field(default_factory=ArchitectureConfig)
     training: TrainingConfig = field(default_factory=TrainingConfig)
     loss: LossConfig = field(default_factory=LossConfig)
+    optimization: OptimizationConfig = field(default_factory=OptimizationConfig)
+    adaptive_learning: AdaptiveLearningConfig = field(default_factory=AdaptiveLearningConfig)
     execution: ExecutionConfig = field(default_factory=ExecutionConfig)
     verification: VerificationConfig = field(default_factory=VerificationConfig)
     uncertainty: UncertaintyConfig = field(default_factory=UncertaintyConfig)
+    deployment: DeploymentConfig = field(default_factory=DeploymentConfig)
     export: ExportConfig = field(default_factory=ExportConfig)
     visualization: VisualizationConfig = field(default_factory=VisualizationConfig)
     description: str = ""
 
     # ---- nested blocks are built from their dataclass when given as a mapping
-    _BLOCKS = ("problem", "dimension", "physics", "parameters", "sampling", "solver", "data", "architecture",
-               "training", "loss", "execution", "verification", "uncertainty", "export", "visualization")
+    _BLOCKS = ("problem", "dimension", "physics", "geometry", "materials", "parameters", "sampling", "solver",
+               "data", "architecture", "training", "loss", "optimization", "adaptive_learning", "execution",
+               "verification", "uncertainty", "deployment", "export", "visualization")
 
     def __post_init__(self) -> None:
         for name in self._BLOCKS:
@@ -778,6 +1116,25 @@ class SurrogateConfig(_Block):
                 known = sorted(self._problem_parameter_names())
                 raise ConfigError(f"parameters names {unknown}, which preset {self.problem.preset!r} does not have; "
                                   f"it has {known}")
+        if self.optimization.enabled and not self.data.is_physics_only:
+            raise ConfigError("optimization searches the PINN's training knobs (epochs, lr, n_collocation, "
+                              "hidden_dim, n_layers). A parametric surrogate is already searched by the study — "
+                              "architecture.candidates over methods and training.budget_seconds — and there is no "
+                              "second set of hyperparameters to sweep here")
+        if self.adaptive_learning.enabled:
+            if self.data.is_physics_only:
+                raise ConfigError("adaptive_learning needs cases to add, and data.source is 'physics_only': it "
+                                  "applies to a parametric surrogate (data.source: simulation)")
+            planned = int(self.sampling.design_sampling.get("n_samples", 0) or 0)
+            if planned > self.adaptive_learning.max_total_simulations:
+                raise ConfigError(f"sampling.design_sampling.n_samples ({planned}) already exceeds "
+                                  f"adaptive_learning.max_total_simulations "
+                                  f"({self.adaptive_learning.max_total_simulations})")
+        if self.materials.materials and self.problem.source == "preset":
+            names = self._problem_parameter_names()
+            if names and not self.materials.targets(names):
+                raise ConfigError(f"materials sets no parameter of preset {self.problem.preset!r}: its parameters are "
+                                  f"{sorted(names)}; name the target explicitly under materials.assignments")
 
     def _problem_parameter_names(self) -> set[str]:
         if self.problem.source != "preset":
@@ -847,8 +1204,10 @@ PipelineConfig = SurrogateConfig
 #: Which dataclass each block name builds (used by :meth:`SurrogateConfig.__post_init__`).
 _BLOCK_TYPES: dict[str, type] = {
     "problem": ProblemConfig, "dimension": DimensionConfig, "physics": PhysicsConfig,
+    "geometry": GeometryConfig, "materials": MaterialConfig,
     "parameters": ParameterSpaceConfig, "sampling": SamplingConfig, "solver": SolverConfig, "data": DataConfig,
     "architecture": ArchitectureConfig, "training": TrainingConfig, "loss": LossConfig,
+    "optimization": OptimizationConfig, "adaptive_learning": AdaptiveLearningConfig,
     "execution": ExecutionConfig, "verification": VerificationConfig, "uncertainty": UncertaintyConfig,
-    "export": ExportConfig, "visualization": VisualizationConfig,
+    "deployment": DeploymentConfig, "export": ExportConfig, "visualization": VisualizationConfig,
 }

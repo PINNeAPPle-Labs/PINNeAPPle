@@ -1,6 +1,6 @@
 # Surrogate pipeline — use cases
 
-Four runs that exercise the pipeline end to end and show what it refuses. Each one prints the stage table and the
+Five runs that exercise the pipeline end to end and show what it refuses. Each one prints the stage table and the
 VeriPhysics gates; the artefacts land in `_out/<name>/` (git-ignored), with the report at `_out/<name>/report.md`.
 
 | script | what it exercises | backend | time |
@@ -9,12 +9,14 @@ VeriPhysics gates; the artefacts land in `_out/<name>/` (git-ignored), with the 
 | `02_physics_only_pinn.py` | a PINN with no data, scored against the Cole-Hopf solution, exported to ONNX and compared back | `preset` + `physics_only` | ~90 s |
 | `03_symbolic_heat.py` | a PDE written as text, trained and validated by the PINN validation suite — and the same run undertrained, refused | `symbolic` | ~2 min |
 | `04_yaml_and_cli.py` | the pipeline as a YAML file: `run_until("data")`, `resume()`, and `python -m pinneapple.pipeline` | `preset` + `simulation` | ~20 s |
+| `05_every_kind_of_surrogate.py` | the tour: parametric surrogate, physics-only PINN, a PDE as text, adaptive learning, `pinneapple check`, and the run served with its own trust | all three | ~2 min |
 
 ```bash
 python examples/surrogate_pipeline/01_parametric_surrogate.py
 python examples/surrogate_pipeline/02_physics_only_pinn.py
 python examples/surrogate_pipeline/03_symbolic_heat.py
 python examples/surrogate_pipeline/04_yaml_and_cli.py [--config my.yaml]
+python examples/surrogate_pipeline/05_every_kind_of_surrogate.py [--fast] [--only serve]
 ```
 
 ## What each one is meant to show
@@ -36,6 +38,12 @@ rather than raising.
 
 **04** — the expensive part of a parametric study is the reference campaign; `run_until("data")` does it and stops,
 `resume()` picks the run up and does not solve anything twice (`state.json` records what finished).
+
+**05** — the tour that doubles as the demo: the three kinds of model the pipeline builds (a study over a reference
+campaign, a PINN with no data, a PDE written as text), then the four things that make it a pipeline and not a
+training script: `doe.design(method="infill")` adding the cases where the response varies most, `pinneapple check`
+loading the trained model through a plain array function and agreeing with the gates, `pipeline.deploy()` serving it
+with the run's own trust function, and the refusal of a query outside the validated domain.
 
 ## Configuration
 

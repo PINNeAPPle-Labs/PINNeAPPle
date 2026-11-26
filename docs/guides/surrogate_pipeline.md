@@ -13,6 +13,7 @@ result = pp.SurrogatePipeline.from_preset("burgers_in_viscosity").run()
 print(result.summary())          # burgers_in_viscosity: completed (7 pass, 1 warn, 2 not applicable)
 print(result.to_markdown())      # the report an engineer files
 pipeline.predict_verified(nu=0.03)
+pipeline.deploy().predict(nu=0.03)        # the same answer, as a model service with the run's trust
 ```
 
 Three levels of use, one object:
@@ -66,7 +67,7 @@ evaluated is never reported as one that passed.
 | gate | establishes | not applicable when |
 |---|---|---|
 | `problem` | the configuration and the problem agree (dimension, names, parameters, conditions) | never |
-| `geometry` | the geometry is the one declared | the domain is a box |
+| `geometry` | the surface of `geometry.path` is watertight, manifold and in the stated units | no `geometry` block, or a box domain |
 | `discretization` | the reference solution does not move when its grid is refined | the reference is a closed form, or there is none |
 | `simulation` | every reference solve the data rests on finished | physics-only run |
 | `dataset` | the cases cover the space, are distinct, and are split without leakage | physics-only run |
@@ -127,6 +128,55 @@ training:  {budget_seconds: 2.0}
 `train`/`preprocess` never split a dataset by rows across cases: the distribution-shift set is removed first, then
 train/validation/test, and the `dataset` gate fails on any overlap between them.
 
+## Geometry, materials, and the search over the run
+
+Four blocks go beyond "train the thing and score it":
+
+```yaml
+geometry:   {source: file, path: cases/bracket.stl, units: mm}     # checked, not meshed
+materials:  {materials: {body: al6061_t6}, assignments: {kb: conductivity}}
+optimization:        {enabled: true, strategy: grid, search_space: {lr: [1e-3, 5e-3], hidden_dim: [32, 48]}}
+adaptive_learning:   {enabled: true, max_rounds: 3, samples_per_round: 4, target_error: 0.02}
+deployment:          {enabled: true, target: http, port: 8000}
+```
+
+* **`geometry`** reads the surface with `pinneapple_data.cae.io.read_stl` and runs
+  `pinneapple_data.cae.quality.surface_checks`: open and non-manifold edges, shells, winding, degenerate faces, the
+  enclosed volume and the bounding box in metres. A surface that does not bound a volume fails the `geometry` gate
+  instead of being meshed. The pipeline checks the surface; meshing stays `pinneapple_design.geometry`'s job.
+* **`materials`** resolves a key of `pinneapple_design.intent.materials.MATERIALS` and sets the problem's own
+  parameters — only on parameters named exactly like the catalogue property, because `nu` is the Poisson ratio of a
+  solid and the kinematic viscosity of a flow. Anything named differently goes through `assignments`. Every number
+  arrives with the datasheet it was read from, and the Lamé constants derived from `E` and `nu` are recomputed so
+  they cannot be left stale.
+* **`optimization`** trains one model per point of `search_space` (grid, or `n_trials` random draws), scores each on
+  validation points, and trains once more with the winner. The points the `model` gate reports on are drawn with
+  another seed, so the reported error is not the one the selection was made on. It searches the PINN's training
+  knobs; a supervised run already searches its candidates at equal budget.
+* **`adaptive_learning`** adds cases where the response varies most: `doe.design(method="infill")` over the cases
+  already solved, weighted by the outputs. Each round is solved, the dataset grows, the study is repeated, and the
+  loop stops on the target, on `max_rounds` or on `max_total_simulations`. It is not a variance-driven active
+  learning criterion — the per-round table shows a flat curve instead of assuming one away.
+* **`early_stopping`** means three different things, and each says which: the symbolic backend runs `PINNMonitor`
+  (it stops when a *physics* check has been failing for `patience` checks); the `preset`/`spec` backend trains in
+  chunks of `check_every` epochs with `pinneapple_physics.solve_pde`, keeps the best held-out physics loss and stops
+  when it stops falling; the study backend keeps its `budget_seconds`.
+* **`deployment`** serves the run through `pinneapple_tools.model_services`: `pipeline.deploy()` returns a
+  `ModelService` (and, with `target: http`, a live URL) whose trust function re-reads the validated domain and the
+  gates. A query outside the domain is refused (`on_ood: reject`) or answered and flagged. `serve.py` is written into
+  the run folder, so the endpoint can be restarted from the artefacts alone
+  (`pp.SurrogatePipeline.from_run(folder).deploy()`).
+
+## `pinneapple check` as a second opinion
+
+Every run writes `verification/predict.py`, `verification/queries.csv` and `verification/pinneapple-check.toml`, and
+runs `pinneapple_check` over them. That is an independent implementation that loads the model through a plain
+`(N, n_inputs) -> (N, n_outputs)` function and applies its own rules: bounds (PC4xx), out-of-distribution queries
+(PC6xx) and checkpoint integrity (PC8xx) always; boundary/residual (PC1xx-PC3xx) when
+`verification.check_physics` names the physics the outputs belong to. The `applicability`, `export` and `physics`
+gates quote those outcomes when they exist and fall back to their own measurement when they do not — and the report
+says which one it used. A checker that cannot run becomes a note, never a silent pass.
+
 ## Command line
 
 ```bash
@@ -142,19 +192,23 @@ Exit codes: `0` passed, `1` a stage failed, `2` the configuration is wrong, `3` 
 
 ## What is not implemented
 
-The configuration schema is deliberately smaller than the design that motivated it. These blocks are **absent**,
-not silently ignored: a field that does nothing is worse than an absent one.
+The configuration accepts nothing that silently does nothing: a field the library cannot back raises `ConfigError`
+with the reason, and a gate that cannot be measured says so.
 
-* `geometry`, `materials` — there is no geometry/material backend on this path yet; a preset that carries one reaches
-  the run, and the `geometry` gate says the pipeline does not verify it.
-* `optimization` (HPO), `adaptive_learning` — the study already compares candidates at equal budget; an
-  infill loop over `pinneapple_data.doe.design(method="infill")` is the natural next step.
-* `deployment` — export writes the artefacts and the card; serving them is the engineering API's job.
+* `geometry.format` is STL only (`pinneapple_data.cae.io.read_stl`), and `geometry.repair` is refused — a surface
+  that is not watertight is *reported*, not stitched. STEP inputs and the repair tools live in
+  `pinneapple_design.geometry`.
+* `materials.temperature_dependent` is refused: the catalogue carries single-temperature properties.
+* `optimization` searches the PINN's training knobs, not the surrogate methods' internals (the study already
+  compares those at equal budget).
+* `adaptive_learning.strategy` is `infill` only, and it applies to parametric surrogates (there is no case to add
+  to a physics-only model).
 * `boundary_conditions` accepts `constant`, `symbolic` and `callable` sources on `preset`/`spec` problems only;
   a `symbolic` problem declares its conditions in `problem.conditions`.
-* `early_stopping` raises `ConfigError`: the backends train for a fixed budget (`training.epochs`, or
-  `training.budget_seconds` on the study backend).
 * `export` for the symbolic backend: there is no portable export of a `PINNProblem` network yet.
+* `pinneapple check`'s physics rules need the field names its equations know (`T` for heat, `U`/`p` for flow,
+  `u`/`v`/`w` or `D` for elasticity); when they do not match, the run records that the declared physics was not
+  applied and the `physics` gate measures the residual itself.
 
 ## Where the parts live
 
@@ -164,8 +218,10 @@ pinneapple_pipeline/
 ├── stages.py        the seven stages and the PipelineStage contract
 ├── adapters.py      the only place a configuration meets a module that computes
 ├── verification.py  the ten gates
+├── checks.py        `pinneapple check` over the run folder, its rules read as gate evidence
+├── deploy.py        the run as a model service, with the run's own trust function
 ├── results.py       VerificationResult, StageRecord, PipelineResult and its report
-├── pipeline.py      SurrogatePipeline (run / run_until / resume / status / predict_verified)
+├── pipeline.py      SurrogatePipeline (run / run_until / resume / status / predict_verified / deploy)
 ├── presets.py       four ready configurations
 ├── figures.py       the optional plots
 └── cli.py           python -m pinneapple.pipeline

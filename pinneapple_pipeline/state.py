@@ -15,10 +15,11 @@ from typing import Any
 
 from .results import STAGE_ORDER, StageRecord
 
-__all__ = ["RunState", "STATE_FILE"]
+__all__ = ["RunState", "STATE_FILE", "CONFIG_FILE"]
 
 
 STATE_FILE = "state.json"
+CONFIG_FILE = "config.json"
 
 
 @dataclass
@@ -75,8 +76,20 @@ class RunState:
 
     # -------------------------------------------------------------------------------------------- resume
     def save(self) -> Path:
-        """Write ``state.json``: the stage table and the artefacts, enough to resume and to report."""
+        """Write ``state.json``: the stage table and the artefacts, enough to resume and to report.
+
+        The configuration is written next to it as ``config.json`` (once per run, or again when it changes), so the
+        folder is self-describing: ``pp.SurrogatePipeline.from_run(folder)`` reloads the run without the YAML it
+        came from.
+        """
         from .results import _jsonable
+        config_path = self.out_dir / CONFIG_FILE
+        try:
+            payload = self.cfg.to_dict()
+            if not config_path.is_file() or json.loads(config_path.read_text(encoding="utf-8")) != payload:
+                config_path.write_text(json.dumps(payload, indent=1, default=str), encoding="utf-8")
+        except Exception:                                          # a config that cannot be written is not fatal
+            pass
         metrics = {}
         for key, value in self.metrics.items():
             if key in ("pinn_report",):                  # a validation report object, rebuilt by re-running

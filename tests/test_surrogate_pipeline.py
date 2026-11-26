@@ -56,8 +56,19 @@ def test_the_configuration_refuses_a_run_it_cannot_do():
     with pytest.raises(ConfigError, match="which preset"):
         SurrogateConfig.from_dict({**MINIMAL, "data": {"source": "simulation"},
                                    "parameters": {"parameters": {"Re": [1, 2]}}})
-    with pytest.raises(ConfigError, match="early_stopping is not implemented"):
-        SurrogateConfig.from_dict({**MINIMAL, "training": {"early_stopping": True}})
+    with pytest.raises(ConfigError, match="check_every"):
+        SurrogateConfig.from_dict({**MINIMAL, "training": {"early_stopping": True, "epochs": 50,
+                                                           "check_every": 50}})
+    with pytest.raises(ConfigError, match="geometry"):
+        SurrogateConfig.from_dict({**MINIMAL, "geometry": {"source": "file", "path": "/tmp/x.obj", "format": "obj"}})
+    with pytest.raises(ConfigError, match="not in the catalogue"):
+        SurrogateConfig.from_dict({**MINIMAL, "materials": {"materials": {"body": "unobtainium"}}})
+    with pytest.raises(ConfigError, match="search_space"):
+        SurrogateConfig.from_dict({**MINIMAL, "optimization": {"enabled": True}})
+    with pytest.raises(ConfigError, match="physics_only"):
+        SurrogateConfig.from_dict({**MINIMAL, "adaptive_learning": {"enabled": True}})
+    with pytest.raises(ConfigError, match="deployment.port"):
+        SurrogateConfig.from_dict({**MINIMAL, "deployment": {"enabled": True, "target": "http", "port": -1}})
     with pytest.raises(ConfigError, match="formulation"):
         SurrogateConfig.from_dict({**MINIMAL, "problem": {"source": "preset", "preset": "burgers_1d",
                                                           "formulation": "weak"}})
@@ -161,7 +172,146 @@ def test_a_failed_gate_blocks_the_run_when_the_policy_says_so(tmp_path):
     assert any("physics" in x for x in result.limitations)
 
 
+# ----------------------------------------------------------------------------------------- the new blocks
+def _cube_stl(path, *, drop_last=True):
+    """A unit cube as a binary STL: 12 triangles, or 11 of them so the surface has open edges."""
+    import struct
+    v = np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]], float)
+    tris = [(0, 2, 1), (0, 3, 2), (4, 5, 6), (4, 6, 7), (0, 1, 5), (0, 5, 4),
+            (1, 2, 6), (1, 6, 5), (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7)]
+    if drop_last:
+        tris = tris[:-1]
+    data = b"\0" * 80 + struct.pack("<I", len(tris))
+    for t in tris:
+        data += struct.pack("<3f", 0, 0, 0)
+        for i in t:
+            data += struct.pack("<3f", *v[i])
+        data += struct.pack("<H", 0)
+    path.write_bytes(data)
+    return path
+
+
+def test_the_geometry_gate_checks_a_surface_instead_of_shrugging(tmp_path):
+    """A closed STL passes with numbers; an open one fails and says how many edges are open."""
+    closed, opened = _cube_stl(tmp_path / "cube.stl", drop_last=False), _cube_stl(tmp_path / "open.stl")
+    for path, expected in ((closed, PASS), (opened, FAIL)):
+        cfg = SurrogateConfig.from_dict({**MINIMAL, "geometry": {"source": "file", "path": str(path), "units": "cm"}})
+        state = _state()
+        state.cfg, state.bundle = cfg, _bundle()
+        gate = V.gate_geometry(state)
+        assert gate.status == expected
+        assert gate.metrics["faces"] == (12 if path is closed else 11)
+        if expected is PASS:
+            assert gate.metrics["watertight"] is True
+            assert gate.metrics["bounding_box_m"] == [0.01, 0.01, 0.01]      # 1 cm, in metres
+        else:
+            assert gate.metrics["open_edges"] > 0 and "not closed" in gate.limitations[0]
+
+
+def test_materials_set_the_problems_own_parameters_with_their_sources():
+    from pinneapple_pipeline import adapters
+    cfg = SurrogateConfig.from_dict({
+        "name": "solid", "data": {"source": "physics_only"},
+        "problem": {"source": "symbolic", "coords": ["x", "y"], "fields": ["u"],
+                    "domain_bounds": {"x": [0, 1], "y": [0, 1]},
+                    "equations": ["lap(u) + conductivity"], "constants": {"conductivity": 1.0},
+                    "conditions": [{"kind": "dirichlet", "on": "boundary", "equation": "u = 0"}]},
+        "materials": {"materials": {"body": "al6061_t6"}}})
+    bundle = adapters.build_problem(cfg)
+    assert bundle.system.coefficients["conductivity"] == 167.0
+    assert any("datasheet" in n for n in bundle.notes)          # the number carries where it was read
+    # a name that only looks like a material property is not touched (nu is viscosity here, not Poisson)
+    assert "nu" not in cfg.materials.targets({"nu"})
+
+
+def test_an_hyperparameter_search_keeps_the_best_trial_and_reports_all(tmp_path):
+    p = SurrogatePipeline.from_preset(
+        "burgers_physics_only", execution={"out_dir": str(tmp_path)},
+        training={"epochs": 60, "n_collocation": 256},
+        optimization={"enabled": True, "strategy": "grid", "search_space": {"lr": [0.002, 0.01]}},
+        export={"enabled": False, "formats": []},
+        verification={"fail_policy": "report"})
+    result = p.run()
+    search = result.metrics["optimization"]
+    assert search["n_trials"] == 2 and len(search["trials"]) == 2
+    assert search["best"]["score"] <= min(t["score"] for t in search["trials"])
+    assert any("hyperparameter search" in n for n in p.state.notes)
+
+
+def test_early_stopping_stops_before_the_budget(tmp_path):
+    """With an impossible improvement demand every check fails, so the run stops at patience x check_every."""
+    p = SurrogatePipeline.from_preset(
+        "burgers_physics_only", execution={"out_dir": str(tmp_path)},
+        training={"epochs": 400, "n_collocation": 256, "early_stopping": True, "check_every": 50,
+                  "patience": 1, "min_delta": 1e9},
+        export={"enabled": False, "formats": []}, verification={"fail_policy": "report"})
+    result = p.run()
+    assert result.metrics["training"]["history_points"] < 400
+    note = " ".join(p.state.notes)
+    assert "early stopping" in note and "stopped at" in note
+
+
+def test_adaptive_learning_adds_cases_and_reports_every_round(tmp_path):
+    p = SurrogatePipeline.from_preset(
+        "burgers_in_viscosity", execution={"out_dir": str(tmp_path)},
+        sampling={"design_sampling": {"method": "lhs", "n_samples": 12},
+                  "validation_sampling": {"test_fraction": 0.25, "val_fraction": 0.12, "shift": "auto"}, "seed": 1},
+        architecture={"family": "ridge", "candidates": []}, training={"budget_seconds": 0.5},
+        adaptive_learning={"enabled": True, "max_rounds": 1, "samples_per_round": 2, "target_error": 1e-9},
+        verification={"mode": "balanced", "fail_policy": "report"})
+    result = p.run()
+    adaptive = result.metrics["adaptive_learning"]
+    assert adaptive["cases_added"] == 2 and adaptive["total_cases"] == 14
+    assert adaptive["rounds"][0]["added"] == 2
+    assert p.state.dataset.n == 14                       # the dataset on disk grew with it
+
+
+def test_the_run_is_served_with_its_own_trust(tmp_path):
+    p = SurrogatePipeline.from_preset(
+        "burgers_in_viscosity", execution={"out_dir": str(tmp_path)},
+        sampling={"design_sampling": {"method": "lhs", "n_samples": 12},
+                  "validation_sampling": {"test_fraction": 0.25, "val_fraction": 0.12, "shift": "auto"}, "seed": 1},
+        architecture={"family": "ridge", "candidates": []}, training={"budget_seconds": 0.5},
+        verification={"mode": "balanced", "fail_policy": "report"})
+    p.run()
+    deployment = p.deploy()
+    inside = p.state.validated_domain["bounds"]["nu"]
+    answer = deployment.predict(nu=0.5 * (inside[0] + inside[1]))
+    assert answer["trust"]["decision"] == "ACCEPT" and answer["outputs"]["u@3"]
+    with pytest.raises(ValueError, match="outside the validated domain"):
+        deployment.predict(nu=inside[1] + 1.0)
+    card = deployment.service.info()["pinneapple"]
+    assert card["inputs"] == ["nu"] and card["validity_range"]["nu"] == inside
+    # the run folder is enough to serve it again, without the object that trained it
+    again = SurrogatePipeline.from_run(tmp_path / "burgers_in_viscosity")
+    assert again.result is not None and again.deploy().service.id == "burgers_in_viscosity"
+
+
+def test_pinneapple_check_is_run_over_the_run_folder_and_feeds_the_gates(tmp_path):
+    p = SurrogatePipeline.from_preset(
+        "burgers_in_viscosity", execution={"out_dir": str(tmp_path)},
+        sampling={"design_sampling": {"method": "lhs", "n_samples": 12},
+                  "validation_sampling": {"test_fraction": 0.25, "val_fraction": 0.12, "shift": "auto"}, "seed": 1},
+        architecture={"family": "ridge", "candidates": []}, training={"budget_seconds": 0.5},
+        verification={"mode": "balanced", "fail_policy": "report"})
+    result = p.run()
+    check = result.metrics["pinneapple_check"]
+    assert check["n_checks"] > 0
+    rules = {o["rule"] for o in check["outcomes"]}
+    assert "PC601" in rules and all(o["passed"] for o in check["outcomes"])
+    folder = tmp_path / "burgers_in_viscosity" / "verification"
+    assert (folder / "pinneapple-check.toml").is_file() and (folder / "predict.py").is_file()
+    assert any("pinneapple check agrees" in x for x in result.gate("applicability").evidence)
+
+
+
 # ------------------------------------------------------------------------------------------------------- gates
+def _bundle():
+    """The problem of ``MINIMAL`` as the problem stage would build it (for the gates that need one)."""
+    from pinneapple_pipeline import adapters
+    return adapters.build_problem(SurrogateConfig.from_dict(MINIMAL))
+
+
 def _state(**kwargs):
     class _S:
         pass

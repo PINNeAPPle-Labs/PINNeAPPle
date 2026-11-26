@@ -91,6 +91,14 @@ class VerificationResult:
         lines += [f"  - next: {x}" for x in self.recommendations]
         return "\n".join(lines)
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> VerificationResult:
+        """A gate result read back from ``report.json`` (``pp.SurrogatePipeline.from_run``)."""
+        return cls(gate=str(data.get("gate", "")), status=str(data.get("status", NOT_EVALUATED)),
+                   metrics=dict(data.get("metrics") or {}), thresholds=dict(data.get("thresholds") or {}),
+                   evidence=list(data.get("evidence") or []), limitations=list(data.get("limitations") or []),
+                   recommendations=list(data.get("recommendations") or []))
+
 
 @dataclass
 class StageRecord:
@@ -173,6 +181,25 @@ class PipelineResult:
             from pathlib import Path
             Path(path).write_text(text, encoding="utf-8")
         return text
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> PipelineResult:
+        """A run read back from ``report.json``: the gates, the metrics and the domain, without re-running."""
+        return cls(
+            run_id=str(data.get("run_id", "")), name=str(data.get("name", "")),
+            status=str(data.get("status", "pending")), problem=data.get("problem"),
+            metrics=dict(data.get("metrics") or {}), benchmarks=dict(data.get("benchmarks") or {}),
+            verification=[VerificationResult.from_dict(g) for g in data.get("verification") or []],
+            validated_domain=dict(data.get("validated_domain") or {}),
+            uncertainty=dict(data.get("uncertainty") or {}),
+            stages=[StageRecord(stage=str(s.get("stage", "")), status=str(s.get("status", "pending")),
+                                seconds=float(s.get("seconds") or 0.0), artifacts=dict(s.get("artifacts") or {}),
+                                notes=list(s.get("notes") or []), error=str(s.get("error", "")))
+                    for s in data.get("stages") or []],
+            artifacts=dict(data.get("artifacts") or {}),
+            recommendations=list(data.get("recommendations") or []),
+            limitations=list(data.get("limitations") or []),
+            execution_time=float(data.get("execution_time") or 0.0), created=str(data.get("created", "")))
 
     def to_markdown(self) -> str:
         """The run as the page an engineer files: what ran, what it measured, where it stops being valid."""

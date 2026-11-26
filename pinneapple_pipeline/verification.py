@@ -52,6 +52,40 @@ def _finite(*values) -> bool:
     return all(v is not None and np.all(np.isfinite(np.asarray(v, dtype=float))) for v in values)
 
 
+# ----------------------------------------------------------------------------------------------- second opinion
+def check_evidence(r: VerificationResult, state, prefixes: tuple[str, ...]) -> bool:
+    """Fold ``pinneapple check``'s outcomes of these families into a gate.
+
+    The checker is an independent implementation that loads the trained model through a plain array function, so
+    what it says is not downstream of anything this pipeline computed. Its errors become the gate's ``FAIL``, its
+    warnings a ``WARN``, and its passes an evidence line naming the rules. Returns whether it had anything to say,
+    so the caller keeps its own measurement — and the report says which one it is quoting — when it did not.
+    """
+    from . import checks as _checks
+
+    check = (state.metrics or {}).get("pinneapple_check")
+    rows = _checks.outcomes_for(check, prefixes)
+    if not rows:
+        return False
+    failed = [o for o in rows if not o["passed"]]
+    r.metrics["check_outcomes"] = len(rows)
+    if not failed:
+        rules = ", ".join(sorted({str(o["rule"]) for o in rows}))
+        r.note(f"pinneapple check agrees on {len(rows)} outcome(s) ({rules}): "
+               + "; ".join(str(o["message"]) for o in rows[:2]))
+        return True
+    errors = [o for o in failed if o["severity"] == "error"]
+    worst = (errors or failed)[0]
+    if errors:
+        r.fail(f"pinneapple check {worst['rule']} ({worst['subject']}): {worst['message']}",
+               recommendation="the checker's own report is in the run folder: fix what it names before using the "
+                              "model")
+    else:
+        r.warn(f"pinneapple check {worst['rule']} ({worst['subject']}): {worst['message']}",
+               recommendation="a warning, not a blocker: the model is usable within the limitation stated")
+    return True
+
+
 # ----------------------------------------------------------------------------------------------------- problem
 def gate_problem(state) -> VerificationResult:
     cfg, bundle = state.cfg, state.bundle
@@ -88,6 +122,10 @@ def gate_problem(state) -> VerificationResult:
 
 # ---------------------------------------------------------------------------------------------------- geometry
 def gate_geometry(state) -> VerificationResult:
+    cfg = state.cfg
+    g = getattr(cfg, "geometry", None)
+    if g is not None and g.source == "file":
+        return _gate_geometry_file(state, g)
     geometry = getattr(state.bundle.problem, "geometry", None)
     if geometry is None:
         return VerificationResult("geometry", NOT_APPLICABLE,
@@ -96,7 +134,65 @@ def gate_geometry(state) -> VerificationResult:
     r = VerificationResult("geometry", NOT_EVALUATED)
     r.metrics["geometry_kind"] = getattr(state.bundle.problem, "geometry_kind", type(geometry).__name__)
     r.warn("the pipeline does not verify geometry integrity (manifoldness, watertightness, units) for this run",
-           recommendation="run pinneapple_design.geometry checks on the geometry, or pinneapple check on the case")
+           recommendation="declare the surface under geometry: {source: file, path: ...} and the gate checks it, "
+                          "or run pinneapple_design.geometry checks on the geometry yourself")
+    return r
+
+
+def _gate_geometry_file(state, g) -> VerificationResult:
+    """The surface of ``geometry.path``: is it closed, manifold, clean, and in the units the run assumes?"""
+    from pathlib import Path
+
+    r = VerificationResult("geometry", NOT_EVALUATED)
+    path = Path(g.path)
+    r.metrics["source"] = str(path)
+    r.metrics["units"] = g.units
+    if not path.is_file():
+        r.limitations.append(f"geometry.path {path} does not exist")
+        return r
+    try:
+        from pinneapple_data.cae.io import read_stl
+        from pinneapple_data.cae.quality import surface_checks
+        mesh = read_stl(path.read_bytes())
+        quality = surface_checks(mesh)
+    except Exception as exc:
+        r.limitations.append(f"the surface could not be read or checked: {type(exc).__name__}: {exc}")
+        return r
+    if not quality:
+        r.limitations.append(f"{path.name} has no surface (dim == 2) blocks to check")
+        return r
+    points = np.asarray(mesh.points, dtype=float) * float(g.length_scale)
+    lo, hi = points.min(axis=0), points.max(axis=0)
+    r.metrics.update({k: v for k, v in quality.items() if k != "shell_of_face"})
+    r.metrics["bounding_box_m"] = [round(float(v), 6) for v in (hi - lo)]
+    r.metrics["bbox_min_m"] = [round(float(v), 6) for v in lo]
+    r.note(f"{path.name}: {quality['faces']} faces, bounding box "
+           f"{' x '.join(f'{v:.4g}' for v in (hi - lo))} m, area {quality['area'] * g.length_scale ** 2:.4g} m2")
+    if quality.get("open_edges") or quality.get("nonmanifold_edges"):
+        r.fail(f"the surface is not closed: {quality['open_edges']} open edge(s) and "
+               f"{quality['nonmanifold_edges']} non-manifold edge(s)",
+               recommendation="a surface that does not bound a volume cannot be meshed or solved: close it in the "
+                              "CAD tool (or run pinneapple_design.geometry's repair) and re-run")
+        return r
+    if not quality.get("watertight"):
+        r.fail("the surface reports itself as not watertight", recommendation="check the surface's shell components")
+        return r
+    volume = quality.get("enclosed_volume")
+    if volume is not None and np.isfinite(volume) and volume <= 0:
+        r.fail(f"the enclosed volume is {volume * g.length_scale ** 3:.4g} m3: the faces are oriented inwards",
+               recommendation="flip the surface normals: a negative volume means the inside is outside")
+        return r
+    r.status = PASS
+    r.note(f"watertight, manifold, {quality.get('shells', 1)} shell(s), enclosed volume "
+           f"{(volume or 0.0) * g.length_scale ** 3:.4g} m3")
+    if quality.get("inconsistent_orientation_edges"):
+        r.warn(f"{quality['inconsistent_orientation_edges']} edge(s) are shared by two faces wound the same way",
+               recommendation="the volume is still positive, but a mesher will re-orient the faces: fix the winding")
+    if quality.get("degenerate_faces") or quality.get("duplicate_faces"):
+        r.warn(f"{quality.get('degenerate_faces', 0)} degenerate and {quality.get('duplicate_faces', 0)} duplicate "
+               "face(s): they are removed by the mesher, and they make the area and volume estimates optimistic")
+    for region in g.regions:
+        r.note(f"region {region!r} declared; this pipeline checks the whole surface, not its patches")
     return r
 
 
@@ -312,6 +408,29 @@ def gate_model(state) -> VerificationResult:
             r.limitations.append("no candidate produced a held-out score")
         return r
     metrics = state.metrics or {}
+    report = metrics.get("pinn_report")
+    if report is not None:                                   # symbolic backend
+        checks = {c["id"]: c for c in report.checks}
+        exact = checks.get("pinn.exact")
+        r.metrics["checks"] = {k: v.get("value") for k, v in checks.items()
+                               if k in ("pinn.exact", "pinn.spectrum")}
+        if exact is None or exact.get("status") == "not-applicable":
+            r.limitations.append("no exact solution is declared for this problem, so the model has nothing to be "
+                                 "measured against")
+            r.recommendations.append("declare the solution the problem should have "
+                                     "(problem.exact_expression in a symbolic problem) and the error against it "
+                                     "becomes this gate's evidence")
+            return r
+        target = _accept(cfg, "relative_l2")
+        value = float(exact.get("value") or float("nan"))
+        r.thresholds = {"relative_l2": target}
+        r.metrics["relative_l2"] = value
+        r.status = PASS if np.isfinite(value) and value <= target else FAIL
+        r.note(f"relative error against the exact solution: {value:.3g} (validate_pinn's pinn.exact)")
+        if r.status == FAIL:
+            r.recommendations.append(f"the model misses the {target:.3g} criterion against the exact solution: train "
+                                     "longer (training.epochs/lbfgs_steps) or enlarge the network")
+        return r
     if "relative_l2" in metrics:
         target = _accept(cfg, "relative_l2")
         value = float(metrics["relative_l2"])
@@ -369,6 +488,7 @@ def gate_physics(state) -> VerificationResult:
             r.limitations.append("failing checks: " + "; ".join(report.failure_modes))
             r.recommendations.append("see the failing check's summary: it names the term (boundary, initial, residual "
                                      "or a trivial solution) that has to be fixed first")
+        check_evidence(r, state, ("PC1", "PC2", "PC3"))
         return r
 
     physics = state.metrics.get("physics") or {}
@@ -410,6 +530,7 @@ def gate_physics(state) -> VerificationResult:
         r.note(f"absolute PDE residual RMS {residual:.3g} (no scale to normalise it: reported, not gated)")
         r.limitations.append("the residual has no non-dimensional reference for this problem, so it was not "
                              "compared against the acceptance threshold")
+    check_evidence(r, state, ("PC1", "PC2", "PC3"))
     return r
 
 
@@ -422,9 +543,11 @@ def gate_applicability(state) -> VerificationResult:
         r.status = NOT_APPLICABLE
         r.evidence.append("a physics-only model is not restricted to a parameter space: it is a solution of one "
                           "problem, and its validity is the physics gate's business")
+        check_evidence(r, state, ("PC6",))
         return r
     if not domain:
         r.limitations.append("no validated domain was built")
+        check_evidence(r, state, ("PC6",))
         return r
     r.status = PASS
     r.metrics.update({f"{k}": v for k, v in domain.items() if isinstance(v, (int, float, str))})
@@ -438,6 +561,7 @@ def gate_applicability(state) -> VerificationResult:
                                  "cases at the boundary of the parameter space")
     if domain.get("ood_rule"):
         r.note(f"out-of-distribution rule: {domain['ood_rule']}")
+    check_evidence(r, state, ("PC6",))
     return r
 
 
@@ -480,6 +604,7 @@ def gate_export(state) -> VerificationResult:
     elif r.status == NOT_EVALUATED:
         r.status = WARN
         r.limitations.append("export verification is off: the exported file was not compared against the model")
+    check_evidence(r, state, ("PC8",))
     return r
 
 

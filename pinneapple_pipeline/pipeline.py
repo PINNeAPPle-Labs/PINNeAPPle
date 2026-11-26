@@ -113,6 +113,43 @@ class SurrogatePipeline:
         """A pipeline from the YAML (or JSON) file a previous ``save`` wrote."""
         return cls.from_yaml(path)
 
+    @classmethod
+    def from_run(cls, run_dir: str | Path) -> SurrogatePipeline:
+        """The pipeline of a finished run folder, with the model reloaded and the gates of that run.
+
+        The folder is self-describing: ``config.json`` (written by every run) is the configuration, ``state.json``
+        the metrics and the validated domain, ``report.json`` the gates, and the export stage the model itself. What
+        comes back answers ``predict``/``predict_verified`` and ``deploy`` with the same numbers the run reported,
+        on any machine that has the folder — this is what ``verification/predict.py`` calls, so the checker loads
+        the artefact rather than a fresh pipeline.
+        """
+        import json
+
+        from .state import CONFIG_FILE, STATE_FILE
+
+        folder = Path(run_dir)
+        config_file = folder / CONFIG_FILE
+        if not config_file.is_file():
+            raise ConfigError(f"{folder} is not a run folder: {CONFIG_FILE} is missing (was the run written by "
+                              "run()? it is written with the state)")
+        cfg = SurrogateConfig.from_dict(json.loads(config_file.read_text(encoding="utf-8")))
+        cfg.execution.out_dir = str(folder.parent)
+        cfg.name = folder.name
+        pipeline = cls(cfg)
+        state = pipeline._prepare_state(resume=(folder / STATE_FILE).is_file())
+        state.model = state.model_object
+        pipeline.state = state
+        report = folder / "report.json"
+        if report.is_file():
+            from .results import PipelineResult
+            pipeline.result = PipelineResult.from_dict(json.loads(report.read_text(encoding="utf-8")))
+            state.verification = list(pipeline.result.verification)
+            for key, value in (pipeline.result.metrics or {}).items():
+                state.metrics.setdefault(key, value)
+            if pipeline.result.validated_domain and not state.validated_domain:
+                state.validated_domain = dict(pipeline.result.validated_domain)
+        return pipeline
+
     def register_stage(self, stage: PipelineStage, *, replace: bool = True) -> SurrogatePipeline:
         """Add (or replace) a stage, identified by its ``name``; it runs in :data:`results.STAGE_ORDER` position."""
         if not stage.name:
@@ -333,7 +370,14 @@ class SurrogatePipeline:
                     return SurrogateModel.load(directory)
                 except Exception:
                     return None
-        return None
+        from . import adapters
+        bundle = self._rebuild_bundle()
+        if bundle is None:
+            return None
+        try:
+            return adapters.reload_physics_model(self.config, bundle, out)
+        except Exception:                                       # a checkpoint that will not load is reported
+            return None
 
     def _reload_dataset(self, out: Path):
         """The dataset of a previous run, rebuilt from ``data/dataset.npz``."""
@@ -482,6 +526,27 @@ class SurrogatePipeline:
         return {"outputs": {f: float(y[0, i]) for i, f in enumerate(self.state.bundle.fields)},
                 "query": {c: float(point[0, i]) for i, c in enumerate(coords)}}
 
+    def predict_array(self, X: Any) -> Any:
+        """The model as an array function: ``(N, n_inputs) -> (N, n_outputs)``.
+
+        This is the surface every external consumer uses — the checker's ``predict.py`` wrapper, an ONNX parity
+        test, a colleague's script — because it needs no names and no knowledge of which backend trained the model.
+        The column order is the one the run declared: ``data.inputs``/``data.outputs`` for a parametric surrogate,
+        the coordinates and fields for a physics-only model.
+        """
+        return predict_array_with(self.state, X)
+
+    def deploy(self, *, target: str | None = None, host: str | None = None, port: int | None = None,
+               api_key: str | None = None):
+        """Serve the trained model as a ``pinneapple_tools.model_services`` service, with this run's trust.
+
+        ``deployment.target="local"`` returns the service and the registry; ``"http"`` also starts the server on a
+        background thread (``.url``, ``.stop()``). The trust function enforces the validated domain and reports the
+        gates of the run, so the endpoint answers with the same verdict ``predict_verified`` gives.
+        """
+        from .deploy import deploy as _deploy
+        return _deploy(self, target=target, host=host, port=port, api_key=api_key)
+
     def predict_verified(self, **inputs: Any) -> dict[str, Any]:
         """``predict`` plus the VeriPhysics decision for that query: inside the validated domain, and the status of
         the gates that license using the model at all."""
@@ -497,6 +562,31 @@ class SurrogatePipeline:
                 + (["the query is outside the validated domain"] if outside else []),
                 "validated_domain": self.result.validated_domain,
                 "gates": {g.gate: g.status for g in self.result.verification}}
+
+
+def predict_array_with(state, X: Any) -> Any:
+    """``(N, n_inputs) -> (N, n_outputs)`` with the model of a :class:`~pinneapple_pipeline.state.RunState`.
+
+    Module level because ``verification/predict.py`` (what ``pinneapple check`` loads) and a live pipeline must
+    answer with the same code path, whether the model came from this process or was reloaded from the folder.
+    """
+    import numpy as np
+
+    model = (state.model_object if state is not None else None)
+    if model is None:
+        raise RuntimeError("no trained model: call run() first (or from_run() on a finished run folder)")
+    X = np.atleast_2d(np.asarray(X, dtype=float))
+    if hasattr(model, "input_names"):                           # a surrogate study's model
+        if X.shape[1] != len(model.input_names):
+            raise ValueError(f"the model takes {len(model.input_names)} input(s) {list(model.input_names)}, got "
+                             f"{X.shape[1]} column(s)")
+        Y = np.asarray(model.predict_array(X), dtype=float)
+    else:                                                       # a physics-only model: fields at points
+        coords = list(state.bundle.coords)
+        if X.shape[1] != len(coords):
+            raise ValueError(f"the model takes {len(coords)} coordinate(s) {coords}, got {X.shape[1]} column(s)")
+        Y = np.asarray(model.predict(X), dtype=float)
+    return Y.reshape(len(X), -1)
 
 
 _DOES = {

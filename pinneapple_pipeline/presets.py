@@ -68,6 +68,7 @@ PRESETS: dict[str, dict[str, Any]] = {
                 {"kind": "initial", "on": "t_min", "equation": "u = sin(pi*x) * sin(pi*y)"},
                 {"kind": "dirichlet", "on": "boundary", "equation": "u = 0"},
             ],
+            "exact_expression": "sin(pi*x) * sin(pi*y) * exp(-2*pi*pi*alpha*t)",
         },
         "data": {"source": "physics_only"},
         "architecture": {"family": "pinn_problem_mlp"},

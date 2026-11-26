@@ -292,7 +292,12 @@ class TrainingStage(PipelineStage):
     # ---- physics-only
     def _physics(self, state, bundle, t0: float) -> dict[str, Any]:
         cfg = state.cfg
-        solution = adapters.train_physics_model(cfg, bundle)
+        seen = len(bundle.notes)
+        if cfg.optimization.enabled:
+            solution = self._physics_hpo(state, bundle)
+        else:
+            solution = adapters.train_physics_model(cfg, bundle)
+        state.notes.extend(bundle.notes[seen:])          # what training itself had to say (early stopping, ...)
         state.model = state.model_object = solution
         history = dict(getattr(solution, "history", {}) or {})
         state.metrics["training"] = {"seconds": round(time.perf_counter() - t0, 3),
@@ -317,6 +322,86 @@ class TrainingStage(PipelineStage):
         out.update(saved)
         state.metrics["training"]["total_seconds"] = round(time.perf_counter() - t0, 3)
         return out
+
+    def _physics_hpo(self, state, bundle):
+        """Train one model per point of ``optimization.search_space`` and keep the one that scores best on
+        validation points, then report every trial.
+
+        The objective is a held-out error: the relative L2 against the reference solution at points the training
+        never used, or — when the run has no reference — the physics residual at fresh points. The points the
+        ``model`` gate later reports on are drawn again with another seed, so the reported error is not the number
+        the selection was made on.
+        """
+        import dataclasses
+
+        from pinneapple_neural.trainer import SweepConfig, run_parallel_sweep
+
+        cfg = state.cfg
+        trials = cfg.optimization.grid()
+        known = {f.name for f in dataclasses.fields(cfg.training)}
+        unknown = sorted({k for t in trials for k in t} - known)
+        if unknown:
+            raise StageError(f"optimization.search_space names {unknown}, which the training block does not have; it "
+                             f"takes {sorted(known)}")
+        n_val = int(cfg.verification.validation_queries)
+        rng = np.random.default_rng(int(cfg.sampling.seed) + 4242)
+        coords, bounds = bundle.coords, bundle.domains
+        points = np.stack([rng.uniform(*bounds[c], size=n_val) for c in coords], axis=1)
+        reference = None
+        if bundle.backend == "solve":
+            import pinneapple as pp
+            try:
+                reference = pp.solve(bundle.problem, method=cfg.solver.method, **dict(cfg.solver.options))
+            except Exception as exc:
+                state.notes.append(f"optimization: no reference to score the trials against "
+                                   f"({type(exc).__name__}: {exc}); the physics residual is the objective")
+
+        def objective(solution) -> float:
+            if reference is not None:
+                import pinneapple as pp
+                row = pp.compare(bundle.problem, methods=[solution], reference=reference, points=points).rows[0]
+                if row.get("status") == "ok":
+                    return float(np.mean(list(row["metrics"]["relative_l2"].values())))
+            terms, _ = adapters.physics_terms(cfg, bundle, solution)
+            return float(np.sqrt(terms.get("pde", np.nan)))
+
+        def run_trial(params: dict[str, Any]) -> dict[str, Any]:
+            trial_cfg = dataclasses.replace(cfg, training=dataclasses.replace(cfg.training, **params))
+            t0 = time.perf_counter()
+            try:
+                solution = adapters.train_physics_model(trial_cfg, bundle)
+                score = objective(solution)
+            except Exception as exc:                       # one bad trial must not stop the search
+                return {**params, "score": float("inf"), "error": f"{type(exc).__name__}: {exc}",
+                        "seconds": round(time.perf_counter() - t0, 3)}
+            return {**params, "score": score, "seconds": round(time.perf_counter() - t0, 3)}
+
+        # the models cannot cross a process boundary, so the trials run in this process; n_jobs>1 uses threads
+        results: list[dict[str, Any]] = []
+        if int(cfg.optimization.n_jobs) > 1 and len(trials) > 1:
+            grid = {name: sorted({t[name] for t in trials}) for name in trials[0]} \
+                if len({tuple(sorted(t)) for t in trials}) == 1 else None
+            if grid is not None:
+                results = sorted(run_parallel_sweep(run_trial, SweepConfig(
+                    param_grid=grid, n_jobs=int(cfg.optimization.n_jobs), backend="thread")),
+                    key=lambda r: r["score"])
+        if not results:
+            results = sorted((run_trial(t) for t in trials), key=lambda r: r["score"])
+        best = results[0]
+        if not np.isfinite(best.get("score", float("inf"))):
+            raise StageError(f"every trial of the hyperparameter search failed: "
+                             f"{best.get('error') or 'no score'}")
+        params = {k: v for k, v in best.items() if k not in ("score", "seconds", "error")}
+        state.metrics["optimization"] = {
+            "objective": "relative_l2 on validation points" if reference is not None
+            else "physics residual at fresh points",
+            "n_trials": len(results), "strategy": cfg.optimization.strategy, "n_jobs": int(cfg.optimization.n_jobs),
+            "best": {**params, "score": best["score"]}, "trials": results}
+        state.notes.append(f"hyperparameter search: {len(results)} trial(s), best {best['score']:.4g} with {params} "
+                           "(chosen on validation points, not on the ones the model gate reports)")
+        # trained once more with the winning settings: the trial's own model is not carried across
+        return adapters.train_physics_model(
+            dataclasses.replace(cfg, training=dataclasses.replace(cfg.training, **params)), bundle)
 
     def _score_against_reference(self, state, solution) -> dict[str, Any]:
         cfg = state.cfg
@@ -367,6 +452,8 @@ class TrainingStage(PipelineStage):
         methods = "auto" if list(candidates) == ["auto"] else candidates
         seeds = int(cfg.uncertainty.n_models) if cfg.uncertainty.enabled else 1
         study = adapters.run_surrogate_study(cfg, state.dataset, methods=methods, seeds=seeds)
+        if cfg.adaptive_learning.enabled:
+            study = self._adaptive(state, study, methods=methods, seeds=seeds)
         state.model, state.model_object = study, study.model
         state.metrics["training"] = {"seconds": round(time.perf_counter() - t0, 3), "seeds": seeds,
                                      "best": study.best, "budget_seconds": cfg.training.budget_seconds}
@@ -394,6 +481,90 @@ class TrainingStage(PipelineStage):
         state.metrics["training"]["total_seconds"] = round(time.perf_counter() - t0, 3)
         return out
 
+    # ---- adaptive learning
+    def _adaptive(self, state, study, *, methods, seeds):
+        """Solve more cases where the response varies most, retrain, and stop on the target or the budget.
+
+        Each round asks ``doe.design(method="infill")`` for points that fill the gaps left by the cases already
+        solved — the library's greedy maximin, weighted by where the outputs change fastest between neighbours when
+        ``outputs`` is given — solves them with the reference solver, appends them to the dataset and repeats the
+        study. The loop ends when the best candidate's held-out error is at or below the target
+        (``adaptive_learning.target_error``, else the run's own acceptance criterion), when ``max_rounds`` is
+        reached, or when another round would pass ``max_total_simulations``.
+
+        What it is not: an active-learning criterion driven by the model's own predictive variance. The library's
+        infill is geometry-and-output based, so a round can add cases the current model already handles; the report
+        shows the error per round, so a flat curve is visible rather than assumed away.
+        """
+        cfg = state.cfg
+        al = cfg.adaptive_learning
+        import pandas as pd
+
+        from pinneapple_analysis import surrogate as _surrogate
+        from pinneapple_data.doe import design
+
+        space = cfg.parameters.to_space()
+        X = np.asarray(state.dataset.X, dtype=float)
+        Y = np.asarray(state.dataset.Y, dtype=float)
+        names = list(state.dataset.input_names)
+        outputs = list(state.dataset.output_names)
+        metric = "relative_l2" if state.dataset.kind == "field" else "nrmse"
+        target = float(al.target_error) if al.target_error is not None else float(
+            cfg.verification.threshold(metric, 0.05 if metric == "relative_l2" else 0.10))
+        rounds: list[dict[str, Any]] = []
+        error = _study_error(study)
+        solved, added_total = int(len(X)), 0
+        for r in range(1, int(al.max_rounds) + 1):
+            if error is not None and error <= target:
+                rounds.append({"round": r, "skipped": f"the error {error:.4g} already meets the target {target:.4g}"})
+                break
+            if solved + int(al.samples_per_round) > int(al.max_total_simulations):
+                rounds.append({"round": r, "skipped": f"another {al.samples_per_round} case(s) would pass "
+                                                      f"max_total_simulations ({al.max_total_simulations})"})
+                break
+            existing = {n: X[:, i] for i, n in enumerate(names)}
+            for j, name in enumerate(outputs[:1]):                # the infill weighting needs an output column
+                existing[name] = Y[:, j]
+            new = design(space, int(al.samples_per_round), method="infill", seed=int(cfg.sampling.seed) + r,
+                         existing=pd.DataFrame(existing), outputs=outputs[:1]).cases
+            rows, cases, failures = [], [], []
+            for _, row in new.iterrows():
+                case = row.to_dict()
+                try:
+                    solution = adapters.solve_reference(cfg, state.bundle, case)
+                except Exception as exc:
+                    failures.append(f"{type(exc).__name__}: {exc}")
+                    continue
+                rows.append(adapters.solution_row(solution, state.points))
+                cases.append(case)
+            if not rows:
+                rounds.append({"round": r, "error_before": error, "added": 0, "failures": failures[:3],
+                               "stopped": "no new case could be solved"})
+                break
+            X = np.vstack([X, np.asarray([[float(dict(c)[n]) for n in names] for c in cases], dtype=float)])
+            Y = np.vstack([Y, np.asarray(rows, dtype=float)])
+            solved, added_total = int(len(X)), added_total + len(rows)
+            data = _surrogate.from_arrays({"X": X, "Y": Y}, input_names=names, output_names=outputs,
+                                          meta=dict(state.dataset.meta))
+            state.dataset = data
+            np.savez(state.path("data", "dataset.npz"), X=X, Y=Y, input_names=np.asarray(names, dtype=object),
+                     output_names=np.asarray(outputs, dtype=object), probe_points=state.points,
+                     cases=np.asarray([json.dumps(dict(c)) for c in cases], dtype=object))
+            study = adapters.run_surrogate_study(cfg, data, methods=methods, seeds=seeds)
+            before, error = error, _study_error(study)
+            rounds.append({"round": r, "error_before": before, "error_after": error, "added": len(rows),
+                           "total_cases": solved, "failures": failures[:3]})
+        state.metrics["adaptive_learning"] = {
+            "strategy": al.strategy, "metric": metric, "target": target, "final_error": error, "rounds": rounds,
+            "cases_added": added_total, "total_cases": solved,
+            "reached_target": bool(error is not None and error <= target),
+            "criterion": "doe.design(method='infill'): the points farthest from the cases already solved, weighted "
+                         "by where the outputs vary most among neighbours"}
+        state.notes.append(f"adaptive learning: {added_total} case(s) added over "
+                           f"{len([r for r in rounds if r.get('added')])} round(s); {metric} "
+                           f"{'n/a' if error is None else round(error, 4)} against a target of {target}")
+        return study
+
     def verify(self, state, artifacts) -> list[str]:
         training = state.metrics.get("training") or {}
         notes = [f"trained in {training.get('total_seconds', training.get('seconds', 0)):.1f} s"]
@@ -410,6 +581,20 @@ def _last(seq) -> float | None:
         return None
     try:
         return float(seq[-1])
+    except (TypeError, ValueError):
+        return None
+
+
+def _study_error(study) -> float | None:
+    """The held-out error of the study's best candidate (the same number the ``model`` gate reads)."""
+    try:
+        ranking = study.ranking("test")
+    except Exception:
+        return None
+    if not ranking:
+        return None
+    try:
+        return float(ranking[0]["error"])
     except (TypeError, ValueError):
         return None
 
@@ -451,10 +636,22 @@ def _save_physics_model(state, solution) -> dict[str, Any]:
     dir_ = state.path("model", "physics")
     dir_.mkdir(parents=True, exist_ok=True)
     torch.save({"state_dict": net.state_dict(), "class_name": type(net).__name__}, dir_ / "model.pt")
+    arch = state.cfg.architecture
     recipe = {"class_name": type(net).__name__, "info": dict(getattr(solution, "info", {}) or {}),
-              "coords": list(state.bundle.coords), "fields": list(state.bundle.fields)}
+              "coords": list(state.bundle.coords), "fields": list(state.bundle.fields),
+              "backend": state.bundle.backend,
+              # enough to rebuild the module before the weights go back in (``from_run``/``resume``)
+              "architecture": (arch.candidates[0] if arch.is_auto else arch.family),
+              "hidden_dim": state.cfg.training.hidden_dim, "n_layers": state.cfg.training.n_layers,
+              "history": _short_history(getattr(solution, "history", None))}
     (dir_ / "model.json").write_text(json.dumps(recipe, indent=1, default=str), encoding="utf-8")
     return {"model": str(dir_ / "model.pt"), "model_card": str(dir_ / "model.json")}
+
+
+def _short_history(history) -> list[float]:
+    """Every 20th loss value: enough to draw the curve, small enough to keep in a JSON card."""
+    loss = list((history or {}).get("loss") or [])
+    return [round(float(v), 8) for v in loss[::20]] if loss else []
 
 
 def _validated_domain(state, study) -> dict[str, Any]:
@@ -588,14 +785,33 @@ class VerificationStage(PipelineStage):
         return "" if state.cfg.verification.enabled else "verification.enabled is false"
 
     def execute(self, state) -> dict[str, Any]:
+        from . import checks
         from .verification import run_gates
+        v = state.cfg.verification
+        if v.run_checks and state.model_object is not None:
+            result = checks.run_check(state, physics=v.check_physics, n_queries=int(v.check_queries))
+            if result is None:
+                state.metrics["pinneapple_check"] = {"error": "the model has no named inputs/outputs to declare as a "
+                                                              "check target", "outcomes": []}
+            else:
+                state.metrics["pinneapple_check"] = result
         state.metrics["inference_query"], state.metrics["inference_prediction"], state.metrics["inference_ood"] = \
             _sample_query(state)
         state.verification = run_gates(state)
-        return {"gates": {g.gate: g.status for g in state.verification}}
+        out: dict[str, Any] = {"gates": {g.gate: g.status for g in state.verification}}
+        check = state.metrics.get("pinneapple_check") or {}
+        if check.get("report"):
+            out["pinneapple_check"] = check["report"]
+        return out
 
     def verify(self, state, artifacts) -> list[str]:
-        return [f"{g.gate}={g.status}" for g in state.verification]
+        notes = [f"{g.gate}={g.status}" for g in state.verification]
+        check = state.metrics.get("pinneapple_check") or {}
+        if check.get("n_checks"):
+            notes.append(f"pinneapple check: {check['n_checks']} outcome(s), {check.get('n_failed', 0)} not holding")
+        elif check.get("error"):
+            notes.append(f"pinneapple check did not run: {check['error']}")
+        return notes
 
 
 def _sample_query(state):

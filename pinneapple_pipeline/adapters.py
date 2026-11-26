@@ -17,8 +17,8 @@ from typing import Any
 import numpy as np
 
 __all__ = ["ProblemBundle", "build_problem", "problem_description", "design_cases", "probe_points", "solve_reference",
-           "solution_row", "train_physics_model", "run_surrogate_study", "residual_batch", "physics_terms",
-           "export_model", "predict_frame"]
+           "solution_row", "train_physics_model", "train_pinn_with_early_stopping", "reload_physics_model",
+           "run_surrogate_study", "residual_batch", "physics_terms", "export_model", "predict_frame"]
 
 
 # ------------------------------------------------------------------------------------------------------- problem
@@ -78,15 +78,38 @@ def build_problem(cfg) -> ProblemBundle:
     elif pc.source == "symbolic":
         from pinneapple_physics.symbolic_pde.pinn import pinn_problem
         from pinneapple_physics.symbolic_pde.text import parse_system
+        constants = dict(pc.constants)
+        material_notes: list[str] = []
+        materials = getattr(cfg, "materials", None)
+        if materials is not None and materials.materials:
+            for name, v in materials.targets(set(constants)).items():
+                constants[name] = float(v["value"])
+                material_notes.append(f"material {v['body']}: {name} = {v['value']:.6g} ({v['property']}; "
+                                      f"{v['source']})")
         system = parse_system(list(pc.equations), list(pc.conditions), coords=list(pc.coords),
-                              fields=list(pc.fields), coefficients=dict(pc.constants))
+                              fields=list(pc.fields), coefficients=constants)
         issues = system.issues()
         if issues:
             raise ValueError("the symbolic problem is incomplete:\n  - " + "\n  - ".join(issues))
-        pinn, net = pinn_problem(system, {c: tuple(pc.domain_bounds[c]) for c in pc.coords})
+        exact = None
+        if pc.exact is not None:
+            if not callable(pc.exact):
+                raise ValueError("problem.exact must be a callable X -> (n, n_fields)")
+            exact = pc.exact
+        elif pc.exact_expression:
+            from .configs import _expression_fn
+            exact = _expression_fn(pc.exact_expression, list(pc.coords), constants)
+        pinn, net = pinn_problem(system, {c: tuple(pc.domain_bounds[c]) for c in pc.coords}, exact=exact)
+        if exact is not None:
+            bundle_notes = "an exact solution is declared: the model gate measures the error against it"
+        else:
+            bundle_notes = ""
         bundle = ProblemBundle("symbolic", system=system, pinn_problem=pinn, pinn_model=net)
+        if bundle_notes:
+            bundle.notes.append(bundle_notes)
         bundle.notes.append(f"symbolic system: {len(system.pdes)} PDE(s), {len(system.conditions)} condition(s), "
                             f"coefficients {dict(system.coefficients)}")
+        bundle.notes.extend(material_notes)
     else:                                                          # pragma: no cover - validated in the config
         raise ValueError(f"unknown problem source {pc.source!r}")
 
@@ -99,7 +122,25 @@ def build_problem(cfg) -> ProblemBundle:
         bundle.problem = dataclasses.replace(bundle.problem, conditions=tuple(bundle.problem.conditions) + extra)
         bundle.notes.append(f"added {len(extra)} condition(s) from the configuration: "
                             f"{[c.name for c in extra]}")
+    _apply_materials(cfg, bundle)
     return bundle
+
+
+def _apply_materials(cfg, bundle: ProblemBundle) -> None:
+    """Set the problem's own parameters from the material catalogue, and record where each number came from."""
+    materials = getattr(cfg, "materials", None)
+    if materials is None or not materials.materials:
+        return
+    if bundle.backend != "solve":                       # the symbolic coefficients are applied before parsing
+        return
+    names = set(bundle.problem.parameters)
+    values = materials.targets(names)
+    if not values:
+        bundle.notes.append(f"materials declared, but the problem has none of their properties among {sorted(names)}")
+        return
+    bundle.problem = bundle.problem.with_parameters(**{k: float(v["value"]) for k, v in values.items()})
+    for name, v in values.items():
+        bundle.notes.append(f"material {v['body']}: {name} = {v['value']:.6g} ({v['property']}; {v['source']})")
 
 
 def problem_description(bundle: ProblemBundle) -> dict[str, Any]:
@@ -192,20 +233,12 @@ def train_physics_model(cfg, bundle: ProblemBundle):
     """Train a physics-only model (a PINN) on the problem; returns a ``Solution``-like object.
 
     ``solve`` backend: ``pp.solve(problem, method="pinn")`` with the architecture and training options of the
-    configuration. ``symbolic`` backend: ``train_pinn`` on the ``PINNProblem``, wrapped in a small object with the
-    same ``predict`` surface.
+    configuration — or, when ``training.early_stopping`` is on, the chunked loop of
+    :func:`train_pinn_with_early_stopping`. ``symbolic`` backend: ``train_pinn`` on the ``PINNProblem``, wrapped in
+    a small object with the same ``predict`` surface.
     """
     if bundle.backend == "symbolic":
-        from pinneapple_analysis.validation.pinn import train_pinn
-
-        tc = cfg.training
-        model = bundle.pinn_model
-        model, info = train_pinn(bundle.pinn_problem, model, n_collocation=int(tc.n_collocation),
-                                 adam_steps=int(tc.epochs), lbfgs_steps=int(tc.lbfgs_steps),
-                                 lr=float(tc.lr), seed=int(tc.seed),
-                                 weights={"boundary": cfg.loss.weights.get("w_bc", 10.0),
-                                          "initial": cfg.loss.weights.get("w_ic", 10.0)})
-        return _SymbolicModel(bundle, model, info)
+        return _train_symbolic(cfg, bundle)
 
     import pinneapple as pp
     arch = cfg.architecture
@@ -218,7 +251,135 @@ def train_physics_model(cfg, bundle: ProblemBundle):
     if cfg.training.n_layers:
         options["n_layers"] = int(cfg.training.n_layers)
     options.update({k: v for k, v in arch.parameters.items() if k in ("hidden_dim", "n_layers")})
+    if cfg.training.early_stopping:
+        return train_pinn_with_early_stopping(cfg, bundle, family, options)
     return pp.solve(bundle.problem, method="pinn", **options)
+
+
+def _train_symbolic(cfg, bundle: ProblemBundle):
+    """``train_pinn`` on the symbolic problem, stopping early when the physics validation says to.
+
+    ``training.early_stopping`` here is ``PINNMonitor``: it watches the checks of
+    ``pinneapple_analysis.validation.pinn`` (boundary, initial, residual, causality, trivial solution) while the
+    optimizer runs and stops at the first epoch where a physical failure has persisted for ``patience`` checks —
+    "the loss is going down and the condition is still wrong" is exactly what the monitor exists for. Without it,
+    the run trains for the whole budget and the validation gate says what it found afterwards.
+    """
+    from pinneapple_analysis.validation.pinn import PINNMonitor, train_pinn
+
+    tc = cfg.training
+    monitor = None
+    if tc.early_stopping:
+        monitor = PINNMonitor(bundle.pinn_problem, every=int(tc.check_every), warmup=int(tc.check_every),
+                              patience=int(tc.patience))
+    model, info = train_pinn(bundle.pinn_problem, bundle.pinn_model, n_collocation=int(tc.n_collocation),
+                             adam_steps=int(tc.epochs), lbfgs_steps=int(tc.lbfgs_steps),
+                             lr=float(tc.lr), seed=int(tc.seed), monitor=monitor,
+                             weights={"boundary": cfg.loss.weights.get("w_bc", 10.0),
+                                      "initial": cfg.loss.weights.get("w_ic", 10.0)})
+    return _SymbolicModel(bundle, model, info)
+
+
+def train_pinn_with_early_stopping(cfg, bundle: ProblemBundle, family: str, options: Mapping[str, Any]):
+    """Train a PINN in chunks, keeping the weights with the lowest validation loss and stopping when it stops falling.
+
+    Why a loop and not a single call: ``pp.solve(..., method="pinn")`` trains for the whole budget in one shot, and
+    there is no way to ask it to stop. ``pinneapple_physics.solve_pde`` trains a model *in place* for ``epochs``,
+    so calling it repeatedly on the same module continues the same training. Between chunks the pipeline measures
+    the held-out physics loss — ``compile_problem``'s total on a fixed batch drawn once, at points the optimizer
+    never sees again — keeps the best ``state_dict``, and stops after ``patience`` chunks without an improvement of
+    at least ``min_delta``.
+
+    The objective is the physics loss, not a test-set error: reducing the held-out residual is what a PINN can
+    honestly do without an answer to look at. When the run also has a reference solution, that error is reported
+    separately by the ``model`` gate. A spec whose conditions are geometry tags needs the fixtures ``_pinn``
+    resolves; this loop does not resolve them, so it falls back to one ``pp.solve`` and says so in the notes.
+    """
+    import copy
+    import time
+
+    import torch
+
+    from pinneapple_physics import compile_problem, solve_pde
+
+    tc = cfg.training
+    spec = bundle.spec if bundle.spec is not None else bundle.problem.to_pde_spec()
+    try:
+        from pinneapple_neural.architectures.registry import ModelRegistry
+        net, report = ModelRegistry.build_with_report(
+            family, in_dim=len(bundle.problem.coords), out_dim=len(bundle.problem.fields),
+            hidden_dim=int(tc.hidden_dim or options.get("hidden_dim") or 64),
+            n_layers=int(tc.n_layers or options.get("n_layers") or 4))
+    except Exception as exc:                                     # an architecture the loop cannot build
+        bundle.notes.append(f"early stopping fell back to one solve: {type(exc).__name__}: {exc}")
+        import pinneapple as pp
+        return pp.solve(bundle.problem, method="pinn", **dict(options))
+    weights = cfg.loss.to_weights()
+    loss_fn = compile_problem(spec, weights=weights)
+    val_batch, missing = residual_batch(spec, n_interior=int(tc.n_collocation), seed=int(tc.seed) + 101)
+    chunk = int(tc.check_every)
+    total = int(tc.epochs)
+    best, best_loss, bad, done = None, float("inf"), 0, 0
+    history, checks, t0 = [], [], time.perf_counter()
+    stopped_early = False
+    while done < total:
+        n = min(chunk, total - done)
+        try:
+            out = solve_pde(spec, net, epochs=n, lr=float(tc.lr), n_collocation=int(tc.n_collocation),
+                            seed=int(tc.seed) + done, device=tc.resolved_device(), weights=weights)
+        except Exception as exc:
+            if "tag" in f"{type(exc).__name__}{exc}".lower() and done == 0:
+                bundle.notes.append(f"early stopping could not run on this problem ({type(exc).__name__}: {exc}): "
+                                    "trained once for the whole budget instead")
+                import pinneapple as pp
+                return pp.solve(bundle.problem, method="pinn", **dict(options))
+            raise
+        done += n
+        history.extend(float(v) for v in (out.get("history") or {}).get("loss") or [])
+        with torch.enable_grad():
+            value = float(loss_fn(net, None, dict(val_batch))["total"].detach())
+        checks.append({"epochs": done, "validation_loss": value})
+        if value < best_loss - float(tc.min_delta):
+            best_loss, bad = value, 0
+            best = copy.deepcopy(net.state_dict())
+        else:
+            bad += 1
+            if bad >= int(tc.patience):
+                stopped_early = True
+                break
+    if best is not None:
+        net.load_state_dict(best)
+    seconds = time.perf_counter() - t0
+    if stopped_early:
+        bundle.notes.append(f"early stopping: no improvement of more than {tc.min_delta:g} in {tc.patience} check(s) "
+                            f"of {chunk} epoch(s); stopped at {done} of {total} epochs, keeping the best "
+                            f"(validation loss {best_loss:.4g})")
+    if missing:
+        bundle.notes.extend(missing)
+    return _chunked_pinn_solution(cfg, bundle, net, {"history": {"loss": history}, "seconds": seconds,
+                                                     "adam_steps": done, "budget": total,
+                                                     "stopped_early": stopped_early, "checks": checks,
+                                                     "best_validation_loss": best_loss})
+
+
+def _chunked_pinn_solution(cfg, bundle: ProblemBundle, net, info: Mapping[str, Any]):
+    """The early-stopped network as a real ``Solution``, so ``pp.compare`` accepts it like any other method."""
+    import torch
+
+    from pinneapple_physics.solving import Solution
+
+    def predict_fn(x) -> np.ndarray:
+        x = np.atleast_2d(np.asarray(x, dtype=np.float32))
+        with torch.no_grad():
+            out = net(torch.tensor(x))
+        out = out[0] if isinstance(out, (tuple, list)) else getattr(out, "y", out)
+        return np.asarray(out.detach().cpu().numpy(), dtype=float).reshape(len(x), -1)
+
+    detail = {k: v for k, v in info.items() if k != "history"}
+    return Solution(problem=bundle.problem, method="pinn", predict_fn=predict_fn,
+                    wall_time_s=float(info.get("seconds", 0.0)), history=dict(info.get("history") or {}),
+                    info={"architecture": cfg.architecture.family, "early_stopping": True, **detail},
+                    model=net, kind="neural")
 
 
 class _SymbolicModel:
@@ -424,3 +585,52 @@ def predict_frame(model, points: np.ndarray) -> np.ndarray:
     """``model.predict`` with the output always ``(n, n_fields)``."""
     y = np.asarray(model.predict(points), dtype=float)
     return y.reshape(len(points), -1) if y.ndim != 2 else y
+
+
+# ------------------------------------------------------------------------------------------------ reloading
+def reload_physics_model(cfg, bundle: ProblemBundle, run_dir):
+    """The trained physics model of a finished run, rebuilt from ``model/physics/`` (checkpoint + recipe).
+
+    ``resume`` in another process, ``from_run`` and the deployment path all need the network back without the
+    object that trained it. The weights are loaded with ``torch.load(weights_only=True)`` — a state dict of tensors,
+    which cannot execute code — and the module is rebuilt from the recipe the training stage wrote: the network
+    the symbolic backend already builds, or a registry architecture with the same size.
+    """
+    import json
+    from pathlib import Path
+
+    folder = Path(run_dir) / "model" / "physics"
+    weights, card = folder / "model.pt", folder / "model.json"
+    if not weights.is_file() or not card.is_file():
+        return None
+    import torch
+
+    payload = torch.load(weights, map_location="cpu", weights_only=True)
+    state = payload.get("state_dict") if isinstance(payload, dict) else None
+    if not state:
+        return None
+    recipe = json.loads(card.read_text(encoding="utf-8"))
+    if bundle.backend == "symbolic":
+        net = bundle.pinn_model
+        try:
+            net.load_state_dict(state)
+        except Exception:                                       # a different network: the report says so
+            return None
+        net.eval()
+        return _SymbolicModel(bundle, net, {"history": recipe.get("history") or [], "seconds": 0.0,
+                                            "reloaded_from": str(folder)})
+    from pinneapple_neural.architectures.registry import ModelRegistry
+
+    family = recipe.get("architecture") or cfg.architecture.family
+    try:
+        net, _ = ModelRegistry.build_with_report(
+            family if family != "auto" else "modified_mlp", in_dim=len(bundle.problem.coords),
+            out_dim=len(bundle.problem.fields), hidden_dim=int(recipe.get("hidden_dim") or 64),
+            n_layers=int(recipe.get("n_layers") or 4))
+        net.load_state_dict(state)
+    except Exception:
+        return None
+    net.eval()
+    info = {"history": {"loss": recipe.get("history") or []}, "seconds": 0.0, "reloaded_from": str(folder),
+            "architecture": family}
+    return _chunked_pinn_solution(cfg, bundle, net, info)

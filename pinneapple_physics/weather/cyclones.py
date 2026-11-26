@@ -666,21 +666,23 @@ def track_skill_figure(path, skill: dict, horizons: dict, *, title: str = "", dp
     leads = np.asarray(skill["leads_h"], float) / 24.0
     fig, axes = plt.subplots(2, 1, figsize=(7.6, 6.0), facecolor=BG, sharex=True)
     spec = (("track_km", "track error (km)", horizons["thresholds"]["track_km"], horizons["track_hours"],
-             "median track error is 500 km at"),
+             "median track error is", False),
             ("wind_kt", "intensity error (kt, Atkinson-Holliday)", horizons["thresholds"]["wind_kt"],
-             horizons["intensity_hours"], "median intensity error reaches 20 kt at"))
-    for ax, (key, label, thr, hour, sentence) in zip(axes, spec, strict=True):
+             horizons["intensity_hours"], "median |intensity error| reaches", True))
+    for ax, (key, label, thr, hour, sentence, signed) in zip(axes, spec, strict=True):
         ax.set_facecolor(BG)
         y = np.asarray(skill[key], float)
         ax.plot(leads, y, color=FG, lw=2.0)
-        ax.axhline(thr, color=DIM, ls=":", lw=1)
+        for t in ((-thr, thr) if signed else (thr,)):       # the intensity error is signed and its horizon uses |.|:
+            ax.axhline(t, color=DIM, ls=":", lw=1)          # both edges of the band are where the horizon is set
         ax.axvspan(0, leads[-1], ymin=0, ymax=1, color=GOOD, alpha=0.04)
         ax.fill_between(leads, 0, np.asarray(skill["found_fraction"], float) * np.nanmax(y) * 0.25,
                         color=POOR, alpha=0.25, step=None)
         if np.isfinite(hour):
             ax.axvline(hour / 24.0, color=FADING, lw=1.2)
-            ax.annotate(sentence + f" {hour / 24:.1f} d", (hour / 24.0, np.nanmax(y) * 0.85), color=FADING,
-                        fontsize=8, ha="left", xytext=(4, 0), textcoords="offset points")
+            unit = "kt" if signed else "km"
+            ax.annotate(f"{sentence} {thr:.0f} {unit} at {hour / 24:.1f} d", (hour / 24.0, np.nanmax(y) * 0.85),
+                        color=FADING, fontsize=8, ha="left", xytext=(4, 0), textcoords="offset points")
         ax.set_ylabel(label, color=DIM, fontsize=9)
         ax.tick_params(colors=DIM, labelsize=8)
         for s in ax.spines.values():
@@ -690,7 +692,8 @@ def track_skill_figure(path, skill: dict, horizons: dict, *, title: str = "", dp
     axes[0].set_title(title + (f" · the storm is gone from half the forecasts at {lost:.0f} h"
                                if np.isfinite(lost) else " · the storm is held at every lead"),
                       color=FG, fontsize=10, loc="left")
-    axes[-1].text(0.005, -0.30, "bar at the bottom: share of forecasts that still held a vortex; none, none",
+    axes[-1].text(0.005, -0.30, "shaded from the bottom: share of the forecasts (0 to 1, scaled) that still had a "
+                                "storm and an official position to compare at that lead",
                   color=DIM, fontsize=7, transform=axes[-1].transAxes)
     fig.tight_layout()
     path = Path(path)

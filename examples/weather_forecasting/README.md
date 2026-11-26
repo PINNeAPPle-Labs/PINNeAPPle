@@ -64,8 +64,8 @@ to hand over.
 python examples/weather_forecasting/hurricane_ian.py --coarse     # needs a network the first time; writes _out/hurricane_ian/
 ```
 
-Only the storm's box (161 x 201 cells) is read from each store, and only the crop is kept — 38 MB in
-`~/.cache/pinneapple/hurricane`, nothing in the repository. `--offline` afterwards is free.
+Only the storm's box (161 x 201 cells) is read from each store, and only the crop is kept — about 40 MB in
+`~/.cache/pinneapple/hurricane`, nothing in the repository (`--offline` afterwards is free).
 
 Measured on 2026-11-26 for Ian (`AL092022`, 40 records from 22 Sep 18 UTC to 1 Oct 06 UTC, peak 140 kt at 937 hPa),
 with the centre tracked as the deepest pressure minimum within 400 km of the previous position:

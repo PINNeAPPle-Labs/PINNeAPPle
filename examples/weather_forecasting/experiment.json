@@ -6,6 +6,7 @@
  "domain": "geophysics and climate",
  "methods": [],
  "modules": [
+  "pinneapple_physics.weather.cyclones",
   "pinneapple_physics.weather.data",
   "pinneapple_physics.weather.evaluate",
   "pinneapple_physics.weather.events",
@@ -14,6 +15,7 @@
  ],
  "params": {},
  "scripts": [
+  "hurricane_ian.py",
   "run_use_cases.py",
   "score_baselines.py"
  ],

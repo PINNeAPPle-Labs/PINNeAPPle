@@ -31,12 +31,14 @@ its bounds and clipping) and the mutation conventions of :class:`DesignOptimizer
 there are configured with the same knobs and sampled in the same box. The operators themselves are Gaussian and line
 mutations, as the issue asks.
 
-Measured (``examples/quality_diversity``, airfoil surrogate, seed 0, budget 600)
+Measured (``examples/quality_diversity``, heat-sink surrogate, 600 evaluations)
 ------------------------------------------------------------------------------
-The archive is a 12 x 10 grid over (Cl, Cd) of the in-house section physics. The surrogate learned the documented
-design box and the search was pointed at a wider envelope: the QD archive filled the map, and the cells whose error
-crosses the 10 % tolerance are the ones the model has never seen (high lift at low form drag). The numbers, with
-seed and budget, are in ``docs/guides/quality_diversity.md``.
+A 10 x 10 grid over (Rth, mass) of the plate-fin closed form, and an MLP surrogate fitted on a ducted-forced-convection
+campaign that never went below 0.8 m/s; the search was pointed at an envelope that goes down to 0 m/s. At the same
+budget the failure search finds a 66.4 % error against 57.7 % for random sampling (all five seeds) and 62.6 % for Latin
+hypercube (three of five), fills 70 % of the map against 56-58 %, and puts 57.8 cells above the 10 % tolerance against
+41-43. The numbers, with their seeds and the failed per-seed check, are in ``docs/guides/quality_diversity.md`` and in
+``examples/quality_diversity/experiment.json``.
 
 Usage
 -----

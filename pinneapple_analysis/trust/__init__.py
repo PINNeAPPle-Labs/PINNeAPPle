@@ -7,7 +7,14 @@ specs, not deployed-model predictions) and
 
 ``drift.py`` is the same question asked after deployment: a window of served traffic against the validation
 baseline, with labels (error drift) and without (output and predictive-uncertainty drift), an envelope alarm from
-the gate above, and the thresholds calibrated on a separate held-out split."""
+the gate above, and the thresholds calibrated on a separate held-out split.
+
+``record.py`` is the layer as one object (#345): :class:`Trust`, the versioned record a prediction carries and a
+consumer reads — in-domain, horizon, residuals per law, the checks on the readings, the calibrated interval and the
+provenance, each field a number with its source or an explicit ``not_measured`` with the reason. ``adapters.py``
+fills it from what the library already measures (the ensemble, ``weather.evaluate``, ``uncertainty.calibration``,
+``decision.verifiers``); ``pp.trust(model, data, problem)`` is the one call.
+"""
 from __future__ import annotations
 
 from .trust_gate import TrustGate, TrustScore
@@ -57,3 +64,35 @@ from .signed_report import (  # noqa: E402  (relatório assinado com o modelo e 
 
 __all__ += ["ArtifactMismatch", "ResidualMismatch", "ResidualNotComputable", "ResidualSpec", "SignatureFailure",
             "SignedReportError", "SignedTrustReport", "TrustReportVerification"]
+
+from .record import (  # noqa: E402  (a camada de confiança como um objeto só: número com fonte, ou not_measured, #345)
+    FADING,
+    GOOD,
+    NO_SKILL,
+    SCHEMA,
+    Gate,
+    Horizon,
+    Measurement,
+    Provenance,
+    Residual,
+    Trust,
+    TrustValue,
+    Uncertainty,
+)
+
+__all__ += ["FADING", "GOOD", "NO_SKILL", "SCHEMA", "Gate", "Horizon", "Measurement", "Provenance", "Residual",
+            "Trust", "TrustValue", "Uncertainty"]
+
+from .adapters import (  # noqa: E402  (lê a confiança que o ensemble, o weather, a uncertainty e os verifiers já medem)
+    calibration_uncertainty,
+    domain_from_gate,
+    fingerprint_query,
+    from_ensemble,
+    rollout_horizon,
+    trust,
+    verification_measurement,
+    weather_horizon,
+)
+
+__all__ += ["calibration_uncertainty", "domain_from_gate", "fingerprint_query", "from_ensemble", "rollout_horizon",
+            "trust", "verification_measurement", "weather_horizon"]

@@ -113,10 +113,11 @@ worst_row = max((d for d in report["per_design"] if d["split"] == "validation"),
                 key=lambda d: d["cp_integral"]["gap"])
 held_ids = [data["ids"][i] for i in held]
 k_worst = held_ids.index(worst_row["id"])
+ref_wall = figures.wall_pressure(data["fields"]["cp"][int(held[k_worst])])
+prd_wall = figures.wall_pressure(pred["fields"]["cp"][k_worst])
 trace_fig = figures.error_trace(
     os.path.join(FIG, "fields.png"), np.asarray(STATIONS, float),
-    np.asarray(data["fields"]["cp"][int(held[k_worst])]).ravel(),
-    np.asarray(pred["fields"]["cp"][k_worst]).ravel(), worst_row["id"])
+    np.r_[ref_wall[0], ref_wall[1]], np.r_[prd_wall[0], prd_wall[1]], worst_row["id"])
 sens_fig = figures.sensitivity(os.path.join(FIG, "sensitivity.png"), sensitivity_rows)
 
 print(f"physics on {len(held)} evidence designs ({len(idx['validation'])} held out, "

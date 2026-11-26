@@ -112,10 +112,11 @@ def fig_accuracy() -> str:
 def fig_fields() -> str:
     """The design the pressure integral disagrees with its own network about, point by point along the chord."""
     worst = int(np.argmax([physics["per_design"][k]["cp_integral"]["gap"] for k in range(len(valid))]))
+    ref_wall = study_figures.wall_pressure(data["fields"]["cp"][valid[worst]])
+    prd_wall = study_figures.wall_pressure(pred["fields"]["cp"][worst])
     return study_figures.error_trace(
         os.path.join(FIG, "fields.png"), np.asarray(STATIONS, float),
-        np.asarray(data["fields"]["cp"][valid[worst]]).ravel(),
-        np.asarray(pred["fields"]["cp"][worst]).ravel(), data["ids"][valid[worst]])
+        np.r_[ref_wall[0], ref_wall[1]], np.r_[prd_wall[0], prd_wall[1]], data["ids"][valid[worst]])
 
 
 def fig_uncertainty() -> str:

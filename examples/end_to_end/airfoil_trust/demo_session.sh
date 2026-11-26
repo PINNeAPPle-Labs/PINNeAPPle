@@ -72,6 +72,8 @@ panel pod_spectrum.png "stage 2 -- the basis, before any network is involved"
 sleep 6
 panel held_out_parity.png "stage 2 -- the sixteen designs that were never trained on"
 sleep 7
+panel geometry_3d.png "stage 2 -- one solved section, coloured by the wall pressure the solver returned"
+sleep 8
 
 clear
 blue "What that says about the reference"

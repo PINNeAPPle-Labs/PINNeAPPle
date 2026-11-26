@@ -40,11 +40,17 @@ matplotlib, 10 cores. The two campaigns are the expensive stages (64 and 68 solv
 after them is minutes. Records, fields and cases go to `_runs/` and are not committed.
 
 Every stage also draws what it just measured, into `results/figures`: the design plan (stage 1), the
-grid-convergence study, the POD spectrum and the held-out parity (stage 2), the gates, the pressure trace and
-the input sensitivity (stage 3), the evidence map (stage 4), the before and after of the extension (stage 6),
-and the calibration the report rests on (stage 7). The drawing code is one module in the library,
-`pinneapple_autolab.domains.airfoil_figures`, called by the stage that owns the number and again by the
-report -- so a figure beside a verdict is the figure the run produced, not a second rendering of it.
+grid-convergence study, the POD spectrum, the held-out parity and the 3D view of one solved section
+(stage 2), the gates, the pressure trace and the input sensitivity (stage 3), the evidence map (stage 4),
+the before and after of the extension (stage 6), and the calibration the report rests on (stage 7). The
+drawing code is one module in the library, `pinneapple_autolab.domains.airfoil_figures`, called by the
+stage that owns the number and again by the report -- so a figure beside a verdict is the figure the run
+produced, not a second rendering of it.
+
+`geometry_3d.png` is the one picture that is not matplotlib: the section, extruded over a picture span and
+coloured by the wall Cp the solver returned, rendered through `pinneapple_tools.visualization.studio` (Blender
+Cycles). It is drawn from the reference field of one held-out design -- nothing predicted is on it -- and the
+stage skips it and says so when the machine has no Blender, so the rest of the study does not depend on one.
 
 ## The film
 

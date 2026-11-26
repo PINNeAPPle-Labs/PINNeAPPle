@@ -27,7 +27,7 @@ sys.path.insert(0, ROOT)
 import numpy as np  # noqa: E402
 
 from pinneapple_autolab.domains import airfoil_figures as figures  # noqa: E402
-from pinneapple_autolab.domains.airfoil import MESH_LEVELS  # noqa: E402
+from pinneapple_autolab.domains.airfoil import CONDITIONS, MESH_LEVELS  # noqa: E402
 from pinneapple_autolab.domains.airfoil_study import (  # noqa: E402
     INPUTS,
     QOI,
@@ -61,6 +61,17 @@ def _coverage(pred, ref_y) -> dict[str, float]:
     two = calibration_metrics(error, sigma, target=0.95)
     return {"coverage_1s": one["coverage"], "coverage_2s": two["coverage"], "target_1s": 0.68, "target_2s": 0.95,
             "sharpness_1s": one["sharpness"], "ece": one["ece"]}
+
+
+def _showcase_design() -> int:
+    """The section the picture shows, picked among the designs the model never saw.
+
+    Thick enough to read as a profile, and the strongest suction the solver found among those: the point of the
+    picture is the pressure the reference returned, so it shows the design where there is most of it to show.
+    """
+    thick = [k for k in valid if float(data["X"][k, 2]) >= 0.12]
+    walls = {k: float(figures.wall_pressure(data["fields"]["cp"][k])[0].min()) for k in thick}
+    return min(thick, key=lambda k: walls[k])
 
 
 plan = json.load(open(os.path.join(RES, "doe_round1.json")))
@@ -158,4 +169,21 @@ for split_name in ("calibration", "validation"):
 print(f"basis: {basis_info['n_modes']} modes, {basis_info['energy_captured']:.2%} energy, "
       f"held-out reconstruction {basis_error:.2%}")
 print(f"model written to {os.path.join(MODELS, 'v1')}")
-print("figures: " + ", ".join(os.path.relpath(p, ROOT) for p in (mesh_fig, pod_fig, parity_fig)))
+
+# the geometry of one held-out design, with the wall pressure the solver returned on it: a picture of the reference,
+# not of the model. It needs Blender, so the stage carries on without it rather than failing.
+show = _showcase_design()
+show_params = {n: float(v) for n, v in zip(INPUTS, data["X"][show], strict=True)}
+show_wall = figures.wall_pressure(data["fields"]["cp"][show])
+print(f"3d section: {data['ids'][show]} at {show_params['alpha_deg']:.2f} deg, t/c {show_params['thickness']:.3f}, "
+      f"wall Cp {show_wall.min():.2f} to {show_wall.max():.2f}; rendering it ...")
+geometry_fig = figures.surface_pressure_3d(
+    os.path.join(FIG, "geometry_3d.png"),
+    params={**show_params, "chord": float(CONDITIONS["chord_m"]),
+            "camber_position": float(CONDITIONS["camber_position"])},
+    cp_lattice=data["fields"]["cp"][show])
+if geometry_fig is None:
+    print("no Blender on this machine: the other figures are unaffected, this one is skipped")
+
+print("figures: " + ", ".join(os.path.relpath(p, ROOT)
+                               for p in (mesh_fig, pod_fig, parity_fig, geometry_fig) if p))

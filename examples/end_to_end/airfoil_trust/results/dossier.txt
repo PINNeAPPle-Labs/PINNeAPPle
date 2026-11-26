@@ -277,35 +277,35 @@ Industrial maturity: level 4 (Operationally assessed)
 == RunProvenance ==
 - tool: PINNeAPPle autolab 0.8.0+local; python 3.11.16
 - inputs sha256: 8bb3f83be3859c8efe3f5595edb1dd35a2a7dcc1b8a4032e26469e9174291b35
-- code sha256: 392a26307121ef7d1ecb6aac4f69667419c53a27059290fb3e525e3b8e739485
+- code sha256: 44541f6fa7036e6dba59fdc31a6786da700b5dfe174ac7c039cd0e1a95554398
 - seeds: [30, 7, 11, 23]
 - tolerances: {'lift_tolerance': 0.05, 'reference_tolerance': 0.05, 'wall_ratio': 1.5, 'continuity_ratio': 2.0, 'uncertainty_quantile': 0.9}
 - compute: {'cores': '10', 'solver': 'simpleFoam', 'iterations': '1000', 'meshes': '4', 'reference_runs': '132'}
 
 == Revision history ==
-- rev 1 2026-11-26T13:17:28.747Z [unvalidated] case opened (study) sha256 3f532e745067
-- rev 2 2026-11-26T13:17:28.747Z [failed] checks recorded sha256 f99f02ccd311
-- rev 3 2026-11-26T13:17:28.747Z [failed] evidence added: cfd-va000 (study) sha256 148161cdaa3c
-- rev 4 2026-11-26T13:17:28.747Z [failed] evidence added: cfd-va001 (study) sha256 da705abb59a9
-- rev 5 2026-11-26T13:17:28.748Z [failed] evidence added: cfd-va002 (study) sha256 af533a161990
-- rev 6 2026-11-26T13:17:28.748Z [failed] evidence added: cfd-va003 (study) sha256 c2326561e28b
-- rev 7 2026-11-26T13:17:28.748Z [failed] evidence added: cfd-va004 (study) sha256 b721f42c4b91
-- rev 8 2026-11-26T13:17:28.748Z [failed] evidence added: cfd-va005 (study) sha256 c4a1e5bf6e06
-- rev 9 2026-11-26T13:17:28.749Z [failed] evidence added: cfd-va006 (study) sha256 120529d04054
-- rev 10 2026-11-26T13:17:28.749Z [failed] evidence added: cfd-va007 (study) sha256 983fc12c2e8c
-- rev 11 2026-11-26T13:17:28.749Z [failed] evidence added: cfd-va008 (study) sha256 fb04e54ed5ca
-- rev 12 2026-11-26T13:17:28.749Z [failed] evidence added: cfd-va009 (study) sha256 e17bc8f8e941
-- rev 13 2026-11-26T13:17:28.750Z [failed] evidence added: cfd-va010 (study) sha256 a8f19e850af3
-- rev 14 2026-11-26T13:17:28.750Z [failed] evidence added: cfd-va011 (study) sha256 09a8026340ed
-- rev 15 2026-11-26T13:17:28.750Z [failed] evidence added: cfd-va012 (study) sha256 cebf6cf204b7
-- rev 16 2026-11-26T13:17:28.751Z [failed] evidence added: cfd-va013 (study) sha256 563184cc6b8a
-- rev 17 2026-11-26T13:17:28.751Z [failed] evidence added: cfd-va014 (study) sha256 763ba0163a81
-- rev 18 2026-11-26T13:17:28.751Z [failed] evidence added: cfd-va015 (study) sha256 f2633a68c5e4
-- rev 19 2026-11-26T13:17:28.752Z [failed] evidence added: cfd-held-out-CD (study) sha256 9d915dee8d6c
-- rev 20 2026-11-26T13:17:28.752Z [failed] uncertainty recorded (study) sha256 5e21f78521b0
-- rev 21 2026-11-26T13:17:28.752Z [failed] applicability recorded (study) sha256 546d0f1c76df
-- rev 22 2026-11-26T13:17:28.785Z [failed] provenance recorded (study) sha256 328f4575eba5
-- rev 23 2026-11-26T13:17:28.786Z [failed] limitations recorded sha256 3ff7463b3ccc
+- rev 1 2026-11-26T18:02:22.302Z [unvalidated] case opened (study) sha256 10aec78f7b64
+- rev 2 2026-11-26T18:02:22.302Z [failed] checks recorded sha256 c44673c233b3
+- rev 3 2026-11-26T18:02:22.303Z [failed] evidence added: cfd-va000 (study) sha256 c5d0cdbf63c8
+- rev 4 2026-11-26T18:02:22.314Z [failed] evidence added: cfd-va001 (study) sha256 b47a347297c1
+- rev 5 2026-11-26T18:02:22.321Z [failed] evidence added: cfd-va002 (study) sha256 7bcb9bd168c8
+- rev 6 2026-11-26T18:02:22.329Z [failed] evidence added: cfd-va003 (study) sha256 7d7b4b60c93d
+- rev 7 2026-11-26T18:02:22.329Z [failed] evidence added: cfd-va004 (study) sha256 a033c561ccf5
+- rev 8 2026-11-26T18:02:22.330Z [failed] evidence added: cfd-va005 (study) sha256 bc897622d853
+- rev 9 2026-11-26T18:02:22.330Z [failed] evidence added: cfd-va006 (study) sha256 2c1adc754727
+- rev 10 2026-11-26T18:02:22.331Z [failed] evidence added: cfd-va007 (study) sha256 1ad82c6cf7d5
+- rev 11 2026-11-26T18:02:22.331Z [failed] evidence added: cfd-va008 (study) sha256 6da7e919b6dc
+- rev 12 2026-11-26T18:02:22.332Z [failed] evidence added: cfd-va009 (study) sha256 1aba015cdf1b
+- rev 13 2026-11-26T18:02:22.333Z [failed] evidence added: cfd-va010 (study) sha256 5005a67d30d9
+- rev 14 2026-11-26T18:02:22.333Z [failed] evidence added: cfd-va011 (study) sha256 02df59bbb35f
+- rev 15 2026-11-26T18:02:22.334Z [failed] evidence added: cfd-va012 (study) sha256 4e4878fb24fc
+- rev 16 2026-11-26T18:02:22.335Z [failed] evidence added: cfd-va013 (study) sha256 aeb948178f8e
+- rev 17 2026-11-26T18:02:22.335Z [failed] evidence added: cfd-va014 (study) sha256 8e2aeea8db79
+- rev 18 2026-11-26T18:02:22.336Z [failed] evidence added: cfd-va015 (study) sha256 07d91c8da752
+- rev 19 2026-11-26T18:02:22.337Z [failed] evidence added: cfd-held-out-CD (study) sha256 73c4f9854809
+- rev 20 2026-11-26T18:02:22.338Z [failed] uncertainty recorded (study) sha256 2b5a646ef164
+- rev 21 2026-11-26T18:02:22.338Z [failed] applicability recorded (study) sha256 ef07587dc245
+- rev 22 2026-11-26T18:02:22.489Z [failed] provenance recorded (study) sha256 46668442c28c
+- rev 23 2026-11-26T18:02:22.490Z [failed] limitations recorded sha256 87cf6b9f3e97
 
 == What to do next ==
 - (low) [industrial L5] record an expert decision

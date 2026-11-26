@@ -13,11 +13,11 @@
     "threshold": 0.05,
     "detail": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.297Z",
    "passed": true,
    "error": "",
-   "entry_sha256": "994d9fc6a2b0041185df45ac345e9fbf99af4c6da80803f984bf3069ae97f65e"
+   "entry_sha256": "efc6e6c339701e3d9f35acbac0e8842036d73e6084d11a248edca69208127d62"
   },
   {
    "check_id": "gate_continuity_residual",
@@ -31,11 +31,11 @@
     "threshold": 2.0,
     "detail": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.297Z",
    "passed": true,
    "error": "",
-   "entry_sha256": "62e98eea154c85261af218df32e950a6af8371ccc2496650c33cb23730e22ffb"
+   "entry_sha256": "f1d16dba4629a2206eb176a8e11ef868318523dc3a4544ce65abec86b84a745b"
   },
   {
    "check_id": "boundary_condition_no_slip",
@@ -49,11 +49,11 @@
     "threshold": 1.5,
     "detail": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.298Z",
    "passed": true,
    "error": "",
-   "entry_sha256": "f7d06c345a412e1fb3c3794b99eb9f7ec076541c66e9279e4970c4f56106290c"
+   "entry_sha256": "73771b22a9f637273915db02daac781aa04907498690f4b123adaa39b3119573"
   },
   {
    "check_id": "freestream_decay",
@@ -67,11 +67,11 @@
     "threshold": 1.5,
     "detail": "the outermost ring departs from the freestream by 0.084 of U_inf, against the reference's 0.079 -- the ring is at a quarter chord from the surface, so neither reaches zero"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.298Z",
    "passed": true,
    "error": "",
-   "entry_sha256": "1550a65abaaa711cd883d19daa38fd25cbd3d83c06fb5eb4651ed753b2006591"
+   "entry_sha256": "0b8482a34c787c400f2aeb83d093c7e004c80b4c52feeaff8241b47cc552252b"
   },
   {
    "check_id": "pressure_integral_consistency",
@@ -85,11 +85,11 @@
     "threshold": 1.5,
     "detail": "lift from integrating the predicted wall pressure differs from the predicted CL by 0.319; the same integral on the reference differs from the reference's CL by 0.314"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.298Z",
    "passed": true,
    "error": "",
-   "entry_sha256": "984a9668470b87bfe816434af0ba0995ca145c837f8b719d3c70b8e476090807"
+   "entry_sha256": "0427403ff235ae48fc94a28c3ea5844ad9f6caa22bb1924bf2455d126afb46a9"
   },
   {
    "check_id": "accuracy_CL",
@@ -103,11 +103,11 @@
     "threshold": 0.05,
     "detail": "relative L2 on 16 designs held out by design"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.298Z",
    "passed": true,
    "error": "",
-   "entry_sha256": "421804d7d4e150185417236b19f3899727bf1695dfb9ce5ddf775d00f40377ee"
+   "entry_sha256": "b487495cb2e1bdf245f5dc2a16d23f046a5292bfebf082ddf77d7c8af984a7f7"
   },
   {
    "check_id": "field_accuracy",
@@ -121,11 +121,11 @@
     "threshold": 0.09290614337417778,
     "detail": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.298Z",
    "passed": false,
    "error": "",
-   "entry_sha256": "790e020c07fce19ded461e61fa8ccef0aa51536b3c61c2212f96db4de12f94f6"
+   "entry_sha256": "cde19a0ab175ca65e3e7baacbc3c2a4662174d7e717417c910858be5785c9933"
   },
   {
    "check_id": "applicability_domain_measured",
@@ -139,11 +139,11 @@
     "threshold": null,
     "detail": "evidence domain queried at {'alpha_deg': 2.0, 'speed': 20.0, 'thickness': 0.12}: UNSUPPORTED (insufficient_local_reference)"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.298Z",
    "passed": false,
    "error": "",
-   "entry_sha256": "a2889a84d249ed2cdeddff2b3c56cc5329167b6e4f7054f77427652dc7ff12d4"
+   "entry_sha256": "72ab334a48e443c9c4d90e05ae973d771c732cef5c89f28b8558eea5f9498930"
   },
   {
    "check_id": "uncertainty_calibration_coverage",
@@ -157,11 +157,11 @@
     "threshold": 0.68,
     "detail": "the raw ensemble spread covers 43% of held-out errors at one sigma (narrower than nominal: the bar under-covers)"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.298Z",
    "passed": false,
    "error": "",
-   "entry_sha256": "e9983637640cfd4205d3171d7d5f3724bf5a36e41d199161ddfc732e556f0e3d"
+   "entry_sha256": "98e067c7c6917030039b01630fc8e24ca6813cc40ca6e5fc57ba99511deaaff3"
   },
   {
    "check_id": "robustness_input_sensitivity",
@@ -175,11 +175,11 @@
     "threshold": 1.0,
     "detail": "movement of CL under a 1 % nudge of each input, over the ensemble spread, worst input: alpha_deg 0.72, speed 0.05, thickness 0.05"
    },
-   "started_at": "2026-11-26T13:17:28.744Z",
-   "finished_at": "2026-11-26T13:17:28.745Z",
+   "started_at": "2026-11-26T18:02:22.297Z",
+   "finished_at": "2026-11-26T18:02:22.299Z",
    "passed": true,
    "error": "",
-   "entry_sha256": "446b6377fb38ba143a1fd44fd64653fc01d78f2cf5759d9893c3645ba4b6d974"
+   "entry_sha256": "87a6a396005baecf6747f6718a6d7eb0b2a9d1d1f2d9c513370af38598cb5e35"
   }
  ]
 }

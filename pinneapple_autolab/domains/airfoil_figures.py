@@ -21,7 +21,8 @@ import matplotlib.pyplot as plt  # noqa: E402  (the backend is chosen before pyp
 BLUE, ORANGE, GREY, GREEN, RED = "#58a6ff", "#ffa657", "#8b949e", "#3fb950", "#f85149"
 
 __all__ = ["style", "doe_plan", "mesh_convergence", "pod_spectrum", "accuracy", "error_trace",
-           "physics_gates", "sensitivity", "domain_map", "extend", "uncertainty"]
+           "wall_pressure", "physics_gates", "sensitivity", "domain_map", "extend", "uncertainty",
+           "surface_pressure_3d"]
 
 
 def style() -> None:
@@ -133,6 +134,20 @@ def accuracy(path: str, ref: dict, prd: dict, std: dict, ids: list, rmse: dict, 
         axes[2].set_ylabel("|CL from Cp - CL predicted|")
         axes[2].set_title("pressure integral vs predicted lift", color="#ddd", fontsize=9)
     return _finish(fig, path)
+
+
+def wall_pressure(cp_lattice: np.ndarray) -> np.ndarray:
+    """The Cp on the wall, upper then lower, from one design's lattice field.
+
+    The lattice stores each station as a wall sample followed by the samples along its normal, so the first
+    ``2 * len(STATIONS)`` entries are *not* the wall of both sides -- they are the wall and the first offset of the
+    first stations. The wall is every ``1 + len(OFFSETS)``-th value, which is what ``side_fields`` returns as column
+    zero.
+    """
+    from .airfoil_study import side_fields
+
+    field = np.asarray(cp_lattice, float).ravel()
+    return np.vstack([side_fields({"cp": field}, side)["cp"][:, 0] for side in (0, 1)])
 
 
 def error_trace(path: str, stations: np.ndarray, ref_cp: np.ndarray, prd_cp: np.ndarray, design: str) -> str:
@@ -273,3 +288,53 @@ def uncertainty(path: str, z_scores: np.ndarray, coverage_1s: float, coverage_2s
     axes[1].set_title("calibration curve", color="#ddd", fontsize=9)
     axes[1].legend(fontsize=7, framealpha=0.2)
     return _finish(fig, path)
+
+
+def surface_pressure_3d(path: str, *, params: dict, cp_lattice: np.ndarray, span: float = 0.62,
+                        field_range: tuple[float, float] = (-2.5, 1.0), quality: str = "preview") -> str | None:
+    """The section the campaign solved, extruded for the picture and coloured by the wall Cp the solver returned.
+
+    The case is a one-centimetre slice; the span here is a picture span, and the caption says so. The Cp is the
+    reference simulation's own wall value at the stations, interpolated onto the section the geometry is built from --
+    nothing predicted is drawn, so the picture is evidence of what the campaign measured, not of what the model
+    believes. Skips the render and returns ``None`` on a machine without Blender: the rest of the study's figures
+    must not depend on one.
+    """
+    from pinneapple_simulation.numerical_solvers import airfoil2d as A2
+    from pinneapple_tools.visualization import studio
+
+    if studio.blender_executable() is None:
+        return None
+
+    chord = float(params.get("chord", params.get("chord_m", 1.0)))
+    xu, yu, xl, yl = A2.naca4_surfaces(float(params["camber"]), float(params.get("camber_position", 0.4)),
+                                       float(params["thickness"]), 120)
+    wall = wall_pressure(cp_lattice)
+    loop = np.vstack([np.c_[xu, yu], np.c_[xl[::-1], yl[::-1]][1:-1]])           # closed section, LE and TE once
+    cp_loop = np.r_[np.interp(xu, np.linspace(0, 1, wall.shape[1]), wall[0]),
+                    np.interp(xl[::-1][1:-1], np.linspace(0, 1, wall.shape[1]), wall[1])]
+
+    a = np.deg2rad(float(params["alpha_deg"]))                                   # incidence, as the wing is flown
+    rot = np.c_[chord * (loop[:, 0] * np.cos(a) - loop[:, 1] * np.sin(a)),
+                chord * (loop[:, 0] * np.sin(a) + loop[:, 1] * np.cos(a))]
+    n = len(rot)
+    verts = np.vstack([np.c_[rot[:, 0], np.zeros(n), rot[:, 1]],                  # x chord, y span, z up
+                       np.c_[rot[:, 0], np.full(n, span), rot[:, 1]]])
+    faces = []
+    for k in range(n):
+        j = (k + 1) % n
+        faces += [[k, j, n + j], [k, n + j, n + k]]
+    for k in range(1, n - 1):                                                    # the two end caps, fanned
+        faces += [[0, k + 1, k], [n, n + k, n + k + 1]]
+    scene = studio.Scene(surfaces=[studio.Surface("section", verts, np.asarray(faces, int), "grey",
+                                                  fields={"cp": np.r_[cp_loop, cp_loop]})],
+                         labels={"cp": "pressure coefficient Cp"})
+    studio.render_headless(scene, path, field="cp", field_range=field_range, cmap="jet", view="iso",
+                           background="dark", quality=quality, floor=True, colorbar_on=False,
+                           field_alpha=1.0, exposure=-2.0)
+    try:                                                     # the bars's own ticks: the range is the labels
+        studio.colorbar(path, "pressure coefficient  Cp", *field_range, dark=True)
+    except Exception:                                        # a colour bar is a nicety, not the figure
+        pass
+    return path
+    return path

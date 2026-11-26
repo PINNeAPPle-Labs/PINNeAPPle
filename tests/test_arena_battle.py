@@ -112,24 +112,28 @@ def test_the_residual_operator_keeps_the_edges_out_instead_of_inventing_a_value(
 
 # ------------------------------------------------------------------ the scoreboard
 def _block(rows, *, in_window=6, n_steps=10):
-    """A minimal case block, shaped exactly like the one ``run_case`` records, so the board can be tested alone."""
+    """A minimal case block, shaped exactly like the one ``run_case`` records, so the board can be tested alone.
+
+    A row may give ``exits`` -- one per seed, ``None`` for a seed that survived the stream -- instead of the single
+    ``exit`` every run of the single-seed fixtures shares; the summary is then the same ``_summarise`` the record is
+    built with, so the test cannot agree with the board while disagreeing with the run."""
     times = np.linspace(0.0, 1.0, n_steps)
     models = {}
     for row in rows:
         curve = list(row["curve"])
+        exits = list(row["exits"]) if "exits" in row else [None if row["exit"] >= n_steps else row["exit"]]
         models[row["model"]] = {
             "kind": "test", "supervision": "nothing", "parameters": 1,
-            "runs": [{"seed": 0, "train_s": row["train_s"], "predict_s": 0.0, "parameters": 1,
+            "runs": [{"seed": i, "train_s": row["train_s"], "predict_s": 0.0, "parameters": 1,
                       "relative_l2": curve, "pde_residual": [0.0] * n_steps,
-                      "residual_alarm": {"step": None}, "error_exit": {"step": None, "threshold": 0.1}}],
+                      "residual_alarm": {"step": None}, "error_exit": {"step": step, "threshold": 0.1}}
+                     for i, step in enumerate(exits)],
             "summary": {
                 "rel_l2_in_window_max": {"mean": 0.01},
                 "rel_l2_out_window_mean": {"mean": 0.5},
                 "rel_l2_final": {"mean": row["final"], "min": row["final"], "max": row["final"]},
-                "error_exit_step": {"mean": row["exit"], "min": row["exit"], "max": row["exit"],
-                                    "within_stream": row["exit"] < n_steps},
-                "residual_alarm_step": {"mean": n_steps, "min": n_steps, "max": n_steps,
-                                        "within_stream": False},
+                "error_exit_step": battle._summarise(exits, never=float(n_steps)),
+                "residual_alarm_step": battle._summarise([None] * len(exits), never=float(n_steps)),
                 "train_s": {"mean": row["train_s"], "min": row["train_s"], "max": row["train_s"]},
                 "predict_s": {"mean": 0.0},
                 "exit_threshold": {"mean": 0.1, "alarm_threshold": 0.1},
@@ -167,6 +171,35 @@ def test_the_order_is_total_so_a_tie_is_still_a_decision():
                  {"model": "pinn", "curve": [0.0] * 9, "exit": 7, "final": 0.2, "train_s": 1.0}]
     rows = battle.scoreboard(_block(same_both))
     assert [r["model"] for r in rows] == ["pinn", "fno"], "then to the cheaper training"
+
+
+def test_a_model_that_left_in_one_seed_has_left_and_the_mean_does_not_get_to_say_otherwise():
+    """The defect this test exists for: two seeds, one model that left at step 3 in the first and survived the second.
+
+    The mean of a real exit and the end of the stream substituted for a missing one is 6.5, and printing the row from
+    it says "never" and ranks the model as if it had survived. It left -- and it is the model that left first."""
+    block = _block([{"model": "fno", "curve": [0.0] * 9, "exits": [None, None], "final": 0.30, "train_s": 1.0},
+                    {"model": "pinn", "curve": [0.0] * 9, "exits": [3, None], "final": 0.10, "train_s": 1.0}])
+    rows = {r["model"]: r for r in battle.scoreboard(block)}
+    assert rows["pinn"]["left_within_stream"] is True, "one seed of two left; the row must not say never"
+    assert rows["pinn"]["left_in_seeds"] == 1 and rows["pinn"]["n_seeds"] == 2
+    assert rows["pinn"]["left_at_step"] == pytest.approx(3.0), "the first seed to leave, not the mean of 3 and the " \
+                                                              "end of the stream"
+    assert rows["pinn"]["left_at_step_mean"] == pytest.approx(6.5), "and the mean is still published, as a mean"
+    assert rows["fno"]["left_within_stream"] is False and rows["fno"]["left_in_seeds"] == 0
+    assert [r["model"] for r in battle.scoreboard(block)] == ["pinn", "fno"], "the model that left is the one that " \
+                                                                            "left, and it ranks first"
+    block["scoreboard"] = battle.scoreboard(block)
+    text = battle.table({"cases": {"synthetic": block}})
+    assert "in 1 of 2 seeds" in text, text
+    assert "never (survived the whole stream)" in text, "and the model that did survive still says so"
+
+
+def test_between_two_models_first_seen_to_leave_together_the_one_that_left_every_time_is_worse():
+    block = _block([{"model": "fno", "curve": [0.0] * 9, "exits": [5, 5], "final": 0.1, "train_s": 1.0},
+                    {"model": "pinn", "curve": [0.0] * 9, "exits": [5, None], "final": 0.1, "train_s": 1.0}])
+    rows = battle.scoreboard(block)
+    assert [r["model"] for r in rows] == ["fno", "pinn"], "same first step: the one that left in both seeds is worse"
 
 
 def test_the_reference_is_what_decides_a_disagreement():

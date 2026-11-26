@@ -29,8 +29,11 @@ loss it minimised on its own collocation points; asking it again on the same poi
 own homework. Both models are scored here with second-order central differences on the field they return, the same
 operator for both, so the number means the same thing whichever family produced the field.
 
-A model that never leaves is reported as having left at the end of the stream (``within_stream: false``): it
-survived the whole battle, which is a result, not a missing value.
+The exit is measured per seed, and the row carries the **first** seed that left, not the mean of the seeds: a seed
+that survived has no exit, and substituting the end of the stream for it and averaging is the same mean that hides
+the failure this module exists to show. A model that left in one seed of two has left, and it says so -- with the
+count -- where the mean would have printed "never". A model that never left any seed is placed at the end of the
+stream: it survived the whole battle, which is a result, not a missing value.
 
 This is the measurement, not the animation: the page and the JSON are generated from one run so the published
 numbers cannot drift from it. The migration to ``pp.trust`` (issue #345) is the next step for the threshold
@@ -51,8 +54,8 @@ import numpy as np
 from .bundle_bench import BenchConfig, run_and_predict
 
 __all__ = ["SCHEMA", "RESULTS", "PAGE", "PROTOCOL", "CASES", "BattleCase", "Field", "domain_exit",
-           "relative_l2_curve", "pde_residual_curve", "scoreboard", "run_case", "run_all", "table", "page",
-           "write", "check", "get_case"]
+           "relative_l2_curve", "pde_residual_curve", "scoreboard", "disagreement", "run_case", "run_all", "table",
+           "page", "write", "check", "get_case"]
 
 SCHEMA = "pinneapple.battle/1"
 RESULTS = Path("benchmarks") / "battle" / "results.json"
@@ -78,6 +81,14 @@ PROTOCOL: dict[str, Any] = {
     # it is compared with the tolerance this library already uses to call a field reproduced; the residual has
     # none, so it is compared with what the model itself showed at the boundary of its window, times a factor
     "exit": {"residual_factor": 4.0, "tolerance": 5e-2, "residual_calibrated_on": "last step inside the window"},
+    # the rule the board is sorted by, declared as data because `check` fails a table published out of this order
+    "ranking": {
+        "key": "the first step past the window where the error crossed the tolerance, over the seeds (the minimum, "
+               "not the mean: a seed that survived the stream has no exit, and averaging the end of the stream in as "
+               "a stand-in would let a model that left in one seed outrank one that never left)",
+        "tie_break": ("the model that left in more seeds", "the smaller final relative L2", "the cheaper training",
+                      "the model name"),
+    },
     "residual_operator": ("second-order central differences in x and t on the field the model returns; the same "
                           "operator for every model, never the training loss"),
     "cost": "wall time on one CPU thread pool, after a warm-up pass, per seed; information, not a ranking key",
@@ -333,12 +344,23 @@ def domain_exit(curve: Sequence[float], in_window: Sequence[bool], *, factor: fl
 
 
 def _summarise(values: Sequence[float | None], *, never: float) -> dict[str, Any]:
-    """Per-seed scalars to one row: mean, min, max, and how many seeds produced a number at all."""
+    """Per-seed scalars to one row: mean, min, max, and how many seeds produced a number at all.
+
+    ``min`` is the **first** step the model was seen to leave, and ``left_in_seeds`` is how many seeds left at all; the
+    mean substitutes ``never`` for a seed that survived, which is a stand-in and not an observation, so the board ranks
+    by the minimum (see :func:`scoreboard`). ``within_stream`` says "every seed left", ``left_in_any_seed`` says "at
+    least one did" -- with two seeds those are different statements, and a model that left in one and survived the
+    other must not be printed as if it had never left.
+    """
     clean = [never if v is None else float(v) for v in values]
+    left = sum(1 for v in values if v is not None)
     return {"mean": float(np.mean(clean)) if clean else None,
             "min": float(np.min(clean)) if clean else None,
             "max": float(np.max(clean)) if clean else None,
-            "within_stream": bool(all(v is not None for v in values))}
+            "within_stream": bool(clean and left == len(values)),
+            "left_in_any_seed": left > 0,
+            "left_in_seeds": left,
+            "n_seeds": len(values)}
 
 
 def _warm_up() -> None:
@@ -476,30 +498,43 @@ def _model_summary(runs: Sequence[Mapping[str, Any]], in_window: np.ndarray, *,
 def scoreboard(block: Mapping[str, Any]) -> list[dict[str, Any]]:
     """The rows, ranked by where the measurement says each model left its domain.
 
-    The ranking key is the one the issue asks for and the one that is measured against the reference: the first
-    step past the window where the error crossed the threshold, averaged over the seeds, with a model that never
-    left placed at the end of the stream. Ties go to the smaller final error, then to the cheaper training, so the
-    order is total and reproducible from the record alone -- which is what lets ``check`` fail an inverted table.
+    The ranking key is the one the issue asks for and the one that is measured against the reference: the **first**
+    step past the window where the error crossed the threshold, over the seeds -- the minimum, not the mean. The mean
+    is wrong here in the way this whole module is about: a seed that survived the stream has no exit, and
+    substituting the end of the stream for it and averaging blends an observation with a stand-in. A model that left
+    at step 30 in one seed and never in the other then carries 35.5, which puts it *ahead* of a model that survived
+    every seed -- and "who left its domain first" is exactly the question the mean cannot answer. A model that never
+    left any seed is placed at the end of the stream, which is a result and not a missing value. Ties go to the model
+    that left in **more** seeds -- between two models first seen to leave at the same step, the one that did it in
+    every seed is the worse of the two -- then to the smaller final error, then to the cheaper training, so the order
+    is total and reproducible from the record alone, which is what lets ``check`` fail an inverted table.
     """
     rows: list[dict[str, Any]] = []
     for model in block["model_order"]:
         entry = block["models"][model]
         summary = entry["summary"]
+        ex = summary["error_exit_step"]
+        alarm = summary["residual_alarm_step"]
         rows.append({
             "model": model,
             "kind": entry["kind"],
             "supervision": entry["supervision"],
-            "left_at_step": round(float(summary["error_exit_step"]["mean"]), 3),
-            "left_within_stream": bool(summary["error_exit_step"]["within_stream"]),
+            "left_at_step": round(float(ex["min"]), 3),
+            "left_at_step_mean": round(float(ex["mean"]), 3),
+            "left_within_stream": bool(ex.get("left_in_any_seed", ex["within_stream"])),
+            "left_in_seeds": int(ex.get("left_in_seeds", int(ex["within_stream"]))),
+            "n_seeds": int(ex.get("n_seeds", 1)),
             "left_at_t": None,
-            "alarm_at_step": round(float(summary["residual_alarm_step"]["mean"]), 3),
-            "alarm_within_stream": bool(summary["residual_alarm_step"]["within_stream"]),
+            "alarm_at_step": round(float(alarm["min"]), 3),
+            "alarm_at_step_mean": round(float(alarm["mean"]), 3),
+            "alarm_within_stream": bool(alarm.get("left_in_any_seed", alarm["within_stream"])),
+            "alarm_in_seeds": int(alarm.get("left_in_seeds", int(alarm["within_stream"]))),
             "final_rel_l2": round(float(summary["rel_l2_final"]["mean"]), 6),
             "train_s": round(float(summary["train_s"]["mean"]), 3),
             "predict_s": round(float(summary["predict_s"]["mean"]), 6),
             "parameters": int(entry["parameters"]),
         })
-    rows.sort(key=lambda r: (r["left_at_step"], r["final_rel_l2"], r["train_s"], r["model"]))
+    rows.sort(key=lambda r: (r["left_at_step"], -r["left_in_seeds"], r["final_rel_l2"], r["train_s"], r["model"]))
     times = block["stream"]["t"]
     for rank, row in enumerate(rows, start=1):
         row["rank"] = rank
@@ -552,6 +587,7 @@ def run_all(*, seeds: Sequence[int] | None = None, only: Sequence[str] | None = 
     protocol["window"] = dict(PROTOCOL["window"])
     protocol["grid"] = dict(PROTOCOL["grid"])
     protocol["exit"] = dict(PROTOCOL["exit"])
+    protocol["ranking"] = {**PROTOCOL["ranking"], "tie_break": list(PROTOCOL["ranking"]["tie_break"])}
     return {"schema": SCHEMA, "protocol": protocol,
             "cases": {cid: run_case(cid, seeds=seeds) for cid in ids}}
 
@@ -567,28 +603,36 @@ def _fmt(value: float | None, digits: int = 2) -> str:
     return f"{value:.{digits}f}"
 
 
-def _where(step: float, at_t: float, within_stream: bool) -> str:
-    """Where a model left, in the two coordinates a reader needs: the step of the stream and its time."""
+def _where(step: float, at_t: float, within_stream: bool, in_seeds: int | None = None,
+           n_seeds: int | None = None) -> str:
+    """Where a model left, in the coordinates a reader needs: the step of the stream, its time, and how many seeds.
+
+    The seed count is not decoration. A model that left in one seed of two has left, and printing it as "never" --
+    which is what the mean of a censored exit used to do -- states the opposite of the measurement."""
     if not within_stream:
         return "never (survived the whole stream)"
-    return f"step {int(round(step))} (t = {_fmt(at_t)})"
+    where = f"step {int(round(step))} (t = {_fmt(at_t)})"
+    if in_seeds is not None and n_seeds is not None and in_seeds < n_seeds:
+        where += f", in {in_seeds} of {n_seeds} seeds"
+    return where
 
 
 def table(results: Mapping[str, Any]) -> str:
     """The scoreboard, one row per model per case: cost, error, and where it left -- plus what it claimed."""
-    head = ("| rank | model | cost (train / predict) | final relative L2 | left its domain | its own residual "
-            "alarm |")
+    head = ("| rank | model | cost (train / predict) | final relative L2 | left its domain (first seed to leave) | "
+            "its own residual alarm (first seed to fire) |")
     lines = [head, "|---|---|---:|---:|---|---|"]
     for _cid, block in results["cases"].items():
         times = block["stream"]["t"]
         for row in block["scoreboard"]:
-            alarm = ("never" if not row["alarm_within_stream"]
-                     else f"step {int(round(row['alarm_at_step']))} "
-                          f"(t = {_fmt(times[int(round(row['alarm_at_step']))])})")
+            alarm_at = min(int(round(row["alarm_at_step"])), len(times) - 1)
+            alarm = _where(row["alarm_at_step"], times[alarm_at], row["alarm_within_stream"],
+                           row.get("alarm_in_seeds"), row.get("n_seeds"))
+            left = _where(row["left_at_step"], row["left_at_t"], row["left_within_stream"],
+                          row.get("left_in_seeds"), row.get("n_seeds"))
             lines.append(f"| {row['rank']} | {row['model']} | {row['train_s']:.1f} s / "
                          f"{row['predict_s'] * 1e3:.1f} ms | {_fmt(row['final_rel_l2'], 3)} | "
-                         f"{_where(row['left_at_step'], row['left_at_t'], row['left_within_stream'])} | "
-                         f"{alarm} |")
+                         f"{left} | {alarm} |")
         lines += ["", f"Case `{block['case']['id']}`: {block['case']['name']}. "
                       f"Window: t <= {block['case']['split_at']} (the steps the models were trained on); the rest "
                       f"of the stream is the battle. {len(times)} steps, "
@@ -628,8 +672,8 @@ def page(results: Mapping[str, Any]) -> str:
         "",
         "## The protocol",
         "",
-        f"* **seeds**: {', '.join(str(s) for s in b['seeds'])} -- every model is trained once per seed and the rows "
-        "report the mean over them",
+        f"* **seeds**: {', '.join(str(s) for s in b['seeds'])} -- every model is trained once per seed; the error and "
+        "the cost are reported as the mean over them, and the exit as the first seed that left (see *ranking*)",
         f"* **budget**: {b['budget']['epochs']} epochs, lr {b['budget']['lr']}, batch {b['budget']['batch_size']}, "
         f"identical for both models; the size knobs are each family's own (FNO {b['budget']['fno']}, "
         f"PINN {b['budget']['pinn']})",
@@ -645,14 +689,15 @@ def page(results: Mapping[str, Any]) -> str:
         f"`{b['exit']['residual_calibrated_on']}` -- a reference-free monitor, calibrated on the state the model was "
         "in when it left the window, which is the only calibration available without an answer to compare against",
         f"* **residual**: {b['residual_operator']}",
+        f"* **ranking**: {b['ranking']['key']}; ties go to {', then to '.join(b['ranking']['tie_break'])}",
         f"* **cost**: {b['cost']}",
         "",
         "## The scoreboard",
         "",
         table(results),
-        "Ranked by the step at which the measurement says the model left (mean over seeds, a model that never left",
-        "placed at the end of the stream), then by final relative L2, then by cost -- a total order, recomputable",
-        "from the record, and the thing `python scripts/battle.py --check` refuses to publish out of order.",
+        "A model that never left any seed is placed at the end of the stream -- surviving is a result, not a missing",
+        "value. The order is total and recomputable from the record, which is what lets",
+        "`python scripts/battle.py --check` refuse to publish it out of order.",
         "",
     ]
     for cid, block in results["cases"].items():
@@ -669,9 +714,17 @@ def page(results: Mapping[str, Any]) -> str:
             summary = entry["summary"]
             exit_step = summary["error_exit_step"]
             alarm_step = summary["residual_alarm_step"]
-            left_at_t = times[min(int(round(exit_step["mean"])), len(times) - 1)]
-            alarm = ("never" if not alarm_step["within_stream"]
-                     else _where(alarm_step["mean"], times[int(round(alarm_step["mean"]))], True))
+            left_at_t = times[min(int(round(exit_step["min"])), len(times) - 1)]
+            left = _where(exit_step["min"], left_at_t, exit_step.get("left_in_any_seed", exit_step["within_stream"]),
+                          exit_step.get("left_in_seeds"), exit_step.get("n_seeds"))
+            alarm_at = min(int(round(alarm_step["min"])), len(times) - 1)
+            alarm = _where(alarm_step["min"], times[alarm_at],
+                           alarm_step.get("left_in_any_seed", alarm_step["within_stream"]),
+                           alarm_step.get("left_in_seeds"), alarm_step.get("n_seeds"))
+            per_seed = ", ".join(
+                f"seed {r['seed']}: "
+                f"{'never' if r['error_exit']['step'] is None else 'step ' + str(r['error_exit']['step'])}"
+                for r in entry["runs"])
             parts += [f"### {model} -- {entry['kind']}", "",
                       f"* sees: {entry['supervision']}",
                       f"* {entry['parameters']:,} parameters",
@@ -682,9 +735,10 @@ def page(results: Mapping[str, Any]) -> str:
                       f"mean outside it: {_fmt(summary['rel_l2_out_window_mean']['mean'], 3)}; "
                       f"last step: {_fmt(summary['rel_l2_final']['mean'], 3)} "
                       f"[{_fmt(summary['rel_l2_final']['min'], 3)}, {_fmt(summary['rel_l2_final']['max'], 3)}]",
-                      f"* left its domain at {_where(exit_step['mean'], left_at_t, exit_step['within_stream'])} "
-                      f"(threshold {_fmt(summary['exit_threshold']['mean'], 3)})",
-                      f"* its own residual alarm fired at {alarm} "
+                      f"* first left its domain at {left} "
+                      f"(threshold {_fmt(summary['exit_threshold']['mean'], 3)}); the seed spread of that step is "
+                      f"[{_fmt(exit_step['min'], 3)}, {_fmt(exit_step['max'], 3)}] and the seeds read {per_seed}",
+                      f"* its own residual alarm first fired at {alarm} "
                       f"(threshold {_fmt(summary['exit_threshold']['alarm_threshold'], 3)})",
                       ""]
         d = block["disagreement"]

@@ -61,6 +61,16 @@ python examples/end_to_end/airfoil_trust/make_video.py --cut short    # 90 s, fo
 The MP4 is not committed here: twenty megabytes of video in a git history is not a review artefact. The script, the
 figures and the numbers that go into it are.
 
+There is a third cut that narrates nothing: it records the run itself. `record_demo.sh` records the session headless
+with asciinema, cuts it to video with agg, draws the right-hand panel with `demo_panel.py` and puts the two side by
+side -- terminal on the left, `FIGURES OF THE RUN` on the right, each figure appearing at the instant the stage that
+measured it printed its `[figure]` line, so the panel needs no clock of its own.
+
+```bash
+python examples/end_to_end/airfoil_trust/run_all.py --fast            # the numbers the session replays
+bash examples/end_to_end/airfoil_trust/record_demo.sh ~/trust-video   # ~3 min to record, ~1 min to render
+```
+
 ## The case
 
 | | |

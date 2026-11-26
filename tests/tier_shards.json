@@ -497,6 +497,7 @@
     "tests/test_fno3d.py",
     "tests/test_fno_coldplate_example.py",
     "tests/test_fno_padding.py",
+    "tests/test_fno_physicsnemo_parity.py",
     "tests/test_football_physics.py",
     "tests/test_forecasting_foundation_models.py",
     "tests/test_format_round_trip.py",

@@ -67,7 +67,7 @@ that comes back above 1e100, and a ray-casting test pins the sampling to the geo
 
 ### 1. The reference is a measurement, not the truth
 
-Four meshes, every spacing -- including the boundary layer -- scaled by the same factor 1.44:
+Four meshes, every spacing -- including the boundary layer -- scaled by the same factor 1.45:
 
 | mesh | cells | CL | CD | avg non-orthogonality | max skewness | checkMesh | time |
 |---|---|---|---|---|---|---|---|

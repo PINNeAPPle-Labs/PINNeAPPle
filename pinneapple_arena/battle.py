@@ -402,9 +402,11 @@ def _one_thread():
     Two reasons, and both are about the number this board publishes. torch splits a reduction over as many threads as
     it has, and the split changes the rounding, so two processes with the same seed and the same code can disagree on
     the step at which an error curve crosses the tolerance -- the exit is not reproducible until the split is fixed.
-    And it makes the cost column mean something: a wide FNO kernel scales with threads while a thin MLP does not, so
-    letting each take whatever the machine offers measures torch's scheduler as much as the model. Measured here on a
-    loaded machine: 2.5 s per 40 FNO epochs on one thread against 4.0 s on four.
+    Measured here: two runs on all four threads put the FNO's exit on Burgers at step 23, then at 22; with the split
+    fixed at one, two runs of the whole record reproduced **every** error curve bit for bit and the same exit for
+    every model and seed. And it makes the cost column mean something: a wide FNO kernel scales with threads while a
+    thin MLP does not, so letting each take whatever the machine offers measures torch's scheduler as much as the
+    model (40 FNO epochs: 2.5 s on one thread against 4.0 s on four, on a loaded machine).
     """
     import torch
 
@@ -800,7 +802,13 @@ def page(results: Mapping[str, Any]) -> str:
               "```",
               "",
               "The cost is a property of the machine and is published as information; a reproduction compares the",
-              "errors and the exits, never the seconds.", ""]
+              "errors and the exits, never the seconds.",
+              "",
+              "The run is seeded per model **and** held to one CPU thread (`_one_thread`), which is what makes the",
+              "errors comparable and the exit reproducible at all: torch splits a reduction over its threads and the",
+              "split changes the rounding, so on four threads two runs of this same code put the FNO's exit on",
+              "Burgers at step 23 and then at 22. With the split fixed at one, two runs of this record reproduced",
+              "every error curve bit for bit and the same exit for every model and seed.", ""]
     return "\n".join(parts)
 
 

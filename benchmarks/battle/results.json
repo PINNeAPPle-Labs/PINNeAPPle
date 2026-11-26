@@ -125,7 +125,7 @@
         1.7105910834305067,
         null
        ],
-       "predict_s": 0.12972211837768555,
+       "predict_s": 0.07222390174865723,
        "relative_l2": [
         0.01704046426697402,
         0.008741655511490608,
@@ -178,8 +178,8 @@
         "value": null
        },
        "seed": 0,
-       "total_s": 36.75591421127319,
-       "train_s": 36.61835813522339
+       "total_s": 26.31222915649414,
+       "train_s": 26.224491119384766
       },
       {
        "error_exit": {
@@ -234,7 +234,7 @@
         1.045922445652732,
         null
        ],
-       "predict_s": 0.10829591751098633,
+       "predict_s": 0.10810685157775879,
        "relative_l2": [
         0.01682221244837004,
         0.009215958879295851,
@@ -287,8 +287,8 @@
         "value": null
        },
        "seed": 1,
-       "total_s": 20.57503056526184,
-       "train_s": 20.461555242538452
+       "total_s": 20.649797201156616,
+       "train_s": 20.53438115119934
       }
      ],
      "summary": {
@@ -306,7 +306,7 @@
        "mean": 0.05
       },
       "predict_s": {
-       "mean": 0.11900901794433594
+       "mean": 0.09016537666320801
       },
       "rel_l2_final": {
        "max": 0.30778270774533556,
@@ -329,9 +329,9 @@
        "within_stream": false
       },
       "train_s": {
-       "max": 36.61835813522339,
-       "mean": 28.53995668888092,
-       "min": 20.461555242538452
+       "max": 26.224491119384766,
+       "mean": 23.379436135292053,
+       "min": 20.53438115119934
       }
      },
      "supervision": "the window's field (data-supervised neural operator)"
@@ -393,7 +393,7 @@
         1.6415181686063154,
         null
        ],
-       "predict_s": 0.0048160552978515625,
+       "predict_s": 0.009822845458984375,
        "relative_l2": [
         0.09692131213971211,
         0.08560961982216868,
@@ -446,8 +446,8 @@
         "value": null
        },
        "seed": 0,
-       "total_s": 17.072282791137695,
-       "train_s": 17.06575107574463
+       "total_s": 17.664689779281616,
+       "train_s": 17.64735174179077
       },
       {
        "error_exit": {
@@ -502,7 +502,7 @@
         1.4980082451043395,
         null
        ],
-       "predict_s": 0.0068438053131103516,
+       "predict_s": 0.011428117752075195,
        "relative_l2": [
         0.07942328780348029,
         0.068940546644812,
@@ -555,8 +555,8 @@
         "value": null
        },
        "seed": 1,
-       "total_s": 20.174397230148315,
-       "train_s": 20.16371989250183
+       "total_s": 17.07091999053955,
+       "train_s": 17.05325675010681
       }
      ],
      "summary": {
@@ -574,7 +574,7 @@
        "mean": 0.05
       },
       "predict_s": {
-       "mean": 0.005829930305480957
+       "mean": 0.010625481605529785
       },
       "rel_l2_final": {
        "max": 0.8888877438136012,
@@ -597,9 +597,9 @@
        "within_stream": false
       },
       "train_s": {
-       "max": 20.16371989250183,
-       "mean": 18.61473548412323,
-       "min": 17.06575107574463
+       "max": 17.64735174179077,
+       "mean": 17.35030424594879,
+       "min": 17.05325675010681
       }
      },
      "supervision": "the window's field + the governing equation (PDE residual in the loss)"
@@ -667,10 +667,10 @@
      "model": "pinn",
      "n_seeds": 2,
      "parameters": 8577,
-     "predict_s": 0.00583,
+     "predict_s": 0.010625,
      "rank": 1,
      "supervision": "the window's field + the governing equation (PDE residual in the loss)",
-     "train_s": 18.615
+     "train_s": 17.35
     },
     {
      "alarm_at_step": 41.0,
@@ -687,10 +687,10 @@
      "model": "fno",
      "n_seeds": 2,
      "parameters": 37121,
-     "predict_s": 0.119009,
+     "predict_s": 0.090165,
      "rank": 2,
      "supervision": "the window's field (data-supervised neural operator)",
-     "train_s": 28.54
+     "train_s": 23.379
     }
    ],
    "stream": {
@@ -912,7 +912,7 @@
         0.6434221550212443,
         null
        ],
-       "predict_s": 0.14524579048156738,
+       "predict_s": 0.1900348663330078,
        "relative_l2": [
         0.003584616924135,
         0.002599211995801044,
@@ -965,8 +965,8 @@
         "value": null
        },
        "seed": 0,
-       "total_s": 25.243133783340454,
-       "train_s": 25.089163064956665
+       "total_s": 34.749561071395874,
+       "train_s": 34.54323220252991
       },
       {
        "error_exit": {
@@ -1021,7 +1021,7 @@
         0.6261817236497201,
         null
        ],
-       "predict_s": 0.12955212593078613,
+       "predict_s": 0.1950368881225586,
        "relative_l2": [
         0.001973044488146899,
         0.0015455932344284652,
@@ -1074,8 +1074,8 @@
         "value": null
        },
        "seed": 1,
-       "total_s": 21.795201063156128,
-       "train_s": 21.65555715560913
+       "total_s": 52.57307815551758,
+       "train_s": 52.36251711845398
       }
      ],
      "summary": {
@@ -1093,7 +1093,7 @@
        "mean": 0.05
       },
       "predict_s": {
-       "mean": 0.13739895820617676
+       "mean": 0.1925358772277832
       },
       "rel_l2_final": {
        "max": 0.04879464890605508,
@@ -1116,9 +1116,9 @@
        "within_stream": false
       },
       "train_s": {
-       "max": 25.089163064956665,
-       "mean": 23.372360110282898,
-       "min": 21.65555715560913
+       "max": 52.36251711845398,
+       "mean": 43.45287466049194,
+       "min": 34.54323220252991
       }
      },
      "supervision": "the window's field (data-supervised neural operator)"
@@ -1180,7 +1180,7 @@
         0.13151254378800953,
         null
        ],
-       "predict_s": 0.010036945343017578,
+       "predict_s": 0.083740234375,
        "relative_l2": [
         0.013134898151898338,
         0.011017829109980235,
@@ -1233,8 +1233,8 @@
         "value": null
        },
        "seed": 0,
-       "total_s": 58.99967288970947,
-       "train_s": 58.97810506820679
+       "total_s": 24.820353984832764,
+       "train_s": 24.66631770133972
       },
       {
        "error_exit": {
@@ -1289,7 +1289,7 @@
         0.0751144530857403,
         null
        ],
-       "predict_s": 0.017176151275634766,
+       "predict_s": 0.015079975128173828,
        "relative_l2": [
         0.011071476994686108,
         0.009402722555741,
@@ -1342,8 +1342,8 @@
         "value": null
        },
        "seed": 1,
-       "total_s": 42.35174608230591,
-       "train_s": 42.31483507156372
+       "total_s": 23.863214015960693,
+       "train_s": 23.830275058746338
       }
      ],
      "summary": {
@@ -1361,7 +1361,7 @@
        "mean": 0.05
       },
       "predict_s": {
-       "mean": 0.013606548309326172
+       "mean": 0.049410104751586914
       },
       "rel_l2_final": {
        "max": 0.11756763993036214,
@@ -1384,9 +1384,9 @@
        "within_stream": false
       },
       "train_s": {
-       "max": 58.97810506820679,
-       "mean": 50.646470069885254,
-       "min": 42.31483507156372
+       "max": 24.66631770133972,
+       "mean": 24.24829638004303,
+       "min": 23.830275058746338
       }
      },
      "supervision": "the window's field + the governing equation (PDE residual in the loss)"
@@ -1454,10 +1454,10 @@
      "model": "pinn",
      "n_seeds": 2,
      "parameters": 8577,
-     "predict_s": 0.013607,
+     "predict_s": 0.04941,
      "rank": 1,
      "supervision": "the window's field + the governing equation (PDE residual in the loss)",
-     "train_s": 50.646
+     "train_s": 24.248
     },
     {
      "alarm_at_step": 41.0,
@@ -1474,10 +1474,10 @@
      "model": "fno",
      "n_seeds": 2,
      "parameters": 37121,
-     "predict_s": 0.137399,
+     "predict_s": 0.192536,
      "rank": 2,
      "supervision": "the window's field (data-supervised neural operator)",
-     "train_s": 23.372
+     "train_s": 43.453
     }
    ],
    "stream": {
@@ -1594,7 +1594,7 @@
     "pde_weight": 0.001
    }
   },
-  "cost": "wall time on one CPU thread pool, after a warm-up pass, per seed; information, not a ranking key",
+  "cost": "wall time with torch.set_num_threads(1), after a warm-up pass, per seed; information, not a ranking key",
   "exit": {
    "residual_calibrated_on": "last step inside the window",
    "residual_factor": 4.0,

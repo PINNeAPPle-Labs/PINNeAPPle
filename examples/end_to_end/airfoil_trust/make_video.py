@@ -482,12 +482,13 @@ def short_deck(work: str) -> dict[int, list[tuple[Image.Image, str]]]:
 # --------------------------------------------------------------------------- audio and assembly
 def narrate(text: str, path: str, voice: str, rate: int) -> float:
     """Synthesise one scene locally and return its duration in seconds."""
-    txt = os.path.join(tempfile.gettempdir(), "narration.txt")
+    txt = path + ".txt"
     with open(txt, "w") as f:
         f.write(spoken(text))
-    aiff = path.replace(".wav", ".aiff")
+    aiff = path + ".aiff"
     subprocess.run(["say", "-v", voice, "-r", str(rate), "-f", txt, "-o", aiff], check=True)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", aiff, "-ar", "48000", "-ac", "1", path], check=True)
+    os.remove(aiff)
     with wave.open(path) as w:
         return w.getnframes() / w.getframerate()
 
@@ -511,6 +512,8 @@ def main() -> int:
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
+    voice_dir = os.path.join(args.out, f"narration-{args.cut}")   # one folder per cut: the WAVs must not collide
+    os.makedirs(voice_dir, exist_ok=True)
     work = tempfile.mkdtemp(prefix="trustvideo-")
     scenes = parse_script(args.cut)
     if args.cut == "long":
@@ -522,7 +525,7 @@ def main() -> int:
         frames = deck_frames.get(scene["n"])
         if not frames:
             continue
-        wav = os.path.join(args.out, f"scene{scene['n']:02d}.wav")
+        wav = os.path.join(voice_dir, f"scene{scene['n']:02d}.wav")
         if not scene["narration"]:
             silence(wav, 5.0)
             duration = 5.0

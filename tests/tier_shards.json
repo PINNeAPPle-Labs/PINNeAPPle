@@ -429,7 +429,6 @@
     "tests/test_digital_twin_benchmark.py",
     "tests/test_digital_twin_end_to_end.py",
     "tests/test_digital_twin_library.py",
-    "tests/test_digital_twin_product.py",
     "tests/test_digital_twin_prognostics.py",
     "tests/test_digital_twin_streams_live.py",
     "tests/test_digital_twin_streams_scada_live.py",
@@ -597,7 +596,6 @@
     "tests/test_model_lineage.py",
     "tests/test_model_monitoring_drift.py",
     "tests/test_model_provider.py",
-    "tests/test_model_source.py",
     "tests/test_model_source_onnx.py",
     "tests/test_model_zoo.py",
     "tests/test_modelica_omc.py",
@@ -741,7 +739,6 @@
     "tests/test_sensitivity.py",
     "tests/test_sensitivity_lab_app.py",
     "tests/test_sensitivity_surrogate_error.py",
-    "tests/test_sensor_placement.py",
     "tests/test_serialization_compressed.py",
     "tests/test_shakura_sunyaev_disk_validation.py",
     "tests/test_shallow_water_fv.py",
@@ -750,7 +747,6 @@
     "tests/test_smoke_imports.py",
     "tests/test_snapshots.py",
     "tests/test_solar_cycle.py",
-    "tests/test_solve_compare_experiment.py",
     "tests/test_solve_guide.py",
     "tests/test_solve_pde_box_boundary.py",
     "tests/test_solve_unknown_options.py",
@@ -770,7 +766,6 @@
     "tests/test_studio_bevel.py",
     "tests/test_studio_camera.py",
     "tests/test_studio_detail.py",
-    "tests/test_studio_external_flow.py",
     "tests/test_studio_headless.py",
     "tests/test_studio_hero.py",
     "tests/test_studio_i18n.py",
@@ -780,7 +775,6 @@
     "tests/test_studio_maps.py",
     "tests/test_studio_pbr.py",
     "tests/test_studio_post.py",
-    "tests/test_studio_scene_geometry.py",
     "tests/test_studio_solid.py",
     "tests/test_studio_units.py",
     "tests/test_studio_units_design.py",
@@ -790,9 +784,7 @@
     "tests/test_structural_run.py",
     "tests/test_supply_chain_audit.py",
     "tests/test_support_matrix.py",
-    "tests/test_surrogate_contracts.py",
     "tests/test_surrogate_drift.py",
-    "tests/test_surrogate_library.py",
     "tests/test_surrogate_loop.py",
     "tests/test_surrogate_policy.py",
     "tests/test_surrogate_workflow.py",
@@ -803,7 +795,6 @@
     "tests/test_terramechanics_wheel.py",
     "tests/test_terramechanics_workflow.py",
     "tests/test_theme_chrome.py",
-    "tests/test_thermal_channel_datasets.py",
     "tests/test_thin_airfoil.py",
     "tests/test_tier_shards.py",
     "tests/test_tolerance_propagation.py",
@@ -870,6 +861,23 @@
    "measured": "2026-11-20: 11 passed in 10.93s (12.3 s wall)",
    "paths": [
     "tests/e2e"
+   ]
+  },
+  {
+   "blocking": true,
+   "ceiling": 0,
+   "id": "regression",
+   "measured": "2026-11-25: 96 passed, 5 skipped in 88.28s (0:01:28) (93.1 s wall)",
+   "paths": [
+    "tests/test_digital_twin_product.py",
+    "tests/test_model_source.py",
+    "tests/test_sensor_placement.py",
+    "tests/test_solve_compare_experiment.py",
+    "tests/test_studio_external_flow.py",
+    "tests/test_studio_scene_geometry.py",
+    "tests/test_surrogate_contracts.py",
+    "tests/test_surrogate_library.py",
+    "tests/test_thermal_channel_datasets.py"
    ]
   }
  ]

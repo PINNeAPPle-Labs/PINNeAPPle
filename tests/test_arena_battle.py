@@ -110,6 +110,22 @@ def test_the_residual_operator_keeps_the_edges_out_instead_of_inventing_a_value(
     assert np.isnan(r[:, 0]).all() and np.isnan(r[:, -1]).all(), "one-sided differences would hide a wall error"
 
 
+def test_a_case_runs_on_one_thread_and_hands_the_count_back():
+    """torch splits a reduction over its threads and the split changes the rounding, so the same seed in two
+    processes can cross the tolerance one step apart -- measured here before the split was fixed (exit 23, then 22).
+    The count is set for the case and restored after it, so a caller's own benchmark is not slowed by the visit."""
+    import torch
+
+    previous = torch.get_num_threads()
+    try:
+        torch.set_num_threads(max(2, previous))
+        with battle._one_thread():
+            assert torch.get_num_threads() == 1, "the split is fixed, or the exit step is not reproducible"
+        assert torch.get_num_threads() == max(2, previous), "and handed back"
+    finally:
+        torch.set_num_threads(previous)
+
+
 # ------------------------------------------------------------------ the scoreboard
 def _block(rows, *, in_window=6, n_steps=10):
     """A minimal case block, shaped exactly like the one ``run_case`` records, so the board can be tested alone.

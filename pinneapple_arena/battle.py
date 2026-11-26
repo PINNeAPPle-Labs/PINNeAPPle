@@ -45,6 +45,7 @@ from __future__ import annotations
 import json
 import time
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -91,9 +92,9 @@ PROTOCOL: dict[str, Any] = {
     },
     "residual_operator": ("second-order central differences in x and t on the field the model returns; the same "
                           "operator for every model, never the training loss"),
-    "cost": "wall time on one CPU thread pool, after a warm-up pass, per seed; information, not a ranking key",
+    "cost": "wall time with torch.set_num_threads(1), after a warm-up pass, per seed; information, not a ranking key",
 }
-REQUIRED_PROTOCOL_FIELDS = ("seeds", "budget", "window", "grid", "metrics", "exit")
+REQUIRED_PROTOCOL_FIELDS = ("seeds", "budget", "window", "grid", "metrics", "exit", "ranking")
 
 
 # ------------------------------------------------------------------ the stream of cases
@@ -394,10 +395,37 @@ SUPERVISION = {"fno": "the window's field (data-supervised neural operator)",
                "pinn": "the window's field + the governing equation (PDE residual in the loss)"}
 
 
+@contextmanager
+def _one_thread():
+    """One CPU thread for a whole case, restored afterwards.
+
+    Two reasons, and both are about the number this board publishes. torch splits a reduction over as many threads as
+    it has, and the split changes the rounding, so two processes with the same seed and the same code can disagree on
+    the step at which an error curve crosses the tolerance -- the exit is not reproducible until the split is fixed.
+    And it makes the cost column mean something: a wide FNO kernel scales with threads while a thin MLP does not, so
+    letting each take whatever the machine offers measures torch's scheduler as much as the model. Measured here on a
+    loaded machine: 2.5 s per 40 FNO epochs on one thread against 4.0 s on four.
+    """
+    import torch
+
+    previous = torch.get_num_threads()
+    torch.set_num_threads(1)
+    try:
+        yield
+    finally:
+        torch.set_num_threads(previous)
+
+
 def run_case(case_id: str, *, seeds: Sequence[int] | None = None) -> dict[str, Any]:
     """Run every model over the same stream, every seed, and return the measurements the scoreboard is built from."""
     case = get_case(case_id)
     seeds = tuple(PROTOCOL["seeds"] if seeds is None else seeds)
+    with _one_thread():
+        return _run_case(case, seeds)
+
+
+def _run_case(case: BattleCase, seeds: Sequence[int]) -> dict[str, Any]:
+    """The body of :func:`run_case`, with the thread count already fixed by the caller."""
     field = case.build()
     in_window = field.t <= case.split_at
     _warm_up()
@@ -604,13 +632,13 @@ def _fmt(value: float | None, digits: int = 2) -> str:
 
 
 def _where(step: float, at_t: float, within_stream: bool, in_seeds: int | None = None,
-           n_seeds: int | None = None) -> str:
+           n_seeds: int | None = None, *, never: str = "never (survived the whole stream)") -> str:
     """Where a model left, in the coordinates a reader needs: the step of the stream, its time, and how many seeds.
 
     The seed count is not decoration. A model that left in one seed of two has left, and printing it as "never" --
     which is what the mean of a censored exit used to do -- states the opposite of the measurement."""
     if not within_stream:
-        return "never (survived the whole stream)"
+        return never
     where = f"step {int(round(step))} (t = {_fmt(at_t)})"
     if in_seeds is not None and n_seeds is not None and in_seeds < n_seeds:
         where += f", in {in_seeds} of {n_seeds} seeds"
@@ -627,7 +655,7 @@ def table(results: Mapping[str, Any]) -> str:
         for row in block["scoreboard"]:
             alarm_at = min(int(round(row["alarm_at_step"])), len(times) - 1)
             alarm = _where(row["alarm_at_step"], times[alarm_at], row["alarm_within_stream"],
-                           row.get("alarm_in_seeds"), row.get("n_seeds"))
+                           row.get("alarm_in_seeds"), row.get("n_seeds"), never="never (the monitor did not fire)")
             left = _where(row["left_at_step"], row["left_at_t"], row["left_within_stream"],
                           row.get("left_in_seeds"), row.get("n_seeds"))
             lines.append(f"| {row['rank']} | {row['model']} | {row['train_s']:.1f} s / "
@@ -658,6 +686,9 @@ def _floor(block: Mapping[str, Any]) -> str:
 def page(results: Mapping[str, Any]) -> str:
     """The documentation page, generated from the results file so the published numbers cannot drift from the run."""
     b = results["protocol"]
+    ranking = b.get("ranking") or {}
+    ranking_line = (f"* **ranking**: {ranking['key']}; ties go to {', then to '.join(ranking['tie_break'])}"
+                    if ranking else "* **ranking**: this record does not declare one; the order is its own claim")
     parts = [
         "# Battle of the models: the scoreboard (#373)",
         "",
@@ -689,7 +720,7 @@ def page(results: Mapping[str, Any]) -> str:
         f"`{b['exit']['residual_calibrated_on']}` -- a reference-free monitor, calibrated on the state the model was "
         "in when it left the window, which is the only calibration available without an answer to compare against",
         f"* **residual**: {b['residual_operator']}",
-        f"* **ranking**: {b['ranking']['key']}; ties go to {', then to '.join(b['ranking']['tie_break'])}",
+        ranking_line,
         f"* **cost**: {b['cost']}",
         "",
         "## The scoreboard",
@@ -720,11 +751,22 @@ def page(results: Mapping[str, Any]) -> str:
             alarm_at = min(int(round(alarm_step["min"])), len(times) - 1)
             alarm = _where(alarm_step["min"], times[alarm_at],
                            alarm_step.get("left_in_any_seed", alarm_step["within_stream"]),
-                           alarm_step.get("left_in_seeds"), alarm_step.get("n_seeds"))
+                           alarm_step.get("left_in_seeds"), alarm_step.get("n_seeds"),
+                           never="never (the monitor did not fire)")
             per_seed = ", ".join(
                 f"seed {r['seed']}: "
                 f"{'never' if r['error_exit']['step'] is None else 'step ' + str(r['error_exit']['step'])}"
                 for r in entry["runs"])
+            exit_fired = bool(exit_step.get("left_in_any_seed", exit_step["within_stream"]))
+            alarm_fired = bool(alarm_step.get("left_in_any_seed", alarm_step["within_stream"]))
+            alarm_threshold = _fmt(summary["exit_threshold"]["alarm_threshold"], 3)
+            if alarm_fired:
+                alarm_line = f"* its own residual alarm first fired at {alarm} (threshold {alarm_threshold})"
+            else:
+                alarm_line = f"* its own residual alarm never fired (threshold {alarm_threshold})"
+                if exit_fired:
+                    alarm_line += (" while the reference column says the model left its domain: a monitor that stays "
+                                   "silent on a model that left is a finding, not a blank")
             parts += [f"### {model} -- {entry['kind']}", "",
                       f"* sees: {entry['supervision']}",
                       f"* {entry['parameters']:,} parameters",
@@ -738,8 +780,7 @@ def page(results: Mapping[str, Any]) -> str:
                       f"* first left its domain at {left} "
                       f"(threshold {_fmt(summary['exit_threshold']['mean'], 3)}); the seed spread of that step is "
                       f"[{_fmt(exit_step['min'], 3)}, {_fmt(exit_step['max'], 3)}] and the seeds read {per_seed}",
-                      f"* its own residual alarm first fired at {alarm} "
-                      f"(threshold {_fmt(summary['exit_threshold']['alarm_threshold'], 3)})",
+                      alarm_line,
                       ""]
         d = block["disagreement"]
         if d.get("available"):

@@ -7,8 +7,11 @@
   reference at all (its residual crossing a factor of the value it had at the edge of its window), and `error_exit` is
   the first step past the window where the error crossed the tolerance this library calls a reproduced field -- the
   column the board ranks by, because ranking by the self-calibrated one would put the better model first for the only
-  reason that it had less room to be four times worse. The board also reports the step where the two fields are
-  furthest apart and which one the reference agrees with there. `bundle_bench.run_and_predict` is the one addition to
+  reason that it had less room to be four times worse. The exit is the **first seed** that left, not the mean over
+  seeds: a seed that survived has no exit, and averaging the end of the stream in for it would print "never" for a
+  model that left in one seed of two -- so each row also carries the count (`left_in_seeds` / `n_seeds`). The board
+  also reports the step where the two fields are furthest apart and which one the reference agrees with there.
+  `bundle_bench.run_and_predict` is the one addition to
   the benchmark: the same training, the same budget and the same seed as `run_model`, predicting the whole stream
   instead of the held-out block, because the exit is a step and it usually falls on the near side of the split.
   `python scripts/battle.py --run` publishes `benchmarks/battle/results.json` and generates the page from it;

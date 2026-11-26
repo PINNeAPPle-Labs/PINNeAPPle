@@ -1,0 +1,116 @@
+{
+  "issue": 350,
+  "graph": {
+    "path": "/Users/yanbarros/Documents/GitHub/wt-350/examples/embedded/flight_model.onnx",
+    "bytes": 25042,
+    "op_types": [
+      "Abs",
+      "Add",
+      "Cast",
+      "Clip",
+      "Concat",
+      "Constant",
+      "Conv",
+      "Div",
+      "Gather",
+      "Greater",
+      "Identity",
+      "Mul",
+      "Pow",
+      "ReduceMean",
+      "Reshape",
+      "Slice",
+      "Sqrt",
+      "Sub",
+      "Tanh"
+    ],
+    "control_flow": [],
+    "inputs": [
+      "state",
+      "measurement"
+    ],
+    "outputs": [
+      "prediction",
+      "residual",
+      "trust",
+      "off_physics",
+      "suspect",
+      "measurement_error"
+    ],
+    "straight_line": true
+  },
+  "parameters": 2769,
+  "training": {
+    "train_seconds": 14.204801797866821,
+    "relative_mse": 0.0006211271975189447,
+    "samples": 2000
+  },
+  "tolerance": 0.094,
+  "residuals": {
+    "in-domain": {
+      "median_residual": 0.06258744560182095,
+      "max_residual": 0.07735700160264969,
+      "flagged": 0.0
+    },
+    "alpha-5x": {
+      "median_residual": 0.06353317014873028,
+      "max_residual": 0.07403615117073059,
+      "flagged": 0.0
+    },
+    "alpha-50x": {
+      "median_residual": 0.21638114005327225,
+      "max_residual": 0.22888657450675964,
+      "flagged": 1.0
+    },
+    "speed-2.5x": {
+      "median_residual": 0.40835951268672943,
+      "max_residual": 0.438016802072525,
+      "flagged": 1.0
+    },
+    "static": {
+      "median_residual": 0.3545328378677368,
+      "max_residual": 0.4004802703857422,
+      "flagged": 1.0
+    }
+  },
+  "latency": {
+    "1": {
+      "n": 500.0,
+      "median_ms": 0.5473334986163536,
+      "p95_ms": 0.6395264474122085,
+      "max_ms": 4.785042001458351,
+      "hz": 1827.0396431571917,
+      "hz_p95": 1563.6569903346735,
+      "threads": 1.0
+    },
+    "4": {
+      "n": 500.0,
+      "median_ms": 0.3518954981700517,
+      "p95_ms": 0.5941868483205326,
+      "max_ms": 9.52454100115574,
+      "hz": 2841.7527510305204,
+      "hz_p95": 1682.9722886437107,
+      "threads": 4.0
+    }
+  },
+  "machine": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "processor": "arm",
+    "python": "3.11.16",
+    "torch": "2.15.0",
+    "cpus": 10
+  },
+  "spec": {
+    "c_x": 1.0,
+    "c_y": 0.35,
+    "alpha": 0.01,
+    "state_shape": [
+      2,
+      32,
+      64
+    ],
+    "dt": 0.5,
+    "dx": 1.0,
+    "tolerance": 0.094
+  }
+}

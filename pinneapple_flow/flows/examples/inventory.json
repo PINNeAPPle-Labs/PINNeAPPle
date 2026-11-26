@@ -485,5 +485,10 @@
   "domain": "robotics",
   "reason": "flight_safety.py is a closed loop in time -- the vehicle flies, the sensors report, the residual is measured and the fault is diagnosed -- and its unit is a flight of 10 000 steps, not a call. A flow node would have to run the whole campaign (eight faults x three seeds) inside one evaluation, which is a batch job, not a graph",
   "status": "not_convertible"
+ },
+ "embedded": {
+  "domain": "deployment",
+  "reason": "embedded_inference.py trains a small convolutional surrogate of the advection-diffusion field, exports it together with the residual stencil and the measurement check as one ONNX graph, and measures the latency and residual inside and outside the training envelope. What the example is about is the deployment: the graph and the hertz are one library call each (embedded.export, EmbeddedRuntime.latency) and a node graph would say nothing more than the script does",
+  "status": "not_convertible"
  }
 }

@@ -50,6 +50,10 @@ REASONS: dict[str, str] = {
                                         "water on terrain (HAND and an admissible flood mask) and frame-to-frame "
                                         "continuity. They are attachable to PhysicsEnsemble(prediction_checks=...), "
                                         "which is the node that weights the experts; alone they judge a prediction",
+    "pinneapple_physics.embedded": "the export path of #350: the model, its physics residual and its measurement check "
+                                   "as one ONNX graph with a fixed-size state and no control flow, plus the runtime "
+                                   "that measures the latency. It is how the ensemble node leaves the workstation, not "
+                                   "a step of the graph -- a node here would be the deployment of another node",
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
     "pinneapple_analysis.trust.certificate": "verification as a service (#341): it takes somebody else's prediction and "
                                             "returns the certificate of what the physics says about it -- the "

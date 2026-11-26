@@ -1,0 +1,80 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "pict_cavity",
+ "title": "Lid-driven cavity vs Ghia et al. (1982)",
+ "description": "",
+ "domain": "fluid dynamics",
+ "methods": [],
+ "modules": [],
+ "params": {},
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "ghia_u_rms_re100",
+   "value": 0.00467021448954513,
+   "unit": "",
+   "how": "rms of u(x=0.5) against Ghia et al. (1982) Table I at Re=100, 32x32 cells, local engine"
+  },
+  {
+   "name": "ghia_v_rms_re100",
+   "value": 0.004924894881807705,
+   "unit": "",
+   "how": "rms of v(y=0.5) against Ghia et al. (1982) Table II at Re=100, 32x32 cells, local engine"
+  },
+  {
+   "name": "continuity_re100",
+   "value": 1.7763568394002505e-15,
+   "unit": "U/L",
+   "how": "largest discrete du/dx + dv/dy, normalised by the lid velocity over the side"
+  }
+ ],
+ "checks": [
+  {
+   "name": "Re=100: walls and lid are the imposed boundary conditions",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "Re=100: centreline within 0.05 of Ghia et al.",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "{\"ghia_u_rms\": 0.00467021448954513, \"ghia_v_rms\": 0.004924894881807705}",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "8ce185ebb",
+  "created": "2026-11-14T02:09:19Z",
+  "seconds": 0.732,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

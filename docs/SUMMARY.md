@@ -18,6 +18,7 @@
   * [Distributed physics: sweeps, partitioned meshes, decomposed training](core_concepts/distributed.md)
   * [The .ppx container: a result that reproduces elsewhere](core_concepts/artifact.md)
   * [One registry for every extensible object type](core_concepts/registry.md)
+  * [The analysis contract: what a calculation takes and how it words its finding](core_concepts/analysis_contract.md)
   * [PhysicsOptimizer](core_concepts/physics_optimizer.md)
   * [Model](core_concepts/model.md)
   * [PINN / Physics](core_concepts/pinn.md)
@@ -59,6 +60,7 @@
 * [Validation status](validation_status.md)
 * Guides
     * [Choosing a method: PINN, operator, graph network or solver](guides/choosing_a_method.md)
+    * [Integral equations of the second kind](guides/integral_equations.md)
     * [Running a benchmark](guides/running_a_benchmark.md)
     * [Viscous vortex domains: 2-D Navier-Stokes without a mesh](guides/vortex_domains.md)
     * [Surrogates from simulation results: study, regime arena, gateway](guides/surrogates_arena_gateway.md)

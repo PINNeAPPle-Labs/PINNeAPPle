@@ -21,6 +21,7 @@ from .autograd_ops import (
     mse,
 )
 from .em_kinds import EM_KINDS, em_residuals
+from .integral_kinds import INTEGRAL_KINDS, integral_residuals
 from .loss import LossWeights
 
 
@@ -253,6 +254,11 @@ def compile_problem(
             # Maxwell's equations, differential and integral forms (em_kinds.py)
             res_list.extend(em_residuals(pde_kind, fields=fields, xcol=xcol, coords=coords, params=p, ctx=ctx,
                                          model=model, field_names=field_names, split_fields=_split_fields))
+
+        elif pde_kind in INTEGRAL_KINDS:
+            # integral equations of the second kind, Nyström form (integral_kinds.py)
+            res_list.extend(integral_residuals(pde_kind, fields=fields, xcol=xcol, coords=coords, params=p, ctx=ctx,
+                                               model=model, field_names=field_names, split_fields=_split_fields))
 
         elif pde_kind == "laplace":
             if len(field_names) != 1:

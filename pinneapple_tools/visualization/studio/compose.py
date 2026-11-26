@@ -36,6 +36,19 @@ def stops(cmap: str):
     return CMAPS[cmap]
 
 
+def srgb_to_linear(c):
+    """sRGB (floats in [0, 1]) -> linear, the space glTF vertex colours and the PBR renderers work in."""
+    import numpy as np
+    return np.clip(np.asarray(c, float), 0.0, 1.0) ** 2.2
+
+
+def css_gradient(cmap: str, n: int = 12) -> str:
+    """``cmap`` as a CSS ``linear-gradient`` (left = low), for a colour bar in a page."""
+    return "linear-gradient(to right, " + ", ".join(
+        "rgb({}, {}, {}) {:.1f}%".format(*(int(round(c * 255)) for c in cmap_color(cmap, i / (n - 1))),
+                                       100.0 * i / (n - 1)) for i in range(n)) + ")"
+
+
 def cmap_color(cmap: str, t: float) -> tuple[float, float, float]:
     """sRGB colour (floats in [0, 1]) of ``cmap`` at t in [0, 1] (NaN -> 0)."""
     t = float(t)

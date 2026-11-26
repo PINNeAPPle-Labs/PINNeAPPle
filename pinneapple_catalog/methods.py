@@ -61,6 +61,7 @@ PC = "pinneapple_systems/process_components/"
 CF = "pinneapple_physics/closed_form/"
 COMPILE = "pinneapple_physics/pinn_solver/compiler/compile.py"
 EMK = "pinneapple_physics/pinn_solver/compiler/em_kinds.py"
+IK = "pinneapple_physics/pinn_solver/compiler/integral_kinds.py"
 EM = "pinneapple_simulation/electromagnetics/"
 DYN = "pinneapple_analysis/dynamics/"
 
@@ -80,6 +81,7 @@ JACKSON = "Jackson, Classical Electrodynamics, 3rd ed., Wiley, 1999"
 GRIFFITHS = "Griffiths, Introduction to Electrodynamics, 4th ed., Cambridge University Press, 2017"
 JIN = "Jin, The Finite Element Method in Electromagnetics, 3rd ed., Wiley-IEEE Press, 2014"
 TAFLOVE = "Taflove & Hagness, Computational Electrodynamics: The Finite-Difference Time-Domain Method, 3rd ed., Artech House, 2005"
+ATKINSON = "Atkinson, The Numerical Solution of Integral Equations of the Second Kind, Cambridge University Press, 1997"
 POZAR = "Pozar, Microwave Engineering, 4th ed., Wiley, 2012"
 BOHREN_HUFFMAN = "Bohren & Huffman, Absorption and Scattering of Light by Small Particles, Wiley, 1983"
 RAISSI = "Raissi, Perdikaris & Karniadakis, Physics-informed neural networks, J. Comput. Phys. 378 (2019) 686-707"
@@ -386,13 +388,18 @@ METHODS: List[Method] = [
        ["pinneapple_arena/autoresearch.py"], ["AutoResearch", "autoresearch"],
        refs_added=["karpathy/autoresearch (MIT), https://github.com/karpathy/autoresearch"]),
     _m("T22", "Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, "
-              "ensemble UQ, OOD score, fine-tuning)", ["pinneapple_neural/lpm.py"],
-       ["LargePhysicsModel", "pinneapple_neural.lpm"],
+              "ensemble UQ, OOD score, fine-tuning, query-to-surface attention, batched design-space training)",
+       ["pinneapple_neural/lpm.py"],
+       ["LargePhysicsModel", "PointAttention", "DesignBatch", "ellipse_design_space", "pinneapple_neural.lpm"],
        refs_in_code=["Luminary, Vocabulary of Physics AI / How Large Physics Models gain spatial context (2026)",
                      "Tancik et al., Fourier features let networks learn high frequency functions, NeurIPS 2020, "
                      "arXiv:2006.10739",
                      "Zaheer et al., Deep Sets, NeurIPS 2017, arXiv:1703.06114",
-                     "Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474"],
+                     "Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474",
+                     "Wu, Hao, Liu et al., Transolver: a fast transformer solver for PDEs on general geometries, "
+                     "ICML 2024, arXiv:2402.02366",
+                     "Herde et al., GeoTransolver: geometry-aware transformer for PDE solving, 2025, arXiv:2507.13822",
+                     "Gao et al., AB-UPT: anchor-based universal physics transformer, 2025, arXiv:2505.18781"],
        refs_added=["Milne-Thomson, Theoretical Hydrodynamics, §9.61 (ellipse potential flow, benchmark reference)"]),
     _m("T23", "MultiAdam: per-loss-term Adam moments for multi-term PINN losses", [TR + "multiadam.py"],
        ["MultiAdam", "multiadam"],
@@ -544,9 +551,13 @@ METHODS: List[Method] = [
        refs_added=[JACKSON]),
     _m("E71", "Frequency-domain TMz wave equation with complex permittivity", [EMK], ["maxwell_tm_frequency"],
        refs_added=[JIN, "Harrington, Time-Harmonic Electromagnetic Fields, McGraw-Hill, 1961"]),
+    _m("E72", "Fredholm integral equation of the second kind in Nystrom form, bounded and logarithmic kernels",
+       [IK], ["fredholm2"], refs_added=[ATKINSON]),
+    _m("E73", "Volterra integral equation of the second kind in Nystrom form", [IK], ["volterra2"],
+       refs_added=[ATKINSON]),
 ]
 
-# ── D. Problems: the 65 registered presets, grouped; each points at its equations ──
+# ── D. Problems: the registered presets, grouped; each points at its equations ──
 _PRESET_GROUPS = {
     "P1": ("Academic", {
         "burgers_1d": ["E7"], "laplace_2d": ["E1"], "poisson_2d": ["E2"], "reaction_diffusion_2d": ["E8"],
@@ -581,6 +592,9 @@ _PRESET_GROUPS = {
         "schwarzschild_light_bending_weak_field": ["E41"], "nfw_dark_matter_potential": ["E2"],
         "sod_shock_tube_astro": ["E16"]}),
     "P8": ("Terramechanics", {"bekker_wong_surrogate_2d": ["E28"]}),
+    "P10": ("Integral equations", {
+        "integral_fredholm_unit_exp": ["E72"], "integral_fredholm_separable_exp": ["E72"],
+        "integral_volterra_unit_exp": ["E73"], "integral_log_kernel_linear": ["E72"]}),
 }
 for _pid, (_group, _presets) in _PRESET_GROUPS.items():
     for _i, (_preset, _eqs) in enumerate(sorted(_presets.items()), start=1):

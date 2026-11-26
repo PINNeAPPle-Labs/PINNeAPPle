@@ -289,7 +289,86 @@ Three behaviours are tested on purpose: an older pin answers `available: false` 
 would read as "there are no datasets"), an unverified licence is passed through unchanged, and the telemetry route
 refuses rather than storing a bundle it cannot describe.
 
-## 10. Backlog status
+## 10. Native execution backends (INT-015) — one C ABI, C today
+
+Python stays the scientific interface, PINNeAPPle the orchestration layer, and compiled code an execution backend
+behind a checked boundary. A backend implements four functions of
+`pinneapple_core/native/include/pinneapple_native.h` — `pp_abi_version`, `pp_build`, `pp_ops`, `pp_call` — and this
+package calls it with `ctypes`. That header is the whole integration surface, so C, C++ (`extern "C"`), Rust
+(`extern "C"`), Fortran (`iso_c_binding`) and Zig are all first-class without a bridge per pair of languages, which
+is the combinatorial explosion the alternative has.
+
+```python
+from pinneapple_core.native import NativeKernels, native_status
+
+native_status()          # {'enabled': True, 'compiler': '/usr/bin/cc', 'available': True,
+                         #  'library': '~/Library/Caches/pinneapple/native/<hash>/libpinneapple_native.dylib', ...}
+k = NativeKernels()
+k.backend                # 'native:libpinneapple_native.dylib', or 'reference:numpy' with the reason
+k.jacobi_2d(u0, f, steps=2000, omega=2 / 3)
+```
+
+**The NumPy implementation is the definition, not the fallback.** `laplacian_2d_reference`, `heat_step_2d_reference`
+and `jacobi_2d_reference` are what the kernel *means*; the C version exists to be faster at the same arithmetic, and
+the tests compare them element by element. A machine without a compiler, or a run with `PINNEAPPLE_NATIVE=0`, gets the
+reference **and the sentence that says why** — never a wrong number, and never a result attributed to a backend that
+did not run.
+
+| Operation | What it computes | Boundary |
+|---|---|---|
+| `laplacian_2d(u; nx, ny, h)` | five-point Laplacian, one pass | zero Dirichlet, the input's boundary ring is never read |
+| `heat_step_2d(u; nx, ny, alpha, dt, steps)` | `steps` explicit steps of `u_t = alpha * laplacian(u)` on the unit square | zero Dirichlet; the scheme's limit is enforced, not blown up |
+| `jacobi_2d(u0, f; nx, ny, h, steps, omega)` | `steps` damped-Jacobi sweeps for `-laplacian(u) = f` | zero Dirichlet; `omega` in `(0, 1]` |
+
+Measured on this machine (`python -m benchmarks.native_backend`, 11 pairs per row, Apple clang 21 / arm64, NumPy
+2.4.6, Python 3.11.16) — `benchmarks/_out/native_backend.{md,json}` holds the run and every sample behind it:
+
+| grid | operation | C median (ms) | NumPy median (ms) | speedup | ratio range | max abs difference |
+|---|---|---|---|---|---|---|
+| 129 × 129 | `laplacian_2d` | 0.034 | 0.104 | 3.1× | 2.5–3.5× | 0.0 |
+| 129 × 129 | `heat_step_2d` (50 steps) | 1.224 | 56.257 | 15.7× | 1.4–99.3× | 3.3e-16 |
+| 129 × 129 | `jacobi_2d` (200 sweeps) | 12.500 | 189.303 | 14.8× | 0.7–54.5× | 6.2e-17 |
+| 513 × 513 | `laplacian_2d` | 0.267 | 1.447 | 5.8× | 0.2–48.0× | 0.0 |
+| 513 × 513 | `heat_step_2d` (50 steps) | 101.733 | 724.641 | 7.6× | 4.6–20.3× | 4.4e-16 |
+| 513 × 513 | `jacobi_2d` (200 sweeps) | 404.707 | 2242.726 | 5.6× | 4.0–8.2× | 3.9e-18 |
+
+The method matters more than the digits here, and it took two attempts. The first version timed the C block and
+the NumPy block separately, and on a host that is also running other work each block got a different share of the
+interference: the same row came out at 8× and at 40× in consecutive runs. The harness now times **the two backends
+back to back and alternates which goes first**, and reports the median of the per-pair ratios, because a pair is a
+measurement of the same machine state. The `ratio range` column is the rest of that story: on a shared machine the
+individual pairs still spread by an order of magnitude, so a single speedup number claims a precision this
+measurement does not have.
+
+**Read the agreement column, not the speedup column.** The agreement is a property of the code: 0.0 for the Laplacian
+(the same expression, in the same order, so the two backends produce identical bits) and machine epsilon elsewhere.
+The speedup is a property of a machine at a moment. What survives every run is the shape: **single-digit speedup on
+the one-pass kernel, and roughly an order of magnitude on the iterated ones until the grid stops fitting in cache** —
+the 513 × 513 Jacobi sweep touches three 2 MB arrays per pass and is memory-bound by then, which no amount of C
+changes.
+
+**Refusals, each one a way a native layer goes wrong:**
+
+* a library reporting another `pp_abi_version` is **refused by name** before any call (`AbiVersionMismatch`) — a
+  struct-layout mismatch is not something to discover from a wrong number;
+* a library that kept the operation names and changed the signatures is refused too, because `pp_ops` is compared
+  against the loader's specs, not merely checked for the presence of the names. A test compiles a fake backend that
+  renames the signatures and asserts the refusal;
+* nothing is allocated across the boundary: the caller owns the output buffer and passes its capacity, so there is no
+  `free` whose allocator might differ;
+* a non-contiguous or `float32` array is made contiguous `float64` **before** crossing — passing a strided buffer to C
+  is the classic silent corruption, and a test feeds a Fortran-ordered array through the kernel.
+
+Two findings from the first run, both kept because they are the reason the checks exist. Damped Jacobi with
+`omega = 1.9` **overflowed to `inf`** in 2000 sweeps on a 33 × 33 grid: the iteration matrix has eigenvalues
+`1 - omega(1 - mu)` with `mu` up to `cos(pi*h)`, so above 1 a modulus exceeds 1. The range in the contract is now
+`(0, 1]` with that reason in the message, instead of a number the caller has to diagnose. And the manufactured solution
+`u = sin(pi x) sin(pi y)` caught a **sign error** in the Jacobi right-hand side immediately — the result came back as
+`-u`, an error of 2.0 where the exact field is 1.0, which no per-element comparison between C and NumPy could have
+found because both implementations had it. After the fix both backends land on the stencil's own truncation error,
+`pi^2 h^2 / 12 = 8.03e-4` on a 33 × 33 grid, measured **8.04e-4**: the answer is right, not merely self-consistent.
+
+## 11. Backlog status
 
 | ID | Item | Status |
 |---|---|---|
@@ -307,6 +386,7 @@ refuses rather than storing a bundle it cannot describe.
 | INT-012 | Digital twin telemetry bridge | **done** — telemetry routes in the API, bundles through the same storage path |
 | INT-013 | ONNX serving benchmarks | **done** — three export attempts; an FNO's complex tensors are served from the real-arithmetic copy of its spectral layers (agreement 3e-08) |
 | INT-014 | PhysicsNeMo training bridge | **done for the data contract** — `schema.physicsnemo`; the package itself is not installed here |
+| INT-015 | Native execution backends | **done for C** — `pinneapple_core.native`: a versioned C ABI, ctypes loader, three kernels in C and NumPy, agreement at machine epsilon, 3-93x measured; Rust and Fortran speak the same header and are not built here |
 
 What is *not* done, said plainly: no pretrained PhysicsNeMo model runs in this repository, the ONNX runtime leg is
 measured only where `onnxruntime` is installed, an FNO is served from the real-arithmetic copy of its spectral layers
@@ -319,6 +399,13 @@ Licences were verified only where `license_verified` says so. The Well's reader 
 the layout its own loader reads, not on a downloaded multi-gigabyte scenario. The benchmark numbers are a reduced
 CPU budget. The `onnxruntime` comparison was measured in a throwaway environment, not in this checkout's default
 interpreter. No adapter here re-implements a solver: they read what the archive published.
+
+The native layer (section 10) is measured for **one** backend on **one** machine: the C kernels, built by this
+machine's Apple clang, single-threaded and CPU-only. A Rust or Fortran backend speaks the same header and would be
+loaded by the same ctypes code, but neither is built in this repository, so nothing is claimed for them — and there is
+no speedup claim on a machine whose compiler differs from the one recorded in the report. The three kernels are the
+same five-point stencil, not a survey of what a native layer can accelerate: sampling, mesh operations and linear
+algebra are the next candidates, and each one moves the same way.
 
 ## References
 

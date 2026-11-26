@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-3d70c75e2363",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/granular_dem",
+  "path": "examples/granular_dem/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-3d70c75e2363",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "e9682774b",
+  "seconds": 0.128,
+  "created": "2026-11-14T11:56:14Z",
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit",
+   "packages": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+   }
+  }
+ }
+}

@@ -1,0 +1,48 @@
+{
+ "run_id": "manifest-58152c48fcd8",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "pict_cavity",
+  "path": "examples/pict_cavity/experiment.json"
+ },
+ "status": "completed",
+ "started": 1794622160.748986,
+ "tags": [
+  "manifest"
+ ],
+ "git": "8ce185ebb",
+ "environment": {
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.15.0",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1794622160.8209019,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": []
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.072,
+ "datasets": {}
+}

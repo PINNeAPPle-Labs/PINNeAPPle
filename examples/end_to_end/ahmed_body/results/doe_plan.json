@@ -295,7 +295,7 @@
   "n": 48,
   "dim": 3,
   "ideal_spacing": 0.27516060407455223,
-  "discrepancy": 0.003926490735626897,
+  "discrepancy": 0.003926490735627123,
   "min_distance": 0.11134737584620456,
   "mean_nn_distance": 0.17498098907363638,
   "fill_distance": 0.44186074318533236,
@@ -317,7 +317,7 @@
   "projection_2d_bins": 6
  },
  "random_reference": {
-  "discrepancy": 0.014111927749649977,
+  "discrepancy": 0.014111927749649983,
   "min_distance": 0.049380395726217136,
   "fill_distance": 0.4421715396012416
  },

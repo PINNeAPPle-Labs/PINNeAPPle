@@ -1,0 +1,26 @@
+[
+ {
+  "name": "Re=100: walls and lid are the imposed boundary conditions",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ },
+ {
+  "name": "Re=100: centreline within 0.05 of Ghia et al.",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "{\"ghia_u_rms\": 0.00467021448954513, \"ghia_v_rms\": 0.004924894881807705}",
+  "kind": "reference"
+ }
+]

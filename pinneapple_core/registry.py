@@ -12,8 +12,9 @@ gives them one protocol, so a user (and a plugin) learns it once::
     pp.resolve("solver", "my_solver")                        # the object itself
     pp.unregister("solver", "my_solver")
 
-Nine kinds: ``physics`` (problem presets), ``model``, ``solver``, ``operator``, ``dataset``, ``benchmark``,
-``geometry``, ``material`` and ``optimizer``. Each kind declares what it accepts, once, in :data:`KINDS`; registering
+Ten kinds: ``physics`` (problem presets), ``model``, ``solver``, ``operator``, ``dataset``, ``benchmark``,
+``geometry``, ``material``, ``optimizer`` and ``analysis`` (a declared calculation, see
+:mod:`pinneapple_core.analysis`). Each kind declares what it accepts, once, in :data:`KINDS`; registering
 something of the wrong type raises ``WrongType`` naming the kind and what it takes, instead of failing later inside a
 solve.
 
@@ -121,17 +122,30 @@ class Registry:
         return sorted(names)
 
     def unregister(self, name: str) -> Any:
+        """Remove a name from this kind, and from the home it was bridged to.
+
+        An object that lives only in the home (declared with the home's own decorator, such as ``@analysis`` or
+        ``@register_preset``) is removed there and returned from there: the unified protocol reaches what the
+        library already had in both directions.
+        """
         name = _key(name)
         dropped = self.entries.pop(name, _MISSING)
         self.meta.pop(name, None)
+        in_home = False
         if self._drop is not None:
+            if dropped is _MISSING and self._get is not None:
+                try:
+                    dropped = self._get(name)
+                except Exception:                       # noqa: BLE001 - not in the home either
+                    dropped = _MISSING
             try:
                 self._drop(name)
-            except Exception:                           # noqa: BLE001 - the home may not have it, or may need a package
-                pass
-        if dropped is _MISSING:
+                in_home = True
+            except Exception:                           # noqa: BLE001 - the home may not have it, or need a package
+                in_home = False
+        if dropped is _MISSING and not in_home:
             raise UnknownName(f"{self.kind} {name!r} is not registered")
-        return dropped
+        return None if dropped is _MISSING else dropped
 
     def describe(self, name: str) -> dict[str, Any]:
         return {"name": name, "kind": self.kind, "home": self.home, **self.meta.get(_key(name), {})}
@@ -206,6 +220,13 @@ def _is_optimizer(obj: Any) -> bool:
     return isinstance(obj, type) and issubclass(obj, PhysicsOptimizer)
 
 
+def _is_analysis(obj: Any) -> bool:
+    """An ``Analysis``: a declared calculation, not a bare function (that one is a solver, operator or benchmark)."""
+    from .analysis import Analysis
+
+    return isinstance(obj, Analysis)
+
+
 # -- bridges to the homes the library already had ----------------------------------------
 def _bridge_preset(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
     from pinneapple_physics.pde_environment.presets.registry import _REGISTRY, register_preset
@@ -219,7 +240,7 @@ def _bridge_preset(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
 def _drop_preset(name: str) -> None:
     from pinneapple_physics.pde_environment.presets.registry import _REGISTRY
 
-    _REGISTRY.pop(name, None)
+    _REGISTRY.pop(name)                   # KeyError: not in the home
 
 
 def _preset_names() -> list[str]:
@@ -246,7 +267,7 @@ def _bridge_method(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
 def _drop_method(name: str) -> None:
     from pinneapple_physics.solving import _KINDS, _METHODS
 
-    _METHODS.pop(name, None)
+    _METHODS.pop(name)                    # KeyError: not in the home
     _KINDS.pop(name, None)
 
 
@@ -275,7 +296,7 @@ def _bridge_model(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
 def _drop_model(name: str) -> None:
     from pinneapple_neural.architectures.registry import ModelRegistry
 
-    ModelRegistry._REGISTRY.pop(name, None)
+    ModelRegistry._REGISTRY.pop(name)     # KeyError: not in the home
 
 
 def _model_names() -> list[str]:
@@ -308,7 +329,7 @@ def _bridge_dataset(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
 def _drop_dataset(name: str) -> None:
     from pinneapple_data.datasets.registry import DatasetRegistry
 
-    DatasetRegistry._store.pop(name, None)
+    DatasetRegistry._store.pop(name)      # KeyError: not in the home
 
 
 def _dataset_names() -> list[str]:
@@ -335,7 +356,7 @@ def _bridge_material(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
 def _drop_material(name: str) -> None:
     from pinneapple_design.intent.materials import MATERIALS
 
-    MATERIALS.pop(name, None)
+    MATERIALS.pop(name)                   # KeyError: not in the home
 
 
 def _material_names() -> list[str]:
@@ -348,6 +369,47 @@ def _get_material(name: str) -> Any:
     from pinneapple_design.intent.materials import MATERIALS
 
     return MATERIALS[name]
+
+
+def _bridge_analysis(name: str, obj: Any, meta: Mapping[str, Any]) -> str:
+    from .analysis import register_analysis
+
+    if str(getattr(obj, "id", name)) != name:
+        raise ValueError(f"an analysis is registered under its own id ({getattr(obj, 'id', '')!r}), not {name!r}")
+    unregister_analysis_if_present(obj.id)
+    register_analysis(obj)
+    return "pinneapple_core.analysis (pp.run_analysis)"
+
+
+def unregister_analysis_if_present(name: str) -> None:
+    """Drop ``name`` from the analysis registry when it is there (the bridge re-registers on ``replace=True``)."""
+    from .analysis import AnalysisError, unregister_analysis
+
+    try:
+        unregister_analysis(name)
+    except AnalysisError:
+        pass
+
+
+def _drop_analysis(name: str) -> None:
+    from .analysis import unregister_analysis
+
+    unregister_analysis(name)                           # raises when the name is not there: the registry reports it
+
+
+def _analysis_names() -> list[str]:
+    from .analysis import analyses
+
+    return analyses()
+
+
+def _get_analysis(name: str) -> Any:
+    from .analysis import AnalysisError, get_analysis
+
+    try:
+        return get_analysis(name)
+    except AnalysisError as exc:                       # the protocol's own words for "not here"
+        raise KeyError(name) from exc
 
 
 KINDS: dict[str, Registry] = {
@@ -366,6 +428,9 @@ KINDS: dict[str, Registry] = {
                          _names=_material_names, _get=_get_material, _bridge=_bridge_material, _drop=_drop_material),
     "optimizer": Registry("optimizer", _is_optimizer, "a PhysicsOptimizer subclass",
                           home="this module"),
+    "analysis": Registry("analysis", _is_analysis, "an Analysis from pinneapple_core.analysis",
+                         home="pinneapple_core.analysis", _names=_analysis_names, _get=_get_analysis,
+                         _bridge=_bridge_analysis, _drop=_drop_analysis),
 }
 
 

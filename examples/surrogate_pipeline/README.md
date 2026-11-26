@@ -1,0 +1,48 @@
+# Surrogate pipeline — use cases
+
+Four runs that exercise the pipeline end to end and show what it refuses. Each one prints the stage table and the
+VeriPhysics gates; the artefacts land in `_out/<name>/` (git-ignored), with the report at `_out/<name>/report.md`.
+
+| script | what it exercises | backend | time |
+|---|---|---|---|
+| `01_parametric_surrogate.py` | a supervised surrogate over a parameter space: reference campaign → dataset → study (GP vs MLP) → gates | `preset` + `simulation` | ~15 s |
+| `02_physics_only_pinn.py` | a PINN with no data, scored against the Cole-Hopf solution, exported to ONNX and compared back | `preset` + `physics_only` | ~90 s |
+| `03_symbolic_heat.py` | a PDE written as text, trained and validated by the PINN validation suite — and the same run undertrained, refused | `symbolic` | ~2 min |
+| `04_yaml_and_cli.py` | the pipeline as a YAML file: `run_until("data")`, `resume()`, and `python -m pinneapple.pipeline` | `preset` + `simulation` | ~20 s |
+
+```bash
+python examples/surrogate_pipeline/01_parametric_surrogate.py
+python examples/surrogate_pipeline/02_physics_only_pinn.py
+python examples/surrogate_pipeline/03_symbolic_heat.py
+python examples/surrogate_pipeline/04_yaml_and_cli.py [--config my.yaml]
+```
+
+## What each one is meant to show
+
+**01** — the surrogate is scored on cases it never trained on, and the pipeline says where it stops being valid: the
+`applicability` gate warns that the corners of the viscosity range were held out as a distribution-shift set and
+measured 20-odd times worse than the interior. That is the answer to "can I use this at nu = 0.06", and it comes from
+the run, not from a threshold someone typed.
+
+**02** — the training loss of a PINN goes to ~1e-2 and means nothing on its own. What licenses the model is the
+`model` gate (relative L2 against a closed form the network never saw), the `physics` gate (the boundary and initial
+conditions of the trained network, evaluated on fresh points) and the `export` gate (the ONNX file predicts what the
+in-memory model predicts, to 1e-7).
+
+**03** — the same run at 300 epochs instead of 2000: the residual passes, and the boundary and initial conditions are
+traded off against it. `validate_pinn` names which term was lost, the `physics` gate fails, and the report says so
+instead of shipping the model. The undertrained run is `fail_policy: report`, so it finishes and shows the verdict
+rather than raising.
+
+**04** — the expensive part of a parametric study is the reference campaign; `run_until("data")` does it and stops,
+`resume()` picks the run up and does not solve anything twice (`state.json` records what finished).
+
+## Configuration
+
+`configs/` holds the same pipelines as files:
+
+* `burgers_in_viscosity.yaml` — the supervised surrogate of example 01, commented.
+* `heat_2d_symbolic.yaml` — the symbolic problem of example 03, including why `lbfgs_steps` and the boundary weights
+  are set the way they are.
+
+Any block left out takes its default; every block can be overridden (`from_yaml(path, training={"epochs": 500})`).

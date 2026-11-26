@@ -175,6 +175,11 @@ REASONS: dict[str, str] = {
     "pinneapple_arena.external": "references to third-party libraries run through their own packages (mostly not installed); not a computation step of a flow",
     "pinneapple_pdb": "dataset builder for benchmark publication (sharding, upload)",
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
+    "pinneapple_pipeline": "sequences the steps a flow already has (lib.doe.design, lib.solve.preset, "
+                           "lib.model.architecture, export.*) into one run of reference solves, training, gates and "
+                           "export: it orchestrates nodes rather than computing one. Run it from Python or with "
+                           "`python -m pinneapple.pipeline run experiment.yaml`",
+    "pinneapple.pipeline": "the facade of pinneapple_pipeline under the pp namespace (see pinneapple_pipeline)",
     "pinneapple_design.surrogate_inverse": "inverse design through a surrogate trained per case at start-up "
                                            "(seconds to minutes of MLP training); served by the apps/*_ai apps",
     "pinneapple_design.design_gate": "the staged gate a generated design passes through (geometry, mesh, "

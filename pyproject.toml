@@ -525,6 +525,7 @@ packages = [
   "pinneapple_systems",      # time_series + cosimulation + digital_twin
   "pinneapple_design",       # geometry + design_optimizer
   "pinneapple_tools",        # visualization + model_export + hpo_experiments + benchmark_suite + compute_backends
+  "pinneapple_pipeline",     # SurrogatePipeline: problem -> data -> model -> verification -> export (pp.SurrogatePipeline)
 
   # ── extended packages ─────────────────────────────────────────────────────
   "pinneapple_worldmodel",

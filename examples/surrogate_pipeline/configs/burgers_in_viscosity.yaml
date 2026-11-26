@@ -1,0 +1,58 @@
+# A parametric surrogate, whole pipeline as a file. Blocks left out take their defaults.
+#
+#   python -m pinneapple.pipeline validate burgers_in_viscosity.yaml
+#   python -m pinneapple.pipeline plan     burgers_in_viscosity.yaml
+#   python -m pinneapple.pipeline run      burgers_in_viscosity.yaml
+#
+# The viscosity varies over the parameter space; each case is solved by the preset's own finite-difference
+# reference solver, and the surrogate learns the velocity at t = 1 from those solutions.
+
+name: burgers_in_viscosity
+description: velocity of the 1-D Burgers solution at t = 1 as a function of the viscosity
+
+problem:
+  source: preset          # preset | symbolic | spec
+  preset: burgers_1d
+
+parameters:               # what the surrogate must cover (a name of the problem's own parameters)
+  parameters:
+    nu: [0.005, 0.06]
+
+sampling:
+  design_sampling:
+    method: lhs           # lhs | maximin | sobol | halton | random | full_factorial
+    n_samples: 18
+  validation_sampling:
+    test_fraction: 0.2
+    val_fraction: 0.15
+    shift: auto           # hold out the far corner of the space as a distribution-shift set
+  seed: 3
+
+data:
+  source: simulation      # physics_only | simulation | file
+  probes: {x: 7}          # seven probe points along x...
+  probe_at: {t: 1.0}      # ...all at the final time
+
+solver:
+  method: reference       # reference | analytic | fem | exact
+
+architecture:
+  family: auto
+  candidates: [gp, mlp]   # both are fitted on the same splits and compared on held-out cases
+
+training:
+  budget_seconds: 2.0     # per training run, for the study backend
+  seed: 3
+
+verification:
+  mode: balanced          # strict | balanced | report
+  fail_policy: block      # block | warn | report
+  acceptance:
+    nrmse: 0.10           # state the criterion for this use case
+    refinement: 0.05
+
+export:
+  formats: [pytorch]
+  verify_export: true
+execution:
+  out_dir: examples/surrogate_pipeline/_out

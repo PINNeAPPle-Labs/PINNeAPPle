@@ -1,0 +1,135 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/surrogate_pipeline",
+ "title": "Surrogate pipeline — use cases",
+ "description": "Four runs of `pp.SurrogatePipeline`: a parametric surrogate over a reference campaign, a physics-only PINN scored against a closed form and exported to ONNX, a PDE written as text trained and validated by the PINN validation suite, and the same pipeline driven from YAML with `run_until` / `resume` / the command line. Every run prints the seven stages and the ten VeriPhysics gates, and the numbers below were measured by those runs (`_out/<name>/report.json`).",
+ "domain": "surrogate models and verification",
+ "methods": [
+  "PINN",
+  "GaussianProcess",
+  "MLP",
+  "FDM reference solver",
+  "Cole-Hopf closed form"
+ ],
+ "modules": [
+  "pinneapple_pipeline",
+  "pinneapple_pipeline.configs",
+  "pinneapple_pipeline.pipeline",
+  "pinneapple_pipeline.presets",
+  "pinneapple_pipeline.stages",
+  "pinneapple_pipeline.verification",
+  "pinneapple_data.doe.designs",
+  "pinneapple_physics.pde_environment",
+  "pinneapple_physics.solving",
+  "pinneapple_physics.symbolic_pde",
+  "pinneapple_analysis.surrogate.study",
+  "pinneapple_analysis.validation.pinn",
+  "pinneapple_tools.model_export"
+ ],
+ "params": {
+  "parameter space of 01": "nu in [0.005, 0.06], 18 cases by Latin hypercube",
+  "training budget of 02": "1200 Adam epochs, 2048 collocation points, hidden 48 x 4",
+  "training budget of 03": "2000 Adam steps + 400 L-BFGS, 2000 collocation points"
+ },
+ "scripts": [
+  "01_parametric_surrogate.py",
+  "02_physics_only_pinn.py",
+  "03_symbolic_heat.py",
+  "04_yaml_and_cli.py"
+ ],
+ "metrics": [
+  {
+   "name": "held-out nrmse, Gaussian process (01)",
+   "value": 0.0001785,
+   "unit": "",
+   "how": "surrogate study on 3 cases held out of the 18, normalised RMSE over the 7 probe outputs"
+  },
+  {
+   "name": "held-out nrmse, MLP (01)",
+   "value": 0.00195,
+   "unit": "",
+   "how": "same splits and budget as the Gaussian process, one seed"
+  },
+  {
+   "name": "relative L2 of the PINN against Cole-Hopf (02)",
+   "value": 0.0684,
+   "unit": "",
+   "how": "pp.compare at 256 random points of the domain, reference method analytic"
+  },
+  {
+   "name": "boundary/initial misfit of the PINN (02)",
+   "value": 0.006942,
+   "unit": "",
+   "how": "max |prediction - condition| over 1536 freshly sampled condition points, relative to the field scale"
+  },
+  {
+   "name": "ONNX vs in-memory prediction (02)",
+   "value": 1.625e-07,
+   "unit": "",
+   "how": "max |onnx - pytorch| / max |pytorch| on 5 points of the domain"
+  },
+  {
+   "name": "grid-refinement change of the reference solution (01)",
+   "value": 0.002679,
+   "unit": "",
+   "how": "the preset's FDM solution at nx = 256 and nx = 512, max difference relative to its own RMS"
+  },
+  {
+   "name": "relative PDE residual of the symbolic PINN (03)",
+   "value": 0.01339,
+   "unit": "",
+   "how": "validate_pinn at 2048 fresh points, RMS of the residual relative to the scale of the terms"
+  },
+  {
+   "name": "boundary misfit of the symbolic PINN (03)",
+   "value": 0.001159,
+   "unit": "",
+   "how": "validate_pinn: max |u - 0| on the boundary relative to the solution scale"
+  },
+  {
+   "name": "initial misfit of the symbolic PINN (03)",
+   "value": 0.001524,
+   "unit": "",
+   "how": "validate_pinn: max |u - sin(pi x) sin(pi y)| at t = 0 relative to the solution scale"
+  },
+  {
+   "name": "relative PDE residual of the same run at 300 epochs (03)",
+   "value": 0.368,
+   "unit": "",
+   "how": "same validation at 300 Adam steps with no L-BFGS polish: the residual and both conditions fail"
+  }
+ ],
+ "checks": [
+  {
+   "name": "gates of 01 (parametric surrogate)",
+   "passed": true,
+   "how": "7 pass, 1 warn (the distribution-shift corner), 2 not applicable (geometry, physics)"
+  },
+  {
+   "name": "gates of 02 (physics-only PINN)",
+   "passed": true,
+   "how": "model, physics and export pass; physics reports the residual without a non-dimensional reference"
+  },
+  {
+   "name": "the same symbolic run at 300 epochs is refused",
+   "passed": true,
+   "how": "the physics gate fails on the boundary and initial conditions that were traded against the residual"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "configs/burgers_in_viscosity.yaml",
+   "configs/heat_2d_symbolic.yaml"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/surrogate_pipeline.md"
+ },
+ "references": [
+  "docs/guides/surrogate_pipeline.md",
+  "pinneapple_pipeline/presets.py"
+ ]
+}

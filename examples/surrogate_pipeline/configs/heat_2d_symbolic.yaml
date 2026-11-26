@@ -1,0 +1,52 @@
+# A PDE written as text, trained by the PINN validation suite.
+#
+#   python -m pinneapple.pipeline run heat_2d_symbolic.yaml
+#
+# The equation language is the one of `pinneapple_physics.symbolic_pde.text`: `d(u, t)` / `diff` / `lap` take
+# derivatives of a field, and the coordinates are the names given under `coords`. `Derivative(u, t)` is NOT part of
+# it — the parser raises `EquationSyntaxError` and names what it accepts.
+
+name: heat_2d_symbolic
+description: a heat equation written as text, trained and validated by the PINN validation suite
+
+problem:
+  source: symbolic
+  coords: [x, y, t]
+  fields: [u]
+  domain_bounds:
+    x: [0.0, 1.0]
+    y: [0.0, 1.0]
+    t: [0.0, 0.05]
+  equations:
+    - d(u, t) - alpha * lap(u)
+  constants:
+    alpha: 0.1
+  conditions:
+    - {kind: initial, on: t_min, equation: "u = sin(pi*x) * sin(pi*y)"}
+    - {kind: dirichlet, on: boundary, equation: "u = 0"}
+
+data:
+  source: physics_only
+
+training:
+  epochs: 2000            # Adam steps
+  lbfgs_steps: 400        # quasi-Newton polish: without it the residual stays around 0.05
+  lr: 0.002
+  n_collocation: 2000
+  seed: 0
+
+loss:
+  weights:
+    w_pde: 1.0
+    w_bc: 50.0            # the conditions are what a PINN trades away first
+    w_ic: 50.0
+
+verification:
+  mode: balanced
+  fail_policy: warn
+
+export:
+  enabled: false          # the symbolic backend has no portable export yet
+  formats: []
+execution:
+  out_dir: examples/surrogate_pipeline/_out

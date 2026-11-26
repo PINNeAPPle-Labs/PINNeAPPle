@@ -627,6 +627,8 @@ _SUBMODULES = {
     "transfer":  "pinneapple_adaptation.transfer_learning",
     "meta":      "pinneapple_adaptation.meta_learning",
     "export":    "pinneapple_tools.model_export",
+    # the surrogate-model pipeline: problem -> data -> model -> verification -> export (pinneapple_pipeline)
+    "pipeline":  "pinneapple.pipeline",
     # quantum
     "quantum":   "pinneapple_quantum",
     # new features (v0.5)
@@ -804,6 +806,12 @@ _LAZY_ATTRS = {
     "StudyModel":      ("pinneapple_analysis.study_models", "StudyModel"),
     "score_against_reference": ("pinneapple_analysis.verification.physics_confidence_score",
                                 "score_against_reference"),
+    # the surrogate-model pipeline (pinneapple_pipeline), one object for the whole cycle
+    "SurrogatePipeline": ("pinneapple_pipeline", "SurrogatePipeline"),
+    # the pipeline's own configuration; pp.SurrogateConfig is pinneapple_design's (they are different objects)
+    "PipelineConfig": ("pinneapple_pipeline", "PipelineConfig"),
+    "PipelineRejected": ("pinneapple_pipeline", "PipelineRejected"),
+    "PipelineFailed": ("pinneapple_pipeline", "PipelineFailed"),
 }
 
 
@@ -959,6 +967,8 @@ __all__ = [
     "DragAdjointObjective", "naca_parametric",
     # CAD → CFD (Feature 20)
     "CFDMesh", "NSFlowSolver", "CADToCFDPipeline",
+    # Surrogate pipeline: problem -> data -> model -> verification -> export
+    "SurrogatePipeline", "PipelineConfig", "PipelineRejected", "PipelineFailed", "pipeline",
     # Lazy submodule aliases (v0.5)
     "symbolic", "backend", "dynamics", "worldmodel",
     # Decision layer (lazy): which physics-AI experiment to run next

@@ -29,6 +29,13 @@ REASONS: dict[str, str] = {
     "pinneapple_train": "shim: re-exports pinneapple_neural.trainer (covered there)",
     "pinneapple_solvers": "shim: re-exports pinneapple_simulation.numerical_solvers (covered there)",
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
+    "pinneapple_analysis.trust.certificate": "verification as a service (#341): it takes somebody else's prediction and "
+                                            "returns the certificate of what the physics says about it -- the "
+                                            "residuals, the units, the boundary and positivity violations, the domain "
+                                            "gate and, per check, the limit it was judged against and where that "
+                                            "number came from. It is the judgement of a field a step already "
+                                            "produced, like the trust record it embeds; a node here would have to be "
+                                            "fed by the node that made the prediction, and would disagree with it",
     "pinneapple_plugins": "the plugin contract and its loader: what an installed package may contribute and whether it "
                           "works on this machine. It decides which steps exist and reports on them; it is not a step",
     "pinneapple_plugins.contract": "the declarations a plugin makes (name, contract version, requirements, "

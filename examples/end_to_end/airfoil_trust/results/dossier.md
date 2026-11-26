@@ -389,28 +389,28 @@ Industrial maturity: level 4 (Operationally assessed)
 
 ## Revision history
 
-- rev 1 2026-11-26T07:36:48.032Z `unvalidated` case opened — sha256 `3e24b43dcfc3`
-- rev 2 2026-11-26T07:36:48.032Z `failed` checks recorded — sha256 `b532ec2e0e76`
-- rev 3 2026-11-26T07:36:48.033Z `failed` evidence added: cfd-va000 — sha256 `2bde9af4a2cd`
-- rev 4 2026-11-26T07:36:48.033Z `failed` evidence added: cfd-va001 — sha256 `e7d18f71a931`
-- rev 5 2026-11-26T07:36:48.033Z `failed` evidence added: cfd-va002 — sha256 `0b866fc500d5`
-- rev 6 2026-11-26T07:36:48.034Z `failed` evidence added: cfd-va003 — sha256 `9b161255e3dc`
-- rev 7 2026-11-26T07:36:48.034Z `failed` evidence added: cfd-va004 — sha256 `0dd06e01a6eb`
-- rev 8 2026-11-26T07:36:48.035Z `failed` evidence added: cfd-va005 — sha256 `1a86cfb18f46`
-- rev 9 2026-11-26T07:36:48.035Z `failed` evidence added: cfd-va006 — sha256 `cc23591d5937`
-- rev 10 2026-11-26T07:36:48.036Z `failed` evidence added: cfd-va007 — sha256 `1ad4a562ee46`
-- rev 11 2026-11-26T07:36:48.036Z `failed` evidence added: cfd-va008 — sha256 `b0e9f9aa8737`
-- rev 12 2026-11-26T07:36:48.037Z `failed` evidence added: cfd-va009 — sha256 `d5b7537e104b`
-- rev 13 2026-11-26T07:36:48.038Z `failed` evidence added: cfd-va010 — sha256 `d5940540b471`
-- rev 14 2026-11-26T07:36:48.038Z `failed` evidence added: cfd-va011 — sha256 `b7defd7c50ce`
-- rev 15 2026-11-26T07:36:48.039Z `failed` evidence added: cfd-va012 — sha256 `5afe6480be85`
-- rev 16 2026-11-26T07:36:48.039Z `failed` evidence added: cfd-va013 — sha256 `9ae888a85ab7`
-- rev 17 2026-11-26T07:36:48.040Z `failed` evidence added: cfd-va014 — sha256 `b371da821c6c`
-- rev 18 2026-11-26T07:36:48.041Z `failed` evidence added: cfd-va015 — sha256 `1b9c5cc51c3a`
-- rev 19 2026-11-26T07:36:48.042Z `failed` evidence added: cfd-held-out-CD — sha256 `0f6f34d0d1d4`
-- rev 20 2026-11-26T07:36:48.043Z `failed` uncertainty recorded — sha256 `0ed2127500e4`
-- rev 21 2026-11-26T07:36:48.043Z `failed` applicability recorded — sha256 `c842bed37fd9`
-- rev 22 2026-11-26T07:36:48.044Z `failed` limitations recorded — sha256 `ea2ecea6f415`
+- rev 1 2026-11-26T07:43:57.516Z `unvalidated` case opened — sha256 `6bbeeeac672a`
+- rev 2 2026-11-26T07:43:57.517Z `failed` checks recorded — sha256 `3a5578ad7899`
+- rev 3 2026-11-26T07:43:57.517Z `failed` evidence added: cfd-va000 — sha256 `9799d148fed9`
+- rev 4 2026-11-26T07:43:57.518Z `failed` evidence added: cfd-va001 — sha256 `252eb2073d1a`
+- rev 5 2026-11-26T07:43:57.518Z `failed` evidence added: cfd-va002 — sha256 `13c60722716c`
+- rev 6 2026-11-26T07:43:57.519Z `failed` evidence added: cfd-va003 — sha256 `50d0eec64d3a`
+- rev 7 2026-11-26T07:43:57.519Z `failed` evidence added: cfd-va004 — sha256 `431192e0e718`
+- rev 8 2026-11-26T07:43:57.520Z `failed` evidence added: cfd-va005 — sha256 `c5e3b8c874e4`
+- rev 9 2026-11-26T07:43:57.521Z `failed` evidence added: cfd-va006 — sha256 `20e8de6923ba`
+- rev 10 2026-11-26T07:43:57.521Z `failed` evidence added: cfd-va007 — sha256 `eeaa779ffff5`
+- rev 11 2026-11-26T07:43:57.522Z `failed` evidence added: cfd-va008 — sha256 `2660d1fc771d`
+- rev 12 2026-11-26T07:43:57.523Z `failed` evidence added: cfd-va009 — sha256 `74ff5b3fcecf`
+- rev 13 2026-11-26T07:43:57.523Z `failed` evidence added: cfd-va010 — sha256 `b0996f0260b2`
+- rev 14 2026-11-26T07:43:57.524Z `failed` evidence added: cfd-va011 — sha256 `9f79b15ce4b2`
+- rev 15 2026-11-26T07:43:57.525Z `failed` evidence added: cfd-va012 — sha256 `84d2d7bae4cf`
+- rev 16 2026-11-26T07:43:57.525Z `failed` evidence added: cfd-va013 — sha256 `38a2d517bd6a`
+- rev 17 2026-11-26T07:43:57.526Z `failed` evidence added: cfd-va014 — sha256 `0bc7ab2732a9`
+- rev 18 2026-11-26T07:43:57.527Z `failed` evidence added: cfd-va015 — sha256 `3e810bc3446f`
+- rev 19 2026-11-26T07:43:57.527Z `failed` evidence added: cfd-held-out-CD — sha256 `ee1d1e0afc94`
+- rev 20 2026-11-26T07:43:57.528Z `failed` uncertainty recorded — sha256 `f55fee79016b`
+- rev 21 2026-11-26T07:43:57.529Z `failed` applicability recorded — sha256 `f2757de6bd74`
+- rev 22 2026-11-26T07:43:57.530Z `failed` limitations recorded — sha256 `9722646af312`
 
 ## What to do next
 

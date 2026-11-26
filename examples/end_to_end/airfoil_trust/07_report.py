@@ -57,6 +57,9 @@ MODELS = os.path.join(HERE, "models")
 os.makedirs(FIG, exist_ok=True)
 
 BLUE, ORANGE, GREY, GREEN = "#58a6ff", "#ffa657", "#8b949e", "#3fb950"
+RED = "#f85149"
+#: as in the domain stage: a relative error stops being one near zero lift
+LIFT_FLOOR = 0.10
 plt.rcParams.update({"figure.dpi": 150, "font.size": 9, "axes.grid": True, "grid.alpha": 0.25,
                      "axes.edgecolor": "#444", "axes.labelcolor": "#ddd", "text.color": "#ddd",
                      "xtick.color": "#bbb", "ytick.color": "#bbb", "figure.facecolor": "#0d1117",
@@ -114,8 +117,8 @@ def fig_mesh_convergence() -> str:
         ax.set_ylabel(q)
         ax.legend(fontsize=7, framealpha=0.2)
         p = mesh["study"][q].get("p")
-        ax.set_title(f"{q}: observed order {p:.2f}" if p else f"{q}: {mesh['study'][q].get('status')}",
-                     color="#ddd", fontsize=9)
+        ax.set_title(f"{q}: observed order {p:.2f}" if p
+                     else f"{q}: oscillatory, no order claimed", color="#ddd", fontsize=9)
     fig.tight_layout()
     path = os.path.join(FIG, "mesh_convergence.png")
     fig.savefig(path)
@@ -137,6 +140,12 @@ def fig_accuracy() -> str:
         ax.set_ylabel(f"{q} surrogate")
         ax.set_title(f"{q}: RMSE {analysis['validation']['qoi'][f'{q}_rmse']:.4f}", color="#ddd", fontsize=9)
         ax.legend(fontsize=7, framealpha=0.2)
+        if q == "CL":                      # the design the film's error trace belongs to
+            worst = int(np.argmax(np.abs(np.asarray(pr, float) - np.asarray(ref, float))))
+            ax.plot([ref[worst]], [pr[worst]], "o", ms=10, mfc="none", mec=RED, mew=1.4)
+            ax.annotate(f"{data['ids'][valid[worst]]}: {100 * abs(pr[worst] - ref[worst]) / max(abs(ref[worst]), LIFT_FLOOR):.1f} %",
+                        (ref[worst], pr[worst]), textcoords="offset points", xytext=(8, -16), color=RED, fontsize=7,
+                        ha="left")
     err = np.array([physics["per_design"][k]["cp_integral"]["gap"] for k in range(len(valid))])
     axes[2].bar(np.arange(len(valid)), err, color=ORANGE)
     axes[2].set_xlabel("held-out design")
@@ -258,7 +267,6 @@ figures = [fig_mesh_convergence(), fig_accuracy(), fig_fields(), fig_uncertainty
 acc = analysis["validation"]["qoi"]
 phy = physics["summary"]
 tolerance = 0.05                                    # the study's declared tolerance, set before the answer was looked at
-LIFT_FLOOR = 0.10                                   # as in the domain stage: no relative error at zero lift
 # The mesh family converges on lift only in the sense that matters: successive refinements move CL by about a
 # percent, in both directions, so no observed order and no grid-convergence index can be claimed -- the family
 # oscillates at the level of its own discretisation error. What the study can state is the change between the two

@@ -28,6 +28,16 @@ REASONS: dict[str, str] = {
     "pinneapple_models": "shim: re-exports pinneapple_neural.architectures (covered there)",
     "pinneapple_train": "shim: re-exports pinneapple_neural.trainer (covered there)",
     "pinneapple_solvers": "shim: re-exports pinneapple_simulation.numerical_solvers (covered there)",
+    "pinneapple_physics.pretrained": "the door a model trained somewhere else comes in through (#348): the registry of "
+                                     "open models with their licence, the adapters that load one (WeatherBench2, a "
+                                     "torch checkpoint, a local array archive, the Hugging Face Hub) and the wrap that "
+                                     "returns a PhysicsEnsemble Expert. It is what the ensemble step is given, not a "
+                                     "step of its own: a node here would duplicate the ensemble node it feeds",
+    "pinneapple_physics.domain_checks": "the checks a domain asks of any field without a reference (#348): the part of "
+                                        "a 6-hour change advection does not explain, the drift of a conserved total, "
+                                        "water on terrain (HAND and an admissible flood mask) and frame-to-frame "
+                                        "continuity. They are attachable to PhysicsEnsemble(prediction_checks=...), "
+                                        "which is the node that weights the experts; alone they judge a prediction",
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
     "pinneapple_analysis.trust.certificate": "verification as a service (#341): it takes somebody else's prediction and "
                                             "returns the certificate of what the physics says about it -- the "

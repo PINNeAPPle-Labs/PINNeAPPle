@@ -6,6 +6,7 @@ checkout."""
 from __future__ import annotations
 
 import json
+import os
 import sys
 import textwrap
 from pathlib import Path
@@ -372,6 +373,10 @@ def test_coverage_gate_ratchets(cat, repo, monkeypatch, tmp_path):
 
 def test_smoke_run_records_a_tool(cat, repo, monkeypatch):
     from pinneapple_studio import smoke
+    # The child runs `python -m pinneapple_studio.smoke` in a disposable copy of the fixture repo, which has no
+    # pinneapple_studio of its own: it finds the runner the way the house workflow does, through PYTHONPATH. A test
+    # run launched without one (plain `pytest` from the checkout) would otherwise need the package pip-installed.
+    monkeypatch.setenv("PYTHONPATH", os.pathsep.join(p for p in (os.environ.get("PYTHONPATH"), str(ROOT)) if p))
     stats = smoke.record(cat, ids=["pinneapple_demo.heat:FinStudy"], log=lambda *a: None)
     assert stats == {"batches": 1, "tools": 1, "ok": 1, "failed": 0, "writes": 0}
     rec = smoke.read_runs(repo)["pinneapple_demo.heat:FinStudy"]

@@ -144,6 +144,19 @@ def test_score_is_zero_for_the_reference_and_blind_to_mass_alone():
     assert marked["rel_l2_mean"] > 0.5 and marked["mass_drift_mean"] < 1e-12
 
 
+def test_the_transfer_grid_carries_the_same_field_not_another_one():
+    """Resolution transfer only means something if it is the same field on a finer grid: the inputs are band-limited,
+    so the trigonometric interpolant is exact and the coarse nodes are a subset of the fine ones."""
+    case = fc.advdiff_case(n=32, n_samples=6, n_train=4, seed=4, n_modes=4)
+    fine, image = fc.transfer_pair(case, 64)
+    assert fine.shape == image.shape == (2, 64, 64)
+    coarse = np.stack([np.repeat(np.repeat(a, 2, 0), 2, 1) for a in case.test[0]])
+    assert np.allclose(fine[:, ::2, ::2], coarse[:, ::2, ::2]), \
+        "every other node of the fine grid must carry the coarse field's value"
+    assert abs(image.mean() - fine.mean()) < 1e-12            # the exact propagator conserves mass there too
+    assert np.array_equal(fc.transfer_pair(case, 32)[0], case.test[0])   # the same grid returns the case untouched
+
+
 def test_predict_on_grid_follows_the_model_to_another_resolution():
     case = fc.advdiff_case(n=16, n_samples=8, n_train=6, seed=2, n_modes=3)
     pred = fc.pinneapple_fno2d(16, _tiny(), seed=0)

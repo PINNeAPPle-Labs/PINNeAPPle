@@ -67,6 +67,7 @@ __all__ = [
     "GradientParity",
     "fno2d_gradient_parity",
     "advdiff_case",
+    "transfer_pair",
     "predict_on_grid",
     "compare_trained",
 ]
@@ -525,7 +526,7 @@ def compare_trained(case: AdvDiffCase | None = None, arch: FNOArch = PARITY_ARCH
     case = case or advdiff_case()
     a_tr, u_tr = case.train
     a_te, u_te = case.test
-    transfers = {int(g): _band_limit_at(case, int(g)) for g in transfer_grids}
+    transfers = {int(g): transfer_pair(case, int(g)) for g in transfer_grids}
     configs: dict[str, dict[str, bool]] = {"parity": {"pinneapple": False}}
     if as_shipped:
         configs["as_shipped"] = {"pinneapple": True}
@@ -585,19 +586,29 @@ def _steps(n: int):
     return ComputeBudget(steps=int(n))
 
 
-def _band_limit_at(case: AdvDiffCase, n: int) -> tuple[np.ndarray, np.ndarray]:
+def transfer_pair(case: AdvDiffCase, n: int) -> tuple[np.ndarray, np.ndarray]:
     """The held-out samples of ``case`` and their exact images on an ``n x n`` grid.
 
-    The fields are drawn on ``case.n``; on another grid the same *continuous* field is re-synthesised from the same
-    seed and band limit, then the exact propagator is applied there. That is what makes the transfer measurement a
-    statement about the operator and not about an interpolation of one grid to another.
+    On another grid it is the **same** field: the inputs are band-limited (``case.n_modes``), so the trigonometric
+    interpolant of one grid evaluated at the nodes of the other is exact, not an approximation
+    (``operator_benchmarks.FourierInterpolant``), and since the propagator is diagonal the exact image follows from
+    applying it on the finer grid. Interpolating the *input* and recomputing the reference — rather than redrawing a
+    field of the same family — is what makes the transfer measurement a statement about the operator on a new grid.
     """
+    from pinneapple_simulation.numerical_solvers import operator_benchmarks as ob
+
     if int(n) == case.n:
         return case.test
-    other = advdiff_case(n=int(n), n_samples=len(case.u0), n_train=case.n_train, seed=case.seed,
-                         n_modes=min(case.n_modes, int(n) // 2), velocity=case.velocity, kappa=case.kappa,
-                         t_end=case.t_end)
-    return other.test
+    m = int(n)
+    a_te, _ = case.test
+    nodes = (np.arange(m) / m).astype(np.float64)
+    gx, gy = np.meshgrid(nodes, nodes, indexing="ij")
+    x = torch.tensor(gx.reshape(-1, 1), dtype=torch.float64)
+    y = torch.tensor(gy.reshape(-1, 1), dtype=torch.float64)
+    fine = np.stack([ob.FourierInterpolant(a, max_modes=case.n_modes, dtype=torch.float64)(x, y)
+                     .reshape(m, m).numpy() for a in a_te])
+    image = ob.advection_diffusion_2d(fine, case.velocity, case.kappa, case.t_end, 1)[-1]
+    return fine, image
 
 
 def _rel_l2(pred: np.ndarray, ref: np.ndarray) -> float:

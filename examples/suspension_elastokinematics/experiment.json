@@ -95,10 +95,10 @@
  ],
  "files": {
   "figures": [
-   "../../../../../../../tmp/susp-ex/wheels_in_bump.png",
-   "../../../../../../../tmp/susp-ex/compliance_vs_bush.png",
-   "../../../../../../../tmp/susp-ex/design_search.png",
-   "../../../../../../../tmp/susp-ex/arm_stress.png"
+   "_out/wheels_in_bump.png",
+   "_out/compliance_vs_bush.png",
+   "_out/design_search.png",
+   "_out/arm_stress.png"
   ],
   "videos": [],
   "viewers": [],

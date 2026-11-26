@@ -123,6 +123,46 @@ class FEModel:
         return cls._from_gmsh_inp(out, order)
 
     @classmethod
+    def from_gmsh_model(cls, build: Callable[[], None], size: float, order: int = 2, workdir: str | None = None,
+                        optimize: bool = True, save: Sequence[str] = ()) -> FEModel:
+        """Tetrahedra of a model built through the gmsh **Python** API: ``build()`` runs with gmsh initialised and
+        leaves the OpenCASCADE geometry in the model (``gmsh.model.occ.addBox`` ... ``synchronize()``); this meshes
+        it and returns the volume elements. ``save``: extra files to write next to the mesh in ``workdir``
+        (``"part.step"`` exports the B-rep, which is how the CAD the mesh came from is kept).
+
+        Why this exists next to :meth:`from_gmsh`: the ``gmsh`` executable is a Python entry point, so on an
+        installation whose interpreter does not see the ``gmsh`` module the CLI fails while the module works -- and
+        OCC calls in Python keep a parametric geometry parametric (there is no .geo text to parse back).
+        """
+        try:
+            import gmsh
+        except ModuleNotFoundError as e:                                   # pragma: no cover - environment
+            raise RuntimeError("the gmsh Python module is not installed") from e
+        work = workdir or os.path.join(os.getcwd(), "_gmsh")
+        os.makedirs(work, exist_ok=True)
+        out = os.path.join(work, "part.inp")
+        gmsh.initialize()
+        try:
+            gmsh.option.setNumber("General.Terminal", 0)
+            gmsh.model.add("part")
+            build()
+            gmsh.model.occ.synchronize()
+            gmsh.option.setNumber("Mesh.MeshSizeMax", float(size))
+            gmsh.option.setNumber("Mesh.ElementOrder", int(order))
+            gmsh.option.setNumber("Mesh.SaveAll", 0)
+            gmsh.model.mesh.generate(3)
+            if optimize:
+                gmsh.model.mesh.optimize("Netgen" if order == 1 else "HighOrder")
+            gmsh.write(out)
+            for name in save:
+                gmsh.write(os.path.join(work, name))
+        finally:
+            gmsh.finalize()
+        if not os.path.exists(out):                                        # pragma: no cover - gmsh failure
+            raise RuntimeError(f"gmsh wrote no mesh in {work}")
+        return cls._from_gmsh_inp(out, order)
+
+    @classmethod
     def _from_gmsh_inp(cls, path: str, order: int) -> FEModel:
         nodes, elems, etype, block = {}, [], None, None
         pending: list[int] = []

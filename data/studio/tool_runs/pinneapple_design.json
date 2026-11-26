@@ -1740,15 +1740,15 @@
   "seconds": 1.67
  },
  "pinneapple_design.suspension.study:suspension_verify": {
-  "code_hash": "7365110f50678a6b",
+  "code_hash": "13f14d444c6f615a",
   "inputs": {
    "budget": 14,
    "mesh": "fine"
   },
   "ok": true,
-  "recorded": "2026-11-18",
+  "recorded": "2026-11-26",
   "returned": "dict",
-  "seconds": 2.57
+  "seconds": 31.02
  },
  "pinneapple_design.thermal.board_cooling.agent:toolbox": {
   "code_hash": "f6ed9bdd825060a6",

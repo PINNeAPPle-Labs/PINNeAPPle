@@ -12,10 +12,12 @@ Modules:
 * :mod:`.kinematics` — the closed-loop multibody solve through wheel travel, and the curves it produces;
 * :mod:`.loads` — the load cases and the force each arm carries;
 * :mod:`.structure` — the arm as a steel tube: bending, Euler buckling and a 3-D finite-element check;
+* :mod:`.calculix` — the same leg in an external solver (gmsh builds the B-rep, ``ccx`` solves it): the third model;
 * :mod:`.compliance` — the bushes' elastic modes and the steer/camber the wheel gains under load;
 * :mod:`.design` — the loop that searches the lightest corner meeting all of it;
 * :mod:`.geometry` — the corner as CAD, from the same numbers;
-* :mod:`.study` — the Studio's two tools, with their files, checks and stated limits.
+* :mod:`.study` — the Studio's two tools, with their files, checks and stated limits;
+* :mod:`.verification` — the cases whose answer is known independently of the code, and the error each one measures.
 
     from pinneapple_design.suspension import front_corner, kinematic_sweep, wheel_compliance, suspension_study
     spec = front_corner()
@@ -42,6 +44,7 @@ from .kinematics import (
     Sweep,
     kinematic_sweep,
     pose,
+    pose_from_angles,
     roll_centre_height_m,
     wishbone_instant_centre,
 )
@@ -51,7 +54,8 @@ from .study import suspension_study, suspension_verify
 
 __all__ = [
     "Bushing", "SuspensionSpec", "front_corner",
-    "Pose", "Sweep", "pose", "kinematic_sweep", "roll_centre_height_m", "wishbone_instant_centre",
+    "Pose", "Sweep", "pose", "pose_from_angles", "kinematic_sweep", "roll_centre_height_m",
+    "wishbone_instant_centre",
     "LOAD_CASES", "corner_load_cases", "arm_loads", "worst_case",
     "TubeSection", "arm_mass_kg", "arm_check", "tube_mesh", "fem_tube", "fem_lower_arm",
     "ComplianceMode", "compliance_modes", "mode_responses", "wheel_compliance",

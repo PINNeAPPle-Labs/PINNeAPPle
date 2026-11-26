@@ -65,6 +65,32 @@ The search's answer: a 41.7 × 2.0 mm tube, 1057 N/mm bushes, the tie rod 4.2 mm
 finite-element peak (234 MPa) agrees with beam theory (230 MPa) to 2 %, and the whole loop is deterministic: the same
 budget gives the same design, which is what `suspension_verify` re-checks together with the mesh.
 
+## How we know the numbers are right
+
+`calculix.py` puts the same leg through an external solver — gmsh builds the OpenCASCADE B-rep and meshes it, `ccx`
+solves it — so the stress the corner is reported with comes from two programs, not one. And `verification.py` collects
+the cases whose answer is known **independently of the code being checked**, returning the measurement, not a verdict:
+
+```python
+from pinneapple_design.suspension.verification import run_all, summary
+
+for row in summary(run_all()):                  # external=True runs CalculiX too; seconds to a minute
+    print(row["case"], row["measured"], row["reference"], row["unit"])
+```
+
+| case | reference | measured |
+|---|---|---|
+| the linkage solved two ways — closure unknowns and joint angles | identical poses | 1.3e-11 deg of camber, 2.7e-10 deg of toe, 3e-13 m of wheel centre |
+| a parallelogram (equal, parallel wishbones) | zero camber gain | −1.3e-5 deg/50 mm, against −0.30 for the corner it was built from |
+| the same parallelogram at full bump | zero to first order; the tie rod is second order | −0.029 deg, and it grows with the square of the travel |
+| rigid bushes (rates × 1000) | the compliance vanishes as 1/rate | 0.527 deg/kN → 5.3e-4 deg/kN, ratio 1000.0 |
+| the tube in CalculiX against Timoshenko | the closed-form deflection | −0.42 % at second-order elements (first order at 10 mm: −7.3 %, bending lock) |
+| one leg by beam theory, hexahedra and CalculiX | the same number three times | 272 / 277 / 277 MPa — 1.8 % between the three |
+
+The first three run in seconds, and `suspension_verify` reports them among its own checks
+(`verify.kinematics_agreement`, `verify.parallelogram`, `verify.rigid_bushes`). The two that need CalculiX live in
+`verification.run_all()` and in the tests, which skip when `ccx` or the `gmsh` module is missing.
+
 ## What it does not answer
 
 - linear elasticity, small displacements: no plasticity, contact, welds or heat-affected zones;
@@ -78,9 +104,11 @@ The model says all of this itself: `suspension_study()["limits"]`.
 
 ## Where the code and the numbers live
 
-- library: `pinneapple_design/suspension/` (`hardpoints`, `kinematics`, `loads`, `structure`, `compliance`, `design`,
-  `geometry`, `study`);
+- library: `pinneapple_design/suspension/` (`hardpoints`, `kinematics`, `loads`, `structure`, `calculix`,
+  `compliance`, `design`, `geometry`, `study`, `verification`);
 - tests: `tests/test_suspension_design.py` (closure invariants, mesh volume, finite elements against the beam, Euler
-  load, compliance scaling with the bush rate, the loop's feasibility and determinism, the study's files);
+  load, compliance scaling with the bush rate, the two kinematics formulations against each other, the parallelogram,
+  the rigid-bush limit, CalculiX against Timoshenko and against the hexahedra, the loop's feasibility and determinism,
+  the study's files);
 - flow node and planner capability: `pinneapple_flow/nodes_ext/suspension.py` (the Studio proposes it from a sentence);
 - this example's manifest: [`experiment.json`](experiment.json).

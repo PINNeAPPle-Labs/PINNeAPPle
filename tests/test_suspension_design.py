@@ -8,6 +8,7 @@ first-order model says must hold.
 """
 from __future__ import annotations
 
+import importlib.util
 import math
 import os
 
@@ -19,6 +20,7 @@ from pinneapple_design.suspension import (
     Design,
     TubeSection,
     arm_mass_kg,
+    calculix,
     compliance_modes,
     corner_load_cases,
     evaluate,
@@ -27,6 +29,7 @@ from pinneapple_design.suspension import (
     kinematic_sweep,
     mode_responses,
     pose,
+    pose_from_angles,
     suspension_design,
     suspension_study,
     suspension_verify,
@@ -34,6 +37,18 @@ from pinneapple_design.suspension import (
     wheel_compliance,
 )
 from pinneapple_design.suspension.study import X_OUTPUTS
+from pinneapple_design.suspension.verification import (
+    arm_models,
+    cantilever,
+    kinematics_agreement,
+    parallelogram,
+    rigid_bushes,
+    run_all,
+    summary,
+)
+
+#: the cases that need the external solver: the ``gmsh`` Python module and ``ccx`` (native or through Docker)
+HAS_EXTERNAL = importlib.util.find_spec("gmsh") is not None and calculix.available()
 
 
 @pytest.fixture(scope="module")
@@ -191,3 +206,73 @@ def test_the_study_returns_its_numbers_as_the_record_the_deck_reads(tmp_path):
     again = suspension_verify(out_dir=str(tmp_path), budget=14, mesh="fine")
     assert set(again["outputs"]) == {e["name"] for e in X_OUTPUTS["suspension_verify"]}
     assert again["decision"]["verdict"] in ("OK", "NOT OK")
+
+
+# -------------------------------------------------------------------------------------- cases with a known answer
+def test_the_two_kinematics_formulations_agree(spec):
+    """The closure unknowns and the joint angles are different parameterisations of one mechanism: what separates them
+    is numerical error, so it must be at the level of the solvers' tolerances, not of the millimetre."""
+    agree = kinematics_agreement(design=spec, travels_mm=(-50.0, -25.0, 0.0, 25.0, 50.0))
+    assert agree["worst_camber_deg"] < 1e-6
+    assert agree["worst_toe_deg"] < 1e-6
+    assert agree["worst_wheel_centre_m"] < 1e-9
+    for row in agree["rows"]:                       # each one measured, not only the worst
+        assert row["d_camber_deg"] < 1e-6 and row["d_toe_deg"] < 1e-6
+    # and the joint-angle solver is a mechanism in its own right: it lands on the travel and keeps the rigid lengths
+    p = pose(spec, 0.030)
+    q = pose_from_angles(spec, 0.030, seed=(p.theta, p.phi, p.psi))
+    assert q.wheel_centre[2] == pytest.approx(spec.wheel_centre[2] + 0.030, abs=1e-9)
+    assert np.linalg.norm(q.upper_ball - q.lower_ball) == pytest.approx(spec.kingpin_length_m, abs=1e-9)
+    assert np.linalg.norm(q.tierod_outer - spec.tierod_inner) == pytest.approx(spec.tierod_length_m, abs=1e-9)
+
+
+def test_a_parallelogram_gains_no_camber(spec):
+    """Equal, parallel wishbones: the upright translates and the camber cannot change — a closed-form zero.
+
+    The tie rod is the one part that can spoil it, so the case points it square to the travel (first-order effect gone)
+    and reports what the second order leaves."""
+    par = parallelogram()
+    assert abs(par["tie_rod_perpendicular"]) < 1e-12
+    assert abs(par["camber_gain_deg_per_50mm"]) < 1e-3
+    as_built = abs(kinematic_sweep(spec).summary()["camber_gain_deg_per_50mm"])
+    assert as_built > 1e3 * abs(par["camber_gain_deg_per_50mm"])     # four orders: the real corner against the zero
+    assert abs(par["camber_change_full_bump_deg"]) < 0.05            # the tie rod's second-order coupling, measured
+
+
+def test_the_bushes_stop_mattering_when_they_are_rigid(spec):
+    """The first-order model is linear in the bush rate, so a thousand times the rate is a thousandth of the steer."""
+    rb = rigid_bushes(design=spec)
+    assert rb["measured_ratio"] == pytest.approx(rb["rate_ratio"], rel=0.01)
+    assert rb["toe_deg_per_kn_stiff"] < 1e-3
+    assert rb["toe_deg_per_kn_nominal"] > 0.1
+
+
+def test_the_verification_report_measures_every_case_it_can(spec):
+    """What runs without the external solver: three cases, each against a reference of its own, in its own unit."""
+    report = run_all(external=False)
+    rows = {r["case"]: r for r in summary(report)}
+    assert {"two kinematics formulations", "parallelogram, first order", "parallelogram, full bump",
+            "rigid bushes"} <= set(rows)
+    assert all(r["reference"] == 0.0 for r in rows.values())
+    assert report["cantilever"] == {"skipped": "skipped: external=False"}
+    assert rows["cantilever"]["detail"] == "skipped: external=False"
+
+
+@pytest.mark.skipif(not HAS_EXTERNAL, reason="CalculiX (ccx) or the gmsh module is not installed")
+def test_the_tube_in_an_external_solver_matches_timoshenko(tmp_path):
+    """gmsh builds the B-rep, ccx solves it: the pipeline is right when a case whose answer Timoshenko wrote down
+    comes back within 2 % of it."""
+    out = cantilever(workdir=str(tmp_path / "tube"))
+    assert out["error_rel"] == pytest.approx(0.0, abs=0.02)
+    assert out["bending_share"] > 0.9                  # bending dominates: the case is a cantilever, not a shear test
+    assert out["mass_kg"] == pytest.approx(0.799, rel=0.02)     # the B-rep's volume, not the mesh's: it does not move
+
+
+@pytest.mark.skipif(not HAS_EXTERNAL, reason="CalculiX (ccx) or the gmsh module is not installed")
+def test_the_leg_solved_by_three_models_agrees(tmp_path):
+    """One leg, one sizing case: beam theory, this library's hexahedra and CalculiX, within 5 % of each other."""
+    out = arm_models(workdir=str(tmp_path / "leg"))
+    assert abs(out["hex_to_beam"] - 1.0) < 0.05
+    assert abs(out["calculix_to_beam"] - 1.0) < 0.05
+    assert out["spread_rel"] < 0.05
+    assert out["sigma_pa"]["beam"] > 0.0

@@ -46,6 +46,7 @@ from .hardpoints import front_corner  # noqa: E402
 from .kinematics import kinematic_sweep, pose  # noqa: E402
 from .loads import worst_case  # noqa: E402
 from .structure import TubeSection, fem_lower_arm  # noqa: E402
+from .verification import kinematics_agreement, parallelogram, rigid_bushes  # noqa: E402
 
 __all__ = ["suspension_study", "suspension_verify", "MESH_DENSITY", "X_OUTPUTS"]
 
@@ -95,6 +96,12 @@ X_OUTPUTS = {
         {"name": "fem_elements", "type": "float", "unit": "-", "description": "hexahedra of the refined model"},
         {"name": "mass_kg", "type": "float", "unit": "kg", "description": "mass of the design the search returned"},
         {"name": "same_design", "type": "float", "unit": "-", "description": "1 when the second search agrees"},
+        {"name": "kinematics_agreement_deg", "type": "float", "unit": "deg",
+         "description": "difference between the two kinematics formulations over the sweep"},
+        {"name": "parallelogram_camber_deg_per_50mm", "type": "float", "unit": "deg/50mm",
+         "description": "camber gain of a linkage that cannot gain camber (closed form 0)"},
+        {"name": "rigid_bush_toe_deg_per_kn", "type": "float", "unit": "deg/kN",
+         "description": "steer left when the bush rates are multiplied by 1000 (limit 0)"},
     ],
 }
 
@@ -420,6 +427,11 @@ def suspension_verify(budget: int = 28, mesh: str = "fine", out_dir: str = ".") 
     same = again.design.as_dict() == result.design.as_dict()
     sweep = kinematic_sweep(s)
     summary = sweep.summary()
+    # the three cases with a closed-form answer that this machine can run in seconds: two formulations of the same
+    # linkage, a linkage whose camber cannot change, and the limit where the bushes stop being rubber
+    agree = kinematics_agreement(design=s)
+    par = parallelogram()
+    rigid = rigid_bushes(design=s)
     checks = [
         _check("verify.reproducible", same, int(same),
                "the deterministic search returns the same design when it is run again"),
@@ -430,16 +442,32 @@ def suspension_verify(budget: int = 28, mesh: str = "fine", out_dir: str = ".") 
                f"{fine['sigma_beam_pa'] / 1e6:.0f} MPa"),
         _check("verify.closure", summary["kinematic_closure_residual_m"] < 1e-8,
                summary["kinematic_closure_residual_m"], "the linkage closes over the travel sweep"),
+        _check("verify.kinematics_agreement", agree["worst_camber_deg"] < 1e-6, agree["worst_camber_deg"],
+               "two formulations of the same linkage (closure unknowns against joint angles) give the same camber: "
+               f"{agree['worst_camber_deg']:.1e} deg apart over the sweep"),
+        _check("verify.parallelogram", abs(par["camber_gain_deg_per_50mm"]) < 1e-3, par["camber_gain_deg_per_50mm"],
+               "equal, parallel wishbones gain no camber at first order: "
+               f"{par['camber_gain_deg_per_50mm']:+.1e} deg/50 mm measured, and "
+               f"{par['camber_change_full_bump_deg']:+.3f} deg at full bump from the tie rod's second-order coupling"),
+        _check("verify.rigid_bushes", abs(rigid["measured_ratio"] / rigid["rate_ratio"] - 1.0) < 0.01,
+               rigid["measured_ratio"],
+               f"the compliance falls as 1/rate: {rigid['toe_deg_per_kn_nominal']:.3f} deg/kN becomes "
+               f"{rigid['toe_deg_per_kn_stiff']:.1e} deg/kN when the rates are multiplied by {rigid['rate_ratio']:g} "
+               f"(measured ratio {rigid['measured_ratio']:.1f})"),
     ]
     _figure_stress(fine, s, os.path.join(out_dir, "arm_stress_refined.png"))
     with open(os.path.join(out_dir, "suspension_verify.json"), "w") as fh:
         json.dump({"design": again.design.as_dict(), "checks": checks,
-                   "coarse_mpa": coarse["sigma_peak_pa"] / 1e6, "fine_mpa": fine["sigma_peak_pa"] / 1e6}, fh,
-                  indent=1)
+                   "coarse_mpa": coarse["sigma_peak_pa"] / 1e6, "fine_mpa": fine["sigma_peak_pa"] / 1e6,
+                   "verification": {"kinematics_agreement": agree, "parallelogram": par, "rigid_bushes": rigid}},
+                  fh, indent=1)
     metrics = {"fem_peak_mpa": fine["sigma_peak_pa"] / 1e6, "coarse_peak_mpa": coarse["sigma_peak_pa"] / 1e6,
                "peak_change_pct": 100 * change, "fem_to_beam_ratio": fine["ratio"],
                "fem_elements": float(fine["elements"]), "beam_mpa": fine["sigma_beam_pa"] / 1e6,
-               "mass_kg": result.best["mass_kg"], "same_design": float(same)}
+               "mass_kg": result.best["mass_kg"], "same_design": float(same),
+               "kinematics_agreement_deg": float(agree["worst_camber_deg"]),
+               "parallelogram_camber_deg_per_50mm": float(par["camber_gain_deg_per_50mm"]),
+               "rigid_bush_toe_deg_per_kn": float(rigid["toe_deg_per_kn_stiff"])}
     ok = all(c["status"] == PASS for c in checks)
     return {"metrics": metrics, "outputs": dict(metrics), "checks": checks,
             "files": [os.path.join(out_dir, "arm_stress_refined.png"),
@@ -448,6 +476,8 @@ def suspension_verify(budget: int = 28, mesh: str = "fine", out_dir: str = ".") 
                 [f"the refined model is {fine['sigma_peak_pa'] / 1e6:.0f} MPa against beam theory's "
                  f"{fine['sigma_beam_pa'] / 1e6:.0f} MPa, and the peak moves {100 * change:.1f} % when the mesh is "
                  f"refined from {coarse['elements']} to {fine['elements']} hexahedra",
+                 f"the two kinematics formulations agree to {agree['worst_camber_deg']:.1e} deg and a parallelogram "
+                 f"gains {par['camber_gain_deg_per_50mm']:+.1e} deg per 50 mm, against a closed-form zero",
                  "the deterministic search returns the same design when it is run again"]
                 if ok else [f"{c['code']}: {c['detail']}" for c in checks if c["status"] != PASS])},
             "limits": LIMITS,

@@ -18,8 +18,8 @@ What runs, in order:
    field of von Mises on the deformed leg.
 
 Run: ``python examples/suspension_elastokinematics/01_corner_design.py [--budget N] [--smoke] [--out DIR]``
-Outputs in ``examples/suspension_elastokinematics/_out/`` (git-ignored) — the figures, the 3-D field, the CAD and the
-JSON with every number.
+Outputs in ``examples/suspension_elastokinematics/_out/``: the four figures (committed, they are what the manifest
+shows), the 3-D field, the CAD and the JSON with every number (git-ignored, they are rebuilt by the run).
 """
 from __future__ import annotations
 

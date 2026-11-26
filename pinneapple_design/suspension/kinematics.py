@@ -35,7 +35,8 @@ import numpy as np
 
 from .hardpoints import SuspensionSpec
 
-__all__ = ["Pose", "pose", "kinematic_sweep", "Sweep", "roll_centre_height_m", "wishbone_instant_centre"]
+__all__ = ["Pose", "pose", "pose_from_angles", "kinematic_sweep", "Sweep", "roll_centre_height_m",
+           "wishbone_instant_centre"]
 
 #: the largest change of the three unknowns a Newton step may take at once [rad] — a trust region, not a tolerance
 MAX_STEP_RAD = 0.25
@@ -55,6 +56,58 @@ def _axis_angle(axis: np.ndarray, angle: float) -> np.ndarray:
 def _rotate_about(p: np.ndarray, origin: np.ndarray, axis: np.ndarray, angle: float) -> np.ndarray:
     """Rodrigues: ``p`` turned by ``angle`` about the line through ``origin`` along ``axis``."""
     return origin + _axis_angle(axis, angle) @ (p - origin)
+
+
+def _min_rotation(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """The shortest rotation taking the direction ``a`` onto the direction ``b``."""
+    a, b = a / np.linalg.norm(a), b / np.linalg.norm(b)
+    v, c = np.cross(a, b), float(a @ b)
+    s = float(np.linalg.norm(v))
+    if s < 1e-14:                                   # parallel (or antiparallel: a half turn about any perpendicular)
+        if c > 0:
+            return np.eye(3)
+        other = np.cross(a, np.array([1.0, 0.0, 0.0]))
+        return _axis_angle(other if np.linalg.norm(other) > 1e-9 else np.array([0.0, 0.0, 1.0]), math.pi)
+    return _axis_angle(v, math.atan2(s, c))
+
+
+def _circle(origin: np.ndarray, axis: np.ndarray, point: np.ndarray):
+    """The circle a ball joint traces about a pivot axis: ``(centre, e1, e2, radius)``, ``e1`` through ``point``."""
+    v = point - origin
+    along = float(v @ axis)
+    perp = v - along * axis
+    radius = float(np.linalg.norm(perp))
+    e1 = perp / radius
+    return origin + along * axis, e1, np.cross(axis, e1), radius
+
+
+def _newton(f, u0: np.ndarray, tol: float = 1e-13, iters: int = 60, h: float = 1e-8):
+    """Newton on a small residual vector: central-difference Jacobian and a halving line search on its norm."""
+    u = np.asarray(u0, float).copy()
+    r = np.atleast_1d(f(u))
+    for it in range(1, iters + 1):
+        n = float(np.linalg.norm(r))
+        if n < tol:
+            return u, n, it
+        J = np.empty((len(r), len(u)))
+        for j in range(len(u)):
+            du = np.zeros_like(u)
+            du[j] = h
+            J[:, j] = (np.atleast_1d(f(u + du)) - np.atleast_1d(f(u - du))) / (2.0 * h)
+        try:
+            step = np.linalg.solve(J, -r)
+        except np.linalg.LinAlgError:                                   # pragma: no cover - degenerate geometry
+            step = np.linalg.lstsq(J, -r, rcond=None)[0]
+        a = 1.0
+        for _ in range(40):
+            r_new = np.atleast_1d(f(u + a * step))
+            if float(np.linalg.norm(r_new)) < n:
+                u, r = u + a * step, r_new
+                break
+            a *= 0.5
+        else:                                                           # pragma: no cover - stuck at the solution
+            break
+    return u, float(np.linalg.norm(np.atleast_1d(r))), it
 
 
 def _upright_transform(g: dict, lower: np.ndarray, upper: np.ndarray, spin: float):
@@ -307,6 +360,53 @@ def pose(spec: SuspensionSpec, travel_m: float = 0.0, seed=None, tol: float = 1e
                 lower_ball=lower, upper_ball=upper, tierod_outer=R @ spec.tierod_outer + T,
                 wheel_centre=R @ spec.wheel_centre + T, spring_lower=_rotate_about(
                     spec.spring_lower, spec.lca_front, spec.lca_axis, theta) + dl, R=R, translation=T)
+
+
+def pose_from_angles(spec: SuspensionSpec, travel_m: float = 0.0, seed=None, tol: float = 1e-13,
+                     iters: int = 60) -> Pose:
+    """The same pose from three **joint angles** instead of the three closure unknowns: one angle along each wishbone's
+    circle, one spin of the upright about the kingpin.
+
+    A different unknown set and a different decomposition from :func:`pose` -- the circle a ball joint traces is
+    parameterised directly and the upright is placed by its rigid lengths, where :func:`pose` keeps three scalars of
+    a closure residual. The two agreeing is therefore evidence about the kinematics, not a tautology, and that is what
+    :mod:`pinneapple_design.suspension.verification` measures.
+
+    ``seed``: the three angles of the neighbouring travel (:func:`pose_from_angles` of the step before), which is what
+    makes a sweep cheap. Bushing displacements are not accepted here: they are the compliance model's question, and
+    that one goes through :func:`pose`.
+    """
+    c_low = _circle(spec.lca_front, spec.lca_axis, spec.lca_outer)
+    c_up = _circle(spec.uca_front, spec.uca_axis, spec.uca_outer)
+    kingpin0 = spec.uca_outer - spec.lca_outer
+    d0 = float(np.linalg.norm(kingpin0))
+    kp0 = kingpin0 / d0
+    tierod_length = spec.tierod_length_m
+
+    def ball(circle, angle: float) -> np.ndarray:
+        centre, e1, e2, radius = circle
+        return centre + radius * (math.cos(angle) * e1 + math.sin(angle) * e2)
+
+    def build(u: np.ndarray) -> Pose:
+        lower = ball(c_low, u[0])
+        upper = ball(c_up, u[1])
+        R = _axis_angle(upper - lower, u[2]) @ _min_rotation(kp0, upper - lower)
+        t = lower - R @ spec.lca_outer
+        return Pose(spec=spec, travel_m=float(travel_m), theta=float(u[0]), phi=float(u[1]), psi=float(u[2]),
+                    lower_ball=lower, upper_ball=upper, tierod_outer=R @ spec.tierod_outer + t,
+                    wheel_centre=R @ spec.wheel_centre + t,
+                    spring_lower=_rotate_about(spec.spring_lower, spec.lca_front, spec.lca_axis, float(u[0])),
+                    R=R, translation=t)
+
+    def residuals(u: np.ndarray) -> np.ndarray:
+        p = build(u)
+        return np.array([np.linalg.norm(p.upper_ball - p.lower_ball) - d0,
+                         np.linalg.norm(p.tierod_outer - spec.tierod_inner) - tierod_length,
+                         float(p.wheel_centre[2] - spec.wheel_centre[2]) - float(travel_m)], float)
+
+    u0 = np.zeros(3) if seed is None else np.asarray(seed, float)
+    u, _, _ = _newton(residuals, u0, tol=tol, iters=iters)
+    return build(u)
 
 
 def wishbone_instant_centre(p: Pose) -> np.ndarray:

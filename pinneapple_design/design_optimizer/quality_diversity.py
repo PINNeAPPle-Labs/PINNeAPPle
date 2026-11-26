@@ -48,21 +48,21 @@ Usage
 """
 from __future__ import annotations
 
-import json
 import math
 import time
+from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
 from .optimizer import DesignOptimizerConfig, ParamSpace
 
-__all__ = ["BehaviourAxis", "BehaviourSpace", "Evaluation", "Elite", "DiversityReport", "EliteArchive",
-           "QDConfig", "QDSearchResult", "QualityDiversitySearch", "BaselineSearch", "latin_hypercube",
-           "uniform_search", "FailingCell", "FailureRegion", "find_failure_region", "plot_archive"]
+__all__ = ["BehaviourAxis", "BehaviourSpace", "descriptor_vector", "descriptor_axes", "Evaluation", "Elite",
+           "DiversityReport", "EliteArchive", "QDConfig", "QDSearchResult", "QualityDiversitySearch", "BaselineSearch",
+           "latin_hypercube", "uniform_search", "FailingCell", "FailureRegion", "find_failure_region", "plot_archive"]
 
 
 # ---------------------------------------------------------------------------
@@ -212,6 +212,82 @@ class BehaviourSpace:
         for axis, (lo, hi) in zip(self.axes, [self.condition(cell)[a.name] for a in self.axes], strict=True):
             parts.append(f"{axis.name} in [{lo:.4g}, {hi:.4g}]{' ' + axis.unit if axis.unit else ''}")
         return "; ".join(parts)
+
+
+def descriptor_vector(descriptors: Any, keys: Sequence[str]) -> tuple[float, ...]:
+    """One descriptor vector from a qualitative ``Descriptors`` (or any mapping of named descriptors).
+
+    These are the axes the issue asks for: the descriptors of
+    :func:`pinneapple_design.qualitative.describe` -- volume, wetted area, slenderness, sphericity, the flat areas and
+    the sharp-edge length -- say what a body *is* to the flow and to the solver, without being the parameters that
+    produced it. Two very different meshes with the same sphericity belong in the same cell, and that is the point.
+
+    Parameters
+    ----------
+    descriptors:
+        A :class:`pinneapple_design.qualitative.Descriptors`, or any object with ``as_dict()``, or a mapping.
+    keys:
+        Which descriptors are the axes, in the order of the behaviour space.
+
+    >>> from pinneapple_design.qualitative import describe
+    >>> descriptor_vector(describe(mesh), ("slenderness", "sphericity"))     # doctest: +SKIP
+    (2.41, 0.83)
+    """
+    table = descriptors.as_dict() if hasattr(descriptors, "as_dict") else dict(descriptors)
+    missing = [k for k in keys if k not in table]
+    if missing:
+        raise KeyError(f"descriptors {missing} not among {sorted(table)}")
+    return tuple(float(table[k]) for k in keys)
+
+
+def descriptor_axes(samples: Sequence[Any], keys: Sequence[str], *, bins: int = 10, labels: str = "",
+                    unit: Mapping[str, str] | None = None, why: Mapping[str, str] | None = None,
+                    scale: Mapping[str, str] | None = None, margin: float = 0.02) -> BehaviourSpace:
+    """A :class:`BehaviourSpace` whose ranges are what ``samples`` actually reach, one axis per descriptor key.
+
+    The grid has to be declared before the designs that will fill it are known, and a hand-written range is a guess
+    that either wastes cells or clips the behaviour. Taking the range from the designs the box can produce -- the
+    Latin hypercube of the campaign, or a coarse mesh sweep -- makes the map a measurement: the axes span the
+    behaviours that exist, and ``margin`` pads them a little so a slightly different design is not refused at the edge.
+
+    Parameters
+    ----------
+    samples:
+        ``Descriptors`` objects, ``as_dict()``-able objects, or plain mappings of named descriptors.
+    keys:
+        The descriptor names to use as axes, in order.
+    bins:
+        Cells per axis.
+    labels:
+        Title of the map.
+    unit, why, scale:
+        Per-descriptor ``{key: value}`` for :class:`BehaviourAxis`; a missing key falls back to the defaults.
+    margin:
+        Fraction of the observed span added to each end.
+
+    >>> space = descriptor_axes(meshes, ("slenderness", "sphericity"),
+    ...                         why={"slenderness": "how much body the flow has to go around"})
+    >>> space.shape
+    (10, 10)
+    """
+    if not keys:
+        raise ValueError("descriptor_axes needs at least one descriptor key")
+    unit, why, scale = unit or {}, why or {}, scale or {}
+    vectors = np.array([descriptor_vector(s, keys) for s in samples], dtype=float)
+    if len(vectors) == 0:
+        raise ValueError("descriptor_axes needs at least one sample to measure the ranges")
+    axes = []
+    for j, key in enumerate(keys):
+        column = vectors[:, j]
+        finite = column[np.isfinite(column)]
+        lo, hi = float(finite.min()), float(finite.max())
+        if not hi > lo:
+            raise ValueError(f"descriptor {key!r} does not vary over the samples: it cannot be a behaviour axis")
+        pad = margin * (hi - lo)
+        lo, hi = lo - pad, hi + pad
+        axes.append(BehaviourAxis(key, lo, hi, unit=unit.get(key, ""), why=why.get(key, ""),
+                                  scale=scale.get(key, "linear")))
+    return BehaviourSpace(axes=tuple(axes), bins=bins, labels=labels)
 
 
 # ---------------------------------------------------------------------------
@@ -927,8 +1003,7 @@ def plot_archive(archive: EliteArchive, path: str | Path, *, tolerance: float | 
         raise ValueError("plot_archive draws two behaviour axes")
     values = archive.grid_values()
     fig, ax = plt.subplots(figsize=(6.4, 5.0))
-    cmap_obj = plt.get_cmap(cmap).copy()
-    cmap_obj.set_bad("0.92")
+    cmap_obj = plt.get_cmap(cmap).with_extremes(bad="0.92")
     mesh = ax.pcolormesh(values.T, cmap=cmap_obj, edgecolors="w", linewidth=0.4)
     bar = fig.colorbar(mesh, ax=ax)
     bar.set_label(f"{archive.name or 'value'}{(' [' + unit + ']') if unit else ''}")

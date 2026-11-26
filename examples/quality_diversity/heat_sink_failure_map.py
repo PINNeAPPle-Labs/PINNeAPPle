@@ -24,28 +24,41 @@ The same archive with ``sense="min"`` is the design map: the least fan power tha
 
 What is written
 ---------------
-``heat_sink_failure_map.png``   the archive, coloured by the surrogate's worst Rth error per cell, failing cells marked;
-``heat_sink_design_map.png``    the same plane with the least fan power found in each cell;
-``heat_sink_qd.json``           every number in this docstring, with the seed and the budget that produced it.
+``figures/heat_sink_failure_map.png``   the archive, coloured by the surrogate's worst Rth error per cell, the failing
+                                        cells marked;
+``figures/heat_sink_design_map.png``    the same plane with the least fan power found in each cell;
+``heat_sink_elites.csv``                one row per elite of both maps: the cell, the behaviour condition, the value
+                                        and the design that produced it -- small enough to diff between runs;
+``heat_sink_qd.json``                   the comparison against the baselines, the known-failure check and the budget,
+                                        seed and tolerance every number here was produced with.
 
-Run it with ``python examples/quality_diversity/heat_sink_failure_map.py --out .`` (about a minute on a laptop CPU:
-most of it is fitting the surrogate).
+Run it with ``python examples/quality_diversity/heat_sink_failure_map.py`` (about a minute on a laptop CPU: most of it
+is fitting the surrogate). Nothing large is written: the elites are a few dozen rows of text.
 """
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from pathlib import Path
 
 import numpy as np
 import torch
 
-from pinneapple_design.design_optimizer.quality_diversity import (BehaviourAxis, BehaviourSpace, EliteArchive,
-                                                                  Evaluation, QDConfig, QualityDiversitySearch,
-                                                                  find_failure_region, plot_archive, uniform_search)
+from pinneapple_design.design_optimizer.quality_diversity import (
+    BehaviourAxis,
+    BehaviourSpace,
+    EliteArchive,
+    Evaluation,
+    QDConfig,
+    QualityDiversitySearch,
+    find_failure_region,
+    plot_archive,
+    uniform_search,
+)
 from pinneapple_design.design_optimizer.surrogate import PhysicsSurrogate
-from pinneapple_physics.closed_form.plate_fin_heatsink import (HeatSinkGeometry, OperatingPoint,
-                                                              evaluate as sink_evaluate)
+from pinneapple_physics.closed_form.plate_fin_heatsink import HeatSinkGeometry, OperatingPoint
+from pinneapple_physics.closed_form.plate_fin_heatsink import evaluate as sink_evaluate
 
 # ── the part, fixed around the three design numbers ──────────────────────────────────────────────────────────────
 BASE_WIDTH_M = 0.050
@@ -243,9 +256,31 @@ def known_failure_check(region, surrogate: ResponseSurface) -> dict:
     return {"checks": checks}
 
 
-def main(out: str = ".", budget: int = 600, seeds: tuple[int, ...] = (0, 1, 2, 3, 4)) -> dict:
-    out_dir = Path(out)
-    out_dir.mkdir(parents=True, exist_ok=True)
+def write_elites(path: Path, archives: dict[str, EliteArchive]) -> Path:
+    """One row per elite per map: the cell, its behaviour condition, the value and the design.
+
+    The map *is* the result, and its rows are the deliverable a designer or a trust report reads -- small enough to
+    diff between runs and to paste into a ticket, which is why this is a CSV and not a dump of the archive object.
+    """
+    rows = []
+    for label, archive in archives.items():
+        for elite in archive.elites:
+            row = {"map": label, "cell": "-".join(str(i) for i in elite.cell), "value": elite.value,
+                   "condition": archive.space.describe(elite.cell)}
+            row.update({name: float(v) for name, v in zip(PARAMS, elite.design, strict=True)})
+            rows.append(row)
+    fields = ["map", "cell", "value", "condition", *PARAMS]
+    extra = sorted({k for row in rows for k in row if k not in fields})
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields + extra, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+    return path
+
+
+def main(out: str | None = None, budget: int = 600, seeds: tuple[int, ...] = (0, 1, 2, 3, 4)) -> dict:
+    out_dir = Path(out) if out is not None else Path(__file__).resolve().parent
+    (out_dir / "figures").mkdir(parents=True, exist_ok=True)
     result = campaign(budget=budget, seeds=seeds)
     surrogate, runs = result["surrogate"], result["runs"]
     region = result["regions"][int(seeds[0])]
@@ -268,22 +303,23 @@ def main(out: str = ".", budget: int = 600, seeds: tuple[int, ...] = (0, 1, 2, 3
         print(f"known failure [{check['cursor']}]: {state}")
     print()
     print(design_archive.summary())
-    plot_archive(region.archive, out_dir / "heat_sink_failure_map.png", tolerance=TOLERANCE,
+    plot_archive(region.archive, out_dir / "figures" / "heat_sink_failure_map.png", tolerance=TOLERANCE,
                  title="where the heat-sink surrogate fails", unit="relative Rth error")
-    plot_archive(design_archive, out_dir / "heat_sink_design_map.png",
+    plot_archive(design_archive, out_dir / "figures" / "heat_sink_design_map.png",
                  title="least fan power achieving each (Rth, mass)", unit="W")
+    write_elites(out_dir / "heat_sink_elites.csv", {"failure": region.archive, "design": design_archive})
     payload = {"budget": budget, "seeds": list(seeds), "tolerance": TOLERANCE, "train_box": TRAIN_BOX,
                "search_box": SEARCH_BOX, "train_samples": TRAIN_SAMPLES, "train_epochs": TRAIN_EPOCHS,
                "runs": runs, "known_failure": known,
-               "region": region.to_json(),
-               "design_map": design_archive.to_json()}
+               "failing_cells": len(region.cells()), "map_max": region.map_max,
+               "design_cells": design_archive.cells, "design_fill": design_archive.fill}
     (out_dir / "heat_sink_qd.json").write_text(json.dumps(payload, indent=1), encoding="utf-8")
     return payload
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--out", default=".", help="where the figures and the JSON go")
+    parser.add_argument("--out", default=None, help="where the figures and the JSON go (default: this folder)")
     parser.add_argument("--budget", type=int, default=600, help="evaluations per method per seed")
     parser.add_argument("--seeds", default="0,1,2,3,4", help="comma-separated seeds")
     args = parser.parse_args()

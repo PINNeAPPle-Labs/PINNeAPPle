@@ -935,8 +935,71 @@ Peak-to-peak cogging in N m (difference relative to the straight 3-D cogging):
   multi-slice predicts 0.045 N m, 3-D 0.062 N m: 37 % more, from the axial flux between layers and the end
   regions. A residual of a few percent of the straight cogging needs the 3-D model, or a margin of that size.
 
-Limits of this study: linear iron (no saturation); no winding currents, so no load torque ripple (that needs the
-end windings in 3-D); one mesh resolution, because the 1.76 M-tetrahedron model did not fit in memory.
+Limits of this study: linear iron (no saturation); no winding currents, so the torque is cogging, not the ripple of
+a driven machine (the section below adds them); one mesh resolution, because the 1.76 M-tetrahedron model did not fit
+in memory.
+
+
+### 3-D at load: the armature current against multi-slice 2-D
+
+The sections above hold only the magnets. `SPM3D.current_density(currents)` adds the second source: the axial
+current density of the stranded winding, `sign x turns x I_phase / A_slot` in every slot of the stack and zero in the
+end regions, with the slot area of this model's own cross-section. The stator does not turn, so the source is the
+same at every rotor angle and the rotor's skew is the only axial variation of the field. `solve(theta, skew,
+currents=...)` and `torque_series(thetas, skew, currents_of=...)` then give the torque of a synchronous drive, and
+`multislice(..., currents_of=...)` puts the same instantaneous currents in every slice.
+
+**What it is checked against.**
+
+* One straight layer with no end region *is* the 2-D problem: the torque agrees with the `SPMMachine` code to 0.01 %
+  at 72 angular steps and 0.29 % at 240 (the two cross-sections are meshed differently, and that is the residual).
+* Zero current is no load exactly -- the source is a zero vector, not a small one -- and with linear iron the magnet
+  torque is the mean of the two current directions (the armature torque is odd in the current).
+* The current density of every slot integrates to `N I` over the cross-section, to 1e-9 (`tests/test_machines3d.py`).
+
+`python examples/electrodynamics/27_spm_load_3d.py` (run on 2026-11-25, 574 s) writes `results/27_spm_load_3d.json`,
+`27_spm_load_3d.png` and `27_spm_load_3d.rows.jsonl`.
+
+* Machine: the default `SPMMachine` (24 slots, 4 poles, rotor radius 40 mm, 4 mm magnets, 1 mm gap, 50 mm stack),
+  linear iron at `mu_r` 1000, 20 turns per slot; 200 A peak on the q-axis (`gamma = 0`, the maximum-torque angle of a
+  surface-PM machine), currents `phase_currents(theta, 200 A, 0)`.
+* 3-D model: 235 008 tetrahedra (288 angular steps, 2 layers in the stack, 20 mm of air beyond each end), the torque
+  sampled at the 12 angles of one 15 deg cogging period. The angular step is 1.25 deg and no skew of the table falls
+  on a half step on any layer, so the 3-D model and the multi-slice model round to the same discrete skew; at 144
+  steps (2.5 deg) the 15 deg continuous skew falls on exactly a half step and the two roundings stop agreeing at
+  every angle, which is why the study runs on this grid.
+* The 2-D code on its own polar mesh, same drive: mean 105.302 N m, peak to peak 16.114 N m (15.30 %), no-load
+  cogging 0.976 N m.
+
+| Skew | Total (deg) | Slice offsets (deg) | Mean, 3-D (N m) | Mean, multi-slice (N m) | pk-pk, 3-D (N m) | pk-pk, multi-slice (N m) |
+|---|---|---|---|---|---|---|
+| straight | 0 | 0, 0 | 105.483 | 105.772 (+0.27 %) | 16.429 (15.58 %) | 16.481 (15.58 %) |
+| step, 2 segments | 8 | -3.75, +3.75 | 105.094 | 105.383 (+0.27 %) | 5.300 (5.04 %) | 5.319 (5.05 %) |
+| step, 2 segments | 15 | -7.5, +7.5 | 104.721 | 105.011 (+0.28 %) | 10.399 (9.93 %) | 10.425 (9.93 %) |
+| continuous | 8 | -2.5, +2.5 | 105.289 | 105.577 (+0.27 %) | 9.435 (8.96 %) | 9.461 (8.96 %) |
+| continuous | 15 | -3.75, +3.75 | 105.094 | 105.383 (+0.28 %) | 5.300 (5.04 %) | 5.319 (5.05 %) |
+
+* **At load the ripple is not cogging.** The straight machine cogs 0.976 N m at no load and ripples 16.4 N m at
+  200 A: the 6th electrical harmonic of the interaction, not the magnet-alone torque. The 2-D code gives 15.30 %
+  where the 3-D model gives 15.58 %, 0.28 points apart on two different meshes.
+* **The skew that helps at load is the one that helps at no load.** Two segments at 3.75 deg each (a continuous
+  15 deg skew over two layers) cut the ripple from 15.58 % to 5.04 %, 68 % of it, for 0.37 % of the mean torque.
+  Twice that skew (two segments at 7.5 deg) is worse -- 9.93 % -- the classic over-skew past the optimum.
+* **Multi-slice carries the load torque.** Against the 3-D model the mean is high by 0.27 to 0.28 % at every skew:
+  a constant, the end leakage that the one-layer slice model (flux-parallel end planes) cannot see, so it is a
+  correction and not an error of the skew study. The peak to peak it reproduces to 0.25 to 0.35 %, that is to say
+  within 0.06 percentage points of ripple.
+* **What the axial resolution costs.** This run has two stack layers, where the axial coupling between segments is
+  one interface and the agreement above is at its best. The no-load study above, with six, found up to 3.8 % in the
+  residual cogging (37 % of a residual that had fallen to 5 % of the straight stack). Multi-slice is therefore
+  adequate at load **for the mean torque and, on this axial discretisation, for the ripple**; where the machine is
+  finely segmented the number of the no-load section governs, and it is not smaller than 0.5 to 3.8 %.
+
+Limits: linear iron; the winding is stranded, straight and uniform over the slot, with no end turns in the mesh, so
+neither their leakage nor their loss is in the torque; the rotor is skewed and the stator is not; one geometry and
+one operating point; the ripple is what the 12 angles of the period sample, so the peak to peak of a curve with
+harmonics above the 6th is a lower bound. What the 3-D model adds over 2-D here is the axial flux path and the end
+regions, and nothing else.
 
 
 ### 3-D eddy currents: TEAM problem 7 against its measurements
@@ -1305,10 +1368,12 @@ Notes from the same run:
 
 ## Limits
 
-* The FEM solvers are 2-D (planar or axisymmetric for `eddy_current_fdm`), first order (P1), and resolve
-  geometry on the mesh (polar grids are staircased in angle). The 3-D edge-element solver (`fem3d`) is first order;
-  its eddy-current solve is a sparse LU, practical up to some 1e4 unknowns, and it is not yet compared with a TEAM
-  benchmark.
+* The 2-D FEM solvers are planar (axisymmetric for `eddy_current_fdm`), first order (P1), and resolve
+  geometry on the mesh (polar grids are staircased in angle). The 3-D edge-element solver (`fem3d`) is first order
+  too: `B` is constant per tetrahedron. Its magnetostatics is a tree-gauged CG (a factorised preconditioner, a few
+  iterations per solve); its eddy-current solve is a sparse LDL^T of the complex symmetric matrix, 194,729 unknowns
+  in 7.7 GB in the TEAM 7 run below. That problem is compared with its published measurements (Bz within 5 to 8 %
+  at 5 mm, the loss not converged); TEAM 13 is not done (its measured tables were not reachable).
 * FDTD: uniform grids only. The sub-cell averaging is not the full anisotropic smoothing: curved surfaces with E
   normal to them keep an error of a few percent that does not converge (2 % on the Mie sphere below). The CPML is tuned for vacuum; inside
   dispersive or negative-permittivity media its reflection is not measured. Surface plasmon polaritons are
@@ -1320,12 +1385,16 @@ Notes from the same run:
   by the integral kinds.
 * `maxwell_checks` uses central differences on tensor grids: fields with discontinuities (material interfaces,
   PEC edges) leave residuals there that are not errors of the field; crop them or check each region separately.
-* Machines: 2-D FEA; end effects as corrections (end-winding inductance from thin filaments, magnet end leakage
-  as one 3-D no-load ratio applied through the remanence, not a coupled 3-D solution at load); skew by
+* Machines: the 2-D module (`machines`) is 2-D FEA, with end effects as corrections (end-winding inductance from
+  thin filaments, magnet end leakage as one 3-D no-load ratio applied through the remanence) and skew by
   multi-slice, without inter-segment axial flux; magnets at a uniform temperature,
   iron loss from B waveforms with the elliptic-to-alternating split (no minor loops, no rotational-loss data),
   magnet eddy loss resistance-limited (valid while the skin depth exceeds the magnet size). The Bertotti fit to the
   M400-50A table has measured errors (see the notes above); the table model is exact at the catalogue points only.
+  The 3-D module (`machines3d`, `fem3d`) is the reference for what 2-D cannot answer, on linear iron only: its
+  winding is stranded, straight and uniform over the slot with no end turns in the mesh, so its load torque holds
+  neither the end-winding leakage nor the loss of the end turns, and its skew is the rotor's alone. Each section
+  above states its own approximations; the numbers are for the geometry and materials it names, not for the class.
 * Thermal: a lumped network whose material, contact and heat-transfer data are illustrative defaults, not
   measured or fitted to a Prius; one temperature per node (no hot spot inside the slot, magnets uniform). `Hcj(T)`
   is the grade minimum with an assumed -0.55 %/K coefficient. The demagnetisation check is static, a square-loop

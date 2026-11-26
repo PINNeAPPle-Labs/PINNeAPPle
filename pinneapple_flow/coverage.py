@@ -92,6 +92,11 @@ REASONS: dict[str, str] = {
     "pinneapple_physics.dimensions": "a dimensional check of one equation before training: it reads a statement and "
                                      "reports which term broke the units, which is a review of a problem rather "
                                      "than a step of a flow",
+    "pinneapple_physics.constraint_engine": "one Constraint object applied at the three places a response can break a "
+                                            "limit -- the trainer's penalty, the optimizer's ineq/eq and the deploy "
+                                            "guard's refusal (#221), with one residual arithmetic behind all three: "
+                                            "it is the rule those steps apply, not a step that runs on its own; the "
+                                            "count of violations over an ensemble is read by the decision report",
     "pinneapple_physics.experiments": "reproducing a recorded run (reproduced / divergent / refused): the definition "
                                       "of the three outcomes, read by pp.experiments rather than placed in a flow",
     # modules the public-API scan finds nothing to wrap in, with the reason read off what they are for
@@ -113,6 +118,11 @@ REASONS: dict[str, str] = {
     "pinneapple_data.adaptive_sampling": "the loop that decides which simulation to run next (multi-signal adaptive "
                                          "sampling of #209): it chooses the calls a campaign makes, it is not one of "
                                          "them, in the same way as pinneapple_analysis.bayesopt",
+    "pinneapple_analysis.surrogate_loop": "the same loop behind a verification budget (#297): it searches on the "
+                                          "surrogate, sends the most promising and most uncertain designs to the "
+                                          "solver, refits and stops when the verified optimum settles, so it chooses "
+                                          "the calls a campaign makes rather than being one of them -- the reason "
+                                          "pinneapple_data.adaptive_sampling already gives",
     "pinneapple_physics.active_design": "the same loop behind the option it is reached by (Experiment(active=...) in "
                                         "#34 and #153): it spends a budget of solver runs over the problem's design "
                                         "box and records why, which chooses the calls a flow makes instead of being "
@@ -218,8 +228,33 @@ REASONS: dict[str, str] = {
                                       "case): examples/granular_dem runs the mill, the wear calibration and the "
                                       "breakage test, and tests/test_granular_*.py check each layer",
     "pinneapple_simulation.hemodynamics": "Windkessel outlets and the Windkessel-coupled aorta OpenFOAM run (hours of pimpleFoam, examples/biology/aorta_windkessel.py), not a flow step",
+    "pinneapple_data.cae.structural": "``StructuralRun`` -- one explicit-FEA run as a single object (frames sharing one "
+                                      "connectivity, a time axis in seconds, named parts with their elements, a unit "
+                                      "per field, provenance and the dropped/eroded/contact masks) and the four "
+                                      "constructors that build it from a CrashResult, a legacy VTK series, a staged "
+                                      "OpenRadioss case or an LS-DYNA ASCII run: it is the object the readers return "
+                                      "and the trainers consume (a form cannot hold a run), introduced with #1500 "
+                                      "and shown end to end by examples/structural_ingestion",
+    "pinneapple_data.cae.training_set": "the normalisation between a run and a training set (deduplication, node "
+                                        "decimation with the error it introduces, unit conversion, "
+                                        "non-dimensionalisation and a split by geometry family), each step reported "
+                                        "rather than done silently: it takes the StructuralRun objects of a campaign, "
+                                        "not the scalars of a flow form -- examples/structural_ingestion runs it",
+    "pinneapple_data.cae.lsdyna": "the open ASCII half of an LS-DYNA run (the keyword deck with its *PART, "
+                                  "*SECTION_SHELL and *MAT sections, the nodout history, and the deck's own mesh): "
+                                  "file readers for a solver's output, with the proprietary d3plot family "
+                                  "deliberately out of scope (#1500), so they take a directory and a printed "
+                                  "history rather than flow parameters",
+    "pinneapple_data.cae.vtk_series": "the legacy-VTK time series the campaign writers leave behind (one file per "
+                                      "instant, the ``anim_to_vtk`` layout): read_vtk_series/write_vtk_series are a "
+                                      "file round trip over a StructuralRun, with no dependency on meshio, and the "
+                                      "values they carry are checked by examples/structural_ingestion",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
+    "pinneapple_analysis.report": "the one-page experiment report and its PDF (#919): every section is a view of "
+                                   "something the repository already computes -- the manifest, the curation trust "
+                                   "card, the quality checklist and the run's costs.json -- so it is the document a "
+                                   "reviewer reads rather than a computation a node performs",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "
                                          "examples/paper_reproductions runners, not a flow step",
     "pinneapple_physics.paper_problems_xtfc": "the X-TFC paper's problems, read by the "

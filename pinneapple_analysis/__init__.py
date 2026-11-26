@@ -131,6 +131,12 @@ from .multifidelity_workflow import (  # noqa: E402
     FidelityPlan, MultiFidelityRun, MultiFidelityWorkflow, benchmark_multifidelity_workflow, rod_fidelities,
 )
 
+# ── surrogate in the loop with a verification budget (#297): `pp.optimize.loop(space, surrogate, solver, budget=N)`
+from .surrogate_loop import (  # noqa: E402
+    Constraint, Design, EnsembleSurrogate, GaussianProcessSurrogate, LoopResult, Round,
+    airfoil_reference, airfoil_solver, benchmark_loop, loop,
+)
+
 
 # ── Integration helpers ────────────────────────────────────────────────────────
 
@@ -171,6 +177,9 @@ __all__ = [
     "serve", "audit", "FidelityPolicy", "FidelityReport",
     "multifidelity_workflow", "FidelityPlan", "MultiFidelityRun", "MultiFidelityWorkflow",
     "benchmark_multifidelity_workflow", "rod_fidelities",
+    # surrogate in the loop with a verification budget (#297)
+    "surrogate_loop", "loop", "Constraint", "Design", "Round", "LoopResult", "benchmark_loop",
+    "airfoil_solver", "airfoil_reference", "GaussianProcessSurrogate", "EnsembleSurrogate",
     # Sub-modules (old aliases — backward compat)
     "uq", "validate", "inverse",
     # Integration

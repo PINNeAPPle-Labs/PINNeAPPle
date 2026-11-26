@@ -1,0 +1,12 @@
+{
+ "code_hash": "5e8fcc9c5426932a",
+ "figures": [],
+ "id": "node:auto.physics.pinn_solver.compiler.dict_collate",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 27.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict collate -> pinneapple_physics.pinn_solver.compiler:dict_collate\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'batch': []}",
+ "timed_out": false
+}

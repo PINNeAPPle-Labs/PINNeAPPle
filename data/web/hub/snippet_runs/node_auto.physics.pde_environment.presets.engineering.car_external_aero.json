@@ -1,0 +1,12 @@
+{
+ "code_hash": "bbe553e3c56c31e1",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.car_external_aero",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='car_external_aero', dim=2, coords=('x', 'y'), fields=('u', 'v', 'p'), pde=PDETermSpec(kind='incompressible_navier_stokes_2d', fields=('u', 'v', 'p'), coords=('x', 'y'), params={'nu': 1.5e-05, 'Re': 9989999.999999998}, meta={}), conditions=(ConditionSpec(name='inlet', kind='dirichlet', fields=('u', 'v'), selector_type='tag', selector={'tag': 'inlet'}, value_fn=<function _const_value_fn.<locals>._fn at 0x108fbcfe0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='outlet', kind='neumann', fields=('p',), selector_type='tag', selector={'tag': 'outlet'}, value_fn=<function _const_value_fn.<locals>._fn at 0x1177691c0>, weight=5.0, order=1, deriv_coord=None, interface_coeffs=None, tr",
+ "timed_out": false
+}

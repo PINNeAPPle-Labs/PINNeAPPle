@@ -1,0 +1,12 @@
+{
+ "code_hash": "ee2c985eb051f56e",
+ "figures": [],
+ "id": "node:auto.design.geometry.brep.diagnostics.view_direction",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "view direction -> pinneapple_design.geometry.brep.diagnostics:view_direction\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'elev': 1.0, 'azim': 1.0}",
+ "timed_out": false
+}

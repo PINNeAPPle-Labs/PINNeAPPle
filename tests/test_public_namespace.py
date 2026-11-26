@@ -34,6 +34,8 @@ RESOLVES = (
     "experiments",
     # LinearOperator, Arnoldi, POD, modal analysis, conditioning (#202)
     "linalg",
+    # surrogate in the loop with a verification budget (#297)
+    "optimize",
 )
 
 # Namespaces in the target map that do not exist yet. Each is a line of the

@@ -264,14 +264,21 @@ def displacement(b: bytes) -> dict[int, tuple[float, float, float]]:
     return {n: (v[0], v[1], v[2]) for n, v in last.values.items() if len(v) >= 3}
 
 
-def stress(b: bytes) -> dict[int, dict[str, float]]:
+def stress(b: bytes, until: float | None = None) -> dict[int, dict[str, float]]:
     """The nodal stresses of the last step (``STRESS`` block) with the file's own component names.
 
     Tension is positive, so a pressure comes out negative — the convention the closed forms are written in.
+
+    ``until`` reads the state at a step time — the last block written at or before it — the same way
+    :func:`contact` does: a case that loads in two steps reads back what the stress field was at the end of the
+    first one, which is the only way to point at the state a closed form names instead of at the end of the run.
     """
-    last = next((r for r in reversed(read_blocks(b)) if r.name == "STRESS"), None)
-    if last is None:
+    blocks = [r for r in read_blocks(b) if r.name == "STRESS"]
+    if until is not None:
+        blocks = [r for r in blocks if r.time is None or r.time <= until + 1e-9]
+    if not blocks:
         return {}
+    last = blocks[-1]
     return {n: dict(zip(last.components, v, strict=False)) for n, v in last.values.items()}
 
 

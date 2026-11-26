@@ -124,22 +124,33 @@ class CcxRun:
     dat: str
 
 
+def ccx_command(workdir: str, job: str, *, threads: int = 1, backend: str | None = None, image: str | None = None,
+                platform: str | None = None) -> list[str]:
+    """The command line that runs ``ccx -i <job>`` in ``workdir`` for the backend in use: the ``ccx`` binary, or the
+    bundled image with the directory mounted at ``/work``.
+
+    It exists as its own function because two callers need the same line for different reasons: :func:`run_ccx` waits
+    for it, and a caller that wants to watch the process itself (the solver contract's ``status()``/``cancel()``)
+    builds the same argv instead of a second, quietly different one.
+    """
+    backend = backend or ccx_backend()
+    if backend == "native":
+        return ["ccx", "-i", job]
+    if backend == "docker":
+        tag = image or ensure_image()
+        cmd = ["docker", "run", "--rm"] + (["--platform", platform] if platform else [])
+        return cmd + ["-e", f"OMP_NUM_THREADS={threads}", "-v", f"{os.path.abspath(workdir)}:/work", "-w", "/work",
+                      tag, "-i", job]
+    raise RuntimeError("CalculiX not available: install ccx or Docker")
+
+
 def run_ccx(workdir: str, job: str, *, threads: int = 1, timeout: float = 3600.0, backend: str | None = None,
             image: str | None = None, platform: str | None = None) -> CcxRun:
     """Run ``ccx -i <job>`` in ``workdir`` (which must contain ``<job>.inp``). ``backend='docker'`` runs it in
     ``image`` (the bundled one by default), for ``platform`` when given: with two architectures of the same name in
     the store, the flag is what says which one."""
-    backend = backend or ccx_backend()
+    cmd = ccx_command(workdir, job, threads=threads, backend=backend, image=image, platform=platform)
     env = dict(_docker_env(), OMP_NUM_THREADS=str(threads))
-    if backend == "native":
-        cmd = ["ccx", "-i", job]
-    elif backend == "docker":
-        tag = image or ensure_image()
-        cmd = ["docker", "run", "--rm"] + (["--platform", platform] if platform else [])
-        cmd += ["-e", f"OMP_NUM_THREADS={threads}", "-v", f"{os.path.abspath(workdir)}:/work", "-w", "/work",
-                tag, "-i", job]
-    else:
-        raise RuntimeError("CalculiX not available: install ccx or Docker")
     p = subprocess.run(cmd, cwd=workdir, capture_output=True, text=True, timeout=timeout, env=env)
     return CcxRun(p.returncode, p.stdout + p.stderr, os.path.join(workdir, job + ".frd"),
                   os.path.join(workdir, job + ".dat"))

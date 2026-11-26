@@ -1,12 +1,12 @@
 {
- "code_hash": "74efcf47dade73e6",
+ "code_hash": "a421d415f8c69c0a",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.detect_outliers",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 6.7,
+ "recorded": "2026-11-25",
+ "seconds": 27.0,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
- "stdout": "dict\n{'outlier_fraction': 0.0, 'n_flagged': 0, 'n_points': 0, 'fields_used': [], 'note': 'insufficient numeric data — skipped'}",
+ "stdout": "detect outliers -> pinneapple_tools.dataset_quality:detect_outliers\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fields': {}, 'random_state': 42}",
  "timed_out": false
 }

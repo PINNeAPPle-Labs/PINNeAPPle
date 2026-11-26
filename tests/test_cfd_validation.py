@@ -537,3 +537,97 @@ def test_the_benchmark_rows_are_scored_at_the_published_stations_through_the_sam
 def _cfdbench() -> dict:
     path = Path(__file__).resolve().parents[1] / "examples" / "cfd" / "classical_cases" / "results" / "cfdbench.json"
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+# ------------------------------------------------------- the benchmark's other problems: the tube's published parameters
+def test_the_tube_table_is_the_one_the_paper_prints():
+    """Table 3 of CFDBench states each set and its step, so a transcription error is arithmetic that does not close.
+
+    The paper says the inlet velocity runs ``0.1 .. 5`` by ``0.1``, the density ``10 .. 1000`` by ``110``, the viscosity
+    ``0.01 .. 1`` by ``0.11``, the diameters are five named values and the length-to-diameter ratios are ten named
+    ones. Every one of those is checked here against the transcribed tuple, and the counts have to come out at the
+    numbers the paper's own Table 6 gives: 50, 100 and 25 cases.
+    """
+    from pinneapple_simulation.cfd_validation.reference import CFDBENCH_TUBE
+
+    sets = CFDBENCH_TUBE.sets
+    assert len(sets["bc"]) == 50 and sets["bc"][0] == pytest.approx(0.1) and sets["bc"][-1] == pytest.approx(5.0)
+    step = (sets["bc"][-1] - sets["bc"][0]) / (len(sets["bc"]) - 1)
+    assert step == pytest.approx(0.1), "the inlet velocity increases by 0.1 m/s"
+
+    density, viscosity = sets["prop/density"], sets["prop/viscosity"]
+    assert len(density) == len(viscosity) == 10
+    assert (density[0], density[-1]) == (pytest.approx(10.0), pytest.approx(1000.0))
+    assert (density[1] - density[0]) == pytest.approx(110.0), "the density increases by 110 kg/m3"
+    assert (viscosity[0], viscosity[-1]) == (pytest.approx(0.01), pytest.approx(1.0))
+    assert (viscosity[1] - viscosity[0]) == pytest.approx(0.11), "the viscosity increases by 0.11 Pa s"
+
+    assert sets["geo/diameter"] == (0.01, 0.05, 0.1, 0.3, 0.5)
+    assert sets["geo/ratio"] == (1.0, 2.0, 5.0, 7.5, 10.0, 15.0, 20.0, 50.0, 75.0, 100.0)
+    # the case counts of Table 6: one case per bc value, the prop grid, and five diameters by five of the ten ratios
+    assert len(sets["bc"]) == 50
+    assert len(density) * len(viscosity) == 100
+    assert len(sets["geo/diameter"]) * 5 == 25
+    assert "Table 3" in CFDBENCH_TUBE.citation and "2310.05963" in CFDBENCH_TUBE.citation
+
+
+def test_the_tube_archive_is_held_against_the_table_it_was_generated_from(tmp_path):
+    """The archive's three families are looked up in the transcribed table, and every value has to be in both.
+
+    The checker exists to be able to fail, so both readings are asserted: an archive whose ``case.json`` carries the
+    published values agrees, and an archive whose ``prop`` family carries the ten-value index ``0..9`` instead of the
+    ``10 .. 1000 kg/m3`` does not — which is what the real archive does.
+    """
+    from pinneapple_simulation.cfd_validation import cfdbench
+    from pinneapple_simulation.cfd_validation.reference import CFDBENCH_TUBE
+
+    sets = CFDBENCH_TUBE.sets
+    honest = _tube_archive(tmp_path / "honest", density=lambda i: sets["prop/density"][i])
+    record = cfdbench.tube_against_table(honest)
+    assert record["agrees"] is True, record["disagrees_on"]
+    assert record["cases"] == {"bc": 50, "prop": 100, "geo": 25} == record["cases_published"]
+    assert all(p["agrees"] for p in record["parameters"])
+    assert not record["unreadable"]
+
+    indexed = _tube_archive(tmp_path / "indexed", density=lambda i: float(i))
+    wrong = cfdbench.tube_against_table(indexed)
+    assert wrong["agrees"] is False
+    assert wrong["disagrees_on"] == ["prop/density"], "only the density reading is wrong"
+    row = next(p for p in wrong["parameters"] if p["parameter"] == "prop/density")
+    assert row["published_but_absent"] == [float(v) for v in sets["prop/density"]]
+    assert row["present_but_unpublished"] == [float(i) for i in range(10)]
+    assert next(p for p in wrong["parameters"] if p["parameter"] == "prop/viscosity")["agrees"] is True
+
+
+def _tube_archive(root: Path, *, density) -> Path:
+    """A tube archive of the paper's own shape, small enough to write in a test: no fields, only ``case.json``.
+
+    ``open_cases`` needs ``u.npy`` and ``v.npy`` to exist to call a directory a case, so one number each stands in;
+    nothing this check reads comes out of them.
+    """
+    from pinneapple_simulation.cfd_validation.reference import CFDBENCH_TUBE
+
+    sets = CFDBENCH_TUBE.sets
+    base = {"height": 0.1, "width": 1.0, "vel_in": 1.0, "density": 100.0, "viscosity": 0.1}
+
+    def write(subset: str, index: int, params: dict) -> None:
+        case = root / subset / f"case{index:04d}"
+        case.mkdir(parents=True)
+        (case / "case.json").write_text(json.dumps(params), encoding="utf-8")
+        np.save(case / "u.npy", np.zeros((2, 2, 2), dtype=np.float32))
+        np.save(case / "v.npy", np.zeros((2, 2, 2), dtype=np.float32))
+
+    for i, velocity in enumerate(sets["bc"]):
+        write("bc", i, {**base, "vel_in": float(velocity)})
+    for i, mu in enumerate(sets["prop/viscosity"]):
+        for j in range(len(sets["prop/density"])):
+            write("prop", i * len(sets["prop/density"]) + j,
+                  {**base, "density": density(j), "viscosity": float(mu)})
+    # the geometry family: five diameters by five of the ten length-to-diameter ratios, stored as l/d. The window of
+    # five rotates with the diameter so all ten ratios are present, which is what the real archive does.
+    ratios = sets["geo/ratio"]
+    for a, diameter in enumerate(sets["geo/diameter"]):
+        for b in range(5):
+            ratio = ratios[(a + 2 * b) % len(ratios)]
+            write("geo", a * 5 + b, {**base, "height": float(diameter), "width": float(diameter * ratio)})
+    return root

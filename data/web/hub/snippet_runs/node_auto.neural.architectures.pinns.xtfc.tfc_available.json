@@ -1,0 +1,12 @@
+{
+ "code_hash": "dba8ce5dc7d07ccf",
+ "figures": [],
+ "id": "node:auto.neural.architectures.pinns.xtfc.tfc_available",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 14.16,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "bool\nFalse",
+ "timed_out": false
+}

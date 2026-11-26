@@ -1,0 +1,12 @@
+{
+ "code_hash": "ac829f4524245c83",
+ "figures": [],
+ "id": "node:auto.neural.trainer.metrics.regression_metrics_bundle",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 17.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "MetricBundle\nMetricBundle(metrics=[MSE(name='mse'), MAE(name='mae'), RMSE(name='rmse'), R2(name='r2', eps=1e-12)])",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6d663714bf2ac361",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.registry.get_preset",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get preset -> pinneapple_physics.pde_environment.presets.registry:get_preset\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "61d14fa2eb9289c0",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.conditions.DirichletBC",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 25.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "DirichletBC -> pinneapple_physics.pde_environment.conditions:DirichletBC\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'fields': None, 'selector_type': 'all', 'selector': None, 'weight': 1.0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "283ec87a22fa8647",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.cantilever_fatigue.cantilever_root_bending_stress_pa",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 26.93,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "cantilever root bending stress pa -> pinneapple_physics.closed_form.cantilever_fatigue:cantilever_root_bending_stress_pa\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'width_m': 1.0, 'thickness_m': 1.0, 'load_n': 1.0, 'length_m': 1.0}",
+ "timed_out": false
+}

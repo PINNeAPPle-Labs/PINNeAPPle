@@ -1019,18 +1019,24 @@
   "pinneapple_data.cae": {
    "CONTACT_FIELDS": "from .frd import CONTACT_FIELDS",
    "CellBlock": "from .model import CellBlock",
+   "DynaDeck": "from .lsdyna import DynaDeck",
+   "DynaHistory": "from .lsdyna import DynaHistory",
    "FINISHED": "from .ccx import FINISHED",
    "FormatError": "from .io import FormatError",
    "GIVE_UP": "from .ccx import GIVE_UP",
    "METRICS": "from .quality import METRICS",
    "Mesh": "from .model import Mesh",
+   "Part": "from .structural import Part",
    "PolyMesh": "from .model import PolyMesh",
    "RepairPlan": "from .repair import RepairPlan",
    "RepairResult": "from .repair import RepairResult",
    "ResultBlock": "from .frd import ResultBlock",
    "Status": "from .ccx import Status",
+   "StructuralRun": "from .structural import StructuralRun",
    "Totals": "from .ccx import Totals",
+   "TrainingSet": "from .training_set import TrainingSet",
    "Verdict": "from .ccx import Verdict",
+   "build_training_set": "from .training_set import build_training_set",
    "close_holes": "from .repair import close_holes",
    "contact": "from .frd import contact",
    "coordinates": "from .frd import coordinates",
@@ -1051,19 +1057,26 @@
    "read_any": "from .io import read_any",
    "read_blocks": "from .frd import read_blocks",
    "read_displacements": "from .ccx import read_displacements",
+   "read_keyword_deck": "from .lsdyna import read_keyword_deck",
    "read_log": "from .ccx import read_log",
+   "read_lsdyna_directory": "from .lsdyna import read_lsdyna_directory",
    "read_meshio": "from .io import read_meshio",
+   "read_nodout": "from .lsdyna import read_nodout",
    "read_points": "from .io import read_points",
    "read_status": "from .ccx import read_status",
    "read_stl": "from .io import read_stl",
    "read_totals": "from .ccx import read_totals",
+   "read_vtk_frame": "from .vtk_series import read_vtk_frame",
+   "read_vtk_series": "from .vtk_series import read_vtk_series",
    "repair": "from . import repair",
    "repair_surface": "from .repair import repair_surface",
    "stress": "from .frd import stress",
    "surface_checks": "from .quality import surface_checks",
    "surface_summary": "from .repair import surface_summary",
    "view_payload": "from .report import view_payload",
-   "wall_distance": "from .metrics import wall_distance"
+   "wall_distance": "from .metrics import wall_distance",
+   "write_vtk_frame": "from .vtk_series import write_vtk_frame",
+   "write_vtk_series": "from .vtk_series import write_vtk_series"
   },
   "pinneapple_data.cae.ccx": {
    "Status": {
@@ -1150,7 +1163,7 @@
    "displacement": "def(b)",
    "read_blocks": "def(b)",
    "read_frd": "def(b)",
-   "stress": "def(b)"
+   "stress": "def(b, until=None)"
   },
   "pinneapple_data.cae.geometry": {
    "FaceMesh": {
@@ -1199,6 +1212,38 @@
    "read_meshio": "def(name, b)",
    "read_points": "def(name, b)",
    "read_stl": "def(b)"
+  },
+  "pinneapple_data.cae.lsdyna": {
+   "DynaAsciiRun": {
+    "class": [],
+    "methods": {}
+   },
+   "DynaDeck": {
+    "class": [],
+    "methods": {
+     "part_ids": "()",
+     "thickness_of_part": "(pid)",
+     "summary": "()"
+    }
+   },
+   "DynaFormatError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "DynaHistory": {
+    "class": [],
+    "methods": {
+     "displacement": "()",
+     "velocity": "()"
+    }
+   },
+   "deck_mesh": "def(deck, *, part_ids=None)",
+   "find_database_file": "def(directory, *names)",
+   "read_keyword_deck": "def(source)",
+   "read_lsdyna_directory": "def(directory, *, deck=None)",
+   "read_nodout": "def(path)"
   },
   "pinneapple_data.cae.metrics": {
    "courant_number": "def(face_area_vectors, face_owner, face_neighbour, U, cell_volumes, dt, where='auto')",
@@ -1272,8 +1317,85 @@
    "view_payload": "def(mesh, rep, max_tris=250000)",
    "worst_cells": "def(mesh, rep, n=40)"
   },
+  "pinneapple_data.cae.structural": {
+   "Part": {
+    "class": [],
+    "methods": {
+     "to_dict": "()",
+     "from_dict": "(d)"
+    }
+   },
+   "StructuralRun": {
+    "class": [],
+    "methods": {
+     "n_frames": "()",
+     "n_points": "()",
+     "n_cells": "()",
+     "points": "()",
+     "fields": "()",
+     "data_of": "(name)",
+     "field": "(name)",
+     "frame_field": "(name, k)",
+     "family": "()",
+     "summary": "()",
+     "to_units": "(system)",
+     "part_of_cell": "()",
+     "checksum": "()",
+     "from_crash_result": "(result, *, part_names=None, thickness=None, fixed_nodes=None, units=None, provenance=None, case=None)",
+     "from_vtk_series": "(source, *, units=None, times=None, part_names=None, provenance=None, field_units=None)",
+     "from_openradioss": "(case_dir, *, run_name=None, units='mm-tonne-s', part_names=None, provenance=None, thickness=None)",
+     "from_lsdyna": "(directory, *, deck=None, units=None, provenance=None)",
+     "to_vtk_series": "(out_dir, *, precision='single', prefix='frame')",
+     "to_zarr": "(path, *, dtype='float64')",
+     "from_zarr": "(path)"
+    }
+   },
+   "canonical_field": "def(name)"
+  },
+  "pinneapple_data.cae.training_set": {
+   "TrainingSet": {
+    "class": [],
+    "methods": {
+     "__init__": "(runs, split, scales, provenance=None, dropped=None, info=None)",
+     "families": "()",
+     "n_samples": "()",
+     "part": "(name)",
+     "sample_index": "()",
+     "side_of": "(run)",
+     "table": "()",
+     "summary": "()"
+    }
+   },
+   "build_training_set": "def(runs, *, max_points=None, seed=0, hold_out=(), val_fraction=0.2, system='SI', dedup=True, make_dimensionless=True, keep_cells=True, scales=None, provenance=None)",
+   "decimate": "def(run, max_points, *, seed=0, keep_cells=True)",
+   "decimate_order": "def(run, max_points, *, seed=0)",
+   "deduplicate": "def(run)",
+   "dimensionless": "def(run, scales)",
+   "normalise_units": "def(run, system='SI')",
+   "pu_units": "def(system)"
+  },
   "pinneapple_data.cae.upload": {
    "expand": "def(files, max_unzipped=MAX_UNZIPPED)"
+  },
+  "pinneapple_data.cae.vtk_series": {
+   "VtkFormatError": {
+    "class": [
+     "ValueError"
+    ],
+    "methods": {}
+   },
+   "VtkFrame": {
+    "class": [],
+    "methods": {
+     "points": "()",
+     "field": "(name)"
+    }
+   },
+   "frame_number": "def(path)",
+   "read_vtk_frame": "def(path)",
+   "read_vtk_series": "def(paths)",
+   "write_vtk_frame": "def(path, mesh, *, time=None, precision='single', title='PINNeAPPle structural frame', part_ids=None)",
+   "write_vtk_series": "def(meshes, out_dir, *, times=None, precision='single', prefix='frame', part_ids=None)"
   },
   "pinneapple_data.cae.xdmf": {
    "XdmfError": {
@@ -3519,7 +3641,7 @@
    "Trainer": {
     "class": [],
     "methods": {
-     "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None, scheduler=None, loss_balancer=None, readiness=None, review=None)",
+     "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None, scheduler=None, loss_balancer=None, readiness=None, review=None, constraints=None)",
      "fit": "(train_loader, val_loader=None, cfg=None)"
     }
    }
@@ -4503,6 +4625,27 @@
     "methods": {}
    },
    "thin_airfoil_zero_lift": "def(code)"
+  },
+  "pinneapple_presets.cases.contact": {
+   "BoltedJoint": {
+    "class": [
+     "Preset"
+    ],
+    "methods": {
+     "case_params": "(p)",
+     "solve": "(p)",
+     "checks": "(p, out)",
+     "decide": "(p, out)",
+     "references": "()",
+     "validate": "()",
+     "convergence": "(values=(4, 6, 8))",
+     "variants": "()",
+     "figures": "(result, out_dir)",
+     "scene": "(result)"
+    }
+   },
+   "case_run_dir": "def(name)",
+   "runs_dir": "def(name)"
   },
   "pinneapple_presets.cases.eddy_current": {
    "EddyCurrentInspection": {

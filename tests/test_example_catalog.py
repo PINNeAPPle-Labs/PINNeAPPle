@@ -105,3 +105,20 @@ def test_running_the_tier_is_what_ci_does(tmp_path):
     assert ec.run_ci(tiers) == 0
     tiers["ci"][0]["command"] = ["-c", "raise SystemExit(1)"]
     assert ec.run_ci(tiers) == 1
+
+
+def test_a_declared_script_in_a_subfolder_is_measured_by_its_path(tmp_path, monkeypatch):
+    """The declaration names the script relative to the example folder, and a study keeps its scripts one level down
+    (`examples/cfd` declares `classical_cases/run_cases.py`). Running the bare name made the measurement report
+    "can't open file" and file the example as failing, which is not a fact about the example (#625)."""
+    monkeypatch.setattr(ec, "ROOT", tmp_path)
+    monkeypatch.setattr(ec, "EXAMPLES", tmp_path / "examples")
+    folder = tmp_path / "examples" / "study"
+    (folder / "cases").mkdir(parents=True)
+    (folder / "cases" / "run.py").write_text("print('ok')\n", encoding="utf-8")
+    (folder / "experiment.json").write_text(json.dumps({"scripts": ["cases/run.py"]}), encoding="utf-8")
+
+    entry = ec.classify(folder, broken=set(), run=True)
+
+    assert "can't open file" not in entry["reason"], entry
+    assert entry["reason"].startswith("runs clean in "), entry

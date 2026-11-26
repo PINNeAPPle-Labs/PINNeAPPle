@@ -1,0 +1,99 @@
+{
+ "surface": "data/geometries/road_car/road_car.light.stl",
+ "samples": 24,
+ "mesh": {
+  "vertices": 10898,
+  "faces": 21760,
+  "load_seconds": 0.115
+ },
+ "ffd": {
+  "control": [
+   7,
+   5,
+   7
+  ],
+  "parameters": 392,
+  "parameters_without_symmetry": 735,
+  "cell_m": [
+   0.8433,
+   0.5115,
+   0.2552
+  ],
+  "fit_seconds": 0.0479,
+  "identity_max_error_m": 6.217248937900877e-15,
+  "deform_seconds": 0.00214
+ },
+ "ahmed": {
+  "parameters": 180,
+  "relative_l2": 0.03656507716079767,
+  "max_mm": 4.14888755257703,
+  "change_mm": 51.92577337214585,
+  "valid": true,
+  "max_control_displacement_m": 1.2221132879934804
+ },
+ "gate": {
+  "reference_seconds": 0.639,
+  "sample_seconds": 0.61,
+  "reference_self_intersections": 1708,
+  "reference_volume_m3": 7.95040017539592,
+  "reference_area_m2": 30.932178031065046,
+  "reference_frontal_area_m2": 2.812950651385427,
+  "identity_ok": true
+ },
+ "design_space": {
+  "draws": 24,
+  "accepted": 24,
+  "rejected": 0,
+  "acceptance_rate": 1.0,
+  "reasons": {},
+  "seconds": 16.454319625001517,
+  "seconds_per_draw": 0.6855966510417298,
+  "volume_ratio": [
+   0.9486641587729129,
+   1.0379889284888724
+  ],
+  "frontal_area_change": [
+   -0.025275400121063732,
+   0.0466581492025002
+  ]
+ },
+ "stress_band": {
+  "draws": 16,
+  "accepted": 3,
+  "rejected": 19,
+  "acceptance_rate": 0.1875,
+  "reasons": {
+   "Faces turned inside out": 7,
+   "Face pairs intersect that did not in the reference": 10,
+   "Volume changed -25.0 %": 1,
+   "Volume changed +29.6 %": 1
+  },
+  "seconds": 17.40380770900083,
+  "seconds_per_draw": 1.0877379818125519
+ },
+ "rbf": {
+  "handles": 4,
+  "fixed_points": 92,
+  "parameters": 12,
+  "fit_seconds": 0.2033,
+  "deform_seconds": 0.00038,
+  "handle_error_m": 2.220446049250313e-16,
+  "fixed_error_m": 6.324828898465751e-16,
+  "rigid_error_m_free": 4.440892098500626e-16,
+  "rigid_error_m_pinned": 0.05000077902128108
+ },
+ "modes": {
+  "count_for_99pct": 21,
+  "energy": 0.9930617123347758,
+  "first_six_energy": 0.7140250062331726,
+  "residual": 0.1615944713257808,
+  "fit_seconds": 0.0963,
+  "family": 24
+ },
+ "cfd_case": {
+  "ref_area_m2": 2.7249082584848474,
+  "ref_length_m": 4.552980826089075,
+  "tri_surface_bytes": 1088084,
+  "written": true
+ }
+}

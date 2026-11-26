@@ -34,6 +34,10 @@ jobs:
       - name: The declaration and the records agree
         run: |
           python -m pip install --upgrade pip
+          # The audit reads pyproject.toml, and on 3.10 that needs `tomli` (the stdlib reader arrived in 3.11)
+          # and `packaging` for the requirement strings. Without them the step died on the import before
+          # auditing anything -- the one outcome a gate must never have.
+          python -m pip install "tomli; python_version < '3.11'" packaging
           python scripts/licensing/supply_chain.py --check
       - name: Install the tested minimum
         run: |

@@ -11,10 +11,13 @@ number produced by a second reader of the archive would measure the reader as mu
 
 What "the same four problems" means here
 ----------------------------------------
-The archive publishes ``cavity``, ``tube``, ``dam`` and ``cylinder``. Only the cavity has a reference table in this
+The archive publishes ``cavity``, ``tube``, ``dam`` and ``cylinder``. Only the cavity has a table of *answers* in this
 repository (Ghia's, in :mod:`~pinneapple_simulation.cfd_validation.reference`), so only the cavity can be scored and
-put in a column beside our own numbers; the other three are loaded by the same adapter and have nothing to be wrong
-against here. That is recorded as it is rather than as four rows of a table.
+put in a column beside our own numbers. The tube has something weaker, and it is transcribed and used here: the paper
+publishes the *operating parameters* of its cases (Table 3), which :func:`tube_against_table` holds the disk against —
+that fixes which case is which, and it is all the tube can support, because the flow is a water-air two-phase one for
+which the paper publishes no physical solution. The dam and the cylinder have neither: they are loaded by the same
+adapter and have nothing to be wrong against here. That is recorded as it is rather than as four rows of a table.
 
 The two things a reader of this data has to get right
 -----------------------------------------------------
@@ -38,10 +41,10 @@ from typing import Any
 import numpy as np
 
 from .cavity import profile_error
-from .reference import GHIA_U, GHIA_V
+from .reference import CFDBENCH_TUBE, GHIA_U, GHIA_V
 
 __all__ = ["ARCHIVE", "PROBLEM", "PROBLEMS", "SUBSETS", "NEAR_LID", "reynolds", "open_cases", "families", "cases_at",
-           "sample", "score", "study"]
+           "sample", "score", "study", "tube_against_table"]
 
 #: The four problems the archive publishes, and the archive of each (the cylinder's is three zips).
 PROBLEMS = {
@@ -215,3 +218,72 @@ def study(root: str | os.PathLike[str], reynolds_numbers: tuple[float, ...] = (1
         record["rows"].append({"reynolds": float(re), "found": len(selected),
                                "cases": [score(case, float(re)) for case in selected]})
     return record
+
+
+#: Which field of ``case.json`` carries which parameter of the paper's Table 3. The archive names the tube's diameter
+#: ``height`` and its length ``width``; the ``prop`` family's ``density`` is the index, which is the finding below.
+_TUBE_FIELDS = {
+    "bc": lambda p: {"bc": p.get("vel_in")},
+    "prop": lambda p: {"prop/density": p.get("density"), "prop/viscosity": p.get("viscosity")},
+    "geo": lambda p: {"geo/diameter": p.get("height"),
+                      "geo/ratio": (p.get("width") / p.get("height")) if p.get("height") else None},
+}
+
+
+def tube_against_table(root: str | os.PathLike[str], *, tolerance: float = 1e-9) -> dict[str, Any]:
+    """The tube family held against the operating-parameter table its paper publishes (Table 3 of CFDBench).
+
+    The cavity is the one problem of this archive with a table of answers to be scored against; the tube has none, so
+    what can be established about it is weaker and worth stating exactly: that the cases read off the disk **are** the
+    cases the paper says were generated. That is a real check and not a formality — it is what catches a reader that
+    is subtly wrong about the data, and here it catches one thing in the data itself.
+
+    Every published value is looked for in the archive and every value in the archive is looked for in the table, for
+    each of the three subsets. The result carries both lists, so a mismatch reads as what it is: a value published and
+    absent, a value present and unpublished, or a count that disagrees with the paper's own. A value counts as found
+    when it is within ``tolerance`` of the published one, which is the float noise of a parameter written by a
+    generator as ``0.30000000000000004``.
+    """
+    cases = open_cases(root, problem="tube")
+    published = CFDBENCH_TUBE.sets
+    seen: dict[str, set[float]] = {k: set() for k in published}
+    counts = {subset: 0 for subset in SUBSETS}
+    unreadable: list[str] = []
+    for case in cases:
+        params = case.params()
+        counts[case.subset] = counts.get(case.subset, 0) + 1
+        for key, value in _TUBE_FIELDS.get(case.subset, lambda p: {})(params).items():
+            if value is None:
+                unreadable.append(f"{case.summary()}: no value for {key}")
+                continue
+            seen[key].add(round(float(value), 9))
+
+    def near(value: float, values: set[float]) -> bool:
+        return any(abs(value - v) <= tolerance for v in values)
+
+    parameters = []
+    for key, want in sorted(published.items()):
+        got = seen[key]
+        missing = [v for v in want if not near(v, got)]
+        extra = sorted(v for v in got if not near(v, want))
+        parameters.append({"parameter": key, "published": [float(v) for v in want],
+                           "found": [float(v) for v in sorted(got)],
+                           "published_but_absent": [float(v) for v in missing],
+                           "present_but_unpublished": extra,
+                           "agrees": not missing and not extra})
+
+    # the paper's Table 6 counts, so a family that is short of cases says so instead of quietly matching a subset
+    expected_cases = {"bc": 50, "prop": 100, "geo": 25}
+    return {
+        "case": CFDBENCH_TUBE.case, "citation": CFDBENCH_TUBE.citation,
+        "archive": PROBLEMS["tube"], "note": CFDBENCH_TUBE.note,
+        "what": "the tube family read off the archive and held against the operating-parameter table the paper "
+                "publishes for it; there is no table of answers for this problem, so this checks that the cases are "
+                "the ones the paper says were generated, not that they are right",
+        "cases": counts, "cases_published": expected_cases,
+        "unreadable": unreadable,
+        "parameters": parameters,
+        "agrees": all(p["agrees"] for p in parameters) and not unreadable,
+        "disagrees_on": [p["parameter"] for p in parameters if not p["agrees"]],
+    }
+

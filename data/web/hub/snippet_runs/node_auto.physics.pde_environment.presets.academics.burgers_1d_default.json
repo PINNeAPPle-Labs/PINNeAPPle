@@ -1,0 +1,12 @@
+{
+ "code_hash": "7790fbba84a60600",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.academics.burgers_1d_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 27.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='burgers_1d_default', dim=1, coords=('x', 't'), fields=('u',), pde=PDETermSpec(kind='burgers', fields=('u',), coords=('x', 't'), params={'nu': 0.01}, meta={}), conditions=(ConditionSpec(name='u_init', kind='initial', fields=('u',), selector_type='callable', selector=<function burgers_1d_default.<locals>.<lambda> at 0x109b70c20>, value_fn=<function burgers_1d_default.<locals>.<lambda> at 0x10b44cfe0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='bc_left', kind='dirichlet', fields=('u',), selector_type='callable', selector=<function burgers_1d_default.<locals>.<lambda> at 0x10b44c7c0>, value_fn=<function burgers_1d_default.<locals>.<lambda> at 0x10b4cfa60>, weight=10.0, order",
+ "timed_out": false
+}

@@ -1,5 +1,5 @@
-"""Contact with friction, as a capability of the library: six cases with a closed-form answer, and the decks PrePoMax
-opens unchanged.
+"""Contact, as a capability of the library: seven cases with a closed-form answer, and the decks PrePoMax opens
+unchanged. Six are friction cases; the seventh lets the plate yield.
 
 Each case is one geometry, one contact interface and one question that has an exact answer independent of the solver:
 
@@ -16,6 +16,8 @@ Each case is one geometry, one contact interface and one question that has an ex
                              force is the preload and the slip load is ``mu`` times the preload *measured*
 ``ajuste_forcado``           a ring shrunk onto a hollow shaft: the interference is geometric and the interface
                              pressure is Lamé's, not load/area
+``plastificacao_hertz``      the Hertz cylinder on an elastic-perfectly-plastic plate: yield begins at
+                             ``p0 = k*sigma_y`` with Johnson's ``k``, and the equivalent stress then stops there
 ===========================  ==========================================================================
 
 The pieces are separable on purpose: :mod:`.mesh` (structured blocks and CalculiX's brick face numbering),
@@ -32,8 +34,17 @@ and cannot change what the checks saw. Without a ``ccx`` binary the deck is stil
 from . import deck, mesh, run, verify
 from .base import Built, Case, Param, contact_of, mesh_size, reaction, stack
 from .cases import CASES, DEFAULT_CASE, build, catalog, get
-from .run import SolverMissing, ccx_binary, measured, read_results, run_case, solve, version
+from .run import (
+           SolverMissing,
+           ccx_binary,
+           footprint,
+           measured,
+           read_results,
+           run_case,
+           solve,
+           version,
+)
 
 __all__ = ["CASES", "DEFAULT_CASE", "build", "catalog", "get", "Case", "Built", "Param", "contact_of", "mesh_size",
-           "reaction", "stack", "deck", "mesh", "verify", "run", "run_case", "read_results", "measured", "solve",
+           "reaction", "stack", "deck", "mesh", "verify", "run", "run_case", "read_results", "measured", "footprint", "solve",
            "ccx_binary", "version", "SolverMissing"]

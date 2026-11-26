@@ -1,0 +1,12 @@
+{
+ "code_hash": "f0a81cc602567ccd",
+ "figures": [],
+ "id": "node:auto.neural.architectures.rom.parametric.latin_hypercube",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "latin hypercube -> pinneapple_neural.architectures.rom.parametric:latin_hypercube\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'n': 1, 'bounds': {}, 'seed': 0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "b73604ee0b170fc8",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.plate_fin_heatsink.spreading_resistance",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.18,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "spreading resistance -> pinneapple_physics.closed_form.plate_fin_heatsink:spreading_resistance\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'k': 1.0, 'tb': 1.0, 'source_area': 1.0, 'plate_area': 1.0, 'r_conv': 1.0}",
+ "timed_out": false
+}

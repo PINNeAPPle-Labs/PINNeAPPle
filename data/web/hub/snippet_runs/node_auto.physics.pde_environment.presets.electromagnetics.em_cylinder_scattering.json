@@ -1,0 +1,12 @@
+{
+ "code_hash": "3f93bf0b5c7ae118",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.electromagnetics.em_cylinder_scattering",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='em_cylinder_scattering', dim=2, coords=('x', 'y'), fields=('Er', 'Ei'), pde=PDETermSpec(kind='maxwell_tm_frequency', fields=('Er', 'Ei'), coords=('x', 'y'), params={'k0': 6.283185307179586, 'radius': 0.25, 'eps_cyl': 4.0, 'eps_cyl_i': 0.0, 'eps_fn': <function em_cylinder_scattering.<locals>.<lambda> at 0x105de0c20>}, meta={'analytic': 'em_cylinder_scattering_tm', 'physics': 'electrodynamics'}), conditions=(ConditionSpec(name='exact_total_field', kind='dirichlet', fields=('Er', 'Ei'), selector_type='callable', selector=<function _faces.<locals>.<lambda> at 0x115d99760>, value_fn=<function em_cylinder_scattering.<locals>.exact at 0x115d52a20>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), samp",
+ "timed_out": false
+}

@@ -40,7 +40,10 @@ def declared_dependencies(path: Path = ROOT / "pyproject.toml") -> list[str]:
     this installation -- ``tomli`` is declared for ``python_version < '3.11'`` -- so it is
     left out instead of being reported as "not installed", which would read as a problem.
     """
-    import tomllib
+    try:
+        import tomllib
+    except ImportError:                                   # Python 3.10, where the floors job runs
+        import tomli as tomllib
 
     project = tomllib.loads(path.read_text(encoding="utf-8"))["project"]
     names = []

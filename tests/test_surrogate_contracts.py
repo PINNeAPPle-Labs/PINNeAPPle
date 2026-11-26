@@ -58,10 +58,20 @@ def test_arena_study_result_validates():
 def test_read_table_with_roles(tmp_path):
     d = _data()
     df = pd.DataFrame({"a": d.X[:, 0], "b": d.X[:, 1], "f": d.Y[:, 0], "g": d.Y[:, 1], "case": d.groups})
-    C.write_table(df, tmp_path / "t.parquet", SC.dataset_spec(d, "demo"))
-    back, roles = SC.read_table_with_roles(tmp_path / "t.parquet")
+    C.write_table(df, tmp_path / "t.csv", SC.dataset_spec(d, "demo"))     # the spec travels in the sidecar
+    back, roles = SC.read_table_with_roles(tmp_path / "t.csv")
     assert len(back) == 80 and roles["f"] == "output" and roles["case"] == "id"
     df.to_csv(tmp_path / "plain.csv", index=False)
     assert SC.read_table_with_roles(tmp_path / "plain.csv")[1] is None
     with pytest.raises(ValueError, match="limit"):
         SC.read_table_with_roles(tmp_path / "plain.csv", max_rows=10)
+
+
+def test_roles_inside_a_parquet_need_the_pyarrow_extra(tmp_path):
+    pytest.importorskip("pyarrow", reason="a Parquet table needs pyarrow (extra: pip install pyarrow); the sidecar "
+                                          "path above needs no extra")
+    d = _data()
+    df = pd.DataFrame({"a": d.X[:, 0], "b": d.X[:, 1], "f": d.Y[:, 0], "g": d.Y[:, 1], "case": d.groups})
+    C.write_table(df, tmp_path / "t.parquet", SC.dataset_spec(d, "demo"))  # here the spec is in the file metadata
+    back, roles = SC.read_table_with_roles(tmp_path / "t.parquet")
+    assert len(back) == 80 and roles["f"] == "output" and roles["case"] == "id"

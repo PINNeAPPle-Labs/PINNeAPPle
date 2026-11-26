@@ -103,7 +103,8 @@
   "uvicorn": "0.29",
   "wandb": "0.16",
   "warp-lang": "1.19",
-  "yt": "4.3"
+  "yt": "4.3",
+  "galpy": "1.9"
  },
  "policy": "A floor is a claim, and it is tested where it can be installed: `.github/workflows/floors.yml` installs `constraints/floors.txt` on the lowest supported Python and runs the fast suite, so `numpy>=X` means numpy X was run, not that numpy X exists. The extra floors are recorded here and exercised at their latest release by `.github/workflows/extras.yml`; an extra whose floor cannot be installed on the tested Python is listed in `unverified` with the reason, never dropped.",
  "python": "3.10",

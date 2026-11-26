@@ -1,0 +1,12 @@
+{
+ "code_hash": "38f72bcc6b53ccae",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.schwarzschild_light_bending_weak_field",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 16.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='schwarzschild_light_bending_weak_field', dim=0, coords=('t',), fields=('u', 'up'), pde=PDETermSpec(kind='schwarzschild_light_bending_weak_field', fields=('u', 'up'), coords=('t',), params={'GM': 1.32712440018e+20, 'c': 299792458.0}, meta={'note': 'Schwarzschild null-geodesic (light-bending) equation, weak-field regime.', 'impact_parameter_m': 695700000.0, 'geometric_mass_m': 1476.6250382504018, 'deflection_angle_weak_field_rad': 8.490010281732942e-06, 'deflection_angle_weak_field_arcsec': 1.7511903258221533, 'regime_of_validity': 'weak-field, m/b << 1 (large impact parameter); NOT valid near the photon sphere r=1.5*Schwarzschild radius.'}), conditions=(ConditionSpec(name='ic_u', kind='initial', fields=('u',), selector_type='callable', selector=<function schwarzschild_ligh",
+ "timed_out": false
+}

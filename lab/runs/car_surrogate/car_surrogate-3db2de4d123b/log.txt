@@ -1,0 +1,12 @@
+[09:47:34] stage train_fno started
+[12:44:55] stage train_fno done (10640.487 s)
+[12:44:55] check fno_beats_nearest_design: PASS 
+[12:44:55] check fno_field_error: PASS relative L2 of |u| on unseen designs
+[12:44:55] stage train_mlp started
+[12:45:18] stage train_mlp done (23.187 s)
+[12:45:18] check Cd_surrogate_error: PASS mean |error| on unseen designs
+[12:45:18] check Cd_surrogate_beats_linear: FAIL 
+[12:45:21] stage verify_lbm started
+[12:47:17] stage verify_lbm done (116.157 s)
+[12:47:17] check optimum_prediction_verified: PASS surrogate vs a new LBM run of the chosen design
+[12:47:17] check optimum_below_median_design: PASS 

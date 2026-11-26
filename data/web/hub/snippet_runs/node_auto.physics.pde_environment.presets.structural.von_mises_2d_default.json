@@ -1,0 +1,12 @@
+{
+ "code_hash": "c5d4a0e268e3357f",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.structural.von_mises_2d_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "von mises 2d default -> pinneapple_physics.pde_environment.presets.structural:von_mises_2d_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'E': 210000000000.0, 'nu': 0.3}",
+ "timed_out": false
+}

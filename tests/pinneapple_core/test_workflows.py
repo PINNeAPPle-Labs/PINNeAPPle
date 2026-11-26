@@ -270,6 +270,37 @@ def test_calculix_adapter_with_a_stand_in_ccx(tmp_path, monkeypatch):
 
 
 @pytest.mark.skipif(os.name == "nt", reason="shell scripts as stand-in solvers")
+def test_calculix_step_runs_the_backend_its_verdict_reports(tmp_path, monkeypatch):
+    """``available()`` accepts the bundled Docker image when no binary is on ``PATH`` (the CI runner's shape), so the
+    step must hand the executor the image's command line. Spelling ``ccx -i job`` for both backends offered a run
+    that then died with exit 127."""
+    from types import SimpleNamespace
+
+    from pinneapple_core.workflows.adapters import CalculiXAdapter
+    from pinneapple_simulation.external_solvers.calculix import runner as ccx_runner
+
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    _fake_bin(bindir, "ccx", f'test -f "$2.inp" || exit 2\ncp "{FRD}" "$2.frd"\necho "Job finished"\n')
+    asked: list[dict] = []
+
+    def stand_in_line(workdir, job, *, threads=1, backend=None, image=None, platform=None):
+        asked.append({"workdir": str(workdir), "job": job, "threads": threads, "backend": backend})
+        return [str(bindir / "ccx"), "-i", job]          # where the image's `ccx` would be
+
+    monkeypatch.setattr(ccx_runner, "ccx_command", stand_in_line)
+    monkeypatch.setattr(CalculiXAdapter, "available", lambda self, step=None: (True, ""))
+    deck = tmp_path / "beam.inp"
+    deck.write_text("*NODE\n")
+    run = WorkflowRunner(tmp_path / "r").run(Workflow("w", [Step("solve", "calculix", {"inp": str(deck)})]))
+    assert run["status"] == "done", run
+    assert asked == [{"workdir": asked[0]["workdir"], "job": "job", "threads": 1, "backend": None}]
+    # a remote executor runs the line on another machine, which does not have this one's Docker: the plain binary
+    remote = SimpleNamespace(workdir=tmp_path, executor=SimpleNamespace(name="slurm"))
+    assert CalculiXAdapter().ccx_argv(remote, "job", 1) == ["ccx", "-i", "job"]
+
+
+@pytest.mark.skipif(os.name == "nt", reason="shell scripts as stand-in solvers")
 def test_openfoam_adapter_edits_case_and_reads_log(tmp_path, monkeypatch):
     from pinneapple_core.workflows.templates import CASES_DIR
     bindir = tmp_path / "bin"

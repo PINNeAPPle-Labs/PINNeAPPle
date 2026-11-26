@@ -1,6 +1,6 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-11-25 13:37 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-11-25 16:55 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D/E/F) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|
@@ -28,6 +28,7 @@ Generated 2026-11-25 13:37 UTC. Tiers: **A flagship** (product / paper / marketi
 | `heat_xtfc` | **B** solid | 83.6 | 0/8/0/0/0/4 | 67 % | - | - | - | ready | no |
 | `oscillator` | **B** solid | 83.6 | 0/60/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `example_script` | **D** exploratory | 86.2 | 0/0/0/5/0/3 | 0 % | - | - | - | - | no |
+| `car_surrogate` | **E** known problems | 82.9 | 0/0/0/0/1/0 | 0 % | - | - | - | - | no |
 
 ## Trust card: six questions per item
 
@@ -136,6 +137,7 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `example_script/examples/getting_started/07_nonlinear_pendulum.py` | D | ✓ | ? | ? | ? | ~ | ? |
 | `manifest/examples/pinneapple_and_physicsnemo` | D | ~ | ? | ? | ? | ? | ? |
 | `repo_results/weather_era5` | D | ~ | ? | ? | ? | ~ | ? |
+| `car_surrogate` | E | ✓ | ✓ | ? | ✗ | ~ | ✗ |
 | `repo_results/benchmark_arena` | E | ✓ | ? | ? | ✓ | ~ | ✗ |
 | `em_pinn/em_tm_cavity` | F | ✓ | ? | ? | ✗ | ~ | ✗ |
 | `em_pinn/em_two_dielectric_capacitor` | F | ✓ | ? | ? | ✗ | ~ | ✗ |
@@ -147,6 +149,7 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 
 | item | tier | main problem | next step |
 |---|---|---|---|
+| `car_surrogate` | E | Cd surrogate beats linear | D: beat the baseline |
 | `repo_results/benchmark_arena` | E | dataset audit diversity.effective · effective sample count 1 of 54 (no generator stated | D: fix the failing check |
 | `em_pinn/em_tm_cavity` | F | Ez vs closed form (+2 more) | E: agree with the reference, or pass an independent physics check |
 | `em_pinn/em_two_dielectric_capacitor` | F | phi vs closed form | E: agree with the reference, or pass an independent physics check |
@@ -162,6 +165,7 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 - `bondi_accretion` (B): show it beats a baseline or satisfies a physical law it was not trained on; add figures (a movie, a render or a 3-D view for communication)
 - `bricks` (B): compare with an independent reference (exact solution, experiment, published value)
 - `car_lbm` (B): compare with an independent reference (exact solution, experiment, published value)
+- `car_surrogate` (E): fix the failing checks or the crash
 - `cylinder_lbm` (B): compare with an independent reference (exact solution, experiment, published value)
 - `em_pinn` (B): show it beats a baseline or satisfies a physical law it was not trained on; test on unseen inputs (held-out designs, out-of-distribution cases); add figures (a movie, a render or a 3-D view for communication)
 - `example_script` (D): compare with an independent reference (exact solution, experiment, published value); show it beats a baseline or satisfies a physical law it was not trained on; add figures (a movie, a render or a 3-D view for communication)

@@ -356,6 +356,18 @@ try:
 except Exception:  # pragma: no cover
     pass
 
+# One constraint object, applied in training, in an optimizer and in a deployment guard (#221)
+try:
+    from pinneapple_physics.constraint_engine import (
+        ConstraintCheck,
+        ConstraintGuard,
+        ConstraintReport,
+        ConstraintViolation,
+        optimizer_constraints,
+    )
+except Exception:  # pragma: no cover
+    pass
+
 # Streamline / isosurface post-processing (Feature 17)
 try:
     from pinneapple_neural.predictor import (
@@ -598,6 +610,8 @@ _SUBMODULES = {
     # core
     "env":        "pinneapple_physics.pde_environment",
     "inverse":    "pinneapple_analysis.inverse_problems",
+    # surrogate in the loop: pp.optimize.loop(space, surrogate, solver, budget=N) (#297)
+    "optimize":   "pinneapple_analysis.surrogate_loop",
     "design_opt": "pinneapple_design.design_optimizer",
     "models":    "pinneapple_models",
     "train":     "pinneapple_train",
@@ -816,6 +830,8 @@ __all__ = [
     # Front door: solve, compare, run reproducible experiments, score with one metrics convention
     "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method", "list_methods",
     "Experiment", "ExperimentResult", "metrics", "StateEstimator", "experiments",
+    # surrogate in the loop with a verification budget (#297)
+    "optimize",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # First hour: is this machine ready, what should I run, what does it take, where do I put it
@@ -880,6 +896,9 @@ __all__ = [
     "DragObjective", "ThermalEfficiencyObjective", "StructuralObjective",
     "WeightMinimizationObjective", "CompositeObjective",
     "BoxConstraint", "MassConservationConstraint", "ConstraintSet",
+    # One constraint object applied in training, in an optimizer and in a deploy guard (X34, #221)
+    "Constraint", "ConstraintCheck", "ConstraintReport", "ConstraintViolation", "ConstraintGuard",
+    "optimizer_constraints",
     "DesignOptimizerConfig", "ParetoFront", "compute_pareto_front",
     "PINNRefinement",
     # Benchmark suite

@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8bd66a7b0b9137b",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.aircraft_wing_structural",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='aircraft_wing_structural', dim=2, coords=('x', 'y'), fields=('ux', 'uy'), pde=PDETermSpec(kind='linear_elasticity_plane_stress', fields=('ux', 'uy'), coords=('x', 'y'), params={'E': 70000000000.0, 'nu': 0.33, 'lambda': 51083591331.26935, 'mu': 26315789473.684208}, meta={}), conditions=(ConditionSpec(name='root_fixed', kind='dirichlet', fields=('ux', 'uy'), selector_type='tag', selector={'tag': 'root_fixed'}, value_fn=<function _const_value_fn.<locals>._fn at 0x10a8dcfe0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='tip_load', kind='neumann', fields=('ty',), selector_type='tag', selector={'tag': 'tip_load'}, value_fn=<function _const_value_fn.<locals>._fn at 0x1190ed1c0>,",
+ "timed_out": false
+}

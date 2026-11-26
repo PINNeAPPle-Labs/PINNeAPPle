@@ -1,0 +1,12 @@
+{
+ "code_hash": "0af680e301f0d066",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.spacecraft_attitude_euler_rotation",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 15.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='spacecraft_attitude_euler_rotation', dim=0, coords=('t',), fields=('w1', 'w2', 'w3'), pde=PDETermSpec(kind='spacecraft_attitude_euler_rotation', fields=('w1', 'w2', 'w3'), coords=('t',), params={'I1': 100.0, 'I2': 100.0, 'I3': 150.0}, meta={'note': \"Torque-free axisymmetric rigid-body rotation (Euler's equations).\", 'precession_rate_rad_s': 0.25, 'precession_period_s': 25.132741228718345, 'exact': 'w1=w1_0*cos(lambda t), w2=w1_0*sin(lambda t), w3=w3_0, lambda=(I3-I1)/I1*w3_0'}), conditions=(ConditionSpec(name='ic_w1', kind='initial', fields=('w1',), selector_type='callable', selector=<function spacecraft_attitude_euler_rotation.<locals>.<lambda> at 0x10adc8fe0>, value_fn=<function spacecraft_attitude_euler_rotation.<locals>.<lambda> at 0x1195214e0>, weight=20.0, order=1,",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "8320b23392de7bff",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pcb_thermal.via_copper_fraction",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 16.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n3.1384510609361863e-09",
+ "timed_out": false
+}

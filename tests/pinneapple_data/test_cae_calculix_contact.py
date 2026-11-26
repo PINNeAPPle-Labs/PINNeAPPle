@@ -83,6 +83,17 @@ def test_the_contact_state_at_a_step_time_is_read_apart():
     assert cae.contact(FRD) != got                                   # the pull moved the interface
 
 
+def test_the_stress_field_at_a_step_time_is_read_apart():
+    """A case that loads in two steps points the check at the state a closed form names, not at the end of the run."""
+    at_half = next(b for b in cae.read_blocks(FRD) if b.name == "STRESS" and b.time == pytest.approx(0.5))
+    got = cae.stress(FRD, until=0.5)
+    assert set(got) == set(at_half.values)
+    for node, values in at_half.values.items():
+        assert got[node] == pytest.approx(dict(zip(at_half.components, values, strict=False)))
+    assert cae.stress(FRD) != got                 # the second step moved the field
+    assert cae.stress(FRD, until=0.1) == {}       # nothing written at or before that time
+
+
 def test_coordinates_displacement_and_stress_agree_with_the_app_parser():
     for got, want in ((cae.coordinates(FRD), _as_int(GOLDEN["frd"]["coordinates"])),
                       (cae.displacement(FRD), _as_int(GOLDEN["frd"]["displacement"]))):

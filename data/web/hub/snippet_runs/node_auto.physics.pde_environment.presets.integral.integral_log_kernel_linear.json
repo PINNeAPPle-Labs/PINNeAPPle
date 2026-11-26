@@ -1,0 +1,12 @@
+{
+ "code_hash": "da445e5383d32ee6",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.integral.integral_log_kernel_linear",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 21.98,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "integral log kernel linear -> pinneapple_physics.pde_environment.presets.integral:integral_log_kernel_linear\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'lam': 0.5, 'a': 1.0, 'b': 0.5, 'n_col': 81}",
+ "timed_out": false
+}

@@ -40,6 +40,7 @@ def _tmp(blob, ext):
 
 
 def test_vtu_reread_with_vtk_and_meshio(pitz):
+    pytest.importorskip("meshio", reason="rereading the .vtu export needs meshio: pip install -e '.[geom]'")
     m, ds = pitz
     blocks, polys, order = poly_cells(m)
     assert {t: len(c) for t, c in blocks} == {"hexahedron": 12225} and not polys
@@ -75,6 +76,7 @@ def test_polyhedron_cell_written_as_vtk_polyhedron():
 
 
 def test_tabular_and_array_exports(pitz):
+    pytest.importorskip("pyarrow", reason="the parquet export needs pyarrow: pip install -e '.[hub]'")
     m, ds = pitz
     import pandas as pd
     import pyarrow.parquet as pq
@@ -122,6 +124,9 @@ def test_units_calculix_to_si_and_kinematic_pressure():
 
 def test_api_inspect_and_exports():
     pytest.importorskip("fastapi")
+    # the second example it inspects is a .msh, which the app reads through meshio; without it the endpoint answers
+    # 500 and the response has no "dataset" — a missing extra, not an API that lost its shape (#625)
+    pytest.importorskip("meshio", reason="the .msh example needs meshio: pip install -e '.[geom]'")
     sys.path.insert(0, APP)
     from fastapi.testclient import TestClient
     from interop_hub.api import app

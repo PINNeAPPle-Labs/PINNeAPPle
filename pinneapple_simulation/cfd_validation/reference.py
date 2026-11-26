@@ -35,6 +35,25 @@ figure, and the digitised table that circulates in the literature is a secondary
 :data:`ARMALY_REATTACHMENT` is therefore **empty**: the case is built and run by
 :mod:`~pinneapple_simulation.cfd_validation.step`, and the reference is filled in from the paper or from a documented
 digitisation rather than from memory. Pitz and Daily's profiles are in the same position.
+
+CFDBench — Luo, Chen and Zhang (2023), the tube flow's operating parameters
+--------------------------------------------------------------------------
+Y. Luo, Y. Chen and Z. Zhang, "CFDBench: A Large-Scale Benchmark for Machine Learning Methods in Fluid Dynamics",
+arXiv:2310.05963, Table 3 (the operating parameters of the tube flow subset). Dataset: HuggingFace
+``chen-yingfa/CFDBench``, licence Apache-2.0, read from the dataset card.
+
+This one is not a table of *answers*, and :data:`CFDBENCH_TUBE` does not pretend otherwise. The tube is a water-air
+two-phase flow driven into a tube full of air and solved in Ansys Fluent, so the paper publishes **no** physical
+solution to be scored against — its tube tables (Tables 12 and 13) are the NMSE of neural operators against the
+archive's own fields. What Table 3 does publish is the *definition of the cases*: the baseline tube and the three
+parameter sets (``bc``, ``prop``, ``geo``) with the values each one sweeps. Transcribing it is what turns "the
+archive, read however the reader likes" into "the cases the paper says are there", and
+:func:`~pinneapple_simulation.cfd_validation.cfdbench.tube_against_table` holds the archive against it case by case.
+
+The transcription earns its keep on the first reading. The ``prop`` family stores its density as the ten-value
+*index* ``0..9``, not the ``10 .. 1000 kg/m3`` the table publishes, while its viscosity is stored as the value — so
+``Re = rho U L / mu`` computed from the archive's own ``case.json`` is a hundredfold short for that family and is not
+the Reynolds number of the flow. The other two families match the table exactly, value for value.
 """
 from __future__ import annotations
 
@@ -42,7 +61,7 @@ from dataclasses import dataclass
 from typing import Any
 
 __all__ = ["Profile", "GHIA_U", "GHIA_V", "GHIA_RE", "DEV_VAHL_DAVIS_NU", "ARMALY_REATTACHMENT", "PROFILES",
-           "profile", "nu_for_grashof", "get", "as_dicts", "disputes"]
+           "CaseTable", "CFDBENCH_TUBE", "profile", "nu_for_grashof", "get", "as_dicts", "disputes"]
 
 
 @dataclass(frozen=True)
@@ -161,6 +180,53 @@ DEV_VAHL_DAVIS = ("de Vahl Davis (1983), Int. J. Numer. Methods Fluids 3(3), 249
 #: Armaly et al. (1983)'s reattachment length against Reynolds number, ``Re -> x1/S``. **Empty on purpose**: the
 #: published curve is a figure, and a secondary digitisation has no single provenance. See the module docstring.
 ARMALY_REATTACHMENT: dict[float, float] = {}
+
+
+@dataclass(frozen=True)
+class CaseTable:
+    """A published table of *operating parameters*: the case it defines and the values each subset sweeps.
+
+    The point of the type is the provenance. A table of answers names the run that confirms it (a mistyped row cannot
+    agree with a Navier-Stokes solution on three meshes); a table of parameters is confirmed by the data instead —
+    every value it publishes has to be found in the archive, and every value in the archive has to be one it
+    publishes. :func:`~pinneapple_simulation.cfd_validation.cfdbench.tube_against_table` is that check.
+    """
+
+    case: str
+    citation: str
+    definition: dict[str, float | str]         # the baseline case every subset is a departure from
+    sets: dict[str, tuple[float, ...]]         # subset, or subset/parameter, -> the values the paper publishes
+    note: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"case": self.case, "citation": self.citation, "definition": dict(self.definition),
+                "sets": {k: list(v) for k, v in self.sets.items()}, "note": self.note}
+
+
+#: The tube flow of CFDBench, Table 3, transcribed. ``bc`` sweeps the inlet velocity over 50 values; ``prop`` is the
+#: 10 x 10 grid of density against viscosity; ``geo`` is five diameters by five of the ten length-to-diameter ratios,
+#: which is the 25 geometries the paper counts. The archive names the diameter ``height`` and the length ``width``.
+CFDBENCH_TUBE = CaseTable(
+    case="cfdbench-tube",
+    citation="Luo, Chen and Zhang (2023), arXiv:2310.05963, Table 3 (tube flow operating parameters)",
+    definition={"length_l": 1.0, "diameter_d": 0.1, "density_rho": 100.0, "viscosity_mu": 0.1,
+                "inlet_velocity": 1.0, "walls": "top and bottom, no-slip", "inlet": "velocity", "outlet": "pressure",
+                "time_step": 0.01, "grid": "interpolated to 64 x 64"},
+    sets={
+        # uB = 0.1, 0.2, ... 5.0 m/s: fifty values, which is the fifty cases the paper counts
+        "bc": tuple(round(0.1 * i, 10) for i in range(1, 51)),
+        # rho = 10, 120, ... 1000 kg/m3, in steps of 110
+        "prop/density": tuple(10.0 + 110.0 * i for i in range(10)),
+        # mu = 0.01, 0.12, ... 1.0 Pa s, in steps of 0.11
+        "prop/viscosity": tuple(round(0.01 + 0.11 * i, 10) for i in range(10)),
+        "geo/diameter": (0.01, 0.05, 0.1, 0.3, 0.5),
+        # the paper's d/l set; the archive stores these as l/d, which is the reciprocal
+        "geo/ratio": (1.0, 2.0, 5.0, 7.5, 10.0, 15.0, 20.0, 50.0, 75.0, 100.0),
+    },
+    note="the paper's baseline is rho = 100, mu = 0.1, u_in = 1, d = 0.1, l = 1; the archive's prop family stores "
+         "density as the ten-value index 0..9 rather than the 10..1000 kg/m3 of this table, so the Reynolds number of "
+         "that family cannot be read off case.json"
+)
 
 
 def nu_for_grashof(ra: float) -> float:

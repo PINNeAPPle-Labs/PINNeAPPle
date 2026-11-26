@@ -18,6 +18,7 @@ import json
 import time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Any, Mapping
 
 import numpy as np
 
@@ -61,8 +62,11 @@ def fourier_pad(u: np.ndarray, n_new: int, axes) -> np.ndarray:
     return u
 
 
-def solve_burgers(u0: np.ndarray, dt: float | None = None) -> np.ndarray:
-    p = BURGERS
+def solve_burgers(u0: np.ndarray, dt: float | None = None,
+                  params: Mapping[str, Any] | None = None) -> np.ndarray:
+    """``params`` overrides the dataset's values (``nu``, ``t_end``, ``dt``, ``n_save``); a worker of
+    :func:`generate` gets them with the task, because a spawned worker re-imports this module."""
+    p = BURGERS if params is None else params
     _, u = ob.burgers_1d(u0, p["nu"], p["t_end"], dt=dt or p["dt"], n_save=p["n_save"])
     return u                                                    # (batch, n_save + 1, n)
 
@@ -86,14 +90,17 @@ def block_average(x: np.ndarray, factor: int) -> np.ndarray:
     return x.reshape(*x.shape[:-2], n0 // factor, factor, n1 // factor, factor).mean(axis=(-3, -1))
 
 
-def solve_darcy(a: np.ndarray, refine: int | None = None) -> np.ndarray:
+def solve_darcy(a: np.ndarray, refine: int | None = None,
+                params: Mapping[str, Any] | None = None) -> np.ndarray:
     """Solve on the grid refined ``refine`` times (the piecewise-constant coefficient is represented exactly) and
-    return the cell averages of u on the coefficient's own grid."""
-    r = refine or DARCY["refine"]
+    return the cell averages of u on the coefficient's own grid. ``params`` overrides the dataset's values (``refine``
+    and the forcing ``f``), so a worker of :func:`generate` does not depend on the module's."""
+    p = DARCY if params is None else params
+    r = refine or p["refine"]
     out = []
     for ai in (a if a.ndim == 3 else a[None]):
         n = ai.shape[0]
-        u = ob.darcy_2d(np.kron(ai, np.ones((r, r))), DARCY["f"])
+        u = ob.darcy_2d(np.kron(ai, np.ones((r, r))), p["f"])
         out.append(u.reshape(n, r, n, r).mean(axis=(1, 3)))
     return np.stack(out)
 
@@ -104,10 +111,12 @@ def ns_inputs(n_samples: int, n: int, seed: int) -> np.ndarray:
     return fourier_pad(w, n, axes=(1, 2))                       # drop the Nyquist modes: exactly band-limited
 
 
-def solve_ns(w0: np.ndarray, n_solve: int | None = None, dt: float | None = None) -> np.ndarray:
+def solve_ns(w0: np.ndarray, n_solve: int | None = None, dt: float | None = None,
+             params: Mapping[str, Any] | None = None) -> np.ndarray:
     """Solve on ``n_solve``^2 (inputs given on a coarser grid are Fourier-padded) and return the point values on the
-    stored ``n_store``^2 grid at t = 0, 1, ..., t_end."""
-    p = NS
+    stored ``n_store``^2 grid at t = 0, 1, ..., t_end. ``params`` overrides the dataset's values, so a worker of
+    :func:`generate` gets them with the task instead of reading the module's defaults."""
+    p = NS if params is None else params
     n_solve = n_solve or p["n_solve"]
     if w0.shape[-1] != n_solve:
         w0 = fourier_pad(w0, n_solve, axes=(1, 2))
@@ -127,6 +136,15 @@ def _pmap(fn, chunks, workers):
         return [fn(c) for c in chunks]
     with ProcessPoolExecutor(workers) as ex:
         return list(ex.map(fn, chunks))
+
+
+def _solve(task) -> np.ndarray:
+    """One ``(which, chunk, params)`` task in a worker of :func:`generate`: the dataset's parameters travel with the
+    task, because a spawned worker (the default on macOS and Windows) re-imports this module and would otherwise read
+    its defaults."""
+    which, chunk, params = task
+    fn = {"burgers": solve_burgers, "darcy": solve_darcy, "ns": solve_ns}[which]
+    return fn(chunk, params=params)
 
 
 # --------------------------------------------------------------------------- generation
@@ -176,7 +194,8 @@ def darcy_set(n_samples: int, seed: int, *, n: int | None = None, tau: float | N
     length ~ 1 / tau; the dataset uses 3), ``high`` / ``low`` (the two coefficient values; 12 / 3)."""
     n = n or DARCY["n"]
     a = darcy_inputs(n_samples, n, seed, tau=tau, high=high, low=low)
-    u = np.concatenate(_pmap(solve_darcy, _chunks(a, max(1, -(-n_samples // max(workers, 1)))), workers))
+    size = max(1, -(-n_samples // max(workers, 1)))
+    u = np.concatenate(_pmap(_solve, [("darcy", c, dict(DARCY)) for c in _chunks(a, size)], workers))
     return a, u
 
 
@@ -187,7 +206,7 @@ def generate(out: Path, workers: int = 1, only: str | None = None) -> None:
         p = BURGERS
         n = p["n_train"] + p["n_test"]
         u0 = burgers_inputs(n, p["n"], p["seed"])
-        u = np.concatenate(_pmap(solve_burgers, _chunks(u0, 25), workers))
+        u = np.concatenate(_pmap(_solve, [("burgers", c, dict(p)) for c in _chunks(u0, 25)], workers))
         assert np.all(np.isfinite(u)) and np.allclose(u[:, 0], u0)
         _write_splits(out, "burgers_1d_li2021", {"index": np.arange(n, dtype=np.int32),
                                                  "u0": u0.astype(np.float32), "u": u.astype(np.float32)},
@@ -197,7 +216,7 @@ def generate(out: Path, workers: int = 1, only: str | None = None) -> None:
         p = DARCY
         n = p["n_train"] + p["n_test"]
         a = darcy_inputs(n, p["n"], p["seed"])
-        u = np.concatenate(_pmap(solve_darcy, _chunks(a, 10), workers))
+        u = np.concatenate(_pmap(_solve, [("darcy", c, dict(p)) for c in _chunks(a, 10)], workers))
         assert np.all(np.isfinite(u)) and u.min() > 0
         _write_splits(out, "darcy_2d_li2021", {"index": np.arange(n, dtype=np.int32), "a": a.astype(np.float32),
                                                "u": u.astype(np.float32)}, p["n_train"], {"params": p})
@@ -210,12 +229,11 @@ def generate(out: Path, workers: int = 1, only: str | None = None) -> None:
         part.mkdir(parents=True, exist_ok=True)
         todo = [(i, c) for i, c in enumerate(_chunks(w0, 4)) if not (part / f"{i:04d}.npy").exists()]
         print(f"  ns: {len(todo)} chunks of 4 to solve (resumable: {part})", flush=True)
-        with ProcessPoolExecutor(max(1, workers)) as ex:
-            solved = ex.map(solve_ns, [c for _, c in todo])
-            for k, (i, w) in enumerate(zip([i for i, _ in todo], solved, strict=True)):
-                np.save(part / f"{i:04d}.npy", w.astype(np.float32))
-                if k % 10 == 0:
-                    print(f"  ns chunk {i} ({k + 1}/{len(todo)}) {time.time() - t0:.0f}s", flush=True)
+        solved = _pmap(_solve, [("ns", c, dict(p)) for _, c in todo], workers)
+        for k, (i, w) in enumerate(zip([i for i, _ in todo], solved, strict=True)):
+            np.save(part / f"{i:04d}.npy", w.astype(np.float32))
+            if k % 10 == 0:
+                print(f"  ns chunk {i} ({k + 1}/{len(todo)}) {time.time() - t0:.0f}s", flush=True)
         w = np.concatenate([np.load(part / f"{i:04d}.npy") for i in range((n + 3) // 4)])
         assert w.shape == (n, p["n_save"] + 1, p["n_store"], p["n_store"]) and np.all(np.isfinite(w))
         _write_splits(out, "navier_stokes_2d_li2021_nu1e-3", {"index": np.arange(n, dtype=np.int32), "w": w},

@@ -157,6 +157,18 @@ def test_the_speedup_needs_both_backends():
     assert only_torch.speedup is None
 
 
+def test_the_speedup_reads_the_rows_the_benchmark_writes():
+    """The rows the benchmark writes carry the device — "torch (cpu)", "onnxruntime (cpu)" — and the speedup asked
+    for the bare names, so every real measurement reported ``None`` while the hand-made report above passed (#625)."""
+    report = ServingReport(model="m", batch_size=1, latencies=[
+        Latency(backend="torch (cpu)", p50_ms=2.0), Latency(backend="onnxruntime (cpu)", p50_ms=0.5)])
+    assert report.speedup == pytest.approx(4.0)
+    assert report.get("torch") is None and report.get("torch (cpu)") is not None    # get stays exact
+    cuda = ServingReport(model="m", latencies=[Latency(backend="torch (cuda)", p50_ms=2.0),
+                                               Latency(backend="onnxruntime (cpu)", p50_ms=0.5)])
+    assert cuda.speedup == pytest.approx(4.0)
+
+
 def test_the_markdown_says_what_was_not_measured():
     report = ServingReport(model="m", batch_size=1, latencies=[Latency(backend="torch", p50_ms=1.234)],
                            notes=["onnxruntime is not installed"])

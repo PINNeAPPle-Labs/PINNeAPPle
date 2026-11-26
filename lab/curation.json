@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-25 13:37 UTC",
+ "generated": "2026-11-25 16:55 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -2300,6 +2300,283 @@
     "next_tier": "A"
    },
    "description": "Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parameters): lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake vorticity movie. The training data of car_surrogate.",
+   "story": ""
+  },
+  "car_surrogate": {
+   "tier": "E",
+   "tier_name": "known problems",
+   "best_run": "car_surrogate-3db2de4d123b",
+   "best_score": 82.9,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 1,
+    "F": 0
+   },
+   "usable_fraction": 0.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "reference or physics check"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "comparison with a reference",
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "validated runs"
+     ]
+    }
+   },
+   "gaps": [
+    "fix the failing checks or the crash"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: split",
+      "PASS optimum_below_median_design"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS fno_field_error (relative L2 of |u| on unseen designs)",
+      "PASS Cd_surrogate_error (mean |error| on unseen designs)",
+      "PASS optimum_prediction_verified (surrogate vs a new LBM run of the chosen design)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "open",
+     "evidence": [
+      "no conservation, symmetry or boundary-condition check"
+     ],
+     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "failed",
+     "evidence": [
+      "FAIL Cd_surrogate_beats_linear",
+      "PASS fno_beats_nearest_design"
+     ],
+     "next": "fix the failing check"
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "reported: Cd_mape_mlp_ensemble, Cl_mae_mlp_ensemble",
+      "1 declared limitations"
+     ],
+     "next": "calibrate it (coverage check)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "failed",
+     "evidence": [
+      "tier E (known problems)"
+     ],
+     "next": "not usable until it validates"
+    }
+   },
+   "headline": {
+    "kind": "failing",
+    "text": "Cd surrogate beats linear",
+    "text_pt": "Cd surrogate beats linear",
+    "check": "Cd_surrogate_beats_linear",
+    "rule": "baseline",
+    "next_tier": "D",
+    "hint": "D: beat the baseline",
+    "hint_pt": "D: superar o baseline",
+    "missing": "D: beat the baseline"
+   },
+   "next_steps": [
+    {
+     "type": "fix_baseline",
+     "to": "D",
+     "stage": "benchmark",
+     "why": "failing check Cd surrogate beats linear (value 0.01767, max 0.007727)",
+     "why_pt": "verifica\u00e7\u00e3o que falha: Cd surrogate beats linear (valor 0.01767, m\u00e1x. 0.007727)",
+     "short": "beat the baseline",
+     "short_pt": "superar o baseline",
+     "check": "Cd_surrogate_beats_linear",
+     "measured": {
+      "value": 0.01766829400614221,
+      "threshold": 0.007727488180427265,
+      "op": "<="
+     },
+     "actions": [
+      {
+       "id": "compare_reference",
+       "kind": "python",
+       "target": "pinneapple.compare",
+       "command": "pp.compare(problem, [result, \"fem\"], reference=\"exact\")",
+       "text": "compare on the same points with a reference or a baseline solver at equal budget",
+       "text_pt": "comparar nos mesmos pontos com uma refer\u00eancia ou um solver de base, com o mesmo or\u00e7amento",
+       "params": {
+        "experiment": "car_surrogate"
+       },
+       "runnable": false,
+       "argv": []
+      },
+      {
+       "id": "benchmark_run",
+       "kind": "python",
+       "target": "pinneapple.benchmark.run",
+       "command": "pp.benchmark.run(config, out_dir=\"benchmark_out\")",
+       "text": "an equal-budget benchmark row against other methods",
+       "text_pt": "uma linha de benchmark com o mesmo or\u00e7amento contra outros m\u00e9todos",
+       "params": {
+        "experiment": "car_surrogate"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    }
+   ],
+   "plan": {
+    "limitations": [
+     "declared: trained on 2-D LBM at Re 500; inherits every limit of car_lbm",
+     "detected: 1 of 1 runs fail validation or crash (outside the validated range)",
+     "detected: evidence only inferred (not measured by a check) for uncertainty"
+    ],
+    "actions": [
+     {
+      "gap": "fix",
+      "action": "Fix the failing checks or the crash",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "marketing",
+       "training_data",
+       "tier D"
+      ]
+     },
+     {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "baseline",
+      "action": "Compare with simple surrogates (nearest design, linear regression, POD + Gaussian process)",
+      "effort": "S",
+      "unlocks": [
+       "paper"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 6,
+      "missing": [
+       "not usable until it validates",
+       "reference or physics check"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 8,
+      "missing": [
+       "not usable until it validates",
+       "comparison with a reference",
+       "baseline or physics check",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 8,
+      "missing": [
+       "not usable until it validates",
+       "strong visuals (movie, render or 3-D view)",
+       "a validated headline number",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 3,
+      "missing": [
+       "not usable until it validates",
+       "validated runs"
+      ]
+     }
+    },
+    "closest_use": "training_data",
+    "next_tier": "D"
+   },
+   "description": "Physics AI on car geometry: an FNO maps the car shape to its mean flow (data-only and with a mass-conservation / no-slip physics loss), an MLP ensemble maps the design parameters to drag and lift; scored on unseen designs against baselines, then used to find a low-drag shape that a new LBM run verifies.",
    "story": ""
   },
   "cylinder_lbm": {
@@ -14771,6 +15048,286 @@
    "story": "",
    "description": "Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parameters): lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake vorticity movie. The training data of car_surrogate.",
    "title": "car_lbm"
+  },
+  "car_surrogate": {
+   "tier": "E",
+   "tier_name": "known problems",
+   "best_run": "car_surrogate-3db2de4d123b",
+   "best_score": 82.9,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 0,
+    "E": 1,
+    "F": 0
+   },
+   "usable_fraction": 0.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "reference or physics check"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "comparison with a reference",
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "validated runs"
+     ]
+    }
+   },
+   "gaps": [
+    "fix the failing checks or the crash"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: split",
+      "PASS optimum_below_median_design"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS fno_field_error (relative L2 of |u| on unseen designs)",
+      "PASS Cd_surrogate_error (mean |error| on unseen designs)",
+      "PASS optimum_prediction_verified (surrogate vs a new LBM run of the chosen design)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "open",
+     "evidence": [
+      "no conservation, symmetry or boundary-condition check"
+     ],
+     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "failed",
+     "evidence": [
+      "FAIL Cd_surrogate_beats_linear",
+      "PASS fno_beats_nearest_design"
+     ],
+     "next": "fix the failing check"
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "reported: Cd_mape_mlp_ensemble, Cl_mae_mlp_ensemble",
+      "1 declared limitations"
+     ],
+     "next": "calibrate it (coverage check)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "failed",
+     "evidence": [
+      "tier E (known problems)"
+     ],
+     "next": "not usable until it validates"
+    }
+   },
+   "headline": {
+    "kind": "failing",
+    "text": "Cd surrogate beats linear",
+    "text_pt": "Cd surrogate beats linear",
+    "check": "Cd_surrogate_beats_linear",
+    "rule": "baseline",
+    "next_tier": "D",
+    "hint": "D: beat the baseline",
+    "hint_pt": "D: superar o baseline",
+    "missing": "D: beat the baseline"
+   },
+   "next_steps": [
+    {
+     "type": "fix_baseline",
+     "to": "D",
+     "stage": "benchmark",
+     "why": "failing check Cd surrogate beats linear (value 0.01767, max 0.007727)",
+     "why_pt": "verifica\u00e7\u00e3o que falha: Cd surrogate beats linear (valor 0.01767, m\u00e1x. 0.007727)",
+     "short": "beat the baseline",
+     "short_pt": "superar o baseline",
+     "check": "Cd_surrogate_beats_linear",
+     "measured": {
+      "value": 0.01766829400614221,
+      "threshold": 0.007727488180427265,
+      "op": "<="
+     },
+     "actions": [
+      {
+       "id": "compare_reference",
+       "kind": "python",
+       "target": "pinneapple.compare",
+       "command": "pp.compare(problem, [result, \"fem\"], reference=\"exact\")",
+       "text": "compare on the same points with a reference or a baseline solver at equal budget",
+       "text_pt": "comparar nos mesmos pontos com uma refer\u00eancia ou um solver de base, com o mesmo or\u00e7amento",
+       "params": {
+        "experiment": "car_surrogate"
+       },
+       "runnable": false,
+       "argv": []
+      },
+      {
+       "id": "benchmark_run",
+       "kind": "python",
+       "target": "pinneapple.benchmark.run",
+       "command": "pp.benchmark.run(config, out_dir=\"benchmark_out\")",
+       "text": "an equal-budget benchmark row against other methods",
+       "text_pt": "uma linha de benchmark com o mesmo or\u00e7amento contra outros m\u00e9todos",
+       "params": {
+        "experiment": "car_surrogate"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    }
+   ],
+   "plan": {
+    "limitations": [
+     "declared: trained on 2-D LBM at Re 500; inherits every limit of car_lbm",
+     "detected: 1 of 1 runs fail validation or crash (outside the validated range)",
+     "detected: evidence only inferred (not measured by a check) for uncertainty"
+    ],
+    "actions": [
+     {
+      "gap": "fix",
+      "action": "Fix the failing checks or the crash",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "marketing",
+       "training_data",
+       "tier D"
+      ]
+     },
+     {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "baseline",
+      "action": "Compare with simple surrogates (nearest design, linear regression, POD + Gaussian process)",
+      "effort": "S",
+      "unlocks": [
+       "paper"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 6,
+      "missing": [
+       "not usable until it validates",
+       "reference or physics check"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 8,
+      "missing": [
+       "not usable until it validates",
+       "comparison with a reference",
+       "baseline or physics check",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 8,
+      "missing": [
+       "not usable until it validates",
+       "strong visuals (movie, render or 3-D view)",
+       "a validated headline number",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "car_surrogate-3db2de4d123b",
+      "distance": 3,
+      "missing": [
+       "not usable until it validates",
+       "validated runs"
+      ]
+     }
+    },
+    "closest_use": "training_data",
+    "next_tier": "D"
+   },
+   "experiment": "car_surrogate",
+   "case": "",
+   "story": "",
+   "description": "Physics AI on car geometry: an FNO maps the car shape to its mean flow (data-only and with a mass-conservation / no-slip physics loss), an MLP ensemble maps the design parameters to drag and lift; scored on unseen designs against baselines, then used to find a low-drag shape that a new LBM run verifies.",
+   "title": "car_surrogate"
   },
   "cylinder_lbm": {
    "tier": "B",
@@ -61863,6 +62420,236 @@
     "missing": "independent reference"
    },
    "tier_name": "solid"
+  },
+  "car_surrogate-3db2de4d123b": {
+   "run_id": "car_surrogate-3db2de4d123b",
+   "experiment": "car_surrogate",
+   "status": "failed_validation",
+   "tier": "E",
+   "score": 82.9,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 0.8333333333333334,
+     "status": "FAIL",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5/6 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": 0.5,
+     "status": "FAIL",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS fno_beats_nearest_design",
+      "FAIL Cd_surrogate_beats_linear"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no physics check"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS fno_field_error (relative L2 of |u| on unseen designs)",
+      "PASS Cd_surrogate_error (mean |error| on unseen designs)",
+      "PASS optimum_prediction_verified (surrogate vs a new LBM run of the chosen design)"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_mape_mlp_ensemble, Cl_mae_mlp_ensemble"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 6008a1487"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 36 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.6000000000000001,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 304 chars",
+      "docs: docs/core_concepts/lab.md, docs/lab/coverage.md, docs/pt/mapa_completo/v07_ferramentas_produtos.md, docs/dev/model_dataset_inventory.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "reference or physics check"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "comparison with a reference",
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "validated runs"
+     ]
+    }
+   },
+   "gaps": [
+    "fix the failing checks or the crash"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: split",
+      "PASS optimum_below_median_design"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS fno_field_error (relative L2 of |u| on unseen designs)",
+      "PASS Cd_surrogate_error (mean |error| on unseen designs)",
+      "PASS optimum_prediction_verified (surrogate vs a new LBM run of the chosen design)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "open",
+     "evidence": [
+      "no conservation, symmetry or boundary-condition check"
+     ],
+     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "failed",
+     "evidence": [
+      "FAIL Cd_surrogate_beats_linear",
+      "PASS fno_beats_nearest_design"
+     ],
+     "next": "fix the failing check"
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "reported: Cd_mape_mlp_ensemble, Cl_mae_mlp_ensemble",
+      "1 declared limitations"
+     ],
+     "next": "calibrate it (coverage check)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "failed",
+     "evidence": [
+      "tier E (known problems)"
+     ],
+     "next": "not usable until it validates"
+    }
+   },
+   "headline": {
+    "kind": "failing",
+    "text": "Cd surrogate beats linear",
+    "text_pt": "Cd surrogate beats linear",
+    "check": "Cd_surrogate_beats_linear",
+    "rule": "baseline",
+    "next_tier": "D",
+    "hint": "D: beat the baseline",
+    "hint_pt": "D: superar o baseline",
+    "missing": "D: beat the baseline"
+   },
+   "tier_name": "known problems"
   },
   "cylinder_lbm-de04dbbd3e8c": {
    "run_id": "cylinder_lbm-de04dbbd3e8c",

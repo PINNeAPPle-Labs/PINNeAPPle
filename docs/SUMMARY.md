@@ -133,6 +133,7 @@
     * [Planetary defence: what a kinetic impactor buys, and how far ahead the miss can be guaranteed](guides/planetary_defence.md)
     * [Reduced-order models and meshless methods, measured](guides/rom_and_meshless_studies.md)
     * [Detect false data injection with physics residuals](guides/physics_residual_attack_detection.md)
+    * [A drone that says what is wrong with it](guides/multirotor_flight.md)
     * [The PINNeAPPle Observatory](guides/observatory.md)
     * [Playground: physics surrogates in the browser](guides/playground.md)
     * [Simulation Workflow Runner: campaigns as traceable, resumable workflows](guides/workflow_runner.md)

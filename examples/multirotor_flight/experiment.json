@@ -1,0 +1,109 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/multirotor_flight",
+ "title": "Flight safety with physics-verified dynamics: a drone that says what is wrong with it",
+ "description": "A 1.5 kg quad-X with four BEMT rotors, a pack that sags and a cascaded controller flies while eight faults are injected at t = 8 s, one per flight: payload, degraded motor, chipped blade, gust, GPS glitch, magnetometer interference, IMU vibration and battery sag. The Newton-Euler residual of the nominal vehicle is measured against the IMU and the pack telemetry, the direction of the residual names the fault, and three detectors are tuned to the same false-alarm budget before their detection delays are compared.",
+ "domain": "robotics",
+ "methods": [
+  "BEMT",
+  "6-DoF",
+  "residual-based fault detection"
+ ],
+ "modules": [
+  "pinneapple_physics.multirotor"
+ ],
+ "params": {
+  "mass_kg": 1.5,
+  "prop": "apc-10x4.7",
+  "fault_time_s": 8.0,
+  "duration_s": 20.0
+ },
+ "scripts": [
+  "flight_safety.py"
+ ],
+ "metrics": [
+  {
+   "name": "rotor_figure_of_merit",
+   "value": 0.65,
+   "unit": "",
+   "how": "BEMT of the 10x4.7 rotor at 6 000 rpm, against the momentum-theory ideal"
+  },
+  {
+   "name": "hover_power",
+   "value": 164.0,
+   "unit": "W",
+   "how": "pack power at the hover speed of the 1.5 kg quad (9.1 g/W)"
+  },
+  {
+   "name": "closed_loop_hover_error",
+   "value": 0.001,
+   "unit": "m",
+   "how": "mean position error over the last 40 % of a 20 s hover, 500 Hz"
+  },
+  {
+   "name": "payload_residual",
+   "value": -2.44,
+   "unit": "m/s^2",
+   "how": "vertical force residual 2 s after a 0.4 kg payload, against g*0.4/1.5 = -2.61 predicted"
+  },
+  {
+   "name": "kalman_false_alarms",
+   "value": 0.0,
+   "unit": "",
+   "how": "fraction of fault-free flights the tuned detector alarmed on, flights it never saw"
+  },
+  {
+   "name": "kalman_median_delay",
+   "value": 0.0,
+   "unit": "s",
+   "how": "median over the cases it detected"
+  }
+ ],
+ "checks": [
+  {
+   "name": "hover_is_the_weight",
+   "passed": true,
+   "kind": "physics",
+   "label": "the BEMT hover speed carries the weight to 1 %"
+  },
+  {
+   "name": "propeller_law",
+   "passed": true,
+   "kind": "reference",
+   "label": "T ~ omega^2 with exponent 2.000"
+  },
+  {
+   "name": "payload_is_the_mass_ratio",
+   "passed": true,
+   "kind": "reference",
+   "label": "the vertical residual is g*dm/m to 7 %"
+  },
+  {
+   "name": "detectors_tuned_without_false_alarm",
+   "passed": true,
+   "kind": "numerical",
+   "label": "every detector is set at the most sensitive value with no alarm on the calibration flights"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/residuals.png"
+  ],
+  "videos": [
+   "figures/flight.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "results/flight_safety.json"
+  ]
+ },
+ "links": [],
+ "references": [],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11"
+ }
+}

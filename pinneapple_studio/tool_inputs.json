@@ -8931,6 +8931,48 @@
   },
   "source": "tests/test_rover_realism.py:128"
  },
+ "pinneapple_tools.visualization.studio.scale:auto_prop": {
+  "inputs": {
+   "extent_m": 0.25
+  },
+  "source": "tests/test_studio_scale.py:test_the_prop_is_the_largest_that_does_not_dwarf_the_part"
+ },
+ "pinneapple_tools.visualization.studio.scale:decade": {
+  "inputs": {
+   "x": 0.237
+  },
+  "source": "tests/test_studio_scale.py:test_a_round_value_is_snapped_to_1_2_or_5"
+ },
+ "pinneapple_tools.visualization.studio.scale:fmt_length": {
+  "inputs": {
+   "metres": 0.25
+  },
+  "source": "tests/test_studio_scale.py:test_a_length_reads_the_way_an_engineer_writes_it"
+ },
+ "pinneapple_tools.visualization.studio.scale:footprint": {
+  "inputs": {
+   "kind": "human"
+  },
+  "source": "tests/test_studio_scale.py:test_the_props_have_the_size_a_reader_already_knows"
+ },
+ "pinneapple_tools.visualization.studio.scale:grid_step": {
+  "inputs": {
+   "extent_m": 0.25
+  },
+  "source": "tests/test_studio_scale.py:test_the_grid_square_is_a_round_fraction_of_the_subject"
+ },
+ "pinneapple_tools.visualization.studio.scale:prop_size": {
+  "inputs": {
+   "kind": "ruler"
+  },
+  "source": "tests/test_studio_scale.py:test_the_props_have_the_size_a_reader_already_knows"
+ },
+ "pinneapple_tools.visualization.studio.scale:scale_bar_length": {
+  "inputs": {
+   "target_m": 0.237
+  },
+  "source": "tests/test_studio_scale.py:test_a_round_value_is_snapped_to_1_2_or_5"
+ },
  "pinneapple_tools.visualization.studio.view_cache:view_paths": {
   "inputs": {
    "directory": "views",

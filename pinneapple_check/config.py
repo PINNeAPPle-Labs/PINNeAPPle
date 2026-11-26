@@ -45,13 +45,17 @@ __all__ = ["ConfigError", "Config", "ResultTarget", "ModelTarget", "Integrity", 
 
 CONFIG_NAMES = ("pinneapple-check.toml", ".pinneapple-check.toml")
 
-PHYSICS = ("incompressible-flow", "heat", "elasticity", "conservation", "darcy", "maxwell", "none")
+PHYSICS = ("incompressible-flow", "heat", "advection-diffusion", "shallow-water", "elasticity", "conservation",
+           "darcy", "maxwell", "none")
 _PHYSICS_ALIASES = {"incompressible": "incompressible-flow", "flow": "incompressible-flow", "navier-stokes":
                     "incompressible-flow", "stokes": "incompressible-flow", "heat-conduction": "heat",
                     "thermal": "heat", "diffusion": "heat", "linear-elasticity": "elasticity", "solid": "elasticity",
                     "conservation-law": "conservation", "generic": "conservation", "darcy-flow": "darcy",
                     "porous-media": "darcy", "electromagnetics": "maxwell", "electrodynamics": "maxwell",
-                    "em": "maxwell", "maxwell-equations": "maxwell"}
+                    "em": "maxwell", "maxwell-equations": "maxwell", "advection_diffusion": "advection-diffusion",
+                    "advectiondiffusion": "advection-diffusion", "transport": "advection-diffusion",
+                    "convection-diffusion": "advection-diffusion", "shallow_water": "shallow-water",
+                    "shallowwater": "shallow-water", "swe": "shallow-water", "saint-venant": "shallow-water"}
 
 #: Default tolerances (all relative, dimensionless). Override per target under ``tolerances``.
 DEFAULT_TOLERANCES: dict[str, float] = {

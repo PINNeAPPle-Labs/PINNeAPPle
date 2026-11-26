@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pinneapple — run viewer</title>
+<link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">PINNeAPPle<span>·</span>pipeline</div>
+  <h1 id="run-name">run</h1>
+  <div class="meta"><span id="run-status" class="pill">—</span><span id="run-summary"></span></div>
+</header>
+
+<main>
+  <section class="card wide" id="explorer-card">
+    <h2>The model, where it is valid</h2>
+    <p class="hint" id="explore-note"></p>
+    <div class="explorer">
+      <div class="map-wrap">
+        <canvas id="map" width="520" height="380"></canvas>
+        <div class="axes"><span id="axis-x">x</span><span id="axis-y">y</span></div>
+      </div>
+      <div class="readout">
+        <div class="held" id="held"></div>
+        <div class="values" id="values"></div>
+        <canvas id="curve" width="360" height="200"></canvas>
+        <div class="hint" id="curve-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="gates-card">
+    <h2>What the run decided</h2>
+    <table id="gates"></table>
+  </section>
+
+  <section class="card" id="stages-card">
+    <h2>The stages</h2>
+    <ol id="stages"></ol>
+  </section>
+
+  <section class="card wide" id="figures-card">
+    <h2>The figures it wrote</h2>
+    <div class="figures" id="figures"></div>
+  </section>
+
+  <section class="card wide" id="scene-card" hidden>
+    <h2>The surface under test</h2>
+    <div id="scenes"></div>
+  </section>
+</main>
+<footer>written by <code>pp.SurrogatePipeline.view()</code> — every number here comes from the run folder</footer>
+<script>window.PP_DATA = /*__DATA__*/null;</script>
+<script src="viewer.js"></script>
+</body>
+</html>

@@ -5,6 +5,7 @@
     python -m pinneapple.pipeline run experiment.yaml          # the whole thing, then the report
     python -m pinneapple.pipeline resume experiment.yaml       # continue where the last run stopped
     python -m pinneapple.pipeline report experiment.yaml       # the report of the last run
+    python -m pinneapple.pipeline view runs/demo/burgers        # the run in a browser, with the model to sweep
 
 Exit codes: 0 the run passed, 1 a stage failed, 2 the configuration is wrong, 3 the run was rejected by a gate.
 """
@@ -21,12 +22,13 @@ __all__ = ["main", "build_parser"]
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="python -m pinneapple.pipeline",
                                 description="Run a surrogate-model pipeline from a YAML configuration.")
-    p.add_argument("command", choices=("validate", "plan", "run", "resume", "report", "presets"))
+    p.add_argument("command", choices=("validate", "plan", "run", "resume", "report", "presets", "view"))
     p.add_argument("config", nargs="?", help="the pipeline YAML (or JSON) file")
     p.add_argument("--out", default=None, help="override execution.out_dir")
     p.add_argument("--until", default=None, help="run up to and including this stage")
     p.add_argument("--json", action="store_true", help="print machine-readable output")
     p.add_argument("--verbose", action="store_true", help="print each stage as it finishes")
+    p.add_argument("--no-open", action="store_true", help="with view: write the page without opening a browser")
     return p
 
 
@@ -42,6 +44,21 @@ def main(argv: list[str] | None = None) -> int:
     if not args.config:
         print("give a configuration file (see `presets`)", file=sys.stderr)
         return 2
+    if args.command == "view":
+        from .viewer import build_viewer
+
+        target = Path(args.config)
+        if target.is_dir():
+            run_dir = target
+        else:
+            config = SurrogatePipeline.from_yaml(args.config).config
+            run_dir = Path(config.execution.out_dir) / config.name
+        if not (run_dir / "report.json").is_file():
+            print(f"no finished run at {run_dir}: run the pipeline first", file=sys.stderr)
+            return 1
+        page = build_viewer(run_dir, open_browser=not args.no_open)
+        print(page)
+        return 0
     overrides = {"execution": {"out_dir": args.out}} if args.out else {}
     try:
         pipeline = SurrogatePipeline.from_yaml(args.config, **overrides) if overrides else \

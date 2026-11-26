@@ -562,6 +562,19 @@ class SurrogatePipeline:
         from .deploy import deploy as _deploy
         return _deploy(self, target=target, host=host, port=port, api_key=api_key)
 
+    def view(self, out_dir: str | Path | None = None, *, open_browser: bool = True, scene: bool = True) -> str:
+        """The run in a browser: its gates, its figures, its surface, and the model on a grid of its own space.
+
+        Writes ``<run>/viewer/index.html`` (a ``file://`` page with the data inlined — no server, no internet) and
+        opens it. The explorer is the model evaluated where it was trained: drag on the map and the outputs and the
+        field follow. ``scene=False`` leaves the 3-D surface out (it is the slow part of writing the page).
+
+        >>> pipeline.view(open_browser=False)                        # doctest: +SKIP
+        '.../runs/demo/burgers_in_viscosity/viewer/index.html'
+        """
+        from .viewer import build_viewer
+        return build_viewer(self, out_dir, open_browser=open_browser, scene=scene)
+
     def predict_verified(self, **inputs: Any) -> dict[str, Any]:
         """``predict`` plus the VeriPhysics decision for that query: inside the validated domain, and the status of
         the gates that license using the model at all."""

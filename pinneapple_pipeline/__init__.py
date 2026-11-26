@@ -18,6 +18,7 @@ What each part is for:
 ``verification``           the ten VeriPhysics gates and the evidence each one leaves
 ``results``                ``VerificationResult``, ``StageRecord``, ``PipelineResult`` (and its report)
 ``presets``                four ready configurations
+``viewer``                 the run in a browser: gates, figures, the surface, the model to sweep
 =========================  ==================================================================================
 
 What it orchestrates (nothing here re-implements these): problem presets and condition sampling
@@ -65,6 +66,7 @@ from .results import (
 )
 from .stages import PipelineStage
 from .state import RunState
+from .viewer import build_viewer
 
 __all__ = [
     # facade
@@ -79,6 +81,8 @@ __all__ = [
     "VerificationResult", "StageRecord", "GateStatus", "PASS", "WARN", "FAIL", "NOT_EVALUATED", "NOT_APPLICABLE",
     # presets
     "PRESETS", "preset_config",
+    # the viewer
+    "build_viewer",
 ]
 
 # experimental (labs): see pinneapple_stability and docs/api_stability.md

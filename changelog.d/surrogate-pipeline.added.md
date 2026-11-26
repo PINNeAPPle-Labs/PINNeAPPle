@@ -49,3 +49,12 @@
   network (`model/physics/` checkpoint plus the recipe) — which is what makes `deploy()`, the checker's `predict.py`
   and `resume` in a new process work on a physics-only model. `predict_array(X)` is the `(N, n_in) -> (N, n_out)`
   surface those consumers use.
+- `pp.SurrogatePipeline.view()` (and `python -m pinneapple.pipeline view`) writes the run as one `file://` page and
+  opens it: the stages, the ten gates with their reasons, the figures, the surface the `geometry` gate measured (the
+  library's three.js viewer, inlined through `srcdoc`), and the model on a grid of its own space — drag on the map and
+  the outputs, the two cuts and the field follow. Every cell of the grid is a `predict_array` call, so the page cannot
+  show anything the checkpoint does not answer; a run with no model opens anyway and says why there is nothing to
+  sweep.
+- `examples/surrogate_pipeline/07_aircraft_and_crash.py`: the same shape outside the pipeline — a solver the library
+  ships is the reference, a surrogate is fitted to its fields, and both are drawn on the geometry with one colour
+  scale (the airliner through its vortex lattice, the pole impact through the explicit crash solver).

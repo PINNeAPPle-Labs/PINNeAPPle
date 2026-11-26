@@ -456,3 +456,65 @@ def test_the_run_can_narrate_its_stages(tmp_path, capsys):
     for stage in ("problem", "data", "preprocess", "model", "training", "export", "verification"):
         assert f"[{stage:<12}]" in printed
     assert "verification" in printed and "pass" in printed
+
+
+def test_the_run_opens_as_a_page_you_can_walk_inside(tmp_path):
+    """``pipeline.view()`` writes a page with the gates and a grid of the model's own space; the grid is the model.
+
+    The explorer is not a sketch of the model: every cell of the map is a query the page fetched from the trained
+    checkpoint through ``predict_array``, so a cell has to agree with the array the run answers with.
+    """
+    from pinneapple_pipeline.viewer import build_viewer
+
+    p = SurrogatePipeline.from_preset(
+        "burgers_in_viscosity", execution={"out_dir": str(tmp_path), "resume": False},
+        sampling={"design_sampling": {"method": "lhs", "n_samples": 12},
+                  "validation_sampling": {"test_fraction": 0.25, "val_fraction": 0.12, "shift": "auto"}, "seed": 1},
+        architecture={"family": "ridge", "candidates": []}, training={"budget_seconds": 0.5},
+        verification={"mode": "balanced", "fail_policy": "report"})
+    p.run()
+    page = build_viewer(p, open_browser=False, scene=False)
+    assert Path(page).is_file() and Path(page).name == "index.html"
+    data = json.loads((Path(page).parent / "viewer.json").read_text(encoding="utf-8"))
+    assert [g["gate"] for g in data["gates"]][:2] == ["problem", "geometry"]
+    assert data["figures"] and (Path(page).parent / data["figures"][0]["src"]).is_file()
+    explore = data["explore"]
+    assert explore["axes"] == ["nu"] and explore["shape"][0] > 5
+    import numpy as np
+
+    middle = explore["shape"][0] // 2
+    point = [explore["x"][middle]] + explore["anchor"][1:]
+    expected = np.asarray(p.predict_array(np.asarray([point]))).reshape(-1)
+    assert np.allclose(explore["values"][0][middle], expected, atol=1e-6)
+    assert explore["values"][0][middle] == [round(float(v), 6) for v in expected]
+
+
+def test_the_page_says_so_when_the_run_has_nothing_to_sweep(tmp_path):
+    """A physics-only run is explorable over its own coordinates, and a run without a model still shows its gates."""
+    from pinneapple_pipeline.viewer import payload
+
+    p = SurrogatePipeline.from_preset(
+        "burgers_physics_only", execution={"out_dir": str(tmp_path), "resume": False},
+        training={"epochs": 20, "n_collocation": 64}, export={"enabled": False, "formats": []},
+        verification={"fail_policy": "report"})
+    p.run()
+    data = payload(p, scene=False)
+    assert data["explore"]["axes"] == ["x", "t"]
+    assert data["explore"]["shape"][1] > 1 and len(data["explore"]["values"][0][0]) == 1
+    p.state.model_object = None                                  # a run that never trained
+    assert payload(p, scene=False)["explore"]["error"]
+
+
+def test_the_viewer_is_a_command_too(tmp_path, capsys):
+    from pinneapple_pipeline.cli import main
+
+    p = SurrogatePipeline.from_preset(
+        "burgers_in_viscosity", execution={"out_dir": str(tmp_path), "resume": False},
+        sampling={"design_sampling": {"method": "lhs", "n_samples": 12}},
+        architecture={"family": "ridge", "candidates": []}, training={"budget_seconds": 0.3},
+        verification={"fail_policy": "report"})
+    p.run()
+    run_dir = Path(p.state.out_dir)
+    assert main(["view", str(run_dir), "--no-open"]) == 0
+    assert (run_dir / "viewer" / "index.html").is_file()
+    assert str(run_dir / "viewer" / "index.html") in capsys.readouterr().out

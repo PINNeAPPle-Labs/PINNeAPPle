@@ -118,6 +118,28 @@ STUDY_ROLES: dict[str, StudyRole] = {r.id: r for r in [
                ("fit.parameter_uncertainty", "parameter uncertainties reported")), 10),
     StudyRole("verify", "Verification", "Verificação", "verification validation compare error",
               (("verify.rechecked", "result re-checked with the full model"),), 20),
+    # the suspension corner is one tool that does CAD, multibody and FEM in a loop (pinneapple_design.suspension): its
+    # steps are the loop and the refined re-check, not the generic chain, so the role names them
+    StudyRole("suspension", "Suspension corner: sizing, kinematics and compliance",
+              "Cantoneira da suspensão: dimensionamento, cinemática e conformidade",
+              "suspension wishbone hardpoints camber compliance arm structure",
+              (("suspension.closure", "the closed-loop solve closes over the travel sweep"),
+               ("suspension.camber_target", "the camber gain is inside the band the axle asks for"),
+               ("suspension.bump_steer", "the wheel does not steer as it travels"),
+               ("suspension.stress", "outer-fibre stress within yield over the safety factor"),
+               ("suspension.buckling", "the compressed member is far from its Euler load"),
+               ("suspension.fem_agrees", "the finite elements reproduce the beam formula"),
+               ("suspension.fem_within_allowable", "the finite-element peak is inside the allowable"),
+               ("suspension.compliance", "steer under a lateral force within its target"),
+               ("suspension.mass", "the corner is lighter than the nominal one")), 30,
+              "pinneapple_design.suspension.study:suspension_study"),
+    StudyRole("suspension_verify", "Refined re-check of the corner", "Re-checagem refinada da cantoneira",
+              "suspension verification refined mesh independence",
+              (("verify.reproducible", "the deterministic search returns the same design again"),
+               ("verify.mesh_independence", "the finite-element peak does not move when the mesh is refined"),
+               ("verify.fem_agrees", "the finite elements reproduce the beam formula"),
+               ("verify.closure", "the linkage still closes over the travel sweep")), 20,
+              "pinneapple_design.suspension.study:suspension_verify"),
 ]}
 
 STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
@@ -181,6 +203,14 @@ STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
               ("coupled", "multiphysics", "fluid-structure", "thermo-mechanical", "thermomechanical", "conjugate",
                "electro-thermal", "acoplad", "multifísic", "fluido-estrutura", "termomecânic", "eletrotérmic"),
               (("verify.interface", "interface conservation and coupling convergence"),)),
+    StudyKind("suspension_design", "Suspension design and sizing", "Projeto e dimensionamento de suspensão",
+              "the lightest suspension corner that meets its structural, kinematic and elastokinematic constraints",
+              ("suspension", "suspension_verify"),
+              ("suspension", "suspens", "wishbone", "double wishbone", "bandeja", "hardpoint", "camber", "cambagem",
+               "bump steer", "toe", "caster", "elastokinematic", "elastocinemátic", "elastocinematic", "bush",
+               "bushing", "arm structure"),
+              (("verify.rechecked", "the optimum re-checked with a refined finite-element mesh"),
+               ("verify.mesh_independence", "the stress does not move when the mesh is refined"))),
     StudyKind("data_analysis", "Experimental data analysis", "Análise de dados experimentais",
               "fit and test a model against experimental data",
               ("dataset", "analyze", "fit", "verify"),
@@ -193,7 +223,7 @@ STUDY_KINDS: dict[str, StudyKind] = {k.id: k for k in [
 
 # the more specific kind wins a tie (an inverse problem also "computes"; a twin also "monitors" a simulation)
 _PRIORITY = ("twin", "inverse", "control", "coupled", "uq_sensitivity", "forecast", "data_analysis",
-             "design_optimization", "surrogate", "simulation")
+             "suspension_design", "design_optimization", "surrogate", "simulation")
 
 
 @dataclass(frozen=True)

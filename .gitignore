@@ -32,6 +32,7 @@ run_results/
 pinneapple_mcp_work/
 pinneapple_files/
 examples/_out/
+examples/suspension_elastokinematics/_out/
 examples/_runs*/
 examples/results_chassis/
 examples/use_cases/*/outputs/

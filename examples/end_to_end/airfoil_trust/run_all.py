@@ -3,8 +3,8 @@
     python examples/end_to_end/airfoil_trust/run_all.py            # everything, resuming what is on disk
     python examples/end_to_end/airfoil_trust/run_all.py --fast     # skip the two campaigns (analysis only)
 
-Stage 1 is the expensive one: 64 OpenFOAM runs of a NACA section on the production mesh, plus the four meshes of the
-grid-convergence study. Stage 5 adds 68 more on the cambered family. Both are resumable -- a run already on disk is
+The campaigns are the expensive part: stage 1 solves 60 designs on the production mesh plus the four meshes of the
+grid-convergence study, and stage 5 adds 68 on the cambered family. Both are resumable -- a run already on disk is
 skipped -- so the script is safe to stop and restart. Everything after them is minutes.
 """
 from __future__ import annotations

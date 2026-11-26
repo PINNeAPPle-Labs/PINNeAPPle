@@ -25,8 +25,10 @@ held-out field, the geometry itself). Nothing here is cached: the numbers printe
     python examples/surrogate_pipeline/06_case_matrix.py --only fno      # one case
     python examples/surrogate_pipeline/06_case_matrix.py --fast          # smallest budgets
 
-The last three cases read ``_out/matrix/burgers_in_viscosity/data/dataset.npz``, the dataset of case 2: run with
-``--only`` after it has run once, or give them a path of their own.
+With ``--fast`` the PINN case gets 400 epochs instead of 1200 and its ``model`` gate fails at relative L2 ~0.35:
+that is the gate doing its job, and the full run brings it to 0.068. The last three cases read
+``_out/matrix/burgers_in_viscosity/data/dataset.npz``, the dataset of case 2: run with ``--only`` after it has run
+once, or give them a path of their own.
 """
 
 from __future__ import annotations

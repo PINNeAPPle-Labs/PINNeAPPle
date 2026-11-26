@@ -39,7 +39,8 @@ CASES: dict[str, dict] = {
                       "cast_bronze_blade": {"color": [0.66, 0.40, 0.21], "metallic": 1.0, "roughness": 0.42,
                                             "shader": "cast_metal"}},
         "render": {"background": "hdri:machine_shop_02", "hdri_strength": 2.0, "hdri_rotation": 120.0,
-                   "floor": True, "camera": "product"},
+                   "units": "m", "backdrop": "cyclorama", "grid": True, "scale_ref": "auto",
+                   "scale_bar": True, "dimensions": True, "camera": "product"},
     },
     "heatsink_aluminium": {
         "geometry": "pin_fin_heatsink",
@@ -48,7 +49,8 @@ CASES: dict[str, dict] = {
                       "heatsink_al": {"color": [0.80, 0.81, 0.83], "metallic": 1.0, "roughness": 0.26,
                                       "shader": "brushed_metal"}},
         "render": {"background": "hdri:studio_small_09", "hdri_strength": 1.2, "hdri_rotation": 60.0,
-                   "floor": True, "camera": "hero"},
+                   "units": "m", "backdrop": "cyclorama", "grid": True, "scale_ref": "auto",
+                   "scale_bar": True, "dimensions": True, "camera": "product"},
     },
     "airliner_library": {
         "geometry": "airliner_a320",
@@ -69,7 +71,8 @@ CASES: dict[str, dict] = {
                       "window": {"color": [0.02, 0.035, 0.05], "metallic": 0.0, "roughness": 0.03,
                                  "transmission": 0.9, "clearcoat": 1.0}},
         "render": {"background": "hdri:empty_warehouse_01", "hdri_strength": 1.2, "hdri_rotation": 30.0,
-                   "floor": True, "camera": "documentary"},
+                   "units": "m", "backdrop": "floor", "grid": True, "scale_ref": "human",
+                   "scale_bar": True, "dimensions": True, "camera": "documentary"},
     },
 }
 
@@ -94,15 +97,19 @@ def build(name: str):
 
 def picture_stats(path: str) -> dict:
     """What the picture looks like, as numbers: mean luminance and its spread, the share of the frame the subject
-    covers (pixels that differ from the top-left corner by more than a hair) and the edge energy (mean gradient, which
-    falls when micro-detail disappears)."""
+    covers and the edge energy (mean gradient, which falls when micro-detail disappears).
+
+    The subject is read against the background **of its own scanline** (the median luminance of that row), not against
+    one corner pixel: a render that stands on a floor or in a cove has a gradient across the frame -- a lit plane, a
+    wall curving up into it -- so a single corner says what one end of the picture looks like and nothing about the
+    other. What most of a row looks like is the set; the part standing in it is what differs."""
     import numpy as np
     from PIL import Image
 
     a = np.asarray(Image.open(path).convert("RGB"), float)
     lum = a @ np.array([0.2126, 0.7152, 0.0722])
-    bg = lum[0, 0]
-    coverage = float(np.mean(np.abs(lum - bg) > 6.0))
+    row_bg = np.median(lum, axis=1, keepdims=True)
+    coverage = float(np.mean(np.abs(lum - row_bg) > 6.0))
     gy, gx = np.gradient(lum)
     return {"mean": round(float(lum.mean()), 2), "std": round(float(lum.std()), 2),
             "coverage": round(coverage, 4), "edge_energy": round(float(np.hypot(gx, gy).mean()), 3),

@@ -89,6 +89,60 @@
    "verification_measurement": "def(verification, *, source='pinneapple_decision.verifiers')",
    "weather_horizon": "def(horizons, *, requested_lead=None, source='pinneapple_physics.weather.evaluate.horizons')"
   },
+  "pinneapple_analysis.trust.certificate": {
+   "Calibration": {
+    "class": [],
+    "methods": {
+     "rate": "(name)",
+     "table": "(names=None)",
+     "gates": "()",
+     "to_dict": "()"
+    }
+   },
+   "CaseResult": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "Certificate": {
+    "class": [],
+    "methods": {
+     "gates": "()",
+     "badge": "()",
+     "verdict": "()",
+     "certified": "()",
+     "failures": "()",
+     "unmeasured": "()",
+     "separating": "()",
+     "to_dict": "()",
+     "to_json": "(*, indent=2)",
+     "from_dict": "(document)",
+     "from_json": "(text)",
+     "write": "(path, *, indent=2)",
+     "summary": "()"
+    }
+   },
+   "Check": {
+    "class": [],
+    "methods": {
+     "passed": "()",
+     "gate": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Problem": {
+    "class": [],
+    "methods": {
+     "limit": "(law)",
+     "to_dict": "()"
+    }
+   },
+   "calibrate": "def(cases)",
+   "read_fields": "def(source, *, problem=None, time=None)",
+   "verify": "def(fields, problem, *, trust=None, time=None)"
+  },
   "pinneapple_analysis.trust.corrections": {
    "Correction": {
     "class": [],
@@ -2011,7 +2065,7 @@
      "NeuralOperatorBase"
     ],
     "methods": {
-     "__init__": "(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True, padding=0)",
+     "__init__": "(in_channels, out_channels, width=32, modes1=12, modes2=12, layers=4, *, use_grid=True, padding=0, lift_hidden=None, final_activation=True, decoder_hidden=None, decoder_activation='silu', spectral_init='normal')",
      "forward": "(u, *, y_true=None, return_loss=False)"
     }
    },

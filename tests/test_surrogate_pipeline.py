@@ -420,3 +420,18 @@ def test_a_dataset_from_a_file_is_trained_on(tmp_path):
     assert result.gate("dataset").status in (PASS, WARN)
     assert result.gate("simulation").status == PASS          # read from the recorded summary
     assert result.model is not None
+
+
+def test_the_run_can_narrate_its_stages(tmp_path, capsys):
+    """``run(verbose=True)`` prints one line per stage: what it did and how long it took."""
+    p = SurrogatePipeline.from_preset(
+        "burgers_in_viscosity", execution={"out_dir": str(tmp_path), "resume": False},
+        sampling={"design_sampling": {"method": "lhs", "n_samples": 12},
+                  "validation_sampling": {"test_fraction": 0.25, "val_fraction": 0.12, "shift": "auto"}, "seed": 1},
+        architecture={"family": "ridge", "candidates": []}, training={"budget_seconds": 0.5},
+        verification={"mode": "balanced", "fail_policy": "report"})
+    p.run(verbose=True)
+    printed = capsys.readouterr().out
+    for stage in ("problem", "data", "preprocess", "model", "training", "export", "verification"):
+        assert f"[{stage:<12}]" in printed
+    assert "verification" in printed and "pass" in printed

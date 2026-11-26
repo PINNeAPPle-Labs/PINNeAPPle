@@ -73,7 +73,11 @@ class ProblemStage(PipelineStage):
         return {"problem": str(path), "notes": notes}
 
     def verify(self, state, artifacts) -> list[str]:
-        return list(artifacts.get("notes") or [])
+        bundle = state.bundle
+        head = " · ".join([bundle.name, f"coords ({', '.join(bundle.coords)})", f"fields ({', '.join(bundle.fields)})",
+                           f"{len(getattr(bundle.problem, 'conditions', ()) or getattr(bundle.system, 'conditions', ()))} "
+                           "condition(s)"])
+        return [head] + [n for n in (artifacts.get("notes") or []) if "material" in n or "exact" in n][:2]
 
 
 # ------------------------------------------------------------------------------------------------------- data
@@ -805,12 +809,17 @@ class VerificationStage(PipelineStage):
         return out
 
     def verify(self, state, artifacts) -> list[str]:
-        notes = [f"{g.gate}={g.status}" for g in state.verification]
+        counts: dict[str, int] = {}
+        for g in state.verification:
+            counts[g.status] = counts.get(g.status, 0) + 1
+        head = " · ".join(f"{n} {s.lower().replace('_', ' ')}" for s, n in
+                          sorted(counts.items(), key=lambda kv: -kv[1]))
+        notes = [head] + [f"{g.gate}={g.status}" for g in state.verification]
         check = state.metrics.get("pinneapple_check") or {}
         if check.get("n_checks"):
-            notes.append(f"pinneapple check: {check['n_checks']} outcome(s), {check.get('n_failed', 0)} not holding")
+            notes.insert(1, f"pinneapple check: {check['n_checks']} outcome(s), {check.get('n_failed', 0)} failing")
         elif check.get("error"):
-            notes.append(f"pinneapple check did not run: {check['error']}")
+            notes.insert(1, f"pinneapple check did not run: {check['error']}")
         return notes
 
 

@@ -53,7 +53,8 @@ pipeline's aggregate is `pp.PipelineConfig` (also `pp.pipeline.SurrogateConfig`)
 | `export` | checkpoint, portable formats, figures and the model card | `export/model.pt`, `export/model.onnx`, `export/model_card.json`, `figures/` |
 | `verification` | runs the gates and writes the report | `report.md`, `report.json`, `state.json` |
 
-`run_until("data")` stops after the reference campaign; `resume()` continues without repeating it. `status()` and
+`run(verbose=True)` prints one line per stage as it finishes — what it did and how long it took — which is what
+makes a long run watchable from a terminal or a notebook. `run_until("data")` stops after the reference campaign; `resume()` continues without repeating it. `status()` and
 `history()` read `state.json`, so an interrupted run is inspectable from a later session.
 
 A physics-only run (`data.source: physics_only`) skips `data` and `preprocess` and records why:
@@ -184,6 +185,7 @@ python -m pinneapple.pipeline presets                      # the four ready conf
 python -m pinneapple.pipeline validate experiment.yaml     # configuration, problem and dependencies
 python -m pinneapple.pipeline plan experiment.yaml         # the stages and the cost
 python -m pinneapple.pipeline run experiment.yaml          # the whole thing, then the report
+python -m pinneapple.pipeline run experiment.yaml --verbose # ... printing each stage as it finishes
 python -m pinneapple.pipeline resume experiment.yaml
 python -m pinneapple.pipeline report experiment.yaml
 ```

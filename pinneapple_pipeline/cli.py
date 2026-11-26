@@ -26,6 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", default=None, help="override execution.out_dir")
     p.add_argument("--until", default=None, help="run up to and including this stage")
     p.add_argument("--json", action="store_true", help="print machine-readable output")
+    p.add_argument("--verbose", action="store_true", help="print each stage as it finishes")
     return p
 
 
@@ -73,7 +74,8 @@ def main(argv: list[str] | None = None) -> int:
         print(out.read_text(encoding="utf-8"))
         return 0
     try:
-        result = pipeline.resume() if args.command == "resume" else pipeline.run(until=args.until)
+        result = pipeline.run(until=args.until, verbose=args.verbose) if args.command == "run" else \
+            pipeline.resume(verbose=args.verbose)
     except PipelineFailed as exc:
         print(f"{exc}", file=sys.stderr)
         return 1

@@ -279,18 +279,21 @@ class SurrogatePipeline:
         state.stages = {s.name: StageRecord(s.name) for s in self.stages}
         return state
 
-    def run(self, *, until: str | None = None, strict: bool | None = None) -> PipelineResult:
+    def run(self, *, until: str | None = None, strict: bool | None = None,
+            verbose: bool = False) -> PipelineResult:
         """Run the pipeline (or up to and including ``until``); returns the :class:`PipelineResult`.
 
         Raises :class:`PipelineFailed` when a stage cannot finish and :class:`PipelineRejected` when a gate fails
         and ``verification.fail_policy`` is ``block`` (the result is attached to both, and written to disk either
         way). ``strict=True`` forces the rejection, ``strict=False`` never raises for a failed gate.
+        ``verbose=True`` prints one line per stage as it finishes — what it did, how long it took — which is what
+        makes a long run watchable from a terminal or a notebook.
         """
-        return self._run(until=until, strict=strict)
+        return self._run(until=until, strict=strict, verbose=verbose)
 
-    def run_until(self, stage: str) -> PipelineResult:
+    def run_until(self, stage: str, *, verbose: bool = False) -> PipelineResult:
         """Run every stage up to and including ``stage`` (``"data"`` trains nothing)."""
-        return self._run(until=stage, strict=False)
+        return self._run(until=stage, strict=False, verbose=verbose)
 
     def run_stage(self, stage: str) -> StageRecord:
         """Run exactly one stage, on the state the previous run left (or a fresh one)."""
@@ -303,11 +306,13 @@ class SurrogatePipeline:
         self.state = state
         return record
 
-    def resume(self) -> PipelineResult:
+    def resume(self, *, verbose: bool = False) -> PipelineResult:
         """Continue a run: finished stages whose artefacts are on disk are not repeated."""
-        return self._run(until=None, strict=None, resume=True)
+        return self._run(until=None, strict=None, resume=True, verbose=verbose)
 
-    def _run(self, *, until: str | None = None, strict: bool | None = None, resume: bool = False) -> PipelineResult:
+    def _run(self, *, until: str | None = None, strict: bool | None = None, resume: bool = False,
+             verbose: bool = False) -> PipelineResult:
+        self._verbose = bool(verbose)
         self.validate_config()
         state = self._prepare_state(resume=resume or self.config.execution.resume)
         if state.bundle is None:
@@ -410,6 +415,7 @@ class SurrogatePipeline:
         skip = _skip_reason(stage, state)
         if skip:
             record.status, record.notes = "skipped", [skip]
+            self._say(f"[{stage.name:<12}] {'skipped':>7}  {skip}", state)
             return
         problems = stage.validate(state)
         if problems:
@@ -422,12 +428,21 @@ class SurrogatePipeline:
             record.artifacts = {k: v for k, v in artifacts.items() if _recordable(v)}
             record.notes += [n for n in (stage.verify(state, artifacts) or []) if isinstance(n, str)]
             record.status = "done"
+            secs = f"{record.seconds:6.1f} s"
+            detail = "; ".join(record.notes[:2]) or _summarise(record.artifacts)
+            self._say(f"[{stage.name:<12}] {secs}  {detail}", state)
         except Exception as exc:
             record.seconds, record.status, record.error = time.perf_counter() - t0, "failed", \
                 f"{type(exc).__name__}: {exc}"
+            self._say(f"[{stage.name:<12}] {'failed':>8}  {record.error}", state)
             state.save()
             raise PipelineFailed(stage.name, record.error, state) from exc
 
+    def _say(self, line: str, state: RunState) -> None:
+        """The progress line of a stage, when the run was asked to talk (``run(verbose=True)``)."""
+        if getattr(self, "_verbose", False):
+            import sys
+            print(line, file=sys.stdout, flush=True)
     def _apply_policy(self, result: PipelineResult, *, strict: bool | None = None) -> bool:
         """Set the run's status from the gates and decide whether this run must not be used."""
         cfg = self.config.verification
@@ -587,6 +602,15 @@ def predict_array_with(state, X: Any) -> Any:
             raise ValueError(f"the model takes {len(coords)} coordinate(s) {coords}, got {X.shape[1]} column(s)")
         Y = np.asarray(model.predict(X), dtype=float)
     return Y.reshape(len(X), -1)
+
+
+def _summarise(artifacts: dict[str, Any]) -> str:
+    """A stage's artefacts as one line, for the verbose log (the notes, when a stage has any, say more)."""
+    from .results import _short
+
+    parts = [f"{k}={_short(v)}" for k, v in artifacts.items()
+             if isinstance(v, (int, float, str)) and str(v) and not k.startswith("figure_")]
+    return " · ".join(parts[:3]) or "done"
 
 
 _DOES = {

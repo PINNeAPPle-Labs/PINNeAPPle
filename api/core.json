@@ -37,27 +37,57 @@
    "DriftMonitor": "from .drift import DriftMonitor",
    "DriftReport": "from .drift import DriftReport",
    "DriftThresholds": "from .drift import DriftThresholds",
+   "FADING": "from .record import FADING",
    "FieldTrustCard": "from .field_card import FieldTrustCard",
    "FlowSpec": "from .flow_card import FlowSpec",
+   "GOOD": "from .record import GOOD",
+   "Gate": "from .record import Gate",
+   "Horizon": "from .record import Horizon",
+   "Measurement": "from .record import Measurement",
+   "NO_SKILL": "from .record import NO_SKILL",
+   "Provenance": "from .record import Provenance",
+   "Residual": "from .record import Residual",
    "ResidualMismatch": "from .signed_report import ResidualMismatch",
    "ResidualNotComputable": "from .signed_report import ResidualNotComputable",
    "ResidualSpec": "from .signed_report import ResidualSpec",
    "RetrainDecision": "from .drift import RetrainDecision",
+   "SCHEMA": "from .record import SCHEMA",
    "SignatureFailure": "from .signed_report import SignatureFailure",
    "SignedReportError": "from .signed_report import SignedReportError",
    "SignedTrustReport": "from .signed_report import SignedTrustReport",
+   "Trust": "from .record import Trust",
    "TrustGate": "from .trust_gate import TrustGate",
    "TrustReport": "from .trust_report import TrustReport",
    "TrustReportVerification": "from .signed_report import TrustReportVerification",
    "TrustScore": "from .trust_gate import TrustScore",
+   "TrustValue": "from .record import TrustValue",
+   "Uncertainty": "from .record import Uncertainty",
    "annotations": "from __future__ import annotations",
+   "calibration_uncertainty": "from .adapters import calibration_uncertainty",
    "correction_checks": "from .corrections import correction_checks",
+   "domain_from_gate": "from .adapters import domain_from_gate",
    "energy_balance": "from .flow_card import energy_balance",
    "field_checks": "from .field_card import field_checks",
+   "fingerprint_query": "from .adapters import fingerprint_query",
    "flow_checks": "from .flow_card import flow_checks",
+   "from_ensemble": "from .adapters import from_ensemble",
    "mass_balance": "from .flow_card import mass_balance",
+   "rollout_horizon": "from .adapters import rollout_horizon",
+   "trust": "from .adapters import trust",
    "trust_card": "from .field_card import trust_card",
+   "verification_measurement": "from .adapters import verification_measurement",
+   "weather_horizon": "from .adapters import weather_horizon",
    "with_corrections": "from .corrections import with_corrections"
+  },
+  "pinneapple_analysis.trust.adapters": {
+   "calibration_uncertainty": "def(y_pred, y_true, y_std, *, level=None, alpha=None, source='pinneapple_analysis.uncertainty.calibration.CalibrationMetrics')",
+   "domain_from_gate": "def(gate, query, *, threshold=1.0)",
+   "fingerprint_query": "def(query)",
+   "from_ensemble": "def(ensemble, query=None, *, reference=None, gate=None, domain_points=None, problem=None, horizon=None, requested_lead=None)",
+   "rollout_horizon": "def(divergence, *, source='pinneapple_analysis.validation.rollout.divergence_time')",
+   "trust": "def(model, data=None, problem=None, **options)",
+   "verification_measurement": "def(verification, *, source='pinneapple_decision.verifiers')",
+   "weather_horizon": "def(horizons, *, requested_lead=None, source='pinneapple_physics.weather.evaluate.horizons')"
   },
   "pinneapple_analysis.trust.corrections": {
    "Correction": {
@@ -161,6 +191,88 @@
    "energy_balance": "def(grid, temperature, *, name='T', axis='x', spec=None, **kw)",
    "flow_checks": "def(grid, fields, *, spec)",
    "mass_balance": "def(grid, velocity, *, spec=None, **kw)"
+  },
+  "pinneapple_analysis.trust.record": {
+   "Gate": {
+    "class": [],
+    "methods": {
+     "to_dict": "()"
+    }
+   },
+   "Horizon": {
+    "class": [],
+    "methods": {
+     "not_measured": "(reason, *, source='', unit='')",
+     "covers": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Measurement": {
+    "class": [],
+    "methods": {
+     "not_measured": "(reason, *, source='')",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Provenance": {
+    "class": [],
+    "methods": {
+     "not_recorded": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Residual": {
+    "class": [],
+    "methods": {
+     "name": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Trust": {
+    "class": [],
+    "methods": {
+     "empty": "(*, kind, model='', reason='no adapter was given for this prediction kind', library=None, created=None, notes=())",
+     "with_": "(**changes)",
+     "residual": "(law, expert='')",
+     "residuals_by_law": "()",
+     "gates": "()",
+     "badge": "()",
+     "badge_text": "()",
+     "badge_reason": "()",
+     "to_dict": "()",
+     "to_json": "(*, indent=2)",
+     "from_dict": "(document)",
+     "from_json": "(text)",
+     "write": "(path, *, indent=2)"
+    }
+   },
+   "TrustValue": {
+    "class": [],
+    "methods": {
+     "measured": "(value, *, source, method='', unit='', reference=None, reference_source='', where='')",
+     "not_measured": "(reason, *, source='', method='')",
+     "is_measured": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "Uncertainty": {
+    "class": [],
+    "methods": {
+     "not_measured": "(reason, *, source='')",
+     "calibrated": "()",
+     "to_dict": "()",
+     "from_dict": "(document)"
+    }
+   },
+   "fingerprint_array": "def(array)",
+   "fingerprint_text": "def(text)",
+   "library_version": "def()",
+   "utc_now": "def()"
   },
   "pinneapple_analysis.trust.signed_report": {
    "ArtifactMismatch": {

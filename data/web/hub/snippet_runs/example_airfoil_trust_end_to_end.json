@@ -1,0 +1,12 @@
+{
+ "code_hash": "26c6bd676adc9cbf",
+ "figures": [],
+ "id": "example:airfoil_trust_end_to_end",
+ "ok": true,
+ "recorded": "2026-11-26",
+ "seconds": 0.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Trust beyond accuracy: an evidence-based validation study of a NACA surrogate | fluids | not curated\nCL_rel_l2_held_out 0.048358565675710175 1\nCL_rmse_held_out 0.021317954036293153 1\nCD_rel_l2_held_out 0.08131565293272443 1\nCD_rmse_held_out 0.00092744222474723 1\nfield_rel_l2_mean 0.14819752094812866 1",
+ "timed_out": false
+}

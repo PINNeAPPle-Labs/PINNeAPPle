@@ -6,6 +6,9 @@ index (Roache 1994; the procedure of Celik et al. 2008, J. Fluids Eng. 130, 0780
     study["CD"]["gci_fine"], study["CD"]["extrapolated"], study["CD"]["p"]
 
 The representative cell size of each mesh is h = N^(-1/3) relative to the finest (only size ratios enter the GCI).
+Pass ``sizes`` when the family is refined anisotropically -- one cell thick extruded plate meshes are refined in the
+plane only, so the representative size there is N^(-1/2), and using the isotropic convention would overstate the
+family's refinement and understate the observed order.
 With four or more meshes the finest three give the GCI and each consecutive triplet is reported, to show whether the
 family is in the asymptotic range; a triplet that converges oscillatorily is flagged, not forced through the
 formula. ``choose_mesh`` picks the cheapest mesh whose error against the extrapolated value is within a tolerance.
@@ -20,14 +23,29 @@ import numpy as np
 __all__ = ["grid_convergence", "choose_mesh"]
 
 
-def grid_convergence(levels: Sequence[Mapping[str, Any]], quantities: Sequence[str]) -> dict[str, Any]:
-    """``levels``: ``[{"name", "cells", "values": {q: value}, "cost_s"}, ...]`` from coarse to fine (at least 3)."""
+def grid_convergence(levels: Sequence[Mapping[str, Any]], quantities: Sequence[str], *,
+                     sizes: Sequence[float] | None = None) -> dict[str, Any]:
+    """``levels``: ``[{"name", "cells", "values": {q: value}, "cost_s"}, ...]`` from coarse to fine (at least 3).
+
+    ``sizes``: the representative cell size of each level, in any consistent unit. Defaults to ``cells**(-1/3)``,
+    the isotropic refinement convention; supply it for a family that is refined in fewer than three directions.
+    """
     from pinneapple_design.fitmesh.report import gci
     lv = sorted(levels, key=lambda d: d["cells"])
     if len(lv) < 3:
         raise ValueError("a grid-convergence study needs at least three meshes")
     N = np.array([float(d["cells"]) for d in lv])
-    h = (N / N[-1]) ** (-1.0 / 3.0)
+    if sizes is None:
+        h = (N / N[-1]) ** (-1.0 / 3.0)
+    else:
+        s = np.array([float(v) for v in sizes], float)
+        if len(s) != len(lv):
+            raise ValueError(f"{len(s)} sizes for {len(lv)} meshes")
+        if np.any(s <= 0):
+            raise ValueError("sizes must be positive")
+        h = s / s.max()
+        if np.any(np.diff(h) >= 0):
+            raise ValueError("sizes must decrease as cells increase")
     out: dict[str, Any] = {"meshes": [{"name": d["name"], "cells": int(d["cells"]), "h_rel": float(hh),
                                        "cost_s": float(d.get("cost_s", np.nan))} for d, hh in zip(lv, h, strict=False)]}
     for q in quantities:

@@ -1,0 +1,2815 @@
+{
+ "n_validation": 16,
+ "n_evidence": 28,
+ "per_design": [
+  {
+   "gate_accuracy": {
+    "surrogate": 0.38885733429582603,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.02124877753239605,
+    "reference": 0.021275913594795953,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.5739049047933749,
+    "reference": 0.6019244569862208,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.024617786917286968,
+    "reference": 0.023980005171080322,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.9136929777595911,
+    "reference": 1.0283329140815365,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.05532199225915162,
+    "reference": 0.05105868751131374,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3211398041180966,
+    "surrogate_predicted": -0.08772339216090289,
+    "reference_integrated": 0.31462810988605305,
+    "gap": 0.4088631962789995,
+    "reference_gap": 0.39831449810326003,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.4450380906727863,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.3326765779188658,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02124877753239605,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.020790632853141266,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.6250973624292184,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.5227124471575312,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va000",
+   "split": "validation",
+   "params": {
+    "alpha_deg": -0.7366947524905734,
+    "speed": 29.467686181799397,
+    "thickness": 0.10462985704153607,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.407900942297115,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.02161193932138052,
+    "reference": 0.02201407191782843,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.7773320303670277,
+    "reference": 0.9436295484789012,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.025140336578527267,
+    "reference": 0.023660150530875158,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.8968854297267984,
+    "reference": 0.8196729040350674,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.08186372689144242,
+    "reference": 0.04807190972468559,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3257796451584404,
+    "surrogate_predicted": -0.21758354250184894,
+    "reference_integrated": 0.2792465043777105,
+    "gap": 0.5433631876602893,
+    "reference_gap": 0.46574595351736137,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.6355063174149462,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.18029556717928377,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02161193932138052,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02008209371713053,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.7741010796972296,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.7805629810368259,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va001",
+   "split": "validation",
+   "params": {
+    "alpha_deg": -1.684846706216251,
+    "speed": 17.234335210318466,
+    "thickness": 0.09129655653091522,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.1316660110749255,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.024624288318861254,
+    "reference": 0.0218491246703036,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.7110776356253351,
+    "reference": 0.7081381272101541,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.027337605058238092,
+    "reference": 0.025256066365263594,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.9443875710694303,
+    "reference": 1.0526175222188006,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.061451053082513495,
+    "reference": 0.06395075048421112,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.37036880780398523,
+    "surrogate_predicted": -0.256213380432455,
+    "reference_integrated": 0.37931417863215255,
+    "gap": 0.6265821882364402,
+    "reference_gap": 0.647101475903973,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.19687146223037638,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.06646055991947464,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.024624288318861254,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02151894870559785,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.5225859924613881,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8995692787892821,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va002",
+   "split": "validation",
+   "params": {
+    "alpha_deg": -2.3536239447539646,
+    "speed": 26.338508560105137,
+    "thickness": 0.12066475658784948,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.13572856151973023,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.021738113995838897,
+    "reference": 0.022468458099170235,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.0876014615149998,
+    "reference": 1.0664734270474328,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02605629428127944,
+    "reference": 0.026740820649606457,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.9143907410621578,
+    "reference": 1.1139884775289104,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07137989047938895,
+    "reference": 0.07295117603655661,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.4711741122824956,
+    "surrogate_predicted": 0.19388386791098933,
+    "reference_integrated": 0.45345987154618406,
+    "gap": 0.2772902443715063,
+    "reference_gap": 0.2602972950000494,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.07212746093369402,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.19932966210576647,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02120068835056645,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.021738113995838897,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.2059358301587793,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.9692670928712203,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va003",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 1.748492014534369,
+    "speed": 19.178834751594966,
+    "thickness": 0.14742187111538158,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.1976955641002769,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.022155002328674234,
+    "reference": 0.021052071802683606,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.0133258209589253,
+    "reference": 1.025740725770389,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02548335369338689,
+    "reference": 0.025009331119686288,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.8624274114120812,
+    "reference": 1.0762959461515862,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07051224204524689,
+    "reference": 0.06066523774536625,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3630668083850067,
+    "surrogate_predicted": 0.29573320938749725,
+    "reference_integrated": 0.33914140175492447,
+    "gap": 0.06733359899750946,
+    "reference_gap": 0.03614834654794191,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.10953843575329228,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.28585269244726147,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.019299500944103477,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.022155002328674234,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.173902772070747,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8527488698471035,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va004",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 2.7330278878563234,
+    "speed": 17.768798996500767,
+    "thickness": 0.10621499260693036,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.16115718141822255,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.01867121192998278,
+    "reference": 0.019487694746513205,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.6553208134572439,
+    "reference": 0.6698857144857568,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.024016270273121705,
+    "reference": 0.02806500692752383,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.8398327518292962,
+    "reference": 0.8650342334104169,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.10800940916526389,
+    "reference": 0.10931186495329366,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.37462919189924604,
+    "surrogate_predicted": 0.6218492370975476,
+    "reference_integrated": 0.3824300792548194,
+    "gap": 0.24722004519830154,
+    "reference_gap": 0.2719461054409412,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.15433498427923914,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.167979378557206,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.015376305174559629,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.01867121192998278,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8739994317167772,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": true,
+      "value": 0.43664219519771075,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va005",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 6.001547510780657,
+    "speed": 22.288243883145967,
+    "thickness": 0.08100805833464933,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.43167682485511855,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.021987851965349466,
+    "reference": 0.026680009976290376,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.6676863438423943,
+    "reference": 1.7000777842396366,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02392576099751872,
+    "reference": 0.02993076716531068,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.9326234708993384,
+    "reference": 1.1757776726157305,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.08426737470658137,
+    "reference": 0.08573747069896472,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.41713423770883395,
+    "surrogate_predicted": 0.4743370083662846,
+    "reference_integrated": 0.409364816407046,
+    "gap": 0.05720277065745066,
+    "reference_gap": 0.0829222793360962,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.19408241405693935,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.6692712356532977,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.016373400714854564,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.021987851965349466,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 2.329153351350735,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.0062193363340537,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va006",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 4.4544059966942875,
+    "speed": 11.125511926154864,
+    "thickness": 0.11874245572754391,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.09750636213699185,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.022429337334271403,
+    "reference": 0.023192356098822406,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.7823056991823781,
+    "reference": 0.8639527774387871,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.026944718958278005,
+    "reference": 0.02667353504540702,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.8594155319425651,
+    "reference": 1.088177392578037,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.08636243002225791,
+    "reference": 0.08642288730185002,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.5024754130128298,
+    "surrogate_predicted": 0.48559247780601666,
+    "reference_integrated": 0.4745850870664842,
+    "gap": 0.016882935206813166,
+    "reference_gap": 0.003688135757257349,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": true,
+      "value": 0.03196973896407097,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.1630429853099127,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.020412758338242656,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.022429337334271403,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.0772691470556526,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": true,
+      "value": 0.4873422513091037,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va007",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 4.193758010270731,
+    "speed": 23.795587233241417,
+    "thickness": 0.14419923706675586,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.6967519816611856,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.022282734611236317,
+    "reference": 0.021068776140831028,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.6117771216905195,
+    "reference": 0.7089241094059122,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.023727635147063865,
+    "reference": 0.022914405471645978,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.139448816054505,
+    "reference": 0.8170272281053087,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.06428111940018602,
+    "reference": 0.04309909116442809,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3453678903254189,
+    "surrogate_predicted": 0.11986958659078698,
+    "reference_integrated": 0.26153903996147876,
+    "gap": 0.22549830373463195,
+    "reference_gap": 0.18460087448392265,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.6855234891231503,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.7079804741992209,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.018432345334478507,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.022282734611236317,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8013999323069468,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": true,
+      "value": 0.4221543110740922,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va008",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 0.713680624777778,
+    "speed": 23.353162171620323,
+    "thickness": 0.0877992029911272,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.49292946777715707,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.02240490482708856,
+    "reference": 0.023593469622585846,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.7547204435770385,
+    "reference": 1.3882385222454219,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.026291481905609898,
+    "reference": 0.027385756112735412,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.4346345769422164,
+    "reference": 1.137547194995823,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07841551705811839,
+    "reference": 0.08563883993875289,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.418847350335656,
+    "surrogate_predicted": -0.3808417956617213,
+    "reference_integrated": 0.506551799147169,
+    "gap": 0.7996891459973774,
+    "reference_gap": 0.9058064883441765,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.6326751590930345,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.3531837764612797,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02240490482708856,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.020552255643028972,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.0945686339500251,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 2.414872253204052,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va009",
+   "split": "validation",
+   "params": {
+    "alpha_deg": -3.5517516382732195,
+    "speed": 14.751434177330795,
+    "thickness": 0.15849053896357423,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.24208414869300893,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.018248655611465485,
+    "reference": 0.019407001812968498,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.5486446461052668,
+    "reference": 1.4534245787010394,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.028829826695862756,
+    "reference": 0.027059113128525786,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.3194697571523686,
+    "reference": 1.0522863868466608,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.14381436970441702,
+    "reference": 0.13503651038800307,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.5106723112282007,
+    "surrogate_predicted": 0.8114119541606819,
+    "reference_integrated": 0.5719636029435522,
+    "gap": 0.30073964293248123,
+    "reference_gap": 0.2406708990938542,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.17975018632244485,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.30441811106357297,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.018248655611465485,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.01642161449720201,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 2.3963743921765417,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.7009149000339919,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va010",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 7.3942016022590025,
+    "speed": 12.855705310109663,
+    "thickness": 0.1504053865329475,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.048474735176688946,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.02123551889175735,
+    "reference": 0.021887267351625293,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.8058415873371618,
+    "reference": 0.8170547595735218,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.024535258654612525,
+    "reference": 0.025734083040144413,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.8534016948900215,
+    "reference": 1.034584026994981,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.09674881706104974,
+    "reference": 0.09695479850388321,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.42716691033402526,
+    "surrogate_predicted": 0.5765480255534179,
+    "reference_integrated": 0.4153771317627225,
+    "gap": 0.14938111521939262,
+    "reference_gap": 0.15366687146919777,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": true,
+      "value": 0.03887537685213323,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.05807409350124467,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.017294742855695818,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02123551889175735,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.0619821923245008,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.549700982349823,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va011",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 5.178383956231897,
+    "speed": 20.31877952573655,
+    "thickness": 0.11477832783030509,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.12099600528562796,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.023025736781223837,
+    "reference": 0.0236720519661344,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.6758611032702205,
+    "reference": 0.6975110702654779,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02858407226414922,
+    "reference": 0.02768888255412803,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.0533186028263402,
+    "reference": 1.086289476466249,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07684300255204167,
+    "reference": 0.07483811062705738,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.4470750382623912,
+    "surrogate_predicted": 0.335552675075303,
+    "reference_integrated": 0.428965377843504,
+    "gap": 0.11152236318708819,
+    "reference_gap": 0.05624477333726957,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.09488357555096825,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.14710843502028767,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.023025736781223837,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.022943038643399596,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.7606203733638917,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.5911018331765494,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va012",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 3.268024115612084,
+    "speed": 28.635330947264617,
+    "thickness": 0.1329889236716614,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.25851912861601667,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.017879143421023105,
+    "reference": 0.02100799700109832,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.0974187959241526,
+    "reference": 1.1872598148011266,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.026703816978251086,
+    "reference": 0.02998413690102774,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.1326394057710074,
+    "reference": 0.9860823109872222,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.12763391480909847,
+    "reference": 0.12810484911190315,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.48760061597338317,
+    "surrogate_predicted": 0.7601221148284898,
+    "reference_integrated": 0.5013349181237395,
+    "gap": 0.2725214988551066,
+    "reference_gap": 0.2717090298139164,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.1471277936637836,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.3699104635682498,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.01761394124588982,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.017879143421023105,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.6633444787890808,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.5314931130592244,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va013",
+   "split": "validation",
+   "params": {
+    "alpha_deg": 7.030053419653473,
+    "speed": 15.605701977026364,
+    "thickness": 0.12739960105100645,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.23417715366474623,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.02133800604217341,
+    "reference": 0.019685201340417076,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.9778303288174484,
+    "reference": 1.740128482456917,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02565174848938522,
+    "reference": 0.023106009103508848,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.0253220065459774,
+    "reference": 1.0935938820204651,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07660868743637851,
+    "reference": 0.0664455361972701,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.4064250966628088,
+    "surrogate_predicted": -0.015988357382228358,
+    "reference_integrated": 0.4192391124894925,
+    "gap": 0.42241345404503716,
+    "reference_gap": 0.43293348582839525,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.23557282915177294,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.23278147817771952,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02133800604217341,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.020991271613023155,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.8851221887994805,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 2.0705384688354163,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va014",
+   "split": "validation",
+   "params": {
+    "alpha_deg": -0.0937836749014016,
+    "speed": 11.567680002245433,
+    "thickness": 0.13771519825047743,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.29072967320941606,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.021099469163922076,
+    "reference": 0.020829003401940247,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.657916641867389,
+    "reference": 0.6665723690328854,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02362967147088907,
+    "reference": 0.023634539998191467,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.8037173785092002,
+    "reference": 0.9816892816130213,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.056139139110602206,
+    "reference": 0.05709615702010563,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3015393854238968,
+    "surrogate_predicted": -0.2702815456623091,
+    "reference_integrated": 0.30918415770447316,
+    "gap": 0.5718209310862059,
+    "reference_gap": 0.6061448916022287,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.4404836895020023,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.14097565691682987,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.021099469163922076,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.01975485160147072,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.7765376011360515,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.5392956825987263,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "va015",
+   "split": "validation",
+   "params": {
+    "alpha_deg": -2.6472061477473905,
+    "speed": 25.62742052740333,
+    "thickness": 0.09656567772378699,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.46130798688292907,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.020930737789361047,
+    "reference": 0.01999160799038164,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.7982812987699912,
+    "reference": 1.0427952865280208,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02464908787049465,
+    "reference": 0.021486639098173308,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.906858787958478,
+    "reference": 0.8522959834567475,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.09040459242241394,
+    "reference": 0.04401474309346423,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3328215093357522,
+    "surrogate_predicted": -0.13041245813636132,
+    "reference_integrated": 0.26643178260890216,
+    "gap": 0.46323396747211354,
+    "reference_gap": 0.35684332023658294,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.6496860570551096,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.27292991671074857,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.020930737789361047,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02001997944567652,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8260304424887399,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.7705321550512424,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca000",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": -0.8335053735873492,
+    "speed": 16.178372542583595,
+    "thickness": 0.08902184461762416,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.07586530773795505,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.023840897080134867,
+    "reference": 0.023531872190562585,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.7005264234543845,
+    "reference": 0.6980302994094132,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.029488952545155725,
+    "reference": 0.02733903698418727,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.013588211340523,
+    "reference": 1.039224448610187,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.08799175298767944,
+    "reference": 0.08758457472697656,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.5062344202935621,
+    "surrogate_predicted": 0.4577780451639503,
+    "reference_integrated": 0.4747592294487393,
+    "gap": 0.04845637512961182,
+    "reference_gap": 0.008813117289415362,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": true,
+      "value": 0.04178861217560197,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.10994200330030814,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.022534440334607837,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.023840897080134867,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.924247204911159,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": true,
+      "value": 0.47680564199761016,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca001",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 4.235319301140425,
+    "speed": 27.177332090948035,
+    "thickness": 0.14294106652933794,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.7504300507377529,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.018016739587749814,
+    "reference": 0.023999288941669635,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.0638419453697359,
+    "reference": 1.203160345411633,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.027315809602253542,
+    "reference": 0.025865538091863087,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.4111461887323422,
+    "reference": 0.9193980113845409,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07948326416806474,
+    "reference": 0.0719777641687528,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3119641105970367,
+    "surrogate_predicted": -0.4462533229399783,
+    "reference_integrated": 0.3204805337603347,
+    "gap": 0.7582174335370151,
+    "reference_gap": 0.7333694681343995,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 1.105115394105799,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.3957447073697069,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.017035514990943183,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.018016739587749814,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8215359109463779,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.306147979793094,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca002",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": -3.745446755127306,
+    "speed": 13.939991053194403,
+    "thickness": 0.0937458762274666,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.07513721450056729,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.0209038004013036,
+    "reference": 0.022093878283662816,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.9499179390364645,
+    "reference": 0.9350958151637279,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.024757061248688365,
+    "reference": 0.024271511591992125,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.8354738085594743,
+    "reference": 1.0985123481036254,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.06440513256564023,
+    "reference": 0.06172769020633375,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.38194477533098703,
+    "surrogate_predicted": -0.21175929947637995,
+    "reference_integrated": 0.37267211073415535,
+    "gap": 0.593704074807367,
+    "reference_gap": 0.5870670607815369,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.09264098061169766,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.057633448389436924,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.0209038004013036,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.020493539704405466,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8649755630558721,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.0348603150170568,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca003",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": -1.8913132113106026,
+    "speed": 20.13844592999153,
+    "thickness": 0.12070734251564862,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.1685300093646904,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.01939678762476033,
+    "reference": 0.022275771729870338,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.5627767472775451,
+    "reference": 1.5290805809076575,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.028610600940343983,
+    "reference": 0.026168829285459615,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.3024626585803394,
+    "reference": 1.1361717316115418,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.12402106897598597,
+    "reference": 0.11740824043358583,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.4961084801550194,
+    "surrogate_predicted": 0.6797714683108218,
+    "reference_integrated": 0.5610922015723108,
+    "gap": 0.1836629881558024,
+    "reference_gap": 0.12620593494140486,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.15619374291384278,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.18086627581553802,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.01939678762476033,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.01923992517363659,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 2.5175319245966277,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.6080215699584626,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca004",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 6.211568543959151,
+    "speed": 12.390325978512722,
+    "thickness": 0.1596635940698044,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.7382995946180939,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.023511586609734198,
+    "reference": 0.021101037846388157,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.5699074809326472,
+    "reference": 0.59587938106719,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02443467811195393,
+    "reference": 0.02322123663266181,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.137470818591491,
+    "reference": 0.8887133601322068,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.042035868000148725,
+    "reference": 0.04174100304950603,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3241640904889008,
+    "surrogate_predicted": 0.10735818135882738,
+    "reference_integrated": 0.2524393038300268,
+    "gap": 0.21680590913007344,
+    "reference_gap": 0.19635291000483973,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.7496867753561705,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.7269124138800174,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.019969797591003067,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.023511586609734198,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.7857372507252677,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": true,
+      "value": 0.3540777111400267,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca005",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 0.5304250055127131,
+    "speed": 25.83271008025731,
+    "thickness": 0.08549376621303664,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.14933399037542583,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.021999650206366454,
+    "reference": 0.022687454779442402,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.1831319028940261,
+    "reference": 1.199636348054734,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02659953888482244,
+    "reference": 0.027183432771949068,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.9891892253674789,
+    "reference": 1.0856370008265508,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.10296718151299977,
+    "reference": 0.1034916077232555,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.49591213349902075,
+    "surrogate_predicted": 0.5844601772114848,
+    "reference_integrated": 0.5226966078097642,
+    "gap": 0.08854804371246405,
+    "reference_gap": 0.07208823414036047,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.10738826909026686,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.19127971166058483,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.019133131493157728,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.021999650206366454,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.823153870869697,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.543109934918355,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca006",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 5.294675883078586,
+    "speed": 16.86194608756116,
+    "thickness": 0.1528240449532482,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.31342036751375874,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.022201898153056898,
+    "reference": 0.020878990368704123,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.5625436234766688,
+    "reference": 0.6400873406802157,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02475929481065213,
+    "reference": 0.024577619334471404,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.7785989258933191,
+    "reference": 1.0411740832161436,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.06384164653448601,
+    "reference": 0.061040394647968,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3442629356172355,
+    "surrogate_predicted": -0.2782791588320491,
+    "reference_integrated": 0.34951605544319303,
+    "gap": 0.6225420944492845,
+    "reference_gap": 0.6382845949943152,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.46496585633359594,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.16187487869392153,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.022201898153056898,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.019244201869572992,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": true,
+      "value": 0.4751522273521727,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.6499350196011648,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca007",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": -2.5077680428066684,
+    "speed": 29.00067359236853,
+    "thickness": 0.1106178531670778,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.1476626196988324,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.017917532801140112,
+    "reference": 0.017475386505423254,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.7549278131999104,
+    "reference": 0.8217757789976518,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02574694033283215,
+    "reference": 0.025588057845188448,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.113874851658407,
+    "reference": 0.9679598708578289,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.13328462934801216,
+    "reference": 0.13396211521972987,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.5210770027248893,
+    "surrogate_predicted": 0.8291481422513517,
+    "reference_integrated": 0.519279798353418,
+    "gap": 0.30807113952646237,
+    "reference_gap": 0.2946018296440883,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.05900028652872498,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.2363249528689398,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.017917532801140112,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.016709939139197154,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.118218143101943,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": true,
+      "value": 0.39163748329787795,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca008",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 7.328410393629831,
+    "speed": 22.015995328410632,
+    "thickness": 0.13275212089949648,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.1779491697947399,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.021104370847993815,
+    "reference": 0.019981854089400543,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 1.0014402401366327,
+    "reference": 0.9772560697280839,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.024786598181574856,
+    "reference": 0.02285655214489995,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.9461368674439741,
+    "reference": 0.9365241486077975,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07018821963493987,
+    "reference": 0.05254571885886874,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3351590131900599,
+    "surrogate_predicted": 0.12523947625615284,
+    "reference_integrated": 0.32019249623011203,
+    "gap": 0.20991953693390708,
+    "reference_gap": 0.1925852049707604,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.15178684717701232,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.20411149241246748,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.02051787352299374,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.021104370847993815,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.0220270483387235,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.980853431934542,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca009",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 1.1843699702552195,
+    "speed": 18.773836332234936,
+    "thickness": 0.10558408038581146,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.1796767212644461,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.021180454592035578,
+    "reference": 0.021723098590217343,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 2.0417250299376306,
+    "reference": 1.7449192058957164,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.02448670848963376,
+    "reference": 0.024704471360403626,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 1.0065971785116425,
+    "reference": 1.0794898828934276,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07120866440792553,
+    "reference": 0.07007482276258191,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.4101875098529884,
+    "surrogate_predicted": 0.285192254465764,
+    "reference_integrated": 0.4222655819609425,
+    "gap": 0.12499525538722439,
+    "reference_gap": 0.1500034544522143,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.12446448070652415,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.23488896182236801,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.01837897724724928,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.021180454592035578,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 2.377669601568622,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 1.7057804583066392,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca010",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 2.5176182130473794,
+    "speed": 10.855363093965575,
+    "thickness": 0.13444454399641587,
+    "camber": 0.0
+   }
+  },
+  {
+   "gate_accuracy": {
+    "surrogate": 0.15768829750051874,
+    "reference": NaN,
+    "how": "relative L2 of the predicted Cp against the reference, per side, averaged"
+   },
+   "gate_boundary": {
+    "surrogate": 0.021742546099056084,
+    "reference": 0.02240097179137477,
+    "how": "deviation from the declared no-slip value on the wall edge, relative to the field's own scale, worst side"
+   },
+   "gate_residual": {
+    "surrogate": 0.7790438331312658,
+    "reference": 0.7303487037108958,
+    "how": "continuity residual, normalised by the size of its own gradients, averaged over the two sides"
+   },
+   "wall_condition": {
+    "surrogate": 0.025222151357575082,
+    "reference": 0.02583527340269812,
+    "how": "mean |U| / U_inf on the wall samples; the case declares noSlip"
+   },
+   "continuity": {
+    "surrogate": 0.9664687852236502,
+    "reference": 1.0287155967903836,
+    "how": "mean |du/dx + dv/dy| times the chord over the freestream speed, on the lattice"
+   },
+   "freestream": {
+    "surrogate": 0.07733825680384605,
+    "reference": 0.07776854920043857,
+    "how": "mean |U - U_inf| / U_inf at the outermost offset"
+   },
+   "cp_integral": {
+    "surrogate_integrated": 0.3788339628594648,
+    "surrogate_predicted": 0.44905324762461135,
+    "reference_integrated": 0.3845230137444115,
+    "gap": 0.07021928476514655,
+    "reference_gap": 0.05315068700371822,
+    "how": "CL from integrating the wall Cp over the section against the CL the model predicts; the reference's own gap beside it"
+   },
+   "gate_detail": {
+    "accuracy": [
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.07084758438809148,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     },
+     {
+      "gate": "accuracy",
+      "passed": false,
+      "value": 0.24452901061294602,
+      "tolerance": 0.05,
+      "detail": "relative L2 of 'cp' over the compared region"
+     }
+    ],
+    "boundary": [
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.019313417504020852,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     },
+     {
+      "gate": "boundary",
+      "passed": true,
+      "value": 0.021742546099056084,
+      "tolerance": 0.05,
+      "detail": "1 Dirichlet condition(s) checked on 'speed'"
+     }
+    ],
+    "residual": [
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.8700081838380616,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     },
+     {
+      "gate": "residual",
+      "passed": false,
+      "value": 0.68807948242447,
+      "tolerance": 0.5,
+      "detail": "residual on the prediction, normalised by the size of its own terms"
+     }
+    ]
+   },
+   "id": "ca011",
+   "split": "calibration",
+   "params": {
+    "alpha_deg": 3.9277491480946605,
+    "speed": 23.996228293566745,
+    "thickness": 0.11468810259100916,
+    "camber": 0.0
+   }
+  }
+ ],
+ "summary": {
+  "gate_accuracy": {
+   "surrogate_mean": 0.27105319223637836,
+   "reference_mean": NaN,
+   "worst": 0.6967519816611856,
+   "n": 16
+  },
+  "gate_boundary": {
+   "surrogate_mean": 0.021373793254790295,
+   "reference_mean": 0.021823154346500534,
+   "worst": 0.024624288318861254,
+   "n": 16
+  },
+  "gate_residual": {
+   "surrogate_mean": 1.0249103361456797,
+   "reference_mean": 1.014933516758724,
+   "worst": 1.9778303288174484,
+   "n": 16
+  },
+  "wall_condition": {
+   "surrogate_mean": 0.025717227397716296,
+   "reference_mean": 0.026051413080291314,
+   "worst": 0.028829826695862756,
+   "n": 16
+  },
+  "continuity": {
+   "surrogate_mean": 0.995350507774556,
+   "reference_mean": 1.0255623031656134,
+   "worst": 1.4346345769422164,
+   "n": 16
+  },
+  "freestream": {
+   "surrogate_mean": 0.08372829286148366,
+   "reference_mean": 0.07908649233797782,
+   "worst": 0.14381436970441702,
+   "n": 16
+  },
+  "cp_integral": {
+   "surrogate_mean": 0.3186452888540394,
+   "reference_mean": 0.3136213377237401,
+   "worst": 0.7996891459973774,
+   "n": 16
+  }
+ },
+ "sensitivity": {
+  "alpha_deg": {
+   "step": 0.12,
+   "relative_change_CL": 0.09935829074902411,
+   "ensemble_spread_CL": 0.13841148203710726,
+   "ratio": 0.7178471705287193
+  },
+  "speed": {
+   "step": 0.2,
+   "relative_change_CL": 0.006959884080422248,
+   "ensemble_spread_CL": 0.13841148203710726,
+   "ratio": 0.05028400807496842
+  },
+  "thickness": {
+   "step": 0.0008,
+   "relative_change_CL": 0.006400548911032729,
+   "ensemble_spread_CL": 0.13841148203710726,
+   "ratio": 0.046242904250651556
+  }
+ },
+ "sensitivity_worst": 0.7178471705287193
+}

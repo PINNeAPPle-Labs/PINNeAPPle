@@ -1,0 +1,12 @@
+{
+ "code_hash": "3462c683329297e2",
+ "figures": [],
+ "id": "example:examples/quality_diversity",
+ "ok": true,
+ "recorded": "2026-11-26",
+ "seconds": 0.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Where the heat-sink surrogate fails: a quality-diversity map of its own error | heat transfer | not curated\nqd_max_error 0.66382 \nrandom_max_error 0.57675 \nlatin_max_error 0.6255 \nqd_minus_random_max_error 0.08711 \nqd_minus_latin_max_error 0.03832",
+ "timed_out": false
+}

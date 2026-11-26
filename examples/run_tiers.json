@@ -162,7 +162,8 @@
   "examples/vortex_domains": "runs clean in 1.2 s but is not in the ci tier yet: promote it with --promote",
   "examples/vs_physicsnemo": "no script: the folder declares an example but has no .py to run",
   "examples/weather_forecasting": "fails when run: TypeError: main() missing 3 required positional arguments: 'store_path', 'model_path', and 'out_dir'",
-  "examples/worldmodel": "takes longer than 12 s (01_generate_train_evaluate.py): too slow for the ci tier"
+  "examples/worldmodel": "takes longer than 12 s (01_generate_train_evaluate.py): too slow for the ci tier",
+  "examples/planetary_defence": "takes longer than 12 s (apophis_deflection.py): it propagates Apophis with the JPL elements over up to ten years for every impactor mass and warning time in the table, plus the uncertainty ensemble -- about 25 min in total, and --quick runs the DART anchor and one deflection in under a minute"
  },
  "schema": "pinneapple.example_runs/1"
 }

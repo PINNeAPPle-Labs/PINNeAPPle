@@ -132,6 +132,7 @@ from .noise_models import (
 
 # Observation operators
 from .obs_operator import (
+    BoundaryObsOperator,
     ComposedObsOperator,
     IntegralObsOperator,
     LinearObsOperator,
@@ -193,6 +194,7 @@ __all__ = [
     # Observation operators
     "ObsOperatorBase",
     "PointObsOperator",
+    "BoundaryObsOperator",
     "LinearObsOperator",
     "IntegralObsOperator",
     "ComposedObsOperator",

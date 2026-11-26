@@ -1,0 +1,59 @@
+:root{
+  --bg:#0e1117; --card:#161b22; --edge:#232b36; --fg:#c9d1d9; --dim:#8b949e; --white:#f0f6fc;
+  --blue:#0081be; --green:#3fb950; --amber:#d29922; --red:#f85149; --violet:#a371f7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+header.top{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;
+  padding:20px 32px 16px;border-bottom:1px solid var(--edge);background:#12161d}
+.brand{font:600 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim)}
+.brand span{color:var(--blue);margin:0 5px}
+h1{margin:0;font-size:24px;font-weight:650;color:var(--white)}
+.meta{display:flex;align-items:center;gap:12px;color:var(--dim);font-size:14px}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.04em;
+  border:1px solid var(--edge);background:#0d1117;color:var(--dim);white-space:nowrap}
+.pill.PASS{color:var(--green);border-color:#1f6f34}
+.pill.WARN{color:var(--amber);border-color:#6b4e12}
+.pill.FAIL{color:var(--red);border-color:#7d2a25}
+.pill.NOT_EVALUATED,.pill.NOT_APPLICABLE{color:var(--dim)}
+main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:22px 32px 10px}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:14px;padding:18px 20px;min-width:0}
+.card.wide{grid-column:1 / -1}
+h2{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.hint{margin:0 0 12px;color:var(--dim);font-size:13px}
+.explorer{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
+.map-wrap{position:relative}
+canvas#map{width:100%;height:auto;border-radius:10px;border:1px solid var(--edge);cursor:crosshair;display:block}
+.axes{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--dim)}
+.readout{display:flex;flex-direction:column;gap:12px}
+.held{font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dim)}
+.values{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.cell{background:#0d1117;border:1px solid var(--edge);border-radius:9px;padding:8px 10px;min-width:0}
+.cell .k{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .v{font:600 16px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--white)}
+canvas#curve{width:100%;height:auto;border-radius:10px;border:1px solid var(--edge);background:#0b0f14}
+table#gates{width:100%;border-collapse:collapse;font-size:13.5px}
+table#gates th{text-align:left;font-weight:600;color:var(--dim);font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;padding:0 10px 8px 0;border-bottom:1px solid var(--edge)}
+table#gates td{padding:8px 10px 8px 0;border-bottom:1px solid #1b212a;vertical-align:top}
+table#gates td.gate{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--white);white-space:nowrap}
+table#gates td.num{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--fg);white-space:nowrap}
+table#gates td.note{color:var(--dim);font-size:12.5px}
+ol#stages{margin:0;padding-left:20px;color:var(--fg);font-size:13.5px}
+ol#stages li{margin-bottom:6px}
+ol#stages .s{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--white)}
+ol#stages .t{color:var(--dim);margin-left:8px;font-size:12.5px}
+.figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+figure{margin:0;background:#0d1117;border:1px solid var(--edge);border-radius:11px;padding:10px}
+figure img{width:100%;height:auto;display:block;border-radius:6px;background:#fff}
+figcaption{margin-top:8px;color:var(--dim);font-size:12.5px}
+#scenes iframe{width:100%;height:520px;border:1px solid var(--edge);border-radius:11px;background:#0d1117}
+footer{padding:8px 32px 28px;color:var(--dim);font-size:12.5px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--fg)}
+@media (max-width:900px){
+  main{grid-template-columns:1fr;padding:16px}
+  .explorer{grid-template-columns:1fr}
+  header.top{padding:16px}
+}

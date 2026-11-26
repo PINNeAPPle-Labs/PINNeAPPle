@@ -150,6 +150,7 @@
   "examples/sports": "takes longer than 12 s (01_ball_flight.py): too slow for the ci tier",
   "examples/structural_ingestion": "takes 26 s: the three coupon impacts and their two ingestions are over the 20 s cap for the ci tier",
   "examples/studio": "runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote",
+  "examples/surrogate_pipeline": "runs clean in 11.7 s but is not in the ci tier yet: promote it with --promote",
   "examples/systems": "runs clean in 2.1 s but is not in the ci tier yet: promote it with --promote",
   "examples/time_series": "imports a name this repository does not have yet (01_FNO.py, 02_full_pipeline.py, 03_audit_and_features.py, 04_backtest_baselines.py, 05_quantile_uncertainty.py, 07_fft_lstm_hybrid.py, 08_hht_lstm_hybrid.py); listed in scripts/example_imports_baseline.txt",
   "examples/topology_optimization": "runs clean in 9.8 s but is not in the ci tier yet: promote it with --promote",

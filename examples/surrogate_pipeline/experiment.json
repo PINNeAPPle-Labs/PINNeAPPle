@@ -1,0 +1,248 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/surrogate_pipeline",
+ "title": "Surrogate pipeline — use cases",
+ "description": "Five runs of `pp.SurrogatePipeline`: a parametric surrogate over a reference campaign, a physics-only PINN scored against a closed form and exported to ONNX, a PDE written as text trained and validated by the PINN validation suite, the same pipeline driven from YAML with `run_until` / `resume` / the command line, and a tour that adds adaptive learning, `pinneapple check` as gate evidence and a served model. Every run prints the seven stages and the ten VeriPhysics gates, and the numbers below were measured by those runs (`_out/<name>/report.json`). A sixth script runs the matrix — flow and structural mechanics, geometry built or imported, datasets solved or loaded, FNO, DeepONet and PINN — and writes the figures of every case. A seventh script leaves the pipeline: solver data (the library airliner's vortex lattice and 30 pole impacts of the explicit crash solver) goes in, a surrogate comes out, and the two are drawn on the geometry in 3-D.",
+ "domain": "surrogate models and verification",
+ "methods": [
+  "PINN",
+  "GaussianProcess",
+  "MLP",
+  "FDM reference solver",
+  "Cole-Hopf closed form"
+ ],
+ "modules": [
+  "pinneapple_analysis.surrogate.study",
+  "pinneapple_analysis.validation.pinn",
+  "pinneapple_check",
+  "pinneapple_data.doe.designs",
+  "pinneapple_design.aero.vlm",
+  "pinneapple_design.geometry.bodies",
+  "pinneapple_physics.pde_environment",
+  "pinneapple_physics.solving",
+  "pinneapple_physics.symbolic_pde",
+  "pinneapple_pipeline",
+  "pinneapple_pipeline.checks",
+  "pinneapple_pipeline.configs",
+  "pinneapple_pipeline.deploy",
+  "pinneapple_pipeline.figures",
+  "pinneapple_pipeline.pipeline",
+  "pinneapple_pipeline.presets",
+  "pinneapple_pipeline.stages",
+  "pinneapple_pipeline.verification",
+  "pinneapple_simulation.numerical_solvers.crash_cases",
+  "pinneapple_tools.model_export",
+  "pinneapple_tools.model_services"
+ ],
+ "params": {
+  "parameter space of 01": "nu in [0.005, 0.06], 18 cases by Latin hypercube",
+  "training budget of 02": "1200 Adam epochs, 2048 collocation points, hidden 48 x 4",
+  "training budget of 03": "2000 Adam steps + 400 L-BFGS, 2000 collocation points",
+  "tour of 05": "six runs: nrmse/adaptive targets, 1200-epoch PINN, 2000+400 symbolic steps",
+  "matrix of 06": "8 cases: 12-18 reference solves, a 64-point field, 900-epoch bar, 1200-epoch PINN; geometry from the builders and from data/geometries",
+  "cases of 07": "airliner_a320 from the geometry library, 13 incidences of the vortex lattice, 40 strips; 30 pole impacts at 6e-4 s of event, 2783 nodes per design"
+ },
+ "scripts": [
+  "01_parametric_surrogate.py",
+  "02_physics_only_pinn.py",
+  "03_symbolic_heat.py",
+  "04_yaml_and_cli.py",
+  "05_every_kind_of_surrogate.py",
+  "06_case_matrix.py",
+  "07_aircraft_and_crash.py"
+ ],
+ "metrics": [
+  {
+   "name": "held-out nrmse, Gaussian process (01)",
+   "value": 0.0001785,
+   "unit": "",
+   "how": "surrogate study on 3 cases held out of the 18, normalised RMSE over the 7 probe outputs"
+  },
+  {
+   "name": "held-out nrmse, MLP (01)",
+   "value": 0.00195,
+   "unit": "",
+   "how": "same splits and budget as the Gaussian process, one seed"
+  },
+  {
+   "name": "relative L2 of the PINN against Cole-Hopf (02)",
+   "value": 0.0684,
+   "unit": "",
+   "how": "pp.compare at 256 random points of the domain, reference method analytic"
+  },
+  {
+   "name": "boundary/initial misfit of the PINN (02)",
+   "value": 0.006942,
+   "unit": "",
+   "how": "max |prediction - condition| over 1536 freshly sampled condition points, relative to the field scale"
+  },
+  {
+   "name": "ONNX vs in-memory prediction (02)",
+   "value": 1.625e-07,
+   "unit": "",
+   "how": "max |onnx - pytorch| / max |pytorch| on 5 points of the domain"
+  },
+  {
+   "name": "grid-refinement change of the reference solution (01)",
+   "value": 0.002679,
+   "unit": "",
+   "how": "the preset's FDM solution at nx = 256 and nx = 512, max difference relative to its own RMS"
+  },
+  {
+   "name": "relative PDE residual of the symbolic PINN (03)",
+   "value": 0.01339,
+   "unit": "",
+   "how": "validate_pinn at 2048 fresh points, RMS of the residual relative to the scale of the terms"
+  },
+  {
+   "name": "boundary misfit of the symbolic PINN (03)",
+   "value": 0.001159,
+   "unit": "",
+   "how": "validate_pinn: max |u - 0| on the boundary relative to the solution scale"
+  },
+  {
+   "name": "initial misfit of the symbolic PINN (03)",
+   "value": 0.001524,
+   "unit": "",
+   "how": "validate_pinn: max |u - sin(pi x) sin(pi y)| at t = 0 relative to the solution scale"
+  },
+  {
+   "name": "relative PDE residual of the same run at 300 epochs (03)",
+   "value": 0.368,
+   "unit": "",
+   "how": "same validation at 300 Adam steps with no L-BFGS polish: the residual and both conditions fail"
+  },
+  {
+   "name": "adaptive infill: nrmse after one round (05)",
+   "value": 0.0004179,
+   "unit": "",
+   "how": "gp surrogate on 12 LHS cases, 3 cases added where the outputs vary most, re-studied: held-out nrmse 0.001597 -> 0.000418"
+  },
+  {
+   "name": "exact-solution error of the symbolic PINN (05)",
+   "value": 0.001764,
+   "unit": "",
+   "how": "validate_pinn's pinn.exact check against sin(pi x) sin(pi y) exp(-2 pi^2 alpha t), 2048 fresh points"
+  },
+  {
+   "name": "outcomes of `pinneapple check` over the run (05)",
+   "value": 10.0,
+   "unit": "",
+   "how": "PC001/PC002 load and query, PC601 all 32 queries inside the training range, PC403 finite outputs; 0 failing"
+  },
+  {
+   "name": "trust decision of the served model (05)",
+   "value": 1.0,
+   "unit": "1 = ACCEPT",
+   "how": "pipeline.deploy() on the parametric run: a query inside the validated domain returns ACCEPT, one outside is refused"
+  },
+  {
+   "name": "held-out nrmse, FNO on the 64-point field (06)",
+   "value": 0.004905,
+   "unit": "",
+   "how": "surrogate study, 18 cases, 3 held out; the field is the Burgers solution at t = 1 sampled on 64 points"
+  },
+  {
+   "name": "held-out nrmse, DeepONet on the same field (06)",
+   "value": 0.02162,
+   "unit": "",
+   "how": "same splits and budget as the FNO, one seed"
+  },
+  {
+   "name": "relative L2 of the structural PINN against the closed form (06)",
+   "value": 0.01478,
+   "unit": "",
+   "how": "steel bar 0.5 m under 100 kN/m, E from the material catalogue; validate_pinn pinn.exact on the analytic q(2Lx - x^2)/(2EA)"
+  },
+  {
+   "name": "relative L2 of the physics-only PINN against Cole-Hopf (06)",
+   "value": 0.06845,
+   "unit": "",
+   "how": "burgers_physics_only, 1200 epochs, 2048 collocation points, pp.compare against the analytic solution"
+  },
+  {
+   "name": "faces of the geometry the gate accepted (06)",
+   "value": 3958.0,
+   "unit": "triangles",
+   "how": "wigley_hull.light.stl imported, and 864 for the cylinder the builder wrote into the run folder; both closed, watertight, bounding boxes 1.0 x 0.1 x 0.10 m and 0.1 x 0.3 x 0.1 m"
+  },
+  {
+   "name": "held-out nrmse of the dataset re-read from disk (06)",
+   "value": 0.001597,
+   "unit": "",
+   "how": "the dataset of the first case read back: 12 cases, nothing solved, same Gaussian process and the same error"
+  },
+  {
+   "name": "held-out nrmse of the lift distribution surrogate (07)",
+   "value": 3.25e-07,
+   "unit": "",
+   "how": "ridge over 13 vortex-lattice solves of airliner_a320, 40 strips, an incidence held out of the fit"
+  },
+  {
+   "name": "relative L2 of the cl distribution at a new incidence (07)",
+   "value": 1.87e-07,
+   "unit": "",
+   "how": "alpha = 3.5 deg: the surrogate's 40 strip values against the vortex lattice's, worst strip below 1e-3"
+  },
+  {
+   "name": "relative L2 of the crash field surrogate (07)",
+   "value": 0.11,
+   "unit": "",
+   "how": "30 pole impacts, 2783 nodes, a held-out design: the |u| field of the three nearest designs against the solver's"
+  },
+  {
+   "name": "peak displacement of the pole impact (07)",
+   "value": 7.8,
+   "unit": "mm",
+   "how": "explicit crash solver, 6e-4 s of the event, last frame, the design the surrogate is scored on"
+  }
+ ],
+ "checks": [
+  {
+   "name": "gates of 01 (parametric surrogate)",
+   "passed": true,
+   "how": "7 pass, 1 warn (the distribution-shift corner), 2 not applicable (geometry, physics)"
+  },
+  {
+   "name": "gates of 02 (physics-only PINN)",
+   "passed": true,
+   "how": "model, physics and export pass; physics reports the residual without a non-dimensional reference"
+  },
+  {
+   "name": "the same symbolic run at 300 epochs is refused",
+   "passed": true,
+   "how": "the physics gate fails on the boundary and initial conditions that were traded against the residual"
+  },
+  {
+   "name": "the five blocks added in this round run end to end",
+   "passed": true,
+   "how": "geometry (watertight STL passes, an open one fails), materials (catalogue value with its datasheet), HPO (4 trials, best kept), adaptive learning (3 cases added), deployment (HTTP /v1/infer, OOD refused)"
+  },
+  {
+   "name": "the matrix of 06 runs every case end to end",
+   "passed": true,
+   "how": "8 runs in 32 s with --fast: flow (dataset generated, imported, PINN), FNO, DeepONet, structural bar, geometry built and imported; the geometry gate passes 864 and 3958 faces, the structural model 1.5e-2 against its closed form"
+  },
+  {
+   "name": "solver data and its surrogate are compared on the geometry (07)",
+   "passed": true,
+   "how": "the airliner: reference and surrogate cl painted on the same wings, one colour scale; the pole impact: the coupeé warped by the solver and by the surrogate, one colour scale, 11 % field error"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "configs/burgers_in_viscosity.yaml",
+   "configs/heat_2d_symbolic.yaml"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/surrogate_pipeline.md"
+ },
+ "references": [
+  "docs/guides/surrogate_pipeline.md",
+  "pinneapple_pipeline/presets.py"
+ ]
+}

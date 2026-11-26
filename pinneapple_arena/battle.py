@@ -41,9 +41,10 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -99,7 +100,7 @@ class Field:
     exact: np.ndarray
     residual: Callable[[np.ndarray], np.ndarray]
     field: str = "u"
-    residual_training: Optional[Callable[..., Any]] = None
+    residual_training: Callable[..., Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -171,7 +172,8 @@ def _burgers_field(nx: int, nt: int, nu: float, split_at: float) -> Field:
     and leaving that chain rule out is the classic way to train a PINN on the wrong equation while the loss goes
     down.
     """
-    from pinneapple_data.schema import AxisSpec, Field as BundleField, Physics, PhysicsDataBundle
+    from pinneapple_data.schema import AxisSpec, Physics, PhysicsDataBundle
+    from pinneapple_data.schema import Field as BundleField
     from pinneapple_physics.closed_form.burgers import burgers_sine_exact
 
     x = np.linspace(-1.0, 1.0, nx)
@@ -204,7 +206,8 @@ def _heat_field(nx: int, nt: int, alpha: float, split_at: float) -> Field:
     means what it says. The Burgers case is the one where it does not, and the record shows the floor there so the
     difference is visible instead of explained away.
     """
-    from pinneapple_data.schema import AxisSpec, Field as BundleField, Physics, PhysicsDataBundle
+    from pinneapple_data.schema import AxisSpec, Physics, PhysicsDataBundle
+    from pinneapple_data.schema import Field as BundleField
 
     x = np.linspace(0.0, 1.0, nx)
     t = np.linspace(0.0, 1.0, nt)
@@ -218,10 +221,11 @@ def _heat_field(nx: int, nt: int, alpha: float, split_at: float) -> Field:
         source="closed form: exp(-alpha pi^2 t) sin(pi x)", license="CC0-1.0", citation="analytic", kind="synthetic")
 
     train = np.flatnonzero(t <= split_at)
-    mean, scale = float(exact[train].mean()), float(exact[train].std()) or 1.0
+    scale = float(exact[train].std()) or 1.0
 
     def residual_training(_net, _t, _x, u, du_dt, du_dx, du_dxx):
-        # x and t are already normalised to [0, 1] on this case, so only the field scale survives the chain rule
+        # x and t are already normalised to [0, 1] on this case, and T does not appear in the equation, so only the
+        # field scale survives the chain rule -- the centre of the window would not
         return scale * (du_dt - alpha * du_dxx)
 
     def residual(u: np.ndarray) -> np.ndarray:
@@ -281,8 +285,8 @@ def pde_residual_curve(pred: np.ndarray, residual: Callable[[np.ndarray], np.nda
     return out
 
 
-def domain_exit(curve: Sequence[float], in_window: Sequence[bool], *, factor: Optional[float] = None,
-                absolute: Optional[float] = None, calibrate: str = "last") -> dict[str, Any]:
+def domain_exit(curve: Sequence[float], in_window: Sequence[bool], *, factor: float | None = None,
+                absolute: float | None = None, calibrate: str = "last") -> dict[str, Any]:
     """The first step outside the window where ``curve`` crosses its threshold: the exit, in one function.
 
     Exactly one of the two thresholds is given, because the two curves need different ones and mixing them is how a
@@ -328,7 +332,7 @@ def domain_exit(curve: Sequence[float], in_window: Sequence[bool], *, factor: Op
             "criterion": how, "reason": "never crossed the threshold"}
 
 
-def _summarise(values: Sequence[Optional[float]], *, never: float) -> dict[str, Any]:
+def _summarise(values: Sequence[float | None], *, never: float) -> dict[str, Any]:
     """Per-seed scalars to one row: mean, min, max, and how many seeds produced a number at all."""
     clean = [never if v is None else float(v) for v in values]
     return {"mean": float(np.mean(clean)) if clean else None,
@@ -368,7 +372,7 @@ SUPERVISION = {"fno": "the window's field (data-supervised neural operator)",
                "pinn": "the window's field + the governing equation (PDE residual in the loss)"}
 
 
-def run_case(case_id: str, *, seeds: Optional[Sequence[int]] = None) -> dict[str, Any]:
+def run_case(case_id: str, *, seeds: Sequence[int] | None = None) -> dict[str, Any]:
     """Run every model over the same stream, every seed, and return the measurements the scoreboard is built from."""
     case = get_case(case_id)
     seeds = tuple(PROTOCOL["seeds"] if seeds is None else seeds)
@@ -442,8 +446,8 @@ def _model_summary(runs: Sequence[Mapping[str, Any]], in_window: np.ndarray, *,
     inside_error: list[float] = []
     final_error: list[float] = []
     outside_error: list[float] = []
-    exit_steps: list[Optional[float]] = []
-    alarm_steps: list[Optional[float]] = []
+    exit_steps: list[float | None] = []
+    alarm_steps: list[float | None] = []
     train_s: list[float] = []
     predict_s: list[float] = []
     for run in runs:
@@ -537,7 +541,7 @@ def disagreement(block: Mapping[str, Any], spread: Sequence[float]) -> dict[str,
                       "against the reference at the same step is the one the reference agrees with"}
 
 
-def run_all(*, seeds: Optional[Sequence[int]] = None, only: Optional[Sequence[str]] = None) -> dict[str, Any]:
+def run_all(*, seeds: Sequence[int] | None = None, only: Sequence[str] | None = None) -> dict[str, Any]:
     ids = [c.id for c in CASES] if only is None else [get_case(i).id for i in only]
     protocol = dict(PROTOCOL)
     protocol["seeds"] = list(PROTOCOL["seeds"])
@@ -553,7 +557,7 @@ def run_all(*, seeds: Optional[Sequence[int]] = None, only: Optional[Sequence[st
 
 
 # ------------------------------------------------------------------ the table and the page
-def _fmt(value: Optional[float], digits: int = 2) -> str:
+def _fmt(value: float | None, digits: int = 2) -> str:
     if value is None:
         return "n/a"
     if value == 0:
@@ -590,6 +594,21 @@ def table(results: Mapping[str, Any]) -> str:
                       f"of the stream is the battle. {len(times)} steps, "
                       f"{int(sum(block['stream']['in_window']))} of them inside the window.", ""]
     return "\n".join(lines).rstrip() + "\n"
+
+
+def _floor(block: Mapping[str, Any]) -> str:
+    """The operator's own residual on the reference field, as one sentence per case.
+
+    A monitor needs its floor stated next to it. On Burgers the shock layer is thinner than a cell past ``t = 1/pi``,
+    so the exact solution's residual there is not a rounding error -- it is the grid. Publishing that number is how a
+    reader tells "the model left its domain" apart from "this grid cannot resolve the field", instead of reading the
+    alarm column as if it were absolute.
+    """
+    finite = [float(v) for v in block["reference"]["pde_residual"] if v is not None]
+    if not finite:
+        return "operator floor: the reference's residual is not finite anywhere on this grid"
+    return (f"operator floor: the reference's own residual peaks at {_fmt(float(np.max(finite)), 3)} (the `t` edges "
+            f"excluded), so a model's residual near that number is the grid, not the model")
 
 
 def page(results: Mapping[str, Any]) -> str:
@@ -643,6 +662,7 @@ def page(results: Mapping[str, Any]) -> str:
                   f"* equation: `{c['equation']}`",
                   f"* reference: {c['reference']}",
                   f"* window: t <= {c['split_at']}",
+                  f"* {_floor(block)}",
                   ""]
         for model in block["model_order"]:
             entry = block["models"][model]

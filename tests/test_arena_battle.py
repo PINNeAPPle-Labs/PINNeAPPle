@@ -78,13 +78,30 @@ def test_the_error_curve_is_the_relative_l2_of_each_step():
 
 
 def test_the_residual_operator_finds_the_exact_solution_almost_residual_free():
-    field = battle._burgers_field(nx=65, nt=25, nu=0.01, split_at=0.5)
+    field = battle._heat_field(nx=129, nt=41, alpha=0.05, split_at=0.5)
     exact = battle.pde_residual_curve(field.exact, field.residual)
     bumped = battle.pde_residual_curve(field.exact * 1.05, field.residual)
     finite = exact[np.isfinite(exact)]
-    assert np.all(np.isfinite(finite)) and finite.max() < 5e-2, "the closed form satisfies its own equation up to " \
-                                                                "the finite-difference truncation"
+    assert np.all(np.isfinite(finite)) and finite.max() < 1e-3, "on a grid that resolves it, the closed form " \
+                                                               "satisfies its own equation up to rounding"
     assert np.nanmean(bumped) > np.nanmean(exact), "a perturbed field must not look healthier than the reference"
+
+
+def test_the_burgers_floor_is_the_grid_and_the_alarm_still_does_not_fire_on_the_truth():
+    """Burgers at nu = 0.01 forms a shock at t = 1/pi, and past it the layer is thinner than a cell, so the operator's
+    floor there is *not* a rounding error: measured 0.89 / 0.35 / 0.096 on 65 / 129 / 257 points in x at 41 in t. That
+    is why the alarm is calibrated on the model's own value at the edge of its window and not on an absolute number --
+    and why the property the monitor actually needs is the one asserted here: the truth, scored with the same
+    criterion the models are, never leaves its domain."""
+    floors = [float(np.nanmax(battle.pde_residual_curve(f.exact, f.residual)))
+              for f in (battle._burgers_field(nx=nx, nt=41, nu=0.01, split_at=0.5) for nx in (65, 129, 257))]
+    assert floors[0] > floors[1] > floors[2], f"the floor has to fall with refinement, got {floors}"
+    assert floors[0] / floors[2] > 4.0, "and it has to fall by more than the factor the alarm uses, or refining " \
+                                        "the grid would be the only way to pass"
+    field = battle._burgers_field(nx=129, nt=41, nu=0.01, split_at=0.5)
+    truth = battle.pde_residual_curve(field.exact, field.residual)
+    alarm = battle.domain_exit(truth, field.t <= 0.5, factor=battle.PROTOCOL["exit"]["residual_factor"])
+    assert alarm["step"] is None, "a monitor that fires on the exact solution measures the grid, not the model"
 
 
 def test_the_residual_operator_keeps_the_edges_out_instead_of_inventing_a_value():
@@ -156,7 +173,7 @@ def test_the_reference_is_what_decides_a_disagreement():
     block = _block([{"model": "fno", "curve": [0.0] * 5 + [0.9, 0.1, 0.1, 0.1], "exit": 6, "final": 0.1,
                      "train_s": 1.0},
                     {"model": "pinn", "curve": [0.0] * 5 + [0.05, 0.1, 0.1, 0.1], "exit": 6, "final": 0.1,
-                     "train_s": 1.0}])
+                     "train_s": 1.0}], n_steps=9, in_window=5)
     spread = [0.0] * 5 + [0.8, 0.1, 0.1, 0.1]
     verdict = battle.disagreement(block, spread)
     assert verdict["available"] is True
@@ -168,7 +185,8 @@ def test_the_reference_is_what_decides_a_disagreement():
 
 def test_a_disagreement_inside_the_window_is_not_the_one_that_counts():
     block = _block([{"model": "fno", "curve": [0.0] * 9, "exit": 6, "final": 0.1, "train_s": 1.0},
-                    {"model": "pinn", "curve": [0.0] * 9, "exit": 6, "final": 0.1, "train_s": 1.0}])
+                    {"model": "pinn", "curve": [0.0] * 9, "exit": 6, "final": 0.1, "train_s": 1.0}],
+                   n_steps=9, in_window=5)
     spread = [9.0, 9.0, 9.0, 9.0, 9.0, 0.1, 0.2, 0.3, 0.4]
     assert battle.disagreement(block, spread)["step"] == 8, "both models were fitted inside the window; a gap there " \
                                                            "is a training artefact"
@@ -177,17 +195,23 @@ def test_a_disagreement_inside_the_window_is_not_the_one_that_counts():
 # ------------------------------------------------------------------ the record and the gate
 @pytest.fixture(scope="module")
 def small_battle():
-    """One real battle at a test budget: the smallest grid the residual operator accepts, a handful of epochs."""
+    """One real battle at a test budget: the smallest grid the residual operator accepts, a handful of epochs.
+
+    The protocol is shrunk only for the duration of the run and restored before this fixture yields, not at module
+    teardown: a module-scoped teardown runs *after* the last test in the file, so a global left at the test budget
+    would make ``test_the_protocol_declares_what_a_reproduction_has_to_keep`` read one seed where the module declares
+    two -- a leak that only shows up depending on where the test sits in the file."""
     saved_grid, saved_seeds = battle.PROTOCOL["grid"], battle.PROTOCOL["seeds"]
     saved_epochs = battle.PROTOCOL["budget"]["epochs"]
-    battle.PROTOCOL["grid"] = {"nx": 33, "nt": 17}
-    battle.PROTOCOL["seeds"] = (0,)
-    battle.PROTOCOL["budget"]["epochs"] = 5
     try:
-        yield battle.run_all()
+        battle.PROTOCOL["grid"] = {"nx": 33, "nt": 17}
+        battle.PROTOCOL["seeds"] = (0,)
+        battle.PROTOCOL["budget"]["epochs"] = 5
+        results = battle.run_all()
     finally:
         battle.PROTOCOL["grid"], battle.PROTOCOL["seeds"] = saved_grid, saved_seeds
         battle.PROTOCOL["budget"]["epochs"] = saved_epochs
+    return results
 
 
 def test_the_battle_trains_both_families_on_the_same_stream(small_battle):
@@ -215,6 +239,8 @@ def test_the_page_is_generated_from_the_record(small_battle):
     assert "| rank | model |" in text
     for model in battle.MODELS:
         assert model in text
+    assert "operator floor" in text, "the alarm column is read next to the operator's own floor, or it is read as " \
+                                     "an absolute number it is not"
     assert "burgers" in text
 
 

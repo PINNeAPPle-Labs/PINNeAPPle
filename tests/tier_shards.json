@@ -37,7 +37,8 @@
    "id": "design",
    "measured": "2026-11-20: 16 passed, 72 skipped in 26.26s (29.2 s wall)",
    "paths": [
-    "tests/pinneapple_design"
+    "tests/pinneapple_design",
+    "tests/test_suspension_design.py"
    ]
   },
   {

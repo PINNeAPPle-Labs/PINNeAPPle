@@ -19,8 +19,27 @@ the measured work rate and footprint), ``recommend_cores`` (cores from a measure
 ``plan``/``JobProfile`` (cores, memory per run and the machine it was measured on) and ``JobProfileTable`` (the
 table generated from a ``CostLedger``, written with ``measured_on``).
 
+Energy and emissions (roadmap item K20, issue #119): ``energy`` -- ``estimate_energy`` (joules from a named method:
+FLOPs x a declared pJ/FLOP, a declared draw x time, or a RAPL counter read), ``ENERGY_PER_FLOP`` (the declared table,
+every entry with its source), ``EnergyEstimate`` (the number with its method, hardware and source attached) and
+``measure_energy``/``RAPLMeter`` (the one measured path, on Linux hosts that expose the counters); ``report`` --
+``cost_report``, time, FLOPs and joules per operation with the method printed under the table.
+
 See ``profiler`` for exactly what is and is not measured.
 """
+from .energy import (
+    DEFAULT_HARDWARE,
+    ENERGY_PER_FLOP,
+    RAPL_ROOT,
+    EnergyEstimate,
+    EnergyModel,
+    RAPLMeter,
+    estimate_energy,
+    fmt_joules,
+    measure_energy,
+    rapl_energy_uj,
+    rapl_packages,
+)
 from .equal_budget import (
     AmortizedCost,
     BudgetRun,
@@ -59,6 +78,7 @@ from .profiler import (
     measure,
     scaling_study,
 )
+from .report import cost_report
 from .resources import (
     RESOURCE_KINDS,
     JobProfile,
@@ -78,4 +98,6 @@ __all__ = [
     "AmortizedCost", "BudgetRun", "ComputeBudget", "SearchResult", "SearchTrial", "cosine_lr", "count_flops",
     "equal_budget_search", "hardware_record", "relative_l2", "set_lr", "time_per_query", "train_within_budget",
     "RESOURCE_KINDS", "JobProfile", "JobProfileTable", "MachineRecord", "classify", "plan", "recommend_cores",
+    "DEFAULT_HARDWARE", "ENERGY_PER_FLOP", "RAPL_ROOT", "EnergyEstimate", "EnergyModel", "RAPLMeter",
+    "estimate_energy", "fmt_joules", "measure_energy", "rapl_energy_uj", "rapl_packages", "cost_report",
 ]

@@ -42,7 +42,11 @@ def _now() -> str:
 
 
 class _Model(BaseModel):
-    model_config = ConfigDict(extra="forbid", validate_assignment=True)
+    # ``protected_namespaces=()`` because ``ModelRef.model_type`` is a domain field, not a pydantic internal: on the
+    # declared floor (pydantic 2.0) the default ``model_`` protection raises ``NameError`` at class creation, so the
+    # package could not even be imported there. The floors job found it the first time it actually ran (#96). Nothing
+    # in these contracts names a pydantic method, and ``extra="forbid"`` still rejects anything undeclared.
+    model_config = ConfigDict(extra="forbid", validate_assignment=True, protected_namespaces=())
 
 
 class Contract(_Model):

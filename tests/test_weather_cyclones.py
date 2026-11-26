@@ -141,6 +141,25 @@ def test_verify_storm_counts_leads_from_the_initialization_when_it_is_given():
     assert verify_storm(track, best).leads_h.tolist() == [0.0, 6.0]                 # no init: the first field is 0
     err = verify_storm(track, best, init="2024-09-26T00")
     assert err.leads_h.tolist() == [6.0, 12.0] and err.init == np.datetime64("2024-09-26T00", "h")
+    # the origin is traceable exactly when init + lead gives back the valid time it was measured at
+    assert np.array_equal(err.init + err.leads_h.astype("timedelta64[h]"), err.times)
+
+
+def test_load_best_track_carries_the_origin_of_what_it_read(tmp_path):
+    """A number without its source is not a result: the file, its SHA-256 and its citation travel with the track."""
+    import hashlib
+
+    from pinneapple_physics.weather.cyclones import HURDAT2_CITATION, load_best_track
+
+    f = tmp_path / "hurdat2.txt"
+    f.write_text(HURDAT2)
+    track = load_best_track("AL012024", f, log=lambda *_: None)      # a path: no network, no download
+    assert track.name == "TEST" and len(track) == 3
+    assert track.source["file"] == "hurdat2.txt" and track.source["url"] == ""
+    assert track.source["sha256"] == hashlib.sha256(f.read_bytes()).hexdigest()
+    assert track.source["citation"] == HURDAT2_CITATION
+    with pytest.raises(KeyError, match="not in hurdat2.txt"):
+        load_best_track("AL992024", f, log=lambda *_: None)
 
 
 def test_verify_storm_does_not_score_a_lead_past_the_end_of_the_record():

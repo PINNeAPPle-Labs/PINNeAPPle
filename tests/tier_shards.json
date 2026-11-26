@@ -841,6 +841,7 @@
     "tests/test_vortex_domains.py",
     "tests/test_warp_backend.py",
     "tests/test_weather_clients.py",
+    "tests/test_weather_cyclones.py",
     "tests/test_weather_forecasting.py",
     "tests/test_workflow_events.py",
     "tests/test_workflow_remote_executors.py",

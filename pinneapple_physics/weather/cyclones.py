@@ -28,6 +28,7 @@ has to hand over to a finer model instead of asserting it.
 from __future__ import annotations
 
 import hashlib
+import textwrap
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -583,11 +584,12 @@ def track_globe(path, best: BestTrack, tracks: dict, *, pressure_hpa=None, lat=N
     frames = 1 if series is None or series.ndim == 2 else len(series)
 
     fig = plt.figure(figsize=(10.6, 6.4), facecolor=BG)
-    ax = fig.add_axes([0.02, 0.05, 0.60, 0.84])
+    ax = fig.add_axes([0.02, 0.10, 0.60, 0.80])                 # the floor is left for the colour bar and its label
     ax.set_facecolor(BG)
     ax.axis("off")
     fig.text(0.02, 0.955, title, color=FG, fontsize=14, weight="bold")
-    fig.text(0.02, 0.925, note, color=DIM, fontsize=9)
+    fig.text(0.02, 0.925, "\n".join(textwrap.wrap(note, 108)) if note else "", color=DIM, fontsize=9, va="top",
+             linespacing=1.45)                                  # wrapped: a note that runs off the page is not a note
     image = ax.imshow(np.zeros((size, size, 4)))
     ax.set_xlim(-0.02 * size, size)
     ax.set_ylim(size, -0.02 * size)
@@ -623,7 +625,7 @@ def track_globe(path, best: BestTrack, tracks: dict, *, pressure_hpa=None, lat=N
         cb.set_label("sea-level pressure (hPa)", color=DIM, fontsize=9)
         cb.ax.tick_params(colors=DIM, labelsize=8)
         cb.outline.set_edgecolor(DIM)
-    stamp = fig.text(0.62, 0.90, "", color=FG, fontsize=11, weight="bold")
+    stamp = fig.text(0.62, 0.855, "", color=FG, fontsize=11, weight="bold")
 
     def draw(k: int):
         if series is not None:

@@ -463,8 +463,8 @@
  },
  "weather_forecasting": {
   "domain": "weather",
-  "needs": "ERA5 store (5 GB) + a trained model",
-  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed)",
+  "needs": "ERA5 store (5 GB) + a trained model + network for hurricane_ian.py",
+  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed); hurricane_ian.py reads HURDAT2 from the NHC (7 MB) and the ARCO-ERA5 and WeatherBench2 zarr stores over HTTPS, cached as 38 MB of crops outside the repository -- minutes and a network, so not in the ci tier",
   "status": "needs"
  },
  "worldmodel": {

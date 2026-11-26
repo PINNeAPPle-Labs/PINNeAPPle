@@ -24,7 +24,13 @@ GATE = {"quality": "preview", "size": [960, 540], "samples": 32}
 
 #: How far a statistic may move before the gate calls it a regression. Absolute: the four statistics are already in
 #: their own units (luminance 0-255, coverage 0-1, edge energy a mean gradient).
-TOLERANCES: dict[str, float] = {"mean": 8.0, "std": 4.0, "coverage": 0.06, "edge_energy": 0.12}
+#:
+#: ``edge_energy`` allows more than the others because it is the one that reads micro-detail, and a metric grid is
+#: micro-detail by construction: its lines are a pixel or two wide, so how they are sampled, filtered and denoised
+#: moves the number between two machines running the same Blender (measured against the Linux CI runner: +0.27 on the
+#: impeller, +0.15 on the airliner, everything else inside a hundredth). Ten per cent of a typical 3.0 still fails a
+#: picture that lost its detail -- which drives the number towards zero -- where the old 0.12 failed the grid itself.
+TOLERANCES: dict[str, float] = {"mean": 8.0, "std": 4.0, "coverage": 0.06, "edge_energy": 0.30}
 
 #: Where the committed baseline lives, relative to the repository root.
 BASELINE = os.path.join("data", "benchmark", "baseline.json")

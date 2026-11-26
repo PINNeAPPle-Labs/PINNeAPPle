@@ -254,7 +254,10 @@ The gate itself is `--gate` against a committed baseline, and it runs in CI on e
 studio (`Visual benchmark`): `data/benchmark/baseline.json` holds the four statistics of each case, recorded in the
 canonical configuration (`GATE`: 960×540, 32 samples, preview) so today's record is comparable with last month's.
 `pp.viz.benchmark.gate` compares a record with it and returns the differences beyond `TOLERANCES` (`mean` ±8,
-`std` ±4, `coverage` ±0.06, `edge_energy` ±0.12 — absolute, in each statistic's own units); the command exits non-zero
+`std` ±4, `coverage` ±0.06, `edge_energy` ±0.30 — absolute, in each statistic's own units; the edge energy allows
+more because a metric grid is micro-detail by construction, and how a line a pixel or two wide is sampled and
+denoised moves it by ±0.3 between two machines on the same Blender, which is still far from the zero a picture that
+lost its detail reads); the command exits non-zero
 when there are any. The time is recorded and reported but never gated: it belongs to the machine.
 
 Recording a new baseline is deliberate, after a change that is meant to move the pictures, and it asks why:

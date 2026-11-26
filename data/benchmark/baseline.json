@@ -13,7 +13,7 @@
   "recorded_at": "2026-11-26T14:32:54Z",
   "tolerances": {
    "coverage": 0.06,
-   "edge_energy": 0.12,
+   "edge_energy": 0.3,
    "mean": 8.0,
    "std": 4.0
   }

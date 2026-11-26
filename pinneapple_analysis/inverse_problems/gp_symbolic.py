@@ -1075,6 +1075,8 @@ def compare_gp_and_sindy(X: Any, y: Any, *, names: Sequence[str] | None = None,
                                                                             reference, columns)},
     }
     winner = "gp" if arms["gp"]["relative_error"] <= arms["sindy"]["relative_error"] else "sindy"
+    if gp_best is None:                                    # nothing feasible: SINDy is the only arm with an answer
+        winner = "sindy"
     cost_ratio = arms["gp"]["seconds"] / max(arms["sindy"]["seconds"], 1e-9)
     checks = [
         {"code": "compare.error", "status": "pass" if min(arms["gp"]["relative_error"],
@@ -1086,7 +1088,7 @@ def compare_gp_and_sindy(X: Any, y: Any, *, names: Sequence[str] | None = None,
          "detail": ("no truth given" if reference is None else
                     f"the true expression was recovered by "
                     f"{', '.join(a for a in ('gp', 'sindy') if arms[a]['recovered']) or 'neither arm'}"),
-         "value": reference is None or None},
+         "value": None},
     ]
     return {"gp": arms["gp"], "sindy": arms["sindy"], "winner": winner, "cost_ratio": cost_ratio,
             "comparison": (f"GP {arms['gp']['relative_error']:.2%} / {arms['gp']['n_terms']} nodes / "

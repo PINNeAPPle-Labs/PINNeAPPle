@@ -126,6 +126,7 @@
     * [Evidence ledger: a test passed only if it ran](guides/evidence_ledger.md)
     * [A latent surrogate that says when not to trust it](guides/trusted_latent_surrogate.md)
     * [A trust report that can be re-verified later: signed with its model and inputs, residual recomputed on load](guides/signed_trust_report.md)
+    * [The trust of a prediction as one object: every field a number with its source, or an explicit not measured](guides/trust_as_one_object.md)
     * [Reduced-order models and meshless methods, measured](guides/rom_and_meshless_studies.md)
     * [Detect false data injection with physics residuals](guides/physics_residual_attack_detection.md)
     * [The PINNeAPPle Observatory](guides/observatory.md)

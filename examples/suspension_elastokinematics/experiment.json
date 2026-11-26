@@ -16,7 +16,9 @@
   "pinneapple_design.suspension"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "01_corner_design.py"
+ ],
  "metrics": [
   {
    "name": "arm_and_bushing_mass",

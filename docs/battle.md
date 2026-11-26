@@ -52,7 +52,7 @@ value. The order is total and recomputable from the record, which is what lets
 * 37,121 parameters
 * cost: 23.4 s to train [20.5, 26.2] over the seeds, 90.2 ms to predict the whole stream
 * relative L2, worst inside the window: 0.025; mean outside it: 0.151; last step: 0.257 [0.207, 0.308]
-* first left its domain at step 22 (t = 0.55) (threshold 0.050); the seed spread of that step is [22.000, 24.000] and the seeds read seed 0: step 22, seed 1: step 24
+* first left its domain at step 22 (t = 0.55) (threshold 0.050); the seed spread of that step is [22, 24] and the seeds read seed 0: step 22, seed 1: step 24
 * its own residual alarm never fired (threshold 3.161) while the reference column says the model left its domain: a monitor that stays silent on a model that left is a finding, not a blank
 
 ### pinn -- physics-informed network
@@ -61,7 +61,7 @@ value. The order is total and recomputable from the record, which is what lets
 * 8,577 parameters
 * cost: 17.4 s to train [17.1, 17.6] over the seeds, 10.6 ms to predict the whole stream
 * relative L2, worst inside the window: 0.189; mean outside it: 0.450; last step: 0.783 [0.678, 0.889]
-* first left its domain at step 21 (t = 0.53) (threshold 0.050); the seed spread of that step is [21.000, 21.000] and the seeds read seed 0: step 21, seed 1: step 21
+* first left its domain at step 21 (t = 0.53) (threshold 0.050); the seed spread of that step is [21, 21] and the seeds read seed 0: step 21, seed 1: step 21
 * its own residual alarm never fired (threshold 5.288) while the reference column says the model left its domain: a monitor that stays silent on a model that left is a finding, not a blank
 
 ### Where they disagree and the reference decides
@@ -81,7 +81,7 @@ At step 40 (t = 1.00) the two fields are furthest apart: the distance between th
 * 37,121 parameters
 * cost: 43.5 s to train [34.5, 52.4] over the seeds, 192.5 ms to predict the whole stream
 * relative L2, worst inside the window: 3.033e-03; mean outside it: 0.019; last step: 0.042 [0.035, 0.049]
-* first left its domain at never (survived the whole stream) (threshold 0.050); the seed spread of that step is [41.000, 41.000] and the seeds read seed 0: never, seed 1: never
+* first left its domain at never (survived the whole stream) (threshold 0.050): every seed survived, and that is the result, not an empty cell
 * its own residual alarm never fired (threshold 2.858)
 
 ### pinn -- physics-informed network
@@ -90,7 +90,7 @@ At step 40 (t = 1.00) the two fields are furthest apart: the distance between th
 * 8,577 parameters
 * cost: 24.2 s to train [23.8, 24.7] over the seeds, 49.4 ms to predict the whole stream
 * relative L2, worst inside the window: 0.013; mean outside it: 0.044; last step: 0.082 [0.046, 0.118]
-* first left its domain at step 30 (t = 0.75), in 1 of 2 seeds (threshold 0.050); the seed spread of that step is [30.000, 41.000] and the seeds read seed 0: step 30, seed 1: never
+* first left its domain at step 30 (t = 0.75), in 1 of 2 seeds (threshold 0.050); the seed spread of that step is [30, 41] and the seeds read seed 0: step 30, seed 1: never
 * its own residual alarm never fired (threshold 0.258) while the reference column says the model left its domain: a monitor that stays silent on a model that left is a finding, not a blank
 
 ### Where they disagree and the reference decides

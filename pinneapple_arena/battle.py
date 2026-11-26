@@ -762,6 +762,15 @@ def page(results: Mapping[str, Any]) -> str:
             exit_fired = bool(exit_step.get("left_in_any_seed", exit_step["within_stream"]))
             alarm_fired = bool(alarm_step.get("left_in_any_seed", alarm_step["within_stream"]))
             alarm_threshold = _fmt(summary["exit_threshold"]["alarm_threshold"], 3)
+            if exit_fired:
+                spread = f"[{int(round(exit_step['min']))}, {int(round(exit_step['max']))}]"
+                left_line = (f"* first left its domain at {left} "
+                             f"(threshold {_fmt(summary['exit_threshold']['mean'], 3)}); the seed spread of that step "
+                             f"is {spread} and the seeds read {per_seed}")
+            else:
+                left_line = (f"* first left its domain at {left} "
+                             f"(threshold {_fmt(summary['exit_threshold']['mean'], 3)}): every seed survived, and "
+                             f"that is the result, not an empty cell")
             if alarm_fired:
                 alarm_line = f"* its own residual alarm first fired at {alarm} (threshold {alarm_threshold})"
             else:
@@ -779,9 +788,7 @@ def page(results: Mapping[str, Any]) -> str:
                       f"mean outside it: {_fmt(summary['rel_l2_out_window_mean']['mean'], 3)}; "
                       f"last step: {_fmt(summary['rel_l2_final']['mean'], 3)} "
                       f"[{_fmt(summary['rel_l2_final']['min'], 3)}, {_fmt(summary['rel_l2_final']['max'], 3)}]",
-                      f"* first left its domain at {left} "
-                      f"(threshold {_fmt(summary['exit_threshold']['mean'], 3)}); the seed spread of that step is "
-                      f"[{_fmt(exit_step['min'], 3)}, {_fmt(exit_step['max'], 3)}] and the seeds read {per_seed}",
+                      left_line,
                       alarm_line,
                       ""]
         d = block["disagreement"]

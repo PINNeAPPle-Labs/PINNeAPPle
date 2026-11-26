@@ -675,6 +675,7 @@
     "tests/test_pinnsformer_pointwise.py",
     "tests/test_pipe_stress_mechanics.py",
     "tests/test_piv_tools.py",
+    "tests/test_planetary_defence.py",
     "tests/test_playground.py",
     "tests/test_plugins.py",
     "tests/test_posterior.py",

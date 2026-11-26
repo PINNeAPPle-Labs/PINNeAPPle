@@ -117,7 +117,7 @@
  },
  "digital_twin_library": {
   "domain": "digital twins",
-  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share — two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list — which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
+  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share \u2014 two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list \u2014 which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
  },
  "dynamics_toolkit": {
   "domain": "dynamical systems",
@@ -195,7 +195,7 @@
  },
  "granular_dem": {
   "domain": "process engineering",
-  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign — drum, charge, liner facets, a bonded agglomerate and its breakage — and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
+  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign \u2014 drum, charge, liner facets, a bonded agglomerate and its breakage \u2014 and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
   "status": "not_convertible"
  },
  "handoff_cases": {
@@ -211,7 +211,7 @@
  },
  "industrial_presets": {
   "domain": "engineering presets",
-  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs. bolted_joint_preload has no flow on purpose: its deck is solved by an external CalculiX (ccx) binary, so on a machine without one the flow would record a written deck and no measurement — a quick configuration that never reproduces the committed numbers is worse than the stated reason"
+  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs. bolted_joint_preload has no flow on purpose: its deck is solved by an external CalculiX (ccx) binary, so on a machine without one the flow would record a written deck and no measurement \u2014 a quick configuration that never reproduces the committed numbers is worse than the stated reason"
  },
  "inspection": {
   "domain": "inspection",
@@ -470,5 +470,10 @@
  "worldmodel": {
   "domain": "world model",
   "notes": "nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder"
+ },
+ "planetary_defence": {
+  "domain": "astronomy",
+  "reason": "apophis_deflection.py is three measurements over one propagator: the momentum enhancement the published DART period change implies, the miss distance at the 2029 flyby against impactor mass and warning time, and an ensemble that turns the two into a success fraction and a trust horizon. What the example is about is the numbers against the public record, and each of the three is a library call (defence.dart_beta, defence.deflection_table, defence.trust_horizon) rather than a pipeline of node-sized steps, so there is no node graph that would say more than the script does",
+  "status": "not_convertible"
  }
 }

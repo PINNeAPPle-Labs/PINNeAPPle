@@ -1,0 +1,133 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/planetary_defence",
+ "title": "Apophis 2029: what a kinetic impactor buys, and how far ahead the miss can be guaranteed",
+ "description": "The momentum enhancement the published DART period change implies (the model is held to the mission that flew it), the miss distance at the 2029-04-13 Apophis flyby against impactor mass and warning time, and an ensemble over beta and the Yarkovsky A2 that turns the two into a success fraction and a trust horizon. The propagator is the one the repository ships (Sun, planets, Moon, the Sun's relativistic term, DE421) started from the bundled JPL osculating elements, and the encounter it produces is compared with the published one.",
+ "domain": "astronomy",
+ "methods": [
+  "N-body propagation",
+  "kinetic impactor deflection",
+  "momentum enhancement",
+  "Yarkovsky effect",
+  "uncertainty ensemble",
+  "trust horizon"
+ ],
+ "modules": [
+  "pinneapple_physics.astro.defence",
+  "pinneapple_physics.astro.smallbodies",
+  "pinneapple_physics.astro.orbits"
+ ],
+ "params": {
+  "target": "99942 Apophis",
+  "target_mass_kg": 54000000000.0,
+  "impactor_speed_km_s": 6.1,
+  "beta": 3.61,
+  "masses_kg": [
+   30.0,
+   100.0,
+   300.0,
+   1000.0,
+   3000.0,
+   10000.0
+  ],
+  "warning_years": [
+   1.0,
+   5.0,
+   10.0
+  ],
+  "what_if_mass_kg": 130000000.0,
+  "ensemble": {
+   "n": 6,
+   "beta_sigma": 0.35,
+   "a2_au_d2": -2.9e-14,
+   "a2_sigma": 3e-15,
+   "seed": 0
+  }
+ },
+ "scripts": [
+  "apophis_deflection.py"
+ ],
+ "metrics": [
+  {
+   "name": "beta_recovered_from_dart",
+   "value": 3.649,
+   "unit": "",
+   "how": "dart_beta() from the published 570 kg at 6.1 km/s and the 32-min period change of Dimorphos around Didymos; the published value is 3.61"
+  },
+  {
+   "name": "period_change_implied_minutes",
+   "value": -32.592,
+   "unit": "min",
+   "how": "delta_v with the recovered beta fed back through dP/P = 3 dv/v on the 11.92 h orbit; published -32 +/- 2"
+  },
+  {
+   "name": "apophis_2029_miss_km",
+   "value": 38356.2,
+   "unit": "km",
+   "how": "closest approach to the Earth on JD 2462240.41 (2029-04-13) from the bundled JPL elements, 7.41 km/s relative; 0.000256 au"
+  },
+  {
+   "name": "apophis_miss_1000kg_5yr_km",
+   "value": 38560.3,
+   "unit": "km",
+   "how": "the same encounter after a 1000 kg impactor 5 years earlier (0.408 mm/s): +204 km on the undeflected miss"
+  },
+  {
+   "name": "apophis_miss_10000kg_10yr_km",
+   "value": 40765.0,
+   "unit": "km",
+   "how": "10 000 kg 10 years earlier (4.078 mm/s): +2 409 km -- the heaviest case in the table, still a fraction of the Earth's radius"
+  },
+  {
+   "name": "what_if_50m_miss_1000kg_5yr_km",
+   "value": 125619.0,
+   "unit": "km",
+   "how": "the same impulse on a 50 m body (1.3e8 kg) on the same orbit: 169 mm/s and +87 000 km, i.e. a miss guaranteed by the deflection itself"
+  },
+  {
+   "name": "ensemble_spread_10yr_km",
+   "value": 21.0,
+   "unit": "km",
+   "how": "standard deviation of the miss over 6 draws of beta (sigma 0.35) and Yarkovsky A2 (sigma 3e-15 au/day^2) at 10 years; the Earth's radius is 6 371 km"
+  },
+  {
+   "name": "success_probability_10yr",
+   "value": 1.0,
+   "unit": "",
+   "how": "fraction of the ensemble further from the Earth than its radius at 10 years (1.00 at 1, 5 and 10 years)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the encounter the propagator produces against the published one",
+   "passed": true,
+   "detail": "38 356 km / 7.41 km/s against the ~31 000 km of the published solution: 20 %, the 16 perturbing asteroids this field does not carry"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/miss_vs_mass.png",
+   "figures/trust_horizon.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "apophis_deflection.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/planetary_defence.md",
+  "script": "examples/planetary_defence/apophis_deflection.py",
+  "pr": []
+ },
+ "references": [
+  "JPL Small-Body Database: 99942 Apophis elements (the bundled record, public domain)",
+  "DART / Dimorphos: 570 kg at 6.1 km/s, period change 32 +/- 2 min, beta = 3.61 (NASA/APL published results)"
+ ],
+ "status": "curated",
+ "provenance": {
+  "source": "register",
+  "methods": "named in the manifest",
+  "git": ""
+ }
+}

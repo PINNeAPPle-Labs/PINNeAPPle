@@ -130,6 +130,7 @@
     * [A trust report that can be re-verified later: signed with its model and inputs, residual recomputed on load](guides/signed_trust_report.md)
     * [The trust of a prediction as one object: every field a number with its source, or an explicit not measured](guides/trust_as_one_object.md)
     * [Bring your own foundation model: wrap it, check it, know where it stops](guides/pretrained_experts.md)
+    * [Planetary defence: what a kinetic impactor buys, and how far ahead the miss can be guaranteed](guides/planetary_defence.md)
     * [Reduced-order models and meshless methods, measured](guides/rom_and_meshless_studies.md)
     * [Detect false data injection with physics residuals](guides/physics_residual_attack_detection.md)
     * [The PINNeAPPle Observatory](guides/observatory.md)

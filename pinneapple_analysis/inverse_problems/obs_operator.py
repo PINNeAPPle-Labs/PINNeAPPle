@@ -9,7 +9,7 @@ Available operators
 PointObsOperator          y = u(x_obs)         sparse point measurements
 LinearObsOperator         y = A u              linear map (tomography, etc.)
 IntegralObsOperator       y = ∫ k(x) u(x) dx  spatial / temporal averages
-BoundaryObsOperator       y = u|_{∂Ω}          boundary measurements
+BoundaryObsOperator       y = u|_{∂Ω}          Dirichlet / Neumann boundary measurements
 ComposedObsOperator       [H₁; H₂; …]          stack multiple operators
 
 All operators expose:
@@ -128,6 +128,88 @@ class PointObsOperator(ObsOperatorBase):
         if self.output_indices is not None:
             out = out[:, self.output_indices]
         return out
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Boundary observations (Dirichlet values or normal derivatives)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class BoundaryObsOperator(PointObsOperator):
+    """Evaluate field values or normal derivatives at boundary locations.
+
+    With no normals, this is a Dirichlet observation and behaves like
+    PointObsOperator. When outward boundary normals are supplied, it
+    evaluates the Neumann observable grad(u) dot n at each boundary point.
+
+    Parameters
+    ----------
+    boundary_locations : torch.Tensor, shape (N_boundary, d)
+        Coordinates sampled on the boundary.
+    normals : torch.Tensor, optional, shape (N_boundary, d)
+        Outward unit normals. Supplying normals selects normal-derivative
+        observations; omit them for field-value observations.
+    output_indices : list of int, optional
+        Model output channels to observe.
+    """
+
+    def __init__(
+        self,
+        boundary_locations: torch.Tensor,
+        normals: Optional[torch.Tensor] = None,
+        output_indices: Optional[List[int]] = None,
+    ) -> None:
+        super().__init__(boundary_locations, output_indices)
+        if normals is not None and normals.shape != boundary_locations.shape:
+            raise ValueError("normals must have the same shape as boundary_locations; "
+                             f"got {tuple(normals.shape)} and {tuple(boundary_locations.shape)}")
+        self.normals = normals
+
+    def __call__(
+        self,
+        model: nn.Module,
+        x_obs: Optional[torch.Tensor] = None,
+        *,
+        params: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        if self.normals is None:
+            return super().__call__(model, x_obs, params=params)
+
+        try:
+            device = next(model.parameters()).device
+        except StopIteration:
+            device = torch.device("cpu")
+
+        x = (x_obs if x_obs is not None else self.sensor_locations).to(device)
+        normals = self.normals.to(device=device, dtype=x.dtype)
+        if normals.shape != x.shape:
+            raise ValueError("normals must match the evaluated boundary locations; "
+                             f"got {tuple(normals.shape)} and {tuple(x.shape)}")
+
+        with torch.enable_grad():
+            x = x.detach().requires_grad_(True)
+            out = model(x)
+            if hasattr(out, 'y'):
+                out = out.y
+            if out.ndim == 1:
+                out = out.unsqueeze(-1)
+            if self.output_indices is not None:
+                out = out[:, self.output_indices]
+
+            normal_derivatives = []
+            if not out.requires_grad:
+                return out.new_zeros((out.shape[0], out.shape[-1]))
+            for channel in range(out.shape[-1]):
+                gradient = torch.autograd.grad(
+                    out[:, channel].sum(),
+                    x,
+                    create_graph=True,
+                    retain_graph=True,
+                    allow_unused=True,
+                )[0]
+                if gradient is None:
+                    gradient = torch.zeros_like(x)
+                normal_derivatives.append((gradient * normals).sum(dim=-1))
+
+            return torch.stack(normal_derivatives, dim=-1)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -277,6 +359,7 @@ class ComposedObsOperator(ObsOperatorBase):
 __all__ = [
     "ObsOperatorBase",
     "PointObsOperator",
+    "BoundaryObsOperator",
     "LinearObsOperator",
     "IntegralObsOperator",
     "ComposedObsOperator",

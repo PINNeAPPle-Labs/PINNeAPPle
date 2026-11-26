@@ -66,8 +66,11 @@ def advection_residual(field: np.ndarray, u: np.ndarray, v: np.ndarray, hours: f
 
     ``field``: ``(steps + 1, lat, lon)``; ``u``, ``v``: the advecting wind in m/s, ``(steps + 1, lat, lon)`` or
     ``(lat, lon)`` (one analysis wind for the whole window). ``hours`` is the interval between two steps. The value is
-    ``||dc/dt + u.grad c|| / ||dc/dt||`` with the area weights ``weights`` (cosine of latitude by default): 0 for a
-    field that is exactly advected, ~1 for a change with no advective structure, and it needs no reference field.
+    ``||dc/dt + u.grad c|| / max(||dc/dt||, ||u.grad c||)`` with the area weights ``weights`` (cosine of latitude by
+    default): 0 for a field that is exactly advected, ~1 for a change with no advective structure -- or for a tracer
+    that sits still under a wind that should carry it, which is the same failure from the other side -- and it needs
+    no reference field. The denominator is the larger of the two terms so that a field which does not change at all is
+    judged against the advection that should have moved it, instead of dividing by zero.
     """
     c = np.asarray(field, float)
     if c.ndim != 3 or c.shape[0] < 2:
@@ -79,16 +82,19 @@ def advection_residual(field: np.ndarray, u: np.ndarray, v: np.ndarray, hours: f
     v = np.asarray(v, float)
     u = np.broadcast_to(u[None] if u.ndim == 2 else u, c.shape)
     v = np.broadcast_to(v[None] if v.ndim == 2 else v, c.shape)
-    num = den = 0.0
+    num = den_t = den_a = 0.0
     for k in range(1, c.shape[0]):
         tend = (c[k] - c[k - 1]) / dt
         gx, gy = sphere_gradient(c[k], lat, lon)
         gx0, gy0 = sphere_gradient(c[k - 1], lat, lon)
         gx, gy = 0.5 * (gx + gx0), 0.5 * (gy + gy0)                 # gradient at the middle of the interval
-        res = tend + 0.5 * (u[k] + u[k - 1]) * gx + 0.5 * (v[k] + v[k - 1]) * gy
+        adv = 0.5 * (u[k] + u[k - 1]) * gx + 0.5 * (v[k] + v[k - 1]) * gy
+        res = tend + adv
         num += float(np.sum(res ** 2 * w[:, None]))
-        den += float(np.sum(tend ** 2 * w[:, None]))
-    return float(np.sqrt(num / max(den, 1e-300)))
+        den_t += float(np.sum(tend ** 2 * w[:, None]))
+        den_a += float(np.sum(adv ** 2 * w[:, None]))
+    den = max(den_t, den_a)
+    return 0.0 if den <= 0.0 else float(np.sqrt(num / den))
 
 
 def advection_check(wind_of: Callable[[Any], tuple], tolerance: float, lat: Sequence[float], lon: Sequence[float],

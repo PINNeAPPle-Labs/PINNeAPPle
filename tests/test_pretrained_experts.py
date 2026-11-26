@@ -157,8 +157,12 @@ def test_the_array_archive_adapter_reads_by_initialisation_time(store, tmp_path)
 
 
 def test_the_weatherbench2_adapter_uses_the_loader_of_the_skill_curves(store, monkeypatch):
-    """Injected source: the adapter maps a query to the published array exactly as ``PublishedForecasts`` returns it."""
-    fields = np.zeros((3, len(CHANNELS), 32, 64), np.float32)
+    """Injected source: the adapter maps a query to the published array exactly as ``PublishedForecasts`` returns it.
+
+    The published archives carry a handful of channels, not the whole state: what they do not carry arrives as NaN,
+    which is what the adapter refuses by name instead of returning a field of missing values.
+    """
+    fields = np.full((3, len(CHANNELS), 32, 64), np.nan, np.float32)
     fields[:, CHANNELS.index("t850")] = 280.0
     ad = WeatherBench2Adapter(store, "IFS HRES", forecast=lambda i0, steps: fields[:steps + 1])
     y = ad.predict({"i0": 0, "steps": 2, "variable": "t850"})
@@ -187,7 +191,10 @@ def test_the_cost_estimate_follows_the_query_and_the_ensemble_uses_it(store):
     ens = PhysicsEnsemble([e, from_callable("cheap", lambda q: np.full((5, 32, 64), 0.0), cost=0.01)])
     run = ens.run([{"i0": 0, "steps": 4, "variable": "z500"}], [np.zeros((5, 32, 64))])
     assert run.costs[0, 0] == pytest.approx(short) and run.costs[0, 1] == pytest.approx(0.01)
-    assert run.summary()["mean_cost_per_case"] == pytest.approx(short + 0.01)
+    # the summary is the cost of the mixture: the weights sum to one, so a case that runs two experts costs the
+    # weighted mean of the two, not their sum
+    assert run.weights[0].sum() == pytest.approx(1.0)
+    assert run.summary()["mean_cost_per_case"] == pytest.approx(float((run.weights * run.costs).sum(axis=1).mean()))
 
 
 def test_the_torch_adapter_rolls_out_its_checkpoint_and_measures_its_step(store, tmp_path):

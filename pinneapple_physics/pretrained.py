@@ -265,7 +265,8 @@ class WeatherBench2Adapter(Adapter):
             why = self._pub.errors.get(self.name, "the archive is not in WeatherBench2's published baselines")
             raise PretrainedUnavailable(
                 f"{self.name}: the published forecasts could not be opened ({why}). They live in the public bucket "
-                f"{self.model.source if self.model else 'gs://weatherbench2'}: check the network, or install gcsfs, "
+                f"{getattr(self, 'model', None).source if getattr(self, 'model', None) else 'gs://weatherbench2'}: "
+                f"check the network, or install gcsfs, "
                 f"or download the subset once and pass forecast=<a local copy with the same contract>")
         self._forecast, self._opened = self._pub(self.name), True
         self._wb2 = WB2_NAMES
@@ -380,10 +381,15 @@ class ArrayArchiveAdapter(Adapter):
     """
     family = "weather"
 
-    def __init__(self, path: str, store: Any = None, name: str = "archive"):
+    def __init__(self, path: str, store: Any = None, name: str = ""):
         super().__init__(name=name, family="weather")
         self.path, self.store = str(path), store
         self._a = None
+
+    @property
+    def who(self) -> str:
+        """How this adapter names itself in a message: its own name when the caller gave one, else the archive's."""
+        return self.name or "the array archive"
 
     def open(self) -> ArrayArchiveAdapter:
         if self._a is not None:
@@ -391,7 +397,7 @@ class ArrayArchiveAdapter(Adapter):
         try:
             z = np.load(self.path)
         except FileNotFoundError as exc:
-            raise PretrainedUnavailable(f"{self.name}: no archive at {self.path} (save one with "
+            raise PretrainedUnavailable(f"{self.who}: no archive at {self.path} (save one with "
                                         f"ArrayArchiveAdapter.save)") from exc
         self._a = {"fields": z["fields"], "times": z["times"], "channels": [str(c) for c in z["channels"]]}
         return self
@@ -410,7 +416,7 @@ class ArrayArchiveAdapter(Adapter):
         t = np.datetime64(self.store.times[i0], "ns")
         hit = np.nonzero(self._a["times"] == t)[0]
         if not hit.size:
-            raise PretrainedUnavailable(f"{self.name}: the archive has no initialisation at {t}")
+            raise PretrainedUnavailable(f"{self.who}: the archive has no initialisation at {t}")
         return int(hit[0])
 
     def predict(self, query: Any) -> np.ndarray:
@@ -419,8 +425,8 @@ class ArrayArchiveAdapter(Adapter):
         steps = int(query["steps"])
         f = self._a["fields"][self._index(query)]
         if steps + 1 > f.shape[0]:
-            raise PretrainedUnavailable(f"{self.name}: the archive holds {f.shape[0] - 1} leads, {steps} asked")
-        return _channel(f[:steps + 1], self._a["channels"], query.get("variable"), self.name)
+            raise PretrainedUnavailable(f"{self.who}: the archive holds {f.shape[0] - 1} leads, {steps} asked")
+        return _channel(f[:steps + 1], self._a["channels"], query.get("variable"), self.who)
 
     def cost(self, query: Any = None) -> float:
         return 0.01                                     # memory-mapped local read
@@ -515,6 +521,11 @@ def from_pretrained_expert(name: str, adapter: Adapter | None = None, *, licence
     instead of being ignored; ``require_verified`` does the same for a licence nobody read at the source
     (``NOASSERTION``). ``cost`` overrides the adapter's estimate; ``lazy`` defers :meth:`Adapter.open` to the first
     prediction, so building an ensemble does not download anything.
+
+    The expert is named after the adapter when the adapter was given a name of its own, and after ``name`` -- the
+    model -- when it was not: the archive adapters keep an empty name by default, so wrapping one for
+    ``"pangu-weather"`` puts the *model* in the ensemble and in :func:`licence_report`, while
+    ``HuggingFaceAdapter(..., name="depth")`` puts the adapter's label there. Both records stay in the provenance.
     """
     model = REGISTRY.get(name)
     if model is None and licence is None:

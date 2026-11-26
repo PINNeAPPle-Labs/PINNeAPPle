@@ -129,7 +129,7 @@ class ValidationDossier:
         else:
             ap = c.applicability
             lines.append(f"- requested condition: {ap.requested_condition or 'not named'}")
-            lines.append(f"- verified ranges: "
+            lines.append("- verified ranges: "
                          + (", ".join(f"{n} in [{lo:g}, {hi:g}]" for n, lo, hi in ap.verified_ranges) or "none"))
             lines.append("- outside the verified range: "
                          + (", ".join(ap.outside_variables) if ap.outside_variables else "none"))
@@ -214,9 +214,48 @@ class ValidationDossier:
                       f"({'inside' if r.within(c.profile.target_error_pct) else 'above'}); {r.source or 'source not stated'}")
         if not c.references:
             md.append("- no comparison against an independent reference")
+        md += ["", "## Applicability", ""]
+        if c.applicability is None:
+            md.append("- not assessed")
+        else:
+            ap = c.applicability
+            md.append(f"- requested condition: {ap.requested_condition or 'not named'}")
+            md.append("- verified ranges: "
+                      + (", ".join(f"{n} in [{lo:g}, {hi:g}]" for n, lo, hi in ap.verified_ranges) or "none"))
+            md.append("- outside the verified range: "
+                      + (", ".join(ap.outside_variables) if ap.outside_variables else "none"))
+            if ap.supported_margin is not None:
+                md.append(f"- measured extrapolation margin: +{ap.supported_margin:.0%}")
+            md += [f"- note: {n}" for n in ap.notes]
+        md += ["", "## Uncertainty", ""]
+        if c.uncertainty is None:
+            md.append("- none recorded: the prediction is a point estimate")
+        else:
+            u = c.uncertainty
+            bits = [f"method: {u.method}",
+                    "calibrated against reference data" if u.calibrated else "NOT calibrated (a disagreement bar)"]
+            if u.spread_pct is not None:
+                bits.append(f"spread {u.spread_pct:g} % of field scale")
+            if u.coverage is not None:
+                bits.append(f"coverage {u.coverage:.2f}" + ("" if u.target_coverage is None
+                                                           else f" vs target {u.target_coverage:.2f}"))
+            md.append("- " + "; ".join(bits))
+            if u.limitation:
+                md.append(f"- limitation: {u.limitation}")
+        md += ["", "## Limitations", ""]
+        md += [f"- {x}" for x in c.limitations] or ["- none recorded (that is itself a gap, not a clean bill)"]
         md += ["", "## Maturity", "", "```", a.maturity.render(), "```", "", "## Expert decisions", ""]
         md += [f"- {r.decided_at} **{r.reviewer}**: {r.decision} — {r.justification}"
                + (f" (scope: `{dict(r.scope)}`)" if r.scope else "") for r in c.reviews] or ["- none recorded"]
+        p = c.provenance
+        md += ["", "## RunProvenance", "",
+               f"- tool: {p.tool or '?'} {p.tool_version}" + (f"; python {p.python}" if p.python else ""),
+               f"- inputs sha256: {p.data_sha256 or 'not recorded'}",
+               f"- code sha256: {p.code_sha256 or 'not recorded'}",
+               f"- seeds: {list(p.seeds) or 'not recorded'}",
+               f"- tolerances: {dict(p.tolerances) or 'not recorded'}"]
+        if p.compute:
+            md.append(f"- compute: {dict(p.compute)}")
         md += ["", "## Revision history", ""]
         md += [f"- rev {r.revision} {r.created_at} `{r.status}` {r.action} — sha256 `{r.snapshot_sha256[:12]}`"
                for r in c.history] or ["- no revision recorded"]

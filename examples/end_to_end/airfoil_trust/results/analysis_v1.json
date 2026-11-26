@@ -1,0 +1,313 @@
+{
+ "inputs": [
+  "alpha_deg",
+  "speed",
+  "thickness",
+  "camber"
+ ],
+ "qoi": [
+  "CL",
+  "CD",
+  "CD_pressure",
+  "CD_friction",
+  "CM"
+ ],
+ "dataset": {
+  "n": 60,
+  "failed": [],
+  "cost_s": 4974.897441166002,
+  "splits": {
+   "train": 32,
+   "calibration": 12,
+   "validation": 16
+  }
+ },
+ "basis": {
+  "names": [
+   "u",
+   "v",
+   "cp"
+  ],
+  "sizes": {
+   "u": 656,
+   "v": 656,
+   "cp": 656
+  },
+  "n_modes": 8,
+  "singular_values": [
+   763.0097932132691,
+   319.0327170994536,
+   67.73284402809915,
+   44.28355475169935,
+   39.89891616182508,
+   37.24523473114323,
+   34.664784524304125,
+   31.48844449516204,
+   29.619494089337827
+  ],
+  "energy_captured": 0.9886892665540722,
+  "reconstruction_rel_error": 0.10635193202724554,
+  "held_out_reconstruction_rel_l2": 0.04645307168708889
+ },
+ "mesh_study": {
+  "meshes": [
+   {
+    "name": "L0",
+    "cells": 6427,
+    "h_rel": 1.0,
+    "cost_s": 64.14895083400188
+   },
+   {
+    "name": "L1",
+    "cells": 8603,
+    "h_rel": 0.6875000000000001,
+    "cost_s": 89.85559149999608
+   },
+   {
+    "name": "L2",
+    "cells": 11540,
+    "h_rel": 0.4791666666666667,
+    "cost_s": 231.83582070800185
+   },
+   {
+    "name": "L3",
+    "cells": 16117,
+    "h_rel": 0.33333333333333337,
+    "cost_s": 0.0
+   }
+  ],
+  "CL": {
+   "values": [
+    0.4522118935586035,
+    0.4430536708354115,
+    0.4466503373790524,
+    0.4422884134912718
+   ],
+   "triplets": [
+    {
+     "meshes": [
+      "L0",
+      "L1",
+      "L2"
+     ],
+     "values": [
+      0.4466503373790524,
+      0.4430536708354115,
+      0.4522118935586035
+     ],
+     "sizes": [
+      0.4791666666666667,
+      0.6875000000000001,
+      1.0
+     ],
+     "r21": 1.4347826086956523,
+     "r32": 1.4545454545454544,
+     "status": "warn",
+     "note": "oscillatory convergence: the GCI formula does not apply; report the range 0.443054 to 0.452212"
+    },
+    {
+     "meshes": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "values": [
+      0.4422884134912718,
+      0.4466503373790524,
+      0.4430536708354115
+     ],
+     "sizes": [
+      0.33333333333333337,
+      0.4791666666666667,
+      0.6875000000000001
+     ],
+     "r21": 1.4375,
+     "r32": 1.4347826086956523,
+     "status": "warn",
+     "note": "oscillatory convergence: the GCI formula does not apply; report the range 0.442288 to 0.44665"
+    }
+   ],
+   "status": "warn",
+   "p": null,
+   "extrapolated": null,
+   "gci_fine": null,
+   "note": "oscillatory convergence: the GCI formula does not apply; report the range 0.442288 to 0.44665",
+   "error_vs_extrapolated": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "error_vs_finest": [
+    0.022436672010010754,
+    0.0017302224539390565,
+    0.00986217082502591,
+    0.0
+   ]
+  },
+  "CD": {
+   "values": [
+    0.00550001961563591,
+    0.010562611486533665,
+    0.011080722070324189,
+    0.012043500793516208
+   ],
+   "triplets": [
+    {
+     "meshes": [
+      "L0",
+      "L1",
+      "L2"
+     ],
+     "values": [
+      0.011080722070324189,
+      0.010562611486533665,
+      0.00550001961563591
+     ],
+     "sizes": [
+      0.4791666666666667,
+      0.6875000000000001,
+      1.0
+     ],
+     "r21": 1.4347826086956523,
+     "r32": 1.4545454545454544,
+     "p": 6.056780229225441,
+     "extrapolated": 0.011146266747782008,
+     "gci_fine": 0.007393998902083931,
+     "gci_medium": 0.06907089951121577,
+     "asymptotic_ratio": 1.0490513718582484,
+     "safety_factor": 1.25,
+     "status": "pass",
+     "note": "fine-mesh numerical uncertainty about 0.74% (observed order 6.06); in the asymptotic range"
+    },
+    {
+     "meshes": [
+      "L1",
+      "L2",
+      "L3"
+     ],
+     "values": [
+      0.012043500793516208,
+      0.011080722070324189,
+      0.010562611486533665
+     ],
+     "sizes": [
+      0.33333333333333337,
+      0.4791666666666667,
+      0.6875000000000001
+     ],
+     "r21": 1.4375,
+     "r32": 1.4347826086956523,
+     "p": 1.6881766646020997,
+     "extrapolated": 0.013182462818285452,
+     "gci_fine": 0.11821334638247602,
+     "gci_medium": 0.06962757904177815,
+     "asymptotic_ratio": 0.31918677096732867,
+     "safety_factor": 1.25,
+     "status": "warn",
+     "note": "fine-mesh numerical uncertainty about 11.82% (observed order 1.69); not yet in the asymptotic range: refine further before quoting the uncertainty"
+    }
+   ],
+   "status": "warn",
+   "p": 1.6881766646020997,
+   "extrapolated": 0.013182462818285452,
+   "gci_fine": 0.11821334638247602,
+   "note": "fine-mesh numerical uncertainty about 11.82% (observed order 1.69); not yet in the asymptotic range: refine further before quoting the uncertainty",
+   "error_vs_extrapolated": [
+    0.5827775362273877,
+    0.19873762345210483,
+    0.15943460466627904,
+    0.08639979042378826
+   ],
+   "error_vs_finest": [
+    0.5433205253245863,
+    0.12296169796242308,
+    0.07994176607771265,
+    0.0
+   ]
+  },
+  "representative_size": "first cell height: every spacing is refined by the same factor 1.45 per level"
+ },
+ "calibration": {
+  "qoi": {
+   "CL_rmse": 0.02384493721405224,
+   "CL_mae": 0.018612640976520066,
+   "CL_max_abs": 0.05127179429269694,
+   "CL_rel_l2": 0.05428293700203812,
+   "CD_rmse": 0.0006325464035287052,
+   "CD_mae": 0.0005452023829309466,
+   "CD_max_abs": 0.001094453585171469,
+   "CD_rel_l2": 0.055962042582076224,
+   "CD_pressure_rmse": 0.0003498362162546894,
+   "CD_pressure_mae": 0.0002910741434472668,
+   "CD_pressure_max_abs": 0.0006574860121525577,
+   "CD_pressure_rel_l2": 0.07547957203730483,
+   "CD_friction_rmse": 0.0003537205396364821,
+   "CD_friction_mae": 0.00031141811008862983,
+   "CD_friction_max_abs": 0.0006655540370895273,
+   "CD_friction_rel_l2": 0.04903026263918234,
+   "CM_rmse": 0.0015897836455337588,
+   "CM_mae": 0.0013411315356480099,
+   "CM_max_abs": 0.0029031579308353905,
+   "CM_rel_l2": 0.5622168541447867
+  },
+  "field_rel_l2_mean": 0.15058730272850318,
+  "field_rel_l2_worst": 0.7406798712932119,
+  "ensemble_spread_qoi": {
+   "CL": 0.02819055663945741,
+   "CD": 0.00047497852386891134,
+   "CD_pressure": 0.00023732521762775144,
+   "CD_friction": 0.0003055393963823253,
+   "CM": 0.0006489944512040245
+  },
+  "calibration": {
+   "coverage_1s": 0.43333333333333335,
+   "coverage_2s": 0.6333333333333333,
+   "target_1s": 0.68,
+   "target_2s": 0.95,
+   "sharpness_1s": 0.01187676842506937,
+   "ece": 0.2033333333333333
+  }
+ },
+ "validation": {
+  "qoi": {
+   "CL_rmse": 0.021317954036293153,
+   "CL_mae": 0.016811408279191795,
+   "CL_max_abs": 0.04293142111323085,
+   "CL_rel_l2": 0.048358565675710175,
+   "CD_rmse": 0.00092744222474723,
+   "CD_mae": 0.0007546054802487062,
+   "CD_max_abs": 0.0018222147723669473,
+   "CD_rel_l2": 0.08131565293272443,
+   "CD_pressure_rmse": 0.0005103049382574325,
+   "CD_pressure_mae": 0.0004102753255246545,
+   "CD_pressure_max_abs": 0.0010264156115459707,
+   "CD_pressure_rel_l2": 0.10974534577127106,
+   "CD_friction_rmse": 0.0004876995433008133,
+   "CD_friction_mae": 0.000383298212415667,
+   "CD_friction_max_abs": 0.0009187977119892391,
+   "CD_friction_rel_l2": 0.06690410981457733,
+   "CM_rmse": 0.001204973714498331,
+   "CM_mae": 0.0009537877176716828,
+   "CM_max_abs": 0.003020103291999589,
+   "CM_rel_l2": 0.5538254455021714
+  },
+  "field_rel_l2_mean": 0.14819752094812866,
+  "field_rel_l2_worst": 0.6937850036448125,
+  "ensemble_spread_qoi": {
+   "CL": 0.02658410713059943,
+   "CD": 0.0004319389080584048,
+   "CD_pressure": 0.00022285296508344702,
+   "CD_friction": 0.00028252158634064085,
+   "CM": 0.0004995675318760226
+  },
+  "calibration": {
+   "coverage_1s": 0.425,
+   "coverage_2s": 0.7125,
+   "target_1s": 0.68,
+   "target_2s": 0.95,
+   "sharpness_1s": 0.011146277013283173,
+   "ece": 0.19874999999999995
+  }
+ }
+}

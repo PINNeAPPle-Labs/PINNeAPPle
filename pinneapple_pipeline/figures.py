@@ -68,15 +68,20 @@ def _parity(state, plt):
         data = study.data
         truth = np.asarray(data.Y)[idx].reshape(len(idx), -1)
         guess = np.asarray(study.model.predict_array(np.asarray(data.X)[idx])).reshape(truth.shape)
-        n = min(truth.shape[1], 3)
+        # the outputs worth a panel: a field is one output of many columns and a flat one says nothing
+        spread = truth.std(axis=0)
+        columns = [int(i) for i in np.argsort(spread)[::-1][:3] if spread[i] > 0] or [0]
+        n = len(columns)
         fig, axes = plt.subplots(1, n, figsize=(4 * n, 3.6), squeeze=False)
-        for i, ax in enumerate(axes[0]):
+        for ax, i in zip(axes[0], columns, strict=True):
             ax.plot(truth[:, i], guess[:, i], "o", ms=4, alpha=0.8)
             lo, hi = float(np.min(truth[:, i])), float(np.max(truth[:, i]))
             ax.plot([lo, hi], [lo, hi], "k--", lw=0.8)
             ax.set_xlabel("reference solve")
             ax.set_ylabel("surrogate")
-            ax.set_title(data.output_names[i] if i < len(data.output_names) else f"output {i}", fontsize=9)
+            name = data.output_names[0] if len(data.output_names) == 1 else (
+                data.output_names[i] if i < len(data.output_names) else f"output {i}")
+            ax.set_title(name if len(data.output_names) == 1 else name, fontsize=9)
             ax.grid(alpha=0.3)
         fig.suptitle(f"{state.cfg.name}: held-out cases", fontsize=10)
         return fig
@@ -114,7 +119,19 @@ def _error_map(state, plt):
         X = np.asarray(data.X)[idx]
         truth = np.asarray(data.Y)[idx]
         guess = np.asarray(study.model.predict_array(X))
-        err = np.abs(guess.reshape(truth.shape) - truth).mean(axis=tuple(range(1, truth.ndim)))
+        predicted = guess.reshape(truth.shape)
+        if data.kind == "field" and data.grid_shape:          # the field of one held-out case, and its error
+            shape = tuple(data.grid_shape)
+            case = 0
+            field = predicted[case].reshape(shape)
+            exact = truth[case].reshape(shape)
+            fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.2), squeeze=False)
+            for ax, values, title in ((axes[0][0], field, "surrogate"), (axes[0][1], np.abs(field - exact),
+                                                                         "|surrogate - reference|")):
+                _field_panel(ax, values, (data.coords if data.coords is not None else None), title)
+            fig.suptitle(f"{state.cfg.name}: one held-out case", fontsize=10)
+            return fig
+        err = np.abs(predicted - truth).mean(axis=tuple(range(1, truth.ndim)))
         fig, ax = plt.subplots(figsize=(4.8, 3.4))
         if X.shape[1] == 1:
             order = np.argsort(X[:, 0])
@@ -147,4 +164,58 @@ def _error_map(state, plt):
     return fig
 
 
-_PLOTS = {"training_loss": _training_loss, "parity": _parity, "error_map": _error_map}
+def _geometry_source(state, g) -> Path | None:
+    """The STL of the declared geometry, built here if the gate has not built it yet (figure before verification)."""
+    source = Path(getattr(state, "geometry_path", "") or getattr(g, "path", ""))
+    if source.is_file():
+        return source
+    if g.source != "builder":
+        return None
+    from .verification import materialize_geometry
+
+    try:
+        return Path(materialize_geometry(g, Path(state.out_dir) / "geometry" / "surface.stl"))
+    except Exception:                                             # a builder that cannot run is the gate's story
+        return None
+
+
+def _geometry(state, plt):
+    """The surface the run declared: what the geometry gate measured, drawn."""
+    g = getattr(state.cfg, "geometry", None)
+    if g is None or g.source not in ("file", "builder"):
+        return None
+    from pinneapple_data.cae.io import read_stl
+
+    source = _geometry_source(state, g)
+    if source is None:
+        return None
+    mesh = read_stl(source.read_bytes())
+    triangles = np.concatenate([b.corners for b in mesh.blocks if b.dim == 2])
+    points = np.asarray(mesh.points, float) * float(g.length_scale) * 1e3          # millimetres, for the axes
+    fig = plt.figure(figsize=(5.0, 3.6))
+    ax = fig.add_subplot(111, projection="3d")
+    ax.plot_trisurf(points[:, 0], points[:, 1], points[:, 2], triangles=triangles[:, :3], cmap="viridis",
+                    linewidth=0.1, antialiased=True, shade=True)
+    ax.set_xlabel("x [mm]")
+    ax.set_ylabel("y [mm]")
+    ax.set_zlabel("z [mm]")
+    label = f"{g.builder} built here" if g.source == "builder" else source.name
+    ax.set_title(f"{state.cfg.name}: {label}, {len(triangles)} faces", fontsize=9)
+    ax.tick_params(labelsize=7)
+    return fig
+
+
+def _field_panel(ax, values, coords, title: str) -> None:
+    """A 1-D curve or a 2-D map, depending on the grid the dataset carries."""
+    v = np.asarray(values, float)
+    if v.ndim == 1:
+        x = np.asarray(coords)[:, 0] if coords is not None and len(coords) == len(v) else np.arange(len(v))
+        ax.plot(x, v, lw=1.2)
+        ax.set_xlabel("x")
+    else:
+        ax.imshow(v, origin="lower", aspect="auto", cmap="viridis")
+    ax.set_title(title, fontsize=9)
+    ax.tick_params(labelsize=7)
+
+
+_PLOTS = {"training_loss": _training_loss, "parity": _parity, "error_map": _error_map, "geometry": _geometry}

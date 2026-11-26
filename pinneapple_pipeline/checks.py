@@ -84,18 +84,31 @@ def predict_for_run(run_dir, X):
 
 # --------------------------------------------------------------------------------------------------- the files
 def _names(state) -> tuple[list[str], list[str]]:
-    """The model's inputs and outputs, in the order the backend takes them."""
+    """The model's inputs and outputs, in the order the backend takes them.
+
+    A field surrogate answers one row per case with one column per grid point, and the checker speaks in named
+    scalar outputs: the field's columns are declared as ``u[0] … u[N-1]`` so its rules (finite values, bounds) apply
+    to each grid point instead of being skipped.
+    """
     cfg, bundle = state.cfg, state.bundle
     if cfg.data.is_physics_only:
         return list(bundle.coords), list(bundle.fields)
     dataset = state.dataset
     if dataset is not None:
-        return list(dataset.input_names), list(dataset.output_names)
+        return list(dataset.input_names), _expand(dataset.output_names, dataset.grid_shape)
     saved = state.stages["preprocess"].artifacts.get("dataset_report")
     if saved and Path(saved).is_file():
         report = json.loads(Path(saved).read_text(encoding="utf-8"))
         return list(report["inputs"]), list(report["outputs"])
     return [], []
+
+
+def _expand(names: list[str], grid_shape: tuple[int, ...]) -> list[str]:
+    """One name per column of a field output."""
+    width = int(np.prod(grid_shape)) if grid_shape else 0
+    if not width or len(names) != 1:
+        return list(names)
+    return [f"{names[0]}[{i}]" for i in range(width)]
 
 
 def _ranges(state, inputs: list[str]) -> dict[str, list[float]]:

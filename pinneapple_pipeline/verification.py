@@ -44,6 +44,70 @@ DEFAULT_ACCEPTANCE = {
 }
 
 
+def _builder_arguments(fn, parameters: dict) -> dict:
+    """The declared parameters, cast to what the builder asks for.
+
+    A resolution is an ``int``: ``{"n": 36}`` arrives as 36 from a JSON config, but a config written in Python may
+    say ``36.0`` and ``np.linspace`` refuses a float count. The builders annotate their parameters, so the annotation
+    decides (``int``, ``float``, ``str``, ``tuple``); a list is read as a tuple of floats.
+    """
+    import inspect
+
+    signature = inspect.signature(fn)
+    out: dict[str, Any] = {}
+    for name, value in parameters.items():
+        parameter = signature.parameters.get(name)
+        wanted = str(getattr(parameter, "annotation", "") or "")
+        if not wanted and parameter is not None and isinstance(parameter.default, (int, float, str)):
+            wanted = type(parameter.default).__name__
+        if wanted == "int":
+            out[name] = int(value)
+        elif wanted == "float":
+            out[name] = float(value)
+        elif wanted == "bool":
+            out[name] = bool(value)
+        elif wanted in ("tuple", "Tuple") and not isinstance(value, str):
+            sequence = value if isinstance(value, (list, tuple)) else (value,)
+            out[name] = tuple(sequence[0] if isinstance(sequence[0], str) else float(x) for x in sequence)
+        elif wanted == "str":
+            out[name] = str(value)
+        elif isinstance(value, str):
+            out[name] = value
+        elif isinstance(value, (list, tuple)):
+            out[name] = tuple(float(x) for x in value)
+        else:
+            out[name] = int(value) if isinstance(value, int) else value
+    return out
+
+
+def materialize_geometry(g, target) -> Any:
+    """Build ``g.builder`` with ``pinneapple_design.geometry.bodies`` and write it as a binary STL at ``target``."""
+    import struct
+    from pathlib import Path
+
+    import numpy as np
+
+    from pinneapple_design.geometry import bodies
+
+    fn = getattr(bodies, g.builder)
+    vertices, faces = fn(**_builder_arguments(fn, g.parameters))
+    v = np.asarray(vertices, float)
+    f = np.asarray(faces, int)
+    data = b"\0" * 80 + struct.pack("<I", len(f))
+    for tri in f:
+        a, b, c = v[tri[0]], v[tri[1]], v[tri[2]]
+        n = np.cross(b - a, c - a)
+        n = n / (np.linalg.norm(n) or 1.0)
+        data += struct.pack("<3f", *n)
+        for p in (a, b, c):
+            data += struct.pack("<3f", *p)
+        data += struct.pack("<H", 0)
+    target = Path(target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(data)
+    return target
+
+
 def _accept(cfg, name: str) -> float:
     return cfg.verification.threshold(name, DEFAULT_ACCEPTANCE[name])
 
@@ -124,6 +188,8 @@ def gate_problem(state) -> VerificationResult:
 def gate_geometry(state) -> VerificationResult:
     cfg = state.cfg
     g = getattr(cfg, "geometry", None)
+    if g is not None and g.source == "builder":
+        return _gate_geometry_file(state, g, built=True)
     if g is not None and g.source == "file":
         return _gate_geometry_file(state, g)
     geometry = getattr(state.bundle.problem, "geometry", None)
@@ -139,12 +205,26 @@ def gate_geometry(state) -> VerificationResult:
     return r
 
 
-def _gate_geometry_file(state, g) -> VerificationResult:
-    """The surface of ``geometry.path``: is it closed, manifold, clean, and in the units the run assumes?"""
+def _gate_geometry_file(state, g, *, built: bool = False) -> VerificationResult:
+    """The declared surface: is it closed, manifold, clean, and in the units the run assumes?
+
+    ``source: builder`` builds it here (``pinneapple_design.geometry.bodies``) and writes the STL into the run
+    folder first, so what the gate measured is on disk next to the report — and the figure can draw it.
+    """
     from pathlib import Path
 
     r = VerificationResult("geometry", NOT_EVALUATED)
-    path = Path(g.path)
+    if built:
+        try:
+            path = materialize_geometry(g, state.out_dir / "geometry" / "surface.stl")
+        except Exception as exc:
+            r.limitations.append(f"the geometry could not be built: {type(exc).__name__}: {exc}")
+            return r
+        r.metrics["builder"] = g.builder
+        r.metrics["builder_parameters"] = dict(g.parameters)
+        state.geometry_path = str(path)
+    else:
+        path = Path(g.path)
     r.metrics["source"] = str(path)
     r.metrics["units"] = g.units
     if not path.is_file():

@@ -2,7 +2,7 @@
  "schema": "pinneapple.experiment/1",
  "id": "examples/surrogate_pipeline",
  "title": "Surrogate pipeline — use cases",
- "description": "Five runs of `pp.SurrogatePipeline`: a parametric surrogate over a reference campaign, a physics-only PINN scored against a closed form and exported to ONNX, a PDE written as text trained and validated by the PINN validation suite, the same pipeline driven from YAML with `run_until` / `resume` / the command line, and a tour that adds adaptive learning, `pinneapple check` as gate evidence and a served model. Every run prints the seven stages and the ten VeriPhysics gates, and the numbers below were measured by those runs (`_out/<name>/report.json`).",
+ "description": "Five runs of `pp.SurrogatePipeline`: a parametric surrogate over a reference campaign, a physics-only PINN scored against a closed form and exported to ONNX, a PDE written as text trained and validated by the PINN validation suite, the same pipeline driven from YAML with `run_until` / `resume` / the command line, and a tour that adds adaptive learning, `pinneapple check` as gate evidence and a served model. Every run prints the seven stages and the ten VeriPhysics gates, and the numbers below were measured by those runs (`_out/<name>/report.json`). A sixth script runs the matrix — flow and structural mechanics, geometry built or imported, datasets solved or loaded, FNO, DeepONet and PINN — and writes the figures of every case.",
  "domain": "surrogate models and verification",
  "methods": [
   "PINN",
@@ -16,6 +16,7 @@
   "pinneapple_analysis.validation.pinn",
   "pinneapple_check",
   "pinneapple_data.doe.designs",
+  "pinneapple_design.geometry.bodies",
   "pinneapple_physics.pde_environment",
   "pinneapple_physics.solving",
   "pinneapple_physics.symbolic_pde",
@@ -23,6 +24,7 @@
   "pinneapple_pipeline.checks",
   "pinneapple_pipeline.configs",
   "pinneapple_pipeline.deploy",
+  "pinneapple_pipeline.figures",
   "pinneapple_pipeline.pipeline",
   "pinneapple_pipeline.presets",
   "pinneapple_pipeline.stages",
@@ -34,14 +36,16 @@
   "parameter space of 01": "nu in [0.005, 0.06], 18 cases by Latin hypercube",
   "training budget of 02": "1200 Adam epochs, 2048 collocation points, hidden 48 x 4",
   "training budget of 03": "2000 Adam steps + 400 L-BFGS, 2000 collocation points",
-  "tour of 05": "six runs: nrmse/adaptive targets, 1200-epoch PINN, 2000+400 symbolic steps"
+  "tour of 05": "six runs: nrmse/adaptive targets, 1200-epoch PINN, 2000+400 symbolic steps",
+  "matrix of 06": "8 cases: 12-18 reference solves, a 64-point field, 900-epoch bar, 1200-epoch PINN; geometry from the builders and from data/geometries"
  },
  "scripts": [
   "01_parametric_surrogate.py",
   "02_physics_only_pinn.py",
   "03_symbolic_heat.py",
   "04_yaml_and_cli.py",
-  "05_every_kind_of_surrogate.py"
+  "05_every_kind_of_surrogate.py",
+  "06_case_matrix.py"
  ],
  "metrics": [
   {
@@ -127,6 +131,42 @@
    "value": 1.0,
    "unit": "1 = ACCEPT",
    "how": "pipeline.deploy() on the parametric run: a query inside the validated domain returns ACCEPT, one outside is refused"
+  },
+  {
+   "name": "held-out nrmse, FNO on the 64-point field (06)",
+   "value": 0.004905,
+   "unit": "",
+   "how": "surrogate study, 18 cases, 3 held out; the field is the Burgers solution at t = 1 sampled on 64 points"
+  },
+  {
+   "name": "held-out nrmse, DeepONet on the same field (06)",
+   "value": 0.02162,
+   "unit": "",
+   "how": "same splits and budget as the FNO, one seed"
+  },
+  {
+   "name": "relative L2 of the structural PINN against the closed form (06)",
+   "value": 0.01478,
+   "unit": "",
+   "how": "steel bar 0.5 m under 100 kN/m, E from the material catalogue; validate_pinn pinn.exact on the analytic q(2Lx - x^2)/(2EA)"
+  },
+  {
+   "name": "relative L2 of the physics-only PINN against Cole-Hopf (06)",
+   "value": 0.06845,
+   "unit": "",
+   "how": "burgers_physics_only, 1200 epochs, 2048 collocation points, pp.compare against the analytic solution"
+  },
+  {
+   "name": "faces of the geometry the gate accepted (06)",
+   "value": 3958.0,
+   "unit": "triangles",
+   "how": "wigley_hull.light.stl imported, and 864 for the cylinder the builder wrote into the run folder; both closed, watertight, bounding boxes 1.0 x 0.1 x 0.10 m and 0.1 x 0.3 x 0.1 m"
+  },
+  {
+   "name": "held-out nrmse of the dataset re-read from disk (06)",
+   "value": 0.001597,
+   "unit": "",
+   "how": "the dataset of the first case read back: 12 cases, nothing solved, same Gaussian process and the same error"
   }
  ],
  "checks": [
@@ -149,6 +189,11 @@
    "name": "the five blocks added in this round run end to end",
    "passed": true,
    "how": "geometry (watertight STL passes, an open one fails), materials (catalogue value with its datasheet), HPO (4 trials, best kept), adaptive learning (3 cases added), deployment (HTTP /v1/infer, OOD refused)"
+  },
+  {
+   "name": "the matrix of 06 runs every case end to end",
+   "passed": true,
+   "how": "8 runs in 32 s with --fast: flow (dataset generated, imported, PINN), FNO, DeepONet, structural bar, geometry built and imported; the geometry gate passes 864 and 3958 faces, the structural model 1.5e-2 against its closed form"
   }
  ],
  "files": {

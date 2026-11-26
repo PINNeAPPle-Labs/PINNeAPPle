@@ -1,6 +1,6 @@
 # Surrogate pipeline — use cases
 
-Five runs that exercise the pipeline end to end and show what it refuses. Each one prints the stage table and the
+Six runs that exercise the pipeline end to end and show what it refuses. Each one prints the stage table and the
 VeriPhysics gates; the artefacts land in `_out/<name>/` (git-ignored), with the report at `_out/<name>/report.md`.
 
 | script | what it exercises | backend | time |
@@ -10,6 +10,7 @@ VeriPhysics gates; the artefacts land in `_out/<name>/` (git-ignored), with the 
 | `03_symbolic_heat.py` | a PDE written as text, trained and validated by the PINN validation suite — and the same run undertrained, refused | `symbolic` | ~2 min |
 | `04_yaml_and_cli.py` | the pipeline as a YAML file: `run_until("data")`, `resume()`, and `python -m pinneapple.pipeline` | `preset` + `simulation` | ~20 s |
 | `05_every_kind_of_surrogate.py` | the tour: parametric surrogate, physics-only PINN, a PDE as text, adaptive learning, `pinneapple check`, and the run served with its own trust | all three | ~2 min |
+| `06_case_matrix.py` | the matrix: flow and structural, geometry built or imported, dataset solved or loaded, FNO, DeepONet, PINN — the same object every time | all three | ~3 min |
 
 ```bash
 python examples/surrogate_pipeline/01_parametric_surrogate.py
@@ -17,6 +18,7 @@ python examples/surrogate_pipeline/02_physics_only_pinn.py
 python examples/surrogate_pipeline/03_symbolic_heat.py
 python examples/surrogate_pipeline/04_yaml_and_cli.py [--config my.yaml]
 python examples/surrogate_pipeline/05_every_kind_of_surrogate.py [--fast] [--only serve]
+python examples/surrogate_pipeline/06_case_matrix.py [--fast] [--only fno]
 ```
 
 ## What each one is meant to show
@@ -44,6 +46,13 @@ campaign, a PINN with no data, a PDE written as text), then the four things that
 training script: `doe.design(method="infill")` adding the cases where the response varies most, `pinneapple check`
 loading the trained model through a plain array function and agreeing with the gates, `pipeline.deploy()` serving it
 with the run's own trust function, and the refusal of a query outside the validated domain.
+
+**06** — one pipeline, every kind of problem it covers, each case a few lines of configuration and a `run()`:
+flow mechanics from 12 reference solves and from the dataset that came out of them; geometry built by the run (a
+cylinder) and imported (a Wigley hull); the same campaign as a 64-point field for a Fourier neural operator and for a
+DeepONet; a steel bar under a distributed load with the physics only, scored against its closed form; and a PINN that
+never sees a case at all. The figures of each run are written next to it — held-out parity, where the error sits, the
+training loss, the surface the `geometry` gate measured.
 
 ## Configuration
 

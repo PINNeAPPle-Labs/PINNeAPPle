@@ -68,7 +68,7 @@ evaluated is never reported as one that passed.
 | gate | establishes | not applicable when |
 |---|---|---|
 | `problem` | the configuration and the problem agree (dimension, names, parameters, conditions) | never |
-| `geometry` | the surface of `geometry.path` is watertight, manifold and in the stated units | no `geometry` block, or a box domain |
+| `geometry` | the surface of `geometry.path` — or the one `geometry.builder` builds — is watertight, manifold and in the stated units | no `geometry` block, or a box domain |
 | `discretization` | the reference solution does not move when its grid is refined | the reference is a closed form, or there is none |
 | `simulation` | every reference solve the data rests on finished | physics-only run |
 | `dataset` | the cases cover the space, are distinct, and are split without leakage | physics-only run |
@@ -135,6 +135,7 @@ Four blocks go beyond "train the thing and score it":
 
 ```yaml
 geometry:   {source: file, path: cases/bracket.stl, units: mm}     # checked, not meshed
+geometry:   {source: builder, builder: cylinder, parameters: {radius: 0.05, length: 0.3, axis: y, n: 36}}
 materials:  {materials: {body: al6061_t6}, assignments: {kb: conductivity}}
 optimization:        {enabled: true, strategy: grid, search_space: {lr: [1e-3, 5e-3], hidden_dim: [32, 48]}}
 adaptive_learning:   {enabled: true, max_rounds: 3, samples_per_round: 4, target_error: 0.02}
@@ -144,7 +145,10 @@ deployment:          {enabled: true, target: http, port: 8000}
 * **`geometry`** reads the surface with `pinneapple_data.cae.io.read_stl` and runs
   `pinneapple_data.cae.quality.surface_checks`: open and non-manifold edges, shells, winding, degenerate faces, the
   enclosed volume and the bounding box in metres. A surface that does not bound a volume fails the `geometry` gate
-  instead of being meshed. The pipeline checks the surface; meshing stays `pinneapple_design.geometry`'s job.
+  instead of being meshed. `source: builder` builds the surface here with
+  `pinneapple_design.geometry.bodies` (`cylinder`, `box`, `sphere`, `annulus`) and writes it to
+  `<run>/geometry/surface.stl` — the gate then measures that file, so the surface under test is the one on disk and
+  the `geometry` figure draws it. The pipeline checks the surface; meshing stays `pinneapple_design.geometry`'s job.
 * **`materials`** resolves a key of `pinneapple_design.intent.materials.MATERIALS` and sets the problem's own
   parameters — only on parameters named exactly like the catalogue property, because `nu` is the Poisson ratio of a
   solid and the kinematic viscosity of a flow. Anything named differently goes through `assignments`. Every number

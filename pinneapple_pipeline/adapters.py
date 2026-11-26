@@ -99,7 +99,8 @@ def build_problem(cfg) -> ProblemBundle:
         elif pc.exact_expression:
             from .configs import _expression_fn
             exact = _expression_fn(pc.exact_expression, list(pc.coords), constants)
-        pinn, net = pinn_problem(system, {c: tuple(pc.domain_bounds[c]) for c in pc.coords}, exact=exact)
+        pinn, net = pinn_problem(system, {c: tuple(pc.domain_bounds[c]) for c in pc.coords}, exact=exact,
+                                 name=cfg.name)
         if exact is not None:
             bundle_notes = "an exact solution is declared: the model gate measures the error against it"
         else:

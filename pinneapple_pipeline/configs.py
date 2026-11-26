@@ -740,7 +740,7 @@ class VisualizationConfig(_Block):
     A missing matplotlib is not an error: the gate records that the figures were not produced."""
 
     enabled: bool = True
-    plots: tuple[str, ...] = ("training_loss", "parity", "error_map")
+    plots: tuple[str, ...] = ("training_loss", "parity", "error_map", "geometry")
     formats: tuple[str, ...] = ("png",)
     dpi: int = 130
 
@@ -771,14 +771,21 @@ class GeometryConfig(_Block):
     scale: float = 1.0
     repair: bool = False
     regions: tuple[str, ...] = ()
+    builder: str = ""                          # source="builder": cylinder | box | sphere | annulus
+    parameters: dict[str, Any] = field(default_factory=dict)
 
     _UNITS = {"m": 1.0, "cm": 0.01, "mm": 1e-3, "um": 1e-6, "in": 0.0254, "ft": 0.3048}
+    _BUILDERS = ("cylinder", "box", "sphere", "annulus")
 
     def validate(self) -> None:
         self.source = str(self.source).lower()
         self.regions = _as_tuple(self.regions)
-        if self.source not in ("none", "file"):
-            raise ConfigError(f"geometry.source must be 'none' (a box) or 'file', got {self.source!r}")
+        if self.source not in ("none", "file", "builder"):
+            raise ConfigError(f"geometry.source must be 'none' (a box), 'file' or 'builder', got {self.source!r}")
+        if self.source == "builder":
+            if self.builder not in self._BUILDERS:
+                raise ConfigError(f"geometry.builder must be one of {list(self._BUILDERS)}, got {self.builder!r}")
+            self.parameters = {str(k): v for k, v in _mapping(self.parameters).items()}
         if self.source == "file":
             if not self.path:
                 raise ConfigError("geometry.source is 'file' but geometry.path is empty")

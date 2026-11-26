@@ -5,6 +5,7 @@ test either fails before it trains anything or trains a deliberately tiny model.
 """
 import json
 import os
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -206,6 +207,26 @@ def test_the_geometry_gate_checks_a_surface_instead_of_shrugging(tmp_path):
             assert gate.metrics["bounding_box_m"] == [0.01, 0.01, 0.01]      # 1 cm, in metres
         else:
             assert gate.metrics["open_edges"] > 0 and "not closed" in gate.limitations[0]
+
+
+def test_the_geometry_block_can_build_the_surface_it_checks(tmp_path):
+    """``source: builder`` writes the STL into the run folder, and the gate measures that file — not a sketch of it.
+
+    ``n`` arrives as 36 from a JSON config and as 36.0 from a config written in Python; both are a resolution.
+    """
+    cfg = SurrogateConfig.from_dict({**MINIMAL, "geometry": {
+        "source": "builder", "builder": "cylinder", "units": "m",
+        "parameters": {"radius": 0.05, "length": 0.3, "axis": "y", "n": 36.0}}})
+    state = _state(out_dir=tmp_path)
+    state.cfg, state.bundle = cfg, _bundle()
+    gate = V.gate_geometry(state)
+    assert gate.status == PASS, gate.limitations
+    assert gate.metrics["builder"] == "cylinder" and gate.metrics["builder_parameters"]["radius"] == 0.05
+    assert gate.metrics["watertight"] is True
+    assert gate.metrics["bounding_box_m"] == [0.1, 0.3, 0.1]                 # 100 mm diameter, 300 mm long
+    assert Path(gate.metrics["source"]).is_file() and Path(state.geometry_path).is_file()
+    with pytest.raises(ConfigError, match="builder"):
+        SurrogateConfig.from_dict({**MINIMAL, "geometry": {"source": "builder", "builder": "torus"}})
 
 
 def test_materials_set_the_problems_own_parameters_with_their_sources():

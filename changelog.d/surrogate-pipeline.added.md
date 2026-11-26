@@ -27,7 +27,9 @@
 - Five more blocks, each backed by an instrument that already existed and each tested end to end: `geometry`
   (an STL read by `pinneapple_data.cae.io.read_stl` and checked by `surface_checks` — watertightness, open and
   non-manifold edges, winding, enclosed volume and the bounding box in metres, so the `geometry` gate can fail a
-  surface that does not bound a volume); `materials` (a key of `pinneapple_design.intent.materials.MATERIALS` applied
+  surface that does not bound a volume; `source: builder` builds it with `pinneapple_design.geometry.bodies` and
+  writes it to `<run>/geometry/surface.stl`, so the gate measures a file and the `geometry` figure draws it);
+  `materials` (a key of `pinneapple_design.intent.materials.MATERIALS` applied
   to the problem's own parameters, each value carrying the datasheet it was read from, Lamé constants recomputed, and
   only exact property names matched — `nu` is the Poisson ratio of a solid and the viscosity of a flow);
   `optimization` (grid or random search over the PINN's training knobs, chosen on validation points that are not the

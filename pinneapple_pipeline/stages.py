@@ -187,7 +187,11 @@ class DataStage(PipelineStage):
         return names[:width] if len(names) == width else [f"y{j}" for j in range(width)]
 
     def verify(self, state, artifacts) -> list[str]:
-        notes = [f"{artifacts.get('cases')} case(s) solved, {artifacts.get('failed_cases')} failed"]
+        if state.cfg.data.source == "file":
+            notes = [f"dataset read from {Path(artifacts.get('source', state.cfg.data.path)).name}: "
+                     f"{artifacts.get('cases')} case(s), nothing solved here"]
+        else:
+            notes = [f"{artifacts.get('cases')} case(s) solved, {artifacts.get('failed_cases')} failed"]
         if state.cases is not None:
             notes.append(f"design: {state.cfg.sampling.design_sampling.get('method')} with "
                          f"{len(state.cases)} case(s) over {list(state.cases.columns)}")
@@ -678,13 +682,19 @@ class ExportStage(PipelineStage):
     name = "export"
 
     def skip_reason(self, state) -> str:
-        return "" if state.cfg.export.enabled else "export is disabled in the configuration"
+        """Skipped only when there is nothing to do: no export *and* no figures (they are the run's, not its
+        export's: a physics model with ``export.enabled: false`` still deserves its loss curve)."""
+        if state.cfg.export.enabled or state.cfg.visualization.enabled:
+            return ""
+        return "export and visualization are both disabled in the configuration"
 
     def execute(self, state) -> dict[str, Any]:
         cfg = state.cfg
         out: dict[str, Any] = {}
         state.metrics["export"] = {"written": {}}
-        if cfg.data.is_physics_only and state.model_object is not None:
+        if not cfg.export.enabled:
+            state.metrics["export"]["error"] = "export is disabled in the configuration (the figures are still written)"
+        elif cfg.data.is_physics_only and state.model_object is not None:
             example = self._example_input(state)
             try:
                 info = adapters.export_model(cfg, state.model_object, state.path("export"), example_input=example)

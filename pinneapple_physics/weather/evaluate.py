@@ -103,20 +103,22 @@ def score_forecasts(store: Era5Store, clim: np.ndarray, forecasts: dict, init_id
 
 class PublishedForecasts:
     """Published forecasts on the 64 x 32 grid (WeatherBench2), returned in the store's channel layout (other
-    channels NaN). Only the 00 and 12 UTC initialisations exist."""
+    channels NaN). Only the 00 and 12 UTC initialisations exist. ``errors`` keeps why a requested baseline is
+    absent (no network, no ``gcsfs``...), so a caller can say it instead of silently getting nothing."""
 
     def __init__(self, store: Era5Store, names=None):
-        import xarray as xr
+        from .data import open_zarr
 
         self.store = store
         self.ds = {}
+        self.errors: dict[str, str] = {}
         for n, url in BASELINES_64x32.items():
             if names is not None and n not in names:
                 continue
             try:
-                self.ds[n] = xr.open_zarr(url, storage_options={"token": "anon"})
-            except Exception:  # noqa: BLE001 - a missing baseline is reported as absent
-                pass
+                self.ds[n] = open_zarr(url)
+            except Exception as exc:  # noqa: BLE001 - a missing baseline is reported as absent
+                self.errors[n] = f"{type(exc).__name__}: {exc}"
 
     def __call__(self, name: str):
         ds = self.ds.get(name)

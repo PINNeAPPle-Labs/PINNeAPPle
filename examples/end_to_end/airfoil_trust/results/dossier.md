@@ -110,52 +110,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Until then, use the estimate only to detect that the model is unstable, not to bound the error.
 - **Evidence:** `results/analysis_v1.json`
 
-### VP-009 — RunProvenance incomplete `WARNING`
-
-- **What happened:** provenance: the tool that ran the checks is not identified with a version.
-- **Why it matters:** Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.
-- **What is still unknown:** Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.
-- **Recommended next steps:**
-  1. Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).
-  2. Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited.
-
-### VP-010 — RunProvenance incomplete `WARNING`
-
-- **What happened:** provenance: no SHA-256 of the inputs.
-- **Why it matters:** Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.
-- **What is still unknown:** Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.
-- **Recommended next steps:**
-  1. Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).
-  2. Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited.
-
-### VP-011 — RunProvenance incomplete `WARNING`
-
-- **What happened:** provenance: no SHA-256 of the code that produced the evidence.
-- **Why it matters:** Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.
-- **What is still unknown:** Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.
-- **Recommended next steps:**
-  1. Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).
-  2. Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited.
-
-### VP-012 — RunProvenance incomplete `WARNING`
-
-- **What happened:** provenance: no seed recorded, so a stochastic step cannot be repeated.
-- **Why it matters:** Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.
-- **What is still unknown:** Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.
-- **Recommended next steps:**
-  1. Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).
-  2. Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited.
-
-### VP-013 — RunProvenance incomplete `WARNING`
-
-- **What happened:** provenance: the tolerances used are not recorded with the results.
-- **Why it matters:** Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.
-- **What is still unknown:** Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.
-- **Recommended next steps:**
-  1. Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).
-  2. Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited.
-
-### VP-014 — Expert review pending `NOT RUN`
+### VP-009 — Expert review pending `NOT RUN`
 
 - **What happened:** no expert decision is recorded; automated checks alone do not authorize use.
 - **Why it matters:** The automated checks do not authorize use on their own. This case has no expert decision recorded, so it cannot be reported as validated whatever the checks say.
@@ -164,7 +119,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   1. Have a qualified engineer review the evidence, the findings and the limitations, and record a decision with its justification and the conditions it applies to.
   2. If the reviewer needs more evidence, record that request: it becomes a task, not a change of status.
 
-### VP-015 — Automated checks recorded `PASS`
+### VP-010 — Automated checks recorded `PASS`
 
 - **What happened:** 10 check(s) produced a verdict: 7 passed, 3 failed; 1 recorded check(s) did not run.
 - **Why it matters:** The case carries verdicts of automated checks, each traced to the entry that produced it.
@@ -173,7 +128,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   1. Read the not-run findings next to this one; they are the actual gaps.
 - **Evidence:** `mesh_convergence_CL`, `gate_continuity_residual`, `boundary_condition_no_slip`, `freestream_decay`, `pressure_integral_consistency`, `accuracy_CL`, `field_accuracy`, `applicability_domain_measured`, `uncertainty_calibration_coverage`, `robustness_input_sensitivity`
 
-### VP-016 — Error within the declared tolerance `PASS`
+### VP-011 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va000': 4.037 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -183,7 +138,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va000`
 
-### VP-017 — Error within the declared tolerance `PASS`
+### VP-012 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va002': 4.32206 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -193,7 +148,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va002`
 
-### VP-018 — Error within the declared tolerance `PASS`
+### VP-013 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va003': 0.373412 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -203,7 +158,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va003`
 
-### VP-019 — Error within the declared tolerance `PASS`
+### VP-014 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va004': 2.39604 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -213,7 +168,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va004`
 
-### VP-020 — Error within the declared tolerance `PASS`
+### VP-015 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va005': 4.97068 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -223,7 +178,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va005`
 
-### VP-021 — Error within the declared tolerance `PASS`
+### VP-016 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va006': 3.64626 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -233,7 +188,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va006`
 
-### VP-022 — Error within the declared tolerance `PASS`
+### VP-017 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va007': 3.12075 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -243,7 +198,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va007`
 
-### VP-023 — Error within the declared tolerance `PASS`
+### VP-018 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va009': 4.61182 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -253,7 +208,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va009`
 
-### VP-024 — Error within the declared tolerance `PASS`
+### VP-019 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va010': 0.150443 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -263,7 +218,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va010`
 
-### VP-025 — Error within the declared tolerance `PASS`
+### VP-020 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va011': 1.31871 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -273,7 +228,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va011`
 
-### VP-026 — Error within the declared tolerance `PASS`
+### VP-021 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va013': 1.67155 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -283,7 +238,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va013`
 
-### VP-027 — Error within the declared tolerance `PASS`
+### VP-022 — Error within the declared tolerance `PASS`
 
 - **What happened:** CL against numerical reference 'cfd-va014': 2.29398 % error, tolerance 5 % (declared for this use), source: examples/end_to_end/airfoil_trust/_runs/cfd
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -293,7 +248,7 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
   2. Add a case at the edge of the intended operating range if none was run.
 - **Evidence:** `cfd-va014`
 
-### VP-028 — Error within the declared tolerance `PASS`
+### VP-023 — Error within the declared tolerance `PASS`
 
 - **What happened:** CD against numerical reference 'cfd-held-out-CD': 8.13157 % error, tolerance 11.8213 % (declared for this use), source: results/analysis_v1.json
 - **Why it matters:** The measured error is inside the tolerance configured for the declared use, on the quantities and region this comparison covered.
@@ -364,10 +319,9 @@ Industrial acceptance depends on the decision the number feeds, the consequence 
 ## Maturity
 
 ```
-Scientific maturity: level 2 (Verified)
-  To reach level 3 (Validated for research):
-    - Inputs, code, versions, seeds and tolerances are recorded so the run is reproducible. -> fill the provenance record (hashes, versions, seeds, tolerances)
-  Beyond that, 1 more requirement(s) up to level 5 remain open.
+Scientific maturity: level 4 (Generalisation characterised)
+  To reach level 5 (Rigorously evidenced):
+    - A second, distinct expert reviewed the evidence. -> have another qualified reviewer record a decision
 Industrial maturity: level 4 (Operationally assessed)
   To reach level 5 (Ready for controlled operation):
     - An authorised expert approved the use, with justification and scope. -> record an expert decision
@@ -381,40 +335,41 @@ Industrial maturity: level 4 (Operationally assessed)
 
 ## RunProvenance
 
-- tool: ? 
-- inputs sha256: not recorded
-- code sha256: not recorded
-- seeds: not recorded
-- tolerances: not recorded
+- tool: PINNeAPPle autolab 0.8.0+local; python 3.11.16
+- inputs sha256: 8bb3f83be3859c8efe3f5595edb1dd35a2a7dcc1b8a4032e26469e9174291b35
+- code sha256: 7bb973f4e0c737e5bc244314623da7690ecae6f0ac59f8ac0be7ba95fcaf8382
+- seeds: [30, 7, 11, 23]
+- tolerances: {'lift_tolerance': 0.05, 'reference_tolerance': 0.05, 'wall_ratio': 1.5, 'continuity_ratio': 2.0, 'uncertainty_quantile': 0.9}
+- compute: {'cores': '10', 'solver': 'simpleFoam', 'iterations': '1000', 'meshes': '4', 'reference_runs': '132'}
 
 ## Revision history
 
-- rev 1 2026-11-26T07:43:57.516Z `unvalidated` case opened — sha256 `6bbeeeac672a`
-- rev 2 2026-11-26T07:43:57.517Z `failed` checks recorded — sha256 `3a5578ad7899`
-- rev 3 2026-11-26T07:43:57.517Z `failed` evidence added: cfd-va000 — sha256 `9799d148fed9`
-- rev 4 2026-11-26T07:43:57.518Z `failed` evidence added: cfd-va001 — sha256 `252eb2073d1a`
-- rev 5 2026-11-26T07:43:57.518Z `failed` evidence added: cfd-va002 — sha256 `13c60722716c`
-- rev 6 2026-11-26T07:43:57.519Z `failed` evidence added: cfd-va003 — sha256 `50d0eec64d3a`
-- rev 7 2026-11-26T07:43:57.519Z `failed` evidence added: cfd-va004 — sha256 `431192e0e718`
-- rev 8 2026-11-26T07:43:57.520Z `failed` evidence added: cfd-va005 — sha256 `c5e3b8c874e4`
-- rev 9 2026-11-26T07:43:57.521Z `failed` evidence added: cfd-va006 — sha256 `20e8de6923ba`
-- rev 10 2026-11-26T07:43:57.521Z `failed` evidence added: cfd-va007 — sha256 `eeaa779ffff5`
-- rev 11 2026-11-26T07:43:57.522Z `failed` evidence added: cfd-va008 — sha256 `2660d1fc771d`
-- rev 12 2026-11-26T07:43:57.523Z `failed` evidence added: cfd-va009 — sha256 `74ff5b3fcecf`
-- rev 13 2026-11-26T07:43:57.523Z `failed` evidence added: cfd-va010 — sha256 `b0996f0260b2`
-- rev 14 2026-11-26T07:43:57.524Z `failed` evidence added: cfd-va011 — sha256 `9f79b15ce4b2`
-- rev 15 2026-11-26T07:43:57.525Z `failed` evidence added: cfd-va012 — sha256 `84d2d7bae4cf`
-- rev 16 2026-11-26T07:43:57.525Z `failed` evidence added: cfd-va013 — sha256 `38a2d517bd6a`
-- rev 17 2026-11-26T07:43:57.526Z `failed` evidence added: cfd-va014 — sha256 `0bc7ab2732a9`
-- rev 18 2026-11-26T07:43:57.527Z `failed` evidence added: cfd-va015 — sha256 `3e810bc3446f`
-- rev 19 2026-11-26T07:43:57.527Z `failed` evidence added: cfd-held-out-CD — sha256 `ee1d1e0afc94`
-- rev 20 2026-11-26T07:43:57.528Z `failed` uncertainty recorded — sha256 `f55fee79016b`
-- rev 21 2026-11-26T07:43:57.529Z `failed` applicability recorded — sha256 `f2757de6bd74`
-- rev 22 2026-11-26T07:43:57.530Z `failed` limitations recorded — sha256 `9722646af312`
+- rev 1 2026-11-26T07:51:01.851Z `unvalidated` case opened — sha256 `3cce361eb594`
+- rev 2 2026-11-26T07:51:01.851Z `failed` checks recorded — sha256 `6041b036cf08`
+- rev 3 2026-11-26T07:51:01.852Z `failed` evidence added: cfd-va000 — sha256 `0548b4bc76c7`
+- rev 4 2026-11-26T07:51:01.852Z `failed` evidence added: cfd-va001 — sha256 `d7e0f157e646`
+- rev 5 2026-11-26T07:51:01.853Z `failed` evidence added: cfd-va002 — sha256 `d4b5eedf5251`
+- rev 6 2026-11-26T07:51:01.853Z `failed` evidence added: cfd-va003 — sha256 `bd87b7ba2c89`
+- rev 7 2026-11-26T07:51:01.854Z `failed` evidence added: cfd-va004 — sha256 `e639f0244101`
+- rev 8 2026-11-26T07:51:01.854Z `failed` evidence added: cfd-va005 — sha256 `53e943204405`
+- rev 9 2026-11-26T07:51:01.856Z `failed` evidence added: cfd-va006 — sha256 `9d5311d57e6d`
+- rev 10 2026-11-26T07:51:01.856Z `failed` evidence added: cfd-va007 — sha256 `db7dbe258b34`
+- rev 11 2026-11-26T07:51:01.857Z `failed` evidence added: cfd-va008 — sha256 `11f092a2fcf4`
+- rev 12 2026-11-26T07:51:01.858Z `failed` evidence added: cfd-va009 — sha256 `6e6981d7badc`
+- rev 13 2026-11-26T07:51:01.858Z `failed` evidence added: cfd-va010 — sha256 `4685df66674e`
+- rev 14 2026-11-26T07:51:01.859Z `failed` evidence added: cfd-va011 — sha256 `7eb01172d1a5`
+- rev 15 2026-11-26T07:51:01.859Z `failed` evidence added: cfd-va012 — sha256 `12e3b19e25ba`
+- rev 16 2026-11-26T07:51:01.860Z `failed` evidence added: cfd-va013 — sha256 `bb11c489fadc`
+- rev 17 2026-11-26T07:51:01.860Z `failed` evidence added: cfd-va014 — sha256 `f1dce4952684`
+- rev 18 2026-11-26T07:51:01.861Z `failed` evidence added: cfd-va015 — sha256 `423c134f9ff7`
+- rev 19 2026-11-26T07:51:01.862Z `failed` evidence added: cfd-held-out-CD — sha256 `79240bde8331`
+- rev 20 2026-11-26T07:51:01.863Z `failed` uncertainty recorded — sha256 `a565456992dc`
+- rev 21 2026-11-26T07:51:01.864Z `failed` applicability recorded — sha256 `6f9f98cc279b`
+- rev 22 2026-11-26T07:51:01.937Z `failed` provenance recorded — sha256 `4a58224447d6`
+- rev 23 2026-11-26T07:51:01.938Z `failed` limitations recorded — sha256 `8d07db98a3a1`
 
 ## What to do next
 
-- (medium) [scientific L3] fill the provenance record (hashes, versions, seeds, tolerances)
 - (low) [industrial L5] record an expert decision
 - (low) [industrial L5] document what is monitored, the fallback and the change-control rule
 - (low) [industrial L5] record the conditions and quantities the approval covers

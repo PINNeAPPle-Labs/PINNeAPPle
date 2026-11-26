@@ -11,8 +11,12 @@ through ``pinneapple_lab.experiment``, ``experiment.json``.
 """
 from __future__ import annotations
 
+import glob
+import importlib.metadata
 import json
 import os
+import platform
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -45,6 +49,7 @@ from pinneapple_veriphysics.validation_case import (  # noqa: E402
     ModelVersion,
     ProblemRef,
     ReferenceComparison,
+    RunProvenance,
     UncertaintyEvidence,
     ValidationCase,
     checks_from_ledger,
@@ -444,6 +449,37 @@ case = case.with_applicability(ApplicabilityFacts(
            "candidates have no reference within the neighbourhood radius",
            "camber is not a parameter of this model's schema: a query carrying it is outside the model, not merely "
            "outside the evidence")), actor="study")
+# --------------------------------------------------------------------------- the provenance
+# What reproducing these numbers would take, recorded rather than promised: the tool, the interpreter, the SHA-256 of
+# the code and of the reference runs, the seeds, and the tolerances. It is cheap to write down while the study is on
+# disk and impossible to reconstruct afterwards, which is exactly why an incomplete record is a finding.
+def _tool_version() -> str:
+    """The version the results belong to: the installed distribution if there is one, else the tree's own."""
+    try:
+        return importlib.metadata.version("pinneapple")
+    except importlib.metadata.PackageNotFoundError:
+        found = re.search(r'^version = "([^"]+)"', open(os.path.join(ROOT, "pyproject.toml")).read(), re.M)
+        return f"{found.group(1)}+local" if found else "unknown"
+
+
+_CODE_FILES = [os.path.join(ROOT, "pinneapple_autolab", "domains", name) for name in ("airfoil.py", "airfoil_study.py")]
+_CODE_FILES += [os.path.join(ROOT, "pinneapple_simulation", "numerical_solvers", "airfoil2d.py"), os.path.abspath(__file__)]
+_RECORDS = sorted(glob.glob(os.path.join(HERE, "_runs", "cfd", "results", "*.json")))
+case = case.with_provenance(RunProvenance(
+    tool="PINNeAPPle autolab", tool_version=_tool_version(),
+    python=platform.python_version(), platform=platform.platform(),
+    code_sha256=sha256_json({os.path.relpath(f, ROOT): sha256_file(f) for f in _CODE_FILES}),
+    data_sha256=(sha256_json({os.path.basename(f): sha256_file(f) for f in _RECORDS}) if _RECORDS
+                 else sha256_json({"note": "the runs are not on this disk: only the extracted results are"})),
+    seeds=(30, 7, 11, 23),
+    tolerances=(("lift_tolerance", tolerance),
+                ("reference_tolerance", float(domain_report["policy"]["reference_tol"])),
+                ("wall_ratio", float(domain_report["policy"]["physics_tols"][0])),
+                ("continuity_ratio", float(domain_report["policy"]["physics_tols"][1])),
+                ("uncertainty_quantile", 0.90)),
+    compute=(("cores", "10"), ("solver", "simpleFoam"), ("iterations", "1000"), ("meshes", "4"),
+             ("reference_runs", str(len(_RECORDS))))), actor="study")
+
 case = case.with_limitations((
     "the surrogate is a function of three variables; camber is outside its schema and its evidence does not transfer",
     "the evidence covers the sampled design box only, and only where an independent reference sits within the "

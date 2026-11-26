@@ -222,96 +222,6 @@
    },
    {
     "finding_id": "VP-009",
-    "rule": "VP-PROVENANCE",
-    "status": "warning",
-    "category": "provenance",
-    "title": "RunProvenance incomplete",
-    "what_happened": "provenance: the tool that ran the checks is not identified with a version.",
-    "why_it_matters": "Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.",
-    "what_is_unknown": "Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.",
-    "actions": [
-     "Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).",
-     "Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited."
-    ],
-    "evidence": [],
-    "observed": null,
-    "threshold": null,
-    "unit": ""
-   },
-   {
-    "finding_id": "VP-010",
-    "rule": "VP-PROVENANCE",
-    "status": "warning",
-    "category": "provenance",
-    "title": "RunProvenance incomplete",
-    "what_happened": "provenance: no SHA-256 of the inputs.",
-    "why_it_matters": "Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.",
-    "what_is_unknown": "Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.",
-    "actions": [
-     "Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).",
-     "Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited."
-    ],
-    "evidence": [],
-    "observed": null,
-    "threshold": null,
-    "unit": ""
-   },
-   {
-    "finding_id": "VP-011",
-    "rule": "VP-PROVENANCE",
-    "status": "warning",
-    "category": "provenance",
-    "title": "RunProvenance incomplete",
-    "what_happened": "provenance: no SHA-256 of the code that produced the evidence.",
-    "why_it_matters": "Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.",
-    "what_is_unknown": "Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.",
-    "actions": [
-     "Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).",
-     "Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited."
-    ],
-    "evidence": [],
-    "observed": null,
-    "threshold": null,
-    "unit": ""
-   },
-   {
-    "finding_id": "VP-012",
-    "rule": "VP-PROVENANCE",
-    "status": "warning",
-    "category": "provenance",
-    "title": "RunProvenance incomplete",
-    "what_happened": "provenance: no seed recorded, so a stochastic step cannot be repeated.",
-    "why_it_matters": "Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.",
-    "what_is_unknown": "Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.",
-    "actions": [
-     "Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).",
-     "Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited."
-    ],
-    "evidence": [],
-    "observed": null,
-    "threshold": null,
-    "unit": ""
-   },
-   {
-    "finding_id": "VP-013",
-    "rule": "VP-PROVENANCE",
-    "status": "warning",
-    "category": "provenance",
-    "title": "RunProvenance incomplete",
-    "what_happened": "provenance: the tolerances used are not recorded with the results.",
-    "why_it_matters": "Part of what produced this evidence is not recorded, so the comparison cannot be reproduced from the case alone.",
-    "what_is_unknown": "Whether a later run of the same checks would give the same numbers is unknown -- inputs, code, seeds or tolerances are missing from the record.",
-    "actions": [
-     "Record the missing items (input hashes, tool versions, seeds, tolerances, compute configuration).",
-     "Re-run the checks once the record is complete: an evidence that cannot be reproduced cannot be audited."
-    ],
-    "evidence": [],
-    "observed": null,
-    "threshold": null,
-    "unit": ""
-   },
-   {
-    "finding_id": "VP-014",
     "rule": "VP-REVIEW-PENDING",
     "status": "not run",
     "category": "process",
@@ -329,7 +239,7 @@
     "unit": ""
    },
    {
-    "finding_id": "VP-015",
+    "finding_id": "VP-010",
     "rule": "VP-CHECKS-RAN",
     "status": "pass",
     "category": "verification",
@@ -357,7 +267,7 @@
     "unit": ""
    },
    {
-    "finding_id": "VP-016",
+    "finding_id": "VP-011",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -377,7 +287,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-017",
+    "finding_id": "VP-012",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -397,7 +307,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-018",
+    "finding_id": "VP-013",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -417,7 +327,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-019",
+    "finding_id": "VP-014",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -437,7 +347,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-020",
+    "finding_id": "VP-015",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -457,7 +367,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-021",
+    "finding_id": "VP-016",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -477,7 +387,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-022",
+    "finding_id": "VP-017",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -497,7 +407,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-023",
+    "finding_id": "VP-018",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -517,7 +427,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-024",
+    "finding_id": "VP-019",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -537,7 +447,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-025",
+    "finding_id": "VP-020",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -557,7 +467,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-026",
+    "finding_id": "VP-021",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -577,7 +487,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-027",
+    "finding_id": "VP-022",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -597,7 +507,7 @@
     "unit": "%"
    },
    {
-    "finding_id": "VP-028",
+    "finding_id": "VP-023",
     "rule": "VP-ERR-OK",
     "status": "pass",
     "category": "validation",
@@ -621,16 +531,17 @@
    "axes": {
     "scientific": {
      "dimension": "scientific",
-     "level": 2,
-     "title": "Verified",
-     "next_level": 3,
-     "next_title": "Validated for research",
+     "level": 4,
+     "title": "Generalisation characterised",
+     "next_level": 5,
+     "next_title": "Rigorously evidenced",
      "met": [
       "sci.model_runs",
       "sci.residual",
       "sci.conditions",
       "sci.reference",
       "sci.error",
+      "sci.provenance",
       "sci.critical",
       "sci.domain",
       "sci.uncertainty",
@@ -639,22 +550,16 @@
      ],
      "gaps": [
       {
-       "key": "sci.provenance",
+       "key": "sci.second_review",
        "dimension": "scientific",
-       "level": 3,
-       "statement": "Inputs, code, versions, seeds and tolerances are recorded so the run is reproducible.",
-       "met_by": "reproducibility.provenance_complete",
-       "how_to_meet": "fill the provenance record (hashes, versions, seeds, tolerances)",
+       "level": 5,
+       "statement": "A second, distinct expert reviewed the evidence.",
+       "met_by": "process.second_expert_review",
+       "how_to_meet": "have another qualified reviewer record a decision",
        "met": null
       }
      ],
      "open": [
-      {
-       "key": "sci.provenance",
-       "level": 3,
-       "statement": "Inputs, code, versions, seeds and tolerances are recorded so the run is reproducible.",
-       "how_to_meet": "fill the provenance record (hashes, versions, seeds, tolerances)"
-      },
       {
        "key": "sci.second_review",
        "level": 5,
@@ -741,7 +646,7 @@
     "validation.primary_error_within_tolerance": true,
     "validation.critical_regions_addressed": true,
     "validation.critical_quantities_assessed": true,
-    "reproducibility.provenance_complete": false,
+    "reproducibility.provenance_complete": true,
     "generalization.domain_measured": true,
     "uncertainty.quantified": true,
     "robustness.sensitivity_measured": true,
@@ -931,7 +836,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.517Z"
+   "created_at": "2026-11-26T07:51:01.852Z"
   },
   {
    "evidence_id": "cfd-va001",
@@ -946,7 +851,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.517Z"
+   "created_at": "2026-11-26T07:51:01.852Z"
   },
   {
    "evidence_id": "cfd-va002",
@@ -961,7 +866,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.518Z"
+   "created_at": "2026-11-26T07:51:01.853Z"
   },
   {
    "evidence_id": "cfd-va003",
@@ -976,7 +881,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.518Z"
+   "created_at": "2026-11-26T07:51:01.853Z"
   },
   {
    "evidence_id": "cfd-va004",
@@ -991,7 +896,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.519Z"
+   "created_at": "2026-11-26T07:51:01.854Z"
   },
   {
    "evidence_id": "cfd-va005",
@@ -1006,7 +911,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.520Z"
+   "created_at": "2026-11-26T07:51:01.854Z"
   },
   {
    "evidence_id": "cfd-va006",
@@ -1021,7 +926,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.520Z"
+   "created_at": "2026-11-26T07:51:01.855Z"
   },
   {
    "evidence_id": "cfd-va007",
@@ -1036,7 +941,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.521Z"
+   "created_at": "2026-11-26T07:51:01.856Z"
   },
   {
    "evidence_id": "cfd-va008",
@@ -1051,7 +956,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.522Z"
+   "created_at": "2026-11-26T07:51:01.857Z"
   },
   {
    "evidence_id": "cfd-va009",
@@ -1066,7 +971,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.522Z"
+   "created_at": "2026-11-26T07:51:01.857Z"
   },
   {
    "evidence_id": "cfd-va010",
@@ -1081,7 +986,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.523Z"
+   "created_at": "2026-11-26T07:51:01.858Z"
   },
   {
    "evidence_id": "cfd-va011",
@@ -1096,7 +1001,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.524Z"
+   "created_at": "2026-11-26T07:51:01.858Z"
   },
   {
    "evidence_id": "cfd-va012",
@@ -1111,7 +1016,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.524Z"
+   "created_at": "2026-11-26T07:51:01.859Z"
   },
   {
    "evidence_id": "cfd-va013",
@@ -1126,7 +1031,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.525Z"
+   "created_at": "2026-11-26T07:51:01.860Z"
   },
   {
    "evidence_id": "cfd-va014",
@@ -1141,7 +1046,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.526Z"
+   "created_at": "2026-11-26T07:51:01.860Z"
   },
   {
    "evidence_id": "cfd-va015",
@@ -1156,7 +1061,7 @@
    "covers": [
     "CL"
    ],
-   "created_at": "2026-11-26T07:43:57.526Z"
+   "created_at": "2026-11-26T07:51:01.861Z"
   },
   {
    "evidence_id": "cfd-held-out-CD",
@@ -1171,7 +1076,7 @@
    "covers": [
     "CD"
    ],
-   "created_at": "2026-11-26T07:43:57.527Z"
+   "created_at": "2026-11-26T07:51:01.861Z"
   }
  ],
  "applicability": {
@@ -1226,25 +1131,34 @@
  ],
  "reviews": [],
  "provenance": {
-  "tool": "",
-  "tool_version": "",
-  "python": "",
-  "platform": "",
-  "code_sha256": "",
-  "data_sha256": "",
-  "seeds": [],
-  "tolerances": {},
-  "compute": {}
+  "tool": "PINNeAPPle autolab",
+  "tool_version": "0.8.0+local",
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "code_sha256": "7bb973f4e0c737e5bc244314623da7690ecae6f0ac59f8ac0be7ba95fcaf8382",
+  "data_sha256": "8bb3f83be3859c8efe3f5595edb1dd35a2a7dcc1b8a4032e26469e9174291b35",
+  "seeds": [
+   30,
+   7,
+   11,
+   23
+  ],
+  "tolerances": {
+   "lift_tolerance": 0.05,
+   "reference_tolerance": 0.05,
+   "wall_ratio": 1.5,
+   "continuity_ratio": 2.0,
+   "uncertainty_quantile": 0.9
+  },
+  "compute": {
+   "cores": "10",
+   "solver": "simpleFoam",
+   "iterations": "1000",
+   "meshes": "4",
+   "reference_runs": "132"
+  }
  },
  "improvement_tasks": [
-  {
-   "requirement": "sci.provenance",
-   "dimension": "scientific",
-   "level": 3,
-   "action": "fill the provenance record (hashes, versions, seeds, tolerances)",
-   "statement": "Inputs, code, versions, seeds and tolerances are recorded so the run is reproducible.",
-   "priority": "medium"
-  },
   {
    "requirement": "ind.approval",
    "dimension": "industrial",
@@ -1281,17 +1195,17 @@
  "history": [
   {
    "revision": 1,
-   "created_at": "2026-11-26T07:43:57.516Z",
+   "created_at": "2026-11-26T07:51:01.851Z",
    "action": "case opened",
    "actor": "study",
    "note": "",
    "status": "unvalidated",
-   "snapshot_sha256": "6bbeeeac672aa466af02e7e356484d203bdc56099e62d5b7320d6e9967b31d68",
+   "snapshot_sha256": "3cce361eb5941f5f62cf13b030af8fc11ee857007025e4645b7a20d626820646",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1364,17 +1278,17 @@
   },
   {
    "revision": 2,
-   "created_at": "2026-11-26T07:43:57.517Z",
+   "created_at": "2026-11-26T07:51:01.851Z",
    "action": "checks recorded",
    "actor": "",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "3a5578ad78995b6126685b7ef1dfd23bc7581a6d24f4ebf88877ce38e094c819",
+   "snapshot_sha256": "6041b036cf08ab1d11415514cf0ba6bfdb2e29196719668263dd6f992f20a7bf",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1558,17 +1472,17 @@
   },
   {
    "revision": 3,
-   "created_at": "2026-11-26T07:43:57.517Z",
+   "created_at": "2026-11-26T07:51:01.852Z",
    "action": "evidence added: cfd-va000",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "9799d148fed9f3bff7d51f44c22779294e576d85654c68edaf3ac07d105e8d4b",
+   "snapshot_sha256": "0548b4bc76c7df564f843b504f6610eb770019d4dab3bffa0327438ce8018621",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1756,7 +1670,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      }
     ],
     "uncertainty": null,
@@ -1768,17 +1682,17 @@
   },
   {
    "revision": 4,
-   "created_at": "2026-11-26T07:43:57.518Z",
+   "created_at": "2026-11-26T07:51:01.852Z",
    "action": "evidence added: cfd-va001",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "252eb2073d1a550a003ff3caaa8d3df5ef53cee3f56fc7b835cb209c23cf29f8",
+   "snapshot_sha256": "d7e0f157e646a1e7a0c0ec386959f4c7361cadacd20081bf13655701d65459ec",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -1966,7 +1880,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -1981,7 +1895,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      }
     ],
     "uncertainty": null,
@@ -1993,17 +1907,17 @@
   },
   {
    "revision": 5,
-   "created_at": "2026-11-26T07:43:57.518Z",
+   "created_at": "2026-11-26T07:51:01.853Z",
    "action": "evidence added: cfd-va002",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "13c60722716c79c0b6481d726aad6473776d75fc64c78fbb54e1baf9b212786b",
+   "snapshot_sha256": "d4b5eedf52513692dc16246a54b219c862a0844c052a7acf689b372f4604103c",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2191,7 +2105,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2206,7 +2120,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2221,7 +2135,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      }
     ],
     "uncertainty": null,
@@ -2233,17 +2147,17 @@
   },
   {
    "revision": 6,
-   "created_at": "2026-11-26T07:43:57.519Z",
+   "created_at": "2026-11-26T07:51:01.853Z",
    "action": "evidence added: cfd-va003",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "50d0eec64d3aca04bed0f89be76798528ac3970bff558467e8e2063c77d3e949",
+   "snapshot_sha256": "bd87b7ba2c897f5a6e980fe168be5337cc1f1bec315aa86d90fd96c64ef17b0f",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2431,7 +2345,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2446,7 +2360,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2461,7 +2375,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -2476,7 +2390,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      }
     ],
     "uncertainty": null,
@@ -2488,17 +2402,17 @@
   },
   {
    "revision": 7,
-   "created_at": "2026-11-26T07:43:57.519Z",
+   "created_at": "2026-11-26T07:51:01.854Z",
    "action": "evidence added: cfd-va004",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "431192e0e718c9b997830f23613f863efd5b6c7ced7f7428c32e4e29bd355df9",
+   "snapshot_sha256": "e639f02441010dbfd59507303eec87bbc62b1890bdaa4c90523a764d4036b958",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2686,7 +2600,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2701,7 +2615,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2716,7 +2630,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -2731,7 +2645,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -2746,7 +2660,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      }
     ],
     "uncertainty": null,
@@ -2758,17 +2672,17 @@
   },
   {
    "revision": 8,
-   "created_at": "2026-11-26T07:43:57.520Z",
+   "created_at": "2026-11-26T07:51:01.854Z",
    "action": "evidence added: cfd-va005",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "c5e3b8c874e44388dec2dafc011543e0a3e55d1d1757de3e4420f6d80e0c8872",
+   "snapshot_sha256": "53e943204405439b7e5c1747fa0651607b28141afa4d9992fb106030f2232286",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -2956,7 +2870,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -2971,7 +2885,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -2986,7 +2900,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3001,7 +2915,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3016,7 +2930,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3031,7 +2945,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      }
     ],
     "uncertainty": null,
@@ -3043,17 +2957,17 @@
   },
   {
    "revision": 9,
-   "created_at": "2026-11-26T07:43:57.521Z",
+   "created_at": "2026-11-26T07:51:01.856Z",
    "action": "evidence added: cfd-va006",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "20e8de6923bac74a394730ecefd795828547b47c3e24fc76e7007de2f0da0679",
+   "snapshot_sha256": "9d5311d57e6d92bfd18a5b1dc4ccc413efb84c2bcc2ad8b9e932854f98c7f746",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -3241,7 +3155,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -3256,7 +3170,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -3271,7 +3185,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3286,7 +3200,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3301,7 +3215,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3316,7 +3230,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -3331,7 +3245,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      }
     ],
     "uncertainty": null,
@@ -3343,17 +3257,17 @@
   },
   {
    "revision": 10,
-   "created_at": "2026-11-26T07:43:57.521Z",
+   "created_at": "2026-11-26T07:51:01.856Z",
    "action": "evidence added: cfd-va007",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "eeaa779ffff58e89b6d50b7fe11791ce95aed6c1768512e3682e968b162099c0",
+   "snapshot_sha256": "db7dbe258b3460d55fef036b6e8d4ffb99abd1288486b4205fe4e390369494ff",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -3541,7 +3455,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -3556,7 +3470,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -3571,7 +3485,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3586,7 +3500,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3601,7 +3515,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3616,7 +3530,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -3631,7 +3545,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -3646,7 +3560,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      }
     ],
     "uncertainty": null,
@@ -3658,17 +3572,17 @@
   },
   {
    "revision": 11,
-   "created_at": "2026-11-26T07:43:57.522Z",
+   "created_at": "2026-11-26T07:51:01.857Z",
    "action": "evidence added: cfd-va008",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "2660d1fc771d2bfc2375eb2d489cd3dbec0eb52520c622f8787a0cfcdee41164",
+   "snapshot_sha256": "11f092a2fcf4623413d9dc8313aea2c84d915b854abbfb3fa13ad556f6159aa1",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -3856,7 +3770,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -3871,7 +3785,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -3886,7 +3800,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -3901,7 +3815,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -3916,7 +3830,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -3931,7 +3845,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -3946,7 +3860,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -3961,7 +3875,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -3976,7 +3890,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      }
     ],
     "uncertainty": null,
@@ -3988,17 +3902,17 @@
   },
   {
    "revision": 12,
-   "created_at": "2026-11-26T07:43:57.523Z",
+   "created_at": "2026-11-26T07:51:01.858Z",
    "action": "evidence added: cfd-va009",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "74ff5b3fcecf57de649072d44f26d7c2b4c0751bd16bd84ac80836e59d5c5cf9",
+   "snapshot_sha256": "6e6981d7badceb348f0bc64d22cea853c108decdcac62f09583beaeca3fc0a63",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -4186,7 +4100,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -4201,7 +4115,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -4216,7 +4130,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -4231,7 +4145,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -4246,7 +4160,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -4261,7 +4175,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -4276,7 +4190,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -4291,7 +4205,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -4306,7 +4220,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -4321,7 +4235,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      }
     ],
     "uncertainty": null,
@@ -4333,17 +4247,17 @@
   },
   {
    "revision": 13,
-   "created_at": "2026-11-26T07:43:57.523Z",
+   "created_at": "2026-11-26T07:51:01.858Z",
    "action": "evidence added: cfd-va010",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "b0996f0260b2e010217cbae2430cf933776fbc275e42d7ea487a6d06fef02141",
+   "snapshot_sha256": "4685df66674e13c5fbe3f4e5e7c7f832f2a05950fb87d3d10f1c723c33e37976",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -4531,7 +4445,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -4546,7 +4460,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -4561,7 +4475,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -4576,7 +4490,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -4591,7 +4505,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -4606,7 +4520,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -4621,7 +4535,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -4636,7 +4550,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -4651,7 +4565,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -4666,7 +4580,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -4681,7 +4595,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      }
     ],
     "uncertainty": null,
@@ -4693,17 +4607,17 @@
   },
   {
    "revision": 14,
-   "created_at": "2026-11-26T07:43:57.524Z",
+   "created_at": "2026-11-26T07:51:01.859Z",
    "action": "evidence added: cfd-va011",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "9f79b15ce4b2a2dedf8f520536a39124457e9acaab831c4d4946c5bf7273c162",
+   "snapshot_sha256": "7eb01172d1a57b9711e0541dc02116959cddcae0a411c030efd44aaff4213e55",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -4891,7 +4805,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -4906,7 +4820,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -4921,7 +4835,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -4936,7 +4850,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -4951,7 +4865,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -4966,7 +4880,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -4981,7 +4895,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -4996,7 +4910,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -5011,7 +4925,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -5026,7 +4940,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -5041,7 +4955,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -5056,7 +4970,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      }
     ],
     "uncertainty": null,
@@ -5068,17 +4982,17 @@
   },
   {
    "revision": 15,
-   "created_at": "2026-11-26T07:43:57.525Z",
+   "created_at": "2026-11-26T07:51:01.859Z",
    "action": "evidence added: cfd-va012",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "84d2d7bae4cf4e690e3c4291b71edd908d9bef42b661b67af9f61687a30948af",
+   "snapshot_sha256": "12e3b19e25ba30d53e1123ecb19237edbe3d0ffbe4e51c15838b445ea6ed38fc",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -5266,7 +5180,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -5281,7 +5195,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -5296,7 +5210,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -5311,7 +5225,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -5326,7 +5240,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -5341,7 +5255,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -5356,7 +5270,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -5371,7 +5285,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -5386,7 +5300,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -5401,7 +5315,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -5416,7 +5330,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -5431,7 +5345,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -5446,7 +5360,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      }
     ],
     "uncertainty": null,
@@ -5458,17 +5372,17 @@
   },
   {
    "revision": 16,
-   "created_at": "2026-11-26T07:43:57.525Z",
+   "created_at": "2026-11-26T07:51:01.860Z",
    "action": "evidence added: cfd-va013",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "38a2d517bd6ab88efa5aa29f1b3cd119170d3d8fe662b971c01f5d81c8008d70",
+   "snapshot_sha256": "bb11c489fadcec636dfb4ec4e2c6742530a15e543b876b183ed7e7b4e12fbe06",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -5656,7 +5570,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -5671,7 +5585,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -5686,7 +5600,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -5701,7 +5615,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -5716,7 +5630,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -5731,7 +5645,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -5746,7 +5660,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -5761,7 +5675,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -5776,7 +5690,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -5791,7 +5705,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -5806,7 +5720,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -5821,7 +5735,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -5836,7 +5750,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -5851,7 +5765,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.525Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      }
     ],
     "uncertainty": null,
@@ -5863,17 +5777,17 @@
   },
   {
    "revision": 17,
-   "created_at": "2026-11-26T07:43:57.526Z",
+   "created_at": "2026-11-26T07:51:01.860Z",
    "action": "evidence added: cfd-va014",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "0bc7ab2732a930f8e482edf8956b45ec79f68ed265c371dc46f997793172be9d",
+   "snapshot_sha256": "f1dce4952684bd194be91a70e3bc3cbea55a477165c85bfd1b6b1db17e91b982",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -6061,7 +5975,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -6076,7 +5990,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -6091,7 +6005,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -6106,7 +6020,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -6121,7 +6035,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -6136,7 +6050,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -6151,7 +6065,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -6166,7 +6080,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -6181,7 +6095,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -6196,7 +6110,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -6211,7 +6125,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -6226,7 +6140,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -6241,7 +6155,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -6256,7 +6170,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.525Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -6271,7 +6185,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      }
     ],
     "uncertainty": null,
@@ -6283,17 +6197,17 @@
   },
   {
    "revision": 18,
-   "created_at": "2026-11-26T07:43:57.527Z",
+   "created_at": "2026-11-26T07:51:01.861Z",
    "action": "evidence added: cfd-va015",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "3e810bc3446f443a3620e006e5514fdd4112c9c598995281c9640cfce6ee2253",
+   "snapshot_sha256": "423c134f9ff79e69bd3bb624ac5fd195f36fe01e2a2a9cd9ee8e90c0dfbe5c11",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -6481,7 +6395,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -6496,7 +6410,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -6511,7 +6425,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -6526,7 +6440,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -6541,7 +6455,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -6556,7 +6470,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -6571,7 +6485,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -6586,7 +6500,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -6601,7 +6515,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -6616,7 +6530,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -6631,7 +6545,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -6646,7 +6560,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -6661,7 +6575,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -6676,7 +6590,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.525Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -6691,7 +6605,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -6706,7 +6620,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      }
     ],
     "uncertainty": null,
@@ -6718,17 +6632,17 @@
   },
   {
    "revision": 19,
-   "created_at": "2026-11-26T07:43:57.527Z",
+   "created_at": "2026-11-26T07:51:01.862Z",
    "action": "evidence added: cfd-held-out-CD",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "ee1d1e0afc94e6ded4e727b6bb9f0635f47528ffad12d0e71236e768b2a83124",
+   "snapshot_sha256": "79240bde8331bfcb41d5d75656d8669fb27487d4f8a508839b3ee1b100d302c3",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -6916,7 +6830,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -6931,7 +6845,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -6946,7 +6860,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -6961,7 +6875,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -6976,7 +6890,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -6991,7 +6905,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -7006,7 +6920,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -7021,7 +6935,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -7036,7 +6950,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -7051,7 +6965,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -7066,7 +6980,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -7081,7 +6995,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -7096,7 +7010,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -7111,7 +7025,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.525Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -7126,7 +7040,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -7141,7 +7055,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -7156,7 +7070,7 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T07:43:57.527Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      }
     ],
     "uncertainty": null,
@@ -7168,17 +7082,17 @@
   },
   {
    "revision": 20,
-   "created_at": "2026-11-26T07:43:57.528Z",
+   "created_at": "2026-11-26T07:51:01.863Z",
    "action": "uncertainty recorded",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "f55fee79016b10aeeee00c3cf1fd13fcf1abed238057499ac45cbe7b4f6d37c8",
+   "snapshot_sha256": "a565456992dcfa869a91257ac9f4efe010cc529b1787677477d22cddb41a79f7",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -7366,7 +7280,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -7381,7 +7295,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -7396,7 +7310,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -7411,7 +7325,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -7426,7 +7340,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -7441,7 +7355,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -7456,7 +7370,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -7471,7 +7385,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -7486,7 +7400,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -7501,7 +7415,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -7516,7 +7430,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -7531,7 +7445,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -7546,7 +7460,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -7561,7 +7475,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.525Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -7576,7 +7490,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -7591,7 +7505,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -7606,7 +7520,7 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T07:43:57.527Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      }
     ],
     "uncertainty": {
@@ -7626,17 +7540,17 @@
   },
   {
    "revision": 21,
-   "created_at": "2026-11-26T07:43:57.529Z",
+   "created_at": "2026-11-26T07:51:01.864Z",
    "action": "applicability recorded",
    "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "f2757de6bd740261cf0dacb7db18166a708d847b546fff979afca389cd77ab25",
+   "snapshot_sha256": "6f9f98cc279bdcc9ae8dd45a548f4c37e666ec30531ac7d889e0f37f469bcbda",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -7824,7 +7738,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -7839,7 +7753,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -7854,7 +7768,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -7869,7 +7783,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -7884,7 +7798,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -7899,7 +7813,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -7914,7 +7828,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -7929,7 +7843,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -7944,7 +7858,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -7959,7 +7873,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -7974,7 +7888,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -7989,7 +7903,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -8004,7 +7918,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -8019,7 +7933,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.525Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -8034,7 +7948,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -8049,7 +7963,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -8064,7 +7978,7 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T07:43:57.527Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      }
     ],
     "uncertainty": {
@@ -8111,17 +8025,17 @@
   },
   {
    "revision": 22,
-   "created_at": "2026-11-26T07:43:57.530Z",
-   "action": "limitations recorded",
-   "actor": "",
+   "created_at": "2026-11-26T07:51:01.937Z",
+   "action": "provenance recorded",
+   "actor": "study",
    "note": "",
    "status": "failed",
-   "snapshot_sha256": "9722646af312b0fd9b356d02236e2bf77ea38bf3a42df26e2852270076f2d5af",
+   "snapshot_sha256": "4a58224447d6b402cba138d9d5629d257f7bcb44c860a4cbd9cab24b8bad2902",
    "snapshot": {
     "schema": "pinneapple-validation-case/v1",
     "case_id": "VC-52ddc41c9f",
     "title": "NACA four-digit surrogate: an evidence-based validation study",
-    "opened_at": "2026-11-26T07:43:57.516Z",
+    "opened_at": "2026-11-26T07:51:01.851Z",
     "requested_use": "rank candidate sections of a family for a first design pass",
     "profile": {
      "name": "airfoil preliminary screening",
@@ -8167,15 +8081,32 @@
      ]
     },
     "provenance": {
-     "tool": "",
-     "tool_version": "",
-     "python": "",
-     "platform": "",
-     "code_sha256": "",
-     "data_sha256": "",
-     "seeds": [],
-     "tolerances": {},
-     "compute": {}
+     "tool": "PINNeAPPle autolab",
+     "tool_version": "0.8.0+local",
+     "python": "3.11.16",
+     "platform": "macOS-26.5.2-arm64-arm-64bit",
+     "code_sha256": "7bb973f4e0c737e5bc244314623da7690ecae6f0ac59f8ac0be7ba95fcaf8382",
+     "data_sha256": "8bb3f83be3859c8efe3f5595edb1dd35a2a7dcc1b8a4032e26469e9174291b35",
+     "seeds": [
+      30,
+      7,
+      11,
+      23
+     ],
+     "tolerances": {
+      "lift_tolerance": 0.05,
+      "reference_tolerance": 0.05,
+      "wall_ratio": 1.5,
+      "continuity_ratio": 2.0,
+      "uncertainty_quantile": 0.9
+     },
+     "compute": {
+      "cores": "10",
+      "solver": "simpleFoam",
+      "iterations": "1000",
+      "meshes": "4",
+      "reference_runs": "132"
+     }
     },
     "controls": {
      "owner": "",
@@ -8309,7 +8240,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va001",
@@ -8324,7 +8255,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.517Z"
+      "created_at": "2026-11-26T07:51:01.852Z"
      },
      {
       "evidence_id": "cfd-va002",
@@ -8339,7 +8270,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va003",
@@ -8354,7 +8285,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.518Z"
+      "created_at": "2026-11-26T07:51:01.853Z"
      },
      {
       "evidence_id": "cfd-va004",
@@ -8369,7 +8300,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.519Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va005",
@@ -8384,7 +8315,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.854Z"
      },
      {
       "evidence_id": "cfd-va006",
@@ -8399,7 +8330,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.520Z"
+      "created_at": "2026-11-26T07:51:01.855Z"
      },
      {
       "evidence_id": "cfd-va007",
@@ -8414,7 +8345,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.521Z"
+      "created_at": "2026-11-26T07:51:01.856Z"
      },
      {
       "evidence_id": "cfd-va008",
@@ -8429,7 +8360,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va009",
@@ -8444,7 +8375,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.522Z"
+      "created_at": "2026-11-26T07:51:01.857Z"
      },
      {
       "evidence_id": "cfd-va010",
@@ -8459,7 +8390,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.523Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va011",
@@ -8474,7 +8405,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.858Z"
      },
      {
       "evidence_id": "cfd-va012",
@@ -8489,7 +8420,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.524Z"
+      "created_at": "2026-11-26T07:51:01.859Z"
      },
      {
       "evidence_id": "cfd-va013",
@@ -8504,7 +8435,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.525Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va014",
@@ -8519,7 +8450,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.860Z"
      },
      {
       "evidence_id": "cfd-va015",
@@ -8534,7 +8465,7 @@
       "covers": [
        "CL"
       ],
-      "created_at": "2026-11-26T07:43:57.526Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
      },
      {
       "evidence_id": "cfd-held-out-CD",
@@ -8549,7 +8480,509 @@
       "covers": [
        "CD"
       ],
-      "created_at": "2026-11-26T07:43:57.527Z"
+      "created_at": "2026-11-26T07:51:01.861Z"
+     }
+    ],
+    "uncertainty": {
+     "method": "ensemble spread over five members on the POD coefficients",
+     "calibrated": false,
+     "spread_pct": 2.8190556639457407,
+     "coverage": 0.43333333333333335,
+     "target_coverage": 0.68,
+     "limitation": "a disagreement bar detects instability; it is a confidence interval only once its coverage is measured, and here one sigma covers 43% of the held-out errors (two sigma, 65%)",
+     "evidence": "results/analysis_v1.json"
+    },
+    "applicability": {
+     "checked": true,
+     "requested_condition": "alpha_deg=2, speed=20, thickness=0.12",
+     "outside_variables": [],
+     "supported_margin": null,
+     "verified_ranges": [
+      {
+       "name": "alpha_deg",
+       "lower": -4.0,
+       "upper": 8.0
+      },
+      {
+       "name": "speed",
+       "lower": 10.0,
+       "upper": 30.0
+      },
+      {
+       "name": "thickness",
+       "lower": 0.08,
+       "upper": 0.16
+      }
+     ],
+     "notes": [
+      "the evidence domain answers UNSUPPORTED at the requested condition (insufficient_local_reference)",
+      "199 of 200 sampled candidates have no reference within the neighbourhood radius",
+      "camber is not a parameter of this model's schema: a query carrying it is outside the model, not merely outside the evidence"
+     ]
+    },
+    "limitations": [],
+    "reviews": [],
+    "status": "failed"
+   }
+  },
+  {
+   "revision": 23,
+   "created_at": "2026-11-26T07:51:01.938Z",
+   "action": "limitations recorded",
+   "actor": "",
+   "note": "",
+   "status": "failed",
+   "snapshot_sha256": "8d07db98a3a1629e00ca3d32f8fb31cd8004509f552005ad7db28c47ff76ccea",
+   "snapshot": {
+    "schema": "pinneapple-validation-case/v1",
+    "case_id": "VC-52ddc41c9f",
+    "title": "NACA four-digit surrogate: an evidence-based validation study",
+    "opened_at": "2026-11-26T07:51:01.851Z",
+    "requested_use": "rank candidate sections of a family for a first design pass",
+    "profile": {
+     "name": "airfoil preliminary screening",
+     "objective": "industrial",
+     "primary_metric": "CL",
+     "target_error_pct": 5.0,
+     "reference_evidence": [
+      "numerical reference"
+     ],
+     "critical_quantities": [
+      "CL"
+     ],
+     "critical_regions": [],
+     "required_checks": [],
+     "consequence": "medium",
+     "decision": "screen candidate sections of a family before committing a design cycle",
+     "notes": ""
+    },
+    "model": {
+     "name": "naca-family-surrogate",
+     "version": "v1",
+     "checkpoint_sha256": "",
+     "preset": "",
+     "configuration": {
+      "architecture": "MLP ensemble on POD coefficients",
+      "energy_captured": "0.988689",
+      "inputs": "alpha_deg,speed,thickness,camber",
+      "members": "5",
+      "pod_modes": "8"
+     }
+    },
+    "problem": {
+     "description": "steady incompressible flow over a NACA four-digit section, unit chord, sea-level air",
+     "pde": "steady incompressible RANS, k-omega SST with wall functions",
+     "geometry": "NACA four-digit, thickness 8-16 % of chord, zero camber in this schema",
+     "parameters": {},
+     "conditions": [
+      "chord_m=1.0",
+      "span_m=0.01",
+      "nu_m2_s=1.5e-05",
+      "rho_kg_m3=1.225",
+      "camber_position=0.4"
+     ]
+    },
+    "provenance": {
+     "tool": "PINNeAPPle autolab",
+     "tool_version": "0.8.0+local",
+     "python": "3.11.16",
+     "platform": "macOS-26.5.2-arm64-arm-64bit",
+     "code_sha256": "7bb973f4e0c737e5bc244314623da7690ecae6f0ac59f8ac0be7ba95fcaf8382",
+     "data_sha256": "8bb3f83be3859c8efe3f5595edb1dd35a2a7dcc1b8a4032e26469e9174291b35",
+     "seeds": [
+      30,
+      7,
+      11,
+      23
+     ],
+     "tolerances": {
+      "lift_tolerance": 0.05,
+      "reference_tolerance": 0.05,
+      "wall_ratio": 1.5,
+      "continuity_ratio": 2.0,
+      "uncertainty_quantile": 0.9
+     },
+     "compute": {
+      "cores": "10",
+      "solver": "simpleFoam",
+      "iterations": "1000",
+      "meshes": "4",
+      "reference_runs": "132"
+     }
+    },
+    "controls": {
+     "owner": "",
+     "monitoring": "",
+     "fallback": "",
+     "change_management": ""
+    },
+    "checks": [
+     {
+      "check_id": "mesh_convergence_CL",
+      "category": "verification",
+      "passed": true,
+      "value": 0.00986217082502591,
+      "threshold": 0.05,
+      "message": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
+      "critical": false,
+      "evidence": "results/mesh_study.json"
+     },
+     {
+      "check_id": "gate_continuity_residual",
+      "category": "verification",
+      "passed": true,
+      "value": 1.0098300225800185,
+      "threshold": 2.0,
+      "message": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
+      "critical": false,
+      "evidence": "results/physics_v1.json"
+     },
+     {
+      "check_id": "boundary_condition_no_slip",
+      "category": "verification",
+      "passed": true,
+      "value": 0.9871720707991906,
+      "threshold": 1.5,
+      "message": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
+      "critical": false,
+      "evidence": "results/physics_v1.json"
+     },
+     {
+      "check_id": "freestream_decay",
+      "category": "physics",
+      "passed": true,
+      "value": 1.0586927095422187,
+      "threshold": 1.5,
+      "message": "the outermost ring departs from the freestream by 0.084 of U_inf, against the reference's 0.079 -- the ring is at a quarter chord from the surface, so neither reaches zero",
+      "critical": false,
+      "evidence": "results/physics_v1.json"
+     },
+     {
+      "check_id": "pressure_integral_consistency",
+      "category": "physics",
+      "passed": true,
+      "value": 1.0160191623655555,
+      "threshold": 1.5,
+      "message": "lift from integrating the predicted wall pressure differs from the predicted CL by 0.319; the same integral on the reference differs from the reference's CL by 0.314",
+      "critical": false,
+      "evidence": "results/physics_v1.json"
+     },
+     {
+      "check_id": "accuracy_CL",
+      "category": "validation",
+      "passed": true,
+      "value": 0.048358565675710175,
+      "threshold": 0.05,
+      "message": "relative L2 on 16 designs held out by design",
+      "critical": false,
+      "evidence": "results/analysis_v1.json"
+     },
+     {
+      "check_id": "field_accuracy",
+      "category": "validation",
+      "passed": false,
+      "value": 0.14819752094812866,
+      "threshold": 0.09290614337417778,
+      "message": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
+      "critical": false,
+      "evidence": "results/analysis_v1.json"
+     },
+     {
+      "check_id": "applicability_domain_measured",
+      "category": "applicability",
+      "passed": false,
+      "value": null,
+      "threshold": null,
+      "message": "evidence domain queried at {'alpha_deg': 2.0, 'speed': 20.0, 'thickness': 0.12}: UNSUPPORTED (insufficient_local_reference)",
+      "critical": false,
+      "evidence": "results/domain_v1.json"
+     },
+     {
+      "check_id": "uncertainty_calibration_coverage",
+      "category": "uncertainty",
+      "passed": false,
+      "value": 0.43333333333333335,
+      "threshold": 0.68,
+      "message": "the raw ensemble spread covers 43% of held-out errors at one sigma (narrower than nominal: the bar under-covers)",
+      "critical": false,
+      "evidence": "results/analysis_v1.json"
+     },
+     {
+      "check_id": "robustness_input_sensitivity",
+      "category": "robustness",
+      "passed": true,
+      "value": 0.7178471705287193,
+      "threshold": 1.0,
+      "message": "movement of CL under a 1 % nudge of each input, over the ensemble spread, worst input: alpha_deg 0.72, speed 0.05, thickness 0.05",
+      "critical": false,
+      "evidence": "results/physics_v1.json"
+     },
+     {
+      "check_id": "reproducibility_rerun",
+      "category": "reproducibility",
+      "passed": null,
+      "value": null,
+      "threshold": null,
+      "message": "not run in this round: no independent re-execution of the campaign",
+      "critical": false,
+      "evidence": ""
+     }
+    ],
+    "references": [
+     {
+      "evidence_id": "cfd-va000",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 4.037003943695924,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va000, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.852Z"
+     },
+     {
+      "evidence_id": "cfd-va001",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 16.667123418108474,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va001, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.852Z"
+     },
+     {
+      "evidence_id": "cfd-va002",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 4.322055959068607,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va002, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.853Z"
+     },
+     {
+      "evidence_id": "cfd-va003",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 0.3734115467663516,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va003, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.853Z"
+     },
+     {
+      "evidence_id": "cfd-va004",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 2.3960436368833298,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va004, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.854Z"
+     },
+     {
+      "evidence_id": "cfd-va005",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 4.97068022323212,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va005, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.854Z"
+     },
+     {
+      "evidence_id": "cfd-va006",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 3.646264046340809,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va006, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.855Z"
+     },
+     {
+      "evidence_id": "cfd-va007",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 3.120752099993866,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va007, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.856Z"
+     },
+     {
+      "evidence_id": "cfd-va008",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 42.931421113230854,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va008, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.857Z"
+     },
+     {
+      "evidence_id": "cfd-va009",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 4.611816475422926,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va009, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.857Z"
+     },
+     {
+      "evidence_id": "cfd-va010",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 0.15044252657982934,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va010, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.858Z"
+     },
+     {
+      "evidence_id": "cfd-va011",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 1.3187068625410427,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va011, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.858Z"
+     },
+     {
+      "evidence_id": "cfd-va012",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 9.972061909528735,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va012, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.859Z"
+     },
+     {
+      "evidence_id": "cfd-va013",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 1.6715521987642912,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va013, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.860Z"
+     },
+     {
+      "evidence_id": "cfd-va014",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 2.2939840433256165,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va014, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.860Z"
+     },
+     {
+      "evidence_id": "cfd-va015",
+      "kind": "numerical reference",
+      "metric": "CL",
+      "value_pct": 8.984079438809655,
+      "tolerance_pct": 5.0,
+      "independent": true,
+      "description": "OpenFOAM simpleFoam run of design va015, never seen in training",
+      "source": "examples/end_to_end/airfoil_trust/_runs/cfd",
+      "artefact_sha256": "",
+      "covers": [
+       "CL"
+      ],
+      "created_at": "2026-11-26T07:51:01.861Z"
+     },
+     {
+      "evidence_id": "cfd-held-out-CD",
+      "kind": "numerical reference",
+      "metric": "CD",
+      "value_pct": 8.131565293272443,
+      "tolerance_pct": 11.821334638247603,
+      "independent": true,
+      "description": "relative L2 over 16 designs held out by design, against the grid-convergence index of the reference on drag (12 % at the finest mesh) rather than against the lift tolerance",
+      "source": "results/analysis_v1.json",
+      "artefact_sha256": "",
+      "covers": [
+       "CD"
+      ],
+      "created_at": "2026-11-26T07:51:01.861Z"
      }
     ],
     "uncertainty": {

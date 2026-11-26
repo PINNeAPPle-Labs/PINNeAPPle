@@ -317,9 +317,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "d219d52f5",
-  "created": "2026-11-26T07:43:57Z",
-  "seconds": 0.076,
+  "git": "2b9d94780",
+  "created": "2026-11-26T07:51:01Z",
+  "seconds": 0.054,
   "error": null,
   "environment": {
    "python": "3.11.16",

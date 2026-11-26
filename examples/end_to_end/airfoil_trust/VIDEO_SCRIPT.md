@@ -296,8 +296,8 @@ Command: `python examples/end_to_end/airfoil_trust/07_report.py`
 > Every verdict in it is backed by a sealed ledger entry against the hash of the file the number came
 > from, which is why the check that did not run reads NOT RUN and not "assumed fine".
 >
-> And it ends with what is missing: the check that did not run, the evidence that was not gathered,
-> the work to happen before this model is used beyond a first design pass.
+> And it holds what is missing: a check that did not run, every finding with the steps that would close
+> it, and the one item no script can tick -- a second engineer's review.
 >
 > Trust is not a score. It is a map with edges on it. A pipeline that says yes to everything is not
 > answering the question; this one says no, in writing, with the reasons numbered.

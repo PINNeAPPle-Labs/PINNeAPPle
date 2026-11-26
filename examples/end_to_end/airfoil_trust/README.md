@@ -40,6 +40,21 @@ Environment used: OpenFOAM v2606 (ESI) native on macOS, gmsh 4.15, Python 3.11 w
 matplotlib, 10 cores. The two campaigns are the expensive stages (64 and 68 solves); everything
 after them is minutes. Records, fields and cases go to `_runs/` and are not committed.
 
+## The film
+
+`make_video.py` renders the two cuts written in `VIDEO_SCRIPT.md` out of the same files the report is built from: the
+frames are drawn from `results/`, and the narration is synthesised locally with macOS `say`, so no cut can say
+anything the study did not measure. Each frame is regenerated on every run, and the per-scene narrations are written
+next to the output as `scene01.wav` ... so a human read can replace the synthetic voice without touching the script.
+
+```bash
+python examples/end_to_end/airfoil_trust/make_video.py --cut long     # 9 min 54 s, 11 scenes and a closing card
+python examples/end_to_end/airfoil_trust/make_video.py --cut short    # 90 s, for a feed
+```
+
+The MP4 is not committed here: twenty megabytes of video in a git history is not a review artefact. The script, the
+figures and the numbers that go into it are.
+
 ## The case
 
 | | |

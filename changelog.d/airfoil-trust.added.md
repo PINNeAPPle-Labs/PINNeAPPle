@@ -18,3 +18,5 @@
   check is sealed against the SHA-256 of the file its number came from and read back through
   `checks_from_ledger`, so a check with no intact record reads "not run" -- which is what the example's
   reproducibility check does, and what any check would do if its evidence file changed under it.
+- `make_video.py` in the example renders the two cuts of the video script from the same JSON and figures the
+  report uses, with the narration synthesised locally, so a film of the study cannot drift from the study.

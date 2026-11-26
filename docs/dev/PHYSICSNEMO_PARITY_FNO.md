@@ -122,7 +122,36 @@ training's, not a truncation the architecture cannot avoid. Split 192 train / 64
 steps, batch 16, 200 steps, the same seeded batch order, the same input mean/std and output scale, 4 threads, CPU,
 float32. Three seeds. `pinneapple_analysis.cost.equal_budget.train_within_budget` drives both.
 
-RESULT_TABLE_PLACEHOLDER
+**Result — the parity configuration** (the same architecture on both sides, weights transplanted before training):
+
+| side | train time (s) | held-out relative L2 | worst sample | mass drift | transfer to 96² | agreement between the two trained models |
+|---|---|---|---|---|---|---|
+| PINNeAPPle | 132.2 ± 21.9 | **0.1708** ± 0.0023 | 0.2566 ± 0.0114 | 0.0792 ± 0.0012 | 0.1839 ± 0.0103 | **1.6e-7** ± 5.7e-9 |
+| PhysicsNeMo | 112.2 ± 3.6 | **0.1708** ± 0.0023 | 0.2566 ± 0.0114 | 0.0792 ± 0.0012 | 0.1839 ± 0.0103 | **1.6e-7** ± 5.7e-9 |
+
+Mean ± standard deviation over the three seeds, each seed a full training run on both sides. The two columns that
+matter: the held-out error agrees to every printed digit, and the two *trained* models differ from each other by
+1.6e-7 — the same number as the untrained forward parity, i.e. 200 steps of Adam on the same batches move both
+weights tensors the same way. Left to differ only in the data copy, the two would still diverge in the last digits;
+they do not. The time differs (132 s against 112 s): same math, different Python around it, and that is stated here
+rather than averaged away.
+
+**Result — each side as it ships** (PINNeAPPle's defaults, PhysicsNeMo's defaults — a different architecture on
+purpose, since this is the comparison a migrating user actually faces):
+
+| side | train time (s) | held-out relative L2 | worst sample | mass drift | transfer to 96² | agreement between the two trained models |
+|---|---|---|---|---|---|---|
+| PINNeAPPle | 96.7 ± 3.6 | **0.0979** ± 0.0137 | 0.1572 ± 0.0221 | 0.0387 ± 0.0048 | 0.1650 ± 0.0074 | 0.126 ± 0.009 |
+| PhysicsNeMo | 102.4 ± 3.5 | 0.1708 ± 0.0023 | 0.2566 ± 0.0114 | 0.0792 ± 0.0012 | 0.1839 ± 0.0103 | 0.126 ± 0.009 |
+
+The as-shipped PINNeAPPle default lands at **0.0979** against PhysicsNeMo's **0.1708** on this problem, with the mass
+drift 0.0387 against 0.0792 — better on both, and with a wider spread across seeds (0.0137 against 0.0023), so this
+is one problem and 200 steps, not a ranking. The two models now differ by 0.126 relative L2, which is the size of the
+architectural difference the parity options exist to remove; in the parity configuration it becomes 1.6e-7.
+
+Reproduce: `python -m benchmarks.fno_physicsnemo_parity` — **1368.7 s** wall on this machine (10-core ARM, 4 threads,
+CPU, float32), writing `benchmarks/_out/fno_physicsnemo_parity.json`.
+
 
 ## What this changes for a user migrating from PhysicsNeMo
 

@@ -243,9 +243,9 @@ reach, the answer does not move.
 `results/dossier.md` is the report: the declared use and its tolerance, set before the answer was looked at; the
 status and its reason; every check with the file that holds its number; one entry per independent
 reference; the applicability at the condition the study was asked about; the uncertainty with its
-measured coverage; the maturity on both axes; the limitations written by whoever ran the study; the
-provenance; and the list of work that has to happen before this model may be used for anything
-beyond a first design pass.
+measured coverage; the maturity on both axes -- level 4 of 5 on each, with what the fifth still
+needs; the limitations written by whoever ran the study; and the provenance, down to the SHA-256 of
+the code and of the 132 reference runs, so that reproducing it is a file and not a promise.
 
 Every verdict in it comes from the evidence ledger: each check that ran is sealed against the SHA-256 of the file
 its number came from, and the dossier reads its verdicts back out of the ledger rather than out of this script. A

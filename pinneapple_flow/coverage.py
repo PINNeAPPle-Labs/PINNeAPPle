@@ -298,6 +298,15 @@ REASONS: dict[str, str] = {
     "pinneapple_analysis.numerics": "the numerical lab of #1048/#1056-#1062: a catalogue of (problem, method) pairs "
                                     "with the order measured against step size and against cost, which the app reads "
                                     "as a table (#29); choosing a method happens before the run, not inside it",
+    # The trust layer of #345. It is read, not run: both modules fill and hand over the record a prediction already
+    # carries, so a node of them would be a second copy of the step that produced the prediction.
+    "pinneapple_analysis.trust.record": "the Trust record itself (#345): the versioned object a prediction carries -- "
+                                        "in_domain, horizon, residuals, measurement, uncertainty and provenance. It is "
+                                        "a data shape, not a step; a node of it would be the prediction it describes",
+    "pinneapple_analysis.trust.adapters": "the readers that fill that record from what the library already computes "
+                                          "(the ensemble's residual lookahead, weather.evaluate's horizons, the "
+                                          "uncertainty module, the decision verifiers). They run where the prediction "
+                                          "is made, so a node here would duplicate that step and could disagree with it",
     "pinneapple_analysis.posterior": "posterior sampling with the diagnostics that say whether the posterior is "
                                      "there: HMC and adaptive chains take a log-posterior callable and return chains "
                                      "plus R-hat and effective sample size, which is a study of its own; the node "

@@ -196,6 +196,7 @@
     * [Engineering Design Optimizer (day 17)](guides/engineering_design_optimizer.md)
     * [Physics Design Optimizer (day 23)](guides/physics_design_optimizer.md)
     * [The Alcubierre warp bubble: curvature, energy conditions and the bill](guides/warp_drive.md)
+    * [Pressure and wall shear stress from 4D-flow MRI: what the phantom gives back](guides/hemodynamics_4dflow.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)
   * [pinneapple_physics](api/pinneapple_physics/index.md)

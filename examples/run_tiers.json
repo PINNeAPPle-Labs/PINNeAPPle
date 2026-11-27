@@ -108,6 +108,7 @@
   "examples/granular_dem": "runs clean in 8.4 s but is not in the ci tier yet: promote it with --promote",
   "examples/handoff_cases": "runs clean in 3.8 s but is not in the ci tier yet: promote it with --promote",
   "examples/hpo_experiments": "imports a name this repository does not have yet (00_quickstart_end_to_end.py, 01_discover.py, 02_build_kb.py, 03_extract.py, 04_reproduce.py, 06_compare_chunking_settings.py, 07_export_problemdesign_from_extracted.py); listed in scripts/example_imports_baseline.txt",
+ "examples/hemodynamics_4dflow": "takes longer than 12 s (run.py): too slow for the ci tier; the full campaign fits 33 networks and takes about an hour",
   "examples/industrial": "no script: the folder declares an example but has no .py to run",
   "examples/industrial_presets": "no script: the folder declares an example but has no .py to run",
   "examples/inspection": "runs clean in 2.5 s but is not in the ci tier yet: promote it with --promote",

@@ -209,6 +209,11 @@
   "reason": "imports pinneapple_researcher, which no longer exists (now pinneapple_tools.hpo_experiments); arXiv / GitHub discovery and Gemini extraction need network and an API key, and the output is not deterministic",
   "status": "not_convertible"
  },
+ "hemodynamics_4dflow": {
+  "domain": "biomedical flow",
+  "status": "not_convertible",
+  "reason": "a benchmark, not a pipeline: it samples a 4D-flow acquisition from Womersley's closed form, fits an ensemble of axisymmetric Navier-Stokes PINNs to it (33 fits, about an hour of CPU) and reports the error of the wall shear stress and the pressure gradient against the closed form, as a function of the voxel size and the noise. Nothing here is a step a node could be fed: the unit is a phantom case trained to convergence, and its output is a verdict about what the modality supports"
+ },
  "industrial_presets": {
   "domain": "engineering presets",
   "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs. bolted_joint_preload has no flow on purpose: its deck is solved by an external CalculiX (ccx) binary, so on a machine without one the flow would record a written deck and no measurement \u2014 a quick configuration that never reproduces the committed numbers is worse than the stated reason"

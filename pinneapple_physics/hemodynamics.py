@@ -715,9 +715,11 @@ def ensemble(wave: Womersley, four_d: FourDFlow, members: int = 5, config: PINNC
         models.append((model, rec))
     wss = np.array(wss)
     grad = np.array(grad)
+    # a single member has no spread to report, and inventing one would be worse than saying so
+    ddof = 1 if members > 1 else 0
     return {"tau": taus, "wss": wss, "gradient": grad, "members": models,
-            "wss_mean": wss.mean(axis=0), "wss_std": wss.std(axis=0, ddof=1),
-            "gradient_mean": grad.mean(axis=0), "gradient_std": grad.std(axis=0, ddof=1),
+            "wss_mean": wss.mean(axis=0), "wss_std": wss.std(axis=0, ddof=ddof),
+            "gradient_mean": grad.mean(axis=0), "gradient_std": grad.std(axis=0, ddof=ddof),
             "records": [r for _, r in models]}
 
 
@@ -787,7 +789,15 @@ def measure(wave: Womersley, four_d: FourDFlow, ens: dict, *, segment_length: fl
                         "wss_std_max_pa": float(np.max(wss_std)),
                         "wss_std_over_peak": float(np.mean(wss_std) / max(np.max(np.abs(wss_true)), 1e-30)),
                         "pressure_gradient_std_mean_pa_m": float(np.mean(ens["gradient_std"])),
-                        "coverage_2sigma": float(np.mean(err <= 2.0 * np.maximum(wss_std, 1e-30))),
-                        "error_over_sigma_mean": float(np.mean(np.minimum(z, 1e6))),
+                        # one member cannot say how much the answer depends on the seed
+                        "coverage_2sigma": None if len(ens["members"]) < 2 else float(
+                            np.mean(err <= 2.0 * np.maximum(wss_std, 1e-30))),
+                        "error_over_sigma_mean": None if len(ens["members"]) < 2 else float(
+                            np.mean(np.minimum(z, 1e6))),
                         "members": len(ens["members"])},
+        # the curves the figures and the table are drawn from, so that a record can be re-read without refitting
+        "waveforms": {k: np.asarray(v, dtype=float).ravel().tolist() for k, v in (
+            ("tau", taus), ("wss_truth", wss_true), ("wss_pinn", wss_pred), ("wss_std", wss_std),
+            ("wss_two_point", fwd1), ("gradient_truth", grad_true), ("gradient_pinn", grad_pred),
+            ("gradient_std", ens["gradient_std"]))},
     }

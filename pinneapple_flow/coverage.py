@@ -50,6 +50,14 @@ REASONS: dict[str, str] = {
                                         "water on terrain (HAND and an admissible flood mask) and frame-to-frame "
                                         "continuity. They are attachable to PhysicsEnsemble(prediction_checks=...), "
                                         "which is the node that weights the experts; alone they judge a prediction",
+    "pinneapple_physics.hemodynamics": "pressure and wall shear stress from 4D-flow MRI (#362): the Womersley closed "
+                                       "form of a straight artery, an acquisition synthesised from it at the "
+                                       "resolution the modality has, an ensemble of axisymmetric Navier-Stokes "
+                                       "PINNs, and the errors both against each other. It is a benchmark with a "
+                                       "verdict -- how far the answer is from the closed form at this voxel size "
+                                       "and this noise -- and its unit is a phantom case trained to convergence, "
+                                       "not a call: a node would hide the training inside one evaluation, which is "
+                                       "what examples/hemodynamics_4dflow reports",
     "pinneapple_physics.embedded": "the export path of #350: the model, its physics residual and its measurement check "
                                    "as one ONNX graph with a fixed-size state and no control flow, plus the runtime "
                                    "that measures the latency. It is how the ensemble node leaves the workstation, not "

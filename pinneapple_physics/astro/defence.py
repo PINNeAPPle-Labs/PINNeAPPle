@@ -15,27 +15,32 @@ The chain is short and every link is measurable:
 3. **the uncertainty** — the orbit is not known to the metre: the Yarkovsky drift (:func:`yarkovsky_drift`) is the
    largest unmodelled acceleration and ``beta`` is uncertain too, so the answer is a distribution of miss distances,
    not a number. :func:`success_probability` is the fraction of that ensemble that clears the Earth, and
-   :func:`trust_horizon` is the warning time beyond which the ensemble spread is wider than the Earth itself — the
+   :func:`trust_horizon` is the warning time beyond which the ensemble spread is wider than the Earth itself -- the
    age after which a "we will miss" cannot be guaranteed whatever the model says.
+4. **the budget** — every acceleration the propagator carries is either measured or shown not to matter:
+   :func:`perturbation_budget` drops each perturber in turn and switches solar radiation pressure on, and reports what
+   the 2029 miss does. The numbers are what the guide quotes, and the small ones are named as such.
 
 What is measured here against the public record, in the tests: the DART ``beta`` recovered from the 32-minute period
-change, and the 2029 Apophis encounter (JD 2462240.41, 0.000256 au, 7.4 km/s) from the bundled JPL elements.
+change, and the 2029 Apophis encounter (JD 2462240.41, 0.000256 au propagated / 0.000252 au published, 7.4 km/s) from
+the bundled JPL elements, with the b-plane ellipse JPL publishes for it (:func:`jpl_miss_sigma_km`).
 """
 from __future__ import annotations
 
 import math
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 import numpy as np
 
 from .ephemeris import AU_KM, GM_SUN
 from .orbits import elements_from_state
-from .smallbodies import SmallBody
+from .smallbodies import PERTURBERS, P_SRP, SmallBody
 
-__all__ = ["BETA_DART", "DART", "APOPHIS_2029_JD", "GM_SUN_AU3_DAY2", "delta_v", "period_change_fraction",
-           "dart_beta", "dimorphos_period_hours", "yarkovsky_drift", "impulse_body", "deflect", "miss_distance",
-           "deflection_table", "sample_ensemble", "success_probability", "trust_horizon"]
+__all__ = ["BETA_DART", "DART", "APOPHIS_2029_JD", "GM_SUN_AU3_DAY2", "Terms", "delta_v", "period_change_fraction",
+           "dart_beta", "dimorphos_period_hours", "yarkovsky_drift", "area_to_mass_ratio", "solar_radiation_pressure",
+           "impulse_body", "deflect", "miss_distance", "deflection_table", "sample_ensemble", "success_probability",
+           "trust_horizon", "impact_probability", "jpl_miss_sigma_km", "perturbation_budget", "ensemble_arcs"]
 
 #: Gaussian gravitational constant squared, au^3/day^2: the mean motion of an orbit in the units the Yarkovsky ``A2``
 #: parameter is published in. ``ephemeris.GM_SUN`` is km^3/s^2, which is the right constant for the propagator and the
@@ -54,6 +59,41 @@ DART = {"impactor_kg": 570.0, "speed_km_s": 6.1, "target_kg": 4.8e9,
 
 #: 2029-04-13, the Apophis encounter the ensemble is anchored on (JD TDB of closest approach as propagated here).
 APOPHIS_2029_JD = 2462240.41
+
+
+@dataclass(frozen=True)
+class Terms:
+    """The small accelerations a real impact solution carries, every one of them optional and off by default.
+
+    ``a2_au_d2`` is the Yarkovsky transverse acceleration in JPL's ``A2`` units; ``area_to_mass_m2_kg`` with
+    ``reflectivity`` switches solar radiation pressure on (:func:`solar_radiation_pressure` computes what it is worth);
+    ``dropped`` removes perturbers from the field, which is how :func:`perturbation_budget` measures what each one does.
+    """
+
+    a2_au_d2: float = 0.0
+    area_to_mass_m2_kg: float = 0.0
+    reflectivity: float = 0.0
+    dropped: tuple[str, ...] = field(default_factory=tuple)
+
+    @property
+    def srp(self):
+        """``(area_to_mass, reflectivity)`` for the propagator, or ``None`` when the pressure is off."""
+        if self.area_to_mass_m2_kg <= 0.0:
+            return None
+        return (self.area_to_mass_m2_kg, max(self.reflectivity, 0.0))
+
+    def kwargs(self, perturbers: Sequence[str] | None = None) -> dict:
+        """What :class:`~pinneapple_physics.astro.smallbodies.Trajectory` needs to fly this set of terms."""
+        keep = [p for p in (perturbers or PERTURBERS) if p not in self.dropped]
+        return {"perturbers": keep, "a2_au_d2": self.a2_au_d2, "srp": self.srp}
+
+
+def _trajectory(body: SmallBody, jd0: float, jd1: float, terms: Terms | None = None, eph=None, **kw):
+    from .smallbodies import Trajectory
+    from .ephemeris import default_ephemeris
+
+    kw = {**((terms or Terms()).kwargs()), **kw}
+    return Trajectory(body, float(jd0), float(jd1), eph or default_ephemeris(), **kw)
 
 
 def delta_v(m_impactor_kg: float, speed_km_s: float, m_target_kg: float, beta: float = 1.0) -> float:

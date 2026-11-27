@@ -23,6 +23,9 @@ from .frames import ARCSEC, rot_x
 DATA = os.path.join(os.path.dirname(__file__), "data", "smallbodies")
 DAY = 86400.0
 PERTURBERS = ["sun", "mercury", "venus", "earth", "moon", "mars", "jupiter", "saturn", "uranus", "neptune"]
+#: Solar radiation pressure at 1 au, N/m^2 -- the solar constant 1361 W/m^2 over the speed of light. A body with
+#: area-to-mass ratio ``A/M`` in m^2/kg feels ``P (A/M) (1 + reflectivity) (1 au / r)^2`` m/s^2, radially out.
+P_SRP = 4.56e-6
 # J2000 ecliptic (IAU 1976 obliquity, the SBDB convention) -> ICRF
 ECL_TO_ICRF = rot_x(-84381.448 * ARCSEC)
 
@@ -69,11 +72,16 @@ def available_bodies():
     return sorted((f[:-5] for f in os.listdir(DATA) if f.endswith(".json")), key=lambda k: (order.get(k, 9), k))
 
 
-def _accel(t_jd, r, v, eph, gr=True):
-    """Barycentric acceleration (km/s^2) of a massless body at barycentric r (km), v (km/s)."""
+def _accel(t_jd, r, v, eph, gr=True, perturbers=None, a2_au_d2=0.0, srp=None):
+    """Barycentric acceleration (km/s^2) of a massless body at barycentric r (km), v (km/s).
+
+    ``perturbers`` replaces the default field (a subset of :data:`PERTURBERS`, to measure what one of them is worth);
+    ``a2_au_d2`` adds the Yarkovsky transverse acceleration in JPL's ``A2`` units (au/day^2 at 1 au); ``srp`` adds
+    solar radiation pressure as ``(area_to_mass_m2_kg, reflectivity)``.
+    """
     a = np.zeros(3)
     sun_r = sun_v = None
-    for b in PERTURBERS:
+    for b in (PERTURBERS if perturbers is None else perturbers):
         p, vv = eph.barycentric(b, np.array([t_jd]))
         d = p[0] - r
         a += GM[b] * d / np.linalg.norm(d) ** 3
@@ -83,14 +91,31 @@ def _accel(t_jd, r, v, eph, gr=True):
         x, u = r - sun_r, v - sun_v
         rr = np.linalg.norm(x)
         a += GM_SUN / (C_KM_S ** 2 * rr ** 3) * ((4 * GM_SUN / rr - u @ u) * x + 4 * (x @ u) * u)
+    if a2_au_d2:
+        x, u = r - sun_r, v - sun_v
+        h = np.cross(x, u)
+        t_hat = np.cross(h, x)
+        n = np.linalg.norm(t_hat)
+        if n > 0:                                   # transverse: in the orbital plane, along the motion
+            a += a2_au_d2 * (AU_KM / DAY ** 2) / (np.linalg.norm(x) / AU_KM) ** 2 * (t_hat / n)
+    if srp is not None:
+        am, refl = srp
+        x = r - sun_r
+        rr = np.linalg.norm(x)
+        a += P_SRP / 1000.0 * am * (1.0 + refl) / (rr / AU_KM) ** 2 * (x / rr)
     return a
 
 
 class Trajectory:
     """One adaptive DOP853 integration from the epoch over [jd0, jd1] with dense output: positions and velocities
-    anywhere in the span cost an interpolation, not a new integration."""
+    anywhere in the span cost an interpolation, not a new integration.
 
-    def __init__(self, body: SmallBody, jd0: float, jd1: float, eph=None, rtol: float = 1e-11, gr: bool = True):
+    ``perturbers``, ``a2_au_d2`` and ``srp`` are the small terms a real impact solution carries and a two-body arc
+    does not -- see :func:`_accel`; all three default to what the module always did.
+    """
+
+    def __init__(self, body: SmallBody, jd0: float, jd1: float, eph=None, rtol: float = 1e-11, gr: bool = True,
+                 perturbers=None, a2_au_d2: float = 0.0, srp=None):
         from scipy.integrate import solve_ivp
         self.eph = eph or default_ephemeris()
         self.body = body
@@ -99,7 +124,8 @@ class Trajectory:
         y0 = np.concatenate([r0 + sp[0], v0 + sv[0]])
 
         def rhs(t, y):
-            return np.concatenate([y[3:], _accel(body.epoch_jd + t / DAY, y[:3], y[3:], self.eph, gr)])
+            return np.concatenate([y[3:], _accel(body.epoch_jd + t / DAY, y[:3], y[3:], self.eph, gr, perturbers,
+                                                 a2_au_d2, srp)])
         self.sols = []
         for a, b in ((body.epoch_jd, max(jd1, body.epoch_jd)), (body.epoch_jd, min(jd0, body.epoch_jd))):
             if b != a:

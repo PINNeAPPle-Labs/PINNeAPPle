@@ -44,7 +44,13 @@ from typing import Any
 
 import numpy as np
 
-from pinneapple_physics.ensemble import PhysicsEnsemble, Expert, from_callable, relative_l2, residual_baseline
+from pinneapple_physics.ensemble import (
+    Expert,
+    PhysicsEnsemble,
+    from_callable,
+    relative_l2,
+    residual_baseline,
+)
 from pinneapple_physics.weather.evaluate import acc, horizons, rmse
 
 __all__ = ["LAT", "LON", "STEPS", "DT_H", "OMEGA_DEG", "N_INIT", "reference_field", "truth", "initial_state",

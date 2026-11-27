@@ -72,8 +72,8 @@ def kovasznay_case(reynolds: float, n: int = GRID) -> tuple[tuple[np.ndarray, np
     library already registers as the ``kovasznay_ns`` dataset, so it costs nothing and it is exact — which is what
     makes the residual floor below measurable instead of assumed.
     """
-    from pinneapple_data.datasets.registry import DatasetRegistry
     import pinneapple_data.datasets.physics  # noqa: F401  (registers the datasets)
+    from pinneapple_data.datasets.registry import DatasetRegistry
 
     d = DatasetRegistry.load("kovasznay_ns", N=int(n), Re=float(reynolds))
     return (np.asarray(d["x"], float), np.asarray(d["y"], float)), {

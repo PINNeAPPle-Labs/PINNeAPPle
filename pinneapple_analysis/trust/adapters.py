@@ -523,7 +523,14 @@ def from_solution(solution: Any, problem: Any = None, *, n_points: int = 512, ga
     The two kinds land in ``kind``: ``"operator"`` when the architecture belongs to the ``neural_operators`` family
     of the model registry, ``"pinn"`` otherwise.
     """
-    from .record import Provenance, Residual, TrustValue, fingerprint_array, library_version, utc_now
+    from .record import (
+        Provenance,
+        Residual,
+        TrustValue,
+        fingerprint_array,
+        library_version,
+        utc_now,
+    )
 
     problem = problem if problem is not None else getattr(solution, "problem", None)
     if problem is None or not hasattr(problem, "to_pde_spec"):
@@ -549,6 +556,7 @@ def from_solution(solution: Any, problem: Any = None, *, n_points: int = 512, ga
     points = X
 
     import torch
+
     from pinneapple_physics.pinn_solver.compiler import pointwise_residual
 
     residual_fn = pointwise_residual(spec, ctx=dict(ctx or {}))

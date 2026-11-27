@@ -52,6 +52,10 @@ class SensorModel:
     power_noise_w: float = 0.8
     voltage_noise_v: float = 0.05
     vibration_hz: float = 90.0
+    #: the attitude the flight controller's own state estimator reports (0.005 rad is 0.3 deg). On a real vehicle it is
+    #: an estimate, and the identification of :mod:`.estimate` rotates the drag through it, so its error is declared here
+    #: rather than hidden by handing the estimator the truth.
+    attitude_noise_rad: float = 0.005
 
     def drift(self) -> dict[str, float]:
         return {"accel_m_s2": self.accel_noise_m_s2, "gyro_rad_s": self.gyro_noise_rad_s,
@@ -72,6 +76,7 @@ class Sensors:
     voltage: float               # pack terminal voltage, V
     rotors: np.ndarray           # commanded rotor speeds, rad/s (what the ESC was told)
     altitude: float
+    attitude: np.ndarray = field(default_factory=lambda: np.array([1.0, 0.0, 0.0, 0.0]))   # (w, x, y, z), body to world
 
 
 class SensorObservatory:
@@ -84,6 +89,10 @@ class SensorObservatory:
     def __init__(self, sensors: SensorModel | None = None, seed: int = 0):
         self.sensors = sensors or SensorModel()
         self.rng = np.random.default_rng(seed)
+        #: the attitude estimate's error comes from its own stream. Adding a sensor must not renumber the noise of the
+        #: channels that were already there: the campaigns of ``examples/multirotor_flight`` are recorded numbers, and
+        #: one extra draw on the shared generator changes every one of them.
+        self.attitude_rng = np.random.default_rng([seed, 1])
 
     def measure(self, state: State, model: Multirotor, command: np.ndarray, telemetry, faults) -> Sensors:
         s = self.sensors
@@ -107,6 +116,7 @@ class SensorObservatory:
             voltage=telemetry.voltage_v + self.rng.normal(0.0, s.voltage_noise_v),
             rotors=np.asarray(command, float) * model.airframe.omega_max,
             altitude=state.altitude_m,
+            attitude=_tilt(state.attitude, self.attitude_rng.normal(0.0, s.attitude_noise_rad, 3)),
         )
 
 
@@ -217,3 +227,23 @@ class ResidualModel:
 
 def _wrap(angle: float) -> float:
     return (angle + math.pi) % (2 * math.pi) - math.pi
+
+
+def _tilt(quaternion: np.ndarray, rotation_vector: np.ndarray) -> np.ndarray:
+    """``quaternion`` rotated by a small body-frame rotation vector: the error of the controller's own attitude estimate.
+
+    A real flight controller hands the estimator an attitude, not the truth; ``SensorModel.attitude_noise_rad`` says how
+    wrong it is, and this is where the wrongness goes in -- a right-multiplied (body-frame) rotation of that angle about
+    an axis drawn per sample.
+    """
+    angle = float(np.linalg.norm(rotation_vector))
+    if angle < 1e-12:
+        return np.asarray(quaternion, float)
+    half = 0.5 * angle
+    axis = np.asarray(rotation_vector, float) / angle
+    wb, xb, yb, zb = math.cos(half), *(math.sin(half) * axis)
+    wa, xa, ya, za = quaternion
+    return np.array([wa * wb - xa * xb - ya * yb - za * zb,
+                     wa * xb + xa * wb + ya * zb - za * yb,
+                     wa * yb - xa * zb + ya * wb + za * xb,
+                     wa * zb + xa * yb - ya * xb + za * wb])

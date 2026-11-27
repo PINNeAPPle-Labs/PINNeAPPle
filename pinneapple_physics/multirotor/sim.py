@@ -35,6 +35,17 @@ class Flight:
     faults: tuple[Fault, ...] = ()
     active: list[tuple[str, ...]] = field(default_factory=list)
     seed: int = 0
+    #: the sensor stream, kept so an estimator can be *replayed* over the flight exactly as it would have run live:
+    #: :mod:`.estimate` reads these and nothing else, which is what makes its answer something a flight controller
+    #: could have produced. ``None`` on a flight built by hand (the tests do that for the detectors).
+    accel: np.ndarray | None = None            # (n, 3) body specific force, m/s^2
+    gyro: np.ndarray | None = None             # (n, 3) body rates, rad/s
+    velocity: np.ndarray | None = None         # (n, 3) world, m/s
+    attitude: np.ndarray | None = None         # (n, 4) (w, x, y, z), body to world
+    rotors: np.ndarray | None = None           # (n, 4) commanded rotor speeds, rad/s
+    truth_mass_kg: float | None = None         # the mass that was actually flying (faults included)
+    truth_inertia: tuple[float, float, float] | None = None
+    truth_drag_area: tuple[float, float, float] | None = None
 
     def channel(self, name: str) -> np.ndarray:
         return self.residual[:, CHANNELS.index(name)]
@@ -46,6 +57,17 @@ class Flight:
     def labels(self, t: float) -> tuple[str, ...]:
         i = min(np.searchsorted(self.time, t), len(self.time) - 1)
         return self.active[i]
+
+    def rotation(self, k: int) -> np.ndarray:
+        """The body-to-world rotation at sample ``k``, from the recorded attitude (identity when there is none)."""
+        if self.attitude is None:
+            return np.eye(3)
+        w, x, y, z = self.attitude[k]
+        return np.array([
+            [1 - 2 * (y * y + z * z), 2 * (x * y - w * z), 2 * (x * z + w * y)],
+            [2 * (x * y + w * z), 1 - 2 * (x * x + z * z), 2 * (y * z - w * x)],
+            [2 * (x * z - w * y), 2 * (y * z + w * x), 1 - 2 * (x * x + y * y)],
+        ])
 
 
 def fly(faults=(), *, duration: float = DURATION_S, seed: int = 0, dt: float = DT, airframe: Airframe | None = None,
@@ -66,6 +88,11 @@ def fly(faults=(), *, duration: float = DURATION_S, seed: int = 0, dt: float = D
     position = np.zeros((n, 3))
     altitude = np.zeros(n)
     power = np.zeros(n)
+    accel = np.zeros((n, 3))
+    gyro = np.zeros((n, 3))
+    velocity = np.zeros((n, 3))
+    attitude = np.zeros((n, 4))
+    rotors = np.zeros((n, 4))
     active: list[tuple[str, ...]] = []
 
     # the fault state and the model are rebuilt only when a fault starts or ends: building the model every step costs
@@ -95,9 +122,17 @@ def fly(faults=(), *, duration: float = DURATION_S, seed: int = 0, dt: float = D
         position[k] = state.position
         altitude[k] = state.altitude_m
         power[k] = sample.power
+        accel[k] = sample.accel
+        gyro[k] = sample.gyro
+        velocity[k] = sample.velocity
+        attitude[k] = sample.attitude
+        rotors[k] = sample.rotors
         active.append(current.active)
 
-    return Flight(np.arange(n) * dt, record, position, altitude, power, tuple(faults), active, seed)
+    return Flight(np.arange(n) * dt, record, position, altitude, power, tuple(faults), active, seed,
+                  accel=accel, gyro=gyro, velocity=velocity, attitude=attitude, rotors=rotors,
+                  truth_mass_kg=current.mass_kg, truth_inertia=tuple(base.inertia),
+                  truth_drag_area=tuple(base.drag_area_m2))
 
 
 def campaign(faults_per_case, *, seeds=(0, 1, 2), duration: float = DURATION_S, dt: float = DT,

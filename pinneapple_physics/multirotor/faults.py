@@ -49,6 +49,10 @@ class Fault:
     end_s: float | None = None
     #: for a gust, the direction in the world frame; for a payload, unused
     direction: tuple[float, float, float] = (1.0, 0.0, 0.0)
+    #: how long the fault takes to reach its full ``magnitude``: a battery heats up, a motor degrades, a chip grows.
+    #: Zero is the step the campaign of the example uses; a ramp is what a *progressive* fault looks like, and it is the
+    #: only kind whose confidence horizon can be measured while it grows (:func:`.estimate.confidence_horizon`).
+    ramp_s: float = 0.0
 
     def __post_init__(self):
         if self.kind not in FAULTS:
@@ -57,6 +61,8 @@ class Fault:
             raise ValueError("a fault cannot start before the flight")
         if self.end_s is not None and self.end_s <= self.start_s:
             raise ValueError("a fault that ends before it starts is not a fault")
+        if self.ramp_s < 0.0:
+            raise ValueError("a fault cannot ramp in over a negative time")
         if self.kind == "payload" and self.magnitude <= 0.0:
             raise ValueError("a payload adds mass: magnitude is kilograms and has to be positive")
         if self.kind == "motor" and not 0.0 < self.magnitude <= 1.0:
@@ -68,6 +74,18 @@ class Fault:
 
     def active(self, t: float) -> bool:
         return t >= self.start_s and (self.end_s is None or t < self.end_s)
+
+    def magnitude_at(self, t: float) -> float:
+        """The magnitude the fault has reached at ``t``: full after ``start_s + ramp_s``, linear in between.
+
+        The identity value differs by kind and that is the whole point of writing it out: a motor ramps from *full*
+        efficiency (1.0) down to its magnitude, while a payload, a gust and a chip all ramp from nothing (0.0) up.
+        """
+        if self.ramp_s <= 0.0 or not self.active(t):
+            return self.magnitude
+        fraction = min(max((t - self.start_s) / self.ramp_s, 0.0), 1.0)
+        identity = 1.0 if self.kind == "motor" else 0.0
+        return identity + fraction * (self.magnitude - identity)
 
     def label(self) -> str:
         if self.kind == "payload":
@@ -126,24 +144,26 @@ def apply_faults(faults, t: float, *, base_airframe, base_resistance_ohm: float,
         if not f.active(t):
             continue
         active.append(f.label())
+        # the size it has *reached*: equal to ``magnitude`` for a step, partway there for a fault that ramps in
+        size = f.magnitude_at(t)
         if f.kind == "payload":
-            mass += f.magnitude
+            mass += size
         elif f.kind == "motor":
-            thrust_gain[f.motor] *= f.magnitude
-            torque_gain[f.motor] *= f.magnitude
+            thrust_gain[f.motor] *= size
+            torque_gain[f.motor] *= size
         elif f.kind == "blade":
-            gain_t, gain_q = chip_factors(rotor, omega_hover, tip_loss=f.magnitude)
+            gain_t, gain_q = chip_factors(rotor, omega_hover, tip_loss=size)
             thrust_gain[f.motor] *= gain_t
             torque_gain[f.motor] *= gain_q
         elif f.kind == "gust":
-            wind = wind + np.asarray(f.direction, float) / max(float(np.linalg.norm(f.direction)), 1e-9) * f.magnitude
+            wind = wind + np.asarray(f.direction, float) / max(float(np.linalg.norm(f.direction)), 1e-9) * size
         elif f.kind == "battery":
-            resistance = base_resistance_ohm * (1.0 + f.magnitude)
+            resistance = base_resistance_ohm * (1.0 + size)
         elif f.kind == "gps":
-            gps_offset = gps_offset + np.asarray(f.direction, float) * f.magnitude
+            gps_offset = gps_offset + np.asarray(f.direction, float) * size
         elif f.kind == "magnetometer":
-            heading_error += f.magnitude
+            heading_error += size
         elif f.kind == "vibration":
-            vibration = max(vibration, f.magnitude)
+            vibration = max(vibration, size)
     return FaultState(mass, thrust_gain, torque_gain, wind, resistance, gps_offset, heading_error, vibration,
                       tuple(active))

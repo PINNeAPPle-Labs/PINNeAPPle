@@ -96,9 +96,11 @@ def fly(faults=(), *, duration: float = DURATION_S, seed: int = 0, dt: float = D
     active: list[tuple[str, ...]] = []
 
     # the fault state and the model are rebuilt only when a fault starts or ends: building the model every step costs
-    # more than the dynamics it integrates, and the hover speed is a full BEMT solve that belongs outside the loop
+    # more than the dynamics it integrates, and the hover speed is a full BEMT solve that belongs outside the loop.
+    # A fault that *ramps in* changes at every step, so those flights rebuild every step and pay for it.
     hover_omega = base.hover_omega()
     pending = sorted({f.start_s for f in faults} | {f.end_s for f in faults if f.end_s is not None})
+    ramping = any(f.ramp_s > 0.0 for f in faults)
     current: FaultState | None = None
     model = controller_model
     for k in range(n):
@@ -107,7 +109,7 @@ def fly(faults=(), *, duration: float = DURATION_S, seed: int = 0, dt: float = D
         while pending and t >= pending[0] - 1e-12:
             pending.pop(0)
             current = None
-        if current is None:
+        if current is None or ramping:
             current = apply_faults(faults, t, base_airframe=base, base_resistance_ohm=base.battery.resistance_ohm,
                                    rotor=base.rotor, omega_hover=hover_omega)
             model = Multirotor(faulty_airframe(base, mass_kg=current.mass_kg,

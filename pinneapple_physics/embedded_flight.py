@@ -55,6 +55,7 @@ step is unrolled, the loop is the caller's.
 """
 from __future__ import annotations
 
+import contextlib
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -473,6 +474,28 @@ class _NaiveBEMT(torch.nn.Module):
         return torch.full_like(omega, value)
 
 
+@contextlib.contextmanager
+def _quiet():
+    """Swallow the IR torch prints when an export is refused or frozen: the finding is the message, not the dump.
+
+    At the file-descriptor level, not at ``sys.stdout``: the graph dump comes out of the C++ side of torch, which does
+    not go through a Python redirect.
+    """
+    import os
+
+    saved = os.dup(1), os.dup(2)
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    try:
+        os.dup2(devnull, 1)
+        os.dup2(devnull, 2)
+        yield
+    finally:
+        os.dup2(saved[0], 1)
+        os.dup2(saved[1], 2)
+        for fd in (*saved, devnull):
+            os.close(fd)
+
+
 def export_probe(workdir: Any, *, airframe: Airframe | None = None) -> list[dict[str, Any]]:
     """Try to export the three pieces of the flight that are not arithmetic, and record what happened to each.
 
@@ -496,8 +519,9 @@ def export_probe(workdir: Any, *, airframe: Airframe | None = None) -> list[dict
     entry: dict[str, Any] = {"piece": "the table lookup by index (np.interp / torch.searchsorted)",
                              "source": "RotorTable.thrust_many and the mixer's omega_for_thrust"}
     try:
-        torch.onnx.export(_NaiveLookup(omegas, thrust), (torch.tensor([100.0, 500.0]),), str(path),
-                          input_names=["omega"], opset_version=17, dynamo=False)
+        with _quiet():                              # torch prints its IR at the caller on a refused export
+            torch.onnx.export(_NaiveLookup(omegas, thrust), (torch.tensor([100.0, 500.0]),), str(path),
+                              input_names=["omega"], opset_version=17, dynamo=False)
         entry |= {"result": "exported", "detail": "searchsorted went into the graph"}
     except Exception as exc:                       # noqa: BLE001 - the type and the message are the finding
         entry |= {"result": "refused", "detail": f"{type(exc).__name__}: {str(exc).splitlines()[0]}"}
@@ -508,8 +532,9 @@ def export_probe(workdir: Any, *, airframe: Airframe | None = None) -> list[dict
     entry = {"piece": "the BEMT rotor inside the graph (Rotor.state, per-annulus solve with an inflow bisection)",
              "source": "Rotor.state / RotorTable.__init__"}
     try:
-        torch.onnx.export(_NaiveBEMT(af.rotor), (torch.tensor([700.0]),), str(path), input_names=["omega"],
-                          opset_version=17, dynamo=False)
+        with _quiet():
+            torch.onnx.export(_NaiveBEMT(af.rotor), (torch.tensor([700.0]),), str(path), input_names=["omega"],
+                              opset_version=17, dynamo=False)
         summary = graph_summary(path)
         frozen = float(ort.InferenceSession(str(path), providers=["CPUExecutionProvider"]).run(None, {})[0].ravel()[0])
         real = af.rotor.state(1100.0).thrust_n
@@ -531,16 +556,18 @@ def export_probe(workdir: Any, *, airframe: Airframe | None = None) -> list[dict
              "source": "Multirotor.thrust_and_torque"}
     high = torch.tensor([[0.0, 0.0, -5.0]])                    # 5 m up: outside the ground effect
     thrusts = torch.full((1, 4), 3.0)
-    torch.onnx.export(_NaiveBranch(k, h0), (thrusts, high), str(naive), input_names=["thrust", "altitude"],
-                      opset_version=17, dynamo=False)
+    with _quiet():
+        torch.onnx.export(_NaiveBranch(k, h0), (thrusts, high), str(naive), input_names=["thrust", "altitude"],
+                          opset_version=17, dynamo=False)
 
     class _WhereBranch(torch.nn.Module):
         def forward(self, thrust, altitude):
             h = (-altitude[:, 2]).clamp_min(0.0)
             return thrust * torch.where(h < h0, 1.0 + k * torch.exp(-h / h0), torch.ones_like(h)).unsqueeze(-1)
 
-    torch.onnx.export(_WhereBranch(), (thrusts, high), str(honest), input_names=["thrust", "altitude"],
-                      opset_version=17, dynamo=False)
+    with _quiet():
+        torch.onnx.export(_WhereBranch(), (thrusts, high), str(honest), input_names=["thrust", "altitude"],
+                          opset_version=17, dynamo=False)
     frozen = ort.InferenceSession(str(naive), providers=["CPUExecutionProvider"])
     real = ort.InferenceSession(str(honest), providers=["CPUExecutionProvider"])
     naive_inputs = graph_summary(naive).inputs

@@ -1,0 +1,185 @@
+{
+  "issue": 350,
+  "graph": {
+    "path": "/Users/yanbarros/Documents/GitHub/wt-350b/examples/embedded_flight/flight.onnx",
+    "bytes": 125344,
+    "op_types": [
+      "Abs",
+      "Add",
+      "Cast",
+      "Clip",
+      "Concat",
+      "Constant",
+      "Div",
+      "Exp",
+      "Gather",
+      "Greater",
+      "Identity",
+      "Less",
+      "MatMul",
+      "Max",
+      "Mul",
+      "Neg",
+      "Pow",
+      "ReduceMean",
+      "ReduceSum",
+      "Reshape",
+      "Slice",
+      "Sqrt",
+      "Squeeze",
+      "Sub",
+      "Transpose",
+      "Unsqueeze",
+      "Where"
+    ],
+    "control_flow": [],
+    "inputs": [
+      "state",
+      "command",
+      "accel",
+      "gyro",
+      "gyro_previous",
+      "power",
+      "accel_history"
+    ],
+    "outputs": [
+      "next_state",
+      "thrust_predicted",
+      "pack_power",
+      "current",
+      "voltage",
+      "residual_force",
+      "residual_torque",
+      "residual_power",
+      "residual",
+      "trust",
+      "off_physics",
+      "vibration",
+      "suspect"
+    ],
+    "straight_line": true
+  },
+  "steps": 400,
+  "dt": 0.002,
+  "parity": {
+    "next_state_relative": 1.001788326658664e-07,
+    "next_state_scale": 663.4633493374831,
+    "force_channel_abs": 1.329066806832202e-06,
+    "torque_channel_abs": 0.00021183772617483498,
+    "power_channel_abs": 2.3262072801344402e-05
+  },
+  "calibration": {
+    "force_tolerance": 0.38521153135299674,
+    "torque_tolerance": 12.840384378433225,
+    "vibration_tolerance": 0.05907414734363555,
+    "factor": 2.140064063072204
+  },
+  "flags": {
+    "healthy (other seed)": {
+      "off_physics": 0.005,
+      "suspect": 0.01,
+      "median_residual": 0.24264051765203476
+    },
+    "payload +0.6 kg": {
+      "off_physics": 1.0,
+      "suspect": 0.005,
+      "median_residual": 3.8355125188827515
+    },
+    "loose IMU": {
+      "off_physics": 0.795,
+      "suspect": 0.9975,
+      "median_residual": 2.2484599351882935
+    }
+  },
+  "latency": {
+    "1": {
+      "fp32": {
+        "median_ms": 0.4489169950829819,
+        "spread_ms": 0.06958300218684599,
+        "hz": 2227.583297030559
+      },
+      "int8": {
+        "median_ms": 0.42264649528078735,
+        "spread_ms": 0.012917000276502222,
+        "hz": 2366.0435166643106
+      },
+      "difference_inside_spread": true
+    },
+    "2": {
+      "fp32": {
+        "median_ms": 0.44799949682783335,
+        "spread_ms": 0.07083400123519823,
+        "hz": 2232.1453641817393
+      },
+      "int8": {
+        "median_ms": 0.4608960007317364,
+        "spread_ms": 0.09599999611964449,
+        "hz": 2169.686867346128
+      },
+      "difference_inside_spread": true
+    },
+    "4": {
+      "fp32": {
+        "median_ms": 0.48318799963453785,
+        "spread_ms": 0.13743750605499372,
+        "hz": 2069.587822454937
+      },
+      "int8": {
+        "median_ms": 0.4515629989327863,
+        "spread_ms": 0.05391650120145641,
+        "hz": 2214.5304251308835
+      },
+      "difference_inside_spread": true
+    }
+  },
+  "quantisation": {
+    "flight": {
+      "fp32_bytes": 125317,
+      "int8_bytes": 178077,
+      "new_ops": [],
+      "next_state_max_abs": 0.0,
+      "residual_fp32": 0.05988258868455887,
+      "residual_int8": 0.05988258868455887
+    },
+    "convolutional": {
+      "op_types": [
+        "ConvInteger",
+        "DynamicQuantizeLinear"
+      ],
+      "fp32_bytes": 12113,
+      "int8_bytes": 19713,
+      "prediction_max_abs": 0.008190184831619263,
+      "residual_fp32": 492.0470886230469,
+      "residual_int8": 491.4635009765625
+    }
+  },
+  "unexportable": [
+    {
+      "piece": "the table lookup by index (np.interp / torch.searchsorted)",
+      "source": "RotorTable.thrust_many and the mixer's omega_for_thrust",
+      "result": "refused",
+      "detail": "UnsupportedOperatorError: Exporting the operator 'aten::searchsorted' to ONNX opset version 17 is not supported"
+    },
+    {
+      "piece": "the BEMT rotor inside the graph (Rotor.state, per-annulus solve with an inflow bisection)",
+      "source": "Rotor.state / RotorTable.__init__",
+      "result": "exported and frozen",
+      "detail": "the file has the inputs [] -- the rotor speed is not one of them, because the BEMT solved at trace time and only its answer went in. It returns 4.3793 N for any vehicle state; the rotor itself gives 10.8141 N at 1100 rad/s (60% of the thrust missing, and no input to correct it with)"
+    },
+    {
+      "piece": "the ground-effect branch written as a Python if on a tensor",
+      "source": "Multirotor.thrust_and_torque",
+      "result": "exported and frozen",
+      "detail": "the graph built from the if has the inputs ['thrust'] -- altitude is not among them, because the branch was decided at trace time (5 m up, outside the effect) and the vehicle's height left the file with it. At 10 cm it returns 12.000 N of thrust where the where version returns 13.353 N: 10.1% of the lift is missing, and nothing in the file says so"
+    }
+  ],
+  "machine": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.11.16",
+    "cpus": 10,
+    "arm_board": null,
+    "arm_board_note": "no Raspberry Pi, Jetson or PX4 on this machine: the latency is the Mac's ARM core, measured here, and is not a board measurement"
+  }
+}

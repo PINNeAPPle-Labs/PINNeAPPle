@@ -1,0 +1,155 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/embedded_flight",
+ "title": "The drone in the graph: the multirotor's dynamics, its Newton-Euler residual and its sensor check as one ONNX file",
+ "description": "The airframe of #335 exported as one straight-line ONNX graph: one RK4 step of the 6-DoF dynamics over the BEMT rotor table, the pack's sag, the seven Newton-Euler channels and the two decisions. Parity against the numpy airframe over four 400-step flights is 1e-7 relative, a 0.45 ms step (2.2 kHz) on one ARM core of this Mac -- no board was measured, none is on this machine -- dynamic int8 quantisation changes nothing on this graph (no matrices in it) and costs 42 % more bytes, and the tolerance calibrated on one healthy flight flags a 0.6 kg payload 100 % of the time with 0.5 % false alarms on a different healthy flight.",
+ "domain": "deployment",
+ "methods": [
+  "surrogate",
+  "onnxruntime",
+  "multirotor"
+ ],
+ "modules": [
+  "pinneapple_physics.embedded_flight",
+  "pinneapple_physics.embedded"
+ ],
+ "params": {
+  "state_shape": [
+   18
+  ],
+  "dt": 0.002,
+  "history": 25,
+  "steps_per_flight": 400,
+  "rotor_table": {
+   "n_omega": 27,
+   "n_climb": 9,
+   "climb_range": [
+    -8.0,
+    8.0
+   ]
+  }
+ },
+ "scripts": [
+  "embedded_flight.py"
+ ],
+ "metrics": [
+  {
+   "name": "latency_1_thread",
+   "value": 0.449,
+   "unit": "ms",
+   "how": "onnxruntime CPUExecutionProvider, intra_op=inter_op=1 thread, 300 timed calls per session, median of three sessions; one step is the RK4 dynamics, the seven residual channels and both decisions"
+  },
+  {
+   "name": "rate_1_thread",
+   "value": 2228.0,
+   "unit": "Hz",
+   "how": "1 / median latency on one thread, on the ARM core of this Mac (arm64, platform printed in the JSON); not measured on a Raspberry Pi, a Jetson or PX4 -- none of them is on this machine"
+  },
+  {
+   "name": "rate_4_threads",
+   "value": 2070.0,
+   "unit": "Hz",
+   "how": "1 / median latency on four threads: more threads than this graph can use, spread +-0.137 ms"
+  },
+  {
+   "name": "parity_next_state",
+   "value": 1.001788326658664e-07,
+   "unit": "",
+   "how": "max relative gap between the graph's next_state and Multirotor.step over 400 steps of a closed-loop tape (scale 663 rad/s on the rotor speeds)"
+  },
+  {
+   "name": "parity_force_channel",
+   "value": 1.329066806832202e-06,
+   "unit": "m/s^2",
+   "how": "max absolute gap between the graph's residual_force and ResidualModel over the same 400 steps"
+  },
+  {
+   "name": "parity_torque_channel",
+   "value": 0.00021183772617483498,
+   "unit": "rad/s^2",
+   "how": "max absolute gap between the graph's residual_torque and ResidualModel over the same 400 steps"
+  },
+  {
+   "name": "graph_bytes",
+   "value": 125344,
+   "unit": "B",
+   "how": "the exported flight.onnx, 27 op types, no If/Loop/Scan"
+  },
+  {
+   "name": "int8_bytes",
+   "value": 178077,
+   "unit": "B",
+   "how": "the same graph after dynamic int8 quantisation: 42 % larger, no new op types, next state moved by 0"
+  },
+  {
+   "name": "false_alarm_rate",
+   "value": 0.005,
+   "unit": "",
+   "how": "fraction of a healthy flight (seed 1) whose off_physics fired, with the tolerance calibrated on a different healthy flight (seed 0) at its 99.5th percentile"
+  },
+  {
+   "name": "payload_detection",
+   "value": 1.0,
+   "unit": "",
+   "how": "fraction of a flight with a 0.6 kg payload whose off_physics fired, same unchanged tolerance"
+  },
+  {
+   "name": "loose_imu_detection",
+   "value": 0.9975,
+   "unit": "",
+   "how": "fraction of a flight with a 2 m/s^2 vibration fault whose suspect fired: it is the accelerometer's second difference against its own declared noise"
+  }
+ ],
+ "checks": [
+  {
+   "name": "graph_is_straight_line",
+   "passed": true,
+   "kind": "physics",
+   "label": "seven fixed inputs, thirteen outputs, no If, Loop or Scan"
+  },
+  {
+   "name": "parity_with_the_numpy_airframe",
+   "passed": true,
+   "kind": "reference",
+   "label": "the next state to 1e-7 relative and the residual channels to 1e-6 against Multirotor.step and ResidualModel"
+  },
+  {
+   "name": "ground_effect_not_a_branch",
+   "passed": true,
+   "kind": "physics",
+   "label": "the ground-effect branch is a where, so the vehicle still feels the ground at 10 cm where a traced if loses 10.1 % of the lift"
+  },
+  {
+   "name": "unexportable_parts_named",
+   "passed": true,
+   "kind": "reference",
+   "label": "export_probe runs the three pieces that cannot be traced: searchsorted is refused at opset 17, the BEMT rotor and a Python if on a tensor export and freeze (60 % of the thrust, 10.1 % of the lift)"
+  },
+  {
+   "name": "arm_board_measured",
+   "passed": false,
+   "kind": "environment",
+   "label": "not measured: there is no Raspberry Pi, Jetson or PX4 on this machine -- the latency is the ARM core of a Mac and says so in the JSON"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/residual_and_latency.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "embedded_flight.json"
+  ]
+ },
+ "links": [],
+ "references": [],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11",
+  "torch": "2.x"
+ }
+}

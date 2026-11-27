@@ -48,7 +48,7 @@ One CFD surrogate
 :func:`cfd_surrogate_cases` puts a real surrogate on the same question. The reference flow is the Taylor-Green vortex
 above -- the case :func:`pinneapple_simulation.numerical_solvers.ns3d_spectral.taylor_green_ic` starts from -- and the
 surrogate is :class:`pinneapple_simulation.cfd_validation.warm_start.OperatorSurrogate`: a POD of reference fields
-solved at five viscosities with its coefficients interpolated in the parameter, which is what the repository means by
+solved at four viscosities with its coefficients interpolated in the parameter, which is what the repository means by
 a field surrogate. The certificate is asked about four viscosities inside the fitted range and four outside it. The
 case declares ``domain={"nu": (lo, hi)}``, so a query outside it also has to reach the domain gate.
 

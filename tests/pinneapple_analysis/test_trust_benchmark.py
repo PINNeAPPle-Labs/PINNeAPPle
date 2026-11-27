@@ -26,7 +26,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from pinneapple_analysis.trust.benchmark import CFD_TRAIN, SCHEMA, family_cases, measure, table, write
+from pinneapple_analysis.trust.benchmark import (
+    CFD_TRAIN,
+    SCHEMA,
+    family_cases,
+    measure,
+    table,
+    write,
+)
 from pinneapple_analysis.trust.certificate import verify
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -149,8 +156,7 @@ def test_a_declared_boundary_catches_the_sign_the_residual_cannot_see():
     0.0 and the inverted one fails it at 1.0, relative to the field's range, against the 0.02 a boundary is judged at.
     This test holds the two halves of that sentence together, so neither is read without the other.
     """
-    x = np.linspace(0.0, 2.0 * np.pi, 65)[:-1]
-    exact = family_cases("advection-diffusion")[0]                       # the analytic solution of the family
+    exact = next(c for c in family_cases("advection-diffusion") if c.kind == "exact")
     sign = next(c for c in family_cases("advection-diffusion") if c.kind == "sign")
     assert sign.in_domain is False
     without = replace(sign.problem, boundary={"t_min": {"C": lambda pts: np.sin(pts[:, 0])}})

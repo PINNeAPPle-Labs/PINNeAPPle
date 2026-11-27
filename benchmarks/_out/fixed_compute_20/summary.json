@@ -1,0 +1,21 @@
+{
+  "family": "pp_airfoil",
+  "field_names": [
+    "cp"
+  ],
+  "held_out_relative_l2": 0.31973339149972557,
+  "held_out_relative_l2_p90": 0.9643357666609448,
+  "constant_field_baseline_relative_l2": 0.985978845208435,
+  "ensemble_std_mean": 0.004595674108713865,
+  "ood_probes_flagged": "2/2",
+  "within_tolerance": false,
+  "seconds": 334.5,
+  "device": "mps",
+  "model": "benchmarks/_out/fixed_compute_20/model/model.pt",
+  "card": "benchmarks/_out/fixed_compute_20/model/card.json",
+  "dataset": {
+    "n_designs": 60,
+    "n_geometries": 20,
+    "seconds": 0.195
+  }
+}

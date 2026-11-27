@@ -1,0 +1,21 @@
+{
+  "family": "pp_wing3d",
+  "field_names": [
+    "cp"
+  ],
+  "held_out_relative_l2": 0.5027840350785494,
+  "held_out_relative_l2_p90": 0.6792371839756864,
+  "constant_field_baseline_relative_l2": 0.9489963680454411,
+  "ensemble_std_mean": 0.014044027775526047,
+  "ood_probes_flagged": "1/1",
+  "within_tolerance": false,
+  "seconds": 942.6,
+  "device": "mps",
+  "model": "benchmarks/_out/wing3d_24/model/model.pt",
+  "card": "benchmarks/_out/wing3d_24/model/card.json",
+  "dataset": {
+    "n_designs": 72,
+    "n_geometries": 24,
+    "seconds": 16.346
+  }
+}

@@ -1,0 +1,697 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T14:50:07+00:00",
+  "family": {
+    "name": "pp_airfoil",
+    "title": "Cambered Joukowski airfoil: surface Cp over camber, thickness and incidence",
+    "domain": "aerodynamics / UAV, wind and compressor sections",
+    "dim": 2,
+    "field_names": [
+      "cp"
+    ],
+    "field_units": [
+      "-"
+    ],
+    "field_scale": [
+      10.0
+    ],
+    "characteristic_length_m": 0.5,
+    "n_points": 120,
+    "geometry_params": {
+      "thickness_x_c_m": [
+        -0.09,
+        -0.01
+      ],
+      "camber_y_c_m": [
+        0.0,
+        0.06
+      ]
+    },
+    "operating_params": {
+      "alpha_deg": [
+        -4.0,
+        14.0
+      ]
+    },
+    "geometry_features": {},
+    "reference": {
+      "name": "Joukowski conformal map with the Kutta condition (exact potential flow)",
+      "citation": "Milne-Thomson, Theoretical Hydrodynamics, 5th ed. (1968), ch. 6 (the Joukowski transformation); Anderson, Fundamentals of Aerodynamics, ch. 4 (Kutta condition and Kutta-Joukowski theorem)",
+      "assumptions": [
+        "incompressible, inviscid, irrotational: no boundary layer, no separation, no drag from pressure",
+        "two-dimensional and steady",
+        "a cusped trailing edge, so the Kutta condition applies and the circulation is fixed by it"
+      ],
+      "implements": "analytic"
+    },
+    "tolerance": 0.05
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 180,
+    "n_geometries": 60,
+    "conditions_per_geometry": 3
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 135,
+    "n_holdout_designs": 45,
+    "n_train_geometries": 45,
+    "n_holdout_geometries": 15
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 1,
+      "n_params": 1,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201060
+  },
+  "training": {
+    "epochs": 120,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 32,
+    "loss_first": 0.08329229056835175,
+    "loss_last": 0.004450196400284767,
+    "seconds": 209.895,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.3288204252093875,
+    "relative_l2_p90": 1.5478313088006586,
+    "max_abs_error": 4.807834625244141,
+    "constant_field_baseline_relative_l2": 0.9746297253766336,
+    "n_designs": 45,
+    "n_points": 5400,
+    "per_design": [
+      {
+        "relative_l2": 0.22565014248441106,
+        "max_abs_error": 4.807834625244141,
+        "mean_std": 0.005950802005827427,
+        "ood": false,
+        "ood_score": 0.6742986440658569
+      },
+      {
+        "relative_l2": 1.5478313088006586,
+        "max_abs_error": 2.3445286750793457,
+        "mean_std": 0.005504079628735781,
+        "ood": false,
+        "ood_score": 0.6742986440658569
+      },
+      {
+        "relative_l2": 0.19308728785598986,
+        "max_abs_error": 2.338247299194336,
+        "mean_std": 0.005658833310008049,
+        "ood": false,
+        "ood_score": 0.6742986440658569
+      },
+      {
+        "relative_l2": 0.30628206399070584,
+        "max_abs_error": 1.0352963209152222,
+        "mean_std": 0.005179055500775576,
+        "ood": false,
+        "ood_score": 0.692776083946228
+      },
+      {
+        "relative_l2": 0.3288349178866261,
+        "max_abs_error": 1.0514535903930664,
+        "mean_std": 0.005161288660019636,
+        "ood": false,
+        "ood_score": 0.692776083946228
+      },
+      {
+        "relative_l2": 0.3657685206288373,
+        "max_abs_error": 1.1895684003829956,
+        "mean_std": 0.005143654532730579,
+        "ood": false,
+        "ood_score": 0.692776083946228
+      },
+      {
+        "relative_l2": 0.3094410399045625,
+        "max_abs_error": 1.0360496044158936,
+        "mean_std": 0.0053978124633431435,
+        "ood": false,
+        "ood_score": 0.3553866147994995
+      },
+      {
+        "relative_l2": 1.2702654473605264,
+        "max_abs_error": 2.532210350036621,
+        "mean_std": 0.005377867724746466,
+        "ood": false,
+        "ood_score": 0.3553866147994995
+      },
+      {
+        "relative_l2": 0.9747142616736831,
+        "max_abs_error": 2.3217692375183105,
+        "mean_std": 0.005352105479687452,
+        "ood": false,
+        "ood_score": 0.3553866147994995
+      },
+      {
+        "relative_l2": 0.2062557240061953,
+        "max_abs_error": 4.067714691162109,
+        "mean_std": 0.005913513712584972,
+        "ood": false,
+        "ood_score": 0.38930654525756836
+      },
+      {
+        "relative_l2": 1.744917492377474,
+        "max_abs_error": 2.410162925720215,
+        "mean_std": 0.005392252933233976,
+        "ood": false,
+        "ood_score": 0.38930654525756836
+      },
+      {
+        "relative_l2": 1.500849469864364,
+        "max_abs_error": 2.469451904296875,
+        "mean_std": 0.00513888755813241,
+        "ood": false,
+        "ood_score": 0.38930654525756836
+      },
+      {
+        "relative_l2": 0.35528519678933784,
+        "max_abs_error": 1.7454652786254883,
+        "mean_std": 0.005207768641412258,
+        "ood": false,
+        "ood_score": 0.2973378002643585
+      },
+      {
+        "relative_l2": 0.20972016259458565,
+        "max_abs_error": 2.8623766899108887,
+        "mean_std": 0.005787895992398262,
+        "ood": false,
+        "ood_score": 0.2973378002643585
+      },
+      {
+        "relative_l2": 0.7769390309515405,
+        "max_abs_error": 2.391183376312256,
+        "mean_std": 0.005074666813015938,
+        "ood": false,
+        "ood_score": 0.2973378002643585
+      },
+      {
+        "relative_l2": 0.22930714478345948,
+        "max_abs_error": 1.5274899005889893,
+        "mean_std": 0.005638754460960627,
+        "ood": false,
+        "ood_score": 0.5505625605583191
+      },
+      {
+        "relative_l2": 0.2665734109965751,
+        "max_abs_error": 3.202291488647461,
+        "mean_std": 0.005981970112770796,
+        "ood": false,
+        "ood_score": 0.5505625605583191
+      },
+      {
+        "relative_l2": 1.72425728,
+        "max_abs_error": 2.6518843173980713,
+        "mean_std": 0.005320689175277948,
+        "ood": false,
+        "ood_score": 0.5505625605583191
+      },
+      {
+        "relative_l2": 1.536393547051922,
+        "max_abs_error": 2.3877367973327637,
+        "mean_std": 0.005334521643817425,
+        "ood": false,
+        "ood_score": 0.6257227063179016
+      },
+      {
+        "relative_l2": 0.24689864889048826,
+        "max_abs_error": 2.8024187088012695,
+        "mean_std": 0.0054352665320038795,
+        "ood": false,
+        "ood_score": 0.6257227063179016
+      },
+      {
+        "relative_l2": 1.5365848757078442,
+        "max_abs_error": 2.389707565307617,
+        "mean_std": 0.0053332955576479435,
+        "ood": false,
+        "ood_score": 0.6257227063179016
+      },
+      {
+        "relative_l2": 0.23322882604958234,
+        "max_abs_error": 3.1765575408935547,
+        "mean_std": 0.005795483943074942,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.39365682140596586,
+        "max_abs_error": 1.3302950859069824,
+        "mean_std": 0.004973094444721937,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 1.359606530445526,
+        "max_abs_error": 2.2741339206695557,
+        "mean_std": 0.005148770287632942,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.30747226992588533,
+        "max_abs_error": 1.2420434951782227,
+        "mean_std": 0.005072668194770813,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.2625490814731415,
+        "max_abs_error": 3.575592041015625,
+        "mean_std": 0.005845508072525263,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.8031007563337433,
+        "max_abs_error": 2.153053045272827,
+        "mean_std": 0.005024956073611975,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.8392901634312481,
+        "max_abs_error": 2.036740303039551,
+        "mean_std": 0.005204319953918457,
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "relative_l2": 1.174703324007474,
+        "max_abs_error": 2.297809362411499,
+        "mean_std": 0.0053846994414925575,
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "relative_l2": 0.2714672054862279,
+        "max_abs_error": 2.303126811981201,
+        "mean_std": 0.005807823967188597,
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "relative_l2": 1.4849941491336656,
+        "max_abs_error": 2.156878709793091,
+        "mean_std": 0.005687065422534943,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 0.25411509799846727,
+        "max_abs_error": 1.2178869247436523,
+        "mean_std": 0.005275818519294262,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 1.4903364932736156,
+        "max_abs_error": 2.1373298168182373,
+        "mean_std": 0.005630659870803356,
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "relative_l2": 1.5511886335365972,
+        "max_abs_error": 2.321641683578491,
+        "mean_std": 0.005054893437772989,
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "relative_l2": 1.5215949535264286,
+        "max_abs_error": 2.3094241619110107,
+        "mean_std": 0.005057903937995434,
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "relative_l2": 0.09449644217646334,
+        "max_abs_error": 2.6403322219848633,
+        "mean_std": 0.007211309392005205,
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "relative_l2": 1.5037268766373773,
+        "max_abs_error": 2.334700584411621,
+        "mean_std": 0.00530896196141839,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.24762334943966535,
+        "max_abs_error": 0.9535257816314697,
+        "mean_std": 0.005132491234689951,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.2293750415744335,
+        "max_abs_error": 1.5332616567611694,
+        "mean_std": 0.005308381747454405,
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "relative_l2": 0.19267988207382428,
+        "max_abs_error": 2.391299247741699,
+        "mean_std": 0.00572148198261857,
+        "ood": false,
+        "ood_score": 0.40520310401916504
+      },
+      {
+        "relative_l2": 2.563686972725189,
+        "max_abs_error": 2.6554505825042725,
+        "mean_std": 0.004945330321788788,
+        "ood": false,
+        "ood_score": 0.40520310401916504
+      },
+      {
+        "relative_l2": 1.1779969079130304,
+        "max_abs_error": 2.4034969806671143,
+        "mean_std": 0.004945194348692894,
+        "ood": false,
+        "ood_score": 0.40520310401916504
+      },
+      {
+        "relative_l2": 0.2036625211571999,
+        "max_abs_error": 2.439791440963745,
+        "mean_std": 0.005330114159733057,
+        "ood": false,
+        "ood_score": 0.37273263931274414
+      },
+      {
+        "relative_l2": 0.2790911891384255,
+        "max_abs_error": 1.1733533143997192,
+        "mean_std": 0.00501402048394084,
+        "ood": false,
+        "ood_score": 0.37273263931274414
+      },
+      {
+        "relative_l2": 2.0596685905599146,
+        "max_abs_error": 2.521636486053467,
+        "mean_std": 0.0052577718161046505,
+        "ood": false,
+        "ood_score": 0.37273263931274414
+      }
+    ],
+    "tolerance": 0.05,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.00540941534563899,
+    "p95_std": 0.010277592577040195,
+    "max_std": 0.06128641963005066,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 36% thick section, four times the trained thickness",
+        "ood": true,
+        "ood_score": 34.717472076416016,
+        "reasons": [
+          "geometry 34.72x farther from the training designs than usual"
+        ]
+      },
+      {
+        "name": "an 18% camber, three times the trained camber",
+        "ood": true,
+        "ood_score": 5.965839385986328,
+        "reasons": [
+          "geometry 5.97x farther from the training designs than usual"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 0.6742986440658569
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 0.6742986440658569
+      },
+      {
+        "name": "held-out design 2",
+        "ood": false,
+        "ood_score": 0.6742986440658569
+      },
+      {
+        "name": "held-out design 3",
+        "ood": false,
+        "ood_score": 0.692776083946228
+      },
+      {
+        "name": "held-out design 4",
+        "ood": false,
+        "ood_score": 0.692776083946228
+      },
+      {
+        "name": "held-out design 5",
+        "ood": false,
+        "ood_score": 0.692776083946228
+      },
+      {
+        "name": "held-out design 6",
+        "ood": false,
+        "ood_score": 0.3553866147994995
+      },
+      {
+        "name": "held-out design 7",
+        "ood": false,
+        "ood_score": 0.3553866147994995
+      },
+      {
+        "name": "held-out design 8",
+        "ood": false,
+        "ood_score": 0.3553866147994995
+      },
+      {
+        "name": "held-out design 9",
+        "ood": false,
+        "ood_score": 0.38930654525756836
+      },
+      {
+        "name": "held-out design 10",
+        "ood": false,
+        "ood_score": 0.38930654525756836
+      },
+      {
+        "name": "held-out design 11",
+        "ood": false,
+        "ood_score": 0.38930654525756836
+      },
+      {
+        "name": "held-out design 12",
+        "ood": false,
+        "ood_score": 0.2973378002643585
+      },
+      {
+        "name": "held-out design 13",
+        "ood": false,
+        "ood_score": 0.2973378002643585
+      },
+      {
+        "name": "held-out design 14",
+        "ood": false,
+        "ood_score": 0.2973378002643585
+      },
+      {
+        "name": "held-out design 15",
+        "ood": false,
+        "ood_score": 0.5505625605583191
+      },
+      {
+        "name": "held-out design 16",
+        "ood": false,
+        "ood_score": 0.5505625605583191
+      },
+      {
+        "name": "held-out design 17",
+        "ood": false,
+        "ood_score": 0.5505625605583191
+      },
+      {
+        "name": "held-out design 18",
+        "ood": false,
+        "ood_score": 0.6257227063179016
+      },
+      {
+        "name": "held-out design 19",
+        "ood": false,
+        "ood_score": 0.6257227063179016
+      },
+      {
+        "name": "held-out design 20",
+        "ood": false,
+        "ood_score": 0.6257227063179016
+      },
+      {
+        "name": "held-out design 21",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 22",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 23",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 24",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 25",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 26",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 27",
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "name": "held-out design 28",
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "name": "held-out design 29",
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "name": "held-out design 30",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 31",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 32",
+        "ood": false,
+        "ood_score": 0.0
+      },
+      {
+        "name": "held-out design 33",
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "name": "held-out design 34",
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "name": "held-out design 35",
+        "ood": false,
+        "ood_score": 0.27528128027915955
+      },
+      {
+        "name": "held-out design 36",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 37",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 38",
+        "ood": false,
+        "ood_score": 0.19465327262878418
+      },
+      {
+        "name": "held-out design 39",
+        "ood": false,
+        "ood_score": 0.40520310401916504
+      },
+      {
+        "name": "held-out design 40",
+        "ood": false,
+        "ood_score": 0.40520310401916504
+      },
+      {
+        "name": "held-out design 41",
+        "ood": false,
+        "ood_score": 0.40520310401916504
+      },
+      {
+        "name": "held-out design 42",
+        "ood": false,
+        "ood_score": 0.37273263931274414
+      },
+      {
+        "name": "held-out design 43",
+        "ood": false,
+        "ood_score": 0.37273263931274414
+      },
+      {
+        "name": "held-out design 44",
+        "ood": false,
+        "ood_score": 0.37273263931274414
+      }
+    ],
+    "probes_flagged": 2,
+    "probes_total": 2,
+    "held_out_flagged": 0,
+    "held_out_ood_score_max": 0.692776083946228,
+    "held_out_ood_score_median": 0.3553866147994995,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.3288 on 45 designs of 5400 points, tolerance 0.05",
+      "constant-field baseline on the same designs: 0.9746",
+      "OOD: 2/2 probes outside the family flagged, 0/45 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: analytic \u2014 Joukowski conformal map with the Kutta condition (exact potential flow), with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

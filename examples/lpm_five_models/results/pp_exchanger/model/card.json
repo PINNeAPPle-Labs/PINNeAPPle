@@ -1,0 +1,239 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T14:36:13+00:00",
+  "family": {
+    "name": "pp_exchanger",
+    "title": "Shell-and-tube exchanger: dimensionless temperature profiles over its design space",
+    "domain": "energy / process and HVAC heat exchangers",
+    "dim": 2,
+    "field_names": [
+      "theta_shell",
+      "theta_tube"
+    ],
+    "field_units": [
+      "-",
+      "-"
+    ],
+    "field_scale": [
+      1.0,
+      1.0
+    ],
+    "characteristic_length_m": 1.0,
+    "n_points": 80,
+    "geometry_params": {
+      "tube_od_m": [
+        0.01,
+        0.025
+      ],
+      "n_tubes": [
+        20.0,
+        160.0
+      ],
+      "shell_id_m": [
+        0.1,
+        0.35
+      ],
+      "length_m": [
+        0.6,
+        3.5
+      ],
+      "baffle_spacing_m": [
+        0.05,
+        0.25
+      ]
+    },
+    "operating_params": {
+      "m_dot_shell_kg_s": [
+        0.5,
+        3.5
+      ],
+      "m_dot_tube_kg_s": [
+        4.0,
+        12.0
+      ]
+    },
+    "geometry_features": {
+      "n_tubes": [
+        20.0,
+        160.0
+      ],
+      "shell_over_length": [
+        0.03,
+        0.6
+      ],
+      "baffle_over_length": [
+        0.02,
+        0.4
+      ]
+    },
+    "reference": {
+      "name": "Kern + Gnielinski film coefficients with the 1-2 exchanger energy equations (epsilon-NTU)",
+      "citation": "Kern (1950) via pinneapple_physics.closed_form.heat_exchanger.kern_shell; Gnielinski (1976) and Incropera ch. 8 for the tube side; Nagle's 1-2 model integrated in pinneapple_physics.closed_form.heat_exchanger.one_two_exchanger_ode",
+      "assumptions": [
+        "water on both sides with properties held at 45 degC (cp 4182, mu 6.5e-4, k 0.64, rho 990)",
+        "1-2 exchanger, shell fluid well mixed across each section, tube passes in counterflow",
+        "constant UA along the exchanger, no fouling, no heat loss to the surroundings",
+        "shell stream is C_min by construction, which is what the 1-2 model assumes"
+      ],
+      "implements": "analytic"
+    },
+    "tolerance": 0.02
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 20,
+    "n_geometries": 10,
+    "conditions_per_geometry": 2
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 16,
+    "n_holdout_designs": 4,
+    "n_train_geometries": 8,
+    "n_holdout_geometries": 2
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 2,
+      "n_params": 5,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201832
+  },
+  "training": {
+    "epochs": 60,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 10,
+    "loss_first": 0.2491122931241989,
+    "loss_last": 0.003426746930927038,
+    "seconds": 30.927,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.27899626226517743,
+    "relative_l2_p90": 0.2885905208213911,
+    "max_abs_error": 0.28873109817504883,
+    "constant_field_baseline_relative_l2": 0.6488980122897935,
+    "n_designs": 4,
+    "n_points": 320,
+    "per_design": [
+      {
+        "relative_l2": 0.08735256908795223,
+        "max_abs_error": 0.11291009187698364,
+        "mean_std": 0.015059945173561573,
+        "ood": false,
+        "ood_score": 0.34464097023010254
+      },
+      {
+        "relative_l2": 0.06639670154583527,
+        "max_abs_error": 0.09424865245819092,
+        "mean_std": 0.014757150784134865,
+        "ood": false,
+        "ood_score": 0.34464097023010254
+      },
+      {
+        "relative_l2": 0.5848104181372552,
+        "max_abs_error": 0.28873109817504883,
+        "mean_std": 0.014727872796356678,
+        "ood": true,
+        "ood_score": 1.0546725988388062
+      },
+      {
+        "relative_l2": 0.2885905208213911,
+        "max_abs_error": 0.21071486175060272,
+        "mean_std": 0.014614127576351166,
+        "ood": true,
+        "ood_score": 1.0546725988388062
+      }
+    ],
+    "tolerance": 0.02,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.014789775013923645,
+    "p95_std": 0.023698752745985985,
+    "max_std": 0.0331617146730423,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 300-tube shell, twice the trained tube count",
+        "ood": true,
+        "ood_score": 0.023791145533323288,
+        "reasons": [
+          "operating parameters [2] outside the trained range"
+        ]
+      },
+      {
+        "name": "a 9 m exchanger, 2.6x the trained length",
+        "ood": true,
+        "ood_score": 2.2836663722991943,
+        "reasons": [
+          "geometry 2.28x farther from the training designs than usual",
+          "operating parameters [3, 4] outside the trained range"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 0.34464097023010254
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 0.34464097023010254
+      },
+      {
+        "name": "held-out design 2",
+        "ood": true,
+        "ood_score": 1.0546725988388062
+      },
+      {
+        "name": "held-out design 3",
+        "ood": true,
+        "ood_score": 1.0546725988388062
+      }
+    ],
+    "probes_flagged": 2,
+    "probes_total": 2,
+    "held_out_flagged": 2,
+    "held_out_ood_score_max": 1.0546725988388062,
+    "held_out_ood_score_median": 1.0546725988388062,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.279 on 4 designs of 320 points, tolerance 0.02",
+      "constant-field baseline on the same designs: 0.6489",
+      "OOD: 2/2 probes outside the family flagged, 2/4 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: analytic \u2014 Kern + Gnielinski film coefficients with the 1-2 exchanger energy equations (epsilon-NTU), with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

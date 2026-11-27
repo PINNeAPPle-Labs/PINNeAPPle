@@ -39,7 +39,7 @@ Verified by inspecting module directories and `ROADMAP.md` on `main` (October 20
 | Optimization | Bayesian optimization code and design modules (`pinneapple_design`) | Not connected to surrogate validation. |
 | Agents | `pinneapple_llm` (guardrails), `pinneapple_tools`, `pinneapple_problemdesign` | No agent that runs the full workflow through the platform APIs. |
 | Benchmarking | `pinneapple_arena`, `benchmarks/` | Not yet a reference benchmark with domain-of-validity reporting. |
-| Foundation / world models | `pinneapple_worldmodel` (described as generalist) | No multi-domain demonstration against baselines. |
+| Foundation / world models | `pinneapple_worldmodel` (described as generalist); `pinneapple_neural.lpm` design-space blocks, now with a query-to-surface attention backbone and batched training, measured on 1000 designs (§5.3) | No multi-domain demonstration against baselines. |
 
 ## 3. The research's diagnosis: nine problems, one architecture
 
@@ -106,6 +106,20 @@ Tests: `tests/test_trust_report.py` (9 tests) and `tests/test_trust_gate.py` pas
 - **D1 — Universal physical problem.** Do **not** add a third specification class. First reconcile `problemdesign.ProblemSpec`, `physics.pde_environment.ProblemSpec` and `upd_types.ConditionSpec` into one representation with explicit conversions, then add the universal problem as a façade over it. Reason: a third class increases fragmentation, which is the problem the research describes.
 - **D2 — Trust report is linked to model records.** Next step: store the `TrustReport` in `ModelCard` and in the registry, so every published model carries its decision and reasons.
 - **D3 — Calibrate trust limits.** The 0.80 score, 60% coverage and 0.7 sub-score limits are provisional. Calibrate them on the existing surrogates of the CFD product, whose measured errors range from 0.23% to about 10%.
+
+### 5.3 Done: the design-space LPM, at scale and with an attention backbone
+
+`pinneapple_neural.lpm` (T22) started as the per-query MLP of the first release: 30 designs, 128 surface points, 3.15 % held-out relative L2 against the exact potential-flow Cp (`benchmarks/_out/lpm_ellipse_design_space.json`, 1738 s on a CPU). It now also carries the pieces the production LPMs are made of, and they are measured, not asserted:
+
+- **Query-to-surface attention** (`PointAttention`): cross-attention from every query to the surface samples of its own design, masked across a batch — the geometry-aware transformer of the production LPMs (Transolver, ICML 2024, arXiv:2402.02366; GeoTransolver, arXiv:2507.13822; AB-UPT, arXiv:2505.18781).
+- **Batched design-space training** (`stack_designs`, `fit(..., batch_designs=N)`): designs padded and masked, so a design trained inside a batch gets the same prediction and the same loss as on its own (tested), which is what turns a Python loop over designs into a thousand-design training run.
+- **`ellipse_design_space`**: a thousand analytic designs with the exact Cp, so scale is measured without a solver in the loop.
+
+Measured with `benchmarks/lpm_scale.py` (1000 training designs, 64 surface points each, 400 epochs, batch 64, width 96, four ensemble heads, two attention layers, Apple MPS): **held-out relative L2 2.18 % (p90 3.35 %)** against the analytic Milne-Thomson §9.61 answer, 775 s (1.94 s per epoch). The OOD flag fires on every probe outside the family — square 10.9×, circle r = 3 109.3×, thin ellipse a = 0.25 7.7× the training spread — and stays off on the held-out designs (median 0.37×, max 1.26×, against the 1.5× threshold).
+
+The same run with the MLP backbone (`backbone="mlp"`, `benchmarks/_out/lpm_scale_mlp.json`) is worse on both counts: 3.66 % held-out (p90 5.49 %) in 1182 s. Attention is the cheaper backbone here as well as the more accurate one, because at 64 surface points the per-epoch cost is dominated by evaluating features at the 64 000 query points, not by the attention itself.
+
+What is still missing before this is a *production* LPM: the backbone is a compact attention stack, not Transolver or AB-UPT at their scale; the thousand designs are analytic, not a thousand solver runs; and there is still no multi-domain demonstration against baselines (§2, §6).
 
 ## 6. Demonstrations the research recommends
 

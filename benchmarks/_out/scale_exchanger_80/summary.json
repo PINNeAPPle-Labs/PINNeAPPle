@@ -1,0 +1,22 @@
+{
+  "family": "pp_exchanger",
+  "field_names": [
+    "theta_shell",
+    "theta_tube"
+  ],
+  "held_out_relative_l2": 0.0928586318331302,
+  "held_out_relative_l2_p90": 0.1436601089171313,
+  "constant_field_baseline_relative_l2": 0.456123314835075,
+  "ensemble_std_mean": 0.008418931625783443,
+  "ood_probes_flagged": "2/2",
+  "within_tolerance": false,
+  "seconds": 252.0,
+  "device": "mps",
+  "model": "benchmarks/_out/scale_exchanger_80/model/model.pt",
+  "card": "benchmarks/_out/scale_exchanger_80/model/card.json",
+  "dataset": {
+    "n_designs": 240,
+    "n_geometries": 80,
+    "seconds": 6.902
+  }
+}

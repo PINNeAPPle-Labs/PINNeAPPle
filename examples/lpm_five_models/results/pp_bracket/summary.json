@@ -1,0 +1,22 @@
+{
+  "family": "pp_bracket",
+  "field_names": [
+    "displacement_m",
+    "von_mises_pa"
+  ],
+  "held_out_relative_l2": 0.8281044653874334,
+  "held_out_relative_l2_p90": 0.8787882980643148,
+  "constant_field_baseline_relative_l2": 0.8967741587826994,
+  "ensemble_std_mean": 0.010067916475236416,
+  "ood_probes_flagged": "2/2",
+  "within_tolerance": false,
+  "seconds": 51.4,
+  "device": "mps",
+  "model": "/Users/yanbarros/Documents/GitHub/lpm-five/examples/lpm_five_models/results/pp_bracket/model/model.pt",
+  "card": "/Users/yanbarros/Documents/GitHub/lpm-five/examples/lpm_five_models/results/pp_bracket/model/card.json",
+  "dataset": {
+    "n_designs": 20,
+    "n_geometries": 10,
+    "seconds": 8.53
+  }
+}

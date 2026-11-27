@@ -1,0 +1,219 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T14:37:58+00:00",
+  "family": {
+    "name": "pp_nozzle",
+    "title": "Converging-diverging nozzle: wall Mach and pressure across the design space",
+    "domain": "propulsion / rocket and gas-turbine nozzles",
+    "dim": 2,
+    "field_names": [
+      "mach",
+      "pressure_over_chamber"
+    ],
+    "field_units": [
+      "-",
+      "-"
+    ],
+    "field_scale": [
+      5.0,
+      1.0
+    ],
+    "characteristic_length_m": 0.25,
+    "n_points": 100,
+    "geometry_params": {
+      "area_ratio_exit": [
+        2.0,
+        25.0
+      ],
+      "chamber_ratio": [
+        2.5,
+        12.0
+      ],
+      "throat_radius_m": [
+        0.02,
+        0.08
+      ],
+      "half_angle_deg": [
+        8.0,
+        30.0
+      ]
+    },
+    "operating_params": {
+      "gamma": [
+        1.15,
+        1.3
+      ],
+      "r_gas_j_kg_k": [
+        250.0,
+        400.0
+      ]
+    },
+    "geometry_features": {},
+    "reference": {
+      "name": "quasi-1-D isentropic flow of a calorically perfect gas",
+      "citation": "Sutton & Biblarz, Rocket Propulsion Elements, 9th ed. (2017), ch. 3; NACA Report 1135 (1953), eqs. 43-45 and 80; pinneapple_physics.closed_form.rocket_nozzle and .compressible",
+      "assumptions": [
+        "one-dimensional section averages, isentropic: no shocks, friction, heat loss or separation",
+        "constant gamma, calorically perfect gas",
+        "flow attached and expanded to the exit area ratio",
+        "the field is p/p_chamber; the physical pressure is that times the chamber pressure"
+      ],
+      "implements": "analytic"
+    },
+    "tolerance": 0.02
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 20,
+    "n_geometries": 10,
+    "conditions_per_geometry": 2
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 16,
+    "n_holdout_designs": 4,
+    "n_train_geometries": 8,
+    "n_holdout_geometries": 2
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 2,
+      "n_params": 2,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201544
+  },
+  "training": {
+    "epochs": 60,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 10,
+    "loss_first": 0.31871694326400757,
+    "loss_last": 0.028668727725744247,
+    "seconds": 33.654,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.4311545030943017,
+    "relative_l2_p90": 0.47174461737973244,
+    "max_abs_error": 2.2557120323181152,
+    "constant_field_baseline_relative_l2": 0.6798465084483668,
+    "n_designs": 4,
+    "n_points": 808,
+    "per_design": [
+      {
+        "relative_l2": 0.39181014858012453,
+        "max_abs_error": 1.617246389389038,
+        "mean_std": 0.022241223603487015,
+        "ood": false,
+        "ood_score": 0.06028538569808006
+      },
+      {
+        "relative_l2": 0.38341660638503533,
+        "max_abs_error": 1.5889201164245605,
+        "mean_std": 0.02154410071671009,
+        "ood": false,
+        "ood_score": 0.06028538569808006
+      },
+      {
+        "relative_l2": 0.47960592393186613,
+        "max_abs_error": 2.2557120323181152,
+        "mean_std": 0.023504620417952538,
+        "ood": false,
+        "ood_score": 0.18788717687129974
+      },
+      {
+        "relative_l2": 0.47174461737973244,
+        "max_abs_error": 2.1102371215820312,
+        "mean_std": 0.023298906162381172,
+        "ood": false,
+        "ood_score": 0.18788717687129974
+      }
+    ],
+    "tolerance": 0.02,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.02264721319079399,
+    "p95_std": 0.04879077896475792,
+    "max_std": 0.08345971256494522,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "an area ratio of 60, 2.4x the trained exit ratio",
+        "ood": false,
+        "ood_score": 0.48803234100341797,
+        "reasons": []
+      },
+      {
+        "name": "a gamma of 1.67 (monatomic gas), far outside the combustion-gas family",
+        "ood": true,
+        "ood_score": 0.04454557225108147,
+        "reasons": [
+          "operating parameters [0, 1] outside the trained range"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": false,
+        "ood_score": 0.06028538569808006
+      },
+      {
+        "name": "held-out design 1",
+        "ood": false,
+        "ood_score": 0.06028538569808006
+      },
+      {
+        "name": "held-out design 2",
+        "ood": false,
+        "ood_score": 0.18788717687129974
+      },
+      {
+        "name": "held-out design 3",
+        "ood": false,
+        "ood_score": 0.18788717687129974
+      }
+    ],
+    "probes_flagged": 1,
+    "probes_total": 2,
+    "held_out_flagged": 0,
+    "held_out_ood_score_max": 0.18788717687129974,
+    "held_out_ood_score_median": 0.18788717687129974,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.4312 on 4 designs of 808 points, tolerance 0.02",
+      "constant-field baseline on the same designs: 0.6798",
+      "OOD: 1/2 probes outside the family flagged, 0/4 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: analytic \u2014 quasi-1-D isentropic flow of a calorically perfect gas, with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

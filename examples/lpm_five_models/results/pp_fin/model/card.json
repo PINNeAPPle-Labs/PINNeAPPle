@@ -1,0 +1,228 @@
+{
+  "schema": "pinneapple.lpm.family_card/1",
+  "created_at": "2026-11-18T14:37:11+00:00",
+  "family": {
+    "name": "pp_fin",
+    "title": "Extruded-fin heat sink: fin temperature over the design space",
+    "domain": "thermal / electronics cooling",
+    "dim": 2,
+    "field_names": [
+      "t_fin_c"
+    ],
+    "field_units": [
+      "degC"
+    ],
+    "field_scale": [
+      100.0
+    ],
+    "characteristic_length_m": 0.05,
+    "n_points": 96,
+    "geometry_params": {
+      "n_fins": [
+        6.0,
+        18.0
+      ],
+      "fin_thickness_m": [
+        0.001,
+        0.0025
+      ],
+      "fin_pitch_m": [
+        0.005,
+        0.01
+      ],
+      "fin_height_m": [
+        0.01,
+        0.045
+      ],
+      "base_depth_m": [
+        0.03,
+        0.08
+      ],
+      "base_thickness_m": [
+        0.003,
+        0.01
+      ]
+    },
+    "operating_params": {
+      "power_w": [
+        5.0,
+        80.0
+      ],
+      "t_ambient_c": [
+        15.0,
+        45.0
+      ],
+      "air_velocity_m_s": [
+        0.0,
+        4.0
+      ]
+    },
+    "geometry_features": {},
+    "reference": {
+      "name": "1-D fin theory on the fin-array resistance network",
+      "citation": "Incropera & DeWitt, Fundamentals of Heat and Mass Transfer, ch. 3 (fins); Elenbaas (1942) and Teertstra et al. (1999) for the convective coefficient; pinneapple_physics.closed_form.plate_fin_heatsink and .fin_array_conduction",
+      "assumptions": [
+        "steady state, 1-D conduction along each fin with an adiabatic-tip corrected length",
+        "radiation neglected (the module says the part runs cooler than predicted in still air)",
+        "forced flow assumed ducted: all air passes between the fins",
+        "air properties from the module's own correlations, one iteration to convergence"
+      ],
+      "implements": "analytic"
+    },
+    "tolerance": 0.05
+  },
+  "dataset": {
+    "schema": "pinneapple.lpm.dataset/1",
+    "seed": 0,
+    "n_designs": 20,
+    "n_geometries": 10,
+    "conditions_per_geometry": 2
+  },
+  "split": {
+    "policy": "random by geometry, fixed by the seed: a held-out body is never a training body",
+    "seed": 0,
+    "holdout_fraction": 0.25,
+    "n_train_designs": 16,
+    "n_holdout_designs": 4,
+    "n_train_geometries": 8,
+    "n_holdout_geometries": 2
+  },
+  "model": {
+    "class": "LargePhysicsModel",
+    "config": {
+      "dim": 2,
+      "n_fields": 1,
+      "n_params": 3,
+      "radii": [
+        0.1,
+        0.4,
+        1.2
+      ],
+      "n_freq": 6,
+      "width": 96,
+      "code": 32,
+      "n_heads": 4,
+      "backbone": "attention",
+      "attn_heads": 4,
+      "attn_layers": 2
+    },
+    "parameters": 201252
+  },
+  "training": {
+    "epochs": 60,
+    "lr": 0.002,
+    "seed": 0,
+    "batch_designs": 10,
+    "loss_first": 1.6212880611419678,
+    "loss_last": 0.22891691327095032,
+    "seconds": 55.223,
+    "device": "mps"
+  },
+  "held_out": {
+    "relative_l2": 0.5612227919247749,
+    "relative_l2_p90": 1.2526283535599654,
+    "max_abs_error": 77.30868530273438,
+    "constant_field_baseline_relative_l2": 0.5564699586132772,
+    "n_designs": 4,
+    "n_points": 428,
+    "per_design": [
+      {
+        "relative_l2": 0.8383105720179307,
+        "max_abs_error": 64.478515625,
+        "mean_std": 0.09395450353622437,
+        "ood": true,
+        "ood_score": 0.3694740831851959
+      },
+      {
+        "relative_l2": 1.2526283535599654,
+        "max_abs_error": 76.65296173095703,
+        "mean_std": 0.09188579767942429,
+        "ood": true,
+        "ood_score": 0.3694740831851959
+      },
+      {
+        "relative_l2": 0.2762614126868909,
+        "max_abs_error": 55.46057891845703,
+        "mean_std": 0.1193404272198677,
+        "ood": false,
+        "ood_score": 0.050008658319711685
+      },
+      {
+        "relative_l2": 1.400300642604858,
+        "max_abs_error": 77.30868530273438,
+        "mean_std": 0.1167784333229065,
+        "ood": false,
+        "ood_score": 0.050008658319711685
+      }
+    ],
+    "tolerance": 0.05,
+    "within_tolerance": false
+  },
+  "ensemble_spread": {
+    "mean_std": 0.10877904295921326,
+    "p95_std": 0.14538711309432983,
+    "max_std": 0.1528346985578537,
+    "note": "standard deviation between the bagged ensemble heads, not a confidence level"
+  },
+  "ood": {
+    "probes": [
+      {
+        "name": "a 30-fin sink: 3x the fin count of the trained family",
+        "ood": false,
+        "ood_score": 0.16464082896709442,
+        "reasons": []
+      },
+      {
+        "name": "a 15x-power sink: 450 W on a 3 cm fin",
+        "ood": true,
+        "ood_score": 0.07897710800170898,
+        "reasons": [
+          "operating parameters [0] outside the trained range"
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "name": "held-out design 0",
+        "ood": true,
+        "ood_score": 0.3694740831851959
+      },
+      {
+        "name": "held-out design 1",
+        "ood": true,
+        "ood_score": 0.3694740831851959
+      },
+      {
+        "name": "held-out design 2",
+        "ood": false,
+        "ood_score": 0.050008658319711685
+      },
+      {
+        "name": "held-out design 3",
+        "ood": false,
+        "ood_score": 0.050008658319711685
+      }
+    ],
+    "probes_flagged": 1,
+    "probes_total": 2,
+    "held_out_flagged": 2,
+    "held_out_ood_score_max": 0.3694740831851959,
+    "held_out_ood_score_median": 0.3694740831851959,
+    "threshold": "the library's own: geometry-code distance over the 95th percentile of the training nearest-neighbour distances, above 1.5x",
+    "note": "reported as measured: a probe the model does not flag is not thereby inside its validity domain"
+  },
+  "trust": {
+    "decision": "not_verified_until_independent_review",
+    "measured_here": [
+      "held-out relative L2 0.5612 on 4 designs of 428 points, tolerance 0.05",
+      "constant-field baseline on the same designs: 0.5565",
+      "OOD: 1/2 probes outside the family flagged, 2/4 held-out designs flagged"
+    ],
+    "not_measured": [
+      "the reference itself: analytic \u2014 1-D fin theory on the fin-array resistance network, with the assumptions it lists",
+      "agreement with a solver or with measured data for any geometry of this family",
+      "whether the ensemble spread is calibrated: it is the spread between bootstrap heads",
+      "behaviour outside the declared geometry and operating bounds of the family"
+    ]
+  }
+}

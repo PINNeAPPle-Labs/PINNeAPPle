@@ -1,0 +1,43 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/lpm_five_models",
+ "title": "Five Large Physics Models, one per design space",
+ "description": "Five design spaces, one model each: an extruded-fin heat sink (1-D fin theory), a Joukowski airfoil (exact potential flow), a converging-diverging nozzle (quasi-1-D isentropic flow), a shell-and-tube exchanger (Kern + Gnielinski + epsilon-NTU) and an L-bracket (immersed finite-element elasticity). Each is drawn, built, written as a dataset with its manifest, fitted with batched design-space training on a split by geometry, and reported in a card with what the run measured and what it did not. PYTHONPATH=. python examples/lpm_five_models/run.py --geometries 24",
+ "domain": "neural surrogates for engineering design spaces",
+ "methods": [
+  "CST geometry",
+  "1-D fin theory",
+  "Joukowski conformal map",
+  "quasi-1-D isentropic flow",
+  "Kern/Gnielinski/epsilon-NTU",
+  "immersed finite elements"
+ ],
+ "modules": [
+  "pinneapple_lab",
+  "pinneapple_neural.lpm_pipeline"
+ ],
+ "params": {},
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/lpm_five_models/run.py",
+  "guide": "docs/guides/lpm_pipeline.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "e2d4cbc20"
+ }
+}

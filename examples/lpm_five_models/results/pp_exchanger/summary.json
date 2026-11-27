@@ -1,0 +1,22 @@
+{
+  "family": "pp_exchanger",
+  "field_names": [
+    "theta_shell",
+    "theta_tube"
+  ],
+  "held_out_relative_l2": 0.27899626226517743,
+  "held_out_relative_l2_p90": 0.2885905208213911,
+  "constant_field_baseline_relative_l2": 0.6488980122897935,
+  "ensemble_std_mean": 0.014789775013923645,
+  "ood_probes_flagged": "2/2",
+  "within_tolerance": false,
+  "seconds": 30.9,
+  "device": "mps",
+  "model": "/Users/yanbarros/Documents/GitHub/lpm-five/examples/lpm_five_models/results/pp_exchanger/model/model.pt",
+  "card": "/Users/yanbarros/Documents/GitHub/lpm-five/examples/lpm_five_models/results/pp_exchanger/model/card.json",
+  "dataset": {
+    "n_designs": 20,
+    "n_geometries": 10,
+    "seconds": 2.889
+  }
+}

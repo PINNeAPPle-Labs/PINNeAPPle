@@ -52,11 +52,13 @@ from .lpm import Design, LargePhysicsModel, fit
 
 DATASET_SCHEMA = "pinneapple.lpm.dataset/1"
 CARD_SCHEMA = "pinneapple.lpm.family_card/1"
+PROGRESS_SCHEMA = "pinneapple.lpm.progress/1"
 TRUST = "not_verified_until_independent_review"
 
 __all__ = [
     "CARD_SCHEMA",
     "DATASET_SCHEMA",
+    "PROGRESS_SCHEMA",
     "TRUST",
     "DesignSpec",
     "FieldFamily",
@@ -347,13 +349,43 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _write_progress(path: Path, payload: dict[str, Any]) -> None:
+    """Write a progress file so a reader sees either the previous one or this one, never half of it."""
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    tmp.replace(path)
+
+
+def _progress(path: Path, *, kind: str, family: str, started_at: str, started: float, done: int, total: int,
+              finished: bool = False, **extra: Any) -> None:
+    """One progress record: what this stage has finished, how fast, and how long it still needs.
+
+    ``kind`` is ``dataset`` (done/total designs) or ``fit`` (done/total epochs); both carry the same ``done``,
+    ``total``, ``per_s`` and ``eta_s`` so a reader renders the two stages with one shape.
+    """
+    elapsed = max(time.monotonic() - started, 1e-9)
+    rate = done / elapsed if done else 0.0
+    payload = {"schema": PROGRESS_SCHEMA, "kind": kind, "family": family,
+               "started_at": started_at, "updated_at": datetime.now(UTC).isoformat(timespec="seconds"),
+               "done": int(done), "total": int(total), "finished": bool(finished),
+               "elapsed_s": round(elapsed, 1), "per_s": round(rate, 4),
+               "eta_s": round((total - done) / rate, 1) if rate > 0 and total > done else 0.0}
+    payload.update(extra)
+    _write_progress(path, payload)
+
+
 def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: int = 32,
-                     conditions_per_geometry: int = 3, seed: int = 0, verbose: bool = False) -> dict[str, Any]:
+                     conditions_per_geometry: int = 3, seed: int = 0, verbose: bool = False,
+                     progress_every_s: float = 0.0) -> dict[str, Any]:
     """Run the family's reference on a drawn design space and write it as a dataset.
 
     The dataset is what the next stages read: one ``.npz`` per design (points, normals, query, params, target) and a
     ``manifest.json`` carrying the family, its reference, the parameter bounds, the seeds and the SHA-256 of every
     file — so a run can be reproduced and an artefact can be identified later.
+
+    ``progress_every_s`` writes ``progress.json`` in ``out_dir`` at that interval — designs done, rate and the time
+    still needed — which is the only thing on disk while a solver-backed family (the 3-D solids take seconds per
+    design) is being built. ``0``, the default, writes nothing at all.
     """
     out = Path(out_dir)
     designs_dir = out / "designs"
@@ -363,10 +395,15 @@ def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: 
     for stale in designs_dir.glob("*.npz"):
         stale.unlink()
     started = time.monotonic()
+    started_at = datetime.now(UTC).isoformat(timespec="seconds")
+    progress_path = out / "progress.json"
+    if progress_every_s > 0:                            # never leave a previous run's record beside this one
+        progress_path.unlink(missing_ok=True)
+    last_progress = started
     specs = draw(family, n_geometries, conditions_per_geometry, seed)
     records, fields_total, points_total = [], 0, 0
     per_geometry: dict[int, int] = {}
-    for spec in specs:
+    for position, spec in enumerate(specs, start=1):
         design = build(family, spec)
         name = spec.label.replace(":", "_") + ".npz"
         path = designs_dir / name
@@ -380,6 +417,10 @@ def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: 
         per_geometry[spec.geometry_id] = per_geometry.get(spec.geometry_id, 0) + 1
         if verbose:
             print(f"  {spec.label}: {design.points.shape[0]} points, {design.target.shape[1]} fields")
+        if progress_every_s > 0 and (time.monotonic() - last_progress >= progress_every_s or position == len(specs)):
+            _progress(progress_path, kind="dataset", family=family.name, started_at=started_at, started=started,
+                      done=position, total=len(specs), label=spec.label)
+            last_progress = time.monotonic()
     manifest = {
         "schema": DATASET_SCHEMA,
         "created_at": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -396,6 +437,9 @@ def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: 
                  "family.reference); no solver was run unless that reference says implements=solver"),
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    if progress_every_s > 0:
+        _progress(progress_path, kind="dataset", family=family.name, started_at=started_at, started=started,
+                  done=len(records), total=len(records), finished=True)
     return manifest
 
 
@@ -549,12 +593,16 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
           holdout_fraction: float = 0.25, seed: int = 0, width: int = 96, n_heads: int = 4,
           code: int = 32, n_freq: int = 6, backbone: str = "attention", attn_layers: int = 2,
           attn_heads: int = 4, batch_designs: int = 32, radii: tuple[float, float, float] = (0.1, 0.4, 1.2),
-          device: str | None = None, verbose: bool = False) -> dict[str, Any]:
+          device: str | None = None, verbose: bool = False, progress_every_s: float = 0.0) -> dict[str, Any]:
     """Fit an LPM on a dataset and write the model and its card.
 
     The split is by geometry (see :func:`_split_by_geometry`); the reported error is therefore on bodies the model
     never saw, at operating points it never saw. Nothing here decides that the model is good: it measures it and
     says how.
+
+    ``progress_every_s`` writes ``model/progress.json`` at that interval while the fit runs — epoch of how many, the
+    loss so far and the time still needed — so a four-hour fit is not one line of output at the end with nothing
+    between. ``0``, the default, writes nothing.
     """
     designs, manifest = load_dataset(dataset_dir)
     family_info = manifest["family"]
@@ -572,9 +620,36 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
         n_heads=n_heads, backbone=backbone, attn_heads=attn_heads, attn_layers=attn_layers,
     ).to(dev)
     started = time.monotonic()
+    started_at = datetime.now(UTC).isoformat(timespec="seconds")
+    progress_path = Path(out_dir) / "model" / "progress.json"
+    first_loss: list[float] = []
+    last_progress = [started]
+
+    def _on_epoch(epoch: int, loss: float) -> None:
+        if not first_loss:
+            first_loss.append(loss)
+        now = time.monotonic()
+        if now - last_progress[0] >= progress_every_s or epoch == epochs:
+            _progress(progress_path, kind="fit", family=family_info["name"], started_at=started_at, started=started,
+                      done=epoch, total=epochs, loss=round(loss, 8), loss_first=round(first_loss[0], 8),
+                      n_train_designs=len(train_designs), n_holdout_designs=len(hold_designs), device=str(dev))
+            last_progress[0] = now
+
+    if progress_every_s > 0:
+        progress_path.parent.mkdir(parents=True, exist_ok=True)
+        progress_path.unlink(missing_ok=True)           # a previous run's record is not this run's progress
+        on_epoch = _on_epoch
+    else:
+        on_epoch = None
     history = fit(model, train_designs, epochs=epochs, lr=lr, seed=seed,
-                  batch_designs=min(batch_designs, len(train_designs)), device=dev)
+                  batch_designs=min(batch_designs, len(train_designs)), device=dev, on_epoch=on_epoch)
     seconds = time.monotonic() - started
+    if progress_every_s > 0:
+        _progress(progress_path, kind="fit", family=family_info["name"], started_at=started_at, started=started,
+                  done=epochs, total=epochs, finished=True,
+                  loss=round(history[-1], 8) if history else None,
+                  loss_first=round(history[0], 8) if history else None,
+                  n_train_designs=len(train_designs), n_holdout_designs=len(hold_designs), device=str(dev))
     model.eval()
     held = evaluate(model, _family_by_name(family_info["name"]), hold_designs, train_designs)
     ood = _ood_report(model, _family_by_name(family_info["name"]), hold_designs)
@@ -677,14 +752,16 @@ def _family_by_name(name: str) -> FieldFamily:
 
 
 def run(family: FieldFamily | str, out_dir: str | Path, *, n_geometries: int = 32,
-        conditions_per_geometry: int = 3, seed: int = 0, epochs: int = 400, **train_kwargs: Any) -> dict[str, Any]:
+        conditions_per_geometry: int = 3, seed: int = 0, epochs: int = 400, progress_every_s: float = 0.0,
+        **train_kwargs: Any) -> dict[str, Any]:
     """Generate the dataset for a family and fit its model, end to end, under one output directory."""
     fam = _family_by_name(family) if isinstance(family, str) else family
     out = Path(out_dir)
     dataset = out / "dataset"
     manifest = generate_dataset(fam, dataset, n_geometries=n_geometries,
-                                conditions_per_geometry=conditions_per_geometry, seed=seed)
-    summary = train(dataset, out, seed=seed, epochs=epochs, **train_kwargs)
+                                conditions_per_geometry=conditions_per_geometry, seed=seed,
+                                progress_every_s=progress_every_s)
+    summary = train(dataset, out, seed=seed, epochs=epochs, progress_every_s=progress_every_s, **train_kwargs)
     summary["dataset"] = {"n_designs": manifest["n_designs"], "n_geometries": manifest["n_geometries"],
                           "seconds": manifest["seconds"]}
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

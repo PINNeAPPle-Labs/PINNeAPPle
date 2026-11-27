@@ -198,6 +198,47 @@ the OOD probe count per family. A family whose held-out error is close to its ba
 and the fix is more bodies, not more epochs — the 2-D families needed 60 to 240 bodies to reach 0.06-0.17 and the 3-D
 wing is at 0.51 with 24, which is a smoke test, not a result.
 
+## One design space at a time
+
+The campaign runs its families **in sequence, in one process, on one device**: nothing is parallelised, because the
+machine that runs a campaign is usually the machine somebody is working on. A lock (`<out>/.campaign.lock`, holding the
+pid) makes that true across processes too — a second campaign pointed at the same `--out` refuses to start rather than
+refitting what the first is fitting.
+
+Two flags exist for a machine that has to stay usable:
+
+```bash
+./benchmarks/run_lpm_campaign.sh --threads 4    # cap the torch/BLAS pools (default: half the cores; 0 leaves them)
+./benchmarks/run_lpm_campaign.sh --max-hours 6  # finish the family in flight, then stop; re-run to go on
+```
+
+`--max-hours` stops **between** families, never inside one: a dataset that is half written has no manifest and would be
+thrown away, which is exactly the work a night is meant to keep. A stopped run writes what it has to `campaign.json`,
+says so in `runner.json`, and exits 0.
+
+## Following it on one screen
+
+A fit is four hours with nothing on stdout, so a screen that read `card.json` would show every family as *pending*
+until the moment it was done. The pipeline writes progress instead — `progress.json` in `dataset/` and in `model/`, at
+the interval `--progress-every` asks for (five seconds by default), with the designs or epochs finished, the rate and
+the time still needed. `benchmarks/lpm_monitor.py` reads those files plus `runner.json`, `campaign.json` and
+`failures.json`, and serves them:
+
+```bash
+python -m benchmarks.lpm_monitor --out ~/lpm-campaign            # http://127.0.0.1:8130/
+python -m benchmarks.lpm_monitor --out ~/lpm-campaign --state    # the same state as JSON, and exit
+./benchmarks/run_lpm_campaign.sh --watch                         # start the campaign and open the panel
+```
+
+One row per design space: what it predicts and against which reference, the stage it is in (draw → build → write →
+fit → card), the progress of that stage with its ETA, the held-out error and the constant-field baseline once the card
+exists, and when it was written. A family whose held-out error is at or above its baseline is marked as a fit that did
+not learn the space — not as a run that failed, because it ran.
+
+Two things the panel deliberately will not do. It does not import the families to ask how a run is going: it reads
+files, so what it shows is what a run that died left behind. And it does not draw a progress file older than three
+minutes on a running stage as live — it marks it stale, because a fit that stopped writing is a fit that stopped.
+
 ## Three rules the pipeline enforces
 
 **The split is by geometry, never by design.** A design space runs several operating points on the same body. Splitting

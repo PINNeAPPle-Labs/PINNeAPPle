@@ -32,7 +32,7 @@ potential-flow answer, so scaling can be measured without a solver.
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 import torch
@@ -383,13 +383,16 @@ class LargePhysicsModel(nn.Module):
 
 def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, lr: float = 2e-3,
         freeze_geometry: bool = False, seed: int = 0, batch_designs: int | None = None,
-        device=None) -> list[float]:
+        device=None, on_epoch: Callable[[int, float], None] | None = None) -> list[float]:
     """Train (or fine-tune with ``freeze_geometry=True``) on a list of designs.
 
     Bagging: each ensemble head sees its own bootstrap resample of the designs (fixed per call),
     so the spread between heads reflects how much the training designs constrain a prediction.
     ``batch_designs`` trains that many designs per optimizer step (padded and masked, so the
     result per design is the same as training it alone); ``None`` keeps the one-design loop.
+
+    ``on_epoch(epoch, loss)`` is called after every epoch, ``epoch`` counted from 1, and is how a caller reports
+    progress on a fit that runs for hours; the default ``None`` costs one comparison per epoch and writes nothing.
     """
     g = torch.Generator().manual_seed(seed)
     for p in model.geo.parameters():
@@ -406,7 +409,7 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
     size = n if batch_designs is None else max(1, min(int(batch_designs), n))
     chunks = [list(range(i, min(i + size, n))) for i in range(0, n, size)]
     hist = []
-    for _ in range(epochs):
+    for epoch in range(1, epochs + 1):
         opt.zero_grad()
         loss = 0.0
         for idx in chunks:
@@ -422,5 +425,7 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
         opt.step()
         sched.step()
         hist.append(float(loss.detach()))
+        if on_epoch is not None:
+            on_epoch(epoch, hist[-1])
     model.remember_training_set(designs)
     return hist

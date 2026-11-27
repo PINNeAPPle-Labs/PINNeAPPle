@@ -8,12 +8,23 @@ needs at 3 a.m.
     python -m benchmarks.lpm_campaign --scale smoke           # the whole wiring, in about two minutes
     python -m benchmarks.lpm_campaign --stage dataset         # the data only
     python -m benchmarks.lpm_campaign --stage train           # the fits only
+    python -m benchmarks.lpm_campaign --max-hours 6           # a night: stop before the next family
     python -m benchmarks.lpm_campaign --detach campaign.log   # survives the shell (and the editor session)
+    python -m benchmarks.lpm_monitor --out benchmarks/_out/lpm_campaign   # the screen that follows it
 
 What it guarantees, because a campaign that has to be watched is not a campaign:
 
+* **one at a time.** The families run in sequence in this process: one design space, one fit, one device. Nothing is
+  parallelised, because the machine that runs a campaign is usually the machine somebody is working on. A lock in
+  the output directory makes that true across processes too: a second campaign pointed at the same ``--out`` refuses
+  to start instead of refitting what the first is fitting.
 * **it resumes.** A dataset whose manifest exists is not regenerated, a model whose card exists is not refitted, and
   ``--force`` is the only way to change that. A run that dies at family six restarts at family six.
+* **it stops when you said.** ``--max-hours`` finishes the family in flight and stops before starting the next, so a
+  night is a night; re-running the same command picks up where it stopped.
+* **it reports while it runs.** ``runner.json`` says which family is in flight; ``progress.json`` in each family's
+  dataset and model directories says how far that stage got and how long it still needs —
+  ``python -m benchmarks.lpm_monitor --out ...`` is the screen that reads them.
 * **it records its own failures.** A family that raises is written to ``failures.json`` with the traceback and the run
   continues; the exit code is 1 at the end so a scheduler sees it.
 * **it says what it will cost.** ``--plan`` prints the designs, the wall-clock estimate from the measurements in
@@ -31,6 +42,7 @@ import os
 import sys
 import time
 import traceback
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -121,6 +133,94 @@ def _log(message: str) -> None:
     print(f"[{time.strftime('%H:%M:%S')}] {message}", flush=True)
 
 
+def _now() -> str:
+    return datetime.now(UTC).isoformat(timespec="seconds")
+
+
+def _alive(pid: int) -> bool:
+    try:
+        os.kill(int(pid), 0)
+    except (OSError, TypeError, ValueError):
+        return False
+    return True
+
+
+def _acquire_lock(out: Path) -> Path:
+    """One campaign per output directory. A second one would refit what the first is fitting, on the same machine."""
+    lock = Path(out) / ".campaign.lock"
+    if lock.is_file():
+        try:
+            pid = int(lock.read_text(encoding="utf-8").split()[0])
+        except (OSError, ValueError, IndexError):
+            pid = 0
+        if pid and _alive(pid):
+            raise SystemExit(f"another campaign is already writing to {out} (pid {pid}). "
+                             f"Stop it, or run this one with a different --out.")
+    lock.write_text(f"{os.getpid()}\n", encoding="utf-8")
+    return lock
+
+
+def limit_threads(threads: int) -> int:
+    """Cap the torch/BLAS pools so a fit does not take the whole machine.
+
+    The campaigns run on the machine its owner is working on: a 34-hour campaign that makes the laptop unusable is a
+    campaign nobody starts. ``0`` leaves the pools alone; anything else is also exported for the linear solvers of the
+    3-D references, which read ``OMP_NUM_THREADS`` and friends rather than torch.
+    """
+    if threads <= 0:
+        return 0
+    for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+        os.environ.setdefault(var, str(threads))
+    try:
+        import torch  # noqa: PLC0415 - only when a cap was asked for
+        torch.set_num_threads(threads)
+    except Exception:                                    # noqa: BLE001 - a missing torch is not this function's problem
+        pass
+    return threads
+
+
+class Reporter:
+    """``runner.json``: which design space is in flight, and what the ones before it produced.
+
+    The monitor reads this file; so does a person coming back to a campaign they left running, which is why it is
+    written before each stage rather than only at the end. Written atomically — a reader never sees half a record.
+    """
+
+    def __init__(self, out: Path, *, scale: str, stage: str, seed: int, order: list[str], estimate_s: float,
+                 max_hours: float | None, threads: int) -> None:
+        self.path = Path(out) / "runner.json"
+        self.started = time.monotonic()
+        self.payload: dict[str, Any] = {
+            "schema": "pinneapple.lpm.runner/1", "pid": os.getpid(), "scale": scale, "stage": stage, "seed": seed,
+            "families": list(order), "started_at": _now(), "current": None, "current_stage": None,
+            "estimate_s": round(estimate_s, 1), "max_hours": max_hours, "threads": threads or None,
+            "one_at_a_time": True, "stopped": False, "done": [],
+        }
+        self._write()
+
+    def _write(self) -> None:
+        self.payload["elapsed_s"] = round(time.monotonic() - self.started, 1)
+        self.payload["updated_at"] = _now()
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = self.path.with_name(self.path.name + ".tmp")
+        tmp.write_text(json.dumps(self.payload, indent=2), encoding="utf-8")
+        tmp.replace(self.path)
+
+    def on(self, family: str, stage: str) -> None:
+        self.payload["current"], self.payload["current_stage"] = family, stage
+        self._write()
+
+    def finished(self, family: str, result: dict[str, Any]) -> None:
+        self.payload["done"].append(result)
+        self.payload["current"], self.payload["current_stage"] = None, None
+        self._write()
+
+    def stop(self, reason: str) -> None:
+        self.payload["stopped"] = True
+        self.payload["stop_reason"] = reason
+        self._write()
+
+
 def estimate(name: str, recipe: dict[str, Any], stage: str) -> dict[str, Any]:
     """Designs, and a wall-clock estimate for the requested stages."""
     geometries = recipe["geometries"]
@@ -184,7 +284,7 @@ def _hms(seconds: float) -> str:
 
 
 def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: int, force: bool,
-               verbose: bool) -> dict[str, Any]:
+               verbose: bool, progress_every_s: float = 5.0, reporter: Reporter | None = None) -> dict[str, Any]:
     """Generate one family's dataset and/or fit its model, skipping what is already there."""
     from pinneapple_neural.lpm_pipeline import generate_dataset, train
 
@@ -192,11 +292,13 @@ def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: i
     root, dataset = out / name, out / name / "dataset"
     result: dict[str, Any] = {"family": name}
     if stage in ("dataset", "both") and (force or not (dataset / "manifest.json").is_file()):
+        if reporter is not None:
+            reporter.on(name, "dataset")
         _log(f"{name}: drawing {recipe['geometries'] or 'the published'} geometries and building the field")
         started = time.monotonic()
         manifest = generate_dataset(family, dataset, n_geometries=recipe["geometries"] or 100,
                                     conditions_per_geometry=recipe["conditions"] or 3, seed=seed,
-                                    verbose=verbose)
+                                    verbose=verbose, progress_every_s=progress_every_s)
         result["dataset"] = {"designs": manifest["n_designs"], "geometries": manifest["n_geometries"],
                              "seconds": round(time.monotonic() - started, 1)}
         _log(f"{name}: dataset {manifest['n_designs']} designs, {manifest['n_geometries']} bodies, "
@@ -205,10 +307,13 @@ def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: i
         result["dataset"] = {"skipped": "already there"}
         _log(f"{name}: dataset already there, skipped")
     if stage in ("train", "both") and (force or not (root / "model" / "card.json").is_file()):
+        if reporter is not None:
+            reporter.on(name, "fit")
         _log(f"{name}: fitting {recipe['epochs']} epochs at width {recipe['width']}")
         started = time.monotonic()
         summary = train(dataset, root, epochs=recipe["epochs"], width=recipe["width"], seed=seed,
-                        batch_designs=min(24, max(4, recipe["geometries"] or 24)))
+                        batch_designs=min(24, max(4, recipe["geometries"] or 24)),
+                        progress_every_s=progress_every_s)
         result["model"] = {k: summary[k] for k in ("held_out_relative_l2", "constant_field_baseline_relative_l2",
                                                    "ood_probes_flagged", "within_tolerance")}
         result["model"]["seconds"] = round(time.monotonic() - started, 1)
@@ -268,6 +373,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--width", type=int, help="override the recipe's model width")
     parser.add_argument("--force", action="store_true", help="regenerate and refit even what is already there")
     parser.add_argument("--verbose", action="store_true")
+    parser.add_argument("--threads", type=int, default=max(1, (os.cpu_count() or 4) // 2),
+                        help="cap on the torch/BLAS pools, so the machine stays usable; 0 leaves them alone "
+                             "(default: half the cores)")
+    parser.add_argument("--max-hours", type=float, default=None,
+                        help="stop before starting a family once this many hours have passed; re-run to resume")
+    parser.add_argument("--progress-every", type=float, default=5.0, metavar="SECONDS",
+                        help="write progress.json this often while a dataset or a fit runs (0 disables it)")
     parser.add_argument("--detach", type=Path, metavar="LOG",
                         help="run in its own session, writing to LOG, and return immediately")
     a = parser.parse_args(argv)
@@ -296,19 +408,42 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     started = time.monotonic()
-    results, failures = [], {}
-    for r in rows:
-        recipe = r["recipe"]
-        try:
-            results.append(run_family(r["name"], recipe, a.out, a.stage, a.seed, a.force, a.verbose))
-        except Exception as exc:                        # noqa: BLE001 - one family dying must not stop the night
-            failures[r["name"]] = {"error": f"{type(exc).__name__}: {exc}", "traceback": traceback.format_exc()}
-            _log(f"{r['name']}: FAILED - {type(exc).__name__}: {exc}")
-            continue
+    capped = limit_threads(a.threads)
+    a.out.mkdir(parents=True, exist_ok=True)
+    lock = _acquire_lock(a.out)
+    reporter = Reporter(a.out, scale=a.scale, stage=a.stage, seed=a.seed, order=selected,
+                        estimate_s=sum(r["total_s"] for r in rows), max_hours=a.max_hours, threads=capped)
+    print(f"one design space at a time: {len(selected)} families in sequence, nothing in parallel"
+          f"{f', {capped} threads per process' if capped else ''}", flush=True)
+    print(f"follow it with: python -m benchmarks.lpm_monitor --out {a.out}", flush=True)
+    results, failures, stopped = [], {}, None
+    try:
+        for r in rows:
+            if a.max_hours is not None and (time.monotonic() - started) / 3600.0 >= a.max_hours:
+                stopped = f"--max-hours {a.max_hours:g} reached"
+                _log(f"{stopped}; stopping before {r['name']}. Re-run the same command to resume.")
+                break
+            recipe = r["recipe"]
+            try:
+                result = run_family(r["name"], recipe, a.out, a.stage, a.seed, a.force, a.verbose,
+                                    progress_every_s=a.progress_every, reporter=reporter)
+                results.append(result)
+                reporter.finished(r["name"], result)
+            except Exception as exc:                    # noqa: BLE001 - one family dying must not stop the night
+                failures[r["name"]] = {"error": f"{type(exc).__name__}: {exc}", "traceback": traceback.format_exc()}
+                reporter.finished(r["name"], {"family": r["name"], "error": f"{type(exc).__name__}: {exc}"})
+                _log(f"{r['name']}: FAILED - {type(exc).__name__}: {exc}")
+                continue
+    finally:
+        lock.unlink(missing_ok=True)                    # a killed run leaves the lock, and the next one says so
+        if stopped:
+            reporter.stop(stopped)
     (a.out / "campaign.json").parent.mkdir(parents=True, exist_ok=True)
     (a.out / "campaign.json").write_text(json.dumps(
-        {"scale": a.scale, "stage": a.stage, "seed": a.seed, "seconds": round(time.monotonic() - started, 1),
-         "families": results, "failures": sorted(failures)}, indent=2), encoding="utf-8")
+        {"scale": a.scale, "stage": a.stage, "seed": a.seed, "started_at": reporter.payload["started_at"],
+         "seconds": round(time.monotonic() - started, 1), "order": selected,
+         "estimates": {r["name"]: round(r["total_s"], 1) for r in rows},
+         "stopped": stopped, "families": results, "failures": sorted(failures)}, indent=2), encoding="utf-8")
     if failures:
         (a.out / "failures.json").write_text(json.dumps(failures, indent=2), encoding="utf-8")
         _log(f"{len(failures)} family/families failed: {', '.join(sorted(failures))} (see {a.out / 'failures.json'})")

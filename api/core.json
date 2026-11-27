@@ -5,6 +5,7 @@
   "zoo": "lazy 'pinneapple_hub.zoo'",
   "validate": "lazy ('pinneapple_analysis.validation.validate', 'pp_validate')",
   "trust_card": "lazy ('pinneapple_analysis.trust.field_card', 'trust_card')",
+  "trust": "lazy ('pinneapple_analysis.trust.adapters', 'trust')",
   "datasets": "lazy 'pinneapple_hub.zoo.datasets'",
   "benchmark": "lazy 'pinneapple_analysis.benchmark'",
   "viz": "lazy 'pinneapple_tools.visualization.studio'",

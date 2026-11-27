@@ -111,7 +111,7 @@ The core was measured on `main` after 0.8.0 from three sources:
 
 | Area | Core modules |
 |---|---|
-| Facade | `pinneapple`: `pp.solve`, `zoo`, `validate`, `trust_card`, `datasets`, `benchmark`, `viz`, `compare`, `presets`, `geometries`, `design`, `doctor`/`recommend`/`card`/`new`, `closed_form`, `uncertainty`, `build_model`, `get_preset`, `list_*`, `to_jsonable` |
+| Facade | `pinneapple`: `pp.solve`, `zoo`, `validate`, `trust_card`, `trust`, `datasets`, `benchmark`, `viz`, `compare`, `presets`, `geometries`, `design`, `doctor`/`recommend`/`card`/`new`, `closed_form`, `uncertainty`, `build_model`, `get_preset`, `list_*`, `to_jsonable` |
 | Data | `pinneapple_core.jsonable`, `pinneapple_core.onboarding`, `pinneapple_data.contracts`, `.physical_sample`, `.cae` |
 | Physics | `pinneapple_physics.pinn_solver`, `.pde_environment`, `.closed_form`, `.solving` |
 | Models | `pinneapple_neural.architectures.pinns`, `.neural_operators`, `.rom`, `pinneapple_neural.trainer` |

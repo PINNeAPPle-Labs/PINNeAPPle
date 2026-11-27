@@ -143,6 +143,10 @@ REASONS: dict[str, str] = {
     "pinneapple_analysis.fidelity": "the choice between the surrogate and the solver for each request (#161), with "
                                     "the reason kept in the request's record: it is the router a flow calls, not a "
                                     "computation a node performs",
+    "pinneapple_analysis.events": "the scorer of an event against a set of forecasts (#351) -- the event kinds, the "
+                                  "confusion matrix and the lead time, and the Brier decomposition of an ensemble: it "
+                                  "grades what a campaign produced, so it runs on the forecasts the flow wrote, after "
+                                  "the flow, and has nothing to feed a node with",
     "pinneapple_analysis.multifidelity_workflow": "the two data levels of #35 as one workflow -- a nested design, the "
                                                   "co-kriging model against a high-fidelity-only one at equal cost, "
                                                   "and the break-even that decides whether the cheap level pays: it is "

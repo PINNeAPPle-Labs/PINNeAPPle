@@ -1,0 +1,146 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/mars_terraform",
+ "title": "Terraforming Mars over centuries: the caps retreat, the pressure stops, and the confidence runs out",
+ "description": "A zonal energy-balance model of Mars coupled to the published CO2 cycle and integrated for 500 years under an engineered greenhouse and dust on the caps. The polar cap retreats from the whole cap area to a quarter of it, the CO2 pressure climbs from 6.05 to 12.80 mbar and stops there because that is all the CO2 there is, and the planet warms by 6 K. An ensemble of 64 planets, over the frost albedo, the poleward diffusivity, the regolith reservoir, the CO2 greenhouse and the strength of the engineering itself, puts the model's spread on the global mean at the declared 2 K after 44 years. Every published inventory put into the air at once: Jakosky & Edwards' 20 mbar warms Mars by 3.8 K, and the only reservoir that reaches the melting point is the ~1 bar of deep carbonates their figure 3 lists as inaccessible.",
+ "domain": "planetary climate",
+ "methods": [
+  "zonal energy-balance model",
+  "annual insolation from Mars's orbit",
+  "Clausius-Clapeyron CO2 frost point",
+  "ensemble over uncertain parameters"
+ ],
+ "modules": [
+  "pinneapple_physics.terraform"
+ ],
+ "params": {
+  "bands": 72,
+  "years": 500,
+  "ramp_years": 150,
+  "greenhouse_flux_w_m2": 3.0,
+  "cap_darkening": 0.06,
+  "ensemble_members": 64,
+  "frost_albedo": 0.9,
+  "transport_w_m2_k": 0.004,
+  "cap_mbar": 9.0,
+  "inventory_mbar": 15.05
+ },
+ "scripts": [
+  "mars_terraform.py"
+ ],
+ "metrics": [
+  {
+   "name": "pressure_after_five_centuries",
+   "value": 12.798,
+   "unit": "mbar",
+   "how": "CO2 surface pressure at year 500 of the scenario, from the coupled CO2 cycle; the whole polar reservoir plus the present atmosphere is 15.05 mbar, which is Jakosky & Edwards' 'less than 15 mbar total'"
+  },
+  {
+   "name": "global_warming_after_five_centuries",
+   "value": 6.3,
+   "unit": "K",
+   "how": "area-weighted global mean surface temperature, 210.96 K at year 0 to 217.26 K at year 500, the scenario's 3 W/m2 greenhouse plus 0.06 of dust on the caps"
+  },
+  {
+   "name": "cap_retreat",
+   "value": 0.25,
+   "unit": "",
+   "how": "fraction of the polar cap area still frosted at year 500, from the ice the model still holds; the cap edge moves from 70.0 to 80.0 degrees"
+  },
+  {
+   "name": "trust_horizon",
+   "value": 43.96,
+   "unit": "years",
+   "how": "first year at which the standard deviation of the global-mean temperature across 64 ensemble members reaches the declared threshold of 2 K"
+  },
+  {
+   "name": "ensemble_spread_at_the_end",
+   "value": 1.75,
+   "unit": "K",
+   "how": "standard deviation across 64 members at year 500; it peaks at 2.01 K at the horizon and falls back, because the reservoir, not the parameters, decides the end state"
+  },
+  {
+   "name": "warming_from_all_mobilizable_co2",
+   "value": 3.8,
+   "unit": "K",
+   "how": "Jakosky & Edwards' 20 mbar representative maximum in the atmosphere, settled for 1500 years with no engineering: 214.3 to 218.1 K"
+  },
+  {
+   "name": "warming_from_all_accessible_co2",
+   "value": 11.0,
+   "unit": "K",
+   "how": "every accessible reservoir at its published upper bound, 67.36 mbar, settled with no engineering: 214.3 to 225.3 K, against the ~60 K liquid water needs"
+  },
+  {
+   "name": "warming_from_the_deep_carbonates",
+   "value": 60.7,
+   "unit": "K",
+   "how": "1.22 bar, including the '~1 bar' of deep carbonates that Jakosky & Edwards list as inaccessible: 214.3 to 274.9 K -- the only inventory that reaches the melting point, and it needs planet-scale strip mining"
+  },
+  {
+   "name": "frost_point_at_present_pressure",
+   "value": 146.499,
+   "unit": "K",
+   "how": "Clausius-Clapeyron through the CO2 triple point (216.58 K, 5.185 bar) at 6.36 mbar; the temperature the seasonal cap is observed to form at"
+  },
+  {
+   "name": "present_day_mean_temperature",
+   "value": 214.29,
+   "unit": "K",
+   "how": "the model's own global mean at 6.36 mbar with no forcing, against the fact sheet's 214 K -- a prediction, since the greenhouse law was fitted to the 20 mbar and 1 bar ends only"
+  }
+ ],
+ "checks": [
+  {
+   "name": "reservoir_conserved",
+   "passed": true,
+   "kind": "physics",
+   "label": "the atmosphere plus the caps plus the regolith equals the inventory to 1e-9 Pa at every step of every run"
+  },
+  {
+   "name": "energy_conserved_by_the_transport",
+   "passed": true,
+   "kind": "numerics",
+   "label": "the diffusion term integrates to zero over the sphere to roundoff, at both poles where 1 - x^2 vanishes at the cell face"
+  },
+  {
+   "name": "insolation_conserves_the_solar_constant",
+   "passed": true,
+   "kind": "physics",
+   "label": "the global mean of the annual insolation is S0/(4 sqrt(1 - e^2)) to the discretisation of the orbit"
+  },
+  {
+   "name": "frost_point_reproduces_the_cap",
+   "passed": true,
+   "kind": "reference",
+   "label": "6.36 mbar gives 146.5 K, the winter cap temperature; 1 atm of CO2 sublimates at 194.7 K to 6 %"
+  },
+  {
+   "name": "terraforming_is_not_possible_with_present_day_co2",
+   "passed": true,
+   "kind": "reference",
+   "label": "the whole accessible inventory, 67 mbar, warms Mars by 11 K of the ~60 K liquid water needs; the model needs the inaccessible 1 bar to reach the melting point"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/mars_centuries.png"
+  ],
+  "videos": [
+   "figures/mars_globe.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "results/mars_terraform.json"
+  ]
+ },
+ "links": [],
+ "references": [],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11"
+ }
+}

@@ -226,6 +226,11 @@
   "domain": "fluid dynamics",
   "notes": "lbm.sphere_stokes and lbm.sphere_drag (FP32 / FP16 storage) wrap pinneapple_simulation.numerical_solvers.lbm_tunnel, compared with docs/core_concepts/lbm_wind_tunnel.md (Stokes error, Cd FP32 / FP16, Schiller-Naumann, bytes per cell); the full run is about an hour on 4 idle cores, so the quick configuration (smaller sphere and tunnel, fewer steps) compares only the configuration-independent numbers (Schiller-Naumann, bytes per cell); the full configuration has not been run here"
  },
+ "mars_terraform": {
+  "domain": "planetary climate",
+  "reason": "mars_terraform.py is one planet integrated in time -- the energy balance of 72 latitude bands, the CO2 frost point that pins each band and the reservoir that runs out -- plus an ensemble of sixty-four of them and five published inventories settled to equilibrium. Each of those is one library call (TerraformModel.run, run_ensemble, the inventory sweep) over a state the model advances itself; there is no pipeline of node-sized steps to build, and what the example argues is a verdict about a planet",
+  "status": "not_convertible"
+ },
  "meshgraphnet": {
   "domain": "neural operators",
   "notes": "02_cylinder_flow_deepmind: a 400 MB prefix of the DeepMind TFRecords (storage.googleapis.com, needs pip install tfrecord) in the committed configuration of _out/cylinder_flow/metrics.json (3000 steps, hidden 64, 6 layers); the frozen-velocity baseline moved from the script into mgn_dynamics.frozen_ic_rmse; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"

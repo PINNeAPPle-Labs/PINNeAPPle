@@ -199,3 +199,131 @@ def nset(ids: Sequence[int], per_line: int = 16) -> list[str]:
     rule stops with a message about the *next* keyword, which is why this is a helper and not a detail of each case."""
     ids = sorted(ids)
     return [", ".join(str(i) for i in ids[i:i + per_line]) for i in range(0, len(ids), per_line)]
+
+
+#: CalculiX faces of an 8-node quadrilateral (CAX8): face number -> the three local node indices around it.
+QUAD_FACES: dict[int, tuple[int, int, int]] = {
+    1: (0, 1, 4),     # the 1-2 edge
+    2: (1, 2, 5),     # the 2-3 edge
+    3: (2, 3, 6),     # the 3-4 edge
+    4: (3, 0, 7),     # the 4-1 edge
+}
+
+
+@dataclass
+class QuadGrid:
+    """A structured mesh of 8-node quadrilaterals in the ``(r, z)`` plane — the axisymmetric element (``CAX8``).
+
+    A plane-strain or three-dimensional block cannot represent a body of revolution without either modelling the
+    whole ring (expensive) or a wedge with the axis degenerating into a line of zero-length edges (the solver refuses
+    the Jacobian). The axisymmetric element solves that by being a ring: the mesh is two-dimensional, ``r`` and
+    ``z``, and CalculiX integrates the ring over ``2*pi`` for it. The price is that the loads and the reactions are
+    totals over that ring, which is a fact the checks have to know rather than assume — :meth:`ring_area` is here for
+    exactly that.
+
+    ``rs`` and ``zs`` are the *corner* coordinates, as for :class:`Grid`; the mid-side nodes of the quadratic element
+    are added along every edge and are shared between neighbours, so the mesh is conforming. Nothing may sit at
+    ``r = 0``: the axis of a solid body is a separate case (the volume is finite there and the strain measure is
+    different), and a ring that touches it has zero-length edges.
+    """
+
+    rs: Sequence[float]
+    zs: Sequence[float]
+    first_node: int = 1
+    first_elem: int = 1
+    nodes: dict[int, tuple[float, float]] = field(default_factory=dict, init=False)
+    cells: list[list[int]] = field(default_factory=list, init=False)
+    elem_ids: list[int] = field(default_factory=list, init=False)
+
+    def __post_init__(self) -> None:
+        nr, nz = len(self.rs) - 1, len(self.zs) - 1
+        if min(nr, nz) < 1:
+            raise ValueError("an axisymmetric block needs two coordinates on every axis")
+        if min(self.rs) <= 0:
+            raise ValueError("the radial axis has to stay off r = 0: a ring that touches the axis has degenerate "
+                             "elements, and a solid of revolution about its own axis is a different problem")
+        if any(b <= a for a, b in zip(self.rs, self.rs[1:], strict=False)) \
+                or any(b <= a for a, b in zip(self.zs, self.zs[1:], strict=False)):
+            raise ValueError("the coordinates of an axis must be strictly increasing")
+
+        nid, corner, mid_r, mid_z = self.first_node, {}, {}, {}
+        for i, r in enumerate(self.rs):
+            for j, z in enumerate(self.zs):
+                corner[(i, j)] = nid
+                self.nodes[nid] = (r, z)
+                nid += 1
+        for i in range(nr):
+            for j, z in enumerate(self.zs):
+                mid_r[(i, j)] = nid
+                self.nodes[nid] = (0.5 * (self.rs[i] + self.rs[i + 1]), z)
+                nid += 1
+        for i, r in enumerate(self.rs):
+            for j in range(nz):
+                mid_z[(i, j)] = nid
+                self.nodes[nid] = (r, 0.5 * (self.zs[j] + self.zs[j + 1]))
+                nid += 1
+
+        eid = self.first_elem
+        for i in range(nr):
+            for j in range(nz):
+                self.cells.append([corner[(i, j)], corner[(i + 1, j)], corner[(i + 1, j + 1)], corner[(i, j + 1)],
+                                   mid_r[(i, j)], mid_z[(i + 1, j)], mid_r[(i, j + 1)], mid_z[(i, j)]])
+                self.elem_ids.append(eid)
+                eid += 1
+        self._next_node, self._next_elem = nid, eid
+
+    # ----------------------------------------------------------------------------------------------- selection
+    @property
+    def node_ids(self) -> list[int]:
+        return sorted(self.nodes)
+
+    @property
+    def next_node(self) -> int:
+        return self._next_node
+
+    @property
+    def next_elem(self) -> int:
+        return self._next_elem
+
+    def faces(self, plane: str, value: float, side: int | None = None, tol: float = TOL) -> list[tuple[int, int]]:
+        """``(element id, face number)`` for every face lying on ``r = value`` or ``z = value``."""
+        at = 0 if plane in ("r", "x") else 1
+        out: list[tuple[int, int]] = []
+        for eid, cell in zip(self.elem_ids, self.cells, strict=True):
+            centre = (sum(self.nodes[n][0] for n in cell) / 8.0, sum(self.nodes[n][1] for n in cell) / 8.0)
+            for face, local in QUAD_FACES.items():
+                pts = [self.nodes[cell[k]] for k in local]
+                if not all(abs(p[at] - value) <= tol for p in pts):
+                    continue
+                if side is not None and (centre[at] - value) * side < 0:
+                    continue
+                out.append((eid, face))
+        return out
+
+    def nodes_on(self, plane: str, value: float, tol: float = TOL) -> list[int]:
+        at = 0 if plane in ("r", "x") else 1
+        return [n for n, p in self.nodes.items() if abs(p[at] - value) <= tol]
+
+    def nodes_where(self, test: Callable[[tuple[float, float]], bool]) -> list[int]:
+        return [n for n, p in self.nodes.items() if test(p)]
+
+    def ring_area(self, plane: str, value: float, tol: float = TOL) -> float:
+        """The area of that surface **revolved once** — what a pressure of ``p`` puts on it as a total force.
+
+        This is the number that makes an axisymmetric reaction readable: CalculiX integrates the ring over ``2*pi``,
+        so a bore of radius ``a`` and height ``h`` under a pressure ``p`` reports ``2*pi*a*h*p`` and not ``a*h*p``.
+        Measuring that (and not assuming it) is what the thick-cylinder case does.
+        """
+        at = 0 if plane in ("r", "x") else 1
+        total = 0.0
+        for cell in self.cells:
+            for local in QUAD_FACES.values():
+                pts = [self.nodes[cell[k]] for k in local]
+                if not all(abs(p[at] - value) <= tol for p in pts):
+                    continue
+                if at == 0:                                  # a cylinder: circumference times the height it spans
+                    total += 2.0 * math.pi * value * (max(p[1] for p in pts) - min(p[1] for p in pts))
+                else:                                        # an annulus: the ring it sweeps
+                    r0, r1 = min(p[0] for p in pts), max(p[0] for p in pts)
+                    total += math.pi * (r1 * r1 - r0 * r0)
+        return total

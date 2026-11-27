@@ -274,3 +274,32 @@ def slip_range(contact: dict[int, dict[str, float]], nodes: Iterable[int] | None
     if not rows:
         return None
     return max(math.hypot(r["slip1"], r["slip2"]) for r in rows)
+
+
+def thick_cylinder(pressure: float, r_in: float, r_out: float, e_modulus: float, nu: float,
+                   radius: float) -> dict[str, float]:
+    """Lamé's solution for a thick cylinder under internal pressure, in plane strain (``eps_z = 0``).
+
+    With ``A = p a^2 / (b^2 - a^2)`` and ``B = -A b^2``:
+
+    ``sigma_r(r) = A + B/r^2`` (compression negative), ``sigma_theta = A - B/r^2``,
+    ``sigma_z = nu (sigma_r + sigma_theta) = 2 nu A``,
+    ``u_r(r) = r [A (1 - nu - 2 nu^2) - (B/r^2) (1 + nu)] / E``.
+
+    Units are the deck's — mm, MPa, N — so a displacement comes out in mm. The axial stress is the plane-strain one
+    because the model holds both end faces flat, which is the condition this reference is written for: an open
+    cylinder (plane stress, ``sigma_z = 0``) is a different closed form and comparing it here would be comparing two
+    different problems.
+    """
+    if not finite(pressure, r_in, r_out, e_modulus, nu, radius):
+        return {}
+    if not 0 < r_in < r_out or e_modulus <= 0 or radius < r_in:
+        return {}
+    a2, b2 = r_in * r_in, r_out * r_out
+    A = pressure * a2 / (b2 - a2)
+    B = -A * b2
+    return {"sigma_r": A + B / (radius * radius),
+            "sigma_theta": A - B / (radius * radius),
+            "sigma_z": 2.0 * nu * A,
+            "u_r": radius * (A * (1.0 - nu - 2.0 * nu * nu) - (B / (radius * radius)) * (1.0 + nu)) / e_modulus,
+            "signal_a": A}

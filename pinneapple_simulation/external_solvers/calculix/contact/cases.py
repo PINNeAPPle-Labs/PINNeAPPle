@@ -31,7 +31,7 @@ from typing import Any
 from . import deck as D
 from . import verify as V
 from .base import Built, Case, Param, contact_of, mesh_size, reaction, stack
-from .mesh import Grid, axis
+from .mesh import Grid, QuadGrid, axis
 
 # The containers live in :mod:`.base`; the names are re-exported here because this module is where the case
 # library is read from.
@@ -741,7 +741,109 @@ _MATERIAL = (Param("E", "módulo de elasticidade", 210000.0, "MPa", 1.0, 1e7, "a
 _FRICTION = Param("friccao", "coeficiente de atrito mu", 0.3, "", 0.0, 1.5,
                   "Coulomb seco: o limite é mu x N, independente da área aparente")
 
+# =============================================================== 7. the thick cylinder, and the element that makes it cheap
+def _cilindro_lame_build(p: dict[str, float]) -> Built:
+    a, b, h, q = p["raio_interno"], p["raio_externo"], p["altura"], p["pressao"]
+    grid = QuadGrid(axis(a, b, _mesh_size(p["malha"]), grading=1.6, cluster="low"), [0.0, h])
+    deck = D.Deck(f"cilindro espesso sob pressão interna de {q:g} MPa (Lamé, {a:g} <= r <= {b:g})")
+    D.geometry_2d(deck, grid.nodes, zip(grid.elem_ids, grid.cells, strict=True), "CIL")
+    D.material(deck, "ACO", p["E"], p["nu"])
+    D.section(deck, "CIL", "ACO")
+    D.surface(deck, "BORE", grid.faces("r", a))
+    D.node_set(deck, "BORE_N", grid.nodes_on("r", a))
+    D.node_set(deck, "Z0", grid.nodes_on("z", 0.0))
+    D.node_set(deck, "Z1", grid.nodes_on("z", h))
+    deck.block("*STEP", "*STATIC", "1.0, 1.0")
+    # both end faces held flat in z: that is plane strain (eps_z = 0), the condition the closed form is written for
+    deck.block("*BOUNDARY", "Z0, 2, 2, 0.0", "Z1, 2, 2, 0.0")
+    deck.block("*DLOAD", f"BORE, P, {q:.6g}")
+    D.outputs(deck, totals_set="Z0", stress=True, contact=False)
+    deck.block("*END STEP")
+
+    wall = 0.5 * (a + b)
+    probe = min(grid.nodes, key=lambda n: abs(grid.nodes[n][0] - wall) + abs(grid.nodes[n][1] - 0.5 * h))
+    bore = min(grid.nodes, key=lambda n: abs(grid.nodes[n][0] - a) + abs(grid.nodes[n][1] - 0.5 * h))
+    return Built(deck=deck.text(),
+                 analytic={"pressure": q, "r_inner": a, "r_outer": b, "height": h, "e_modulus": p["E"],
+                           "nu": p["nu"], "ring_area": grid.ring_area("r", a)},
+                 coords={n: (r, z, 0.0) for n, (r, z) in grid.nodes.items()},
+                 interface=(), totals=("Z0",),
+                 surfaces={"parede": [probe], "furo": [bore]},
+                 extra={"wall_radius": grid.nodes[probe][0], "probe_node": float(probe), "bore_node": float(bore)},
+                 notes=["elemento axissimétrico CAX8: a malha é (r, z) e o CalculiX integra o anel em 2*pi",
+                        "deformação plana: as duas faces de topo ficam planas (eps_z = 0), que é a condição da forma "
+                        "fechada de Lamé; um cilindro aberto (sigma_z = 0) é outro problema",
+                        "as reações que o `.dat` imprime NÃO são o total do anel: medidas em quatro corridas (r, "
+                        "altura e pressão variados), elas são exatamente 1/180 do total do anel. O caso mede essa "
+                        "razão em vez de supor a convenção — a explicação do 180 (um setor de 2 graus, ou um total "
+                        "por radiano dividido por 2*pi) não está estabelecida"])
+
+
+def _cilindro_lame_checks(p: dict[str, float], b: Built, parsed: dict[str, Any]) -> list[V.Check]:
+    a = b.analytic
+    q, r_in, r_out = a["pressure"], a["r_inner"], a["r_outer"]
+    stress = parsed.get("stress") or {}
+    disp = parsed.get("displacement") or {}
+    source = ("Lamé, cilindro espesso sob pressão interna em deformação plana: sigma_r = A + B/r^2, "
+              "sigma_theta = A - B/r^2, A = p a^2/(b^2 - a^2), B = -A b^2")
+    checks: list[V.Check] = []
+    for name, radius in (("parede", b.extra.get("wall_radius")), ("furo", r_in)):
+        node = int(b.extra[f"{'probe' if name == 'parede' else 'bore'}_node"])
+        row = stress.get(node) or {}
+        if not row or radius is None:
+            checks.append(V.Check(f"lame.{name}", V.INCONCLUSIVE, detail="as tensões não foram lidas do .frd"))
+            continue
+        th = V.thick_cylinder(q, r_in, r_out, a["e_modulus"], a["nu"], radius)
+        # SXX is the radial component, SYY the axial and SZZ the hoop one in an axisymmetric deck
+        checks.append(V.compare(f"lame.sigma_r_{name}", row.get("SXX"), th.get("sigma_r"), 0.05, source, "MPa",
+                                f"tensão radial em r = {radius:g} mm"))
+        checks.append(V.compare(f"lame.sigma_theta_{name}", row.get("SZZ"), th.get("sigma_theta"), 0.05, source,
+                                "MPa", f"tensão circunferencial em r = {radius:g} mm"))
+        checks.append(V.compare(f"lame.sigma_z_{name}", row.get("SYY"), th.get("sigma_z"), 0.10, source, "MPa",
+                                f"tensão axial em r = {radius:g} mm"))
+    bore = int(b.extra["bore_node"])
+    d = disp.get(bore) or {}
+    th_bore = V.thick_cylinder(q, r_in, r_out, a["e_modulus"], a["nu"], r_in)
+    checks.append(V.compare("lame.u_r_furo", d.get("ux") if isinstance(d, dict) else d[0], th_bore.get("u_r"), 0.05,
+                            "Lamé: u_r(r) = r [A(1 - nu - 2nu^2) - (B/r^2)(1 + nu)]/E", "mm",
+                            "deslocamento radial do furo"))
+    # The axial reaction the .dat prints is not the ring total, and the factor is not obvious: measured over four
+    # runs (r in {10, 20}, h in {1, 2}, p in {100, 200}) it is exactly 1/180 of sigma_z * pi (b^2 - a^2). The check
+    # pins the ratio, so a solver whose convention changes is caught instead of silently shifting the force scale.
+    axial = (th_bore.get("sigma_z") or 0.0) * math.pi * (r_out * r_out - r_in * r_in)
+    printed = abs((_reaction(parsed, "Z0") or (0.0, 0.0, 0.0))[1])
+    checks.append(V.between("lame.reacao_axial", printed / axial if axial and printed else None, 1 / 181, 1 / 179,
+                            "medido em quatro corridas: o total que o `.dat` imprime é 1/180 do total do anel "
+                            "(sigma_z x pi(b^2 - a^2)); a razão é o que se verifica, não a força absoluta",
+                            "razão entre a reação impressa e o total do anel"))
+    return checks
+
+
 CASES: dict[str, Case] = {
+    "cilindro_lame": Case(
+        id="cilindro_lame",
+        title="Cilindro espesso sob pressão interna (Lamé, elemento axissimétrico)",
+        summary="Um tubo de parede espessa sob pressão interna tem solução fechada: sigma_r, sigma_theta e sigma_z "
+                "em qualquer raio, e o deslocamento do furo. É o caso que valida o elemento axissimétrico CAX8, "
+                "porque um anel não se representa com tijolos sem ou modelar o anel inteiro ou degenerar o eixo.",
+        physics="Elasticidade axissimétrica em deformação plana: o elemento é um anel, o CalculiX integra em 2*pi, "
+                "e as tensões principais são radial, circunferencial e axial — as três que Lamé dá fechadas.",
+        assumptions=("elasticidade linear, sem plastificação",
+                     "deformação plana: as duas faces de topo ficam planas (eps_z = 0)",
+                     "o cilindro é fechado nas pontas? não: o estado é o de Lamé em deformação plana, com sigma_z = "
+                     "2 nu A, e não o de um tubo aberto (sigma_z = 0)",
+                     "pressão uniforme no furo, sem efeito de extremidade: a altura é pequena e as faces ficam planas"),
+        references=(("Lamé, cilindro espesso sob pressão interna",
+                     "https://en.wikipedia.org/wiki/Cylinder_stress"),
+                    ("elemento axissimétrico CAX8, CalculiX", "https://www.calculix.de/")),
+        params=(Param("raio_interno", "raio interno a", 10.0, "mm", 1.0, 200.0, ""),
+                Param("raio_externo", "raio externo b", 20.0, "mm", 2.0, 400.0, ""),
+                Param("altura", "altura do anel", 1.0, "mm", 0.2, 20.0, "uma célula: o estado é uniforme em z"),
+                Param("pressao", "pressão interna p", 100.0, "MPa", 0.01, 1000.0, ""),
+                Param("malha", "malha", 24, "células", 4, 120, "células na parede, graduadas para o furo")) + _MATERIAL,
+        build=_cilindro_lame_build, checks=_cilindro_lame_checks,
+        test="tests/test_calculix_axisym.py"),
+
     "bloco_plano": Case(
         id="bloco_plano",
         title="Bloco deslizante sobre placa fixa",

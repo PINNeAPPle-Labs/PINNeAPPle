@@ -1187,7 +1187,7 @@ def _showcase_frame(ctx: dict, stage: str, k: int):
             ax_num.axvline(float(days[step]), color=FG, lw=0.9, alpha=0.5)
             ax_num.set_xlim(0, float(days[-1]))
             share = float(skill["found_fraction"][step])
-            ax_num.set_title(f"at +{leads[step]:.0f} h: found on this grid in {share:.0%} of the forecasts",
+            ax_num.set_title(f"at +{leads[step]:.0f} h: found in {share:.0%} of the forecasts",
                              color=FG, fontsize=9.5, loc="left")
             rows = [("one cell is", "625 km across, wider than the core", FADING),
                     ("at this lead the grid", "still holds it" if share > 0 else "cannot hold it at all",
@@ -1200,7 +1200,7 @@ def _showcase_frame(ctx: dict, stage: str, k: int):
             ax_num.plot(days, y, color=colour, lw=1.0, alpha=0.3)
             ax_num.plot(days[:step + 1], y[:step + 1], color=colour, lw=2.2)
             ax_num.axhline(thresholds["track_km"], color=DIM, ls=":", lw=1.0)
-            ax_num.text(0.98, 0.90, f"the track threshold, {thresholds['track_km']:.0f} km", color=DIM, fontsize=7.2,
+            ax_num.text(0.98, 0.945, f"the track threshold, {thresholds['track_km']:.0f} km", color=DIM, fontsize=7.2,
                         ha="right", va="bottom", transform=ax_num.transAxes)
             ax_num.set_ylabel("median track error (km)", color=DIM, fontsize=8)
             ax_num.axvline(float(days[step]), color=FG, lw=0.9, alpha=0.5)
@@ -1227,8 +1227,10 @@ def _showcase_frame(ctx: dict, stage: str, k: int):
     fig.text(0.02, 0.018, "\n".join(textwrap.wrap(ctx["note"], 138)), color="#6c7b8d", fontsize=6.8,
              linespacing=1.3)
     if stage == "analysis":
-        fig.text(0.02, 0.318, "drawn: the storm's box the reanalysis was read on; the rest of the globe carries no "
-                              "data here, not a calm", color="#4a5869", fontsize=6.6)
+        lat_a, lon_a = ctx["analysis"]["lat"], np.mod(ctx["analysis"]["lon"], 360.0)
+        box = (f"{lat_a.min():.0f}-{lat_a.max():.0f} N, {_hms(lon_a.min(), 'lon')}-{_hms(lon_a.max(), 'lon')}")
+        fig.text(0.02, 0.318, f"drawn: the storm's box, {box}; the rest of the globe\nis not read here -- it is not a "
+                              "calm", color="#4a5869", fontsize=6.6, linespacing=1.35)
     fig.canvas.draw()
     frame = np.asarray(fig.canvas.buffer_rgba())[..., :3].copy()
     plt.close(fig)

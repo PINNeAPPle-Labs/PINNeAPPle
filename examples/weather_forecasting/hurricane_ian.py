@@ -301,16 +301,20 @@ def main(argv=None):
     # the scene: the analysis at the peak hour, with the tracks that were followed
     peak = int(np.nanargmin(best.pressure_hpa))
     j = int(np.argmin(np.abs(an["times"] - best.times[peak])))
-    note = ("ERA5 analysis, 0.25 deg. Tracks: the deepest pressure minimum within 400 km of the previous centre. "
-            "Intensity is compared in hPa and, through Atkinson-Holliday, in knots.")
+    note = ("ERA5 analysis, 0.25 deg, over the storm's box only -- outside it the globe carries no data, which is "
+            "not a calm. Tracks: the deepest pressure minimum within 400 km of the previous centre. Intensity is "
+            "compared in hPa and, through Atkinson-Holliday, in knots.")
     followed = {"ERA5 0.25 deg (analysis)": an_track} | tracks
+    # the display scale is the data's, not the planet's: a fixed 985-1015 washes a basin of 1015-1020 into one tone
+    vmin, vmax = (float(np.percentile(an["fields"][np.isfinite(an["fields"])], 0.5)),
+                  float(np.percentile(an["fields"][np.isfinite(an["fields"])], 97.0)))
     track_globe(figdir / "ian_globe.png", best, followed, pressure_hpa=an["fields"][j], lat=an["lat"],
-                lon=an["lon"], times=an["times"][j:j + 1], centre=(22.0, 282.0), note=note,
+                lon=an["lon"], times=an["times"][j:j + 1], centre=(22.0, 282.0), vmin=vmin, vmax=vmax, note=note,
                 title=f"Hurricane Ian, {np.datetime_as_string(an['times'][j], unit='h').replace('T', ' ')} UTC")
     track_globe(figdir / "ian_globe.gif", best, followed, pressure_hpa=an["fields"], lat=an["lat"],
-                lon=an["lon"], times=an["times"], centre=(24.0, 283.0), size=340, note=note,
-                title=f"Hurricane Ian, {str(best.times[0].astype('datetime64[D]'))} to "
-                      f"{str(best.times[-1].astype('datetime64[D]'))}, 6 hours a frame")
+                lon=an["lon"], times=an["times"], centre=(24.0, 283.0), size=340, dpi=92, vmin=vmin, vmax=vmax,
+                note=note, title=f"Hurricane Ian, {str(best.times[0].astype('datetime64[D]'))} to "
+                                 f"{str(best.times[-1].astype('datetime64[D]'))}, 6 hours a frame")
 
     # the track each model followed, against the one that was flown: the figure a reader checks the mean error against
     captions = {"ERA5 0.25 deg (analysis)": f"median {np.nanmedian(an_err.track_km):.0f} km off the official centre"}

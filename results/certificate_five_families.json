@@ -1,0 +1,1008 @@
+{
+ "schema": "pinneapple.certificate_benchmark/1",
+ "tolerance": 0.05,
+ "noise": {
+  "advection-diffusion": 0.0002,
+  "heat": 5e-05,
+  "incompressible-flow": 0.0008,
+  "shallow-water": 0.001,
+  "elasticity": 4e-06
+ },
+ "families": {
+  "advection-diffusion": {
+   "cases_in": 3,
+   "cases_out": 3,
+   "gates": {
+    "finite": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:C": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "residual:advection-diffusion": {
+     "detection": 0.6666666666666666,
+     "false_alarm": 0.0
+    },
+    "__verdict__": {
+     "detection": 0.6666666666666666,
+     "false_alarm": 0.0
+    }
+   },
+   "verdict": {
+    "detection": 0.6666666666666666,
+    "false_alarm": 0.0
+   },
+   "cases": [
+    {
+     "label": "advection-diffusion/exact",
+     "kind": "exact",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:advection-diffusion": {
+       "value": 0.0007476995481715196,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "the analytic solution: what a surrogate that is right looks like"
+    },
+    {
+     "label": "advection-diffusion/noise-half",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:advection-diffusion": {
+       "value": 0.0019768167680912804,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "1.0e-04 of the field's standard deviation"
+    },
+    {
+     "label": "advection-diffusion/noise",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:advection-diffusion": {
+       "value": 0.003936795790056727,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "2.0e-04 of the field's standard deviation"
+    },
+    {
+     "label": "advection-diffusion/parameter",
+     "kind": "parameter",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:advection-diffusion -- 0.228473 > 0.05; worst at x=3.142, t=0 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'advection-diffusion') -- dC/dt + c.grad C = alpha lap C",
+     "checks": {
+      "residual:advection-diffusion": {
+       "value": 0.2284729091905521,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "the same equation advecting at 1.6 while the problem declares 1.0"
+    },
+    {
+     "label": "advection-diffusion/other-equation",
+     "kind": "other-equation",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:advection-diffusion -- 0.738167 > 0.05; worst at x=5.498, t=0 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'advection-diffusion') -- dC/dt + c.grad C = alpha lap C",
+     "checks": {
+      "residual:advection-diffusion": {
+       "value": 0.7381665045277459,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "the heat family's exact solution, claimed to solve advection-diffusion"
+    },
+    {
+     "label": "advection-diffusion/sign",
+     "kind": "sign",
+     "in_domain": false,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:advection-diffusion": {
+       "value": 0.0007476995481715196,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "the exact solution with its sign inverted: the law is linear and homogeneous, so the residual cannot see it -- the expected result of this row is 'not flagged', and that is the finding"
+    }
+   ]
+  },
+  "heat": {
+   "cases_in": 3,
+   "cases_out": 3,
+   "gates": {
+    "finite": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:T": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "residual:heat": {
+     "detection": 0.6666666666666666,
+     "false_alarm": 0.0
+    },
+    "__verdict__": {
+     "detection": 0.6666666666666666,
+     "false_alarm": 0.0
+    }
+   },
+   "verdict": {
+    "detection": 0.6666666666666666,
+    "false_alarm": 0.0
+   },
+   "cases": [
+    {
+     "label": "heat/exact",
+     "kind": "exact",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:heat": {
+       "value": 0.00044547812048656345,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "the analytic solution"
+    },
+    {
+     "label": "heat/noise-half",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:heat": {
+       "value": 0.0031626744062357754,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "2.5e-05 of the field's standard deviation"
+    },
+    {
+     "label": "heat/noise",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:heat": {
+       "value": 0.006131275964476225,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "5.0e-05 of the field's standard deviation"
+    },
+    {
+     "label": "heat/parameter",
+     "kind": "parameter",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:heat -- 0.500511 > 0.05; worst at x=4.712, t=0 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'heat') -- rho_cp dT/dt = k lap T + q",
+     "checks": {
+      "residual:heat": {
+       "value": 0.5005107383991387,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "the field decaying three times too fast for the declared k"
+    },
+    {
+     "label": "heat/other-equation",
+     "kind": "other-equation",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:heat -- 0.752633 > 0.05; worst at x=5.498, t=0 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'heat') -- rho_cp dT/dt = k lap T + q",
+     "checks": {
+      "residual:heat": {
+       "value": 0.7526333586067925,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "the advection-diffusion solution, claimed to be a temperature"
+    },
+    {
+     "label": "heat/sign",
+     "kind": "sign",
+     "in_domain": false,
+     "verdict": "certified",
+     "why": "good: all 3 checks measured and passing",
+     "checks": {
+      "residual:heat": {
+       "value": 0.00044547812048656345,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "sign inverted: q = 0 makes the law linear and homogeneous, so the residual is blind to it"
+    }
+   ]
+  },
+  "incompressible-flow": {
+   "cases_in": 3,
+   "cases_out": 4,
+   "gates": {
+    "finite": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:p": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:u": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:v": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "residual:continuity": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "residual:momentum": {
+     "detection": 0.75,
+     "false_alarm": 0.0
+    },
+    "__verdict__": {
+     "detection": 0.75,
+     "false_alarm": 0.0
+    }
+   },
+   "verdict": {
+    "detection": 0.75,
+    "false_alarm": 0.0
+   },
+   "cases": [
+    {
+     "label": "incompressible-flow/exact",
+     "kind": "exact",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 6 checks measured and passing",
+     "checks": {
+      "residual:continuity": {
+       "value": 3.320049005832706e-16,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.0042849026768081245,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "the analytic Taylor-Green vortex at nu = 0.02"
+    },
+    {
+     "label": "incompressible-flow/noise-half",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 6 checks measured and passing",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.0014799247349684423,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.005831010625875622,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "4.0e-04 of each field's standard deviation"
+    },
+    {
+     "label": "incompressible-flow/noise",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 6 checks measured and passing",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.0029207607943193777,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.008878193670648033,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "8.0e-04 of each field's standard deviation"
+    },
+    {
+     "label": "incompressible-flow/parameter",
+     "kind": "parameter",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:momentum -- 0.22716 > 0.05; worst at x=3.075, y=1.604, t=0 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'momentum') -- du/dt + (u.grad)u + grad p/rho - nu lap u = 0",
+     "checks": {
+      "residual:continuity": {
+       "value": 3.400771858546564e-16,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.227160320332665,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "the vortex decaying at nu = 0.2, ten times the 0.02 the problem declares"
+    },
+    {
+     "label": "incompressible-flow/parameter-undamped",
+     "kind": "parameter-undamped",
+     "in_domain": false,
+     "verdict": "certified",
+     "why": "good: all 6 checks measured and passing",
+     "checks": {
+      "residual:continuity": {
+       "value": 2.943254695290303e-16,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.02787452592390869,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "the vortex that does not decay at all, against nu = 0.02: the viscous term is small next to the advection at this Reynolds number, so this direction of the same error is NOT flagged -- the residual of the two fields differs by a factor of ten and only one of them crosses the limit"
+    },
+    {
+     "label": "incompressible-flow/other-equation",
+     "kind": "other-equation",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:momentum -- 0.929453 > 0.05; worst at x=0.8021, y=3.877, t=0 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'momentum') -- du/dt + (u.grad)u + grad p/rho - nu lap u = 0",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.0025596870693515945,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.9294531711295931,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "the shallow-water vortex's velocity, claimed to be an incompressible flow"
+    },
+    {
+     "label": "incompressible-flow/sign",
+     "kind": "sign",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:momentum -- 0.956142 > 0.05; worst at x=5.481, y=0.8021, t=0 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'momentum') -- du/dt + (u.grad)u + grad p/rho - nu lap u = 0",
+     "checks": {
+      "residual:continuity": {
+       "value": 3.320049005832706e-16,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.956141510412597,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "sign inverted: the convective term does not flip with the rest, so momentum sees it"
+    }
+   ]
+  },
+  "shallow-water": {
+   "cases_in": 3,
+   "cases_out": 3,
+   "gates": {
+    "finite": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:h": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:u": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:v": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "residual:continuity": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "residual:momentum": {
+     "detection": 1.0,
+     "false_alarm": 0.0
+    },
+    "positivity:h": {
+     "detection": 0.3333333333333333,
+     "false_alarm": 0.0
+    },
+    "__verdict__": {
+     "detection": 1.0,
+     "false_alarm": 0.0
+    }
+   },
+   "verdict": {
+    "detection": 1.0,
+    "false_alarm": 0.0
+   },
+   "cases": [
+    {
+     "label": "shallow-water/exact",
+     "kind": "exact",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 7 checks measured and passing",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.0009021635211265653,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.001586889737568968,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "positivity:h": {
+       "value": 1.0000402511485758,
+       "threshold": 0.0,
+       "status": "pass"
+      }
+     },
+     "note": "the vortex whose free surface balances its velocity"
+    },
+    {
+     "label": "shallow-water/noise-half",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 7 checks measured and passing",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.004417417443510955,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.0031978005234055,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "positivity:h": {
+       "value": 1.0000402961475974,
+       "threshold": 0.0,
+       "status": "pass"
+      }
+     },
+     "note": "5.0e-04 of each field's standard deviation"
+    },
+    {
+     "label": "shallow-water/noise",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 7 checks measured and passing",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.008898974013467072,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.005775726017530396,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "positivity:h": {
+       "value": 1.0000375935858878,
+       "threshold": 0.0,
+       "status": "pass"
+      }
+     },
+     "note": "1.0e-03 of each field's standard deviation"
+    },
+    {
+     "label": "shallow-water/parameter",
+     "kind": "parameter",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:momentum -- 0.385205 > 0.05; worst at x=2.784, y=3.738 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'momentum') -- d(h u_i)/dt + div(h u_i u) + g h grad(h) = 0",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.0009044662096133467,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.3852052248688178,
+       "threshold": 0.05,
+       "status": "fail"
+      },
+      "positivity:h": {
+       "value": 1.0000201255742878,
+       "threshold": 0.0,
+       "status": "pass"
+      }
+     },
+     "note": "the free surface built for 2g, judged against g: the gradient no longer balances the velocity"
+    },
+    {
+     "label": "shallow-water/other-equation",
+     "kind": "other-equation",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:momentum -- 0.929612 > 0.05; worst at x=0.7953, y=0.7953 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'momentum') -- d(h u_i)/dt + div(h u_i u) + g h grad(h) = 0",
+     "checks": {
+      "residual:continuity": {
+       "value": 5.337695353056713e-16,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 0.9296124275906943,
+       "threshold": 0.05,
+       "status": "fail"
+      },
+      "positivity:h": {
+       "value": 1.0,
+       "threshold": 0.0,
+       "status": "pass"
+      }
+     },
+     "note": "an incompressible vortex under a flat free surface, claimed to solve the shallow-water equations"
+    },
+    {
+     "label": "shallow-water/sign",
+     "kind": "sign",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:momentum -- 1.17135 > 0.05; worst at x=2.466, y=3.34 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'momentum') -- d(h u_i)/dt + div(h u_i u) + g h grad(h) = 0; positivity:h -- -1.01275 > 0; worst at x=0, y=0 (pinneapple_analysis.trust.certificate) -- smallest value of h (a negative value where the field cannot be)",
+     "checks": {
+      "residual:continuity": {
+       "value": 0.0009021635211265653,
+       "threshold": 0.05,
+       "status": "pass"
+      },
+      "residual:momentum": {
+       "value": 1.1713474969394964,
+       "threshold": 0.05,
+       "status": "fail"
+      },
+      "positivity:h": {
+       "value": -1.0127464526281236,
+       "threshold": 0.0,
+       "status": "fail"
+      }
+     },
+     "note": "sign inverted: the depth goes negative, which positivity and momentum both refuse"
+    }
+   ]
+  },
+  "elasticity": {
+   "cases_in": 3,
+   "cases_out": 3,
+   "gates": {
+    "finite": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:ux": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "units:uy": {
+     "detection": 0.0,
+     "false_alarm": 0.0
+    },
+    "residual:equilibrium": {
+     "detection": 0.6666666666666666,
+     "false_alarm": 0.0
+    },
+    "__verdict__": {
+     "detection": 0.6666666666666666,
+     "false_alarm": 0.0
+    }
+   },
+   "verdict": {
+    "detection": 0.6666666666666666,
+    "false_alarm": 0.0
+   },
+   "cases": [
+    {
+     "label": "elasticity/exact",
+     "kind": "exact",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 4 checks measured and passing",
+     "checks": {
+      "residual:equilibrium": {
+       "value": 2.287191759965479e-13,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "the analytic equilibrium displacement, div sigma = 0"
+    },
+    {
+     "label": "elasticity/noise-half",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 4 checks measured and passing",
+     "checks": {
+      "residual:equilibrium": {
+       "value": 0.004597760248439165,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "2.0e-06 of each field's standard deviation"
+    },
+    {
+     "label": "elasticity/noise",
+     "kind": "noise",
+     "in_domain": true,
+     "verdict": "certified",
+     "why": "good: all 4 checks measured and passing",
+     "checks": {
+      "residual:equilibrium": {
+       "value": 0.009070088448505044,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "4.0e-06 of each field's standard deviation"
+    },
+    {
+     "label": "elasticity/parameter",
+     "kind": "parameter",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:equilibrium -- 0.90099 > 0.05; worst at x=0.8511, y=0.8511 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'equilibrium') -- div sigma + f = 0",
+     "checks": {
+      "residual:equilibrium": {
+       "value": 0.9009900990099009,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "the same field, but the problem declares a body force it does not carry"
+    },
+    {
+     "label": "elasticity/other-equation",
+     "kind": "other-equation",
+     "in_domain": false,
+     "verdict": "qualified",
+     "why": "failing: residual:equilibrium -- 1 > 0.05; worst at x=0.02128, y=0.9787 (pinneapple_check.physics.equations.rel_rms; limit: the tolerance declared by the caller for 'equilibrium') -- div sigma + f = 0",
+     "checks": {
+      "residual:equilibrium": {
+       "value": 1.0,
+       "threshold": 0.05,
+       "status": "fail"
+      }
+     },
+     "note": "an incompressible vortex, claimed to be a displacement field in equilibrium"
+    },
+    {
+     "label": "elasticity/sign",
+     "kind": "sign",
+     "in_domain": false,
+     "verdict": "certified",
+     "why": "good: all 4 checks measured and passing",
+     "checks": {
+      "residual:equilibrium": {
+       "value": 2.287191759965479e-13,
+       "threshold": 0.05,
+       "status": "pass"
+      }
+     },
+     "note": "sign inverted: with no body force the equilibrium is linear and homogeneous, so the residual cannot see it -- the expected result of this row is 'not flagged'"
+    }
+   ]
+  }
+ },
+ "cfd_surrogate": {
+  "cases_in": 4,
+  "cases_out": 4,
+  "gates": {
+   "finite": {
+    "detection": 0.0,
+    "false_alarm": 0.0
+   },
+   "units:p": {
+    "detection": 0.0,
+    "false_alarm": 0.0
+   },
+   "units:u": {
+    "detection": 0.0,
+    "false_alarm": 0.0
+   },
+   "units:v": {
+    "detection": 0.0,
+    "false_alarm": 0.0
+   },
+   "residual:continuity": {
+    "detection": 0.0,
+    "false_alarm": 0.0
+   },
+   "residual:momentum": {
+    "detection": 0.75,
+    "false_alarm": 0.0
+   },
+   "domain": {
+    "detection": 0.75,
+    "false_alarm": 0.0
+   },
+   "__verdict__": {
+    "detection": 0.75,
+    "false_alarm": 0.0
+   }
+  },
+  "verdict": {
+   "detection": 0.75,
+   "false_alarm": 0.0
+  },
+  "train": [
+   0.05,
+   0.1,
+   0.2,
+   0.4
+  ],
+  "modes": 8,
+  "inside": [
+   0.07,
+   0.15,
+   0.25,
+   0.35
+  ],
+  "outside": [
+   0.02,
+   0.6,
+   0.8,
+   1.2
+  ],
+  "cases": [
+   {
+    "label": "cfd-surrogate/nu=0.07",
+    "kind": "inside",
+    "in_domain": true,
+    "verdict": "certified",
+    "why": "good: all 7 checks measured and passing",
+    "checks": {
+     "residual:continuity": {
+      "value": 5.111119509978584e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.003619596188821612,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "domain": {
+      "value": 1.0,
+      "threshold": 1.0,
+      "status": "pass"
+     }
+    },
+    "note": "nu inside the fitted range [0.05, 0.4]: the surrogate interpolates"
+   },
+   {
+    "label": "cfd-surrogate/nu=0.15",
+    "kind": "inside",
+    "in_domain": true,
+    "verdict": "certified",
+    "why": "good: all 7 checks measured and passing",
+    "checks": {
+     "residual:continuity": {
+      "value": 3.8980156610165817e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.003822643851052139,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "domain": {
+      "value": 1.0,
+      "threshold": 1.0,
+      "status": "pass"
+     }
+    },
+    "note": "nu inside the fitted range [0.05, 0.4]: the surrogate interpolates"
+   },
+   {
+    "label": "cfd-surrogate/nu=0.25",
+    "kind": "inside",
+    "in_domain": true,
+    "verdict": "certified",
+    "why": "good: all 7 checks measured and passing",
+    "checks": {
+     "residual:continuity": {
+      "value": 4.09664102835746e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.006858596650898255,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "domain": {
+      "value": 1.0,
+      "threshold": 1.0,
+      "status": "pass"
+     }
+    },
+    "note": "nu inside the fitted range [0.05, 0.4]: the surrogate interpolates"
+   },
+   {
+    "label": "cfd-surrogate/nu=0.35",
+    "kind": "inside",
+    "in_domain": true,
+    "verdict": "certified",
+    "why": "good: all 7 checks measured and passing",
+    "checks": {
+     "residual:continuity": {
+      "value": 5.95465049084931e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.006280561584661515,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "domain": {
+      "value": 1.0,
+      "threshold": 1.0,
+      "status": "pass"
+     }
+    },
+    "note": "nu inside the fitted range [0.05, 0.4]: the surrogate interpolates"
+   },
+   {
+    "label": "cfd-surrogate/nu=0.02",
+    "kind": "outside",
+    "in_domain": false,
+    "verdict": "certified",
+    "why": "good: all 7 checks measured and passing",
+    "checks": {
+     "residual:continuity": {
+      "value": 6.993260560490861e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.04115355370973075,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "domain": {
+      "value": 1.0,
+      "threshold": 1.0,
+      "status": "pass"
+     }
+    },
+    "note": "nu outside the fitted range [0.05, 0.4]: the surrogate extrapolates"
+   },
+   {
+    "label": "cfd-surrogate/nu=0.6",
+    "kind": "outside",
+    "in_domain": false,
+    "verdict": "rejected",
+    "why": "no_skill: domain -- 0 < 1 (pinneapple_analysis.trust.trust_gate.TrustGate.ood_p_values) -- fraction of points inside the declared domain {'nu': (0.05, 0.4)} (fraction of query points with chi2 p-value >= ood_level 0.01 under the fitted training distribution)",
+    "checks": {
+     "residual:continuity": {
+      "value": 7.292897390151832e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.13457050251768238,
+      "threshold": 0.05,
+      "status": "fail"
+     },
+     "domain": {
+      "value": 0.0,
+      "threshold": 1.0,
+      "status": "no_skill"
+     }
+    },
+    "note": "nu outside the fitted range [0.05, 0.4]: the surrogate extrapolates"
+   },
+   {
+    "label": "cfd-surrogate/nu=0.8",
+    "kind": "outside",
+    "in_domain": false,
+    "verdict": "rejected",
+    "why": "no_skill: domain -- 0 < 1 (pinneapple_analysis.trust.trust_gate.TrustGate.ood_p_values) -- fraction of points inside the declared domain {'nu': (0.05, 0.4)} (fraction of query points with chi2 p-value >= ood_level 0.01 under the fitted training distribution)",
+    "checks": {
+     "residual:continuity": {
+      "value": 7.292897390151832e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.23830171988142124,
+      "threshold": 0.05,
+      "status": "fail"
+     },
+     "domain": {
+      "value": 0.0,
+      "threshold": 1.0,
+      "status": "no_skill"
+     }
+    },
+    "note": "nu outside the fitted range [0.05, 0.4]: the surrogate extrapolates"
+   },
+   {
+    "label": "cfd-surrogate/nu=1.2",
+    "kind": "outside",
+    "in_domain": false,
+    "verdict": "rejected",
+    "why": "no_skill: domain -- 0 < 1 (pinneapple_analysis.trust.trust_gate.TrustGate.ood_p_values) -- fraction of points inside the declared domain {'nu': (0.05, 0.4)} (fraction of query points with chi2 p-value >= ood_level 0.01 under the fitted training distribution)",
+    "checks": {
+     "residual:continuity": {
+      "value": 7.292897390151832e-16,
+      "threshold": 0.05,
+      "status": "pass"
+     },
+     "residual:momentum": {
+      "value": 0.38651565359185963,
+      "threshold": 0.05,
+      "status": "fail"
+     },
+     "domain": {
+      "value": 0.0,
+      "threshold": 1.0,
+      "status": "no_skill"
+     }
+    },
+    "note": "nu outside the fitted range [0.05, 0.4]: the surrogate extrapolates"
+   }
+  ]
+ }
+}

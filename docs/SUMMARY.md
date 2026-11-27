@@ -143,6 +143,7 @@
     * [External solvers: one interface, six backends, and what is out of scope](guides/external_solver_contract.md)
     * [Choose a model by the scale of the question](guides/scale_aware_ensembles.md)
     * [Identifiability, calibration and inverse problems](guides/identifiability_calibration_inversion.md)
+    * [From an inverse model to an equation: symbolic distillation](guides/symbolic_distillation.md)
     * [Dynamics toolkit: the shared foundation](guides/dynamics_toolkit.md)
     * [First-passage and hitting times](guides/dynamics_first_passage.md)
     * [Dimensional analysis, Buckingham pi and curve collapse](guides/dynamics_dimensional.md)

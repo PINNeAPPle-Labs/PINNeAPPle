@@ -18,7 +18,7 @@ import numpy as np
 
 FUNCTIONS = {
     "abs": np.abs, "sqrt": np.sqrt, "exp": np.exp, "log": np.log, "log10": np.log10,
-    "sin": np.sin, "cos": np.cos, "tan": np.tan, "min": np.minimum, "max": np.maximum,
+    "sin": np.sin, "cos": np.cos, "tan": np.tan, "tanh": np.tanh, "min": np.minimum, "max": np.maximum,
 }
 _BINOPS = {
     ast.Add: np.add, ast.Sub: np.subtract, ast.Mult: np.multiply, ast.Div: np.divide,
@@ -46,7 +46,8 @@ def _torch_backend():
             {ast.Lt: torch.lt, ast.LtE: torch.le, ast.Gt: torch.gt, ast.GtE: torch.ge,
              ast.Eq: torch.eq, ast.NotEq: torch.ne},
             {"abs": torch.abs, "sqrt": torch.sqrt, "exp": torch.exp, "log": torch.log, "log10": torch.log10,
-             "sin": torch.sin, "cos": torch.cos, "tan": torch.tan, "min": torch.minimum, "max": torch.maximum})
+             "sin": torch.sin, "cos": torch.cos, "tan": torch.tan, "tanh": torch.tanh, "min": torch.minimum,
+             "max": torch.maximum})
 
 
 def _tables(ops: Any, functions: Mapping[str, Any] | None):

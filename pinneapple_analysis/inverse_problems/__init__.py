@@ -188,6 +188,23 @@ from .solver import (
 )
 from .studio import METHODS, InverseProblem, available_methods, compare_methods, solve_inverse
 
+# From an inverse model to an equation: sampling inside the support, several symbolic-regression back ends, the
+# identifiability of the terms across replicates, and verification of the equation in a solver (#400)
+from .symbolic_distillation import (
+    Dataset,
+    DistillationConfig,
+    EquationReport,
+    OptionalBackendMissing,
+    PolynomialSurface,
+    Support,
+    distill,
+    field_dataset,
+    module_dataset,
+    outside_support,
+    simulate_evolution,
+    verify,
+)
+
 __version__ = "0.1.0"
 
 __all__ = [
@@ -294,4 +311,17 @@ __all__ = [
     "get_preset",
     "list_presets",
     "model_from_spec",
+    # From an inverse model to an equation (#400)
+    "Support",
+    "Dataset",
+    "DistillationConfig",
+    "EquationReport",
+    "OptionalBackendMissing",
+    "PolynomialSurface",
+    "field_dataset",
+    "module_dataset",
+    "outside_support",
+    "distill",
+    "verify",
+    "simulate_evolution",
 ]

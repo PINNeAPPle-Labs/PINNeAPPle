@@ -699,7 +699,9 @@ class GeneticProgramming:
                                    self._random_tree(rng, names, depth - 1)))
         if kind < 0.55:
             return Expression("^", (self._random_tree(rng, names, depth - 1),), power=int(rng.choice(_POWERS)))
-        op = self.operators[rng.integers(len(self.operators))] if self.operators else "*"
+        if not self.operators:               # a search without unary operators: a power or a leaf, never a
+            return self._random_tree(rng, names, depth - 1)      # one-argument "*" that every evaluation crashes on
+        op = self.operators[rng.integers(len(self.operators))]
         return Expression(op, (self._random_tree(rng, names, depth - 1),))
 
     def _bred(self, tree: Expression, rng: np.random.Generator, names: Sequence[str]) -> Expression | None:
@@ -1125,7 +1127,10 @@ def _from_ast(node) -> Expression:
             if not (isinstance(node.right, ast.Constant) and node.right.value in _POWERS):
                 raise PolicyViolation("only the whole-number powers 2 and 3 are part of the expression language")
             return Expression("^", (_from_ast(node.left),), power=int(node.right.value))
-        return Expression(_AST_BINOPS[type(node.op)], (_from_ast(node.left), _from_ast(node.right)))
+        op = _AST_BINOPS.get(type(node.op))
+        if op is None:                     # ``u ^ 2`` (BitXor) is not a power here: it is not in the language
+            raise PolicyViolation(f"{type(node.op).__name__} is not part of the expression language")
+        return Expression(op, (_from_ast(node.left), _from_ast(node.right)))
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
         return Expression("*", (Expression.constant(-1.0), _from_ast(node.operand)))
     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in _AST_UNARY:

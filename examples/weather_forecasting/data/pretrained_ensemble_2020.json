@@ -1,0 +1,1013 @@
+{
+ "steps": 40,
+ "hours": 6.0,
+ "every_days": 30,
+ "inits": [
+  "2020-01-31T00",
+  "2020-03-01T00",
+  "2020-03-31T00",
+  "2020-04-30T00",
+  "2020-05-30T00",
+  "2020-06-29T00",
+  "2020-07-29T00",
+  "2020-08-28T00",
+  "2020-09-27T00",
+  "2020-10-27T00",
+  "2020-11-26T00"
+ ],
+ "licences": {
+  "IFS HRES": {
+   "spdx": "NOASSERTION",
+   "url": "https://weatherbench2.readthedocs.io/en/latest/data.html",
+   "commercial_use": null,
+   "redistribution": null,
+   "verified": "",
+   "note": "ECMWF IFS HRES forecasts republished by WeatherBench2; the bucket's object metadata states no licence (checked 2026-11-26), and ECMWF's own terms apply to the meteorological data"
+  },
+  "Pangu-Weather": {
+   "spdx": "NOASSERTION",
+   "url": "https://weatherbench2.readthedocs.io/en/latest/data.html",
+   "commercial_use": null,
+   "redistribution": null,
+   "verified": "",
+   "note": "published Pangu-Weather forecasts (Huawei) republished by WeatherBench2; the bucket states no licence (checked 2026-11-26) \u2014 the vendor's terms and the EC Copernicus data licence apply"
+  },
+  "pinneapple-weather": {
+   "spdx": "Apache-2.0",
+   "url": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/LICENSE",
+   "commercial_use": true,
+   "redistribution": true,
+   "verified": "2026-11-26: this repository's LICENSE file (Apache License 2.0)",
+   "note": ""
+  }
+ },
+ "calibration": {
+  "tropics": {
+   "analysis_advection_residual": 1.0223237607605995,
+   "analysis_energy_drift": 0.002718001191938481,
+   "advection_boundary": 2.044647521521199,
+   "energy_boundary": 0.005436002383876962,
+   "advection_tolerance": 4.089295043042398,
+   "energy_tolerance": 0.010872004767753924
+  },
+  "midlatitudes N": {
+   "analysis_advection_residual": 0.9633719164502554,
+   "analysis_energy_drift": 0.0011794250935275707,
+   "advection_boundary": 1.9267438329005109,
+   "energy_boundary": 0.005,
+   "advection_tolerance": 3.8534876658010218,
+   "energy_tolerance": 0.01
+  },
+  "midlatitudes S": {
+   "analysis_advection_residual": 0.8420816813526,
+   "analysis_energy_drift": 0.0008465817463767712,
+   "advection_boundary": 1.6841633627052,
+   "energy_boundary": 0.005,
+   "advection_tolerance": 3.3683267254104,
+   "energy_tolerance": 0.01
+  },
+  "Arctic": {
+   "analysis_advection_residual": 1.0022097782256536,
+   "analysis_energy_drift": 0.005842585041616615,
+   "advection_boundary": 2.004419556451307,
+   "energy_boundary": 0.01168517008323323,
+   "advection_tolerance": 4.008839112902614,
+   "energy_tolerance": 0.02337034016646646
+  }
+ },
+ "cells": {
+  "tropics/DJF": {
+   "n_cases": 1,
+   "error": {
+    "IFS HRES": 0.0016830019007927715,
+    "Pangu-Weather": 0.0018002817727766991,
+    "pinneapple-weather": 0.003967351658714097
+   },
+   "weights": {
+    "IFS HRES": 0.24802953560199015,
+    "Pangu-Weather": 0.24650347740422168,
+    "pinneapple-weather": 0.2479036298997107
+   },
+   "share": {
+    "IFS HRES": 0.33407501902276,
+    "Pangu-Weather": 0.3320195463944217,
+    "pinneapple-weather": 0.33390543458281824
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 1.0464971916464192,
+    "Pangu-Weather": 1.065218698317005,
+    "pinneapple-weather": 1.0480417883390853
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0011177399251040005,
+    "Pangu-Weather": 0.0019518869553896093,
+    "pinneapple-weather": 0.0011037380794585655
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 82.67194715580993,
+    "Pangu-Weather": 86.20815592124399,
+    "pinneapple-weather": 182.10072594603957
+   },
+   "ensemble": 0.001962721128953626,
+   "ensemble_rmse_day5": 94.5276412616074,
+   "best_single": {
+    "name": "IFS HRES",
+    "error": 0.0016830019007927715
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.0,
+   "inits": [
+    "2020-01-31T00"
+   ]
+  },
+  "tropics/MAM": {
+   "n_cases": 4,
+   "error": {
+    "IFS HRES": 0.0014400575221071557,
+    "Pangu-Weather": 0.001394910322894417,
+    "pinneapple-weather": 0.004289008239657
+   },
+   "weights": {
+    "IFS HRES": 0.24105144451234067,
+    "Pangu-Weather": 0.236582939179659,
+    "pinneapple-weather": 0.24402357933917776
+   },
+   "share": {
+    "IFS HRES": 0.4548008849294923,
+    "Pangu-Weather": 0.2700282090432028,
+    "pinneapple-weather": 0.2751709060273049
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.25,
+    "pinneapple-weather": 0.25
+   },
+   "advection_residual": {
+    "IFS HRES": 1.0198773308133129,
+    "Pangu-Weather": 1.0250978644546556,
+    "pinneapple-weather": 1.0526330266639454
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0026125522590368646,
+    "Pangu-Weather": 0.005097405923386054,
+    "pinneapple-weather": 0.0035008850213967503
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "advection_consistency: 103 % of the change unexplained by advection (tolerance 409 %); energy_drift: 0.00669 spreads per day (tolerance 0.0109)",
+    "pinneapple-weather": "advection_consistency: 105 % of the change unexplained by advection (tolerance 409 %); energy_drift: 0.00634 spreads per day (tolerance 0.0109)"
+   },
+   "rmse_day5": {
+    "IFS HRES": 65.88722645969429,
+    "Pangu-Weather": 60.9881447330106,
+    "pinneapple-weather": 217.25928658981144
+   },
+   "ensemble": 0.0018357204414155494,
+   "ensemble_rmse_day5": 88.14295082355984,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.001394910322894417
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.25,
+   "inits": [
+    "2020-03-01T00",
+    "2020-03-31T00",
+    "2020-04-30T00",
+    "2020-05-30T00"
+   ]
+  },
+  "tropics/JJA": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.0011759128561946606,
+    "Pangu-Weather": 0.0014254118501349662,
+    "pinneapple-weather": 0.003971068567270634
+   },
+   "weights": {
+    "IFS HRES": 0.251119000343667,
+    "Pangu-Weather": 0.2675734728352604,
+    "pinneapple-weather": 0.2167411842869146
+   },
+   "share": {
+    "IFS HRES": 0.41489864536186544,
+    "Pangu-Weather": 0.22600407362225114,
+    "pinneapple-weather": 0.3590972810158835
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.3333333333333333,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 1.0160941325043522,
+    "Pangu-Weather": 1.0235113246293597,
+    "pinneapple-weather": 1.0727533129762816
+   },
+   "energy_drift": {
+    "IFS HRES": 0.001066431559310731,
+    "Pangu-Weather": 0.0038060530536903293,
+    "pinneapple-weather": 0.002365763432539429
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "advection_consistency: 102 % of the change unexplained by advection (tolerance 409 %); energy_drift: 0.00568 spreads per day (tolerance 0.0109)",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 60.33309329954064,
+    "Pangu-Weather": 63.42700771898331,
+    "pinneapple-weather": 197.69946126319292
+   },
+   "ensemble": 0.0017525297694196273,
+   "ensemble_rmse_day5": 88.93435188393185,
+   "best_single": {
+    "name": "IFS HRES",
+    "error": 0.0011759128561946606
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.0,
+   "inits": [
+    "2020-06-29T00",
+    "2020-07-29T00",
+    "2020-08-28T00"
+   ]
+  },
+  "tropics/SON": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.0013737292138890497,
+    "Pangu-Weather": 0.0013540621399617803,
+    "pinneapple-weather": 0.0041335875566461625
+   },
+   "weights": {
+    "IFS HRES": 0.2517741555650349,
+    "Pangu-Weather": 0.2792426395306657,
+    "pinneapple-weather": 0.24510026681661853
+   },
+   "share": {
+    "IFS HRES": 0.3928463737688297,
+    "Pangu-Weather": 0.22433741809996563,
+    "pinneapple-weather": 0.3828162081312047
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.3333333333333333,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 1.0156888820633394,
+    "Pangu-Weather": 1.0225787825561625,
+    "pinneapple-weather": 1.0430708871356098
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0004706082376038436,
+    "Pangu-Weather": 0.001994172560807526,
+    "pinneapple-weather": 0.0017742335549338526
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "advection_consistency: 103 % of the change unexplained by advection (tolerance 409 %); energy_drift: 0.00721 spreads per day (tolerance 0.0109)",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 60.99369341313158,
+    "Pangu-Weather": 62.89994381542372,
+    "pinneapple-weather": 216.1204444325498
+   },
+   "ensemble": 0.001984971707514238,
+   "ensemble_rmse_day5": 98.68474580616491,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.0013540621399617803
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.0,
+   "inits": [
+    "2020-09-27T00",
+    "2020-10-27T00",
+    "2020-11-26T00"
+   ]
+  },
+  "midlatitudes N/DJF": {
+   "n_cases": 1,
+   "error": {
+    "IFS HRES": 0.009219953889246965,
+    "Pangu-Weather": 0.010056778488095273,
+    "pinneapple-weather": 0.015752097177395855
+   },
+   "weights": {
+    "IFS HRES": 0.2558171278247031,
+    "Pangu-Weather": 0.2569139666470831,
+    "pinneapple-weather": 0.2552958250012814
+   },
+   "share": {
+    "IFS HRES": 0.33308354347815783,
+    "Pangu-Weather": 0.33451166897033785,
+    "pinneapple-weather": 0.3324047875515044
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.8961232254816114,
+    "Pangu-Weather": 0.8834432608613723,
+    "pinneapple-weather": 0.9021497274822197
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0010760924593376,
+    "Pangu-Weather": 4.4479796114452985e-05,
+    "pinneapple-weather": 0.0016913722494258509
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 226.42044241345715,
+    "Pangu-Weather": 308.1455990437363,
+    "pinneapple-weather": 678.3409072736594
+   },
+   "ensemble": 0.008756756667188175,
+   "ensemble_rmse_day5": 320.6721333609464,
+   "best_single": {
+    "name": "IFS HRES",
+    "error": 0.009219953889246965
+   },
+   "ensemble_beats_best_single": true,
+   "ensemble_wins": 1.0,
+   "inits": [
+    "2020-01-31T00"
+   ]
+  },
+  "midlatitudes N/MAM": {
+   "n_cases": 4,
+   "error": {
+    "IFS HRES": 0.00959281154205634,
+    "Pangu-Weather": 0.009640075874866625,
+    "pinneapple-weather": 0.016881291580509238
+   },
+   "weights": {
+    "IFS HRES": 0.25335664205506997,
+    "Pangu-Weather": 0.259656720445096,
+    "pinneapple-weather": 0.22338124301990508
+   },
+   "share": {
+    "IFS HRES": 0.34427588833402567,
+    "Pangu-Weather": 0.3534652109375159,
+    "pinneapple-weather": 0.3022589007284585
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.9436382574783728,
+    "Pangu-Weather": 0.9386048634014321,
+    "pinneapple-weather": 0.9072322440566132
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0017118512878085516,
+    "Pangu-Weather": 0.0010675486295747961,
+    "pinneapple-weather": 0.0027705470119415527
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 269.01547739349564,
+    "Pangu-Weather": 289.2498844023099,
+    "pinneapple-weather": 724.1084353026054
+   },
+   "ensemble": 0.009221468109003192,
+   "ensemble_rmse_day5": 317.5770094145951,
+   "best_single": {
+    "name": "IFS HRES",
+    "error": 0.00959281154205634
+   },
+   "ensemble_beats_best_single": true,
+   "ensemble_wins": 0.25,
+   "inits": [
+    "2020-03-01T00",
+    "2020-03-31T00",
+    "2020-04-30T00",
+    "2020-05-30T00"
+   ]
+  },
+  "midlatitudes N/JJA": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.006739671425982782,
+    "Pangu-Weather": 0.0065658377899676865,
+    "pinneapple-weather": 0.0117918383030945
+   },
+   "weights": {
+    "IFS HRES": 0.24957065961592764,
+    "Pangu-Weather": 0.2513562984400863,
+    "pinneapple-weather": 0.22030032545506043
+   },
+   "share": {
+    "IFS HRES": 0.3469766096499167,
+    "Pangu-Weather": 0.3494914813099184,
+    "pinneapple-weather": 0.30353190904016486
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.9864803444189749,
+    "Pangu-Weather": 0.9775519484450049,
+    "pinneapple-weather": 0.9570382408247315
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0007406518782134902,
+    "Pangu-Weather": 0.0018424126979721357,
+    "pinneapple-weather": 0.0009500984698794143
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 227.6605838714737,
+    "Pangu-Weather": 200.34698171196683,
+    "pinneapple-weather": 488.8383875080954
+   },
+   "ensemble": 0.006630799734211945,
+   "ensemble_rmse_day5": 234.0197185616939,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.0065658377899676865
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.0,
+   "inits": [
+    "2020-06-29T00",
+    "2020-07-29T00",
+    "2020-08-28T00"
+   ]
+  },
+  "midlatitudes N/SON": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.010277102598051974,
+    "Pangu-Weather": 0.00764076812036817,
+    "pinneapple-weather": 0.018820306499292148
+   },
+   "weights": {
+    "IFS HRES": 0.24883198253740332,
+    "Pangu-Weather": 0.2528704020729063,
+    "pinneapple-weather": 0.2425445742765847
+   },
+   "share": {
+    "IFS HRES": 0.3341251483174356,
+    "Pangu-Weather": 0.3392379022997607,
+    "pinneapple-weather": 0.3266369493828037
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.9174082263099455,
+    "Pangu-Weather": 0.9032712768301435,
+    "pinneapple-weather": 0.9179267091969693
+   },
+   "energy_drift": {
+    "IFS HRES": 0.001683681903360483,
+    "Pangu-Weather": 0.001760149709694032,
+    "pinneapple-weather": 0.00024292242446614392
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 308.9503779664406,
+    "Pangu-Weather": 239.72318982113543,
+    "pinneapple-weather": 769.8498286977788
+   },
+   "ensemble": 0.009754797101038827,
+   "ensemble_rmse_day5": 348.3653556911677,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.00764076812036817
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.0,
+   "inits": [
+    "2020-09-27T00",
+    "2020-10-27T00",
+    "2020-11-26T00"
+   ]
+  },
+  "midlatitudes S/DJF": {
+   "n_cases": 1,
+   "error": {
+    "IFS HRES": 0.008854265943456625,
+    "Pangu-Weather": 0.008277677685639835,
+    "pinneapple-weather": 0.018051086677105643
+   },
+   "weights": {
+    "IFS HRES": 0.24860301734890866,
+    "Pangu-Weather": 0.24854888121929133,
+    "pinneapple-weather": 0.24868333938075138
+   },
+   "share": {
+    "IFS HRES": 0.33332163016669414,
+    "Pangu-Weather": 0.3332490455972573,
+    "pinneapple-weather": 0.33342932423604865
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.8561981633484166,
+    "Pangu-Weather": 0.8567452078650177,
+    "pinneapple-weather": 0.8553865108089317
+   },
+   "energy_drift": {
+    "IFS HRES": 0.00020769788340575104,
+    "Pangu-Weather": 0.0006566022754429887,
+    "pinneapple-weather": 0.0023539700295985683
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 306.41015605066275,
+    "Pangu-Weather": 276.86546776016274,
+    "pinneapple-weather": 768.9887025166985
+   },
+   "ensemble": 0.008712087102931153,
+   "ensemble_rmse_day5": 325.38357678585015,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.008277677685639835
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.0,
+   "inits": [
+    "2020-01-31T00"
+   ]
+  },
+  "midlatitudes S/MAM": {
+   "n_cases": 4,
+   "error": {
+    "IFS HRES": 0.011528692128626169,
+    "Pangu-Weather": 0.011298574324650604,
+    "pinneapple-weather": 0.02018504420896141
+   },
+   "weights": {
+    "IFS HRES": 0.2566020919760509,
+    "Pangu-Weather": 0.2565442337377618,
+    "pinneapple-weather": 0.228899011234394
+   },
+   "share": {
+    "IFS HRES": 0.34581202399041366,
+    "Pangu-Weather": 0.34572789060285997,
+    "pinneapple-weather": 0.30846008540672637
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.844313685953888,
+    "Pangu-Weather": 0.8442726227209194,
+    "pinneapple-weather": 0.841216826562159
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0010227270345768494,
+    "Pangu-Weather": 0.0013635895652843566,
+    "pinneapple-weather": 0.0020452413505133277
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 356.3878014305794,
+    "Pangu-Weather": 326.4476567479202,
+    "pinneapple-weather": 879.1971693984174
+   },
+   "ensemble": 0.010979907841261911,
+   "ensemble_rmse_day5": 403.04643668304914,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.011298574324650604
+   },
+   "ensemble_beats_best_single": true,
+   "ensemble_wins": 0.25,
+   "inits": [
+    "2020-03-01T00",
+    "2020-03-31T00",
+    "2020-04-30T00",
+    "2020-05-30T00"
+   ]
+  },
+  "midlatitudes S/JJA": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.011645407421888984,
+    "Pangu-Weather": 0.012359940425716717,
+    "pinneapple-weather": 0.02092545456686527
+   },
+   "weights": {
+    "IFS HRES": 0.2554811315038461,
+    "Pangu-Weather": 0.2543148290704993,
+    "pinneapple-weather": 0.2422503076652894
+   },
+   "share": {
+    "IFS HRES": 0.3397104541858192,
+    "Pangu-Weather": 0.338161381683945,
+    "pinneapple-weather": 0.322128164130236
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.8324334901901127,
+    "Pangu-Weather": 0.8367245549521906,
+    "pinneapple-weather": 0.8293055053837044
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0002721364203826482,
+    "Pangu-Weather": 0.0005706822216223743,
+    "pinneapple-weather": 0.00036933701350116093
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 357.1377641954154,
+    "Pangu-Weather": 393.6671380819198,
+    "pinneapple-weather": 836.7461051414078
+   },
+   "ensemble": 0.011720045975630719,
+   "ensemble_rmse_day5": 421.9903119674784,
+   "best_single": {
+    "name": "IFS HRES",
+    "error": 0.011645407421888984
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.3333333333333333,
+   "inits": [
+    "2020-06-29T00",
+    "2020-07-29T00",
+    "2020-08-28T00"
+   ]
+  },
+  "midlatitudes S/SON": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.010337614700678654,
+    "Pangu-Weather": 0.009720904283232917,
+    "pinneapple-weather": 0.01988016209939218
+   },
+   "weights": {
+    "IFS HRES": 0.254865352794897,
+    "Pangu-Weather": 0.25616696354762075,
+    "pinneapple-weather": 0.24166923514111563
+   },
+   "share": {
+    "IFS HRES": 0.3385854431026598,
+    "Pangu-Weather": 0.3403072760664297,
+    "pinneapple-weather": 0.32110728083091045
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.0
+   },
+   "advection_residual": {
+    "IFS HRES": 0.8352810155201706,
+    "Pangu-Weather": 0.8393270577355076,
+    "pinneapple-weather": 0.8286489225438137
+   },
+   "energy_drift": {
+    "IFS HRES": 0.0011051738019066774,
+    "Pangu-Weather": 0.00041675615865289204,
+    "pinneapple-weather": 0.001081123838218627
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": ""
+   },
+   "rmse_day5": {
+    "IFS HRES": 297.9175988046857,
+    "Pangu-Weather": 313.175234785306,
+    "pinneapple-weather": 852.6502995407105
+   },
+   "ensemble": 0.009860247794330887,
+   "ensemble_rmse_day5": 367.9410123292212,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.009720904283232917
+   },
+   "ensemble_beats_best_single": false,
+   "ensemble_wins": 0.0,
+   "inits": [
+    "2020-09-27T00",
+    "2020-10-27T00",
+    "2020-11-26T00"
+   ]
+  },
+  "Arctic/DJF": {
+   "n_cases": 1,
+   "error": {
+    "IFS HRES": 0.01519471641525372,
+    "Pangu-Weather": 0.01322895958009299,
+    "pinneapple-weather": 0.023246818657612574
+   },
+   "weights": {
+    "IFS HRES": 0.24882003697506017,
+    "Pangu-Weather": 0.1674265799834994,
+    "pinneapple-weather": 0.3333333333333333
+   },
+   "share": {
+    "IFS HRES": 0.5977707129325018,
+    "Pangu-Weather": 0.40222928706749816,
+    "pinneapple-weather": 0.0
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 1.0
+   },
+   "advection_residual": {
+    "IFS HRES": 1.0164006240041263,
+    "Pangu-Weather": 1.0061558135548334,
+    "pinneapple-weather": 1.0174730666197542
+   },
+   "energy_drift": {
+    "IFS HRES": 0.004402723836223327,
+    "Pangu-Weather": 0.011631891785099002,
+    "pinneapple-weather": 0.013353848373616252
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": "advection_consistency: 102 % of the change unexplained by advection (tolerance 401 %); energy_drift: 0.0134 spreads per day (tolerance 0.0234)"
+   },
+   "rmse_day5": {
+    "IFS HRES": 219.275416706447,
+    "Pangu-Weather": 232.47025399995422,
+    "pinneapple-weather": 467.4535434915583
+   },
+   "ensemble": 0.01088431225608146,
+   "ensemble_rmse_day5": 151.14830097654666,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.01322895958009299
+   },
+   "ensemble_beats_best_single": true,
+   "ensemble_wins": 1.0,
+   "inits": [
+    "2020-01-31T00"
+   ]
+  },
+  "Arctic/MAM": {
+   "n_cases": 4,
+   "error": {
+    "IFS HRES": 0.013516728439859054,
+    "Pangu-Weather": 0.012068102602383892,
+    "pinneapple-weather": 0.019614596335614257
+   },
+   "weights": {
+    "IFS HRES": 0.22243636492204713,
+    "Pangu-Weather": 0.250842943497318,
+    "pinneapple-weather": 0.2846927084571024
+   },
+   "share": {
+    "IFS HRES": 0.4344834521332985,
+    "Pangu-Weather": 0.49628795723815544,
+    "pinneapple-weather": 0.06922859062854604
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.75
+   },
+   "advection_residual": {
+    "IFS HRES": 0.988852061568612,
+    "Pangu-Weather": 0.9687149998939661,
+    "pinneapple-weather": 1.0228735304566239
+   },
+   "energy_drift": {
+    "IFS HRES": 0.007792726647825469,
+    "Pangu-Weather": 0.004951009019405232,
+    "pinneapple-weather": 0.01456571527383101
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": "advection_consistency: 103 % of the change unexplained by advection (tolerance 401 %); energy_drift: 0.0143 spreads per day (tolerance 0.0234)"
+   },
+   "rmse_day5": {
+    "IFS HRES": 160.873192358947,
+    "Pangu-Weather": 196.11103261504996,
+    "pinneapple-weather": 406.6531893874179
+   },
+   "ensemble": 0.011534835072596276,
+   "ensemble_rmse_day5": 172.567187822856,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.012068102602383892
+   },
+   "ensemble_beats_best_single": true,
+   "ensemble_wins": 0.5,
+   "inits": [
+    "2020-03-01T00",
+    "2020-03-31T00",
+    "2020-04-30T00",
+    "2020-05-30T00"
+   ]
+  },
+  "Arctic/JJA": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.012282423210543592,
+    "Pangu-Weather": 0.011113546939065059,
+    "pinneapple-weather": 0.01714068075133561
+   },
+   "weights": {
+    "IFS HRES": 0.24424077271616418,
+    "Pangu-Weather": 0.24973339658965277,
+    "pinneapple-weather": 0.2663910587418517
+   },
+   "share": {
+    "IFS HRES": 0.3892808354500061,
+    "Pangu-Weather": 0.39740195630076247,
+    "pinneapple-weather": 0.2133172082492315
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.3333333333333333
+   },
+   "advection_residual": {
+    "IFS HRES": 1.0311901880564223,
+    "Pangu-Weather": 1.0357637052177788,
+    "pinneapple-weather": 1.008362606857385
+   },
+   "energy_drift": {
+    "IFS HRES": 0.004839635032571025,
+    "Pangu-Weather": 0.00414417434561786,
+    "pinneapple-weather": 0.007261063253389232
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": "advection_consistency: 101 % of the change unexplained by advection (tolerance 401 %); energy_drift: 0.0154 spreads per day (tolerance 0.0234)"
+   },
+   "rmse_day5": {
+    "IFS HRES": 149.98691801274947,
+    "Pangu-Weather": 165.31350532439419,
+    "pinneapple-weather": 453.99714065377685
+   },
+   "ensemble": 0.010611779308705114,
+   "ensemble_rmse_day5": 179.45426682478333,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.011113546939065059
+   },
+   "ensemble_beats_best_single": true,
+   "ensemble_wins": 0.6666666666666666,
+   "inits": [
+    "2020-06-29T00",
+    "2020-07-29T00",
+    "2020-08-28T00"
+   ]
+  },
+  "Arctic/SON": {
+   "n_cases": 3,
+   "error": {
+    "IFS HRES": 0.013200921965357035,
+    "Pangu-Weather": 0.011787281459923393,
+    "pinneapple-weather": 0.02438487142970497
+   },
+   "weights": {
+    "IFS HRES": 0.23612373919250204,
+    "Pangu-Weather": 0.25521589390341265,
+    "pinneapple-weather": 0.2849371684864592
+   },
+   "share": {
+    "IFS HRES": 0.4326292746987444,
+    "Pangu-Weather": 0.47446874208745976,
+    "pinneapple-weather": 0.09290198321379578
+   },
+   "out_of_domain": {
+    "IFS HRES": 0.0,
+    "Pangu-Weather": 0.0,
+    "pinneapple-weather": 0.6666666666666666
+   },
+   "advection_residual": {
+    "IFS HRES": 1.0192689018291587,
+    "Pangu-Weather": 1.0161060754244777,
+    "pinneapple-weather": 0.9955444179283123
+   },
+   "energy_drift": {
+    "IFS HRES": 0.005363742650367721,
+    "Pangu-Weather": 0.0037765743585645964,
+    "pinneapple-weather": 0.011689374438875475
+   },
+   "failure_reason": {
+    "IFS HRES": "",
+    "Pangu-Weather": "",
+    "pinneapple-weather": "advection_consistency: 95.3 % of the change unexplained by advection (tolerance 401 %); energy_drift: 0.0117 spreads per day (tolerance 0.0234)"
+   },
+   "rmse_day5": {
+    "IFS HRES": 165.33789111606606,
+    "Pangu-Weather": 173.57222526372166,
+    "pinneapple-weather": 517.0498802972301
+   },
+   "ensemble": 0.009742231627757393,
+   "ensemble_rmse_day5": 154.21606261279743,
+   "best_single": {
+    "name": "Pangu-Weather",
+    "error": 0.011787281459923393
+   },
+   "ensemble_beats_best_single": true,
+   "ensemble_wins": 1.0,
+   "inits": [
+    "2020-09-27T00",
+    "2020-10-27T00",
+    "2020-11-26T00"
+   ]
+  }
+ },
+ "models": {
+  "ensemble": 0.007871575727377506,
+  "ensemble_rmse_day5": 235.41694142539058,
+  "IFS HRES": 0.008628938198374096,
+  "Pangu-Weather": 0.00810831960373569,
+  "pinneapple-weather": 0.015189704019323222,
+  "rmse_day5": {
+   "IFS HRES": 207.20372379053725,
+   "Pangu-Weather": 211.78821385913994,
+   "pinneapple-weather": 541.0658442150593
+  },
+  "weights": {
+   "IFS HRES": 0.24792019096785078,
+   "Pangu-Weather": 0.24934335238150213,
+   "pinneapple-weather": 0.2516341744084719
+  },
+  "share": {
+   "IFS HRES": 0.3854172462201638,
+   "Pangu-Weather": 0.34730806545760884,
+   "pinneapple-weather": 0.26727468832222734
+  },
+  "out_of_domain": {
+   "IFS HRES": 0.0,
+   "Pangu-Weather": 0.057291666666666664,
+   "pinneapple-weather": 0.1875
+  },
+  "advection_residual": {
+   "IFS HRES": 0.9541091075742023,
+   "Pangu-Weather": 0.9526930035537393,
+   "pinneapple-weather": 0.9562285827397587
+  },
+  "energy_drift": {
+   "IFS HRES": 0.0022178858010646896,
+   "Pangu-Weather": 0.0028172118160198897,
+   "pinneapple-weather": 0.004194952113474076
+  },
+  "ensemble_wins": 0.32812499999999994,
+  "cells_where_ensemble_beats_best_single": 7,
+  "n_cells": 16
+ },
+ "seconds": 5.5
+}

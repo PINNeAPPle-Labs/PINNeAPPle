@@ -31,7 +31,8 @@
   "viewers": [],
   "data": [
    "checkpoints/era5_64x32_normalization.json",
-   "data/baselines_2020.json"
+   "data/baselines_2020.json",
+   "data/pretrained_ensemble_2020.json"
   ]
  },
  "links": {

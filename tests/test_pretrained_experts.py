@@ -81,6 +81,31 @@ def test_register_needs_a_licence():
         register(PretrainedModel("mystery", "weather", "some/weights", Licence("")))
 
 
+def test_the_recipe_of_the_guide_holds_for_every_model_in_the_registry(store, tmp_path):
+    """What the guide tells a reader to do with a new model ("Adding a new pre-trained model": a registry entry with the
+    licence, an adapter, a domain check, a measurement), executed over every entry that is already there: each one is
+    wrapped by an adapter this repository ships, and the provenance carries the licence, the source and the cost
+    method that the guide promises. A new registry entry that no adapter can wrap breaks this."""
+    ad = ArrayArchiveAdapter(archive(tmp_path), store=store)
+    assert len(known_models()) >= 8
+    for name in known_models():
+        e = from_pretrained_expert(name, ad)                      # step 2 of the guide: the adapter
+        prov = provenance_of(e)                                   # step 1: the licence travels with the prediction
+        assert prov["licence"]["spdx"] == REGISTRY[name].licence.spdx
+        assert prov["pretrained"]["source"] == REGISTRY[name].source
+        assert prov["pretrained"]["envelope"] == dict(REGISTRY[name].envelope)
+        assert prov["cost"]["method"]
+        assert e.kind == REGISTRY[name].family
+    own = PretrainedModel("my-own-model", "weather", "gs://my/archive",
+                          Licence("MIT", "https://example.org/LICENSE", True, True, "2026-11-27: example.org"))
+    register(own)                                                 # step 1 for a model nobody listed yet
+    try:
+        e = from_pretrained_expert("my-own-model", ad)
+        assert provenance_of(e)["licence"]["spdx"] == "MIT"
+    finally:
+        REGISTRY.pop("my-own-model", None)
+
+
 def test_from_pretrained_expert_puts_the_licence_in_the_provenance(store, tmp_path):
     e = from_pretrained_expert("pinneapple-weather", ArrayArchiveAdapter(archive(tmp_path), store=store))
     assert e.name == "pinneapple-weather" and e.kind == "weather"

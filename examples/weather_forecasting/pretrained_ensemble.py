@@ -170,16 +170,23 @@ def cell_checks(fields: dict[int, dict[str, np.ndarray]], lat: np.ndarray, lon: 
 
 
 def calibrate(analysis: dict[int, dict[str, np.ndarray]], lat: np.ndarray, lon: np.ndarray) -> dict[str, float]:
-    """The level the analysis itself scores on these cases: the floor both checks are read against. Twice it is the
-    tolerance, so a model is flagged where it is worse than the analysis and the discretisation put together."""
+    """The level the analysis itself scores on these cases -- the discretisation floor both checks are read against.
+
+    ``as_prediction_check`` maps a residual of 0 to a score of 1 and a residual equal to the check's *tolerance* to 0,
+    so the ensemble's threshold of 0.5 sits at **half the tolerance**: setting the tolerance to twice the analysis's
+    own level puts the exclusion at exactly that level. If a model is on a par with the analysis it scores 0.75 and
+    stays; the flags belong to models that are twice as far from the dynamics, i.e. twice as much of their 6-hour
+    change unexplained, or twice the drift of the conserved total per day. The advection residual of ``z500`` sits at
+    about 1 for the analysis itself (the field is not materially advected), so a tolerance only twice the analysis
+    level would decide the case on the last digit -- measured, and the reason the boundary is stated explicitly."""
     adv, ene = [], []
     for f in analysis.values():
         adv.append(advection_residual(f["z500"][1:], f["u500"][1:], f["v500"][1:], HOURS, lat, lon))
         ene.append(global_drift(dry_static_energy(f["t700"][1:], f["z700"][1:]), lat, HOURS))
-    return {"analysis_advection_residual": float(np.median(adv)),
-            "analysis_energy_drift": float(np.median(ene)),
-            "advection_tolerance": float(2.0 * np.median(adv)),
-            "energy_tolerance": float(max(2.0 * np.median(ene), 0.01))}
+    a, e = float(np.median(adv)), float(np.median(ene))
+    return {"analysis_advection_residual": a, "analysis_energy_drift": e,
+            "advection_boundary": 2.0 * a, "energy_boundary": max(2.0 * e, 0.005),
+            "advection_tolerance": 4.0 * a, "energy_tolerance": max(4.0 * e, 0.01)}
 
 
 # ---------------------------------------------------------------------------------------------------- a cell
@@ -314,7 +321,7 @@ def main(argv: list[str] | None = None) -> dict[str, Any]:
         result["calibration"][region] = cal
         print(f"{region}: analysis advection {cal['analysis_advection_residual']:.3f} "
               f"energy {cal['analysis_energy_drift']:.4f} spreads/day "
-              f"-> tolerances {cal['advection_tolerance']:.3f} / {cal['energy_tolerance']:.3f}", flush=True)
+              f"-> out of the case above {cal['advection_boundary']:.3f} / {cal['energy_boundary']:.4f}", flush=True)
         truth_r = cell_fields(truth, sl)
         model_r = {n: cell_fields(model[n], sl) for n in names}
         for season in SEASONS:

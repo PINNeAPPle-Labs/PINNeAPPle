@@ -21,5 +21,16 @@
   water 0.306, and a mask that wets the outlet without its donors 0.800), and `temporal_residual` with
   `lucas_kanade` (frames translated by two pixels: flow residual 5e-9; frames of noise: 0.974 with 7.5 % of the pixels
   teleporting). Each is a `ValidityCheck` and `as_prediction_check` turns it into the `(score, reason)` callable
-  `PhysicsEnsemble(prediction_checks=...)` weights the experts with. The demo over 2020 with the three weather models
-  side by side is the next slice: it needs the archive subset and a trained checkpoint.
+  `PhysicsEnsemble(prediction_checks=...)` weights the experts with. `WeatherBench2Adapter` fills the lead the published
+  archives leave empty (they publish no lead 0: the analysis is not a forecast) from the store's own analysis, reads
+  the channel map you declare, and returns several variables stacked from one read, so a physics check can ask one
+  model for the tracer and for the wind that should carry it.
+- The demo over 2020 (#348), in `examples/weather_forecasting/pretrained_ensemble.py`: IFS HRES, Pangu-Weather and the
+  phase-1 model here as the three experts of one `PhysicsEnsemble` per latitude band and season, 11 00 UTC
+  initialisations every 30 days, +6 h to +240 h, with `advection_check` and `energy_check` as the label-free
+  `prediction_checks` and their tolerances measured on the analysis of the same cases. Measured 2026-11-27: `z500`
+  relative L2 0.0079 for the ensemble against 0.0086 (IFS HRES), 0.0081 (Pangu) and 0.0152 (the model here); day-5
+  RMSE 235 / 207 / 212 / 541 m²/s²; the checks take IFS HRES out of 0 % of the cells, Pangu out of 5.7 % (the tropics
+  only) and the phase-1 model out of 18.8 % (every Arctic DJF case). The advection residual sits at 0.95 for all four,
+  the analysis included -- `z500` is not materially advected -- and the guide says so instead of tuning the check until
+  it fires.

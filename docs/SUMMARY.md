@@ -63,6 +63,7 @@
   * [Other 3-D viewers and digital-twin standards](core_concepts/viewers_and_twin_standards.md)
   * [Qualitative preview of geometry changes](core_concepts/qualitative_preview.md)
   * [Black-hole weather forecasting](core_concepts/black_hole_weather.md)
+  * [Black-hole imaging and strong lensing: what the data decide, what the prior decides](core_concepts/black_hole_imaging_lensing.md)
   * [astroML: periodograms, deconvolved densities, fits with errors](core_concepts/astroml.md)
   * [Positional astronomy and astrophysics](core_concepts/astro.md)
   * [PINNeAPPle Lab: experiments and datasets](core_concepts/lab.md)

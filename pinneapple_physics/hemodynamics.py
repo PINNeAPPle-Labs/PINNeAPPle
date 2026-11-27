@@ -42,7 +42,7 @@ import numpy as np
 
 __all__ = ["BLOOD", "Blood", "Harmonic", "Womersley", "FourDFlow", "sample_4d_flow", "wss_from_profile",
            "wss_from_4d_flow", "stokes_layer", "DEFAULT_VESSELS", "PHYSIOLOGICAL_FLOW", "Vessel",
-           "case_from_vessel", "PINNConfig", "WomersleyPINN", "train", "predict", "model_wall_shear",
+           "case_from_vessel", "PINNConfig", "build_network", "train", "predict", "model_wall_shear",
            "model_pressure_gradient", "ensemble", "measure", "relative_l2", "two_pi_grid"]
 
 TWO_PI = 2.0 * math.pi
@@ -106,7 +106,6 @@ class _Mode:
     gradient: complex        # complex amplitude of -dp/dz [Pa/m]
     beta: complex            # Womersley parameter, alpha*sqrt(-i*order)
     centre: complex          # amplitude of the velocity on the axis [m/s]
-    gain: complex            # centre*(1 - J0(beta y)/J0(beta)) prefactor, i.e. centre itself
     wall_gradient: complex   # dW/dr at r = R [1/s]
 
 
@@ -149,12 +148,12 @@ class Womersley:
         if h.order == 0:
             # steady Poiseuille: W = G (R^2 - r^2)/(4 mu), dW/dr = -G r/(2 mu)
             centre = g * self.radius ** 2 / (4.0 * self.rho * self.nu)
-            return _Mode(0, g, 0.0 + 0.0j, centre, centre, -g * self.radius / (2.0 * self.rho * self.nu))
+            return _Mode(0, g, 0.0j, centre, -g * self.radius / (2.0 * self.rho * self.nu))
         alpha = self.alpha * math.sqrt(h.order)
         beta = alpha * complex(math.sqrt(0.5), -math.sqrt(0.5))       # alpha*sqrt(-i)
         centre = g / (1j * self.rho * self.omega * h.order)
         wall = centre * beta * jv(1, beta) / (self.radius * jv(0, beta))
-        return _Mode(h.order, g, beta, centre, centre, wall)
+        return _Mode(h.order, g, beta, centre, wall)
 
     @classmethod
     def from_flow_rate(cls, radius: float, nu: float, omega: float,
@@ -214,10 +213,6 @@ class Womersley:
         for m in self._modes:
             out = out + np.real(m.centre * self._radial(m, y) * np.exp(1j * (m.order * tau)))
         return out
-
-    def radial_profile(self, y, tau: float = 0.0) -> np.ndarray:
-        """Alias for :meth:`velocity` at one phase, for readability when a profile is meant."""
-        return self.velocity(y, tau)
 
     def _radial(self, m: _Mode, y: np.ndarray) -> np.ndarray:
         """``1 - J0(beta y)/J0(beta)``, the shape factor of one harmonic; 1 - y^2 for the steady one."""
@@ -515,42 +510,44 @@ def _mlp(n_in: int, n_out: int, width: int, depth: int) -> "torch.nn.Module":  #
     return torch.nn.Sequential(*layers)
 
 
-class WomersleyPINN:
-    """The model, built lazily so that importing this module does not import torch."""
+def build_network(config: PINNConfig | None = None):
+    """The network, built lazily so that importing this module does not import torch.
 
-    @staticmethod
-    def build(config: PINNConfig | None = None):
-        import torch
+    The class is defined inside the function because it has to be a ``torch.nn.Module``, and a module that imports
+    torch at import time would make the whole closed-form half unavailable without it -- the same pattern as
+    :mod:`pinneapple_physics.symbolic_pde.pinn`.
+    """
+    import torch
 
-        config = config or PINNConfig()
+    config = config or PINNConfig()
 
-        class _Net(torch.nn.Module):
-            """``(y, tau) -> (u, v, g)``, with the exact symmetries built into the ansatz.
+    class _Net(torch.nn.Module):
+        """``(y, tau) -> (u, v, g)``, with the exact symmetries built into the ansatz.
 
-            ``v = (1 - y^2) N_v(y^2, sin tau, cos tau)`` is even in ``y`` and vanishes at the wall, so no-slip and
-            axis symmetry hold to machine precision and cannot be traded away by the optimiser. ``u = y(1-y^2) N_u``
-            vanishes on the axis and at the wall, as it must. ``g`` is a function of the phase alone. Periodicity is
-            exact: ``tau`` enters only as ``sin`` and ``cos``, so the field at ``tau = 0`` and ``tau = 2 pi`` is the
-            same value by construction, not by a penalty.
-            """
+        ``v = (1 - y^2) N_v(y^2, sin tau, cos tau)`` is even in ``y`` and vanishes at the wall, so no-slip and
+        axis symmetry hold to machine precision and cannot be traded away by the optimiser. ``u = y(1-y^2) N_u``
+        vanishes on the axis and at the wall, as it must. ``g`` is a function of the phase alone. Periodicity is
+        exact: ``tau`` enters only as ``sin`` and ``cos``, so the field at ``tau = 0`` and ``tau = 2 pi`` is the
+        same value by construction, not by a penalty.
+        """
 
-            def __init__(self) -> None:
-                super().__init__()
-                torch.manual_seed(config.seed)
-                self.net_field = _mlp(3, 2, config.width, config.depth)
-                self.net_grad = _mlp(2, 1, config.width, config.depth)
+        def __init__(self) -> None:
+            super().__init__()
+            torch.manual_seed(config.seed)
+            self.net_field = _mlp(3, 2, config.width, config.depth)
+            self.net_grad = _mlp(2, 1, config.width, config.depth)
 
-            def forward(self, y, tau):
-                s = y * y
-                st, ct = torch.sin(tau), torch.cos(tau)
-                feats = torch.cat([s, st, ct], dim=1)
-                field = self.net_field(feats)
-                u = y * (1.0 - s) * field[:, 0:1]
-                v = (1.0 - s) * field[:, 1:2]
-                g = self.net_grad(torch.cat([st, ct], dim=1))
-                return torch.cat([u, v, g], dim=1)
+        def forward(self, y, tau):
+            s = y * y
+            st, ct = torch.sin(tau), torch.cos(tau)
+            feats = torch.cat([s, st, ct], dim=1)
+            field = self.net_field(feats)
+            u = y * (1.0 - s) * field[:, 0:1]
+            v = (1.0 - s) * field[:, 1:2]
+            g = self.net_grad(torch.cat([st, ct], dim=1))
+            return torch.cat([u, v, g], dim=1)
 
-        return _Net()
+    return _Net()
 
 
 def _loss_function(alpha: float, reynolds: float, config: PINNConfig):
@@ -592,7 +589,7 @@ def train(wave: Womersley, four_d: FourDFlow, config: PINNConfig | None = None,
     config = config or PINNConfig()
     w0 = float(np.max(np.abs(four_d.velocity))) if w0 is None else float(w0)
     alpha, reynolds = wave.alpha, w0 * wave.radius / wave.nu
-    model = WomersleyPINN.build(config)
+    model = build_network(config)
     model.peak_velocity = w0
     loss_fn = _loss_function(alpha, reynolds, config)
 
@@ -752,13 +749,12 @@ def measure(wave: Womersley, four_d: FourDFlow, ens: dict, *, segment_length: fl
     wss_std = ens["wss_std"]
 
     yg = np.linspace(0.0, 1.0, 81)[:, None]
+    grid_y = np.repeat(yg, taus.size, axis=1)
+    grid_tau = np.tile(taus, (yg.size, 1))
     vel_true = wave.velocity(yg, taus[None, :]) / float(np.max(np.abs(four_d.velocity)))
-    _, vel_pred, _ = predict(ens["members"][0][0], np.repeat(yg, taus.size, axis=1),
-                             np.tile(taus, (yg.size, 1)))
     # every member, so that the reported velocity error is the ensemble's and not the first member's
-    vel_err = float(np.mean([relative_l2(
-        predict(m, np.repeat(yg, taus.size, axis=1), np.tile(taus, (yg.size, 1)))[1], vel_true)
-        for m, _ in ens["members"]]))
+    vel_err = float(np.mean([relative_l2(predict(m, grid_y, grid_tau)[1], vel_true)
+                             for m, _ in ens["members"]]))
 
     fwd1 = wss_from_4d_flow(four_d, wave.mu, order=1)
     fwd2 = wss_from_4d_flow(four_d, wave.mu, order=2)

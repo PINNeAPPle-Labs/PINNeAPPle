@@ -309,23 +309,24 @@ def test_the_ansatz_has_the_exact_symmetries():
 
 
 def test_a_short_fit_already_beats_the_two_point_estimate():
-    """Four hundred steps on the 2 mm phantom -- a tenth of what the example runs -- are enough to be an order of
-    magnitude better than the estimate taken straight off the measured profile. The tolerance is loose on purpose:
-    the number this asserts is the one measured here (0.05 against 0.27), and the check is the ratio, not the value.
+    """Four hundred steps on the 2 mm phantom -- a fifth of what the example runs -- already beat by twenty times the
+    estimate taken straight off the measured profile. Measured here: 0.013 against 0.271. The tolerance is loose on
+    purpose; the check that matters is the ratio, and that the fit sits at the noise floor and not through it.
     """
     wave, four_d, (model, rec) = _short_fit()
     taus = two_pi_grid(24)
     truth = wave.wall_shear(taus)
     pinn = relative_l2(model_wall_shear(model, taus, wave.mu, wave.radius), truth)
     data_only = relative_l2(wss_from_4d_flow(four_d, wave.mu, order=1), truth)
-    assert pinn < 0.10
-    assert pinn < 0.4 * data_only
+    assert pinn < 0.05
+    assert pinn < 0.1 * data_only
     assert rec["final_data"] < 1.5 * four_d.noise ** 2    # the fit is at the noise floor, not through the noise
 
 
 def test_the_pressure_gradient_is_recovered_up_to_its_scale():
-    """The recovered gradient is compared with the closed form over the cycle; the fit is short, so the tolerance
-    is the one measured (0.03 relative on the 2 mm phantom at the full length)."""
+    """The recovered gradient is compared with the closed form over the cycle; the fit is short, so the tolerance is
+    twice the 0.022 measured on the 2 mm phantom, and what it also asserts is that the peak lands at the same phase --
+    an amplitude that is right at the wrong instant is not a recovered waveform."""
     wave, _, (model, _) = _short_fit()
     taus = two_pi_grid(24)
     recovered = model_pressure_gradient(model, taus, wave)

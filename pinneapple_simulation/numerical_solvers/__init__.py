@@ -59,6 +59,7 @@ __all__ = [
     "NSFlowSolver",
     "CADToCFDPipeline",
     # 3D FDM
+    "FDM3DSolver",
     "SolverOutput3D",
     "HeatConfig3D",
     "HeatConduction3D",

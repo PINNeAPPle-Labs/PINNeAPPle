@@ -111,34 +111,33 @@ is the constraint the walk cannot see — at eight sensors on the plate the walk
 0.15, the spaced search reaches a closest pair of 0.173 at a criterion of 0.104, against 0.374 and 0.268 for the even
 spread.
 
-## What is missing
+## The four criteria that were missing, now delivered
 
-**5. Trust benchmark suite with a public leaderboard (#349).** Nothing here is one suite. The pieces exist
-separately: the data regimes including distribution shift (`pinneapple_arena/regimes.py`), the red-team/blue-team
-loop against the checks (`pinneapple_analysis/validation/arena`, #707), the drift monitor on served traffic
-(`pinneapple_analysis/trust/drift.py`, #2354) and the battle scoreboard of who leaves the validated domain first
-(`pinneapple_arena/battle.py`, #2536). What the issue asks for — hidden regime changes, sensor faults, slow drift and
-out-of-domain cases behind one protocol, with a leaderboard anyone can be placed on — is not built: there is no
-module that composes them and no test that runs the four failure kinds through the same API. The scoreboard of #2536
-is the closest thing and it ranks models on one stream of conditions, not on a suite of injected faults.
+The pass that wrote this note delivered items 7 and 8. The four criteria this epic was waiting on were built
+separately, each in its own issue, each with the test that asserts its own "Done when" -- and they are reviewed here
+by where the evidence lives, not by the claim:
 
-**2. Data assimilation with neural models (#346) — partial.** 4D-Var through autograd is delivered and measured on a
-Lorenz-96 twin experiment, and the EnKF is delivered and measured on linear systems. The neural half is not proved:
-no test runs either filter on a model trained here, and the variational and ensemble paths are two APIs, not one
-assimilation object. Closing it needs a test where the observation operator or the forward model is a neural network.
+**5. Trust benchmark suite with a public leaderboard (#349) — PR #2561.** `pinneapple_tools/benchmark_suite/trust.py`
+composes the four failure kinds behind one protocol (`run_suite(candidates)`), injects them with a ground truth and
+ranks candidates on a declared, recomputable rule. Measured: on the four-model field, gp ranks 1 and gbt 4 on every
+kind; out of domain gp errs 0.1246 against gbt's 1.9440 (15.6x); the hidden regime change is caught in 4.5 to 6.5
+readings while the inputs stay inside the KS box. `scripts/trust_benchmark.py --run|--docs|--check` writes and guards
+the record.
 
-**3. Adaptive fidelity driven by the trust horizon (#347) — partial.** The router is delivered and measured
-(`tests/test_fidelity.py`: over 400 requests against a surrogate fitted on a sub-box, every answer it served stayed
-inside the tolerance, while the same surrogate with the domain switched off served seven outside it). But it
-escalates on the trust *verdict*, the applicability domain and the interval width; it reads no horizon
-(`grep horizon pinneapple_analysis/fidelity.py` is empty), and `pp.trust`'s `Horizon` — the weather and rollout
-horizons of #345 — is not one of its conditions. The issue's wording is not met.
+**2. Data assimilation with neural models (#346) — PR #2564.** One assimilation object over both kernels, and a model
+trained in this repository used inside the filters. Measured: the neural analysis beats no assimilation in both
+kernels, and an undertrained surrogate makes the analysis worse -- the negative case is asserted too, which is what
+makes the positive one mean something.
 
-**E3. Trust-aware surrogate-assisted NSGA-II (#297) — open by decision.** The verification-budget loop exists
-(`pinneapple_analysis/surrogate_loop.py`, #2429) and the issue remains open on its own acceptance. It is not a gap in
-this epic to be filled by writing code here: an umbrella closes when its children close, and this child has not
-decided what "trust-aware" means for the survivor selection yet.
+**3. Adaptive fidelity driven by the trust horizon (#347) — PR #2559.** `pinneapple_analysis/fidelity.py` now reads
+`pp.trust`'s `Horizon` (37 mentions where `grep horizon` used to be empty), and two tests hold the two halves: a short
+horizon sends every otherwise acceptable request to the solver, and it escalates only the requests asking for a lead
+it cannot cover.
 
-The umbrella #343 stays open for the same reason. What closes it is #349 built, #346 proved with a neural model,
-#347 wired to the horizon, and #297 decided one way or the other — or a written decision on the issue that a
-piece is not worth its cost.
+**E3. Trust-aware surrogate-assisted NSGA-II (#297) — PR #2562.** The decision is written and implemented in
+`pinneapple_design/design_optimizer/trust_survivors.py`: a candidate is trusted, contradicted or indeterminate against
+a per-objective tolerance, and an interval that straddles the limit is undetermined rather than counted as a pass.
+Measured against plain NSGA-II on the same problem and budget.
+
+What is left is not code: the umbrella closes when these four merge, and #345 (the `Trust` object the horizon and the
+certificates read from) and #348 (bring your own model) land with it.

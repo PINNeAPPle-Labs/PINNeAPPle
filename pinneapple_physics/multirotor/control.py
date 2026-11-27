@@ -42,16 +42,26 @@ def quaternion_error(target: np.ndarray, current: np.ndarray) -> np.ndarray:
 
 
 class Trajectory:
-    """Where the vehicle is asked to be: hover, a circle, a climb, or a step -- enough to exercise the dynamics."""
+    """Where the vehicle is asked to be: hover, a circle, a climb, or a weave -- enough to exercise the dynamics.
+
+    ``weave`` is the maneuver that *excites*: a figure-eight in the horizontal plane with an oscillating heading, so roll,
+    pitch and yaw all see a nonzero torque and a nonzero angular acceleration. A hover identifies the mass and nothing
+    else (the rotors carry the weight and nothing moves), and a steady circle identifies no more than a hover: its rate
+    is constant, so the torque equation ``I d(omega)/dt = tau`` is ``0 = 0`` there. The estimators of :mod:`.estimate`
+    need a maneuver, which is what ``weave`` is for.
+    """
 
     def __init__(self, kind: str = "hover", *, altitude: float = 5.0, radius: float = 4.0, period_s: float = 20.0,
-                 climb_rate: float = 0.5, yaw_rate: float = 0.0):
+                 climb_rate: float = 0.5, yaw_rate: float = 0.0, yaw_amplitude: float = 0.5):
         self.kind = kind
         self.altitude = altitude
+        #: the circle's radius, and for the weave the amplitude of the figure-eight in ``x``
         self.radius = radius
         self.period_s = period_s
         self.climb_rate = climb_rate
         self.yaw_rate = yaw_rate
+        #: for the weave, the heading oscillates by ``+-yaw_amplitude`` at twice the lateral frequency
+        self.yaw_amplitude = yaw_amplitude
 
     def at(self, t: float) -> tuple[np.ndarray, np.ndarray, float]:
         """``(position, velocity, yaw)`` at time ``t``."""
@@ -60,6 +70,12 @@ class Trajectory:
             p = np.array([self.radius * math.cos(w * t), self.radius * math.sin(w * t), -self.altitude])
             v = np.array([-self.radius * w * math.sin(w * t), self.radius * w * math.cos(w * t), 0.0])
             return p, v, _wrap(w * t + math.pi / 2)
+        if self.kind == "weave":
+            w = 2 * math.pi / self.period_s
+            a = self.radius
+            p = np.array([a * math.sin(w * t), 0.5 * a * math.sin(2.0 * w * t), -self.altitude])
+            v = np.array([a * w * math.cos(w * t), a * w * math.cos(2.0 * w * t), 0.0])
+            return p, v, _wrap(self.yaw_amplitude * math.sin(2.0 * w * t))
         if self.kind == "climb":
             return (np.array([0.0, 0.0, -(self.altitude + self.climb_rate * t)]), np.array([0.0, 0.0, -self.climb_rate]),
                     self.yaw_rate * t)

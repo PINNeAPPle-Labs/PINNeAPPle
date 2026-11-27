@@ -7,8 +7,12 @@ pack sags, a gust arrives. Its sensors also fail, and the two are not the same p
 This guide is the whole chain for a 1.5 kg quad-X: the rotors solved from blade element momentum theory, the airframe
 integrated, eight faults injected where they physically act (two of them flown a second time at the edge of what the
 vehicle can feel), a Newton-Euler residual measured against the IMU and the pack, a diagnosis that reads the *direction*
-of the residual, and three detectors compared on equal terms. Every number
-below was produced by [`examples/multirotor_flight/flight_safety.py`](../../examples/multirotor_flight/flight_safety.py).
+of the residual, and three detectors compared on equal terms. Then the three questions that come before and after that:
+what the vehicle actually *is*, identified in flight rather than declared; what the nominal model is *missing*, learned
+from flights and measured on flights it never saw; and how many seconds the answer can be believed. The first part is
+produced by [`examples/multirotor_flight/flight_safety.py`](../../examples/multirotor_flight/flight_safety.py), the last
+three by
+[`examples/multirotor_flight/expert_identification.py`](../../examples/multirotor_flight/expert_identification.py).
 
 ```python
 from pinneapple_physics.multirotor.sim import fly
@@ -137,7 +141,129 @@ And what each one called it:
 | magnetometer 25 deg | magnetometer interference | magnetometer interference | magnetometer interference |
 | IMU vibration 1.2 m/s^2 | IMU vibration | IMU vibration | IMU vibration |
 
-## Two honest negatives
+## Who the vehicle actually is
+
+Everything above compares the flight with a *declared* vehicle. `OnlineExpert` identifies the vehicle instead, in
+flight, from what a flight controller already has — the rotor speeds it commanded, the accelerometer, the gyro and the
+GPS velocity — by recursive least squares on the same 6-DoF model, written so that it is **linear in the parameters**:
+
+| what is estimated | from | linear because |
+| --- | --- | --- |
+| mass, `mu = m_nom/m` | `f = (-T z + drag)/m`, with `T` from BEMT at the reported rotor speed | the thrust is a known number, so the force equation divides by an unknown mass |
+| drag area, `CdA_i/m` | the same equation, quadratic in the body velocity | `-0.5 rho CdA v v` is linear in `CdA` |
+| inertia, `I_x, I_y, I_z` | `I d(omega)/dt = tau - omega x I omega` | linear in the diagonal inertias once the gyroscopic term is taken at the current estimate |
+
+Every flight below starts from a declaration **two times too heavy, twice as hard to turn and with four times the drag
+area** it should have, and is flown at 200 Hz for twenty seconds:
+
+| flight | what it excites | mass error | inertia error, worst axis | `CdA_x` error | model `sigma` |
+| --- | --- | --- | --- | --- | --- |
+| hover | nothing | **+0.01 %** | -69 % | +100 % | 0.267 m/s² |
+| circle, 2.5 m/s | airspeed | +0.20 % | -15.3 % | +1.1 % | 0.091 m/s² |
+| weave | rates and airspeed | +0.36 % | **-3.4 %** | **-5.0 %** | 0.041 m/s² |
+
+Three things are worth reading twice.
+
+* **A hover identifies the mass on its first sample.** The accelerometer measures `T/m` and the ESC reports `T`, so the
+  answer is one division, not a convergence: it goes from the declared 3.0 kg to within 1 % of the true mass on the
+  first sample and settles at 1.5001 kg (+0.01 %). What takes *seconds* is everything else, because everything else
+  needs the vehicle to move.
+* **The inertia is identified only by a maneuver, and the covariance is what says so.** In a hover the torque equation
+  is `0 = 0`: nothing rotates, so nothing says what it costs to rotate, and the estimate wanders 69 % away with a
+  ±63 % uncertainty attached to it. The `weave` — a figure-eight with an oscillating heading, added to `Trajectory` for
+  this — puts a torque and an angular acceleration on all three axes, and the same estimate lands 3.4 % from the truth
+  with ±0.9 %. The uncertainty is not a decoration: it is the honest answer to "what did this flight teach you".
+* **The drag area is identified along the axes the flight flies along.** The circle is aligned with its velocity, so it
+  identifies `CdA_x` to 1.1 % and knows nothing about `CdA_y` (−29 %); the weave sweeps both, and both come out within
+  5 %. A hover does not move at all, so its drag estimate is still the `+100 %` it was declared with -- which is what a
+  prior is.
+
+The estimate is filtered at the motor's own lag first, on **both** sides of the equation: the rotor speed the ESC
+reports is a command, the propeller turns that command through a first-order lag, and filtering the accelerometer by the
+same `1/(1 + tau s)` cancels it to first order. Without it the thrust the expert divides by is one lag behind the
+specific force it is compared with, and the mass — which is that division — pays for it.
+
+## What the model is missing
+
+Two of the residual's causes are not faults at all. A steady wind and the ground effect near the floor are physics the
+declared vehicle does not contain, and a detector cannot tell either from a payload, so `ResidualCorrection` models them
+— and the interesting part is that they are **not the same kind of unknown**.
+
+**The ground effect is a property of the vehicle**, so it is fitted once and transferred. The basis is two decaying
+terms on the thrust per unit mass (`exp(-h/0.25 m)`, `exp(-h/0.5 m)`) rather than the `h0 = 0.35 m` the airframe
+declares, so the fit is handed a basis and not the answer. It is taught on three flights that bob through the skirt,
+and measured on flights it has never seen:
+
+| force residual, rms, m/s² | before | after | |
+| --- | --- | --- | --- |
+| unseen amplitude, 0.22 m | 0.483 | **0.184** | −62 % |
+| unseen amplitude, 0.15 m | 0.428 | **0.248** | −42 % |
+| a calm flight at 5 m | 0.104 | 0.104 | unchanged |
+
+The two coefficients it recovers are `+0.444` at 0.25 m and `-0.159` at 0.5 m, summing to **0.285** where the simulator
+used `k = 0.15`. That is 90 % high and it is reported as it is: the true curve is a single exponential at 0.35 m and the
+two-term basis is not orthogonal to it, so the total is the number to read and the split is not.
+
+**The wind is a property of the day, not of the vehicle**, and on a vehicle with no airspeed sensor it is not
+transferable at all: two wind speeds are two different constant forces, and one coefficient fitted across both describes
+neither. That is measured rather than assumed — a single constant world force fitted on the gusts makes a flight with no
+wind at all **6.7x worse** and a 3 m/s gust 4.0x worse, because it carries the average of the conditions it was taught
+on into every flight. So the wind is a **state**, estimated causally per flight by the same recursive least squares —
+three parameters, the rotation as the regressor, only samples before the one it is applied at:
+
+| force residual, rms, m/s² | before | wind as a coefficient | wind as a state |
+| --- | --- | --- | --- |
+| 6 m/s, another seed | 0.442 | 0.285 (0.64x) | **0.107 (0.24x)** |
+| 10 m/s, another seed | 1.307 | 0.554 (0.42x) | **0.187 (0.14x)** |
+| **unseen 8 m/s** | 0.801 | 0.192 (0.24x) | **0.121 (0.15x)** |
+| unseen 3 m/s | 0.147 | 0.593 (4.0x) | **0.104 (0.71x)** |
+| calm, no wind at all | 0.105 | 0.701 (6.7x) | **0.104 (1.00x)** |
+
+The coefficient happens to be *better* than the state on the two gusts it was fitted on and on the 8 m/s one, because
+those are the conditions it interpolates between; it is worse everywhere else, and it is worse by a factor, not by a
+per cent. The state is never worse than doing nothing and takes 85 % of the residual away from a wind speed it was never
+told about.
+
+## How long the model answers for
+
+Everything above assumes the active model is still describing the vehicle. With the expert online, that assumption has
+a number attached to it, in seconds:
+
+**`N = (threshold − level − sigma) / rate`**
+
+* the **level** is the force residual the model is carrying right now, in m/s²;
+* the **rate** is how fast that level is drifting, from a least-squares slope over the last second (m/s² per second);
+* the **threshold** is the level at which a fault is declared — here the signature of the smallest fault the campaign
+  carries, a 0.10 kg payload, `g · 0.10 / 1.5 = 0.65 m/s²`;
+* the **`sigma`** is the model's own uncertainty, propagated from the parameter covariance through the regressor at a
+  declared envelope (5 m/s of airspeed). It is the term that makes the answer depend on *how* the model was identified
+  instead of only on what the residual happens to be doing.
+
+A payload ramping in over six seconds, measured as it grows:
+
+| N, seconds | +0.5 s | +1.0 s | +1.5 s | +2.0 s | +4.0 s |
+| --- | --- | --- | --- | --- | --- |
+| payload +0.15 kg | 60 (cap) | 4.0 | 1.7 | 0.7 | 0.0 |
+| payload +0.30 kg | 9.0 | 0.7 | 0.0 | 0.0 | 0.0 |
+| payload +0.60 kg | 1.9 | 0.0 | 0.0 | 0.0 | 0.0 |
+
+It shortens as the fault grows, and it shortens *with* the fault: half a second after the onset the three sizes are
+already ordered 60 / 9.0 / 1.9 s, and the smallest of them is down to 4.0 s a second later and to 1.7 s a second after
+that. Zero is not a failure of
+the measure — it is the model saying it has expired, which is what the residual's being past the threshold means.
+
+The same flight judged by the model a *hover* taught and the model a *maneuver* taught:
+
+| model identified on | `sigma` | N |
+| --- | --- | --- |
+| a hover | 0.267 m/s² | **1.7 s** |
+| a weave | 0.041 m/s² | **3.8 s** |
+
+Both are looking at the same residual. The one that was taught by a flight that never rotated does not know what the
+inertia is, says so in its covariance, and therefore promises less — which is the whole point of quoting a number
+instead of a colour.
+
+## Four honest negatives
 
 1. **A degraded motor and a chipped blade are not told apart by these channels.** In theory they differ: a chip leaves
    more torque per newton than a motor that is simply weak. In the flight, the power-per-newton ratio is 1.96 for the
@@ -147,6 +273,15 @@ And what each one called it:
 2. **A 4 m/s gust is a 3-sigma event on a 1.5 kg quad.** The drag on a 0.03 m² CdA at 4 m/s is 0.29 N against a 14.7 N
    weight: the vehicle barely notices, so the residual barely notices. The gust in the campaign is 10 m/s for that
    reason, and the table above keeps the 4 m/s case to show where the floor is.
+3. **The drag area along the thrust axis is not identified by any flight this vehicle can fly.** At 2 m/s the vertical
+   drag is 0.13 m/s², at 5 m/s it is 0.82 m/s², and the thrust model's own lag error at the same speeds is 0.10 m/s² —
+   the same order. Every flight here returns a vertical `CdA` between −0.15 and +0.15 m² against a true 0.08, and the
+   fitted uncertainty is *small* while being wrong, which is the worst combination and is reported as such. The two
+   horizontal axes, which are what a gust pushes against, come out at 0.0285 and 0.0299 against 0.030.
+4. **The mass uncertainty the filter reports is optimistic.** It follows from the declared accelerometer noise, and the
+   model mismatch — the motor lag, the BEMT's own error — is not in that number: it claims ±0.09 g on a mass it gets
+   right to 5 g. The error is small because the equation is good, not because the covariance was told the truth.
+
 
 ## What this is not
 

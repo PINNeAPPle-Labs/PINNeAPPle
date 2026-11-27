@@ -8,7 +8,9 @@ The chain, in the order a flight runs it:
 * :mod:`.faults` -- the eight faults, injected where they physically act;
 * :mod:`.residuals` -- the sensors, and Newton-Euler on the nominal vehicle against them;
 * :mod:`.detect` -- three detectors tuned to the same false-alarm budget, and the diagnosis that reads the direction;
-* :mod:`.sim` -- one flight, and the campaign over faults and seeds.
+* :mod:`.sim` -- one flight, and the campaign over faults and seeds;
+* :mod:`.estimate` -- who the vehicle actually is (mass, inertia, drag), what the nominal model is missing (wind and
+  ground effect), and how many seconds the answer can be believed.
 """
 from __future__ import annotations
 
@@ -23,6 +25,14 @@ from .detect import (
                      diagnose,
                      tune,
 )
+from .estimate import (
+    EstimateHistory,
+    Horizon,
+    OnlineExpert,
+    ParameterEstimate,
+    ResidualCorrection,
+    confidence_horizon,
+)
 from .faults import FAULTS, Fault, FaultState, apply_faults, chip_factors
 from .model import QUAD_X, Airframe, Battery, Multirotor, RotorTable, State, Telemetry
 from .residuals import CHANNELS, Residual, ResidualModel, SensorModel, SensorObservatory, Sensors
@@ -33,4 +43,5 @@ __all__ = ["Rotor", "RotorState", "PROPS", "figure_of_merit", "Airframe", "Batte
            "State", "Telemetry", "QUAD_X", "Controller", "Trajectory", "quaternion_error", "Fault", "FaultState",
            "FAULTS", "apply_faults", "chip_factors", "Sensors", "SensorModel", "SensorObservatory", "Residual",
            "ResidualModel", "CHANNELS", "Detection", "Calibration", "ThresholdDetector", "KalmanDetector",
-           "CusumDetector", "calibrate", "tune", "diagnose", "Flight", "fly", "campaign"]
+           "CusumDetector", "calibrate", "tune", "diagnose", "Flight", "fly", "campaign", "OnlineExpert",
+           "ParameterEstimate", "EstimateHistory", "ResidualCorrection", "Horizon", "confidence_horizon"]

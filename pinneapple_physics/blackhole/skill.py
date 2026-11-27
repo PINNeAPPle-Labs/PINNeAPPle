@@ -32,7 +32,7 @@ from pinneapple_analysis.verification.forecast_skill import skill_vs_lead
 
 from .forecast import DensityCodec, MassEnvelope, rollout
 
-__all__ = ["DMDBaseline", "window_mass", "implied_inflow", "evaluate_skill"]
+__all__ = ["DMDBaseline", "window_mass", "implied_inflow", "acc_by_lead", "first_below", "evaluate_skill"]
 
 K = 5
 
@@ -68,6 +68,28 @@ def implied_inflow(x: np.ndarray, codec: DensityCodec, vol: np.ndarray, dt: floa
     rho = 10.0 ** (x.astype(np.float64) * (codec.log_max - codec.log_min) + codec.log_min)
     m_r = np.cumsum((rho * vol).sum(-1), -1)[:, list(shells)]
     return -np.diff(m_r, axis=0) / dt
+
+
+def acc_by_lead(frames: np.ndarray, truth: np.ndarray, clim: np.ndarray) -> np.ndarray:
+    """Anomaly correlation with the truth at every lead, anomalies taken from the time-mean flow ``clim``.
+
+    This is the anomaly correlation of weather forecasting, and the quantity the trust horizon of the docs is written
+    on (the first lead where it falls below 0.6); it is reported next to the skill score, which is what
+    ``skill_vs_lead`` measures against persistence."""
+    a = frames - clim
+    b = truth - clim
+    a = a - a.mean((-2, -1), keepdims=True)
+    b = b - b.mean((-2, -1), keepdims=True)
+    num = (a * b).sum((-2, -1))
+    den = np.sqrt((a * a).sum((-2, -1)) * (b * b).sum((-2, -1)))
+    return num / np.maximum(den, 1e-30)
+
+
+def first_below(leads: np.ndarray, values: np.ndarray, threshold: float) -> float:
+    """The last lead before ``values`` first falls below ``threshold`` (the usefulness horizon; ``leads[-1]`` when it
+    never does)."""
+    bad = np.nonzero(np.asarray(values) < threshold)[0]
+    return float(leads[bad[0] - 1]) if len(bad) and bad[0] > 0 else (0.0 if len(bad) else float(leads[-1]))
 
 
 def _as_list(t) -> list[np.ndarray]:
@@ -106,6 +128,7 @@ def evaluate_skill(models: Mapping[str, tuple[torch.nn.Module, DensityCodec]], t
     env = MassEnvelope.fit([window_mass(x, codec, vol) for x in train_x], dt)
     shells = [vol.shape[0] // 4, vol.shape[0] // 2]
     errors = {n: [] for n in ["persistence", "climatology", "dmd", *models]}
+    accs = {n: [] for n in ["persistence", "climatology", "dmd", *models]}
     mass_err = {n: [] for n in ["persistence", "dmd", *models]}
     phys = {n: {"violations": 0, "frames": 0, "min": np.inf, "max": -np.inf, "nonfinite": 0, "out": 0, "px": 0,
                 "pred": [], "true": []} for n in models}
@@ -121,6 +144,7 @@ def evaluate_skill(models: Mapping[str, tuple[torch.nn.Module, DensityCodec]], t
             m_true = window_mass(truth, codec, vol)
             for n, f in fc.items():
                 errors[n].append(np.abs(f - truth).mean((1, 2)))
+                accs[n].append(acc_by_lead(f, truth, clim))
                 if n in mass_err:
                     mass_err[n].append(np.abs(np.log(window_mass(f, codec, vol) / m_true)))
             m0 = float(window_mass(last[None], codec, vol)[0])
@@ -137,12 +161,14 @@ def evaluate_skill(models: Mapping[str, tuple[torch.nn.Module, DensityCodec]], t
                 p["pred"].append(implied_inflow(np.concatenate([last[None], f]), codec, vol, dt, shells).mean(0))
                 p["true"].append(infl_true)
     errors = {n: np.array(v) for n, v in errors.items()}
+    accs = {n: np.array(v).mean(0) for n, v in accs.items()}
     mass_err = {n: np.array(v) for n, v in mass_err.items()}
     block = max(1, int(round(block_M / (start_every * dt))))
     leads = dt * (1 + np.arange(n_lead))
     report = {"n_starts": n_starts, "trajectories": sorted(test_x), "frame_dt": dt, "leads_M": leads.tolist(),
               "bootstrap_block_starts": block, "dmd_rank": rank, "dmd_val_mae_by_rank": dmd_val,
-              "mean_mae": {n: e.mean(0).tolist() for n, e in errors.items()}, "models": {}}
+              "mean_mae": {n: e.mean(0).tolist() for n, e in errors.items()},
+              "mean_acc": {n: a.tolist() for n, a in accs.items()}, "models": {}}
     for name in models:
         res = skill_vs_lead(errors[name], errors["persistence"], leads, block)
         nb = n_lead // K                                         # judged on whole 100 M blocks
@@ -155,6 +181,7 @@ def evaluate_skill(models: Mapping[str, tuple[torch.nn.Module, DensityCodec]], t
         report["models"][name] = {
             "vs_persistence": res.to_dict(), "vs_persistence_blocks": res_b.to_dict(), "vs": vs,
             "skill_horizon_M": res.horizon, "skill_horizon_blocks_M": res_b.horizon,
+            "acc_by_lead": accs[name].tolist(), "acc_horizon_M": first_below(leads, accs[name], 0.6),
             "skill_horizon_vs_dmd_M": vs["dmd"]["horizon"], "skill_horizon_vs_climatology_M": vs["climatology"]["horizon"],
             "mass_log_error": mass_err[name].mean(0).tolist(),
             "mass_log_error_persistence": mass_err["persistence"].mean(0).tolist(),
@@ -172,6 +199,7 @@ def evaluate_skill(models: Mapping[str, tuple[torch.nn.Module, DensityCodec]], t
         }
         ss = res.skill_score
         log(f"{name}: skill horizon {res.horizon:.0f} M (frames), {res_b.horizon:.0f} M (100 M blocks); "
+            f"ACC horizon {report['models'][name]['acc_horizon_M']:.0f} M; "
             f"SS at {leads[K - 1]:.0f} M {ss[K - 1, 0]:+.3f} [{ss[K - 1, 1]:+.3f}, {ss[K - 1, 2]:+.3f}], "
             f"at {leads[-1]:.0f} M {ss[-1, 0]:+.3f} [{ss[-1, 1]:+.3f}, {ss[-1, 2]:+.3f}]")
     return report

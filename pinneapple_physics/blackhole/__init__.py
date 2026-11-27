@@ -11,8 +11,9 @@ github.com/black-hole-group/DL_BH_fluids). See ``examples/black_hole_weather/`` 
 Submodules: ``runs`` (generate / resume / read simulation runs), ``convergence`` (resolution study: conservative
 remap, observed order and GCI, statistical convergence), ``dataset`` (the zoo dataset of whole trajectories),
 ``forecast`` (the U-Net, training with rollout loss / noise / mass penalty, rollouts, trust horizon, mass envelope),
-``skill`` (skill against persistence, climatology and DMD with bootstrap intervals, physics checks), ``twin``,
-``raytrace``, ``capture``.
+``skill`` (skill against persistence, climatology and DMD with bootstrap intervals, physics checks), ``family``
+(the model family -- the paper's U-Net, a Fourier neural operator and the weather module's SphereUNet backbone -- and
+the equal-weight and adaptive ensembles over them), ``twin``, ``raytrace``, ``capture``.
 """
 from .hydro import AccretionFlow, RIAFConfig, bondi_pw, torus_state
 

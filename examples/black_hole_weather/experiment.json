@@ -10,6 +10,7 @@
   "pinneapple_physics.blackhole.capture",
   "pinneapple_physics.blackhole.convergence",
   "pinneapple_physics.blackhole.dataset",
+  "pinneapple_physics.blackhole.family",
   "pinneapple_physics.blackhole.forecast",
   "pinneapple_physics.blackhole.raytrace",
   "pinneapple_physics.blackhole.runs",
@@ -22,7 +23,8 @@
   "evaluate.py",
   "simulate.py",
   "skill.py",
-  "train_forecaster.py"
+  "train_forecaster.py",
+  "family.py"
  ],
  "metrics": [],
  "checks": [],

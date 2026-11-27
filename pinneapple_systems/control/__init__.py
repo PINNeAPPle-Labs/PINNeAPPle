@@ -14,6 +14,10 @@ simulation, tuning and robustness (simulation only, no path to real equipment).
   - PID pole placement for second-order plants, stable or not;
   - LQR;
   - tuning by optimisation under constraints, and Monte Carlo robustness.
+* :mod:`.optimal`: optimal control out of the differential equation rather than out of a shooting loop — a
+  Pontryagin network that solves the two-point boundary value problem in state and costate, and a Bellman network
+  whose value gradient is a feedback policy, with the hand-over from the learned value to a trusted law when its
+  residual leaves the region it was fitted on.
 
 Domain plants built on it: :mod:`pinneapple_simulation.naval` (submarine depth-keeping, ship roll stability).
 """

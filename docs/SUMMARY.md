@@ -176,6 +176,7 @@
     * [Periodic unit cell: FNO vs Bayesian optimisation at equal budget](guides/unit_cell_benchmark.md)
     * [Flight dynamics, turbulence and take-off](guides/flight_dynamics.md)
     * [Ascent to orbit: a launcher to a 500 km near-circular orbit](guides/launch_ascent.md)
+    * [Pontryagin and Bellman networks: optimal control, and when to stop trusting it](guides/pontryagin_bellman.md)
     * [Topology optimisation](guides/topology_optimization.md)
     * [Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models](guides/enso_forecasting.md)
     * [Engineering Evidence Report (day 30)](apps/evidence_report.md)

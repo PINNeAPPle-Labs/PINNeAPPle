@@ -123,7 +123,8 @@ from .inverse_problems import (
 # ── trust re-exports ──────────────────────────────────────────────────────────
 from .trust import TrustGate, TrustScore
 
-# ── adaptive fidelity (#161): surrogate or solver per request, with the reason recorded
+# ── adaptive fidelity (#161): surrogate or solver per request, with the reason recorded — the verdict, the
+#    applicability domain, the interval width and, since #347, the trust horizon are its conditions
 from .fidelity import FidelityPolicy, FidelityReport, audit, serve  # noqa: E402
 
 # ── two data levels in one workflow (#35): the co-kriging model, the equal-cost comparison and the router

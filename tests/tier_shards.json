@@ -474,6 +474,7 @@
     "tests/test_equal_budget.py",
     "tests/test_equation_discovery.py",
     "tests/test_errors_that_teach.py",
+    "tests/test_event_scoring.py",
     "tests/test_example_catalog.py",
     "tests/test_example_imports.py",
     "tests/test_excitation.py",

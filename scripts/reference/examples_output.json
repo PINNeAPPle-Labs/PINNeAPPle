@@ -123,6 +123,14 @@
   "stderr": "",
   "stdout": "problems: ['validation_metrics is empty -- a model card with no computed validation metric makes no checkable physical claim at all', \"provenance: solver is missing: what produced the numbers (e.g. 'openfoam-simplefoam', 'pinn', 'closed-form')\", 'provenance: library_version is missing: which PINNeAPPle computed them', \"provenance: seed is missing: the seed, or the string 'deterministic' for a solver with no randomness\", \"provenance: data_hash is missing: a way back to the exact inputs ('sha256:<hex>')\", \"provenance: commit is missing: which code was running ('PINNEAPPLE_COMMIT' or the checkout's HEAD)\"]\nproblems after adding evidence: [\"provenance: solver is missing: what produced the numbers (e.g. 'openfoam-simplefoam', 'pinn', 'closed-form')\", 'provenance: library_version is missing: which PINNeAPPle computed them', \"provenance: seed is missing: the seed, or the string 'deterministic' for a solver with no randomness\", \"provenance: data_hash is missing: a way back to the exact inputs ('sha256:<hex>')\", \"provenance: commit is missing: which code was running ('PINNEAPPLE_COMMIT' or the checkout's HEAD)\"]\n# plate-heat-pinn\n\n\n\n## Architecture\n- `modified_mlp` \u2014 `{}`\n\n## Physics\n\n## Validation\nReference: FEniCS P2 solution on a 256 x 256 mesh\n\n| Metric | Value |\n|---|---|\n| rel_l2 | 0.012 |\n\nLicense: apache-2.0\n\n## Citation\n(none provided)"
  },
+ "pinneapple_intent__0": {
+  "code_hash": "a0969a7a8f943406",
+  "figures": [],
+  "ok": true,
+  "seconds": 8.0,
+  "stderr": "",
+  "stdout": "APPROVED 6"
+ },
  "pinneapple_lab__0": {
   "code_hash": "8be9c8651738967c",
   "figures": [],

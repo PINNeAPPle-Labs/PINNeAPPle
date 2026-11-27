@@ -11,74 +11,100 @@ The decision
 **1. The trust verdict is a constraint, not an objective.** Making "how much the model can vouch for this design" a
 third objective is the obvious move and it is wrong twice over. It puts the front in three dimensions, where the
 hypervolume is no longer the quantity the caller asked for; and it hands NSGA-II a trade the caller never offered —
-spend trust to buy spread. It does exactly that: on the airfoil benchmark below, with the trust violation as a third
-objective, 45-59 % of the returned population is still unvouched and the honest share of the recommendations moves
-from 0.594 to 0.688 (covered) and from 0.375 to 0.344 (corner) — no better than plain NSGA-II where the surrogate is
-actually wrong, while it keeps the spread the caller paid for. As a constraint it reaches 0.938 where it matters. A
+spend trust to buy spread. Measured, on the airfoil benchmark below with the ensemble surrogate: with the severity as
+a third objective, 79 % of the returned population in the ``corner`` regime is still unvouched and the honest share of
+the recommendations falls from plain NSGA-II's 0.479 to 0.333 — worse than doing nothing, exactly where the surrogate
+is wrong enough for the question to matter. As a constraint the same regime reaches 0.938. In the ``covered`` regime,
+where little is wrong in the first place, the objective form gives 0.583 against 0.750 for the constraint. A
 constraint, then: the survivor rule keeps the front two-dimensional, and the vouch question is the pass/fail it is.
 
 **2. Inside the constraint channel: a separate band, ahead of the measured violations.** Three ways to express
 "unvouched designs rank after vouched ones" exist and all three were run: ``"penalty"`` (severity folded into the
-scalar violation, what :mod:`pinneapple_design.aero.optimize` does today with its ``+0.5`` for low trust),
+scalar violation, which is what :mod:`pinneapple_design.aero.optimize` does today with its ``+0.5`` for low trust),
 ``"remove"`` (dropped), and ``"front"`` (:data:`~pinneapple_design.design_optimizer.survivors.TRUST_LEVELS` as
-successive bands, filled in order). **On every one of the four campaign regimes measured below the three return the
-same population**: the vouched band either holds more designs than the population needs — and then all three fill
-from it — or holds none, and then neither penalty nor removal has anything to prefer. So the choice is not made by
-this benchmark; it is made on the failure modes, and they differ:
+successive bands, filled in order). **This benchmark does not separate them.** In the ``corner`` regime ``front`` and
+``penalty`` return the same population on all three seeds (0.938 honest at 12.69e-5, 12.74e-5 and 12.84e-5) and
+``remove`` differs on one (1.000 at 12.61e-5); in ``covered`` the three land between 0.750 and 0.854 honest, a spread
+of 0.10 that is smaller than the spread of any one of them across seeds (``front`` alone runs 0.562-0.875). No rule
+wins both columns. So the choice is not made here; it is made on the failure modes, and they differ:
 
-- ``"penalty"`` lets a *vouched* design that breaks the lift floor lose its slot to an *unvouched* one that does not.
-  Those are not comparable: the second one's "does not break it" is a guess, and summing them is precisely the claim
-  that trust does not have to be decided before the constraint is read.
+- ``"penalty"`` lets a *vouched* design that breaks the lift floor lose its slot to an *unvouched* one that does not
+  (asserted in ``tests/test_trust_survivors.py``). Those are not comparable quantities: the second one's "does not
+  break it" is a guess, and summing them asserts that trust does not have to be decided before the constraint is read.
 - ``"remove"`` shrinks the population whenever the domain cannot fill it, and a population of three breeds three.
-- ``"front"`` keeps ``mu``, has no weight to tune, and is the only one of the three that states the ordering the
-  issue asks for: a design the model cannot vouch for is *kept*, at the bottom of the ranking, where the next
-  verification run should look.
+- ``"front"`` keeps the population at ``mu``, has no weight to tune, and is the only one of the three that states
+  the ordering this issue asks for: a design the model cannot vouch for is *kept*, at the bottom of the ranking,
+  where the next verification run should look.
 
 **3. Too wide to judge is kept, in the middle band.** A candidate whose interval exceeds the accuracy the decision
-needs (``too_uncertain``) or contains a constraint limit (``straddles_limit``) is not dropped and is not vouched:
-it goes in the ``undetermined`` band, behind everything vouched and ahead of everything contradicted. It is the one
+needs (``too_uncertain``) or contains a constraint limit (``straddles_limit``) is not dropped and is not vouched: it
+goes in the ``undetermined`` band, behind everything vouched and ahead of everything contradicted. It is the one
 design a solver call would most improve — its interval narrows as soon as the answer is in the training set — so
-removing it removes the loop's own way out. It is, though, never *reported* as a front point: a design that cannot
-be ranked cannot occupy a slot a ranked design could take. Measured: with the ensemble surrogate, 19-31 % of plain
-NSGA-II's returned population sits in that band, and it is where the unverified optimism lives.
+removing it removes the loop's own way out. Measured: with the ensemble surrogate, 44 % of plain NSGA-II's returned
+population in the ``covered`` regime sits in that band, and it is where the optimism lives (the plain population is
+only 0.542 honest against 0.812 for the vouched-first rule). The reported front is a separate matter:
+:meth:`SearchResult.front` leaves the unvouched designs out of it, because a design that cannot be ranked by the
+surrogate should not be handed to the caller as a front point.
 
 **4. The channel is off unless the caller declares the accuracy the decision needs.** With a surrogate that does not
-lie, gating survivors is a pure loss: on the same corner regime with the Gaussian-process surrogate, the vouched
-band costs 20 % of hypervolume (16.03e-5 -> 12.78e-5) and buys nothing, because the plain population was already
-100 % honest. ``tolerance=None`` (no accuracy declared) therefore leaves plain NSGA-II untouched, and the trust
-channel is something a caller opts into by saying how good a prediction has to be.
+lie, gating survivors is a pure loss: on the ``corner`` regime with the Gaussian-process surrogate, the vouched band
+costs 21 % of hypervolume (16.16e-5 -> 12.79e-5) and buys nothing — the plain population was already 0.958 honest.
+``tolerance=None`` (no accuracy declared) therefore leaves plain NSGA-II untouched, and the trust channel is something
+a caller opts into by saying how good a prediction has to be.
+
+**5. What the cost is.** The trust channel is not free, and the price is spread: in the ``corner`` regime with the
+ensemble surrogate, the verified front stops at thickness 0.142 instead of 0.084 — the thin end of the front is
+outside the campaign's data — and the hypervolume falls from 14.57e-5 to 12.76e-5 (-12.4 %); in ``covered`` it falls
+from 16.00e-5 to 15.46e-5 (-3.4 %). The *vouched* hypervolume, the part of the front whose predictions held, does not
+fall at all (corner 12.69e-5 -> 12.76e-5, covered 14.65e-5 -> 14.79e-5): what the channel gives up is front the
+caller could not have trusted anyway. Whether that trade is worth it is the caller's to make, which is why the rule is
+opt-in and why the numbers are reported rather than assumed.
 
 The measurement
 ---------------
-:func:`benchmark_trust_survivors` is that experiment, and its numbers are what the four statements above rest on. It
-is the 2-D airfoil front of :func:`~pinneapple_analysis.surrogate_loop.airfoil_solver` — minimise ``Cd`` and
-``-thickness`` under ``Cl >= 0.75``, a front known in closed form (``Cd`` is the Hoerner drag of the thickness, so
-the true front is the curve ``t -> Cd(t)`` over the box; :func:`~pinneapple_analysis.surrogate_loop.airfoil_reference`
-is its best point) — searched by the NSGA-II of
+:func:`benchmark_trust_survivors` is that experiment, and every number above comes from it. It is the 2-D airfoil
+front of :func:`~pinneapple_analysis.surrogate_loop.airfoil_solver` — minimise ``Cd`` and ``-thickness`` under
+``Cl >= 0.75``, a front known in closed form (``Cd`` is the Hoerner drag of the thickness, so the true front is the
+curve ``t -> Cd(t)`` over the box, and :func:`~pinneapple_analysis.surrogate_loop.airfoil_reference` is its best
+point) — searched by the NSGA-II of
 :class:`~pinneapple_design.design_optimizer.optimizer.EvolutionaryDesignOptimizer`, on two campaign regimes: one whose
-data covers the box (``covered``) and one whose data covers only thick, highly cambered sections (``corner``), so
-that most of the good part of the front is extrapolation. The final population is then **verified** with the solver,
-and every returned design is scored on whether the surrogate told the truth about it: the lift verdict it predicted
-matched the solver's, and each objective was within the accuracy the decision needs (:data:`TOL_CD`, :data:`TOL_CL`).
-``vouched_hv`` is the hypervolume of the part of the verified front whose predictions held — the area under the front
-you can actually trust, which is the cost of the trust channel measured in the currency the caller cares about.
+data covers the box (``covered``) and one whose data covers only thick, highly cambered sections (``corner``), so that
+most of the good part of the front is extrapolation. The final population is then **verified** with the solver, and
+every returned design is scored on whether the surrogate told the truth about it: the lift verdict it promised matched
+the solver's, and each objective was within the accuracy the decision needs (:data:`TOL_CD`, :data:`TOL_THICKNESS`,
+:data:`TOL_CL`). ``vouched_hv`` is the hypervolume of the part of the verified front whose predictions held — the area
+under the front you can actually trust, which is what the trust channel is spending spread to buy.
 
-The numbers are asserted in ``tests/test_trust_survivors.py``. The short version, with the ensemble surrogate (the
-one the aero app uses, and the one that lies the way a five-member MLP ensemble lies):
+Three seeds, ``mu = 16``, twelve generations, one campaign each; every arm spends exactly the same solver calls. With
+the ensemble surrogate (the MLP ensemble of :class:`~pinneapple_analysis.surrogate_loop.EnsembleSurrogate`, the one
+the aero app uses and the one that lies the way a five-member ensemble lies):
 
-===========  =====================  ========================  ======================
-regime       plain NSGA-II: honest  trust-aware: honest       vouched hypervolume
-===========  =====================  ========================  ======================
-covered      see the benchmark      see the benchmark         see the benchmark
-corner       see the benchmark      see the benchmark         see the benchmark
-===========  =====================  ========================  ======================
+=========================  ================  ==============  =============  =================  ============
+regime / survivor rule     honest            hypervolume     vouched HV     thinnest design    unvouched
+=========================  ================  ==============  =============  =================  ============
+covered, plain             0.542             16.00e-5        14.65e-5       0.081              81 %
+covered, ``front``         0.750             15.46e-5        14.79e-5       0.088               0 %
+covered, ``penalty``       0.833             14.91e-5        14.52e-5       0.102               0 %
+covered, ``remove``        0.854             14.99e-5        14.65e-5       0.101               0 %
+covered, ``objective``     0.583             15.57e-5        14.64e-5       0.080              90 %
+corner, plain              0.479             14.57e-5        12.69e-5       0.084              62 %
+corner, ``front``          0.938             12.76e-5        12.76e-5       0.142               0 %
+corner, ``penalty``        0.938             12.76e-5        12.76e-5       0.142               0 %
+corner, ``remove``         0.958             12.69e-5        12.69e-5       0.141               0 %
+corner, ``objective``      0.333             14.82e-5        12.16e-5       0.081              81 %
+=========================  ================  ==============  =============  =================  ============
+
+and with the Gaussian-process surrogate (the accurate one), which is the row that says the channel must stay opt-in:
+``corner`` plain 0.958 honest at 16.16e-5 against 1.000 honest at 12.79e-5 for ``front``. The numbers are asserted in
+``tests/test_trust_survivors.py``.
 
 What this module does *not* do
 ------------------------------
-It does not add a second optimiser. The population, the crossover, the mutation and the crowding distance are
-:class:`~pinneapple_design.design_optimizer.optimizer.EvolutionaryDesignOptimizer`'s own; :func:`search` only decides
-what to hand to :meth:`~pinneapple_design.design_optimizer.optimizer.EvolutionaryDesignOptimizer.tell` each
-generation, and :func:`~pinneapple_design.design_optimizer.survivors.trust_aware_survivors` runs the same
+It does not add a second optimiser. The population, the tournament, the crossover, the mutation and the crowding
+distance are :class:`~pinneapple_design.design_optimizer.optimizer.EvolutionaryDesignOptimizer`'s own; :func:`search`
+only decides what to hand to
+:meth:`~pinneapple_design.design_optimizer.optimizer.EvolutionaryDesignOptimizer.tell` each generation, and
+:func:`~pinneapple_design.design_optimizer.survivors.trust_aware_survivors` runs the same
 :func:`~pinneapple_design.design_optimizer.survivors.constrained_select` as the plain rule inside each band.
 """
 from __future__ import annotations
@@ -95,13 +121,15 @@ from .optimizer import DesignOptimizerConfig, EvolutionaryDesignOptimizer
 from .pareto import compute_pareto_front
 from .survivors import TRUST_LEVELS, TrustVerdict
 
-__all__ = ["Z_INTERVAL", "TOL_CL", "TOL_CD", "AIRFOIL_CL", "TRUST_REGIMES", "SearchResult", "airfoil_front",
-           "verdicts", "search", "benchmark_trust_survivors"]
+__all__ = ["Z_INTERVAL", "TOL_CL", "TOL_CD", "TOL_THICKNESS", "AIRFOIL_CL", "TRUST_REGIMES", "SearchResult",
+           "airfoil_front", "verdicts", "search", "benchmark_trust_survivors"]
 
 Z_INTERVAL = 1.96          # the 95 % band of the router (#161)
 TOL_CD = 1.0e-4            # drag accuracy the decision needs: 1.1 % of the best Cd of the airfoil front, about the
 #                            spacing between two neighbouring designs of a 16-point front — the accuracy at which the
 #                            front's own neighbours can still be ranked
+TOL_THICKNESS = 5.0e-3     # thickness accuracy: half the spacing of a 16-point front over the 0.10 of the box, i.e.
+#                            the accuracy at which two neighbouring front designs can still be told apart
 TOL_CL = 2.0e-2            # lift accuracy the decision needs: 2.7 % of the 0.75 floor it is compared against
 AIRFOIL_CL = 0.75          # the lift floor of the benchmark (the one of surrogate_loop's airfoil case)
 
@@ -186,7 +214,7 @@ def verdicts(X, mean, sd, constraints: Sequence[Any] = (), *, tolerance=None, do
         assess = {"x": X, "status": status, "knn_distance": np.zeros(n), "threshold": 1.0}
         lo, hi = X.min(0), X.max(0)
     else:
-        assess = {**domain.assess(X), "x": X}
+        assess = {**domain.assess(X), "x": X, "threshold": float(getattr(domain, "threshold", 1.0))}
         status = assess["status"]
         lo, hi = np.asarray(domain.lo, dtype=float), np.asarray(domain.hi, dtype=float)
 
@@ -234,6 +262,7 @@ class SearchResult:
     predicted: np.ndarray                     # (mu, k): objectives then constraints, the surrogate's own numbers
     verdicts: list[TrustVerdict] = field(default_factory=list)
     generations: int = 0
+    n_objectives: int = 2
 
     @property
     def population_size(self) -> int:
@@ -242,9 +271,27 @@ class SearchResult:
     def trust_counts(self) -> dict[str, int]:
         return {level: sum(v.level == level for v in self.verdicts) for level in TRUST_LEVELS}
 
+    def front(self, *, vouched_only: bool = True) -> np.ndarray:
+        """Index of the population's non-dominated members, in the surrogate's objective columns.
+
+        With ``vouched_only`` (the default) the designs whose verdict is not ``trusted`` are left out first: a design
+        whose prediction the model cannot vouch for may well be on the front, but it is not a front the caller can
+        act on until the solver has answered for it, and reporting it as one is how a phantom front reaches a
+        decision. ``vouched_only=False`` gives the front of the whole population, which is what plain NSGA-II
+        reports.
+        """
+        obj = np.asarray(self.predicted[:, :self.n_objectives], dtype=float)
+        keep = np.arange(self.population_size)
+        if vouched_only:
+            keep = keep[np.array([v.vouched for v in self.verdicts], dtype=bool)]
+        if not keep.size:
+            return np.zeros(0, dtype=int)
+        return keep[compute_pareto_front(obj[keep])]
+
     def to_dict(self) -> dict:
         return {"rule": self.rule, "generations": self.generations, "population": self.population.tolist(),
                 "predicted": self.predicted.tolist(), "trust": self.trust_counts(),
+                "front_vouched": self.front().tolist(),
                 "verdicts": [v.to_dict() for v in self.verdicts]}
 
 
@@ -305,7 +352,7 @@ def search(bounds, surrogate, domain=None, *, constraints: Sequence[Any] = (), t
     predicted = np.atleast_2d(predicted)
     final = verdicts(P, predicted, np.atleast_2d(sd), cons, tolerance=tolerance, domain=domain)
     return SearchResult(rule=rule, bounds=bounds, population=P, predicted=predicted, verdicts=final,
-                        generations=int(generations))
+                        generations=int(generations), n_objectives=int(predicted.shape[1] - len(cons)))
 
 
 # ---------------------------------------------------------------------------------------------- the benchmark
@@ -345,7 +392,7 @@ def _campaign(regime: str, seed: int) -> np.ndarray:
     return box[:, 0] + qmc.Sobol(3, scramble=True, seed=seed).random(n) * (box[:, 1] - box[:, 0])
 
 
-def _verified(population, predicted, verdicts_, tolerance_cd, tolerance_cl, cl_target) -> dict:
+def _verified(population, predicted, verdicts_, tolerances, tolerance_cl, cl_target) -> dict:
     """Verify a returned population with the solver, and score the surrogate's honesty on it.
 
     ``honest`` is a design whose prediction held: the lift verdict it promised matched the solver's, and each
@@ -355,9 +402,10 @@ def _verified(population, predicted, verdicts_, tolerance_cd, tolerance_cl, cl_t
     from pinneapple_design.design_optimizer.study import hypervolume
 
     truth = airfoil_front(population)
+    tolerances = np.atleast_1d(np.asarray(tolerances, dtype=float))
     honest = ((predicted[:, 2] >= cl_target) == (truth[:, 2] >= cl_target)) \
-        & (np.abs(predicted[:, 0] - truth[:, 0]) <= tolerance_cd) \
-        & (np.abs(predicted[:, 1] - truth[:, 1]) <= tolerance_cl)
+        & np.all(np.abs(predicted[:, :2] - truth[:, :2]) <= tolerances[:2], axis=1) \
+        & (np.abs(predicted[:, 2] - truth[:, 2]) <= tolerance_cl)
     feasible = truth[:, 2] >= cl_target
     front_mask = compute_pareto_front(truth[:, :2]) if len(truth) else np.zeros(0, dtype=bool)
     return {
@@ -377,7 +425,8 @@ def _verified(population, predicted, verdicts_, tolerance_cd, tolerance_cl, cl_t
 def benchmark_trust_survivors(*, seeds: Sequence[int] = (0, 1, 2), mu: int = 16, generations: int = 12,
                               surrogate: str = "ensemble", regimes: Sequence[str] = ("covered", "corner"),
                               rules: Sequence[str] = ("plain", "front", "objective", "penalty", "remove"),
-                              tolerance=TOL_CD, tolerance_cl: float = TOL_CL, cl_target: float = AIRFOIL_CL,
+                              tolerance: Sequence[float] = (TOL_CD, TOL_THICKNESS),
+                              tolerance_cl: float = TOL_CL, cl_target: float = AIRFOIL_CL,
                               n_members: int = 5, epochs: int = 300) -> dict:
     """The experiment the decision rests on: plain NSGA-II against the trust-aware rules, verified. (#297)
 
@@ -401,7 +450,8 @@ def benchmark_trust_survivors(*, seeds: Sequence[int] = (0, 1, 2), mu: int = 16,
     bounds = np.asarray(AIRFOIL_FRONT_SPACE, dtype=float)
     out: dict[str, Any] = {"method": "trust-aware surrogate-assisted NSGA-II, verified against the solver",
                            "surrogate": surrogate, "seeds": list(seeds), "mu": int(mu),
-                           "generations": int(generations), "tolerance_cd": float(tolerance),
+                           "generations": int(generations),
+                           "tolerance": [float(t) for t in np.atleast_1d(tolerance)],
                            "tolerance_cl": float(tolerance_cl), "cl_target": float(cl_target), "regimes": {}}
     for regime in regimes:
         arms: dict[str, dict[str, Any]] = {}
@@ -435,6 +485,7 @@ def benchmark_trust_survivors(*, seeds: Sequence[int] = (0, 1, 2), mu: int = 16,
             summary[rule] = {k: (float(np.mean(v)) if k != "trust" else
                                  {level: float(np.mean([t[level] for t in v])) for level in TRUST_LEVELS})
                              for k, v in arm.items()}
+            summary[rule]["per_seed"] = {k: [float(x) for x in arm[k]] for k in ("honest", "hv", "vouched_hv")}
         out["regimes"][regime] = summary
     return out
 

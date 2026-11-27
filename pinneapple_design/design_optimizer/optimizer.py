@@ -609,8 +609,7 @@ class EvolutionaryDesignOptimizer:
                 idx = self._nsga2_select(combined_obj, combined_pen, mu)
                 combined_trust = None
             else:
-                prev_trust = self._trust if self._trust is not None and len(self._trust) == len(self._population) \
-                    else [TrustVerdict()] * len(self._population)
+                prev_trust = self._previous_trust(xs, trust)
                 combined_trust = list(prev_trust) + list(trust)
                 idx = trust_aware_survivors(combined_obj, combined_pen, combined_trust, mu, trust_rule)
             self._obj_vecs = combined_obj[idx].tolist()
@@ -639,6 +638,22 @@ class EvolutionaryDesignOptimizer:
     def trust(self) -> list[TrustVerdict] | None:
         """The trust verdict carried by each member of :attr:`population`, or ``None`` when none was given."""
         return None if self._trust is None else list(self._trust)
+
+    def _previous_trust(self, xs: Sequence[np.ndarray], trust: Sequence[TrustVerdict]) -> list[TrustVerdict]:
+        """The verdict of the *previous* population, for the trust-aware merge.
+
+        Once a trust-aware :meth:`tell` has run, the verdicts are stored and this is a copy. Before that there are
+        none — and the opening generation of the (mu+lambda) scheme hands back the population it has just sampled, so
+        that population arrives a second time in ``xs`` with a verdict attached. Labelling those rows from ``xs`` by
+        the design rather than defaulting them to "trusted" is what keeps the opening generation from vouching for a
+        design the surrogate has just refused.
+        """
+        if self._trust is not None and len(self._trust) == len(self._population):
+            return list(self._trust)
+        known: dict[tuple, TrustVerdict] = {}
+        for x, v in zip(xs, trust, strict=False):
+            known.setdefault(tuple(np.round(np.asarray(x, dtype=float), 12)), v)
+        return [known.get(tuple(np.round(np.asarray(x, dtype=float), 12)), TrustVerdict()) for x in self._population]
 
     @staticmethod
     def _crowded_scores(objectives: np.ndarray, penalties: np.ndarray,

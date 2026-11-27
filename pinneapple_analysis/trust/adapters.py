@@ -186,7 +186,7 @@ def domain_from_gate(gate: Any, query: Any, *, threshold: float = 1.0) -> tuple[
     return in_domain, domain_score
 
 
-def _provenance_ensemble(ensemble: Any, query: Any) -> Provenance:
+def _provenance_ensemble(ensemble: Any, query: Any, kind: str = "ensemble") -> Provenance:
     names = list(getattr(ensemble, "names", []) or [])
     kinds = [getattr(e, "kind", "") for e in getattr(ensemble, "experts", [])]
     text = "|".join(f"{n}:{k}:{getattr(e, 'cost', None)}"
@@ -194,7 +194,7 @@ def _provenance_ensemble(ensemble: Any, query: Any) -> Provenance:
     model_fp, model_method = fingerprint_text(text)
     data_fp, data_method = fingerprint_query(query)
     return Provenance(
-        kind="ensemble", model=f"PhysicsEnsemble({', '.join(names)})" if names else "PhysicsEnsemble",
+        kind=kind, model=f"PhysicsEnsemble({', '.join(names)})" if names else "PhysicsEnsemble",
         model_fingerprint=model_fp,
         model_fingerprint_method=(model_method + " of the expert names, kinds and declared costs") if model_method
         else "",
@@ -207,13 +207,19 @@ def _provenance_ensemble(ensemble: Any, query: Any) -> Provenance:
 
 def from_ensemble(ensemble: Any, query: Any = None, *, reference: Any = None, gate: Any = None,
                   domain_points: Any = None, problem: Any = None, horizon: Horizon | None = None,
-                  requested_lead: float | None = None) -> Trust:
+                  requested_lead: float | None = None, kind: str = "ensemble") -> Trust:
     """The Trust of one prediction of a :class:`pinneapple_physics.ensemble.PhysicsEnsemble`.
 
     Calls ``ensemble.predict(query)`` — a real prediction, which advances the ensemble's own state as any call
     does — and copies what the ensemble measured on that case. With ``reference`` it also calls
     ``ensemble.update(reference=...)``, the normal step of the ensemble's loop, which is the only place its interval
     coverage is measured (``miss_fraction``).
+
+    ``kind`` is what the record says the prediction is — ``"ensemble"`` by default, the kind of a
+    :class:`~pinneapple_physics.ensemble.PhysicsEnsemble`, and the one field that differs between the producers of
+    :mod:`pinneapple_analysis.trust.record`: a weather forecast built the same way is ``"weather"`` and a CFD
+    surrogate wrapped in an ensemble (the documented way to cover a bare surrogate) is ``"surrogate"``. The keys, the
+    gates and the sources are the same in all three, because the adapters are.
 
     What it cannot fill, and why it says so instead:
 
@@ -244,7 +250,7 @@ def from_ensemble(ensemble: Any, query: Any = None, *, reference: Any = None, ga
                "against the training distribution")
         in_domain, domain_score = TrustValue.not_measured(why), TrustValue.not_measured(why)
     return Trust(
-        kind="ensemble",
+        kind=kind or "ensemble",
         in_domain=in_domain,
         domain_score=domain_score,
         horizon=(horizon if horizon is not None else Horizon.not_measured(
@@ -253,7 +259,7 @@ def from_ensemble(ensemble: Any, query: Any = None, *, reference: Any = None, ga
         residuals=_ensemble_residuals(ensemble, out),
         measurement=_ensemble_measurement(ensemble, out),
         uncertainty=_ensemble_uncertainty(ensemble, out, info),
-        provenance=_provenance_ensemble(ensemble, query),
+        provenance=_provenance_ensemble(ensemble, query, kind or "ensemble"),
     )
 
 

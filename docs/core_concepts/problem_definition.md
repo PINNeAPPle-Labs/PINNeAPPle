@@ -92,6 +92,41 @@ A `ProblemSpec` is pure data: it has no model, no sampled points, and no
 loss function yet. Sampling comes from [Geometry & Domain](geometry_domain.md);
 turning it into a trainable loss is the job of [PINN / Physics](pinn.md).
 
+## The façade: what the answer is for
+
+A `ProblemSpec` says what to solve. `pp.PhysicalProblem` also says *why*, and
+*how good it has to be*, in four fields that are set once and carried
+everywhere:
+
+```python
+import dataclasses, pinneapple as pp
+
+problem = dataclasses.replace(
+    pp.PhysicalProblem.from_preset("burgers_1d"),
+    objectives=(pp.Objective("hold_low", "u", sense="target", target=0.0, tolerance=0.1),),
+    constraints=(pp.Constraint("wall_limit", quantity="u", op="<=", value=1.0),
+                 pp.Constraint("budget", kind="expression", expression="nu <= 0.02")),
+    fidelity=pp.Fidelity(level="rans", mesh_level="L1", tolerance=0.02),
+    geometry_ref="cad/duct.step",
+)
+
+problem.to_pde_spec()          # runnable: the facade rides along in spec.meta["facade"]
+problem.to_problem_design()    # elicited: constraints as text, geometry_ref as the domain, fidelity as the representation
+```
+
+| Field | Type | What it says |
+|---|---|---|
+| `objectives` | `Objective(name, quantity, sense, target, tolerance, weight, unit)` | what to minimise, maximise, or drive to a target; `sense="target"` requires `target` |
+| `constraints` | `Constraint(name, kind, quantity, op, value, expression, unit)` | a bound (`T <= 350 K`) or an expression; `.text()` is the one line every spec prints |
+| `fidelity` | `Fidelity(level, mesh_level, tolerance, notes)` | how much physics (`rans`, `les`, `dns`, `closed_form`, `surrogate`...) and how close to the reference |
+| `geometry_ref` | `str` | a path or URI to the CAD or mesh the domain came from |
+
+The three types check themselves where they are set — an unknown `sense`, a
+target objective with no target, a bound with no value, a non-positive
+weight — so a wrong question fails at the line that wrote it, not inside a
+solver. The keys are emitted into `to_dict()` and `spec.meta` **only when
+set**, so a preset that predates them keeps the same fingerprint.
+
 
 ## Transforms: `pp.transforms`
 

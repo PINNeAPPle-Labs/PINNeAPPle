@@ -712,6 +712,76 @@
   "returned": "float",
   "seconds": 0.02
  },
+ "pinneapple_tools.visualization.studio.scale:auto_prop": {
+  "code_hash": "5191422b599febe3",
+  "inputs": {
+   "extent_m": 0.25
+  },
+  "ok": true,
+  "recorded": "2026-11-26",
+  "returned": "str",
+  "seconds": 37.33
+ },
+ "pinneapple_tools.visualization.studio.scale:decade": {
+  "code_hash": "9aaa2232f1775936",
+  "inputs": {
+   "x": 0.237
+  },
+  "ok": true,
+  "recorded": "2026-11-26",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.scale:fmt_length": {
+  "code_hash": "c64c7267f4b5e792",
+  "inputs": {
+   "metres": 0.25
+  },
+  "ok": true,
+  "recorded": "2026-11-26",
+  "returned": "str",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.scale:footprint": {
+  "code_hash": "b59fdb914b511f41",
+  "inputs": {
+   "kind": "human"
+  },
+  "ok": true,
+  "recorded": "2026-11-26",
+  "returned": "tuple",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.scale:grid_step": {
+  "code_hash": "a4a3c82b783d45a8",
+  "inputs": {
+   "extent_m": 0.25
+  },
+  "ok": true,
+  "recorded": "2026-11-26",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.scale:prop_size": {
+  "code_hash": "066e2babe0c71d71",
+  "inputs": {
+   "kind": "ruler"
+  },
+  "ok": true,
+  "recorded": "2026-11-26",
+  "returned": "float",
+  "seconds": 0.0
+ },
+ "pinneapple_tools.visualization.studio.scale:scale_bar_length": {
+  "code_hash": "2d4f8e1a4b25bec5",
+  "inputs": {
+   "target_m": 0.237
+  },
+  "ok": true,
+  "recorded": "2026-11-26",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_tools.visualization.studio.view_cache:view_paths": {
   "code_hash": "9fc449beeb386f9f",
   "inputs": {

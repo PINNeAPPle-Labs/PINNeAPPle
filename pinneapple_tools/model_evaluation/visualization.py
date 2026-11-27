@@ -6,7 +6,7 @@ callers pass arrays and an output directory.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Union
+from collections.abc import Sequence
 
 import matplotlib.pyplot as plt  # no matplotlib.use("Agg"): headless machines already default to Agg,
 # and forcing it at import time silently disabled plt.show() in Jupyter/Colab for anyone importing pinneapple
@@ -21,10 +21,10 @@ def _fig_save(fig, path: Path) -> str:
 
 
 def plot_value_histograms(
-    fields: Dict[str, np.ndarray],
-    out_dir: Union[str, Path],
+    fields: dict[str, np.ndarray],
+    out_dir: str | Path,
     bins: int = 40,
-) -> List[str]:
+) -> list[str]:
     """One histogram per field of its raw values (use when there's no
     ground-truth comparison, e.g. profiling a dataset rather than scoring a
     model)."""
@@ -43,9 +43,9 @@ def plot_value_histograms(
 def plot_error_histograms(
     abs_residuals: np.ndarray,
     field_names: Sequence[str],
-    out_dir: Union[str, Path],
+    out_dir: str | Path,
     bins: int = 40,
-) -> List[str]:
+) -> list[str]:
     """One histogram per output field of |prediction - ground truth|."""
     out_dir = Path(out_dir)
     abs_residuals = np.asarray(abs_residuals)
@@ -63,7 +63,7 @@ def plot_error_histograms(
 def plot_real_vs_predicted(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    out_path: Union[str, Path],
+    out_path: str | Path,
 ) -> str:
     """Scatter of predicted vs. actual values with a y=x reference line."""
     y_true = np.asarray(y_true).reshape(-1)
@@ -81,7 +81,7 @@ def plot_real_vs_predicted(
 def plot_calibration_curve(
     levels: Sequence[float],
     empirical_coverage: Sequence[float],
-    out_path: Union[str, Path],
+    out_path: str | Path,
 ) -> str:
     """Empirical vs. nominal confidence coverage, against the ideal diagonal."""
     fig, ax = plt.subplots(figsize=(5, 5))

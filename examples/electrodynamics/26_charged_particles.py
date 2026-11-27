@@ -32,6 +32,9 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from pinneapple_simulation.electromagnetics import particles as P  # noqa: E402
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 OUT = Path(__file__).parent / "results"
 BG, FG, MUTED = "#0d1117", "#e6edf3", "#8b949e"

@@ -70,7 +70,7 @@ specifically expects that convention.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -83,8 +83,8 @@ class ArchitectureCandidate:
     registry_key: str  # the real pinneapple_neural.architectures.registry.ModelRegistry key
     category: str  # "PINN" | "neural_operator" | "graph" | "domain_decomposition" | "inverse"
     when_to_use: str
-    strengths: List[str] = field(default_factory=list)
-    weaknesses: List[str] = field(default_factory=list)
+    strengths: list[str] = field(default_factory=list)
+    weaknesses: list[str] = field(default_factory=list)
     source: str = ""
     # Families that are not a ModelRegistry network (EXTRA_CATALOG): dotted path of the real symbol that
     # runs them ("" = no ready implementation) and a license note ("research_only" blocks commercial use).
@@ -93,7 +93,7 @@ class ArchitectureCandidate:
     notes: str = ""
 
 
-ARCHITECTURE_CATALOG: Dict[str, ArchitectureCandidate] = {
+ARCHITECTURE_CATALOG: dict[str, ArchitectureCandidate] = {
     "pinn": ArchitectureCandidate(
         name="Vanilla PINN", registry_key="vanilla_pinn", category="PINN",
         when_to_use="A single, fixed problem instance (fixed geometry/parameters), little or no "
@@ -194,13 +194,13 @@ class ArchitectureRecommendation:
     """Result of :func:`recommend_architecture`. ``decision_path`` makes
     the reasoning auditable step by step (matching this whole engine's
     "explain, don't just assert" norm) rather than a single opaque pick."""
-    recommended: List[str]  # ARCHITECTURE_CATALOG keys, ranked
+    recommended: list[str]  # ARCHITECTURE_CATALOG keys, ranked
     reasoning: str
-    decision_path: List[str]
-    alternatives: List[Dict[str, Any]]
-    caveats: List[str] = field(default_factory=list)
+    decision_path: list[str]
+    alternatives: list[dict[str, Any]]
+    caveats: list[str] = field(default_factory=list)
     # what the first family must pass before it is used: {"code", "what", "limit"} (#1176)
-    checks: List[Dict[str, Any]] = field(default_factory=list)
+    checks: list[dict[str, Any]] = field(default_factory=list)
 
 
 # Below this many real, already-run high-fidelity simulations, "little/no
@@ -219,7 +219,7 @@ _DEFAULT_DIRECT_BUDGET_S = 600.0
 _OUTPUT_KINDS = ("scalar", "grid_field", "mesh_field", "time_series")
 
 
-def _training_samples(output_kind: Optional[str], n_inputs: Optional[int]) -> int:
+def _training_samples(output_kind: str | None, n_inputs: int | None) -> int:
     """Solves a first surrogate needs: about ten per input for a Gaussian process on scalars (Loeppky, Sacks &
     Welch 2009, 'Choosing the sample size of a computer experiment'), the operator threshold for fields."""
     if output_kind == "scalar" and n_inputs:
@@ -227,7 +227,7 @@ def _training_samples(output_kind: Optional[str], n_inputs: Optional[int]) -> in
     return _DEFAULT_DATA_THRESHOLD
 
 
-def _checks(key: str, category: str, accuracy_target: Optional[float]) -> List[Dict[str, Any]]:
+def _checks(key: str, category: str, accuracy_target: float | None) -> list[dict[str, Any]]:
     if key == "none":
         return [{"code": "solver.verified", "what": "the solver's own checks pass on every evaluation",
                  "limit": None}]
@@ -255,7 +255,7 @@ def _checks(key: str, category: str, accuracy_target: Optional[float]) -> List[D
 # registry-key contract of that catalog (every key is a real ModelRegistry entry) stays true. They are
 # only ever recommended when the caller passes the axes that justify them (target_kind, fixed_topology,
 # has_physics_postprocessor); with those left at their defaults the recommendation is unchanged.
-EXTRA_CATALOG: Dict[str, ArchitectureCandidate] = {
+EXTRA_CATALOG: dict[str, ArchitectureCandidate] = {
     "none": ArchitectureCandidate(
         name="No learned model: call the solver directly", registry_key="", category="none",
         when_to_use="The solver (or closed form) is cheap enough for the number of evaluations the study needs, "
@@ -338,21 +338,21 @@ EXTRA_CATALOG: Dict[str, ArchitectureCandidate] = {
 def recommend_architecture(
     *,
     n_high_fidelity_simulations: int = 0,
-    has_lots_of_data: Optional[bool] = None,
+    has_lots_of_data: bool | None = None,
     has_analytical_solver: bool = False,
     needs_parameter_generalization: bool = False,
     geometry_varies: bool = False,
     is_inverse_problem: bool = False,
-    catalog: Optional[Dict[str, ArchitectureCandidate]] = None,
-    target_kind: Optional[str] = None,
-    fixed_topology: Optional[bool] = None,
+    catalog: dict[str, ArchitectureCandidate] | None = None,
+    target_kind: str | None = None,
+    fixed_topology: bool | None = None,
     has_physics_postprocessor: bool = False,
-    solve_seconds: Optional[float] = None,
-    n_evaluations: Optional[int] = None,
+    solve_seconds: float | None = None,
+    n_evaluations: int | None = None,
     direct_budget_s: float = _DEFAULT_DIRECT_BUDGET_S,
-    output_kind: Optional[str] = None,
-    n_inputs: Optional[int] = None,
-    accuracy_target: Optional[float] = None,
+    output_kind: str | None = None,
+    n_inputs: int | None = None,
+    accuracy_target: float | None = None,
 ) -> ArchitectureRecommendation:
     """Recommend which PINNeAPPle neural architecture family to reach for
     first, from the problem's own real characteristics -- see the module
@@ -411,8 +411,8 @@ def recommend_architecture(
     if has_lots_of_data is None:
         has_lots_of_data = n_high_fidelity_simulations >= _DEFAULT_DATA_THRESHOLD
 
-    decision_path: List[str] = []
-    caveats: List[str] = []
+    decision_path: list[str] = []
+    caveats: list[str] = []
 
     if not has_lots_of_data:
         decision_path.append(

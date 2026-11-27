@@ -19,7 +19,9 @@
   "context": 8,
   "horizon": 24
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "rollout_pass_rate",

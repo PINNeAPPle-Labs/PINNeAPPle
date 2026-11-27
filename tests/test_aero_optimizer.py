@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import io
-import json
 import os
 import shutil
 import sys
@@ -12,10 +11,10 @@ import zipfile
 import numpy as np
 import pytest
 
-from pinneapple_design.aero.aircraft import KT, Aircraft, Polar, Requirements, evaluate, performance
+from pinneapple_design.aero.aircraft import Aircraft, Polar, Requirements, evaluate, performance
 from pinneapple_design.aero.case import forces, write_case
 from pinneapple_design.aero.geometry import BOUNDS, REFERENCE, naca4, properties, surfaces, valid
-from pinneapple_design.aero.mesh import GridSpec, cell_centres, grid_points, topology, write_polymesh
+from pinneapple_design.aero.mesh import GridSpec, cell_centres, grid_points, topology
 
 APP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "apps", "aero_optimizer"))
 MODEL = os.path.join(APP, "model", "surrogate.pt")

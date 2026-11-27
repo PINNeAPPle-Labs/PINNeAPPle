@@ -28,6 +28,7 @@ _BUILTIN: dict[str, str] = {
     "spm_servo_motor": "pinneapple_presets.cases.spm_motor:SPMMotor",
     "ipm_traction_motor": "pinneapple_presets.cases.ipm_traction:IPMTraction",
     "eddy_current_skin_inspection": "pinneapple_presets.cases.eddy_current:EddyCurrentInspection",
+    "bolted_joint_preload": "pinneapple_presets.cases.contact:BoltedJoint",
 }
 _EXTRA: dict[str, type] = {}
 

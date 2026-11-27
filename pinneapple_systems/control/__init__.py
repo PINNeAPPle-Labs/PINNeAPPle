@@ -23,6 +23,7 @@ from .analysis import (
     linearize,
     loop_margins,
     observability,
+    root_locus,
     simulate_linear_step,
     stability,
     step_metrics,
@@ -54,7 +55,7 @@ from .tuning import (
 
 __all__ = [
     "equilibrium", "linearize", "stability", "controllability", "observability", "transfer_function",
-    "loop_margins", "step_metrics", "simulate_linear_step",
+    "loop_margins", "root_locus", "step_metrics", "simulate_linear_step",
     "Plant", "Actuator", "PID", "Cascade", "StateFeedback", "simulate_loop", "loop_eigenvalues",
     "compare_architectures",
     "fit_fopdt", "simc_pid", "imc_pid", "ziegler_nichols", "ultimate_gain", "place_pid_second_order", "lqr", "dlqr",

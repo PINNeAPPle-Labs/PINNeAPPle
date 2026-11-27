@@ -45,8 +45,7 @@ Usage example::
 """
 from __future__ import annotations
 
-import re
-from typing import Callable, Dict, List, Optional, Sequence, Tuple
+from collections.abc import Callable
 
 import sympy as sp
 from sympy.core.function import AppliedUndef as _SpAppliedUndef
@@ -63,7 +62,7 @@ from .gradient_backends import GradMethod, GridAxisSpec, grid_derivative
 class _DerivativeOp:
     """Represents a single partial derivative ∂^n u / ∂x_i1 ... ∂x_in."""
 
-    def __init__(self, field_name: str, wrt: List[str]) -> None:
+    def __init__(self, field_name: str, wrt: list[str]) -> None:
         self.field_name = field_name  # e.g. "u"
         self.wrt = wrt               # e.g. ["x", "x"] for u_xx
 
@@ -71,9 +70,9 @@ class _DerivativeOp:
         return f"D({self.field_name}, {self.wrt})"
 
 
-def _extract_derivative_ops(expr: sp.Expr, field_syms: List[sp.Function]) -> List[_DerivativeOp]:
+def _extract_derivative_ops(expr: sp.Expr, field_syms: list[sp.Function]) -> list[_DerivativeOp]:
     """Walk a SymPy expression tree and collect all Derivative sub-expressions."""
-    ops: List[_DerivativeOp] = []
+    ops: list[_DerivativeOp] = []
     field_names = {f.__name__ if hasattr(f, "__name__") else str(f): f for f in field_syms}
 
     for sub in sp.preorder_traversal(expr):
@@ -89,7 +88,7 @@ def _extract_derivative_ops(expr: sp.Expr, field_syms: List[sp.Function]) -> Lis
             fname = str(expr_inner.func)
 
         # derivative variables (each entry is (sym, order))
-        wrt: List[str] = []
+        wrt: list[str] = []
         for sym, order in sub.variable_count:
             wrt.extend([str(sym)] * order)
 
@@ -101,8 +100,8 @@ def _extract_derivative_ops(expr: sp.Expr, field_syms: List[sp.Function]) -> Lis
 def _compute_derivative(
     field_tensor: torch.Tensor,
     coords_tensor: torch.Tensor,
-    wrt: List[str],
-    coord_names: List[str],
+    wrt: list[str],
+    coord_names: list[str],
 ) -> torch.Tensor:
     """Compute an arbitrary-order derivative using autograd.
 
@@ -167,11 +166,11 @@ class SymbolicPDE:
     def __init__(
         self,
         expr: sp.Expr,
-        coord_syms: List[sp.Symbol],
-        field_syms: List[sp.Function],
-        param_syms: Optional[List[sp.Symbol]] = None,
+        coord_syms: list[sp.Symbol],
+        field_syms: list[sp.Function],
+        param_syms: list[sp.Symbol] | None = None,
         grad_method: GradMethod = "autograd",
-        grid: Optional[GridAxisSpec] = None,
+        grid: GridAxisSpec | None = None,
     ) -> None:
         # .doit() reduces any unevaluated Derivative (e.g. Derivative(u(x)**2, x,
         # evaluate=False)) via the chain rule into derivatives of bare field
@@ -181,13 +180,13 @@ class SymbolicPDE:
         self.coord_syms = coord_syms
         self.field_syms = field_syms
         self.param_syms = param_syms or []
-        self._compiled_fn: Optional[Callable] = None
-        self._coord_names: List[str] = [str(s) for s in coord_syms]
-        self._field_names: List[str] = [
+        self._compiled_fn: Callable | None = None
+        self._coord_names: list[str] = [str(s) for s in coord_syms]
+        self._field_names: list[str] = [
             f.__name__ if hasattr(f, "__name__") else str(f) for f in field_syms
         ]
-        self._param_names: List[str] = [str(s) for s in self.param_syms]
-        self._deriv_ops: List[_DerivativeOp] = _extract_derivative_ops(self.expr, field_syms)
+        self._param_names: list[str] = [str(s) for s in self.param_syms]
+        self._deriv_ops: list[_DerivativeOp] = _extract_derivative_ops(self.expr, field_syms)
 
         if grad_method not in ("autograd", "finite_difference", "spectral"):
             raise ValueError(
@@ -203,7 +202,7 @@ class SymbolicPDE:
                 f"default) for pointwise/collocation data instead."
             )
         self.grad_method: GradMethod = grad_method
-        self.grid: Optional[GridAxisSpec] = grid
+        self.grid: GridAxisSpec | None = grid
 
     # ------------------------------------------------------------------
     # Public interface
@@ -212,7 +211,7 @@ class SymbolicPDE:
     def to_residual_fn(
         self,
         model: nn.Module,
-        params: Optional[Dict[str, torch.Tensor]] = None,
+        params: dict[str, torch.Tensor] | None = None,
     ) -> Callable[..., torch.Tensor]:
         """Return a callable that computes the PDE residual using autograd.
 
@@ -246,7 +245,7 @@ class SymbolicPDE:
 
         def residual_fn(
             coords: torch.Tensor,
-            params: Optional[Dict[str, torch.Tensor]] = params,
+            params: dict[str, torch.Tensor] | None = params,
         ) -> torch.Tensor:
             if param_names:
                 missing = [p for p in param_names if not (params and p in params)]
@@ -266,13 +265,13 @@ class SymbolicPDE:
                 raise ValueError(
                     f"Model output dim {raw.shape[1]} != number of fields {len(field_names)}"
                 )
-            fields: Dict[str, torch.Tensor] = {
+            fields: dict[str, torch.Tensor] = {
                 fname: raw[:, i : i + 1] for i, fname in enumerate(field_names)
             }
 
             # Build dict: derivative key -> (N,1) tensor
             # Key: (field_name, tuple(wrt))
-            deriv_cache: Dict[Tuple[str, Tuple[str, ...]], torch.Tensor] = {}
+            deriv_cache: dict[tuple[str, tuple[str, ...]], torch.Tensor] = {}
             for dop in self._deriv_ops:
                 key = (dop.field_name, tuple(dop.wrt))
                 if key in deriv_cache:
@@ -288,7 +287,7 @@ class SymbolicPDE:
 
     def to_grid_residual_fn(
         self,
-        params: Optional[Dict[str, torch.Tensor]] = None,
+        params: dict[str, torch.Tensor] | None = None,
     ) -> Callable[..., torch.Tensor]:
         """Return a callable that computes the PDE residual on grid-shaped
         field tensors, using this instance's grid-based ``grad_method``
@@ -330,8 +329,8 @@ class SymbolicPDE:
         assert grid is not None  # enforced in __init__
 
         def residual_fn(
-            fields: Dict[str, torch.Tensor],
-            params: Optional[Dict[str, torch.Tensor]] = params,
+            fields: dict[str, torch.Tensor],
+            params: dict[str, torch.Tensor] | None = params,
         ) -> torch.Tensor:
             if param_names:
                 missing = [p for p in param_names if not (params and p in params)]
@@ -346,7 +345,7 @@ class SymbolicPDE:
                     f"Missing field(s) {missing_fields} in `fields`; expected {field_names}"
                 )
 
-            deriv_cache: Dict[Tuple[str, Tuple[str, ...]], torch.Tensor] = {}
+            deriv_cache: dict[tuple[str, tuple[str, ...]], torch.Tensor] = {}
             for dop in self._deriv_ops:
                 key = (dop.field_name, tuple(dop.wrt))
                 if key in deriv_cache:
@@ -361,7 +360,7 @@ class SymbolicPDE:
 
         return residual_fn
 
-    def compile(self, backend: str = "torch") -> "SymbolicPDE":
+    def compile(self, backend: str = "torch") -> SymbolicPDE:
         """Compile the symbolic expression (currently a no-op for 'torch' backend).
 
         Sets an internal flag; future backends (e.g. JAX, C++) can be added here.
@@ -386,10 +385,10 @@ class SymbolicPDE:
 def _eval_expr_torch(
     expr: sp.Expr,
     coords: torch.Tensor,
-    fields: Dict[str, torch.Tensor],
-    deriv_cache: Dict[Tuple[str, Tuple[str, ...]], torch.Tensor],
-    coord_names: List[str],
-    params: Optional[Dict[str, torch.Tensor]] = None,
+    fields: dict[str, torch.Tensor],
+    deriv_cache: dict[tuple[str, tuple[str, ...]], torch.Tensor],
+    coord_names: list[str],
+    params: dict[str, torch.Tensor] | None = None,
 ) -> torch.Tensor:
     """Recursively evaluate a SymPy expression as a PyTorch tensor.
 
@@ -446,7 +445,7 @@ def _eval_expr_torch(
                 fname = inner.func.__name__
             else:
                 fname = str(inner.func)
-            wrt: List[str] = []
+            wrt: list[str] = []
             for sym, order in e.variable_count:
                 wrt.extend([str(sym)] * order)
             key = (fname, tuple(wrt))
@@ -540,10 +539,10 @@ def _eval_expr_torch(
 
 def _eval_expr_torch_grid(
     expr: sp.Expr,
-    fields: Dict[str, torch.Tensor],
-    deriv_cache: Dict[Tuple[str, Tuple[str, ...]], torch.Tensor],
-    coord_names: List[str],
-    params: Optional[Dict[str, torch.Tensor]],
+    fields: dict[str, torch.Tensor],
+    deriv_cache: dict[tuple[str, tuple[str, ...]], torch.Tensor],
+    coord_names: list[str],
+    params: dict[str, torch.Tensor] | None,
     grid: GridAxisSpec,
     method: str,
 ) -> torch.Tensor:
@@ -614,7 +613,7 @@ def _eval_expr_torch_grid(
                 fname = inner.func.__name__
             else:
                 fname = str(inner.func)
-            wrt: List[str] = []
+            wrt: list[str] = []
             for sym, order in e.variable_count:
                 wrt.extend([str(sym)] * order)
             key = (fname, tuple(wrt))
@@ -695,11 +694,11 @@ def _eval_expr_torch_grid(
 
 def pde_from_sympy(
     expr: sp.Expr,
-    coords: List[sp.Symbol],
-    fields: List[sp.Function],
-    params: Optional[List[sp.Symbol]] = None,
+    coords: list[sp.Symbol],
+    fields: list[sp.Function],
+    params: list[sp.Symbol] | None = None,
     grad_method: GradMethod = "autograd",
-    grid: Optional[GridAxisSpec] = None,
+    grid: GridAxisSpec | None = None,
 ) -> SymbolicPDE:
     """Create a SymbolicPDE from a SymPy residual expression.
 
@@ -728,8 +727,8 @@ def pde_from_sympy(
 def auto_residual(
     model: nn.Module,
     coords_tensor: torch.Tensor,
-    derivative_fns: Dict[str, Callable[[torch.Tensor, torch.Tensor], torch.Tensor]],
-) -> Dict[str, torch.Tensor]:
+    derivative_fns: dict[str, Callable[[torch.Tensor, torch.Tensor], torch.Tensor]],
+) -> dict[str, torch.Tensor]:
     """Compute field values and named derivative quantities via autograd.
 
     This is a lower-level helper intended for users who prefer to wire
@@ -764,7 +763,7 @@ def auto_residual(
     if raw.ndim == 1:
         raw = raw[:, None]
 
-    out: Dict[str, torch.Tensor] = {"fields": raw}
+    out: dict[str, torch.Tensor] = {"fields": raw}
     for name, fn in derivative_fns.items():
         out[name] = fn(raw, coords)
     return out

@@ -21,6 +21,14 @@ kalman
     user-supplied state-transition ``f`` and observation operator ``h``
     through the classic predict -> observe -> update recursion over a
     time series of plain ``np.ndarray`` states and observations.
+unscented
+    ``UnscentedKalmanFilter`` (sigma points: no Jacobian and no sampling
+    noise) and ``ParticleFilter`` (a full non-Gaussian belief, the only one
+    that can be two modes wide).
+estimator
+    ``StateEstimator`` behind one name: pick the filter by ``"ekf"``,
+    ``"ukf"``, ``"enkf"`` or ``"particle"``, run the stream, and get the
+    states, the innovations and — when a truth is given — the error.
 
 Note
 ----
@@ -33,16 +41,23 @@ filtering a state through time.
 """
 from __future__ import annotations
 
+from pinneapple_analysis.state_estimation.estimator import METHODS, EstimateReport, StateEstimator
 from pinneapple_analysis.state_estimation.kalman import (
     EnsembleKalmanFilter,
     ExtendedKalmanFilter,
     enkf_analysis,
     gaspari_cohn,
 )
+from pinneapple_analysis.state_estimation.unscented import ParticleFilter, UnscentedKalmanFilter
 
 __all__ = [
     "ExtendedKalmanFilter",
     "EnsembleKalmanFilter",
+    "UnscentedKalmanFilter",
+    "ParticleFilter",
+    "StateEstimator",
+    "EstimateReport",
+    "METHODS",
     "enkf_analysis",
     "gaspari_cohn",
 ]

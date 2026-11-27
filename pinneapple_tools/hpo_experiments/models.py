@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 
 ItemType = Literal["paper", "repo"]
@@ -15,16 +15,16 @@ class RankedItem:
     title: str
     url: str
     score: float
-    why: List[str] = field(default_factory=list)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    why: list[str] = field(default_factory=list)
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class DiscoveryResult:
     topic: str
-    papers: List[RankedItem]
-    repos: List[RankedItem]
-    meta: Dict[str, Any] = field(default_factory=dict)
+    papers: list[RankedItem]
+    repos: list[RankedItem]
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -37,7 +37,7 @@ class KBArtifact:
     title: str
     url: str
     path: str
-    meta: Dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -65,10 +65,10 @@ class ExtractedProblemSolution:
     solution: str
 
     # optional structured fields
-    equations: Optional[str] = None
-    data_requirements: Optional[str] = None
-    training_recipe: Optional[str] = None
-    metrics: Optional[str] = None
-    limitations: Optional[str] = None
+    equations: str | None = None
+    data_requirements: str | None = None
+    training_recipe: str | None = None
+    metrics: str | None = None
+    limitations: str | None = None
 
-    extra: Dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)

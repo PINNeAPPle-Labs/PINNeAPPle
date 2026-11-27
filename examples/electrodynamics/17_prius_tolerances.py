@@ -79,6 +79,9 @@ def _figure(out, X, Y):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     fig, ax = plt.subplots(1, 3, figsize=(16, 4.4))
     T0, r0 = out["nominal_outputs"]["torque_Nm"], out["nominal_outputs"]["ripple"]
     ax[0].hist(Y[:, 0], bins=20, color="C0", alpha=0.8)

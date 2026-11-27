@@ -6,7 +6,6 @@ This module provides simple boundary particle generation and wall forces.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
 
 import torch
 
@@ -19,7 +18,7 @@ class BoxBoundary:
     hi: torch.Tensor  # (D,)
 
     @staticmethod
-    def from_bounds(lo, hi, device=None, dtype=torch.float32) -> "BoxBoundary":
+    def from_bounds(lo, hi, device=None, dtype=torch.float32) -> BoxBoundary:
         return BoxBoundary(
             lo=torch.tensor(lo, device=device, dtype=dtype),
             hi=torch.tensor(hi, device=device, dtype=dtype),
@@ -49,7 +48,7 @@ def reflect_box(
     hi: torch.Tensor,
     *,
     restitution: float = 0.0,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Hard boundary reflection for an axis-aligned box.
 

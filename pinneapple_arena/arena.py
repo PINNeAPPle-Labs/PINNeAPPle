@@ -21,13 +21,12 @@ Feature summary
 from __future__ import annotations
 
 import os
-import time
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
-from .config import ArenaConfig, ModelConfig, InverseConfig, UQConfig, DatasetConfig
+from .config import ArenaConfig, ModelConfig, DatasetConfig
 from .model_factory import build_model, is_graph_model, is_pinn_model
 from .problems import get_problem, ArenaProblem
 from .trainer import (
@@ -66,7 +65,7 @@ def _build_delaunay_graph(xy: np.ndarray):
 
 # ── accuracy / physics-aware ranking ──────────────────────────────────────────
 
-def _accuracy_score(eres: Dict[str, Any], field_names: List[str]) -> float:
+def _accuracy_score(eres: dict[str, Any], field_names: list[str]) -> float:
     """Mean relative-L2 error across fields — lower is better. This is the
     same accuracy notion already shown in `_print_summary`'s ``rel-*``
     columns, just reduced to one scalar for ranking purposes."""
@@ -77,9 +76,9 @@ def _accuracy_score(eres: Dict[str, Any], field_names: List[str]) -> float:
     return float(np.mean(rels))
 
 
-def rank_by_accuracy(train_results: List[TrainResult],
-                      eval_results: List[Dict[str, Any]],
-                      field_names: List[str]) -> List[Tuple[str, float]]:
+def rank_by_accuracy(train_results: list[TrainResult],
+                      eval_results: list[dict[str, Any]],
+                      field_names: list[str]) -> list[tuple[str, float]]:
     """Pure-accuracy ranking: (name, mean_rel_error) sorted ascending
     (best first). This is Arena's default, unchanged ranking behaviour."""
     by_name = {e["name"]: e for e in eval_results}
@@ -90,12 +89,12 @@ def rank_by_accuracy(train_results: List[TrainResult],
 
 
 def physics_aware_rank(
-    train_results: List[TrainResult],
-    eval_results: List[Dict[str, Any]],
-    field_names: List[str],
+    train_results: list[TrainResult],
+    eval_results: list[dict[str, Any]],
+    field_names: list[str],
     n_std: float = 2.0,
-    residual_threshold: Optional[float] = None,
-) -> Dict[str, Any]:
+    residual_threshold: float | None = None,
+) -> dict[str, Any]:
     """Additive, opt-in comparison view layered on top of the default
     pure-accuracy ranking.
 
@@ -132,9 +131,9 @@ def physics_aware_rank(
     residuals = {tres.name: tres.physics_residual
                  for tres in train_results if tres.physics_residual is not None}
 
-    group_median: Optional[float] = None
-    group_std: Optional[float] = None
-    flagged: List[str] = []
+    group_median: float | None = None
+    group_std: float | None = None
+    flagged: list[str] = []
 
     if residuals:
         vals = np.array(list(residuals.values()), dtype=float)
@@ -176,36 +175,36 @@ class Arena:
     device : str  — torch device string (auto-detected if None)
     """
 
-    def __init__(self, config: ArenaConfig, device: Optional[str] = None):
+    def __init__(self, config: ArenaConfig, device: str | None = None):
         self.cfg = config
         if device is None:
             import torch
             device = "cuda" if torch.cuda.is_available() else "cpu"
         self.device = device
 
-        self._problem: Optional[ArenaProblem] = None
-        self._train_results: List[TrainResult] = []
-        self._eval_results: List[Dict[str, Any]] = []
-        self._data: Optional[Dict] = None
+        self._problem: ArenaProblem | None = None
+        self._train_results: list[TrainResult] = []
+        self._eval_results: list[dict[str, Any]] = []
+        self._data: dict | None = None
         self._decision_report = None
 
     # ── construction helpers ──────────────────────────────────────────────────
 
     @classmethod
-    def from_yaml(cls, path: str, device: Optional[str] = None) -> "Arena":
+    def from_yaml(cls, path: str, device: str | None = None) -> Arena:
         return cls(ArenaConfig.from_yaml(path), device=device)
 
     @classmethod
-    def from_json(cls, path: str, device: Optional[str] = None) -> "Arena":
+    def from_json(cls, path: str, device: str | None = None) -> Arena:
         return cls(ArenaConfig.from_json(path), device=device)
 
     @classmethod
-    def from_config(cls, config: ArenaConfig, device: Optional[str] = None) -> "Arena":
+    def from_config(cls, config: ArenaConfig, device: str | None = None) -> Arena:
         return cls(config, device=device)
 
     # ── main entry point ──────────────────────────────────────────────────────
 
-    def run(self, physics_aware: bool = False) -> "Arena":
+    def run(self, physics_aware: bool = False) -> Arena:
         """Train all models, evaluate, optionally run UQ/inverse, produce figures.
 
         Parameters
@@ -237,7 +236,7 @@ class Arena:
 
     # ── decision mode (the Arena as a decision laboratory) ───────────────────
 
-    def run_decision(self, budget: Optional[int] = None, **kwargs) -> "ArenaDecisionReport":
+    def run_decision(self, budget: int | None = None, **kwargs) -> ArenaDecisionReport:
         """Ask the decision engine which configured model to train first, train and
         evaluate it, verify the result, record the evidence, and let the engine pick
         the next one, until a result passes verification or ``budget`` experiments
@@ -251,7 +250,7 @@ class Arena:
         self._decision_report = self._run_decision_loop(budget=budget, **kwargs)
         return self._decision_report
 
-    def _run_decision_loop(self, **kwargs) -> "ArenaDecisionReport":
+    def _run_decision_loop(self, **kwargs) -> ArenaDecisionReport:
         from .decision_mode import run_decision_mode
 
         dc = self.cfg.decision
@@ -262,7 +261,7 @@ class Arena:
         return run_decision_mode(self, **opts)
 
     @property
-    def decision_report(self) -> Optional["ArenaDecisionReport"]:
+    def decision_report(self) -> ArenaDecisionReport | None:
         return self._decision_report
 
     # ── data preparation ──────────────────────────────────────────────────────
@@ -453,7 +452,7 @@ class Arena:
     def _evaluate_all(self):
         self._eval_results = [self._evaluate_one(res) for res in self._train_results]
 
-    def _evaluate_one(self, res: TrainResult) -> Dict[str, Any]:
+    def _evaluate_one(self, res: TrainResult) -> dict[str, Any]:
         d = self._data
         mcfg = self._mcfg_by_name(res.name)
         eval_out = evaluate_model(
@@ -578,8 +577,8 @@ class Arena:
     # ── physics-aware comparison (opt-in, additive) ──────────────────────────
 
     def physics_aware_summary(self, n_std: float = 2.0,
-                              residual_threshold: Optional[float] = None
-                              ) -> Dict[str, Any]:
+                              residual_threshold: float | None = None
+                              ) -> dict[str, Any]:
         """Compute (without printing) the physics-aware comparison view.
         See :func:`physics_aware_rank` for the return shape."""
         return physics_aware_rank(
@@ -588,7 +587,7 @@ class Arena:
         )
 
     def _print_physics_aware_summary(self, n_std: float = 2.0,
-                                     residual_threshold: Optional[float] = None):
+                                     residual_threshold: float | None = None):
         result = self.physics_aware_summary(n_std=n_std, residual_threshold=residual_threshold)
         print("\n" + "-" * 70)
         print("  PHYSICS-AWARE VIEW  (accuracy ranking unchanged; outliers flagged)")
@@ -610,11 +609,11 @@ class Arena:
     # ── accessors ─────────────────────────────────────────────────────────────
 
     @property
-    def results(self) -> List[Dict[str, Any]]:
+    def results(self) -> list[dict[str, Any]]:
         return self._eval_results
 
     @property
-    def train_results(self) -> List[TrainResult]:
+    def train_results(self) -> list[TrainResult]:
         return self._train_results
 
     def compare(self) -> None:

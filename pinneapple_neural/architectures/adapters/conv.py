@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 import torch.nn as nn
 
@@ -20,7 +20,7 @@ class ConvAdapter:
         kind = spec.input_kind or ""
         return kind.startswith("grid") and spec.family != "neural_operators"
 
-    def forward_batch(self, model: nn.Module, batch: Dict[str, Any]) -> Any:
+    def forward_batch(self, model: nn.Module, batch: dict[str, Any]) -> Any:
         if hasattr(model, "forward_batch"):
             return model.forward_batch(batch)
         u = batch.get("u_grid")

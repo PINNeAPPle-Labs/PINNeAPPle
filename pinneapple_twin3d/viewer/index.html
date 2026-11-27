@@ -5,22 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PINNeAPPle Twin3D</title>
 <style>
-  :root {
-    --bg: #f4f5f7; --panel: #ffffff; --text: #1d2330; --muted: #5c6475; --line: #d9dde5;
-    --accent: #2f6fde; --alarm: #d6453d; --ok: #1f9d55; --viewport: #e9ecf1;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #12151b; --panel: #1b2029; --text: #e6e9ef; --muted: #9aa3b5; --line: #2c3340;
-      --accent: #6b9cff; --alarm: #ff6b62; --ok: #4cc983; --viewport: #0e1116;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #12151b; --panel: #1b2029; --text: #e6e9ef; --muted: #9aa3b5; --line: #2c3340;
-    --accent: #6b9cff; --alarm: #ff6b62; --ok: #4cc983; --viewport: #0e1116;
-  }
+  /* Every colour on this page is the house theme's. --viewport and the seven chrome variables are written by
+     viewer.js from theme.js, which scripts/build_theme.py generates from
+     pinneapple_tools/visualization/theme.json; a literal declared here would be the second palette #65 forbids.
+     The fallbacks are CSS system colours, so the first paint is the browser's before the module runs, never a
+     colour of the page's own. */
+  :root { color-scheme: light dark; }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; overflow-x: hidden; background: var(--bg); color: var(--text);
+  html, body { margin: 0; height: 100%; overflow-x: hidden; background: var(--bg, Canvas);
+    color: var(--text, CanvasText);
     font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
   #app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: auto 1fr auto; height: 100%; }
   header { grid-column: 1 / 3; display: flex; align-items: center; gap: 12px; padding: 8px 16px;

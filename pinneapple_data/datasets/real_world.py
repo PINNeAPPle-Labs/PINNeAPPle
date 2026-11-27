@@ -46,7 +46,6 @@ from __future__ import annotations
 import io as _io
 import urllib.request
 from functools import lru_cache
-from typing import Dict, Optional
 
 import numpy as np
 
@@ -76,7 +75,7 @@ def _fetch_text(url: str, **kw) -> str:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_sunspots() -> Dict[str, np.ndarray]:
+def _load_sunspots() -> dict[str, np.ndarray]:
     # 1. statsmodels
     try:
         from statsmodels.datasets.sunspots import load_pandas
@@ -146,7 +145,7 @@ _AIR_PASSENGERS = np.array([
 ], dtype=np.float32)
 
 @lru_cache(maxsize=1)
-def _load_air_passengers() -> Dict[str, np.ndarray]:
+def _load_air_passengers() -> dict[str, np.ndarray]:
     try:
         # pandas has it via a URL
         import pandas as pd
@@ -177,7 +176,7 @@ def _load_air_passengers() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_co2() -> Dict[str, np.ndarray]:
+def _load_co2() -> dict[str, np.ndarray]:
     # statsmodels
     try:
         from statsmodels.datasets.co2 import load_pandas
@@ -238,7 +237,7 @@ def _load_co2() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_etth1() -> Dict[str, np.ndarray]:
+def _load_etth1() -> dict[str, np.ndarray]:
     url = ("https://raw.githubusercontent.com/zhouhaoyi/ETDataset/main/"
            "ETT-small/ETTh1.csv")
     try:
@@ -277,7 +276,7 @@ def _load_etth1() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_ettm1() -> Dict[str, np.ndarray]:
+def _load_ettm1() -> dict[str, np.ndarray]:
     url = ("https://raw.githubusercontent.com/zhouhaoyi/ETDataset/main/"
            "ETT-small/ETTm1.csv")
     try:
@@ -315,7 +314,7 @@ def _load_ettm1() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_jena_climate() -> Dict[str, np.ndarray]:
+def _load_jena_climate() -> dict[str, np.ndarray]:
     url = ("https://storage.googleapis.com/tensorflow/tf-keras-datasets/"
            "jena_climate_2009_2016.csv.zip")
     try:
@@ -357,7 +356,7 @@ def _load_jena_climate() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_airfoil_noise() -> Dict[str, np.ndarray]:
+def _load_airfoil_noise() -> dict[str, np.ndarray]:
     url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00291/airfoil_self_noise.dat"
     try:
         text = _fetch_text(url)
@@ -404,7 +403,7 @@ def _load_airfoil_noise() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_concrete_strength() -> Dict[str, np.ndarray]:
+def _load_concrete_strength() -> dict[str, np.ndarray]:
     try:
         from sklearn.datasets import fetch_openml
         ds = fetch_openml("concrete-strength", version=1, as_frame=True)
@@ -457,7 +456,7 @@ def _load_concrete_strength() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_energy_efficiency() -> Dict[str, np.ndarray]:
+def _load_energy_efficiency() -> dict[str, np.ndarray]:
     url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00242/ENB2012_data.xlsx"
     try:
         import pandas as pd, io
@@ -497,7 +496,7 @@ def _load_energy_efficiency() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_nasa_giss_temp() -> Dict[str, np.ndarray]:
+def _load_nasa_giss_temp() -> dict[str, np.ndarray]:
     url = "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
     try:
         import pandas as pd
@@ -539,7 +538,7 @@ def _load_nasa_giss_temp() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_spacex_launches() -> Dict[str, np.ndarray]:
+def _load_spacex_launches() -> dict[str, np.ndarray]:
     url = "https://api.spacexdata.com/v4/launches"
     try:
         import json
@@ -592,7 +591,7 @@ def _load_spacex_launches() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_sklearn_california_housing() -> Dict[str, np.ndarray]:
+def _load_sklearn_california_housing() -> dict[str, np.ndarray]:
     try:
         from sklearn.datasets import fetch_california_housing
         ds = fetch_california_housing()
@@ -617,7 +616,7 @@ def _load_sklearn_california_housing() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_sklearn_diabetes() -> Dict[str, np.ndarray]:
+def _load_sklearn_diabetes() -> dict[str, np.ndarray]:
     try:
         from sklearn.datasets import load_diabetes
         ds = load_diabetes()
@@ -642,7 +641,7 @@ def _load_sklearn_diabetes() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_sklearn_wine() -> Dict[str, np.ndarray]:
+def _load_sklearn_wine() -> dict[str, np.ndarray]:
     try:
         from sklearn.datasets import load_wine
         ds = load_wine()
@@ -671,7 +670,7 @@ def _load_sklearn_wine() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_seaborn_penguins() -> Dict[str, np.ndarray]:
+def _load_seaborn_penguins() -> dict[str, np.ndarray]:
     try:
         import seaborn as sns
         df = sns.load_dataset("penguins").dropna()
@@ -694,7 +693,7 @@ def _load_seaborn_penguins() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_seaborn_mpg() -> Dict[str, np.ndarray]:
+def _load_seaborn_mpg() -> dict[str, np.ndarray]:
     try:
         import seaborn as sns
         df = sns.load_dataset("mpg").dropna()
@@ -723,7 +722,7 @@ def _load_seaborn_mpg() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_statsmodels_macrodata() -> Dict[str, np.ndarray]:
+def _load_statsmodels_macrodata() -> dict[str, np.ndarray]:
     try:
         from statsmodels.datasets.macrodata import load_pandas
         df = load_pandas().data
@@ -749,7 +748,7 @@ def _load_statsmodels_macrodata() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_statsmodels_elnino() -> Dict[str, np.ndarray]:
+def _load_statsmodels_elnino() -> dict[str, np.ndarray]:
     try:
         from statsmodels.datasets.elnino import load_pandas
         df = load_pandas().data
@@ -775,7 +774,7 @@ def _load_statsmodels_elnino() -> Dict[str, np.ndarray]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def _load_nasa_exoplanet_archive() -> Dict[str, np.ndarray]:
+def _load_nasa_exoplanet_archive() -> dict[str, np.ndarray]:
     """NASA Exoplanet Archive — confirmed exoplanet physical parameters."""
     url = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+pl_name,pl_orbper,pl_rade,pl_bmasse,pl_eqt,st_teff,st_rad,st_mass+from+pscomppars+where+pl_rade+is+not+null+and+pl_bmasse+is+not+null&format=csv"
     try:
@@ -829,7 +828,7 @@ def _load_nasa_exoplanet_archive() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_nist_fluid_properties() -> Dict[str, np.ndarray]:
+def _load_nist_fluid_properties() -> dict[str, np.ndarray]:
     """Water thermodynamic properties over a range of T and P (NIST-like)."""
     # Generate a grid of water properties using the IAPWS-IF97 approximations
     # (synthetic but physically accurate enough for surrogate modeling)
@@ -866,7 +865,7 @@ def _load_nist_fluid_properties() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_cfd_cylinder_drag() -> Dict[str, np.ndarray]:
+def _load_cfd_cylinder_drag() -> dict[str, np.ndarray]:
     """2D cylinder drag/lift coefficients vs Reynolds number (parametric CFD sweep)."""
     # Classic drag curve from Schlichting + analytical Stokes/Oseen for low Re
     rng = np.random.default_rng(30)
@@ -897,7 +896,7 @@ def _load_cfd_cylinder_drag() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_seismic_waveform() -> Dict[str, np.ndarray]:
+def _load_seismic_waveform() -> dict[str, np.ndarray]:
     """Synthetic 1D seismic P-wave propagation through a layered medium."""
     dt = 0.002   # s
     t = np.arange(0, 4.0, dt, dtype=np.float32)
@@ -944,7 +943,7 @@ def _load_seismic_waveform() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_heat_conduction_rod() -> Dict[str, np.ndarray]:
+def _load_heat_conduction_rod() -> dict[str, np.ndarray]:
     """1D transient heat conduction in a steel rod solved by FDM."""
     # L=1m rod, alpha=1.172e-5 m2/s (steel), Dirichlet BCs, Gaussian IC
     L = 1.0; alpha = 1.172e-5; nx = 101; nt = 500
@@ -981,7 +980,7 @@ def _load_heat_conduction_rod() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_turbulent_channel_flow() -> Dict[str, np.ndarray]:
+def _load_turbulent_channel_flow() -> dict[str, np.ndarray]:
     """DNS turbulent channel flow statistics at Re_tau=180 (Kim, Moin & Moser 1987)."""
     # Tabulated DNS data from KMM87 (embedded, publicly available reference data)
     # y+: wall-normal coordinate in viscous units, U+: mean velocity
@@ -1018,7 +1017,7 @@ def _load_turbulent_channel_flow() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_materials_fatigue() -> Dict[str, np.ndarray]:
+def _load_materials_fatigue() -> dict[str, np.ndarray]:
     """S-N (Wohler) fatigue curve data for aluminum alloy 6061-T6 (synthetic)."""
     rng = np.random.default_rng(40)
     # Stress amplitude [MPa], cycles to failure
@@ -1053,7 +1052,7 @@ def _load_materials_fatigue() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_orbit_propagation() -> Dict[str, np.ndarray]:
+def _load_orbit_propagation() -> dict[str, np.ndarray]:
     """Keplerian orbit propagation: ISS-like orbit state vector over 24h."""
     # ISS TLE-derived orbital elements (approximate)
     a  = 6778e3       # semi-major axis [m]
@@ -1102,7 +1101,7 @@ def _load_orbit_propagation() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_plasma_fusion() -> Dict[str, np.ndarray]:
+def _load_plasma_fusion() -> dict[str, np.ndarray]:
     """Tokamak-like plasma parameters time series (synthetic ITER-like discharge)."""
     rng = np.random.default_rng(50)
     dt = 0.01   # s
@@ -1154,7 +1153,7 @@ def _load_plasma_fusion() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_reaction_diffusion() -> Dict[str, np.ndarray]:
+def _load_reaction_diffusion() -> dict[str, np.ndarray]:
     """2D Gray-Scott reaction-diffusion simulation (pattern formation)."""
     # Parameters: U-spots pattern (Du=0.16, Dv=0.08, F=0.035, k=0.065)
     nx = ny = 64; n_steps = 3000; dt = 1.0
@@ -1250,7 +1249,7 @@ _LOADERS = {
 }
 
 
-def load_real_dataset(dataset_id: str) -> Dict[str, np.ndarray]:
+def load_real_dataset(dataset_id: str) -> dict[str, np.ndarray]:
     """Load a real-world dataset by ID.
 
     Downloads on first call, then caches in memory.

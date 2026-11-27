@@ -8,7 +8,7 @@ Convention: negative inside the shape, positive outside, zero on the boundary.
 from __future__ import annotations
 
 import math
-from typing import Callable, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
@@ -33,7 +33,7 @@ def _dot(a, b, axis=-1):
 # 2D SDF primitives
 # ---------------------------------------------------------------------------
 
-def sdf2d_circle(p: np.ndarray, center: Tuple[float, float], radius: float) -> np.ndarray:
+def sdf2d_circle(p: np.ndarray, center: tuple[float, float], radius: float) -> np.ndarray:
     """SDF for a 2D circle. Negative inside."""
     c = np.asarray(center, dtype=np.float64)
     return _norm(p - c) - radius
@@ -41,8 +41,8 @@ def sdf2d_circle(p: np.ndarray, center: Tuple[float, float], radius: float) -> n
 
 def sdf2d_rectangle(
     p: np.ndarray,
-    center: Tuple[float, float],
-    half_extents: Tuple[float, float],
+    center: tuple[float, float],
+    half_extents: tuple[float, float],
 ) -> np.ndarray:
     """SDF for an axis-aligned rectangle. Negative inside."""
     c = np.asarray(center, dtype=np.float64)
@@ -53,8 +53,8 @@ def sdf2d_rectangle(
 
 def sdf2d_rounded_rectangle(
     p: np.ndarray,
-    center: Tuple[float, float],
-    half_extents: Tuple[float, float],
+    center: tuple[float, float],
+    half_extents: tuple[float, float],
     radius: float,
 ) -> np.ndarray:
     """SDF for a rectangle with rounded corners."""
@@ -63,8 +63,8 @@ def sdf2d_rounded_rectangle(
 
 def sdf2d_ellipse(
     p: np.ndarray,
-    center: Tuple[float, float],
-    semi_axes: Tuple[float, float],
+    center: tuple[float, float],
+    semi_axes: tuple[float, float],
     iterations: int = 4,
 ) -> np.ndarray:
     """SDF for a 2D ellipse via iterative Newton refinement (Inigo Quilez).
@@ -114,8 +114,8 @@ def sdf2d_ellipse(
 
 def sdf2d_capsule(
     p: np.ndarray,
-    a: Tuple[float, float],
-    b: Tuple[float, float],
+    a: tuple[float, float],
+    b: tuple[float, float],
     radius: float,
 ) -> np.ndarray:
     """SDF for a 2D capsule (stadium) between points a and b."""
@@ -127,8 +127,8 @@ def sdf2d_capsule(
 
 def sdf2d_line_segment(
     p: np.ndarray,
-    a: Tuple[float, float],
-    b: Tuple[float, float],
+    a: tuple[float, float],
+    b: tuple[float, float],
     thickness: float = 0.0,
 ) -> np.ndarray:
     """SDF to a line segment (with optional thickness)."""
@@ -137,9 +137,9 @@ def sdf2d_line_segment(
 
 def sdf2d_triangle(
     p: np.ndarray,
-    v0: Tuple[float, float],
-    v1: Tuple[float, float],
-    v2: Tuple[float, float],
+    v0: tuple[float, float],
+    v1: tuple[float, float],
+    v2: tuple[float, float],
 ) -> np.ndarray:
     """SDF for a 2D triangle (signed: negative inside)."""
     p0 = np.asarray(v0, dtype=np.float64)
@@ -170,7 +170,7 @@ def sdf2d_triangle(
 
 def sdf2d_annulus(
     p: np.ndarray,
-    center: Tuple[float, float],
+    center: tuple[float, float],
     r_inner: float,
     r_outer: float,
 ) -> np.ndarray:
@@ -184,7 +184,7 @@ def sdf2d_annulus(
 
 def sdf2d_sector(
     p: np.ndarray,
-    center: Tuple[float, float],
+    center: tuple[float, float],
     radius: float,
     angle_start: float,
     angle_end: float,
@@ -245,7 +245,7 @@ def sdf2d_convex_polygon(
 # 3D SDF primitives
 # ---------------------------------------------------------------------------
 
-def sdf3d_sphere(p: np.ndarray, center: Tuple[float, float, float], radius: float) -> np.ndarray:
+def sdf3d_sphere(p: np.ndarray, center: tuple[float, float, float], radius: float) -> np.ndarray:
     """SDF for a 3D sphere."""
     c = np.asarray(center, dtype=np.float64)
     return _norm(p - c) - radius
@@ -253,8 +253,8 @@ def sdf3d_sphere(p: np.ndarray, center: Tuple[float, float, float], radius: floa
 
 def sdf3d_box(
     p: np.ndarray,
-    center: Tuple[float, float, float],
-    half_extents: Tuple[float, float, float],
+    center: tuple[float, float, float],
+    half_extents: tuple[float, float, float],
 ) -> np.ndarray:
     """SDF for an axis-aligned 3D box."""
     c = np.asarray(center, dtype=np.float64)
@@ -265,7 +265,7 @@ def sdf3d_box(
 
 def sdf3d_cylinder(
     p: np.ndarray,
-    center: Tuple[float, float, float],
+    center: tuple[float, float, float],
     radius: float,
     height: float,
     axis: int = 2,
@@ -286,7 +286,7 @@ def sdf3d_cylinder(
 
 def sdf3d_torus(
     p: np.ndarray,
-    center: Tuple[float, float, float],
+    center: tuple[float, float, float],
     R: float,
     r: float,
     axis: int = 2,
@@ -303,8 +303,8 @@ def sdf3d_torus(
 
 def sdf3d_capsule(
     p: np.ndarray,
-    a: Tuple[float, float, float],
-    b: Tuple[float, float, float],
+    a: tuple[float, float, float],
+    b: tuple[float, float, float],
     radius: float,
 ) -> np.ndarray:
     """SDF for a 3D capsule between points a and b."""
@@ -316,8 +316,8 @@ def sdf3d_capsule(
 
 def sdf3d_rounded_box(
     p: np.ndarray,
-    center: Tuple[float, float, float],
-    half_extents: Tuple[float, float, float],
+    center: tuple[float, float, float],
+    half_extents: tuple[float, float, float],
     radius: float,
 ) -> np.ndarray:
     """SDF for a 3D box with rounded edges."""
@@ -327,7 +327,7 @@ def sdf3d_rounded_box(
 
 def sdf3d_cone(
     p: np.ndarray,
-    apex: Tuple[float, float, float],
+    apex: tuple[float, float, float],
     height: float,
     radius: float,
 ) -> np.ndarray:
@@ -473,8 +473,8 @@ def sdf_elongate_2d(
 
 def sdf_repeat_2d(
     sdf_fn: Callable[[np.ndarray], np.ndarray],
-    period: Tuple[float, float],
-    repetitions: Optional[Tuple[int, int]] = None,
+    period: tuple[float, float],
+    repetitions: tuple[int, int] | None = None,
 ) -> Callable[[np.ndarray], np.ndarray]:
     """Tile a 2D SDF with given (px, py) period."""
     px, py = float(period[0]), float(period[1])
@@ -518,35 +518,35 @@ class SDF:
     def __call__(self, p: np.ndarray) -> np.ndarray:
         return self._fn(p)
 
-    def __or__(self, other: "SDF") -> "SDF":
+    def __or__(self, other: SDF) -> SDF:
         return SDF(lambda p: sdf_union(self(p), other(p)))
 
-    def __and__(self, other: "SDF") -> "SDF":
+    def __and__(self, other: SDF) -> SDF:
         return SDF(lambda p: sdf_intersection(self(p), other(p)))
 
-    def __sub__(self, other: "SDF") -> "SDF":
+    def __sub__(self, other: SDF) -> SDF:
         return SDF(lambda p: sdf_difference(self(p), other(p)))
 
-    def translate(self, offset: Sequence[float]) -> "SDF":
+    def translate(self, offset: Sequence[float]) -> SDF:
         return SDF(sdf_translate(self._fn, offset))
 
-    def scale(self, factor: float) -> "SDF":
+    def scale(self, factor: float) -> SDF:
         return SDF(sdf_scale(self._fn, factor))
 
-    def rotate(self, angle_rad: float) -> "SDF":
+    def rotate(self, angle_rad: float) -> SDF:
         return SDF(sdf_rotate_2d(self._fn, angle_rad))
 
-    def onion(self, thickness: float) -> "SDF":
+    def onion(self, thickness: float) -> SDF:
         return SDF(sdf_onion(self._fn, thickness))
 
-    def smooth_union(self, other: "SDF", k: float = 0.1) -> "SDF":
+    def smooth_union(self, other: SDF, k: float = 0.1) -> SDF:
         return SDF(lambda p: sdf_smooth_union(self(p), other(p), k))
 
     def sample_boundary(
         self,
         n: int,
-        bounds_min: Tuple[float, ...],
-        bounds_max: Tuple[float, ...],
+        bounds_min: tuple[float, ...],
+        bounds_max: tuple[float, ...],
         tol: float = 0.02,
         seed: int = 0,
     ) -> np.ndarray:
@@ -568,8 +568,8 @@ class SDF:
     def sample_interior(
         self,
         n: int,
-        bounds_min: Tuple[float, ...],
-        bounds_max: Tuple[float, ...],
+        bounds_min: tuple[float, ...],
+        bounds_max: tuple[float, ...],
         seed: int = 0,
     ) -> np.ndarray:
         """Sample n points inside the domain (sdf < 0) by rejection."""

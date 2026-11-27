@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -54,14 +54,14 @@ class ReconstructionResult:
     signal: np.ndarray              # (N,) reconstructed values
     raw_timestamps: np.ndarray      # original sparse observations
     raw_values: np.ndarray
-    quality: Dict[str, float] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    quality: dict[str, float] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def n_points(self) -> int:
         return len(self.signal)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "sensor_id": self.sensor_id,
             "field_name": self.field_name,
@@ -80,7 +80,7 @@ def _extract_series(
     observations: list,
     sensor_id: str,
     field_name: str,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Pull (timestamps, values) for a given sensor+field from obs list."""
     ts, vals = [], []
     for obs in observations:
@@ -96,7 +96,7 @@ def _extract_series(
 def _quality_metrics(
     raw: np.ndarray,
     reconstructed_at_raw: np.ndarray,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Compute quality metrics comparing reconstructed to raw values."""
     if len(raw) == 0 or len(reconstructed_at_raw) == 0:
         return {}
@@ -116,9 +116,9 @@ def reconstruct_spectral(
     values: np.ndarray,
     *,
     n_harmonics: int = 10,
-    out_times: Optional[np.ndarray] = None,
+    out_times: np.ndarray | None = None,
     min_points: int = 8,
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """
     FFT-based reconstruction: fit the dominant harmonics and evaluate on a
     dense grid (or ``out_times`` if provided).
@@ -172,8 +172,8 @@ def reconstruct_ssa(
     *,
     window: int = 0,          # 0 = auto (T // 4)
     n_components: int = 5,
-    out_times: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    out_times: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """
     SSA-based reconstruction: decompose the signal and reconstruct from the
     dominant components (noise suppression).
@@ -220,8 +220,8 @@ def reconstruct_wavelet(
     level: int = 4,
     threshold_mode: str = "soft",   # "soft" | "hard"
     threshold_sigma_mult: float = 3.0,
-    out_times: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    out_times: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """
     Wavelet soft-thresholding denoising + reconstruction.
 
@@ -272,9 +272,9 @@ def reconstruct_interpolate(
     values: np.ndarray,
     *,
     kind: str = "cubic",     # "linear" | "cubic" | "pchip" | "akima"
-    out_times: Optional[np.ndarray] = None,
+    out_times: np.ndarray | None = None,
     n_out: int = 512,
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """
     Scipy interpolation-based reconstruction (gap filling / upsampling).
 
@@ -315,14 +315,14 @@ def reconstruct_model_based(
     values: np.ndarray,
     *,
     model: Any,
-    sensor_coord: Dict[str, float],
-    coord_names: List[str],
+    sensor_coord: dict[str, float],
+    coord_names: list[str],
     field_name: str,
     field_index: int = 0,
-    out_times: Optional[np.ndarray] = None,
+    out_times: np.ndarray | None = None,
     n_out: int = 512,
     device: str = "cpu",
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """
     Use a trained physics model to reconstruct the time series at a given
     spatial location by querying model(x, y, t).
@@ -419,10 +419,10 @@ class SignalReconstructor:
             return list(self._source._last_observations)
         return list(self._source)
 
-    def available_sensors(self) -> Dict[str, List[str]]:
+    def available_sensors(self) -> dict[str, list[str]]:
         """Return {sensor_id: [field_name, ...]} from buffered observations."""
         obs = self._get_observations()
-        sensors: Dict[str, set] = {}
+        sensors: dict[str, set] = {}
         for o in obs:
             if o.sensor_id not in sensors:
                 sensors[o.sensor_id] = set()
@@ -433,7 +433,7 @@ class SignalReconstructor:
         self,
         sensor_id: str,
         field_name: str,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Return (timestamps, values) for a sensor/field without reconstruction."""
         obs = self._get_observations()
         return _extract_series(obs, sensor_id, field_name)
@@ -447,9 +447,9 @@ class SignalReconstructor:
         sensor_id: str,
         field_name: str,
         *,
-        method: Optional[str] = None,
-        out_times: Optional[np.ndarray] = None,
-        n_out: Optional[int] = None,
+        method: str | None = None,
+        out_times: np.ndarray | None = None,
+        n_out: int | None = None,
         # Method-specific options forwarded via kwargs
         **kwargs: Any,
     ) -> ReconstructionResult:
@@ -540,9 +540,9 @@ class SignalReconstructor:
 
     def reconstruct_all(
         self,
-        method: Optional[str] = None,
+        method: str | None = None,
         **kwargs: Any,
-    ) -> Dict[Tuple[str, str], ReconstructionResult]:
+    ) -> dict[tuple[str, str], ReconstructionResult]:
         """Reconstruct all available sensor/field combinations."""
         results = {}
         for sid, fields in self.available_sensors().items():
@@ -560,10 +560,10 @@ class SignalReconstructor:
 
     def reconstruct_state(
         self,
-        method: Optional[str] = None,
-        at_time: Optional[float] = None,
+        method: str | None = None,
+        at_time: float | None = None,
         **kwargs: Any,
-    ) -> Dict[str, Dict[str, float]]:
+    ) -> dict[str, dict[str, float]]:
         """
         Reconstruct the instantaneous sensor values at ``at_time`` (default: now).
 
@@ -572,7 +572,7 @@ class SignalReconstructor:
         """
         import time as _time
         t_query = np.array([at_time if at_time is not None else _time.time()])
-        state: Dict[str, Dict[str, float]] = {}
+        state: dict[str, dict[str, float]] = {}
         for sid, fields in self.available_sensors().items():
             state[sid] = {}
             for fname in fields:

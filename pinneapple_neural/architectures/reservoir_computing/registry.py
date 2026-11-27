@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for reservoir computing model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import RCBase
 from .elm import ExtremeLearningMachine
@@ -13,7 +12,7 @@ from .esn_rc import ESNRC
 from .koopman import KoopmanOperator
 
 
-_REGISTRY: Dict[str, Type[RCBase]] = {
+_REGISTRY: dict[str, type[RCBase]] = {
     "elm": ExtremeLearningMachine,
     "extreme_learning_machine": ExtremeLearningMachine,
 
@@ -51,7 +50,7 @@ def register_into_global() -> None:
 
 @dataclass
 class ReservoirCatalog:
-    registry: Dict[str, Type[RCBase]] = None
+    registry: dict[str, type[RCBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -59,7 +58,7 @@ class ReservoirCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[RCBase]:
+    def get(self, name: str) -> type[RCBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown reservoir model '{name}'. Available: {self.list()}")

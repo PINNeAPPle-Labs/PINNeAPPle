@@ -29,7 +29,9 @@
   "dp_max_Pa": 30.0,
   "n_train": 120
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "proposal_mass",

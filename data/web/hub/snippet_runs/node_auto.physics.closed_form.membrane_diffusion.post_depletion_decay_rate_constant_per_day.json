@@ -1,0 +1,12 @@
+{
+ "code_hash": "f04c4f1f6cd52464",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.membrane_diffusion.post_depletion_decay_rate_constant_per_day",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n86400.0",
+ "timed_out": false
+}

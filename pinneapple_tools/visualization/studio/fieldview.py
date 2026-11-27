@@ -118,6 +118,10 @@ def field_view(mesh, fields: Sequence[Mapping[str, Any]], *, deform: Mapping[str
         where = f.get("where") or ("point" if len(a) == n_pts else "cell" if len(a) == n_cells else None)
         if where is None or len(a) != (n_pts if where == "point" else n_cells):
             raise ValueError(f"field {f['name']!r}: {len(a)} values for {n_pts} points and {n_cells} cells")
+        if "unit" not in f:
+            raise ValueError(
+                f"field {f['name']!r} declares no unit: a rendered field is not left without one. Pass "
+                f'"unit": "-" for a dimensionless field, or the unit it is in ("MPa", "m/s").')
         key = f"f{i}"
         spec[key] = (where, a)
         names.append({"key": key, "name": str(f["name"]), "label": str(f.get("label") or f["name"]),
@@ -171,7 +175,17 @@ def field_view(mesh, fields: Sequence[Mapping[str, Any]], *, deform: Mapping[str
                    "bbox_min": _r(P.min(0)), "bbox_max": _r(P.max(0)),
                    "fields": [str(x) for x in m["fields"]] if m.get("fields") else None,
                    "label": bool(m.get("label", True))})
+    from ..caption import figure_caption
+    captions = {}
+    for f in names:
+        d = dkeys.get(f["deform"] or "")
+        captions[f["key"]] = figure_caption(
+            f["name"], f["unit"], label=f["label"], kind=f["kind"], value_range=(f["lo"], f["hi"]),
+            deform=(d["auto_scale"] if d else None), length_unit=length_unit or "m").to_dict()
+    shown = next((c for f in names if f["kind"] != "error" for c in [captions[f["key"]]]), None) or \
+        next(iter(captions.values()), None)
     meta = {"schema": "pinneapple-field-view/v1", "title": sc.title, "axes": axes, "fields": names,
+            "captions": captions, "caption": (shown or {}).get("text", ""),
             "deform": dkeys, "markers": mk, "bounds": {"min": _r(lo), "max": _r(hi), "size": size},
             "faces": sc.n_faces(), "faces_original": n0, "decimated": sc.n_faces() < n0, "max_faces": max_faces,
             "points": n_pts, "cells": n_cells, "notes": list(notes)}

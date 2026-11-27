@@ -15,7 +15,9 @@
   "pinneapple_tools.nvidia.brep"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "thickness_mm",

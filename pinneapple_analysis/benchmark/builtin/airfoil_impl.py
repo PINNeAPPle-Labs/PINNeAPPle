@@ -38,6 +38,8 @@ from pinneapple_physics.pinn_solver.factory.pinn_factory import (
     PINNProblemSpec,
 )
 
+from ..comparison import save_comparison
+
 USABLE = ("converged", "steady-ish", "unsteady")
 MAX_CL_OSC = 0.1                                                   # Cl swing over the last 500 iterations
 _DIRS = {"air": None, "ood": None}
@@ -193,7 +195,8 @@ def graph_data(lay, recs):
     return np.stack(X), np.stack(E), np.stack(Yf).astype(np.float32), np.stack(Yc).astype(np.float32)
 
 
-def train_mgn(cfg: dict, seed: int, budget: ComputeBudget, *, final: bool, batch: int = 4) -> dict:
+def train_mgn(cfg: dict, seed: int, budget: ComputeBudget, *, final: bool, batch: int = 4,
+              comparison_path=None) -> dict:
     S = splits()
     tr = S["train_all"] if final else S["train"]
     lay = Layout()
@@ -235,10 +238,15 @@ def train_mgn(cfg: dict, seed: int, budget: ComputeBudget, *, final: bool, batch
                 y, c = model(T(Xq[b:b + 8]), ei, T(Eq[b:b + 8]), wall)
                 C.append(c.numpy() * cs + cm_)
                 F.append(y.numpy() * fs + fm)
+        F = np.concatenate(F)
         cl, cd, cm = coef_from_targets(np.concatenate(C))
         out[name] = coef_scores(coefs(S[name]), np.stack([cl, cd, cm], 1))
-        out[name].update(field_scores(Yfq, np.concatenate(F)))
+        out[name].update(field_scores(Yfq, F))
         out[name]["ids"] = [r["id"] for r in S[name]]
+        if name == "test" and final and len(F):          # the report's standard comparison figure (#63)
+            pos = lay.positions(np.array(S[name][0]["shape"]))
+            save_comparison(comparison_path, Yfq[0, :, 0], F[0, :, 0], x=pos[:, 0], y=pos[:, 1], quantity="p",
+                            unit="Pa", instance=S[name][0]["id"])
     r0 = S["val"][0]
     s0 = np.array(r0["shape"])
 
@@ -252,7 +260,8 @@ def train_mgn(cfg: dict, seed: int, budget: ComputeBudget, *, final: bool, batch
 
 
 # ------------------------------------------------------------------------------------------------- POD + MLP fields
-def train_mlp_fields(cfg: dict, seed: int, budget: ComputeBudget, *, final: bool) -> dict:
+def train_mlp_fields(cfg: dict, seed: int, budget: ComputeBudget, *, final: bool,
+                     comparison_path=None) -> dict:
     """Field baseline for a like-for-like field comparison with the MeshGraphNet: POD of the training fields (p, Ux,
     Uy on the same graph nodes), and an MLP from the shape parameters and the angle to the POD coefficients."""
     S = splits()
@@ -299,8 +308,13 @@ def train_mlp_fields(cfg: dict, seed: int, budget: ComputeBudget, *, final: bool
     out = {"train": run.to_dict(), "n_params": sum(p.numel() for p in net.parameters()) + basis.size,
            "n_train_runs": len(tr), "pod_energy_kept": float((sv[:K] ** 2).sum() / (sv ** 2).sum())}
     for name in eval_splits(final, S):
-        out[name] = field_scores(fields(S[name]), predict(S[name]))
+        true, pred = fields(S[name]), predict(S[name])
+        out[name] = field_scores(true, pred)
         out[name]["ids"] = [r["id"] for r in S[name]]
+        if name == "test" and final:                     # the report's standard comparison figure (#63)
+            pos = lay.positions(np.array(S[name][0]["shape"]))
+            save_comparison(comparison_path, true[0, :, 0], pred[0, :, 0], x=pos[:, 0], y=pos[:, 1], quantity="p",
+                            unit="Pa", instance=S[name][0]["id"])
     r0 = S["val"][0]
     x1 = torch.from_numpy(MLPEnsemble.inputs(np.array([r0["shape"]]), np.array([r0["alpha"]])))
     out["infer_batch1"] = time_per_query(lambda: (net(x1) @ basis_t), repeats=50, warmup=5)

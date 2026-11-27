@@ -4,7 +4,6 @@ import pytest
 torch = pytest.importorskip("torch")
 nn = torch.nn
 
-import pinneapple as pp
 from pinneapple_core import Domain, Geometry, Mesh, loss as L
 from pinneapple_core.data import (
     ActiveSampler, AdaptiveSampler, Batch, BoundarySampler, CollocationSampler, DataLoader, MeshSampler, PhysicsDataset,

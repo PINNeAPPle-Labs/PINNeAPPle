@@ -1,0 +1,12 @@
+{
+ "code_hash": "9fb3c0f647967299",
+ "figures": [],
+ "id": "example:examples/cfd",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Classical CFD validation cases against their published tables | validation and benchmarks | curated\ncavity_u_l2_relative_re100_128 0.0056 1\ncavity_u_l2_relative_re1000_128 0.0094 1\ncavity_observed_order_re1000 1.43 1\ncavity_gci_fine_re1000 0.0338 1\nstep_x1_over_S_re400_32 8.137 S",
+ "timed_out": false
+}

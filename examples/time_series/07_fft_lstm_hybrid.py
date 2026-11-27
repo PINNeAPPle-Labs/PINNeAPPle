@@ -42,7 +42,6 @@ from __future__ import annotations
 import math
 import sys
 from pathlib import Path
-from typing import Tuple
 
 # Force UTF-8 output on Windows terminals (cp1252 can't encode many Unicode chars)
 if hasattr(sys.stdout, "reconfigure"):
@@ -373,7 +372,7 @@ def rolling_evaluate_model(
     device:    str,
     mode: str = "raw",         # "raw" ou "residual" + "fft" para híbrido
     fft_pipeline_: FFTLSTMPipeline | None = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Avaliação rolling por janelas deslizantes no período de teste.
 
     Retorna (preds, trues) ambos com shape (N_windows, H, F).
@@ -425,7 +424,7 @@ def rolling_evaluate_naive(
     horizon: int,
     test_start: int,
     kind: str = "naive",
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Baseline Naive e Drift."""
     T_total = len(series)
     first_w = max(0, test_start - input_len)
@@ -462,7 +461,7 @@ def rolling_evaluate_fft_only(
     input_len: int,
     horizon: int,
     test_start: int,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Extrapolação FFT pura (sem LSTM) — baseline determinístico."""
     T_total = len(series)
     first_w = max(0, test_start - input_len)

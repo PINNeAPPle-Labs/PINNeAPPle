@@ -70,7 +70,7 @@ construct your own gated ``PhysicsOrchestrator`` and pass it in directly.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .autonomy import ApprovalDecision, ApprovalGate, AutonomyLevel
 from .protocol import LLMProvider
@@ -102,10 +102,10 @@ class IterationRecord:
 
     iteration: int
     problem_description: str
-    approval: Optional[ApprovalDecision] = None
-    agent_result: Optional[UnifiedAgentResult] = None
-    guardrail_report: "Optional[GuardrailReport]" = None
-    confidence: Optional[PhysicsConfidenceScore] = None
+    approval: ApprovalDecision | None = None
+    agent_result: UnifiedAgentResult | None = None
+    guardrail_report: GuardrailReport | None = None
+    confidence: PhysicsConfidenceScore | None = None
     note: str = ""
 
 
@@ -116,11 +116,11 @@ class ResearchLoopResult:
     status: str
     """One of ``"success"``, ``"max_iterations"``, ``"needs_more_info"``,
     ``"awaiting_approval"``, ``"execution_failed"``."""
-    iterations: List[IterationRecord] = field(default_factory=list)
-    final_confidence: Optional[PhysicsConfidenceScore] = None
-    final_result: Optional[UnifiedAgentResult] = None
-    memory_record_ids: List[str] = field(default_factory=list)
-    prior_lessons: List[str] = field(default_factory=list)
+    iterations: list[IterationRecord] = field(default_factory=list)
+    final_confidence: PhysicsConfidenceScore | None = None
+    final_result: UnifiedAgentResult | None = None
+    memory_record_ids: list[str] = field(default_factory=list)
+    prior_lessons: list[str] = field(default_factory=list)
 
 
 class AutonomousResearchAgent:
@@ -181,7 +181,7 @@ class AutonomousResearchAgent:
         *,
         autonomy_level: AutonomyLevel = AutonomyLevel.SUPERVISED,
         approver_fn=None,
-        memory: "Optional[ExperimentMemory]" = None,
+        memory: ExperimentMemory | None = None,
         physics_domain: str = "general",
         max_iterations: int = 5,
         confidence_target: float = 0.7,
@@ -190,7 +190,7 @@ class AutonomousResearchAgent:
         **approval_gate_kwargs: Any,
     ) -> None:
         self.gate = ApprovalGate(autonomy_level, approver_fn=approver_fn, **approval_gate_kwargs)
-        self._current_iteration_for_gate: Optional[int] = None
+        self._current_iteration_for_gate: int | None = None
 
         if orchestrator is None and gate_internal_tools:
             # Real per-tool gating, not just this loop's own coarse
@@ -211,12 +211,12 @@ class AutonomousResearchAgent:
         self.max_iterations = max_iterations
         self.confidence_target = confidence_target
 
-        self._memory: "Optional[ExperimentMemory]" = memory
+        self._memory: ExperimentMemory | None = memory
         if self._memory is None and memory is None and _HAS_MEMORY:
             self._memory = None  # constructed lazily in `memory` property
 
     @property
-    def memory(self) -> "Optional[ExperimentMemory]":
+    def memory(self) -> ExperimentMemory | None:
         """The real ``ExperimentMemory`` this loop logs to/queries, or
         ``None`` if ``pinneapple_registry`` isn't importable. Constructed
         lazily (a fresh temp-file-backed store) on first access if the
@@ -241,7 +241,7 @@ class AutonomousResearchAgent:
         """
         result = ResearchLoopResult(status="max_iterations")
 
-        prior_lessons: List[str] = []
+        prior_lessons: list[str] = []
         if self.memory is not None:
             try:
                 similar = self.memory.query_similar(
@@ -267,7 +267,7 @@ class AutonomousResearchAgent:
                 f"[From {len(prior_lessons)} similar prior attempt(s) in memory: {lessons_text}]"
             )
 
-        prev_confidence: Optional[float] = None
+        prev_confidence: float | None = None
 
         for i in range(1, self.max_iterations + 1):
             record = IterationRecord(iteration=i, problem_description=current_description)
@@ -346,7 +346,7 @@ class AutonomousResearchAgent:
 
     # ------------------------------------------------------------------
 
-    def _tool_gate(self, tool_name: str, tool_args: Dict[str, Any]) -> None:
+    def _tool_gate(self, tool_name: str, tool_args: dict[str, Any]) -> None:
         """The real ``PhysicsOrchestrator.tool_gate`` callback (see
         ``__init__``): checks every *individual* tool the orchestrator
         selects internally through this loop's own ``ApprovalGate`` --
@@ -376,7 +376,7 @@ class AutonomousResearchAgent:
         guardrail component is simply omitted (not faked)."""
         guardrail_report = None
         if _HAS_GUARDRAIL and agent_result.execution_result is not None:
-            artifacts: Dict[str, Any] = getattr(agent_result.execution_result, "artifacts", {}) or {}
+            artifacts: dict[str, Any] = getattr(agent_result.execution_result, "artifacts", {}) or {}
             model = artifacts.get("model")
             if model is not None:
                 try:
@@ -397,8 +397,8 @@ class AutonomousResearchAgent:
         problem_description: str,
         *,
         outcome: str,
-        lessons: Optional[str] = None,
-        confidence: Optional[float] = None,
+        lessons: str | None = None,
+        confidence: float | None = None,
     ) -> None:
         if self.memory is None or not _HAS_MEMORY:
             return

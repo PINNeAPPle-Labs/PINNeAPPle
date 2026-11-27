@@ -19,7 +19,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import tomllib
+if sys.version_info >= (3, 11):
+    import tomllib
+else:                                                                # pragma: no cover -- the declared floor, 3.10
+    import tomli as tomllib
 
 from .inventory import repo_root
 

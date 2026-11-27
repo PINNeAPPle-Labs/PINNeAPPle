@@ -1,6 +1,5 @@
 """Pure FFT forecaster: fits dominant sinusoids and extrapolates."""
 from __future__ import annotations
-from typing import Optional
 
 import numpy as np
 
@@ -19,16 +18,16 @@ class FFTForecaster:
     def __init__(self, n_harmonics: int = 10, detrend: bool = True):
         self.n_harmonics = n_harmonics
         self.detrend     = detrend
-        self._freqs:   Optional[np.ndarray] = None
-        self._amps:    Optional[np.ndarray] = None
-        self._phases:  Optional[np.ndarray] = None
+        self._freqs:   np.ndarray | None = None
+        self._amps:    np.ndarray | None = None
+        self._phases:  np.ndarray | None = None
         self._trend_slope:     float = 0.0
         self._trend_intercept: float = 0.0
         self._n:       int = 0
         self._mean:    float = 0.0
 
     # ------------------------------------------------------------------
-    def fit(self, y: np.ndarray) -> "FFTForecaster":
+    def fit(self, y: np.ndarray) -> FFTForecaster:
         y  = np.asarray(y, dtype=float).ravel()
         self._n    = len(y)
         self._mean = float(y.mean())
@@ -61,7 +60,7 @@ class FFTForecaster:
         return self
 
     # ------------------------------------------------------------------
-    def predict(self, horizon: int, start: Optional[int] = None) -> np.ndarray:
+    def predict(self, horizon: int, start: int | None = None) -> np.ndarray:
         if self._freqs is None:
             raise RuntimeError("Call fit() before predict().")
         if start is None:

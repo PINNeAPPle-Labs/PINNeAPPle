@@ -15,13 +15,23 @@ the CSG shapes of :mod:`pinneapple_design.geometry.csg` (2D).
 """
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
 SdfFn = Callable[[np.ndarray], np.ndarray]
 
 _MC_VOLUME_SAMPLES = 200_000
+
+
+def _shape_sdf(shape) -> SdfFn:
+    """A CSG shape's signed distance, in the form :meth:`Domain.sdf` calls."""
+    if not hasattr(shape, "sdf"):
+        raise TypeError(
+            f"{type(shape).__name__} has no sdf(); a Domain can only take a shape that "
+            "answers a signed distance (see pinneapple_design.geometry.csg)"
+        )
+    return lambda x: np.asarray(shape.sdf(np.asarray(x, dtype=np.float64)), dtype=np.float64)
 
 
 class Domain:
@@ -32,7 +42,7 @@ class Domain:
         lo: Sequence[float],
         hi: Sequence[float],
         *,
-        sdf: Optional[SdfFn] = None,
+        sdf: SdfFn | None = None,
         shape=None,
     ) -> None:
         self.lo = np.atleast_1d(np.asarray(lo, dtype=np.float64))
@@ -41,26 +51,32 @@ class Domain:
             raise ValueError("lo and hi must be 1D arrays of the same length")
         if np.any(self.hi <= self.lo):
             raise ValueError("every hi must be greater than lo")
+        # A shape is the domain, so its own signed distance is the domain's: without
+        # this, ``Domain(lo, hi, shape=shape)`` reported ``is_box`` and every query
+        # fell back to the bounding box — ``contains`` accepted the whole box and
+        # ``sample_interior`` scattered collocation points outside the geometry (#938).
+        if sdf is None and shape is not None:
+            sdf = _shape_sdf(shape)
         self._sdf = sdf
-        self._shape = shape  # optional CSG shape, used for boundary sampling
-        self._volume: Optional[float] = None
+        self._shape = shape  # the CSG shape itself, for boundary sampling
+        self._volume: float | None = None
 
     # -- constructors -------------------------------------------------------
     @classmethod
-    def box(cls, lo: Sequence[float], hi: Sequence[float]) -> "Domain":
+    def box(cls, lo: Sequence[float], hi: Sequence[float]) -> Domain:
         """Axis-aligned box in any dimension."""
         return cls(lo, hi)
 
     @classmethod
-    def interval(cls, a: float, b: float) -> "Domain":
+    def interval(cls, a: float, b: float) -> Domain:
         return cls([a], [b])
 
     @classmethod
-    def from_sdf(cls, shape) -> "Domain":
+    def from_sdf(cls, shape) -> Domain:
         """Wrap a 2D CSG shape (``pinneapple_design.geometry.csg``) as a Domain."""
         lo = np.asarray(shape.bounds_min, dtype=np.float64)
         hi = np.asarray(shape.bounds_max, dtype=np.float64)
-        return cls(lo, hi, sdf=lambda x: shape.sdf(np.asarray(x, dtype=np.float64)), shape=shape)
+        return cls(lo, hi, shape=shape)
 
     # -- basic properties ---------------------------------------------------
     @property
@@ -72,7 +88,7 @@ class Domain:
         return self._sdf is None
 
     @property
-    def bounds(self) -> Tuple[np.ndarray, np.ndarray]:
+    def bounds(self) -> tuple[np.ndarray, np.ndarray]:
         return self.lo, self.hi
 
     def volume(self) -> float:
@@ -134,7 +150,7 @@ class Domain:
 
     def sample_boundary(
         self, n: int, *, seed: int = 0, return_normals: bool = False
-    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    ) -> np.ndarray | tuple[np.ndarray, np.ndarray]:
         """``(n, dim)`` points on the boundary, uniform in boundary measure.
 
         Boxes also return outward unit normals with ``return_normals=True``;
@@ -154,7 +170,7 @@ class Domain:
             raise NotImplementedError("boundary sampling needs a box or a CSG shape")
         return (pts, nrm) if return_normals else pts
 
-    def _box_boundary(self, n: int, rng) -> Tuple[np.ndarray, np.ndarray]:
+    def _box_boundary(self, n: int, rng) -> tuple[np.ndarray, np.ndarray]:
         d = self.dim
         span = self.hi - self.lo
         # face (axis, side) has measure prod of the other extents (1 for d == 1)

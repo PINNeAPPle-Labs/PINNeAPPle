@@ -1,0 +1,210 @@
+{
+ "model_id": "naca-family-v2",
+ "n_train": 62,
+ "n_held_out": 33,
+ "basis": {
+  "names": [
+   "u",
+   "v",
+   "cp"
+  ],
+  "sizes": {
+   "u": 656,
+   "v": 656,
+   "cp": 656
+  },
+  "n_modes": 10,
+  "singular_values": [
+   1072.6489917772808,
+   425.78214049710306,
+   94.92006786551386,
+   79.43664283700569,
+   48.20403334397815,
+   44.160579295350146,
+   43.09795969350606,
+   38.413758869165534,
+   37.900917846637235,
+   37.25731176901807,
+   35.484238252995716
+  ],
+  "energy_captured": 0.9872640456041345,
+  "reconstruction_rel_error": 0.11285368578768422
+ },
+ "held_out": {
+  "CL_rmse": 0.020981694723869775,
+  "CL_mae": 0.015443271118011033,
+  "CL_max_abs": 0.05035003458112475,
+  "CL_rel_l2": 0.04128376938499373,
+  "CD_rmse": 0.0006552558830867056,
+  "CD_mae": 0.000504012023231386,
+  "CD_max_abs": 0.0021293341535039145,
+  "CD_rel_l2": 0.054966011873188246,
+  "CD_pressure_rmse": 0.0003118199416074754,
+  "CD_pressure_mae": 0.00024203383310918242,
+  "CD_pressure_max_abs": 0.000815660857111278,
+  "CD_pressure_rel_l2": 0.0719425603146699,
+  "CD_friction_rmse": 0.0003844999323356042,
+  "CD_friction_mae": 0.00029731917866038547,
+  "CD_friction_max_abs": 0.0011235291687948321,
+  "CD_friction_rel_l2": 0.04762351246401807,
+  "CM_rmse": 0.001633590532416075,
+  "CM_mae": 0.0011972713434109947,
+  "CM_max_abs": 0.0045940476305752695,
+  "CM_rel_l2": 0.04888797907067285
+ },
+ "domain_before_extend": {
+  "evidence": 40,
+  "supported": 2
+ },
+ "domain_after_extend": {
+  "evidence": 61,
+  "supported": 6
+ },
+ "status_changes": 4,
+ "examples": [
+  {
+   "query": {
+    "alpha_deg": 2.6038333574497883,
+    "speed": 20.571316132653884,
+    "thickness": 0.12675741052005263,
+    "camber": 0.018378556476696985
+   },
+   "before": {
+    "status": "UNSUPPORTED",
+    "reason": "insufficient_local_reference"
+   },
+   "after": {
+    "status": "EMPIRICALLY_SUPPORTED",
+    "reason": "local_checks_passed",
+    "reference_ids": [
+     "c2003",
+     "v2004"
+    ],
+    "neighbors": 2
+   }
+  },
+  {
+   "query": {
+    "alpha_deg": 7.260251570786695,
+    "speed": 16.640244957100265,
+    "thickness": 0.1346313524916546,
+    "camber": 0.0016988324149285982
+   },
+   "before": {
+    "status": "UNSUPPORTED",
+    "reason": "insufficient_local_reference"
+   },
+   "after": {
+    "status": "EMPIRICALLY_SUPPORTED",
+    "reason": "local_checks_passed",
+    "reference_ids": [
+     "v2013",
+     "va013"
+    ],
+    "neighbors": 2
+   }
+  },
+  {
+   "query": {
+    "alpha_deg": 1.9687102778655365,
+    "speed": 14.136695678685218,
+    "thickness": 0.0962035735304678,
+    "camber": 0.011545761123890145
+   },
+   "before": {
+    "status": "UNSUPPORTED",
+    "reason": "insufficient_local_reference"
+   },
+   "after": {
+    "status": "EMPIRICALLY_SUPPORTED",
+    "reason": "local_checks_passed",
+    "reference_ids": [
+     "c2007",
+     "v2017"
+    ],
+    "neighbors": 2
+   }
+  },
+  {
+   "query": {
+    "alpha_deg": 3.9441095225103453,
+    "speed": 26.02703708458819,
+    "thickness": 0.13272306130431116,
+    "camber": 0.0049378892351673535
+   },
+   "before": {
+    "status": "UNSUPPORTED",
+    "reason": "insufficient_local_reference"
+   },
+   "after": {
+    "status": "EMPIRICALLY_SUPPORTED",
+    "reason": "local_checks_passed",
+    "reference_ids": [
+     "c2005",
+     "v2022"
+    ],
+    "neighbors": 2
+   }
+  },
+  {
+   "query": {
+    "alpha_deg": -0.03700408401696076,
+    "speed": 14.298944498422888,
+    "thickness": 0.10460275026960406,
+    "camber": 0.012186254537173596
+   },
+   "before": {
+    "status": "UNSUPPORTED",
+    "reason": "insufficient_local_reference"
+   },
+   "after": {
+    "status": "EMPIRICALLY_SUPPORTED",
+    "reason": "local_checks_passed",
+    "reference_ids": [
+     "c2007",
+     "v2016",
+     "v2017"
+    ],
+    "neighbors": 3
+   }
+  }
+ ],
+ "midpoints_between_new_and_nearest_old": {
+  "candidates": 21,
+  "status_changes": 7,
+  "to_supported": 7,
+  "reasons_after": {
+   "local_failed_or_missing_evidence": 12,
+   "training_coverage_gap": 2,
+   "EMPIRICALLY_SUPPORTED": 7
+  }
+ },
+ "policy": {
+  "reference_tol": 0.05,
+  "physics_tols": [
+   1.5,
+   2.0
+  ],
+  "uncertainty_tol": 0.13010645445249744,
+  "radius": 0.27203498005939974,
+  "min_neighbors": 2
+ },
+ "bounds": {
+  "alpha_deg": [
+   -4.0,
+   8.0
+  ],
+  "speed": [
+   10.0,
+   30.0
+  ],
+  "thickness": [
+   0.08,
+   0.16
+  ],
+  "camber": [
+   0.0,
+   0.02
+  ]
+ }
+}

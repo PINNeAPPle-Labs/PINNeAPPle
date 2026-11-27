@@ -4,7 +4,6 @@ Step 1: Update all Python import statements to use the new mega-module paths.
 
 import os
 import re
-import sys
 
 REPO_ROOT = r"c:\Users\laisc\Documents\GitHub\PINNeAPPle"
 

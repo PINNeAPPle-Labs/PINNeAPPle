@@ -1,0 +1,12 @@
+{
+ "code_hash": "5781267b23c4c35d",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pipe_insulation.surface_coefficient",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 15.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'h_r': 4.6734379257404, 'h_cv': 0.042919370181004224, 'h': 4.716357295921404, 're': 0.0, 'ra': 138.24948818773126, 'regime': 'natural'}",
+ "timed_out": false
+}

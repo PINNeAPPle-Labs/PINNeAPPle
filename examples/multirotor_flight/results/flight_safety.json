@@ -1,0 +1,655 @@
+{
+  "issue": 335,
+  "fault_time_s": 8.0,
+  "duration_s": 20.0,
+  "seeds": [
+    3,
+    4,
+    5
+  ],
+  "calibration": {
+    "force_x": {
+      "mean": 0.0006079786060885525,
+      "std": 0.059827256342384595
+    },
+    "force_y": {
+      "mean": -0.0003147702975996263,
+      "std": 0.06037845948557669
+    },
+    "force_z": {
+      "mean": 0.0003198886565487478,
+      "std": 0.05991663771565752
+    },
+    "torque_x": {
+      "mean": -0.00022360215446792846,
+      "std": 2.793513613141002
+    },
+    "torque_y": {
+      "mean": -8.334776409568893e-05,
+      "std": 2.8113798545704225
+    },
+    "torque_z": {
+      "mean": -0.00030726697044780924,
+      "std": 2.842187065050358
+    },
+    "power": {
+      "mean": -4.008002677047195,
+      "std": 0.7938323844896122
+    },
+    "gps": {
+      "mean": 0.4010921053929275,
+      "std": 0.16955406015707233
+    },
+    "heading": {
+      "mean": -1.9469856318600284e-06,
+      "std": 0.019968090959219854
+    },
+    "vibration": {
+      "mean": 0.011006761178864843,
+      "std": 0.01767305070869648
+    }
+  },
+  "signatures": {
+    "payload": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": -43.4,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -5.5,
+      "gps": -0.0,
+      "heading": 0.0,
+      "vibration": 0.0
+    },
+    "motor": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": -17.4,
+      "torque_x": -8.2,
+      "torque_y": -8.1,
+      "torque_z": 0.3,
+      "power": -2.2,
+      "gps": -0.0,
+      "heading": 0.2,
+      "vibration": 0.0
+    },
+    "blade": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": -8.9,
+      "torque_x": -4.2,
+      "torque_y": -4.1,
+      "torque_z": 0.2,
+      "power": -1.0,
+      "gps": -0.0,
+      "heading": 0.0,
+      "vibration": 0.0
+    },
+    "gust": {
+      "force_x": -18.4,
+      "force_y": -1.7,
+      "force_z": -11.3,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -1.1,
+      "gps": -0.0,
+      "heading": 0.0,
+      "vibration": 0.0
+    },
+    "gps": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": 0.0,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -0.0,
+      "gps": 0.5,
+      "heading": 0.0,
+      "vibration": 0.0
+    },
+    "magnetometer": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": 0.0,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -0.0,
+      "gps": -0.0,
+      "heading": 1.6,
+      "vibration": 0.0
+    },
+    "vibration": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": 0.0,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -0.0,
+      "gps": -0.0,
+      "heading": 0.0,
+      "vibration": 46.2
+    },
+    "battery": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": 0.0,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -11.9,
+      "gps": -0.0,
+      "heading": 0.0,
+      "vibration": 0.0
+    },
+    "payload-small": {
+      "force_x": 0.0,
+      "force_y": 0.0,
+      "force_z": -10.8,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -1.1,
+      "gps": -0.0,
+      "heading": 0.0,
+      "vibration": 0.0
+    },
+    "gust-small": {
+      "force_x": -4.7,
+      "force_y": -0.4,
+      "force_z": -1.3,
+      "torque_x": -0.0,
+      "torque_y": 0.0,
+      "torque_z": 0.0,
+      "power": -0.1,
+      "gps": -0.0,
+      "heading": 0.0,
+      "vibration": 0.0
+    }
+  },
+  "detectors": {
+    "ThresholdDetector": {
+      "sensitivity": 8.0,
+      "false_alarm_rate": 0.0,
+      "cases": {
+        "payload": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "payload",
+            "payload",
+            "payload"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "motor": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "blade": {
+          "detected": 1.0,
+          "delay_s": 0.06733333333333331,
+          "delay_max_s": 0.0779999999999994,
+          "labels": [
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "gust": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "gust",
+            "gust",
+            "gust"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "gps": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "GPS glitch",
+            "GPS glitch",
+            "GPS glitch"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "magnetometer": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "magnetometer interference",
+            "magnetometer interference",
+            "magnetometer interference"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "vibration": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "IMU vibration",
+            "IMU vibration",
+            "IMU vibration"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "battery": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "battery sag",
+            "battery sag",
+            "battery sag"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "payload-small": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "payload",
+            "payload",
+            "payload"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "gust-small": {
+          "detected": 0.0,
+          "delay_s": null,
+          "delay_max_s": null,
+          "labels": [
+            "no fault detected",
+            "no fault detected",
+            "no fault detected"
+          ],
+          "correct": [
+            false,
+            false,
+            false
+          ]
+        }
+      }
+    },
+    "KalmanDetector": {
+      "sensitivity": 6.0,
+      "false_alarm_rate": 0.0,
+      "cases": {
+        "payload": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "payload",
+            "payload",
+            "payload"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "motor": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "blade": {
+          "detected": 0.3333333333333333,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "no fault detected",
+            "motor 2 low efficiency or blade chipped",
+            "no fault detected"
+          ],
+          "correct": [
+            false,
+            true,
+            false
+          ]
+        },
+        "gust": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "gust",
+            "gust",
+            "gust"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "gps": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "GPS glitch",
+            "GPS glitch",
+            "GPS glitch"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "magnetometer": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "magnetometer interference",
+            "magnetometer interference",
+            "magnetometer interference"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "vibration": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "IMU vibration",
+            "IMU vibration",
+            "IMU vibration"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "battery": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "battery sag",
+            "battery sag",
+            "battery sag"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "payload-small": {
+          "detected": 1.0,
+          "delay_s": 0.0,
+          "delay_max_s": 0.0,
+          "labels": [
+            "payload",
+            "payload",
+            "payload"
+          ],
+          "correct": [
+            true,
+            true,
+            true
+          ]
+        },
+        "gust-small": {
+          "detected": 0.0,
+          "delay_s": null,
+          "delay_max_s": null,
+          "labels": [
+            "no fault detected",
+            "no fault detected",
+            "no fault detected"
+          ],
+          "correct": [
+            false,
+            false,
+            false
+          ]
+        }
+      }
+    },
+    "CusumDetector": {
+      "sensitivity": 40.0,
+      "false_alarm_rate": 0.6666666666666666,
+      "cases": {
+        "payload": {
+          "detected": 1.0,
+          "delay_s": -1.213333333333333,
+          "delay_max_s": 0.002000000000000668,
+          "labels": [
+            "payload",
+            "payload",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "motor": {
+          "detected": 1.0,
+          "delay_s": -1.2106666666666666,
+          "delay_max_s": 0.006000000000000227,
+          "labels": [
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "blade": {
+          "detected": 1.0,
+          "delay_s": -1.2066666666666663,
+          "delay_max_s": 0.012000000000000455,
+          "labels": [
+            "motor 2 low efficiency or blade chipped",
+            "motor 2 low efficiency or blade chipped",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "gust": {
+          "detected": 1.0,
+          "delay_s": -1.2120000000000004,
+          "delay_max_s": 0.0039999999999995595,
+          "labels": [
+            "gust",
+            "gust",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "gps": {
+          "detected": 1.0,
+          "delay_s": -1.2113333333333334,
+          "delay_max_s": 0.006000000000000227,
+          "labels": [
+            "GPS glitch",
+            "GPS glitch",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "magnetometer": {
+          "detected": 1.0,
+          "delay_s": -1.2126666666666666,
+          "delay_max_s": 0.0039999999999995595,
+          "labels": [
+            "magnetometer interference",
+            "magnetometer interference",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "vibration": {
+          "detected": 1.0,
+          "delay_s": -1.2093333333333327,
+          "delay_max_s": 0.008000000000000895,
+          "labels": [
+            "IMU vibration",
+            "IMU vibration",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "battery": {
+          "detected": 1.0,
+          "delay_s": -1.2099999999999997,
+          "delay_max_s": 0.008000000000000895,
+          "labels": [
+            "battery sag",
+            "battery sag",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "payload-small": {
+          "detected": 1.0,
+          "delay_s": -1.2093333333333327,
+          "delay_max_s": 0.008000000000000895,
+          "labels": [
+            "payload",
+            "payload",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        },
+        "gust-small": {
+          "detected": 1.0,
+          "delay_s": -1.197333333333333,
+          "delay_max_s": 0.02800000000000047,
+          "labels": [
+            "gust",
+            "gust",
+            "unclassified"
+          ],
+          "correct": [
+            true,
+            true,
+            false
+          ]
+        }
+      }
+    }
+  },
+  "machine": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "python": "3.11.16",
+    "processor": "arm",
+    "cpus": 10
+  },
+  "figures": [
+    "figures/flight.gif",
+    "figures/residuals.png"
+  ],
+  "seconds": 268.65863394737244
+}

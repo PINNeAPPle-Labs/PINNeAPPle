@@ -1,0 +1,128 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/car_lbm/car_lbm-08b9f5e32c0a",
+ "title": "Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parameters): lattice-Boltzmann LES with moving",
+ "description": "Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parameters): lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake vorticity movie. The training data of car_surrogate.",
+ "domain": "fluid dynamics",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "slant_deg": 26.432,
+  "windshield_deg": 29.1769,
+  "hood": 0.6375,
+  "clearance": 0.0899,
+  "diffuser_deg": 5.9577,
+  "nose": 0.8047,
+  "length_cells": 64,
+  "Re": 500.0,
+  "u_in": 0.08,
+  "Cs": 0.1,
+  "steps": 8000,
+  "tunnel_height": 2.5
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "Cd",
+   "value": 1.6005466022761539,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "Cl",
+   "value": 0.7347577775362879,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "Cd_rms_fluctuation",
+   "value": 0.15092891074778775,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "Strouhal_frontal_height",
+   "value": 0.11999999999999998,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "mean_flow_divergence",
+   "value": 0.00034063379280269146,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "finite_fields",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "drag_statistically_converged",
+   "passed": true,
+   "value": 0.010283241236083374,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "mean drag over the 3rd vs 4th quarter of the run",
+   "kind": "sanity"
+  },
+  {
+   "name": "drag_in_bluff_body_range",
+   "passed": true,
+   "value": 1.6005466022761539,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 2.5,
+   "min": 0.1,
+   "detail": "2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/forces.png",
+   "figures/mean_flow.png"
+  ],
+  "videos": [
+   "figures/wake_vorticity.gif"
+  ],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "car_lbm",
+  "run_id": "car_lbm-08b9f5e32c0a",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "6008a1487",
+  "seconds": 559.437,
+  "created": "2026-11-25T03:01:58Z",
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit",
+   "packages": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+   }
+  }
+ },
+ "quality": {}
+}

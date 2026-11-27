@@ -23,7 +23,7 @@ import os
 import re
 import urllib.error
 import urllib.request
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .extract import _NUM, Candidate, Document, parse_value
 from .spec import FormSpec
@@ -40,7 +40,7 @@ class OllamaError(RuntimeError):
 class OllamaClient:
     """Minimal client for the Ollama HTTP API (``/api/chat``, ``/api/tags``)."""
 
-    def __init__(self, url: Optional[str] = None, model: Optional[str] = None, timeout: float = 600.0,
+    def __init__(self, url: str | None = None, model: str | None = None, timeout: float = 600.0,
                  num_ctx: int = 16384):
         url = url or os.environ.get("OLLAMA_HOST") or DEFAULT_URL
         if not re.match(r"^https?://", url):
@@ -50,7 +50,7 @@ class OllamaClient:
         self.timeout = timeout
         self.num_ctx = num_ctx
 
-    def _request(self, path: str, payload: Optional[dict] = None, timeout: Optional[float] = None) -> dict:
+    def _request(self, path: str, payload: dict | None = None, timeout: float | None = None) -> dict:
         data = json.dumps(payload).encode() if payload is not None else None
         req = urllib.request.Request(self.url + path, data=data, method="POST" if data else "GET",
                                      headers={"Content-Type": "application/json"})
@@ -63,7 +63,7 @@ class OllamaClient:
         except (urllib.error.URLError, OSError) as exc:
             raise OllamaError(f"cannot reach Ollama at {self.url}: {exc}") from None
 
-    def models(self, timeout: float = 3.0) -> List[str]:
+    def models(self, timeout: float = 3.0) -> list[str]:
         return [m.get("name", "") for m in self._request("/api/tags", timeout=timeout).get("models", [])]
 
     def available(self, timeout: float = 3.0) -> bool:
@@ -114,12 +114,12 @@ def _catalog(spec: FormSpec) -> str:
     return "\n".join(lines)
 
 
-def _schema(spec: FormSpec) -> Dict[str, Any]:
+def _schema(spec: FormSpec) -> dict[str, Any]:
     answer = {"type": "object",
               "properties": {"key": {"type": "string", "enum": [f.key for f in spec.fields]}, "value": {"type": "string"},
                              "quote": {"type": "string"}, "page": {"type": "integer"}},
               "required": ["key", "value", "quote", "page"]}
-    props: Dict[str, Any] = {"answers": {"type": "array", "items": answer}}
+    props: dict[str, Any] = {"answers": {"type": "array", "items": answer}}
     for t in spec.tables:
         cols = {c: {"type": "string"} for c in t.output_columns}
         props[t.key] = {"type": "array", "items": {
@@ -128,7 +128,7 @@ def _schema(spec: FormSpec) -> Dict[str, Any]:
     return {"type": "object", "properties": props, "required": list(props)}
 
 
-def document_text(doc: Document, pages: Optional[List[int]] = None) -> str:
+def document_text(doc: Document, pages: list[int] | None = None) -> str:
     """Page-marked text of a document, its tables written as ``cell | cell`` rows."""
     parts = []
     for p in pages or range(1, doc.n_pages + 1):
@@ -139,7 +139,7 @@ def document_text(doc: Document, pages: Optional[List[int]] = None) -> str:
     return "\n".join(parts)
 
 
-def _chunks(doc: Document, max_chars: int) -> List[List[int]]:
+def _chunks(doc: Document, max_chars: int) -> list[list[int]]:
     """Consecutive pages grouped so that each request stays under ``max_chars`` of text."""
     groups, cur, size = [], [], 0
     for p in range(1, doc.n_pages + 1):
@@ -157,7 +157,7 @@ def _norm(s: str) -> str:
     return re.sub(r"[\s|]+", " ", str(s)).strip().lower()
 
 
-def verify_quote(doc: Document, quote: str, page: int) -> Optional[int]:
+def verify_quote(doc: Document, quote: str, page: int) -> int | None:
     """Page (1-based) where ``quote`` occurs in the document text, preferring the stated page; ``None`` if absent."""
     q = _norm(quote)
     if len(q) < 3:
@@ -184,14 +184,14 @@ def _value_in_quote(kind: str, value: str, quote: str) -> bool:
 
 
 # --------------------------------------------------------------------------- extraction
-def extract_with_llm(doc: Document, spec: FormSpec, client: Optional[OllamaClient] = None,
-                     max_chars: int = 24000) -> Tuple[List[Candidate], List[Dict[str, Any]]]:
+def extract_with_llm(doc: Document, spec: FormSpec, client: OllamaClient | None = None,
+                     max_chars: int = 24000) -> tuple[list[Candidate], list[dict[str, Any]]]:
     """``(accepted candidates, rejected answers with the reason)`` for one document."""
     client = client or OllamaClient()
     if not doc.has_text:
         return [], [{"reason": "the document has no text layer (scanned); quotes cannot be verified, nothing accepted"}]
-    accepted: List[Candidate] = []
-    rejected: List[Dict[str, Any]] = []
+    accepted: list[Candidate] = []
+    rejected: list[dict[str, Any]] = []
     system, schema = _system(spec), _schema(spec)
     for pages in _chunks(doc, max_chars):
         user = (f"Items to look for (key: label (kind) options):\n{_catalog(spec)}\n\n"

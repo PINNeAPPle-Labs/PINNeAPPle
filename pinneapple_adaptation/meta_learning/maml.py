@@ -29,7 +29,7 @@ import copy
 import logging
 import os
 import time
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -51,8 +51,8 @@ except ImportError:  # pragma: no cover
 
 
 def _params_to_device(
-    params: Dict[str, torch.Tensor], device: torch.device
-) -> Dict[str, torch.Tensor]:
+    params: dict[str, torch.Tensor], device: torch.device
+) -> dict[str, torch.Tensor]:
     return {k: v.to(device) for k, v in params.items()}
 
 
@@ -60,7 +60,7 @@ def _compute_task_loss(
     model: nn.Module,
     task: dict,
     device: torch.device,
-    params: Optional[Dict[str, torch.Tensor]] = None,
+    params: dict[str, torch.Tensor] | None = None,
 ) -> torch.Tensor:
     """Compute the physics residual loss on a task's batch.
 
@@ -98,7 +98,7 @@ def _compute_query_loss(
     model: nn.Module,
     task: dict,
     device: torch.device,
-    params: Optional[Dict[str, torch.Tensor]] = None,
+    params: dict[str, torch.Tensor] | None = None,
 ) -> torch.Tensor:
     """Compute physics residual on a task's query set."""
     query = task["query"]
@@ -144,7 +144,7 @@ class MAMLTrainer:
         self.meta_optimizer = optim.Adam(
             self.model.parameters(), lr=config.outer_lr
         )
-        self.history: List[dict] = []
+        self.history: list[dict] = []
 
     # ------------------------------------------------------------------
     # Inner loop
@@ -152,7 +152,7 @@ class MAMLTrainer:
 
     def _inner_loop_functional(
         self, task: dict
-    ) -> Tuple[Dict[str, torch.Tensor], torch.Tensor]:
+    ) -> tuple[dict[str, torch.Tensor], torch.Tensor]:
         """Inner loop using ``torch.func.functional_call`` (PyTorch >= 2.0).
 
         Performs ``n_inner_steps`` gradient steps on the support set using the
@@ -166,7 +166,7 @@ class MAMLTrainer:
         """
         cfg = self.config
         # Start from a copy of the current meta-parameters
-        params: Dict[str, torch.Tensor] = {
+        params: dict[str, torch.Tensor] = {
             name: p.clone()
             for name, p in self.model.named_parameters()
         }
@@ -204,7 +204,7 @@ class MAMLTrainer:
 
     def _inner_loop_fallback(
         self, task: dict
-    ) -> Tuple[nn.Module, torch.Tensor]:
+    ) -> tuple[nn.Module, torch.Tensor]:
         """Inner loop via deep-copy + SGD (no ``torch.func``).
 
         This path is used on PyTorch < 2.0.  ``adapted`` is a deep copy of
@@ -255,7 +255,7 @@ class MAMLTrainer:
 
     def _inner_loop(
         self, task: dict
-    ) -> Tuple[object, torch.Tensor]:
+    ) -> tuple[object, torch.Tensor]:
         """Dispatch to functional or fallback inner loop."""
         if _TORCH_FUNC_AVAILABLE:
             return self._inner_loop_functional(task)
@@ -266,7 +266,7 @@ class MAMLTrainer:
     # Outer loop / meta-update
     # ------------------------------------------------------------------
 
-    def meta_update(self, tasks: List[dict]) -> dict:
+    def meta_update(self, tasks: list[dict]) -> dict:
         """Perform one meta-update step over *tasks*.
 
         Parameters
@@ -280,7 +280,7 @@ class MAMLTrainer:
             ``{"meta_loss": float, "task_losses": List[float]}``
         """
         self.meta_optimizer.zero_grad()
-        task_losses: List[float] = []
+        task_losses: list[float] = []
         meta_loss = torch.tensor(0.0, device=self.device)
 
         for task in tasks:
@@ -314,7 +314,7 @@ class MAMLTrainer:
     # Full training loop
     # ------------------------------------------------------------------
 
-    def train(self, callbacks: Optional[List[Callable]] = None) -> dict:
+    def train(self, callbacks: list[Callable] | None = None) -> dict:
         """Run the full MAML meta-training loop.
 
         Parameters
@@ -371,8 +371,8 @@ class MAMLTrainer:
     def adapt(
         self,
         task: dict,
-        n_steps: Optional[int] = None,
-        lr: Optional[float] = None,
+        n_steps: int | None = None,
+        lr: float | None = None,
     ) -> nn.Module:
         """Fast-adapt the meta-model to *task*.
 
@@ -442,8 +442,8 @@ class MAMLTrainer:
         cls,
         path: str,
         model_factory: Callable[[], nn.Module],
-        task_sampler: Optional[PDETaskSampler] = None,
-    ) -> "MAMLTrainer":
+        task_sampler: PDETaskSampler | None = None,
+    ) -> MAMLTrainer:
         """Load a previously saved :class:`MAMLTrainer`.
 
         Parameters

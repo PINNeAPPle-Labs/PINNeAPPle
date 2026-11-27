@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from pinneapple_tools.benchmark_suite.bundle.loader import BundleData
 
@@ -16,5 +16,5 @@ class Backend(Protocol):
     """
     name: str
 
-    def train(self, bundle: BundleData, run_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    def train(self, bundle: BundleData, run_cfg: dict[str, Any]) -> dict[str, Any]:
         ...

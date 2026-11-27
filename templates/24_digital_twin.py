@@ -10,7 +10,6 @@ This template runs fully offline (no network required) using a synthetic sensor
 stream that replays pre-computed "measurements".
 """
 
-import time
 import math
 import torch
 import torch.nn as nn

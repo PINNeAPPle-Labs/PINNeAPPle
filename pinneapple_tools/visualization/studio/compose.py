@@ -12,6 +12,7 @@ negative, neutral midpoint, red = positive), used with a range symmetric about z
 """
 from __future__ import annotations
 
+import math
 import os
 import shutil
 import subprocess
@@ -67,11 +68,27 @@ def default_range(values, cmap: str = "jet") -> tuple[float, float]:
     return lo, hi
 
 
+#: The typefaces an annotation is drawn with, tried in order: DejaVu is what a Linux box and matplotlib ship, Arial
+#: and the system fonts are what macOS and Windows have. Pillow's own bitmap default is the last resort and has no
+#: punctuation at all -- a "×" in a caption comes out as an empty box -- so it is only reached when nothing opens.
+_FONTS = {
+    False: ("DejaVuSans.ttf", "/System/Library/Fonts/Supplemental/Arial.ttf",
+            "/System/Library/Fonts/Helvetica.ttc", "/System/Library/Fonts/SFNS.ttf", "arial.ttf"),
+    True: ("DejaVuSans-Bold.ttf", "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+           "/System/Library/Fonts/Supplemental/Arial.ttf", "/System/Library/Fonts/Helvetica.ttc", "arialbd.ttf"),
+}
+
+
 def _font(size: int, bold: bool = False):
     from PIL import ImageFont
+    for name in _FONTS[bool(bold)]:
+        try:
+            return ImageFont.truetype(name, size)
+        except OSError:
+            continue
     try:
-        return ImageFont.truetype("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf", size)
-    except OSError:
+        return ImageFont.load_default(size=size)          # Pillow >= 10.1 sizes the bitmap fallback
+    except TypeError:                                     # pragma: no cover - older Pillow
         return ImageFont.load_default()
 
 
@@ -119,6 +136,123 @@ def draw_colorbars(path: str, bars: Sequence[tuple], corner: str = "bottom-right
             y += cb.height + m // 2
     im.convert("RGB").save(path)
     return path
+
+
+def _panel(d, box, dark: bool, radius: int):
+    """The plate a bar or a caption sits on: dark glass over a bright picture, light glass over a dark one."""
+    fill = (12, 16, 22, 190) if dark else (255, 255, 255, 210)
+    d.rounded_rectangle(box, radius=radius, fill=fill)
+
+
+def _save(im, path: str, alpha: bool) -> str:
+    """Write the annotated picture back, keeping the alpha when it had one (a figure that goes on a page of another
+    colour) and dropping it for a JPEG, which has nowhere to put it."""
+    if path.lower().endswith((".jpg", ".jpeg")):
+        im.convert("RGB").save(path, "JPEG", quality=94)
+    elif alpha:
+        im.save(path, "PNG")
+    else:
+        im.convert("RGB").save(path, "PNG")
+    return path
+
+
+def draw_scale_bar(path: str, px_per_metre: float, *, corner: str = "bottom-left", width_frac: float = 0.28,
+                   dark: bool = False) -> str:
+    """Burn a metric scale bar into the picture at ``path`` (overwritten): alternating segments, end ticks and the
+    length as a number a reader can hold in mind ("250 mm", "1 m").
+
+    ``px_per_metre`` is the image scale at the subject (``scale.px_per_metre``), so the bar is metrically right at the
+    plane the camera focused on -- the convention a photograph with a scale bar uses. The bar's length is snapped to
+    a round value near ``width_frac`` of the picture's width and kept inside 48 px .. 55 % of it."""
+    from PIL import Image, ImageDraw
+
+    from .scale import fmt_length, scale_bar_length
+
+    if not (px_per_metre and px_per_metre > 0):
+        raise ValueError(f"px_per_metre={px_per_metre!r}: a metric bar needs a positive image scale")
+    im = Image.open(path)
+    alpha = "A" in im.getbands()
+    im = im.convert("RGBA")
+    W, H = im.size
+    k = max(0.7, W / 1280)
+    f = _font(max(10, int(14 * k))), _font(max(11, int(15 * k)), True)
+    target_m = width_frac * W / float(px_per_metre)
+    bar_m = scale_bar_length(target_m)
+    lo_px, hi_px = 48 * k, 0.55 * W
+    if not (lo_px <= bar_m * px_per_metre <= hi_px):        # a decade that does not fit the frame is no measure
+        ladder = []
+        e0 = int(math.floor(math.log10(max(target_m, 1e-12)))) - 1
+        for e in range(e0, e0 + 5):
+            for m in (1.0, 2.0, 5.0):
+                v = m * 10.0 ** e
+                px = v * px_per_metre
+                if lo_px <= px <= hi_px:
+                    ladder.append((abs(px - width_frac * W), v))
+        if ladder:
+            bar_m = min(ladder)[1]
+    bar_px = int(round(bar_m * px_per_metre))
+    pad = int(10 * k) + 2
+    bar_h = max(8, int(11 * k))
+    label_w = max(f[1].getlength(fmt_length(bar_m)), f[0].getlength("0")) / 2.0
+    pw = int(bar_px + 2 * pad + 2 * label_w)
+    ph = int(pad + bar_h + int(20 * k) + pad * 0.6)
+    panel = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
+    d = ImageDraw.Draw(panel)
+    _panel(d, [0, 0, pw - 1, ph - 1], dark, int(8 * k) + 1)
+    ink = (242, 245, 249) if dark else (15, 23, 42)
+    x0, y0 = pad + int(label_w), pad
+    for i in range(2):                                       # two alternating segments: one is a "half", one is not
+        seg = bar_px // 2 + (bar_px % 2 if i else 0)
+        sh = ImageDraw.Draw(panel)
+        sh.rectangle([x0 + i * (bar_px // 2), y0, x0 + i * (bar_px // 2) + seg - 1, y0 + bar_h - 1],
+                     fill=ink if i == 0 else (ink[0], ink[1], ink[2], 40), outline=ink)
+    for x in (x0, x0 + bar_px):                              # end ticks, so the ends can be read against the part
+        d.line([(x, y0 - int(5 * k)), (x, y0 + bar_h + int(5 * k))], fill=ink, width=max(1, int(1.5 * k)))
+    d.text((x0, y0 + bar_h + int(3 * k)), "0", fill=ink, font=f[0])
+    lab = fmt_length(bar_m)
+    d.text((x0 + bar_px - f[1].getlength(lab), y0 + bar_h + int(3 * k)), lab, fill=ink, font=f[1])
+    x = int(12 * k)
+    y = H - ph - int(12 * k) if corner.startswith("bottom") else int(12 * k)
+    im.alpha_composite(panel, (x if corner.endswith("left") else W - pw - int(12 * k), y))
+    return _save(im, path, alpha)
+
+
+def draw_caption(path: str, lines: Sequence[str], *, corner: str = "top-left", title: str | None = None,
+                 dark: bool = False) -> str:
+    """Burn a block of text into the picture at ``path`` (overwritten) -- the technical caption a figure carries: the
+    subject's extents, the grid square, the prop that gives the scale. One line each, ``title`` above them in bold."""
+    from PIL import Image, ImageDraw
+
+    lines = [str(v) for v in (lines or []) if str(v).strip()]
+    if not lines and not title:
+        return path
+    im = Image.open(path)
+    alpha = "A" in im.getbands()
+    im = im.convert("RGBA")
+    W, H = im.size
+    k = max(0.7, W / 1280)
+    fs, fb = _font(max(10, int(14 * k))), _font(max(11, int(15 * k)), True)
+    pad = int(10 * k) + 2
+    lh = int(19 * k)
+    rows = ([title] if title else []) + lines
+    widths = [fb.getlength(title or "")] + [fs.getlength(t) for t in lines]
+    pw = int(max(widths) + 2 * pad)
+    ph = int(pad + lh * len(rows) + pad * 0.6)
+    panel = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
+    d = ImageDraw.Draw(panel)
+    _panel(d, [0, 0, pw - 1, ph - 1], dark, int(8 * k) + 1)
+    ink = (242, 245, 249) if dark else (15, 23, 42)
+    y = pad
+    if title:
+        d.text((pad, y), title, fill=ink, font=fb)
+        y += lh
+    for t in lines:
+        d.text((pad, y), t, fill=ink, font=fs)
+        y += lh
+    x = int(12 * k) if corner.endswith("left") else W - pw - int(12 * k)
+    y = int(12 * k) if corner.startswith("top") else H - ph - int(12 * k)
+    im.alpha_composite(panel, (x, y))
+    return _save(im, path, alpha)
 
 
 def _label_strip(im, labels, cell, ncols, scale):

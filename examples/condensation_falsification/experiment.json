@@ -15,7 +15,9 @@
   "pinneapple_condense"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "hypotheses_validated",

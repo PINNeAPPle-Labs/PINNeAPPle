@@ -1,0 +1,12 @@
+{
+ "code_hash": "7378caf43ce44558",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.structural.thermoelasticity_2d_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "thermoelasticity 2d default -> pinneapple_physics.pde_environment.presets.structural:thermoelasticity_2d_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'E': 70000000000.0, 'nu': 0.33, 'alpha_T': 2.3e-05, 'dT': 100.0}",
+ "timed_out": false
+}

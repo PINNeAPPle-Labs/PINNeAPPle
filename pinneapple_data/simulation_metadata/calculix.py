@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -19,7 +19,7 @@ ELEMENT_FAMILY = {"C3D": "3-D solid", "CPS": "plane stress", "CPE": "plane strai
                   "T3D": "truss", "DC": "heat transfer", "SPRING": "spring", "DASHPOT": "dashpot", "MASS": "point mass"}
 
 
-def _kw(line: str) -> Tuple[str, Dict[str, str]]:
+def _kw(line: str) -> tuple[str, dict[str, str]]:
     parts = [p.strip() for p in line[1:].split(",")]
     name = parts[0].upper()
     params = {}
@@ -31,26 +31,26 @@ def _kw(line: str) -> Tuple[str, Dict[str, str]]:
     return name, params
 
 
-def parse_inp(text: str, include: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+def parse_inp(text: str, include: dict[str, str] | None = None) -> dict[str, Any]:
     """Parse an input deck into model / steps / materials / BCs / loads. ``include`` maps file names to
     the text of *INCLUDE'd files that were uploaded too."""
     lines = text.splitlines()
     i = 0
-    nodes: List[Tuple[float, float, float]] = []
-    elem_types: Dict[str, int] = {}
-    nsets: Dict[str, int] = {}
-    elsets: Dict[str, int] = {}
-    materials: Dict[str, Dict[str, Any]] = {}
-    sections: List[Dict[str, Any]] = []
-    steps: List[Dict[str, Any]] = []
-    model_bcs: List[Dict[str, Any]] = []
-    includes: List[str] = []
-    contact: List[str] = []
-    other: Dict[str, int] = {}
-    cur_mat: Optional[str] = None
-    cur_step: Optional[Dict[str, Any]] = None
+    nodes: list[tuple[float, float, float]] = []
+    elem_types: dict[str, int] = {}
+    nsets: dict[str, int] = {}
+    elsets: dict[str, int] = {}
+    materials: dict[str, dict[str, Any]] = {}
+    sections: list[dict[str, Any]] = []
+    steps: list[dict[str, Any]] = []
+    model_bcs: list[dict[str, Any]] = []
+    includes: list[str] = []
+    contact: list[str] = []
+    other: dict[str, int] = {}
+    cur_mat: str | None = None
+    cur_step: dict[str, Any] | None = None
     heading = None
-    expanded: List[str] = []
+    expanded: list[str] = []
     for l in lines:                                                   # resolve *INCLUDE first
         if l.upper().startswith("*INCLUDE"):
             _, prm = _kw(l)
@@ -63,7 +63,7 @@ def parse_inp(text: str, include: Optional[Dict[str, str]] = None) -> Dict[str, 
     lines = expanded
     n = len(lines)
 
-    def data_block(j: int) -> Tuple[List[str], int]:
+    def data_block(j: int) -> tuple[list[str], int]:
         out = []
         while j < n and not (lines[j].startswith("*") and not lines[j].startswith("**")):
             s = lines[j].strip()
@@ -172,8 +172,8 @@ def parse_inp(text: str, include: Optional[Dict[str, str]] = None) -> Dict[str, 
                            "kind": "fixed" if val == 0 else "prescribed"}
                     (cur_step["boundary_conditions"] if cur_step is not None else model_bcs).append(rec)
         elif name in ("CLOAD", "DLOAD", "DFLUX", "CFLUX", "FILM", "RADIATE", "TEMPERATURE", "DSLOAD") and cur_step is not None:
-            agg: Dict[Tuple[str, str], float] = {}
-            count: Dict[Tuple[str, str], int] = {}
+            agg: dict[tuple[str, str], float] = {}
+            count: dict[tuple[str, str], int] = {}
             for d in data:
                 p = [x.strip() for x in d.split(",")]
                 if len(p) < 2:
@@ -209,7 +209,7 @@ def parse_inp(text: str, include: Optional[Dict[str, str]] = None) -> Dict[str, 
             "interactions": contact, "other_keywords": other}
 
 
-def parse_sta(text: str) -> List[Dict[str, Any]]:
+def parse_sta(text: str) -> list[dict[str, Any]]:
     rows = []
     for l in text.splitlines():
         p = l.split()
@@ -223,7 +223,7 @@ def parse_sta(text: str) -> List[Dict[str, Any]]:
     return rows
 
 
-def parse_cvg(text: str) -> List[Dict[str, Any]]:
+def parse_cvg(text: str) -> list[dict[str, Any]]:
     rows = []
     for l in text.splitlines():
         p = l.split()
@@ -238,9 +238,9 @@ def parse_cvg(text: str) -> List[Dict[str, Any]]:
     return rows
 
 
-def parse_dat(text: str) -> Dict[str, Any]:
+def parse_dat(text: str) -> dict[str, Any]:
     """Largest printed displacement (or min/max of other printed results) at the last time of each set."""
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     hdr = re.compile(r"^\s*(displacements|temperatures|stresses|forces|strains|heat flux)\s*\(([^)]*)\)\s*"
                      rf"for set (\S+) and time\s+({_NUM})", re.M)
     heads = list(hdr.finditer(text))
@@ -256,7 +256,7 @@ def parse_dat(text: str) -> Dict[str, Any]:
         width = len(rows[0])
         a = np.array([r for r in rows if len(r) == width])
         kind, comps, nset, tim = m.group(1), m.group(2), m.group(3), float(m.group(4))
-        entry: Dict[str, Any] = {"set": nset, "time": tim, "components": comps}
+        entry: dict[str, Any] = {"set": nset, "time": tim, "components": comps}
         if kind == "displacements" and width >= 3:
             mag = np.linalg.norm(a[:, :3], axis=1)
             entry.update({"max_magnitude": float(mag.max()), "at_max": a[int(np.argmax(mag)), :3].tolist()})
@@ -268,7 +268,7 @@ def parse_dat(text: str) -> Dict[str, Any]:
     return out
 
 
-def parse_ccx_log(text: str) -> Dict[str, Any]:
+def parse_ccx_log(text: str) -> dict[str, Any]:
     v = re.search(r"CalculiX Version ([\w.\-]+)", text)
     return {"version": v.group(1) if v else None, "finished": "Job finished" in text,
             "errors": re.findall(r"\*ERROR[^\n]*", text)[:5], "warnings": len(re.findall(r"\*WARNING", text)),
@@ -276,9 +276,9 @@ def parse_ccx_log(text: str) -> Dict[str, Any]:
             "threads": int(m.group(1)) if (m := re.search(r"Using up to (\d+) cpu", text)) else None}
 
 
-def assess(sta: List[Dict[str, Any]], cvg: List[Dict[str, Any]], deck: Dict[str, Any], log: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def assess(sta: list[dict[str, Any]], cvg: list[dict[str, Any]], deck: dict[str, Any], log: dict[str, Any] | None) -> dict[str, Any]:
     reasons, recs = [], []
-    out: Dict[str, Any] = {"increments": sta, "iterations": cvg}
+    out: dict[str, Any] = {"increments": sta, "iterations": cvg}
     if log and log.get("errors"):
         status = "failed"
         reasons.append("Solver errors: " + "; ".join(log["errors"][:3]))

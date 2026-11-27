@@ -10,9 +10,9 @@ coefficients for the designs you look at; OpenFOAM is the last word (see apps/ae
 from __future__ import annotations
 
 import dataclasses
-import math
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -21,8 +21,8 @@ from pinneapple_design.design_optimizer.optimizer import DesignOptimizerConfig, 
 from pinneapple_design.design_optimizer.pareto import compute_pareto_front
 
 from .aircraft import Aircraft, Polar, Requirements, evaluate
-from .geometry import BOUNDS, PARAMS, REFERENCE, outline, properties, valid
-from .surrogate import (A_HI, A_LO, COEFS, AeroGNN, Layout, MLPEnsemble, coef_from_targets, edge_features,
+from .geometry import BOUNDS, REFERENCE, properties, valid
+from .surrogate import (A_HI, A_LO, AeroGNN, Layout, MLPEnsemble, coef_from_targets, edge_features,
                         node_features)
 
 ALPHAS = np.arange(A_LO, A_HI + 0.01, 1.0)
@@ -33,7 +33,7 @@ AREA_BOUNDS = (10.0, 20.0)
 class Engine:
     """Trained surrogates + the aircraft evaluation."""
 
-    def __init__(self, bundle: Dict[str, Any]):
+    def __init__(self, bundle: dict[str, Any]):
         self.meta = bundle.get("meta", {})
         self.mlp = MLPEnsemble(bundle["mlp_k"], bundle.get("mlp_width", 96))
         self.mlp.load_state_dict(bundle["mlp_state"])
@@ -48,7 +48,7 @@ class Engine:
             self.gnn_norm = bundle["gnn_norm"]
 
     @classmethod
-    def load(cls, path: str) -> "Engine":
+    def load(cls, path: str) -> Engine:
         return cls(torch.load(path, map_location="cpu", weights_only=False))
 
     # ------------------------------------------------------------------ coefficients
@@ -66,7 +66,7 @@ class Engine:
                 "cl_std": cl.std(0), "cd_std": cd.std(0), "cm_std": cm.std(0)}
 
     @torch.no_grad()
-    def gnn_predict(self, shape: np.ndarray, alphas: List[float]) -> Dict[str, Any]:
+    def gnn_predict(self, shape: np.ndarray, alphas: list[float]) -> dict[str, Any]:
         """Fields on the graph nodes and coefficients from the graph network, one row per angle."""
         if self.gnn is None:
             return {}
@@ -83,7 +83,7 @@ class Engine:
         return {"pos": pos, "fields": y, "cl": cl, "cd": cd, "cm": cm, "shape2": lay.shape2}
 
     # ------------------------------------------------------------------ designs
-    def evaluate(self, X: np.ndarray, aircraft: Aircraft, req: Requirements) -> List[Dict[str, Any]]:
+    def evaluate(self, X: np.ndarray, aircraft: Aircraft, req: Requirements) -> list[dict[str, Any]]:
         X = np.atleast_2d(X)
         co = self.mlp_coefficients(X[:, :6])
         out = []
@@ -91,7 +91,7 @@ class Engine:
             shape, area = x[:6], float(x[6])
             ok, why = valid(shape)
             props = properties(shape)
-            rec: Dict[str, Any] = {"x": x.tolist(), "shape": shape.tolist(), "wing_area": area, "props": props}
+            rec: dict[str, Any] = {"x": x.tolist(), "shape": shape.tolist(), "wing_area": area, "props": props}
             if not ok:
                 rec.update(feasible=False, valid=False, violations=[f"invalid geometry: {why}"], penalty=100.0,
                            vmax=float("nan"), co2_100km=float("nan"), trust="n/a")
@@ -116,13 +116,13 @@ class Engine:
 
     def search(self, aircraft: Aircraft = Aircraft(), req: Requirements = Requirements(), population: int = 64,
                generations: int = 50, seed: int = 0, area_bounds=AREA_BOUNDS,
-               progress: Optional[Callable[[int, int], None]] = None) -> Dict[str, Any]:
+               progress: Callable[[int, int], None] | None = None) -> dict[str, Any]:
         bounds = np.vstack([BOUNDS, [area_bounds]])
         cfg = DesignOptimizerConfig(population_size=population, mutation_std=0.0, crossover_rate=0.9)
         opt = EvolutionaryDesignOptimizer(cfg, seed=seed, multi_objective=True)
         span = bounds[:, 1] - bounds[:, 0]
         rng = np.random.default_rng(seed)
-        all_recs: List[Dict[str, Any]] = []
+        all_recs: list[dict[str, Any]] = []
         t0 = time.time()
         for gen in range(generations):
             xs = opt.ask(bounds, population)
@@ -149,12 +149,12 @@ class Engine:
         return {"designs": all_recs, "pareto": front, "seconds": time.time() - t0, "evaluations": len(all_recs)}
 
 
-def baseline(engine: Engine, aircraft: Aircraft, req: Requirements, name: str = "NACA 2412") -> Dict[str, Any]:
+def baseline(engine: Engine, aircraft: Aircraft, req: Requirements, name: str = "NACA 2412") -> dict[str, Any]:
     x = np.r_[REFERENCE[name], aircraft.wing_area]
     return engine.evaluate(x[None], aircraft, req)[0]
 
 
-def summarize(rec: Dict[str, Any]) -> Dict[str, Any]:
+def summarize(rec: dict[str, Any]) -> dict[str, Any]:
     """The compact form sent to the browser for the cloud of designs."""
     keys = ("vmax_kt", "co2_100km", "v_stall_kt", "cruise_ld", "fuel_l_100km", "feasible", "trust", "violations",
             "wing_area", "generation", "penalty")

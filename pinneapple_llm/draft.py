@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ._dispatch import call_llm
 
@@ -52,13 +52,13 @@ instead of guessing.
 
 @dataclass
 class DraftResult:
-    preset: Optional[str]
-    kwargs: Dict[str, Any]
+    preset: str | None
+    kwargs: dict[str, Any]
     reasoning: str
     raw_response: str
 
 
-def _preset_catalog() -> List[Dict[str, Any]]:
+def _preset_catalog() -> list[dict[str, Any]]:
     """Every registered preset name + its factory function's accepted
     kwargs (introspected, not hand-maintained -- stays in sync with
     ``pinneapple_physics.pde_environment.presets`` automatically)."""
@@ -82,8 +82,8 @@ def draft_problem(
     description: str,
     *,
     provider: str = "anthropic",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     conversation_store=None,
 ) -> DraftResult:
     """Ask an LLM to pick + parametrise a ``ProblemSpec`` preset for a
@@ -165,12 +165,12 @@ def draft_problem(
 class DraftRejected(ValueError):
     """No acceptable draft after every attempt; ``.attempts`` lists why each one was refused."""
 
-    def __init__(self, message: str, attempts: List[str]):
+    def __init__(self, message: str, attempts: list[str]):
         super().__init__(message)
         self.attempts = attempts
 
 
-def check_kwargs_in_bounds(kwargs: Dict[str, Any], bounds: Dict[str, tuple]) -> Dict[str, float]:
+def check_kwargs_in_bounds(kwargs: dict[str, Any], bounds: dict[str, tuple]) -> dict[str, float]:
     """Coerce drafted kwargs to finite floats and check each one against ``bounds`` ({name: (lo, hi)}).
 
     ``draft_problem`` only checks that preset and kwarg NAMES exist; a small model also returns numbers as
@@ -179,7 +179,7 @@ def check_kwargs_in_bounds(kwargs: Dict[str, Any], bounds: Dict[str, tuple]) -> 
     """
     import math
 
-    out: Dict[str, float] = {}
+    out: dict[str, float] = {}
     for k, v in kwargs.items():
         try:
             fv = float(v)
@@ -199,17 +199,17 @@ def draft_preset_kwargs(
     description: str,
     expected_preset: str,
     *,
-    bounds: Optional[Dict[str, tuple]] = None,
+    bounds: dict[str, tuple] | None = None,
     provider: str = "ollama",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     max_attempts: int = 4,
 ) -> tuple:
     """Draft kwargs for ONE known preset: retry ``draft_problem`` until it picks ``expected_preset`` with kwargs
     that pass :func:`check_kwargs_in_bounds`. Returns ``(kwargs, reasoning, attempts_used)``; raises
     :class:`DraftRejected` after ``max_attempts`` refusals (a wrong preset, no fit, a hallucinated name or an
     out-of-range value each count as one)."""
-    reasons: List[str] = []
+    reasons: list[str] = []
     for attempt in range(1, max_attempts + 1):
         try:
             draft = draft_problem(description, provider=provider, model=model, api_key=api_key)

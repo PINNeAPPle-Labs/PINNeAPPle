@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for classical time series model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import ClassicalTSBase
 from .var import VAR
@@ -14,7 +13,7 @@ from .enkf import EnsembleKalmanFilter
 from .tcn import TCN
 
 
-_REGISTRY: Dict[str, Type[ClassicalTSBase]] = {
+_REGISTRY: dict[str, type[ClassicalTSBase]] = {
     "var": VAR,
     "vector_autoregression": VAR,
 
@@ -48,7 +47,7 @@ def register_into_global() -> None:
 
 @dataclass
 class ClassicalTSCatalog:
-    registry: Dict[str, Type[ClassicalTSBase]] = None
+    registry: dict[str, type[ClassicalTSBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -56,7 +55,7 @@ class ClassicalTSCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[ClassicalTSBase]:
+    def get(self, name: str) -> type[ClassicalTSBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown classical_ts model '{name}'. Available: {self.list()}")

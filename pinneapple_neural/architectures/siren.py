@@ -6,7 +6,6 @@ Reference: Sitzmann et al., NeurIPS 2020
 """
 
 import math
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -81,7 +80,7 @@ class SIREN(BaseModel):
         n_layers: int = 5,
         omega_0: float = 30.0,
         outermost_linear: bool = True,
-        final_activation: Optional[nn.Module] = None,
+        final_activation: nn.Module | None = None,
     ):
         super().__init__()
         if n_layers < 2:

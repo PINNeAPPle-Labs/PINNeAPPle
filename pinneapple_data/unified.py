@@ -25,7 +25,8 @@ import io
 import json
 import re
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 import pandas as pd
@@ -38,7 +39,7 @@ from .physical_units import (QUANTITIES, UnitError, dim_str, infer_quantity, par
 
 SCHEMA = "pinneapple.upd/1"
 
-UNIT_SYSTEMS: Dict[str, Dict[str, Any]] = {
+UNIT_SYSTEMS: dict[str, dict[str, Any]] = {
     "metric": {"label": "Metric engineering (°C, bar, m³/h, kW)", "units": {
         "temperature": "°C", "pressure": "bar", "stress": "MPa", "volumetric_flow_rate": "m^3/h",
         "mass_flow_rate": "kg/s", "velocity": "m/s", "power": "kW", "energy": "kWh", "torque": "N*m",
@@ -57,7 +58,7 @@ UNIT_SYSTEMS: Dict[str, Dict[str, Any]] = {
 }
 
 # Unit choices offered per quantity (first = SI)
-UNIT_CHOICES: Dict[str, List[str]] = {
+UNIT_CHOICES: dict[str, list[str]] = {
     "temperature": ["K", "°C", "°F", "°R"], "pressure": ["Pa", "kPa", "bar", "mbar", "MPa", "psi", "atm", "inH2O"],
     "stress": ["Pa", "MPa", "GPa", "psi", "ksi"], "volumetric_flow_rate": ["m^3/s", "m^3/h", "L/s", "L/min", "gpm", "cfm"],
     "mass_flow_rate": ["kg/s", "kg/h", "t/h", "lb/h"], "velocity": ["m/s", "km/h", "ft/s", "mm/s"],
@@ -95,11 +96,11 @@ _NOUN_END = {"load", "duty", "capacity", "demand", "consumption", "speed", "posi
              "command", "cmd", "efficiency", "cop", "humidity"}
 
 
-def canonical_name(base: str, quantity: Optional[str]) -> str:
+def canonical_name(base: str, quantity: str | None) -> str:
     """'CHW Supply Temp' + temperature -> 'chw_supply_temperature'; 'chws_temp' -> same."""
     n = re.sub(r"([a-z])([A-Z])", r"\1_\2", str(base))
     toks = [t for t in re.split(r"[^a-zA-Z0-9]+", n.lower()) if t]
-    out: List[str] = []
+    out: list[str] = []
     for t in toks:
         t = _ALIAS.get(t, t)
         for part in t.split("_"):
@@ -142,8 +143,8 @@ def conversion_text(src: str, dst: str, difference: bool = False) -> str:
 
 
 # ── mapping ─────────────────────────────────────────────────────────────────
-def propose_mapping(df: pd.DataFrame, source: str, system: str = "metric", time_column: Optional[str] = None,
-                    units: Optional[Dict[str, str]] = None, tz: Optional[str] = None) -> Dict[str, Any]:
+def propose_mapping(df: pd.DataFrame, source: str, system: str = "metric", time_column: str | None = None,
+                    units: dict[str, str] | None = None, tz: str | None = None) -> dict[str, Any]:
     """Draft the mapping of one source from its headers (to be reviewed by a person)."""
     units = units or {}
     target_units = UNIT_SYSTEMS.get(system, UNIT_SYSTEMS["metric"])["units"]
@@ -183,8 +184,8 @@ def propose_mapping(df: pd.DataFrame, source: str, system: str = "metric", time_
             "columns": cols}
 
 
-def make_recipe(mappings: Sequence[Dict[str, Any]], system: str = "metric", resample: Optional[str] = "auto",
-                layout: str = "wide", agg: str = "mean") -> Dict[str, Any]:
+def make_recipe(mappings: Sequence[dict[str, Any]], system: str = "metric", resample: str | None = "auto",
+                layout: str = "wide", agg: str = "mean") -> dict[str, Any]:
     return {"schema": "pinneapple.recipe/1", "target_system": system, "resample": resample, "agg": agg,
             "layout": layout, "sources": [
                 {"match": m["source"], "time_column": m.get("time_column"), "timezone": m.get("timezone", "UTC"),
@@ -192,7 +193,7 @@ def make_recipe(mappings: Sequence[Dict[str, Any]], system: str = "metric", resa
                                                      "difference")} for c in m["columns"]]} for m in mappings]}
 
 
-def _match(recipe: Dict[str, Any], name: str, i: int) -> Dict[str, Any]:
+def _match(recipe: dict[str, Any], name: str, i: int) -> dict[str, Any]:
     srcs = recipe.get("sources", [])
     for s in srcs:
         if s.get("match") == name:
@@ -210,7 +211,7 @@ def _match(recipe: Dict[str, Any], name: str, i: int) -> Dict[str, Any]:
 _NICE = [("1s", 1), ("10s", 10), ("1min", 60), ("5min", 300), ("15min", 900), ("1h", 3600), ("1D", 86400)]
 
 
-def _auto_rule(dts: List[float]) -> Optional[str]:
+def _auto_rule(dts: list[float]) -> str | None:
     dts = [d for d in dts if d and np.isfinite(d)]
     if not dts:
         return None
@@ -221,13 +222,13 @@ def _auto_rule(dts: List[float]) -> Optional[str]:
     return "1D"
 
 
-def standardize(sources: Sequence[Tuple[str, pd.DataFrame, bytes]], recipe: Dict[str, Any]) -> Dict[str, Any]:
+def standardize(sources: Sequence[tuple[str, pd.DataFrame, bytes]], recipe: dict[str, Any]) -> dict[str, Any]:
     """Apply a recipe to sources [(file name, dataframe, raw bytes)]. Returns a dict with ``wide`` and
     ``long`` DataFrames, the ``manifest``, per-source notes and cross-source ``agreement``."""
     if not sources:
         raise ValueError("No sources given.")
-    tagged: List[Tuple[str, str, pd.DataFrame, Dict[str, Any], bytes]] = []
-    tags_seen: Dict[str, int] = {}
+    tagged: list[tuple[str, str, pd.DataFrame, dict[str, Any], bytes]] = []
+    tags_seen: dict[str, int] = {}
     for i, (name, df, raw) in enumerate(sources):
         tag = _tag(name)
         tags_seen[tag] = tags_seen.get(tag, 0) + 1
@@ -236,7 +237,7 @@ def standardize(sources: Sequence[Tuple[str, pd.DataFrame, bytes]], recipe: Dict
         tagged.append((name, tag, df, _match(recipe, name, i), raw))
 
     long_parts, raw_parts, notes, src_meta, dts = [], [], [], [], []
-    variables: Dict[str, Dict[str, Any]] = {}
+    variables: dict[str, dict[str, Any]] = {}
     for name, tag, df, spec, raw in tagged:
         tcol = spec.get("time_column")
         if not tcol or tcol not in df.columns:
@@ -338,8 +339,8 @@ def standardize(sources: Sequence[Tuple[str, pd.DataFrame, bytes]], recipe: Dict
 _ABS_TOL_SI = {"temperature": 0.2}            # K: a good RTD pair; other quantities use 1 % of the level
 
 
-def _agreement(wide: pd.DataFrame, variables: Dict[str, Dict[str, Any]], multi: Dict[str, bool],
-               step_s: Optional[float] = None) -> List[Dict[str, Any]]:
+def _agreement(wide: pd.DataFrame, variables: dict[str, dict[str, Any]], multi: dict[str, bool],
+               step_s: float | None = None) -> list[dict[str, Any]]:
     """Pairwise agreement of sources that measure the same variable, after conversion. A unit error shows as
     a large offset or scale; a time-zone error as a better match when one series is shifted by whole hours."""
     out = []
@@ -391,7 +392,7 @@ def _agreement(wide: pd.DataFrame, variables: Dict[str, Dict[str, Any]], multi: 
     return out
 
 
-def _best_shift(a: pd.Series, b: pd.Series, step_s: float) -> Optional[Dict[str, float]]:
+def _best_shift(a: pd.Series, b: pd.Series, step_s: float) -> dict[str, float] | None:
     per_h = 3600.0 / step_s
     if per_h != int(per_h):
         return None
@@ -399,7 +400,7 @@ def _best_shift(a: pd.Series, b: pd.Series, step_s: float) -> Optional[Dict[str,
     if (a.notna() & b.notna()).sum() < 12 * per_h:      # need half a day of overlap to see a daily pattern
         return None
 
-    def r(k: int) -> Optional[float]:
+    def r(k: int) -> float | None:
         bb = b.shift(k)
         m = a.notna() & bb.notna()
         if m.sum() < 24 or a[m].std() == 0 or bb[m].std() == 0:
@@ -421,7 +422,7 @@ def _best_shift(a: pd.Series, b: pd.Series, step_s: float) -> Optional[Dict[str,
 
 
 # ── writers ─────────────────────────────────────────────────────────────────
-def write(result: Dict[str, Any], fmt: str = "csv", layout: str = "wide") -> Tuple[bytes, str, str]:
+def write(result: dict[str, Any], fmt: str = "csv", layout: str = "wide") -> tuple[bytes, str, str]:
     """Serialize a result. Returns (bytes, media type, file name)."""
     df = result["wide"] if layout == "wide" else result["long"]
     man = result["manifest"]
@@ -480,7 +481,7 @@ def write(result: Dict[str, Any], fmt: str = "csv", layout: str = "wide") -> Tup
     raise ValueError(f"Unknown format '{fmt}'.")
 
 
-def to_physical_sample(result: Dict[str, Any]):
+def to_physical_sample(result: dict[str, Any]):
     """The wide table as a PINNeAPPle :class:`~pinneapple_data.physical_sample.PhysicalSample`
     (xarray Dataset on a ``time`` coordinate, units in attributes)."""
     import xarray as xr
@@ -496,7 +497,7 @@ def to_physical_sample(result: Dict[str, Any]):
 
 
 # ── example: one chiller seen by three systems ──────────────────────────────
-def example_sources(seed: int = 3) -> List[Tuple[str, bytes]]:
+def example_sources(seed: int = 3) -> list[tuple[str, bytes]]:
     """The same chilled-water plant recorded by a building management system (CSV, local time,
     °C, semicolon + decimal comma), a SCADA REST API (JSON, Unix ms, °F, gpm, tons) and a test rig
     (Excel, ISO UTC, K, L/s, W)."""
@@ -544,7 +545,7 @@ def example_sources(seed: int = 3) -> List[Tuple[str, bytes]]:
 
 EXAMPLE_TIMEZONES = {"bms_export.csv": "America/Sao_Paulo"}
 
-def _downsample(x: pd.Series, y: pd.Series, k: int) -> Dict[str, list]:
+def _downsample(x: pd.Series, y: pd.Series, k: int) -> dict[str, list]:
     n = len(x)
     if n == 0:
         return {"x": [], "y": []}
@@ -553,7 +554,7 @@ def _downsample(x: pd.Series, y: pd.Series, k: int) -> Dict[str, list]:
             "y": [None if not np.isfinite(v) else float(v) for v in y.iloc[idx].to_numpy(dtype=float)]}
 
 
-def before_after_series(result: Dict[str, Any], k: int = 500) -> Dict[str, Any]:
+def before_after_series(result: dict[str, Any], k: int = 500) -> dict[str, Any]:
     """Per variable of a :func:`standardize` result: the raw values of every source (in their original units) and
     the standardized values, on the common UTC time axis, downsampled to at most ``k`` evenly spaced points.
 
@@ -562,7 +563,7 @@ def before_after_series(result: Dict[str, Any], k: int = 500) -> Dict[str, Any]:
     ``{variable: {"x": [time labels], "unit": ..., "before": [{"name", "y"}], "after": [{"name", "y"}]}}`` with
     non-finite values as ``None`` (JSON-ready).
     """
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     wide, raw = result["wide"], result["raw"]
     grid = wide["time_utc"]
     for v in result["manifest"]["variables"]:

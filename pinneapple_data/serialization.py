@@ -6,7 +6,8 @@ This module is backward/forward compatible:
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Sequence, Optional
+from typing import Any
+from collections.abc import Sequence
 import os
 import json
 
@@ -18,13 +19,13 @@ from .physical_sample import PhysicalSample
 # -------------------------
 # Manifest helpers
 # -------------------------
-def save_manifest(path: str, manifest: Dict[str, Any]) -> None:
+def save_manifest(path: str, manifest: dict[str, Any]) -> None:
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
 
 
-def load_manifest(path: str) -> Dict[str, Any]:
+def load_manifest(path: str) -> dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -36,7 +37,7 @@ def _is_new(sample: Any) -> bool:
     return hasattr(sample, "state")
 
 
-def _to_payload(sample: PhysicalSample) -> Dict[str, Any]:
+def _to_payload(sample: PhysicalSample) -> dict[str, Any]:
     """
     Convert PhysicalSample -> serializable payload.
 
@@ -65,7 +66,7 @@ def _to_payload(sample: PhysicalSample) -> Dict[str, Any]:
     }
 
 
-def _from_payload(item: Dict[str, Any]) -> PhysicalSample:
+def _from_payload(item: dict[str, Any]) -> PhysicalSample:
     """
     Convert payload -> PhysicalSample (always returns the NEW PhysicalSample class).
     """
@@ -87,16 +88,16 @@ def _from_payload(item: Dict[str, Any]) -> PhysicalSample:
     coords = item.get("coords", {}) or {}
     meta = item.get("meta", {}) or {}
 
-    state: Dict[str, Any] = {}
+    state: dict[str, Any] = {}
     # Legacy tended to store coords separately; we merge into state
     if isinstance(coords, dict):
         state.update(coords)
     if isinstance(fields, dict):
         state.update(fields)
 
-    schema: Dict[str, Any] = {}
-    provenance: Dict[str, Any] = {}
-    extras: Dict[str, Any] = {}
+    schema: dict[str, Any] = {}
+    provenance: dict[str, Any] = {}
+    extras: dict[str, Any] = {}
 
     if isinstance(meta, dict):
         # common legacy conventions
@@ -181,7 +182,7 @@ def _torch_load(source):
         return torch.load(source, map_location="cpu", weights_only=False)
 
 
-def load_pt(path: str) -> List[PhysicalSample]:
+def load_pt(path: str) -> list[PhysicalSample]:
     """
     Load PhysicalSamples from a PyTorch (.pt) file.
 
@@ -197,7 +198,7 @@ def load_pt(path: str) -> List[PhysicalSample]:
         with open(path, "rb") as fh:
             payload = _torch_load(fh)
 
-    out: List[PhysicalSample] = []
+    out: list[PhysicalSample] = []
     for item in payload:
         if not isinstance(item, dict):
             raise TypeError("Invalid .pt payload: expected list[dict].")
@@ -217,7 +218,6 @@ def save_hdf5(samples: Sequence[PhysicalSample], path: str) -> None:
       - store small manifest attrs
     """
     import h5py  # optional
-    import numpy as np
 
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with h5py.File(path, "w") as f:
@@ -265,7 +265,7 @@ def save_hdf5(samples: Sequence[PhysicalSample], path: str) -> None:
             ds[i] = data
 
 
-def load_hdf5(path: str) -> List[PhysicalSample]:
+def load_hdf5(path: str) -> list[PhysicalSample]:
     import h5py  # optional
     import numpy as np
     import io
@@ -273,7 +273,7 @@ def load_hdf5(path: str) -> List[PhysicalSample]:
     with h5py.File(path, "r") as f:
         n = int(f.attrs["count"])
         if "payload_bytes" in f:
-            out: List[PhysicalSample] = []
+            out: list[PhysicalSample] = []
             for i in range(n):
                 raw = f["payload_bytes"][i]
                 buf = io.BytesIO(np.array(raw, dtype=np.uint8).tobytes())
@@ -290,7 +290,7 @@ def load_hdf5(path: str) -> List[PhysicalSample]:
             field_keys = json.loads(f.attrs.get("field_keys", "[]"))
             coord_keys = json.loads(f.attrs.get("coord_keys", "[]"))
 
-            out: List[PhysicalSample] = []
+            out: list[PhysicalSample] = []
             for i in range(n):
                 fields, coords = {}, {}
                 for k in field_keys:

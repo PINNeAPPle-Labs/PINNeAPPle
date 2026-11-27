@@ -28,7 +28,7 @@ scope note ("no polish beyond what credibility requires").
 from __future__ import annotations
 
 import io
-from typing import Any, Dict, List
+from typing import Any
 
 try:                                   # reportlab is optional: the Decision Record itself needs only the standard library
     from reportlab.lib.enums import TA_LEFT
@@ -43,7 +43,7 @@ try:                                   # reportlab is optional: the Decision Rec
         SimpleDocTemplate,
         Spacer,
     )
-    _SEM_REPORTLAB: "ImportError | None" = None
+    _SEM_REPORTLAB: ImportError | None = None
 except ImportError as _e:  # pragma: no cover - exercised only where reportlab is missing
     _SEM_REPORTLAB = _e
 
@@ -114,7 +114,7 @@ def render_evidence_report_pdf(decision: DecisionRecord) -> bytes:
         leftMargin=0.75 * inch, rightMargin=0.75 * inch,
         title=f"Veriphysics Evidence Report -- {decision.run_id}",
     )
-    story: List[Any] = []
+    story: list[Any] = []
 
     story.append(Paragraph("Veriphysics Evidence Report", styles["EvidenceTitle"]))
     story.append(Paragraph(f"Run: {_escape(decision.run_id)}", styles["EvidenceBody"]))
@@ -146,7 +146,7 @@ def render_evidence_report_pdf(decision: DecisionRecord) -> bytes:
         _scope_section(story, styles, decision.scope_of_use, doc.width)
 
     story.append(Paragraph("Per-check confidence breakdown", styles["EvidenceH2"]))
-    by_name: Dict[str, Dict[str, Any]] = {c["name"]: c for c in decision.confidence_components}
+    by_name: dict[str, dict[str, Any]] = {c["name"]: c for c in decision.confidence_components}
     rows = []
     for name in ALL_CONFIDENCE_COMPONENT_NAMES:
         comp = by_name.get(name)

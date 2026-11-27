@@ -1,6 +1,5 @@
 """Mesh and geometry visualisation utilities."""
 from __future__ import annotations
-from typing import Optional, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,10 +17,10 @@ def _to_np(t):
 
 
 def plot_mesh(
-    nodes: "ArrayLike",
-    elems: "ArrayLike",
+    nodes: ArrayLike,
+    elems: ArrayLike,
     *,
-    node_values: Optional["ArrayLike"] = None,
+    node_values: ArrayLike | None = None,
     cmap: str = DEFAULT_CMAP,
     edge_color: str = "#4c9be8",
     edge_lw: float = 0.5,
@@ -68,7 +67,7 @@ def plot_mesh(
 
 
 def plot_boundary(
-    nodes: "ArrayLike",
+    nodes: ArrayLike,
     boundary_groups: dict,
     *,
     title: str = "Boundary groups",
@@ -98,8 +97,8 @@ def plot_boundary(
 
 
 def plot_point_cloud(
-    points: "ArrayLike",
-    values: Optional["ArrayLike"] = None,
+    points: ArrayLike,
+    values: ArrayLike | None = None,
     *,
     cmap: str = "plasma",
     s: float = 3.0,

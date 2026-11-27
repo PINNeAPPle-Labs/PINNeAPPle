@@ -32,6 +32,25 @@ stability("pinneapple_arena.pointwise")                 # 'experimental (labs)'
 
 The Studio catalog shows the class of every tool (`stability`) and counts them.
 
+## One symbol, not a whole module
+
+The two classes are per module, and the exception runs the other way too: a function or class inside a **core**
+module that is not ready for the promise. `@experimental` marks it, warns once per symbol and process on the first
+call (or instantiation, for a class), and records `__stability__` so a caller reads the tier instead of inferring
+it from the module name:
+
+```python
+from pinneapple_stability import experimental
+
+@experimental("the signature may change while the solver adapters settle")
+def solve_with(problem, backend):
+    ...
+```
+
+The decorator changes nothing about the behaviour and nothing about the code path: it is the same object, wrapped,
+with the same signature and the same tests. Silence it exactly like the package-level warning, with
+`PINNEAPPLE_QUIET_EXPERIMENTAL=1` or the `warnings` filter above.
+
 ## Changing a core name: deprecation
 
 A core name that is renamed, moved, removed or given an incompatible signature keeps working for at least one
@@ -92,7 +111,7 @@ The core was measured on `main` after 0.8.0 from three sources:
 
 | Area | Core modules |
 |---|---|
-| Facade | `pinneapple`: `pp.solve`, `zoo`, `validate`, `trust_card`, `datasets`, `benchmark`, `viz`, `compare`, `presets`, `geometries`, `design`, `doctor`/`recommend`/`card`/`new`, `closed_form`, `uncertainty`, `build_model`, `get_preset`, `list_*`, `to_jsonable` |
+| Facade | `pinneapple`: `pp.solve`, `zoo`, `validate`, `trust_card`, `trust`, `datasets`, `benchmark`, `viz`, `compare`, `presets`, `geometries`, `design`, `doctor`/`recommend`/`card`/`new`, `closed_form`, `uncertainty`, `build_model`, `get_preset`, `list_*`, `to_jsonable` |
 | Data | `pinneapple_core.jsonable`, `pinneapple_core.onboarding`, `pinneapple_data.contracts`, `.physical_sample`, `.cae` |
 | Physics | `pinneapple_physics.pinn_solver`, `.pde_environment`, `.closed_form`, `.solving` |
 | Models | `pinneapple_neural.architectures.pinns`, `.neural_operators`, `.rom`, `pinneapple_neural.trainer` |

@@ -22,12 +22,11 @@ References
 from __future__ import annotations
 
 import warnings
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from collections.abc import Callable
 
 import numpy as np
 import torch
-import torch.nn as nn
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -55,7 +54,7 @@ class LocalSensitivityResult:
     fisher_information: np.ndarray
     singular_values: np.ndarray
     sensitivity_indices: np.ndarray
-    param_names: List[str]
+    param_names: list[str]
 
 
 class LocalSensitivity:
@@ -79,7 +78,7 @@ class LocalSensitivity:
         self,
         forward_fn: Callable[[torch.Tensor], torch.Tensor],
         noise_std: float = 1.0,
-        param_names: Optional[List[str]] = None,
+        param_names: list[str] | None = None,
     ) -> None:
         self.forward_fn = forward_fn
         self.noise_std = noise_std
@@ -200,9 +199,9 @@ class IdentifiabilityResult:
     pseudo_d_optimality: float
     a_optimality: float
     e_optimality: float
-    identifiable_indices: List[int]
-    unidentifiable_indices: List[int]
-    param_names: List[str]
+    identifiable_indices: list[int]
+    unidentifiable_indices: list[int]
+    param_names: list[str]
 
     def report(self) -> str:
         lines = ["Identifiability Analysis", "=" * 40]
@@ -232,7 +231,7 @@ class IdentifiabilityAnalyzer:
     def analyze(
         self,
         fim: np.ndarray,
-        param_names: Optional[List[str]] = None,
+        param_names: list[str] | None = None,
     ) -> IdentifiabilityResult:
         """Perform identifiability analysis on a Fisher Information Matrix.
 
@@ -315,7 +314,7 @@ class SobolResult:
     """
     S1: np.ndarray
     ST: np.ndarray
-    param_names: List[str]
+    param_names: list[str]
     n_samples: int
 
     def report(self) -> str:
@@ -349,9 +348,9 @@ class GlobalSensitivity:
     def __init__(
         self,
         forward_fn: Callable[[np.ndarray], np.ndarray],
-        param_bounds: List[Tuple[float, float]],
+        param_bounds: list[tuple[float, float]],
         n_samples: int = 1024,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> None:
         self.forward_fn = forward_fn
         self.param_bounds = param_bounds
@@ -360,7 +359,7 @@ class GlobalSensitivity:
 
     def compute(
         self,
-        param_names: Optional[List[str]] = None,
+        param_names: list[str] | None = None,
     ) -> SobolResult:
         """Run Sobol analysis and return indices.
 

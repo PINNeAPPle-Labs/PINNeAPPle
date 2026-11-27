@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -67,11 +66,11 @@ class CFDMesh:
         self,
         nodes: np.ndarray,
         elements: np.ndarray,
-        boundary_tags: Dict[str, np.ndarray],
+        boundary_tags: dict[str, np.ndarray],
     ) -> None:
         self.nodes = np.asarray(nodes, dtype=np.float64)         # (N, 3)
         self.elements = np.asarray(elements, dtype=np.int64)     # (E, 3|4)
-        self.boundary_tags: Dict[str, np.ndarray] = {
+        self.boundary_tags: dict[str, np.ndarray] = {
             k: np.asarray(v, dtype=np.int64) for k, v in boundary_tags.items()
         }
 
@@ -80,7 +79,7 @@ class CFDMesh:
     # ------------------------------------------------------------------
 
     @classmethod
-    def from_stl(cls, stl_path: str, max_edge_length: float = 0.05) -> "CFDMesh":
+    def from_stl(cls, stl_path: str, max_edge_length: float = 0.05) -> CFDMesh:
         """Load STL surface mesh and generate a volume mesh using gmsh.
 
         Falls back to a structured rectangular bounding-box mesh when gmsh
@@ -107,7 +106,7 @@ class CFDMesh:
         return cls._structured_rect(max_edge_length=max_edge_length)
 
     @classmethod
-    def from_step(cls, step_path: str, max_edge_length: float = 0.05) -> "CFDMesh":
+    def from_step(cls, step_path: str, max_edge_length: float = 0.05) -> CFDMesh:
         """Load a STEP CAD file and generate a mesh using gmsh.
 
         Parameters
@@ -126,7 +125,7 @@ class CFDMesh:
         return cls._structured_rect(max_edge_length=max_edge_length)
 
     @classmethod
-    def from_csg(cls, csg_shape, max_edge_length: float = 0.05) -> "CFDMesh":
+    def from_csg(cls, csg_shape, max_edge_length: float = 0.05) -> CFDMesh:
         """Mesh a CSG domain from ``pinneapple_geom.csg``.
 
         Parameters
@@ -160,7 +159,7 @@ class CFDMesh:
     @classmethod
     def _from_gmsh(
         cls, geom_path: str, fmt: str, max_edge_length: float
-    ) -> "CFDMesh":
+    ) -> CFDMesh:
         """Generate mesh via gmsh."""
         import gmsh  # type: ignore
 
@@ -197,7 +196,7 @@ class CFDMesh:
             return cls._structured_rect(max_edge_length=max_edge_length)
 
         # Identify boundary nodes (surface entities)
-        boundary_tags: Dict[str, np.ndarray] = {}
+        boundary_tags: dict[str, np.ndarray] = {}
         try:
             boundary_nodes = gmsh.model.mesh.getNodes(1, -1, True)[0]
             boundary_tags["wall"] = np.array(
@@ -213,10 +212,10 @@ class CFDMesh:
     @classmethod
     def _structured_rect(
         cls,
-        x_range: Tuple[float, float] = (0.0, 1.0),
-        y_range: Tuple[float, float] = (0.0, 1.0),
+        x_range: tuple[float, float] = (0.0, 1.0),
+        y_range: tuple[float, float] = (0.0, 1.0),
         max_edge_length: float = 0.05,
-    ) -> "CFDMesh":
+    ) -> CFDMesh:
         """Generate a structured triangular mesh over a rectangle."""
         nx = max(2, int((x_range[1] - x_range[0]) / max_edge_length) + 1)
         ny = max(2, int((y_range[1] - y_range[0]) / max_edge_length) + 1)
@@ -264,7 +263,7 @@ class CFDMesh:
 
     def to_torch(
         self, device: str = "cpu"
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Return ``(nodes, elements)`` as PyTorch tensors.
 
         Returns
@@ -367,9 +366,9 @@ class NSFlowSolver:
         self.rho = rho
         self.solver_type = solver
 
-        self._inlet_velocity: Tuple[float, float] = (1.0, 0.0)
-        self._no_slip_tags: List[str] = []
-        self._outlet_tags: List[str] = []
+        self._inlet_velocity: tuple[float, float] = (1.0, 0.0)
+        self._no_slip_tags: list[str] = []
+        self._outlet_tags: list[str] = []
 
         # Pre-compute element areas and centroid coordinates
         self._areas, self._centroids = self._compute_geometry()
@@ -378,7 +377,7 @@ class NSFlowSolver:
     # Geometry pre-processing
     # ------------------------------------------------------------------
 
-    def _compute_geometry(self) -> Tuple[np.ndarray, np.ndarray]:
+    def _compute_geometry(self) -> tuple[np.ndarray, np.ndarray]:
         """Compute triangular element areas and centroids."""
         nodes = self.mesh.nodes
         elems = self.mesh.elements[:, :3]  # use first 3 nodes for triangles
@@ -401,9 +400,9 @@ class NSFlowSolver:
 
     def set_boundary_conditions(
         self,
-        inlet_velocity: Tuple[float, float] = (1.0, 0.0),
-        no_slip_tags: Optional[List[str]] = None,
-        outlet_tags: Optional[List[str]] = None,
+        inlet_velocity: tuple[float, float] = (1.0, 0.0),
+        no_slip_tags: list[str] | None = None,
+        outlet_tags: list[str] | None = None,
     ) -> None:
         """Configure boundary conditions.
 
@@ -426,7 +425,7 @@ class NSFlowSolver:
 
     def solve(
         self, max_iter: int = 50, tol: float = 1e-8
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """Solve the steady incompressible Stokes / Navier-Stokes equations.
 
         Strategy:
@@ -443,8 +442,8 @@ class NSFlowSolver:
         N = len(nodes)
 
         # Collect all Dirichlet node indices (inlet + no-slip)
-        dirichlet_u: Dict[int, float] = {}
-        dirichlet_v: Dict[int, float] = {}
+        dirichlet_u: dict[int, float] = {}
+        dirichlet_v: dict[int, float] = {}
 
         if "inlet" in self.mesh.boundary_tags:
             for idx in self.mesh.boundary_tags["inlet"]:
@@ -481,7 +480,7 @@ class NSFlowSolver:
             v[node_idx] = val
 
         # Reference pressure node: pin pressure at the outlet centroid
-        ref_p_nodes: List[int] = []
+        ref_p_nodes: list[int] = []
         if "outlet" in self.mesh.boundary_tags and len(self.mesh.boundary_tags["outlet"]) > 0:
             ref_p_nodes = [int(self.mesh.boundary_tags["outlet"][0])]
         elif N > 0:
@@ -579,7 +578,7 @@ class NSFlowSolver:
         self,
         A: np.ndarray,
         rhs: np.ndarray,
-        dirichlet_map: Dict[int, float],
+        dirichlet_map: dict[int, float],
     ) -> np.ndarray:
         """Apply Dirichlet BCs (row/column zeroing) and solve ``A x = rhs``.
 
@@ -611,7 +610,7 @@ class NSFlowSolver:
 
     def _pressure_gradient(
         self, p: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Compute element-averaged pressure gradient scattered to nodes.
 
         Uses the standard FEM formula for P1 elements:
@@ -702,7 +701,7 @@ class NSFlowSolver:
     # PINN data extraction
     # ------------------------------------------------------------------
 
-    def to_pinn_training_data(self, n_col: int = 5000) -> Dict[str, torch.Tensor]:
+    def to_pinn_training_data(self, n_col: int = 5000) -> dict[str, torch.Tensor]:
         """Sample collocation + BC points for PINN training.
 
         First calls :meth:`solve` if a solution is not yet available.
@@ -774,18 +773,18 @@ class CADToCFDPipeline:
     def __init__(self, nu: float = 1e-3, rho: float = 1.0) -> None:
         self.nu = nu
         self.rho = rho
-        self._geom_path: Optional[Path] = None
+        self._geom_path: Path | None = None
         self._csg_shape = None
-        self.cfd_mesh: Optional[CFDMesh] = None
-        self.solver: Optional[NSFlowSolver] = None
-        self._results: Optional[Dict] = None
-        self._bc_kwargs: Dict = {}
+        self.cfd_mesh: CFDMesh | None = None
+        self.solver: NSFlowSolver | None = None
+        self._results: dict | None = None
+        self._bc_kwargs: dict = {}
 
     # ------------------------------------------------------------------
     # Pipeline steps
     # ------------------------------------------------------------------
 
-    def load_geometry(self, path: Union[str, Path]) -> "CADToCFDPipeline":
+    def load_geometry(self, path: str | Path) -> CADToCFDPipeline:
         """Load CAD geometry from a STEP, STL, or CSG file.
 
         Parameters
@@ -800,7 +799,7 @@ class CADToCFDPipeline:
         self._geom_path = Path(path)
         return self
 
-    def load_csg(self, csg_shape) -> "CADToCFDPipeline":
+    def load_csg(self, csg_shape) -> CADToCFDPipeline:
         """Load geometry from a ``pinneapple_geom.csg`` shape.
 
         Returns
@@ -812,7 +811,7 @@ class CADToCFDPipeline:
 
     def mesh(
         self, max_edge_length: float = 0.05, **kwargs
-    ) -> "CADToCFDPipeline":
+    ) -> CADToCFDPipeline:
         """Generate the computational mesh.
 
         Parameters
@@ -855,7 +854,7 @@ class CADToCFDPipeline:
         self.solver = NSFlowSolver(self.cfd_mesh, nu=self.nu, rho=self.rho)
         return self
 
-    def set_bcs(self, **bc_kwargs) -> "CADToCFDPipeline":
+    def set_bcs(self, **bc_kwargs) -> CADToCFDPipeline:
         """Set boundary conditions.
 
         Supported keyword arguments
@@ -873,7 +872,7 @@ class CADToCFDPipeline:
             self.solver.set_boundary_conditions(**bc_kwargs)
         return self
 
-    def solve(self, **solver_kwargs) -> Dict:
+    def solve(self, **solver_kwargs) -> dict:
         """Run the NS solver.
 
         Returns
@@ -888,7 +887,7 @@ class CADToCFDPipeline:
         self._results = self.solver.solve(**solver_kwargs)
         return self._results
 
-    def to_pinn_data(self, n_col: int = 5000) -> Dict[str, torch.Tensor]:
+    def to_pinn_data(self, n_col: int = 5000) -> dict[str, torch.Tensor]:
         """Extract PINN training data from the mesh and (optionally) the CFD solution.
 
         Returns
@@ -909,7 +908,7 @@ class CADToCFDPipeline:
 
     def compare_with_pinn(
         self, pinn_model, field: str = "u"
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Compare the CFD solution with a PINN prediction.
 
         Parameters

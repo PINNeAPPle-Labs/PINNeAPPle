@@ -20,11 +20,9 @@ Public API
 """
 from __future__ import annotations
 
-import json
-import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -73,9 +71,9 @@ class RendererConfig:
     video_quality : int
         ffmpeg quality (CRF value, lower = better, 18–28 typical).
     """
-    resolution:        Tuple[int, int] = (256, 256)
+    resolution:        tuple[int, int] = (256, 256)
     fps:               int             = 24
-    sensors:           List[str]       = field(default_factory=lambda: ["rgb", "thermal", "depth"])
+    sensors:           list[str]       = field(default_factory=lambda: ["rgb", "thermal", "depth"])
     colormap_rgb:      str             = "viridis"
     colormap_thermal:  str             = "inferno"
     colormap_depth:    str             = "gray"
@@ -108,10 +106,10 @@ class RenderResult:
     field_stats : dict
         Min/max/mean of each rendered physical field.
     """
-    frames:      Dict[str, np.ndarray] = field(default_factory=dict)
-    video_paths: Dict[str, Path]       = field(default_factory=dict)
-    png_dirs:    Dict[str, Path]       = field(default_factory=dict)
-    field_stats: Dict[str, Any]        = field(default_factory=dict)
+    frames:      dict[str, np.ndarray] = field(default_factory=dict)
+    video_paths: dict[str, Path]       = field(default_factory=dict)
+    png_dirs:    dict[str, Path]       = field(default_factory=dict)
+    field_stats: dict[str, Any]        = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -133,7 +131,7 @@ class PhysicsRenderer:
         result   = renderer.render(states, field_names, output_dir=Path("sample_001"))
     """
 
-    def __init__(self, config: Optional[RendererConfig] = None) -> None:
+    def __init__(self, config: RendererConfig | None = None) -> None:
         self.cfg = config or RendererConfig()
 
     # ------------------------------------------------------------------
@@ -143,7 +141,7 @@ class PhysicsRenderer:
     def render(
         self,
         states:      np.ndarray,       # (T, C, Ny, Nx)  physical fields
-        field_names: List[str],        # names per channel
+        field_names: list[str],        # names per channel
         output_dir:  Path,
         sample_id:   str = "000",
     ) -> RenderResult:
@@ -206,7 +204,7 @@ class PhysicsRenderer:
     # Field selection helpers
     # ------------------------------------------------------------------
 
-    def _select_rgb_field(self, states: np.ndarray, names: List[str]) -> np.ndarray:
+    def _select_rgb_field(self, states: np.ndarray, names: list[str]) -> np.ndarray:
         """Select / compute the primary scalar field for RGB rendering."""
         # Prefer velocity magnitude, then first channel
         if len(names) >= 2:
@@ -216,7 +214,7 @@ class PhysicsRenderer:
                 return np.sqrt(states[:, u_idx]**2 + states[:, v_idx]**2)
         return states[:, 0]
 
-    def _select_temperature_field(self, states: np.ndarray, names: List[str]) -> np.ndarray:
+    def _select_temperature_field(self, states: np.ndarray, names: list[str]) -> np.ndarray:
         idx = _find_channel(names, ["T", "temperature", "temp", "theta"])
         if idx is not None:
             return states[:, idx]
@@ -226,7 +224,7 @@ class PhysicsRenderer:
             return states[:, p_idx]
         return states[:, 0]
 
-    def _select_depth_field(self, states: np.ndarray, names: List[str]) -> np.ndarray:
+    def _select_depth_field(self, states: np.ndarray, names: list[str]) -> np.ndarray:
         """Synthetic depth: use vorticity magnitude as proxy."""
         if states.shape[1] >= 2:
             u_idx = _find_channel(names, ["u", "ux"])
@@ -375,7 +373,7 @@ def _save_png_sequence(frames: np.ndarray, out_dir: Path) -> None:
 # Field utilities
 # ---------------------------------------------------------------------------
 
-def _find_channel(names: List[str], candidates: List[str]) -> Optional[int]:
+def _find_channel(names: list[str], candidates: list[str]) -> int | None:
     for cand in candidates:
         for i, nm in enumerate(names):
             if nm.lower() == cand.lower():
@@ -390,7 +388,7 @@ def _norm_01(arr: np.ndarray) -> np.ndarray:
     return ((arr - lo) / (hi - lo)).astype(np.float32)
 
 
-def _compute_stats(states: np.ndarray, names: List[str]) -> Dict[str, Any]:
+def _compute_stats(states: np.ndarray, names: list[str]) -> dict[str, Any]:
     stats = {}
     for i, nm in enumerate(names):
         if i >= states.shape[1]:

@@ -25,7 +25,9 @@
    0.0005
   ]
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "kt_net_richardson",

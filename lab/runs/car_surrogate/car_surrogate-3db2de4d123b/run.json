@@ -1,0 +1,93 @@
+{
+ "run_id": "car_surrogate-3db2de4d123b",
+ "experiment": "car_surrogate",
+ "version": "1",
+ "params": {
+  "holdout": 0.2,
+  "epochs": 300,
+  "width": 24,
+  "modes": 16,
+  "physics_weight": 0.5,
+  "ensemble": 5,
+  "search_samples": 4000,
+  "verify": true,
+  "seed": 0
+ },
+ "status": "failed_validation",
+ "started": 1795610851.991322,
+ "owner": {
+  "pid": 15020,
+  "host": "MacBook-Air.local",
+  "heartbeat": 1795621637.897352
+ },
+ "tags": [
+  "automotive",
+  "physics-ai",
+  "surrogate",
+  "fno",
+  "optimization"
+ ],
+ "git": "6008a1487",
+ "environment": {
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "packages": {
+   "numpy": "2.4.6",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "Physics AI on car geometry: an FNO maps the car shape to its mean flow (data-only and with a mass-conservation / no-slip physics loss), an MLP ensemble maps the design parameters to drag and lift; scored on unseen designs against baselines, then used to find a low-drag shape that a new LBM run verifies.",
+ "code": {
+  "files": [
+   "code/car.py"
+  ],
+  "sha1": "a34ba9b872ee9c10332080278a5f4732a9adfd7e"
+ },
+ "finished": 1795621638.83809,
+ "error": null,
+ "stages": [
+  {
+   "name": "train_fno",
+   "started": 1795610854.7137752,
+   "status": "done",
+   "seconds": 10640.487
+  },
+  {
+   "name": "train_mlp",
+   "started": 1795621495.6501691,
+   "status": "done",
+   "seconds": 23.187
+  },
+  {
+   "name": "verify_lbm",
+   "started": 1795621521.7262342,
+   "status": "done",
+   "seconds": 116.157
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/split.json"
+  ],
+  "outputs": [
+   "outputs/surrogate_optimum.json"
+  ],
+  "figures": [
+   "figures/coefficient_parity.png",
+   "figures/field_predictions_unseen.png",
+   "figures/fno_training.png",
+   "figures/optimum_flow.png"
+  ]
+ },
+ "validation": {
+  "total": 6,
+  "failed": 1
+ },
+ "seconds": 10786.847,
+ "datasets": {
+  "predictions": {
+   "n_samples": 36,
+   "path": "runs/car_surrogate/car_surrogate-3db2de4d123b/datasets/predictions"
+  }
+ }
+}

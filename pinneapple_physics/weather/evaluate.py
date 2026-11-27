@@ -22,6 +22,12 @@ SCORED = ("z500", "t850", "t2m", "msl", "u10")
 WB2_NAMES = {"z500": ("geopotential", 500), "t850": ("temperature", 850), "t2m": ("2m_temperature", None),
              "msl": ("mean_sea_level_pressure", None), "u10": ("10m_u_component_of_wind", None),
              "tp6": ("total_precipitation_6hr", None)}
+#: The channel map the physics checks need on top of :data:`WB2_NAMES`: the wind at 500 hPa to advect ``z500`` with
+#: the model's own flow, and temperature and geopotential at 700 hPa, one level, so a dry static energy exists. 850 hPa
+#: would do the same physics, but the published IFS HRES archive has leads with no geopotential there (measured: 168 and
+#: 216 h of the 2020-06-29 00 UTC initialisation among them) while the 700 hPa records are complete.
+WB2_CHECKS = {**WB2_NAMES, "u500": ("u_component_of_wind", 500), "v500": ("v_component_of_wind", 500),
+              "t700": ("temperature", 700), "z700": ("geopotential", 700)}
 UNITS = {"z500": "m²/s²", "t850": "K", "t2m": "K", "msl": "Pa", "u10": "m/s", "tp6": "m"}
 
 
@@ -103,20 +109,27 @@ def score_forecasts(store: Era5Store, clim: np.ndarray, forecasts: dict, init_id
 
 class PublishedForecasts:
     """Published forecasts on the 64 x 32 grid (WeatherBench2), returned in the store's channel layout (other
-    channels NaN). Only the 00 and 12 UTC initialisations exist."""
+    channels NaN). Only the 00 and 12 UTC initialisations exist. ``errors`` keeps why a requested baseline is
+    absent (no network, no ``gcsfs``...), so a caller can say it instead of silently getting nothing.
 
-    def __init__(self, store: Era5Store, names=None):
-        import xarray as xr
+    ``variables`` is the channel map read from the archive: :data:`WB2_NAMES` (the scored channels) by default,
+    :data:`WB2_CHECKS` when the physics checks need the model's own wind and a same-level dry static energy. Each
+    channel of the map is one more variable read per lead, so the narrower map is the cheaper one."""
+
+    def __init__(self, store: Era5Store, names=None, variables=None):
+        from .data import open_zarr
 
         self.store = store
+        self.variables = dict(WB2_NAMES if variables is None else variables)
         self.ds = {}
+        self.errors: dict[str, str] = {}
         for n, url in BASELINES_64x32.items():
             if names is not None and n not in names:
                 continue
             try:
-                self.ds[n] = xr.open_zarr(url, storage_options={"token": "anon"})
-            except Exception:  # noqa: BLE001 - a missing baseline is reported as absent
-                pass
+                self.ds[n] = open_zarr(url)
+            except Exception as exc:  # noqa: BLE001 - a missing baseline is reported as absent
+                self.errors[n] = f"{type(exc).__name__}: {exc}"
 
     def __call__(self, name: str):
         ds = self.ds.get(name)
@@ -136,7 +149,7 @@ class PublishedForecasts:
             pick = [(s_, pos_of[6 * s_]) for s_ in range(1, steps + 1) if 6 * s_ in pos_of]
             if not pick:
                 return None
-            for v, (wb, lev) in WB2_NAMES.items():
+            for v, (wb, lev) in self.variables.items():
                 if v not in store.channels or wb not in sub:
                     continue
                 da = sub[wb]

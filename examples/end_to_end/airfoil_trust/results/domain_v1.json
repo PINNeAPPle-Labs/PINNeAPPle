@@ -1,0 +1,636 @@
+{
+ "model_id": "naca-family-v1",
+ "policy": {
+  "reference_tol": 0.05,
+  "physics_tols": [
+   1.5,
+   2.0
+  ],
+  "uncertainty_tol": 0.39712281730904925,
+  "radius": 0.20606712454282194,
+  "min_neighbors": 2
+ },
+ "bounds": {
+  "alpha_deg": [
+   -4.0,
+   8.0
+  ],
+  "speed": [
+   10.0,
+   30.0
+  ],
+  "thickness": [
+   0.08,
+   0.16
+  ]
+ },
+ "n_training": 32,
+ "n_evidence": 28,
+ "evidence": [
+  {
+   "point": [
+    -0.7366947524905734,
+    29.467686181799397,
+    0.10462985704153607
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va000",
+   "independent": true,
+   "reference_error": 0.04037003943695924,
+   "physics_errors": [
+    1.0265963973592385,
+    0.8885186550463213
+   ],
+   "uncertainty": 0.28846763827673433
+  },
+  {
+   "point": [
+    -1.684846706216251,
+    17.234335210318466,
+    0.09129655653091522
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va001",
+   "independent": true,
+   "reference_error": 0.16667123418108473,
+   "physics_errors": [
+    1.0625602971426809,
+    1.094199192521347
+   ],
+   "uncertainty": 0.26779806698594677
+  },
+  {
+   "point": [
+    -2.3536239447539646,
+    26.338508560105137,
+    0.12066475658784948
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va002",
+   "independent": true,
+   "reference_error": 0.043220559590686075,
+   "physics_errors": [
+    1.082417375012816,
+    0.8971801733632235
+   ],
+   "uncertainty": 0.06716943046595267
+  },
+  {
+   "point": [
+    1.748492014534369,
+    19.178834751594966,
+    0.14742187111538158
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va003",
+   "independent": true,
+   "reference_error": 0.0037341154676635156,
+   "physics_errors": [
+    0.9744014449931592,
+    0.8208260314240345
+   ],
+   "uncertainty": 0.03978193274848123
+  },
+  {
+   "point": [
+    2.7330278878563234,
+    17.768798996500767,
+    0.10621499260693036
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va004",
+   "independent": true,
+   "reference_error": 0.0239604363688333,
+   "physics_errors": [
+    1.0189538285303228,
+    0.8012920744482823
+   ],
+   "uncertainty": 0.04554171305428998
+  },
+  {
+   "point": [
+    6.001547510780657,
+    22.288243883145967,
+    0.08100805833464933
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va005",
+   "independent": true,
+   "reference_error": 0.0497068022323212,
+   "physics_errors": [
+    0.8557371938350937,
+    0.9708664922060214
+   ],
+   "uncertainty": 0.03924726791128083
+  },
+  {
+   "point": [
+    4.4544059966942875,
+    11.125511926154864,
+    0.11874245572754391
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va006",
+   "independent": true,
+   "reference_error": 0.036462640463408094,
+   "physics_errors": [
+    0.7993701219007954,
+    0.7931971261408192
+   ],
+   "uncertainty": 0.021949627375587796
+  },
+  {
+   "point": [
+    4.193758010270731,
+    23.795587233241417,
+    0.14419923706675586
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va007",
+   "independent": true,
+   "reference_error": 0.03120752099993866,
+   "physics_errors": [
+    1.0101667781345571,
+    0.7897752129425291
+   ],
+   "uncertainty": 0.018988860941554067
+  },
+  {
+   "point": [
+    0.713680624777778,
+    23.353162171620323,
+    0.0877992029911272
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va008",
+   "independent": true,
+   "reference_error": 0.4293142111323085,
+   "physics_errors": [
+    1.0354898876352767,
+    1.3946277147909674
+   ],
+   "uncertainty": 0.4649816634725397
+  },
+  {
+   "point": [
+    -3.5517516382732195,
+    14.751434177330795,
+    0.15849053896357423
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va009",
+   "independent": true,
+   "reference_error": 0.04611816475422926,
+   "physics_errors": [
+    0.9600422130898685,
+    1.26116488463363
+   ],
+   "uncertainty": 0.03595972528595037
+  },
+  {
+   "point": [
+    7.3942016022590025,
+    12.855705310109663,
+    0.1504053865329475
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va010",
+   "independent": true,
+   "reference_error": 0.0015044252657982935,
+   "physics_errors": [
+    1.065438714082254,
+    1.2539074662995158
+   ],
+   "uncertainty": 0.07077250717556972
+  },
+  {
+   "point": [
+    5.178383956231897,
+    20.31877952573655,
+    0.11477832783030509
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va011",
+   "independent": true,
+   "reference_error": 0.013187068625410426,
+   "physics_errors": [
+    0.9534149173428189,
+    0.8248742225112291
+   ],
+   "uncertainty": 0.0398353980974788
+  },
+  {
+   "point": [
+    3.268024115612084,
+    28.635330947264617,
+    0.1329889236716614
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va012",
+   "independent": true,
+   "reference_error": 0.09972061909528734,
+   "physics_errors": [
+    1.0323302938741286,
+    0.9696481698900696
+   ],
+   "uncertainty": 0.06877193719367783
+  },
+  {
+   "point": [
+    7.030053419653473,
+    15.605701977026364,
+    0.12739960105100645
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va013",
+   "independent": true,
+   "reference_error": 0.016715521987642912,
+   "physics_errors": [
+    0.8905981541638366,
+    1.1486256199414617
+   ],
+   "uncertainty": 0.043156593297534435
+  },
+  {
+   "point": [
+    -0.0937836749014016,
+    11.567680002245433,
+    0.13771519825047743
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va014",
+   "independent": true,
+   "reference_error": 0.022939840433256163,
+   "physics_errors": [
+    1.1101765075254721,
+    0.9375710886857265
+   ],
+   "uncertainty": 0.08096524476085987
+  },
+  {
+   "point": [
+    -2.6472061477473905,
+    25.62742052740333,
+    0.09656567772378699
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "va015",
+   "independent": true,
+   "reference_error": 0.08984079438809654,
+   "physics_errors": [
+    0.999794007951804,
+    0.8187085196535975
+   ],
+   "uncertainty": 0.15539000087638435
+  },
+  {
+   "point": [
+    -0.8335053735873492,
+    16.178372542583595,
+    0.08902184461762416
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca000",
+   "independent": true,
+   "reference_error": 0.4000092050868051,
+   "physics_errors": [
+    1.1471821050221949,
+    1.0640186103898253
+   ],
+   "uncertainty": 0.4102497747556168
+  },
+  {
+   "point": [
+    4.235319301140425,
+    27.177332090948035,
+    0.14294106652933794
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca001",
+   "independent": true,
+   "reference_error": 0.05334114274357265,
+   "physics_errors": [
+    1.078639037732454,
+    0.9753313759083048
+   ],
+   "uncertainty": 0.05482344003755689
+  },
+  {
+   "point": [
+    -3.745446755127306,
+    13.939991053194403,
+    0.0937458762274666
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca002",
+   "independent": true,
+   "reference_error": 0.08080717546110447,
+   "physics_errors": [
+    1.0560696439115136,
+    1.5348588655388402
+   ],
+   "uncertainty": 0.09276268303808703
+  },
+  {
+   "point": [
+    -1.8913132113106026,
+    20.13844592999153,
+    0.12070734251564862
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca003",
+   "independent": true,
+   "reference_error": 0.012293435878126395,
+   "physics_errors": [
+    1.020004920371603,
+    0.7605502204884291
+   ],
+   "uncertainty": 0.01842145916268706
+  },
+  {
+   "point": [
+    6.211568543959151,
+    12.390325978512722,
+    0.1596635940698044
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca004",
+   "independent": true,
+   "reference_error": 0.010951096479138535,
+   "physics_errors": [
+    1.0933084024603694,
+    1.1463607325742307
+   ],
+   "uncertainty": 0.0565591313475305
+  },
+  {
+   "point": [
+    0.5304250055127131,
+    25.83271008025731,
+    0.08549376621303664
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca005",
+   "independent": true,
+   "reference_error": 0.5127178753364035,
+   "physics_errors": [
+    1.0522556786482833,
+    1.2799074140421143
+   ],
+   "uncertainty": 0.5044009213052845
+  },
+  {
+   "point": [
+    5.294675883078586,
+    16.86194608756116,
+    0.1528240449532482
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca006",
+   "independent": true,
+   "reference_error": 0.01735865477806793,
+   "physics_errors": [
+    0.9785202298758545,
+    0.9111601986799995
+   ],
+   "uncertainty": 0.014925884926946862
+  },
+  {
+   "point": [
+    -2.5077680428066684,
+    29.00067359236853,
+    0.1106178531670778
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca007",
+   "independent": true,
+   "reference_error": 0.03632452737191662,
+   "physics_errors": [
+    1.0073919069910044,
+    0.7478085926690178
+   ],
+   "uncertainty": 0.022377613064740055
+  },
+  {
+   "point": [
+    7.328410393629831,
+    22.015995328410632,
+    0.13275212089949648
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca008",
+   "independent": true,
+   "reference_error": 0.01875765925741252,
+   "physics_errors": [
+    1.0062092437263104,
+    1.150744865767281
+   ],
+   "uncertainty": 0.045716611710936814
+  },
+  {
+   "point": [
+    1.1843699702552195,
+    18.773836332234936,
+    0.10558408038581146
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca009",
+   "independent": true,
+   "reference_error": 0.01855548362347417,
+   "physics_errors": [
+    1.0844416963870713,
+    1.010264250901022
+   ],
+   "uncertainty": 0.27898088052463693
+  },
+  {
+   "point": [
+    2.5176182130473794,
+    10.855363093965575,
+    0.13444454399641587
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca010",
+   "independent": true,
+   "reference_error": 0.047491463742496874,
+   "physics_errors": [
+    0.9911852851415839,
+    0.932474861008974
+   ],
+   "uncertainty": 0.03451520677427103
+  },
+  {
+   "point": [
+    3.9277491480946605,
+    23.996228293566745,
+    0.11468810259100916
+   ],
+   "model_id": "naca-family-v1",
+   "reference_id": "ca011",
+   "independent": true,
+   "reference_error": 0.026000070045401866,
+   "physics_errors": [
+    0.9762680256730317,
+    0.9394907477237199
+   ],
+   "uncertainty": 0.053786600301254296
+  }
+ ],
+ "queries": {
+  "locally_supported": {
+   "query": {
+    "alpha_deg": 4.060753579182696,
+    "speed": 23.895907763404082,
+    "thickness": 0.1294436698288825
+   },
+   "result": {
+    "status": "EMPIRICALLY_SUPPORTED",
+    "reason": "local_checks_passed",
+    "reference_ids": [
+     "ca011",
+     "va007"
+    ],
+    "neighbors": 2
+   }
+  },
+  "inside_but_uncovered": {
+   "query": {
+    "alpha_deg": 2.0,
+    "speed": 20.0,
+    "thickness": 0.12
+   },
+   "result": {
+    "status": "UNSUPPORTED",
+    "reason": "insufficient_local_reference"
+   }
+  },
+  "outside_training_bounds": {
+   "query": {
+    "alpha_deg": 4.0,
+    "speed": 20.0,
+    "thickness": 0.18
+   },
+   "result": {
+    "status": "UNSUPPORTED",
+    "reason": "outside_training_bounds"
+   }
+  },
+  "new_parameter_dimension": {
+   "query": {
+    "alpha_deg": 4.0,
+    "speed": 20.0,
+    "thickness": 0.12,
+    "camber": 0.015
+   },
+   "result": {
+    "status": "UNSUPPORTED",
+    "reason": "parameter_schema_changed"
+   }
+  }
+ },
+ "evidence_gap": {
+  "candidates": 200,
+  "unsupported": 199,
+  "examples": [
+   {
+    "query": {
+     "alpha_deg": 3.5011455992560037,
+     "speed": 27.94427601939151,
+     "thickness": 0.14205485521961547
+    },
+    "reason": "local_failed_or_missing_evidence"
+   },
+   {
+    "query": {
+     "alpha_deg": -1.2975137201128977,
+     "speed": 16.003325698224508,
+     "thickness": 0.14988427563170095
+    },
+    "reason": "insufficient_local_reference"
+   },
+   {
+    "query": {
+     "alpha_deg": -3.9368163452131033,
+     "speed": 26.424568367655326,
+     "thickness": 0.1437655543001637
+    },
+    "reason": "training_coverage_gap"
+   },
+   {
+    "query": {
+     "alpha_deg": 1.6152194341246493,
+     "speed": 16.06064853638627,
+     "thickness": 0.10227404896806187
+    },
+    "reason": "local_extrapolation"
+   },
+   {
+    "query": {
+     "alpha_deg": -0.9415649481505048,
+     "speed": 18.90152611765293,
+     "thickness": 0.12036386071663627
+    },
+    "reason": "insufficient_local_reference"
+   },
+   {
+    "query": {
+     "alpha_deg": 2.6419682248939096,
+     "speed": 29.91000566868785,
+     "thickness": 0.14341295353710024
+    },
+    "reason": "local_failed_or_missing_evidence"
+   },
+   {
+    "query": {
+     "alpha_deg": 3.466150753293952,
+     "speed": 29.779202953637697,
+     "thickness": 0.09722469585884792
+    },
+    "reason": "insufficient_local_reference"
+   },
+   {
+    "query": {
+     "alpha_deg": -2.0774555937058654,
+     "speed": 22.250792085460617,
+     "thickness": 0.08351536063691067
+    },
+    "reason": "training_coverage_gap"
+   },
+   {
+    "query": {
+     "alpha_deg": -3.5718366547168463,
+     "speed": 20.297776405427406,
+     "thickness": 0.11729648202602314
+    },
+    "reason": "insufficient_local_reference"
+   },
+   {
+    "query": {
+     "alpha_deg": 7.006013278314227,
+     "speed": 22.584525089820207,
+     "thickness": 0.12112941172796111
+    },
+    "reason": "training_coverage_gap"
+   }
+  ]
+ },
+ "supported_share_of_candidates": 0.0050000000000000044,
+ "radius_sensitivity": {
+  "radii": [
+   0.1,
+   0.15,
+   0.2,
+   0.25,
+   0.3,
+   0.4
+  ],
+  "supported_share": {
+   "0.1": 0.0,
+   "0.15": 0.0,
+   "0.2": 0.005,
+   "0.25": 0.03,
+   "0.3": 0.135,
+   "0.4": 0.27
+  }
+ }
+}

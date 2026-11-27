@@ -14,7 +14,7 @@ results, and each scene's title and ``source`` say so. Swap in real fields with 
 from __future__ import annotations
 
 import os
-from typing import Callable, Dict
+from collections.abc import Callable
 
 import numpy as np
 
@@ -22,7 +22,7 @@ from . import primitives as P
 from .scene import Scene
 
 ILLUSTRATIVE = "  [ILLUSTRATIVE FIELDS]"
-GALLERY: Dict[str, Callable[[], Scene]] = {}
+GALLERY: dict[str, Callable[[], Scene]] = {}
 
 
 def _register(fn):

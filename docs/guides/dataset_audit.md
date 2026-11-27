@@ -72,6 +72,44 @@ constraints = ["u > 0", "u < 1 / 24"]
 Rules: [PC451](physics_checks_in_ci.md#pc451) (physics and constraints), [PC452](physics_checks_in_ci.md#pc452)
 (diversity), [PC453](physics_checks_in_ci.md#pc453) (leakage); infinities report as PC403, units as PC501.
 
+## Physical regimes (#171)
+
+Spread in the inputs is not the same as coverage of the physics. A dataset can be perfectly spread in Reynolds and
+still hold no turbulent case if the values cluster just below the threshold, and a surrogate asked about that regime
+is extrapolating with confidence.
+
+`regimes=` adds the check, banded by a dimensionless number that already carries the physics:
+
+```python
+from pinneapple_data.audit import audit_dataset
+
+card = audit_dataset(splits, physics="euler", regimes=["reynolds_pipe", "mach"])
+card["regime.reynolds_pipe"].status       # "fail": a band the data never reaches
+card["regime.reynolds_pipe"].evidence["sample_here"]
+# [{"column": "reynolds", "low": 2300.0, "high": 4000.0, "label": "transitional"}]
+```
+
+| preset | bands |
+|---|---|
+| `reynolds_pipe` | laminar < 2300, transitional < 4000, turbulent |
+| `reynolds_flat_plate` | laminar < 5e5, transitional < 3e6, turbulent |
+| `mach` | incompressible < 0.3, subsonic < 0.8, transonic < 1.2, supersonic < 5, hypersonic |
+| `prandtl`, `rayleigh` | order-of-magnitude bands, with the reference in the spec |
+
+A band with no sample **fails** the check; a band with fewer than `min_regime_count` samples (default 2) warns — two
+points are a claim about a regime with two points behind it. `RegimeSpec(name, column, bands)` takes your own
+number, and the constructor refuses a spec with a gap or an overlap between bands: a value that falls in no band is a
+hole in the spec, not an "unknown" regime.
+
+`missing_regions()` (and the `sample_here` key in the check's evidence) turns each empty band back into the interval
+it covers, which is what a sampler needs to fill it — the audit says what is missing and the same object says where
+to look.
+
+**Measured on the 436-run airfoil campaign shipped with the repository** (`apps/simulation_campaign/examples/
+existing_airfoil_runs.csv`): `reynolds_flat_plate` fails with laminar and transitional missing (all 436 runs are at
+Re = 4e6), and `mach` fails with every compressible band missing (M0 ≈ 0.01). A surrogate trained there has nothing
+to say about laminar or compressible flow, and now the audit says so before training starts.
+
 ## Limits
 
 - Without a stated generator, diversity can only flag a collapse (an effective sample count below 2); a set that is

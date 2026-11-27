@@ -14,7 +14,7 @@ module it draws from.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # The fixed, documented set of checks
 # ``pinneapple_analysis.verification.physics_confidence_score
@@ -44,16 +44,16 @@ class DecisionRecord:
     recommended_strategy: str
     reasoning: str
 
-    trust_score: Optional[float]  # 0-100, or None if no confidence checks ran
+    trust_score: float | None  # 0-100, or None if no confidence checks ran
     trust_coverage: float  # 0-1, fraction of possible confidence checks that ran
-    trustworthy: Optional[bool]  # from provenance.guardrail_trustworthy, never re-derived here
+    trustworthy: bool | None  # from provenance.guardrail_trustworthy, never re-derived here
 
-    alternatives_considered: List[Dict[str, str]] = field(default_factory=list)
-    external_tools_recommended: List[str] = field(default_factory=list)
+    alternatives_considered: list[dict[str, str]] = field(default_factory=list)
+    external_tools_recommended: list[str] = field(default_factory=list)
     external_tools_reasoning: str = ""
 
     next_best_action: str = ""
-    evidence: Dict[str, Any] = field(default_factory=dict)
+    evidence: dict[str, Any] = field(default_factory=dict)
 
     # ``PhysicsConfidenceScore.components`` (see
     # ``pinneapple_analysis.verification.physics_confidence_score``),
@@ -67,13 +67,13 @@ class DecisionRecord:
     # fabricated placeholder entry with a neutral score; see
     # ``ALL_CONFIDENCE_COMPONENT_NAMES`` above and ``render()`` below for
     # how "not run" is displayed without inventing a number for it.
-    confidence_components: List[Dict[str, Any]] = field(default_factory=list)
+    confidence_components: list[dict[str, Any]] = field(default_factory=list)
 
     # ``applicability.ApplicabilityMap.to_dict()`` -- the evidence chain
     # (verified / inferred / unsupported), the eight-item review checklist
     # and the per-variable envelope. None for records built before this
     # field existed or by callers that did not supply one.
-    applicability: Optional[Dict[str, Any]] = None
+    applicability: dict[str, Any] | None = None
 
     # ``scope.ScopeOfUse.to_dict()`` -- which uses the result can serve and which it cannot, each with the measured
     # value against its limit, what the use needs and where the evidence comes from (certified / reference /
@@ -139,7 +139,7 @@ class DecisionRecord:
         return "\n".join(lines)
 
 
-def _render_applicability(data: Dict[str, Any]) -> str:
+def _render_applicability(data: dict[str, Any]) -> str:
     """Render ``DecisionRecord.applicability`` (the dict form) as text by
     rebuilding the dataclass view -- kept here so a record loaded from
     JSON renders identically to a live one."""

@@ -9,7 +9,7 @@ from user-provided physics descriptions.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 # ---------------------------------------------------------------------------
@@ -38,19 +38,19 @@ class PDEFamily:
         Domain tags for filtering (e.g. "cfd", "heat", "mechanics").
     """
     kind: str
-    aliases: List[str] = field(default_factory=list)
+    aliases: list[str] = field(default_factory=list)
     description: str = ""
-    default_params: Dict[str, Any] = field(default_factory=dict)
-    coords_hint: List[str] = field(default_factory=list)
-    fields_hint: List[str] = field(default_factory=list)
-    tags: List[str] = field(default_factory=list)
+    default_params: dict[str, Any] = field(default_factory=dict)
+    coords_hint: list[str] = field(default_factory=list)
+    fields_hint: list[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 
-_REGISTRY: Dict[str, PDEFamily] = {}
+_REGISTRY: dict[str, PDEFamily] = {}
 
 
 def _reg(family: PDEFamily) -> PDEFamily:
@@ -232,25 +232,25 @@ _reg(PDEFamily(
 # Public API
 # ---------------------------------------------------------------------------
 
-def list_pde_families() -> List[str]:
+def list_pde_families() -> list[str]:
     """Return sorted list of canonical PDE kind strings."""
     return sorted({f.kind for f in _REGISTRY.values()})
 
 
-def get_pde_family(kind_or_alias: str) -> Optional[PDEFamily]:
+def get_pde_family(kind_or_alias: str) -> PDEFamily | None:
     """Look up a PDEFamily by kind string or alias (case-insensitive)."""
     key = kind_or_alias.strip().lower()
     return _REGISTRY.get(key) or _REGISTRY.get(kind_or_alias)
 
 
-def identify_pde(description: str) -> List[Tuple[str, float]]:
+def identify_pde(description: str) -> list[tuple[str, float]]:
     """Score known PDE families against a free-text description.
 
     Returns a ranked list of (kind, score) tuples, highest score first.
     Score is a simple keyword overlap count — good enough for guided elicitation.
     """
     desc_lower = description.lower()
-    scores: Dict[str, float] = {}
+    scores: dict[str, float] = {}
     for kind, family in _REGISTRY.items():
         score = 0.0
         for alias in [family.kind] + family.aliases:
@@ -268,7 +268,7 @@ def identify_pde(description: str) -> List[Tuple[str, float]]:
     return sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
 
-def suggest_problem_spec(description: str) -> Dict[str, Any]:
+def suggest_problem_spec(description: str) -> dict[str, Any]:
     """Given a free-text description, suggest ProblemSpec constructor arguments.
 
     Returns a dict with:

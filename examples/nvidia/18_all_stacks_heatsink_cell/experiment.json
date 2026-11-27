@@ -23,7 +23,9 @@
   "dp_max_Pa": 30.0,
   "gripper_kg": 2.0
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "part_mass",

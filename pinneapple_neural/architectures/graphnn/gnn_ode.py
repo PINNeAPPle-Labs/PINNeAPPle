@@ -1,6 +1,6 @@
 from __future__ import annotations
 """GNN-ODE hybrid for continuous-time graph dynamics (fixed-step + optional torchdiffeq)."""
-from typing import Any, Dict, Optional, Literal
+from typing import Any, Literal
 
 import torch
 import torch.nn as nn
@@ -83,7 +83,7 @@ class GraphNeuralODE(GraphModelBase):
         self.ode_atol = float(ode_atol)
         self.ode_adjoint = bool(ode_adjoint)
 
-        self.time_embed: Optional[FourierTimeFeatures] = None
+        self.time_embed: FourierTimeFeatures | None = None
         if int(time_features) > 0:
             self.time_embed = FourierTimeFeatures(int(time_features), max_frequency=float(time_max_frequency))
 
@@ -103,7 +103,7 @@ class GraphNeuralODE(GraphModelBase):
         g: GraphBatch,
         t: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,T,N,node_dim)
+        y_true: torch.Tensor | None = None,  # (B,T,N,node_dim)
         return_loss: bool = False,
     ) -> GraphOutput:
         x0 = g.x
@@ -172,7 +172,7 @@ class GraphNeuralODE(GraphModelBase):
             y_path = torch.stack(hs, dim=1)  # (B,T,N,D)
 
         # --- Losses ---
-        losses: Dict[str, torch.Tensor] = {
+        losses: dict[str, torch.Tensor] = {
             "total": torch.tensor(0.0, device=y_path.device, dtype=y_path.dtype)
         }
         if return_loss and y_true is not None:
@@ -190,7 +190,7 @@ class GraphNeuralODE(GraphModelBase):
 
         return GraphOutput(y=y_path, losses=losses, extras={})
 
-    def forward_batch(self, batch: Dict[str, Any]) -> GraphOutput:
+    def forward_batch(self, batch: dict[str, Any]) -> GraphOutput:
         """Dict-based interface used by Arena / GNNAdapter.
 
         Required keys: ``x`` (or ``node_features``), ``edge_index``, ``t``.

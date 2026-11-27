@@ -6,7 +6,8 @@ EvolutionaryDesignOptimizer — no duplicate optimizer logic here.
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -18,7 +19,7 @@ from pinneapple_design.design_optimizer.optimizer import (  # noqa: F401
     DesignOptimizerConfig,
 )
 
-EvalFn = Callable[[Dict[str, float]], float]
+EvalFn = Callable[[dict[str, float]], float]
 
 
 class GeometryOptimizer:
@@ -57,22 +58,22 @@ class GeometryOptimizer:
     # Dict ↔ array conversion helpers
     # ------------------------------------------------------------------
 
-    def _to_dict(self, arr: np.ndarray) -> Dict[str, float]:
+    def _to_dict(self, arr: np.ndarray) -> dict[str, float]:
         return self.space.clip({k: float(v) for k, v in zip(self._keys, arr)})
 
-    def _to_arr(self, d: Dict[str, float]) -> np.ndarray:
+    def _to_arr(self, d: dict[str, float]) -> np.ndarray:
         return np.array([d[k] for k in self._keys], dtype=np.float64)
 
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
-    def ask(self, n: int = 1) -> List[Dict[str, float]]:
+    def ask(self, n: int = 1) -> list[dict[str, float]]:
         """Return *n* candidate parameter dicts."""
         candidates_arr = self._opt.ask(self._bounds_arr, n)
         return [self._to_dict(a) for a in candidates_arr]
 
-    def tell(self, xs: List[Dict[str, float]], ys: List[float]) -> None:
+    def tell(self, xs: list[dict[str, float]], ys: list[float]) -> None:
         """Inform the optimizer of objective values for the last candidates."""
         xs_arr = [self._to_arr(x) for x in xs]
         self._opt.tell(xs_arr, ys)
@@ -83,7 +84,7 @@ class GeometryOptimizer:
         *,
         iters: int = 30,
         batch: int = 4,
-        on_step: Optional[Callable[[OptState], Any]] = None,
+        on_step: Callable[[OptState], Any] | None = None,
     ) -> OptState:
         """Run the full optimization loop.
 

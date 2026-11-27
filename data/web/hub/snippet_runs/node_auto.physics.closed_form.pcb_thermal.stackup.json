@@ -1,0 +1,12 @@
+{
+ "code_hash": "23b3ad20a3f01206",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pcb_thermal.stackup",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 15.43,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[Layer(name='L1', kind='copper', thickness_m=3.48e-05, coverage=0.3), Layer(name='D1', kind='dielectric', thickness_m=0.00048693333333333337, coverage=1.0), Layer(name='L2', kind='copper', thickness_m=3.48e-05, coverage=0.9), Layer(name='D2', kind='dielectric', thickness_m=0.00048693333333333337, coverage=1.0), Layer(name='L3', kind='copper', thickness_m=3.48e-05, coverage=0.9), Layer(name='D3', kind='dielectric', thickness_m=0.00048693333333333337, coverage=1.0), Layer(name='L4', kind='copper', thickness_m=3.48e-05, coverage=0.3)]",
+ "timed_out": false
+}

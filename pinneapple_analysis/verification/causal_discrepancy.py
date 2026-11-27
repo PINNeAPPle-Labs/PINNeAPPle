@@ -49,7 +49,8 @@ from __future__ import annotations
 
 import tempfile
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
+from collections.abc import Sequence
 
 import torch
 from torch.utils.data import DataLoader, TensorDataset
@@ -81,7 +82,7 @@ def _eval_mode(model: Any) -> None:
         model.eval()
 
 
-def _pct_change(old: Optional[float], new: Optional[float]) -> Optional[float]:
+def _pct_change(old: float | None, new: float | None) -> float | None:
     """Real percentage change, or None when it is not honestly
     computable (either value missing, or old==0 making a percentage
     change undefined) -- never silently divides by zero into +/-inf."""
@@ -99,17 +100,17 @@ def _pct_change(old: Optional[float], new: Optional[float]) -> Optional[float]:
 @dataclass
 class InterventionRunResult:
     param_value: float
-    final_loss: Optional[float] = None
-    loss_pct_change: Optional[float] = None
-    residual_value: Optional[float] = None
-    residual_pct_change: Optional[float] = None
-    guardrail_trustworthy: Optional[bool] = None
-    guardrail_checks: List[Dict[str, Any]] = field(default_factory=list)
-    field_predictions: Dict[str, float] = field(default_factory=dict)
-    field_pct_change: Dict[str, Optional[float]] = field(default_factory=dict)
+    final_loss: float | None = None
+    loss_pct_change: float | None = None
+    residual_value: float | None = None
+    residual_pct_change: float | None = None
+    guardrail_trustworthy: bool | None = None
+    guardrail_checks: list[dict[str, Any]] = field(default_factory=list)
+    field_predictions: dict[str, float] = field(default_factory=dict)
+    field_pct_change: dict[str, float | None] = field(default_factory=dict)
     reliable: bool = False
-    warnings: List[str] = field(default_factory=list)
-    error: Optional[str] = None
+    warnings: list[str] = field(default_factory=list)
+    error: str | None = None
 
 
 @dataclass
@@ -118,15 +119,15 @@ class InterventionReport:
     param_name: str
     baseline_rejected: bool = False
     rejection_reason: str = ""
-    query_point: Dict[str, float] = field(default_factory=dict)
-    baseline_param_value: Optional[float] = None
-    baseline_final_loss: Optional[float] = None
-    baseline_residual_value: Optional[float] = None
-    baseline_field_predictions: Dict[str, float] = field(default_factory=dict)
-    baseline_trustworthy: Optional[bool] = None
+    query_point: dict[str, float] = field(default_factory=dict)
+    baseline_param_value: float | None = None
+    baseline_final_loss: float | None = None
+    baseline_residual_value: float | None = None
+    baseline_field_predictions: dict[str, float] = field(default_factory=dict)
+    baseline_trustworthy: bool | None = None
     architecture_used: str = ""
-    runs: List[InterventionRunResult] = field(default_factory=list)
-    summary: List[str] = field(default_factory=list)
+    runs: list[InterventionRunResult] = field(default_factory=list)
+    summary: list[str] = field(default_factory=list)
 
 
 def _build_query_point(spec) -> torch.Tensor:
@@ -140,7 +141,7 @@ def _build_query_point(spec) -> torch.Tensor:
     return torch.tensor([values], dtype=torch.float32)
 
 
-def _evaluate_fields_at_point(model, point: torch.Tensor, field_names: Sequence[str]) -> Dict[str, float]:
+def _evaluate_fields_at_point(model, point: torch.Tensor, field_names: Sequence[str]) -> dict[str, float]:
     _eval_mode(model)
     with torch.no_grad():
         y = _call_model(model, point)
@@ -152,7 +153,7 @@ def run_intervention(
     param_name: str,
     param_values: Sequence[float],
     *,
-    physical_parameters: Optional[Dict[str, float]] = None,
+    physical_parameters: dict[str, float] | None = None,
     provider: str = "ollama",
     model_name: str = "llama3.2:3b",
     **analyze_kwargs: Any,
@@ -266,7 +267,7 @@ def run_intervention(
         }
 
         reliable = bool(grep.trustworthy) and bool(baseline.best_candidate.guardrail_trustworthy)
-        warnings: List[str] = []
+        warnings: list[str] = []
         if not grep.trustworthy:
             warnings.append(
                 "PhysicsGuardrail marked THIS intervention run NOT TRUSTWORTHY -- the percentage "

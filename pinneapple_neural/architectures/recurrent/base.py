@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes for recurrent models."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -14,8 +14,8 @@ class RNNOutput:
     Standard output for recurrent models in Pinneapple.
     """
     y: torch.Tensor               # (B, H, out_dim)
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class RecurrentModelBase(nn.Module):

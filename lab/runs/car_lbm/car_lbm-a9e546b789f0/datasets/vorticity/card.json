@@ -1,0 +1,87 @@
+{
+ "name": "vorticity",
+ "description": "Wake vorticity snapshots (normalised by U / car length)",
+ "n_samples": 48,
+ "shards": 1,
+ "schema": {
+  "vorticity": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float16",
+   "min": -51.59375,
+   "max": 79.375
+  },
+  "frame": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 0.0,
+   "max": 47.0
+  },
+  "Cd": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.6683764746024579,
+   "max": 1.6683764746024579
+  },
+  "slant_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 12.9928,
+   "max": 12.9928
+  },
+  "windshield_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 34.7194,
+   "max": 34.7194
+  },
+  "hood": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.6693,
+   "max": 0.6693
+  },
+  "clearance": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.1031,
+   "max": 0.1031
+  },
+  "diffuser_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 6.4846,
+   "max": 6.4846
+  },
+  "nose": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.1143,
+   "max": 0.1143
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "car_lbm",
+  "run_id": "car_lbm-a9e546b789f0",
+  "params": {
+   "slant_deg": 12.9928,
+   "windshield_deg": 34.7194,
+   "hood": 0.6693,
+   "clearance": 0.1031,
+   "diffuser_deg": 6.4846,
+   "nose": 0.1143,
+   "length_cells": 64,
+   "Re": 500.0,
+   "u_in": 0.08,
+   "Cs": 0.1,
+   "steps": 8000,
+   "tunnel_height": 2.5
+  }
+ },
+ "sha1": "806b0b3f4c8507ea13417a781d25f352e7b7f405"
+}

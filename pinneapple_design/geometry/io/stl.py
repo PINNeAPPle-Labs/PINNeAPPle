@@ -6,14 +6,13 @@ For packaging into a UPD PhysicalSample use
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Union
 
 from pinneapple_design.geometry.core.mesh import MeshData
 from pinneapple_design.geometry.io.trimesh_bridge import TrimeshBridge
 
 
 def load_stl(
-    path: Union[str, Path],
+    path: str | Path,
     *,
     repair: bool = True,
     compute_normals: bool = True,

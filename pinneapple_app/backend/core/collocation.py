@@ -1,7 +1,6 @@
 """Collocation point generation strategies for pinneapple_app."""
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
 import numpy as np
 
 
@@ -28,8 +27,8 @@ class CollocationConfig:
     seed: int = 42
     # geometry-aware sampling (optional)
     use_geometry: bool = False
-    geometry_sdf_fn: Optional[object] = None  # callable(pts) -> signed distances
-    domain_name: Optional[str] = None
+    geometry_sdf_fn: object | None = None  # callable(pts) -> signed distances
+    domain_name: str | None = None
     # grid settings
     grid_resolution: int = 64           # per dimension (for "grid" strategy)
     # adaptive refinement
@@ -39,11 +38,11 @@ class CollocationConfig:
 
 def generate_points(
     config: CollocationConfig,
-    bounds: Dict[str, Tuple[float, float]],
+    bounds: dict[str, tuple[float, float]],
     *,
     include_time: bool = False,
-    t_range: Tuple[float, float] = (0.0, 1.0),
-) -> Dict[str, np.ndarray]:
+    t_range: tuple[float, float] = (0.0, 1.0),
+) -> dict[str, np.ndarray]:
     """Generate collocation points from a config and domain bounds.
 
     Returns
@@ -117,11 +116,11 @@ def _sample_interior(
 
 
 def _sample_boundary(
-    bounds: Dict[str, Tuple[float, float]],
+    bounds: dict[str, tuple[float, float]],
     n: int,
     rng: np.random.Generator,
     include_time: bool,
-    t_range: Tuple[float, float],
+    t_range: tuple[float, float],
 ) -> np.ndarray:
     """Sample points on each face of the hyperbox domain."""
     coord_names = list(bounds.keys())

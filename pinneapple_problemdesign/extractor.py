@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from .protocol import LLMProvider, LLMMessage
 
@@ -98,7 +98,7 @@ def _extract_first_json_object(text: str) -> str:
 def extract_from_text(
     llm: LLMProvider,
     user_text: str,
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any]]:
     content = USER_TEMPLATE.replace("<<USER_TEXT>>", user_text)
 
     messages = [

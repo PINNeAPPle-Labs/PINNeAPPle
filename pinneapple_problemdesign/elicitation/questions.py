@@ -1,12 +1,11 @@
 """Stage-specific gap questions for problem elicitation."""
 from __future__ import annotations
 
-from typing import List
 from ..schema import Gap
 
 
-def build_stage_gaps(stage: str, spec_dict: dict) -> List[Gap]:
-    gaps: List[Gap] = []
+def build_stage_gaps(stage: str, spec_dict: dict) -> list[Gap]:
+    gaps: list[Gap] = []
 
     def add(gid: str, q: str, sev: str, why: str, how: str):
         gaps.append(Gap(id=gid, question=q, severity=sev, rationale=why, how_to_obtain=how))

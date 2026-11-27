@@ -1,0 +1,12 @@
+{
+ "code_hash": "6013370e52642c43",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.lane_emden_polytrope",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.21,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='lane_emden_polytrope', dim=0, coords=('t',), fields=('theta', 'phi'), pde=PDETermSpec(kind='lane_emden_polytrope', fields=('theta', 'phi'), coords=('t',), params={'n': 1.0}, meta={'note': 'Lane-Emden equation for a self-gravitating polytrope of index n.', 'has_closed_form': True}), conditions=(ConditionSpec(name='ic_theta', kind='initial', fields=('theta',), selector_type='callable', selector=<function lane_emden_polytrope.<locals>._sel at 0x106bf0fe0>, value_fn=<function lane_emden_polytrope.<locals>.<lambda> at 0x1154054e0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='ic_phi', kind='initial', fields=('phi',), selector_type='callable', selector=<function lane_emden_polyt",
+ "timed_out": false
+}

@@ -43,6 +43,8 @@ import numpy as np
 import torch
 from scipy.stats import chi2
 
+from pinneapple_core.errors import BadValue, NotConfigured, ShapeMismatch, UnknownName
+
 
 def _unwrap(out: Any) -> torch.Tensor:
     return out.y if hasattr(out, "y") else out
@@ -61,7 +63,9 @@ class TrustGate:
     def __init__(self, *, ood_weight: float = 0.4, residual_weight: float = 0.4, ensemble_weight: float = 0.2,
                  ood_level: float = 0.01):
         if not 0.0 < ood_level < 1.0:
-            raise ValueError(f"ood_level must be in (0, 1); got {ood_level}")
+            raise BadValue(f"ood_level must be in (0, 1), got {ood_level}",
+                           fix="pass ood_level=0.01 for the 99 % region (the default), or another probability "
+                               "between 0 and 1 exclusive")
         self.ood_level = float(ood_level)
         self.ood_weight = ood_weight
         self.residual_weight = residual_weight
@@ -106,7 +110,9 @@ class TrustGate:
         meta = checkpoint.get("metadata", {}) or {}
         bounds = meta.get("domain_bounds")
         if not bounds:
-            raise KeyError("checkpoint metadata has no 'domain_bounds' entry.")
+            raise UnknownName("the checkpoint records no domain bounds under metadata['domain_bounds']",
+                              fix="re-save the checkpoint with metadata={'domain_bounds': {'x': (0, 1), ...}}, or "
+                                  "build the gate from the training sample with fit(training_coords)")
         return {k: tuple(v) for k, v in bounds.items()}
 
     # -- sub-scores --------------------------------------------------------
@@ -116,14 +122,20 @@ class TrustGate:
         distribution (chi-squared with ``dim`` degrees of freedom). Low => far out of distribution. NaN
         coordinates give a p-value of 0."""
         if self._mean is None or self._cov_inv is None:
-            raise RuntimeError("TrustGate.fit()/.fit_from_bounds() must be called before OOD scoring.")
+            raise NotConfigured("the gate has no reference distribution yet, so it cannot score an input",
+                                fix="call fit(training_coords) with a sample of the training points, or "
+                                    "fit_from_bounds(domain_bounds) when only the box is known")
         xq = (x.detach().cpu().numpy() if hasattr(x, "detach") else np.asarray(x)).astype(np.float64)
         if xq.ndim == 1:                          # one point, or a batch of 1-D points
             xq = xq.reshape(-1, 1) if self._dim == 1 else xq.reshape(1, -1)
         elif xq.ndim != 2:
-            raise ValueError(f"query points must have shape (n, {self._dim}); got {xq.shape}")
+            raise ShapeMismatch(f"query points must have shape (n, {self._dim}); got {xq.shape}",
+                                fix=f"pass a 2-D array with {self._dim} column(s), or one 1-D point of "
+                                    f"{self._dim} coordinate(s)")
         if xq.shape[1] != self._dim:
-            raise ValueError(f"query points have {xq.shape[1]} coordinates, the gate was fitted on {self._dim}")
+            raise ShapeMismatch(f"query points have {xq.shape[1]} coordinates, the gate was fitted on {self._dim}",
+                                fix=f"select the {self._dim} training coordinate(s) in the same order used for "
+                                    f"fit(), or refit on {xq.shape[1]}")
         delta = xq - self._mean
         d2 = np.einsum("ni,ij,nj->n", delta, self._cov_inv, delta)
         return np.nan_to_num(chi2.sf(d2, df=self._dim), nan=0.0)

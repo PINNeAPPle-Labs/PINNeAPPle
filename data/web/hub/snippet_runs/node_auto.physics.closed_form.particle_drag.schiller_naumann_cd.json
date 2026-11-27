@@ -1,0 +1,12 @@
+{
+ "code_hash": "69c3f823a3176dbf",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.particle_drag.schiller_naumann_cd",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "schiller naumann cd -> pinneapple_physics.closed_form.particle_drag:schiller_naumann_cd\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'re': 1.0}",
+ "timed_out": false
+}

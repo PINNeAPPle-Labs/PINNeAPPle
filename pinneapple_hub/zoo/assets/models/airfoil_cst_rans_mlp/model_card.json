@@ -281,5 +281,12 @@
     "min_coverage": 0.6,
     "min_score": 0.8
   },
-  "trust_override": {}
+  "trust_override": {},
+  "provenance": {
+    "solver": "openfoam (RANS, campaign examples/handoff_cases/airfoil_ld)",
+    "seed": 3,
+    "data_hash": "sha256:24ff7ff747866a61366edc3936682adbb1a24cbd0ee87bd112ed01d78dc1da78",
+    "commit": "9fb751a79a0dfcdec8eaccc1dc020a0cb38b9248",
+    "library_version": "0.7.0"
+  }
 }

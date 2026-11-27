@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -59,10 +59,10 @@ class CameraConfig:
     """
     name:        str                   = "camera_0"
     sensor_type: str                   = "rgb"
-    position:    Tuple[float, ...]     = (0.5, 0.5, 2.0)
-    look_at:     Tuple[float, ...]     = (0.5, 0.5, 0.0)
+    position:    tuple[float, ...]     = (0.5, 0.5, 2.0)
+    look_at:     tuple[float, ...]     = (0.5, 0.5, 0.0)
     fov_deg:     float                 = 60.0
-    resolution:  Tuple[int, int]       = (256, 256)
+    resolution:  tuple[int, int]       = (256, 256)
     fps:         float                 = 24.0
     near_clip:   float                 = 0.01
     far_clip:    float                 = 100.0
@@ -88,11 +88,11 @@ class MultiCameraArray:
     sync_fps : float or None
         If given, all cameras are assumed to record at this frame rate.
     """
-    cameras:  List[CameraConfig] = field(default_factory=list)
-    sync_fps: Optional[float]    = None
+    cameras:  list[CameraConfig] = field(default_factory=list)
+    sync_fps: float | None    = None
 
     @classmethod
-    def default(cls) -> "MultiCameraArray":
+    def default(cls) -> MultiCameraArray:
         """Standard front-view array with RGB, thermal, and depth cameras."""
         return cls(cameras=[
             CameraConfig(name="front_rgb",     sensor_type="rgb",
@@ -104,7 +104,7 @@ class MultiCameraArray:
         ])
 
     @classmethod
-    def from_config(cls, sensor_config: Dict[str, Any]) -> "MultiCameraArray":
+    def from_config(cls, sensor_config: dict[str, Any]) -> MultiCameraArray:
         """Build from a ScenarioSpec.sensor_config dict."""
         position = tuple(sensor_config.get("camera_position", [0.5, 0.5, 2.0]))
         fov      = float(sensor_config.get("fov", 60.0))
@@ -153,8 +153,8 @@ class CameraSystem:
 
     def __init__(
         self,
-        array:         Optional[MultiCameraArray] = None,
-        domain_bounds: Optional[Tuple] = None,
+        array:         MultiCameraArray | None = None,
+        domain_bounds: tuple | None = None,
     ) -> None:
         self.array         = array or MultiCameraArray.default()
         self.domain_bounds = domain_bounds or ((0.0, 1.0), (0.0, 1.0))
@@ -166,9 +166,9 @@ class CameraSystem:
     def observe(
         self,
         states:      np.ndarray,    # (T, C, Ny, Nx) or (C, Ny, Nx) for a single step
-        field_names: List[str],
-        t_idx:       Optional[int] = None,
-    ) -> Dict[str, np.ndarray]:
+        field_names: list[str],
+        t_idx:       int | None = None,
+    ) -> dict[str, np.ndarray]:
         """Project physics fields through each camera.
 
         Returns
@@ -194,8 +194,8 @@ class CameraSystem:
     def observe_sequence(
         self,
         states:      np.ndarray,    # (T, C, Ny, Nx)
-        field_names: List[str],
-    ) -> Dict[str, np.ndarray]:
+        field_names: list[str],
+    ) -> dict[str, np.ndarray]:
         """Observe all timesteps for all cameras.
 
         Returns
@@ -204,7 +204,7 @@ class CameraSystem:
         """
         T = states.shape[0]
         first_obs = self.observe(states, field_names, t_idx=0)
-        seq: Dict[str, List[np.ndarray]] = {k: [] for k in first_obs}
+        seq: dict[str, list[np.ndarray]] = {k: [] for k in first_obs}
 
         for t in range(T):
             obs = self.observe(states, field_names, t_idx=t)
@@ -220,7 +220,7 @@ class CameraSystem:
     def _select_field(
         self,
         snap:        np.ndarray,    # (C, Ny, Nx)
-        field_names: List[str],
+        field_names: list[str],
         sensor_type: str,
     ) -> np.ndarray:                 # (Ny, Nx)
         """Select / compute the scalar field for this sensor modality."""
@@ -342,7 +342,7 @@ class CameraSystem:
     # Metadata
     # ------------------------------------------------------------------
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialise camera configuration to a JSON-compatible dict."""
         return {
             "cameras": [
@@ -367,7 +367,7 @@ class CameraSystem:
 # Utilities
 # ---------------------------------------------------------------------------
 
-def _find_channel(names: List[str], candidates: List[str]) -> Optional[int]:
+def _find_channel(names: list[str], candidates: list[str]) -> int | None:
     for cand in candidates:
         for i, nm in enumerate(names):
             if nm.lower() == cand.lower():

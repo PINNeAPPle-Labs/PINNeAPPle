@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Iterator, Optional, Sequence, List
+from typing import Any
+from collections.abc import Iterator, Sequence
 import threading
 import queue
 import time
@@ -111,15 +112,15 @@ class AdaptivePrefetchZarrUPDIterable(IterableDataset):
         self,
         root: str,
         *,
-        fields: Optional[Sequence[str]] = None,
-        coords: Optional[Sequence[str]] = None,
-        dtype: Optional[torch.dtype] = None,
+        fields: Sequence[str] | None = None,
+        coords: Sequence[str] | None = None,
+        dtype: torch.dtype | None = None,
         start: int = 0,
-        end: Optional[int] = None,
+        end: int | None = None,
         stride: int = 1,
         sample_ctor: Any = None,
-        cache: Optional[ZarrByteCacheConfig] = None,
-        cfg: Optional[AdaptivePrefetchConfig] = None,
+        cache: ZarrByteCacheConfig | None = None,
+        cfg: AdaptivePrefetchConfig | None = None,
     ):
         """
         Initialize the iterable dataset.
@@ -188,9 +189,9 @@ class AdaptivePrefetchZarrUPDIterable(IterableDataset):
             step = num_workers * self.stride
             indices = list(range(base, end, step))
 
-        q: "queue.Queue[Any]" = queue.Queue(maxsize=self.cfg.queue_max)
+        q: queue.Queue[Any] = queue.Queue(maxsize=self.cfg.queue_max)
         stop = threading.Event()
-        err_holder: List[BaseException] = []
+        err_holder: list[BaseException] = []
 
         # Adaptive state (shared within worker process)
         target_fill = {"v": int(self.cfg.target_fill_init)}

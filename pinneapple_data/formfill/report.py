@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import io
 from datetime import date
-from typing import Dict, List, Optional, Tuple
 
 from .extract import Compilation, Decision
 from .spec import Field, FormSpec
@@ -34,7 +33,7 @@ def _value(d: Decision, f: Field) -> str:
     return d.display or str(d.value)
 
 
-def render_datasheet(comp: Compilation, spec: Optional[FormSpec] = None, title: Optional[str] = None) -> bytes:
+def render_datasheet(comp: Compilation, spec: FormSpec | None = None, title: str | None = None) -> bytes:
     try:
         from reportlab.lib import colors
         from reportlab.lib.pagesizes import A4
@@ -93,10 +92,10 @@ def render_datasheet(comp: Compilation, spec: Optional[FormSpec] = None, title: 
         fields = [f for f in spec.fields if f.section == sec]
         if not fields:
             continue
-        rows: List[list] = []
+        rows: list[list] = []
         styles = []
         if sides and any(f.column for f in fields):
-            groups: Dict[str, Dict[str, Field]] = {}
+            groups: dict[str, dict[str, Field]] = {}
             for f in fields:
                 base = f.key.split("_", 1)[1] if f.column and f.key.startswith(f.column + "_") else f.key
                 groups.setdefault(base, {})[f.column or ""] = f

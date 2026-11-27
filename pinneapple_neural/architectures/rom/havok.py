@@ -1,6 +1,5 @@
 from __future__ import annotations
 """HAVOK Hankel alternative view of Koopman for chaotic dynamics."""
-from typing import Dict, Optional, Tuple
 
 import torch
 
@@ -40,9 +39,9 @@ class HAVOK(ROMBase):
         self.dmd = DynamicModeDecomposition(r=self.r, center=False)
 
         # learned during fit
-        self._mu: Optional[torch.Tensor] = None        # (F,)
-        self._Vh_r: Optional[torch.Tensor] = None      # (r, F)  where F = delays*D
-        self._D: Optional[int] = None                  # observation dim
+        self._mu: torch.Tensor | None = None        # (F,)
+        self._Vh_r: torch.Tensor | None = None      # (r, F)  where F = delays*D
+        self._D: int | None = None                  # observation dim
 
     def _hankel(self, x: torch.Tensor) -> torch.Tensor:
         # x: (T,D) -> H: (T-delays+1, delays*D)
@@ -55,7 +54,7 @@ class HAVOK(ROMBase):
             rows.append(x[t : t + L, :].reshape(-1))
         return torch.stack(rows, dim=0)
 
-    def _fit_hankel_svd(self, H: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def _fit_hankel_svd(self, H: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Fit SVD basis for Hankel and return (Hc, mu, Vh_r).
         H: (N,F)
@@ -120,7 +119,7 @@ class HAVOK(ROMBase):
         return Hhat[:, -D:]
 
     @torch.no_grad()
-    def fit(self, X: torch.Tensor) -> "HAVOK":
+    def fit(self, X: torch.Tensor) -> HAVOK:
         """
         X: (T,D) or (B,T,D)
         """
@@ -198,14 +197,14 @@ class HAVOK(ROMBase):
         # lift back to Hankel space (optional, but useful for loss/debug)
         Hhat = self._lift(Zhat)  # (T', F)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=X.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=X.device)}
         if return_loss:
             losses["mse_embedded"] = self.mse(Zhat, Z)
             losses["mse_hankel"] = self.mse(Hhat, H)
             # choose what you consider "total" (usually embedded is enough)
             losses["total"] = losses["mse_embedded"]
 
-        extras: Dict[str, torch.Tensor | int | str] = {
+        extras: dict[str, torch.Tensor | int | str] = {
             "embedded_dim": int(Z.shape[1]),
             "hankel_dim": int(H.shape[1]),
             "delays": int(self.delays),

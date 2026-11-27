@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Optional, Tuple
 
 import numpy as np
 
@@ -92,7 +91,7 @@ def _skip_ws(data: bytes, pos: int) -> int:
     return pos
 
 
-def _read_int(data: bytes, pos: int) -> Tuple[int, int]:
+def _read_int(data: bytes, pos: int) -> tuple[int, int]:
     pos = _skip_ws(data, pos)
     start = pos
     n = len(data)
@@ -105,7 +104,7 @@ def _read_int(data: bytes, pos: int) -> Tuple[int, int]:
 
 def read_binary_block(
     data: bytes, pos: int, n_components: int, dtype=_SCALAR_DTYPE
-) -> Tuple[np.ndarray, int]:
+) -> tuple[np.ndarray, int]:
     """Read ``<count>\\n(<raw bytes>)`` starting at *pos*.
 
     Returns the array (shape ``(count,)`` if ``n_components == 1`` else
@@ -149,7 +148,7 @@ def read_vector_field_points(data: bytes, path_hint: str = "") -> np.ndarray:
     return arr
 
 
-def read_face_compact_list(data: bytes, path_hint: str = "") -> Tuple[np.ndarray, np.ndarray]:
+def read_face_compact_list(data: bytes, path_hint: str = "") -> tuple[np.ndarray, np.ndarray]:
     """Read a ``faceCompactList``: an offsets array (len nFaces+1) followed
     by a flat point-index array (len offsets[-1])."""
     hdr = read_header(data)
@@ -169,7 +168,7 @@ _FIELD_KIND = {
 }
 
 
-def _read_ascii_list_body(data: bytes, pos: int, n_components: int) -> Tuple[np.ndarray, int]:
+def _read_ascii_list_body(data: bytes, pos: int, n_components: int) -> tuple[np.ndarray, int]:
     """Read ``<count>\\n(<ascii vectors/scalars>)`` starting at *pos*.
 
     Handles scalar lists (``1\\n2\\n``) and vector/tensor lists
@@ -203,7 +202,7 @@ def _read_ascii_list_body(data: bytes, pos: int, n_components: int) -> Tuple[np.
 
 def read_internal_field(
     data: bytes, path_hint: str = ""
-) -> Tuple[np.ndarray, bool, Optional[int]]:
+) -> tuple[np.ndarray, bool, int | None]:
     """Read the ``internalField`` entry of a vol{Scalar,Vector,SymmTensor,...}Field.
 
     Returns ``(values, is_uniform, n_components)``. When uniform,

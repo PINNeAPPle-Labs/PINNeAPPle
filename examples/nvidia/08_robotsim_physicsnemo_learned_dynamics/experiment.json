@@ -18,7 +18,9 @@
   "run_s": 1.0,
   "dt": 0.001
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "heldout_torque_rel_rms",

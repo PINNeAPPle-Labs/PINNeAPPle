@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .draft import DraftResult, _preset_catalog
 
@@ -39,14 +39,14 @@ def _tokenize(text: str) -> set:
 
 @dataclass
 class ResolveResult:
-    preset: Optional[str]
-    kwargs: Dict[str, Any] = field(default_factory=dict)
+    preset: str | None
+    kwargs: dict[str, Any] = field(default_factory=dict)
     reasoning: str = ""
     used_llm: bool = False
-    shortlist: List[str] = field(default_factory=list)
+    shortlist: list[str] = field(default_factory=list)
 
 
-def _keyword_shortlist(description: str, catalog: List[Dict[str, Any]], top_k: int) -> List[Dict[str, Any]]:
+def _keyword_shortlist(description: str, catalog: list[dict[str, Any]], top_k: int) -> list[dict[str, Any]]:
     query_tokens = _tokenize(description)
     scored = []
     for entry in catalog:
@@ -59,10 +59,10 @@ def _keyword_shortlist(description: str, catalog: List[Dict[str, Any]], top_k: i
 
 def _resolve_via_llm(
     description: str,
-    shortlist: List[Dict[str, Any]],
+    shortlist: list[dict[str, Any]],
     provider: str,
-    model: Optional[str],
-    api_key: Optional[str],
+    model: str | None,
+    api_key: str | None,
     conversation_store: Any,
 ) -> DraftResult:
     from ._dispatch import call_llm
@@ -99,8 +99,8 @@ def resolve_problem(
     description: str,
     *,
     provider: str = "anthropic",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     conversation_store: Any = None,
     top_k: int = 12,
 ) -> ResolveResult:

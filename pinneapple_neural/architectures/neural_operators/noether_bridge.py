@@ -31,7 +31,7 @@ from __future__ import annotations
 from ..._licencas import require_research_use
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 
@@ -54,8 +54,8 @@ class NoetherModelConfig:
     device : torch device string; default "cuda" if available else "cpu".
     """
     model_name: str = "upt"
-    config_kwargs: Dict[str, Any] = field(default_factory=dict)
-    device: Optional[str] = None
+    config_kwargs: dict[str, Any] = field(default_factory=dict)
+    device: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -150,7 +150,7 @@ class _NoetherWrapper(NeuralOperatorBase):
         super().__init__()
         self._model_name = noether_model_name
         self._config_kwargs = config_kwargs
-        self._inner: Optional[torch.nn.Module] = None
+        self._inner: torch.nn.Module | None = None
 
     def _build(self) -> None:
         if self._inner is not None:
@@ -186,7 +186,7 @@ class _NoetherWrapper(NeuralOperatorBase):
         return OperatorOutput(y=y, losses={}, extras={"noether_raw": raw})
 
     @property
-    def inner_model(self) -> Optional[torch.nn.Module]:
+    def inner_model(self) -> torch.nn.Module | None:
         """Access the underlying Noether model (built lazily)."""
         self._build()
         return self._inner
@@ -270,7 +270,7 @@ class NoetherAeroTransolver(_NoetherWrapper):
 # Registry entries (consumed by neural_operators/registry.py)
 # ---------------------------------------------------------------------------
 
-NOETHER_REGISTRY: Dict[str, type] = {
+NOETHER_REGISTRY: dict[str, type] = {
     # UPT family
     "noether_upt": NoetherUPT,
     "upt": NoetherUPT,

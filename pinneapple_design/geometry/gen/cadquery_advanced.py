@@ -24,9 +24,9 @@ Reproductions of the CadQuery documentation examples (Apache-2.0):
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
-Params = Dict[str, Any]
+Params = dict[str, Any]
 
 
 def _cq():
@@ -101,7 +101,7 @@ def helical_coil(p: Params):
     return cq.Workplane(plane).circle(r).sweep(cq.Workplane().add(helix), isFrenet=True)
 
 
-def _naca4_points(code: str, chord: float, n: int = 40) -> List[Tuple[float, float]]:
+def _naca4_points(code: str, chord: float, n: int = 40) -> list[tuple[float, float]]:
     m, pp, tt = int(code[0]) / 100, int(code[1]) / 10, int(code[2:]) / 100
     pts_u, pts_l = [], []
     for i in range(n + 1):
@@ -145,7 +145,7 @@ def _rot(pts, deg):
     return [(x * math.cos(a) - y * math.sin(a), x * math.sin(a) + y * math.cos(a)) for x, y in pts]
 
 
-def involute_tooth_profile(module: float, teeth: int, pressure_deg: float = 20.0, n: int = 12) -> List[Tuple[float, float]]:
+def involute_tooth_profile(module: float, teeth: int, pressure_deg: float = 20.0, n: int = 12) -> list[tuple[float, float]]:
     """Closed outline of a spur gear (involute flanks from base to tip circle, root arcs)."""
     alpha = math.radians(pressure_deg)
     rp = module * teeth / 2

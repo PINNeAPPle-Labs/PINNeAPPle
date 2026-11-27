@@ -15,7 +15,6 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import List, Tuple
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.gzip import GZipMiddleware
@@ -94,7 +93,7 @@ def _graph_payload(g: Lineage) -> dict:
     return {**g.report(), "lineage": g.to_json(), "prov": g.to_prov(), "markdown": g.to_markdown(), "scope": scope()}
 
 
-def _run(files: List[Tuple[str, bytes]]) -> dict:
+def _run(files: list[tuple[str, bytes]]) -> dict:
     if not files:
         raise HTTPException(422, "No files uploaded.")
     if sum(len(b) for _, b in files) > MAX_MB * 1024 * 1024:
@@ -141,7 +140,7 @@ def meta():
 
 
 @app.post("/api/lineage")
-async def api_lineage(files: List[UploadFile] = File(...)):
+async def api_lineage(files: list[UploadFile] = File(...)):
     """A lineage JSON ({"artifacts": [...]} or the simple chain), or a project's files / zip for auto-detection (a
     lineage.json among them annotates and is verified against the files)."""
     return _run([(f.filename or f"upload_{i}", await f.read()) for i, f in enumerate(files)])

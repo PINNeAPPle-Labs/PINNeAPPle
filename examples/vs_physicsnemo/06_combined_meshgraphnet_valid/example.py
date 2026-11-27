@@ -22,6 +22,9 @@ import matplotlib.tri as tri
 from pathlib import Path
 import time
 import warnings
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 warnings.filterwarnings("ignore")
 

@@ -123,6 +123,8 @@ def test_release_gate_blocks_a_model_that_loses_a_check(heatsink):
 
 
 def test_every_zoo_hub_card_carries_the_validation_section():
+    # publishing a zoo card goes through pinneapple_hub.zoo.parquet, which needs pyarrow (extra `hub`/`enterprise`)
+    pytest.importorskip("pyarrow", reason="the zoo card publisher writes parquet: pip install -e '.[hub]'")
     import sys
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "zoo"))

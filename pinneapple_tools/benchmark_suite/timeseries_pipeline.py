@@ -31,7 +31,8 @@ from __future__ import annotations
 import math
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 import torch
@@ -44,7 +45,7 @@ from .report import BenchmarkReport, ModelRunResult
 # Data loading  (pinneapple_data.datasets + file-path fallbacks)
 # ---------------------------------------------------------------------------
 
-def _load_ts_data(source: str) -> Tuple[np.ndarray, np.ndarray]:
+def _load_ts_data(source: str) -> tuple[np.ndarray, np.ndarray]:
     """Load time series.  Returns (t, X) where X is (n_steps, n_features)."""
     try:
         from pinneapple_data.datasets import load_dataset
@@ -100,7 +101,7 @@ def _load_ts_data(source: str) -> Tuple[np.ndarray, np.ndarray]:
 # Metrics  (MetricBundle from pinneapple_train.metrics)
 # ---------------------------------------------------------------------------
 
-def _metric_bundle(requested: List[str]) -> Tuple[Any, bool]:
+def _metric_bundle(requested: list[str]) -> tuple[Any, bool]:
     """Build a MetricBundle from requested names; second return is mape_flag."""
     from pinneapple_neural.trainer.metrics import (
         MSE, MAE, RMSE, R2, RelL2, MaxError, MetricBundle,
@@ -257,7 +258,7 @@ def _build_ts_model(name: str, n_features: int, horizon: int,
 # Inference
 # ---------------------------------------------------------------------------
 
-def _predict_neural(model: nn.Module, loader) -> Tuple[np.ndarray, np.ndarray]:
+def _predict_neural(model: nn.Module, loader) -> tuple[np.ndarray, np.ndarray]:
     """Run inference on a DataLoader; return (y_pred, y_true) numpy arrays."""
     model.eval()
     preds, trues = [], []
@@ -272,7 +273,7 @@ def _predict_neural(model: nn.Module, loader) -> Tuple[np.ndarray, np.ndarray]:
 
 def _train_sklearn(model: Any,
                    X_train: np.ndarray, y_train: np.ndarray
-                   ) -> Tuple[List[Dict], Dict[str, float]]:
+                   ) -> tuple[list[dict], dict[str, float]]:
     N_tr, L, F = X_train.shape
     N_tr2, H, _ = y_train.shape
     model.fit(X_train.reshape(N_tr, L * F), y_train.reshape(N_tr2, H * F))
@@ -329,7 +330,7 @@ class TimeSeriesBenchmarkSpec:
         source: str,
         models: Sequence[str] = ("lstm",),
         metrics: Sequence[str] = ("mse", "mae", "rmse"),
-        target_cols: Optional[Sequence[int]] = None,
+        target_cols: Sequence[int] | None = None,
         horizon: int = 50,
         lookback: int = 100,
         test_size: float = 0.2,
@@ -355,8 +356,8 @@ class TimeSeriesBenchmarkSpec:
         self.output_dir = Path(output_dir)
 
     def _plot(self, y_pred: np.ndarray, y_test: np.ndarray,
-              model_id: str, history: List[Dict]) -> List[str]:
-        paths: List[str] = []
+              model_id: str, history: list[dict]) -> list[str]:
+        paths: list[str] = []
         try:
             import matplotlib.pyplot as plt
         except ImportError:
@@ -473,7 +474,7 @@ class TimeSeriesBenchmarkSpec:
             "lr": self.lr, "batch_size": self.batch_size, "seed": self.seed,
         }
 
-        all_plots: List[str] = []
+        all_plots: list[str] = []
 
         # 4. Train & evaluate each model
         for model_name in self.models:
@@ -500,7 +501,7 @@ class TimeSeriesBenchmarkSpec:
                     )
                     trainer.fit(train_loader, val_loader, cfg)
                     y_pred, y_test = _predict_neural(model, val_loader)
-                    history: List[Dict] = []   # Trainer logs to file; no per-epoch dict returned
+                    history: list[dict] = []   # Trainer logs to file; no per-epoch dict returned
 
                 else:
                     n_params = 0

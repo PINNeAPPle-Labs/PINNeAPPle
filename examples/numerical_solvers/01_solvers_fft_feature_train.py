@@ -12,7 +12,6 @@ This example is defensive: if FFTSolver signature differs, adapt in one place.
 from __future__ import annotations
 
 import os
-from typing import Dict, Any, Tuple
 
 import torch
 from torch.utils.data import DataLoader, TensorDataset

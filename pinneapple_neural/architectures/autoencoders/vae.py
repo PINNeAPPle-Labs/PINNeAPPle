@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Variational autoencoder with reparameterization trick."""
 
-from typing import Dict, List, Optional
 
 import torch
 import torch.nn as nn
@@ -24,11 +23,11 @@ class VariationalAutoencoder(AEBase):
         self,
         input_dim: int,
         latent_dim: int,
-        hidden: List[int] = (512, 256),
+        hidden: list[int] = (512, 256),
         beta: float = 1.0,
         activation: str = "gelu",
         # stability / recon scaling knobs (optional, keeps API compatible)
-        clamp_logvar: Optional[tuple[float, float]] = (-10.0, 10.0),
+        clamp_logvar: tuple[float, float] | None = (-10.0, 10.0),
         recon_reduction: str = "sum",  # "sum" (literature-friendly) or "mean" (old behavior)
     ):
         super().__init__()
@@ -98,9 +97,9 @@ class VariationalAutoencoder(AEBase):
         x_hat: torch.Tensor,
         z: torch.Tensor,
         x: torch.Tensor,
-        mu: Optional[torch.Tensor] = None,
-        logvar: Optional[torch.Tensor] = None,
-    ) -> Dict[str, torch.Tensor]:
+        mu: torch.Tensor | None = None,
+        logvar: torch.Tensor | None = None,
+    ) -> dict[str, torch.Tensor]:
         x = x.reshape(x.shape[0], -1)
 
         # Recon: prefer per-sample reduction then mean over batch (more stable vs input_dim changes)

@@ -2,7 +2,7 @@
  "schema": "pinneapple.experiment/1",
  "id": "examples/geometry",
  "title": "pinneapple_geom examples",
- "description": "This folder focuses on geometry + meshing workflows that typically appear in Physics-AI / PINN pipelines:",
+ "description": "This folder focuses on geometry + meshing workflows that typically appear in Physics-AI / PINN pipelines: It also carries the surface-morphing example (#292): FFD, RBF handles and shape modes over the road car of the geometry library, with the validity gate and the cost of each step measured.",
  "domain": "design and geometry",
  "methods": [
   "PINN"
@@ -18,6 +18,11 @@
   "pinneapple_design.geometry.io.meshio_bridge",
   "pinneapple_design.geometry.io.step",
   "pinneapple_design.geometry.io.trimesh_bridge",
+  "pinneapple_design.geometry.morph.lattice",
+  "pinneapple_design.geometry.morph.modes",
+  "pinneapple_design.geometry.morph.rbf",
+  "pinneapple_design.geometry.morph.space",
+  "pinneapple_design.geometry.morph.validity",
   "pinneapple_design.geometry.ops.features",
   "pinneapple_design.geometry.ops.repair",
   "pinneapple_design.geometry.ops.simplify",
@@ -34,9 +39,47 @@
   "05_stl_domain_batchbuilder_inlet_outlet_wall.py",
   "06_meshio_roundtrip_with_pointdata.py",
   "07_csg_domain_demo.py",
-  "08_open_cad_datasets_showcase.py"
+  "08_open_cad_datasets_showcase.py",
+  "09_surface_morphing_design_space.py"
  ],
- "metrics": [],
+ "metrics": [
+  {
+   "name": "FFD deform seconds",
+   "value": 0.0021,
+   "unit": "s",
+   "how": "09_surface_morphing_design_space.py, median of 30 on the road car"
+  },
+  {
+   "name": "RBF deform seconds",
+   "value": 0.00038,
+   "unit": "s",
+   "how": "09_surface_morphing_design_space.py, median of 20 on the road car"
+  },
+  {
+   "name": "validity gate seconds per sample",
+   "value": 0.61,
+   "unit": "s",
+   "how": "09_surface_morphing_design_space.py, 21 760 triangles"
+  },
+  {
+   "name": "accepted samples in the declared band",
+   "value": 24,
+   "unit": "of 24",
+   "how": "DesignSpace.sample_valid, seed 0"
+  },
+  {
+   "name": "accepted samples in a two-cell band",
+   "value": 3,
+   "unit": "of 8",
+   "how": "DesignSpace.sample_valid, seed 1"
+  },
+  {
+   "name": "Ahmed 35 deg reproduced by an FFD of the 25 deg body",
+   "value": 0.037,
+   "unit": "relative L2",
+   "how": "09_surface_morphing_design_space.py, least squares on a 5x3x4 lattice"
+  }
+ ],
  "checks": [],
  "files": {
   "figures": [
@@ -48,7 +91,9 @@
   ],
   "videos": [],
   "viewers": [],
-  "data": []
+  "data": [
+   "_out/morphing/summary.json"
+  ]
  },
  "links": {
   "guide": "docs/guides/geometry_library.md",

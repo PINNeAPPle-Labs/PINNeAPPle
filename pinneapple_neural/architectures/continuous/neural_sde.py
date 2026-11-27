@@ -1,7 +1,7 @@
 from __future__ import annotations
 """Neural stochastic differential equation models."""
 
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -41,7 +41,7 @@ class NeuralSDE(ContinuousModelBase):
         activation: str = "tanh",
         # diag diffusion stabilization
         sigma_eps: float = 1e-6,
-        sigma_max: Optional[float] = None,  # optionally cap sigma
+        sigma_max: float | None = None,  # optionally cap sigma
         # full diffusion stabilization (Cholesky factor)
         chol_diag_eps: float = 1e-6,
         # Monte Carlo simulation control
@@ -155,7 +155,7 @@ class NeuralSDE(ContinuousModelBase):
         y0: torch.Tensor,                      # (B, D)
         t: torch.Tensor,                       # (T,)
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B, T, D) expected (mean path supervision)
+        y_true: torch.Tensor | None = None,  # (B, T, D) expected (mean path supervision)
         return_loss: bool = False,
     ) -> ContOutput:
         if y0.ndim != 2:
@@ -248,7 +248,7 @@ class NeuralSDE(ContinuousModelBase):
                 y_out = y_path.mean(dim=1)  # mean over paths -> (B, T, D)
             extras = {"t": t_, "n_paths": K, "antithetic": self.antithetic, "keep_paths": self.keep_paths}
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y0.device, dtype=y0.dtype)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y0.device, dtype=y0.dtype)}
         if return_loss and y_true is not None:
             # supervise either:
             # - if keep_paths=False: compare mean path (B,T,D) with y_true

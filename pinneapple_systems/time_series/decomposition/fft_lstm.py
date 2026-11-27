@@ -25,7 +25,6 @@ Anti-overfitting in ResidualLSTMForecaster:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 import numpy as np
 import torch
@@ -62,12 +61,12 @@ class FFTDecomposer:
         self.auto_harmonics = auto_harmonics
         self.auto_threshold = auto_threshold
 
-        self._models: List[FFTForecaster] = []
+        self._models: list[FFTForecaster] = []
         self._n_channels: int = 0
         self._n_fit: int = 0
 
     # ------------------------------------------------------------------
-    def fit(self, y: np.ndarray) -> "FFTDecomposer":
+    def fit(self, y: np.ndarray) -> FFTDecomposer:
         """Fit one FFT model per channel.  y: (T,) or (T, F)."""
         y = np.asarray(y, dtype=float)
         if y.ndim == 1:
@@ -133,7 +132,7 @@ class FFTDecomposer:
 
         return y - recon
 
-    def dominant_periods(self) -> List[List[float]]:
+    def dominant_periods(self) -> list[list[float]]:
         """Return dominant periods (1/freq) per channel, sorted descending."""
         self._check_fitted()
         out = []
@@ -143,7 +142,7 @@ class FFTDecomposer:
             out.append(sorted(p.tolist(), reverse=True))
         return out
 
-    def power_spectrum(self, y: np.ndarray) -> List[dict]:
+    def power_spectrum(self, y: np.ndarray) -> list[dict]:
         """Return FFT power spectrum per channel for exploratory analysis.
 
         Returns a list (one per channel) of dicts with keys:
@@ -205,7 +204,7 @@ class ResidualLSTMForecaster(TSModelBase):
       (set weight_decay in TrainConfig, grad_clip ≥ 0.5 recommended)
     """
 
-    def __init__(self, cfg: Optional[ResidualLSTMConfig] = None, **kw):
+    def __init__(self, cfg: ResidualLSTMConfig | None = None, **kw):
         super().__init__()
         self.cfg = cfg or ResidualLSTMConfig(**kw)
         c = self.cfg
@@ -307,7 +306,7 @@ class FFTLSTMPipeline:
         )
 
     # ------------------------------------------------------------------
-    def fit_fft(self, y: np.ndarray) -> "FFTLSTMPipeline":
+    def fit_fft(self, y: np.ndarray) -> FFTLSTMPipeline:
         """Fit the FFT decomposer on training data.  y: (T_train,) or (T_train, F)."""
         self.decomposer.fit(y)
         return self
@@ -325,10 +324,10 @@ class FFTLSTMPipeline:
         """Instantiate a fresh ResidualLSTMForecaster with the configured LSTM params."""
         return ResidualLSTMForecaster(cfg=self.lstm_cfg)
 
-    def dominant_periods(self) -> List[List[float]]:
+    def dominant_periods(self) -> list[list[float]]:
         """Dominant periods per channel from the fitted FFT decomposer."""
         return self.decomposer.dominant_periods()
 
-    def power_spectrum(self, y: np.ndarray) -> List[dict]:
+    def power_spectrum(self, y: np.ndarray) -> list[dict]:
         """Power spectrum per channel (delegates to FFTDecomposer)."""
         return self.decomposer.power_spectrum(y)

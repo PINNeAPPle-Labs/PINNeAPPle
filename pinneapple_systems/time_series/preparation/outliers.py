@@ -1,6 +1,6 @@
 """Outlier detection and treatment for time series."""
 from __future__ import annotations
-from typing import List, Literal, Optional, Tuple
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -103,8 +103,8 @@ class OutlierDetector:
     def fit_transform(
         self,
         df: pd.DataFrame,
-        target_cols: Optional[List[str]] = None,
-    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        target_cols: list[str] | None = None,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         Detect and treat outliers in all target columns.
 

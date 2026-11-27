@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Structure-preserving network for constrained dynamics."""
-from typing import Dict, Optional, Callable
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -38,13 +38,13 @@ class StructurePreservingNetwork(PhysicsAwareBase):
         self,
         x: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> PhysicsAwareOutput:
         y_raw = self.backbone(x)
         y = self.projector(y_raw)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

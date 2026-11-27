@@ -3,7 +3,6 @@
 from __future__ import annotations
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import xarray as xr
@@ -14,7 +13,7 @@ class ValidationSpec:
     """Specification for dataset validation (units, ranges, monotonicity)."""
 
     require_units: bool = True
-    ranges: Dict[str, Tuple[float, float]] = field(default_factory=lambda: {
+    ranges: dict[str, tuple[float, float]] = field(default_factory=lambda: {
         "T": (150.0, 350.0),    # K
         "Q": (0.0, 0.1),        # kg/kg (tune per product)
         "U": (-200.0, 200.0),   # m/s
@@ -28,7 +27,7 @@ class ValidationSpec:
 # Explicit variable -> physical-quantity mapping for range checks. Only variables
 # actually representing temperature/humidity/wind belong here; names that merely
 # start with the same letter (TQV, TQL, TROPPB, TO3, ...) must NOT be swept in.
-_QUANTITY_BY_NAME: Dict[str, str] = {
+_QUANTITY_BY_NAME: dict[str, str] = {
     "TS": "T", "T2M": "T", "T2MDEW": "T", "T2MWET": "T",
     "TROPT": "T", "TROPPT": "T",
     "QV2M": "Q", "QV10M": "Q", "TROPQ": "Q",
@@ -40,7 +39,7 @@ _QUANTITY_BY_NAME: Dict[str, str] = {
 _PLEV_RE = re.compile(r"^([TQUV])\d+$")
 
 
-def _quantity_for(name: str) -> Optional[str]:
+def _quantity_for(name: str) -> str | None:
     """Map a variable name to a physical quantity tag ("T"/"Q"/"U"/"V"/"PS"), or None."""
     q = _QUANTITY_BY_NAME.get(name)
     if q is not None:
@@ -67,7 +66,7 @@ def standardize_dims(ds: xr.Dataset) -> xr.Dataset:
     if rename:
         ds = ds.rename(rename)
 
-    def target_order(dims: List[str]) -> List[str]:
+    def target_order(dims: list[str]) -> list[str]:
         if "lev" in dims:
             order = [d for d in ["time", "lev", "lat", "lon"] if d in dims]
         else:
@@ -93,9 +92,9 @@ def _sample_flat(da: xr.DataArray, max_n: int = 200_000):
     return x
 
 
-def validate_dataset(ds: xr.Dataset, spec: ValidationSpec) -> List[str]:
+def validate_dataset(ds: xr.Dataset, spec: ValidationSpec) -> list[str]:
     """Validate dataset against spec; returns list of issue messages (empty if valid)."""
-    issues: List[str] = []
+    issues: list[str] = []
 
     # Units
     if spec.require_units:

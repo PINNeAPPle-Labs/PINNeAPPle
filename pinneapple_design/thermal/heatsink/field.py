@@ -18,7 +18,6 @@ reported as a check.
 from __future__ import annotations
 
 import math
-from typing import Dict, Optional
 
 import numpy as np
 import scipy.sparse as sps
@@ -33,9 +32,9 @@ def _overlap_1d(edges: np.ndarray, lo: float, hi: float) -> np.ndarray:
 def solve_base_field(
     *, base_width: float, base_depth: float, base_thickness: float, k: float,
     power_w: float, r_fins_k_w: float, source_width: float, source_depth: float,
-    source_x: Optional[float] = None, source_y: Optional[float] = None,
-    nx: int = 48, ny: int = 48, nz: Optional[int] = None,
-) -> Dict[str, object]:
+    source_x: float | None = None, source_y: float | None = None,
+    nx: int = 48, ny: int = 48, nz: int | None = None,
+) -> dict[str, object]:
     W, D, tb = base_width, base_depth, base_thickness
     # Keep ~nx*ny in-plane cells whatever the aspect ratio, and a few layers
     # through the thickness: the system stays small enough for a direct solve.

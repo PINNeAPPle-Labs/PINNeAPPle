@@ -44,7 +44,6 @@ amplitude/sigma multiplier on top).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional, Union
 
 import numpy as np
 from scipy.interpolate import CubicSpline, RegularGridInterpolator
@@ -58,7 +57,7 @@ class GRFDraw:
     spline: CubicSpline     # callable: spline(x) -> u(x) for arbitrary x, and
                              # spline(x, 1) / spline(x, 2) for derivatives
 
-    def __call__(self, x: "Union[np.ndarray, float]") -> np.ndarray:
+    def __call__(self, x: np.ndarray | float) -> np.ndarray:
         return self.spline(x)
 
     def sensors(self, x_sensors: np.ndarray) -> np.ndarray:
@@ -79,8 +78,8 @@ def sample_grf_batch(
     n_grid: int = 1000,
     length_scale: float = 0.2,
     jitter: float = 1e-10,
-    seed: Optional[int] = None,
-) -> List[GRFDraw]:
+    seed: int | None = None,
+) -> list[GRFDraw]:
     """Draw n_draws independent zero-mean GRF paths sharing ONE Cholesky
     factorization of the RBF covariance on a common fine grid.
     """
@@ -108,8 +107,8 @@ def sample_grf_paths(
     n_grid: int = 1000,
     length_scale: float = 0.2,
     jitter: float = 1e-10,
-    seed: Optional[int] = None,
-) -> List[GRFDraw]:
+    seed: int | None = None,
+) -> list[GRFDraw]:
     """Alias for sample_grf_batch (kept for readability at call sites that
     draw a single small batch rather than a full dataset-generation pass)."""
     return sample_grf_batch(n_draws, x_min, x_max, n_grid, length_scale, jitter, seed)
@@ -146,8 +145,8 @@ def sample_grf_2d_batch(
     nx: int = 64,
     ny: int = 64,
     length_scale: float = 0.2,
-    seed: Optional[int] = None,
-) -> List[GRFDraw2D]:
+    seed: int | None = None,
+) -> list[GRFDraw2D]:
     """Draw n_draws independent zero-mean, unit-variance 2D GRF paths on the
     normalized [0,1]x[0,1] domain via FFT spectral synthesis (see module
     docstring above). One (nx,ny) white-noise draw + one 2D FFT + one

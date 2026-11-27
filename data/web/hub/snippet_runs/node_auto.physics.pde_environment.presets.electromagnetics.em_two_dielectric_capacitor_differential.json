@@ -1,0 +1,12 @@
+{
+ "code_hash": "d5ec9d0be95ef856",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.electromagnetics.em_two_dielectric_capacitor_differential",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='em_two_dielectric_capacitor_differential', dim=2, coords=('x', 'y'), fields=('phi',), pde=PDETermSpec(kind='electrostatics', fields=('phi',), coords=('x', 'y'), params={'V': 1.0, 'd': 1.0, 'd1': 0.5, 'eps1': 1.0, 'eps2': 4.0, 'eps_fn': <function _capacitor.<locals>.<lambda> at 0x100f2ab60>}, meta={'analytic': 'em_two_dielectric_capacitor', 'physics': 'electrostatics'}), conditions=(ConditionSpec(name='plates_and_sides', kind='dirichlet', fields=('phi',), selector_type='callable', selector=<function _faces.<locals>.<lambda> at 0x115bf9800>, value_fn=<function _capacitor.<locals>.<lambda> at 0x115bb6ac0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 2048, 'n_bc': 512",
+ "timed_out": false
+}

@@ -46,11 +46,10 @@ from __future__ import annotations
 import copy
 import logging
 import random
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
 
 import torch
-import torch.nn as nn
 from torch import Tensor
 from torch.utils.data import DataLoader, Subset
 
@@ -97,7 +96,7 @@ class MetaConfig:
     first_order: bool = True
     device: str = "cpu"
     log_every: int = 50
-    save_path: Optional[str] = None
+    save_path: str | None = None
     verbose: bool = True
 
 
@@ -127,7 +126,7 @@ class TaskDistribution:
         n_query: int = 32,
         device: str = "cpu",
     ) -> None:
-        self.datasets: List[WorldModelDataset] = []
+        self.datasets: list[WorldModelDataset] = []
         for entry in catalog.entries:
             if len(entry.dataset) >= n_support + n_query:
                 self.datasets.append(entry.dataset)
@@ -144,7 +143,7 @@ class TaskDistribution:
 
     def sample(
         self, n_tasks: int = 4
-    ) -> List[Tuple[Dict[str, Tensor], Dict[str, Tensor]]]:
+    ) -> list[tuple[dict[str, Tensor], dict[str, Tensor]]]:
         """Sample *n_tasks* (support, query) batch pairs.
 
         Returns
@@ -163,7 +162,7 @@ class TaskDistribution:
             tasks.append((support, query))
         return tasks
 
-    def _collate(self, ds: WorldModelDataset, indices: List[int]) -> Dict[str, Tensor]:
+    def _collate(self, ds: WorldModelDataset, indices: list[int]) -> dict[str, Tensor]:
         sub = Subset(ds, indices)
         loader = DataLoader(sub, batch_size=len(indices), shuffle=False)
         batch = next(iter(loader))
@@ -198,12 +197,12 @@ class MetaLearner:
     def __init__(
         self,
         config: MetaConfig,
-        model_config: Optional[WorldModelConfig] = None,
+        model_config: WorldModelConfig | None = None,
     ) -> None:
         self.config = config
         self.model_config = model_config or WorldModelConfig()
-        self.meta_model: Optional[PhysicsWorldModel] = None
-        self.meta_history: List[Dict[str, float]] = []
+        self.meta_model: PhysicsWorldModel | None = None
+        self.meta_history: list[dict[str, float]] = []
 
     # ------------------------------------------------------------------
     # Main
@@ -213,7 +212,7 @@ class MetaLearner:
         self,
         catalog: DatasetCatalog,
         *,
-        warm_start: Optional[PhysicsWorldModel] = None,
+        warm_start: PhysicsWorldModel | None = None,
     ) -> PhysicsWorldModel:
         """Run the full meta-training loop.
 
@@ -278,7 +277,7 @@ class MetaLearner:
         support_dataset: WorldModelDataset,
         *,
         n_steps: int = 10,
-        lr: Optional[float] = None,
+        lr: float | None = None,
     ) -> PhysicsWorldModel:
         """Fast-adapt *model* to *support_dataset* (inner-loop only).
 
@@ -448,7 +447,7 @@ class MetaLearner:
 
     def _try_pinneapple_meta(
         self, catalog: DatasetCatalog
-    ) -> Optional[PhysicsWorldModel]:
+    ) -> PhysicsWorldModel | None:
         """Attempt to use pinneapple_meta.MAMLTrainer or ReptileTrainer."""
         try:
             from pinneapple_adaptation.meta_learning import (  # type: ignore
@@ -461,7 +460,7 @@ class MetaLearner:
 
         # Build task sampler from catalog
         datasets_by_scenario = catalog.datasets_by_scenario()
-        tasks: List[Any] = []
+        tasks: list[Any] = []
         for scenario, datasets in datasets_by_scenario.items():
             for ds in datasets:
                 tasks.append(ds)

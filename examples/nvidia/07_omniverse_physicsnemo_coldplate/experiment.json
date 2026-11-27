@@ -29,7 +29,9 @@
   "q_W_m3": 2000000.0,
   "L_m": 0.1
  },
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "test_rel_l2",

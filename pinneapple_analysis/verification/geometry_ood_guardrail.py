@@ -98,7 +98,6 @@ preset/architecture was trained or validated against, via
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
 
 import numpy as np
 from scipy.stats import chi2
@@ -121,7 +120,7 @@ __all__ = [
 #: order matters: :class:`GeometryOODGuardrail` stores its reference
 #: mean/std in this same order, and a query mesh's feature dict is turned
 #: into a vector by reading these keys in this order.
-FEATURE_NAMES: Tuple[str, ...] = (
+FEATURE_NAMES: tuple[str, ...] = (
     "centroid_x", "centroid_y", "centroid_z",
     "bbox_extent_x", "bbox_extent_y", "bbox_extent_z",
     "pca_eigenvalue_1", "pca_eigenvalue_2", "pca_eigenvalue_3",
@@ -132,7 +131,7 @@ FEATURE_NAMES: Tuple[str, ...] = (
 )
 
 
-def extract_geometry_features(mesh: MeshData) -> Dict[str, float]:
+def extract_geometry_features(mesh: MeshData) -> dict[str, float]:
     r"""Extract the 13 real, computed shape descriptors in :data:`FEATURE_NAMES`
     from a mesh.
 
@@ -206,7 +205,7 @@ def extract_geometry_features(mesh: MeshData) -> Dict[str, float]:
     return values
 
 
-def _vector_from_dict(values: Dict[str, float]) -> np.ndarray:
+def _vector_from_dict(values: dict[str, float]) -> np.ndarray:
     return np.array([values[name] for name in FEATURE_NAMES], dtype=np.float64)
 
 
@@ -269,9 +268,9 @@ class GeometryOODResult:
     dof: int
     status: str
     n_reference: int
-    feature_values: Dict[str, float]
-    feature_z_scores: Dict[str, float] = field(default_factory=dict)
-    top_deviating_features: List[Tuple[str, float]] = field(default_factory=list)
+    feature_values: dict[str, float]
+    feature_z_scores: dict[str, float] = field(default_factory=dict)
+    top_deviating_features: list[tuple[str, float]] = field(default_factory=list)
     source_summary: str = ""
 
 
@@ -317,7 +316,7 @@ class GeometryOODGuardrail:
 
     # -- fitting ---------------------------------------------------------
 
-    def fit(self, meshes: List[MeshData]) -> "GeometryOODGuardrail":
+    def fit(self, meshes: list[MeshData]) -> GeometryOODGuardrail:
         """Fit the reference mean/std from a list of real, in-distribution
         meshes (see :func:`default_reference_meshes` for a generic starting
         catalog, or pass the actual training/validation geometries of a
@@ -406,7 +405,7 @@ class GeometryOODGuardrail:
 # Default reference catalog
 # ---------------------------------------------------------------------------
 
-def default_reference_meshes() -> List[MeshData]:
+def default_reference_meshes() -> list[MeshData]:
     """A real, generic reference catalog built from
     ``pinneapple_design.geometry.gen.primitives.build_mesh`` -- box,
     cylinder, and channel domains (the base shapes several real presets in
@@ -429,7 +428,7 @@ def default_reference_meshes() -> List[MeshData]:
     """
     from pinneapple_design.geometry.gen.primitives import build_mesh
 
-    meshes: List[MeshData] = []
+    meshes: list[MeshData] = []
 
     # Boxes: 4 base sizes x 4 aspect-ratio shapes (cube, slab, rod, plate-ish)
     sizes = (0.5, 1.0, 2.0, 4.0)

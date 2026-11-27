@@ -1,0 +1,12 @@
+{
+ "code_hash": "561a2a2452a2c5b1",
+ "figures": [],
+ "id": "node:auto.data.cae.foam.dims_unit",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
+ "timed_out": false
+}

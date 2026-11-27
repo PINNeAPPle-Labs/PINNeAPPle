@@ -6,7 +6,6 @@ differential -> pronounced stick-slip, matching the well-known physical
 mechanism the model is built to reproduce)."""
 from __future__ import annotations
 
-import numpy as np
 import pytest
 
 from pinneapple_systems.process_components.torsional_stickslip import (

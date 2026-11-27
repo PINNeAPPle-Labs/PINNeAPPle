@@ -71,7 +71,10 @@
    ]
   }
  },
- "scripts": [],
+ "scripts": [
+  "01_run_study.py",
+  "02_report.py"
+ ],
  "metrics": [
   {
    "name": "all_properties_direct_interp_error",

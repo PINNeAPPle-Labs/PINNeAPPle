@@ -1,6 +1,5 @@
 """Shallow-water FV solver: exact dam breaks (Ritter, Stoker), still-water wall force, conservation,
 gates, sensors, CSV and experiment comparison."""
-import math
 
 import numpy as np
 import pytest

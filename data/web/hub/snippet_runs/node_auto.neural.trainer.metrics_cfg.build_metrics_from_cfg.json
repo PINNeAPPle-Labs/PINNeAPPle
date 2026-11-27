@@ -1,0 +1,12 @@
+{
+ "code_hash": "0362d07b55c70090",
+ "figures": [],
+ "id": "node:auto.neural.trainer.metrics_cfg.build_metrics_from_cfg",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 34.7,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "build metrics from cfg -> pinneapple_neural.trainer.metrics_cfg:build_metrics_from_cfg\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'cfg': []}",
+ "timed_out": false
+}

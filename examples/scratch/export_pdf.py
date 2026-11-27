@@ -4,7 +4,7 @@ Renders chassis_structural_analysis.html to PDF using Playwright (headless Chrom
 Waits for MathJax, Chart.js and all images to fully render before capturing.
 """
 from __future__ import annotations
-import asyncio, os, sys, time
+import asyncio, os, time
 
 # examples/ (this script now lives in examples/scratch/, one level deeper)
 _DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

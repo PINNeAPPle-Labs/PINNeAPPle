@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 
 def _write_json(path: Path, obj: Any) -> None:
@@ -30,9 +29,9 @@ def write_run_artifacts(
     *,
     artifacts_dir: str | Path,
     run_id: str,
-    report: Dict[str, Any],
-    metrics: Dict[str, Any],
-    summary: Dict[str, Any],
+    report: dict[str, Any],
+    metrics: dict[str, Any],
+    summary: dict[str, Any],
 ) -> Path:
     """
     Persist run artifacts (report, metrics, summary) to disk.

@@ -1,0 +1,12 @@
+{
+ "code_hash": "2f26d1fe558dbeb3",
+ "figures": [],
+ "id": "node:auto.physics.pinn_solver.io.build_default_mapping_atmosphere",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 30.21,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINNMapping\nPINNMapping(coord=CoordMapping(ind_vars=['t', 'lat', 'lon'], coord_sources={'t': 'time', 'lat': 'lat', 'lon': 'lon'}, coord_transform={'t': 'seconds_since_start', 'lat': 'deg2rad', 'lon': 'deg2rad'}, normalize_to_unit=True), var=VarMapping(dep_vars=[], upd_to_dep={}, enforce_present=True))",
+ "timed_out": false
+}

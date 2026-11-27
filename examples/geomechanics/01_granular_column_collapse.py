@@ -86,6 +86,10 @@ fig.savefig(os.path.join(ASSETS, "column_collapse.png"), dpi=110, bbox_inches="t
 
 from PIL import Image  # noqa: E402
 
+from pinneapple_tools.visualization.style import use_theme  # noqa: E402
+
+use_theme("report")   # one theme for every figure of the library (#918)
+
 frames = res[2.0]["frames"]
 imgs = []
 for fr in frames:

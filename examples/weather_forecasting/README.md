@@ -48,6 +48,86 @@ it uses mixed precision (about 27 samples/s on 4 cores); a GPU is not needed but
   well forecast, next to IFS HRES and Pangu-Weather).
 - `data/rs_floods_2024_40.npy`: ERA5 states of the 2024 Rio Grande do Sul floods (ARCO, 0.25 degree averaged onto
   the grid; float16), so the slow download is not repeated.
+- `hurricane_ian.py`: Hurricane Ian 2022 end to end — the best track, the vortex inside the reanalysis and inside two
+  published forecasts, with the lead at which each stops being usable (see the section below).
+- `pretrained_ensemble.py`: IFS HRES, Pangu-Weather and the model trained here as experts of one `PhysicsEnsemble`,
+  with the weather checks deciding which of them the case belongs to (see the section below).
+
+## Bring your own model: three experts over 2020 (#348)
+
+`pretrained_ensemble.py` wraps the two published forecasts and the phase-1 checkpoint as `Expert`s with
+`pinneapple_physics.pretrained.from_pretrained_expert` — each arrives with its source, its licence and its cost
+estimate — and learns one `PhysicsEnsemble` per latitude band and season, with `advection_check` and `energy_check`
+from `pinneapple_physics.domain_checks` as the label-free `prediction_checks`.
+
+```bash
+python examples/weather_forecasting/pretrained_ensemble.py wx/era5 \
+    examples/weather_forecasting/checkpoints/phase1_step15000_fp16.pt --out wx/pretrained --every-days 30
+```
+
+11 initialisations of 2020, +6 h to +240 h, four bands × four seasons. The first run reads the published archives over
+HTTPS (748 s for the 11 cases) and caches them; a rerun is offline and writes
+`wx/pretrained/pretrained_ensemble_2020.json`.
+
+Measured 2026-11-27 (the run itself is in `data/pretrained_ensemble_2020.json`):
+
+| | ensemble | IFS HRES | Pangu-Weather | PINNeAPPle |
+|---|---|---|---|---|
+| relative L2, +6 h to +240 h | **0.0079** | 0.0086 | 0.0081 | 0.0152 |
+| RMSE at day 5 (m²/s²) | 235 | **207** | 212 | 541 |
+| cases a check took it out of | — | 0 % | 5.7 % | 18.8 % |
+
+The ensemble is the best of the four over the window and worse than IFS HRES at day 5; it wins 7 of the 16 cells. The
+check that separates them is the dry static energy drift, and it flags each model where it leaves its domain — Pangu
+only in the tropics, the phase-1 model in the Arctic (100 % of the DJF cases) — while the advection residual sits at
+about 0.95 for all four, the analysis included, because `z500` is not materially advected. The numbers, the tolerances
+and the reasons are in `docs/guides/pretrained_experts.md`.
+
+## A hurricane end to end: Ian 2022 (#366)
+
+`hurricane_ian.py` is the part of the #366 showcase this library can measure today: one storm in the official record,
+in a reanalysis and in two published global forecasts, with the number each stage earns. It is not the five-stage
+globe of the issue — the satellite imagery (#264), the satellite nowcast, the operational hydrology chain (#327) and
+the twin3d scene of the flooded neighbourhood (#284) are separate work that does not exist here yet. What is here is
+the chain from the analysis to the forecast horizon, and the measurement that tells the showcase where that chain has
+to hand over.
+
+```bash
+python examples/weather_forecasting/hurricane_ian.py --coarse     # needs a network the first time; writes _out/hurricane_ian/
+```
+
+Only the storm's box (161 x 201 cells) is read from each store, and only the crop is kept — about 40 MB in
+`~/.cache/pinneapple/hurricane`, nothing in the repository (`--offline` afterwards is free).
+
+Measured on 2026-11-26 for Ian (`AL092022`, 40 records from 22 Sep 18 UTC to 1 Oct 06 UTC, peak 140 kt at 937 hPa),
+with the centre tracked as the deepest pressure minimum within 400 km of the previous position:
+
+| stage | what it measured |
+|---|---|
+| **now** — ERA5 0.25°, 23-29 Sep, 28 times | the storm found at 28/28 times; median track error **17 km** (max 94), central pressure **+7 hPa** too shallow, equivalent wind -10 kt |
+| **next days** — IFS HRES, 10 initialisations, +6 to +120 h | track error **19 km at +6 h, 46 at +24, 105 at +48, 262 at +120**; intensity -13 kt (+10 hPa); the 20 kt intensity error is reached at **52 h** |
+| **next days** — Pangu-Weather, same initialisations | **20, 30, 38, 148 km**; intensity -25 kt (+17 hPa); the 20 kt intensity error is reached at +6 h |
+| **the grid** — the same two on 64 x 32 (5.625°) | the storm is present at **34 %** (IFS) and **25 %** (Pangu) of the leads, and 23-24 hPa too shallow when it is found |
+
+The last row is the honest note the issue asks to put on screen: a cell 5.625° wide is about 500 km across, wider than
+the storm's core, so the question stops being "how wrong is the track" and becomes "is there a storm in the field at
+all" — and a quarter to a third of the time there is not. That is why a chain for the last hours before landfall hands
+over to a finer model instead of asserting skill the grid cannot hold.
+
+Two measures are worth reading carefully:
+
+- **Intensity is compared in two units.** Central pressure directly, and maximum wind through the Atkinson & Holliday
+  (1977) relation `W = 6.7 (1010 - p)^0.644`. The relation turns a grid minimum into an *equivalent* wind — it is
+  named wherever it appears and it is not a model wind; both sides of the comparison use it, so the sign is a
+  comparison of intensities and not of two wind definitions.
+- **The 500 km track horizon never arrives within the five days measured** and, at +120 h, exactly half the forecasts
+  still have a storm and an official position to compare, which is the coin toss the caller set — so the honest
+  statement is the *found fraction* falling, not a track error blowing past a threshold. `summary.json` carries both,
+  together with the store, variable, initialisation and licence behind every lead it quotes.
+
+`_out/hurricane_ian/` holds `summary.json` (every number with its protocol and data provenance), `ian_globe.png`,
+`ian_globe.gif` (the reanalysis crossing the Earth-2 globe, 6 h a frame) and `ian_track_<model>.png` (track and
+intensity error by lead, with the horizons marked).
 
 ## Data and attribution
 
@@ -56,3 +136,8 @@ ERA5 reanalysis (Hersbach et al., 2020) from the Copernicus Climate Change Servi
 information; neither the European Commission nor ECMWF is responsible for any use of it. The published forecasts
 (IFS HRES, Pangu-Weather, Keisler, NeuralGCM) are read from WeatherBench2; only their scores are stored here.
 Coastlines: Natural Earth (public domain).
+
+The hurricane case reads the NHC North Atlantic Hurricane Database (HURDAT2; Landsea & Franklin, 2013,
+<https://www.nhc.noaa.gov/data/hurdat/>), a US Government work in the public domain, downloaded once and cited with
+its file name and SHA-256 in `summary.json`; the store it was read from, the variable and the licence accompany every
+number, and only the extracted crop is cached, never the raw global field.

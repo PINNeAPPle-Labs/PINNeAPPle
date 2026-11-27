@@ -49,7 +49,8 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any
+from collections.abc import Callable
 
 from .physics_tools import PhysicsToolRegistry, PhysicsTool
 
@@ -67,7 +68,7 @@ class _GatedTool:
     forwarded unchanged to the real tool -- this wrapper only intercepts
     invocation, never the tool's own metadata/behavior."""
 
-    def __init__(self, tool: PhysicsTool, gate: "Callable[[str, Dict[str, Any]], None]") -> None:
+    def __init__(self, tool: PhysicsTool, gate: Callable[[str, dict[str, Any]], None]) -> None:
         self._tool = tool
         self._gate = gate
 
@@ -95,7 +96,7 @@ class _GatedToolRegistry:
     line of the real, unmodified :class:`PhysicsToolRegistry`/``PhysicsTool``.
     """
 
-    def __init__(self, registry: PhysicsToolRegistry, gate: "Callable[[str, Dict[str, Any]], None]") -> None:
+    def __init__(self, registry: PhysicsToolRegistry, gate: Callable[[str, dict[str, Any]], None]) -> None:
         self._registry = registry
         self._gate = gate
 
@@ -144,21 +145,21 @@ class ProblemStatement:
     """
     kind: str = "forward"
     description: str = ""
-    pde_hint: Optional[str] = None
-    domain_hint: Optional[str] = "unit_square"
-    scenarios: List[str] = field(
+    pde_hint: str | None = None
+    domain_hint: str | None = "unit_square"
+    scenarios: list[str] = field(
         default_factory=lambda: ["heat_2d", "burgers_1d", "advection_2d"]
     )
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     observations: Any = None
     model: Any = None
     n_samples: int = 200
     n_steps: int = 50
     device: str = "cpu"
-    output: List[str] = field(default_factory=lambda: ["model"])
-    save_dir: Optional[str] = None
+    output: list[str] = field(default_factory=lambda: ["model"])
+    save_dir: str | None = None
     verbose: bool = True
-    extra: Dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -178,10 +179,10 @@ class OrchestratorResult:
     logs : list of str
     """
     kind: str
-    artifacts: Dict[str, Any] = field(default_factory=dict)
-    plan: List[str] = field(default_factory=list)
+    artifacts: dict[str, Any] = field(default_factory=dict)
+    plan: list[str] = field(default_factory=list)
     elapsed_s: float = 0.0
-    logs: List[str] = field(default_factory=list)
+    logs: list[str] = field(default_factory=list)
 
     def __getitem__(self, key: str) -> Any:
         return self.artifacts[key]
@@ -242,9 +243,9 @@ class PhysicsOrchestrator:
 
     def __init__(
         self,
-        registry: Optional[PhysicsToolRegistry] = None,
+        registry: PhysicsToolRegistry | None = None,
         verbose: bool = True,
-        tool_gate: "Optional[Callable[[str, Dict[str, Any]], None]]" = None,
+        tool_gate: Callable[[str, dict[str, Any]], None] | None = None,
     ) -> None:
         if registry is None:
             registry = PhysicsToolRegistry()
@@ -320,7 +321,6 @@ class PhysicsOrchestrator:
         from .specialist_trainer import SpecialistTrainer, SpecialistConfig
         from .meta_learning import MetaLearner, MetaConfig
         from .mega_model import PhysicsFoundationModel, FoundationConfig
-        from .model_zoo import ModelZoo
         from .benchmark import PhysicsBenchmark
 
         p = problem
@@ -732,7 +732,7 @@ class PhysicsOrchestrator:
     # Convenience
     # ------------------------------------------------------------------
 
-    def list_tools(self, category: Optional[str] = None) -> None:
+    def list_tools(self, category: str | None = None) -> None:
         """Print all available tools (optionally filtered by category)."""
         if category:
             tools = self.registry.list_by_category(category)
@@ -743,7 +743,7 @@ class PhysicsOrchestrator:
             status = "✓" if t.is_available() else "✗"
             print(f"  {status} [{t.category:15s}] {t.name:35s} — {t.description}")
 
-    def tool_chain_for(self, kind: str) -> List[str]:
+    def tool_chain_for(self, kind: str) -> list[str]:
         """Return the list of tool names that would be called for *kind*."""
         dummy = ProblemStatement(kind=kind, verbose=False)
         r = OrchestratorResult(kind=kind)

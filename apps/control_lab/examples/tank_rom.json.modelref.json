@@ -89,6 +89,10 @@
   "run_ids": [],
   "library_version": "0.7.0",
   "created": "2026-10-17T11:26:44Z",
-  "notes": "whole trajectories held out (last 3)"
+  "notes": "whole trajectories held out (last 3)",
+  "solver": "pinneapple_systems.operations.rom (controlled operator inference)",
+  "seed": "deterministic",
+  "data_hash": "sha256:6991bf9f21a9d705ad82a5e942842f687dc15edafe05f7b0488e5a2be73cc7a7",
+  "commit": "64e81fe6a1b5deea4e032676ab26c914ea58124b"
  }
 }

@@ -1,0 +1,12 @@
+{
+ "code_hash": "55710ae5bd7327c5",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.industry.helmholtz_acoustics_3d_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "helmholtz acoustics 3d default -> pinneapple_physics.pde_environment.presets.industry:helmholtz_acoustics_3d_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

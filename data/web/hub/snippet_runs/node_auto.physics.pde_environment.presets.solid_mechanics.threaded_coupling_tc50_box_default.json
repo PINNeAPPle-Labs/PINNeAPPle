@@ -1,0 +1,12 @@
+{
+ "code_hash": "e4a0f8d7fc114dd9",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.solid_mechanics.threaded_coupling_tc50_box_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "threaded coupling tc50 box default -> pinneapple_physics.pde_environment.presets.solid_mechanics:threaded_coupling_tc50_box_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'clearance': 0.1, 'thread_height': 0.8, 'offset': 1.0, 'E': 210000000000.0, 'nu': 0.3, 'traction_top': 100000000.0}",
+ "timed_out": false
+}

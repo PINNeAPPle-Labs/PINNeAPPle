@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 import io
 import math
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def _sanitize(obj: Any) -> Any:
@@ -19,7 +19,7 @@ def _sanitize(obj: Any) -> Any:
     return obj
 
 
-def build_benchmark_payload(result) -> Dict[str, Any]:
+def build_benchmark_payload(result) -> dict[str, Any]:
     """Convert an ExperimentResult into a JSON-serialisable benchmark payload.
 
     Returns
@@ -50,10 +50,13 @@ def build_benchmark_payload(result) -> Dict[str, Any]:
         # generalization, variables, weights, UQ, physics checks, verdict).
         "reports":       {name: r.report for name, r in result.model_results.items()
                           if r.report is not None},
+        # One pp.Experiment record per model -- what ran, with the seed, the options and the problem
+        # fingerprint, in the shape a saved library experiment has (issue #29).
+        "experiments":   getattr(result, "experiments", []),
     })
 
 
-def _build_charts(result) -> Dict[str, str]:
+def _build_charts(result) -> dict[str, str]:
     """Produce all charts as base64-encoded PNG strings."""
     try:
         import matplotlib

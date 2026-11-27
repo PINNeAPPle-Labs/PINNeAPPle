@@ -1,0 +1,12 @@
+{
+ "code_hash": "e9c53c3e2aa80a4f",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.space_debris_cw_relative_motion",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 15.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='space_debris_cw_relative_motion', dim=0, coords=('t',), fields=('x', 'y', 'z', 'vx', 'vy', 'vz'), pde=PDETermSpec(kind='space_debris_cw_relative_motion', fields=('x', 'y', 'z', 'vx', 'vy', 'vz'), coords=('t',), params={'n': 0.0011}, meta={'note': 'Clohessy-Wiltshire relative motion about a circular reference orbit.', 'reference_orbit_period_s': 5711.9866428905325, 'exact_state_fn': 'pinneapple_physics.pde_environment.presets.astrophysics._cw_exact_state'}), conditions=(ConditionSpec(name='ic_x', kind='initial', fields=('x',), selector_type='callable', selector=<function space_debris_cw_relative_motion.<locals>._mk_ic.<locals>.<lambda> at 0x117ada520>, value_fn=<function space_debris_cw_relative_motion.<locals>._mk_ic.<locals>.<lambda> at 0x117ada660>, weight=20.0, order=1",
+ "timed_out": false
+}

@@ -4,7 +4,6 @@ from __future__ import annotations
 import math
 import re
 from datetime import datetime, timezone
-from typing import Iterable, List, Optional, Tuple
 
 from .models import RankedItem
 
@@ -12,7 +11,7 @@ from .models import RankedItem
 _WORD_RE = re.compile(r"[A-Za-z0-9_]+")
 
 
-def tokenize(text: str) -> List[str]:
+def tokenize(text: str) -> list[str]:
     return [t.lower() for t in _WORD_RE.findall(text or "") if t.strip()]
 
 
@@ -29,7 +28,7 @@ def lexical_overlap_score(query: str, doc: str) -> float:
     return float(hit) / float(len(q))
 
 
-def safe_parse_iso8601(dt: str) -> Optional[datetime]:
+def safe_parse_iso8601(dt: str) -> datetime | None:
     if not dt or not isinstance(dt, str):
         return None
     s = dt.strip()
@@ -42,7 +41,7 @@ def safe_parse_iso8601(dt: str) -> Optional[datetime]:
         return None
 
 
-def freshness_score(dt: Optional[datetime], *, half_life_days: float = 365.0) -> float:
+def freshness_score(dt: datetime | None, *, half_life_days: float = 365.0) -> float:
     """
     Exponential decay freshness score (0..1).
     score=1 now, ~0.5 at half_life_days, decays afterwards.
@@ -57,7 +56,7 @@ def freshness_score(dt: Optional[datetime], *, half_life_days: float = 365.0) ->
     return float(math.exp(-lam * age_days))
 
 
-def normalize(xs: List[float]) -> List[float]:
+def normalize(xs: list[float]) -> list[float]:
     if not xs:
         return xs
     mn, mx = min(xs), max(xs)
@@ -66,5 +65,5 @@ def normalize(xs: List[float]) -> List[float]:
     return [(x - mn) / (mx - mn) for x in xs]
 
 
-def sort_ranked(items: List[RankedItem]) -> List[RankedItem]:
+def sort_ranked(items: list[RankedItem]) -> list[RankedItem]:
     return sorted(items, key=lambda x: x.score, reverse=True)

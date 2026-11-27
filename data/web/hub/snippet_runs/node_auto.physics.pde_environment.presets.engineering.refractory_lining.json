@@ -1,0 +1,12 @@
+{
+ "code_hash": "07ad010b7c3330d0",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.refractory_lining",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='refractory_lining', dim=2, coords=('x', 'z'), fields=('T',), pde=PDETermSpec(kind='heat_equation_steady_multilayer', fields=('T',), coords=('x', 'z'), params={'layers': [{'k': 1.8, 'thickness': 0.1, 'name': 'working_lining'}, {'k': 0.5, 'thickness': 0.2, 'name': 'safety_lining'}, {'k': 0.08, 'thickness': 0.2, 'name': 'insulation'}], 'k_eff': 0.16917293233082706}, meta={}), conditions=(ConditionSpec(name='hot_face', kind='dirichlet', fields=('T',), selector_type='tag', selector={'tag': 'hot_face'}, value_fn=<function _const_value_fn.<locals>._fn at 0x108898fe0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='cold_face', kind='dirichlet', fields=('T',), selector_type='tag', se",
+ "timed_out": false
+}

@@ -17,7 +17,8 @@ from __future__ import annotations
 
 import copy
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -36,7 +37,7 @@ from .freeze import (
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _parse_loss(loss_out: Any) -> Tuple[torch.Tensor, Dict[str, float]]:
+def _parse_loss(loss_out: Any) -> tuple[torch.Tensor, dict[str, float]]:
     """Normalise loss_fn output to ``(total_tensor, component_dict)``."""
     if isinstance(loss_out, torch.Tensor):
         return loss_out, {"total": float(loss_out.item())}
@@ -55,9 +56,9 @@ def _parse_loss(loss_out: Any) -> Tuple[torch.Tensor, Dict[str, float]]:
     )
 
 
-def _move_data(data: Dict[str, Any], device: torch.device) -> Dict[str, Any]:
+def _move_data(data: dict[str, Any], device: torch.device) -> dict[str, Any]:
     """Recursively move tensors in a batch dict to *device*."""
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for k, v in data.items():
         if isinstance(v, torch.Tensor):
             out[k] = v.to(device)
@@ -162,11 +163,11 @@ class TransferTrainer:
 
     def finetune(
         self,
-        target_physics_fn: Callable[[nn.Module, Dict[str, Any]], Any],
-        target_data: Optional[Dict[str, torch.Tensor]] = None,
-        n_epochs: Optional[int] = None,
-        callbacks: Optional[List[Any]] = None,
-    ) -> Dict[str, Any]:
+        target_physics_fn: Callable[[nn.Module, dict[str, Any]], Any],
+        target_data: dict[str, torch.Tensor] | None = None,
+        n_epochs: int | None = None,
+        callbacks: list[Any] | None = None,
+    ) -> dict[str, Any]:
         """Run the fine-tuning loop against a target physics loss.
 
         Parameters
@@ -226,11 +227,11 @@ class TransferTrainer:
         optimizer = torch.optim.Adam(param_groups)
 
         # Move target data to device once.
-        td: Optional[Dict[str, torch.Tensor]] = None
+        td: dict[str, torch.Tensor] | None = None
         if target_data is not None:
             td = {k: v.to(self.device) for k, v in target_data.items()}
 
-        history: List[Dict[str, Any]] = []
+        history: list[dict[str, Any]] = []
         progressive = cfg.strategy == "progressive"
 
         for epoch in range(epochs):
@@ -286,7 +287,7 @@ class TransferTrainer:
             optimizer.step()
 
             epoch_sec = time.time() - t0
-            logs: Dict[str, Any] = {
+            logs: dict[str, Any] = {
                 "epoch": epoch,
                 "loss_total": float(loss.item()),
                 "loss_physics": float(phys_loss.item()),
@@ -320,11 +321,11 @@ class TransferTrainer:
 
     def progressive_unfreeze(
         self,
-        target_physics_fn: Callable[[nn.Module, Dict[str, Any]], Any],
-        unfreeze_schedule: List[Tuple[int, List[str]]],
-        target_data: Optional[Dict[str, torch.Tensor]] = None,
-        callbacks: Optional[List[Any]] = None,
-    ) -> Dict[str, Any]:
+        target_physics_fn: Callable[[nn.Module, dict[str, Any]], Any],
+        unfreeze_schedule: list[tuple[int, list[str]]],
+        target_data: dict[str, torch.Tensor] | None = None,
+        callbacks: list[Any] | None = None,
+    ) -> dict[str, Any]:
         """Fine-tune with a custom epoch-level layer-unfreezing schedule.
 
         The total number of epochs is determined by the last entry in
@@ -365,7 +366,7 @@ class TransferTrainer:
         total_epochs = last_epoch + self.config.epochs
         callbacks = callbacks or []
 
-        td: Optional[Dict[str, torch.Tensor]] = None
+        td: dict[str, torch.Tensor] | None = None
         if target_data is not None:
             td = {k: v.to(self.device) for k, v in target_data.items()}
 
@@ -373,7 +374,7 @@ class TransferTrainer:
         # Build initial optimizer (only currently trainable params).
         optimizer = self._build_optimizer()
 
-        history: List[Dict[str, Any]] = []
+        history: list[dict[str, Any]] = []
         schedule_idx = 0
 
         for epoch in range(total_epochs):
@@ -417,7 +418,7 @@ class TransferTrainer:
             optimizer.step()
 
             epoch_sec = time.time() - t0
-            logs: Dict[str, Any] = {
+            logs: dict[str, Any] = {
                 "epoch": epoch,
                 "loss_total": float(loss.item()),
                 "loss_physics": float(phys_loss.item()),

@@ -39,10 +39,29 @@ def channel_names(levels=LEVELS) -> list[str]:
     return [f"{s}{lev}" for s in UPPER.values() for lev in levels] + list(SURFACE.values())
 
 
-def _open(url: str):
+HTTPS = "https://storage.googleapis.com/"
+
+
+def _gcsfs_available() -> bool:
+    try:
+        import gcsfs  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+def open_zarr(url: str):
+    """Open a WeatherBench2 store: ``gs://`` through ``gcsfs`` when it is installed, else the public HTTPS endpoint
+    with the consolidated metadata (one range read per chunk, no account, no extra package)."""
     import xarray as xr
 
-    return xr.open_zarr(url, storage_options={"token": "anon"})
+    if url.startswith("gs://") and _gcsfs_available():
+        return xr.open_zarr(url, storage_options={"token": "anon"})
+    return xr.open_zarr(url.replace("gs://", HTTPS), consolidated=True)
+
+
+def _open(url: str):
+    return open_zarr(url)
 
 
 def _to_array(ds, t0, t1, levels) -> np.ndarray:

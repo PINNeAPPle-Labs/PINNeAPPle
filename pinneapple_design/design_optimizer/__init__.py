@@ -41,6 +41,15 @@ from .adjoint import (
     naca_parametric,
 )
 from .pareto import ParetoFront, pareto_dominates, compute_pareto_front, representatives
+from .robust import (
+    RobustPareto,
+    RobustSolution,
+    chance_constrained,
+    mean_plus_k_sigma,
+    pareto_with_uncertainty,
+    reliability_based,
+    verify_robust,
+)
 from .objective import (
     ObjectiveBase,
     DragObjective,
@@ -57,6 +66,7 @@ from .constraints import (
     ManufacturabilityConstraint,
     ConstraintSet,
 )
+from .survivors import TRUST_LEVELS, TrustVerdict, constrained_select, trust_aware_survivors
 from .surrogate import SurrogateConfig, PhysicsSurrogate
 from .optimizer import (
     ParamSpace,
@@ -83,6 +93,11 @@ from .report import (
     to_parameter_space, designs_frame, study_result, surrogate_from_table, model_ref_for_surrogate, table_evaluator,
     verify_front, write_design_files, chart_points, verify_uploaded_results, DESIGN_FILES,
 )
+from .quality_diversity import (
+    BehaviourAxis, BehaviourSpace, descriptor_vector, descriptor_axes, Evaluation, Elite, DiversityReport,
+    EliteArchive, QDConfig, QDSearchResult, QualityDiversitySearch, BaselineSearch, latin_hypercube,
+    uniform_search, FailingCell, FailureRegion, find_failure_region, plot_archive,
+)
 
 __all__ = [
     # Adjoint shape optimisation (Feature 16)
@@ -92,6 +107,11 @@ __all__ = [
     "naca_parametric",
     # Pareto / multi-objective
     "ParetoFront", "pareto_dominates", "compute_pareto_front", "representatives",
+    # trust-aware survivor selection (#297): see .trust_survivors for the decision and its measurements
+    "TRUST_LEVELS", "TrustVerdict", "constrained_select", "trust_aware_survivors",
+    # robust design under uncertainty (#80)
+    "RobustSolution", "RobustPareto", "mean_plus_k_sigma", "chance_constrained", "reliability_based",
+    "verify_robust", "pareto_with_uncertainty",
     "ObjectiveBase", "DragObjective", "ThermalEfficiencyObjective",
     "StructuralObjective", "WeightMinimizationObjective", "CompositeObjective",
     "ConstraintBase", "BoxConstraint", "MassConservationConstraint",
@@ -112,4 +132,8 @@ __all__ = [
     "to_parameter_space", "designs_frame", "study_result", "surrogate_from_table", "model_ref_for_surrogate",
     "table_evaluator", "verify_front", "write_design_files", "chart_points", "verify_uploaded_results", "DESIGN_FILES",
     "SpecError", "problem_from_spec", "reference_for_spec", "zoo_problem",
+    # Quality-diversity: a map of designs, and the map of where a model fails (#354)
+    "BehaviourAxis", "BehaviourSpace", "descriptor_vector", "descriptor_axes", "Evaluation", "Elite",
+    "DiversityReport", "EliteArchive", "QDConfig", "QDSearchResult", "QualityDiversitySearch", "BaselineSearch",
+    "latin_hypercube", "uniform_search", "FailingCell", "FailureRegion", "find_failure_region", "plot_archive",
 ]

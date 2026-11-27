@@ -7,7 +7,6 @@ Lista módulos e símbolos públicos sem texto em português, e chaves que não 
 from __future__ import annotations
 
 import json
-import re
 import sys
 from pathlib import Path
 

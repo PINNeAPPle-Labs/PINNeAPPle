@@ -1,0 +1,12 @@
+{
+ "code_hash": "d8fd71ce841c3722",
+ "figures": [],
+ "id": "node:auto.data.contracts.models.from_dict",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 28.43,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "from dict -> pinneapple_data.contracts.models:from_dict\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'data': {}}",
+ "timed_out": false
+}

@@ -1,21 +1,22 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any
+from collections.abc import Callable
 import torch.nn as nn
 
 from .registry import ModelRegistry
 
 
 def register_family_registry(
-    family_registry: Dict[str, Type[nn.Module]],
+    family_registry: dict[str, type[nn.Module]],
     *,
     family: str,
-    description_getter: Optional[Callable[[str, Type[nn.Module]], str]] = None,
-    tags_getter: Optional[Callable[[str, Type[nn.Module]], List[str]]] = None,
-    capabilities_getter: Optional[Callable[[str, Type[nn.Module]], Dict[str, Any]]] = None,
+    description_getter: Callable[[str, type[nn.Module]], str] | None = None,
+    tags_getter: Callable[[str, type[nn.Module]], list[str]] | None = None,
+    capabilities_getter: Callable[[str, type[nn.Module]], dict[str, Any]] | None = None,
 ) -> None:
     """Registers a dictionary-like family registry into the global ModelRegistry."""
-    seen_classes: set[Type[nn.Module]] = set()
+    seen_classes: set[type[nn.Module]] = set()
 
     for name, model_cls in family_registry.items():
         # ✅ skip aliases (same class referenced by multiple keys)

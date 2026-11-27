@@ -741,6 +741,9 @@ __all__ = ["ExternalFlow", "FlowResult", "CaseFields", "run_case", "write_flow_f
 
 
 def __getattr__(name):                                # pp.cfd.FreeSurfaceFlow and friends, without an import cycle
+    if name == "validation":                          # pp.cfd.validation: the classical cases and their tables (#272)
+        from pinneapple_simulation import cfd_validation
+        return cfd_validation
     if name in ("FreeSurfaceFlow", "Phase", "SampleLine", "split_surface", "sample_lines", "time_average"):
         from . import free_surface
         return getattr(free_surface, name)

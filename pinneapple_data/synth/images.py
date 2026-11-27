@@ -1,7 +1,8 @@
 """Image reconstruction and inpainting synthetic generator."""
 from __future__ import annotations
 
-from typing import Any, Optional, Callable
+from typing import Any
+from collections.abc import Callable
 import torch
 import torch.nn as nn
 
@@ -141,7 +142,7 @@ class ImageReconstructionSynthGenerator:
       mask: same spatial shape (H,W) bool or 0/1
         mask==1 means MISSING region to reconstruct
     """
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """
         Initialize the image reconstruction generator.
 
@@ -157,11 +158,11 @@ class ImageReconstructionSynthGenerator:
         self,
         *,
         img: Any,
-        mask: Optional[Any] = None,
+        mask: Any | None = None,
         mode: str = "inpaint_smooth",
         steps: int = 200,
-        ae_model: Optional[nn.Module] = None,
-        post_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        ae_model: nn.Module | None = None,
+        post_fn: Callable[[torch.Tensor], torch.Tensor] | None = None,
     ) -> SynthOutput:
         """
         Generate a corrupted image and a reconstruction according to the selected mode.

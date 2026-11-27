@@ -16,7 +16,9 @@
   "pinneapple_tools.nvidia.omniverse"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run.py"
+ ],
  "metrics": [
   {
    "name": "within_4px_all_samples",

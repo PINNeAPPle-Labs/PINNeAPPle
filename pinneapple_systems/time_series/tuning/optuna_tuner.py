@@ -1,6 +1,7 @@
 """Optuna-based HPO for all timeseries forecasters (neural + classical)."""
 from __future__ import annotations
-from typing import Any, Callable, Dict, Optional, Tuple, Type
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -22,7 +23,7 @@ def temporal_split(
     y: np.ndarray,
     val_frac: float = 0.15,
     test_frac: float = 0.15,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Chronological 3-way split → (X_tr, y_tr, X_val, y_val, X_te, y_te)."""
     n = len(X)
     i_val  = int(n * (1 - val_frac - test_frac))
@@ -38,7 +39,7 @@ def temporal_split(
 # Classical ML tuner
 # ---------------------------------------------------------------------------
 
-_CLASSICAL_SEARCH_SPACES: Dict[str, Callable] = {
+_CLASSICAL_SEARCH_SPACES: dict[str, Callable] = {
     "xgboost": lambda t: {
         "n_estimators":   t.suggest_int("n_estimators", 100, 600),
         "max_depth":      t.suggest_int("max_depth", 3, 10),
@@ -64,7 +65,7 @@ _CLASSICAL_SEARCH_SPACES: Dict[str, Callable] = {
     },
 }
 
-_CLASSICAL_FACTORY: Dict[str, Any] = {}
+_CLASSICAL_FACTORY: dict[str, Any] = {}
 
 
 def _get_classical_factory():
@@ -95,7 +96,7 @@ class ClassicalTuner:
         n_trials: int = 30,
         direction: str = "minimize",
         metric: str = "mae",
-        timeout: Optional[int] = None,
+        timeout: int | None = None,
     ):
         if not _OPTUNA_AVAILABLE:
             raise ImportError("pip install optuna")
@@ -104,7 +105,7 @@ class ClassicalTuner:
         self.direction  = direction
         self.metric     = metric
         self.timeout    = timeout
-        self.best_params_: Optional[Dict] = None
+        self.best_params_: dict | None = None
 
     def fit(
         self,
@@ -134,7 +135,7 @@ class ClassicalTuner:
 # Neural tuner (PyTorch)
 # ---------------------------------------------------------------------------
 
-_NEURAL_SEARCH_SPACES: Dict[str, Callable] = {
+_NEURAL_SEARCH_SPACES: dict[str, Callable] = {
     "lstm": lambda t, cfg: {
         "hidden_size": t.suggest_categorical("hidden_size", [64, 128, 256]),
         "num_layers":  t.suggest_int("num_layers", 1, 4),
@@ -166,7 +167,7 @@ _NEURAL_SEARCH_SPACES: Dict[str, Callable] = {
 }
 
 
-def _build_neural(model_type: str, params: Dict, base_cfg: Dict):
+def _build_neural(model_type: str, params: dict, base_cfg: dict):
     from ..models import LSTMForecaster, GRUForecaster, TCNForecaster, NBeats, TFTForecaster
     from ..models import RecurrentConfig, TCNConfig, NBeatsConfig, TFTConfig
     merged = {**base_cfg, **params}
@@ -203,8 +204,8 @@ class NeuralTuner:
         horizon: int = 16,
         n_features: int = 1,
         n_targets: int = 1,
-        device: Optional[str] = None,
-        timeout: Optional[int] = None,
+        device: str | None = None,
+        timeout: int | None = None,
     ):
         if not _OPTUNA_AVAILABLE:
             raise ImportError("pip install optuna")
@@ -218,7 +219,7 @@ class NeuralTuner:
         self.timeout         = timeout
         self.base_cfg        = dict(input_len=input_len, horizon=horizon,
                                     n_features=n_features, n_targets=n_targets)
-        self.best_params_: Optional[Dict] = None
+        self.best_params_: dict | None = None
 
     def _train_eval(self, model, X_tr, y_tr, X_val, y_val) -> float:
         import torch

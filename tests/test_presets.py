@@ -19,6 +19,25 @@ SLOW = pytest.mark.skipif(not os.environ.get("PINNEAPPLE_SLOW"), reason="slow: s
 NAMES = P.names()
 
 
+def _found() -> dict[str, bool]:
+    """The external binaries a preset may declare in ``needs``: found once, on PATH or through the variable that
+    points at them (``CCX_BIN`` for the CalculiX ``ccx`` that PrePoMax distributes)."""
+    from pinneapple_simulation.external_solvers.calculix.contact.run import ccx_binary
+    return {"ccx": ccx_binary() is not None}
+
+
+FOUND = _found()
+
+
+def _require(name: str) -> None:
+    """Skip a preset that solves with a binary this environment does not have — the run is then a deck and an honest
+    "nothing was solved", which is no way to test the physics."""
+    missing = [k for k in getattr(P.load(name), "needs", ()) if not FOUND.get(k)]
+    if missing:
+        pytest.skip(f"{name} solves with {'/'.join(missing)}, which this environment does not have "
+                    f"(set CCX_BIN to a ccx binary, or put one on PATH)")
+
+
 def test_catalogue_and_flow_node_list_agree():
     from pinneapple_flow.nodes.presets import PRESETS
     assert sorted(PRESETS) == NAMES and len(NAMES) >= 5
@@ -42,6 +61,7 @@ def test_data_sheet_has_units_sources_and_capabilities(name):
 
 @pytest.mark.parametrize("name", NAMES)
 def test_default_run_is_trusted_and_has_provenance(name):
+    _require(name)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         r = P.load(name).run()
@@ -180,6 +200,7 @@ def test_flow_node_runs_a_preset(tmp_path, monkeypatch):
 @pytest.mark.parametrize("name", NAMES)
 def test_full_validation_optimisation_and_report(name, tmp_path):
     from pinneapple_presets.report import write_report
+    _require(name)
     s = write_report(name, out_dir=str(tmp_path / name), surrogate="load", lab=False)
     assert s["validation"]["all_pass"], s["validation"]["references"]
     assert os.path.isfile(tmp_path / name / "README.md")
@@ -231,6 +252,39 @@ def test_pressure_vessel_fem_matches_lame_and_asme():
     assert o["hoop_fem"] == pytest.approx(o["hoop_lame"], rel=0.02)
     assert o["ur_fem"] == pytest.approx(o["ur_lame"], rel=0.005)
     assert o["mawp"] >= 1.0e6 and o["t_shell"] == 0.010 and r.decision["verdict"] == "OK"
+
+
+def test_bolted_joint_measures_the_preload_the_slip_and_the_head_as_an_area():
+    """The one preset whose solver is an external binary: the clamp force is what the ``*PRE-TENSION SECTION``
+    applies, the joint slips at mu times it, and the ``*DISTRIBUTING COUPLING`` over the washer footprint makes the
+    head press as an area (peak/mean 1.34 here, against 1.63 for the single-node bolt this case used to be)."""
+    _require("bolted_joint_preload")
+    p = P.load("bolted_joint_preload")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        r = p.run()
+    o = r.outputs
+    assert o["F_clamp"] == pytest.approx(p.defaults()["preload"], rel=0.02)      # the clamp is the preload
+    assert o["F_slip_measured"] == pytest.approx(o["F_slip"], rel=0.03)          # mu times the measured clamp
+    assert 1.0 <= o["head_ratio"] <= 1.5 and o["contact_opening"] <= 0.0
+    assert o["reaction_vertical"] <= 1e-6 * p.defaults()["preload"]              # nothing pushes the joint out of plane
+    assert r.trust.decisao == "APPROVED" and r.decision["verdict"] == "OK"
+
+
+def test_bolted_joint_without_a_solver_writes_the_deck_and_says_nothing_was_solved(monkeypatch):
+    from pinneapple_simulation.external_solvers.calculix.contact import run as R
+    monkeypatch.setattr(R, "ccx_binary", lambda explicit=None: None)
+    p = P.load("bolted_joint_preload")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        r = p.run()
+    assert r.outputs["F_clamp"] is None and r.outputs["F_slip_measured"] is None
+    assert r.outputs["F_slip"] == pytest.approx(p.defaults()["mu"] * p.defaults()["preload"])   # the closed form
+    hard = next(c for c in r.trust.checks if c.name.startswith("CalculiX"))
+    assert hard.status == "contradicts" and hard.critical and r.trust.decisao == "REJECT"
+    assert r.decision["verdict"] == "N/A" and "ccx" in r.decision["reasons"][1]
+    v = p.validate()
+    assert v["all_pass"] is False and v["references"] == [] and "ccx" in v["error"]
 
 
 def test_batch2_inversions_and_decisions():

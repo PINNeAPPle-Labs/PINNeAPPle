@@ -80,6 +80,9 @@ def figures() -> list[str]:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     out = []
     C = {"m6": "#e08a2a", "m12": "#2a6fdb", "m24": "#1f9e77", "m48": "#7a5bd6", "ref": "#555555"}
 

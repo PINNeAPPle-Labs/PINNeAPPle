@@ -20,7 +20,7 @@ import ast
 import hashlib
 import json
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +36,8 @@ from .inventory import load as load_inventory
 SCHEMA = "pinneapple.studio.catalog/1"
 REFERENCE_MARKERS = ("reference", "exact", "analytic", "rel_l2", "rel_err", "all_pass", "epanet", "published")
 STATUS_RULES = {
-    "discovered": "found in the code; no test that runs by default calls it",
+    "discovered": "found in the code; no test that runs by default mentions it",
+    "named": "a test that runs by default names it (a table of factories, a registry) without calling it by name",
     "tested": "a test that runs by default calls it; no reference comparison found",
     "verified": "a test that runs by default calls it and compares with a reference (validate() asserted, a "
                 "reference / exact / analytic solution, a relative error)",
@@ -54,6 +55,14 @@ class TestFn:
     imports: set[str]          # "module" and "module:name" imported by the file
     reference: bool
     slow: bool
+    #: Names the test mentions but never calls by name — a factory looked up in a
+    #: table, a class used only through a mapping. A test that exercises a symbol
+    #: this way is evidence, but weaker evidence than a direct call (#1882).
+    refs: set[str] = field(default_factory=set)
+    #: Names that appear in the file *outside* the test functions: a module-level
+    #: ``FACTORIES = {..., "x": some_fn}`` is how a table-driven test holds the
+    #: symbol it exercises, and the test body only ever says ``FACTORIES[name]``.
+    header: set[str] = field(default_factory=set)
 
 
 def _imports(tree: ast.AST) -> set[str]:
@@ -80,34 +89,58 @@ def scan_tests(root: Path) -> list[TestFn]:
         except (SyntaxError, UnicodeDecodeError):
             continue
         imps = _imports(tree)
+        header_names: set[str] = set()
+        for top in tree.body:
+            if isinstance(top, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if getattr(top, "name", "").startswith("test"):
+                    continue
+                if isinstance(top, ast.ClassDef):
+                    header_names.add(top.name)
+                continue
+            for sub in ast.walk(top):
+                if isinstance(sub, ast.Attribute):
+                    header_names.add(sub.attr)
+                elif isinstance(sub, ast.Name):
+                    header_names.add(sub.id)
         lines = src.splitlines()
         module_slow = "PINNEAPPLE_SLOW" in src and "pytestmark" in src
         for node in ast.walk(tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) or not node.name.startswith("test"):
                 continue
             calls = set()
+            named: set[str] = set()
             for sub in ast.walk(node):
                 if isinstance(sub, ast.Call):
                     f = sub.func
                     calls.add(f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else "")
                 elif isinstance(sub, ast.Attribute):
                     calls.add(sub.attr)
+                    named.add(sub.attr)
+                elif isinstance(sub, ast.Name):
+                    named.add(sub.id)
             body = "\n".join(lines[node.lineno - 1:node.end_lineno or node.lineno])
             deco = " ".join(ast.unparse(d) for d in node.decorator_list)
             ref = ("validate" in calls and any(m in body for m in ("all_pass", '["pass"]', "rel_err", "tol"))) or \
                 any(m in body for m in REFERENCE_MARKERS)
             out.append(TestFn(str(path.relative_to(root)), node.lineno, node.name, calls, imps, ref,
-                              module_slow or "SLOW" in deco or "slow" in deco))
+                              module_slow or "SLOW" in deco or "slow" in deco, named - calls, header_names))
     return out
 
 
 def _status(evidence: list[dict]) -> tuple[str, str]:
-    default = [e for e in evidence if e["kind"] in ("test", "reference_test") and e["runs_by_default"]]
+    default = [e for e in evidence if e["kind"] in ("test", "reference_test", "named") and e["runs_by_default"]]
     ref = [e for e in default if e["kind"] == "reference_test"]
     if ref:
         return "verified", f"reference test {ref[0]['path']}::{ref[0]['name']}"
+    called = [e for e in default if e["kind"] != "named"]
+    if called:
+        return "tested", f"exercised by {called[0]['path']}::{called[0]['name']}; no reference comparison found"
     if default:
-        return "tested", f"exercised by {default[0]['path']}::{default[0]['name']}; no reference comparison found"
+        # A default test mentions the symbol without calling it by name — through a dict of
+        # factories, a registry, a mapping. That is real evidence, but weaker than a call, and
+        # collapsing it into "found in the code; no test references it" was wrong (#1882).
+        return "named", (f"named by {default[0]['path']}::{default[0]['name']} but never called by name there; "
+                         "the call site is indirect")
     if evidence:
         return "discovered", "referenced only by examples, snippets or slow (opt-in) tests"
     return "discovered", "found in the code; no test or example references it"
@@ -232,9 +265,12 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
     prose = P.load(root)
     tests = scan_tests(root)
     by_call: dict[str, list[TestFn]] = defaultdict(list)
+    by_named: dict[str, list[TestFn]] = defaultdict(list)
     for t in tests:
         for c in t.calls:
             by_call[c].append(t)
+        for n in t.refs | t.header:
+            by_named[n].append(t)
     examples = scan_examples(root, inv["top_api"])
     resolver = make_resolver(inv)
     find_class = make_class_finder(inv)
@@ -272,14 +308,18 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                 ev, seen = [], set()
                 via = reexported_as(m, sym["name"])
                 for nm in names:
-                    for t in by_call.get(nm, []):
+                    for t in by_call.get(nm, []) + by_named.get(nm, []):
                         direct = m in t.imports or tid in t.imports or any(
                             i == m or i.startswith(m + ":") for i in t.imports)
                         reexp = any(p in t.imports or f"{p}:{sym['name']}" in t.imports for p in via)
                         if not (direct or reexp) or (t.path, t.name) in seen:
                             continue
                         seen.add((t.path, t.name))
-                        ev.append({"kind": "reference_test" if t.reference else "test", "path": t.path,
+                        indirect = nm not in t.calls and (nm in t.refs or nm in t.header)
+                        # Not `kind`: that is the outer loop's "function"/"class", and shadowing it made every
+                        # symbol after the first with evidence be classified as a function.
+                        ev_kind = "named" if indirect else ("reference_test" if t.reference else "test")
+                        ev.append({"kind": ev_kind, "path": t.path,
                                    "line": t.line, "name": t.name, "runs_by_default": not t.slow})
                 ex = sorted(examples.get(tid, set()))
                 for e in ex:
@@ -297,7 +337,7 @@ def build(root: Path | None = None, inv: dict[str, Any] | None = None) -> dict[s
                     "category": cat, "category_reason": why, "icon": ICONS[cat],
                     "status": status, "status_reason": status_reason,
                     "stability": stability(m, sym["name"] if m == "pinneapple" else None),
-                    "evidence": ev[:40], "n_tests": sum(e["kind"] != "example" for e in ev), "examples": ex,
+                    "evidence": ev[:40], "n_tests": sum(e["kind"] in ("test", "reference_test") for e in ev), "examples": ex,
                     "pp": pp_names.get(f"{m}.{sym['name']}", ""),
                     "tasks": T.tags(text, T.TASKS), "areas": T.tags(text, T.AREAS),
                     "products": T.tags(text, T.PRODUCTS),

@@ -1,0 +1,12 @@
+{
+ "code_hash": "1db3ffa7af4b7635",
+ "figures": [],
+ "id": "node:auto.analysis.cost.rusage_unit_bytes",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 17.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "int\n1",
+ "timed_out": false
+}

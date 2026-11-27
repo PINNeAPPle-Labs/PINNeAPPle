@@ -7,7 +7,6 @@ import re
 import time
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from ..kb.chunking import chunk_text
 from ..models import KBArtifact, KBIndex, RankedItem
@@ -48,7 +47,7 @@ class KBStore:
         ensure_dir(os.path.join(run_dir, "kb_index"))
         return run_dir
 
-    def write_manifest(self, run_dir: str, *, topic: str, papers: List[RankedItem], repos: List[RankedItem]) -> str:
+    def write_manifest(self, run_dir: str, *, topic: str, papers: list[RankedItem], repos: list[RankedItem]) -> str:
         path = os.path.join(run_dir, "manifest.json")
         payload = {
             "topic": topic,
@@ -92,7 +91,7 @@ class KBStore:
         run_dir: str,
         *,
         topic: str,
-        artifacts: List[KBArtifact],
+        artifacts: list[KBArtifact],
         chunk_chars: int,
         chunk_overlap: int,
     ) -> str:
@@ -126,7 +125,7 @@ class KBStore:
         *,
         run_dir: str,
         topic: str,
-        artifacts: List[KBArtifact],
+        artifacts: list[KBArtifact],
         chunk_chars: int,
         chunk_overlap: int,
     ) -> KBIndex:

@@ -11,7 +11,14 @@ The loop is deliberately conservative about what "fixed" means:
 * an identical diff twice in a row means the loop is stuck and stops
   early instead of burning attempts;
 * every attempt keeps its diagnosis, diff and findings, so a failed loop
-  produces an actionable report rather than a shrug.
+  produces an actionable report rather than a shrug;
+* every attempt says which data it judged: ``bundle_source`` is
+  ``"fresh"`` only when the artifact's output was rebuilt from the
+  candidate during that attempt (the pipeline does this when
+  ``rebuild_from_source`` is configured) and ``"stale"`` when the
+  validators saw a bundle produced before the repair. The loop itself
+  cannot rebuild anything; the pipeline annotates the record through
+  ``on_attempt`` so the distinction reaches the report either way.
 """
 from __future__ import annotations
 
@@ -75,12 +82,21 @@ class RepairAttempt:
     diff: str = ""
     notes: str = ""
     duration_s: float = 0.0
+    #: Which data the verdict was reached on: ``"fresh"`` when the artifact's
+    #: bundle was rebuilt from the candidate during this attempt, ``"stale"``
+    #: when the validators saw a bundle produced before the repair.
+    bundle_source: str = "stale"
+    rebuilt: bool = False
+    rebuild_error: str = ""
+    execution_status: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "attempt": self.attempt, "accepted": self.accepted, "status": self.status.value,
             "diagnosis": None if self.diagnosis is None else self.diagnosis.to_dict(),
             "diff": self.diff, "notes": self.notes, "duration_s": round(self.duration_s, 4),
+            "bundle_source": self.bundle_source, "rebuilt": self.rebuilt,
+            "rebuild_error": self.rebuild_error, "execution_status": self.execution_status,
         }
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Extreme learning machine with random hidden features and ridge output."""
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -64,7 +64,7 @@ class ExtremeLearningMachine(RCBase):
         return self.phi(x @ self.W + self.b)
 
     @torch.no_grad()
-    def fit(self, x: torch.Tensor, y: torch.Tensor) -> "ExtremeLearningMachine":
+    def fit(self, x: torch.Tensor, y: torch.Tensor) -> ExtremeLearningMachine:
         """
         x: (N,in_dim)
         y: (N,out_dim)
@@ -75,11 +75,11 @@ class ExtremeLearningMachine(RCBase):
         self._fitted = True
         return self
 
-    def forward(self, x: torch.Tensor, *, y_true: Optional[torch.Tensor] = None, return_loss: bool = False) -> RCOutput:
+    def forward(self, x: torch.Tensor, *, y_true: torch.Tensor | None = None, return_loss: bool = False) -> RCOutput:
         H = self._features(x)
         y = H @ self.W_out
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

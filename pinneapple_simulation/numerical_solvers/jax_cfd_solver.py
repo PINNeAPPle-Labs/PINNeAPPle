@@ -34,11 +34,10 @@ not installed.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import torch
-import torch.nn as nn
 
 from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry
@@ -77,7 +76,7 @@ def _require_jax_cfd() -> None:
 # Built-in initial conditions
 # ===========================================================================
 
-def taylor_green_velocity_fns() -> Tuple[Callable, Callable]:
+def taylor_green_velocity_fns() -> tuple[Callable, Callable]:
     """2-D Taylor-Green vortex velocity functions ``u(x,y), v(x,y)``.
 
     A standard, analytically-known incompressible-flow initial condition:
@@ -98,7 +97,7 @@ def taylor_green_velocity_fns() -> Tuple[Callable, Callable]:
     return u_fn, v_fn
 
 
-def shear_layer_velocity_fns(sigma: float = 15.0, width: float = 0.05) -> Tuple[Callable, Callable]:
+def shear_layer_velocity_fns(sigma: float = 15.0, width: float = 0.05) -> tuple[Callable, Callable]:
     """2-D double shear-layer velocity functions ``u(x,y), v(x,y)``.
 
     Another standard incompressible-flow benchmark IC (e.g. Bell, Colella &
@@ -118,7 +117,7 @@ def shear_layer_velocity_fns(sigma: float = 15.0, width: float = 0.05) -> Tuple[
     return u_fn, v_fn
 
 
-_IC_FACTORY: Dict[str, Callable[[], Tuple[Callable, Callable]]] = {
+_IC_FACTORY: dict[str, Callable[[], tuple[Callable, Callable]]] = {
     "taylor_green": taylor_green_velocity_fns,
     "shear_layer": shear_layer_velocity_fns,
 }
@@ -175,7 +174,7 @@ class JAXCFDSolver(SolverBase):
         ny: int = 64,
         viscosity: float = 1e-2,
         density: float = 1.0,
-        domain: Optional[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
+        domain: tuple[tuple[float, float], tuple[float, float]] | None = None,
         max_velocity: float = 1.0,
         cfl_safety: float = 0.5,
         initial_condition: Any = "taylor_green",
@@ -200,7 +199,7 @@ class JAXCFDSolver(SolverBase):
 
     # ------------------------------------------------------------------
     @classmethod
-    def from_problem_spec(cls, spec) -> "JAXCFDSolver":
+    def from_problem_spec(cls, spec) -> JAXCFDSolver:
         """Build from a ProblemSpec (pde.kind ~ 'navier_stokes_incompressible').
 
         Looks up grid/solver params from both ``spec.pde.params`` and
@@ -277,7 +276,7 @@ class JAXCFDSolver(SolverBase):
     # ------------------------------------------------------------------
     def forward(
         self,
-        v0: Optional[Any] = None,
+        v0: Any | None = None,
         *,
         steps: int = 200,
         save_every: int = 20,

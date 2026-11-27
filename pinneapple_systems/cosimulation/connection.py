@@ -13,7 +13,6 @@ Example::
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
 
 
 @dataclass(frozen=True)
@@ -34,7 +33,7 @@ class Connection:
 
     # ------------------------------------------------------------------
     @classmethod
-    def parse(cls, src: str, dst: str) -> "Connection":
+    def parse(cls, src: str, dst: str) -> Connection:
         """Build a Connection from two 'node.port' strings.
 
         Args:
@@ -65,7 +64,7 @@ class Connection:
 # Helper
 # ---------------------------------------------------------------------------
 
-def _split_port(s: str) -> Tuple[str, str]:
+def _split_port(s: str) -> tuple[str, str]:
     """Split 'node.port' into (node, port).
 
     Raises:

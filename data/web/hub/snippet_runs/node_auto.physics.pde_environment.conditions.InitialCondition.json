@@ -1,0 +1,12 @@
+{
+ "code_hash": "f9a641b01422d2b5",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.conditions.InitialCondition",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 24.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "InitialCondition -> pinneapple_physics.pde_environment.conditions:InitialCondition\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'fields': None, 'selector_type': 'all', 'selector': None, 'weight': 1.0}",
+ "timed_out": false
+}

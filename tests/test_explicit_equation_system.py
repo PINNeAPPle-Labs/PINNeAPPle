@@ -8,7 +8,6 @@ import numpy as np
 import pytest
 
 from pinneapple_systems.process_components.explicit_equation_system import (
-    AnalysisResult,
     ExplicitEquationError,
     ParameterSpec,
     analyze,

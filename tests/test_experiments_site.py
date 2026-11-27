@@ -79,7 +79,8 @@ def test_filters(server):
     nc = api(server, "/api/experiments?letter=none")
     assert nc["count"] == nc["counts"]["not curated"] and all(e["tier"] is None for e in nc["entries"])
     fl = api(server, "/api/experiments?domain=flight%20dynamics")
-    assert [e["key"] for e in fl["entries"]] == ["examples/flight_dynamics"]
+    # two curated experiments carry that domain: the flight-dynamics studies and the rocket-launch ascent
+    assert {e["key"] for e in fl["entries"]} == {"examples/flight_dynamics", "examples/rocket_launch"}
     q = api(server, "/api/experiments?q=ahmed")
     assert "examples/studio" in {e["key"] for e in q["entries"]}          # found through its Lab item
     r = api(server, "/api/experiments?ready=1")

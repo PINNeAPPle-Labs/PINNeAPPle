@@ -124,6 +124,9 @@ def _figures(OUT, traj, res, checks, decision):
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     fig, axs = plt.subplots(1, 2, figsize=(11.5, 3.8))
     for j, (v, states, _ref) in enumerate(traj[:3]):
         t = (np.arange(len(states)) + CONTEXT - 1) * v.dt

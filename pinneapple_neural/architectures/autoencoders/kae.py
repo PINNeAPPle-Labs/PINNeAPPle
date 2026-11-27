@@ -1,7 +1,7 @@
 from __future__ import annotations
 """Kernel autoencoder with MMD regularization."""
 
-from typing import Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 import torch
 import torch.nn as nn
@@ -120,13 +120,13 @@ class KAEAutoencoder(AEBase):
         self,
         input_dim: int,
         latent_dim: int,
-        hidden: List[int] = (512, 256),
+        hidden: list[int] = (512, 256),
         activation: str = "gelu",
         mmd_weight: float = 1.0,
         mmd_sigma: float = 1.0,
         prior: str = "normal",
         # Optional: multi-kernel MMD (keeps old API working if you ignore it)
-        mmd_sigmas: Optional[List[float]] = None,
+        mmd_sigmas: list[float] | None = None,
     ):
         super().__init__()
         act = {"tanh": nn.Tanh(), "relu": nn.ReLU(), "gelu": nn.GELU()}.get(
@@ -150,7 +150,7 @@ class KAEAutoencoder(AEBase):
     def decode(self, z: torch.Tensor) -> torch.Tensor:
         return self.decoder(z)
 
-    def _get_sigmas(self, z: torch.Tensor) -> List[float]:
+    def _get_sigmas(self, z: torch.Tensor) -> list[float]:
         if self.mmd_sigmas is not None and len(self.mmd_sigmas) > 0:
             return [float(s) for s in self.mmd_sigmas if float(s) > 0]
 
@@ -160,7 +160,7 @@ class KAEAutoencoder(AEBase):
 
         return [float(self.mmd_sigma)]
 
-    def loss_from_parts(self, *, x_hat: torch.Tensor, z: torch.Tensor, x: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def loss_from_parts(self, *, x_hat: torch.Tensor, z: torch.Tensor, x: torch.Tensor) -> dict[str, torch.Tensor]:
         x = x.reshape(x.shape[0], -1)
         recon = torch.mean((x_hat - x) ** 2)
 

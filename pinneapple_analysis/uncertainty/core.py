@@ -7,7 +7,7 @@ This module provides:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Literal
 
 import torch
 from torch import Tensor
@@ -22,7 +22,7 @@ try:
         return float(_scipy_norm.ppf(1.0 - alpha / 2.0))
 
 except ImportError:  # pragma: no cover
-    _ZSCORE_TABLE: Dict[float, float] = {
+    _ZSCORE_TABLE: dict[float, float] = {
         0.001: 3.2905,
         0.005: 2.8070,
         0.010: 2.5758,
@@ -78,10 +78,10 @@ class UQResult:
 
     mean: Tensor
     std: Tensor
-    aleatoric_std: Optional[Tensor] = None
-    epistemic_std: Optional[Tensor] = None
-    samples: Optional[Tensor] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    aleatoric_std: Tensor | None = None
+    epistemic_std: Tensor | None = None
+    samples: Tensor | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------------------
     # Interval helpers
@@ -156,7 +156,7 @@ def uq_predict(
     model: Any,
     x: Tensor,
     method: Literal["mc_dropout", "ensemble", "aleatoric", "decompose"] = "mc_dropout",
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     **kwargs: Any,
 ) -> UQResult:
     """Unified interface for uncertainty-aware prediction.

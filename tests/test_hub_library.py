@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -209,3 +210,41 @@ def test_sandbox_time_limit_and_figures():
     assert not r["ok"] and r["timed_out"]
     r = run_snippet("import matplotlib.pyplot as plt\nplt.plot([0, 1])\nprint('drawn')", timeout=120)
     assert r["ok"] and r["stdout"] == "drawn" and r["figures"] and r["figures"][0][:4] == b"\x89PNG"
+
+
+@pytest.mark.skipif(os.name != "posix", reason="the limits are setrlimit, which is POSIX")
+def test_the_sandbox_runs_from_a_thread_and_the_limits_land_inside_the_snippet():
+    """The Hub validates a snippet from its job threads. The limits used to be applied by a ``preexec_fn`` — a callback
+    between fork and exec, which Python documents as unsafe once the caller has threads, and which is what the job log
+    showed ("Exception occurred in preexec_fn") instead of a result (#625). The file-size limit is applied by the
+    wrapper now, and the session (the group the timeout kills) comes from ``start_new_session``."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    code = "import resource\nprint(resource.getrlimit(resource.RLIMIT_FSIZE)[0])"
+    with ThreadPoolExecutor(1) as pool:
+        r = pool.submit(run_snippet, code, timeout=120).result()
+    assert r["ok"], r["stderr"]
+    assert int(r["stdout"]) == 200 * 2**20
+
+
+def test_a_limit_the_platform_refuses_does_not_kill_the_run():
+    """The Hub asks for a 6 GiB address-space cap on every validation. macOS keeps a virtual mapping of hundreds of
+    gigabytes per interpreter and refuses the limit with ``EINVAL``; refusing to start the snippet for that turned
+    every validation into "Exception occurred in preexec_fn" in the job log (#625). The run happens, and the refusal
+    is said out loud instead of silently dropped."""
+    r = run_snippet("print('ran')", timeout=120, memory_mb=6144)
+    assert r["ok"] and r["stdout"] == "ran", r["stderr"]
+    assert "preexec" not in r["stderr"]
+    if "could not be applied" in r["stderr"]:            # the platform said no (macOS); elsewhere the cap holds
+        assert "address space" in r["stderr"]
+
+
+def test_the_matplotlib_cache_survives_between_runs():
+    """The cache directory used to live inside the run's temporary directory, so every snippet rebuilt the font cache:
+    two "Matplotlib is building the font cache" lines per run, and on a loaded machine the whole 300 s of the slowest
+    graded snippet went to it (#625). One directory, the same one on every run."""
+    code = "import os\nprint(os.environ['MPLCONFIGDIR'])"
+    first, second = run_snippet(code, timeout=120), run_snippet(code, timeout=120)
+    assert first["ok"] and second["ok"], first["stderr"] + second["stderr"]
+    assert first["stdout"] == second["stdout"]
+    assert Path(first["stdout"]).is_dir()

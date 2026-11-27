@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Hashable, Optional, Tuple
+from typing import Any
+from collections.abc import Callable, Hashable
 from collections import OrderedDict
 import threading
 
@@ -94,11 +95,11 @@ class ByteLRUCache:
         """
         self.max_bytes = int(max_bytes)
         self.weigher = weigher
-        self._od: "OrderedDict[Hashable, Tuple[Any, int]]" = OrderedDict()
+        self._od: OrderedDict[Hashable, tuple[Any, int]] = OrderedDict()
         self._lock = threading.Lock()
         self.stats = ByteCacheStats()
 
-    def get(self, key: Hashable) -> Optional[Any]:
+    def get(self, key: Hashable) -> Any | None:
         """
         Retrieve a value from the cache.
 

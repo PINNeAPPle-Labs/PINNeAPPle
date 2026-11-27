@@ -61,9 +61,7 @@ Uso
 from __future__ import annotations
 
 import argparse
-import os
 from pathlib import Path
-from typing import Optional, Tuple
 
 import meshio
 import numpy as np
@@ -98,7 +96,7 @@ DATASET_DIR = "dataset"
 def msh_to_dolfinx(
     msh_file: str | Path,
     xdmf_file: str | Path,
-) -> Tuple[dmesh.Mesh, float, float]:
+) -> tuple[dmesh.Mesh, float, float]:
     """
     Converte .msh (gmsh) → domínio dolfinx via XDMF.
     Retorna (domain, z_min, z_max).
@@ -140,7 +138,7 @@ def solve_meridional(
     F_axial: float = 500e3, # N  — tração axial
     r_outer: float = 84.15, # mm — raio externo
     petsc_prefix: str = "meri_",
-) -> Tuple[object, np.ndarray, np.ndarray]:
+) -> tuple[object, np.ndarray, np.ndarray]:
     """
     Resolve o problema meridional (u_r, u_z) com:
       - Pressão interna: σ_rr = −p_inner  em r = r_bore
@@ -257,7 +255,7 @@ def solve_torsional(
     nu: float    = _NU,
     T_torque: float = 40e3,    # N·m
     petsc_prefix: str = "tors_",
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Resolve a equação de torção u_θ:
 

@@ -8,7 +8,7 @@ Reference: Li et al. 2020 "D3M: A Deep Domain Decomposition Method for PDE"
 from __future__ import annotations
 
 import itertools
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -26,7 +26,7 @@ class Subdomain:
               side to form the extended/interface region.
     """
 
-    def __init__(self, bounds: List[Tuple[float, float]], overlap: float = 0.1):
+    def __init__(self, bounds: list[tuple[float, float]], overlap: float = 0.1):
         self.bounds = bounds  # [(lo0, hi0), (lo1, hi1), ...]
         self.overlap = overlap
         # extended bounds (for contains check — points in overlap count as IN)
@@ -127,7 +127,7 @@ class DoMINO(nn.Module):
 
     def __init__(
         self,
-        subdomains: List[Subdomain],
+        subdomains: list[Subdomain],
         model_factory: Callable[[], nn.Module],
         interface_weight: float = 10.0,
     ):
@@ -146,10 +146,10 @@ class DoMINO(nn.Module):
 
     @staticmethod
     def partition(
-        bounds: List[Tuple[float, float]],
-        n_splits: Tuple[int, ...],
+        bounds: list[tuple[float, float]],
+        n_splits: tuple[int, ...],
         overlap: float = 0.1,
-    ) -> List[Subdomain]:
+    ) -> list[Subdomain]:
         """Create a regular grid of overlapping subdomains.
 
         Parameters
@@ -168,14 +168,14 @@ class DoMINO(nn.Module):
             )
 
         # Build tick marks along each axis
-        axis_edges: List[List[Tuple[float, float]]] = []
+        axis_edges: list[list[tuple[float, float]]] = []
         for (lo, hi), ns in zip(bounds, n_splits):
             width = (hi - lo) / ns
             edges = [(lo + i * width, lo + (i + 1) * width) for i in range(ns)]
             axis_edges.append(edges)
 
         # Cartesian product of per-axis edge pairs → one subdomain per cell
-        subdomains: List[Subdomain] = []
+        subdomains: list[Subdomain] = []
         for cell in itertools.product(*axis_edges):
             subdomains.append(Subdomain(list(cell), overlap=overlap))
         return subdomains
@@ -224,7 +224,7 @@ class DoMINO(nn.Module):
         Tensor of shape [N, out_dim].
         """
         weights = self._subdomain_weights(x)  # [N, K]
-        outputs: Optional[torch.Tensor] = None
+        outputs: torch.Tensor | None = None
 
         for k, pinn in enumerate(self.pinn_list):
             w_k = weights[:, k]  # [N]
@@ -283,7 +283,7 @@ class DoMINO(nn.Module):
         x_bc: torch.Tensor,
         bc_fn: Callable[[torch.Tensor], torch.Tensor],
         optimizer: optim.Optimizer,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Single training step with physics + BC + interface losses.
 
         Parameters
@@ -342,8 +342,8 @@ class DoMINO(nn.Module):
         n_epochs: int = 5000,
         lr: float = 1e-3,
         print_every: int = 500,
-        optimizer_kwargs: Optional[Dict] = None,
-    ) -> Dict[str, List[float]]:
+        optimizer_kwargs: dict | None = None,
+    ) -> dict[str, list[float]]:
         """Convenience full training loop.
 
         Parameters
@@ -363,7 +363,7 @@ class DoMINO(nn.Module):
         kwargs = optimizer_kwargs or {}
         optimizer = optim.Adam(self.parameters(), lr=lr, **kwargs)
 
-        history: Dict[str, List[float]] = {
+        history: dict[str, list[float]] = {
             "total": [], "pde": [], "bc": [], "interface": []
         }
 

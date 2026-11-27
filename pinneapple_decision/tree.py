@@ -39,7 +39,8 @@ store holds the full path.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Union
+from collections.abc import Callable
 
 from .constraints import NoFeasibleOptionError
 from .schema import Decision, DecisionLevel, DecisionState, Evidence, ExecutionResult, PhysicsChoice, Verification
@@ -51,11 +52,11 @@ ChoiceFactory = Union[PhysicsChoice, Callable[[], PhysicsChoice]]
 class ChoiceNode:
     id: str
     choice: ChoiceFactory
-    edges: Dict[str, str]  # option -> next node id; "*" = any other option
-    fact: Optional[str] = None
-    fact_options: Dict[bool, str] = field(default_factory=lambda: {True: "yes", False: "no"})
-    plan_key: Optional[str] = None  # store the selected option in the plan under this key
-    plan_updates: Dict[str, Any] = field(default_factory=dict)
+    edges: dict[str, str]  # option -> next node id; "*" = any other option
+    fact: str | None = None
+    fact_options: dict[bool, str] = field(default_factory=lambda: {True: "yes", False: "no"})
+    plan_key: str | None = None  # store the selected option in the plan under this key
+    plan_updates: dict[str, Any] = field(default_factory=dict)
 
     def make_choice(self) -> PhysicsChoice:
         return self.choice if isinstance(self.choice, PhysicsChoice) else self.choice()
@@ -71,7 +72,7 @@ class ChoiceNode:
 class ExecuteNode:
     id: str
     next: str
-    plan_updates: Dict[str, Any] = field(default_factory=dict)
+    plan_updates: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -79,14 +80,14 @@ class ValidateNode:
     id: str
     on_pass: str
     on_fail: str
-    plan_updates: Dict[str, Any] = field(default_factory=dict)
+    plan_updates: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class TerminalNode:
     id: str
     outcome: str
-    plan_updates: Dict[str, Any] = field(default_factory=dict)
+    plan_updates: dict[str, Any] = field(default_factory=dict)
 
 
 Node = Union[ChoiceNode, ExecuteNode, ValidateNode, TerminalNode]
@@ -96,13 +97,13 @@ Node = Union[ChoiceNode, ExecuteNode, ValidateNode, TerminalNode]
 class DecisionTree:
     name: str
     root: str
-    nodes: Dict[str, Node]
+    nodes: dict[str, Node]
 
     def __post_init__(self) -> None:
         if self.root not in self.nodes:
             raise ValueError(f"root {self.root!r} is not a node")
         for node in self.nodes.values():
-            targets: List[str] = []
+            targets: list[str] = []
             if isinstance(node, ChoiceNode):
                 targets = list(node.edges.values())
             elif isinstance(node, ExecuteNode):
@@ -118,10 +119,10 @@ class DecisionTree:
 class TreeStep:
     node: str
     kind: str  # "choice" | "execute" | "validate" | "terminal"
-    selected: Optional[str] = None
-    resolved_by: Optional[str] = None  # "fact" | "decider" (choice nodes)
-    decision_id: Optional[str] = None
-    passed: Optional[bool] = None
+    selected: str | None = None
+    resolved_by: str | None = None  # "fact" | "decider" (choice nodes)
+    decision_id: str | None = None
+    passed: bool | None = None
     note: str = ""
 
 
@@ -129,16 +130,16 @@ class TreeStep:
 class TreeRun:
     tree: str
     outcome: str  # "accepted" | "budget_exhausted" | "no_feasible_option" | "max_steps" | terminal outcome
-    path: List[TreeStep]
-    plan: Dict[str, Any]
+    path: list[TreeStep]
+    plan: dict[str, Any]
     experiments: int
-    evidence: List[Evidence]
-    facts: Dict[str, Any] = field(default_factory=dict)
+    evidence: list[Evidence]
+    facts: dict[str, Any] = field(default_factory=dict)
 
-    def decided_by_decider(self) -> List[str]:
+    def decided_by_decider(self) -> list[str]:
         return [s.node for s in self.path if s.resolved_by == "decider"]
 
-    def decided_by_fact(self) -> List[str]:
+    def decided_by_fact(self) -> list[str]:
         return [s.node for s in self.path if s.resolved_by == "fact"]
 
 
@@ -154,7 +155,7 @@ def physics_ai_tree() -> DecisionTree:
     """The tree proposed for the physics-AI workflow (see module docstring)."""
     from .selectors import ANALYTICAL_SOLUTION, REFERENCE_DATA, ModelSelector, TrainingStrategySelector
 
-    nodes: List[Node] = [
+    nodes: list[Node] = [
         ChoiceNode("has_analytical_solution", ANALYTICAL_SOLUTION.choice,
                    {"yes": "analytical_baseline", "no": "has_reference_data"},
                    fact="has_analytical_solution"),
@@ -189,18 +190,18 @@ def _fact_decision(choice: PhysicsChoice, node: ChoiceNode, value: bool, status:
     )
 
 
-def run_tree(loop: Any, problem: Any, tree: Optional[DecisionTree] = None, *, max_experiments: int = 3,
+def run_tree(loop: Any, problem: Any, tree: DecisionTree | None = None, *, max_experiments: int = 3,
              max_steps: int = 200) -> TreeRun:
     """Walk ``tree`` with ``loop`` (a :class:`DecisionLoop`). See the module docstring."""
     tree = tree or physics_ai_tree()
     base = DecisionState.from_problem(problem)
     facts = base.facts
-    plan: Dict[str, Any] = {}
-    path: List[TreeStep] = []
-    touched: List[str] = []
-    last_decision: Optional[Decision] = None
-    last_result: Optional[ExecutionResult] = None
-    last_verification: Optional[Verification] = None
+    plan: dict[str, Any] = {}
+    path: list[TreeStep] = []
+    touched: list[str] = []
+    last_decision: Decision | None = None
+    last_result: ExecutionResult | None = None
+    last_verification: Verification | None = None
     experiments = 0
     node_id = tree.root
     outcome = "max_steps"
@@ -217,7 +218,7 @@ def run_tree(loop: Any, problem: Any, tree: Optional[DecisionTree] = None, *, ma
         if isinstance(node, ChoiceNode):
             choice = node.make_choice()
             value = base.problem.get(node.fact) if node.fact else None
-            tree_diag: Dict[str, Any] = {"tree": tree.name, "node": node.id, "fact": node.fact}
+            tree_diag: dict[str, Any] = {"tree": tree.name, "node": node.id, "fact": node.fact}
             if node.fact and isinstance(value, bool):
                 status = "inferred" if node.fact in facts.get("inferred", {}) else "given"
                 rule = facts.get("inferred", {}).get(node.fact, {}).get("rule", "")

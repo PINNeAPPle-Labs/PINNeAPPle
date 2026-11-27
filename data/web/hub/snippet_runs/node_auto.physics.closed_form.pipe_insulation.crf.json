@@ -1,0 +1,12 @@
+{
+ "code_hash": "585453e305bb1660",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pipe_insulation.crf",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 24.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "crf -> pinneapple_physics.closed_form.pipe_insulation:crf\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'rate': 1.0, 'years': 1.0}",
+ "timed_out": false
+}

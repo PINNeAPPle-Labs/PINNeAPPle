@@ -242,10 +242,17 @@ def queue_of_copies(root: Path, scratch: Path, n: int):
 
 
 def clean_job_env(copy: Path) -> dict[str, str]:
+    """The environment of a smoke child: the copy first on the path, then whatever the parent was given.
+
+    The child imports ``pinneapple_studio`` itself (``python -m pinneapple_studio.smoke``), so a checkout driven by
+    ``PYTHONPATH`` instead of an install -- the house workflow -- would die before running any tool. The copy stays
+    first, so the code being measured is the copy's.
+    """
     from .runner import clean_env
     home = copy.parent / f"{copy.name}-home"
     home.mkdir(exist_ok=True)
-    return clean_env({"PYTHONPATH": str(copy), "MPLBACKEND": "Agg", "PINNEAPPLE_ROOT": str(copy), "HOME": str(home),
+    path = os.pathsep.join(p for p in (str(copy), os.environ.get("PYTHONPATH", "")) if p)
+    return clean_env({"PYTHONPATH": path, "MPLBACKEND": "Agg", "PINNEAPPLE_ROOT": str(copy), "HOME": str(home),
                       "MPLCONFIGDIR": str(home / ".mpl"), "PINNEAPPLE_SMOKE_COPY": str(copy),
                       "PINNEAPPLE_STUDIO_CACHE": str(home / "cache"), "OMP_NUM_THREADS": "1",
                       "MKL_NUM_THREADS": "1"})

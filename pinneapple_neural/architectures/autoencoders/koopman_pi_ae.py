@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Physics-informed Koopman autoencoder for dynamical systems."""
 
-from typing import Dict, List, Optional, Union
 
 import torch
 import torch.nn as nn
@@ -36,7 +35,7 @@ class PhysicsInformedKoopmanAutoencoder(AEBase):
         self,
         input_dim: int,
         latent_dim: int,
-        hidden: List[int] = (512, 256),
+        hidden: list[int] = (512, 256),
         activation: str = "gelu",
         koopman_weight: float = 1.0,
         *,
@@ -96,7 +95,7 @@ class PhysicsInformedKoopmanAutoencoder(AEBase):
     # -----------------------------
     def _as_dt(
         self,
-        dt: Optional[Union[float, torch.Tensor]],
+        dt: float | torch.Tensor | None,
         *,
         device: torch.device,
         dtype: torch.dtype,
@@ -219,8 +218,8 @@ class PhysicsInformedKoopmanAutoencoder(AEBase):
         self,
         x: torch.Tensor,
         *,
-        x_next: Optional[torch.Tensor] = None,
-        dt: Optional[Union[float, torch.Tensor]] = None,
+        x_next: torch.Tensor | None = None,
+        dt: float | torch.Tensor | None = None,
     ) -> AEOutput:
         """
         x_next:
@@ -237,7 +236,7 @@ class PhysicsInformedKoopmanAutoencoder(AEBase):
 
         losses = self.loss_from_parts(x_hat=x_hat, z=z, x=x)
 
-        extras: Dict[str, torch.Tensor] = {
+        extras: dict[str, torch.Tensor] = {
             "K": self.K,
             "A": self.A,
         }

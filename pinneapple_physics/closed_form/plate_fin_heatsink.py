@@ -42,7 +42,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import asdict, dataclass
-from typing import Dict, List
 
 from .fin_array_conduction import fin_array_profile_params
 
@@ -56,7 +55,7 @@ _AIR_PR = (0.711, 0.709, 0.705, 0.702, 0.700, 0.697, 0.690)
 AIR_CP = 1007.0
 
 # Thermal conductivity [W/mK], density [kg/m3]
-MATERIALS: Dict[str, Dict[str, float]] = {
+MATERIALS: dict[str, dict[str, float]] = {
     "al6063": {"k": 209.0, "rho": 2700.0, "label": "Aluminium 6063-T5 (extruded)"},
     "al6061": {"k": 167.0, "rho": 2700.0, "label": "Aluminium 6061-T6 (machined)"},
     "al1050": {"k": 229.0, "rho": 2705.0, "label": "Aluminium 1050 (bonded/skived fins)"},
@@ -76,7 +75,7 @@ def _interp(x: float, xs, ys) -> float:
     return ys[-1]
 
 
-def air_properties(t_c: float, p_pa: float = 101325.0) -> Dict[str, float]:
+def air_properties(t_c: float, p_pa: float = 101325.0) -> dict[str, float]:
     t_k = t_c + 273.15
     nu = _interp(t_c, _AIR_T, _AIR_NU)
     pr = _interp(t_c, _AIR_T, _AIR_PR)
@@ -125,7 +124,7 @@ class OperatingPoint:
     tim_resistance_k_m2_w: float = 1.0e-5   # interface material R'' (thin grease ~ 1e-5)
 
 
-def geometry_errors(g: HeatSinkGeometry, op: OperatingPoint) -> List[str]:
+def geometry_errors(g: HeatSinkGeometry, op: OperatingPoint) -> list[str]:
     errs = []
     if g.material not in MATERIALS:
         errs.append(f"unknown material '{g.material}' (use one of {sorted(MATERIALS)})")
@@ -146,7 +145,7 @@ def geometry_errors(g: HeatSinkGeometry, op: OperatingPoint) -> List[str]:
 
 # ── convection ───────────────────────────────────────────────────────────────
 
-def forced_convection(g: HeatSinkGeometry, v_approach: float, air: Dict[str, float]) -> Dict[str, float]:
+def forced_convection(g: HeatSinkGeometry, v_approach: float, air: dict[str, float]) -> dict[str, float]:
     b, H, L, N = g.fin_gap, g.fin_height, g.base_depth, g.n_fins
     open_area = (N - 1) * b * H
     v_ch = v_approach * g.base_width * H / open_area          # ducted: all flow in channels
@@ -174,7 +173,7 @@ def forced_convection(g: HeatSinkGeometry, v_approach: float, air: Dict[str, flo
             "pressure_drop_pa": dp, "flow_m3_s": flow_m3_s, "fan_power_w": dp * flow_m3_s}
 
 
-def natural_convection(g: HeatSinkGeometry, dt_k: float, air: Dict[str, float]) -> Dict[str, float]:
+def natural_convection(g: HeatSinkGeometry, dt_k: float, air: dict[str, float]) -> dict[str, float]:
     b, L = g.fin_gap, g.base_depth
     el = G * air["beta"] * max(dt_k, 1e-6) * b ** 4 / (air["nu"] * air["alpha"] * L)
     nu_b = (576 / el ** 2 + 2.873 / math.sqrt(el)) ** -0.5
@@ -185,7 +184,7 @@ def natural_convection(g: HeatSinkGeometry, dt_k: float, air: Dict[str, float]) 
 # ── spreading ────────────────────────────────────────────────────────────────
 
 def spreading_resistance(k: float, tb: float, source_area: float, plate_area: float,
-                         r_conv: float) -> Dict[str, float]:
+                         r_conv: float) -> dict[str, float]:
     """Lee et al. (1995). Includes 1D conduction through the base."""
     rs, rp = math.sqrt(source_area / math.pi), math.sqrt(plate_area / math.pi)
     eps, tau = rs / rp, tb / rp
@@ -204,7 +203,7 @@ def spreading_resistance(k: float, tb: float, source_area: float, plate_area: fl
 # ── full evaluation ──────────────────────────────────────────────────────────
 
 def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
-             h_scale: float = 1.0, t_root_guess_c: float | None = None) -> Dict[str, object]:
+             h_scale: float = 1.0, t_root_guess_c: float | None = None) -> dict[str, object]:
     """Thermal resistance network: T_source = T_amb + Q (R_tim + R_spread + R_fins).
 
     ``h_scale`` multiplies the correlation's heat-transfer coefficient; use
@@ -223,8 +222,8 @@ def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
     a_base = g.base_width * g.base_depth
 
     t_root = Ta + 20.0 if t_root_guess_c is None else float(t_root_guess_c)
-    conv: Dict[str, float] = {}
-    fin: Dict[str, float] = {}
+    conv: dict[str, float] = {}
+    fin: dict[str, float] = {}
     converged = False
     for _ in range(max_iter):
         air = air_properties(0.5 * (t_root + Ta))
@@ -252,7 +251,7 @@ def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
     ml = m * fin["lc_m"]
     eta = math.tanh(ml) / ml if ml > 1e-9 else 1.0
 
-    warnings: List[str] = []
+    warnings: list[str] = []
     if not converged:
         warnings.append("Natural-convection iteration did not fully converge.")
     if natural:

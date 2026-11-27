@@ -31,7 +31,7 @@ stiff first-order ODE system -- not a fixed catalog of reactions.
 """
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
@@ -42,14 +42,14 @@ JacFn = Callable[[float, np.ndarray], np.ndarray]
 def solve_stiff_reaction_network(
     rate_fn: RateFn,
     y0: Sequence[float],
-    t_span: "tuple[float, float]",
-    t_eval: Optional[np.ndarray] = None,
-    jac_fn: Optional[JacFn] = None,
+    t_span: tuple[float, float],
+    t_eval: np.ndarray | None = None,
+    jac_fn: JacFn | None = None,
     method: str = "Radau",
     rtol: float = 1e-9,
     atol: float = 1e-12,
     clip_negative: bool = True,
-    max_step: Optional[float] = None,
+    max_step: float | None = None,
 ) -> dict:
     """Integrate dy/dt = rate_fn(t, y), y(t0) = y0, over t_span = (t0, tf)
     with a stiff-appropriate implicit method.

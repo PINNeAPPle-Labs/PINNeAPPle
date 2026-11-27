@@ -1,0 +1,487 @@
+{
+ "preset": "bolted_joint_preload",
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "escorrega a 1.53 kN (mu x aperto medido = 1.52 kN) contra 1.00 kN de serviço x 1.20 = margem 1.27",
+   "aperto medido 5.06 kN para 5.10 kN de pré-tensão (+0.9 %), pressão sob a cabeça 113 MPa média e 152 MPa de pico (pico/média 1.34)",
+   "tensão no fuste 406 MPa = 70 % da tensão de prova de 580 MPa"
+  ],
+  "F_slip": 1528.407,
+  "slip_margin": 1.2736725,
+  "F_preload_required": 4000.0,
+  "governing": "nenhum: a junta atende"
+ },
+ "outputs": {
+  "F_preload_required": 4000.0,
+  "bolt_stress": 405845104.88433313,
+  "bolt_utilisation": 0.6997329394557468,
+  "F_slip": 1516.6338483099976,
+  "area_bolt": 1.2566370614359172e-05,
+  "case": "parafuso_pretensao",
+  "solver": {
+   "binary": "/Users/yanbarros/ccx-env/bin/ccx",
+   "available": true,
+   "version": "2.23"
+  },
+  "case_checks": [
+   {
+    "name": "solver.convergiu",
+    "outcome": "pass",
+    "value": 1.0,
+    "reference": 1.0,
+    "detail": "ok: job finished; 8 incremento(s) em 7.35 s",
+    "source": ".sta e log do CalculiX"
+   },
+   {
+    "name": "parafuso.aperto",
+    "outcome": "pass",
+    "value": 5055.446161033326,
+    "reference": 5100.0,
+    "detail": "aperto no fim do primeiro passo: 5055.45 N contra 5100 N da solução fechada (força de aperto medida pela integral de CPRESS na interface, contra a pré-tensão aplicada), tolerância 3.0%, desvio -0.87%",
+    "source": "força de aperto medida pela integral de CPRESS na interface, contra a pré-tensão aplicada"
+   },
+   {
+    "name": "equilibrio.aperto",
+    "outcome": "pass",
+    "value": 5282.098050005348,
+    "reference": 5055.446161033326,
+    "detail": "aperto no fim do puxamento: 5282.1 N contra 5055.45 N da solução fechada (o aperto não se perde quando a junta é puxada), tolerância 10.0%, desvio +4.48%",
+    "source": "o aperto não se perde quando a junta é puxada"
+   },
+   {
+    "name": "parafuso.pegada",
+    "outcome": "pass",
+    "value": 1.341555798103828,
+    "reference": 1.5,
+    "detail": "pico / média de CPRESS nos 9 nós da pegada (raio 3 mm): 1.342, esperado entre 1 e 1.5 (cabeça como área: pressão uniforme sobre a pegada daria 1; um nó só concentra a carga (1,6 neste caso, medido com o parafuso de um nó só na mesma malha))",
+    "source": "cabeça como área: pressão uniforme sobre a pegada daria 1; um nó só concentra a carga (1,6 neste caso, medido com o parafuso de um nó só na mesma malha)"
+   },
+   {
+    "name": "atrito.saturacao",
+    "outcome": "pass",
+    "value": 1528.407,
+    "reference": 1516.6338483099976,
+    "detail": "força tangencial com a interface deslizando: 1528.41 N contra 1516.63 N da solução fechada (junta pré-tensionada: F = mu x N = 0.3 x (aperto medido no primeiro passo) N), tolerância 3.0%, desvio +0.78%",
+    "source": "junta pré-tensionada: F = mu x N = 0.3 x (aperto medido no primeiro passo) N"
+   },
+   {
+    "name": "atrito.limite",
+    "outcome": "pass",
+    "value": 1528.407,
+    "reference": 1516.6338483099976,
+    "detail": "força tangencial transmitida: |1528.41| N contra o limite 1516.63 N (junta pré-tensionada: F = mu x N = 0.3 x (aperto medido no primeiro passo) N), folga 3.0%",
+    "source": "junta pré-tensionada: F = mu x N = 0.3 x (aperto medido no primeiro passo) N"
+   },
+   {
+    "name": "atrito.cone",
+    "outcome": "pass",
+    "value": 0.3000010842024671,
+    "reference": 0.3,
+    "detail": "maior razão |tau|/p: |0.300001|  contra o limite 0.3  (|tau| <= mu p em cada nó carregado), folga 5.0%",
+    "source": "|tau| <= mu p em cada nó carregado"
+   },
+   {
+    "name": "contato.fechado",
+    "outcome": "pass",
+    "value": 0.0,
+    "reference": 0.0,
+    "detail": "maior abertura medida: |0| mm contra o limite 0 mm (a junta não abre sob o puxamento (COPEN <= 0 em todos os nós)), folga 0.0%",
+    "source": "a junta não abre sob o puxamento (COPEN <= 0 em todos os nós)"
+   }
+  ],
+  "F_clamp": 5055.446161033326,
+  "clamp_loss": 0.008736046856210676,
+  "F_slip_measured": 1528.407,
+  "slip_margin": 1.2736725,
+  "p_head_mean": 113466022.22222221,
+  "p_head_peak": 152221000.0,
+  "head_ratio": 1.341555798103828,
+  "slip_measured": 4.69238e-05,
+  "razao_coulomb": 0.3000010842024671,
+  "contact_opening": 0.0,
+  "reaction_vertical": 1.074341e-11
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "CalculiX (ccx) disponível para resolver o deck",
+    "status": "supports",
+    "value": "2.23",
+    "limit": null,
+    "source": "ccx -v",
+    "reason": ""
+   },
+   {
+    "name": "o CalculiX terminou o deck do contato",
+    "status": "supports",
+    "value": 1.0,
+    "limit": 1.0,
+    "source": ".sta e log do CalculiX",
+    "reason": ""
+   },
+   {
+    "name": "o aperto medido é a pré-tensão aplicada",
+    "status": "supports",
+    "value": 5055.446161033326,
+    "limit": 5100.0,
+    "source": "força de aperto medida pela integral de CPRESS na interface, contra a pré-tensão aplicada",
+    "reason": ""
+   },
+   {
+    "name": "o aperto não se perde quando a junta é puxada",
+    "status": "supports",
+    "value": 5282.098050005348,
+    "limit": 5055.446161033326,
+    "source": "o aperto não se perde quando a junta é puxada",
+    "reason": ""
+   },
+   {
+    "name": "a cabeça do parafuso pressiona como área, não como um nó",
+    "status": "supports",
+    "value": 1.341555798103828,
+    "limit": 1.5,
+    "source": "cabeça como área: pressão uniforme sobre a pegada daria 1; um nó só concentra a carga (1,6 neste caso, medido com o parafuso de um nó só na mesma malha)",
+    "reason": ""
+   },
+   {
+    "name": "a força tangencial satura em mu x N quando a interface desliza",
+    "status": "supports",
+    "value": 1528.407,
+    "limit": 1516.6338483099976,
+    "source": "junta pré-tensionada: F = mu x N = 0.3 x (aperto medido no primeiro passo) N",
+    "reason": ""
+   },
+   {
+    "name": "a reação tangencial transmitida não passa do limite de atrito",
+    "status": "supports",
+    "value": 1528.407,
+    "limit": 1516.6338483099976,
+    "source": "junta pré-tensionada: F = mu x N = 0.3 x (aperto medido no primeiro passo) N",
+    "reason": ""
+   },
+   {
+    "name": "|tau| <= mu p em cada nó carregado (cone de Coulomb)",
+    "status": "supports",
+    "value": 0.3000010842024671,
+    "limit": 0.3,
+    "source": "|tau| <= mu p em cada nó carregado",
+    "reason": ""
+   },
+   {
+    "name": "a junta não abre sob o puxamento (COPEN <= 0 em todos os nós)",
+    "status": "supports",
+    "value": 0.0,
+    "limit": 0.0,
+    "source": "a junta não abre sob o puxamento (COPEN <= 0 em todos os nós)",
+    "reason": ""
+   },
+   {
+    "name": "a carga de escorregamento atende a carga de serviço com o fator",
+    "status": "supports",
+    "value": 1.2736725,
+    "limit": 1.0,
+    "source": "Richmond & DeVries / Shigley sec. 8-11: a ligação por atrito não escorrega em serviço, e a carga de escorregamento é mu x aperto",
+    "reason": ""
+   },
+   {
+    "name": "a tensão no fuste fica em 75 % da tensão de prova ou menos",
+    "status": "supports",
+    "value": 0.6997329394557468,
+    "limit": 0.75,
+    "source": "ISO 898-1:2013 Tab. 3: classe 8.8, tensão de prova S_p = 580 MPa para d <= 16 mm e Shigley, Mechanical Engineering Design, 10a ed., sec. 8-8: F_i = 0,75 S_p A_t para junta reutilizada",
+    "reason": ""
+   },
+   {
+    "name": "o aperto medido é a pré-tensão a menos de 2 %",
+    "status": "supports",
+    "value": 0.008736046856210676,
+    "limit": 0.02,
+    "source": "equilíbrio do *PRE-TENSION SECTION: a força de aperto é a pré-tensão aplicada",
+    "reason": ""
+   },
+   {
+    "name": "equilíbrio vertical da junta (reação fora do plano nula)",
+    "status": "supports",
+    "value": 1.074341e-11,
+    "limit": 5.1000000000000005,
+    "source": "soma das reações em y no apoio é nula: nada empurra a junta fora do plano",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "bolted_joint_preload",
+  "references": [
+   {
+    "case": "aperto = pré-tensão (8 kN)",
+    "output": "F_clamp",
+    "unit": "N",
+    "computed": 7860.697810998236,
+    "reference": 8000.0,
+    "rel_error": 0.017412773625220552,
+    "tol": 0.03,
+    "pass": true,
+    "kind": "analytic",
+    "source": "equilíbrio do *PRE-TENSION SECTION: a força que o parafuso devolve às chapas é a pré-tensão (medido -1,7 %, a mesma perda que a checagem do caso declara em 3 %) (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+    "params": {
+     "preload": 8000.0
+    }
+   },
+   {
+    "case": "escorregamento em mu x N com mu = 0,5 e 4 kN",
+    "output": "F_slip_measured",
+    "unit": "N",
+    "computed": 1997.411,
+    "reference": 2000.0,
+    "rel_error": 0.0012944999999999708,
+    "tol": 0.03,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Coulomb: a interface escorrega quando a força tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+    "params": {
+     "mu": 0.5,
+     "preload": 4000.0
+    }
+   },
+   {
+    "case": "escorregamento em mu x N com mu = 0,15 e 6 kN (junta oleada)",
+    "output": "F_slip_measured",
+    "unit": "N",
+    "computed": 899.1128,
+    "reference": 900.0,
+    "rel_error": 0.0009857777777777857,
+    "tol": 0.03,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Coulomb: a interface escorrega quando a força tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+    "params": {
+     "mu": 0.15,
+     "preload": 6000.0
+    }
+   },
+   {
+    "case": "cone de Coulomb: |tau|/p na interface igual a mu = 0,5",
+    "output": "razao_coulomb",
+    "unit": "-",
+    "computed": 0.5000015845423864,
+    "reference": 0.5,
+    "rel_error": 3.1690847728249594e-06,
+    "tol": 0.05,
+    "pass": true,
+    "kind": "analytic",
+    "source": "cada nó carregado fica dentro do cone de atrito, e o maior |tau|/p o toca quando a interface desliza (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+    "params": {
+     "mu": 0.5,
+     "preload": 4000.0
+    }
+   }
+  ],
+  "convergence": {
+   "parameter": "malha (células por direção nas chapas)",
+   "values": [
+    4,
+    6,
+    8
+   ],
+   "F_slip_measured": [
+    1528.376,
+    1528.407,
+    1528.399
+   ],
+   "F_clamp": [
+    5087.752437499998,
+    5055.446161033326,
+    5082.142678124998
+   ],
+   "head_ratio": [
+    1.3927426237479028,
+    1.341555798103828,
+    1.3790626330886433
+   ],
+   "rel_change_last": 5.2342353011472785e-06,
+   "pass": true
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/joint.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 11.754471291998925,
+  "versions": {
+   "python": "3.11.16",
+   "numpy": "2.4.6",
+   "scipy": "1.17.1",
+   "torch": "2.15.0"
+  },
+  "hardware": {
+   "cpu": "arm",
+   "cores": 10,
+   "os": "macOS-26.5.2-arm64-arm-64bit"
+  },
+  "date_utc": "2026-11-25T21:56:51Z"
+ },
+ "variants": {
+  "rows": {
+   "aço seco mu 0,30 (base)": {
+    "params": {},
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "F_preload_required": 4000.0,
+     "bolt_stress": 405845104.88433313,
+     "bolt_utilisation": 0.6997329394557468,
+     "F_slip": 1516.6338483099976,
+     "area_bolt": 1.2566370614359172e-05,
+     "F_clamp": 5055.446161033326,
+     "clamp_loss": 0.008736046856210676,
+     "F_slip_measured": 1528.407,
+     "slip_margin": 1.2736725,
+     "p_head_mean": 113466022.22222221,
+     "p_head_peak": 152221000.0,
+     "head_ratio": 1.341555798103828,
+     "slip_measured": 4.69238e-05,
+     "razao_coulomb": 0.3000010842024671,
+     "contact_opening": 0.0,
+     "reaction_vertical": 1.074341e-11
+    }
+   },
+   "superfície oleada mu 0,10": {
+    "params": {
+     "mu": 0.1
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "F_preload_required": 12000.0,
+     "bolt_stress": 405845104.88433313,
+     "bolt_utilisation": 0.6997329394557468,
+     "F_slip": 505.5192733255421,
+     "area_bolt": 1.2566370614359172e-05,
+     "F_clamp": 5055.1927332554205,
+     "clamp_loss": 0.008785738577368522,
+     "F_slip_measured": 509.5844,
+     "slip_margin": 0.4246536666666667,
+     "p_head_mean": 113486400.0,
+     "p_head_peak": 152244000.0,
+     "head_ratio": 1.34151757391194,
+     "slip_measured": 4.905650000000001e-05,
+     "razao_coulomb": 0.10000065928829911,
+     "contact_opening": -4.37241e-10,
+     "reaction_vertical": 6.32383e-13
+    }
+   },
+   "pré-tensão de 3 kN": {
+    "params": {
+     "preload": 3000.0
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "F_preload_required": 4000.0,
+     "bolt_stress": 238732414.63784304,
+     "bolt_utilisation": 0.411607611444557,
+     "F_slip": 892.2494216529436,
+     "area_bolt": 1.2566370614359172e-05,
+     "F_clamp": 2974.1647388431456,
+     "clamp_loss": 0.008611753718951452,
+     "F_slip_measured": 899.4472,
+     "slip_margin": 0.7495393333333333,
+     "p_head_mean": 66755177.777777776,
+     "p_head_peak": 89560200.0,
+     "head_ratio": 1.3416217734920604,
+     "slip_measured": 4.8188e-05,
+     "razao_coulomb": 0.3000011105519379,
+     "contact_opening": 0.0,
+     "reaction_vertical": 2.870593e-12
+    }
+   },
+   "serviço de 2 kN": {
+    "params": {
+     "service_load": 2000.0
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "F_preload_required": 8000.0,
+     "bolt_stress": 405845104.88433313,
+     "bolt_utilisation": 0.6997329394557468,
+     "F_slip": 1516.6338483099976,
+     "area_bolt": 1.2566370614359172e-05,
+     "F_clamp": 5055.446161033326,
+     "clamp_loss": 0.008736046856210676,
+     "F_slip_measured": 1528.407,
+     "slip_margin": 0.63683625,
+     "p_head_mean": 113466022.22222221,
+     "p_head_peak": 152221000.0,
+     "head_ratio": 1.341555798103828,
+     "slip_measured": 4.69238e-05,
+     "razao_coulomb": 0.3000010842024671,
+     "contact_opening": 0.0,
+     "reaction_vertical": 1.074341e-11
+    }
+   },
+   "parafuso 8.8 acima do limite": {
+    "params": {
+     "preload": 6000.0
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "F_preload_required": 4000.0,
+     "bolt_stress": 477464829.2756861,
+     "bolt_utilisation": 0.823215222889114,
+     "F_slip": 1784.1779583058758,
+     "area_bolt": 1.2566370614359172e-05,
+     "F_clamp": 5947.259861019586,
+     "clamp_loss": 0.008790023163402263,
+     "F_slip_measured": 1797.798,
+     "slip_margin": 1.498165,
+     "p_head_mean": 133480333.3333333,
+     "p_head_peak": 179067000.0,
+     "head_ratio": 1.3415234703739132,
+     "slip_measured": 4.63831e-05,
+     "razao_coulomb": 0.30000101087745046,
+     "contact_opening": 0.0,
+     "reaction_vertical": 6.252776e-13
+    }
+   }
+  },
+  "compared": [
+   "F_slip_measured",
+   "slip_margin",
+   "F_clamp"
+  ],
+  "gallery_3d": []
+ },
+ "figures_3d": [
+  "results/3d/bolted_joint_preload_3d_p.png"
+ ],
+ "wall_time_total_s": 155.0316212500038,
+ "environment": {
+  "versions": {
+   "python": "3.11.16",
+   "numpy": "2.4.6",
+   "scipy": "1.17.1",
+   "torch": "2.15.0"
+  },
+  "hardware": {
+   "cpu": "arm",
+   "cores": 10,
+   "os": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ }
+}

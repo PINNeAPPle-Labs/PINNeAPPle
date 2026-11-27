@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Optional, Tuple, Literal, List, Dict
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -16,7 +15,7 @@ MeshMode = Literal["auto", "grid", "points"]
 # -------------------------
 # Utilities
 # -------------------------
-def _nd_interpolate(x: torch.Tensor, size: Tuple[int, ...], dim: int) -> torch.Tensor:
+def _nd_interpolate(x: torch.Tensor, size: tuple[int, ...], dim: int) -> torch.Tensor:
     # x: (B,C,*spatial)
     if dim == 1:
         return F.interpolate(x, size=size, mode="linear", align_corners=False)
@@ -27,7 +26,7 @@ def _nd_interpolate(x: torch.Tensor, size: Tuple[int, ...], dim: int) -> torch.T
     raise ValueError(f"dim must be 1/2/3, got {dim}")
 
 
-def _coords_grid(batch: int, spatial: Tuple[int, ...], device, dim: int) -> torch.Tensor:
+def _coords_grid(batch: int, spatial: tuple[int, ...], device, dim: int) -> torch.Tensor:
     # returns (B, dim, *spatial) in [0,1]
     if dim == 1:
         (L,) = spatial
@@ -61,7 +60,7 @@ class SpectralConvND(nn.Module):
     Applies a learned complex linear map on low-frequency modes.
     """
 
-    def __init__(self, dim: int, in_channels: int, out_channels: int, modes: Tuple[int, ...]):
+    def __init__(self, dim: int, in_channels: int, out_channels: int, modes: tuple[int, ...]):
         super().__init__()
         assert dim in (1, 2, 3)
         assert len(modes) == dim
@@ -108,7 +107,7 @@ class SpectralConvND(nn.Module):
 
 
 class OperatorBlockND(nn.Module):
-    def __init__(self, dim: int, width: int, modes: Tuple[int, ...]):
+    def __init__(self, dim: int, width: int, modes: tuple[int, ...]):
         super().__init__()
         self.spec = SpectralConvND(dim, width, width, modes=modes)
         self.pw = nn.Conv1d(width, width, 1) if dim == 1 else (nn.Conv2d(width, width, 1) if dim == 2 else nn.Conv3d(width, width, 1))
@@ -123,7 +122,7 @@ class OperatorBlockND(nn.Module):
 
 
 class DownBlockND(nn.Module):
-    def __init__(self, dim: int, in_ch: int, out_ch: int, modes: Tuple[int, ...], depth: int):
+    def __init__(self, dim: int, in_ch: int, out_ch: int, modes: tuple[int, ...], depth: int):
         super().__init__()
         self.dim = dim
         self.proj = nn.Conv1d(in_ch, out_ch, 1) if dim == 1 else (nn.Conv2d(in_ch, out_ch, 1) if dim == 2 else nn.Conv3d(in_ch, out_ch, 1))
@@ -136,7 +135,7 @@ class DownBlockND(nn.Module):
         else:
             self.down = nn.Conv3d(out_ch, out_ch, kernel_size=2, stride=2)
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         x = self.proj(x)
         x = self.ops(x)
         skip = x
@@ -145,7 +144,7 @@ class DownBlockND(nn.Module):
 
 
 class UpBlockND(nn.Module):
-    def __init__(self, dim: int, in_ch: int, skip_ch: int, out_ch: int, modes: Tuple[int, ...], depth: int):
+    def __init__(self, dim: int, in_ch: int, skip_ch: int, out_ch: int, modes: tuple[int, ...], depth: int):
         super().__init__()
         self.dim = dim
         self.mix = nn.Conv1d(in_ch + skip_ch, out_ch, 1) if dim == 1 else (nn.Conv2d(in_ch + skip_ch, out_ch, 1) if dim == 2 else nn.Conv3d(in_ch + skip_ch, out_ch, 1))
@@ -176,7 +175,7 @@ class UNONdGrid(nn.Module):
         width: int = 64,
         levels: int = 3,
         depth_per_level: int = 2,
-        modes: Optional[Tuple[int, ...]] = None,
+        modes: tuple[int, ...] | None = None,
         add_coords: bool = True,
     ):
         super().__init__()
@@ -223,7 +222,7 @@ class UNONdGrid(nn.Module):
 
         x = self.lift(u)
 
-        skips: List[torch.Tensor] = []
+        skips: list[torch.Tensor] = []
         for down in self.downs:
             x, s = down(x)
             skips.append(s)
@@ -352,7 +351,7 @@ class UNONdPoints(nn.Module):
             nn.Linear(width, out_channels),
         )
 
-    def _pool(self, x: torch.Tensor, coords: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def _pool(self, x: torch.Tensor, coords: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         # simple random pooling (MVP). Replace with FPS for better quality.
         B, N, C = x.shape
         M = max(2, int(N * self.pool_ratio))
@@ -375,8 +374,8 @@ class UNONdPoints(nn.Module):
         # x: (B,N,Cin), coords: (B,N,dim)
         h = self.lift(torch.cat([x, coords], dim=-1))
 
-        skips: List[Tuple[torch.Tensor, torch.Tensor]] = []
-        pyramids: List[Tuple[torch.Tensor, torch.Tensor]] = []
+        skips: list[tuple[torch.Tensor, torch.Tensor]] = []
+        pyramids: list[tuple[torch.Tensor, torch.Tensor]] = []
 
         # Down
         for lvl in range(self.levels):
@@ -427,7 +426,7 @@ class UniversalUNO(NeuralOperatorBase):
         width_grid: int = 64,
         levels_grid: int = 3,
         depth_grid: int = 2,
-        modes: Optional[Tuple[int, ...]] = None,
+        modes: tuple[int, ...] | None = None,
         add_coords_grid: bool = True,
         # point params
         width_points: int = 128,
@@ -465,9 +464,9 @@ class UniversalUNO(NeuralOperatorBase):
     def forward(
         self,
         u: torch.Tensor,
-        coords: Optional[torch.Tensor] = None,
+        coords: torch.Tensor | None = None,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         # Decide mode

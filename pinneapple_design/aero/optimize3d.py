@@ -5,7 +5,8 @@ CO2 per 100 km down, stall speed down; requirements from Requirements3D; trust f
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -13,7 +14,7 @@ from pinneapple_design.design_optimizer.optimizer import DesignOptimizerConfig, 
 from pinneapple_design.design_optimizer.pareto import compute_pareto_front
 
 from .aircraft import Aircraft, Polar
-from .aircraft3d import BOUNDS3D, PLAN, Aircraft3D, Requirements3D, airframe_from, baseline_x
+from .aircraft3d import BOUNDS3D, PLAN, Aircraft3D, Requirements3D, baseline_x
 from .geometry import REFERENCE, properties, valid
 from .optimize import ALPHAS, Engine
 
@@ -25,14 +26,14 @@ class Engine3D:
         self.tail_polar = Polar(ALPHAS, co["cl"][0], co["cd"][0], co["cm"][0])
         self._base_w = None
 
-    def base_weights(self, ac: Aircraft) -> Dict[str, float]:
+    def base_weights(self, ac: Aircraft) -> dict[str, float]:
         x = baseline_x()
         co = self.e.mlp_coefficients(x[None, :6])
         a = Aircraft3D(x, Polar(ALPHAS, co["cl"][0], co["cd"][0], co["cm"][0]), self.tail_polar, ac)
         return a.weights
 
     def evaluate(self, X: np.ndarray, ac: Aircraft, req: Requirements3D, fine: bool = False,
-                 base_w: Optional[Dict[str, float]] = None) -> List[Dict[str, Any]]:
+                 base_w: dict[str, float] | None = None) -> list[dict[str, Any]]:
         X = np.atleast_2d(X)
         base_w = base_w or self.base_weights(ac)
         co = self.e.mlp_coefficients(X[:, :6])
@@ -40,7 +41,7 @@ class Engine3D:
         out = []
         for k, x in enumerate(X):
             ok, why = valid(x[:6])
-            rec: Dict[str, Any] = {"x": x.tolist(), "props": properties(x[:6]), "plan": dict(zip(PLAN, x[6:12].tolist()))}
+            rec: dict[str, Any] = {"x": x.tolist(), "props": properties(x[:6]), "plan": dict(zip(PLAN, x[6:12].tolist()))}
             if not ok:
                 rec.update(feasible=False, valid=False, violations=[f"invalid geometry: {why}"], penalty=100.0,
                            vmax=float("nan"), co2_100km=float("nan"), v_stall=float("nan"), trust="n/a")
@@ -62,15 +63,15 @@ class Engine3D:
         return out
 
     def search(self, ac: Aircraft = Aircraft(), req: Requirements3D = Requirements3D(), population: int = 48,
-               generations: int = 40, seed: int = 0, bounds: Optional[np.ndarray] = None,
-               progress: Optional[Callable[[int, int], None]] = None) -> Dict[str, Any]:
+               generations: int = 40, seed: int = 0, bounds: np.ndarray | None = None,
+               progress: Callable[[int, int], None] | None = None) -> dict[str, Any]:
         bounds = BOUNDS3D if bounds is None else bounds
         cfg = DesignOptimizerConfig(population_size=population, mutation_std=0.0, crossover_rate=0.9)
         opt = EvolutionaryDesignOptimizer(cfg, seed=seed, multi_objective=True)
         span = bounds[:, 1] - bounds[:, 0]
         rng = np.random.default_rng(seed)
         base_w = self.base_weights(ac)
-        recs: List[Dict[str, Any]] = []
+        recs: list[dict[str, Any]] = []
         t0 = time.time()
         for gen in range(generations):
             xs = opt.ask(bounds, population)
@@ -97,7 +98,7 @@ class Engine3D:
         return {"designs": recs, "pareto": front, "seconds": time.time() - t0, "evaluations": len(recs), "base_weights": base_w}
 
 
-def summarize3d(r: Dict[str, Any]) -> Dict[str, Any]:
+def summarize3d(r: dict[str, Any]) -> dict[str, Any]:
     keys = ("vmax_kt", "co2_100km", "v_stall_kt", "cruise_ld", "fuel_l_100km", "feasible", "trust", "violations",
             "generation", "penalty", "static_margin", "stall_station", "span", "mass")
     s = {k: r.get(k) for k in keys}

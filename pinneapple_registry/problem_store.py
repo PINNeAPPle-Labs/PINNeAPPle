@@ -20,7 +20,7 @@ import json
 import os
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class ProblemStore:
@@ -54,13 +54,13 @@ class ProblemStore:
             json.dump(data, f, indent=2, default=str)
         return version
 
-    def versions(self, problem_id: str) -> List[str]:
+    def versions(self, problem_id: str) -> list[str]:
         d = self._problem_dir(problem_id)
         if not os.path.isdir(d):
             return []
         return sorted(v for v in os.listdir(d) if os.path.isdir(os.path.join(d, v)))
 
-    def load(self, problem_id: str, version: Optional[str] = None):
+    def load(self, problem_id: str, version: str | None = None):
         """Reconstructs a live ``ProblemSpec`` — only works for versions
         saved via :meth:`save_from_preset`."""
         v = version or (self.versions(problem_id)[-1] if self.versions(problem_id) else None)
@@ -78,7 +78,7 @@ class ProblemStore:
             data = json.load(f)
         return get_preset(data["preset_id"], **data["preset_kwargs"])
 
-    def load_snapshot(self, problem_id: str, version: Optional[str] = None) -> Dict[str, Any]:
+    def load_snapshot(self, problem_id: str, version: str | None = None) -> dict[str, Any]:
         v = version or (self.versions(problem_id)[-1] if self.versions(problem_id) else None)
         if v is None:
             raise KeyError(f"No versions for problem_id='{problem_id}'")
@@ -88,7 +88,7 @@ class ProblemStore:
         with open(snap_path) as f:
             return json.load(f)
 
-    def history(self, problem_id: str) -> List[Dict[str, Any]]:
+    def history(self, problem_id: str) -> list[dict[str, Any]]:
         out = []
         for v in self.versions(problem_id):
             d = os.path.join(self._problem_dir(problem_id), v)

@@ -49,7 +49,7 @@ two-node cubic-Hermite transverse element as the underlying engine
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
@@ -57,7 +57,6 @@ from pinneapple_simulation.numerical_solvers.nonlinear_beam_fem import (
     DOF_AXIAL,
     DOF_SLOPE,
     DOF_TRANSVERSE,
-    DOFPN,
     NODES_PER_ELEMENT,
     NonlinearBeamNewmarkFEM,
 )
@@ -90,7 +89,7 @@ class StaticNonlinearBeamResult:
 
 
 def solve_nonlinear_beam_static(
-    boundary: Dict[str, Any],
+    boundary: dict[str, Any],
     L_m: float,
     A_m2: float,
     I_m4: float,
@@ -103,7 +102,7 @@ def solve_nonlinear_beam_static(
     newton_iterations: int = 30,
     newton_tolerance: float = 1e-8,
     reference_temperature: float = 0.0,
-    temperature_field: Optional[np.ndarray] = None,
+    temperature_field: np.ndarray | None = None,
     thermal_expansion_coeff: float = 0.0,
 ) -> StaticNonlinearBeamResult:
     """Load-stepped Newton-Raphson static solve of the geometrically

@@ -38,7 +38,7 @@ Usage
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .dataset_problems import DatasetProblem
 
@@ -62,7 +62,7 @@ from .dataset_problems import DatasetProblem
 #:   dataset_params: kwargs forwarded to load_dataset()
 #:   description   : human-readable summary
 
-DATASET_PRESETS: Dict[str, Dict[str, Any]] = {
+DATASET_PRESETS: dict[str, dict[str, Any]] = {
 
     # -- PDE benchmarks -------------------------------------------------------
 
@@ -456,7 +456,7 @@ DATASET_PRESETS: Dict[str, Dict[str, Any]] = {
 }
 
 # Convenience alias: category -> list of dataset_ids
-_CATEGORY_INDEX: Dict[str, List[str]] = {}
+_CATEGORY_INDEX: dict[str, list[str]] = {}
 for _did, _p in DATASET_PRESETS.items():
     _CATEGORY_INDEX.setdefault(_p["category"], []).append(_did)
 
@@ -465,7 +465,7 @@ for _did, _p in DATASET_PRESETS.items():
 # Public helpers
 # -----------------------------------------------------------------------
 
-def list_benchmarks(category: Optional[str] = None, verbose: bool = True) -> List[str]:
+def list_benchmarks(category: str | None = None, verbose: bool = True) -> list[str]:
     """Print and return available benchmark preset IDs.
 
     Parameters
@@ -485,7 +485,7 @@ def list_benchmarks(category: Optional[str] = None, verbose: bool = True) -> Lis
         )
 
     cats = [category] if category else sorted(_CATEGORY_INDEX.keys())
-    ids: List[str] = []
+    ids: list[str] = []
 
     if verbose:
         print("\n" + "-" * 70)
@@ -508,7 +508,7 @@ def list_benchmarks(category: Optional[str] = None, verbose: bool = True) -> Lis
     return ids
 
 
-def get_benchmark_preset(dataset_id: str) -> Dict[str, Any]:
+def get_benchmark_preset(dataset_id: str) -> dict[str, Any]:
     """Return the preset configuration dict for a dataset_id.
 
     Raises
@@ -530,25 +530,25 @@ def get_benchmark_preset(dataset_id: str) -> Dict[str, Any]:
 def benchmark_dataset(
     dataset_id: str,
     *,
-    models: Optional[List[str]] = None,
-    epochs: Optional[int] = None,
-    mode: Optional[str] = None,
-    n_train: Optional[int] = None,
-    n_bc: Optional[int] = None,
-    grid_n: Optional[int] = None,
+    models: list[str] | None = None,
+    epochs: int | None = None,
+    mode: str | None = None,
+    n_train: int | None = None,
+    n_bc: int | None = None,
+    grid_n: int | None = None,
     output_dir: str = "outputs/dataset_bench/",
-    prefix: Optional[str] = None,
-    hidden: Optional[List[int]] = None,
+    prefix: str | None = None,
+    hidden: list[int] | None = None,
     lr: float = 1e-3,
     dark_theme: bool = True,
     save_figures: bool = True,
     show: bool = False,
     uq: bool = False,
     inverse: bool = False,
-    name: Optional[str] = None,
+    name: str | None = None,
     description: str = "",
     **dataset_params,
-) -> "DatasetProblem":
+) -> DatasetProblem:
     """Run a full Arena benchmark on a pinneapple_data dataset.
 
     The preset for ``dataset_id`` supplies all defaults; any keyword argument
@@ -643,7 +643,7 @@ def benchmark_dataset(
             "training": {"epochs": _epochs, "lr": lr},
         }
 
-    arena_dict: Dict[str, Any] = {
+    arena_dict: dict[str, Any] = {
         "problem": {"name": prob.name},
         "models": [_model_cfg(m) for m in _models],
         "output": {"dir": f"{output_dir}/{_prefix}/", "prefix": _prefix},

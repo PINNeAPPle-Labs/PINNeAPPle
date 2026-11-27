@@ -7,15 +7,30 @@ from pinneapple_tools.visualization import use_cfd_style, plot_scalar, plot_vect
 from pinneapple_tools.visualization import plot_loss_history, plot_collocation, plot_pinn_prediction
 from pinneapple_tools.visualization import animate_scalar_field, plot_solver_output
 
-use_cfd_style()   # optional: enable dark CFD theme globally
+use_theme()   # the house theme (#918); use_cfd_style() keeps the older dark CFD look
 """
 from .style import (
     use_cfd_style,
+    use_theme,
     get_cmap,
     make_figure,
+    make_panel_figure,
+    figure_sizes,
+    field_cmap,
+    colorbar,
+    label,
+    annotate_verdict,
+    panel_letters,
+    source_note,
+    save_figure,
     CMAPS,
+    FIELD_CMAPS,
+    PALETTE,
     DEFAULT_CMAP,
 )
+
+# The single theme file every renderer reads (#65): theme.json next to this package
+from .theme import colormap_stops, palette, surface, viewport, field_cmaps
 
 from .fields import (
     plot_scalar,
@@ -24,6 +39,11 @@ from .fields import (
     plot_streamlines,
     compare_fields,
     plot_error,
+    compare_solutions,
+    field_error_metrics,
+    SolutionComparison,
+    render_field,
+    write_vtu,
 )
 
 from .pinn import (
@@ -73,6 +93,14 @@ from .animation import (
     make_gif,
 )
 
+# Orbiting camera and advancing time in one call, GIF or MP4, 1080p (#64)
+from .orbit import (
+    DEFAULT_AZIMUTH,
+    DEFAULT_ORBIT,
+    DEFAULT_SIZE,
+    turntable,
+)
+
 from .vortex import (
     compute_vorticity_2d,
     compute_q_criterion_2d,
@@ -86,12 +114,32 @@ from .vortex import (
     plot_flow_panel,
 )
 
+# An OpenFOAM case, a .foam pointer or a VTK file into a PyVista grid with the fields of each time (#60)
+from .openfoam import (
+    case_folder,
+    openfoam_times,
+    read_grid,
+    read_openfoam,
+    read_openfoam_patches,
+    read_vtk,
+)
+
 __all__ = [
     # Style
     "use_cfd_style", "get_cmap", "make_figure", "CMAPS", "DEFAULT_CMAP",
+    # House theme (#918): one palette, one map per quantity, labelled axes
+    "use_theme", "make_panel_figure", "figure_sizes", "field_cmap",
+    "colorbar", "label", "annotate_verdict", "panel_letters", "source_note",
+    "save_figure", "FIELD_CMAPS", "PALETTE",
+    # The shared theme file (#65): surfaces, palette and stops, for a renderer that is not matplotlib
+    "palette", "surface", "viewport", "colormap_stops", "field_cmaps",
     # Scalar / vector fields
     "plot_scalar", "plot_scalar_3d", "plot_vectors", "plot_streamlines",
     "compare_fields", "plot_error",
+    # Reference x surrogate x error, the standard comparison figure of a benchmark (#63)
+    "compare_solutions", "field_error_metrics", "SolutionComparison",
+    # A field on an arbitrary domain: the picture and the VTU of the same numbers (#61)
+    "render_field", "write_vtu",
     # PINN
     "plot_loss_history", "plot_multi_loss", "plot_collocation",
     "plot_pinn_prediction", "plot_pde_residual", "plot_gradient_magnitude",
@@ -104,6 +152,8 @@ __all__ = [
     "plot_voxel_slice", "plot_voxel_3d", "plot_voxel_histogram",
     # Animation
     "animate_scalar_field", "animate_streamlines", "make_gif",
+    # Turntable (orbiting camera + time) and its defaults
+    "turntable", "DEFAULT_SIZE", "DEFAULT_ORBIT", "DEFAULT_AZIMUTH",
     # Vortex / Q-criterion
     "compute_vorticity_2d", "compute_q_criterion_2d",
     "compute_q_criterion_3d", "compute_lambda2_3d",
@@ -112,4 +162,7 @@ __all__ = [
     # PyVista bridge
     "calculix_grid", "scene_to_multiblock", "grid_from_arrays", "von_mises",
     "export_vtk", "can_render", "render_png", "render_gif",
+    # An OpenFOAM case (or a .foam / VTK file) as a PyVista grid, one field per cell, one time per block (#60)
+    "read_openfoam", "read_openfoam_patches", "read_grid", "read_vtk",
+    "openfoam_times", "case_folder",
 ]

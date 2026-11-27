@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 import torch.nn as nn
 
@@ -20,7 +20,7 @@ class DynamicsAdapter:
     def can_handle(self, spec: ModelSpec) -> bool:
         return (spec.input_kind or "") == "dynamics"
 
-    def forward_batch(self, model: nn.Module, batch: Dict[str, Any]) -> Any:
+    def forward_batch(self, model: nn.Module, batch: dict[str, Any]) -> Any:
         if hasattr(model, "forward_batch"):
             return model.forward_batch(batch)
         x0 = batch.get("x0")

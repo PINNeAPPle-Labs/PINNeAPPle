@@ -54,6 +54,9 @@ try:
     import matplotlib
     matplotlib.use("Agg")   # non-interactive backend (works everywhere)
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     HAS_MPL = True
 except ImportError:
     HAS_MPL = False

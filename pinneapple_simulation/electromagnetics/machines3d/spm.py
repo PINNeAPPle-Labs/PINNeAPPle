@@ -15,7 +15,11 @@ Skew (of the magnets, relative to the stator): ``skew(z)`` gives the rotor offse
 Boundaries: ``n x A = 0`` (``B . n = 0``) on the inner and outer cylinders and the end planes.
 
 Iron is linear (``mu_r_iron``) in this model; magnets are linear with ``mu_r_magnet`` and remanence ``Br``
-(parallel or radial magnetisation of the 2-D machine). No winding currents: cogging and the no-load field.
+(parallel or radial magnetisation of the 2-D machine). Two sources: the magnets, and -- when ``currents`` is given
+to :meth:`SPM3D.solve` -- the armature, as the axial current density of the stranded slots
+(:meth:`SPM3D.current_density`), which is the same at every rotor angle because the stator does not turn. The
+winding is therefore straight and the skew is the rotor's alone; the end turns are not in the mesh, so their
+leakage and their loss are not in the torque.
 """
 from __future__ import annotations
 
@@ -25,6 +29,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from ..fem import Geometry
 from ..fem3d.nedelec import NU0, EdgeSpace, solve_magnetostatic, tree_gauge
 from ..machine import SPMMachine
 from ..mesh import Ring, polar_mesh
@@ -146,6 +151,36 @@ class SPM3D:
                 Br[t, 1] = sgn * m.Br * np.sin(ang)
         return nu, Br
 
+    # ------------------------------------------------------------------ armature source
+    def slot_labels(self) -> np.ndarray:
+        """``"slot<k>"`` (or the iron) of every 2-D element, at rotor angle 0. The stator does not turn, so the slots
+        keep their label at every angle: the armature source below is angle-independent."""
+        if getattr(self, "_slot_lab", None) is None:
+            self._slot_lab = np.asarray(self.labels2d(0.0), dtype=object)
+        return self._slot_lab
+
+    def current_density(self, currents) -> np.ndarray:
+        """``(M, 3)`` axial current density per tetrahedron, ``J = (0, 0, J_z)``, from the instantaneous phase
+        currents (A) of the 2-D machine (:meth:`~pinneapple_simulation.electromagnetics.machine.SPMMachine.`
+        ``phase_currents``): ``sign * turns * I_phase / A_slot`` in each slot of the stack, zero in the end
+        regions and in the iron. Stranded coil, uniform over the slot, as in the 2-D ``current_density``; the slot
+        area is the one of this model's own cross-section, so that the two models inject the same current density
+        to the accuracy of their meshes."""
+        J = np.zeros((len(self.mesh.tets), 3))
+        m = self.machine
+        if currents is None or not m.slots:
+            return J
+        lab = self.slot_labels()
+        area = Geometry.of(self.mesh2d).area
+        J2 = np.zeros(len(lab))
+        for k, (ph, sg) in enumerate(m.winding or []):
+            mask = lab == f"slot{k}"
+            S = float(area[mask].sum())
+            if S > 0.0:
+                J2[mask] = sg * m.turns_per_slot * float(currents[ph]) / S
+        J[:, 2] = np.where(self._in_stack[self._lay], J2[self._tri], 0.0)
+        return J
+
     # ------------------------------------------------------------------ solve and post-process
     def _system(self):
         """Tree-gauged unknowns and a factorisation of the matrix with the whole magnet ring at the magnet
@@ -167,18 +202,23 @@ class SPM3D:
             self._sys = (u, _factor(K))
         return self._sys
 
-    def solve(self, theta: float = 0.0, skew: Callable = no_skew, a0=None, rtol: float = 1e-10, direct=None):
-        """No-load field at rotor angle ``theta``: preconditioned CG on the tree-gauged system (a few iterations:
+    def solve(self, theta: float = 0.0, skew: Callable = no_skew, a0=None, rtol: float = 1e-10, direct=None,
+              currents=None):
+        """Field at rotor angle ``theta``: preconditioned CG on the tree-gauged system (a few iterations:
         the preconditioner is the factorised matrix of :meth:`_system`). ``direct=True`` falls back to
-        :func:`~pinneapple_simulation.electromagnetics.fem3d.nedelec.solve_magnetostatic` (ungauged CG)."""
+        :func:`~pinneapple_simulation.electromagnetics.fem3d.nedelec.solve_magnetostatic` (ungauged CG).
+        ``currents`` are the instantaneous phase currents in A; ``None`` is no load (magnets only)."""
         nu, Br = self.materials(theta, skew)
+        J = self.current_density(currents) if currents is not None else None
         if direct is False:
-            return solve_magnetostatic(self.mesh, nu, Br=Br, dirichlet=self._dir, space=self.space, a0=a0)
+            return solve_magnetostatic(self.mesh, nu, J=J, Br=Br, dirichlet=self._dir, space=self.space, a0=a0)
         import scipy.sparse.linalg as spla
 
         u, solve0 = self._system()
         K = self.space.stiffness(nu)[u][:, u].tocsr()
         b = self.space.magnet_load(nu, Br)[u]
+        if J is not None:
+            b = b + self.space.current_load(J, mask=self._in_stack[self._lay])[u]
         P = spla.LinearOperator(K.shape, matvec=solve0, dtype=float)
         it = [0]
         x, info = spla.cg(K, b, x0=None if a0 is None else a0[u], rtol=rtol, M=P, maxiter=200,
@@ -226,14 +266,20 @@ class SPM3D:
         Brad = (sol.B[s, :2] * (c[s, :2] / r[s, None])).sum(1)
         return float(np.sum(Brad * self.space.vol[s]) / self.space.vol[s].sum())
 
-    def cogging(self, thetas, skew: Callable = no_skew) -> np.ndarray:
-        """No-load torque at each rotor angle (warm-started CG)."""
+    def torque_series(self, thetas, skew: Callable = no_skew, currents_of: Callable | None = None) -> np.ndarray:
+        """Torque at each rotor angle (warm-started CG), at no load (``currents_of=None``) or with the phase currents
+        ``currents_of(theta)`` (A), e.g. the ``phase_currents`` of the 2-D machine: synchronous drive, the winding
+        common to all slices, the skew in the rotor."""
         out, a = [], None
         for th in thetas:
-            s = self.solve(th, skew, a0=a)
+            s = self.solve(th, skew, a0=a, currents=None if currents_of is None else currents_of(th))
             a = s.a
             out.append(self.torque(s))
         return np.array(out)
+
+    def cogging(self, thetas, skew: Callable = no_skew) -> np.ndarray:
+        """No-load torque at each rotor angle (warm-started CG)."""
+        return self.torque_series(thetas, skew)
 
     # ------------------------------------------------------------------ multi-slice 2-D on the same mesh
     def slice_model(self) -> SPM3D:
@@ -241,15 +287,19 @@ class SPM3D:
         return SPM3D(self.machine, n_theta=self.n_theta, r_inner=self.rings[0].r, core_rings=self.core_rings,
                      stack_layers=1, end_length=0.0, end_layers=0, mu_r_iron=self.mu_r_iron)
 
-    def multislice(self, thetas, offsets, slice_model: SPM3D | None = None) -> np.ndarray:
+    def multislice(self, thetas, offsets, slice_model: SPM3D | None = None,
+                   currents_of: Callable | None = None) -> np.ndarray:
         """Multi-slice torque: the mean over the slices at rotor offsets ``offsets`` of the straight one-layer
-        model, times the stack length / slice length ratio (the torque of the full stack)."""
+        model, times the stack length / slice length ratio (the torque of the full stack). ``currents_of`` as in
+        :meth:`torque_series`: every slice carries the same instantaneous currents, the slice's own field being
+        solved at its own rotor offset."""
         sm = slice_model or self.slice_model()
         scale = self.machine.length / (sm.z[-1] - sm.z[0])
         off, count = np.unique(np.round(np.asarray(offsets, float) / sm.step).astype(int), return_counts=True)
         res = []
         for th in thetas:
-            vals = np.array([sm.torque(sm.solve(th + k * sm.step)) for k in off])
+            cur = None if currents_of is None else currents_of(th)
+            vals = np.array([sm.torque(sm.solve(th + k * sm.step, currents=cur)) for k in off])
             res.append(scale * float(np.sum(vals * count) / count.sum()))
         return np.array(res)
 

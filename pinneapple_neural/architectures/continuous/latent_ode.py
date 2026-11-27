@@ -1,10 +1,8 @@
 from __future__ import annotations
 """Latent ODE with GRU-ODE encoder for irregular time series."""
-from typing import Dict, Optional, Tuple
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .base import ContinuousModelBase, ContOutput
 from .neural_ode import NeuralODE
@@ -78,7 +76,7 @@ class _GRUODEEncoder(nn.Module):
         self.logvar_min = -20.0
         self.logvar_max = 5.0
 
-    def forward(self, x: torch.Tensor, t: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor, t: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         B, T, D = x.shape
         device = x.device
         dtype = x.dtype
@@ -168,7 +166,7 @@ class LatentODE(ContinuousModelBase):
         x: torch.Tensor,  # (B,T,obs_dim) observed sequence (can be irregularly sampled)
         t: torch.Tensor,  # (T,) timestamps (monotonic increasing; irregular ok)
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,T,obs_dim)
+        y_true: torch.Tensor | None = None,  # (B,T,obs_dim)
         beta_kl: float = 1.0,
         return_loss: bool = False,
     ) -> ContOutput:
@@ -190,7 +188,7 @@ class LatentODE(ContinuousModelBase):
         # For API compatibility: y is the mean prediction
         y_hat = mu_x
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         if return_loss and y_true is not None:
             # Reconstruction as Gaussian NLL (more paper-like than MSE)
             rec = self._gaussian_nll(mu_x, log_sigma_x, y_true)

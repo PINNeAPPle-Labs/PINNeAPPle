@@ -1,9 +1,7 @@
 """Meshfree solvers: RBF collocation and Moving Least Squares (MLS)."""
 from __future__ import annotations
-from typing import Any, Callable, Dict, Optional, Tuple
 
 import torch
-import torch.nn.functional as F
 
 from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry
@@ -97,7 +95,6 @@ def _rbf_laplacian_imq(centres, eps: float):
 
     Δφ = ε²(1+ε²r²)^(-5/2) · (-d + ε²r²(3-d))
     """
-    import numpy as np
     N, d = centres.shape
     diff = centres[:, None, :] - centres[None, :, :]
     r2 = (diff ** 2).sum(-1)
@@ -148,7 +145,7 @@ class RBFCollocationSolver(SolverBase):
         self.reg = float(reg)
 
     @classmethod
-    def from_problem_spec(cls, spec, **kwargs) -> "RBFCollocationSolver":
+    def from_problem_spec(cls, spec, **kwargs) -> RBFCollocationSolver:
         params = dict(spec.pde.params)
         return cls(
             eps=float(params.get("eps", 3.0)),
@@ -166,11 +163,9 @@ class RBFCollocationSolver(SolverBase):
         if self.rbf_name == "multiquadric":
             return _rbf_laplacian_mq(centres, self.eps)
         if self.rbf_name == "thin_plate":
-            import numpy as np
             lap_np = _rbf_laplacian_thin_plate(centres.detach().cpu().numpy())
             return torch.tensor(lap_np, dtype=centres.dtype, device=centres.device)
         if self.rbf_name == "imq":
-            import numpy as np
             lap_np = _rbf_laplacian_imq(centres.detach().cpu().numpy(), self.eps)
             return torch.tensor(lap_np, dtype=centres.dtype, device=centres.device)
         raise NotImplementedError(

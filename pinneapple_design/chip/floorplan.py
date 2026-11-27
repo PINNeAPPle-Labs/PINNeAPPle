@@ -37,6 +37,8 @@ class Floorplan:
     nets: list[tuple[str, str]] = field(default_factory=list)
 
     def __post_init__(self):
+        if len(self.slots) != 2 or min(self.slots) < 1:
+            raise ValueError(f"slots must be (nx, ny) with both at least 1, got {self.slots!r}")
         n = self.slots[0] * self.slots[1]
         if len(self.blocks) > n:
             raise ValueError(f"{len(self.blocks)} blocks for {n} slots")

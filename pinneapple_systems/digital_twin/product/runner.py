@@ -15,7 +15,8 @@ same number. That is the whole point of shipping the evidence file with the twin
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
+from collections.abc import Callable, Mapping, Sequence
 
 import numpy as np
 

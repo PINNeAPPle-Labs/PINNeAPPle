@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Union
 
 import numpy as np
 
@@ -19,7 +18,7 @@ class TrimeshBridge:
       - Convert to MeshData (internal representation)
     """
 
-    def load(self, path: Union[str, Path], *, repair: bool = True) -> MeshData:
+    def load(self, path: str | Path, *, repair: bool = True) -> MeshData:
         """
         Load geometry using trimesh and return MeshData.
         """
@@ -53,7 +52,7 @@ class TrimeshBridge:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _load_trimesh(self, path: Union[str, Path]):
+    def _load_trimesh(self, path: str | Path):
         import trimesh
 
         path = Path(path).expanduser().resolve()

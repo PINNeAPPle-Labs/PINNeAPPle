@@ -44,7 +44,8 @@
   "10_solver_spectral_demo.py",
   "11_cad_cfd_pipeline_demo.py",
   "12_molecular_dynamics_lj_gas.py",
-  "13_shallow_water_twin3d_browser_demo.py"
+  "13_shallow_water_twin3d_browser_demo.py",
+  "14_integral_equations_nystrom.py"
  ],
  "metrics": [],
  "checks": [],

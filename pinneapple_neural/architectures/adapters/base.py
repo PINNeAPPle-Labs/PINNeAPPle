@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Protocol
+from typing import Any, Protocol
 
-import torch
 import torch.nn as nn
 
-from pinneapple_neural.architectures.base import ModelOutput
 from pinneapple_neural.architectures.registry import ModelSpec
 
 
@@ -16,7 +14,7 @@ class ModelAdapter(Protocol):
     def can_handle(self, spec: ModelSpec) -> bool:
         ...
 
-    def forward_batch(self, model: nn.Module, batch: Dict[str, Any]) -> Any:
+    def forward_batch(self, model: nn.Module, batch: dict[str, Any]) -> Any:
         ...
 
 
@@ -27,7 +25,7 @@ class _DefaultAdapter:
     def can_handle(self, spec: ModelSpec) -> bool:
         return True
 
-    def forward_batch(self, model: nn.Module, batch: Dict[str, Any]) -> Any:
+    def forward_batch(self, model: nn.Module, batch: dict[str, Any]) -> Any:
         if hasattr(model, "forward_batch"):
             return model.forward_batch(batch)  # type: ignore[attr-defined]
         x = batch.get("x") or batch.get("x_col")

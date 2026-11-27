@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -44,7 +43,7 @@ class MLP(nn.Module):
         Activation function name.
     """
 
-    def __init__(self, in_dim: int, out_dim: int, hidden: Tuple[int, ...], activation: str = "tanh"):
+    def __init__(self, in_dim: int, out_dim: int, hidden: tuple[int, ...], activation: str = "tanh"):
         super().__init__()
         act = _act(activation)
         dims = [int(in_dim), *[int(h) for h in hidden], int(out_dim)]
@@ -93,7 +92,7 @@ def _grad(y: Tensor, x: Tensor) -> Tensor:
     )[0]
 
 
-def _ns2d_residuals(xy: Tensor, uvp: Tensor, nu: float) -> Dict[str, Tensor]:
+def _ns2d_residuals(xy: Tensor, uvp: Tensor, nu: float) -> dict[str, Tensor]:
     """
     Compute 2D steady Navier-Stokes residuals.
 
@@ -150,7 +149,7 @@ class NativePINNBackend:
 
     name = "pinneapple_native"
 
-    def train(self, bundle: BundleData, run_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    def train(self, bundle: BundleData, run_cfg: dict[str, Any]) -> dict[str, Any]:
         """
         Train the PINN model using configuration parameters.
 

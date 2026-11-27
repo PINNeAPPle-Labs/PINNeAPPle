@@ -1,6 +1,5 @@
 from __future__ import annotations
 """Hybrid ROM: POD compression + operator inference + neural residual correction."""
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -80,7 +79,7 @@ class ROMHybrid(ROMBase):
     # ------------------------------------------------------------------
 
     @torch.no_grad()
-    def fit(self, X: torch.Tensor) -> "ROMHybrid":
+    def fit(self, X: torch.Tensor) -> ROMHybrid:
         """
         Fit POD and OpInf from snapshot tensor X of shape (B, T, D).
         Does NOT train the corrector; call train_corrector() separately.
@@ -101,8 +100,8 @@ class ROMHybrid(ROMBase):
         *,
         epochs: int = 500,
         lr: float = 1e-3,
-        device: Optional[str] = None,
-    ) -> "ROMHybrid":
+        device: str | None = None,
+    ) -> ROMHybrid:
         """
         Train the neural corrector to minimise residual error of OpInf.
 
@@ -159,7 +158,7 @@ class ROMHybrid(ROMBase):
 
         X_hat = self.pod.decode(a_hat.reshape(B * T, -1), shape=(B, T, D))
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=X.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=X.device)}
         if return_loss:
             losses["mse"]         = self.mse(X_hat, X)
             losses["latent_mse"]  = self.mse(a_hat, a)

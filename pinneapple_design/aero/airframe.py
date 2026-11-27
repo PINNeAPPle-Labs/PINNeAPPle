@@ -6,13 +6,8 @@ Axes: x aft from the nose, y to the right wing, z up; metres.
 """
 from __future__ import annotations
 
-import dataclasses
-import io
-import json
 import math
-import struct
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.interpolate import PchipInterpolator
@@ -114,7 +109,7 @@ class Airframe:
         return _PZ(np.clip(xi, 0, 1)) * self.height
 
     # ------------------------------------------------------------------ tails
-    def htail(self) -> Dict[str, float]:
+    def htail(self) -> dict[str, float]:
         x_qc = self.tail_arm_frac * self.length
         arm = x_qc - (self.mac_le_x + 0.25 * self.mac)
         S = self.htail_volume * self.wing_area * self.mac / arm
@@ -124,7 +119,7 @@ class Airframe:
         return {"area": S, "span": b, "taper": lam, "root_chord": cr, "x_qc": x_qc, "arm": arm,
                 "x_le": x_qc - 0.25 * cr, "z": self._fus_zc(x_qc / self.length) + 0.05}
 
-    def vtail(self) -> Dict[str, float]:
+    def vtail(self) -> dict[str, float]:
         x_qc = (self.tail_arm_frac - 0.02) * self.length
         arm = x_qc - (self.mac_le_x + 0.25 * self.mac)
         S = self.vtail_volume * self.wing_area * self.span / arm
@@ -136,7 +131,7 @@ class Airframe:
                 "z": self._fus_zc(xi) + 0.35 * self._fus_h(xi)}
 
     # ------------------------------------------------------------------ build
-    def build(self, detail: str = "high") -> List[Part]:
+    def build(self, detail: str = "high") -> list[Part]:
         n = {"high": 1.0, "cfd": 0.8, "low": 0.5}[detail]
         parts = self._fuselage(int(110 * n), int(64 * n))
         parts += self._wing(int(70 * n), int(36 * n))
@@ -149,7 +144,7 @@ class Airframe:
                 parts += self._gear()
         return parts
 
-    def _fuselage(self, ns: int, nt: int) -> List[Part]:
+    def _fuselage(self, ns: int, nt: int) -> list[Part]:
         L = self.length
         xi = 0.5 * (1 - np.cos(np.linspace(0, math.pi, ns)))       # clustered at nose and tail
         w, h, zc = self._fus_w(xi), self._fus_h(xi), self._fus_zc(xi)
@@ -190,7 +185,7 @@ class Airframe:
             F = F[:, ::-1]
         return _split(verts, F, mats, "fuselage")
 
-    def _section_loop(self, npts: int, shape: np.ndarray, symmetric_thick: Optional[float] = None) -> np.ndarray:
+    def _section_loop(self, npts: int, shape: np.ndarray, symmetric_thick: float | None = None) -> np.ndarray:
         """Closed airfoil loop in the (x, z) plane, unit chord: TE -> upper -> LE -> lower -> TE."""
         b = np.linspace(0, math.pi, npts)
         x = 0.5 * (1 - np.cos(b))
@@ -204,7 +199,7 @@ class Airframe:
         lo = np.c_[x[1:], yl[1:]]
         return np.vstack([up, lo])                                  # first and last point both at the TE
 
-    def _lifting_surface(self, name, loop, stations, mat, mirror=True) -> List[Part]:
+    def _lifting_surface(self, name, loop, stations, mat, mirror=True) -> list[Part]:
         """Loft a section loop through stations (x_le, y, z, chord, twist_deg); caps at both ends."""
         V, F = [], []
         m = len(loop)
@@ -238,7 +233,7 @@ class Airframe:
             parts.append(Part(name + "_left", Vm, F[:, ::-1].copy(), mat))
         return parts
 
-    def _wing(self, npts: int, nspan: int) -> List[Part]:
+    def _wing(self, npts: int, nspan: int) -> list[Part]:
         b2, cr, lam = self.span / 2, self.root_chord, self.taper
         loop = self._section_loop(npts, self.section)
         eta = np.sin(np.linspace(0, math.pi / 2, nspan))            # denser at the tip
@@ -255,7 +250,7 @@ class Airframe:
         return np.array([self.wing_x + eta * b2 * math.tan(math.radians(self.sweep_le)) + xc * c, eta * b2,
                          self.wing_z_root() + eta * b2 * math.tan(math.radians(self.dihedral))])
 
-    def _wing_details(self) -> List[Part]:
+    def _wing_details(self) -> list[Part]:
         out = []
         for side, mat in ((1, "nav_green"), (-1, "nav_red")):     # green on the right wing, red on the left
             p = self._wing_point(1.0, 0.12) * [1, side, 1] + [0, side * 0.02, 0]
@@ -270,7 +265,7 @@ class Airframe:
             p.aero = False
         return out
 
-    def _tails(self, npts: int, nspan: int) -> List[Part]:
+    def _tails(self, npts: int, nspan: int) -> list[Part]:
         ht, vt = self.htail(), self.vtail()
         loop = self._section_loop(npts, None, symmetric_thick=0.10)
         eta = np.linspace(0, 1, nspan)
@@ -304,7 +299,7 @@ class Airframe:
         parts += _split(V, F, mats, "vtail")
         return parts
 
-    def _propeller(self) -> List[Part]:
+    def _propeller(self) -> list[Part]:
         zc = float(self._fus_zc(0.0))
         R = self.prop_diameter / 2
         parts = []
@@ -365,7 +360,7 @@ class Airframe:
                 parts.append(p)
         return parts
 
-    def _gear(self) -> List[Part]:
+    def _gear(self) -> list[Part]:
         xi_m = (self.wing_x + 0.55 * self.root_chord) / self.length
         z_bot = float(self._fus_zc(xi_m) - 0.5 * self._fus_h(xi_m))
         ground = z_bot - 0.78
@@ -386,7 +381,7 @@ class Airframe:
         xi_m = (self.wing_x + 0.55 * self.root_chord) / self.length
         return float(self._fus_zc(xi_m) - 0.5 * self._fus_h(xi_m)) - 0.78
 
-    def summary(self) -> Dict[str, float]:
+    def summary(self) -> dict[str, float]:
         ht, vt = self.htail(), self.vtail()
         return {"span": self.span, "root_chord": self.root_chord, "tip_chord": self.root_chord * self.taper,
                 "mac": self.mac, "mac_le_x": self.mac_le_x, "htail_area": ht["area"], "htail_span": ht["span"],
@@ -404,7 +399,7 @@ def _signed_volume(V, F) -> float:
     return float(np.einsum("ij,ij->i", a, np.cross(b, c)).sum() / 6)
 
 
-def _split(V, F, mats, name) -> List[Part]:
+def _split(V, F, mats, name) -> list[Part]:
     out = []
     mats = np.asarray(mats, dtype=object)
     for m in dict.fromkeys(mats.tolist()):
@@ -472,7 +467,7 @@ def vertex_normals(V, F) -> np.ndarray:
 # ---------------------------------------------------------------------- exports
 # The writers are the library's generic ones (pinneapple_tools.visualization.studio); these keep the aircraft axes
 # (x aft, y right, z up), the aircraft materials and the spinning propeller group.
-def _surfaces(parts: List[Part], fields: Dict[str, Dict[str, np.ndarray]]):
+def _surfaces(parts: list[Part], fields: dict[str, dict[str, np.ndarray]]):
     from pinneapple_tools.visualization.studio.scene import Surface
     out = []
     for p in parts:
@@ -484,8 +479,8 @@ def _surfaces(parts: List[Part], fields: Dict[str, Dict[str, np.ndarray]]):
     return out
 
 
-def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None,
-           fields: Optional[Dict[str, Dict[str, np.ndarray]]] = None) -> bytes:
+def to_glb(parts: list[Part], scalars: dict[str, np.ndarray] | None = None,
+           fields: dict[str, dict[str, np.ndarray]] | None = None) -> bytes:
     """glTF 2.0 binary with PBR materials (clearcoat, transmission). Axes converted to glTF's y-up.
     ``scalars``: optional per-part vertex values stored as _CP attribute (e.g. surface pressure).
     ``fields``: more per-vertex values, {attribute name (e.g. "_CF"): {part name: values}}."""
@@ -498,13 +493,13 @@ def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None,
                      generator="PINNeAPPle pinneapple_design.aero.airframe", groups={"propeller": prop} if prop else None)
 
 
-def to_usda(parts: List[Part], title: str = "aircraft") -> str:
+def to_usda(parts: list[Part], title: str = "aircraft") -> str:
     """OpenUSD text: one Mesh per part, UsdPreviewSurface materials; z up, metres (Omniverse, usdview)."""
     from pinneapple_tools.visualization.studio.scene import write_usda
     return write_usda(_surfaces(parts, {}), MATERIALS, f"{title}: aircraft design", root="Aircraft")
 
 
-def to_stl(parts: List[Part], solid: str = "aircraft") -> bytes:
+def to_stl(parts: list[Part], solid: str = "aircraft") -> bytes:
     """Binary STL of the given parts (one closed surface per part)."""
     from pinneapple_tools.visualization.studio.scene import write_stl
     return write_stl(parts, solid)

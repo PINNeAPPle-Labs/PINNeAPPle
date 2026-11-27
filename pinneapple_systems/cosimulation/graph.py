@@ -15,7 +15,7 @@ Usage::
 """
 from __future__ import annotations
 
-from typing import Dict, Iterable, List, Optional
+from collections.abc import Iterable
 
 import torch.nn as nn
 
@@ -33,15 +33,15 @@ class CoSimGraph:
     """
 
     def __init__(self) -> None:
-        self._nodes: Dict[str, CoSimNode] = {}
-        self._connections: List[Connection] = []
-        self._topo_cache: Optional[List[List[str]]] = None
+        self._nodes: dict[str, CoSimNode] = {}
+        self._connections: list[Connection] = []
+        self._topo_cache: list[list[str]] | None = None
 
     # ------------------------------------------------------------------
     # Builder API
     # ------------------------------------------------------------------
 
-    def add_node(self, node: CoSimNode) -> "CoSimGraph":
+    def add_node(self, node: CoSimNode) -> CoSimGraph:
         """Register a node.  Raises ValueError if the name is already taken."""
         if node.name in self._nodes:
             raise ValueError(
@@ -52,7 +52,7 @@ class CoSimGraph:
         self._topo_cache = None
         return self
 
-    def connect(self, src: str, dst: str) -> "CoSimGraph":
+    def connect(self, src: str, dst: str) -> CoSimGraph:
         """Add a directed connection from 'src_node.src_port' to 'dst_node.dst_port'.
 
         Raises:
@@ -64,7 +64,7 @@ class CoSimGraph:
         self._topo_cache = None
         return self
 
-    def remove_node(self, name: str) -> "CoSimGraph":
+    def remove_node(self, name: str) -> CoSimGraph:
         """Remove a node and all its connections from the graph."""
         if name not in self._nodes:
             raise KeyError(f"Node {name!r} not in graph.")
@@ -80,7 +80,7 @@ class CoSimGraph:
     # Topology
     # ------------------------------------------------------------------
 
-    def execution_order(self) -> List[List[str]]:
+    def execution_order(self) -> list[list[str]]:
         """Return node groups in topological execution order.
 
         Each group is a list of node names.  Single-element groups have no
@@ -101,7 +101,7 @@ class CoSimGraph:
         sccs = tarjan_scc(self._adjacency())
         return any(len(s) > 1 for s in sccs)
 
-    def algebraic_loops(self) -> List[List[str]]:
+    def algebraic_loops(self) -> list[list[str]]:
         """Return all SCCs of size > 1 (feedback loops requiring iteration)."""
         sccs = tarjan_scc(self._adjacency())
         return [s for s in sccs if len(s) > 1]
@@ -111,11 +111,11 @@ class CoSimGraph:
     # ------------------------------------------------------------------
 
     @property
-    def nodes(self) -> Dict[str, CoSimNode]:
+    def nodes(self) -> dict[str, CoSimNode]:
         return dict(self._nodes)
 
     @property
-    def connections(self) -> List[Connection]:
+    def connections(self) -> list[Connection]:
         return list(self._connections)
 
     def node(self, name: str) -> CoSimNode:
@@ -124,11 +124,11 @@ class CoSimGraph:
             raise KeyError(f"Node {name!r} not in graph.")
         return self._nodes[name]
 
-    def incoming(self, node_name: str) -> List[Connection]:
+    def incoming(self, node_name: str) -> list[Connection]:
         """All connections whose destination is *node_name*."""
         return [c for c in self._connections if c.dst_node == node_name]
 
-    def outgoing(self, node_name: str) -> List[Connection]:
+    def outgoing(self, node_name: str) -> list[Connection]:
         """All connections whose source is *node_name*."""
         return [c for c in self._connections if c.src_node == node_name]
 
@@ -146,9 +146,9 @@ class CoSimGraph:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _adjacency(self) -> Dict[str, List[str]]:
+    def _adjacency(self) -> dict[str, list[str]]:
         """Build adjacency list {src_node: [dst_node, ...]} over all nodes."""
-        adj: Dict[str, List[str]] = {name: [] for name in self._nodes}
+        adj: dict[str, list[str]] = {name: [] for name in self._nodes}
         for conn in self._connections:
             adj[conn.src_node].append(conn.dst_node)
         return adj

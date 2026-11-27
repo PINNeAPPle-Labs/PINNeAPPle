@@ -29,7 +29,7 @@ Typical workflow
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -46,7 +46,7 @@ class HeteroscedasticWrapper(nn.Module):
         self.base_network = base_network
         self.n_out_physical = n_out_physical
 
-    def forward_uq(self, x: torch.Tensor, **forward_kwargs: Any) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward_uq(self, x: torch.Tensor, **forward_kwargs: Any) -> tuple[torch.Tensor, torch.Tensor]:
         out = self.base_network(x, **forward_kwargs)
         n = self.n_out_physical
         return out[:, :n], out[:, n:]
@@ -90,8 +90,8 @@ def compute_aleatoric_epistemic_uq(
     model: HeteroscedasticWrapper,
     coords: torch.Tensor,
     n_mc: int = 50,
-    forward_kwargs: Dict[str, Any] = None,
-) -> Dict[str, torch.Tensor]:
+    forward_kwargs: dict[str, Any] = None,
+) -> dict[str, torch.Tensor]:
     """Decompose predictive uncertainty via the law of total variance:
 
         E[Var[y|x]]  = aleatoric  (irreducible, from data noise)

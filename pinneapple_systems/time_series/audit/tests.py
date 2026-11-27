@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -17,7 +17,7 @@ def _as_1d(y) -> np.ndarray:
     return arr
 
 
-def _clean_series(y: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
+def _clean_series(y: np.ndarray) -> tuple[np.ndarray, dict[str, Any]]:
     """
     Clean a 1D series to make statsmodels tests robust.
 
@@ -56,13 +56,13 @@ def _has_statsmodels() -> bool:
         return False
 
 
-def _require_len(x: np.ndarray, n_min: int, name: str) -> Optional[Dict[str, Any]]:
+def _require_len(x: np.ndarray, n_min: int, name: str) -> dict[str, Any] | None:
     if len(x) < int(n_min):
         return {"ok": False, "error": f"{name} requires at least {n_min} clean points, got {len(x)}"}
     return None
 
 
-def adf_test(y, *, autolag: str = "AIC", min_n: int = 20) -> Dict[str, Any]:
+def adf_test(y, *, autolag: str = "AIC", min_n: int = 20) -> dict[str, Any]:
     if not _has_statsmodels():
         return {"ok": False, "error": "statsmodels is not installed"}
 
@@ -92,7 +92,7 @@ def adf_test(y, *, autolag: str = "AIC", min_n: int = 20) -> Dict[str, Any]:
         return {"ok": False, "error": f"ADF failed: {type(e).__name__}: {e}", "cleaning": info}
 
 
-def kpss_test(y, *, regression: str = "c", nlags: str = "auto", min_n: int = 20) -> Dict[str, Any]:
+def kpss_test(y, *, regression: str = "c", nlags: str = "auto", min_n: int = 20) -> dict[str, Any]:
     if not _has_statsmodels():
         return {"ok": False, "error": "statsmodels is not installed"}
 
@@ -120,7 +120,7 @@ def kpss_test(y, *, regression: str = "c", nlags: str = "auto", min_n: int = 20)
         return {"ok": False, "error": f"KPSS failed: {type(e).__name__}: {e}", "cleaning": info}
 
 
-def pp_test(y, min_n: int = 20) -> Dict[str, Any]:
+def pp_test(y, min_n: int = 20) -> dict[str, Any]:
     """
     Phillips–Perron test.
 
@@ -153,7 +153,7 @@ def pp_test(y, min_n: int = 20) -> Dict[str, Any]:
         return {"ok": False, "error": f"PP failed: {type(e).__name__}: {e}", "cleaning": info}
 
 
-def arch_test(y, *, lags: int = 12, min_n: int = 30) -> Dict[str, Any]:
+def arch_test(y, *, lags: int = 12, min_n: int = 30) -> dict[str, Any]:
     if not _has_statsmodels():
         return {"ok": False, "error": "statsmodels is not installed"}
 
@@ -181,7 +181,7 @@ def arch_test(y, *, lags: int = 12, min_n: int = 30) -> Dict[str, Any]:
         return {"ok": False, "error": f"ARCH failed: {type(e).__name__}: {e}", "cleaning": info}
 
 
-def acf_pacf(y, *, nlags: int = 40, min_n: int = 50) -> Dict[str, Any]:
+def acf_pacf(y, *, nlags: int = 40, min_n: int = 50) -> dict[str, Any]:
     if not _has_statsmodels():
         return {"ok": False, "error": "statsmodels is not installed"}
 
@@ -203,7 +203,7 @@ def acf_pacf(y, *, nlags: int = 40, min_n: int = 50) -> Dict[str, Any]:
         return {"ok": False, "error": f"ACF/PACF failed: {type(e).__name__}: {e}", "cleaning": info}
 
 
-def chow_test_mean_shift(y, break_idx: int, min_n: int = 20) -> Dict[str, Any]:
+def chow_test_mean_shift(y, break_idx: int, min_n: int = 20) -> dict[str, Any]:
     """
     Simple Chow test for a mean shift using an intercept-only model.
 
@@ -262,7 +262,7 @@ def chow_test_mean_shift(y, break_idx: int, min_n: int = 20) -> Dict[str, Any]:
     }
 
 
-def changepoints_ruptures(y, *, model: str = "l2", max_breaks: int = 5, min_n: int = 50) -> Dict[str, Any]:
+def changepoints_ruptures(y, *, model: str = "l2", max_breaks: int = 5, min_n: int = 50) -> dict[str, Any]:
     """
     Multi-break approximation via `ruptures` (if installed).
     """
@@ -296,7 +296,7 @@ class TSAuditor:
     nlags: int = 40
     arch_lags: int = 12
 
-    def run(self, y, *, meta: Optional[Dict[str, Any]] = None) -> AuditReport:
+    def run(self, y, *, meta: dict[str, Any] | None = None) -> AuditReport:
         report = AuditReport(meta=meta or {})
 
         report.add("stationarity", "adf", adf_test(y))

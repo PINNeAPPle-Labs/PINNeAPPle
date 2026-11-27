@@ -9,7 +9,6 @@ STFT in many cases.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -25,10 +24,10 @@ def sst_stft_1d(
     *,
     fs: float = 1.0,
     nperseg: int = 128,
-    noverlap: Optional[int] = None,
-    nfft: Optional[int] = None,
+    noverlap: int | None = None,
+    nfft: int | None = None,
     eps: float = 1e-8,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return (SST_like, freqs, times)."""
     f, t, Z = stft(x, fs=fs, nperseg=nperseg, noverlap=noverlap, nfft=nfft, boundary=None)
     # instantaneous frequency estimate from phase derivative along time
@@ -62,8 +61,8 @@ class SSTSolver(SolverBase):
         self,
         fs: float = 1.0,
         nperseg: int = 128,
-        noverlap: Optional[int] = None,
-        nfft: Optional[int] = None,
+        noverlap: int | None = None,
+        nfft: int | None = None,
     ):
         super().__init__()
         self.fs = float(fs)

@@ -27,7 +27,6 @@ import math
 import os
 import sys
 import time
-from typing import Dict, List, Tuple
 
 # Ensure the project root is on the path when running from examples/
 _project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -38,7 +37,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from matplotlib.colors import Normalize
 import numpy as np
 import torch
 import torch.nn as nn
@@ -48,7 +46,6 @@ from pinneapple_neural.architectures.pinns.vanilla import VanillaPINN
 from pinneapple_neural.architectures.neural_operators.fno import FNO2d
 from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet
 from pinneapple_neural.architectures.graphnn.base import GraphBatch
-from pinneapple_tools.visualization.fields import plot_streamlines, plot_scalar
 from pinneapple_physics.metrics import relative_l2, relative_linf
 from pinneapple_physics.pinn_solver.compiler.autograd_ops import grad
 from pinneapple_neural.trainer.parallel import best_device
@@ -89,7 +86,7 @@ X_MIN, X_MAX = -0.5, 1.5
 Y_MIN, Y_MAX =  0.0, 2.0
 
 
-def kovasznay_uv(x: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def kovasznay_uv(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     u = 1.0 - np.exp(LAMBDA_K * x) * np.cos(2.0 * math.pi * y)
     v = (LAMBDA_K / (2.0 * math.pi)) * np.exp(LAMBDA_K * x) * np.sin(2.0 * math.pi * y)
     return u, v
@@ -154,7 +151,7 @@ U_grid = _t(U_ref.reshape(GRID_N, GRID_N))   # (H, W)
 V_grid = _t(V_ref.reshape(GRID_N, GRID_N))
 UV_full = torch.stack([U_grid, V_grid], dim=0)  # (2, H, W)
 
-def make_fno_batch(n: int, mask_ratio: float) -> Tuple[torch.Tensor, torch.Tensor]:
+def make_fno_batch(n: int, mask_ratio: float) -> tuple[torch.Tensor, torch.Tensor]:
     """Create (inputs, targets) for FNO training.
     Input: (n, 1, H, W) masked u field.  Target: (n, 2, H, W) full (u, v).
     """
@@ -204,7 +201,7 @@ def ns_residuals(
     xy_bc: torch.Tensor,     # (M, 2)
     uv_bc: torch.Tensor,     # (M, 2)
     nu: float,               # kinematic viscosity = 1/Re
-) -> Tuple[torch.Tensor, Dict[str, float]]:
+) -> tuple[torch.Tensor, dict[str, float]]:
 
     xy = xy_int.clone().requires_grad_(True)
     out = net(xy)                    # (N, 3): [u, v, p]
@@ -286,7 +283,7 @@ xy_bc_d  = XY_bc.to(DEVICE)
 uv_bc_d  = UV_bc.to(DEVICE)
 nu_val   = 1.0 / RE
 
-pinn_history: List[Dict] = []
+pinn_history: list[dict] = []
 t0 = time.perf_counter()
 
 for epoch in range(EPOCHS_PINN):
@@ -313,7 +310,7 @@ opt_fno = torch.optim.Adam(fno.parameters(), lr=LR_FNO)
 sched_fno = torch.optim.lr_scheduler.CosineAnnealingLR(opt_fno, T_max=EPOCHS_FNO)
 
 BS_FNO = 16
-fno_history: List[Dict] = []
+fno_history: list[dict] = []
 t0 = time.perf_counter()
 
 for epoch in range(EPOCHS_FNO):
@@ -349,7 +346,7 @@ eidx_d    = edge_index.to(DEVICE)          # (2, E)
 # Augment with Gaussian noise to avoid memorisation
 NOISE_STD = 0.05
 
-mgn_history: List[Dict] = []
+mgn_history: list[dict] = []
 t0 = time.perf_counter()
 
 for epoch in range(EPOCHS_MGN):
@@ -646,6 +643,9 @@ ALL_COLORS_TITLE = ["white"] + COLORS
 mag_vmax = np.sqrt(U_ref**2 + V_ref**2).max()
 
 import scipy.interpolate as si
+from pinneapple_tools.visualization.style import use_theme  # noqa: E402
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 def _streamax(ax, u, v, name, col):
     ax.set_facecolor("#0d1117")

@@ -64,7 +64,7 @@ and out of scope for this module):
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Union
 
 from astropy import constants as const
 from astropy import units as u
@@ -84,7 +84,7 @@ from astropy.time import Time
 # as a plain float (via arithmetic / float()) AND carries real provenance:
 # `.value`, `.unit`, `.si`, `.uncertainty`, `.reference`. NOT bare floats
 # copy-pasted out of astropy; these ARE astropy's own objects.
-ASTRO_CONSTANTS: Dict[str, "const.Constant"] = {
+ASTRO_CONSTANTS: dict[str, const.Constant] = {
     "G": const.G,               # Newtonian gravitational constant
     "c": const.c,                # speed of light in vacuum
     "M_sun": const.M_sun,        # solar mass
@@ -137,7 +137,7 @@ def constant_provenance(name: str) -> str:
 QuantityLike = Union[str, "u.Quantity", float, int]
 
 
-def with_units(value: Union[float, int, str], unit_str: Optional[str] = None) -> "u.Quantity":
+def with_units(value: float | int | str, unit_str: str | None = None) -> u.Quantity:
     """Attach real astropy units to a bare number, or parse a unit string.
 
     Two call forms:
@@ -161,7 +161,7 @@ def with_units(value: Union[float, int, str], unit_str: Optional[str] = None) ->
     return u.Quantity(value, unit=u.Unit(unit_str))
 
 
-def to_si(quantity: QuantityLike, target_unit: Optional[str] = None) -> float:
+def to_si(quantity: QuantityLike, target_unit: str | None = None) -> float:
     """Convert an astropy Quantity (or a parsable string like "5 Msun") to
     a plain float, in SI units by default or in ``target_unit`` if given.
 
@@ -211,11 +211,11 @@ def transform_coordinates(
     obstime: str,
     frame_in: str = "gcrs",
     frame_out: str = "itrs",
-    vx: Optional[float] = None,
-    vy: Optional[float] = None,
-    vz: Optional[float] = None,
+    vx: float | None = None,
+    vy: float | None = None,
+    vz: float | None = None,
     unit: str = "km",
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Transform a Cartesian position (and optional velocity) between GCRS
     and ITRS using real ``astropy.coordinates`` machinery.
 
@@ -281,7 +281,7 @@ def transform_coordinates(
     coord_out = coord_in.transform_to(out_cls(obstime=t))
 
     out_rep = coord_out.cartesian
-    result: Dict[str, float] = {
+    result: dict[str, float] = {
         "x": float(out_rep.x.to_value(pos_unit)),
         "y": float(out_rep.y.to_value(pos_unit)),
         "z": float(out_rep.z.to_value(pos_unit)),

@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
 
 from ..providers.gemini_provider import GeminiProvider
 from .prompts import VERIFY_SYSTEM

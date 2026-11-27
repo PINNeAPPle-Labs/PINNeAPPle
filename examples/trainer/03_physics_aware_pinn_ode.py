@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import math
 import os
-from typing import Dict, Any, Tuple
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -52,7 +52,7 @@ class ODESampleDataset(Dataset):
     def __len__(self) -> int:
         return self.x.shape[0]
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         return {
             "x": self.x[idx],
             "y": self.y[idx],
@@ -82,7 +82,7 @@ class MLP(nn.Module):
 # -----------------------------
 # 3) Physics loss: y'' + y = 0 on collocation points
 # -----------------------------
-def ode_residual_loss(model: nn.Module, batch: Dict[str, Any]):
+def ode_residual_loss(model: nn.Module, batch: dict[str, Any]):
     with torch.enable_grad():
         x_col = batch["x_col"]
         if x_col.ndim == 3:

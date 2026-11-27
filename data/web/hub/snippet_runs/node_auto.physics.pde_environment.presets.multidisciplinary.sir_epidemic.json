@@ -1,0 +1,12 @@
+{
+ "code_hash": "4ac6c5a9a6982d4d",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.multidisciplinary.sir_epidemic",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "sir epidemic -> pinneapple_physics.pde_environment.presets.multidisciplinary:sir_epidemic\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'beta': 0.3, 'gamma': 0.1, 'N': 1000000.0, 'I0': 100.0, 't_end': 200.0}",
+ "timed_out": false
+}

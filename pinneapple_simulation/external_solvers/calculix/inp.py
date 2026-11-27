@@ -11,26 +11,25 @@ Keyword syntax: CalculiX User's Manual (G. Dhondt, www.calculix.de), section 7.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
 
 @dataclass
 class CalculixModel:
-    nodes: Dict[int, Tuple[float, float, float]] = field(default_factory=dict)
-    elements: Dict[int, Tuple[int, ...]] = field(default_factory=dict)
+    nodes: dict[int, tuple[float, float, float]] = field(default_factory=dict)
+    elements: dict[int, tuple[int, ...]] = field(default_factory=dict)
     element_type: str = "C3D8"
-    nsets: Dict[str, List[int]] = field(default_factory=dict)
+    nsets: dict[str, list[int]] = field(default_factory=dict)
     material: str = "STEEL"
     E: float = 210e9
     nu: float = 0.3
-    density: Optional[float] = None
-    boundary: List[Tuple[str, int, int, float]] = field(default_factory=list)  # (nset|node, dof1, dof2, value)
-    cloads: List[Tuple[str, int, float]] = field(default_factory=list)  # (nset|node, dof, value)
+    density: float | None = None
+    boundary: list[tuple[str, int, int, float]] = field(default_factory=list)  # (nset|node, dof1, dof2, value)
+    cloads: list[tuple[str, int, float]] = field(default_factory=list)  # (nset|node, dof, value)
     title: str = "pinneapple model"
 
-    def node_array(self) -> Tuple[np.ndarray, np.ndarray]:
+    def node_array(self) -> tuple[np.ndarray, np.ndarray]:
         ids = np.array(sorted(self.nodes), dtype=np.int64)
         return ids, np.array([self.nodes[i] for i in ids], dtype=float)
 
@@ -77,7 +76,7 @@ def write_inp(model: CalculixModel, path: str, *, job_outputs=("U",), stress_out
     return path
 
 
-def _params(line: str) -> Tuple[str, Dict[str, str]]:
+def _params(line: str) -> tuple[str, dict[str, str]]:
     parts = [p.strip() for p in line.split(",")]
     kw = parts[0].upper()
     params = {}
@@ -151,7 +150,7 @@ def read_inp(path: str) -> CalculixModel:
     return m
 
 
-def expand_target(model: CalculixModel, target: str) -> List[int]:
+def expand_target(model: CalculixModel, target: str) -> list[int]:
     """Node ids behind a ``*BOUNDARY``/``*CLOAD`` target (a node id or an NSET name)."""
     t = str(target).strip()
     if t.lstrip("-").isdigit():

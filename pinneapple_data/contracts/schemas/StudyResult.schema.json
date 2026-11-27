@@ -622,14 +622,32 @@
      "title": "App",
      "type": "string"
     },
+    "commit": {
+     "default": "",
+     "description": "The code that ran: PINNEAPPLE_COMMIT or the checkout's HEAD.",
+     "title": "Commit",
+     "type": "string"
+    },
     "created": {
      "title": "Created",
+     "type": "string"
+    },
+    "data_hash": {
+     "default": "",
+     "description": "SHA-256 of the exact inputs, as 'sha256:<hex>'.",
+     "title": "Data Hash",
      "type": "string"
     },
     "library_version": {
      "default": "",
      "title": "Library Version",
      "type": "string"
+    },
+    "mesh": {
+     "additionalProperties": true,
+     "description": "For a mesh-based solver: cells/nodes and the mesh file hash.",
+     "title": "Mesh",
+     "type": "object"
     },
     "notes": {
      "default": "",
@@ -642,6 +660,28 @@
      },
      "title": "Run Ids",
      "type": "array"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "The seed, or 'deterministic' for a solver with no randomness.",
+     "title": "Seed"
+    },
+    "solver": {
+     "default": "",
+     "description": "What produced the numbers: 'pinn', 'openfoam-simplefoam', ...",
+     "title": "Solver",
+     "type": "string"
     },
     "source": {
      "default": "",

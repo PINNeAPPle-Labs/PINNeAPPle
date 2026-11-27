@@ -30,6 +30,8 @@ from pinneapple_analysis.inverse_problems.heat_transfer import (
 from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet, mlp
 from pinneapple_simulation.numerical_solvers.heat_fv_reference import interp_grid, plate_2d
 
+from ..comparison import save_comparison
+
 _DIR = {"data": None, "smoke": False}
 
 
@@ -169,7 +171,8 @@ def calibrate(field_fn, power, t_meas, x, y):
     return _golden(counted, 1.0, 300.0), calls["n"]
 
 
-def surrogate_job(method: str, cfg: dict, seed: int, budget: ComputeBudget, *, final: bool) -> dict:
+def surrogate_job(method: str, cfg: dict, seed: int, budget: ComputeBudget, *, final: bool,
+                  comparison_path=None) -> dict:
     model, D, run, val = train_surrogate(method, cfg, seed, budget)
     out = {"train": run.to_dict(), "val_rel_l2": val, "n_params": sum(p.numel() for p in model.parameters())}
     if not final:
@@ -189,17 +192,24 @@ def surrogate_job(method: str, cfg: dict, seed: int, budget: ComputeBudget, *, f
             cases.append({"kind": kind, "power": power, "h_true": h_true, "h_hat": h_hat,
                           "h_rel_err": abs(h_hat - h_true) / h_true, "max_field_err_C": float(np.abs(T - t_ref).max()),
                           "hot_spot_err_C": float(abs(T.max() - t_ref.max())), "calibration_s": dt, "n_eval": n_eval})
+            if kind == "id" and power == CASES["id"][0][0]:        # the first case, "id0": the report's figure
+                X, Y = np.meshgrid(D.x, D.y, indexing="xy")        # the field is (ny, nx), so x runs fast
+                save_comparison(comparison_path, t_ref, T, x=X, y=Y, quantity="T", unit="°C", instance="id0")
     out["cases"] = cases
     z1 = D.z(25.0, 10.0)
     out["infer_batch1"] = time_per_query(lambda: model(z1), repeats=30, warmup=5)
     return out
 
 
-def pinn_job(cfg: dict, seed: int, budget: ComputeBudget, *, kind: str, case: int) -> dict:
+def pinn_job(cfg: dict, seed: int, budget: ComputeBudget, *, kind: str, case: int, comparison_path=None) -> dict:
     power, h_true = (CASES[kind][case] if kind in CASES else (8.0, 40.0))   # "val": a search case of its own
     r = run_plate(power=power, h_true=h_true, noise=NOISE, h_guess=H_GUESS, seed=seed, budget=budget,
                   width=cfg["width"], depth=cfg["depth"], n_colloc=cfg["n_colloc"], lr=cfg["lr"])
     t_ref = np.asarray(r["field_reference"])
+    if kind == "id" and case == 0:                                  # the first case, "id0": the report's figure
+        X, Y = np.meshgrid(np.asarray(r["x_mm"]) / 1000, np.asarray(r["y_mm"]) / 1000, indexing="xy")
+        save_comparison(comparison_path, t_ref, np.asarray(r["field_pinn"]), x=X, y=Y, quantity="T", unit="°C",
+                        instance="id0")
     return {"train": r["train"], "kind": kind, "case": case, "power": power, "h_true": h_true, "h_hat": r["h_pinn"],
             "h_rel_err": abs(r["h_pinn"] - h_true) / h_true, "max_field_err_C": r["max_field_error"],
             "hot_spot_err_C": abs(r["hot_spot_pinn"] - r["hot_spot_reference"]),

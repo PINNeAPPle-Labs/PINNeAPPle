@@ -1,0 +1,12 @@
+{
+ "code_hash": "ee874401b762bcf4",
+ "figures": [],
+ "id": "node:auto.tools.compute_backends.warp_available",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 9.45,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "warp available -> pinneapple_tools.compute_backends:warp_available\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

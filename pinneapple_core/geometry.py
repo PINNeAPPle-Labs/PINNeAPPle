@@ -9,7 +9,7 @@
 """
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 
@@ -26,16 +26,16 @@ class Geometry:
     the part of the boundary it names. Boxes get ``x_min, x_max, y_min, ...`` for free.
     """
 
-    def __init__(self, domain: Domain, boundaries: Optional[Dict[str, Predicate]] = None) -> None:
+    def __init__(self, domain: Domain, boundaries: dict[str, Predicate] | None = None) -> None:
         self.domain = domain
-        self._boundaries: Dict[str, Predicate] = dict(boundaries or {})
+        self._boundaries: dict[str, Predicate] = dict(boundaries or {})
         if domain.is_box and not self._boundaries:
             self._boundaries = self._box_boundaries(domain)
 
     @staticmethod
-    def _box_boundaries(domain: Domain) -> Dict[str, Predicate]:
+    def _box_boundaries(domain: Domain) -> dict[str, Predicate]:
         axis_names = "xyz"
-        out: Dict[str, Predicate] = {}
+        out: dict[str, Predicate] = {}
         for a in range(domain.dim):
             tol = 1e-9 * (domain.hi[a] - domain.lo[a])
             out[f"{axis_names[a]}_min"] = lambda p, a=a, t=tol: np.abs(p[:, a] - domain.lo[a]) <= t
@@ -44,11 +44,11 @@ class Geometry:
 
     # -- constructors -------------------------------------------------------
     @classmethod
-    def box(cls, lo: Sequence[float], hi: Sequence[float]) -> "Geometry":
+    def box(cls, lo: Sequence[float], hi: Sequence[float]) -> Geometry:
         return cls(Domain.box(lo, hi))
 
     @classmethod
-    def from_csg(cls, shape, boundaries: Optional[Dict[str, Predicate]] = None) -> "Geometry":
+    def from_csg(cls, shape, boundaries: dict[str, Predicate] | None = None) -> Geometry:
         """From a 2D CSG shape of ``pinneapple_design.geometry.csg`` (L-shapes, annuli, ...)."""
         return cls(Domain.from_sdf(shape), boundaries)
 
@@ -58,7 +58,7 @@ class Geometry:
         return self.domain.dim
 
     @property
-    def boundary_names(self) -> List[str]:
+    def boundary_names(self) -> list[str]:
         return list(self._boundaries)
 
     def tag(self, points: np.ndarray) -> np.ndarray:
@@ -72,7 +72,7 @@ class Geometry:
     def sample_interior(self, n: int, *, seed: int = 0) -> np.ndarray:
         return self.domain.sample_interior(n, seed=seed)
 
-    def sample_boundary(self, n: int, name: Optional[str] = None, *, seed: int = 0) -> np.ndarray:
+    def sample_boundary(self, n: int, name: str | None = None, *, seed: int = 0) -> np.ndarray:
         """``n`` boundary points, all of the boundary or only the part called ``name``."""
         if name is None:
             return self.domain.sample_boundary(n, seed=seed)

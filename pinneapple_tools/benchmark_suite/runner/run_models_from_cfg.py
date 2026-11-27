@@ -17,7 +17,7 @@ It writes into a run directory:
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -36,7 +36,7 @@ from pinneapple_physics.pde_environment.conditions import DirichletBC, InitialCo
 from pinneapple_design.geometry.gen.genetic_sdf import make_union_circles_sdf
 
 
-def _build_geometry_from_cfg(cfg: Dict[str, Any]):
+def _build_geometry_from_cfg(cfg: dict[str, Any]):
     if cfg is None:
         return None
     if not isinstance(cfg, dict):
@@ -55,7 +55,7 @@ def _build_geometry_from_cfg(cfg: Dict[str, Any]):
     raise ValueError(f"Unknown geometry kind: {kind}")
 
 
-def _build_problem_spec_from_cfg(cfg: Dict[str, Any] | None):
+def _build_problem_spec_from_cfg(cfg: dict[str, Any] | None):
     if cfg is None:
         return None
     if isinstance(cfg, ProblemSpec):
@@ -90,17 +90,17 @@ from pinneapple_tools.benchmark_suite.pipeline.dataset_builder import build_from
 from pinneapple_tools.benchmark_suite.bundle.loader import load_bundle
 
 
-def _device_from_cfg(train_cfg: Dict[str, Any]) -> torch.device:
+def _device_from_cfg(train_cfg: dict[str, Any]) -> torch.device:
     dev_str = str(train_cfg.get("device", "cuda" if torch.cuda.is_available() else "cpu"))
     return torch.device(dev_str)
 
 
 def run_one(
     *,
-    run_cfg: Dict[str, Any],
+    run_cfg: dict[str, Any],
     run_dir: str | Path,
-    bundle_root: Optional[str] = None,
-) -> Dict[str, Any]:
+    bundle_root: str | None = None,
+) -> dict[str, Any]:
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
@@ -179,9 +179,9 @@ def run_one(
         def __init__(self, inner: torch.nn.Module):
             super().__init__()
             self.inner = inner
-            self._last_batch: Optional[Dict[str, Any]] = None
+            self._last_batch: dict[str, Any] | None = None
 
-        def set_batch(self, batch: Dict[str, Any]):
+        def set_batch(self, batch: dict[str, Any]):
             self._last_batch = batch
 
         def forward(self, x: torch.Tensor):
@@ -191,7 +191,7 @@ def run_one(
 
     wrapped = _BatchWrapped(model)
 
-    def loss_fn(model_mod: torch.nn.Module, y_hat: Any, batch: Dict[str, Any]):
+    def loss_fn(model_mod: torch.nn.Module, y_hat: Any, batch: dict[str, Any]):
         # ensure model uses the same full batch
         wrapped.set_batch(batch)
         pred = y_hat

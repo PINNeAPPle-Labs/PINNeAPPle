@@ -18,14 +18,14 @@ python examples/pinneapple_solvers/04_solvers_fvm_advection_1d.py
 
 from __future__ import annotations
 
-from typing import Dict, Any
+from typing import Any
 
 import torch
 
 from pinneapple_solvers.fvm import FVMSolver
 
 
-def make_periodic_topology(Nc: int, dx: float, device=None, dtype=None) -> Dict[str, Any]:
+def make_periodic_topology(Nc: int, dx: float, device=None, dtype=None) -> dict[str, Any]:
     """Cell i connects to i+1 by face i (periodic)."""
     faces = []
     for i in range(Nc):
@@ -40,7 +40,7 @@ def make_periodic_topology(Nc: int, dx: float, device=None, dtype=None) -> Dict[
     return {"faces": faces, "areas": areas, "volumes": volumes, "normals": normals}
 
 
-def upwind_flux(ui: torch.Tensor, uj: torch.Tensor, face_info: Dict[str, Any], params: Dict[str, Any]) -> torch.Tensor:
+def upwind_flux(ui: torch.Tensor, uj: torch.Tensor, face_info: dict[str, Any], params: dict[str, Any]) -> torch.Tensor:
     """Upwind numerical flux for scalar advection."""
     a = float(params.get("a", 1.0))
     if a >= 0:

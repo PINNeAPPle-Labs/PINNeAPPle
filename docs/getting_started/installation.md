@@ -2,9 +2,18 @@
 
 ## What you need
 
-- Python 3.10 or newer.
+- Python 3.10 or newer, and PyTorch 2.2 or newer.
 - Nothing else to get started: `numpy`, `scipy`, `torch`, `sympy` and `matplotlib` come with the
   package.
+
+The versions this package commits to — Python 3.10 to 3.13, the current and the previous torch line, and Linux,
+macOS and Windows — are the [support matrix](support_matrix.md). That page also says which of those combinations
+somebody actually ran: a combination it calls *declared* is one nobody has run yet, and is not a promise. To check
+this machine against it:
+
+```bash
+python scripts/check_matrix.py        # from a checkout; exit code 0 only when the environment is in the matrix
+```
 
 ## From PyPI
 

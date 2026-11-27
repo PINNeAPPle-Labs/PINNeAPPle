@@ -1,5 +1,4 @@
 """Extra model families (KPI regressor, POD ROM, point-cloud operator, hybrid) in the decision engine."""
-import pytest
 
 from pinneapple_analysis.verification.architecture_recommendation import recommend_architecture
 from pinneapple_decision import ModelSelector, decide

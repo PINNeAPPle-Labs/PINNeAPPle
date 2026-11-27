@@ -1,0 +1,19 @@
+{
+  "epochs": 100,
+  "lr": 0.001,
+  "weight_decay": 0.0,
+  "grad_clip": 0.0,
+  "amp": false,
+  "device": "cpu",
+  "seed": null,
+  "deterministic": false,
+  "log_dir": "/Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/data_readiness/_out",
+  "run_name": "gate",
+  "save_best": false,
+  "resume_from": null,
+  "save_last": null,
+  "ddp": false,
+  "ddp_backend": "nccl",
+  "ddp_find_unused_parameters": false,
+  "physics_aware_validation": true
+}

@@ -35,7 +35,8 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 import torch
@@ -50,10 +51,10 @@ import torch.nn as nn
 class ArenaResult:
     """Container returned by Arena.run() and Arena.compare()."""
     spec: Any                                    # ProblemSpec
-    model: Optional[nn.Module] = None
-    history: List[Dict[str, float]] = field(default_factory=list)
-    metrics: Dict[str, float] = field(default_factory=dict)
-    artifacts: Dict[str, str] = field(default_factory=dict)
+    model: nn.Module | None = None
+    history: list[dict[str, float]] = field(default_factory=list)
+    metrics: dict[str, float] = field(default_factory=dict)
+    artifacts: dict[str, str] = field(default_factory=dict)
     model_id: str = "model"
     elapsed_s: float = 0.0
 
@@ -76,7 +77,7 @@ class ArenaResult:
 class ArenaCompareResult:
     """Container returned by Arena.compare() with multiple models."""
     spec: Any
-    results: List[ArenaResult] = field(default_factory=list)
+    results: list[ArenaResult] = field(default_factory=list)
 
     def leaderboard(self) -> str:
         header = f"{'Model':<20}  {'RMSE':>10}  {'Rel-L2':>10}  {'Time':>8}"
@@ -110,7 +111,7 @@ def _build_batch(
     n_ic: int,
     seed: int,
     device: torch.device,
-) -> Dict[str, torch.Tensor]:
+) -> dict[str, torch.Tensor]:
     """Generate training batch from ProblemSpec using problem_runner."""
     try:
         from pinneapple_simulation.numerical_solvers.problem_runner import generate_pinn_dataset
@@ -148,7 +149,7 @@ def _build_batch(
 # ══════════════════════════════════════════════════════════════════════════════
 
 def _build_model(
-    model: Union[str, nn.Module],
+    model: str | nn.Module,
     spec,
     hidden: Sequence[int] = (64, 64, 64, 64),
     activation: str = "tanh",
@@ -199,7 +200,7 @@ def _build_model(
     act_map = {"tanh": nn.Tanh, "relu": nn.ReLU, "silu": nn.SiLU, "gelu": nn.GELU}
     act_fn = act_map.get(activation.lower(), nn.Tanh)
     dims = [in_dim] + list(hidden) + [out_dim]
-    layers: List[nn.Module] = []
+    layers: list[nn.Module] = []
     for i in range(len(dims) - 1):
         layers.append(nn.Linear(dims[i], dims[i + 1]))
         if i < len(dims) - 2:
@@ -211,7 +212,7 @@ def _build_model(
 # Training loop
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _default_physics_loss(model_out: Any, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+def _default_physics_loss(model_out: Any, batch: dict[str, torch.Tensor]) -> torch.Tensor:
     """MSE against x_bc / y_bc targets when physics compiler isn't available."""
     loss = torch.zeros(1, device=next(iter(batch.values())).device)
     x_bc = batch.get("x_bc")
@@ -231,14 +232,14 @@ def _default_physics_loss(model_out: Any, batch: Dict[str, torch.Tensor]) -> tor
 
 def _train_loop(
     model: nn.Module,
-    batch: Dict[str, torch.Tensor],
+    batch: dict[str, torch.Tensor],
     spec,
     epochs: int,
     lr: float,
     device: torch.device,
     verbose: bool,
-    physics_weights: Optional[Dict[str, float]] = None,
-) -> List[Dict[str, float]]:
+    physics_weights: dict[str, float] | None = None,
+) -> list[dict[str, float]]:
     """Minimal training loop. Uses physics loss compiler if available."""
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -257,7 +258,7 @@ def _train_loop(
     except Exception:
         pass
 
-    history: List[Dict[str, float]] = []
+    history: list[dict[str, float]] = []
     t0 = time.time()
 
     for ep in range(1, epochs + 1):
@@ -333,11 +334,11 @@ def _train_loop(
 
 def _compute_metrics(
     model: nn.Module,
-    batch: Dict[str, torch.Tensor],
+    batch: dict[str, torch.Tensor],
     spec,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Compute basic regression metrics on data points if available."""
-    metrics: Dict[str, float] = {}
+    metrics: dict[str, float] = {}
     x_data = batch.get("x_data")
     y_data = batch.get("y_data")
     if x_data is None or y_data is None:
@@ -370,12 +371,12 @@ class Arena:
 
     def __init__(self, spec) -> None:
         self._spec = spec
-        self._yaml_config: Optional[Dict[str, Any]] = None
+        self._yaml_config: dict[str, Any] | None = None
 
     # ── Constructors ──────────────────────────────────────────────────────────
 
     @classmethod
-    def from_spec(cls, spec) -> "Arena":
+    def from_spec(cls, spec) -> Arena:
         """
         Create an Arena from a ``ProblemSpec`` (e.g. built with ProblemBuilder).
 
@@ -395,7 +396,7 @@ class Arena:
         return cls(spec)
 
     @classmethod
-    def from_preset(cls, preset_id: str, **params) -> "Arena":
+    def from_preset(cls, preset_id: str, **params) -> Arena:
         """
         Create an Arena from a registered preset.
 
@@ -409,7 +410,7 @@ class Arena:
         return cls(spec)
 
     @classmethod
-    def from_yaml(cls, config_path: Union[str, Path]) -> "Arena":
+    def from_yaml(cls, config_path: str | Path) -> Arena:
         """
         Create an Arena from a YAML config file.
 
@@ -431,20 +432,20 @@ class Arena:
 
     def run(
         self,
-        model: Union[str, nn.Module] = "VanillaPINN",
+        model: str | nn.Module = "VanillaPINN",
         *,
         epochs: int = 5000,
         lr: float = 1e-3,
         device: str = "auto",
         seed: int = 42,
-        n_col: Optional[int] = None,
-        n_bc: Optional[int] = None,
-        n_ic: Optional[int] = None,
-        physics_weights: Optional[Dict[str, float]] = None,
+        n_col: int | None = None,
+        n_bc: int | None = None,
+        n_ic: int | None = None,
+        physics_weights: dict[str, float] | None = None,
         hidden: Sequence[int] = (64, 64, 64, 64),
         activation: str = "tanh",
         verbose: bool = True,
-        save_dir: Optional[Union[str, Path]] = None,
+        save_dir: str | Path | None = None,
         model_id: str = "model",
     ) -> ArenaResult:
         """
@@ -502,7 +503,7 @@ class Arena:
         metrics = _compute_metrics(net, batch, self._spec)
 
         # Save
-        artifacts: Dict[str, str] = {}
+        artifacts: dict[str, str] = {}
         if save_dir is not None:
             save_path = Path(save_dir) / f"{model_id}.pt"
             save_path.parent.mkdir(parents=True, exist_ok=True)
@@ -531,15 +532,15 @@ class Arena:
 
     def compare(
         self,
-        models: Sequence[Union[str, nn.Module]],
+        models: Sequence[str | nn.Module],
         *,
         epochs: int = 5000,
         lr: float = 1e-3,
         device: str = "auto",
         seed: int = 42,
-        n_col: Optional[int] = None,
-        n_bc: Optional[int] = None,
-        n_ic: Optional[int] = None,
+        n_col: int | None = None,
+        n_bc: int | None = None,
+        n_ic: int | None = None,
         verbose: bool = True,
     ) -> ArenaCompareResult:
         """
@@ -557,7 +558,7 @@ class Arena:
         -------
         ArenaCompareResult with .leaderboard() and .results list
         """
-        results: List[ArenaResult] = []
+        results: list[ArenaResult] = []
         for m in models:
             model_id = m if isinstance(m, str) else type(m).__name__
             if verbose:

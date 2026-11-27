@@ -7,7 +7,7 @@ dropped; a single common top folder is stripped.
 from __future__ import annotations
 
 import re
-from typing import Dict, Sequence, Tuple
+from collections.abc import Sequence
 
 MAX_FILES = 20000
 MAX_UNZIPPED = 1024 * 1024 * 1024
@@ -17,8 +17,8 @@ def _skip(p: str) -> bool:
     return "__MACOSX" in p or p.split("/")[-1].startswith("._") or bool(re.search(r"(^|/)(processor\d+|\.git)(/|$)", p))
 
 
-def expand(files: Sequence[Tuple[str, bytes]], max_unzipped: int = MAX_UNZIPPED) -> Dict[str, bytes]:
-    fs: Dict[str, bytes] = {}
+def expand(files: Sequence[tuple[str, bytes]], max_unzipped: int = MAX_UNZIPPED) -> dict[str, bytes]:
+    fs: dict[str, bytes] = {}
     total = 0
     for name, data in files:
         name = name.replace("\\", "/").lstrip("/")

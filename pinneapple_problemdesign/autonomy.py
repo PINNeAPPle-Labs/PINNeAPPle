@@ -51,9 +51,10 @@ actions.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, Optional, Set
+from typing import Any
+from collections.abc import Callable
 
 
 # ---------------------------------------------------------------------------
@@ -155,7 +156,7 @@ class ConsequentialActionClassifier:
     #: sandbox" patterns (money, external communication, deployment,
     #: provisioning) that no tool in ``PhysicsToolRegistry`` currently
     #: matches, but that a future tool registry plausibly could.
-    DEFAULT_NAME_PATTERNS: Set[str] = {
+    DEFAULT_NAME_PATTERNS: set[str] = {
         # Licensed external solvers (real example: run_fluent_case).
         "fluent", "ansys", "abaqus", "comsol", "starccm", "nastran",
         # Money.
@@ -176,39 +177,39 @@ class ConsequentialActionClassifier:
     #: are consequential; this set exists so a future category clearly
     #: outside the sandbox (e.g. a procurement or deployment category) is
     #: caught even before any specific tool name pattern is added.
-    DEFAULT_CATEGORY_PATTERNS: Set[str] = {
+    DEFAULT_CATEGORY_PATTERNS: set[str] = {
         "external_solver", "procurement", "deployment", "finance",
         "communication",
     }
 
     #: ``PhysicsTool.tags`` entries treated as consequential outright.
-    DEFAULT_TAG_PATTERNS: Set[str] = {
+    DEFAULT_TAG_PATTERNS: set[str] = {
         "licensed", "paid", "external_network", "financial", "irreversible",
     }
 
     def __init__(
         self,
         *,
-        name_patterns: Optional[Set[str]] = None,
-        category_patterns: Optional[Set[str]] = None,
-        tag_patterns: Optional[Set[str]] = None,
-        exceptions: Optional[Set[str]] = None,
+        name_patterns: set[str] | None = None,
+        category_patterns: set[str] | None = None,
+        tag_patterns: set[str] | None = None,
+        exceptions: set[str] | None = None,
     ) -> None:
         # Copy the class-level defaults so mutating an instance's ruleset
         # (the documented extension mechanism above) never mutates the
         # shared class defaults out from under other instances.
-        self.name_patterns: Set[str] = set(
+        self.name_patterns: set[str] = set(
             name_patterns if name_patterns is not None else self.DEFAULT_NAME_PATTERNS
         )
-        self.category_patterns: Set[str] = set(
+        self.category_patterns: set[str] = set(
             category_patterns if category_patterns is not None else self.DEFAULT_CATEGORY_PATTERNS
         )
-        self.tag_patterns: Set[str] = set(
+        self.tag_patterns: set[str] = set(
             tag_patterns if tag_patterns is not None else self.DEFAULT_TAG_PATTERNS
         )
-        self.exceptions: Set[str] = set(exceptions) if exceptions else set()
+        self.exceptions: set[str] = set(exceptions) if exceptions else set()
 
-    def classify(self, tool_name: str, tool_metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def classify(self, tool_name: str, tool_metadata: dict[str, Any] | None = None) -> bool:
         """Return ``True`` if ``tool_name`` (optionally described further by
         ``tool_metadata``) is a consequential action.
 
@@ -255,7 +256,7 @@ class ApprovalRequest:
     should proceed. Passed to ``approver_fn`` by :class:`ApprovalGate`."""
 
     tool_name: str
-    tool_args: Dict[str, Any]
+    tool_args: dict[str, Any]
     reason: str
     autonomy_level: AutonomyLevel
     is_consequential: bool
@@ -348,10 +349,10 @@ class ApprovalGate:
     def __init__(
         self,
         autonomy_level: AutonomyLevel,
-        approver_fn: Optional[Callable[[ApprovalRequest], bool]] = None,
+        approver_fn: Callable[[ApprovalRequest], bool] | None = None,
         iteration_report_every: int = 5,
-        confidence_pause_threshold: Optional[float] = None,
-        classifier: Optional[ConsequentialActionClassifier] = None,
+        confidence_pause_threshold: float | None = None,
+        classifier: ConsequentialActionClassifier | None = None,
     ) -> None:
         if iteration_report_every <= 0:
             raise ValueError("iteration_report_every must be a positive integer.")
@@ -365,11 +366,11 @@ class ApprovalGate:
     def check(
         self,
         tool_name: str,
-        tool_args: Optional[Dict[str, Any]] = None,
+        tool_args: dict[str, Any] | None = None,
         *,
-        tool_metadata: Optional[Dict[str, Any]] = None,
-        current_iteration: Optional[int] = None,
-        current_confidence: Optional[float] = None,
+        tool_metadata: dict[str, Any] | None = None,
+        current_iteration: int | None = None,
+        current_confidence: float | None = None,
     ) -> ApprovalDecision:
         """Decide whether ``tool_name`` may proceed right now.
 
@@ -425,8 +426,8 @@ class ApprovalGate:
         self,
         tool_name: str,
         is_consequential: bool,
-        current_iteration: Optional[int],
-        current_confidence: Optional[float],
+        current_iteration: int | None,
+        current_confidence: float | None,
     ) -> tuple:
         # --- Hard safety floor: not skippable at any AutonomyLevel. -------
         if is_consequential:

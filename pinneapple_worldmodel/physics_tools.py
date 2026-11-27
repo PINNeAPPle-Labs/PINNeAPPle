@@ -49,7 +49,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any
+from collections.abc import Callable
 
 log = logging.getLogger(__name__)
 
@@ -76,11 +77,11 @@ class PhysicsTool:
     name: str
     category: str
     description: str
-    input_schema: Dict[str, str]
-    output_schema: Dict[str, str]
+    input_schema: dict[str, str]
+    output_schema: dict[str, str]
     module_path: str
-    fn: Optional[Callable] = field(default=None, repr=False)
-    tags: List[str] = field(default_factory=list)
+    fn: Callable | None = field(default=None, repr=False)
+    tags: list[str] = field(default_factory=list)
 
     def call(self, **kwargs: Any) -> Any:
         """Invoke the tool with keyword arguments.
@@ -125,7 +126,7 @@ class PhysicsToolRegistry:
     """
 
     def __init__(self) -> None:
-        self._tools: Dict[str, PhysicsTool] = {}
+        self._tools: dict[str, PhysicsTool] = {}
 
     # ------------------------------------------------------------------
     # Registration
@@ -166,13 +167,13 @@ class PhysicsToolRegistry:
             raise KeyError(f"Tool '{name}' not found. Available: {list(self._tools)}")
         return self._tools[name]
 
-    def list_by_category(self, category: str) -> List[PhysicsTool]:
+    def list_by_category(self, category: str) -> list[PhysicsTool]:
         return [t for t in self._tools.values() if t.category == category]
 
-    def list_by_tag(self, tag: str) -> List[PhysicsTool]:
+    def list_by_tag(self, tag: str) -> list[PhysicsTool]:
         return [t for t in self._tools.values() if tag in t.tags]
 
-    def search(self, query: str) -> List[PhysicsTool]:
+    def search(self, query: str) -> list[PhysicsTool]:
         """Fuzzy search across name, description, and tags."""
         q = query.lower()
         results = []
@@ -182,10 +183,10 @@ class PhysicsToolRegistry:
                 results.append(t)
         return results
 
-    def available_tools(self) -> List[PhysicsTool]:
+    def available_tools(self) -> list[PhysicsTool]:
         return [t for t in self._tools.values() if t.is_available()]
 
-    def categories(self) -> Set[str]:
+    def categories(self) -> set[str]:
         return {t.category for t in self._tools.values()}
 
     def __len__(self) -> int:
@@ -226,7 +227,7 @@ class PhysicsToolRegistry:
         def _simulate_trajectory(
             scenario: str = "heat_2d",
             n_steps: int = 50,
-            params: Optional[Dict] = None,
+            params: dict | None = None,
             seed: int = 0,
             device: str = "cpu",
         ) -> Any:
@@ -399,7 +400,7 @@ class PhysicsToolRegistry:
         ))
 
         def _active_learn(model: Any, domain: Any, **kwargs: Any) -> Any:
-            from pinneapple_data import ResidualBasedAL, AdaptiveCollocationTrainer  # type: ignore
+            from pinneapple_data import ResidualBasedAL  # type: ignore
             al = ResidualBasedAL(**kwargs)
             return al.suggest_points(model, domain)
 
@@ -972,7 +973,7 @@ class PhysicsToolRegistry:
     # Utility: safe-wrap
     # ------------------------------------------------------------------
 
-    def _safe_wrap(self, fn: Callable, module_name: str) -> Optional[Callable]:
+    def _safe_wrap(self, fn: Callable, module_name: str) -> Callable | None:
         """Return fn if the module is importable, else None."""
         try:
             __import__(module_name.split(".")[0])

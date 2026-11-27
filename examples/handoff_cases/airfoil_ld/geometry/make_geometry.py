@@ -183,6 +183,9 @@ def plot(out, xu, yu_e, xl, yl_e):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     colors = ["#1f3b73", "#c2491d", "#2e8b57", "#7a4fa3"]
     fig, ax = plt.subplots(figsize=(9, 3.6), dpi=150)
     ax.plot(xu, yu_e, color="0.6", lw=3.0, alpha=0.6, label="NACA 2412, exact ordinates")

@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any
+from collections.abc import Callable
 import math
 import warnings
 import torch
@@ -23,9 +24,9 @@ class SimplePhysicalSample:
         coords: Mapping from coordinate name to tensor (e.g., {"t": (T+1,), "x": (X,)}).
         meta: Free-form metadata describing the sample (equation params, BCs, etc.).
     """
-    fields: Dict[str, torch.Tensor]
-    coords: Dict[str, torch.Tensor]
-    meta: Dict[str, Any]
+    fields: dict[str, torch.Tensor]
+    coords: dict[str, torch.Tensor]
+    meta: dict[str, Any]
 
 
 class PDESynthGenerator:
@@ -48,7 +49,7 @@ class PDESynthGenerator:
         - Boundary condition handling is minimal: "periodic" or clamped "dirichlet0".
     """
 
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """Create a PDE/ODE synthetic data generator.
 
         Args:
@@ -88,7 +89,7 @@ class PDESynthGenerator:
         K: float = 1.0,        # logistic
 
         # IC
-        ic_fn: Optional[Callable[[torch.Tensor, torch.Generator], torch.Tensor]] = None,
+        ic_fn: Callable[[torch.Tensor, torch.Generator], torch.Tensor] | None = None,
     ) -> SynthOutput:
         """Generate synthetic trajectories for a supported PDE/ODE kind.
 
@@ -132,7 +133,7 @@ class PDESynthGenerator:
         device = torch.device(self.cfg.device)
         dtype = getattr(torch, self.cfg.dtype)
 
-        samples: List[SimplePhysicalSample] = []
+        samples: list[SimplePhysicalSample] = []
 
         if kind in ("heat1d", "advection1d"):
             x = torch.linspace(x_min, x_max, int(nx), device=device, dtype=dtype)

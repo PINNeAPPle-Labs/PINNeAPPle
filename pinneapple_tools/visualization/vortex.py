@@ -26,7 +26,6 @@ Visualization:
 
 from __future__ import annotations
 
-from typing import Optional, Tuple, Union
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -59,8 +58,8 @@ def _grad2d(field: np.ndarray, dx: float = 1.0, dy: float = 1.0):
 # ---------------------------------------------------------------------------
 
 def compute_vorticity_2d(
-    u: "ArrayLike",
-    v: "ArrayLike",
+    u: ArrayLike,
+    v: ArrayLike,
     dx: float = 1.0,
     dy: float = 1.0,
 ) -> np.ndarray:
@@ -77,8 +76,8 @@ def compute_vorticity_2d(
 
 
 def compute_q_criterion_2d(
-    u: "ArrayLike",
-    v: "ArrayLike",
+    u: ArrayLike,
+    v: ArrayLike,
     dx: float = 1.0,
     dy: float = 1.0,
 ) -> np.ndarray:
@@ -103,9 +102,9 @@ def compute_q_criterion_2d(
 # ---------------------------------------------------------------------------
 
 def compute_vorticity_3d(
-    u: "ArrayLike",
-    v: "ArrayLike",
-    w: "ArrayLike",
+    u: ArrayLike,
+    v: ArrayLike,
+    w: ArrayLike,
     dx: float = 1.0,
     dy: float = 1.0,
     dz: float = 1.0,
@@ -135,13 +134,13 @@ def compute_vorticity_3d(
 
 
 def compute_strain_rate_tensor_3d(
-    u: "ArrayLike",
-    v: "ArrayLike",
-    w: "ArrayLike",
+    u: ArrayLike,
+    v: ArrayLike,
+    w: ArrayLike,
     dx: float = 1.0,
     dy: float = 1.0,
     dz: float = 1.0,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Symmetric strain-rate tensor S_ij = 0.5(∂u_i/∂x_j + ∂u_j/∂x_i) for 3-D flow.
 
@@ -166,9 +165,9 @@ def compute_strain_rate_tensor_3d(
 
 
 def compute_q_criterion_3d(
-    u: "ArrayLike",
-    v: "ArrayLike",
-    w: "ArrayLike",
+    u: ArrayLike,
+    v: ArrayLike,
+    w: ArrayLike,
     dx: float = 1.0,
     dy: float = 1.0,
     dz: float = 1.0,
@@ -197,7 +196,7 @@ def compute_q_criterion_3d(
     return 0.5 * (norm_W2 - norm_S2)
 
 
-def compute_enstrophy(vorticity: "ArrayLike") -> float:
+def compute_enstrophy(vorticity: ArrayLike) -> float:
     """
     Enstrophy: 0.5 * sum(|ω|²).
 
@@ -213,8 +212,8 @@ def compute_enstrophy(vorticity: "ArrayLike") -> float:
 
 
 def compute_dissipation_rate(
-    strain_rate_tensor_components: Tuple["ArrayLike", "ArrayLike", "ArrayLike",
-                                          "ArrayLike", "ArrayLike", "ArrayLike"],
+    strain_rate_tensor_components: tuple[ArrayLike, ArrayLike, ArrayLike,
+                                          ArrayLike, ArrayLike, ArrayLike],
     nu: float,
 ) -> np.ndarray:
     """
@@ -231,9 +230,9 @@ def compute_dissipation_rate(
 
 
 def compute_lambda2_3d(
-    u: "ArrayLike",
-    v: "ArrayLike",
-    w: "ArrayLike",
+    u: ArrayLike,
+    v: ArrayLike,
+    w: ArrayLike,
     dx: float = 1.0,
     dy: float = 1.0,
     dz: float = 1.0,
@@ -284,15 +283,15 @@ def compute_lambda2_3d(
 # ---------------------------------------------------------------------------
 
 def plot_vorticity(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    omega: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    omega: ArrayLike,
     *,
     title: str = "Vorticity ω_z",
     cmap: str = "RdBu_r",
     symmetric: bool = True,
-    obstacle_mask: Optional["ArrayLike"] = None,
-    figsize: Tuple = (10, 5),
+    obstacle_mask: ArrayLike | None = None,
+    figsize: tuple = (10, 5),
     show: bool = False,
 ) -> Figure:
     """Coloured vorticity map, symmetric diverging colormap centred on zero."""
@@ -327,18 +326,18 @@ def plot_vorticity(
 
 
 def plot_q_criterion_2d(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    Q: "ArrayLike",
-    vel_mag: Optional["ArrayLike"] = None,
+    x: ArrayLike,
+    y: ArrayLike,
+    Q: ArrayLike,
+    vel_mag: ArrayLike | None = None,
     *,
     title: str = "Q-criterion",
     q_levels: int = 30,
     highlight_positive: bool = True,
     cmap_Q: str = "coolwarm",
     cmap_vel: str = "rainbow",
-    obstacle_mask: Optional["ArrayLike"] = None,
-    figsize: Tuple = (11, 5),
+    obstacle_mask: ArrayLike | None = None,
+    figsize: tuple = (11, 5),
     show: bool = False,
 ) -> Figure:
     """
@@ -386,16 +385,16 @@ def plot_q_criterion_2d(
 
 
 def plot_vortex_identification(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    u: "ArrayLike",
-    v: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    u: ArrayLike,
+    v: ArrayLike,
     *,
     dx: float = 1.0,
     dy: float = 1.0,
     title: str = "Vortex Identification (Q-criterion)",
-    obstacle_mask: Optional["ArrayLike"] = None,
-    figsize: Tuple = (11, 5),
+    obstacle_mask: ArrayLike | None = None,
+    figsize: tuple = (11, 5),
     show: bool = False,
 ) -> Figure:
     """
@@ -450,19 +449,19 @@ def plot_vortex_identification(
 # ---------------------------------------------------------------------------
 
 def plot_q_criterion_3d(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    z: "ArrayLike",
-    Q: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    z: ArrayLike,
+    Q: ArrayLike,
     *,
     level: float = 0.01,
-    vel_mag: Optional["ArrayLike"] = None,
+    vel_mag: ArrayLike | None = None,
     title: str = "Q-criterion iso-surface",
     cmap: str = "rainbow",
     alpha: float = 0.85,
     elev: float = 25.0,
     azim: float = -60.0,
-    figsize: Tuple = (10, 7),
+    figsize: tuple = (10, 7),
     show: bool = False,
 ) -> Figure:
     """
@@ -479,7 +478,6 @@ def plot_q_criterion_3d(
     except ImportError:
         raise ImportError("pip install scikit-image  # required for 3-D iso-surfaces")
 
-    from mpl_toolkits.mplot3d import Axes3D
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
     Q_ = _np(Q)
@@ -548,15 +546,15 @@ def plot_q_criterion_3d(
 # ---------------------------------------------------------------------------
 
 def plot_lbm_flow(
-    ux: "ArrayLike",
-    uy: "ArrayLike",
-    rho: Optional["ArrayLike"] = None,
-    obstacle_mask: Optional["ArrayLike"] = None,
+    ux: ArrayLike,
+    uy: ArrayLike,
+    rho: ArrayLike | None = None,
+    obstacle_mask: ArrayLike | None = None,
     *,
     dx: float = 1.0,
     dy: float = 1.0,
     title: str = "LBM Flow Field",
-    figsize: Tuple = (18, 9),
+    figsize: tuple = (18, 9),
     show: bool = False,
 ) -> Figure:
     """
@@ -606,15 +604,15 @@ def plot_lbm_flow(
 
 
 def plot_flow_panel(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    ux: "ArrayLike",
-    uy: "ArrayLike",
-    pressure: Optional["ArrayLike"] = None,
-    obstacle_mask: Optional["ArrayLike"] = None,
+    x: ArrayLike,
+    y: ArrayLike,
+    ux: ArrayLike,
+    uy: ArrayLike,
+    pressure: ArrayLike | None = None,
+    obstacle_mask: ArrayLike | None = None,
     *,
     title: str = "Flow Field Analysis",
-    figsize: Tuple = (18, 10),
+    figsize: tuple = (18, 10),
     show: bool = False,
 ) -> Figure:
     """

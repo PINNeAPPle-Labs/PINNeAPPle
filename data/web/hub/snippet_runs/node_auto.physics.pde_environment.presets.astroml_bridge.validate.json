@@ -1,0 +1,12 @@
+{
+ "code_hash": "22472afcf1b63d2e",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astroml_bridge.validate",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "validate -> pinneapple_physics.pde_environment.presets.astroml_bridge:validate\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'cases': None}",
+ "timed_out": false
+}

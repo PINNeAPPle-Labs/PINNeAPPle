@@ -7,7 +7,7 @@
     schema
     examples                                     # the bundled example flows
     example-flows list|run NAME [--quick]|doc|check   # examples/* as flows (pinneapple_flow.examples)
-    coverage [-o FILE]                           # which library modules are nodes (markdown)
+    coverage [-o FILE]                           # which library modules are nodes (markdown, any depth)
     autocalls [--no-check]                       # regenerate the nodes generated from the public API
     studio [--host 127.0.0.1] [--port 8765] [--no-browser] [--env .env]
 """
@@ -107,8 +107,8 @@ def cmd_coverage(a) -> int:
     else:
         print(text)
     rows = coverage()
-    unreached = [r["module"] for r in rows if not r["nodes"] and not r["reason"]]
-    if unreached:                    # every public module has a node or a stated reason (pinneapple_flow/coverage.py)
+    unreached = [r["module"] for r in rows if r["owing"] and not r["nodes"] and not r["reason"]]
+    if unreached:                    # the rows that owe a node or a reason (pinneapple_flow/coverage.py)
         print("no node and no reason: " + ", ".join(unreached), file=sys.stderr)
     return 1 if unreached else 0
 

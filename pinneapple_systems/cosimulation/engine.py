@@ -25,7 +25,6 @@ Usage::
 from __future__ import annotations
 
 import warnings
-from typing import Dict, List, Optional
 
 import torch
 
@@ -52,7 +51,7 @@ class CoSimEngine:
     def __init__(
         self,
         graph: CoSimGraph,
-        recorder: Optional[TrajectoryRecorder] = None,
+        recorder: TrajectoryRecorder | None = None,
         loop_solver: str = "gauss_seidel",
         max_iter: int = 50,
         tol: float = 1e-6,
@@ -74,7 +73,7 @@ class CoSimEngine:
         # and its most recently produced output-port values, so downstream
         # consumers (e.g. CouplingLoss) can compare a source's output
         # against a destination's actual consumed input by name.
-        self._vals: Dict[str, Dict[str, torch.Tensor]] = {
+        self._vals: dict[str, dict[str, torch.Tensor]] = {
             name: {} for name in graph.nodes
         }
         self._last_step_converged = True
@@ -92,7 +91,7 @@ class CoSimEngine:
             self.recorder.reset()
 
     def initialize_ports(
-        self, initial: Dict[str, Dict[str, torch.Tensor]]
+        self, initial: dict[str, dict[str, torch.Tensor]]
     ) -> None:
         """Set initial port values before the first ``step()``.
 
@@ -106,7 +105,7 @@ class CoSimEngine:
 
     def step(
         self, t: float, dt: float
-    ) -> Dict[str, Dict[str, torch.Tensor]]:
+    ) -> dict[str, dict[str, torch.Tensor]]:
         """Advance all nodes by one time step.
 
         Args:
@@ -163,7 +162,7 @@ class CoSimEngine:
         return self.recorder
 
     @property
-    def port_values(self) -> Dict[str, Dict[str, torch.Tensor]]:
+    def port_values(self) -> dict[str, dict[str, torch.Tensor]]:
         """Current snapshot of all port values."""
         return {n: dict(p) for n, p in self._vals.items()}
 
@@ -177,9 +176,9 @@ class CoSimEngine:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _gather_inputs(self, node_name: str) -> Dict[str, torch.Tensor]:
+    def _gather_inputs(self, node_name: str) -> dict[str, torch.Tensor]:
         """Collect input tensors for *node_name* from the current port buffer."""
-        inputs: Dict[str, torch.Tensor] = {}
+        inputs: dict[str, torch.Tensor] = {}
         for conn in self.graph.incoming(node_name):
             src_ports = self._vals.get(conn.src_node, {})
             if conn.src_port in src_ports:
@@ -192,13 +191,13 @@ class CoSimEngine:
         outputs = node.step(inputs, t, dt)
         self._vals[node_name] = {**inputs, **outputs}
 
-    def _step_loop(self, scc: List[str], t: float, dt: float) -> None:
+    def _step_loop(self, scc: list[str], t: float, dt: float) -> None:
         if self.loop_solver == "gauss_seidel":
             self._gauss_seidel(scc, t, dt)
         else:
             self._jacobi(scc, t, dt)
 
-    def _gauss_seidel(self, scc: List[str], t: float, dt: float) -> None:
+    def _gauss_seidel(self, scc: list[str], t: float, dt: float) -> None:
         """Sequential update — each node immediately sees neighbours' new values."""
         converged = False
         for _ in range(self.max_iter):
@@ -210,12 +209,12 @@ class CoSimEngine:
                 break
         self._note_convergence(scc, converged)
 
-    def _jacobi(self, scc: List[str], t: float, dt: float) -> None:
+    def _jacobi(self, scc: list[str], t: float, dt: float) -> None:
         """Parallel update — all nodes see last iteration's values."""
         converged = False
         for _ in range(self.max_iter):
             prev = {n: dict(self._vals[n]) for n in scc}
-            new: Dict[str, Dict[str, torch.Tensor]] = {}
+            new: dict[str, dict[str, torch.Tensor]] = {}
             for name in scc:
                 node = self.graph.node(name)
                 inputs = self._gather_inputs(name)
@@ -228,7 +227,7 @@ class CoSimEngine:
                 break
         self._note_convergence(scc, converged)
 
-    def _note_convergence(self, scc: List[str], converged: bool) -> None:
+    def _note_convergence(self, scc: list[str], converged: bool) -> None:
         self._last_step_converged = self._last_step_converged and converged
         if not converged:
             warnings.warn(
@@ -242,8 +241,8 @@ class CoSimEngine:
 
     def _converged(
         self,
-        scc: List[str],
-        prev: Dict[str, Dict[str, torch.Tensor]],
+        scc: list[str],
+        prev: dict[str, dict[str, torch.Tensor]],
     ) -> bool:
         for name in scc:
             for port, val in self._vals[name].items():

@@ -1,6 +1,6 @@
 """Forecast visualization: rolling predictions, confidence bands, parity plots."""
 from __future__ import annotations
-from typing import Optional, Sequence, Union
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -24,7 +24,7 @@ def _ensure_mpl():
 def plot_rolling_forecast(
     y_true:  np.ndarray,
     y_pred:  np.ndarray,
-    y_std:   Optional[np.ndarray] = None,
+    y_std:   np.ndarray | None = None,
     sigmas:  Sequence[float] = (1.0, 2.0, 3.0),
     title:   str = "Rolling Forecast",
     xlabel:  str = "Time step",
@@ -79,7 +79,7 @@ def plot_forecast_horizon(
     y_context: np.ndarray,
     y_true:    np.ndarray,
     y_pred:    np.ndarray,
-    y_std:     Optional[np.ndarray] = None,
+    y_std:     np.ndarray | None = None,
     sigmas:    Sequence[float] = (1.0, 2.0),
     title:     str = "Forecast",
     figsize:   tuple = (12, 4),

@@ -79,8 +79,7 @@ Reynolds number, inlet velocity, density, grid resolution, iteration count)
 """
 from __future__ import annotations
 
-import time as _time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -88,7 +87,7 @@ import torch
 from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry
 
-BBox = Tuple[float, float, float, float, float, float]
+BBox = tuple[float, float, float, float, float, float]
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -98,12 +97,12 @@ BBox = Tuple[float, float, float, float, float, float]
 def _build_ibm_masks(
     wall_points: np.ndarray,
     coords_grid: np.ndarray,
-    grid_shape: Tuple[int, int, int],
+    grid_shape: tuple[int, int, int],
     h: float,
     wall_thresh_h: float = 1.5,
     hull_sample: int = 3000,
     seed: int = 0,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Any]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, Any]:
     """Build the IBM wall mask and exterior (outside-geometry) mask.
 
     Returns (wall_mask3d, exterior_mask3d, dist_to_wall, kdtree, delaunay_or_none).
@@ -287,7 +286,7 @@ def field_divergence(u: np.ndarray, v: np.ndarray, w: np.ndarray,
 
 
 def interpolate_to_points(
-    grid_axes: Tuple[np.ndarray, np.ndarray, np.ndarray],
+    grid_axes: tuple[np.ndarray, np.ndarray, np.ndarray],
     field: np.ndarray,
     query_points: np.ndarray,
     fill_value: float = 0.0,
@@ -352,12 +351,12 @@ def solve_ibm_internal_flow(
     bc_mode: str = "lid_driven",
     lid_dir: str = "z+",
     channel_dir: str = "x+",
-    inlet_hint_point: Optional[np.ndarray] = None,
-    query_points: Optional[np.ndarray] = None,
-    log_every: Optional[int] = None,
+    inlet_hint_point: np.ndarray | None = None,
+    query_points: np.ndarray | None = None,
+    log_every: int | None = None,
     verbose: bool = False,
     seed: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """IBM/FDM incompressible Navier-Stokes on an enclosed domain whose
     bounding box IS the fluid domain.
 
@@ -396,7 +395,6 @@ def solve_ibm_internal_flow(
     grid_axes, wall_mask_fraction, dt, nu, frames (list, possibly empty),
     bc_info.
     """
-    from scipy.spatial import cKDTree
 
     wall_points = np.asarray(wall_points, dtype=np.float64)
     x0, y0, z0, x1, y1, z1 = bbox
@@ -430,7 +428,7 @@ def solve_ibm_internal_flow(
     else:
         lid_mask3d = XX < x0 + dx * 2
 
-    bc_info: Dict[str, Any] = {"bc_mode": bc_mode}
+    bc_info: dict[str, Any] = {"bc_mode": bc_mode}
     inlet_mask3d = outlet_mask3d = None
     inlet_face = outlet_face = None
 
@@ -549,7 +547,7 @@ def solve_ibm_internal_flow(
                   if n_frames > 0 else set())
     if n_iter > 0:
         snap_iters.add(n_iter - 1)
-    snapshots: List[Dict[str, np.ndarray]] = []
+    snapshots: list[dict[str, np.ndarray]] = []
 
     rhs_u_prev = rhs_v_prev = rhs_w_prev = None
     div_rms_final = float("nan")
@@ -691,12 +689,12 @@ def solve_ibm_external_flow(
     pad_lateral: float = 1.0,
     poisson_iters: int = 80,
     poisson_omega: float = 0.667,
-    query_points: Optional[np.ndarray] = None,
-    n_vis_grid: Tuple[int, int, int] = (40, 16, 16),
-    log_every: Optional[int] = None,
+    query_points: np.ndarray | None = None,
+    n_vis_grid: tuple[int, int, int] = (40, 16, 16),
+    log_every: int | None = None,
     verbose: bool = False,
     seed: int = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """IBM/FDM incompressible Navier-Stokes for external (free-stream)
     flow around an arbitrary solid immersed body.
 
@@ -921,7 +919,7 @@ def solve_ibm_navier_stokes(
     bbox: BBox,
     flow_type: str = "internal",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Dispatch to `solve_ibm_internal_flow` (`flow_type="internal"`) or
     `solve_ibm_external_flow` (`flow_type="external"`). All other keyword
     arguments are forwarded to the selected solver."""

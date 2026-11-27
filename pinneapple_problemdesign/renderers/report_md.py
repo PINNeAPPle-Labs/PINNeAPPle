@@ -1,16 +1,16 @@
 """Markdown renderer for DesignReport."""
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 from ..schema import DesignReport, Gap
 
 
-def _kwargs_str(d: Dict[str, Any]) -> str:
+def _kwargs_str(d: dict[str, Any]) -> str:
     """Format a kwargs dict as a compact inline string for Markdown display."""
     return ", ".join(f"{k}={v!r}" for k, v in d.items())
 
 
-def _format_gaps(gaps: List[Gap]) -> str:
+def _format_gaps(gaps: list[Gap]) -> str:
     if not gaps:
         return "_No gaps._"
     lines = []
@@ -24,7 +24,7 @@ def _format_gaps(gaps: List[Gap]) -> str:
     return "\n".join(lines)
 
 
-def render_markdown_report(report: DesignReport, warnings: List[str]) -> str:
+def render_markdown_report(report: DesignReport, warnings: list[str]) -> str:
     s = report.spec
     p = report.plan
 

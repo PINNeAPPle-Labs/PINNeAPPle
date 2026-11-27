@@ -1,0 +1,1566 @@
+# Backlog: this repository, by scope
+
+Every issue of `PINNeAPPle-Labs/PINNeAPPle` that carries a scope label, as of **2026-11-21**: **1498** in the scope of this year and the next cycle, **1484** still open. Issues without a scope label are not listed here -- they are the backlog nobody has decided about yet.
+
+This page is generated. Do not edit it by hand:
+
+```bash
+python scripts/backlog_report.py --fetch   # refresh the snapshot from GitHub
+python scripts/backlog_report.py --write   # regenerate this page from the snapshot
+python scripts/backlog_report.py --check   # CI: the page matches the snapshot and adds up
+```
+
+| scope | issues | open | closed |
+|---|---:|---:|---:|
+| This year (`escopo: 2026`) | 1254 | 1240 | 14 |
+| Next cycle (`escopo: futuro`) | 244 | 244 | 0 |
+
+A checked box means the issue is closed. The priority is the label the project gave it, not a judgement of this page.
+
+## This year — 1254 issues, 1240 open
+
+### core-api — 55 issues (46 open)
+
+- [x] [#27](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/27) [B6] Unified PhysicalProblem (universal ProblemSpec) (P0 L)
+- [x] [#29](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/29) [B2] Experiment class (problem, method, seed, splits, metrics, artifacts) (P0 M)
+- [x] [#30](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/30) [B3] Rigorous benchmark protocol (P0 L)
+- [ ] [#31](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/31) [B4] Unified PhysicsValidator (P1 M)
+- [ ] [#33](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/33) [B7] DesignPipeline: from problem to validated design (P1 L)
+- [ ] [#34](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/34) [B8] ActiveLearning behind one interface on Experiment (P1 M)
+- [ ] [#35](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/35) [B9] Multi-fidelity workflow (P1 L)
+- [x] [#37](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/37) [B11] Blocking end-to-end integration tests (P0 M)
+- [ ] [#38](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/38) [B12] run_results as verifiable evidence (P1 M)
+- [x] [#39](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/39) [B13] Provenance recorded on every sample and model (P0 M)
+- [ ] [#40](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/40) [B14] Generated cards for models, datasets and benchmarks (P1 M)
+- [x] [#41](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/41) [B15] Runnable example catalog (no example imports a symbol that does not exist) (P0 M)
+- [x] [#150](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/150) [S1] Reconcile the three problem specifications (decision D1) (P0 M)
+- [x] [#151](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/151) [S2] Universal physical problem as a façade over the reconciled spec (P0 M)
+- [ ] [#155](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/155) [S6] Common PhysicsModel interface over PINN, operator, GNN, ROM and hybrids (P1 L)
+- [ ] [#156](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/156) [S7] Physical Data Graph: lineage from problem to prediction (P1 L)
+- [ ] [#163](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/163) [S14] Engineering agent over the platform's typed APIs (P2 L)
+- [ ] [#164](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/164) [S15] Intent-to-problem compiler (natural language or CAD → universal problem) (P2 L)
+- [ ] [#169](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/169) [S20] Geometry as a first-class layer (CAD, B-Rep, SDF, point cloud, mesh, graph) (P2 L)
+- [ ] [#172](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/172) [S23] Typed design constraints checked in stages (P1 L)
+- [ ] [#173](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/173) [S24] Expert corrections become persistent checks (P2 M)
+- [ ] [#185](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/185) [X1] Physics IR: one executable representation of a physical problem (P0 L)
+- [x] [#186](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/186) [X2] PhysicsTensor: tensors that know units, domain, components and discretization (P0 L)
+- [ ] [#201](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/201) [X17] Public namespace layout and positioning (pp.physics, data, nn, optim, linalg, sparse, geometry, mesh, solver, ...) (P1 S)
+- [ ] [#202](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/202) [X18] pp.linalg: LinearOperator, eigen and modal analysis, POD, Krylov, adjoint, sensitivity, condition number (P2 M)
+- [ ] [#203](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/203) [X19] pp.sparse: SparseField, MeshOperator, GraphOperator, BlockOperator and linear solvers (CG, GMRES, BiCGSTAB, AMG) (P2 L)
+- [ ] [#204](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/204) [X20] Physics ontology: formal schema for physical objects (P1 L)
+- [ ] [#205](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/205) [X21] Dimensional consistency checker for equations (pp.check_dimensions) (P1 M)
+- [ ] [#206](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/206) [X22] Automatic scaling and conditioning (pp.condition) with nondimensional formulation and Re/Pe-style groups (P1 L)
+- [ ] [#207](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/207) [X23] Stiffness and regime detection with strategy recommendations (P2 M)
+- [ ] [#219](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/219) [S38] Decision report: outcome distribution, risks and recommendation from an ensemble (P2 M)
+- [ ] [#221](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/221) [X34] Constraint engine shared by training, optimization, control and deployment (P2 M)
+- [ ] [#231](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/231) Integrate MeshDynamicsMGN into the registry, Arena and variable-graph batching (P2 M)
+- [ ] [#314](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/314) Differentiable domain decomposition for the geophysics solvers: halo exchange, parallel spectral transform, ensembles (P2 L)
+- [ ] [#522](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/522) Astropy interop: FITS, units, coordinates and time in PhysicalSamples, plus galpy/Gala galactic dynamics (P2 S)
+- [ ] [#528](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/528) Dataset and model catalogue: one registry for public physics datasets and checkpoints (Hugging Face Hub, Zenodo) with licence and citation (P1 M)
+- [ ] [#530](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/530) Non-stationarity diagnostics for time series: unit roots, structural breaks, cointegration (P2 M)
+- [ ] [#531](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/531) Directed information flow between time series: transfer entropy and (non-linear) Granger causality (P3 M)
+- [ ] [#532](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/532) Weak-signal recovery: multi-scale noise decomposition with tests for what is noise and what is structure (P2 M)
+- [ ] [#931](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/931) QA pipeline: add kernel-level isolation as an opt-in execution mode (P2 L)
+- [ ] [#932](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/932) QA pipeline: static validation does not see through *args, **kwargs or dynamically built calls (P2 M)
+- [ ] [#933](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/933) QA pipeline: repair re-validates the source but does not rebuild the artifact bundle (P1 M)
+- [ ] [#934](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/934) QA pipeline: units validator checks declarations, not the equations themselves (P2 L)
+- [ ] [#936](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/936) QA pipeline: generation envelope is unit-tested but never exercised against a live model (P2 S)
+- [ ] [#1497](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1497) [PDI] Program: Physics Data Intelligence pipeline, a data readiness stage between engineering data and Physics AI training (P0 L)
+- [ ] [#1508](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1508) pinneapple_data.cae: bloco CONTACT do .frd e totais de reação do .dat (P2 S)
+- [ ] [#1678](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1678) [Native backend] A Rust and a Fortran implementation of the same C ABI (P2 M)
+- [ ] [#1679](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1679) [Native backend] Prove the build on Linux and Windows, where the loader's paths are untested (P2 S)
+- [ ] [#1681](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1681) [Native backend] Anisotropic spacing: laplacian_2d and heat_step_2d assume h on both axes (P3 S)
+- [ ] [#1693](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1693) Record smoke runs for the analysis contract, and drop its two declared reasons (S)
+- [ ] [#1694](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1694) Declare the remaining closed-form models as analyses (M)
+- [ ] [#1695](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1695) One declaration for the capability registry and the Studio inventory (M)
+- [ ] [#1696](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1696) Flow Studio: an analysis as a step of a pipeline (M)
+- [ ] [#1697](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1697) Guard the wording: a describe template must only name numbers the result carries (S)
+- [ ] [#1891](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1891) A pipeline node that reads a catalogued public dataset, with the gates and the licence applied (P1 M)
+
+### solvers — 77 issues (77 open)
+
+- [ ] [#68](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/68) [F1] CalculiX in the benchmark (P1 L)
+- [ ] [#69](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/69) [F2] CalculiX: contact, plasticity, thermal and modal (P2 L)
+- [ ] [#70](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/70) [F3] CalculiX Docker image: multi-platform and tested in CI (P1 S)
+- [ ] [#71](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/71) [F4] OpenFOAM: the missing case generators (P2 L)
+- [ ] [#73](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/73) [F10] More connectors (Abaqus, Elmer, SU2, MOOSE, ANSYS) (P3 L)
+- [ ] [#132](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/132) [F5] OpenFOAM connector: document and test the known numerical limits (P2 M)
+- [ ] [#133](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/133) [F6] Wall prism layers and target y+ in the OpenFOAM case generator (P2 L)
+- [ ] [#134](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/134) [F7] Test remote solver execution against a real server (P2 M)
+- [ ] [#135](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/135) [F9] Provenance and labelling of erosion-model constants (P3 M)
+- [ ] [#152](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/152) [S3] Generic simulation factory (CAD → DOE → solver → dataset → QC) (P1 L)
+- [ ] [#159](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/159) [S10] Automatic conservation and boundary-condition checks (P1 M)
+- [ ] [#184](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/184) [S35] GPU LBM with adaptive mesh refinement as a solver backend (evaluation) (P3 L)
+- [ ] [#208](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/208) [X24] Automatic domain decomposition (problem.decompose) (P2 L)
+- [ ] [#210](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/210) [X26] Event-driven simulation (pp.Event) (P2 M)
+- [ ] [#243](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/243) DFG cylinder benchmark (Schäfer & Turek 2D-2 and 3D): transient ExternalFlow and PINN/MGN comparison (P2 M)
+- [ ] [#245](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/245) Structural benchmarks in FEniCSx: NAFEMS LE1/LE10 and Cook's membrane, with surrogate and 3D renders (P2 M)
+- [ ] [#246](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/246) Turek–Hron FSI2/FSI3: fluid-structure benchmark with FEniCSx and OpenFOAM coupling (P3 L)
+- [ ] [#248](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/248) Wind around buildings: AIJ single high-rise benchmark with an atmospheric boundary layer inlet (P3 M)
+- [ ] [#249](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/249) ONERA M6 wing: transonic compressible ExternalFlow and the shock lambda pattern (P3 L)
+- [ ] [#258](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/258) Shallow water on the sphere: Williamson test cases and comparison with ERA5 500 hPa geopotential (P2 L)
+- [ ] [#265](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/265) NASA Turbulence Modeling Resource verification suite in OpenFOAM: flat plate, bump in channel, NACA 0012, backward-facing step (P1 M)
+- [ ] [#270](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/270) Small-UAV propeller performance: UIUC propeller database against BEMT and OpenFOAM rotating-frame runs (P3 M)
+- [ ] [#272](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/272) Classical CFD validation cases: lid-driven cavity (Ghia), backward-facing step (Armaly), pitzDaily and damBreak (P1 M)
+- [ ] [#283](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/283) Wind turbine blades: NREL 5 MW and IEA 15 MW open geometry with BEM, OpenFOAM and a blade-surface 3D viewer (P2 L)
+- [ ] [#287](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/287) Turbomachinery: NASA Rotor 37 transonic axial compressor in OpenFOAM, with blade-row viewer and a learned performance map (P2 L)
+- [ ] [#294](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/294) Low-fidelity solver ladder for external flow: VLM/panel, coarse RANS and LBM, with a measured cost-accuracy table (P1 M)
+- [ ] [#312](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/312) Dynamical cores for the 3-D atmosphere: hydrostatic spectral and cubed-sphere finite-volume, then non-hydrostatic (P2 L)
+- [ ] [#313](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/313) GCM column physics behind one interface: gray radiation, moist convection, condensation, boundary layer, and learned parameterisations (P2 L)
+- [ ] [#474](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/474) SU2 bridge: compressible RANS, shape adjoints and transonic datasets (P2 L)
+- [ ] [#475](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/475) PyFR bridge: high-order LES on GPUs for turbulence datasets (P2 M)
+- [ ] [#476](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/476) Spectral/hp element bridges: Nektar++ and Neko for DNS reference data (P3 L)
+- [ ] [#477](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/477) XLB integration: differentiable lattice Boltzmann (JAX and Warp) (P2 M)
+- [ ] [#478](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/478) PhiFlow integration: differentiable PDE solvers for solver-in-the-loop training (P2 M)
+- [ ] [#479](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/479) JAX-Fluids integration: differentiable compressible and two-phase flow (P3 M)
+- [ ] [#480](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/480) Dedalus bridge: spectral solutions for convection, rotating and stratified flow (P3 M)
+- [ ] [#481](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/481) code_saturne bridge: EDF's industrial finite-volume CFD (P3 L)
+- [ ] [#482](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/482) Basilisk bridge: adaptive octree VOF for jets, waves and splashing (P2 M)
+- [ ] [#483](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/483) DualSPHysics bridge: GPU SPH for free-surface and wave–structure cases (P3 M)
+- [ ] [#484](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/484) Julia CFD solvers through juliacall: Oceananigans, WaterLily and Trixi (P3 M)
+- [ ] [#485](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/485) Cantera: real thermochemistry for reacting and high-temperature flows (P2 M)
+- [ ] [#486](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/486) In-situ training: stream fields from a running OpenFOAM to a training loop (SmartSim, TorchFort) (P2 L)
+- [ ] [#487](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/487) Clawpack / GeoClaw bridge: shallow water, tsunamis, floods and dam breaks (P3 M)
+- [ ] [#488](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/488) Xcompact3d bridge: DNS of channels, jets and wakes on structured grids (P3 M)
+- [ ] [#490](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/490) DAFoam bridge: adjoint shape optimisation and field inversion with ML-augmented turbulence models (P2 L)
+- [ ] [#493](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/493) Deploy trained models inside OpenFOAM (libtorch / ONNX Runtime): neural closures and boundary conditions in the solver (P2 L)
+- [ ] [#494](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/494) Surrogate warm start for OpenFOAM: initialise runs from the predicted field and measure the time saved (P1 M)
+- [ ] [#498](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/498) ML-guided mesh refinement for OpenFOAM: predict where the mesh must be finer before running (P3 M)
+- [ ] [#500](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/500) PETSc (petsc4py): scalable linear, nonlinear and time solvers as a back-end for pp.linalg and the FEM/FDM solvers (P2 M)
+- [ ] [#501](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/501) SUNDIALS (CVODE, IDA, ARKODE): stiff ODE/DAE integration with adjoint sensitivities (P2 M)
+- [ ] [#502](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/502) High-order FEM: MFEM (PyMFEM) bridge, and deal.II through its executables (P3 L)
+- [ ] [#503](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/503) Project Chrono (PyChrono): multibody dynamics, granular DEM, vehicles and terramechanics (P2 M)
+- [ ] [#504](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/504) LAMMPS and GROMACS bridges: molecular dynamics data and ML interatomic potentials (P3 M)
+- [ ] [#505](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/505) OpenSees (OpenSeesPy): structural and earthquake engineering reference models (P3 M)
+- [ ] [#506](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/506) Julia bridge core and SciML: DifferentialEquations.jl and ModelingToolkit from Python (P2 M)
+- [ ] [#508](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/508) Julia FEM: Gridap.jl and Ferrite.jl as reference solvers (P3 S)
+- [ ] [#509](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/509) Enzyme: automatic differentiation through existing C, C++, Fortran and Julia solvers (P3 L)
+- [ ] [#514](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/514) MATLAB research toolboxes as reference solvers: MRST (porous media), Chebfun (spectral) and the PDE Toolbox (P3 M)
+- [ ] [#516](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/516) AMUSE bridge: one framework for N-body, stellar evolution, hydro and radiative codes (P2 M)
+- [ ] [#517](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/517) Athena++ / AthenaK bridge: (GR)MHD simulations for accretion, shocks and plasma datasets (P2 M)
+- [ ] [#518](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/518) Cosmology pipeline: CAMB/CLASS power spectra, monofonIC initial conditions and SWIFT/GADGET-4 boxes (P2 L)
+- [ ] [#519](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/519) MESA and GYRE bridge: stellar evolution and asteroseismology as reference and training data (P2 M)
+- [ ] [#533](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/533) Probability-density dynamics with PINNs: Fokker–Planck and maximum-entropy evolution fitted to data (P3 L)
+- [ ] [#978](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/978) PINN boundary test: at what electrical size does a PINN stop matching PO and a converged reference? (M)
+- [ ] [#1476](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1476) [E5] One solver interface for external solvers (OpenFOAM, CalculiX, FEniCSx, ANSYS, COMSOL, MATLAB) (P1 L)
+- [ ] [#1507](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1507) Contato com atrito como capacidade da biblioteca: casos com solução fechada e decks PrePoMax (P1 L)
+- [ ] [#1509](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1509) Contato no solid_fem da biblioteca, para a capacidade rodar sem solver externo (P2 L)
+- [ ] [#1511](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1511) Cartão de material para trabalho estrutural: E, nu, rho e mu por par de materiais (P3 S)
+- [ ] [#1512](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1512) Solver externo unificado em pinneapple_solvers: descobrir, rodar e checar o ccx (P3 M)
+- [ ] [#1514](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1514) VVD: acoplar o não-escorregamento na parede (lençol de vórtices + fluxo difusivo) — o Cd do cilindro em Re=40 depende disso (P2 L)
+- [ ] [#1515](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1515) VVD: condição de Kutta e estabilidade do desdobramento do spoiler (NACA 0012, Re=4e4) (P2 L)
+- [ ] [#1516](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1516) VVD: calibrar a deriva de difusão para o Cd convergir com painéis (P2 M)
+- [ ] [#1517](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1517) VVD: paridade com o vvflow — calor/Nusselt, FSI por molas, import GIS e saída HDF5 (P3 L)
+- [ ] [#1518](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1518) VVD: relatório de convergência em docs/reports e notebook Colab do solver (P3 M)
+- [ ] [#1680](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1680) [Native backend] The three kernels are one stencil: sampling, interpolation, mesh and linear algebra are next (P3 L)
+- [ ] [#1682](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1682) [Native backend] PETSc/MPI next, Julia/SciML after: what the ABI does not cover (P3 L)
+- [ ] [#1683](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1683) [Reproductions][ice growth] The AIDA cloud-chamber generalisation test (paper Figure 4) is not attempted (P3 L)
+- [ ] [#2199](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2199) The agnostic FDM reference is 2-D only, so a 1-D preset has no reference solver (P1)
+
+### surrogates-optimization — 62 issues (61 open)
+
+- [ ] [#74](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/74) [G1] Surrogates in one workflow (P0 L)
+- [ ] [#75](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/75) [G2] Backend per problem (PyTorch, JAX, PhysicsNeMo) (P1 L)
+- [x] [#76](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/76) [G3] Checkpoint with resume (P0 M)
+- [ ] [#77](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/77) [G5] Parameter discovery with identifiability (P1 M)
+- [ ] [#78](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/78) [G6] Equation discovery in the Experiment flow (P2 M)
+- [ ] [#79](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/79) [G7] Design optimization with a budget (P1 L)
+- [ ] [#80](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/80) [G8] Multi-objective optimization with uncertainty (P2 M)
+- [ ] [#82](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/82) [G10] Transfer and meta-learning inside the workflow (P3 M)
+- [ ] [#83](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/83) [G11] Geometry-conditioned surrogates (P1 L)
+- [ ] [#136](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/136) [G4] PINN surrogate in parametric studies (P1 M)
+- [ ] [#153](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/153) [S4] Active learning: choose the next simulations from uncertainty (P1 M)
+- [ ] [#161](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/161) [S12] Adaptive fidelity: decide surrogate versus solver per request (P2 M)
+- [ ] [#162](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/162) [S13] Design loop: requirements → candidates → surrogate → validation → Pareto (P2 L)
+- [ ] [#168](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/168) [S19] Multi-fidelity training from cheap, medium and high-fidelity data (P2 L)
+- [ ] [#171](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/171) [S22] Dataset coverage and regime audit (P1 M)
+- [ ] [#174](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/174) [S25] Preconditioned loss for physics-informed neural operators (P2 L)
+- [ ] [#176](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/176) [S27] One-shot trajectory surrogate for transient structural simulation (P2 L)
+- [ ] [#177](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/177) [S28] Inverse identification of structural parameters from measured displacements (P2 M)
+- [ ] [#209](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/209) [X25] Adaptive sampling engine with multi-signal scoring (P1 M)
+- [ ] [#211](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/211) [X27] HybridModel and neural closure / residual learning (P1 L)
+- [ ] [#212](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/212) [X28] Model discrepancy decomposition (physics, numerical error, model error, noise) (P2 M)
+- [ ] [#222](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/222) [X35] Design space explorer with physics-regime maps (P2 L)
+- [ ] [#223](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/223) [X36] Physics experiment planner (expected information gain) (P3 M)
+- [ ] [#229](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/229) CANTO (NVIDIA): evaluate integrating the CAD-native transformer operator (P3 L)
+- [ ] [#230](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/230) Port Stokes-MGN physics fine-tuning and vortex_shedding_mesh_reduced from PhysicsNeMo (P2 L)
+- [ ] [#236](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/236) MeshGraphNet: world-space edges, separate hidden dims and memory optimizations (P2 L)
+- [ ] [#244](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/244) Periodic hills and the McConkey curated dataset: neural turbulence closure on OpenFOAM RANS (P2 L)
+- [ ] [#254](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/254) Coastal water level: tide harmonics plus a learned storm-surge residual from NOAA CO-OPS (P2 M)
+- [ ] [#257](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/257) Arctic sea-ice extent and concentration: forecasting from NSIDC passive-microwave data (P3 M)
+- [ ] [#259](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/259) Global warming as an inverse problem: two-layer energy-balance model fitted to NASA GISTEMP and NOAA data (P3 M)
+- [ ] [#260](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/260) Soil moisture dynamics: NASA SMAP and NOAA USCRN with a Richards-equation physics term (P3 M)
+- [ ] [#264](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/264) Cloud masking and precipitation nowcasting: SEVIR (GOES-16 and NEXRAD) with advection-constrained models (P2 L)
+- [ ] [#267](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/267) Open 3D aircraft CAD corpus: OpenVSP Hangar, AircraftVerse, ShapeNet airplanes and UIUC airfoils, with part segmentation (P2 L)
+- [ ] [#268](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/268) OpenVSP to VSPAERO to OpenFOAM: multi-fidelity aerodynamic dataset for parametric aircraft (P2 L)
+- [ ] [#269](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/269) Turbofan prognostics: NASA C-MAPSS and N-CMAPSS remaining-useful-life, plus the IMS bearing run-to-failure data (P2 M)
+- [ ] [#273](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/273) Turbulence data from the Johns Hopkins Turbulence Databases: super-resolution and subgrid closure on isotropic and channel flow (P2 L)
+- [ ] [#278](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/278) PINN failure modes: convection, reaction and reaction-diffusion (Krishnapriyan et al.) and NTK-based diagnostics (P2 M)
+- [ ] [#282](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/282) Cars at scale: DrivAerNet++ drag regression and surface-pressure prediction with 3D viewer (P2 L)
+- [ ] [#285](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/285) Stress fields on real CAD parts: ABC and Fusion 360 Gallery subsets with FE solutions, a surrogate and a stress viewer (P2 L)
+- [ ] [#288](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/288) Ship hulls: KCS and KVLCC2 open geometries with resistance prediction, a hull-form surrogate and a wave-pattern viewer (P3 L)
+- [ ] [#292](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/292) Geometry parameterisation and morphing for design spaces: FFD, RBF morphing and shape modes on STL meshes (P1 L)
+- [ ] [#293](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/293) Geometry-agnostic field surrogates: Transolver, GINO and point-cloud baselines behind one interface with MeshGraphNet (P1 L)
+- [ ] [#296](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/296) MDO with surrogates: OpenMDAO components with autograd derivatives, the airliner problem as reference (P1 L)
+- [ ] [#297](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/297) Surrogate-in-the-loop optimisation with a verification budget: uncertainty-aware acquisition, high-fidelity re-runs and retraining (P2 M)
+- [ ] [#298](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/298) Generative inverse design: latent geometry models conditioned on target performance, checked by surrogate and solver (P3 L)
+- [ ] [#315](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/315) Spherical Fourier Neural Operator (SFNO) with a torch spherical-harmonic transform, benchmarked against FNO on the sphere (P2 M)
+- [ ] [#447](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/447) Lab: rerun car_surrogate (interrupted during FNO training) and commit the run (P1 M)
+- [ ] [#489](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/489) Pretrained PDE foundation models (Poseidon, DPOT, MPP): fine-tune and verify on CFD data (P2 M)
+- [ ] [#491](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/491) Active flow control with deep reinforcement learning: HydroGym environments and the Rabault cylinder (P3 L)
+- [ ] [#492](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/492) NeuralFoil and AeroSandbox: learned airfoil polars as a fast rung of the multi-fidelity ladder (P2 S)
+- [ ] [#495](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/495) Generative models for turbulent flows: diffusion rollouts (PDE-Refiner, ACDM) with calibrated uncertainty (P3 L)
+- [ ] [#507](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/507) Universal differential equations and NeuralPDE.jl: cross-check PINNeAPPle's PINNs and hybrid models against SciML (P3 M)
+- [ ] [#520](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/520) Gravitational waves: Bilby inference and LAL waveforms, with PINNeAPPle surrogates as fast waveform models (P3 M)
+- [ ] [#524](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/524) Pretrained ML interatomic potentials: MACE-MP-0, CHGNet, M3GNet, Orb, UMA and EquiformerV2, verified before use (P2 M)
+- [ ] [#529](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/529) Macroeconomic time series with physics-style trust: fiscal–monetary interaction case study (tracking) (P3 L)
+- [ ] [#534](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/534) Hybrid macro models: known relations (Taylor rule, government budget constraint) plus a learned residual, distilled to equations (P3 M)
+- [ ] [#535](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/535) Trust horizon and regime warnings for economic and other time-series forecasts (P3 S)
+- [ ] [#976](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/976) Multi-fidelity design search: does cheap physics guide an expensive oracle at equal cost? (M)
+- [ ] [#977](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/977) Learn the cheap-to-full-wave residual as a function of the rolled-edge profile (M)
+- [ ] [#1688](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1688) [Reproductions][ice growth] Test whether the weakly-constrained NODE's 2.3x advantage over the paper is memorisation (P2 M)
+- [ ] [#1690](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1690) [Reproductions][ice growth] Symbolic regression: reach parity with the paper's PySR front (P3 M)
+- [ ] [#1860](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1860) [Reference Models] A SHIFT-style family of pre-trained reference models, built and verified with PINNeAPPle (P2 L)
+
+### digital-twin — 13 issues (13 open)
+
+- [ ] [#84](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/84) [H1] End-to-end digital twin with real sensors (P1 L)
+- [ ] [#86](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/86) [H3] Scan to twin scene (P3 L)
+- [ ] [#87](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/87) [H4] Edge execution with escalation (P3 L)
+- [ ] [#165](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/165) [S16] Digital twin runtime with continuous validation and drift monitoring (P2 L)
+- [ ] [#179](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/179) [S30] Stirred exothermic reactor as a digital-twin benchmark case (P2 M)
+- [ ] [#180](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/180) [S31] Process optimization with operating-limit guards (P2 L)
+- [ ] [#213](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/213) [X29] Synthetic-to-real transfer workflow (P2 L)
+- [ ] [#214](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/214) [X30] Sensor and observation layer (P2 L)
+- [ ] [#215](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/215) [X31] StateEstimator: EKF, UKF, EnKF, particle filter, latent state (P1 M)
+- [ ] [#218](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/218) [X32] Physics-based control: MPC, optimal and safe control (P2 L)
+- [ ] [#220](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/220) [X33] Physics-constrained reinforcement learning (research) (P3 L)
+- [ ] [#935](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/935) QA pipeline: hollow-body check only covers closed cylinder-like meshes (P2 M)
+- [ ] [#937](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/937) QA pipeline: Q4 needs a defined intake for operational evidence (P3 M)
+
+### visualization — 15 issues (15 open)
+
+- [ ] [#60](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/60) [E1] Read OpenFOAM cases directly into PyVista (P0 M)
+- [ ] [#61](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/61) [E2] Render PINN and surrogate fields on arbitrary meshes (P1 M)
+- [ ] [#62](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/62) [E3] Streamlines, isosurfaces, slices and vectors (P1 M)
+- [ ] [#63](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/63) [E4] Side-by-side comparison and error map (P0 M)
+- [ ] [#65](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/65) [E6] One palette and theme across PyVista, twin3d and the apps (P2 S)
+- [ ] [#67](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/67) [E8] Honest figure captions (P2 S)
+- [ ] [#281](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/281) Shared 3D result viewer: extract the aero_optimizer glTF/Three.js viewer and Blender render tools into a reusable pp.viz layer (P1 M)
+- [ ] [#305](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/305) Aircraft app: re-run the five airliner OpenFOAM cases with a stack of wake planes for the slice-position control (P3 M)
+- [ ] [#521](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/521) GRMHD and black-hole images: KHARMA simulations and ipole ray tracing for synthetic EHT data (P3 L)
+- [ ] [#905](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/905) Epic: industrial-grade experiment quality and visuals across examples/
+- [ ] [#917](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/917) Football: broadcast-style 3-D replays and a club-grade match report (P1 M)
+- [ ] [#918](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/918) One house theme for all 2-D figures (extend pinneapple_tools.visualization.style; adopt in every example) (P1 M)
+- [ ] [#919](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/919) One-page engineering report generated from experiment.json + results (KPI cards, verdicts, uncertainty, provenance) (P1 L)
+- [ ] [#920](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/920) Studio 3-D renders and turntables for CFD/FEA/EM fields, one call per experiment (Blender Cycles + three.js PBR) (P1 L)
+- [ ] [#921](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/921) Standard animation template for time-dependent results (MP4/GIF with timer, colour bar, scale bar, caption) (P2 M)
+
+### benchmark-cost — 8 issues (8 open)
+
+- [ ] [#52](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/52) [D1] Measured cost for every method in the catalog (P1 L)
+- [ ] [#53](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/53) [D2] Cost regression gate in CI (P1 M)
+- [ ] [#54](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/54) [D3] Reliable CPU memory measurement (P2 M)
+- [ ] [#56](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/56) [D5] Benchmark cases 01, 02 and 03 (P0 L)
+- [ ] [#57](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/57) [D6] Digital twin benchmark (P1 L)
+- [ ] [#58](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/58) [D7] Extrapolation error and validity domain in every case (P1 M)
+- [ ] [#59](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/59) [D9] Numerical reproducibility (P1 M)
+- [ ] [#131](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/131) [D8] Feed measured cost into resource-aware scheduling (P2 M)
+
+### ecosystem — 46 issues (46 open)
+
+- [ ] [#100](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/100) [K1] Plugin system via entry points (P0 M)
+- [ ] [#101](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/101) [K2] Export a validated surrogate as an FMU (Simulink, Modelica) (P1 L)
+- [ ] [#102](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/102) [K3] Bayesian optimization and sequential experimental design (P1 M)
+- [ ] [#103](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/103) [K4] Multi-fidelity models and data (co-kriging, discrepancy correction) (P1 L)
+- [ ] [#104](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/104) [K5] Classical uncertainty propagation (polynomial chaos, Monte Carlo) (P1 M)
+- [ ] [#105](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/105) [K6] Bayesian parameter inference (MCMC and simulation-based inference) (P1 L)
+- [ ] [#106](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/106) [K7] Credibility and V&V report in the industry standard (ASME V&V 20, NASA-STD-7009) (P1 M)
+- [ ] [#107](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/107) [K8] Adaptive mesh refinement and adaptive point sampling (P2 L)
+- [ ] [#110](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/110) [K11] Mandatory unit layer in the API, with automatic nondimensionalization (P1 M)
+- [ ] [#111](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/111) [K12] Neural operators for arbitrary geometry and mesh (P2 L)
+- [ ] [#112](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/112) [K13] Compression and deployment (quantization, distillation, pruning, TensorRT) (P2 M)
+- [ ] [#114](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/114) [K15] Model monitoring in production (drift and envelope alarms) (P2 M)
+- [ ] [#115](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/115) [K16] Format interoperability (XDMF, CGNS writer, STEP, SSP) (P2 M)
+- [ ] [#116](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/116) [K17] ParaView plugin and notebook widgets (P3 M)
+- [ ] [#117](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/117) [K18] Physics foundation models and a fine-tuning recipe (P3 L)
+- [ ] [#118](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/118) [K19] Stochastic PDEs and rare events (P3 L)
+- [ ] [#119](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/119) [K20] Energy and emissions in the cost report (P3 M)
+- [ ] [#166](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/166) [S17] Physics foundation and world models (research program) (P3 L)
+- [ ] [#175](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/175) [S26] Physics-aware field tokenizer (research) (P3 L)
+- [ ] [#224](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/224) [X37] Scientific artifact store with end-to-end lineage (P2 L)
+- [ ] [#227](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/227) [X40] Architecture decision rule: seven planes (Physics IR, Data, Compute, AI, Engineering, Validation, Evidence) (P1 S)
+- [ ] [#295](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/295) Simulation campaign runner: thousands of runs with a job queue, retries, caching by geometry hash and cluster backends (P1 M)
+- [ ] [#510](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/510) Fortran codes: f2py / ISO_C_BINDING path for legacy scientific solvers (P3 S)
+- [ ] [#511](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/511) PINNeAPPle from MATLAB: a toolbox (.mltbx) that trains and runs surrogates through MATLAB's Python interface (P2 M)
+- [ ] [#512](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/512) Simulink and Simscape as data sources: parameter sweeps with parsim, logged signals to datasets (P2 M)
+- [ ] [#513](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/513) GNU Octave back-end for the MATLAB runner (no licence needed) (P2 S)
+- [ ] [#515](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/515) yt reader: load Enzo, FLASH, RAMSES, GADGET, AREPO, Athena++ and other astrophysics outputs as PhysicalSamples (P1 M)
+- [ ] [#614](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/614) Showcase notebook: a coding agent solves a physics problem in Colab and PINNeAPPle verifies the answer (P2 M)
+- [ ] [#615](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/615) Lightweight physics surrogates for game engines and robot simulators (ONNX export to Godot, Unity, Unreal, MuJoCo, Isaac) (P3 L)
+- [ ] [#616](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/616) Public Physics AI challenges with a leaderboard judged by pp.benchmark (P2 L)
+- [ ] [#618](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/618) pp.forecast(lat, lon): wind and solar forecasts with uncertainty for energy and data-centre use (P3 L)
+- [ ] [#619](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/619) Educational series "Under the hood": numerics behind CFD and Physics AI, as notebooks and posts (P2 M)
+- [ ] [#903](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/903) Epic: what PINNeAPPle can take from NVIDIA Cosmos 3 (physics judge, physics data, adapter)
+- [ ] [#1472](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1472) [E1] Plugin contract and lifecycle: what an installed package must implement (P0 M)
+- [ ] [#1473](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1473) [E2] Capability-based plugin lookup: find a component by what it can do (P0 M)
+- [ ] [#1474](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1474) [E3] Plugin diagnostics: list, inspect, doctor, enable, disable (P1 M)
+- [ ] [#1475](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1475) [E4] Plugin trust policy: what loading a plugin does and does not guarantee (P2 S)
+- [ ] [#1477](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1477) [E6] One model provider interface (PyTorch, JAX, ONNX, TorchScript, PhysicsNeMo, Hugging Face) (P1 M)
+- [ ] [#1478](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1478) [E7] One catalogue facade over the five list_models() (P1 M)
+- [ ] [#1479](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1479) [E8] Kubernetes and cloud batch executors behind the existing executor contract (P1 M)
+- [ ] [#1480](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1480) [E9] Reproducible execution from an experiment id (P1 M)
+- [ ] [#1481](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1481) [E10] Workflow and experiment observability: structured run events and pp runs why (P1 M)
+- [ ] [#1506](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1506) NVIDIA use-case index: a verified coverage matrix — what is covered, what is in progress, what is out of scope (P2 M)
+- [ ] [#1687](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1687) [Reproductions][ice growth] Four of the paper's 290 series need raw chamber files that no archive holds (P3 S)
+- [ ] [#1892](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1892) The optimization stage has no reference dataset: find one with a published optimum and score against it (P2 M)
+- [ ] [#1894](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1894) Promote the ten named tools to wired, one call path at a time (P3 L)
+
+### release-quality — 11 issues (10 open)
+
+- [x] [#90](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/90) [I3] Blocking CI tiers (P0 M)
+- [ ] [#93](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/93) [I6] Python, PyTorch and OS version matrix (P1 M)
+- [ ] [#96](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/96) [I9] Security and supply chain (P2 M)
+- [ ] [#167](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/167) [S18] Reproducibility: lineage of commit, environment, seeds and hardware (P1 M)
+- [ ] [#216](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/216) [S36] Local-only execution mode with a no-egress guarantee (P2 M)
+- [ ] [#225](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/225) [X38] Cross-version compatibility and schema migrations (P1 M)
+- [ ] [#499](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/499) C++ extension path: nanobind + scikit-build-core (+ Kokkos) for fast kernels and native-library bridges (P2 M)
+- [ ] [#620](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/620) Developer showcases: Hugging Face Spaces, conda-forge, conference talks and short videos (P2 M)
+- [ ] [#922](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/922) Figure quality gate in CI and a generated figure gallery on the docs site (P2 M)
+- [ ] [#923](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/923) Experiment quality checklist and badge (baseline, held-out, seeds/intervals, ablation, provenance, verdict) (P1 M)
+- [ ] [#2200](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2200) The example catalog measures 24 examples that fail when run, 8 with no script and 5 with imports that do not exist (P1)
+
+### contributing — 5 issues (3 open)
+
+- [x] [#42](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/42) [A1] "How to add" guides with a template file (solver, model, benchmark, preset, connector, app) (P0 M)
+- [x] [#45](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/45) [A4] Small front door: a handful of high-level functions (P0 M)
+- [ ] [#46](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/46) [A5] Errors that teach (P1 M)
+- [ ] [#51](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/51) [A10] Automated code style: clean legacy lint debt in stages (P2 M)
+- [ ] [#217](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/217) [S37] Browser demo gallery for the solvers (P3 M)
+
+### (no area label) — 962 issues (961 open)
+
+- [ ] [#322](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/322) Weather forecasting: finish training the ERA5 model (rollout phases 2, 4 and 8 steps) (P1)
+- [ ] [#323](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/323) Weather forecasting: evaluate the trained model, event GIFs and docs page (P1)
+- [ ] [#324](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/324) Weather forecasting: improvements after the first trained model (P2)
+- [ ] [#327](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/327) Roadmap: new application areas where physics tells when to trust the model (P3)
+- [ ] [#328](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/328) Perception API: images and video as physical observations with uncertainty and provenance (P2)
+- [ ] [#329](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/329) River discharge from smartphone video: surface PIV + PINN with uncertainty (P3)
+- [ ] [#330](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/330) Thermography inspection: inverse heat equation from IR images (defects, conductivity, thermal management) (P3)
+- [ ] [#331](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/331) Robotics: model predictive control with physics-verified model switching (MuJoCo) (P3)
+- [ ] [#332](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/332) Robotics: system identification with Lagrangian and Hamiltonian networks, and transfer between robots (P3)
+- [ ] [#333](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/333) Robotics: terrain traversability for field robots (vision + Bekker wheel-soil model) (P3)
+- [ ] [#334](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/334) Robotics: sim-to-real perception data with pinneapple_worldmodel and a robot digital twin in twin3d (P3)
+- [ ] [#335](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/335) Drones: flight safety with physics-verified dynamics (payload, gusts, motor degradation, sensor faults) (P3)
+- [ ] [#336](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/336) Drones as physical sensors: wind from flight data, aerial river PIV, spray drift and urban wind-aware planning (P3)
+- [ ] [#337](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/337) Batteries: physics-informed degradation and remaining useful life, with a trust horizon (P3)
+- [ ] [#338](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/338) Manufacturing: virtual metrology and process-drift monitoring (regime change vs sensor drift) (P3)
+- [ ] [#339](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/339) Structural health monitoring: modal identification from video and audio, damage detection with temperature compensation (P3)
+- [ ] [#340](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/340) Agriculture: crop water stress from Sentinel-2 + ERA5 with a Penman-Monteith water balance (P3)
+- [ ] [#341](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/341) Physics verification as a service: check any model's output against conservation laws and return a certificate (P1)
+- [ ] [#343](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/343) Core: the shared pieces that make the use cases one product (trust layer, assimilation, adaptive fidelity, benchmarks) (P1)
+- [ ] [#345](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/345) Trust layer as a first-class object: pp.trust(model, data) attached to every prediction (P0)
+- [ ] [#346](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/346) Data assimilation with neural models: ensemble Kalman filter and 4D-Var with differentiable surrogates (P1)
+- [ ] [#347](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/347) Adaptive fidelity driven by the trust horizon: call the expensive solver only where the fast model stops being trustworthy (P1)
+- [ ] [#348](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/348) "Bring your foundation model, PINNeAPPle verifies it": wrap pre-trained models as ensemble experts under physics checks (P1)
+- [ ] [#349](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/349) Trust benchmark suite: hidden regime changes, sensor faults, slow drift and out-of-domain cases, with a public leaderboard (P1)
+- [ ] [#350](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/350) Embedded execution for drones and robots: export model + residual check + measurement check to ONNX, tens of Hz on an embedded CPU (P3)
+- [ ] [#351](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/351) Generic event scoring: lead time of detection, peak and position error, false alarms, for any kind of event (P2)
+- [ ] [#352](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/352) Experiment design and sensor placement: where to measure next to shrink uncertainty fastest (including evolutionary placement) (P2)
+- [ ] [#353](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/353) Genetic-programming symbolic regression for closures and missing terms, checked against SINDy and physics constraints (P2)
+- [ ] [#354](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/354) Quality-diversity search (MAP-Elites): diverse designs, and automatic discovery of the cases where a physics model fails (P2)
+- [ ] [#355](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/355) Tailings dams: InSAR deformation + piezometers + slope stability, alarms with a trust horizon and sensor checks (P3)
+- [ ] [#356](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/356) Methane from space: plume detection (Sentinel-5P / Sentinel-2) and emission-rate inversion with plume physics (P3)
+- [ ] [#357](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/357) Air quality: pollutant dispersion with low-cost noisy sensors (advection-diffusion + measurement checks) (P3)
+- [ ] [#358](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/358) Oil, gas and CO2 storage: fast reservoir surrogates, pressure monitoring and pipeline leak detection (P3)
+- [ ] [#359](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/359) Operational hydrology chain: forecast rain → river discharge → flood extent, with a trust horizon at every link (P3)
+- [ ] [#360](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/360) Landslides: accumulated rain + slope stability + InSAR deformation, alarms by municipality (P3)
+- [ ] [#361](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/361) Power grids: frequency dynamics with variable renewables, model switching under contingencies (P3)
+- [ ] [#362](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/362) Health (later stage): hemodynamics from 4D-flow MRI with PINNs, pharmacological models with regime changes (P3)
+- [ ] [#363](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/363) Biomechanics and sport from video: pose + Lagrangian dynamics → joint forces and loads (P3)
+- [ ] [#364](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/364) Maritime and offshore: wave forecasting, ship and platform motion, mooring loads (P3)
+- [ ] [#365](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/365) Additive manufacturing: melt-pool thermography → defect predicted before the part is finished (P3)
+- [ ] [#366](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/366) Showcase: from the satellite to the street, a hurricane end to end on one globe (P2)
+- [ ] [#367](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/367) Showcase: the drone that knows it is broken (P3)
+- [ ] [#368](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/368) Showcase: from a phone video to the river's discharge (P2)
+- [ ] [#369](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/369) Showcase: an aircraft designed in an afternoon (requirements in plain language → optimisation → CFD → cinematic render → trust) (P3)
+- [ ] [#370](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/370) Showcase: the robot arm that does not spill the glass (P3)
+- [ ] [#371](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/371) Showcase: thermography, seeing the invisible defect (P2)
+- [ ] [#372](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/372) Showcase: the dam that warns in advance (P3)
+- [ ] [#373](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/373) Showcase: battle of the models, live (FNO vs GraphCast vs PINN vs solver, with a live "who left its domain first" scoreboard) (P2)
+- [ ] [#374](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/374) Sci-fi showcase: terraforming Mars, a globe warming over centuries (P3)
+- [ ] [#375](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/375) Sci-fi showcase: weather on a tidally locked exoplanet (eternal day side, eternal night side) (P3)
+- [ ] [#376](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/376) Sci-fi showcase: an Alcubierre warp bubble, the curvature and where the physics says "impossible" (P3)
+- [ ] [#377](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/377) Sci-fi showcase: a space elevator, a 36 000 km cable swaying with the wind and the climber (P3)
+- [ ] [#378](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/378) Sci-fi showcase: a fusion tokamak, the plasma equilibrium and the instability seen before the disruption (P3)
+- [ ] [#379](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/379) Sci-fi showcase: weather inside an O'Neill cylinder (clouds that fall sideways) (P3)
+- [ ] [#380](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/380) Sci-fi showcase: flying on other worlds, one drone design on Earth, Mars and Titan (P3)
+- [ ] [#381](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/381) Sci-fi showcase: planetary defence, deflecting an asteroid and how far ahead the impact can be trusted (P3)
+- [ ] [#382](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/382) Sci-fi showcase: listening to black holes, gravitational waves from public LIGO data (P3)
+- [ ] [#384](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/384) Astronomy, astrophysics and astronautics: physics AI that knows when to trust it, from the Sun to orbit (P3)
+- [ ] [#385](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/385) Space weather: from solar images to geomagnetic storm forecasts with a trust horizon (P3)
+- [ ] [#386](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/386) Exoplanet transits: physics transit model + stellar variability + instrument checks on TESS/Kepler light curves (P3)
+- [ ] [#387](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/387) Galaxy rotation curves and dark matter: physics-informed mass models on SPARC (P3)
+- [ ] [#388](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/388) Cosmology emulators: neural operators for structure formation, with a trust layer for parameters outside the training range (P3)
+- [ ] [#389](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/389) Stellar structure: from Lane-Emden to full stellar models with PINNs, checked against MESA (P3)
+- [ ] [#390](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/390) Black-hole imaging and strong lensing: physics-constrained inverse problems with uncertainty (P3)
+- [ ] [#391](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/391) Transients: supernova light curves with physics templates, for the Rubin Observatory alert stream (P3)
+- [ ] [#392](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/392) Orbit determination and space traffic: propagation with uncertainty, conjunctions, and drag during geomagnetic storms (P3)
+- [ ] [#393](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/393) Atmospheric reentry: hypersonic heating and heat-shield ablation, trajectory with a trust envelope (P3)
+- [ ] [#394](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/394) Powered descent and landing: guidance with physics-verified model switching (engine-out, wind, sloshing) (P3)
+- [ ] [#395](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/395) Spacecraft telemetry: anomaly detection and attitude faults (reaction wheels, sensors) on public ESA and NASA benchmarks (P3)
+- [ ] [#396](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/396) Spacecraft thermal design: radiative heat with PINN surrogates over the orbit, for CubeSats (P3)
+- [ ] [#397](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/397) Low-thrust and multi-flyby trajectory design with evolutionary search (GTOC-style problems) (P3)
+- [ ] [#398](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/398) Planetary rovers on regolith: traversability and slip on the Moon and Mars (terramechanics in low gravity) (P3)
+- [ ] [#399](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/399) Black-hole weather forecasting: reproduce Duarte, Nemmen & Navarro and add a trust horizon, physics residuals and MHD (P3)
+- [ ] [#400](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/400) From inverse models to equations: distil trained PINNs, neural ODEs and operators into verified symbolic laws (P2)
+- [ ] [#401](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/401) Exoplanet discovery with the Hilbert-Huang transform: adaptive detrending of stellar variability, then a physics transit search (P3)
+- [ ] [#403](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/403) Related work to build on: X-TFC line (Schiassi, De Florio, Furfaro, Mortari), Ashton's open CFD datasets, NVIDIA PhysicsNeMo / Earth-2 (P3)
+- [ ] [#405](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/405) Pontryagin and Bellman neural networks: physics-informed optimal control and guidance (Schiassi, D'Ambrosio, Furfaro) (P2)
+- [ ] [#406](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/406) Rarefied gas dynamics with PINN-TFC: BGK thermal creep and Poiseuille flow across Knudsen numbers (De Florio et al.) (P3)
+- [ ] [#407](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/407) WindsorML plus one loader and benchmark across Ashton's AhmedML, DrivAerML and WindsorML (P2)
+- [ ] [#408](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/408) NVIDIA Earth-2: score Earth2Studio models (FourCastNet/SFNO, CorrDiff, StormCast) with the PINNeAPPle trust horizon (P3)
+- [ ] [#409](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/409) NVIDIA PhysicsNeMo DoMINO and X-MeshGraphNet as baselines on the Ashton datasets, with the trust layer on top (P3)
+- [ ] [#410](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/410) NVIDIA Warp kernels for the library's finite-volume solvers (GPU and differentiable), starting with the black-hole hydro (P3)
+- [ ] [#411](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/411) NVIDIA Omniverse live link and Cosmos / Isaac: Twin3D scenes in Omniverse, world models and robot training with physics checks (P3)
+- [ ] [#413](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/413) Vision with physics and trust: classification, clustering and segmentation of images and video (P3)
+- [ ] [#414](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/414) Image classification with calibrated trust: galaxy morphology, steel surface defects, microstructures (P3)
+- [ ] [#415](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/415) Unsupervised clustering of physical regimes in images and video, checked against known regimes (P3)
+- [ ] [#416](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/416) Physics-consistent image segmentation: cracks, grains, bubbles and interfaces, cells (P3)
+- [ ] [#417](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/417) Video: segmentation and tracking that obey transport (plumes, clouds, bubbles), and video classification of flow regimes (P3)
+- [ ] [#418](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/418) Synthetic labelled image and video datasets from the PINNeAPPle simulators, for vision pre-training and benchmarks (P3)
+- [ ] [#419](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/419) Cinematic general-relativistic views ("Interstellar" style) for more problems: Kerr/Gargantua, EHT images, neutron stars, tidal disruption, wormholes, lensing (P3)
+- [ ] [#421](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/421) Release v0.8.0: Surrogates with evidence (P1)
+- [ ] [#422](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/422) Release v0.9.0: Twins and discovery at scale (P2)
+- [ ] [#423](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/423) Release v1.0.0: Stable API (P2)
+- [ ] [#424](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/424) Stellar rotation, gyrochronology and solar twins (work of J.-D. do Nascimento Jr.): rotation-age-activity laws from Kepler, Gaia and CoRoT data (P3)
+- [ ] [#426](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/426) Attention in DeepONet (arXiv:2609.04407): tokenised cross-attention operators, data-driven and physics-informed, with the paper's controlled ablation (P3)
+- [ ] [#427](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/427) Moonshots from first principles: Starship heat shield, full-flow engines, Mars ISRU, battery packs, humanoids, Hyperloop, rapid iteration (P3)
+- [ ] [#428](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/428) Law discovery experiments: from real data, from images and video, and the inverse (law to video, video to parameters) (P3)
+- [ ] [#429](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/429) Lab: discover a PDE from a thermal-camera video, then render the video back from the discovered law (P3)
+- [ ] [#430](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/430) Lab: rerun the launch-vehicle CFD on a finer mesh (fails Barrowman on the coarse one) (P2)
+- [ ] [#431](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/431) Black-hole weather: evaluate the faithful Duarte et al. replication, then the improved models (P2)
+- [ ] [#432](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/432) Lab catalogue: import the remaining repository results (heat dome 3-D globe, electrodynamics, chassis, ensembles, ...) (P2)
+- [ ] [#433](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/433) Lab catalogue: UX/UI pass, static GitHub Pages version, then the served version with the database (P2)
+- [ ] [#435](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/435) Stirred tank: CFD-DEM with two-way coupling instead of the analytic flow (P2)
+- [ ] [#436](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/436) Code verification: manufactured solutions and observed order for every solver (P0)
+- [ ] [#437](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/437) Solution verification: grid convergence index on every CFD and FEA result in the lab (P0)
+- [ ] [#438](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/438) Validation against experimental data with measurement uncertainty, one case per domain (P1)
+- [ ] [#439](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/439) Uncertainty quantification by default for learned models, with a calibration gate for tier A (P1)
+- [ ] [#440](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/440) Applicability domain at inference: refuse or fall back to the solver outside the training envelope (P0)
+- [ ] [#441](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/441) Sweep silent fallbacks and audit the remaining model families (PINN, FNO/PINO, transformers) (P0)
+- [ ] [#442](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/442) CI and API: full test suite, lint, numerical regression values, API 1.0 (P0)
+- [ ] [#443](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/443) Scale: GPU and distributed training, solvers on clusters, chunked datasets, lab database server (P1)
+- [ ] [#444](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/444) Physics depth: coupled multiphysics, validated turbulence, nonlinear FEA, materials with uncertainty (P2)
+- [ ] [#445](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/445) Production: model registry, model cards with the trust card, drift monitoring, audit, compliance (P2)
+- [ ] [#446](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/446) External proof: public benchmarks, industrial case studies, peer review (P2)
+- [ ] [#455](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/455) Physics audit: build ModelProfile automatically from PhysicalProblem, presets and trained models (P1)
+- [ ] [#456](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/456) Physics audit on fields: Peclet-based routing of FNO / PINN / solvers on advection-diffusion (P1)
+- [ ] [#457](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/457) Physics audit in the lab trust card and the Veriphysics evidence report (P1)
+- [ ] [#458](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/458) Problem knowledge graph and justified decision tree for every problem started (P1)
+- [ ] [#459](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/459) FMI: export PINNeAPPle surrogates as FMUs (Co-Simulation) for Modelica, Simulink and system models (P2)
+- [ ] [#460](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/460) OpenMM bridge: staged MD protocol (fix, solvate, minimize, NVT/NPT, production) with verified equilibration (P3)
+- [ ] [#461](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/461) Biointerfaces: protein / molecule on metal surfaces (fcc slab builder, facet, orientation, restraints, z-barostat) (P3)
+- [ ] [#462](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/462) Torch MD: thermostats, barostat, restraints and neighbour lists in the differentiable molecular dynamics (P3)
+- [ ] [#464](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/464) Proof graphs: close the ARGUED step of the PT-tetramer theorem, attack N >= 5, export to Lean (P3)
+- [ ] [#465](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/465) More viewers and live twin connectors: Open3D, Polyscope, K3D, Mitsuba, CesiumJS; Orion-LD, BaSyx server, Azure DT, Sparkplug (P3)
+- [ ] [#466](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/466) Multi-cloud interoperability: run and publish PINNeAPPle twins, models and results on Azure, AWS and Google Cloud (P3)
+- [ ] [#467](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/467) List PINNeAPPle in the FMI tools list (fmi-standard.org) (P2)
+- [ ] [#468](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/468) Lab: remaining landing-page cases and the vehicle experiments (road car, Formula car) with Physics AI (P2)
+- [ ] [#469](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/469) Map and prioritise the open issues of every PINNeAPPle-Labs repository (P1)
+- [ ] [#471](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/471) Geomechanics MPM: features from GeoTaichi still missing (μ(I), 3-D, DEM coupling, porous media, GPU) (P3)
+- [ ] [#472](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/472) Physics-informed training in latent space: LatentPINN, physics-informed MeshGraphNet, residual loss on latent ROM dynamics (P2)
+- [ ] [#473](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/473) LBM wind tunnel: features still missing compared with FluidX3D (P3)
+- [ ] [#539](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/539) pinneapple_llm: shared LLMAssist config and a propose-and-check helper (P1)
+- [ ] [#540](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/540) call_llm: max_tokens, temperature, JSON for every provider, optional json_schema (P1)
+- [ ] [#541](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/541) ConversationStore: record whether the model's answer was accepted (P2)
+- [ ] [#543](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/543) identify_pde / suggest_problem_spec and worldmodel from_prompt: model fallback when keywords miss (P2)
+- [ ] [#544](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/544) Arena: draft ArenaConfig (preset, models, training) from a description (P2)
+- [ ] [#545](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/545) physical_units.infer_quantity: model fallback for ambiguous column names, checked by dimension (P2)
+- [ ] [#546](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/546) Solver setup from text: CalculiX FEModel, FEniCS config, OpenFOAM Campaign plans, Fluent cases (P2)
+- [ ] [#547](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/547) Preflight: model-proposed fix per finding, accepted only if re-running preflight clears it (P2)
+- [ ] [#548](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/548) Design: objectives and constraints from text (qualitative preview, design optimizer, heat-sink sizer) (P2)
+- [ ] [#549](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/549) Reports: optional plain-language summary that may only quote numbers from the report (P2)
+- [ ] [#550](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/550) hpo_experiments and formfill on the shared provider layer (P2)
+- [ ] [#551](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/551) fitmesh: fit a catalogue template to an uploaded CAD or scan and report the deviation (P3)
+- [ ] [#553](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/553) fitmesh: manufacturability and tolerance checks on CAD variants (P2)
+- [ ] [#555](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/555) Electric-motor magnetics and topology optimization: finish branch feat/motor-magnetics-topopt (paused) (P1)
+- [ ] [#556](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/556) Accelerated OpenFOAM pressure solves: next steps after #554 (free-surface cases, GPU, learned guesses) (P1)
+- [ ] [#560](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/560) Return a 0–1 geometric similarity score with every surrogate prediction (P1)
+- [ ] [#561](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/561) Closed loop: the surrogate picks the next simulation (acquisition → campaign → retrain) (P1)
+- [ ] [#562](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/562) Pipeline 'CFD cases → field surrogate from STL / point cloud' + a real DoMINO (P1)
+- [ ] [#563](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/563) Export ROMs and surrogates as FMUs (co-simulation) (P1)
+- [ ] [#566](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/566) Solution-adaptive mesh refinement (quadtree, wavelet/gradient criterion) (P2)
+- [ ] [#567](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/567) Multi-fidelity surrogate (Kennedy–O'Hagan co-kriging) (P2)
+- [ ] [#568](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/568) Hybrid dynamic ROM (physics + learned residual) calibrated online from sensors (P2)
+- [ ] [#570](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/570) Geometry encoders (PointNet / DGCNN; B-rep UV-Net later) (P2)
+- [ ] [#571](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/571) LBM D3Q27 cumulant collision + STL voxelization + FP16 storage (P2)
+- [ ] [#572](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/572) Incremental FNO (iFNO): grow Fourier modes during training (P2)
+- [ ] [#574](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/574) MAPDL .rst result reader and a PyFluent driver (P3)
+- [ ] [#575](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/575) In-browser PDE preview (SymbolicPDE → GLSL), VisualPDE-style (P3)
+- [ ] [#576](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/576) PhysicsNeMo models not yet exposed: FIGConvNet, TopoDiff, DLWP-HEALPix (P3)
+- [ ] [#577](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/577) REA: native binary analysis (FMUs, solvers) with a Ghidra provider (P3)
+- [ ] [#578](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/578) Adjoint: MMA optimizer and volumetric B-spline parameterization (P2)
+- [ ] [#579](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/579) Design study as a first-class object (Study → Designs → Scenarios + comparison view) (P2)
+- [ ] [#580](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/580) Parametric RBF morphing of tessellated geometry (no CAD needed) (P2)
+- [ ] [#581](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/581) Viewer with hash-keyed inference cache and surrogate-vs-truth diff (P2)
+- [ ] [#582](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/582) The Well adapter: WellDataset → PINNeAPPle dense volumes + leaderboard-comparable metrics (P2)
+- [ ] [#583](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/583) Procedural PDE datasets on the fly (APEBench-style) using the new ETDRK4 (P2)
+- [ ] [#584](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/584) Neural-corrected coarse solver trained through the rollout (solver-in-the-loop) (P2)
+- [ ] [#585](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/585) Differentiable implicit linear solves with matrix construction by tracing (PhiFlow-style) (P2)
+- [ ] [#586](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/586) Nektar++ bridge (spectral/hp element, MIT) for high-order reference data (P2)
+- [ ] [#587](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/587) JAX-Fluids as an optional external solver (GPL: subprocess bridge, no code reuse) (P3)
+- [ ] [#588](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/588) ParaView Catalyst 2 in-situ adaptor for solvers and surrogates (P3)
+- [ ] [#589](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/589) Neural networks inside variational forms (firedrake.ml-style) in the FEniCS bridge (P3)
+- [ ] [#590](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/590) NVIDIA Warp backend: warp.fem weak forms + zero-copy torch interop (P3)
+- [ ] [#591](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/591) RBF / Kriging / EBF approximation models with training-set outlier detection (P2)
+- [ ] [#592](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/592) Onshape connector: sample configuration parameters and export geometry for DOE (P3)
+- [ ] [#593](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/593) Rescale REST connector: run a DOE campaign on Rescale and pull results (P3)
+- [ ] [#594](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/594) COMSOL bridge through MPh (parameter sweeps → dataset) (P3)
+- [ ] [#601](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/601) Closure model benchmarking: compare RANS/LES closures for the unresolved scales on reference DNS/LES data (P2)
+- [ ] [#603](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/603) Scale-driven adaptive fidelity: switch between surrogate, RANS and LES by the scales the question needs (P2)
+- [ ] [#604](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/604) Scale-conditioned surrogates: condition models on resolution, filter width or physical scale (P2)
+- [ ] [#613](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/613) Collocated finite-volume SIMPLE solver with Rhie-Chow interpolation for a NACA 2412, plus a surrogate trained on it (P2 L)
+- [ ] [#625](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/625) Full regression suite: re-measure the failures on v0.7.0 and fix or quarantine each one (P1 M)
+- [ ] [#626](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/626) Test isolation: a leaked default device (MPS) makes unrelated tests fail (P2 M)
+- [ ] [#634](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/634) Latent data assimilation: EnKF / 3D-Var in POD or autoencoder coordinates for digital twins (P2 M)
+- [ ] [#635](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/635) Latent dynamics surrogates with stability checks and per-horizon rollout trust (P2 M)
+- [ ] [#636](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/636) Physics-constrained latent spaces: conservation and structure preserved in latent coordinates (P3 L)
+- [ ] [#637](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/637) Geometry latent spaces: shape codes as surrogate inputs and latent density as a geometry OOD score (P3 L)
+- [ ] [#638](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/638) Latent generative surrogates (latent diffusion / flow matching) with a physics check on every sample (P3 L)
+- [ ] [#639](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/639) Power-grid state-estimation FDI detection with dynamic physics residuals (IEEE 14/118-bus) (P2 L)
+- [ ] [#640](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/640) Physics-residual screening of training data against poisoning, recorded in the signed dataset manifest (P2 M)
+- [ ] [#641](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/641) Sensor spoofing detection for vehicles and robots through vehicle-dynamics consistency (GNSS / IMU / odometry) (P3 L)
+- [ ] [#642](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/642) Adversarial robustness and certification of physics surrogates (IBP, randomised smoothing, physics-consistent attacks) (P3 M)
+- [ ] [#643](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/643) Federated, differentially private training of surrogates across sites (P3 L)
+- [ ] [#644](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/644) Signed trust reports whose physics residual is re-verified on load (P2 S)
+- [ ] [#645](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/645) BATADAL adapter for the physics-residual FDI benchmark (public water-network attack data) (P2 S)
+- [ ] [#647](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/647) Process-tampering detection from physical side signals (acoustic, power) in manufacturing (P3 L)
+- [ ] [#664](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/664) Geometry library: bring the light files of the airliner, two-stage launcher and VIPER under 2 MB
+- [ ] [#665](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/665) Run the CAARC building OpenFOAM example and record the drag coefficient against the wind tunnel
+- [ ] [#666](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/666) Check the geometry-library Hub files from a user machine (pp.geometries.load download path)
+- [ ] [#667](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/667) Geometry library: regenerate the turntable GIF smaller (or move it to the Hub)
+- [ ] [#668](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/668) Geometry library: improve fidelity where info() flags estimates (DU blade sections, KCS offsets, airliner trailing edge)
+- [ ] [#669](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/669) Geometry library: new entries (bicycle or motorbike with rider, business jet)
+- [ ] [#670](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/670) Delete the merged geometry-library branches
+- [ ] [#671](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/671) Rover grade sweep: average the slip over the in-rut regime
+- [ ] [#672](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/672) VIPER CAD: compare with NASA photos and revisit the TRIDENT position
+- [ ] [#673](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/673) lunar_rover_3d example: use the zoo contact PINN (v1.1.0) and refresh docs/assets/lunar_rover
+- [ ] [#675](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/675) pp.benchmark: accept any zoo dataset by name (follow-up to zoo v2)
+- [ ] [#676](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/676) Delete the merged branch feat/latent-and-cyber
+- [ ] [#677](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/677) Validate the physics-residual FDI detector on real data (needs an environment that can reach batadal.net) (P2 S)
+- [ ] [#686](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/686) Consolidation: move the observatory analyses into pinneapple_physics.astro
+- [ ] [#687](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/687) Consolidation: move the black-hole run storage into pinneapple_physics.blackhole
+- [ ] [#688](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/688) Consolidation: inverse-heat app imports the library directly
+- [ ] [#689](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/689) Consolidation: zoo release manifest and Hub verification into pinneapple_hub.zoo
+- [ ] [#690](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/690) Consolidation: shared helpers of the physics-ensemble examples
+- [ ] [#691](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/691) Consolidation: unstructured streamlines, strict OpenFOAM dictionary editor, erosion models, MCMC inverse, rollout evaluator
+- [ ] [#692](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/692) Consolidation: example solvers that need a published reference before they move
+- [ ] [#693](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/693) Consolidation: example helpers whose library counterpart behaves differently
+- [ ] [#694](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/694) Consolidation: unify duplicate helpers inside the library
+- [ ] [#777](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/777) Publish zoo: the geometries job fails verification with SHA-256 mismatches
+- [ ] [#907](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/907) Physics-labelled post-training data factory in Cosmos-ready formats (P2 L)
+- [ ] [#908](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/908) Physics-residual filter stage for video and tracking data (Curator-style) (P2 M)
+- [ ] [#909](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/909) Update CosmosAdapter to Cosmos 3 (Generator + Reasoner; Diffusers / vLLM / NIM), GPU-gated (P2 M)
+- [ ] [#910](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/910) Cosmos Reasoner as an Autonomous Physics Lab tool, with its physical claims checked (P3 M)
+- [ ] [#911](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/911) Football: calibrate broadcast ball height with gravity as the constraint, then infer drag and spin (P1 M)
+- [ ] [#912](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/912) Football landing point: physics-structured model vs trees, with calibrated uncertainty (P2 M)
+- [ ] [#913](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/913) Pitch control from more data: SkillCorner events, per-player parameters, value layer (P2 L)
+- [ ] [#914](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/914) Football: individual acceleration–speed profiles and in-match fatigue from tracking (P2 M)
+- [ ] [#915](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/915) Football: wider public data with licences (SoccerNet tracking, Wyscout/figshare, more StatsBomb 360) (P2 M)
+- [ ] [#916](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/916) Football: goalkeeper and shot physics in place of the dropped xG case (P3 M)
+- [ ] [#924](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/924) Football scouting: physics-based player profiles with uncertainty, comparable across feeds (P2 L)
+- [ ] [#927](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/927) Sensitivity Lab: propagate surrogate error into the Sobol intervals and report ranking stability (P1 M)
+- [ ] [#929](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/929) 3-D electric machines: axial-flux, skew, end effects and 3-D losses on top of pinneapple_simulation.electromagnetics.machines (P1 L)
+- [ ] [#943](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/943) obs_operator docstring documents a BoundaryObsOperator that does not exist
+- [ ] [#944](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/944) feat(train): fábrica de surrogates com comparação e seleção por alvo
+- [ ] [#946](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/946) feat(simulation): famílias de casos paramétricos e estatísticas de campo na API pública
+- [ ] [#947](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/947) feat(analysis): VeriPhysics como CLI com score decomposto e componentes não avaliados
+- [ ] [#948](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/948) feat(systems): pipeline de construção de gêmeo digital (calibração, envelope, pacote)
+- [ ] [#949](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/949) feat(registry): suportar artefatos não-torch (pacote JSON de surrogate e gêmeo)
+- [ ] [#950](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/950) feat(simulation): expor leitura de .frd e de campos binários OpenFOAM como API pública
+- [ ] [#954](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/954) No smoke test for examples/quickstart: the guide quotes their output, nothing catches a regression (P1)
+- [ ] [#959](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/959) examples/quickstart/experiment.json records no metrics: the manifest says the numbers exist, the file has none (P3)
+- [ ] [#960](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/960) Recipes 12 and 13 are not in the CI smoke run of the notebook at full budget (P3)
+- [ ] [#962](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/962) examples/quickstart: 925 lines of recipes that CI never runs
+- [ ] [#963](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/963) apps/twin_ops: the committed evidence file carries a wall-clock timestamp, so every demo run shows a diff
+- [ ] [#964](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/964) The docs-build step of the generated job cannot be reproduced locally
+- [ ] [#967](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/967) Pre-trained 3-D multiphysics e-motor model for fast design optimisation without FEA in the loop (P1 L)
+- [ ] [#992](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/992) Triage the 81 failures in the full test suite, now that it runs
+- [ ] [#993](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/993) Model-card governance: the gate stays on push, and the nightly covers the zoo
+- [ ] [#1029](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1029) Compact range (#965): run the study on a private reflector geometry, outside the repository
+- [ ] [#1032](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1032) generate_mesh quality view: worst elements are hidden by vertex averaging
+- [ ] [#1036](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1036) Generic Physics AI studies, creatable in the Studio without code (design optimization, surrogates, PINNs, inverse problems, twins)
+- [ ] [#1037](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1037) CFD directly on STL (LBM and immersed vs. mesh): finish the pre-registered campaign
+- [ ] [#1038](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1038) Bilingual Studio (pt/en): remaining library i18n work
+- [ ] [#1039](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1039) Paused work: #929 renders (PR 7) and #967; Raissi 2019 float64 Table 2 reproduction
+- [ ] [#1047](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1047) Control cases across engineering: a verified catalogue on pinneapple_systems.control (tracking)
+- [ ] [#1050](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1050) Control cases 1/6: mechatronics and motion
+- [ ] [#1051](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1051) Control cases 2/6: process control
+- [ ] [#1052](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1052) Control cases 3/6: vehicles and aerospace
+- [ ] [#1053](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1053) Control cases 4/6: marine
+- [ ] [#1054](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1054) Control cases 5/6: energy and power
+- [ ] [#1055](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1055) Control cases 6/6: methods (observers, generic MPC, scheduling, robust and nonlinear control, identification, sampling, MIMO)
+- [ ] [#1065](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1065) Physics area: fluid mechanics
+- [ ] [#1068](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1068) Physics area: quantum mechanics
+- [ ] [#1072](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1072) Physics area: plasma physics
+- [ ] [#1080](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1080) Problem catalogue as data: equations, conditions and physics-loss code (sympy + LaTeX), with edit validation
+- [ ] [#1081](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1081) Hypothesis → claims → verdict → VeriPhysics grade: an experiment API in the library
+- [ ] [#1082](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1082) Underground gas storage (UGS): neural-operator surrogate (TFNO-opt style), reservoir simulator, deliverability optimisation, reliability (tracking)
+- [ ] [#1083](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1083) UGS 1/5: reference simulator: compressible gas in porous media with wells (data generator and ground truth)
+- [ ] [#1084](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1084) UGS 2/5: neural-operator upgrades: 3-D / space-time FNO, factorised spectral weights (CP, Tucker, tensor-train), Sobolev H¹ loss
+- [ ] [#1085](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1085) UGS 3/5: UGS benchmark: scenario dataset, training, accuracy and an honest speed-up
+- [ ] [#1086](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1086) UGS 4/5: operations optimisation: maximise peak daily deliverability under pressure and well constraints
+- [ ] [#1087](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1087) UGS 5/5: reliability and engineers in the loop: history matching, uncertainty, validated domain, decision record, app view
+- [ ] [#1089](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1089) Sci-fi worlds, computed: a black hole flyby with its accretion disc (GR ray tracing, cinematic render)
+- [ ] [#1090](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1090) Sci-fi worlds, computed: a floating city in a gas giant (buoyancy, altitude-keeping control, cinematic render)
+- [ ] [#1094](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1094) raytrace: moving observers (free fall, orbit): aberration and observer Doppler
+- [ ] [#1095](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1095) raytrace: physical disc temperature and colour (relativistic Novikov–Thorne flux, redshifted blackbody, declared false colour)
+- [ ] [#1096](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1096) raytrace: optically thick thin disc and image order (direct image, photon ring n = 1, 2, …)
+- [ ] [#1097](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1097) raytrace: light-travel time ("slow light") for time-dependent flows
+- [ ] [#1098](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1098) Black-hole visuals: gas from a simulation instead of procedural clumps
+- [ ] [#1099](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1099) raytrace: spinning (Kerr) black holes
+- [ ] [#1100](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1100) raytrace: faster tracing (numba / torch GPU) for continuous camera paths, plus anti-aliasing of the photon ring and stars
+- [ ] [#1101](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1101) Black-hole flyby as a library example: scripts, 16:9 + 4:5 outputs, hero still, JSON, in-image checks (finish #1089)
+- [ ] [#1102](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1102) Floating city (#1090): volumetric cloud deck and atmosphere instead of a textured plane
+- [ ] [#1103](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1103) Floating city (#1090): envelope, city and motion detail tied to the physics
+- [ ] [#1104](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1104) Floating city (#1090) as a library example: buoyancy and control study, scene script, outputs, checks
+- [ ] [#1105](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1105) Electrodynamics: moving charges, radiation, transmission lines, wave phenomena, plasma, with checked visuals (parent)
+- [ ] [#1107](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1107) Electrodynamics: retarded (Liénard–Wiechert) fields of moving and accelerated charges, radiation visuals
+- [ ] [#1108](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1108) Electrodynamics: transmission lines in the time and frequency domain (telegrapher, reflections, TDR, matching, Smith chart)
+- [ ] [#1109](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1109) Electrodynamics: FDTD gallery 2: interference, diffraction, guiding, photonic crystals, plasmonics, Cherenkov, phased arrays
+- [ ] [#1110](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1110) Electrodynamics: plasma physics with a 1-D electrostatic particle-in-cell code and EM waves in plasma
+- [ ] [#1111](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1111) Electrodynamics: visualization layer (field lines, Poynting flow, 3-D orbits, animations) and a gallery page
+- [ ] [#1112](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1112) Electrodynamics with Physics AI: identify q/m and fields from particle tracks; neural surrogate of FDTD scattering
+- [ ] [#1122](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1122) Aerodynamics and aircraft: expand the module (viscous airfoils, compressible flow, aeroelasticity, rotors, performance, sizing, handling qualities, Physics AI)
+- [ ] [#1130](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1130) 1.0 (4/8): the core's tests on every PR, on Linux, macOS and Windows, Python 3.10–3.13
+- [ ] [#1131](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1131) 1.0 (5/8): predictable install: a light base package, a few profiles, 55 extras consolidated
+- [ ] [#1133](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1133) 1.0 (7/8): external credibility: a versioned, CI-reproducible benchmark report, and the JOSS paper
+- [ ] [#1134](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1134) 1.0 (8/8): release hygiene: tag-to-PyPI proven, release candidates, migration notes, issue triage
+- [ ] [#1135](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1135) PINNeAPPle 1.0: a stable core with guarantees (tracking)
+- [ ] [#1138](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1138) PhysicsLossHook guesses the physics function's signature from exceptions: (pred, batch) functions fail, and real TypeErrors are hidden
+- [ ] [#1141](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1141) mesh_from_surface hangs on a tetrahedron's surface and does not respond to SIGTERM
+- [ ] [#1142](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1142) Quantum-assisted PINNs (QA-PINN): a quantum feature map in front of a PINN, for any PDE preset, measured against classical baselines (tracking)
+- [ ] [#1143](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1143) QA-PINN 1/4: a quantum-feature-map PINN usable on any PDE preset (registry, input scaling, re-uploading), with contract tests
+- [ ] [#1144](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1144) QA-PINN 2/4: measure it against classical PINNs at equal parameter count, including a Fourier-feature baseline
+- [ ] [#1145](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1145) QA-PINN 3/4: PDE residuals on real quantum devices — input derivatives by parameter-shift, shot noise, and the cost per training step
+- [ ] [#1146](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1146) QA-PINN 4/4: docs page and example — what a QA-PINN is in PINNeAPPle, what it was measured to do, and what it was not
+- [ ] [#1150](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1150) solve_pde refuses laplace_2d, poisson_2d and eight other box presets: their "boundary" tag is the box's faces
+- [ ] [#1151](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1151) Exercise the 3 102 executable Studio tools that have no recorded run
+- [ ] [#1161](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1161) Study kinds miss common goal wordings: "reduzir … variando …" is an optimisation, "rápido para testar muitos cenários" is a surrogate
+- [ ] [#1163](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1163) FNO applied examples measured with the library's own FNO: cold plate approved by the checks, data center with a real trained model
+- [ ] [#1164](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1164) Neural operators on irregular geometry: Geo-FNO / GINO (FNO takes only regular grids today)
+- [ ] [#1165](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1165) FNO variants: TFNO (factorised weights), SFNO (sphere), iFNO (modes grown during training)
+- [ ] [#1166](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1166) FNO: ONNX export for the 1-D and 3-D operators, and an MLP projection head as in Li et al.
+- [ ] [#1170](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1170) Studio catalog: a class is "executable, run with .solve()" even when that method needs arguments the form cannot give
+- [ ] [#1185](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1185) Base workflows: a standard, closed-loop pipeline per domain and per method
+- [ ] [#1194](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1194) Standard CFD workflow with OpenFOAM (geometry → mesh → case → run → checks → GCI → post)
+- [ ] [#1195](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1195) Standard structural mechanics workflow with CalculiX / FEniCS (static, modal, buckling, thermal-stress, fatigue)
+- [ ] [#1196](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1196) Workflow: satellite image processing (STAC search → cloud mask → indices / segmentation → change detection → validation)
+- [ ] [#1197](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1197) Workflow: time-series prediction and modeling (analysis → baselines → models → backtest → intervals)
+- [ ] [#1198](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1198) Workflow: extreme climate (GEV/GPD return levels, non-stationarity, compound events, attribution)
+- [ ] [#1202](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1202) Workflow: robotic arms (kinematics, dynamics, trajectory, control, workspace and actuator design)
+- [ ] [#1203](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1203) Workflow: submarines / underwater vehicles (hydrostatics, resistance, pressure hull, depth and attitude control)
+- [ ] [#1204](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1204) Standard workflow: electromagnetics and electrodynamics (electro/magnetostatics, eddy currents, full wave)
+- [ ] [#1207](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1207) Workflow: satellite design (orbit, power, thermal, link budget, ADCS, lifetime)
+- [ ] [#1210](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1210) Epic: engineering data layer for Physics AI (ingestion, semantics, parsing, datasets, lineage, versioning, quality, APIs, enterprise)
+- [ ] [#1211](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1211) Data layer A: automated ingestion of engineering data (simulation capture, hooks, watchers, incremental, test benches)
+- [ ] [#1212](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1212) Data layer B: semantic data layer and a Physics AI ontology (fields, units, BCs, materials, geometry, mesh, PDE structure)
+- [ ] [#1213](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1213) Data layer C: extraction and parsing of engineering files (adapter architecture, fields/surfaces/regions/time steps, visual query editor)
+- [ ] [#1214](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1214) Data layer D: dataset engineering for Physics AI (builder, schemas, features, splits, and one source to tabular/FNO/PINN/DeepONet/GNN/time-series)
+- [ ] [#1215](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1215) Data layer E: lineage and provenance, a digital thread from experiment to deployed model
+- [ ] [#1216](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1216) Data layer F: versioning and reproducibility of datasets, pipelines, schemas and parsers
+- [ ] [#1217](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1217) Data layer G: inspection and engineering analytics tied to acquisition and preparation (3-D inspection, run comparison, KPI dashboards)
+- [ ] [#1218](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1218) Data layer H: APIs, SDK and AI-native access (data API, PyTorch/JAX loaders, MCP server, natural-language queries, access control)
+- [ ] [#1219](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1219) Data layer I: data quality, validation and reliability (completeness, schema, duplicates, anomalies, cross-run and sim-vs-test consistency, scoring)
+- [ ] [#1221](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1221) Data layer K: Physics-AI-specific data capabilities (dataset cards, PDE-to-dataset, BC/IC/constitutive registries, coverage, physics-aware sampling, multi-fidelity)
+- [ ] [#1227](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1227) October apps 1: shared study-model resolution and contract normalisation (uncertainty_lab, sensitivity_lab)
+- [ ] [#1228](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1228) October apps 2: sensitivity studies from external runs and from given data in pinneapple_analysis.sensitivity.study (sensitivity_lab)
+- [ ] [#1229](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1229) October apps 3: one inverse-problem parser and result tables (calibration_lab, inverse_studio, identifiability_lab)
+- [ ] [#1230](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1230) October apps 4: register and resolve operations models in the library (twin_runtime, control_lab, anomaly_detector)
+- [ ] [#1231](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1231) October apps 5: design-optimisation study runners in pinneapple_design.design_optimizer.study (engineering_optimizer, physics_design)
+- [ ] [#1232](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1232) October apps 6: surrogate study packaging and held-out reporting (surrogate_studio, benchmark_arena)
+- [ ] [#1233](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1233) October apps 7: ROM study bundle and query API in pinneapple_neural.architectures.rom (rom_lab)
+- [ ] [#1234](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1234) October apps 8: model-gateway publishing paths and their security checks in pinneapple_registry (model_gateway)
+- [ ] [#1238](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1238) October apps 12: evidence-report example study and contract objects in the library (evidence_report, validation_lab)
+- [ ] [#1240](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1240) Data layer: helpers found in the October apps (formfill, CAE upload, unified inspect, snapshots, lineage, describe_table, data health)
+- [ ] [#1249](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1249) Agents 2: catalog of predefined specialist agents (CFD, structural, thermal, EM, surrogates, VeriPhysics auditor, ...)
+- [ ] [#1252](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1252) Agents 5: guardrails — measured numbers only, VeriPhysics gates, tool permission tiers, refusal behaviour
+- [ ] [#1253](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1253) Agents 6: evaluation harness per agent (task suites, mocked + real-LLM runs, CI regression, metrics)
+- [ ] [#1257](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1257) discover_pde weak form: the rollout check rejects the true equation at 1 % noise (it compares against noisy data)
+- [ ] [#1263](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1263) Epic: market-driven capability gaps (Physics AI / CFD / thermal / process / PdM / SciML job requirements, 2026-11)
+- [ ] [#1264](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1264) [P0] G1: standard thermal simulation and cooling-optimisation workflow (resistance networks, hotspots, view-factor radiation, HX thermal-hydraulic optimum)
+- [ ] [#1265](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1265) [P0] G2: vibration and condition-monitoring toolkit + workflow (RMS/kurtosis/crest, envelope analysis, bearing defect frequencies, order tracking)
+- [ ] [#1266](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1266) [P0] G3: predictive-maintenance decision layer, operating-state detection and sensor-intelligence workflow
+- [ ] [#1267](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1267) [P0] G4: model qualification spec object, shadow mode, release approval and continuous requalification
+- [ ] [#1268](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1268) [P0] G5: field mapping between meshes (incl. conservative), mesh correspondence, coordinate transforms, mesh-to-graph datasets
+- [ ] [#1269](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1269) [P0] G6: live simulation monitoring, failure diagnosis and automatic recovery, convergence-based stopping
+- [ ] [#1270](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1270) [P0] G7: retrieval over simulation archives (parameter, physics and text queries with provenance)
+- [ ] [#1271](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1271) [P0] G8: Skill / Workflow / Application / Evidence as first-class catalog entities with acceptance criteria and versioned links
+- [ ] [#1272](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1272) [P1] G9: historian / LIMS / CMMS / ERP connectors, tag mapping, store-and-forward and connectivity health
+- [ ] [#1273](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1273) [P1] G10: process flowsheet, mass & energy balance with data reconciliation and gross-error detection
+- [ ] [#1274](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1274) [P1] G11: model serving — rollback, canary, batch inference endpoint, ONNX graph optimisation
+- [ ] [#1275](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1275) [P1] G12: HPC executors (PBS, LSF, async Slurm submit/poll/cancel, job arrays) and GPU profiling flow
+- [ ] [#1276](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1276) [P1] G13: data center and HVAC thermal (rack inlet, RCI/RTI/SHI, chiller COP, cooling tower, airflow layouts)
+- [ ] [#1277](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1277) [P2] G14: phase-change materials — enthalpy method, Stefan problem, thermal storage workflow
+- [ ] [#1278](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1278) [P2] G15: battery thermal — cell/module/pack, Bernardi heat, propagation, cooling configurations, parameter identification
+- [ ] [#1279](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1279) [P2] G16: gas dispersion and consequence zones (Gaussian plume/puff, Pasquill-Gifford/Briggs, dense gas, LFL/IDLH/probit)
+- [ ] [#1280](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1280) [P2] G17: fire and explosion consequence models (TNT equivalence, TNO multi-energy, BST, pool/jet fire radiation, probit damage)
+- [ ] [#1281](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1281) [P2] G18: surface kinetics (Langmuir-Hinshelwood) and reactive transport validated against experimental data
+- [ ] [#1282](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1282) [P2] G19: process unit library — biogas (AM2/ADM1), refinery shortcut distillation (FUG), crude blending, catalyst deactivation
+- [ ] [#1283](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1283) [P2] G20: production analytics — bottleneck, throughput, capacity, downtime/OEE, discrete-event scenario simulation, debottlenecking
+- [ ] [#1284](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1284) [P2] G21: electrochemistry and corrosion — Butler-Volmer, Nernst, single-particle model, Tafel / mixed-potential corrosion
+- [ ] [#1285](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1285) [P2] G22: imaging inverse problems — Radon/FBP/SIRT/TV tomography (CT and neutron), dose kernels
+- [ ] [#1287](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1287) sensitivity_step / uncertainty_step should emit a verify.converged check (needed by the Engineer's uq_sensitivity verify)
+- [ ] [#1288](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1288) Experiment campaign: reproducible Physics-AI demonstrations, one evidence protocol, and what each one may claim (P2 M)
+- [ ] [#1289](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1289) ENSO v2: a sealed out-of-sample El Niño forecast, calibrated probabilities and regime-conditional skill (P2 L)
+- [ ] [#1290](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1290) Scientific cinematic pipeline: every frame of a demonstration video traceable to a solver output (P2 L)
+- [ ] [#1291](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1291) MORPH: a machine that learns its own physics and redesigns itself, in simulation (P2 L)
+- [ ] [#1292](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1292) AERIS: an aircraft whose geometry changes in flight, optimised for the conditions it is in (P3 L)
+- [ ] [#1293](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1293) XENOFORM: a structure the optimiser grows to carry load and to route flow at the same time (P3 L)
+- [ ] [#1294](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1294) LEVITATE: a controller that learns to hold a body in a magnetic field, and what that costs (P3 L)
+- [ ] [#1295](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1295) LIVING MATTER: a cellular structure that becomes stiffer, softer or more conductive region by region (P3 L)
+- [ ] [#1296](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1296) FLOW GOD: control a channel flow with what the model has learned, not with a hand-tuned schedule (P3 L)
+- [ ] [#1297](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1297) STRESS GARDEN: material migrating to where the load is, in 3-D (P2 L)
+- [ ] [#1298](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1298) VORTEX ENGINE: a geometry that learns to mix two streams (P3 L)
+- [ ] [#1299](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1299) FLUID MACHINE: blades the optimiser finds for a rotor (P3 L)
+- [ ] [#1301](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1301) INVISIBLE WEATHER: a 3-D convection cell, and the scaling law it must reproduce (P3 L)
+- [ ] [#1302](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1302) TENTACLE ENGINE: a continuum arm that squeezes through a gap and still lifts (P3 L)
+- [ ] [#1304](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1304) VORTEX GATE: can a flow field really deflect a passing object? (P3 M)
+- [ ] [#1305](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1305) ORBITAL INFLATION: a compact module that expands into a rotating ring (P3 L)
+- [ ] [#1306](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1306) AEROMORPH: a race car that changes its own aerodynamics for the corner it is in (P2 M)
+- [ ] [#1307](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1307) HYDROFLIGHT: a hull that leaves the water and flies on foils (P3 L)
+- [ ] [#1308](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1308) INVERTED WORLD: a vehicle that drives on a ceiling, and what holds it there (P3 M)
+- [ ] [#1309](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1309) GRANULAR CONSTRUCTOR: a pile of grains that becomes a bridge and then an arch (P3 M)
+- [ ] [#1310](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1310) VORTEX TREE: a 3-D manifold a topology optimiser grows to spread flow evenly at minimum loss (P2 L)
+- [ ] [#1311](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1311) THERMAL ORGANISM: a heat sink the optimiser grows, branch by branch (P2 L)
+- [ ] [#1312](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1312) AERODYNAMIC EVOLUTION: a body whose shape evolves to cut drag, generation by generation (P2 L)
+- [ ] [#1314](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1314) SELF-HEALING MACHINE: a truss that breaks, and then repairs itself (P2 M)
+- [ ] [#1315](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1315) MICROFACTORY: an assembly line inside a channel (P3 M)
+- [ ] [#1316](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1316) CLIMATE SKIN: a facade whose panels move, and what that does to the wind around a building (P3 L)
+- [ ] [#1317](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1317) SKYBRAKE: a capsule that steers its own entry with movable surfaces (P3 L)
+- [ ] [#1319](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1319) VORTEX RIDER: thrust from vortex rings, measured rather than implied (P3 L)
+- [ ] [#1321](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1321) WAVE EATER: a floating structure that changes shape to take energy from the waves (P3 L)
+- [ ] [#1322](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1322) NANOSWARM: a gripper that emerges from magnetic particles under an applied field (P3 L)
+- [ ] [#1324](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1324) NANOTURBINE: a rotor that assembles itself in a fluid and then pumps (P3 L)
+- [ ] [#1325](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1325) A-posteriori 3-D LES: score each subgrid closure on resolved statistics against the filtered DNS (P2 L)
+- [ ] [#1326](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1326) WMLES and DES: a wall model and a RANS/LES length-scale blend, checked on a channel at Re_tau 395 (P3 L)
+- [ ] [#1327](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1327) A subgrid closure trained through the 3-D solver, compared with the a-priori learned one (P2 L)
+- [ ] [#1328](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1328) OpenFOAM LES path: the case, the delta from the mesh, and a comparison against the PINN-LES (P2 M)
+- [ ] [#1329](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1329) LES surrogate for parametric studies: a DOE on statistics, with a validity domain that refuses (P3 M)
+- [ ] [#1330](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1330) NANOORIGAMI: a flat sheet that folds itself into a 3-D shape (P2 M)
+- [ ] [#1331](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1331) FERROFLUID ARCHITECT: shapes a magnetic field can command, and the ones it cannot (P2 M)
+- [ ] [#1332](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1332) THERMAL MORPH: a part that changes function with temperature (P3 M)
+- [ ] [#1333](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1333) ACTIVE MATTER: a crowd of units that organises itself, and the parameters where it stops (P3 M)
+- [ ] [#1334](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1334) MOLECULAR LOCK: a cage that closes on a particle and opens on command (P3 L)
+- [ ] [#1335](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1335) TEMPORAL LOOP: a system that returns to its own initial state, and the dynamics that follow (P3 S)
+- [ ] [#1336](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1336) CHRONOSCOPE: reconstructing a past state from what is left of it (P3 M)
+- [ ] [#1337](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1337) OMNIMATTER: speak a part, and matter arranges itself into it (P3 L)
+- [ ] [#1338](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1338) 3-D field animation over a CAD wireframe: free surface coloured by a field, plume, one frame per saved time
+- [ ] [#1339](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1339) SHAPE-SHIFTING MATTER: one population of modules, several machines (P3 L)
+- [ ] [#1340](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1340) WALKING INDUSTRIAL MEGASTRUCTURE: a factory that steps over the terrain (P3 L)
+- [ ] [#1341](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1341) INERTIA CONTROL LAB: making a payload feel less of a manoeuvre (P3 M)
+- [ ] [#1342](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1342) PORTAL ENGINE: two rooms joined at a boundary, and what the fields do there (P3 M)
+- [ ] [#1343](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1343) T-1000 LAB: a liquid-metal machine, and the physics that refuses it (P3 L)
+- [ ] [#1344](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1344) AUTONOMOUS WORLD BUILDER: robots that assemble a station without a foreman (P3 L)
+- [ ] [#1345](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1345) INSTANT EXOSUIT: armour that folds out of a pack and takes the load (P3 L)
+- [ ] [#1346](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1346) OMNIVEHICLE: one machine for air, surface and water, with the trade-off shown (P3 L)
+- [ ] [#1348](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1348) FUELLESS DEEP SPACE CRAFT: a sail, its trajectory, and the patience it needs (P3 M)
+- [ ] [#1350](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1350) ACTIVE CAMOUFLAGE SKIN: a surface that matches what is behind it, from a stated viewpoint (P3 M)
+- [ ] [#1351](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1351) SONIC CLOAK: an acoustic metamaterial that hides a region at one frequency band (P3 M)
+- [ ] [#1353](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1353) EARTHQUAKE SHIELD: a foundation whose stiffness changes during the shaking (P3 M)
+- [ ] [#1354](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1354) WORMHOLE LAB: light through a throat that may not exist (P3 M)
+- [ ] [#1355](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1355) ARTIFICIAL GRAVITY GENERATOR: a ring that spins, and the comfort it can and cannot buy (P3 M)
+- [ ] [#1357](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1357) SPACE FOLDER: a metric that shortens a path, and the price of the deformation (P3 M)
+- [ ] [#1358](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1358) QUANTUM TELEPORTER: a state that moves without a particle moving, and its fidelity (P3 M)
+- [ ] [#1359](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1359) TIME DILATION ENGINE: two clocks, two histories, one number (P2 M)
+- [ ] [#1362](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1362) THOUGHTFORM: from a described object to a structure that can actually be built (P2 M)
+- [ ] [#1363](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1363) REACTIVE ARMOR: a layer that stiffens only where it is hit (P3 L)
+- [ ] [#1364](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1364) UNIVERSAL TOOL: one module set, three tools, one force budget (P3 M)
+- [ ] [#1365](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1365) BAYMAX ENGINE: a soft body that changes shape to reach and to carry (P3 L)
+- [ ] [#1366](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1366) SELF-BUILDING CITY: local rules that end in a structure, or in a collapse (P3 L)
+- [ ] [#1367](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1367) MEDIBOTS: particles navigating a vessel to a target (P3 M)
+- [ ] [#1368](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1368) FORCE FIELD LAB: moving an object without touching it, with the mechanism named (P3 M)
+- [ ] [#1369](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1369) ENERGY SHIELD: a barrier that attenuates a blast or a wave instead of stopping it (P3 L)
+- [ ] [#1370](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1370) MIRROR DIMENSION: an environment whose geometry is consistent and impossible (P3 M)
+- [ ] [#1371](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1371) HARD-LIGHT CONSTRUCTOR: how much force light can actually apply (P3 S)
+- [ ] [#1372](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1372) VORTEX SHIELD: deflecting dust and droplets with a flow instead of a wall (P3 M)
+- [ ] [#1374](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1374) IMPOSSIBLE ROOM: a room that cannot exist in ordinary geometry, and stays consistent (P3 M)
+- [ ] [#1375](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1375) Epic: dam-break VOF surrogate, reproduced in PINNeAPPle and compared with PhysicsNeMo
+- [ ] [#1376](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1376) Dam-break benchmark 1/4: parametric interFoam dam-break dataset generated with the library
+- [ ] [#1377](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1377) Dam-break benchmark 2/4: autoregressive FNO with unrolled training on the library's FNO
+- [ ] [#1382](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1382) Benchmark v2 2/8: PINN framework adapters (A+), reused by problems P01, P03, P06, P09–P11, P13
+- [ ] [#1383](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1383) Benchmark v2 3/8: operator framework adapters and public dataset loaders (B+), reused by problems P01, P02, P04–P06, P13
+- [ ] [#1384](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1384) Benchmark v2 4/8: free-surface VOF adapters and coarse-CFD baseline (E), for problem P07
+- [ ] [#1385](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1385) Benchmark v2 5/8: mesh and graph framework adapters (F), reused by problems P04, P08, P09, P12
+- [ ] [#1387](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1387) Benchmark v2 7/8: track H, capabilities and workflow (measured ergonomics plus a cited not-measured matrix)
+- [ ] [#1388](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1388) Benchmark v2 8/8: report v2 and reproducibility (one command per track, results schema, CI smoke)
+- [ ] [#1389](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1389) Epic: synthetic physics data generation with PINNeAPPle (one pipeline, measured quality, published datasets)
+- [ ] [#1390](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1390) Synthetic data 1/7: one pipeline and API (problem → design → solver runs → standard dataset)
+- [ ] [#1391](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1391) Synthetic data 2/7: dataset quality checks and a data card with measured quality
+- [ ] [#1392](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1392) Synthetic data 3/7: adaptive design (add cases where the surrogate is uncertain) vs LHS and Sobol at equal budget
+- [ ] [#1393](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1393) Synthetic data 4/7: multi-fidelity datasets (coarse and fine runs with fidelity labels and cost)
+- [ ] [#1394](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1394) Synthetic data 5/7: physics-consistent augmentation and non-dimensionalisation
+- [ ] [#1395](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1395) Synthetic data 6/7: synthetic sensor streams for digital twins (noise, drift, dropouts, faults)
+- [ ] [#1396](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1396) Synthetic data 7/7: published dataset suite (data cards, checksums, licences, regeneration commands)
+- [ ] [#1398](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1398) Benchmark problem P02: 2-D Darcy flow with random permeability (operator learning)
+- [ ] [#1399](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1399) Benchmark problem P03: steady incompressible flow, lid-driven cavity (Re 100, 1000) and Kovasznay flow
+- [ ] [#1400](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1400) Benchmark problem P04: flow past a cylinder (Schäfer–Turek 2-D benchmark, unsteady vortex shedding)
+- [ ] [#1401](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1401) Benchmark problem P05: 2-D turbulence (Kolmogorov flow / incompressible Navier–Stokes, autoregressive)
+- [ ] [#1410](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1410) Benchmark problem P14: data assimilation and digital twin (Lorenz-96 and a thermal plant with drift)
+- [ ] [#1413](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1413) LPM L00: evaluation protocol: generalisation matrix (held-out split per axis) and the LPM card
+- [ ] [#1414](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1414) LPM L01: physical parameters and regime: dimensionless conditioning and regime flags
+- [ ] [#1415](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1415) LPM L02: geometry and topology encoders (CAD/B-rep, mesh, point cloud, SDF)
+- [ ] [#1416](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1416) LPM L03: boundary and initial conditions as inputs (type, location, value)
+- [ ] [#1417](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1417) LPM L04: space and time: continuous queries, any horizon and step, steady and transient, 2-D and 3-D
+- [ ] [#1418](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1418) LPM L05: discretisation invariance (mesh, grid, point cloud and sensors, at input and output)
+- [ ] [#1419](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1419) LPM L06: sources, loads and forcing fields as inputs
+- [ ] [#1420](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1420) LPM L07: constitutive laws and materials as inputs
+- [ ] [#1421](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1421) LPM L08: tasks and outputs: forward, inverse, assimilation, design through gradients; fields and quantities of interest
+- [ ] [#1422](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1422) LPM L09: multi-fidelity and multi-source training (solvers, fidelities, experiments)
+- [ ] [#1423](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1423) LPM L10: symmetries and physics constraints for generalisation, with measured effect
+- [ ] [#1424](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1424) LPM L11: validity domain: uncertainty, OOD per axis, abstention, few-shot fine-tuning
+- [ ] [#1425](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1425) LPM L12: cross-family pretrained backbone versus per-family training (measured)
+- [ ] [#1426](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1426) LPM L13: coupling family LPMs for multiphysics (interfaces, partitioned iteration)
+- [ ] [#1427](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1427) LPM L14: pilot family LPMs built along all the axes (external aero 2-D, conjugate heat, free surface)
+- [ ] [#1428](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1428) Epic: lessons from Emmi AI (AB-UPT, NeuralDEM, multi-fidelity scaling): large-mesh surrogates, CAD-direct inference, CFD–DEM
+- [ ] [#1429](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1429) Emmi 1/8: native anchor-token, branched transformer surrogate (clean-room, under the library licence)
+- [ ] [#1430](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1430) Emmi 2/8: scaling surrogates to very large meshes (memory-bounded training and inference, streaming mesh I/O)
+- [ ] [#1431](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1431) Emmi 3/8: divergence-free and conservative output heads for flow surrogates (measured)
+- [ ] [#1432](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1432) Emmi 4/8: surrogate inference directly from CAD (STEP / B-rep), without a volume mesh
+- [ ] [#1433](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1433) Emmi 5/8: multi-fidelity scaling laws for neural surrogates (budget versus fidelity mix), reproduced on PINNeAPPle data
+- [ ] [#1434](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1434) Emmi 6/8: neural surrogate for CFD–DEM particle-laden and granular flows (NeuralDEM-style)
+- [ ] [#1435](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1435) Emmi 7/8: public automotive and aerospace surrogate benchmarks (DrivAerML, AhmedML, transonic wing) as #1380 problems
+- [ ] [#1436](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1436) Emmi 8/8: Noether bridge upkeep (licence re-check after the Mistral acquisition, version pin, CI, docs)
+- [ ] [#1437](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1437) LPM L15: component LPMs for complex multiphysics components (per component), starting with electric motors (#967)
+- [ ] [#1441](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1441) Epic: Physics AI in production on live data: shadow-mode pilots that measure whether the models work
+- [ ] [#1443](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1443) Pilots P1: river discharge nowcast on live public USGS data (gray-box + adaptive conformal), the whole loop with no hardware
+- [ ] [#1444](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1444) Pilots P2: thermal virtual sensor on a bench rig (cooled part twin + EnKF), held-out thermocouple and staged faults
+- [ ] [#1445](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1445) Pilots P3: surrogate service with an applicability gate and solver spot checks, the live error feeding the next training data
+- [ ] [#1447](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1447) Run PICT for real on an NVIDIA GPU: layout check, Ghia on the same grids, and a differentiable run
+- [ ] [#1451](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1451) F1: Abaqus and Simcenter STAR-CCM+ campaign drivers (case from parameters, run, results to a dataset), licence-gated
+- [ ] [#1452](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1452) F2: learned multigrid components (smoother, prolongation) inside a geometric multigrid, with measured iteration savings and grid transfer
+- [ ] [#1453](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1453) F3: credibility assessment per context of use (NASA-STD-7009A, ASME V&V 40) as an executable VeriPhysics report
+- [ ] [#1454](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1454) F4: full-waveform inversion workflow (2-D acoustic): differentiable wave solver, neural reparameterisation, OpenFWI benchmark
+- [ ] [#1456](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1456) F6: feature-scale etch and deposition profile evolution (level set, flux models) and a surrogate of the profile
+- [ ] [#1457](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1457) F7: scaling-law harness for physics models (model size × data × compute), fitted power laws with intervals
+- [ ] [#1458](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1458) F8: case-study export from the evidence record (Problem → Approach → What worked / what didn't → Outcome)
+- [ ] [#1464](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1464) Joule–Thomson CFD: OpenFOAM rhoSimpleFoam with PengRobinsonGas through an orifice or valve passage, ideal-gas vs real-gas runs checked against the isenthalpic value
+- [ ] [#1485](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1485) Crash solver: the erosion path creates energy, so a campaign has to stop before the first element fails
+- [ ] [#1486](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1486) Pole-impact campaign: re-run inside the verified window and finish the field leaderboard
+- [ ] [#1487](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1487) Studio coverage: the gallery cache does not notice a change that touches no file content
+- [ ] [#1488](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1488) Vehicle-engineering surrogate benchmarks, recreated: car surface pressure (CarBench) and pole impact (CarCrashNet)
+- [ ] [#1490](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1490) Surface-pressure campaign: label a campaign big enough to separate the families
+- [x] [#1491](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1491) [PDI 1] Data readiness gate: training refuses to start on a dataset with no verdict, and an override names who accepted it (P0 M)
+- [ ] [#1492](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1492) [PDI 2] Dataset health for solver output: fields, regions and time steps, the third dataset kind after tables and meshes (P0 M)
+- [ ] [#1493](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1493) [PDI 3] Engineering expert review: an approval record for data and models, separate from the automated metrics (P0 L)
+- [ ] [#1494](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1494) [PDI 4] Mesh repair: turn the report's suggested fix into an operation, with before and after measured (P1 M)
+- [ ] [#1495](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1495) [PDI 5] Geometry and mesh identity: recognise a mesh you already have, and store a light representation beside it (P2 M)
+- [ ] [#1496](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1496) [PDI 6] Selective simulation storage: keep the snapshots physics needs, and record what was dropped (P2 L)
+- [ ] [#1498](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1498) Epic: NVIDIA's structural-analysis use case, rebuilt end to end in PINNeAPPle — GPU linear solvers, explicit-FEA ingestion, structural surrogates, time-varying visualisation (P1 L)
+- [ ] [#1499](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1499) NVIDIA structural 1/7: GPU sparse linear algebra backends (cuDSS, AmgX, cuSOLVER) behind one factor-and-solve contract (P1 L)
+- [ ] [#1500](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1500) NVIDIA structural 2/7: explicit-FEA ingestion — LS-DYNA and OpenRadioss into one structural run, and the normalisation that makes it a training set (P1 L)
+- [ ] [#1501](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1501) NVIDIA structural 3/7: GeoTransolver, the geometry-aware Transolver, clean-room, benchmarked against Transolver and MeshGraphNet (P2 L)
+- [ ] [#1502](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1502) NVIDIA structural 4/7: contact pressure as a field, and MeshGraphNet vs Transolver vs GeoTransolver on the structural field benchmark (P1 L)
+- [ ] [#1503](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1503) NVIDIA structural 5/7: drop test — gravity, a floor, the sweep and its surrogate (P2 M)
+- [ ] [#1504](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1504) NVIDIA structural 6/7: NVH — modal extraction and harmonic response on the library's own FE meshes, and a surrogate on the FRF (P2 L)
+- [ ] [#1505](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1505) NVIDIA structural 7/7: time-varying structural visualisation — deforming points as USD time samples, each frame traceable to its solver frame (P2 M)
+- [ ] [#1521](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1521) test(lpm): execute real OpenFOAM, CalculiX and FEniCS campaigns and verify CI
+- [ ] [#1522](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1522) test(lpm): validate approval service against real S3 Object Lock and OIDC
+- [ ] [#1523](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1523) feat(lpm): immutable external audit log and crash-safe approval recovery
+- [ ] [#1526](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1526) [SimulAI gap][P0] Implement HOSVD / tensor ROM with physical-field reconstruction
+- [ ] [#1527](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1527) [SimulAI gap][P0] Implement Gappy POD reconstruction from sparse noisy sensors
+- [ ] [#1528](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1528) [SimulAI gap][P0] Add quadratic-manifold nonlinear ROM (QQM)
+- [ ] [#1529](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1529) [SimulAI gap][P0] Extend OperatorInference with controls, observables, Jacobians and streaming
+- [ ] [#1530](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1530) [SimulAI gap][P0] Out-of-core HDF5/Zarr streaming POD and ROM workflows
+- [ ] [#1531](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1531) [SimulAI gap][P1] Residual, Improved and Flexible DeepONet variants
+- [ ] [#1532](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1532) [SimulAI gap][P1] Neural Implicit Flow with hypernetwork-conditioned weights
+- [ ] [#1533](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1533) [SimulAI gap][P1] Trainable MoEPool and SplitPool neural operators
+- [ ] [#1534](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1534) [SimulAI gap][P1] Deep and Wide Echo State Networks
+- [ ] [#1535](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1535) [SimulAI gap][P1] Distributed SVD and operator inference with bounded-memory workers
+- [ ] [#1536](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1536) [SimulAI gap][P2] Integrator interoperability and RKF78/LSODA validation
+- [ ] [#1537](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1537) [SimulAI gap][P2] Geometric HMC sampler for learned latent manifolds
+- [ ] [#1538](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1538) [SimulAI gap][P2] Chaos and scientific forecast diagnostics suite
+- [ ] [#1539](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1539) [SimulAI gap][P2] Scientific preprocessing parity: masks, windows, positivity and spectral filters
+- [ ] [#1540](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1540) [SimulAI gap][P2] Scientific numerics utilities: compressed pseudoinverse and meshfree quadratures
+- [ ] [#1541](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1541) [PhysicsNeMo gap][P0] GPU-native mesh discrete calculus and differentiable topology
+- [ ] [#1542](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1542) [PhysicsNeMo gap][P0] True domain-parallel field/mesh ShardTensor abstraction
+- [ ] [#1543](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1543) [PhysicsNeMo gap][P0] PhysicsNeMo-scale CAE datapipes: VTK, Zarr, HDF5, meshes and GPU prefetch
+- [ ] [#1544](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1544) [PhysicsNeMo gap][P1] Diffusion physics toolkit: schedulers, samplers, preconditioners and guidance
+- [ ] [#1545](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1545) [PhysicsNeMo gap][P1] Rectified flow and multi-diffusion tiled field generation
+- [ ] [#1546](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1546) [PhysicsNeMo gap][P1] Conformal predictive intervals for spatially correlated physical fields
+- [ ] [#1547](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1547) [PhysicsNeMo gap][P1] LoRA / PEFT for pretrained physical neural operators and GNNs
+- [ ] [#1548](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1548) [PhysicsNeMo gap][P1] AeroJEPA and GLOBE exploratory geometry representations
+- [ ] [#1549](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1549) [PhysicsNeMo gap][P1] DPOT and autoregressive PDE transformer with stable unrolled rollout
+- [ ] [#1550](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1550) [PhysicsNeMo gap][P1] GPU model parallelism and distributed FFT for neural operators
+- [ ] [#1551](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1551) [PhysicsNeMo gap][P1] Restartable simulation-in-the-loop active learning orchestration
+- [ ] [#1552](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1552) [PhysicsNeMo gap][P2] Mesh geometry repair, remeshing, BVH and differentiable deformation parity
+- [ ] [#1553](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1553) [PhysicsNeMo gap][P2] Physics generative topology design baseline: TopoDiff parity
+- [ ] [#1554](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1554) [PhysicsNeMo gap][P2] Physics AI model lifecycle: metadata, checkpoint migration and architecture contracts
+- [ ] [#1555](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1555) [PhysicsNeMo gap][P2] Spatial OOD guardrails and variational GP uncertainty heads
+- [ ] [#1556](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1556) [PhysicsNeMo gap][P2] Atmospheric graph and HEALPix operators compatibility track
+- [ ] [#1557](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1557) [PhysicsNeMo gap][P2] Structured physics-native profiling and fused GPU kernel benchmark suite
+- [ ] [#1559](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1559) [External SciML][GraphCast][P1] Multilevel mesh-graph processor with conservative restrict/prolong operators
+- [ ] [#1560](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1560) [External SciML][GraphCast][P1] Long-rollout graph surrogate training with scheduled forcing and spectral drift audit
+- [ ] [#1561](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1561) [External SciML][JAX-CFD][P0] Differentiable finite-volume operators with learned flux/interpolation hooks
+- [ ] [#1562](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1562) [External SciML][NeuralGCM][P0] Hybrid differentiable physical core and learnable parameterization contract
+- [ ] [#1563](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1563) [External SciML][JAX-MD][P1] Unified differentiable energy-force-stress potential interface for particle systems
+- [ ] [#1564](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1564) [External SciML][TORAX][P1] Differentiable implicit multiphysics stepping and sensitivity analysis for hybrid PDEs
+- [ ] [#1565](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1565) [External SciML][MatterGen][P2] Property-conditioned generative design with feasibility projection and solver verification
+- [ ] [#1566](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1566) [External SciML][Graphormer][P1] Graph structure-biased attention for engineering meshes and particle graphs
+- [ ] [#1567](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1567) [External SciML][FAIRChem][P1] Conservative pretrained physical-model adapter with explicit derivative provenance
+- [ ] [#1568](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1568) [External SciML][NeuralOperator][P0] Local integral/spectral hybrid neural operator kernels
+- [ ] [#1569](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1569) [External SciML][NeuralOperator][P1] Neural operator field losses and spectral reliability diagnostics
+- [ ] [#1570](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1570) [External SciML][NeuralOperator][P1] Composable recurrent and U-shaped neural operator mechanisms
+- [ ] [#1571](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1571) [External SciML][DeepXDE][P1] Geometry-aware residual adaptive refinement and anchors in PINN collocation
+- [ ] [#1572](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1572) [External SciML][DeepXDE][P1] Integral/operator and multi-fidelity PDE constraints in PINN factory
+- [ ] [#1573](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1573) [External SciML][PINA][P1] Trainable adaptive activation family for difficult physics landscapes
+- [ ] [#1574](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1574) [External SciML][PINA][P1] Composable physics condition graph and event-based refinement callbacks
+- [ ] [#1575](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1575) [External SciML][PhiFlow][P1] Typed field resampling and backend-neutral geometry-aware interpolation
+- [ ] [#1576](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1576) [External SciML][PhiFlow][P2] Physics inverse-design optimization through differentiable field workflows
+- [ ] [#1577](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1577) [External SciML][Graphormer][P1] Sparse 3D geometric graph bias for industrial mesh transformers
+- [ ] [#1578](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1578) [External SciML][FAIRChem][P1] SE(3)-equivariant particle/mesh interaction blocks
+- [ ] [#1579](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1579) [External SciML][TORAX][P1] Pluggable implicit equation terms with differentiable transport closure
+- [ ] [#1581](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1581) [Integration] Optional Newton/Steel heterogeneous rigid-body simulation backend
+- [ ] [#1582](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1582) [DNS/PIV] Dataset ingestion, provenance and geometry-aware splits
+- [ ] [#1584](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1584) [DNS/PIV] PINN and neural-operator held-out geometry baselines
+- [ ] [#1588](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1588) [Steel] Physics AI learning and simulator performance benchmarks
+- [ ] [#1589](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1589) [Cross-framework] VeriPhysics validators and reproducibility report contracts
+- [ ] [#1592](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1592) [Benchmark] KIT real experimental thermal data: run PINNeAPPle PINN vs calibrated numerical model
+- [ ] [#1593](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1593) feat(twin3d): implement adaptive browser LOD selection and streaming
+- [ ] [#1594](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1594) feat(twin3d): optional Draco/Meshopt compression and KTX2 texture pipeline
+- [ ] [#1595](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1595) feat(twin3d): GPU instancing and geometry dedup for repeated industrial assets
+- [ ] [#1597](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1597) feat(twin3d): physics-safe geometric simplification with quantitative quality gates
+- [ ] [#1600](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1600) research: extend optimizer's curse pilot to physical NACA CFD and controlled ablations
+- [ ] [#1604](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1604) External credibility: obtain independent PINNeAPPle reproductions and documented real-user case studies
+- [ ] [#1605](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1605) feat(twin3d): SimReady OpenUSD physics metadata ingestion and validated browser conversion
+- [ ] [#1611](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1611) [Validation execution] Run CI, fix failures, and verify cold-plate PR #1603
+- [ ] [#1612](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1612) [Validation execution] Run five-seed cold-plate FNO benchmark and produce full report
+- [ ] [#1614](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1614) test(twin3d): validate SimReady real-asset end-to-end import and CI
+- [ ] [#1615](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1615) feat(twin3d): wire MeshoptDecoder and KTX2Loader to compressed viewer assets
+- [ ] [#1617](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1617) perf(twin3d): GPU instancing and measured LOD/SimReady performance suite
+- [ ] [#1618](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1618) ci: validate and merge optimizer's curse integration PR #1599
+- [ ] [#1620](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1620) integration: plug real PINNeAPPle PINN/FNO/DeepONet surrogates into design-verification benchmark
+- [ ] [#1621](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1621) validation: independent CFD execution and engineer review for optimizer's curse
+- [ ] [#1628](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1628) WorldParticle: verify upstream checkpoint loading and real GPU rollout
+- [ ] [#1629](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1629) WorldParticle: add held-out physics benchmarks and VeriPhysics gating
+- [ ] [#1630](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1630) WorldParticle: validate NPZ/UPD bridge, CI and edge cases
+- [ ] [#1631](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1631) WorldParticle: research native particle tokenization and differentiable model composition
+- [ ] [#1632](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1632) Integrate Harvard Dataverse dataset DOI 10.7910/DVN/4POHU5 into PINNeAPPle data workflows
+- [ ] [#1637](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1637) [Validation] Benchmark hybrid RBF-KAN/Fourier DeepONet and real-data calibration against trusted baselines
+- [ ] [#1638](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1638) [Enhancement] Bayesian multi-fidelity HPO, exact spline KAN and geometry-aware DeepONet encoders
+- [ ] [#1641](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1641) snappyHexMesh: local refinement around the seat curtain, and the coarse-mesh patch loss
+- [ ] [#1642](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1642) dashboard: a study's own views/outputs need a test, and the design-space template is still the default
+- [ ] [#1643](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1643) Canal de corrida: experimento das rampas do CAD como pipeline executável da lib
+- [ ] [#1646](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1646) Implement, run and validate Sustainability Island as a full PINNeAPPle digital-twin example
+- [ ] [#1650](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1650) EPIC: Scientific Assurance across geometry, solvers, Physics AI and pipeline diagnostics
+- [ ] [#1652](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1652) P1 | Verificação numérica e solvers reais
+- [ ] [#1653](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1653) P1 | CAD, malhas, interfaces e BCs reais
+- [ ] [#1654](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1654) P1 | Forward Physics AI e serving assurance
+- [ ] [#1655](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1655) P1 | Inverse problems, identificabilidade e sensor design
+- [ ] [#1656](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1656) P1 | Falsification engine e next-best experiment
+- [ ] [#1657](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1657) P1 | Inverse design, validação independente e robustez
+- [ ] [#1658](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1658) P0 | Corrigir CI e executar testes do VeriPhysics
+- [ ] [#1659](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1659) P0 | Revisão de robustez e segurança do MVP VeriPhysics
+- [ ] [#1673](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1673) [Simulation] Unify generic OpenFOAM, CalculiX and FEniCSx adapters with validated simulation contract
+- [ ] [#1674](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1674) [VeriPhysics][CFD] Reproduce blast-furnace channel and Joule–Thomson valve; institutionalize spatial sampling lessons
+- [ ] [#1676](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1676) feat(datasets): Hugging Face parametric physics datasets — Capsule Aeroheating + 12 sources, benchmarks, VeriPhysics & Engineering API
+- [ ] [#1677](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1677) The local cavity engine stops on a wall-clock guard, so the same case answers differently on a busy machine
+- [ ] [#1684](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1684) DestinE: an example and a Studio entry for the open catalogue
+- [ ] [#1685](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1685) DestinEClient: stream the download and follow the search's next links
+- [ ] [#1686](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1686) external_sources.py: 63 ruff findings hide the ones a change introduces
+- [ ] [#1692](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1692) Promote the classic CFD/FEA reproduction to an example with a Lab manifest, an inventory entry and a hub flow
+- [ ] [#1700](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1700) Unreal: run the generated editor script in a real editor (UE 5.3 to 5.6)
+- [ ] [#1701](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1701) Cinematic page: 4.1 MB of geometry before the first frame
+- [ ] [#1702](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1702) Write the guide for the 3-D backends (Blender, three.js, Unreal, USD)
+- [ ] [#1703](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1703) LPM: a production-scale backbone (Transolver/GeoTransolver/AB-UPT) next to the compact attention stack
+- [ ] [#1704](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1704) LPM: a design space of ~1000 solver runs, not only the analytic ellipse family
+- [ ] [#1705](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1705) worldmodel: a multi-domain demonstration against baselines (the gap in the strategy document)
+- [ ] [#1706](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1706) Flow Studio: a node (or a better reason) for batched LPM training
+- [ ] [#1708](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1708) Ascent: dispersions (winds, thrust misalignment, mass, atmosphere) and the probability of reaching the orbit
+- [ ] [#1710](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1710) Ascent: a Flow Studio node and a Studio page for the launch simulation
+- [ ] [#1711](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1711) Pole impact: a campaign written with the design channels, at one end time and one frame count
+- [ ] [#1713](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1713) Weight the field loss on the KPI node instead of reading the peak afterwards
+- [ ] [#1714](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1714) Score the point and hierarchical rows under the parametric protocol
+- [ ] [#1716](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1716) granular: port the DEM kernels to the GPU (neighbour search + polyhedron clipping)
+- [ ] [#1717](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1717) granular: two-way DEM-CFD coupling (particles push the fluid back)
+- [ ] [#1718](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1718) granular: multi-point contact manifold so a polyhedron can rest and tip on a plane
+- [ ] [#1719](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1719) granular: surrogate trained against the running DEM (power draw and P80)
+- [ ] [#1720](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1720) granular: validation campaign against published mill power, angle of repose and discharge data
+- [ ] [#1723](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1723) Structural surrogate: complete CAD→Gmsh→FEM→DeepONet benchmark with physically tagged boundaries
+- [ ] [#1724](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1724) Danilo bracket DeepONet: obtain original CAD/data and reconcile 145,666-parameter architecture
+- [ ] [#1725](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1725) [Reproduction] Validate full CAD→FEM→DeepONet experiment and numerical fidelity
+- [ ] [#1732](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1732) Integrate experiment pipeline with registered solvers, VeriPhysics evidence and reproducible research campaigns
+- [ ] [#1738](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1738) [Physics AI Atlas] Complete scientific ingestion, provenance, audited PINNeAPPle inventory and reproducibility
+- [ ] [#1742](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1742) [Progressive Physics] Epic: evidence-driven progressive modeling
+- [ ] [#1744](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1744) [Progressive Physics] Physics Decomposer and Fidelity Planner
+- [ ] [#1745](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1745) [Progressive Physics] Experiment builder, executor and model lineage
+- [ ] [#1746](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1746) [Progressive Physics] VeriPhysics gates and discrepancy diagnostics
+- [ ] [#1747](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1747) [Progressive Physics] Fidelity Advisor and multi-fidelity surrogate training
+- [ ] [#1748](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1748) [Progressive Physics] Drill-bit mechanical wear end-to-end benchmark
+- [ ] [#1750](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1750) [Physics Data] Audit and connect the 10 curated public physics sources
+- [ ] [#1751](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1751) [Pipe Physics] Turn teaching flow dataset into verified parametric surrogate benchmark
+- [ ] [#1753](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1753) [Collaboration][3D] Point Transformer and Tri-Net surrogate baselines for structural FEM
+- [ ] [#1754](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1754) [Structural FEM] Verified 3D FEM-to-surrogate benchmark and progressive fidelity
+- [ ] [#1755](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1755) [Electromagnetics] EM FEM-to-surrogate 3D roadmap and validated benchmark
+- [ ] [#1759](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1759) [Offshore Twin 1] Harden hydraulic seed and establish reference validation
+- [ ] [#1760](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1760) [Offshore Twin 2] Coupled drilling, riser and structural solver adapters
+- [ ] [#1761](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1761) [Offshore Twin 3] Transient multiphysics co-simulation and fidelity ladder
+- [ ] [#1762](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1762) [Offshore Twin 4] DOE dataset generation and trained surrogate benchmarks
+- [ ] [#1763](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1763) [Offshore Twin 5] VeriPhysics applicability, consistency and trust gate
+- [ ] [#1764](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1764) [Offshore Twin 8] Research-only scenario library: anomalies, completion and production
+- [ ] [#1765](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1765) [Offshore Twin 9] Independent validation, benchmarks, reports and reproducibility
+- [ ] [#1781](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1781) [Digital Twin Library] Smart Manufacturing: scientific MVP and progressive fidelity
+- [ ] [#1786](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1786) [Digital Twin Library] Jet Engine: scientific MVP and progressive fidelity
+- [ ] [#1788](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1788) [Digital Twin Library] Satellite: scientific MVP and progressive fidelity
+- [ ] [#1790](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1790) [Digital Twin Library] Nuclear Power Plant: scientific MVP and progressive fidelity
+- [ ] [#1792](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1792) [Digital Twin Library] Hydroelectric Plant: scientific MVP and progressive fidelity
+- [ ] [#1794](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1794) [Digital Twin Library] Offshore Wind Farm: scientific MVP and progressive fidelity
+- [ ] [#1796](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1796) [Digital Twin Library] Smart City: scientific MVP and progressive fidelity
+- [ ] [#1797](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1797) [Digital Twin Library] Water Treatment Plant: scientific MVP and progressive fidelity
+- [ ] [#1798](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1798) [Digital Twin Library] Volcano: scientific MVP and progressive fidelity
+- [ ] [#1799](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1799) [Digital Twin Library] Human Heart: scientific MVP and progressive fidelity
+- [ ] [#1800](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1800) [Digital Twin Library] Fusion Reactor: scientific MVP and progressive fidelity
+- [ ] [#1802](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1802) [Digital Twin Library] Shared twin specification, registry and progressive fidelity framework
+- [ ] [#1804](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1804) [Digital Twin Library] Semiconductor Fabrication: MVP and progressive fidelity
+- [ ] [#1805](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1805) [Digital Twin Library] Battery Gigafactory: MVP and progressive fidelity
+- [ ] [#1806](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1806) [Digital Twin Library] Mining & Mineral Processing: MVP and progressive fidelity
+- [ ] [#1808](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1808) [Digital Twin Library] Geothermal Reservoir: MVP and progressive fidelity
+- [ ] [#1809](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1809) [Digital Twin Library] Carbon Capture Plant: MVP and progressive fidelity
+- [ ] [#1810](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1810) [Digital Twin Library] Electric Grid: MVP and progressive fidelity
+- [ ] [#1811](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1811) [Digital Twin Library] Additive Manufacturing: MVP and progressive fidelity
+- [ ] [#1812](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1812) [Digital Twin Library] Particle Accelerator: scientific MVP and fidelity roadmap
+- [ ] [#1815](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1815) [Digital Twin Library] Bridge Structural Health: scientific MVP and fidelity roadmap
+- [ ] [#1816](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1816) [Digital Twin Library] Autonomous Underwater Vehicle: scientific MVP and fidelity roadmap
+- [ ] [#1817](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1817) [Digital Twin Library] High-Speed Railway: scientific MVP and fidelity roadmap
+- [ ] [#1818](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1818) [Digital Twin Library] Cement Kiln: scientific MVP and fidelity roadmap
+- [ ] [#1820](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1820) [Digital Twin Library] Bioreactor: scientific MVP and fidelity roadmap
+- [ ] [#1821](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1821) [Digital Twin Library] Radio Telescope: scientific MVP and fidelity roadmap
+- [ ] [#1822](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1822) [Digital Twin Library] Fire & Smoke Propagation: scientific MVP and fidelity roadmap
+- [ ] [#1823](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1823) [Digital Twin Library] Coastal Infrastructure: scientific MVP and fidelity roadmap
+- [ ] [#1824](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1824) [Digital Twin Library] Electric Vehicle: scientific MVP and fidelity roadmap
+- [ ] [#1825](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1825) [Digital Twin Library] Controlled Environment Agriculture: scientific MVP and fidelity roadmap
+- [ ] [#1826](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1826) [Digital Twin Library] Injection Molding: scientific MVP and fidelity roadmap
+- [ ] [#1827](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1827) [Digital Twin Library] Floating Solar Farm: MVP and progressive fidelity
+- [ ] [#1828](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1828) [Digital Twin Library] Ocean Wave Energy Converter: MVP and progressive fidelity
+- [ ] [#1829](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1829) [Digital Twin Library] Cargo Ship Structural: MVP and progressive fidelity
+- [ ] [#1830](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1830) [Digital Twin Library] Thermal Energy Storage: MVP and progressive fidelity
+- [ ] [#1831](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1831) [Digital Twin Library] Smart Port: MVP and progressive fidelity
+- [ ] [#1832](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1832) [Digital Twin Library] Electric Arc Furnace: MVP and progressive fidelity
+- [ ] [#1833](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1833) [Digital Twin Library] Wind Tunnel: MVP and progressive fidelity
+- [ ] [#1834](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1834) [Digital Twin Library] Marine Ecosystem: MVP and progressive fidelity
+- [ ] [#1835](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1835) [Digital Twin Library] Atmospheric Reentry: MVP and progressive fidelity
+- [ ] [#1836](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1836) [Industrial Intelligence] Process Optimization: reproducible MVP and production roadmap
+- [ ] [#1837](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1837) [Industrial Intelligence] Engineering Automation: reproducible MVP and production roadmap
+- [ ] [#1838](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1838) [Industrial Intelligence] Simulation & Decision Acceleration: reproducible MVP and production roadmap
+- [ ] [#1839](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1839) [Industrial Intelligence] Predictive Maintenance: reproducible MVP and production roadmap
+- [ ] [#1840](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1840) [Industrial Intelligence] Multiobjective Design: reproducible MVP and production roadmap
+- [ ] [#1841](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1841) [Industrial Intelligence] Process Control & Scheduling: reproducible MVP and production roadmap
+- [ ] [#1842](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1842) [Physics AI] Structured Engineering System Model and requirements traceability
+- [ ] [#1843](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1843) [Physics AI] Multiphysics component catalog and architecture trade studies
+- [ ] [#1844](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1844) [Physics AI] Independent engineering review and design-rule validation
+- [ ] [#1845](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1845) [Physics AI] CAD-to-simulation configuration and progressive fidelity
+- [ ] [#1847](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1847) [Generative Engineering][Demo] Reproducible parametric gearbox: CAD → analytical sizing → FEM → surrogate → VeriPhysics
+- [ ] [#1848](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1848) [Generative Engineering] Mechanical assembly graph, mates, contacts and load paths
+- [ ] [#1849](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1849) [Generative Engineering] Physics-constrained gearbox design space and solver-confirmed Pareto benchmark
+- [ ] [#1858](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1858) [zoo] Measure per-model inference latency and record it in the model card
+- [ ] [#1859](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1859) [Studio][CAD] Prompt-driven CAD authoring session: feature tree, live preview and MCP tools
+- [ ] [#1863](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1863) The surrogate rung should train a physics model on the field, not an MLP on one swept input (P2 M)
+- [ ] [#1864](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1864) Grow the study families: the three that ship are the bottleneck for coverage (P2 L)
+- [ ] [#1865](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1865) Cylinder scattering surrogate: a neural operator graded against the exact series (P2 M)
+- [ ] [#1867](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1867) Surface integral equation on a PEC cylinder: closing the chain series to FDTD to radiation integral to EFIE (P3 L)
+- [ ] [#1868](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1868) Discontinuities: coefficient jumps versus solution jumps, and the hand-over to a finite-volume solver (P1 L)
+- [ ] [#1869](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1869) Conservation by construction: predict the fluxes, not the state (P2 L)
+- [ ] [#1870](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1870) Architecture against guarantee: which physics is structural, which is a penalty (P2 L)
+- [ ] [#1871](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1871) Decision-level surrogate validation: flip rate, ranking preservation and the failure map (P1 M)
+- [ ] [#1876](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1876) [Studio] Publish the suspension corner example: push the branch and open its PR
+- [ ] [#1877](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1877) Flow node family for the integral kinds: fredholm2 / volterra2 in the canvas (P2 M)
+- [ ] [#1878](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1878) Product integration for the logarithmic kernel: second order beside the singularity (P2 M)
+- [ ] [#1879](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1879) Inverse arm: recover the kernel from observations (P2 L)
+- [ ] [#1880](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1880) Integral equations on a curve: the Helmholtz kernel in arclength (P3 L)
+- [ ] [#1881](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1881) Run the LPM campaign: eleven design spaces, eleven datasets, eleven models (P2)
+- [ ] [#1883](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1883) Flow coverage walks one level, so a deep module escapes the node gate (P2 S)
+- [ ] [#1886](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1886) LPM: the missing scaling curves — is each 2-D family limited by data or by its settings? (P2)
+- [ ] [#1887](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1887) [LPM] Land the eleven design spaces: rebase on the merged attention work and open the PR (P2)
+- [ ] [#1888](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1888) Close the last holes in the documented solver scope: Darcy 1-D, 3-D convection-diffusion, nonlinear elasticity, walls for the periodic solvers
+- [ ] [#1890](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1890) Inverse stage: wire a posterior sampler so an uncertainty is a posterior, not a seed spread (P1 L)
+- [ ] [#1893](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1893) Read the ten unread tool licences, seven of which are on wired code paths (P2 S)
+- [ ] [#1913](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1913) [Discovery] Hypothesis registry, equation discovery and falsifiable experiments
+- [ ] [#1923](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1923) [CAD] Parametric geometry generation and CAD repair without LLM
+- [ ] [#1924](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1924) [Meshing] CAD/STL to simulation-ready mesh automation
+- [ ] [#1925](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1925) [Data] Automated scientific data acquisition and quality pipeline
+- [ ] [#1926](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1926) [Research] Benchmark LLM vs non-LLM numerical/CAD/data pipelines
+- [ ] [#1927](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1927) [Research][LIFT] Joint surface-volume latent interaction operator
+- [ ] [#1928](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1928) [CAD][USD-BRep] Evaluate NURBS solid modeling interoperability
+- [ ] [#1931](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1931) [Discovery] PySR symbolic constitutive law discovery adapter
+- [ ] [#1934](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1934) [Data] Kioko propeller dataset benchmark and aerodynamic surrogate
+- [ ] [#1935](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1935) [Low-data CFD][P0] Simulation-budget-aware learning
+- [ ] [#1936](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1936) [Low-data CFD][P0] Cost-aware active learning and next-CFD-run selection
+- [ ] [#1937](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1937) [Low-data CFD][P0] Multi-fidelity residual surrogate learning
+- [ ] [#1938](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1938) [Low-data CFD][P0] Uncertainty quantification and calibration for sparse CFD surrogates
+- [ ] [#1939](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1939) [Low-data CFD][P0] Surrogate domain-of-validity and OOD detection
+- [ ] [#1940](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1940) [Low-data CFD][P0] Budget-constrained surrogate-assisted design optimization
+- [ ] [#1941](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1941) [Low-data CFD][P0] Benchmark suite: optimization with 5, 10 and 15 CFD runs
+- [ ] [#1942](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1942) [Physics AI Research] Meshless surrogate benchmark: neural fields vs GINO vs Geom-DeepONet
+- [ ] [#1943](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1943) [Physics AI Research] Geometry-only and synthetic-dynamics pretraining ablation
+- [ ] [#1944](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1944) [Physics AI Research] Compositional neural operator splitting and cross-physics transfer benchmark
+- [ ] [#1945](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1945) [Physics AI Research] Structure-preserving surrogate constraints and certification stress tests
+- [ ] [#1946](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1946) [Physics AI Research] Online synthetic PDE data generation vs stored corpora
+- [ ] [#1947](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1947) [Physics AI Research] Hybrid solver-neural correction and neural element benchmark
+- [ ] [#1948](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1948) [Low-data CFD][P1] Physics-aware collocation strategy advisor and adaptive sampling
+- [ ] [#1949](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1949) [Low-data CFD][P1] Hybrid physics-baseline plus sparse CFD residual correction
+- [ ] [#1950](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1950) [ML] Unified estimator adapters for classical ML and Physics AI
+- [ ] [#1951](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1951) [ML] Tabular surrogate adapters: XGBoost, LightGBM, CatBoost and HistGradientBoosting
+- [ ] [#1952](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1952) [Physics ML] Physics-aware feature engineering and dimensional analysis
+- [ ] [#1953](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1953) [Physics ML] Model-agnostic physical validation for nondifferentiable surrogates
+- [ ] [#1954](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1954) [Arena] Fair cross-family surrogate benchmark and selection
+- [ ] [#1955](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1955) [Research] Hybrid solver + gradient boosting residual surrogates
+- [ ] [#1956](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1956) [Optimization] Gradient-free design optimization and active learning for tree surrogates
+- [ ] [#1957](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1957) [Runtime][P0] Hardware capability probing and explicit CPU/MPS/CUDA execution policies
+- [ ] [#1958](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1958) [Runtime][P0] Memory-aware adaptive collocation batching and gradient equivalence tests
+- [ ] [#1959](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1959) [Runtime][P1] CPU autodiff performance laboratory and thread policy
+- [ ] [#1960](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1960) [Deployment][P1] ONNX export and cross-runtime parity for physics surrogates
+- [ ] [#1961](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1961) [Interoperability][P1] Optional PhysicsNeMo model and training adapter
+- [ ] [#1962](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1962) [Geometry][P1] Optional USD scene to physics-domain importer
+- [ ] [#1963](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1963) [Dynamics][P2] ODE system identification and physics-constrained control toolkit
+- [ ] [#1965](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1965) [Manufacturing] DFM constraint evaluation and tolerance stack-up engine
+- [ ] [#1966](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1966) [Verification] Coupled CFD-FEA thermal fatigue and weld hotspot benchmark
+- [ ] [#1967](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1967) [CFD] Supersonic retropropulsion shock/nozzle reference benchmark
+- [ ] [#1968](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1968) [Assets] Multimodal reconstruction of simulation-ready articulated objects
+- [ ] [#1969](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1969) [Research] Verified continual engineering experiment memory
+- [ ] [#1971](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1971) [Multiphysics] Conservative transient CFD-to-FEA thermal/pressure coupling
+- [ ] [#1972](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1972) [Fatigue] Weld-toe hotspot and thermal cycle assessment
+- [ ] [#1973](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1973) [Luminary-inspired][P0] Standardize interactive parametric field inference contract
+- [ ] [#1974](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1974) [Luminary-inspired][P1] Reference Physics AI demo packs with reproducible model cards
+- [ ] [#1975](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1975) [Physics AI][LPM] PINN-Wing — modelo próprio e benchmark reproduzível
+- [ ] [#1976](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1976) [Physics AI][LPM] PINN-ColdPlate — modelo próprio e benchmark reproduzível
+- [ ] [#1977](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1977) [Physics AI][LPM] PINN-Pump — modelo próprio e benchmark reproduzível
+- [ ] [#1978](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1978) [Physics AI][LPM] PINN-Auto — modelo próprio e benchmark reproduzível
+- [ ] [#1979](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1979) [Physics AI][LPM] PINN-Truck — modelo próprio e benchmark reproduzível
+- [ ] [#1980](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1980) [Physics AI][LPM] PINN-Crash — modelo próprio e benchmark reproduzível
+- [ ] [#1981](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1981) [Physics AI][LPM] PINN-Marine — modelo próprio e benchmark reproduzível
+- [ ] [#1982](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1982) [Physics AI][LPM] PINN-ExternalFlow — modelo próprio e benchmark reproduzível
+- [ ] [#1983](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1983) [Physics AI][LPM] PINN-NVH — modelo próprio e benchmark reproduzível
+- [ ] [#1984](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1984) [Physics AI][LPM] PINN-Aircraft — modelo próprio e benchmark reproduzível
+- [ ] [#1985](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1985) [Physics AI][LPM] PINN-Supersonic — modelo próprio e benchmark reproduzível
+- [ ] [#1986](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1986) [Physics AI][LPM] LPM-Factory — modelo próprio e benchmark reproduzível
+- [ ] [#1988](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1988) [Core] Generic observation operators and inverse-problem interfaces
+- [ ] [#1989](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1989) [Research] Sparse-sensor thermal field reconstruction: RAM-inspired vs PINN vs classical inverse solver
+- [ ] [#1990](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1990) [Research] CFD sparse-observation reconstruction feasibility study with RAM-inspired priors
+- [ ] [#1993](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1993) [CFD] Low-data geometry generalization benchmark with physics constraints
+- [ ] [#1994](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1994) [Aero] Glider stall and control-surface effectiveness CFD benchmark
+- [ ] [#1995](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1995) [Climate] Hierarchical coarse-to-fine physics surrogate and extreme-event validation
+- [ ] [#1996](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1996) [Weather] Probabilistic bias correction and calibrated subseasonal ensembles
+- [ ] [#1997](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1997) [Inverse] Navier–Stokes inverse PINN reproducibility suite
+- [ ] [#1998](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1998) [Multiphysics] Electric machine EM–thermal–mechanical surrogate benchmarks
+- [ ] [#1999](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1999) [Space] Heliophysics forecasting and uncertainty benchmark
+- [ ] [#2001](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2001) [Moat Engine][P0] Unified scientific artifact schema, fingerprints and lineage
+- [ ] [#2002](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2002) [Moat Engine][P0] Experimental data ingestion and uncertainty-aware curation
+- [ ] [#2003](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2003) [Moat Engine][P0] OpenFOAM case-to-dataset reproducible reference pipeline
+- [ ] [#2004](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2004) [Moat Engine][P0] Continuous Arena benchmarking with reproducible evidence
+- [ ] [#2005](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2005) [Moat Engine][P0] VeriPhysics evidence reports and applicability gates
+- [ ] [#2006](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2006) [Moat Engine][P1] Public PDE dataset source registry and curated ingestion
+- [ ] [#2007](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2007) [Moat Engine][P1] CAD/CAE geometry-to-physics ingestion and parameterized dataset
+- [ ] [#2008](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2008) [Moat Engine][P1] Cost-aware active-learning physics data factory
+- [ ] [#2009](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2009) [Moat Engine][P1] Evidence-based method selection and recommendation
+- [ ] [#2010](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2010) [Moat Engine][P1] Model interoperability, sandboxed evaluation and registry
+- [ ] [#2011](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2011) [Moat Engine][P1] Community contribution-to-evidence validation pipeline
+- [ ] [#2012](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2012) [Moat Engine][P1] Integration compatibility and numerical regression matrix
+- [ ] [#2013](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2013) [Moat Engine][P2] Physics knowledge graph and failure-mode memory
+- [ ] [#2014](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2014) [ACE reproduction] ACE2-ERA5 baseline inference and conservation benchmarks
+- [ ] [#2016](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2016) [Climate data] ERA5 and X-SHiELD ingestion with Zarr/NetCDF and leakage-safe splits
+- [ ] [#2017](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2017) [Climate models] ACE-style SFNO/GNN/UNet training adapters and evaluation
+- [ ] [#2018](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2018) [Inverse CFD] Reproduce 2D stenosed-artery Navier–Stokes inverse PINN benchmark
+- [ ] [#2019](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2019) [Inverse CFD] Sensor-count identifiability and experimental-design study
+- [ ] [#2020](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2020) [PINN Training] Adaptive residual collocation and loss-weight ablation suite
+- [ ] [#2021](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2021) [Hemodynamics] Wall shear stress and recirculation validation from sparse flow reconstruction
+- [ ] [#2022](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2022) [Dataset Factory][P0] Physics problem catalog and machine-readable PDE specifications
+- [ ] [#2023](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2023) [Dataset Factory][P0] Parametric geometry generation and constrained design variations
+- [ ] [#2024](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2024) [Dataset Factory][P0] Automated meshing and mesh convergence quality gates
+- [ ] [#2025](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2025) [Dataset Factory][P0] Solver recommendation and executable direct/inverse problem adapters
+- [ ] [#2026](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2026) [Dataset Factory][P0] Simulation dataset generator with DOE and provenance
+- [ ] [#2027](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2027) [Dataset Factory][P1] Multi-model training and resource-aware benchmarking harness
+- [ ] [#2028](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2028) [Dataset Factory][P0] Independent validation data and physics verification suite
+- [ ] [#2029](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2029) [Dataset Factory][P1] Hugging Face dataset/model import-export with license and lineage controls
+- [ ] [#2030](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2030) [Math Intelligence] Mathematical IR, contracts and plugin architecture
+- [ ] [#2031](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2031) [Math Discovery] EquationDiscoveryEngine: symbolic regression and SINDy
+- [ ] [#2032](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2032) [Math Inverse] IdentifiabilityEngine
+- [ ] [#2033](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2033) [Math DOE] OptimalExperimentDesigner
+- [ ] [#2034](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2034) [Math UQ] UncertaintyEngine
+- [ ] [#2035](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2035) [Math Verification] MathematicalVerificationEngine
+- [ ] [#2036](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2036) [Math Sensitivity] SensitivityEngine
+- [ ] [#2037](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2037) [Math Spectral] SpectralPhysicsEngine
+- [ ] [#2038](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2038) [Math Geometry] GeometryIntelligence
+- [ ] [#2039](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2039) [Math Dynamics] DynamicsAnalyzer
+- [ ] [#2040](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2040) [Math Optimization] MathOptimizationEngine
+- [ ] [#2041](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2041) [Math Inverse] InverseProblemEngine
+- [ ] [#2042](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2042) [Math Operators] OperatorIntelligence
+- [ ] [#2043](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2043) [Math Numerics] LinearAlgebraEngine
+- [ ] [#2044](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2044) [Math Variational] VariationalEngine
+- [ ] [#2045](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2045) [Math Symbolic] SymbolicPhysicsEngine
+- [ ] [#2046](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2046) [Math Control] ControlIntelligence
+- [ ] [#2047](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2047) [Math Graph] GraphPhysicsEngine
+- [ ] [#2048](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2048) [Math Stochastic] StochasticPhysicsEngine
+- [ ] [#2049](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2049) [Math Verified Numerics] VerifiedNumerics
+- [ ] [#2055](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2055) [Math Intelligence] ConservationEngine
+- [ ] [#2056](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2056) [Math Intelligence] ApproximationEngine
+- [ ] [#2057](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2057) [Math Intelligence] PhysicsLatentDiscovery
+- [ ] [#2058](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2058) [Math Intelligence] SymmetryDiscoveryEngine
+- [ ] [#2059](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2059) [Math Intelligence] CausalPhysicsEngine
+- [ ] [#2060](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2060) [Math Intelligence] StructurePreservingModels
+- [ ] [#2061](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2061) [Math Intelligence] ValidityDomainMapper
+- [ ] [#2062](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2062) [Math Intelligence] NumericalMethodDesigner
+- [ ] [#2063](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2063) [Math Intelligence] MathematicalMethodDiscovery
+- [ ] [#2074](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2074) [NT-01] ImplicitGeometryKernel com SDF e operações booleanas
+- [ ] [#2075](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2075) [NT-02] Gerador robusto de geometrias paramétricas 2D/3D
+- [ ] [#2076](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2076) [NT-03] Validação de geometria e restrições de manufatura
+- [ ] [#2077](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2077) [NT-04] Adaptador LBM open-source e comparação OpenFOAM
+- [ ] [#2078](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2078) [NT-05] Grids cartesianos e fronteiras imersas por SDF
+- [ ] [#2079](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2079) [NT-06] AerodynamicDesignSpaceExplorer para asas e drones
+- [ ] [#2080](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2080) [NT-07] Otimização multiobjetivo lift/drag e restrições
+- [ ] [#2081](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2081) [NT-08] Pipeline de treinamento de surrogates a partir de CFD ensembles
+- [ ] [#2082](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2082) [NT-09] Benchmark de campanhas 100/1000/10000 casos
+- [ ] [#2083](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2083) [IMU-01] Dinâmica inercial diferenciável em SO(3)/SE(3)
+- [ ] [#2084](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2084) [IMU-02] IMUPhysicsLoss: translação, rotação e bias
+- [ ] [#2085](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2085) [IMU-03] NeuralInertialStateEstimator end-to-end sem Kalman
+- [ ] [#2086](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2086) [IMU-04] Neural ODE para estados inerciais
+- [ ] [#2087](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2087) [IMU-05] Estimador híbrido neural + filtro diferenciável
+- [ ] [#2088](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2088) [IMU-06] Detector de movimento, passos e ZUPT
+- [ ] [#2089](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2089) [IMU-07] Estimativa contextual de bias e ruído IMU
+- [ ] [#2093](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2093) [IMU-08] Incerteza calibrada em estimativa de trajetória
+- [ ] [#2094](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2094) [IMU-09] Benchmark TLIO vs PINN vs Neural ODE vs híbrido
+- [ ] [#2095](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2095) [IMU-10] Observabilidade e limites de drift em PDR
+- [ ] [#2096](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2096) [IMU-11] Simulador sintético IMU com ruído, bias e trajetórias
+- [ ] [#2097](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2097) [IMU-12] Ablação da duplicação de física Kalman + PINN loss
+- [ ] [#2098](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2098) [Arena] Benchmark specification, taxonomy and reproducible experiment registry
+- [ ] [#2099](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2099) [Arena] Unified adapters for PINN variants and physics-informed operators
+- [ ] [#2100](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2100) [Arena] Neural operator baselines: FNO, DeepONet and multiresolution models
+- [ ] [#2101](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2101) [Arena] Graph surrogate baselines for unstructured meshes
+- [ ] [#2102](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2102) [Arena] Classical numerical reference solvers and convergence verification
+- [ ] [#2103](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2103) [Arena] Classical ML and statistical surrogate baselines
+- [ ] [#2104](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2104) [CTRL-01] Control Theory Examples: framework comum e benchmarks
+- [ ] [#2105](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2105) [Arena] Reduced-order model family: POD-Galerkin, DMD, POD-DEIM and neural ROM
+- [ ] [#2106](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2106) [CTRL-02] PID e anti-windup: tanque, temperatura e motor DC
+- [ ] [#2107](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2107) [Arena] Meshless numerical methods: RBF-FD, MLS and SPH
+- [ ] [#2108](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2108) [CTRL-03] LQR/LQG e observadores: pêndulo invertido e cart-pole
+- [ ] [#2109](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2109) [Arena] Hybrid models: solver + surrogate, ROM + learned correction, meshless + PINN
+- [ ] [#2110](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2110) [CTRL-04] MPC linear e não linear com restrições
+- [ ] [#2111](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2111) [Arena] Heat equation forward/inverse and sparse-sensor identification suite
+- [ ] [#2112](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2112) [CTRL-05] Controle ótimo diferenciável e adjoint-based control
+- [ ] [#2113](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2113) [Arena] Burgers and Navier–Stokes operator generalization suite
+- [ ] [#2114](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2114) [CTRL-06] Physics-informed neural control e Neural ODE-MPC
+- [ ] [#2115](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2115) [Arena] Darcy heterogeneous permeability and OOD coefficient suite
+- [ ] [#2116](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2116) [CTRL-07] Controle robusto H-infinity, incerteza e perturbações
+- [ ] [#2117](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2117) [Arena] Variable-geometry thermal and structural mechanics suite
+- [ ] [#2118](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2118) [CTRL-08] Safe RL e controle baseado em Lyapunov/CBF
+- [ ] [#2119](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2119) [Arena] Scientific evaluation: physical metrics, budgets, statistical reliability and Pareto fronts
+- [ ] [#2120](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2120) [CTRL-09] Controle de sistemas distribuídos PDE: equação do calor e escoamento
+- [ ] [#2121](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2121) [CTRL-10] System identification e state estimation para controle
+- [ ] [#2122](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2122) [CAD] Reconstruct editable parametric B-Rep from topology-optimized meshes
+- [ ] [#2123](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2123) [Optimization] Manufacturing-aware topology optimization and generative design
+- [ ] [#2124](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2124) [Geometry] SDF/implicit-to-CAD reconstruction and feature recognition
+- [ ] [#2125](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2125) [Validation] CAD healing, geometric validity and CAE equivalence gates
+- [ ] [#2126](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2126) [Benchmark] Generative geometry to editable CAD benchmark suite
+- [ ] [#2127](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2127) [CFD/Reynolds] Build parametric internal and external flow geometry benchmark suite
+- [ ] [#2128](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2128) [CFD/Reynolds] Automate Navier–Stokes solver sweeps and high-quality CFD dataset generation
+- [ ] [#2129](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2129) [CFD/Reynolds] Train conditional Navier–Stokes surrogate models across geometries and Reynolds numbers
+- [ ] [#2130](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2130) [CFD/Reynolds] Benchmark surrogate accuracy, generalization, physical consistency and speedup
+- [ ] [#2131](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2131) [CFD/Reynolds] Publish versioned CFD datasets and model artifacts to Hugging Face
+- [ ] [#2137](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2137) [P0] Implement declarative multiphysics problem schema and coupled PDE registry
+- [ ] [#2138](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2138) [P0] Build solver-agnostic multiphysics coupling engine
+- [ ] [#2139](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2139) [P0] Create adaptive design-of-experiments and parameter sweep engine
+- [ ] [#2140](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2140) [P0] Implement physics-aware surrogate training from simulation campaigns
+- [ ] [#2141](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2141) [P0] Implement solver-in-the-loop active learning and candidate revalidation
+- [ ] [#2142](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2142) [P1] Add multiobjective constrained design optimization and Pareto analysis
+- [ ] [#2143](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2143) [P1] Develop inverse material identification from measured responses
+- [ ] [#2144](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2144) [P1] Build mesh and geometry parameterization abstraction
+- [ ] [#2145](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2145) [P1] Add weak-form custom physics DSL and dimensional validation
+- [ ] [#2146](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2146) [P1] Benchmark scalable domain decomposition and parallel numerical solvers
+- [ ] [#2147](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2147) [P1] Add uncertainty quantification, sensitivity and robust design studies
+- [ ] [#2148](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2148) [P1] Create coupled electro-thermo-mechanical reference benchmarks
+- [ ] [#2149](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2149) [P2] Create acoustic-structure and MEMS surrogate benchmark suite
+- [ ] [#2150](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2150) [P2] Research domain-specific pretrained physics models and fine-tuning
+- [ ] [#2151](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2151) [P2] Evaluate mixed-precision and high-precision solver strategies
+- [ ] [#2161](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2161) [Multiphysics] Arquitetura de acoplamento de PDEs e campos físicos
+- [ ] [#2162](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2162) [Multiphysics] Solvers acoplados e estratégias numéricas
+- [ ] [#2163](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2163) [Multiphysics] PINNs, neural operators e surrogates multifísicos
+- [ ] [#2164](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2164) [Multiphysics Demo] Conjugate heat transfer: fluido + sólido
+- [ ] [#2165](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2165) [Multiphysics Demo] Thermoelasticidade: temperatura + deformação
+- [ ] [#2166](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2166) [Multiphysics Demo] Fluid–structure interaction (FSI)
+- [ ] [#2167](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2167) [Multiphase] Core de modelos multifásicos e contratos de fase
+- [ ] [#2168](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2168) [Multiphase] VOF, level-set e captura de interfaces
+- [ ] [#2169](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2169) [Multiphase] Euler–Euler, mixture e Euler–Lagrange
+- [ ] [#2170](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2170) [Multiphase] Surrogates PINN, neural operators e GNN para escoamentos multifásicos
+- [ ] [#2171](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2171) [Multiphase Demo] Dam-break VOF: solver vs surrogate
+- [ ] [#2172](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2172) [Multiphase Demo] Bubble rise e slug flow gás–líquido
+- [ ] [#2173](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2173) [Multiphase Demo] Deslocamento bifásico em reservatório poroso
+- [ ] [#2174](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2174) [Electrochemistry] Modelos eletroquímicos e transporte reativo em baterias — benchmark e surrogate
+- [ ] [#2175](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2175) [ReactiveFlow] Escoamentos reativos, cinética química e combustão — benchmark e surrogate
+- [ ] [#2176](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2176) [Acoustics] Acústica, vibrações e propagação de ondas — benchmark e surrogate
+- [ ] [#2177](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2177) [Fracture] Mecânica da fratura, dano e phase-field — benchmark e surrogate
+- [ ] [#2178](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2178) [Electromagnetics] Eletromagnetismo computacional Maxwell e surrogates RF — benchmark e surrogate
+- [ ] [#2179](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2179) [Geomechanics] Poroelasticidade Biot e geomecânica — benchmark e surrogate
+- [ ] [#2180](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2180) [Manufacturing] Solidificação, mudança de fase e manufatura aditiva — benchmark e surrogate
+- [ ] [#2181](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2181) [Plasma] Plasma eletrostático e transporte de partículas — benchmark e surrogate
+
+## Next cycle — 244 issues, 244 open
+
+### benchmark-cost — 37 issues (37 open)
+
+- [ ] [#154](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/154) [S5] Model selector: compare PINN, operator, GNN and ROM on a benchmark (P1 M)
+- [ ] [#158](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/158) [S9] Calibrate trust limits on real surrogates (decision D3) (P1 M)
+- [ ] [#160](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/160) [S11] Generalization suite: geometry, physics, resolution and regime OOD (P1 L)
+- [ ] [#178](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/178) [S29] Public industrial surrogate benchmarks in the protocol (P1 M)
+- [ ] [#181](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/181) [S32] Rocket nozzle benchmark with mesh-independence and isentropic checks (P2 M)
+- [ ] [#182](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/182) [S33] Commodity-hardware tier: CPU-first profile with measured time and memory (P1 M)
+- [ ] [#228](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/228) Run the MeshGraphNet vs PhysicsNeMo parity scripts (vortex shedding, Stokes, Lagrangian) (P1 L)
+- [ ] [#233](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/233) Reproduce the MeshGraphNet paper's cylinder_flow at scale (GPU) (P2 L)
+- [ ] [#235](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/235) Literature survey and verification of the MeshGraphNet experiments (P2 M)
+- [ ] [#241](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/241) Ahmed body: validate pp.cfd.ExternalFlow and train a surrogate on AhmedML (P1 M)
+- [ ] [#242](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/242) AirfRANS: reproduce the four tasks with the aero pipeline's MeshGraphNet (P1 M)
+- [ ] [#247](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/247) OpenFOAM motorBike tutorial and DrivAerML through pp.cfd: real-geometry external flow and surface-pressure surrogate (P2 L)
+- [ ] [#250](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/250) Tracking issue: open-data experiments (NOAA, NASA, satellite, aircraft, OpenFOAM, standard Physics AI problems) and a catalogue of open sources by area (P1 S)
+- [ ] [#251](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/251) Medium-range weather forecasting: WeatherBench 2 (ERA5) with NOAA GFS and GEFS as operational baselines (P2 L)
+- [ ] [#252](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/252) Station time series: temperature and precipitation forecasting on NOAA GHCN-Daily (P1 M)
+- [ ] [#255](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/255) Tropical cyclones: track and rapid-intensification prediction from HURDAT2/IBTrACS and satellite imagery (P3 L)
+- [ ] [#256](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/256) Solar irradiance and energy-yield forecasting with NASA POWER and a clear-sky physical baseline (P2 M)
+- [ ] [#261](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/261) Scene classification of satellite imagery: EuroSAT and BigEarthNet with the NASA HLS Prithvi backbone (P1 M)
+- [ ] [#262](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/262) Flood mapping: Sen1Floods11 segmentation with Sentinel-1 SAR and a terrain-based physical check (P2 M)
+- [ ] [#263](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/263) Burn-scar and active-fire segmentation: NASA/IBM HLS Burn Scars, FIRMS and MTBS, with a spread-rate physical model (P2 L)
+- [ ] [#266](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/266) NASA Common Research Model wing-body: transonic RANS in OpenFOAM against Drag Prediction Workshop data (P2 L)
+- [ ] [#271](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/271) OpenFOAM tutorials as a corpus: benchmark for translating a problem statement into a correct, running case (P1 L)
+- [ ] [#274](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/274) PDEBench on the real data: 1D Burgers, 2D Darcy, 2D shallow water and compressible Navier-Stokes with PINN, FNO and U-Net baselines (P1 L)
+- [ ] [#275](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/275) The Well: run a small-footprint subset (shear flow, Rayleigh-Benard, turbulent radiative layer, active matter) with the reference baselines (P2 L)
+- [ ] [#276](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/276) PINNacle: reproduce the 20-PDE PINN benchmark with our solvers and loss-balancing options (P1 L)
+- [ ] [#277](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/277) Reproduce the original PINN papers: Raissi et al. 2019 (Burgers, Schrodinger, Allen-Cahn, KdV, cylinder-wake inverse problem) (P2 M)
+- [ ] [#279](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/279) Neural operator classics: FNO Darcy, Burgers and Navier-Stokes (Li et al.) and DeepONet benchmarks, with resolution transfer (P2 M)
+- [ ] [#280](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/280) Time-series model suite: Monash forecasting repository, Jena weather and electricity data, and UCR classification (P1 M)
+- [ ] [#284](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/284) Terrain from NASA and Copernicus elevation data: 3D terrain meshes for wind-flow and flood-routing experiments (P2 L)
+- [ ] [#286](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/286) 3D shape classification and segmentation benchmarks: ModelNet40, ShapeNet-Part, PartNet and MFCAD++ with overlay viewer (P2 M)
+- [ ] [#289](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/289) Patient-specific vessels: Vascular Model Repository geometry with haemodynamics CFD and a wall-shear-stress viewer (P3 L)
+- [ ] [#496](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/496) Mesh-based unsteady CFD datasets: EAGLE, BubbleML and the MeshGraphNet CylinderFlow/Airfoil sets (P2 M)
+- [ ] [#497](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/497) Neural-Solver-Library as a baseline zoo: 20+ neural PDE solvers under one benchmark protocol (P3 M)
+- [ ] [#523](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/523) Atomistic datasets: Materials Project, MPtrj, OC20/OC22, OMat24, MD17, QM9, SPICE and Matbench loaders (P2 M)
+- [ ] [#525](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/525) Climate ML: ClimSim sub-grid parameterisation, and ClimaX, Aurora and GenCast in the weather evaluation (P2 L)
+- [ ] [#526](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/526) LagrangeBench: particle-based (SPH) learned simulators benchmark (P3 M)
+- [ ] [#527](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/527) FlowBench: flow and heat transfer around thousands of complex geometries (P3 M)
+
+### apps — 12 issues (12 open)
+
+- [ ] [#98](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/98) [J6] Surrogate inference API with a validation card (P1 M)
+- [ ] [#99](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/99) [J7] Agent tool registry on top of PhysicalProblem (P2 L)
+- [ ] [#137](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/137) [J1] Reference apps in production: measure usage and tune limits (P1 S)
+- [ ] [#138](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/138) [J2] Build the reference-app Docker images in CI with a smoke test (P1 M)
+- [ ] [#139](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/139) [J3] Decide how the reference apps consume the library (P2 S)
+- [ ] [#140](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/140) [J4] Public leaderboard tied to the benchmark protocol (P1 L)
+- [ ] [#141](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/141) [J5] Document the "simulation to surrogate in a day" reference workflow (P2 M)
+- [ ] [#142](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/142) [J8] Job queue and metering for the reference apps (P3 L)
+- [ ] [#170](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/170) [S21] Tracking issue: five reference demonstrations (P1 L)
+- [ ] [#316](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/316) Dyson swarm design study: radiation, orbits, statites, structures, mass budget, infrared signature, Pareto front and 3-D scene (P3 L)
+- [ ] [#617](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/617) "Explain this simulation": upload a CFD case or a model, get a plain-language trust report (P2 M)
+- [ ] [#1510](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1510) Estudo e nó de flow de contato em pinneapple_flow/studies.py (P2 M)
+
+### futures — 5 issues (5 open)
+
+- [ ] [#987](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/987) test(science): cover the Experiment.result_cls hook (P2 S)
+- [ ] [#988](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/988) futures: a fourth demonstrator -- reaction-diffusion and morphogenesis (P2 M)
+- [ ] [#989](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/989) futures: let a demonstrator declare engineering evidence, not just a simulation (P2 S)
+- [ ] [#990](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/990) futures: decide where the Lab publishes its experiment pages (P3 S)
+- [ ] [#991](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/991) futures: fill the planned directions of the atlas (post-biological, civilization-scale, propulsion) (P3 L)
+
+### (no area label) — 190 issues (190 open)
+
+- [ ] [#6](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/6) Benchmark adapters: per-architecture construction/signature gaps left after input_kind fix (P0)
+- [ ] [#344](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/344) Showcases: demos that make people stop scrolling (flagships and science fiction with real physics) (P1)
+- [ ] [#404](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/404) X-TFC: reproduce the Schiassi et al. benchmarks and extend the solvers beyond heat/Burgers (P2)
+- [ ] [#425](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/425) Reproduce AI-Lorenz and AI-Aristotle (De Florio, Kevrekidis, Karniadakis) with PINNeAPPle's X-TFC: black-box and gray-box discovery of chaotic and biological systems (P2)
+- [ ] [#434](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/434) Industrial-grade confidence: verification, validation and uncertainty everywhere (P1)
+- [ ] [#538](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/538) Optional language-model assistance across modules (one config, one validation pattern) (P1)
+- [ ] [#542](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/542) problemdesign: one LLM provider protocol on top of call_llm (local Ollama included) (P2)
+- [ ] [#552](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/552) fitmesh: grow the template catalogue with industrial parts (tee, reducer, valve, open channel, nozzle) (P3)
+- [ ] [#564](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/564) PINNeAPPle MCP server generated from PhysicsToolRegistry (P1)
+- [ ] [#624](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/624) Method catalogue: validate the methods that are still untested or tested without a reference (P1 L)
+- [ ] [#630](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/630) Colab notebooks and MCP server: switch to pp.benchmark and pp.geometries once merged
+- [ ] [#904](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/904) Epic: football physics, round 2 (after #902)
+- [ ] [#906](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/906) Physics judge for world-model video: exact checks, known-answer benchmark, score card (P1 L)
+- [ ] [#956](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/956) Arena can only benchmark datasets registered in the library, not one the user generated (P1)
+- [ ] [#1028](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1028) Bio line: the paper-scale runs left out of #973 / #994 / #1013
+- [ ] [#1048](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1048) Numerical methods (cálculo numérico): a verified module with measured convergence orders (tracking)
+- [ ] [#1049](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1049) Physics by area: verified experiments for every area of physics in pp.science (tracking)
+- [ ] [#1056](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1056) Numerics 1/7: floating point and error analysis
+- [ ] [#1057](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1057) Numerics 2/7: roots and nonlinear systems
+- [ ] [#1058](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1058) Numerics 3/7: interpolation and approximation
+- [ ] [#1059](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1059) Numerics 4/7: numerical differentiation and quadrature
+- [ ] [#1060](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1060) Numerics 5/7: ODE integrators and stiffness
+- [ ] [#1061](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1061) Numerics 6/7: numerical linear algebra
+- [ ] [#1062](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1062) Numerics 7/7: discretisation of PDEs (consistency, stability, convergence) and the numerical lab
+- [ ] [#1063](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1063) Physics area: classical mechanics
+- [ ] [#1064](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1064) Physics area: thermodynamics and statistical physics
+- [ ] [#1066](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1066) Physics area: continuum mechanics (solids)
+- [ ] [#1067](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1067) Physics area: acoustics and vibration
+- [ ] [#1069](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1069) Physics area: relativity
+- [ ] [#1070](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1070) Physics area: nuclear and particle physics
+- [ ] [#1071](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1071) Physics area: condensed matter
+- [ ] [#1073](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1073) Physics area: astrophysics and cosmology
+- [ ] [#1074](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1074) Physics area: geophysics
+- [ ] [#1075](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1075) Physics area: atomic, molecular and optical physics (new area)
+- [ ] [#1076](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1076) Physics area: electromagnetism (remaining) and the app view of every area
+- [ ] [#1132](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1132) 1.0 (6/8): documentation by task, a guarantees-and-limits page, and API reference for the core only
+- [ ] [#1152](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1152) Verification derived from the problem: manufactured solutions, conservation, limits and measured convergence order
+- [ ] [#1226](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1226) Epic: move the remaining logic of the October one-app-per-day apps (days 1–31) into the library
+- [ ] [#1247](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1247) Epic: predefined specialized agents, usable inside pinneapple_llm and importable externally
+- [ ] [#1248](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1248) Agents 1: agent spec v1 (versioned format), registry and discovery via entry points
+- [ ] [#1250](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1250) Agents 3: Python API to import and run an agent with any LLM backend
+- [ ] [#1251](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1251) Agents 4: external export (Claude Code / Agent SDK subagents, MCP prompts+tools, function schemas) and CLI
+- [ ] [#1254](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1254) Agents 7: multi-agent orchestration — lead delegates to specialists with typed handoff contracts
+- [ ] [#1300](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1300) SHAPE-SHIFTING METAMATERIAL: a lattice whose unit cells are chosen for the behaviour it must have (P3 L)
+- [ ] [#1303](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1303) MECHAMORPH: a machine that walks into a gap and turns itself into a bridge (P3 L)
+- [ ] [#1313](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1313) MORPHOGENESIS: units that assemble themselves into a part, take it apart and build another (P2 L)
+- [ ] [#1318](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1318) BLOOM TURBINE: a rotor whose blades open as the wind rises (P3 L)
+- [ ] [#1323](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1323) LIVING LATTICE: one architecture, several mechanical functions, chosen by topology (P3 L)
+- [ ] [#1349](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1349) GRAVITY-FREE PLATFORM: a stage that holds a load without touching it (P3 M)
+- [ ] [#1352](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1352) REGENERATIVE STRUCTURE: a crack, a repair, and how much of the strength comes back (P2 M)
+- [ ] [#1356](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1356) MATTER TRANSPORTER: what it costs to reconstruct an object from its description (P3 M)
+- [ ] [#1360](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1360) CAUSALITY LAB: closed timelike curves, and whether the equations admit a consistent history (P3 M)
+- [ ] [#1361](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1361) BIG HERO SWARM: a swarm that loses a fifth of its units and keeps holding the object (P3 L)
+- [ ] [#1373](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1373) CAUSALITY MANIPULATOR: simulate the consequences before choosing the action (P2 M)
+- [ ] [#1378](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1378) Dam-break benchmark 3/4: rollout validation and uncertainty for both surrogates
+- [ ] [#1379](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1379) Dam-break benchmark 4/4: PINNeAPPle vs PhysicsNeMo comparison report (benchmarks/vs_frameworks)
+- [ ] [#1380](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1380) Epic: cross-framework benchmark v2, PINNeAPPle vs PhysicsNeMo and other players
+- [ ] [#1381](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1381) Benchmark v2 1/8: protocol v2, player matrix, pinned environments and fairness rules
+- [ ] [#1386](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1386) Benchmark v2 6/8: track G, GPU track (throughput, AMP, torch.compile, multi-GPU)
+- [ ] [#1397](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1397) Benchmark problem P01: 1-D viscous Burgers (shock formation)
+- [ ] [#1402](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1402) Benchmark problem P06: shallow water and the single-phase dam break (Ritter / Stoker, PDEBench SWE)
+- [ ] [#1403](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1403) Benchmark problem P07: two-phase dam break with VOF (interFoam damBreak)
+- [ ] [#1404](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1404) Benchmark problem P08: conjugate heat transfer in a finned heat sink (parametric)
+- [ ] [#1405](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1405) Benchmark problem P09: linear elasticity, plate with a hole (Kirsch) and parametric cantilever
+- [ ] [#1406](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1406) Benchmark problem P10: high-frequency Helmholtz and wave propagation (spectral bias)
+- [ ] [#1407](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1407) Benchmark problem P11: inverse problems (Navier–Stokes parameters from the cylinder wake; diffusion coefficient field)
+- [ ] [#1408](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1408) Benchmark problem P12: external aerodynamics, airfoil RANS (AirfRANS)
+- [ ] [#1409](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1409) Benchmark problem P13: stiff reaction–diffusion (Allen–Cahn, Gray–Scott)
+- [ ] [#1412](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1412) Epic: Large Physics Models, one model per physics family, generic along every axis a user changes
+- [ ] [#1440](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1440) GPU validation pending: Newton, Warp (float32 and float64) and PICT are untested on CUDA
+- [ ] [#1442](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1442) Pilots P0: live evaluation ledger (prediction log → truth matching → prequential scores vs baselines, pre-registered promotion and kill rules)
+- [ ] [#1446](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1446) Pilots P4: pump and pipe-loop fault diagnosis on a water loop (physics residuals), scored on staged faults
+- [ ] [#1448](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1448) Pilots P5: champion / challenger update policy (recalibrate parameters vs retrain the residual), promotion decided by the live ledger
+- [ ] [#1449](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1449) Pilots P6: deployment runner for live twins (long-running service, scheduler, store-and-forward, health, restart without losing the ledger)
+- [ ] [#1450](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1450) Epic: feature map from the Physics AI job market, round 2 (2026-11-05): what PINNeAPPle has, what to improve, what is missing
+- [ ] [#1455](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1455) F5: interconnect S-parameter surrogates with physics checks (passivity, causality, reciprocity), Touchstone in and out
+- [ ] [#1524](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1524) security(lpm): multi-instance deployment, authorization and concurrency validation
+- [ ] [#1558](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1558) [Epic] External SciML capability gap closure: SimulAI, PhysicsNeMo, Google, Microsoft, Meta and others
+- [ ] [#1580](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1580) [Research reproduction] Nine bluff-body turbulent wakes DNS/PIV benchmark (arXiv:2611.09632)
+- [ ] [#1583](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1583) [DNS/PIV] Reproduce published wake statistics and figures
+- [ ] [#1585](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1585) [DNS/PIV] Optional nekRS reproduction and HPC validation protocol
+- [ ] [#1586](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1586) [Steel] Licensing, compatibility and optional backend capability contract
+- [ ] [#1587](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1587) [Steel] Scene/state/trajectory adapter and heterogeneous batching
+- [ ] [#1596](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1596) feat(twin3d): source asset ingestion, catalog, legal provenance and reproducible benchmark
+- [ ] [#1601](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1601) [LLM] Verify source-derived SFT against executed Physics AI tasks and held-out evaluation
+- [ ] [#1606](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1606) [LLM][P0] Execute CI, repair failures and verify generated corpus
+- [ ] [#1607](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1607) [LLM][P0] Train local LoRA adapter and compare base vs adapted model
+- [ ] [#1608](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1608) [LLM][P1] Recompute physics checks with VeriPhysics before training-data admission
+- [ ] [#1609](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1609) [LLM][P1] Physics AI executable benchmark suite and model inference harness
+- [ ] [#1610](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1610) [LLM][P1] Security, licensing and cross-source leakage audit for generated SFT data
+- [ ] [#1613](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1613) [Validation execution] Independent external cold-plate reproduction and scientific evidence
+- [ ] [#1616](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1616) feat(twin3d): implement SimReady physics metadata mapping and schema validation
+- [ ] [#1619](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1619) research: optimizer's curse rigorous statistical and reference-budget controls
+- [ ] [#1622](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1622) [KIT benchmark] Execute and repair CI, unit tests, security and physics checks
+- [ ] [#1623](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1623) [KIT benchmark] Download verified real measurements and execute four-model benchmark
+- [ ] [#1624](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1624) [KIT benchmark] Validate cross-campaign generalization, 5 seeds and scientific fairness
+- [ ] [#1625](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1625) [KIT benchmark] Validate autonomous rollout, energy conservation and scientific report
+- [ ] [#1626](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1626) [KIT benchmark] Final review and merge draft PR #1598
+- [ ] [#1660](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1660) [Epic] F1 AI Engineering Studio — image-to-CAD, multi-agent CFD, vehicle dynamics and VeriPhysics
+- [ ] [#1663](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1663) [SciREX][P0] Complete geometry-aware GINO and Transolver training
+- [ ] [#1664](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1664) [SciREX][P0] Complete checkpoint restore and reproducible JAX training
+- [ ] [#1665](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1665) [SciREX][P0] Arena benchmarks: Darcy, Pipe Flow and AirfRANS
+- [ ] [#1666](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1666) [SciREX][P0] VeriPhysics scientific verification for neural operators
+- [ ] [#1667](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1667) [SciREX][P1] Benchmark WNO and experimental GIWO
+- [ ] [#1668](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1668) [SciREX][P1] Physics-only versus hybrid training study
+- [ ] [#1669](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1669) [SciREX][P2] Distributed JAX and HPO research
+- [ ] [#1670](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1670) [SciREX][P1] Publish PINNeAPPle versus SciREX reproducible comparison
+- [ ] [#1689](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1689) Water hammer with a slow closure peaks at 0.70 of Michaud, not at it — pin a reference for the slow regime
+- [ ] [#1707](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1707) Ascent: closed-loop guidance (PEG / Q-guidance) beside the pitch schedule
+- [ ] [#1709](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1709) Ascent: the concept vehicle has no structural, thermal or mass-margin model
+- [ ] [#1712](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1712) Ascent: anchor the concept vehicle on a published small launcher
+- [ ] [#1721](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1721) Re-run the car surface-pressure field benchmark: its recorded numbers came from the broken standardisation
+- [ ] [#1726](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1726) [Research Workbench] Literature discovery, scholarly metadata and reproducible search
+- [ ] [#1727](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1727) [Research Workbench] Evidence extraction, paper reading and structured systematic review
+- [ ] [#1728](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1728) [Research Workbench] Research question, hypothesis, novelty and experimental protocol compiler
+- [ ] [#1729](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1729) [Research Workbench] Reproducible scientific experiment and benchmark engine
+- [ ] [#1730](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1730) [Research Workbench] Scientific writing, citation audit and publication artifacts
+- [ ] [#1734](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1734) [Defense dual-use] Structural health monitoring for aircraft and protective infrastructure
+- [ ] [#1735](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1735) [Defense dual-use] Thermal management of ruggedized electronics
+- [ ] [#1736](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1736) [Defense dual-use] Predictive maintenance and sensor anomaly diagnosis
+- [ ] [#1737](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1737) [Defense dual-use] Inspection rover terramechanics and digital twin
+- [ ] [#1739](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1739) [Rocket Landing] Port 1D/2D solver, controller, trained surrogate and regression tests
+- [ ] [#1740](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1740) [Rocket Landing] 6-DOF rigid-body model, robust landing control and VeriPhysics gates
+- [ ] [#1741](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1741) [Rocket Landing] Train hybrid temporal surrogate with uncertainty and OOD validation
+- [ ] [#1752](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1752) [Research Atlas] Harden arXiv ingestion and publication analytics with scientific provenance
+- [ ] [#1756](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1756) feat(prepomax): adapter Python API/MCP com execução local segura
+- [ ] [#1757](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1757) test(prepomax): benchmark de interoperabilidade FEM e round-trip científico
+- [ ] [#1862](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1862) Text to science: from an article or a hypothesis to a reproduced experiment (P1 L)
+- [ ] [#1895](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1895) [World Models] EPIC: scientific model families and training infrastructure
+- [ ] [#1896](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1896) [World Models] Unified physical model capability manifest and task taxonomy
+- [ ] [#1897](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1897) [World Models] Reproducible training recipes: PINN, FNO, DeepONet, GNN and ROM
+- [ ] [#1898](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1898) [World Models] Physics-aware loss factory and constraint diagnostics
+- [ ] [#1899](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1899) [World Models] Synthetic and experimental dataset factory with leakage controls
+- [ ] [#1900](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1900) [World Models] Active learning and adaptive simulation sampling
+- [ ] [#1901](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1901) [World Models] Temporal state-transition world models and rollout stability
+- [ ] [#1902](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1902) [World Models] Geometry-conditioned and parameterized neural operators
+- [ ] [#1903](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1903) [World Models] Multiscale and coupled hybrid learned-solver models
+- [ ] [#1904](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1904) [World Models] Generative physics models with feasibility verification
+- [ ] [#1905](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1905) [World Models] Inverse modeling and system identification pipelines
+- [ ] [#1906](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1906) [World Models] Control-oriented world models with robust rollout evaluation
+- [ ] [#1907](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1907) [World Models] Pretraining, fine-tuning and negative-transfer benchmarks
+- [ ] [#1908](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1908) [World Models] Domain-specific physics foundation model pretraining
+- [ ] [#1909](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1909) [World Models] Multimodal physical representations and retrieval
+- [ ] [#1910](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1910) [World Models] Physics scaling laws and compute-data efficiency study
+- [ ] [#1911](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1911) [World Models] Mixture-of-experts routing across physical regimes
+- [ ] [#1912](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1912) [World Models] Distributed training, checkpoints and experiment reproducibility
+- [ ] [#1914](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1914) [Assurance] Purpose-specific qualification profiles and evidence cards
+- [ ] [#1915](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1915) [Assurance] Independent evaluation and scientific regression gates
+- [ ] [#1916](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1916) [Assurance] Cross-model interface conservation and error propagation
+- [ ] [#1917](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1917) [Assurance] Sim-to-real discrepancy, drift and calibration evidence
+- [ ] [#1918](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1918) [Assurance] Incident response, model revocation and dependent impact
+- [ ] [#1919](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1919) [Assurance] Human review, dissent and risk-based approval evidence
+- [ ] [#1920](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1920) [Numerical AI] Method selection engine without LLM
+- [ ] [#1921](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1921) [Numerical AI] ATHENA-inspired adaptive experiment and self-correction loop
+- [ ] [#1922](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1922) [Numerical AI] Solver implementation, verification and repair toolkit
+- [ ] [#1929](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1929) [Numerics] Spectral Galerkin nonlinear heat solver benchmark
+- [ ] [#1930](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1930) [World Models] Symplectic latent dynamics benchmark (LeHami)
+- [ ] [#1932](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1932) [Forecasting] Timestral and subseasonal residual correction benchmark
+- [ ] [#1933](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1933) [Robotics] Long-WAM-inspired causal world-action research benchmark
+- [ ] [#1964](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1964) [Science][P1] Parametric PDE family specification and cross-backend test suite
+- [ ] [#1970](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1970) [LBM] Transient GPU lattice Boltzmann solver adapter and validation
+- [ ] [#1987](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1987) [Research][RAM] Reproduce baseline Reconstruct Anything Model for computational imaging
+- [ ] [#1991](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1991) [Research] Physics-constrained reconstruction losses and uncertainty validation
+- [ ] [#1992](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/1992) [Research] Formal verification of PDE assumptions and numerical invariants with Lean 4
+- [ ] [#2000](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2000) [World Models] Reproduce LeHami symplectic Hamiltonian JEPA latent dynamics
+- [ ] [#2015](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2015) [ACE reproduction] HiRO-ACEv2 stochastic diffusion downscaling benchmark
+- [ ] [#2050](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2050) [Market 2026][P0] Physics AI competency and benchmark coverage matrix
+- [ ] [#2051](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2051) [Market 2026][P0] Decision-grade thermal electronics reference benchmark
+- [ ] [#2052](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2052) [Market 2026][P1] Geometry transfer and scientific model portability stress tests
+- [ ] [#2054](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2054) [Market 2026][P1] Physics AI deployment regression and drift evaluation suite
+- [ ] [#2064](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2064) [UA-01] GeometryConditionedNeuralOperator: geometria + BC → campos
+- [ ] [#2065](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2065) [UA-02] SurfaceVolumeLatentOperator com interação superfície-volume
+- [ ] [#2066](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2066) [UA-03] Inferência mesh-independent em pontos de consulta
+- [ ] [#2067](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2067) [UA-04] Embeddings geométricos SDF, normais, distância e curvatura
+- [ ] [#2068](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2068) [UA-05] PhysicsFoundationModelTrainer: pretraining e fine-tuning
+- [ ] [#2069](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2069) [UA-06] Incerteza epistêmica/aleatória e calibração conformal
+- [ ] [#2070](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2070) [UA-07] Operador multimodal CFD–térmico–estrutural
+- [ ] [#2071](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2071) [UA-08] History matching probabilístico para reservatórios
+- [ ] [#2072](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2072) [UA-09] Benchmarks DrivAerML, drones e reservatórios
+- [ ] [#2073](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2073) [UA-10] Fine-tuning de surrogates com poucos casos CFD
+- [ ] [#2182](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2182) [Real-World Benchmark][HeatExchanger] Incrustação e perda de eficiência em trocadores de calor
+- [ ] [#2183](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2183) [Real-World Benchmark][PipelineIntegrity] Corrosão, erosão e integridade de dutos
+- [ ] [#2184](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2184) [Real-World Benchmark][WindFarm] Esteiras aerodinâmicas e otimização de parques eólicos
+- [ ] [#2185](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2185) [Real-World Benchmark][FloodScience] Propagação de enchentes e inundação em terreno real
+- [ ] [#2186](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2186) [Real-World Benchmark][Hemodynamics] Hemodinâmica e transporte em artérias
+- [ ] [#2187](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2187) [Real-World Benchmark][ElectronicsCooling] Resfriamento de eletrônicos de potência e hotspots
+- [ ] [#2188](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2188) [Real-World Benchmark][CarbonCapture] Adsorção de CO2 em leito fixo
+- [ ] [#2189](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2189) [Real-World Benchmark][Cavitation] Cavitação em bombas e válvulas industriais
+- [ ] [#2190](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2190) [Real-World Benchmark][SteelProcess] Controle térmico e qualidade na laminação de aço
+- [ ] [#2191](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/2191) [Real-World Benchmark][ScientificInverse] Inferência de coeficientes de transporte a partir de sensores esparsos
+
+## What this page is not
+
+It is not a plan: it says what is open and what is closed, not what comes next. It is not a promise either -- an issue closed here was closed by a merged change or by a decision, and the reason lives in the issue, not in this list.

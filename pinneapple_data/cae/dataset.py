@@ -16,11 +16,11 @@ import io
 import json
 import re
 import struct
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
-from .model import ELEMENTS, Mesh
+from .model import Mesh
 
 SCHEMA = "pinneapple.physical_dataset/1"
 VTK_ID = {"vertex": 1, "line": 3, "triangle": 5, "polygon": 7, "quad": 9, "tetra": 10, "hexahedron": 12, "wedge": 13,
@@ -44,7 +44,7 @@ UNIT_SYSTEMS = {
 }
 
 
-def quantity_of(name: str) -> Tuple[Optional[str], Optional[str]]:
+def quantity_of(name: str) -> tuple[str | None, str | None]:
     n = name.strip().lower()
     for pat, q, u in QUANTITIES:
         if re.match(pat, n):
@@ -53,20 +53,20 @@ def quantity_of(name: str) -> Tuple[Optional[str], Optional[str]]:
 
 
 # ------------------------------------------------------------------------------- polyhedral cells -> VTK cells
-def poly_cells(m: Mesh) -> Tuple[List[Tuple[str, np.ndarray]], List[List[List[int]]], np.ndarray]:
+def poly_cells(m: Mesh) -> tuple[list[tuple[str, np.ndarray]], list[list[list[int]]], np.ndarray]:
     """OpenFOAM cells as VTK cells: hexahedra, wedges, tetrahedra and pyramids are rebuilt from their faces; any other
     cell becomes a VTK polyhedron (list of faces). Returns (blocks [(type, conn)], polyhedra faces, cell order)."""
     p = m.poly
     nc, ni = p.n_cells, p.n_internal
     offs, flat = p.face_offsets, p.face_nodes
     faces = [flat[offs[i]:offs[i + 1]] for i in range(p.n_faces)]
-    cf: List[List[np.ndarray]] = [[] for _ in range(nc)]
+    cf: list[list[np.ndarray]] = [[] for _ in range(nc)]
     for f, c in enumerate(p.owner):
         cf[c].append(faces[f])                                     # outward for the owner
     for f, c in enumerate(p.neighbour):
         cf[c].append(faces[f][::-1])                               # reversed: outward for the neighbour
-    out: Dict[str, List[Tuple[int, List[int]]]] = {}
-    polys: List[Tuple[int, List[List[int]]]] = []
+    out: dict[str, list[tuple[int, list[int]]]] = {}
+    polys: list[tuple[int, list[list[int]]]] = []
     for c in range(nc):
         fl = cf[c]
         sz = sorted(len(f) for f in fl)
@@ -93,8 +93,8 @@ def poly_cells(m: Mesh) -> Tuple[List[Tuple[str, np.ndarray]], List[List[List[in
     return blocks, [x[1] for x in polys], np.array(order, np.int64)
 
 
-def _shape(typ: str, fl: List[np.ndarray]) -> Optional[List[int]]:
-    nbr: Dict[int, set] = {}
+def _shape(typ: str, fl: list[np.ndarray]) -> list[int] | None:
+    nbr: dict[int, set] = {}
     for f in fl:
         for a, b in zip(f, np.roll(f, -1)):
             nbr.setdefault(int(a), set()).add(int(b))
@@ -124,7 +124,7 @@ def _shape(typ: str, fl: List[np.ndarray]) -> Optional[List[int]]:
 
 
 # ------------------------------------------------------------------------------- the dataset
-def field_scalar(values: np.ndarray) -> Tuple[Optional[np.ndarray], str]:
+def field_scalar(values: np.ndarray) -> tuple[np.ndarray | None, str]:
     """One scalar per point or cell: the value itself, the magnitude of a vector (up to 3 components) or the von Mises
     stress of a symmetric tensor in Voigt order ``xx yy zz xy yz zx``. Returns ``(scalar, kind)``; ``scalar`` is
     ``None`` for other shapes."""
@@ -140,8 +140,8 @@ def field_scalar(values: np.ndarray) -> Tuple[Optional[np.ndarray], str]:
     return None, "value"
 
 
-def build_dataset(m: Mesh, *, unit_system: str = "auto", to_si: bool = False, rho: Optional[float] = None,
-                  location: str = "auto", files: Optional[Dict[str, bytes]] = None) -> Dict[str, Any]:
+def build_dataset(m: Mesh, *, unit_system: str = "auto", to_si: bool = False, rho: float | None = None,
+                  location: str = "auto", files: dict[str, bytes] | None = None) -> dict[str, Any]:
     """Normalise a Mesh into the neutral dataset (a dict holding numpy arrays and metadata)."""
     src = m.source
     solver = _solver(m)
@@ -149,13 +149,13 @@ def build_dataset(m: Mesh, *, unit_system: str = "auto", to_si: bool = False, rh
     fe = "CalculiX" in fmt or "Abaqus" in fmt
     if unit_system == "auto":
         unit_system = src.get("unit_system") or ("SI" if not fe else "model units")
-    notes: List[str] = []
+    notes: list[str] = []
     length_unit = "m" if unit_system == "SI" or not fe else UNIT_SYSTEMS.get(unit_system, {}).get("length", "model units")
     scale_len = UNIT_SYSTEMS[unit_system]["to_si"]["length"] if to_si and unit_system in UNIT_SYSTEMS else 1.0
     if to_si and fe and unit_system not in UNIT_SYSTEMS:
         notes.append("Conversion to SI skipped: choose the deck's unit system (SI or N-mm-t-s) first.")
     pts = m.points * scale_len
-    fields: Dict[str, Dict[str, Any]] = {}
+    fields: dict[str, dict[str, Any]] = {}
     for where, store in (("point", m.point_data), ("cell", m.cell_data)):
         for name, arr in store.items():
             a = np.asarray(arr, float)
@@ -214,7 +214,7 @@ def build_dataset(m: Mesh, *, unit_system: str = "auto", to_si: bool = False, rh
             "location": location, "_mesh": m, "_scale": scale_len}
 
 
-def _solver(m: Mesh) -> Optional[str]:
+def _solver(m: Mesh) -> str | None:
     s = m.source
     if s.get("kind") in ("openfoam", "openfoam_polymesh"):
         return "OpenFOAM" + (f" {s['application']}" if s.get("application") else "")
@@ -223,7 +223,7 @@ def _solver(m: Mesh) -> Optional[str]:
     return s.get("solver")
 
 
-def describe(ds: Dict[str, Any]) -> Dict[str, Any]:
+def describe(ds: dict[str, Any]) -> dict[str, Any]:
     """JSON-safe description (the schema the user sees): no arrays."""
     f = {k: {kk: vv for kk, vv in v.items() if kk != "values"} for k, v in ds["fields"].items()}
     return {"schema": ds["schema"], "geometry": ds["geometry"], "mesh": ds["mesh"],
@@ -236,7 +236,7 @@ def _coords(ds) -> np.ndarray:
     return ds["cell_centres"] if ds["location"] == "cell" and ds["cell_centres"] is not None else ds["points"]
 
 
-def _table(ds) -> Tuple[Dict[str, np.ndarray], Dict[str, str]]:
+def _table(ds) -> tuple[dict[str, np.ndarray], dict[str, str]]:
     """Columns of the tabular exports at the chosen location (cell centres or points)."""
     loc = ds["location"]
     xyz = _coords(ds)
@@ -258,7 +258,7 @@ def _table(ds) -> Tuple[Dict[str, np.ndarray], Dict[str, str]]:
 
 
 # ------------------------------------------------------------------------------- writers
-def export(ds: Dict[str, Any], fmt: str) -> Tuple[bytes, str, str]:
+def export(ds: dict[str, Any], fmt: str) -> tuple[bytes, str, str]:
     """(content, media type, file extension)."""
     fmt = fmt.lower()
     if fmt == "vtu":
@@ -288,7 +288,7 @@ def _da(name: str, a: np.ndarray, vtype: str, ncomp: int = 1) -> str:
     return f'<DataArray type="{vtype}" Name="{name}"{nc} format="binary">{_b64(a)}</DataArray>\n'
 
 
-def write_vtu(ds: Dict[str, Any]) -> bytes:
+def write_vtu(ds: dict[str, Any]) -> bytes:
     m: Mesh = ds["_mesh"]
     pts = np.asarray(ds["points"], "<f8")
     conn, offsets, types, faces_stream, face_offsets = [], [], [], None, None
@@ -356,7 +356,7 @@ def write_vtu(ds: Dict[str, Any]) -> bytes:
     return "".join(x).encode()
 
 
-def write_hdf5(ds: Dict[str, Any]) -> bytes:
+def write_hdf5(ds: dict[str, Any]) -> bytes:
     import h5py
     bio = io.BytesIO()
     m: Mesh = ds["_mesh"]
@@ -389,7 +389,7 @@ def write_hdf5(ds: Dict[str, Any]) -> bytes:
     return bio.getvalue()
 
 
-def write_parquet(ds: Dict[str, Any]) -> bytes:
+def write_parquet(ds: dict[str, Any]) -> bytes:
     import pandas as pd
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -403,7 +403,7 @@ def write_parquet(ds: Dict[str, Any]) -> bytes:
     return bio.getvalue()
 
 
-def write_csv(ds: Dict[str, Any]) -> bytes:
+def write_csv(ds: dict[str, Any]) -> bytes:
     cols, units = _table(ds)
     names = list(cols)
     head = ",".join(f"{n} [{units[n]}]" if units.get(n) else n for n in names)
@@ -415,7 +415,7 @@ def write_csv(ds: Dict[str, Any]) -> bytes:
     return bio.getvalue().encode()
 
 
-def write_npz(ds: Dict[str, Any]) -> bytes:
+def write_npz(ds: dict[str, Any]) -> bytes:
     arrs = {"points": ds["points"], "metadata": np.array(json.dumps(describe(ds), default=str))}
     if ds["cell_centres"] is not None:
         arrs["cell_centres"] = ds["cell_centres"]
@@ -426,7 +426,7 @@ def write_npz(ds: Dict[str, Any]) -> bytes:
     return bio.getvalue()
 
 
-def write_json(ds: Dict[str, Any], max_values: int = 2_000_000) -> bytes:
+def write_json(ds: dict[str, Any], max_values: int = 2_000_000) -> bytes:
     d = describe(ds)
     total = sum(f["values"].size for f in ds["fields"].values()) + _coords(ds).size
     if total <= max_values:
@@ -438,7 +438,7 @@ def write_json(ds: Dict[str, Any], max_values: int = 2_000_000) -> bytes:
     return json.dumps(d, default=str).encode()
 
 
-def write_pinneapple(ds: Dict[str, Any]) -> bytes:
+def write_pinneapple(ds: dict[str, Any]) -> bytes:
     """A PINNeAPPle dataset: one PhysicalSample (state = coordinates and fields at the chosen location) written with
     the library's UPD Zarr store (pinneapple_data.serialization.save_zarr), zipped. Load it with
     ``load_zarr`` after unzipping; units, quantities and the source are in the sample's provenance."""
@@ -476,7 +476,7 @@ def write_pinneapple(ds: Dict[str, Any]) -> bytes:
     return bio.getvalue()
 
 
-def preview(ds: Dict[str, Any], max_fields: int = 6, max_tris: int = 200_000) -> Dict[str, Any]:
+def preview(ds: dict[str, Any], max_fields: int = 6, max_tris: int = 200_000) -> dict[str, Any]:
     """Display payload of a dataset from :func:`build_dataset`: the boundary surface (always, so a bare mesh shows
     too) coloured by the first ``max_fields`` fields reduced to one scalar each (:func:`field_scalar`), rounded to
     5 significant digits. Empty dict when the mesh has no surface."""
@@ -491,7 +491,7 @@ def preview(ds: Dict[str, Any], max_fields: int = 6, max_tris: int = 200_000) ->
         return {}
     if s is None:
         return {}
-    out: Dict[str, Any] = {"points": s["points"], "tris": s["tris"], "tri_cell": s["tri_cell"], "fields": {}}
+    out: dict[str, Any] = {"points": s["points"], "tris": s["tris"], "tri_cell": s["tri_cell"], "fields": {}}
     for name, f in ds["fields"].items():
         if len(out["fields"]) >= max_fields:
             break

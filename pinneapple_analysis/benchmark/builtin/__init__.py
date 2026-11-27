@@ -1,5 +1,5 @@
 """Built-in benchmark problems and methods (importing this module registers them)."""
-from . import fields, standard  # noqa: F401
+from . import calculix, fields, standard  # noqa: F401
 from .fields import ArrayProblem, FieldOperatorProblem  # noqa: F401
 
 try:                                         # need optional pieces (OpenFOAM for the airfoil data, the heat models)

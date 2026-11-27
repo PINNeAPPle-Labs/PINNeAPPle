@@ -1,13 +1,12 @@
 """Auditability: seed, deterministic mode, RunLogger, env fingerprint."""
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, Optional
+from dataclasses import dataclass
+from typing import Any
 import os
 import json
 import time
 import platform
-import hashlib
 import random
 
 import numpy as np
@@ -31,7 +30,7 @@ def set_deterministic(deterministic: bool = True) -> None:
     except Exception:
         pass
 
-def env_fingerprint() -> Dict[str, Any]:
+def env_fingerprint() -> dict[str, Any]:
     return {
         "python": platform.python_version(),
         "platform": platform.platform(),
@@ -54,14 +53,14 @@ class RunLogger:
         self.path = os.path.join(self.out_dir, f"{self.run_name}.jsonl")
         self._n = 0
 
-    def log(self, record: Dict[str, Any]) -> None:
+    def log(self, record: dict[str, Any]) -> None:
         record = dict(record)
         record.setdefault("ts_unix", int(time.time()))
         with open(self.path, "a", encoding="utf-8") as f:
             f.write(json.dumps(record) + "\n")
         self._n += 1
 
-    def save_config(self, cfg: Dict[str, Any]) -> None:
+    def save_config(self, cfg: dict[str, Any]) -> None:
         p = os.path.join(self.out_dir, f"{self.run_name}.config.json")
         with open(p, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2)

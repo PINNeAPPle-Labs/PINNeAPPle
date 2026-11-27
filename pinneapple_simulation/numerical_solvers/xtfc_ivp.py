@@ -79,7 +79,7 @@ Method summary
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -120,7 +120,7 @@ def _sin_dact(z: Array) -> Array:
 # activations can be added here without touching any other logic in this
 # module (the derivative is always w.r.t. the activation's own argument z;
 # the chain-rule factor w_j from z = w_j*x + b_j is applied in _elm_basis).
-ACTIVATIONS: Dict[str, "tuple[Callable[[Array], Array], Callable[[Array], Array]]"] = {
+ACTIVATIONS: dict[str, tuple[Callable[[Array], Array], Callable[[Array], Array]]] = {
     "tanh": (_tanh_act, _tanh_dact),
     "sigmoid": (_sigmoid_act, _sigmoid_dact),
     "sin": (_sin_act, _sin_dact),
@@ -143,7 +143,7 @@ def chebyshev_gauss_lobatto(n: int, lo: float = -1.0, hi: float = 1.0) -> Array:
     return 0.5 * (hi - lo) * x + 0.5 * (hi + lo)
 
 
-def _elm_basis(x: Array, w: Array, b: Array, activation: str) -> "tuple[Array, Array]":
+def _elm_basis(x: Array, w: Array, b: Array, activation: str) -> tuple[Array, Array]:
     """phi(x) and dphi/dx(x) for M fixed random features, at points x.
 
     x: (N,) points in the mapped [-1, 1] domain.
@@ -201,18 +201,18 @@ def xtfc_predict(t_query: Array, w: Array, b: Array, beta: Array, y0: Array,
 def solve_xtfc_ode(
     rhs_fn: Callable[[Array, Array], Array],
     y0,
-    t_span: "tuple[float, float]",
+    t_span: tuple[float, float],
     n_basis: int = 50,
     n_collocation: int = 100,
     activation: str = "tanh",
     max_iter: int = 50,
     tol: float = 1e-10,
     seed: int = 0,
-    w_range: "tuple[float, float]" = (-5.0, 5.0),
-    b_range: "tuple[float, float]" = (-5.0, 5.0),
+    w_range: tuple[float, float] = (-5.0, 5.0),
+    b_range: tuple[float, float] = (-5.0, 5.0),
     collocation: str = "chebyshev",
     linear: bool = False,
-    jac_fn: "Callable[[Array, Array], Array] | None" = None,
+    jac_fn: Callable[[Array, Array], Array] | None = None,
 ) -> dict:
     """Solve dy_i/dt = rhs_fn(t, y)[:, i], y_i(t0) = y0[i], for t in t_span,
     via X-TFC (see module docstring for the full method).
@@ -303,7 +303,7 @@ def solve_xtfc_ode(
         return dxdt_factor * (dpsi_dx @ beta)
 
     beta = np.zeros((n_basis, n_out))
-    residual_history: "list[float]" = []
+    residual_history: list[float] = []
     n_iter_done = 0
     converged = False
     effective_max_iter = 1 if linear else max_iter
@@ -411,8 +411,8 @@ class XTFCIVPSolver(SolverBase):
         self,
         rhs_fn: Callable[[Array, Array], Array],
         y0,
-        t_span: "tuple[float, float]",
-        jac_fn: "Callable[[Array, Array], Array] | None" = None,
+        t_span: tuple[float, float],
+        jac_fn: Callable[[Array, Array], Array] | None = None,
         n_query: int = 200,
     ) -> SolverOutput:
         sol = solve_xtfc_ode(

@@ -22,10 +22,7 @@ Public API
 """
 from __future__ import annotations
 
-import io
-import math
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -40,7 +37,7 @@ class RandomizerConfig:
 
     All ``p_*`` parameters are per-sample application probabilities [0, 1].
     """
-    seed:             Optional[int] = None
+    seed:             int | None = None
 
     # Sensor noise
     p_sensor_noise:   float = 0.90
@@ -54,8 +51,8 @@ class RandomizerConfig:
 
     # Lighting
     p_lighting:       float = 0.80
-    brightness_range: Tuple[float, float] = (0.7, 1.3)
-    contrast_range:   Tuple[float, float] = (0.8, 1.2)
+    brightness_range: tuple[float, float] = (0.7, 1.3)
+    contrast_range:   tuple[float, float] = (0.8, 1.2)
     color_temp_std:   float = 0.05   # per-channel multiplicative noise
 
     # Shadow overlay
@@ -65,7 +62,7 @@ class RandomizerConfig:
     # Occlusions
     p_occlusion:      float = 0.30
     n_occ_boxes:      int   = 3      # max occlusion rectangles
-    occ_size_range:   Tuple[float, float] = (0.05, 0.20)  # fraction of image side
+    occ_size_range:   tuple[float, float] = (0.05, 0.20)  # fraction of image side
 
     # Gaussian blur
     p_blur:           float = 0.30
@@ -104,7 +101,7 @@ class RealityRandomizer:
         aug_frames = randomizer.augment(frames)
     """
 
-    def __init__(self, config: Optional[RandomizerConfig] = None) -> None:
+    def __init__(self, config: RandomizerConfig | None = None) -> None:
         self.cfg = config or RandomizerConfig()
         self.rng = np.random.default_rng(self.cfg.seed)
 
@@ -114,8 +111,8 @@ class RealityRandomizer:
 
     def augment(
         self,
-        frames: Dict[str, np.ndarray],   # {sensor -> (T, H, W, 3) uint8}
-    ) -> Dict[str, np.ndarray]:
+        frames: dict[str, np.ndarray],   # {sensor -> (T, H, W, 3) uint8}
+    ) -> dict[str, np.ndarray]:
         """Apply all configured augmentations to a dict of frame sequences.
 
         Returns a new dict with augmented frames.  Physical field data is
@@ -158,7 +155,7 @@ class RealityRandomizer:
     # Parameter sampling & application
     # ------------------------------------------------------------------
 
-    def _sample_params(self, H: int, W: int) -> Dict:
+    def _sample_params(self, H: int, W: int) -> dict:
         r = self.rng
         return {
             "do_noise":     r.random() < self.cfg.p_sensor_noise,
@@ -191,7 +188,7 @@ class RealityRandomizer:
     def _apply_params(
         self,
         f:      np.ndarray,   # (H, W, 3) float in [0, 1]
-        params: Dict,
+        params: dict,
         sensor: str = "rgb",
     ) -> np.ndarray:
         # 1. Lighting
@@ -258,7 +255,7 @@ def _random_shadow_polygon(H: int, W: int, rng) -> np.ndarray:
     return mask
 
 
-def _random_occ_boxes(H, W, rng, n_boxes: int, size_range) -> List:
+def _random_occ_boxes(H, W, rng, n_boxes: int, size_range) -> list:
     boxes = []
     for _ in range(rng.integers(1, n_boxes + 1)):
         lo, hi = size_range

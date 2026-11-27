@@ -38,11 +38,10 @@ Public API
 from __future__ import annotations
 
 import json
-import struct
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -86,7 +85,7 @@ class PackagerConfig:
     """
     output_dir:        Path   = Path("./physics_dataset")
     format:            str    = "zarr"      # "zarr" | "npy"
-    zarr_chunks:       Optional[Tuple] = None
+    zarr_chunks:       tuple | None = None
     zarr_compressor:   str    = "blosc"
     save_vtk:          bool   = True
     save_videos:       bool   = True
@@ -116,11 +115,11 @@ class PackagedSample:
     """
     sample_id:    str
     sample_dir:   Path
-    field_paths:  Dict[str, Path] = field(default_factory=dict)
-    video_paths:  Dict[str, Path] = field(default_factory=dict)
-    metadata_path: Optional[Path] = None
+    field_paths:  dict[str, Path] = field(default_factory=dict)
+    video_paths:  dict[str, Path] = field(default_factory=dict)
+    metadata_path: Path | None = None
 
-    def to_manifest_entry(self) -> Dict[str, Any]:
+    def to_manifest_entry(self) -> dict[str, Any]:
         return {
             "sample_id":   self.sample_id,
             "sample_dir":  str(self.sample_dir),
@@ -139,7 +138,7 @@ class DatasetManifest:
 
     def __init__(self, output_dir: Path) -> None:
         self.output_dir = Path(output_dir)
-        self.entries:   List[Dict[str, Any]] = []
+        self.entries:   list[dict[str, Any]] = []
         self._path      = self.output_dir / "dataset_manifest.json"
         if self._path.exists():
             self.entries = json.loads(self._path.read_text())
@@ -179,7 +178,7 @@ class DatasetPackager:
         )
     """
 
-    def __init__(self, config: Optional[PackagerConfig] = None) -> None:
+    def __init__(self, config: PackagerConfig | None = None) -> None:
         self.cfg      = config or PackagerConfig()
         self.manifest = DatasetManifest(self.cfg.output_dir)
 
@@ -193,8 +192,8 @@ class DatasetPackager:
         spec:           ScenarioSpec,
         render_result,                     # RenderResult from physics_renderer
         sample_idx:     int = 0,
-        extra_fields:   Optional[Dict[str, np.ndarray]] = None,
-        camera_config:  Optional[Dict[str, Any]] = None,
+        extra_fields:   dict[str, np.ndarray] | None = None,
+        camera_config:  dict[str, Any] | None = None,
     ) -> PackagedSample:
         """Package one sample into the canonical directory structure.
 
@@ -296,11 +295,11 @@ class DatasetPackager:
 
     def package_batch(
         self,
-        trajectories:  List[TrajectoryData],
+        trajectories:  list[TrajectoryData],
         spec:          ScenarioSpec,
         render_results,                    # List[RenderResult] or None
         start_idx:     int = 0,
-    ) -> List[PackagedSample]:
+    ) -> list[PackagedSample]:
         """Package multiple samples from the same scenario."""
         rr_list = render_results or [None] * len(trajectories)
         return [
@@ -342,7 +341,7 @@ class DatasetPackager:
 # JSON helpers
 # ---------------------------------------------------------------------------
 
-def _write_json(path: Path, data: Dict[str, Any]) -> None:
+def _write_json(path: Path, data: dict[str, Any]) -> None:
     path.write_text(json.dumps(data, indent=2, default=_json_default))
 
 
@@ -357,7 +356,7 @@ def _build_metadata(
     traj: TrajectoryData,
     spec: ScenarioSpec,
     T: int, C: int, Ny: int, Nx: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "sample_id_generation_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "scenario_name":  spec.name,
@@ -378,7 +377,7 @@ def _build_metadata(
     }
 
 
-def _build_pde_json(spec: ScenarioSpec) -> Dict[str, Any]:
+def _build_pde_json(spec: ScenarioSpec) -> dict[str, Any]:
     _equation_map = {
         "heat":       "∂T/∂t = α·∇²T",
         "burgers":    "∂u/∂t + u·∂u/∂x = ν·∂²u/∂x²",

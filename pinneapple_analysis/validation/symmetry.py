@@ -6,7 +6,7 @@ dimensions using plain forward passes (no autograd required).
 from __future__ import annotations
 
 import math
-from typing import Optional, Tuple, Union
+from typing import Union
 
 import torch
 from torch import Tensor
@@ -152,7 +152,7 @@ class SymmetryCheck:
         field_idx: int = 0,
         tolerance: float = 1e-3,
         name: str = "rotational_symmetry",
-        vector_field_idx: Optional[Tuple[int, int]] = None,
+        vector_field_idx: tuple[int, int] | None = None,
     ) -> CheckResult:
         """Check 2-D rotational symmetry.
 

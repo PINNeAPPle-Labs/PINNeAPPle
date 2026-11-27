@@ -33,7 +33,9 @@
   "dashboard": true,
   "confirm_fine": false
  },
- "scripts": [],
+ "scripts": [
+  "autolab_aero.py"
+ ],
  "metrics": [
   {
    "name": "cfd_runs",

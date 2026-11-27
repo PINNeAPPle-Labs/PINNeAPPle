@@ -6,10 +6,13 @@ It orchestrates tools that already exist (solvers, Docker, Slurm); it does not r
 ``Workflow``, ``Step``      the DAG: dependencies, order, cycle check, JSON; ``workflow_from_cases`` per case table
 ``WorkflowRunner``          runs, resume, per-step state and log, retries, skip-done by content hash, cancel
 ``Executor`` + registry     where commands run: ``local``, ``docker``, ``slurm`` (sbatch scripts, dry run by
-                            default); ``register_executor(name, cls)`` adds one
+                            default), ``kubernetes`` (one Job per step, cancellation deletes it) and ``batch``
+                            (a cloud batch service through a ``BatchProvider``); ``register_executor(name, cls)``
+                            adds one
 ``Adapter`` + registry      what a step kind does: ``command``, ``python``, ``openfoam``, ``calculix``;
                             ``register_adapter(adapter)`` adds one (a GUI-driven step, another solver)
 ``dataset_from_run``        finished runs -> ``DatasetSpec`` + table (CSV / Parquet / HDF5) for training
+``EventStream``             a run's structured events as JSON Lines next to it (``events.jsonl``), and ``read_events``
 ``TEMPLATES``               whitelisted workflows for public servers (Python slab heating, CalculiX beam,
                             OpenFOAM cavity)
 ==========================  ========================================================================================
@@ -50,6 +53,7 @@ from .adapters import (
 from .dag import Step, Workflow, WorkflowError, fill, workflow_from_cases
 from .datasets import dataset_from_run, id_column_of, read_cases
 from .engine import STATES, WorkflowRunner, step_hash
+from .events import EVENT_KINDS, EventStream, OtlpExporter, read_events, to_otlp
 from .executors import (
     EXECUTORS,
     DockerExecutor,
@@ -60,11 +64,22 @@ from .executors import (
     get_executor,
     register_executor,
 )
+from .executors_remote import (
+    BATCH_PROVIDERS,
+    BatchExecutor,
+    BatchJob,
+    BatchProvider,
+    CommandBatchProvider,
+    KubernetesExecutor,
+    register_batch_provider,
+)
 
 __all__ = [
     "Workflow", "Step", "WorkflowError", "fill", "workflow_from_cases", "WorkflowRunner", "STATES", "step_hash",
     "Executor", "ExecResult", "LocalExecutor", "DockerExecutor", "SlurmExecutor", "EXECUTORS", "register_executor",
-    "get_executor", "Adapter", "StepContext", "StepFailed", "StepCancelled", "CommandAdapter", "PythonAdapter",
+    "get_executor", "KubernetesExecutor", "BatchExecutor", "BatchProvider", "BatchJob", "CommandBatchProvider",
+    "BATCH_PROVIDERS", "register_batch_provider", "EventStream", "EVENT_KINDS", "read_events", "to_otlp",
+    "OtlpExporter", "Adapter", "StepContext", "StepFailed", "StepCancelled", "CommandAdapter", "PythonAdapter",
     "OpenFOAMAdapter", "CalculiXAdapter", "ADAPTERS", "register_adapter", "get_adapter", "dataset_from_run",
     "read_cases", "id_column_of", "TEMPLATES", "Template",
 ]

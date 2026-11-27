@@ -28,7 +28,8 @@ import math
 import time
 import json
 from dataclasses import dataclass, asdict
-from typing import Dict, Any, Tuple, Callable, List
+from typing import Any
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -94,11 +95,11 @@ class BenchResult:
 
 @dataclass
 class TrainHistory:
-    steps: List[int]
-    total: List[float]
-    pde: List[float]
-    conditions: List[float]
-    data: List[float]
+    steps: list[int]
+    total: list[float]
+    pde: list[float]
+    conditions: list[float]
+    data: list[float]
 
 
 class FactoryTensorAdapter(nn.Module):
@@ -169,7 +170,7 @@ def sample_uniform(n: int, lo: float, hi: float, device, dtype) -> torch.Tensor:
     x.requires_grad_(True)
     return x
 
-def make_batch(cfg: BenchConfig, device, dtype) -> Dict[str, Any]:
+def make_batch(cfg: BenchConfig, device, dtype) -> dict[str, Any]:
     # collocation: x in (0,pi)
     x_col = sample_uniform(cfg.n_col, X0, X1, device, dtype)
 
@@ -272,9 +273,9 @@ def save_visuals(
     cfg: BenchConfig,
     device,
     dtype,
-    results: List[BenchResult],
-    histories: Dict[str, TrainHistory],
-    models: Dict[str, nn.Module],
+    results: list[BenchResult],
+    histories: dict[str, TrainHistory],
+    models: dict[str, nn.Module],
 ):
     os.makedirs(cfg.out_dir, exist_ok=True)
 
@@ -393,11 +394,11 @@ class PIELMGradWrapper(nn.Module):
 def train_one(
     name: str,
     model: nn.Module,
-    loss_fn: Callable[[nn.Module, Dict[str, Any]], Tuple[torch.Tensor, Dict[str, float]]],
+    loss_fn: Callable[[nn.Module, dict[str, Any]], tuple[torch.Tensor, dict[str, float]]],
     cfg: BenchConfig,
     device,
     dtype,
-) -> Tuple[BenchResult, TrainHistory]:
+) -> tuple[BenchResult, TrainHistory]:
     model = model.to(device=device)
 
     if not hasattr(model, "inverse_params"):
@@ -472,9 +473,9 @@ def main():
     factory = PINNFactory(spec)
     loss_fn = factory.generate_loss_function()
 
-    results: List[BenchResult] = []
-    histories: Dict[str, TrainHistory] = {}
-    trained_models: Dict[str, nn.Module] = {}
+    results: list[BenchResult] = []
+    histories: dict[str, TrainHistory] = {}
+    trained_models: dict[str, nn.Module] = {}
 
     # 1) VanillaPINN
     vanilla = FactoryTensorAdapter(

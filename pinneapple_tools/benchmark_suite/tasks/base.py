@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pinneapple_tools.benchmark_suite.bundle.loader import BundleData
 
@@ -9,15 +9,15 @@ from pinneapple_tools.benchmark_suite.bundle.loader import BundleData
 @dataclass(frozen=True)
 class TaskResult:
     """Standard output for a task evaluation."""
-    metrics: Dict[str, float]
-    artifacts: Optional[Dict[str, Any]] = None
+    metrics: dict[str, float]
+    artifacts: dict[str, Any] | None = None
 
 
 class ArenaTask:
     """Base class for Arena tasks."""
     task_id: str = "base"
 
-    def compute_metrics(self, bundle: BundleData, backend_outputs: Dict[str, Any]) -> Dict[str, float] | TaskResult:
+    def compute_metrics(self, bundle: BundleData, backend_outputs: dict[str, Any]) -> dict[str, float] | TaskResult:
         import numpy as np
 
         def _to_numpy(val):

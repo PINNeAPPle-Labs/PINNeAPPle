@@ -12,7 +12,7 @@ Supported state extraction strategies
 """
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional
+from collections.abc import Callable
 
 import numpy as np
 
@@ -35,8 +35,8 @@ class GenesisRunner:
     def __init__(
         self,
         config: GenesisConfig,
-        state_fn: Optional[Callable] = None,
-        controller_fn: Optional[Callable] = None,
+        state_fn: Callable | None = None,
+        controller_fn: Callable | None = None,
     ) -> None:
         self.config = config
         self.state_fn = state_fn
@@ -83,7 +83,7 @@ class GenesisRunner:
         entity_map = self.entities
         self.reset()
 
-        buffers: Optional[Dict[str, list]] = None
+        buffers: dict[str, list] | None = None
 
         for step_idx in range(cfg.n_steps):
             if self.controller_fn is not None:
@@ -108,7 +108,7 @@ class GenesisRunner:
 
     def collect_trajectories(
         self, n_rollouts: int, reset_between: bool = True
-    ) -> List[dict]:
+    ) -> list[dict]:
         """Run multiple rollouts.
 
         Parameters

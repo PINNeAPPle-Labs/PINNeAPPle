@@ -19,7 +19,9 @@
  "params": {
   "mission": "Leve o rover at\u00e9 (37, 15) sem atolar, escorregamento m\u00e1ximo de 40%, minimizando a energia."
  },
- "scripts": [],
+ "scripts": [
+  "rover_learns_planet.py"
+ ],
  "metrics": [
   {
    "name": "route_A_distance",

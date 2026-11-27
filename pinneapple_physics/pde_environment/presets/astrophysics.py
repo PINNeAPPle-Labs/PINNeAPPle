@@ -64,7 +64,7 @@ realistic, not merely illustrative, scenario.
 from __future__ import annotations
 
 import math
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -98,7 +98,7 @@ def _kepler_solve_E(M: np.ndarray, e: float, tol: float = 1e-12, max_iter: int =
     return E
 
 
-def kepler_exact_state(t: np.ndarray, mu: float, a: float, e: float) -> Dict[str, np.ndarray]:
+def kepler_exact_state(t: np.ndarray, mu: float, a: float, e: float) -> dict[str, np.ndarray]:
     """Exact Kepler two-body trajectory at times `t` (perigee at t=0).
 
     Closed-form via Kepler's equation; the underlying ODE residual
@@ -208,7 +208,7 @@ def kepler_two_body_orbit(
 
 
 def _cw_exact_state(t: np.ndarray, n: float, x0: float, y0: float, z0: float,
-                     vx0: float, vy0: float, vz0: float) -> Dict[str, np.ndarray]:
+                     vx0: float, vy0: float, vz0: float) -> dict[str, np.ndarray]:
     """Exact Clohessy-Wiltshire relative-motion solution (closed form).
 
     Clohessy, W.H., Wiltshire, R.S. (1960). "Terminal Guidance System for
@@ -227,7 +227,7 @@ def _cw_exact_state(t: np.ndarray, n: float, x0: float, y0: float, z0: float,
 
 
 def cw_exact_velocity(t: np.ndarray, n: float, x0: float, y0: float, z0: float,
-                      vx0: float, vy0: float, vz0: float) -> Dict[str, np.ndarray]:
+                      vx0: float, vy0: float, vz0: float) -> dict[str, np.ndarray]:
     """Time derivative of :func:`_cw_exact_state` (Clohessy-Wiltshire relative velocity, closed form).
 
     Term by term: vx = 3 n s x0 + c vx0 + 2 s vy0, vy = 6 n (c - 1) x0 - 2 s vx0 + (4 c - 3) vy0,
@@ -637,7 +637,7 @@ def nfw_source_fn(G: float, rho_s: float, rs: float):
     f(X, ctx) = 4*pi*G*rho_NFW(|X|), matching the density profile whose
     potential is `nfw_potential_exact` (both verified together, see
     `nfw_potential_exact`'s docstring)."""
-    def _fn(X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
+    def _fn(X: np.ndarray, ctx: dict[str, Any]) -> np.ndarray:
         r = np.sqrt(np.sum(X ** 2, axis=1)) + 1e-6
         rho = rho_s / ((r / rs) * (1.0 + r / rs) ** 2)
         return (4.0 * math.pi * G * rho)[:, None].astype(np.float32)
@@ -736,7 +736,7 @@ def nfw_dark_matter_potential(
 def sod_exact_solution(x: np.ndarray, t: float, gamma: float = 1.4,
                         rho_l: float = 1.0, u_l: float = 0.0, p_l: float = 1.0,
                         rho_r: float = 0.125, u_r: float = 0.0, p_r: float = 0.1,
-                        x0: float = 0.5) -> Dict[str, np.ndarray]:
+                        x0: float = 0.5) -> dict[str, np.ndarray]:
     """Exact Riemann solution for the Sod shock tube (Sod, 1978; algorithm
     per Toro, "Riemann Solvers and Numerical Methods for Fluid Dynamics",
     3rd ed., Ch. 4). Returns rho, u, p at positions `x` and time `t`.
@@ -989,7 +989,7 @@ def cr3bp_collinear_lagrange_point(mu: float, x0: float, tol: float = 1e-14, max
     return x
 
 
-def cr3bp_lagrange_points(mu: float) -> Dict[str, tuple]:
+def cr3bp_lagrange_points(mu: float) -> dict[str, tuple]:
     """All 5 Lagrange-point equilibria of the planar CR3BP for a given
     mass ratio `mu`. L4/L5 are the EXACT equilateral-triangle points
     (x=1/2-mu, y=+-sqrt(3)/2) -- true for any mu, verified symbolically

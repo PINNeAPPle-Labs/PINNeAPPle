@@ -8,15 +8,15 @@ from __future__ import annotations
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 
 def run_matlab_script(
-    script_path: Union[str, Path],
+    script_path: str | Path,
     *,
     matlab_executable: str = "matlab",
     timeout: int = 300,
-    extra_flags: Optional[List[str]] = None,
+    extra_flags: list[str] | None = None,
 ) -> subprocess.CompletedProcess:
     """Run a MATLAB script via subprocess (-batch mode).
 
@@ -47,8 +47,8 @@ def run_matlab_script(
 
 def run_matlab_function(
     func_name: str,
-    args: List[Any],
-    out_mat_path: Union[str, Path],
+    args: list[Any],
+    out_mat_path: str | Path,
     *,
     matlab_executable: str = "matlab",
     timeout: int = 300,

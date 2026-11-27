@@ -1,8 +1,6 @@
 from __future__ import annotations
 """Autoformer (minimal faithful) with Auto-Correlation mechanism for time series forecasting."""
 
-from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
 
 import math
 import torch
@@ -27,7 +25,7 @@ class SeriesDecomp(nn.Module):
         self.pad = (k - 1) // 2
         self.avg = nn.AvgPool1d(kernel_size=k, stride=1)
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """
         x: (B, L, D)
         returns: seasonal, trend (both (B, L, D))
@@ -230,7 +228,7 @@ class DecoderLayer(nn.Module):
         # trend projection accumulates trend residuals at each layer
         self.trend_proj = nn.Linear(d_model, d_model)
 
-    def forward(self, x: torch.Tensor, enc_out: torch.Tensor, trend: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, x: torch.Tensor, enc_out: torch.Tensor, trend: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         # x: (B,Ld,d_model) seasonal stream
         # trend: (B,Ld,d_model) trend stream in model space
 
@@ -313,8 +311,8 @@ class Autoformer(TimeSeriesModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        x_future: Optional[torch.Tensor] = None,
-        y_future: Optional[torch.Tensor] = None,
+        x_future: torch.Tensor | None = None,
+        y_future: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> TSOutput:
         """
@@ -354,7 +352,7 @@ class Autoformer(TimeSeriesModelBase):
         y_trend = self.trend_out(dec_trend)         # (B,H,out_dim)
         y_hat = y_season + y_trend
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
         if return_loss and y_future is not None:
             losses["mse"] = self.mse(y_hat, y_future)
             losses["total"] = losses["mse"]

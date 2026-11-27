@@ -214,6 +214,9 @@ def report():
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     import pinneapple_lab
 
     runs = {}

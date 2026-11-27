@@ -15,7 +15,9 @@
   "pinneapple_condense"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_benchmark.py"
+ ],
  "metrics": [
   {
    "name": "err_Tmax_m8",

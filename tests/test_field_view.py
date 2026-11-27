@@ -126,8 +126,8 @@ def test_field_view_ranges_deformation_markers_and_glb():
     cellv = np.arange(m.n_cells, dtype=float)
     fv = field_view(m, [{"name": "fem", "values": fem, "unit": "MPa", "group": "vm", "deform": "fem"},
                         {"name": "rom", "values": rom, "unit": "MPa", "group": "vm", "deform": "fem"},
-                        {"name": "err", "values": np.abs(rom - fem), "kind": "error"},
-                        {"name": "cells", "values": cellv}],
+                        {"name": "err", "values": np.abs(rom - fem), "unit": "MPa", "kind": "error"},
+                        {"name": "cells", "values": cellv, "unit": "-"}],
                     deform={"fem": u}, markers=[{"name": "clamp", "kind": "bc", "points": m.points[x == 0]}])
     meta = fv.meta
     f = {d["name"]: d for d in meta["fields"]}
@@ -155,7 +155,7 @@ def test_field_view_ranges_deformation_markers_and_glb():
 
 def test_field_view_decimates_large_surfaces_and_checks_lengths():
     m = _box(60, 10, 10)
-    fv = field_view(m, [{"name": "x", "values": m.points[:, 0]}], max_faces=1000)
+    fv = field_view(m, [{"name": "x", "values": m.points[:, 0], "unit": "m"}], max_faces=1000)
     assert fv.meta["decimated"] and fv.meta["faces"] < fv.meta["faces_original"]
     assert fv.meta["faces"] <= 1300
     with pytest.raises(ValueError, match="values for"):

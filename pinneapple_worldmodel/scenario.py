@@ -24,7 +24,6 @@ Quick start::
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 
 # ---------------------------------------------------------------------------
@@ -79,18 +78,18 @@ class PhysicsScenario:
 
     name: str
     pde_kind: str
-    grid_shape: Tuple[int, ...]
-    t_span: Tuple[float, float] = (0.0, 1.0)
+    grid_shape: tuple[int, ...]
+    t_span: tuple[float, float] = (0.0, 1.0)
     n_steps: int = 32
-    domain_bounds: Tuple[Tuple[float, float], ...] = ((0.0, 1.0), (0.0, 1.0))
-    param_ranges: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    domain_bounds: tuple[tuple[float, float], ...] = ((0.0, 1.0), (0.0, 1.0))
+    param_ranges: dict[str, tuple[float, float]] = field(default_factory=dict)
     ic_type: str = "random_smooth"
     bc_type: str = "periodic"
     solver: str = "builtin"
     n_samples: int = 1000
-    dt: Optional[float] = None
+    dt: float | None = None
     description: str = ""
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         if not self.param_ranges:
@@ -112,7 +111,7 @@ class PhysicsScenario:
         return _n_fields(self.pde_kind)
 
     @property
-    def field_names(self) -> List[str]:
+    def field_names(self) -> list[str]:
         return _field_names(self.pde_kind)
 
     @property
@@ -124,7 +123,7 @@ class PhysicsScenario:
 # PDE metadata helpers
 # ---------------------------------------------------------------------------
 
-def _default_param_ranges(pde_kind: str) -> Dict[str, Tuple[float, float]]:
+def _default_param_ranges(pde_kind: str) -> dict[str, tuple[float, float]]:
     return {
         "heat":       {"alpha": (0.005, 0.1)},
         "burgers":    {"nu": (0.001, 0.05)},
@@ -140,7 +139,7 @@ def _n_fields(pde_kind: str) -> int:
             "ns2d": 3, "elasticity": 2}.get(pde_kind, 1)
 
 
-def _field_names(pde_kind: str) -> List[str]:
+def _field_names(pde_kind: str) -> list[str]:
     return {
         "heat":       ["T"],
         "burgers":    ["u"],
@@ -155,7 +154,7 @@ def _field_names(pde_kind: str) -> List[str]:
 # Built-in scenario registry
 # ---------------------------------------------------------------------------
 
-BUILTIN_SCENARIOS: Dict[str, PhysicsScenario] = {
+BUILTIN_SCENARIOS: dict[str, PhysicsScenario] = {
     # ---- 1D ----------------------------------------------------------------
     "burgers_1d": PhysicsScenario(
         name="burgers_1d",

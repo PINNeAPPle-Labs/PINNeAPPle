@@ -1,6 +1,5 @@
 import math
 from dataclasses import dataclass
-from typing import Dict, Any, List, Tuple
 
 import torch
 import torch.optim as optim
@@ -54,7 +53,7 @@ class TensorOut(torch.nn.Module):
 # ---------
 # Sampling via PhysicsNeMo Sym geometry
 # ---------
-def sample_points_line1d(geo: Line1D, n_interior: int, n_boundary: int) -> Tuple[torch.Tensor, torch.Tensor]:
+def sample_points_line1d(geo: Line1D, n_interior: int, n_boundary: int) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Retorna:
       x_col: (n_interior,1) com requires_grad=True
@@ -89,7 +88,7 @@ def make_spec() -> PINNProblemSpec:
     )
 
 
-def train_one(name: str, model: torch.nn.Module, loss_fn, cfg: Cfg, x_col: torch.Tensor, x_bc: torch.Tensor) -> Dict[str, float]:
+def train_one(name: str, model: torch.nn.Module, loss_fn, cfg: Cfg, x_col: torch.Tensor, x_bc: torch.Tensor) -> dict[str, float]:
     device = torch.device(cfg.device)
     model = model.to(device)
 
@@ -142,7 +141,7 @@ def main():
     factory = PINNFactory(spec)
     loss_fn = factory.generate_loss_function()
 
-    results: List[Dict[str, float]] = []
+    results: list[dict[str, float]] = []
 
     # 1) Vanilla PINN
     vanilla_core = VanillaPINN(in_dim=1, out_dim=1, hidden=[64, 64, 64], activation="tanh")

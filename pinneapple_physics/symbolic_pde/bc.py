@@ -10,7 +10,7 @@ Provides hard (by-construction) and soft (penalty) BC implementations:
 from __future__ import annotations
 
 import math
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -265,7 +265,7 @@ class MultiPeriodicBC:
 class _MultiPeriodicBCModel(nn.Module):
     """Internal wrapper that applies the multi-axis periodic transform."""
 
-    def __init__(self, base: nn.Module, pbc: "MultiPeriodicBC") -> None:
+    def __init__(self, base: nn.Module, pbc: MultiPeriodicBC) -> None:
         super().__init__()
         self.base = base
         self.pbc = pbc
@@ -315,7 +315,7 @@ class DirichletBC:
     def __init__(
         self,
         value_fn: Callable[[torch.Tensor], torch.Tensor],
-        boundary_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        boundary_fn: Callable[[torch.Tensor], torch.Tensor] | None = None,
         weight: float = 1.0,
     ) -> None:
         self.value_fn = value_fn
@@ -386,7 +386,7 @@ class NeumannBC:
         self,
         flux_fn: Callable[[torch.Tensor], torch.Tensor],
         normal_fn: Callable[[torch.Tensor], torch.Tensor],
-        boundary_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
+        boundary_fn: Callable[[torch.Tensor], torch.Tensor] | None = None,
         weight: float = 1.0,
     ) -> None:
         self.flux_fn = flux_fn

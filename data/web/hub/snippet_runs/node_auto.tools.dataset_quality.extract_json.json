@@ -1,12 +1,12 @@
 {
- "code_hash": "3562e751a2d1221d",
+ "code_hash": "6e955ea430e383f4",
  "figures": [],
  "id": "node:auto.tools.dataset_quality.extract_json",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.97,
+ "recorded": "2026-11-25",
+ "seconds": 28.86,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
- "stdout": "NoneType\nNone",
+ "stdout": "extract json -> pinneapple_tools.dataset_quality:extract_json\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'text': ''}",
  "timed_out": false
 }

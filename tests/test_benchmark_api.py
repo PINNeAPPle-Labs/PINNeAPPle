@@ -262,3 +262,19 @@ def test_budget_study_curve_uses_each_methods_own_metric():
     assert study_metric_key(Prob(), "pinn", pts) == "test4/u"      # a field model is judged on its field
     assert study_metric_key(Prob(), "mlp", pts) == "test4/cd"
     assert study_metric_key(object(), "pinn", pts) == "test4/cd"   # no metric declared: the first column
+
+
+def test_the_divergence_gate_ignores_a_wobble_at_the_noise_floor():
+    """A loss that fell to 1e-11 and ends at 2e-8 has run out of float32 digits; that is not a blow-up. A loss that
+    climbs back above where it started is."""
+    from pinneapple_analysis.benchmark.checks import job_checks
+
+    def gate(losses):
+        rec = {"ok": True, "spec": {"problem": "p", "method": "m", "id": "j", "stage": "final", "level": 1.0,
+                                    "budget": {"wall_s": 1.0}},
+               "result": {"train": {"history": [{"loss": x} for x in losses], "wall_s": 1.0, "steps": len(losses)}}}
+        return next(c for c in job_checks(rec) if c.name == "no divergence")
+
+    assert gate([0.2, 0.05, 1e-4, 1e-9, 1.7e-11, 2.4e-8]).passed is True, "a noise-floor wobble is not divergence"
+    assert gate([0.2, 0.4, 1.1, 3.0, 9.0, 30.0]).passed is False, "a loss that climbs above its start is divergence"
+    assert gate([0.2, 1e-2, 1e-3, 5e-3]).passed is True, "ten times the minimum, still a thousandth of the start"

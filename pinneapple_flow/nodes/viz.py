@@ -78,8 +78,10 @@ def field3d(ctx, inputs, params):
     sol = load_solution(inputs["solution"])
     mesh, vals, deform = _grid_mesh(sol, int(params["field"]), float(params["height"]))
     name = sol["fields"][int(params["field"])]
+    # The unit comes from the solution record when it carries one; a flow solution with no declared unit is
+    # dimensionless rather than unknown, which is what "-" says (pp.viz.field_view refuses a field with neither).
     fields = [{"name": name, "values": vals, "label": f"{name} ({sol['label']})",
-               "deform": "height" if deform is not None else None}]
+               "unit": str(sol.get("unit") or "-"), "deform": "height" if deform is not None else None}]
     fv = field_view(mesh, fields, deform=deform, title=sol["label"])
     p = ctx.path("scene.glb")
     p.write_bytes(fv.glb())

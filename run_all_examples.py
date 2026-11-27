@@ -50,7 +50,6 @@ import sys
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional
 
 REPO = Path(__file__).parent
 PYTHON = sys.executable
@@ -66,14 +65,14 @@ class Script:
     path:       str                  # relative to REPO
     category:   str
     name:       str
-    args:       List[str] = field(default_factory=list)
+    args:       list[str] = field(default_factory=list)
     timeout:    int        = 180     # seconds
     mode:       str        = "fast"  # fast | medium | slow
-    requires:   List[str]  = field(default_factory=list)  # pip packages
-    skip_if:    List[str]  = field(default_factory=list)  # executables
+    requires:   list[str]  = field(default_factory=list)  # pip packages
+    skip_if:    list[str]  = field(default_factory=list)  # executables
 
 
-def catalog() -> List[Script]:
+def catalog() -> list[Script]:
     """Full catalog of runnable scripts, ordered fast → slow."""
     return [
 
@@ -445,7 +444,34 @@ def run_script(script: Script, out_dir: Path, device: str, seed: int) -> RunResu
         result.error_msg = str(e)
         result.elapsed_s = time.time() - t0
 
+    result.record = _write_record(result, script, cmd, run_dir, out_dir, device, seed)
     return result
+
+
+def _write_record(result: RunResult, script: Script, cmd: list[str], run_dir: Path, out_dir: Path,
+                  device: str, seed: int) -> str:
+    """Write ``records/<name>.record.json``: the evidence behind this run's numbers (#38).
+
+    It carries the command that re-executes the script, the parameters it ran with, the environment, the sha256 of
+    the files it wrote, and the two numbers the report publishes about it (exit code, elapsed time). The report's
+    every row names its record, so a published number can be traced to a file and a command.
+    """
+    try:
+        from pinneapple_core import run_record
+    except Exception:                                    # the runner still works without the record module
+        return ""
+    try:
+        rec = run_record.record(
+            "example", f"{script.category}/{script.name}", root=out_dir,
+            outputs=[run_dir / "stdout.txt", run_dir / "stderr.txt"], command=cmd,
+            parameters={"script": script.path, "args": list(script.args), "mode": script.mode,
+                        "device": device, "seed": seed, "timeout_s": script.timeout, "status": result.status},
+            metrics={"exit_code": int(result.exit_code), "elapsed_s": round(float(result.elapsed_s), 6),
+                     "status": result.status},
+            note=result.error_msg[:200])
+        return str(rec.write(run_dir / f"{script.name}.record.json").relative_to(out_dir))
+    except Exception:
+        return ""
 
 
 # ============================================================================
@@ -474,7 +500,7 @@ def print_result(r: RunResult, verbose: bool = False):
     _safe_print(msg)
 
 
-def save_report(results: List[RunResult], out_dir: Path, args: argparse.Namespace):
+def save_report(results: list[RunResult], out_dir: Path, args: argparse.Namespace):
     totals = {s: sum(1 for r in results if r.status == s)
               for s in ("passed","failed","skipped","timeout","error")}
     total_elapsed = sum(r.elapsed_s for r in results)
@@ -512,20 +538,34 @@ def save_report(results: List[RunResult], out_dir: Path, args: argparse.Namespac
         "## Results by Category",
         "",
     ]
-    by_cat: Dict[str, List[RunResult]] = {}
+    by_cat: dict[str, list[RunResult]] = {}
     for r in results:
         by_cat.setdefault(r.category, []).append(r)
 
     for cat, cat_results in sorted(by_cat.items()):
         n_pass = sum(1 for r in cat_results if r.status == "passed")
         md_lines += [f"### {cat}  ({n_pass}/{len(cat_results)} passed)", ""]
-        md_lines += ["| Script | Status | Time |", "|--------|--------|------|"]
+        md_lines += ["| Script | Status | Time | Record | Notes |", "|--------|--------|------|--------|-------|"]
         for r in cat_results:
             icon = {"passed":"✓","failed":"✗","skipped":"−","timeout":"⏱","error":"!"}.get(r.status,"?")
             t = f"{r.elapsed_s:.1f}s" if r.elapsed_s else "—"
             note = r.error_msg[:60] if r.status not in ("passed","skipped") else r.skip_reason[:40]
-            md_lines.append(f"| `{r.name}` | {icon} {r.status} | {t} | {note} |")
+            rec = f"`{r.record}`" if r.record else "—"
+            md_lines.append(f"| `{r.name}` | {icon} {r.status} | {t} | {rec} | {note} |")
         md_lines.append("")
+
+    md_lines += [
+        "",
+        "## Evidence",
+        "",
+        "Every row above names its record: a JSON file with the command that re-executes the script, the parameters it",
+        "ran with, the environment, and the sha256 of the files it wrote (#38). Check them with:",
+        "",
+        "```",
+        f"python -m pinneapple_core.run_record verify {out_dir.name}",
+        "```",
+        "",
+    ]
 
     md_path = out_dir / "report.md"
     md_path.write_text("\n".join(md_lines), encoding="utf-8")
@@ -584,7 +624,7 @@ def main():
         print(f"\n  Total: {len(all_scripts)} scripts")
         return
 
-    results: List[RunResult] = []
+    results: list[RunResult] = []
     t_start = time.time()
 
     for i, script in enumerate(all_scripts, 1):

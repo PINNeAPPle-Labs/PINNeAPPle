@@ -1,0 +1,227 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/car_surrogate/car_surrogate-3db2de4d123b",
+ "title": "Physics AI on car geometry: an FNO maps the car shape to its mean flow (data-only and with a mass-conservation / no-slip",
+ "description": "Physics AI on car geometry: an FNO maps the car shape to its mean flow (data-only and with a mass-conservation / no-slip physics loss), an MLP ensemble maps the design parameters to drag and lift; scored on unseen designs against baselines, then used to find a low-drag shape that a new LBM run verifies.",
+ "domain": "physics AI",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "holdout": 0.2,
+  "epochs": 300,
+  "width": 24,
+  "modes": 16,
+  "physics_weight": 0.5,
+  "ensemble": 5,
+  "search_samples": 4000,
+  "verify": true,
+  "seed": 0
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "n_train",
+   "value": 29,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "n_test",
+   "value": 7,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "field_speed_rel_l2_fno_data_only",
+   "value": 0.009391703642904758,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "field_speed_rel_l2_fno_physics",
+   "value": 0.00933051947504282,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "field_speed_rel_l2_nearest_design",
+   "value": 0.037849076092243195,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "divergence_fno_data_only",
+   "value": 0.003139909589663148,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "divergence_fno_physics",
+   "value": 0.001526674721390009,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "divergence_lbm",
+   "value": 0.0007008602260611951,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "Cd_mape_mlp_ensemble",
+   "value": 0.01766829400614221,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "Cd_mape_linear",
+   "value": 0.007727488180427265,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "Cd_mape_nearest_design",
+   "value": 0.041937914161586924,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "Cl_mae_mlp_ensemble",
+   "value": 0.05570290606836115,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "optimum_Cd_predicted",
+   "value": 1.2407547302461486,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "optimum_Cd_lbm",
+   "value": 1.3162738468963653,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "optimum_vs_median_training_Cd",
+   "value": 0.8616659616066858,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "optimum_vs_best_training_Cd",
+   "value": 1.0133226858147737,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "fno_beats_nearest_design",
+   "passed": true,
+   "value": 0.00933051947504282,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.037849076092243195,
+   "min": null,
+   "detail": "",
+   "kind": "baseline"
+  },
+  {
+   "name": "fno_field_error",
+   "passed": true,
+   "value": 0.00933051947504282,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.15,
+   "min": null,
+   "detail": "relative L2 of |u| on unseen designs",
+   "kind": "generalization"
+  },
+  {
+   "name": "Cd_surrogate_error",
+   "passed": true,
+   "value": 0.01766829400614221,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.08,
+   "min": null,
+   "detail": "mean |error| on unseen designs",
+   "kind": "generalization"
+  },
+  {
+   "name": "Cd_surrogate_beats_linear",
+   "passed": false,
+   "value": 0.01766829400614221,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.007727488180427265,
+   "min": null,
+   "detail": "",
+   "kind": "baseline"
+  },
+  {
+   "name": "optimum_prediction_verified",
+   "passed": true,
+   "value": 0.057373408146247695,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "surrogate vs a new LBM run of the chosen design",
+   "kind": "generalization"
+  },
+  {
+   "name": "optimum_below_median_design",
+   "passed": true,
+   "value": 1.3162738468963653,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.527591787938339,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/coefficient_parity.png",
+   "figures/field_predictions_unseen.png",
+   "figures/fno_training.png",
+   "figures/optimum_flow.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "car_surrogate",
+  "run_id": "car_surrogate-3db2de4d123b",
+  "status": "failed_validation"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "6008a1487",
+  "seconds": 10786.847,
+  "created": "2026-11-25T12:47:31Z",
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit",
+   "packages": {
+    "numpy": "2.4.6",
+    "scipy": "1.17.1"
+   }
+  }
+ },
+ "quality": {}
+}

@@ -8,13 +8,12 @@ arrays; older call sites pass one-argument callables on tensors. Both are accept
 from __future__ import annotations
 
 import inspect
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
 
 
-def dirichlet_conditions(spec) -> List:
+def dirichlet_conditions(spec) -> list:
     return [c for c in getattr(spec, "conditions", ()) if getattr(c, "kind", None) == "dirichlet"]
 
 
@@ -41,8 +40,8 @@ def _call(fn, pts: torch.Tensor):
     return fn(pts)
 
 
-def select(cond, pts: torch.Tensor, edges: Optional[Dict[str, torch.Tensor]] = None,
-           boundary: Optional[torch.Tensor] = None) -> torch.Tensor:
+def select(cond, pts: torch.Tensor, edges: dict[str, torch.Tensor] | None = None,
+           boundary: torch.Tensor | None = None) -> torch.Tensor:
     """Indices of ``pts`` the condition applies to.
 
     ``edges`` maps tag names ("left", "right", ...) to indices; ``boundary`` is the index set used
@@ -74,8 +73,8 @@ def values(cond, pts: torch.Tensor, field: int = 0) -> torch.Tensor:
     return v.reshape(-1).expand(pts.shape[0]) if v.numel() == 1 else v.reshape(-1)
 
 
-def boundary_rect(nodes: torch.Tensor, edges: Dict[str, torch.Tensor]) -> torch.Tensor:
+def boundary_rect(nodes: torch.Tensor, edges: dict[str, torch.Tensor]) -> torch.Tensor:
     return torch.unique(torch.cat(list(edges.values())))
 
 
-__all__: Tuple[str, ...] = ("dirichlet_conditions", "select", "values", "boundary_rect")
+__all__: tuple[str, ...] = ("dirichlet_conditions", "select", "values", "boundary_rect")

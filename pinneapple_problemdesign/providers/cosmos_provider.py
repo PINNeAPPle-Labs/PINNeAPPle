@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -60,7 +60,7 @@ class CosmosProviderConfig:
     """
 
     base_url: str
-    api_key: Optional[str] = None
+    api_key: str | None = None
     timeout_s: int = 120
     route: str = "/scene_to_spec"
 
@@ -75,12 +75,12 @@ class CosmosProvider:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         *,
-        api_key: Optional[str] = None,
-        timeout_s: Optional[int] = None,
-        route: Optional[str] = None,
-        session: Optional[requests.Session] = None,
+        api_key: str | None = None,
+        timeout_s: int | None = None,
+        route: str | None = None,
+        session: requests.Session | None = None,
     ):
         base_url = (base_url or os.environ.get("COSMOS_BASE_URL", "")).strip()
         if not base_url:
@@ -112,7 +112,7 @@ class CosmosProvider:
 
     def generate(
         self,
-        messages: List[LLMMessage],
+        messages: list[LLMMessage],
         *,
         temperature: float = 0.2,
         max_tokens: int = 800,
@@ -134,14 +134,14 @@ class CosmosProvider:
     def _call_gateway(
         self,
         prompt: str,
-        system: Optional[str] = None,
-        schema: Optional[str] = None,
+        system: str | None = None,
+        schema: str | None = None,
         temperature: float = 0.2,
         max_tokens: int = 2048,
-        extra: Optional[Dict[str, Any]] = None,
+        extra: dict[str, Any] | None = None,
     ) -> str:
         """Low-level HTTP call to the Cosmos gateway. Returns raw text string."""
-        payload: Dict[str, Any] = {
+        payload: dict[str, Any] = {
             "prompt": str(prompt),
             "system": (str(system) if system is not None else None),
             "schema": (str(schema) if schema is not None else None),
@@ -151,7 +151,7 @@ class CosmosProvider:
         }
 
         url = self.cfg.base_url + self.cfg.route
-        headers: Dict[str, str] = {"Content-Type": "application/json"}
+        headers: dict[str, str] = {"Content-Type": "application/json"}
         if self.cfg.api_key:
             headers["Authorization"] = f"Bearer {self.cfg.api_key}"
 

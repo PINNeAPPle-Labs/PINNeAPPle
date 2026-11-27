@@ -1,0 +1,12 @@
+{
+ "code_hash": "fe667067f10a2028",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.electromagnetics.em_skin_effect",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.24,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='em_skin_effect', dim=1, coords=('x',), fields=('Ar', 'Ai'), pde=PDETermSpec(kind='eddy_current_az', fields=('Ar', 'Ai'), coords=('x',), params={'omega': 1.0, 'sigma': 49.99999999999999, 'nu': 1.0}, meta={'analytic': 'em_skin_effect_slab', 'physics': 'magneto-quasistatics'}), conditions=(ConditionSpec(name='surface_and_depth', kind='dirichlet', fields=('Ar', 'Ai'), selector_type='callable', selector=<function _faces.<locals>.<lambda> at 0x115909620>, value_fn=<function em_skin_effect.<locals>.exact at 0x1070e0fe0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 512, 'n_bc': 64, 'n_ic': 0, 'n_data': 0}, scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0), field_ranges={'Ar': (-0",
+ "timed_out": false
+}

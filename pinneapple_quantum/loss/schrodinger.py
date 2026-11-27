@@ -1,8 +1,7 @@
 """Physics losses for the Schrödinger equation and quantum Hamiltonians."""
 from __future__ import annotations
 
-import math
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -97,7 +96,7 @@ def energy_loss(
     hbar: float = 1.0,
     mass: float = 1.0,
     **potential_kwargs,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Variational energy (Rayleigh quotient) for the time-independent Schrödinger equation.
 

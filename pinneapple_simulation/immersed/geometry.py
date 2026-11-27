@@ -58,6 +58,8 @@ class SDFGeometry(Geometry):
     name: str = "sdf"
 
     def __post_init__(self):
+        if len(self.box) != 2 or len(self.box[0]) != len(self.box[1]) or len(self.box[0]) < 1:
+            raise ValueError(f"box must be (lo, hi) with the same non-zero dimension, got {self.box!r}")
         self.dim = len(self.box[0])
 
     @property

@@ -6,7 +6,7 @@ Expected output format (consumed by pinneapple_pinn.compiler):
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -15,7 +15,7 @@ import torch
 def _to_tensor(
     x: Any,
     *,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
 ) -> torch.Tensor:
     if x is None:
@@ -25,7 +25,7 @@ def _to_tensor(
     return t.to(device) if device is not None else t
 
 
-def _sample_df(df: Any, n: int, cols: Tuple[str, ...]) -> np.ndarray:
+def _sample_df(df: Any, n: int, cols: tuple[str, ...]) -> np.ndarray:
     if df is None or len(df) == 0:
         return np.zeros((0, len(cols)), dtype=np.float32)
     n_eff = min(int(n), len(df))
@@ -37,7 +37,7 @@ def _sample_df(df: Any, n: int, cols: Tuple[str, ...]) -> np.ndarray:
 class PINNBatch:
     """In-memory PINN-ready batch (thin wrapper around the dict)."""
 
-    batch: Dict[str, Any]
+    batch: dict[str, Any]
 
 
 def build_from_bundle(
@@ -46,7 +46,7 @@ def build_from_bundle(
     n_collocation: int = 4096,
     n_boundary: int = 2048,
     n_data: int = 2048,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
 ) -> PINNBatch:
     """Create a PINN-style batch from an Arena BundleData.
@@ -84,9 +84,9 @@ def build_from_bundle(
 def build_from_solver(
     problem_spec: Any,
     geometry: Any,
-    solver_cfg: Dict[str, Any],
+    solver_cfg: dict[str, Any],
     *,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
 ) -> PINNBatch:
     """Build a PINN batch by running a solver or using pre-computed tensors.
@@ -105,7 +105,7 @@ def build_from_solver(
     if "x_col" not in data or data["x_col"] is None:
         raise ValueError("build_from_solver requires 'x_col' (collocation points).")
 
-    batch: Dict[str, Any] = {}
+    batch: dict[str, Any] = {}
     for k in ("x_col", "x_bc", "y_bc", "x_ic", "y_ic", "x_data", "y_data"):
         if k in data and data[k] is not None:
             batch[k] = _to_tensor(data[k], device=device, dtype=dtype)
@@ -114,9 +114,9 @@ def build_from_solver(
 
 
 def build_from_real_data(
-    adapter_cfg: Dict[str, Any],
+    adapter_cfg: dict[str, Any],
     *,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
 ) -> PINNBatch:
     """Build a PINN batch from real measurement data.
@@ -133,7 +133,7 @@ def build_from_real_data(
     if "x_data" not in data or "y_data" not in data:
         raise ValueError("build_from_real_data requires 'x_data' and 'y_data'.")
 
-    batch: Dict[str, Any] = {
+    batch: dict[str, Any] = {
         "x_data": _to_tensor(data["x_data"], device=device, dtype=dtype),
         "y_data": _to_tensor(data["y_data"], device=device, dtype=dtype),
         "ctx": dict(data.get("ctx", {})),

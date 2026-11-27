@@ -1,17 +1,16 @@
 """Experiments API router — launch, monitor, and retrieve experiments."""
 from __future__ import annotations
 import asyncio
-import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 from fastapi import APIRouter, BackgroundTasks, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/experiments", tags=["experiments"])
 
 # ── In-memory experiment store (replace with DB in production) ────────────
-_EXPERIMENTS: Dict[str, Any] = {}
-_RESULTS:     Dict[str, Any] = {}
-_PROGRESS:    Dict[str, list] = {}
+_EXPERIMENTS: dict[str, Any] = {}
+_RESULTS:     dict[str, Any] = {}
+_PROGRESS:    dict[str, list] = {}
 
 
 class CollocationRequest(BaseModel):
@@ -21,11 +20,11 @@ class CollocationRequest(BaseModel):
     n_initial: int = 256
     seed: int = 42
     use_geometry: bool = False
-    domain_name: Optional[str] = None
+    domain_name: str | None = None
 
 
 class DataRequest(BaseModel):
-    solver_key: Optional[str] = None    # None = auto-select from problem registry
+    solver_key: str | None = None    # None = auto-select from problem registry
     n_snapshots: int = 5
     grid_resolution: int = 32
     t_end: float = 1.0
@@ -34,19 +33,19 @@ class DataRequest(BaseModel):
 
 class ModelRequest(BaseModel):
     name: str
-    extra_kwargs: Dict[str, Any] = {}
+    extra_kwargs: dict[str, Any] = {}
 
 
 class ExperimentRequest(BaseModel):
     # Problem
     problem_name: str                    # preset name OR "__custom__"
-    custom_problem: Optional[Dict[str, Any]] = None  # required when problem_name="__custom__"
+    custom_problem: dict[str, Any] | None = None  # required when problem_name="__custom__"
     # Data
     collocation: CollocationRequest = CollocationRequest()
     data: DataRequest = DataRequest()
     # Models
-    models: List[ModelRequest]
-    metrics: List[str] = ["l2_relative", "mse", "pde_residual", "bc_residual",
+    models: list[ModelRequest]
+    metrics: list[str] = ["l2_relative", "mse", "pde_residual", "bc_residual",
                           "train_time_s", "n_params"]
     # Training
     epochs: int = 2000
@@ -65,9 +64,9 @@ class ExperimentStatusResponse(BaseModel):
 @router.post("/launch", response_model=ExperimentStatusResponse)
 async def launch_experiment(req: ExperimentRequest, background_tasks: BackgroundTasks):
     """Launch a new experiment asynchronously. Returns experiment_id immediately."""
-    from ..core.experiment import ExperimentConfig, ModelRunConfig, ExperimentRunner
+    from ..core.experiment import ExperimentConfig, ModelRunConfig
     from ..core.collocation import CollocationConfig
-    from ..core.data_pipeline import DataConfig, run_data_pipeline
+    from ..core.data_pipeline import DataConfig
     from ..core.problem import (load_preset, define_custom, EquationSpec,
                                 BoundaryConditionSpec, InitialConditionSpec)
 

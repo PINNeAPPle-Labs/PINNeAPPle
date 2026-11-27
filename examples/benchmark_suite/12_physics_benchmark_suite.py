@@ -37,7 +37,6 @@ Usage
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 
@@ -73,7 +72,6 @@ def main():
     # ── Load-only mode ────────────────────────────────────────────────────────
     if args.load:
         from pinneapple_arena.benchmark import PINNArenaBenchmark
-        import json
 
         print(f"\nLoading results from {args.load}")
         data = PINNArenaBenchmark.load_results(args.load)

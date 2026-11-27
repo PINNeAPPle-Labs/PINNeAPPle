@@ -11,7 +11,7 @@ This is a practical MVP:
 No extra dependencies beyond matplotlib/numpy.
 """
 
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -20,10 +20,10 @@ import torch
 def marching_squares_boundary(
     sdf: Callable[[torch.Tensor], torch.Tensor],
     *,
-    bounds_min: Tuple[float, float] = (0.0, 0.0),
-    bounds_max: Tuple[float, float] = (1.0, 1.0),
+    bounds_min: tuple[float, float] = (0.0, 0.0),
+    bounds_max: tuple[float, float] = (1.0, 1.0),
     resolution: int = 256,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
 ) -> torch.Tensor:
     """Return boundary polyline vertices as (M,2) tensor."""
@@ -61,10 +61,10 @@ def sample_boundary_points(
     sdf: Callable[[torch.Tensor], torch.Tensor],
     n: int,
     *,
-    bounds_min: Tuple[float, float] = (0.0, 0.0),
-    bounds_max: Tuple[float, float] = (1.0, 1.0),
+    bounds_min: tuple[float, float] = (0.0, 0.0),
+    bounds_max: tuple[float, float] = (1.0, 1.0),
     resolution: int = 256,
-    device: Optional[torch.device] = None,
+    device: torch.device | None = None,
     dtype: torch.dtype = torch.float32,
     seed: int = 0,
 ) -> torch.Tensor:

@@ -2,20 +2,20 @@ from __future__ import annotations
 
 import contextlib
 import contextvars
-from typing import Dict, Iterator, Optional, Tuple
+from collections.abc import Iterator
 
 import torch
 
 # Derivative cache. Inside ``derivative_cache()`` a repeated ``grad(y, x)`` / ``jacobian(Y, x)`` on the same
 # tensors returns the first result instead of building another autograd graph. The cache keeps references to
 # ``y`` and ``x`` so their ids cannot be reused while it is alive, and it is dropped on exit.
-_CACHE: contextvars.ContextVar[Optional[Dict[Tuple[str, int, int], tuple]]] = contextvars.ContextVar(
+_CACHE: contextvars.ContextVar[dict[tuple[str, int, int], tuple] | None] = contextvars.ContextVar(
     "pinneapple_derivative_cache", default=None)
 _STATS = {"hits": 0, "misses": 0}
 
 
 @contextlib.contextmanager
-def derivative_cache() -> Iterator[Dict[str, int]]:
+def derivative_cache() -> Iterator[dict[str, int]]:
     """Memoize first derivatives within the block (one loss evaluation). Yields hit/miss counters."""
     token = _CACHE.set({})
     _STATS["hits"] = _STATS["misses"] = 0

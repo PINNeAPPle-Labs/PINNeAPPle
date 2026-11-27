@@ -1,0 +1,12 @@
+{
+ "code_hash": "f4bb776a1764c5ed",
+ "figures": [],
+ "id": "node:auto.simulation.launch.small_launcher",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 14.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "small launcher -> pinneapple_simulation.launch:small_launcher\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload_kg': 200.0}",
+ "timed_out": false
+}

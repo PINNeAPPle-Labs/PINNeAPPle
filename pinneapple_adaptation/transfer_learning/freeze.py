@@ -12,7 +12,6 @@ Example
 """
 from __future__ import annotations
 
-from typing import Dict, List
 
 import torch.nn as nn
 
@@ -21,7 +20,7 @@ import torch.nn as nn
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _matches_any(name: str, prefixes: List[str]) -> bool:
+def _matches_any(name: str, prefixes: list[str]) -> bool:
     """Return True if *name* equals, or is a dotted sub-path of, any prefix.
 
     A prefix only matches at a ``"."`` component boundary, so ``"net.1"``
@@ -35,7 +34,7 @@ def _matches_any(name: str, prefixes: List[str]) -> bool:
 # Public API
 # ---------------------------------------------------------------------------
 
-def freeze_layers(model: nn.Module, prefixes: List[str]) -> int:
+def freeze_layers(model: nn.Module, prefixes: list[str]) -> int:
     """Freeze parameters whose names start with any of *prefixes*.
 
     Parameters
@@ -65,7 +64,7 @@ def freeze_layers(model: nn.Module, prefixes: List[str]) -> int:
     return count
 
 
-def unfreeze_layers(model: nn.Module, prefixes: List[str]) -> int:
+def unfreeze_layers(model: nn.Module, prefixes: list[str]) -> int:
     """Unfreeze parameters whose names start with any of *prefixes*.
 
     Parameters
@@ -90,7 +89,7 @@ def unfreeze_layers(model: nn.Module, prefixes: List[str]) -> int:
     return count
 
 
-def freeze_all_except(model: nn.Module, trainable_prefixes: List[str]) -> None:
+def freeze_all_except(model: nn.Module, trainable_prefixes: list[str]) -> None:
     """Freeze every parameter that does *not* match *trainable_prefixes*.
 
     This is the canonical setup for the ``"feature_extract"`` strategy: the
@@ -118,8 +117,8 @@ def freeze_all_except(model: nn.Module, trainable_prefixes: List[str]) -> None:
 def layer_lr_groups(
     model: nn.Module,
     base_lr: float,
-    scale_dict: Dict[str, float],
-) -> List[dict]:
+    scale_dict: dict[str, float],
+) -> list[dict]:
     """Build optimizer param groups for discriminative / layerwise learning rates.
 
     Parameters that match a prefix in *scale_dict* receive
@@ -153,8 +152,8 @@ def layer_lr_groups(
     >>> opt = torch.optim.Adam(groups)
     """
     # Build: prefix -> list[param]
-    bucket: Dict[str, List] = {p: [] for p in scale_dict}
-    default: List = []
+    bucket: dict[str, list] = {p: [] for p in scale_dict}
+    default: list = []
 
     for name, param in model.named_parameters():
         if not param.requires_grad:
@@ -168,7 +167,7 @@ def layer_lr_groups(
         if not matched:
             default.append(param)
 
-    groups: List[dict] = []
+    groups: list[dict] = []
     for prefix, params in bucket.items():
         if params:
             groups.append({"params": params, "lr": base_lr * scale_dict[prefix]})
@@ -177,7 +176,7 @@ def layer_lr_groups(
     return groups
 
 
-def count_trainable(model: nn.Module) -> Dict[str, int]:
+def count_trainable(model: nn.Module) -> dict[str, int]:
     """Count trainable, frozen, and total parameters.
 
     Parameters

@@ -6,7 +6,7 @@ The FAIL rules were confirmed by running CalculiX 2.21 on broken copies of a can
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import numpy as np
 from scipy.sparse.csgraph import connected_components
@@ -36,14 +36,14 @@ EVIDENCE = {
 }
 
 
-def _num(s: str) -> Optional[float]:
+def _num(s: str) -> float | None:
     try:
         return float(s)
     except (TypeError, ValueError):
         return None
 
 
-def check(fs: Dict[str, bytes], main: str) -> Report:
+def check(fs: dict[str, bytes], main: str) -> Report:
     import os
     texts = {os.path.basename(n): b.decode("latin-1") for n, b in fs.items() if n.lower().endswith((".inp", ".msh", ".nam", ".txt"))}
     name = os.path.basename(main)
@@ -95,7 +95,7 @@ def check(fs: Dict[str, bytes], main: str) -> Report:
     # ------------------------------------------------------------------ sections and materials
     mats = _materials(deck)
     sections = [b for b in deck.blocks if b.keyword.endswith("SECTION") and b.keyword != "SECTION PRINT"]
-    covered: Set[str] = set()
+    covered: set[str] = set()
     for b in sections:
         es = b.params.get("ELSET", "").upper()
         mat = b.params.get("MATERIAL", "").upper()
@@ -176,7 +176,7 @@ def check(fs: Dict[str, bytes], main: str) -> Report:
     return rep
 
 
-def _steps(deck: I.Deck) -> List[Dict[str, Any]]:
+def _steps(deck: I.Deck) -> list[dict[str, Any]]:
     steps, cur = [], None
     for b in deck.blocks:
         if b.keyword == "STEP":
@@ -201,8 +201,8 @@ def _steps(deck: I.Deck) -> List[Dict[str, Any]]:
     return steps
 
 
-def _materials(deck: I.Deck) -> Dict[str, Dict[str, Any]]:
-    mats: Dict[str, Dict[str, Any]] = {}
+def _materials(deck: I.Deck) -> dict[str, dict[str, Any]]:
+    mats: dict[str, dict[str, Any]] = {}
     cur = None
     for b in deck.blocks:
         if b.keyword == "MATERIAL":
@@ -226,7 +226,7 @@ def _materials(deck: I.Deck) -> Dict[str, Dict[str, Any]]:
     return mats
 
 
-def _needed_properties(deck: I.Deck, steps) -> List[Tuple[str, str, Any]]:
+def _needed_properties(deck: I.Deck, steps) -> list[tuple[str, str, Any]]:
     procs = {s["procedure"] for s in steps}
     need = []
     if procs & MECHANICAL:
@@ -248,7 +248,7 @@ def _needed_properties(deck: I.Deck, steps) -> List[Tuple[str, str, Any]]:
     return need
 
 
-def _units(rep: Report, m: str, mat: Dict[str, Any], mesh, procs) -> None:
+def _units(rep: Report, m: str, mat: dict[str, Any], mesh, procs) -> None:
     """E and density must belong to one consistent unit system (N-m-kg-s: E ~ 1e9-1e12, rho ~ 1e2-2e4;
     N-mm-t-s: E ~ 1e2-1e6, rho ~ 1e-10-2e-8)."""
     el, rho = mat.get("ELASTIC"), mat.get("DENSITY")
@@ -286,7 +286,7 @@ def _units(rep: Report, m: str, mat: Dict[str, Any], mesh, procs) -> None:
                     file=mat["file"], line=mat.get("eline"), entity=m)
 
 
-def _target_nodes(row: List[str], nsets, node_ids) -> Tuple[Optional[List[int]], Optional[str]]:
+def _target_nodes(row: list[str], nsets, node_ids) -> tuple[list[int] | None, str | None]:
     t = row[0].strip()
     if re.fullmatch(r"-?\d+", t):
         n = int(t)
@@ -298,10 +298,10 @@ def _target_nodes(row: List[str], nsets, node_ids) -> Tuple[Optional[List[int]],
 
 
 def _bcs_loads(rep: Report, deck, steps, nsets, elsets, surfaces, node_ids, mesh, name) -> None:
-    constrained: Dict[int, Set[int]] = {}
+    constrained: dict[int, set[int]] = {}
     nonzero_disp = False
     temp_bc = False
-    undefined: List[Tuple[Any, str]] = []
+    undefined: list[tuple[Any, str]] = []
     for b in deck.find("BOUNDARY"):
         for r in b.data:
             if not r or not r[0]:

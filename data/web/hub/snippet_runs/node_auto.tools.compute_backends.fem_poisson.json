@@ -1,0 +1,12 @@
+{
+ "code_hash": "e84d7d62c19cb497",
+ "figures": [],
+ "id": "node:auto.tools.compute_backends.fem_poisson",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 12.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "fem poisson -> pinneapple_tools.compute_backends:fem_poisson\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'resolution': 1, 'degree': 2, 'tol': 1e-12}",
+ "timed_out": false
+}

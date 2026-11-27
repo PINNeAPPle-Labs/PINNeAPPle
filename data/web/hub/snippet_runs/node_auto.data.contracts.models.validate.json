@@ -1,0 +1,12 @@
+{
+ "code_hash": "5950d3805d2d07d8",
+ "figures": [],
+ "id": "node:auto.data.contracts.models.validate",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 14.45,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[\"not a PINNeAPPle contract (kind=None); expected one of ['DatasetSpec', 'ModelRef', 'ParameterSpace', 'StudyResult']\"]",
+ "timed_out": false
+}

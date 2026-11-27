@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any
+from collections.abc import Callable, Sequence
 
-import numpy as np
 import torch
 
 from pinneapple_physics.pde_environment.spec import ProblemSpec
@@ -21,6 +21,7 @@ from .autograd_ops import (
     mse,
 )
 from .em_kinds import EM_KINDS, em_residuals
+from .integral_kinds import INTEGRAL_KINDS, integral_residuals
 from .loss import LossWeights
 
 
@@ -43,7 +44,7 @@ def _model_device(model: torch.nn.Module, batch: dict[str, Any]) -> torch.device
     return torch.device("cpu")
 
 
-def _split_fields(y: torch.Tensor, field_names: Sequence[str]) -> Dict[str, torch.Tensor]:
+def _split_fields(y: torch.Tensor, field_names: Sequence[str]) -> dict[str, torch.Tensor]:
     if y.ndim == 1:
         y = y[:, None]
     if y.shape[1] != len(field_names):
@@ -54,7 +55,7 @@ def _split_fields(y: torch.Tensor, field_names: Sequence[str]) -> Dict[str, torc
     return out
 
 
-def _gather_condition_points(batch: Dict[str, Any], cond: ConditionSpec):
+def _gather_condition_points(batch: dict[str, Any], cond: ConditionSpec):
     if cond.kind in ("dirichlet", "neumann", "robin", "interface"):
         return batch.get("x_bc"), batch.get("y_bc")
     if cond.kind == "initial":
@@ -83,7 +84,7 @@ _THERMOELASTIC_KINDS = ("thermoelasticity_2d",)
 _STRESS_CAPABLE_KINDS = _ELASTICITY_KINDS + _THERMOELASTIC_KINDS
 
 
-def _elasticity_displacement_fields(pde_kind: str, spatial_dim: int) -> List[str]:
+def _elasticity_displacement_fields(pde_kind: str, spatial_dim: int) -> list[str]:
     """The ordered displacement field names ("ux","uy",["uz"]) an elasticity
     (or thermoelastic) pde_kind's own fields must contain -- the same
     convention the interior residual branch already hardcodes (fields
@@ -110,14 +111,14 @@ def _axis_of_displacement_field(fname: str) -> str:
 
 
 def _elasticity_stress_tensor(
-    disp_vals: Dict[str, torch.Tensor],
+    disp_vals: dict[str, torch.Tensor],
     disp_fields: Sequence[str],
     Xr: torch.Tensor,
     coords: Sequence[str],
     spatial_coord_names: Sequence[str],
     pde_kind: str,
-    p: Dict[str, Any],
-    T_val: Optional[torch.Tensor] = None,
+    p: dict[str, Any],
+    T_val: torch.Tensor | None = None,
 ) -> torch.Tensor:
     """Build the Cauchy stress tensor sigma (N, spatial_dim, spatial_dim)
     from the displacement fields, identically to the interior residual's
@@ -165,7 +166,7 @@ def _elasticity_traction_from_stress(
     coords: Sequence[str],
     spatial_coord_names: Sequence[str],
     traction_fields: Sequence[str],
-    traction_map: Dict[str, str],
+    traction_map: dict[str, str],
 ) -> torch.Tensor:
     """traction_i = sum_j sigma_ij * n_j for each requested traction
     component, where component i's spatial axis is looked up via
@@ -213,9 +214,9 @@ def _elasticity_normal_stress_from_stress(
 def compile_problem(
     spec: ProblemSpec,
     *,
-    weights: Optional[LossWeights] = None,
+    weights: LossWeights | None = None,
     cache_derivatives: bool = False,
-) -> Callable[[torch.nn.Module, Any, Dict[str, Any]], Dict[str, torch.Tensor]]:
+) -> Callable[[torch.nn.Module, Any, dict[str, Any]], dict[str, torch.Tensor]]:
     """Compile ``spec`` into ``loss_fn(model, y_hat, batch) -> {name: loss}``.
 
     ``cache_derivatives=True`` memoizes ``grad`` / ``jacobian`` of the same field within one evaluation, so terms that
@@ -233,7 +234,7 @@ def compile_problem(
     spatial_dim = len(spatial_coord_names)
     spatial_indices = [list(coords).index(c) for c in spatial_coord_names]
 
-    def _loss_fn(model: torch.nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def _loss_fn(model: torch.nn.Module, y_hat: Any, batch: dict[str, Any]) -> dict[str, torch.Tensor]:
         device = _model_device(model, batch)
         ctx = batch.get("ctx", {})
 
@@ -247,12 +248,17 @@ def compile_problem(
 
         pde_kind = spec.pde.kind
         p = spec.pde.params
-        res_list: List[torch.Tensor] = []
+        res_list: list[torch.Tensor] = []
 
         if pde_kind in EM_KINDS:
             # Maxwell's equations, differential and integral forms (em_kinds.py)
             res_list.extend(em_residuals(pde_kind, fields=fields, xcol=xcol, coords=coords, params=p, ctx=ctx,
                                          model=model, field_names=field_names, split_fields=_split_fields))
+
+        elif pde_kind in INTEGRAL_KINDS:
+            # integral equations of the second kind, Nyström form (integral_kinds.py)
+            res_list.extend(integral_residuals(pde_kind, fields=fields, xcol=xcol, coords=coords, params=p, ctx=ctx,
+                                               model=model, field_names=field_names, split_fields=_split_fields))
 
         elif pde_kind == "laplace":
             if len(field_names) != 1:
@@ -2298,9 +2304,9 @@ def compile_problem(
         l_pde = torch.mean(pde_res ** 2)
 
         total = w.w_pde * l_pde
-        out: Dict[str, torch.Tensor] = {"pde": l_pde}
+        out: dict[str, torch.Tensor] = {"pde": l_pde}
 
-        def eval_fields(X: torch.Tensor) -> Dict[str, torch.Tensor]:
+        def eval_fields(X: torch.Tensor) -> dict[str, torch.Tensor]:
             y = ensure_tensor(model(X))
             return _split_fields(y, field_names)
 
@@ -2598,14 +2604,14 @@ def compile_problem(
     if not cache_derivatives:
         return _loss_fn
 
-    def loss_fn(model: torch.nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def loss_fn(model: torch.nn.Module, y_hat: Any, batch: dict[str, Any]) -> dict[str, torch.Tensor]:
         with derivative_cache():
             return _loss_fn(model, y_hat, batch)
 
     return loss_fn
 
 
-def pointwise_residual(spec: ProblemSpec, *, ctx: Optional[Dict[str, Any]] = None
+def pointwise_residual(spec: ProblemSpec, *, ctx: dict[str, Any] | None = None
                        ) -> Callable[[torch.nn.Module, torch.Tensor], torch.Tensor]:
     """``fn(model, X) -> (N, k)``: the PDE residual of ``spec`` at the points ``X``, the same expression
     :func:`compile_problem` trains on (so validation checks the equation the model was trained on, not a copy of

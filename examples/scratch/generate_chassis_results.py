@@ -41,7 +41,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn as nn
 
 from pinneapple_physics.pde_environment.conditions import DirichletBC
 from pinneapple_physics.pde_environment.presets import get_preset

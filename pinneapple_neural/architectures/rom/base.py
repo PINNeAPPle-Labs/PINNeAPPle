@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes for reduced-order models."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -17,8 +17,8 @@ class ROMOutput:
       - reconstructed field or predicted latent/state trajectory
     """
     y: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class ROMBase(nn.Module):

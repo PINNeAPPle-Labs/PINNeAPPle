@@ -30,7 +30,7 @@ Quick start::
 from __future__ import annotations
 
 import math
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -122,7 +122,7 @@ class ShapeParametrization:
         cp_norm[:, 0] = (cp[:, 0] - x_min) / scale * 2.0 - 1.0
         return cp_norm
 
-    def parameters(self) -> List[nn.Parameter]:
+    def parameters(self) -> list[nn.Parameter]:
         """Return a list of trainable parameters for use with an optimiser."""
         return [self.control_points]
 
@@ -324,7 +324,7 @@ class ContinuousAdjointSolver:
         if R is None or R.shape != u.shape or not R.requires_grad:
             return dJ_du
 
-        def rmatvec(v: torch.Tensor) -> Optional[torch.Tensor]:
+        def rmatvec(v: torch.Tensor) -> torch.Tensor | None:
             return torch.autograd.grad(
                 R, u, grad_outputs=v, retain_graph=True,
                 create_graph=False, allow_unused=True,
@@ -391,8 +391,8 @@ class ContinuousAdjointSolver:
         x_col: torch.Tensor,
         n_steps: int = 100,
         lr: float = 0.01,
-        callback: Optional[Callable] = None,
-    ) -> Dict:
+        callback: Callable | None = None,
+    ) -> dict:
         """Run gradient-based shape optimisation.
 
         Parameters
@@ -416,7 +416,7 @@ class ContinuousAdjointSolver:
         """
         optimizer = optim.Adam(shape_params.parameters(), lr=lr)
 
-        history: List[float] = []
+        history: list[float] = []
         best_J = float("inf")
         best_cp = shape_params.control_points.detach().clone()
 

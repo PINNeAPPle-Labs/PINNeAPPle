@@ -1711,7 +1711,20 @@ Registrado em 2026-10-03 a pedido de Yan. Estes requisitos não são uma entrega
 
 ### Pedidos de 2026-10-03
 - **PyVista como renderizador 3-D oficial** (CFD e FEM "bonitos", PNG/GIF/VTU): primeira camada entregue em `pinneapple_tools.visualization.pyvista_bridge` (CalculiX + `.frd`, cenas do twin3d, VTU para ParaView). Falta: leitor direto de OpenFOAM (`.foam`/VTK) e de campos de PINN em malha arbitrária, linhas de corrente e isossuperfícies com o mesmo estilo, cortes (`slice`), vetores, comparação lado a lado surrogate × referência com erro, turntable em GIF para posts, e paleta única com o visualizador three.js do twin3d.
-- **CalculiX como solver de referência de primeira classe** (já existem `.inp`/`.frd`, runner e `virtual_ccx` da 0.6.1): falta ligar ao benchmark (modelo × `ccx` com o mesmo protocolo), geração de amostras para surrogate (varredura de carga e geometria como no OpenFOAM), contato e plasticidade no gerador de `.inp`, resultados térmicos e modais no leitor `.frd`, e imagem Docker multiplataforma testada em CI.
+- **CalculiX como solver de referência de primeira classe** (já existem `.inp`/`.frd`, runner e `virtual_ccx` da 0.6.1): entregues a ligação com o benchmark (`calculix_beam` e `calculix_bracket`, modelo × `ccx` no mesmo protocolo), a geração de amostras para surrogate (varredura de carga e geometria em hipercubo latino, como no OpenFOAM) e a imagem Docker multiplataforma (`linux/amd64` e `linux/arm64`, base por digest e pacote por versão, com um caso real de `ccx` rodado dentro de cada imagem). Falta: contato e plasticidade no gerador de `.inp`, e resultados térmicos e modais no leitor `.frd`.
 - **Validação de custo computacional por operação**: módulo `pinneapple_analysis.cost` entregue (tempo, memória, FLOPs, expoente de escala com intervalo de confiança, orçamentos, ledger de regressão). Falta: perfilar de ponta a ponta as operações de cada solver e arquitetura do catálogo (`pinneapple_catalog.methods` ganha custo medido e expoente por método), gate de FLOPs em CI com baseline versionado, medida de custo no protocolo do benchmark, e alimentar o catálogo de perfis de recursos do PINNeAPPle-OS com custo medido em vez de rótulo estático.
 
 Como verificar: um voluntário que nunca viu o projeto instala, roda o primeiro exemplo e abre um PR trivial seguindo só o `CONTRIBUTING.md`; o que travar vira issue.
+
+## 13. Os sete planos e o namespace público
+
+Registrado em 2026-11-22 (itens X17 e X40). Duas decisões de arquitetura que valem para toda versão futura.
+
+### Posicionamento
+PINNeAPPle é um **framework de computação em física**, e a PINN é uma tecnologia entre várias. O mesmo problema pode ser resolvido por solver, surrogate, operador, modelo de ordem reduzida ou híbrido, e o trabalho da biblioteca é deixar o leitor comparar e saber quando confiar em cada um. A consequência para a API: as portas de entrada são `pp.solve`, `pp.compare`, `pp.validate` e `pp.design`, agnósticas de método; `pp.build_model` e `pp.Trainer` continuam públicas, mas são a porta de quem já decidiu treinar uma rede.
+
+### Os sete planos
+Physics IR, Data, Compute, AI, Engineering, Validation e Evidence. Uma funcionalidade entra no núcleo só se fortalece um plano ou uma conexão entre dois; o que exige contas, cobrança, dados de cliente ou interface é produto, não núcleo. O teste de admissão, o que cada plano possui e o que ele explicitamente não possui estão em [docs/architecture/seven_planes.md](docs/architecture/seven_planes.md), junto com a matriz impacto × dificuldade × dependência de 0.6.3 até 2.0.
+
+### Namespace público
+O mapa alvo (`pp.physics`, `pp.nn`, `pp.optim`, `pp.mesh`, `pp.surrogate`, `pp.analysis`, `pp.experiments`, `pp.workflows`, …), o que já resolve hoje e as regras de renomeação estão em [docs/architecture/public_namespace.md](docs/architecture/public_namespace.md). Os aliases são aditivos: cada um é um módulo fino que reexporta o pacote que nomeia, com teste, e nenhum deles muda o layout interno. `tests/test_public_namespace.py` fixa o que existe e falha no dia em que um nome do mapa alvo aparecer, para que documento e código mudem no mesmo PR.

@@ -20,9 +20,8 @@ All operators expose:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, List, Optional, Tuple
+from collections.abc import Callable
 
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -40,7 +39,7 @@ class ObsOperatorBase(ABC):
         model: nn.Module,
         x_obs: torch.Tensor,
         *,
-        params: Optional[torch.Tensor] = None,
+        params: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Evaluate H(u) at observation locations.
 
@@ -99,7 +98,7 @@ class PointObsOperator(ObsOperatorBase):
     def __init__(
         self,
         sensor_locations: torch.Tensor,
-        output_indices: Optional[List[int]] = None,
+        output_indices: list[int] | None = None,
     ) -> None:
         self.sensor_locations = sensor_locations
         self.output_indices = output_indices
@@ -107,9 +106,9 @@ class PointObsOperator(ObsOperatorBase):
     def __call__(
         self,
         model: nn.Module,
-        x_obs: Optional[torch.Tensor] = None,
+        x_obs: torch.Tensor | None = None,
         *,
-        params: Optional[torch.Tensor] = None,
+        params: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Evaluate model at sensor locations.
 
@@ -157,9 +156,9 @@ class LinearObsOperator(ObsOperatorBase):
     def __call__(
         self,
         model: nn.Module,
-        x_obs: Optional[torch.Tensor] = None,
+        x_obs: torch.Tensor | None = None,
         *,
-        params: Optional[torch.Tensor] = None,
+        params: torch.Tensor | None = None,
     ) -> torch.Tensor:
         try:
             dev = next(model.parameters()).device
@@ -197,7 +196,7 @@ class IntegralObsOperator(ObsOperatorBase):
         self,
         x_quad: torch.Tensor,
         weights: torch.Tensor,
-        kernel_fn: Optional[Callable] = None,
+        kernel_fn: Callable | None = None,
     ) -> None:
         self.x_quad = x_quad
         self.weights = weights
@@ -206,9 +205,9 @@ class IntegralObsOperator(ObsOperatorBase):
     def __call__(
         self,
         model: nn.Module,
-        x_obs: Optional[torch.Tensor] = None,
+        x_obs: torch.Tensor | None = None,
         *,
-        params: Optional[torch.Tensor] = None,
+        params: torch.Tensor | None = None,
     ) -> torch.Tensor:
         try:
             dev = next(model.parameters()).device
@@ -250,8 +249,8 @@ class ComposedObsOperator(ObsOperatorBase):
 
     def __init__(
         self,
-        operators: List[ObsOperatorBase],
-        x_obs_list: Optional[List[Optional[torch.Tensor]]] = None,
+        operators: list[ObsOperatorBase],
+        x_obs_list: list[torch.Tensor | None] | None = None,
     ) -> None:
         self.operators = operators
         self.x_obs_list = x_obs_list or [None] * len(operators)
@@ -259,9 +258,9 @@ class ComposedObsOperator(ObsOperatorBase):
     def __call__(
         self,
         model: nn.Module,
-        x_obs: Optional[torch.Tensor] = None,
+        x_obs: torch.Tensor | None = None,
         *,
-        params: Optional[torch.Tensor] = None,
+        params: torch.Tensor | None = None,
     ) -> torch.Tensor:
         results = []
         for op, x in zip(self.operators, self.x_obs_list):
@@ -269,7 +268,7 @@ class ComposedObsOperator(ObsOperatorBase):
             results.append(op(model, xi, params=params).reshape(-1))
         return torch.cat(results, dim=0)
 
-    def n_obs(self) -> Optional[int]:
+    def n_obs(self) -> int | None:
         """Return total number of observables (if all operators have known size)."""
         return None
 

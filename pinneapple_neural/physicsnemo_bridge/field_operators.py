@@ -174,14 +174,26 @@ def physicsnemo_fno(n: int, *, latent_channels: int = 32, num_fno_layers: int = 
 
 
 def pinneapple_fno(n: int, *, width: int = 32, modes: int = 12, layers: int = 4, padding: int = 8,
-                   seed: int | None = 0) -> GridFieldPredictor:
+                   seed: int | None = 0, lift_hidden: int | None = None, final_activation: bool = True,
+                   decoder_hidden: int | None = None, decoder_activation: str = "silu",
+                   spectral_init: str = "normal") -> GridFieldPredictor:
     """The library's ``FNO2d`` (coefficient -> solution, coordinate channels, ``padding`` cells of domain padding
-    for the non-periodic boundary) wrapped as a :class:`GridFieldPredictor`. Needs no PhysicsNeMo."""
+    for the non-periodic boundary) wrapped as a :class:`GridFieldPredictor`. Needs no PhysicsNeMo.
+
+    The last five arguments are ``FNO2d``'s own architecture options, passed through so a model in another
+    implementation's configuration can be built here (see
+    :func:`pinneapple_neural.physicsnemo_bridge.fno_compare.pinneapple_fno2d`); at their defaults this is exactly
+    the class's default architecture.
+    """
     from pinneapple_neural.architectures.neural_operators.fno import FNO2d
     if seed is not None:
         torch.manual_seed(seed)
-    cfg = dict(width=width, modes=modes, layers=layers, padding=padding)
-    net = FNO2d(1, 1, width=width, modes1=modes, modes2=modes, layers=layers, use_grid=True, padding=padding)
+    cfg = dict(width=width, modes=modes, layers=layers, padding=padding, lift_hidden=lift_hidden,
+               final_activation=final_activation, decoder_hidden=decoder_hidden,
+               decoder_activation=decoder_activation, spectral_init=spectral_init)
+    net = FNO2d(1, 1, width=width, modes1=modes, modes2=modes, layers=layers, use_grid=True, padding=padding,
+                lift_hidden=lift_hidden, final_activation=final_activation, decoder_hidden=decoder_hidden,
+                decoder_activation=decoder_activation, spectral_init=spectral_init)
     return GridFieldPredictor(_GridOperator(net, "pinneapple_fno", n, 0.0, 1.0, 1.0),
                               {"kind": "pinneapple_fno", "n": n, "seed": seed, **cfg}, "PINNeAPPle FNO2d")
 

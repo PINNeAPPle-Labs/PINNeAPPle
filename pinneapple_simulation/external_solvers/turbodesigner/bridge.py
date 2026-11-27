@@ -32,9 +32,8 @@ Example
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -80,14 +79,14 @@ class TurboDesignerConfig:
     gamma: float = 1.4
     gas_constant: float = 287.0
     num_streams: int = 9
-    aspect_ratio: Dict[str, float] = field(default_factory=lambda: {"rotor": 3.0, "stator": 3.25})
-    stage_reaction: Optional[List[float]] = None
-    extra_params: Dict[str, Any] = field(default_factory=dict)
+    aspect_ratio: dict[str, float] = field(default_factory=lambda: {"rotor": 3.0, "stator": 3.25})
+    stage_reaction: list[float] | None = None
+    extra_params: dict[str, Any] = field(default_factory=dict)
 
-    def to_turbodesigner_dict(self) -> Dict[str, Any]:
+    def to_turbodesigner_dict(self) -> dict[str, Any]:
         """Serialise to the TurboDesigner JSON ``definition`` schema."""
         reaction = self.stage_reaction or [0.5] * self.num_stages
-        defn: Dict[str, Any] = {
+        defn: dict[str, Any] = {
             "gamma": self.gamma,
             "axial_velocity": self.axial_velocity,
             "rpm": self.rpm,
@@ -122,7 +121,7 @@ class TurboDesignerConfig:
 # Analytical fallback (no turbodesigner installed)
 # ---------------------------------------------------------------------------
 
-def _analytical_meanline(cfg: TurboDesignerConfig) -> Dict[str, np.ndarray]:
+def _analytical_meanline(cfg: TurboDesignerConfig) -> dict[str, np.ndarray]:
     """Pure-Python mean-line calculation used when turbodesigner is not installed.
 
     Computes stage-by-stage total temperature, total pressure, static density
@@ -179,7 +178,7 @@ def run_turbodesigner(
     cfg: TurboDesignerConfig,
     *,
     fallback_if_missing: bool = True,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Run an axial compressor mean-line analysis with TurboDesigner.
 
     Attempts to use the ``turbodesigner`` package for a full mean-line +
@@ -219,7 +218,7 @@ def run_turbodesigner(
     machine = Turbomachinery.from_dict(design)
 
     # --- extract per-station data from TurboDesigner objects ---
-    stations: list[Dict[str, float]] = []
+    stations: list[dict[str, float]] = []
 
     # Inlet flow station
     inlet_fs = machine.stages[0].rotor.inlet_flow_station
@@ -250,7 +249,7 @@ def run_turbodesigner(
     u = np.array([st["u"] for st in stations], dtype=np.float64)
     c_th = np.array([st["c_theta"] for st in stations], dtype=np.float64)
 
-    out: Dict[str, np.ndarray] = {
+    out: dict[str, np.ndarray] = {
         "s": s,
         "T_t_K": T_t,
         "p_t_Pa": p_t,
@@ -343,7 +342,7 @@ class TurboDesignerWorkflow:
     def __init__(self, base_config: TurboDesignerConfig) -> None:
         self.base_config = base_config
 
-    def solve(self, param_override: Optional[Dict[str, Any]] = None, **run_kwargs) -> Dict[str, np.ndarray]:
+    def solve(self, param_override: dict[str, Any] | None = None, **run_kwargs) -> dict[str, np.ndarray]:
         """Run a single TurboDesigner solve with optional parameter override.
 
         Parameters
@@ -358,7 +357,7 @@ class TurboDesignerWorkflow:
         cfg = dataclasses.replace(self.base_config, **param_override)
         return run_turbodesigner(cfg, **run_kwargs)
 
-    def solve_upd(self, param_override: Optional[Dict[str, Any]] = None):
+    def solve_upd(self, param_override: dict[str, Any] | None = None):
         """Run a single solve and return a UPD PhysicalSample."""
         import dataclasses
         cfg = self.base_config
@@ -368,10 +367,10 @@ class TurboDesignerWorkflow:
 
     def sweep(
         self,
-        param_grid: Dict[str, List[Any]],
+        param_grid: dict[str, list[Any]],
         as_upd: bool = False,
         **run_kwargs,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Solve for each combination in a parameter grid.
 
         Parameters
@@ -389,7 +388,7 @@ class TurboDesignerWorkflow:
 
         keys = list(param_grid.keys())
         values = list(param_grid.values())
-        results: List[Any] = []
+        results: list[Any] = []
         for combo in _product(*values):
             overrides = dict(zip(keys, combo))
             if as_upd:

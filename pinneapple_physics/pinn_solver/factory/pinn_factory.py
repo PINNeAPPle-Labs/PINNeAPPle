@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import collections
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -46,7 +47,7 @@ class NeuralNetwork(VanillaPINN):
     so that existing ``PINNFactory``-based code keeps working unchanged.
     """
 
-    _ACT_MAP: Dict[type, str] = {
+    _ACT_MAP: dict[type, str] = {
         nn.Tanh:    "tanh",
         nn.ReLU:    "relu",
         nn.GELU:    "gelu",
@@ -91,8 +92,8 @@ class PINN(VanillaPINN):
     def __init__(
         self,
         neural_network: nn.Module,
-        inverse_params_names: Optional[List[str]] = None,
-        initial_guesses: Optional[Dict[str, float]] = None,
+        inverse_params_names: list[str] | None = None,
+        initial_guesses: dict[str, float] | None = None,
         dtype: torch.dtype = torch.float32,
     ):
         # Bypass VanillaPINN.__init__: we adopt the inner network directly.
@@ -153,20 +154,20 @@ class PINNProblemSpec:
       equations; ``PINNFactory.exogenous_vars`` lists them. Providers can also be passed per
       batch (``batch["exogenous"]``) and per condition.
     """
-    pde_residuals: List[str]
-    independent_vars: List[str]
-    dependent_vars: List[str]
-    conditions: List[Dict[str, Any]] = field(default_factory=list)
-    inverse_params: List[str] = field(default_factory=list)
-    loss_weights: Dict[str, float] = field(default_factory=dict)
+    pde_residuals: list[str]
+    independent_vars: list[str]
+    dependent_vars: list[str]
+    conditions: list[dict[str, Any]] = field(default_factory=list)
+    inverse_params: list[str] = field(default_factory=list)
+    loss_weights: dict[str, float] = field(default_factory=dict)
     # Optional {independent var -> d(normalized coord)/d(physical coord)} chain-rule
     # correction, e.g. from PINNMapping.derivative_scales(), applied when independent_vars
     # are fed to the model in normalized units but pde_residuals use physical-unit
     # coefficients. Empty (default) means no correction, i.e. residuals are evaluated
     # directly in whatever units `independent_vars` are sampled in.
-    coord_scales: Dict[str, float] = field(default_factory=dict)
-    constants: Dict[str, float] = field(default_factory=dict)
-    exogenous: Dict[str, Any] = field(default_factory=dict)
+    coord_scales: dict[str, float] = field(default_factory=dict)
+    constants: dict[str, float] = field(default_factory=dict)
+    exogenous: dict[str, Any] = field(default_factory=dict)
     verbose: bool = False
 
 
@@ -201,19 +202,19 @@ class PINNFactory:
         )
 
         consts = dict(spec.constants)
-        self.compiled_pdes: List[CompiledEquation] = [
+        self.compiled_pdes: list[CompiledEquation] = [
             self.compiler.compile(eq, constants=consts, strict=False) for eq in spec.pde_residuals
         ]
-        self.compiled_conditions: List[CompiledEquation] = [
+        self.compiled_conditions: list[CompiledEquation] = [
             self.compiler.compile(c["equation"], constants={**consts, **c.get("constants", {})}, strict=False)
             for c in spec.conditions
         ]
         # Known input signals the equations need (S(t), Tamb(t), ...), detected from the equations.
-        self.exogenous_vars: List[str] = sorted(
+        self.exogenous_vars: list[str] = sorted(
             {n for ce in self.compiled_pdes + self.compiled_conditions for n in ce.exogenous}
         )
         # Undeclared bare names (e.g. T0): values are read at loss time from batch["constants"].
-        self.runtime_constants: List[str] = sorted(
+        self.runtime_constants: list[str] = sorted(
             {n for ce in self.compiled_pdes + self.compiled_conditions for n in ce.runtime_constants}
         )
 
@@ -246,7 +247,7 @@ class PINNFactory:
 
     def generate_loss_function(
         self,
-    ) -> Callable[[PINN, Dict[str, Any]], Tuple[Tensor, Dict[str, float]]]:
+    ) -> Callable[[PINN, dict[str, Any]], tuple[Tensor, dict[str, float]]]:
         """
         Returns (loss_fn) where:
           loss_fn(model, batch) -> (total_loss, components_dict)
@@ -258,9 +259,9 @@ class PINNFactory:
         dep_symbols = self.compiler.dep_symbols
         spec_exo = dict(self.spec.exogenous)
 
-        def exo_args(ce: CompiledEquation, inputs, local: Optional[Dict[str, Any]], shared: Optional[Dict[str, Any]],
-                     bucket: str, device, dtype) -> List[Tensor]:
-            out: List[Tensor] = []
+        def exo_args(ce: CompiledEquation, inputs, local: dict[str, Any] | None, shared: dict[str, Any] | None,
+                     bucket: str, device, dtype) -> list[Tensor]:
+            out: list[Tensor] = []
             n = inputs[0].shape[0] if inputs else None
             for name in ce.exogenous:
                 src = None
@@ -287,9 +288,9 @@ class PINNFactory:
                 out.append(val)
             return out
 
-        def const_args(ce: CompiledEquation, local: Optional[Dict[str, Any]], shared: Optional[Dict[str, Any]],
-                       where: str, device, dtype) -> List[Tensor]:
-            out: List[Tensor] = []
+        def const_args(ce: CompiledEquation, local: dict[str, Any] | None, shared: dict[str, Any] | None,
+                       where: str, device, dtype) -> list[Tensor]:
+            out: list[Tensor] = []
             for name in ce.runtime_constants:
                 for pool in (local, shared):
                     if pool and name in pool:
@@ -303,7 +304,7 @@ class PINNFactory:
                     )
             return out
 
-        def loss_fn(model: PINN, batch: Dict[str, Any]) -> Tuple[Tensor, Dict[str, float]]:
+        def loss_fn(model: PINN, batch: dict[str, Any]) -> tuple[Tensor, dict[str, float]]:
             try:
                 p = next(model.parameters())
                 device = p.device
@@ -334,7 +335,7 @@ class PINNFactory:
             losses = collections.defaultdict(lambda: torch.tensor(0.0, device=device, dtype=dtype))
 
             # inverse parameters in fixed order
-            inv_vals: List[Tensor] = []
+            inv_vals: list[Tensor] = []
             for name in inv_vars:
                 if name not in model.inverse_params:
                     raise KeyError(f"Model is missing inverse param '{name}'")

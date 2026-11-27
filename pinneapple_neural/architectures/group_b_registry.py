@@ -11,7 +11,6 @@ Note: MeshGraphNet is registered under the "graphnn" family in graphnn/registry.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 import torch.nn as nn
 
@@ -21,7 +20,7 @@ from .hash_grid import HashGridMLP
 from .afno import AFNO
 
 
-_REGISTRY: Dict[str, Type[nn.Module]] = {
+_REGISTRY: dict[str, type[nn.Module]] = {
     # --- SIREN -----------------------------------------------------------
     "siren": SIREN,
     "sinusoidal_representation_network": SIREN,
@@ -40,7 +39,7 @@ _REGISTRY: Dict[str, Type[nn.Module]] = {
 }
 
 # Family → input_kind / capability annotations
-_CAPABILITIES: Dict[str, Dict] = {
+_CAPABILITIES: dict[str, dict] = {
     "siren":               {"input_kind": "pointwise_coords", "supports_physics_loss": True},
     "modified_mlp":        {"input_kind": "pointwise_coords", "supports_physics_loss": True},
     "hash_grid_mlp":       {"input_kind": "pointwise_coords", "supports_physics_loss": False},
@@ -51,7 +50,7 @@ _CAPABILITIES: Dict[str, Dict] = {
 def register_into_global() -> None:
     from pinneapple_neural.architectures._registry_bridge import register_family_registry
 
-    def caps_getter(name: str, cls: Type[nn.Module]) -> Dict:
+    def caps_getter(name: str, cls: type[nn.Module]) -> dict:
         # Look up by canonical name (first key that maps to this class)
         for canonical, model_cls in _REGISTRY.items():
             if model_cls is cls and canonical in _CAPABILITIES:
@@ -67,7 +66,7 @@ def register_into_global() -> None:
 
 @dataclass
 class GroupBCatalog:
-    registry: Dict[str, Type[nn.Module]] = None  # type: ignore[assignment]
+    registry: dict[str, type[nn.Module]] = None  # type: ignore[assignment]
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -75,7 +74,7 @@ class GroupBCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[nn.Module]:
+    def get(self, name: str) -> type[nn.Module]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown Group-B model '{name}'. Available: {self.list()}")

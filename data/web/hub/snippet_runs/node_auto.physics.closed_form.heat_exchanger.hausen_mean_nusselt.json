@@ -1,0 +1,12 @@
+{
+ "code_hash": "74d8274b1488dfa9",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.heat_exchanger.hausen_mean_nusselt",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "hausen mean nusselt -> pinneapple_physics.closed_form.heat_exchanger:hausen_mean_nusselt\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'re': 1.0, 'pr': 1.0, 'd_over_l': 1.0}",
+ "timed_out": false
+}

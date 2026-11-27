@@ -97,7 +97,7 @@ runs:
         # dependencies, then only what `pinneapple check` uses. torch on request, for .pt checkpoints.
         python -m pip install --no-deps "$SPEC"
         python -m pip install "numpy>=1.24" "scipy>=1.10" "pandas>=2.0" "pyyaml>=6.0" "meshio>=5.3" "h5py>=3.8" \
-          "cryptography>=41" "tomli>=2.0; python_version < '3.11'"
+          "cryptography>=41" "pydantic>=2.0" "tomli>=2.0; python_version < '3.11'"
         if [ "$TORCH" = "true" ]; then
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
         fi

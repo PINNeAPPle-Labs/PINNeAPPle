@@ -69,9 +69,9 @@ from __future__ import annotations
 
 import ast
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import networkx as nx
 
@@ -111,7 +111,7 @@ def _is_real_citation(text: str) -> bool:
 
 # Single-domain preset modules: the module name itself is a real,
 # traceable, accurate phenomenon label.
-_MODULE_PHENOMENON: Dict[str, str] = {
+_MODULE_PHENOMENON: dict[str, str] = {
     "academics": "canonical mathematical physics",
     "astrophysics": "astrophysics",
     "terramechanics": "terramechanics",
@@ -125,7 +125,7 @@ _MODULE_PHENOMENON: Dict[str, str] = {
 # classify by the real pde_kind's own physical family instead -- each
 # mapping below is a literal, checkable physics fact about that equation
 # name (see compile.py's per-kind docstrings), not a guess.
-_KIND_KEYWORD_PHENOMENON: Tuple[Tuple[str, str], ...] = (
+_KIND_KEYWORD_PHENOMENON: tuple[tuple[str, str], ...] = (
     ("navier_stokes", "fluid dynamics"),
     ("compressible_euler", "compressible flow / gas dynamics"),
     ("euler_compressible", "compressible flow / gas dynamics"),
@@ -167,12 +167,12 @@ class _PresetData:
     module_short: str
     func_name: str
     pde_kind: str
-    params: Dict[str, Any]
-    references: Tuple[str, ...]
-    coords: Tuple[str, ...]
-    fields: Tuple[str, ...]
-    domain_bounds: Dict[str, Tuple[float, float]]
-    description: Optional[str] = None
+    params: dict[str, Any]
+    references: tuple[str, ...]
+    coords: tuple[str, ...]
+    fields: tuple[str, ...]
+    domain_bounds: dict[str, tuple[float, float]]
+    description: str | None = None
 
 
 def _module_short_name(fn: Any) -> str:
@@ -180,15 +180,15 @@ def _module_short_name(fn: Any) -> str:
     return mod.rsplit(".", 1)[-1]
 
 
-def _collect_preset_data() -> Tuple[Dict[str, _PresetData], Dict[str, str]]:
+def _collect_preset_data() -> tuple[dict[str, _PresetData], dict[str, str]]:
     """Instantiate every registered preset with no overrides (as of this
     writing all 57 registered presets succeed with zero kwargs -- verified
     directly, not assumed). A preset that genuinely requires kwargs to
     construct would be recorded in the second return value with the real
     exception, and simply excluded from the graph rather than guessed."""
     names = _registry.list_presets()
-    data: Dict[str, _PresetData] = {}
-    skipped: Dict[str, str] = {}
+    data: dict[str, _PresetData] = {}
+    skipped: dict[str, str] = {}
     for name in names:
         fn = _registry._REGISTRY.get(name)
         try:
@@ -221,7 +221,7 @@ def _repo_root() -> Path:
     return Path(pinneapple_physics.__file__).resolve().parent.parent
 
 
-def _validation_test_files() -> List[Path]:
+def _validation_test_files() -> list[Path]:
     """Every real method-of-manufactured-solutions / exact-solution
     validation test file in this repo's ``tests/`` directory:
     ``test_manufactured_solutions.py`` (named explicitly, doesn't match
@@ -238,7 +238,7 @@ def _validation_test_files() -> List[Path]:
     return sorted(files)
 
 
-def _literal_str(node: Optional[ast.AST]) -> Optional[str]:
+def _literal_str(node: ast.AST | None) -> str | None:
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return node.value
     return None
@@ -246,10 +246,10 @@ def _literal_str(node: Optional[ast.AST]) -> Optional[str]:
 
 def _scan_file_for_verified_kinds(
     path: Path,
-    known_kinds: Set[str],
-    func_name_to_kind: Dict[str, str],
-    preset_name_to_kind: Dict[str, str],
-) -> Set[str]:
+    known_kinds: set[str],
+    func_name_to_kind: dict[str, str],
+    preset_name_to_kind: dict[str, str],
+) -> set[str]:
     """AST-walk one validation test file and return the set of real
     ``pde_kind`` strings it genuinely exercises in executable code: a
     literal ``kind="..."`` keyword argument (``PDETermSpec(kind=...)``),
@@ -264,8 +264,8 @@ def _scan_file_for_verified_kinds(
     except (SyntaxError, OSError):
         return set()
 
-    found: Set[str] = set()
-    imported_preset_fns: Set[str] = set()
+    found: set[str] = set()
+    imported_preset_fns: set[str] = set()
 
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) and node.module and "presets" in node.module:
@@ -313,8 +313,8 @@ def _scan_file_for_verified_kinds(
 
 
 def _fallback_text_scan(
-    path: Path, known_kinds: Set[str], preset_name_to_kind: Dict[str, str]
-) -> Set[str]:
+    path: Path, known_kinds: set[str], preset_name_to_kind: dict[str, str]
+) -> set[str]:
     """Used only when :func:`_scan_file_for_verified_kinds` finds nothing
     at the code level -- some validation files (e.g.
     ``test_lane_emden_numerical_validation.py``) deliberately do NOT
@@ -331,7 +331,7 @@ def _fallback_text_scan(
         text = path.read_text()
     except OSError:
         return set()
-    found: Set[str] = set()
+    found: set[str] = set()
     for kind in known_kinds:
         if re.search(rf"\b{re.escape(kind)}\b", text):
             found.add(kind)
@@ -358,13 +358,13 @@ def _validation_file_description(path: Path) -> str:
 
 
 def _scan_all_validation_files(
-    known_kinds: Set[str],
-    func_name_to_kind: Dict[str, str],
-    preset_name_to_kind: Dict[str, str],
-) -> Dict[str, Set[str]]:
+    known_kinds: set[str],
+    func_name_to_kind: dict[str, str],
+    preset_name_to_kind: dict[str, str],
+) -> dict[str, set[str]]:
     """Return {pde_kind: {file_name, ...}} across every real validation
     test file found by :func:`_validation_test_files`."""
-    result: Dict[str, Set[str]] = {}
+    result: dict[str, set[str]] = {}
     for path in _validation_test_files():
         kinds = _scan_file_for_verified_kinds(path, known_kinds, func_name_to_kind, preset_name_to_kind)
         if not kinds:
@@ -378,7 +378,7 @@ def _scan_all_validation_files(
 # Graph construction
 # ---------------------------------------------------------------------------
 
-def build_knowledge_graph() -> "nx.MultiDiGraph":
+def build_knowledge_graph() -> nx.MultiDiGraph:
     """Build the real Physics Knowledge Graph fresh from the live preset
     registry + the live validation test files. Not a cached/serialized
     snapshot -- call this again any time the preset library changes and
@@ -391,7 +391,7 @@ def build_knowledge_graph() -> "nx.MultiDiGraph":
 
     g = nx.MultiDiGraph()
 
-    kind_to_presets: Dict[str, List[str]] = {}
+    kind_to_presets: dict[str, list[str]] = {}
     for name, d in preset_data.items():
         kind_to_presets.setdefault(d.pde_kind, []).append(name)
 
@@ -399,7 +399,7 @@ def build_knowledge_graph() -> "nx.MultiDiGraph":
     for kind, preset_names in kind_to_presets.items():
         eq_id = f"equation:{kind}"
         g.add_node(eq_id, type="Equation", pde_kind=kind)
-        phenomena_seen: Set[str] = set()
+        phenomena_seen: set[str] = set()
         for pname in preset_names:
             d = preset_data[pname]
             phenomena_seen.add(_phenomenon_for(d.module_short, kind))
@@ -467,12 +467,12 @@ def build_knowledge_graph() -> "nx.MultiDiGraph":
 # Query API
 # ---------------------------------------------------------------------------
 
-def find_presets_for_phenomenon(g: "nx.MultiDiGraph", phenomenon: str) -> List[str]:
+def find_presets_for_phenomenon(g: nx.MultiDiGraph, phenomenon: str) -> list[str]:
     """Every real preset name whose equation belongs to ``phenomenon``."""
     ph_id = f"phenomenon:{phenomenon}"
     if ph_id not in g:
         return []
-    presets: Set[str] = set()
+    presets: set[str] = set()
     for eq_id in g.predecessors(ph_id):
         if g.nodes[eq_id].get("type") != "Equation":
             continue
@@ -483,10 +483,10 @@ def find_presets_for_phenomenon(g: "nx.MultiDiGraph", phenomenon: str) -> List[s
     return sorted(presets)
 
 
-def find_verified_equations(g: "nx.MultiDiGraph") -> List[str]:
+def find_verified_equations(g: nx.MultiDiGraph) -> list[str]:
     """Every ``pde_kind`` with at least one real, AST-confirmed
     ``verified_by`` edge to a VerificationMethod."""
-    out: List[str] = []
+    out: list[str] = []
     for node_id, data in g.nodes(data=True):
         if data.get("type") != "Equation":
             continue
@@ -497,7 +497,7 @@ def find_verified_equations(g: "nx.MultiDiGraph") -> List[str]:
     return sorted(out)
 
 
-def explain_preset(g: "nx.MultiDiGraph", preset_name: str) -> Dict[str, Any]:
+def explain_preset(g: nx.MultiDiGraph, preset_name: str) -> dict[str, Any]:
     """A structured, honest summary of one real preset -- its equation,
     phenomenon, real parameter defaults, real citation(s) if any, and
     whether/how its equation is verified. ``llm_context`` is a plain-text
@@ -508,31 +508,31 @@ def explain_preset(g: "nx.MultiDiGraph", preset_name: str) -> Dict[str, Any]:
         raise KeyError(f"Unknown preset '{preset_name}' in knowledge graph.")
     node = g.nodes[p_id]
 
-    eq_id: Optional[str] = None
+    eq_id: str | None = None
     for _, tgt, edata in g.out_edges(p_id, data=True):
         if edata.get("relation") == "implements":
             eq_id = tgt
             break
     pde_kind = g.nodes[eq_id]["pde_kind"] if eq_id else None
 
-    phenomena: List[str] = []
+    phenomena: list[str] = []
     if eq_id is not None:
         for _, tgt, edata in g.out_edges(eq_id, data=True):
             if edata.get("relation") == "belongs_to":
                 phenomena.append(g.nodes[tgt]["name"])
     phenomena = sorted(set(phenomena))
 
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
     for _, tgt, edata in g.out_edges(p_id, data=True):
         if edata.get("relation") == "has_parameter":
             parameters[g.nodes[tgt]["name"]] = edata.get("default")
 
-    references: List[str] = []
+    references: list[str] = []
     for _, tgt, edata in g.out_edges(p_id, data=True):
         if edata.get("relation") == "cites":
             references.append(g.nodes[tgt]["text"])
 
-    verification_methods: List[Dict[str, str]] = []
+    verification_methods: list[dict[str, str]] = []
     if eq_id is not None:
         for _, tgt, edata in g.out_edges(eq_id, data=True):
             if edata.get("relation") == "verified_by":
@@ -580,7 +580,7 @@ def explain_preset(g: "nx.MultiDiGraph", preset_name: str) -> Dict[str, Any]:
     }
 
 
-def graph_stats(g: "nx.MultiDiGraph") -> Dict[str, Any]:
+def graph_stats(g: nx.MultiDiGraph) -> dict[str, Any]:
     """Real, honest audit counts -- not just graph-size trivia. In
     particular the citation and verification fractions are a genuine
     finding about PINNeAPPle's own documentation/testing completeness,

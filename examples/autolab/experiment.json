@@ -15,7 +15,9 @@
   "pinneapple_design.thermal.board_cooling"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "self_optimizing_engineer.py"
+ ],
  "metrics": [
   {
    "name": "baseline_tj_soc",

@@ -25,7 +25,7 @@ import os
 import re
 import sys
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
@@ -42,7 +42,7 @@ VERSION = "1.2.0"
 STATIC = os.path.join(os.path.dirname(__file__), "static")
 EXAMPLES = os.path.join(os.path.dirname(__file__), "..", "examples")
 # Fictitious example documents per format (priority order, role). Each set plants one conflict and one gap.
-EXAMPLE_SETS: Dict[str, Dict[str, Any]] = {
+EXAMPLE_SETS: dict[str, dict[str, Any]] = {
     "asme_u-dr-1": {"label": "separator V-101", "files": [
         ("owner_specification_V-101.pdf", "client specification"), ("process_datasheet_V-101.pdf", "process datasheet"),
         ("mechanical_datasheet_V-101.pdf", "mechanical datasheet")]},
@@ -129,7 +129,7 @@ def scope() -> dict:
 
 
 # --------------------------------------------------------------------------- helpers
-async def _read(files: List[UploadFile]) -> List[Tuple[str, bytes]]:
+async def _read(files: list[UploadFile]) -> list[tuple[str, bytes]]:
     out = [(f.filename or f"document_{i}.pdf", await f.read()) for i, f in enumerate(files)]
     if len(out) > MAX_FILES:
         raise HTTPException(413, f"at most {MAX_FILES} documents per request")
@@ -138,14 +138,14 @@ async def _read(files: List[UploadFile]) -> List[Tuple[str, bytes]]:
     return out
 
 
-def _example_docs(template: str = DEFAULT_TEMPLATE) -> List[Tuple[str, bytes, str]]:
+def _example_docs(template: str = DEFAULT_TEMPLATE) -> list[tuple[str, bytes, str]]:
     if template not in EXAMPLE_SETS:
         raise HTTPException(404, f"no example for '{template}'")
     return [(n, open(os.path.join(EXAMPLES, template, n), "rb").read(), role)
             for n, role in EXAMPLE_SETS[template]["files"]]
 
 
-_LLM_CACHE: Dict[str, Any] = {"t": 0.0, "ok": False}
+_LLM_CACHE: dict[str, Any] = {"t": 0.0, "ok": False}
 
 
 def _llm() -> OllamaClient:
@@ -162,7 +162,7 @@ def _llm_available() -> bool:
     return _LLM_CACHE["ok"]
 
 
-def _spec(template: str, spec_json: Optional[bytes], form: Optional[bytes]) -> FormSpec:
+def _spec(template: str, spec_json: bytes | None, form: bytes | None) -> FormSpec:
     """The form spec for a request: a built-in template, "auto" (from the fillable PDF) or "custom" (JSON upload)."""
     template = template or DEFAULT_TEMPLATE
     if template == "custom":
@@ -185,7 +185,7 @@ def _spec(template: str, spec_json: Optional[bytes], form: Optional[bytes]) -> F
         raise HTTPException(422, str(exc))
 
 
-def _parse_overrides(text: Optional[str], spec: FormSpec) -> Dict[str, Any]:
+def _parse_overrides(text: str | None, spec: FormSpec) -> dict[str, Any]:
     if not text:
         return {}
     try:
@@ -196,12 +196,12 @@ def _parse_overrides(text: Optional[str], spec: FormSpec) -> Dict[str, Any]:
         raise HTTPException(422, str(exc))
 
 
-def _compile(docs_in: List[Tuple[str, bytes, str]], spec: FormSpec, use_llm: bool, overrides: Dict[str, Any]):
+def _compile(docs_in: list[tuple[str, bytes, str]], spec: FormSpec, use_llm: bool, overrides: dict[str, Any]):
     return compile_documents(docs_in, spec, client=_llm() if use_llm else None, overrides=overrides,
                              max_ocr_pages=OCR_MAX_PAGES)
 
 
-def _payload(comp, rejected) -> Dict[str, Any]:
+def _payload(comp, rejected) -> dict[str, Any]:
     out = comp.to_dict()
     out["gaps"] = [d.key for d in comp.gaps()]
     out["conflicts"] = [d.key for d in comp.conflicts()]
@@ -218,7 +218,7 @@ def _pdf(data: bytes, name: str) -> Response:
     return Response(data, media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
 
-def _form_bytes(form: Optional[bytes], spec: FormSpec) -> bytes:
+def _form_bytes(form: bytes | None, spec: FormSpec) -> bytes:
     if form:
         return form
     path = os.environ.get("UDR_FORM_PDF")
@@ -276,9 +276,9 @@ async def _inputs(files, roles, template, spec_file, form):
 
 
 @app.post("/api/compile")
-async def api_compile(files: List[UploadFile] = File(...), roles: str = Form("[]"),
-                      template: str = Form(DEFAULT_TEMPLATE), spec: Optional[UploadFile] = File(None),
-                      form: Optional[UploadFile] = File(None), use_llm: bool = Form(False), overrides: str = Form("")):
+async def api_compile(files: list[UploadFile] = File(...), roles: str = Form("[]"),
+                      template: str = Form(DEFAULT_TEMPLATE), spec: UploadFile | None = File(None),
+                      form: UploadFile | None = File(None), use_llm: bool = Form(False), overrides: str = Form("")):
     """Documents in priority order (first wins conflicts) -> every item with value, status and sources."""
     docs, form_spec, _ = await _inputs(files, roles, template, spec, form)
     if use_llm and not _llm_available():
@@ -289,9 +289,9 @@ async def api_compile(files: List[UploadFile] = File(...), roles: str = Form("[]
 
 
 @app.post("/api/fill")
-async def api_fill(files: List[UploadFile] = File(...), form: Optional[UploadFile] = File(None),
+async def api_fill(files: list[UploadFile] = File(...), form: UploadFile | None = File(None),
                    roles: str = Form("[]"), template: str = Form(DEFAULT_TEMPLATE),
-                   spec: Optional[UploadFile] = File(None), use_llm: bool = Form(False), overrides: str = Form("")):
+                   spec: UploadFile | None = File(None), use_llm: bool = Form(False), overrides: str = Form("")):
     """Same inputs as /api/compile plus the blank fillable form -> the filled PDF (formats with an official form)."""
     docs, form_spec, form_bytes = await _inputs(files, roles, template, spec, form)
     if form_spec.output != "official form" and template not in ("auto", "custom"):
@@ -309,9 +309,9 @@ async def api_fill(files: List[UploadFile] = File(...), form: Optional[UploadFil
 
 
 @app.post("/api/datasheet")
-async def api_datasheet(files: List[UploadFile] = File(...), roles: str = Form("[]"),
-                        template: str = Form(DEFAULT_TEMPLATE), spec: Optional[UploadFile] = File(None),
-                        form: Optional[UploadFile] = File(None), use_llm: bool = Form(False),
+async def api_datasheet(files: list[UploadFile] = File(...), roles: str = Form("[]"),
+                        template: str = Form(DEFAULT_TEMPLATE), spec: UploadFile | None = File(None),
+                        form: UploadFile | None = File(None), use_llm: bool = Form(False),
                         overrides: str = Form("")):
     """Same inputs as /api/compile -> the compiled datasheet (PDF): every item, its source, open items first."""
     docs, form_spec, _ = await _inputs(files, roles, template, spec, form)
@@ -332,7 +332,7 @@ def api_example_compile(template: str = DEFAULT_TEMPLATE, overrides: str = ""):
 
 
 @app.post("/api/example/fill")
-async def api_example_fill(form: Optional[UploadFile] = File(None), overrides: str = Form("")):
+async def api_example_fill(form: UploadFile | None = File(None), overrides: str = Form("")):
     spec = get_spec(DEFAULT_TEMPLATE)
     blank = _form_bytes(await form.read() if form is not None else None, spec)
     with _HEAVY:

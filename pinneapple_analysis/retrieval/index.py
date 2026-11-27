@@ -20,11 +20,11 @@ cryptic failure.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 import numpy as np
 
 from pinneapple_analysis.retrieval.corpus import Document
+from pinneapple_core.errors import MissingExtra, install_hint
 
 __all__ = ["SearchResult", "RetrievalIndex", "DEFAULT_MODEL_NAME"]
 
@@ -38,10 +38,8 @@ def _require_sentence_transformers():
     try:
         import sentence_transformers
     except ImportError as e:
-        raise ImportError(
-            "pinneapple_analysis.retrieval requires the 'retrieval' extra: "
-            "pip install 'pinneapple[retrieval]' (installs sentence-transformers)."
-        ) from e
+        raise MissingExtra("the retrieval index embeds text with sentence-transformers, which is not installed",
+                           fix=install_hint("retrieval", "sentence-transformers")) from e
     return sentence_transformers
 
 
@@ -67,7 +65,7 @@ class RetrievalIndex:
     constructed with a partial/fabricated embedding -- ``build()`` embeds
     every document for real before the index is usable."""
 
-    def __init__(self, documents: List[Document], embeddings: np.ndarray, model_name: str) -> None:
+    def __init__(self, documents: list[Document], embeddings: np.ndarray, model_name: str) -> None:
         if len(documents) != embeddings.shape[0]:
             raise ValueError(
                 f"RetrievalIndex: {len(documents)} documents but {embeddings.shape[0]} embedding rows -- "
@@ -78,7 +76,7 @@ class RetrievalIndex:
         self.model_name = model_name
 
     @classmethod
-    def build(cls, documents: List[Document], *, model_name: str = DEFAULT_MODEL_NAME) -> "RetrievalIndex":
+    def build(cls, documents: list[Document], *, model_name: str = DEFAULT_MODEL_NAME) -> RetrievalIndex:
         """Embed every document for real via a local sentence-transformer
         model. Raises ``ValueError`` for an empty document list -- an
         index over nothing is not a usable index, never silently built
@@ -91,7 +89,7 @@ class RetrievalIndex:
         embeddings = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
         return cls(documents=list(documents), embeddings=np.asarray(embeddings, dtype=np.float32), model_name=model_name)
 
-    def search(self, query: str, *, top_k: int = 5) -> List[SearchResult]:
+    def search(self, query: str, *, top_k: int = 5) -> list[SearchResult]:
         """Real cosine-similarity search -- every returned score is
         computed from the real query/document embeddings, never
         fabricated or defaulted. Returns fewer than ``top_k`` results if
@@ -123,7 +121,7 @@ class RetrievalIndex:
         )
 
     @classmethod
-    def load(cls, path: str) -> "RetrievalIndex":
+    def load(cls, path: str) -> RetrievalIndex:
         data = np.load(path, allow_pickle=False)
         documents = [
             Document(doc_id=str(doc_id), source=str(source), title=str(title), text=str(text))

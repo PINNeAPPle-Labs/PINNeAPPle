@@ -28,7 +28,8 @@ how sure the answer is.
 
 ## Output
 
-- **Importance ranking.** Sobol first-order and total indices per response, with bootstrap 95 % intervals.
+- **Importance ranking.** Sobol first-order and total indices per response, with 95 % intervals that cover both
+  sources of error: the sampling and, when a surrogate is studied with `paths_fn`, the model's own prediction error.
 - **Interactions.** Total minus first order per parameter, and second-order indices `S_ij` as a heatmap.
 - **Morris screening.** μ* (importance) against σ (nonlinearity or interactions), with an interval on μ*.
 - **Effect plots.** Main effects (partial dependence) and ICE curves for every parameter. ICE curves that are not
@@ -54,6 +55,7 @@ how sure the answer is.
 | Ishigami function | Estimated S1 and ST against the exact indices: largest error 0.003. All six exact values fall inside the 95 % intervals. x3 has no main effect but a 0.24 interaction with x1. |
 | Heat-sink design (zoo model, 10 parameters, 2 responses) | Fin count dominates the thermal resistance (ST 0.54); fin count and air velocity dominate the pressure drop. Ambient temperature and power can be frozen (ST < 2e-4, upper bound < 0.01). Re-running with them fixed changes the output variance by less than 0.1 %. Derivatives come from autodiff. |
 | From data only (3,900 heat-sink simulations) | The first-order indices add up to 1.09 because the dataset's inputs are correlated (r = 0.66). The app says so instead of presenting them as a variance decomposition. |
+| Surrogate error in the intervals (GP on 60 runs of Ishigami) | The model is a Gaussian process fitted to 60 runs. The bootstrap interval alone misses all three exact total indices; the interval that also covers the surrogate's error covers two of the three, and the surrogate is named as the source of 50-85 % of the width, with the ranking stability next to it. |
 
 ## Methods and validation
 
@@ -61,7 +63,8 @@ The app composes library calls only:
 
 - `pp.sensitivity.sensitivity_study` and `study_cost`;
 - `saltelli_design` and `sobol_from_runs`;
-- `first_order_given_data`.
+- `first_order_given_data`;
+- `gp_posterior_paths` / `sobol_from_paths` for the example that propagates the surrogate's error (#927).
 
 The Sobol estimators are implemented in the library, because SALib is not a dependency:
 
@@ -90,7 +93,14 @@ The API tests are in `tests/test_sensitivity_lab_app.py`.
 - **Small samples.** At N = 256-512 the bootstrap intervals can be narrower than the true error, as seen on Ishigami
   at N = 512. Use N ≥ 1024 for decisions.
 - **Indices are those of the model.** A surrogate can carry small spurious dependencies or miss real ones outside its
-  data. Check the model first, for example in the Engineering Uncertainty Lab.
+  data. The bootstrap interval covers the *sampling* error of the indices for the model as given, not the model's own
+  prediction error. The example "Surrogate error in the intervals" propagates the second one — posterior paths of a
+  Gaussian process (Marrel et al., RESS 2009: one set of indices per path), one path per ensemble member, or resampled
+  calibration residuals, with a nested bootstrap over paths and rows and a ranking-stability panel. What it cannot fix
+  is a *misspecified* model: at 30 training points the combined interval covers the exact Ishigami indices 61 % of the
+  time against 43 % for the bootstrap alone, and the rest is bias the model does not know about. That is why the app
+  says "improve the model" when the surrogate part dominates. For zoo and ONNX models the paths are built in Python
+  with `pp.sensitivity.gp_posterior_paths`; the app's own switch is for the built-in benchmarks.
 - **Runs done elsewhere.** Every run of the design is needed, and a missing run is named. The freeze recommendation
   is not re-checked there, because the model is not available to the app.
 - **Execution.** Studies run as jobs in the shared queue (`SEN_MAX_JOBS` at once), capped by `SEN_MAX_EVALS` and
@@ -140,7 +150,7 @@ Docker: `docker build -f apps/sensitivity_lab/Dockerfile -t sensitivity-lab .`. 
 | `POST /api/runs` | Indices from solver results, as a job: `spec` + `runs` table |
 | `POST /api/given-data` | First-order indices from data, as a job: `config` + `data` table (or `data_upload`) |
 | `POST /api/uploads`, `GET /api/usage`, `/api/keys` | Shared runtime: uploads, metered use, API keys |
-| `GET /api/example/{ishigami\|heatsink\|dataset}` | Runs an example (`/config` returns its configuration) |
+| `GET /api/example/{ishigami\|heatsink\|dataset\|surrogate}` | Runs an example (`/config` returns its configuration) |
 | `GET /api/model/{builtin\|zoo}/{name}` | Inputs, units and a default parameter space |
 
 Interactive documentation is at `/docs`.

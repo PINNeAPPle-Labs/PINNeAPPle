@@ -1,0 +1,12 @@
+{
+ "code_hash": "09cd51e13776db83",
+ "figures": [],
+ "id": "node:auto.neural.trainer.collocation.filter_nan_rows",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 29.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "filter nan rows -> pinneapple_neural.trainer.collocation:filter_nan_rows\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'warn': True}",
+ "timed_out": false
+}

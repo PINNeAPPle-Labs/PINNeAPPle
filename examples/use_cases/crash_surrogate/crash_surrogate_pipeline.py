@@ -61,9 +61,8 @@ from __future__ import annotations
 import json
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -127,7 +126,7 @@ BETA   = 0.30    # fold-wave amplitude coefficient
 def abramowicz_jones_solver(
     params: TubeParams,
     n_points: int = 200,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Analytical Abramowicz-Jones crush response."""
     t   = params.t_mm * 1e-3          # m
     b   = params.b_mm * 1e-3          # m
@@ -174,10 +173,10 @@ class ProgramSpec:
     """Dataset specification for a vehicle program."""
     name:    str
     n_tubes: int                         # number of design samples
-    t_range:     Tuple[float, float] = (1.0, 4.0)    # mm
-    b_range:     Tuple[float, float] = (40.0, 100.0)  # mm
-    sigma_range: Tuple[float, float] = (200.0, 500.0) # MPa
-    v0_range:    Tuple[float, float] = (40.0, 80.0)   # km/h
+    t_range:     tuple[float, float] = (1.0, 4.0)    # mm
+    b_range:     tuple[float, float] = (40.0, 100.0)  # mm
+    sigma_range: tuple[float, float] = (200.0, 500.0) # MPa
+    v0_range:    tuple[float, float] = (40.0, 80.0)   # km/h
     n_crush_pts: int = 50
 
 
@@ -186,7 +185,7 @@ SEDAN_PROGRAM = ProgramSpec("Sedan", n_tubes=300,  n_crush_pts=50,
                              t_range=(1.2, 3.0), b_range=(40.0, 80.0))
 
 
-def generate_dataset(prog: ProgramSpec, seed: int = 0) -> Dict[str, np.ndarray]:
+def generate_dataset(prog: ProgramSpec, seed: int = 0) -> dict[str, np.ndarray]:
     """Generate crash surrogate dataset via LHS + Abramowicz-Jones solver."""
     rng = np.random.default_rng(seed)
     design_pts, _ = latin_hypercube(prog.n_tubes, {"t": prog.t_range, "b": prog.b_range,
@@ -259,7 +258,7 @@ class CrashPINN(nn.Module):
         )
         feat_dim = 2 * n_fourier
 
-        layers: List[nn.Module] = [nn.Linear(feat_dim, hidden), nn.Tanh()]
+        layers: list[nn.Module] = [nn.Linear(feat_dim, hidden), nn.Tanh()]
         for _ in range(n_layers - 2):
             layers += [nn.Linear(hidden, hidden), nn.Tanh()]
         self.trunk = nn.Sequential(*layers)
@@ -318,14 +317,14 @@ def physics_residual(model: CrashPINN, x_batch: torch.Tensor) -> torch.Tensor:
 
 def train_model(
     model:      CrashPINN,
-    data:       Dict[str, np.ndarray],
+    data:       dict[str, np.ndarray],
     device:     torch.device,
     epochs:     int   = 8_000,
     batch_size: int   = 2_048,
     lr:         float = 3e-4,
     phys_weight: float = 0.05,
     label:      str   = "base",
-) -> Dict[str, List[float]]:
+) -> dict[str, list[float]]:
 
     model = model.to(device)
     X = torch.tensor(data["X"], dtype=torch.float32, device=device)
@@ -335,7 +334,7 @@ def train_model(
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs, eta_min=lr * 0.01)
     mse   = nn.MSELoss()
 
-    history: Dict[str, List[float]] = {"total": [], "data": [], "phys": []}
+    history: dict[str, list[float]] = {"total": [], "data": [], "phys": []}
     n = X.shape[0]
 
     t0 = time.time()
@@ -376,10 +375,10 @@ def train_model(
 
 def transfer_to_sedan(
     base_model:   CrashPINN,
-    sedan_data:   Dict[str, np.ndarray],
+    sedan_data:   dict[str, np.ndarray],
     device:       torch.device,
     fine_tune_epochs: int = 2_000,
-) -> Tuple[CrashPINN, Dict[str, List[float]]]:
+) -> tuple[CrashPINN, dict[str, list[float]]]:
     """Freeze trunk, fine-tune head on small sedan dataset."""
     import copy
     sedan_model = copy.deepcopy(base_model).to(device)
@@ -401,7 +400,7 @@ def transfer_to_sedan(
     Y = torch.tensor(sedan_data["Y"], dtype=torch.float32, device=device)
     mse = nn.MSELoss()
 
-    history: Dict[str, List[float]] = {"total": [], "data": [], "phys": []}
+    history: dict[str, list[float]] = {"total": [], "data": [], "phys": []}
     batch_size = min(512, X.shape[0])
 
     t0 = time.time()
@@ -436,11 +435,11 @@ def transfer_to_sedan(
 # ══════════════════════════════════════════════════════════════════════════════
 
 def ensemble_uq(
-    models:  List[CrashPINN],
+    models:  list[CrashPINN],
     X_test:  np.ndarray,
     device:  torch.device,
     alpha:   float = 0.10,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Compute ensemble mean, std and (1-α) coverage prediction interval."""
     Xt = torch.tensor(X_test, dtype=torch.float32, device=device)
     preds = []
@@ -465,7 +464,7 @@ def design_space_sweep(
     device:    torch.device,
     n_grid:    int = 40,
     x_norm:    float = 0.5,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Evaluate surrogate over (t, b) grid at fixed x_norm, σy_norm=0.5, v0_norm=0.5."""
     t_vals  = np.linspace(0.0, 1.0, n_grid)
     b_vals  = np.linspace(0.0, 1.0, n_grid)
@@ -578,7 +577,7 @@ def plot_force_displacement(
     print(f"  saved → {out_path}")
 
 
-def plot_design_map(sweep: Dict[str, np.ndarray], out_path: Path):
+def plot_design_map(sweep: dict[str, np.ndarray], out_path: Path):
     use_cfd_style(dark=True)
     fig, axes = make_figure(1, 3, figsize=(15, 5), squeeze=False)
     t_range = (1.0, 4.0);  b_range = (40.0, 100.0)
@@ -605,7 +604,7 @@ def plot_design_map(sweep: Dict[str, np.ndarray], out_path: Path):
     print(f"  saved → {out_path}")
 
 
-def plot_uq(uq: Dict[str, np.ndarray], Y_test: np.ndarray, out_path: Path):
+def plot_uq(uq: dict[str, np.ndarray], Y_test: np.ndarray, out_path: Path):
     """Plot ensemble mean ± 90% PI for crush force prediction."""
     fig, ax = plt.subplots(figsize=(10, 4), facecolor=DARK_BG)
     ax.set_facecolor(DARK_BG)
@@ -634,10 +633,10 @@ def plot_uq(uq: Dict[str, np.ndarray], Y_test: np.ndarray, out_path: Path):
 
 def evaluate(
     model:  CrashPINN,
-    data:   Dict[str, np.ndarray],
+    data:   dict[str, np.ndarray],
     device: torch.device,
     label:  str = "",
-) -> Dict[str, float]:
+) -> dict[str, float]:
     Xt = torch.tensor(data["X"], dtype=torch.float32, device=device)
     Yt = data["Y"]
     model.eval()
@@ -645,7 +644,7 @@ def evaluate(
         pred = model(Xt).cpu().numpy()
 
     names = ["P_norm", "sigma_vm_norm", "eps_p_norm"]
-    metrics: Dict[str, float] = {}
+    metrics: dict[str, float] = {}
     for i, nm in enumerate(names):
         rmse = float(np.sqrt(np.mean((pred[:, i] - Yt[:, i]) ** 2)))
         rel  = float(rmse / (Yt[:, i].std() + 1e-8) * 100)
@@ -716,7 +715,6 @@ def main():
 
     # ── Step 5: Ensemble UQ ────────────────────────────────────────────────
     print("\n[5/7] Building 5-model ensemble for UQ …")
-    import copy
     ensemble = [base_model]
     for seed in range(1, 5):
         m = CrashPINN(in_dim=6, out_dim=3, hidden=256, n_layers=6, n_fourier=32)

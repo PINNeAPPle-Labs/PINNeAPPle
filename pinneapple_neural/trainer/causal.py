@@ -9,7 +9,7 @@ physics-informed neural networks"
 """
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -236,22 +236,22 @@ class CausalPINNTrainer:
         self,
         pde_residual_fn: Callable[[nn.Module, torch.Tensor], torch.Tensor],
         ic_loss_fn: Callable[[nn.Module], torch.Tensor],
-        t_range: Tuple[float, float] = (0.0, 1.0),
+        t_range: tuple[float, float] = (0.0, 1.0),
         n_epochs: int = 10000,
         n_col: int = 2000,
         lr: float = 1e-3,
-        bc_loss_fn: Optional[Callable[[nn.Module], torch.Tensor]] = None,
-        x_spatial_range: Tuple[float, float] = (0.0, 1.0),
+        bc_loss_fn: Callable[[nn.Module], torch.Tensor] | None = None,
+        x_spatial_range: tuple[float, float] = (0.0, 1.0),
         spatial_dim: int = 1,
         ic_weight: float = 10.0,
         bc_weight: float = 10.0,
-        optimizer: Optional[optim.Optimizer] = None,
+        optimizer: optim.Optimizer | None = None,
         scheduler=None,
         print_every: int = 1000,
-        device: Optional[torch.device] = None,
+        device: torch.device | None = None,
         dtype: torch.dtype = torch.float32,
         seed: int = 0,
-    ) -> Dict[str, List[float]]:
+    ) -> dict[str, list[float]]:
         """Run causal PINN training.
 
         Parameters
@@ -291,7 +291,7 @@ class CausalPINNTrainer:
 
         rng = np.random.default_rng(seed)
 
-        history: Dict[str, List[float]] = {
+        history: dict[str, list[float]] = {
             "total": [], "pde": [], "ic": [], "bc": [], "causality_metric": []
         }
 
@@ -373,7 +373,7 @@ class CausalPINNTrainer:
         """
         return self.scheduler.causality_metric()
 
-    def plot_causal_weights(self, t_range: Tuple[float, float] = (0.0, 1.0)) -> None:
+    def plot_causal_weights(self, t_range: tuple[float, float] = (0.0, 1.0)) -> None:
         """Visualise the current causal weight distribution.
 
         Requires matplotlib.

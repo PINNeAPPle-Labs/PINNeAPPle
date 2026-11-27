@@ -1,0 +1,12 @@
+{
+ "code_hash": "8f914cc3135b3202",
+ "figures": [],
+ "id": "node:auto.design.geometry.mesh.mesher_2d.mesh_rectangle_structured",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.38,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "mesh rectangle structured -> pinneapple_design.geometry.mesh.mesher_2d:mesh_rectangle_structured\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'x_range': [0.0, 1.0], 'y_range': [0.0, 1.0], 'nx': 20, 'ny': 20}",
+ "timed_out": false
+}

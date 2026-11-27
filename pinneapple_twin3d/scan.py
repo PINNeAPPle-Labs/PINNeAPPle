@@ -18,7 +18,6 @@ from __future__ import annotations
 import os
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -36,8 +35,8 @@ class ScanReport:
     components_dropped: int = 0
     holes_filled: bool = False
     watertight: bool = False
-    up_axis_before: Tuple[float, float, float] = (0.0, 0.0, 1.0)
-    notes: List[str] = field(default_factory=list)
+    up_axis_before: tuple[float, float, float] = (0.0, 0.0, 1.0)
+    notes: list[str] = field(default_factory=list)
 
 
 def _trimesh():
@@ -59,7 +58,7 @@ def _rotation_to_z(n: np.ndarray) -> np.ndarray:
 
 
 def clean_scan(path_or_mesh, *, unit: str = "m", min_component_fraction: float = 0.01,
-               fill_holes: bool = True, target_faces: Optional[int] = None, align_floor: bool = True):
+               fill_holes: bool = True, target_faces: int | None = None, align_floor: bool = True):
     """Clean a scan mesh. Returns ``(trimesh.Trimesh, ScanReport)`` in metres."""
     trimesh = _trimesh()
     m = trimesh.load(path_or_mesh, force="mesh") if isinstance(path_or_mesh, (str, os.PathLike)) else path_or_mesh.copy()
@@ -151,21 +150,21 @@ def _primitive(geom, trimesh):
     return None
 
 
-def scene_from_mjcf(path: str, *, title: Optional[str] = None, include_primitives: bool = True) -> Scene:
+def scene_from_mjcf(path: str, *, title: str | None = None, include_primitives: bool = True) -> Scene:
     """One Twin3D part per geom of a MuJoCo scene, in world coordinates."""
     trimesh = _trimesh()
     root = ET.parse(path).getroot()
     base = os.path.dirname(os.path.abspath(path))
     compiler = root.find("compiler")
     meshdir = os.path.join(base, compiler.get("meshdir", "")) if compiler is not None else base
-    meshes: Dict[str, Tuple[str, np.ndarray]] = {}
+    meshes: dict[str, tuple[str, np.ndarray]] = {}
     for m in root.iter("mesh"):
         f = m.get("file")
         if f:
             scale = np.array([float(v) for v in (m.get("scale") or "1 1 1").split()])
             meshes[m.get("name") or os.path.splitext(os.path.basename(f))[0]] = (os.path.join(meshdir, f), scale)
     sc = Scene(title or os.path.basename(path), source=f"MuJoCo MJCF {os.path.abspath(path)}")
-    used: Dict[str, int] = {}
+    used: dict[str, int] = {}
 
     def walk(el, T_parent, body_name):
         for child in el:

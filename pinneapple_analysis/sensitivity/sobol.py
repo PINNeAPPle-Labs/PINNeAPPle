@@ -75,6 +75,8 @@ class SobolIndices:
     method: str = "Saltelli (2010) first order, Jansen (1999) total, Saltelli (2002) second order"
     X: np.ndarray = field(default=None, repr=False)
     Y: np.ndarray = field(default=None, repr=False)
+    sources: list[str] = field(default_factory=lambda: ["monte_carlo"])
+    surrogate_error: object = field(default=None, repr=False)
 
     @property
     def interaction(self) -> np.ndarray:
@@ -99,7 +101,7 @@ class SobolIndices:
         d = {"method": self.method, "names": self.names, "outputs": self.outputs, "n_base": self.n_base,
              "n_evals": self.n_evals, "variance": self.variance.tolist(), "level": self.level,
              "n_boot": self.n_boot, "S1": self.S1.tolist(), "ST": self.ST.tolist(),
-             "S1_ci": self.S1_ci.tolist(), "ST_ci": self.ST_ci.tolist()}
+             "S1_ci": self.S1_ci.tolist(), "ST_ci": self.ST_ci.tolist(), "sources": list(self.sources)}
         if self.S2 is not None:
             d["S2"] = np.nan_to_num(self.S2, nan=0.0).tolist()
             d["S2_ci"] = np.nan_to_num(self.S2_ci, nan=0.0).tolist()

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Union, Tuple
+from typing import Any, Union
+from collections.abc import Callable
 
 import numpy as np
 
@@ -46,7 +47,7 @@ class CadQueryTessellationOptions:
 def cadquery_to_trimesh(
     cq_obj: Any,
     *,
-    options: Optional[CadQueryTessellationOptions] = None,
+    options: CadQueryTessellationOptions | None = None,
 ):
     """
     Convert an in-memory CadQuery object (Workplane/Solid/Compound) to trimesh.Trimesh.
@@ -86,8 +87,8 @@ def cadquery_to_trimesh(
 # Parametric future: a small "CAD recipe" API layer
 # =========================================================
 ParamValue = Union[int, float, str, bool]
-ParamSchema = Dict[str, Dict[str, Any]]
-CadBuilder = Callable[[Dict[str, Any]], Any]  # returns CQ object
+ParamSchema = dict[str, dict[str, Any]]
+CadBuilder = Callable[[dict[str, Any]], Any]  # returns CQ object
 
 
 @dataclass
@@ -105,9 +106,9 @@ class ParametricCadSpec:
     'schema' describes min/max/type/default so a frontend can render sliders/inputs.
     """
     builder_id: str
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     schema: ParamSchema = field(default_factory=dict)
-    meta: Dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
     def validate(self) -> None:
         if not self.builder_id:
@@ -140,7 +141,7 @@ class ParametricCadSpec:
                 if vmax is not None and v > vmax:
                     raise ValueError(f"param '{k}' must be <= {vmax}")
 
-    def with_defaults(self) -> "ParametricCadSpec":
+    def with_defaults(self) -> ParametricCadSpec:
         if not self.schema:
             return self
         p = dict(self.params)
@@ -180,10 +181,10 @@ class CadQueryRegistry:
       - user selects a template (builder_id) -> params become editable
       - rebuild geometry with CadQuery -> mesh -> run new simulation
     """
-    builders: Dict[str, CadBuilder] = field(default_factory=dict)
-    schemas: Dict[str, ParamSchema] = field(default_factory=dict)
+    builders: dict[str, CadBuilder] = field(default_factory=dict)
+    schemas: dict[str, ParamSchema] = field(default_factory=dict)
 
-    def register(self, builder_id: str, builder: CadBuilder, schema: Optional[ParamSchema] = None) -> None:
+    def register(self, builder_id: str, builder: CadBuilder, schema: ParamSchema | None = None) -> None:
         if not builder_id:
             raise ValueError("builder_id must be non-empty")
         self.builders[builder_id] = builder
@@ -209,9 +210,9 @@ class CadQueryRegistry:
 # STEP/STL import path (non-parametric baseline)
 # =========================================================
 def build_mesh_from_step(
-    step_path: Union[str, Path],
+    step_path: str | Path,
     *,
-    options: Optional[CadQueryTessellationOptions] = None,
+    options: CadQueryTessellationOptions | None = None,
 ) -> MeshData:
     """
     Load a STEP file with CadQuery and return a triangle mesh as MeshData.
@@ -242,7 +243,7 @@ def build_mesh_from_step(
 def build_mesh_from_cadquery_object(
     cq_obj: Any,
     *,
-    options: Optional[CadQueryTessellationOptions] = None,
+    options: CadQueryTessellationOptions | None = None,
 ) -> MeshData:
     """
     Convert an in-memory CadQuery object (Workplane/Solid/Compound) to MeshData.
@@ -262,7 +263,7 @@ def build_mesh_from_parametric_spec(
     spec: ParametricCadSpec,
     registry: CadQueryRegistry,
     *,
-    options: Optional[CadQueryBuildOptions] = None,
+    options: CadQueryBuildOptions | None = None,
 ) -> MeshData:
     """
     Build a MeshData from a ParametricCadSpec using a registry builder.
@@ -302,7 +303,7 @@ def register_default_templates(reg: CadQueryRegistry) -> CadQueryRegistry:
     import cadquery as cq
 
     # --- Template 1: box with cylindrical through-channel (cold-plate-ish) ---
-    def cold_plate_channel(params: Dict[str, Any]) -> Any:
+    def cold_plate_channel(params: dict[str, Any]) -> Any:
         Lx = float(params["Lx"])
         Ly = float(params["Ly"])
         Lz = float(params["Lz"])
@@ -326,7 +327,7 @@ def register_default_templates(reg: CadQueryRegistry) -> CadQueryRegistry:
     )
 
     # --- Template 2: simple finned plate (example for param sweeps) ---
-    def finned_plate(params: Dict[str, Any]) -> Any:
+    def finned_plate(params: dict[str, Any]) -> Any:
         Lx = float(params["Lx"])
         Ly = float(params["Ly"])
         Lz = float(params["Lz"])
@@ -376,9 +377,9 @@ def register_default_templates(reg: CadQueryRegistry) -> CadQueryRegistry:
 # =========================================================
 def export_cadquery(
     cq_obj: Any,
-    out_path: Union[str, Path],
+    out_path: str | Path,
     *,
-    fmt: Optional[str] = None,
+    fmt: str | None = None,
 ) -> Path:
     """
     Export a CadQuery object to STEP/STL (or other supported formats).

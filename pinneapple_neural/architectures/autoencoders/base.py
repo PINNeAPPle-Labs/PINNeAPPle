@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes for autoencoder models."""
 
 from dataclasses import dataclass
-from typing import Optional, Dict, Any, Tuple
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -15,8 +15,8 @@ class AEOutput:
     """
     x_hat: torch.Tensor
     z: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class AEBase(nn.Module):
@@ -44,7 +44,7 @@ class AEBase(nn.Module):
         losses = self.loss_from_parts(x_hat=x_hat, z=z, x=x)
         return AEOutput(x_hat=x_hat, z=z, losses=losses, extras={})
 
-    def loss_from_parts(self, *, x_hat: torch.Tensor, z: torch.Tensor, x: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def loss_from_parts(self, *, x_hat: torch.Tensor, z: torch.Tensor, x: torch.Tensor) -> dict[str, torch.Tensor]:
         # default: reconstruction only
         recon = torch.mean((x_hat - x) ** 2)
         return {"recon": recon, "total": recon}

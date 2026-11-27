@@ -1,0 +1,12 @@
+{
+ "code_hash": "b86b6d48f5581b6f",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.industry.steady_heat_conduction_3d_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "steady heat conduction 3d default -> pinneapple_physics.pde_environment.presets.industry:steady_heat_conduction_3d_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

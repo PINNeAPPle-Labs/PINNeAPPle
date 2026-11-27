@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes for reservoir computing models."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -18,8 +18,8 @@ class RCOutput:
       - static models: (B, out_dim)
     """
     y: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class RCBase(nn.Module):

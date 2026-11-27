@@ -17,6 +17,7 @@ Design principles:
 - Expose a small stable API surface from `__init__`
 """
 
+from . import morph
 from .core.geometry import GeometrySpec, GeometryAsset
 from .core.mesh import MeshData
 from .core.registry import build_geometry_asset, load_geometry_asset
@@ -36,6 +37,8 @@ except Exception:  # optional dependency chain
     STLDomainBatchConfig = None  # type: ignore
 
 __all__ = [
+    # surface morphing: FFD, RBF handles, shape modes and the validity gate (#292)
+    "morph",
     # 3D Collocation
     "MeshCollocator",
     "MeshCollocatorConfig",
@@ -225,3 +228,8 @@ from .csg import (
     channel_with_hole,
     t_junction,
 )
+
+# Rampa do canal de corrida (família Capture02): parâmetros em coordenadas globais e sólido fechado
+from .runner_ramp import CASOS as rampa_casos, Rampa, parametros as rampa_parametros, perfil as rampa_perfil, \
+    solido as rampa_solido, validar as rampa_validar, PUBLICADO as rampa_publicado
+from .runner_ramp import dentro as rampa_dentro

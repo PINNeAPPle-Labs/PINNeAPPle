@@ -15,7 +15,9 @@
   "pinneapple_systems.digital_twin.pipe_loop"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "twin_knows_when_wrong.py"
+ ],
  "metrics": [
   {
    "name": "cause_accuracy",

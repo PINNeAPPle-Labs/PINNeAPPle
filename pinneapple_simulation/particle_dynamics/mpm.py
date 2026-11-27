@@ -19,7 +19,6 @@ Discontinuity and Two-Way Rigid Body Coupling", SIGGRAPH 2018.
 """
 from __future__ import annotations
 
-from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -50,10 +49,10 @@ class MPMState:
     def __init__(
         self,
         pos: torch.Tensor,
-        vel: Optional[torch.Tensor] = None,
-        F: Optional[torch.Tensor] = None,
-        C: Optional[torch.Tensor] = None,
-        Jp: Optional[torch.Tensor] = None,
+        vel: torch.Tensor | None = None,
+        F: torch.Tensor | None = None,
+        C: torch.Tensor | None = None,
+        Jp: torch.Tensor | None = None,
     ) -> None:
         n_p, dim = pos.shape
         device = pos.device
@@ -66,7 +65,7 @@ class MPMState:
         self.C = C if C is not None else torch.zeros(n_p, dim, dim, device=device, dtype=dtype)
         self.Jp = Jp if Jp is not None else torch.ones(n_p, device=device, dtype=dtype)
 
-    def clone(self) -> "MPMState":
+    def clone(self) -> MPMState:
         return MPMState(
             self.pos.clone(),
             self.vel.clone(),
@@ -127,8 +126,8 @@ class MPMSimulator(nn.Module):
         E: float = 1e4,
         nu: float = 0.2,
         rho: float = 1.0,
-        gravity: Optional[Tuple[float, ...]] = None,
-        particle_volume: Optional[float] = None,
+        gravity: tuple[float, ...] | None = None,
+        particle_volume: float | None = None,
     ) -> None:
         super().__init__()
         self.res = grid_resolution
@@ -145,7 +144,7 @@ class MPMSimulator(nn.Module):
 
         # Volume per particle initialised during first forward call
         self._vol_override = particle_volume
-        self._vol: Optional[float] = None
+        self._vol: float | None = None
         self._dx: float = 1.0 / grid_resolution
 
     # ------------------------------------------------------------------
@@ -154,7 +153,7 @@ class MPMSimulator(nn.Module):
 
     def _stress(
         self, F: torch.Tensor, Jp: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Compute Kirchhoff stress P for the configured material.
 
         Parameters
@@ -225,12 +224,12 @@ class MPMSimulator(nn.Module):
     # Grid helpers
     # ------------------------------------------------------------------
 
-    def _grid_shape(self) -> Tuple[int, ...]:
+    def _grid_shape(self) -> tuple[int, ...]:
         return tuple([self.res] * self.dim)
 
     def _base_and_weights(
         self, pos: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Compute grid base cell and quadratic B-spline weights.
 
         Parameters
@@ -257,7 +256,7 @@ class MPMSimulator(nn.Module):
     # P2G: particle-to-grid
     # ------------------------------------------------------------------
 
-    def p2g(self, state: MPMState) -> Tuple[torch.Tensor, torch.Tensor]:
+    def p2g(self, state: MPMState) -> tuple[torch.Tensor, torch.Tensor]:
         """Transfer particle data to the Eulerian grid.
 
         Returns
@@ -375,7 +374,6 @@ class MPMSimulator(nn.Module):
         self, grid_vel: torch.Tensor, res: int, d: int, boundary: int
     ) -> torch.Tensor:
         """Zero-out velocities on boundary cells (sticky wall BC)."""
-        import itertools
         flat_sz = res ** d
         # Build a mask of boundary cells
         bc_mask = torch.zeros(flat_sz, dtype=torch.bool, device=grid_vel.device)

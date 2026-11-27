@@ -32,10 +32,8 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 
-from pinneapple_design.geometry import CSGRectangle, CSGCircle, CSGDifference
-from pinneapple_analysis.validation import compare_to_analytical
+from pinneapple_design.geometry import CSGRectangle, CSGCircle
 
 U = 1.0
 R = 0.5

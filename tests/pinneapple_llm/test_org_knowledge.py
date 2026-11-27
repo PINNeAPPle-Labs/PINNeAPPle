@@ -14,7 +14,6 @@ reachability skip for the same pattern).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 import pytest
 
@@ -32,7 +31,7 @@ class _FakeIndex:
     """Minimal stand-in for RetrievalIndex: same ``search()`` interface,
     real (not embedded) documents, deterministic ordering."""
 
-    def __init__(self, documents: List[Document]):
+    def __init__(self, documents: list[Document]):
         self._documents = documents
 
     def search(self, query: str, *, top_k: int = 5):

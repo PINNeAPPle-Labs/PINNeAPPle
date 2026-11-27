@@ -1,0 +1,526 @@
+{
+ "splits": {
+  "train": [
+   {
+    "id": "tr000",
+    "alpha_deg": -2.5110024245351505,
+    "speed": 18.363726587706182,
+    "thickness": 0.10961399492883886,
+    "camber": 0.0
+   },
+   {
+    "id": "tr001",
+    "alpha_deg": 1.1828660860400788,
+    "speed": 11.811212402782857,
+    "thickness": 0.15012928827006972,
+    "camber": 0.0
+   },
+   {
+    "id": "tr002",
+    "alpha_deg": -0.33882527889860103,
+    "speed": 27.35861553850899,
+    "thickness": 0.11521568745026536,
+    "camber": 0.0
+   },
+   {
+    "id": "tr003",
+    "alpha_deg": 7.716379074677203,
+    "speed": 19.387112209118065,
+    "thickness": 0.08693985122251488,
+    "camber": 0.0
+   },
+   {
+    "id": "tr004",
+    "alpha_deg": 4.745417926633522,
+    "speed": 18.875158713897243,
+    "thickness": 0.15650222248370899,
+    "camber": 0.0
+   },
+   {
+    "id": "tr005",
+    "alpha_deg": -1.4611676522144985,
+    "speed": 15.984890069637494,
+    "thickness": 0.12558663668016057,
+    "camber": 0.0
+   },
+   {
+    "id": "tr006",
+    "alpha_deg": 2.968071385520263,
+    "speed": 16.74024662928425,
+    "thickness": 0.12011084249980225,
+    "camber": 0.0
+   },
+   {
+    "id": "tr007",
+    "alpha_deg": 6.7388209183144845,
+    "speed": 17.833048596278594,
+    "thickness": 0.1351259860688684,
+    "camber": 0.0
+   },
+   {
+    "id": "tr008",
+    "alpha_deg": 5.643963866539245,
+    "speed": 23.938306142661013,
+    "thickness": 0.09568734843562829,
+    "camber": 0.0
+   },
+   {
+    "id": "tr009",
+    "alpha_deg": 6.995083320932096,
+    "speed": 13.093802471668827,
+    "thickness": 0.09148475361650793,
+    "camber": 0.0
+   },
+   {
+    "id": "tr010",
+    "alpha_deg": 6.042555103326945,
+    "speed": 26.720166711451366,
+    "thickness": 0.08912108705185066,
+    "camber": 0.0
+   },
+   {
+    "id": "tr011",
+    "alpha_deg": 2.65614403528516,
+    "speed": 25.81530188723893,
+    "thickness": 0.11379287445480415,
+    "camber": 0.0
+   },
+   {
+    "id": "tr012",
+    "alpha_deg": -1.8195875696916186,
+    "speed": 15.537784465503092,
+    "thickness": 0.15895273425973083,
+    "camber": 0.0
+   },
+   {
+    "id": "tr013",
+    "alpha_deg": 7.312937049558617,
+    "speed": 21.726857819201,
+    "thickness": 0.08115508363009685,
+    "camber": 0.0
+   },
+   {
+    "id": "tr014",
+    "alpha_deg": 3.4755452962246824,
+    "speed": 24.38217658757814,
+    "thickness": 0.1345006050370764,
+    "camber": 0.0
+   },
+   {
+    "id": "tr015",
+    "alpha_deg": 5.315861769842957,
+    "speed": 10.266253794438752,
+    "thickness": 0.10272511935664362,
+    "camber": 0.0
+   },
+   {
+    "id": "tr016",
+    "alpha_deg": -3.6417700245660596,
+    "speed": 12.247786248868788,
+    "thickness": 0.13988211514063736,
+    "camber": 0.0
+   },
+   {
+    "id": "tr017",
+    "alpha_deg": 3.800420593634591,
+    "speed": 11.099851881884181,
+    "thickness": 0.14099099849748398,
+    "camber": 0.0
+   },
+   {
+    "id": "tr018",
+    "alpha_deg": 2.000868088683509,
+    "speed": 17.072014307210097,
+    "thickness": 0.14854728466502937,
+    "camber": 0.0
+   },
+   {
+    "id": "tr019",
+    "alpha_deg": 0.21230940177583957,
+    "speed": 13.771766226193684,
+    "thickness": 0.12895050875901293,
+    "camber": 0.0
+   },
+   {
+    "id": "tr020",
+    "alpha_deg": 0.63913342341265,
+    "speed": 22.21689529030339,
+    "thickness": 0.1439175403575457,
+    "camber": 0.0
+   },
+   {
+    "id": "tr021",
+    "alpha_deg": 6.490573278100243,
+    "speed": 28.295139370620458,
+    "thickness": 0.11142807336658056,
+    "camber": 0.0
+   },
+   {
+    "id": "tr022",
+    "alpha_deg": -3.3206225256002946,
+    "speed": 29.6595326781647,
+    "thickness": 0.10680983653537261,
+    "camber": 0.0
+   },
+   {
+    "id": "tr023",
+    "alpha_deg": 4.2837459997103995,
+    "speed": 29.289423294867284,
+    "thickness": 0.09345172231812686,
+    "camber": 0.0
+   },
+   {
+    "id": "tr024",
+    "alpha_deg": -0.6966722980586857,
+    "speed": 27.971904422290752,
+    "thickness": 0.1316520226420873,
+    "camber": 0.0
+   },
+   {
+    "id": "tr025",
+    "alpha_deg": -0.23380805396078275,
+    "speed": 20.5818453276148,
+    "thickness": 0.15252314102178782,
+    "camber": 0.0
+   },
+   {
+    "id": "tr026",
+    "alpha_deg": -2.9487467521579975,
+    "speed": 22.954113351274582,
+    "thickness": 0.10189265107051221,
+    "camber": 0.0
+   },
+   {
+    "id": "tr027",
+    "alpha_deg": 4.184021350099295,
+    "speed": 25.35874590457265,
+    "thickness": 0.14730290341503083,
+    "camber": 0.0
+   },
+   {
+    "id": "tr028",
+    "alpha_deg": 1.8349415640911815,
+    "speed": 13.257114369885091,
+    "thickness": 0.08395225287581767,
+    "camber": 0.0
+   },
+   {
+    "id": "tr029",
+    "alpha_deg": 1.6042826181022756,
+    "speed": 14.419635451786924,
+    "thickness": 0.09777718114400792,
+    "camber": 0.0
+   },
+   {
+    "id": "tr030",
+    "alpha_deg": -1.052846535965053,
+    "speed": 23.74341560559331,
+    "thickness": 0.11759010772344029,
+    "camber": 0.0
+   },
+   {
+    "id": "tr031",
+    "alpha_deg": -2.4119131094426804,
+    "speed": 20.77634021141825,
+    "thickness": 0.12364159006780853,
+    "camber": 0.0
+   }
+  ],
+  "calibration": [
+   {
+    "id": "ca000",
+    "alpha_deg": -0.8335053735873492,
+    "speed": 16.178372542583595,
+    "thickness": 0.08902184461762416,
+    "camber": 0.0
+   },
+   {
+    "id": "ca001",
+    "alpha_deg": 4.235319301140425,
+    "speed": 27.177332090948035,
+    "thickness": 0.14294106652933794,
+    "camber": 0.0
+   },
+   {
+    "id": "ca002",
+    "alpha_deg": -3.745446755127306,
+    "speed": 13.939991053194403,
+    "thickness": 0.0937458762274666,
+    "camber": 0.0
+   },
+   {
+    "id": "ca003",
+    "alpha_deg": -1.8913132113106026,
+    "speed": 20.13844592999153,
+    "thickness": 0.12070734251564862,
+    "camber": 0.0
+   },
+   {
+    "id": "ca004",
+    "alpha_deg": 6.211568543959151,
+    "speed": 12.390325978512722,
+    "thickness": 0.1596635940698044,
+    "camber": 0.0
+   },
+   {
+    "id": "ca005",
+    "alpha_deg": 0.5304250055127131,
+    "speed": 25.83271008025731,
+    "thickness": 0.08549376621303664,
+    "camber": 0.0
+   },
+   {
+    "id": "ca006",
+    "alpha_deg": 5.294675883078586,
+    "speed": 16.86194608756116,
+    "thickness": 0.1528240449532482,
+    "camber": 0.0
+   },
+   {
+    "id": "ca007",
+    "alpha_deg": -2.5077680428066684,
+    "speed": 29.00067359236853,
+    "thickness": 0.1106178531670778,
+    "camber": 0.0
+   },
+   {
+    "id": "ca008",
+    "alpha_deg": 7.328410393629831,
+    "speed": 22.015995328410632,
+    "thickness": 0.13275212089949648,
+    "camber": 0.0
+   },
+   {
+    "id": "ca009",
+    "alpha_deg": 1.1843699702552195,
+    "speed": 18.773836332234936,
+    "thickness": 0.10558408038581146,
+    "camber": 0.0
+   },
+   {
+    "id": "ca010",
+    "alpha_deg": 2.5176182130473794,
+    "speed": 10.855363093965575,
+    "thickness": 0.13444454399641587,
+    "camber": 0.0
+   },
+   {
+    "id": "ca011",
+    "alpha_deg": 3.9277491480946605,
+    "speed": 23.996228293566745,
+    "thickness": 0.11468810259100916,
+    "camber": 0.0
+   }
+  ],
+  "validation": [
+   {
+    "id": "va000",
+    "alpha_deg": -0.7366947524905734,
+    "speed": 29.467686181799397,
+    "thickness": 0.10462985704153607,
+    "camber": 0.0
+   },
+   {
+    "id": "va001",
+    "alpha_deg": -1.684846706216251,
+    "speed": 17.234335210318466,
+    "thickness": 0.09129655653091522,
+    "camber": 0.0
+   },
+   {
+    "id": "va002",
+    "alpha_deg": -2.3536239447539646,
+    "speed": 26.338508560105137,
+    "thickness": 0.12066475658784948,
+    "camber": 0.0
+   },
+   {
+    "id": "va003",
+    "alpha_deg": 1.748492014534369,
+    "speed": 19.178834751594966,
+    "thickness": 0.14742187111538158,
+    "camber": 0.0
+   },
+   {
+    "id": "va004",
+    "alpha_deg": 2.7330278878563234,
+    "speed": 17.768798996500767,
+    "thickness": 0.10621499260693036,
+    "camber": 0.0
+   },
+   {
+    "id": "va005",
+    "alpha_deg": 6.001547510780657,
+    "speed": 22.288243883145967,
+    "thickness": 0.08100805833464933,
+    "camber": 0.0
+   },
+   {
+    "id": "va006",
+    "alpha_deg": 4.4544059966942875,
+    "speed": 11.125511926154864,
+    "thickness": 0.11874245572754391,
+    "camber": 0.0
+   },
+   {
+    "id": "va007",
+    "alpha_deg": 4.193758010270731,
+    "speed": 23.795587233241417,
+    "thickness": 0.14419923706675586,
+    "camber": 0.0
+   },
+   {
+    "id": "va008",
+    "alpha_deg": 0.713680624777778,
+    "speed": 23.353162171620323,
+    "thickness": 0.0877992029911272,
+    "camber": 0.0
+   },
+   {
+    "id": "va009",
+    "alpha_deg": -3.5517516382732195,
+    "speed": 14.751434177330795,
+    "thickness": 0.15849053896357423,
+    "camber": 0.0
+   },
+   {
+    "id": "va010",
+    "alpha_deg": 7.3942016022590025,
+    "speed": 12.855705310109663,
+    "thickness": 0.1504053865329475,
+    "camber": 0.0
+   },
+   {
+    "id": "va011",
+    "alpha_deg": 5.178383956231897,
+    "speed": 20.31877952573655,
+    "thickness": 0.11477832783030509,
+    "camber": 0.0
+   },
+   {
+    "id": "va012",
+    "alpha_deg": 3.268024115612084,
+    "speed": 28.635330947264617,
+    "thickness": 0.1329889236716614,
+    "camber": 0.0
+   },
+   {
+    "id": "va013",
+    "alpha_deg": 7.030053419653473,
+    "speed": 15.605701977026364,
+    "thickness": 0.12739960105100645,
+    "camber": 0.0
+   },
+   {
+    "id": "va014",
+    "alpha_deg": -0.0937836749014016,
+    "speed": 11.567680002245433,
+    "thickness": 0.13771519825047743,
+    "camber": 0.0
+   },
+   {
+    "id": "va015",
+    "alpha_deg": -2.6472061477473905,
+    "speed": 25.62742052740333,
+    "thickness": 0.09656567772378699,
+    "camber": 0.0
+   }
+  ]
+ },
+ "coverage": {
+  "train": {
+   "n": 32,
+   "dim": 3,
+   "ideal_spacing": 0.3149802624737183,
+   "discrepancy": 0.004169761464152488,
+   "min_distance": 0.14158042612789629,
+   "mean_nn_distance": 0.22043864751065104,
+   "fill_distance": 0.5077975284343498,
+   "projection_1d": {
+    "alpha_deg": 1.0,
+    "speed": 1.0,
+    "thickness": 1.0
+   },
+   "projection_2d": {
+    "alpha_deg|speed": 0.88,
+    "alpha_deg|thickness": 0.72,
+    "speed|thickness": 0.84
+   },
+   "projection_2d_mean": 0.8133333333333334,
+   "projection_2d_worst": {
+    "pair": "alpha_deg|thickness",
+    "filled": 0.72
+   },
+   "projection_2d_bins": 5
+  },
+  "calibration": {
+   "n": 12,
+   "dim": 3,
+   "ideal_spacing": 0.43679023236814946,
+   "discrepancy": 0.015501637473343386,
+   "min_distance": 0.2512685658991675,
+   "mean_nn_distance": 0.34245819149965473,
+   "fill_distance": 0.7446874281337142,
+   "projection_1d": {
+    "alpha_deg": 1.0,
+    "speed": 1.0,
+    "thickness": 1.0
+   },
+   "projection_2d": {
+    "alpha_deg|speed": 1.0,
+    "alpha_deg|thickness": 0.7777777777777778,
+    "speed|thickness": 0.8888888888888888
+   },
+   "projection_2d_mean": 0.8888888888888888,
+   "projection_2d_worst": {
+    "pair": "alpha_deg|thickness",
+    "filled": 0.7777777777777778
+   },
+   "projection_2d_bins": 3
+  },
+  "validation": {
+   "n": 16,
+   "dim": 3,
+   "ideal_spacing": 0.3968502629920499,
+   "discrepancy": 0.007702804092709847,
+   "min_distance": 0.26313509852991535,
+   "mean_nn_distance": 0.3236752741102243,
+   "fill_distance": 0.5449676097024247,
+   "projection_1d": {
+    "alpha_deg": 1.0,
+    "speed": 1.0,
+    "thickness": 1.0
+   },
+   "projection_2d": {
+    "alpha_deg|speed": 0.875,
+    "alpha_deg|thickness": 0.875,
+    "speed|thickness": 0.8125
+   },
+   "projection_2d_mean": 0.8541666666666666,
+   "projection_2d_worst": {
+    "pair": "speed|thickness",
+    "filled": 0.8125
+   },
+   "projection_2d_bins": 4
+  }
+ },
+ "random_reference": {
+  "discrepancy": 0.01654911092272382,
+  "min_distance": 0.06872550615389886,
+  "fill_distance": 0.5004814384507019
+ },
+ "variables": [
+  "alpha_deg",
+  "speed",
+  "thickness"
+ ],
+ "conditions": {
+  "chord_m": 1.0,
+  "span_m": 0.01,
+  "nu_m2_s": 1.5e-05,
+  "rho_kg_m3": 1.225,
+  "camber_position": 0.4,
+  "turbulence": "steady RANS k-omega SST, wall functions",
+  "solver": "OpenFOAM simpleFoam, one cell in z, empty front and back"
+ }
+}

@@ -34,11 +34,13 @@ class RunContext:
         log.txt
     """
 
-    def __init__(self, run_dir: str, params: dict[str, Any], experiment: str, run_id: str, seed: int | None = None):
+    def __init__(self, run_dir: str, params: dict[str, Any], experiment: str, run_id: str,
+                 seed: int | None = None, heartbeat=None):
         self.dir = run_dir
         self.params = dict(params)
         self.experiment = experiment
         self.run_id = run_id
+        self._heartbeat = heartbeat or (lambda: None)
         self.metrics: dict[str, Any] = {}
         self.checks: list[dict[str, Any]] = []
         self.stages: list[dict[str, Any]] = []
@@ -59,6 +61,7 @@ class RunContext:
 
     # -- log and stages --------------------------------------------------
     def log(self, msg: str) -> None:
+        self._heartbeat()
         self._log.write(f"[{time.strftime('%H:%M:%S')}] {msg}\n")
         self._log.flush()
 
@@ -81,6 +84,7 @@ class RunContext:
             self.log(f"stage {name} {rec['status']} ({rec['seconds']} s)")
 
     def _write_progress(self) -> None:
+        self._heartbeat()
         with open(os.path.join(self.dir, "progress.json"), "w") as f:
             json.dump({"stages": self.stages, "updated": time.time()}, f, indent=1)
 
@@ -156,6 +160,7 @@ class RunContext:
     # -- metrics and validation ------------------------------------------
     def metric(self, name: str, value: Any, step: int | None = None) -> None:
         """Record a metric. With ``step`` it is also logged as a curve; the last value is the final metric."""
+        self._heartbeat()
         v = _jsonable(value)
         self.metrics[name] = v
         self._mlog.write(json.dumps({"name": name, "value": v, "step": step, "t": time.time()}) + "\n")
@@ -200,13 +205,20 @@ class RunContext:
 
     # -- datasets ----------------------------------------------------------
     def dataset(self, name: str, *, description: str = "", units: dict[str, str] | None = None,
-                shard_size: int = 256, license: str = "") -> DatasetWriter:
-        """A dataset of samples (dicts of arrays and scalars) produced by this run, written in shards."""
+                shard_size: int = 256, license: str = "",
+                provenance: dict[str, Any] | None = None) -> DatasetWriter:
+        """A dataset of samples (dicts of arrays and scalars) produced by this run, written in shards.
+
+        ``provenance`` is merged into the card's provenance (the experiment, run id and params are always there),
+        which is how a run records where its data came from: ``pinneapple_data.registry.record(ctx, "pdebench")``
+        puts the licence, the citation and the checksums of a registered dataset there (#528).
+        """
         if name not in self.datasets:
             self.datasets[name] = DatasetWriter(
                 os.path.join(self.dir, "datasets", name), name=name, description=description, units=units or {},
                 shard_size=shard_size, license=license,
-                provenance={"experiment": self.experiment, "run_id": self.run_id, "params": self.params})
+                provenance={"experiment": self.experiment, "run_id": self.run_id, "params": self.params,
+                            **dict(provenance or {})})
         return self.datasets[name]
 
     def close(self) -> None:

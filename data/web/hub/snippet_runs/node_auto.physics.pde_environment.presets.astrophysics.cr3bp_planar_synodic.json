@@ -1,0 +1,12 @@
+{
+ "code_hash": "55ea9e76754eba89",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.cr3bp_planar_synodic",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='cr3bp_planar_synodic', dim=0, coords=('t',), fields=('x', 'y', 'vx', 'vy'), pde=PDETermSpec(kind='cr3bp_planar_synodic', fields=('x', 'y', 'vx', 'vy'), coords=('t',), params={'mu': 0.012150585609624}, meta={'note': 'Planar circular restricted three-body problem, synodic frame.', 'lagrange_points': {'L1': (0.8369151257723574, 0.0), 'L2': (1.155682165444884, 0.0), 'L3': (-1.0050626458102778, 0.0), 'L4': (0.487849414390376, 0.8660254037844386), 'L5': (0.487849414390376, -0.8660254037844386)}, 'synodic_period_dimensionless': 6.283185307179586}), conditions=(ConditionSpec(name='ic_x', kind='initial', fields=('x',), selector_type='callable', selector=<function cr3bp_planar_synodic.<locals>._mk_ic.<locals>.<lambda> at 0x1175c2480>, value_fn=<function cr3bp_planar_synodic.<locals",
+ "timed_out": false
+}

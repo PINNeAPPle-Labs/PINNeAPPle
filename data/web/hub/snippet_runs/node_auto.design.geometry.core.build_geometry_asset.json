@@ -1,0 +1,12 @@
+{
+ "code_hash": "7d8758ba9defff4c",
+ "figures": [],
+ "id": "node:auto.design.geometry.core.build_geometry_asset",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 32.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "build geometry asset -> pinneapple_design.geometry.core:build_geometry_asset\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'spec': {}}",
+ "timed_out": false
+}

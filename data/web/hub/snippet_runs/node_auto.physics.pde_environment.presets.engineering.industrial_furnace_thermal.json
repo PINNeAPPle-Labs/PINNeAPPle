@@ -1,0 +1,12 @@
+{
+ "code_hash": "e2997c3108d6a6b9",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.industrial_furnace_thermal",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='industrial_furnace_thermal', dim=3, coords=('x', 'y', 'z'), fields=('T',), pde=PDETermSpec(kind='heat_equation_steady', fields=('T',), coords=('x', 'y', 'z'), params={'k': 1.5}, meta={}), conditions=(ConditionSpec(name='hot_inner_surface', kind='neumann', fields=('h', 'T_ref', 'radiation_eps', 'radiation_sigma'), selector_type='tag', selector={'tag': 'hot_inner_surface'}, value_fn=<function _const_value_fn.<locals>._fn at 0x104730c20>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='outer_surface', kind='neumann', fields=('h', 'T_ref'), selector_type='tag', selector={'tag': 'outer_surface'}, value_fn=<function _const_value_fn.<locals>._fn at 0x119641080>, weight=5.0, order=1,",
+ "timed_out": false
+}

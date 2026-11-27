@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 
@@ -22,9 +22,9 @@ def plot_field_1d(
     field_name: str,
     *,
     ax=None,
-    title: Optional[str] = None,
+    title: str | None = None,
     cmap: str = "RdBu_r",
-    save_path: Optional[Union[str, Path]] = None,
+    save_path: str | Path | None = None,
     show: bool = False,
 ) -> Any:
     """2D colormesh plot of a 1D+time field (x vs t).
@@ -71,9 +71,9 @@ def plot_field_2d(
     field_name: str,
     *,
     ax=None,
-    title: Optional[str] = None,
+    title: str | None = None,
     cmap: str = "viridis",
-    save_path: Optional[Union[str, Path]] = None,
+    save_path: str | Path | None = None,
     show: bool = False,
 ) -> Any:
     """Colormesh plot of a 2D field (x vs y).
@@ -121,8 +121,8 @@ def plot_error_map_1d(
     field_name: str,
     *,
     ax=None,
-    title: Optional[str] = None,
-    save_path: Optional[Union[str, Path]] = None,
+    title: str | None = None,
+    save_path: str | Path | None = None,
     show: bool = False,
 ) -> Any:
     """Plot absolute error |prediction - reference| on a 1D+time grid."""
@@ -166,8 +166,8 @@ def plot_error_map_2d(
     field_name: str,
     *,
     ax=None,
-    title: Optional[str] = None,
-    save_path: Optional[Union[str, Path]] = None,
+    title: str | None = None,
+    save_path: str | Path | None = None,
     show: bool = False,
 ) -> Any:
     """Plot absolute error for a 2D field."""
@@ -207,13 +207,13 @@ def plot_error_map_2d(
 
 
 def plot_loss_curve(
-    history: List[Dict[str, float]],
+    history: list[dict[str, float]],
     *,
-    keys: Optional[List[str]] = None,
+    keys: list[str] | None = None,
     ax=None,
     title: str = "Training loss",
     log_scale: bool = True,
-    save_path: Optional[Union[str, Path]] = None,
+    save_path: str | Path | None = None,
     show: bool = False,
 ) -> Any:
     """Plot training/validation loss curves from a history list.
@@ -259,13 +259,13 @@ def plot_loss_curve(
 
 
 def plot_model_comparison_1d(
-    results: Dict[str, InferenceResult],
+    results: dict[str, InferenceResult],
     field_name: str,
     *,
-    reference: Optional[InferenceResult] = None,
-    title: Optional[str] = None,
+    reference: InferenceResult | None = None,
+    title: str | None = None,
     cmap: str = "RdBu_r",
-    save_path: Optional[Union[str, Path]] = None,
+    save_path: str | Path | None = None,
     show: bool = False,
 ) -> Any:
     """Side-by-side comparison of multiple models on a 1D+time field.
@@ -302,13 +302,13 @@ def plot_model_comparison_1d(
 
 
 def plot_model_comparison_2d(
-    results: Dict[str, InferenceResult],
+    results: dict[str, InferenceResult],
     field_name: str,
     *,
-    reference: Optional[InferenceResult] = None,
-    title: Optional[str] = None,
+    reference: InferenceResult | None = None,
+    title: str | None = None,
     cmap: str = "viridis",
-    save_path: Optional[Union[str, Path]] = None,
+    save_path: str | Path | None = None,
     show: bool = False,
 ) -> Any:
     """Side-by-side comparison for 2D fields."""
@@ -342,13 +342,13 @@ def plot_model_comparison_2d(
 
 
 def render_visualizations(
-    viz_cfgs: List[Dict[str, Any]],
+    viz_cfgs: list[dict[str, Any]],
     *,
-    model_results: Dict[str, Dict[str, Any]],  # model_id -> {result, history, ...}
+    model_results: dict[str, dict[str, Any]],  # model_id -> {result, history, ...}
     problem_spec: Any = None,
-    reference_result: Optional[InferenceResult] = None,
-    out_dir: Union[str, Path] = ".",
-) -> Dict[str, str]:
+    reference_result: InferenceResult | None = None,
+    out_dir: str | Path = ".",
+) -> dict[str, str]:
     """Dispatch visualization from YAML-driven config list.
 
     Each entry in viz_cfgs has at minimum a `type` key. Supported types:
@@ -361,7 +361,7 @@ def render_visualizations(
     Returns a dict mapping description → saved file path.
     """
     out_dir = Path(out_dir)
-    saved: Dict[str, str] = {}
+    saved: dict[str, str] = {}
 
     # detect dimensionality from first available inference result
     is_2d = False
@@ -444,9 +444,9 @@ def plot_velocity_slice(
     z: np.ndarray,
     *,
     slice_axis: str = "z",
-    slice_idx: Optional[int] = None,
+    slice_idx: int | None = None,
     component: int = 0,
-    title: Optional[str] = None,
+    title: str | None = None,
     cmap: str = "RdBu_r",
     ax=None,
     save_path=None,
@@ -537,8 +537,8 @@ def plot_velocity_magnitude_slice(
     z: np.ndarray,
     *,
     slice_axis: str = "z",
-    slice_idx: Optional[int] = None,
-    title: Optional[str] = None,
+    slice_idx: int | None = None,
+    title: str | None = None,
     cmap: str = "viridis",
     ax=None,
     save_path=None,
@@ -613,8 +613,8 @@ def plot_streamlines_2d(
     y: np.ndarray,
     *,
     density: float = 1.5,
-    title: Optional[str] = None,
-    background_field: Optional[np.ndarray] = None,
+    title: str | None = None,
+    background_field: np.ndarray | None = None,
     cmap: str = "viridis",
     ax=None,
     save_path=None,
@@ -682,8 +682,8 @@ def plot_centerline_velocity(
     u_centerline: np.ndarray,
     coord: np.ndarray,
     *,
-    reference_coord: Optional[np.ndarray] = None,
-    reference_u: Optional[np.ndarray] = None,
+    reference_coord: np.ndarray | None = None,
+    reference_u: np.ndarray | None = None,
     reference_label: str = "Ghia et al. (1982)",
     xlabel: str = "y/L",
     ylabel: str = "u/U_lid",
@@ -747,8 +747,8 @@ def plot_vorticity_slice(
     z: np.ndarray,
     *,
     slice_axis: str = "z",
-    slice_idx: Optional[int] = None,
-    title: Optional[str] = None,
+    slice_idx: int | None = None,
+    title: str | None = None,
     cmap: str = "RdBu_r",
     ax=None,
     save_path=None,
@@ -981,7 +981,7 @@ def plot_internal_flow_summary(
 
 
 def plot_design_opt_convergence(
-    history_objectives: List[float],
+    history_objectives: list[float],
     *,
     title: str = "Design Optimization Convergence",
     xlabel: str = "Iteration",

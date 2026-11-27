@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import List, Literal, Optional
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -44,11 +44,11 @@ class ComponentModel(BaseModel):
     package: PackageName = "QFN-32 5x5"
     side: Literal["top", "bottom"] = "top"
     tj_max_c: float = Field(125, gt=-40, le=250)
-    theta_jb: Optional[float] = Field(None, gt=0, le=1000)
-    theta_jc: Optional[float] = Field(None, gt=0, le=10000)
-    w_mm: Optional[float] = Field(None, gt=0.2, le=200)
-    d_mm: Optional[float] = Field(None, gt=0.2, le=200)
-    h_mm: Optional[float] = Field(None, gt=0.1, le=100)
+    theta_jb: float | None = Field(None, gt=0, le=1000)
+    theta_jc: float | None = Field(None, gt=0, le=10000)
+    w_mm: float | None = Field(None, gt=0.2, le=200)
+    d_mm: float | None = Field(None, gt=0.2, le=200)
+    h_mm: float | None = Field(None, gt=0.1, le=100)
     vias: int = Field(0, ge=0, le=2000)
 
 
@@ -62,7 +62,7 @@ class BoardModel(BaseModel):
     outer_coverage: float = Field(0.3, ge=0, le=1)
     inner_coverage: float = Field(0.9, ge=0, le=1)
     chassis_edges: bool = False
-    chassis_t_c: Optional[float] = Field(None, gt=-60, le=200)
+    chassis_t_c: float | None = Field(None, gt=-60, le=200)
 
 
 class EnvModel(BaseModel):
@@ -75,7 +75,7 @@ class EnvModel(BaseModel):
 class Case(BaseModel):
     board: BoardModel = BoardModel()
     environment: EnvModel = EnvModel()
-    components: List[ComponentModel] = Field(min_length=1, max_length=200)
+    components: list[ComponentModel] = Field(min_length=1, max_length=200)
 
     @model_validator(mode="after")
     def unique_names(self):
@@ -91,10 +91,10 @@ class Case(BaseModel):
 
 class Measurement(BaseModel):
     t_c: float = Field(gt=-60, le=300)
-    x_mm: Optional[float] = None
-    y_mm: Optional[float] = None
+    x_mm: float | None = None
+    y_mm: float | None = None
     side: Literal["top", "bottom"] = "top"
-    component: Optional[str] = None
+    component: str | None = None
 
     @model_validator(mode="after")
     def where(self):
@@ -104,7 +104,7 @@ class Measurement(BaseModel):
 
 
 class CalibrationRequest(Case):
-    measurements: List[Measurement] = Field(min_length=2, max_length=200)
+    measurements: list[Measurement] = Field(min_length=2, max_length=200)
     noise_std_c: float = Field(1.0, gt=0, le=20)
 
 

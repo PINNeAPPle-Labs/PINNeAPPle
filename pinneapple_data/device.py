@@ -1,7 +1,7 @@
 """Device utilities for pinning and moving PhysicalSample tensors between CPU and GPU."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 import torch
 
 
@@ -32,7 +32,7 @@ def _pin(x: Any) -> Any:
     return x
 
 
-def _to(x: Any, device: torch.device, dtype: Optional[torch.dtype], non_blocking: bool) -> Any:
+def _to(x: Any, device: torch.device, dtype: torch.dtype | None, non_blocking: bool) -> Any:
     """
     Move a tensor to a target device and optionally cast dtype.
 
@@ -103,7 +103,7 @@ def to_device_sample(
     sample: Any,
     device: str | torch.device,
     *,
-    dtype: Optional[torch.dtype] = None,
+    dtype: torch.dtype | None = None,
     non_blocking: bool = True
 ) -> Any:
     """

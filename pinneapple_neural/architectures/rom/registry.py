@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for the reduced-order model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import ROMBase
 from .pod import POD
@@ -16,7 +15,7 @@ from .koopman import KoopmanAutoencoder
 from .neural_rom import NeuralROM
 
 
-_REGISTRY: Dict[str, Type[ROMBase]] = {
+_REGISTRY: dict[str, type[ROMBase]] = {
     # Projection-based
     "pod":                         POD,
     "proper_orthogonal_decomposition": POD,
@@ -63,7 +62,7 @@ def register_into_global() -> None:
 
 @dataclass
 class ROMCatalog:
-    registry: Dict[str, Type[ROMBase]] = None
+    registry: dict[str, type[ROMBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -71,7 +70,7 @@ class ROMCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[ROMBase]:
+    def get(self, name: str) -> type[ROMBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown ROM model '{name}'. Available: {self.list()}")

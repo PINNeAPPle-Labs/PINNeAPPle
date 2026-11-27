@@ -52,6 +52,9 @@ class AxialThermalModel:
     def __post_init__(self) -> None:
         if self.n_segments < 1:
             raise ValueError("n_segments must be at least 1")
+        if self.geometry is None or not hasattr(self.geometry, "length"):
+            raise ValueError("the axial thermal network needs a machine geometry with a length, stator and rotor "
+                             f"sections, got {type(self.geometry).__name__}")
         self.K = int(self.n_segments)
         self.L = float(self.geometry.length)
         self.dz = self.L / self.K

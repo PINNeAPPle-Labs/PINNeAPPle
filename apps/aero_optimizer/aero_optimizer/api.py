@@ -18,7 +18,7 @@ import json
 import math
 import os
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -34,10 +34,8 @@ from pinneapple_design.aero.geometry import BOUNDS, LABELS, PARAMS, REFERENCE, o
 from pinneapple_design.aero.mesh import GridSpec
 from pinneapple_design.aero.optimize import AREA_BOUNDS, Engine, baseline, infeasibility_reasons, summarize
 from pinneapple_design.aero import vlm as _vlm
-from pinneapple_design.aero.aircraft3d import (BOUNDS3D, LABELS3D, PLAN, Requirements3D, airframe_from,
-                                               baseline_x)
-from pinneapple_design.aero.airframe import to_glb, to_stl, to_usda
-from pinneapple_design.aero.optimize3d import Engine3D, summarize3d
+from pinneapple_design.aero.airframe import to_stl, to_usda
+from pinneapple_design.aero.optimize3d import Engine3D
 from pinneapple_design.aero.airliner3d import (BOUNDS_AL, LABELS_AL, PLAN as PLAN_AL, Mission, RequirementsAL,
                                                airliner_from, baseline_x_al)
 from pinneapple_design.aero.optimize_airliner import EngineAL, summarize_al
@@ -107,7 +105,7 @@ class OptimizeIn(BaseModel):
 
 
 class DesignIn(BaseModel):
-    x: List[float]
+    x: list[float]
     aircraft: AircraftIn = AircraftIn()
     requirements: RequirementsIn = RequirementsIn()
     fields: bool = True
@@ -126,7 +124,7 @@ def _req(r: RequirementsIn) -> Requirements:
 _json = functools.partial(to_jsonable, digits=6)
 
 
-def _detail(rec: Dict[str, Any]) -> Dict[str, Any]:
+def _detail(rec: dict[str, Any]) -> dict[str, Any]:
     d = {k: rec.get(k) for k in ("x", "shape", "wing_area", "props", "feasible", "valid", "violations", "trust", "unc",
                                  "vmax_kt", "co2_100km", "fuel_l_100km", "v_stall_kt", "cruise_ld", "cruise_cl",
                                  "cruise_alpha", "cruise_cm", "clmax", "mass", "checks", "polar", "penalty")}
@@ -315,7 +313,7 @@ class Optimize3DIn(BaseModel):
 
 
 class AircraftDesignIn(BaseModel):
-    x: List[float]
+    x: list[float]
     mission: MissionIn = MissionIn()
     requirements: RequirementsALIn = RequirementsALIn()
 
@@ -344,7 +342,7 @@ def _verified(x: np.ndarray):
     return None
 
 
-def _detail_al(r: Dict[str, Any]) -> Dict[str, Any]:
+def _detail_al(r: dict[str, Any]) -> dict[str, Any]:
     keys = ("x", "props", "plan", "feasible", "valid", "violations", "trust", "unc", "co2_pkm", "mach", "speed_kt",
             "vref_kt", "fuel_kg", "fuel_l_100pkm", "mtow", "oew", "wing_mass", "tail_mass", "cruise_cl", "cruise_cd",
             "cruise_ld", "cruise_alpha", "tail_incidence", "oswald", "mdd", "clmax_clean", "clmax_land", "stall_station",
@@ -363,7 +361,7 @@ def _picks_al(D, front):
                            weights=(1, 1, 0.5))
 
 
-def run_search3d(body: Optimize3DIn, progress=None) -> Dict[str, Any]:
+def run_search3d(body: Optimize3DIn, progress=None) -> dict[str, Any]:
     mi, req = _mission(body.mission), _reqal(body.requirements)
     res = ENGINE_AL.search(mi, req, population=body.population, generations=body.generations, seed=body.seed,
                            progress=progress)
@@ -380,7 +378,7 @@ def run_search3d(body: Optimize3DIn, progress=None) -> Dict[str, Any]:
                    "mission": dataclasses.asdict(mi), "requirements": req.as_dict()})
 
 
-JOBS: Dict[str, Dict[str, Any]] = {}
+JOBS: dict[str, dict[str, Any]] = {}
 _POOL = None
 
 
@@ -500,7 +498,11 @@ def aircraft_glb(x: str, field: str = Query("", pattern="^(|cp|cf|all)$")):
         af = airliner_from(v)
         for k in (("cp", "cf") if field == "all" else (field,)):
             fields["_" + k.upper()] = surface_scalars(af, parts, {"xyz": z["xyz"], k: z[k]}, key=k)
-    return Response(to_glb(parts, fields=fields), media_type="model/gltf-binary",
+    from pinneapple_tools.visualization.studio import Scene, export_gltf      # the shared glTF layer (#281)
+    prop = [i for i, p in enumerate(parts) if p.group == "propeller"]
+    scene = Scene.from_parts(parts, axes="aircraft", title="airliner")
+    return Response(export_gltf(scene, fields, groups={"propeller": prop} if prop else None),
+                    media_type="model/gltf-binary",
                     headers={"Content-Disposition": 'inline; filename="airliner.glb"', "Cache-Control": "max-age=3600"})
 
 

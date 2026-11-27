@@ -25,7 +25,8 @@ is never reported as passing.
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
+from collections.abc import Sequence
 
 import numpy as np
 import torch
@@ -47,7 +48,7 @@ _SOURCE_FREE_DIFFUSION = ("laplace", "poisson", "heat_equation_steady",
 _NON_NEGATIVE_FIELDS = ("rho", "h", "C", "k", "omega", "nu_t", "S", "I", "R")
 
 
-def _f(x) -> Optional[float]:
+def _f(x) -> float | None:
     try:
         x = float(x)
     except (TypeError, ValueError):
@@ -55,7 +56,7 @@ def _f(x) -> Optional[float]:
     return x if math.isfinite(x) else None
 
 
-def _grade(value: Optional[float], pass_below: float, warn_below: float) -> str:
+def _grade(value: float | None, pass_below: float, warn_below: float) -> str:
     if value is None:
         return NA
     if value < pass_below:
@@ -70,7 +71,7 @@ def _predict(model, X: torch.Tensor) -> np.ndarray:
         return unwrap(model(X)).detach().cpu().numpy()
 
 
-def _rel_l2(pred: np.ndarray, ref: np.ndarray) -> Optional[float]:
+def _rel_l2(pred: np.ndarray, ref: np.ndarray) -> float | None:
     denom = np.linalg.norm(ref)
     if denom == 0:
         return None
@@ -79,7 +80,7 @@ def _rel_l2(pred: np.ndarray, ref: np.ndarray) -> Optional[float]:
 
 # ── sections ─────────────────────────────────────────────────────────────────
 
-def error_section(model, fields, X_test, Y_test, reference_source) -> Dict[str, Any]:
+def error_section(model, fields, X_test, Y_test, reference_source) -> dict[str, Any]:
     if X_test is None or len(X_test) == 0:
         return {"available": False,
                 "reason": "No reference solution for this run (physics-only training); "
@@ -110,7 +111,7 @@ def error_section(model, fields, X_test, Y_test, reference_source) -> Dict[str, 
     }
 
 
-def convergence_section(loss_history: Sequence[float]) -> Dict[str, Any]:
+def convergence_section(loss_history: Sequence[float]) -> dict[str, Any]:
     h = np.asarray(loss_history, dtype=float)
     if len(h) == 0:
         return {"status": "not_run", "message": "No training epochs recorded."}
@@ -150,8 +151,8 @@ def convergence_section(loss_history: Sequence[float]) -> Dict[str, Any]:
 
 
 def generalization_section(model, X_train, Y_train, X_test, Y_test,
-                           res_train: Optional[float], res_unseen: Optional[float]) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+                           res_train: float | None, res_unseen: float | None) -> dict[str, Any]:
+    out: dict[str, Any] = {}
     ratios = []
     if X_test is not None and len(X_test) and X_train is not None and len(X_train):
         tr = _rel_l2(_predict(model, X_train), Y_train)
@@ -184,7 +185,7 @@ def generalization_section(model, X_train, Y_train, X_test, Y_test,
 
 
 def variables_section(model, adapter: PhysicsAdapter, X_eval: torch.Tensor,
-                      supervised: bool) -> Dict[str, Any]:
+                      supervised: bool) -> dict[str, Any]:
     pred = _predict(model, X_eval)
     inputs = [{"name": c, "min": adapter.bounds[c][0], "max": adapter.bounds[c][1],
                "role": "time" if c == "t" else "space"} for c in adapter.coords]
@@ -215,8 +216,8 @@ def variables_section(model, adapter: PhysicsAdapter, X_eval: torch.Tensor,
     return {"inputs": inputs, "outputs": outputs, "input_sensitivity_pct": sens}
 
 
-def weights_section(model, adapter: PhysicsAdapter, final_raw: Dict[str, float],
-                    w_data: float, data_loss: Optional[float]) -> Dict[str, Any]:
+def weights_section(model, adapter: PhysicsAdapter, final_raw: dict[str, float],
+                    w_data: float, data_loss: float | None) -> dict[str, Any]:
     weighted = adapter.weighted(final_raw)
     if data_loss is not None:
         weighted["data_reference"] = w_data * data_loss
@@ -248,10 +249,10 @@ def weights_section(model, adapter: PhysicsAdapter, final_raw: Dict[str, float],
     }
 
 
-def uncertainty_section(model, snapshots: List[Dict[str, torch.Tensor]], fields,
+def uncertainty_section(model, snapshots: list[dict[str, torch.Tensor]], fields,
                         X_eval: torch.Tensor, X_cal, Y_cal, X_test, Y_test,
-                        coverage: float = 0.9) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+                        coverage: float = 0.9) -> dict[str, Any]:
+    out: dict[str, Any] = {}
     base_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
     preds = []
     try:
@@ -295,7 +296,7 @@ def uncertainty_section(model, snapshots: List[Dict[str, torch.Tensor]], fields,
     return out
 
 
-def _divergence_check(model, adapter, X: torch.Tensor) -> List[Dict[str, Any]]:
+def _divergence_check(model, adapter, X: torch.Tensor) -> list[dict[str, Any]]:
     sp = spatial_coords(adapter.coords)
     vel = ["u", "v", "w"][: len(sp)]
     if not all(v in adapter.fields for v in vel):
@@ -336,7 +337,7 @@ def _divergence_check(model, adapter, X: torch.Tensor) -> List[Dict[str, Any]]:
     return checks
 
 
-def _energy_balance_check(model, adapter) -> Dict[str, Any]:
+def _energy_balance_check(model, adapter) -> dict[str, Any]:
     f = adapter.fields[0]
     rng = np.random.default_rng(54321)
     Xb, Nb = sample_faces(adapter.bounds, adapter.coords, all_faces(adapter.coords), 4000, rng)
@@ -404,9 +405,9 @@ def residual_scale(model, adapter: PhysicsAdapter, X: torch.Tensor, pred: np.nda
 
 
 def physics_checks_section(model, adapter: PhysicsAdapter, X_eval: torch.Tensor,
-                           raw_unseen: Dict[str, float], raw_initial: Optional[Dict[str, float]],
-                           pred_eval: np.ndarray) -> List[Dict[str, Any]]:
-    checks: List[Dict[str, Any]] = []
+                           raw_unseen: dict[str, float], raw_initial: dict[str, float] | None,
+                           pred_eval: np.ndarray) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
 
     # 1. Governing equation, graded against the size of its own terms.
     res = raw_unseen.get("pde")
@@ -479,7 +480,7 @@ def physics_checks_section(model, adapter: PhysicsAdapter, X_eval: torch.Tensor,
     return checks
 
 
-def verdict(report: Dict[str, Any]) -> Dict[str, Any]:
+def verdict(report: dict[str, Any]) -> dict[str, Any]:
     reasons_fail, reasons_warn = [], []
     conv = report["convergence"].get("status")
     if conv in ("diverged", "not_run"):
@@ -514,7 +515,7 @@ def verdict(report: Dict[str, Any]) -> Dict[str, Any]:
 
 def build_report(*, model, adapter: PhysicsAdapter, loss_history, final_raw_train,
                  raw_initial, raw_unseen, res_train, X_eval, split, snapshots,
-                 reference_source, w_data, data_loss, warnings) -> Dict[str, Any]:
+                 reference_source, w_data, data_loss, warnings) -> dict[str, Any]:
     """Assemble all sections. ``split`` holds numpy/tensor train/cal/test arrays."""
     fields = adapter.fields
     was_training = model.training
@@ -523,7 +524,7 @@ def build_report(*, model, adapter: PhysicsAdapter, loss_history, final_raw_trai
         X_te, Y_te = split.get("X_test"), split.get("Y_test")
         pred_eval = _predict(model, X_eval)
         res_unseen = _f(math.sqrt(raw_unseen["pde"])) if "pde" in raw_unseen else None
-        report: Dict[str, Any] = {}
+        report: dict[str, Any] = {}
         sections = [
             ("error", lambda: error_section(model, fields, X_te, Y_te, reference_source)),
             ("convergence", lambda: convergence_section(loss_history)),

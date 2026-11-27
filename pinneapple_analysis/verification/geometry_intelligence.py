@@ -89,7 +89,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -121,12 +121,12 @@ class BoundaryLoop:
     closed: bool  # False if the loop tracer could not return to its start (e.g. a non-manifold junction)
     perimeter: float
     is_planar: bool
-    planarity_rms_deviation: Optional[float]  # RMS distance of loop points from their best-fit plane
-    enclosed_area: Optional[float]  # None if not planar enough to define a 2D polygon area
-    circularity: Optional[float]  # 4*pi*Area/Perimeter^2, the isoperimetric quotient: <=1, =1 for a perfect circle
-    centroid: Optional[Tuple[float, float, float]] = None  # mean of loop vertices, when n>=3
-    normal: Optional[Tuple[float, float, float]] = None    # best-fit-plane normal, when n>=3
-    vertex_ids: Tuple[int, ...] = ()  # the traced mesh vertex ids, used to de-duplicate the same physical
+    planarity_rms_deviation: float | None  # RMS distance of loop points from their best-fit plane
+    enclosed_area: float | None  # None if not planar enough to define a 2D polygon area
+    circularity: float | None  # 4*pi*Area/Perimeter^2, the isoperimetric quotient: <=1, =1 for a perfect circle
+    centroid: tuple[float, float, float] | None = None  # mean of loop vertices, when n>=3
+    normal: tuple[float, float, float] | None = None    # best-fit-plane normal, when n>=3
+    vertex_ids: tuple[int, ...] = ()  # the traced mesh vertex ids, used to de-duplicate the same physical
                                        # crease loop when it is encountered from both patches it separates
 
 
@@ -137,26 +137,26 @@ class SurfaceRegion:
     heuristics (and, optionally, the LLM disambiguation step) actually
     use -- computed, real numbers, never placeholders."""
     region_id: int
-    face_ids: List[int]
+    face_ids: list[int]
     n_faces: int
     area: float
     area_fraction_of_total_surface: float
     area_fraction_of_largest_cross_section: float  # area / max(Lx*Ly, Ly*Lz, Lx*Lz) of the mesh's own bbox
-    centroid: Tuple[float, float, float]
-    mean_normal: Tuple[float, float, float]
+    centroid: tuple[float, float, float]
+    mean_normal: tuple[float, float, float]
     normal_std_deg: float  # area-weighted angular spread of this patch's face normals, in degrees
     is_planar: bool
-    boundary_loops: List[BoundaryLoop]
+    boundary_loops: list[BoundaryLoop]
     geometric_candidate: str  # "wall" | "opening" | "symmetry_plane"
     geometric_reasoning: str
 
 
 @dataclass
 class GeometryClassification:
-    regions: List[SurfaceRegion]
-    semantic_labels: Dict[int, str] = field(default_factory=dict)          # region_id -> wall/inlet/outlet/symmetry/periodic/ambiguous
-    boundary_condition_types: Dict[int, str] = field(default_factory=dict)  # region_id -> a real, checked BC-type string
-    ambiguous_region_ids: List[int] = field(default_factory=list)
+    regions: list[SurfaceRegion]
+    semantic_labels: dict[int, str] = field(default_factory=dict)          # region_id -> wall/inlet/outlet/symmetry/periodic/ambiguous
+    boundary_condition_types: dict[int, str] = field(default_factory=dict)  # region_id -> a real, checked BC-type string
+    ambiguous_region_ids: list[int] = field(default_factory=list)
     llm_used: bool = False
     llm_reasoning: str = ""
     raw_llm_response: str = ""
@@ -166,12 +166,12 @@ class GeometryClassification:
 # Stage 1: real, mechanical geometric segmentation
 # ---------------------------------------------------------------------------
 
-def _edge_key(a: int, b: int) -> Tuple[int, int]:
+def _edge_key(a: int, b: int) -> tuple[int, int]:
     return (a, b) if a < b else (b, a)
 
 
-def _build_edge_face_map(faces: np.ndarray) -> Dict[Tuple[int, int], List[int]]:
-    edge_map: Dict[Tuple[int, int], List[int]] = {}
+def _build_edge_face_map(faces: np.ndarray) -> dict[tuple[int, int], list[int]]:
+    edge_map: dict[tuple[int, int], list[int]] = {}
     for fidx in range(faces.shape[0]):
         tri = faces[fidx]
         for i in range(3):
@@ -181,7 +181,7 @@ def _build_edge_face_map(faces: np.ndarray) -> Dict[Tuple[int, int], List[int]]:
 
 
 def _segment_patches(faces: np.ndarray, face_normals: np.ndarray, angle_tolerance_deg: float,
-                      edge_map: Dict[Tuple[int, int], List[int]]) -> List[np.ndarray]:
+                      edge_map: dict[tuple[int, int], list[int]]) -> list[np.ndarray]:
     """Region-growing segmentation: two faces sharing an edge are merged
     into the same patch iff their normals are within ``angle_tolerance_deg``
     of each other. Because this check is applied pairwise between
@@ -194,7 +194,7 @@ def _segment_patches(faces: np.ndarray, face_normals: np.ndarray, angle_toleranc
     (that is instead ``is_planar`` on the finished patch, checked
     separately below)."""
     n_faces = faces.shape[0]
-    adjacency: List[List[int]] = [[] for _ in range(n_faces)]
+    adjacency: list[list[int]] = [[] for _ in range(n_faces)]
     for flist in edge_map.values():
         if len(flist) == 2:
             f0, f1 = flist
@@ -205,7 +205,7 @@ def _segment_patches(faces: np.ndarray, face_normals: np.ndarray, angle_toleranc
 
     cos_tol = np.cos(np.radians(angle_tolerance_deg))
     visited = np.zeros(n_faces, dtype=bool)
-    patches: List[np.ndarray] = []
+    patches: list[np.ndarray] = []
     for start in range(n_faces):
         if visited[start]:
             continue
@@ -226,7 +226,7 @@ def _segment_patches(faces: np.ndarray, face_normals: np.ndarray, angle_toleranc
     return patches
 
 
-def _trace_boundary_loops(border_edges: List[Tuple[int, int]], vertices: np.ndarray) -> List[BoundaryLoop]:
+def _trace_boundary_loops(border_edges: list[tuple[int, int]], vertices: np.ndarray) -> list[BoundaryLoop]:
     """Trace a patch's border edges (creases with another patch, or true
     open mesh-boundary edges) into closed loops by walking the induced
     vertex graph. Handles the simple-loop case correctly (every vertex on
@@ -235,13 +235,13 @@ def _trace_boundary_loops(border_edges: List[Tuple[int, int]], vertices: np.ndar
     meeting at one point) the walk picks an arbitrary next edge and the
     resulting loop is marked ``closed=False`` if it cannot return to its
     start, an honest signal rather than a silently-wrong loop shape."""
-    adj: Dict[int, List[int]] = defaultdict(list)
+    adj: dict[int, list[int]] = defaultdict(list)
     for a, b in border_edges:
         adj[a].append(b)
         adj[b].append(a)
 
-    visited_edges: Set[Tuple[int, int]] = set()
-    loops: List[BoundaryLoop] = []
+    visited_edges: set[tuple[int, int]] = set()
+    loops: list[BoundaryLoop] = []
     max_steps = len(border_edges) + 2
 
     for a, b in border_edges:
@@ -275,7 +275,7 @@ def _trace_boundary_loops(border_edges: List[Tuple[int, int]], vertices: np.ndar
     return loops
 
 
-def _loop_from_vertex_chain(vertex_ids: List[int], vertices: np.ndarray, closed: bool) -> BoundaryLoop:
+def _loop_from_vertex_chain(vertex_ids: list[int], vertices: np.ndarray, closed: bool) -> BoundaryLoop:
     pts = vertices[np.array(vertex_ids, dtype=np.int64)]
     n = pts.shape[0]
     if n < 3:
@@ -334,7 +334,7 @@ def _segment_mesh(
     opening_circularity_threshold: float, opening_area_fraction_threshold: float,
     symmetry_axis_tolerance_deg: float, symmetry_midplane_tolerance_frac: float,
     symmetry_area_fraction_threshold: float,
-) -> List[SurfaceRegion]:
+) -> list[SurfaceRegion]:
     face_normals = mesh.compute_face_normals()
     face_areas = mesh.face_areas()
     total_area = float(np.sum(face_areas))
@@ -352,7 +352,7 @@ def _segment_mesh(
     for pid, comp in enumerate(face_patches):
         face_patch_id[comp] = pid
 
-    border_edges_per_patch: Dict[int, List[Tuple[int, int]]] = defaultdict(list)
+    border_edges_per_patch: dict[int, list[tuple[int, int]]] = defaultdict(list)
     for key, flist in edge_map.items():
         if len(flist) == 1:
             border_edges_per_patch[int(face_patch_id[flist[0]])].append(key)
@@ -365,7 +365,7 @@ def _segment_mesh(
             for f in flist:
                 border_edges_per_patch[int(face_patch_id[f])].append(key)
 
-    regions: List[SurfaceRegion] = []
+    regions: list[SurfaceRegion] = []
     for pid, comp in enumerate(face_patches):
         comp_areas = face_areas[comp]
         area = float(np.sum(comp_areas))
@@ -460,12 +460,12 @@ def _segment_mesh(
     # right) is the SAME physical crease as one of THIS patch's "inner" loops --
     # already fully represented as that other region, so it must not also be
     # re-reported here as a zero-area virtual duplicate of itself.
-    single_loop_signatures: Set[frozenset] = {
+    single_loop_signatures: set[frozenset] = {
         frozenset(r.boundary_loops[0].vertex_ids) for r in regions if len(r.boundary_loops) == 1
     }
 
     next_id = len(face_patches)
-    sub_openings: List[SurfaceRegion] = []
+    sub_openings: list[SurfaceRegion] = []
     for r in regions:
         if len(r.boundary_loops) < 2:
             continue
@@ -548,7 +548,7 @@ truly cannot be determined, not a failure.
 """
 
 
-def _region_catalog(regions: List[SurfaceRegion]) -> List[Dict[str, Any]]:
+def _region_catalog(regions: list[SurfaceRegion]) -> list[dict[str, Any]]:
     catalog = []
     for r in regions:
         catalog.append({
@@ -571,9 +571,9 @@ def _region_catalog(regions: List[SurfaceRegion]) -> List[Dict[str, Any]]:
 
 
 def _llm_assign_semantics(
-    regions: List[SurfaceRegion], problem_description: str, *,
-    provider: str, model: Optional[str], api_key: Optional[str], conversation_store=None,
-) -> Tuple[Dict[int, str], Dict[int, str], str, str]:
+    regions: list[SurfaceRegion], problem_description: str, *,
+    provider: str, model: str | None, api_key: str | None, conversation_store=None,
+) -> tuple[dict[int, str], dict[int, str], str, str]:
     """Ask the LLM to disambiguate ONLY the regions pure geometry could not
     already confidently resolve (``geometric_candidate == "opening"``) --
     wall and symmetry-plane candidates are never sent for re-assignment,
@@ -617,9 +617,9 @@ def _llm_assign_semantics(
     if not isinstance(assignments, list):
         raise ValueError(f"LLM response missing a JSON list under 'assignments': {raw}")
 
-    seen_ids: Set[int] = set()
-    labels: Dict[int, str] = {}
-    bc_types: Dict[int, str] = {}
+    seen_ids: set[int] = set()
+    labels: dict[int, str] = {}
+    bc_types: dict[int, str] = {}
     for entry in assignments:
         if not isinstance(entry, dict):
             raise ValueError(f"LLM assignment entry is not a JSON object: {entry!r}")
@@ -660,9 +660,9 @@ def classify_geometry(
     mesh: MeshData,
     problem_description: str = "",
     *,
-    provider: Optional[str] = None,
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    provider: str | None = None,
+    model: str | None = None,
+    api_key: str | None = None,
     angle_tolerance_deg: float = 20.0,
     planar_tolerance_deg: float = 5.0,
     opening_circularity_threshold: float = 0.8,
@@ -718,8 +718,8 @@ def classify_geometry(
     # docstring for the real reliability reason), and every "opening" candidate defaults to
     # "ambiguous" unless a working LLM step below resolves it: geometry alone can never tell
     # an inlet from an outlet.
-    semantic_labels: Dict[int, str] = {}
-    bc_types: Dict[int, str] = {}
+    semantic_labels: dict[int, str] = {}
+    bc_types: dict[int, str] = {}
     for r in regions:
         if r.geometric_candidate == "opening":
             semantic_labels[r.region_id] = "ambiguous"

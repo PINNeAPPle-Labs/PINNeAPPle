@@ -1,7 +1,6 @@
 """FNO-1D forecaster for time series multi-horizon prediction."""
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
 
 import torch
 import torch.nn as nn

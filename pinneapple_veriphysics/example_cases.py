@@ -68,7 +68,7 @@ pass after the fact.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 __all__ = ["ExampleCase", "EXAMPLE_CASES", "get_example_case"]
 
@@ -78,9 +78,9 @@ class ExampleCase:
     key: str
     label: str
     preset: str
-    preset_kwargs: Dict[str, Any]
+    preset_kwargs: dict[str, Any]
     description: str
-    physical_parameters: Dict[str, float]
+    physical_parameters: dict[str, float]
     flow_geometry: str = "internal_pipe"
     # Training cost knobs for THIS example case only -- deliberately
     # independent of the API/UI's own global defaults
@@ -98,7 +98,7 @@ class ExampleCase:
     notes: str = ""
 
 
-EXAMPLE_CASES: Dict[str, ExampleCase] = {}
+EXAMPLE_CASES: dict[str, ExampleCase] = {}
 
 
 def _register(case: ExampleCase) -> None:

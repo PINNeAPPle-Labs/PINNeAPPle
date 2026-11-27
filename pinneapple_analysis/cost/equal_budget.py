@@ -38,6 +38,8 @@ from typing import Any
 
 import numpy as np
 
+from pinneapple_core.errors import BadValue, ShapeMismatch
+
 __all__ = [
     "ComputeBudget", "BudgetRun", "count_flops", "train_within_budget", "cosine_lr", "set_lr",
     "SearchTrial", "SearchResult", "equal_budget_search", "AmortizedCost", "relative_l2", "time_per_query",
@@ -55,11 +57,14 @@ class ComputeBudget:
 
     def __post_init__(self):
         if self.wall_s is None and self.flops is None and self.steps is None:
-            raise ValueError("a ComputeBudget needs at least one of wall_s, flops, steps")
+            raise BadValue("a ComputeBudget with no limit does not bound anything",
+                           fix="set at least one of wall_s=..., flops=..., steps=...")
         for name in ("wall_s", "flops", "steps"):
             v = getattr(self, name)
             if v is not None and v <= 0:
-                raise ValueError(f"{name} must be positive, got {v}")
+                raise BadValue(f"{name} must be positive, got {v}",
+                               fix=f"pass a positive {name}, or leave it as None when that quantity should not be "
+                                   f"limited")
 
     def fraction(self, wall_s: float, flops: float, steps: int) -> float:
         """Fraction of the budget used: the largest over the limits that are set (1.0 = spent)."""
@@ -352,7 +357,8 @@ class AmortizedCost:
 
     def per_query(self, n_queries: int) -> float:
         if n_queries < 1:
-            raise ValueError("n_queries must be >= 1")
+            raise BadValue(f"per_query({n_queries}) has no meaning: the cost per query is total / n_queries",
+                           fix="pass n_queries >= 1, or use total(n) when you only need the total")
         return self.total(n_queries) / n_queries
 
     def break_even(self, other: AmortizedCost) -> float | None:
@@ -375,7 +381,9 @@ def relative_l2(pred, true, *, sample_axis: int = 0, eps: float = 1e-12) -> np.n
     p = np.asarray(_to_numpy(pred), dtype=np.float64)
     t = np.asarray(_to_numpy(true), dtype=np.float64)
     if p.shape != t.shape:
-        raise ValueError(f"shape mismatch {p.shape} vs {t.shape}")
+        raise ShapeMismatch(f"relative_l2 compares point by point, but pred has shape {p.shape} and true {t.shape}",
+                            fix="reshape or resample one to the other, or pass sample_axis= to say which axis "
+                                "indexes the samples")
     p = np.moveaxis(p, sample_axis, 0).reshape(p.shape[sample_axis], -1)
     t = np.moveaxis(t, sample_axis, 0).reshape(t.shape[sample_axis], -1)
     return np.linalg.norm(p - t, axis=1) / np.maximum(np.linalg.norm(t, axis=1), eps)

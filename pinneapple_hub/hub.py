@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .model_card import ModelCard
 
@@ -42,10 +42,10 @@ def push_to_hub(
     repo_id: str,
     model_card: ModelCard,
     *,
-    architecture: Optional[str] = None,
-    architecture_config: Optional[Dict[str, Any]] = None,
+    architecture: str | None = None,
+    architecture_config: dict[str, Any] | None = None,
     private: bool = False,
-    token: Optional[str] = None,
+    token: str | None = None,
     commit_message: str = "Push model via pinneapple_hub",
 ) -> str:
     """Upload a trained model's weights + architecture config + model card
@@ -118,7 +118,7 @@ def from_pretrained(
     *,
     revision: str = "main",
     device: str = "cpu",
-    token: Optional[str] = None,
+    token: str | None = None,
 ):
     """Download and reconstruct a model pushed with :func:`push_to_hub`.
 

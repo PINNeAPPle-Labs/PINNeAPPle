@@ -24,11 +24,8 @@ Hou et al. (1994) — Smagorinsky LES-LBM
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
 
 import torch
-import torch.nn as nn
 
 from .base import SolverBase, SolverOutput
 from .registry import SolverRegistry
@@ -155,13 +152,13 @@ def _smagorinsky_omega(f, feq, rho, omega0, Cs, cx, cy):
 def _lbm_step_2d(
     f: torch.Tensor,
     omega: float,
-    solid: Optional[torch.Tensor],
+    solid: torch.Tensor | None,
     cx: torch.Tensor,
     cy: torch.Tensor,
     w: torch.Tensor,
     opp: torch.Tensor,
-    u_in: Optional[float] = None,
-    rho_out: Optional[float] = None,
+    u_in: float | None = None,
+    rho_out: float | None = None,
     Cs: float = 0.0,
     top_bottom_bounce: bool = True,
 ) -> torch.Tensor:
@@ -268,7 +265,7 @@ class LBMSolver(SolverBase):
         Re:           float = 100.0,
         u_in:         float = 0.05,
         rho_out:      float = 1.0,
-        obstacle_mask: Optional[torch.Tensor] = None,
+        obstacle_mask: torch.Tensor | None = None,
         Cs:           float = 0.0,
     ):
         super().__init__()
@@ -307,7 +304,7 @@ class LBMSolver(SolverBase):
 
     # ------------------------------------------------------------------
     @classmethod
-    def from_problem_spec(cls, spec) -> "LBMSolver":
+    def from_problem_spec(cls, spec) -> LBMSolver:
         """Build from a ProblemSpec (pde.kind ∈ {'lbm','navier_stokes','channel_flow'})."""
         p  = spec.pde.params if hasattr(spec.pde, "params") else {}
         db = spec.domain_bounds if hasattr(spec, "domain_bounds") else {}
@@ -341,7 +338,7 @@ class LBMSolver(SolverBase):
     # ------------------------------------------------------------------
     def forward(
         self,
-        f0:          Optional[torch.Tensor] = None,
+        f0:          torch.Tensor | None = None,
         *,
         steps:       int = 5000,
         save_every:  int = 500,
@@ -456,7 +453,7 @@ def airfoil_naca_mask(nx: int, ny: int, chord: int, aoa_deg: float = 0.0,
 
 
 def naca4_mask(nx: int, ny: int, naca: str = "4412", chord: float = 80.0, aoa_deg: float = 0.0,
-               x_le: Optional[float] = None, y_le: Optional[float] = None, n_pts: int = 400) -> torch.Tensor:
+               x_le: float | None = None, y_le: float | None = None, n_pts: int = 400) -> torch.Tensor:
     """NACA 4-digit airfoil mask with camber (True = solid), aerodynamic convention.
 
     Standard NACA 4-digit geometry (Abbott & von Doenhoff, Theory of Wing Sections, 1959, §6.4):
@@ -573,7 +570,7 @@ def _smagorinsky_omega_3d(f, feq, rho, omega0, Cs, cx, cy, cz):
 def _lbm_step_3d(
     f: torch.Tensor,
     omega: float,
-    solid: Optional[torch.Tensor],
+    solid: torch.Tensor | None,
     cx: torch.Tensor,
     cy: torch.Tensor,
     cz: torch.Tensor,
@@ -605,7 +602,7 @@ def _lbm_step_3d(
 
 def airfoil_naca_mask_3d(nx: int, ny: int, nz: int, chord: int, aoa_deg: float = 0.0,
                           naca: str = "0012", z0: int = 0,
-                          z1: Optional[int] = None) -> torch.Tensor:
+                          z1: int | None = None) -> torch.Tensor:
     """
     3-D obstacle mask: the 2-D NACA airfoil cross-section (airfoil_naca_mask)
     extruded uniformly along the z (span) axis from z0 to z1 (exclusive).
@@ -651,7 +648,7 @@ class LBMSolver3D(SolverBase):
         nz:            int   = 32,
         Re:            float = 100.0,
         u_in:          float = 0.05,
-        obstacle_mask: Optional[torch.Tensor] = None,
+        obstacle_mask: torch.Tensor | None = None,
         Cs:            float = 0.0,
     ):
         super().__init__()
@@ -695,7 +692,7 @@ class LBMSolver3D(SolverBase):
 
     def forward(
         self,
-        f0:         Optional[torch.Tensor] = None,
+        f0:         torch.Tensor | None = None,
         *,
         steps:      int = 1000,
         save_every: int = 100,

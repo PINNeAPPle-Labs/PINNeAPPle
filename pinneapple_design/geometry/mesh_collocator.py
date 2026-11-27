@@ -23,7 +23,6 @@ Quick start
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
 
 import numpy as np
 
@@ -66,7 +65,7 @@ class MeshCollocatorConfig:
     domain: str = "convex_hull"       # "bbox" | "convex_hull" | "trimesh"
     boundary_mode: str = "surface"    # "surface" | "bbox_planes"
     hollow: bool = False
-    seed: Optional[int] = None
+    seed: int | None = None
     max_rejection_tries: int = 100
 
 
@@ -88,8 +87,8 @@ class CollocationBatch3D:
     """
     X_interior: np.ndarray
     X_boundary: np.ndarray
-    normals_boundary: Optional[np.ndarray] = None
-    boundary_groups: Optional[Dict[str, np.ndarray]] = None
+    normals_boundary: np.ndarray | None = None
+    boundary_groups: dict[str, np.ndarray] | None = None
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -112,9 +111,9 @@ class MeshCollocator:
     def __init__(
         self,
         mesh: MeshData,
-        config: Optional[MeshCollocatorConfig] = None,
+        config: MeshCollocatorConfig | None = None,
         *,
-        inner_mesh: Optional[MeshData] = None,
+        inner_mesh: MeshData | None = None,
     ):
         self.mesh = mesh
         self.inner_mesh = inner_mesh
@@ -252,7 +251,7 @@ class MeshCollocator:
     # Boundary sampling
     # ------------------------------------------------------------------
 
-    def sample_boundary(self, n: int) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+    def sample_boundary(self, n: int) -> tuple[np.ndarray, np.ndarray | None]:
         """Sample ``n`` boundary points and (optionally) their normals.
 
         Returns (X_bnd, normals) where normals may be None.
@@ -339,7 +338,7 @@ class MeshCollocator:
         X_int = self.sample_interior(cfg.n_interior) if cfg.n_interior > 0 else np.zeros((0, 3))
         X_bnd, normals = self.sample_boundary(cfg.n_boundary) if cfg.n_boundary > 0 else (np.zeros((0, 3)), None)
 
-        bnd_groups: Optional[Dict[str, np.ndarray]] = None
+        bnd_groups: dict[str, np.ndarray] | None = None
         if cfg.boundary_mode == "bbox_planes" and cfg.n_boundary > 0:
             plane_names = ["xmin", "xmax", "ymin", "ymax", "zmin", "zmax"]
             b0, b1 = self.mesh.bounds()
@@ -367,7 +366,7 @@ class MeshCollocator:
         self,
         device: str = "cpu",
         dtype=None,
-    ) -> Dict[str, "torch.Tensor"]:
+    ) -> dict[str, torch.Tensor]:
         """Like :meth:`sample` but returns a dict of torch Tensors.
 
         Keys: ``"X_int"``, ``"X_bnd"``, ``"normals_bnd"`` (if available).

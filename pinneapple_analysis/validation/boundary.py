@@ -5,7 +5,7 @@ All checks accept NumPy arrays or PyTorch Tensors for point specifications.
 """
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Union
 
 import torch
 from torch import Tensor

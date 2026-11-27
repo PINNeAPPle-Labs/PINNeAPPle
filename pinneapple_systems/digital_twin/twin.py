@@ -47,15 +47,16 @@ import logging
 import queue
 import threading
 import time
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from dataclasses import dataclass
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
 from .state import Observation, SystemState
 from .io.sensors import SensorRegistry
 from .io.stream import BaseStream
-from .monitoring.anomaly import AnomalyMonitor, ThresholdDetector, ZScoreDetector
+from .monitoring.anomaly import AnomalyMonitor, ZScoreDetector
 
 logger = logging.getLogger(__name__)
 
@@ -131,11 +132,11 @@ class DigitalTwin:
     def __init__(
         self,
         model: Any,
-        field_names: List[str],
-        coord_names: Optional[List[str]] = None,
+        field_names: list[str],
+        coord_names: list[str] | None = None,
         *,
-        config: Optional[DigitalTwinConfig] = None,
-        assimilation_filter: Optional[Any] = None,
+        config: DigitalTwinConfig | None = None,
+        assimilation_filter: Any | None = None,
     ) -> None:
         self.model = model
         self.field_names = list(field_names)
@@ -159,7 +160,7 @@ class DigitalTwin:
         )
 
         # Streams and queues
-        self._streams: List[BaseStream] = []
+        self._streams: list[BaseStream] = []
         self._obs_queue: queue.Queue = queue.Queue(
             maxsize=self.cfg.obs_queue_maxsize
         )
@@ -180,21 +181,21 @@ class DigitalTwin:
         )
 
         # Callbacks
-        self._obs_callbacks: List[Callable[[Observation], None]] = []
-        self._state_callbacks: List[Callable[[SystemState], None]] = []
-        self._anomaly_callbacks: List[Callable[[Any], None]] = []
+        self._obs_callbacks: list[Callable[[Observation], None]] = []
+        self._state_callbacks: list[Callable[[SystemState], None]] = []
+        self._anomaly_callbacks: list[Callable[[Any], None]] = []
 
         # Internal bookkeeping
         self._running = False
-        self._update_thread: Optional[threading.Thread] = None
+        self._update_thread: threading.Thread | None = None
         self._step_count: int = 0
-        self._last_observations: List[Observation] = []
+        self._last_observations: list[Observation] = []
 
     # ------------------------------------------------------------------
     # Default filter construction
     # ------------------------------------------------------------------
 
-    def _build_default_filter(self) -> Optional[Any]:
+    def _build_default_filter(self) -> Any | None:
         """Build a default EKF or EnKF from cfg when no filter is supplied.
 
         Uses an identity state-transition and identity observation model whose
@@ -277,8 +278,8 @@ class DigitalTwin:
 
     def _predict_at_coords(
         self,
-        coords: Dict[str, np.ndarray],
-    ) -> Dict[str, np.ndarray]:
+        coords: dict[str, np.ndarray],
+    ) -> dict[str, np.ndarray]:
         """
         Run the surrogate model on the given coordinates.
 
@@ -304,10 +305,10 @@ class DigitalTwin:
                 out = out[:, None]
             return {f: out[:, i] for i, f in enumerate(self.field_names) if i < out.shape[1]}
 
-    def _torch_predict(self, X_np: "np.ndarray") -> Dict[str, "np.ndarray"]:
+    def _torch_predict(self, X_np: np.ndarray) -> dict[str, np.ndarray]:
         """Batched GPU inference with optional AMP."""
         import torch
-        results: Dict[str, List["np.ndarray"]] = {f: [] for f in self.field_names}
+        results: dict[str, list[np.ndarray]] = {f: [] for f in self.field_names}
         N = X_np.shape[0]
         bs = self.cfg.batch_size
 
@@ -353,9 +354,9 @@ class DigitalTwin:
         # Keep only recent observations
         self._last_observations = self._last_observations[-200:]
 
-    def _drain_queue(self) -> List[Observation]:
+    def _drain_queue(self) -> list[Observation]:
         """Drain all pending observations from the queue."""
-        obs_list: List[Observation] = []
+        obs_list: list[Observation] = []
         while True:
             try:
                 obs = self._obs_queue.get_nowait()
@@ -369,7 +370,7 @@ class DigitalTwin:
     # State update
     # ------------------------------------------------------------------
 
-    def _update_state(self, new_fields: Dict[str, np.ndarray]) -> None:
+    def _update_state(self, new_fields: dict[str, np.ndarray]) -> None:
         """Apply model predictions to the current system state."""
         self.state.timestamp = time.time()
         for k, v in new_fields.items():
@@ -377,8 +378,8 @@ class DigitalTwin:
 
     def _check_anomalies(
         self,
-        observations: List[Observation],
-        predictions: Dict[str, np.ndarray],
+        observations: list[Observation],
+        predictions: dict[str, np.ndarray],
     ) -> None:
         """Compare point predictions against observations."""
         if self.state.covariance is not None:
@@ -389,7 +390,7 @@ class DigitalTwin:
                 continue
             # Find predicted value at the observation location
             # (nearest-point lookup for simplicity)
-            pred_vals: Dict[str, float] = {}
+            pred_vals: dict[str, float] = {}
             for f in obs.values:
                 if f in predictions:
                     # Single-point prediction at the sensor location
@@ -414,7 +415,7 @@ class DigitalTwin:
 
     def _assimilation_update(
         self,
-        observations: List[Observation],
+        observations: list[Observation],
     ) -> None:
         """Run data assimilation filter with new observations.
 
@@ -425,7 +426,7 @@ class DigitalTwin:
             return
         try:
             # Accumulate all readings per field, then average.
-            field_acc: Dict[str, List[float]] = {f: [] for f in self.field_names}
+            field_acc: dict[str, list[float]] = {f: [] for f in self.field_names}
             for obs in observations:
                 for f in self.field_names:
                     if f in obs.values:
@@ -543,7 +544,7 @@ class DigitalTwin:
             self._update_thread.join(timeout=10.0)
         logger.info("DigitalTwin stopped.")
 
-    def __enter__(self) -> "DigitalTwin":
+    def __enter__(self) -> DigitalTwin:
         self.start()
         return self
 
@@ -554,14 +555,14 @@ class DigitalTwin:
     # Snapshot / forecast helpers
     # ------------------------------------------------------------------
 
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self) -> dict[str, Any]:
         """Return the current state as a JSON-serialisable dict."""
         return self.state.snapshot()
 
     def predict(
         self,
-        coords: Dict[str, np.ndarray],
-    ) -> Dict[str, np.ndarray]:
+        coords: dict[str, np.ndarray],
+    ) -> dict[str, np.ndarray]:
         """
         Run a one-shot prediction at arbitrary coordinates.
 
@@ -572,7 +573,7 @@ class DigitalTwin:
 
     def set_domain_coords(
         self,
-        coords: Dict[str, np.ndarray],
+        coords: dict[str, np.ndarray],
     ) -> None:
         """
         Set the coordinate grid on which the model is evaluated
@@ -588,7 +589,7 @@ class DigitalTwin:
             if f not in self.state.fields or self.state.fields[f].shape != (n,):
                 self.state.fields[f] = np.zeros(n, dtype=np.float32)
 
-    def get_history_df(self) -> "Any":
+    def get_history_df(self) -> Any:
         """
         Return history as a pandas DataFrame (if pandas is available).
 
@@ -616,9 +617,9 @@ class DigitalTwin:
 
 def build_digital_twin(
     model: Any,
-    field_names: List[str],
+    field_names: list[str],
     *,
-    coord_names: Optional[List[str]] = None,
+    coord_names: list[str] | None = None,
     device: str = "cpu",
     update_interval: float = 0.5,
     anomaly_z_threshold: float = 3.0,

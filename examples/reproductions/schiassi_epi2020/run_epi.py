@@ -28,6 +28,9 @@ from pinneapple_physics.paper_problems_epi import (  # noqa: E402
     synthetic_data,
 )
 from pinneapple_simulation.numerical_solvers.xtfc_inverse import solve_xtfc_inverse  # noqa: E402
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Tables 1-3: delta -> |err| per parameter (and R0, reported only)

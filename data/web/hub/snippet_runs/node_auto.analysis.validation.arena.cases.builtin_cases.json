@@ -1,0 +1,12 @@
+{
+ "code_hash": "c9978885b22f7167",
+ "figures": [],
+ "id": "node:auto.analysis.validation.arena.cases.builtin_cases",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 28.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[PosixPath('/Users/yanbarros/Documents/GitHub/wt-ci/pinneapple_analysis/validation/arena/cases/burgers_1d.json'), PosixPath('/Users/yanbarros/Documents/GitHub/wt-ci/pinneapple_analysis/validation/arena/cases/darcy_2d.json')]",
+ "timed_out": false
+}

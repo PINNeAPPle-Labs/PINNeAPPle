@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Protocol, runtime_checkable, Union
+from typing import Any, Protocol, runtime_checkable
 
 import torch
 
@@ -19,9 +19,9 @@ class PhysicalSampleLike(Protocol):
     This is used for duck-typing compatibility between the synth module and
     external `PhysicalSample` implementations.
     """
-    fields: Dict[str, Any]
-    coords: Dict[str, Any]
-    meta: Dict[str, Any]
+    fields: dict[str, Any]
+    coords: dict[str, Any]
+    meta: dict[str, Any]
 
 
 def has_pinnego_physical_sample() -> bool:
@@ -88,8 +88,8 @@ def _torchify_tree(obj: Any, *, device=None, dtype=None) -> Any:
 def to_physical_sample(
     sample_like: Any,
     *,
-    device: Optional[Union[str, torch.device]] = None,
-    dtype: Optional[torch.dtype] = None,
+    device: str | torch.device | None = None,
+    dtype: torch.dtype | None = None,
 ) -> Any:
     """
     Best-effort conversion:
@@ -185,8 +185,8 @@ def to_physical_sample(
             coords: Coordinate mapping (e.g., time and space grids).
             meta: Metadata mapping describing how the sample was generated.
         """
-        fields: Dict[str, Any]
-        coords: Dict[str, Any]
-        meta: Dict[str, Any]
+        fields: dict[str, Any]
+        coords: dict[str, Any]
+        meta: dict[str, Any]
 
     return SynthPhysicalSample(fields=fields_t, coords=coords_t, meta=meta)

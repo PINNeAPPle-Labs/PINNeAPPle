@@ -65,6 +65,9 @@ def make_figures(summary: dict, out: str) -> None:
     import matplotlib.pyplot as plt
     from matplotlib.collections import PolyCollection
     from matplotlib.colors import LinearSegmentedColormap
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     _style()
     s = summary["setup"]
     runs = summary["runs"]

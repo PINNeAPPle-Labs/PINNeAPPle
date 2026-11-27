@@ -1,0 +1,12 @@
+{
+ "code_hash": "60e09ff9d310bccc",
+ "figures": [],
+ "id": "example:examples/physics_data_schema",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 0.34,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PDEBench -> the universal physics data schema -> verification gates, end to end | numerical methods | not curated",
+ "timed_out": false
+}

@@ -13,7 +13,6 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
@@ -79,7 +78,7 @@ def scope() -> dict:
                      "check": "Assumption to confirm"}}
 
 
-def _run(data: bytes, filename: str, sheet: Optional[str], time_column: Optional[str], units: Optional[str]) -> dict:
+def _run(data: bytes, filename: str, sheet: str | None, time_column: str | None, units: str | None) -> dict:
     if len(data) > MAX_MB * 1024 * 1024:
         raise HTTPException(413, f"File larger than {MAX_MB:g} MB.")
     if not data:
@@ -116,8 +115,8 @@ def meta():
 
 
 @app.post("/api/analyze")
-async def api_analyze(file: UploadFile = File(...), sheet: Optional[str] = Form(None),
-                      time_column: Optional[str] = Form(None), units: Optional[str] = Form(None)):
+async def api_analyze(file: UploadFile = File(...), sheet: str | None = Form(None),
+                      time_column: str | None = Form(None), units: str | None = Form(None)):
     """Upload a table; returns the quality report (JSON). `units` is an optional JSON object
     {column: unit} that overrides units read from headers."""
     data = await file.read()
@@ -211,8 +210,8 @@ def _opt_run(df, report, cfg: dict, extra=None) -> dict:
 
 
 @app.post("/api/optimize")
-async def api_optimize(file: UploadFile = File(...), config: str = Form(...), sheet: Optional[str] = Form(None),
-                       time_column: Optional[str] = Form(None), units: Optional[str] = Form(None)):
+async def api_optimize(file: UploadFile = File(...), config: str = Form(...), sheet: str | None = Form(None),
+                       time_column: str | None = Form(None), units: str | None = Form(None)):
     """Train a model of the KPI from levers + context and recommend lever settings. `config` (JSON):
     {target, goal: minimize|maximize, levers: [...], context: [...], constraints: [{column, op: "<="|">=", value}],
     bounds: {lever: [lo, hi]}, max_move: 0-1}."""

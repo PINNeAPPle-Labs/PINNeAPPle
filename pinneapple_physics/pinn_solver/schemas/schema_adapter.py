@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from dataclasses import dataclass
+from typing import Any
 
 from pinneapple_physics.pinn_solver.factory import PINNProblemSpec
 from pinneapple_physics.pinn_solver.io import ConditionSpec, SamplingSpec, PINNMapping
@@ -24,7 +24,7 @@ class SchemaAdapterOptions:
           * "slice" -> sample on coord slice (lev, etc.)
     """
     # Default loss weights — None means use built-in defaults (set in __post_init__)
-    default_loss_weights: Optional[Dict[str, float]] = None
+    default_loss_weights: dict[str, float] | None = None
     # Default condition weight if missing
     default_condition_weight: float = 1.0
     # Whether to create sampling specs from schema conditions
@@ -39,7 +39,7 @@ class SchemaAdapterOptions:
 # Helpers: tolerant schema access
 # ----------------------------
 
-def _get(d: Dict[str, Any], keys: List[str], default=None):
+def _get(d: dict[str, Any], keys: list[str], default=None):
     """Get nested value at path keys; return default if any key missing."""
     cur = d
     for k in keys:
@@ -49,7 +49,7 @@ def _get(d: Dict[str, Any], keys: List[str], default=None):
     return cur
 
 
-def _as_list(x) -> List[Any]:
+def _as_list(x) -> list[Any]:
     """Convert value to list (None->[], list->identity, else wrap)."""
     if x is None:
         return []
@@ -58,7 +58,7 @@ def _as_list(x) -> List[Any]:
     return [x]
 
 
-def _pick_first_present(schema: Dict[str, Any], candidates: List[List[str]], default=None):
+def _pick_first_present(schema: dict[str, Any], candidates: list[list[str]], default=None):
     """Return first value found at any candidate path in schema; else default."""
     for path in candidates:
         val = _get(schema, path, default=None)
@@ -85,18 +85,18 @@ class SchemaAdapter:
     def __init__(
         self,
         mapping: PINNMapping,
-        options: Optional[SchemaAdapterOptions] = None,
+        options: SchemaAdapterOptions | None = None,
     ) -> None:
         self.mapping = mapping
         self.options = options or SchemaAdapterOptions()
 
     def to_pinn_problem(
         self,
-        schema: Dict[str, Any],
+        schema: dict[str, Any],
         *,
-        base_sampling: Optional[SamplingSpec] = None,
+        base_sampling: SamplingSpec | None = None,
         verbose: bool = False,
-    ) -> Tuple[PINNProblemSpec, Optional[SamplingSpec]]:
+    ) -> tuple[PINNProblemSpec, SamplingSpec | None]:
         """
         Returns:
           (problem_spec, sampling_spec_or_none)
@@ -141,7 +141,7 @@ class SchemaAdapter:
     # Extractors
     # ----------------------------
 
-    def _extract_pde_residuals(self, schema: Dict[str, Any]) -> List[str]:
+    def _extract_pde_residuals(self, schema: dict[str, Any]) -> list[str]:
         """
         Tries common locations:
           schema["equations"]["residuals"]
@@ -163,7 +163,7 @@ class SchemaAdapter:
         residuals = [str(x) for x in _as_list(val) if str(x).strip()]
         return residuals
 
-    def _extract_inverse_params(self, schema: Dict[str, Any]) -> List[str]:
+    def _extract_inverse_params(self, schema: dict[str, Any]) -> list[str]:
         """
         Common locations:
           schema["inverse"]["params"]  -> list[str]
@@ -179,7 +179,7 @@ class SchemaAdapter:
         )
         return [str(x) for x in _as_list(val) if str(x).strip()]
 
-    def _extract_loss_weights(self, schema: Dict[str, Any]) -> Dict[str, float]:
+    def _extract_loss_weights(self, schema: dict[str, Any]) -> dict[str, float]:
         """
         Common locations:
           schema["loss"]["weights"]
@@ -202,7 +202,7 @@ class SchemaAdapter:
                     pass
         return out
 
-    def _extract_conditions(self, schema: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_conditions(self, schema: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Conditions format (MVP):
           schema["conditions"] = [
@@ -224,7 +224,7 @@ class SchemaAdapter:
         )
 
         conds_in = _as_list(val)
-        conds_out: List[Dict[str, Any]] = []
+        conds_out: list[dict[str, Any]] = []
 
         for i, c in enumerate(conds_in):
             if not isinstance(c, dict):
@@ -258,10 +258,10 @@ class SchemaAdapter:
 
     def _build_sampling(
         self,
-        schema: Dict[str, Any],
+        schema: dict[str, Any],
         *,
-        base_sampling: Optional[SamplingSpec],
-        conditions: List[Dict[str, Any]],
+        base_sampling: SamplingSpec | None,
+        conditions: list[dict[str, Any]],
     ) -> SamplingSpec:
         """
         Creates a SamplingSpec for UPDDataset from schema conditions.
@@ -295,7 +295,7 @@ class SchemaAdapter:
             )
 
         # If base_sampling already has conditions, keep them and append schema-derived ones
-        schema_specs: List[ConditionSpec] = []
+        schema_specs: list[ConditionSpec] = []
         for c in conditions:
             ctype = (c.get("type") or "interior").lower().strip()
             n = c.get("n")

@@ -1,0 +1,12 @@
+{
+ "code_hash": "98e8c15adc7035c4",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.capabilities.suggest_problem_spec",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "suggest problem spec -> pinneapple_physics.pde_environment.capabilities:suggest_problem_spec\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'description': ''}",
+ "timed_out": false
+}

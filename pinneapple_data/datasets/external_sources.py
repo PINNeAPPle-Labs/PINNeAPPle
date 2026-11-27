@@ -1,6 +1,6 @@
 """External data source integrations for PINNeAPPle.
 
-Provides loaders for 12 scientific/engineering data sources with automatic
+Provides loaders for 15 scientific/engineering data sources with automatic
 fallback to cached or synthetic data when the source is unavailable.
 
 Sources
@@ -19,6 +19,8 @@ Sources
   su2                 — Aerodynamics / CFD / optimization (SU2 Foundation)
   nasa_power          — Daily point meteorology / solar resource (NASAPowerClient)
   open_meteo          — Hourly historical weather archive (OpenMeteoClient)
+  destine             — Destination Earth platform: the Digital Twin catalogue and the
+                        Climate DT collections (DestinEClient)
 
 Usage
 -----
@@ -39,6 +41,8 @@ Authentication
   Materials Project : MP_API_KEY environment variable or api_key param
   NREL              : NREL_API_KEY environment variable or api_key param
   Copernicus CDS    : ~/.cdsapirc config file (see https://cds.climate.copernicus.eu)
+  DestinE           : DESTINE_CLIENT_ID / DESTINE_CLIENT_SECRET (service account key) for items
+                      and downloads; the catalogue itself needs no credentials
   All others        : public REST APIs, no key required
 """
 from __future__ import annotations
@@ -46,10 +50,11 @@ from __future__ import annotations
 import json
 import logging
 import os
+import time
 import urllib.parse
 import urllib.request
 from functools import lru_cache
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -65,7 +70,7 @@ _HEADERS = {"User-Agent": "PINNeAPPle/0.5 (pinneapple-project)"}
 # HTTP helper
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _get_json(url: str, headers: Optional[Dict] = None, timeout: int = _TIMEOUT) -> Any:
+def _get_json(url: str, headers: dict | None = None, timeout: int = _TIMEOUT) -> Any:
     h = dict(_HEADERS)
     if headers:
         h.update(headers)
@@ -74,10 +79,33 @@ def _get_json(url: str, headers: Optional[Dict] = None, timeout: int = _TIMEOUT)
         return json.loads(resp.read().decode("utf-8"))
 
 
-def _get_bytes(url: str, timeout: int = _TIMEOUT) -> bytes:
-    req = urllib.request.Request(url, headers=_HEADERS)
+def _get_bytes(url: str, timeout: int = _TIMEOUT, headers: dict | None = None) -> bytes:
+    h = dict(_HEADERS)
+    if headers:
+        h.update(headers)
+    req = urllib.request.Request(url, headers=h)
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
+
+
+def _post_json(url: str, payload: Any, timeout: int = _TIMEOUT,
+               headers: dict | None = None) -> Any:
+    h = dict(_HEADERS)
+    h["Content-Type"] = "application/json"
+    if headers:
+        h.update(headers)
+    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=h, method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _post_form(url: str, form: dict[str, str], timeout: int = _TIMEOUT) -> Any:
+    h = dict(_HEADERS)
+    h["Content-Type"] = "application/x-www-form-urlencoded"
+    req = urllib.request.Request(url, data=urllib.parse.urlencode(form).encode("utf-8"), headers=h,
+                                 method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -98,15 +126,15 @@ class MaterialsProjectClient:
 
     BASE = "https://api.materialsproject.org"
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         self.api_key = api_key or os.environ.get("MP_API_KEY", "")
 
     def query(
         self,
-        criteria: Optional[Dict] = None,
-        fields: Optional[List[str]] = None,
+        criteria: dict | None = None,
+        fields: list[str] | None = None,
         limit: int = 100,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Query materials using mp-api client (preferred) or REST fallback."""
         try:
             from mp_api.client import MPRester
@@ -125,7 +153,7 @@ class MaterialsProjectClient:
             logger.warning(f"MaterialsProjectClient: {exc}")
             return []
 
-    def _rest_query(self, fields: List[str], limit: int) -> List[Dict]:
+    def _rest_query(self, fields: list[str], limit: int) -> list[dict]:
         if not self.api_key:
             return []
         url = (f"{self.BASE}/materials/summary/?_fields="
@@ -139,7 +167,7 @@ class MaterialsProjectClient:
 
 
 @lru_cache(maxsize=1)
-def _load_mp_electronic() -> Dict[str, np.ndarray]:
+def _load_mp_electronic() -> dict[str, np.ndarray]:
     client = MaterialsProjectClient()
     docs = client.query(limit=500, fields=[
         "material_id", "band_gap", "formation_energy_per_atom",
@@ -193,10 +221,10 @@ class NOMADClient:
 
     def search(
         self,
-        query: Optional[Dict] = None,
-        required: Optional[List[str]] = None,
+        query: dict | None = None,
+        required: list[str] | None = None,
         page_size: int = 100,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         try:
             payload = json.dumps({
                 "query": query or {},
@@ -217,7 +245,7 @@ class NOMADClient:
 
 
 @lru_cache(maxsize=1)
-def _load_nomad_dft() -> Dict[str, np.ndarray]:
+def _load_nomad_dft() -> dict[str, np.ndarray]:
     client = NOMADClient()
     entries = client.search(
         query={"results.method.simulation.program_name": "VASP"},
@@ -282,14 +310,14 @@ class NASAClient:
         "https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv"
     )
 
-    def fetch_exoplanets(self) -> List[Dict]:
+    def fetch_exoplanets(self) -> list[dict]:
         try:
             return _get_json(self.EXOPLANET_URL)
         except Exception as exc:
             logger.warning(f"NASA exoplanet: {exc}")
             return []
 
-    def fetch_giss_temp(self) -> Dict[str, np.ndarray]:
+    def fetch_giss_temp(self) -> dict[str, np.ndarray]:
         try:
             raw = _get_bytes(self.GISS_TEMP_URL).decode("utf-8", errors="replace")
             years, anoms = [], []
@@ -314,7 +342,7 @@ class NASAClient:
 
 
 @lru_cache(maxsize=1)
-def _load_nasa_exoplanets() -> Dict[str, np.ndarray]:
+def _load_nasa_exoplanets() -> dict[str, np.ndarray]:
     client = NASAClient()
     rows = client.fetch_exoplanets()
     if not rows:
@@ -339,7 +367,7 @@ def _load_nasa_exoplanets() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_nasa_giss_temp() -> Dict[str, np.ndarray]:
+def _load_nasa_giss_temp() -> dict[str, np.ndarray]:
     client = NASAClient()
     data = client.fetch_giss_temp()
     if not data:
@@ -404,7 +432,7 @@ class NOAAClient:
         "time-series/globe/land_ocean/ytd/12/1880-2023.json"
     )
 
-    def fetch_sst(self) -> Dict[str, np.ndarray]:
+    def fetch_sst(self) -> dict[str, np.ndarray]:
         try:
             data = _get_json(self.WOA_URL)
             rows = data.get("rows", [])
@@ -420,7 +448,7 @@ class NOAAClient:
             logger.warning(f"NOAA SST: {exc}")
             return {}
 
-    def fetch_temp_anomaly(self) -> Dict[str, np.ndarray]:
+    def fetch_temp_anomaly(self) -> dict[str, np.ndarray]:
         try:
             raw = _get_json(self.NCEI_ANOM_URL)
             series = raw.get("data", {})
@@ -434,7 +462,7 @@ class NOAAClient:
 
 
 @lru_cache(maxsize=1)
-def _load_noaa_sst() -> Dict[str, np.ndarray]:
+def _load_noaa_sst() -> dict[str, np.ndarray]:
     data = NOAAClient().fetch_sst()
     if not data:
         rng = np.random.default_rng(31)
@@ -447,7 +475,7 @@ def _load_noaa_sst() -> Dict[str, np.ndarray]:
 
 
 @lru_cache(maxsize=1)
-def _load_noaa_climate() -> Dict[str, np.ndarray]:
+def _load_noaa_climate() -> dict[str, np.ndarray]:
     data = NOAAClient().fetch_temp_anomaly()
     if not data:
         rng = np.random.default_rng(37)
@@ -502,7 +530,7 @@ class CopernicusClient:
     )
     OPEN_DATA_URL = "https://dataspace.copernicus.eu/api/v1"
 
-    def fetch_era5_synthetic(self, variable: str = "2m_temperature", n: int = 365) -> Dict[str, np.ndarray]:
+    def fetch_era5_synthetic(self, variable: str = "2m_temperature", n: int = 365) -> dict[str, np.ndarray]:
         """Try cdsapi; fall back to realistic synthetic ERA5-like data."""
         try:
             import cdsapi
@@ -538,7 +566,7 @@ class CopernicusClient:
 
 
 @lru_cache(maxsize=1)
-def _load_copernicus_era5() -> Dict[str, np.ndarray]:
+def _load_copernicus_era5() -> dict[str, np.ndarray]:
     return CopernicusClient().fetch_era5_synthetic()
 
 
@@ -567,14 +595,14 @@ class BrazilDataCubeClient:
 
     STAC_URL = "https://brazildatacube.dpi.inpe.br/stac"
 
-    def fetch_collections(self) -> List[Dict]:
+    def fetch_collections(self) -> list[dict]:
         try:
             return _get_json(f"{self.STAC_URL}/collections").get("collections", [])
         except Exception as exc:
             logger.warning(f"BrazilDataCube: {exc}")
             return []
 
-    def fetch_ndvi_timeseries(self, bbox=(-48.0, -16.0, -47.0, -15.0), limit: int = 50) -> Dict[str, np.ndarray]:
+    def fetch_ndvi_timeseries(self, bbox=(-48.0, -16.0, -47.0, -15.0), limit: int = 50) -> dict[str, np.ndarray]:
         """Fetch synthetic NDVI time series for a Brazil bounding box."""
         try:
             url = (f"{self.STAC_URL}/search?collections=CB4_64_16D_STK-1"
@@ -602,7 +630,7 @@ class BrazilDataCubeClient:
 
 
 @lru_cache(maxsize=1)
-def _load_bdc_ndvi() -> Dict[str, np.ndarray]:
+def _load_bdc_ndvi() -> dict[str, np.ndarray]:
     return BrazilDataCubeClient().fetch_ndvi_timeseries()
 
 
@@ -634,7 +662,7 @@ class CPTECClient:
     # Historical reanalysis data (CFSR-like, simplified endpoint)
     REANALYSIS_URL = "https://ftp.cptec.inpe.br/modelos/tempo/MERGE/GPM/"
 
-    def fetch_precipitation_series(self, n_days: int = 365) -> Dict[str, np.ndarray]:
+    def fetch_precipitation_series(self, n_days: int = 365) -> dict[str, np.ndarray]:
         """Synthetic INPE/MERGE-like precipitation time series (Brazil)."""
         rng = np.random.default_rng(63)
         t = np.arange(n_days, dtype=np.float32)
@@ -645,7 +673,7 @@ class CPTECClient:
 
 
 @lru_cache(maxsize=1)
-def _load_cptec_precip() -> Dict[str, np.ndarray]:
+def _load_cptec_precip() -> dict[str, np.ndarray]:
     return CPTECClient().fetch_precipitation_series()
 
 
@@ -676,7 +704,7 @@ class ONSClient:
     # ONS CKAN dataset IDs
     LOAD_DATASET = "CARGA_ENERGIA_SUBSISTEMA"
 
-    def fetch_load(self, resource_id: str = "CARGA_ENERGIA_SUBSISTEMA", limit: int = 500) -> Dict[str, np.ndarray]:
+    def fetch_load(self, resource_id: str = "CARGA_ENERGIA_SUBSISTEMA", limit: int = 500) -> dict[str, np.ndarray]:
         try:
             url = f"https://dados.ons.org.br/api/action/datastore_search?resource_id={resource_id}&limit={limit}"
             resp = _get_json(url)
@@ -699,7 +727,7 @@ class ONSClient:
 
 
 @lru_cache(maxsize=1)
-def _load_ons_load() -> Dict[str, np.ndarray]:
+def _load_ons_load() -> dict[str, np.ndarray]:
     return ONSClient().fetch_load()
 
 
@@ -733,10 +761,10 @@ class NRELClient:
 
     BASE = "https://developer.nrel.gov/api"
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         self.api_key = api_key or os.environ.get("NREL_API_KEY", "DEMO_KEY")
 
-    def fetch_solar_resource(self, lat: float = 37.5, lon: float = -105.5) -> Dict[str, np.ndarray]:
+    def fetch_solar_resource(self, lat: float = 37.5, lon: float = -105.5) -> dict[str, np.ndarray]:
         try:
             url = (f"{self.BASE}/solar/solar_resource/v1.json"
                    f"?api_key={self.api_key}&lat={lat}&lon={lon}")
@@ -758,7 +786,7 @@ class NRELClient:
         return {"month": months, "direct_normal_irradiance": np.clip(dni, 0, None),
                 "_synthetic": np.array([1])}
 
-    def fetch_wind_resource(self, lat: float = 41.7, lon: float = -100.6) -> Dict[str, np.ndarray]:
+    def fetch_wind_resource(self, lat: float = 41.7, lon: float = -100.6) -> dict[str, np.ndarray]:
         try:
             url = (f"{self.BASE}/wind/wind_toolkit/v2/wind_data.json"
                    f"?api_key={self.api_key}&lat={lat}&lon={lon}&attributes=windspeed_80m&interval=60&years=2012")
@@ -778,12 +806,12 @@ class NRELClient:
 
 
 @lru_cache(maxsize=1)
-def _load_nrel_solar() -> Dict[str, np.ndarray]:
+def _load_nrel_solar() -> dict[str, np.ndarray]:
     return NRELClient().fetch_solar_resource()
 
 
 @lru_cache(maxsize=1)
-def _load_nrel_wind() -> Dict[str, np.ndarray]:
+def _load_nrel_wind() -> dict[str, np.ndarray]:
     return NRELClient().fetch_wind_resource()
 
 
@@ -825,7 +853,7 @@ class DesignSafeClient:
     BASE = "https://agave.designsafe-ci.org"
     PUBLIC_API = "https://www.designsafe-ci.org/api"
 
-    def fetch_earthquake_record(self) -> Dict[str, np.ndarray]:
+    def fetch_earthquake_record(self) -> dict[str, np.ndarray]:
         """Synthetic El Centro 1940 EW-like ground acceleration."""
         rng = np.random.default_rng(89)
         dt = 0.02  # 50 Hz
@@ -840,7 +868,7 @@ class DesignSafeClient:
 
 
 @lru_cache(maxsize=1)
-def _load_designsafe_seismic() -> Dict[str, np.ndarray]:
+def _load_designsafe_seismic() -> dict[str, np.ndarray]:
     return DesignSafeClient().fetch_earthquake_record()
 
 
@@ -873,10 +901,10 @@ class OpenFOAMClient:
     If ``openfoam_data_dir`` is set, attempts to parse actual case output.
     """
 
-    def __init__(self, openfoam_data_dir: Optional[str] = None) -> None:
+    def __init__(self, openfoam_data_dir: str | None = None) -> None:
         self.data_dir = openfoam_data_dir
 
-    def cylinder_drag_curve(self, re_range=(1, 200), n: int = 50) -> Dict[str, np.ndarray]:
+    def cylinder_drag_curve(self, re_range=(1, 200), n: int = 50) -> dict[str, np.ndarray]:
         """Drag coefficient vs Reynolds number for 2D cylinder."""
         re = np.logspace(np.log10(re_range[0]), np.log10(re_range[1]), n, dtype=np.float32)
         # Oseen correction approximation
@@ -884,7 +912,7 @@ class OpenFOAMClient:
         cd = cd.astype(np.float32)
         return {"reynolds_number": re, "drag_coefficient": cd}
 
-    def channel_velocity_profile(self, re_tau: float = 395, n: int = 64) -> Dict[str, np.ndarray]:
+    def channel_velocity_profile(self, re_tau: float = 395, n: int = 64) -> dict[str, np.ndarray]:
         """Turbulent channel flow mean velocity profile (DNS-like, log-law)."""
         y_plus = np.logspace(0, np.log10(re_tau), n, dtype=np.float32)
         # Spalding law-of-the-wall
@@ -896,7 +924,7 @@ class OpenFOAMClient:
         ).astype(np.float32)
         return {"y_plus": y_plus, "u_plus": u_plus}
 
-    def cavity_flow(self, re: float = 1000, n: int = 64) -> Dict[str, np.ndarray]:
+    def cavity_flow(self, re: float = 1000, n: int = 64) -> dict[str, np.ndarray]:
         """Lid-driven cavity: x-velocity along vertical center-line."""
         rng = np.random.default_rng(97)
         y = np.linspace(0, 1, n, dtype=np.float32)
@@ -907,17 +935,17 @@ class OpenFOAMClient:
 
 
 @lru_cache(maxsize=1)
-def _load_of_cylinder() -> Dict[str, np.ndarray]:
+def _load_of_cylinder() -> dict[str, np.ndarray]:
     return OpenFOAMClient().cylinder_drag_curve()
 
 
 @lru_cache(maxsize=1)
-def _load_of_channel() -> Dict[str, np.ndarray]:
+def _load_of_channel() -> dict[str, np.ndarray]:
     return OpenFOAMClient().channel_velocity_profile()
 
 
 @lru_cache(maxsize=1)
-def _load_of_cavity() -> Dict[str, np.ndarray]:
+def _load_of_cavity() -> dict[str, np.ndarray]:
     return OpenFOAMClient().cavity_flow(re=1000)
 
 
@@ -971,12 +999,12 @@ class SU2Client:
     For real SU2 output, set ``su2_results_dir`` to a solved case directory.
     """
 
-    def __init__(self, su2_results_dir: Optional[str] = None) -> None:
+    def __init__(self, su2_results_dir: str | None = None) -> None:
         self.results_dir = su2_results_dir
 
     def naca0012_polar(
         self, mach: float = 0.3, n_alpha: int = 18
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """NACA 0012 lift/drag polar (thin-airfoil + correction approximation)."""
         alpha = np.linspace(-5, 20, n_alpha, dtype=np.float32)
         alpha_rad = np.deg2rad(alpha)
@@ -992,7 +1020,7 @@ class SU2Client:
             "mach": np.full(n_alpha, mach, dtype=np.float32),
         }
 
-    def rae2822_surface_cp(self, mach: float = 0.73, alpha: float = 2.79, n: int = 100) -> Dict[str, np.ndarray]:
+    def rae2822_surface_cp(self, mach: float = 0.73, alpha: float = 2.79, n: int = 100) -> dict[str, np.ndarray]:
         """RAE 2822 surface pressure coefficient (transonic, Cook et al. 1979-like)."""
         x = np.linspace(0, 1, n, dtype=np.float32)
         # Upper surface shock + expansion
@@ -1012,12 +1040,12 @@ class SU2Client:
 
 
 @lru_cache(maxsize=1)
-def _load_su2_naca0012() -> Dict[str, np.ndarray]:
+def _load_su2_naca0012() -> dict[str, np.ndarray]:
     return SU2Client().naca0012_polar()
 
 
 @lru_cache(maxsize=1)
-def _load_su2_rae2822() -> Dict[str, np.ndarray]:
+def _load_su2_rae2822() -> dict[str, np.ndarray]:
     return SU2Client().rae2822_surface_cp()
 
 
@@ -1165,3 +1193,199 @@ class OpenMeteoClient:
         """:meth:`fetch_archive_json` followed by :meth:`hourly_arrays`."""
         return self.hourly_arrays(self.fetch_archive_json(latitude, longitude, start_date, end_date, hourly,
                                                           **kwargs))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 15. DestinE (Destination Earth: Digital Twin catalogue and HDA)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class DestinEClient:
+    """Client for the DestinE Platform (Destination Earth, EU) and its Data Lake.
+
+    The platform has two tiers, and the difference decides what a caller can do:
+
+    * **Discovery, no credentials.** :meth:`collections` lists the whole portfolio (348
+      collections when checked in 2026-11, of which 72 are Climate DT and 2 Extremes DT) and
+      :meth:`collection` / :meth:`variables` read one collection's metadata: variables with
+      units, dimensions, temporal extent, licence and DOI.
+    * **Items and assets, OAuth2 token.** :meth:`search`, :meth:`items` and :meth:`download`
+      send a bearer token from the ``client_credentials`` grant of the platform's Keycloak
+      realm. The Digital Twins collections (the ``DT_CLIMATE`` and ``DT_EXTREMES`` ones) need
+      more than a token: the platform gates them behind an *upgraded access* that is requested
+      per user, so they answer 403 until it is granted.
+
+    Keep the two apart: a catalogue of what exists is available to anyone, and the km-scale
+    fields are not. A 403 here is that gate, not a bug.
+
+    Docs: https://platform.destine.eu/ . Registration (free) makes the account; the key pair
+    comes from a service account in My DataLake Services and is read from
+    ``DESTINE_CLIENT_ID`` / ``DESTINE_CLIENT_SECRET`` (or passed in). Errors that are not a
+    refusal (401/403) propagate as :class:`urllib.error.HTTPError`.
+
+        >>> c = DestinEClient()
+        >>> dt = c.climate_dt_collections()                     # no token, no account  # doctest: +SKIP
+        >>> dt[0]["id"]                                                                  # doctest: +SKIP
+        'EO.ECMWF.DAT.D1.DT_CLIMATE.G1.CMIP6_HIST_ICON.R1'
+        >>> vars = c.variables(dt[0]["id"])                                              # doctest: +SKIP
+        >>> vars["Temperature(clte_pl)"]["unit"]                                         # doctest: +SKIP
+        'K'
+        >>> c.search(dt[0]["id"], bbox=(-44, -24, -42, -22), limit=5)                     # doctest: +SKIP
+        Traceback (most recent call last):                        # without a token or with the
+        PermissionError: DestinE: ...                             # gate closed: 401 / 403
+    """
+
+    STAC_URL = "https://hda.data.destination-earth.eu/stac/v2"
+    TOKEN_URL = "https://auth.destine.eu/realms/desp/protocol/openid-connect/token"
+    REGISTER_URL = "https://platform.destine.eu/"
+    CLIMATE_DT = "DT_CLIMATE"
+
+    def __init__(self, client_id: str | None = None, client_secret: str | None = None,
+                 token: str | None = None, timeout: int = 60) -> None:
+        self.client_id = client_id or os.environ.get("DESTINE_CLIENT_ID", "")
+        self.client_secret = client_secret or os.environ.get("DESTINE_CLIENT_SECRET", "")
+        self.timeout = timeout
+        self._token = token or os.environ.get("DESTINE_TOKEN", "")
+        self._token_expires = 0.0          # monotonic deadline; 0 = the token given by the caller
+
+    # -- token -----------------------------------------------------------------
+
+    def token(self) -> str:
+        """A bearer token, fetched once by the ``client_credentials`` grant and cached until
+        shortly before it expires. Raises :class:`PermissionError` when there are no credentials."""
+        if self._token and (self._token_expires == 0.0 or time.monotonic() < self._token_expires):
+            return self._token
+        if not (self.client_id and self.client_secret):
+            raise PermissionError(
+                "DestinE: no credentials. The catalogue (collections, metadata, variables) needs none; "
+                "items and downloads need a free DestinE Platform account ("
+                f"{self.REGISTER_URL}) and a service-account key pair, read from DESTINE_CLIENT_ID and "
+                "DESTINE_CLIENT_SECRET or passed to the constructor. The Digital Twins collections "
+                "additionally need the platform's upgraded access, which is requested, not automatic.")
+        js = _post_form(self.TOKEN_URL, {"grant_type": "client_credentials", "client_id": self.client_id,
+                                        "client_secret": self.client_secret}, timeout=self.timeout)
+        self._token = js["access_token"]
+        self._token_expires = time.monotonic() + max(float(js.get("expires_in", 300)) - 60.0, 0.0)
+        return self._token
+
+    def _auth(self) -> dict[str, str]:
+        return {"Authorization": f"Bearer {self.token()}"}
+
+    def _denied(self, code: int) -> PermissionError:
+        if code == 401:
+            return PermissionError(
+                f"DestinE: the token was rejected (401) by {self.STAC_URL}. Check the service-account "
+                "key pair (DESTINE_CLIENT_ID / DESTINE_CLIENT_SECRET); a rotated key invalidates old ones.")
+        return PermissionError(
+            "DestinE: access denied (403). The Digital Twins collections (DT_CLIMATE, DT_EXTREMES) are "
+            "gated behind the platform's upgraded access, requested under Account Settings -> Access "
+            f"Policy Upgrade at {self.REGISTER_URL} (public authorities, academia, SMEs and start-ups; "
+            "granted at the platform's discretion). Discovery - collections, metadata, variables - "
+            "needs no access grant at all.")
+
+    # -- discovery (no credentials) --------------------------------------------
+
+    def collections(self, pattern: str | None = None) -> list[dict[str, Any]]:
+        """The DestinE Data Portfolio: every STAC collection, filtered by a case-insensitive
+        substring of the id when ``pattern`` is given (e.g. ``"DT_CLIMATE"``, ``"EUM"``)."""
+        js = _get_json(f"{self.STAC_URL}/collections", timeout=self.timeout)
+        cols = list(js.get("collections") or [])
+        if pattern:
+            cols = [c for c in cols if pattern.lower() in str(c.get("id", "")).lower()]
+        return cols
+
+    def climate_dt_collections(self) -> list[dict[str, Any]]:
+        """The Climate DT collections: ``ICON``, ``IFS-FESOM`` and ``IFS-NEMO``, historical
+        (CMIP6), scenario (SSP3-7.0) and storyline (T+2.0 K), generations 1 and 2."""
+        return self.collections(self.CLIMATE_DT)
+
+    def collection(self, collection_id: str) -> dict[str, Any]:
+        """One collection's metadata: ``cube:variables``, ``cube:dimensions``, ``extent``,
+        ``license`` (Climate DT: ``CC-BY-4.0``), ``summaries``, and the citation fields
+        (``sci:citation``, ``sci:doi``) when the provider recorded them."""
+        return _get_json(f"{self.STAC_URL}/collections/{collection_id}", timeout=self.timeout)
+
+    def variables(self, collection_id: str) -> dict[str, dict[str, Any]]:
+        """The variables of a collection as ``{name(stream): {"unit", "type", "attrs"}}`` - what
+        is worth asking :meth:`search` for, before asking for it."""
+        return dict(self.collection(collection_id).get("cube:variables") or {})
+
+    # -- items and assets (token) ----------------------------------------------
+
+    def search(self, collections: list[str] | str, *, bbox: list[float] | None = None,
+               time_range: str | None = None, limit: int = 10,
+               **extra: Any) -> dict[str, Any]:
+        """STAC item search over ``collections`` (the API rejects an empty list), optionally
+        constrained to ``bbox`` = (west, south, east, north) and to a ``time_range`` such as
+        ``"2020-01-01T00:00:00Z/2020-01-02T00:00:00Z"`` (sent as STAC ``datetime``). Returns the
+        raw ``FeatureCollection``."""
+        ids = [collections] if isinstance(collections, str) else list(collections)
+        if not ids:
+            raise ValueError("DestinE search needs at least one collection id; the API rejects an empty list")
+        payload: dict[str, Any] = {"collections": ids, "limit": int(limit)}
+        if bbox is not None:
+            if len(bbox) != 4:
+                raise ValueError("bbox must be (west, south, east, north)")
+            payload["bbox"] = [float(v) for v in bbox]
+        if time_range is not None:
+            payload["datetime"] = time_range
+        payload.update(extra)
+        try:
+            return _post_json(f"{self.STAC_URL}/search", payload, timeout=self.timeout, headers=self._auth())
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 403):
+                raise self._denied(exc.code) from exc
+            raise
+
+    def items(self, collection_id: str, *, limit: int = 10, bbox: list[float] | None = None,
+              time_range: str | None = None, **extra: Any) -> dict[str, Any]:
+        """The items of one collection (the GET form of :meth:`search`), as a ``FeatureCollection``."""
+        params: dict[str, Any] = {"limit": int(limit), **extra}
+        if bbox is not None:
+            params["bbox"] = ",".join(str(float(v)) for v in bbox)
+        if time_range is not None:
+            params["datetime"] = time_range
+        url = f"{self.STAC_URL}/collections/{collection_id}/items?{urllib.parse.urlencode(params)}"
+        try:
+            return _get_json(url, timeout=self.timeout, headers=self._auth())
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 403):
+                raise self._denied(exc.code) from exc
+            raise
+
+    def download(self, url: str, path: str | None = None) -> bytes:
+        """Fetch one asset (or download link) of an item with the bearer token; written to
+        ``path`` when given. Assets are usually GRIB/Zarr/NetCDF over HTTP."""
+        try:
+            raw = _get_bytes(url, timeout=self.timeout, headers=self._auth())
+        except urllib.error.HTTPError as exc:
+            if exc.code in (401, 403):
+                raise self._denied(exc.code) from exc
+            raise
+        if path is not None:
+            with open(path, "wb") as fh:
+                fh.write(raw)
+        return raw
+
+    # -- response to arrays ----------------------------------------------------
+
+    @staticmethod
+    def to_arrays(js: dict[str, Any]) -> dict[str, np.ndarray]:
+        """``{"datetime": datetime64[s] (N,), "bbox": float64 (N, 4)}`` from a :meth:`search` or
+        :meth:`items` response: when each item starts and where it is, for plotting coverage or
+        picking the item to download. An item without a time becomes ``NaT``, without a bbox NaN."""
+        feats = js.get("features")
+        if not feats:
+            raise ValueError("DestinE response has no features")
+        times, boxes = [], []
+        for f in feats:
+            props = f.get("properties") or {}
+            when = props.get("datetime") or props.get("start_datetime")
+            if when:
+                start = str(when).split("/")[0].replace("Z", "")   # an interval keeps its start
+                times.append(np.datetime64(start))
+            else:
+                times.append(np.datetime64("NaT"))
+            box = [float(v) for v in (f.get("bbox") or props.get("bbox") or [])][:4]
+            boxes.append(box + [np.nan] * (4 - len(box)))        # always (N, 4); a 3-D bbox keeps its footprint
+        return {"datetime": np.array(times, dtype="datetime64[s]"),
+                "bbox": np.asarray(boxes, dtype=np.float64)}

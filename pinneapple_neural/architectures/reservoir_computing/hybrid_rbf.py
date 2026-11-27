@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Hybrid RBF network combining linear and nonlinear features."""
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -24,7 +24,7 @@ class HybridRBFNetwork(RCBase):
         in_dim: int,
         out_dim: int,
         num_centers: int = 512,
-        sigma: Optional[float] = None,
+        sigma: float | None = None,
         l2: float = 1e-6,
         learn_centers: bool = False,
         use_linear: bool = True,
@@ -112,7 +112,7 @@ class HybridRBFNetwork(RCBase):
         return d
 
     @torch.no_grad()
-    def fit(self, x: torch.Tensor, y: torch.Tensor, *, init_centers_from_data: bool = True) -> "HybridRBFNetwork":
+    def fit(self, x: torch.Tensor, y: torch.Tensor, *, init_centers_from_data: bool = True) -> HybridRBFNetwork:
         # Init centers + sigma via underlying RBF.
         # NOTE: this may also solve an internal output inside RBFNetwork; harmless but may be wasted work.
         self.rbf.fit(x, y, init_centers_from_data=init_centers_from_data)
@@ -141,7 +141,7 @@ class HybridRBFNetwork(RCBase):
         self,
         x: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> RCOutput:
         if self.require_fitted and not self._fitted:
@@ -150,7 +150,7 @@ class HybridRBFNetwork(RCBase):
         F = self._features(x)
         y = F @ self.W_out
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

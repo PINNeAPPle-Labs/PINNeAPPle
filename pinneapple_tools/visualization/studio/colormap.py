@@ -3,7 +3,6 @@ into an image."""
 from __future__ import annotations
 
 import math
-from typing import List, Optional, Tuple
 
 JET = [(0.0, (0, 0, 143)), (0.125, (0, 0, 255)), (0.375, (0, 255, 255)), (0.625, (255, 255, 0)), (0.875, (255, 0, 0)),
        (1.0, (128, 0, 0))]
@@ -14,7 +13,7 @@ MAGMA = [(0.0, (0, 0, 4)), (0.1, (14, 9, 44)), (0.2, (50, 15, 84)), (0.3, (89, 2
          (0.9, (252, 233, 145)), (1.0, (252, 253, 191))]
 
 
-def jet(t: float) -> Tuple[float, float, float]:
+def jet(t: float) -> tuple[float, float, float]:
     """sRGB jet colour for t in [0, 1], as floats in [0, 1]."""
     t = min(1.0, max(0.0, float(t)))
     for (a, ca), (b, cb) in zip(JET, JET[1:]):
@@ -24,7 +23,7 @@ def jet(t: float) -> Tuple[float, float, float]:
     return tuple(c / 255 for c in JET[-1][1])
 
 
-def magma(t: float) -> Tuple[float, float, float]:
+def magma(t: float) -> tuple[float, float, float]:
     """sRGB magma colour for t in [0, 1], as floats in [0, 1]."""
     return ramp(t, MAGMA)
 
@@ -61,7 +60,7 @@ def fmt(v: float, nd: int) -> str:
     return f"{v:.{nd}f}"
 
 
-def ticks(lo: float, hi: float, n: int = 5, nd: Optional[int] = None) -> List[str]:
+def ticks(lo: float, hi: float, n: int = 5, nd: int | None = None) -> list[str]:
     """Evenly spaced tick labels from lo to hi, identical to the browser viewer's."""
     d = decimals(lo, hi) if nd is None else nd
     span = abs(hi - lo)
@@ -72,7 +71,7 @@ def ticks(lo: float, hi: float, n: int = 5, nd: Optional[int] = None) -> List[st
     return [fmt(at(k), d) for k in range(n)]
 
 
-def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = None, lo_txt: str = "",
+def colorbar(path: str, title: str, lo: float, hi: float, nd: int | None = None, lo_txt: str = "",
              hi_txt: str = "", corner: str = "bottom-right", stops=None, dark: bool = False) -> str:
     """Draw a colour bar (jet, or the scale ``stops`` such as :data:`RDBU`) with 5 ticks and a title in a corner of
     the image at ``path`` (overwritten); ``dark``: a near-black panel with light text (for a dark stage)."""

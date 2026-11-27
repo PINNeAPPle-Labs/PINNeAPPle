@@ -2,7 +2,7 @@ from __future__ import annotations
 """Base classes for physics-aware neural network models."""
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -11,8 +11,8 @@ import torch.nn as nn
 @dataclass
 class PhysicsAwareOutput:
     y: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 class PhysicsAwareBase(nn.Module):

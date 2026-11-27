@@ -18,7 +18,6 @@ Dependencies: PyEMD (pip install EMD-signal), scipy.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional
 
 import numpy as np
 import torch
@@ -58,14 +57,14 @@ class _ChannelHHT:
         self._n_fit: int = 0
         self._trend_slope: float = 0.0
         self._trend_intercept: float = 0.0
-        self._dominant_imfs: List[np.ndarray] = []
-        self._amp_est: List[float] = []
-        self._freq_est: List[float] = []
-        self._phase_0: List[float] = []
-        self._recon_train: Optional[np.ndarray] = None
+        self._dominant_imfs: list[np.ndarray] = []
+        self._amp_est: list[float] = []
+        self._freq_est: list[float] = []
+        self._phase_0: list[float] = []
+        self._recon_train: np.ndarray | None = None
 
     # ------------------------------------------------------------------
-    def fit(self, y: np.ndarray) -> "_ChannelHHT":
+    def fit(self, y: np.ndarray) -> _ChannelHHT:
         try:
             from PyEMD import EMD
         except ImportError:
@@ -173,7 +172,7 @@ class _ChannelHHT:
             result[h] = val
         return result
 
-    def imf_info(self) -> Dict:
+    def imf_info(self) -> dict:
         periods = [1.0 / max(f, 1e-9) for f in self._freq_est]
         return {
             "n_dominant": len(self._dominant_imfs),
@@ -205,11 +204,11 @@ class HHTDecomposer:
         self.n_imfs = n_imfs
         self.dominant_energy_ratio = dominant_energy_ratio
         self.detrend = detrend
-        self._models: List[_ChannelHHT] = []
+        self._models: list[_ChannelHHT] = []
         self._n_channels: int = 0
         self._n_fit: int = 0
 
-    def fit(self, y: np.ndarray) -> "HHTDecomposer":
+    def fit(self, y: np.ndarray) -> HHTDecomposer:
         """Fit one HHT model per channel.  y: (T,) or (T, F)."""
         y = np.asarray(y, dtype=float)
         if y.ndim == 1:
@@ -253,11 +252,11 @@ class HHTDecomposer:
             recon[self._n_fit:] = self.extrapolate(self._n_fit, extra)
         return y - recon
 
-    def dominant_imf_counts(self) -> List[int]:
+    def dominant_imf_counts(self) -> list[int]:
         """Number of dominant IMFs selected per channel."""
         return [len(m._dominant_imfs) for m in self._models]
 
-    def imf_info(self) -> List[Dict]:
+    def imf_info(self) -> list[dict]:
         """Per-channel IMF diagnostic information."""
         return [m.imf_info() for m in self._models]
 
@@ -293,7 +292,7 @@ class HHTLSTMPipeline:
         dropout: float = 0.20,
         layer_norm: bool = True,
     ) -> None:
-        self._decomposer: Optional[HHTDecomposer] = None
+        self._decomposer: HHTDecomposer | None = None
         self.n_imfs = n_imfs
         self.dominant_energy_ratio = dominant_energy_ratio
         self.detrend = detrend
@@ -306,7 +305,7 @@ class HHTLSTMPipeline:
         self.dropout = dropout
         self.layer_norm = layer_norm
 
-    def fit_hht(self, y: np.ndarray) -> "HHTLSTMPipeline":
+    def fit_hht(self, y: np.ndarray) -> HHTLSTMPipeline:
         """Fit HHT decomposer on training data (no leakage from val/test)."""
         self._decomposer = HHTDecomposer(
             n_imfs=self.n_imfs,
@@ -329,12 +328,12 @@ class HHTLSTMPipeline:
             raise RuntimeError("Call fit_hht() first.")
         return self._decomposer.extrapolate(start, horizon)
 
-    def dominant_imf_counts(self) -> List[int]:
+    def dominant_imf_counts(self) -> list[int]:
         if self._decomposer is None:
             raise RuntimeError("Call fit_hht() first.")
         return self._decomposer.dominant_imf_counts()
 
-    def imf_info(self) -> List[Dict]:
+    def imf_info(self) -> list[dict]:
         if self._decomposer is None:
             raise RuntimeError("Call fit_hht() first.")
         return self._decomposer.imf_info()

@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pinneapple_systems.time_series import AdaptiveForecaster, default_experts
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 
 def make_series(n=900, seed=0):

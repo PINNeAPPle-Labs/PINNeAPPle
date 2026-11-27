@@ -16,7 +16,9 @@
   "pinneapple_analysis.validation.pinn"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_deflorio.py"
+ ],
  "metrics": [
   {
    "name": "xtfc_max_nu_0.0001_seed0",

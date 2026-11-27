@@ -22,9 +22,7 @@ _backend = JAXBackend(config=BackendConfig(device="cpu"))
 _JAX_OK  = _backend.is_available()
 
 if _JAX_OK:
-    import jax
     import jax.numpy as jnp
-    from jax import grad, jit, vmap
     from pinneapple_tools.compute_backends.jax_pinn import JaxPINN, JaxPINNConfig
     from pinneapple_tools.compute_backends.jax_trainer import PinnTrainerJAX, TrainerConfigJAX
     print("JAX backend available.")

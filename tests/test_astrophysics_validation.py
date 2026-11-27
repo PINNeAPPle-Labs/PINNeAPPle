@@ -49,7 +49,6 @@ from pinneapple_physics.pde_environment.presets.astrophysics import (
     cr3bp_planar_synodic,
     cr3bp_omega_gradient,
     schwarzschild_light_bending_weak_field,
-    schwarzschild_light_bending_u_exact,
     shakura_sunyaev_accretion_disk,
     shakura_sunyaev_flux_exact,
 )

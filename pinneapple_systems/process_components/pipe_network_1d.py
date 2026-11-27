@@ -215,7 +215,7 @@ class PipeState:
     P_Pa: np.ndarray
     T_K: np.ndarray
 
-    def copy(self) -> "PipeState":
+    def copy(self) -> PipeState:
         return PipeState(self.P_Pa.copy(), self.T_K.copy())
 
 

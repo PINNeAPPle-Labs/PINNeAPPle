@@ -22,7 +22,7 @@ derivatives from autograd, which is what a PINN needs.
 """
 from __future__ import annotations
 
-from typing import Callable, Optional, Sequence, Union
+from collections.abc import Callable, Sequence
 
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
@@ -94,9 +94,9 @@ class PointCloud:
         self,
         points: np.ndarray,
         *,
-        domain: Optional[Domain] = None,
-        weights: Optional[np.ndarray] = None,
-        k_neighbors: Optional[int] = None,
+        domain: Domain | None = None,
+        weights: np.ndarray | None = None,
+        k_neighbors: int | None = None,
     ) -> None:
         pts = np.asarray(points, dtype=np.float64)
         self.points = pts[:, None] if pts.ndim == 1 else pts
@@ -108,7 +108,7 @@ class PointCloud:
             raise ValueError("weights must have shape (N,)")
         d = self.dim
         self.k_neighbors = int(k_neighbors or max(2 * d + 3, 8))
-        self._tree: Optional[cKDTree] = None
+        self._tree: cKDTree | None = None
 
     @property
     def dim(self) -> int:
@@ -211,7 +211,7 @@ class PointCloud:
 class Field:
     """Values on a :class:`Grid`, a :class:`~pinneapple_core.Mesh` or a :class:`PointCloud`."""
 
-    def __init__(self, values: np.ndarray, support, name: Optional[str] = None) -> None:
+    def __init__(self, values: np.ndarray, support, name: str | None = None) -> None:
         v = np.asarray(values, dtype=np.float64)
         if v.shape[:1] != (support.n_points,):
             if isinstance(support, Grid) and v.shape[: support.dim] == support.shape:
@@ -224,13 +224,13 @@ class Field:
 
     # -- constructors -------------------------------------------------------
     @classmethod
-    def on_grid(cls, axes: Sequence[np.ndarray], values, name: Optional[str] = None) -> "Field":
+    def on_grid(cls, axes: Sequence[np.ndarray], values, name: str | None = None) -> Field:
         """Field on a tensor-product grid. ``values`` is an array (flat or grid-shaped)
         or a callable ``f(points) -> values``."""
         return cls._build(Grid(axes), values, name)
 
     @classmethod
-    def on_mesh(cls, mesh: Mesh, values, name: Optional[str] = None) -> "Field":
+    def on_mesh(cls, mesh: Mesh, values, name: str | None = None) -> Field:
         """Nodal (P1) field on a mesh. ``values`` is an array or a callable."""
         return cls._build(mesh, values, name)
 
@@ -240,15 +240,15 @@ class Field:
         points: np.ndarray,
         values,
         *,
-        domain: Optional[Domain] = None,
-        weights: Optional[np.ndarray] = None,
-        name: Optional[str] = None,
-    ) -> "Field":
+        domain: Domain | None = None,
+        weights: np.ndarray | None = None,
+        name: str | None = None,
+    ) -> Field:
         """Field on scattered points. Pass ``weights`` or ``domain`` to enable ``integrate``."""
         return cls._build(PointCloud(points, domain=domain, weights=weights), values, name)
 
     @classmethod
-    def _build(cls, support, values, name) -> "Field":
+    def _build(cls, support, values, name) -> Field:
         if callable(values):
             values = values(support.points)
         return cls(values, support, name)
@@ -269,18 +269,18 @@ class Field:
     def _flat(self) -> np.ndarray:
         return self.values.reshape(self.values.shape[0], -1)
 
-    def _like(self, values: np.ndarray, name: Optional[str] = None) -> "Field":
+    def _like(self, values: np.ndarray, name: str | None = None) -> Field:
         return Field(values, self.support, name)
 
     # -- calculus -----------------------------------------------------------
-    def gradient(self) -> "Field":
+    def gradient(self) -> Field:
         """Derivative with respect to each coordinate: ``(N, d)`` for a scalar,
         ``(N, c, d)`` for a field with ``c`` components."""
         g = self.support.gradient(self._flat())  # (N, k, d)
         g = g.reshape(g.shape[0], *self.components, self.dim)
         return self._like(g, None if self.name is None else f"grad({self.name})")
 
-    def divergence(self) -> "Field":
+    def divergence(self) -> Field:
         """Divergence of a vector field with ``d`` components: a scalar Field."""
         if self.components != (self.dim,):
             raise ValueError(f"divergence needs a vector field with {self.dim} components, got {self.components}")
@@ -293,7 +293,7 @@ class Field:
         out = self.support.interpolate(self._flat(), x, fill)
         return out.reshape(out.shape[0], *self.components)
 
-    def integrate(self) -> Union[float, np.ndarray]:
+    def integrate(self) -> float | np.ndarray:
         """Integral over the support: trapezoid on a grid, exact P1 on a mesh,
         weighted sum or Monte Carlo on a point cloud. A scalar field gives a float."""
         out = self.support.integrate(self._flat())
@@ -314,13 +314,13 @@ class FunctionField:
     treated as a scalar.
     """
 
-    def __init__(self, fn: Callable, domain: Optional[Domain] = None, dim: Optional[int] = None) -> None:
+    def __init__(self, fn: Callable, domain: Domain | None = None, dim: int | None = None) -> None:
         self.fn = fn
         self.domain = domain
         self._dim = dim if dim is not None else (domain.dim if domain is not None else None)
 
     @property
-    def dim(self) -> Optional[int]:
+    def dim(self) -> int | None:
         return self._dim
 
     @staticmethod
@@ -357,7 +357,7 @@ class FunctionField:
         ]
         return torch.stack(cols, dim=1).reshape(y.shape[0], *y.shape[1:], x.shape[1])
 
-    def gradient_field(self) -> "FunctionField":
+    def gradient_field(self) -> FunctionField:
         """The gradient as another FunctionField, so derivatives compose
         (``u.gradient_field().divergence(x)`` is the Laplacian)."""
         return FunctionField(lambda x: self.gradient(x), self.domain, self._dim)
@@ -384,7 +384,6 @@ class FunctionField:
     def integrate(self, n: int = 20_000, *, seed: int = 0, points=None, weights=None):
         """Integral over the domain. With ``points`` and ``weights`` it is a
         quadrature sum; otherwise Monte Carlo with ``n`` uniform samples."""
-        import torch
 
         if points is not None:
             y = self(points)
@@ -397,7 +396,7 @@ class FunctionField:
         x = self._tensor(self.domain.sample_interior(n, seed=seed))
         return self.domain.volume() * self(x).mean(dim=0)
 
-    def to_field(self, support, name: Optional[str] = None) -> Field:
+    def to_field(self, support, name: str | None = None) -> Field:
         """Sample onto a Grid / Mesh / PointCloud as a numpy :class:`Field`."""
         import torch
 

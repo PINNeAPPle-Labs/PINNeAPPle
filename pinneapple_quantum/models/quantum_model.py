@@ -1,7 +1,6 @@
 """QuantumModel — variational quantum circuit as a PyTorch nn.Module."""
 from __future__ import annotations
 
-from typing import Optional, Literal
 
 import torch
 import torch.nn as nn
@@ -44,7 +43,7 @@ class QuantumModel(nn.Module):
     def __init__(
         self,
         circuit_config: QuantumCircuitConfig,
-        backend_config: Optional[BackendConfig] = None,
+        backend_config: BackendConfig | None = None,
         output_scale: float = 1.0,
     ):
         super().__init__()

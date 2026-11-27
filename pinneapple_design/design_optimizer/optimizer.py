@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Sequence
+from dataclasses import dataclass
 
 import numpy as np
 
 from .pareto import crowding_distance, fast_non_dominated_sort
+from .survivors import TRUST_LEVELS, TrustVerdict, constrained_select, trust_aware_survivors
 
 
 # ---------------------------------------------------------------------------
@@ -17,10 +18,10 @@ from .pareto import crowding_distance, fast_non_dominated_sort
 @dataclass
 class ParamSpace:
     """Box-bounded design parameter space."""
-    bounds: Dict[str, Tuple[float, float]]
-    x0: Dict[str, float]
+    bounds: dict[str, tuple[float, float]]
+    x0: dict[str, float]
 
-    def clip(self, x: Dict[str, float]) -> Dict[str, float]:
+    def clip(self, x: dict[str, float]) -> dict[str, float]:
         out = {}
         for k, v in x.items():
             lo, hi = self.bounds[k]
@@ -32,9 +33,9 @@ class ParamSpace:
 class OptState:
     """Snapshot of optimizer state at one iteration."""
     step: int
-    best_x: Dict[str, float]
+    best_x: dict[str, float]
     best_y: float
-    last_x: Dict[str, float]
+    last_x: dict[str, float]
     last_y: float
 
 
@@ -140,9 +141,9 @@ class GradientDesignOptimizer:
         self,
         surrogate: object,
         objective: object,
-        constraints: Optional[object],
+        constraints: object | None,
         theta_np: np.ndarray,
-    ) -> Tuple[np.ndarray, float]:
+    ) -> tuple[np.ndarray, float]:
         """Perform one gradient update and return the new theta and loss value.
 
         Parameters
@@ -169,7 +170,7 @@ class GradientDesignOptimizer:
 
         cfg = self.cfg
 
-        def _closure() -> "torch.Tensor":
+        def _closure() -> torch.Tensor:
             self._opt.zero_grad()
             u = surrogate.model(self._theta.unsqueeze(0)).squeeze(0)
             loss = objective(self._theta, u)
@@ -206,8 +207,8 @@ class _NumpyGP:
 
     def __init__(self, noise: float = 1e-4) -> None:
         self.noise = noise
-        self._X: Optional[np.ndarray] = None
-        self._alpha: Optional[np.ndarray] = None
+        self._X: np.ndarray | None = None
+        self._alpha: np.ndarray | None = None
         self._length_scale: float = 1.0
 
     def _kernel(self, A: np.ndarray, B: np.ndarray) -> np.ndarray:
@@ -238,7 +239,7 @@ class _NumpyGP:
             self._alpha = np.linalg.solve(K, y)
             self._L = None
 
-    def predict(self, X_new: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, X_new: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Return (mean, std) predictions for *X_new*."""
         K_s = self._kernel(X_new, self._X)           # (m, n)
         mu = K_s @ self._alpha
@@ -282,11 +283,11 @@ class BayesianDesignOptimizer:
         self.cfg = cfg
         self.rng = np.random.default_rng(int(seed))
         self._gp_seed = int(seed)
-        self.X_obs: List[np.ndarray] = []
-        self.y_obs: List[float] = []
-        self.Y_obs: List[np.ndarray] = []
-        self._penalties: List[float] = []
-        self._gp: Optional[object] = None
+        self.X_obs: list[np.ndarray] = []
+        self.y_obs: list[float] = []
+        self.Y_obs: list[np.ndarray] = []
+        self._penalties: list[float] = []
+        self._gp: object | None = None
         self._use_sklearn = False
 
         try:
@@ -319,7 +320,7 @@ class BayesianDesignOptimizer:
         else:
             self._numpy_gp.fit(X, y)
 
-    def _gp_predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def _gp_predict(self, X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         if self._use_sklearn:
             return self._gp.predict(X, return_std=True)  # type: ignore[union-attr]
         else:
@@ -404,7 +405,7 @@ class BayesianDesignOptimizer:
         z = imp / (sigma + 1e-9)
         return imp * norm.cdf(z) + sigma * norm.pdf(z)
 
-    def update(self, x: np.ndarray, obj_vals: "float | List[float]", penalty: float = 0.0) -> None:
+    def update(self, x: np.ndarray, obj_vals: float | list[float], penalty: float = 0.0) -> None:
         """Record a new design/objective observation.
 
         Parameters
@@ -469,10 +470,11 @@ class EvolutionaryDesignOptimizer:
         self._multi_objective = multi_objective
         self._use_cma = False
         self._cma_es = None
-        self._population: List[np.ndarray] = []
-        self._fitness: List[float] = []
-        self._obj_vecs: Optional[List[List[float]]] = None
-        self._penalties: Optional[List[float]] = None
+        self._population: list[np.ndarray] = []
+        self._fitness: list[float] = []
+        self._obj_vecs: list[list[float]] | None = None
+        self._penalties: list[float] | None = None
+        self._trust: list[TrustVerdict] | None = None
 
         if not multi_objective:
             try:
@@ -492,7 +494,7 @@ class EvolutionaryDesignOptimizer:
 
     # ------------------------------------------------------------------
 
-    def ask(self, bounds: np.ndarray, n: int) -> List[np.ndarray]:
+    def ask(self, bounds: np.ndarray, n: int) -> list[np.ndarray]:
         """Return *n* candidate design vectors.
 
         Parameters
@@ -520,7 +522,7 @@ class EvolutionaryDesignOptimizer:
             self._population = [self.rng.uniform(lo, hi) for _ in range(self.cfg.population_size)]
             return self._population[:n]
 
-        candidates: List[np.ndarray] = []
+        candidates: list[np.ndarray] = []
         pop = self._population
         fit = self._fitness if self._fitness else [0.0] * len(pop)
 
@@ -548,10 +550,12 @@ class EvolutionaryDesignOptimizer:
 
     def tell(
         self,
-        xs: List[np.ndarray],
-        ys: List[float],
-        obj_vecs: Optional[List[List[float]]] = None,
-        penalties: Optional[List[float]] = None,
+        xs: list[np.ndarray],
+        ys: list[float],
+        obj_vecs: list[list[float]] | None = None,
+        penalties: list[float] | None = None,
+        trust: Sequence[TrustVerdict] | None = None,
+        trust_rule: str = "front",
     ) -> None:
         """Inform the optimizer of objective values for the last candidates.
 
@@ -573,6 +577,15 @@ class EvolutionaryDesignOptimizer:
             Optional total constraint-violation per candidate, used with
             Deb's constrained-domination rule (feasible always beats
             infeasible; among infeasible, lower violation wins).
+        trust:
+            Optional :class:`~pinneapple_design.design_optimizer.survivors.TrustVerdict` per candidate -- whether the
+            surrogate's own prediction of those constraints can be vouched for. Survivor selection then runs
+            through :func:`~pinneapple_design.design_optimizer.survivors.trust_aware_survivors`, on a channel of its
+            own: it is ordered in front of the measured penalties, never summed into them. ``None`` (the default)
+            leaves this method exactly as it was before #297.
+        trust_rule:
+            How that channel is applied -- ``"front"`` (default), ``"penalty"`` or ``"remove"``; see
+            :func:`~pinneapple_design.design_optimizer.survivors.trust_aware_survivors`.
         """
         is_multi_objective = obj_vecs is not None and len(obj_vecs) > 0 and len(obj_vecs[0]) > 1
 
@@ -592,26 +605,78 @@ class EvolutionaryDesignOptimizer:
             combined_obj = np.array(list(prev_obj) + list(obj_vecs), dtype=np.float64)
             combined_pen = np.array(list(prev_pen) + list(penalties or [0.0] * len(xs)), dtype=np.float64)
 
-            idx = self._nsga2_select(combined_obj, combined_pen, mu)
+            if trust is None:
+                idx = self._nsga2_select(combined_obj, combined_pen, mu)
+                combined_trust = None
+            else:
+                prev_trust = self._previous_trust(xs, trust)
+                combined_trust = list(prev_trust) + list(trust)
+                idx = trust_aware_survivors(combined_obj, combined_pen, combined_trust, mu, trust_rule)
             self._obj_vecs = combined_obj[idx].tolist()
             self._penalties = combined_pen[idx].tolist()
+            self._trust = None if combined_trust is None else [combined_trust[i] for i in idx]
             self._population = [combined_x[i] for i in idx]
             # parents are drawn by the crowded-comparison tournament of NSGA-II (rank, then crowding distance),
             # not by the first objective alone
-            self._fitness = self._crowded_scores(combined_obj[idx], combined_pen[idx]).tolist()
+            self._fitness = self._crowded_scores(combined_obj[idx], combined_pen[idx], self._trust).tolist()
             return
         else:
             idx = np.argsort(combined_y)[:mu]
             self._obj_vecs = None
             self._penalties = None
+            self._trust = None
 
         self._population = [combined_x[i] for i in idx]
         self._fitness = [combined_y[i] for i in idx]
 
+    @property
+    def population(self) -> list[np.ndarray]:
+        """The current population, in the order the last survivor selection left it (best band first)."""
+        return [np.array(x, dtype=np.float64) for x in self._population]
+
+    @property
+    def trust(self) -> list[TrustVerdict] | None:
+        """The trust verdict carried by each member of :attr:`population`, or ``None`` when none was given."""
+        return None if self._trust is None else list(self._trust)
+
+    def _previous_trust(self, xs: Sequence[np.ndarray], trust: Sequence[TrustVerdict]) -> list[TrustVerdict]:
+        """The verdict of the *previous* population, for the trust-aware merge.
+
+        Once a trust-aware :meth:`tell` has run, the verdicts are stored and this is a copy. Before that there are
+        none — and the opening generation of the (mu+lambda) scheme hands back the population it has just sampled, so
+        that population arrives a second time in ``xs`` with a verdict attached. Labelling those rows from ``xs`` by
+        the design rather than defaulting them to "trusted" is what keeps the opening generation from vouching for a
+        design the surrogate has just refused.
+        """
+        if self._trust is not None and len(self._trust) == len(self._population):
+            return list(self._trust)
+        known: dict[tuple, TrustVerdict] = {}
+        for x, v in zip(xs, trust, strict=False):
+            known.setdefault(tuple(np.round(np.asarray(x, dtype=float), 12)), v)
+        return [known.get(tuple(np.round(np.asarray(x, dtype=float), 12)), TrustVerdict()) for x in self._population]
+
     @staticmethod
-    def _crowded_scores(objectives: np.ndarray, penalties: np.ndarray) -> np.ndarray:
+    def _crowded_scores(objectives: np.ndarray, penalties: np.ndarray,
+                        trust: Sequence[TrustVerdict] | None = None) -> np.ndarray:
         """Lower is better: front rank among the feasible (constrained domination: every infeasible design ranks
-        after them, by violation), minus a crowding bonus in [0, 1) inside the front."""
+        after them, by violation), minus a crowding bonus in [0, 1) inside the front.
+
+        With ``trust``, the same score is computed inside each of the three bands of the trust channel and the bands
+        are stacked in their order (vouched first), so the parent tournament of :meth:`ask` draws from the band the
+        survivor rule preferred rather than from the whole population.
+        """
+        if trust is not None:
+            level = np.array([v.level for v in trust], dtype=object)
+            score = np.zeros(len(objectives))
+            offset = 0.0
+            for band in TRUST_LEVELS:
+                sel = np.flatnonzero(level == band)
+                if not len(sel):
+                    continue
+                local = EvolutionaryDesignOptimizer._crowded_scores(objectives[sel], penalties[sel])
+                score[sel] = offset + local
+                offset = score[sel].max() + 1.0
+            return score
         n = len(objectives)
         score = np.zeros(n)
         feas = np.where(penalties <= 0.0)[0]
@@ -637,29 +702,9 @@ class EvolutionaryDesignOptimizer:
         Feasible solutions (penalty <= 0) are ranked by non-dominated front
         + crowding distance; infeasible ones are only used to fill any
         remaining slots, ordered by ascending total violation.
+
+        The selection itself is
+        :func:`~pinneapple_design.design_optimizer.survivors.constrained_select`, which the trust-aware rule of #297
+        also builds on: one implementation, so the two cannot drift apart.
         """
-        feasible = penalties <= 0.0
-        feas_idx = np.where(feasible)[0]
-        infeas_idx = np.where(~feasible)[0]
-
-        selected: List[int] = []
-        if len(feas_idx) > 0:
-            fronts = fast_non_dominated_sort(objectives[feas_idx])
-            for front in fronts:
-                front_global = feas_idx[front]
-                if len(selected) + len(front_global) <= mu:
-                    selected.extend(front_global.tolist())
-                else:
-                    remaining = mu - len(selected)
-                    if remaining > 0:
-                        cd = crowding_distance(objectives[front_global])
-                        order = np.argsort(-cd)  # larger crowding distance preferred
-                        selected.extend(front_global[order[:remaining]].tolist())
-                    break
-
-        if len(selected) < mu and len(infeas_idx) > 0:
-            remaining = mu - len(selected)
-            order = infeas_idx[np.argsort(penalties[infeas_idx])]
-            selected.extend(order[:remaining].tolist())
-
-        return np.array(selected[:mu], dtype=int)
+        return constrained_select(objectives, penalties, mu)

@@ -39,7 +39,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -93,7 +93,7 @@ class XYPreprocess:
     def fit(self, batch_list):
         return self
 
-    def apply(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def apply(self, batch: dict[str, Any]) -> dict[str, Any]:
         out = dict(batch)
         if self.prefer_data and isinstance(out.get("x_data"), torch.Tensor) and isinstance(out.get("y_data"), torch.Tensor):
             if out["x_data"].numel() > 0 and out["y_data"].numel() > 0:
@@ -107,8 +107,8 @@ class XYPreprocess:
 def _train_one(
     *,
     model_name: str,
-    model_kwargs: Dict[str, Any],
-    batch: Dict[str, Any],
+    model_kwargs: dict[str, Any],
+    batch: dict[str, Any],
     out_dir: Path,
     problem_spec: ProblemSpec | None,
     supports_physics_loss: bool,
@@ -148,7 +148,7 @@ def _train_one(
 
     pre = XYPreprocess(prefer_data=True)
 
-    def loss_fn(model_mod: torch.nn.Module, y_hat: torch.Tensor, b: Dict[str, Any]):
+    def loss_fn(model_mod: torch.nn.Module, y_hat: torch.Tensor, b: dict[str, Any]):
         return loss(model_mod, y_hat, b)
 
     trainer = Trainer(model, loss_fn=loss_fn, preprocess=pre)
@@ -235,7 +235,7 @@ def make_heat_problem(alpha: float = 0.1) -> ProblemSpec:
     )
 
 
-def solver_fn_heat(*, problem_spec: ProblemSpec, geometry: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
+def solver_fn_heat(*, problem_spec: ProblemSpec, geometry: dict[str, Any], cfg: dict[str, Any]) -> dict[str, Any]:
     """Generate collocation + BC/IC + sparse data for heat equation."""
 
     alpha = float(cfg.get("alpha", 0.1))
@@ -324,7 +324,7 @@ def generate_digital_twin_timeseries(
     return x
 
 
-def make_lagged_dataset(series: np.ndarray, lag: int = 20) -> Tuple[np.ndarray, np.ndarray]:
+def make_lagged_dataset(series: np.ndarray, lag: int = 20) -> tuple[np.ndarray, np.ndarray]:
     """Flatten lag window -> predict next step."""
     X, Y = [], []
     for i in range(lag, len(series) - 1):
@@ -343,7 +343,7 @@ def make_lagged_dataset(series: np.ndarray, lag: int = 20) -> Tuple[np.ndarray, 
 class SupervisedMLP(nn.Module):
     def __init__(self, in_dim: int, out_dim: int, hidden: int = 256, depth: int = 4, dropout: float = 0.0):
         super().__init__()
-        layers: List[nn.Module] = []
+        layers: list[nn.Module] = []
         d = in_dim
         for _ in range(depth):
             layers += [nn.Linear(d, hidden), nn.GELU()]
@@ -452,7 +452,7 @@ def main() -> None:
         },
     ]
 
-    heat_run_dirs: List[Path] = []
+    heat_run_dirs: list[Path] = []
     for m in heat_models:
         heat_run_dirs.append(
             _train_one(
@@ -504,7 +504,7 @@ def main() -> None:
         },
     ]
 
-    dt_run_dirs: List[Path] = []
+    dt_run_dirs: list[Path] = []
     for m in dt_models:
         # For compare.py we want y/y_hat on test set; so we train on train batch,
         # then overwrite predictions.npz using test arrays.

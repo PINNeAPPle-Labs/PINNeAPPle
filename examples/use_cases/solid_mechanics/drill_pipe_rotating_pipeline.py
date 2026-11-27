@@ -48,7 +48,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import matplotlib
 
@@ -96,8 +95,8 @@ class RotatingCouplingPINN(nn.Module):
 
     def __init__(
         self,
-        r_bounds: Tuple[float, float] = (50.0, 84.15),
-        z_bounds: Tuple[float, float] = (0.0, 140.0),
+        r_bounds: tuple[float, float] = (50.0, 84.15),
+        z_bounds: tuple[float, float] = (0.0, 140.0),
         u_rz_scale: float = 1e-3,    # mm — escala meridional
         u_th_scale: float = 1e-2,    # mm — escala torsional (θ·r)
         hidden: int = 128,
@@ -231,7 +230,7 @@ def generate_synthetic_fem_data(
     spec,
     n_points: int = 3000,
     seed: int = 0,
-    output_path: Optional[Path] = None,
+    output_path: Path | None = None,
 ) -> Path:
     """
     Gera dados "FEM" sintéticos usando soluções analíticas aproximadas.
@@ -309,8 +308,8 @@ def generate_synthetic_fem_data(
 class CouplingResult:
     spec: object
     model: nn.Module
-    history: List[Dict[str, float]]
-    metrics: Dict[str, float] = field(default_factory=dict)
+    history: list[dict[str, float]]
+    metrics: dict[str, float] = field(default_factory=dict)
     elapsed_s: float = 0.0
 
     def summary(self) -> str:
@@ -367,7 +366,7 @@ class RotatingCouplingPipeline:
     # ── Construtores ──────────────────────────────────────────────────────────
 
     @classmethod
-    def from_preset(cls, preset_id: str, **params) -> "RotatingCouplingPipeline":
+    def from_preset(cls, preset_id: str, **params) -> RotatingCouplingPipeline:
         """Cria pipeline a partir de preset registrado, sem dados FEM."""
         spec = get_preset(preset_id, **params)
         return cls(spec)
@@ -377,8 +376,8 @@ class RotatingCouplingPipeline:
         cls,
         solution_npy: str | Path,
         preset: str = "threaded_coupling_tc50_rotating",
-        preset_params: Optional[Dict] = None,
-    ) -> "RotatingCouplingPipeline":
+        preset_params: dict | None = None,
+    ) -> RotatingCouplingPipeline:
         """
         Carrega dados FEM e cria pipeline.
 
@@ -616,7 +615,7 @@ class RotatingCouplingPipeline:
 
     # ── Avaliação ─────────────────────────────────────────────────────────────
 
-    def evaluate(self, result: CouplingResult) -> Dict[str, float]:
+    def evaluate(self, result: CouplingResult) -> dict[str, float]:
         """
         Calcula métricas vs. dados FEM (se disponíveis).
 
@@ -626,7 +625,7 @@ class RotatingCouplingPipeline:
         model.eval()
         dev   = next(model.parameters()).device
 
-        metrics: Dict[str, float] = {}
+        metrics: dict[str, float] = {}
 
         if self.fem_coords is not None and self.fem_disp is not None:
             x_t = torch.from_numpy(self.fem_coords.astype(np.float32)).to(dev)
@@ -665,7 +664,7 @@ class RotatingCouplingPipeline:
     def visualize(
         self,
         result: CouplingResult,
-        output_path: Optional[Path] = None,
+        output_path: Path | None = None,
         n_grid: int = 80,
     ) -> Path:
         """
@@ -774,8 +773,8 @@ class RotatingCouplingPipeline:
     def export(
         self,
         result: CouplingResult,
-        output_dir: Optional[Path] = None,
-    ) -> Dict[str, Path]:
+        output_dir: Path | None = None,
+    ) -> dict[str, Path]:
         """
         Exporta o modelo em 2 formatos:
           • TorchScript (.pt)   — para C++ / edge
@@ -789,7 +788,7 @@ class RotatingCouplingPipeline:
         model = result.model
         model.eval()
 
-        paths: Dict[str, Path] = {}
+        paths: dict[str, Path] = {}
 
         # TorchScript
         dummy = torch.zeros(1, 2)

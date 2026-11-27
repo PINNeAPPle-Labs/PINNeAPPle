@@ -12,7 +12,6 @@ Run::
     python examples/pinneapple_solvers/11_cad_cfd_pipeline_demo.py
 """
 
-import sys
 import time
 
 import numpy as np
@@ -22,7 +21,7 @@ import torch.nn as nn
 # ------------------------------------------------------------------
 # Feature 20: CAD-to-CFD pipeline
 # ------------------------------------------------------------------
-from pinneapple_solvers import CADToCFDPipeline, CFDMesh, NSFlowSolver
+from pinneapple_solvers import CADToCFDPipeline
 from pinneapple_solvers.cfd_pipeline import _gmsh_available
 
 # ------------------------------------------------------------------

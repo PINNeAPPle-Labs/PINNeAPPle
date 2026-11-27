@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List
 
 from pinneapple_problemdesign import DesignAgent
 
@@ -42,7 +41,6 @@ def _build_agent() -> DesignAgent:
         # Fallback to a tiny deterministic provider (no API keys required).
         import json
         from dataclasses import dataclass
-        from typing import List
 
         from pinneapple_problemdesign.protocol import LLMProvider, LLMMessage, LLMResponse
 
@@ -50,7 +48,7 @@ def _build_agent() -> DesignAgent:
         class _FallbackMock(LLMProvider):
             def generate(
                 self,
-                messages: List[LLMMessage],
+                messages: list[LLMMessage],
                 *,
                 temperature: float = 0.2,
                 max_tokens: int = 800,
@@ -82,7 +80,7 @@ def _build_agent() -> DesignAgent:
 def main() -> None:
     agent = _build_agent()
 
-    problems: List[List[str]] = [
+    problems: list[list[str]] = [
         [
             "We need to forecast outlet temperature for a heat exchanger.",
             "Sampling is every 10 minutes. Horizon is 6 hours. Inputs: inlet temp, flow rate, ambient temp. Output: outlet temp.",

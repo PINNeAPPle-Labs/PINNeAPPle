@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
 
 from pinneapple_tools.benchmark_suite.io.yamlx import load_yaml
 
@@ -27,10 +26,10 @@ class BundleSchema:
     """
 
     schema_version: str
-    required_files: List[str]
-    required_regions: Set[str]
-    manifest_required_keys: Set[str]
-    sensors_required_columns: List[str]
+    required_files: list[str]
+    required_regions: set[str]
+    manifest_required_keys: set[str]
+    sensors_required_columns: list[str]
 
     def validate_bundle_root(self, bundle_root: str | Path) -> None:
         """

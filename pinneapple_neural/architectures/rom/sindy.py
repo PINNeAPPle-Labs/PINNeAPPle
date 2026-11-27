@@ -17,10 +17,9 @@ Brunton, S. L., Proctor, J. L., & Kutz, J. N. (2016).
 Discovering governing equations from data by sparse identification of
 nonlinear dynamical systems. PNAS.
 """
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 import torch
-import torch.nn as nn
 
 from .base import ROMBase, ROMOutput
 
@@ -85,7 +84,7 @@ class SINDy(ROMBase):
         # Derive feature count
         n_feat = self._feature_count()
         self._n_feat = n_feat
-        self.feature_names: List[str] = self._build_feature_names()
+        self.feature_names: list[str] = self._build_feature_names()
 
         self.register_buffer("Xi",     torch.zeros(n_feat, r))
         self.register_buffer("a_mean", torch.zeros(r))
@@ -107,7 +106,7 @@ class SINDy(ROMBase):
             n += r                               # exp
         return n
 
-    def _build_feature_names(self) -> List[str]:
+    def _build_feature_names(self) -> list[str]:
         names = ["1"]
         names += [f"a{i}" for i in range(self.r)]
         if self.poly_degree >= 2:
@@ -204,7 +203,7 @@ class SINDy(ROMBase):
         a: torch.Tensor,
         *,
         dt: float = 1.0,
-    ) -> "SINDy":
+    ) -> SINDy:
         """
         Fit SINDy coefficients Xi from latent trajectories.
 
@@ -277,7 +276,7 @@ class SINDy(ROMBase):
     # Analysis helpers
     # ------------------------------------------------------------------
 
-    def active_terms(self) -> Dict[str, list]:
+    def active_terms(self) -> dict[str, list]:
         """Return dict {equation_i: [active feature names]} for each latent dim."""
         result = {}
         for i in range(self.r):
@@ -306,7 +305,7 @@ class SINDy(ROMBase):
         B, T, r = a.shape
         ahat = self.rollout(a[:, 0], dt=dt, steps=T - 1)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=a.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=a.device)}
         if return_loss:
             losses["mse"]   = self.mse(ahat, a)
             losses["total"] = losses["mse"]

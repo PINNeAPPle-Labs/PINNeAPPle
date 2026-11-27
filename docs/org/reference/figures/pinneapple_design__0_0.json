@@ -1,0 +1,18 @@
+{
+ "deform": null,
+ "field": "signed distance",
+ "kind": "value",
+ "label": "",
+ "length_unit": "m",
+ "method": "",
+ "source": "",
+ "status": "",
+ "text": "signed distance [m], -0.27 to 0.6 m",
+ "time": null,
+ "time_unit": "s",
+ "unit": "m",
+ "value_range": [
+  -0.27,
+  0.6
+ ]
+}

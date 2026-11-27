@@ -1,7 +1,7 @@
 """Voxelization and meshfree sampling utilities for PINNeAPPle geometries."""
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Callable, Dict, Optional, Sequence, Tuple, Union
+from collections.abc import Callable
 
 import torch
 
@@ -25,17 +25,17 @@ class VoxelGrid:
     """
     data: torch.Tensor
     origin: torch.Tensor
-    voxel_size: Union[float, torch.Tensor]
+    voxel_size: float | torch.Tensor
     dim: int = 3
-    meta: Dict = field(default_factory=dict)
+    meta: dict = field(default_factory=dict)
 
     # ------------------------------------------------------------------
     @property
-    def shape(self) -> Tuple[int, ...]:
+    def shape(self) -> tuple[int, ...]:
         return tuple(self.data.shape)
 
     @property
-    def resolution(self) -> Tuple[int, ...]:
+    def resolution(self) -> tuple[int, ...]:
         return self.shape
 
     def _step(self) -> torch.Tensor:
@@ -71,8 +71,8 @@ class VoxelGrid:
 # ---------------------------------------------------------------------------
 
 def voxelize_domain(
-    bounds: Dict[str, Tuple[float, float]],
-    resolution: Union[int, Tuple[int, ...]],
+    bounds: dict[str, tuple[float, float]],
+    resolution: int | tuple[int, ...],
     device: torch.device = torch.device("cpu"),
 ) -> VoxelGrid:
     """
@@ -100,8 +100,8 @@ def voxelize_domain(
 
 def voxelize_sdf(
     sdf_fn: Callable[[torch.Tensor], torch.Tensor],
-    bounds: Dict[str, Tuple[float, float]],
-    resolution: Union[int, Tuple[int, ...]],
+    bounds: dict[str, tuple[float, float]],
+    resolution: int | tuple[int, ...],
     *,
     threshold: float = 0.0,
     device: torch.device = torch.device("cpu"),
@@ -142,10 +142,10 @@ def voxelize_sdf(
 
 def voxelize_pointcloud(
     points: torch.Tensor,
-    bounds: Dict[str, Tuple[float, float]],
-    resolution: Union[int, Tuple[int, ...]],
+    bounds: dict[str, tuple[float, float]],
+    resolution: int | tuple[int, ...],
     *,
-    values: Optional[torch.Tensor] = None,
+    values: torch.Tensor | None = None,
     aggregate: str = "mean",
     device: torch.device = torch.device("cpu"),
 ) -> VoxelGrid:
@@ -220,7 +220,7 @@ def voxelgrid_to_collocation(
     grid: VoxelGrid,
     threshold: float = 0.5,
     include_values: bool = False,
-) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
     """
     Extract occupied voxel centres as collocation points for PINNeAPPle.
 

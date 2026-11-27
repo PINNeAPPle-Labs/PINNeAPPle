@@ -42,7 +42,7 @@ Datacenter
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -62,11 +62,11 @@ def _reynolds(rho: float, U: float, L: float, mu: float) -> float:
     return rho * U * L / mu
 
 
-def _const_value_fn(values: Dict[str, float]):
+def _const_value_fn(values: dict[str, float]):
     """Return a value_fn emitting the constant values (in dict order) for every selected point."""
     vals = [float(v) for v in values.values()]
 
-    def _fn(X: np.ndarray, ctx: Dict[str, Any], _vals=vals) -> np.ndarray:
+    def _fn(X: np.ndarray, ctx: dict[str, Any], _vals=vals) -> np.ndarray:
         out = np.zeros((X.shape[0], len(_vals)), dtype=np.float32)
         for i, v in enumerate(_vals):
             out[:, i] = v
@@ -75,7 +75,7 @@ def _const_value_fn(values: Dict[str, float]):
     return _fn
 
 
-def _tagged_dirichlet(tag: str, values: Dict[str, float], weight: float = 10.0):
+def _tagged_dirichlet(tag: str, values: dict[str, float], weight: float = 10.0):
     """Dirichlet condition applied to points carrying ``tag`` in ctx["tag_masks"]."""
     return DirichletBC(
         name=tag,
@@ -89,11 +89,11 @@ def _tagged_dirichlet(tag: str, values: Dict[str, float], weight: float = 10.0):
 
 def _tagged_neumann(
     tag: str,
-    values: Dict[str, float],
+    values: dict[str, float],
     weight: float = 5.0,
-    traction_map: Optional[Dict[str, str]] = None,
-    normal_stress_field: Optional[str] = None,
-    thermal_bc: Optional[Dict[str, str]] = None,
+    traction_map: dict[str, str] | None = None,
+    normal_stress_field: str | None = None,
+    thermal_bc: dict[str, str] | None = None,
 ):
     """Neumann condition applied to points carrying ``tag`` in ctx["tag_masks"].
 
@@ -669,7 +669,7 @@ def cpu_heatsink_thermal(
 def pcb_thermal(
     k_pcb: float = 0.3,            # W/(m·K) — FR4 in-plane
     k_z_pcb: float = 0.25,        # W/(m·K) — FR4 through-plane
-    q_components: Dict[str, float] = None,  # {component_id: power_W}
+    q_components: dict[str, float] = None,  # {component_id: power_W}
     T_ambient: float = 308.0,     # 35°C ambient
     h_natural: float = 10.0,      # natural convection
     board_length: float = 0.2,
@@ -856,7 +856,7 @@ def industrial_furnace_thermal(
 
 @register_preset("refractory_lining")
 def refractory_lining(
-    layers: List[Dict] = None,
+    layers: list[dict] = None,
     T_hot: float = 1700.0,
     T_cold: float = 350.0,
     total_thickness: float = 0.5,

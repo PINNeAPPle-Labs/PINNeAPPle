@@ -6,7 +6,6 @@ end-to-end run on the HX-201 exchanger in ``apps/twin_ops`` — the same path a 
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -19,11 +18,9 @@ from pinneapple_systems.digital_twin.product import (
     DriftMonitor,
     DriftPolicy,
     FieldSpec,
-    LatentStateTwin,
     ModelSpec,
     SensorSpec,
     SpecError,
-    TwinEvidence,
     TwinMode,
     TwinSpec,
     commission,
@@ -323,6 +320,8 @@ def test_hx201_commissions_end_to_end():
 
 
 def test_export_scene_writes_a_viewer_folder(tmp_path):
+    pytest.importorskip("trimesh", reason="without a mesh, export_scene draws the extent box with trimesh "
+                                          "(extra: pip install trimesh or pinneapple[geom])")
     from pinneapple_systems.digital_twin.product import export_scene
 
     spec = _spec()

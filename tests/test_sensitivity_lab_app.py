@@ -52,7 +52,7 @@ def _done(c, job, timeout=300):
 def test_health_meta_model_info_and_cost(client):
     assert client.get("/health").json()["status"] == "ok"
     meta = client.get("/api/meta").json()
-    assert {e["name"] for e in meta["examples"]} == {"ishigami", "heatsink", "dataset"}
+    assert {e["name"] for e in meta["examples"]} == {"ishigami", "heatsink", "dataset", "surrogate"}
     assert set(meta["runtime"]["job_kinds"]) == {"study", "runs", "given_data"}
     info = client.get("/api/model/zoo/heatsink_forced_mlp").json()
     assert info["differentiable"] and len(info["space"]) + len(info["fixed"]) == 12
@@ -86,6 +86,25 @@ def test_dataset_example_reports_input_correlation(client):
     j = client.get("/api/example/dataset").json()
     assert j["n_rows"] == 3900 and abs(j["max_input_correlation"]["r"]) > 0.5
     assert j["study_result"]["checks"][0]["status"] == "WARN"
+
+
+def test_surrogate_example_shows_the_interval_the_model_error_adds(client):
+    """#927 in the app: the GP on 60 runs, the exact indices, and the interval that covers the surrogate's error."""
+    j = client.get("/api/example/surrogate").json()
+    s, se = j["sobol"], j["sobol"]["surrogate_error"]
+    assert len(s["sources"]) == 2 and s["sources"][0] == "monte_carlo"
+    assert se["n_paths"] == 100 and se["dominates"] is True
+    # the total index of x2 is the one the surrogate gets wrong; the resampling alone misses all three
+    boot = [se["bootstrap_only"]["ST_ci"][0][0][i] <= j["exact"]["ST"][i] <= se["bootstrap_only"]["ST_ci"][1][0][i]
+            for i in range(3)]
+    assert sum(boot) == 0
+    assert sum(j["exact"]["ST_in_ci"]) >= 2
+    rows = {r["name"]: r for r in j["surrogate_error_tables"]["y"]}
+    assert rows["x2"]["width_combined"] > rows["x2"]["width_bootstrap_only"]
+    assert rows["x2"]["share_surrogate"] > 0.4
+    rk = j["ranking_stability"]["y"]
+    assert len(rk["rank_stability"]) == 3 and -1 <= rk["kendall_tau"]["mean"] <= 1
+    assert j["model"]["name"] == "ishigami"                 # the model asked for, not the GP that was studied
 
 
 def test_study_job_with_contracts_in_and_out(client):

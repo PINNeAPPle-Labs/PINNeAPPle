@@ -38,7 +38,7 @@ a first-principles derivation.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -62,7 +62,7 @@ def generate_phased_array_synthetic(
     burst_freq: float = 5.0e6,    # Hz, typical phased-array UT frequency
     defect_x: float = 0.0,        # m, relative to array center
     defect_z: float = 0.015,      # m, depth
-    dt: Optional[float] = None,
+    dt: float | None = None,
     n_time: int = 400,
     nx_image: int = 40,
     nz_image: int = 40,
@@ -70,8 +70,8 @@ def generate_phased_array_synthetic(
     image_z_span: tuple = (0.002, 0.03),
     n_supervised: int = 500,
     n_collocation: int = 250,
-    seed: Optional[int] = 0,
-) -> Dict[str, Any]:
+    seed: int | None = 0,
+) -> dict[str, Any]:
     """Generate a synthetic phased-array pulse-echo B-scan and its
     delay-and-sum (TFM) reconstruction.
 
@@ -154,7 +154,7 @@ def make_phased_array_physics_loss(k0: float) -> PhysicsLossFn:
     for the honest caveat about this being a regularizer, not an exact
     physical law for image intensity)."""
 
-    def physics_loss_fn(model: torch.nn.Module, batch: Dict[str, Any]):
+    def physics_loss_fn(model: torch.nn.Module, batch: dict[str, Any]):
         x_col = batch["x_col"]
         if not x_col.requires_grad:
             x_col = x_col.clone().requires_grad_(True)
@@ -177,20 +177,20 @@ def make_phased_array_physics_loss(k0: float) -> PhysicsLossFn:
 
 
 def train_phased_array_ultrasonic(
-    synthetic_data: Optional[Dict[str, Any]] = None,
+    synthetic_data: dict[str, Any] | None = None,
     *,
     hidden=(64, 64, 64),
     epochs: int = 200,
     lr: float = 1e-3,
     batch_size: int = 32,
     device: str = "cpu",
-    seed: Optional[int] = 0,
+    seed: int | None = 0,
     log_dir: str = "runs/inspection_phased_array",
     run_name: str = "phased_array_pinn",
     w_supervised: float = 1.0,
     w_physics: float = 0.1,
     **synthetic_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if synthetic_data is None:
         synthetic_data = generate_phased_array_synthetic(seed=seed, **synthetic_kwargs)
 

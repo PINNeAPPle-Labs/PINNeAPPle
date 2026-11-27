@@ -9,7 +9,7 @@ import io
 import json
 import os
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .graph import Artifact, Lineage, sha256
 
@@ -20,8 +20,8 @@ MONTHS = {m: i for i, m in enumerate(["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
 SKIP = re.compile(r"(^|/)(__MACOSX|\.git|\.DS_Store)|(^|/)\._")
 
 
-def _log_info(text: str) -> Dict[str, Any]:
-    out: Dict[str, Any] = {}
+def _log_info(text: str) -> dict[str, Any]:
+    out: dict[str, Any] = {}
     v = LOG_VER.search(text)
     if v:
         b = re.match(r"OPENFOAM=(\d+)", v.group(1))
@@ -32,18 +32,18 @@ def _log_info(text: str) -> Dict[str, Any]:
     return out
 
 
-def _txt(b: Optional[bytes]) -> str:
+def _txt(b: bytes | None) -> str:
     return b.decode("latin-1") if b else ""
 
 
-def detect_project(fs: Dict[str, bytes], project: str = "") -> Lineage:
+def detect_project(fs: dict[str, bytes], project: str = "") -> Lineage:
     fs = {k: v for k, v in fs.items() if not SKIP.search(k)}
     g = Lineage(project=project)
-    owner_of: Dict[str, str] = {}                 # file path -> artifact id that contains it
+    owner_of: dict[str, str] = {}                 # file path -> artifact id that contains it
     hashes = {k: sha256(v) for k, v in fs.items()}
     used: set = set()
 
-    def mark(aid: str, paths: List[str]):
+    def mark(aid: str, paths: list[str]):
         for p in paths:
             owner_of[p] = aid
             used.add(p)
@@ -93,7 +93,7 @@ def detect_project(fs: Dict[str, bytes], project: str = "") -> Lineage:
             mark(mesh_id, pm + [root + "log.blockMesh", root + "log.checkMesh"])
         logs = [k for k in files if re.search(r"/?log\.\w+Foam$", k)]
         li = _log_info(_txt(fs.get(logs[0]))) if logs else {}
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         try:
             from pinneapple_data.simulation_metadata import extract
             rec = extract({k[len(root):]: v for k, v in fs.items() if k.startswith(root)})
@@ -124,7 +124,6 @@ def detect_project(fs: Dict[str, bytes], project: str = "") -> Lineage:
     for k in sorted(fs):
         if k in used:
             continue
-        low = k.lower()
         base, ext = os.path.splitext(os.path.basename(k))
         if ext in (".step", ".stp", ".iges", ".igs", ".brep", ".stl", ".obj") or ext == ".geo":
             g.add(Artifact(id=os.path.basename(k), kind="geometry", name=base, file=k, hash=hashes[k], actual_hash=hashes[k],
@@ -178,7 +177,7 @@ def detect_project(fs: Dict[str, bytes], project: str = "") -> Lineage:
                                inputs=[os.path.basename(k)], detected=f"{ext} next to the deck"))
                 mark(os.path.basename(r), [r])
     # ---------------------------------------------------------------- datasets and reports from the PINNeAPPle apps
-    by_prefix: Dict[str, str] = {}
+    by_prefix: dict[str, str] = {}
     for p, h in hashes.items():
         if p in owner_of:
             by_prefix[h[:16]] = owner_of[p]
@@ -189,7 +188,7 @@ def detect_project(fs: Dict[str, bytes], project: str = "") -> Lineage:
         if not meta:
             continue
         kind, info = meta
-        ins: List[str] = []
+        ins: list[str] = []
         for f in info.get("files", []) or []:
             src = by_prefix.get(str(f.get("sha256", ""))[:16])
             if src and src not in ins:
@@ -242,7 +241,7 @@ def detect_project(fs: Dict[str, bytes], project: str = "") -> Lineage:
     return g
 
 
-def _pinneapple_meta(path: str, b: bytes) -> Optional[Tuple[str, Dict[str, Any]]]:
+def _pinneapple_meta(path: str, b: bytes) -> tuple[str, dict[str, Any]] | None:
     """Recognise files written by the PINNeAPPle apps (and model cards) and read their source references."""
     low = path.lower()
     try:

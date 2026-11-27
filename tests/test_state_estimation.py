@@ -18,7 +18,6 @@ does not duplicate that, beyond a short re-export identity check.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from pinneapple_analysis.state_estimation.kalman import (
     ExtendedKalmanFilter,

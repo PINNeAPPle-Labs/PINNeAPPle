@@ -1,0 +1,12 @@
+{
+ "code_hash": "8705811d304a6dfc",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.turbomachinery.axial_compressor_stage_3d",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='axial_compressor_stage_3d', dim=3, coords=('r', 'theta', 'z'), fields=('rho', 'u_r', 'u_theta', 'u_z', 'p', 'T'), pde=PDETermSpec(kind='compressible_euler_rotating_3d', fields=('rho', 'u_r', 'u_theta', 'u_z', 'p', 'T'), coords=('r', 'theta', 'z'), params={'gamma': 1.4, 'R_gas': 287.0, 'omega': 1047.1975511965977, 'mean_radius': 0.15000000000000002, 'U_tip': 209.43951023931956}, meta={}), conditions=(ConditionSpec(name='stage_inlet', kind='dirichlet', fields=('rho', 'u_z', 'T'), selector_type='callable', selector=<function axial_compressor_stage_3d.<locals>.<lambda> at 0x108850fe0>, value_fn=<function axial_compressor_stage_3d.<locals>.<lambda> at 0x1088cfb00>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, therm",
+ "timed_out": false
+}

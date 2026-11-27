@@ -25,7 +25,8 @@ Example
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -102,7 +103,7 @@ def _mmd_squared(
     return kss_sum + ktt_sum - 2.0 * kst_sum
 
 
-def _parse_loss(loss_out: Any) -> Tuple[torch.Tensor, Dict[str, float]]:
+def _parse_loss(loss_out: Any) -> tuple[torch.Tensor, dict[str, float]]:
     """Normalise physics_fn output to ``(total_tensor, components)``."""
     if isinstance(loss_out, torch.Tensor):
         return loss_out, {"total": float(loss_out.item())}
@@ -129,7 +130,7 @@ class _IntermediateFeatureHook:
     """Attach a forward hook to a named submodule and cache its output."""
 
     def __init__(self, model: nn.Module, layer_name: str) -> None:
-        self._features: Optional[torch.Tensor] = None
+        self._features: torch.Tensor | None = None
         module = dict(model.named_modules()).get(layer_name)
         if module is None:
             raise ValueError(
@@ -152,7 +153,7 @@ class _IntermediateFeatureHook:
             self._features = None
 
     @property
-    def features(self) -> Optional[torch.Tensor]:
+    def features(self) -> torch.Tensor | None:
         return self._features
 
     def remove(self) -> None:
@@ -210,10 +211,10 @@ class PhysicsTransferAdapter:
         model: nn.Module,
         source_spec: Any,
         target_spec: Any,
-        source_physics_fn: Optional[Callable[[nn.Module, Dict[str, Any]], Any]] = None,
+        source_physics_fn: Callable[[nn.Module, dict[str, Any]], Any] | None = None,
         source_weight: float = 0.1,
         mmd_bandwidth: float = 1.0,
-        feature_layer: Optional[str] = None,
+        feature_layer: str | None = None,
     ) -> None:
         self.model = model
         self.source_spec = source_spec
@@ -229,8 +230,8 @@ class PhysicsTransferAdapter:
 
     def adapt_physics_loss(
         self,
-        target_physics_fn: Callable[[nn.Module, Dict[str, Any]], Any],
-    ) -> Callable[[nn.Module, Dict[str, Any]], Dict[str, torch.Tensor]]:
+        target_physics_fn: Callable[[nn.Module, dict[str, Any]], Any],
+    ) -> Callable[[nn.Module, dict[str, Any]], dict[str, torch.Tensor]]:
         """Return a combined source + target physics loss callable.
 
         The returned callable has the standard pinneapple loss signature::
@@ -255,12 +256,12 @@ class PhysicsTransferAdapter:
 
         def combined(
             model: nn.Module,
-            batch: Dict[str, Any],
-        ) -> Dict[str, torch.Tensor]:
+            batch: dict[str, Any],
+        ) -> dict[str, torch.Tensor]:
             tgt_loss, _ = _parse_loss(target_physics_fn(model, batch))
             total = tgt_loss
 
-            components: Dict[str, torch.Tensor] = {"target": tgt_loss}
+            components: dict[str, torch.Tensor] = {"target": tgt_loss}
 
             if source_fn is not None:
                 src_loss, _ = _parse_loss(source_fn(model, batch))

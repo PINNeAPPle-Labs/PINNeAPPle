@@ -1,0 +1,148 @@
+{
+ "case": "nasa-tmr-2DZP",
+ "reynolds": 5000000.0,
+ "station": 0.97,
+ "cf_law": {
+  "coefficient": 0.027,
+  "exponent": -0.14285714285714285,
+  "citation": "Schlichting, Boundary-Layer Theory (7th ed.), the 1/7-power skin-friction law"
+ },
+ "models": {
+  "SpalartAllmaras": {
+   "runs": [
+    {
+     "model": "SpalartAllmaras",
+     "level": "coarse",
+     "cells": 720,
+     "iterations": 145,
+     "converged": true,
+     "seconds": 2.23,
+     "cf_at_0.97": 0.002931849003061539,
+     "residuals": {
+      "Ux": 1.152752126e-08,
+      "Uy": 9.895705915e-07,
+      "p": 6.829633547e-07,
+      "nuTilda": 1.721538906e-08
+     },
+     "note": ""
+    },
+    {
+     "model": "SpalartAllmaras",
+     "level": "medium",
+     "cells": 2880,
+     "iterations": 329,
+     "converged": true,
+     "seconds": 3.21,
+     "cf_at_0.97": 0.002975096023216722,
+     "residuals": {
+      "Ux": 1.962052919e-08,
+      "Uy": 9.7640687e-07,
+      "p": 4.145748627e-07,
+      "nuTilda": 2.598350431e-08
+     },
+     "note": ""
+    },
+    {
+     "model": "SpalartAllmaras",
+     "level": "fine",
+     "cells": 11520,
+     "iterations": 672,
+     "converged": true,
+     "seconds": 21.93,
+     "cf_at_0.97": 0.0029851557680140323,
+     "residuals": {
+      "Ux": 3.274435353e-08,
+      "Uy": 9.992335035e-07,
+      "p": 2.483749909e-07,
+      "nuTilda": 4.464053567e-08
+     },
+     "note": ""
+    }
+   ],
+   "cf": [
+    0.002931849003061539,
+    0.002975096023216722,
+    0.0029851557680140323
+   ],
+   "observed_order": 2.1040070240073536,
+   "extrapolated": 0.002988205083280072,
+   "gci_fine": 0.0012768660595172442,
+   "asymptotic": true,
+   "cf_law": 0.0029940414018035317,
+   "cf_fine_vs_law": 0.9970322274821761
+  },
+  "kOmegaSST": {
+   "runs": [
+    {
+     "model": "kOmegaSST",
+     "level": "coarse",
+     "cells": 720,
+     "iterations": 152,
+     "converged": true,
+     "seconds": 2.25,
+     "cf_at_0.97": 0.002659327695959829,
+     "residuals": {
+      "Ux": 9.174185284e-09,
+      "Uy": 8.887306234e-07,
+      "p": 7.151847666e-07,
+      "omega": 9.203067132e-10,
+      "k": 1.067678036e-08
+     },
+     "note": ""
+    },
+    {
+     "model": "kOmegaSST",
+     "level": "medium",
+     "cells": 2880,
+     "iterations": 325,
+     "converged": true,
+     "seconds": 3.12,
+     "cf_at_0.97": 0.002678131347714735,
+     "residuals": {
+      "Ux": 1.83063418e-08,
+      "Uy": 9.843810725e-07,
+      "p": 4.516311072e-07,
+      "omega": 1.624850765e-09,
+      "k": 1.447164334e-08
+     },
+     "note": ""
+    },
+    {
+     "model": "kOmegaSST",
+     "level": "fine",
+     "cells": 11520,
+     "iterations": 664,
+     "converged": true,
+     "seconds": 26.59,
+     "cf_at_0.97": 0.0026839304240127374,
+     "residuals": {
+      "Ux": 3.243491487e-08,
+      "Uy": 9.963861486e-07,
+      "p": 2.66411446e-07,
+      "omega": 2.602153237e-09,
+      "k": 2.025463046e-08
+     },
+     "note": ""
+    }
+   ],
+   "cf": [
+    0.002659327695959829,
+    0.002678131347714735,
+    0.0026839304240127374
+   ],
+   "observed_order": 1.697117842131334,
+   "extrapolated": 0.002686516382010482,
+   "gci_fine": 0.0012043708243182126,
+   "asymptotic": true,
+   "cf_law": 0.0029940414018035317,
+   "cf_fine_vs_law": 0.8964239513842422
+  }
+ },
+ "levels": [
+  "coarse",
+  "medium",
+  "fine"
+ ],
+ "reference": "",
+ "note": "the TMR reference tables are not in this repository and were not downloadable here: pass reference=<file> to compare with CFL3D/FUN3D"
+}

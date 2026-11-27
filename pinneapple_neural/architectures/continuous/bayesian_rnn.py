@@ -1,7 +1,7 @@
 from __future__ import annotations
 """Bayesian RNN with variational dropout for uncertainty quantification."""
 
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -63,8 +63,8 @@ class BayesianRNN(ContinuousModelBase):
         max_logvar: float = 2.0,
         *,
         # locked dropout controls (kept simple, defaults follow `dropout`)
-        locked_input_dropout: Optional[float] = None,
-        locked_head_dropout: Optional[float] = None,
+        locked_input_dropout: float | None = None,
+        locked_head_dropout: float | None = None,
     ):
         super().__init__()
         self.input_dim = int(input_dim)
@@ -145,7 +145,7 @@ class BayesianRNN(ContinuousModelBase):
             extras["samples"] = Y
 
         # Losses are dummy here (MC is typically inference-only)
-        losses: Dict[str, torch.Tensor] = {"total": x.new_zeros(())}
+        losses: dict[str, torch.Tensor] = {"total": x.new_zeros(())}
         return ContOutput(y=mu, losses=losses, extras=extras)
 
     @torch.no_grad()
@@ -171,7 +171,7 @@ class BayesianRNN(ContinuousModelBase):
         self,
         x: torch.Tensor,  # (B,T,input_dim)
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,T,out_dim)
+        y_true: torch.Tensor | None = None,  # (B,T,out_dim)
         return_loss: bool = False,
         mc_samples: int = 0,         # if >0, does MC in forward (GRAD-FRIENDLY)
         return_samples: bool = False # only relevant if mc_samples > 0
@@ -189,7 +189,7 @@ class BayesianRNN(ContinuousModelBase):
 
         y_hat = self._single_pass(x)
 
-        losses: Dict[str, torch.Tensor] = {"total": x.new_zeros(())}
+        losses: dict[str, torch.Tensor] = {"total": x.new_zeros(())}
         if return_loss and y_true is not None:
             if y_true.shape != y_hat.shape:
                 raise ValueError(f"y_true shape {tuple(y_true.shape)} != y_hat {tuple(y_hat.shape)}")

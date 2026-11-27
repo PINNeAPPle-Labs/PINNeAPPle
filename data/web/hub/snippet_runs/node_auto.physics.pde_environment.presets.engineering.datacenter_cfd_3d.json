@@ -1,0 +1,12 @@
+{
+ "code_hash": "90d3e909cdbfde59",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.datacenter_cfd_3d",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.89,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='datacenter_cfd_3d', dim=3, coords=('x', 'y', 'z'), fields=('u', 'v', 'w', 'p', 'T'), pde=PDETermSpec(kind='incompressible_navier_stokes_energy_3d', fields=('u', 'v', 'w', 'p', 'T'), coords=('x', 'y', 'z'), params={'nu': 1.5e-05, 'rho': 1.2, 'cp': 1006.0, 'Re': 299999.99999999994}, meta={}), conditions=(ConditionSpec(name='crac_supply', kind='dirichlet', fields=('u', 'v', 'w', 'T'), selector_type='tag', selector={'tag': 'crac_supply'}, value_fn=<function _const_value_fn.<locals>._fn at 0x109240fe0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='return_air', kind='neumann', fields=('p',), selector_type='tag', selector={'tag': 'return_air'}, value_fn=<function _const_value_fn.",
+ "timed_out": false
+}

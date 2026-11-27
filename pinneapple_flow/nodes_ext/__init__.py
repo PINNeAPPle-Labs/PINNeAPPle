@@ -4,6 +4,7 @@ calls; the flows that use them are under ``pinneapple_flow/flows/examples/<domai
 is :mod:`pinneapple_flow.examples` (``docs/flow_studio/EXAMPLES_AS_FLOWS.md``)."""
 from ..examples import register_hook  # noqa: E402
 from . import (  # noqa: F401
+    advisor,
     aero,
     ahmed_design,
     aircraft_surrogate,
@@ -32,6 +33,7 @@ from . import (  # noqa: F401
     football,
     forecasting,
     geomechanics,
+    intent,
     inverse_workflow,
     lbm,
     learned_sim,
@@ -57,6 +59,7 @@ from . import (  # noqa: F401
     surrogate_inverse,
     surrogate_modeling,
     terramechanics,
+    ugs,
     use_cases,
     validation,
     validation_gallery,

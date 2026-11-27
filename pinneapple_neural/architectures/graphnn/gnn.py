@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Message passing graph neural network."""
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -65,7 +65,7 @@ class GraphNeuralNetwork(GraphModelBase):
         self,
         g: GraphBatch,
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,N,out_dim)
+        y_true: torch.Tensor | None = None,  # (B,N,out_dim)
         return_loss: bool = False,
     ) -> GraphOutput:
         x, edge_index = g.x, g.edge_index
@@ -95,7 +95,7 @@ class GraphNeuralNetwork(GraphModelBase):
 
         y = self.out_proj(h)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
         if return_loss and y_true is not None:
             if g.mask is not None:
                 mask = g.mask[..., None].to(y.dtype)
@@ -106,7 +106,7 @@ class GraphNeuralNetwork(GraphModelBase):
 
         return GraphOutput(y=y, losses=losses, extras={"h": h})
 
-    def forward_batch(self, batch: Dict[str, Any]) -> GraphOutput:
+    def forward_batch(self, batch: dict[str, Any]) -> GraphOutput:
         """Dict-based interface used by Arena / GNNAdapter."""
         x         = batch["x"] if "x" in batch else batch.get("node_features")
         edge_index = batch["edge_index"]

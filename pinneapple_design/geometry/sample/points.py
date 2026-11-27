@@ -1,7 +1,6 @@
 """Surface and boundary point sampling for triangle meshes."""
 from __future__ import annotations
 
-from typing import Optional, Tuple
 
 import numpy as np
 
@@ -30,10 +29,10 @@ def sample_surface_points(
     mesh: MeshData,
     n: int,
     *,
-    rng: Optional[np.random.Generator] = None,
+    rng: np.random.Generator | None = None,
     return_normals: bool = True,
     return_face_id: bool = True,
-) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
+) -> tuple[np.ndarray, np.ndarray | None, np.ndarray | None]:
     """
     Sample n points uniformly over the surface (triangle areas as weights).
 
@@ -73,10 +72,10 @@ def sample_surface_points_weighted(
     n: int,
     *,
     face_weights: np.ndarray,
-    rng: Optional[np.random.Generator] = None,
+    rng: np.random.Generator | None = None,
     return_normals: bool = True,
     return_face_id: bool = True,
-) -> Tuple[np.ndarray, Optional[np.ndarray], Optional[np.ndarray]]:
+) -> tuple[np.ndarray, np.ndarray | None, np.ndarray | None]:
     """
     Sample n points on surface using user-provided per-face weights.
 

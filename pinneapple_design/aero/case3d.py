@@ -8,11 +8,8 @@ from __future__ import annotations
 
 import math
 import os
-import re
 import shutil
-import subprocess
-import time
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 
@@ -30,7 +27,7 @@ def _w(case, rel, cls, body):
         f.write(HDR % (cls, os.path.basename(rel)) + body)
 
 
-def _bodies(af: Airframe) -> Dict[str, List[Part]]:
+def _bodies(af: Airframe) -> dict[str, list[Part]]:
     parts = af.build("cfd")
     out = {b: [] for b in BODIES}
     for p in parts:
@@ -44,7 +41,7 @@ def _bodies(af: Airframe) -> Dict[str, List[Part]]:
 
 
 def write_case3d(case: str, af: Airframe, alpha_deg: float = 2.0, speed: float = 55.0, nu: float = 1.5e-5,
-                 iterations: int = 800, level_wing=(5, 6), procs: int = 4, level_fus=(4, 5)) -> Dict[str, Any]:
+                 iterations: int = 800, level_wing=(5, 6), procs: int = 4, level_fus=(4, 5)) -> dict[str, Any]:
     if os.path.isdir(case):
         shutil.rmtree(case)
     tri = os.path.join(case, "constant", "triSurface")
@@ -89,11 +86,11 @@ mergePatchPairs ();
     return {"alpha": alpha_deg, "speed": speed, "nu": nu, "span": af.span, "S_half": af.wing_area / 2, "mac": af.mac}
 
 
-def run_case3d(case: str, procs: int = 4, log=print) -> Dict[str, float]:
+def run_case3d(case: str, procs: int = 4, log=print) -> dict[str, float]:
     return run_case(case, procs, log)
 
 
-def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 34) -> Dict[str, Any]:
+def read_result3d(case: str, info: dict[str, Any], af: Airframe, n_lines: int = 34) -> dict[str, Any]:
     """Forces (pressure + wall-function shear), Cp and Cf on every aircraft face, streamlines around the right half,
     the wake and symmetry-plane slices. ``n_lines`` is kept for compatibility (the seeds follow the wing)."""
     cf = CaseFields(case)
@@ -102,7 +99,7 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     drag_dir, lift_dir = np.array([math.cos(a), 0, math.sin(a)]), np.array([-math.sin(a), 0, math.cos(a)])
     q = 0.5 * V * V
     S = info["S_half"]
-    out: Dict[str, Any] = {"time": cf.time, "cells": cf.n_cells, "patches": {}}
+    out: dict[str, Any] = {"time": cf.time, "cells": cf.n_cells, "patches": {}}
     Fp, Fv = np.zeros(3), np.zeros(3)
     faces_xyz, faces_cp, faces_cf = [], [], []
     for b in cf.patches():
@@ -178,7 +175,7 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     return out
 
 
-def surface_scalars(af: Airframe, parts, surface: Dict[str, np.ndarray], key: str = "cp") -> Dict[str, np.ndarray]:
+def surface_scalars(af: Airframe, parts, surface: dict[str, np.ndarray], key: str = "cp") -> dict[str, np.ndarray]:
     """A surface field from the CFD faces onto the visual mesh vertices (nearest faces, inverse-distance, mirrored
     for the left side). key: "cp" (pressure coefficient) or "cf" (skin friction coefficient)."""
     from scipy.spatial import cKDTree

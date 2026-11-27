@@ -1,0 +1,12 @@
+{
+ "code_hash": "465ad4d16ea712aa",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.rocket_nozzle.nozzle_performance",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "nozzle performance -> pinneapple_physics.closed_form.rocket_nozzle:nozzle_performance\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'gamma': 1.0, 'R_gas': 1.0, 'T_chamber': 1.0, 'p_chamber': 1.0, 'area_ratio_exit': 1.0, 'p_atm': 101325.0}",
+ "timed_out": false
+}

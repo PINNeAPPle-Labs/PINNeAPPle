@@ -4,10 +4,16 @@
 optionally second-order) indices with bootstrap intervals, main-effect and ICE curves, local derivatives at the
 nominal point (autodiff when the model has a torch function), the freeze recommendation and its direct check.
 :func:`study_cost` gives the number of model evaluations before anything runs.
+
+When ``paths_fn`` is given the model is a surrogate whose own error is to be propagated (#927): the indices are then
+those of the mean path, their intervals are the combined ones of
+:func:`pinneapple_analysis.sensitivity.surrogate_error.sobol_from_paths` (so the freeze rule uses the combined upper
+bound), ``sobol.sources`` says what the interval includes, and ``ranking_stability`` reports how the ranking moves
+across the draws.
 """
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
 import numpy as np
 
@@ -18,7 +24,8 @@ from pinneapple_analysis.sensitivity.effects import (
     verify_freeze,
 )
 from pinneapple_analysis.sensitivity.morris import morris
-from pinneapple_analysis.sensitivity.sobol import sobol_indices
+from pinneapple_analysis.sensitivity.sobol import saltelli_design, sobol_indices
+from pinneapple_analysis.sensitivity.surrogate_error import sobol_from_paths
 from pinneapple_analysis.uncertainty.distributions import as_space
 
 
@@ -39,13 +46,20 @@ def sensitivity_study(model, space, outputs: Sequence[str] | None = None, *, n_s
                       threshold: float = 0.01, n_boot: int = 200, level: float = 0.95, n_verify: int = 512,
                       nominal: Mapping[str, float] | None = None, fixed: Mapping[str, float] | None = None,
                       morris_on: bool = True, effects_on: bool = True, exact: Mapping | None = None,
-                      seed: int = 0) -> dict:
+                      seed: int = 0, paths_fn: Callable[[np.ndarray], np.ndarray] | None = None,
+                      n_draws: int = 200, surrogate_sources: Sequence[str] | None = None) -> dict:
     """Run the study.
 
     ``model`` is a :class:`pinneapple_analysis.study_models.StudyModel`; ``space`` lists the varied parameters
     (distributions); model inputs not in ``space`` are held at ``fixed[name]``. ``outputs`` selects responses
     (default all). ``exact`` (``{"S1": [...], "ST": [...]}`` for the first output) adds the error of the estimate
     against known indices (benchmark functions).
+
+    ``paths_fn`` makes the study honest about a surrogate: it receives the ``(n_design, d)`` design in the varied
+    parameters (the same array ``model.predict`` is called with, mapped through the fixed inputs) and returns
+    ``(n_paths, n_design, len(outputs))`` — posterior paths from
+    :func:`~pinneapple_analysis.sensitivity.surrogate_error.gp_posterior_paths`, one row per ensemble member, or
+    residual-perturbed outputs. The reported intervals then cover the surrogate's error as well as the sampling.
     """
     sp = as_space(space)
     names = [p.name for p in sp]
@@ -74,12 +88,23 @@ def sensitivity_study(model, space, outputs: Sequence[str] | None = None, *, n_s
     out = {"model": model.info(), "parameters": [p.to_dict() for p in sp], "outputs": outs,
            "units": {o: model.units.get(o, "") for o in outs}, "fixed": {n: fixed[n] for n in others},
            "threshold": threshold}
-    s = sobol_indices(fn, sp, n=n_sobol, second_order=second_order, n_boot=n_boot, level=level, seed=seed,
-                      outputs=outs)
-    n_evals["sobol"] = s.n_evals
+    if paths_fn is None:
+        s = sobol_indices(fn, sp, n=n_sobol, second_order=second_order, n_boot=n_boot, level=level, seed=seed,
+                          outputs=outs)
+        n_evals["sobol"] = s.n_evals
+    else:
+        Xd, layout = saltelli_design(sp, n_sobol, second_order, seed)
+        paths = np.asarray(paths_fn(Xd), dtype=float)
+        s = sobol_from_paths(paths, layout, outs, level=level, n_draws=n_draws, seed=seed,
+                             sources=surrogate_sources)
+        n_evals["sobol"] = int(paths.shape[0] * paths.shape[1])           # surrogate evaluations on the design
     out["sobol"] = s.to_dict()
     out["sobol"]["tables"] = {o: s.table(k) for k, o in enumerate(outs)}
     out["sobol"]["ranking"] = {o: s.ranking(k) for k, o in enumerate(outs)}
+    if s.surrogate_error is not None:
+        out["sobol"]["surrogate_error"] = s.surrogate_error.to_dict()
+        out["surrogate_error_tables"] = {o: s.surrogate_error.table(k) for k, o in enumerate(outs)}
+        out["ranking_stability"] = s.surrogate_error.ranking
     if exact is not None:
         e1 = np.asarray(exact["S1"], dtype=float)
         eT = np.asarray(exact["ST"], dtype=float)

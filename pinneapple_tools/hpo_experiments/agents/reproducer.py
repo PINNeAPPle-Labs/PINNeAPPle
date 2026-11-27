@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
 
 from ..models import RankedItem
 from ..providers.gemini_provider import GeminiProvider

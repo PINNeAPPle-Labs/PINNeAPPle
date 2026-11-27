@@ -1,7 +1,6 @@
 from __future__ import annotations
 """3D convolutional model for volumetric data."""
 
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -142,7 +141,7 @@ class Conv3DModel(ConvModelBase):
         self,
         x: torch.Tensor,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> ConvOutput:
         h = self.in_proj(x)
@@ -160,7 +159,7 @@ class Conv3DModel(ConvModelBase):
         if self.global_skip and self._can_global_skip:
             y = y + x
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
         if return_loss and (y_true is not None):
             losses["mse"] = self.mse(y, y_true)
             total = losses["mse"]

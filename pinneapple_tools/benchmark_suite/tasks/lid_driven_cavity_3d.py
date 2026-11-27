@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
@@ -78,7 +78,7 @@ class LidDrivenCavity3DTask(ArenaTask):
     def compute_metrics(
         self,
         bundle: BundleData,
-        backend_outputs: Dict[str, Any],
+        backend_outputs: dict[str, Any],
     ) -> TaskResult:
         """Compute benchmark metrics from solver predictions.
 
@@ -115,7 +115,7 @@ class LidDrivenCavity3DTask(ArenaTask):
             if "z" in pts.columns:
                 z_col = pts["z"].to_numpy(dtype=np.float64)
 
-        metrics: Dict[str, float] = {}
+        metrics: dict[str, float] = {}
 
         # ---- divergence residual (incompressibility) -------------------
         metrics["divergence_residual"] = _divergence_residual(
@@ -154,7 +154,7 @@ class LidDrivenCavity3DTask(ArenaTask):
                 metrics["max_velocity_error"] = float(np.max(np.abs(u_near - u_interp)))
 
         # ---- artifact: centerline plot ---------------------------------
-        artifact: Dict[str, Any] = {}
+        artifact: dict[str, Any] = {}
         centerline_data = _build_centerline_artifact(
             u_pred, x_col, y_col, self.size, ref_y, ref_u, self.lid_velocity
         )
@@ -163,7 +163,7 @@ class LidDrivenCavity3DTask(ArenaTask):
 
         return TaskResult(metrics=metrics, artifacts=artifact if artifact else None)
 
-    def get_reference_centerline(self) -> Dict[str, np.ndarray]:
+    def get_reference_centerline(self) -> dict[str, np.ndarray]:
         """Return reference data from Ghia et al. (1982).
 
         Selects the closest available Reynolds number (100, 400, or 1000),
@@ -183,10 +183,10 @@ class LidDrivenCavity3DTask(ArenaTask):
     def validate_against_literature(
         self,
         u_pred: np.ndarray,
-        v_pred: Optional[np.ndarray],
+        v_pred: np.ndarray | None,
         x: np.ndarray,
         y: np.ndarray,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Compare predicted centerline velocity profile against Ghia et al.
 
         Extracts points near the vertical centreline (x ~ 0.5*L), normalises
@@ -211,7 +211,7 @@ class LidDrivenCavity3DTask(ArenaTask):
         ref_y = ref["y"]          # normalised [0,1]
         ref_u = ref["u"]          # normalised by U_lid
 
-        result: Dict[str, float] = {
+        result: dict[str, float] = {
             "u_centerline_error": float("nan"),
             "v_centerline_error": float("nan"),
         }
@@ -265,7 +265,7 @@ class LidDrivenCavity3DTask(ArenaTask):
 # Private helpers
 # ---------------------------------------------------------------------------
 
-def _as_flat(arr: Any) -> Optional[np.ndarray]:
+def _as_flat(arr: Any) -> np.ndarray | None:
     """Convert array-like to a 1-D float64 numpy array, or return None."""
     if arr is None:
         return None
@@ -274,12 +274,12 @@ def _as_flat(arr: Any) -> Optional[np.ndarray]:
 
 
 def _divergence_residual(
-    u: Optional[np.ndarray],
-    v: Optional[np.ndarray],
-    w: Optional[np.ndarray],
-    x: Optional[np.ndarray],
-    y: Optional[np.ndarray],
-    z: Optional[np.ndarray],
+    u: np.ndarray | None,
+    v: np.ndarray | None,
+    w: np.ndarray | None,
+    x: np.ndarray | None,
+    y: np.ndarray | None,
+    z: np.ndarray | None,
 ) -> float:
     """Estimate mean |div(u)| on a (generally scattered/unstructured) point
     cloud via a local least-squares gradient fit.
@@ -341,9 +341,9 @@ def _divergence_residual(
 
 
 def _kinetic_energy(
-    u: Optional[np.ndarray],
-    v: Optional[np.ndarray],
-    w: Optional[np.ndarray],
+    u: np.ndarray | None,
+    v: np.ndarray | None,
+    w: np.ndarray | None,
 ) -> float:
     """Compute 0.5 * mean(u^2 + v^2 + w^2)."""
     if u is None:
@@ -357,14 +357,14 @@ def _kinetic_energy(
 
 
 def _build_centerline_artifact(
-    u_pred: Optional[np.ndarray],
-    x_col: Optional[np.ndarray],
-    y_col: Optional[np.ndarray],
+    u_pred: np.ndarray | None,
+    x_col: np.ndarray | None,
+    y_col: np.ndarray | None,
     size: float,
     ref_y: np.ndarray,
     ref_u: np.ndarray,
     lid_velocity: float,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Build a dict suitable for storing as a centerline plot artifact.
 
     Returns a plain-data dict (no matplotlib dependency) containing the

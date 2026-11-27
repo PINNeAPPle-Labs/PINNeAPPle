@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -21,7 +21,7 @@ class PhysicsNeMoSymBackend:
 
     name = "physicsnemo_sym"
 
-    def train(self, bundle: BundleData, run_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    def train(self, bundle: BundleData, run_cfg: dict[str, Any]) -> dict[str, Any]:
         """
         Train a steady 2D Navier-Stokes PINN using PhysicsNeMo Sym.
 

@@ -6,7 +6,7 @@ in pinneapple_data.upd_types and are re-exported here for backwards compatibilit
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -38,7 +38,7 @@ class UPDDataset:
         self,
         item: UPDItem,
         mapping: PINNMapping,
-        device: Union[str, torch.device] = "cpu",
+        device: str | torch.device = "cpu",
         dtype: torch.dtype = torch.float32,
     ):
         self.item = item
@@ -79,7 +79,7 @@ class UPDDataset:
 
         return Batch(collocation=collocation, conditions=conditions, data=data)
 
-    def get_problem_dims(self) -> Dict[str, Any]:
+    def get_problem_dims(self) -> dict[str, Any]:
         """
         Convenience helper: returns independent/dependent vars for creating PINNProblemSpec.
         """
@@ -93,7 +93,7 @@ class UPDDataset:
     # -----------------------
     # Internals: sampling
     # -----------------------
-    def _coord_arrays(self) -> Dict[str, np.ndarray]:
+    def _coord_arrays(self) -> dict[str, np.ndarray]:
         """Build coordinate arrays (transformed/normalized) for independent vars."""
         return self.mapping.coord.make_coord_arrays(self.ds, time0=self._time0)
 
@@ -112,9 +112,9 @@ class UPDDataset:
         n: int,
         mode: str,
         replace: bool = True,
-        slice_override: Optional[Dict[str, int]] = None,
-        boundary_axis: Optional[str] = None,
-    ) -> Dict[str, np.ndarray]:
+        slice_override: dict[str, int] | None = None,
+        boundary_axis: str | None = None,
+    ) -> dict[str, np.ndarray]:
         """
         Picks random indices for each coord dimension needed by mapping.
         Returns dict {coord_name: idx_array}.
@@ -125,7 +125,7 @@ class UPDDataset:
         coord_src = self.mapping.coord.coord_sources
 
         # Build index arrays for each coord used
-        idx: Dict[str, np.ndarray] = {}
+        idx: dict[str, np.ndarray] = {}
         for ind in self.mapping.independent_vars():
             src = coord_src[ind]
             arr = self.ds.coords[src].values
@@ -150,14 +150,14 @@ class UPDDataset:
 
         return idx
 
-    def _gather_inputs(self, idx: Dict[str, np.ndarray]) -> Tuple[Tensor, ...]:
+    def _gather_inputs(self, idx: dict[str, np.ndarray]) -> tuple[Tensor, ...]:
         """
         Given sampled indices for coords, gather independent variables as tensors (N,1).
         """
         coords = self._coord_arrays()
         coord_src = self.mapping.coord.coord_sources
 
-        tensors: List[Tensor] = []
+        tensors: list[Tensor] = []
         for ind in self.mapping.independent_vars():
             src = coord_src[ind]
             arr = coords[ind]  # already transformed & normalized for this independent var
@@ -166,11 +166,11 @@ class UPDDataset:
             tensors.append(t)
         return tuple(tensors)
 
-    def _sample_points(self, rng, n: int, mode: str, replace: bool = True) -> Tuple[Tensor, ...]:
+    def _sample_points(self, rng, n: int, mode: str, replace: bool = True) -> tuple[Tensor, ...]:
         idx = self._mesh_pick(rng, n=n, mode=mode, replace=replace)
         return self._gather_inputs(idx)
 
-    def _sample_condition(self, rng, cond: ConditionSpec) -> Tuple[Tensor, ...]:
+    def _sample_condition(self, rng, cond: ConditionSpec) -> tuple[Tensor, ...]:
         """Sample points for a single condition (initial, boundary, slice, interior)."""
         ctype = cond.type.lower().strip()
         n = int(cond.n)
@@ -206,7 +206,7 @@ class UPDDataset:
         idx = self._mesh_pick(rng, n=n, mode="interior", replace=True)
         return self._gather_inputs(idx)
 
-    def _sample_data(self, rng, n: int) -> Tuple[Tuple[Tensor, ...], Tensor]:
+    def _sample_data(self, rng, n: int) -> tuple[tuple[Tensor, ...], Tensor]:
         """
         Supervised data: sample points and fetch variable values as y_true.
         For MVP: y_true is concatenation of dependent vars (N, n_dep).

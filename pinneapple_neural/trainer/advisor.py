@@ -21,8 +21,8 @@ too_few_epochs : convergence was still happening at the end of training
 """
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -35,7 +35,7 @@ class Suggestion:
     code: str                         # machine-readable identifier
     priority: int                     # 1 = highest, 5 = lowest
     description: str                  # human-readable explanation
-    config_patch: Dict[str, Any]      # fields to override in ExperimentConfig/ModelRunConfig
+    config_patch: dict[str, Any]      # fields to override in ExperimentConfig/ModelRunConfig
     rationale: str = ""               # why this specific value was chosen
 
 
@@ -43,9 +43,9 @@ class Suggestion:
 class DiagnosticReport:
     """Complete diagnostic output for one model run."""
     model_name: str
-    signals: List[str]                # triggered diagnostic codes
-    suggestions: List[Suggestion]     # ranked best-first
-    metrics_summary: Dict[str, float]
+    signals: list[str]                # triggered diagnostic codes
+    suggestions: list[Suggestion]     # ranked best-first
+    metrics_summary: dict[str, float]
     diagnosis_text: str               # plain-text narrative
 
 
@@ -53,11 +53,11 @@ class DiagnosticReport:
 # Helper statistics
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _safe_mean(values: List[float]) -> float:
+def _safe_mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else float("nan")
 
 
-def _safe_std(values: List[float]) -> float:
+def _safe_std(values: list[float]) -> float:
     if len(values) < 2:
         return 0.0
     m = _safe_mean(values)
@@ -71,12 +71,12 @@ def _relative_reduction(start: float, end: float) -> float:
     return (start - end) / abs(start)
 
 
-def _tail(lst: List[float], frac: float = 0.25) -> List[float]:
+def _tail(lst: list[float], frac: float = 0.25) -> list[float]:
     n = max(1, int(len(lst) * frac))
     return lst[-n:]
 
 
-def _head(lst: List[float], frac: float = 0.25) -> List[float]:
+def _head(lst: list[float], frac: float = 0.25) -> list[float]:
     n = max(1, int(len(lst) * frac))
     return lst[:n]
 
@@ -130,10 +130,10 @@ class TrainingAdvisor:
     def analyse(
         self,
         model_name: str,
-        loss_history: List[float],
-        physics_loss_history: List[float],
-        bc_loss_history: List[float],
-        metrics: Dict[str, float],
+        loss_history: list[float],
+        physics_loss_history: list[float],
+        bc_loss_history: list[float],
+        metrics: dict[str, float],
         current_lr: float,
         current_epochs: int,
         current_batch_size: int,
@@ -142,8 +142,8 @@ class TrainingAdvisor:
         Analyse a completed training run and return a DiagnosticReport with
         ranked Suggestions.
         """
-        signals: List[str] = []
-        suggestions: List[Suggestion] = []
+        signals: list[str] = []
+        suggestions: list[Suggestion] = []
 
         if len(loss_history) < 4:
             return DiagnosticReport(
@@ -357,10 +357,10 @@ class TrainingAdvisor:
 
     def apply_suggestions(
         self,
-        suggestions: List[Suggestion],
-        current_config: Dict[str, Any],
+        suggestions: list[Suggestion],
+        current_config: dict[str, Any],
         max_priority: int = 3,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Merge the top suggestions (up to max_priority) into current_config.
         Returns a new config dict with the patches applied.

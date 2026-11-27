@@ -72,7 +72,7 @@ above.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Sequence
+from collections.abc import Sequence
 
 
 # Fixed prompt order assumed for the (medium-confidence, laminar-only)
@@ -94,8 +94,8 @@ class FluentCaseConfig:
     """
 
     output_case_file: str                     # where /file/write-case-data writes the result
-    case_file: Optional[str] = None            # existing .cas/.cas.h5 to read
-    mesh_file: Optional[str] = None            # raw mesh to import if no case_file
+    case_file: str | None = None            # existing .cas/.cas.h5 to read
+    mesh_file: str | None = None            # raw mesh to import if no case_file
 
     steady: bool = True
     iterations: int = 100                      # steady: /solve/iterate <n>
@@ -106,8 +106,8 @@ class FluentCaseConfig:
     # Simple name -> scalar-value boundary condition overrides. Deliberately
     # narrow -- see module docstring for why only these two BC kinds are
     # covered. Keys are the zone names as they exist in the case/mesh.
-    velocity_inlet_bcs: Dict[str, float] = field(default_factory=dict)   # zone -> velocity magnitude [m/s]
-    pressure_outlet_bcs: Dict[str, float] = field(default_factory=dict)  # zone -> gauge pressure [Pa]
+    velocity_inlet_bcs: dict[str, float] = field(default_factory=dict)   # zone -> velocity magnitude [m/s]
+    pressure_outlet_bcs: dict[str, float] = field(default_factory=dict)  # zone -> gauge pressure [Pa]
 
     # Optional single scalar residual target applied uniformly across a
     # fixed, laminar-flow 4-equation set (continuity + 3 velocity
@@ -116,7 +116,7 @@ class FluentCaseConfig:
     # covers, and Fluent's actual prompt count/order for those depends on
     # which models are active (see module docstring "medium confidence").
     # Leave as None (the default) for any non-trivial physics case.
-    residual_convergence: Optional[float] = None
+    residual_convergence: float | None = None
 
     # Our downstream reader (cfd_formats.fluent_mesh_reader) only supports
     # ASCII-encoded Fluent files, so by default we force ASCII output via

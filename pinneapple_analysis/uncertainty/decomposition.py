@@ -30,7 +30,7 @@ Quick start::
 """
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -46,7 +46,7 @@ def decompose_uncertainty(
     *,
     n_samples: int = 100,
     has_aleatoric: bool = True,
-    device: Optional[Union[str, torch.device]] = None,
+    device: str | torch.device | None = None,
 ) -> UQResult:
     """Decompose predictive uncertainty into aleatoric and epistemic parts.
 

@@ -28,15 +28,15 @@ honesty tradeoff every other LLM-facing tool in this codebase makes.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any
 
 
 # Fixed, checked vocabulary -- see module docstring for why this is a
 # checklist and not an open-ended prompt. Each entry's description is
 # shown to the LLM verbatim so it knows exactly what to check for, not a
 # one-word category name it has to interpret on its own.
-FAILURE_MODE_CHECKLIST: Dict[str, str] = {
+FAILURE_MODE_CHECKLIST: dict[str, str] = {
     "data_leakage": (
         "Does any information from the test/validation set (or from the future, in a "
         "time-dependent problem) leak into training -- e.g. normalizing using statistics "
@@ -99,24 +99,24 @@ _ALLOWED_SEVERITIES = {"low", "medium", "high"}
 class CritiqueFinding:
     category: str  # one of FAILURE_MODE_CHECKLIST's keys
     verdict: str  # "concern" | "not_applicable" | "no_issue_found"
-    severity: Optional[str]  # "low" | "medium" | "high" -- required iff verdict == "concern"
+    severity: str | None  # "low" | "medium" | "high" -- required iff verdict == "concern"
     reasoning: str
 
 
 @dataclass
 class AdversarialReviewReport:
     architecture_description: str
-    findings: List[CritiqueFinding]
+    findings: list[CritiqueFinding]
     overall_reasoning: str
     provider: str
     raw_llm_response: str = ""
 
     @property
-    def concerns(self) -> List[CritiqueFinding]:
+    def concerns(self) -> list[CritiqueFinding]:
         return [f for f in self.findings if f.verdict == "concern"]
 
     @property
-    def high_severity_concerns(self) -> List[CritiqueFinding]:
+    def high_severity_concerns(self) -> list[CritiqueFinding]:
         return [f for f in self.concerns if f.severity == "high"]
 
 
@@ -164,8 +164,8 @@ def run_adversarial_review(
     spec: Any = None,
     *,
     provider: str = "ollama",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     conversation_store: Any = None,
 ) -> AdversarialReviewReport:
     """Run a structured adversarial review of *architecture_description*
@@ -223,7 +223,7 @@ def run_adversarial_review(
         raise ValueError(f"LLM response missing a JSON list under 'findings': {raw}")
 
     seen_categories = set()
-    findings: List[CritiqueFinding] = []
+    findings: list[CritiqueFinding] = []
     for entry in raw_findings:
         if not isinstance(entry, dict):
             raise ValueError(f"LLM finding entry is not a JSON object: {entry!r}")

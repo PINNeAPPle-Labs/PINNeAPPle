@@ -40,3 +40,24 @@ def test_generate_layout(tmp_path, monkeypatch):
         assert z["train__qoi_T_out"].shape == (2, 3) and z["train__U_fine"].shape == (2, 9)
     with np.load(d / "val.npz") as z:
         assert list(z["val__family"]) == ["sinusoid_chirp"]
+
+
+def test_parallel_workers_run_the_recipe_the_caller_asked_for(tmp_path, monkeypatch):
+    """Two workers must solve the small grid: a spawned worker re-imports the module and used to fall back
+    to the 128x32 defaults, so this ran the real recipe (minutes) instead of the test one (seconds)."""
+    monkeypatch.setattr(tc, "GRID", dict(nx=8, ny=2, dt=0.05))
+    monkeypatch.setattr(tc, "WARMUP", 0.2)
+    monkeypatch.setattr(tc, "HORIZON", 0.4)
+    monkeypatch.setattr(tc, "REC", 0.2)
+    monkeypatch.setattr(tc, "PLAN", [("random_steps_ramps", 0, "train"), ("sinusoid_chirp", 1, "val")])
+    monkeypatch.setattr(tc, "SPLITS", ("train", "val"))
+    meta = tc.generate(tmp_path / "parallel", workers=2)
+    tc.generate(tmp_path / "serial", workers=1)
+    assert (meta["nx"], meta["ny"]) == (8, 2) and meta["rows"] == {"train": 1, "val": 1}
+    for split in ("train", "val"):
+        with np.load(tmp_path / "parallel" / "thermal_channel_cfd" / f"{split}.npz") as a, \
+                np.load(tmp_path / "serial" / "thermal_channel_cfd" / f"{split}.npz") as b:
+            assert a[f"{split}__fields"].shape == b[f"{split}__fields"].shape
+            assert a[f"{split}__fields"].shape[3] == 8                      # the nx of the recipe, not the default 128
+            np.testing.assert_array_equal(a[f"{split}__fields"], b[f"{split}__fields"])
+            np.testing.assert_array_equal(a[f"{split}__seed"], b[f"{split}__seed"])

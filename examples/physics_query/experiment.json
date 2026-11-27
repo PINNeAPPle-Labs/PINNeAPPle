@@ -14,7 +14,9 @@
   "pinneapple_condense.query"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_demo.py"
+ ],
  "metrics": [
   {
    "name": "queries",

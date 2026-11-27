@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -32,7 +32,7 @@ class BoundaryRegion:
     """A named boundary region with an associated SDF-like sampler."""
     name: str
     kind: str  # "dirichlet" | "neumann" | "robin" | "periodic" | "symmetry"
-    conditions: Dict[str, Any] = field(default_factory=dict)
+    conditions: dict[str, Any] = field(default_factory=dict)
 
 
 class PhysicsDomain2D:
@@ -47,9 +47,9 @@ class PhysicsDomain2D:
     export helpers.
     """
 
-    bounds_min: Tuple[float, float] = (0.0, 0.0)
-    bounds_max: Tuple[float, float] = (1.0, 1.0)
-    boundary_regions: List[BoundaryRegion] = []
+    bounds_min: tuple[float, float] = (0.0, 0.0)
+    bounds_max: tuple[float, float] = (1.0, 1.0)
+    boundary_regions: list[BoundaryRegion] = []
 
     def sdf(self, p: np.ndarray) -> np.ndarray:
         """Signed distance. Override in subclass."""
@@ -77,10 +77,10 @@ class PhysicsDomain2D:
         """Sample n points on the named boundary region. Override in subclass."""
         raise NotImplementedError(f"sample_boundary_region not implemented for region '{region_name}'")
 
-    def get_region_names(self) -> List[str]:
+    def get_region_names(self) -> list[str]:
         return [r.name for r in self.boundary_regions]
 
-    def get_region_conditions(self, region_name: str) -> Dict[str, Any]:
+    def get_region_conditions(self, region_name: str) -> dict[str, Any]:
         for r in self.boundary_regions:
             if r.name == region_name:
                 return r.conditions
@@ -90,9 +90,9 @@ class PhysicsDomain2D:
         self,
         n_col: int = 4096,
         n_bc_per_region: int = 512,
-        n_bc_total: Optional[int] = None,
+        n_bc_total: int | None = None,
         seed: int = 0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate a full PINN training batch.
 
         Returns
@@ -134,7 +134,7 @@ class PhysicsDomain2D:
             "ctx": ctx,
         }
 
-    def to_bundle_conditions(self) -> Dict[str, Any]:
+    def to_bundle_conditions(self) -> dict[str, Any]:
         """Export region conditions in Arena bundle format."""
         cond = {}
         for r in self.boundary_regions:
@@ -144,7 +144,7 @@ class PhysicsDomain2D:
         cond["_meta"] = {"domain_class": type(self).__name__}
         return cond
 
-    def to_bundle_manifest(self, problem_id: str = "custom", fields: List[str] = None) -> Dict[str, Any]:
+    def to_bundle_manifest(self, problem_id: str = "custom", fields: list[str] = None) -> dict[str, Any]:
         """Export domain manifest in Arena bundle format."""
         return {
             "problem_id": problem_id,
@@ -175,7 +175,7 @@ class ChannelDomain2D(PhysicsDomain2D):
         self,
         length: float = 2.0,
         height: float = 1.0,
-        origin: Tuple[float, float] = (0.0, 0.0),
+        origin: tuple[float, float] = (0.0, 0.0),
         inlet_velocity: float = 1.0,
     ):
         self.length = float(length)
@@ -245,8 +245,8 @@ class ChannelWithObstacleDomain2D(PhysicsDomain2D):
         self,
         length: float = 2.0,
         height: float = 1.0,
-        origin: Tuple[float, float] = (0.0, 0.0),
-        obstacle_center: Tuple[float, float] = (0.5, 0.5),
+        origin: tuple[float, float] = (0.0, 0.0),
+        obstacle_center: tuple[float, float] = (0.5, 0.5),
         obstacle_radius: float = 0.1,
         inlet_velocity: float = 1.0,
     ):
@@ -323,7 +323,7 @@ class LidDrivenCavityDomain2D(PhysicsDomain2D):
     def __init__(
         self,
         size: float = 1.0,
-        origin: Tuple[float, float] = (0.0, 0.0),
+        origin: tuple[float, float] = (0.0, 0.0),
         lid_velocity: float = 1.0,
     ):
         self.size = float(size)
@@ -385,7 +385,7 @@ class LShapeDomain2D(PhysicsDomain2D):
     def __init__(
         self,
         size: float = 2.0,
-        origin: Tuple[float, float] = (-1.0, -1.0),
+        origin: tuple[float, float] = (-1.0, -1.0),
     ):
         self.size = float(size)
         self.origin = tuple(float(v) for v in origin)
@@ -448,11 +448,11 @@ class AnnularDomain2D(PhysicsDomain2D):
 
     def __init__(
         self,
-        center: Tuple[float, float] = (0.0, 0.0),
+        center: tuple[float, float] = (0.0, 0.0),
         r_inner: float = 0.2,
         r_outer: float = 1.0,
-        inner_condition: Dict[str, Any] = None,
-        outer_condition: Dict[str, Any] = None,
+        inner_condition: dict[str, Any] = None,
+        outer_condition: dict[str, Any] = None,
     ):
         self.center = tuple(float(v) for v in center)
         self.r_inner = float(r_inner)
@@ -496,8 +496,8 @@ class MultiObstacleDomain2D(PhysicsDomain2D):
         self,
         length: float = 3.0,
         height: float = 1.0,
-        origin: Tuple[float, float] = (0.0, 0.0),
-        obstacles: List[Tuple[Tuple[float, float], float]] = None,
+        origin: tuple[float, float] = (0.0, 0.0),
+        obstacles: list[tuple[tuple[float, float], float]] = None,
         inlet_velocity: float = 1.0,
     ):
         """
@@ -585,7 +585,7 @@ class TJunctionDomain2D(PhysicsDomain2D):
         main_height: float = 0.5,
         branch_width: float = 0.5,
         branch_length: float = 1.0,
-        origin: Tuple[float, float] = (0.0, 0.0),
+        origin: tuple[float, float] = (0.0, 0.0),
         inlet_velocity: float = 1.0,
     ):
         self.main_length = float(main_length)
@@ -689,10 +689,10 @@ class SDFDomain2D(PhysicsDomain2D):
         self,
         sdf_fn,
         *,
-        bounds_min: Tuple[float, float],
-        bounds_max: Tuple[float, float],
-        boundary_samplers: Dict[str, Any] = None,
-        boundary_conditions: Dict[str, Any] = None,
+        bounds_min: tuple[float, float],
+        bounds_max: tuple[float, float],
+        boundary_samplers: dict[str, Any] = None,
+        boundary_conditions: dict[str, Any] = None,
     ):
         self._sdf_fn = sdf_fn
         self.bounds_min = tuple(float(v) for v in bounds_min)
@@ -723,7 +723,7 @@ class SDFDomain2D(PhysicsDomain2D):
 # Registry of built-in domains
 # ---------------------------------------------------------------------------
 
-_DOMAIN_REGISTRY: Dict[str, type] = {
+_DOMAIN_REGISTRY: dict[str, type] = {
     "channel_2d": ChannelDomain2D,
     "channel_with_obstacle_2d": ChannelWithObstacleDomain2D,
     "lid_driven_cavity_2d": LidDrivenCavityDomain2D,
@@ -748,6 +748,6 @@ def get_domain(name: str, **kwargs) -> PhysicsDomain2D:
     return _DOMAIN_REGISTRY[key](**kwargs)
 
 
-def list_domains() -> List[str]:
+def list_domains() -> list[str]:
     """List all registered built-in domain names."""
     return sorted(_DOMAIN_REGISTRY.keys())

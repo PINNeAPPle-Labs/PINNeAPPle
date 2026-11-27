@@ -1,0 +1,12 @@
+{
+ "code_hash": "53ebb3ea6eed7b66",
+ "figures": [],
+ "id": "node:auto.data.contracts.models.json_schemas",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 15.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'ParameterSpace': {'$defs': {'Parameter': {'additionalProperties': False, 'properties': {'name': {'description': 'Identifier: also the column name.', 'pattern': '^[A-Za-z_][A-Za-z0-9_]*$', 'title': 'Name', 'type': 'string'}, 'kind': {'default': 'continuous', 'enum': ['continuous', 'integer', 'categorical', 'constant'], 'title': 'Kind', 'type': 'string'}, 'low': {'anyOf': [{'type': 'number'}, {'type': 'null'}], 'default': None, 'title': 'Low'}, 'high': {'anyOf': [{'type': 'number'}, {'type': 'null'}], 'default': None, 'title': 'High'}, 'values': {'anyOf': [{'items': {}, 'type': 'array'}, {'type': 'null'}], 'default': None, 'description': 'Choices of a categorical parameter.', 'title': 'Values'}, 'value': {'default': None, 'description': 'Value of a constant parameter.', 'title': 'Value'},",
+ "timed_out": false
+}

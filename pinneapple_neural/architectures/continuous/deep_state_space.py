@@ -2,18 +2,17 @@ from __future__ import annotations
 """Deep state-space model for probabilistic dynamics."""
 
 from dataclasses import dataclass
-from typing import Dict, Optional, Any, Tuple
+from typing import Any
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 @dataclass
 class ContOutput:
     y: torch.Tensor
-    losses: Dict[str, torch.Tensor]
-    extras: Dict[str, Any]
+    losses: dict[str, torch.Tensor]
+    extras: dict[str, Any]
 
 
 def _mlp(in_dim: int, hidden: int, out_dim: int, depth: int = 2) -> nn.Module:
@@ -105,7 +104,7 @@ class DeepStateSpaceModel(nn.Module):
         self,
         x: torch.Tensor,                     # (B,T,input_dim)
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,T,out_dim)
+        y_true: torch.Tensor | None = None,  # (B,T,out_dim)
         return_loss: bool = False,
         sample: bool = False,                # if True, sample y using predicted variance (not only mean)
     ) -> ContOutput:
@@ -182,7 +181,7 @@ class DeepStateSpaceModel(nn.Module):
         else:
             y_hat = mu_y
 
-        losses: Dict[str, torch.Tensor] = {"total": x.new_zeros(())}
+        losses: dict[str, torch.Tensor] = {"total": x.new_zeros(())}
 
         if return_loss and (y_true is not None):
             # reconstruction term: sum/mean across time

@@ -19,6 +19,8 @@ theme:
     - content.code.copy
   icon:
     repo: fontawesome/brands/github
+  # the tab icon: the mark's small-size cut, the same file the site uses
+  favicon: assets/favicon.svg
 
 extra_css:
   - stylesheets/home.css

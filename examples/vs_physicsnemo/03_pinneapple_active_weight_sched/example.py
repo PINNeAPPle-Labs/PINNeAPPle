@@ -37,6 +37,9 @@ import torch.nn as nn
 import torch.optim as optim
 
 from pinneapple_core import loss as ppl      # pp.loss: loss terms and the SA-PINN balancer
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 
 # ---------------------------------------------------------------------------

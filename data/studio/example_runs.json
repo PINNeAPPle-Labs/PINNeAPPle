@@ -52,6 +52,33 @@
   "seconds": 16.1,
   "writes_files": []
  },
+ "example:data_readiness": {
+  "error": "",
+  "hash": "d43271ba430793f8",
+  "ok": true,
+  "recorded": "2026-11-20",
+  "scripts": [
+   "examples/data_readiness/run.py"
+  ],
+  "seconds": 33.0,
+  "writes_files": [
+   "examples/data_readiness/_out/gate.config.json",
+   "examples/data_readiness/_out/gate.jsonl"
+  ]
+ },
+ "example:digital_twin_library": {
+  "error": "",
+  "hash": "5c73feb5e08e8e2c",
+  "ok": true,
+  "recorded": "2026-11-17",
+  "scripts": [
+   "examples/digital_twin_library/01_reference_systems.py"
+  ],
+  "seconds": 16.9,
+  "writes_files": [
+   "examples/digital_twin_library/experiment.json"
+  ]
+ },
  "example:fno_coldplate": {
   "error": "",
   "hash": "edeecb3eafdf8dbf",
@@ -65,6 +92,46 @@
    "examples/fno_coldplate/results/checks.png",
    "examples/fno_coldplate/results/fields.png",
    "examples/fno_coldplate/results/summary.json"
+  ]
+ },
+ "example:granular_dem": {
+  "error": "",
+  "hash": "3164dfdc15b34776",
+  "ok": true,
+  "recorded": "2026-11-17",
+  "scripts": [
+   "examples/granular_dem/01_mill_power_and_wear.py"
+  ],
+  "seconds": 9.3,
+  "writes_files": []
+ },
+ "example:intent_to_study": {
+  "error": "",
+  "hash": "7cf68e1f9c5c5a52",
+  "ok": true,
+  "recorded": "2026-11-18",
+  "scripts": [
+   "examples/intent_to_study/intent_to_study.py"
+  ],
+  "seconds": 30.3,
+  "writes_files": [
+   "examples/intent_to_study/_out/beam/contract.json",
+   "examples/intent_to_study/_out/beam/report.md",
+   "examples/intent_to_study/_out/beam/run.json",
+   "examples/intent_to_study/_out/heat-wall-replay/contract.json",
+   "examples/intent_to_study/_out/heat-wall-replay/report.md",
+   "examples/intent_to_study/_out/heat-wall-replay/run.json",
+   "examples/intent_to_study/_out/heat-wall-surrogate/contract.json",
+   "examples/intent_to_study/_out/heat-wall-surrogate/report.md",
+   "examples/intent_to_study/_out/heat-wall-surrogate/run.json",
+   "examples/intent_to_study/_out/heat-wall-surrogate/trust.md",
+   "examples/intent_to_study/_out/heat-wall/contract.json",
+   "examples/intent_to_study/_out/heat-wall/report.md",
+   "examples/intent_to_study/_out/heat-wall/run.json",
+   "examples/intent_to_study/_out/pipe-laminar/contract.json",
+   "examples/intent_to_study/_out/pipe-laminar/report.md",
+   "examples/intent_to_study/_out/pipe-laminar/run.json",
+   "examples/intent_to_study/_out/summary.json"
   ]
  },
  "example:latent": {
@@ -87,6 +154,17 @@
    "examples/physics_audit/pipe_regimes.py"
   ],
   "seconds": 4.7,
+  "writes_files": []
+ },
+ "example:physics_data_schema": {
+  "error": "",
+  "hash": "2b89c38a0796dcb0",
+  "ok": true,
+  "recorded": "2026-11-17",
+  "scripts": [
+   "examples/physics_data_schema/01_pdebench_bundle.py"
+  ],
+  "seconds": 1.6,
   "writes_files": []
  },
  "example:physics_ensemble": {

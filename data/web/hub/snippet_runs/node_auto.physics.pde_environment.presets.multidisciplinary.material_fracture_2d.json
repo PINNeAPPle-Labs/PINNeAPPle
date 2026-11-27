@@ -1,0 +1,12 @@
+{
+ "code_hash": "7189f0be7e9c9b5b",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.multidisciplinary.material_fracture_2d",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.14,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "material fracture 2d -> pinneapple_physics.pde_environment.presets.multidisciplinary:material_fracture_2d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'E': 210000000000.0, 'nu': 0.3, 'Gc': 2700.0, 'l0': 0.005, 'Lx': 1.0, 'Ly': 1.0}",
+ "timed_out": false
+}

@@ -1273,7 +1273,7 @@ def test_breadth_file_watch_stream(tmp_path):
     path.write_text('{"timestamp": 0.0, "p": 1.0}\n')
 
     stream = FileWatchStream(str(path), sensor_id="s1", field_names=["p"], poll_interval=0.05)
-    q: "queue.Queue" = queue.Queue()
+    q: queue.Queue = queue.Queue()
     stream.start(q)
     time_mod.sleep(0.2)
     stream.stop()
@@ -1302,7 +1302,7 @@ def test_breadth_http_poll_stream():
     stream = HTTPPollStream(
         "http://127.0.0.1:1/does-not-exist", sensor_id="s1", field_names=["p"], poll_interval=0.05,
     )
-    q: "queue.Queue" = queue.Queue()
+    q: queue.Queue = queue.Queue()
     stream.start(q)
     time_mod.sleep(0.15)
     stream.stop()
@@ -1317,7 +1317,7 @@ def test_breadth_mock_stream():
         return {"p": 1.0 + 0.1 * t}
 
     stream = MockStream("s1", field_names=["p"], generator_fn=gen, tick_interval=0.02)
-    q: "queue.Queue" = queue.Queue()
+    q: queue.Queue = queue.Queue()
     stream.start(q)
     time_mod.sleep(0.15)
     stream.stop()
@@ -2877,60 +2877,34 @@ def test_breadth_matlab_engine_missing_dependency():
         pytest.fail("MATLABEngine() unexpectedly succeeded without a MATLAB install")
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=ImportError,
-    reason=(
-        "FOUND-NOT-FIXED bug (not fixed by design -- see this test's docstring): "
-        "pinneapple_simulation/external_solvers/fenics/solver.py's solve_and_package() "
-        "imports a nonexistent 'FEniCSBridge' (the real class is 'FEnicsBridge', "
-        "lower-case 'n') AND, even if that name were fixed, calls it with a calling "
-        "convention FEnicsBridge.__init__ doesn't accept. Kept as a strict xfail "
-        "(not silently patched, not swept under a skip) so a genuine fix flips this "
-        "test to an unexpected-pass failure instead of quietly going green."
-    ),
-)
-def test_breadth_fenics_workflow_solve_and_package_bug():
-    """FOUND-NOT-FIXED bug, confirmed by reading the source directly (not
-    just the error message): ``FEniCSWorkflow.solve()`` delegates to
-    module-level ``solve_and_package()`` in
-    ``pinneapple_simulation/external_solvers/fenics/solver.py``, which does::
+def test_breadth_fenics_workflow_solve_and_package():
+    """FIXED (was a strict xfail): ``solve_and_package()`` used to import ``FEniCSBridge``, a class that does not exist
+    (the real one is ``FEnicsBridge``) and to call it with keyword arguments its constructor does not take, so the
+    wrapper could not work even with FEniCS installed. It now translates :class:`FEniCSConfig` into the problem spec the
+    bridge reads (``problem_spec``), asks the bridge for a solve and packages the fields with the coordinates of their
+    degrees of freedom.
 
-        from pinneapple_simulation.numerical_solvers.fenics_bridge import FEniCSBridge
-
-    but the real class defined in that module is named ``FEnicsBridge``
-    (lower-case 'n', no second capital "S") -- there is no ``FEniCSBridge``
-    to import, so this ``ImportError`` fires REGARDLESS of whether
-    dolfinx/legacy FEniCS is installed on the machine. The situation is
-    made more confusing because ``solve_and_package()`` catches that
-    ``ImportError`` and re-raises a new one worded like a routine
-    missing-optional-dependency notice ("requires FEniCS. Install
-    dolfinx..."), which would otherwise look exactly like the
-    ``_is_missing_optional_dep``-style skip this audit discipline uses
-    elsewhere -- it is NOT that; installing real FEniCS would not fix this.
-
-    Even fixing that one name would not be enough: ``solve_and_package()``
-    then constructs the bridge as
-    ``FEniCSBridge(pde=config.pde, domain=config.domain, bcs=config.bcs,
-    **config.solver_opts)``, but the real ``FEnicsBridge.__init__`` accepts
-    only ``mesh_nx, mesh_ny, element_degree, solver_backend`` -- a second,
-    deeper mismatch (this convenience wrapper appears to predate a later
-    refactor of the underlying bridge class to a ``problem_spec``-based
-    calling convention). Fixing this properly means redesigning
-    ``solve_and_package()`` to build a `problem_spec`-shaped object and call
-    ``FEnicsBridge(...).forward(problem_spec)`` instead -- not a small,
-    obviously-safe one-line fix, so it is recorded here (as a strict xfail,
-    not silently patched and not glossed over as a skip) rather than patched.
+    On a machine without DOLFINx the honest answer is ``FEniCSUnavailable`` -- the wrapper names what to install instead
+    of raising an ImportError about a name that never existed. The run itself is covered in
+    ``tests/test_fenics_workflow.py``, where it is skipped unless a supported FEniCS is importable.
     """
-    from pinneapple_simulation.external_solvers.fenics.solver import FEniCSWorkflow, FEniCSConfig
+    from pinneapple_simulation.external_solvers.fenics import (
+        FEniCSConfig,
+        FEniCSUnavailable,
+        solve_and_package,
+    )
 
     cfg = FEniCSConfig(
         pde="heat_equation_steady",
         domain={"type": "rectangle", "x": [0, 1], "y": [0, 1], "nx": 4, "ny": 4},
-        bcs=[],
+        bcs=[{"side": "left", "value": 0.0}, {"side": "right", "value": 1.0}],
     )
-    workflow = FEniCSWorkflow(cfg)
-    workflow.solve()  # expected to raise ImportError -- see the xfail reason above
+    try:
+        sample = solve_and_package(cfg)
+    except FEniCSUnavailable as exc:
+        assert "fenics-dolfinx" in str(exc)                 # a real missing dependency, with the command
+    else:
+        assert sample.state and sample.domain["coords"]
 
 
 # ===========================================================================
@@ -3025,11 +2999,11 @@ def _generic_value_for_type(tp):
         if non_none:
             return _generic_value_for_type(non_none[0])
         return True, None
-    if origin in (list, _typing.List):
+    if origin in (list, list):
         return True, []
-    if origin in (dict, _typing.Dict):
+    if origin in (dict, dict):
         return True, {}
-    if origin in (tuple, _typing.Tuple):
+    if origin in (tuple, tuple):
         return True, ()
 
     if "Optional" in s or s == "None" or "NoneType" in s:

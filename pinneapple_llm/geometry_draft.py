@@ -13,7 +13,7 @@ from __future__ import annotations
 import inspect
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ._dispatch import call_llm
 from .draft import _SYSTEM_PROMPT as _BASE_SYSTEM_PROMPT
@@ -27,14 +27,14 @@ _SYSTEM_PROMPT = _BASE_SYSTEM_PROMPT.replace(
 
 @dataclass
 class GeometryDraftResult:
-    generator: Optional[str]
+    generator: str | None
     kind: str  # "domain2d" | "domain3d" | "airfoil"
-    kwargs: Dict[str, Any]
+    kwargs: dict[str, Any]
     reasoning: str
     raw_response: str
 
 
-def _geometry_catalog() -> List[Dict[str, Any]]:
+def _geometry_catalog() -> list[dict[str, Any]]:
     from pinneapple_design.geometry import list_domains, list_domains_3d, naca_parametric
 
     catalog = []
@@ -54,8 +54,8 @@ def draft_geometry(
     description: str,
     *,
     provider: str = "anthropic",
-    model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    model: str | None = None,
+    api_key: str | None = None,
     conversation_store=None,
 ) -> GeometryDraftResult:
     """Ask an LLM to pick + parametrise a geometry generator for a

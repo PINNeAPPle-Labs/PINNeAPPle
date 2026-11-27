@@ -92,6 +92,10 @@ def _used_fields(physics, fd) -> set[str]:
         return {n for n in fd.fields if n in ("U", "u", "v", "w", "p", "Ux", "Uy", "Uz")}
     if physics == "heat":
         return {"T"} & set(fd.fields)
+    if physics == "advection-diffusion":
+        return {"C", "T", "phi"} & set(fd.fields)
+    if physics == "shallow-water":
+        return {n for n in fd.fields if n in ("h", "hu", "hv", "u", "v")}
     if physics == "elasticity":
         return {n for n in fd.fields if n in ("D", "disp", "displacement", "ux", "uy", "uz")}
     if physics == "darcy":

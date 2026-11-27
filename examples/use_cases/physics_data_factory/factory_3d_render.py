@@ -29,7 +29,6 @@ from __future__ import annotations
 import math
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 _REPO = Path(__file__).resolve().parents[3]
 if str(_REPO) not in sys.path:
@@ -187,7 +186,7 @@ HX_BOUNDS     = (4.5, 7.5, 0.15, 1.10, 1.0, 4.0)   # x0,x1, y0,y1, z0,z1
 PIPE_R        = 0.055
 HEADER_R      = 0.08
 
-PIPE_DEFS: List[Tuple] = [
+PIPE_DEFS: list[tuple] = [
     # intake pipes (coming from -X side)
     ((-3.5,0.55,0.0), (-1.2,0.55,0.0), PIPE_R, "steel"),
     ((-3.5,0.55,2.5), (-1.2,0.55,2.5), PIPE_R, "steel"),
@@ -208,7 +207,7 @@ PIPE_DEFS: List[Tuple] = [
     ((7.5,1.05,2.5), (10.5,1.05,2.5), PIPE_R*1.2, "discharge"),
 ]
 
-INSULATION_SEGS: List[Tuple] = [
+INSULATION_SEGS: list[tuple] = [
     # hot lines get yellow insulation sleeves
     ((2.5,1.05,2.5), (4.5,1.05,2.5), HEADER_R+0.035),
     ((7.5,1.05,2.5), (10.5,1.05,2.5), PIPE_R*1.2+0.03),
@@ -264,7 +263,7 @@ def pressure_timeline(n_frames: int, n_pumps: int = 3):
         P[:, seg_i] = np.clip(base + osc, 0.05, 0.98)
     return P
 
-def pressure_to_colour(p: float) -> Tuple[float, float, float]:
+def pressure_to_colour(p: float) -> tuple[float, float, float]:
     """Map pressure [0,1] -> RGB tuple [0,1]."""
     p = float(np.clip(p, 0, 1))
     if p < 0.5:

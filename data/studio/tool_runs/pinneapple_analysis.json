@@ -724,6 +724,46 @@
   "recorded": "2026-10-31",
   "seconds": 0.0
  },
+ "pinneapple_analysis.inverse_problems.heat_transfer:fin_exact": {
+  "code_hash": "d261847dded54a88",
+  "inputs": {
+   "d": 0.005,
+   "h": 25.0,
+   "k": 16.0,
+   "length": 0.05,
+   "xi": [
+    0.0,
+    0.1,
+    0.2,
+    0.30000000000000004,
+    0.4,
+    0.5,
+    0.6000000000000001,
+    0.7000000000000001,
+    0.8,
+    0.9,
+    1.0
+   ]
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "ndarray",
+  "seconds": 11.41
+ },
+ "pinneapple_analysis.inverse_problems.heat_transfer:fin_q_exact": {
+  "code_hash": "c8386953884f8f46",
+  "inputs": {
+   "d": 0.005,
+   "dt": 55.0,
+   "h": 50.0,
+   "k": 16.0,
+   "length": 0.05
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "float",
+  "seconds": 0.0
+ },
  "pinneapple_analysis.inverse_problems.heat_transfer:plate_precomputed": {
   "code_hash": "e2934420ca7a30ab",
   "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/user/examples/use_cases/fin_convection_inverse/results/2d/summary.json'",
@@ -1132,6 +1172,16 @@
   "returned": "list",
   "seconds": 0.05
  },
+ "pinneapple_analysis.validation.arena.generators:get_generator": {
+  "code_hash": "19b30d7a0cbdacc3",
+  "inputs": {
+   "name": "viscosity"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Generator",
+  "seconds": 0.02
+ },
  "pinneapple_analysis.validation.arena.loop:run_arena": {
   "code_hash": "5ac5b53650bdaed9",
   "inputs": {},
@@ -1148,12 +1198,35 @@
   "returned": "list",
   "seconds": 0.0
  },
+ "pinneapple_analysis.validation.fault_injection.faults:get_fault": {
+  "code_hash": "f3d8669fa23669a2",
+  "inputs": {
+   "name": "smoothing"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Fault",
+  "seconds": 0.0
+ },
  "pinneapple_analysis.validation.fault_injection.faults:model_faults": {
   "code_hash": "cabc3d6ae7dfc2c0",
   "inputs": {},
   "ok": true,
   "recorded": "2026-10-31",
   "returned": "list",
+  "seconds": 0.0
+ },
+ "pinneapple_analysis.validation.fault_injection.matrix:fault_rng": {
+  "code_hash": "ffe2da339038ac49",
+  "inputs": {
+   "case_seed": 7,
+   "fault": "bias",
+   "magnitude": 0.05,
+   "seed": 0
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "Generator",
   "seconds": 0.0
  },
  "pinneapple_analysis.validation.fault_injection.matrix:run_fault_injection": {

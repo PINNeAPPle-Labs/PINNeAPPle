@@ -10,7 +10,7 @@ volume-weighted when cell volumes are known.
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 from scipy.spatial import cKDTree
@@ -33,7 +33,7 @@ def _norm(name: str) -> str:
     return re.sub(r"[\s\-]+", "_", name.strip().lower())
 
 
-def _alias_group(name: str) -> Optional[int]:
+def _alias_group(name: str) -> int | None:
     n = _norm(name)
     for i, g in enumerate(ALIASES):
         if n in g:
@@ -41,14 +41,14 @@ def _alias_group(name: str) -> Optional[int]:
     return None
 
 
-def _split(field: str) -> Tuple[str, Optional[int]]:
+def _split(field: str) -> tuple[str, int | None]:
     m = re.fullmatch(r"(.+)\[(x|y|z|0|1|2)\]", field)
     if not m:
         return field, None
     return m.group(1), {"x": 0, "y": 1, "z": 2}.get(m.group(2), int(m.group(2)) if m.group(2).isdigit() else 0)
 
 
-def locations(m: Mesh, field: str) -> Tuple[np.ndarray, str, Optional[np.ndarray]]:
+def locations(m: Mesh, field: str) -> tuple[np.ndarray, str, np.ndarray | None]:
     """(points where the field lives, 'cell'|'point', weights)."""
     field = _split(field)[0]
     if field in m.point_data:
@@ -59,7 +59,7 @@ def locations(m: Mesh, field: str) -> Tuple[np.ndarray, str, Optional[np.ndarray
     raise KeyError(field)
 
 
-def cell_centres_volumes(m: Mesh) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+def cell_centres_volumes(m: Mesh) -> tuple[np.ndarray, np.ndarray | None]:
     if "cc" in m._cache:
         return m._cache["cc"], m._cache["cv"]
     if m.poly is not None or m.dim == 3:
@@ -80,7 +80,7 @@ def field_value(m: Mesh, f: str) -> np.ndarray:
     return v[:, comp] if comp is not None and v.ndim == 2 else v
 
 
-def fields_of(m: Mesh) -> Dict[str, Dict[str, Any]]:
+def fields_of(m: Mesh) -> dict[str, dict[str, Any]]:
     out = {}
     for f in list(m.point_data) + list(m.cell_data):
         v = field_value(m, f)
@@ -89,11 +89,11 @@ def fields_of(m: Mesh) -> Dict[str, Dict[str, Any]]:
     return out
 
 
-def match_fields(ref: Mesh, cand: Mesh, mapping: Optional[Dict[str, str]] = None) -> List[Tuple[str, str]]:
+def match_fields(ref: Mesh, cand: Mesh, mapping: dict[str, str] | None = None) -> list[tuple[str, str]]:
     """Pairs (reference field, candidate field): explicit mapping first, then same name (case-insensitive), then
     aliases (U ~ velocity, p ~ pressure, T ~ temperature, DISP ~ displacement, ...)."""
     rf, cf = fields_of(ref), fields_of(cand)
-    pairs: List[Tuple[str, str]] = []
+    pairs: list[tuple[str, str]] = []
     used = set()
     for r, c in (mapping or {}).items():
         if r in rf and c in cf:
@@ -130,7 +130,7 @@ def _active_dims(*pts: np.ndarray) -> np.ndarray:
     return ext > 1e-6 * max(ext.max(), 1e-300)
 
 
-def _boundary_centres(m: Mesh, bvals: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def _boundary_centres(m: Mesh, bvals: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Centres of the boundary faces that carry a value (empty patches excluded)."""
     if "bfc" not in m._cache:
         from . import geometry as G
@@ -182,7 +182,7 @@ class Interpolator:
             return
         self.method = "nearest"
 
-    def __call__(self, values: np.ndarray, src_pts: Optional[np.ndarray] = None, dst_pts: Optional[np.ndarray] = None) -> np.ndarray:
+    def __call__(self, values: np.ndarray, src_pts: np.ndarray | None = None, dst_pts: np.ndarray | None = None) -> np.ndarray:
         if self.identity is not None:
             return values[self.identity]
         if self.method == "linear":
@@ -200,7 +200,7 @@ class Interpolator:
         return values[self.nn_idx]
 
 
-def _metrics(r: np.ndarray, c: np.ndarray, w: Optional[np.ndarray]) -> Dict[str, float]:
+def _metrics(r: np.ndarray, c: np.ndarray, w: np.ndarray | None) -> dict[str, float]:
     ok = np.isfinite(r) & np.isfinite(c)
     r, c = r[ok], c[ok]
     ww = (w[ok] / w[ok].sum()) if w is not None and len(w) == len(ok) else np.full(len(r), 1.0 / max(len(r), 1))
@@ -218,7 +218,7 @@ def _metrics(r: np.ndarray, c: np.ndarray, w: Optional[np.ndarray]) -> Dict[str,
             "ref_min": float(r.min()) if len(r) else None, "ref_max": float(r.max()) if len(r) else None, "n": int(len(r))}
 
 
-def tolerance_verdicts(result: Dict[str, Any], tolerance: Optional[float]) -> Optional[str]:
+def tolerance_verdicts(result: dict[str, Any], tolerance: float | None) -> str | None:
     """Mark every field of a :func:`compare` result ``"pass"`` / ``"fail"`` by its relative L2 error against
     ``tolerance`` (a fraction, e.g. 0.05 for 5 %), in ``field["verdict"]``. Returns ``"PASS"`` when every judged
     field passes, ``"FAIL"`` otherwise, ``None`` when nothing was judged (no tolerance or no relative error)."""
@@ -230,8 +230,8 @@ def tolerance_verdicts(result: Dict[str, Any], tolerance: Optional[float]) -> Op
     return None if not verdicts else ("PASS" if all(v == "pass" for v in verdicts) else "FAIL")
 
 
-def compare(ref: Mesh, cand: Mesh, mapping: Optional[Dict[str, str]] = None, method: str = "auto",
-            fields: Optional[List[str]] = None) -> Dict[str, Any]:
+def compare(ref: Mesh, cand: Mesh, mapping: dict[str, str] | None = None, method: str = "auto",
+            fields: list[str] | None = None) -> dict[str, Any]:
     pairs = match_fields(ref, cand, mapping)
     if fields:
         pairs = [p for p in pairs if p[0] in fields]
@@ -239,7 +239,7 @@ def compare(ref: Mesh, cand: Mesh, mapping: Optional[Dict[str, str]] = None, met
         raise ValueError("no common field: reference has " + ", ".join(fields_of(ref)) + "; candidate has "
                          + ", ".join(fields_of(cand)) + ". Map them explicitly (e.g. {\"T\": \"temperature\"}).")
     results, maps = [], {}
-    interp_cache: Dict[Tuple[str, str], Interpolator] = {}
+    interp_cache: dict[tuple[str, str], Interpolator] = {}
     for rname, cname in pairs:
         rp, rwhere, w = locations(ref, rname)
         cp, cwhere, _ = locations(cand, cname)
@@ -266,7 +266,7 @@ def compare(ref: Mesh, cand: Mesh, mapping: Optional[Dict[str, str]] = None, met
         if rv.ndim != cv.ndim:                                       # vector vs magnitude
             rv = np.linalg.norm(rv, axis=1) if rv.ndim == 2 else rv
             cv = np.linalg.norm(cv, axis=1) if cv.ndim == 2 else cv
-        comps: Dict[str, Dict[str, float]] = {}
+        comps: dict[str, dict[str, float]] = {}
         if rv.ndim == 2:
             mag_r, mag_c = np.linalg.norm(rv, axis=1), np.linalg.norm(cv, axis=1)
             comps["magnitude"] = _metrics(mag_r, mag_c, w)
@@ -320,11 +320,11 @@ def compare(ref: Mesh, cand: Mesh, mapping: Optional[Dict[str, str]] = None, met
 
 
 # --------------------------------------------------------------------------------------------- views for the UI
-def _round(a: np.ndarray, sig: int = 5) -> List[Optional[float]]:
+def _round(a: np.ndarray, sig: int = 5) -> list[float | None]:
     return [None if not np.isfinite(x) else float(f"{x:.{sig}g}") for x in np.asarray(a, float).ravel()]
 
 
-def surface(m: Mesh, max_tris: int = 300_000) -> Optional[Dict[str, Any]]:
+def surface(m: Mesh, max_tris: int = 300_000) -> dict[str, Any] | None:
     """Boundary surface for display: triangles with the cell each one belongs to. For 2D OpenFOAM cases (empty
     patches) only one of the two empty sides is kept."""
     if m.poly is None and not m.blocks:
@@ -368,9 +368,9 @@ def surface(m: Mesh, max_tris: int = 300_000) -> Optional[Dict[str, Any]]:
             "tri_cell": cinv.tolist(), "cells": cells, "vertex_index": used}
 
 
-def views(ref: Mesh, res: Dict[str, Any], max_points: int = 60000) -> Dict[str, Any]:
+def views(ref: Mesh, res: dict[str, Any], max_points: int = 60000) -> dict[str, Any]:
     """Per-field display payload: a surface coloured per cell (or per node), a line plot, or a 2D/3D point map."""
-    out: Dict[str, Any] = {"fields": {}}
+    out: dict[str, Any] = {"fields": {}}
     surf = None
     for name, mp in res["_maps"].items():
         pts, where = mp["points"], mp["where"]

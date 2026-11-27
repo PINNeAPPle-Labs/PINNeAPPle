@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Hashable, Optional
+from typing import Any
+from collections.abc import Hashable
 from collections import OrderedDict
 import threading
 
@@ -45,11 +46,11 @@ class LRUCache:
             Maximum number of items allowed in the cache.
         """
         self.max_items = int(max_items)
-        self._od: "OrderedDict[Hashable, Any]" = OrderedDict()
+        self._od: OrderedDict[Hashable, Any] = OrderedDict()
         self._lock = threading.Lock()
         self.stats = CacheStats()
 
-    def get(self, key: Hashable) -> Optional[Any]:
+    def get(self, key: Hashable) -> Any | None:
         """
         Retrieve a value from the cache.
 

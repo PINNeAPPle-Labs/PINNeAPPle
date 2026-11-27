@@ -61,7 +61,7 @@ replace engineering judgement. In particular:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from pinneapple_analysis.verification.dimensional_analysis import (
     classify_flow_regime,
@@ -127,7 +127,7 @@ class MethodRecommendation:
         compressible flow for which no dedicated solver is registered).
     """
     numerical_method: str
-    turbulence_model: Optional[TurbulenceModel]
+    turbulence_model: TurbulenceModel | None
     flow_regime: str
     rationale: str
     confidence: str
@@ -162,9 +162,9 @@ def _regime_category(regime: str) -> str:
 
 
 def recommend_method(
-    velocity: Optional[float],
-    length_scale: Optional[float],
-    kinematic_viscosity: Optional[float],
+    velocity: float | None,
+    length_scale: float | None,
+    kinematic_viscosity: float | None,
     *,
     geometry: str = "internal_pipe",
     compressible: bool = False,
@@ -280,7 +280,7 @@ def recommend_method(
     )
 
 
-def recommend_method_from_spec(spec: ProblemSpec) -> Optional[MethodRecommendation]:
+def recommend_method_from_spec(spec: ProblemSpec) -> MethodRecommendation | None:
     """Convenience wrapper: pull physical parameters out of a ``ProblemSpec``
     and call :func:`recommend_method`, or return ``None`` if they aren't
     present.

@@ -1,0 +1,126 @@
+name: Module reference
+
+# Keeps docs/org/reference/ (the published module reference) true to the code -- issue #451.
+#
+# Without this, the reference drifts as soon as a public signature changes, and a curated example that a
+# change breaks goes unnoticed until someone regenerates it by hand. Three gates, cheapest first:
+#
+#   reference   build.py into a temporary directory and compare -- fails when the committed reference is stale
+#   examples    run the curated examples that belong to the packages the pull request touched
+#   scheduled   rerun every example weekly and open a pull request when an output actually changed
+#
+# The Deploy Docs workflow runs build.py before mkdocs too, so the published site is current even if a
+# pull request slipped through (see docs.yml).
+
+on:
+  pull_request:
+    paths:
+      - "scripts/reference/**"
+      - "docs/org/reference/**"
+      - "pinneapple_*/**"
+      - ".github/workflows/reference.yml"
+  schedule:
+    - cron: "0 6 * * 1"      # Mondays 06:00 UTC: refresh the recorded example outputs
+  workflow_dispatch:
+
+permissions:
+  contents: write            # the scheduled job opens a pull request with the refreshed outputs
+  pull-requests: write
+
+jobs:
+  reference:
+    name: Committed reference matches the code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+
+      - name: Check the reference
+        run: python scripts/reference/build.py --check
+
+  examples:
+    name: Curated examples still run
+    # Only when the change can affect an example: the curated content itself or a package that has one.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0       # the next steps diff the pull request against its base commit, which a shallow
+                               # clone does not have: `git diff BASE...HEAD` fails on it for every pull request
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+
+      - name: Which packages does this pull request touch?
+        id: touched
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE"...HEAD)
+          echo "$changed" | sed -n 's#^\(pinneapple_[a-z_]*\)/.*#\1#p' | sort -u > /tmp/touched.txt
+          echo "$changed" | grep -q '^scripts/reference/content.py$' && echo "__content__" >> /tmp/touched.txt
+          packages=$(grep -v '^__content__$' /tmp/touched.txt | tr '\n' ' ')
+          if grep -qx '__content__' /tmp/touched.txt; then packages=""; fi   # content.py: run them all
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+          echo "Touched packages: ${packages:-all}"
+
+      - name: Run the curated examples (no figures written)
+        run: python scripts/reference/run_examples.py --check ${{ steps.touched.outputs.packages }}
+
+  refresh:
+    name: Weekly refresh of the recorded example outputs
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+
+      - name: Rerun every example and rebuild the reference
+        run: |
+          python scripts/reference/run_examples.py
+          python scripts/reference/build.py
+
+      - name: Open a pull request when something changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No drift this week: the recorded outputs still match the code."
+            exit 0
+          fi
+          branch="reference/weekly-refresh"
+          git checkout -b "$branch"
+          git add scripts/reference/examples_output.json docs/org/reference
+          git commit -m "Refresh the recorded example outputs and the module reference"
+          git push --force origin "$branch"
+          gh pr create --base main --head "$branch" --title "Refresh the module reference" \
+            --body "The weekly job reran every curated example and found a difference against the recorded outputs. Merging keeps the published reference honest; the diff is the drift itself." \
+            || echo "A pull request for this branch is already open."

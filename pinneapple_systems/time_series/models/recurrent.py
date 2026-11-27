@@ -1,7 +1,6 @@
 """LSTM and GRU forecasters (PyTorch, GPU-ready)."""
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Optional, Tuple
+from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
@@ -53,11 +52,11 @@ class _RecurrentCore(TSModelBase):
 
 class LSTMForecaster(_RecurrentCore):
     """LSTM-based multi-step forecaster."""
-    def __init__(self, cfg: Optional[RecurrentConfig] = None, **kw):
+    def __init__(self, cfg: RecurrentConfig | None = None, **kw):
         super().__init__(cfg or RecurrentConfig(**kw), cell="lstm")
 
 
 class GRUForecaster(_RecurrentCore):
     """GRU-based multi-step forecaster."""
-    def __init__(self, cfg: Optional[RecurrentConfig] = None, **kw):
+    def __init__(self, cfg: RecurrentConfig | None = None, **kw):
         super().__init__(cfg or RecurrentConfig(**kw), cell="gru")

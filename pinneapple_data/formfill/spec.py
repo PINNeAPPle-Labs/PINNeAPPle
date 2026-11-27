@@ -13,11 +13,10 @@ Field kinds: ``text``, ``quantity`` (number + unit, compared in SI), ``number``,
 """
 from __future__ import annotations
 
-import io
 import json
 import re
 from dataclasses import asdict, dataclass, field, replace
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any
 
 __all__ = ["Field", "TableSpec", "FormSpec"]
 
@@ -30,19 +29,19 @@ class Field:
     label: str
     section: str = "Form"
     kind: str = "text"
-    pdf: Optional[str] = None                # text field (qualified AcroForm name)
-    states: Dict[str, Tuple[str, str]] = field(default_factory=dict)   # answer -> (button field, export state)
-    patterns: Tuple[str, ...] = ()           # how documents label the item (regex, case-insensitive)
-    quantity: Optional[str] = None           # pressure | temperature | length | speed | density | time | ...
+    pdf: str | None = None                # text field (qualified AcroForm name)
+    states: dict[str, tuple[str, str]] = field(default_factory=dict)   # answer -> (button field, export state)
+    patterns: tuple[str, ...] = ()           # how documents label the item (regex, case-insensitive)
+    quantity: str | None = None           # pressure | temperature | length | speed | density | time | ...
     required: bool = False
     source_hint: str = ""                    # which document usually states it
-    options: Tuple[str, ...] = ()            # answers for bool/choice/multi (default: the state names)
-    aliases: Dict[str, str] = field(default_factory=dict)   # answer -> regex that recognises it in a document
+    options: tuple[str, ...] = ()            # answers for bool/choice/multi (default: the state names)
+    aliases: dict[str, str] = field(default_factory=dict)   # answer -> regex that recognises it in a document
     match: str = "unique"                    # choice: "unique" (exactly one option named) | "first" (first in order)
-    other: Optional[str] = None              # choice answer used for any other non-empty text
+    other: str | None = None              # choice answer used for any other non-empty text
     description: str = ""                    # extra context for the LLM
-    column: Optional[str] = None             # side in a multi-column table (e.g. "shell" / "tube"), see FormSpec.columns
-    row_patterns: Tuple[str, ...] = ()       # the row label in such a table (without the side words)
+    column: str | None = None             # side in a multi-column table (e.g. "shell" / "tube"), see FormSpec.columns
+    row_patterns: tuple[str, ...] = ()       # the row label in such a table (without the side words)
     reject: str = ""                         # regex: a value matching it is not an answer to this item
 
     def __post_init__(self):
@@ -52,7 +51,7 @@ class Field:
             opts = ("yes", "no") if self.kind == "bool" else tuple(self.states)
             object.__setattr__(self, "options", opts)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["states"] = {k: list(v) for k, v in self.states.items()}
         d["patterns"] = list(self.patterns)
@@ -61,7 +60,7 @@ class Field:
         return {k: v for k, v in d.items() if v not in (None, "", (), [], {}) or k in ("key", "label")} | {"kind": self.kind}
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "Field":
+    def from_dict(cls, d: dict[str, Any]) -> Field:
         d = dict(d)
         d["states"] = {k: tuple(v) for k, v in (d.get("states") or {}).items()}
         d["patterns"] = tuple(d.get("patterns") or ())
@@ -76,26 +75,26 @@ class TableSpec:
     (every regex must match some header cell), filled into ``pdf_rows`` (one dict column -> PDF field per row)."""
     key: str
     label: str
-    columns: Dict[str, str]                  # column -> regex matching its header cell
-    header: Tuple[str, ...] = ()
-    combine: Dict[str, Tuple[str, ...]] = field(default_factory=dict)  # output column <- joined source columns
-    defaults: Dict[str, str] = field(default_factory=dict)
-    pdf_rows: Tuple[Dict[str, str], ...] = ()
+    columns: dict[str, str]                  # column -> regex matching its header cell
+    header: tuple[str, ...] = ()
+    combine: dict[str, tuple[str, ...]] = field(default_factory=dict)  # output column <- joined source columns
+    defaults: dict[str, str] = field(default_factory=dict)
+    pdf_rows: tuple[dict[str, str], ...] = ()
     description: str = ""
 
     @property
-    def output_columns(self) -> Tuple[str, ...]:
+    def output_columns(self) -> tuple[str, ...]:
         hidden = {c for srcs in self.combine.values() for c in srcs if c not in self.combine}
         return tuple(c for c in self.columns if c not in hidden) + tuple(c for c in self.combine if c not in self.columns)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["header"], d["pdf_rows"] = list(self.header), list(self.pdf_rows)
         d["combine"] = {k: list(v) for k, v in self.combine.items()}
         return d
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "TableSpec":
+    def from_dict(cls, d: dict[str, Any]) -> TableSpec:
         d = dict(d)
         d["header"] = tuple(d.get("header") or ())
         d["pdf_rows"] = tuple(d.get("pdf_rows") or ())
@@ -107,18 +106,18 @@ class TableSpec:
 class FormSpec:
     id: str
     title: str
-    fields: List[Field]
-    sections: List[str] = field(default_factory=list)
-    tables: List[TableSpec] = field(default_factory=list)
+    fields: list[Field]
+    sections: list[str] = field(default_factory=list)
+    tables: list[TableSpec] = field(default_factory=list)
     description: str = ""                    # what the form is for (context for the LLM)
-    notes_field: Optional[str] = None        # PDF field that receives values too long for their box
-    left_blank: Tuple[str, ...] = ()         # keys never filled automatically (date, signature...)
-    filename_key: Optional[str] = None       # item used to name the filled PDF (e.g. the tag number)
-    aliases: Dict[str, str] = field(default_factory=dict)   # option -> regex, shared by every choice field
-    columns: Dict[str, str] = field(default_factory=dict)   # side -> regex of its column header ("shell": r"shell")
+    notes_field: str | None = None        # PDF field that receives values too long for their box
+    left_blank: tuple[str, ...] = ()         # keys never filled automatically (date, signature...)
+    filename_key: str | None = None       # item used to name the filled PDF (e.g. the tag number)
+    aliases: dict[str, str] = field(default_factory=dict)   # option -> regex, shared by every choice field
+    columns: dict[str, str] = field(default_factory=dict)   # side -> regex of its column header ("shell": r"shell")
     standard: str = ""                       # the standard(s) whose data the form follows
     summary: str = ""                        # one line for pickers
-    inputs: Tuple[str, ...] = ()             # the documents that usually hold the data (also the role choices)
+    inputs: tuple[str, ...] = ()             # the documents that usually hold the data (also the role choices)
     output: str = "datasheet"                # "official form" (fills a fillable PDF) | "datasheet" (generated PDF)
 
     def __post_init__(self):
@@ -132,19 +131,19 @@ class FormSpec:
                            for f in self.fields]
         if not self.sections:
             self.sections = list(dict.fromkeys(f.section for f in self.fields))
-        self.by_key: Dict[str, Field] = {f.key: f for f in self.fields}
+        self.by_key: dict[str, Field] = {f.key: f for f in self.fields}
 
     def __getitem__(self, key: str) -> Field:
         return self.by_key[key]
 
-    def pdf_names(self) -> List[str]:
+    def pdf_names(self) -> list[str]:
         names = [f.pdf for f in self.fields if f.pdf]
         names += [s[0] for f in self.fields for s in f.states.values()]
         names += [n for t in self.tables for row in t.pdf_rows for n in row.values()]
         return list(dict.fromkeys(names))
 
     # ------------------------------------------------------------------ JSON
-    def describe(self) -> Dict[str, Any]:
+    def describe(self) -> dict[str, Any]:
         """What a front end needs to show the form: identity, sections, and per field its label, kind, options,
         whether it is required and whether the extraction rules can read it from a document; per table its
         columns and number of rows."""
@@ -157,7 +156,7 @@ class FormSpec:
                 "tables": [{"key": t.key, "label": t.label, "columns": list(t.output_columns),
                             "rows": len(t.pdf_rows)} for t in self.tables]}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {"id": self.id, "title": self.title, "standard": self.standard, "summary": self.summary,
                 "description": self.description, "inputs": list(self.inputs), "output": self.output,
                 "sections": self.sections, "notes_field": self.notes_field, "left_blank": list(self.left_blank),
@@ -165,7 +164,7 @@ class FormSpec:
                 "fields": [f.to_dict() for f in self.fields], "tables": [t.to_dict() for t in self.tables]}
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "FormSpec":
+    def from_dict(cls, d: dict[str, Any]) -> FormSpec:
         if not isinstance(d, dict) or "fields" not in d:
             raise ValueError("a form spec is a JSON object with at least 'id', 'title' and 'fields'")
         return cls(id=str(d.get("id") or "custom"), title=str(d.get("title") or d.get("id") or "Custom form"),
@@ -181,7 +180,7 @@ class FormSpec:
         return json.dumps(self.to_dict(), indent=1, ensure_ascii=False)
 
     @classmethod
-    def loads(cls, text: str) -> "FormSpec":
+    def loads(cls, text: str) -> FormSpec:
         return cls.from_dict(json.loads(text))
 
     def save(self, path: str) -> None:
@@ -189,13 +188,13 @@ class FormSpec:
             fh.write(self.dumps())
 
     @classmethod
-    def load(cls, path: str) -> "FormSpec":
+    def load(cls, path: str) -> FormSpec:
         with open(path, encoding="utf-8") as fh:
             return cls.loads(fh.read())
 
     # ------------------------------------------------------------------ any fillable PDF
     @classmethod
-    def from_pdf(cls, blank_pdf: bytes, id: str = "auto", title: str = "") -> "FormSpec":
+    def from_pdf(cls, blank_pdf: bytes, id: str = "auto", title: str = "") -> FormSpec:
         """One item per AcroForm field of ``blank_pdf``. Text fields become ``text`` items, a check box ``bool``, a radio
         group ``choice`` (its export states as options). The label is the field's tooltip (``/TU``) or its name made
         readable; items with a readable label also get a label pattern, so the rules can find them."""

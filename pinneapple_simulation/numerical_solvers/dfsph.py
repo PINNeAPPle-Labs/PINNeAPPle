@@ -20,16 +20,14 @@ Bender & Koschier (2017), IEEE TVCG — improved formulation.
 
 from __future__ import annotations
 
-from typing import Optional
 
 import torch
 
 from .base import SolverBase, SolverOutput
-from .sph import SPHState, _poly6, _spiky_grad
+from .sph import SPHState, _spiky_grad
 from .neighbors import build_neighbor_list
 from .isph import (
     _compute_density, _compute_divergence,
-    _compute_pressure_gradient, _sph_laplacian_kernel,
 )
 from .registry import SolverRegistry
 
@@ -214,9 +212,9 @@ class DFSPHSolver(SolverBase):
         mass: float = 1.0,
         rho0: float = 1000.0,
         mu: float = 0.02,
-        gravity: Optional[list] = None,
-        boundary_lo: Optional[list] = None,
-        boundary_hi: Optional[list] = None,
+        gravity: list | None = None,
+        boundary_lo: list | None = None,
+        boundary_hi: list | None = None,
         div_max_iters: int = 5,
         dens_max_iters: int = 5,
         enable_density_solve: bool = True,
@@ -282,7 +280,7 @@ class DFSPHSolver(SolverBase):
     def forward(
         self,
         pos0: torch.Tensor,
-        vel0: Optional[torch.Tensor] = None,
+        vel0: torch.Tensor | None = None,
         *,
         dt: float = 1e-3,
         steps: int = 10,

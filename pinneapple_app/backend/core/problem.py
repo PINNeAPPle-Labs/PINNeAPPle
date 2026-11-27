@@ -6,7 +6,7 @@ Two paths:
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 # ── Domain family constants (used for model recommendations) ────────────────
@@ -51,25 +51,25 @@ class ProblemDefinition:
     name: str                          # display name
     spec: Any                          # pinneapple_environment.ProblemSpec
     dim: int                           # spatial dimension
-    domain_bounds: Dict[str, Tuple[float, float]]
+    domain_bounds: dict[str, tuple[float, float]]
     pde_family: str = FAMILY_GENERIC   # fluid / thermal / structural / …
     is_time_dependent: bool = False
-    preset_name: Optional[str] = None  # original registry key (preset only)
-    equations: List[EquationSpec] = field(default_factory=list)   # custom only
-    bcs: List[BoundaryConditionSpec] = field(default_factory=list) # custom only
-    ics: List[InitialConditionSpec] = field(default_factory=list)  # custom only
-    meta: Dict[str, Any] = field(default_factory=dict)
+    preset_name: str | None = None  # original registry key (preset only)
+    equations: list[EquationSpec] = field(default_factory=list)   # custom only
+    bcs: list[BoundaryConditionSpec] = field(default_factory=list) # custom only
+    ics: list[InitialConditionSpec] = field(default_factory=list)  # custom only
+    meta: dict[str, Any] = field(default_factory=dict)
 
     # ── convenience ────────────────────────────────────────────────────────
 
     @property
-    def coord_names(self) -> Tuple[str, ...]:
+    def coord_names(self) -> tuple[str, ...]:
         if self.spec is not None and hasattr(self.spec, "coords"):
             return tuple(self.spec.coords)
         return tuple(self.domain_bounds.keys())
 
     @property
-    def field_names(self) -> Tuple[str, ...]:
+    def field_names(self) -> tuple[str, ...]:
         if self.spec is not None and hasattr(self.spec, "fields"):
             return tuple(self.spec.fields)
         unique = list({eq.field for eq in self.equations} or {"u"})
@@ -123,10 +123,10 @@ def load_preset(preset_name: str) -> ProblemDefinition:
 
 def define_custom(
     name: str,
-    equations: List[EquationSpec],
-    bcs: List[BoundaryConditionSpec],
-    ics: Optional[List[InitialConditionSpec]] = None,
-    domain_bounds: Optional[Dict[str, Tuple[float, float]]] = None,
+    equations: list[EquationSpec],
+    bcs: list[BoundaryConditionSpec],
+    ics: list[InitialConditionSpec] | None = None,
+    domain_bounds: dict[str, tuple[float, float]] | None = None,
     dim: int = 2,
     pde_family: str = FAMILY_GENERIC,
     is_time_dependent: bool = False,

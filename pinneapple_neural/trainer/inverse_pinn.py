@@ -42,7 +42,7 @@ Typical workflow
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -96,7 +96,7 @@ class InversePINN:
     def __init__(
         self,
         model: nn.Module,
-        inverse_params: List[InverseParam],
+        inverse_params: list[InverseParam],
         residual_fn: Any,
         sensor_points: torch.Tensor,
         sensor_values: torch.Tensor,
@@ -106,7 +106,7 @@ class InversePINN:
         lr_params: float = 1e-2,
         device: str = "cpu",
         sampling_method: str = "uniform",
-        patience: Optional[int] = 300,
+        patience: int | None = 300,
         weighting: str = "equal",
     ):
         if weighting not in ("equal", "adaptive"):
@@ -152,8 +152,8 @@ class InversePINN:
             pts[:, i] = pts[:, i] * (hi - lo) + lo
         return torch.tensor(pts, device=self.device)
 
-    def train(self, n_epochs: int = 3000) -> Dict:
-        history: Dict = {
+    def train(self, n_epochs: int = 3000) -> dict:
+        history: dict = {
             "total": [], "pde": [], "data": [],
             "params": {p.name: [] for p in self.inverse_params},
         }
@@ -213,5 +213,5 @@ class InversePINN:
 
         return history
 
-    def get_identified_params(self) -> Dict[str, float]:
+    def get_identified_params(self) -> dict[str, float]:
         return {p.name: float(p.value.item()) for p in self.inverse_params}

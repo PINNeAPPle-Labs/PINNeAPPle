@@ -2,6 +2,10 @@
 force history, mean-field slices) and its own limits said in the value."""
 import pytest
 
+# The formula car is built through build_mesh, which is trimesh, and trimesh lives in the `geometry`/`cfd` extras:
+# without one of them this died on an import inside the wrapper, which reads as a broken wrapper.
+pytest.importorskip("trimesh", reason="'geometry' extra not installed (trimesh): pip install -e '.[geometry]'")
+
 from pinneapple_flow import wrappers as W
 
 

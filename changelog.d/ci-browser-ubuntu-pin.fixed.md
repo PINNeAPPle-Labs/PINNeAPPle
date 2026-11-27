@@ -1,0 +1,1 @@
+The two Playwright browser jobs (`browser` in `playground.yml` and in `observatory.yml`) run on `ubuntu-24.04` instead of `ubuntu-latest`. `ubuntu-latest` moved to 26.04, where `npx playwright install chromium` refuses to install, so both jobs failed on every pull request with an infrastructure error that had nothing to do with the change under test.

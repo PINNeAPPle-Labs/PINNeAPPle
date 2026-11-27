@@ -36,10 +36,252 @@ Data known at other points (CFD wall faces, FEA nodes, sensors) goes onto the su
 `scene.map_field("cp", points, values, mirror_y=True)`, using inverse distance over the nearest points. `mirror_y`
 handles half models. `scene.labels["cp"] = "Pressure coefficient Cp"` sets the colour-bar title.
 
+### Materials
+
+A material is a flat entry — `{"color": [r, g, b]` in sRGB, `"metallic"`, `"roughness"`, and optionally
+`"clearcoat"`, `"transmission"`, `"alpha"`, `"emissive"`— in `pp.viz.MATERIALS` (the library) or in
+`scene.materials` (the model's own table, which wins). A model whose names match neither renders grey, which is the
+first thing to check when a part looks like a simulation instead of a photograph: `scene.unknown_materials()` lists
+them, and `render_animation` names them in its log.
+
+An entry may also carry `"shader": "<name>"`, and Blender then builds the procedural detail the export formats
+cannot carry — micro-bump, wear, streaks — on top of the same numbers. Everything else in the pipeline (glTF, USD,
+the browser viewer) still gets the flat material the entry declares, so the shader never changes what a downstream
+tool sees.
+
+| Material | What it is | Shader |
+|---|---|---|
+| `painted_steel`, `paint` | industrial paint, chipped through to bare metal where it wears (`wear`, `metal_color`) | `painted_metal` |
+| `brushed_steel`, `stainless_steel` | brushed stainless: streaks along the object's x, roughness varying across the brush (`streak`) | `brushed_metal` |
+| `galvanized_steel` | the spangle of hot-dip zinc (a voronoi cell pattern, `spangle`) | `galvanized` |
+| `cast_iron` | pitted, sand-cast, no paint (`grain`) | `cast_metal` |
+| `oxidized_steel` | bare metal under rust in patches (`rust`, `rust_color`) | `oxidized_metal` |
+| `concrete` | aggregate in two shades of the entry's colour (`aggregate`) | `concrete` |
+| `rubber` | matte, pebbled (`grain`) | `rubber` |
+| `industrial_glass` | transmissive glass | — |
+
+The procedural detail costs about 15-20% of the render, not a multiple: on the impeller (13 744 triangles,
+1600x900, 96 samples, dark stage with a floor, the same bronze either way) 19-22 s with the flat material against
+23-27 s with `cast_metal` on Metal, and 87-92 s against 101-104 s on the CPU.
+
+`pp.viz.SHADERS` lists the recipes (each is a function of `(bpy, material, entry)`, registered with
+`@pbr.shader("name")`), so a project can add its own. The recipes came out of the industrial pump-station example,
+[`examples/use_cases/physics_data_factory/blender_factory_render.py`](../../../examples/use_cases/physics_data_factory/blender_factory_render.py).
+
+### Baked maps
+
+A shader is detail only Blender can read. `pp.viz.bake_materials(scene, "maps/")` (or
+`bake_materials_headless` where `bpy` is not importable) bakes each material that names a shader into three images —
+base colour, roughness and normal — and returns the entries ready to merge:
+
+```python
+maps = pp.viz.bake_materials(sc, "maps/", size=1024, samples=16)
+sc.materials.update({k: {**sc.materials.get(k, {}), **v} for k, v in maps.items()})
+```
+
+The signals come from Cycles' own passes, not from reading one node of the tree: a shader such as `painted_metal` is
+two BSDFs mixed, and the base colour is the DIFFUSE albedo plus the GLOSSY tint (a metal's diffuse albedo is black),
+so the paint and the bare metal it wears through to are both in the image. The entries keep their flat numbers as the
+fallback and for anything that cannot read a map.
+
+The maps live against **per-corner UVs**. `bake_materials` unwraps by default (`uv="smart"`): Blender's smart
+projection, packed per material, stored back on `Surface.uv` — one pair per face corner, which is why the layout comes
+back from a headless bake and the render here follows it. `uv="box"` keeps the projection of `scene.box_uvs` (each
+triangle on the plane of its dominant normal axis, every face getting the whole square), which needs no unwrap pass and
+is enough for a plate, a duct or a housing. Whichever is used, the same numbers reach the Blender render, the glTF
+export (as `TEXCOORD_0`, with the vertices split at the seams because glTF indexes one UV per vertex) and the browser
+viewer — the reader reads `TEXCOORD_0` back, so a scene saved and reloaded carries its layout.
+
+In glTF the images travel inside the GLB (`images` + `textures`), so the browser viewer needs no side-car files; in
+USD the base colour map is a `UsdUVTexture` over `primvars:st`. Roughness and normal maps are Blender and glTF only
+for now — glTF wants roughness packed with metalness in one texture, and USD wants a scale/bias for the normal.
+
+### Mechanical detail
+
+A solver mesh is right to be smooth — every bolt head is a place where a boundary layer goes wrong. A figure is the
+opposite: at photographic distance the eye reads scale from exactly the seams, fasteners and welds that the mesh
+leaves out, and a casing with none of them looks like a render of a mesh, which is what it is.
+
+`pp.viz.detail` generates them from the geometry you already have, so a detail level is a number in a script rather
+than a second CAD model to keep in sync:
+
+```python
+from pinneapple_tools.visualization.studio import detail as D
+
+sc.surfaces += D.bolt_circle([0, 0, -0.04], (0, 0, -1), radius=0.042, count=6, head_radius=0.0055, height=0.0045)
+sc.surfaces.append(D.seam_ring([0, 0, 0.025], (0, 0, 1), radius=0.211, thickness=0.0022))
+sc.surfaces.append(D.weld_bead(saddle_curve, radius=0.006, material="raw_weld"))
+```
+
+| builder | what it puts where |
+| --- | --- |
+| `hex_bolt(centre, normal, head_radius, height, washer)` | one hex-head bolt standing on a surface, with a washer skirt that makes the head read at a distance |
+| `bolt_circle(centre, normal, radius, count, ...)` | `count` bolts evenly spaced on a circle, the first on the plane's `u` axis, so two runs land in the same places |
+| `weld_bead(points, radius)` | one continuous bead along a polyline: cylinders between the points with a sphere at each joint |
+| `seam_ring(centre, normal, radius, thickness)` | the raised ring where two cast halves meet |
+| `pad(centre, normal, radius, height, chamfer)` | a machined pad — a boss with a chamfered top edge, where a sensor or a name plate lands flat |
+| `gusset(a, b, c, thickness)` | a stiffening rib: the triangle extruded along its own normal, across the corner of a frame |
+| `pipe_flange(centre, axis, ...)` | the whole joint, as a list: plate, raised face, weld neck tapering into the pipe, and the bolts on the face |
+
+They return ordinary `Surface` objects: they export to glTF/USD, they take any material, and they cost triangles, not
+solver cells. The weld is worth calling out — give it the intersection curve (`sqrt(R² - x²)` around a branch) and the
+bead follows the saddle instead of a circle, which is the difference between a weld and a drawn ring.
+
+A detail level is a recipe, not a switch. `pp.viz.detail.LEVELS` names what each one puts on a body — `draft` is the
+solver geometry as it is, `review` adds the cast seam, `cinematic` the fasteners, welds, pads, ribs and flanges — but
+the script applies the builders with the measurements of the part, because where a rib goes is a question about the
+part. The same spool body at the three levels is what the gallery shows side by side.
+
+### A body with a manufacturing history
+
+Everything above adds something from the outside. A part that reads as real is the other way round: it carries the
+record of how it was made. `pp.viz.manufacture` builds that record as operations, each leaving geometry and a line in
+the history:
+
+```python
+from pinneapple_tools.visualization.studio import manufacture as M
+
+body = (M.cast_blank(radius=0.11, height=0.09, draft=2.0)     # a drafted wall, an as-cast skin, a parting line
+        .machine_face([0, 0, 0.09], (0, 0, 1), radius=0.095)  # bright, tool-marked, chamfered rim
+        .bore([0, 0, 0.0944], (0, 0, 1), diameter=0.036)      # a throat and a chamfered mouth
+        .bolt_pattern([0, 0, 0.0944], (0, 0, 1), radius=0.08, count=6)
+        .weld(path)                                           # a bead and the tinted band beside it
+        .finish())                                            # every remaining sharp edge broken
+sc = body.scene
+body.describe(" | ")     # -> "fundido bruto Ø220 × 90 mm, saída 2.0° | face usinada Ø190 mm | ..."
+```
+
+Three things make it a history and not a pile of parts:
+
+* **the materials differ by operation.** A cast skin (`as_cast`) has sand grain and a dull, mottled roughness; a
+  machined face (`machined`) is bright with tool marks in one direction; the band beside a weld (`heat_tint`) is straw
+  and blue. The same light that dulls the casting runs down the cut, and that contrast is what a viewer reads as
+  "manufactured".
+* **the draft is geometry, not texture.** A casting that comes out of a mould cannot have a vertical wall, and
+  `cast_blank` tapers it by `draft` degrees.
+* **the history survives.** Every operation appends to `body.history` and returns the same body, so the part can be
+  rendered at any point of its process — blank, three operations in, finished — and the pictures compare the part, not
+  three different models. `body.describe()` is the line a figure caption can carry.
+
+`bore` **cuts when it can and draws when it cannot**, and the history says which: `furado (cortado)` or
+`furado (desenhado)`. A drawn bore is a dark throat under a chamfered mouth — what a hole looks like at photographic
+distance, because a hole is a shadow with a bright lip — and it has no other side. A cut bore has an interior wall and a
+silhouette that changes with the camera. See *Solids and a real boolean* below for what the cut needs.
+
+### Solids and a real boolean
+
+`pp.viz.solid` is the kernel side: closed primitives, a manifold check, and a boolean.
+
+```python
+from pinneapple_tools.visualization.studio import solid
+
+solid.is_closed(shaft)                    # every edge shared by exactly two triangles, or it is not an operand
+cut = solid.cutter_cylinder([0, 0, -0.02], [0, 0, 0.12], 0.018)
+sc = solid.boolean(scene, [cut], op="difference")     # difference, union or intersect
+```
+
+Blender's exact solver does the work, headless — the same route `bevel_scene` takes, so the requirement is the same
+binary. There is no bundled mesh kernel in this package; `trimesh` with `manifold3d` does this too, and the shapes here
+are ordinary `Surface` objects it can eat.
+
+Two rules the module enforces instead of documenting and hoping:
+
+* **closed on both sides.** `boolean` runs `is_closed` on the body and on every cutter first and refuses an open shell
+  by name. A boolean on an open shell does not fail loudly; it produces a plausible mess, and a mess that looks like a
+  result is the worst thing a gate can hand you.
+* **no vertex on the axis.** A drum capped with a fan whose centre sits on the axis meets a centred cutter at a
+  degenerate corner, and the cut comes out non-manifold. `solid_drum` caps from the ring instead, and there is a test
+  that says why.
+
+`machine_face` and `pad` produce closed solids too, so a bore cut into a machined face works; `cast_blank(closed=True)`
+is a closed body by construction, which is why `body.bore(...)` cuts by default there.
+
+### Organic shapes: a loft through sections
+
+`solid.loft(stations)` is the skin through a sequence of profiles — a duct transition from a round inlet to a
+rectangular outlet, a volute, a casing. Every station is an `(n, 3)` array with the same `n`, and `caps=True` closes
+the ends so the result is a solid a boolean can cut.
+
+```python
+duct = solid.loft([solid.circle_profile([0, 0, 0], 0.05, n=24),
+                   solid.rounded_rect_profile([0, 0, 0.20], 0.09, 0.06, n=24, roundness=0.55)])
+```
+
+The interpolation between stations is linear, on purpose: a station is a measurement, and a spline through measurements
+invents the shape in between. Put the stations where the geometry bends and the linear joint is invisible.
+
+What this still is not: a B-rep modeller. There is no fillet on a lofted edge (use `bevel_scene`), no shelling, no
+parametric sketch, and nothing that reads a STEP file. Those are CAD, and the day one is in the stack it plugs in at
+`solid.boolean` and `manufacture` — the vocabulary of operations is already the right shape for it.
+
+### The edge that is not a builder
+
+Everything above adds a surface beside the body. A chamfer is not that — it is the same body with material cut off its
+edges, and it needs the mesh's topology. `pp.viz.bevel_scene` is the one studio operation that edits the body:
+
+```python
+from pinneapple_tools.visualization.studio import bevel_scene
+sc = bevel_scene(sc, angle=35, width=0.0015, segments=2)   # a Scene you can render and export as usual
+```
+
+It welds the surfaces first (a mesh that came back from glTF has split vertices at every seam, and a bevel on those
+would cut a groove instead of an edge), then applies the bevel modifier through Blender with an angle limit — only
+edges sharper than `angle` are cut, so the facets of a curved wall stay a surface instead of turning into a bead. The
+result is read back as a `Scene`, materials and all.
+
+A machined edge is never perfectly sharp: at photographic distance the highlight along it is how a viewer tells a
+machined part from an extruded one, and it is the first thing that looks wrong in a figure of a casting.
+
+Two limits: the bevel rebuilds the mesh, so per-vertex fields do not survive it (it refuses to run unless you pass
+`drop_fields=True` — do it before mapping a result onto the body); and it needs Blender, in-process (`bpy`) or through
+the binary.
+
+### Visual benchmark
+
+`python -m pinneapple_tools.visualization.studio.benchmark --out provas/` renders the reference cases — the impeller
+in cast bronze on the machine-shop HDRI, the pin-fin heat sink in brushed aluminium under the studio light, the A320
+with the material library in the warehouse — and writes, next to each PNG, a record of the time, the device and four
+statistics of the picture: mean luminance, its spread, the fraction of the frame the subject covers and the edge
+energy. `--baseline provas/benchmark.json` on a later run prints the deltas, and `pp.viz.benchmark.compare` does the
+same from Python.
+
+The numbers are the gate, not a pass/fail: they catch what a renderer regression looks like — black, blown out,
+detail-less, subject gone — without the brittleness of a golden-image comparison across GPUs, drivers and Blender
+versions. `pp.viz.benchmark.CASES` is the list; a case is a geometry from the library, its materials, the HDRI and the
+camera preset.
+
+The gate itself is `--gate` against a committed baseline, and it runs in CI on every pull request that touches the
+studio (`Visual benchmark`): `data/benchmark/baseline.json` holds the four statistics of each case, recorded in the
+canonical configuration (`GATE`: 960×540, 32 samples, preview) so today's record is comparable with last month's.
+`pp.viz.benchmark.gate` compares a record with it and returns the differences beyond `TOLERANCES` (`mean` ±8,
+`std` ±4, `coverage` ±0.06, `edge_energy` ±0.30 — absolute, in each statistic's own units; the edge energy allows
+more because a metric grid is micro-detail by construction, and how a line a pixel or two wide is sampled and
+denoised moves it by ±0.3 between two machines on the same Blender, which is still far from the zero a picture that
+lost its detail reads); the command exits non-zero
+when there are any. The time is recorded and reported but never gated: it belongs to the machine.
+
+Recording a new baseline is deliberate, after a change that is meant to move the pictures, and it asks why:
+
+```bash
+python -m pinneapple_tools.visualization.studio.benchmark \
+    --out /tmp/benchmark --gate --record-baseline \
+    --why "shaders rewritten: cast_metal now has a finer grain"   # rewrites data/benchmark/baseline.json
+```
+
+The reason is not a convention, it is required: `--record-baseline` without `--why` stops with an error, and the string
+goes into the file's `_meta` together with the date, the Blender version, the gate configuration and the tolerances.
+Every gate run then prints what it is comparing against — `baseline: 2026-11-24T12:11:21Z, Blender 5.2.1 LTS --
+primeiro baseline do gate ...` — so a reader of a red run sees when the reference was drawn, with what, and why it
+moved last time. The two outcomes of a red gate are a bug to fix or a move to accept on purpose; the second one leaves
+a trace.
+
+CPU and GPU agree: the same case rendered on either gives the same four numbers to the second decimal (the pixels
+differ by at most 3/255), so the baseline recorded on a laptop is the one CI compares against on a runner.
+
 ## Renders
 
 `pp.viz.render(scene, out, field=..., lines=..., slice=..., view="iso", background="studio")` needs
-`pip install "bpy>=4.2"` (Blender as a Python module, CPU Cycles; tested on 4.2 LTS and 5.2, older versions raise
+`pip install "bpy>=4.2"` (Blender as a Python module, Cycles; tested on 4.2 LTS and 5.2, older versions raise
 an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes with their `MATERIALS` /
 `scene.materials` (no glTF import: Blender 4.2's importer crashes the interpreter at exit).
 
@@ -49,6 +291,72 @@ an error, `blender.MIN_BPY`). The surfaces are built directly as Blender meshes 
   x is the object's length (the flow direction) and z is up. A direction vector also works.
 - **Backgrounds:** `background="studio"` gives a light gradient with true colours; `"sky"` gives a physical sky
   with filmic tone mapping, for the realistic materials.
+- **Device:** `device="auto"` (the default) renders on the first GPU backend this machine exposes — Metal on Apple
+  silicon, OptiX or CUDA on NVIDIA, HIP on AMD, oneAPI on Intel — and falls back to the CPU when there is none, so
+  the same script runs on a laptop and on a headless node. `device="cpu"`, `"gpu"` (whatever the Blender preferences
+  select) or a backend name force the choice. Measured on an M5 against the CPU, on the centrifugal impeller of the
+  geometry library (13 744 triangles, 1600x900, 96 samples, denoised, dark stage with a floor): 62.3 s on the CPU,
+  25.2 s on Metal; on the A320 airliner (34 560 triangles, 64 samples) 75.9 s against 23.5 s. The **first** Metal
+  render on a machine takes minutes longer (the shaders are compiled once); the images are otherwise identical
+  (largest channel difference 3/255, float rounding).
+- **Quality presets:** `quality="preview"` (24 samples, 960x540 — 5.1 s on the same impeller and GPU),
+  `"production"` (96 samples, 1600x900: the default, and the numbers the renderer always used) or `"cinematic"`
+  (512 samples, 3840x2160, 16 bounces). An explicit `samples=` or `size=` wins over the preset.
+- **HDRI environments:** `background="hdri:hall"` loads `hall.hdr` / `.exr` / `.png` from `$PINNEAPPLE_HDRI_DIR`
+  (default: `data/hdri`) — or a path, or a name registered in `pp.viz.HDRIS` — as an environment texture: the image
+  is both the light and what the metals reflect. `hdri_strength` scales it and `hdri_rotation` turns it in degrees
+  around the up axis, which is how one HDRI gives several lighting directions.
+- **Field as a layer, not a repaint:** `field="T"` replaces the surfaces with the colour map (the scientific
+  reading). `field_alpha=0.6` instead mixes the map over each surface's own material, so a bronze or steel part
+  keeps its colour, its roughness and its highlights under a translucent temperature layer: the figure reads as a
+  photograph and as data at the same time.
+- `pp.viz.QUALITY` and `pp.viz.DEVICE_BACKENDS` print the two tables; `pp.viz.hdri_path("hall")` says which file a
+  name resolves to.
+- **Photography presets:** `camera="product"` (85 mm on the third line, f/8), `"hero"` (35 mm from slightly below,
+  f/2.8), `"documentary"` (50 mm, everything in focus, centred), `"head_on"` (100 mm down the object's main axis) or
+  `"wide"` (24 mm establishing shot). A preset fills `lens`, `view`, `distance`, `fstop` and `composition` only where
+  they are not given, so `camera="product", lens=50` gives the 50 mm lens from the product's position.
+  `composition="thirds_left" | "thirds_right" | "thirds_high" | "thirds_low"` moves the subject off centre with a
+  lens shift, which keeps the framing the auto-fit computed; `fstop` opens the aperture on the subject, which is what
+  separates a part from its background at a close distance. `pp.viz.CAMERAS` lists the presets.
+- **Finishing:** `look="low" … "high"`, `"very_high"` or `"punchy"` is an S-curve on the display values (punchy adds a
+  little saturation), `post="bloom"`, `"vignette"` or `"bloom+vignette"` is the light bleeding and the corners
+  falling. Both act on the written PNG/JPEG, after the render, in :mod:`.post` — the scene compositor and the AgX
+  looks changed between Blender 4 and 5, and a figure should not depend on which one is installed. An EXR is left
+  alone: it is the input to a grade, not something to burn a contrast curve into.
+- **Scale — making the picture measurable:** a render normalises everything on the model's own bounding box, so on
+  its own a picture of a 25 mm pin and one of a 36 m airliner are indistinguishable and nothing in the frame can be
+  measured. `units=` is metres per scene coordinate unit — `"mm"`, `"cm"`, `"m"`, `"in"`, `"ft"` or a number such as
+  `0.001`; `None` (the default) uses `scene.unit`, which is `1.0`, a model already in metres. With it the renderer
+  knows the subject's real size, and everything below is built from that (`pp.viz.scale` is the module: the unit
+  table, the round-value ladder, and the mesh builders, all pure numpy).
+  - `backdrop="cyclorama"` builds a seamless infinity cove all the way round the subject — floor, curve, wall — the
+    shape a photographic studio has, sized from the subject so the same proportions serve a pin and an airliner.
+    `backdrop="floor"` is a plain plane; `floor=True` alone still means `"floor"`, and a `"dark"` stage keeps its
+    glossy black surface. **`floor` used to be honoured only on `background="dark"` and was silently dropped
+    everywhere else** — including the HDRI cases the render benchmark ships — which is why the parts floated.
+  - `grid=True` paints a metric grid on that floor with squares about a tenth of the subject (snapped to 1, 2 or 5
+    times a power of ten), every fifth line wider; it is clipped by the floor's disc so no line runs up the cove.
+    `grid="25 mm"` (or `0.025`) sets the spacing. The grid is geometry, not a post effect, so it exports in glTF and
+    shows in the browser viewer too.
+  - `scale_ref="auto"` stands the largest prop of known size that does not dwarf the subject on the floor beside it
+    and frames the two together: a 1.75 m mannequin, a 300 mm rule with millimetre graduations, a sheet of A4 or a
+    25.4 mm coin. Naming one (`"human"`, `"ruler"`, `"a4"`, `"coin"`) forces it; a part smaller than every prop gets
+    none, and only the grid and the bar can measure those.
+  - `scale_bar=True` burns a metric bar into the top-right corner, its length snapped to a round value and drawn at
+    the image scale of the subject's plane — `px_per_metre(size, camera_angle, distance)`, so the bar is metrically
+    right where the camera focused, which is the convention a photograph with a scale bar uses. `dimensions=True`
+    burns the subject's three extents, the grid square and the prop into the top-left corner.
+  - The backdrop and the props scale with the subject; the grid, the surface textures and the text are sized in the
+    scene's metres. That split is what makes a small part look small. When the camera would end up *below* the set's
+    floor — which a low preset such as `camera="hero"` does — it is raised to the floor and a warning says so, rather
+    than rendering the underside of a plane.
+  - Annotations are drawn after the render, in Pillow, on both paths: in-process, or by `render_headless` once the
+    Blender binary has exited (Blender's own Python has no Pillow). They need a raster output; an EXR is left alone.
+- **Passes and alpha:** `passes=True` with an `.exr` output writes the beauty as a 32-bit OpenEXR and, next to it in
+  `<out>_passes/`, a multilayer file with the depth, normal, mist, diffuse, glossy, emission and transmission passes
+  — what a grade or a compositor needs. `film_transparent=True` drops the world behind the geometry and keeps an
+  alpha, for a figure that goes onto a page of another colour.
 
 Without `bpy` — the usual case, Blender installed as an application — `pp.viz.render_headless(scene, out, **kw)`
 takes the same keyword arguments and renders with the Blender binary: the scene goes to a temporary `.glb` (with its
@@ -65,6 +373,10 @@ reads on a dark stage), `pp.viz.rod_surface(a, b, r)` for a ray, beam axis or su
 `pp.viz.disc_surface(centre, r, normal=...)` for an aperture or measurement plane (give the material an `alpha` in
 `scene.materials` to see through it). The colour maps are `pp.viz.CMAPS` (`jet`, `coolwarm`, `bwr`,
 `rdbu`, `magma`; `pp.viz.stops(name)` gives the table), the same ones the browser viewer draws from.
+
+On a server or in a container there is no display to render against: `pp.viz.headless()` says what this machine is
+missing and prints the commands that fix it, and [Rendering without a
+display](../guides/headless_rendering.md) is the recipe (xvfb, OSMesa, EGL and a ready image).
 
 ## Browser viewer
 
@@ -118,6 +430,50 @@ an import map). It opens from disk (`file://`) with no server and can be mailed;
 **Layers.** When the surfaces carry two or more `group` names, scene.json lists them and the panel gets a *Layers*
 row with one checkbox per group (`window.studio.setLayer(name, on)` from scripts).
 
+## Adding a viewer to a new example: `pp.viz.export_gltf`, `viewer_html`, `blender_render`
+
+The three calls a new example needs, whatever the geometry came from (#281). They are the geometry-agnostic part of
+the aircraft app's 3-D presentation; the aircraft specifics (its parts, materials, propeller group, axes) stay in
+`pinneapple_design.aero.airframe`, which calls the same `write_glb`.
+
+```python
+import pinneapple as pp
+
+glb  = pp.viz.export_gltf("wing.stl", {"cp": cp})                  # bytes; the field is the vertex attribute _CP
+page = pp.viz.viewer_html(grid, {"cp": cp}, "viewer/")             # index.html + scene.glb, the page of the section above
+pp.viz.blender_render("wing.stl", "wing.png", field="cp", samples=96)   # Cycles, jet scale, colour bar
+```
+
+The input is a mesh in any of the shapes the repository already produces:
+
+| You have | Pass |
+|---|---|
+| an STL, OBJ, glTF/GLB, VTK/VTP file, or anything `pinneapple_data.cae` reads | the path |
+| a PyVista grid (what `pp.viz.read_openfoam` returns, #60) or a PolyData | the object |
+| vertices and triangles in arrays | `(vertices, faces)` |
+| a `pinneapple_data.cae` mesh | the mesh object |
+| a scene already built with materials and lines | the `Scene` |
+
+`fields` is `{name: values}`: one value per vertex, or per cell (the lengths decide; a volume grid's cell values are
+interpolated to the nodes of its boundary), vectors as their magnitude, tensors as von Mises. A multi-surface scene
+takes `{name: {surface_name: values}}`, which is how the airliner passes one skin-pressure field per part.
+
+Things worth knowing before wiring it into an example:
+
+- **The colour range is not in the glb.** `viewer_html` writes the ranges in `scene.json` and the page computes them
+  (1st-99th percentile by default, *Full* on demand); a range baked into the geometry cannot be changed without
+  exporting again. `blender_render(field_range=(lo, hi))` pins the render's scale.
+- **A cell value is averaged onto the vertices** of the triangles it touches. A vertex colour cannot carry two values
+  at the same vertex; averaging is the honest way to say so, and the field's range is unchanged by it.
+- **The page has a size guide** (the table above): `viewer_html(..., max_faces=...)` decimates a copy for the page and
+  says so; above about 1 M triangles decimate the scene yourself with `scene.decimate(n)`.
+- **A render says why it cannot happen.** Without `bpy` and without a Blender binary, `blender_render` raises with the
+  install line; it never returns a path to a picture that was not rendered.
+- **The app viewers share the page module.** If the example is an app, serve the same `studio-core.js` (colour scale,
+  colour bar, tubes, slice textures, edges) and `fieldview3d.js` (`apps/_shared/static/shared/`) instead of writing a
+  second viewer: the aircraft app's `static/viewer3d.js` imports `/studio/studio-core.js` and keeps only its aircraft
+  modes, and its `/api/aircraft.glb` route now calls `pp.viz.export_gltf` with the propeller group.
+
 ## Fields, errors and deformed shapes in the apps: `pp.viz.field_view`
 
 The apps show a result on its mesh with one shared page module, `apps/_shared/static/shared/fieldview3d.js`, served at
@@ -142,6 +498,13 @@ em.summary()                       # where the error concentrates, against the g
 - **Colours.** Values use the jet scale from their minimum to their maximum on the surface; fields of one `group`
   share a scale. Errors use the sequential error scale (`ERR` in `studio-core.js`, white = 0) from 0 to their 99th
   percentile, and the colour bar says when the maximum lies above it.
+- **The caption.** Every field must declare a `unit`: a rendered field without one is a picture of colours, so
+  `field_view` refuses it, and `"unit": "-"` is how a dimensionless field says so. `fv.meta["captions"]` holds, per
+  field, the caption the page prints — the label, the unit, the range, the exaggeration the view will use and the
+  length unit — and `fv.meta["caption"]` is the one for the field on screen. The same sentence is built anywhere else
+  a figure is written: `pp.viz.figure_caption("von Mises", "MPa", value_range=(0, 512.4), deform=25.0,
+  method="FEM", status="validated")` gives *von Mises [MPa], 0 to 512.4 MPa, deformation x25, lengths in m, FEM
+  (validated)*, and `pp.viz.turntable` puts it on the clip instead of composing its own.
 - **Deformed shape.** Each `deform` entry gives a nodal displacement. The page draws it with a scale factor. By
   default the largest displacement is drawn as 10 % of the body, and `1×` shows the true scale. The undeformed shape
   stays as a grey wire.
@@ -241,6 +604,43 @@ render_animation(sc, "frames/", camera="chase", samples=16, gif=True)   # Cycles
 - **Panels:** `compose.compose_grid(pngs, "grid.png", labels=..., ncols=2, colorbar=(title, lo, hi, cmap))` and
   `compose.compose_grid_video(mp4s, "grid.mp4", labels=..., colorbar=..., crf=28, webm=True)` (ffmpeg `xstack`,
   H.264 yuv420p, optional VP9) put several clips side by side with one common colour bar.
+
+## Turntable: a field orbiting while the time advances
+
+`pp.viz.turntable` turns a stack of 2-D fields into a clip in one call: the camera sweeps a full turn while the field
+runs from the first instant to the last, so both the geometry and the time are motion. It draws with matplotlib's
+Agg canvas, so it needs no display, no GPU and no pyvista; the GIF path needs only Pillow, and MP4 needs the `ffmpeg`
+binary on `PATH`.
+
+```python
+import numpy as np, pinneapple as pp
+
+t = np.linspace(0.0, 2.0, 24)                                  # 24 instants
+x = y = np.linspace(0.0, 1.0, 64)
+X, Y = np.meshgrid(x, y, indexing="ij")
+field = np.sin(2 * np.pi * (X[None] - t[:, None, None])) * np.cos(2 * np.pi * Y[None])
+
+pp.viz.turntable(field, "case.gif", t=t, name="u", unit="m/s")           # 1080p GIF, ~3 s
+pp.viz.turntable(field, "case.mp4", t=t, name="u", unit="m/s", frames=72)  # H.264, smoother orbit
+```
+
+- **The frame says what it shows:** a caption with the field, its unit and the instant (`u [m/s]   t = 1.2 s`), a
+  colour bar, and a discreet mark in the corner (`mark="PINNeAPPle"`, `mark_alpha=0.45`) so a clip lifted out of a
+  report is still attributable. `caption=False`, `colorbar=False` and `mark=""` remove them for a clip annotated
+  elsewhere.
+- **1080p is the default**, not an option to remember: `size=(1920, 1080)`. `dpi` only changes how the figure is
+  built, never the pixels.
+- **`frames`** spreads the clip over that many frames, repeating the nearest instant when it asks for more than there
+  are, which is how a handful of solved instants becomes a smooth orbit. The sweep stops one step short of closing the
+  turn, so a looping GIF does not stutter on a repeated first frame; `orbit=` sets the sweep (`0` freezes the camera)
+  and `azimuth=` where it starts.
+- **The field drives the relief and the colour:** `deform=0.25` lifts the surface by a quarter of the domain width
+  (`0` leaves it flat), `clim` holds the colour scale fixed for the whole clip, and `elevation` and `zoom` frame it.
+- **No file, no encoding:** `turntable(field)` returns the frames as `(h, w, 3)` `uint8` arrays, which is what a
+  caller that wants to compose them somewhere else needs.
+
+Provider `pinneapple_tools.visualization.orbit.turntable` for the details; the failure modes (a 2-D field, a single
+instant, a NaN, an unknown suffix) are refused with a message that says what to pass instead.
 
 ## Particle process videos
 

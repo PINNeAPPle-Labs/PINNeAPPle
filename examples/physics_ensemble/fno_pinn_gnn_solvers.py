@@ -27,6 +27,9 @@ from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet
 from pinneapple_neural.architectures.neural_operators.fno import FourierNeuralOperator
 from pinneapple_physics.advection_diffusion_1d import AdvectionDiffusion1D
 from pinneapple_physics.ensemble import PhysicsEnsemble, from_callable, from_torch
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 AD = AdvectionDiffusion1D()
 N_MODES = 4

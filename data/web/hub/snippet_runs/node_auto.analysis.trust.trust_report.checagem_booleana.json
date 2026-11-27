@@ -1,0 +1,12 @@
+{
+ "code_hash": "4c4423accef75a64",
+ "figures": [],
+ "id": "node:auto.analysis.trust.trust_report.checagem_booleana",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 27.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "checagem booleana -> pinneapple_analysis.trust.trust_report:checagem_booleana\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'nome': '', 'passou': False, 'fonte': '', 'critica': False, 'peso': 1.0, 'motivo_nao_executada': ''}",
+ "timed_out": false
+}

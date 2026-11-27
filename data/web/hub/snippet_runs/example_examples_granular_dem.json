@@ -1,0 +1,12 @@
+{
+ "code_hash": "24671106e9fe506d",
+ "figures": [],
+ "id": "example:examples/granular_dem",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 0.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A tumbling mill: power draw against speed, liner wear, and the fragments of a breakage run | general | not curated",
+ "timed_out": false
+}

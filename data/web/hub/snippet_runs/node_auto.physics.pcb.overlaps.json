@@ -1,12 +1,12 @@
 {
- "code_hash": "7aead828ab5c3d54",
+ "code_hash": "b237c9cfcc20cdd5",
  "figures": [],
  "id": "node:auto.physics.pcb.overlaps",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.13,
+ "recorded": "2026-11-25",
+ "seconds": 23.87,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
- "stdout": "list\n[]",
+ "stdout": "overlaps -> pinneapple_physics.pcb:overlaps\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'comps': []}",
  "timed_out": false
 }

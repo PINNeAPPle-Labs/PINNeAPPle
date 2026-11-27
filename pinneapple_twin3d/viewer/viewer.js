@@ -7,7 +7,8 @@
 //                               or a list of them; alarm when outside the sensor envelope.
 //   &step=N | &step=last        open at a given time step
 //   &field=name                 open showing a given field
-//   &cmap=turbo|viridis|coolwarm|inferno   colormap
+//   &cmap=cfd_sequential|cfd_diverging|cfd_cyclic|coolwarm|turbo|viridis|inferno   colormap
+//                               (default: the house sequential map, from theme.js)
 //   &view=x,y,z                 camera direction from the scene centre (default 0.6,0.45,0.66)
 //   &zoom=1.0                   camera distance factor (< 1 closer)
 //   &theme=dark|light           colour theme
@@ -16,6 +17,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+// The house theme, generated from pinneapple_tools/visualization/theme.json by scripts/build_theme.py: the same
+// colormaps the matplotlib figures and the studio viewer use, so a field is one colour everywhere (#65).
+import { THEME } from "./theme.js";
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -33,7 +37,6 @@ function turbo(t) { // Google "Turbo" polynomial approximation (Mikhailov, 2019)
 const VIRIDIS = [[0.267, 0.005, 0.329], [0.283, 0.141, 0.458], [0.254, 0.265, 0.530], [0.207, 0.372, 0.553],
   [0.164, 0.471, 0.558], [0.128, 0.567, 0.551], [0.135, 0.659, 0.518], [0.267, 0.749, 0.441],
   [0.478, 0.821, 0.318], [0.741, 0.873, 0.150], [0.993, 0.906, 0.144]];
-const COOLWARM = [[0.230, 0.299, 0.754], [0.552, 0.690, 0.996], [0.865, 0.865, 0.865], [0.958, 0.604, 0.482], [0.706, 0.016, 0.150]];
 const INFERNO = [[0.001, 0.000, 0.014], [0.087, 0.045, 0.225], [0.258, 0.039, 0.406], [0.416, 0.090, 0.433], [0.578, 0.148, 0.404], [0.736, 0.216, 0.330], [0.865, 0.317, 0.226], [0.955, 0.469, 0.100], [0.988, 0.645, 0.040], [0.964, 0.844, 0.273], [0.988, 0.998, 0.645]];
 function lut(table) {
   return (t) => {
@@ -42,11 +45,26 @@ function lut(table) {
     return [0, 1, 2].map((k) => table[i][k] * (1 - f) + table[i + 1][k] * f);
   };
 }
-const CMAPS = { turbo, viridis: lut(VIRIDIS), coolwarm: lut(COOLWARM), inferno: lut(INFERNO) };
+// the house maps arrive as [position, [r, g, b] 0..255] pairs, the shape the theme file and studio-core.js use
+function rampStops(stops) {
+  return (t) => {
+    t = clamp01(t);
+    for (let i = 1; i < stops.length; i++) if (t <= stops[i][0]) {
+      const [a, ca] = stops[i - 1], [b, cb] = stops[i], f = (t - a) / ((b - a) || 1);
+      return ca.map((c, k) => (c + f * (cb[k] - c)) / 255);
+    }
+    return stops[stops.length - 1][1].map((c) => c / 255);
+  };
+}
+const houseCmap = (name) => rampStops(THEME.colormaps[name].stops);
+// turbo, viridis and inferno stay as options for comparison with other tools; the default is the house map
+const CMAPS = { turbo, viridis: lut(VIRIDIS), inferno: lut(INFERNO), coolwarm: houseCmap("coolwarm"),
+  cfd_sequential: houseCmap("cfd_sequential"), cfd_diverging: houseCmap("cfd_diverging"),
+  cfd_cyclic: houseCmap("cfd_cyclic") };
 
 // ── state ──────────────────────────────────────────────────────────────
 const state = { manifest: null, fields: null, parts: new Map(), sensors: [], step: 0, playing: null,
-  field: "", cmap: "turbo", live: new Map(), clipPlane: new THREE.Plane(new THREE.Vector3(1, 0, 0), 0) };
+  field: "", cmap: THEME.defaultCmap, live: new Map(), clipPlane: new THREE.Plane(new THREE.Vector3(1, 0, 0), 0) };
 
 // ── three.js setup ─────────────────────────────────────────────────────
 const viewport = $("viewport");
@@ -64,8 +82,32 @@ scene3.add(sun);
 const sensorGroup = new THREE.Group();
 scene3.add(sensorGroup);
 
-function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-function applyTheme() { scene3.background = new THREE.Color(cssVar("--viewport") || "#e9ecf1"); }
+// Every colour the page shows is the theme's, not a literal in index.html: the surface the model is drawn on, the
+// chrome around it, and the two status colours, which are the brand's ember and the palette's green. The set is one
+// object so a variable the page uses and nobody sets is visible in one place instead of a colour that silently
+// stays at its browser default.
+function pageVars(dark) {
+  const s = THEME.surface[dark ? "dark" : "light"];
+  return {
+    "--viewport": s.plot,
+    "--bg": s.plot,                              // the recessed surface the panels sit on
+    "--panel": s.paper,
+    "--text": s.ink,
+    "--muted": s.muted,
+    "--line": s.line,
+    "--accent": dark ? THEME.categorical[4] : THEME.brand.blue,
+    "--alarm": dark ? THEME.brand.ember_lifted : THEME.brand.ember,
+    "--ok": THEME.categorical[2],
+  };
+}
+
+function applyTheme() {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+    (!document.documentElement.hasAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+  const vars = pageVars(dark);
+  for (const [name, value] of Object.entries(vars)) document.documentElement.style.setProperty(name, value);
+  scene3.background = new THREE.Color(vars["--viewport"]);
+}
 
 function resize() {
   const w = viewport.clientWidth, h = viewport.clientHeight;
@@ -142,6 +184,11 @@ const fmt = (v) => (Math.abs(v) >= 1e4 || (Math.abs(v) < 1e-3 && v !== 0)) ? v.t
 
 function buildUi() {
   const m = state.manifest;
+  // the maps come from the theme file, so the viewer never offers a scale the figures do not have
+  const mapSel = $("cmap");
+  mapSel.innerHTML = Object.keys(CMAPS).map((name) =>
+    `<option value="${name}">${name.replace(/_/g, " ")}</option>`).join("");
+  mapSel.value = state.cmap;
   const sel = $("field");
   sel.innerHTML = `<option value="">(no field: part colour)</option>` +
     fieldNames().map((n) => `<option value="${n}">${n}${fieldUnit(n) ? ` [${fieldUnit(n)}]` : ""}</option>`).join("");

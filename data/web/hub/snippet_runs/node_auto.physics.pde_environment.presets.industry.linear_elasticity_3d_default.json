@@ -1,0 +1,12 @@
+{
+ "code_hash": "c9e71adb473b60b6",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.industry.linear_elasticity_3d_default",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "linear elasticity 3d default -> pinneapple_physics.pde_environment.presets.industry:linear_elasticity_3d_default\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

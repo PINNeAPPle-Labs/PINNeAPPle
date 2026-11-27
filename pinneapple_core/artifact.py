@@ -34,7 +34,9 @@ import io
 import json
 import os
 import platform
+import re
 import subprocess
+import warnings
 import zipfile
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -46,10 +48,12 @@ import numpy as np
 
 from .jsonable import to_jsonable
 
-__all__ = ["SCHEMA", "EXTENSION", "Artifact", "Report", "save", "load", "verify", "ArtifactError", "UnsupportedSchema",
-           "IntegrityError", "MissingProvenance"]
+__all__ = ["SCHEMA", "SCHEMA_FAMILY", "MIGRATIONS", "Compatibility", "compatibility", "EXTENSION", "Artifact",
+           "Report", "save", "load", "verify", "ArtifactError", "UnsupportedSchema", "IntegrityError",
+           "MissingProvenance"]
 
 SCHEMA = "pinneapple.ppx/1"
+SCHEMA_FAMILY = "pinneapple.ppx"
 EXTENSION = ".ppx"
 MANIFEST = "manifest.json"
 STATE_MEMBER = "model/state.pt"
@@ -72,6 +76,92 @@ class IntegrityError(ArtifactError):
 
 class MissingProvenance(ArtifactError):
     """The manifest does not say where the result came from, so the result cannot be trusted or reproduced."""
+
+
+#: schema -> ``(manifest, members) -> (manifest, members)``, upgrading it by one version (#225).
+#: A migration is registered here the day the layout changes, not before: an empty registry is the honest state of a
+#: format that has only ever had one version, and the machinery is what the issue asks for.
+MIGRATIONS: dict[str, Callable[[dict[str, Any], dict[str, bytes]], tuple[dict[str, Any], dict[str, bytes]]]] = {}
+
+#: per major version of the library, what this release promises to read (see :func:`compatibility`)
+CURRENT_MAJOR = 0
+
+
+@dataclass(frozen=True)
+class Compatibility:
+    """What this version can do with an artifact written by another one, and what to tell the reader."""
+
+    level: str                    # "ok" | "migrated" | "warn"
+    detail: str
+    schema: str = ""
+    written_by: str = ""
+
+    @property
+    def ok(self) -> bool:
+        return self.level in ("ok", "migrated", "warn")
+
+    def __bool__(self) -> bool:
+        return self.ok
+
+
+def _schema_parts(text: Any) -> tuple[str, int] | None:
+    """``"pinneapple.ppx/1"`` -> ``("pinneapple.ppx", 1)``; ``None`` for anything that is not one."""
+    family, _, number = str(text or "").rpartition("/")
+    if not family or not number.isdigit():
+        return None
+    return family, int(number)
+
+
+def _library_version() -> str:
+    try:
+        import pinneapple
+
+        return str(getattr(pinneapple, "__version__", "") or "")
+    except Exception:                                       # noqa: BLE001 - a namespace package may not know
+        return ""
+
+
+def _version_parts(text: str) -> tuple[int, int] | None:
+    parts = re.findall(r"\d+", str(text or ""))
+    return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0) if parts else None
+
+
+def compatibility(manifest: Mapping[str, Any]) -> Compatibility:
+    """Can this version read an artifact with this manifest, and what should the reader know (#225)?
+
+    Two questions, kept apart. The **schema** decides what is readable: the same version reads, an older one reads
+    through the migration registered for it, an older one with no migration and a newer one are refused with the
+    reason and the way out. The **library version** that wrote it decides what to warn about: the same major reads,
+    a different major is refused (the numbers may come from a different solver), and the schema is what decides the
+    rest — a warning is not a refusal, it is a note the caller can see.
+    """
+    parts = _schema_parts(manifest.get("schema"))
+    ours = _schema_parts(SCHEMA)
+    written_by = str(((manifest.get("environment") or {}).get("packages") or {}).get("pinneapple") or "")
+    if parts is None or ours is None or parts[0] != ours[0]:
+        raise UnsupportedSchema(f"the manifest declares schema {manifest.get('schema')!r}; this version reads "
+                                f"{SCHEMA_FAMILY}/{ours[1] if ours else '?'}")
+    schema_note = Compatibility("ok", f"schema {SCHEMA}", str(manifest["schema"]), written_by)
+    if parts[1] > ours[1]:
+        raise UnsupportedSchema(
+            f"{manifest.get('schema')} was written by a newer pinneapple ({written_by or 'unknown version'}), which "
+            f"this release ({_library_version() or 'this one'}) does not read. Upgrade pinneapple to open it.")
+
+    theirs, mine = _version_parts(written_by), _version_parts(_library_version())
+    if theirs and mine and theirs[0] != mine[0]:
+        raise UnsupportedSchema(
+            f"written by pinneapple {written_by}; this is {_library_version()}. The major version changed, so the "
+            f"numbers may come from a different solver. Open it with `pip install pinneapple=={written_by}`, or "
+            "export what you need from there and re-save it with this version.")
+    if theirs and mine and theirs < mine:
+        return Compatibility("warn", f"written by pinneapple {written_by}, read by {_library_version()}: the schema "
+                                      "matches, but a number it carries may not reproduce bit for bit",
+                             schema_note.schema, written_by)
+    if theirs and mine and theirs > mine:
+        return Compatibility("warn", f"written by pinneapple {written_by}, newer than {_library_version()}: read "
+                                     "with this version's reader; report anything that looks wrong",
+                             schema_note.schema, written_by)
+    return schema_note
 
 
 # --------------------------------------------------------------------------- helpers
@@ -193,6 +283,8 @@ class Artifact:
     reproductions: list[dict[str, Any]] = field(default_factory=list)
     environment: dict[str, Any] = field(default_factory=dict)
     provenance: dict[str, Any] = field(default_factory=dict)
+    #: what this release made of the version that wrote it (#225): set by :func:`load`, ``None`` when built here
+    compatibility: Compatibility | None = None
 
     # -- constructors -------------------------------------------------------
     @classmethod
@@ -411,7 +503,36 @@ def save(artifact: Any, path: str | os.PathLike[str], *, title: str | None = Non
     return target
 
 
-def _read_members(path: Path) -> tuple[dict[str, Any], dict[str, bytes]]:
+def _migrate(manifest: dict[str, Any], members: dict[str, bytes]
+             ) -> tuple[dict[str, Any], dict[str, bytes], Compatibility]:
+    """Upgrade the manifest to this schema through the registered chain, or refuse with the way out (#225)."""
+    start = str(manifest.get("schema"))
+    seen: list[str] = []
+    while str(manifest.get("schema")) != SCHEMA:
+        schema = str(manifest.get("schema"))
+        if schema in seen:                                # a migration that does not move forward would loop forever
+            raise UnsupportedSchema(f"the migration chain revisits {schema}: {' -> '.join([*seen, schema])}")
+        seen.append(schema)
+        step = MIGRATIONS.get(schema)
+        if step is None:
+            compatibility(manifest)                       # raises with the reason and what to do about it
+            raise UnsupportedSchema(
+                f"{schema} is older than {SCHEMA} and no migration from it is registered: open it with the pinneapple "
+                f"version that wrote it ({manifest.get('environment', {}).get('packages', {}).get('pinneapple') or 'unknown'}) "
+                "and re-save, or read the numbers it carries from its manifest")
+        manifest, members = step(dict(manifest), dict(members))
+        if _schema_parts(manifest.get("schema")) is None or str(manifest.get("schema")) == schema:
+            raise UnsupportedSchema(f"the migration from {schema} did not move the manifest to a known schema "
+                                    f"(it returned {manifest.get('schema')!r})")
+    note = compatibility(manifest)
+    if start != SCHEMA:
+        note = Compatibility("migrated", f"migrated from {start} to {SCHEMA}"
+                             + (f" ({note.detail})" if note.level == "warn" else ""),
+                             schema=str(manifest.get("schema")), written_by=note.written_by)
+    return manifest, members, note
+
+
+def _read_members(path: Path) -> tuple[dict[str, Any], dict[str, bytes], Compatibility]:
     try:
         zf = zipfile.ZipFile(path)
     except zipfile.BadZipFile as exc:
@@ -421,11 +542,13 @@ def _read_members(path: Path) -> tuple[dict[str, Any], dict[str, bytes]]:
         if MANIFEST not in names:
             raise ArtifactError(f"{path} has no {MANIFEST}")
         manifest = json.loads(zf.read(MANIFEST))
-        if not str(manifest.get("schema", "")).startswith("pinneapple.ppx/"):
+        if not str(manifest.get("schema", "")).startswith(f"{SCHEMA_FAMILY}/"):
             raise UnsupportedSchema(f"{path} declares schema {manifest.get('schema')!r}, expected {SCHEMA!r}")
-        if manifest["schema"] != SCHEMA:
-            raise UnsupportedSchema(f"{path} is {manifest['schema']}, this version writes and reads {SCHEMA}")
-        return manifest, {n: zf.read(n) for n in names if n != MANIFEST}
+        members = {n: zf.read(n) for n in names if n != MANIFEST}
+    try:
+        return _migrate(manifest, members)
+    except UnsupportedSchema as exc:
+        raise UnsupportedSchema(f"{path}: {exc}") from None
 
 
 def _check_integrity(manifest: Mapping[str, Any], members: Mapping[str, bytes]) -> None:
@@ -452,7 +575,9 @@ def load(path: str | os.PathLike[str], *, verify: bool = True, strict: bool = Tr
     ``strict`` refuses an artifact whose provenance block is absent or incomplete (``MissingProvenance``), which is
     what keeps an anonymous number from travelling as a result."""
     p = Path(path)
-    manifest, members = _read_members(p)
+    manifest, members, note = _read_members(p)
+    if note.level == "warn":
+        warnings.warn(f"{p}: {note.detail}", stacklevel=2)
     if verify:
         _check_integrity(manifest, members)
     if strict:
@@ -483,6 +608,7 @@ def load(path: str | os.PathLike[str], *, verify: bool = True, strict: bool = Tr
         model_build=(manifest.get("model") or {}).get("build"), model_state=model_state,
         reproductions=manifest.get("reproductions") or [],
         environment=manifest.get("environment") or {}, provenance=manifest.get("provenance") or {},
+        compatibility=note,
     )
     return art
 
@@ -494,7 +620,7 @@ def verify(path: str | os.PathLike[str], *, reproduce: bool = True, rtol: float 
     p = Path(path)
     checks: list[dict[str, Any]] = []
     try:
-        manifest, members = _read_members(p)
+        manifest, members, _ = _read_members(p)
     except ArtifactError as exc:
         return Report([{"name": "container", "passed": False, "detail": str(exc)}])
     checks.append({"name": "container", "passed": True, "detail": f"{p.name}: {manifest.get('schema')}"})

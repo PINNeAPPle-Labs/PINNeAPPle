@@ -1,7 +1,7 @@
 """High-level pipeline presets for common quantum ML workflows."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -11,7 +11,7 @@ from pinneapple_quantum.backends.backend import BackendConfig, get_backend
 from pinneapple_quantum.models.quantum_model import QuantumModel
 from pinneapple_quantum.models.hybrid_model import HybridModel
 from pinneapple_quantum.loss.schrodinger import (
-    energy_loss, pde_residual_loss, get_potential, normalization_loss,
+    energy_loss, get_potential, normalization_loss,
 )
 from pinneapple_quantum.training.trainer import QTrainer, QTrainerConfig
 from pinneapple_quantum.data.quantum_dataset import (
@@ -40,7 +40,7 @@ def vq_pinn(
     device: str = "cpu",
     seed: int = 42,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Build and train a Variational Quantum PINN (VQ-PINN).
 
@@ -210,7 +210,7 @@ def hybrid_pinn(
     device: str = "cpu",
     seed: int = 42,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Hybrid PINN: classical MLP pre-encodes features → quantum circuit → output.
 
@@ -302,7 +302,7 @@ def learn_hamiltonian(
     lr: float = 1e-3,
     device: str = "cpu",
     seed: int = 42,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Learn a matrix Hamiltonian from energy measurement data.
 
@@ -360,7 +360,7 @@ def learn_hamiltonian(
 
 def quantum_kernel(
     x_train: torch.Tensor,
-    x_test:  Optional[torch.Tensor] = None,
+    x_test:  torch.Tensor | None = None,
     n_qubits: int = 4,
     encoding: str = "angle",
     backend: str = "pennylane",
@@ -425,7 +425,7 @@ def solve(
     method: str = "vq_pinn",
     backend: str = "simulator",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     High-level entry-point that mirrors the PINNeAPPle ``solve()`` API.
 

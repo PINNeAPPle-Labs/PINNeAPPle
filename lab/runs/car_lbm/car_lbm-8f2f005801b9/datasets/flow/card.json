@@ -1,0 +1,132 @@
+{
+ "name": "flow",
+ "description": "Car geometry (mask, signed distance) and the time-mean flow it produces (velocity / U, pressure coefficient), with drag and lift",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "mask": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "uint8",
+   "min": 0.0,
+   "max": 1.0
+  },
+  "sdf": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -0.15625,
+   "max": 3.601757287979126
+  },
+  "mean_ux": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -0.15571430325508118,
+   "max": 1.4141281843185425
+  },
+  "mean_uy": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -0.3440159559249878,
+   "max": 0.9809486865997314
+  },
+  "mean_cp": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -1.0549463033676147,
+   "max": 1.7540156841278076
+  },
+  "Cd": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.7044045913886898,
+   "max": 1.7044045913886898
+  },
+  "Cl": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.6290637247730047,
+   "max": 0.6290637247730047
+  },
+  "slant_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 32.7428,
+   "max": 32.7428
+  },
+  "windshield_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 49.0222,
+   "max": 49.0222
+  },
+  "hood": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.6786,
+   "max": 0.6786
+  },
+  "clearance": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.1063,
+   "max": 0.1063
+  },
+  "diffuser_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 7.7599,
+   "max": 7.7599
+  },
+  "nose": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.7853,
+   "max": 0.7853
+  }
+ },
+ "units": {
+  "sdf": "car lengths",
+  "mean_ux": "U",
+  "mean_uy": "U",
+  "mean_cp": "-"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "car_lbm",
+  "run_id": "car_lbm-8f2f005801b9",
+  "params": {
+   "slant_deg": 32.7428,
+   "windshield_deg": 49.0222,
+   "hood": 0.6786,
+   "clearance": 0.1063,
+   "diffuser_deg": 7.7599,
+   "nose": 0.7853,
+   "length_cells": 64,
+   "Re": 500.0,
+   "u_in": 0.08,
+   "Cs": 0.1,
+   "steps": 8000,
+   "tunnel_height": 2.5
+  }
+ },
+ "sha1": "5de85862d3770156c9aea1d2fba39aa576832933"
+}

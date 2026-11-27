@@ -13,9 +13,8 @@ All 80+ model keys registered in ModelRegistry are supported:
 """
 from __future__ import annotations
 
-import torch
 import torch.nn as nn
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .config import ModelConfig, NetworkConfig
 
@@ -42,7 +41,7 @@ class _MLP(nn.Module):
 # ── kwargs builder ────────────────────────────────────────────────────────────
 
 def _build_kwargs(net_cfg: NetworkConfig, in_dim: int, out_dim: int,
-                  edge_in_dim: int = 0) -> Dict[str, Any]:
+                  edge_in_dim: int = 0) -> dict[str, Any]:
     """Build a flat kwargs dict covering ALL model families.
 
     instantiate() from pinneapple_neural will filter and normalize these,
@@ -54,7 +53,7 @@ def _build_kwargs(net_cfg: NetworkConfig, in_dim: int, out_dim: int,
     trunk  = net_cfg.trunk_dim  if net_cfg.trunk_dim  > 0 else in_dim
     state  = net_cfg.state_dim  if net_cfg.state_dim  > 0 else in_dim
 
-    kw: Dict[str, Any] = {
+    kw: dict[str, Any] = {
         # ── dimension (all aliases, instantiate normalizes) ──────────────
         "in_dim":       in_dim,
         "input_dim":    in_dim,

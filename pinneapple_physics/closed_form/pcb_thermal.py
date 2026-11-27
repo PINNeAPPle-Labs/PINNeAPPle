@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
 
 from .plate_fin_heatsink import G, air_properties
 
@@ -54,7 +53,7 @@ class Layer:
 
 def stackup(n_copper: int = 4, thickness_mm: float = 1.6, outer_oz: float = 1.0,
             inner_oz: float = 1.0, outer_coverage: float = 0.3, inner_coverage: float = 0.9,
-            ) -> List[Layer]:
+            ) -> list[Layer]:
     """Symmetric stack: signal outer layers (partial copper), plane inner layers,
     dielectric filling the rest of the board thickness equally."""
     if n_copper < 1:
@@ -70,7 +69,7 @@ def stackup(n_copper: int = 4, thickness_mm: float = 1.6, outer_oz: float = 1.0,
     t_d = (thickness_mm * 1e-3 - t_cu) / n_diel
     if t_d <= 0:
         raise ValueError("copper thicker than the board")
-    layers: List[Layer] = []
+    layers: list[Layer] = []
     for i, c in enumerate(cu):
         layers.append(c)
         if i < n_copper - 1 or n_copper == 1:
@@ -78,7 +77,7 @@ def stackup(n_copper: int = 4, thickness_mm: float = 1.6, outer_oz: float = 1.0,
     return layers
 
 
-def effective_conductivity(layers: List[Layer]) -> Dict[str, float]:
+def effective_conductivity(layers: list[Layer]) -> dict[str, float]:
     t = sum(layer.thickness_m for layer in layers)
     k_xy = sum(layer.k_xy() * layer.thickness_m for layer in layers) / t
     k_z = t / sum(layer.thickness_m / layer.k_z() for layer in layers)
@@ -107,15 +106,15 @@ class Environment:
     air_velocity_m_s: float = 0.0          # 0 = natural convection
     orientation: str = "vertical"          # "vertical" | "horizontal" (natural only)
     emissivity: float = 0.9                # solder mask ~0.9
-    extra: Dict[str, float] = field(default_factory=dict)
+    extra: dict[str, float] = field(default_factory=dict)
 
 
-def convection_coefficients(width_m: float, depth_m: float, t_surface_c: Tuple[float, float],
-                            env: Environment) -> Dict[str, float]:
+def convection_coefficients(width_m: float, depth_m: float, t_surface_c: tuple[float, float],
+                            env: Environment) -> dict[str, float]:
     """h for the (top, bottom) faces at the given mean surface temperatures."""
     Ta = env.t_ambient_c
-    out: Dict[str, float] = {}
-    warnings: List[str] = []
+    out: dict[str, float] = {}
+    warnings: list[str] = []
     for face, ts in zip(("top", "bottom"), t_surface_c, strict=True):
         dt = max(ts - Ta, 1e-3)
         air = air_properties(0.5 * (ts + Ta))
@@ -161,7 +160,7 @@ def convection_coefficients(width_m: float, depth_m: float, t_surface_c: Tuple[f
 # It lands inside the datasheet theta_JB range but a little lower, because
 # here the board node is directly under the part, not at its edge
 # (JESD51-8). Users should enter their own datasheet numbers for sign-off.
-PACKAGES: Dict[str, Dict[str, float]] = {
+PACKAGES: dict[str, dict[str, float]] = {
     "QFN-32 5x5":   {"w_mm": 5.0, "d_mm": 5.0, "h_mm": 0.9, "theta_jb": 11.0, "theta_jc": 25.0},
     "QFN-64 9x9":   {"w_mm": 9.0, "d_mm": 9.0, "h_mm": 0.9, "theta_jb": 7.3, "theta_jc": 15.0},
     "BGA 17x17":    {"w_mm": 17.0, "d_mm": 17.0, "h_mm": 1.5, "theta_jb": 14.0, "theta_jc": 6.0},
@@ -178,7 +177,7 @@ PACKAGES: Dict[str, Dict[str, float]] = {
 # SOIC-8: TI ISO6521 104.6, SN75157 116.7, OPA892 124.5, TL082 147.8;
 # LQFP-100: ST 51, JCET 37.2; TO-252: TI LM1117 NDP 45.1; FCBGA: Microchip
 # PolarFire 8.2. QFN with exposed pad soldered and via'd to the planes.
-JEDEC_2S2P_THETA_JA: Dict[str, float] = {
+JEDEC_2S2P_THETA_JA: dict[str, float] = {
     "QFN-32 5x5": 33.0, "QFN-64 9x9": 24.0, "BGA 17x17": 28.0, "BGA 35x35": 9.5,
     "QFP-100 14x14": 45.0, "SOIC-8": 120.0, "TO-252 DPAK": 45.0, "TO-263 D2PAK": 30.0,
 }

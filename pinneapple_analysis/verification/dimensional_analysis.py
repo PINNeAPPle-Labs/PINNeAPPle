@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Dict, Optional
 
 
 @dataclass
@@ -37,35 +36,35 @@ class DimensionlessNumbers:
     number weren't given, rather than silently defaulted, so a caller
     can tell "not computed" apart from "computed and happens to be
     small"."""
-    reynolds: Optional[float] = None
-    prandtl: Optional[float] = None
-    peclet_heat: Optional[float] = None
-    peclet_mass: Optional[float] = None
-    mach: Optional[float] = None
-    froude: Optional[float] = None
-    weber: Optional[float] = None
-    damkohler: Optional[float] = None
-    nusselt_correlation: Optional[float] = None
-    nusselt_correlation_name: Optional[str] = None
-    notes: Dict[str, str] = field(default_factory=dict)
+    reynolds: float | None = None
+    prandtl: float | None = None
+    peclet_heat: float | None = None
+    peclet_mass: float | None = None
+    mach: float | None = None
+    froude: float | None = None
+    weber: float | None = None
+    damkohler: float | None = None
+    nusselt_correlation: float | None = None
+    nusselt_correlation_name: str | None = None
+    notes: dict[str, str] = field(default_factory=dict)
 
 
 def compute_dimensionless_numbers(
     *,
-    velocity: Optional[float] = None,
-    length: Optional[float] = None,
-    density: Optional[float] = None,
-    dynamic_viscosity: Optional[float] = None,
-    kinematic_viscosity: Optional[float] = None,
-    thermal_diffusivity: Optional[float] = None,
-    specific_heat: Optional[float] = None,
-    thermal_conductivity: Optional[float] = None,
-    mass_diffusivity: Optional[float] = None,
-    speed_of_sound: Optional[float] = None,
+    velocity: float | None = None,
+    length: float | None = None,
+    density: float | None = None,
+    dynamic_viscosity: float | None = None,
+    kinematic_viscosity: float | None = None,
+    thermal_diffusivity: float | None = None,
+    specific_heat: float | None = None,
+    thermal_conductivity: float | None = None,
+    mass_diffusivity: float | None = None,
+    speed_of_sound: float | None = None,
     gravity: float = 9.81,
-    surface_tension: Optional[float] = None,
-    reaction_rate_constant: Optional[float] = None,
-    residence_time: Optional[float] = None,
+    surface_tension: float | None = None,
+    reaction_rate_constant: float | None = None,
+    residence_time: float | None = None,
 ) -> DimensionlessNumbers:
     """Compute every dimensionless number the supplied subset of
     parameters actually supports. All formulas are standard textbook
@@ -139,7 +138,7 @@ def compute_dimensionless_numbers(
     return out
 
 
-def classify_flow_regime(re: Optional[float], *, geometry: str = "internal_pipe") -> str:
+def classify_flow_regime(re: float | None, *, geometry: str = "internal_pipe") -> str:
     """A simple, HONESTLY GEOMETRY-SPECIFIC flow-regime classification --
     real transition Reynolds numbers depend on the flow geometry, so this
     function requires the caller to say which one its thresholds should

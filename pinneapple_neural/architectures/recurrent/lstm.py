@@ -1,7 +1,7 @@
 from __future__ import annotations
 """LSTM and bidirectional LSTM models (baseline+)."""
 
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -76,7 +76,7 @@ class LSTMModel(RecurrentModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        y_future: Optional[torch.Tensor] = None,
+        y_future: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> RNNOutput:
         B, L, _ = x_past.shape
@@ -96,7 +96,7 @@ class LSTMModel(RecurrentModelBase):
 
         y_hat = self.head(dec_in)  # (B, H, out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
         if return_loss and y_future is not None:
             losses["mse"] = self.mse(y_hat, y_future)
             losses["total"] = losses["mse"]
@@ -173,7 +173,7 @@ class BiLSTMModel(RecurrentModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        y_future: Optional[torch.Tensor] = None,
+        y_future: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> RNNOutput:
         B, L, _ = x_past.shape
@@ -193,7 +193,7 @@ class BiLSTMModel(RecurrentModelBase):
 
         y_hat = self.head(dec_in)  # (B, H, out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y_hat.device)}
         if return_loss and y_future is not None:
             losses["mse"] = self.mse(y_hat, y_future)
             losses["total"] = losses["mse"]

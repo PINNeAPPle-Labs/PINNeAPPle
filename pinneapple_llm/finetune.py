@@ -19,7 +19,6 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 from .conversation_store import ConversationStore
 
@@ -37,7 +36,7 @@ class FinetuneConfig:
     max_seq_length: int = 1024
 
 
-def prepare_dataset(store: ConversationStore, out_jsonl: str, *, module: Optional[str] = None) -> str:
+def prepare_dataset(store: ConversationStore, out_jsonl: str, *, module: str | None = None) -> str:
     """Export logged (prompt, response) pairs to a JSONL file, ready for
     :func:`finetune_lora`. Thin wrapper over ``ConversationStore
     .export_jsonl`` -- kept as a separate step (not folded into

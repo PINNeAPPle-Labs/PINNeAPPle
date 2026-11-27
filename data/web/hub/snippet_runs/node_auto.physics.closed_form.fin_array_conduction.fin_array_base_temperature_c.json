@@ -1,0 +1,12 @@
+{
+ "code_hash": "66b0301f7e673322",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.fin_array_conduction.fin_array_base_temperature_c",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 29.91,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "fin array base temperature c -> pinneapple_physics.closed_form.fin_array_conduction:fin_array_base_temperature_c\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'params': {}, 't_ambient_c': 1.0, 'power_w': 1.0}",
+ "timed_out": false
+}

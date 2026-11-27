@@ -24,15 +24,14 @@ import math
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 
-from pinneapple_arena.bundle.loader import BundleData, load_bundle
-from pinneapple_arena.bundle.schema import load_bundle_schema
+from pinneapple_arena.bundle.loader import BundleData
 from pinneapple_arena.registry import register_backend, register_task
 from pinneapple_arena.runner.run_benchmark import run_benchmark
 from pinneapple_physics.pinn_solver.compiler.autograd_ops import laplacian
@@ -145,7 +144,7 @@ class Poisson2DTask:
     n_eval_col: int = 4096
     n_eval_bnd: int = 2048
 
-    def compute_metrics(self, bundle: BundleData, backend_outputs: Dict[str, Any]) -> Dict[str, float]:
+    def compute_metrics(self, bundle: BundleData, backend_outputs: dict[str, Any]) -> dict[str, float]:
         model = backend_outputs.get("model")
         device = str(backend_outputs.get("device", "cpu"))
         if model is None:
@@ -205,7 +204,7 @@ class _MLP(nn.Module):
 class PoissonPINNBackend:
     name = "poisson_pinn"
 
-    def train(self, bundle: BundleData, run_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    def train(self, bundle: BundleData, run_cfg: dict[str, Any]) -> dict[str, Any]:
         train = dict(run_cfg.get("train", {}))
         model_cfg = dict(run_cfg.get("model", {}))
 

@@ -1,0 +1,12 @@
+{
+ "code_hash": "24a369a3a0428970",
+ "figures": [],
+ "id": "node:auto.data.cae.compare.tolerance_verdicts",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tolerance verdicts -> pinneapple_data.cae.compare:tolerance_verdicts\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'result': {}, 'tolerance': 1.0}",
+ "timed_out": false
+}

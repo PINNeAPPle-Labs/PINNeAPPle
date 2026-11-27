@@ -1,9 +1,8 @@
 """Quantum circuit builder — ansatz and encoding definitions."""
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass, field
-from typing import List, Literal, Optional
+from dataclasses import dataclass
+from typing import Literal
 
 import torch
 import torch.nn as nn

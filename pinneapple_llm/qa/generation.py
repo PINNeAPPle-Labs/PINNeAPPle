@@ -24,14 +24,14 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from .report import Finding, Status
 from .spec import PhysicalSpecification
 from .static import DEFAULT_ALLOWED_ROOTS, StaticResult, validate_json_artifact, validate_python_artifact
 from .units import UnitError, are_compatible, parse_unit
 
-GENERATION_SCHEMA: Dict[str, Any] = {
+GENERATION_SCHEMA: dict[str, Any] = {
     "type": "object",
     "required": ["code", "assumptions", "dependencies", "units", "equations", "limitations"],
     "properties": {
@@ -71,17 +71,17 @@ class GeneratedArtifact:
     """The LLM's proposal plus its structured claims. Untrusted by construction."""
 
     code: str
-    assumptions: List[str] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)
-    units: Dict[str, str] = field(default_factory=dict)
-    equations: List[str] = field(default_factory=list)
-    limitations: List[str] = field(default_factory=list)
+    assumptions: list[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
+    units: dict[str, str] = field(default_factory=dict)
+    equations: list[str] = field(default_factory=list)
+    limitations: list[str] = field(default_factory=list)
     provider: str = ""
     model: str = ""
     elapsed_s: float = 0.0
     raw_response: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "code_sha256_source": self.code,
             "assumptions": list(self.assumptions),
@@ -105,7 +105,7 @@ def build_prompt(spec: PhysicalSpecification) -> str:
 
 
 def parse_generation_response(raw: str, *, provider: str = "", model: str = "",
-                              elapsed_s: float = 0.0) -> Tuple[GeneratedArtifact, StaticResult]:
+                              elapsed_s: float = 0.0) -> tuple[GeneratedArtifact, StaticResult]:
     """Parse and schema-check an LLM response. Never raises on malformed JSON."""
     try:
         payload = json.loads(raw)
@@ -131,12 +131,12 @@ def parse_generation_response(raw: str, *, provider: str = "", model: str = "",
 
 
 def check_claims(artifact: GeneratedArtifact,
-                 spec: PhysicalSpecification) -> List[Finding]:
+                 spec: PhysicalSpecification) -> list[Finding]:
     """Confront the model's declarations with the specification and the unit table.
 
     Returns findings only; no side effects, no network, no model call.
     """
-    findings: List[Finding] = []
+    findings: list[Finding] = []
 
     if not artifact.code.strip():
         findings.append(Finding(id="generation.empty", status=Status.FAIL, severity="error",
@@ -206,7 +206,7 @@ def check_claims(artifact: GeneratedArtifact,
 
 
 def validate_generated(artifact: GeneratedArtifact, spec: PhysicalSpecification,
-                       *, filename: str = "artifact.py") -> Tuple[List[Finding], Any]:
+                       *, filename: str = "artifact.py") -> tuple[list[Finding], Any]:
     """Claim checks + the full static validation of the returned code."""
     findings = check_claims(artifact, spec)
     static = validate_python_artifact(artifact.code, filename=filename)
@@ -216,8 +216,8 @@ def validate_generated(artifact: GeneratedArtifact, spec: PhysicalSpecification,
 
 def generate_artifact(spec: PhysicalSpecification, *,
                       provider: str = "anthropic",
-                      model: Optional[str] = None,
-                      api_key: Optional[str] = None,
+                      model: str | None = None,
+                      api_key: str | None = None,
                       conversation_store: Any = None) -> GeneratedArtifact:
     """Ask a provider for an artifact + envelope, through the existing dispatch.
 

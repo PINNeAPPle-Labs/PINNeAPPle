@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Neural controlled differential equation models."""
 
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -109,7 +108,7 @@ class NeuralCDE(ContinuousModelBase):
         x: torch.Tensor,            # (B,T,input_dim)
         t: torch.Tensor,            # (T,)
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,T,out_dim)
+        y_true: torch.Tensor | None = None,  # (B,T,out_dim)
         return_loss: bool = False,
     ) -> ContOutput:
         B, T, D = x.shape
@@ -147,7 +146,7 @@ class NeuralCDE(ContinuousModelBase):
 
         y_hat = torch.stack(ys, dim=1)  # (B,T,out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=x.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y_hat, y_true)
             losses["total"] = losses["mse"]

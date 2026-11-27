@@ -14,7 +14,9 @@
   "pinneapple_analysis.reproduction"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_pinnsformer.py"
+ ],
  "metrics": [
   {
    "name": "convection_pinn_rrmse_median",

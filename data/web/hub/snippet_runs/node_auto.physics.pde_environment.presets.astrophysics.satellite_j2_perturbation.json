@@ -1,0 +1,12 @@
+{
+ "code_hash": "908bfd013cd12c6b",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.satellite_j2_perturbation",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 16.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='satellite_j2_perturbation', dim=0, coords=('t',), fields=('x', 'y', 'z', 'vx', 'vy', 'vz'), pde=PDETermSpec(kind='satellite_j2_perturbation', fields=('x', 'y', 'z', 'vx', 'vy', 'vz'), coords=('t',), params={'mu': 398600.4418, 'J2': 0.00108262668, 'Re': 6378.137}, meta={'note': 'Two-body + J2 oblateness perturbation, Earth-centered inertial frame.', 'nodal_regression_rate_rad_s_literature': 2.1984203682235797e-07, 'apsidal_precession_rate_rad_s_literature': -6.435648307535805e-07, 'orbital_period_s': 5828.516637686015}), conditions=(ConditionSpec(name='ic_x', kind='initial', fields=('x',), selector_type='callable', selector=<function satellite_j2_perturbation.<locals>._mk_ic.<locals>.<lambda> at 0x1157623e0>, value_fn=<function satellite_j2_perturbation.<locals>._mk_ic.<lo",
+ "timed_out": false
+}

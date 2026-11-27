@@ -11,12 +11,12 @@ within 1 % of Timoshenko beam theory (tests/test_calculix_bridge.py).
 """
 from .frd import FrdResults, read_dat_displacements, read_frd, write_frd
 from .inp import CalculixModel, cantilever_hex_mesh, expand_target, read_inp, write_inp
-from .runner import ccx_backend, docker_available, run_ccx
+from .runner import ccx_backend, ccx_command, docker_available, run_ccx
 from .virtual_ccx import OutOfEnvelope, check_envelope, predict_to_frd
 
 __all__ = [
     "CalculixModel", "cantilever_hex_mesh", "expand_target", "read_inp", "write_inp",
     "FrdResults", "read_frd", "write_frd", "read_dat_displacements",
-    "ccx_backend", "docker_available", "run_ccx",
+    "ccx_backend", "ccx_command", "docker_available", "run_ccx",
     "OutOfEnvelope", "check_envelope", "predict_to_frd",
 ]

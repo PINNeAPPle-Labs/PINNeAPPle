@@ -7,9 +7,7 @@ Demonstrates:
 - Visualisation of learned Koopman eigenvalues on the unit circle
 """
 
-import cmath
 import torch
-import torch.nn as nn
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")

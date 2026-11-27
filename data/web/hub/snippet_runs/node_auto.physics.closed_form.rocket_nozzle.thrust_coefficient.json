@@ -1,0 +1,12 @@
+{
+ "code_hash": "0bcfd3f2a4c5387e",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.rocket_nozzle.thrust_coefficient",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.71,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "thrust coefficient -> pinneapple_physics.closed_form.rocket_nozzle:thrust_coefficient\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'p_exit': 1.0, 'p0': 1.0, 'p_atm': 1.0, 'ratio': 1.0, 'gamma': 1.0}",
+ "timed_out": false
+}

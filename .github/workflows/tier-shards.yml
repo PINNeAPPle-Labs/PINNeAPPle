@@ -1,0 +1,47 @@
+# The wide suite, in parts, on the pull-request path (#90).
+#
+# `tests.yml` runs about thirty hand-written selections as must-pass steps; everything else ran only in the nightly
+# job, where one failure ceiling covered the whole suite. That meant a green shard could not veto a pull request and a
+# regression in it was tolerated as long as some other shard improved.
+#
+# Here the wide suite blocks in the parts that a measurement has shown green. `tests/tier_shards.json` is the
+# declaration -- which shards, which files, which of them block, and for the ones that do not, the reason and the
+# ceiling the nightly job allows -- and `scripts/tier_shards.py --check` refuses an unclassified test file, a blocking
+# shard with no measurement behind it, and a shard that allows a failure while claiming to block.
+name: Test shards (blocking parts of the wide suite)
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: tier-shards-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  blocking:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install (CPU torch, the extras the shards import)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry,geom,flow,veriphysics,brep]"
+          pip install pytest datasets fastapi httpx python-multipart pyarrow h5py pyyaml scikit-learn statsmodels
+
+      - name: The declaration is complete (a test file cannot land unclassified)
+        run: python scripts/tier_shards.py --check
+
+      - name: The blocking shards
+        # One step, so the job reports which shard failed in its name; the tool prints one line per shard with the
+        # measurement it took, then the failures, then a total. A shard that is declared blocking has ceiling 0 --
+        # any failure here fails the build, which is the whole point of promoting it.
+        run: python scripts/tier_shards.py --run-blocking

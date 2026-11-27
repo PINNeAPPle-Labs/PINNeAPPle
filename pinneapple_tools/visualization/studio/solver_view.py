@@ -66,7 +66,10 @@ def _calculix(frd: Path) -> tuple[Any, list, dict, list, dict]:
         if name == "DISP" or displacement_factor(name, "", comps):
             deform["displacement"] = a[:, :3]
             lab += " magnitude"
-        fields.append({"name": name, "values": a, "label": lab, "deform": "displacement"})
+        # A .frd record carries no unit: the deck decides it, and the file does not say. "model units" is
+        # what the caption prints, which is the truth about the file rather than an invented "MPa".
+        fields.append({"name": name, "values": a, "label": lab, "unit": "model units",
+                       "deform": "displacement"})
     for f in fields:
         if not deform:
             f["deform"] = None

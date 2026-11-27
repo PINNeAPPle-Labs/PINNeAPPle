@@ -39,9 +39,23 @@ class FlowBuilder:
         return Flow(name=self.name, description=self.description, nodes=nodes, edges=list(self.edges), meta=meta)
 
     def proposal(self, title: str, rationale: str, **meta) -> dict[str, Any]:
-        f = self.flow({"title": title, **meta})
+        """The proposal, annotated with what the workflow stage map says about the stages it spans.
+
+        The planner explains *this* flow; ``stage_map`` says whether the workflow it describes can be executed here
+        — how many of the open tools at each stage are wired in this library, which public datasets that stage offers,
+        and where the stage has at most one wired tool. A thin stage is also recorded as a decision, so the reason
+        travels with the flow instead of living only in this dict."""
+        from ..stage_fit import fit, fit_message
+
+        stage_map = fit(self.nodes.values())
+        if stage_map.get("thin"):
+            self.decide("stage.coverage", fit_message(stage_map),
+                        rationale="the workflow stage map: a stage with at most one wired external tool offers no "
+                                  "choice, so that step runs on PINNeAPPle's own code — the stage's gap names what "
+                                  "is missing there")
+        f = self.flow({"title": title, "stage_map": stage_map, **meta})
         f.description = rationale
-        return {"title": title, "rationale": rationale, "flow": f.to_dict()}
+        return {"title": title, "rationale": rationale, "flow": f.to_dict(), "stage_map": stage_map}
 
 
 def layout(nodes: list[dict[str, Any]], edges: list[dict[str, str]], dx: float = 270.0, dy: float = 150.0):

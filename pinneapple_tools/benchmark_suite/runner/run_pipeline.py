@@ -84,7 +84,7 @@ import logging
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 
@@ -128,7 +128,7 @@ def _configure_logging(level: int = logging.INFO) -> None:
 # YAML loading helper (mirrors run_arena_yaml)
 # ---------------------------------------------------------------------------
 
-def _load_config(config_path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[str, Any]:
+def _load_config(config_path_or_dict: str | Path | dict[str, Any]) -> dict[str, Any]:
     """Accept a file path (str/Path) or a pre-built dict."""
     if isinstance(config_path_or_dict, dict):
         return config_path_or_dict
@@ -154,7 +154,7 @@ def _load_config(config_path_or_dict: Union[str, Path, Dict[str, Any]]) -> Dict[
 # Step helpers
 # ---------------------------------------------------------------------------
 
-def _step_geometry(geo_cfg: Dict[str, Any]) -> Any:
+def _step_geometry(geo_cfg: dict[str, Any]) -> Any:
     """Step 1 — load or generate a geometry/mesh object.
 
     Parameters
@@ -172,7 +172,7 @@ def _step_geometry(geo_cfg: Dict[str, Any]) -> Any:
         return None
 
     geo_type = str(geo_cfg.get("type", "rectangle")).lower()
-    params: Dict[str, Any] = dict(geo_cfg.get("params", {}))
+    params: dict[str, Any] = dict(geo_cfg.get("params", {}))
 
     log.info("Building geometry: type=%s  params=%s", geo_type, params)
     t0 = time.perf_counter()
@@ -211,11 +211,11 @@ def _step_geometry(geo_cfg: Dict[str, Any]) -> Any:
 
 
 def _step_solver(
-    solver_cfg: Dict[str, Any],
+    solver_cfg: dict[str, Any],
     problem_spec: Any,
     geometry: Any,
     out_dir: Path,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Step 2 — run the physical solver to obtain ground-truth field data.
 
     Parameters
@@ -239,7 +239,7 @@ def _step_solver(
         return {}
 
     backend = str(solver_cfg.get("backend", "builtin")).lower()
-    params: Dict[str, Any] = dict(solver_cfg.get("params", {}))
+    params: dict[str, Any] = dict(solver_cfg.get("params", {}))
 
     log.info("Running solver: backend=%s", backend)
     t0 = time.perf_counter()
@@ -247,7 +247,7 @@ def _step_solver(
     solver_out_dir = out_dir / "solver_output"
     solver_out_dir.mkdir(parents=True, exist_ok=True)
 
-    solver_data: Dict[str, np.ndarray] = {}
+    solver_data: dict[str, np.ndarray] = {}
 
     if backend == "openfoam":
         try:
@@ -304,11 +304,11 @@ def _step_solver(
 
 
 def _step_dataset(
-    dataset_cfg: Dict[str, Any],
+    dataset_cfg: dict[str, Any],
     problem_spec: Any,
-    solver_data: Dict[str, np.ndarray],
+    solver_data: dict[str, np.ndarray],
     geometry: Any,
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Step 3 — build train and validation batch dicts.
 
     Parameters
@@ -341,7 +341,7 @@ def _step_dataset(
     )
     t0 = time.perf_counter()
 
-    batch_np: Dict[str, np.ndarray] = {}
+    batch_np: dict[str, np.ndarray] = {}
 
     # Prefer the solver-based dataset generator
     try:
@@ -390,8 +390,8 @@ def _step_dataset(
                 break
 
     # Train / val split on collocation points
-    train_batch: Dict[str, Any] = {}
-    val_batch: Dict[str, Any] = {}
+    train_batch: dict[str, Any] = {}
+    val_batch: dict[str, Any] = {}
 
     for key, arr in batch_np.items():
         if not isinstance(arr, np.ndarray) or arr.ndim < 1:
@@ -417,26 +417,26 @@ def _step_dataset(
 class _SingleBatchDataset(torch.utils.data.Dataset if _HAS_TORCH else object):
     """Wraps a single dict-batch so it can be used with a DataLoader."""
 
-    def __init__(self, batch: Dict[str, Any]):
+    def __init__(self, batch: dict[str, Any]):
         self._batch = batch
 
     def __len__(self) -> int:
         return 1
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         return self._batch
 
 
-def _dict_collate(samples: List[Any]) -> Any:
+def _dict_collate(samples: list[Any]) -> Any:
     return samples[0]
 
 
 def _numpy_batch_to_torch(
-    batch: Dict[str, Any],
-    device: "torch.device",
-) -> Dict[str, Any]:
+    batch: dict[str, Any],
+    device: torch.device,
+) -> dict[str, Any]:
     """Convert numpy arrays in a batch dict to torch tensors on *device*."""
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     for k, v in batch.items():
         if isinstance(v, np.ndarray):
             out[k] = torch.from_numpy(v.astype(np.float32)).to(device)
@@ -448,12 +448,12 @@ def _numpy_batch_to_torch(
 
 
 def _step_train_model(
-    model_cfg: Dict[str, Any],
+    model_cfg: dict[str, Any],
     problem_spec: Any,
-    train_batch: Dict[str, Any],
-    val_batch: Dict[str, Any],
+    train_batch: dict[str, Any],
+    val_batch: dict[str, Any],
     out_dir: Path,
-) -> Tuple[Any, Dict[str, Any]]:
+) -> tuple[Any, dict[str, Any]]:
     """Step 4 — build and train a single surrogate model.
 
     Parameters
@@ -477,9 +477,9 @@ def _step_train_model(
 
     model_id = str(model_cfg.get("id", "model_0"))
     model_type = str(model_cfg.get("type", "VanillaPINN"))
-    model_params: Dict[str, Any] = dict(model_cfg.get("params", {}))
-    train_cfg: Dict[str, Any] = dict(model_cfg.get("train", {}))
-    physics_weights: Dict[str, Any] = dict(model_cfg.get("physics_weights", {}))
+    model_params: dict[str, Any] = dict(model_cfg.get("params", {}))
+    train_cfg: dict[str, Any] = dict(model_cfg.get("train", {}))
+    physics_weights: dict[str, Any] = dict(model_cfg.get("physics_weights", {}))
 
     run_dir = out_dir / "runs" / model_id
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -569,7 +569,7 @@ def _step_train_model(
     )
 
     # Optionally attach AMP / GradAccum if the Trainer supports them
-    trainer_kwargs: Dict[str, Any] = {"model": model, "loss_fn": loss_fn}
+    trainer_kwargs: dict[str, Any] = {"model": model, "loss_fn": loss_fn}
     if metrics_obj is not None:
         trainer_kwargs["metrics"] = metrics_obj
 
@@ -646,9 +646,9 @@ def _step_train_model(
 def _step_inference(
     model: Any,
     problem_spec: Any,
-    infer_cfg: Dict[str, Any],
-    device: "torch.device",
-) -> Optional[Any]:
+    infer_cfg: dict[str, Any],
+    device: torch.device,
+) -> Any | None:
     """Step 5 — run grid inference and return an InferenceResult.
 
     Parameters
@@ -682,7 +682,7 @@ def _step_inference(
 
     coord_names = tuple(problem_spec.coords)
     fields = list(problem_spec.fields)
-    domain_bounds: Dict[str, Any] = dict(getattr(problem_spec, "domain_bounds", {}))
+    domain_bounds: dict[str, Any] = dict(getattr(problem_spec, "domain_bounds", {}))
 
     spatial_coords = [c for c in coord_names if c != "t"]
 
@@ -737,10 +737,10 @@ def _step_inference(
 
 def _step_metrics(
     model: Any,
-    val_batch: Dict[str, Any],
-    device: "torch.device",
-    metric_names: List[str],
-) -> Dict[str, float]:
+    val_batch: dict[str, Any],
+    device: torch.device,
+    metric_names: list[str],
+) -> dict[str, float]:
     """Step 6 — compute scalar evaluation metrics on the validation set.
 
     Parameters
@@ -758,7 +758,7 @@ def _step_metrics(
     -------
     Dict of metric_name → float value.
     """
-    result: Dict[str, float] = {}
+    result: dict[str, float] = {}
 
     torch_val = _numpy_batch_to_torch(val_batch, device)
     x_data = torch_val.get("x_data") or torch_val.get("x")
@@ -823,10 +823,10 @@ def _step_metrics(
 
 
 def _step_report(
-    all_results: Dict[str, Any],
-    cfg: Dict[str, Any],
+    all_results: dict[str, Any],
+    cfg: dict[str, Any],
     out_dir: Path,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Step 7 — generate plots, field comparisons, and a summary report.
 
     Parameters
@@ -842,15 +842,15 @@ def _step_report(
     -------
     Dict of description → file path for all generated artefacts.
     """
-    report_cfg: Dict[str, Any] = dict(cfg.get("report", {}))
-    plot_cfgs: List[Dict[str, Any]] = list(report_cfg.get("plots", []))
+    report_cfg: dict[str, Any] = dict(cfg.get("report", {}))
+    plot_cfgs: list[dict[str, Any]] = list(report_cfg.get("plots", []))
     fmt = str(report_cfg.get("format", "json")).lower()
     save_model_flag = bool(report_cfg.get("save_model", True))
 
     plots_dir = out_dir / "plots"
     plots_dir.mkdir(parents=True, exist_ok=True)
 
-    artefacts: Dict[str, str] = {}
+    artefacts: dict[str, str] = {}
 
     # ------------------------------------------------------------------
     # Visualizations via pinneapple_inference
@@ -908,7 +908,7 @@ def _step_report(
     # ------------------------------------------------------------------
     # Summary JSON (always written)
     # ------------------------------------------------------------------
-    summary: Dict[str, Any] = {
+    summary: dict[str, Any] = {
         "pipeline_name": cfg.get("pipeline", {}).get("name", "pipeline"),
         "models": {},
         "artefacts": artefacts,
@@ -944,10 +944,10 @@ def _step_report(
 
 def _build_model_instance(
     model_type: str,
-    model_params: Dict[str, Any],
+    model_params: dict[str, Any],
     in_dim: int,
     out_dim: int,
-) -> "nn.Module":
+) -> nn.Module:
     """Build a model — tries PINNFactory, then ModelRegistry, then built-in MLP."""
     # 1. PINNFactory
     try:
@@ -978,7 +978,7 @@ def _build_model_instance(
         "Using built-in MLP fallback for model type '%s' (in=%d, out=%d).",
         model_type, in_dim, out_dim,
     )
-    hidden: List[int] = list(model_params.get("hidden", [64, 64, 64, 64]))
+    hidden: list[int] = list(model_params.get("hidden", [64, 64, 64, 64]))
     activation: str = str(model_params.get("activation", "tanh")).lower()
     act_map = {
         "tanh": nn.Tanh,
@@ -989,7 +989,7 @@ def _build_model_instance(
     }
     act_cls = act_map.get(activation, nn.Tanh)
     dims = [in_dim] + hidden + [out_dim]
-    layers: List[nn.Module] = []
+    layers: list[nn.Module] = []
     for i in range(len(dims) - 1):
         layers.append(nn.Linear(dims[i], dims[i + 1]))
         if i < len(dims) - 2:
@@ -999,7 +999,7 @@ def _build_model_instance(
 
 def _build_loss_fn(
     problem_spec: Any,
-    physics_weights: Dict[str, Any],
+    physics_weights: dict[str, Any],
 ):
     """Build a physics-informed + supervised loss function."""
     # Try the project loss builder
@@ -1024,7 +1024,7 @@ def _build_loss_fn(
             physics_loss_fn=physics_loss_fn,
         )
 
-        def _project_loss_fn(model: nn.Module, y_hat: Any, batch: Dict[str, Any]):
+        def _project_loss_fn(model: nn.Module, y_hat: Any, batch: dict[str, Any]):
             return loss_obj(model, y_hat, batch)
 
         return _project_loss_fn
@@ -1041,9 +1041,9 @@ def _build_loss_fn(
     def _basic_pinn_loss(
         model: nn.Module,
         y_hat: Any,
-        batch: Dict[str, Any],
-    ) -> Dict[str, "torch.Tensor"]:
-        losses: Dict[str, torch.Tensor] = {}
+        batch: dict[str, Any],
+    ) -> dict[str, torch.Tensor]:
+        losses: dict[str, torch.Tensor] = {}
         dev = next(model.parameters()).device
 
         def _get_pred(x: torch.Tensor) -> torch.Tensor:
@@ -1087,10 +1087,10 @@ def _build_loss_fn(
 
 
 def _write_html_report(
-    summary: Dict[str, Any],
-    artefacts: Dict[str, str],
+    summary: dict[str, Any],
+    artefacts: dict[str, str],
     out_dir: Path,
-) -> Optional[Path]:
+) -> Path | None:
     """Write a minimal HTML summary report and return its path."""
     rows = ""
     for model_id, mdata in summary.get("models", {}).items():
@@ -1143,10 +1143,10 @@ td,th{{border:1px solid #ccc;padding:.4rem .8rem}}th{{background:#f0f0f0}}</styl
 # ---------------------------------------------------------------------------
 
 def run_full_pipeline(
-    config_path_or_dict: Union[str, Path, Dict[str, Any]],
+    config_path_or_dict: str | Path | dict[str, Any],
     *,
-    out_dir: Optional[Union[str, Path]] = None,
-) -> Dict[str, Any]:
+    out_dir: str | Path | None = None,
+) -> dict[str, Any]:
     """Run the complete end-to-end pipeline.
 
     Stages
@@ -1189,7 +1189,7 @@ def run_full_pipeline(
     # ------------------------------------------------------------------
     cfg = _load_config(config_path_or_dict)
 
-    pipeline_cfg: Dict[str, Any] = dict(cfg.get("pipeline", {}))
+    pipeline_cfg: dict[str, Any] = dict(cfg.get("pipeline", {}))
     pipeline_name = str(pipeline_cfg.get("name", "pipeline"))
 
     if out_dir is None:
@@ -1200,15 +1200,15 @@ def run_full_pipeline(
     log.info("========== Pipeline: %s ==========", pipeline_name)
     log.info("Output directory: %s", out_dir)
 
-    timing: Dict[str, float] = {}
-    all_model_results: Dict[str, Dict[str, Any]] = {}
+    timing: dict[str, float] = {}
+    all_model_results: dict[str, dict[str, Any]] = {}
     success = True
 
     # ------------------------------------------------------------------
     # Load problem spec
     # ------------------------------------------------------------------
     problem_spec = None
-    problem_cfg: Dict[str, Any] = dict(cfg.get("problem", {}))
+    problem_cfg: dict[str, Any] = dict(cfg.get("problem", {}))
     if problem_cfg:
         try:
             from pinneapple_physics.pde_environment.presets.registry import get_preset
@@ -1226,7 +1226,7 @@ def run_full_pipeline(
     # Step 1: Geometry
     # ------------------------------------------------------------------
     t0 = time.perf_counter()
-    geo_cfg: Dict[str, Any] = dict(cfg.get("geometry", {}))
+    geo_cfg: dict[str, Any] = dict(cfg.get("geometry", {}))
     geometry = None
     try:
         geometry = _step_geometry(geo_cfg)
@@ -1239,8 +1239,8 @@ def run_full_pipeline(
     # Step 2: Solver
     # ------------------------------------------------------------------
     t0 = time.perf_counter()
-    solver_cfg: Dict[str, Any] = dict(cfg.get("solver", {}))
-    solver_data: Dict[str, np.ndarray] = {}
+    solver_cfg: dict[str, Any] = dict(cfg.get("solver", {}))
+    solver_data: dict[str, np.ndarray] = {}
     try:
         solver_data = _step_solver(solver_cfg, problem_spec, geometry, out_dir)
     except Exception as exc:
@@ -1252,9 +1252,9 @@ def run_full_pipeline(
     # Step 3: Dataset
     # ------------------------------------------------------------------
     t0 = time.perf_counter()
-    dataset_cfg: Dict[str, Any] = dict(cfg.get("dataset", {}))
-    train_batch: Dict[str, Any] = {}
-    val_batch: Dict[str, Any] = {}
+    dataset_cfg: dict[str, Any] = dict(cfg.get("dataset", {}))
+    train_batch: dict[str, Any] = {}
+    val_batch: dict[str, Any] = {}
     try:
         train_batch, val_batch = _step_dataset(dataset_cfg, problem_spec, solver_data, geometry)
     except Exception as exc:
@@ -1265,9 +1265,9 @@ def run_full_pipeline(
     # ------------------------------------------------------------------
     # Steps 4–6: Per-model train → infer → metrics
     # ------------------------------------------------------------------
-    models_cfg: List[Dict[str, Any]] = list(cfg.get("models", []))
-    metric_names: List[str] = list(cfg.get("metrics", ["mse", "rmse", "rel_l2", "r2", "max_error"]))
-    infer_cfg: Dict[str, Any] = dict(cfg.get("inference", {}))
+    models_cfg: list[dict[str, Any]] = list(cfg.get("models", []))
+    metric_names: list[str] = list(cfg.get("metrics", ["mse", "rmse", "rel_l2", "r2", "max_error"]))
+    infer_cfg: dict[str, Any] = dict(cfg.get("inference", {}))
 
     model_iter = models_cfg
     if _HAS_TQDM:
@@ -1277,7 +1277,7 @@ def run_full_pipeline(
         model_id = str(model_entry.get("id", f"model_{len(all_model_results)}"))
         log.info("--- Model: %s ---", model_id)
 
-        model_result: Dict[str, Any] = {
+        model_result: dict[str, Any] = {
             "model_id": model_id,
             "history": {},
             "metrics": {},
@@ -1349,7 +1349,7 @@ def run_full_pipeline(
     # Step 7: Report
     # ------------------------------------------------------------------
     t0 = time.perf_counter()
-    artefacts: Dict[str, str] = {}
+    artefacts: dict[str, str] = {}
     try:
         artefacts = _step_report(all_model_results, cfg, out_dir)
     except Exception as exc:

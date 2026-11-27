@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, List, Optional, Literal, Tuple
+from typing import Any, Literal
 from datetime import datetime
 
 
@@ -44,12 +44,12 @@ class Risk:
 
 @dataclass
 class DataSpec:
-    sources: List[str] = field(default_factory=list)
+    sources: list[str] = field(default_factory=list)
     format: str = ""
     sampling: str = ""  # e.g. "1Hz", "10min", "irregular"
-    variables_observed: List[str] = field(default_factory=list)
-    target_variables: List[str] = field(default_factory=list)
-    known_quality_issues: List[str] = field(default_factory=list)
+    variables_observed: list[str] = field(default_factory=list)
+    target_variables: list[str] = field(default_factory=list)
+    known_quality_issues: list[str] = field(default_factory=list)
     missingness: str = ""
     train_span: str = ""
     val_split_policy: str = ""
@@ -58,48 +58,48 @@ class DataSpec:
 
 @dataclass
 class PhysicsSpec:
-    governing_equations: List[str] = field(default_factory=list)
-    boundary_conditions: List[str] = field(default_factory=list)
-    initial_conditions: List[str] = field(default_factory=list)
-    constraints: List[str] = field(default_factory=list)
-    parameters_known: List[str] = field(default_factory=list)
-    parameters_unknown: List[str] = field(default_factory=list)
-    units: Dict[str, str] = field(default_factory=dict)
+    governing_equations: list[str] = field(default_factory=list)
+    boundary_conditions: list[str] = field(default_factory=list)
+    initial_conditions: list[str] = field(default_factory=list)
+    constraints: list[str] = field(default_factory=list)
+    parameters_known: list[str] = field(default_factory=list)
+    parameters_unknown: list[str] = field(default_factory=list)
+    units: dict[str, str] = field(default_factory=dict)
     # CFD-specific, both optional/free-text (no fixed enumerated set the way
     # TaskType/RiskLevel/GapSeverity are): unset means "not elicited yet",
     # matching the non-invention policy's treatment of other unset fields.
-    turbulence_model: Optional[str] = None  # e.g. "RANS k-omega-SST", "LES WALE"
-    numerical_method: Optional[str] = None  # e.g. "LBM", "finite volume", "finite element"
+    turbulence_model: str | None = None  # e.g. "RANS k-omega-SST", "LES WALE"
+    numerical_method: str | None = None  # e.g. "LBM", "finite volume", "finite element"
 
 
 @dataclass
 class GeometrySpec:
     domain: str = ""
     representation: str = ""
-    sensors: List[str] = field(default_factory=list)
+    sensors: list[str] = field(default_factory=list)
     coordinate_system: str = ""
     # CFD/CAD-specific, all optional and defaulting to unset (None) so the
     # non-invention policy (see policy.py) keeps treating an un-elicited
     # value as "not specified" rather than a guessed default.
-    cad_format: Optional[str] = None  # e.g. "stl", "step"
-    voxel_resolution: Optional[Tuple[int, int, int]] = None
-    aoa_sweep_deg: Optional[List[float]] = None  # angle-of-attack sweep values, degrees
+    cad_format: str | None = None  # e.g. "stl", "step"
+    voxel_resolution: tuple[int, int, int] | None = None
+    aoa_sweep_deg: list[float] | None = None  # angle-of-attack sweep values, degrees
 
 
 @dataclass
 class ValidationSpec:
-    primary_metrics: List[str] = field(default_factory=list)
+    primary_metrics: list[str] = field(default_factory=list)
     acceptance_criteria: str = ""
-    robustness_tests: List[str] = field(default_factory=list)
-    ood_scenarios: List[str] = field(default_factory=list)
+    robustness_tests: list[str] = field(default_factory=list)
+    ood_scenarios: list[str] = field(default_factory=list)
 
 
 @dataclass
 class DeploymentSpec:
     environment: str = ""
-    latency_budget_ms: Optional[int] = None
+    latency_budget_ms: int | None = None
     update_policy: str = ""
-    monitoring: List[str] = field(default_factory=list)
+    monitoring: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -107,7 +107,7 @@ class ConstraintsSpec:
     hardware: str = ""
     max_training_time: str = ""
     interpretability: str = ""
-    compliance: List[str] = field(default_factory=list)
+    compliance: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -116,8 +116,8 @@ class ProblemSpec:
     goal: str = ""
     task_type: TaskType = "other"
 
-    inputs: List[str] = field(default_factory=list)
-    outputs: List[str] = field(default_factory=list)
+    inputs: list[str] = field(default_factory=list)
+    outputs: list[str] = field(default_factory=list)
 
     horizon: str = ""
     input_window: str = ""
@@ -132,14 +132,14 @@ class ProblemSpec:
     deployment: DeploymentSpec = field(default_factory=DeploymentSpec)
     constraints: ConstraintsSpec = field(default_factory=ConstraintsSpec)
 
-    assumptions: List[Assumption] = field(default_factory=list)
-    risks: List[Risk] = field(default_factory=list)
+    assumptions: list[Assumption] = field(default_factory=list)
+    risks: list[Risk] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
-def uses_pinn_approach(spec: "ProblemSpec") -> bool:
+def uses_pinn_approach(spec: ProblemSpec) -> bool:
     """Whether ``spec`` should be solved with a PDE-residual PINN pipeline.
 
     Single source of truth shared by the plan-text builder
@@ -163,7 +163,7 @@ _CFD_KEYWORDS = (
 )
 
 
-def uses_cfd_approach(spec: "ProblemSpec") -> bool:
+def uses_cfd_approach(spec: ProblemSpec) -> bool:
     """Whether ``spec`` describes an external-aerodynamics/CFD problem that
     should get the LBM/turbulence-closure/vortex-postprocessing plan
     (``knowledge.mapping.build_plan_cfd_first``) instead of generic PINN/FNO
@@ -197,17 +197,17 @@ class Gap:
 class PlanStep:
     title: str
     why: str
-    actions: List[str] = field(default_factory=list)
-    pinneapple_modules: List[str] = field(default_factory=list)
-    exit_criteria: List[str] = field(default_factory=list)
+    actions: list[str] = field(default_factory=list)
+    pinneapple_modules: list[str] = field(default_factory=list)
+    exit_criteria: list[str] = field(default_factory=list)
 
 
 @dataclass
 class Plan:
     recommended_approach: str = ""
-    alternatives: List[str] = field(default_factory=list)
-    steps: List[PlanStep] = field(default_factory=list)
-    go_no_go: List[str] = field(default_factory=list)
+    alternatives: list[str] = field(default_factory=list)
+    steps: list[PlanStep] = field(default_factory=list)
+    go_no_go: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -249,22 +249,22 @@ class PinneappleSpec:
     """
     pde_kind: str = "custom"
     pde_confidence: float = 0.0
-    coords: List[str] = field(default_factory=list)
-    fields: List[str] = field(default_factory=list)
-    pde_params: Dict[str, Any] = field(default_factory=dict)
+    coords: list[str] = field(default_factory=list)
+    fields: list[str] = field(default_factory=list)
+    pde_params: dict[str, Any] = field(default_factory=dict)
 
-    environment_kwargs: Dict[str, Any] = field(default_factory=dict)
+    environment_kwargs: dict[str, Any] = field(default_factory=dict)
 
     model_name: str = "VanillaPINN"
-    model_kwargs: Dict[str, Any] = field(default_factory=dict)
+    model_kwargs: dict[str, Any] = field(default_factory=dict)
 
-    train_config_kwargs: Dict[str, Any] = field(default_factory=dict)
+    train_config_kwargs: dict[str, Any] = field(default_factory=dict)
 
-    collocation_kwargs: Dict[str, Any] = field(default_factory=dict)
+    collocation_kwargs: dict[str, Any] = field(default_factory=dict)
 
     pipeline_code: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "pde_kind": self.pde_kind,
             "pde_confidence": self.pde_confidence,
@@ -283,7 +283,7 @@ class PinneappleSpec:
 @dataclass
 class DesignReport:
     spec: ProblemSpec
-    gaps: List[Gap]
+    gaps: list[Gap]
     plan: Plan
-    pinneapple_spec: Optional["PinneappleSpec"] = None
+    pinneapple_spec: PinneappleSpec | None = None
     created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")

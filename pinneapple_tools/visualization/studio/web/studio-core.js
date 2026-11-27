@@ -3,20 +3,33 @@
 // No import of three.js: the functions that build three.js objects take it as their first argument, so the pure
 // part runs in node (tests/js/studio_core.test.mjs).
 
-// CFD convention: jet, blue = low, red = high. Stops: [position 0..1, [r, g, b] 0..255].
-export const JET = [[0, [0, 0, 143]], [0.125, [0, 0, 255]], [0.375, [0, 255, 255]], [0.625, [255, 255, 0]], [0.875, [255, 0, 0]], [1, [128, 0, 0]]];
+// No colour is written down in this file. Every scale comes from the house theme, generated into ./theme.js from
+// pinneapple_tools/visualization/theme.json by scripts/build_theme.py: the studio viewer, the apps and the
+// matplotlib figures then draw the same colours, and a palette change is one edit in one file (#65).
+// Stops: [position 0..1, [r, g, b] 0..255].
+import { THEME } from "./theme.js";
+
+const stops = (name) => THEME.colormaps[name].stops;
+
+// CFD convention: jet, blue = low, red = high.
+export const JET = stops("jet");
 
 // diverging, neutral midpoint (use a range symmetric about zero): Moreland's coolwarm, plain blue-white-red and
-// ColorBrewer RdBu reversed; the same stops as pinneapple_tools.visualization.studio.compose
-export const COOLWARM = [[0, [59, 76, 192]], [0.25, [141, 176, 254]], [0.5, [221, 221, 221]], [0.75, [244, 154, 123]], [1, [180, 4, 38]]];
-export const BWR = [[0, [0, 0, 255]], [0.5, [255, 255, 255]], [1, [255, 0, 0]]];
-export const RDBU = [[0, [33, 102, 172]], [0.25, [103, 169, 207]], [0.5, [247, 247, 247]], [0.75, [239, 138, 98]], [1, [178, 24, 43]]];
+// ColorBrewer RdBu reversed; the same stops as pinneapple_tools.visualization.studio.colormap
+export const COOLWARM = stops("coolwarm");
+export const BWR = stops("bwr");
+export const RDBU = stops("rdbu");
 
 // perceptual, black to cream: reads on a dark background and survives being printed small (matplotlib magma)
-export const MAGMA = [[0, [0, 0, 4]], [0.1, [14, 9, 44]], [0.2, [50, 15, 84]], [0.3, [89, 21, 105]], [0.4, [131, 38, 105]], [0.5, [177, 57, 89]], [0.6, [221, 88, 66]], [0.7, [253, 138, 53]], [0.8, [254, 191, 74]], [0.9, [252, 233, 145]], [1, [252, 253, 191]]];
+export const MAGMA = stops("magma");
 
 // errors: sequential, white = no error, dark red = largest (YlOrRd); used for |prediction - reference|
-export const ERR = [[0, [255, 255, 229]], [0.2, [255, 237, 160]], [0.4, [254, 178, 76]], [0.6, [252, 78, 42]], [0.8, [189, 0, 38]], [1, [103, 0, 13]]];
+export const ERR = stops("err");
+
+// the maps the 2-D figures use, so a field has the same colour in the paper and in the browser
+export const CFD_SEQUENTIAL = stops("cfd_sequential");
+export const CFD_DIVERGING = stops("cfd_diverging");
+export const CFD_CYCLIC = stops("cfd_cyclic");
 
 export function ramp(stops, t) {
   t = Number.isFinite(t) ? Math.min(1, Math.max(0, t)) : 0;
@@ -215,9 +228,11 @@ export function hudLine(h, v) {
   return `${h.label}: ${s}${h.unit ? " " + h.unit : ""}`;
 }
 
-// colour map stops by name ("jet", "coolwarm", "bwr", "rdbu", "magma"; anything else: jet)
-export const CMAPS = { jet: JET, coolwarm: COOLWARM, bwr: BWR, rdbu: RDBU, magma: MAGMA };
-export const cmapStops = (name) => CMAPS[name] || JET;
+// colour map stops by name ("jet", "coolwarm", "bwr", "rdbu", "magma", "err", and the house "cfd_*"; anything else
+// falls back to the house sequential map, so a field never silently becomes a rainbow)
+export const CMAPS = { jet: JET, coolwarm: COOLWARM, bwr: BWR, rdbu: RDBU, magma: MAGMA, err: ERR,
+  cfd_sequential: CFD_SEQUENTIAL, cfd_diverging: CFD_DIVERGING, cfd_cyclic: CFD_CYCLIC };
+export const cmapStops = (name) => CMAPS[name] || CFD_SEQUENTIAL;
 
 // first point index of a trail shown at frame `last` (its last `seconds`; null: all) and the opacity factor of point
 // i: 1 at the current time t, falling linearly to 0 at the tail end when `fade`

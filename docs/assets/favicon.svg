@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#262626"/>
+  <!-- The small-size cut of the mark. At 16 px the artwork's honeycomb and its inner nodes
+       turn to noise, so the crown keeps the silhouette as solid leaves and the fruit keeps
+       the outline and the three bands. The orange is lifted one step (#c2410a): #a23a00
+       disappears on this surface at this size. -->
+  <g fill="#0081be">
+    <path d="M16 2.9c1.15 2.6 1.6 5.3 1.4 8.2h-2.8c-.2-2.9.25-5.6 1.4-8.2Z"/>
+    <path d="M9.6 5.4c2.2 1.8 4.1 4.1 5.4 6.7l-2.4 1.25c-1.6-2.6-2.7-5.3-3-7.9Z"/>
+    <path d="M22.4 5.4c-.3 2.6-1.4 5.3-3 7.9l-2.4-1.25c1.3-2.6 3.2-4.9 5.4-6.7Z"/>
+  </g>
+  <ellipse cx="16" cy="21.2" rx="7" ry="8.1" fill="none" stroke="#c2410a" stroke-width="1.7"/>
+  <g fill="none" stroke="#c2410a" stroke-width="1.2" stroke-linecap="round">
+    <path d="M10.1 18.4h11.8"/>
+    <path d="M9.8 22.4h12.4"/>
+    <path d="M10.7 25.9h10.6"/>
+  </g>
+</svg>

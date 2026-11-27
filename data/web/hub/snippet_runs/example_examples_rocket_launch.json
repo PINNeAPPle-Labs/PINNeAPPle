@@ -1,0 +1,12 @@
+{
+ "code_hash": "480a80303a231fbb",
+ "figures": [],
+ "id": "example:examples/rocket_launch",
+ "ok": true,
+ "recorded": "2026-11-14",
+ "seconds": 2.2,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ascent to orbit: 200 kg to a 500 km near-circular orbit from Tanegashima | flight dynamics | curated\nperigee_km 487.041 km\napogee_km 500.565 km\neccentricity 0.000985 \ninclination_deg 30.4008 deg\norbit_period_min 94.34 min",
+ "timed_out": false
+}

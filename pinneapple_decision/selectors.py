@@ -18,11 +18,11 @@ a different axis, so it is not wrapped here.
 """
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Sequence, Tuple
+from collections.abc import Callable, Sequence
 
 from .schema import DecisionState, OptionInfo, PhysicsChoice
 
-Rules = Callable[[DecisionState, Sequence[str]], Tuple[Dict[str, float], List[str]]]
+Rules = Callable[[DecisionState, Sequence[str]], tuple[dict[str, float], list[str]]]
 
 STRUCTURED = ("structured_grid",)
 MESH_FREE = ("analytic", "point_cloud", "structured_grid", "unstructured_mesh")
@@ -85,7 +85,7 @@ def _arch():
         return importlib.import_module(_ARCH_MODULE)
 
 
-def _penalize_failed(state: DecisionState, choice: str, scores: Dict[str, float], why: List[str]) -> None:
+def _penalize_failed(state: DecisionState, choice: str, scores: dict[str, float], why: list[str]) -> None:
     for opt in state.failed_options(choice):
         if opt in scores:
             scores[opt] += _FAILED_PENALTY
@@ -100,7 +100,7 @@ class ModelSelector:
     default_constraints = ("must_support_geometry", "within_budget", "commercial_use_allowed")
 
     @staticmethod
-    def option_info() -> Dict[str, OptionInfo]:
+    def option_info() -> dict[str, OptionInfo]:
         arch = _arch()
         out = {}
         for key, c in {**arch.ARCHITECTURE_CATALOG, **arch.EXTRA_CATALOG}.items():
@@ -119,7 +119,7 @@ class ModelSelector:
         return out
 
     @classmethod
-    def choice(cls, options: Optional[Sequence[str]] = None, constraints: Optional[Sequence] = None) -> PhysicsChoice:
+    def choice(cls, options: Sequence[str] | None = None, constraints: Sequence | None = None) -> PhysicsChoice:
         info = cls.option_info()
         opts = list(options or info)
         return PhysicsChoice(cls.name, cls.question, opts,
@@ -127,7 +127,7 @@ class ModelSelector:
                              {o: info[o] for o in opts if o in info})
 
     @staticmethod
-    def rules(state: DecisionState, options: Sequence[str]) -> Tuple[Dict[str, float], List[str]]:
+    def rules(state: DecisionState, options: Sequence[str]) -> tuple[dict[str, float], list[str]]:
         recommend_architecture = _arch().recommend_architecture
         p = state.problem
         rec = recommend_architecture(
@@ -201,14 +201,14 @@ class TrainingStrategySelector:
     default_constraints = ("requires_implementation", "within_budget")
 
     @classmethod
-    def choice(cls, options: Optional[Sequence[str]] = None, constraints: Optional[Sequence] = None) -> PhysicsChoice:
+    def choice(cls, options: Sequence[str] | None = None, constraints: Sequence | None = None) -> PhysicsChoice:
         opts = list(options or _TRAINING_INFO)
         return PhysicsChoice(cls.name, cls.question, opts,
                              list(cls.default_constraints if constraints is None else constraints),
                              {o: _TRAINING_INFO[o] for o in opts if o in _TRAINING_INFO})
 
     @staticmethod
-    def rules(state: DecisionState, options: Sequence[str]) -> Tuple[Dict[str, float], List[str]]:
+    def rules(state: DecisionState, options: Sequence[str]) -> tuple[dict[str, float], list[str]]:
         p, tags = state.problem, set(state.tags())
         base = {"uniform_sampling": 0.5, "resampling": 0.8, "adaptive_sampling": 0.5,
                 "causal_training": 0.0, "curriculum": 0.0, "loss_weighting": 0.3}
@@ -265,17 +265,17 @@ class ValidationStrategySelector:
     default_constraints = ("requires_implementation",)
 
     @classmethod
-    def choice(cls, options: Optional[Sequence[str]] = None, constraints: Optional[Sequence] = None) -> PhysicsChoice:
+    def choice(cls, options: Sequence[str] | None = None, constraints: Sequence | None = None) -> PhysicsChoice:
         opts = list(options or _VALIDATION_INFO)
         return PhysicsChoice(cls.name, cls.question, opts,
                              list(cls.default_constraints if constraints is None else constraints),
                              {o: _VALIDATION_INFO[o] for o in opts if o in _VALIDATION_INFO})
 
     @staticmethod
-    def rules(state: DecisionState, options: Sequence[str]) -> Tuple[Dict[str, float], List[str]]:
+    def rules(state: DecisionState, options: Sequence[str]) -> tuple[dict[str, float], list[str]]:
         p = state.problem
         scores = {o: 0.0 for o in options}
-        why: List[str] = []
+        why: list[str] = []
 
         def bump(opt: str, v: float, reason: str) -> None:
             if opt in scores:
@@ -317,13 +317,13 @@ class FactQuestion:
     options = ("yes", "no")
 
     def __init__(self, name: str, question: str, fact: str,
-                 hints: Optional[Callable[[DecisionState], List[Tuple[str, float, str]]]] = None):
+                 hints: Callable[[DecisionState], list[tuple[str, float, str]]] | None = None):
         self.name, self.question, self.fact, self.hints = name, question, fact, hints
 
-    def choice(self, options: Optional[Sequence[str]] = None, constraints: Optional[Sequence] = None) -> PhysicsChoice:
+    def choice(self, options: Sequence[str] | None = None, constraints: Sequence | None = None) -> PhysicsChoice:
         return PhysicsChoice(self.name, self.question, list(options or self.options), list(constraints or ()))
 
-    def rules(self, state: DecisionState, options: Sequence[str]) -> Tuple[Dict[str, float], List[str]]:
+    def rules(self, state: DecisionState, options: Sequence[str]) -> tuple[dict[str, float], list[str]]:
         scores = {o: 0.0 for o in options}
         why = [f"fact {self.fact!r} is unknown for this problem: this is a decision under uncertainty, "
                "not a fact"]
@@ -336,7 +336,7 @@ class FactQuestion:
         return scores, why
 
 
-def _analytical_hints(state: DecisionState) -> List[Tuple[str, float, str]]:
+def _analytical_hints(state: DecisionState) -> list[tuple[str, float, str]]:
     if state.problem.get("geometry_complexity") == "complex":
         return [("no", 1.0, "closed-form solutions are known for canonical domains, not for body-fitted "
                              "geometries (airfoil, vehicle, CAD)")]

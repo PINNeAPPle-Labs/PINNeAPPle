@@ -23,7 +23,9 @@
   "quick": false,
   "sweep": 20
  },
- "scripts": [],
+ "scripts": [
+  "freecad_openfoam.py"
+ ],
  "metrics": [
   {
    "name": "pipe_bend_straight",

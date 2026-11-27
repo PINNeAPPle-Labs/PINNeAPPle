@@ -76,7 +76,9 @@ def main() -> dict:
 def figure(out: dict, ds, board) -> None:
     import matplotlib.pyplot as plt
 
-    plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False})
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
+
     labels = {"cogging_pkpk_3d": "cogging pk-pk, 3-D (N m)", "linkage_3d": "tooth flux linkage, 3-D (Wb)",
               "ratio_cogging": "cogging, quasi-3D / 3-D", "ratio_linkage": "flux linkage, quasi-3D / 3-D"}
     fig, axs = plt.subplots(1, len(TARGETS), figsize=(4.2 * len(TARGETS), 4.2), facecolor="#fcfcfb")

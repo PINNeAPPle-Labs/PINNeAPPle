@@ -14,7 +14,6 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from typing import List
 
 from pinneapple_problemdesign import DesignAgent
 from pinneapple_problemdesign.protocol import LLMProvider, LLMMessage, LLMResponse
@@ -31,7 +30,7 @@ class MockProvider(LLMProvider):
 
     def generate(
         self,
-        messages: List[LLMMessage],
+        messages: list[LLMMessage],
         *,
         temperature: float = 0.2,
         max_tokens: int = 800,

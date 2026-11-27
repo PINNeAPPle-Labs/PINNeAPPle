@@ -20,7 +20,7 @@ can open the result; the tests use it when available.
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 import numpy as np
 

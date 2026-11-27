@@ -9,6 +9,10 @@ import math
 import numpy as np
 import pytest
 
+# build_mesh is trimesh-backed and trimesh lives in the `cfd` extra: without the extra these tests died on an import,
+# which reads in the shard as a broken classifier. Declaring the dependency makes them skip with a reason instead.
+pytest.importorskip("trimesh", reason="'cfd' extra not installed (trimesh): pip install -e '.[cfd]'")
+
 from pinneapple_analysis.verification.mesh_intelligence import (
     assess_mesh_quality,
     estimate_required_first_cell_height,

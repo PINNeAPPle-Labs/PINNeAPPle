@@ -1,0 +1,12 @@
+{
+ "code_hash": "00a2c1799ee91d04",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.engineering.pcb_thermal",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='pcb_thermal', dim=2, coords=('x', 'y'), fields=('T',), pde=PDETermSpec(kind='heat_equation_steady_anisotropic', fields=('T',), coords=('x', 'y'), params={'k_x': 0.3, 'k_y': 0.3, 'k_z': 0.25}, meta={}), conditions=(ConditionSpec(name='component_hotspots', kind='neumann', fields=('q_heat',), selector_type='tag', selector={'tag': 'component_hotspots'}, value_fn=<function _const_value_fn.<locals>._fn at 0x104388c20>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc={'kind': 'flux', 'T_field': 'T'}), ConditionSpec(name='board_surface', kind='neumann', fields=('h', 'T_ref'), selector_type='tag', selector={'tag': 'board_surface'}, value_fn=<function _const_value_fn.<locals>._fn at 0x119279080>, weight=5.0, ord",
+ "timed_out": false
+}

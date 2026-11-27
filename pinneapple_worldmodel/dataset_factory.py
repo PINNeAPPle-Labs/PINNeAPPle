@@ -40,7 +40,7 @@ import logging
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import torch
 from torch import Tensor
@@ -82,19 +82,19 @@ class FactoryConfig:
         structure from scenario.pde_kind and augment with additional scenarios.
     max_workers : int — parallel trajectory generation (0 = sequential).
     """
-    sources: List[str] = field(default_factory=lambda: ["solver"])
-    scenarios: List[Any] = field(
+    sources: list[str] = field(default_factory=lambda: ["solver"])
+    scenarios: list[Any] = field(
         default_factory=lambda: ["heat_2d", "burgers_1d", "advection_2d"]
     )
     n_samples_per_scenario: int = 500
     horizon: int = 1
     validate_physics: bool = True
     device: str = "cpu"
-    save_dir: Optional[str] = None
+    save_dir: str | None = None
     verbose: bool = True
     pinn_colloc_per_sample: int = 1000
     symbolic_samples: int = 200
-    solver_priority: List[str] = field(
+    solver_priority: list[str] = field(
         default_factory=lambda: ["fdm", "lbm", "fem", "builtin"]
     )
     auto_discover_pde: bool = False
@@ -124,10 +124,10 @@ class DatasetEntry:
     dataset: WorldModelDataset
     source: str
     scenario: str
-    physics_tags: List[str]
+    physics_tags: list[str]
     n_samples: int
     generation_time_s: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -152,7 +152,7 @@ class DatasetCatalog:
     """
 
     def __init__(self) -> None:
-        self.entries: List[DatasetEntry] = []
+        self.entries: list[DatasetEntry] = []
 
     # ------------------------------------------------------------------
     # Registration
@@ -166,16 +166,16 @@ class DatasetCatalog:
     # Query
     # ------------------------------------------------------------------
 
-    def by_scenario(self, scenario: str) -> List[DatasetEntry]:
+    def by_scenario(self, scenario: str) -> list[DatasetEntry]:
         return [e for e in self.entries if e.scenario == scenario]
 
-    def by_source(self, source: str) -> List[DatasetEntry]:
+    def by_source(self, source: str) -> list[DatasetEntry]:
         return [e for e in self.entries if e.source == source]
 
-    def by_tag(self, tag: str) -> List[DatasetEntry]:
+    def by_tag(self, tag: str) -> list[DatasetEntry]:
         return [e for e in self.entries if tag in e.physics_tags]
 
-    def __getitem__(self, scenario: str) -> List[WorldModelDataset]:
+    def __getitem__(self, scenario: str) -> list[WorldModelDataset]:
         return [e.dataset for e in self.by_scenario(scenario)]
 
     def __len__(self) -> int:
@@ -206,9 +206,9 @@ class DatasetCatalog:
             normalize=ref.normalize,
         )
 
-    def datasets_by_scenario(self) -> Dict[str, List[WorldModelDataset]]:
+    def datasets_by_scenario(self) -> dict[str, list[WorldModelDataset]]:
         """Return dict mapping scenario name → list of datasets."""
-        out: Dict[str, List[WorldModelDataset]] = {}
+        out: dict[str, list[WorldModelDataset]] = {}
         for e in self.entries:
             out.setdefault(e.scenario, []).append(e.dataset)
         return out
@@ -217,7 +217,7 @@ class DatasetCatalog:
     # Summary
     # ------------------------------------------------------------------
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         scenarios = list({e.scenario for e in self.entries})
         sources = list({e.source for e in self.entries})
         total_time = sum(e.generation_time_s for e in self.entries)
@@ -394,7 +394,7 @@ class PhysicsDatasetFactory:
         self,
         scenario: PhysicsScenario,
         compile_problem: Any,
-    ) -> List[TrajectoryData]:
+    ) -> list[TrajectoryData]:
         """Attempt to run compile_problem and extract trajectory data."""
         cfg = self.config
         sim = PhysicsSimulator(scenario, device=cfg.device, verbose=False)
@@ -455,9 +455,8 @@ class PhysicsDatasetFactory:
         trajs = self._symbolic_trajectories(scenario)
         return self._trajs_to_dataset(trajs, scenario)
 
-    def _symbolic_trajectories(self, scenario: PhysicsScenario) -> List[TrajectoryData]:
+    def _symbolic_trajectories(self, scenario: PhysicsScenario) -> list[TrajectoryData]:
         """Generate analytical-solution trajectories for supported PDEs."""
-        import math
         cfg = self.config
         trajs = []
 
@@ -490,9 +489,9 @@ class PhysicsDatasetFactory:
     def _analytical_solution(
         self,
         scenario: PhysicsScenario,
-        params: Dict[str, float],
+        params: dict[str, float],
         seed: int,
-    ) -> Optional[Tensor]:
+    ) -> Tensor | None:
         """Produce a (T+1, C, *grid) tensor via an analytical formula."""
         import math
         torch.manual_seed(seed)
@@ -572,7 +571,7 @@ class PhysicsDatasetFactory:
         trajs = self._collocation_trajectories(scenario)
         return self._trajs_to_dataset(trajs, scenario)
 
-    def _collocation_trajectories(self, scenario: PhysicsScenario) -> List[TrajectoryData]:
+    def _collocation_trajectories(self, scenario: PhysicsScenario) -> list[TrajectoryData]:
         """Sample grid-shaped fields via collocation sampler."""
         cfg = self.config
         trajs = []
@@ -609,7 +608,7 @@ class PhysicsDatasetFactory:
     # Utilities
     # ------------------------------------------------------------------
 
-    def _resolve_scenarios(self, raw: List[Any]) -> List[PhysicsScenario]:
+    def _resolve_scenarios(self, raw: list[Any]) -> list[PhysicsScenario]:
         out = []
         for s in raw:
             if isinstance(s, str):
@@ -624,8 +623,8 @@ class PhysicsDatasetFactory:
         return out
 
     def _augment_with_discovered(
-        self, scenarios: List[PhysicsScenario]
-    ) -> List[PhysicsScenario]:
+        self, scenarios: list[PhysicsScenario]
+    ) -> list[PhysicsScenario]:
         """Use pinneapple_environment to discover additional related scenarios."""
         try:
             from pinneapple_physics.pde_environment.capabilities import list_pde_families  # type: ignore
@@ -639,7 +638,7 @@ class PhysicsDatasetFactory:
             log.debug("PDE auto-discovery failed: %s", exc)
         return scenarios
 
-    def _sample_params(self, scenario: PhysicsScenario) -> Dict[str, float]:
+    def _sample_params(self, scenario: PhysicsScenario) -> dict[str, float]:
         return {
             k: lo + (hi - lo) * torch.rand(1).item()
             for k, (lo, hi) in scenario.param_ranges.items()
@@ -647,7 +646,7 @@ class PhysicsDatasetFactory:
 
     def _trajs_to_dataset(
         self,
-        trajs: List[TrajectoryData],
+        trajs: list[TrajectoryData],
         scenario: PhysicsScenario,
     ) -> WorldModelDataset:
         """Wrap a list of TrajectoryData objects in a WorldModelDataset."""
@@ -663,7 +662,7 @@ class PhysicsDatasetFactory:
         builder = DatasetBuilder(ds_cfg)
         return builder.build_from_trajectories(trajs, scenario)
 
-    def _physics_tags(self, scenario: PhysicsScenario) -> List[str]:
+    def _physics_tags(self, scenario: PhysicsScenario) -> list[str]:
         pde = scenario.pde_kind
         tags = list(scenario.tags) if scenario.tags else []
 
@@ -703,7 +702,7 @@ class PhysicsDatasetFactory:
 
 def _build_from_trajectories(
     self: DatasetBuilder,
-    trajs: List[TrajectoryData],
+    trajs: list[TrajectoryData],
     scenario: PhysicsScenario,
 ) -> WorldModelDataset:
     """Inject pre-computed trajectories into a WorldModelDataset."""

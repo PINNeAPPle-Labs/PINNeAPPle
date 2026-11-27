@@ -1,5 +1,6 @@
 """Reduced-order models on problems with known answers."""
 import numpy as np
+import pytest
 import torch
 
 from pinneapple_neural.architectures.rom import (
@@ -76,6 +77,12 @@ def test_parametric_gpr_fits_with_single_threaded_blas(monkeypatch):
     4-CPU machine each fit was ~15x slower and the 100-design app example timed out), so fit runs with 1 BLAS thread."""
     from sklearn.gaussian_process import GaussianProcessRegressor
     from threadpoolctl import threadpool_info
+
+    # The property only exists where threadpoolctl can see a BLAS controller: on this macOS build it reports none, and
+    # max() over an empty generator reported the test itself as broken instead of the machine as unable to answer
+    # (#625). Asked once, outside the spy, so the skip does not depend on the fit ever running.
+    if not [i for i in threadpool_info() if i["user_api"] == "blas"]:
+        pytest.skip("threadpoolctl finds no BLAS controller on this machine: the thread count cannot be observed")
 
     seen, orig = [], GaussianProcessRegressor.fit
 

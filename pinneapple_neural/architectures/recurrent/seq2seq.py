@@ -1,7 +1,7 @@
 from __future__ import annotations
 """Seq2Seq encoder-decoder RNN for sequence-to-sequence tasks."""
 
-from typing import Dict, Optional, Literal
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -37,7 +37,7 @@ class Seq2SeqRNN(RecurrentModelBase):
         future_dim: int = 0,
         # --- improvements ---
         init_y: Literal["zeros", "last_past", "learned"] = "zeros",
-        last_past_y_slice: Optional[slice] = None,
+        last_past_y_slice: slice | None = None,
         input_dropout: float = 0.0,
         head_dropout: float = 0.0,
     ):
@@ -90,8 +90,8 @@ class Seq2SeqRNN(RecurrentModelBase):
     def _validate_inputs(
         self,
         x_past: torch.Tensor,
-        x_future: Optional[torch.Tensor],
-        y_future: Optional[torch.Tensor],
+        x_future: torch.Tensor | None,
+        y_future: torch.Tensor | None,
     ) -> None:
         if x_past.ndim != 3:
             raise ValueError(f"x_past must be (B,L,in_dim). Got shape={tuple(x_past.shape)}")
@@ -151,8 +151,8 @@ class Seq2SeqRNN(RecurrentModelBase):
         self,
         x_past: torch.Tensor,
         *,
-        x_future: Optional[torch.Tensor] = None,
-        y_future: Optional[torch.Tensor] = None,
+        x_future: torch.Tensor | None = None,
+        y_future: torch.Tensor | None = None,
         teacher_forcing: float = 0.0,
         return_loss: bool = False,
     ) -> RNNOutput:
@@ -203,7 +203,7 @@ class Seq2SeqRNN(RecurrentModelBase):
 
         y_hat = torch.stack(y_hat_steps, dim=1)  # (B,H,out_dim)
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         if return_loss:
             if y_future is None:
                 # Explicitly signal that we can't compute supervised loss

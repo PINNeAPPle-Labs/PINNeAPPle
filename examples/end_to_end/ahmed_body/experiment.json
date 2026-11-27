@@ -25,7 +25,15 @@
   "pinneapple_analysis.inverse_problems.amortized"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "01_cfd_campaign.py",
+  "02_analysis.py",
+  "03_more_cfd.py",
+  "04_inverse.py",
+  "05_twin.py",
+  "06_visuals.py",
+  "07_report.py"
+ ],
  "metrics": [
   {
    "name": "cad_vs_parametric_cd_rel",

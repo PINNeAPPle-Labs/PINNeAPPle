@@ -1,0 +1,12 @@
+{
+ "code_hash": "7df9f7269e6e22c6",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.ideal_reactors.pfr_conversion",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'X': 0.5440618722340037, 'tau': 0.7853981633974483, 'V': 0.7853981633974483}",
+ "timed_out": false
+}

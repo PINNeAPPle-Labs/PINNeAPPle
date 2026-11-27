@@ -10,7 +10,8 @@ plot_vectors(xc, yc, ux, uy, title="Velocity field")
 plot_streamlines(xc, yc, ux, uy)
 """
 from __future__ import annotations
-from typing import Optional, Sequence, Tuple, Union
+from dataclasses import dataclass
+from collections.abc import Sequence
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,7 +19,8 @@ import matplotlib.tri as mtri
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
-from .style import get_cmap, make_figure, DEFAULT_CMAP
+from .style import (DEFAULT_CMAP, colorbar, field_cmap, get_cmap, label, make_figure, make_panel_figure,
+                    panel_letters, source_note)
 
 
 def _to_np(t):
@@ -33,9 +35,9 @@ def _to_np(t):
 # ---------------------------------------------------------------------------
 
 def plot_scalar(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    field: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    field: ArrayLike,
     *,
     title: str = "Scalar field",
     label: str = "",
@@ -43,10 +45,10 @@ def plot_scalar(
     n_levels: int = 64,
     show_contour_lines: bool = True,
     n_lines: int = 12,
-    axes: Optional[Axes] = None,
-    figsize: Tuple[int, int] = (8, 6),
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
+    axes: Axes | None = None,
+    figsize: tuple[int, int] = (8, 6),
+    vmin: float | None = None,
+    vmax: float | None = None,
     show: bool = False,
 ) -> Figure:
     """
@@ -103,13 +105,13 @@ def plot_scalar(
 
 
 def plot_scalar_3d(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    z: "ArrayLike",
-    field: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    z: ArrayLike,
+    field: ArrayLike,
     *,
     slice_axis: str = "z",
-    slice_val: Optional[float] = None,
+    slice_val: float | None = None,
     title: str = "Scalar field (3-D slice)",
     cmap: str = DEFAULT_CMAP,
     show: bool = False,
@@ -146,21 +148,21 @@ def plot_scalar_3d(
 # ---------------------------------------------------------------------------
 
 def plot_vectors(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    u: "ArrayLike",
-    v: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    u: ArrayLike,
+    v: ArrayLike,
     *,
     title: str = "Vector field",
-    scale: Optional[float] = None,
+    scale: float | None = None,
     density: int = 20,
     color_by_mag: bool = True,
     cmap: str = "rainbow",
-    background_field: Optional["ArrayLike"] = None,
+    background_field: ArrayLike | None = None,
     bg_cmap: str = "coolwarm",
     bg_label: str = "",
-    axes: Optional[Axes] = None,
-    figsize: Tuple[int, int] = (8, 6),
+    axes: Axes | None = None,
+    figsize: tuple[int, int] = (8, 6),
     show: bool = False,
 ) -> Figure:
     """
@@ -216,20 +218,20 @@ def plot_vectors(
 # ---------------------------------------------------------------------------
 
 def plot_streamlines(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    u: "ArrayLike",
-    v: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    u: ArrayLike,
+    v: ArrayLike,
     *,
     title: str = "Streamlines",
     density: float = 1.5,
     color_by_mag: bool = True,
     cmap: str = "plasma",
     linewidth_scale: float = 1.5,
-    background_field: Optional["ArrayLike"] = None,
+    background_field: ArrayLike | None = None,
     bg_cmap: str = "coolwarm",
-    axes: Optional[Axes] = None,
-    figsize: Tuple[int, int] = (8, 6),
+    axes: Axes | None = None,
+    figsize: tuple[int, int] = (8, 6),
     show: bool = False,
 ) -> Figure:
     """
@@ -292,13 +294,13 @@ def plot_streamlines(
 # ---------------------------------------------------------------------------
 
 def compare_fields(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    fields: Sequence[Tuple[str, "ArrayLike"]],
+    x: ArrayLike,
+    y: ArrayLike,
+    fields: Sequence[tuple[str, ArrayLike]],
     *,
     cmap: str = DEFAULT_CMAP,
     n_cols: int = 3,
-    figsize_per_panel: Tuple[int, int] = (5, 4),
+    figsize_per_panel: tuple[int, int] = (5, 4),
     suptitle: str = "",
     show: bool = False,
 ) -> Figure:
@@ -335,10 +337,10 @@ def compare_fields(
 # ---------------------------------------------------------------------------
 
 def plot_error(
-    x: "ArrayLike",
-    y: "ArrayLike",
-    pred: "ArrayLike",
-    ref: "ArrayLike",
+    x: ArrayLike,
+    y: ArrayLike,
+    pred: ArrayLike,
+    ref: ArrayLike,
     *,
     relative: bool = True,
     title: str = "Prediction error",
@@ -358,3 +360,358 @@ def plot_error(
 
     fig = plot_scalar(x, y, err, title=title, label=label, cmap=cmap, show=show)
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Reference x surrogate x error, the standard comparison figure of a benchmark (#63)
+# ---------------------------------------------------------------------------
+
+def field_error_metrics(reference, prediction) -> dict:
+    """The aggregate error of one field against its reference: ``l2`` (absolute), ``l2_relative`` (the L2 norm over
+    the reference's RMS -- the number to quote), ``linf``, ``r2`` and ``n`` (the finite points compared).
+
+    One definition for the figure and for every benchmark that quotes an error, so two tables cannot disagree.
+    Non-finite values are left out: a masked wall or an empty patch is not an error of zero.
+    """
+    r = _to_np(reference).ravel().astype(float)
+    p = _to_np(prediction).ravel().astype(float)
+    if r.shape != p.shape:
+        raise ValueError(f"prediction {p.shape} and reference {r.shape} differ: compare one value per point")
+    ok = np.isfinite(r) & np.isfinite(p)
+    if ok.sum() < 2:
+        raise ValueError("fewer than two finite points: there is nothing to compare")
+    r, p = r[ok], p[ok]
+    diff = p - r
+    l2 = float(np.sqrt(np.mean(diff ** 2)))
+    rms = float(np.sqrt(np.mean(r ** 2)))
+    denom = float(np.sum((r - r.mean()) ** 2))
+    return {"n": int(ok.sum()), "l2": l2, "l2_relative": float(l2 / rms) if rms > 0 else float("nan"),
+            "linf": float(np.abs(diff).max()), "r2": float(1.0 - np.sum(diff ** 2) / denom) if denom > 0
+            else float("nan")}
+
+
+@dataclass
+class SolutionComparison:
+    """The comparison figure and the numbers behind it: ``l2`` (absolute), ``l2_relative`` (of the reference's RMS),
+    ``linf``, ``r2``, the number of points compared, and whether the error panel's scale was clipped."""
+
+    figure: Figure
+    l2: float
+    l2_relative: float
+    linf: float
+    r2: float
+    n: int
+    clipped: bool
+    percentile: float
+    error_max: float
+
+    @property
+    def metrics(self) -> dict:
+        """The numbers as a record a benchmark can store (JSON-ready, no arrays)."""
+        return {"n": self.n, "l2": self.l2, "l2_relative": self.l2_relative, "linf": self.linf,
+                "r2": self.r2, "error_max": self.error_max, "error_clipped": self.clipped,
+                "error_percentile": self.percentile}
+
+    def __float__(self) -> float:
+        return float(self.l2_relative)
+
+
+def _contour_panel(ax, x, y, f, *, levels, cmap, vmin, vmax, n_lines: int = 0):
+    """Filled contours of ``f`` on ``(x, y)``: a structured grid when the points form one, else triangulated."""
+    n = len(f)
+    xs, ys = np.unique(np.round(x, 10)), np.unique(np.round(y, 10))
+    if n and len(xs) * len(ys) == n:
+        X, Y = x.reshape(len(xs), len(ys)), y.reshape(len(xs), len(ys))
+        if np.allclose(X, xs[:, None]) and np.allclose(Y, ys[None, :]):     # x fastest, then y: a product grid
+            F = f.reshape(len(xs), len(ys))
+            cf = ax.contourf(X, Y, F, levels=levels, cmap=cmap, vmin=vmin, vmax=vmax)
+            if n_lines:
+                ax.contour(X, Y, F, levels=n_lines, colors="white", linewidths=0.4, alpha=0.5)
+            return cf
+    tri = mtri.Triangulation(x, y)
+    cf = ax.tricontourf(tri, f, levels=levels, cmap=cmap, vmin=vmin, vmax=vmax)
+    if n_lines:
+        ax.tricontour(tri, f, levels=n_lines, colors="white", linewidths=0.4, alpha=0.5)
+    return cf
+
+
+def compare_solutions(
+    x: ArrayLike,
+    y: ArrayLike,
+    reference: ArrayLike,
+    prediction: ArrayLike,
+    *,
+    quantity: str = "field",
+    unit: str = "",
+    labels: tuple[str, str] = ("Reference", "Surrogate"),
+    cmap: str | None = None,
+    error_cmap: str = "magma",
+    percentile: float = 99.0,
+    coord_unit: str = "m",
+    vmin: float | None = None,
+    vmax: float | None = None,
+    source: str = "",
+    suptitle: str = "",
+    figsize: tuple[float, float] | None = None,
+    show: bool = False,
+) -> SolutionComparison:
+    """Reference, surrogate and |surrogate - reference| side by side, with the L2 error as a number (#63).
+
+    x, y            : coordinates of the values, cell centres or nodes (1-D, or 2-D as a product grid)
+    reference       : the trusted solution
+    prediction      : the surrogate's answer on the same points
+    quantity, unit  : what the colour bars say (``unit=""`` for a dimensionless field); the colour map is the
+                      one the house theme registers for that quantity (``cmap=None``), or the one given
+    percentile      : the error panel runs from 0 to this percentile of the error, and says when it clipped
+
+    The two solution panels share one colour scale, computed over both, so the same colour means the same number in
+    either: comparing them with two scales is what makes a wrong figure look right. The error panel has a scale of its
+    own from zero (no zero-point is good news: the panel is a magnitude, not a difference in sign), clipped at
+    ``percentile`` and labelled with the true maximum when it is clipped. The aggregate error is in the title and in
+    the returned :class:`SolutionComparison` -- ``l2`` (absolute, in ``unit``), ``l2_relative`` (the L2 norm over the
+    reference's RMS, which is the number to quote), ``linf``, ``r2`` and ``metrics`` for a benchmark record.
+
+    Non-finite values (a masked wall, an empty patch) are left out of the numbers and out of the scale.
+    """
+    x_ = _to_np(x).ravel().astype(float)
+    y_ = _to_np(y).ravel().astype(float)
+    ref = _to_np(reference).ravel().astype(float)
+    pred = _to_np(prediction).ravel().astype(float)
+    if not (len(x_) == len(y_) == len(ref) == len(pred)):
+        raise ValueError(f"x, y, reference and prediction must have one value per point: "
+                         f"{len(x_)}, {len(y_)}, {len(ref)}, {len(pred)}")
+    ok = np.isfinite(ref) & np.isfinite(pred)
+    if ok.sum() < 2:
+        raise ValueError("fewer than two finite points: there is nothing to compare")
+    m = field_error_metrics(ref, pred)
+    l2, linf, r2, rel = m["l2"], m["linf"], m["r2"], m["l2_relative"]
+    rms = l2 / rel if rel > 0 else float("nan")
+    err = np.abs(pred - ref)
+    max_err = float(err[ok].max())
+    hi_err = float(np.percentile(err[ok], percentile))
+    if hi_err <= 0:                                  # every point right but one: the scale cannot be zero-wide
+        hi_err, clipped = max_err if max_err > 0 else 1.0, max_err > 0
+    else:
+        clipped = max_err > hi_err * (1 + 1e-9)
+
+    if cmap is None:                                       # the house map for the quantity, else the default
+        try:
+            cmap = field_cmap(quantity)
+        except KeyError:
+            cmap = get_cmap(DEFAULT_CMAP)
+    else:
+        cmap = get_cmap(cmap)
+    error_cmap = get_cmap(error_cmap)
+
+    lo = float(min(ref[ok].min(), pred[ok].min())) if vmin is None else float(vmin)
+    hi = float(max(ref[ok].max(), pred[ok].max())) if vmax is None else float(vmax)
+    if hi <= lo:
+        hi = lo + (abs(lo) * 0.01 or 1.0)
+
+    fig, axes = make_panel_figure(ncols=3, **({"figsize": figsize} if figsize else {}))
+    axes = list(np.ravel(axes))
+    levels = np.linspace(lo, hi, 65)
+    err_levels = np.linspace(0.0, hi_err if hi_err > 0 else 1.0, 65)
+    cf = None
+    for ax, values, name in ((axes[0], ref, labels[0]), (axes[1], pred, labels[1])):
+        cf = _contour_panel(ax, x_, y_, values, levels=levels, cmap=cmap, vmin=lo, vmax=hi)
+        ax.set_title(name)
+        ax.set_aspect("equal", adjustable="box")
+        label(ax, ("x", coord_unit), ("y", coord_unit))
+    ce = _contour_panel(axes[2], x_, y_, err, levels=err_levels, cmap=error_cmap, vmin=0.0, vmax=err_levels[-1])
+    axes[2].set_title(f"|{labels[1]} - {labels[0]}|")
+    axes[2].set_aspect("equal", adjustable="box")
+    label(axes[2], ("x", coord_unit), ("y", coord_unit))
+
+    colorbar(axes[1], cf, quantity, unit)                    # one colour bar for the two panels that share a scale
+    colorbar(axes[2], ce, f"|{labels[1]} - {labels[0]}|", unit)
+    panel_letters(fig, axes, xy=(0.03, 0.97), va="top", ha="left")
+    fig.suptitle(suptitle or f"{quantity}: {labels[0]} and {labels[1]}, L2 = {l2:.4g} "
+                             f"({100.0 * rel:.2f} % of the reference's RMS)", fontsize=11)
+    note = (f"L2 = {l2:.4g}" + (f" {unit}" if unit else "") + f"   L2/RMS(ref) = {rel:.3f}"
+            f"   max = {linf:.4g}" + (f" {unit}" if unit else "") + f"   R2 = {r2:.4f}   n = {m['n']}")
+    if clipped:                                  # an honest scale says where it stopped and what was cut
+        note += f"   error scale clipped at the {percentile:g}th percentile (max {err[ok].max():.3g})"
+    fig.text(0.5, -0.02, note, ha="center", va="top", fontsize=8)
+    if source:
+        source_note(fig, source, y=-0.06)
+    fig.tight_layout()
+    if show:
+        plt.show()
+    return SolutionComparison(figure=fig, l2=l2, l2_relative=rel,
+                              linf=linf, r2=r2, n=m["n"], clipped=clipped, percentile=percentile,
+                              error_max=float(err.max()))
+
+
+
+# ---------------------------------------------------------------------------
+# A field on an arbitrary domain, as a picture and as a file a solver reads (#61)
+# ---------------------------------------------------------------------------
+
+_VTK_CELL_VERTEX = 1
+#: what a VTK cell type is, for the two shapes this exporter writes
+_VTK_CELL_TRIANGLE = 5
+
+
+def write_vtu(path, points, fields, *, cells=None, title: str = "") -> str:
+    """Write an unstructured grid in VTK XML format: ``points`` plus one data array per field.
+
+    ``cells`` is omitted for a point cloud (one vertex cell per point, which is what a model evaluated on an arbitrary
+    domain produces); a mesh passes its connectivity instead, as a sequence of index sequences or as the three arrays
+    VTK wants (``offsets``, ``connectivity``, ``types``). The file is ASCII so that it diffs and so that no optional
+    dependency is needed to write it; ParaView, VTK and meshio all read it.
+    """
+    import os
+    from xml.sax.saxutils import escape
+
+    X = np.asarray(points, dtype=float)
+    if X.ndim != 2 or X.shape[1] not in (2, 3):
+        raise ValueError(f"points must be (n, 2) or (n, 3), got {X.shape}")
+    if X.shape[1] == 2:                                   # VTK is three-dimensional: pad z with zeros
+        X = np.column_stack([X, np.zeros(len(X))])
+    n = len(X)
+    data = {str(name): np.asarray(values, dtype=float) for name, values in fields.items()}
+    for name, values in data.items():
+        if values.shape[:1] != (n,):
+            raise ValueError(f"field {name!r} has {values.shape[0] if values.ndim else 0} values for {n} points")
+
+    if cells is None:
+        offsets = np.arange(1, n + 1)
+        connectivity = np.arange(n)
+        types = np.full(n, _VTK_CELL_VERTEX)
+    elif isinstance(cells, tuple) and len(cells) == 3:
+        offsets, connectivity, types = (np.asarray(c, dtype=int) for c in cells)
+    else:
+        flat, offsets, types = [], [], []
+        total = 0
+        for cell in cells:
+            indices = list(cell)
+            flat.extend(indices)
+            total += len(indices)
+            offsets.append(total)
+            types.append(_VTK_CELL_TRIANGLE if len(indices) == 3 else _VTK_CELL_VERTEX if len(indices) == 1 else 7)
+        connectivity = np.asarray(flat, dtype=int)
+        offsets, types = np.asarray(offsets, dtype=int), np.asarray(types, dtype=int)
+
+    def flat(values: np.ndarray) -> str:
+        return " ".join(repr(float(v)) if values.dtype.kind == "f" else str(int(v)) for v in values.ravel())
+
+    lines = ['<?xml version="1.0"?>', '<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">',
+             "  <UnstructuredGrid>", f'    <Piece NumberOfPoints="{n}" NumberOfCells="{len(offsets)}">']
+    if title:
+        lines.insert(4, f"  <FieldData><DataArray type=\"String\" Name=\"title\">{escape(title)}"
+                        "</DataArray></FieldData>")
+    lines += ["      <Points>", '        <DataArray type="Float64" NumberOfComponents="3" format="ascii">',
+              "          " + " ".join(" ".join(repr(float(v)) for v in row) for row in X), "        </DataArray>",
+              "      </Points>", "      <Cells>", '        <DataArray type="Int64" Name="connectivity" format="ascii">',
+              "          " + flat(connectivity), "        </DataArray>",
+              '        <DataArray type="Int64" Name="offsets" format="ascii">',
+              "          " + flat(offsets), "        </DataArray>",
+              '        <DataArray type="UInt8" Name="types" format="ascii">',
+              "          " + flat(types), "        </DataArray>", "      </Cells>", "      <PointData>"]
+    for name, values in data.items():
+        components = 1 if values.ndim == 1 else values.shape[1]
+        lines += [f'        <DataArray type="Float64" Name="{escape(name)}" NumberOfComponents="{components}" '
+                  'format="ascii">', "          " + flat(values), "        </DataArray>"]
+    lines += ["      </PointData>", "    </Piece>", "  </UnstructuredGrid>", "</VTKFile>"]
+    directory = os.path.dirname(os.path.abspath(path))
+    os.makedirs(directory, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + "\n")
+    return path
+
+
+def _domain_points(domain, n: int = 4096) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+    """Sample a domain: a problem's bounds, ``{name: (lo, hi)}``, ``(lo, hi)`` or an explicit array of points."""
+    if hasattr(domain, "domain_bounds"):
+        bounds = dict(domain.domain_bounds)
+        names = list(getattr(domain, "coords", None) or bounds)
+    elif isinstance(domain, dict):
+        bounds, names = dict(domain), list(domain)
+    elif isinstance(domain, (tuple, list)) and len(domain) == 2:
+        lo, hi = (np.atleast_1d(np.asarray(v, dtype=float)) for v in domain)
+        names = [chr(ord("x") + i) for i in range(len(lo))]
+        return _grid({n_: (lo[i], hi[i]) for i, n_ in enumerate(names)}, max(4, int(round(n ** (1 / len(lo))))))
+    else:
+        return np.asarray(domain, dtype=float), {}
+    per_axis = max(4, int(round(n ** (1 / len(names)))))
+    return _grid({name: tuple(bounds[name]) for name in names if name in bounds}, per_axis)
+
+
+def _grid(bounds: dict[str, tuple[float, float]], per_axis: int) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+    """A regular grid over ``bounds``, with every axis it used returned so the picture knows its coordinates."""
+    if not bounds:
+        raise ValueError("the domain has no bounds: pass {name: (low, high)}, (lo, hi) or an array of points")
+    axes = [np.linspace(lo, hi, per_axis) for lo, hi in bounds.values()]
+    mesh = np.meshgrid(*axes, indexing="ij")
+    points = np.column_stack([m.ravel() for m in mesh])
+    return points, {name: axis for name, axis in zip(bounds, axes, strict=True)}
+
+
+def render_field(model, domain=None, *, out: str = "field", field_names: Sequence[str] | None = None,
+                 points=None, title: str = "", cmap: str | None = None,
+                 n: int = 4096, dpi: int = 200, image: bool = True) -> dict[str, str]:
+    """Evaluate ``model`` on ``domain`` and write the picture and the VTU of the same numbers.
+
+    ``model`` is anything with ``predict`` (a ``Solution``, a trained network wrapper) or a callable taking the points.
+    ``domain`` is a ``PhysicalProblem`` (its bounds are used), ``{name: (low, high)}``, ``(lo, hi)`` or an explicit
+    array of points through ``points=``. ``n`` is the point budget of the grid it builds, shared between the axes. The VTU always carries every field on every point; the picture is drawn for a
+    2-D grid, and for a 3-D one it is the mid-plane slice in the last coordinate, which is the one a reader can look at
+    without a 3-D viewer.
+
+    Returns ``{"image": ..., "vtu": ...}`` — the same numbers in the two forms the issue asks for.
+    """
+    if points is not None:
+        X, axes = np.asarray(points, dtype=float), {}
+    else:
+        X, axes = _domain_points(domain, n=n)
+    try:
+        raw = model.predict(X)
+    except AttributeError:
+        raw = model(X)
+    values = _to_np(raw)
+    if values.ndim == 1:
+        values = values[:, None]
+    if values.ndim != 2 or values.shape[0] != len(X):
+        raise ValueError(f"the model returned {values.shape} for {len(X)} points: expected (n,) or (n, n_fields)")
+    names = list(field_names or getattr(model, "fields", None) or
+                 [f"field_{i}" for i in range(values.shape[1])])
+    if len(names) != values.shape[1]:
+        raise ValueError(f"{len(names)} field names for {values.shape[1]} columns")
+    stem = str(out)
+    vtu = write_vtu(f"{stem}.vtu", X, {name: values[:, i] for i, name in enumerate(names)}, title=title)
+    written = {"vtu": vtu}
+    if not image:
+        return written
+    fig = None
+    if len(axes) == 2:
+        (nx_name, x), (ny_name, y) = list(axes.items())
+        XX, YY = np.meshgrid(x, y, indexing="ij")
+        fig = plot_scalar(XX, YY, values[:, 0].reshape(len(x), len(y)), title=title or names[0],
+                          label=names[0], cmap=cmap or DEFAULT_CMAP)
+        fig.axes[0].set_xlabel(nx_name)
+        fig.axes[0].set_ylabel(ny_name)
+    elif len(axes) >= 3:
+        from .style import use_theme
+
+        use_theme("report")
+        last = list(axes.values())[-1]
+        mid = np.argmin(np.abs(last - last[len(last) // 2]))
+        mask = np.isclose(X[:, -1], last[mid])
+        fig, ax = plt.subplots(figsize=(7.2, 5.4))
+        sc = ax.scatter(X[mask, 0], X[mask, 1], c=values[mask, 0], cmap=cmap or DEFAULT_CMAP, s=6)
+        fig.colorbar(sc, ax=ax, label=names[0])
+        ax.set_xlabel(list(axes)[0])
+        ax.set_ylabel(list(axes)[1])
+        ax.set_title(title or f"{names[0]} on the mid-plane {list(axes)[-1]} = {last[mid]:g}")
+        ax.set_aspect("equal")
+    if fig is not None:
+        from .style import save_figure
+
+        written["image"] = save_figure(fig, stem, formats=("png",))[0]
+        plt.close(fig)
+    return written
+
+
+__all__ = ["plot_scalar", "plot_scalar_3d", "plot_vectors", "plot_streamlines", "compare_fields", "plot_error",
+           "write_vtu", "render_field"]

@@ -1,4 +1,3 @@
-import os
 
 from pinneapple_problemdesign import GeminiProvider, DesignAgent
 

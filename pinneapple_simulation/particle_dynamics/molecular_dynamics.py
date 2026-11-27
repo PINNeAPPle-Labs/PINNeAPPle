@@ -40,7 +40,6 @@ simulator; thermostatting is intentionally out of scope.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -66,7 +65,7 @@ class MDState:
     pos: torch.Tensor
     vel: torch.Tensor
 
-    def clone(self) -> "MDState":
+    def clone(self) -> MDState:
         """Return a deep copy of this state."""
         return MDState(pos=self.pos.clone(), vel=self.vel.clone())
 
@@ -166,8 +165,8 @@ class MolecularDynamicsSimulator(nn.Module):
         epsilon: float = 1.0,
         sigma: float = 1.0,
         mass: float = 1.0,
-        cutoff: Optional[float] = None,
-        box_size: Optional[Tuple[float, ...]] = None,
+        cutoff: float | None = None,
+        box_size: tuple[float, ...] | None = None,
         dim: int = 3,
     ) -> None:
         super().__init__()
@@ -191,7 +190,7 @@ class MolecularDynamicsSimulator(nn.Module):
 
     def _find_pairs(
         self, pos: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Return ``(i_idx, j_idx, r_ij, dist)`` for ordered pairs within cutoff.
 
         ``r_ij[i] = pos[i_idx[i]] - pos[j_idx[i]]`` (minimum-image-wrapped

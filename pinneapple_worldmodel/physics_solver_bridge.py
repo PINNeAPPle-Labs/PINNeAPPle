@@ -54,7 +54,7 @@ import json
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -65,9 +65,6 @@ from .simulator import PhysicsSimulator, TrajectoryData
 
 # ── optional external solver imports ─────────────────────────────────────────
 try:
-    from pinneapple_simulation.external_solvers.openfoam import (
-        OpenFOAMCaseTemplate, run_openfoam_case, read_sampled_scalar_field,
-    )
     _OPENFOAM = True
 except Exception:
     _OPENFOAM = False
@@ -122,14 +119,14 @@ class SolverOutput:
     metadata : dict
         Solver-specific metadata (wall-clock time, convergence, etc.).
     """
-    fields:       Dict[str, np.ndarray]
+    fields:       dict[str, np.ndarray]
     t_coords:     np.ndarray
     x_coords:     np.ndarray
     y_coords:     np.ndarray
-    z_coords:     Optional[np.ndarray]   = None
-    params:       Dict[str, float]       = field(default_factory=dict)
+    z_coords:     np.ndarray | None   = None
+    params:       dict[str, float]       = field(default_factory=dict)
     solver_name:  str                    = "builtin"
-    metadata:     Dict[str, Any]         = field(default_factory=dict)
+    metadata:     dict[str, Any]         = field(default_factory=dict)
 
     @property
     def n_timesteps(self) -> int:
@@ -137,11 +134,11 @@ class SolverOutput:
         return first.shape[0]
 
     @property
-    def field_names(self) -> List[str]:
+    def field_names(self) -> list[str]:
         return list(self.fields.keys())
 
     @property
-    def grid_shape(self) -> Tuple[int, ...]:
+    def grid_shape(self) -> tuple[int, ...]:
         first = next(iter(self.fields.values()))
         return first.shape[1:]
 
@@ -208,11 +205,11 @@ class SolverBridgeConfig:
     solver:                str            = "builtin"
     generate_temperature:  bool           = True
     generate_concentration: bool          = False
-    openfoam_case_dir:     Optional[Path] = None
+    openfoam_case_dir:     Path | None = None
     fenics_problem:        str            = "navier_stokes"
-    pinn_checkpoint:       Optional[Path] = None
-    fno_checkpoint:        Optional[Path] = None
-    extra:                 Dict[str, Any] = field(default_factory=dict)
+    pinn_checkpoint:       Path | None = None
+    fno_checkpoint:        Path | None = None
+    extra:                 dict[str, Any] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -245,7 +242,7 @@ class PhysicsSolverBridge:
         output_of = bridge_of.solve(scenario_spec, params={"Re": 5000})
     """
 
-    def __init__(self, config: Optional[SolverBridgeConfig] = None) -> None:
+    def __init__(self, config: SolverBridgeConfig | None = None) -> None:
         self.cfg = config or SolverBridgeConfig()
         self._solver_fn = self._resolve()
 
@@ -256,7 +253,7 @@ class PhysicsSolverBridge:
     def solve(
         self,
         spec:   ScenarioSpec,
-        params: Optional[Dict[str, float]] = None,
+        params: dict[str, float] | None = None,
     ) -> SolverOutput:
         """Run the solver and return a :class:`SolverOutput`.
 
@@ -307,7 +304,7 @@ class PhysicsSolverBridge:
     def _solve_builtin(
         self,
         spec:   ScenarioSpec,
-        params: Optional[Dict[str, float]] = None,
+        params: dict[str, float] | None = None,
     ) -> SolverOutput:
         t0 = time.perf_counter()
         simulator = PhysicsSimulator(spec.scenario, device="cpu", verbose=False)
@@ -337,7 +334,7 @@ class PhysicsSolverBridge:
     def _solve_openfoam(
         self,
         spec:   ScenarioSpec,
-        params: Optional[Dict[str, float]] = None,
+        params: dict[str, float] | None = None,
     ) -> SolverOutput:
         """Run an OpenFOAM case and extract fields."""
         t0 = time.perf_counter()
@@ -351,7 +348,7 @@ class PhysicsSolverBridge:
 
         # Use the pinneapple_simulation.external_solvers.openfoam bridge
         from pinneapple_simulation.external_solvers.openfoam import (
-            OpenFOAMRunConfig, run_openfoam_case, stage_case_for_scenario,
+            OpenFOAMRunConfig, run_openfoam_case,
         )
         run_cfg = OpenFOAMRunConfig(
             case_dir    = str(case_dir),
@@ -385,7 +382,7 @@ class PhysicsSolverBridge:
     def _solve_fenics(
         self,
         spec:   ScenarioSpec,
-        params: Optional[Dict[str, float]] = None,
+        params: dict[str, float] | None = None,
     ) -> SolverOutput:
         """Run a FEniCS simulation via pinneapple_simulation.external_solvers.fenics."""
         t0 = time.perf_counter()
@@ -421,7 +418,7 @@ class PhysicsSolverBridge:
     def _solve_pinn(
         self,
         spec:   ScenarioSpec,
-        params: Optional[Dict[str, float]] = None,
+        params: dict[str, float] | None = None,
     ) -> SolverOutput:
         """Use a trained PINN model as a physics solver."""
         t0 = time.perf_counter()
@@ -476,7 +473,7 @@ class PhysicsSolverBridge:
     def _solve_fno(
         self,
         spec:   ScenarioSpec,
-        params: Optional[Dict[str, float]] = None,
+        params: dict[str, float] | None = None,
     ) -> SolverOutput:
         """Autoregressively unroll a trained FNO to generate a trajectory."""
         t0 = time.perf_counter()
@@ -570,9 +567,9 @@ class GroundTruthPackager:
 
     def __init__(
         self,
-        output_dir:   Union[str, Path],
+        output_dir:   str | Path,
         format:       str           = "zarr",
-        zarr_chunks:  Optional[Tuple] = None,
+        zarr_chunks:  tuple | None = None,
         overwrite:    bool          = True,
     ) -> None:
         self.output_dir  = Path(output_dir)
@@ -580,7 +577,7 @@ class GroundTruthPackager:
         self.zarr_chunks = zarr_chunks
         self.overwrite   = overwrite
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        self._manifest: List[Dict[str, Any]] = []
+        self._manifest: list[dict[str, Any]] = []
 
     # ------------------------------------------------------------------
 
@@ -660,10 +657,10 @@ class GroundTruthPackager:
 
     def write_batch(
         self,
-        outputs: List[SolverOutput],
+        outputs: list[SolverOutput],
         spec:    ScenarioSpec,
         start_idx: int = 0,
-    ) -> List[Path]:
+    ) -> list[Path]:
         return [self.write(out, spec, start_idx + i) for i, out in enumerate(outputs)]
 
     def _write_field(self, arr: np.ndarray, sdir: Path, name: str) -> Path:
@@ -694,12 +691,12 @@ class GroundTruthPackager:
 
 def _trajectory_to_fields(
     states:      np.ndarray,       # (T, C, Ny, Nx)
-    field_names: List[str],
+    field_names: list[str],
     cfg:         SolverBridgeConfig,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Map named channels from a trajectory to the standard field dict."""
     T, C, Ny, Nx = states.shape
-    fields: Dict[str, np.ndarray] = {}
+    fields: dict[str, np.ndarray] = {}
 
     # Find velocity components
     u_idx = _ci(field_names, ["u", "ux", "velocity_x"])
@@ -743,7 +740,7 @@ def _trajectory_to_fields(
     return fields
 
 
-def _ci(names: List[str], candidates: List[str]) -> Optional[int]:
+def _ci(names: list[str], candidates: list[str]) -> int | None:
     for cand in candidates:
         for i, nm in enumerate(names):
             if nm.lower() == cand.lower():
@@ -751,7 +748,7 @@ def _ci(names: List[str], candidates: List[str]) -> Optional[int]:
     return None
 
 
-def _add_derived_fields(fields: Dict, spec: ScenarioSpec, cfg: SolverBridgeConfig) -> None:
+def _add_derived_fields(fields: dict, spec: ScenarioSpec, cfg: SolverBridgeConfig) -> None:
     """Add temperature / concentration derived from velocity if not present."""
     if cfg.generate_temperature and "temperature" not in fields:
         vel = fields.get("velocity")
@@ -779,10 +776,10 @@ def _load_openfoam_field(case_dir: Path, field_name: str, spec: ScenarioSpec) ->
         return np.zeros((spec.scenario.n_steps, Ny, Nx), dtype=np.float32)
 
 
-def _fenics_result_to_fields(result, spec: ScenarioSpec, cfg: SolverBridgeConfig) -> Dict:
+def _fenics_result_to_fields(result, spec: ScenarioSpec, cfg: SolverBridgeConfig) -> dict:
     """Convert a FEniCS result to the standard field dict."""
     Ny, Nx = spec.scenario.grid_shape
-    fields: Dict[str, np.ndarray] = {}
+    fields: dict[str, np.ndarray] = {}
     try:
         if hasattr(result, "u"):
             u_arr = np.array(result.u).reshape(1, Ny, Nx).astype(np.float32)

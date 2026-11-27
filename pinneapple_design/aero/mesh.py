@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -80,12 +79,12 @@ def grid_points(shape: np.ndarray, g: GridSpec = GridSpec()) -> np.ndarray:
 
 
 # ------------------------------------------------------------------ topology (identical for every design)
-def topology(g: GridSpec = GridSpec()) -> Dict[str, np.ndarray]:
+def topology(g: GridSpec = GridSpec()) -> dict[str, np.ndarray]:
     """Faces of the 2D grid in OpenFOAM order, as (i, j) point indices of the bottom layer; cells c = j*ni + i."""
     ni, nj = g.ni, g.nj
     pid = lambda i, j: j * ni + (i % ni)                          # noqa: E731  bottom-layer point id
     cid = lambda i, j: j * ni + (i % ni)                          # noqa: E731
-    internal: List[Tuple[int, int, Tuple[int, int]]] = []          # owner, neighbour, (p0, p1) edge in 2D
+    internal: list[tuple[int, int, tuple[int, int]]] = []          # owner, neighbour, (p0, p1) edge in 2D
     for j in range(nj):
         for i in range(ni):
             a, b = cid(i, j), cid(i + 1, j)                       # i-face between (i,j) and (i+1,j): edge at i+1

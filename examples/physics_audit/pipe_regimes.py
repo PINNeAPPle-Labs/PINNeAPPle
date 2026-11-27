@@ -41,6 +41,9 @@ from pinneapple_physics.physics_audit import (
     roughness_reynolds,
     turbulent,
 )
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 EPS_D = 1e-3                                                     # relative roughness
 

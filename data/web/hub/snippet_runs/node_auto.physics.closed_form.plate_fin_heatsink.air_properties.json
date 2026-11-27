@@ -1,0 +1,12 @@
+{
+ "code_hash": "bebbb6b7f3757918",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.plate_fin_heatsink.air_properties",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 25.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "air properties -> pinneapple_physics.closed_form.plate_fin_heatsink:air_properties\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'t_c': 1.0, 'p_pa': 101325.0}",
+ "timed_out": false
+}

@@ -52,11 +52,26 @@ def relative_l2(pred: np.ndarray, ref: np.ndarray, weights: np.ndarray | None = 
 @dataclass
 class Expert:
     """``predict(query) -> array`` of the common output shape; ``cost``: fixed cost per call (any unit), or None to
-    use the measured wall time."""
+    use the measured wall time, or a callable ``cost(query)`` when it depends on the case (a forecast whose cost
+    grows with its lead time). ``provenance``: what the expert is and where it comes from — for a pre-trained model,
+    the record :func:`pinneapple_physics.pretrained.from_pretrained_expert` writes (source, licence, cost method)."""
     name: str
     predict: Callable[[Any], Any]
-    cost: float | None = None
+    cost: float | Callable[[Any], float] | None = None
     kind: str = ""
+    provenance: dict[str, Any] | None = None
+
+    def cost_of(self, query: Any) -> float | None:
+        """The cost of one call on this query, or None when it has to be measured (a callable cost that needs the
+        query gives None for ``query=None``: the cost is then only known per case)."""
+        if callable(self.cost):
+            try:
+                c = self.cost(query)
+            except (TypeError, KeyError, AttributeError):
+                return None
+        else:
+            c = self.cost
+        return None if c is None else float(c)
 
 
 def from_callable(name: str, fn: Callable[[Any], Any], cost: float | None = None, kind: str = "numerical") -> Expert:
@@ -100,15 +115,19 @@ class EnsembleRun:
     costs: np.ndarray                        # (n_cases, n_experts)
     predictions: list[dict[str, Any]] | None = None   # run(keep_predictions=True): field, interval, experts per case
     suspect: np.ndarray | None = None        # (n_cases,) readings flagged by ``measurement_check`` (not learned from)
+    licences: dict[str, str] | None = None   # {expert: licence} of the experts that declare a pretrained provenance
 
     def summary(self) -> dict[str, Any]:
         ok = np.isfinite(self.ensemble_errors)
         mean_err = {n: float(np.nanmean(self.errors[ok, i])) for i, n in enumerate(self.names)}
         best = min(mean_err, key=mean_err.get)
-        return {"ensemble": float(np.mean(self.ensemble_errors[ok])), "experts": mean_err,
-                "best_single_in_hindsight": {"name": best, "error": mean_err[best]},
-                "coverage": float(np.nanmean(self.coverage)), "switches": self.switches(),
-                "mean_cost_per_case": float(np.sum(self.weights * self.costs, axis=1).mean())}
+        out = {"ensemble": float(np.mean(self.ensemble_errors[ok])), "experts": mean_err,
+               "best_single_in_hindsight": {"name": best, "error": mean_err[best]},
+               "coverage": float(np.nanmean(self.coverage)), "switches": self.switches(),
+               "mean_cost_per_case": float(np.sum(self.weights * self.costs, axis=1).mean())}
+        if self.licences:
+            out["licences"] = dict(self.licences)
+        return out
 
     def switches(self) -> list[tuple]:
         out, prev = [], None
@@ -200,7 +219,8 @@ class PhysicsEnsemble:
         self.explore_every = max(1, int(explore_every))
         self._n_predict = 0
         self._last_loss = np.full(len(self.experts), np.nan)      # most recent observed loss of each expert
-        self._cost_est = np.array([e.cost if e.cost is not None else np.nan for e in self.experts], dtype=float)
+        self._cost_est = np.array([c if (c := e.cost_of(None)) is not None else np.nan for e in self.experts],
+                                  dtype=float)
         self.min_weight = float(min_weight)
         self.residual_lookahead = float(residual_lookahead)
         if self.residual_lookahead > 0 and residual_fn is None:
@@ -225,6 +245,15 @@ class PhysicsEnsemble:
     def weights(self) -> dict[str, float]:
         return dict(zip(self.names, self.grid.expert_weights().tolist(), strict=True))
 
+    def provenance(self) -> dict[str, dict[str, Any]]:
+        """What each expert is and where it comes from, for those that declare it (see
+        :func:`pinneapple_physics.pretrained.from_pretrained_expert`): the source of the weights and their licence."""
+        return {e.name: e.provenance for e in self.experts if e.provenance}
+
+    def licences(self) -> dict[str, str]:
+        """``{expert: licence identifier}`` of the experts whose provenance records one."""
+        return {n: str((p.get("licence") or {}).get("spdx", "")) for n, p in self.provenance().items()}
+
     def _evaluate(self, query, which: Sequence[int]):
         preds, costs = [None] * len(self.experts), np.zeros(len(self.experts))
         for i in which:
@@ -239,9 +268,12 @@ class PhysicsEnsemble:
                 if self.on_error == "raise":
                     raise
                 self.failures[e.name] += 1
-            costs[i] = e.cost if e.cost is not None else time.perf_counter() - t0
-            if e.cost is None:                                       # running estimate of measured wall time
+            fixed = e.cost_of(query)
+            costs[i] = fixed if fixed is not None else time.perf_counter() - t0
+            if fixed is None:                                        # running estimate of measured wall time
                 self._cost_est[i] = costs[i] if np.isnan(self._cost_est[i]) else 0.8 * self._cost_est[i] + 0.2 * costs[i]
+            else:
+                self._cost_est[i] = fixed
         return preds, costs
 
     def _interval_factor(self) -> float:
@@ -522,7 +554,8 @@ class PhysicsEnsemble:
             else:
                 cov.append(np.nan)
         return EnsembleRun(self.names, np.array(errs, dtype=float), np.array(ens, dtype=float), np.array(ws),
-                           act, np.array(cov), np.array(costs), kept if keep_predictions else None, np.array(sus))
+                           act, np.array(cov), np.array(costs), kept if keep_predictions else None, np.array(sus),
+                           self.licences() or None)
 
     def run_delayed(self, queries: Sequence[Any], references: Sequence[np.ndarray | None],
                     available_at: Sequence[float], issue_times: Sequence[float] | None = None,
@@ -581,7 +614,7 @@ class PhysicsEnsemble:
             _, j, state = heapq.heappop(pending)
             learn(j, state)
         return EnsembleRun(self.names, errs, ens, np.array(ws), act, cov, np.array(costs),
-                           kept if keep_predictions else None, np.array(sus))
+                           kept if keep_predictions else None, np.array(sus), self.licences() or None)
 
 
 def residual_baseline(experts: Sequence[Expert], domain_queries: Mapping[str, Sequence[Any]],

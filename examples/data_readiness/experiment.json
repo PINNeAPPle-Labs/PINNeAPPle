@@ -1,0 +1,85 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/data_readiness",
+ "title": "The data-readiness gate: assess, refuse, review, train",
+ "description": "A dataset is assessed against a manifest, refused when its operating point is outside the declared validity, refused again while a warning has no engineering review, and then trained once a review record accepts that finding for that exact dataset digest. Run with: cd examples/data_readiness && python run.py",
+ "domain": "data readiness",
+ "methods": [
+  "readiness gate",
+  "engineering review"
+ ],
+ "modules": [
+  "pinneapple_data.readiness",
+  "pinneapple_data.review",
+  "pinneapple_neural.trainer.trainer"
+ ],
+ "params": {
+  "epochs": 300,
+  "cases": 3
+ },
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "score_outside_validity",
+   "value": 70.0,
+   "unit": "",
+   "how": "readiness() on this manifest with the operating point moved to Re = 300000 (outside [1e4, 1e5]): one critical finding, and the run refuses"
+  },
+  {
+   "name": "score_missing_unit",
+   "value": 90.0,
+   "unit": "",
+   "how": "readiness() with the unit of T_max removed: one warning, and the run refuses until a review accepts it"
+  },
+  {
+   "name": "findings_blocking_before_review",
+   "value": 1,
+   "unit": "",
+   "how": "units.missing, not yet accepted by a review record for this dataset digest"
+  }
+ ],
+ "checks": [
+  {
+   "name": "a FAIL dataset cannot start a run",
+   "passed": true,
+   "value": null
+  },
+  {
+   "name": "a WARNING dataset starts only with a review that names the finding",
+   "passed": true,
+   "value": null
+  },
+  {
+   "name": "the run carries the reviewer and the accepted findings",
+   "passed": true,
+   "value": null
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "manifest.json",
+   "sweep.csv"
+  ]
+ },
+ "links": {
+  "script": "examples/data_readiness/run.py",
+  "pr": [
+   2208
+  ]
+ },
+ "references": [
+  "docs/core_concepts/data_readiness.md"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "written with the example",
+  "git": ""
+ }
+}

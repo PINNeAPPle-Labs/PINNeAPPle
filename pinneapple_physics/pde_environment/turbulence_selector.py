@@ -18,7 +18,7 @@ does not reimplement any turbulence physics itself.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any
 
 from pinneapple_physics.pde_environment.turbulence_presets import (
     KOmegaSSTResiduals,
@@ -47,11 +47,11 @@ _DEFAULT_SMAGORINSKY_CS = 0.17  # Hou (1994) LES-LBM typical range 0.1-0.18
 
 
 def get_turbulence_closure(
-    model: Union[TurbulenceModel, str],
+    model: TurbulenceModel | str,
     dim: int = 3,
     solver_family: str = "pinn",
     **kwargs: Any,
-) -> Optional[Any]:
+) -> Any | None:
     """Return the right turbulence closure object/parameter for a solver family.
 
     This function only dispatches to and validates against the *existing*
@@ -114,7 +114,7 @@ def get_turbulence_closure(
     )
 
 
-def _pinn_closure(model: TurbulenceModel, dim: int, **kwargs: Any) -> Optional[Any]:
+def _pinn_closure(model: TurbulenceModel, dim: int, **kwargs: Any) -> Any | None:
     if model is TurbulenceModel.LAMINAR:
         return None
 

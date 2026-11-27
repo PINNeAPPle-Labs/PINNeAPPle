@@ -1,0 +1,12 @@
+{
+ "code_hash": "288a934098b01104",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pipe_flow.colebrook",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 25.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "colebrook -> pinneapple_physics.closed_form.pipe_flow:colebrook\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'Re': 1.0, 'rel_rough': 0.0, 'tol': 1e-14, 'max_iter': 100}",
+ "timed_out": false
+}

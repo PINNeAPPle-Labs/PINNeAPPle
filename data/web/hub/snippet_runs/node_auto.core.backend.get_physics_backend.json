@@ -1,12 +1,12 @@
 {
- "code_hash": "3efcbf062f8ee6d3",
+ "code_hash": "38da4621c4e4486a",
  "figures": [],
  "id": "node:auto.core.backend.get_physics_backend",
  "ok": true,
- "recorded": "2026-10-24",
- "seconds": 3.88,
+ "recorded": "2026-11-25",
+ "seconds": 25.09,
  "source": "python -m pinneapple_hub.library run",
  "stderr": "",
- "stdout": "TorchPhysicsBackend\nTorchPhysicsBackend(name='torch')",
+ "stdout": "get physics backend -> pinneapple_core.backend:get_physics_backend\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': None}",
  "timed_out": false
 }

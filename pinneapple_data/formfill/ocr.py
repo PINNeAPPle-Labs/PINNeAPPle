@@ -17,14 +17,13 @@ import shutil
 import subprocess
 import tempfile
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 __all__ = ["ocr_available", "OcrPage", "ocr_pdf_page", "ocr_image"]
 
 DPI = 300
 
 
-def _cmd() -> Optional[str]:
+def _cmd() -> str | None:
     return os.environ.get("TESSERACT_CMD") or shutil.which("tesseract")
 
 
@@ -34,10 +33,10 @@ def ocr_available() -> bool:
 
 @dataclass
 class OcrPage:
-    lines: List[str]                                   # free text, one string per line
-    tables: List[List[List[str]]]                      # tables -> rows -> cells
+    lines: list[str]                                   # free text, one string per line
+    tables: list[list[list[str]]]                      # tables -> rows -> cells
     confidence: float                                  # mean word confidence, 0-100
-    word_conf: Dict[str, float] = field(default_factory=dict)   # cell/line text -> lowest word confidence in it
+    word_conf: dict[str, float] = field(default_factory=dict)   # cell/line text -> lowest word confidence in it
     angle: float = 0.0                                 # deskew applied (degrees)
 
 
@@ -73,12 +72,12 @@ def _runs(mask, axis: int, length: int):
     return out.T if axis == 1 else out
 
 
-def _segments(mask, axis: int, min_len: int) -> List[Tuple[int, int, int]]:
+def _segments(mask, axis: int, min_len: int) -> list[tuple[int, int, int]]:
     """Line segments from a run mask: (position across, start, end) along ``axis`` (1 = horizontal lines)."""
     import numpy as np
     m = mask if axis == 1 else mask.T
     rows = np.where(m.any(axis=1))[0]
-    segs: List[Tuple[int, int, int]] = []
+    segs: list[tuple[int, int, int]] = []
     if rows.size == 0:
         return segs
     groups, cur = [], [rows[0]]
@@ -105,7 +104,7 @@ def _segments(mask, axis: int, min_len: int) -> List[Tuple[int, int, int]]:
 
 
 # --------------------------------------------------------------------------- tesseract
-def _tesseract(img, psm: int = 4) -> List[dict]:
+def _tesseract(img, psm: int = 4) -> list[dict]:
     with tempfile.TemporaryDirectory() as tmp:
         path = os.path.join(tmp, "page.png")
         img.save(path)
@@ -153,12 +152,12 @@ def ocr_image(img) -> OcrPage:
     from PIL import Image
     words = _tesseract(Image.fromarray(clean))
     used = set()
-    tables: List[List[List[str]]] = []
-    conf: Dict[str, float] = {}
+    tables: list[list[list[str]]] = []
+    conf: dict[str, float] = {}
 
     # Table rows: bands between consecutive horizontal lines that overlap in x; cells split at vertical lines.
     hsegs.sort()
-    cur_table: List[List[str]] = []
+    cur_table: list[list[str]] = []
     prev_band = None
     for (ya, xa0, xa1), (yb, xb0, xb1) in zip(hsegs, hsegs[1:]):
         x0, x1 = max(xa0, xb0), min(xa1, xb1)
@@ -167,7 +166,7 @@ def ocr_image(img) -> OcrPage:
         ymid = (ya + yb) / 2
         seps = sorted({x for x, s0, s1 in vsegs if s0 <= ymid <= s1 and x0 - 8 <= x <= x1 + 8})
         edges = [x0] + [x for x in seps if x0 + 8 < x < x1 - 8] + [x1]
-        cells: List[List[dict]] = [[] for _ in range(len(edges) - 1)]
+        cells: list[list[dict]] = [[] for _ in range(len(edges) - 1)]
         for i, w in enumerate(words):
             if ya < w["cy"] < yb and x0 - 4 <= w["cx"] <= x1 + 4:
                 k = next((j for j in range(len(edges) - 1) if w["cx"] <= edges[j + 1]), len(edges) - 2)
@@ -193,12 +192,12 @@ def ocr_image(img) -> OcrPage:
         tables.append(cur_table)
 
     # Free text: the remaining words, in Tesseract's line order.
-    by_line: Dict[Tuple[int, int, int], List[dict]] = {}
+    by_line: dict[tuple[int, int, int], list[dict]] = {}
     for i, w in enumerate(words):
         if i not in used:
             by_line.setdefault(w["line"], []).append(w)
     lines = []
-    loose: List[List[str]] = []           # borderless table: consecutive lines split into cells at wide gaps
+    loose: list[list[str]] = []           # borderless table: consecutive lines split into cells at wide gaps
     for key in sorted(by_line, key=lambda k: min(w["y0"] for w in by_line[k])):
         ws = sorted(by_line[key], key=lambda w: w["x0"])
         text = " ".join(w["text"] for w in ws).strip(" |")

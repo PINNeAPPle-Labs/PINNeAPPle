@@ -108,3 +108,33 @@ def test_parse_equation_and_locations():
 ])
 def test_convergence_status(hist, status):
     assert convergence_section(hist)["status"] == status
+
+
+def test_the_app_records_its_run_as_a_library_experiment():
+    """#29: the record an app run leaves behind is ``pp.Experiment``'s own, fingerprint and all."""
+    import pinneapple as pp
+    from pinneapple_app.backend.core.benchmark import build_benchmark_payload
+
+    problem = load_preset("burgers_1d")
+    col = CollocationConfig(n_interior=64, n_boundary=32, n_initial=16)
+    data = run_data_pipeline(problem, col, DataConfig(use_solver=False), verbose=False)
+    cfg = ExperimentConfig(problem_name="burgers_1d", models=[ModelRunConfig("vanilla_pinn")],
+                           epochs=3, seed=7, auto_improve=False)
+    res = asyncio.run(ExperimentRunner(cfg, data, problem).run())
+
+    record = res.experiments[0]
+    assert record["method"] == "vanilla_pinn" and record["seed"] == 7
+    assert record["problem_fingerprint"] == pp.Experiment("burgers_1d").problem.fingerprint()
+    assert record["resumable"] is True and record["problem_source"]["preset"] == "burgers_1d"
+    assert record["options"]["epochs"] == 3
+    # ... and it travels in the payload the UI reads, without breaking it
+    payload = build_benchmark_payload(res)
+    assert payload["experiments"][0]["seed"] == 7 and payload["leaderboard"]
+
+
+def test_a_custom_problem_is_recorded_without_a_fingerprint():
+    """A custom problem has no preset for the library to rebuild, so the record says that instead of guessing."""
+    cfg = ExperimentConfig(problem_name="__custom__", models=[ModelRunConfig("vanilla_pinn")], seed=1)
+    record = ExperimentRunner(cfg, None, None).manifests()[0]
+    assert record["method"] == "vanilla_pinn" and record["resumable"] is False
+    assert record["problem_fingerprint"] is None and "__custom__" in record["unavailable"]

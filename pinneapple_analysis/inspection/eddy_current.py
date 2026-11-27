@@ -50,7 +50,7 @@ change what the residual being driven to zero means physically.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -66,7 +66,7 @@ from .base import InspectionPINN, PhysicsLossFn, train_generic_inspection_pinn
 
 
 def generate_eddy_current_synthetic(
-    scan_positions: Optional[np.ndarray] = None,
+    scan_positions: np.ndarray | None = None,
     *,
     nr: int = 24,
     nz: int = 40,
@@ -86,8 +86,8 @@ def generate_eddy_current_synthetic(
     defect_sigma_frac: float = 0.2,
     n_supervised: int = 400,
     n_collocation: int = 200,
-    seed: Optional[int] = 0,
-) -> Dict[str, Any]:
+    seed: int | None = 0,
+) -> dict[str, Any]:
     """Generate a synthetic eddy-current probe-scan dataset.
 
     Physically: a lumped coil (via `annular_current_source`, the same
@@ -212,7 +212,7 @@ def make_eddy_current_physics_loss(omega: float, mu: float, sigma: float) -> Phy
     (valid in the homogeneous conductor bulk collocation region -- see
     `generate_eddy_current_synthetic`)."""
 
-    def physics_loss_fn(model: torch.nn.Module, batch: Dict[str, Any]):
+    def physics_loss_fn(model: torch.nn.Module, batch: dict[str, Any]):
         x_col = batch["x_col"]
         if not x_col.requires_grad:
             x_col = x_col.clone().requires_grad_(True)
@@ -248,20 +248,20 @@ def make_eddy_current_physics_loss(omega: float, mu: float, sigma: float) -> Phy
 
 
 def train_eddy_current(
-    synthetic_data: Optional[Dict[str, Any]] = None,
+    synthetic_data: dict[str, Any] | None = None,
     *,
     hidden=(64, 64, 64),
     epochs: int = 200,
     lr: float = 1e-3,
     batch_size: int = 32,
     device: str = "cpu",
-    seed: Optional[int] = 0,
+    seed: int | None = 0,
     log_dir: str = "runs/inspection_eddy_current",
     run_name: str = "eddy_current_pinn",
     w_supervised: float = 1.0,
     w_physics: float = 1.0,
     **synthetic_kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate (if not supplied) eddy-current synthetic data, build an
     `InspectionPINN` and train it via `train_generic_inspection_pinn`
     with the Helmholtz-residual physics loss above."""

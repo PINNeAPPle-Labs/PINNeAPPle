@@ -1,0 +1,12 @@
+{
+ "code_hash": "fae8edcdffe628ce",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.rocket_nozzle.temperature_ratio",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 18.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "temperature ratio -> pinneapple_physics.closed_form.rocket_nozzle:temperature_ratio\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'M': 1.0, 'gamma': 1.0}",
+ "timed_out": false
+}

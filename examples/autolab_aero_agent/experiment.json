@@ -22,7 +22,9 @@
   "no_replay": false,
   "mission": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD. Use at most 20 CFD runs."
  },
- "scripts": [],
+ "scripts": [
+  "agent_mission.py"
+ ],
  "metrics": [
   {
    "name": "agent_steps",

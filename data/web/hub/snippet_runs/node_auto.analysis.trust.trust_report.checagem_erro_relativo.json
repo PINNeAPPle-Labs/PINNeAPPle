@@ -1,0 +1,12 @@
+{
+ "code_hash": "5744f77250ac8736",
+ "figures": [],
+ "id": "node:auto.analysis.trust.trust_report.checagem_erro_relativo",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Check\nCheck(name='', status='supports', critical=False, weight=1.0, value=1.0, limit=1.0, source='', reason='')",
+ "timed_out": false
+}

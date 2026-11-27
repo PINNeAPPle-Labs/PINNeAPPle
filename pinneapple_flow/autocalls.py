@@ -154,10 +154,12 @@ def scan(module: str) -> tuple[list[dict[str, Any]], str]:
 
 
 def generate(modules: list[str] | None = None) -> dict[str, Any]:
-    """Scan ``modules`` (default: every module the curated nodes and reasons leave open) and return the data."""
+    """Scan ``modules`` (default: every module that owes a node or a reason -- the first-level rows and whatever the
+    core API lists, at any depth -- and that the curated nodes and reasons leave open) and return the data."""
     from .coverage import coverage
     if modules is None:
-        modules = [r["module"] for r in coverage(auto=False) if not r["nodes"] and not r["reason"]]
+        modules = [str(r["module"]) for r in coverage(auto=False)
+                   if r["owing"] and not r["nodes"] and not r["reason"]]
     calls, reasons = [], {}
     for m in modules:
         entries, reason = scan(m)

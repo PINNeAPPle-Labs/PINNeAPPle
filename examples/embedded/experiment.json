@@ -1,0 +1,109 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/embedded",
+ "title": "Embedded inference: the model, its physics residual and its measurement check as one ONNX graph",
+ "description": "A 12 k-parameter convolutional surrogate of the advection-diffusion field is trained on the exact solution of the discrete equation the residual stencil writes, exported with the residual, the trust level and the two flags into a single straight-line ONNX graph (no If, Loop or Scan), and measured: 1.5-1.8 kHz on one ARM core, 0.55-0.66 ms per call, and a residual that flags a field moving 2.5x faster than the training data 100 % of the time while never flagging the training distribution.",
+ "domain": "deployment",
+ "methods": [
+  "surrogate",
+  "onnxruntime"
+ ],
+ "modules": [
+  "pinneapple_physics.embedded"
+ ],
+ "params": {
+  "state_shape": [
+   2,
+   32,
+   64
+  ],
+  "dt": 0.5,
+  "dx": 1.0,
+  "parameters": {
+   "c_x": 1.0,
+   "c_y": 0.35,
+   "alpha": 0.01
+  }
+ },
+ "scripts": [
+  "embedded_inference.py"
+ ],
+ "metrics": [
+  {
+   "name": "latency_1_thread",
+   "value": 0.547,
+   "unit": "ms",
+   "how": "onnxruntime CPUExecutionProvider, intra_op=inter_op=1 thread, 500 timed calls after a warm-up, median"
+  },
+  {
+   "name": "rate_1_thread",
+   "value": 1827.0,
+   "unit": "Hz",
+   "how": "1 / median latency on one thread"
+  },
+  {
+   "name": "rate_4_threads",
+   "value": 2841.8,
+   "unit": "Hz",
+   "how": "1 / median latency on four threads: more sockets than the graph can use"
+  },
+  {
+   "name": "graph_bytes",
+   "value": 25042,
+   "unit": "B",
+   "how": "the exported flight_model.onnx"
+  },
+  {
+   "name": "flagged_out_of_domain",
+   "value": 1.0,
+   "unit": "",
+   "how": "fraction of the speed-2.5x cases whose residual is above the calibrated tolerance of 0.094"
+  },
+  {
+   "name": "flagged_in_domain",
+   "value": 0.0,
+   "unit": "",
+   "how": "fraction of the held-out training-distribution cases above the same tolerance"
+  }
+ ],
+ "checks": [
+  {
+   "name": "graph_is_straight_line",
+   "passed": true,
+   "kind": "physics",
+   "label": "the graph carries no If, Loop or Scan"
+  },
+  {
+   "name": "residual_exact_frame",
+   "passed": true,
+   "kind": "reference",
+   "label": "the exact next frame scores 0.0 under the stencil, so the residual is the model's own error"
+  },
+  {
+   "name": "calibrated_on_held_out",
+   "passed": true,
+   "kind": "reference",
+   "label": "the tolerance is 1.5x the median residual of a held-out in-domain sample, not a guess"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/residual_and_field.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "embedded_inference.json"
+  ]
+ },
+ "links": [],
+ "references": [],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11",
+  "torch": "2.x"
+ }
+}

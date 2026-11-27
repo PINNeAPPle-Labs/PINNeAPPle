@@ -9,7 +9,6 @@ It supports 2D/3D, uniform mass particles, and simple box boundaries.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
 
 import torch
 
@@ -66,9 +65,9 @@ class SPHSolver(SolverBase):
         rho0: float = 1000.0,
         c0: float = 20.0,
         mu: float = 0.02,
-        gravity: Optional[list[float]] = None,
-        boundary_lo: Optional[list[float]] = None,
-        boundary_hi: Optional[list[float]] = None,
+        gravity: list[float] | None = None,
+        boundary_lo: list[float] | None = None,
+        boundary_hi: list[float] | None = None,
     ):
         super().__init__()
         self.h = float(h)
@@ -138,7 +137,7 @@ class SPHSolver(SolverBase):
         pos_new = pos + dt * vel_new
         return SPHState(pos=pos_new, vel=vel_new, rho=rho, p=p)
 
-    def forward(self, pos0: torch.Tensor, vel0: Optional[torch.Tensor] = None, *, dt: float = 1e-3, steps: int = 10) -> SolverOutput:
+    def forward(self, pos0: torch.Tensor, vel0: torch.Tensor | None = None, *, dt: float = 1e-3, steps: int = 10) -> SolverOutput:
         """Simulate.
 
         Inputs

@@ -1,6 +1,6 @@
 from __future__ import annotations
 """GraphCast-style mesh-based forecasting architecture (fixed + variable graphs)."""
-from typing import Any, Dict, Optional, List
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -167,14 +167,14 @@ class GraphCast(GraphModelBase):
         self,
         g: GraphBatch,
         *,
-        y_true: Optional[torch.Tensor] = None,  # fixed: (B,N,out_dim) optional
+        y_true: torch.Tensor | None = None,  # fixed: (B,N,out_dim) optional
         return_loss: bool = False,
     ) -> GraphOutput:
 
         # -------- detect mode --------
         is_variable = hasattr(g, "x_list") and getattr(g, "x_list") is not None
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
 
         if not is_variable:
             # ===== fixed/shared graph =====
@@ -199,8 +199,8 @@ class GraphCast(GraphModelBase):
             return GraphOutput(y=y, losses=losses, extras={"h": h})
 
         # ===== variable graph (per-sample) =====
-        x_list: List[torch.Tensor] = g.x_list
-        edge_index_list: List[torch.Tensor] = g.edge_index_list
+        x_list: list[torch.Tensor] = g.x_list
+        edge_index_list: list[torch.Tensor] = g.edge_index_list
         pos_list = getattr(g, "pos_list", None)
         edge_attr_list = getattr(g, "edge_attr_list", None)
 
@@ -255,7 +255,7 @@ class GraphCast(GraphModelBase):
             extras={"h_flat": h_flat, "y_list": y_list, "ptr": ptr, "mask": mask},
         )
 
-    def forward_batch(self, batch: Dict[str, Any]) -> GraphOutput:
+    def forward_batch(self, batch: dict[str, Any]) -> GraphOutput:
         """Dict-based interface used by Arena / GNNAdapter.
 
         Required keys: ``x`` (or ``node_features``), ``edge_index``.

@@ -322,6 +322,9 @@ class DimensionlessGroup:
     name: str = ""
 
     def __post_init__(self):
+        if not isinstance(self.exponents, Mapping):
+            raise ValueError(f"DimensionlessGroup {self.name or 'group'}: exponents must map quantity name -> "
+                             f"exponent, got {type(self.exponents).__name__}")
         object.__setattr__(self, "exponents", {k: _frac(v) for k, v in self.exponents.items() if _frac(v) != 0})
 
     def formula(self) -> str:

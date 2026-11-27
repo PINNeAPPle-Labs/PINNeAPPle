@@ -14,7 +14,6 @@ import time
 import math
 import torch
 import torch.nn as nn
-import numpy as np
 
 import tempfile
 from pathlib import Path

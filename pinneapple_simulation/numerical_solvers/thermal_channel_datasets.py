@@ -135,28 +135,48 @@ def eval_act(spec, t: float, which: str) -> float:
 def simulate(args) -> dict:
     """One trajectory: warm-up, then the recorded horizon (fields every ``REC``)."""
     family, seed = args
+    return _trajectory(family, seed, GRID, WARMUP, HORIZON, REC)
+
+
+def _trajectory(family: str, seed: int, grid: dict, warmup: float, horizon: float, rec_every: float) -> dict:
     au, aq = make_actuation(family, seed)
-    s = ThermalChannel2D(ChannelConfig(**GRID, record_every=REC))
+    s = ThermalChannel2D(ChannelConfig(**grid, record_every=rec_every))
     s.reset(eval_act(au, 0, "U"), eval_act(aq, 0, "Q"))
     t0 = time.time()
-    s.run(lambda t: eval_act(au, t, "U"), lambda t: eval_act(aq, t, "Q"), WARMUP, record=False)
+    s.run(lambda t: eval_act(au, t, "U"), lambda t: eval_act(aq, t, "Q"), warmup, record=False)
     s.t = 0.0
-    rec = s.run(lambda t: eval_act(au, t + WARMUP, "U"), lambda t: eval_act(aq, t + WARMUP, "Q"), HORIZON)
-    fine = np.arange(0, HORIZON + 1e-9, 0.1)
+    rec = s.run(lambda t: eval_act(au, t + warmup, "U"), lambda t: eval_act(aq, t + warmup, "Q"), horizon)
+    fine = np.arange(0, horizon + 1e-9, 0.1)
     return {"family": family, "seed": seed, "fields": rec["fields"].astype(np.float32),
             "U": np.array(rec["U"], np.float32), "Q": np.array(rec["Q"], np.float32),
             "qoi": {k: np.array([q[k] for q in rec["qoi"]], np.float32) for k in rec["qoi"][0]},
-            "U_fine": np.array([eval_act(au, WARMUP + t, "U") for t in fine], np.float32),
-            "Q_fine": np.array([eval_act(aq, WARMUP + t, "Q") for t in fine], np.float32),
+            "U_fine": np.array([eval_act(au, warmup + t, "U") for t in fine], np.float32),
+            "Q_fine": np.array([eval_act(aq, warmup + t, "Q") for t in fine], np.float32),
             "seconds": time.time() - t0}
+
+
+def _run(task) -> dict:
+    """Runs one task in a worker of :func:`generate`.
+
+    The recipe's parameters travel *with the task*: a spawned worker (the default on macOS and Windows)
+    re-imports this module and would otherwise read the module defaults instead of the grid and horizon
+    the caller asked for.
+    """
+    family, seed, grid, warmup, horizon, rec_every = task
+    globals().update(GRID=grid, WARMUP=warmup, HORIZON=horizon, REC=rec_every)   # eval_act reads them
+    return _trajectory(family, seed, grid, warmup, horizon, rec_every)
 
 
 def generate(out: Path, workers: int = 1, name: str = "thermal_channel_cfd") -> dict:
     """Run :data:`PLAN` and write ``out/<name>/<split>[-NN].npz`` and ``meta.json``."""
     from .operator_datasets import write_npz
     t0 = time.time()
-    with ProcessPoolExecutor(max(1, workers)) as ex:
-        runs = list(ex.map(simulate, [(f, s) for f, s, _ in PLAN]))
+    tasks = [(f, s, dict(GRID), WARMUP, HORIZON, REC) for f, s, _ in PLAN]
+    if workers <= 1:
+        runs = [_run(task) for task in tasks]
+    else:
+        with ProcessPoolExecutor(workers) as ex:
+            runs = list(ex.map(_run, tasks))
     d = Path(out) / name
     files, rows = [], {}
     for split in SPLITS:

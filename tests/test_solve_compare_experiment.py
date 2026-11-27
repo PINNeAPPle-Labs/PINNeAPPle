@@ -76,10 +76,22 @@ def test_solve_refuses_an_inconsistent_problem():
         pp.solve("industrial_furnace_thermal", "pinn")
 
 
-def test_reference_method_refuses_a_partial_grid():
-    """The preset's FDM path returns a grid over x only (time dropped); comparing it would be wrong."""
+def test_reference_method_refuses_a_partial_grid(monkeypatch):
+    """A reference solver that drops an axis must be refused, not interpolated: the comparison would be at the wrong
+    points. The preset's FDM path now returns x and t, so the partial grid is stubbed here."""
+    import pinneapple_simulation.numerical_solvers.problem_runner as pr
+
+    monkeypatch.setattr(pr, "_run_reference_solver",
+                        lambda spec, cfg, rng: {"coords": {"x": np.linspace(0.0, 1.0, 5)}, "u": np.zeros((5, 1))})
     with pytest.raises(MethodNotAvailable, match="partial grid"):
         pp.solve("burgers_1d", "reference")
+
+
+def test_reference_method_returns_the_whole_grid():
+    s = pp.solve("burgers_1d", "reference")
+    assert set(s.grid) == {"x", "t"} and s.grid["t"].size > 1
+    exact = burgers_sine_exact(np.array([0.5]), np.array([0.2]), NU)
+    assert s.predict(np.array([[0.5, 0.2]]))[0, 0] == pytest.approx(exact[0], abs=0.05)
 
 
 def test_analytic_is_unavailable_when_no_closed_form_matches():
@@ -164,6 +176,49 @@ def test_experiment_is_reproducible_and_records_provenance(tmp_path):
     record = pp.ExperimentResult.load_record(str(tmp_path / "run"))
     assert path.endswith("result.json") and (tmp_path / "run" / "model.pt").exists()
     assert record["config"]["seed"] == 3 and record["metrics"] == r1.metrics
+
+
+def test_an_experiment_saves_reloads_and_reproduces_after_the_reload(tmp_path):
+    """#29: the definition survives a save -- and the reloaded one runs to the same predictions, not just the
+    same config. A preset problem comes back through its preset, so its Python condition functions come back too
+    (decoding ``PhysicalProblem.to_dict()`` alone keeps only their names and cannot be solved)."""
+    exp = pp.Experiment("burgers_1d", method="pinn", options=dict(SMALL_PINN), reference="analytic", seed=3, n_eval=256)
+    exp.problem = exp.problem.with_parameters(nu=NU)
+    r1 = exp.run()
+
+    directory = str(tmp_path / "run")
+    assert exp.save(directory).endswith("experiment.json") and r1.save(directory).endswith("result.json")
+    record = exp.to_dict()
+    assert record["resumable"] is True
+    assert record["problem_source"]["preset"] == "burgers_1d"
+    assert record["problem_source"]["parameters"]["nu"] == pytest.approx(NU)
+
+    back = pp.Experiment.load(directory)                       # the directory save() wrote
+    assert back.config() == exp.config()
+    assert back.problem.fingerprint() == exp.problem.fingerprint()
+    assert pp.Experiment.load(exp.save(directory)).config() == exp.config()   # the file itself
+
+    r2 = back.run()
+    pts = np.random.default_rng(0).random((50, 2)) * [2, 1] - [1, 0]
+    assert np.array_equal(r1.solution.predict(pts), r2.solution.predict(pts))
+    assert r2.metrics == r1.metrics
+
+
+def test_a_record_that_lost_its_problem_functions_says_so_and_refuses_to_run():
+    """The half of the round trip that cannot work is stated in the record instead of hidden."""
+    decoded = pp.PhysicalProblem.from_dict(pp.Experiment("burgers_1d").problem.to_dict())
+    record = pp.Experiment(decoded, method="pinn", options=dict(SMALL_PINN), seed=1).to_dict()
+    assert record["resumable"] is False and "problem_source" not in record
+    assert {"u_init.selector", "bc_left.selector"} <= set(record["detached"])
+    with pytest.raises(RuntimeError, match="without its Python function"):
+        pp.Experiment.from_dict(record).run()
+
+
+def test_a_record_whose_problem_no_longer_matches_is_refused():
+    record = pp.Experiment("burgers_1d").to_dict()
+    record["problem_fingerprint"] = "0" * 64
+    with pytest.raises(ValueError, match="does not match its fingerprint"):
+        pp.Experiment.from_dict(record)
 
 
 def test_front_door_exports():

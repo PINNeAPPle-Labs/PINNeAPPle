@@ -65,14 +65,35 @@ def card_from_guardrail(spec: Any, report: Any, *, name: str, preset: str, prese
         data_lineage={"preset": preset, "preset_kwargs": dict(preset_kwargs or {}), "pde_kind": spec.pde.kind,
                       "pde_params": dict(spec.pde.params or {})},
         validation_metrics=validation_metrics_from_report(report), reference_source=ref, citation=citation,
-        license=license, tags=tags)
+        license=license, tags=tags,
+        provenance=_provenance(architecture, preset, preset_kwargs, spec, training_config))
+
+
+def _provenance(architecture: str, preset: str, preset_kwargs: dict | None, spec: Any,
+                training_config: dict) -> dict[str, Any]:
+    """The record a certified card needs in order to be re-derivable (#39): what produced the numbers, with which
+    code, seed and inputs. The inputs of a PINN are the prescription it was trained against, so their hash is the
+    canonical hash of that description rather than of a file."""
+    import json
+
+    from pinneapple_data.provenance import build_provenance, data_hash_of_bytes
+
+    description = {"preset": preset, "preset_kwargs": dict(preset_kwargs or {}), "pde_kind": spec.pde.kind,
+                   "pde_params": dict(spec.pde.params or {}),
+                   "domain_bounds": {k: list(v) for k, v in spec.domain_bounds.items()}}
+    seed = training_config.get("seed", 0)
+    return build_provenance(architecture, seed=seed if isinstance(seed, int) else "deterministic",
+                            data_hash=data_hash_of_bytes(json.dumps(description, sort_keys=True).encode()))
 
 
 def certify_model(preset: str, name: str, *, preset_kwargs: dict | None = None, architecture: str = "modified_mlp",
                   architecture_config: dict | None = None, state_dict: bytes | dict | None = None,
                   train_epochs: int = 300, n_collocation: int = 1024, residual_threshold: float = 1e-2,
-                  reference_benchmark: str | None = None, seed: int | None = None, **card_fields: Any) -> dict:
+                  reference_benchmark: str | None = None, seed: int = 0, **card_fields: Any) -> dict:
     """Train (or load ``state_dict``: a dict or ``torch.save`` bytes) a model of ``preset``, check it, build its card.
+
+    ``seed`` is applied to the training run and recorded in the card: an unseeded certification cannot be repeated,
+    and since #39 the card has to say which randomness produced its numbers, so ``None`` means 0 rather than "any".
 
     Returns ``{"card": ModelCard, "trustworthy", "checks", "skipped", "trained_live", "final_training_loss"}``;
     raises :class:`CardRefused` when the card fails ``ModelCard.validate()``, ``KeyError`` for an unknown preset
@@ -89,8 +110,8 @@ def certify_model(preset: str, name: str, *, preset_kwargs: dict | None = None, 
     spec = pp.get_preset(preset, **(preset_kwargs or {}))
     config = {"in_dim": len(spec.coords), "out_dim": len(spec.fields), "hidden_dim": 32, "n_layers": 3}
     config.update(architecture_config or {})
-    if seed is not None:
-        torch.manual_seed(seed)
+    seed = 0 if seed is None else int(seed)
+    torch.manual_seed(seed)
     model = ModelRegistry.build(architecture, **config)
     final_loss = None
     if state_dict is None:
@@ -98,14 +119,14 @@ def certify_model(preset: str, name: str, *, preset_kwargs: dict | None = None, 
                               **tag_solve_kwargs(preset, spec))
         final_loss = float(result["history"]["loss"][-1])
         training = {"trained_live": True, "epochs": train_epochs, "n_collocation": n_collocation,
-                    "final_training_loss": final_loss}
+                    "final_training_loss": final_loss, "seed": seed}
     else:
         sd = torch.load(io.BytesIO(state_dict), map_location="cpu") if isinstance(state_dict, bytes) else state_dict
         try:
             model.load_state_dict(sd)
         except Exception as e:  # noqa: BLE001 -- a shape/key mismatch, reported as such
             raise ValueError(f"weights do not fit {architecture!r} with {config}: {e}") from e
-        training = {"trained_live": False, "note": "weights supplied by the caller"}
+        training = {"trained_live": False, "note": "weights supplied by the caller", "seed": seed}
     guard = pl.PhysicsGuardrail(spec, residual_threshold=residual_threshold)
     report = guard.check(model, **({"reference_benchmark": reference_benchmark} if reference_benchmark else {}))
     card = card_from_guardrail(spec, report, name=name, preset=preset, preset_kwargs=preset_kwargs,

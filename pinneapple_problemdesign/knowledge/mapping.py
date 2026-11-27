@@ -1,7 +1,6 @@
 """Plan builder: dispatches to FNO-first or PINN-first based on task_type."""
 from __future__ import annotations
 
-from typing import Dict, List, Optional
 from ..schema import ProblemSpec, Plan, PlanStep, Gap, uses_pinn_approach, uses_cfd_approach
 from ..method_selection import recommend_method_from_spec
 
@@ -32,7 +31,7 @@ _PINN_TOOL_CATEGORIES = ("pde_solving", "training")
 _FNO_TOOL_CATEGORIES = ("training", "timeseries", "data_generation")
 
 
-def available_orchestrator_tools(spec: ProblemSpec) -> List[Dict[str, object]]:
+def available_orchestrator_tools(spec: ProblemSpec) -> list[dict[str, object]]:
     """Read-only lookup of real, currently-registered tools from
     ``pinneapple_worldmodel.orchestrator.PhysicsOrchestrator``'s
     ``PhysicsToolRegistry`` that are relevant to *spec*.
@@ -90,7 +89,7 @@ def available_orchestrator_tools(spec: ProblemSpec) -> List[Dict[str, object]]:
         return []
 
 
-def _orchestrator_tools_step(spec: ProblemSpec) -> Optional[PlanStep]:
+def _orchestrator_tools_step(spec: ProblemSpec) -> PlanStep | None:
     """Build an additive ``PlanStep`` naming real orchestrator tools, or
     ``None`` if the bridge found nothing (never a fake placeholder step)."""
     tools = available_orchestrator_tools(spec)
@@ -113,7 +112,7 @@ def _orchestrator_tools_step(spec: ProblemSpec) -> Optional[PlanStep]:
     )
 
 
-def _method_selection_step(spec: ProblemSpec) -> Optional[PlanStep]:
+def _method_selection_step(spec: ProblemSpec) -> PlanStep | None:
     """Build an additive ``PlanStep`` naming a real recommended numerical
     method + turbulence closure (from
     ``pinneapple_problemdesign.method_selection.recommend_method_from_spec``),
@@ -152,7 +151,7 @@ def _method_selection_step(spec: ProblemSpec) -> Optional[PlanStep]:
 
 def build_plan(
     spec: ProblemSpec,
-    gaps: List[Gap],
+    gaps: list[Gap],
     use_orchestrator_bridge: bool = True,
 ) -> Plan:
     """Dispatch to the appropriate plan builder based on spec.task_type.
@@ -194,7 +193,7 @@ def build_plan(
     return plan
 
 
-def build_plan_pinn_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
+def build_plan_pinn_first(spec: ProblemSpec, gaps: list[Gap]) -> Plan:
     """Plan for PDE-solution and inverse-problem tasks via PINNFactory."""
     recommended = (
         "PINN-first: define PDE residuals symbolically via PINNFactory, enforce BCs/ICs "
@@ -269,7 +268,7 @@ def build_plan_pinn_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
     )
 
 
-def build_plan_fno_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
+def build_plan_fno_first(spec: ProblemSpec, gaps: list[Gap]) -> Plan:
     recommended = (
         "FNO-first baseline (direct multi-horizon forecast), then iterate on data quality, "
         "robustness, and optionally add physics-inspired constraints or hybrid losses."
@@ -282,7 +281,7 @@ def build_plan_fno_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
         "PINN if PDE residuals + BC/IC are reliable and data is scarce",
     ]
 
-    steps: List[PlanStep] = []
+    steps: list[PlanStep] = []
 
     steps.append(PlanStep(
         title="Consolidate the ProblemSpec and close critical gaps",
@@ -384,7 +383,7 @@ def build_plan_fno_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
     )
 
 
-def build_plan_cfd_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
+def build_plan_cfd_first(spec: ProblemSpec, gaps: list[Gap]) -> Plan:
     """Plan for external-aerodynamics/CFD/fluid-dynamics problems, using
     PINNeAPPle's Lattice-Boltzmann solver, RANS/LES turbulence-closure
     presets, vortex-identification post-processing, and (optionally) the
@@ -402,7 +401,7 @@ def build_plan_cfd_first(spec: ProblemSpec, gaps: List[Gap]) -> Plan:
         "Neural operator (FNO) surrogate across the AoA sweep if many geometries/conditions "
         "must be evaluated cheaply",
     ]
-    steps: List[PlanStep] = [
+    steps: list[PlanStep] = [
         PlanStep(
             title="Define geometry, voxelization/CAD input, and AoA sweep",
             why="LBM/OpenFOAM meshing and boundary conditions depend on a concrete "

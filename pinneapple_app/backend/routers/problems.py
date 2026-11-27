@@ -1,6 +1,6 @@
 """Problems API router."""
 from __future__ import annotations
-from typing import Any, Dict, List, Optional
+from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -11,24 +11,24 @@ class PresetListItem(BaseModel):
     name: str
     family: str
     description: str
-    tags: List[str]
+    tags: list[str]
     time_dependent: bool
-    recommended_models: List[str]
+    recommended_models: list[str]
     recommended_solver: str
 
 
 class CustomProblemRequest(BaseModel):
     name: str
-    equations: List[str]           # SymPy-compatible expression strings
-    boundary_conditions: List[Dict[str, Any]]
-    initial_conditions: List[Dict[str, Any]] = []
-    domain_bounds: Dict[str, List[float]]     # {"x": [0, 1], "y": [0, 1]}
+    equations: list[str]           # SymPy-compatible expression strings
+    boundary_conditions: list[dict[str, Any]]
+    initial_conditions: list[dict[str, Any]] = []
+    domain_bounds: dict[str, list[float]]     # {"x": [0, 1], "y": [0, 1]}
     dim: int = 2
     pde_family: str = "generic"
     is_time_dependent: bool = False
 
 
-@router.get("", response_model=List[PresetListItem])
+@router.get("", response_model=list[PresetListItem])
 def list_problems():
     """Return all available preset problems with metadata."""
     from ..core.problem_registry import all_problems, get_problem_meta

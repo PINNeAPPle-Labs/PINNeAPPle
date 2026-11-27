@@ -1,0 +1,12 @@
+{
+ "code_hash": "e1b693beeed45838",
+ "figures": [],
+ "id": "example:examples/digital_twin_library",
+ "ok": true,
+ "recorded": "2026-11-16",
+ "seconds": 1.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital Twin Library: five reference systems | digital twins | not curated\nworst_balance_residual 0.00019079846226366986 relative\nsystems_in_the_catalogue 5.0 systems",
+ "timed_out": false
+}

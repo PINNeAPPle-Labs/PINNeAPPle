@@ -1,0 +1,12 @@
+{
+ "code_hash": "9b27a8d710bbaa6e",
+ "figures": [],
+ "id": "node:auto.tools.visualization.studio.fieldview.length_factor",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "length factor -> pinneapple_tools.visualization.studio.fieldview:length_factor\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'unit': '', 'to': 'm'}",
+ "timed_out": false
+}

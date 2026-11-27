@@ -127,6 +127,9 @@ def _figures(OUT, sweep, rng, lat, checks, decision):
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     col = {"APPROVED": "#2e9d4f", "REVIEW": "#e0a000", "REJECT": "#c0392b"}
     fig, axs = plt.subplots(1, 2, figsize=(11, 3.8))
     a = np.array([s["alpha"] for s in sweep])

@@ -1,9 +1,7 @@
 """KB build pipeline: papers and repos to KBStore."""
 from __future__ import annotations
 
-import json
 import os
-from typing import List, Tuple
 
 from ..config import ResearcherConfig
 from ..kb.store import KBStore
@@ -117,7 +115,7 @@ def build_kb(cfg: ResearcherConfig, discovery: DiscoveryResult) -> KBIndex:
 
     store.write_manifest(run_dir, topic=cfg.topic, papers=discovery.papers, repos=discovery.repos)
 
-    artifacts: List[KBArtifact] = []
+    artifacts: list[KBArtifact] = []
 
     # Papers: include PDF section extraction
     for it in discovery.papers:

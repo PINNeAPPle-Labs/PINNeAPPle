@@ -29,15 +29,15 @@ from __future__ import annotations
 import json
 import logging
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any
 
 import torch
 import torch.nn as nn
 from torch import Tensor
 
-from .model import PhysicsWorldModel, WorldModelConfig
+from .model import PhysicsWorldModel
 
 log = logging.getLogger(__name__)
 
@@ -65,12 +65,12 @@ class ZooEntry:
     name: str
     model: PhysicsWorldModel
     scenario: str
-    physics_tags: List[str] = field(default_factory=list)
-    metrics: Dict[str, float] = field(default_factory=dict)
+    physics_tags: list[str] = field(default_factory=list)
+    metrics: dict[str, float] = field(default_factory=dict)
     n_params: int = 0
     trained_at: float = field(default_factory=time.time)
-    checkpoint_path: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    checkpoint_path: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.n_params == 0:
@@ -93,8 +93,8 @@ class EnsembleModel(nn.Module):
 
     def __init__(
         self,
-        models: List[PhysicsWorldModel],
-        weights: Optional[List[float]] = None,
+        models: list[PhysicsWorldModel],
+        weights: list[float] | None = None,
         aggregation: str = "mean",
     ) -> None:
         super().__init__()
@@ -106,7 +106,7 @@ class EnsembleModel(nn.Module):
             self.weights = [w / total for w in weights]
         self.aggregation = aggregation
 
-    def forward(self, state: Tensor, context: Optional[Tensor] = None) -> Tensor:
+    def forward(self, state: Tensor, context: Tensor | None = None) -> Tensor:
         preds = [m(state, context) for m in self.models]
         if self.aggregation == "mean":
             stacked = torch.stack(preds, dim=0)  # (K, B, C, *grid)
@@ -144,9 +144,9 @@ class WaMaModel(PhysicsWorldModel):
     @classmethod
     def from_specialists(
         cls,
-        specialists: List[PhysicsWorldModel],
-        weights: Optional[List[float]] = None,
-    ) -> "WaMaModel":
+        specialists: list[PhysicsWorldModel],
+        weights: list[float] | None = None,
+    ) -> WaMaModel:
         if not specialists:
             raise ValueError("Need at least one specialist.")
 
@@ -157,7 +157,7 @@ class WaMaModel(PhysicsWorldModel):
 
         ref = specialists[0]
         model = cls(ref.config, n_fields=ref.n_fields, grid_shape=ref.grid_shape)
-        avg_sd: Dict[str, Tensor] = {}
+        avg_sd: dict[str, Tensor] = {}
 
         for key in ref.state_dict():
             avg_sd[key] = sum(
@@ -193,9 +193,9 @@ class ModelZoo:
     >>> zoo2 = ModelZoo.load("./zoo_checkpoints")
     """
 
-    def __init__(self, root_dir: Optional[str] = None) -> None:
+    def __init__(self, root_dir: str | None = None) -> None:
         self.root_dir = root_dir
-        self.entries: Dict[str, ZooEntry] = {}
+        self.entries: dict[str, ZooEntry] = {}
 
     # ------------------------------------------------------------------
     # Registration
@@ -232,10 +232,10 @@ class ModelZoo:
     def get_entry(self, name: str) -> ZooEntry:
         return self.entries[name]
 
-    def by_tag(self, tag: str) -> List[ZooEntry]:
+    def by_tag(self, tag: str) -> list[ZooEntry]:
         return [e for e in self.entries.values() if tag in e.physics_tags]
 
-    def by_scenario(self, scenario: str) -> List[ZooEntry]:
+    def by_scenario(self, scenario: str) -> list[ZooEntry]:
         return [e for e in self.entries.values() if e.scenario == scenario]
 
     def best_by_metric(self, metric: str, *, lower_is_better: bool = True) -> ZooEntry:
@@ -246,7 +246,7 @@ class ModelZoo:
         return min(candidates, key=lambda e: e.metrics[metric]) if lower_is_better \
             else max(candidates, key=lambda e: e.metrics[metric])
 
-    def list_names(self) -> List[str]:
+    def list_names(self) -> list[str]:
         return list(self.entries.keys())
 
     def __len__(self) -> int:
@@ -264,11 +264,11 @@ class ModelZoo:
 
     def ensemble(
         self,
-        names: Optional[List[str]] = None,
-        tags: Optional[List[str]] = None,
+        names: list[str] | None = None,
+        tags: list[str] | None = None,
         *,
         aggregation: str = "mean",
-        metric_weights: Optional[str] = None,
+        metric_weights: str | None = None,
         lower_is_better: bool = True,
     ) -> EnsembleModel:
         """Create an ensemble from a subset of zoo specialists.
@@ -323,10 +323,10 @@ class ModelZoo:
 
     def soup(
         self,
-        names: Optional[List[str]] = None,
-        tags: Optional[List[str]] = None,
+        names: list[str] | None = None,
+        tags: list[str] | None = None,
         *,
-        metric_weights: Optional[str] = None,
+        metric_weights: str | None = None,
         lower_is_better: bool = True,
     ) -> WaMaModel:
         """Create a weight-averaged model from selected specialists.
@@ -373,7 +373,7 @@ class ModelZoo:
     # Persist
     # ------------------------------------------------------------------
 
-    def save(self, directory: Optional[str] = None) -> Path:
+    def save(self, directory: str | None = None) -> Path:
         """Save all models and index to *directory*.
 
         Structure::
@@ -427,8 +427,8 @@ class ModelZoo:
         directory: str,
         *,
         map_location: str = "cpu",
-        names: Optional[List[str]] = None,
-    ) -> "ModelZoo":
+        names: list[str] | None = None,
+    ) -> ModelZoo:
         """Load a zoo from *directory*.
 
         Parameters

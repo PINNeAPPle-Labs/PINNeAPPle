@@ -1,0 +1,110 @@
+{
+ "name": "predictions",
+ "description": "Surrogate predictions on every design (train and unseen)",
+ "n_samples": 36,
+ "shards": 1,
+ "schema": {
+  "run_id": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "car_lbm-0004deb56e2a",
+    "car_lbm-04a6baee991f",
+    "car_lbm-069e65f18c92",
+    "car_lbm-0745f99c9f42",
+    "car_lbm-08b9f5e32c0a",
+    "car_lbm-0d5af0515195",
+    "car_lbm-2e2489cf17a6",
+    "car_lbm-341c9ea8a323",
+    "car_lbm-3cf6523e3951",
+    "car_lbm-48bc3ce29808",
+    "car_lbm-4c42d28eef89",
+    "car_lbm-4d7b7502db9c",
+    "car_lbm-6721abd73591",
+    "car_lbm-7b5988bc19dd",
+    "car_lbm-87e7e0f2ffd8",
+    "car_lbm-8ce4ecc1f204",
+    "car_lbm-8f2f005801b9",
+    "car_lbm-9487e9c647e7",
+    "car_lbm-99d1da778e2d",
+    "car_lbm-9f41c915b641",
+    "car_lbm-a149fe893e72",
+    "car_lbm-a9e546b789f0",
+    "car_lbm-af4ab5cdebb7",
+    "car_lbm-b60466627c1b",
+    "car_lbm-b8649c2f83b0",
+    "car_lbm-bab32c9c2a53",
+    "car_lbm-bcb508b2f604",
+    "car_lbm-c751a0ed8c20",
+    "car_lbm-cbe249a06efb",
+    "car_lbm-cc8225379cdb",
+    "car_lbm-cce8b65788ab",
+    "car_lbm-d3880d06d1d5",
+    "car_lbm-d513b0a5e422",
+    "car_lbm-d7d57d193d6f",
+    "car_lbm-ee17ad3f0f6a",
+    "car_lbm-fa5a2434394f"
+   ]
+  },
+  "split": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "train",
+    "test"
+   ]
+  },
+  "Cd": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.2989681029769902,
+   "max": 1.7389333758425587
+  },
+  "Cd_pred": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.2990381745597177,
+   "max": 1.7531084256152338
+  },
+  "Cl": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.5682058690581471,
+   "max": 0.9731182944960892
+  },
+  "Cl_pred": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.5698930087536246,
+   "max": 0.9707944585738155
+  },
+  "speed_pred": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float16",
+   "min": 0.0,
+   "max": 1.4423828125
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "car_surrogate",
+  "run_id": "car_surrogate-3db2de4d123b",
+  "params": {
+   "holdout": 0.2,
+   "epochs": 300,
+   "width": 24,
+   "modes": 16,
+   "physics_weight": 0.5,
+   "ensemble": 5,
+   "search_samples": 4000,
+   "verify": true,
+   "seed": 0
+  }
+ },
+ "sha1": "f74074b3539f77aee716a8a04c14dcc9666ac808"
+}

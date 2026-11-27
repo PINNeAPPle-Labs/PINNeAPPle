@@ -1,0 +1,12 @@
+{
+ "code_hash": "54ecc7bd150b1a5e",
+ "figures": [],
+ "id": "example:examples/industrial_presets/bolted_joint_preload",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 3.0,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Junta aparafusada com pré-tensão: a carga de escorregamento da ligação, medida no CalculiX | Estrutural / ligações aparafusadas, máquinas e estruturas metálicas | not curated\nrel_error[aperto = pré-tensão (8 kN)] 0.017412773625220552 -\nrel_error[escorregamento em mu x N com mu = 0,5 e 4 kN] 0.0012944999999999708 -\nrel_error[escorregamento em mu x N com mu = 0,15 e 6 kN (junta oleada)] 0.0009857777777777857 -\nrel_error[cone de Coulomb: |tau|/p na interface igual a mu = 0,5] 3.1690847728249594e-06 -",
+ "timed_out": false
+}

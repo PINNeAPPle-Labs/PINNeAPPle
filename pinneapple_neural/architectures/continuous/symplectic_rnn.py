@@ -1,7 +1,6 @@
 from __future__ import annotations
 """Symplectic RNN for structure-preserving recurrent dynamics."""
 
-from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
@@ -75,7 +74,7 @@ class SymplecticRNN(ContinuousModelBase):
         z0: torch.Tensor,                    # (B,2*dim_q)
         t: torch.Tensor,                     # (T,)
         *,
-        y_true: Optional[torch.Tensor] = None,  # (B,T,2*dim_q)
+        y_true: torch.Tensor | None = None,  # (B,T,2*dim_q)
         return_loss: bool = False,
     ) -> ContOutput:
         B, D = z0.shape
@@ -119,7 +118,7 @@ class SymplecticRNN(ContinuousModelBase):
 
         z_path = torch.stack(zs, dim=1)  # (B,T,2*dim_q)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.zeros((), device=z_path.device, dtype=z_path.dtype)}
+        losses: dict[str, torch.Tensor] = {"total": torch.zeros((), device=z_path.device, dtype=z_path.dtype)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(z_path, y_true)
             losses["total"] = losses["mse"]

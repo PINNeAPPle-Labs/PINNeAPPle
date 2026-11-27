@@ -53,6 +53,27 @@
   "domain": "structures",
   "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
  },
+ "capsule_aeroheating": {
+  "domain": "aerothermodynamics",
+  "needs": "the 77 MB capsule-aeroheating wall file from Hugging Face, through bijective-gamut",
+  "reason": "01_multifidelity.py downloads the corpus, pairs the two fidelities and fits four scalar strategies and the field's three-mode correction, about a minute of CPU on top; the flow has no node for the corpus reader or the multi-fidelity pairing, both new in this branch",
+  "status": "needs"
+ },
+ "carbench_surface_pressure": {
+  "domain": "external aerodynamics",
+  "reason": "a surface-pressure dataset for a parametric car family (three roof lines, open/closed wheel arches, thirteen design variables), labelled by a lattice-Boltzmann sweep of the library's 3-D tunnel and then used to rank six surrogate families: the label is coarser than the published benchmark's RANS (the manifest records the resolution, the reachable Reynolds number and the density excursion), so the protocol and the ranking are what is reproduced. No node wraps a solver sweep followed by a model benchmark, so it runs from its script",
+  "status": "not_convertible"
+ },
+ "carcrashnet_pole_impact": {
+  "domain": "structural crashworthiness",
+  "reason": "a pole-impact dataset of a bumper-beam coupon (seven design variables to the crashworthiness quantities, and the undeformed mesh plus the design vector to the displacement of every node at every frame), labelled by the library's explicit crash solver and then used to rank tabular and field surrogates on one campaign, with the design kept as a per-node channel so a held-out design can be asked about and its peak displacement scored. No node wraps a transient solver sweep followed by a model benchmark, so it runs from its script",
+  "status": "not_convertible"
+ },
+ "cfd": {
+  "domain": "validation and benchmarks",
+  "reason": "classical_cases/run_cases.py runs a validation campaign: three OpenFOAM meshes per Reynolds number (the lid-driven cavity of Ghia 1982, the backward-facing step, the NASA TMR flat plate), plus the surrogate warm-start benchmark and the low-fidelity ladder. Each case writes its own dictionaries, runs a solver for tens of minutes and reads the answer back as a profile compared with a published table; the artifact is the validation report, not a computation step, and the reference tables themselves need no solver",
+  "status": "not_convertible"
+ },
  "chain_of_whys": {
   "domain": "design reasoning",
   "notes": "chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet"
@@ -80,9 +101,23 @@
   "reason": "API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed",
   "status": "not_convertible"
  },
+ "data_readiness": {
+  "domain": "data",
+  "reason": "the data-readiness gate end to end (#1491/#1493): run.py assesses a dataset, refuses it, records an engineer's acceptance and trains. The gate is the step *before* a training node reads its verdict, not a node of its own (see pinneapple_data.readiness in pinneapple_flow/coverage.py), and the run threads a review record created inside the script",
+  "status": "not_convertible"
+ },
  "design_from_intent": {
   "domain": "design",
   "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
+ },
+ "digital_twin_end_to_end": {
+  "domain": "digital twin",
+  "reason": "the demo is the twin.workflow node run on records it fetches itself (a live USGS gauge through pinneapple_systems.digital_twin.io.usgs, or a labelled synthetic recession) plus the drift verdict of pinneapple_analysis.trust.drift on the residuals; the node's source is simulated/csv/connected stream, so a flow would need the USGS connector as a node of its own, and the run would depend on the network. tests/test_digital_twin_end_to_end.py runs the same paths offline with a recorded payload",
+  "status": "not_convertible"
+ },
+ "digital_twin_library": {
+  "domain": "digital twins",
+  "reason": "the script composes library calls only: seven reference models from pinneapple_systems.digital_twin.library, each run through catalogue()/run() and asked for its balances, invariants and stated limits. What it demonstrates is the contract those models share \u2014 two independent routes to every conservation law, invariants that hold for any parameter set, and a written not-verified list \u2014 which a Flow node would only re-label; the models themselves are the deliverable (docs/guides/digital_twin_library.md)"
  },
  "dynamics_toolkit": {
   "domain": "dynamical systems",
@@ -158,6 +193,11 @@
   "domain": "PINN",
   "notes": "03_heat_diffusion_1d and 04_wave_equation_1d are flows of equations.system + train.pinn + validate.compare for the script's three diffusivities / wave speeds against the exact solutions (the script trains its own torch loop with a hard x(1-x) factor); nothing committed to compare. 01, 02 and 05-10 are pure-torch ODE PINNs without pinneapple calls, and no node trains a PINN on an ODE (geometry.domain needs a spatial dimension)"
  },
+ "granular_dem": {
+  "domain": "process engineering",
+  "reason": "01_mill_power_and_wear.py drives the granular solver through one mill campaign \u2014 drum, charge, liner facets, a bonded agglomerate and its breakage \u2014 and measures power draw, liner wear and a product curve from the contacts; no node wraps the DEM solver (the catalog has none for contact mechanics), and the campaign is longer than a node's budget",
+  "status": "not_convertible"
+ },
  "handoff_cases": {
   "domain": "CFD",
   "needs": "OpenFOAM (+ xfoil)",
@@ -171,11 +211,15 @@
  },
  "industrial_presets": {
   "domain": "engineering presets",
-  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs"
+  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs. bolted_joint_preload has no flow on purpose: its deck is solved by an external CalculiX (ccx) binary, so on a machine without one the flow would record a written deck and no measurement \u2014 a quick configuration that never reproduces the committed numbers is worse than the stated reason"
  },
  "inspection": {
   "domain": "inspection",
   "notes": "nothing committed to compare: the script prints the losses"
+ },
+ "intent_to_study": {
+  "domain": "text to simulation and text to physics AI",
+  "notes": "both sentences compile to a study contract and run their fidelity ladder (analytic, immersed/finite difference solver, refinement); physics_ai mode adds the surrogate rung, which the node exposes as the mode parameter. The wall's numbers are the script's: cold face 572.95 K, decision APPROVED"
  },
  "latent": {
   "domain": "physics AI",
@@ -216,14 +260,14 @@
   "reason": "protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled)",
   "status": "needs"
  },
+ "motor_magnetics": {
+  "domain": "electromagnetics"
+ },
  "mujoco": {
   "domain": "robotics",
   "needs": "MuJoCo (pip install \"pinneapple[mujoco]\")",
   "reason": "quickstart.py runs four MuJoCo sessions in about two seconds (a trajectory and its UPD export, validate(), a BatchRunner campaign, and an arm held by the multibody tree), but MuJoCo is an optional wheel the Flow Studio image does not install and no flow node wraps the backend yet",
   "status": "needs"
- },
- "motor_magnetics": {
-  "domain": "electromagnetics"
  },
  "near_random_forecasting": {
   "domain": "time series",
@@ -263,6 +307,11 @@
  "physics_condensation": {
   "domain": "heat transfer",
   "notes": "hierarchy_64: condense.package_thermal at 64 x 64 blocks, m = 12, compared with the committed scaling point (quick: 16 x 16). The other studies of run_benchmark.py (accuracy against modes, refinement, Keff, learned blocks, transient, meshless, exception patches) are pinneapple_condense.benchmark functions that run for minutes in subprocesses and are measured by the script."
+ },
+ "physics_data_schema": {
+  "domain": "physics data",
+  "reason": "01_pdebench_bundle.py writes a synthetic PDEBench file to a temporary directory, reads it through the adapter, builds the bundle and puts it through the gates; the flow has no node for the schema adapters or the gates yet, and the point of the example is the file round trip the script arranges",
+  "status": "not_convertible"
  },
  "physics_db": {
   "domain": "data",
@@ -331,6 +380,11 @@
   "domain": "design",
   "notes": "03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts"
  },
+ "quality_diversity": {
+  "domain": "design",
+  "reason": "heat_sink_failure_map.py fits an MLP surrogate on 2000 closed-form heat-sink cases, then runs the quality-diversity search and the random and Latin-hypercube baselines at one budget over five seeds and plots both archives; what the example is about is the comparison between three searches, and the search is one library call (quality_diversity.find_failure_region) rather than a pipeline of node-sized steps, so there is no node graph that would show more than the script does",
+  "status": "not_convertible"
+ },
  "quickstart": {
   "domain": "getting started",
   "reason": "the thirteen recipes are a guided tour, not a study. 01 prints what the installed package knows (pp.info(), the preset and zoo listings) and computes nothing to compare; 02, 04, 06, 08, 10, 11, 12 and 13 train inside the script with hand-written loops over pp.solve / the trainer, and 12 writes runs/text_to_twin through the problem-design agent. A flow node wraps one library call with a comparable result, which would misrepresent a tour whose point is the printed sequence. The page the tour powers is still checked: the hub snippet example:examples/quickstart loads its experiment.json through pinneapple_lab.manifest and runs",
@@ -344,6 +398,11 @@
  "rigid_body": {
   "domain": "multibody",
   "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"
+ },
+ "rocket_launch": {
+  "domain": "flight dynamics",
+  "reason": "the four scripts are one mission study, not a chain of library calls: 01 flies one ascent and checks it against the 1976 atmosphere, the pad rotation, the Tsiolkovsky bound and an independent element solver; 02 closes the vehicle design on the simulation (a least-squares over the ideal velocity); 03 and 04 write three.js pages and a dashboard of the same flight. No flow node wraps the ascent simulation (pinneapple_simulation.launch) yet.",
+  "status": "not_convertible"
  },
  "science": {
   "domain": "science",
@@ -368,6 +427,11 @@
  "studio": {
   "domain": "visualization",
   "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"
+ },
+ "structural_ingestion": {
+  "domain": "structural CAE data",
+  "reason": "run.py drives the library's explicit crash solver over three coupon impacts and then reads each run back twice (the legacy-VTK time series and the staged OpenRadioss layout, both written by the example itself) before build_training_set normalises the campaign into a training set (#1500). Its first three steps have no node: nothing in the catalog wraps CrashSolver, StructuralRun.from_crash_result or build_training_set (the cae nodes are readers -- inp.vtk_type, dataset.describe, compare.tolerance_verdicts), and coupon(), staged_case() and the discrepancy table are script-side over the files the run wrote. ~25 s per run",
+  "status": "not_convertible"
  },
  "systems": {
   "domain": "systems",
@@ -413,12 +477,32 @@
  },
  "weather_forecasting": {
   "domain": "weather",
-  "needs": "ERA5 store (5 GB) + a trained model",
-  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed)",
+  "needs": "ERA5 store (5 GB) + a trained model + network for hurricane_ian.py",
+  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed); hurricane_ian.py reads HURDAT2 from the NHC (7 MB) and the ARCO-ERA5 and WeatherBench2 zarr stores over HTTPS, cached as about 40 MB of crops outside the repository -- minutes and a network, so not in the ci tier; pretrained_ensemble.py reads the IFS HRES and Pangu-Weather archives over HTTPS (about 100 s per case, cached as .npz) and rolls out the phase-1 checkpoint, so it is the same kind of run and not a node graph",
   "status": "needs"
  },
  "worldmodel": {
   "domain": "world model",
   "notes": "nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder"
+ },
+ "planetary_defence": {
+  "domain": "astronomy",
+  "reason": "apophis_deflection.py is three measurements over one propagator: the momentum enhancement the published DART period change implies, the miss distance at the 2029 flyby against impactor mass and warning time, and an ensemble that turns the two into a success fraction and a trust horizon. What the example is about is the numbers against the public record, and each of the three is a library call (defence.dart_beta, defence.deflection_table, defence.trust_horizon) rather than a pipeline of node-sized steps, so there is no node graph that would say more than the script does",
+  "status": "not_convertible"
+ },
+ "warp_drive": {
+  "domain": "relativity",
+  "reason": "warp_drive.py is one geometry measured three ways -- the curvature from the metric, the null energy condition searched over directions, and the total negative energy -- plus the renders. Each of those is a single library call (einstein_tensor, worst_null_energy, integrated_energy) over a static bubble; there is no pipeline of node-sized steps to build, and what the example argues is the sign and the size of one number",
+  "status": "not_convertible"
+ },
+ "multirotor_flight": {
+  "domain": "robotics",
+  "reason": "flight_safety.py is a closed loop in time -- the vehicle flies, the sensors report, the residual is measured and the fault is diagnosed -- and its unit is a flight of 10 000 steps, not a call. A flow node would have to run the whole campaign (eight faults x three seeds) inside one evaluation, which is a batch job, not a graph",
+  "status": "not_convertible"
+ },
+ "embedded": {
+  "domain": "deployment",
+  "reason": "embedded_inference.py trains a small convolutional surrogate of the advection-diffusion field, exports it together with the residual stencil and the measurement check as one ONNX graph, and measures the latency and residual inside and outside the training envelope. What the example is about is the deployment: the graph and the hertz are one library call each (embedded.export, EmbeddedRuntime.latency) and a node graph would say nothing more than the script does",
+  "status": "not_convertible"
  }
 }

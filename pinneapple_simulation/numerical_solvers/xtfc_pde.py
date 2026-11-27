@@ -105,7 +105,7 @@ Frechet linearization -- both problem-specific by design.
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 import numpy as np
 import torch
@@ -161,7 +161,7 @@ def _sin_d2act(z: Array) -> Array:
 # activation name -> (f, f', f''), all elementwise. Distinct from xtfc_ivp's
 # ACTIVATIONS dict because this module additionally needs the second
 # derivative (for u_xx) that the plain IVP solver never requires.
-ACTIVATIONS2: Dict[str, "tuple"] = {
+ACTIVATIONS2: dict[str, tuple] = {
     "tanh": (_tanh_act, _tanh_dact, _tanh_d2act),
     "sigmoid": (_sigmoid_act, _sigmoid_dact, _sigmoid_d2act),
     "sin": (_sin_act, _sin_dact, _sin_d2act),
@@ -169,7 +169,7 @@ ACTIVATIONS2: Dict[str, "tuple"] = {
 
 
 def _elm_basis2d(x: Array, t: Array, wx: Array, wt: Array, b: Array,
-                  activation: str) -> "tuple[Array, Array, Array, Array]":
+                  activation: str) -> tuple[Array, Array, Array, Array]:
     """phi, dphi/dx, dphi/dt, d2phi/dx2 for M fixed bivariate random features,
     evaluated at N paired points (x[p], t[p]).
 
@@ -223,7 +223,7 @@ def _burgers_ic_dprime(x: Array) -> Array:
 # standard Raissi et al. benchmark (also used, with the same nu, IC and BC,
 # by `pinneapple_tools.benchmark_suite.tasks.burgers_1d.Burgers1DTask`, whose
 # method-of-lines/RK4 reference this module's tests validate against).
-_PDE_PRESETS: Dict[str, Dict[str, Any]] = {
+_PDE_PRESETS: dict[str, dict[str, Any]] = {
     "heat_1d": dict(
         linear=True,
         ic=_heat_ic, ic_prime=_heat_ic_prime, ic_dprime=_heat_ic_dprime,
@@ -243,7 +243,7 @@ _PDE_PRESETS: Dict[str, Dict[str, Any]] = {
 }
 
 
-def _assert_corner_consistent(preset: Dict[str, Any], x0: float, x1: float, t0: float) -> None:
+def _assert_corner_consistent(preset: dict[str, Any], x0: float, x1: float, t0: float) -> None:
     u0_x0 = float(preset["ic"](np.array([x0]))[0])
     u0_x1 = float(preset["ic"](np.array([x1]))[0])
     uL_t0 = float(preset["bc_left"](np.array([t0]))[0])
@@ -264,7 +264,7 @@ def _assert_corner_consistent(preset: Dict[str, Any], x0: float, x1: float, t0: 
 
 def xtfc_pde_predict(x_query: Array, t_query: Array, wx: Array, wt: Array, b: Array,
                       beta: Array, pde: str, activation: str,
-                      x_span: "tuple[float, float]", t_span: "tuple[float, float]") -> Array:
+                      x_span: tuple[float, float], t_span: tuple[float, float]) -> Array:
     """Evaluate the trained 2D TFC constrained expression at arbitrary
     (paired) query points -- a pure function of the persisted (wx, wt, b,
     beta, pde, activation, x_span, t_span), mirroring `xtfc_predict` in
@@ -309,8 +309,8 @@ def xtfc_pde_predict(x_query: Array, t_query: Array, wx: Array, wt: Array, b: Ar
 
 def solve_xtfc_pde(
     pde: str,
-    x_span: "Optional[tuple[float, float]]" = None,
-    t_span: "Optional[tuple[float, float]]" = None,
+    x_span: tuple[float, float] | None = None,
+    t_span: tuple[float, float] | None = None,
     n_basis: int = 60,
     n_collocation_x: int = 25,
     n_collocation_t: int = 25,
@@ -318,10 +318,10 @@ def solve_xtfc_pde(
     max_iter: int = 60,
     tol: float = 1e-9,
     seed: int = 0,
-    w_range: "tuple[float, float]" = (-3.0, 3.0),
-    b_range: "tuple[float, float]" = (-3.0, 3.0),
+    w_range: tuple[float, float] = (-3.0, 3.0),
+    b_range: tuple[float, float] = (-3.0, 3.0),
     collocation: str = "chebyshev",
-    param: "Optional[float]" = None,
+    param: float | None = None,
 ) -> dict:
     """Solve `pde` in {"heat_1d", "burgers_1d"} via X-TFC (see module
     docstring for the full method).
@@ -457,7 +457,7 @@ def solve_xtfc_pde(
         return psi_xx @ beta + f_xx
 
     beta = np.zeros(n_basis)
-    residual_history: "list[float]" = []
+    residual_history: list[float] = []
     n_iter_done = 0
     converged = False
 
@@ -552,9 +552,9 @@ class XTFCPDESolver(SolverBase):
 
     def forward(
         self,
-        x_span: "Optional[tuple[float, float]]" = None,
-        t_span: "Optional[tuple[float, float]]" = None,
-        param: "Optional[float]" = None,
+        x_span: tuple[float, float] | None = None,
+        t_span: tuple[float, float] | None = None,
+        param: float | None = None,
         n_query: int = 40,
     ) -> SolverOutput:
         sol = solve_xtfc_pde(

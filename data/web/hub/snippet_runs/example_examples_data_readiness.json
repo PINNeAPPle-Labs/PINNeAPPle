@@ -1,0 +1,12 @@
+{
+ "code_hash": "10a0c1f90591e71f",
+ "figures": [],
+ "id": "example:examples/data_readiness",
+ "ok": true,
+ "recorded": "2026-11-22",
+ "seconds": 0.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "The data-readiness gate: assess, refuse, review, train | data readiness | not curated\nscore_outside_validity 70.0 \nscore_missing_unit 90.0 \nfindings_blocking_before_review 1",
+ "timed_out": false
+}

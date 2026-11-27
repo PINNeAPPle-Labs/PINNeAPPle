@@ -8,7 +8,6 @@ no external files needed.  Every loader returns a dict with at minimum:
 from __future__ import annotations
 
 import math
-from typing import Dict
 
 import numpy as np
 
@@ -39,7 +38,7 @@ def _ode_solve(rhs, y0, t_span, t_eval, method="RK45"):
 def _load_lorenz63(dt: float = 0.01, T: float = 50.0,
                    sigma: float = 10.0, rho: float = 28.0,
                    beta: float = 8.0/3.0,
-                   seed: int = 0) -> Dict[str, np.ndarray]:
+                   seed: int = 0) -> dict[str, np.ndarray]:
     rng = np.random.default_rng(seed)
     y0 = rng.uniform(-5, 5, 3).tolist()
     t_eval = np.arange(0.0, T, dt)
@@ -68,7 +67,7 @@ def _load_lorenz63(dt: float = 0.01, T: float = 50.0,
 def _load_spring_mass_1dof(dt: float = 0.02, T: float = 20.0,
                             m: float = 1.0, k: float = 4.0,
                             c: float = 0.4, A: float = 0.5,
-                            omega: float = 1.0) -> Dict[str, np.ndarray]:
+                            omega: float = 1.0) -> dict[str, np.ndarray]:
     t_eval = np.arange(0.0, T, dt)
 
     def _rhs(t, y):
@@ -90,7 +89,7 @@ def _load_spring_mass_1dof(dt: float = 0.02, T: float = 20.0,
 # 3. Spring-Mass 2-DOF  (coupled system, same as cosim example)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _load_spring_mass_2dof(dt: float = 0.02, T: float = 20.0) -> Dict[str, np.ndarray]:
+def _load_spring_mass_2dof(dt: float = 0.02, T: float = 20.0) -> dict[str, np.ndarray]:
     M1, K1, C1 = 1.0, 4.0, 0.4
     M2, K2, C2 = 0.5, 2.0, 0.2
     KC = 1.0
@@ -120,7 +119,7 @@ def _load_spring_mass_2dof(dt: float = 0.02, T: float = 20.0) -> Dict[str, np.nd
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_van_der_pol(dt: float = 0.02, T: float = 40.0,
-                      mu: float = 2.0) -> Dict[str, np.ndarray]:
+                      mu: float = 2.0) -> dict[str, np.ndarray]:
     t_eval = np.arange(0.0, T, dt)
 
     def _rhs(t, y):
@@ -143,7 +142,7 @@ def _load_van_der_pol(dt: float = 0.02, T: float = 40.0,
 
 def _load_rossler(dt: float = 0.05, T: float = 200.0,
                   a: float = 0.2, b: float = 0.2,
-                  c: float = 5.7) -> Dict[str, np.ndarray]:
+                  c: float = 5.7) -> dict[str, np.ndarray]:
     t_eval = np.arange(0.0, T, dt)
 
     def _rhs(t, y):
@@ -167,7 +166,7 @@ def _load_rossler(dt: float = 0.05, T: float = 200.0,
 def _load_double_pendulum(dt: float = 0.02, T: float = 30.0,
                           m1: float = 1.0, m2: float = 1.0,
                           L1: float = 1.0, L2: float = 1.0,
-                          g: float = 9.81) -> Dict[str, np.ndarray]:
+                          g: float = 9.81) -> dict[str, np.ndarray]:
     t_eval = np.arange(0.0, T, dt)
 
     def _rhs(t, y):
@@ -202,7 +201,7 @@ def _load_double_pendulum(dt: float = 0.02, T: float = 30.0,
 
 def _load_lorenz96(dt: float = 0.01, T: float = 20.0,
                    N: int = 20, F: float = 8.0,
-                   seed: int = 0) -> Dict[str, np.ndarray]:
+                   seed: int = 0) -> dict[str, np.ndarray]:
     rng = np.random.default_rng(seed)
     y0 = rng.uniform(-1, 1, N)
     y0[0] += 0.01   # small perturbation
@@ -232,7 +231,7 @@ def _load_sine_noise(n: int = 2000, dt: float = 0.05,
                      frequencies: tuple = (0.5, 1.2, 3.0),
                      amplitudes: tuple = (1.0, 0.5, 0.25),
                      noise_std: float = 0.05,
-                     seed: int = 0) -> Dict[str, np.ndarray]:
+                     seed: int = 0) -> dict[str, np.ndarray]:
     rng = np.random.default_rng(seed)
     t = np.arange(n) * dt
     signal = np.zeros(n)

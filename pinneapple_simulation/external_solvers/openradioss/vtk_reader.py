@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Tuple
 
 import numpy as np
 
@@ -36,7 +35,7 @@ def _read_block(lines, start, n, ncol, dtype=float):
 
 def read_vtk_mesh(path: str | Path) -> RadiossMesh:
     lines = Path(path).read_text().splitlines()
-    idx: Dict[str, int] = {}
+    idx: dict[str, int] = {}
     for i, ln in enumerate(lines):
         key = ln.split(" ")[0]
         if key in ("POINTS", "CELLS", "CELL_TYPES", "POINT_DATA", "CELL_DATA", "TIME"):
@@ -60,7 +59,7 @@ def read_vtk_mesh(path: str | Path) -> RadiossMesh:
     return RadiossMesh(pts.astype(np.float32), nid[:, 0], cells, ctypes, pid[:, 0], t)
 
 
-def read_case_displacements(frames_dir: str | Path) -> Tuple[np.ndarray, np.ndarray]:
+def read_case_displacements(frames_dir: str | Path) -> tuple[np.ndarray, np.ndarray]:
     """Return ``(times[T], disp[T, N, 3])`` from ``disp_XXX.txt``/``time_XXX.txt`` files."""
     d = Path(frames_dir)
     files = sorted(d.glob("disp_*.txt"))

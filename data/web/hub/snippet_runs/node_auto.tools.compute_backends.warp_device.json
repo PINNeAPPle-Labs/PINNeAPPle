@@ -1,0 +1,12 @@
+{
+ "code_hash": "7076e3131b5b5b6c",
+ "figures": [],
+ "id": "node:auto.tools.compute_backends.warp_device",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 24.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "warp device -> pinneapple_tools.compute_backends:warp_device\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

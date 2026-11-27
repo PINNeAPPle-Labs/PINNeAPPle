@@ -7,7 +7,8 @@ Key capabilities:
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, Optional, List, Callable, Union
+from typing import Any, Union
+from collections.abc import Callable
 
 import os
 import time
@@ -27,11 +28,11 @@ except Exception:  # pragma: no cover
 from .preprocess import PreprocessPipeline
 from .callbacks import EarlyStopping, ModelCheckpoint
 from .audit import set_seed, set_deterministic, RunLogger, env_fingerprint
-from .checkpoint import Checkpoint, save_checkpoint
+from .checkpoint import Checkpoint, load_checkpoint, restore_rng, rng_state, save_checkpoint
 from .metrics import Metrics, Metric, default_metrics, MetricBundle
 
 
-LossOut = Union[torch.Tensor, Dict[str, torch.Tensor]]
+LossOut = Union[torch.Tensor, dict[str, torch.Tensor]]
 
 
 @dataclass
@@ -44,11 +45,16 @@ class TrainConfig:
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
 
     # auditability
-    seed: Optional[int] = None
+    seed: int | None = None
     deterministic: bool = False
     log_dir: str = "runs"
     run_name: str = "run"
     save_best: bool = True
+
+    # Resuming (#76): ``resume_from`` is a checkpoint written by ``save_last``; ``epochs`` is then the *total* the
+    # run should reach, not the number of extra epochs, and the history comes back with the epochs already done.
+    resume_from: str | None = None
+    save_last: str | None = None
 
     # DistributedDataParallel
     ddp: bool = False
@@ -75,26 +81,43 @@ class Trainer:
     def __init__(
         self,
         model: nn.Module,
-        loss_fn: Callable[[nn.Module, torch.Tensor, Dict[str, Any]], LossOut],
-        metrics: Optional[Union[Metrics, List[Metric]]] = None,
-        preprocess: Optional[PreprocessPipeline] = None,
-        early_stopping: Optional[EarlyStopping] = None,
-        checkpoint: Optional[ModelCheckpoint] = None,
+        loss_fn: Callable[[nn.Module, torch.Tensor, dict[str, Any]], LossOut],
+        metrics: Metrics | list[Metric] | None = None,
+        preprocess: PreprocessPipeline | None = None,
+        early_stopping: EarlyStopping | None = None,
+        checkpoint: ModelCheckpoint | None = None,
+        scheduler: Any = None,
+        loss_balancer: Any = None,
+        readiness: Any = None,
+        review: Any = None,
+        constraints: Any = None,
     ):
         self.model = model
+        # both are optional and both are saved/restored, because a resumed run that restarts the learning rate or the
+        # loss weights is not the same run (#76)
+        self.scheduler = scheduler
+        self.loss_balancer = loss_balancer
+        # the data-readiness gate (#1491): a report from pinneapple_data.readiness, and the review store that may
+        # accept its warnings. Without a report nothing changes -- existing runs keep running.
+        self.readiness = readiness
+        self.review = review
+        # the limits the model has to respect (#221): the same ``pp.Constraint`` objects the optimizer receives and
+        # the deployment guard enforces. They enter as a differentiable penalty term, so the network learns them
+        # instead of being told about them afterwards.
+        self.constraints = list(constraints or ())
         self.loss_fn = loss_fn
         self.preprocess = preprocess
         self.early_stopping = early_stopping
         self.checkpoint = checkpoint
 
         if metrics is None:
-            self.metrics_obj: Optional[Metrics] = MetricBundle(default_metrics())
+            self.metrics_obj: Metrics | None = MetricBundle(default_metrics())
         elif isinstance(metrics, list):
             self.metrics_obj = MetricBundle(metrics)
         else:
             self.metrics_obj = metrics
 
-    def _xy_batch(self, batch: Any) -> Dict[str, Any]:
+    def _xy_batch(self, batch: Any) -> dict[str, Any]:
         if isinstance(batch, dict):
             return batch
         if isinstance(batch, (tuple, list)) and len(batch) >= 2:
@@ -106,7 +129,7 @@ class Trainer:
             return obj.to(device)
         return obj
 
-    def _move_batch(self, batch: Dict[str, Any], device: torch.device) -> Dict[str, Any]:
+    def _move_batch(self, batch: dict[str, Any], device: torch.device) -> dict[str, Any]:
         out = {}
         for k, v in batch.items():
             if isinstance(v, dict):
@@ -115,7 +138,7 @@ class Trainer:
                 out[k] = self._move(v, device)
         return out
 
-    def _unwrap_pred(self, y_hat: Any, batch: Optional[Dict[str, Any]] = None) -> torch.Tensor:
+    def _unwrap_pred(self, y_hat: Any, batch: dict[str, Any] | None = None) -> torch.Tensor:
         if isinstance(y_hat, torch.Tensor):
             return y_hat
         for attr in ("y", "pred", "logits", "x_hat", "recon", "out"):
@@ -125,7 +148,7 @@ class Trainer:
                     return v
         raise TypeError("Model output is not a torch.Tensor and has no known tensor attribute.")
 
-    def _parse_loss(self, loss_out: LossOut) -> Dict[str, torch.Tensor]:
+    def _parse_loss(self, loss_out: LossOut) -> dict[str, torch.Tensor]:
         if isinstance(loss_out, torch.Tensor):
             return {"total": loss_out}
         if isinstance(loss_out, dict):
@@ -134,14 +157,33 @@ class Trainer:
             return loss_out
         raise TypeError("loss_fn must return torch.Tensor or dict[str, torch.Tensor].")
 
-    def _ddp_info(self) -> Dict[str, int]:
+    def _add_constraint_penalty(self, losses: dict[str, torch.Tensor], y_hat: torch.Tensor,
+                                batch: dict[str, Any]) -> dict[str, torch.Tensor]:
+        """Add the constraint term to ``total`` and record it under ``"constraint"`` (#221).
+
+        The trainer is one of the three places the *same* ``pp.Constraint`` objects are applied -- the others are
+        ``PhysicsOptimizer(constraints=...)`` and a ``ConstraintGuard`` at serving time. Here they are a penalty, so
+        the network learns the limit; the report a run leaves behind keeps the term separate from the data loss, so
+        "the model fits and violates" is visible in the history instead of averaged away.
+        """
+        if not self.constraints:
+            return losses
+        from pinneapple_physics.constraint_engine import penalty
+
+        term = penalty(self.constraints, y_hat, values=batch)
+        out = dict(losses)
+        out["constraint"] = term
+        out["total"] = out["total"] + term
+        return out
+
+    def _ddp_info(self) -> dict[str, int]:
         return {
             "rank": int(os.environ.get("RANK", "0")),
             "world": int(os.environ.get("WORLD_SIZE", "1")),
             "local_rank": int(os.environ.get("LOCAL_RANK", "0")),
         }
 
-    def _ddp_init(self, cfg: TrainConfig) -> Dict[str, int]:
+    def _ddp_init(self, cfg: TrainConfig) -> dict[str, int]:
         if dist is None:
             raise ImportError("torch.distributed is not available.")
         info = self._ddp_info()
@@ -149,7 +191,7 @@ class Trainer:
             dist.init_process_group(backend=cfg.ddp_backend)
         return info
 
-    def _ddp_wrap(self, cfg: TrainConfig, info: Dict[str, int]) -> nn.Module:
+    def _ddp_wrap(self, cfg: TrainConfig, info: dict[str, int]) -> nn.Module:
         if DDP is None:
             raise ImportError("DistributedDataParallel is not available.")
         if cfg.device.startswith("cuda"):
@@ -176,7 +218,7 @@ class Trainer:
             drop_last=getattr(loader, "drop_last", False),
         )
 
-    def fit(self, train_loader, val_loader=None, cfg: Optional[TrainConfig] = None) -> Dict[str, Any]:
+    def fit(self, train_loader, val_loader=None, cfg: TrainConfig | None = None) -> dict[str, Any]:
         """Train ``self.model`` for ``cfg.epochs`` epochs.
 
         Args:
@@ -231,7 +273,12 @@ class Trainer:
 
         is_rank0 = ddp_info["rank"] == 0
 
+
         opt = torch.optim.Adam(self.model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+        if callable(self.scheduler):
+            # a factory is the only way to schedule the optimizer this class builds itself; an instance is stepped as
+            # given (and may schedule an optimizer of its own)
+            self.scheduler = self.scheduler(opt)
         scaler = torch.cuda.amp.GradScaler(enabled=bool(cfg.amp) and device.type == "cuda")
 
         logger = RunLogger(cfg.log_dir, cfg.run_name) if is_rank0 else None
@@ -239,8 +286,20 @@ class Trainer:
             logger.save_config(asdict(cfg))
             logger.save_artifact(f"{cfg.run_name}.env.json", env_fingerprint())
 
+        # ----- the gate (#1491): no training on a dataset with no verdict, a failed verdict, or unreviewed warnings
+        readiness_result: dict[str, Any] | None = None
+        if self.readiness is not None:
+            from pinneapple_data.readiness import require as require_readiness
+
+            verdict = require_readiness(self.readiness, review=self.review)
+            readiness_result = {"verdict": verdict.status, "digest": verdict.digest,
+                                "score": verdict.score.get("overall"),
+                                "findings": verdict.ids(), "review": verdict.score.get("review")}
+            if is_rank0 and logger is not None:
+                logger.save_artifact("readiness.json", verdict.to_dict())
+
         best_val = float("inf")
-        best_path: Optional[str] = None
+        best_path: str | None = None
         # Per-epoch history: previously not returned at all (only the
         # final best_val/best_path), even though RunLogger already
         # persists this same data to disk per epoch -- found via
@@ -248,9 +307,32 @@ class Trainer:
         # "history" key that never existed. Kept lightweight (train/val
         # totals only, not the full metrics dict) to avoid duplicating
         # RunLogger's own more detailed on-disk log.
-        history: List[Dict[str, float]] = []
+        history: list[dict[str, float]] = []
 
-        for epoch in range(cfg.epochs):
+        # ----- resume (#76): weights, optimizer, RNG, scheduler, balancer, history and the epoch to continue from
+        start_epoch = 0
+        if cfg.resume_from:
+            saved = load_checkpoint(cfg.resume_from)
+            self.model.load_state_dict(saved.model_state)
+            if saved.optim_state is not None:
+                opt.load_state_dict(saved.optim_state)
+            extra = dict(saved.resume or {})
+            start_epoch = int(extra.get("epoch", saved.meta.get("epoch", -1))) + 1
+            history = [dict(h) for h in extra.get("history", [])]
+            best_val = float(extra.get("best_val", float("inf")))
+            best_path = extra.get("best_path")
+            if extra.get("scaler") is not None:
+                scaler.load_state_dict(extra["scaler"])
+            if extra.get("scheduler") is not None and self.scheduler is not None:
+                self.scheduler.load_state_dict(extra["scheduler"])
+            if extra.get("loss_balancer") is not None and self.loss_balancer is not None:
+                self.loss_balancer.load_state_dict(extra["loss_balancer"])
+            restore_rng(extra.get("rng"))
+            if is_rank0 and logger is not None:
+                logger.log({"resumed_from": cfg.resume_from, "start_epoch": start_epoch,
+                            "resume_state": "rng+scheduler+balancer" if extra.get("rng") else "weights+optimizer"})
+
+        for epoch in range(start_epoch, cfg.epochs):
             t_epoch = time.time()
 
             if cfg.ddp and hasattr(train_loader, "sampler") and isinstance(train_loader.sampler, DistributedSampler):
@@ -259,7 +341,7 @@ class Trainer:
             # ----- train
             self.model.train()
             tr_total, n_tr = 0.0, 0
-            tr_parts: Dict[str, float] = {}
+            tr_parts: dict[str, float] = {}
 
             for raw in train_loader:
                 batch = self._xy_batch(raw)
@@ -282,6 +364,7 @@ class Trainer:
                     y_hat = self._unwrap_pred(y_hat_raw, batch=batch)
                     loss_out = self.loss_fn(self.model, y_hat, batch)
                     losses = self._parse_loss(loss_out)
+                    losses = self._add_constraint_penalty(losses, y_hat, batch)
                     loss = losses["total"]
 
                 scaler.scale(loss).backward()
@@ -313,7 +396,7 @@ class Trainer:
             # ----- val
             self.model.eval()
             va_total, n_va = 0.0, 0
-            va_parts: Dict[str, float] = {}
+            va_parts: dict[str, float] = {}
             yhat_acc, y_acc = [], []
 
             for raw in (val_loader if validated else ()):
@@ -343,6 +426,7 @@ class Trainer:
 
                     loss_out = self.loss_fn(self.model, y_hat, batch)
                     losses = self._parse_loss(loss_out)
+                    losses = self._add_constraint_penalty(losses, y_hat, batch)
                     loss = losses["total"]
 
                 bs = int(x.shape[0]) if isinstance(x, torch.Tensor) and x.ndim > 0 else 1
@@ -366,7 +450,7 @@ class Trainer:
                 dist.all_reduce(t, op=dist.ReduceOp.SUM)
                 val_total = float((t / ddp_info["world"]).item())
 
-            metrics_dict: Dict[str, float] = {}
+            metrics_dict: dict[str, float] = {}
             if self.metrics_obj is not None and yhat_acc and y_acc:
                 yhat_all = torch.cat(yhat_acc, dim=0)
                 y_all = torch.cat(y_acc, dim=0)
@@ -418,6 +502,22 @@ class Trainer:
                 )
                 save_checkpoint(best_path, ckpt)
 
+            if is_rank0 and self.scheduler is not None:
+                self.scheduler.step()
+
+            if is_rank0 and cfg.save_last:
+                # written every epoch, so an interrupted run loses at most the epoch it was in; the RNG is captured
+                # after the epoch, which is exactly the state the next epoch has to start from
+                save_checkpoint(cfg.save_last, Checkpoint(
+                    model_state={k: v.detach().cpu().clone() for k, v in self.model.state_dict().items()},
+                    optim_state=opt.state_dict(), cfg=asdict(cfg),
+                    meta={"epoch": epoch, "best_val": best_val, "history": list(history)},
+                    resume={"epoch": epoch, "history": list(history), "best_val": best_val, "best_path": best_path,
+                            "rng": rng_state(), "scaler": scaler.state_dict(),
+                            "scheduler": None if self.scheduler is None else self.scheduler.state_dict(),
+                            "loss_balancer": (self.loss_balancer.state_dict()
+                                              if hasattr(self.loss_balancer, "state_dict") else None)}))
+
             if cfg.ddp and dist is not None and dist.is_initialized():
                 t = torch.tensor([best_val], device=device)
                 dist.broadcast(t, src=0)
@@ -427,4 +527,4 @@ class Trainer:
             dist.barrier()
 
         return {"best_val": best_val, "best_path": best_path, "ddp": cfg.ddp, "rank0": is_rank0,
-                "validated": validated, "history": history}
+                "validated": validated, "history": history, "readiness": readiness_result}

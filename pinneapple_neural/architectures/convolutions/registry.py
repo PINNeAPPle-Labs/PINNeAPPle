@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for convolution model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import ConvModelBase
 from .conv1d import Conv1DModel
@@ -10,7 +9,7 @@ from .conv2d import Conv2DModel
 from .conv3d import Conv3DModel
 
 
-_REGISTRY: Dict[str, Type[ConvModelBase]] = {
+_REGISTRY: dict[str, type[ConvModelBase]] = {
     "conv1d": Conv1DModel,
     "conv_1d": Conv1DModel,
 
@@ -40,7 +39,7 @@ def register_into_global() -> None:
 
 @dataclass
 class ConvolutionCatalog:
-    registry: Dict[str, Type[ConvModelBase]] = None
+    registry: dict[str, type[ConvModelBase]] = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -48,7 +47,7 @@ class ConvolutionCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[ConvModelBase]:
+    def get(self, name: str) -> type[ConvModelBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown convolution model '{name}'. Available: {self.list()[:20]} ...")

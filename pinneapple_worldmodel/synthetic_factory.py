@@ -81,16 +81,15 @@ from __future__ import annotations
 
 import json
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 import torch
 
 # ── Existing PINNeAPPle modules ──────────────────────────────────────────────
-from .scenario import PhysicsScenario, BUILTIN_SCENARIOS
-from .simulator import PhysicsSimulator, TrajectoryData
+from .simulator import PhysicsSimulator
 
 # ── New factory modules ──────────────────────────────────────────────────────
 from .scenario_generator import ScenarioGenerator, ScenarioSpec
@@ -153,10 +152,10 @@ class SyntheticFactoryConfig:
     """
     scenario_input:       Any             = "heat_2d"
     n_samples:            int             = 10
-    output_dir:           Union[str, Path] = "./physics_dataset"
+    output_dir:           str | Path = "./physics_dataset"
     device:               str             = "cpu"
     render_fps:           int             = 24
-    sensors:              List[str]       = field(default_factory=lambda: ["rgb", "thermal", "depth"])
+    sensors:              list[str]       = field(default_factory=lambda: ["rgb", "thermal", "depth"])
     render_resolution:    tuple           = (256, 256)
     apply_randomization:  bool            = True
     apply_enhancement:    bool            = False
@@ -165,12 +164,12 @@ class SyntheticFactoryConfig:
     store_format:         str             = "zarr"
     save_vtk:             bool            = True
     verbose:              bool            = True
-    seed:                 Optional[int]   = 42
+    seed:                 int | None   = 42
     # Stage 2 — solver backend selection
     solver:               str             = "builtin"   # "builtin"|"openfoam"|"fenics"|"pinn"|"fno"
-    openfoam_case_dir:    Optional[str]   = None
-    pinn_checkpoint:      Optional[str]   = None
-    fno_checkpoint:       Optional[str]   = None
+    openfoam_case_dir:    str | None   = None
+    pinn_checkpoint:      str | None   = None
+    fno_checkpoint:       str | None   = None
     generate_temperature: bool            = True
     generate_concentration: bool          = False
 
@@ -196,7 +195,7 @@ class FactoryResult:
     """
     config:     SyntheticFactoryConfig
     spec:       ScenarioSpec
-    samples:    List[PackagedSample]
+    samples:    list[PackagedSample]
     output_dir: Path
     elapsed_s:  float = 0.0
 
@@ -224,7 +223,7 @@ class FactoryResult:
         """Return TrainingHooks for all 4 training objectives."""
         return TrainingHooks(self.output_dir, device=self.config.device)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "scenario_name":  self.spec.name,
             "pde_kind":       self.spec.pde_kind,
@@ -281,7 +280,7 @@ class SyntheticDataFactory:
         )
     """
 
-    def __init__(self, config: Optional[SyntheticFactoryConfig] = None) -> None:
+    def __init__(self, config: SyntheticFactoryConfig | None = None) -> None:
         self.cfg = config or SyntheticFactoryConfig()
         if self.cfg.seed is not None:
             np.random.seed(self.cfg.seed)
@@ -289,13 +288,13 @@ class SyntheticDataFactory:
         self._init_stages()
 
     @classmethod
-    def from_prompt(cls, prompt: str, **kwargs) -> "FactoryResult":
+    def from_prompt(cls, prompt: str, **kwargs) -> FactoryResult:
         """One-shot: from prompt string → FactoryResult."""
         cfg = SyntheticFactoryConfig(scenario_input=prompt, **kwargs)
         return cls(cfg).generate_dataset()
 
     @classmethod
-    def from_dict(cls, spec_dict: Dict[str, Any], **kwargs) -> "FactoryResult":
+    def from_dict(cls, spec_dict: dict[str, Any], **kwargs) -> FactoryResult:
         """One-shot: from JSON dict → FactoryResult."""
         cfg = SyntheticFactoryConfig(scenario_input=spec_dict, **kwargs)
         return cls(cfg).generate_dataset()
@@ -318,7 +317,7 @@ class SyntheticDataFactory:
         self._log(f"  Output   : {self.cfg.output_dir}")
         self._log(f"{'='*60}")
 
-        samples: List[PackagedSample] = []
+        samples: list[PackagedSample] = []
         for i in range(self.cfg.n_samples):
             sample = self._generate_one(i)
             samples.append(sample)

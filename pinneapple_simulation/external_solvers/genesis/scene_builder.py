@@ -9,7 +9,7 @@ build_scene() materialises the config into a gs.Scene ready for simulation.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 @dataclass
@@ -33,11 +33,11 @@ class EntitySpec:
     vis_mode : "visual" or "particle"
     name : optional label used to retrieve the entity after build
     """
-    morph: Dict[str, Any]
-    material: Optional[Dict[str, Any]] = None
-    surface: Optional[Dict[str, Any]] = None
+    morph: dict[str, Any]
+    material: dict[str, Any] | None = None
+    surface: dict[str, Any] | None = None
     vis_mode: str = "visual"
-    name: Optional[str] = None
+    name: str | None = None
 
 
 @dataclass
@@ -67,14 +67,14 @@ class GenesisConfig:
     substeps: int = 10
     n_steps: int = 1000
     n_envs: int = 1
-    env_spacing: Tuple[float, float] = (1.0, 1.0)
-    gravity: Tuple[float, float, float] = (0.0, 0.0, -9.81)
+    env_spacing: tuple[float, float] = (1.0, 1.0)
+    gravity: tuple[float, float, float] = (0.0, 0.0, -9.81)
     requires_grad: bool = False
-    entities: List[EntitySpec] = field(default_factory=list)
+    entities: list[EntitySpec] = field(default_factory=list)
     show_viewer: bool = False
-    rigid_options: Dict[str, Any] = field(default_factory=dict)
-    mpm_options: Optional[Dict[str, Any]] = None
-    sph_options: Optional[Dict[str, Any]] = None
+    rigid_options: dict[str, Any] = field(default_factory=dict)
+    mpm_options: dict[str, Any] | None = None
+    sph_options: dict[str, Any] | None = None
 
 
 def _resolve_backend(name: str):
@@ -90,7 +90,7 @@ def _build_morph(spec: dict):
     return morph_cls(**kw)
 
 
-def _build_material(spec: Optional[dict]):
+def _build_material(spec: dict | None):
     if spec is None:
         return None
     import genesis as gs
@@ -103,7 +103,7 @@ def _build_material(spec: Optional[dict]):
     return obj(**kw)
 
 
-def _build_surface(spec: Optional[dict]):
+def _build_surface(spec: dict | None):
     if spec is None:
         return None
     import genesis as gs

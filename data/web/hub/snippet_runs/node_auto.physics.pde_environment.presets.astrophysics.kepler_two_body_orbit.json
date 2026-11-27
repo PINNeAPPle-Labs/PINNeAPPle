@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8086f1b236b5820",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.kepler_two_body_orbit",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 17.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='kepler_two_body_orbit', dim=0, coords=('t',), fields=('x', 'y', 'vx', 'vy'), pde=PDETermSpec(kind='kepler_two_body_orbit', fields=('x', 'y', 'vx', 'vy'), coords=('t',), params={'mu': 398600.4418}, meta={'note': 'Restricted two-body Kepler orbit, perigee at t=0.', 'period_s': 7121.081577578024, 'perigee_km': 6800.0, 'apogee_km': 9200.0, 'exact_state_fn': 'pinneapple_physics.pde_environment.presets.astrophysics.kepler_exact_state'}), conditions=(ConditionSpec(name='ic_x', kind='initial', fields=('x',), selector_type='callable', selector=<function kepler_two_body_orbit.<locals>._ic_selector at 0x106c78fe0>, value_fn=<function kepler_two_body_orbit.<locals>.<lambda> at 0x11542d4e0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stres",
+ "timed_out": false
+}

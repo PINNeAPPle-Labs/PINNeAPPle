@@ -435,7 +435,9 @@ def test_space_runs_the_same_numbers_and_checks_in_the_browser_runtime(space):
     run = subprocess.run([node, "--test", str(ROOT / "tests" / "js" / "zoo_space.test.mjs")], capture_output=True,
                          text=True, timeout=600, env={**os.environ, "SPACE_DIR": str(out)})
     assert run.returncode == 0, run.stdout[-3000:] + run.stderr[-2000:]
-    assert f"# pass {len(art.manifest()['models'])}" in run.stdout
+    # Node's reporter moved from "# pass N" to "ℹ pass N" in newer releases; both mean the same.
+    expected = len(art.manifest()["models"])
+    assert any(f"{marker} pass {expected}" in run.stdout for marker in ("#", "ℹ")), run.stdout[-800:]
 
 
 # ============================================================================================== publish end to end

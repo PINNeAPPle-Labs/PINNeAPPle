@@ -14,7 +14,7 @@ Port conventions:
 from __future__ import annotations
 
 import abc
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from collections.abc import Callable, Iterable
 
 import torch
 import torch.nn as nn
@@ -25,8 +25,8 @@ import torch.nn as nn
 # ---------------------------------------------------------------------------
 
 def split_output_ports(
-    out: torch.Tensor, ports: List[str]
-) -> Dict[str, torch.Tensor]:
+    out: torch.Tensor, ports: list[str]
+) -> dict[str, torch.Tensor]:
     """Split *out*'s last dimension evenly across *ports*.
 
     Args:
@@ -73,21 +73,21 @@ class CoSimNode(abc.ABC):
     def __init__(
         self,
         name: str,
-        input_ports: List[str],
-        output_ports: List[str],
+        input_ports: list[str],
+        output_ports: list[str],
     ) -> None:
         self.name = name
-        self.input_ports: List[str] = list(input_ports)
-        self.output_ports: List[str] = list(output_ports)
-        self._state: Dict[str, torch.Tensor] = {}
+        self.input_ports: list[str] = list(input_ports)
+        self.output_ports: list[str] = list(output_ports)
+        self._state: dict[str, torch.Tensor] = {}
 
     @abc.abstractmethod
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """Advance the node by one time step.
 
         Args:
@@ -103,7 +103,7 @@ class CoSimNode(abc.ABC):
         """Clear internal state. Call before each new simulation run."""
         self._state.clear()
 
-    def physics_loss(self) -> Optional[torch.Tensor]:
+    def physics_loss(self) -> torch.Tensor | None:
         """Return a scalar physics-residual loss, or None for non-PINN nodes."""
         return None
 
@@ -137,18 +137,18 @@ class TorchNode(CoSimNode):
         self,
         name: str,
         model: nn.Module,
-        input_ports: List[str],
-        output_ports: List[str],
+        input_ports: list[str],
+        output_ports: list[str],
     ) -> None:
         super().__init__(name, input_ports, output_ports)
         self.model = model
 
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         x = torch.cat([inputs[p] for p in self.input_ports], dim=-1)
         raw = self.model(x)
         # Accept plain Tensor or any wrapper with a .y Tensor (PINNOutput, TSOutput, etc.)
@@ -176,19 +176,19 @@ class AnalyticalNode(CoSimNode):
     def __init__(
         self,
         name: str,
-        fn: Callable[[Dict[str, torch.Tensor], float, float], Dict[str, torch.Tensor]],
-        input_ports: List[str],
-        output_ports: List[str],
+        fn: Callable[[dict[str, torch.Tensor], float, float], dict[str, torch.Tensor]],
+        input_ports: list[str],
+        output_ports: list[str],
     ) -> None:
         super().__init__(name, input_ports, output_ports)
         self._fn = fn
 
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         with torch.no_grad():
             return self._fn(inputs, t, dt)
 
@@ -218,25 +218,25 @@ class PINNNode(TorchNode):
         self,
         name: str,
         model: nn.Module,
-        input_ports: List[str],
-        output_ports: List[str],
-        physics_fn: Callable[["PINNNode", Dict[str, torch.Tensor], float, float], torch.Tensor],
+        input_ports: list[str],
+        output_ports: list[str],
+        physics_fn: Callable[[PINNNode, dict[str, torch.Tensor], float, float], torch.Tensor],
         physics_weight: float = 1.0,
     ) -> None:
         super().__init__(name, model, input_ports, output_ports)
         self._physics_fn = physics_fn
         self.physics_weight = physics_weight
-        self._last_inputs: Optional[Dict[str, torch.Tensor]] = None
-        self._last_outputs: Optional[Dict[str, torch.Tensor]] = None
+        self._last_inputs: dict[str, torch.Tensor] | None = None
+        self._last_outputs: dict[str, torch.Tensor] | None = None
         self._last_t: float = 0.0
         self._last_dt: float = 0.0
 
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         self._last_inputs = {k: v for k, v in inputs.items()}
         self._last_t = t
         self._last_dt = dt
@@ -244,7 +244,7 @@ class PINNNode(TorchNode):
         self._last_outputs = result  # cache predictions for physics_fn
         return result
 
-    def physics_loss(self) -> Optional[torch.Tensor]:
+    def physics_loss(self) -> torch.Tensor | None:
         if self._last_inputs is None:
             return None
         residual = self._physics_fn(
@@ -272,19 +272,19 @@ class BlackBoxNode(CoSimNode):
     def __init__(
         self,
         name: str,
-        fn: Callable[[Dict[str, torch.Tensor], float, float], Dict[str, torch.Tensor]],
-        input_ports: List[str],
-        output_ports: List[str],
+        fn: Callable[[dict[str, torch.Tensor], float, float], dict[str, torch.Tensor]],
+        input_ports: list[str],
+        output_ports: list[str],
     ) -> None:
         super().__init__(name, input_ports, output_ports)
         self._fn = fn
 
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         with torch.no_grad():
             result = self._fn({k: v.detach() for k, v in inputs.items()}, t, dt)
         return result

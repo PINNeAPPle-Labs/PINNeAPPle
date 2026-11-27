@@ -69,6 +69,13 @@ def _washer():
         "boolean": {"op": "cut", "other": {"name": "cylinder", "params": {"radius": 5, "height": 3}}}})
 
 
+#: ``measure_part`` builds the recipe and then reads the triangle mesh with trimesh (extras `cfd`, `geom`, `synth`):
+#: without it the measurement dies on the import, which is a missing extra and not a broken draft (#625).
+NEEDS_TRIMESH = pytest.mark.skipif(importlib.util.find_spec("trimesh") is None,
+                                   reason="measure_part reads the mesh with trimesh: pip install -e '.[geom]'")
+
+
+@NEEDS_TRIMESH
 @pytest.mark.skipif(importlib.util.find_spec("manifold3d") is None, reason="needs manifold3d for boolean cuts")
 def test_measure_part_washer_with_a_boolean_engine():
     m = pl.measure_part(_washer())
@@ -78,6 +85,7 @@ def test_measure_part_washer_with_a_boolean_engine():
     assert m["extents"] == pytest.approx([20, 20, 2], abs=1e-6)
 
 
+@NEEDS_TRIMESH
 def test_measure_part_box_is_exact():
     m = pl.measure_part(CadRecipeResult(kind="mesh_recipe", reasoning="", recipe={"name": "box",
                                                                                    "params": {"extents": [40, 20, 5]}}))

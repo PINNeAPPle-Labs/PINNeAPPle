@@ -14,7 +14,9 @@
   "pinneapple_analysis.reproduction"
  ],
  "params": {},
- "scripts": [],
+ "scripts": [
+  "run_gated.py"
+ ],
  "metrics": [
   {
    "name": "forward_max_abs_nu_0.01",

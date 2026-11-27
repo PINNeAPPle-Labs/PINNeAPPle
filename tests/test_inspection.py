@@ -12,7 +12,6 @@ contract, since that module builds directly on top of it.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 import torch
 
 from pinneapple_analysis.inspection import (

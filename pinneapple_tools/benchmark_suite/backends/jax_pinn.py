@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class JAXPINNBackend:
 
     name: str = "jax_pinn"
 
-    def train(self, bundle: BundleData, run_cfg: Dict[str, Any]) -> Dict[str, Any]:
+    def train(self, bundle: BundleData, run_cfg: dict[str, Any]) -> dict[str, Any]:
         try:
             import jax
             import jax.numpy as jnp
@@ -96,7 +96,7 @@ class JAXPINNBackend:
                 return jax.nn.silu(x)
             return jnp.tanh(x)
 
-        def init_params(key) -> list[Tuple[jnp.ndarray, jnp.ndarray]]:
+        def init_params(key) -> list[tuple[jnp.ndarray, jnp.ndarray]]:
             keys = jax.random.split(key, depth + 1)
             params = []
             d0 = 2
@@ -203,7 +203,7 @@ class JAXPINNBackend:
             return jnp.mean((uvp - y_s) ** 2)
 
         @jax.jit
-        def total_loss(params, batch: Dict[str, jnp.ndarray]):
+        def total_loss(params, batch: dict[str, jnp.ndarray]):
             mom_u, mom_v, cont = residuals_batch(params, batch["xy_col"])
             pde = jnp.mean(mom_u**2) + jnp.mean(mom_v**2) + jnp.mean(cont**2)
 
@@ -268,7 +268,7 @@ class JAXPINNBackend:
                 )
 
         # ---------- evaluation ----------
-        def eval_metrics(params) -> Dict[str, float]:
+        def eval_metrics(params) -> dict[str, float]:
             col = col_df.sample(n=min(8192, len(col_df)), replace=False, random_state=0)
             bnd = bnd_df.sample(n=min(4096, len(bnd_df)), replace=False, random_state=0)
 

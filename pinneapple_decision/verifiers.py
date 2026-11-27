@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import importlib.util
-from typing import Dict, List, Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from .schema import ExecutionResult, Verification
 
@@ -24,17 +24,17 @@ FAIL_TAGS = {"residual": "residual_high", "rel_l2": "error_high", "bc_error": "b
 
 @runtime_checkable
 class Verifier(Protocol):
-    def verify(self, result: ExecutionResult, problem: Optional[dict] = None) -> Verification:
+    def verify(self, result: ExecutionResult, problem: dict | None = None) -> Verification:
         ...
 
 
 class ThresholdVerifier:
-    def __init__(self, thresholds: Optional[Dict[str, float]] = None):
+    def __init__(self, thresholds: dict[str, float] | None = None):
         self.thresholds = dict(thresholds or {"residual": 1e-3, "rel_l2": 5e-2})
 
-    def verify(self, result: ExecutionResult, problem: Optional[dict] = None) -> Verification:
-        checks: Dict[str, bool] = {}
-        tags: List[str] = list(result.diagnostics)
+    def verify(self, result: ExecutionResult, problem: dict | None = None) -> Verification:
+        checks: dict[str, bool] = {}
+        tags: list[str] = list(result.diagnostics)
         for metric, limit in self.thresholds.items():
             if metric in result.metrics:
                 ok = float(result.metrics[metric]) <= limit
@@ -48,7 +48,7 @@ class ThresholdVerifier:
 
 class VeriPhysicsVerifier:
     def __init__(self, min_trust: float = 70.0, min_coverage: float = 0.5,
-                 fallback: Optional[Verifier] = None):
+                 fallback: Verifier | None = None):
         self.min_trust = min_trust
         self.min_coverage = min_coverage
         self.fallback = fallback or ThresholdVerifier()
@@ -57,7 +57,7 @@ class VeriPhysicsVerifier:
     def veriphysics_installed() -> bool:
         return importlib.util.find_spec("veriphysics") is not None
 
-    def verify(self, result: ExecutionResult, problem: Optional[dict] = None) -> Verification:
+    def verify(self, result: ExecutionResult, problem: dict | None = None) -> Verification:
         rec = result.artifacts.get("decision_record")
         pcs = result.artifacts.get("physics_confidence")
         if rec is not None:
@@ -73,7 +73,7 @@ class VeriPhysicsVerifier:
             v.source = f"fallback:{v.source} (no VeriPhysics artifact in result)"
             return v
 
-        checks: Dict[str, bool] = {"coverage": coverage >= self.min_coverage}
+        checks: dict[str, bool] = {"coverage": coverage >= self.min_coverage}
         if score is not None:
             checks["trust_score"] = score >= self.min_trust
         if trustworthy is not None:

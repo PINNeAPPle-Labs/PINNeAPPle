@@ -1,7 +1,8 @@
 """Symbolic PDE parser and finite-difference-based synthetic trajectory generator."""
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any
+from collections.abc import Callable
 
 import math
 import warnings
@@ -84,8 +85,8 @@ def _fd_u_xx(u: torch.Tensor, dx: float, bc: str) -> torch.Tensor:
 def _build_rhs_from_equation(
     equation: str,
     *,
-    parameters: Optional[Dict[str, float]] = None,
-) -> Callable[[torch.Tensor, torch.Tensor, torch.Tensor, Dict[str, torch.Tensor]], torch.Tensor]:
+    parameters: dict[str, float] | None = None,
+) -> Callable[[torch.Tensor, torch.Tensor, torch.Tensor, dict[str, torch.Tensor]], torch.Tensor]:
     """Build a callable RHS function u_t = RHS(...) from a symbolic PDE string.
 
     Parses `equation` with SymPy, solves it for `u_t`, and returns a PyTorch-backed
@@ -155,7 +156,7 @@ def _build_rhs_from_equation(
     arg_list = [t, x, u, u_x, u_xx] + [p_syms[k] for k in params.keys()]
     rhs_fn = sympy.lambdify(arg_list, rhs_expr, "torch")
 
-    def rhs(u_tens: torch.Tensor, t_tens: torch.Tensor, x_tens: torch.Tensor, derivs: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def rhs(u_tens: torch.Tensor, t_tens: torch.Tensor, x_tens: torch.Tensor, derivs: dict[str, torch.Tensor]) -> torch.Tensor:
         """Evaluate the RHS du/dt for given state, coordinates, and derivatives.
 
         Args:
@@ -182,7 +183,7 @@ def _build_rhs_from_equation(
 def make_fd_residual_fn(
     equation: str,
     *,
-    parameters: Optional[Dict[str, float]] = None,
+    parameters: dict[str, float] | None = None,
     bc: str = "periodic",
 ) -> Callable[[torch.Tensor, torch.Tensor, torch.Tensor, float, float], torch.Tensor]:
     """Create a residual evaluator using finite-difference approximations.
@@ -308,7 +309,7 @@ class SymbolicFDSynthGenerator:
         - residual_fn (callable)
     """
 
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """Initialize the generator with an optional synthesis configuration.
 
         Args:
@@ -329,7 +330,7 @@ class SymbolicFDSynthGenerator:
         self,
         *,
         equation: str,
-        parameters: Optional[Dict[str, float]] = None,
+        parameters: dict[str, float] | None = None,
         n_samples: int = 8,
         dt: float = 1e-3,
         steps: int = 200,
@@ -337,7 +338,7 @@ class SymbolicFDSynthGenerator:
         x_max: float = 1.0,
         nx: int = 128,
         bc: str = "periodic",   # "periodic" | "dirichlet0"
-        ic_fn: Optional[Callable[[torch.Tensor, torch.Generator], torch.Tensor]] = None,
+        ic_fn: Callable[[torch.Tensor, torch.Generator], torch.Tensor] | None = None,
         store_residual: bool = False,
     ) -> SynthOutput:
         """Generate synthetic trajectories by time-stepping the symbolic RHS.
@@ -486,7 +487,7 @@ class SymbolicFDSynthGenerator:
             }
             samples.append(to_physical_sample(ps_like, device=device, dtype=dtype))
 
-        extras: Dict[str, Any] = {
+        extras: dict[str, Any] = {
             "rhs_fn": rhs_fn,
             "residual_fn": residual_fn,
             "equation": equation,

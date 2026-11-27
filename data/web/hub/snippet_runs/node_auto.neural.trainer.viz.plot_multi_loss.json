@@ -1,0 +1,12 @@
+{
+ "code_hash": "15d8e19515fef965",
+ "figures": [],
+ "id": "node:auto.neural.trainer.viz.plot_multi_loss",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 21.61,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "plot multi loss -> pinneapple_neural.trainer.viz:plot_multi_loss\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'history': [], 'groups': None, 'log_scale': True, 'title': 'Loss components', 'show': False}",
+ "timed_out": false
+}

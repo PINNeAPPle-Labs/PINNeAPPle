@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Dict, Iterator, Optional, Tuple
+from collections.abc import Callable, Iterator
 
 import numpy as np
 import hashlib
@@ -35,7 +35,7 @@ class MeshData:
     """
     vertices: np.ndarray
     faces: np.ndarray
-    normals: Optional[np.ndarray] = None
+    normals: np.ndarray | None = None
 
     # =====================================================
     # Init / validation
@@ -71,7 +71,7 @@ class MeshData:
     def n_faces(self) -> int:
         return int(self.faces.shape[0])
 
-    def bounds(self) -> Tuple[np.ndarray, np.ndarray]:
+    def bounds(self) -> tuple[np.ndarray, np.ndarray]:
         return self.vertices.min(axis=0), self.vertices.max(axis=0)
 
     def bbox_size(self) -> np.ndarray:
@@ -106,7 +106,7 @@ class MeshData:
     def translate(self, delta: np.ndarray) -> None:
         self.vertices += np.asarray(delta, dtype=np.float64)
 
-    def scale(self, factor: float, about: Optional[np.ndarray] = None) -> None:
+    def scale(self, factor: float, about: np.ndarray | None = None) -> None:
         factor = float(factor)
         if about is None:
             about = np.zeros(3, dtype=np.float64)
@@ -212,7 +212,7 @@ class MeshData:
     # =====================================================
     # Sampling: interior (PINN collocation)
     # =====================================================
-    def sample_bbox(self, n: int, bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None) -> np.ndarray:
+    def sample_bbox(self, n: int, bounds: tuple[np.ndarray, np.ndarray] | None = None) -> np.ndarray:
         """
         Sample uniformly inside a bounding box (default: mesh bbox).
         """
@@ -233,9 +233,9 @@ class MeshData:
         n: int,
         *,
         domain: str = "bbox",
-        inside_fn: Optional[InsideFn] = None,
-        sdf_fn: Optional[SdfFn] = None,
-        bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None,
+        inside_fn: InsideFn | None = None,
+        sdf_fn: SdfFn | None = None,
+        bounds: tuple[np.ndarray, np.ndarray] | None = None,
         max_tries: int = 50,
     ) -> np.ndarray:
         """
@@ -301,8 +301,8 @@ class MeshData:
         self,
         tol: float = 1e-6,
         *,
-        names: Tuple[str, str, str, str, str, str] = ("xmin", "xmax", "ymin", "ymax", "zmin", "zmax"),
-    ) -> Dict[str, Dict[str, np.ndarray]]:
+        names: tuple[str, str, str, str, str, str] = ("xmin", "xmax", "ymin", "ymax", "zmin", "zmax"),
+    ) -> dict[str, dict[str, np.ndarray]]:
         """
         Build simple boundary groups using bbox planes.
 
@@ -332,7 +332,7 @@ class MeshData:
             np.abs(z - z1) <= tol,
         ]
 
-        out: Dict[str, Dict[str, np.ndarray]] = {}
+        out: dict[str, dict[str, np.ndarray]] = {}
         for nm, m in zip(names, masks):
             ids = np.nonzero(m)[0].astype(np.int64)
             out[nm] = {"vertex_ids": ids, "mask": m}
@@ -347,12 +347,12 @@ class MeshData:
         n_boundary: int,
         *,
         interior_domain: str = "bbox",
-        inside_fn: Optional[InsideFn] = None,
-        sdf_fn: Optional[SdfFn] = None,
+        inside_fn: InsideFn | None = None,
+        sdf_fn: SdfFn | None = None,
         boundary_mode: str = "surface",
-        boundary_groups: Optional[Dict[str, Dict[str, np.ndarray]]] = None,
-        bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None,
-    ) -> Dict[str, np.ndarray]:
+        boundary_groups: dict[str, dict[str, np.ndarray]] | None = None,
+        bounds: tuple[np.ndarray, np.ndarray] | None = None,
+    ) -> dict[str, np.ndarray]:
         """
         Returns a dict ready for PINN batching.
 
@@ -451,7 +451,7 @@ class MeshData:
         else:
             raise ValueError("boundary_mode must be 'surface' or 'bbox_planes'")
 
-        pack: Dict[str, np.ndarray] = {"X_int": X_int, "X_bnd": X_bnd}
+        pack: dict[str, np.ndarray] = {"X_int": X_int, "X_bnd": X_bnd}
 
         # Optional: attach group ids for boundary points
         if boundary_groups is not None and n_boundary > 0:
@@ -485,8 +485,8 @@ class MeshData:
         self,
         X: np.ndarray,
         *,
-        domain_volume: Optional[float] = None,
-        mask: Optional[np.ndarray] = None,
+        domain_volume: float | None = None,
+        mask: np.ndarray | None = None,
     ) -> np.ndarray:
         """
         Returns per-sample weights for MC integral approximation:
@@ -522,7 +522,7 @@ class MeshData:
         batch_size: int,
         *,
         shuffle: bool = True,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> Iterator[np.ndarray]:
         """
         Yield mini-batches of X (N,D). Numpy-only.
@@ -558,7 +558,7 @@ class MeshData:
     # =====================================================
     # Copy
     # =====================================================
-    def copy(self) -> "MeshData":
+    def copy(self) -> MeshData:
         return MeshData(
             vertices=self.vertices.copy(),
             faces=self.faces.copy(),

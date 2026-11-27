@@ -9,7 +9,7 @@ import os
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -33,16 +33,16 @@ class OMSimConfig:
     stop_time: float = 1.0
     number_of_intervals: int = 500
     tolerance: float = 1e-6
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    output_variables: Optional[List[str]] = None
+    parameters: dict[str, Any] = field(default_factory=dict)
+    output_variables: list[str] | None = None
 
 
 def simulate_openmodelica(
-    model_file: Union[str, Path],
+    model_file: str | Path,
     config: OMSimConfig,
     *,
-    working_dir: Optional[Union[str, Path]] = None,
-) -> Dict[str, np.ndarray]:
+    working_dir: str | Path | None = None,
+) -> dict[str, np.ndarray]:
     """Load and simulate a Modelica model using OpenModelica.
 
     Parameters
@@ -90,7 +90,7 @@ def simulate_openmodelica(
 
 
 def _row_to_str(row: np.ndarray) -> str:
-    chars: List[str] = []
+    chars: list[str] = []
     for c in np.asarray(row).ravel():
         if isinstance(c, (bytes, np.bytes_)):
             ch = c.decode("latin-1")
@@ -105,8 +105,8 @@ def _row_to_str(row: np.ndarray) -> str:
 
 def _read_om_result(
     mat_path: str,
-    variables: Optional[List[str]],
-) -> Dict[str, np.ndarray]:
+    variables: list[str] | None,
+) -> dict[str, np.ndarray]:
     """Parse an OpenModelica result .mat file (DSres format).
 
     Variable name -> data lookup goes through 'dataInfo', not positional
@@ -161,7 +161,7 @@ def _read_om_result(
 
     n_time = data_2.shape[1] if data_2.ndim == 2 and data_2.shape[0] else 0
 
-    out: Dict[str, np.ndarray] = {}
+    out: dict[str, np.ndarray] = {}
     for i, name in enumerate(names):
         if variables is not None and name not in variables:
             continue
@@ -182,7 +182,7 @@ def _read_om_result(
 
 
 def om_to_upd(
-    model_file: Union[str, Path],
+    model_file: str | Path,
     config: OMSimConfig,
     **sim_kwargs,
 ):

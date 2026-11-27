@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any
 
 import torch
 
@@ -33,9 +33,9 @@ from pinneapple_solvers.adapters.upd_signal import extract_1d_signal
 @dataclass
 class MiniSample:
     """Minimal PhysicalSample-like object for the adapter."""
-    fields: Dict[str, torch.Tensor]
-    axes: Dict[str, list[str]]
-    meta: Dict[str, Any]
+    fields: dict[str, torch.Tensor]
+    axes: dict[str, list[str]]
+    meta: dict[str, Any]
 
 
 def main():

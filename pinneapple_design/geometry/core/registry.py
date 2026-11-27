@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 
@@ -89,19 +89,19 @@ def _meshdata_from_meshio(mesh) -> MeshData:
 # =========================================================
 # Options adapter (keeps backward-compat with getattr)
 # =========================================================
-def _get_opt(options: Optional[Any], key: str, default: Any = None) -> Any:
+def _get_opt(options: Any | None, key: str, default: Any = None) -> Any:
     if options is None:
         return default
     return getattr(options, key, default)
 
 
-def _apply_options(mesh: MeshData, options: Optional[Any]) -> Dict[str, Any]:
+def _apply_options(mesh: MeshData, options: Any | None) -> dict[str, Any]:
     """
     Apply transforms and mesh hygiene steps in a controlled order.
 
     Returns meta dict of what was applied (safe for manifest).
     """
-    meta: Dict[str, Any] = {"applied": []}
+    meta: dict[str, Any] = {"applied": []}
 
     # --- scale ---
     s = _get_opt(options, "scale", None)
@@ -162,9 +162,9 @@ def _apply_options(mesh: MeshData, options: Optional[Any]) -> Dict[str, Any]:
 # Main builders
 # =========================================================
 def build_geometry_asset(
-    spec: Dict[str, Any] | GeometrySpec,
+    spec: dict[str, Any] | GeometrySpec,
     *,
-    options: Optional[Any] = None,
+    options: Any | None = None,
 ) -> GeometryAsset:
     """
     Build a GeometryAsset from a GeometrySpec or spec dict.
@@ -257,7 +257,7 @@ def build_geometry_asset(
 def load_geometry_asset(
     geom: Any,
     *,
-    options: Optional[Any] = None,
+    options: Any | None = None,
 ) -> GeometryAsset:
     """
     Convenience wrapper:

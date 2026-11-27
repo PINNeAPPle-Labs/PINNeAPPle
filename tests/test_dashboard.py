@@ -85,6 +85,7 @@ def test_html_is_self_contained(tmp_path):
 
 def test_png_and_videos(tmp_path):
     pytest.importorskip("matplotlib")
+    pytest.importorskip("imageio", reason="the GIF/MP4 writer is imageio: pip install -e '.[pyvista]'")
     from PIL import Image
     db = _db()
     p = db.to_png(str(tmp_path / "d.png"), k=3, size=(960, 540))

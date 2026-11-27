@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, Protocol, List
+from typing import Any, Protocol
 
 
 @dataclass
@@ -37,8 +37,8 @@ class SynthOutput:
     extras : Dict[str, Any]
         Additional metadata or auxiliary outputs produced during generation.
     """
-    samples: List[Any]
-    extras: Dict[str, Any]
+    samples: list[Any]
+    extras: dict[str, Any]
 
 
 class SynthGenerator(Protocol):

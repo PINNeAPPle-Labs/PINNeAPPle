@@ -12,12 +12,12 @@ pass ``engine=`` to any call.
 """
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from .loop import PhysicsDecisionEngine
 from .schema import Decision, ExecutionResult, PhysicsChoice, Verification
 
-_ENGINE: Optional[PhysicsDecisionEngine] = None
+_ENGINE: PhysicsDecisionEngine | None = None
 
 
 def decision_engine(executor: Any = None, verifier: Any = None, decider: Any = None, store: Any = None,
@@ -30,8 +30,8 @@ def decision_engine(executor: Any = None, verifier: Any = None, decider: Any = N
     return _ENGINE
 
 
-def decide(problem: Any = None, objective: Optional[str] = None, *, state: Any = None,
-           choice: Optional[PhysicsChoice] = None, engine: Optional[PhysicsDecisionEngine] = None) -> Decision:
+def decide(problem: Any = None, objective: str | None = None, *, state: Any = None,
+           choice: PhysicsChoice | None = None, engine: PhysicsDecisionEngine | None = None) -> Decision:
     """Decide which experiment to run next. ``problem`` may be a ``ProblemSpec`` or a
     free-form dict (see ``adapter.py``). Facts that could not be determined are listed in
     ``decision.diagnostics["problem_facts"]["unknown"]``."""
@@ -39,18 +39,18 @@ def decide(problem: Any = None, objective: Optional[str] = None, *, state: Any =
 
 
 def execute(decision: Decision, problem: Any = None, *,
-            engine: Optional[PhysicsDecisionEngine] = None) -> ExecutionResult:
+            engine: PhysicsDecisionEngine | None = None) -> ExecutionResult:
     """Execute a decision issued by the same engine (constraints are re-checked first)."""
     return (engine or decision_engine()).execute(decision, problem)
 
 
-def verify(result: ExecutionResult, *, engine: Optional[PhysicsDecisionEngine] = None) -> Verification:
+def verify(result: ExecutionResult, *, engine: PhysicsDecisionEngine | None = None) -> Verification:
     """Verify a result; only verified results become evidence for the next decision."""
     return (engine or decision_engine()).verify(result)
 
 
 def run_tree(problem: Any, tree: Any = None, *, max_experiments: int = 3,
-             engine: Optional[PhysicsDecisionEngine] = None):
+             engine: PhysicsDecisionEngine | None = None):
     """Walk the physics-AI decision tree (``tree.physics_ai_tree()`` by default)."""
     return (engine or decision_engine()).run_tree(problem, tree, max_experiments=max_experiments)
 

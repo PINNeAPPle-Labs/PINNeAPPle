@@ -23,7 +23,7 @@ Regras (escolhas de projeto, documentadas e revogáveis, não normas):
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 SUPPORTS = "supports"
 CONTRADICTS = "contradicts"
@@ -41,8 +41,8 @@ class Check:
     status: str
     critical: bool = False
     weight: float = 1.0
-    value: Optional[float] = None
-    limit: Optional[float] = None
+    value: float | None = None
+    limit: float | None = None
     source: str = ""
     reason: str = ""
 
@@ -65,14 +65,14 @@ def _policy_value(name: str, default: float) -> float:
 
 @dataclass
 class TrustReport:
-    checks: List[Check]
+    checks: list[Check]
     min_coverage: float = field(default_factory=lambda: _policy_value("min_coverage", 0.6))
     min_score: float = field(default_factory=lambda: _policy_value("min_score", 0.8))
     model: str = ""
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
     @property
-    def executadas(self) -> List[Check]:
+    def executadas(self) -> list[Check]:
         return [c for c in self.checks if c.status != NOT_RUN]
 
     @property
@@ -80,7 +80,7 @@ class TrustReport:
         return len(self.executadas) / len(self.checks) if self.checks else 0.0
 
     @property
-    def score(self) -> Optional[float]:
+    def score(self) -> float | None:
         """Média ponderada das checagens executadas (supports = 1, contradicts = 0). None se nenhuma foi executada."""
         ex = self.executadas
         peso = sum(c.weight for c in ex)
@@ -102,7 +102,7 @@ class TrustReport:
         return APPROVED
 
     @property
-    def motivos(self) -> List[str]:
+    def motivos(self) -> list[str]:
         out = []
         for c in self.checks:
             if c.status == CONTRADICTS:
@@ -115,7 +115,7 @@ class TrustReport:
             out.append(f"score {self.score:.2f} abaixo do mínimo de {self.min_score:.2f}")
         return out
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "modelo": self.model,
             "decisao": self.decisao,
@@ -128,7 +128,7 @@ class TrustReport:
         }
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "TrustReport":
+    def from_dict(cls, d: dict[str, Any]) -> TrustReport:
         """Inverse of ``to_dict`` (the decision is recomputed from the checks, not copied)."""
         return cls(checks=[Check(**c) for c in d.get("checagens", [])], min_coverage=d.get("min_coverage", 0.6),
                    min_score=d.get("min_score", 0.8), model=d.get("modelo", ""))
@@ -153,14 +153,14 @@ class TrustReport:
         return "\n".join(linhas) + "\n"
 
 
-def _status_por_limite(valor: Optional[float], limite: float, maior_e_melhor: bool) -> str:
+def _status_por_limite(valor: float | None, limite: float, maior_e_melhor: bool) -> str:
     if valor is None:
         return NOT_RUN
     ok = valor >= limite if maior_e_melhor else valor <= limite
     return SUPPORTS if ok else CONTRADICTS
 
 
-def checagem_erro_relativo(nome: str, erro: Optional[float], limite: float, *, fonte: str = "", critica: bool = False,
+def checagem_erro_relativo(nome: str, erro: float | None, limite: float, *, fonte: str = "", critica: bool = False,
                            peso: float = 1.0, motivo_nao_executada: str = "") -> Check:
     """Acurácia contra referência: erro relativo menor ou igual ao limite."""
     st = _status_por_limite(erro, limite, maior_e_melhor=False)
@@ -168,7 +168,7 @@ def checagem_erro_relativo(nome: str, erro: Optional[float], limite: float, *, f
                  reason="" if erro is not None else motivo_nao_executada or "sem medição")
 
 
-def checagem_booleana(nome: str, passou: Optional[bool], *, fonte: str = "", critica: bool = False, peso: float = 1.0,
+def checagem_booleana(nome: str, passou: bool | None, *, fonte: str = "", critica: bool = False, peso: float = 1.0,
                       motivo_nao_executada: str = "") -> Check:
     """Consistência física (conservação, condições de contorno, simetria) ou comparação qualitativa."""
     if passou is None:
@@ -176,7 +176,7 @@ def checagem_booleana(nome: str, passou: Optional[bool], *, fonte: str = "", cri
     return Check(nome, SUPPORTS if passou else CONTRADICTS, critical=critica, weight=peso, source=fonte)
 
 
-def from_trust_score(ts: Any, *, limite_sub_score: float = 0.7, fonte: str = "TrustGate") -> List[Check]:
+def from_trust_score(ts: Any, *, limite_sub_score: float = 0.7, fonte: str = "TrustGate") -> list[Check]:
     """Converte o ``TrustScore`` do ``TrustGate`` em checagens (OOD, resíduo e ensemble).
 
     Um sub-score ``None`` vira ``not_run`` com o motivo. ``limite_sub_score`` é uma escolha de projeto.

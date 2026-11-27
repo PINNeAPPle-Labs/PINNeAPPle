@@ -35,7 +35,7 @@ pred_steps  : prediction horizon for training loss
 w_recon     : reconstruction loss weight
 w_pred      : prediction loss weight
 """
-from typing import Dict, Literal, Optional, Tuple
+from typing import Literal
 
 import torch
 import torch.nn as nn
@@ -68,7 +68,7 @@ class _MLPDynamics(nn.Module):
         super().__init__()
         self.net = _MLP(r, r, hidden, n_layers, "tanh", dropout)
 
-    def forward(self, z: torch.Tensor, h=None) -> Tuple[torch.Tensor, None]:
+    def forward(self, z: torch.Tensor, h=None) -> tuple[torch.Tensor, None]:
         return self.net(z), None
 
     def init_hidden(self, B: int, device) -> None:
@@ -87,7 +87,7 @@ class _RNNDynamics(nn.Module):
         self.proj = nn.Linear(hidden, r)
         self._is_lstm = (rnn_type == "lstm")
 
-    def forward(self, z: torch.Tensor, h) -> Tuple[torch.Tensor, object]:
+    def forward(self, z: torch.Tensor, h) -> tuple[torch.Tensor, object]:
         # z: (B, r)
         z_in = z.unsqueeze(1)  # (B, 1, r)
         out, h_new = self.rnn(z_in, h)
@@ -158,7 +158,7 @@ class NeuralROM(ROMBase):
         x0: torch.Tensor,
         steps: int,
         *,
-        teacher_forcing: Optional[torch.Tensor] = None,
+        teacher_forcing: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """
         Roll out the model from x0.
@@ -186,7 +186,7 @@ class NeuralROM(ROMBase):
     # Loss computation
     # ------------------------------------------------------------------
 
-    def compute_losses(self, X: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def compute_losses(self, X: torch.Tensor) -> dict[str, torch.Tensor]:
         """Compute reconstruction + multi-step prediction loss from X (B, T, D)."""
         B, T, D = X.shape
 
@@ -217,7 +217,7 @@ class NeuralROM(ROMBase):
             raise ValueError(f"Expected X with shape (B,T,D) or (T,D), got {tuple(X.shape)}")
         B, T, D = X.shape
 
-        losses: Dict[str, torch.Tensor] = {}
+        losses: dict[str, torch.Tensor] = {}
         if return_loss:
             losses = self.compute_losses(X)
         else:

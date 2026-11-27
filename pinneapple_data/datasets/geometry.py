@@ -6,7 +6,6 @@ All datasets are analytically generated — no external mesh files required.
 from __future__ import annotations
 
 import math
-from typing import Dict
 
 import numpy as np
 
@@ -47,7 +46,7 @@ def _naca4_thickness(x: np.ndarray, t: float) -> np.ndarray:
 def _load_naca0012(n_surface: int = 200,
                    n_interior: int = 2000,
                    chord: float = 1.0,
-                   aoa_deg: float = 0.0) -> Dict[str, np.ndarray]:
+                   aoa_deg: float = 0.0) -> dict[str, np.ndarray]:
     # Surface coordinates (upper + lower)
     x_c = np.linspace(0.0, chord, n_surface // 2)
     yt = _naca4_thickness(x_c / chord, t=0.12) * chord
@@ -108,7 +107,7 @@ def _load_naca0012(n_surface: int = 200,
 
 def _load_cylinder_2d(r: float = 0.5, D: float = 2.5,
                       n_surface: int = 200,
-                      n_interior: int = 2000) -> Dict[str, np.ndarray]:
+                      n_interior: int = 2000) -> dict[str, np.ndarray]:
     bx, by = _uniform_circle_boundary(0.0, 0.0, r, n_surface)
 
     # Domain boundary (box)
@@ -143,7 +142,7 @@ def _load_cylinder_2d(r: float = 0.5, D: float = 2.5,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_lshape_2d(n_boundary: int = 300,
-                    n_interior: int = 2000) -> Dict[str, np.ndarray]:
+                    n_interior: int = 2000) -> dict[str, np.ndarray]:
     # 6-segment boundary (ccw)
     segs = [
         (np.linspace(0, 2, n_boundary//6), np.full(n_boundary//6, 0.0)),
@@ -180,7 +179,7 @@ def _load_lshape_2d(n_boundary: int = 300,
 def _load_channel_with_obstacle(L: float = 4.0, H: float = 1.0,
                                  r: float = 0.15, cx: float = 1.0,
                                  cy: float = 0.5,
-                                 n_pts: int = 3000) -> Dict[str, np.ndarray]:
+                                 n_pts: int = 3000) -> dict[str, np.ndarray]:
     # Interior points: inside channel, outside cylinder
     rng = np.random.default_rng(0)
     pts: list = []

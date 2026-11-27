@@ -33,7 +33,6 @@ component 0 = ``u_x`` and 1 = ``u_y``.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Tuple
 
 import numpy as np
 
@@ -60,7 +59,7 @@ def stable_time_step(max_velocity: float, dx: float, *, courant: float = 0.5,
 @dataclass
 class StableFluidsState:
     velocity: np.ndarray                       # (2, ny, nx)
-    scalars: Dict[str, np.ndarray] = field(default_factory=dict)
+    scalars: dict[str, np.ndarray] = field(default_factory=dict)
     t: float = 0.0
 
 
@@ -77,7 +76,7 @@ class StableFluids2D:
         ``s / (1 + d dt)`` (the WebGL rule).
     """
 
-    def __init__(self, nx: int, ny: int, *, length: Tuple[float, float] = (2 * np.pi, 2 * np.pi),
+    def __init__(self, nx: int, ny: int, *, length: tuple[float, float] = (2 * np.pi, 2 * np.pi),
                  viscosity: float = 0.0, confinement: float = 0.0, scalar_dissipation: float = 0.0):
         self.nx, self.ny = int(nx), int(ny)
         self.Lx, self.Ly = map(float, length)
@@ -167,14 +166,14 @@ class StableFluids2D:
         return vel + dt * np.stack([fx, fy])
 
     # -- driver ----------------------------------------------------------
-    def initial_state(self, velocity: np.ndarray, scalars: Optional[Dict[str, np.ndarray]] = None) -> StableFluidsState:
+    def initial_state(self, velocity: np.ndarray, scalars: dict[str, np.ndarray] | None = None) -> StableFluidsState:
         vel = np.asarray(velocity, dtype=float)
         if vel.shape != (2, self.ny, self.nx):
             raise ValueError(f"velocity must have shape (2, {self.ny}, {self.nx})")
         return StableFluidsState(self.project(vel), dict(scalars or {}))
 
     def step(self, state: StableFluidsState, dt: float,
-             force: Optional[np.ndarray] = None) -> StableFluidsState:
+             force: np.ndarray | None = None) -> StableFluidsState:
         vel = state.velocity
         if force is not None:
             vel = vel + dt * force
@@ -187,7 +186,7 @@ class StableFluids2D:
         return StableFluidsState(vel, new_scalars, state.t + dt)
 
     def run(self, state: StableFluidsState, t_end: float, *, courant: float = 0.5,
-            dt: Optional[float] = None) -> StableFluidsState:
+            dt: float | None = None) -> StableFluidsState:
         """Advance to ``t_end``; ``dt`` defaults to :func:`stable_time_step`."""
         while state.t < t_end - 1e-12:
             umax = float(np.sqrt((state.velocity ** 2).sum(axis=0)).max())

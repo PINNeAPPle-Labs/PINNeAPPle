@@ -1,0 +1,12 @@
+{
+ "code_hash": "dca18782386770aa",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.thin_airfoil.thin_airfoil_cl",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 19.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "thin airfoil cl -> pinneapple_physics.closed_form.thin_airfoil:thin_airfoil_cl\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'m': 1.0, 'p': 1.0, 'alpha_deg': 1.0, 'n_quad': 4001}",
+ "timed_out": false
+}

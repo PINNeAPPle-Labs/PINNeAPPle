@@ -1,0 +1,12 @@
+{
+ "code_hash": "04104619cc1be38c",
+ "figures": [],
+ "id": "node:auto.simulation.launch.circular_speed",
+ "ok": true,
+ "recorded": "2026-11-18",
+ "seconds": 33.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "Matplotlib is building the font cache; this may take a moment.",
+ "stdout": "circular speed -> pinneapple_simulation.launch:circular_speed\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'radius_m': 1.0, 'mu': 398600441800000.0}",
+ "timed_out": false
+}

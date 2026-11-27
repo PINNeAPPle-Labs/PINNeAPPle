@@ -1,0 +1,23 @@
+{
+ "stages": [
+  {
+   "name": "train_fno",
+   "started": 1795610854.7137752,
+   "status": "done",
+   "seconds": 10640.487
+  },
+  {
+   "name": "train_mlp",
+   "started": 1795621495.6501691,
+   "status": "done",
+   "seconds": 23.187
+  },
+  {
+   "name": "verify_lbm",
+   "started": 1795621521.7262342,
+   "status": "done",
+   "seconds": 116.157
+  }
+ ],
+ "updated": 1795621637.886336
+}

@@ -121,6 +121,17 @@ EXAMPLES = {
                        "(12 inputs). Shows what given-data indices can and cannot say when inputs are correlated.",
         "config": {"mode": "given_data", "dataset": "heatsink_forced_convection", "split": "train",
                    "outputs": ["r_base_k_w", "pressure_drop_pa"]}},
+    "surrogate": {
+        "title": "Surrogate error in the intervals (GP on 60 runs of Ishigami)",
+        "description": "The same three inputs, but the model is a Gaussian process fitted to only 60 runs. The exact "
+                       "indices are known, so the app can show what the bootstrap interval alone does here: it misses "
+                       "all three total indices, while the interval that also covers the surrogate's error covers two "
+                       "of them, and the surrogate is reported as the dominant source.",
+        "config": {"model": {"source": "builtin", "name": "ishigami"},
+                   "parameters": builtin("ishigami").metadata["space"], "n_sobol": 512, "second_order": False,
+                   "r_morris": 20, "n_grid": 15, "n_background": 48, "threshold": 0.01,
+                   "surrogate_error": {"train": 60, "n_paths": 100, "seed": 0},
+                   "nominal": {"x1": 1.0, "x2": 1.0, "x3": 1.0}}},
 }
 
 VALIDATION = [
@@ -132,6 +143,9 @@ VALIDATION = [
     "Local derivatives: automatic differentiation and central differences agree with the analytic Ishigami gradient "
     "(1e-5) and with each other on the heat-sink zoo model",
     "Given-data first-order indices of a random Ishigami sample within 0.02 of the exact values",
+    "Surrogate-error intervals measured, not asserted: over 12 training sets the coverage of the exact Ishigami "
+    "indices rises from 0.43 (bootstrap only) to 0.61 with a GP on 30 points, from 0.79 to 0.86 at 100, and the "
+    "share of the width that is the surrogate falls from 0.73 to 0.08 at 300 (tests/test_sensitivity_surrogate_error.py)",
 ]
 
 
@@ -161,7 +175,10 @@ def scope() -> dict:
                 {"topic": "Surrogate models", "effect": "check",
                  "detail": "The indices are those of the model; a surrogate can carry spurious small dependencies "
                            "(e.g. on power for a resistance) or miss real ones outside its data.",
-                 "today": "Check the model's own validation (Uncertainty Lab) first.", "planned": ""},
+                 "today": "The example 'Surrogate error in the intervals' studies a GP fitted to 60 runs and shows "
+                          "how much of the interval is the model's own error; on a real model, "
+                          "pp.sensitivity.gp_posterior_paths does the same in Python.",
+                 "planned": ""},
             ]}
 
 
@@ -196,6 +213,60 @@ def _cost(cfg: dict, d: int) -> dict:
                       morris_on=cfg.get("morris", True), effects_on=cfg.get("effects", True))
 
 
+SURROGATE_DEFAULTS = {"train": 100, "n_paths": 100, "space": "lhs"}
+
+
+def _surrogate(model: StudyModel, space, cfg: dict | None):
+    """``(study model, paths_fn, sources)`` for the surrogate-error mode (#927).
+
+    ``cfg = {"train": n, "n_paths": p}`` fits a Gaussian process to ``n`` runs of the model over ``space`` and studies
+    that GP instead, with the Sobol intervals covering its own prediction error. Only for the benchmarks here, where
+    the exact indices are known and the reference runs cost nothing; on a real model the same thing is done in Python
+    with ``pp.sensitivity.gp_posterior_paths`` (a fitted GP, an ensemble, or the residual paths).
+    """
+    if not cfg:
+        return model, None, None
+    if model.kind != "function":
+        raise HTTPException(422, "surrogate_error is available for the built-in benchmarks; for a zoo or ONNX model "
+                                 "build the paths in Python with pp.sensitivity.gp_posterior_paths")
+    import warnings as _w
+
+    import numpy as np
+    from sklearn.exceptions import ConvergenceWarning
+    from sklearn.gaussian_process import GaussianProcessRegressor
+    from sklearn.gaussian_process.kernels import ConstantKernel, Matern, WhiteKernel
+
+    from pinneapple_analysis.sensitivity.surrogate_error import gp_posterior_paths
+    from pinneapple_analysis.uncertainty.distributions import to_values, unit_sample
+
+    opt = {**SURROGATE_DEFAULTS, **(cfg if isinstance(cfg, dict) else {})}
+    n_train, n_paths = int(opt["train"]), int(opt["n_paths"])
+    if not 5 <= n_train <= MAX_EVALS or not 2 <= n_paths <= 2000:
+        raise HTTPException(422, f"surrogate_error needs 5 <= train <= {MAX_EVALS} and 2 <= n_paths <= 2000")
+    d = len(space)
+    seed = int(opt.get("seed", 0))
+    Xtr = to_values(space, unit_sample(d, n_train, opt.get("space", "lhs"), seed))
+    Ytr = model.predict(Xtr)
+    gps, kernels = [], []
+    for j in range(Ytr.shape[1]):
+        k = (ConstantKernel(1.0, (1e-3, 1e3)) * Matern(np.ones(d), (1e-1, 1e1), nu=2.5)
+             + WhiteKernel(1e-4, (1e-6, 1e-1)))
+        with _w.catch_warnings():                          # a hyper-parameter at its bound is not an error
+            _w.simplefilter("ignore", ConvergenceWarning)
+            gps.append(GaussianProcessRegressor(k, normalize_y=True, n_restarts_optimizer=2,
+                                                random_state=0).fit(Xtr, Ytr[:, j]))
+        kernels.append(str(gps[-1].kernel_)[:120])
+
+    def predict(X):
+        return np.column_stack([g.predict(np.atleast_2d(np.asarray(X, dtype=float))) for g in gps])
+
+    surrogate = StudyModel.from_function(predict, model.input_names, model.output_names, name=f"GP({n_train})",
+                                         units=model.units, bounds=model.bounds,
+                                         description=f"Gaussian process fitted to {n_train} runs of {model.name}")
+    sources = ["monte_carlo", f"gp-posterior-paths ({n_train} training runs, kernel {kernels[0]})"]
+    return surrogate, (lambda X: gp_posterior_paths(gps, X, n_paths=n_paths, seed=seed)), sources
+
+
 def _normalize(cfg: dict) -> dict:
     """Read the shared contracts: ``parameter_space`` (ParameterSpace) -> parameters + fixed values,
     ``model_ref`` (ModelRef) -> model."""
@@ -228,6 +299,14 @@ def _space(cfg):
 def _check_cost(cfg: dict) -> tuple[list, dict]:
     space = _space(cfg)
     cost = _cost(cfg, len(space))
+    se = cfg.get("surrogate_error")
+    if se:
+        # the surrogate mode evaluates the design once per path: that is the bill, so it is the number checked
+        opt = {**SURROGATE_DEFAULTS, **(se if isinstance(se, dict) else {})}
+        cost = dict(cost, parts=dict(cost["parts"]))
+        cost["parts"]["sobol"] = cost["parts"]["sobol"] * int(opt["n_paths"])
+        cost["parts"]["surrogate_fit"] = int(opt["train"])
+        cost["total"] = int(sum(cost["parts"].values()))
     if cost["total"] > MAX_EVALS:
         raise HTTPException(413, f"{cost['total']:,} model evaluations; the limit is {MAX_EVALS:,} per study "
                                  "(lower the Sobol sample size, the effect grid or the number of parameters).")
@@ -254,20 +333,27 @@ def run_model_study(cfg: dict, onnx: bytes | None = None, onnx_name: str = "mode
     try:
         model = _model(cfg.get("model") or {}, onnx, onnx_name)
         exact = model.metadata.get("exact") if model.kind == "function" else None
-        progress(0.1, "Sobol, Morris, effect curves, derivatives, freeze check")
-        out = sensitivity_study(model, space, cfg.get("outputs") or None, n_sobol=int(cfg.get("n_sobol", 1024)),
+        study_model, paths_fn, sources = _surrogate(model, space, cfg.get("surrogate_error"))
+        if paths_fn is not None:
+            progress(0.1, f"fitting the surrogate; intervals will cover its error ({len(space)} parameters)")
+        else:
+            progress(0.1, "Sobol, Morris, effect curves, derivatives, freeze check")
+        out = sensitivity_study(study_model, space, cfg.get("outputs") or None,
+                                n_sobol=int(cfg.get("n_sobol", 1024)),
                                 second_order=bool(cfg.get("second_order", False)),
                                 r_morris=int(cfg.get("r_morris", 20)), n_grid=int(cfg.get("n_grid", 15)),
                                 n_background=int(cfg.get("n_background", 64)),
                                 threshold=float(cfg.get("threshold", 0.01)), nominal=cfg.get("nominal") or None,
                                 fixed=cfg.get("fixed") or None, morris_on=cfg.get("morris", True),
-                                effects_on=cfg.get("effects", True), exact=exact, seed=int(cfg.get("seed", 0)))
+                                effects_on=cfg.get("effects", True), exact=exact, seed=int(cfg.get("seed", 0)),
+                                paths_fn=paths_fn, surrogate_sources=sources)
     except HTTPException:
         raise
     except (ValueError, KeyError, ImportError) as e:
         raise HTTPException(422, str(e)) from e
     progress(0.95, "writing the StudyResult")
     out["mode"] = "model"
+    out["model"] = model.info()                          # the model asked for; the surrogate is in sobol.sources
     out["cost"] = cost
     out["usage"] = {"parameters": len(space), "model_evaluations": out["n_evals"]["total"],
                     "seconds": round(time.time() - t0, 2)}

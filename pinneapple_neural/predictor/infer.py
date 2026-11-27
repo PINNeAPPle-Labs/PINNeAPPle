@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -14,7 +14,7 @@ def batched_inference(
     x: torch.Tensor,
     *,
     batch_size: int = 4096,
-    device: Optional[str] = None,
+    device: str | None = None,
     use_amp: bool = False,
     amp_dtype: torch.dtype = torch.float16,
 ) -> torch.Tensor:
@@ -36,7 +36,7 @@ def batched_inference(
     model.eval()
     dev = next(model.parameters()).device if device is None else torch.device(device)
 
-    outputs: List[torch.Tensor] = []
+    outputs: list[torch.Tensor] = []
     N = x.shape[0]
 
     with torch.no_grad():
@@ -68,19 +68,19 @@ class InferenceResult:
     model_id : optional string identifier for the model
     metadata : extra key/value info
     """
-    coords: Dict[str, np.ndarray]
-    fields: Dict[str, np.ndarray]
-    grid_shape: Optional[Tuple[int, ...]] = None
+    coords: dict[str, np.ndarray]
+    fields: dict[str, np.ndarray]
+    grid_shape: tuple[int, ...] | None = None
     model_id: str = ""
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 def infer(
     model: nn.Module,
     x: np.ndarray,
     *,
-    device: Union[str, torch.device] = "cpu",
-    field_names: Optional[List[str]] = None,
+    device: str | torch.device = "cpu",
+    field_names: list[str] | None = None,
 ) -> np.ndarray:
     """Run a forward pass on numpy input.
 
@@ -111,14 +111,14 @@ def infer(
 
 def infer_on_grid_1d(
     model: nn.Module,
-    x_range: Tuple[float, float],
-    t_range: Tuple[float, float],
+    x_range: tuple[float, float],
+    t_range: tuple[float, float],
     *,
     nx: int = 200,
     nt: int = 200,
-    device: Union[str, torch.device] = "cpu",
-    field_names: Optional[List[str]] = None,
-    coord_names: Tuple[str, str] = ("x", "t"),
+    device: str | torch.device = "cpu",
+    field_names: list[str] | None = None,
+    coord_names: tuple[str, str] = ("x", "t"),
 ) -> InferenceResult:
     """Inference on a 1D+time rectangular grid.
 
@@ -151,14 +151,14 @@ def infer_on_grid_1d(
 
 def infer_on_grid_2d(
     model: nn.Module,
-    x_range: Tuple[float, float],
-    y_range: Tuple[float, float],
+    x_range: tuple[float, float],
+    y_range: tuple[float, float],
     *,
     nx: int = 100,
     ny: int = 100,
-    device: Union[str, torch.device] = "cpu",
-    field_names: Optional[List[str]] = None,
-    coord_names: Tuple[str, str] = ("x", "y"),
+    device: str | torch.device = "cpu",
+    field_names: list[str] | None = None,
+    coord_names: tuple[str, str] = ("x", "y"),
 ) -> InferenceResult:
     """Inference on a 2D rectangular grid.
 

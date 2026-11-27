@@ -51,8 +51,8 @@ from __future__ import annotations
 import logging
 import math
 from collections import defaultdict, deque
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -88,14 +88,14 @@ class ReLoBRaLo:
 
     def __init__(
         self,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
         tau: float = 0.1,
         alpha: float = 0.999,
         update_every: int = 1,
         clip_min: float = 1e-3,
         clip_max: float = 1e3,
-        initial_weights: Optional[Dict[str, float]] = None,
+        initial_weights: dict[str, float] | None = None,
     ) -> None:
         self.loss_names = list(loss_names)
         self.tau = float(tau)
@@ -104,15 +104,15 @@ class ReLoBRaLo:
         self.clip_min = float(clip_min)
         self.clip_max = float(clip_max)
 
-        self._weights: Dict[str, float] = {
+        self._weights: dict[str, float] = {
             n: float((initial_weights or {}).get(n, 1.0)) for n in loss_names
         }
-        self._L0: Dict[str, float] = {}          # initial loss values
-        self._rho_ema: Dict[str, float] = {n: 1.0 for n in loss_names}
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._L0: dict[str, float] = {}          # initial loss values
+        self._rho_ema: dict[str, float] = {n: 1.0 for n in loss_names}
+        self._history: dict[str, list[float]] = defaultdict(list)
         self._step = 0
 
-    def step(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def step(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         """Compute weighted total and update weights."""
         n = len(self.loss_names)
 
@@ -146,7 +146,7 @@ class ReLoBRaLo:
         self._step += 1
         return self._apply(losses)
 
-    def _apply(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def _apply(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         total = None
         for name, w in self._weights.items():
             if name not in losses:
@@ -159,10 +159,10 @@ class ReLoBRaLo:
         return total
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         return dict(self._weights)
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -196,7 +196,7 @@ class SoftAdapt:
 
     def __init__(
         self,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
         tau: float = 0.1,
         beta: float = 0.0,
@@ -204,7 +204,7 @@ class SoftAdapt:
         update_every: int = 1,
         clip_min: float = 1e-3,
         clip_max: float = 1e3,
-        initial_weights: Optional[Dict[str, float]] = None,
+        initial_weights: dict[str, float] | None = None,
     ) -> None:
         self.loss_names = list(loss_names)
         self.tau = float(tau)
@@ -214,15 +214,15 @@ class SoftAdapt:
         self.clip_min = float(clip_min)
         self.clip_max = float(clip_max)
 
-        self._weights: Dict[str, float] = {
+        self._weights: dict[str, float] = {
             n: float((initial_weights or {}).get(n, 1.0)) for n in loss_names
         }
-        self._prev: Dict[str, float] = {}
-        self._delta_ema: Dict[str, float] = {n: 0.0 for n in loss_names}
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._prev: dict[str, float] = {}
+        self._delta_ema: dict[str, float] = {n: 0.0 for n in loss_names}
+        self._history: dict[str, list[float]] = defaultdict(list)
         self._step = 0
 
-    def step(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def step(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         n = len(self.loss_names)
 
         for name in self.loss_names:
@@ -266,10 +266,10 @@ class SoftAdapt:
         return total
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         return dict(self._weights)
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -307,7 +307,7 @@ class AugmentedLagrangian:
 
     def __init__(
         self,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
         pde_key: str = "pde",
         rho: float = 0.1,
@@ -316,7 +316,7 @@ class AugmentedLagrangian:
         lambda_max: float = 1e4,
         update_every: int = 1,
         warmup_steps: int = 100,
-        initial_weights: Optional[Dict[str, float]] = None,
+        initial_weights: dict[str, float] | None = None,
     ) -> None:
         self.loss_names = list(loss_names)
         self.pde_key = pde_key
@@ -327,15 +327,15 @@ class AugmentedLagrangian:
         self.warmup_steps = int(warmup_steps)
 
         init = initial_weights or {}
-        self._lam: Dict[str, float] = {
+        self._lam: dict[str, float] = {
             n: float(init.get(n, lambda_init))
             for n in loss_names if n != pde_key
         }
         self._pde_weight: float = float(init.get(pde_key, 1.0))
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._history: dict[str, list[float]] = defaultdict(list)
         self._step = 0
 
-    def step(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def step(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         """Compute augmented Lagrangian objective and update multipliers."""
         # ── Compute objective ────────────────────────────────────────────────
         total = None
@@ -370,12 +370,12 @@ class AugmentedLagrangian:
         return total
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         w = {self.pde_key: self._pde_weight}
         w.update(self._lam)
         return w
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -410,14 +410,14 @@ class InverseDirichlet:
     def __init__(
         self,
         model: nn.Module,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
-        shared_layer: Optional[nn.Module] = None,
+        shared_layer: nn.Module | None = None,
         update_every: int = 50,
         alpha: float = 0.9,
         clip_min: float = 1e-3,
         clip_max: float = 1e3,
-        initial_weights: Optional[Dict[str, float]] = None,
+        initial_weights: dict[str, float] | None = None,
     ) -> None:
         self.model = model
         self.loss_names = list(loss_names)
@@ -427,10 +427,10 @@ class InverseDirichlet:
         self.clip_max = float(clip_max)
 
         init = initial_weights or {}
-        self._weights: Dict[str, float] = {
+        self._weights: dict[str, float] = {
             n: float(init.get(n, 1.0)) for n in loss_names
         }
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._history: dict[str, list[float]] = defaultdict(list)
         self._step = 0
 
         # Determine shared layer
@@ -440,7 +440,7 @@ class InverseDirichlet:
             self._layer = self._find_last_layer(model)
 
     @staticmethod
-    def _find_last_layer(model: nn.Module) -> Optional[nn.Module]:
+    def _find_last_layer(model: nn.Module) -> nn.Module | None:
         last = None
         for m in model.modules():
             if isinstance(m, (nn.Linear, nn.Conv1d, nn.Conv2d)):
@@ -463,9 +463,9 @@ class InverseDirichlet:
         except Exception:
             return 1.0
 
-    def step(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def step(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         if self._step % self.update_every == 0:
-            stds: Dict[str, float] = {}
+            stds: dict[str, float] = {}
             for name in self.loss_names:
                 if name not in losses:
                     continue
@@ -494,10 +494,10 @@ class InverseDirichlet:
         return total
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         return dict(self._weights)
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -546,15 +546,15 @@ class LRAnnealing:
     def __init__(
         self,
         model: nn.Module,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
         reference: str = "pde",
         update_every: int = 100,
         alpha: float = 0.1,
         clip_min: float = 1e-3,
         clip_max: float = 1e4,
-        initial_weights: Optional[Dict[str, float]] = None,
-        params: Optional[List[nn.Parameter]] = None,
+        initial_weights: dict[str, float] | None = None,
+        params: list[nn.Parameter] | None = None,
     ) -> None:
         self.model = model
         self.loss_names = list(loss_names)
@@ -567,12 +567,12 @@ class LRAnnealing:
         self.clip_max = float(clip_max)
 
         init = initial_weights or {}
-        self._weights: Dict[str, float] = {n: float(init.get(n, 1.0)) for n in self.loss_names}
+        self._weights: dict[str, float] = {n: float(init.get(n, 1.0)) for n in self.loss_names}
         self._weights[reference] = 1.0
         self._params = list(params) if params is not None else [
             p for p in model.parameters() if p.requires_grad
         ]
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._history: dict[str, list[float]] = defaultdict(list)
         self._step = 0
 
     def _grad_abs(self, loss: torch.Tensor) -> torch.Tensor:
@@ -584,7 +584,7 @@ class LRAnnealing:
         parts = [g.reshape(-1) for g in grads if g is not None]
         return torch.cat(parts).abs() if parts else torch.zeros(1)
 
-    def step(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def step(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         if self._step % self.update_every == 0 and self.reference in losses:
             g_ref = self._grad_abs(losses[self.reference])
             gmax = float(g_ref.max().item()) if g_ref.numel() else 0.0
@@ -613,10 +613,10 @@ class LRAnnealing:
         return total
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         return dict(self._weights)
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -650,23 +650,23 @@ class PCGrad:
     def __init__(
         self,
         model: nn.Module,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
         update_every: int = 1,
-        weights: Optional[Dict[str, float]] = None,
+        weights: dict[str, float] | None = None,
     ) -> None:
         self.model = model
         self.loss_names = list(loss_names)
         self.update_every = int(update_every)
-        self._weights: Dict[str, float] = {
+        self._weights: dict[str, float] = {
             n: float((weights or {}).get(n, 1.0)) for n in loss_names
         }
         self._step = 0
 
     def step(
         self,
-        losses: Dict[str, torch.Tensor],
-        optimizer: Optional[torch.optim.Optimizer] = None,
+        losses: dict[str, torch.Tensor],
+        optimizer: torch.optim.Optimizer | None = None,
     ) -> torch.Tensor:
         """
         Apply gradient surgery and return the total loss for logging.
@@ -704,14 +704,14 @@ class PCGrad:
         )
         return total if not isinstance(total, int) else losses[self.loss_names[0]].new_zeros(())
 
-    def _apply_surgery(self, losses: Dict[str, torch.Tensor]) -> None:
+    def _apply_surgery(self, losses: dict[str, torch.Tensor]) -> None:
         """Compute per-task gradients, project, and accumulate into .grad."""
         params = [p for p in self.model.parameters() if p.requires_grad]
         if not params:
             return
 
         # Collect per-task gradients
-        task_grads: Dict[str, List[torch.Tensor]] = {}
+        task_grads: dict[str, list[torch.Tensor]] = {}
         for name in self.loss_names:
             if name not in losses:
                 continue
@@ -735,7 +735,7 @@ class PCGrad:
         task_names = list(task_grads.keys())
 
         # Apply gradient surgery per task
-        projected: Dict[str, List[torch.Tensor]] = {n: [g.clone() for g in task_grads[n]]
+        projected: dict[str, list[torch.Tensor]] = {n: [g.clone() for g in task_grads[n]]
                                                     for n in task_names}
 
         for i, ni in enumerate(task_names):
@@ -763,7 +763,7 @@ class PCGrad:
                     p.grad += g
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         return dict(self._weights)
 
 
@@ -821,9 +821,9 @@ class AutoBalancer:
     def __init__(
         self,
         model: nn.Module,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
-        config: Optional[AutoBalancerConfig] = None,
+        config: AutoBalancerConfig | None = None,
         pde_key: str = "pde",
     ) -> None:
         self.model = model
@@ -836,7 +836,7 @@ class AutoBalancer:
         self._loss_window: deque = deque(maxlen=self.cfg.health_window)
         self._n_switches = 0
         self._step = 0
-        self._switch_log: List[Tuple[int, str, str]] = []  # (step, from, to)
+        self._switch_log: list[tuple[int, str, str]] = []  # (step, from, to)
 
     # ------------------------------------------------------------------
     # Factory
@@ -926,8 +926,8 @@ class AutoBalancer:
 
     def step(
         self,
-        losses: Dict[str, torch.Tensor],
-        optimizer: Optional[torch.optim.Optimizer] = None,
+        losses: dict[str, torch.Tensor],
+        optimizer: torch.optim.Optimizer | None = None,
     ) -> torch.Tensor:
         """Apply current balancer, monitor health, switch if needed."""
         # Get total loss from current balancer
@@ -961,7 +961,7 @@ class AutoBalancer:
         return self._current_method
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         b = self._balancer
         if hasattr(b, "current_weights"):
             return b.current_weights
@@ -969,11 +969,11 @@ class AutoBalancer:
             return dict(b._weights)
         return {}
 
-    def switch_log(self) -> List[Tuple[int, str, str]]:
+    def switch_log(self) -> list[tuple[int, str, str]]:
         """List of (step, from_method, to_method) switches."""
         return list(self._switch_log)
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         b = self._balancer
         return b.history() if hasattr(b, "history") else {}
 
@@ -984,16 +984,16 @@ class _LossRatioWrapper:
         self._b = balancer
         self._step_count = 0
 
-    def step(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def step(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         self._b.update(losses, self._step_count)
         self._step_count += 1
         return self._b.apply(losses)
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         return dict(self._b._weights)
 
-    def history(self) -> Dict[str, Any]:
+    def history(self) -> dict[str, Any]:
         return self._b.history()
 
 
@@ -1054,21 +1054,21 @@ class JointAdaptiveWeights(nn.Module):
 
     def __init__(
         self,
-        loss_names: List[str],
+        loss_names: list[str],
         *,
-        initial_weights: Optional[Dict[str, float]] = None,
+        initial_weights: dict[str, float] | None = None,
         sp_beta: float = 1.0,
         max_raw_init: float = 20.0,
-        scale: Optional[Dict[str, float]] = None,
+        scale: dict[str, float] | None = None,
     ) -> None:
         super().__init__()
         self.loss_names = list(loss_names)
         self.sp = nn.Softplus(beta=sp_beta)
-        self._scale: Dict[str, float] = scale or {}
+        self._scale: dict[str, float] = scale or {}
 
         init = initial_weights or {}
         # Sanitize keys for ParameterDict (no dots / dashes)
-        self._name_to_key: Dict[str, str] = {
+        self._name_to_key: dict[str, str] = {
             n: n.replace(".", "_").replace("-", "_") for n in loss_names
         }
         raw_params = {}
@@ -1079,24 +1079,24 @@ class JointAdaptiveWeights(nn.Module):
                 torch.tensor(raw, dtype=torch.float32)
             )
         self.raw_weights = nn.ParameterDict(raw_params)
-        self._history: Dict[str, List[float]] = defaultdict(list)
+        self._history: dict[str, list[float]] = defaultdict(list)
 
     # ------------------------------------------------------------------
     # Weight access
     # ------------------------------------------------------------------
 
-    def weights(self) -> Dict[str, torch.Tensor]:
+    def weights(self) -> dict[str, torch.Tensor]:
         """Current λ values as differentiable tensors."""
         return {n: self.sp(self.raw_weights[self._name_to_key[n]]) for n in self.loss_names}
 
-    def weight_dict(self) -> Dict[str, float]:
+    def weight_dict(self) -> dict[str, float]:
         """Current λ values as Python floats."""
         return {
             n: float(self.sp(self.raw_weights[self._name_to_key[n]]).detach().item())
             for n in self.loss_names
         }
 
-    def weight_params(self) -> List[nn.Parameter]:
+    def weight_params(self) -> list[nn.Parameter]:
         """Raw parameters — include in the model optimiser param group."""
         return list(self.raw_weights.values())
 
@@ -1104,7 +1104,7 @@ class JointAdaptiveWeights(nn.Module):
     # Forward
     # ------------------------------------------------------------------
 
-    def forward(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def forward(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         """Return Σ_i scale_i · λ_i · L_i."""
         total = None
         for name in self.loss_names:
@@ -1121,14 +1121,14 @@ class JointAdaptiveWeights(nn.Module):
         return total
 
     # Alias so it fits the .step(losses) contract of the other balancers
-    def step(self, losses: Dict[str, torch.Tensor]) -> torch.Tensor:
+    def step(self, losses: dict[str, torch.Tensor]) -> torch.Tensor:
         return self(losses)
 
     @property
-    def current_weights(self) -> Dict[str, float]:
+    def current_weights(self) -> dict[str, float]:
         return self.weight_dict()
 
-    def history(self) -> Dict[str, List[float]]:
+    def history(self) -> dict[str, list[float]]:
         return dict(self._history)
 
 
@@ -1183,7 +1183,7 @@ class AutoPDEWeightCalibrator:
         self.once = once
         self.clip_min = float(clip_min)
         self.clip_max = float(clip_max)
-        self._weight: Optional[float] = None
+        self._weight: float | None = None
 
     def calibrate(
         self,
@@ -1219,7 +1219,7 @@ class AutoPDEWeightCalibrator:
         return w
 
     @property
-    def weight(self) -> Optional[float]:
+    def weight(self) -> float | None:
         """The calibrated weight, or None if not yet calibrated."""
         return self._weight
 

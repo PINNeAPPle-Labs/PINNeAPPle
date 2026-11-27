@@ -24,7 +24,7 @@ import argparse
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from pinneapple_researcher.models import RankedItem
 from pinneapple_researcher.pipelines.reproduce import reproduce
@@ -32,7 +32,7 @@ from pinneapple_researcher.pipelines.reproduce import reproduce
 
 def _load_from_manifest(manifest_path: Path, *, type_: str, id_: str) -> RankedItem | None:
     try:
-        data: Dict[str, Any] = json.loads(manifest_path.read_text(encoding="utf-8"))
+        data: dict[str, Any] = json.loads(manifest_path.read_text(encoding="utf-8"))
     except Exception:
         return None
 

@@ -11,8 +11,7 @@ from __future__ import annotations
 
 import threading
 import time
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import dataclass
 
 __all__ = ["LogEntry", "LogCollector"]
 
@@ -30,19 +29,19 @@ class LogCollector:
     the pipeline is still running (e.g. an API handler polling it)."""
 
     def __init__(self) -> None:
-        self._entries: List[LogEntry] = []
+        self._entries: list[LogEntry] = []
         self._lock = threading.Lock()
 
     def log(self, message: str) -> None:
         with self._lock:
             self._entries.append(LogEntry(timestamp_unix=time.time(), message=message))
 
-    def entries(self) -> List[LogEntry]:
+    def entries(self) -> list[LogEntry]:
         with self._lock:
             return list(self._entries)
 
 
-def emit(log: Optional[LogCollector], message: str) -> None:
+def emit(log: LogCollector | None, message: str) -> None:
     """Convenience helper: log to *log* if one was actually given,
     otherwise a real no-op -- every call site in the pipeline can call
     this unconditionally without an `if log is not None` guard."""

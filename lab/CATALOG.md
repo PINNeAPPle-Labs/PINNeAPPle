@@ -1,6 +1,6 @@
 # PINNeAPPle Lab catalogue
 
-208 runs, generated 2026-10-18 16:42.
+271 runs, generated 2026-11-25 13:54.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
@@ -11,19 +11,21 @@
 | [bondi_accretion](#bondi_accretion) | 6 | 6 | 0 | 0 | profiles (6) |
 | [bricks](#bricks) | 3 | 3 | 0 | 0 | - |
 | [calculix_case](#calculix_case) | 5 | 5 | 0 | 0 | fields (5) |
-| [car_lbm](#car_lbm) | 40 | 40 | 0 | 0 | flow (40), vorticity (1920) |
+| [car_lbm](#car_lbm) | 76 | 76 | 0 | 0 | flow (76), vorticity (3648) |
+| [car_surrogate](#car_surrogate) | 1 | 0 | 1 | 0 | predictions (36) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
 | [em_pinn](#em_pinn) | 4 | 2 | 2 | 0 | - |
 | [example_script](#example_script) | 8 | 5 | 0 | 3 | - |
 | [heat_xtfc](#heat_xtfc) | 12 | 8 | 4 | 0 | fields (12) |
 | [kepler_law](#kepler_law) | 1 | 1 | 0 | 0 | orbits (19) |
 | [lorenz_discovery](#lorenz_discovery) | 1 | 1 | 0 | 0 | - |
+| [manifest](#manifest) | 26 | 26 | 0 | 0 | - |
 | [oscillator](#oscillator) | 60 | 60 | 0 | 0 | trajectories (60) |
 | [oscillator_discovery](#oscillator_discovery) | 1 | 1 | 0 | 0 | discovered_laws (20) |
 | [particle_suspension](#particle_suspension) | 1 | 1 | 0 | 0 | suspension (31) |
 | [pendulum_video](#pendulum_video) | 1 | 1 | 0 | 0 | pendulum (1) |
 | [pipe_flow](#pipe_flow) | 3 | 3 | 0 | 0 | cross_sections (14), sections (3), wall (3) |
-| [repo_results](#repo_results) | 25 | 24 | 1 | 0 | strouhal (3), test_points (120), polar (5), coefficients (1), temperature_fields_2d (5), rollout_scores (2), temperature_fields_3d (3), lead_time_skill (4), fields (1), held_out_error (3), torque_vs_current_angle (13), single_wheel_validation (5) |
+| [repo_results](#repo_results) | 25 | 24 | 1 | 0 | fields (1), strouhal (3), rollout_scores (2), polar (5), single_wheel_validation (5), temperature_fields_3d (3), held_out_error (3), lead_time_skill (4), temperature_fields_2d (5), test_points (120), coefficients (1), torque_vs_current_angle (13) |
 | [rom_study](#rom_study) | 2 | 2 | 0 | 0 | beam_designs (100), wake (1) |
 | [solid_fem](#solid_fem) | 3 | 3 | 0 | 0 | fields (3) |
 | [vehicle_cfd](#vehicle_cfd) | 1 | 1 | 0 | 0 | streamlines (40), surface (1) |
@@ -145,40 +147,50 @@ Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parame
 
 | run | status | Cs | Re | clearance | diffuser_deg | hood | length_cells | nose | slant_deg | steps | tunnel_height | u_in | windshield_deg | Cd | Cd_rms_fluctuation | Cl | Strouhal_frontal_height | mean_flow_divergence | checks |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| [01d0849fcd6b](runs/car_lbm/car_lbm-01d0849fcd6b) | completed | 0.1 | 500.0 | 0.10491302009992373 | 5.461080029102873 | 0.47558637617623484 | 64 | 0.23766190040470328 | 17.573344271776932 | 8000 | 2.5 | 0.08 | 33.7005406387837 | 1.652 | 0.1415 | 0.6574 | 0.12 | 0.0003255 | 3/3 |
-| [4d9a736b17f6](runs/car_lbm/car_lbm-4d9a736b17f6) | completed | 0.1 | 500.0 | 0.11331448782654147 | 7.385592469388693 | 0.5832302256632885 | 64 | 0.38743462610548784 | 24.253267461795566 | 8000 | 2.5 | 0.08 | 44.8746927155908 | 1.726 | 0.1511 | 0.623 | 0.12 | 0.0003555 | 3/3 |
-| [45dc6edd8075](runs/car_lbm/car_lbm-45dc6edd8075) | completed | 0.1 | 500.0 | 0.04420219793570932 | 3.096879659750433 | 0.7036141634121883 | 64 | 0.172873897568471 | 29.351291763576526 | 8000 | 2.5 | 0.08 | 27.458272594421672 | 1.419 | 0.1327 | 0.9005 | 0.12 | 0.0003347 | 3/3 |
-| [e53e2fb92ce4](runs/car_lbm/car_lbm-e53e2fb92ce4) | completed | 0.1 | 500.0 | 0.08876116952700108 | 1.6370071920665097 | 0.6579749193675155 | 64 | 0.9010132214973694 | 38.385153445928765 | 8000 | 2.5 | 0.08 | 46.13870805749418 | 1.583 | 0.1485 | 0.7771 | 0.12 | 0.0003397 | 3/3 |
-| [ddba6505f43d](runs/car_lbm/car_lbm-ddba6505f43d) | completed | 0.1 | 500.0 | 0.06626744237767704 | 4.680410054629916 | 0.5333490371439392 | 64 | 0.2578837703608595 | 7.859149391493312 | 8000 | 2.5 | 0.08 | 23.80118433362152 | 1.429 | 0.1304 | 0.8153 | 0.54 | 0.0003337 | 3/3 |
-| [2cb049a4733a](runs/car_lbm/car_lbm-2cb049a4733a) | completed | 0.1 | 500.0 | 0.10732489244322849 | 9.845365217349599 | 0.7118501614614828 | 64 | 0.3149993674616432 | 26.77029063473322 | 8000 | 2.5 | 0.08 | 31.8915046095035 | 1.724 | 0.1554 | 0.6273 | 0.12 | 0.0003441 | 3/3 |
-| [000726cc8ec0](runs/car_lbm/car_lbm-000726cc8ec0) | completed | 0.1 | 500.0 | 0.061661105064526364 | 0.20766016835299797 | 0.7260152743349797 | 64 | 0.6766599554625821 | 39.571066958634866 | 8000 | 2.5 | 0.08 | 52.973223826672104 | 1.516 | 0.1416 | 0.9295 | 0.12 | 0.0003317 | 3/3 |
-| [500798921b1a](runs/car_lbm/car_lbm-500798921b1a) | completed | 0.1 | 500.0 | 0.11475370756281755 | 5.729865836576346 | 0.7190826852498715 | 64 | 0.8559137644101507 | 28.49125646557014 | 8000 | 2.5 | 0.08 | 20.310987054895573 | 1.712 | 0.1539 | 0.6115 | 0.12 | 0.0003417 | 3/3 |
-| [cb2e9c63cc61](runs/car_lbm/car_lbm-cb2e9c63cc61) | completed | 0.1 | 500.0 | 0.07274344790554883 | 8.346858074327661 | 0.5964247811473138 | 64 | 0.9366265863524385 | 16.93475252107471 | 8000 | 2.5 | 0.08 | 34.454211175683994 | 1.498 | 0.1385 | 0.7661 | 0.84 | 0.0003373 | 3/3 |
-| [e255b8b0b291](runs/car_lbm/car_lbm-e255b8b0b291) | completed | 0.1 | 500.0 | 0.057079043317894866 | 5.034454038587483 | 0.4718672657632555 | 64 | 0.12202142567173069 | 20.524049578941625 | 8000 | 2.5 | 0.08 | 36.41959146036871 | 1.409 | 0.1244 | 0.8292 | 0.54 | 0.0003316 | 3/3 |
-| [a3d566adf5bc](runs/car_lbm/car_lbm-a3d566adf5bc) | completed | 0.1 | 500.0 | 0.08243011555927618 | 0.6900933239975455 | 0.5103498917846542 | 64 | 0.8190239880414447 | 20.830058654430164 | 8000 | 2.5 | 0.08 | 40.04553189974173 | 1.534 | 0.1381 | 0.8765 | 0.84 | 0.0003289 | 3/3 |
-| [1ea0200595dd](runs/car_lbm/car_lbm-1ea0200595dd) | completed | 0.1 | 500.0 | 0.11849481918323354 | 2.9982372146871517 | 0.585227166254487 | 64 | 0.14572451173904352 | 36.97350084370443 | 8000 | 2.5 | 0.08 | 32.38217949331721 | 1.692 | 0.1477 | 0.6139 | 0.12 | 0.0003317 | 3/3 |
-| [bdfcd6b96b2e](runs/car_lbm/car_lbm-bdfcd6b96b2e) | completed | 0.1 | 500.0 | 0.05065970456656483 | 7.036997037190515 | 0.7276516168001711 | 64 | 0.7190267443132328 | 36.0693007067628 | 8000 | 2.5 | 0.08 | 40.941741968269 | 1.401 | 0.1291 | 0.846 | 0.12 | 0.0003335 | 3/3 |
-| [9ebb460d2144](runs/car_lbm/car_lbm-9ebb460d2144) | completed | 0.1 | 500.0 | 0.08091485139627642 | 1.4281689190153664 | 0.5568957650846434 | 64 | 0.5926930194012445 | 38.13742195460627 | 8000 | 2.5 | 0.08 | 36.6295315075885 | 1.534 | 0.1344 | 0.8532 | 0.84 | 0.00034 | 3/3 |
-| [2c4ed9779ce1](runs/car_lbm/car_lbm-2c4ed9779ce1) | completed | 0.1 | 500.0 | 0.09016306292060514 | 7.95633085007501 | 0.5643642732990674 | 64 | 0.3462423335661612 | 12.316106051637387 | 8000 | 2.5 | 0.08 | 44.28385531564803 | 1.604 | 0.1556 | 0.7049 | 0.12 | 0.0003166 | 3/3 |
-| [ee898deb4ed5](runs/car_lbm/car_lbm-ee898deb4ed5) | completed | 0.1 | 500.0 | 0.05350546427273401 | 3.4801429862490902 | 0.5714062750076697 | 64 | 0.5420369172684172 | 11.64841105880631 | 8000 | 2.5 | 0.08 | 47.83421097652759 | 1.461 | 0.133 | 0.9251 | 0.12 | 0.0003459 | 3/3 |
-| [17377963edf2](runs/car_lbm/car_lbm-17377963edf2) | completed | 0.1 | 500.0 | 0.11715810914885852 | 8.030845353569394 | 0.5067529186378905 | 64 | 0.96839207648284 | 5.926845187052316 | 8000 | 2.5 | 0.08 | 41.119668545099756 | 1.694 | 0.1591 | 0.5942 | 0.12 | 0.0003541 | 3/3 |
-| [0ebce63174b6](runs/car_lbm/car_lbm-0ebce63174b6) | completed | 0.1 | 500.0 | 0.076599387745781 | 1.0229524782879023 | 0.45779239380774783 | 64 | 0.6575411125688053 | 34.21417782597189 | 8000 | 2.5 | 0.08 | 49.24154069454904 | 1.534 | 0.1315 | 0.8505 | 0.84 | 0.0003334 | 3/3 |
-| [4a95cc22c2e6](runs/car_lbm/car_lbm-4a95cc22c2e6) | completed | 0.1 | 500.0 | 0.08615509314470199 | 3.9969678954616334 | 0.6944279090087614 | 64 | 0.35419101807246856 | 18.40765680297593 | 8000 | 2.5 | 0.08 | 38.213349243245666 | 1.598 | 0.1574 | 0.7439 | 0.12 | 0.000343 | 3/3 |
-| [04698aa89723](runs/car_lbm/car_lbm-04698aa89723) | completed | 0.1 | 500.0 | 0.07152636190280295 | 2.279189121275397 | 0.6837450836478541 | 64 | 0.8439131244788948 | 30.506424762936646 | 8000 | 2.5 | 0.08 | 53.262487290974036 | 1.543 | 0.144 | 0.8287 | 0.84 | 0.0003344 | 3/3 |
-| [6f431a30a9bf](runs/car_lbm/car_lbm-6f431a30a9bf) | completed | 0.1 | 500.0 | 0.07426215797658264 | 6.294201889784224 | 0.5225840528142548 | 64 | 0.7291459323942165 | 10.964295840841691 | 8000 | 2.5 | 0.08 | 35.424904204383004 | 1.527 | 0.1414 | 0.8017 | 0.12 | 0.0003382 | 3/3 |
-| [8a675bd1fb06](runs/car_lbm/car_lbm-8a675bd1fb06) | completed | 0.1 | 500.0 | 0.048266413284699355 | 2.143738233457255 | 0.6301580651583292 | 64 | 0.7979863962879993 | 19.332015400106524 | 8000 | 2.5 | 0.08 | 46.94389570083578 | 1.403 | 0.1331 | 0.941 | 0.12 | 0.0003328 | 3/3 |
-| [0f01b8aa2bd5](runs/car_lbm/car_lbm-0f01b8aa2bd5) | completed | 0.1 | 500.0 | 0.08426136849161456 | 4.111568259072409 | 0.48232927647789897 | 64 | 0.639916070933903 | 25.981404398859816 | 8000 | 2.5 | 0.08 | 42.32387813496943 | 1.551 | 0.1328 | 0.7627 | 0.84 | 0.0003455 | 3/3 |
-| [6940a081d993](runs/car_lbm/car_lbm-6940a081d993) | completed | 0.1 | 500.0 | 0.10016252462223196 | 5.937598047831958 | 0.5470375596514846 | 64 | 0.1832358528217956 | 27.391242731384285 | 8000 | 2.5 | 0.08 | 50.3851182429822 | 1.688 | 0.1518 | 0.688 | 0.12 | 0.0003458 | 3/3 |
-| [46021785d3b3](runs/car_lbm/car_lbm-46021785d3b3) | completed | 0.1 | 500.0 | 0.1038127847308005 | 4.797639312039529 | 0.5290379728490794 | 64 | 0.5734160789163087 | 9.90442422210112 | 8000 | 2.5 | 0.08 | 28.94812054736 | 1.653 | 0.1467 | 0.6708 | 0.12 | 0.0003308 | 3/3 |
-| [a21e93923403](runs/car_lbm/car_lbm-a21e93923403) | completed | 0.1 | 500.0 | 0.11053848859934676 | 9.47860694038998 | 0.45608690552060066 | 64 | 0.47887825679844614 | 7.308247008189791 | 8000 | 2.5 | 0.08 | 22.79870600449359 | 1.636 | 0.148 | 0.584 | 0.12 | 0.0003373 | 3/3 |
-| [8b2e43cfcd6f](runs/car_lbm/car_lbm-8b2e43cfcd6f) | completed | 0.1 | 500.0 | 0.10861282115841372 | 9.05429871157693 | 0.642435195612088 | 64 | 0.037861658442381166 | 32.71689396333619 | 8000 | 2.5 | 0.08 | 21.192736081731557 | 1.684 | 0.1424 | 0.5954 | 0.12 | 0.0003372 | 3/3 |
-| [7f14ab3828f8](runs/car_lbm/car_lbm-7f14ab3828f8) | completed | 0.1 | 500.0 | 0.05966558862000414 | 7.69227774754666 | 0.6120806308921014 | 64 | 0.877288851830406 | 34.88193951677232 | 8000 | 2.5 | 0.08 | 28.031980274121253 | 1.459 | 0.1269 | 0.845 | 0.84 | 0.0003416 | 3/3 |
-| [07a280c137da](runs/car_lbm/car_lbm-07a280c137da) | completed | 0.1 | 500.0 | 0.09923984691942359 | 2.516900881318515 | 0.6464343951006367 | 64 | 0.5241356927271144 | 23.760274283789663 | 8000 | 2.5 | 0.08 | 50.927803759223416 | 1.692 | 0.1609 | 0.7648 | 0.12 | 0.000348 | 3/3 |
-| [14188f61c799](runs/car_lbm/car_lbm-14188f61c799) | completed | 0.1 | 500.0 | 0.04637428677308144 | 4.368350646939291 | 0.6268079606119336 | 64 | 0.4643844015452907 | 14.834618466600833 | 8000 | 2.5 | 0.08 | 54.95460855373447 | 1.374 | 0.1349 | 0.8747 | 0.12 | 0.0003292 | 3/3 |
+| [0d5af0515195](runs/car_lbm/car_lbm-0d5af0515195) | completed | 0.1 | 500.0 | 0.0404 | 0.5344 | 0.4615 | 64 | 0.0711 | 5.1155 | 8000 | 2.5 | 0.08 | 21.5417 | 1.302 | 0.1239 | 0.8316 | 0.54 | 0.0003279 | 3/3 |
+| [4c42d28eef89](runs/car_lbm/car_lbm-4c42d28eef89) | completed | 0.1 | 500.0 | 0.0634 | 2.9257 | 0.546 | 64 | 0.3128 | 15.4794 | 8000 | 2.5 | 0.08 | 29.5086 | 1.439 | 0.1328 | 0.8634 | 0.54 | 0.0003137 | 3/3 |
+| [8ce4ecc1f204](runs/car_lbm/car_lbm-8ce4ecc1f204) | completed | 0.1 | 500.0 | 0.0852 | 5.1597 | 0.6171 | 64 | 0.5669 | 22.9314 | 8000 | 2.5 | 0.08 | 39.8906 | 1.607 | 0.1429 | 0.7821 | 0.12 | 0.0003459 | 3/3 |
+| [0745f99c9f42](runs/car_lbm/car_lbm-0745f99c9f42) | completed | 0.1 | 500.0 | 0.1124 | 9.0638 | 0.7214 | 64 | 0.8727 | 34.7247 | 8000 | 2.5 | 0.08 | 49.4045 | 1.716 | 0.1575 | 0.6065 | 0.12 | 0.0003066 | 3/3 |
+| [bcb508b2f604](runs/car_lbm/car_lbm-bcb508b2f604) | completed | 0.1 | 500.0 | 0.0981 | 7.363 | 0.6661 | 64 | 0.6902 | 29.1326 | 8000 | 2.5 | 0.08 | 43.354 | 1.638 | 0.1567 | 0.6833 | 0.12 | 0.0003424 | 3/3 |
+| [9487e9c647e7](runs/car_lbm/car_lbm-9487e9c647e7) | completed | 0.1 | 500.0 | 0.0531 | 0.9588 | 0.4951 | 64 | 0.1235 | 8.5444 | 8000 | 2.5 | 0.08 | 24.7814 | 1.412 | 0.1272 | 0.9731 | 0.54 | 0.0003381 | 3/3 |
+| [48bc3ce29808](runs/car_lbm/car_lbm-48bc3ce29808) | completed | 0.1 | 500.0 | 0.0853 | 5.4559 | 0.5475 | 64 | 0.4347 | 37.2082 | 8000 | 2.5 | 0.08 | 30.5537 | 1.59 | 0.1353 | 0.7803 | 0.12 | 0.0003472 | 3/3 |
+| [bab32c9c2a53](runs/car_lbm/car_lbm-bab32c9c2a53) | completed | 0.1 | 500.0 | 0.117 | 0.9963 | 0.4842 | 64 | 0.7299 | 34.8653 | 8000 | 2.5 | 0.08 | 21.6913 | 1.672 | 0.1405 | 0.6436 | 0.12 | 0.0003498 | 3/3 |
+| [d513b0a5e422](runs/car_lbm/car_lbm-d513b0a5e422) | completed | 0.1 | 500.0 | 0.1099 | 0.1184 | 0.7092 | 64 | 0.527 | 33.3363 | 8000 | 2.5 | 0.08 | 38.3557 | 1.716 | 0.1664 | 0.7165 | 0.12 | 0.0003298 | 3/3 |
+| [08b9f5e32c0a](runs/car_lbm/car_lbm-08b9f5e32c0a) | completed | 0.1 | 500.0 | 0.0899 | 5.9577 | 0.6375 | 64 | 0.8047 | 26.432 | 8000 | 2.5 | 0.08 | 29.1769 | 1.601 | 0.1509 | 0.7348 | 0.12 | 0.0003406 | 3/3 |
+| [341c9ea8a323](runs/car_lbm/car_lbm-341c9ea8a323) | completed | 0.1 | 500.0 | 0.0959 | 2.5126 | 0.6559 | 64 | 0.5711 | 29.6337 | 8000 | 2.5 | 0.08 | 47.1034 | 1.637 | 0.1578 | 0.7796 | 0.12 | 0.0003385 | 3/3 |
+| [cbe249a06efb](runs/car_lbm/car_lbm-cbe249a06efb) | completed | 0.1 | 500.0 | 0.0731 | 9.6697 | 0.6833 | 64 | 0.2346 | 15.7541 | 8000 | 2.5 | 0.08 | 27.4242 | 1.508 | 0.1424 | 0.7329 | 0.54 | 0.0003288 | 3/3 |
+| [b60466627c1b](runs/car_lbm/car_lbm-b60466627c1b) | completed | 0.1 | 500.0 | 0.0441 | 8.2625 | 0.584 | 64 | 0.6107 | 14.1848 | 8000 | 2.5 | 0.08 | 37.1234 | 1.353 | 0.1264 | 0.8478 | 0.54 | 0.0003357 | 3/3 |
+| [2e2489cf17a6](runs/car_lbm/car_lbm-2e2489cf17a6) | completed | 0.1 | 500.0 | 0.0659 | 8.6994 | 0.6929 | 64 | 0.1709 | 39.5374 | 8000 | 2.5 | 0.08 | 24.1126 | 1.5 | 0.1322 | 0.8054 | 0.84 | 0.000334 | 3/3 |
+| [cc8225379cdb](runs/car_lbm/car_lbm-cc8225379cdb) | completed | 0.1 | 500.0 | 0.0972 | 1.9577 | 0.556 | 64 | 0.1372 | 23.7392 | 8000 | 2.5 | 0.08 | 39.5328 | 1.635 | 0.1519 | 0.7612 | 0.12 | 0.0003386 | 3/3 |
+| [069e65f18c92](runs/car_lbm/car_lbm-069e65f18c92) | completed | 0.1 | 500.0 | 0.0747 | 4.8387 | 0.6195 | 64 | 0.4665 | 32.5204 | 8000 | 2.5 | 0.08 | 45.1933 | 1.541 | 0.1368 | 0.7976 | 0.84 | 0.0003396 | 3/3 |
+| [9f41c915b641](runs/car_lbm/car_lbm-9f41c915b641) | completed | 0.1 | 500.0 | 0.0586 | 7.8838 | 0.6344 | 64 | 0.3836 | 8.1796 | 8000 | 2.5 | 0.08 | 32.7558 | 1.448 | 0.1393 | 0.8264 | 0.54 | 0.0003282 | 3/3 |
+| [af4ab5cdebb7](runs/car_lbm/car_lbm-af4ab5cdebb7) | completed | 0.1 | 500.0 | 0.0554 | 0.6695 | 0.4996 | 64 | 0.3738 | 22.2826 | 8000 | 2.5 | 0.08 | 24.6214 | 1.425 | 0.1226 | 0.9037 | 0.84 | 0.0003394 | 3/3 |
+| [6721abd73591](runs/car_lbm/car_lbm-6721abd73591) | completed | 0.1 | 500.0 | 0.0779 | 4.202 | 0.5882 | 64 | 0.6747 | 20.7311 | 8000 | 2.5 | 0.08 | 34.277 | 1.526 | 0.1387 | 0.8069 | 0.84 | 0.0003385 | 3/3 |
+| [a149fe893e72](runs/car_lbm/car_lbm-a149fe893e72) | completed | 0.1 | 500.0 | 0.081 | 6.872 | 0.6016 | 64 | 0.9937 | 24.2702 | 8000 | 2.5 | 0.08 | 50.4189 | 1.561 | 0.1395 | 0.7808 | 0.12 | 0.0003428 | 3/3 |
+| [c751a0ed8c20](runs/car_lbm/car_lbm-c751a0ed8c20) | completed | 0.1 | 500.0 | 0.1151 | 3.2108 | 0.4527 | 64 | 0.0022 | 6.4076 | 8000 | 2.5 | 0.08 | 48.741 | 1.739 | 0.1582 | 0.6089 | 0.12 | 0.000351 | 3/3 |
+| [d7d57d193d6f](runs/car_lbm/car_lbm-d7d57d193d6f) | completed | 0.1 | 500.0 | 0.0689 | 4.0288 | 0.7199 | 64 | 0.7718 | 27.8665 | 8000 | 2.5 | 0.08 | 51.1621 | 1.576 | 0.1398 | 0.8868 | 0.12 | 0.0003369 | 3/3 |
+| [87e7e0f2ffd8](runs/car_lbm/car_lbm-87e7e0f2ffd8) | completed | 0.1 | 500.0 | 0.0404 | 2.2836 | 0.4687 | 64 | 0.2723 | 36.434 | 8000 | 2.5 | 0.08 | 20.289 | 1.299 | 0.1131 | 0.8657 | 0.84 | 0.0003262 | 3/3 |
+| [4d7b7502db9c](runs/car_lbm/car_lbm-4d7b7502db9c) | completed | 0.1 | 500.0 | 0.0618 | 9.2522 | 0.5252 | 64 | 0.6559 | 30.9206 | 8000 | 2.5 | 0.08 | 54.1158 | 1.466 | 0.1262 | 0.8058 | 0.12 | 0.0003394 | 3/3 |
+| [99d1da778e2d](runs/car_lbm/car_lbm-99d1da778e2d) | completed | 0.1 | 500.0 | 0.0513 | 8.8954 | 0.7364 | 64 | 0.8478 | 18.6919 | 8000 | 2.5 | 0.08 | 26.3882 | 1.406 | 0.13 | 0.8675 | 0.12 | 0.0003338 | 3/3 |
+| [a9e546b789f0](runs/car_lbm/car_lbm-a9e546b789f0) | completed | 0.1 | 500.0 | 0.1031 | 6.4846 | 0.6693 | 64 | 0.1143 | 12.9928 | 8000 | 2.5 | 0.08 | 34.7194 | 1.668 | 0.1575 | 0.6311 | 0.12 | 0.0003344 | 3/3 |
+| [3cf6523e3951](runs/car_lbm/car_lbm-3cf6523e3951) | completed | 0.1 | 500.0 | 0.0494 | 3.6751 | 0.7468 | 64 | 0.8856 | 10.7562 | 8000 | 2.5 | 0.08 | 41.6448 | 1.427 | 0.1403 | 0.9364 | 0.12 | 0.0003354 | 3/3 |
+| [fa5a2434394f](runs/car_lbm/car_lbm-fa5a2434394f) | completed | 0.1 | 500.0 | 0.0919 | 5.1325 | 0.5158 | 64 | 0.0674 | 11.5362 | 8000 | 2.5 | 0.08 | 52.5831 | 1.639 | 0.1552 | 0.7373 | 0.12 | 0.00034 | 3/3 |
+| [04a6baee991f](runs/car_lbm/car_lbm-04a6baee991f) | completed | 0.1 | 500.0 | 0.1113 | 1.5444 | 0.568 | 64 | 0.2953 | 17.516 | 8000 | 2.5 | 0.08 | 43.4856 | 1.681 | 0.1556 | 0.6776 | 0.12 | 0.000331 | 3/3 |
+| [ee17ad3f0f6a](runs/car_lbm/car_lbm-ee17ad3f0f6a) | completed | 0.1 | 500.0 | 0.1056 | 7.222 | 0.5051 | 64 | 0.9249 | 6.7047 | 8000 | 2.5 | 0.08 | 42.6225 | 1.654 | 0.1531 | 0.6216 | 0.12 | 0.0003441 | 3/3 |
 
-![car_lbm](runs/car_lbm/car_lbm-14188f61c799/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-ee17ad3f0f6a/figures/forces.png)
 
-![car_lbm](runs/car_lbm/car_lbm-07a280c137da/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-04a6baee991f/figures/forces.png)
+
+## car_surrogate
+
+Physics AI on car geometry: an FNO maps the car shape to its mean flow (data-only and with a mass-conservation / no-slip physics loss), an MLP ensemble maps the design parameters to drag and lift; scored on unseen designs against baselines, then used to find a low-drag shape that a new LBM run verifies.
+
+| run | status | ensemble | epochs | holdout | modes | physics_weight | search_samples | seed | verify | width | Cd_mape_linear | Cd_mape_mlp_ensemble | Cd_mape_nearest_design | Cl_mae_mlp_ensemble | divergence_fno_data_only | divergence_fno_physics | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [3db2de4d123b](runs/car_surrogate/car_surrogate-3db2de4d123b) | failed_validation | 5 | 300 | 0.2 | 16 | 0.5 | 4000 | 0 | True | 24 | 0.007727 | 0.01767 | 0.04194 | 0.0557 | 0.00314 | 0.001527 | 5/6 |
+
+![car_surrogate](runs/car_surrogate/car_surrogate-3db2de4d123b/figures/coefficient_parity.png)
 
 ## cylinder_lbm
 
@@ -276,6 +288,43 @@ AI-Lorenz style equation discovery (De Florio, Kevrekidis & Karniadakis 2024): n
 | [f76bfaeab75f](runs/lorenz_discovery/lorenz_discovery-f76bfaeab75f) | completed | 2.6666666666666665 | 0.005 | 0.01 | 28.0 | 0 | 10.0 | 4 | 20.0 | 0.08 | 2.665 | 0.01778 | 3.801 | 28.03 | 10.02 | 2/2 |
 
 ![lorenz_discovery](runs/lorenz_discovery/lorenz_discovery-f76bfaeab75f/figures/lorenz_discovery.png)
+
+## manifest
+
+An experiment described by its manifest (experiment.json), imported for curation.
+
+| run | status | id | path | 0D: C_measured | 0D: coverage_k2 | 0D: expanded_uncertainty_k2 | 0D: quality_factor | 0D: tau_fit | 0D: u_rel[fit tau (type A)] | checks |
+|---|---|---|---|---|---|---|---|---|---|---|
+| [74bb64b79576](runs/manifest/manifest-74bb64b79576) | completed | examples/flight_dynamics | examples/flight_dynamics/experiment.json |  |  |  |  |  |  | 18/18 |
+| [34cf05f02e9b](runs/manifest/manifest-34cf05f02e9b) | completed | examples/enso_forecasting | examples/enso_forecasting/experiment.json |  |  |  |  |  |  | 2/2 |
+| [7d8c77b59860](runs/manifest/manifest-7d8c77b59860) | completed | examples/bricks | examples/bricks/experiment.json |  |  |  |  |  |  | 9/9 |
+| [a6e175a845bc](runs/manifest/manifest-a6e175a845bc) | completed | examples/pinneapple_and_physicsnemo | examples/pinneapple_and_physicsnemo/experiment.json |  |  |  |  |  |  | 0/0 |
+| [703d0a650b4c](runs/manifest/manifest-703d0a650b4c) | completed | examples/science/electromagnetism/ampere_law | examples/science/electromagnetism/ampere_law/experiment.json |  |  |  |  |  |  | 10/10 |
+| [32e9a647a2ab](runs/manifest/manifest-32e9a647a2ab) | completed | examples/science/electromagnetism/bench_mu0_solenoid | examples/science/electromagnetism/bench_mu0_solenoid/experiment.json |  |  |  |  |  |  | 4/4 |
+| [70e9191e32ef](runs/manifest/manifest-70e9191e32ef) | completed | examples/science/electromagnetism/bench_rc_discharge | examples/science/electromagnetism/bench_rc_discharge/experiment.json | 4.304e-07 | 0.9533 | 1.244e-09 |  | 0.0042 | 0.0009164 | 4/4 |
+| [baa456e79c1a](runs/manifest/manifest-baa456e79c1a) | completed | examples/science/electromagnetism/biot_savart | examples/science/electromagnetism/biot_savart/experiment.json |  |  |  |  |  |  | 9/9 |
+| [91cfbc376e08](runs/manifest/manifest-91cfbc376e08) | completed | examples/science/electromagnetism/cavity_resonance | examples/science/electromagnetism/cavity_resonance/experiment.json |  |  |  |  |  |  | 13/13 |
+| [564202ded2c5](runs/manifest/manifest-564202ded2c5) | completed | examples/science/electromagnetism/circuits_rc_rl_rlc | examples/science/electromagnetism/circuits_rc_rl_rlc/experiment.json |  |  |  | 6.325 |  |  | 7/7 |
+| [6d8ff82f4301](runs/manifest/manifest-6d8ff82f4301) | completed | examples/science/electromagnetism/dipole_radiation | examples/science/electromagnetism/dipole_radiation/experiment.json |  |  |  |  |  |  | 18/18 |
+| [2e4e3b4a575f](runs/manifest/manifest-2e4e3b4a575f) | completed | examples/science/electromagnetism/faraday_induction | examples/science/electromagnetism/faraday_induction/experiment.json |  |  |  |  |  |  | 7/7 |
+| [44ebb9693e70](runs/manifest/manifest-44ebb9693e70) | completed | examples/science/electromagnetism/fresnel_snell | examples/science/electromagnetism/fresnel_snell/experiment.json |  |  |  |  |  |  | 13/13 |
+| [309839870296](runs/manifest/manifest-309839870296) | completed | examples/science/electromagnetism/gauss_law | examples/science/electromagnetism/gauss_law/experiment.json |  |  |  |  |  |  | 8/8 |
+| [b8178fa72bad](runs/manifest/manifest-b8178fa72bad) | completed | examples/science/electromagnetism/hall_effect | examples/science/electromagnetism/hall_effect/experiment.json |  |  |  |  |  |  | 5/5 |
+| [fe4b510257fe](runs/manifest/manifest-fe4b510257fe) | completed | examples/science/electromagnetism/lossy_plane_wave | examples/science/electromagnetism/lossy_plane_wave/experiment.json |  |  |  |  |  |  | 4/4 |
+| [cf1ad9de70c1](runs/manifest/manifest-cf1ad9de70c1) | completed | examples/science/electromagnetism/mie_scattering | examples/science/electromagnetism/mie_scattering/experiment.json |  |  |  |  |  |  | 6/6 |
+| [5ef7c46f61df](runs/manifest/manifest-5ef7c46f61df) | completed | examples/science/electromagnetism/parallel_plate_capacitor | examples/science/electromagnetism/parallel_plate_capacitor/experiment.json |  |  |  |  |  |  | 7/7 |
+| [76f3cf89e01f](runs/manifest/manifest-76f3cf89e01f) | completed | examples/science/electromagnetism/waveguide_modes | examples/science/electromagnetism/waveguide_modes/experiment.json |  |  |  |  |  |  | 10/10 |
+| [6fecdaae216a](runs/manifest/manifest-6fecdaae216a) | completed | examples/science/electromagnetism/research_fdtd_3d | examples/science/electromagnetism/research_fdtd_3d/experiment.json |  |  |  |  |  |  | 12/12 |
+| [144f91063407](runs/manifest/manifest-144f91063407) | completed | examples/science/electromagnetism/research_uq_waveguide | examples/science/electromagnetism/research_uq_waveguide/experiment.json |  |  |  |  |  |  | 6/6 |
+| [ac53fcd12442](runs/manifest/manifest-ac53fcd12442) | completed | examples/science/electromagnetism/research_surrogate_hall | examples/science/electromagnetism/research_surrogate_hall/experiment.json |  |  |  |  |  |  | 4/4 |
+| [9fd937e93a24](runs/manifest/manifest-9fd937e93a24) | completed | examples/science/electromagnetism/coulomb_superposition | examples/science/electromagnetism/coulomb_superposition/experiment.json |  |  |  |  |  |  | 9/9 |
+| [9f241863f930](runs/manifest/manifest-9f241863f930) | completed | examples/science/electromagnetism/research_inverse_permittivity | examples/science/electromagnetism/research_inverse_permittivity/experiment.json |  |  |  |  |  |  | 7/7 |
+| [0f22adad51e9](runs/manifest/manifest-0f22adad51e9) | completed | examples/science | examples/science/experiment.json |  |  |  |  |  |  | 20/20 |
+| [394f7768d42e](runs/manifest/manifest-394f7768d42e) | completed | examples/freecad_openfoam | examples/freecad_openfoam/experiment.json |  |  |  |  |  |  | 7/7 |
+
+![manifest](runs/manifest/manifest-394f7768d42e/figures/figures__mesh_studies.png)
+
+![manifest](runs/manifest/manifest-9f241863f930/figures/1D__inverse_permittivity.png)
 
 ## oscillator
 

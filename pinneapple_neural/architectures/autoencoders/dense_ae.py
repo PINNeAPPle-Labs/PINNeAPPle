@@ -1,8 +1,6 @@
 from __future__ import annotations
 """Dense autoencoder with MLP encoder-decoder."""
 
-from dataclasses import dataclass
-from typing import List, Dict
 
 import torch
 import torch.nn as nn
@@ -10,8 +8,8 @@ import torch.nn as nn
 from .base import AEBase
 
 
-def _mlp(dims: List[int], act: nn.Module, last_act: bool = False) -> nn.Sequential:
-    layers: List[nn.Module] = []
+def _mlp(dims: list[int], act: nn.Module, last_act: bool = False) -> nn.Sequential:
+    layers: list[nn.Module] = []
     for i in range(len(dims) - 1):
         layers.append(nn.Linear(dims[i], dims[i + 1]))
         if i < len(dims) - 2 or last_act:
@@ -33,7 +31,7 @@ class DenseAutoencoder(AEBase):
         self,
         input_dim: int,
         latent_dim: int,
-        hidden: List[int] = (512, 256),
+        hidden: list[int] = (512, 256),
         activation: str = "gelu",
     ):
         super().__init__()

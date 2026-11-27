@@ -7,6 +7,7 @@ the pages. This does: every command in ``START_HERE.md`` runs as written, the co
 """
 from __future__ import annotations
 
+import inspect
 import os
 import re
 from pathlib import Path
@@ -21,6 +22,10 @@ PP_SYMBOL = re.compile(r"\bpp\.([A-Za-z_][A-Za-z0-9_]*)")
 
 #: Pages that must exist and must not point back at the retired ones.
 FRONT_DOOR = ("README.md", "START_HERE.md", "QUICKSTART.md", "GETTING_STARTED.md")
+
+#: The whole vocabulary a new user has to learn (issue #45). A seventh function is how a front door stops being one,
+#: so the pages below may present at most these, and everything else is a class or a module on the way to the index.
+SMALL_DOOR = ("solve", "compare", "card", "recommend", "doctor", "new")
 
 
 def _read(name: str) -> str:
@@ -57,6 +62,24 @@ def test_code_blocks_compile(page):
     assert blocks, f"{page} has no python blocks"
     for i, block in enumerate(blocks):
         compile(block, f"{page}[python block {i}]", "exec")
+
+
+def test_the_readme_presents_at_most_six_functions():
+    """Six functions, and the rest of the library behind a module index (#45)."""
+    text = _read("README.md")
+    called = {name for name in re.findall(r"\bpp\.([A-Za-z_][A-Za-z0-9_]*)\s*\(", text)}
+    functions = sorted(name for name in called if not inspect.isclass(getattr(pp, name, None)))
+    assert len(functions) <= 6, f"the README presents {len(functions)} functions ({functions}); the door is six"
+    outside = sorted(set(functions) - set(SMALL_DOOR))
+    assert not outside, f"the README presents {outside}, which is not part of the six: put it behind the module index"
+
+
+def test_the_six_are_the_ones_the_front_door_page_names():
+    page = _read("docs/guides/front_door.md")
+    for name in SMALL_DOOR:
+        assert f"pp.{name}(" in page, f"the front door page does not name pp.{name}()"
+        assert callable(getattr(pp, name, None)), f"pp.{name} is in the door but not in the library"
+    assert len(SMALL_DOOR) == 6
 
 
 @pytest.mark.parametrize("page", FRONT_DOOR)

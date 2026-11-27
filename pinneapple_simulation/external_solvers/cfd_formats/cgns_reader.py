@@ -44,7 +44,7 @@ location).
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 
 def _node_label(group) -> str:
@@ -62,7 +62,7 @@ def _node_data(group):
     return np.asarray(arr)
 
 
-def _find_children_by_label(group, label: str) -> List:
+def _find_children_by_label(group, label: str) -> list:
     return [child for name, child in group.items() if hasattr(child, "attrs") and _node_label(child) == label]
 
 
@@ -80,7 +80,7 @@ def _first_base_and_zone(root):
 def read_cgns_mesh_and_fields(
     path: str,
     *,
-    fields: Optional[Sequence[str]] = None,
+    fields: Sequence[str] | None = None,
     zone_index: int = 0,
 ):
     """Read node coordinates and solution fields from a CGNS/HDF5 file.
@@ -131,7 +131,7 @@ def read_cgns_mesh_and_fields(
         import numpy as np
         coords = np.stack([coord_arrays[n] for n in axis_order], axis=1)
 
-        out_fields: Dict[str, "object"] = {}
+        out_fields: dict[str, object] = {}
         for sol in _find_children_by_label(zone, "FlowSolution_t"):
             for name, child in sol.items():
                 if not (hasattr(child, "attrs") and _node_label(child) == "DataArray_t"):
@@ -145,7 +145,7 @@ def read_cgns_mesh_and_fields(
     return {"coords": coords, "fields": out_fields}
 
 
-def cgns_to_upd(path: str, *, fields: Optional[Sequence[str]] = None, zone_index: int = 0):
+def cgns_to_upd(path: str, *, fields: Sequence[str] | None = None, zone_index: int = 0):
     """Read a CGNS/HDF5 file and package it as a UPD ``PhysicalSample``
     (``domain={"type": "mesh"}``, ``geometry.nodes`` = node coordinates --
     same contract ``openfoam.field_reader.openfoam_case_to_upd`` produces,

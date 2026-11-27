@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import List
 
 import numpy as np
 from scipy.interpolate import PchipInterpolator
@@ -109,7 +108,7 @@ class Airliner(Airframe):
         return float(self._fus_zc(0.4) - 0.5 * self.height) - 1.7
 
     # ------------------------------------------------------------------ build
-    def build(self, detail: str = "high") -> List[Part]:
+    def build(self, detail: str = "high") -> list[Part]:
         n = {"high": 1.0, "cfd": 0.6, "low": 0.45}[detail]
         parts = self._airliner_fuselage(int(440 * n), int(96 * n), windows=detail != "cfd")
         parts += self._wing(int(80 * n), int(40 * n))
@@ -123,7 +122,7 @@ class Airliner(Airframe):
                 p.material = "wingmetal"
         return parts
 
-    def _airliner_fuselage(self, ns, nt, windows=True) -> List[Part]:
+    def _airliner_fuselage(self, ns, nt, windows=True) -> list[Part]:
         L = self.length
         u = np.linspace(0, 1, ns)
         xi = np.where(u < 0.25, 0.14 * (1 - np.cos(np.pi * u / 0.5)), u)          # dense at the nose
@@ -175,7 +174,7 @@ class Airliner(Airframe):
             F = F[:, ::-1]
         return _split(verts, F, mats, "fuselage")
 
-    def _airliner_tails(self, npts, nspan) -> List[Part]:
+    def _airliner_tails(self, npts, nspan) -> list[Part]:
         ht, vt = self.htail(), self.vtail()
         loop = self._section_loop(npts, None, symmetric_thick=0.10)
         eta = np.linspace(0, 1, nspan)
@@ -235,7 +234,7 @@ class Airliner(Airframe):
             F = F[:, ::-1]
         return _split(V, F, np.array(mats, dtype=object), name)
 
-    def _engines(self) -> List[Part]:
+    def _engines(self) -> list[Part]:
         out = []
         R = self.fan_diameter / 2 * 1.08
         Ln = 4.3
@@ -269,7 +268,7 @@ class Airliner(Airframe):
             p.aero = False
         return out
 
-    def _sharklets(self) -> List[Part]:
+    def _sharklets(self) -> list[Part]:
         b2 = self.span / 2
         tip = self._wing_point(1.0, 0.0)
         ct = self.root_chord * self.taper

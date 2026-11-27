@@ -8,7 +8,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
-from typing import List
 
 
 @dataclass
@@ -20,7 +19,9 @@ class CheckResult:
     name:
         Short identifier for the check (e.g. ``"mass_conservation"``).
     passed:
-        Whether the check is considered passing given the threshold.
+        Whether the check is considered passing given the threshold. ``None`` means the check **did not run** — the
+        model does not return what it would take to ask (a plain tensor where a unit is needed, say). A check that
+        could not be asked never claims a pass: the same rule the data gates follow.
     value:
         Numerical value computed by the check (error, residual, integral, …).
     threshold:
@@ -30,21 +31,42 @@ class CheckResult:
         Human-readable explanation of what was checked.
     unit:
         Optional unit string for the reported ``value`` (e.g. ``"kg/s"``).
+    direction:
+        Which side of the threshold passes: ``"lower"`` (the default: an error below the threshold is good) or
+        ``"higher"`` (a fraction that has to reach the threshold, as in the out-of-distribution check).
     """
 
     name: str
-    passed: bool
+    passed: bool | None
     value: float
     threshold: float
     description: str
     unit: str = ""
+    direction: str = "lower"
+
+    @property
+    def status(self) -> str:
+        """``"passed"``, ``"failed"`` or ``"not run"`` — one word a report can be read by."""
+        if self.passed is None:
+            return "not run"
+        return "passed" if self.passed else "failed"
+
+    @property
+    def ran(self) -> bool:
+        return self.passed is not None
+
+    @classmethod
+    def not_run(cls, name: str, description: str, *, threshold: float = 0.0, unit: str = "") -> CheckResult:
+        """A check that could not be asked, with the reason in ``description``."""
+        return cls(name=name, passed=None, value=float("nan"), threshold=threshold, description=description,
+                   unit=unit)
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
 
     def __str__(self) -> str:
-        status = "PASS" if self.passed else "FAIL"
+        status = {"passed": "PASS", "failed": "FAIL", "not run": "SKIP"}[self.status]
         unit_str = f" {self.unit}" if self.unit else ""
         return (
             f"[{status}] {self.name}: {self.value:.4e}{unit_str}"
@@ -68,7 +90,7 @@ class ValidationReport:
 
     model_name: str
     timestamp: str
-    checks: List[CheckResult] = field(default_factory=list)
+    checks: list[CheckResult] = field(default_factory=list)
 
     # ------------------------------------------------------------------
     # Convenience constructors
@@ -86,18 +108,30 @@ class ValidationReport:
 
     @property
     def passed(self) -> bool:
-        """``True`` when every check has passed."""
-        return all(c.passed for c in self.checks)
+        """``True`` when at least one check ran and every check that ran passed.
+
+        A report whose checks all declined to run is **not** a pass: nothing was verified."""
+        ran = [c for c in self.checks if c.ran]
+        return bool(ran) and all(c.passed for c in ran)
 
     @property
     def n_passed(self) -> int:
         """Number of checks that passed."""
-        return sum(1 for c in self.checks if c.passed)
+        return sum(1 for c in self.checks if c.passed is True)
 
     @property
     def n_failed(self) -> int:
         """Number of checks that failed."""
-        return sum(1 for c in self.checks if not c.passed)
+        return sum(1 for c in self.checks if c.passed is False)
+
+    @property
+    def n_not_run(self) -> int:
+        """Number of checks that could not be asked."""
+        return sum(1 for c in self.checks if c.passed is None)
+
+    def failures(self) -> list[CheckResult]:
+        """The checks that failed (not the ones that did not run)."""
+        return [c for c in self.checks if c.passed is False]
 
     # ------------------------------------------------------------------
     # Display
@@ -105,7 +139,7 @@ class ValidationReport:
 
     def summary(self) -> str:
         """Return a pretty-printed table of all check results."""
-        lines: List[str] = []
+        lines: list[str] = []
         sep = "-" * 72
         lines.append(sep)
         lines.append(
@@ -127,9 +161,9 @@ class ValidationReport:
         lines.append(sep)
 
         for c in self.checks:
-            status = "PASS" if c.passed else "FAIL"
+            status = {"passed": "PASS", "failed": "FAIL", "not run": "SKIP"}[c.status]
             unit_str = f" {c.unit}" if c.unit else ""
-            val_str = f"{c.value:.4e}{unit_str}"
+            val_str = "—" if not c.ran else f"{c.value:.4e}{unit_str}"
             thr_str = f"{c.threshold:.4e}"
             lines.append(
                 f"{c.name:<{name_w}}  {status:<6}  "
@@ -139,8 +173,9 @@ class ValidationReport:
 
         lines.append(sep)
         overall = "PASSED" if self.passed else "FAILED"
+        skipped = f", {self.n_not_run} not run" if self.n_not_run else ""
         lines.append(
-            f"Overall: {overall}  ({self.n_passed}/{len(self.checks)} checks passed)"
+            f"Overall: {overall}  ({self.n_passed}/{len(self.checks)} checks passed{skipped})"
         )
         lines.append(sep)
         return "\n".join(lines)
@@ -157,6 +192,7 @@ class ValidationReport:
             "passed": self.passed,
             "n_passed": self.n_passed,
             "n_failed": self.n_failed,
+            "n_not_run": self.n_not_run,
             "checks": [asdict(c) for c in self.checks],
         }
 

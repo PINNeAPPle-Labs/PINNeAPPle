@@ -18,7 +18,7 @@ from __future__ import annotations
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -29,7 +29,7 @@ import torch
 import torch.nn as nn
 
 from pinneapple_train import (
-    best_device, run_parallel_sweep, SweepConfig, ThroughputMonitor,
+    best_device, run_parallel_sweep, SweepConfig,
 )
 
 
@@ -59,7 +59,7 @@ X_ic  = np.column_stack([x_ic, np.zeros(N_IC)]).astype(np.float32)
 U_ic  = (-np.sin(np.pi * x_ic)).astype(np.float32)
 
 
-def run_trial(params: Dict[str, Any]) -> Dict[str, Any]:
+def run_trial(params: dict[str, Any]) -> dict[str, Any]:
     """Train a Burgers PINN with the given hyperparameters."""
     lr       = params["lr"]
     hidden   = params["hidden"]

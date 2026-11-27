@@ -5,7 +5,7 @@ import os
 import time
 import json
 from dataclasses import asdict
-from typing import Dict, Any, List
+from typing import Any
 
 import torch
 
@@ -88,7 +88,7 @@ def _dtype(dtype: str) -> torch.dtype:
     return torch.float32 if dtype == "fp32" else torch.float16
 
 
-def bench_plain_read(zarr_root: str, steps: int, device: str, dtype: str, latency_max: int) -> Dict[str, Any]:
+def bench_plain_read(zarr_root: str, steps: int, device: str, dtype: str, latency_max: int) -> dict[str, Any]:
     PhysicalSample, UPDZarrStore, *_ = _require_pinnea_data()
 
     store = UPDZarrStore(zarr_root, mode="r")
@@ -98,7 +98,7 @@ def bench_plain_read(zarr_root: str, steps: int, device: str, dtype: str, latenc
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
-    lat: List[float] = []
+    lat: list[float] = []
     t0 = time.perf_counter()
     checksum = 0.0
     count = 0
@@ -135,7 +135,7 @@ def bench_plain_read(zarr_root: str, steps: int, device: str, dtype: str, latenc
 
 def bench_cached_store_bytes(
     zarr_root: str, steps: int, device: str, dtype: str, max_mb: int, latency_max: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     (
         PhysicalSample,
         UPDZarrStore,
@@ -158,7 +158,7 @@ def bench_cached_store_bytes(
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
 
-    lat: List[float] = []
+    lat: list[float] = []
     t0 = time.perf_counter()
     checksum = 0.0
     count = 0
@@ -199,7 +199,7 @@ def bench_cached_store_bytes(
 
 def bench_prefetch_iterable(
     zarr_root: str, steps: int, device: str, dtype: str, num_workers: int, pin: bool, latency_max: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     from torch.utils.data import DataLoader
 
     (
@@ -239,7 +239,7 @@ def bench_prefetch_iterable(
     )
     dl = DataLoader(ds, batch_size=None, num_workers=num_workers, persistent_workers=(num_workers > 0))
 
-    lat: List[float] = []
+    lat: list[float] = []
     t0 = time.perf_counter()
     checksum = 0.0
     count = 0

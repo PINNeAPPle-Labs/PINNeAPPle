@@ -1,0 +1,332 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "airfoil_trust_end_to_end",
+ "title": "Trust beyond accuracy: an evidence-based validation study of a NACA surrogate",
+ "description": "OpenFOAM campaign on a NACA four-digit family -- a mesh family with a grid-convergence study and a design of experiments split by design -- a POD+MLP ensemble surrogate, accuracy and physical-consistency validation, an evidence domain that answers where a prediction is supported, camber opened as a new parameter dimension with its own campaign, and the dossier that records all of it.",
+ "domain": "fluids",
+ "methods": [
+  "OpenFOAM simpleFoam k-omega SST",
+  "gmsh hex meshing",
+  "Richardson extrapolation / GCI",
+  "maximin Latin hypercube",
+  "POD",
+  "MLP ensemble",
+  "evidence domain screening"
+ ],
+ "modules": [
+  "pinneapple_autolab.domains.airfoil",
+  "pinneapple_autolab.domains.airfoil_study",
+  "pinneapple_simulation.numerical_solvers.airfoil2d",
+  "pinneapple_veriphysics.validated_domain",
+  "pinneapple_veriphysics.validation_case",
+  "pinneapple_veriphysics.dossier"
+ ],
+ "params": {
+  "train": 32,
+  "calibration": 12,
+  "validation": 16,
+  "iterations": 1000,
+  "mesh": "L2"
+ },
+ "scripts": [
+  "01_reference_campaign.py",
+  "02_analysis.py",
+  "03_physics_validation.py",
+  "04_validated_domain.py",
+  "05_camber_round.py",
+  "06_revalidation.py",
+  "07_report.py",
+  "demo_panel.py",
+  "make_video.py",
+  "run_all.py"
+ ],
+ "metrics": [
+  {
+   "name": "CL_rel_l2_held_out",
+   "value": 0.048358565675710175,
+   "unit": "1",
+   "how": "relative L2 over designs held out by design"
+  },
+  {
+   "name": "CL_rmse_held_out",
+   "value": 0.021317954036293153,
+   "unit": "1",
+   "how": "RMSE over designs held out by design"
+  },
+  {
+   "name": "CD_rel_l2_held_out",
+   "value": 0.08131565293272443,
+   "unit": "1",
+   "how": "relative L2 over designs held out by design"
+  },
+  {
+   "name": "CD_rmse_held_out",
+   "value": 0.00092744222474723,
+   "unit": "1",
+   "how": "RMSE over designs held out by design"
+  },
+  {
+   "name": "field_rel_l2_mean",
+   "value": 0.14819752094812866,
+   "unit": "1",
+   "how": "relative L2 of u, v and cp on the lattice, mean over held-out designs"
+  },
+  {
+   "name": "basis_energy_captured",
+   "value": 0.9886892665540722,
+   "unit": "1",
+   "how": "8 POD modes on the training fields"
+  },
+  {
+   "name": "mesh_change_CL",
+   "value": 0.00986217082502591,
+   "unit": "1",
+   "how": "change in CL between the two finest meshes (the family oscillates: no GCI is claimed)"
+  },
+  {
+   "name": "gci_CD",
+   "value": 0.11821334638247602,
+   "unit": "1",
+   "how": "grid-convergence index on CD at the finest triplet"
+  },
+  {
+   "name": "observed_order_CL",
+   "value": NaN,
+   "unit": "1",
+   "how": "observed order of convergence on CL"
+  },
+  {
+   "name": "observed_order_CD",
+   "value": 1.6881766646020997,
+   "unit": "1",
+   "how": "observed order of convergence on CD"
+  },
+  {
+   "name": "wall_speed_ratio",
+   "value": 0.025717227397716296,
+   "unit": "1",
+   "how": "mean |U|/U_inf on the wall samples of the surrogate"
+  },
+  {
+   "name": "continuity_residual",
+   "value": 0.995350507774556,
+   "unit": "1",
+   "how": "mean |du/dx + dv/dy| times the chord, on the lattice of each held-out design"
+  },
+  {
+   "name": "gate_residual_normalised",
+   "value": 1.0249103361456797,
+   "unit": "1",
+   "how": "surrogate_gates continuity residual, normalised by the size of its own gradients"
+  },
+  {
+   "name": "gate_boundary_deviation",
+   "value": 0.021373793254790295,
+   "unit": "1",
+   "how": "surrogate_gates deviation from the declared no-slip value on the wall edge"
+  },
+  {
+   "name": "gate_accuracy_cp",
+   "value": 0.27105319223637836,
+   "unit": "1",
+   "how": "surrogate_gates relative L2 of the predicted Cp against the reference"
+  },
+  {
+   "name": "input_sensitivity_worst",
+   "value": 0.7178471705287193,
+   "unit": "1",
+   "how": "movement of CL under a 1 % nudge of an input, over the ensemble spread, worst input"
+  },
+  {
+   "name": "uncertainty_coverage_1sigma",
+   "value": 0.43333333333333335,
+   "unit": "1",
+   "how": "fraction of held-out errors inside one ensemble standard deviation"
+  }
+ ],
+ "checks": [
+  {
+   "name": "mesh_convergence_CL",
+   "passed": true,
+   "value": 0.00986217082502591,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "change in CL between the two finest of 4 meshes; the family oscillates at this level, so no grid-convergence index is claimed",
+   "kind": "verification"
+  },
+  {
+   "name": "gate_continuity_residual",
+   "passed": true,
+   "value": 1.0098300225800185,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 2.0,
+   "min": null,
+   "detail": "the prediction's continuity residual is 1.025 against the reference's own 1.015 -- both normalised by the size of their own gradients",
+   "kind": "verification"
+  },
+  {
+   "name": "boundary_condition_no_slip",
+   "passed": true,
+   "value": 0.9871720707991906,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.5,
+   "min": null,
+   "detail": "the declared Dirichlet condition at the wall: the prediction departs from it by 0.0257 of the freestream, the reference itself by 0.0261 -- a ratio of 0.99, because a wall-function solution has no sample at the wall",
+   "kind": "verification"
+  },
+  {
+   "name": "freestream_decay",
+   "passed": true,
+   "value": 1.0586927095422187,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.5,
+   "min": null,
+   "detail": "the outermost ring departs from the freestream by 0.084 of U_inf, against the reference's 0.079 -- the ring is at a quarter chord from the surface, so neither reaches zero",
+   "kind": "physics"
+  },
+  {
+   "name": "pressure_integral_consistency",
+   "passed": true,
+   "value": 1.0160191623655555,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.5,
+   "min": null,
+   "detail": "lift from integrating the predicted wall pressure differs from the predicted CL by 0.319; the same integral on the reference differs from the reference's CL by 0.314",
+   "kind": "physics"
+  },
+  {
+   "name": "accuracy_CL",
+   "passed": true,
+   "value": 0.048358565675710175,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "relative L2 on 16 designs held out by design",
+   "kind": "validation"
+  },
+  {
+   "name": "field_accuracy",
+   "passed": false,
+   "value": 0.14819752094812866,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.09290614337417778,
+   "min": null,
+   "detail": "relative L2 over u, v and cp on the lattice, mean over the held-out designs: 14.8%. The 8-mode basis alone reconstructs the same fields to 4.6%, so the bar is twice the floor the model's own representation imposes -- a scalar can be right while the field it integrates is not",
+   "kind": "validation"
+  },
+  {
+   "name": "applicability_domain_measured",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "evidence domain queried at {'alpha_deg': 2.0, 'speed': 20.0, 'thickness': 0.12}: UNSUPPORTED (insufficient_local_reference)",
+   "kind": "generalization"
+  },
+  {
+   "name": "uncertainty_calibration_coverage",
+   "passed": false,
+   "value": 0.43333333333333335,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.68,
+   "min": null,
+   "detail": "the raw ensemble spread covers 43% of held-out errors at one sigma (narrower than nominal: the bar under-covers)",
+   "kind": "coverage"
+  },
+  {
+   "name": "robustness_input_sensitivity",
+   "passed": true,
+   "value": 0.7178471705287193,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "movement of CL under a 1 % nudge of each input, over the ensemble spread, worst input: alpha_deg 0.72, speed 0.05, thickness 0.05",
+   "kind": "other"
+  },
+  {
+   "name": "declared_checks_all_ran",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "checks declared but not run: reproducibility_rerun",
+   "kind": "sanity"
+  },
+  {
+   "name": "dossier_status",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "VC-52ddc41c9f: failed (mandatory criterion not met: VP-001 (A mandatory check failed); VP-002 (A mandatory check failed); VP-003 (A mandatory check failed); VP-004 (Error above the declared tolerance); VP-005 (Error above the declared tolerance); VP-006 (Error above the declared tolerance); VP-007 (Error above the declared tolerance))",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/figures/mesh_convergence.png",
+   "results/figures/accuracy.png",
+   "results/figures/fields.png",
+   "results/figures/uncertainty.png",
+   "results/figures/domain_map.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/dossier.md",
+   "results/dossier.txt",
+   "results/dossier.json",
+   "results/analysis_v1.json",
+   "results/physics_v1.json",
+   "results/domain_v1.json",
+   "results/mesh_study.json",
+   "results/doe_round1.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "Celik, I.B., Ghia, U., Roache, P.J. (2008). Procedure for estimation and reporting of uncertainty due to discretization in CFD applications. J. Fluids Eng. 130, 078001."
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "eebbce20f",
+  "created": "2026-11-26T18:19:43Z",
+  "seconds": 0.064,
+  "error": null,
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
+  }
+ },
+ "quality": {}
+}

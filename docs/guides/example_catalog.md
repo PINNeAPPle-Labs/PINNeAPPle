@@ -1,0 +1,121 @@
+# Example catalog
+
+Every folder under `examples/` is either run by CI or marked manual with a reason. The reasons are measured, not assumed: `python scripts/example_catalog.py --measure` runs each example and records what happened, and `--check` is the gate that keeps this page true.
+
+**In the CI tier: 9 · manual: 97 · budget: 660 s.**
+
+## Runs in CI
+
+| example | command | cap |
+|---|---|---|
+| `examples/first_example` | `first_example.py` | 180 s |
+| `examples/arena_pipelines` | `00_list_datasets.py` | 120 s |
+| `examples/physics_learning_verification` | `run_study.py` | 45 s |
+| `examples/physics_data_schema` | `01_pdebench_bundle.py` | 45 s |
+| `examples/physics_condensation` | `run_benchmark.py` | 45 s |
+| `examples/pinn_solver` | `01_symbolic_loss_basic.py` | 45 s |
+| `examples/data_pipeline` | `01_physical_sample_basics.py` | 45 s |
+| `examples/physics_query` | `run_demo.py` | 45 s |
+| `examples/data_readiness` | `run.py` | 60 s |
+
+## Manual, with the reason
+
+| example | why it is not in the tier |
+|---|---|
+| `examples/architectures` | imports a name this repository does not have yet (50_timeseries_transformer_forecast_toy.py); listed in scripts/example_imports_baseline.txt |
+| `examples/autolab` | takes longer than 12 s (self_optimizing_engineer.py): too slow for the ci tier |
+| `examples/autolab_aero` | fails when run: RuntimeError: the baseline could not be simulated: RuntimeError: simpleFoam stopped at iteration 0 of 600 |
+| `examples/autolab_aero_agent` | takes longer than 12 s (agent_mission.py): too slow for the ci tier |
+| `examples/autolab_digital_twin` | takes longer than 12 s (twin_knows_when_wrong.py): too slow for the ci tier |
+| `examples/autolab_rover` | takes longer than 12 s (rover_learns_planet.py): too slow for the ci tier |
+| `examples/base_workflows` | no script: the folder declares an example but has no .py to run |
+| `examples/benchmark` | fails when run: concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending. |
+| `examples/benchmark_suite` | imports a name this repository does not have yet (01_quickstart_native.py, 04_custom_task_poisson_bundle.py, 04_digital_twin_flow.py, 05_surrogate_deeponet_multifield.py, 07_end_to_end_genetic_sdf_fdm_sweep.py, 08_hyperparameter_sweep_parallel.py, 09_full_pipeline_yaml.py, 12_physics_benchmark_suite.py, 13_transfer_meta_benchmark.py); listed in scripts/example_imports_baseline.txt |
+| `examples/biology` | takes longer than 12 s (identifiability_ultradian.py): too slow for the ci tier |
+| `examples/black_hole_weather` | fails when run: convergence.py: error: the following arguments are required: --runs, --levels, --out |
+| `examples/bricks` | fails when run: ModuleNotFoundError: No module named 'newton' |
+| `examples/calculix_cantilever` | no script: the folder declares an example but has no .py to run |
+| `examples/capsule_aeroheating` | takes longer than 12 s (01_multifidelity.py): too slow for the ci tier |
+| `examples/carbench_surface_pressure` | fails when run: RuntimeError: no design completed: see the failures listed above |
+| `examples/carcrashnet_pole_impact` | takes longer than 12 s (run.py): too slow for the ci tier |
+| `examples/cfd` | takes longer than 12 s (run_cases.py): too slow for the ci tier |
+| `examples/chain_of_whys` | takes longer than 12 s (chain_of_whys.py): too slow for the ci tier |
+| `examples/condensation_falsification` | runs clean in 1.5 s but is not in the ci tier yet: promote it with --promote |
+| `examples/control` | runs clean in 2.5 s but is not in the ci tier yet: promote it with --promote |
+| `examples/core_primitives` | takes longer than 12 s (01_poisson_pinn.py): too slow for the ci tier |
+| `examples/data_api` | runs clean in 5.2 s but is not in the ci tier yet: promote it with --promote |
+| `examples/design_from_intent` | takes longer than 12 s (design_from_intent.py): too slow for the ci tier |
+| `examples/digital_twin_end_to_end` | takes longer than 12 s (twin_on_real_sensors.py): too slow for the ci tier |
+| `examples/digital_twin_library` | runs clean in 4.6 s but is not in the ci tier yet: promote it with --promote |
+| `examples/dynamics_toolkit` | takes longer than 12 s (dynamics_toolkit.py): too slow for the ci tier |
+| `examples/electrodynamics` | takes longer than 12 s (01_laplace_capacitor.py): too slow for the ci tier |
+| `examples/end_to_end` | fails when run: RuntimeError: DataLoader worker (pid(s) 28938) exited unexpectedly |
+| `examples/enso_forecasting` | fails when run: ModuleNotFoundError: No module named 'netCDF4' |
+| `examples/flight_dynamics` | runs clean in 8.5 s but is not in the ci tier yet: promote it with --promote |
+| `examples/flow_studio` | runs clean in 1.9 s but is not in the ci tier yet: promote it with --promote |
+| `examples/fno_coldplate` | takes longer than 12 s (run.py): too slow for the ci tier |
+| `examples/free_surface` | fails when run: RuntimeError: blockMesh failed, see /Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/free_surface/_out/slope_+2/mesh/log.blockMesh |
+| `examples/freecad_openfoam` | fails when run: IndexError: list index out of range |
+| `examples/geomechanics` | takes longer than 12 s (01_granular_column_collapse.py): too slow for the ci tier |
+| `examples/geometry` | fails when run: ModuleNotFoundError: No module named 'trimesh' |
+| `examples/geometry_library` | runs clean in 1.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/geophysics` | takes longer than 12 s (01_sphere_and_assimilation.py): too slow for the ci tier |
+| `examples/getting_started` | takes longer than 12 s (01_harmonic_oscillator.py): too slow for the ci tier |
+| `examples/granular_dem` | runs clean in 8.4 s but is not in the ci tier yet: promote it with --promote |
+| `examples/handoff_cases` | runs clean in 3.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/hpo_experiments` | imports a name this repository does not have yet (00_quickstart_end_to_end.py, 01_discover.py, 02_build_kb.py, 03_extract.py, 04_reproduce.py, 06_compare_chunking_settings.py, 07_export_problemdesign_from_extracted.py); listed in scripts/example_imports_baseline.txt |
+| `examples/industrial` | no script: the folder declares an example but has no .py to run |
+| `examples/industrial_presets` | no script: the folder declares an example but has no .py to run |
+| `examples/inspection` | runs clean in 2.5 s but is not in the ci tier yet: promote it with --promote |
+| `examples/latent` | takes longer than 12 s (trusted_latent_surrogate.py): too slow for the ci tier |
+| `examples/lbm` | takes longer than 12 s (01_sphere_wind_tunnel.py): too slow for the ci tier |
+| `examples/meshgraphnet` | runs clean in 8.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/model_zoo` | takes longer than 12 s (quickstart.py): too slow for the ci tier |
+| `examples/modelica` | fails when run: RuntimeError: OpenModelica not found: install omc or pull the Docker image `docker pull openmodelica/openmodelica:v1.24.4-minimal` |
+| `examples/molecular` | fails when run: protein_on_gold.py: error: the following arguments are required: pdb |
+| `examples/motor_magnetics` | takes longer than 12 s (01_spm_cogging_and_torque.py): too slow for the ci tier |
+| `examples/mujoco` | fails when run: (MuJoCo 4.0 needs Python >= 3.11; on 3.10 the extra installs the 3.17 line.) |
+| `examples/near_random_forecasting` | takes longer than 12 s (render_visuals.py): too slow for the ci tier |
+| `examples/non_hermitian` | runs clean in 1.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/numerical_solvers` | imports a name this repository does not have yet (01_solvers_fft_feature_train.py, 02_solvers_hilbert_huang_decompose.py, 03_solvers_fem_poisson_1d.py, 04_solvers_fvm_advection_1d.py, 05_solvers_catalog_and_adapters.py, 06_solvers_decomp_demo.py, 08_solver_fdm_demo.py, 09_solver_lmb_demo.py, 10_solver_spectral_demo.py, 11_cad_cfd_pipeline_demo.py); listed in scripts/example_imports_baseline.txt |
+| `examples/nvidia` | fails when run: /opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/ |
+| `examples/openfoam_campaign` | fails when run: RuntimeError: blockMesh failed, see /Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/openfoam_campaign/_out/mesh/log.blockMesh |
+| `examples/pde_environment` | runs clean in 1.5 s but is not in the ci tier yet: promote it with --promote |
+| `examples/physics_audit` | runs clean in 1.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/physics_check` | fails when run: bash: blockMesh: command not found |
+| `examples/physics_db` | fails when run: ModuleNotFoundError: No module named 'earthaccess' |
+| `examples/physics_ensemble` | takes longer than 12 s (compare_lookahead_gif.py): too slow for the ci tier |
+| `examples/physics_module` | takes longer than 12 s (01_coarse_fem_plus_neural_correction.py): too slow for the ci tier |
+| `examples/physics_optimizer` | runs clean in 6.4 s but is not in the ci tier yet: promote it with --promote |
+| `examples/pict_cavity` | takes longer than 12 s (run.py): too slow for the ci tier |
+| `examples/pinneapple_and_physicsnemo` | no script: the folder declares an example but has no .py to run |
+| `examples/pinneapple_benchmark` | takes longer than 12 s (01_pde_comparison.py): too slow for the ci tier |
+| `examples/pinneapple_cosim` | runs clean in 10.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/potential_co2` | fails when run: ModuleNotFoundError: No module named 'CoolProp' |
+| `examples/problem_designer` | fails when run:   $env:GOOGLE_API_KEY=...     (PowerShell) |
+| `examples/proof_graph` | takes longer than 12 s (pt_chain_no_go.py): too slow for the ci tier |
+| `examples/qualitative` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
+| `examples/quality_diversity` | takes longer than 12 s (heat_sink_failure_map.py): too slow for the ci tier |
+| `examples/quickstart` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
+| `examples/reproductions` | fails when run: /opt/homebrew/Cellar/python@3.11/3.11.16/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/yanbarros/Documents/GitHub/wt-pn-issues/examples/ |
+| `examples/rigid_body` | fails when run: ModuleNotFoundError: No module named 'newton' |
+| `examples/rocket_launch` | runs clean in 2.2 s but is not in the ci tier yet: promote it with --promote |
+| `examples/science` | no script: the folder declares an example but has no .py to run |
+| `examples/security` | fails when run: ImportError: Ed25519 signatures need the 'cryptography' package: pip install pinneapple[security] |
+| `examples/solver_api` | takes longer than 12 s (01_classical_vs_pinn.py): too slow for the ci tier |
+| `examples/solvers` | fails when run: KeyError: "Unknown solver 'wavelet'. Available: ['beam_bvp_fdm', 'bekker_wong', 'ceemdan', 'dfsph', 'discrete_time_pinn', 'eddy_current_fdm', 'eemd', 'elasticity3d_fdm', 'fdm', 'fem', 'fenics', 'fft', |
+| `examples/sports` | takes longer than 12 s (01_ball_flight.py): too slow for the ci tier |
+| `examples/structural_ingestion` | takes 26 s: the three coupon impacts and their two ingestions are over the 20 s cap for the ci tier |
+| `examples/studio` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
+| `examples/systems` | runs clean in 2.1 s but is not in the ci tier yet: promote it with --promote |
+| `examples/time_series` | imports a name this repository does not have yet (01_FNO.py, 02_full_pipeline.py, 03_audit_and_features.py, 04_backtest_baselines.py, 05_quantile_uncertainty.py, 07_fft_lstm_hybrid.py, 08_hht_lstm_hybrid.py); listed in scripts/example_imports_baseline.txt |
+| `examples/topology_optimization` | runs clean in 9.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/trainer` | runs clean in 1.6 s but is not in the ci tier yet: promote it with --promote |
+| `examples/use_cases` | no script: the folder declares an example but has no .py to run |
+| `examples/validation` | runs clean in 5.5 s but is not in the ci tier yet: promote it with --promote |
+| `examples/validation_arena` | runs clean in 1.7 s but is not in the ci tier yet: promote it with --promote |
+| `examples/visualizations` | runs clean in 0.0 s but is not in the ci tier yet: promote it with --promote |
+| `examples/vortex_domains` | runs clean in 1.2 s but is not in the ci tier yet: promote it with --promote |
+| `examples/vs_physicsnemo` | no script: the folder declares an example but has no .py to run |
+| `examples/weather_forecasting` | fails when run: TypeError: main() missing 3 required positional arguments: 'store_path', 'model_path', and 'out_dir' |
+| `examples/worldmodel` | takes longer than 12 s (01_generate_train_evaluate.py): too slow for the ci tier |

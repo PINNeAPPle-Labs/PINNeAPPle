@@ -1,0 +1,12 @@
+{
+ "code_hash": "51a7b6fda84111d1",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.multidisciplinary.heston_pde_2d",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "heston pde 2d -> pinneapple_physics.pde_environment.presets.multidisciplinary:heston_pde_2d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'kappa': 2.0, 'theta': 0.04, 'sigma_v': 0.3, 'rho': -0.7, 'r': 0.05, 'K': 100.0, 'T': 1.0, 'S_max': 300.0, 'v_max': 1.0}",
+ "timed_out": false
+}

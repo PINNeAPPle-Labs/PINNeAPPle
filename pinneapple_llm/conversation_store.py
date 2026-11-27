@@ -17,7 +17,7 @@ import sqlite3
 import time
 from contextlib import closing
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 _DEFAULT_DB_PATH = os.path.expanduser("~/.pinneapple/conversations.sqlite3")
 
@@ -42,11 +42,11 @@ class ConversationRecord:
     timestamp: float
     module: str
     provider: str
-    model: Optional[str]
-    system_prompt: Optional[str]
+    model: str | None
+    system_prompt: str | None
     user_prompt: str
     response: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class ConversationStore:
@@ -69,9 +69,9 @@ class ConversationStore:
         provider: str,
         user_prompt: str,
         response: str,
-        model: Optional[str] = None,
-        system_prompt: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        model: str | None = None,
+        system_prompt: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> int:
         with closing(sqlite3.connect(self.db_path)) as conn:
             cur = conn.execute(
@@ -83,7 +83,7 @@ class ConversationStore:
             conn.commit()
             return cur.lastrowid
 
-    def query(self, *, module: Optional[str] = None, limit: int = 100) -> List[ConversationRecord]:
+    def query(self, *, module: str | None = None, limit: int = 100) -> list[ConversationRecord]:
         sql = "SELECT id, timestamp, module, provider, model, system_prompt, user_prompt, response, metadata_json FROM conversations"
         params: tuple = ()
         if module is not None:
@@ -101,7 +101,7 @@ class ConversationStore:
             for r in rows
         ]
 
-    def export_jsonl(self, out_path: str, *, module: Optional[str] = None) -> str:
+    def export_jsonl(self, out_path: str, *, module: str | None = None) -> str:
         """Export every logged (prompt, response) pair as a JSONL file in
         a standard instruction-tuning shape (``{"prompt": ..., "response":
         ...}`` per line, ``system_prompt`` folded into ``prompt`` when

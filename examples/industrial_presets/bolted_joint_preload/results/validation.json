@@ -1,0 +1,94 @@
+{
+ "preset": "bolted_joint_preload",
+ "references": [
+  {
+   "case": "aperto = pr\u00e9-tens\u00e3o (8 kN)",
+   "output": "F_clamp",
+   "unit": "N",
+   "computed": 7860.697810998236,
+   "reference": 8000.0,
+   "rel_error": 0.017412773625220552,
+   "tol": 0.03,
+   "pass": true,
+   "kind": "analytic",
+   "source": "equil\u00edbrio do *PRE-TENSION SECTION: a for\u00e7a que o parafuso devolve \u00e0s chapas \u00e9 a pr\u00e9-tens\u00e3o (medido -1,7 %, a mesma perda que a checagem do caso declara em 3 %) (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+   "params": {
+    "preload": 8000.0
+   }
+  },
+  {
+   "case": "escorregamento em mu x N com mu = 0,5 e 4 kN",
+   "output": "F_slip_measured",
+   "unit": "N",
+   "computed": 1997.411,
+   "reference": 2000.0,
+   "rel_error": 0.0012944999999999708,
+   "tol": 0.03,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Coulomb: a interface escorrega quando a for\u00e7a tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+   "params": {
+    "mu": 0.5,
+    "preload": 4000.0
+   }
+  },
+  {
+   "case": "escorregamento em mu x N com mu = 0,15 e 6 kN (junta oleada)",
+   "output": "F_slip_measured",
+   "unit": "N",
+   "computed": 899.1128,
+   "reference": 900.0,
+   "rel_error": 0.0009857777777777857,
+   "tol": 0.03,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Coulomb: a interface escorrega quando a for\u00e7a tangencial passa de mu x N (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+   "params": {
+    "mu": 0.15,
+    "preload": 6000.0
+   }
+  },
+  {
+   "case": "cone de Coulomb: |tau|/p na interface igual a mu = 0,5",
+   "output": "razao_coulomb",
+   "unit": "-",
+   "computed": 0.5000015845423864,
+   "reference": 0.5,
+   "rel_error": 3.1690847728249594e-06,
+   "tol": 0.05,
+   "pass": true,
+   "kind": "analytic",
+   "source": "cada n\u00f3 carregado fica dentro do cone de atrito, e o maior |tau|/p o toca quando a interface desliza (CalculiX 2.23 manual, *PRE-TENSION SECTION e *DISTRIBUTING COUPLING)",
+   "params": {
+    "mu": 0.5,
+    "preload": 4000.0
+   }
+  }
+ ],
+ "convergence": {
+  "parameter": "malha (c\u00e9lulas por dire\u00e7\u00e3o nas chapas)",
+  "values": [
+   4,
+   6,
+   8
+  ],
+  "F_slip_measured": [
+   1528.376,
+   1528.407,
+   1528.399
+  ],
+  "F_clamp": [
+   5087.752437499998,
+   5055.446161033326,
+   5082.142678124998
+  ],
+  "head_ratio": [
+   1.3927426237479028,
+   1.341555798103828,
+   1.3790626330886433
+  ],
+  "rel_change_last": 5.2342353011472785e-06,
+  "pass": true
+ },
+ "all_pass": true
+}

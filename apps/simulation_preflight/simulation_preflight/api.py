@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import List, Tuple
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.gzip import GZipMiddleware
@@ -113,7 +112,7 @@ def scope() -> dict:
             ]}
 
 
-def _run(files: List[Tuple[str, bytes]]) -> dict:
+def _run(files: list[tuple[str, bytes]]) -> dict:
     if not files:
         raise HTTPException(422, "No files uploaded.")
     if sum(len(b) for _, b in files) > MAX_MB * 1024 * 1024:
@@ -149,7 +148,7 @@ def meta():
 
 
 @app.post("/api/preflight")
-async def api_preflight(files: List[UploadFile] = File(...)):
+async def api_preflight(files: list[UploadFile] = File(...)):
     """An OpenFOAM case (zip, or the files with their relative paths) or a CalculiX/Abaqus .inp deck (with its
     *INCLUDE files). Returns status, per-section summary and the findings."""
     return _run([(f.filename or f"upload_{i}", await f.read()) for i, f in enumerate(files)])

@@ -89,7 +89,7 @@ Usage
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
@@ -112,7 +112,7 @@ def _spacing(lo: float, hi: float, n: int) -> float:
 def _build_2d_grid(
     x0: float, x1: float, nx: int,
     y0: float, y1: float, ny: int,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float]:
     x  = _linspace(x0, x1, nx)
     y  = _linspace(y0, y1, ny)
     dx = _spacing(x0, x1, nx)
@@ -126,7 +126,7 @@ def _apply_dirichlet_2d(
     x: np.ndarray,
     y: np.ndarray,
     conditions,
-    ctx: Dict,
+    ctx: dict,
 ) -> np.ndarray:
     """Overwrite grid points that satisfy any DirichletBC selector."""
     if not conditions:
@@ -158,7 +158,7 @@ def _apply_neumann_2d(
     x: np.ndarray,
     y: np.ndarray,
     conditions,
-    ctx: Dict,
+    ctx: dict,
     dx: float,
     dy: float,
 ) -> np.ndarray:
@@ -197,7 +197,7 @@ def _apply_robin_2d(
     x: np.ndarray,
     y: np.ndarray,
     conditions,
-    ctx: Dict,
+    ctx: dict,
     dx: float,
     dy: float,
     radiative_iters: int = 8,
@@ -286,12 +286,12 @@ def _apply_robin_2d(
 
 def _robin_edge_specs(
     conditions,
-    ctx: Dict,
+    ctx: dict,
     x: np.ndarray,
     y: np.ndarray,
     nx: int,
     ny: int,
-) -> Dict[str, Optional[Dict[str, np.ndarray]]]:
+) -> dict[str, dict[str, np.ndarray] | None]:
     """Collect RobinBC conditions into per-edge coefficient arrays, for
     threading through the transient ADI solver (``_adi_heat_2d``), which
     -- unlike the post-hoc ``_apply_robin_2d`` used by the elliptic solver
@@ -312,7 +312,7 @@ def _robin_edge_specs(
     absent}``, with ``m = ny`` for the x-edges (indexed by j) or ``m = nx``
     for the y-edges (indexed by i).
     """
-    edges: Dict[str, Optional[Dict[str, np.ndarray]]] = {"x0": None, "x1": None, "y0": None, "y1": None}
+    edges: dict[str, dict[str, np.ndarray] | None] = {"x0": None, "x1": None, "y0": None, "y1": None}
     if not conditions:
         return edges
     pts = np.stack(np.meshgrid(x, y, indexing="ij"), axis=-1).reshape(-1, 2).astype(np.float32)
@@ -364,7 +364,7 @@ def _robin_edge_specs(
             if 0 <= pos < m:
                 g_full[pos] = g_vals[k]
 
-        spec: Dict[str, np.ndarray] = {"a": np.full(m, a0), "b": np.full(m, b0), "g": g_full}
+        spec: dict[str, np.ndarray] = {"a": np.full(m, a0), "b": np.full(m, b0), "g": g_full}
         if radiative is not None:
             spec["radiative"] = {
                 "epsilon": np.full(m, float(radiative.get("epsilon", 0.0))),
@@ -375,7 +375,7 @@ def _robin_edge_specs(
     return edges
 
 
-def _robin_tridiag_terms(u_prev: float, spec: Dict[str, np.ndarray], k: int, step: float):
+def _robin_tridiag_terms(u_prev: float, spec: dict[str, np.ndarray], k: int, step: float):
     """(diag, off_diag, rhs) for one boundary node of a tridiagonal row,
     embedding the linear part of a*u + b*(du/dn) = g fully implicitly (the
     off-diagonal couples to the interior neighbor within the same solve)
@@ -473,10 +473,10 @@ def _adi_heat_2d(
     dt: float,
     nt: int,
     theta: float = 0.5,
-    robin_x0: Optional[Dict[str, np.ndarray]] = None,
-    robin_x1: Optional[Dict[str, np.ndarray]] = None,
-    robin_y0: Optional[Dict[str, np.ndarray]] = None,
-    robin_y1: Optional[Dict[str, np.ndarray]] = None,
+    robin_x0: dict[str, np.ndarray] | None = None,
+    robin_x1: dict[str, np.ndarray] | None = None,
+    robin_y0: dict[str, np.ndarray] | None = None,
+    robin_y1: dict[str, np.ndarray] | None = None,
 ) -> np.ndarray:
     """ADI (Douglas-Rachford) theta-method for 2D heat equation.
 
@@ -688,13 +688,13 @@ class FDMSolver(SolverBase):
         ny: int = 64,
         nt: int = 500,
         **kwargs,
-    ) -> "FDMSolver":
+    ) -> FDMSolver:
         """Build a solver configured for the given ProblemSpec."""
         return cls(nx=nx, ny=ny, nt=nt, **kwargs)
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def solve_from_spec(self, spec, ctx_extra: Optional[Dict[str, Any]] = None) -> SolverOutput:
+    def solve_from_spec(self, spec, ctx_extra: dict[str, Any] | None = None) -> SolverOutput:
         """Auto-solve a ProblemSpec using the appropriate FD scheme.
 
         ``ctx_extra`` is merged into the solver's ctx dict -- use it to
@@ -912,8 +912,8 @@ class FDMSolver(SolverBase):
 
     def forward(
         self,
-        f: Optional[torch.Tensor] = None,
-        bc: Optional[torch.Tensor] = None,
+        f: torch.Tensor | None = None,
+        bc: torch.Tensor | None = None,
         *,
         dx: float = 1.0,
         dy: float = 1.0,

@@ -43,7 +43,8 @@ from __future__ import annotations
 
 import math
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 import torch
@@ -55,7 +56,7 @@ from .problems import ArenaProblem, register_problem
 # Dataset loader (thin wrapper around pinneapple_data)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _load_raw(dataset_id: str, **kwargs) -> Dict[str, Any]:
+def _load_raw(dataset_id: str, **kwargs) -> dict[str, Any]:
     try:
         from pinneapple_data import load_dataset
     except ImportError as exc:
@@ -71,10 +72,10 @@ def _load_raw(dataset_id: str, **kwargs) -> Dict[str, Any]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _flatten_pde_dataset(
-    data: Dict[str, Any],
-    input_fields: List[str],
-    output_fields: List[str],
-) -> Tuple[np.ndarray, np.ndarray]:
+    data: dict[str, Any],
+    input_fields: list[str],
+    output_fields: list[str],
+) -> tuple[np.ndarray, np.ndarray]:
     """Flatten a structured PDE dataset (with coordinate arrays + solution arrays).
 
     Handles cases where the solution u has shape ``(Nt, Nx)`` or ``(Nx, Ny)``
@@ -86,8 +87,8 @@ def _flatten_pde_dataset(
     X : (N, len(input_fields))
     Y : (N, len(output_fields))
     """
-    coord_data: Dict[str, np.ndarray] = {}
-    field_data: Dict[str, np.ndarray] = {}
+    coord_data: dict[str, np.ndarray] = {}
+    field_data: dict[str, np.ndarray] = {}
 
     # Separate scalars / coordinate arrays from solution arrays
     for key, val in data.items():
@@ -202,7 +203,7 @@ def _unwrap(out):
 
 # Map from dataset_id → residual function factory
 # Each factory takes dataset params and returns (pde_loss, bc_loss) callable
-_PINN_RESIDUALS: Dict[str, Callable] = {}
+_PINN_RESIDUALS: dict[str, Callable] = {}
 
 
 def _register_pinn(dataset_id: str):
@@ -362,12 +363,12 @@ class DatasetProblem(ArenaProblem):
         dataset_id: str,
         name: str,
         description: str,
-        input_fields: List[str],
-        output_fields: List[str],
+        input_fields: list[str],
+        output_fields: list[str],
         mode: str,
-        dataset_params: Dict[str, Any],
-        pinn_residuals_fn: Optional[Callable],
-        data_cache: Optional[Tuple[np.ndarray, ...]] = None,
+        dataset_params: dict[str, Any],
+        pinn_residuals_fn: Callable | None,
+        data_cache: tuple[np.ndarray, ...] | None = None,
     ):
         self.dataset_id = dataset_id
         self.name = name
@@ -395,14 +396,14 @@ class DatasetProblem(ArenaProblem):
     def from_dataset(
         cls,
         dataset_id: str,
-        input_fields: List[str],
-        output_fields: List[str],
+        input_fields: list[str],
+        output_fields: list[str],
         mode: str = "supervised",
-        name: Optional[str] = None,
+        name: str | None = None,
         description: str = "",
         register: bool = True,
         **dataset_params,
-    ) -> "DatasetProblem":
+    ) -> DatasetProblem:
         """Create a DatasetProblem from a pinneapple_data dataset ID.
 
         Parameters
@@ -463,7 +464,7 @@ class DatasetProblem(ArenaProblem):
 
     # ── internal data loading ─────────────────────────────────────────────────
 
-    def _get_xy(self) -> Tuple[np.ndarray, np.ndarray]:
+    def _get_xy(self) -> tuple[np.ndarray, np.ndarray]:
         if self._data_cache is not None:
             return self._data_cache
         raw = _load_raw(self.dataset_id, **self._dataset_params)

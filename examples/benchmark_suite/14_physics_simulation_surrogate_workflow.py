@@ -33,13 +33,11 @@ Usage
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -65,6 +63,9 @@ try:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import matplotlib.colors as mcolors
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     _MPL = True
 except ImportError:
     _MPL = False
@@ -248,7 +249,7 @@ def solve_elasticity(
     nu: float,
     traction_mag: float,
     traction_dir: str = "x",
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Q4 plane-stress FEM.  Returns node-level fields."""
     n = mesh.n_nodes
     K = _assemble_stiffness(mesh, E, nu)
@@ -318,7 +319,7 @@ def solve_crash(
     T: float,
     dt: float,
     store_every: int = 5,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     Central-difference explicit FEM: elastic stress-wave under sudden impact.
     Impact load F_impact applied as step function at t=0 on the right edge.
@@ -422,7 +423,7 @@ def _build_sf_poisson(nx: int, ny: int, dx: float, dy: float):
 
 def solve_lid_driven_cavity(
     nx: int, ny: int, Re: float, U_lid: float, T: float, dt: float
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     Lid-driven cavity: vorticity-streamfunction FDM.
     Unit square [0,1]x[0,1], moving lid at top (y=1).
@@ -567,7 +568,7 @@ def _build_pressure_poisson(nx: int, ny: int, dx: float, dy: float):
 def solve_cylinder_flow(
     nx: int, ny: int, Re: float, U_inf: float, T: float, dt: float,
     r_cyl: float = 0.1, cx: float = 0.35, cy: float = 0.5,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """
     2D incompressible NS past a cylinder, projection-method FDM.
     Uses upwind advection (stable at high cell-Peclet numbers).
@@ -688,12 +689,12 @@ def solve_cylinder_flow(
 # =============================================================================
 
 def build_dataset(
-    sim_data: Dict[str, np.ndarray],
-    field_names: List[str],
+    sim_data: dict[str, np.ndarray],
+    field_names: list[str],
     n_train: int = 4096,
     n_test:  int = 1024,
     seed:    int = 0,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, List[str], Dict]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, list[str], dict]:
     """
     Sample collocation points from simulation data.
     Returns X_train, Y_train, X_test, Y_test plus normalisation stats.
@@ -755,7 +756,7 @@ def build_dataset(
 if _TORCH:
     class _MLP(nn.Module):
         """Simple MLP with skip connections."""
-        def __init__(self, in_dim: int, out_dim: int, hidden: List[int],
+        def __init__(self, in_dim: int, out_dim: int, hidden: list[int],
                      activation=nn.Tanh):
             super().__init__()
             dims   = [in_dim] + hidden + [out_dim]
@@ -772,7 +773,7 @@ if _TORCH:
 
     class VanillaPINN(nn.Module):
         """Standard MLP-PINN."""
-        def __init__(self, in_dim: int, out_dim: int, hidden: List[int] = None):
+        def __init__(self, in_dim: int, out_dim: int, hidden: list[int] = None):
             super().__init__()
             hidden = hidden or [64, 128, 128, 64]
             self.net = _MLP(in_dim, out_dim, hidden)
@@ -784,7 +785,7 @@ if _TORCH:
         """Random Fourier Feature network + MLP trunk."""
         def __init__(self, in_dim: int, out_dim: int,
                      n_fourier: int = 128, sigma: float = 1.0,
-                     hidden: List[int] = None):
+                     hidden: list[int] = None):
             super().__init__()
             hidden = hidden or [128, 128, 64]
             B = torch.randn(in_dim, n_fourier) * sigma
@@ -916,8 +917,8 @@ def train_surrogate(
     lr: float = 1e-3,
     batch: int = 512,
     is_deeponet: bool = False,
-    branch_input: Optional[np.ndarray] = None,
-) -> Dict:
+    branch_input: np.ndarray | None = None,
+) -> dict:
     """
     Train a surrogate model.  Returns dict with training history and metrics.
     """
@@ -1021,7 +1022,7 @@ def train_surrogate(
 # 11.  METRICS
 # =============================================================================
 
-def print_leaderboard(all_results: List[Dict], field_names: List[str]):
+def print_leaderboard(all_results: list[dict], field_names: list[str]):
     _hdr("SURROGATE LEADERBOARD")
     header = f"  {'Model':<14}" + "".join(
         f"  {n[:8]:>10} rel-L2" for n in field_names
@@ -1057,9 +1058,9 @@ def _safe_imshow(ax, data2d, title, cmap="RdBu_r", symmetric=False):
     return im
 
 
-def visualise_structural(sim: Dict, results: List[Dict],
-                         field_names: List[str], problem: str,
-                         save_dir: Optional[Path]):
+def visualise_structural(sim: dict, results: list[dict],
+                         field_names: list[str], problem: str,
+                         save_dir: Path | None):
     if not _MPL:
         return
 
@@ -1126,9 +1127,9 @@ def visualise_structural(sim: Dict, results: List[Dict],
     plt.close(fig)
 
 
-def visualise_flow(sim: Dict, results: List[Dict],
-                   field_names: List[str], problem: str,
-                   save_dir: Optional[Path]):
+def visualise_flow(sim: dict, results: list[dict],
+                   field_names: list[str], problem: str,
+                   save_dir: Path | None):
     if not _MPL:
         return
 
@@ -1186,8 +1187,8 @@ def visualise_flow(sim: Dict, results: List[Dict],
     plt.close(fig)
 
 
-def visualise_training_curves(results: List[Dict], problem: str,
-                              save_dir: Optional[Path]):
+def visualise_training_curves(results: list[dict], problem: str,
+                              save_dir: Path | None):
     if not _MPL:
         return
     valid = [r for r in results if r and r.get("hist_loss")]
@@ -1215,7 +1216,7 @@ def visualise_training_curves(results: List[Dict], problem: str,
     plt.close(fig)
 
 
-def visualise_crash_snapshots(sim: Dict, save_dir: Optional[Path]):
+def visualise_crash_snapshots(sim: dict, save_dir: Path | None):
     if not _MPL:
         return
     times  = sim["times"]
@@ -1252,9 +1253,9 @@ def visualise_crash_snapshots(sim: Dict, save_dir: Optional[Path]):
 class WorkflowPipeline:
     """Orchestrates all steps for a given physics problem."""
 
-    def __init__(self, problem: str, model_names: List[str],
-                 fast: bool, device: str, epochs: Optional[int],
-                 save_dir: Optional[Path]):
+    def __init__(self, problem: str, model_names: list[str],
+                 fast: bool, device: str, epochs: int | None,
+                 save_dir: Path | None):
         self.problem     = problem
         self.model_names = model_names
         self.fast        = fast
@@ -1277,7 +1278,7 @@ class WorkflowPipeline:
         # unified property used by mesh builder
         self.nx = self.ny = self.nx_struct
 
-    def run(self) -> Dict:
+    def run(self) -> dict:
         _hdr(f"PROBLEM: {self.problem.upper()}")
         sim      = self._simulate()
         fields   = self._field_names()
@@ -1304,7 +1305,7 @@ class WorkflowPipeline:
     # Simulation dispatch
     # ------------------------------------------------------------------
 
-    def _simulate(self) -> Dict:
+    def _simulate(self) -> dict:
         _step("STEP 1 -- Geometry")
         geom = self._make_geometry()
         geom.describe()
@@ -1338,7 +1339,7 @@ class WorkflowPipeline:
                               {"setup": "flow past cylinder", "Re": 100, "D_cyl": 0.2})
         return Geometry2D("rectangle", 1.0, 1.0, {})
 
-    def _run_sim(self, geom: Geometry2D, mesh: RectMesh2D) -> Dict:
+    def _run_sim(self, geom: Geometry2D, mesh: RectMesh2D) -> dict:
         p = self.problem
 
         if p in ("hookes_2d", "von_mises"):
@@ -1379,7 +1380,7 @@ class WorkflowPipeline:
     # Surrogate training dispatch
     # ------------------------------------------------------------------
 
-    def _field_names(self) -> List[str]:
+    def _field_names(self) -> list[str]:
         return {
             "hookes_2d":   ["ux", "uy"],
             "von_mises":   ["ux", "uy", "von_mises"],
@@ -1388,7 +1389,7 @@ class WorkflowPipeline:
             "ns_external": ["u", "v", "p"],
         }.get(self.problem, ["u"])
 
-    def _train_all(self, sim: Dict, fields: List[str]) -> List[Dict]:
+    def _train_all(self, sim: dict, fields: list[str]) -> list[dict]:
         if not _TORCH:
             print("  [skip] PyTorch unavailable -- no surrogate training")
             return []
@@ -1468,7 +1469,7 @@ class WorkflowPipeline:
     # Save
     # ------------------------------------------------------------------
 
-    def _save_json(self, sim: Dict, results: List[Dict], fields: List[str]):
+    def _save_json(self, sim: dict, results: list[dict], fields: list[str]):
         out = {"problem": self.problem, "fields": fields, "models": []}
         for r in results:
             if not r:

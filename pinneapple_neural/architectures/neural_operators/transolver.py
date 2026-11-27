@@ -20,7 +20,6 @@ unlike ``noether_bridge``):
 Both map point features ``(B, N, in_dim)`` to point outputs ``(B, N, out_dim)`` and are
 invariant to node ordering (no connectivity is used).
 """
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -47,11 +46,16 @@ class PhysicsAttention(nn.Module):
         self.out = nn.Sequential(nn.Linear(dim, dim), nn.Dropout(dropout))
         self.drop = nn.Dropout(dropout)
 
-    def forward(self, x: torch.Tensor, return_weights: bool = False):
+    def forward(self, x: torch.Tensor, return_weights: bool = False, mask: torch.Tensor | None = None):
+        """``mask`` (B, N) of valid points: padded points carry no weight in the slice assignment, so a batch padded
+        to a common length does not change the result (a component of a crash model, say, encoded on its own)."""
         B, N, _ = x.shape
         fx = self.in_fx(x).view(B, N, self.h, self.dh).transpose(1, 2)          # B h N dh
         xm = self.in_x(x).view(B, N, self.h, self.dh).transpose(1, 2)
-        w = torch.softmax(self.to_slice(xm) / self.temperature.clamp(min=0.05), dim=-1)  # B h N M
+        logits = self.to_slice(xm) / self.temperature.clamp(min=0.05)           # B h N M
+        if mask is not None:
+            logits = logits.masked_fill(~mask[:, None, :, None], -1e4)
+        w = torch.softmax(logits, dim=-1)                                       # B h N M
         norm = w.sum(2)                                                          # B h M
         tok = torch.einsum("bhnm,bhnd->bhmd", w, fx) / (norm[..., None] + 1e-5)  # weighted mean per slice
         q, k, v = self.q(tok), self.k(tok), self.v(tok)
@@ -70,8 +74,8 @@ class TransolverBlock(nn.Module):
         self.mlp = nn.Sequential(nn.Linear(dim, dim * mlp_ratio), nn.GELU(), nn.Dropout(dropout),
                                  nn.Linear(dim * mlp_ratio, dim))
 
-    def forward(self, x):
-        x = x + self.attn(self.n1(x))
+    def forward(self, x, mask=None):
+        x = x + self.attn(self.n1(x), mask=mask)
         return x + self.mlp(self.n2(x))
 
 
@@ -86,7 +90,7 @@ class Transolver(NeuralOperatorBase):
         self.blocks = nn.ModuleList([TransolverBlock(dim, heads, slices, mlp_ratio, dropout) for _ in range(depth)])
         self.head = nn.Sequential(nn.LayerNorm(dim), nn.Linear(dim, dim), nn.GELU(), nn.Linear(dim, out_dim))
 
-    def forward(self, x: torch.Tensor, *, y_true: Optional[torch.Tensor] = None, return_loss: bool = False) -> OperatorOutput:
+    def forward(self, x: torch.Tensor, *, y_true: torch.Tensor | None = None, return_loss: bool = False) -> OperatorOutput:
         h = self.embed(x) + self.placeholder
         for blk in self.blocks:
             h = blk(h)
@@ -129,7 +133,7 @@ class TransolverLite(NeuralOperatorBase):
         self.blocks = nn.ModuleList([_LiteBlock(d_model, n_heads, n_slices, dropout) for _ in range(n_blocks)])
         self.out = nn.Linear(d_model, out_dim)
 
-    def forward(self, x: torch.Tensor, *, y_true: Optional[torch.Tensor] = None, return_loss: bool = False) -> OperatorOutput:
+    def forward(self, x: torch.Tensor, *, y_true: torch.Tensor | None = None, return_loss: bool = False) -> OperatorOutput:
         h = self.inp(x)
         for b in self.blocks:
             h = b(h)

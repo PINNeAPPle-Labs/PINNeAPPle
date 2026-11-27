@@ -1,7 +1,6 @@
 from __future__ import annotations
 """PINN-LSTM hybrid combining physics-informed losses with LSTM dynamics."""
 
-from typing import Dict, Optional, List
 import torch
 import torch.nn as nn
 
@@ -16,8 +15,8 @@ class PINNLSTM(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 2,
         dropout: float = 0.0,
-        inverse_params_names: Optional[List[str]] = None,
-        initial_guesses: Optional[Dict[str, float]] = None,
+        inverse_params_names: list[str] | None = None,
+        initial_guesses: dict[str, float] | None = None,
         dtype: torch.dtype = torch.float32,
     ):
         super().__init__()

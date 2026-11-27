@@ -29,7 +29,6 @@ What this example shows
 Tier 1 — Explorer.
 """
 
-import math
 import torch
 import torch.nn as nn
 import numpy as np

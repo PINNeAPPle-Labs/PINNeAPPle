@@ -62,7 +62,7 @@ from __future__ import annotations
 import csv
 import os
 import re
-from typing import Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 from .cgns_reader import cgns_to_upd, read_cgns_mesh_and_fields
 
@@ -71,7 +71,7 @@ from .cgns_reader import cgns_to_upd, read_cgns_mesh_and_fields
 # ---------------------------------------------------------------------------
 
 
-def read_starccm_cgns(path: str, *, fields: Optional[Sequence[str]] = None, zone_index: int = 0):
+def read_starccm_cgns(path: str, *, fields: Sequence[str] | None = None, zone_index: int = 0):
     """Read a STAR-CCM+ CGNS export. Thin re-export of
     :func:`cgns_reader.read_cgns_mesh_and_fields` -- a STAR-CCM+ CGNS export
     is standard CGNS/HDF5, so the existing, already-validated reader applies
@@ -80,7 +80,7 @@ def read_starccm_cgns(path: str, *, fields: Optional[Sequence[str]] = None, zone
     return read_cgns_mesh_and_fields(path, fields=fields, zone_index=zone_index)
 
 
-def starccm_cgns_to_upd(path: str, *, fields: Optional[Sequence[str]] = None, zone_index: int = 0):
+def starccm_cgns_to_upd(path: str, *, fields: Sequence[str] | None = None, zone_index: int = 0):
     """Read a STAR-CCM+ CGNS export and package it as a UPD
     ``PhysicalSample``. Thin re-export of :func:`cgns_reader.cgns_to_upd` --
     STAR-CCM+'s CGNS export is standard CGNS/HDF5 (see module docstring), so
@@ -160,7 +160,7 @@ def read_starccm_table(path: str, *, coord_names: Sequence[str] = ("X", "Y", "Z"
     stripped = [_strip_unit_suffix(h) for h in header]
     lowered = [s.lower() for s in stripped]
 
-    coord_cols: List[Optional[int]] = []
+    coord_cols: list[int | None] = []
     for cname in coord_names:
         try:
             coord_cols.append(lowered.index(cname.lower()))
@@ -192,7 +192,7 @@ def read_starccm_table(path: str, *, coord_names: Sequence[str] = ("X", "Y", "Z"
             coords[:, axis] = values[:, col]
 
     used_cols = {c for c in coord_cols if c is not None}
-    fields: Dict[str, "object"] = {
+    fields: dict[str, object] = {
         stripped[j]: values[:, j] for j in range(n_cols) if j not in used_cols
     }
 

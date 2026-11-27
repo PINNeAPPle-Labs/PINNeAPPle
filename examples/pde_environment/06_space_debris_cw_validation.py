@@ -163,6 +163,9 @@ def main():
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
+        from pinneapple_tools.visualization.style import use_theme
+        use_theme("report")   # one theme for every figure of the library (#918)
+
         fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
         ax = axes[0]
         ax.plot(exact["x"], exact["y"], "k-", lw=2, label="Exact (Clohessy-Wiltshire)")

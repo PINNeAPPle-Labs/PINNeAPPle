@@ -47,7 +47,6 @@ from __future__ import annotations
 
 import math
 import sys
-import os
 from pathlib import Path
 
 # ── Parse command-line args passed after "--" ──────────────────────────────
@@ -67,8 +66,7 @@ SAMPLES    = int(_a.get("samples",  256))   # increase for cleaner result
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 import bpy
-import bmesh
-from mathutils import Vector, Euler, Matrix
+from mathutils import Vector, Euler
 import numpy as np
 
 RNG = np.random.default_rng(0)

@@ -8,6 +8,11 @@ numerical_solvers  (was pinneapple_solvers)
     Optional bridges to OpenFOAM and FEniCS. SolverRegistry, generate_pinn_dataset.
     CAD-to-CFD pipeline (CADToCFDPipeline).
 
+granular
+    Discrete element solver for convex polyhedra and spheres with volume-based contact:
+    World, Material, ForceModel, ConvexPolyhedron, bonds and fragment statistics, the
+    rotating drum (power draw), the impulse wear law and fluid drag. See docs/granular_dem.md.
+
 particle_dynamics  (was pinneapple_dynamics)
     Differentiable particle / continuum dynamics: rigid-body (RigidBody,
     RigidBodySystem), MPM (MPMSimulator), SPH (SPHParticles). All in pure
@@ -39,6 +44,7 @@ from typing import Any
 from . import numerical_solvers
 from . import particle_dynamics
 from . import external_solvers
+from . import granular
 
 # backward-compat aliases
 solvers      = numerical_solvers
@@ -129,7 +135,7 @@ def generate_data(scenario: str, n_samples: int = 10, **kwargs) -> list:
 
 __all__ = [
     # Sub-modules (new names)
-    "numerical_solvers", "particle_dynamics", "external_solvers",
+    "numerical_solvers", "particle_dynamics", "external_solvers", "granular",
     # Sub-modules (old aliases — backward compat)
     "solvers", "dynamics", "integrations",
     # Integration

@@ -1,17 +1,17 @@
 """Convert Modelica/FMI simulation result dicts to UPD PhysicalSample."""
 from __future__ import annotations
 
-from typing import Dict, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 
 
 def modelica_result_to_upd(
-    result: Dict[str, np.ndarray],
+    result: dict[str, np.ndarray],
     *,
     time_key: str = "time",
-    field_keys: Optional[Sequence[str]] = None,
-    units: Optional[Dict[str, str]] = None,
+    field_keys: Sequence[str] | None = None,
+    units: dict[str, str] | None = None,
     source: str = "modelica",
 ):
     """Package a Modelica simulation result dict as a UPD PhysicalSample.

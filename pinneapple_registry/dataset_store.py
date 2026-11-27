@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -31,11 +31,11 @@ class DatasetStore:
         problem_id: str,
         scenario_id: str,
         coords: np.ndarray,
-        fields: Dict[str, np.ndarray],
+        fields: dict[str, np.ndarray],
         *,
-        observations: Optional[np.ndarray] = None,
-        observation_columns: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        observations: np.ndarray | None = None,
+        observation_columns: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         d = self._scenario_dir(problem_id, scenario_id)
         os.makedirs(d, exist_ok=True)
@@ -70,12 +70,12 @@ class DatasetStore:
             json.dump(meta, f, indent=2)
         return d
 
-    def load(self, problem_id: str, scenario_id: str) -> Dict[str, Any]:
+    def load(self, problem_id: str, scenario_id: str) -> dict[str, Any]:
         d = self._scenario_dir(problem_id, scenario_id)
         if not os.path.isdir(d):
             raise KeyError(f"No dataset for problem_id='{problem_id}', scenario_id='{scenario_id}'")
         npz = np.load(os.path.join(d, "simulation.npz"))
-        out: Dict[str, Any] = {"coords": npz["coords"], "fields": {k: npz[k] for k in npz.files if k != "coords"}}
+        out: dict[str, Any] = {"coords": npz["coords"], "fields": {k: npz[k] for k in npz.files if k != "coords"}}
         with open(os.path.join(d, "metadata.json")) as f:
             out["metadata"] = json.load(f)
         obs_path = os.path.join(d, "observations.csv")
@@ -87,12 +87,12 @@ class DatasetStore:
                 out["observations"] = {"columns": header, "rows": [row for row in reader]}
         return out
 
-    def list_scenarios(self, problem_id: str) -> List[str]:
+    def list_scenarios(self, problem_id: str) -> list[str]:
         d = os.path.join(self.root, problem_id)
         if not os.path.isdir(d):
             return []
         return sorted(s for s in os.listdir(d) if os.path.isdir(os.path.join(d, s)))
 
-    def stats(self, problem_id: str, scenario_id: str) -> Dict[str, Any]:
+    def stats(self, problem_id: str, scenario_id: str) -> dict[str, Any]:
         with open(os.path.join(self._scenario_dir(problem_id, scenario_id), "metadata.json")) as f:
             return json.load(f)["stats"]

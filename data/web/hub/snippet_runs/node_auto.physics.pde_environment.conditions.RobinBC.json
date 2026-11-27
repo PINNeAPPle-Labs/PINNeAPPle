@@ -1,0 +1,12 @@
+{
+ "code_hash": "b9e57196dbf2fc0e",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.conditions.RobinBC",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 22.32,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "RobinBC -> pinneapple_physics.pde_environment.conditions:RobinBC\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'fields': None, 'selector_type': 'all', 'selector': None, 'weight': 1.0}",
+ "timed_out": false
+}

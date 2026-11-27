@@ -91,7 +91,7 @@ PRODUCTS = (
 )
 
 MATURITY = {"verified": ("Verificado", "Verified"), "tested": ("Testado", "Tested"),
-            "discovered": ("Descoberto", "Discovered")}
+            "named": ("Nomeado", "Named"), "discovered": ("Descoberto", "Discovered")}
 
 
 def fold(text: str) -> str:

@@ -302,6 +302,16 @@
   "returned": "_GeneratorContextManager",
   "seconds": 0.0
  },
+ "pinneapple_flow.nodes_ext.advisor:build_flow": {
+  "code_hash": "5cceb0699a15854a",
+  "inputs": {
+   "text": "transient heat in a 3D bracket"
+  },
+  "ok": true,
+  "recorded": "2026-11-18",
+  "returned": "FlowBuilder",
+  "seconds": 51.48
+ },
  "pinneapple_flow.nodes_ext.aircraft_surrogate:build_flow": {
   "code_hash": "571d9f79b91843ac",
   "inputs": {},
@@ -607,6 +617,16 @@
   "recorded": "2026-10-31",
   "returned": "list",
   "seconds": 0.0
+ },
+ "pinneapple_flow.planner.extensions:match": {
+  "code_hash": "9bc68f7b852b3c86",
+  "inputs": {
+   "text": "Quero um surrogate da aerodin\u00e2mica 3D de uma aeronave, alongamento 12, verificado pelo VeriPhysics"
+  },
+  "ok": true,
+  "recorded": "2026-11-16",
+  "returned": "list",
+  "seconds": 2.6
  },
  "pinneapple_flow.planner.heuristic:sensor_count": {
   "code_hash": "37d8d6c624bc7370",

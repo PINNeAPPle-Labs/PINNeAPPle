@@ -1,9 +1,8 @@
 from __future__ import annotations
 """Kalman filter for linear state estimation."""
-from typing import Dict, Optional, Any
+from typing import Any
 
 import torch
-import torch.nn as nn
 
 from .base import ClassicalTSBase, ClassicalTSOutput
 
@@ -29,7 +28,7 @@ class KalmanFilter(ClassicalTSBase):
         Q: torch.Tensor,
         R: torch.Tensor,
         *,
-        B: Optional[torch.Tensor] = None,
+        B: torch.Tensor | None = None,
     ):
         super().__init__()
         self.register_buffer("A", A)
@@ -45,9 +44,9 @@ class KalmanFilter(ClassicalTSBase):
         self,
         y: torch.Tensor,                  # (B,T,m)
         *,
-        u: Optional[torch.Tensor] = None,  # (B,T,du)
-        x0: Optional[torch.Tensor] = None, # (B,n)
-        P0: Optional[torch.Tensor] = None, # (B,n,n) or (n,n)
+        u: torch.Tensor | None = None,  # (B,T,du)
+        x0: torch.Tensor | None = None, # (B,n)
+        P0: torch.Tensor | None = None, # (B,n,n) or (n,n)
         return_gain: bool = False,
     ) -> ClassicalTSOutput:
         Bsz, T, m = y.shape
@@ -118,7 +117,7 @@ class KalmanFilter(ClassicalTSBase):
                 Ks.append(K)
 
         x_filt = torch.stack(xs, dim=1)  # (B,T,n)
-        extras: Dict[str, Any] = {"P": torch.stack(Ps, dim=1)}
+        extras: dict[str, Any] = {"P": torch.stack(Ps, dim=1)}
         if return_gain:
             extras["K"] = torch.stack(Ks, dim=1)
 

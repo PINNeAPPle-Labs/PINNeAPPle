@@ -237,12 +237,12 @@ class StandardConditions:
     T_K: float
 
     @staticmethod
-    def iso_13443() -> "StandardConditions":
+    def iso_13443() -> StandardConditions:
         """101.325 kPa / 15degC -- the metric 'standard cubic metre' convention."""
         return StandardConditions(101_325.0, 288.15)
 
     @staticmethod
-    def us_60f() -> "StandardConditions":
+    def us_60f() -> StandardConditions:
         """14.696 psia / 60degF -- the US oil & gas convention."""
         return StandardConditions(101_325.0, 288.706)
 

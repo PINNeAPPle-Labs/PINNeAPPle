@@ -1,7 +1,6 @@
 """Curve-fit synthetic generator for polynomial ridge regression and sample synthesis."""
 from __future__ import annotations
 
-from typing import Optional, Tuple
 import torch
 
 from .base import SynthConfig, SynthOutput
@@ -56,7 +55,7 @@ class CurveFitSynthGenerator:
         Configuration controlling device/dtype/seed behavior.
     """
 
-    def __init__(self, cfg: Optional[SynthConfig] = None):
+    def __init__(self, cfg: SynthConfig | None = None):
         """
         Initialize the curve-fit synthetic generator.
 
@@ -75,9 +74,9 @@ class CurveFitSynthGenerator:
         degree: int = 3,
         ridge: float = 1e-6,
         n_new: int = 1024,
-        x_range: Optional[Tuple[float, float]] = None,
+        x_range: tuple[float, float] | None = None,
         noise_std: float = 0.0,
-        mask_missing: Optional[torch.Tensor] = None,  # (N,1) bool; True means missing
+        mask_missing: torch.Tensor | None = None,  # (N,1) bool; True means missing
     ) -> SynthOutput:
         """
         Fit a polynomial ridge regression model and synthesize a new dataset.

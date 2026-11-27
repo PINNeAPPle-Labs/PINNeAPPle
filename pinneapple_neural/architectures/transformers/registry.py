@@ -2,7 +2,6 @@ from __future__ import annotations
 """Registry and catalog for transformer time series model family."""
 
 from dataclasses import dataclass
-from typing import Dict, Type
 
 from .base import TimeSeriesModelBase
 from .transformer import VanillaTransformer
@@ -13,7 +12,7 @@ from .fedformer import FEDformer
 from .timesnet import TimesNet
 
 
-_REGISTRY: Dict[str, Type[TimeSeriesModelBase]] = {
+_REGISTRY: dict[str, type[TimeSeriesModelBase]] = {
     "transformer": VanillaTransformer,
     "vanilla_transformer": VanillaTransformer,
 
@@ -41,7 +40,7 @@ def register_into_global() -> None:
 
 @dataclass
 class TransformerCatalog:
-    registry: Dict[str, Type[TimeSeriesModelBase]] | None = None
+    registry: dict[str, type[TimeSeriesModelBase]] | None = None
 
     def __post_init__(self):
         self.registry = dict(_REGISTRY)
@@ -49,7 +48,7 @@ class TransformerCatalog:
     def list(self):
         return sorted(self.registry.keys())
 
-    def get(self, name: str) -> Type[TimeSeriesModelBase]:
+    def get(self, name: str) -> type[TimeSeriesModelBase]:
         key = name.lower().strip()
         if key not in self.registry:
             raise KeyError(f"Unknown transformer model '{name}'. Available: {self.list()[:20]} ...")

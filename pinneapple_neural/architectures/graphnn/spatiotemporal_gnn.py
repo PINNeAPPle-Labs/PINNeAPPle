@@ -1,6 +1,6 @@
 from __future__ import annotations
 """Spatiotemporal graph neural network for space-time data."""
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -58,10 +58,10 @@ class SpatiotemporalGNN(GraphModelBase):
         x: torch.Tensor,              # (B,T,N,node_in)
         edge_index: torch.Tensor,     # (2,E)
         *,
-        pos: Optional[torch.Tensor] = None,       # (B,N,pos_dim) optional
-        edge_attr: Optional[torch.Tensor] = None, # (B,E,edge_dim) optional
-        mask: Optional[torch.Tensor] = None,      # (B,N)
-        y_true: Optional[torch.Tensor] = None,    # (B,T,N,out_dim)
+        pos: torch.Tensor | None = None,       # (B,N,pos_dim) optional
+        edge_attr: torch.Tensor | None = None, # (B,E,edge_dim) optional
+        mask: torch.Tensor | None = None,      # (B,N)
+        y_true: torch.Tensor | None = None,    # (B,T,N,out_dim)
         return_loss: bool = False,
     ) -> GraphOutput:
         B, T, N, Din = x.shape
@@ -86,7 +86,7 @@ class SpatiotemporalGNN(GraphModelBase):
         y = self.head(out)          # (B*N,T,out_dim)
         y = y.reshape(B, N, T, -1).permute(0, 2, 1, 3)  # (B,T,N,out_dim)
 
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
         if return_loss and y_true is not None:
             if mask is not None:
                 m = mask[:, None, :, None].to(y.dtype)
@@ -97,7 +97,7 @@ class SpatiotemporalGNN(GraphModelBase):
 
         return GraphOutput(y=y, losses=losses, extras={})
 
-    def forward_batch(self, batch: Dict[str, Any]) -> GraphOutput:
+    def forward_batch(self, batch: dict[str, Any]) -> GraphOutput:
         """Dict-based interface used by Arena / GNNAdapter.
 
         Required keys: ``x`` (B,T,N,node_in), ``edge_index``.

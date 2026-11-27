@@ -84,9 +84,8 @@ output:
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 # ── Sub-configs ───────────────────────────────────────────────────────────────
@@ -95,7 +94,7 @@ from typing import Any, Dict, List, Optional
 class NetworkConfig:
     """Neural network architecture hyperparameters."""
     # Shared / PINN
-    hidden: List[int]          = field(default_factory=lambda: [128, 128, 128, 128])
+    hidden: list[int]          = field(default_factory=lambda: [128, 128, 128, 128])
     activation: str            = "tanh"
     # FNO
     width: int                 = 32
@@ -122,10 +121,10 @@ class NetworkConfig:
     # NeuralODE / continuous
     state_dim: int             = 0     # 0 = same as in_dim
     # Extra kwargs forwarded verbatim to the constructor
-    extra: Dict[str, Any]      = field(default_factory=dict)
+    extra: dict[str, Any]      = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, d: dict) -> "NetworkConfig":
+    def from_dict(cls, d: dict) -> NetworkConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         known_kw = {k: v for k, v in d.items() if k in known}
         extra    = {k: v for k, v in d.items() if k not in known}
@@ -144,10 +143,10 @@ class TrainingConfig:
     optimizer: str             = "adam"        # "adam" | "adamw" | "sgd"
     scheduler: str             = "cosine"      # "cosine" | "step" | "none"
     batch_size: int            = 16            # used only for data-driven models
-    seed: Optional[int]        = None
+    seed: int | None        = None
 
     @classmethod
-    def from_dict(cls, d: dict) -> "TrainingConfig":
+    def from_dict(cls, d: dict) -> TrainingConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         return cls(**{k: v for k, v in d.items() if k in known})
 
@@ -161,7 +160,7 @@ class ModelConfig:
     training: TrainingConfig           = field(default_factory=TrainingConfig)
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ModelConfig":
+    def from_dict(cls, d: dict) -> ModelConfig:
         name = d.get("name", d.get("type", "model"))
         mtype = d.get("type", "vanilla_pinn")
         net   = NetworkConfig.from_dict(d.get("network", {}))
@@ -173,8 +172,8 @@ class ModelConfig:
 class ProblemConfig:
     """Physics problem selection and parameters."""
     name: str                         # e.g. kovasznay_ns | burgers_1d | poisson_2d
-    params: Dict[str, Any]            = field(default_factory=dict)
-    physics_preset: Optional[str]     = None    # override with pinneapple_physics preset name
+    params: dict[str, Any]            = field(default_factory=dict)
+    physics_preset: str | None     = None    # override with pinneapple_physics preset name
     grid_n: int                       = 40       # evaluation grid resolution
     n_col: int                        = 2000     # PINN interior collocation
     n_bc: int                         = 500      # PINN boundary collocation
@@ -182,7 +181,7 @@ class ProblemConfig:
     n_mesh_nodes: int                 = 600      # nodes for MeshGraphNet
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ProblemConfig":
+    def from_dict(cls, d: dict) -> ProblemConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         obj_kw = {k: v for k, v in d.items() if k in known and k != "params"}
         params  = d.get("params", {})
@@ -200,7 +199,7 @@ class OutputConfig:
     show: bool                = False
 
     @classmethod
-    def from_dict(cls, d: dict) -> "OutputConfig":
+    def from_dict(cls, d: dict) -> OutputConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         return cls(**{k: v for k, v in d.items() if k in known})
 
@@ -209,16 +208,16 @@ class OutputConfig:
 class InverseConfig:
     """Inverse problem configuration (identifying unknown physics parameters)."""
     enabled: bool             = False
-    params: List[str]         = field(default_factory=list)  # unknown param names
+    params: list[str]         = field(default_factory=list)  # unknown param names
     n_obs: int                = 100           # number of synthetic observations
     noise_std: float          = 0.01          # observation noise
     method: str               = "adam"        # "adam" | "lbfgs" | "eki" | "teki"
     n_iters: int              = 2000
     lambda_reg: float         = 1e-3
-    sensor_locations: Optional[str] = None    # path to sensor location file (npy/csv)
+    sensor_locations: str | None = None    # path to sensor location file (npy/csv)
 
     @classmethod
-    def from_dict(cls, d: dict) -> "InverseConfig":
+    def from_dict(cls, d: dict) -> InverseConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         obj_kw = {k: v for k, v in d.items() if k in known and k != "params"}
         params = d.get("params", [])
@@ -235,7 +234,7 @@ class UQConfig:
     coverage: float           = 0.95          # target coverage for conformal prediction
 
     @classmethod
-    def from_dict(cls, d: dict) -> "UQConfig":
+    def from_dict(cls, d: dict) -> UQConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         return cls(**{k: v for k, v in d.items() if k in known})
 
@@ -244,14 +243,14 @@ class UQConfig:
 class DatasetConfig:
     """Use a pinneapple_data dataset instead of a built-in Arena problem."""
     dataset_id: str           = ""
-    input_fields: List[str]   = field(default_factory=list)
-    output_fields: List[str]  = field(default_factory=list)
+    input_fields: list[str]   = field(default_factory=list)
+    output_fields: list[str]  = field(default_factory=list)
     n_train: int              = 1000
     n_val: int                = 200
     split_seed: int           = 42
 
     @classmethod
-    def from_dict(cls, d: dict) -> "DatasetConfig":
+    def from_dict(cls, d: dict) -> DatasetConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         obj_kw = {k: v for k, v in d.items()
                   if k in known and k not in ("input_fields", "output_fields")}
@@ -275,12 +274,12 @@ class DecisionConfig:
     enabled: bool                     = False
     budget: int                       = 3       # max number of models trained
     stop_when_passed: bool            = True
-    thresholds: Dict[str, float]      = field(default_factory=dict)  # {} -> ThresholdVerifier defaults
-    evidence_path: Optional[str]      = None    # JSON evidence log (EvidenceStore)
-    problem: Dict[str, Any]           = field(default_factory=dict)  # extra problem facts for the engine
+    thresholds: dict[str, float]      = field(default_factory=dict)  # {} -> ThresholdVerifier defaults
+    evidence_path: str | None      = None    # JSON evidence log (EvidenceStore)
+    problem: dict[str, Any]           = field(default_factory=dict)  # extra problem facts for the engine
 
     @classmethod
-    def from_dict(cls, d: dict) -> "DecisionConfig":
+    def from_dict(cls, d: dict) -> DecisionConfig:
         known = {f.name for f in cls.__dataclass_fields__.values()}
         return cls(**{k: v for k, v in d.items() if k in known})
 
@@ -289,15 +288,15 @@ class DecisionConfig:
 class ArenaConfig:
     """Top-level Arena configuration."""
     problem: ProblemConfig
-    models: List[ModelConfig]
+    models: list[ModelConfig]
     output: OutputConfig              = field(default_factory=OutputConfig)
     inverse: InverseConfig            = field(default_factory=InverseConfig)
     uq: UQConfig                      = field(default_factory=UQConfig)
-    dataset: Optional[DatasetConfig]  = None
+    dataset: DatasetConfig | None  = None
     decision: DecisionConfig          = field(default_factory=DecisionConfig)
 
     @classmethod
-    def from_dict(cls, d: dict) -> "ArenaConfig":
+    def from_dict(cls, d: dict) -> ArenaConfig:
         problem  = ProblemConfig.from_dict(d.get("problem", {}))
         models   = [ModelConfig.from_dict(m) for m in d.get("models", [])]
         output   = OutputConfig.from_dict(d.get("output", {}))
@@ -309,14 +308,14 @@ class ArenaConfig:
                    inverse=inverse, uq=uq, dataset=dataset, decision=decision)
 
     @classmethod
-    def from_yaml(cls, path: str) -> "ArenaConfig":
+    def from_yaml(cls, path: str) -> ArenaConfig:
         import yaml
         with open(path) as f:
             data = yaml.safe_load(f)
         return cls.from_dict(data)
 
     @classmethod
-    def from_json(cls, path: str) -> "ArenaConfig":
+    def from_json(cls, path: str) -> ArenaConfig:
         with open(path) as f:
             data = json.load(f)
         return cls.from_dict(data)

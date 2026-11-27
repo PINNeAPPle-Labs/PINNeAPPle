@@ -1,6 +1,6 @@
 """Finite Volume Method — problem-agnostic cell-centered structured solver."""
 from __future__ import annotations
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import torch
 
@@ -14,9 +14,9 @@ from .registry import SolverRegistry
 
 def _make_fvm_grid(
     nx: int, ny: int,
-    bounds: Dict[str, Tuple[float, float]],
+    bounds: dict[str, tuple[float, float]],
     device: torch.device,
-) -> Tuple[torch.Tensor, torch.Tensor, float, float]:
+) -> tuple[torch.Tensor, torch.Tensor, float, float]:
     """
     Returns:
       xc (nx,ny), yc (nx,ny) — cell centres
@@ -139,7 +139,7 @@ def _fvm_euler_explicit(
     u0: torch.Tensor,
     dx: float,
     dy: float,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     nt: int,
     dt: float,
     kind: str,
@@ -220,7 +220,7 @@ class FVMSolver(SolverBase):
         nx: int = 64,
         ny: int = 64,
         nt: int = 200,
-        dt: Optional[float] = None,
+        dt: float | None = None,
         safety: float = 0.4,
     ):
         super().__init__()
@@ -231,7 +231,7 @@ class FVMSolver(SolverBase):
         self.safety = float(safety)
 
     @classmethod
-    def from_problem_spec(cls, spec, nx: int = 64, ny: int = 64, nt: int = 200, **kwargs) -> "FVMSolver":
+    def from_problem_spec(cls, spec, nx: int = 64, ny: int = 64, nt: int = 200, **kwargs) -> FVMSolver:
         return cls(nx=nx, ny=ny, nt=nt, **kwargs)
 
     # ------------------------------------------------------------------
@@ -292,11 +292,11 @@ class FVMSolver(SolverBase):
         *,
         spec=None,
         mesh: Any = None,
-        u0: Optional[torch.Tensor] = None,
+        u0: torch.Tensor | None = None,
         steps: int = 200,
         dt: float = 1e-3,
-        topology: Optional[Dict[str, Any]] = None,
-        params: Optional[Dict[str, Any]] = None,
+        topology: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
         flux_fn=None,
         source_fn=None,
     ) -> SolverOutput:

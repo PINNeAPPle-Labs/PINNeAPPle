@@ -13,14 +13,15 @@ Typical workflow
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Union
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
 
-LossOut = Union[torch.Tensor, Dict[str, torch.Tensor]]
+LossOut = Union[torch.Tensor, dict[str, torch.Tensor]]
 
 
 @dataclass
@@ -38,7 +39,7 @@ class TwoPhaseConfig:
     grad_clip: float = 1.0
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     amp: bool = False
-    seed: Optional[int] = None
+    seed: int | None = None
     print_every: int = 50
 
     # When combined=True, Phase 1 runs a weighted sum of supervised + physics.
@@ -52,12 +53,12 @@ class TwoPhaseConfig:
 
 @dataclass
 class TwoPhaseHistory:
-    phase1_epochs: List[int] = field(default_factory=list)
-    phase1_loss: List[float] = field(default_factory=list)
-    phase2_epochs: List[int] = field(default_factory=list)
-    phase2_loss: List[float] = field(default_factory=list)
-    phase2_pde_loss: List[float] = field(default_factory=list)
-    phase2_bc_loss: List[float] = field(default_factory=list)
+    phase1_epochs: list[int] = field(default_factory=list)
+    phase1_loss: list[float] = field(default_factory=list)
+    phase2_epochs: list[int] = field(default_factory=list)
+    phase2_loss: list[float] = field(default_factory=list)
+    phase2_pde_loss: list[float] = field(default_factory=list)
+    phase2_bc_loss: list[float] = field(default_factory=list)
 
 
 class TwoPhaseTrainer:
@@ -81,7 +82,7 @@ class TwoPhaseTrainer:
         model: nn.Module,
         supervised_loss_fn: Callable,
         physics_loss_fn: Callable,
-        config: Optional[TwoPhaseConfig] = None,
+        config: TwoPhaseConfig | None = None,
     ):
         self.model = model
         self.supervised_loss_fn = supervised_loss_fn
@@ -93,7 +94,7 @@ class TwoPhaseTrainer:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _parse_loss(self, out: LossOut) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    def _parse_loss(self, out: LossOut) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         if isinstance(out, torch.Tensor):
             return out, {}
         total = out["total"]
@@ -135,8 +136,8 @@ class TwoPhaseTrainer:
         supervised_loader,
         physics_loader,
         *,
-        extras: Optional[Dict[str, Any]] = None,
-    ) -> "TwoPhaseTrainer":
+        extras: dict[str, Any] | None = None,
+    ) -> TwoPhaseTrainer:
         """
         Run Phase 1 (supervised) then Phase 2 (physics).
 
@@ -222,7 +223,7 @@ class TwoPhaseTrainer:
         epochs: int,
         lr: float,
         device: torch.device,
-        extras: Dict,
+        extras: dict,
     ) -> None:
         opt = self._make_optimizer(lr)
         use_amp = self.cfg.amp and device.type == "cuda"
@@ -299,7 +300,7 @@ class TwoPhaseTrainer:
         epochs: int,
         lr: float,
         device: torch.device,
-        extras: Dict,
+        extras: dict,
     ) -> None:
         """Weighted sum of supervised + physics loss (``cfg.combined=True``)."""
         cfg = self.cfg

@@ -10,7 +10,7 @@ import math
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 # -----------------------------------------------------------------------------
@@ -22,11 +22,11 @@ class ModelRunResult:
     model_id: str
     n_params: int
     training_time_s: float
-    metrics: Dict[str, float]
-    history: List[Dict[str, float]]        # e.g. [{"epoch":100, "loss":0.1}, ...]
-    param_estimates: Optional[Dict[str, float]] = None   # inverse problems only
+    metrics: dict[str, float]
+    history: list[dict[str, float]]        # e.g. [{"epoch":100, "loss":0.1}, ...]
+    param_estimates: dict[str, float] | None = None   # inverse problems only
     rank: int = 0
-    error_message: Optional[str] = None   # set if training failed
+    error_message: str | None = None   # set if training failed
 
 
 # -----------------------------------------------------------------------------
@@ -38,17 +38,17 @@ class BenchmarkReport:
     benchmark_type: str                      # "physics" | "timeseries"
     created_at: str
     version: str = "1.0"
-    problem_info: Dict[str, Any] = field(default_factory=dict)
-    config: Dict[str, Any] = field(default_factory=dict)
-    model_results: Dict[str, ModelRunResult] = field(default_factory=dict)
-    leaderboard: List[Dict[str, Any]] = field(default_factory=list)
-    best_model: Optional[str] = None
-    plots_saved: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    problem_info: dict[str, Any] = field(default_factory=dict)
+    config: dict[str, Any] = field(default_factory=dict)
+    model_results: dict[str, ModelRunResult] = field(default_factory=dict)
+    leaderboard: list[dict[str, Any]] = field(default_factory=list)
+    best_model: str | None = None
+    plots_saved: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     # -- serialization --------------------------------------------------------
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to a fully JSON-serializable dict."""
         def _clean(obj):
             if isinstance(obj, dict):

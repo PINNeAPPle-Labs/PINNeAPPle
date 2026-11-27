@@ -12,6 +12,9 @@ from pinneapple_neural.architectures.autoencoders.dense_ae import DenseAutoencod
 from pinneapple_neural.architectures.autoencoders.kae import KAEAutoencoder
 from pinneapple_neural.architectures.autoencoders.koopman_pi_ae import PhysicsInformedKoopmanAutoencoder
 from pinneapple_neural.architectures.autoencoders.vae import VariationalAutoencoder
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 # Autoencoder 2D
 

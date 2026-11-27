@@ -28,13 +28,10 @@ import torch
 import torch.nn as nn
 
 from pinneapple_digital_twin import (
-    DigitalTwin, DigitalTwinConfig, build_digital_twin,
-    MockStream, Sensor, SensorRegistry,
-    ThresholdDetector, ZScoreDetector,
-    EnsembleKalmanFilter,
+    DigitalTwinConfig, build_digital_twin,
+    MockStream, ThresholdDetector,
 )
-from pinneapple_digital_twin.monitoring import AnomalyMonitor
-from pinneapple_train import best_device, batched_inference
+from pinneapple_train import best_device
 
 
 # ------------------------------------------------------------------

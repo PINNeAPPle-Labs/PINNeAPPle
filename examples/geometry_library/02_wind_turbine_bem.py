@@ -108,6 +108,9 @@ try:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     A = np.array(rows)
     fig, ax = plt.subplots(1, 2, figsize=(10, 3.6))
     ax[0].plot(A[:, 0], A[:, 3], "o-", label="BEM on the library blade")

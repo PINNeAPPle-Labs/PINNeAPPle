@@ -6,7 +6,7 @@ can explain itself.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 import scipy.sparse as sp
@@ -58,7 +58,7 @@ METRICS = {
 }
 
 
-def _stats(v: np.ndarray, better: str) -> Dict[str, float]:
+def _stats(v: np.ndarray, better: str) -> dict[str, float]:
     v = v[np.isfinite(v)]
     if not len(v):
         return {}
@@ -67,7 +67,7 @@ def _stats(v: np.ndarray, better: str) -> Dict[str, float]:
             "p99": float(np.percentile(v, 99 if better == "low" else 1)), "min": float(v.min()), "max": float(v.max())}
 
 
-def _hist(v: np.ndarray, metric: str, bins: int = 30) -> Dict[str, Any]:
+def _hist(v: np.ndarray, metric: str, bins: int = 30) -> dict[str, Any]:
     v = v[np.isfinite(v)]
     if not len(v):
         return {"edges": [], "counts": []}
@@ -85,7 +85,7 @@ def _hist(v: np.ndarray, metric: str, bins: int = 30) -> Dict[str, Any]:
 
 
 # ------------------------------------------------------------------------------------------ finite-volume metrics
-def fv_metrics(mesh: Mesh) -> Dict[str, Any]:
+def fv_metrics(mesh: Mesh) -> dict[str, Any]:
     fm = G.face_mesh(mesh)
     fg = G.face_geometry(fm)
     cg = G.cell_geometry(fm, fg)
@@ -191,7 +191,7 @@ def _angles(p: np.ndarray, face) -> np.ndarray:
     return np.stack(out, 1)
 
 
-def element_metrics(mesh: Mesh) -> Dict[str, np.ndarray]:
+def element_metrics(mesh: Mesh) -> dict[str, np.ndarray]:
     """Scaled Jacobian, skewness and edge ratio for every cell of the mesh's top dimension (global cell order)."""
     nc = mesh.n_cells
     sj = np.full(nc, np.nan)
@@ -257,7 +257,7 @@ def element_metrics(mesh: Mesh) -> Dict[str, np.ndarray]:
 
 
 # ------------------------------------------------------------------------------------------ surface checks
-def surface_checks(mesh: Mesh) -> Dict[str, Any]:
+def surface_checks(mesh: Mesh) -> dict[str, Any]:
     """Triangle/quad surface (STL, shell mesh): open and non-manifold edges, orientation, degenerate faces, shells."""
     tris = [b.corners for b in mesh.blocks if b.dim == 2]
     if not tris:

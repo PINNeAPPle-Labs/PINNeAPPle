@@ -17,7 +17,7 @@ import json
 import os
 import tempfile
 import zipfile
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 
@@ -31,8 +31,8 @@ def export_edge_package(
     name: str,
     sample_input: torch.Tensor,
     opset_version: int = 17,
-    extra_manifest: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    extra_manifest: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Exports `model` to ONNX and zips it with a manifest.json into a
     self-contained edge deployment package. Returns
     {"manifest": {...}, "onnx_path": ..., "zip_path": ...}.
@@ -49,7 +49,7 @@ def export_edge_package(
         out = model(sample_input[:1])
         out = out.y if hasattr(out, "y") else out
 
-    manifest: Dict[str, Any] = {
+    manifest: dict[str, Any] = {
         "name": name,
         "in_dim": int(sample_input.shape[1]),
         "out_dim": int(out.shape[1]) if out.ndim > 1 else 1,

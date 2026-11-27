@@ -1,7 +1,6 @@
 """Temporal Fusion Transformer (Lim et al., 2021) — simplified, GPU-ready."""
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -40,7 +39,7 @@ class _GLU(nn.Module):
 
 class _GRN(nn.Module):
     """Gated Residual Network."""
-    def __init__(self, d: int, d_context: Optional[int] = None, dropout: float = 0.1):
+    def __init__(self, d: int, d_context: int | None = None, dropout: float = 0.1):
         super().__init__()
         self.fc1   = nn.Linear(d, d)
         self.fc2   = nn.Linear(d, d)
@@ -49,7 +48,7 @@ class _GRN(nn.Module):
         self.norm  = nn.LayerNorm(d)
         self.drop  = nn.Dropout(dropout)
 
-    def forward(self, x: torch.Tensor, ctx: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, ctx: torch.Tensor | None = None) -> torch.Tensor:
         h = F.elu(self.fc1(x))
         if ctx is not None and self.ctx is not None:
             h = h + self.ctx(ctx)
@@ -92,7 +91,7 @@ class _TemporalSelfAttention(nn.Module):
         self.W_o = nn.Linear(self.d_head, d)
         self.drop = nn.Dropout(dropout)
 
-    def forward(self, x: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, mask: torch.Tensor | None = None) -> torch.Tensor:
         B, T, D = x.shape
         H, Dh = self.n_heads, self.d_head
         Q = self.W_q(x).view(B, T, H, Dh).transpose(1, 2)   # (B,H,T,Dh)
@@ -130,7 +129,7 @@ class TFTForecaster(TSModelBase):
       6. Quantile / point output head
     """
 
-    def __init__(self, cfg: Optional[TFTConfig] = None, **kw):
+    def __init__(self, cfg: TFTConfig | None = None, **kw):
         super().__init__()
         self.cfg = cfg or TFTConfig(**kw)
         c = self.cfg

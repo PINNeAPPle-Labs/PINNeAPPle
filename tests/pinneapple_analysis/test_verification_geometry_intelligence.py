@@ -21,6 +21,10 @@ import importlib.util
 import numpy as np
 import pytest
 
+# build_mesh is trimesh-backed and trimesh lives in the `geometry` and `cfd` extras: without one of them these tests
+# died on an import, which reads in the shard as a broken classifier. Declaring it makes them skip with a reason.
+pytest.importorskip("trimesh", reason="'geometry' extra not installed (trimesh): pip install -e '.[geometry]'")
+
 from pinneapple_analysis.verification.geometry_intelligence import classify_geometry
 from pinneapple_design.geometry.core.mesh import MeshData
 from pinneapple_design.geometry.gen.primitives import build_mesh

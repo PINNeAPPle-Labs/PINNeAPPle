@@ -21,13 +21,13 @@ trajectories.
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import torch
-from torch.utils.data import ConcatDataset, Dataset
+from torch.utils.data import Dataset
 
 from .scenario import PhysicsScenario, BUILTIN_SCENARIOS
 from .simulator import PhysicsSimulator, TrajectoryData
@@ -54,11 +54,11 @@ class WorldModelDataset(Dataset):
 
     def __init__(
         self,
-        trajectories: List[TrajectoryData],
+        trajectories: list[TrajectoryData],
         *,
         horizon: int = 1,
         normalize: bool = True,
-        transform: Optional[Callable[[Dict], Dict]] = None,
+        transform: Callable[[dict], dict] | None = None,
     ) -> None:
         self.trajectories = trajectories
         self.horizon = horizon
@@ -66,15 +66,15 @@ class WorldModelDataset(Dataset):
         self.transform = transform
 
         # Build flat index: (traj_idx, t) for each valid pair
-        self._index: List[Tuple[int, int]] = []
+        self._index: list[tuple[int, int]] = []
         for ti, traj in enumerate(trajectories):
             T = traj.states.shape[0]
             for t in range(T - horizon):
                 self._index.append((ti, t))
 
         # Normalisation stats (lazy, computed on first call)
-        self._mean: Optional[torch.Tensor] = None
-        self._std: Optional[torch.Tensor] = None
+        self._mean: torch.Tensor | None = None
+        self._std: torch.Tensor | None = None
 
         # Parameter encoding
         self._param_keys = self._collect_param_keys()
@@ -87,7 +87,7 @@ class WorldModelDataset(Dataset):
     def __len__(self) -> int:
         return len(self._index)
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         ti, t = self._index[idx]
         traj = self.trajectories[ti]
 
@@ -119,7 +119,7 @@ class WorldModelDataset(Dataset):
     # Normalisation
     # ------------------------------------------------------------------
 
-    def _get_norm_stats(self) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _get_norm_stats(self) -> tuple[torch.Tensor, torch.Tensor]:
         if self._mean is None:
             all_states = torch.cat([t.states for t in self.trajectories], dim=0)
             dims = [0] + list(range(2, all_states.ndim))  # all but channel
@@ -128,7 +128,7 @@ class WorldModelDataset(Dataset):
         return self._mean, self._std  # type: ignore[return-value]
 
     @property
-    def norm_stats(self) -> Dict[str, torch.Tensor]:
+    def norm_stats(self) -> dict[str, torch.Tensor]:
         """Return ``{"mean": ..., "std": ...}`` for denormalising predictions."""
         mean, std = self._get_norm_stats()
         return {"mean": mean, "std": std}
@@ -166,19 +166,19 @@ class WorldModelDataset(Dataset):
     # Parameter / context encoding
     # ------------------------------------------------------------------
 
-    def _collect_param_keys(self) -> List[str]:
+    def _collect_param_keys(self) -> list[str]:
         keys: set = set()
         for t in self.trajectories:
             keys.update(t.params.keys())
         return sorted(keys)
 
-    def _collect_pde_kinds(self) -> List[str]:
+    def _collect_pde_kinds(self) -> list[str]:
         kinds: set = set()
         for t in self.trajectories:
             kinds.add(t.scenario_name.split("_")[0])
         return sorted(kinds)
 
-    def _encode_params(self, params: Dict[str, float]) -> torch.Tensor:
+    def _encode_params(self, params: dict[str, float]) -> torch.Tensor:
         """Return a (P,) float32 tensor of parameter values (0 for missing)."""
         return torch.tensor(
             [params.get(k, 0.0) for k in self._param_keys],
@@ -205,7 +205,7 @@ class WorldModelDataset(Dataset):
         return self.trajectories[0].states.shape[1]
 
     @property
-    def grid_shape(self) -> Tuple[int, ...]:
+    def grid_shape(self) -> tuple[int, ...]:
         """Spatial grid shape."""
         return tuple(self.trajectories[0].states.shape[2:])
 
@@ -242,7 +242,7 @@ class WorldModelDataset(Dataset):
         *,
         horizon: int = 1,
         normalize: bool = True,
-    ) -> "WorldModelDataset":
+    ) -> WorldModelDataset:
         """Load a previously saved dataset from *directory*."""
         path = Path(directory)
         trajs = []
@@ -280,12 +280,12 @@ class DatasetConfig:
     device : str — compute device for simulation.
     verbose : bool
     """
-    scenarios: List[Any] = field(default_factory=lambda: ["heat_2d", "burgers_1d"])
+    scenarios: list[Any] = field(default_factory=lambda: ["heat_2d", "burgers_1d"])
     n_samples_per_scenario: int = 500
     horizon: int = 1
     normalize: bool = True
     validate_physics: bool = False
-    save_dir: Optional[str] = None
+    save_dir: str | None = None
     device: str = "cpu"
     verbose: bool = True
 
@@ -313,7 +313,7 @@ class DatasetBuilder:
     def build(self) -> WorldModelDataset:
         """Run simulators and assemble the dataset."""
         cfg = self.config
-        all_trajs: List[TrajectoryData] = []
+        all_trajs: list[TrajectoryData] = []
 
         scenarios = self._resolve_scenarios()
         for sc in scenarios:
@@ -352,7 +352,7 @@ class DatasetBuilder:
     # Helpers
     # ------------------------------------------------------------------
 
-    def _resolve_scenarios(self) -> List[PhysicsScenario]:
+    def _resolve_scenarios(self) -> list[PhysicsScenario]:
         out = []
         for s in self.config.scenarios:
             if isinstance(s, PhysicsScenario):
@@ -367,7 +367,7 @@ class DatasetBuilder:
                 raise TypeError(f"Expected str or PhysicsScenario, got {type(s)}")
         return out
 
-    def _filter_valid(self, trajs: List[TrajectoryData]) -> List[TrajectoryData]:
+    def _filter_valid(self, trajs: list[TrajectoryData]) -> list[TrajectoryData]:
         """Remove trajectories with NaN/Inf or unbounded growth."""
         valid = []
         for traj in trajs:

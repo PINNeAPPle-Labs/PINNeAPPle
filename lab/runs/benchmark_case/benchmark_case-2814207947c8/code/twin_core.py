@@ -28,7 +28,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -44,7 +43,7 @@ DATA = Path(__file__).resolve().parents[1] / "data"
 # Data
 # ---------------------------------------------------------------------------
 
-def load_weather(path: Optional[Path] = None) -> pd.DataFrame:
+def load_weather(path: Path | None = None) -> pd.DataFrame:
     d = pd.read_csv(path or DATA / "weather_dataset.csv", parse_dates=["time"])
     d["wind_ms"] = d["wind_speed_10m"] / 3.6
     return d
@@ -65,7 +64,7 @@ class Windows:
     def __len__(self):
         return len(self.T0)
 
-    def subset(self, m) -> "Windows":
+    def subset(self, m) -> Windows:
         return Windows(**{k: v[m] for k, v in asdict(self).items()})
 
     def context(self) -> np.ndarray:
@@ -114,7 +113,7 @@ class ThermalParams:
     b1: float   # 1/h per m/s
     q: float    # K/h
 
-    def physical(self, C: float = C_ASSUMED) -> Dict[str, float]:
+    def physical(self, C: float = C_ASSUMED) -> dict[str, float]:
         """Dimensional parameters for an assumed heat capacity C [J/m2K]."""
         return {"C_J_m2K": C, "alpha": self.a * C / 3600, "k0_W_m2K": self.b0 * C / 3600,
                 "k1_W_m2K_per_ms": self.b1 * C / 3600, "Q_int_W_m2": self.q * C / 3600}
@@ -167,10 +166,10 @@ class PhysicsModel:
 
     name = "Physics ODE (identified)"
 
-    def __init__(self, params: Optional[ThermalParams] = None):
+    def __init__(self, params: ThermalParams | None = None):
         self.params = params
 
-    def fit(self, w: Windows, iters: int = 400, seed: int = 0) -> "PhysicsModel":
+    def fit(self, w: Windows, iters: int = 400, seed: int = 0) -> PhysicsModel:
         torch.manual_seed(seed)
         T0, Ta, W, S, dq, Y = to_t(w)
         raw = torch.tensor([math.log(1e-3), math.log(0.15), math.log(0.02), 0.1], requires_grad=True)
@@ -221,7 +220,7 @@ class ThermalPINN(nn.Module):
     trainable (inverse problem) and positive where physics demands it.
     """
 
-    def __init__(self, ctx_dim: int, hidden: int = 128, layers: int = 4, init: Optional[ThermalParams] = None):
+    def __init__(self, ctx_dim: int, hidden: int = 128, layers: int = 4, init: ThermalParams | None = None):
         super().__init__()
         from pinneapple_neural.architectures.modified_mlp import ModifiedMLP
         self.net = ModifiedMLP(in_dim=ctx_dim + 1, out_dim=1, hidden_dim=hidden, n_layers=layers,

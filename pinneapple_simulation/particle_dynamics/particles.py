@@ -13,7 +13,6 @@ Uses the weakly-compressible SPH (WCSPH) formulation:
 """
 from __future__ import annotations
 
-from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -57,7 +56,7 @@ class ParticleSystem(nn.Module):
         self,
         pos: torch.Tensor,
         h: float,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Return neighbours within smoothing length *h*.
 
         Parameters
@@ -196,7 +195,7 @@ class SPHParticles(ParticleSystem):
         nu: float = 1e-4,
         dim: int = 2,
         gamma: float = 7.0,
-        gravity: Optional[Tuple[float, ...]] = None,
+        gravity: tuple[float, ...] | None = None,
     ) -> None:
         super().__init__(n_particles, dim)
         self.h = smoothing_length
@@ -305,7 +304,7 @@ class SPHParticles(ParticleSystem):
         pos: torch.Tensor,
         vel: torch.Tensor,
         dt: float,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Advance the SPH system by one time step *dt*.
 
         Parameters

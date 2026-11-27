@@ -9,14 +9,14 @@ and edge-type selectors find points, while interior selectors (data regions, sub
 """
 from __future__ import annotations
 
-from typing import Callable, Mapping, Sequence, Tuple
+from collections.abc import Callable, Mapping, Sequence
 
 import numpy as np
 
 __all__ = ["sample_condition_points", "box_face_normals"]
 
 
-def sample_condition_points(select: Callable[[np.ndarray], np.ndarray], domain_bounds: Mapping[str, Tuple[float, float]],
+def sample_condition_points(select: Callable[[np.ndarray], np.ndarray], domain_bounds: Mapping[str, tuple[float, float]],
                             coords: Sequence[str], n: int, rng: np.random.Generator) -> np.ndarray:
     """Up to ``n`` points (float32, shape ``(m, len(coords))``) accepted by ``select(X) -> bool mask``.
 
@@ -44,8 +44,8 @@ def sample_condition_points(select: Callable[[np.ndarray], np.ndarray], domain_b
     return sel
 
 
-def box_face_normals(points: np.ndarray, domain_bounds: Mapping[str, Tuple[float, float]], coords: Sequence[str],
-                     time_coord: str = "t") -> Tuple[np.ndarray, np.ndarray]:
+def box_face_normals(points: np.ndarray, domain_bounds: Mapping[str, tuple[float, float]], coords: Sequence[str],
+                     time_coord: str = "t") -> tuple[np.ndarray, np.ndarray]:
     """Outward unit normals of the bounding box at ``points`` (one column per coordinate, 0 for time).
 
     Returns ``(normals, on_face)``: a point on one face gets that face's normal, a point on an edge or corner the

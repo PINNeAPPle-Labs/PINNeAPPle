@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -22,20 +21,20 @@ _FRD_ETYPE = {"C3D8": 1, "C3D8I": 1, "C3D8R": 1, "C3D20": 4, "C3D20R": 4, "C3D4"
 class FrdResults:
     node_ids: np.ndarray
     coords: np.ndarray
-    steps: List[Dict[str, np.ndarray]] = field(default_factory=list)  # [{"DISP": (N,3), "STRESS": (N,6)}]
+    steps: list[dict[str, np.ndarray]] = field(default_factory=list)  # [{"DISP": (N,3), "STRESS": (N,6)}]
 
     def field(self, name: str, step: int = -1) -> np.ndarray:
         return self.steps[step][name]
 
 
-def _fixed_floats(s: str, width: int = 12) -> List[float]:
+def _fixed_floats(s: str, width: int = 12) -> list[float]:
     return [float(s[i:i + width]) for i in range(0, len(s.rstrip()), width) if s[i:i + width].strip()]
 
 
 def read_frd(path: str) -> FrdResults:
     lines = open(path, errors="replace").read().splitlines()
     ids, xyz = [], []
-    steps: List[Dict[str, np.ndarray]] = []
+    steps: list[dict[str, np.ndarray]] = []
     i = 0
     while i < len(lines):
         ln = lines[i]
@@ -55,7 +54,7 @@ def read_frd(path: str) -> FrdResults:
             i += 1
             while lines[i].startswith(" -5"):
                 i += 1
-            vals: Dict[int, List[float]] = {}
+            vals: dict[int, list[float]] = {}
             last = None
             while i < len(lines) and not lines[i].startswith(" -3"):
                 r = lines[i]
@@ -81,8 +80,8 @@ def _rec(n: int, values) -> str:
     return " -1" + f"{n:10d}" + "".join(f"{v:12.5E}" for v in values)
 
 
-def write_frd(path: str, node_ids, coords, elements: Optional[Dict[int, tuple]] = None,
-              element_type: str = "C3D8", fields: Optional[Dict[str, np.ndarray]] = None,
+def write_frd(path: str, node_ids, coords, elements: dict[int, tuple] | None = None,
+              element_type: str = "C3D8", fields: dict[str, np.ndarray] | None = None,
               step_time: float = 1.0, source: str = "pinneapple") -> str:
     """Write an ASCII ``.frd`` with nodes (+ elements) and ``DISP`` (N,3) / ``STRESS`` (N,6) blocks."""
     node_ids = np.asarray(node_ids, dtype=np.int64)
@@ -114,7 +113,7 @@ def write_frd(path: str, node_ids, coords, elements: Optional[Dict[int, tuple]] 
     return path
 
 
-def read_dat_displacements(path: str) -> Dict[int, np.ndarray]:
+def read_dat_displacements(path: str) -> dict[int, np.ndarray]:
     """Nodal displacements from a ``.dat`` file (``*NODE PRINT`` output)."""
     out, on = {}, False
     for ln in open(path, errors="replace"):

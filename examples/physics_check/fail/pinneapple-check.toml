@@ -143,6 +143,15 @@ relations = [
   { name = "better-conductor-cooler", kind = "monotonic", input = "k", output = "T", direction = "decreasing" },
   { name = "same-q-L2", kind = "invariant", inputs = { q = "4 * q", L = "L / 2" }, output = "T", tol = 1e-9 },
 ]
+
+[[model]]
+name = "unvalidated-method"
+path = "models/drag_surrogate.py:predict"   # method id not in the catalog (PC901)
+inputs = ["Re", "aoa"]
+outputs = ["Cd"]
+domain = { Re = [1e5, 1e6], aoa = [0, 10] }
+bounds = { Cd = [0, 1] }
+method = "not-a-method-id"
 # ---------------------------------------------------------------- datasets
 [[dataset]]
 path = "datasets/darcy.npz"                      # u scaled by 0.9, two distinct permeabilities, a test copy

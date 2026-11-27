@@ -1,0 +1,12 @@
+{
+ "code_hash": "0e1785cec41cfd4a",
+ "figures": [],
+ "id": "node:auto.physics.closed_form.pump_npsh.atmosphere",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 23.04,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "atmosphere -> pinneapple_physics.closed_form.pump_npsh:atmosphere\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'z_m': 1.0}",
+ "timed_out": false
+}

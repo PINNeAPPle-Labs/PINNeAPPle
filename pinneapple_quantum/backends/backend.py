@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Literal, Optional
+from dataclasses import dataclass
+from typing import Literal
 
 import torch
 
@@ -34,10 +34,10 @@ class BackendConfig:
     provider:    Literal["pennylane", "qiskit", "classical"] = "pennylane"
     device_name: str = "default.qubit"
     diff_method: str = "parameter-shift"
-    shots:       Optional[int] = None
+    shots:       int | None = None
 
 
-def get_backend(config: Optional[BackendConfig] = None) -> "QuantumBackend":
+def get_backend(config: BackendConfig | None = None) -> QuantumBackend:
     """Instantiate the correct backend from a config (or defaults).
 
     Falls back automatically:

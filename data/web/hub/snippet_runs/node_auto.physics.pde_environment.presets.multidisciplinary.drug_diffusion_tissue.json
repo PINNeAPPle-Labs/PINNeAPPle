@@ -1,0 +1,12 @@
+{
+ "code_hash": "97e7641a73e806a2",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.multidisciplinary.drug_diffusion_tissue",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 26.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "drug diffusion tissue -> pinneapple_physics.pde_environment.presets.multidisciplinary:drug_diffusion_tissue\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'D': 1e-10, 'lam': 5e-05, 'C0': 1.0, 'Lx': 0.01, 'Ly': 0.005, 't_end': 3600.0}",
+ "timed_out": false
+}

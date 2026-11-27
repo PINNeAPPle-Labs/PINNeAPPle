@@ -25,12 +25,13 @@ is not available.
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
 
-from .node import CoSimNode, PINNNode, TorchNode, split_output_ports
+from .node import CoSimNode, TorchNode, split_output_ports
 
 
 # ---------------------------------------------------------------------------
@@ -38,7 +39,7 @@ from .node import CoSimNode, PINNNode, TorchNode, split_output_ports
 # ---------------------------------------------------------------------------
 
 # Catalogue of known model names → (module_path, class_name)
-_MODEL_CATALOGUE: Dict[str, Tuple[str, str]] = {
+_MODEL_CATALOGUE: dict[str, tuple[str, str]] = {
     "vanilla_pinn":  ("pinneapple_models.pinns.vanilla",   "VanillaPINN"),
     "siren":         ("pinneapple_models.siren",            "SIREN"),
     "modified_mlp":  ("pinneapple_models.modified_mlp",     "ModifiedMLP"),
@@ -48,7 +49,7 @@ _MODEL_CATALOGUE: Dict[str, Tuple[str, str]] = {
 }
 
 
-def _build_model(model_name: str, kwargs: Dict[str, Any]) -> nn.Module:
+def _build_model(model_name: str, kwargs: dict[str, Any]) -> nn.Module:
     """Build a model by name.  Tries ModelRegistry first, then the catalogue."""
     # 1. Try ModelRegistry (populated when model modules are imported)
     try:
@@ -110,9 +111,9 @@ class PINNeProblemNode(CoSimNode):
         model: nn.Module,
         spec: Any,
         compiled_fn: Callable,
-        coord_ports: List[str],
-        field_ports: List[str],
-        extra_input_ports: Optional[List[str]] = None,
+        coord_ports: list[str],
+        field_ports: list[str],
+        extra_input_ports: list[str] | None = None,
         physics_weight: float = 1.0,
     ) -> None:
         all_input_ports = coord_ports + (extra_input_ports or [])
@@ -124,7 +125,7 @@ class PINNeProblemNode(CoSimNode):
         self.field_ports = field_ports
         self.extra_input_ports = extra_input_ports or []
         self.physics_weight = physics_weight
-        self._last_inputs: Optional[Dict[str, torch.Tensor]] = None
+        self._last_inputs: dict[str, torch.Tensor] | None = None
 
     # ------------------------------------------------------------------
     @classmethod
@@ -134,13 +135,13 @@ class PINNeProblemNode(CoSimNode):
         spec: Any,
         *,
         model_name: str = "vanilla_pinn",
-        model_kwargs: Optional[Dict[str, Any]] = None,
-        coord_ports: Optional[List[str]] = None,
-        field_ports: Optional[List[str]] = None,
-        extra_input_ports: Optional[List[str]] = None,
+        model_kwargs: dict[str, Any] | None = None,
+        coord_ports: list[str] | None = None,
+        field_ports: list[str] | None = None,
+        extra_input_ports: list[str] | None = None,
         physics_weight: float = 1.0,
-        loss_weights: Optional[Any] = None,
-    ) -> "PINNeProblemNode":
+        loss_weights: Any | None = None,
+    ) -> PINNeProblemNode:
         """Build a ``PINNeProblemNode`` from a ``ProblemSpec``.
 
         Args:
@@ -185,10 +186,10 @@ class PINNeProblemNode(CoSimNode):
     # ------------------------------------------------------------------
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         self._last_inputs = {k: v for k, v in inputs.items()}
         # Concatenate coordinate inputs for the forward pass
         x = torch.cat([inputs[p] for p in self.coord_ports if p in inputs], dim=-1)
@@ -197,7 +198,7 @@ class PINNeProblemNode(CoSimNode):
         pred = raw.y if hasattr(raw, "y") else raw
         return split_output_ports(pred, self.field_ports)
 
-    def physics_loss(self) -> Optional[torch.Tensor]:
+    def physics_loss(self) -> torch.Tensor | None:
         if self._last_inputs is None:
             return None
         batch = {k: v for k, v in self._last_inputs.items()}
@@ -243,9 +244,9 @@ class PINNeAPPleModelNode(TorchNode):
         self,
         name: str,
         model: nn.Module,
-        input_ports: List[str],
-        output_ports: List[str],
-        batch_port_map: Optional[Dict[str, str]] = None,
+        input_ports: list[str],
+        output_ports: list[str],
+        batch_port_map: dict[str, str] | None = None,
     ) -> None:
         """
         Args:
@@ -262,20 +263,20 @@ class PINNeAPPleModelNode(TorchNode):
         cls,
         name: str,
         model_name: str,
-        input_ports: List[str],
-        output_ports: List[str],
-        model_kwargs: Optional[Dict[str, Any]] = None,
-        batch_port_map: Optional[Dict[str, str]] = None,
-    ) -> "PINNeAPPleModelNode":
+        input_ports: list[str],
+        output_ports: list[str],
+        model_kwargs: dict[str, Any] | None = None,
+        batch_port_map: dict[str, str] | None = None,
+    ) -> PINNeAPPleModelNode:
         model = _build_model(model_name, model_kwargs or {})
         return cls(name, model, input_ports, output_ports, batch_port_map)
 
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         if self.batch_port_map and hasattr(self.model, "forward_batch"):
             batch = {self.batch_port_map.get(p, p): inputs[p] for p in self.input_ports if p in inputs}
             raw = self.model.forward_batch(batch)
@@ -317,18 +318,18 @@ class SymbolicPDENode(CoSimNode):
         name: str,
         model: nn.Module,
         symbolic_pde: Any,
-        coord_ports: List[str],
-        field_ports: List[str],
+        coord_ports: list[str],
+        field_ports: list[str],
         physics_weight: float = 1.0,
     ) -> None:
         super().__init__(name, coord_ports, field_ports)
         self.model = model
         self._symbolic_pde = symbolic_pde
-        self._residual_fn: Optional[Callable] = None
+        self._residual_fn: Callable | None = None
         self.coord_ports = coord_ports
         self.field_ports = field_ports
         self.physics_weight = physics_weight
-        self._last_x: Optional[torch.Tensor] = None
+        self._last_x: torch.Tensor | None = None
         self._compile()
 
     def _compile(self) -> None:
@@ -340,10 +341,10 @@ class SymbolicPDENode(CoSimNode):
 
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         x = torch.cat([inputs[p] for p in self.coord_ports if p in inputs], dim=-1)
         self._last_x = x
         if self._residual_fn is None:
@@ -352,7 +353,7 @@ class SymbolicPDENode(CoSimNode):
         pred = pred.y if hasattr(pred, "y") else pred
         return split_output_ports(pred, self.field_ports)
 
-    def physics_loss(self) -> Optional[torch.Tensor]:
+    def physics_loss(self) -> torch.Tensor | None:
         if self._last_x is None or self._residual_fn is None:
             return None
         residual = self._residual_fn(self._last_x)
@@ -397,8 +398,8 @@ class TimeSeriesCoSimNode(CoSimNode):
         model: nn.Module,
         input_len: int,
         horizon: int,
-        extra_input_ports: Optional[List[str]] = None,
-        extra_output_ports: Optional[List[str]] = None,
+        extra_input_ports: list[str] | None = None,
+        extra_output_ports: list[str] | None = None,
     ) -> None:
         in_ports  = ["context"] + (extra_input_ports or [])
         out_ports = ["forecast", "context_next"] + (extra_output_ports or [])
@@ -409,10 +410,10 @@ class TimeSeriesCoSimNode(CoSimNode):
 
     def step(
         self,
-        inputs: Dict[str, torch.Tensor],
+        inputs: dict[str, torch.Tensor],
         t: float,
         dt: float,
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         context = inputs["context"]  # (1, input_len, F)
         raw = self.model(context)
         # TSModelBase may return TSOutput or plain Tensor

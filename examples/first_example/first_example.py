@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import pinneapple as pp
+from pinneapple_tools.visualization.style import use_theme
+
+use_theme("report")   # one theme for every figure of the library (#918)
 
 prob = pp.PhysicalProblem.from_preset("burgers_1d", nu=0.01 / np.pi)   # u_t + u u_x = nu u_xx, x in [-1, 1]
 pinn = pp.solve(prob, "pinn", epochs=1500, seed=0)                     # train the network (about 45 s)

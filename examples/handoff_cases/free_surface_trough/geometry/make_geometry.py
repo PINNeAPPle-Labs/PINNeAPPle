@@ -57,6 +57,9 @@ def side_view(D: dict, path: str):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    from pinneapple_tools.visualization.style import use_theme
+    use_theme("report")   # one theme for every figure of the library (#918)
     L, H, hs, tw = (D[k][0] for k in ("L", "H", "h_s", "t_w"))
     xn, zn, d, a = D["x_n"][0], D["z_n"][0], D["d"][0], math.radians(D["theta"][0])
     fig, ax = plt.subplots(figsize=(9, 3.8), dpi=150)

@@ -1,14 +1,14 @@
 """Deep merge of extracted spec into existing ProblemSpec."""
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 from .schema import ProblemSpec
 
 
 _EMPTY = (None, "", [], {})
 
 
-def _deep_merge(dst: Dict[str, Any], src: Dict[str, Any]) -> None:
+def _deep_merge(dst: dict[str, Any], src: dict[str, Any]) -> None:
     for k, v in src.items():
         if v in _EMPTY:
             continue
@@ -26,7 +26,7 @@ def _deep_merge(dst: Dict[str, Any], src: Dict[str, Any]) -> None:
             dst[k] = v
 
 
-def merge_into_spec(spec: ProblemSpec, partial: Dict[str, Any]) -> None:
+def merge_into_spec(spec: ProblemSpec, partial: dict[str, Any]) -> None:
     # dataclass -> mutable dict view
     dst = spec.__dict__
     _deep_merge(dst, partial)

@@ -12,6 +12,11 @@ genesis   — Genesis AI (Genesis-Embodied-AI/Genesis) multi-physics robotics si
 newton_physics — NVIDIA Newton rigid-body solvers (XPBD, Featherstone, MuJoCo-Warp) with analytic checks
 pict      — PICT (tum-pbs), a differentiable multi-block PISO solver on CUDA: cavity case, runner, Ghia checks
 
+contract  — one interface every external solver is reached through (``check_environment``, ``prepare``, ``run``,
+            ``status``, ``results``, ``cancel``) and ``backends``: the six implementations of it (OpenFOAM, CalculiX,
+            FEniCSx, ANSYS Fluent, MATLAB, and the in-process hexahedral FEM), so a solver is added by writing one class
+            instead of reading the previous one's case layout. See :mod:`.contract`.
+
 All subpackages use lazy / optional imports so that the base package remains
 importable even when a specific external tool is not installed.
 """
@@ -100,12 +105,18 @@ except Exception:
 try:
     from .fenics import (
         FEniCSConfig,
+        FEniCSUnavailable,
         FEniCSWorkflow,
         dof_to_upd,
         solve_and_package,
     )
+    from .fenics import (
+        problem_spec as fenics_problem_spec,
+    )
 except Exception:
     FEniCSConfig = None       # type: ignore
+    FEniCSUnavailable = None  # type: ignore
+    fenics_problem_spec = None  # type: ignore
     solve_and_package = None  # type: ignore
     dof_to_upd = None         # type: ignore
     FEniCSWorkflow = None     # type: ignore
@@ -120,14 +131,22 @@ try:
         MuJoCoRobotSim,
         MuJoCoRunner,
         MuJoCoTrajectory,
-        has_batch as mujoco_has_batch,
-        has_mjx as mujoco_has_mjx,
         load_model,
         make_data,
         mujoco_version,
-        summary as mujoco_summary,
         trajectories_to_upd,
         trajectory_to_upd,
+    )
+    from .mujoco import (
+        has_batch as mujoco_has_batch,
+    )
+    from .mujoco import (
+        has_mjx as mujoco_has_mjx,
+    )
+    from .mujoco import (
+        summary as mujoco_summary,
+    )
+    from .mujoco import (
         validate as validate_mujoco,
     )
 except Exception:
@@ -183,6 +202,39 @@ except Exception:
 # PICT multi-block PISO on CUDA (optional, from source: PISOtorch + a CUDA device). Everything except the solver
 # import runs without it, including the grid, the case validation and the Ghia et al. (1982) comparison.
 # NVIDIA Newton rigid bodies (optional: newton; the scene description imports without it)
+# The one interface over the external solvers, and its implementations. Importing them registers the backends, so
+# ``get_solver("calculix")`` works with no other import; nothing here imports an external tool.
+from .backends import (
+    BACKEND_CLASSES,
+    BACKENDS,
+    AnsysFluentBackend,
+    CalculiXBackend,
+    FEniCSxBackend,
+    MatlabBackend,
+    OpenFOAMBackend,
+    SolidFEMBackend,
+)
+from .contract import (
+    SOLVERS,
+    CaseUnsupported,
+    EnvironmentReport,
+    ExternalSolver,
+    Requirement,
+    RunHandle,
+    RunUnusable,
+    SolverCase,
+    SolverError,
+    SolverResults,
+    SolverState,
+    SolverStatus,
+    SolverUnavailable,
+    check_all,
+    classify_run,
+    conduction_profile,
+    get_solver,
+    register_solver,
+    solver_names,
+)
 from .newton_physics import RigidScene, RigidTrajectory
 from .newton_physics import simulate as newton_simulate
 from .newton_physics import validate as newton_validate
@@ -200,6 +252,13 @@ from .pict import (
 )
 
 __all__ = [
+    # The solver contract and its backends
+    "SolverCase", "conduction_profile", "SolverState", "SolverStatus", "SolverResults", "RunHandle",
+    "EnvironmentReport", "Requirement",
+    "ExternalSolver", "SolverError", "SolverUnavailable", "CaseUnsupported", "RunUnusable", "classify_run",
+    "SOLVERS", "register_solver", "solver_names", "get_solver", "check_all",
+    "OpenFOAMBackend", "CalculiXBackend", "FEniCSxBackend", "AnsysFluentBackend", "MatlabBackend", "SolidFEMBackend",
+    "BACKENDS", "BACKEND_CLASSES",
     # OpenFOAM
     "OpenFOAMCaseTemplate",
     "stage_case_for_scenario",
@@ -233,6 +292,8 @@ __all__ = [
     "modelica_result_to_upd",
     # FEniCS
     "FEniCSConfig",
+    "FEniCSUnavailable",
+    "fenics_problem_spec",
     "solve_and_package",
     "dof_to_upd",
     "FEniCSWorkflow",

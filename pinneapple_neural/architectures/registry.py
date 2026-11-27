@@ -2,24 +2,24 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Type, List, Any, Optional
 
 from .base import BaseModel
 from .instantiate import instantiate
+import builtins
 
 
 @dataclass
 class ModelSpec:
     name: str
     family: str
-    cls: Type[BaseModel]
+    cls: type[BaseModel]
     description: str = ""
-    tags: List[str] | None = None
+    tags: list[str] | None = None
     # --- arena interoperability
     input_kind: str = "pointwise_coords"  # pointwise_coords | grid | graph | sequence
     supports_physics_loss: bool = False
-    expects: List[str] | None = None  # keys in batch
-    predicts: List[str] | None = None  # physical fields
+    expects: list[str] | None = None  # keys in batch
+    predicts: list[str] | None = None  # physical fields
 
 
 class ModelRegistry:
@@ -27,7 +27,7 @@ class ModelRegistry:
     Central registry for all Pinneapple models.
     """
 
-    _REGISTRY: Dict[str, ModelSpec] = {}
+    _REGISTRY: dict[str, ModelSpec] = {}
 
     @classmethod
     def register(
@@ -36,16 +36,16 @@ class ModelRegistry:
         name: str,
         family: str,
         description: str = "",
-        tags: List[str] | None = None,
+        tags: builtins.list[str] | None = None,
         input_kind: str = "pointwise_coords",
         supports_physics_loss: bool = False,
-        expects: Optional[List[str]] = None,
-        predicts: Optional[List[str]] = None,
+        expects: builtins.list[str] | None = None,
+        predicts: builtins.list[str] | None = None,
     ):
         """
         Decorator to register a model class.
         """
-        def decorator(model_cls: Type[BaseModel]):
+        def decorator(model_cls: type[BaseModel]):
             key = name.lower()
             if key in cls._REGISTRY:
                 raise KeyError(f"Model '{name}' already registered")
@@ -68,7 +68,7 @@ class ModelRegistry:
         return decorator
 
     @classmethod
-    def list(cls, family: str | None = None) -> List[str]:
+    def list(cls, family: str | None = None) -> builtins.list[str]:
         if family is None:
             return sorted(cls._REGISTRY.keys())
         return sorted(
@@ -77,7 +77,7 @@ class ModelRegistry:
         )
 
     @classmethod
-    def families(cls) -> List[str]:
+    def families(cls) -> builtins.list[str]:
         return sorted({v.family for v in cls._REGISTRY.values()})
 
     @classmethod

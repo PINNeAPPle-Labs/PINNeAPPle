@@ -1,0 +1,12 @@
+{
+ "code_hash": "80da294c031f1924",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.presets.astrophysics.cr3bp_lagrange_points",
+ "ok": true,
+ "recorded": "2026-11-25",
+ "seconds": 20.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'L1': (-0.9999999999999999, 0.0), 'L2': (1.0, 0.0), 'L3': (-0.9999999999999999, 0.0), 'L4': (-0.5, 0.8660254037844386), 'L5': (-0.5, -0.8660254037844386)}",
+ "timed_out": false
+}

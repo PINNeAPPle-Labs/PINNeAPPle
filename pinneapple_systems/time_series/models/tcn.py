@@ -1,7 +1,6 @@
 """Temporal Convolutional Network (TCN) forecaster."""
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -51,7 +50,7 @@ class TCNForecaster(TSModelBase):
     Output : TSOutput with y_hat (B, H, n_targets)
     """
 
-    def __init__(self, cfg: Optional[TCNConfig] = None, **kw):
+    def __init__(self, cfg: TCNConfig | None = None, **kw):
         super().__init__()
         self.cfg = cfg or TCNConfig(**kw)
         c = self.cfg

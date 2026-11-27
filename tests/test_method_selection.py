@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import pytest
 
-from pinneapple_analysis.verification.dimensional_analysis import classify_flow_regime
 from pinneapple_physics.pde_environment.turbulence_selector import (
     TurbulenceModel,
     get_turbulence_closure,

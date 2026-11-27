@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 import torch
 from torch.utils.data import Dataset
@@ -21,7 +21,7 @@ class SingleBatchDataset(Dataset):
       - x_data / y_data are cycled
       - x_ic / y_ic are cycled
     """
-    def __init__(self, batch: Dict[str, Any]):
+    def __init__(self, batch: dict[str, Any]):
         self.batch = batch
         self.N = int(batch["x_col"].shape[0])
 
@@ -70,7 +70,7 @@ class SingleBatchDataset(Dataset):
         return out
 
 
-def dict_collate(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+def dict_collate(batch: list[dict[str, Any]]) -> dict[str, Any]:
     """Collate list of PINN dict-batches.
 
     Batches in the ``collocation`` / ``conditions`` / ``data`` layout go to
@@ -80,7 +80,7 @@ def dict_collate(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     if _collate_pinn is not None and batch and any(k in batch[0] for k in ("collocation", "conditions", "data")):
         return _collate_pinn(batch)
-    out: Dict[str, Any] = {}
+    out: dict[str, Any] = {}
     keys = batch[0].keys()
     for k in keys:
         v0 = batch[0][k]

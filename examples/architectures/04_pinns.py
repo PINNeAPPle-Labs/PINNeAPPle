@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -560,7 +560,7 @@ def make_heat_batches_for_subdomain(*,
     x_lo: float,
     x_hi: float,
     device: torch.device,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     # collocation
     t_c = sample_uniform(n_col, t_lo, t_hi, device)
     x_c = sample_uniform(n_col, x_lo, x_hi, device)
@@ -594,7 +594,7 @@ def make_interface_pair(
     t_lo: float,
     t_hi: float,
     device: torch.device,
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     t = sample_uniform(n_iface, t_lo, t_hi, device)
     x = torch.full((n_iface, 1), float(x_iface), device=device, requires_grad=True)
     xi = torch.cat([t, x], dim=1)
@@ -647,8 +647,8 @@ for it in range(1, steps + 1):
     xpinn.train()
     opt.zero_grad(set_to_none=True)
 
-    physics_data_list: List[Dict[str, Any]] = []
-    x_list: List[torch.Tensor] = []
+    physics_data_list: list[dict[str, Any]] = []
+    x_list: list[torch.Tensor] = []
 
     for (x_lo, x_hi) in doms:
         batch = make_heat_batches_for_subdomain(

@@ -9,13 +9,13 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import torch
 
 
-def seconds_since(t: np.ndarray, t0: Optional[np.datetime64] = None) -> np.ndarray:
+def seconds_since(t: np.ndarray, t0: np.datetime64 | None = None) -> np.ndarray:
     """Convert a ``datetime64`` array to float seconds elapsed since *t0*.
 
     *t0* defaults to ``t.min()`` when ``None``.  The result is a ``float64``
@@ -42,7 +42,7 @@ class UPDItem:
     zarr_path: str
     meta_path: str
 
-    def load_meta(self) -> Dict[str, Any]:
+    def load_meta(self) -> dict[str, Any]:
         """Load JSON metadata from meta_path."""
         return json.loads(Path(self.meta_path).read_text(encoding="utf-8"))
 
@@ -70,7 +70,7 @@ class ConditionSpec:
     type: str
     equation: str
     n: int = 1024
-    options: Dict[str, Any] = field(default_factory=dict)
+    options: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -78,7 +78,7 @@ class SamplingSpec:
     """Overall sampling plan for a UPD shard."""
 
     n_collocation: int = 4096
-    conditions: List[ConditionSpec] = field(default_factory=list)
+    conditions: list[ConditionSpec] = field(default_factory=list)
     n_data: int = 0          # supervised data points (0 = skip)
     replace: bool = True     # sampling with replacement
     seed: int = 0
@@ -94,9 +94,9 @@ class Batch:
       - data:        (inputs, y_true) pair for supervised loss, or None
     """
 
-    collocation: Optional[Tuple[Tensor, ...]] = None
-    conditions: Optional[List[Tuple[Tensor, ...]]] = None
-    data: Optional[Tuple[Tuple[Tensor, ...], Tensor]] = None
+    collocation: tuple[Tensor, ...] | None = None
+    conditions: list[tuple[Tensor, ...]] | None = None
+    data: tuple[tuple[Tensor, ...], Tensor] | None = None
 
 
 __all__ = ["seconds_since", "UPDItem", "ConditionSpec", "SamplingSpec", "Batch"]

@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import List, Tuple
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
@@ -84,7 +83,7 @@ def scope() -> dict:
             ]}
 
 
-def _run(files: List[Tuple[str, bytes]]) -> dict:
+def _run(files: list[tuple[str, bytes]]) -> dict:
     if not files:
         raise HTTPException(422, "No files uploaded.")
     if sum(len(b) for _, b in files) > MAX_MB * 1024 * 1024:
@@ -113,7 +112,7 @@ def meta():
 
 
 @app.post("/api/extract")
-async def api_extract(files: List[UploadFile] = File(...)):
+async def api_extract(files: list[UploadFile] = File(...)):
     """One or more files: a zipped case folder, or loose files (controlDict, fvSolution, log.simpleFoam, model.inp,
     model.sta, history.csv, ...). Returns the metadata record (JSON)."""
     return _run([(f.filename or f"upload_{i}", await f.read()) for i, f in enumerate(files)])

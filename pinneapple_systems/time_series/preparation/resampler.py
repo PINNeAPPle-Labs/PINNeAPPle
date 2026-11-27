@@ -1,6 +1,6 @@
 """Automatic upsampling / downsampling for numeric time-indexed DataFrames."""
 from __future__ import annotations
-from typing import Dict, List, Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -38,7 +38,7 @@ class TimeSeriesResampler:
     def __init__(
         self,
         target_freq: str,
-        time_col: Optional[str] = None,
+        time_col: str | None = None,
         agg_method: AggMethod = "mean",
         upsample_method: str = "linear",
         numeric_only: bool = True,
@@ -91,7 +91,7 @@ class TimeSeriesResampler:
 
     # ------------------------------------------------------------------
     @staticmethod
-    def _detect_freq(df: pd.DataFrame) -> Optional[str]:
+    def _detect_freq(df: pd.DataFrame) -> str | None:
         """Infer the most common timedelta between consecutive index entries."""
         if not isinstance(df.index, pd.DatetimeIndex) or len(df) < 2:
             return None
@@ -115,7 +115,7 @@ class TimeSeriesResampler:
         cls,
         df: pd.DataFrame,
         target_freq: str,
-        time_col: Optional[str] = None,
+        time_col: str | None = None,
         **kwargs,
     ) -> pd.DataFrame:
         return cls(target_freq, time_col=time_col, **kwargs).fit_transform(df)

@@ -36,6 +36,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/issues/build.py || echo "kept the committed snapshot"
 
+      # The module reference (docs/org/reference) is generated from the source: regenerate it at deploy time so
+      # the published API is current even when a pull request slipped past the reference gate (issue #451).
+      # The figures come from the committed run records; this rewrites the text artefacts only.
+      - name: Regenerate the module reference
+        run: python scripts/reference/build.py
+
       # The Playground (apps/playground) is published under <docs site>/playground/ only when the repository
       # variable PLAYGROUND_PAGES is "true" (Settings > Secrets and variables > Actions > Variables).
       - name: Add the Playground to the site (opt-in)

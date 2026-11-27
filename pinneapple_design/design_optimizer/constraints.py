@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -91,8 +90,8 @@ class MassConservationConstraint(ConstraintBase):
     def __init__(
         self,
         weight: float = 10.0,
-        coords: Optional[Tensor] = None,
-        n_neighbors: Optional[int] = None,
+        coords: Tensor | None = None,
+        n_neighbors: int | None = None,
     ) -> None:
         self.weight = weight
         self.coords = coords
@@ -178,7 +177,7 @@ class GeometricConstraint(ConstraintBase):
         self,
         min_val: float = 0.1,
         max_val: float = 10.0,
-        param_pairs: List[Tuple[int, int]] | None = None,
+        param_pairs: list[tuple[int, int]] | None = None,
         weight: float = 50.0,
     ) -> None:
         self.min_val = min_val
@@ -233,7 +232,7 @@ class ConstraintSet:
         List of :class:`ConstraintBase` instances.
     """
 
-    constraints: List[ConstraintBase] = field(default_factory=list)
+    constraints: list[ConstraintBase] = field(default_factory=list)
 
     def add(self, constraint: ConstraintBase) -> None:
         """Append a constraint to the set."""

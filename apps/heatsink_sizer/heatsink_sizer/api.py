@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import List, Literal, Optional
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -58,8 +58,8 @@ class OperatingModel(BaseModel):
     air_velocity_m_s: float = Field(2.0, ge=0, le=30)
     source_width_mm: float = Field(30, gt=1, le=500)
     source_depth_mm: float = Field(30, gt=1, le=500)
-    source_x_mm: Optional[float] = Field(None, ge=0)
-    source_y_mm: Optional[float] = Field(None, ge=0)
+    source_x_mm: float | None = Field(None, ge=0)
+    source_y_mm: float | None = Field(None, ge=0)
     tim_k_mm2_w: float = Field(10, ge=0, le=1000)
     t_limit_c: float = Field(85, gt=-40, le=250)
 
@@ -80,9 +80,9 @@ class SizeModel(BaseModel):
     max_width_mm: float = Field(100, gt=5, le=500)
     max_depth_mm: float = Field(100, gt=5, le=500)
     max_height_mm: float = Field(50, gt=10, le=300)
-    materials: List[MaterialName] = ["al6063"]
+    materials: list[MaterialName] = ["al6063"]
     process: Literal[tuple(PROCESSES)] = "extruded"  # type: ignore[valid-type]
-    max_pressure_drop_pa: Optional[float] = Field(None, gt=0)
+    max_pressure_drop_pa: float | None = Field(None, gt=0)
     objective: Literal["mass", "volume", "temperature"] = "mass"
 
 

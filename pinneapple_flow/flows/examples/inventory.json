@@ -480,5 +480,10 @@
   "domain": "relativity",
   "reason": "warp_drive.py is one geometry measured three ways -- the curvature from the metric, the null energy condition searched over directions, and the total negative energy -- plus the renders. Each of those is a single library call (einstein_tensor, worst_null_energy, integrated_energy) over a static bubble; there is no pipeline of node-sized steps to build, and what the example argues is the sign and the size of one number",
   "status": "not_convertible"
+ },
+ "multirotor_flight": {
+  "domain": "robotics",
+  "reason": "flight_safety.py is a closed loop in time -- the vehicle flies, the sensors report, the residual is measured and the fault is diagnosed -- and its unit is a flight of 10 000 steps, not a call. A flow node would have to run the whole campaign (eight faults x three seeds) inside one evaluation, which is a batch job, not a graph",
+  "status": "not_convertible"
  }
 }

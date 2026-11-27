@@ -164,7 +164,8 @@
   "examples/weather_forecasting": "fails when run: TypeError: main() missing 3 required positional arguments: 'store_path', 'model_path', and 'out_dir'",
   "examples/worldmodel": "takes longer than 12 s (01_generate_train_evaluate.py): too slow for the ci tier",
   "examples/planetary_defence": "takes longer than 12 s (apophis_deflection.py): it propagates Apophis with the JPL elements over up to ten years for every impactor mass and warning time in the table, plus the uncertainty ensemble -- about 25 min in total, and --quick runs the DART anchor and one deflection in under a minute",
-  "examples/warp_drive": "takes about 80 s, not seconds (warp_drive.py): it differentiates the metric on 26 000 points, sweeps a sphere of null directions at 12 866 of them, integrates the energy density over a 60 m box and renders a 36-frame turntable. --quick drops the GIF and halves the map"
+  "examples/warp_drive": "takes about 80 s, not seconds (warp_drive.py): it differentiates the metric on 26 000 points, sweeps a sphere of null directions at 12 866 of them, integrates the energy density over a 60 m box and renders a 36-frame turntable. --quick drops the GIF and halves the map",
+  "examples/multirotor_flight": "takes minutes, not seconds (flight_safety.py): it flies the campaign -- three calibration flights plus eight faults across three seeds at 20 s each, 500 Hz, with four BEMT rotors and a controller in the loop -- and then tunes three detectors. --quick flies one seed per fault"
  },
  "schema": "pinneapple.example_runs/1"
 }

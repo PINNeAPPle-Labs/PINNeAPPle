@@ -34,6 +34,12 @@ REASONS: dict[str, str] = {
                                      "one static geometry, not a step of a flow -- there is nothing to feed a node "
                                      "with, and the output is a verdict about the design, which is what "
                                      "examples/warp_drive reports",
+    "pinneapple_physics.multirotor": "flight safety for a multirotor (#335): the BEMT rotor, the 6-DoF airframe with "
+                                    "its battery, the injected faults, the cascaded controller, the Newton-Euler "
+                                    "residual and the detectors that are compared with it. It is a closed loop in "
+                                    "time -- fly, measure, diagnose -- and its unit is a flight, not a call: a flow "
+                                    "node would have to run the whole campaign inside one evaluation, which is what "
+                                    "examples/multirotor_flight does",
     "pinneapple_physics.pretrained": "the door a model trained somewhere else comes in through (#348): the registry of "
                                      "open models with their licence, the adapters that load one (WeatherBench2, a "
                                      "torch checkpoint, a local array archive, the Hugging Face Hub) and the wrap that "

@@ -136,7 +136,9 @@ class FlightSpec:
         thrust = af.weight_n / 4.0
         accel = np.array([0.0, 0.0, -4.0 * thrust / af.mass_kg])
         history = np.repeat(accel[None, :], self.history, axis=0)
-        return (state, np.full(4, 0.5), accel, np.zeros(3), np.zeros(3), np.array([0.0]), history)
+        # the command is the one that holds this state: a healthy vehicle commands the rotor speed it is flying at
+        command = np.full(4, af.hover_omega() / af.omega_max)
+        return (state, command, accel, np.zeros(3), np.zeros(3), np.array([0.0]), history)
 
 
 def _cross(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
@@ -508,13 +510,15 @@ def export_probe(workdir: Any, *, airframe: Airframe | None = None) -> list[dict
     try:
         torch.onnx.export(_NaiveBEMT(af.rotor), (torch.tensor([700.0]),), str(path), input_names=["omega"],
                           opset_version=17, dynamo=False)
-        session = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
-        frozen = float(session.run(None, {"omega": np.array([[700.0]], np.float32)})[0].ravel()[0])
-        other = float(session.run(None, {"omega": np.array([[1100.0]], np.float32)})[0].ravel()[0])
+        summary = graph_summary(path)
+        frozen = float(ort.InferenceSession(str(path), providers=["CPUExecutionProvider"]).run(None, {})[0].ravel()[0])
+        real = af.rotor.state(1100.0).thrust_n
         entry |= {"result": "exported and frozen",
-                  "detail": f"the file returns {frozen:.4f} N at any rotor speed; the real rotor gives "
-                            f"{other:.4f} N at 1100 rad/s ({abs(other - frozen) / max(other, 1e-9):.0%} of the "
-                            f"thrust missing from the file)"}
+                  "detail": f"the file has the inputs {list(summary.inputs)} -- the rotor speed is not one of them, "
+                            f"because the BEMT solved at trace time and only its answer went in. It returns "
+                            f"{frozen:.4f} N for any vehicle state; the rotor itself gives {real:.4f} N at 1100 rad/s "
+                            f"({abs(real - frozen) / max(real, 1e-9):.0%} of the thrust missing, and no input to "
+                            f"correct it with)"}
     except Exception as exc:                       # noqa: BLE001
         entry |= {"result": "refused", "detail": f"{type(exc).__name__}: {str(exc).splitlines()[0]}"}
     out.append(entry)
@@ -539,12 +543,16 @@ def export_probe(workdir: Any, *, airframe: Airframe | None = None) -> list[dict
                       opset_version=17, dynamo=False)
     frozen = ort.InferenceSession(str(naive), providers=["CPUExecutionProvider"])
     real = ort.InferenceSession(str(honest), providers=["CPUExecutionProvider"])
+    naive_inputs = graph_summary(naive).inputs
     feed = {"thrust": np.full((1, 4), 3.0, np.float32), "altitude": np.array([[0.0, 0.0, -0.1]], np.float32)}
-    frozen_value = float(frozen.run(None, feed)[0].sum())
+    frozen_value = float(frozen.run(None, {"thrust": feed["thrust"]})[0].sum())
     real_value = float(real.run(None, feed)[0].sum())
     entry |= {"result": "exported and frozen",
-              "detail": f"at 10 cm the graph from the if gives {frozen_value:.3f} N of thrust where the vehicle gives "
-                        f"{real_value:.3f} N: {(real_value - frozen_value) / real_value:.1%} of it missing, because "
-                        f"the branch was decided at trace time (5 m, outside the effect) and never enters the file"}
+              "detail": f"the graph built from the if has the inputs {list(naive_inputs)} -- altitude is not among "
+                        f"them, because the branch was decided at trace time (5 m up, outside the effect) and the "
+                        f"vehicle's height left the file with it. At 10 cm it returns {frozen_value:.3f} N of thrust "
+                        f"where the where version returns {real_value:.3f} N: "
+                        f"{(real_value - frozen_value) / real_value:.1%} of the lift is missing, and nothing in the "
+                        f"file says so"}
     out.append(entry)
     return out

@@ -63,7 +63,7 @@ The hits of persistence by lead run ``38, 38, 38, 37, 34, 29, 28, 23, 19, 18, 17
 ``lead_time_ok`` (0) and the per-lead table say different things and both are reported. Scored as a moving feature,
 persistence puts the maximum 0.954 in value and 1.045 grid cells away from the truth, against 0.000 and 0.000 for
 the truth itself. Twenty perturbed members (``sigma = 0.25``) around persistence give a Brier score of 0.0145 with
-reliability 0.0096, resolution 0.0224 and uncertainty 0.0283, on a base rate of 0.971.
+reliability 0.0095, resolution 0.0232 and uncertainty 0.0283, on a base rate of 0.971.
 """
 from __future__ import annotations
 

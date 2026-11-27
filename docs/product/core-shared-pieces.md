@@ -61,7 +61,8 @@ same fields —
 and the hits of persistence by lead fall `38, 38, 38, 37, 34, 29, ..., 3, 1` — skill that decays with the horizon
 rather than stopping, which is why both the single number and the per-lead table are reported. Scored as a moving
 feature, persistence puts the maximum 0.954 away in value and 1.045 grid cells away in position; 20 perturbed
-members around it give a Brier score of 0.0145 (reliability 0.0096, resolution 0.0224, uncertainty 0.0283).
+members around it give a Brier score of 0.0145 (reliability 0.0095, resolution 0.0232, uncertainty 0.0283, the
+decomposition leaving 2e-4 inside the bin).
 
 ### 8. Experiment design and sensor placement (#352) — the half that was missing
 
@@ -76,29 +77,39 @@ for the layouts a greedy walk cannot express.
 distance between sensors and a budget) and `layout_curves`, and `greedy_sensor_placement` gained `qoi=`, `cost=` and
 `budget=`.
 
-Two cases, criterion against 1/2/4/8 sensors. A 32 x 20 grid on a 1 x 0.6 plate with an isotropic Matern
+Two cases, criterion against 1/2/4/8 sensors, all at the default search settings (`population_size = 30`,
+`n_generations = 25`, `seed = 0`). A 32 x 20 grid on a 1 x 0.6 plate with an isotropic Matern
 (`l = 0.18`, `nu = 5/2`), scored on the variance of the mean temperature over the hot corner (prior 0.647):
 
 | k | 1 | 2 | 4 | 8 |
 |---|---|---|---|---|
 | greedy | 0.0539 | 0.0341 | 0.0089 | 0.0006 |
-| evolutionary | 0.2130 | 0.0471 | 0.0527 | 0.0324 |
+| evolutionary | 0.2130 | 0.1492 | 0.1018 | 0.0233 |
 | uniform (maximin) | 0.6470 | 0.3799 | 0.3778 | 0.2681 |
-| random | 0.5427 | 0.4147 | 0.3171 | 0.2134 |
+| random (median of 20 seeds) | 0.6034 | 0.4087 | 0.2550 | 0.1906 |
 
-and 80 stations down a 3 m slope with a long Matern (`l = 0.35`, `nu = 3/2`), weighted towards the toe (prior 1.000):
+and 80 stations down a 3 m slope with a long Matern (`l = 0.35`, `nu = 3/2`), scored on the weighted pointwise
+variance with the weights on the toe (prior 1.000):
 
 | k | 1 | 2 | 4 | 8 |
 |---|---|---|---|---|
 | greedy | 0.4629 | 0.2913 | 0.0965 | 0.0193 |
-| evolutionary | 0.4629 | 0.2528 | 0.0907 | 0.0342 |
+| evolutionary | 0.4629 | 0.2368 | 0.0872 | 0.0244 |
 | uniform (maximin) | 1.0000 | 0.9443 | 0.3542 | 0.1020 |
-| random | 0.7102 | 0.5439 | 0.4091 | 0.1822 |
+| random (median of 20 seeds) | 0.7449 | 0.6175 | 0.3774 | 0.1551 |
 
-The greedy walk wins on the plate by three orders of magnitude and is beaten on the slope at two and four sensors
-(0.2913 against 0.2528, 0.0965 against 0.0907): its guarantee is a bound, not optimality. The reason to search anyway
+The lottery gets one draw, not a median, so it is reported as one: over twenty seeds a single random layout on the
+plate runs from 0.0916 to 0.6470 at one sensor and from 0.0264 to 0.6283 at eight -- wide enough that comparing one
+draw against the walk says nothing. Its luckiest draw at two sensors, 0.0605, is six times better than the median
+(0.4087) and still behind the walk (0.0341); at eight sensors no draw comes within a factor of forty of it. The
+median is the honest baseline and it is what is quoted.
+
+The greedy walk wins everywhere on the plate, by two to three orders of magnitude against every other layout, and is
+beaten on the slope at two and four sensors (0.2913 against 0.2368, 0.0965 against 0.0872) and only there: at eight
+the walk is back ahead (0.0193 against 0.0244). Its guarantee is a bound, not optimality. The reason to search anyway
 is the constraint the walk cannot see — at eight sensors on the plate the walk's closest pair is 0.063 apart; held to
-0.15, the spaced search reaches 0.173 and 0.104, against 0.374 and 0.268 for the even spread.
+0.15, the spaced search reaches a closest pair of 0.173 at a criterion of 0.104, against 0.374 and 0.268 for the even
+spread.
 
 ## What is missing
 

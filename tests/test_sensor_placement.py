@@ -207,3 +207,49 @@ def test_the_curves_of_the_two_cases_are_the_deliverable():
         layout_curves(_plate()[0], _plate()[1], ks, strategies=("greedy", "sobol"))
     with pytest.raises(ValueError, match="empty"):
         layout_curves(_plate()[0], _plate()[1], [])
+
+
+def test_the_documented_table_is_what_the_strategies_reach():
+    """The digits in ``docs/product/core-shared-pieces.md``, measured here so they cannot drift away from it.
+
+    A table of numbers in a document is a claim like any other: if a change moves one of them, the document is wrong
+    and this fails. The search runs at its defaults (``population_size = 30``, ``n_generations = 25``, ``seed = 0``),
+    and the lottery is reported as the median of twenty draws because one draw is not a number -- the spread is wide
+    enough to overturn a single comparison (the luckiest draw at two sensors beats the walk's two-sensor criterion on
+    the slope's scale, and the unluckiest is worse than the even spread).
+    """
+    gp, pts, qoi = _plate()
+    ks = (1, 2, 4, 8)
+    greedy = [greedy_sensor_placement(gp, pts, k, qoi=qoi).integrated_variance[-1] for k in ks]
+    assert np.allclose(greedy, [0.0539, 0.0341, 0.0089, 0.0006], atol=5e-5)
+    assert np.allclose([maximin_sensor_placement(gp, pts, k, qoi=qoi).criterion for k in ks],
+                       [0.6470, 0.3799, 0.3778, 0.2681], atol=5e-5)
+    assert np.allclose([evolutionary_sensor_placement(gp, pts, k, qoi=qoi, seed=0).criterion for k in ks],
+                       [0.2130, 0.1492, 0.1018, 0.0233], atol=5e-4)
+    draws = np.array([[random_sensor_placement(gp, pts, k, qoi=qoi, seed=s).criterion for s in range(20)]
+                      for k in ks])
+    assert np.allclose(np.median(draws, axis=1), [0.6034, 0.4087, 0.2550, 0.1906], atol=5e-4)
+    assert draws[0].min() == pytest.approx(0.0916, abs=5e-4) and draws[1].min() == pytest.approx(0.0605, abs=5e-4)
+    assert draws[1].min() < 0.2 * np.median(draws[1])      # the luckiest draw is far below the median ...
+    assert draws[1].min() > greedy[1]                      # ... and still behind the walk
+    assert draws[:, -1].max() > 20.0 * greedy[-1]          # and no draw comes near it at eight sensors
+
+    gp, z, w = _slope()
+    greedy = [greedy_sensor_placement(gp, z, k, weights=w).integrated_variance[-1] for k in ks]
+    assert np.allclose(greedy, [0.4629, 0.2913, 0.0965, 0.0193], atol=5e-5)
+    assert np.allclose([maximin_sensor_placement(gp, z, k, weights=w).criterion for k in ks],
+                       [1.0000, 0.9443, 0.3542, 0.1020], atol=5e-5)
+    search = [evolutionary_sensor_placement(gp, z, k, weights=w, seed=0).criterion for k in ks]
+    assert np.allclose(search, [0.4629, 0.2368, 0.0872, 0.0244], atol=5e-4)
+    assert search[1] < greedy[1] and search[2] < greedy[2]  # the search beats the walk here ...
+    assert search[3] > greedy[3]                            # ... and loses at eight
+
+    # the spacing numbers the document quotes, from the same test the constraint is built for
+    gp, pts, qoi = _plate()
+    assert closest_pair(greedy_sensor_placement(gp, pts, 8, qoi=qoi).points) == pytest.approx(0.063, abs=5e-4)
+    held = evolutionary_sensor_placement(gp, pts, 8, qoi=qoi, min_spacing=0.15, seed=0)
+    assert closest_pair(held.points) == pytest.approx(0.173, abs=5e-4)
+    assert held.criterion == pytest.approx(0.104, abs=5e-4)
+    spread = maximin_sensor_placement(gp, pts, 8, qoi=qoi)
+    assert closest_pair(spread.points) == pytest.approx(0.374, abs=5e-4)
+    assert spread.criterion == pytest.approx(0.268, abs=5e-4)

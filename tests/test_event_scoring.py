@@ -294,3 +294,17 @@ def test_persistence_on_lorenz96_scores_the_way_its_skill_decays():
     # score inside the bins, which is why the identity is checked to a tolerance here and exactly above
     assert ens.brier == pytest.approx(ens.reliability - ens.resolution + ens.uncertainty, abs=0.01)
     assert len(ens.bins) >= 5                                          # the probabilities really do spread
+
+    # the four numbers the module docstring and the product note quote, so a change cannot leave them behind
+    assert (pers.hits, pers.misses, pers.false_alarms) == (470, 780, 670)
+    assert (perf.hits, perf.misses, perf.false_alarms) == (1165, 0, 0)
+    assert pers.csi == pytest.approx(0.245, abs=5e-4) and pers.probability_of_detection == pytest.approx(0.376, abs=5e-4)
+    assert pers.lead_time_ok == 0 and perf.lead_time_ok == 29
+    assert pers.peak_error == pytest.approx(0.957, abs=5e-4)
+    assert ridge.peak_error == pytest.approx(0.954, abs=5e-4)
+    assert ridge.position_error == pytest.approx(1.045, abs=5e-4)
+    assert ens.brier == pytest.approx(0.0145, abs=5e-5)
+    assert ens.reliability == pytest.approx(0.0095, abs=5e-5)
+    assert ens.resolution == pytest.approx(0.0232, abs=5e-5)
+    assert ens.uncertainty == pytest.approx(0.0283, abs=5e-5)
+    assert ens.base_rate == pytest.approx(0.971, abs=5e-4)

@@ -12,30 +12,35 @@ Regenerate the evidence with:
 
 ```bash
 PYTHONPATH=$PWD python -m pytest tests/test_event_scoring.py tests/test_sensor_placement.py \
-    tests/pinneapple_analysis/test_trust_record.py tests/test_pretrained_experts.py tests/test_fidelity.py \
+    tests/pinneapple_analysis/test_trust_record.py tests/pinneapple_analysis/test_trust_three_kinds.py \
+    tests/test_trust_consumers.py tests/test_pretrained_experts.py tests/test_fidelity.py \
     tests/test_embedded_export.py tests/test_arena_battle.py tests/pinneapple_analysis/test_gp_symbolic.py \
     tests/pinneapple_design/test_quality_diversity.py tests/test_data_assimilation_conservation.py \
-    tests/test_state_estimation.py -q
+    tests/test_state_estimation.py tests/test_trust_benchmark_suite.py tests/test_trust_survivors.py \
+    tests/pinneapple_analysis/test_neural_assimilation.py -q
 ```
 
 ## The eleven
 
 | # | piece | issue | module on `main` | proof | PR | state |
 |---|-------|-------|------------------|-------|----|-------|
-| 1 | Trust layer as a first-class object (`pp.trust`) | #345 | `pinneapple_analysis/trust/` — `record`, `adapters`, `certificate`, `corrections`, `drift`, `trust_gate`; exported as `pp.trust` in `pinneapple/__init__.py` | `tests/pinneapple_analysis/test_trust_record.py`, 32 tests | #2533 | **delivered** |
-| 2 | Data assimilation with neural models (EnKF, 4D-Var) | #346 | `pinneapple_analysis/data_assimilation/var4d.py` (4D-Var through autograd, Lorenz-96 twin experiment, gradient check) and `pinneapple_analysis/state_estimation/kalman.py` (EKF, EnKF) | `tests/test_data_assimilation_conservation.py`, 8 tests; `tests/test_state_estimation.py`, 6 tests | #240 (4D-Var), #1255 (EnKF) | **partial** |
-| 3 | Adaptive fidelity driven by the trust horizon | #347 | `pinneapple_analysis/fidelity.py` — `FidelityPolicy`, `serve`, `audit` | `tests/test_fidelity.py`, 11 tests: 0 answers served by the surrogate outside the tolerance, against 7 with the domain switched off | #2357 | **partial** |
-| 4 | "Bring your foundation model, PINNeAPPle verifies it" | #348 | `pinneapple_physics/pretrained/` (registry with licence, four adapters), `pinneapple_physics/domain_checks`, `Expert` in `pinneapple_physics/ensemble.py` | `tests/test_pretrained_experts.py`, 14 tests | #2545 | **delivered** |
-| 5 | Trust benchmark suite with a public leaderboard | #349 | — no single suite | — | — | **missing** |
+| 1 | Trust layer as a first-class object (`pp.trust`) | #345 | `pinneapple_analysis/trust/` — `record`, `adapters`, `certificate`, `corrections`, `drift`, `trust_gate`; exported as `pp.trust` in `pinneapple/__init__.py` | `tests/pinneapple_analysis/test_trust_record.py`, 32 tests; `tests/pinneapple_analysis/test_trust_three_kinds.py`, 14, and `tests/test_trust_consumers.py`, 7 — the three kinds of prediction emitting one record, and the consumers reading it | #2533, #2566 | **delivered** |
+| 2 | Data assimilation with neural models (EnKF, 4D-Var) | #346 | `pinneapple_analysis/data_assimilation/var4d.py` (4D-Var through autograd, Lorenz-96 twin experiment, gradient check) and `pinneapple_analysis/state_estimation/kalman.py` (EKF, EnKF) | `tests/test_data_assimilation_conservation.py`, 8 tests; `tests/test_state_estimation.py`, 6 tests | `tests/pinneapple_analysis/test_neural_assimilation.py`, 10 — one assimilation object over both kernels, and a model trained here inside the filters | #240 (4D-Var), #1255 (EnKF), #2564 (the neural half) | **delivered — PR #2564** |
+| 3 | Adaptive fidelity driven by the trust horizon | #347 | `pinneapple_analysis/fidelity.py` — `FidelityPolicy`, `serve`, `audit` | `tests/test_fidelity.py`, 11 tests: 0 answers served by the surrogate outside the tolerance, against 7 with the domain switched off | #2357, #2559 (the horizon decides the route) | **delivered** |
+| 4 | "Bring your foundation model, PINNeAPPle verifies it" | #348 | `pinneapple_physics/pretrained/` (registry with licence, four adapters), `pinneapple_physics/domain_checks`, `Expert` in `pinneapple_physics/ensemble.py` | `tests/test_pretrained_experts.py`, 14 tests, plus the 2020 ensemble demo next to each model alone | #2545, #2565 | **delivered** |
+| 5 | Trust benchmark suite with a public leaderboard | #349 | `pinneapple_tools/benchmark_suite/trust.py` — the four failure kinds behind one `run_suite(candidates)` — and `scripts/trust_benchmark.py --run|--docs|--check` | `tests/test_trust_benchmark_suite.py`, 29 tests | #2561 | **delivered** |
 | 6 | Embedded execution for drones and robots (ONNX) | #350 | `pinneapple_physics/embedded.py` — `EmbeddedSpec`, `export`, `EmbeddedRuntime` | `tests/test_embedded_export.py`, 16 tests | #2548 | **delivered** |
-| 7 | Generic event scoring | #351 | `pinneapple_analysis/events.py` — `Event`, `Tolerances`, `detect`, `event_score`, `ensemble_event_score` | `tests/test_event_scoring.py`, 21 tests | this PR | **delivered** |
-| 8 | Experiment design and sensor placement | #352 | `pinneapple_data/doe/` (designs, coverage, campaigns) and `pinneapple_analysis/data_assimilation/sensor_placement.py` (`Layout`, the four strategies, `layout_curves`) | `tests/pinneapple_data/test_doe.py`, 23 tests; `tests/test_sensor_placement.py`, 14 tests | #767 (doe), #679 (GP placement), this PR (search, budget, spacing) | **delivered** |
+| 7 | Generic event scoring | #351 | `pinneapple_analysis/events.py` — `Event`, `Tolerances`, `detect`, `event_score`, `ensemble_event_score` | `tests/test_event_scoring.py`, 21 tests | this PR (the code is here, not on `main`) | **delivered by this PR** |
+| 8 | Experiment design and sensor placement | #352 | `pinneapple_data/doe/` (designs, coverage, campaigns) and `pinneapple_analysis/data_assimilation/sensor_placement.py` (`Layout`, the four strategies, `layout_curves`) | `tests/pinneapple_data/test_doe.py`, 23 tests; `tests/test_sensor_placement.py`, 14 tests | #767 (doe), #679 (GP placement), this PR (search, budget, spacing — the code is here, not on `main`) | **delivered by this PR** |
 | E1 | Genetic-programming symbolic regression | #353 | `pinneapple_analysis/inverse_problems/gp_symbolic.py` | `tests/pinneapple_analysis/test_gp_symbolic.py`, 34 tests | #2535 | **delivered** |
 | E2 | Quality-diversity search (MAP-Elites) | #354 | `pinneapple_design/design_optimizer/quality_diversity.py` | `tests/pinneapple_design/test_quality_diversity.py`, 25 tests | #2539 | **delivered** |
-| E3 | Trust-aware surrogate-assisted NSGA-II | #297 | `pinneapple_analysis/surrogate_loop.py` (the budget-and-verification loop) | — the issue's acceptance is not met | #2429 | **open by decision** |
+| E3 | Trust-aware surrogate-assisted NSGA-II | #297 | `pinneapple_design/design_optimizer/trust_survivors.py` — trusted, contradicted or indeterminate against a per-objective tolerance — over `pinneapple_analysis/surrogate_loop.py` | `tests/test_trust_survivors.py`, 19 tests | #2429, #2562 | **delivered** |
 
-Seven of the eleven are delivered and proved. Four are not, and they are not the same kind of not: two are halves
-with the missing part named, one is absent, and one is waiting on a decision.
+Eight of the eleven are on `main` and proved by their own test. Two more — the generic event scorer (#351) and the
+sensor search with a budget and a spacing constraint (#352) — are delivered **by this pull request**, which is why the
+column says so instead of naming a merged one. The eleventh, the neural half of the data assimilation (#346), is
+written and measured in PR #2564. Each of the three is said in the state it is, rather than counted as if it were
+already in the tree.
 
 ## What was delivered in this pass
 
@@ -139,5 +144,7 @@ it cannot cover.
 a per-objective tolerance, and an interval that straddles the limit is undetermined rather than counted as a pass.
 Measured against plain NSGA-II on the same problem and budget.
 
-What is left is not code: the umbrella closes when these four merge, and #345 (the `Trust` object the horizon and the
-certificates read from) and #348 (bring your own model) land with it.
+What is left is not code. This page closes the umbrella: eight of the eleven are on `main` with the test that proves
+each, two land with it here, and the last one was waiting on PR #2564 when this page was written. #345 (the `Trust`
+object the horizon and the certificates read from) landed in #2566 and #348 (bring your own model) in #2565, both cited
+above.

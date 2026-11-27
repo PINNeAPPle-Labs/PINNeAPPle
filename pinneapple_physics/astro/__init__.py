@@ -14,6 +14,10 @@ An independent NumPy implementation, validated against USNO NOVAS, JPL Horizons 
 * :mod:`.nbody`       symplectic and Runge-Kutta N-body integrators with conservation diagnostics
 * :mod:`.surrogate`   physics-informed neural orbit surrogate with conformal bands and a trust verdict
 * :mod:`.lensing`     black-hole lensing of the real sky, Einstein radius, shadow size vs the EHT
+* :mod:`.eht_imaging` black-hole imaging as an inverse problem: the (u, v) coverage of the array, the crescent's
+                     visibilities, the fit with and without a physics prior, and the measured prior dependence
+* :mod:`.lens_model`  strong lensing as an inverse problem: an SIE + shear model, its images, and the physics
+                     checks (positive convergence, the lens equation, multiplicity against the caustics)
 * :mod:`.journey`     a trip to a target: heliocentric / galactic positions, distance, light time, magnitude vs distance
 * :mod:`.observing`   observing sessions: visibility, air mass, extinction, sky brightness, optics, slews, field rotation
 * :mod:`.facts`       info cards in English and Portuguese: numbers with sources, curiosities, history, quiz

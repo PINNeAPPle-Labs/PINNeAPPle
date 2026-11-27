@@ -77,12 +77,18 @@ def test_a_scene_written_to_glb_reads_back_with_its_material_names(tmp_path):
 
 
 def test_the_browser_has_the_same_magma_table_as_python():
+    """The viewer ramps over ``THEME.colormaps.magma.stops`` (theme.js, built from theme.json); Python must agree, and
+    studio-core.js must take the table from the theme instead of keeping a second copy that can drift."""
     import json
     import re
     from pathlib import Path
 
     from pinneapple_tools.visualization.studio.colormap import MAGMA
-    js = Path(__file__).resolve().parents[1] / "pinneapple_tools/visualization/studio/web/studio-core.js"
-    m = re.search(r"export const MAGMA = (\[\[.*?\]\]);", js.read_text(), re.S)
-    assert m, "MAGMA table not found in studio-core.js"
-    assert [(float(t), tuple(c)) for t, c in json.loads(m.group(1))] == list(MAGMA)
+    web = Path(__file__).resolve().parents[1] / "pinneapple_tools/visualization/studio/web"
+    m = re.search(r"export const THEME = (\{.*\});", (web / "theme.js").read_text(), re.S)
+    assert m, "THEME table not found in theme.js"
+    stops = json.loads(m.group(1))["colormaps"]["magma"]["stops"]
+    # theme.js writes the stops as [position 0..1, [r, g, b] 0..255], the shape both viewers ramp over
+    assert [(float(t), tuple(rgb)) for t, rgb in stops] == list(MAGMA)
+    core = (web / "studio-core.js").read_text()
+    assert 'export const MAGMA = stops("magma");' in core, "studio-core.js no longer reads MAGMA from the theme"

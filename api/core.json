@@ -1150,7 +1150,7 @@
    "displacement": "def(b)",
    "read_blocks": "def(b)",
    "read_frd": "def(b)",
-   "stress": "def(b)"
+   "stress": "def(b, until=None)"
   },
   "pinneapple_data.cae.geometry": {
    "FaceMesh": {
@@ -3519,7 +3519,7 @@
    "Trainer": {
     "class": [],
     "methods": {
-     "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None, scheduler=None, loss_balancer=None, readiness=None, review=None)",
+     "__init__": "(model, loss_fn, metrics=None, preprocess=None, early_stopping=None, checkpoint=None, scheduler=None, loss_balancer=None, readiness=None, review=None, constraints=None)",
      "fit": "(train_loader, val_loader=None, cfg=None)"
     }
    }

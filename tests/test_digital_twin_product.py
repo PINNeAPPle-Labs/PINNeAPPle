@@ -320,6 +320,8 @@ def test_hx201_commissions_end_to_end():
 
 
 def test_export_scene_writes_a_viewer_folder(tmp_path):
+    pytest.importorskip("trimesh", reason="without a mesh, export_scene draws the extent box with trimesh "
+                                          "(extra: pip install trimesh or pinneapple[geom])")
     from pinneapple_systems.digital_twin.product import export_scene
 
     spec = _spec()

@@ -54,20 +54,79 @@ falls while `Tp` rises -- the signature of an ageing sea that carrying the last 
 **wind sea** is carried with the wind it was measured in, because holding a measured wind is not a forecast that it will
 keep blowing, and only a sea above what that wind can hold is allowed to decay.
 
-Two coefficients, fitted on the first 22 days and scored on the 22 after them:
+Two coefficients, fitted on the first 22 days and scored on the 22 after them, at every lead from one hour to
+twenty-four. `RMSE` is the forecast's, `persistence` is the same score for carrying the last observation forward, and
+the interval is a bootstrap over the 254 analyses: what it says is whether the skill is distinguishable from zero, which
+is the only question an operator's confidence can rest on.
 
-| lead | Hs RMSE | Hs against persistence | Tp RMSE | Tp against persistence |
-| --- | --- | --- | --- | --- |
-| 1 h | 0.222 m | +0.2 % | 0.83 s | **-8.0 %** |
-| 6 h | 0.384 m | +1.7 % | 1.08 s | +4.0 % |
-| 12 h | 0.527 m | +2.0 % | 1.41 s | +3.9 % |
-| 24 h | 0.753 m | +2.2 % | 1.84 s | +4.7 % |
+| lead | Hs RMSE | persistence | Hs skill (90 % interval) | Tp RMSE | persistence | Tp skill (90 % interval) |
+| --- | --- | --- | --- | --- | --- | --- |
+|  1 h | 0.222 | 0.222 | +0.2 % (-1.7 .. +2.6) | 0.83 | 0.80 | -8.0 % (-30.8 .. +8.4) |
+|  2 h | 0.258 | 0.260 | +2.1 % (-2.2 .. +6.7) | 0.80 | 0.76 | -10.5 % (-38.1 .. +5.9) |
+|  3 h | 0.280 | 0.280 | -0.1 % (-3.6 .. +4.2) | 0.94 | 0.93 | -2.1 % (-19.1 .. +10.7) |
+|  4 h | 0.309 | 0.313 | +2.3 % (-1.9 .. +6.9) | 0.93 | 0.97 | +8.0 % (-0.8 .. +18.0) |
+|  5 h | 0.356 | 0.358 | +1.1 % (-3.0 .. +6.4) | 1.08 | 1.13 | +7.8 % (-3.7 .. +17.0) |
+|  6 h | 0.384 | 0.388 | +1.7 % (-3.5 .. +8.5) | 1.08 | 1.10 | +4.0 % (-8.3 .. +13.1) |
+|  7 h | 0.430 | 0.433 | +1.3 % (-3.6 .. +7.6) | 1.17 | 1.20 | +5.4 % (-4.4 .. +14.4) |
+|  8 h | 0.445 | 0.448 | +1.2 % (-3.6 .. +7.3) | 1.20 | 1.22 | +3.5 % (-12.5 .. +15.3) |
+|  9 h | 0.486 | 0.489 | +1.5 % (-3.4 .. +7.4) | 1.28 | 1.31 | +4.7 % (-3.8 .. +12.8) |
+| 10 h | 0.495 | 0.500 | +1.9 % (-3.4 .. +8.5) | 1.32 | 1.33 | +1.8 % (-10.1 .. +11.5) |
+| 11 h | 0.518 | 0.520 | +0.7 % (-4.7 .. +6.5) | 1.40 | 1.42 | +3.6 % (-3.7 .. +11.1) |
+| 12 h | 0.527 | 0.532 | +2.0 % (-3.3 .. +8.2) | 1.41 | 1.44 | +3.9 % (-3.4 .. +11.0) |
+| 13 h | 0.552 | 0.552 | +0.2 % (-5.4 .. +6.5) | 1.48 | 1.50 | +3.0 % (-3.1 .. +9.4) |
+| 14 h | 0.557 | 0.563 | +2.2 % (-3.3 .. +8.6) | 1.48 | 1.51 | +3.9 % (-2.5 .. +10.4) |
+| 15 h | 0.605 | 0.604 | -0.2 % (-5.5 .. +5.9) | 1.56 | 1.60 | +5.8 % (+1.4 .. +11.3) |
+| 16 h | 0.595 | 0.604 | +3.1 % (-2.5 .. +9.1) | 1.52 | 1.58 | +7.2 % (+2.5 .. +12.7) |
+| 17 h | 0.639 | 0.641 | +0.7 % (-4.9 .. +6.8) | 1.64 | 1.70 | +6.5 % (+2.2 .. +11.6) |
+| 18 h | 0.639 | 0.644 | +1.7 % (-3.4 .. +7.7) | 1.64 | 1.71 | +8.0 % (+3.1 .. +13.9) |
+| 19 h | 0.682 | 0.685 | +0.8 % (-4.7 .. +7.2) | 1.70 | 1.76 | +7.2 % (+2.8 .. +12.2) |
+| 20 h | 0.677 | 0.685 | +2.3 % (-3.1 .. +8.3) | 1.72 | 1.79 | +7.4 % (+2.9 .. +12.6) |
+| 21 h | 0.722 | 0.725 | +0.9 % (-4.0 .. +6.9) | 1.77 | 1.82 | +5.3 % (+0.1 .. +10.2) |
+| 22 h | 0.711 | 0.718 | +2.0 % (-2.8 .. +7.5) | 1.79 | 1.85 | +6.9 % (+1.9 .. +12.1) |
+| 23 h | 0.759 | 0.766 | +1.8 % (-3.3 .. +7.6) | 1.77 | 1.80 | +3.8 % (-1.4 .. +9.0) |
+| 24 h | 0.753 | 0.761 | +2.2 % (-2.6 .. +7.9) | 1.84 | 1.89 | +4.7 % (-0.2 .. +9.7) |
 
-Those numbers are the honest headline, and they are not flattering: **on this record a single buoy's own spectrum
-carries almost nothing about tomorrow's significant height.** The two per cent at 24 h is real and small, and the
--8 % at one hour is the price of a forecast that has to start from an analysis whose peak period is read off 46 coarse
-bands: the buoy's own `DPD` comes from the full spectrum at a resolution the file does not carry, and at a one-hour lead
-the forecast is the analysis.
+Two things in that table are the result, and neither is the headline the model would like:
+
+* **the height never beats persistence by more than the noise.** The point estimate is positive at 22 of the 24 leads
+  and **at no lead is the interval clear of zero**, from `+0.2 % (-1.7, +2.6)` at one hour to `+2.2 % (-2.6, +7.9)` at
+  twenty-four. The leads where it goes negative -- **3 h at -0.1 % and 15 h at -0.2 %** -- sit inside the same interval
+  as the best ones: on this record a single buoy's own spectrum carries nothing about tomorrow's height that carrying
+  the last number forward does not. The two per cent is real in the mean and unprovable lead by lead.
+* **the period pays, and it pays late.** Below three hours the model loses to persistence -- **-8.0 % at 1 h, -10.5 % at
+  2 h, -2.1 % at 3 h** -- and from 4 h on it is ahead at every lead. From **15 h** the interval is clear of zero
+  (`+5.8 % [1.4, 11.3]` at 15 h, `+8.0 % [3.1, 13.9]` at 18 h) and it stays clear through 22 h, then touches zero again
+  at 23-24 h. Two-hourly analyses over 22 days overlap, so those intervals are optimistic rather than conservative.
+
+**The crossover is 15 hours, in the period.** Below it the honest statement is "the same as persistence, and worse for
+the first three hours"; from 15 h to 22 h the spectral evolution is worth five to eight per cent on `Tp`; the height is
+never worth claiming at any lead. That is what the confidence in the next section has to be read against: 76 % verdict
+agreement at 24 h is a statement about a model that has only just earned its keep on the period.
+
+### Why persistence wins the first hours, measured
+
+Two separate mechanisms, and neither is the obvious one:
+
+* **the period at a one-to-three-hour lead is the analysis's own error, not the evolution's.** The forecast's period is
+  read off the peak of the 46-band spectrum, and that peak is **0.317 s** RMS away from the buoy's `DPD` (bias -0.024 s,
+  correlation 0.989) *before any evolution happens*. Persistence does not pay that price: it starts from the buoy's own
+  number, exact at the analysis time by construction. Combining the two floors, `sqrt(0.803^2 + 0.317^2) = 0.864 s`,
+  against the **0.835 s** the model delivers at one hour -- so the whole of the loss at short leads is the analysis
+  floor to within 3 %, and a better fit of the spectrum would buy all of it back. On top of that NDBC publishes `DPD` in
+  **whole seconds** (12 distinct values between 4 s and 15 s in this record), so a continuous forecast is scored against
+  a target whose own quantisation is worth 0.29 s of standard deviation;
+* **the height at short leads is persistence plus a decay worth 3.7 % of the sea.** In one hour the model moves `Hs` by
+  **-0.006 +- 0.009 m** while the sea moves by **+0.010 +- 0.239 m**, and the two are correlated at 0.10. At short leads
+  the model is not forecasting: it is carrying the analysis with a small decay, in the direction opposite to the one
+  this record took (its sea was rising by a centimetre an hour on average). That decay is also where the growing negative
+  bias comes from, -0.02 m at 1 h to -0.12 m at 24 h: the fitted swell decay sits at the **edge of the calibration grid
+  (192 h)**, which is the data saying it wants no decay at all, and what is left of it removes energy the sea still had.
+
+The alternative explanation -- a peak period badly defined in a young wind sea -- was checked and **refuted**. If it
+held, the analysis error would be concentrated where the swell share is small and the peak is flat. Splitting the
+analyses by swell share: median absolute `Tp` error of **0.24 s** in the least-swell third, **0.27 s** in the middle and
+**0.20 s** in the most-swell third, and the peak is exactly as flat in all three (**1.3 bands above 90 % of the peak**).
+The error is the band grid and the buoy's own quantisation, and it is the same everywhere.
 
 The `Tp` skill is where the spectral evolution pays, and it depends on what is done with the wind sea:
 

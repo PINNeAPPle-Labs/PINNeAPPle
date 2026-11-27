@@ -127,10 +127,93 @@ def wave_skill(buoy: Buoy, leads: np.ndarray, quick: bool) -> dict[str, object]:
         table.append({"lead_hours": float(lead),
                       "hs": seastate.skill(predicted_hs, observed_hs, validation["hs"]),
                       "tp": seastate.skill(predicted_tp, observed_tp, validation["tp"]),
+                      "hs_interval": bootstrap(predicted_hs, observed_hs, validation["hs"]),
+                      "tp_interval": bootstrap(predicted_tp, observed_tp, validation["tp"]),
                       "hs_predicted": predicted_hs, "hs_observed": observed_hs,
                       "tp_predicted": predicted_tp, "tp_observed": observed_tp})
     return {"model": model, "table": table, "search": search, "calibration": calibration,
             "validation": validation, "states": states}
+
+
+def bootstrap(predicted, observed, reference, *, draws: int = 400, seed: int = 0) -> tuple[float, float]:
+    """The 5th and 95th percentile of the skill score when the analyses are resampled.
+
+    A skill of -0.1 % over 254 analyses is a number with a sign that the sample may not support, and the interval is the
+    honest way to say so: a model that is level with persistence at some lead should be reported as level, not as a
+    small loss or a small gain.
+    """
+    predicted = np.asarray(predicted, dtype=float)
+    observed = np.asarray(observed, dtype=float)
+    reference = np.asarray(reference, dtype=float)
+    ok = np.isfinite(predicted) & np.isfinite(observed) & np.isfinite(reference)
+    predicted, observed, reference = predicted[ok], observed[ok], reference[ok]
+    rng = np.random.default_rng(seed)
+    out = []
+    for _ in range(draws):
+        pick = rng.integers(0, predicted.size, predicted.size)
+        mse = float(np.mean((predicted[pick] - observed[pick]) ** 2))
+        base = float(np.mean((reference[pick] - observed[pick]) ** 2))
+        out.append(1.0 - mse / base if base > 0 else np.nan)
+    return float(np.nanpercentile(out, 5)), float(np.nanpercentile(out, 95))
+
+
+def analysis_floor(buoy: Buoy, model: seastate.SeaStateModel, states: dict,
+                   table: list[dict]) -> dict[str, object]:
+    """What any forecast from this record is up against, before a single coefficient is fitted.
+
+    Two things put a floor under the scores: the peak period the analysis reads off NDBC's 46 bands, which enters every
+    forecast; and the grid the *verification* is on -- NDBC publishes ``DPD`` in whole seconds, so a continuous forecast
+    is scored against a target quantised to 1 s (a standard deviation of ``1/sqrt(12) = 0.29 s``) while persistence
+    starts from the same grid and is not exposed to it in the same way.  The third measurement is the one that rules an
+    explanation out: if the period loss came from a flat peak in a young wind sea, the error would be concentrated where
+    the swell share is small, and it is not.
+    """
+    analysis_tp = np.array([sp.peak_period(buoy.freq, row) for row in states["density"]])
+    observed = states["tp"]
+    residual = analysis_tp - observed
+
+    # the error's other candidate explanation: a peak badly defined in a young wind sea.  Split the analyses by how
+    # much of their energy is swell and look at the error, and at the flatness of the peak, in each third.
+    shares, flat = [], []
+    for i in range(states["freq"].shape[0]):
+        row = states["density"][i]
+        swell, _ = seastate.split_swell(states["freq"][i], row, max(float(states["wind"][i]), 1e-3))
+        total = float(np.trapezoid(row, states["freq"][i]))
+        shares.append(float(np.trapezoid(swell, states["freq"][i])) / total if total > 0 else 0.0)
+        flat.append(int(np.sum(row > 0.9 * row.max())))
+    shares, flat = np.array(shares), np.array(flat)
+    order = np.argsort(shares)
+    third = order.size // 3
+    swell_split = {name: {"median_error_s": float(np.median(np.abs(residual)[group])),
+                          "flat_bands": float(np.mean(flat[group]))}
+                   for name, group in (("least_swell", order[:third]), ("middle", order[third:2 * third]),
+                                       ("most_swell", order[2 * third:]))}
+    one_hour = []
+    leads = np.array([1.0])
+    for i in range(states["freq"].shape[0]):
+        out = model.forecast(states["freq"][i], states["density"][i], states["wind"][i], leads=leads)
+        one_hour.append(out.hs[0] - states["hs"][i])
+    one_hour = np.array(one_hour)
+    observed_change = states["obs_hs"][:, 0] - states["hs"]
+    grid = np.unique(buoy.record.tp[np.isfinite(buoy.record.tp)])
+    first = table[0]
+    combined = math.hypot(first["tp"]["rmse_reference"], float(np.sqrt(np.mean(residual ** 2))))
+    return {
+        "analysis_tp_bias": float(np.mean(residual)),
+        "analysis_tp_rmse": float(np.sqrt(np.mean(residual ** 2))),
+        "analysis_tp_correlation": float(np.corrcoef(analysis_tp, observed)[0, 1]),
+        "dpd_grid_s": float(np.median(np.diff(grid))),
+        "tp_rmse_at_first_lead": float(first["tp"]["rmse"]),
+        "tp_rmse_predicted_by_the_floor": float(combined),
+        "dpd_quantisation_s": 1.0 / math.sqrt(12.0),
+        "model_change_1h_mean": float(np.mean(one_hour)),
+        "model_change_1h_sd": float(np.std(one_hour)),
+        "observed_change_1h_mean": float(np.mean(observed_change)),
+        "observed_change_1h_sd": float(np.std(observed_change)),
+        "change_correlation_1h": float(np.corrcoef(one_hour, observed_change)[0, 1]),
+        "swell_split": swell_split,
+        "analyses": int(states["freq"].shape[0]),
+    }
 
 
 def spectrum_agreement(buoy: Buoy, quick: bool) -> dict[str, object]:
@@ -536,11 +619,27 @@ def main() -> None:
 
     wave = wave_skill(buoy, leads, args.quick)
     print(f"calibrated on the first half: {wave['model']}")
+    print("  lead |  Hs rmse | Hs persist | Hs skill (90 % interval) | Tp rmse | Tp persist | Tp skill (90 % interval)")
     for row in wave["table"]:
-        if row["lead_hours"] in (1.0, 6.0, 12.0, 24.0):
-            print(f"  lead {row['lead_hours']:4.0f} h  Hs skill {row['hs']['skill']:+.3f} "
-                  f"(rmse {row['hs']['rmse']:.3f} vs {row['hs']['rmse_reference']:.3f} m)  "
-                  f"Tp skill {row['tp']['skill']:+.3f} (rmse {row['tp']['rmse']:.2f} vs {row['tp']['rmse_reference']:.2f} s)")
+        h, t = row["hs"], row["tp"]
+        print(f"  {row['lead_hours']:4.0f} | {h['rmse']:8.3f} | {h['rmse_reference']:10.3f} | "
+              f"{h['skill']:+6.1%} ({row['hs_interval'][0]:+.1%} .. {row['hs_interval'][1]:+.1%})  | "
+              f"{t['rmse']:7.2f} | {t['rmse_reference']:10.2f} | "
+              f"{t['skill']:+6.1%} ({row['tp_interval'][0]:+.1%} .. {row['tp_interval'][1]:+.1%})")
+    floor = analysis_floor(buoy, wave["model"], wave["states"], wave["table"])
+    print(f"the floor: the analysis peak period is {floor['analysis_tp_bias']:+.2f} s off the buoy's DPD "
+          f"(rmse {floor['analysis_tp_rmse']:.2f} s, r {floor['analysis_tp_correlation']:.3f}), and DPD is published on "
+          f"a {floor['dpd_grid_s']:.0f} s grid ({floor['dpd_quantisation_s']:.2f} s of quantisation); at the first lead "
+          f"that floor plus persistence predicts {floor['tp_rmse_predicted_by_the_floor']:.2f} s and the model gives "
+          f"{floor['tp_rmse_at_first_lead']:.2f} s")
+    print(f"  in one hour the model moves Hs by {floor['model_change_1h_mean']:+.4f} +- {floor['model_change_1h_sd']:.4f} m "
+          f"and the sea moves by {floor['observed_change_1h_mean']:+.4f} +- {floor['observed_change_1h_sd']:.4f} m "
+          f"(correlation {floor['change_correlation_1h']:.2f}): at short leads the model is persistence plus a drift, "
+          f"and the drift is {100 * floor['model_change_1h_sd'] / floor['observed_change_1h_sd']:.1f} % of what the sea does")
+    split = floor["swell_split"]
+    print("  the error is not the wind sea: median |Tp error| "
+          + ", ".join(f"{name} {row['median_error_s']:.2f} s ({row['flat_bands']:.1f} bands over 90 % of the peak)"
+                      for name, row in split.items()))
 
     # the other wind-sea closure, measured rather than asserted: growing it toward a fully developed sea
     grown = seastate.SeaStateModel(swell_decay_hours=wave["model"].swell_decay_hours,
@@ -605,11 +704,13 @@ def main() -> None:
                  "calibration_cost": wave["search"]["cost"],
                  "calibration_hours": int(wave["calibration"]["time"].size),
                  "validation_hours": int(wave["validation"]["time"].size),
-                 "table": [{k: (v if k in ("lead_hours",) else {m: v[m] for m in
-                                                               ("n", "rmse", "bias", "correlation", "skill",
-                                                                "rmse_reference")})
-                            for k, v in row.items() if k in ("lead_hours", "hs", "tp")}
-                           for row in wave["table"]]},
+                 "table": [{k: (v if k in ("lead_hours",) else
+                                [float(x) for x in v] if k.endswith("interval") else
+                                {m: v[m] for m in ("n", "rmse", "bias", "correlation", "skill", "rmse_reference")})
+                            for k, v in row.items()
+                            if k in ("lead_hours", "hs", "tp", "hs_interval", "tp_interval")}
+                           for row in wave["table"]],
+                 "floor": floor},
         "closure": {"grown": closure},
         "vessel": {"section": {"beam": VESSEL["beam"], "draught": VESSEL["draught"], "length": VESSEL["length"],
                                "kg": VESSEL["kg"], "gm": float(vessel["section"].gm)},

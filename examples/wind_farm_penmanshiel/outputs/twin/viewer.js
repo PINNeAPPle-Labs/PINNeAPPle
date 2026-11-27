@@ -1,0 +1,478 @@
+// PINNeAPPle Twin3D viewer: loads scene.json + geometry.glb + fields.bin written by
+// pinneapple_twin3d.Scene.export(). Static files only; three.js is copied next to it (vendor/, the library's copy).
+//
+// URL parameters:
+//   ?scene=path/to/scene.json   (default: ./scene.json)
+//   &live=ws://host:port/path   live sensor values: messages {"id": "...", "value": 1.23}
+//                               or a list of them; alarm when outside the sensor envelope.
+//   &step=N | &step=last        open at a given time step
+//   &field=name                 open showing a given field
+//   &cmap=cfd_sequential|cfd_diverging|cfd_cyclic|coolwarm|turbo|viridis|inferno   colormap
+//                               (default: the house sequential map, from theme.js)
+//   &view=x,y,z                 camera direction from the scene centre (default 0.6,0.45,0.66)
+//   &zoom=1.0                   camera distance factor (< 1 closer)
+//   &theme=dark|light           colour theme
+//   &range=min,max              fixed colour range
+//   &speed=ms                   playback interval per time step (default 250)
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+// The house theme, generated from pinneapple_tools/visualization/theme.json by scripts/build_theme.py: the same
+// colormaps the matplotlib figures and the studio viewer use, so a field is one colour everywhere (#65).
+import { THEME } from "./theme.js";
+
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const sceneUrl = new URL(params.get("scene") || "scene.json", location.href);
+
+// ── colormaps ──────────────────────────────────────────────────────────
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+function turbo(t) { // Google "Turbo" polynomial approximation (Mikhailov, 2019)
+  t = clamp01(t);
+  const r = 0.13572138 + t * (4.6153926 + t * (-42.66032258 + t * (132.13108234 + t * (-152.94239396 + t * 59.28637943))));
+  const g = 0.09140261 + t * (2.19418839 + t * (4.84296658 + t * (-14.18503333 + t * (4.27729857 + t * 2.82956604))));
+  const b = 0.1066733 + t * (12.64194608 + t * (-60.58204836 + t * (110.36276771 + t * (-89.90310912 + t * 27.34824973))));
+  return [clamp01(r), clamp01(g), clamp01(b)];
+}
+const VIRIDIS = [[0.267, 0.005, 0.329], [0.283, 0.141, 0.458], [0.254, 0.265, 0.530], [0.207, 0.372, 0.553],
+  [0.164, 0.471, 0.558], [0.128, 0.567, 0.551], [0.135, 0.659, 0.518], [0.267, 0.749, 0.441],
+  [0.478, 0.821, 0.318], [0.741, 0.873, 0.150], [0.993, 0.906, 0.144]];
+const INFERNO = [[0.001, 0.000, 0.014], [0.087, 0.045, 0.225], [0.258, 0.039, 0.406], [0.416, 0.090, 0.433], [0.578, 0.148, 0.404], [0.736, 0.216, 0.330], [0.865, 0.317, 0.226], [0.955, 0.469, 0.100], [0.988, 0.645, 0.040], [0.964, 0.844, 0.273], [0.988, 0.998, 0.645]];
+function lut(table) {
+  return (t) => {
+    t = clamp01(t) * (table.length - 1);
+    const i = Math.min(table.length - 2, Math.floor(t)), f = t - i;
+    return [0, 1, 2].map((k) => table[i][k] * (1 - f) + table[i + 1][k] * f);
+  };
+}
+// the house maps arrive as [position, [r, g, b] 0..255] pairs, the shape the theme file and studio-core.js use
+function rampStops(stops) {
+  return (t) => {
+    t = clamp01(t);
+    for (let i = 1; i < stops.length; i++) if (t <= stops[i][0]) {
+      const [a, ca] = stops[i - 1], [b, cb] = stops[i], f = (t - a) / ((b - a) || 1);
+      return ca.map((c, k) => (c + f * (cb[k] - c)) / 255);
+    }
+    return stops[stops.length - 1][1].map((c) => c / 255);
+  };
+}
+const houseCmap = (name) => rampStops(THEME.colormaps[name].stops);
+// turbo, viridis and inferno stay as options for comparison with other tools; the default is the house map
+const CMAPS = { turbo, viridis: lut(VIRIDIS), inferno: lut(INFERNO), coolwarm: houseCmap("coolwarm"),
+  cfd_sequential: houseCmap("cfd_sequential"), cfd_diverging: houseCmap("cfd_diverging"),
+  cfd_cyclic: houseCmap("cfd_cyclic") };
+
+// ── state ──────────────────────────────────────────────────────────────
+const state = { manifest: null, fields: null, parts: new Map(), sensors: [], step: 0, playing: null,
+  field: "", cmap: THEME.defaultCmap, live: new Map(), clipPlane: new THREE.Plane(new THREE.Vector3(1, 0, 0), 0) };
+
+// ── three.js setup ─────────────────────────────────────────────────────
+const viewport = $("viewport");
+const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.localClippingEnabled = true;
+viewport.prepend(renderer.domElement);
+const scene3 = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.001, 1e7);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene3.add(new THREE.HemisphereLight(0xffffff, 0x445066, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+scene3.add(sun);
+const sensorGroup = new THREE.Group();
+scene3.add(sensorGroup);
+
+// Every colour the page shows is the theme's, not a literal in index.html: the surface the model is drawn on, the
+// chrome around it, and the two status colours, which are the brand's ember and the palette's green. The set is one
+// object so a variable the page uses and nobody sets is visible in one place instead of a colour that silently
+// stays at its browser default.
+function pageVars(dark) {
+  const s = THEME.surface[dark ? "dark" : "light"];
+  return {
+    "--viewport": s.plot,
+    "--bg": s.plot,                              // the recessed surface the panels sit on
+    "--panel": s.paper,
+    "--text": s.ink,
+    "--muted": s.muted,
+    "--line": s.line,
+    "--accent": dark ? THEME.categorical[4] : THEME.brand.blue,
+    "--alarm": dark ? THEME.brand.ember_lifted : THEME.brand.ember,
+    "--ok": THEME.categorical[2],
+  };
+}
+
+function applyTheme() {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+    (!document.documentElement.hasAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+  const vars = pageVars(dark);
+  for (const [name, value] of Object.entries(vars)) document.documentElement.style.setProperty(name, value);
+  scene3.background = new THREE.Color(vars["--viewport"]);
+}
+
+function resize() {
+  const w = viewport.clientWidth, h = viewport.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(h, 1);
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(viewport);
+
+function showError(msg) {
+  const el = $("error");
+  el.style.display = "grid";
+  el.textContent = msg;
+}
+
+// ── loading ────────────────────────────────────────────────────────────
+async function load() {
+  const res = await fetch(sceneUrl);
+  if (!res.ok) throw new Error(`Could not open ${sceneUrl} (HTTP ${res.status}).`);
+  const m = await res.json();
+  if (m.format !== "pinneapple-twin3d/1") throw new Error(`Unknown format: ${m.format}`);
+  state.manifest = m;
+  $("title").textContent = m.title;
+  const nTri = m.parts.reduce((a, p) => a + p.triangles, 0);
+  $("meta").textContent = `${m.parts.length} parts · ${nTri.toLocaleString()} triangles · unit ${m.length_unit}` +
+    (m.source ? ` · fonte: ${m.source}` : "");
+
+  const base = new URL(".", sceneUrl);
+  const [gltf, buf] = await Promise.all([
+    new GLTFLoader().loadAsync(new URL(m.geometry, base).href),
+    (m.fields.length || (m.motions || []).length || (m.visibility || []).length) ? fetch(new URL(m.fields_file, base)).then((r) => r.arrayBuffer()) : Promise.resolve(new ArrayBuffer(0)),
+  ]);
+  state.fields = buf;
+
+  const byName = new Map();
+  gltf.scene.traverse((o) => { if (o.isMesh) byName.set(o.name, o); });
+  for (const p of m.parts) {
+    const mesh = byName.get(p.name) || byName.get(p.name.replace(/\s/g, "_"));
+    if (!mesh) continue;
+    const base = new THREE.Color(...p.color);
+    mesh.material = new THREE.MeshStandardMaterial({ color: base, metalness: 0.1, roughness: 0.7,
+      side: THREE.DoubleSide, clippingPlanes: [], clipShadows: true });
+    const count = mesh.geometry.attributes.position.count;
+    mesh.geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(count * 3), 3));
+    state.parts.set(p.name, { meta: p, mesh, base, fields: new Map() });
+  }
+  scene3.add(gltf.scene);
+  for (const f of m.fields) {
+    const part = state.parts.get(f.part);
+    if (part) part.fields.set(f.name, new Float32Array(buf, f.offset, f.steps * f.count));
+  }
+  for (const mo of m.motions || []) {          // rigid motion per step: x, y, z, qw, qx, qy, qz
+    const part = state.parts.get(mo.part);
+    if (part) part.motion = new Float32Array(buf, mo.offset, mo.steps * 7);
+  }
+  for (const vi of m.visibility || []) {       // 1 = drawn, 0 = hidden, per step
+    const part = state.parts.get(vi.part);
+    if (part) part.visibility = new Float32Array(buf, vi.offset, vi.steps);
+  }
+  buildUi();
+  fitCamera();
+  update();
+}
+
+// ── UI ─────────────────────────────────────────────────────────────────
+function fieldNames() { return [...new Set(state.manifest.fields.map((f) => f.name))]; }
+function fieldUnit(name) { return (state.manifest.fields.find((f) => f.name === name) || {}).unit || ""; }
+function fieldRange(name) {
+  if (!$("autorange").checked) return [parseFloat($("vmin").value), parseFloat($("vmax").value)];
+  const fs = state.manifest.fields.filter((f) => f.name === name);
+  return [Math.min(...fs.map((f) => f.min)), Math.max(...fs.map((f) => f.max))];
+}
+const fmt = (v) => (Math.abs(v) >= 1e4 || (Math.abs(v) < 1e-3 && v !== 0)) ? v.toExponential(3) : v.toPrecision(4);
+
+function buildUi() {
+  const m = state.manifest;
+  // the maps come from the theme file, so the viewer never offers a scale the figures do not have
+  const mapSel = $("cmap");
+  mapSel.innerHTML = Object.keys(CMAPS).map((name) =>
+    `<option value="${name}">${name.replace(/_/g, " ")}</option>`).join("");
+  mapSel.value = state.cmap;
+  const sel = $("field");
+  sel.innerHTML = `<option value="">(no field: part colour)</option>` +
+    fieldNames().map((n) => `<option value="${n}">${n}${fieldUnit(n) ? ` [${fieldUnit(n)}]` : ""}</option>`).join("");
+  state.field = fieldNames()[0] || "";
+  sel.value = state.field;
+  sel.onchange = () => { state.field = sel.value; syncRangeInputs(); update(); };
+  $("cmap").onchange = (e) => { state.cmap = e.target.value; update(); };
+  $("autorange").onchange = () => { syncRangeInputs(); update(); };
+  $("vmin").oninput = $("vmax").oninput = () => { $("autorange").checked = false; update(); };
+  syncRangeInputs();
+
+  // parts, grouped
+  const groups = new Map();
+  for (const [name, p] of state.parts) {
+    const g = p.meta.group || "Parts";
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(name);
+  }
+  const box = $("parts");
+  box.innerHTML = "";
+  for (const [g, names] of groups) {
+    if (groups.size > 1) box.insertAdjacentHTML("beforeend", `<div class="meta" style="margin-top:6px">${g}</div>`);
+    for (const name of names) {
+      const row = document.createElement("label");
+      row.className = "row part-actions";
+      row.innerHTML = `<input type="checkbox" checked><span></span><button title="Show only this part">isolate</button>`;
+      row.querySelector("span").textContent = name;
+      const cb = row.querySelector("input");
+      cb.onchange = () => { state.parts.get(name).hidden = !cb.checked; update(); };
+      row.querySelector("button").onclick = (e) => {
+        e.preventDefault();
+        for (const [n, p] of state.parts) {
+          p.hidden = n !== name;
+          box.querySelectorAll("label").forEach((l) => {
+            if (l.querySelector("span").textContent === n) l.querySelector("input").checked = n === name;
+          });
+        }
+        update();
+      };
+      box.appendChild(row);
+    }
+  }
+
+  // time
+  const nt = m.times.length;
+  $("time").max = Math.max(nt - 1, 0);
+  $("time").oninput = (e) => { state.step = +e.target.value; update(); };
+  $("play").disabled = nt < 2;
+  const s0 = params.get("step");
+  if (s0 !== null && nt) {
+    state.step = s0 === "last" ? nt - 1 : Math.min(Math.max(parseInt(s0, 10) || 0, 0), nt - 1);
+    $("time").value = state.step;
+  }
+  const r0 = params.get("range");             // fixed colour range "min,max"
+  if (r0) {
+    const [lo0, hi0] = r0.split(",").map(Number);
+    $("autorange").checked = false; $("vmin").value = lo0; $("vmax").value = hi0;
+  }
+  const c0 = params.get("cmap");
+  if (c0 && CMAPS[c0]) { state.cmap = c0; $("cmap").value = c0; }
+  const f0 = params.get("field");
+  if (f0 && fieldNames().includes(f0)) { state.field = f0; sel.value = f0; syncRangeInputs(); }
+  $("play").onclick = () => {
+    if (state.playing) { clearInterval(state.playing); state.playing = null; $("play").textContent = "▶"; return; }
+    $("play").textContent = "⏸";
+    const speed = Math.max(16, parseInt(params.get("speed") || "250", 10) || 250);
+    state.playing = setInterval(() => { state.step = (state.step + 1) % nt; $("time").value = state.step; update(); }, speed);
+  };
+
+  // clipping
+  const [lo, hi] = m.bounds;
+  const setClip = () => {
+    const axis = $("clipAxis").value;
+    for (const p of state.parts.values()) p.mesh.material.clippingPlanes = axis === "" ? [] : [state.clipPlane];
+    if (axis === "") return;
+    const a = +axis, pos = lo[a] + (hi[a] - lo[a]) * (+$("clipPos").value / 1000);
+    const flip = $("clipFlip").checked ? -1 : 1;
+    const n = new THREE.Vector3(); n.setComponent(a, flip);
+    state.clipPlane.set(n, -flip * pos);  // keeps the side where flip * (x_a - pos) >= 0
+  };
+  $("clipAxis").onchange = $("clipPos").oninput = $("clipFlip").onchange = setClip;
+
+  // sensors
+  const diag = new THREE.Vector3(...hi).sub(new THREE.Vector3(...lo)).length();
+  const geo = new THREE.SphereGeometry(diag * 0.008, 16, 12);
+  $("sensors").innerHTML = m.sensors.length ? "" : `<span class="meta">no sensors</span>`;
+  for (const s of m.sensors) {
+    const mat = new THREE.MeshBasicMaterial({ color: 0x1f9d55 });
+    const ball = new THREE.Mesh(geo, mat);
+    ball.position.set(...s.position);
+    sensorGroup.add(ball);
+    const row = document.createElement("div");
+    row.className = "sensor";
+    row.innerHTML = `<span class="dot"></span><span></span><span class="val"></span>`;
+    row.children[1].textContent = s.label;
+    $("sensors").appendChild(row);
+    const tag = document.createElement("div");
+    tag.className = "tag";
+    viewport.appendChild(tag);
+    state.sensors.push({ meta: s, ball, row, tag });
+  }
+  $("fit").onclick = fitCamera;
+  $("theme").onclick = () => {
+    const dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+      (!document.documentElement.hasAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    applyTheme(); updateLegend();
+  };
+  connectLive();
+}
+
+function syncRangeInputs() {
+  if (!state.field) return;
+  const [a, b] = fieldRange(state.field);
+  if ($("autorange").checked) { $("vmin").value = +a.toPrecision(6); $("vmax").value = +b.toPrecision(6); }
+}
+
+function fitCamera() {
+  const [lo, hi] = state.manifest.bounds;
+  const c = new THREE.Vector3(...lo).add(new THREE.Vector3(...hi)).multiplyScalar(0.5);
+  const r = Math.max(new THREE.Vector3(...hi).sub(new THREE.Vector3(...lo)).length() / 2, 1e-6);
+  const dist = r / Math.sin((camera.fov * Math.PI) / 360);
+  const view = (params.get("view") || "0.6,0.45,0.66").split(",").map(Number);
+  const zoom = +(params.get("zoom") || 1);
+  camera.position.copy(c).add(new THREE.Vector3(...view).normalize().multiplyScalar(dist * zoom));
+  camera.near = dist / 1000; camera.far = dist * 100; camera.updateProjectionMatrix();
+  controls.target.copy(c); controls.update();
+  sun.position.copy(camera.position);
+}
+
+// ── per-step update ────────────────────────────────────────────────────
+function valuesAt(part, name, step) {
+  const arr = part.fields.get(name);
+  if (!arr) return null;
+  const count = part.mesh.geometry.attributes.position.count;
+  const steps = arr.length / count;
+  const s = Math.min(step, steps - 1);
+  return arr.subarray(s * count, (s + 1) * count);
+}
+
+// Colormaps are defined in sRGB; three.js vertex colors are linear, so convert once per sample.
+const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+
+function update() {
+  const m = state.manifest;
+  const cmapSrgb = CMAPS[state.cmap];
+  const cmap = (t) => cmapSrgb(t).map(srgbToLinear);
+  const [vmin, vmax] = state.field ? fieldRange(state.field) : [0, 1];
+  const span = vmax - vmin || 1;
+  for (const p of state.parts.values()) {
+    if (p.motion) {
+      const k = 7 * Math.min(state.step, p.motion.length / 7 - 1), a = p.motion;
+      p.mesh.position.set(a[k], a[k + 1], a[k + 2]);
+      p.mesh.quaternion.set(a[k + 4], a[k + 5], a[k + 6], a[k + 3]);
+    }
+    const shown = !p.visibility || p.visibility[Math.min(state.step, p.visibility.length - 1)] > 0.5;
+    p.mesh.visible = shown && !p.hidden;
+    const vals = state.field ? valuesAt(p, state.field, state.step) : null;
+    const mat = p.mesh.material;
+    if (!vals) { mat.vertexColors = false; mat.color.copy(p.base); mat.needsUpdate = true; continue; }
+    const col = p.mesh.geometry.attributes.color;
+    for (let i = 0; i < vals.length; i++) {
+      const [r, g, b] = cmap((vals[i] - vmin) / span);
+      col.array[3 * i] = r; col.array[3 * i + 1] = g; col.array[3 * i + 2] = b;
+    }
+    col.needsUpdate = true;
+    if (!mat.vertexColors) { mat.vertexColors = true; mat.color.set(0xffffff); mat.needsUpdate = true; }
+  }
+  const t = m.times.length ? m.times[state.step] : null;
+  const caption = (m.step_labels || [])[state.step];
+  $("timeLabel").textContent = (t === null ? "steady state" : `t = ${fmt(t)} ${m.time_unit} (${state.step + 1}/${m.times.length})`) +
+    (caption ? ` · ${caption}` : "");
+  updateSensors();
+  updateLegend();
+}
+
+function updateLegend() {
+  const show = !!state.field;
+  $("legend").style.display = show ? "block" : "none";
+  if (!show) return;
+  const [a, b] = fieldRange(state.field);
+  const stops = Array.from({ length: 11 }, (_, i) => {
+    const [r, g, bl] = CMAPS[state.cmap](i / 10);
+    return `rgb(${(r * 255) | 0},${(g * 255) | 0},${(bl * 255) | 0}) ${i * 10}%`;
+  });
+  $("legendBar").style.background = `linear-gradient(90deg, ${stops.join(",")})`;
+  $("legendName").textContent = state.field + (fieldUnit(state.field) ? ` [${fieldUnit(state.field)}]` : "");
+  $("lmin").textContent = fmt(a); $("lmax").textContent = fmt(b);
+}
+
+function sensorValue(s) {
+  if (state.live.has(s.meta.id)) return state.live.get(s.meta.id);
+  return s.meta.series ? s.meta.series[Math.min(state.step, s.meta.series.length - 1)] : null;
+}
+
+function updateSensors() {
+  for (const s of state.sensors) {
+    const v = sensorValue(s);
+    const env = s.meta.envelope;
+    const alarm = v !== null && env && (v < env[0] || v > env[1]);
+    const txt = v === null ? "—" : `${fmt(v)} ${s.meta.unit}`;
+    s.row.classList.toggle("alarm", !!alarm);
+    s.row.children[2].textContent = txt;
+    s.row.title = env ? `Valid envelope: ${env[0]} … ${env[1]} ${s.meta.unit}` : "";
+    s.tag.textContent = `${s.meta.label}: ${txt}`;
+    s.tag.classList.toggle("alarm", !!alarm);
+    s.ball.material.color.set(alarm ? 0xd6453d : 0x1f9d55);
+  }
+}
+
+function connectLive() {
+  const url = params.get("live");
+  if (!url) return;
+  const ws = new WebSocket(url);
+  $("live").textContent = "live: connecting…";
+  ws.onopen = () => { $("live").textContent = "live: connected"; };
+  ws.onclose = () => { $("live").textContent = "live: disconnected"; };
+  ws.onerror = () => { $("live").textContent = "live: connection error"; };
+  ws.onmessage = (ev) => {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+    for (const item of Array.isArray(msg) ? msg : [msg]) {
+      if (item && typeof item.id === "string" && Number.isFinite(item.value)) state.live.set(item.id, item.value);
+    }
+    updateSensors();
+  };
+}
+
+// ── probe (value under the cursor) ─────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let probeQueued = false;
+renderer.domElement.addEventListener("pointermove", (e) => {
+  const r = renderer.domElement.getBoundingClientRect();
+  pointer.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  if (!probeQueued) { probeQueued = true; requestAnimationFrame(() => { probeQueued = false; probe(e.clientX - r.left, e.clientY - r.top); }); }
+});
+renderer.domElement.addEventListener("pointerleave", () => { $("probe").style.display = "none"; });
+
+function probe(px, py) {
+  raycaster.setFromCamera(pointer, camera);
+  const meshes = [...state.parts.values()].filter((p) => p.mesh.visible).map((p) => p.mesh);
+  const hits = raycaster.intersectObjects(meshes, false).filter((h) =>
+    !h.object.material.clippingPlanes.length || state.clipPlane.distanceToPoint(h.point) >= 0);
+  const el = $("probe");
+  if (!hits.length) { el.style.display = "none"; return; }
+  const h = hits[0];
+  const part = [...state.parts.values()].find((p) => p.mesh === h.object);
+  const pos = h.object.geometry.attributes.position;
+  const local = h.object.worldToLocal(h.point.clone());
+  let best = h.face.a, bestD = Infinity;
+  for (const i of [h.face.a, h.face.b, h.face.c]) {
+    const d = local.distanceToSquared(new THREE.Vector3().fromBufferAttribute(pos, i));
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  const vals = state.field ? valuesAt(part, state.field, state.step) : null;
+  const u = state.manifest.length_unit;
+  el.innerHTML = "";
+  const lines = [part.meta.name,
+    `(${fmt(h.point.x)}, ${fmt(h.point.y)}, ${fmt(h.point.z)}) ${u}`];
+  if (vals) lines.push(`${state.field} = ${fmt(vals[best])} ${fieldUnit(state.field)}`);
+  for (const l of lines) { const d = document.createElement("div"); d.textContent = l; el.appendChild(d); }
+  el.style.display = "block";
+  el.style.left = `${px + 14}px`;
+  el.style.top = `${py + 14}px`;
+}
+
+// ── render loop ────────────────────────────────────────────────────────
+const tmp = new THREE.Vector3();
+function frame() {
+  controls.update();
+  renderer.render(scene3, camera);
+  const w = viewport.clientWidth, h = viewport.clientHeight;
+  for (const s of state.sensors) {
+    tmp.copy(s.ball.position).project(camera);
+    const visible = tmp.z < 1 && Math.abs(tmp.x) <= 1 && Math.abs(tmp.y) <= 1;
+    s.tag.style.display = visible ? "block" : "none";
+    if (visible) { s.tag.style.left = `${(tmp.x + 1) / 2 * w}px`; s.tag.style.top = `${(1 - tmp.y) / 2 * h}px`; }
+  }
+  requestAnimationFrame(frame);
+}
+
+if (params.get("theme")) document.documentElement.setAttribute("data-theme", params.get("theme"));
+applyTheme();
+resize();
+frame();
+load().catch((e) => { console.error(e); showError(e.message); $("status").textContent = "failed to load"; });

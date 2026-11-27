@@ -1,0 +1,175 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/wind_farm_penmanshiel",
+ "title": "Penmanshiel wind farm: a physics-informed power curve and analytical wakes against public SCADA",
+ "description": "One turbine's power curve and a whole farm's wakes on the Penmanshiel dataset (14 Senvion MM82, CC-BY-4.0, doi:10.5281/zenodo.16807304). A physics-informed monotone model with hard physical constraints is scored against the IEC binned curve, a logistic fit, boosted trees and the operator's own potential-power column on a later temporal window; the Jensen/PARK and Gaussian wake models are compared with the farm efficiency the SCADA implies, sector by sector, and their single decay constant is fitted on a validation window and scored on a test window.",
+ "domain": "wind energy",
+ "methods": [],
+ "modules": [
+  "pinneapple_systems.wind.layout",
+  "pinneapple_systems.wind.penmanshiel",
+  "pinneapple_systems.wind.power_curve",
+  "pinneapple_systems.wind.models",
+  "pinneapple_systems.wind.metrics",
+  "pinneapple_systems.wind.wake",
+  "pinneapple_systems.wind.optimization",
+  "pinneapple_systems.wind.verification",
+  "pinneapple_systems.wind.figures",
+  "pinneapple_systems.wind.twin",
+  "pinneapple_systems.wind.video"
+ ],
+ "params": {
+  "rated_power_kw": 2050.0,
+  "rotor_diameter_m": 82.0,
+  "hub_height_m": 59.0,
+  "train_end": "2017-07-01",
+  "validation_end": "2017-09-01",
+  "wake_sectors": 36,
+  "wake_reference_group": 3,
+  "twin_wind_speed_ms": 8.0,
+  "twin_direction_step_deg": 5.0,
+  "video_direction_step_deg": 3.0
+ },
+ "scripts": [
+  "run_poc.py"
+ ],
+ "metrics": [
+  {
+   "name": "physics_informed_rmse_kw",
+   "value": 54.35,
+   "unit": "kW",
+   "how": "temporal holdout 2017-09-01..2017-12-31, turbine T01, 15964 operating 10-min samples, model fitted on 2016-06..2017-06 only"
+  },
+  {
+   "name": "iec_binned_rmse_kw",
+   "value": 46.63,
+   "unit": "kW",
+   "how": "same holdout and samples; IEC 61400-12-1 0.5 m/s binned curve fitted on the training window"
+  },
+  {
+   "name": "gradient_boosted_rmse_kw",
+   "value": 45.34,
+   "unit": "kW",
+   "how": "same holdout and samples; histogram gradient-boosted trees over wind speed, density ratio, temperature, direction sin/cos and anemometer spread"
+  },
+  {
+   "name": "operator_potential_power_rmse_kw",
+   "value": 57.07,
+   "unit": "kW",
+   "how": "same holdout and samples; the dataset's own 'Potential power default PC (kW)' column, a measured reference rather than a fitted model"
+  },
+  {
+   "name": "physics_informed_energy_error_fraction",
+   "value": 0.0022,
+   "unit": "1",
+   "how": "sum(predicted - measured) / sum(measured) over the same holdout"
+  },
+  {
+   "name": "conformal_coverage_90",
+   "value": 0.8765,
+   "unit": "1",
+   "how": "split-conformal half-width (80.0 kW) from the validation window, empirical coverage of the test residuals against a 0.90 target"
+  },
+  {
+   "name": "wake_model_bias_textbook",
+   "value": -0.1177,
+   "unit": "1",
+   "how": "Gaussian wake model with k*=0.0324555 minus SCADA-observed farm efficiency, mean over 96 sector x speed cells on the test window"
+  },
+  {
+   "name": "wake_model_rmse_textbook",
+   "value": 0.1845,
+   "unit": "1",
+   "how": "same 96 cells, root mean square of the efficiency difference"
+  },
+  {
+   "name": "wake_model_rmse_calibrated",
+   "value": 0.1256,
+   "unit": "1",
+   "how": "same 96 cells, with the decay constant fitted on the validation window (k*=0.090) and not on the test window"
+  },
+  {
+   "name": "wake_model_direction_correlation",
+   "value": 0.172,
+   "unit": "1",
+   "how": "Pearson correlation between modelled and observed efficiency across the 96 cells; reported to show that the direction shape is NOT reproduced"
+  },
+  {
+   "name": "farm_surrogate_r2",
+   "value": 0.956,
+   "unit": "1",
+   "how": "MLP fitted to the analytical farm model on a 36-direction grid and scored on a 54-direction grid at shifted wind speeds"
+  }
+ ],
+ "checks": [
+  {
+   "name": "physics_informed_hard_constraints",
+   "how": "physical_guardrails re-measures cap, monotonicity, operating window and Betz on the fitted curve: all four pass, and the binned curve and both boosted-tree models fail three of the four",
+   "passed": true
+  },
+  {
+   "name": "temporal_split",
+   "how": "train 2016-06..2017-06, validation 2017-07..2017-08, test 2017-09..2017-12; no shuffled split, no lagged target, density and curve fits on train only",
+   "passed": true
+  },
+  {
+   "name": "domain_of_validity",
+   "how": "domain_report: 100 % of the test window lies inside the joint training envelope, i.e. this holdout is an interpolation test and is reported as such",
+   "passed": true
+  },
+  {
+   "name": "curtailment_model",
+   "how": "the curtailment study reports zero modelled gain at 4.2-5.2 D spacing after farm_power was fixed to scale the derated machine's own power with its thrust coefficient; before the fix it reported a 10-16 % gain that was an artefact",
+   "passed": true
+  }
+ ],
+ "files": {
+  "figures": [
+   "outputs/figures/01_wind_rose.png",
+   "outputs/figures/02_power_curves.png",
+   "outputs/figures/03_error_by_speed.png",
+   "outputs/figures/04_pi_convergence.png",
+   "outputs/figures/05_wake_polar_gaussian_classroom.png",
+   "outputs/figures/05_wake_polar_gaussian_calibrated.png",
+   "outputs/figures/05_wake_polar_jensen_classroom.png",
+   "outputs/figures/06_farm_deficit_map.png",
+   "outputs/figures/07_layout.png"
+  ],
+  "videos": [
+   "outputs/wind_farm_demo.mp4"
+  ],
+  "viewers": [
+   "outputs/twin/index.html"
+  ],
+  "data": [
+   "outputs/results.json",
+   "outputs/applicability_map.txt"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/wind_power.md",
+  "script": "examples/wind_farm_penmanshiel/run_poc.py",
+  "notebooks": [
+   "examples/wind_farm_penmanshiel/notebooks/01_turbine_power_model.ipynb",
+   "examples/wind_farm_penmanshiel/notebooks/02_wake_models.ipynb"
+  ],
+  "pr": [
+   2644
+  ]
+ },
+ "references": [
+  "Plumley, C. & Takeuchi, R. Penmanshiel wind farm data. Zenodo, 2025. doi:10.5281/zenodo.16807304 (CC-BY-4.0)",
+  "Plumley, C. The Penmanshiel Wind Farm Data. Scientific Data 9:331, 2022",
+  "Jensen, N.O. A note on wind generator interaction. Riso-M-2411, 1983",
+  "Bastankhah, M. & Porte-Agel, F. A new analytical model for wind-turbine wakes. Renewable Energy 70:116-123, 2014",
+  "Katic, I., Hojstrup, J., Jensen, N.O. A simple model for cluster efficiency. EWEC, 1986",
+  "IEC 61400-12-1: power performance measurements of electricity producing wind turbines (density normalisation, binned curve)"
+ ],
+ "status": "curated",
+ "provenance": {
+  "source": "run_poc.py",
+  "dataset": "Penmanshiel 2016-2017 archives, downloaded from Zenodo; not shipped with the repository",
+  "git": "2026-11-27",
+  "run_seconds": 161.2
+ }
+}

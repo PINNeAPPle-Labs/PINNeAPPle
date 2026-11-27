@@ -1,0 +1,341 @@
+<title>Penmanshiel Wind POC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Design plan
+     Color: ink/paper neutrals biased cool; accent = the turbine-teal used for model
+     curves in every figure (#004c6d), counter-accent = the clay used for observed
+     data (#a23a00). The deck and the figures must agree on those two.
+     Type: Space Grotesk for headings (engineered, a bit narrow), Inter for body,
+     tabular numerals for every figure in a table.
+     Layout: one measured column, section eyebrows over a hairline rule, results as
+     a table and one figure per claim — a reading document, not slides. */
+  :root {
+    --paper: #f7f6f3;
+    --paper-raised: #ffffff;
+    --ink: #16191c;
+    --ink-soft: #545c63;
+    --rule: #d9d6cf;
+    --accent: #004c6d;
+    --counter: #a23a00;
+    --good: #1f6b45;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161a;
+      --paper-raised: #1a2026;
+      --ink: #e8e9e6;
+      --ink-soft: #9aa4ad;
+      --rule: #2c343b;
+      --accent: #6fb6d6;
+      --counter: #e08a55;
+      --good: #62c08d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12161a;
+    --paper-raised: #1a2026;
+    --ink: #e8e9e6;
+    --ink-soft: #9aa4ad;
+    --rule: #2c343b;
+    --accent: #6fb6d6;
+    --counter: #e08a55;
+    --good: #62c08d;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Inter, -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px));
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 780px; margin: 0 auto; padding-block: 3.5rem 5rem; }
+
+  h1, h2, h3 { font-family: "Space Grotesk", Inter, system-ui, sans-serif; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.08; font-weight: 600; letter-spacing: -0.015em; }
+  h2 { font-size: clamp(1.35rem, 3vw, 1.7rem); line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; }
+  h3 { font-size: 1.02rem; font-weight: 600; }
+  p { margin: 0; max-width: 66ch; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+  .eyebrow {
+    font-family: "Space Grotesk", Inter, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .lede { font-size: 1.12rem; color: var(--ink-soft); max-width: 62ch; }
+  .muted { color: var(--ink-soft); }
+  .small { font-size: 0.85rem; line-height: 1.55; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  header.masthead { display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem; border-bottom: 1px solid var(--rule); }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; font-size: 0.82rem; color: var(--ink-soft); }
+  .meta span { display: inline-flex; gap: 0.35rem; }
+
+  section { padding-top: 3rem; display: flex; flex-direction: column; gap: 1rem; }
+  .rule-top { border-top: 1px solid var(--rule); }
+
+  /* headline numbers */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+  .tile { background: var(--paper-raised); padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+  .tile .value { font-family: "Space Grotesk", Inter, sans-serif; font-size: 1.7rem; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .tile .unit { font-size: 0.78rem; color: var(--ink-soft); }
+  .tile.accent .value { color: var(--accent); }
+  .tile.counter .value { color: var(--counter); }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper-raised); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 480px; }
+  caption { text-align: left; padding: 0.8rem 1rem 0; font-size: 0.8rem; color: var(--ink-soft); }
+  th, td { text-align: left; padding: 0.6rem 1rem; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+  thead th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-soft); font-weight: 600; border-bottom: 1px solid var(--rule); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.mark td { background: color-mix(in srgb, var(--accent) 8%, transparent); font-weight: 600; }
+  .pass { color: var(--good); font-weight: 600; }
+  .fail { color: var(--counter); font-weight: 600; }
+
+  figure { margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+  figcaption { font-size: 0.82rem; color: var(--ink-soft); max-width: 66ch; }
+
+  .claim { border-left: 3px solid var(--accent); padding: 0.15rem 0 0.15rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .claim.warn { border-left-color: var(--counter); }
+
+  ol.phases { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+  ol.phases li { display: grid; grid-template-columns: 5.4rem 1fr; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--rule); }
+  ol.phases li:last-child { border-bottom: none; padding-bottom: 0; }
+  ol.phases .when { font-family: "Space Grotesk", Inter, sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; padding-top: 0.15rem; }
+
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .card { background: var(--paper-raised); border: 1px solid var(--rule); border-radius: 6px; padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
+
+  footer { margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); font-size: 0.82rem; color: var(--ink-soft); display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; }
+
+  @media (max-width: 560px) {
+    ol.phases li { grid-template-columns: 1fr; gap: 0.2rem; }
+    .page { padding-block: 2.2rem 3rem; }
+    section { padding-top: 2.2rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { animation: rise 0.5s ease-out both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="eyebrow">Proof of concept · wind energy</div>
+    <h1>Physics-informed power curves and analytical wakes on a real wind farm</h1>
+    <p class="lede">Penmanshiel, 14 Senvion MM82, 28.7 MW — 1.12 million 10-minute SCADA samples, public and licensed. What the models get right, what they cost, and where they stop.</p>
+    <div class="meta">
+      <span><strong>For</strong> Sridhar I.</span>
+      <span><strong>From</strong> Yan Barros</span>
+      <span><strong>27 November 2026</strong></span>
+      <span><strong>Data</strong> CC-BY-4.0, Zenodo</span>
+    </div>
+  </header>
+
+  <section class="reveal">
+    <div class="eyebrow">Result, in one screen</div>
+    <div class="tiles">
+      <div class="tile accent">
+        <span class="value">54.3</span>
+        <span class="unit">kW RMSE · physics-informed curve<br>(2.6 % of rated)</span>
+      </div>
+      <div class="tile">
+        <span class="value">46.6</span>
+        <span class="unit">kW RMSE · IEC binned curve<br>(breaks 3 of 4 physical constraints)</span>
+      </div>
+      <div class="tile counter">
+        <span class="value">−11.8</span>
+        <span class="unit">pp farm-efficiency bias<br>textbook wake constants</span>
+      </div>
+      <div class="tile">
+        <span class="value">−3.0</span>
+        <span class="unit">pp bias after fitting<br>one constant on validation</span>
+      </div>
+    </div>
+    <p class="small muted">Turbine scores: temporal holdout Sep–Dec 2017, 15,964 operating samples, nothing fitted on the test window. Wake scores: 96 sector × speed cells on the same window; the decay constant was fitted on Jul–Aug 2017 and scored here.</p>
+  </section>
+
+  <section class="rule-top reveal">
+    <div class="eyebrow">01 · One turbine</div>
+    <h2>The constrained model gives up 0.4 % of rated power and is the only one you can hand to an optimiser</h2>
+    <p>Five curves, fitted on 13 months, scored on a later 4 months. The last column re-measures four physical claims on the fitted curve rather than trusting the training.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Test window 2017-09-01 → 2017-12-31, turbine T01, 15,964 samples.</caption>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th class="num">RMSE kW</th>
+            <th class="num">Energy error</th>
+            <th class="num">Constraints met</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Boosted trees (met features)</td><td class="num">45.3</td><td class="num">−0.1 %</td><td class="num"><span class="fail">1 / 4</span></td></tr>
+          <tr><td>IEC binned power curve</td><td class="num">46.6</td><td class="num">−0.6 %</td><td class="num"><span class="fail">1 / 4</span></td></tr>
+          <tr><td>Logistic, 5 parameters</td><td class="num">48.9</td><td class="num">−0.3 %</td><td class="num"><span class="pass">4 / 4</span></td></tr>
+          <tr class="mark"><td>Physics-informed (monotone hinge)</td><td class="num">54.3</td><td class="num">+0.2 %</td><td class="num"><span class="pass">4 / 4</span></td></tr>
+          <tr><td>Operator's potential power</td><td class="num">57.1</td><td class="num">+2.2 %</td><td class="num muted">measured</td></tr>
+          <tr><td>Analytic reference (Cp = 0.45)</td><td class="num">102.5</td><td class="num">+4.3 %</td><td class="num"><span class="pass">4 / 4</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">The four constraints: power is never negative, never decreases with wind speed inside the operating window, never exceeds rated, and is zero below cut-in and above cut-out. The binned curve — the industry's definition of a power curve — fails three of them.</p>
+    <figure>
+      <img src="outputs/figures/02_power_curves.png" alt="Measured power cloud with six fitted curves plotted against density-corrected wind speed">
+      <figcaption>Every curve fitted on the training window only: measured cloud in grey, models in colour, rated power as the dotted line.</figcaption>
+    </figure>
+  </section>
+
+  <section class="rule-top reveal">
+    <div class="eyebrow">02 · The farm</div>
+    <h2>The textbook wake constants over-predict this farm's loss by eleven points</h2>
+    <p>Farm efficiency from SCADA — metered power over what the machines would make wake-free — compared with the analytic wake models, sector by sector. The decay constant is the only thing fitted, on a separate window.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>96 sector × speed cells, 12,942 timestamps, test window.</caption>
+        <thead>
+          <tr>
+            <th>Wake model</th>
+            <th class="num">Modelled</th>
+            <th class="num">Observed</th>
+            <th class="num">Bias</th>
+            <th class="num">RMSE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Gaussian, k* = 0.032 (textbook)</td><td class="num">0.818</td><td class="num">0.936</td><td class="num">−11.8 pp</td><td class="num">0.185</td></tr>
+          <tr class="mark"><td>Gaussian, k* = 0.090 (fitted)</td><td class="num">0.906</td><td class="num">0.936</td><td class="num">−3.0 pp</td><td class="num">0.126</td></tr>
+          <tr><td>Jensen / PARK, k = 0.075</td><td class="num">0.830</td><td class="num">0.936</td><td class="num">−10.7 pp</td><td class="num">0.169</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure>
+      <img src="outputs/figures/05_wake_polar_gaussian_classroom.png" alt="Farm efficiency against wind direction: the smooth modelled polar and the scattered observed points">
+      <figcaption>Efficiency against wind direction. The model is smooth; the observation is not, and the two do not agree on where the dip is.</figcaption>
+    </figure>
+    <div class="claim warn">
+      <h3>What that comparison cannot say</h3>
+      <p class="small">The correlation across sectors is only +0.17: the model does <em>not</em> reproduce the direction dependence, and its deepest predicted dip (135°, 0.59) is not the observed one. Whatever dominates the sector-to-sector variation — terrain, instrument calibration, sector management, real per-turbine performance — is not in the model. The observed efficiency is an upper bound on wake loss, not an independent measurement of it.</p>
+    </div>
+  </section>
+
+  <section class="rule-top reveal">
+    <div class="eyebrow">03 · Where the wake is</div>
+    <h2>The layout, and the deficit the model puts on it</h2>
+    <div class="cols">
+      <figure>
+        <img src="outputs/figures/07_layout.png" alt="Turbine positions with one rotor diameter drawn around each machine">
+        <figcaption>Nearest-neighbour spacing 4.2–5.2 rotor diameters — tight enough that wakes matter.</figcaption>
+      </figure>
+      <figure>
+        <img src="outputs/figures/06_farm_deficit_map.png" alt="Layout coloured by predicted velocity deficit at one wind direction">
+        <figcaption>Predicted velocity deficit for the sector the model calls worst, at 7.5 m/s.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="rule-top reveal">
+    <div class="eyebrow">04 · What we do not claim</div>
+    <h2>Four statements this POC will not make</h2>
+    <div class="cols">
+      <div class="card">
+        <h3>Not CFD</h3>
+        <p class="small">Jensen and the Gaussian wake are engineering models: depth-averaged momentum, self-similar profile, no terrain, no stability, no wake meandering, no yaw deflection.</p>
+      </div>
+      <div class="card">
+        <h3>Not a measured wake loss</h3>
+        <p class="small">The reference is a group of upwind turbines whose inflow is inferred from metered power. The observed efficiency absorbs curtailment, icing and real per-turbine differences.</p>
+      </div>
+      <div class="card">
+        <h3>Not a validated optimiser</h3>
+        <p class="small">The curtailment study assumes a thrust-coefficient multiplier stands in for yaw. At this spacing it finds no gain — and an earlier version that found 16 % was a modelling bug, now fixed.</p>
+      </div>
+      <div class="card">
+        <h3>Not an extrapolation test</h3>
+        <p class="small">The test window sits entirely inside the training envelope. It measures interpolation; the applicability map says where the model is not allowed to speak.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule-top reveal">
+    <div class="eyebrow">05 · Proposed collaboration</div>
+    <h2>Four phases, each with a result that can be checked</h2>
+    <ol class="phases">
+      <li>
+        <span class="when">2 weeks</span>
+        <div>
+          <h3>Shared baseline</h3>
+          <p class="small">Fix the data scope with you, agree the reference-turbine and calibration procedure, and make this POC the benchmark row everyone measures against.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">4–6 weeks</span>
+        <div>
+          <h3>Per-turbine calibration</h3>
+          <p class="small">Estimate each machine's offset from the sectors where it is free-stream. This is the one change that turns the farm comparison from an upper bound into an estimate with an error bar — and it needs no new simulation.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">6–10 weeks</span>
+        <div>
+          <h3>Physics-informed wake surrogate</h3>
+          <p class="small">The analytic wake field as the physics prior, a correction network trained against the calibrated efficiency, and a gate that refuses to answer outside the measured envelope. This is the PINN-shaped part, and where your interest in interaction and optimisation fits.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">8–12 weeks</span>
+        <div>
+          <h3>Wake steering</h3>
+          <p class="small">Deflection needs a yaw-aware wake model and a measured steering campaign. That is a field-test design, not a software task, and it is worth doing only once phases 1–3 can tell whether a gain is real.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="rule-top reveal">
+    <div class="eyebrow">06 · Artefacts</div>
+    <h2>Everything here is reproducible today</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>What</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>Library</td><td><code>pinneapple_systems/wind</code></td></tr>
+          <tr><td>Guide and full result table</td><td><code>docs/guides/wind_power.md</code></td></tr>
+          <tr><td>Runnable case</td><td><code>examples/wind_farm_penmanshiel</code></td></tr>
+          <tr><td>Two notebooks, outputs committed</td><td><code>examples/wind_farm_penmanshiel/notebooks</code></td></tr>
+          <tr><td>3D twin and demo film</td><td><code>outputs/twin/</code>, <code>outputs/wind_farm_demo.mp4</code></td></tr>
+          <tr><td>Roadmap</td><td><code>docs/strategy/wind_collaboration_roadmap.md</code></td></tr>
+          <tr><td>Tests</td><td><code>tests/test_wind.py</code> (29 tests)</td></tr>
+          <tr><td>Data</td><td><a href="https://doi.org/10.5281/zenodo.16807304">doi:10.5281/zenodo.16807304</a>, CC-BY-4.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">Three minutes end to end on a laptop with the parse cache warm. The dataset is not shipped in the repository; the download commands are in the example's README.</p>
+  </section>
+
+  <footer>
+    <span>PINNeAPPle Labs · wind energy POC</span>
+    <span>Penmanshiel SCADA: Plumley &amp; Takeuchi, Zenodo, CC-BY-4.0</span>
+    <span>Wake models: Jensen 1983 · Bastankhah &amp; Porté-Agel 2014</span>
+  </footer>
+
+</div>

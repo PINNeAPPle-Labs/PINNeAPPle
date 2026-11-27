@@ -31,6 +31,15 @@ process_components
     (effectiveness-NTU), and 1D pipe networks (quasi-steady momentum +
     transient continuity).
 
+wind  (pinneapple_systems.wind)
+    Wind energy: the Penmanshiel SCADA loader with an evidence-based operating
+    mask, IEC 61400-12-1 density correction and binned power curves, a
+    physics-informed monotone power model, the Jensen/PARK and Gaussian wake
+    models with a farm model, SCADA-observed farm efficiency and its comparison
+    with the wake models, a farm surrogate and a curtailment study. Imported
+    explicitly (``from pinneapple_systems import wind``) rather than eagerly, so
+    that the figure helpers cannot impose their matplotlib backend on a session.
+
 Integration helpers
 -------------------
 ``forecast(data, horizon, ...)``

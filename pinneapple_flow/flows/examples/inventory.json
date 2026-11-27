@@ -424,14 +424,14 @@
   "domain": "sports",
   "notes": "ball_flight_inverse: football.ball_flight_inverse (simulated kicks, no download); pass_pitch_control: football.pass_pitch_control (Metrica sample data). 01_ball_flight.py's SkillCorner audit and hold-out (1.8 GB of tracking, ~1 h), 03 and 04 (StatsBomb, ~3 GB) run as scripts; 05_verdict.py builds the verdict table from their results."
  },
- "studio": {
-  "domain": "visualization",
-  "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"
- },
  "structural_ingestion": {
   "domain": "structural CAE data",
   "reason": "run.py drives the library's explicit crash solver over three coupon impacts and then reads each run back twice (the legacy-VTK time series and the staged OpenRadioss layout, both written by the example itself) before build_training_set normalises the campaign into a training set (#1500). Its first three steps have no node: nothing in the catalog wraps CrashSolver, StructuralRun.from_crash_result or build_training_set (the cae nodes are readers -- inp.vtk_type, dataset.describe, compare.tolerance_verdicts), and coupon(), staged_case() and the discrepancy table are script-side over the files the run wrote. ~25 s per run",
   "status": "not_convertible"
+ },
+ "studio": {
+  "domain": "visualization",
+  "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"
  },
  "systems": {
   "domain": "systems",
@@ -480,6 +480,11 @@
   "needs": "ERA5 store (5 GB) + a trained model + network for hurricane_ian.py",
   "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed); hurricane_ian.py reads HURDAT2 from the NHC (7 MB) and the ARCO-ERA5 and WeatherBench2 zarr stores over HTTPS, cached as about 40 MB of crops outside the repository -- minutes and a network, so not in the ci tier; pretrained_ensemble.py reads the IFS HRES and Pangu-Weather archives over HTTPS (about 100 s per case, cached as .npz) and rolls out the phase-1 checkpoint, so it is the same kind of run and not a node graph",
   "status": "needs"
+ },
+ "wind_farm_penmanshiel": {
+  "domain": "wind energy",
+  "reason": "run_poc.py loads the 1.2 GB Penmanshiel SCADA archive (Zenodo, not shipped with the repository) and runs the whole pipeline: five power models on a temporal split, a 14-turbine wake comparison over ~13k timestamps, a surrogate and a curtailment sweep. A flow would have to ship the dataset and a parse cache; no node wraps the wind modules yet",
+  "status": "not_convertible"
  },
  "worldmodel": {
   "domain": "world model",

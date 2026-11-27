@@ -7,16 +7,17 @@ can show the object and a script can write it to disk.
 House style: one colour per model for the whole document (see :data:`COLORS`), the
 measured data always in grey, and every axis labelled with units. A figure that
 would need a caption to be readable gets its message in the title instead.
+
+The backend is deliberately left alone: forcing ``Agg`` here would override an
+interactive backend for anyone who imports this module in a session. Headless
+runs already get a non-interactive backend from matplotlib itself.
 """
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
-import matplotlib
-import numpy as np
-
-matplotlib.use("Agg")  # noqa: E402  (must precede pyplot import)
 import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np
 from matplotlib.gridspec import GridSpec  # noqa: E402
 
 __all__ = [
@@ -53,8 +54,11 @@ def _figure(width: float = 7.0, height: float = 4.2):
 
 
 def save(fig, path) -> str:
-    """Write a figure and close it, returning the path as a string."""
-    fig.tight_layout()
+    """Write a figure and close it, returning the path as a string.
+
+    ``bbox_inches="tight"`` rather than ``tight_layout``: the latter warns (and
+    gets the spacing wrong) on figures that mix a polar and a rectangular axes.
+    """
     fig.savefig(path, dpi=FIG_DPI, bbox_inches="tight")
     plt.close(fig)
     return str(path)
@@ -191,6 +195,21 @@ def plot_layout(layout, *, deficits: Sequence[float] | None = None, title: str |
     return fig
 
 
+def _sector_mean(grid: np.ndarray) -> np.ndarray:
+    """Per-sector means that leave an empty sector NaN instead of warning.
+
+    A sector with no valid cell (a direction the wind did not blow from in this
+    window) makes ``np.nanmean`` print "Mean of empty slice" once per row --
+    noise in a notebook and misleading in a batch log.
+    """
+    if grid.ndim == 1:
+        return grid
+    valid = np.isfinite(grid)
+    count = valid.sum(axis=1)
+    total = np.where(valid, grid, 0.0).sum(axis=1)
+    return np.divide(total, count, out=np.full(grid.shape[0], np.nan), where=count > 0)
+
+
 def plot_wake_polar(observation, comparison: Mapping, *, title: str = "Farm efficiency against wind direction"):
     """Observed vs modelled farm efficiency, sector by sector.
 
@@ -202,8 +221,8 @@ def plot_wake_polar(observation, comparison: Mapping, *, title: str = "Farm effi
     sectors = np.asarray(observation.sectors_deg, dtype=float)
     model = np.array(comparison["model_efficiency"], dtype=float)
     observed = np.array(comparison["observed_efficiency"], dtype=float)
-    model_sector = np.nanmean(model, axis=1) if model.ndim == 2 else model
-    obs_sector = np.nanmean(observed, axis=1) if observed.ndim == 2 else observed
+    model_sector = _sector_mean(model)
+    obs_sector = _sector_mean(observed)
     ax.plot(np.r_[sectors, sectors[0] + 360], np.r_[model_sector, model_sector[0]],
             color=COLORS["model"], lw=2.0, label=f"wake model ({comparison.get('config', '')})")
     if "scale" in comparison:

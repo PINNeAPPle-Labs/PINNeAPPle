@@ -94,6 +94,7 @@
     * [A surrogate conditioned on the geometry, and the error on a body it never saw](guides/geometry_conditioned_surrogate.md)
     * [Which geometry surrogate, and what it costs](guides/geometry_surrogate_families.md)
     * [MuJoCo 4.0: trajectories, checks and the robot backend](guides/mujoco.md)
+    * [A wind farm from public SCADA: power curves and analytical wakes](guides/wind_power.md)
     * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
     * [Granular DEM: volume-based contact, breakage, mills and wear](granular_dem.md)
     * [Quality pipeline for LLM-generated artifacts](guides/pinneapple_llm_quality_pipeline.md)

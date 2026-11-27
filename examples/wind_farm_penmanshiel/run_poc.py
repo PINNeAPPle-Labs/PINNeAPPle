@@ -36,12 +36,17 @@ import sys
 import time
 from pathlib import Path
 
+# The script writes files and never shows a window, so it picks a headless
+# backend itself: choosing one is the caller's job, not the library's.
+import matplotlib
 import numpy as np
 import pandas as pd
 
-from pinneapple_systems import wind
-from pinneapple_systems.wind import figures
-from pinneapple_systems.wind.models import feature_matrix
+matplotlib.use("Agg")
+
+from pinneapple_systems import wind  # noqa: E402
+from pinneapple_systems.wind import figures  # noqa: E402
+from pinneapple_systems.wind.models import feature_matrix  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Case definition
@@ -77,6 +82,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cache", default=None, help="parse cache folder (one pickle per turbine-year)")
     parser.add_argument("--sectors", type=int, default=36)
     parser.add_argument("--quick", action="store_true", help="one turbine, no farm section")
+    parser.add_argument("--no-twin", action="store_true", help="skip the twin3d scene and the demo video")
+    parser.add_argument("--no-video", action="store_true", help="export the twin3d scene but do not render an MP4")
+    parser.add_argument("--twin-resolution", type=int, default=96, help="ground grid points along x")
+    parser.add_argument("--video-step", type=float, default=5.0, help="degrees of wind direction per frame")
+    parser.add_argument("--video-fps", type=int, default=20)
+    parser.add_argument("--video-speed", type=float, default=8.0, help="free-stream speed for the twin, m/s")
     args = parser.parse_args(argv)
 
     out = Path(args.out)
@@ -129,10 +140,11 @@ def main(argv: list[str] | None = None) -> int:
 
     # -- 3. single-turbine models ------------------------------------------
     print("[3/6] fitting power models")
-    frames = {
-        name: focus_operating[(focus_operating["timestamp"] >= lo) & (focus_operating["timestamp"] < hi)]
-        for name, (lo, hi) in window.items()
-    }
+    frames = {}
+    for name, info in window.items():
+        lo, hi = pd.Timestamp(info["start"]), pd.Timestamp(info["end"])
+        frames[name] = focus_operating[(focus_operating["timestamp"] >= lo)
+                                       & (focus_operating["timestamp"] <= hi)]
     models, curves, fits = _fit_models(frames["train"])
     results["models"] = fits
 
@@ -168,6 +180,20 @@ def main(argv: list[str] | None = None) -> int:
         rated_power_kw=RATED_KW, cut_in=CUT_IN, cut_out=CUT_OUT, rotor_diameter=ROTOR_M,
     )
     results["guardrails"] = guardrails
+    # The same four checks on every curve, so "unconstrained" is a measurement
+    # rather than an adjective.
+    results["constraint_checks"] = {}
+    for key, model in models.items():
+        curve = _speed_curve(model, frames["train"])
+        if curve is None:
+            continue
+        results["constraint_checks"][key] = {
+            "label": MODEL_LABELS[key],
+            "checks": wind.physical_guardrails(
+                curve, rated_power_kw=RATED_KW, cut_in=CUT_IN, cut_out=CUT_OUT,
+                rotor_diameter=ROTOR_M, rho=float(wind.RHO_REF),
+            ),
+        }
     results["domain"] = wind.domain_report(
         frames["train"], frames["test"],
         variables=("wind_speed_ms", "u_corrected", "ambient_temperature_c"),
@@ -203,29 +229,49 @@ def main(argv: list[str] | None = None) -> int:
     # -- 5. farm / wakes ----------------------------------------------------
     print("[5/6] running the farm models")
     turbine_curves = _farm_curves(farm, layout, frames["train"])
-    test_farm = farm[(farm["timestamp"] >= pd.Timestamp(window["test"]["start"]))
-                     & (farm["timestamp"] <= pd.Timestamp(window["test"]["end"]))].copy()
-    test_farm["operating"] = _grouped_mask(test_farm, RATED_KW)
+    observations = {}
+    for name in ("validation", "test"):
+        part = farm[(farm["timestamp"] >= pd.Timestamp(window[name]["start"]))
+                    & (farm["timestamp"] <= pd.Timestamp(window[name]["end"]))].copy()
+        part["operating"] = _grouped_mask(part, RATED_KW)
+        observations[name] = wind.farm_efficiency_observed(
+            part, layout, turbine_curves, n_sectors=args.sectors,
+            speed_edges=(SPEED_BINS[0], SPEED_BINS[-1], SPEED_BINS[1] - SPEED_BINS[0]),
+            min_samples=40, reference="power", reference_group=3,
+        )
 
-    observation = wind.farm_efficiency_observed(
-        test_farm, layout, turbine_curves, n_sectors=args.sectors,
-        speed_edges=(SPEED_BINS[0], SPEED_BINS[-1], SPEED_BINS[1] - SPEED_BINS[0]),
-        min_samples=40, reference="power",
-    )
-    results["wakes"] = {"observation": observation.to_dict(), "models": {}}
-    for kind in ("gaussian", "jensen"):
-        cfg = wind.WakeConfig(kind=kind)
+    observation = observations["test"]
+    results["wakes"] = {
+        "observation": observation.to_dict(),
+        "validation_observation_cells": int(np.isfinite(observations["validation"].efficiency).sum()),
+        "models": {},
+    }
+
+    # The decay constant is fitted on the *validation* window and scored on the
+    # test window: a wake constant tuned and judged on the same months would tell
+    # us nothing about whether it transfers.
+    calibration = wind.calibrate_wake_decay(observations["validation"], layout, turbine_curves,
+                                            kind="gaussian")
+    results["wakes"]["decay_calibration"] = calibration
+    calibrated_k = calibration["best_k"]
+
+    for label, cfg in (
+        ("gaussian_classroom", wind.WakeConfig(kind="gaussian")),
+        ("gaussian_calibrated", wind.WakeConfig(kind="gaussian", k=calibrated_k,
+                                                gaussian_k=calibrated_k)),
+        ("jensen_classroom", wind.WakeConfig(kind="jensen")),
+    ):
         comparison = wind.compare_with_model(observation, layout, turbine_curves, config=cfg)
-        results["wakes"]["models"][kind] = _trim_comparison(comparison, observation)
+        results["wakes"]["models"][label] = _trim_comparison(comparison, observation)
         figures.save(
             figures.plot_wake_polar(observation, comparison,
                                     title=f"Farm efficiency vs direction: {cfg.label}\n"
-                                          f"observed on the test window, {observation.meta['n_timestamps_used']:,} timestamps"),
-            out / "figures" / f"05_wake_polar_{kind}.png",
+                                          f"test window, {observation.meta['n_timestamps_used']:,} timestamps"),
+            out / "figures" / f"05_wake_polar_{label}.png",
         )
 
     # per-turbine map at the sector with the strongest predicted deficit
-    worst_sector = _worst_sector(results["wakes"]["models"]["gaussian"], observation)
+    worst_sector = _worst_sector(results["wakes"]["models"]["gaussian_classroom"], observation)
     if worst_sector is not None:
         k = worst_sector
         direction = float(observation.sectors_deg[k])
@@ -244,7 +290,7 @@ def main(argv: list[str] | None = None) -> int:
     figures.save(figures.plot_layout(layout), out / "figures" / "07_layout.png")
 
     # -- 6. surrogate and optimisation --------------------------------------
-    print("[6/6] surrogate and curtailment study")
+    print("[6/6] surrogate, curtailment study and the 3D twin")
     surrogate = wind.fit_surrogate(layout, [turbine_curves[n] for n in layout.names],
                                    speeds=(5.0, 7.0, 9.0, 11.0, 13.0))
     results["surrogate"] = {"name": surrogate.name, **surrogate.diagnostics}
@@ -256,9 +302,45 @@ def main(argv: list[str] | None = None) -> int:
     )
     results["curtailment"] = study
 
+    if not args.no_twin:
+        results["twin"] = _build_twin(layout, turbine_curves, out, args)
+
     _write(out, results, started)
     print(f"\nwritten to {out}")
     return 0
+
+
+def _build_twin(layout, turbine_curves, out: Path, args) -> dict:
+    """Export the twin3d scene and, unless asked not to, render the demo film."""
+    from pinneapple_systems.wind import twin, video
+
+    directions = np.arange(0.0, 360.0, args.video_step)
+    scene = twin.build_farm_scene(
+        layout, directions,
+        wind_speed=args.video_speed,
+        power_curves=[turbine_curves[n] for n in layout.names],
+        n_x=args.twin_resolution, n_y=int(args.twin_resolution * 0.75),
+    )
+    scene_path = twin.export_twin(scene, out / "twin")
+    payload = {
+        "scene": str(scene_path),
+        "steps": int(directions.size),
+        "wind_speed_ms": args.video_speed,
+        "resolution": [args.twin_resolution, int(args.twin_resolution * 0.75)],
+        "note": "plan-view wake footprint from the same wake model as results.json; not CFD",
+    }
+    if not args.no_video:
+        info = video.render_farm_video(
+            scene, layout, out / "wind_farm_demo.mp4",
+            fps=args.video_fps, wind_speed=args.video_speed,
+            title=f"{layout.name}: {len(layout)} turbines, {layout.installed_capacity_mw:.1f} MW",
+            subtitle=(
+                "Analytical wake footprint (Bastankhah-Porte-Agel, RSS), not CFD. "
+                "Every wake seeded with the free-stream speed, so overlapping wakes superpose."
+            ),
+        )
+        payload["video"] = info
+    return payload
 
 
 # ---------------------------------------------------------------------------
@@ -373,6 +455,31 @@ def _predict(model, frame) -> np.ndarray:
     return model.predict(feature_matrix(frame, model.feature_names))
 
 
+def _speed_curve(model, reference_frame):
+    """A ``speeds -> kW`` view of a fitted model, for the constraint checks.
+
+    Models that take more than the wind speed are probed along the speed axis
+    with every other feature held at its training median -- the only curve a
+    multi-feature model has. ``None`` for models that read the frame directly,
+    which are measured references and have no curve of their own.
+    """
+    if getattr(model, "reads_frame", False):
+        return None
+    names = tuple(model.feature_names)
+    if not names:      # constant baseline: no features, one number
+        return lambda u: model.predict(np.zeros((np.asarray(u).size, 0)))
+    if names == ("u_corrected",):
+        return lambda u: model.predict(np.column_stack([u]))
+    medians = {n: float(np.nanmedian(feature_matrix(reference_frame, (n,))[:, 0])) for n in names}
+
+    def curve(u):
+        u = np.asarray(u, dtype=float)
+        columns = [u if n == "u_corrected" else np.full_like(u, medians[n]) for n in names]
+        return model.predict(np.column_stack(columns))
+
+    return curve
+
+
 def _score(models: dict, frame: pd.DataFrame) -> dict:
     measured = frame["power_kw"].to_numpy(dtype=float)
     out: dict = {}
@@ -393,7 +500,7 @@ def _conformal(model, frames: dict) -> dict:
     half = wind.conformal_interval(val_residual, level=0.9)
     test_residual = frames["test"]["power_kw"].to_numpy() - _predict(model, frames["test"])
     report = wind.calibration_report(test_residual, half)
-    return {"half_width_kw": half, "target": 0.9, "coverage": report["coverage"],
+    return {"half_width_kw": half, "target_coverage": 0.9, "coverage": report["coverage"],
             "n_validation": int(len(val_residual)), "n_test": report["n"],
             "mean_abs_residual_kw": report["mean_abs_residual_kw"]}
 

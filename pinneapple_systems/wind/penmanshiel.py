@@ -46,7 +46,6 @@ the counts travel with the metrics.
 from __future__ import annotations
 
 import csv
-import io
 import re
 import zipfile
 from collections.abc import Iterable, Sequence
@@ -360,22 +359,29 @@ def load_farm(
     *,
     cache_dir: str | Path | None = None,
 ) -> pd.DataFrame:
-    """Load every turbine into one long frame with a ``turbine`` column."""
-    if turbines is not None:
-        parts = [load_turbine(raw_dir, t, years, cache_dir=cache_dir) for t in turbines]
-        return _attach_turbine(dict(zip(turbines, parts, strict=True)))
+    """Load every turbine into one long frame with a ``turbine`` column.
+
+    Delegates to :func:`load_turbine` per machine, so the parse cache is used and
+    a turbine whose archive is missing or truncated is skipped with a warning
+    rather than aborting the whole farm.
+    """
+    if turbines is None:
+        candidates = sorted({
+            name
+            for archive in discover_archives(raw_dir)
+            if years is None or archive.year in years
+            for name in archive.turbines
+        })
+    else:
+        candidates = list(turbines)
     merged: dict[str, pd.DataFrame] = {}
-    for archive in discover_archives(raw_dir):
-        if years is not None and archive.year not in years:
+    for name in candidates:
+        try:
+            merged[name] = load_turbine(raw_dir, name, years, cache_dir=cache_dir)
+        except FileNotFoundError:
             continue
-        part, _ = read_archive(archive.path)
-        for name, df in part.items():
-            if name in merged:
-                merged[name] = pd.concat([merged[name], df], ignore_index=True)
-            else:
-                merged[name] = df
-    for name, df in merged.items():
-        merged[name] = df.drop_duplicates(subset=["timestamp"], keep="last").sort_values("timestamp")
+    if not merged:
+        raise FileNotFoundError(f"no turbine data found in {raw_dir} for years {years}")
     return _attach_turbine(merged)
 
 

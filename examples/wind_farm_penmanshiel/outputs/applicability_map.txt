@@ -1,0 +1,46 @@
+Applicability map (evidence chain)
+
+Review checklist:
+  [INFO] What surrogate is this? (verified)
+      architecture=physics-informed monotone hinge network (25 knots, hard cap and operating gate); inputs=['wind_speed', 'relative_density']; outputs=['power_kw']; 50 trainable parameters
+  [PASS] What is the error? (verified)
+      Residual and/or reference mismatch below.
+  [PASS] Did it converge? (verified)
+      Optimizer and numerical convergence evidence below.
+  [PASS] Can it generalize? (verified)
+      rmse_kw=54.35 (threshold 102.5)
+  [INFO] Which variables, and over what range? (verified)
+      2 coordinate(s), 1 fixed parameter(s), 0 parameter range(s), 1 field(s); see the variable envelope.
+  [INFO] Which loss weights? (verified)
+      Explicit loss weights: data=1, cubic_region2=0.05, smoothness=0.001, betz=5. Sensitivity was not swept; the verification residual is re-computed independently of these weights.
+  [PASS] Uncertainty quantification? (verified)
+      Calibrated against reference data: ECE=0.023 (tolerance 0.1), empirical coverage 0.88 vs target 0.90 (tolerance +/-0.05) -> well calibrated.
+  [PASS] Does it obey standard physics (e.g. mass conservation)? (verified)
+      Explicit conservation check(s) ran.
+
+Directly verified:
+  - Agreement with reference data: temporal holdout RMSE 54.3 kW against a declared threshold of 102.5 kW (energy-weighted 65.6 kW)
+  - Held-out test: temporal holdout (later period than training), operating samples only
+  - Equation residual sampled over wind_speed in [3.57142, 22.5447].
+  - Equation residual sampled over relative_density in [0.943707, 1.03651].
+  - UQ calibration: well calibrated; split-conformal interval from the validation window: 87.7% empirical coverage on the test window against a 90% target (half-width 80 kW)
+  - conservation_power_cap: passed -- max predicted power 2050.0 kW vs rated 2050.0 kW
+  - conservation_monotonicity: passed -- largest decrease of P(U) inside [3, 25] m/s is 0.000e+00 kW
+  - conservation_operating_window: passed -- max |P| outside [3, 25] m/s is 0.000e+00 kW
+  - conservation_betz_limit: passed -- implied Cp reaches 0.472; Betz limit is 0.593
+
+Inferred from the model (not directly checked):
+  - Numerical (collocation-density) convergence not demonstrated for this run.
+
+Unsupported -- do not extrapolate here:
+  - wind_speed outside [3.57142, 22.5447].
+  - relative_density outside [0.943707, 1.03651].
+  - cut_out_ms other than 25 (single operating point).
+
+Variable envelope:
+  - wind_speed (coordinate): verified on [3.57142, 22.5447]; extrapolation NOT supported. Residual sampled uniformly over this range; outside it nothing was checked.
+  - relative_density (coordinate): verified on [0.943707, 1.03651]; extrapolation NOT supported. Residual sampled uniformly over this range; outside it nothing was checked.
+  - cut_out_ms (parameter): verified at 25; extrapolation NOT supported. Single operating point; shifting it was not shown to be safe.
+  - power_kw (field): no verified range recorded; extrapolation NOT supported. Predicted output; no range claim made.
+
+Tolerances: plateau_rel=0.05 (default heuristic), spread_rel=0.1 (default heuristic), ece=0.1 (default heuristic), coverage=0.05 (default heuristic)

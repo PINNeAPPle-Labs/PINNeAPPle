@@ -1,0 +1,12 @@
+{
+ "code_hash": "e7cba73f238b289f",
+ "figures": [],
+ "id": "example:examples/wind_farm_penmanshiel",
+ "ok": true,
+ "recorded": "2026-11-27",
+ "seconds": 1.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Penmanshiel wind farm: a physics-informed power curve and analytical wakes against public SCADA | wind energy | curated\nphysics_informed_rmse_kw 54.35 kW\niec_binned_rmse_kw 46.63 kW\ngradient_boosted_rmse_kw 45.34 kW\noperator_potential_power_rmse_kw 57.07 kW\nphysics_informed_energy_error_fraction 0.0022 1",
+ "timed_out": false
+}

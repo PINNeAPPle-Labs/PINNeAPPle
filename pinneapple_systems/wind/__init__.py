@@ -21,6 +21,12 @@ its inputs:
 The dataset loader is :mod:`~pinneapple_systems.wind.penmanshiel` (14 Senvion
 MM82 in the Scottish Borders, CC-BY, doi:10.5281/zenodo.16807304).
 
+Two optional submodules turn the result into something you can look at:
+:mod:`~pinneapple_systems.wind.twin` builds the farm as a
+``pinneapple_twin3d.Scene`` (plan-view wake footprint swept over wind direction)
+and :mod:`~pinneapple_systems.wind.video` rasterises that scene into an MP4.
+They are imported explicitly, because they pull in matplotlib and the viewer.
+
 What this package is not
 ------------------------
 The wake models are analytical, first-order engineering models -- not CFD. They
@@ -42,20 +48,8 @@ Quick start
 """
 from __future__ import annotations
 
-from .layout import WindFarmLayout, Turbine, wind_vector
-from .power_curve import (
-    RHO_REF,
-    BinnedPowerCurve,
-    LogisticPowerCurve,
-    ReferencePowerCurve,
-    air_density,
-    betz_limit,
-    density_corrected_speed,
-    fit_binned_curve,
-    fit_logistic_curve,
-    relative_density,
-    standard_pressure,
-)
+from .layout import Turbine, WindFarmLayout, wind_vector
+from .metrics import calibration_report, conformal_interval, per_bin_error, point_metrics
 from .models import (
     ALTERNATING_MET_FEATURES,
     ConstantPowerModel,
@@ -65,17 +59,13 @@ from .models import (
     SpeedCurveModel,
     feature_matrix,
 )
-from .metrics import calibration_report, conformal_interval, per_bin_error, point_metrics
-from .wake import (
-    FarmPowerResult,
-    WakeConfig,
-    direction_polar,
-    farm_efficiency,
-    farm_power,
-    gaussian_deficit,
-    jensen_deficit,
-    pair_geometry,
-    wake_deficits,
+from .optimization import (
+    CurtailmentResult,
+    FarmSurrogate,
+    annual_energy_production,
+    curtailment_study,
+    fit_surrogate,
+    optimize_curtailment,
 )
 from .penmanshiel import (
     PENMANSHIEL_DOI,
@@ -90,22 +80,40 @@ from .penmanshiel import (
     static_layout,
     summarise_by_turbine,
 )
-from .optimization import (
-    CurtailmentResult,
-    FarmSurrogate,
-    annual_energy_production,
-    curtailment_study,
-    fit_surrogate,
-    optimize_curtailment,
+from .power_curve import (
+    RHO_REF,
+    BinnedPowerCurve,
+    LogisticPowerCurve,
+    ReferencePowerCurve,
+    air_density,
+    betz_limit,
+    density_corrected_speed,
+    fit_binned_curve,
+    fit_logistic_curve,
+    relative_density,
+    standard_pressure,
 )
 from .verification import (
     FarmObservation,
+    calibrate_wake_decay,
     compare_with_model,
     curve_inverse,
     domain_report,
     farm_efficiency_observed,
     physical_guardrails,
     power_applicability_map,
+)
+from .wake import (
+    FarmPowerResult,
+    WakeConfig,
+    direction_polar,
+    farm_efficiency,
+    farm_power,
+    gaussian_deficit,
+    jensen_deficit,
+    pair_geometry,
+    wake_deficits,
+    wake_field,
 )
 
 __all__ = [
@@ -122,7 +130,7 @@ __all__ = [
     "calibration_report", "conformal_interval", "per_bin_error", "point_metrics",
     # wake
     "FarmPowerResult", "WakeConfig", "direction_polar", "farm_efficiency", "farm_power",
-    "gaussian_deficit", "jensen_deficit", "pair_geometry", "wake_deficits",
+    "gaussian_deficit", "jensen_deficit", "pair_geometry", "wake_deficits", "wake_field",
     # data
     "PENMANSHIEL_DOI", "add_density_correction", "curtailment_mask", "discover_archives",
     "load_farm", "load_turbine", "mask_provenance", "operating_mask", "qc_report",
@@ -130,6 +138,7 @@ __all__ = [
     # verification
     "FarmObservation", "compare_with_model", "curve_inverse", "domain_report",
     "farm_efficiency_observed", "physical_guardrails", "power_applicability_map",
+    "calibrate_wake_decay",
     # optimisation and surrogate
     "CurtailmentResult", "FarmSurrogate", "annual_energy_production", "curtailment_study",
     "fit_surrogate", "optimize_curtailment",

@@ -44,6 +44,7 @@ that are available at prediction time -- no lagged power, no future information.
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
@@ -271,7 +272,7 @@ class PhysicsInformedPowerModel:
         optimizer = torch.optim.Adam([theta], lr=self.learning_rate)
         n = u_all.size
         rng = np.random.default_rng(self.seed)
-        for epoch in range(self.epochs):
+        for _epoch in range(self.epochs):
             if n > self.batch_size:
                 batch = rng.choice(n, size=self.batch_size, replace=False)
             else:
@@ -283,8 +284,9 @@ class PhysicsInformedPowerModel:
             loss, parts = self._loss(theta, u, tgt)
             loss.backward()
             optimizer.step()
-            if epoch % 25 == 0 or epoch == self.epochs - 1:
-                self.history.append(float(loss.detach()))
+            # Every epoch: the convergence check in VeriPhysics needs a history
+            # long enough to compare two windows (it bails out below 20 points).
+            self.history.append(float(loss.detach()))
         self.theta = theta.detach().numpy().copy()
         with torch.no_grad():
             u_t = torch.as_tensor(u_all, dtype=torch.float32)

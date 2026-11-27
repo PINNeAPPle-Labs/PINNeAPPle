@@ -260,8 +260,10 @@ def build_applicability_map(
             f"Governing-equation residual re-computed on fresh points inside the trained domain: {resid.get('detail', '')}")
     if ref is not None:
         err_ev.append(_check_line(ref))
-        if not ref.get("passed"):
-            err_status = FAIL
+        # A reference check that ran and passed is evidence, not a non-answer: the
+        # error item used to stay NOT_RUN on success, which read as "no error was
+        # measured" when one had been.
+        err_status, err_tier = (PASS if ref.get("passed") else FAIL), VERIFIED
         verified.append(f"Agreement with reference data: {ref.get('detail', '')}")
     else:
         inferred.append("Error against ground truth is NOT measured (no reference data supplied); "

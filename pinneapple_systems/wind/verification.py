@@ -28,7 +28,7 @@ an applicability map, so the claims, the evidence and the gaps travel together.
 """
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -43,6 +43,7 @@ __all__ = [
     "FarmObservation",
     "farm_efficiency_observed",
     "compare_with_model",
+    "calibrate_wake_decay",
     "power_applicability_map",
     "physical_guardrails",
 ]
@@ -148,6 +149,7 @@ def farm_efficiency_observed(
     min_samples: int = 40,
     operating_column: str = "operating",
     reference: str = "power",
+    reference_group: int = 3,
     speed_column: str = "u_corrected",
 ) -> FarmObservation:
     """Farm efficiency implied by SCADA, per direction sector and wind-speed bin.
@@ -213,7 +215,7 @@ def farm_efficiency_observed(
                                      np.nanmean(np.cos(radians), axis=1))) % 360.0
     mean_dir = pd.Series(mean_dir, index=index)
     sector_width = 360.0 / n_sectors
-    sector_index = np.floor((mean_dir / sector_width)).astype(int).clip(0, n_sectors - 1)
+    sector_index = np.floor(mean_dir / sector_width).astype(int).clip(0, n_sectors - 1)
     keep = complete & sector_index.notna()
     sector_index = sector_index[keep].astype(int)
     wide_power = wide_power.loc[keep]
@@ -229,16 +231,16 @@ def farm_efficiency_observed(
     for k in range(n_sectors):
         direction = (k + 0.5) * sector_width
         order = sub_layout.upwind_order(direction)
-        ref = sub_layout.names[order[0]]
-        refs.append(ref)
+        group = [sub_layout.names[i] for i in order[:max(1, reference_group)]]
+        refs.append("+".join(group))
         sel = sector_index.to_numpy() == k
         if sel.sum() < min_samples:
             continue
+        group_power = wide_power.loc[sel, group].mean(axis=1).to_numpy(dtype=float)
         if reference == "anemometer":
-            u_ref = wide_speed.loc[sel, ref].to_numpy(dtype=float)
+            u_ref = wide_speed.loc[sel, group].mean(axis=1).to_numpy(dtype=float)
         else:
-            p_ref = wide_power.loc[sel, ref].to_numpy(dtype=float)
-            u_ref = curve_inverse(curves[ref], p_ref)
+            u_ref = curve_inverse(_mean_curve([curves[g] for g in group]), group_power)
         expected = np.zeros_like(u_ref)
         observed = np.zeros_like(u_ref)
         for name in cols:
@@ -266,6 +268,7 @@ def farm_efficiency_observed(
             "speed_edges": [float(edges[0]), float(edges[-1]), float(edges[1] - edges[0])],
             "min_samples": min_samples,
             "reference": reference,
+            "reference_group": int(reference_group),
             "n_timestamps_used": int(keep.sum()),
             "turbines": cols,
             "caveat": (
@@ -315,12 +318,25 @@ def compare_with_model(
     sectors = observation.sectors_deg
     speeds = observation.speed_centres
     model_eff = np.full_like(observation.efficiency, np.nan)
+    model_eff_freestream = np.full_like(observation.efficiency, np.nan)
     per_turbine_deficit = np.zeros((sectors.size, len(names)))
+    index_of = {n: i for i, n in enumerate(names)}
     for k, direction in enumerate(sectors):
+        group = [index_of[g] for g in observation.reference_turbine[k].split("+") if g in index_of]
         deficits = np.zeros(len(names))
         for b, u in enumerate(speeds):
             result = farm_power(sub_layout, float(u), float(direction), per_turbine_curves, config)
-            model_eff[k, b] = result.efficiency
+            model_eff_freestream[k, b] = result.efficiency
+            # The observed efficiency divides by the *reference group's* production,
+            # and that group is itself waked in row-aligned sectors. Evaluating the
+            # model at the group's own (deficit-reduced) inflow keeps both sides of
+            # the comparison defined the same way; without it the observed curve is
+            # flattened exactly where the model predicts the deepest dip.
+            delta_ref = float(np.mean([result.wake_deficit[i] for i in group])) if group else 0.0
+            reference_speed = u * (1.0 - delta_ref)
+            denominator = sum(float(np.asarray(curves[n](np.array([reference_speed]))).ravel()[0])
+                              for n in names)
+            model_eff[k, b] = result.total_power_kw / denominator if denominator > 0 else np.nan
             deficits += result.wake_deficit
         per_turbine_deficit[k] = deficits / max(speeds.size, 1)
 
@@ -329,6 +345,8 @@ def compare_with_model(
     weights = np.where(ok, observation.counts, 0).astype(float)[ok]
     out = {
         "model_efficiency": np.where(np.isfinite(model_eff), model_eff, None).tolist(),
+        "model_efficiency_freestream": np.where(np.isfinite(model_eff_freestream),
+                                                model_eff_freestream, None).tolist(),
         "observed_efficiency": np.where(np.isfinite(observation.efficiency), observation.efficiency, None).tolist(),
         "n_cells": int(ok.sum()),
         "rmse": float(np.sqrt(np.mean(diff**2))) if ok.any() else None,
@@ -352,6 +370,64 @@ def compare_with_model(
         out["mean_model_efficiency"] = float(np.mean(m))
         out["direction_correlation"] = float(np.corrcoef(m, o)[0, 1]) if ok.sum() >= 3 else None
     return out
+
+
+def calibrate_wake_decay(
+    observation: FarmObservation,
+    layout: WindFarmLayout,
+    curves: dict,
+    *,
+    kind: str = "gaussian",
+    k_grid: Sequence[float] = (0.02, 0.03, 0.04, 0.05, 0.06, 0.075, 0.09, 0.11, 0.13, 0.16),
+) -> dict:
+    """Fit the single wake-decay constant to observed farm efficiency.
+
+    One parameter, fitted on a **validation** window and reported on a later
+    test window by the caller. The textbook values (0.05 offshore, 0.075 onshore)
+    are defaults from other sites; a farm with a published layout and five years
+    of SCADA is exactly the case where that constant should be measured instead
+    of assumed -- as long as the fit is not then scored on its own data.
+
+    Both ``k`` and ``gaussian_k`` are swept together so the returned constant
+    means the same thing for either model family.
+    """
+    rows = []
+    best = None
+    for k in k_grid:
+        cfg = WakeConfig(kind=kind, k=float(k), gaussian_k=float(k))
+        comparison = compare_with_model(observation, layout, curves, config=cfg, fit_scale=False)
+        if comparison["n_cells"] < 3 or comparison["rmse"] is None:
+            continue
+        rows.append({"k": float(k), "rmse": comparison["rmse"], "bias": comparison["bias"],
+                     "n_cells": comparison["n_cells"]})
+        if best is None or comparison["rmse"] < best["rmse"]:
+            best = {"k": float(k), "rmse": comparison["rmse"], "bias": comparison["bias"],
+                    "n_cells": comparison["n_cells"]}
+    if best is None:
+        raise ValueError("no wake-decay value could be scored on this observation")
+    return {
+        "kind": kind,
+        "best_k": best["k"],
+        "best_rmse": best["rmse"],
+        "best_bias": best["bias"],
+        "sweep": rows,
+        "textbook_k": 0.075 if kind == "jensen" else 0.0324555,
+        "note": (
+            "Fitted on the validation window only. The comparison absorbs reference-group and "
+            "instrument effects, so the fitted k is an effective constant for this site, not a "
+            "physical measurement of wake decay."
+        ),
+    }
+
+
+def _mean_curve(curves: Sequence) -> Callable:
+    """Pointwise mean of several power curves, on the 0-30 m/s grid used for inversion."""
+
+    def curve(speeds):
+        speeds = np.asarray(speeds, dtype=float)
+        return np.mean([np.asarray(c(speeds), dtype=float) for c in curves], axis=0)
+
+    return curve
 
 
 def _subset_layout(layout: WindFarmLayout, names: Sequence[str]) -> WindFarmLayout:
@@ -468,16 +544,25 @@ def power_applicability_map(
     })
     confidence: list[dict] = []
     if calibration is not None and calibration.get("coverage") is not None:
+        target = float(calibration.get("target_coverage", calibration.get("target", 0.9)))
         confidence.append({
             "name": "uq_calibration",
-            "score": float(1.0 - abs(calibration["coverage"] - calibration.get("target", 0.9))),
+            "score": float(1.0 - abs(calibration["coverage"] - target)),
             "source_summary": (
                 f"split-conformal interval from the validation window: "
                 f"{calibration['coverage']:.1%} empirical coverage on the test window "
-                f"against a {calibration.get('target', 0.9):.0%} target "
+                f"against a {target:.0%} target "
                 f"(half-width {calibration.get('half_width_kw', float('nan')):.0f} kW)"
             ),
         })
+    calibration_payload = None
+    if calibration is not None and calibration.get("coverage") is not None:
+        target = float(calibration.get("target_coverage", calibration.get("target", 0.9)))
+        calibration_payload = {
+            "ece": abs(float(calibration["coverage"]) - target),
+            "coverage": float(calibration["coverage"]),
+            "target_coverage": target,
+        }
     return build_applicability_map(
         architecture=architecture,
         coords=tuple(domain_bounds),
@@ -491,7 +576,7 @@ def power_applicability_map(
         epochs=epochs,
         n_parameters=n_parameters,
         loss_weights=loss_weights,
-        calibration=calibration,
+        calibration=calibration_payload,
         heldout_error={
             "metric": "rmse_kw",
             "value": rmse,

@@ -53,6 +53,7 @@ __all__ = [
     "farm_efficiency",
     "direction_polar",
     "pair_geometry",
+    "wake_field",
 ]
 
 
@@ -280,9 +281,17 @@ def farm_power(
 
     ``power_curves`` is either one callable applied to every turbine or one
     callable per turbine (in layout order); each maps an array of wind speeds to
-    electrical power in kW. ``thrust_scale`` multiplies every :math:`C_T` -- the
-    handle used by the curtailment optimiser in
+    electrical power in kW. ``thrust_scale`` multiplies every :math:`C_T` **and**
+    that turbine's own power -- the handle used by the curtailment optimiser in
     :mod:`pinneapple_systems.wind.optimization` to model a derated rotor.
+
+    Scaling both is the modelled physics of a derated machine, not an
+    implementation detail: holding the power fixed while lowering
+    :math:`C_T` would let the optimiser manufacture energy out of nothing (a
+    machine that makes full power and no wake), and it inflated the modelled
+    curtailment gain from a few percent to 16 % before it was fixed. The linear
+    relation between extracted power and :math:`C_T` is itself first order; it
+    matches a rotor held at constant induction and is exact only in that limit.
     """
     cfg = config or WakeConfig()
     n = len(layout)
@@ -321,6 +330,7 @@ def farm_power(
         resolved.add(i)
 
     power = np.array([float(np.asarray(curves[i](np.array([u]))).ravel()[0]) for i, u in enumerate(u_eff)])
+    power = power * scale          # a derated rotor loses power as it sheds thrust
     power_no_wake = np.array([float(np.asarray(curves[i](np.array([u_free]))).ravel()[0]) for i in range(n)])
 
     return FarmPowerResult(
@@ -411,3 +421,60 @@ def pair_geometry(layout: WindFarmLayout) -> list[dict]:
             "bearing_deg": float(bearing[i, j]),
         })
     return rows
+
+
+def wake_field(
+    layout: WindFarmLayout,
+    points,
+    wind_speed: float,
+    direction_deg: float,
+    config: WakeConfig | None = None,
+) -> dict:
+    """Velocity deficit at arbitrary plan-view points, for a map or a 3D scene.
+
+    ``points`` is ``(P, 2)`` (or ``(P, 3)``, whose z is ignored) in the layout's
+    local frame. Each point is treated as lying at hub height, so the result is a
+    *plan-view footprint*: the deficit a turbine at that ground location would
+    see, not the deficit at ground level.
+
+    Every wake is seeded with the free-stream speed, so the field is the
+    independent superposition of the single wakes rather than a cascade down the
+    array. That is the right choice for a picture -- a cascade makes each point
+    depend on an ordering -- and it means the field is slightly optimistic
+    far downwind compared with :func:`farm_power`, which resolves the cascade
+    turbine by turbine. The two agree exactly at the turbines themselves when no
+    two of them share a wake path.
+
+    Returns ``{"points", "deficit", "velocity_ratio", "model"}``.
+    """
+    cfg = config or WakeConfig()
+    pts = np.atleast_2d(np.asarray(points, dtype=float))[:, :2]
+    positions = layout.positions
+    ux, uy = wind_vector(direction_deg)
+    along = pts @ np.array([ux, uy])
+    cross = pts @ np.array([-uy, ux])
+    turb_along = positions @ np.array([ux, uy])
+    turb_cross = positions @ np.array([-uy, ux])
+
+    dx = along[:, None] - turb_along[None, :]        # (P, N) downstream from each turbine
+    dy = cross[:, None] - turb_cross[None, :]
+    diameter = layout.rotor_diameters[None, :]
+    ct = np.asarray([t.thrust_coefficient(wind_speed) for t in layout.turbines], dtype=float)[None, :]
+
+    if cfg.kind == "jensen":
+        d = jensen_deficit(dx, dy, diameter, ct, k=cfg.k)
+    else:
+        d = gaussian_deficit(dx, dy, diameter, ct, k=cfg.gaussian_k)
+    if cfg.superposition == "rss":
+        deficit = np.sqrt((d**2).sum(axis=1))
+    else:
+        deficit = d.sum(axis=1)
+    deficit = np.clip(deficit, 0.0, cfg.max_deficit)
+    return {
+        "points": pts,
+        "deficit": deficit,
+        "velocity_ratio": 1.0 - deficit,
+        "model": cfg.label,
+        "wind_speed_ms": float(wind_speed),
+        "direction_deg": float(direction_deg),
+    }

@@ -197,7 +197,7 @@ class WindFarmLayout:
         return layout
 
     @classmethod
-    def from_penmanshiel_csv(cls, path: str | "os.PathLike[str]") -> WindFarmLayout:
+    def from_penmanshiel_csv(cls, path) -> WindFarmLayout:
         """Read ``Penmanshiel_WT_static.csv`` (Zenodo record 16807304).
 
         The published file carries trailing empty lines and a UTF-8 BOM; both are

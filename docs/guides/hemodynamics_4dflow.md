@@ -85,8 +85,8 @@ is what a clinician would call the pressure drop.
 
 Read as a whole, the table says three things:
 
-* **the network recovers both targets to a few per cent** from a measurement with no sample at the wall, in an
-  eighty-second fit on one CPU core;
+* **the network recovers both targets to a few per cent** from a measurement with no sample at the wall, in a
+  sixty-four-second fit on one CPU core (the mean over the thirty-three fits of this record, 2,122 s in all);
 * **the error does not grow with the Womersley number**, although the measurement does get worse with it: the aorta's
   first sample sits outside the boundary layer altogether (1.3 layers away) and its wall shear stress is still off by
   2.8 %, the same as the carotid's, whose layer the samples do resolve. What the data pin down is the shape in the
@@ -96,7 +96,7 @@ Read as a whole, the table says three things:
   aorta it is no better than returning zero.
 
 The multi-harmonic case is the honest counterweight. Its fourth harmonic has `alpha = 41`, a layer 0.36 mm thick, and
-the error triples: a real waveform asks for the thin layers a single frequency never shows.
+the error grows two and a half times: a real waveform asks for the thin layers a single frequency never shows.
 
 ## What the limit is, and what it is not
 
@@ -119,9 +119,10 @@ per cent is out of reach for it at every resolution measured here.
 
 **The sampling gap is not what limits the network.** Its worst wall shear stress error among the four vessels, at
 any voxel size measured, is 2.8 % — at the nominal 8 voxels on the aorta — and the *coarsest* case, 4 voxels across a
-15 mm radius with the first sample 1.88 mm from the wall, is not the worst: 2.1 %. The wall slope is carried by the no-slip condition and the momentum equation, not by
-the data, so the voxel size mostly sets how well the **core** profile is known, and the core is generous: at
-`alpha = 21` the velocity is within 0.5 % of its axis value out to `y = 0.9`.
+15 mm radius with the first sample 1.88 mm from the wall, is not the worst: 2.1 %. The wall slope is carried by the
+no-slip condition and the momentum equation, not by the data, so the voxel size mostly sets how well the **core**
+profile is known — and the profile is not flat there: at the peak of the aortic cycle the closed form is already 38 %
+below its axis value at `y = 0.9`, and 54 % below at the outermost sample of the nominal grid (`y = 0.9375`).
 
 That is not the sentence this section was going to contain. The expectation going in was that sparse planes destroy a
 derivative taken at the point where there is no sample. Measured, they destroy the **data-only estimate** of it — by

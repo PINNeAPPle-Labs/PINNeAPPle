@@ -21,7 +21,8 @@ level; and the spread of an ensemble of independently seeded fits, which is the 
 
 **What this is not.** No patient data, no real acquisition (no slice profile, no partial volume, no aliasing), no
 curved or compliant vessel. A straight rigid tube is where a closed form exists; every number below is a statement
-about that phantom and about a network trained on 80 s of CPU time per fit.
+about that phantom and about a network trained on 64 s of CPU time per fit (the mean over the thirty-three fits this
+script makes).
 
 Writes ``<out>/results/hemodynamics_4dflow.json`` after every case and four figures in ``<out>/figures``.
 """

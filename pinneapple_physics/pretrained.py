@@ -245,7 +245,7 @@ def _channel(fields: np.ndarray, channels: list[str], variable: Any, who: str) -
         absent = [v for v in names if not np.all(np.isfinite(y[:, names.index(v)]))]
         raise PretrainedUnavailable(f"{who}: no values for {absent if many else absent[0]!r} at this initial time "
                                     f"(the archive only has 00 and 12 UTC initialisations)")
-    return y if many else y[:, 0]
+    return np.moveaxis(y, 1, 0) if many else y[:, 0]
 
 
 class WeatherBench2Adapter(Adapter):
@@ -311,7 +311,11 @@ class WeatherBench2Adapter(Adapter):
         for v in names:                                  # lead 0 of every variable asked for, from the analysis
             if v in channels:
                 c = channels.index(v)
-                f[0, c] = self.store.denorm(np.asarray(self.store.state[int(query["i0"]), c], np.float32), v)
+                if not np.all(np.isfinite(f[0, c])):
+                    f[0, c] = self.store.denorm(np.asarray(self.store.state[int(query["i0"]), c], np.float32), v)
+        if self.variables is not None:                   # the map is what the archive carries: read only those channels
+            provided = [v for v in self.variables if v in channels]
+            f, channels = f[:, [channels.index(v) for v in provided]], provided
         return _channel(f, channels, variable, self.name)
 
     def cost(self, query: Any = None) -> float:

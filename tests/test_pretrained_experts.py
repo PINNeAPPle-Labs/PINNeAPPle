@@ -180,6 +180,47 @@ def test_the_weatherbench2_adapter_uses_the_loader_of_the_skill_curves(store, mo
     assert "gcsfs" in str(err.value) and "local copy" in str(err.value)
 
 
+def test_the_published_archive_has_no_lead_zero_and_the_adapter_fills_it_from_the_analysis(store):
+    """``PublishedForecasts`` writes NaN at lead 0 (the analysis is not a forecast), so before the fix every prediction
+    of the weather adapter was refused as "no values" and no published model could be an expert at all. The analysis the
+    store holds is exactly what the archive's model was initialised with, so that is what lead 0 gets -- and only when
+    the source left it empty."""
+    nan_lead0 = np.full((3, len(CHANNELS), 32, 64), np.nan, np.float32)
+    nan_lead0[1:, CHANNELS.index("z500")] = 5000.0                      # the archive: leads 6 h and 12 h only
+    ad = WeatherBench2Adapter(store, "IFS HRES", forecast=lambda i0, steps: nan_lead0[:steps + 1])
+    y = ad.predict({"i0": 2, "steps": 2, "variable": "z500"})
+    analysis = store.denorm(np.asarray(store.state[2, CHANNELS.index("z500")], np.float32), "z500")
+    assert y.shape == (3, 32, 64) and np.allclose(y[0], analysis) and np.all(y[1:] == 5000.0)
+
+    given = np.full((3, len(CHANNELS), 32, 64), np.nan, np.float32)
+    given[:, CHANNELS.index("t850")] = 280.0                            # a source that does provide lead 0
+    y = WeatherBench2Adapter(store, "IFS HRES", forecast=lambda i0, steps: given[:steps + 1]).predict(
+        {"i0": 2, "steps": 2, "variable": "t850"})
+    assert np.all(y == 280.0)
+
+
+def test_one_read_serves_several_variables_and_the_map_says_which(store):
+    """A physics check asks one model for the tracer and the wind that should carry it: ``variable`` as a list comes
+    back stacked, and ``variables=`` narrows what the archive is read for (and what its cost estimate prices)."""
+    from pinneapple_physics.weather.evaluate import WB2_CHECKS
+
+    f = np.full((3, len(CHANNELS), 32, 64), np.nan, np.float32)
+    f[:, CHANNELS.index("z500")], f[:, CHANNELS.index("u500")] = 5000.0, 7.0
+    ad = WeatherBench2Adapter(store, "IFS HRES", forecast=lambda i0, steps: f[:steps + 1],
+                              variables={"z500": ("geopotential", 500), "u500": ("u_component_of_wind", 500)})
+    y = ad.predict({"i0": 1, "steps": 2, "variable": ["z500", "u500"]})
+    assert y.shape == (2, 3, 32, 64) and np.allclose(y[0], 5000.0) and np.allclose(y[1], 7.0)
+    assert ad.predict({"i0": 1, "steps": 2, "variable": "u500"}).shape == (3, 32, 64)   # one name: not stacked
+    with pytest.raises(PretrainedUnavailable, match="no channel"):
+        ad.predict({"i0": 1, "steps": 2, "variable": ["z500", "t850"]})
+    # the estimate prices every (variable, level) of the map: the default map is the six scored channels plus the four
+    # the checks add, so the narrow one is the cheaper read
+    narrow = WeatherBench2Adapter(store, "IFS HRES", forecast=None,
+                                  variables={"z500": ("geopotential", 500)}).cost({"steps": 10})
+    wide = WeatherBench2Adapter(store, "IFS HRES", forecast=None).cost({"steps": 10})
+    assert wide > narrow and len(WB2_CHECKS) == 10 and "t700" in WB2_CHECKS and "z700" in WB2_CHECKS
+
+
 def test_the_cost_estimate_follows_the_query_and_the_ensemble_uses_it(store):
     ad = WeatherBench2Adapter(store, "IFS HRES", forecast=None, latency_s=1.5, throughput_mb_s=0.8)
     ad._forecast, ad._opened = (lambda i0, steps: np.full((steps + 1, len(CHANNELS), 32, 64), np.nan)), True

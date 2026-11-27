@@ -29,7 +29,7 @@ something a flight controller could have produced at that instant.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 

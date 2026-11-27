@@ -425,6 +425,20 @@ def _arrival(t: np.ndarray, u: np.ndarray, onset: int, level: float = -3.0) -> f
     return float(t[min(max(onset, 0), len(t) - 1)])
 
 
+def _front(t: np.ndarray, u: np.ndarray, arrival: float, window: float = 0.5) -> float:
+    """How tall the front is, in standard deviations of the residual, measured as the mean drop over the ``window``
+    seconds that follow its arrival.
+
+    This is what decides whether the arrival is worth timing at all. Two fronts of one leak do not arrive equally
+    loud: the one that crosses the longer part of the line is shorter (``R q^2`` per cell turns against the flow
+    change for as long as it travels), and the reflection at the near boundary clips it after ``2 x/a``. When it falls
+    into the noise the CUSUM's onset is no longer the arrival, and the position that comes out of two onsets is worth
+    kilometres rather than metres -- so the size of the smaller front is reported and, below ``front_min``, the
+    position is withheld instead of being guessed."""
+    mask = (t >= arrival) & (t < arrival + window)
+    return float(-np.mean(u[mask])) if mask.any() else 0.0
+
+
 def _stuck(reading: np.ndarray, step: float, window: int) -> int:
     """Index of the first sample after which ``reading`` has not moved by one quantisation step for ``window``
     samples: a transmitter whose output board has latched. ``-1`` if it never happens."""
@@ -450,8 +464,8 @@ def expected(sim: dict, sensors: Sensors) -> dict:
 
 
 def detect(observation: dict, reference: dict, pipe: Pipeline, sensors: Sensors, *, slack: float = 0.75,
-           threshold: float = 12.0, arrival_level: float = 3.0, baseline: float = 20.0,
-           imbalance_k: float = 5.0, settle: float = 45.0) -> dict:
+           threshold: float = 12.0, arrival_level: float = 3.0, front_min: float = 2.0,
+           baseline: float = 20.0, imbalance_k: float = 5.0, settle: float = 45.0) -> dict:
     """Read the two residuals against the nominal transient and say what happened: a leak, a broken instrument, a
     change of operation, or nothing.
 
@@ -461,9 +475,13 @@ def detect(observation: dict, reference: dict, pipe: Pipeline, sensors: Sensors,
     * **one side or both.** A leak pushes a rarefaction in both directions, so within ``(x_b - x_a)/a`` of the first
       departure the other transmitter must see it too, and **in the same direction: a hole can only lower the head**.
       A disturbance confined to one channel, of either sign, is the instrument.
-    * **the arrival difference.** ``x_L = (x_a + x_b - a (t_a - t_b))/2`` -- a leak between the two transmitters is
-      placed by the head start one front has over the other. A leak outside them sends one front past both
-      transmitters, which no time difference can place, and the verdict says so instead of pretending otherwise.
+    * **the arrival difference.** ``x_L = (x_a + x_b - a (t_b - t_a))/2`` -- a leak between the two transmitters is
+      placed by the head start one front has over the other. Two conditions have to hold for that to mean anything,
+      and the verdict reports both: a leak outside the two transmitters sends one front past **both** of them, which no
+      time difference can place (``outside_transmitters``), and the smaller of the two fronts must stand ``front_min``
+      standard deviations clear of the noise at its own transmitter (``front_sigma``), or the onset being timed is not
+      the arrival and the position is wrong by kilometres. When either fails the leak stands and the position is
+      withheld.
     * **the mass balance.** ``Q_in - Q_out`` is the leak and nothing else, but only once the line has settled
       (``settle`` seconds, a little over the ``2L/a`` the line takes to forget a manoeuvre), which is why it confirms
       a leak rather than triggering one -- and why a valve that moved without the model being told is not called a
@@ -506,7 +524,8 @@ def detect(observation: dict, reference: dict, pipe: Pipeline, sensors: Sensors,
                "leak_distance": None, "leak_rate": None,
                "evidence": {"span_s": span, "arrival_a": None, "arrival_b": None, "delta_t": None,
                             "both_ends": False, "imbalance": imbalance, "imbalance_error": imbalance_error,
-                            "outside_transmitters": False, "balance_window": None, "confirmed": None,
+                            "outside_transmitters": False, "front_sigma": None, "position_reliable": None,
+                            "balance_window": None, "confirmed": None,
                             "stuck": {k: (None if v < 0 else float(t[v])) for k, v in stuck.items()},
                             "cusum": {k: v[2] for k, v in drop.items()}}}
     mine = sorted({k for k, v in drop.items() if v[1] >= 0} | {k for k, v in rise.items() if v[1] >= 0}
@@ -537,11 +556,14 @@ def detect(observation: dict, reference: dict, pipe: Pipeline, sensors: Sensors,
 
     t_a = _arrival(t, residuals["a"], drop["a"][0], -arrival_level)
     t_b = _arrival(t, residuals["b"], drop["b"][0], -arrival_level)
+    fronts = {"a": _front(t, residuals["a"], t_a), "b": _front(t, residuals["b"], t_b)}
     x_leak = (x_a + x_b - a * (t_b - t_a)) / 2.0
-    verdict["evidence"].update(both_ends=True, arrival_a=t_a, arrival_b=t_b, delta_t=float(t_b - t_a))
-    verdict["evidence"]["outside_transmitters"] = not x_a <= x_leak <= x_b
+    inside = x_a <= x_leak <= x_b
+    placed = inside and min(fronts.values()) >= front_min
+    verdict["evidence"].update(both_ends=True, arrival_a=t_a, arrival_b=t_b, delta_t=float(t_b - t_a),
+                              front_sigma=fronts, outside_transmitters=not inside, position_reliable=placed)
     verdict["source"] = "leak"
-    verdict["leak_distance"] = float(min(max(x_leak, x_a), x_b))
+    verdict["leak_distance"] = float(min(max(x_leak, x_a), x_b)) if placed else None
 
     settled = t >= max(t[drop["a"][0]], t[drop["b"][0]]) + settle
     which = "settled" if settled.sum() >= 10 else "tail"

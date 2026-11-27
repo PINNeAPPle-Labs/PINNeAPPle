@@ -270,31 +270,79 @@ def leak_sweep(nominal: dict, reference: dict, seeds: int) -> dict:
                            leak=hole(diameter, position), monitor=MONITOR)
             truth = float(run["leak_flow"][-1])
             floor = min(position - MONITOR[0], MONITOR[1] - position) / PIPE.wave_speed
+            observations = [observe(run, PIPE, SENSORS, seed=500 + seed) for seed in range(seeds)]
             by_threshold = {}
             for threshold in THRESHOLDS:
-                seen, delays, errors, rates = 0, [], [], []
-                for seed in range(seeds):
-                    verdict = detect(observe(run, PIPE, SENSORS, seed=500 + seed), reference, PIPE, SENSORS,
-                                     threshold=threshold)
+                seen, delays, errors, held, rates, fronts = 0, [], [], [], [], []
+                for observation in observations:
+                    verdict = detect(observation, reference, PIPE, SENSORS, threshold=threshold)
                     if verdict["source"] != "leak":
                         continue
                     seen += 1
                     delays.append(verdict["alarm_time"] - 20.0)
+                    evidence = verdict["evidence"]
+                    if evidence["front_sigma"] is not None:
+                        fronts.append(min(evidence["front_sigma"].values()))
                     if verdict["leak_distance"] is not None:          # heard and placed
                         errors.append(verdict["leak_distance"] - position)
+                    elif evidence["delta_t"] is not None:             # placed, then withheld: what it would have said
+                        held.append((MONITOR[0] + MONITOR[1] - PIPE.wave_speed * evidence["delta_t"]) / 2.0 - position)
                     if verdict["leak_rate"] is not None:
                         rates.append(verdict["leak_rate"] / truth - 1.0)
                 by_threshold[f"{threshold:g}"] = {
                     "detected": seen, "placed": len(errors), "runs": seeds,
+                    "errors_m": [round(e, 1) for e in errors],
+                    "withheld_errors_m": [round(e, 1) for e in held],
+                    "weakest_front_sigma": round(min(fronts), 2) if fronts else None,
                     "median_delay_s": float(np.median(delays)) if delays else None,
                     "median_error_m": float(np.median(np.abs(errors))) if errors else None,
                     "worst_error_m": float(np.max(np.abs(errors))) if errors else None,
                     "median_rate_error": float(np.median(np.abs(rates))) if rates else None}
             row[f"{position:.0f}"] = {"hole_mm": diameter, "distance_m": position, "leak_rate_m3_s": truth,
                                       "fraction_of_flow": truth / PIPE.flow, "delay_floor_s": floor,
+                                      "far_leg_m": max(position - MONITOR[0], MONITOR[1] - position),
                                       "by_threshold": by_threshold}
         table[f"{diameter:g}"] = row
     return table
+
+
+def by_position(sweep: dict, threshold: float = OPERATING) -> dict:
+    """Accepted and withheld positions, side by side: what the gate bought and what it cost."""
+    accepted, withheld = [], []
+    for diameter in HOLES_MM:
+        for position in POSITIONS:
+            entry = sweep[f"{diameter:g}"][f"{position:.0f}"]["by_threshold"][f"{threshold:g}"]
+            accepted += [abs(e) for e in entry["errors_m"]]
+            withheld += [abs(e) for e in entry["withheld_errors_m"]]
+    return {"threshold": threshold, "accepted": len(accepted), "withheld": len(withheld),
+            "accepted_median_m": float(np.median(accepted)) if accepted else None,
+            "accepted_worst_m": float(np.max(accepted)) if accepted else None,
+            "withheld_median_m": float(np.median(withheld)) if withheld else None,
+            "withheld_worst_m": float(np.max(withheld)) if withheld else None}
+
+
+def positions_by_band(sweep: dict, threshold: float = OPERATING) -> dict:
+    """Where the localiser holds and where it does not, by the only variable that turns out to matter: how far the
+    hole is from the **farther** transmitter, which is the leg that decides how loud the quieter of the two fronts is."""
+    out = {}
+    for position in POSITIONS:
+        errors, fronts = [], []
+        placed = runs = 0
+        for diameter in HOLES_MM:
+            cell = sweep[f"{diameter:g}"][f"{position:.0f}"]
+            entry = cell["by_threshold"][f"{threshold:g}"]
+            placed += entry["placed"]
+            runs += entry["runs"]
+            errors += [abs(e) for e in entry["errors_m"]]
+            if entry["weakest_front_sigma"] is not None:
+                fronts.append(entry["weakest_front_sigma"])
+        out[f"{position:.0f}"] = {
+            "distance_m": position, "runs": runs, "placed": placed,
+            "far_leg_m": max(position - MONITOR[0], MONITOR[1] - position),
+            "median_error_m": float(np.median(errors)) if errors else None,
+            "worst_error_m": float(np.max(errors)) if errors else None,
+            "worst_weakest_front_sigma": float(np.min(fronts)) if fronts else None}
+    return out
 
 
 def fig_tradeoff(sweep: dict, reference: dict, pipe: Pipeline) -> None:
@@ -432,6 +480,8 @@ def main() -> int:
 
     sweep = leak_sweep(nominal, reference, seeds)
     report["leaks"] = sweep
+    report["localisation_gate"] = by_position(sweep)
+    report["localisation_by_position"] = positions_by_band(sweep)
     fault_nominal = simulate(PIPE, n_reaches=REACHES, t_end=140.0, monitor=MONITOR, valve=valve)
     fault_leak = simulate(PIPE, n_reaches=REACHES, t_end=140.0, monitor=MONITOR, valve=valve,
                           leak=hole(10.0, 9800.0))

@@ -197,13 +197,31 @@ def test_a_hole_near_an_end_is_late_by_less_and_placed_where_it_is(distance, ref
 
 
 def test_a_hole_outside_the_transmitters_cannot_be_placed(reference):
-    """Both fronts go past both transmitters, so their difference says nothing: the guess collapses onto the nearer
-    one and the verdict admits it instead of inventing a position."""
+    """Both fronts go past both transmitters, so their difference says nothing: the leak stands and the position is
+    withheld rather than collapsed onto the nearer transmitter."""
     run = simulate(PIPE, n_reaches=REACHES, t_end=300.0, monitor=MONITOR, leak=hole(10.0, 300.0))
     verdict = _verdict(run, reference, seed=2)
     assert verdict["source"] == "leak"
     assert verdict["evidence"]["outside_transmitters"] is True
-    assert verdict["leak_distance"] == pytest.approx(MONITOR[0])
+    assert verdict["evidence"]["position_reliable"] is False
+    assert verdict["leak_distance"] is None
+    assert verdict["leak_rate"] is not None                       # the balance still knows there is a leak
+
+
+def test_a_front_that_is_noise_does_not_get_a_position(reference):
+    """A 6 mm hole at 15.5 km puts one front 1.4-2.6 sigma clear of the noise at the far transmitter, and the seed
+    where it lands at 0.9 sigma is the seed where the answer used to come out 2.5 km wrong. The gate reads the front
+    and withholds the position; the leak and the rate stay."""
+    run = simulate(PIPE, n_reaches=REACHES, t_end=300.0, monitor=MONITOR, leak=hole(6.0, 15500.0))
+    verdict = _verdict(run, reference, seed=500)
+    assert verdict["source"] == "leak"
+    assert min(verdict["evidence"]["front_sigma"].values()) < 2.0
+    assert verdict["evidence"]["position_reliable"] is False
+    assert verdict["leak_distance"] is None
+    kept = _verdict(simulate(PIPE, n_reaches=REACHES, t_end=300.0, monitor=MONITOR, leak=hole(10.0, 15500.0)),
+                    reference, seed=500)
+    assert min(kept["evidence"]["front_sigma"].values()) >= 2.0
+    assert abs(kept["leak_distance"] - 15500.0) < 150.0
 
 
 def test_the_smallest_hole_the_wave_finds_is_the_transducer_noise(reference):

@@ -34,7 +34,8 @@ PYTHONPATH=$PWD python -m pytest tests/test_event_scoring.py tests/test_sensor_p
 | E2 | Quality-diversity search (MAP-Elites) | #354 | `pinneapple_design/design_optimizer/quality_diversity.py` | `tests/pinneapple_design/test_quality_diversity.py`, 25 tests | #2539 | **delivered** |
 | E3 | Trust-aware surrogate-assisted NSGA-II | #297 | `pinneapple_analysis/surrogate_loop.py` (the budget-and-verification loop) | — the issue's acceptance is not met | #2429 | **open by decision** |
 
-Eight of the eleven are delivered and proved. Three are not, and they are not the same kind of not.
+Seven of the eleven are delivered and proved. Four are not, and they are not the same kind of not: two are halves
+with the missing part named, one is absent, and one is waiting on a decision.
 
 ## What was delivered in this pass
 
@@ -127,5 +128,6 @@ horizons of #345 — is not one of its conditions. The issue's wording is not me
 this epic to be filled by writing code here: an umbrella closes when its children close, and this child has not
 decided what "trust-aware" means for the survivor selection yet.
 
-The umbrella #343 stays open for the same reason. What closes it is #349 built, #346 proved with a neural model, and
-#347 wired to the horizon — or a decision that the piece is not worth its cost, written on the issue.
+The umbrella #343 stays open for the same reason. What closes it is #349 built, #346 proved with a neural model,
+#347 wired to the horizon, and #297 decided one way or the other — or a written decision on the issue that a
+piece is not worth its cost.

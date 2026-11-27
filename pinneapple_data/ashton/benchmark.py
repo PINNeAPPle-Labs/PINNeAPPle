@@ -266,8 +266,8 @@ class BenchmarkTable:
         return {"rows": [row.to_dict() for row in self.rows], "note": self.note}
 
     def to_markdown(self) -> str:
-        lines = ["| dataset | quantity | status | cases | measured | declared (published) | source |",
-                 "|---|---|---|---|---|---|---|"]
+        lines = ["| dataset | quantity | status | model | cases | measured | declared (published) | source |",
+                 "|---|---|---|---|---|---|---|---|"]
         for row in self.rows:
             measured = ", ".join(f"{name} {value:.4g}" for name, value in row.measured.items()) or "--"
             best = _best(row.declared)
@@ -279,8 +279,8 @@ class BenchmarkTable:
             else:
                 published = f"{best.metric} {best.value:.4g} ({best.model}; {len(row.declared)} published rows)"
                 source = best.source
-            lines.append(f"| {row.dataset} | {row.quantity} | {row.status} | {row.cases or '--'} | {measured} | "
-                         f"{published} | {source} |")
+            lines.append(f"| {row.dataset} | {row.quantity} | {row.status} | {row.model or '--'} | "
+                         f"{row.cases or '--'} | {measured} | {published} | {source} |")
         lines.append("")
         lines.append(self.note)
         return "\n".join(lines)

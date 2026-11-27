@@ -14,7 +14,7 @@ from pinneapple_physics.pipeline_leak import Pipeline, Leak, Sensors, simulate
 
 pipe = Pipeline(length=20000.0, diameter=0.4)          # the defaults are the line above
 sensors = Sensors(upstream=480.0, downstream=480.0)    # 480 m inside each end, on the line
-run = simulate(pipe, n_reaches=500, t_end=200.0, leak=Leak(distance=9800.0, area=2.14e-4, t_open=20.0),
+run = simulate(pipe, n_reaches=500, t_end=200.0, leak=Leak(distance=9800.0, area=7.854e-5, t_open=20.0),
                monitor=[480.0, 19520.0])
 ```
 

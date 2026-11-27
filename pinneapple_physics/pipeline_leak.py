@@ -189,7 +189,7 @@ class Sensors:
     bits: int = 12
     full_scale: float = 400.0
     flow_sigma: float = 1.25e-3
-    sample: float = 0.0351
+    sample: float = 0.05
 
     @property
     def step(self) -> float:

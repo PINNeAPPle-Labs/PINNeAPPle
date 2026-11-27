@@ -68,9 +68,35 @@ has to find is the shape and the phase; the slope at the wall follows from them,
 
 Five phantom cases: four vessels whose radii give Womersley numbers from 2.8 to 20.7 at 60 bpm, and one physiological
 five-harmonic waveform at the aortic radius. Each is measured at 8 voxels across the radius, 24 cardiac phases, 3
-planes and 5 % velocity noise, and fitted by an ensemble of three independently seeded networks.
+planes and 5 % velocity noise, and fitted by an ensemble of three independently seeded networks. Every error below is
+relative L2 over the cardiac cycle against the closed form.
 
-<!--TABLE-->
+| phantom | alpha | first sample | wall shear stress | two-point difference | pressure gradient | ensemble spread | truth inside 2 sd |
+|---|---|---|---|---|---|---|---|
+| small artery, R = 2 mm | 2.8 | 0.12 mm (0.2 layers) | **1.2 %** of 1.35 Pa | 27 % | 2.5 % of 36 Pa | 0.2 % | 25 % of the cycle |
+| femoral, R = 4 mm | 5.5 | 0.25 mm (0.3 layers) | **2.3 %** of 0.85 Pa | 44 % | 3.0 % of 41 Pa | 0.2 % | 25 % of the cycle |
+| carotid, R = 8 mm | 11.0 | 0.50 mm (0.7 layers) | **2.7 %** of 0.68 Pa | 77 % | 3.3 % of 68 Pa | 0.3 % | 21 % of the cycle |
+| aorta, R = 15 mm | 20.7 | 0.94 mm (1.3 layers) | **2.8 %** of 0.70 Pa | 99 % | 2.8 % of 137 Pa | 0.5 % | 29 % of the cycle |
+| physiological, 5 harmonics | 20.7 | 0.94 mm (1.3 layers) | **7.0 %** of 1.09 Pa | 100 % | 8.4 % of 249 Pa | 2.7 % | 92 % of the cycle |
+
+"Layers" is the gap measured in boundary-layer thicknesses, `wall_gap / (R/alpha)`. The pressure column is the gradient
+over the studied segment, ten radii long -- 36 Pa over 2 cm of the small artery, 137 Pa over 15 cm of the aorta -- and
+is what a clinician would call the pressure drop.
+
+Read as a whole, the table says three things:
+
+* **the network recovers both targets to a few per cent** from a measurement with no sample at the wall, in an
+  eighty-second fit on one CPU core;
+* **the error does not grow with the Womersley number**, although the measurement does get worse with it: the aorta's
+  first sample sits outside the boundary layer altogether (1.3 layers away) and its wall shear stress is still off by
+  2.8 %, the same as the carotid's, whose layer the samples do resolve. What the data pin down is the shape in the
+  core and the phase; the slope at the wall comes from the equations and the no-slip condition, which is the entire
+  claim being tested;
+* **the two-point difference is not in the same league**, and the fatter the vessel the worse it does: at 99 % on the
+  aorta it is no better than returning zero.
+
+The multi-harmonic case is the honest counterweight. Its fourth harmonic has `alpha = 41`, a layer 0.18 mm thick, and
+the error triples: a real waveform asks for the thin layers a single frequency never shows.
 
 ## Where the wall shear stress stops being recoverable
 

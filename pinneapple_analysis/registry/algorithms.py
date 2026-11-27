@@ -18,8 +18,9 @@ anything heavy.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from typing import Any, Iterable
+from typing import Any
 
 VERIFIED = "verified"          # um teste deste repositório compara com a resposta citada, dentro de uma banda
 NOT_EVALUATED = "not_evaluated"  # ninguém fez essa comparação ainda

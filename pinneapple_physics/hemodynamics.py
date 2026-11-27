@@ -36,7 +36,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -499,7 +499,7 @@ class PINNConfig:
     seed: int = 0
 
 
-def _mlp(n_in: int, n_out: int, width: int, depth: int) -> "torch.nn.Module":  # noqa: F821
+def _mlp(n_in: int, n_out: int, width: int, depth: int) -> torch.nn.Module:  # noqa: F821
     import torch
     layers: list = []
     last = n_in
@@ -541,9 +541,9 @@ def build_network(config: PINNConfig | None = None):
             s = y * y
             st, ct = torch.sin(tau), torch.cos(tau)
             feats = torch.cat([s, st, ct], dim=1)
-            field = self.net_field(feats)
-            u = y * (1.0 - s) * field[:, 0:1]
-            v = (1.0 - s) * field[:, 1:2]
+            two = self.net_field(feats)
+            u = y * (1.0 - s) * two[:, 0:1]
+            v = (1.0 - s) * two[:, 1:2]
             g = self.net_grad(torch.cat([st, ct], dim=1))
             return torch.cat([u, v, g], dim=1)
 

@@ -9,11 +9,12 @@ normalised by the attractor's offset and spread, integrated with the same RK4 st
 (:func:`pinneapple_analysis.data_assimilation.models.rk4`). Only the closure is learned: the network has to
 rediscover the stencil ``(x_{i+1} - x_{i-2}) x_{i-1} - x_i + F`` of Lorenz-96 from state pairs alone, which is the
 honest version of "a dynamics model written by a network". The periodic convolution carries the ring's translation
-symmetry: a 96-unit tanh MLP on the whole state stalls at tendency RMSE 2.2 -- it has to rediscover locality from 4 800
-samples of a 40-dimensional state -- while 32 channels over two layers reach 1.46 in 1 500 steps.
+symmetry, and that is what makes it trainable on 4 800 samples of a 40-dimensional state: a tanh MLP of 512 units over
+the whole state (fifty times the parameters here) only reaches tendency RMSE 2.24 in 4 000 steps, having to rediscover
+locality from the data, while this one reaches 1.46 in 1 500.
 
 The model (defaults of :func:`train_tendency_surrogate`: 4 800 one-step pairs of a Lorenz-96 run with 40 variables,
-dt = 0.05, F = 8, 1 500 Adam steps, batch 128), measured on the 1 200 pairs held back:
+dt = 0.05, F = 8, 1 500 Adam steps, batch 128; seed 0), measured on the 1 200 pairs held back:
 
 =======================================================  =========================
 tendency error (held-out, state units per time)          1.46

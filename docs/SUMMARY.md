@@ -87,6 +87,7 @@
     * [Model cards generated from an experiment record](guides/model_cards.md)
     * [Integral equations of the second kind](guides/integral_equations.md)
     * [Related work, and what has been reproduced](guides/related_work_reproduction.md)
+    * [Cutting a release: the preflight and the three milestones](dev/RELEASES.md)
     * [Running a benchmark](guides/running_a_benchmark.md)
     * [Crash and surface-pressure benchmarks, recreated](guides/crash_and_surface_benchmarks.md)
     * [Viscous vortex domains: 2-D Navier-Stokes without a mesh](guides/vortex_domains.md)

@@ -490,5 +490,10 @@
   "domain": "deployment",
   "reason": "embedded_inference.py trains a small convolutional surrogate of the advection-diffusion field, exports it together with the residual stencil and the measurement check as one ONNX graph, and measures the latency and residual inside and outside the training envelope. What the example is about is the deployment: the graph and the hertz are one library call each (embedded.export, EmbeddedRuntime.latency) and a node graph would say nothing more than the script does",
   "status": "not_convertible"
+ },
+ "pipeline_leak": {
+  "domain": "oil and gas",
+  "reason": "pipeline_leak.py is a campaign, not a computation: it runs the method of characteristics 24 times (eight hole sizes at three positions), feeds each through two sampled and quantised transmitters with four kinds of injected fault, and judges 80 records of normal operation to count false alarms per hour. Every one of those is a library call (simulate, observe, detect) over a case that is generated in the script, and what the example argues is the distribution of verdicts over the campaign -- delay against flight time, position against truth, alarms per hour -- which a single node evaluation cannot carry",
+  "status": "not_convertible"
  }
 }

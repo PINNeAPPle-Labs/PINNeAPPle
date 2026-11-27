@@ -54,6 +54,13 @@ REASONS: dict[str, str] = {
                                    "as one ONNX graph with a fixed-size state and no control flow, plus the runtime "
                                    "that measures the latency. It is how the ensemble node leaves the workstation, not "
                                    "a step of the graph -- a node here would be the deployment of another node",
+    "pinneapple_physics.pipeline_leak": "leak detection on a buried line (#358): the method of characteristics with a "
+                                        "hole as an internal boundary condition, the sampled and quantised transmitters "
+                                        "that watch it with their faults injected, and the detector that says hole, "
+                                        "instrument or unrecorded manoeuvre. Its unit is a record of normal operation "
+                                        "judged -- delay, position, alarms per hour -- not a call, and what it needs "
+                                        "before it can decide is a nominal transient and a stretch of quiet to "
+                                        "calibrate on, which is what examples/pipeline_leak builds",
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
     "pinneapple_analysis.trust.certificate": "verification as a service (#341): it takes somebody else's prediction and "
                                             "returns the certificate of what the physics says about it -- the "

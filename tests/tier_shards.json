@@ -676,6 +676,7 @@
     "tests/test_pinn_validation.py",
     "tests/test_pinnsformer_pointwise.py",
     "tests/test_pipe_stress_mechanics.py",
+    "tests/test_pipeline_leak.py",
     "tests/test_piv_tools.py",
     "tests/test_planetary_defence.py",
     "tests/test_playground.py",

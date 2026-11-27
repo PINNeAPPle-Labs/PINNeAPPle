@@ -824,6 +824,7 @@
     "tests/test_trust_panels.py",
     "tests/test_trust_persistence.py",
     "tests/test_trust_report.py",
+    "tests/test_trust_survivors.py",
     "tests/test_turntable.py",
     "tests/test_twin3d.py",
     "tests/test_twin3d_gallery.py",

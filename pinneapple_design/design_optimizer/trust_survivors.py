@@ -42,7 +42,7 @@ goes in the ``undetermined`` band, behind everything vouched and ahead of everyt
 design a solver call would most improve — its interval narrows as soon as the answer is in the training set — so
 removing it removes the loop's own way out. Measured: with the ensemble surrogate, 44 % of plain NSGA-II's returned
 population in the ``covered`` regime sits in that band, and it is where the optimism lives (the plain population is
-only 0.542 honest against 0.812 for the vouched-first rule). The reported front is a separate matter:
+only 0.542 honest against 0.750 for the vouched-first rule). The reported front is a separate matter:
 :meth:`SearchResult.front` leaves the unvouched designs out of it, because a design that cannot be ranked by the
 surrogate should not be handed to the caller as a front point.
 
@@ -441,10 +441,12 @@ def benchmark_trust_survivors(*, seeds: Sequence[int] = (0, 1, 2), mu: int = 16,
     (:class:`~pinneapple_analysis.surrogate_loop.GaussianProcessSurrogate`, the accurate one). The pair is the point:
     the trust channel has something to buy only where the surrogate lies.
     """
-    from pinneapple_analysis.surrogate_loop import EnsembleSurrogate, GaussianProcessSurrogate
+    from pinneapple_analysis.surrogate_loop import (
+        Constraint,
+        EnsembleSurrogate,
+        GaussianProcessSurrogate,
+    )
     from pinneapple_analysis.uncertainty.applicability import ApplicabilityDomain
-
-    from pinneapple_analysis.surrogate_loop import Constraint
 
     cons = [Constraint("cl", cl_target)]
     bounds = np.asarray(AIRFOIL_FRONT_SPACE, dtype=float)

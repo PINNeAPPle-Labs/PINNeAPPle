@@ -12,12 +12,24 @@ import pytest
 
 from pinneapple_analysis.surrogate_loop import Constraint
 from pinneapple_analysis.uncertainty.applicability import ApplicabilityDomain
-from pinneapple_design.design_optimizer.optimizer import DesignOptimizerConfig, EvolutionaryDesignOptimizer
-from pinneapple_design.design_optimizer.survivors import (TrustVerdict, constrained_select,
-                                                          trust_aware_survivors)
-from pinneapple_design.design_optimizer.trust_survivors import (AIRFOIL_CL, TOL_CD, TOL_CL, TOL_THICKNESS,
-                                                                benchmark_trust_survivors, search, verdicts)
-
+from pinneapple_design.design_optimizer.optimizer import (
+    DesignOptimizerConfig,
+    EvolutionaryDesignOptimizer,
+)
+from pinneapple_design.design_optimizer.survivors import (
+    TrustVerdict,
+    constrained_select,
+    trust_aware_survivors,
+)
+from pinneapple_design.design_optimizer.trust_survivors import (
+    AIRFOIL_CL,
+    TOL_CD,
+    TOL_CL,
+    TOL_THICKNESS,
+    benchmark_trust_survivors,
+    search,
+    verdicts,
+)
 
 
 # --------------------------------------------------------------------------- a small domain to read verdicts against
@@ -272,10 +284,10 @@ def test_the_benchmark_reports_what_it_measured(measured):
     report = measured["ensemble"]
     assert report["tolerance"] == [TOL_CD, TOL_THICKNESS] and report["tolerance_cl"] == TOL_CL
     assert report["cl_target"] == AIRFOIL_CL
-    for regime, arms in report["regimes"].items():
+    for arms in report["regimes"].values():
         assert set(arms) == {"plain", "front", "objective", "penalty", "remove"}
         for row in arms.values():
             assert 0.0 <= row["honest"] <= 1.0 and row["hv"] > 0.0
             assert row["population"] == report["mu"]              # the budget is the same in every arm
             assert sum(row["trust"].values()) == pytest.approx(1.0)
-        assert set(report["regimes"]) == {"covered", "corner"}
+    assert set(report["regimes"]) == {"covered", "corner"}

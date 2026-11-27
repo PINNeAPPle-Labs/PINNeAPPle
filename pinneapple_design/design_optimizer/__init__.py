@@ -66,6 +66,7 @@ from .constraints import (
     ManufacturabilityConstraint,
     ConstraintSet,
 )
+from .survivors import TRUST_LEVELS, TrustVerdict, constrained_select, trust_aware_survivors
 from .surrogate import SurrogateConfig, PhysicsSurrogate
 from .optimizer import (
     ParamSpace,
@@ -106,6 +107,8 @@ __all__ = [
     "naca_parametric",
     # Pareto / multi-objective
     "ParetoFront", "pareto_dominates", "compute_pareto_front", "representatives",
+    # trust-aware survivor selection (#297): see .trust_survivors for the decision and its measurements
+    "TRUST_LEVELS", "TrustVerdict", "constrained_select", "trust_aware_survivors",
     # robust design under uncertainty (#80)
     "RobustSolution", "RobustPareto", "mean_plus_k_sigma", "chance_constrained", "reliability_based",
     "verify_robust", "pareto_with_uncertainty",

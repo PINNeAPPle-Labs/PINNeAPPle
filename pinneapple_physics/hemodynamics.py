@@ -23,10 +23,12 @@ gradient at ``r = R`` and its pressure is linear along the axis, so both target 
     >>> four_d = sample_4d_flow(wave, n_radial=8, n_phases=24, noise=0.05, seed=0)
 
 What the measurement leaves out is the point. The nearest voxel centre to the wall sits half a voxel away from it
-(``voxel / 2``), and the boundary layer the wall shear stress lives in is ``R / alpha`` thick. When the first is
-larger than the second -- a 15 mm aorta at 60 bpm, where ``R/alpha`` is 0.7 mm and a 3 mm voxel is 1.5 mm away -- the
-data contain no information about the gradient at the wall, and only the physics can supply it. :func:`resolution_sweep`
-measures what that costs, and the guide ``docs/guides/hemodynamics_4dflow.md`` reports the number.
+(``voxel / 2``), and the boundary layer the wall shear stress lives in is ``R / alpha`` thick -- which is
+``sqrt(nu/omega)``, 0.72 mm for blood at 60 bpm, the same in every vessel. So the closest sample is 0.2 to 2.6 layers
+from the wall across the four phantoms, and no sample is ever *at* it. Whether that is fatal is a measurement, not an
+argument: :func:`measure` and :func:`ensemble` are what produce it, and ``docs/guides/hemodynamics_4dflow.md`` reports
+what came out -- the data-only estimate of the wall shear stress is 27 % to 100 % wrong, the network is at 1.2 % to
+2.8 % on the same samples, and the sampling gap turns out not to be what limits it.
 
 What this is not: patient data, a real MRI scanner's sampling protocol (no slice profile, no partial volume, no
 velocity aliasing), a curved or compliant vessel, or a validation against measured flow. The phantom is a straight

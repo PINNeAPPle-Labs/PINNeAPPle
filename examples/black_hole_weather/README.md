@@ -149,6 +149,51 @@ python examples/black_hole_weather/skill.py --dataset blackhole_riaf_density_256
     --split test --out runs/skill
 ```
 
+## The model family and its ensemble (item 4 of #399)
+
+Item 4 asks for the paper's U-Net, a Fourier neural operator and the SphereUNet-style backbone of
+`pinneapple_physics.weather`, combined in `PhysicsEnsemble`, and for the measured answer to whether that combination
+beats the best single model over the horizon. Everything below was measured here, on this machine, on data this
+machine can produce; the numbers are in `runs/bh_family/report.json` when the script is run, and the two figures are
+in `docs/assets/blackhole/`.
+
+| member | what it is | parameters |
+|---|---|---|
+| `duarte-unet` | the paper's `DuarteUNet`, filters 16, residual (the port above) | 13.6 M |
+| `fourier-operator` | `FNO2d` (width 32, four spectral layers, 12 × 8 modes, zero padding of 2 cells) mapping the five frames to their change | 0.79 M |
+| `sphere-backbone` | the weather module's `SphereUNet` with `grid_pad` (zeros in r, replication in θ) instead of the spherical padding; zero-initialised head, so untrained it is exactly persistence | 0.22 M |
+
+Two aggregations:
+
+* **equal** — the arithmetic mean of the three fields (`EqualWeightEnsemble`), no learning;
+* **adaptive** — `PhysicsEnsemble` in combine mode, fixed-share/AdaHedge weights learned **prequentially** (the case
+  being predicted never contributes to its own weights) and tilted before each case by the mass rate of each member's
+  rollout, a signal that needs no truth.
+
+### What was run
+
+Three runs of the library's solver at 128 × 64 (`--nr 128 --ntheta 64`), seeds 0, 4 and 5, α = 0.1, frames every
+20 GM/c³ from t = 800 to 4000 GM/c³ — training on seed 0, validation on seed 4, test on seed 5, whole trajectories per
+split as in the zoo dataset. The forecast window is 96 × 48. Training is the paper's loss with Adam; only the learning
+rate differs between members (2·10⁻⁴ for the deep U-Net, 10⁻³ for the two shallower ones) and the number of epochs
+follows the size of the model (12, 30, 30) — the same wall-clock budget, not the same number of passes. All of it on
+CPU.
+
+The evaluation is `skill.evaluate_skill` on the test trajectory: 10-block rollouts (1000 GM/c³) from every fifth
+frame, persistence, climatology and DMD (rank chosen on validation) as baselines, moving-block bootstrap intervals
+with blocks of 1000 GM/c³. The best single member is chosen on the **validation** trajectory, never on the test one.
+
+<!--RESULTS-->
+
+Reproduce (one core; about 25 min per run of simulation and 25 min for the three members together):
+
+```bash
+for s in 0 4 5; do python examples/black_hole_weather/simulate.py --out runs/bh_data --name bh_n128_s$s \
+    --nr 128 --ntheta 64 --seed $s --perturbation-kind modes --backend torch --t-end 4000 --every 20; done
+python examples/black_hole_weather/family.py --runs runs/bh_data --train bh_n128_s0 --val bh_n128_s4 \
+    --test bh_n128_s5 --out runs/bh_family --blocks 10 --dmd-ranks 5 10 20 40 --assets docs/assets/blackhole
+```
+
 ## Reproduce the first version (4 CPU cores: about 1.5 h of simulation and 15 min of training)
 
 ```bash

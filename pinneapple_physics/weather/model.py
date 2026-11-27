@@ -27,22 +27,25 @@ def sphere_pad(x: torch.Tensor, p: int) -> torch.Tensor:
 
 
 class SConv(nn.Module):
-    def __init__(self, cin, cout, k=3):
+    """``k x k`` convolution whose padding follows the geometry of the grid (``pad``, ``sphere_pad`` by default)."""
+
+    def __init__(self, cin, cout, k=3, pad=None):
         super().__init__()
         self.p = k // 2
         self.conv = nn.Conv2d(cin, cout, k)
+        self.pad = sphere_pad if pad is None else pad
 
     def forward(self, x):
-        return self.conv(sphere_pad(x, self.p))
+        return self.conv(self.pad(x, self.p))
 
 
 class Block(nn.Module):
     """Residual block: two spherical 3x3 convolutions with group norm and GELU."""
 
-    def __init__(self, cin, cout):
+    def __init__(self, cin, cout, pad=None):
         super().__init__()
-        self.n1, self.c1 = nn.GroupNorm(8, cin), SConv(cin, cout)
-        self.n2, self.c2 = nn.GroupNorm(8, cout), SConv(cout, cout)
+        self.n1, self.c1 = nn.GroupNorm(8, cin), SConv(cin, cout, pad=pad)
+        self.n2, self.c2 = nn.GroupNorm(8, cout), SConv(cout, cout, pad=pad)
         self.skip = nn.Conv2d(cin, cout, 1) if cin != cout else nn.Identity()
 
     def forward(self, x):
@@ -53,27 +56,32 @@ class Block(nn.Module):
 
 class SphereUNet(nn.Module):
     """``patch`` > 1 first folds patch x patch cells into channels (pixel unshuffle), so the U-Net runs on a grid that
-    is ``patch`` times coarser and the output is unfolded back; a light full-resolution layer then smooths the seams."""
+    is ``patch`` times coarser and the output is unfolded back; a light full-resolution layer then smooths the seams.
+
+    ``pad`` is the padding of every convolution, ``sphere_pad`` (periodic in longitude, across the poles) by default;
+    another stencil is passed for a grid that is not a latitude-longitude one (see
+    ``pinneapple_physics.blackhole.family.grid_pad``)."""
 
     def __init__(self, n_state: int, n_extra: int, widths=(128, 192, 256, 384), blocks: int = 2, patch: int = 1,
-                 refine: int = 64):
+                 refine: int = 64, pad=None):
         super().__init__()
         self.n_state, self.patch = n_state, patch
         cin = (2 * n_state + n_extra) * patch * patch
-        self.inp = SConv(cin, widths[0])
+        self.inp = SConv(cin, widths[0], pad=pad)
         self.down = nn.ModuleList()
         c = widths[0]
         for w in widths:
-            self.down.append(nn.Sequential(*[Block(c if j == 0 else w, w) for j in range(blocks)]))
+            self.down.append(nn.Sequential(*[Block(c if j == 0 else w, w, pad=pad) for j in range(blocks)]))
             c = w
-        self.mid = nn.Sequential(Block(c, c), Block(c, c))
+        self.mid = nn.Sequential(Block(c, c, pad=pad), Block(c, c, pad=pad))
         self.up = nn.ModuleList()
         for w in reversed(widths[:-1]):
-            self.up.append(nn.Sequential(Block(c + w, w), *[Block(w, w) for _ in range(blocks - 1)]))
+            self.up.append(nn.Sequential(Block(c + w, w, pad=pad), *[Block(w, w, pad=pad) for _ in range(blocks - 1)]))
             c = w
-        self.head = nn.Sequential(nn.GroupNorm(8, c), nn.GELU(), SConv(c, n_state * patch * patch if patch > 1 else n_state))
+        self.head = nn.Sequential(nn.GroupNorm(8, c), nn.GELU(),
+                                  SConv(c, n_state * patch * patch if patch > 1 else n_state, pad=pad))
         if patch > 1:
-            self.refine = nn.Sequential(SConv(n_state, refine), nn.GELU(), SConv(refine, n_state))
+            self.refine = nn.Sequential(SConv(n_state, refine, pad=pad), nn.GELU(), SConv(refine, n_state, pad=pad))
             nn.init.zeros_(self.refine[-1].conv.weight)
             nn.init.zeros_(self.refine[-1].conv.bias)
         nn.init.zeros_(self.head[-1].conv.weight)

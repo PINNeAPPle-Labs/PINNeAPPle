@@ -14,6 +14,7 @@ forecast: **for how long can it be trusted, and can we tell without the truth?**
 |---|---|
 | `hydro` | `AccretionFlow`: axisymmetric viscous hydrodynamics around a Schwarzschild black hole (Paczyński-Wiita potential, α-viscosity "SS" or "ST", equilibrium torus), finite volume (HLL, MUSCL, SSP-RK2) on a log-r grid; `bondi_pw`: exact transonic Bondi accretion for validation |
 | `forecast` | `DuarteUNet` (layer-for-layer port of the original), `DensityCodec`, `make_blocks`, `train_forecaster`, `rollout`, `lead_time_scores`, `trust_horizon`, `MassEnvelope` |
+| `family` | the model family (`DuarteUNet`, `FourierForecaster`, `SphereBackbone`), the two aggregations (`EqualWeightEnsemble`, `adaptive_ensemble`) and `evaluate_family`, which scores all of them with `skill.evaluate_skill` |
 | `twin` | `accretion_scene`: the flow revolved in 3D as a cutaway for PINNeAPPle-Twin3D, simulation and forecast side by side, trust signals as sensors |
 | `capture` | `capture_twin`: records the Twin3D viewer (headless Chromium) to frames for GIFs |
 
@@ -141,6 +142,104 @@ perturbation on every grid). The tools are in the library:
 ![skill against lead time](../assets/blackhole/skill_vs_lead_256.png)
 
 Details and every number: `examples/black_hole_weather/README.md`, section "Zoo version".
+
+## The model family and its ensemble (#399, item 4)
+
+Item 4 of the issue asks for the paper's U-Net, a Fourier/spherical neural operator and the SphereUNet-style backbone
+of `pinneapple_physics.weather`, combined in `PhysicsEnsemble`, and for the measured answer to whether that
+combination beats the best single model over the horizon. `pinneapple_physics.blackhole.family` is that comparison.
+Every member obeys the contract of `forecast.rollout` — five consecutive normalised log-density frames in, the next
+five out, same shape — so all of them are rolled out and scored by the same `skill.evaluate_skill` as the numbers
+above, and their horizons are the same quantity.
+
+### The three members
+
+| member | what it is | adaptation stated, not hidden |
+|---|---|---|
+| `duarte-unet` | `DuarteUNet` (the paper's U-Net, 5×5 convolutions, filters 16, residual) | none: the port documented above |
+| `fourier-operator` | `FourierForecaster`: `FNO2d` of `pinneapple_neural` (width 32, four spectral layers, 12 × 8 low modes, two cells of zero padding on every axis) mapping the 5 frames to their change, added to the last input frame | the pixel grid is (r, θ), not periodic; the padding keeps the two open radial edges from wrapping into each other through the transform |
+| `sphere-backbone` | `SphereBackbone`: the `SphereUNet` of `pinneapple_physics.weather` — residual group-norm blocks, the patch-unshuffle embedding (off here: `patch = 1`, the window is small enough to keep the U-Net at full resolution), zero-initialised head, so an untrained backbone is exactly persistence | its `sphere_pad` (periodic in longitude, wrapping across the poles) is replaced by `grid_pad` (zeros in r, replication in θ): the accretion grid is one meridional half-plane with an open outer edge and reflecting poles, so the globe's padding is the wrong stencil here; the state is the block of frames and the "previous state" is the same block shifted by one frame |
+
+Why a Fourier operator at all: the axisymmetric structure and the spiral waves of the flow live in a few low modes of
+the plane, which is exactly what the spectral convolution carries and what a 5×5 kernel has to build out of depth.
+The three are trained with the paper's loss (`MAE + 8·MAE` of the high-density pixels), Adam with gradient clipping,
+on the same blocks; only the learning rate differs (2·10⁻⁴ for the deep U-Net, 10⁻³ for the two shallower members,
+for the reason `forecast.TrainConfig` gives).
+
+### The two aggregations
+
+* `equal` — `EqualWeightEnsemble`: the arithmetic mean of the three fields. It needs no label, and it is an exact
+  identity on identical members (`combine([P, P], [½, ½]) == P`).
+* `adaptive` — `adaptive_ensemble`: `PhysicsEnsemble(mode="combine")` over the same three. Weights come from the
+  fixed-share / AdaHedge grid and are updated **prequentially**: the forecast of case k is combined with the weights
+  the labels of the cases before k produced, never its own. Before each case the weights are tilted by
+  `residual_lookahead` on a signal that needs no truth — the mass rate of each member's own rollout, `|d ln M/dt|` of
+  the window in units of the training bound, the same idea as `MassEnvelope` above. `min_weight = 0`, so the
+  aggregation stays a convex combination and `combine` reproduces the ensemble's field exactly (a test checks it).
+
+The honest reading of the two: `equal` is "combine them and see"; `adaptive` also uses the truth of *earlier* cases,
+which an operational forecast has from verification against the analysis. Neither sees the truth of its own case.
+
+### The measurement
+
+`family.evaluate_family` runs every member and both aggregations over the same start times of the held-out trajectory
+(10-block rollouts, 1000 GM/c³, one every 5 frames, moving-block bootstrap with blocks of 1000 GM/c³), with
+persistence, climatology and DMD as baselines, and the best single model chosen on the **validation** trajectory —
+never on the test one. `figures.plot_family` is the figure, `figures.forecast_gif` the animation.
+
+The run below is this machine, `runs/bh_data`: train on `bh_n128_s0`, validation on `bh_n128_s4`, test on
+`bh_n128_s5` — 22 start times, 50 lead times from 20 to 1000 GM/c³, window 96 × 48, `frame_dt` 20, DMD at the rank
+its validation MAE chose (20). The skill score is against persistence at the 1000 GM/c³ lead, with the moving-block
+bootstrap interval.
+
+| model | MAE at 20 M | MAE at 1000 M | mean MAE | skill at 1000 M | skill horizon | ACC horizon |
+|---|---|---|---|---|---|---|
+| `duarte-unet` | 0,00292 | 0,0642 | 0,0319 | −0,224 [−0,301; −0,178] | 0 M | 400 M |
+| `fourier-operator` | 0,00122 | 0,0244 | 0,0152 | **+0,534 [+0,460; +0,619]** | 1000 M | 640 M |
+| `sphere-backbone` | 0,00251 | 0,0424 | 0,0183 | +0,191 [+0,185; +0,231] | 0 M | 580 M |
+| `ensemble-equal` | 0,00161 | 0,0323 | 0,0167 | +0,491 [+0,435; +0,550] | 1000 M | 680 M |
+| `ensemble-adaptive` | 0,00131 | 0,0256 | 0,0142 | **+0,511 [+0,410; +0,627]** | 1000 M | — |
+| persistence | 0,00184 | 0,0525 | 0,0316 | 0 | — | — |
+
+The answer to item 4 is not the comfortable one, and it is split in two:
+
+- **the plain mean does not beat the best single model.** `ensemble-equal` is better than `fourier-operator` at
+  **3 of the 50 leads** — averaging three members when one of them is far ahead and one of them is `duarte-unet`,
+  which ends the horizon at −0,224, mostly drags the best one down. Its mean MAE (0,0167) is worse than the single
+  Fourier operator's (0,0152);
+- **the adaptive aggregation does**, at **43 of the 50 leads**, with the best mean MAE of the whole table (0,0142).
+  It gets there by weight, not by averaging: the final weights are `fourier-operator` 0,959, `sphere-backbone` 0,031,
+  `duarte-unet` 0,011, and they are assigned **prequentially** — the forecast of a case uses only the labels of the
+  cases before it.
+
+Two honest qualifications on top of that table:
+
+- **DMD is not beaten anywhere.** `skill_horizon_vs_dmd_M` is 0 M for every member and both aggregations: the linear
+  model at rank 20 has a validation MAE of 0,0213, and beyond the first lead no network here stays ahead of it. The
+  ensemble comparison above is against the best *single network*, which is the question the issue asks, not against
+  the best *forecast* available.
+- **the deep member is the one that fails.** `duarte-unet` has 13,6 M parameters against 0,79 M for the Fourier
+  operator and is the only member with negative skill at the horizon; its validation MAE (0,0277) never came near the
+  Fourier operator's (0,0151). At filters 16 and 12 epochs it is under-trained rather than refuted, and that is what
+  the GPU budget below would buy.
+
+
+### What a GPU would be needed for
+
+The comparison is honest about its size. It is **not** a training campaign:
+
+* the data are three runs of the library's own solver at 128 × 64, 3200 GM/c³ each, not the paper's PLUTO runs
+  (256 × 192 crop) and not the zoo dataset (256 × 128, 8000 GM/c³, six trajectories);
+* each member is trained once, with no hyper-parameter search, in the budget the number of epochs above describes;
+  the paper's U-Net is at filters 16 instead of 32, and the weather backbone's default widths (128-384) are cut to
+  16-48;
+* a GPU would buy the paper's resolution and filters, several training runs per member (the spread between them is
+  the part of the comparison this cannot measure), and the multi-simulation training the paper's own loss is written
+  for.
+
+What the measurement does support is the question item 4 asks: on the same data, the same contract and the same
+scoring, does combining the three beat the best one alone, with intervals.
+
 
 ## Results of the first version
 

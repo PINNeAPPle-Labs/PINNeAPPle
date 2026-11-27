@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import math
 import os
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
@@ -41,6 +42,7 @@ from . import foam
 from .cavity import _write
 
 __all__ = ["PLATE_RE", "LEVELS", "MODELS", "write_case", "run", "skin_friction", "study", "read_reference",
+           "momentum_thickness",
            "CF_LAW", "PlateRun"]
 
 #: The TMR flat-plate Reynolds number, per unit length of ``x`` (``benchmark_suites.NASA_TMR_CASES``, case ``2DZP``).
@@ -321,28 +323,107 @@ def skin_friction(case: str, *, u_inf: float = 1.0, nu: float = 2e-7) -> dict[st
             "y_first": np.full(int(plate.sum()), float("nan")), "nu": nu}
 
 
-def read_reference(path: str) -> dict[str, np.ndarray]:
-    """A TMR ``cf`` table as ``{"x", "cf"}``: two whitespace-separated columns, one station per line.
+def read_reference(path: str, *, zone: str | None = None) -> dict[str, Any]:
+    """A TMR ``cf`` table, with the columns mapped by the names **the file declares**.
 
-    The TMR publishes its reference results as plain text files next to each case. They are not in this repository (and
-    not downloadable from the machine this was built on), so the comparison is a call away rather than a number in a
-    README: give this the file and :func:`study` reports the difference.
+    The TMR publishes these as plain text with a Tecplot-style header: a ``VARIABLES = "a","b"`` line naming the
+    columns, ``ZONE T="..."`` lines separating blocks, then the numbers. **The column order is not fixed**: the
+    per-model CFL3D files lead with ``cf`` and put ``retheta`` second, while ``cf_as_function_of_x.dat`` leads with
+    the abscissa — reading by position silently compares ``cf`` with ``cf``. A file with no header is taken as the
+    two-column ``x cf`` layout this function used to assume.
+
+    Returns ``abscissa`` (``"retheta"`` or ``"x"``), the arrays, the zone names and, when the abscissa is
+    ``retheta``, a note saying that :func:`study` needs the momentum thickness to place the solution on it.
     """
-    x, cf = [], []
+    header: list[str] = []
+    zones: dict[str, list[list[float]]] = {}
+    current = ""
     with open(path) as fh:
         for line in fh:
-            parts = line.split()
-            if len(parts) < 2 or line.lstrip().startswith(("#", "%")):
+            stripped = line.strip()
+            if not stripped or stripped.startswith(("#", "%")):
                 continue
+            upper = stripped.upper()
+            if upper.startswith("VARIABLES"):
+                header = [name.strip().strip('"') for name in
+                          re.findall(r'"([^"]*)"', stripped) or stripped.split("=", 1)[1].split(",")]
+                continue
+            if upper.startswith("ZONE"):
+                tag = re.search(r'[Tt]\s*=\s*"([^"]*)"', stripped)
+                current = tag.group(1) if tag else f"zone{len(zones)}"
+                zones.setdefault(current, [])
+                continue
+            parts = stripped.split()
             try:
-                a, b = float(parts[0]), float(parts[1])
+                row = [float(p) for p in parts]
             except ValueError:
                 continue
-            x.append(a)
-            cf.append(b)
-    if len(x) < 2:
-        raise ValueError(f"{path}: no x cf columns found")
-    return {"x": np.asarray(x), "cf": np.asarray(cf)}
+            if len(row) < 2:
+                continue
+            zones.setdefault(current, []).append(row)
+    if not zones or not any(zones.values()):
+        raise ValueError(f"{path}: no x cf columns found (no numeric table in the file)")
+    name = zone if zone in zones else next(k for k, v in zones.items() if v)
+    table = np.asarray(zones[name], dtype=float)
+    columns = header if len(header) == table.shape[1] else ([f"c{i}" for i in range(table.shape[1])])
+    data = {col.lower(): table[:, i] for i, col in enumerate(columns)}
+    if "cf" not in data:
+        data["cf"] = table[:, -1]                      # no header: the last column is the skin friction
+    if "retheta" in data:
+        abscissa = "retheta"
+    elif "x" in data:
+        abscissa = "x"
+    elif not header:
+        # no header at all: the first column is x, which is the layout a hand table uses
+        abscissa = "x"
+        data["x"] = table[:, 0]
+    else:
+        # the file names its columns and none of them is an abscissa this reader knows. Say which one it did read --
+        # the station tables are ``N, h^2, h, C_f`` and their first column is a cell count, not a position, so
+        # quietly calling it "x" is the same trap as reading the columns by position.
+        abscissa = columns[0].lower()
+    data["abscissa"] = abscissa
+    data["zones"] = list(zones)
+    data["zone"] = name
+    data["source"] = path
+    return data
+
+
+def momentum_thickness(case: str, *, u_inf: float | None = None, field: str = "U") -> dict[str, np.ndarray]:
+    """``theta(x)`` from the solved velocity field: ``theta = int u/U_e (1 - u/U_e) dy`` on each mesh column.
+
+    This is what puts a solution of ``cf(x)`` on the abscissa the TMR reference uses: ``Re_theta = U theta / nu``.
+    Estimating ``Re_theta`` from a correlation instead would compare our friction with a reference placed by somebody
+    else's boundary layer -- the difference the comparison is meant to measure would be partly an assumption.
+
+    The edge velocity ``U_e`` is taken **per column, from the top cell**, not from the nominal inlet value: the
+    freestream of a solved case is not exactly what was imposed (this one sits at 1.002), and normalising by the
+    nominal value leaves ``f > 1`` over the whole outer region, where ``f (1 - f)`` is negative and swamps the thin
+    near-wall layer that carries the momentum deficit. Passing ``u_inf`` overrides the local value and is kept for
+    a caller that wants the imposed one.
+    """
+    got = foam.cells(case, fields=[field, "C"])
+    if "C" not in got or field not in got:
+        raise KeyError(f"{case}: the mesh reader gave {sorted(got)}, which has no cell centres or {field}")
+    centres, vel = got["C"], np.asarray(got[field])
+    x, y = centres[:, 0], centres[:, 1]
+    u = np.linalg.norm(vel[:, :2], axis=1) if vel.ndim == 2 and vel.shape[1] > 1 else vel.ravel()
+    out_x, out_t, out_edge = [], [], []
+    for xv in np.unique(np.round(x, 10)):
+        on = np.isclose(x, xv, atol=1e-12)
+        if on.sum() < 4:
+            continue
+        yy, uu = y[on], u[on]
+        order = np.argsort(yy)
+        yy, uu = yy[order], uu[order]
+        edge = float(uu[-1]) if u_inf is None else float(u_inf)
+        if edge <= 0.0:
+            continue
+        frac = uu / edge
+        out_x.append(float(xv))
+        out_t.append(float(np.trapezoid(frac * (1.0 - frac), yy)))
+        out_edge.append(edge)
+    return {"x": np.asarray(out_x), "theta": np.asarray(out_t), "u_edge": np.asarray(out_edge)}
 
 
 @dataclass
@@ -379,14 +460,28 @@ def study(root: str, *, reynolds: float = PLATE_RE, levels: Sequence[dict[str, A
 
     The station defaults to ``x = 0.97``: far enough downstream that the boundary layer is developed and far enough
     from the trailing edge that the outlet's treatment of it does not dominate. ``reference`` is a TMR file for
-    :func:`read_reference`; without it the table has the extrapolated value and the 1/7-power law's estimate, and says
-    the comparison is pending rather than implying agreement.
+    :func:`read_reference` (one path, or a ``{model: path}`` mapping), and it defaults to the tables bundled in
+    :mod:`~pinneapple_simulation.cfd_validation.tmr_reference` — the CFL3D curve of each model and the five nested
+    grids the codes ran at the station. Without a reference the table still has the extrapolated value and the
+    1/7-power law's estimate, and says the comparison against the TMR is pending rather than implying agreement.
     """
     from pinneapple_analysis.verification.convergence import richardson_extrapolate
 
+    from . import tmr_reference
+
+    if reference is None:
+        # A comparison that needs a download is not a gate: the published tables are in the repository, so they are
+        # what the case compares against unless the caller supplies something else.
+        named = {model: tmr_reference.CURVE_FILES[tmr_model]
+                 for model, tmr_model in tmr_reference.MODEL_TABLE.items() if model in models}
+        reference = {model: str(tmr_reference.DATA / name) for model, name in named.items()}
+    else:
+        # What the record keeps is the reference as the caller gave it, not the absolute path it resolves to.
+        named = reference if isinstance(reference, dict) else {m: reference for m in models}
+
     out: dict[str, Any] = {"case": "nasa-tmr-2DZP", "reynolds": float(reynolds), "station": station,
                            "cf_law": CF_LAW, "models": {}, "levels": [lv["name"] for lv in levels],
-                           "reference": reference or "", "note": ""}
+                           "reference": named or "", "note": ""}
     for model in models:
         runs: list[PlateRun] = []
         for level in levels:
@@ -417,13 +512,56 @@ def study(root: str, *, reynolds: float = PLATE_RE, levels: Sequence[dict[str, A
         law = CF_LAW["coefficient"] * (reynolds * station) ** CF_LAW["exponent"]
         entry["cf_law"] = float(law)
         entry["cf_fine_vs_law"] = float(values[-1] / law) if np.isfinite(values[-1]) and law else float("nan")
-        if reference and os.path.isfile(reference):
-            ref = read_reference(reference)
-            entry["cf_reference"] = float(np.interp(station, ref["x"], ref["cf"]))
-            entry["cf_fine_vs_reference"] = (float(values[-1] / entry["cf_reference"])
-                                             if np.isfinite(values[-1]) else float("nan"))
+        ref_path = reference.get(model) if isinstance(reference, dict) else reference
+        if ref_path and os.path.isfile(ref_path):
+            ref = read_reference(ref_path)
+            entry["reference_file"] = ref_path
+            entry["reference_zone"] = ref.get("zone", "")
+            if ref["abscissa"] == "x":
+                entry["cf_reference"] = float(np.interp(station, ref["x"], ref["cf"]))
+                entry["cf_fine_vs_reference"] = (float(values[-1] / entry["cf_reference"])
+                                                 if np.isfinite(values[-1]) else float("nan"))
+            else:
+                # The reference is a function of Re_theta, so the solution has to be placed on that abscissa by its
+                # own momentum thickness -- not by a correlation, which would mix the reference's boundary layer with
+                # ours and hide the difference the comparison exists to measure.
+                fine = os.path.join(root, f"plate_{model}_{levels[-1]['name']}")
+                try:
+                    theta = momentum_thickness(fine)
+                    re_theta = theta["theta"] * theta["u_edge"] / float(params["nu"])
+                    entry["re_theta_at_station"] = float(np.interp(station, theta["x"], re_theta))
+                    entry["cf_reference"] = float(np.interp(entry["re_theta_at_station"], ref["retheta"], ref["cf"]))
+                    entry["cf_fine_vs_reference"] = (float(values[-1] / entry["cf_reference"])
+                                                     if np.isfinite(values[-1]) else float("nan"))
+                    # the whole profile, where both sides are defined: this is the table the issue asked for
+                    if runs[-1].x is not None:
+                        rt = np.interp(runs[-1].x, theta["x"], re_theta)
+                        inside = (rt >= ref["retheta"].min()) & (rt <= ref["retheta"].max())
+                        if inside.sum() >= 2:
+                            ref_cf = np.interp(rt[inside], ref["retheta"], ref["cf"])
+                            err = runs[-1].cf[inside] - ref_cf
+                            entry["cf_vs_reference"] = {
+                                "n": int(inside.sum()),
+                                "re_theta_range": [float(rt[inside].min()), float(rt[inside].max())],
+                                "mean_abs_error": float(np.mean(np.abs(err))),
+                                "max_abs_error": float(np.max(np.abs(err))),
+                                "mean_rel_error": float(np.mean(np.abs(err) / ref_cf)),
+                                "max_rel_error": float(np.max(np.abs(err) / ref_cf)),
+                            }
+                except (KeyError, ValueError, FileNotFoundError) as exc:
+                    entry["reference_error"] = f"the reference is on Re_theta and the field could not be read: {exc}"
+        # The second reference the TMR publishes for this case: cf at the station itself, on the five nested grids each
+        # code ran. It needs no momentum thickness to be placed, and its own extrapolation says how much of a
+        # difference is the reference's grid (its GCI is 0.02 % for SA on CFL3D, 0.28 % for SST) -- so what is left of
+        # it is the configuration, which is the list tmr_reference.differences() carries.
+        try:
+            quoted = float(entry.get("extrapolated", values[-1]))
+            if np.isfinite(quoted):
+                entry["tmr"] = tmr_reference.compare(model, quoted)
+        except (KeyError, ValueError) as exc:
+            entry["tmr_error"] = str(exc)
         out["models"][model] = entry
     if not out["note"]:
-        out["note"] = ("the TMR reference tables are not in this repository and were not downloadable here: "
-                       "pass reference=<file> to compare with CFL3D/FUN3D")
+        out["note"] = ("compared against the TMR tables bundled in cfd_validation/data/tmr (CFL3D and FUN3D); "
+                       "the difference left after the grids is listed item by item in each model's 'tmr' record")
     return out

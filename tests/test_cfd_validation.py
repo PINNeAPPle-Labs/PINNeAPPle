@@ -12,9 +12,12 @@ Two layers, because the issue asks for both and only one of them needs a machine
 The numbers the runs produce are the ones in ``examples/cfd/classical_cases/README.md``: the tests are the check that
 the tables and the case builders still say what the README says they say.
 """
+from pathlib import Path
+
 import numpy as np
 import pytest
 
+import pinneapple_simulation.cfd_validation.tmr as tmr
 from pinneapple_simulation.cfd_validation import (
     DEV_VAHL_DAVIS_NU,
     GHIA_RE,
@@ -354,3 +357,154 @@ def test_the_one_percent_power_law_is_where_the_plate_is_judged():
     law = tmr.CF_LAW["coefficient"] * (tmr.PLATE_RE * 0.97) ** tmr.CF_LAW["exponent"]
     assert 0.002 < law < 0.004
     assert "Schlichting" in tmr.CF_LAW["citation"]
+
+
+# ---------------------------------------------------------------------------------------- TMR reference tables (#265)
+def _tmr_file(tmp_path, body: str) -> str:
+    p = tmp_path / "ref.dat"
+    p.write_text(body)
+    return str(p)
+
+
+def test_the_reference_columns_are_mapped_by_name_not_by_position(tmp_path):
+    """The TMR's per-model CFL3D files lead with ``cf`` and put ``retheta`` second -- the opposite of the theory
+    files. A reader that trusts the position compares cf with cf and reports a perfect agreement that is meaningless."""
+    path = _tmr_file(tmp_path, 'TITLE = "x"\nVARIABLES = "cf","retheta"\nZONE T="SA"\n'
+                              " 3.0E-03 4.0E+03\n 2.5E-03 5.0E+03\n")
+    ref = tmr.read_reference(path)
+    assert ref["abscissa"] == "retheta"
+    assert np.allclose(ref["retheta"], [4000.0, 5000.0])
+    assert np.allclose(ref["cf"], [3.0e-3, 2.5e-3])
+
+
+def test_a_zone_is_chosen_by_its_name_and_the_first_is_the_default(tmp_path):
+    path = _tmr_file(tmp_path, 'VARIABLES = "x","cf"\nZONE T="theory"\n 0.1 0.01\n 0.2 0.02\n'
+                              'ZONE T="CFL3D"\n 0.1 0.03\n 0.2 0.04\n')
+    first = tmr.read_reference(path)
+    other = tmr.read_reference(path, zone="CFL3D")
+    assert first["zone"] == "theory" and np.allclose(first["cf"], [0.01, 0.02])
+    assert other["zone"] == "CFL3D" and np.allclose(other["cf"], [0.03, 0.04])
+    assert first["zones"] == ["theory", "CFL3D"]
+
+
+def test_a_file_without_a_header_is_still_the_two_column_layout(tmp_path):
+    path = _tmr_file(tmp_path, "0.1 0.01\n0.2 0.02\n")
+    ref = tmr.read_reference(path)
+    assert ref["abscissa"] == "x" and np.allclose(ref["x"], [0.1, 0.2]) and np.allclose(ref["cf"], [0.01, 0.02])
+
+
+def test_the_momentum_thickness_of_a_linear_profile_is_a_sixth_of_its_height(monkeypatch):
+    """``theta = int f (1 - f) dy`` with ``f = y/delta`` is ``delta/6`` -- an answer that needs no solver.
+
+    The height is the one the profile really spans, ``delta`` less the half cell below the top centre: the edge
+    velocity is read from that cell, so the profile is normalised to 1 there and not at ``delta``. With 40 cells the
+    two differ by 1.2 %, which is the whole of the tolerance below.
+    """
+    delta, nx, ny = 0.01, 3, 40
+    y = np.linspace(delta / (2 * ny), delta * (1 - 1 / (2 * ny)), ny)
+    frac = y / delta
+    centres = np.array([[xv, yv, 0.0] for xv in np.linspace(0.0, 0.2, nx) for yv in y])
+    vel = np.array([[f, 0.0, 0.0] for _ in range(nx) for f in frac])
+    monkeypatch.setattr(tmr.foam, "cells", lambda case, fields=None: {"C": centres, "U": vel})
+    got = tmr.momentum_thickness("anywhere")
+    assert got["theta"].size == nx
+    height = delta * (1 - 1 / (2 * ny))
+    assert np.allclose(got["theta"], height / 6.0, rtol=2e-3)
+    # and the imposed edge velocity takes it back to the full height's sixth, which is the analytic answer
+    full = tmr.momentum_thickness("anywhere", u_inf=1.0)
+    assert np.allclose(full["theta"], delta / 6.0, rtol=2e-3)
+
+
+def test_the_published_reference_files_are_in_the_repository_and_readable():
+    """Both models must have their CFL3D table next to the code: a comparison that needs a download is not a gate."""
+    here = Path(__file__).resolve().parent.parent / "pinneapple_simulation" / "cfd_validation" / "data" / "tmr"
+    for name in ("sa-cf_cfl3d.dat", "sst-cf_cfl3d.dat"):
+        ref = tmr.read_reference(str(here / name))
+        assert ref["abscissa"] == "retheta" and ref["cf"].size > 100
+        assert ref["retheta"].min() > 1e3 and ref["retheta"].max() > 1e4
+
+
+def test_the_bundled_tmr_files_are_the_published_bytes():
+    """The provenance gate: a table that has been edited is not the published table, whatever it still looks like."""
+    from pinneapple_simulation.cfd_validation import tmr_reference
+
+    got = tmr_reference.check_sources()
+    assert got["ok"], got["problems"]
+    assert len(got["files"]) == len(tmr_reference.SOURCES)
+    for entry in got["files"]:
+        assert entry["sha256"] in tmr_reference.SOURCES[entry["file"]]["sha256"]
+        assert entry["url"].startswith("https://tmbwg.github.io/turbmodels/")
+
+
+def test_the_station_table_reproduces_the_published_convergence_indices():
+    """CFL3D's five nested grids, extrapolated with the repository's own machinery, must give the TMR's own numbers.
+
+    The verification page states an apparent order of 1.98 and a relative extrapolated error of 0.014 % for SA, and
+    1.21 and 0.221 % for SST. Two numbers that came out of a transcription error would not land on both of those.
+    """
+    from pinneapple_simulation.cfd_validation import tmr_reference
+
+    sa = tmr_reference.reference_at_station("SpalartAllmaras", "CFL3D")
+    assert sa["model"] == "SA" and sa["family"] == "compressible"
+    assert sa["grids"] == [208896, 52224, 13056, 3264, 816]          # finest first, as the file lists them
+    assert sa["cf_fine"] == pytest.approx(0.00270562153, rel=1e-9)   # the number in the file, not a rounded copy
+    assert sa["observed_order"] == pytest.approx(1.98, abs=0.01)
+    assert abs(sa["cf_converged"] - sa["cf_fine"]) / sa["cf_fine"] == pytest.approx(0.00014, rel=0.05)
+    sst = tmr_reference.reference_at_station("kOmegaSST", "CFL3D")
+    assert sst["model"] == "SST"                                     # each model gets its own table
+    assert sst["cf_fine"] == pytest.approx(0.00269085355, rel=1e-9)
+    assert sst["observed_order"] == pytest.approx(1.21, abs=0.01)
+    assert abs(sst["cf_converged"] - sst["cf_fine"]) / sst["cf_fine"] == pytest.approx(0.00221, rel=0.05)
+
+
+def test_the_incompressible_codes_measure_what_simplefoam_does_not_have():
+    """The case is incompressible, so the incompressible codes are the closer comparison, and they sit about 1 % above.
+
+    That number is the size of the Mach-number difference before any model effect is blamed for it, so it has to come
+    from the files rather than from the prose around them.
+    """
+    from pinneapple_simulation.cfd_validation import tmr_reference
+
+    for model in ("SpalartAllmaras", "kOmegaSST"):
+        record = tmr_reference.compare(model, 0.0027)
+        assert record["references"]["CFL3D"]["family"] == "compressible"
+        incompressible = record["relative_error_incompressible"]
+        assert incompressible, model
+        compressible = record["cf_reference"]
+        for code in incompressible:
+            reference = record["references"][code]
+            assert reference["family"] == "incompressible"
+            # the incompressible codes are above the compressible CFL3D one: that is the sign of the effect
+            assert 1.0 < reference["cf_fine"] / compressible < 1.03, (model, code)
+
+
+def test_a_model_without_a_tmr_table_is_named_rather_than_given_another_models():
+    from pinneapple_simulation.cfd_validation import tmr_reference
+
+    with pytest.raises(KeyError, match="no TMR reference"):
+        tmr_reference.compare("kEpsilon", 0.0027)
+    with pytest.raises(KeyError, match="no such family"):
+        tmr_reference.station_table("SA", "transitional")
+    with pytest.raises(KeyError, match="no SA results"):
+        tmr_reference.reference_at_station("SA", "OpenFOAM")
+
+
+def test_the_station_tables_are_read_by_name_and_their_grid_sizes_halve():
+    """``cf_convergence*.dat`` has four columns and names none of them ``cf``: the value is the last column.
+
+    A reader that takes the first column as the value would compare against the cell count (208 896) and report a
+    disagreement of six orders of magnitude -- which is at least loud, but the grid sizes are what proves the columns
+    were read in the published order.
+    """
+    from pinneapple_simulation.cfd_validation import tmr_reference
+
+    for model in ("SA", "SST"):
+        for family in ("compressible", "incompressible"):
+            table = tmr_reference.station_table(model, family)
+            assert table, (model, family)
+            for code, series in table.items():
+                n, cf = series["n"], series["cf"]
+                assert n.size == cf.size == 5, (model, family, code)
+                assert np.all(np.diff(n) < 0), (model, family, code)     # finest first
+                assert np.allclose(n[:-1] / n[1:], 4.0), (model, family, code)   # 545 x 385 family, every other point
+                assert np.all((cf > 1e-3) & (cf < 5e-3)), (model, family, code)

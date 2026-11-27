@@ -93,14 +93,74 @@ inflow a third of a chord upstream, far field at `y = 0.5`, three grids refined 
 cell at `y+ = 30`. The skin friction is the `wallShearStress` function object's answer at `x = 0.97`, which is the
 value the solver itself used.
 
-| model | coarse (720 cells) | medium (2 880) | fine (11 520) | observed order | Richardson-extrapolated | GCI of the fine | 1/7-power law |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| SpalartAllmaras | 0.002932 | 0.002975 | 0.002985 | 2.10 | **0.002988** | 0.13 % | 0.002994 |
-| kOmegaSST | 0.002659 | 0.002678 | 0.002684 | 1.70 | **0.002687** | 0.12 % | 0.002994 |
+| model | coarse (720 cells) | medium (2 880) | fine (11 520) | observed order | Richardson-extrapolated | GCI of the fine | CFL3D at x = 0.97 | error vs CFL3D | incompressible code | error | 1/7-power law |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| SpalartAllmaras | 0.002932 | 0.002975 | 0.002985 | 2.10 | **0.002988** | 0.13 % | 0.002706 | **+10.4 %** | 0.002729 (FUN3D, SC/Tetra) | +9.5 % | 0.002994 |
+| kOmegaSST | 0.002659 | 0.002678 | 0.002684 | 1.70 | **0.002687** | 0.12 % | 0.002691 | **−0.2 %** | 0.002711–0.002721 (FUN3D, SC/Tetra, GHOST) | −0.9 to −1.3 % | 0.002994 |
 
 Both converge, at an observed order of 2.1 and 1.7, and the extrapolated values land within 0.3 % (SA) and 10 % (SST)
 of the 1/7-power turbulent flat-plate law (`cf = 0.027 Re_x^-1/7`, Schlichting) — an independent check that needs no
 data file. The 10 % is the model, not the mesh: the fine grid's GCI is 0.12 %.
+
+**The error column is against the TMR itself**, not against a theory. `cf` at `x = 0.970084071` is what the verification
+case tabulates, from CFL3D and FUN3D on five nested grids; the tables are in the repository, byte for byte as
+published, in `pinneapple_simulation/cfd_validation/data/tmr/`, with the URL and SHA-256 of each file in
+`tmr_reference.SOURCES` and `tmr_reference.check_sources()` verifying the copy. The station is not a scaling problem:
+the published plate runs from `x = 0` to `2` and this one from `0` to `1`, both at `Re = 5e6` per unit length, so the
+same `x` is the same `Re_x = 5e6 x` and the same boundary layer.
+
+The reference is grid-converged by the same arithmetic the case uses on its own runs, applied to the five published
+grids (the repository's `richardson_extrapolate`, which reproduces the apparent order and the extrapolated error the
+TMR page states, digit for digit):
+
+| model | code | cells (finest) | `cf` finest | order | `cf` extrapolated | GCI of the finest |
+|---|---|---:|---:|---:|---:|---:|
+| SA | CFL3D | 208 896 | 0.0027056 | 1.98 | 0.0027052 | 0.017 % |
+| SA | FUN3D | 208 896 | 0.0027054 | 1.34 | 0.0027060 | 0.028 % |
+| SA | FUN3D incompressible | 208 896 | 0.0027291 | 1.53 | 0.0027294 | 0.015 % |
+| SA | SC/Tetra incompressible | 208 896 | 0.0027294 | 1.91 | 0.0027342 | 0.22 % |
+| SST | CFL3D | 208 896 | 0.0026909 | 1.21 | 0.0026968 | 0.28 % |
+| SST | FUN3D | 208 896 | 0.0026905 | 1.39 | 0.0026961 | 0.26 % |
+| SST | FUN3D incompressible | 208 896 | 0.0027174 | 1.30 | 0.0027225 | 0.24 % |
+| SST | SC/Tetra incompressible | 208 896 | 0.0027212 | 2.03 | 0.0027225 | 0.06 % |
+| SST | GHOST incompressible | 208 896 | 0.0027109 | 1.19 | 0.0027192 | 0.38 % |
+
+The reference's own grid term is 0.02–0.4 %, so its mesh is not what the remaining difference is about. What it is
+about, item by item (the list lives in `tmr_reference.COMMON_DIFFERENCES` and `.MODEL_DIFFERENCES`, so the prose and
+the code cannot drift apart):
+
+* **the wall.** The TMR's finest grid has 5e-7 wall spacing, an average `y+` of about 0.1, and resolves the viscous
+  sublayer; this case runs `nutUSpaldingWallFunction` / `omegaWallFunction` with the first cell at `y+ = 30`. It
+  compares a modelled wall with a computed one, and that is the first difference to remove.
+* **compressibility.** CFL3D and FUN3D ran `M = 0.2` with the energy equation; `simpleFoam` has none. The TMR's own
+  incompressible files measure what that costs at this station: +0.88 % for SA (0.0027291 against 0.0027054) and
+  +1.00 % for SST (0.0027174 against 0.0026905). About one of the 10.4 points of the SA error is the Mach number.
+* **the grid.** 11 520 cells (120 x 96, 120 on the plate) at the finest level against 208 896 (545 x 385, 449 on the
+  plate), and the family is regenerated here rather than converted from the published Plot3D files — which is why the
+  number quoted for this case is the extrapolated one, whose GCI is 0.13 %.
+* **the definition.** `2 tau_w / U^2` from the solver's own `wallShearStress` against `tau_w / (0.5 rho U^2)` with the
+  freestream density; the same in the incompressible limit.
+* **the model's own boundary conditions.** SA's freestream matches (both use `nuTilda/nu = 3`) and so does the variant
+  (the TMR baseline SA includes `ft2`, as OpenFOAM's `SpalartAllmaras` does). SST's does not: 1 % intensity and
+  `nut/nu = 10` here against 0.039 % and `mut/mu = 0.009` there — a difference the TMR's "under 1 %" freestream study
+  does not cover, because both of its levels are far below 1 %.
+
+**SST agrees to 0.2 % and SA is 10 % high, on the same mesh, the same wall functions and the same air.** That rules the
+wall treatment out as the whole explanation: the difference is inside the SA side of the configuration. The one
+candidate the case itself points at is `0/nut`, which is written with `nutUSpaldingWallFunction` on the plate for
+**both** models, while OpenFOAM's SA computes `nut` from `nuTilda` (its own setup is `calculated`), so the wall
+function overwrites what the model derived there. That has not been measured yet: it is the next run, not a
+conclusion.
+
+**The other axis answers a different question, and it is also reported.** The table above holds `x` fixed
+(`Re_x = 5e6 x`, the verification case's abscissa). The validation case holds the **momentum thickness** fixed, and
+places the answer on `cf(Re_theta)` through the `theta` integrated from the solved velocity field: at `x = 0.97`
+this run gives `Re_theta = 8 026` for SA and `7 221` for SST, the SST side carrying 10 % less momentum thickness.
+On that axis kOmegaSST sits **1.4 % below** CFL3D (0.002684 against 0.002723) and SpalartAllmaras **11.0 % above**
+(0.002985 against 0.002689); over the range where both curves are defined (`Re_theta` 3 974–8 241 for SA,
+3 968–7 415 for SST) the mean absolute difference is 9.0 % and 3.0 %. The two SST numbers, −0.2 % at the same `x` and
+−1.4 % at the same `Re_theta`, differ because this run's boundary layer is thinner than CFL3D's at the same station —
+which is itself a measurement, and one the `Re_theta` axis is the right one to see.
 
 **The first version of this case never converged**, and the reason is worth recording because OpenFOAM keeps quiet
 about it: the relaxation entry was written as `kOmegaSST 0.7` — the *model's* name — where OpenFOAM reads a per
@@ -109,9 +169,11 @@ and 0.26 for six thousand iterations. With `k 0.7; omega 0.7` the same case conv
 second lesson is in `skin_friction`: estimating `tau_w` from the first cell as `(nu + nut) du/dy` over-predicts by
 5.6x (SA) and 2.0x (SST) at `y+ = 30`, because the eddy viscosity of a log-layer cell is not the wall's.
 
-**Not compared with CFL3D/FUN3D.** The TMR grids are regenerated here rather than converted from the published Plot3D
-files, and the reference tables are not in this repository, so there is no error column against the TMR itself —
-`tmr.read_reference(path)` reads one when it is supplied.
+**What the TMR publishes and this does not compare.** The validation case's other quantity of interest is `u+` against
+`y+` at `Re_theta = 10^4`. It is not compared here, and not because the file is missing: a run whose first cell sits at
+`y+ = 30` has no sublayer to show, so the comparison would be between meshes rather than between models. The `cf`
+against `Re_theta` curve **is** compared, through the momentum thickness integrated from the solved field
+(`tmr.momentum_thickness`), not through a correlation — that is what `study()` reports alongside the station value.
 
 ### 4. Surrogate warm start — `results/warm_start.json` (#494)
 
@@ -170,9 +232,8 @@ rungs as data levels (name and relative cost) for the multi-fidelity workflow (#
   at a `Re` it was not fitted on, and its error against the solver is reported there.
 * **The CFDBench subset.** Not done: the licence could not be confirmed offline, and the dataset is not in this
   repository.
-* **The TMR bump-in-channel, NACA 0012 and backward-facing-step cases of #265**, and the TMR reference tables: the
-  flat plate is the case whose verification stands without an external file, and the other three need the published
-  grids and tables this machine could not download. `tmr.read_reference(path)` is the reader for when they arrive.
+* **The TMR bump-in-channel, NACA 0012 and backward-facing-step cases of #265**: the flat plate is the case whose
+  verification stands on the published tables, and the other three need the published grids converted.
 * **The VLM and LBM rungs on the same family as the RANS rungs** (#294), for the reasons in section 5.
 
 ## The tables
@@ -184,6 +245,17 @@ rungs as data levels (name and relative cost) for the multi-fidelity workflow (#
 | `GHIA_U`, `GHIA_V` | `u` along `x = 0.5` and `v` along `y = 0.5`, Re = 100, 400, 1000, 10000 | Ghia, Ghia and Shin (1982), *J. Comput. Phys.* 48(3), 387–411, Tables I–II, doi:10.1016/0021-9991(82)90058-4 |
 | `DEV_VAHL_DAVIS_NU` | mean Nusselt number of the square cavity, Ra = 1e3…1e6 | de Vahl Davis (1983), *Int. J. Numer. Methods Fluids* 3(3), 249–264, Table I, doi:10.1002/fld.1650030305 |
 | `ARMALY_REATTACHMENT` | reattachment length against Re | Armaly et al. (1983), *J. Fluid Mech.* 127, 473–496 — **empty**: the published curve is a figure |
+
+The TMR tables are not transcribed at all: `pinneapple_simulation/cfd_validation/data/tmr/` holds the published files
+byte for byte, and `tmr_reference.SOURCES` carries the URL, size and SHA-256 of each one, which
+`tmr_reference.check_sources()` verifies. A transcription error is the failure mode that has no other check, so the
+transcription is the hash.
+
+| file | what | citation |
+|---|---|---|
+| `sa-cf_cfl3d.dat`, `sst-cf_cfl3d.dat` | `cf` against `Re_theta` along the plate, CFL3D on 545 x 385 | Turbulence Modeling Resource, 2DZP validation case, <https://tmbwg.github.io/turbmodels/flatplate_val.html> |
+| `cf_convergence_sa.dat`, `cf_convergence_sst.dat` | `cf` at `x = 0.970084071` on the five nested grids, CFL3D and FUN3D | TMR 2DZP verification case, <https://tmbwg.github.io/turbmodels/flatplate.html> |
+| `cf_incomp_sa.dat`, `cf_incomp_sst.dat` | the same station from incompressible codes (FUN3D, SC/Tetra, GHOST) | idem |
 
 The tables are checked on their own, with no solver: the lid moves at `u = 1`, the walls do not move, the coordinates
 increase, `u` crosses the centreline exactly once, and the strongest backflow is below the centreline

@@ -236,8 +236,9 @@ def _rotor_from_torque(torque_body: np.ndarray) -> int:
     return int(np.argmax(arms @ planar / max(float(np.linalg.norm(planar)), 1e-9)))
 
 
-def diagnose(flight: Flight, detection: Detection, calibration: Calibration, *, window_s: float = 1.5) -> dict:
-    """Name the fault from *which* channel moved, with the evidence in sigmas.
+def diagnose(flight: Flight, detection: Detection, calibration: Calibration, *, window_s: float = 1.5,
+             horizon=None) -> dict:
+    """Name the fault from *which* channel moved, with the evidence in sigmas, and say how long the model holds.
 
     Two questions, in this order. **Is it the sensor or the vehicle?** A measurement check that is the dominant evidence
     is a sensor fault -- and it has to be dominant, not merely large: the vibration channel's spread is 0.004 m/s^2, so
@@ -245,8 +246,12 @@ def diagnose(flight: Flight, detection: Detection, calibration: Calibration, *, 
     three sigma" answered "IMU vibration" for a payload. **If it is the vehicle, which part?** A vertical force with a
     quiet torque is mass; a torque is a rotor, and its direction names the motor; a planar force is the air moving.
     """
+    # the diagnosis of a fault is one question; how long the model that produced it can still be believed is another,
+    # and it belongs in the same record -- a verdict without it says *what* is wrong but not whether the next second of
+    # it can be trusted (:func:`.estimate.confidence_horizon`)
+    extra = {} if horizon is None else {"horizon_s": float(horizon.seconds), "horizon": horizon.to_dict()}
     if not detection.detected:
-        return {"label": "no fault detected", "confidence": 0.0, "evidence": {}}
+        return {"label": "no fault detected", "confidence": 0.0, "evidence": {}, **extra}
     t0 = detection.time
     mask = (flight.time >= t0) & (flight.time <= t0 + window_s)
     if not mask.any():
@@ -268,10 +273,11 @@ def diagnose(flight: Flight, detection: Detection, calibration: Calibration, *, 
     dynamics = max(vertical, planar, spin, abs(power))
     if its_evidence > 4.0 and its_evidence > 0.5 * dynamics:
         return {"label": FAULT_LABELS[loudest_sensor], "confidence": min(its_evidence / 20.0, 1.0),
-                "evidence": evidence}
+                "evidence": evidence, **extra}
 
     if abs(power) > 4.0 and vertical < 3.0 and planar < 3.0 and spin < 4.0:
-        return {"label": FAULT_LABELS["battery"], "confidence": min(abs(power) / 12.0, 1.0), "evidence": evidence}
+        return {"label": FAULT_LABELS["battery"], "confidence": min(abs(power) / 12.0, 1.0), "evidence": evidence,
+                **extra}
     if spin > 4.0:
         motor = _rotor_from_torque(torque)
         # A degraded motor and a chipped blade are *not* told apart here, and the measurement says why: the controller
@@ -279,13 +285,15 @@ def diagnose(flight: Flight, detection: Detection, calibration: Calibration, *, 
         # power-per-newton ratio that separates them in theory (1.96 against 2.02 in the flight of the example) is
         # inside the noise. Both are reported together, with the motor named.
         label = f"motor {motor} low efficiency or blade chipped" if motor >= 0 else "a rotor is failing"
-        return {"label": label, "confidence": min(spin / 25.0, 1.0), "evidence": evidence}
+        return {"label": label, "confidence": min(spin / 25.0, 1.0), "evidence": evidence, **extra}
     # a gust is a *planar* force, but not a purely planar one: the vehicle tilts into the wind to hold position, and in
     # the body frame that tilt puts the wind's force partly along -z. Measured at 10 m/s: (-18.4, -11.3). Asking for
     # "planar overwhelmingly dominant" got exactly that case wrong and called it a payload, so the rule is dominance
     # with a real margin, not a ratio of five.
     if planar > 1.2 * vertical and planar > 3.0 and abs(power) < 4.0 and spin < 4.0:
-        return {"label": FAULT_LABELS["gust"], "confidence": min(planar / 20.0, 1.0), "evidence": evidence}
+        return {"label": FAULT_LABELS["gust"], "confidence": min(planar / 20.0, 1.0), "evidence": evidence,
+                **extra}
     if vertical > 4.0:
-        return {"label": FAULT_LABELS["payload"], "confidence": min(vertical / 20.0, 1.0), "evidence": evidence}
-    return {"label": "unclassified", "confidence": min(strength / 10.0, 1.0), "evidence": evidence}
+        return {"label": FAULT_LABELS["payload"], "confidence": min(vertical / 20.0, 1.0), "evidence": evidence,
+                **extra}
+    return {"label": "unclassified", "confidence": min(strength / 10.0, 1.0), "evidence": evidence, **extra}

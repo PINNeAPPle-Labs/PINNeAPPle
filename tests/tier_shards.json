@@ -844,6 +844,7 @@
     "tests/test_vortex_3d_analysis.py",
     "tests/test_vortex_domains.py",
     "tests/test_warp_backend.py",
+    "tests/test_warp_bubble.py",
     "tests/test_weather_clients.py",
     "tests/test_weather_cyclones.py",
     "tests/test_weather_forecasting.py",

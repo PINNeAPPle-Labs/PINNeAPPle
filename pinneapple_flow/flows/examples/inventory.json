@@ -475,5 +475,10 @@
   "domain": "astronomy",
   "reason": "apophis_deflection.py is three measurements over one propagator: the momentum enhancement the published DART period change implies, the miss distance at the 2029 flyby against impactor mass and warning time, and an ensemble that turns the two into a success fraction and a trust horizon. What the example is about is the numbers against the public record, and each of the three is a library call (defence.dart_beta, defence.deflection_table, defence.trust_horizon) rather than a pipeline of node-sized steps, so there is no node graph that would say more than the script does",
   "status": "not_convertible"
+ },
+ "warp_drive": {
+  "domain": "relativity",
+  "reason": "warp_drive.py is one geometry measured three ways -- the curvature from the metric, the null energy condition searched over directions, and the total negative energy -- plus the renders. Each of those is a single library call (einstein_tensor, worst_null_energy, integrated_energy) over a static bubble; there is no pipeline of node-sized steps to build, and what the example argues is the sign and the size of one number",
+  "status": "not_convertible"
  }
 }

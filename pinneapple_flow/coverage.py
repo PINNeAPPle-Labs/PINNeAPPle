@@ -40,6 +40,12 @@ REASONS: dict[str, str] = {
                                     "time -- fly, measure, diagnose -- and its unit is a flight, not a call: a flow "
                                     "node would have to run the whole campaign inside one evaluation, which is what "
                                     "examples/multirotor_flight does",
+    "pinneapple_physics.terraform": "terraforming Mars (#374): the zonal energy balance with Mars' own orbit, the CO2 "
+                                    "frost point that pins the cap, the published reservoirs, and the ensemble whose "
+                                    "spread is the answer. It is a planet integrated in time -- the state advances "
+                                    "itself, band by band, and what comes out is a verdict and a trust horizon, not "
+                                    "a field a downstream step would consume: a flow node would have to run the "
+                                    "whole model inside one evaluation, which is what examples/mars_terraform does",
     "pinneapple_physics.pretrained": "the door a model trained somewhere else comes in through (#348): the registry of "
                                      "open models with their licence, the adapters that load one (WeatherBench2, a "
                                      "torch checkpoint, a local array archive, the Hugging Face Hub) and the wrap that "

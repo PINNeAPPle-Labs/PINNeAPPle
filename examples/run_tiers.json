@@ -113,6 +113,7 @@
   "examples/inspection": "runs clean in 2.5 s but is not in the ci tier yet: promote it with --promote",
   "examples/latent": "takes longer than 12 s (trusted_latent_surrogate.py): too slow for the ci tier",
   "examples/lbm": "takes longer than 12 s (01_sphere_wind_tunnel.py): too slow for the ci tier",
+  "examples/mars_terraform": "takes about 25 s (mars_terraform.py): 500 years of the coupled CO2 cycle at four steps a year, sixty-four ensemble members of the same over five uncertain parameters, five inventories settled for 1500 years each and a 48-frame globe. --quick drops the GIF, halves the ensemble and the frames",
   "examples/meshgraphnet": "runs clean in 8.8 s but is not in the ci tier yet: promote it with --promote",
   "examples/model_zoo": "takes longer than 12 s (quickstart.py): too slow for the ci tier",
   "examples/modelica": "fails when run: RuntimeError: OpenModelica not found: install omc or pull the Docker image `docker pull openmodelica/openmodelica:v1.24.4-minimal`",

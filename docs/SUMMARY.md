@@ -196,6 +196,7 @@
     * [Engineering Design Optimizer (day 17)](guides/engineering_design_optimizer.md)
     * [Physics Design Optimizer (day 23)](guides/physics_design_optimizer.md)
     * [The Alcubierre warp bubble: curvature, energy conditions and the bill](guides/warp_drive.md)
+    * [Terraforming Mars: a globe warming over centuries, and the horizon of what a model can say](guides/mars_terraform.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)
   * [pinneapple_physics](api/pinneapple_physics/index.md)

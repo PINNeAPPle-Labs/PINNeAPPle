@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
 
 from .pareto import crowding_distance, fast_non_dominated_sort
+from .survivors import TRUST_LEVELS, TrustVerdict, constrained_select, trust_aware_survivors
 
 
 # ---------------------------------------------------------------------------
@@ -472,6 +474,7 @@ class EvolutionaryDesignOptimizer:
         self._fitness: list[float] = []
         self._obj_vecs: list[list[float]] | None = None
         self._penalties: list[float] | None = None
+        self._trust: list[TrustVerdict] | None = None
 
         if not multi_objective:
             try:
@@ -551,6 +554,8 @@ class EvolutionaryDesignOptimizer:
         ys: list[float],
         obj_vecs: list[list[float]] | None = None,
         penalties: list[float] | None = None,
+        trust: Sequence[TrustVerdict] | None = None,
+        trust_rule: str = "front",
     ) -> None:
         """Inform the optimizer of objective values for the last candidates.
 
@@ -572,6 +577,15 @@ class EvolutionaryDesignOptimizer:
             Optional total constraint-violation per candidate, used with
             Deb's constrained-domination rule (feasible always beats
             infeasible; among infeasible, lower violation wins).
+        trust:
+            Optional :class:`~pinneapple_design.design_optimizer.survivors.TrustVerdict` per candidate -- whether the
+            surrogate's own prediction of those constraints can be vouched for. Survivor selection then runs
+            through :func:`~pinneapple_design.design_optimizer.survivors.trust_aware_survivors`, on a channel of its
+            own: it is ordered in front of the measured penalties, never summed into them. ``None`` (the default)
+            leaves this method exactly as it was before #297.
+        trust_rule:
+            How that channel is applied -- ``"front"`` (default), ``"penalty"`` or ``"remove"``; see
+            :func:`~pinneapple_design.design_optimizer.survivors.trust_aware_survivors`.
         """
         is_multi_objective = obj_vecs is not None and len(obj_vecs) > 0 and len(obj_vecs[0]) > 1
 
@@ -591,26 +605,78 @@ class EvolutionaryDesignOptimizer:
             combined_obj = np.array(list(prev_obj) + list(obj_vecs), dtype=np.float64)
             combined_pen = np.array(list(prev_pen) + list(penalties or [0.0] * len(xs)), dtype=np.float64)
 
-            idx = self._nsga2_select(combined_obj, combined_pen, mu)
+            if trust is None:
+                idx = self._nsga2_select(combined_obj, combined_pen, mu)
+                combined_trust = None
+            else:
+                prev_trust = self._previous_trust(xs, trust)
+                combined_trust = list(prev_trust) + list(trust)
+                idx = trust_aware_survivors(combined_obj, combined_pen, combined_trust, mu, trust_rule)
             self._obj_vecs = combined_obj[idx].tolist()
             self._penalties = combined_pen[idx].tolist()
+            self._trust = None if combined_trust is None else [combined_trust[i] for i in idx]
             self._population = [combined_x[i] for i in idx]
             # parents are drawn by the crowded-comparison tournament of NSGA-II (rank, then crowding distance),
             # not by the first objective alone
-            self._fitness = self._crowded_scores(combined_obj[idx], combined_pen[idx]).tolist()
+            self._fitness = self._crowded_scores(combined_obj[idx], combined_pen[idx], self._trust).tolist()
             return
         else:
             idx = np.argsort(combined_y)[:mu]
             self._obj_vecs = None
             self._penalties = None
+            self._trust = None
 
         self._population = [combined_x[i] for i in idx]
         self._fitness = [combined_y[i] for i in idx]
 
+    @property
+    def population(self) -> list[np.ndarray]:
+        """The current population, in the order the last survivor selection left it (best band first)."""
+        return [np.array(x, dtype=np.float64) for x in self._population]
+
+    @property
+    def trust(self) -> list[TrustVerdict] | None:
+        """The trust verdict carried by each member of :attr:`population`, or ``None`` when none was given."""
+        return None if self._trust is None else list(self._trust)
+
+    def _previous_trust(self, xs: Sequence[np.ndarray], trust: Sequence[TrustVerdict]) -> list[TrustVerdict]:
+        """The verdict of the *previous* population, for the trust-aware merge.
+
+        Once a trust-aware :meth:`tell` has run, the verdicts are stored and this is a copy. Before that there are
+        none — and the opening generation of the (mu+lambda) scheme hands back the population it has just sampled, so
+        that population arrives a second time in ``xs`` with a verdict attached. Labelling those rows from ``xs`` by
+        the design rather than defaulting them to "trusted" is what keeps the opening generation from vouching for a
+        design the surrogate has just refused.
+        """
+        if self._trust is not None and len(self._trust) == len(self._population):
+            return list(self._trust)
+        known: dict[tuple, TrustVerdict] = {}
+        for x, v in zip(xs, trust, strict=False):
+            known.setdefault(tuple(np.round(np.asarray(x, dtype=float), 12)), v)
+        return [known.get(tuple(np.round(np.asarray(x, dtype=float), 12)), TrustVerdict()) for x in self._population]
+
     @staticmethod
-    def _crowded_scores(objectives: np.ndarray, penalties: np.ndarray) -> np.ndarray:
+    def _crowded_scores(objectives: np.ndarray, penalties: np.ndarray,
+                        trust: Sequence[TrustVerdict] | None = None) -> np.ndarray:
         """Lower is better: front rank among the feasible (constrained domination: every infeasible design ranks
-        after them, by violation), minus a crowding bonus in [0, 1) inside the front."""
+        after them, by violation), minus a crowding bonus in [0, 1) inside the front.
+
+        With ``trust``, the same score is computed inside each of the three bands of the trust channel and the bands
+        are stacked in their order (vouched first), so the parent tournament of :meth:`ask` draws from the band the
+        survivor rule preferred rather than from the whole population.
+        """
+        if trust is not None:
+            level = np.array([v.level for v in trust], dtype=object)
+            score = np.zeros(len(objectives))
+            offset = 0.0
+            for band in TRUST_LEVELS:
+                sel = np.flatnonzero(level == band)
+                if not len(sel):
+                    continue
+                local = EvolutionaryDesignOptimizer._crowded_scores(objectives[sel], penalties[sel])
+                score[sel] = offset + local
+                offset = score[sel].max() + 1.0
+            return score
         n = len(objectives)
         score = np.zeros(n)
         feas = np.where(penalties <= 0.0)[0]
@@ -636,29 +702,9 @@ class EvolutionaryDesignOptimizer:
         Feasible solutions (penalty <= 0) are ranked by non-dominated front
         + crowding distance; infeasible ones are only used to fill any
         remaining slots, ordered by ascending total violation.
+
+        The selection itself is
+        :func:`~pinneapple_design.design_optimizer.survivors.constrained_select`, which the trust-aware rule of #297
+        also builds on: one implementation, so the two cannot drift apart.
         """
-        feasible = penalties <= 0.0
-        feas_idx = np.where(feasible)[0]
-        infeas_idx = np.where(~feasible)[0]
-
-        selected: list[int] = []
-        if len(feas_idx) > 0:
-            fronts = fast_non_dominated_sort(objectives[feas_idx])
-            for front in fronts:
-                front_global = feas_idx[front]
-                if len(selected) + len(front_global) <= mu:
-                    selected.extend(front_global.tolist())
-                else:
-                    remaining = mu - len(selected)
-                    if remaining > 0:
-                        cd = crowding_distance(objectives[front_global])
-                        order = np.argsort(-cd)  # larger crowding distance preferred
-                        selected.extend(front_global[order[:remaining]].tolist())
-                    break
-
-        if len(selected) < mu and len(infeas_idx) > 0:
-            remaining = mu - len(selected)
-            order = infeas_idx[np.argsort(penalties[infeas_idx])]
-            selected.extend(order[:remaining].tolist())
-
-        return np.array(selected[:mu], dtype=int)
+        return constrained_select(objectives, penalties, mu)

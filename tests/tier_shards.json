@@ -260,7 +260,8 @@
     "tests/test_flow_study_steps_literal.py",
     "tests/test_flow_table_step.py",
     "tests/test_flow_vehicle.py",
-    "tests/test_flow_wrappers_car3d.py"
+    "tests/test_flow_wrappers_car3d.py",
+    "tests/test_intent_study.py"
    ],
    "reason": "not measured green yet: see docs/dev/test_shards.md"
   },

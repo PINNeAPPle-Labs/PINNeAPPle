@@ -196,6 +196,7 @@
     * [Engineering Design Optimizer (day 17)](guides/engineering_design_optimizer.md)
     * [Physics Design Optimizer (day 23)](guides/physics_design_optimizer.md)
     * [The Alcubierre warp bubble: curvature, energy conditions and the bill](guides/warp_drive.md)
+    * [A leak in a crude-oil pipeline: when it is heard, where it is, and whether it was ever there](guides/pipeline_leak.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)
   * [pinneapple_physics](api/pinneapple_physics/index.md)

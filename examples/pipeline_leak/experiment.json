@@ -1,0 +1,200 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pipeline_leak",
+ "title": "A leak in a crude-oil pipeline: when it is heard, where it is, and whether it was ever there",
+ "description": "A 20 km, 400 mm crude line is solved by the method of characteristics from its steady state, with a pump curve upstream, a valve downstream and a hole as an internal boundary condition solved in closed form. Two sampled, quantised, noisy transmitters watch it, four instrument faults are injected into them, and a change-point detector on the residual against the nominal transient decides whether what happened was a hole, a broken instrument, or a valve nobody wrote down. The delay is compared with the flight time of the wave, the position with where the hole was drilled, and the false alarms are counted per hour of normal operation including two valve manoeuvres.",
+ "domain": "oil and gas",
+ "methods": [
+  "method of characteristics",
+  "Darcy-Weisbach friction",
+  "CUSUM change detection",
+  "arrival-time localisation",
+  "fault injection"
+ ],
+ "modules": [
+  "pinneapple_physics.pipeline_leak"
+ ],
+ "params": {
+  "length_m": 20000.0,
+  "diameter_m": 0.4,
+  "wave_speed_m_s": 1140.31,
+  "flow_m3_s": 0.25,
+  "transducers_m": [480.0, 19520.0],
+  "transducer_sigma_m": 0.15,
+  "sample_s": 0.05,
+  "decision_interval_sigma": 12.0
+ },
+ "scripts": [
+  "pipeline_leak.py"
+ ],
+ "metrics": [
+  {
+   "name": "first_step_head_drop_at_the_hole",
+   "value": -1.261087,
+   "unit": "m",
+   "how": "the head at the leak node one step after a 10 mm hole opens at 9.8 km, against a Q_L / (2 g A) = -1.261087 m; relative error 1.3e-12"
+  },
+  {
+   "name": "first_step_split",
+   "value": 0.00136286,
+   "unit": "m^3/s",
+   "how": "the flow each side of the hole takes at that step, against Q_L/2 = 0.00136286 m^3/s; error 2.1e-12"
+  },
+  {
+   "name": "front_speed",
+   "value": 1135.0,
+   "unit": "m/s",
+   "how": "the width of the disturbance 8 s after the hole opens, against the Korteweg speed 1140.31 m/s"
+  },
+  {
+   "name": "wave_attenuation_over_9.3_km",
+   "value": 0.305,
+   "unit": "",
+   "how": "1 - (peak at the transmitter)/(amplitude at the hole): 1.261 m at the hole, 0.877 m at the upstream transmitter, steady friction only"
+  },
+  {
+   "name": "detection_delay_mid_line",
+   "value": 8.30,
+   "unit": "s",
+   "how": "median over six seeds of a 10 mm hole at 9.8 km; the wave needs (9800-480)/a = 8.17 s to reach the upstream transmitter"
+  },
+  {
+   "name": "detection_delay_near_end",
+   "value": 2.30,
+   "unit": "s",
+   "how": "10 mm hole at 3.0 km, 2.52 km from the upstream transmitter: flight time 2.21 s"
+  },
+  {
+   "name": "localisation_error_median_accepted",
+   "value": 9.65,
+   "unit": "m",
+   "how": "median |estimate - truth| over the 72 of 144 case/seed combinations whose quieter front stood 2 sigma above the noise at its transmitter, decision interval 12 sigma"
+  },
+  {
+   "name": "localisation_error_worst_accepted",
+   "value": 89.4,
+   "unit": "m",
+   "how": "the worst of those 72, an 8 mm hole at 15.5 km; the median error grows with the weaker front, 3.7 m at the middle of the line against 16.3 m at 15.5 km"
+  },
+  {
+   "name": "positions_withheld",
+   "value": 17,
+   "unit": "",
+   "how": "leaks whose quieter front was under 2 sigma: the leak and the rate are kept and the place is not guessed at"
+  },
+  {
+   "name": "withheld_worst_error",
+   "value": 2545.9,
+   "unit": "m",
+   "how": "what the withheld guesses would have said -- a 6 mm hole at 15.5 km whose far front was 0.87 sigma, timed 4.5 s late; the median of the 17 is 33.4 m"
+  },
+  {
+   "name": "sampling_resolution",
+   "value": 28.5,
+   "unit": "m",
+   "how": "a dt_s / 2 for a 20 Hz acquisition: the position a single sample of the arrival is worth, before the interpolation inside the sample"
+  },
+  {
+   "name": "leak_rate_error",
+   "value": 0.0075,
+   "unit": "",
+   "how": "median relative error of the estimate from the settled mass imbalance, 10 mm hole at 9.8 km, six seeds"
+  },
+  {
+   "name": "false_alarms_per_hour",
+   "value": 0.0,
+   "unit": "1/h",
+   "how": "60 records of 1 400 s (23.3 h) of normal operation with two valve manoeuvres the model knows, decision interval 12 sigma; 0.73/h at 8 sigma"
+  },
+  {
+   "name": "minimum_detectable_leak",
+   "value": 5.596e-4,
+   "unit": "m^3/s",
+   "how": "2 g A sigma / (a (1 - attenuation)) with the measured 30 % attenuation: 0.22 % of the flow, a hole about 4.6 mm across; the measured floor is between 4 and 6 mm"
+  },
+  {
+   "name": "instrument_faults_called_instrument",
+   "value": 1.0,
+   "unit": "",
+   "how": "all six fault cases (bias either way, drift, extra noise, a latched channel at each end) on records of normal operation, six seeds each"
+  },
+  {
+   "name": "unrecorded_manoeuvre_alarm_rate",
+   "value": 2.57,
+   "unit": "1/h",
+   "how": "the same 23.3 h of records judged against a model that was never told about the manoeuvres: 60 of 60 alarm, and 25 of them are called a leak"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the_leak_node_is_solved_not_iterated",
+   "passed": true,
+   "kind": "reference",
+   "label": "the first step after the hole opens matches the closed form H_L = H_0 - (B/2) C_v sqrt(H_L - H_amb) to 1.3e-12, and each side takes Q_L/2 to 2.1e-12"
+  },
+  {
+   "name": "the_front_travels_at_the_wave_speed",
+   "passed": true,
+   "kind": "physics",
+   "label": "the disturbance is 2 a t wide for t = 2, 4, 6, 8 s after the hole opens, 1 120-1 135 m/s against the Korteweg 1 140 m/s"
+  },
+  {
+   "name": "friction_is_what_shrinks_the_wave",
+   "passed": true,
+   "kind": "physics",
+   "label": "with f = 0 the transmitter sees exactly the head the hole dropped, 1.6038 m, to round-off; with this line's friction it sees 0.838 m"
+  },
+  {
+   "name": "the_delay_is_the_flight_time",
+   "passed": true,
+   "kind": "physics",
+   "label": "the median delay is within 0.15 s of the distance from the hole to the nearer transmitter divided by a, at all three positions and every hole from 6 mm up"
+  },
+  {
+   "name": "a_fault_is_not_a_leak",
+   "passed": true,
+   "kind": "statistical",
+   "label": "six instrument faults, six seeds each: the verdict is 'instrument' every time and never 'leak'"
+  },
+  {
+   "name": "a_leak_is_not_a_fault",
+   "passed": true,
+   "kind": "statistical",
+   "label": "every hole the detector heard was called a leak and the balance confirmed it"
+  },
+  {
+   "name": "quiet_in_normal_operation",
+   "passed": true,
+   "kind": "statistical",
+   "label": "no alarm in 23.3 h of normal operation at a decision interval of 12 sigma, in 60 independent noise draws"
+  },
+  {
+   "name": "a_missed_front_is_not_placed",
+   "passed": true,
+   "kind": "physics",
+   "label": "a hole outside the two transmitters, or one whose quieter front is under 2 sigma, keeps its leak and its rate and is given no position: outside_transmitters / position_reliable say which"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/transient.png",
+   "figures/residuals.png",
+   "figures/tradeoff.png",
+   "figures/localisation.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/pipeline_leak.json"
+  ]
+ },
+ "links": [],
+ "references": [],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11"
+ }
+}

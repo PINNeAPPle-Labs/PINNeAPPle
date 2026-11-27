@@ -15,6 +15,8 @@ anyone uses it. The NVIDIA part trains (PhysicsNeMo), shows and simulates (Omniv
                 operators (FNO, MeshGraphNet) are in ``pinneapple_neural.physicsnemo_bridge``
 ``testing``     a local fake server speaking the NIM / Cosmos HTTP contracts, for tests without a key or GPU
 ``runinfo``     versions, hardware and timings of a run, and which NVIDIA components ran
+``livelink``    a forecast as an OpenUSD stage with its time samples: written, read back and played without Kit, and
+                streamed into a running Omniverse session, with the forecast's trust record riding in the metadata
 ``figures``     field panels, check charts, curves
 
 Every NVIDIA dependency is optional: ``usd-core`` for USD, ``nvidia-physicsnemo`` for PhysicsNeMo, ``requests``

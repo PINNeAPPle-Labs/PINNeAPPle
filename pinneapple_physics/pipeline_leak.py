@@ -179,7 +179,8 @@ class Sensors:
 
     ``upstream``/``downstream`` are the distances along the line of the two pressure transmitters from the inlet and
     the outlet: they sit on the line, not on the station boundary, which is what lets them see the incident wave
-    before the boundary reflects it. ``sigma`` is the standard deviation of the head noise, ``bits`` and
+    before the boundary reflects it. A transmitter sits on a node of the model or not at all, so the position is
+    snapped to the grid and the snapped value is what the observation reports back. ``sigma`` is the standard deviation of the head noise, ``bits`` and
     ``full_scale`` the quantisation of an ``bits``-bit analogue input of range ``full_scale``.
     """
     upstream: float = 500.0
@@ -273,7 +274,7 @@ def simulate(pipe: Pipeline, *, n_reaches: int = 500, t_end: float | None = None
         c_minus = H[1:] - B * q_left[1:] + R * q_left[1:] * np.abs(q_left[1:])           # into the reach's left node
         Hn = np.empty_like(H)
         Hn[1:-1] = 0.5 * (c_plus[:-1] + c_minus[1:])
-        Hn[0] = Hn[-1] = 0.0
+        Hn[0] = Hn[-1] = 0.0                              # the two ends are set by their boundary conditions below
         qn_left = np.empty_like(q_left)
         qn_right = np.empty_like(q_right)
         qn_left[1:-1] = qn_right[1:-1] = (c_plus[:-1] - c_minus[1:]) / (2.0 * B)
@@ -342,13 +343,6 @@ def simulate(pipe: Pipeline, *, n_reaches: int = 500, t_end: float | None = None
     if record:
         out["field"] = np.array(H_nodes)
     return out
-
-
-def _snap(pipe: Pipeline, sensors: Sensors, n_reaches: int) -> tuple[float, float]:
-    """The two transmitter positions snapped onto the MOC grid (a transmitter sits on a node of the model or not at
-    all: the model has no value in between), returned as distances along the line."""
-    dx = pipe.length / n_reaches
-    return (round(sensors.upstream / dx) * dx, pipe.length - round(sensors.downstream / dx) * dx)
 
 
 def observe(sim: dict, pipe: Pipeline, sensors: Sensors, *, seed: int = 0,

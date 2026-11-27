@@ -65,6 +65,7 @@
   * [Black-hole weather forecasting](core_concepts/black_hole_weather.md)
   * [astroML: periodograms, deconvolved densities, fits with errors](core_concepts/astroml.md)
   * [Positional astronomy and astrophysics](core_concepts/astro.md)
+  * [Interplanetary trajectory design: patched conics, low-thrust legs, evolutionary search](core_concepts/trajectory_design.md)
   * [PINNeAPPle Lab: experiments and datasets](core_concepts/lab.md)
   * [Data readiness: may this dataset start a training run?](core_concepts/data_readiness.md)
   * [Reduced-order models](core_concepts/reduced_order_models.md)

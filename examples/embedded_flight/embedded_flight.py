@@ -63,7 +63,13 @@ def tape(spec, table=None, *, faults=(), seed: int = 0, steps: int = STEPS):
     The graph is given exactly what the vehicle has: the estimated state, the command it sent, the three IMU channels,
     the pack power and the accelerometer buffer. Nothing here reads the fault, and neither does the graph.
     """
-    from pinneapple_physics.multirotor import (Multirotor, ResidualModel, SensorObservatory, State, apply_faults)
+    from pinneapple_physics.multirotor import (
+        Multirotor,
+        ResidualModel,
+        SensorObservatory,
+        State,
+        apply_faults,
+    )
     from pinneapple_physics.multirotor.faults import faulty_airframe
 
     af = spec.airframe
@@ -165,8 +171,8 @@ def calibrate(spec, outs, *, percentile: float = 99.5) -> dict[str, float]:
 def quantisation(fp32_path, spec, rows):
     """fp32 against int8 on both graphs that matter: the flight one, and a convolutional one for contrast."""
     import torch
-    from pinneapple_physics.embedded import EmbeddedSpec, export, quantize
 
+    from pinneapple_physics.embedded import EmbeddedSpec, export, quantize
     from pinneapple_physics.embedded_flight import FlightRuntime, graph_summary
 
     int8_path = quantize(fp32_path, _out("flight_int8.onnx"))
@@ -254,8 +260,13 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default=_out("embedded_flight.json"))
     args = ap.parse_args(argv)
 
-    from pinneapple_physics.embedded_flight import (FlightRuntime, FlightSpec, export_flight, export_probe,
-                                                    graph_summary)
+    from pinneapple_physics.embedded_flight import (
+        FlightRuntime,
+        FlightSpec,
+        export_flight,
+        export_probe,
+        graph_summary,
+    )
     from pinneapple_physics.multirotor import Fault
 
     spec = FlightSpec(dt=DT)
@@ -288,7 +299,7 @@ def main(argv=None) -> int:
     for name, injected in faults.items():
         validation[name] = replay(runtime, tape(spec, table, faults=injected, seed=0))
     series = {name: np.array([o.residual for o in outs_]) for name, outs_ in validation.items()}
-    for name, values in series.items():
+    for name in series:
         flagged = float(np.mean([o.off_physics for o in validation[name]]))
         suspect = float(np.mean([o.suspect for o in validation[name]]))
         print(f"  {name:22s}: off_physics {flagged:5.0%} of the flight, suspect {suspect:5.0%}")

@@ -64,7 +64,7 @@ from typing import Any
 import numpy as np
 import torch
 
-from .embedded import EmbeddedRuntime, GraphSummary, graph_summary
+from .embedded import EmbeddedRuntime, graph_summary
 from .multirotor import QUAD_X, Airframe, RotorTable, SensorModel
 
 __all__ = ["FlightSpec", "FlightGraph", "FlightOutput", "FlightRuntime", "export_flight", "graph_summary",

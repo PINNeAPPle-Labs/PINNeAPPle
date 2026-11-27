@@ -58,8 +58,9 @@ import binascii
 import json
 import struct
 from collections import deque
+from collections.abc import Iterable
 from dataclasses import dataclass, replace
-from typing import Any, Iterable
+from typing import Any
 
 __all__ = ["TrustReport", "FRAME", "FRAME_BYTES", "MAGIC", "VERSION", "TOPIC", "FLAG_OFF_PHYSICS",
            "FLAG_SENSOR_SUSPECT", "FLAG_TRUSTED", "MAX_HORIZON", "MODEL_CHARS", "CHANNEL_CHARS", "LoopbackBus",

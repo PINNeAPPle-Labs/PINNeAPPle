@@ -54,6 +54,15 @@ REASONS: dict[str, str] = {
                                    "as one ONNX graph with a fixed-size state and no control flow, plus the runtime "
                                    "that measures the latency. It is how the ensemble node leaves the workstation, not "
                                    "a step of the graph -- a node here would be the deployment of another node",
+    "pinneapple_physics.embedded_flight": "the drone of #335 in the same graph as the field model: one RK4 step of the "
+                                         "6-DoF airframe over the BEMT rotor table, the Newton-Euler channels and the "
+                                         "sensor check, exported as one ONNX file. It is the deployment of the "
+                                         "multirotor node, not a step: a node here would duplicate the flight the "
+                                         "multirotor node already flies, with the file as an intermediate",
+    "pinneapple_physics.embedded_bridge": "the contract between the embedded graph and a flight stack: a fixed 69-byte "
+                                          "frame of active model, trust horizon and suspect sensor, with a CRC and a "
+                                          "publish/subscribe double. It carries the output of the embedded node to a "
+                                          "vehicle; there is nothing to compute, so there is no node to wire",
     "pinneapple_orchestration": "pipeline wiring for Prefect; flows are orchestrated by pinneapple_flow itself",
     "pinneapple_analysis.trust.certificate": "verification as a service (#341): it takes somebody else's prediction and "
                                             "returns the certificate of what the physics says about it -- the "

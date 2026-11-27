@@ -74,15 +74,16 @@ Two geometries are read off the same rows, and they are two panels of `figures/i
 
 * **a body on a collision course** — the undeflected miss is the Earth's limb, so every kilometre the table bought is
   margin, and the surface is the probability that it still hits. This is the only case a deflection changes, and the
-  surface falls across it by more than twenty orders of magnitude: from 0.50 with no deflection to
-  **1.6e-23** for 10 000 kg with ten years of warning.
+  surface falls across it by **twenty-four orders of magnitude**: 0.499 for 30 kg with one year of warning (the body is
+  still on the limb) down to **2.9e-25** for 10 000 kg with ten years of it.
 * **Apophis 2029** — the undeflected miss is the 38 356 km measured above, and the question is whether any cell walks
-  it back. None does: the closest cell is still **156 sigma** from an impact, and the table's best cell buys 4 of them.
+  it back. None does: the closest cell is still **137 sigma** from an impact and the best one 147, so the table's whole
+  range of impactors moves the decision from "137 sigma safe" to "147 sigma safe".
 
 That is what the surface shows that the table did not: the table's 38 357 → 40 765 km reads like "nothing changes",
-and in the probability it is a change of twenty-three orders of magnitude. It also shows the *floor* of the exercise —
+and it is a fall of twenty-four orders of magnitude in the probability. It also shows the *floor* of the exercise —
 the 232 km of orbit uncertainty is what stands between the impactor and a guarantee, and no mass in the catalogue
-clears it.
+clears it: even the best cell leaves the body six Earth radii away, having moved it a third of one.
 
 ## 4. What can be guaranteed
 
@@ -106,9 +107,9 @@ model says, because the ensemble is wider than the planet. It is the same object
 applied to a deflection.
 
 Measured on the Apophis deflection with `beta` at ±0.35, `A2` at ±3e-15 au/day^2 and the area-to-mass ratio at ±50 %
-(6 draws): the spread of the miss is **<!--SPREAD-->**, against the Earth's 6 371 km radius, and the success fraction
-is 1.00 at all three. The horizon function returns the last warning time it was given when the ensemble never reaches
-the Earth — read it as "at least this far", not "exactly".
+(6 draws): the spread of the miss is **11.9 km at 1 year, 19.2 km at 5, 21.9 km at 10**, against the Earth's 6 371 km
+radius, and the success fraction is 1.00 at all three. The horizon function returns the last warning time it was given
+when the ensemble never reaches the Earth — read it as "at least this far", not "exactly".
 
 That is a result about *what this ensemble does not contain*, and §5 puts a number on it: the deflection parameters
 move the miss by tens of kilometres, while the orbit solution JPL publishes for the same flyby is 232 km wide. The
@@ -125,22 +126,22 @@ the rock's own area-to-mass ratio and at ten times it, adds the Yarkovsky term, 
 integrator tolerance — that last row is the numerical floor the small rows have to be read against. One long
 integration per row, over the whole arc, because an asteroid's trajectory is not reusable.
 
-| term taken out or added | miss at 2029-04-13 | change | where the body was at the encounter |
+| term taken out or added | miss at 2029-04-13 | change | how far the body moved at the encounter |
 |---|---|---|---|
-| the field the module ships (Sun, 9 planets, Moon, 1PN) | 38 356 km | — | — |
-| without Venus | 2 808 518 km | +2 770 162 km | <!--DR:venus--> |
-| without the Earth | 2 193 147 km | +2 154 790 km | <!--DR:earth--> |
-| without Jupiter | 1 288 361 km | +1 250 005 km | <!--DR:jupiter--> |
-| without Saturn | 181 374 km | +143 017 km | <!--DR:saturn--> |
-| without the Moon | 60 722 km | +22 366 km | <!--DR:moon--> |
-| without Mars | 30 284 km | −8 072 km | <!--DR:mars--> |
-| without Uranus | 31 168 km | −7 188 km | <!--DR:uranus--> |
-| without Mercury | 43 800 km | +5 444 km | <!--DR:mercury--> |
-| without Neptune | 35 631 km | −2 726 km | <!--DR:neptune--> |
-| Yarkovsky, `A2 = -2.9e-14 au/day^2` | 38 029 km | −327 km | <!--DR:a2--> |
-| solar radiation pressure at 10x (A/M = 1.54e-5) | 38 593 km | +237 km | <!--DR:srp10--> |
-| solar radiation pressure at 1x (A/M = 1.54e-6) | 38 380 km | +24 km | <!--DR:srp1--> |
-| the numerical floor (rtol 1e-11 → 1e-12) | 38 357 km | +0.7 km | <!--DR:floor--> |
+| the field the module ships (Sun, 8 planets, Moon, 1PN) | 38 356 km | — | — |
+| without Venus | 2 808 518 km | +2 770 162 km | 2 861 938 km |
+| without the Earth | 2 193 147 km | +2 154 790 km | 2 160 999 km |
+| without Jupiter | 1 288 361 km | +1 250 005 km | 1 330 353 km |
+| without Saturn | 181 374 km | +143 017 km | 147 614 km |
+| without the Moon | 60 722 km | +22 366 km | 23 955 km |
+| without Mars | 30 284 km | −8 072 km | 8 791 km |
+| without Uranus | 31 168 km | −7 188 km | 7 633 km |
+| without Mercury | 43 800 km | +5 444 km | 5 767 km |
+| without Neptune | 35 631 km | −2 726 km | 2 891 km |
+| Yarkovsky, `A2 = -2.9e-14 au/day^2` | 38 029 km | −327 km | 351 km |
+| solar radiation pressure at 10x (A/M = 1.54e-5 m^2/kg) | 38 593 km | +237 km | 253 km |
+| solar radiation pressure at 1x (A/M = 1.54e-6 m^2/kg) | 38 380 km | +24 km | 25 km |
+| the numerical floor (rtol 1e-11 → 1e-12) | 38 357 km | +0.7 km | 1 km |
 
 Two things come out of it, and the first is the honest one about this whole exercise:
 
@@ -165,10 +166,11 @@ years, the impactor arriving, and the approach that is not an impact — and it 
   the widening is the members diverging;
 * the top panel is the distance from the Earth falling over the ten years, one trajectory per member, with the
   Earth's surface drawn on it;
-* the second is the cloud's width — each member's offset from the undeflected body, which grows from the 11 km it
-  already has at the impulse (the `A2` draw acts on the whole arc) to <!--CLOUD--> km at the flyby. It is measured
-  *along* the orbit, where the body is moving at 30 km/s: the cloud is long, not thick, and the miss distance it
-  moves is thousands of times smaller;
+* the second is the cloud's width — each member's offset from the undeflected body, which grows from the **14 km** it
+  already has at the impulse (the `A2` and area-to-mass draws act on the whole arc, not from the impact) to **274 km**
+  at the flyby, spreading the six members between 216 and 274 km. It is measured *along* the orbit, where the body is
+  moving at 30 km/s: the cloud is long, not thick, and the miss distance it moves is the 22 km of §4, an order of
+  magnitude smaller;
 * the third is the encounter plane to scale, Earth's disk and two dots — undeflected and deflected — with a zoomed
   inset against JPL's 1 sigma, because at the full scale the deflection is a few pixels.
 

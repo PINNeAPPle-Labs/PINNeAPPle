@@ -1150,6 +1150,31 @@ for _name, _target in [("pinneapple_models", "pinneapple_neural.architectures"),
         use_when=["Never in new code."], examples=[])
 
 # PINN training example for the physics package (kept last: it trains for a couple of minutes).
+pkg(
+    name="pinneapple_intent",
+    group="systems",
+    title="Intent",
+    tagline="A sentence in, a typed study contract out: the compiler, the ladder that runs it, and the replay.",
+    about=[
+        "`compile` turns a request written in words into a `StudyContract`: the family it recognised, the quantities "
+        "with their units, the provenance of every value and, when something is missing, the questions it needs "
+        "answered instead of a guess. The deterministic compiler runs without a model; an optional LLM fills slots "
+        "and never overrides the deterministic reading.",
+        "`execute` runs the contract as a ladder -- analytic, numerical, convergence and, in `physics_ai` mode, a "
+        "surrogate rung -- recording each check with its value and its limit. `replay` re-executes a recorded run "
+        "from its contract and compares the two, and the `family` registry is what a new domain plugs into.",
+    ],
+    use_when=["You have a problem statement rather than a case setup, and need the case made from it.",
+              "You want a run whose every number carries its provenance and can be replayed."],
+    examples=[
+        dict(title="A sentence to a verified run",
+             code='''from pinneapple_intent import study
+
+run = study("a cantilever beam 0.5 m long with E = 210 GPa, 20 mm deep, carrying 500 N at the tip")
+print(run.decision, len(run.checks))'''),
+    ],
+)
+
 next(p for p in PACKAGES if p["name"] == "pinneapple_physics")["examples"].insert(0, dict(
     title="Burgers' equation: a PINN against the Cole-Hopf solution, through one API",
     code='''import numpy as np

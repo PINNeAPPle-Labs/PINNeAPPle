@@ -371,13 +371,20 @@ def _finite(x: Any) -> float | None:
 def weather_trust(*, kind: str = "weather", lead_h: float = 48.0) -> Any:
     """The :class:`pinneapple_analysis.trust.record.Trust` of one forecast, filled by the adapters that exist.
 
-    It is the *same* record a wrapped surrogate emits (:func:`pinneapple_analysis.trust.benchmark.cfd_surrogate_trust`)
-    and the same one the ensemble emits, with ``kind`` saying which of the three it is: the keys, the gates and the
-    sources do not change, because the adapters do not.
+    It is the *same* record the CFD surrogate emits (:func:`pinneapple_analysis.trust.producers.
+    cfd_surrogate_trust`) and the same one the ensemble emits (:func:`pinneapple_analysis.trust.producers.
+    ensemble_trust`), with ``kind`` saying which of the three it is: the keys, the gates and the sources do not
+    change, because the adapters do not.
 
     The case is the last initialisation of the testbed, scored with its truth; the horizon comes from
     :func:`pinneapple_physics.weather.evaluate.horizons` on the forecast that was scored, and the envelope is the lead
     the forecast was validated for.
+
+    Two details keep the two comparisons honest. The in-domain residual level of each expert is measured on the
+    **other** initialisations (the last one is held out), so the residual of this case is compared with a level it did
+    not contribute to. And the horizon is measured over the whole window the testbed scores (five days), not over the
+    requested lead: a forecast that is still useful at 48 h has no crossing inside 48 h, and reporting the horizon as
+    "not measured" because the window ended before the crossing would be a fact about the window, not the forecast.
     """
     from .adapters import from_ensemble, weather_horizon
     from .trust_gate import TrustGate
@@ -385,19 +392,18 @@ def weather_trust(*, kind: str = "weather", lead_h: float = 48.0) -> Any:
     qs = _queries()
     refs = [truth(q["i0"], STEPS) for q in qs]
     exps = experts()
-    base = residual_baseline(exps, {e.name: qs for e in exps}, _advection_score)
+    held_out = qs[-1]
+    base = residual_baseline(exps, {e.name: qs[:-1] for e in exps}, _advection_score)
     ens = PhysicsEnsemble(exps, mode="combine", residual_fn=_advection_score, residual_lookahead=1.0,
                           residual_baseline=base, min_weight=0.0)
     run = ens.run(qs, refs, keep_predictions=True)
-    lead_idx = int(lead_h / DT_H)
-    scored = [p["prediction"][: lead_idx + 1] for p in run.predictions]
-    leads_h = np.arange(lead_idx + 1) * DT_H
-    a = _acc_by_lead(scored, [r[: lead_idx + 1] for r in refs], lead_idx)
-    r = _rmse_by_lead(scored, [x[: lead_idx + 1] for x in refs], lead_idx)
-    clim_rmse = _climatology_rmse([x[: lead_idx + 1] for x in refs], lead_idx)
+    preds = [p["prediction"] for p in run.predictions]
+    leads_h = np.arange(STEPS + 1) * DT_H
+    a = _acc_by_lead(preds, refs, STEPS)
+    r = _rmse_by_lead(preds, refs, STEPS)
+    clim_rmse = _climatology_rmse(refs, STEPS)
     h = horizons(leads_h, a, r, clim_rmse)
 
-    query = qs[-1]
     gate = TrustGate().fit_from_bounds({"lead_h": (0.0, float(STEPS * DT_H))})
-    return from_ensemble(ens, query, reference=refs[-1], gate=gate, domain_points=np.array([[lead_h]]),
+    return from_ensemble(ens, held_out, reference=refs[-1], gate=gate, domain_points=np.array([[lead_h]]),
                          horizon=weather_horizon(h, requested_lead=lead_h), kind=kind)

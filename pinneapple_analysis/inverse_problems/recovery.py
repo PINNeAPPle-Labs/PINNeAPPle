@@ -37,7 +37,7 @@ from .forward import ForwardModel, Observations, ParameterSet
 from .identifiability import _combination, _std_from_F, profile_likelihood
 from .sensitivity import IdentifiabilityAnalyzer, IdentifiabilityResult
 
-__all__ = ["CoverageReport", "ParameterInterval", "RecoveryResult", "coverage_study", "recover"]
+__all__ = ["CoverageReport", "ParameterInterval", "RecoveryResult", "coverage_study", "measure_coverage", "recover"]
 
 
 def _z_quantile(level: float) -> float:
@@ -265,14 +265,16 @@ class CoverageReport:
         return f"coverage of the {self.level:.0%} interval over {self.n} runs: " + ", ".join(parts)
 
 
-def coverage_study(case: Callable[[np.random.Generator], tuple[Any, ParameterSet, Observations]], *,
-                   n: int = 200, level: float = 0.95, seed: int = 0, tolerance: float = 0.1,
-                   **recover_kwargs: Any) -> CoverageReport:
-    """Repeat a synthetic experiment with a known truth and count how often the interval contains it.
+def measure_coverage(case: Callable[[np.random.Generator], tuple[Any, ParameterSet, Observations]],
+                     estimator: Callable[[ForwardModel, ParameterSet, Observations], Sequence[ParameterInterval]], *,
+                     n: int = 200, level: float = 0.95, seed: int = 0, tolerance: float = 0.1) -> CoverageReport:
+    """Repeat a synthetic experiment with a known truth and count how often ``estimator``'s intervals contain it.
 
     ``case(rng)`` builds one experiment: it returns the model, the parameters (with ``truth`` set) and the
     observations, whose values are already drawn at the truth with their declared noise. A case that draws its noise
-    from ``rng`` is what makes the repeats independent.
+    from ``rng`` is what makes the repeats independent. ``estimator`` returns the intervals to judge: the linearised
+    ones of :func:`recover`, the profile ones, or a posterior's credible interval — the measurement does not care
+    where an interval came from, only whether it holds what it claims.
     """
     rng = np.random.default_rng(seed)
     covered: dict[str, int] = {}
@@ -283,9 +285,17 @@ def coverage_study(case: Callable[[np.random.Generator], tuple[Any, ParameterSet
         if not truth:
             raise ValueError("the case has to set Parameter.truth on every free parameter: a coverage study needs "
                              "the answer it is checking against")
-        result = recover(model, params, obs, level=level, **recover_kwargs)
-        for interval in result.intervals:
+        for interval in estimator(model, params, obs):
             covered[interval.name] = covered.get(interval.name, 0) + int(interval.contains(truth[interval.name]))
             widths.setdefault(interval.name, []).append(interval.width)
     return CoverageReport(level=level, n=int(n), covered=covered,
                           width={name: float(np.median(w)) for name, w in widths.items()}, tolerance=tolerance)
+
+
+def coverage_study(case: Callable[[np.random.Generator], tuple[Any, ParameterSet, Observations]], *,
+                   n: int = 200, level: float = 0.95, seed: int = 0, tolerance: float = 0.1,
+                   **recover_kwargs: Any) -> CoverageReport:
+    """Coverage of :func:`recover`'s interval on a synthetic case, repeated ``n`` times."""
+    return measure_coverage(case, lambda model, params, obs: recover(model, params, obs, level=level,
+                                                                   **recover_kwargs).intervals,
+                            n=n, level=level, seed=seed, tolerance=tolerance)

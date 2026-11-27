@@ -99,6 +99,7 @@
     * [Quality pipeline for LLM-generated artifacts](guides/pinneapple_llm_quality_pipeline.md)
     * [Pre-trained models and datasets (pp.zoo)](guides/model_zoo.md)
     * [Zoo catalogue](guides/zoo_catalogue.md)
+    * [A model that flies: the residual in the graph, and the hertz it costs](guides/embedded_inference.md)
     * [Example catalog: what runs in CI, and why the rest does not](guides/example_catalog.md)
     * [The front door: six functions](guides/front_door.md)
     * [Geometry library](guides/geometry_library.md)

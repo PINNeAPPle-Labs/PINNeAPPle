@@ -459,6 +459,7 @@
     "tests/test_emachine_pmsm.py",
     "tests/test_emachine_robustness.py",
     "tests/test_emachine_thermal.py",
+    "tests/test_embedded_export.py",
     "tests/test_engineering_optimizer_app.py",
     "tests/test_ensemble_delayed.py",
     "tests/test_enso.py",

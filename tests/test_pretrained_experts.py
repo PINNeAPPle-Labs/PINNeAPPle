@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from pinneapple_physics.ensemble import PhysicsEnsemble, from_callable
+from pinneapple_physics.ensemble import Expert, PhysicsEnsemble, from_callable
 from pinneapple_physics.pretrained import (
     REGISTRY,
     Adapter,
@@ -276,3 +276,107 @@ def test_an_adapter_without_an_open_keeps_the_default_cost():
             return np.zeros((2, 2))
     e = from_pretrained_expert("custom", Null(name="custom"), licence=Licence("MIT", verified="2026-11-26: test"))
     assert e.cost_of({"steps": 1}) == 1.0 and e.provenance["licence"]["spdx"] == "MIT"
+
+
+# ------------------------------------------------------------------------------- the demo (#348, "done when")
+
+DEMO = Path(__file__).resolve().parents[1] / "examples" / "weather_forecasting" / "pretrained_ensemble.py"
+
+
+@pytest.fixture(scope="module")
+def demo():
+    """The demo script as a module: ``__name__`` is not ``__main__``, so importing it does not start a run."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("pretrained_ensemble_demo", DEMO)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _demo_fields(rng, steps, nlat, noise, energy_step=0.0):
+    """One model's window: the analysis, moved by ``noise`` and (optionally) drifting in dry static energy."""
+    lat, lon = np.linspace(60.0, -60.0, nlat), np.arange(64) * 5.625
+    lead = np.arange(steps + 1)[:, None, None]
+    z = 5000.0 + 400.0 * np.cos(np.deg2rad(lat))[None, :, None] + noise * rng.normal(size=(steps + 1, nlat, 64))
+    return {"z500": z, "u500": np.full((steps + 1, nlat, 64), 10.0), "v500": np.zeros((steps + 1, nlat, 64)),
+            "t700": np.full((steps + 1, nlat, 64), 270.0) + energy_step * lead, "z700": np.full((steps + 1, nlat, 64),
+                                                                                              3000.0)}, lat, lon
+
+
+def test_the_demo_reports_the_ensemble_next_to_every_model_alone(demo, monkeypatch):
+    """The issue's "done when": the demo reports the ensemble's skill against each model alone, per (region, season)
+    cell. One model is deliberately out of its domain (its dry static energy drifts): it is taken out of the
+    combination and still appears in the table with its own error, its residuals and the sentence that took it out --
+    a model that only shows up in the ensemble's error is not a comparison."""
+    rng = np.random.default_rng(0)
+    monkeypatch.setattr(demo, "STEPS", 20)
+    nlat, steps = 8, 20
+    names = ["IFS HRES", "Pangu-Weather", "pinneapple-weather"]
+    fields, lat, lon = {}, None, None
+    for n, noise, drift in (("IFS HRES", 0.01, 0.0), ("Pangu-Weather", 0.05, 0.0), ("pinneapple-weather", 0.5, 3.0)):
+        f, lat, lon = _demo_fields(rng, steps, nlat, noise, drift)
+        fields[n] = {i: f for i in (1, 2)}                       # two cases, the same window each
+    truth = {i: _demo_fields(np.random.default_rng(9), steps, nlat, 0.0)[0] for i in (1, 2)}
+    experts = {n: Expert(n, lambda q, n=n: fields[n][int(q["i0"])]["z500"], 1.0, "weather") for n in names}
+    # the tolerances the demo calibrates from the analysis: wide enough that only the drifting model is out
+    cal = {"advection_tolerance": 4.0, "energy_tolerance": 0.05}
+
+    cell = demo.run_cell(experts, names, [1, 2], truth, fields, lat, lon, cal)
+    got = demo.summarise(names, cell)
+    got["inits"] = ["2020-01-31T00", "2020-07-29T00"]
+
+    assert set(got["error"]) == set(names) and set(got["rmse_day5"]) == set(names)
+    assert got["error"]["IFS HRES"] < got["error"]["Pangu-Weather"] < got["error"]["pinneapple-weather"]
+    assert got["best_single"]["name"] == "IFS HRES"
+    assert got["ensemble"] <= got["error"]["pinneapple-weather"]          # the combination is never the worst model
+    # the third model leaves its domain: out of the combination, and still measured
+    assert got["out_of_domain"]["pinneapple-weather"] == 1.0 and got["out_of_domain"]["IFS HRES"] == 0.0
+    assert got["share"]["pinneapple-weather"] == 0.0 and got["share"]["IFS HRES"] > 0.0
+    assert np.isfinite(got["rmse_day5"]["pinneapple-weather"]) and got["rmse_day5"]["pinneapple-weather"] > 0
+    assert "spreads per day" in got["failure_reason"]["pinneapple-weather"]
+    assert not got["failure_reason"]["IFS HRES"]
+    for key in ("advection_residual", "energy_drift", "weights", "share"):
+        assert set(got[key]) == set(names), key
+    assert got["energy_drift"]["pinneapple-weather"] > got["energy_drift"]["IFS HRES"]
+
+
+def test_the_demo_names_the_experts_after_the_models_and_keeps_their_licences(demo, store, monkeypatch):
+    """The table, the weights and the licence report are keyed by what the ensemble calls each expert. An archive
+    adapter carries the published model's display name (``"IFS HRES"``, the key ``BASELINES_64x32`` uses), so keying
+    the demo's own dictionary by the registry name made every lookup of a weight raise ``KeyError``."""
+
+    class Unloaded(TorchCheckpointAdapter):
+        """The checkpoint of the demo is 40 MB and needs torch: this test is about the names, not the weights."""
+        def open(self):
+            return self
+
+    monkeypatch.setattr(demo, "TorchCheckpointAdapter", Unloaded)
+    experts = demo.build_experts(store, "ck.pt")
+    assert list(experts) == ["IFS HRES", "Pangu-Weather", "pinneapple-weather"]
+    assert all(e.name == k for k, e in experts.items())
+    lic = licence_report(list(experts.values()))
+    assert {n: r["spdx"] for n, r in lic["licences"].items()} == {
+        "IFS HRES": "NOASSERTION", "Pangu-Weather": "NOASSERTION", "pinneapple-weather": "Apache-2.0"}
+    assert lic["unverified"] == ["IFS HRES", "Pangu-Weather"]      # nobody read them at the source, and it says so
+
+
+def test_the_field_cache_of_the_demo_is_keyed_by_the_number_of_leads(demo, tmp_path, monkeypatch):
+    """A smoke run with four steps cached its fields under the model's name; a later run that asks for 40 found the
+    short file and scored a 240-hour window that was four steps long. The key carries the lead count, and a file that
+    does not hold them is read again."""
+    monkeypatch.setattr(demo, "STEPS", 4)
+    calls = []
+
+    def predict(q):
+        calls.append(q["steps"])
+        return np.stack([np.full((q["steps"] + 1, 4, 4), float(i)) for i in range(len(demo.NEEDED))])
+
+    e = from_callable("m", predict)
+    first = demo.fetch(e, 7, tmp_path)
+    assert calls == [4] and first["z500"].shape == (5, 4, 4)
+    demo.fetch(e, 7, tmp_path)                                   # the same query reads the cache
+    assert calls == [4]
+    monkeypatch.setattr(demo, "STEPS", 8)
+    longer = demo.fetch(e, 7, tmp_path)                           # a longer window is a different key
+    assert calls == [4, 8] and longer["z500"].shape == (9, 4, 4)

@@ -10,7 +10,7 @@ the same convention PrePoMax uses when its unit system is set to mm-N-s.
 """
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -60,6 +60,42 @@ def geometry(deck: Deck, blocks: Sequence[tuple[str, Grid]]) -> None:
         deck.block(f"*ELEMENT, TYPE=C3D8, ELSET={name}",
                    *[f"{eid}, " + ", ".join(str(n) for n in cell)
                      for eid, cell in zip(g.elem_ids, g.cells, strict=True)])
+
+
+def geometry_2d(deck: Deck, nodes: Mapping[int, Sequence[float]], elements: Iterable[tuple[int, Sequence[int]]],
+                elset: str, type: str = "CAX8") -> None:  # noqa: A002 - the keyword CalculiX writes
+    """``*NODE`` with two coordinates and one ``*ELEMENT`` block of axisymmetric elements.
+
+    The node lines carry ``(r, z)`` and nothing else, which is what CalculiX expects of an axisymmetric deck: the
+    third dimension is the revolution the element integrates over ``2*pi``, not a coordinate. ``CAX8`` is the
+    8-node quadratic quadrilateral and ``CAX4`` its 4-node linear cousin; the element type is a parameter because
+    a case that only needs a rough field is cheaper with the linear one, and confusing the two is a deck that
+    converges to the wrong stress.
+
+    Keeping this next to :func:`geometry` is deliberate: the axisymmetric model is the same kind of object (a
+    keyword block PrePoMax reads and writes), and the 2-D mesh that feeds it lives in :class:`~.mesh.QuadGrid`.
+    """
+    kind = str(type).upper()
+    per_element = {"CAX8": 8, "CAX4": 4, "CAX6": 6}.get(kind)
+    if per_element is None:
+        raise ValueError(f"{type!r} is not an axisymmetric element this writer knows (CAX4, CAX6, CAX8)")
+    rows = []
+    for nid, point in sorted(nodes.items()):
+        if len(point) != 2:
+            raise ValueError(f"node {nid} has {len(point)} coordinates: an axisymmetric deck writes (r, z)")
+        rows.append(f"{nid}, {point[0]:.8g}, {point[1]:.8g}")
+    if not rows:
+        raise ValueError("an axisymmetric block needs nodes")
+    deck.block("*NODE, NSET=NALL", *rows)
+
+    cells = []
+    for eid, cell in elements:
+        if len(cell) != per_element:
+            raise ValueError(f"element {eid} has {len(cell)} nodes: {kind} needs {per_element}")
+        cells.append(f"{eid}, " + ", ".join(str(n) for n in cell))
+    if not cells:
+        raise ValueError("an axisymmetric block needs elements")
+    deck.block(f"*ELEMENT, TYPE={kind}, ELSET={elset}", *cells)
 
 
 def node_set(deck: Deck, name: str, ids: Sequence[int]) -> None:

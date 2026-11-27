@@ -98,7 +98,13 @@ class LaminarPipe(StudyFamily):
     qoi_label = "pressure drop"
     keywords = {"pipe": 1.2, "pressure drop": 1.4, "pressure": 0.6, "laminar": 1.2, "poiseuille": 1.4,
                 "tube": 0.8, "flow": 0.6, "viscosity": 1.0, "water": 0.8, "oil": 0.8, "duct": 0.6, "hose": 0.8,
-                "line": 0.4, "pump": 0.6, "hydraulic": 0.6}
+                "line": 0.4, "pump": 0.6, "hydraulic": 0.6,
+                # português: o mesmo tubo, escrito como se escreve aqui
+                "tubo": 1.2, "cano": 0.8, "tubulação": 1.2, "tubulacao": 1.2, "perda de carga": 1.4,
+                "pressão": 0.6, "pressao": 0.6, "escoamento": 0.8, "vazão": 1.0, "vazao": 1.0,
+                "viscosidade": 1.0, "água": 0.8, "agua": 0.8, "óleo": 0.8, "oleo": 0.8, "duto": 0.6,
+                "mangueira": 0.8, "bomba": 0.6, "hidráulica": 0.6, "hidraulica": 0.6, "diâmetro": 0.8,
+                "diametro": 0.8}
     equations = (
         "mu (1/r) d/dr (r du/dr) = dp/dx   (steady, fully developed, axisymmetric momentum balance)",
         "u(R) = 0 and du/dr(0) = 0   (no-slip at the wall, symmetry on the axis)",
@@ -123,25 +129,48 @@ class LaminarPipe(StudyFamily):
         "White, F. M., Viscous Fluid Flow, ch. 3 (the Hagen-Poiseuille solution and f = 64/Re).",
     )
     slots = (
-        Slot("diameter", "pipe diameter", unit="m", display_unit="mm", keywords=("diameter", "bore", "pipe"),
+        Slot("diameter", "pipe diameter", unit="m", display_unit="mm",
+             keywords=("diameter", "bore", "pipe", "diâmetro", "diametro", "interno", "bitola"),
              critical=True, bounds=(1e-4, 5.0), role="scale", question="What is the inside diameter of the pipe?"),
-        Slot("length", "pipe length", unit="m", keywords=("length", "long", "run"), critical=True,
+        Slot("length", "pipe length", unit="m",
+             keywords=("length", "long", "run", "comprimento", "extensão", "extensao", "trecho"), critical=True,
              bounds=(1e-3, 1e6), role="scale", question="How long is the straight run of pipe?"),
         Slot("flow_rate", "volumetric flow rate", unit="m^3/s", display_unit="L/min",
-             keywords=("flow rate", "flow", "l/min", "l/s", "m3/h", "m3/s", "q"), critical=True,
+             keywords=("flow rate", "flow", "l/min", "l/s", "m3/h", "m3/s", "q", "vazão", "vazao",
+                       "l/h", "m³/h", "m³/s", "litros"), critical=True,
              bounds=(1e-12, 10.0), role="load", question="What volumetric flow rate must the pipe carry?"),
         Slot("viscosity", "dynamic viscosity", unit="Pa*s", display_unit="mPa*s",
-             keywords=("viscosity", "mu", "pa·s", "pa s", "cp"), critical=True, bounds=(1e-6, 1e3), role="material",
+             keywords=("viscosity", "mu", "pa·s", "pa s", "cp", "viscosidade"), critical=True,
+             bounds=(1e-6, 1e3), role="material",
              question="What is the dynamic viscosity of the fluid?"),
-        Slot("density", "density", unit="kg/m^3", keywords=("density", "rho", "kg/m3"), default=998.2,
+        Slot("density", "density", unit="kg/m^3",
+             keywords=("density", "rho", "kg/m3", "densidade", "massa específica", "massa especifica"), default=998.2,
              default_source="water at 20 °C (998.2 kg/m3); change it for another fluid",
              bounds=(0.01, 2e4), role="material", question="What is the density of the fluid?"),
     )
     hints = (
         ("diameter", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m|in|inch)\s*(?:inside\s+|internal\s+|inner\s+)?(?:dia(?:meter)?\s+|bore\s+)?pipe\b"),
+        # português: "diâmetro de 50 mm", "diâmetro interno 50 mm", "tubo de 50 mm", "DN50"
+        ("diameter", r"(?i)\bdi[aâ]metro(?:\s+interno|\s+nominal)?\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*"
+                     r"(?P<u>mm|cm|m|in|pol|polegadas?)\b"),
+        ("diameter", r"(?i)\b(?:tubo|cano|tubula[çc][ãa]o)\s*(?:de|com|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*"
+                     r"(?P<u>mm|cm|m|in|pol|polegadas?)\b"),
+        ("diameter", r"(?i)\b(?:tubo|cano|tubula[çc][ãa]o|linha)\s+de\s+[\wçãáéíóúâêô]+\s+"
+                     r"(?:de|com|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m|in|pol)\b"),
+        ("diameter", r"(?i)\bDN\s*(?P<v>\d+(?:[.,]\d+)?)\b"),
         ("length", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m|km|in|ft)\s+(?:long|of\s+pipe|run)\b"),
+        # português: "40 m de comprimento", "comprimento de 40 m", "40 metros de tubo"
+        ("length", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m|km)\s*(?:de\s+)?(?:comprimento|extens[ãa]o)\b"),
+        ("length", r"(?i)\bcomprimento\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m|km)\b"),
+        ("length", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>m|metros?|km)\s+de\s+(?:tubo|cano|tubula[çc][ãa]o)\b"),
         ("flow_rate", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>l/min|l/s|m3/h|m3/s|gpm|ml/min)\b"),
+        # português: "vazão de 3 m³/h", "3 m³/h", "500 litros por hora"
+        ("flow_rate", r"(?i)\bvaz[ãa]o\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*"
+                      r"(?P<u>m3/h|m³/h|m3/s|m³/s|l/s|l/min|l/h|litros?/h(?:ora)?)\b"),
+        ("flow_rate", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>m³/h|m³/s|l/h)\b"),
         ("viscosity", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mpa\.?s|pa\.?s|cp|poise)\b"),
+        ("viscosity", r"(?i)\bviscosidade\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*"
+                      r"(?P<u>mpa\.?s|pa\.?s|cp|poise)\b"),
     )
     validation = ("the finite-difference solve against Hagen-Poiseuille",
                   "the pressure drop under radial grid refinement",

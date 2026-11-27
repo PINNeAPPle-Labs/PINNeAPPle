@@ -200,3 +200,58 @@ def test_the_cli_compiles_and_replays(tmp_path, capsys):
 def test_pp_study_is_the_same_entry_point():
     import pinneapple as pp
     assert pp.study is I.study
+
+
+# --------------------------------------------------------------------------------------------------------- português
+#
+# O compilador reconhecia só o vocabulário das famílias, em inglês: quem descrevia o problema em português recebia
+# "No study family matches this request". Estes casos fixam o que passou a ser lido, com os mesmos números nas duas
+# línguas — não é tradução da resposta, é o mesmo estudo.
+
+def test_o_tubo_em_portugues_da_o_mesmo_caso_que_o_ingles():
+    pt = ("Perda de carga de água a 20 °C em tubo de aço de 50 mm de diâmetro e 40 m de comprimento, "
+          "vazão de 3 m³/h, viscosidade 1,002 mPa·s.")
+    en = ("Pressure drop of water at 20 C in a steel pipe of 50 mm diameter and 40 m length, "
+          "flow rate 3 m3/h, viscosity 1.002 mPa*s.")
+    a, b = I.compile_study(pt), I.compile_study(en)
+    assert a.status == "ready" and a.family == "laminar_pipe"
+    assert b.status == "ready" and b.family == a.family
+    for slot in ("diameter", "length", "flow_rate", "viscosity"):
+        assert a.get(slot) == pytest.approx(b.get(slot), rel=1e-9), slot
+    assert a.to_dict()["issues"] == [], "a leitura genérica não deixa aviso depois que a frase explícita vence"
+
+
+def test_a_parede_em_portugues_da_o_mesmo_caso_que_o_ingles():
+    pt = ("Uma parede de aço de 12 mm de espessura, condutividade 200 W/mK, 300 °C na face quente, "
+          "ar a 25 °C na face fria com convecção de 12 W/m2K.")
+    en = ("a steel wall 12 mm thick, conductivity 200 W/mK, 300 degC on the hot face, air at 25 degC on the "
+          "cold face with h = 12 W/m2K")
+    a, b = I.compile_study(pt), I.compile_study(en)
+    assert a.family == b.family == "heat_wall"
+    for slot in ("thickness", "conductivity", "hot_side", "ambient", "h_conv"):
+        assert a.get(slot) == pytest.approx(b.get(slot), rel=1e-6), slot
+
+
+def test_a_viga_em_portugues_da_o_mesmo_caso_que_o_ingles():
+    pt = ("Viga engastada de 2 m, seção 100 mm de altura, aço com módulo de Young de 200 GPa e "
+          "força de 5 kN no extremo.")
+    en = "cantilever beam 2 m long, 100 mm deep, E = 200 GPa, 5 kN load at the tip"
+    a, b = I.compile_study(pt), I.compile_study(en)
+    assert a.family == b.family == "cantilever_beam"
+    for slot in ("length", "height", "youngs_modulus", "load"):
+        assert a.get(slot) == pytest.approx(b.get(slot), rel=1e-9), slot
+
+
+def test_o_portugues_sem_acento_e_a_unidade_colada_tambem_sao_lidos():
+    solto = I.compile_study("perda de carga em tubo de aco de 50 mm de diametro e 40 m de comprimento, "
+                          "vazao de 3 m3/h, viscosidade 1 mPa s")
+    assert solto.status == "ready" and solto.family == "laminar_pipe"
+    assert solto.get("diameter") == pytest.approx(0.05)
+    assert solto.get("flow_rate") == pytest.approx(3 / 3600)
+
+
+def test_um_pedido_em_portugues_que_nao_e_de_nenhuma_familia_continua_recusado():
+    out = I.compile_study("Qual é a cor do painel desta máquina?")
+    assert type(out).__name__ == "OutOfScope", "sem família, o compilador recusa em vez de rodar o mais próximo"
+    assert out.kind == "no_template"
+

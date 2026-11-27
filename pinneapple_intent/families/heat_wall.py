@@ -57,7 +57,12 @@ class HeatWall(StudyFamily):
     qoi_label = "cold-face temperature"
     keywords = {"heat": 1.0, "thermal": 1.0, "temperature": 0.8, "conduction": 1.2, "conductivity": 1.2,
                 "insulat": 0.8, "wall": 0.8, "cooling": 0.6, "convection": 1.0, "steel": 0.6, "furnace": 0.8,
-                "oven": 0.8, "hot face": 1.0, "far face": 1.0, "cold face": 0.8, "slab": 0.8, "panel": 0.6}
+                "oven": 0.8, "hot face": 1.0, "far face": 1.0, "cold face": 0.8, "slab": 0.8, "panel": 0.6,
+                # português: a mesma parede, com os termos de quem trabalha com forno
+                "calor": 1.0, "térmica": 1.0, "termica": 1.0, "temperatura": 0.8, "condução": 1.2,
+                "conducao": 1.2, "condutividade": 1.2, "isolamento": 0.8, "parede": 0.8, "resfriamento": 0.6,
+                "convecção": 1.0, "conveccao": 1.0, "aço": 0.6, "aco": 0.6, "forno": 0.8, "estufa": 0.8,
+                "face quente": 1.0, "face fria": 0.8, "refratário": 0.8, "refratario": 0.8}
     equations = (
         "d/dx (k dT/dx) = 0   (one-dimensional steady conduction, no source)",
         "q'' = h (T_cold - T_inf)   (convection on the far face)",
@@ -82,29 +87,37 @@ class HeatWall(StudyFamily):
         "thermal resistance network).",
     )
     slots = (
-        Slot("thickness", "wall thickness", unit="m", display_unit="mm", keywords=("thickness", "thick", "wall"),
+        Slot("thickness", "wall thickness", unit="m", display_unit="mm",
+             keywords=("thickness", "thick", "wall", "espessura", "parede"),
              critical=True, bounds=(1e-6, 10.0), role="scale",
              question="How thick is the wall?"),
-        Slot("conductivity", "thermal conductivity", unit="W/(m*K)", keywords=("conductivity", "k", "w/mk"),
+        Slot("conductivity", "thermal conductivity", unit="W/(m*K)",
+             keywords=("conductivity", "k", "w/mk", "condutividade", "térmica", "termica"),
              critical=True, bounds=(1e-3, 1e4), role="material",
              question="What is the thermal conductivity of the wall?"),
         Slot("hot_side", "hot-face temperature", unit="K", display_unit="degC",
-             keywords=("hot", "inside", "inner", "temperature", "°c", "celsius", "source"), critical=True, bounds=(1.0, 5000.0),
+             keywords=("hot", "inside", "inner", "temperature", "°c", "celsius", "source", "quente", "interna",
+                       "interno", "fonte"), critical=True, bounds=(1.0, 5000.0),
              role="load", question="What is the temperature of the hot face?"),
         Slot("ambient", "ambient temperature", unit="K", display_unit="degC",
-             keywords=("ambient", "air", "environment", "surroundings"), default=293.15,
+             keywords=("ambient", "air", "environment", "surroundings", "ambiente", "ar", "externa", "externo"),
+             default=293.15,
              default_source="20 °C, the usual laboratory ambient; change it if the air is different",
              bounds=(1.0, 2000.0), role="environment", question="What is the ambient temperature?"),
-        Slot("h_conv", "convection coefficient", unit="W/(m2*K)", keywords=("convection", "film", "h", "w/m2k"),
+        Slot("h_conv", "convection coefficient", unit="W/(m2*K)",
+             keywords=("convection", "film", "h", "w/m2k", "convecção", "conveccao", "película", "pelicula"),
              critical=True, bounds=(0.1, 1e5), role="environment",
              question="What is the convection coefficient on the cold face?"),
-        Slot("width", "wall width", unit="m", display_unit="mm", keywords=("width", "wide"),
+        Slot("width", "wall width", unit="m", display_unit="mm", keywords=("width", "wide", "largura"),
              default=0.04, default_source="40 mm, the width of the two-dimensional model; the closed form does not "
                                            "depend on it", bounds=(1e-4, 10.0), role="scale",
              question="How wide is the wall?"),
     )
     hints = (
         ("thickness", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m|in)\s+(?:thick|thickness|wall)\b"),
+        # português: "12 mm de espessura", "espessura de 12 mm", "parede de 12 mm"
+        ("thickness", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\s*(?:de\s+)?(?:espessura|parede)\b"),
+        ("thickness", r"(?i)\bespessura\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\b"),
         ("conductivity", r"(?i)\bk\s*=\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>w/m\*k|w/mk|w/\(m\*k\))\b"),
         ("h_conv", r"(?i)\bh\s*=\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>w/m\^2\*k|w/m2k|w/\(m\^2\*k\))\b"),
     )

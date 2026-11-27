@@ -167,6 +167,8 @@ def _apply_hints(spec, family: StudyFamily, text: str):
         except (SpecError, ValueError) as exc:
             spec.issues.append(str(exc))
             continue
+        # a frase explícita vence a leitura genérica: o aviso que aquela leitura deixou sobre este slot sai com ela
+        spec.issues = [i for i in spec.issues if not i.startswith(f"{slot.label} ")]
         spec.questions = [q for q in spec.questions if q.slot != slot_name]
     spec.questions = [q for q in spec.questions if not (spec.values.get(q.slot) is not None
                                                         and spec.values[q.slot].known)]

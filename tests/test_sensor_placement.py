@@ -103,3 +103,107 @@ def test_hyperparameter_fit_does_not_depend_on_the_starting_guess():
         gp.fit_hyperparameters(X, y)
         rmses.append(float(np.sqrt(np.mean((gp.predict(Xt) - _field(Xt)) ** 2))))
     assert max(rmses) < 0.05
+
+
+# ------------------------------------------------------------------ designs: criteria, constraints, strategies
+
+from pinneapple_analysis.data_assimilation.sensor_placement import (  # noqa: E402
+    Layout,
+    closest_pair,
+    evolutionary_sensor_placement,
+    layout_curves,
+    maximin_sensor_placement,
+    random_sensor_placement,
+)
+
+
+def _plate():
+    """A 32 x 20 grid on a 1 x 0.6 plate, and the quantity of interest: the mean over the hot corner at x = L."""
+    L, H = 1.0, 0.6
+    xs, ys = np.linspace(0.0, L, 32), np.linspace(0.0, H, 20)
+    X, Y = np.meshgrid(xs, ys, indexing="ij")
+    pts = np.stack([X.ravel(), Y.ravel()], axis=-1)
+    qoi = np.exp(-((X.ravel() - 0.9) ** 2 + (Y.ravel() - 0.5) ** 2) / 0.02)
+    return GaussianProcessField(lengthscales=[0.18, 0.18], variance=1.0, nu=2.5), pts, qoi / qoi.sum()
+
+
+def _slope():
+    """80 stations down a 3 m slope, and the weighted mean over the toe -- a layered soil, so a long kernel."""
+    z = np.linspace(0.0, 3.0, 80)
+    w = np.exp(-0.5 * (z - 2.2) ** 2 / 0.09)
+    return GaussianProcessField(lengthscales=[0.35], variance=1.0, nu=1.5), z[:, None], w / w.sum()
+
+
+def test_a_quantity_of_interest_changes_where_the_sensors_go():
+    gp, pts, qoi = _plate()
+    spread = greedy_sensor_placement(gp, pts, 4)
+    focused = greedy_sensor_placement(gp, pts, 4, qoi=qoi)
+    assert np.mean(focused.points[:, 0]) > np.mean(spread.points[:, 0])
+    assert focused.integrated_variance[-1] < spread.integrated_variance[-1]
+    with pytest.raises(ValueError, match="qoi must have one coefficient"):
+        greedy_sensor_placement(gp, pts, 2, qoi=qoi[:-1])
+
+
+def test_a_budget_stops_the_walk_and_the_gain_is_per_unit_of_cost():
+    gp, pts, _ = _plate()
+    full = greedy_sensor_placement(gp, pts, 6)
+    price = np.full(len(pts), 3.0)
+    poor = greedy_sensor_placement(gp, pts, 6, cost=price, budget=10.0)
+    assert len(poor.indices) == 3                              # three fit; the fourth would cost 12
+    assert price[poor.indices].sum() <= 10.0
+    assert poor.integrated_variance[-1] > full.integrated_variance[-1]
+    with pytest.raises(ValueError, match="budget must be positive"):
+        greedy_sensor_placement(gp, pts, 2, budget=0.0)
+
+
+def test_the_baselines_are_what_they_say():
+    gp, pts, _ = _plate()
+    r1 = random_sensor_placement(gp, pts, 5, seed=3)
+    r2 = random_sensor_placement(gp, pts, 5, seed=3)
+    assert isinstance(r1, Layout) and r1.strategy == "random"
+    assert np.array_equal(r1.indices, r2.indices) and r1.criterion == r2.criterion
+    u = maximin_sensor_placement(gp, pts, 5)
+    assert u.strategy == "uniform" and closest_pair(u.points) > closest_pair(r1.points)
+    assert len(set(u.indices.tolist())) == 5
+
+
+def test_the_evolutionary_search_has_to_be_better_than_random():
+    gp, z, w = _slope()
+    ga = evolutionary_sensor_placement(gp, z, 3, weights=w, n_generations=12, seed=0)
+    best_random = min(random_sensor_placement(gp, z, 3, weights=w, seed=s).criterion for s in range(20))
+    assert ga.strategy == "evolutionary" and len(ga.history) == 12
+    assert ga.criterion < best_random
+    assert np.isfinite(ga.criterion)
+    assert np.all(np.diff(ga.history) <= 0.0)                                     # the best never gets worse
+
+
+def test_a_hard_spacing_the_greedy_walk_cannot_hold():
+    gp, pts, qoi = _plate()
+    greedy = greedy_sensor_placement(gp, pts, 8, qoi=qoi)
+    assert closest_pair(greedy.points) < 0.15                       # what the greedy walk does not see
+    held = evolutionary_sensor_placement(gp, pts, 8, qoi=qoi, min_spacing=0.15, n_generations=15)
+    assert closest_pair(held.points) >= 0.15 - 1e-9                 # close to it, and feasible
+    spread = maximin_sensor_placement(gp, pts, 8, qoi=qoi)
+    assert closest_pair(spread.points) >= 0.15
+    free = evolutionary_sensor_placement(gp, pts, 8, qoi=qoi, n_generations=15)
+    assert free.criterion < held.criterion                          # the constraint costs something
+
+
+def test_the_curves_of_the_two_cases_are_the_deliverable():
+    """The measured comparison the issue asks for: uncertainty against the number of sensors, four strategies, on
+    the plate and on the slope."""
+    ks = [1, 2, 4, 8]
+    for gp, cand, kw in ((_plate()[0], _plate()[1], {"qoi": _plate()[2]}),
+                         (_slope()[0], _slope()[1], {"weights": _slope()[2]})):
+        curves = layout_curves(gp, cand, ks, n_generations=10, n_random=10, **kw)
+        assert set(curves) == {"prior", "greedy", "evolutionary", "random", "uniform"}
+        for name in ("greedy", "uniform"):                           # the deterministic designs only: a search run
+            assert np.all(np.diff(curves[name]) <= 1e-12)            # once per k has no reason to be monotone
+            assert curves[name][-1] < curves["prior"][0]
+        assert curves["evolutionary"][-1] < curves["prior"][0]
+        assert curves["greedy"][-1] <= curves["random"][-1]          # greedy beats the sensor lottery
+        assert curves["greedy"][-1] <= curves["uniform"][-1]
+    with pytest.raises(ValueError, match="unknown strategies"):
+        layout_curves(_plate()[0], _plate()[1], ks, strategies=("greedy", "sobol"))
+    with pytest.raises(ValueError, match="empty"):
+        layout_curves(_plate()[0], _plate()[1], [])

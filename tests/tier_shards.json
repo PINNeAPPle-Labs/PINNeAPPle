@@ -580,6 +580,7 @@
     "tests/test_manufactured_solutions_batch2.py",
     "tests/test_manufactured_solutions_batch4.py",
     "tests/test_margin_study.py",
+    "tests/test_maritime.py",
     "tests/test_maxwell_checks.py",
     "tests/test_mc_dropout_reference.py",
     "tests/test_mcp_server.py",

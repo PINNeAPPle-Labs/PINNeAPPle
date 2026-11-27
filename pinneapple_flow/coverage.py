@@ -34,6 +34,14 @@ REASONS: dict[str, str] = {
                                      "one static geometry, not a step of a flow -- there is nothing to feed a node "
                                      "with, and the output is a verdict about the design, which is what "
                                      "examples/warp_drive reports",
+    "pinneapple_physics.maritime": "the sea state and what it does to a vessel (#364): the JONSWAP/PM spectra with the "
+                                   "significant height fixed by their own integral, the spectral evolution with a "
+                                   "horizon, the 2-D free-surface section problem solved for added mass, damping and "
+                                   "excitation, the motions that follow, the quasi-static mooring catenary and the "
+                                   "operability verdict with the confidence it was measured to have. It is a chain of "
+                                   "measurements over a record and a geometry, not a pipeline of node-sized steps: the "
+                                   "steps are one library call each and what the example argues is the window and its "
+                                   "confidence, which is what examples/maritime_operability reports",
     "pinneapple_physics.multirotor": "flight safety for a multirotor (#335): the BEMT rotor, the 6-DoF airframe with "
                                     "its battery, the injected faults, the cascaded controller, the Newton-Euler "
                                     "residual and the detectors that are compared with it. It is a closed loop in "

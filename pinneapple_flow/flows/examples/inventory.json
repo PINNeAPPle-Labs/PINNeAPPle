@@ -486,6 +486,11 @@
   "reason": "flight_safety.py is a closed loop in time -- the vehicle flies, the sensors report, the residual is measured and the fault is diagnosed -- and its unit is a flight of 10 000 steps, not a call. A flow node would have to run the whole campaign (eight faults x three seeds) inside one evaluation, which is a batch job, not a graph",
   "status": "not_convertible"
  },
+ "maritime_operability": {
+  "domain": "offshore engineering",
+  "reason": "maritime_operability.py is one campaign over a buoy record -- calibrate the sea-state coefficients on half of it, score them on the other half, solve the 2-D free-surface section problem at every period, carry the predicted sea through the transfer functions to a crane point, a bow and a mooring catenary, and end on the hours the criterion stays open. Its unit is a record of 22 days and its output is one sentence, so what it argues is the number and its confidence; a node graph of library calls would say less than the script does",
+  "status": "not_convertible"
+ },
  "embedded": {
   "domain": "deployment",
   "reason": "embedded_inference.py trains a small convolutional surrogate of the advection-diffusion field, exports it together with the residual stencil and the measurement check as one ONNX graph, and measures the latency and residual inside and outside the training envelope. What the example is about is the deployment: the graph and the hertz are one library call each (embedded.export, EmbeddedRuntime.latency) and a node graph would say nothing more than the script does",

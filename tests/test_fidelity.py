@@ -300,6 +300,7 @@ def test_the_router_reads_the_horizon_a_trust_object_carries(rig):
     assert r.records[0]["trust"] == APPROVED
     assert [rec["route"] for rec in r.records] == [rec["route"] for rec in _run(rig).records]
     assert r.policy["horizon"]["requested"]["value"] == 48.0
+    json.dumps(r.to_dict())                            # the horizon goes into what the app stores with the request
 
     past = _trust_with(horizon(48.0, useful=24.0))
     assert past.badge() == GOOD                       # the badge only refuses past the no-skill lead (240 h)

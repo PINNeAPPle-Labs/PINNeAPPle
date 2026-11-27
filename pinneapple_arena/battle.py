@@ -35,8 +35,9 @@ the failure this module exists to show. A model that left in one seed of two has
 count -- where the mean would have printed "never". A model that never left any seed is placed at the end of the
 stream: it survived the whole battle, which is a result, not a missing value.
 
-This is the measurement, not the animation: the page and the JSON are generated from one run so the published
-numbers cannot drift from it. The migration to ``pp.trust`` (issue #345) is the next step for the threshold
+The page, the JSON and the replay GIF are generated from one run, so the published numbers cannot drift from the
+picture that shows them: :func:`replay` draws the health bar, the exits and the survivors out of the record and
+nothing else. The migration to ``pp.trust`` (issue #345) is the next step for the threshold
 semantics -- this module says *when* a model left; it does not yet say whether the remainder is trustworthy, which is
 that layer's job. Until it lands, the record below is the honest thing this library can say about itself.
 """
@@ -54,13 +55,20 @@ import numpy as np
 
 from .bundle_bench import BenchConfig, run_and_predict
 
-__all__ = ["SCHEMA", "RESULTS", "PAGE", "PROTOCOL", "CASES", "BattleCase", "Field", "domain_exit",
+__all__ = ["SCHEMA", "RESULTS", "PAGE", "REPLAY", "PROTOCOL", "CASES", "BattleCase", "Field", "domain_exit",
            "relative_l2_curve", "pde_residual_curve", "scoreboard", "disagreement", "run_case", "run_all", "table",
-           "page", "write", "check", "get_case"]
+           "page", "replay", "write", "check", "get_case"]
 
 SCHEMA = "pinneapple.battle/1"
 RESULTS = Path("benchmarks") / "battle" / "results.json"
 PAGE = Path("docs") / "battle.md"
+REPLAY = Path("docs") / "assets" / "battle" / "replay.gif"
+
+# The replay's own palette: the same dark board the rest of the library's figures use, with one colour per model, so
+# a frame of the GIF and a line of the page read as the same thing.
+_BG, _FG, _DIM = "#05080d", "#e8eef5", "#7d8a99"
+_GOOD, _WARN, _BAD = "#3ddc97", "#f5b942", "#ff5d5d"
+_MODEL_COLOUR = {"fno": "#5fb3ff", "pinn": "#ff9f43"}
 
 # Everything a reproduction has to keep constant, as data rather than as literals inside the loop. The two models
 # share the split, the optimiser, the learning rate, the batch size and the seed; each keeps its own size knobs,
@@ -698,10 +706,21 @@ def page(results: Mapping[str, Any]) -> str:
         "**where did each of them stop being usable?** The table below is generated from",
         f"`{RESULTS.as_posix()}` by `python scripts/battle.py --docs` -- do not edit it by hand.",
         "",
-        "It is the measured half of the arena the issue asks for: the numbers, the cost and the exit, not the",
-        "animation. What each model is allowed to see, what it costs, what it gets wrong at the end of the stream",
-        "and the step at which it left the domain it was validated on are all here, with the criterion written",
-        "down below so the exit can be recomputed from the curve.",
+        "It is the arena the issue asks for, in its two halves. The measured half: what each model is allowed to",
+        "see, what it costs, what it gets wrong at the end of the stream and the step at which it left the domain it",
+        "was validated on, with the criterion written down below so the exit can be recomputed from the curve. The",
+        "animated half: the replay, one frame per step of the same record, with each model's health bar (the",
+        "residual against its own alarm), the step at which the reference proves each one left, and who is still",
+        "standing at the end --",
+        "",
+        f'<img src="{REPLAY.relative_to(PAGE.parent).as_posix()}" alt="The arena replay: the error curve, the '
+        'health bar of each model and the step at which each one left" loading="lazy">',
+        "",
+        "It is drawn from this file and from nothing else (`python scripts/battle.py --gif`), so the animation",
+        "cannot state a number the table does not. What the GIF does not carry is the round the issue names: the",
+        "record holds two PDE cases, `burgers_1d` and `heat_1d`, not a 2020 weather stream of PINNeAPPle's model",
+        "against IFS HRES, Pangu-Weather and NeuralGCM (#348) -- that round needs the ensemble's forecasts in the",
+        "same shape and is still open.",
         "",
         "## The protocol",
         "",
@@ -803,8 +822,9 @@ def page(results: Mapping[str, Any]) -> str:
             parts += ["### Where they disagree", "", f"Not available: {d.get('reason', '')}", ""]
     parts += ["## Reproducing it", "",
               "```bash",
-              "python scripts/battle.py --run      # train both models over the stream, rewrite the results and the page",
+              "python scripts/battle.py --run      # train both models, then rewrite the results, the page and the GIF",
               "python scripts/battle.py --docs     # regenerate this page from the results file (no training)",
+              "python scripts/battle.py --gif      # redraw the replay from the results file (no training)",
               "python scripts/battle.py --check    # the gate: declaration, record and page agree, order included",
               "```",
               "",
@@ -817,6 +837,227 @@ def page(results: Mapping[str, Any]) -> str:
               "Burgers at step 23 and then at 22. With the split fixed at one, two runs of this record reproduced",
               "every error curve bit for bit and the same exit for every model and seed.", ""]
     return "\n".join(parts)
+
+
+def _replay_series(block: Mapping[str, Any]) -> dict[str, Any]:
+    """The curves a replay frame draws, from the record alone: the mean over the seeds, and the seed-mean threshold.
+
+    Averaging the seeds here is the one place the mean is allowed, because the replay is a picture of the stream and
+    not a decision: the exit the scoreboard ranks by stays the first seed to leave, and the roster line quotes it
+    with the seed count, unchanged from the row.
+    """
+    models: dict[str, Any] = {}
+    for name in block["model_order"]:
+        runs = block["models"][name]["runs"]
+        residual = [np.asarray([np.nan if v is None else float(v) for v in r["pde_residual"]], float) for r in runs]
+        models[name] = {
+            "relative_l2": np.mean([np.asarray(r["relative_l2"], float) for r in runs], axis=0),
+            "residual": np.mean(residual, axis=0),
+            "threshold": float(np.mean([float(r["residual_alarm"]["threshold"]) for r in runs])),
+            "alarmed_in": [bool(r["residual_alarm"]["step"] is not None) for r in runs],
+        }
+    return {"models": models, "t": np.asarray(block["stream"]["t"], float),
+            "in_window": np.asarray(block["stream"]["in_window"], bool),
+            "rows": {row["model"]: row for row in block["scoreboard"]},
+            "tolerance": _tolerance(block)}
+
+
+def _tolerance(block: Mapping[str, Any]) -> float:
+    """The error tolerance the exits were measured against, read off the record rather than off the protocol."""
+    for name in block["model_order"]:
+        for run in block["models"][name]["runs"]:
+            value = run["error_exit"].get("threshold")
+            if value is not None:
+                return float(value)
+    return float(PROTOCOL["exit"]["tolerance"])
+
+
+def _replay_frame(series: Mapping[str, Any], block: Mapping[str, Any], step: int, *, final: bool):
+    """One frame of the replay as an RGB array: the error curve so far, the health bar of each model, the roster."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    t = series["t"]
+    n = len(t)
+    step = int(np.clip(step, 0, n - 1))
+    case = block["case"]
+    fig = plt.figure(figsize=(10.0, 5.6), facecolor=_BG)
+    ax_e = fig.add_axes([0.075, 0.34, 0.52, 0.48])
+    ax_b = fig.add_axes([0.68, 0.34, 0.27, 0.48])
+    for ax in (ax_e, ax_b):
+        ax.set_facecolor(_BG)
+        for spine in ax.spines.values():
+            spine.set_color("#1d2634")
+
+    fig.text(0.055, 0.955, "Battle of the models: the arena replay", color=_FG, fontsize=15, weight="bold")
+    fig.text(0.055, 0.912, f"case {case['name']}  ·  {case['equation']}", color=_DIM, fontsize=8.5)
+    fig.text(0.055, 0.884, f"the window is t <= {case['split_at']:.1f} (the only steps the models were trained on); "
+                           "the rest of the stream is the battle", color=_DIM, fontsize=8.5)
+
+    # the error panel: what the truth column says
+    inside = bool(series["in_window"][step])
+    ax_e.set_xlim(float(t[0]), float(t[-1]))
+    ax_e.axvspan(float(t[0]), float(case["split_at"]), color="#111c2b", zorder=0)
+    ax_e.text(float(t[0]) + 0.012, 0.965, "inside the window", color=_DIM, fontsize=8, transform=ax_e.transAxes)
+    tol = series["tolerance"]
+    ax_e.axhline(tol, color=_DIM, ls=":", lw=1.0)
+    ax_e.text(float(t[-1]) * 0.995, tol * 1.15, f"tolerance {tol:g}", color=_DIM, fontsize=8, va="bottom",
+              ha="right")
+    finite = np.asarray([v for m in series["models"].values()
+                         for v in np.asarray(m["relative_l2"], float) if np.isfinite(v)], float)
+    ax_e.set_yscale("log")
+    ax_e.set_ylim(float(finite.min()) / 2.0, float(finite.max()) * 2.0)
+    for name, m in series["models"].items():
+        y = np.asarray(m["relative_l2"], float)
+        colour = _MODEL_COLOUR.get(name, _FG)
+        ax_e.plot(t, y, color=colour, lw=1.0, alpha=0.3)
+        ax_e.plot(t[:step + 1], y[:step + 1], color=colour, lw=2.2, label=name)
+        if step > 0:
+            ax_e.plot(t[step], y[step], "o", color=colour, ms=6, mec=_BG, mew=1.0)
+        left = series["rows"][name]["left_at_step"]
+        if series["rows"][name]["left_within_stream"] and left is not None and int(round(left)) <= step:
+            j = int(min(round(left), n - 1))
+            ax_e.plot(t[j], y[j], "X", color=_BAD, ms=10, mec=_BG, mew=1.0, zorder=5)
+            ax_e.annotate(f"{name} left", (t[j], y[j]), color=_BAD, fontsize=8, xytext=(7, -11),
+                          textcoords="offset points")
+    ax_e.axvline(float(t[step]), color=_FG, lw=0.8, alpha=0.5)
+    ax_e.set_ylabel("relative L2 against the reference", color=_DIM, fontsize=9)
+    ax_e.set_xlabel("t", color=_DIM, fontsize=8, labelpad=1)
+    ax_e.tick_params(colors=_DIM, labelsize=8, pad=2)
+    ax_e.legend(loc="lower right", frameon=False, fontsize=9, labelcolor=_FG)
+
+    # the health bar panel: what each model can say about itself, with no reference at all
+    ax_b.set_xlim(0, 1.35)
+    ax_b.set_ylim(-0.55, len(series["models"]) - 0.1)
+    ax_b.set_yticks([])
+    ax_b.set_xticks([0, 1.0])
+    ax_b.set_xticklabels(["0", "its own alarm"], fontsize=8)
+    ax_b.tick_params(colors=_DIM)
+    ax_b.axvline(1.0, color=_WARN, lw=1.2, ls="--")
+    for row, (name, _m) in enumerate(series["models"].items()):
+        value = float(m["residual"][step]) if np.isfinite(m["residual"][step]) else float("nan")
+        ratio = value / m["threshold"] if np.isfinite(value) and m["threshold"] > 0 else float("nan")
+        shown = 0.0 if not np.isfinite(ratio) else min(max(ratio, 0.0), 1.35)
+        colour = _GOOD if (not np.isfinite(ratio) or ratio < 1.0) else _BAD
+        ax_b.barh(row, 1.35, height=0.36, color="#111c2b", zorder=0)
+        ax_b.barh(row, shown, height=0.36, color=colour, alpha=0.9, zorder=1)
+        label = ("no residual at this step" if not np.isfinite(value)
+                 else f"{ratio:.2f} x its alarm, {'silent' if ratio < 1 else 'FIRED'}")
+        ax_b.text(0.0, row + 0.30, name, color=_MODEL_COLOUR.get(name, _FG), fontsize=9, weight="bold")
+        ax_b.text(0.30, row + 0.30, label, color=colour, fontsize=8, va="baseline")
+    ax_b.set_xlabel("residual as a share of the model's own alarm", color=_DIM, fontsize=8)
+
+    fig.text(0.055, 0.262, f"step {step} of {n - 1}   ·   t = {t[step]:.2f}   ·   "
+                           + ("inside the window" if inside else "the battle"),
+             color=_FG, fontsize=11, weight="bold")
+    if final:
+        fig.text(0.055, 0.228, "END OF THE STREAM", color=_WARN, fontsize=9, weight="bold")
+
+    # the roster: where each model stands, in the scoreboard's own words
+    y0 = 0.165
+    for k, (name, _m) in enumerate(series["models"].items()):
+        row = series["rows"][name]
+        colour = _MODEL_COLOUR.get(name, _FG)
+        left = row["left_at_step"]
+        if row["left_within_stream"] and left is not None and int(round(left)) <= step:
+            where = _where(row["left_at_step"], row["left_at_t"], True, row.get("left_in_seeds"), row.get("n_seeds"))
+            state, state_colour = f"left its domain at {where}", _BAD
+        else:
+            state, state_colour = ("in its domain" if not final else "survived the whole stream"), _GOOD
+        y = y0 - k * 0.05
+        fig.text(0.055, y, f"board rank {row['rank']}  {name}  ·  {row['kind']}", color=colour, fontsize=9.5,
+                 weight="bold")
+        fig.text(0.47, y, state, color=state_colour, fontsize=9.5)
+    if final:
+        left_names = [n_ for n_ in series["models"] if not series["rows"][n_]["left_within_stream"]]
+        leaders = [n_ for n_ in series["models"] if series["rows"][n_]["rank"] == 1]
+        verdict = (f"who is left when the stream ends: {', '.join(left_names) if left_names else 'nobody'}"
+                   f"   ·   the scoreboard's rank 1 is {leaders[0] if leaders else 'undecided'}")
+        fig.text(0.055, 0.045, verdict, color=_FG, fontsize=9.5)
+    else:
+        fig.text(0.055, 0.045, "the monitor is the only signal a deployment has without an answer; it is drawn next "
+                               "to the exit the reference proves, so a silent monitor is visible as such",
+                 color=_DIM, fontsize=8)
+
+    fig.canvas.draw()
+    frame = np.asarray(fig.canvas.buffer_rgba())[..., :3].copy()
+    plt.close(fig)
+    return frame
+
+
+def replay(results: Mapping[str, Any], path: Path | str | None = None, *, fps: float = 6.0, hold: int = 6) -> Path:
+    """The arena replay: one frame per step of the record, the health bar of each model and who is left at the end.
+
+    The frames are drawn from ``results`` alone -- the same file the page and the table are generated from -- so the
+    animation cannot disagree with the numbers it is showing. The frames are made in this process, so a caller that
+    re-records the battle (``python scripts/battle.py --run``) can rebuild the GIF without training anything.
+
+    Parameters
+    ----------
+    results : Mapping
+        The record, as read from :data:`RESULTS`.
+    path : Path or str, optional
+        File written; default :data:`REPLAY`.
+    fps : float
+        Playback rate. The steps of the stream are the frames, so the rate is what sets the length.
+    hold : int
+        Frames the opening card and the closing one are held for, so both can be read.
+
+    Returns
+    -------
+    path : Path
+        The GIF written.
+    """
+    from pinneapple_tools.visualization.dashboard.static import write_gif
+
+    path = REPLAY if path is None else Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    frames = []
+    for _cid, block in results["cases"].items():
+        series = _replay_series(block)
+        opening = _replay_frame(series, block, 0, final=False)
+        frames += [opening] * hold                       # a card long enough to read before the stream moves
+        frames += [_replay_frame(series, block, k, final=False) for k in range(len(series["t"]))]
+        frames += [_replay_frame(series, block, len(series["t"]) - 1, final=True)] * hold
+    frames += [_replay_end_card(results)] * (hold + 2)
+    return Path(write_gif(str(path), frames, fps=fps))
+
+
+def _replay_end_card(results: Mapping[str, Any]):
+    """The card the replay ends on: both cases, and the rank 1 of each, from the scoreboard as published."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure(figsize=(10.0, 5.6), facecolor=_BG)
+    fig.text(0.055, 0.90, "The replay, in one board", color=_FG, fontsize=16, weight="bold")
+    fig.text(0.055, 0.845, "two models, the same stream, and the step at which each stopped being usable --",
+             color=_DIM, fontsize=9.5)
+    fig.text(0.055, 0.812, "the scoreboard's rank 1 is the model that stayed in its domain longest",
+             color=_DIM, fontsize=9.5)
+    y = 0.72
+    for _cid, block in results["cases"].items():
+        fig.text(0.055, y, f"{block['case']['name']}", color=_FG, fontsize=12, weight="bold")
+        y -= 0.07
+        for row in block["scoreboard"]:
+            where = _where(row["left_at_step"], row["left_at_t"], row["left_within_stream"],
+                           row.get("left_in_seeds"), row.get("n_seeds"))
+            fig.text(0.075, y, f"rank {row['rank']}  {row['model']}", color=_MODEL_COLOUR.get(row["model"], _FG),
+                     fontsize=10.5, weight="bold")
+            fig.text(0.30, y, f"left at {where}" if row["left_within_stream"] else where,
+                     color=_BAD if row["left_within_stream"] else _GOOD, fontsize=10)
+            fig.text(0.72, y, f"final relative L2 {_fmt(row['final_rel_l2'], 3)}", color=_DIM, fontsize=10)
+            y -= 0.075
+        y -= 0.04
+    fig.text(0.055, 0.05, "the record this replay is drawn from: benchmarks/battle/results.json", color=_DIM,
+             fontsize=8.5)
+    fig.canvas.draw()
+    frame = np.asarray(fig.canvas.buffer_rgba())[..., :3].copy()
+    plt.close(fig)
+    return frame
 
 
 def write(results: Mapping[str, Any], *, root: Path | str = ".") -> tuple[Path, Path]:

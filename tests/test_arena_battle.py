@@ -328,3 +328,33 @@ def test_the_protocol_declares_what_a_reproduction_has_to_keep():
         assert field in battle.PROTOCOL, field
     assert len(battle.PROTOCOL["seeds"]) >= 2, "one seed has no spread"
     assert battle.PROTOCOL["exit"]["residual_factor"] > 1
+
+
+# ------------------------------------------------------------------ the replay (the animation half of #373)
+def _published() -> dict:
+    assert (ROOT / battle.RESULTS).is_file(), "run python scripts/battle.py --run"
+    return json.loads((ROOT / battle.RESULTS).read_text(encoding="utf-8"))
+
+
+def test_the_replay_reads_the_health_bar_and_the_exit_off_the_record():
+    """A frame cannot state a number the table does not: the series is the record's own, seed by seed."""
+    block = _published()["cases"]["burgers"]
+    series = battle._replay_series(block)
+    assert len(series["t"]) == block["stream"]["n_steps"]
+    assert set(series["models"]) == set(battle.MODELS)
+    for name, m in series["models"].items():
+        runs = block["models"][name]["runs"]
+        assert np.allclose(m["relative_l2"], np.mean([r["relative_l2"] for r in runs], axis=0))
+        assert m["threshold"] == pytest.approx(np.mean([r["residual_alarm"]["threshold"] for r in runs]))
+        assert series["rows"][name] is not None, "the roster line is the scoreboard's row, not a second opinion"
+    assert series["tolerance"] == pytest.approx(battle.PROTOCOL["exit"]["tolerance"])
+
+
+def test_a_replay_frame_and_the_closing_card_are_pictures_of_the_record():
+    results = _published()
+    block = results["cases"]["heat"]
+    series = battle._replay_series(block)
+    frame = battle._replay_frame(series, block, len(series["t"]) - 1, final=True)
+    assert frame.ndim == 3 and frame.shape[2] == 3 and frame.dtype == np.uint8 and frame.any()
+    assert battle._replay_end_card(results).shape == frame.shape
+

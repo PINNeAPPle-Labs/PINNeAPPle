@@ -1,0 +1,184 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/hemodynamics_4dflow",
+ "title": "Pressure and wall shear stress from 4D-flow MRI, measured against Womersley's closed form",
+ "description": "A synthetic straight artery with Womersley's exact solution, sampled the way 4D-flow MRI samples one: voxel centres across the radius (so the wall is never measured), 24 cardiac phases, 3 planes and 5 % velocity noise. An ensemble of axisymmetric Navier-Stokes PINNs -- no-slip, axis symmetry and periodicity exact by construction -- recovers the wall shear stress waveform to 1.2-7.0 % and the pressure gradient to 2.5-8.4 % of the closed form, where the two-point difference from the same samples is 27-100 % wrong. Four figures, a voxel-size sweep and a noise sweep.",
+ "domain": "biomedical flow",
+ "methods": [
+  "Womersley closed form",
+  "axisymmetric Navier-Stokes PINN",
+  "deep ensemble",
+  "4D-flow synthesis"
+ ],
+ "modules": [
+  "pinneapple_physics.hemodynamics",
+  "pinneapple_physics.pinn_solver"
+ ],
+ "params": {
+  "vessels": 4,
+  "waveforms": 5,
+  "n_radial": 8,
+  "n_phases": 24,
+  "n_planes": 3,
+  "noise": 0.05,
+  "members": 3,
+  "adam_steps": 2000,
+  "lbfgs_steps": 100,
+  "n_collocation": 2000,
+  "seconds": 2122.2
+ },
+ "scripts": [
+  "run.py"
+ ],
+ "metrics": [
+  {
+   "name": "wss_error_worst_single_harmonic",
+   "value": 0.02767,
+   "unit": "",
+   "how": "relative L2 over the cardiac cycle of the ensemble mean wall shear stress against the Womersley closed form, worst of the four single-harmonic phantoms (2-20.7 Womersley number, 8 voxels across the radius, 5 % velocity noise)"
+  },
+  {
+   "name": "wss_error_physiological",
+   "value": 0.07024,
+   "unit": "",
+   "how": "the same, for the five-harmonic waveform at the aortic radius: four frequencies, the highest at alpha 41"
+  },
+  {
+   "name": "pressure_gradient_error_worst",
+   "value": 0.0842,
+   "unit": "",
+   "how": "relative L2 over the cardiac cycle of the recovered axial pressure gradient against the closed form, worst of the five phantoms; the pressure drop over the studied segment is the gradient times ten radii"
+  },
+  {
+   "name": "wss_error_two_point_aorta",
+   "value": 0.9898,
+   "unit": "",
+   "how": "the same metric for the two-point finite difference every 4D-flow pipeline starts from, on the 15 mm phantom: the estimator the network is being compared with"
+  },
+  {
+   "name": "peak_wall_shear_aorta",
+   "value": 0.6989,
+   "unit": "Pa",
+   "how": "the closed-form peak of the wall shear stress waveform, so that a relative error is readable in Pa"
+  },
+  {
+   "name": "pressure_drop_peak_aorta",
+   "value": 137.15,
+   "unit": "Pa",
+   "how": "the closed-form peak of p(z) - p(z + L) over the studied segment, L = 10 radii = 15 cm"
+  },
+  {
+   "name": "ensemble_spread_over_peak",
+   "value": 0.00503,
+   "unit": "",
+   "how": "mean over the cycle of the ensemble standard deviation of the wall shear stress (3 members), divided by its peak"
+  },
+  {
+   "name": "ensemble_coverage_2sigma",
+   "value": 0.292,
+   "unit": "",
+   "how": "fraction of the cycle where the closed form lies inside the ensemble mean +/- 2 standard deviations; 0.95 is a calibrated spread"
+  },
+  {
+   "name": "stokes_layer",
+   "value": 0.0007249,
+   "unit": "m",
+   "how": "R/alpha = sqrt(nu/omega): the thickness of the oscillatory boundary layer the wall shear stress lives in, the same for every vessel at 60 bpm"
+  },
+  {
+   "name": "wall_gap_aorta",
+   "value": 0.0009375,
+   "unit": "m",
+   "how": "distance from the nearest 4D-flow sample to the wall on the 15 mm phantom at 8 voxels across the radius: 1.3 boundary layers"
+  },
+  {
+   "name": "wss_error_at_four_voxels_aorta",
+   "value": 0.0211,
+   "unit": "",
+   "how": "the same wall shear stress metric when the voxel is coarse enough to put the first sample 2.6 boundary layers from the wall -- the measured edge of the range"
+  },
+  {
+   "name": "velocity_error_worst",
+   "value": 0.0342,
+   "unit": "",
+   "how": "relative L2 of the fitted axial velocity over the whole (r, phase) field, worst of the five phantoms: the field itself is recovered, not only its derivatives"
+  }
+ ],
+ "checks": [
+  {
+   "name": "closed_form_satisfies_the_womersley_equation",
+   "passed": true,
+   "kind": "reference",
+   "label": "the analytic profile and its analytic derivative satisfy i w W = G/rho + nu (1/r)(r W_r)_r to 2e-6 relative, and the Poiseuille and quasi-steady limits to 1e-12"
+  },
+  {
+   "name": "no_slip_axis_and_periodicity_are_exact",
+   "passed": true,
+   "kind": "physics",
+   "label": "built into the ansatz: v = (1 - y^2) N_v(y^2, sin tau, cos tau), u = y (1 - y^2) N_u -- the network cannot trade them for a better data fit"
+  },
+  {
+   "name": "wall_shear_stress_within_5_percent",
+   "passed": true,
+   "kind": "reference",
+   "label": "worst single-harmonic phantom at 2.8 % relative L2 against the closed form, from an acquisition whose closest sample is 0.2-1.3 boundary layers from the wall"
+  },
+  {
+   "name": "wall_shear_stress_within_10_percent_multiharmonic",
+   "passed": true,
+   "kind": "reference",
+   "label": "the five-harmonic waveform at 7.0 %, with harmonics up to alpha 41"
+  },
+  {
+   "name": "pressure_gradient_within_10_percent",
+   "passed": true,
+   "kind": "reference",
+   "label": "worst of the five phantoms at 8.4 % relative L2 over the cycle, in the only form an incompressible field has a pressure: differences between two planes"
+  },
+  {
+   "name": "beats_the_two_point_difference",
+   "passed": true,
+   "kind": "comparison",
+   "label": "all five phantoms, by a factor of 36 on the aorta and 23 on the small artery"
+  },
+  {
+   "name": "ensemble_band_is_calibrated",
+   "passed": false,
+   "kind": "verification",
+   "label": "FAILED as measured: the closed form is inside the ensemble +/- 2 sd for 29.2 % of the cycle on the aorta (and 21-29 % on the four single-harmonic phantoms), so the spread prices the seed and not the model -- it is reported as a spread, never as an error bar"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/profiles.png",
+   "figures/wss_waveforms.png",
+   "figures/errors_vs_alpha.png",
+   "figures/resolution.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/hemodynamics_4dflow.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/hemodynamics_4dflow.md"
+ },
+ "references": [
+  {
+   "text": "Womersley J.R., Method for the calculation of velocity, rate of flow and viscous drag in arteries when the pressure gradient is known, J. Physiol. 127 (1955) 553-563",
+   "note": "the closed form this whole example is measured against"
+  },
+  {
+   "text": "Nichols W.W., O'Rourke M.F., McDonald's Blood Flow in Arteries",
+   "note": "the rounded whole-blood values (1060 kg/m3, 3.5 mPa s) and the physiological flow waveforms"
+  }
+ ],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11"
+ }
+}

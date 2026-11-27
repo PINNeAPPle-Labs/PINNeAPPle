@@ -231,17 +231,20 @@ def _figures(out: Path, result: dict, detail: dict | None = None) -> None:
                 ax.plot(ys, vs[:, phase], "o", color=colour, ms=5, mfc="white")
         axes[0].set(xlabel="r / R", ylabel="axial velocity [m/s]",
                     title="the phantom, and what the fit does with 8 voxels")
-        axes[1].set(xlabel="r / R", ylabel="axial velocity [m/s]", xlim=(0.85, 1.0),
-                    title=f"the last 15 % of the radius, where the wall is never sampled\n"
+        axes[1].set(xlabel="r / R", ylabel="axial velocity [m/s]", xlim=(0.85, 1.0))
+        axes[1].set_title(f"the last 15 % of the radius, where the wall is never sampled\n"
                           f"first sample {1e3 * four_d.wall_gap:.2f} mm from the wall, the Stokes layer "
                           f"{1e3 * wave.stokes_layer:.2f} mm", fontsize=9)
         axes[0].legend(fontsize=7, title="circle = measurement\ndashed = network", title_fontsize=7)
         wall = 1.0 - four_d.wall_gap / wave.radius
         layer = 1.0 - wave.stokes_layer / wave.radius
-        axes[1].axvline(1.0, color=dark, lw=0.9, ls=":", label="the wall")
-        axes[1].axvline(wall, color=orange, lw=0.9, ls="--", label="first sample")
-        axes[1].axvline(layer, color=blue, lw=0.9, ls="-.", label="edge of the layer")
-        axes[1].legend(fontsize=6.5, loc="lower left")
+        axes[1].axvline(1.0, color=dark, lw=0.9, ls=":")
+        axes[1].axvline(wall, color=orange, lw=0.9, ls="--")
+        axes[1].axvline(layer, color=blue, lw=0.9, ls="-.")
+        low, high = axes[1].get_ylim()
+        for x, label, colour in ((wall, "first sample", orange), (layer, "layer edge", blue)):
+            axes[1].text(x - 0.002, low + 0.04 * (high - low), label, rotation=90, fontsize=6.5,
+                         ha="right", va="bottom", color=colour)
         fig.tight_layout()
         fig.savefig(out / "figures" / "profiles.png", dpi=120)
         plt.close(fig)
@@ -258,7 +261,8 @@ def _figures(out: Path, result: dict, detail: dict | None = None) -> None:
         ax.plot(cycle, w["wss_two_point"], ":", color=orange, lw=1.3, label="two-point difference")
         ax.set_title(f"{case['name']}, alpha = {case['scales']['alpha']:.1f}", fontsize=9)
         ax.set_ylabel("WSS [Pa]")
-        ax.text(0.03, 0.05, f"network {100 * case['pinn']['wss_relative_error']:.1f} %\n"
+        ax.text(0.03, 0.05, f"network {100 * case['pinn']['wss_relative_error']:.1f} % "
+                            f"(spread {100 * case['uncertainty']['wss_std_over_peak']:.1f} %)\n"
                             f"two-point {100 * case['data_only']['wss_relative_error_two_point']:.0f} %",
                 transform=ax.transAxes, fontsize=7.5, va="bottom",
                 bbox={"boxstyle": "round,pad=0.25", "fc": "white", "ec": "#cccccc", "alpha": 0.9})

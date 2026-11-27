@@ -28,6 +28,11 @@ difference) keep a uniform pressure in balance to round-off.
 Boundaries: outflow at r_in and r_out (no inflow: v_r <= 0 at r_in, v_r >= 0 at r_out), reflecting at the
 poles. The mass and angular momentum that leave through each radial boundary are accumulated, so the global
 budgets close (``budget()``), which the tests check.
+
+Backends: this module is the reference. ``RIAFConfig(backend="numba")`` runs the same scheme as fused loops on the
+CPU (:mod:`~pinneapple_physics.blackhole.hydro_numba`) and ``backend="warp"`` as NVIDIA Warp kernels
+(:mod:`~pinneapple_physics.blackhole.hydro_warp`), which is also the path that runs on a GPU and behind ``wp.Tape``.
+Both are optional, and the tests check each against this module to round-off.
 """
 from __future__ import annotations
 
@@ -37,7 +42,7 @@ from dataclasses import dataclass
 import numpy as np
 import torch
 
-__all__ = ["RIAFConfig", "AccretionFlow", "torus_state", "bondi_pw"]
+__all__ = ["RIAFConfig", "AccretionFlow", "accreted_mass", "torus_state", "bondi_pw"]
 
 
 @dataclass
@@ -55,7 +60,8 @@ class RIAFConfig:
     v_max: float = 0.9                # speed cap (units of c) for near-empty cells
     t_cap: float | None = 2.0      # temperature ceiling c_s^2 <= t_cap |Phi| (None: off)
     outer_bc: str = "outflow"         # "outflow" (no inflow) | "fixed" (ghosts keep their initial state, e.g. Bondi)
-    backend: str = "torch"            # "torch" (reference) | "numba" (fused loops, much faster on CPU)
+    backend: str = "torch"            # "torch" (reference, also spelled "reference") | "numba" (fused loops, CPU)
+                                      # | "warp" (NVIDIA Warp kernels: CPU or GPU, and behind wp.Tape)
     # torus (pressure maximum at R_c on the equator, inner edge at R_edge, l = l_c (R / R_c)**a)
     torus_rc: float = 20.0
     torus_edge: float = 12.0                # outer edge ~58 for a = 0
@@ -69,6 +75,13 @@ class RIAFConfig:
 
     def name(self) -> str:
         return f"PL{self.torus_a:g}{self.viscosity}{self.alpha:g}"
+
+    def __post_init__(self):
+        # "reference" is the name the Warp work uses for the PyTorch solver; keep one spelling internally
+        if self.backend == "reference":
+            self.backend = "torch"
+        if self.backend not in ("torch", "numba", "warp"):
+            raise ValueError(f"unknown backend {self.backend!r}: 'torch' (reference), 'numba' or 'warp'")
 
 
 def _phi(r):
@@ -127,6 +140,9 @@ class AccretionFlow:
         self.capped = 0
         self.ii = (slice(None), slice(g, -g), slice(g, -g))
         self._outer = None                     # fixed outer ghosts (outer_bc="fixed"), set by set_primitives
+        if c.backend == "warp":                # fail here, with the install line, not at the first step
+            from . import hydro_warp
+            hydro_warp.require_warp()
 
     # ------------------------------------------------------------------ state
     def interior(self, A: torch.Tensor) -> torch.Tensor:
@@ -160,21 +176,36 @@ class AccretionFlow:
 
     # ------------------------------------------------------------------ boundaries
     def _bc(self, W):
-        g = self.NG
-        for k in range(g):
-            W[:, k, :] = W[:, g, :]                      # inner r: zero gradient, no inflow
-            W[:, -1 - k, :] = W[:, -1 - g, :]            # outer r
-        W[1, :g, :] = W[1, :g, :].clamp(max=0.0)
-        if getattr(self, "_outer", None) is not None:
-            W[:, -g:, :] = self._outer
-        else:
-            W[1, -g:, :] = W[1, -g:, :].clamp(min=0.0)
-        for k in range(g):                               # poles: reflect (v_theta flips sign)
-            W[:, :, g - 1 - k] = W[:, :, g + k]
-            W[:, :, -g + k] = W[:, :, -g - 1 - k]
-        W[2, :, :g] = -W[2, :, :g]
-        W[2, :, -g:] = -W[2, :, -g:]
+        """Fill the ghost cells in place and return ``W`` (the steppers call this on their own state)."""
+        W.copy_(self.bc_functional(W))
         return W
+
+    def bc_functional(self, W):
+        """The same boundaries as a new tensor, which is what autograd can go through.
+
+        ``W[1, :g, :] = W[1, :g, :].clamp(max=0.0)`` writes into the tensor ``clamp`` saved for its backward, and
+        torch then refuses the backward pass ("a variable needed for gradient computation has been modified by an
+        inplace operation"). Here every read is from the tensor being left behind and every write goes into a fresh
+        clone, so the rules -- ghost rows: zero gradient at r_in, held at r_out, no inflow; ghost columns: reflected
+        at the poles with v_theta flipped -- are written once and ``_bc`` is a copy of the result.
+        """
+        g = self.NG
+        outer = getattr(self, "_outer", None)
+        W2 = W.clone()
+        for k in range(g):
+            W2[:, k, :] = W[:, g, :]                      # inner r: zero gradient
+            W2[:, -1 - k, :] = W[:, -1 - g, :]            # outer r
+        W2[1, :g, :] = W[1, g:g + 1, :].clamp(max=0.0)    # no inflow at r_in
+        if outer is not None:
+            W2[:, -g:, :] = outer                         # held outer ghosts (outer_bc="fixed")
+        else:
+            W2[1, -g:, :] = W[1, -g - 1:-g, :].clamp(min=0.0)
+        for k in range(g):                               # poles: reflect (v_theta flips sign)
+            W2[:, :, g - 1 - k] = W2[:, :, g + k]
+            W2[:, :, -g + k] = W2[:, :, -g - 1 - k]
+        W2[2, :, :g] = -W2[2, :, :g]
+        W2[2, :, -g:] = -W2[2, :, -g:]
+        return W2
 
     # ------------------------------------------------------------------ physics pieces
     def _nu(self, W):
@@ -288,6 +319,13 @@ class AccretionFlow:
             self._nb = NumbaStepper(self)
         return self._nb
 
+    def _warp(self):
+        """The Warp stepper of this flow (``backend="warp"``), built on first use from :mod:`hydro_warp`."""
+        if getattr(self, "_wp_backend", None) is None:
+            from .hydro_warp import warp_stepper
+            self._wp_backend = warp_stepper(self)
+        return self._wp_backend
+
     def dt(self, nu=None) -> float:
         if self.cfg.backend == "numba":
             return float(self._numba().dt())
@@ -308,8 +346,9 @@ class AccretionFlow:
 
     def step(self, dt: float | None = None) -> float:
         dt = self.dt() if dt is None else dt
-        if self.cfg.backend == "numba":
-            f1, f2, self.capped = self._numba().step(dt)
+        if self.cfg.backend in ("numba", "warp"):
+            stepper = self._numba() if self.cfg.backend == "numba" else self._warp()
+            f1, f2, self.capped = stepper.step(dt)
             two_pi = 2 * math.pi
             for n_, k in enumerate(("mass_in", "mass_out", "angmom_in", "angmom_out")):
                 self.boundary[k] += float(0.5 * dt * (f1[n_] + f2[n_])) * two_pi
@@ -399,6 +438,45 @@ class AccretionFlow:
                     callback(self, len(frames) - 1)
                 t_next += every
         return {"t": np.asarray(times), "frames": np.stack(frames), "mdot": np.asarray(mdot)}
+
+
+def accreted_mass(flow: AccretionFlow, steps: int, *, dt: float) -> torch.Tensor:
+    """Mass through ``r_in`` over ``steps`` SSP-RK2 steps, as a 0-dim tensor that keeps the autograd graph.
+
+    ``AccretionFlow.step`` reports the accretion rate as a Python float (``float(...)``), which detaches it, and it
+    writes each new state into ``self.W`` in place, which autograd cannot back-propagate through (the previous
+    stage's operands are needed and have been overwritten). This runs the same two stages out of place -- a fresh
+    clone per update, and :meth:`AccretionFlow.bc_functional` for the ghost cells -- and returns
+    ``dt x (stage-1 + stage-2 inner flux)`` summed over the steps, times 2 pi, which is the mass ``run`` would have
+    accumulated in ``boundary["mass_in"]``.
+
+    ``dt`` is fixed here on purpose: the reference picks it from the state, and a step that depends on ``alpha``
+    would have to be differentiated as well, while the number of steps to reach a physical time is not a
+    differentiable quantity at all. With ``dt`` fixed, ``total.backward()`` gives the derivative of the accreted mass
+    with respect to ``cfg.alpha`` (or any torus parameter that enters through the state) at that time step.
+
+    ``flow.W`` is left where it was: build a fresh flow for each evaluation.
+    """
+    g = AccretionFlow.NG
+    ii = flow.ii
+    R = flow.R[g:-g, g:-g]
+    W = flow.W.clone()
+    total = torch.zeros((), **flow.kw)
+    two_pi = 2 * math.pi
+    for _ in range(steps):
+        U0 = flow.prim_to_cons(W[ii], R)
+        k1, f1, _ = flow.rhs(W)
+        U1 = U0 + dt * k1
+        W = W.clone()
+        W[ii] = flow.cons_to_prim_i(U1)
+        W = flow.bc_functional(W)
+        k2, f2, _ = flow.rhs(W)
+        U2 = 0.5 * (U0 + U1 + dt * k2)
+        W = W.clone()
+        W[ii] = flow.cons_to_prim_i(U2)
+        W = flow.bc_functional(W)
+        total = total + 0.5 * dt * (f1["mass_in"] + f2["mass_in"]) * two_pi
+    return total
 
 
 # ---------------------------------------------------------------------- initial conditions

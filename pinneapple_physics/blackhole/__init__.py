@@ -12,8 +12,9 @@ Submodules: ``runs`` (generate / resume / read simulation runs), ``convergence``
 remap, observed order and GCI, statistical convergence), ``dataset`` (the zoo dataset of whole trajectories),
 ``forecast`` (the U-Net, training with rollout loss / noise / mass penalty, rollouts, trust horizon, mass envelope),
 ``skill`` (skill against persistence, climatology and DMD with bootstrap intervals, physics checks), ``twin``,
-``raytrace``, ``capture``.
+``raytrace``, ``capture``. ``hydro_numba`` and ``hydro_warp`` are the two optional backends of the solver
+(``backend="numba"``, ``backend="warp"``; the second runs NVIDIA Warp kernels, on a GPU and behind ``wp.Tape``).
 """
-from .hydro import AccretionFlow, RIAFConfig, bondi_pw, torus_state
+from .hydro import AccretionFlow, RIAFConfig, accreted_mass, bondi_pw, torus_state
 
-__all__ = ["AccretionFlow", "RIAFConfig", "bondi_pw", "torus_state"]
+__all__ = ["AccretionFlow", "RIAFConfig", "accreted_mass", "bondi_pw", "torus_state"]

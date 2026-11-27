@@ -16,6 +16,7 @@ forecast: **for how long can it be trusted, and can we tell without the truth?**
 | `forecast` | `DuarteUNet` (layer-for-layer port of the original), `DensityCodec`, `make_blocks`, `train_forecaster`, `rollout`, `lead_time_scores`, `trust_horizon`, `MassEnvelope` |
 | `twin` | `accretion_scene`: the flow revolved in 3D as a cutaway for PINNeAPPle-Twin3D, simulation and forecast side by side, trust signals as sensors |
 | `capture` | `capture_twin`: records the Twin3D viewer (headless Chromium) to frames for GIFs |
+| `hydro_numba`, `hydro_warp` | the solver's two optional backends, `RIAFConfig(backend="numba"\|"warp")`: the same scheme as fused loops (`numba`) and as NVIDIA Warp kernels, on a GPU and differentiable through `wp.Tape` ([the Warp kernels](warp_kernels_blackhole.md)); `hydro.accreted_mass` and `hydro_warp.tape_accreted_mass` give d(mass accreted)/d(α) |
 
 ## The simulations
 

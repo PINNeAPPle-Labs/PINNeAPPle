@@ -39,7 +39,7 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--perturbation-kind", default="cell", choices=["cell", "modes"],
                     help="'modes' gives the same initial perturbation on every grid (resolution study)")
-    ap.add_argument("--backend", default="numba", choices=["numba", "torch"])
+    ap.add_argument("--backend", default="numba", choices=["numba", "torch", "warp"])
     ap.add_argument("--cfl", type=float, default=0.3)
     a = ap.parse_args(argv)
     torch.set_num_threads(1)

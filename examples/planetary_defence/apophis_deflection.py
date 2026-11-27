@@ -269,54 +269,62 @@ def figures(result: dict) -> list[str]:
 
 
 def _impact_figure(surf: dict, path: str) -> None:
-    """The table as a surface: decades of impact probability against impactor mass and warning time."""
+    """The table read as a decision: decades of impact probability, and what each cell buys against the bars it faces."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.colors import LogNorm
+    from matplotlib.colors import BoundaryNorm
 
     cells = surf["cells"]
     masses = sorted({c["impactor_kg"] for c in cells})
     years = sorted({c["warning_years"] for c in cells})
-    floor = 1e-24
-    vmin, vmax = 1e-24, 1.0
+    # the probability spans twenty-odd decades, so the colours are decade bands instead of a continuous ramp
+    bounds = [0.0, 1e-24, 1e-12, 1e-6, 1e-3, 0.05, 0.2, 0.35, 0.5, 1.0]
 
     def grid(key):
         return np.array([[c[key] for c in cells if c["impactor_kg"] == m and c["warning_years"] == y]
                          for m in masses for y in years]).reshape(len(masses), len(years))
 
-    p_hit = np.clip(grid("p_impact_would_hit"), floor, vmax)
-    margin = grid("margin_sigma_apophis")
+    p_hit = grid("p_impact_would_hit")
+    cmap = plt.get_cmap("viridis", len(bounds) - 1)
+    norm = BoundaryNorm(bounds, cmap.N)
 
     fig, axes = plt.subplots(1, 2, figsize=(12.6, 4.6), constrained_layout=True)
     ax = axes[0]
-    mesh = ax.pcolormesh(np.arange(len(years) + 1), np.arange(len(masses) + 1), p_hit, cmap="viridis",
-                         norm=LogNorm(vmin=vmin, vmax=vmax))
+    mesh = ax.pcolormesh(np.arange(len(years) + 1), np.arange(len(masses) + 1), np.clip(p_hit, 0.0, 1.0),
+                         cmap=cmap, norm=norm)
     for i in range(len(masses)):
         for j in range(len(years)):
-            v = grid("p_impact_would_hit")[i, j]
+            v = p_hit[i, j]
             label = f"{v:.2f}" if v > 0.1 else f"1e{round(math.log10(max(v, 1e-30)))}"
             ax.text(j + 0.5, i + 0.5, label, ha="center", va="center", fontsize=7,
-                    color="w" if v < 1e-2 else "0.1")
+                    color="w" if v < 1e-3 else "0.1")
     ax.set_xticks(np.arange(len(years)) + 0.5, [f"{y:.0f}" for y in years])
     ax.set_yticks(np.arange(len(masses)) + 0.5, [f"{m:.0f}" for m in masses])
     ax.set_xlabel("warning time (years)")
     ax.set_ylabel("impactor mass (kg)")
     ax.set_title("a body on a collision course: P(impact) after the nudge", fontsize=10)
+    bar = fig.colorbar(mesh, ax=ax, label="probability that it still hits", ticks=bounds)
+    bar.ax.set_yticklabels(["<1e-24"] + [f"{b:.0e}" if b < 0.01 else f"{b:g}" for b in bounds[1:]])
 
-    fig.colorbar(mesh, ax=ax, label="probability that it still hits")
-
+    # the same cells as kilometres, against the two bars every one of them has to clear
     ax = axes[1]
-    mesh = ax.pcolormesh(np.arange(len(years) + 1), np.arange(len(masses) + 1), margin, cmap="magma_r")
-    for i in range(len(masses)):
-        for j in range(len(years)):
-            ax.text(j + 0.5, i + 0.5, f"{margin[i, j]:.0f}", ha="center", va="center", fontsize=7, color="w")
-    ax.set_xticks(np.arange(len(years)) + 0.5, [f"{y:.0f}" for y in years])
-    ax.set_yticks(np.arange(len(masses)) + 0.5, [f"{m:.0f}" for m in masses])
-    ax.set_xlabel("warning time (years)")
-    ax.set_ylabel("impactor mass (kg)")
-    ax.set_title("Apophis 2029: sigma between the flyby and an impact", fontsize=10)
-    fig.colorbar(mesh, ax=ax, label=f"margin (1 sigma = {surf['sigma_orbit_km']:.0f} km, JPL)")
+    for y in years:
+        sel = [c for c in cells if c["warning_years"] == y]
+        ax.loglog([c["impactor_kg"] for c in sel], [c["bought_km"] for c in sel], "o-", label=f"{y:.0f} years")
+    ax.axhline(surf["sigma_orbit_km"], color="0.35", ls="--", lw=1.0,
+               label=f"JPL's 1 sigma: {surf['sigma_orbit_km']:,.0f} km")
+    ax.axhline(EARTH_RADIUS_KM, color="tab:red", ls="--", lw=1.0, label=f"the Earth's radius: {EARTH_RADIUS_KM:,.0f} km")
+    best = max(cells, key=lambda c: c["bought_km"])
+    ax.annotate(f"the best cell buys {best['bought_km']:,.0f} km:\n{best['bought_km'] / surf['sigma_orbit_km']:.1f} "
+                f"JPL sigmas, {best['bought_km'] / EARTH_RADIUS_KM:.2f} Earth radii",
+                xy=(best["impactor_kg"], best["bought_km"]), xytext=(0.03, 0.72), textcoords="axes fraction",
+                fontsize=8, color="0.25", arrowprops={"arrowstyle": "->", "color": "0.45", "lw": 0.8})
+    ax.set_xlabel("impactor mass (kg)")
+    ax.set_ylabel("km the impactor moves the miss")
+    ax.set_title("Apophis 2029: what each cell buys, against what it has to clear", fontsize=10)
+    ax.legend(fontsize=8, loc="lower right")
+    ax.grid(True, which="both", alpha=0.25)
     fig.suptitle("The table read as a decision: same rows, same ensemble, the probability that the body hits",
                  fontsize=11)
     fig.savefig(path, dpi=140)

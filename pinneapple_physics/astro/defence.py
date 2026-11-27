@@ -419,7 +419,8 @@ def jpl_miss_sigma_km(body: SmallBody | None = None, year: int = 2029, target: s
     ellipse; the half-range over three is the 1-sigma in the distance direction, which is the number an impact
     probability needs. For the 2029-04-13 Apophis pass the record (solution 199) gives 0.000252172816 au with
     0.000247515-0.000256837 au, i.e. **37 724 km +/- 232 km (1 sigma)**, and a b-plane ellipse of 243.97 x 114.74 km at
-    11.16 degrees -- the orbit is known far better than the deflection is worth, and both are in the same table.
+    11.16 degrees. That 232 km is the bar every cell of a deflection study has to clear, and it comes from the same
+    record as the elements.
     """
     from .smallbodies import cad_reference, load_body
 
@@ -462,25 +463,25 @@ def perturbation_budget(body: SmallBody, jd_encounter: float, *, a2_au_d2: float
     base = miss_distance(body, jd0, jd1, step_days=step_days, eph=eph, traj=base_tr)
     r_base, _ = base_tr.heliocentric(np.array([jd_encounter]))
     am = area_to_mass_m2_kg
-    variants: list[tuple[str, Terms, dict]] = [
-        ("baseline: the field the module ships (Sun, 9 planets, Moon, 1PN)", base_terms, {}),
+    variants: list[tuple[str, Terms]] = [
+        ("baseline: the field the module ships (Sun, 8 planets, Moon, 1PN)", base_terms),
     ]
     for p in planets:
-        variants.append((f"without {p}: its pull taken out of the field", Terms(dropped=(p,)), {}))
+        variants.append((f"without {p}: its pull taken out of the field", Terms(dropped=(p,))))
     for k in srp_scales:
         variants.append((
             f"solar radiation pressure at {k:g}x (A/M = {am * k:.3g} m^2/kg, "
             f"{solar_radiation_pressure(am * k, reflectivity):.2e} m/s^2 at 1 au)",
-            Terms(area_to_mass_m2_kg=am * k, reflectivity=reflectivity), {}))
+            Terms(area_to_mass_m2_kg=am * k, reflectivity=reflectivity)))
     if a2_au_d2:
-        variants.append((f"Yarkovsky, A2 = {a2_au_d2:.3g} au/day^2 at 1 au", Terms(a2_au_d2=a2_au_d2), {}))
+        variants.append((f"Yarkovsky, A2 = {a2_au_d2:.3g} au/day^2 at 1 au", Terms(a2_au_d2=a2_au_d2)))
     variants.append((f"the numerical floor: the same run at rtol {floor_rtol:g} instead of {Terms().rtol:g}",
-                     Terms(rtol=floor_rtol), {}))
+                     Terms(rtol=floor_rtol)))
 
     rows = []
-    for label, terms, kw in variants:
+    for label, terms in variants:
         t0 = time.time()
-        if terms == base_terms and not kw:
+        if terms is base_terms:
             tr, ca, delta, dr = base_tr, base, 0.0, 0.0
         else:
             tr = _trajectory(body, jd0, jd1, terms, eph)

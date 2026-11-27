@@ -21,7 +21,7 @@ gradient, for one harmonic or for a sum of them (it is linear in the forcing, so
 from pinneapple_physics.hemodynamics import BLOOD, case_from_vessel, DEFAULT_VESSELS, sample_4d_flow
 
 wave = case_from_vessel(DEFAULT_VESSELS[3])            # R = 15 mm, alpha = 20.7, 60 bpm
-wave.peak_velocity(), wave.wall_shear(0.0)            # 0.25 m/s, 0.64 Pa
+wave.peak_velocity(), wave.wall_shear(0.0)            # 0.250 m/s, 0.630 Pa
 four_d = sample_4d_flow(wave, n_radial=8, n_phases=24, n_planes=3, noise=0.05, seed=1)
 four_d.voxel, four_d.wall_gap                         # 1.9 mm, 0.94 mm
 ```

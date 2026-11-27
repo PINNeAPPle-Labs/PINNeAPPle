@@ -161,3 +161,56 @@ def test_the_spec_carries_the_contract_the_graph_was_built_with(exported):
     assert out.prediction.shape == (1, SHAPE[1], SHAPE[2])
     assert set(summary.op_types) <= set(summary.op_types) | set()
     assert "state" in summary.inputs and "prediction" in summary.outputs
+
+
+# --------------------------------------------------------------------------------- an expert of the ensemble
+def _expert(model=None):
+    from pinneapple_physics.ensemble import from_torch
+
+    return from_torch("fno-seed0", model if model is not None else _model(), to_input=lambda q: q)
+
+
+def test_an_ensemble_expert_exports_and_agrees_with_itself(tmp_path):
+    """The point of the adapter: the graph is the expert, and the gap is measured against the expert's own round-off."""
+    from pinneapple_physics.embedded import ExpertModule, export_expert, parity_check
+
+    expert = _expert()
+    spec = EmbeddedSpec(state_shape=SHAPE, tolerance=0.05)
+    path = export_expert(expert, spec, tmp_path / "expert.onnx")
+
+    report = parity_check(expert, path, [torch.randn(*SHAPE) for _ in range(5)])
+
+    assert graph_summary(path).is_straight_line
+    assert report.n == 5 and report.scale > 0.0
+    assert report.graph_vs_expert <= report.tolerance, (report.graph_vs_expert, report.tolerance)
+    assert report.graph_vs_torch <= report.tolerance
+    assert report.passed is True
+    assert report.floor > 0.0, "float64 against float32 is the floor this machine produces, and it is not zero"
+    assert isinstance(ExpertModule(expert), torch.nn.Module)
+
+
+def test_an_expert_with_no_torch_path_is_refused_rather_than_frozen(tmp_path):
+    """A numpy expert traces *without an error* and answers every input with the number the tracer saw. Refuse it."""
+    from pinneapple_physics.embedded import ExpertModule
+    from pinneapple_physics.ensemble import from_callable
+
+    expert = from_callable("numpy-expert", lambda q: np.zeros((1,) + SHAPE[1:]))
+
+    with pytest.raises(ValueError, match="no torch module"):
+        ExpertModule(expert)
+    with pytest.raises(TypeError, match="torch.nn.Module"):
+        ExpertModule(expert, module=object())
+
+
+def test_the_expert_module_maps_what_the_graph_gives_to_what_the_model_wants():
+    from pinneapple_physics.embedded import ExpertModule
+
+    expert = _expert()
+    adapter = ExpertModule(expert, to_input=lambda x: torch.flip(x, dims=[-1]), from_output=lambda y, q: y * 2.0)
+
+    state = torch.randn(1, *SHAPE)
+    with torch.no_grad():
+        mapped = adapter(state)
+        direct = _model()(torch.flip(state, dims=[-1])) * 2.0
+
+    assert mapped.shape == direct.shape and torch.allclose(mapped, direct, atol=1e-6)

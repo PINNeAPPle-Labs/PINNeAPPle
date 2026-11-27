@@ -60,6 +60,10 @@ class Expert:
     cost: float | Callable[[Any], float] | None = None
     kind: str = ""
     provenance: dict[str, Any] | None = None
+    #: the ``torch.nn.Module`` behind the predictor when there is one -- what
+    #: :class:`pinneapple_physics.embedded.ExpertModule` exports. ``None`` means the expert is Python and numpy, and
+    #: an ONNX export of it would freeze the numbers the tracer saw instead of computing them.
+    module: Any = None
 
     def cost_of(self, query: Any) -> float | None:
         """The cost of one call on this query, or None when it has to be measured (a callable cost that needs the
@@ -101,7 +105,7 @@ def from_torch(name: str, model: Any, to_input: Callable[[Any], Any], from_outpu
         y = out.y if hasattr(out, "y") else out
         y = from_output(y, q) if from_output is not None else y
         return _to_numpy(y)
-    return Expert(name, predict, cost, kind)
+    return Expert(name, predict, cost, kind, module=model)
 
 
 @dataclass

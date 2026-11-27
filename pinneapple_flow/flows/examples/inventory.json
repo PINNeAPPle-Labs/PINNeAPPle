@@ -490,5 +490,10 @@
   "domain": "deployment",
   "reason": "embedded_inference.py trains a small convolutional surrogate of the advection-diffusion field, exports it together with the residual stencil and the measurement check as one ONNX graph, and measures the latency and residual inside and outside the training envelope. What the example is about is the deployment: the graph and the hertz are one library call each (embedded.export, EmbeddedRuntime.latency) and a node graph would say nothing more than the script does",
   "status": "not_convertible"
+ },
+ "embedded_flight": {
+  "domain": "deployment",
+  "reason": "no flow, and the reason is the subject of the example: the script is not a pipeline of library calls but one export and one measurement of it, so the only flow in it is the multirotor's own flight (already the multirotor_flight flow) replayed through the ONNX file. The numbers it produces are the point -- parity with the numpy airframe, latency on threads, fp32 against int8 -- and a flow would have to invent steps that the export does not have",
+  "notes": "embedded_flight.py is the deployment of multirotor.flight + multirotor.residuals as one ONNX graph: the script flies the numpy airframe, replays it through the exported graph and compares the two. The export probe that names what torch.onnx cannot trace is a property of the export step, not a flow of its own."
  }
 }

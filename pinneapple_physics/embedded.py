@@ -31,6 +31,7 @@ bridge itself -- that needs a board with the flight stack on it. This ships the 
 """
 from __future__ import annotations
 
+import copy
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -41,7 +42,8 @@ import torch
 import torch.nn.functional as F
 
 __all__ = ["EmbeddedSpec", "EmbeddedOutput", "GraphSummary", "EQUATIONS", "CONTROL_FLOW", "Composite",
-           "export", "graph_summary", "EmbeddedRuntime", "residual_fn"]
+           "export", "graph_summary", "EmbeddedRuntime", "residual_fn", "quantize", "ExpertModule",
+           "export_expert", "ParityReport", "parity_check"]
 
 #: The equations the stencil knows, and the parameters each one needs.
 EQUATIONS = {"advection-diffusion": ("c_x", "c_y", "alpha"), "advection": ("c_x", "c_y"), "heat": ("alpha",)}
@@ -251,6 +253,135 @@ def graph_summary(path: Any) -> GraphSummary:
                         tuple(i.name for i in model.graph.input), tuple(o.name for o in model.graph.output))
 
 
+def quantize(path: Any, out: Any = None, *, weight_type: str = "qint8", per_channel: bool = True) -> Path:
+    """Rewrite the graph with int8 weights (dynamic quantisation) and return where it landed.
+
+    Dynamic quantisation is the one kind that needs no calibration flight: the weights become int8 and the
+    activations are quantised per call. It only rewrites what has a matrix in it -- ``Conv``, ``MatMul``, ``Gemm`` --
+    so a graph that is elementwise arithmetic comes back as the same arithmetic, and :func:`graph_summary` on the two
+    files is what says which of the two happened. A quantiser that silently finds nothing to quantise is not an error
+    the library can raise on the caller's behalf: the size and the op types are the evidence.
+    """
+    from onnxruntime.quantization import QuantType, quantize_dynamic
+
+    types = {"qint8": QuantType.QInt8, "quint8": QuantType.QUInt8}
+    if weight_type not in types:
+        raise ValueError(f"unknown weight type {weight_type!r}; this wraps {sorted(types)}")
+    src = Path(path)
+    dst = Path(out) if out is not None else src.with_name(f"{src.stem}.int8.onnx")
+    quantize_dynamic(str(src), str(dst), weight_type=types[weight_type], per_channel=bool(per_channel))
+    return dst
+
+
+# ------------------------------------------------------------------------------------- an ensemble expert
+class ExpertModule(torch.nn.Module):
+    """An expert of :class:`~pinneapple_physics.ensemble.PhysicsEnsemble` as the ``nn.Module`` :func:`export` takes.
+
+    An ``Expert`` is a name, a ``predict`` and a cost -- the ensemble does not care whether the predictor is a net, a
+    solver or a function. The exporter does: it traces Python. So this adapter carries the expert's *torch* path and
+    nothing else, which is why an expert with no torch path is refused instead of exported:
+
+    * ``module`` is the torch callable (for an expert built by ``from_torch`` it is the model itself, and ``to_input``
+      is the identity when the query already is the tensor the model eats);
+    * ``to_input`` maps the graph's input tensor to whatever the model wants; ``from_output`` maps its output back to
+      the graph's prediction, with the ``.y`` of a model output unwrapped the way ``from_torch`` unwraps it.
+
+    The refusal matters more than the success: a numpy ``predict`` inside a traced graph does not fail, it *freezes* --
+    the tracer records the numbers it saw as a constant and the deployed graph answers every input with them.
+    :func:`parity_check` is what catches that, and this adapter is what makes it unnecessary to try.
+    """
+
+    def __init__(self, expert: Any, *, module: torch.nn.Module | None = None, to_input: Any = None,
+                 from_output: Any = None):
+        super().__init__()
+        torch_module = module if module is not None else getattr(expert, "module", None)
+        if torch_module is None:
+            raise ValueError(
+                f"the expert {getattr(expert, 'name', expert)!r} has no torch module behind it (an Expert built by "
+                "from_callable/from_solution is Python and numpy): tracing it would bake the numbers the tracer saw "
+                "into the graph as constants. Pass the torch model the expert wraps as ``module=``.")
+        if not isinstance(torch_module, torch.nn.Module):
+            raise TypeError(f"module must be a torch.nn.Module, not {type(torch_module).__name__}")
+        self.expert = expert
+        self.module = torch_module
+        self.to_input = to_input
+        self.from_output = from_output
+
+    def forward(self, x):
+        self.module.eval()
+        out = self.module(self.to_input(x) if self.to_input is not None else x)
+        y = out.y if hasattr(out, "y") else out
+        return self.from_output(y, x) if self.from_output is not None else y
+
+
+@dataclass(frozen=True)
+class ParityReport:
+    """The measured gap between an expert and the graph exported from it, and the round-off floor it is judged on.
+
+    ``floor`` is not a chosen number: it is what the same module gives in float32 against float64 on the same inputs,
+    which is the round-off this machine produces with no graph in the way. ``graph_vs_expert`` is the number that
+    decides whether the export can be trusted; ``tolerance`` is eight times the measured floor (or 1e-6 of the
+    output scale when the arithmetic is exact), so a graph that behaves like its own float32 reference passes and a
+    frozen one -- off by the size of the output -- cannot.
+    """
+
+    n: int
+    graph_vs_expert: float
+    graph_vs_torch: float
+    floor: float
+    scale: float
+
+    @property
+    def tolerance(self) -> float:
+        return max(8.0 * self.floor, 1e-6 * self.scale)
+
+    @property
+    def passed(self) -> bool:
+        return self.graph_vs_expert <= self.tolerance and self.graph_vs_torch <= self.tolerance
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"n": self.n, "graph_vs_expert": self.graph_vs_expert, "graph_vs_torch": self.graph_vs_torch,
+                "floor_f32_vs_f64": self.floor, "scale": self.scale, "tolerance": self.tolerance,
+                "passed": self.passed}
+
+
+def export_expert(expert: Any, spec: EmbeddedSpec, path: Any, *, module: torch.nn.Module | None = None,
+                  to_input: Any = None, from_output: Any = None, opset: int = 17) -> Path:
+    """Export an ensemble expert with the residual and the measurement check, as :func:`export` does for a module."""
+    return export(ExpertModule(expert, module=module, to_input=to_input, from_output=from_output), spec, path,
+                  opset=opset)
+
+
+def parity_check(expert: Any, path: Any, inputs: Any, *, module: torch.nn.Module | None = None,
+                 to_input: Any = None, from_output: Any = None, threads: int = 1) -> ParityReport:
+    """Measure the exported graph against the expert it came from, on the inputs handed in.
+
+    Both sides are the library's own code: the graph through ONNX Runtime, the reference through ``expert.predict``
+    (the function the ensemble calls) and through the adapter's module in float32. The floor is the same module in
+    float64, so the tolerance comes out of the arithmetic on this machine instead of out of a habit.
+    """
+    adapter = ExpertModule(expert, module=module, to_input=to_input, from_output=from_output)
+    runtime = EmbeddedRuntime(path, threads=threads)
+    worst_expert = worst_torch = worst_floor = 0.0
+    scale = 0.0
+    xs = list(inputs)
+    for x in xs:
+        # one sample, as the graph sees it: (frames, H, W) in, one batch dimension added for the module
+        single = np.asarray(x, dtype=np.float32)
+        tensor = torch.as_tensor(single)[None]
+        query = adapter.to_input(tensor) if adapter.to_input is not None else tensor
+        with torch.no_grad():
+            reference = np.asarray(adapter.module(tensor)).astype(np.float64)
+            doubled = np.asarray(copy.deepcopy(adapter.module).double()(tensor.double())).astype(np.float64)
+        from_expert = np.asarray(expert.predict(query), dtype=np.float64).reshape(reference.shape)
+        graph = np.asarray(runtime.step(single, np.zeros(1)).prediction, dtype=np.float64).reshape(reference.shape)
+        scale = max(scale, float(np.max(np.abs(reference))))
+        worst_expert = max(worst_expert, float(np.max(np.abs(graph - from_expert))))
+        worst_torch = max(worst_torch, float(np.max(np.abs(graph - reference))))
+        worst_floor = max(worst_floor, float(np.max(np.abs(doubled - reference))))
+    return ParityReport(len(xs), worst_expert, worst_torch, worst_floor, scale)
+
+
 # ------------------------------------------------------------------------------------------------ the runtime
 class EmbeddedRuntime:
     """One ONNX session, one step, and the latency measured -- the half a flight computer actually calls.
@@ -274,24 +405,45 @@ class EmbeddedRuntime:
 
     def step(self, state: np.ndarray, measurement: np.ndarray) -> EmbeddedOutput:
         """One decision for one fixed-size state."""
-        feed = {"state": np.asarray(state, np.float32)[None], "measurement": np.asarray(measurement, np.float32)[None]}
-        pred, residual, trust, off, suspect, error = (np.asarray(v) for v in self.session.run(self.outputs, feed))
+        out = self.run(self.feed(state, measurement))
+        pred, residual, trust, off, suspect, error = (out[n] for n in self.outputs)
         return EmbeddedOutput(pred[0], float(residual.ravel()[0]), float(trust.ravel()[0]),
                               bool(off.ravel()[0] > 0.5), bool(suspect.ravel()[0] > 0.5),
                               float(error.ravel()[0]))
 
-    def latency(self, state: np.ndarray, measurement: np.ndarray, *, n: int = 200) -> dict[str, float]:
-        """Run ``n`` steps and report what the machine did: median, p95, worst, and the rate they imply."""
-        feed = {"state": np.asarray(state, np.float32)[None],
+    @staticmethod
+    def feed(state: np.ndarray, measurement: np.ndarray) -> dict[str, np.ndarray]:
+        """The batch-of-one feed of the field graph: the two inputs :func:`export` writes."""
+        return {"state": np.asarray(state, np.float32)[None],
                 "measurement": np.asarray(measurement, np.float32)[None]}
-        self.session.run(self.outputs, feed)                          # warm up: the first call pays for init
+
+    def run(self, feed: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+        """One call of the graph with a feed the caller built, keyed by input and output name.
+
+        The generic entry point: the field graph has two inputs, a flight graph has seven, and a runtime that only
+        knows the first of those is a runtime for one example. Shapes are the caller's contract -- the graph is
+        fixed-size, so a wrong shape is refused by ONNX Runtime, not silently broadcast.
+        """
+        missing = [name for name in self.inputs if name not in feed]
+        if missing:
+            raise ValueError(f"the graph needs {missing}: its inputs are {self.inputs}")
+        prepared = {name: np.asarray(feed[name], np.float32) for name in self.inputs}
+        return dict(zip(self.outputs, (np.asarray(v) for v in self.session.run(self.outputs, prepared)), strict=True))
+
+    def benchmark(self, feed: dict[str, np.ndarray], *, n: int = 200) -> dict[str, float]:
+        """Run ``n`` steps of this feed and report what the machine did: median, p95, worst, and the rate they imply."""
+        self.run(feed)                                                # warm up: the first call pays for init
         samples = np.empty(int(n))
         for k in range(int(n)):
             t0 = time.perf_counter()
-            self.session.run(self.outputs, feed)
+            self.run(feed)
             samples[k] = time.perf_counter() - t0
         median = float(np.median(samples))
         p95 = float(np.percentile(samples, 95))
         return {"n": float(n), "median_ms": median * 1e3, "p95_ms": p95 * 1e3, "max_ms": float(samples.max()) * 1e3,
                 "hz": (1.0 / median) if median > 0 else float("inf"),
                 "hz_p95": (1.0 / p95) if p95 > 0 else float("inf"), "threads": float(self.threads)}
+
+    def latency(self, state: np.ndarray, measurement: np.ndarray, *, n: int = 200) -> dict[str, float]:
+        """The field graph's latency: :meth:`benchmark` on :meth:`feed`."""
+        return self.benchmark(self.feed(state, measurement), n=n)

@@ -14,7 +14,7 @@
   `neural_twin_experiment` runs the two kernels with the true step and with the network over the same observations
   and background. Measured over three seeds (`docs/dev/neural_assimilation.json`,
   `python -m pinneapple_analysis.data_assimilation.neural --seeds 0,1,2 --train-steps 300,1500`): the surrogate's
-  held-out one-step error is 0.07 (state std 3.64) and its 20-step free-run error 1.27; the ensemble filter built
+  held-out one-step error is 0.07 (state std 3.64) and its 20-step free-run error 1.57 (held-out tail); the ensemble filter built
   on it matches the true-model filter (analysis RMSE 0.64 against 0.64, 0.84-1.14x per seed) and both are 5.3x
   better than no assimilation (3.39), while 4D-Var inherits the model's error (0.83 against 0.42, 0.88-4.10x per
   seed) though it still beats no assimilation by 2.6-6.1x; a network with a fifth of the training (one-step 0.39)

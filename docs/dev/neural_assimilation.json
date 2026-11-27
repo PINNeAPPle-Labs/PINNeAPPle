@@ -40,6 +40,8 @@
     },
     "seed": 0,
     "surrogate": {
+     "free_run_rmse": 1.56753552563002,
+     "free_run_steps": 20,
      "n_holdout": 1200,
      "n_train": 4800,
      "step_rmse": 0.07099018390512468,
@@ -85,6 +87,8 @@
     },
     "seed": 1,
     "surrogate": {
+     "free_run_rmse": 1.3867959924692705,
+     "free_run_steps": 20,
      "n_holdout": 1200,
      "n_train": 4800,
      "step_rmse": 0.06239293686909918,
@@ -130,6 +134,8 @@
     },
     "seed": 2,
     "surrogate": {
+     "free_run_rmse": 1.767343225316996,
+     "free_run_steps": 20,
      "n_holdout": 1200,
      "n_train": 4800,
      "step_rmse": 0.07685257249370504,
@@ -177,6 +183,8 @@
     },
     "seed": 0,
     "surrogate": {
+     "free_run_rmse": 4.577504130840628,
+     "free_run_steps": 20,
      "n_holdout": 1200,
      "n_train": 4800,
      "step_rmse": 0.36638985076609426,
@@ -222,6 +230,8 @@
     },
     "seed": 1,
     "surrogate": {
+     "free_run_rmse": 4.806722207102095,
+     "free_run_steps": 20,
      "n_holdout": 1200,
      "n_train": 4800,
      "step_rmse": 0.37429951494267916,
@@ -267,6 +277,8 @@
     },
     "seed": 2,
     "surrogate": {
+     "free_run_rmse": 4.819082361213288,
+     "free_run_steps": 20,
      "n_holdout": 1200,
      "n_train": 4800,
      "step_rmse": 0.41640298372691414,

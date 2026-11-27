@@ -59,7 +59,9 @@ def test_surrogate_learns_the_closure_it_was_never_shown(twin):
     assert m["n_train"] == 4800 and m["n_holdout"] == 1200        # the metrics come from a held-out tail
     assert m["step_rmse"] < 0.1, m                                # one step of Lorenz-96; a random net is ~3.6
     assert m["tendency_rmse"] < 3.0, m
-    # and it keeps some skill over a ten-step rollout, which is what an assimilation window needs
+    assert m["free_run_steps"] == 20 and m["free_run_rmse"] < 2.0, m   # 20 steps of free run, the window's length
+    # and it keeps some skill over a ten-step rollout from the truth of the twin experiment, which is what an
+    # assimilation window needs
     start = twin["truth"][0]
     short = start.clone()
     step = surrogate_step(twin["model"], 0.05)
@@ -119,6 +121,7 @@ def test_an_undertrained_surrogate_makes_the_analysis_worse(undertrained, twin):
     # the negative result: a fifth of the training (one-step RMSE about 0.39 instead of 0.07) is enough to lose most
     # of the gain, though not all of it -- it still beats no assimilation
     assert undertrained["surrogate"]["step_rmse"] > 3 * twin["surrogate"]["step_rmse"]
+    assert undertrained["surrogate"]["free_run_rmse"] > 2 * twin["surrogate"]["free_run_rmse"]
     assert undertrained["rmse"]["4dvar_neural"]["end"] > 2 * twin["rmse"]["4dvar_true"]["end"]
     assert undertrained["rmse"]["enkf_neural"]["end"] > 2 * twin["rmse"]["enkf_true"]["end"]
     assert undertrained["rmse"]["enkf_neural"]["end"] < undertrained["rmse"]["none_true"]["end"]

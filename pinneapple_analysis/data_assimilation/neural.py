@@ -19,13 +19,15 @@ dt = 0.05, F = 8, 1 500 Adam steps, batch 128; seed 0), measured on the 1 200 pa
 =======================================================  =========================
 tendency error (held-out, state units per time)          1.46
 one-step error (held-out, state units; state std 3.64)   0.071
-free run from a truth state, 5 / 10 / 20 steps later     0.24 / 0.50 / 1.27
-free run from a truth state, 50 steps later              4.22  (the spread of the attractor)
+free-run error over the held-out tail, 20 steps          1.57  (1.39 to 1.77, seeds 0-2)
+same, with a fifth of the training                       4.73  (the spread of the attractor)
 =======================================================  =========================
 
-A random network of the same shape, as the control, misses a ten-step rollout by more than 1.5. The 20-step number is
-the one that matters: the error of the surrogate at the end of the assimilation window is larger than the observation
-error (1.0), which is why the two kernels below behave differently.
+The free run is the model started from every tenth held-out state and integrated 20 steps -- the length of the
+assimilation window -- and compared with the trajectory it was never shown. A random network of the same shape, the
+control in the tests, misses a ten-step rollout by more than 1.5. The 20-step number is the one that decides: the
+surrogate's error at the end of the window (1.57) is larger than the observation error (1.0), which is why the two
+kernels below behave differently.
 
 The twin experiment (:func:`neural_twin_experiment`) runs the two kernels of
 :class:`~pinneapple_analysis.data_assimilation.assimilation.Assimilation` over the same observations and the same
@@ -141,12 +143,17 @@ def lorenz96_trajectory(n: int = 40, steps: int = 6000, dt: float = 0.05, F: flo
 
 def train_tendency_surrogate(trajectory: Tensor, dt: float = 0.05, *, width: int = 32, layers: int = 2,
                              kernel: int = 5, steps: int = 1500, batch: int = 128, lr: float = 3e-3,
-                             seed: int = 0, holdout: float = 0.2) -> tuple[PeriodicTendency, dict[str, float]]:
+                             seed: int = 0, holdout: float = 0.2, rollout: int = 20,
+                             rollout_stride: int = 10) -> tuple[PeriodicTendency, dict[str, float]]:
     """Fit :class:`PeriodicTendency` to the tendency of ``trajectory`` (``(steps, n)``), by Adam on the mean squared
-    error, on the first ``1 - holdout`` of it; the metrics are measured on the rest, which training never saw.
+    error, on the first ``1 - holdout`` of it; every metric is measured on the rest, which training never saw.
+
+    ``rollout`` is the length of the free-run error reported: the model is started from every
+    ``rollout_stride``-th held-out state and integrated ``rollout`` steps, and the RMSE against the trajectory it
+    was never shown is the number that decides whether an assimilation window of that length can work on it.
 
     Returns the model (float64, ready for both kernels of the assimilation) and
-    ``{"tendency_rmse", "step_rmse", "n_train", "n_holdout"}``.
+    ``{"tendency_rmse", "step_rmse", "free_run_rmse", "free_run_steps", "n_train", "n_holdout"}``.
     """
     data = torch.as_tensor(trajectory, dtype=torch.float32)
     with torch.no_grad():
@@ -172,7 +179,15 @@ def train_tendency_surrogate(trajectory: Tensor, dt: float = 0.05, *, width: int
         hx, ht = held_x.double(), held_t.double()
         tendency_rmse = float(torch.sqrt(((model(hx) - ht) ** 2).mean()))
         step_rmse = float(torch.sqrt(((rk4(lambda y: model(y), hx[:-1], dt) - hx[1:]) ** 2).mean()))
-    metrics = {"tendency_rmse": tendency_rmse, "step_rmse": step_rmse,
+        errors = []
+        for k0 in range(0, hx.shape[0] - int(rollout), max(1, int(rollout_stride))):
+            x = hx[k0].clone()
+            for _ in range(int(rollout)):
+                x = rk4(lambda y: model(y), x, dt)
+            errors.append(torch.mean((x - hx[k0 + int(rollout)]) ** 2))
+        free_run = float(torch.sqrt(torch.stack(errors).mean()))
+    metrics = {"tendency_rmse": tendency_rmse, "step_rmse": step_rmse, "free_run_rmse": free_run,
+               "free_run_steps": int(rollout),
                "n_train": int(split), "n_holdout": int(data.shape[0] - split)}
     return model, metrics
 

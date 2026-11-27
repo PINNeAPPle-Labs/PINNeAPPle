@@ -27,6 +27,14 @@
   "points_violating": 12866,
   "points": 12866
  },
+ "weak_energy": {
+  "minimum": -0.0276830526624217,
+  "speed": 0.9,
+  "violated": true,
+  "points_violating": 12866,
+  "points": 12866,
+  "eulerian_minimum": -0.0006218118968145107
+ },
  "bill": {
   "total_geometric_m": -1.4070591302088722,
   "kilograms": -1.894733050753107e+27,
@@ -67,5 +75,5 @@
    -4.102153700191884e+31
   ]
  },
- "seconds": 86.83
+ "seconds": 79.35
 }

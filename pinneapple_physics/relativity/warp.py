@@ -15,8 +15,10 @@ Two things this module computes and one it refuses to hide:
 * **the energy density** :math:`T^{00} = G^{00}/8\\pi`, computed from the metric by differentiating it -- the Einstein
   tensor of the metric as written, not a quoted formula. It is **negative** wherever the wall is and the observer is off
   the axis, which is the whole problem: the drive needs exotic matter;
-* **the null energy condition** :math:`T_{\\mu\\nu} k^\\mu k^\\nu` along null directions, evaluated on the same grid, which
-  is where the "impossible" is written down rather than asserted. The null vectors are built as ``n + s`` (the Eulerian
+* **the energy conditions** -- both of them, since the weak one is where the sign of ``T^{00}`` already settles the
+  matter and the null one is the stronger statement: :math:`T_{\\mu\\nu} u^\\mu u^\\nu` over unit timelike vectors and
+  :math:`T_{\\mu\\nu} k^\\mu k^\\nu` over null ones, evaluated on the same grid. This is where the "impossible" is
+  written down rather than asserted. The null vectors are built as ``n + s`` (the Eulerian
   normal plus a unit spatial direction) and checked to satisfy ``g(k, k) = 0`` to roundoff -- ``k = (1, n)``, the obvious
   guess, is *not* null in this metric and silently measures nothing.
 
@@ -43,8 +45,8 @@ from dataclasses import dataclass
 import numpy as np
 
 __all__ = ["WarpMetric", "shape", "shape_derivative", "expansion", "Curvature", "einstein_tensor",
-           "energy_density", "null_vector", "null_energy", "worst_null_energy", "integrated_energy",
-           "solar_masses", "G_SI", "C_SI", "M_SUN_KG", "G_C2"]
+           "energy_density", "null_vector", "null_energy", "worst_null_energy", "timelike_vector", "weak_energy",
+           "worst_weak_energy", "integrated_energy", "solar_masses", "G_SI", "C_SI", "M_SUN_KG", "G_C2"]
 
 G_SI = 6.67430e-11
 C_SI = 2.99792458e8
@@ -288,6 +290,70 @@ def worst_null_energy(metric: WarpMetric, points: np.ndarray, *, samples: int = 
     return {"minimum": float(best.min()), "points_violating": int(np.sum(best < 0.0)),
             "points": int(len(best)), "direction": tuple(float(x) for x in best_direction),
             "violated": bool(np.any(best < 0.0))}
+
+
+def timelike_vector(metric: WarpMetric, points: np.ndarray, direction: tuple[float, float, float],
+                    speed: float = 0.0, time: float = 0.0) -> np.ndarray:
+    """A *unit* timelike vector ``u = (n + speed * s) / sqrt(1 - speed^2)``, with ``n`` the Eulerian normal.
+
+    ``n = (1, v_s f, 0, 0)`` is the 4-velocity of the ADM observers and the spatial frame is flat and orthogonal to
+    it, so this is a unit vector with ``g(u, u) = -1`` for every ``|speed| < 1``. ``speed = 0`` is the Eulerian
+    observer itself, which is where :func:`weak_energy` starts.
+    """
+    if abs(speed) >= 1.0:
+        raise ValueError("a timelike direction needs |speed| < 1")
+    points = np.atleast_2d(np.asarray(points, float))
+    s = np.asarray(direction, float)
+    s = s / max(float(np.linalg.norm(s)), 1e-12)
+    u = np.zeros((len(points), 4))
+    u[:, 0] = 1.0
+    u[:, 1] = metric.velocity * metric.f(points, time)
+    u[:, 1:] += speed * s
+    return u / math.sqrt(1.0 - speed ** 2)
+
+
+def weak_energy(metric: WarpMetric, points: np.ndarray, direction: tuple[float, float, float] = (0.0, 1.0, 0.0),
+                speed: float = 0.0, time: float = 0.0) -> np.ndarray:
+    """``T_{mu nu} u^mu u^nu`` for the unit timelike ``u`` of :func:`timelike_vector`.
+
+    The weak energy condition is this non-negative for *every* timelike direction; ``speed = 0`` alone is the energy
+    density an Eulerian observer measures, which is the term Alcubierre's closed form gives.
+    """
+    curvature = einstein_tensor(metric, points, time)
+    u = timelike_vector(metric, points, direction, speed, time)
+    norm = np.einsum("pa,pab,pb->p", u, metric.metric(points, time), u)
+    if np.any(np.abs(norm + 1.0) > 1e-9):
+        raise ValueError(f"the direction did not produce a unit timelike vector (g(u,u) = {norm.max():+.3e})")
+    return np.einsum("pa,pab,pb->p", u, curvature.einstein, u) / (8.0 * math.pi)
+
+
+def worst_weak_energy(metric: WarpMetric, points: np.ndarray, *, samples: int = 12,
+                      speeds: tuple[float, ...] = (0.0, 0.3, 0.6, 0.9), time: float = 0.0) -> dict[str, object]:
+    """The most negative ``T_{mu nu} u^mu u^nu`` over timelike directions and speeds, and where it is.
+
+    ``speeds`` includes 0, the Eulerian observer, so a negative result at ``speed = 0`` is the statement that the
+    energy density itself is negative for the observers the ADM split uses.
+    """
+    curvature = einstein_tensor(metric, points, time)
+    best = np.full(len(np.atleast_2d(points)), np.inf)
+    best_direction = np.zeros(3)
+    best_speed = 0.0
+    for speed in speeds:
+        for theta in np.linspace(0.0, np.pi, samples):
+            for phi in np.linspace(0.0, 2.0 * np.pi, 2 * samples, endpoint=False):
+                direction = np.array([math.sin(theta) * math.cos(phi), math.sin(theta) * math.sin(phi),
+                                      math.cos(theta)])
+                u = timelike_vector(metric, points, direction, speed, time)
+                value = np.einsum("pa,pab,pb->p", u, curvature.einstein, u) / (8.0 * math.pi)
+                improved = value < best
+                if np.any(improved):
+                    best = np.where(improved, value, best)
+                    best_direction = direction
+                    best_speed = speed
+    return {"minimum": float(best.min()), "points_violating": int(np.sum(best < 0.0)),
+            "points": int(len(best)), "direction": tuple(float(x) for x in best_direction),
+            "speed": float(best_speed), "violated": bool(np.any(best < 0.0)),
+            "eulerian_minimum": float(curvature.energy_density.min())}
 
 
 def integrated_energy(metric: WarpMetric, *, extent: float | None = None, samples: int = 41,

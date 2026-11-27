@@ -281,6 +281,33 @@ def test_null_energy_is_the_contraction_of_the_einstein_tensor_with_the_null_vec
         assert np.allclose(warp.null_energy(BUBBLE, points, direction), expected, atol=1e-15)
 
 
+def test_timelike_vectors_are_unit_timelike():
+    """``u = (n + speed s)/sqrt(1 - speed^2)`` has ``g(u, u) = -1`` for every ``|speed| < 1``."""
+    points = wall_points(8)
+    for speed in (0.0, 0.3, 0.9):
+        u = warp.timelike_vector(BUBBLE, points, (0.0, 0.0, 1.0), speed)
+        norm = np.einsum("pa,pab,pb->p", u, BUBBLE.metric(points), u)
+        assert np.allclose(norm, -1.0, atol=1e-12)
+    with pytest.raises(ValueError, match="timelike"):
+        warp.timelike_vector(BUBBLE, points, (0.0, 0.0, 1.0), 1.5)
+
+
+def test_the_eulerian_observer_sees_the_energy_density_of_the_closed_form():
+    """At ``speed = 0`` the weak-energy contraction *is* ``T^{00}`` -- the two functions must not disagree."""
+    points = wall_points(12, seed=10)
+    assert np.allclose(warp.weak_energy(BUBBLE, points), warp.energy_density(BUBBLE, points), atol=1e-16)
+
+
+def test_weak_energy_condition_is_violated_in_the_wall():
+    """Negative for the Eulerian observer and *more* negative for a boosted one -- the condition is about all of them."""
+    points = wall_points(12, seed=11)
+    result = warp.worst_weak_energy(BUBBLE, points)
+    assert result["violated"] is True
+    assert result["points_violating"] == result["points"]
+    assert result["eulerian_minimum"] < 0.0
+    assert result["minimum"] < 10.0 * result["eulerian_minimum"]      # a boosted observer sees it far worse
+
+
 # ------------------------------------------------------------------------------------------ the bill
 
 def test_the_total_energy_scales_like_velocity_squared():

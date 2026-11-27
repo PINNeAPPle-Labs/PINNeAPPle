@@ -56,6 +56,7 @@ def measurements(bubble: warp.WarpMetric, samples: int) -> dict[str, object]:
 
     wall_points = points[in_wall]
     energy = warp.worst_null_energy(bubble, wall_points, samples=12)
+    weak = warp.worst_weak_energy(bubble, wall_points, samples=10)
     total = warp.integrated_energy(bubble, samples=max(41, samples // 2))
 
     leak = {}
@@ -85,6 +86,9 @@ def measurements(bubble: warp.WarpMetric, samples: int) -> dict[str, object]:
                           bubble, np.array([[0.0, bubble.radius, 0.0, 0.0]]))).max())},
         "null_energy": {"minimum": energy["minimum"], "violated": energy["violated"],
                         "points_violating": energy["points_violating"], "points": energy["points"]},
+        "weak_energy": {"minimum": weak["minimum"], "speed": weak["speed"], "violated": weak["violated"],
+                        "points_violating": weak["points_violating"], "points": weak["points"],
+                        "eulerian_minimum": weak["eulerian_minimum"]},
         "bill": {"total_geometric_m": total["total_geometric"], "kilograms": total["kilograms"],
                  "solar_masses": total["solar_masses"], "jupiter_masses": total["kilograms"] / JUPITER_KG,
                  "extent_m": total["extent_m"]},

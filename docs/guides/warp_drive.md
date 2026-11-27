@@ -50,6 +50,12 @@ before the number meant anything:
 At every one of the 12 866 wall points the minimum is negative; the global minimum is `-5.95e-3`. The condition is
 violated, and the library points at where.
 
+The **weak** condition fails twice over, which is worth separating. It asks for `T_{mu nu} u^mu u^nu >= 0` for every
+*unit timelike* `u`, and `u = (n + speed s)/sqrt(1 - speed^2)` covers them. At `speed = 0` this is exactly `T^{00}`
+of the closed form and it is already `-6.2e-4`. A boosted observer, moving at `0.9 c` relative to the bubble in the
+`-z` direction, sees `-2.77e-2` -- forty-five times worse. The negative energy is not an artefact of a badly chosen
+frame; it gets worse in the frames a falling observer would occupy.
+
 ## The bill
 
 A 10 m bubble at the speed of light needs

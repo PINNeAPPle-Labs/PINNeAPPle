@@ -15,9 +15,13 @@ from .warp import (
     shape,
     shape_derivative,
     solar_masses,
+    timelike_vector,
+    weak_energy,
     worst_null_energy,
+    worst_weak_energy,
 )
 
 __all__ = ["WarpMetric", "Curvature", "shape", "shape_derivative", "expansion", "einstein_tensor",
-           "energy_density", "null_vector", "null_energy", "worst_null_energy", "integrated_energy",
-           "solar_masses", "G_SI", "C_SI", "M_SUN_KG", "G_C2"]
+           "energy_density", "null_vector", "null_energy", "worst_null_energy", "timelike_vector",
+           "weak_energy", "worst_weak_energy", "integrated_energy", "solar_masses", "G_SI", "C_SI",
+           "M_SUN_KG", "G_C2"]

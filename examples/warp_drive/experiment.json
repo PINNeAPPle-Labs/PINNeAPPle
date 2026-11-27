@@ -48,6 +48,12 @@
    "how": "the most negative T_ab k^a k^b over a sphere of null directions, at each of the 12 866 wall points"
   },
   {
+   "name": "weak_energy_minimum",
+   "value": -2.77e-2,
+   "unit": "",
+   "how": "the most negative T_ab u^a u^b over unit timelike vectors (directions and speeds up to 0.9 c); -6.2e-4 for the Eulerian observer alone"
+  },
+  {
    "name": "expansion_peak",
    "value": -0.25002,
    "unit": "",
@@ -84,6 +90,12 @@
    "passed": true,
    "kind": "physics",
    "label": "every wall point has a null direction with T_ab k^a k^b < 0"
+  },
+  {
+   "name": "weak_energy_violated",
+   "passed": true,
+   "kind": "physics",
+   "label": "every wall point has a timelike direction with T_ab u^a u^b < 0, including the Eulerian observer itself"
   }
  ],
  "files": {

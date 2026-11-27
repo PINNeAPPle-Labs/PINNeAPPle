@@ -12,6 +12,10 @@
   every point, and the null vectors are built as `n + s` from the Eulerian normal and checked to satisfy `g(k,k) = 0`
   to roundoff. `k = (1, n)`, the obvious guess, is not null in a metric with a shift and silently measures nothing.
   Every one of the 12 866 sampled wall points has a direction with `T_{mu nu} k^mu k^nu < 0`.
+- both energy conditions, not just the null one: `weak_energy` contracts the Einstein tensor with a unit timelike
+  vector `u = (n + speed s)/sqrt(1-speed^2)` and `worst_weak_energy` searches over directions and speeds. The weak
+  condition fails at every wall point twice over -- the Eulerian observer's own density is `-6.2e-4`, and a boosted
+  observer at `0.9 c` relative to the bubble sees `-2.77e-2`, forty-five times worse.
 - the bill: `-1.8947e27 kg` of negative energy for a 10 m bubble at the speed of light -- `-9.53e-4` solar masses,
   one Jupiter mass. It scales as `v_s^2 R^2 / wall`, so a thinner wall costs more, and no choice of profile or
   thickness brings it to zero.

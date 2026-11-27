@@ -217,3 +217,48 @@ def test_the_globe_and_the_skill_figure_are_drawn(tmp_path):
     fig = track_skill_figure(tmp_path / "skill.png", skill, storm_horizons(skill), title="Ian", dpi=40)
     for p in (png, gif, dark, fig):
         assert p.exists() and p.stat().st_size > 1000
+
+
+def test_the_showcase_figures_and_the_staged_video_are_drawn(tmp_path):
+    """The media of #366: the predicted-against-observed track, the two grids, the confidence bar, the video frames."""
+    pytest.importorskip("matplotlib")
+    import importlib.util
+    import shutil
+
+    from pinneapple_physics.weather.cyclones import (
+        confidence_by_lead,
+        field_vs_grid,
+        stages_video,
+        track_vs_observed,
+    )
+
+    best = parse_hurdat2(HURDAT2)["AL012024"]
+    fields = np.stack([gaussian_low(LAT, LON, (12.0 + 1.5 * k, 300.0 + 3.0 * k)) for k in range(4)])
+    times = np.array(["2024-09-26T12", "2024-09-26T18", "2024-09-27T00", "2024-09-27T06"], dtype="datetime64[h]")
+    track = track_storm(fields, LAT, LON, times, start=(12.0, 300.0), radius_km=400.0)
+    err = verify_storm(track, best, name="model", init=times[0])
+    skill = skill_by_lead([err])
+    horizons = storm_horizons(skill)
+    extent = (5.0, 25.0, 290.0, 320.0)
+
+    track_png = track_vs_observed(tmp_path / "track.png", best, {"model": track}, extent=extent,
+                                  captions={"model": "the number"}, title="t", note="n", dpi=40, map_width=2.0)
+    grid_png = field_vs_grid(tmp_path / "grid.png",
+                             [{"label": "fine", "field": fields[0], "lat": LAT, "lon": LON, "cell_km": 28.0},
+                              {"label": "coarse", "field": fields[0], "lat": LAT, "lon": LON, "cell_km": 625.0}],
+                             best=best, extent=extent, title="t", note="n", dpi=40, size=(5.0, 2.6))
+    conf_png = confidence_by_lead(tmp_path / "conf.png", {"model": skill}, {"model": horizons}, title="t", note="n",
+                                  dpi=40, size=(5.0, 3.2))
+    for p in (track_png, grid_png, conf_png):
+        assert p.exists() and p.stat().st_size > 1000
+
+    assert shutil.which("ffmpeg") or importlib.util.find_spec("imageio_ffmpeg"), \
+        "the video path needs imageio[ffmpeg] or the ffmpeg program"
+    analysis = {"fields": fields, "times": times, "lat": LAT, "lon": LON, "track": track, "errors": err}
+    coarse = {"model": {"fields": fields, "lat": LAT, "lon": LON, "times": times, "leads": skill["leads_h"],
+                        "skill": skill, "thresholds": horizons["thresholds"], "horizons": horizons,
+                        "tracks": {"model": track}, "found_fraction_overall": 0.5, "median_pressure_hpa": 10.0}}
+    video = stages_video(tmp_path / "stages.mp4", best=best, analysis=analysis, tracks={"model": track},
+                         skills={"model": skill}, horizons={"model": horizons}, coarse=coarse, title="t",
+                         fps=6.0, hold=1, size=(3.0, 2.0), dpi=45, globe_size=60, extent=extent, n_inits=2)
+    assert video.exists() and video.stat().st_size > 1000

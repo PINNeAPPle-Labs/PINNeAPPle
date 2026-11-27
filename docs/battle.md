@@ -4,10 +4,20 @@ Two models, one stream of conditions, and one question that a leaderboard's mean
 **where did each of them stop being usable?** The table below is generated from
 `benchmarks/battle/results.json` by `python scripts/battle.py --docs` -- do not edit it by hand.
 
-It is the measured half of the arena the issue asks for: the numbers, the cost and the exit, not the
-animation. What each model is allowed to see, what it costs, what it gets wrong at the end of the stream
-and the step at which it left the domain it was validated on are all here, with the criterion written
-down below so the exit can be recomputed from the curve.
+It is the arena the issue asks for, in its two halves. The measured half: what each model is allowed to
+see, what it costs, what it gets wrong at the end of the stream and the step at which it left the domain it
+was validated on, with the criterion written down below so the exit can be recomputed from the curve. The
+animated half: the replay, one frame per step of the same record, with each model's health bar (the
+residual against its own alarm), the step at which the reference proves each one left, and who is still
+standing at the end --
+
+<img src="assets/battle/replay.gif" alt="The arena replay: the error curve, the health bar of each model and the step at which each one left" loading="lazy">
+
+It is drawn from this file and from nothing else (`python scripts/battle.py --gif`), so the animation
+cannot state a number the table does not. What the GIF does not carry is the round the issue names: the
+record holds two PDE cases, `burgers_1d` and `heat_1d`, not a 2020 weather stream of PINNeAPPle's model
+against IFS HRES, Pangu-Weather and NeuralGCM (#348) -- that round needs the ensemble's forecasts in the
+same shape and is still open.
 
 ## The protocol
 
@@ -100,8 +110,9 @@ At step 40 (t = 1.00) the two fields are furthest apart: the distance between th
 ## Reproducing it
 
 ```bash
-python scripts/battle.py --run      # train both models over the stream, rewrite the results and the page
+python scripts/battle.py --run      # train both models, then rewrite the results, the page and the GIF
 python scripts/battle.py --docs     # regenerate this page from the results file (no training)
+python scripts/battle.py --gif      # redraw the replay from the results file (no training)
 python scripts/battle.py --check    # the gate: declaration, record and page agree, order included
 ```
 

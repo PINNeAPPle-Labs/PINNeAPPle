@@ -2,7 +2,7 @@
  "schema": "pinneapple.experiment/1",
  "id": "examples/weather_forecasting",
  "title": "Weather forecasting on ERA5: how many days a model is good for, and extreme events",
- "description": "A global forecast model trained with `pinneapple_physics.weather` on ERA5 (WeatherBench2, public, no account), scored",
+ "description": "A global forecast model trained with `pinneapple_physics.weather` on ERA5 (WeatherBench2, public, no account), scored by lead and by event; and Hurricane Ian 2022 end to end -- the official best track, the vortex inside the reanalysis, the published IFS HRES and Pangu-Weather forecasts and the same forecasts on a 5.625-degree grid that cannot hold the core, with the figures, the GIF cut and the 63-second video of the chain.",
  "domain": "geophysics and climate",
  "methods": [],
  "modules": [
@@ -22,8 +22,18 @@
  "metrics": [],
  "checks": [],
  "files": {
-  "figures": [],
-  "videos": [],
+  "figures": [
+   "figures/ian_confidence_by_lead.png",
+   "figures/ian_field_two_grids.png",
+   "figures/ian_globe.gif",
+   "figures/ian_globe.png",
+   "figures/ian_track_ifs.png",
+   "figures/ian_track_pangu-weather.png",
+   "figures/ian_track_vs_observed.png"
+  ],
+  "videos": [
+   "figures/ian_stages.mp4"
+  ],
   "viewers": [],
   "data": [
    "checkpoints/era5_64x32_normalization.json",

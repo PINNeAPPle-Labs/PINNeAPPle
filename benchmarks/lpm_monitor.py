@@ -2,6 +2,7 @@
 
     python -m benchmarks.lpm_monitor --out ~/lpm-campaign              # serve http://127.0.0.1:8130/
     python -m benchmarks.lpm_monitor --out ~/lpm-campaign --state      # the same state as JSON, and exit
+    python -m benchmarks.lpm_monitor --out ~/lpm-campaign --detach ~/lpm-campaign/panel.log   # survives the shell
 
 The campaign runner writes one file per thing it is doing — ``dataset/manifest.json`` when the data is there,
 ``dataset/progress.json`` while it is being built, ``model/progress.json`` while the fit runs, ``model/card.json``
@@ -25,6 +26,8 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from benchmarks import _daemon
 
 __all__ = ["STAGES", "state", "page", "serve", "main"]
 
@@ -442,11 +445,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--log", type=Path, help="the runner's log (default: <out>/campaign.log)")
     parser.add_argument("--state", action="store_true", help="print the state as JSON and exit")
+    parser.add_argument("--detach", type=Path, metavar="LOG",
+                        help="serve in its own session, writing to LOG, and return immediately")
     parser.add_argument("--open", action="store_true", help="open the panel in the browser")
     a = parser.parse_args(argv)
     if a.state:
         print(json.dumps(state(a.out, a.log), indent=2, default=float))
         return 0
+    if a.detach:
+        _daemon.detach("benchmarks.lpm_monitor", a.detach, marker="LPM_MONITOR_DETACHED")
     if a.open:
         import webbrowser
         threading.Timer(0.5, lambda: webbrowser.open(f"http://{a.host}:{a.port}/")).start()

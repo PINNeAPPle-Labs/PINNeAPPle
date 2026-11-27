@@ -227,6 +227,7 @@ the time still needed. `benchmarks/lpm_monitor.py` reads those files plus `runne
 ```bash
 python -m benchmarks.lpm_monitor --out ~/lpm-campaign            # http://127.0.0.1:8130/
 python -m benchmarks.lpm_monitor --out ~/lpm-campaign --state    # the same state as JSON, and exit
+python -m benchmarks.lpm_monitor --out ~/lpm-campaign --detach ~/lpm-campaign/panel.log   # outlives the shell
 ./benchmarks/run_lpm_campaign.sh --watch                         # start the campaign and open the panel
 ```
 

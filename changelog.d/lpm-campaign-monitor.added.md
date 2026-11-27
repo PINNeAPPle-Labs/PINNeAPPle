@@ -3,7 +3,9 @@
   it is in (draw → build → write → fit → card), the progress of that stage with its ETA, the held-out error against the
   constant-field baseline — and the family that is running right now. It reads files only, so what it shows is what a
   run that died left behind, and it marks a progress file older than three minutes on a running stage as stale instead
-  of drawing it as live. `--watch` on `benchmarks/run_lpm_campaign.sh` starts the campaign and opens the panel.
+  of drawing it as live. `--watch` on `benchmarks/run_lpm_campaign.sh` starts the campaign and opens the panel, and
+  `--detach LOG` serves it in a session of its own — a screen for a 34-hour run has the same problem the run does. The
+  detach itself moved to `benchmarks/_daemon.py`, which both commands now share.
 - `pinneapple_neural/lpm_pipeline.py`: `progress.json` while a stage runs. `generate_dataset(progress_every_s=...)`
   writes the designs done, the rate and the time still needed; `train(progress_every_s=...)` writes the same for
   epochs, with the loss. Both are off by default and write atomically, so a reader never sees half a record. This is

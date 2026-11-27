@@ -39,12 +39,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import time
 import traceback
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from benchmarks import _daemon
 
 #: the recipes live in ``benchmarks/lpm_recipes.json``: the campaign's sizes are data, so changing how big a design
 #: space is does not mean editing this file
@@ -334,24 +335,9 @@ def detach(log_path: Path) -> None:
     """Re-run this command in its own session, so it outlives the shell and the editor session that started it.
 
     ``nohup`` only ignores SIGHUP; what kills a long fit is the process group going away, and ``os.setsid`` is what
-    puts it beyond reach of that.
+    puts it beyond reach of that. Shared with the panel, which has the same problem (see :mod:`benchmarks._daemon`).
     """
-    if os.environ.get("LPM_CAMPAIGN_DETACHED"):
-        return
-    argv = [sys.executable, "-m", "benchmarks.lpm_campaign"] + [a for a in sys.argv[1:]
-                                                               if a not in ("--detach", str(log_path))]
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    pid = os.fork()
-    if pid:
-        print(f"detached as pid {pid}; follow it with: tail -f {log_path}")
-        print(f"stop it with: kill {pid}")
-        sys.exit(0)
-    os.setsid()
-    env = {**os.environ, "LPM_CAMPAIGN_DETACHED": "1"}
-    with open(log_path, "w", encoding="utf-8") as log:
-        os.dup2(log.fileno(), 1)
-        os.dup2(log.fileno(), 2)
-        os.execve(sys.executable, argv, env)
+    _daemon.detach("benchmarks.lpm_campaign", log_path, marker="LPM_CAMPAIGN_DETACHED")
 
 
 def main(argv: list[str] | None = None) -> int:

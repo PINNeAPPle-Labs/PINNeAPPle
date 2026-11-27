@@ -452,6 +452,8 @@ def perturbation_budget(body: SmallBody, jd_encounter: float, *, a2_au_d2: float
     """
     from .ephemeris import default_ephemeris
 
+    if srp_scales and area_to_mass_m2_kg <= 0.0:
+        raise ValueError("a radiation-pressure row needs an area-to-mass ratio: scale nothing and the row is a zero")
     eph = eph or default_ephemeris()
     jd0 = float(jd_encounter) - window_days
     jd1 = float(jd_encounter) + window_days
@@ -468,7 +470,7 @@ def perturbation_budget(body: SmallBody, jd_encounter: float, *, a2_au_d2: float
     for k in srp_scales:
         variants.append((
             f"solar radiation pressure at {k:g}x (A/M = {am * k:.3g} m^2/kg, "
-            f"{solar_radiation_pressure(am * k, reflectivity) * 1e6:.3g} um/s^2 at 1 au)",
+            f"{solar_radiation_pressure(am * k, reflectivity):.2e} m/s^2 at 1 au)",
             Terms(area_to_mass_m2_kg=am * k, reflectivity=reflectivity), {}))
     if a2_au_d2:
         variants.append((f"Yarkovsky, A2 = {a2_au_d2:.3g} au/day^2 at 1 au", Terms(a2_au_d2=a2_au_d2), {}))
@@ -479,13 +481,15 @@ def perturbation_budget(body: SmallBody, jd_encounter: float, *, a2_au_d2: float
     for label, terms, kw in variants:
         t0 = time.time()
         if terms == base_terms and not kw:
-            tr, ca = base_tr, base
+            tr, ca, delta, dr = base_tr, base, 0.0, 0.0
         else:
             tr = _trajectory(body, jd0, jd1, terms, eph)
             ca = miss_distance(body, jd0, jd1, step_days=step_days, eph=eph, traj=tr)
-        r, _ = tr.heliocentric(np.array([jd_encounter]))
-        delta = ca["dist_km"] - base["dist_km"]
-        rows.append({"term": label, "dist_km": ca["dist_km"], "delta_km": delta,
-                     "dr_km": float(np.linalg.norm(r[0] - r_base[0])), "found": ca["found"],
-                     "matters": bool(abs(delta) > tolerance_km), "seconds": time.time() - t0})
+            r, _ = tr.heliocentric(np.array([jd_encounter]))
+            # an encounter the window does not contain leaves both distances infinite: the difference is not a number
+            delta = ca["dist_km"] - base["dist_km"] if (ca["found"] and base["found"]) else float("nan")
+            dr = float(np.linalg.norm(r[0] - r_base[0]))
+        rows.append({"term": label, "dist_km": ca["dist_km"], "delta_km": delta, "dr_km": dr,
+                     "found": ca["found"], "matters": bool(abs(delta) > tolerance_km),
+                     "seconds": time.time() - t0})
     return rows

@@ -368,13 +368,15 @@ def animation(result: dict) -> str:
     ax_a.legend(fontsize=8, loc="lower left")
 
     ax_b.set_xlim(0.0, total)
-    ax_b.set_ylim(0.0, float(offsets.max()) * 1.08)
-    ax_b.axhline(EARTH_RADIUS_KM, color="tab:red", ls="--", lw=1.0, label="the Earth's radius, for scale")
+    ax_b.set_ylim(0.0, max(float(offsets.max()) * 1.30, 1.0))
     ax_b.set_xlabel("years since the impactor arrived")
     ax_b.set_ylabel("offset from the undeflected body (km)")
     ax_b.set_title("the cloud widening", fontsize=10)
     ax_b.grid(True, alpha=0.25)
-    ax_b.legend(fontsize=8, loc="upper left")
+    ax_b.text(0.03, 0.92, f"measured along the orbit, where the body is moving at 30 km/s.\n"
+                          f"the Earth's radius is {EARTH_RADIUS_KM / max(float(offsets.max()), 1e-9):,.0f} times "
+                          f"this wide -- the cloud is long, not thick",
+              transform=ax_b.transAxes, fontsize=7, color="0.35", va="top")
     dots_b = [ax_b.plot([], [], "o", color=orange, ms=4)[0] for _ in members]
     trails_b = [ax_b.plot([], [], "-", color=orange, lw=0.6, alpha=0.5)[0] for _ in members]
 
@@ -391,13 +393,25 @@ def animation(result: dict) -> str:
     ax_c.plot([0.0], [miss_nom], "o", color=ink, ms=6, zorder=4, label=f"undeflected: {miss_nom:,.0f} km")
     cloud_c = ax_c.plot([], [], "o", color=orange, ms=4, zorder=5,
                         label=f"the ensemble: {misses.mean():,.0f} km")[0]
-    ax_c.add_patch(mpatches.Ellipse((0.0, float(misses.mean())), 6 * sigma_orbit, 6 * sigma_orbit, fill=False,
-                                    ls=":", lw=1.0, color="0.35", zorder=2))
-    ax_c.text(-span * 0.96, span * 1.14, f"dotted: JPL's 3 sigma on the flyby distance ({3 * sigma_orbit:,.0f} km)",
-              fontsize=7, color="0.35")
     ax_c.legend(fontsize=8, loc="upper right")
 
-    stamp = fig.text(0.5, 0.935, "", ha="center", fontsize=10, color=ink)
+    # the deflection against JPL's own error bar: at the full scale it is a few pixels, so it gets its own window
+    inset = ax_c.inset_axes([0.06, 0.07, 0.44, 0.40])
+    half = max(3.0 * sigma_orbit, 20.0 * float(misses.std()), abs(float(misses.mean()) - miss_nom) * 1.8)
+    inset.set_xlim(-half, half)
+    inset.set_ylim(float(min(misses.mean(), miss_nom)) - half, float(max(misses.mean(), miss_nom)) + half)
+    inset.add_patch(mpatches.Ellipse((0.0, miss_nom), 2 * sigma_orbit, 2 * sigma_orbit, fill=False, ls="--", lw=1.0,
+                                     color="0.45"))
+    inset.plot([0.0], [miss_nom], "o", color=ink, ms=5)
+    inset.plot([0.0], [float(misses.mean())], "o", color=orange, ms=5)
+    inset.set_title(f"zoomed: 1 sigma = {sigma_orbit:,.0f} km (JPL, dashed)", fontsize=6)
+    inset.tick_params(labelsize=6)
+    inset.grid(True, alpha=0.2)
+    shift = ax_c.annotate(f"the impactor buys {float(misses.mean()) - miss_nom:+,.0f} km", xy=(0.0, miss_nom),
+                          xytext=(-span * 0.92, span * 0.72), fontsize=7, color=orange,
+                          arrowprops={"arrowstyle": "->", "color": orange, "lw": 0.8})
+
+    stamp = fig.suptitle("", fontsize=10, color=ink)
     step = max(len(jd) // 48, 1)
     frames = list(range(0, len(jd), step))
     bands = []
@@ -413,10 +427,10 @@ def animation(result: dict) -> str:
             dot.set_data(years[k:k + 1], off[k:k + 1])
             trail.set_data(years[:k + 1], off[:k + 1])
         cloud_c.set_data([0.0], [float(misses.mean())])
-        stamp.set_text(f"{years[k]:.1f} of {total:.1f} years before the flyby   |   "
-                       f"cloud {offsets[:, k].max():,.0f} km wide   |   "
-                       f"miss {miss_nom:,.0f} km = {miss_nom / EARTH_RADIUS_KM:.1f} Earth radii")
-        return [line_nom, *bands, *dots_b, *trails_b, cloud_c, stamp]
+        stamp.set_text(f"{years[k]:.1f} of {total:.1f} years since the impactor   |   "
+                       f"cloud {offsets[:, k].max():,.0f} km wide ({offsets[:, k].max() / offsets[:, -1].max() * 100:.0f} % of "
+                       f"its final width)   |   miss {miss_nom:,.0f} km = {miss_nom / EARTH_RADIUS_KM:.1f} Earth radii")
+        return [line_nom, *bands, *dots_b, *trails_b, cloud_c, stamp, shift]
 
     anim = FuncAnimation(fig, update, frames=frames, interval=120, blit=False)
     path = _out("figures/planetary_defence.gif")

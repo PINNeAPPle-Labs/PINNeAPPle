@@ -1910,27 +1910,36 @@
    "distance_m": 3000.0,
    "runs": 48,
    "placed": 25,
+   "withheld": 5,
    "far_leg_m": 16520.0,
    "median_error_m": 7.5,
    "worst_error_m": 67.1,
+   "withheld_median_m": 43.9,
+   "withheld_worst_m": 72.1,
    "worst_weakest_front_sigma": 1.2
   },
   "9800": {
    "distance_m": 9800.0,
    "runs": 48,
    "placed": 24,
+   "withheld": 7,
    "far_leg_m": 9720.0,
    "median_error_m": 3.6500000000000004,
    "worst_error_m": 53.4,
+   "withheld_median_m": 33.4,
+   "withheld_worst_m": 142.1,
    "worst_weakest_front_sigma": 1.28
   },
   "15500": {
    "distance_m": 15500.0,
    "runs": 48,
    "placed": 23,
+   "withheld": 5,
    "far_leg_m": 15020.0,
    "median_error_m": 16.3,
    "worst_error_m": 89.4,
+   "withheld_median_m": 26.5,
+   "withheld_worst_m": 2545.9,
    "worst_weakest_front_sigma": 0.87
   }
  },
@@ -2029,5 +2038,5 @@
   "attenuation": 0.30476254113719226,
   "sampling_resolution": 28.507779612800654
  },
- "seconds": 28.4
+ "seconds": 30.6
 }

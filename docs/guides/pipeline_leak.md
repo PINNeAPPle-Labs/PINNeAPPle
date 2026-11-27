@@ -97,14 +97,47 @@ That is a sensor diagnostic, not a leak detector, and the module says so instead
 | 10 mm | 15.5 km | 3.53 s | 3.65 s | 40.6 m |
 
 Across the whole sweep — eight hole sizes, three positions, six noise draws — the median delay is 0.14 s above the
-flight time and the median absolute position error is **18.6 m** on 20 km (0.09 %). The detector is not what makes a
-leak late; the line is. A hole in the middle cannot be reported in less than 8.2 s by anything that listens at the two
-ends, and a hole at 3 km cannot be reported in less than 2.2 s.
+flight time. The detector is not what makes a leak late; the line is. A hole in the middle cannot be reported in less
+than 8.2 s by anything that listens at the two ends, and a hole at 3 km cannot be reported in less than 2.2 s.
 
-The position floor is the acquisition: one sample of the arrival is worth `a Δt_s / 2 = 28.5 m`, and interpolating
-inside it is what buys the rest. A hole **outside** the two transmitters sends one front past both of them, and no
-time difference can place it — the estimate collapses onto the nearer transmitter and the verdict sets
-`outside_transmitters` rather than inventing a position.
+### Where the position is worth having, and where it is not
+
+The position is a different story, and it does not have one number. Two fronts of one leak do **not** arrive equally
+loud: the one that crossed the longer part of the line is shorter — 3.4 % per kilometre, measured — and it is quieter
+still at 15.5 km than at 3.0 km because the hole there sits at 103 m of head against 230 m and so passes less oil to
+begin with. When the quieter front falls into the noise, the change point the detector times is no longer the arrival,
+and a position built from two of those is worth kilometres. So the localiser reads the height of the smaller front and,
+below **2σ** at its own transmitter, **keeps the leak and the rate and withholds the place** (`front_sigma`,
+`position_reliable`).
+
+That is not a claim of accuracy, it is a refusal, and both sides of it are measured. Over 144 case/seed combinations at
+a decision interval of 12σ:
+
+| | count | median \|error\| | worst \|error\| |
+| --- | --- | --- | --- |
+| positions **accepted** | 72 | **9.65 m** | **89.4 m** |
+| positions **withheld** — what the guess would have said | 17 | 33.4 m | **2 545.9 m** |
+
+The gate buys the 2.5 km tail and pays for it with sixteen answers that would have been inside 72 m. It is a 2σ rule,
+not a filter: it cannot tell a 1.9σ front from a 1.2σ one, and it rejects both.
+
+By band, over the same 144 combinations:
+
+| hole at | farther transmitter | accepted | median \|error\| | worst \|error\| | withheld | its median / worst |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3.0 km | 16.5 km | 25 of 48 | 7.5 m | 67.1 m | 5 | 43.9 m / 72.1 m |
+| 9.8 km | 9.7 km | 24 of 48 | **3.7 m** | 53.4 m | 7 | 33.4 m / 142.1 m |
+| 15.5 km | 15.0 km | 23 of 48 | 16.3 m | 89.4 m | 5 | 26.5 m / 2 545.9 m |
+
+The middle of the line is the best place to be placed, and 15.5 km the worst — not because the leg is longest there
+(3.0 km is longer) but because the hole is at the lowest head and the leak therefore the smallest. Both halves of that
+are in the fronts of one 10 mm hole: at 3.0 km it reads 9.21σ at the transmitter 2.5 km away and 4.76σ at the one
+16.5 km away; at 15.5 km it reads 5.71σ at 4.0 km and **3.62σ at 15.0 km** — quieter over a leg 1.5 km *shorter*,
+because the hole there sits at 103 m of head instead of 230 m.
+
+The remaining floor is the acquisition: one sample of the arrival is worth `a Δt_s / 2 = 28.5 m`, and interpolating
+inside it is what buys the rest. A hole **outside** the two transmitters sends one front past both of them, and no time
+difference can place it — `outside_transmitters` is set and the position withheld for the same reason.
 
 ## False alarms: what the model has to know
 
@@ -183,10 +216,11 @@ ensemble = PhysicsEnsemble(experts, measurement_check=lambda obs: measurement_ch
   Joukowsky for the amplitude, the orifice law for the hole. There is no comparison with a recorded event.
 * **No growing crack, no column separation, no gas.** The hole is circular, fixed and discharges to a constant
   ambient head; the fluid is one liquid at one temperature.
-* **The far transmitter sets the position error.** The 40.6 m median at 15.5 km against 2.6 m at 3.0 km is not noise:
-  the far front has crossed 15 km, is a third shorter, and is clipped by the reflection at the near boundary after
-  `2 x_a / a = 0.84 s`. A transmitter further inside the pipe would hear it longer and place it better; a station
-  boundary is where it is.
+* **The position is only as good as the quieter front, and the quieter front is often not good.** The median is
+  9.65 m over the 72 positions the localiser accepted, but the worst accepted one is 89.4 m and 17 more were withheld
+  altogether — their guesses would have run to 2.5 km. The 2σ gate is a refusal, not an accuracy claim, and it rejects
+  some answers that would have been fine. A transmitter further inside the pipe would hear the clipped front longer
+  than `2 x_a / a = 0.84 s` and place it better; a station boundary is where it is.
 
 ## Running it
 

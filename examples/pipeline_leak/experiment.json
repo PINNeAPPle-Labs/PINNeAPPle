@@ -65,16 +65,28 @@
    "how": "10 mm hole at 3.0 km, 2.52 km from the upstream transmitter: flight time 2.21 s"
   },
   {
-   "name": "localisation_error_median",
-   "value": 18.6,
+   "name": "localisation_error_median_accepted",
+   "value": 9.65,
    "unit": "m",
-   "how": "median |estimate - truth| over the 13 hole/position pairs at 6 mm and above that were placed, six seeds each"
+   "how": "median |estimate - truth| over the 72 of 144 case/seed combinations whose quieter front stood 2 sigma above the noise at its transmitter, decision interval 12 sigma"
   },
   {
-   "name": "localisation_error_worst_pair",
-   "value": 40.6,
+   "name": "localisation_error_worst_accepted",
+   "value": 89.4,
    "unit": "m",
-   "how": "the largest of those per-pair medians, a 10 mm hole at 15.5 km, where the far front is the weakest; the worst single estimate in the sweep is 142 m"
+   "how": "the worst of those 72, an 8 mm hole at 15.5 km; the median error grows with the weaker front, 3.7 m at the middle of the line against 16.3 m at 15.5 km"
+  },
+  {
+   "name": "positions_withheld",
+   "value": 17,
+   "unit": "",
+   "how": "leaks whose quieter front was under 2 sigma: the leak and the rate are kept and the place is not guessed at"
+  },
+  {
+   "name": "withheld_worst_error",
+   "value": 2545.9,
+   "unit": "m",
+   "how": "what the withheld guesses would have said -- a 6 mm hole at 15.5 km whose far front was 0.87 sigma, timed 4.5 s late; the median of the 17 is 33.4 m"
   },
   {
    "name": "sampling_resolution",
@@ -160,7 +172,7 @@
    "name": "a_missed_front_is_not_placed",
    "passed": true,
    "kind": "physics",
-   "label": "a hole outside the two transmitters collapses onto the nearer one and the verdict reports outside_transmitters instead of a position"
+   "label": "a hole outside the two transmitters, or one whose quieter front is under 2 sigma, keeps its leak and its rate and is given no position: outside_transmitters / position_reliable say which"
   }
  ],
  "files": {

@@ -18,8 +18,10 @@ What the example measures, and why each number is the one that matters:
    -- 8.2 s for a hole in the middle, 2.2 s near the upstream end, and that floor is a property of the line, not of
    the detector. The measured delay is put next to it.
 3. **The place.** ``x_L`` from the difference of the two arrival times, against the position the hole was actually
-   drilled at, in metres and as a fraction of the line. The floor here is the acquisition, ``a dt_s / 2``, plus what
-   the interpolation inside the sample buys back -- and a hole outside the two transmitters cannot be placed at all.
+   drilled at. The floor is the acquisition, ``a dt_s / 2``, plus what the interpolation inside the sample buys back,
+   and the limiting factor is the **quieter** of the two fronts: it is 3.4 % per kilometre shorter than the louder one
+   and it is the one whose onset gets timed. Below 2 sigma at its own transmitter the position is withheld and the
+   leak kept, so the number to quote is the error over what was placed, beside the guesses that were refused.
 4. **The false alarms.** Sixty records of 1 400 s of normal operation -- including two valve manoeuvres the model
    knows about -- per threshold, so the number is alarms per hour and not a claim of "none".
 5. **Instrument or leak.** A bias, a drift, extra noise and a latch, on one transmitter at a time, against holes of
@@ -27,12 +29,13 @@ What the example measures, and why each number is the one that matters:
 6. **The curve.** Detection rate and delay against hole diameter, for each threshold, so the cost of a quiet
    detector is visible in the small holes it loses, and the point where the loss stops being the detector's fault.
 
-Two negatives are recorded rather than hidden. A hole outside the two transmitters cannot be timed by their
-difference -- both fronts go past both of them and the estimate collapses onto the nearer transmitter, so the verdict
-says ``outside_transmitters`` and the error is the distance to the transmitter. And a valve the model was not told
-about produces exactly the pressure signature of a leak at both ends; what refuses it is the mass balance, which costs
-the settle time ``2L/a``, and the verdict is then ``operation`` -- the right refusal for the wrong reason if the real
-event had been a leak that had not yet settled.
+Three negatives are recorded rather than hidden. A hole outside the two transmitters cannot be timed by their
+difference -- both fronts go past both of them -- and one whose quieter front is buried in the noise cannot be timed
+either: both are refused a position (``outside_transmitters``, ``position_reliable``), which costs 16 answers that would
+have been inside 72 m to remove one that was 2.5 km wrong. And a valve the model was not told about produces exactly
+the pressure signature of a leak at both ends; what refuses it is the mass balance, which costs the settle time
+``2L/a``, and the verdict is then ``operation`` -- the right refusal for the wrong reason if the real event had been a
+leak that had not yet settled.
 """
 from __future__ import annotations
 
@@ -322,25 +325,29 @@ def by_position(sweep: dict, threshold: float = OPERATING) -> dict:
 
 
 def positions_by_band(sweep: dict, threshold: float = OPERATING) -> dict:
-    """Where the localiser holds and where it does not, by the only variable that turns out to matter: how far the
-    hole is from the **farther** transmitter, which is the leg that decides how loud the quieter of the two fronts is."""
+    """Where the localiser holds and where it does not, band by band: accepted positions next to the guesses the gate
+    refused, because the second column is what the first one cost."""
     out = {}
     for position in POSITIONS:
-        errors, fronts = [], []
-        placed = runs = 0
+        errors, held, fronts = [], [], []
+        placed = withheld = runs = 0
         for diameter in HOLES_MM:
             cell = sweep[f"{diameter:g}"][f"{position:.0f}"]
             entry = cell["by_threshold"][f"{threshold:g}"]
             placed += entry["placed"]
+            withheld += len(entry["withheld_errors_m"])
             runs += entry["runs"]
             errors += [abs(e) for e in entry["errors_m"]]
+            held += [abs(e) for e in entry["withheld_errors_m"]]
             if entry["weakest_front_sigma"] is not None:
                 fronts.append(entry["weakest_front_sigma"])
         out[f"{position:.0f}"] = {
-            "distance_m": position, "runs": runs, "placed": placed,
+            "distance_m": position, "runs": runs, "placed": placed, "withheld": withheld,
             "far_leg_m": max(position - MONITOR[0], MONITOR[1] - position),
             "median_error_m": float(np.median(errors)) if errors else None,
             "worst_error_m": float(np.max(errors)) if errors else None,
+            "withheld_median_m": float(np.median(held)) if held else None,
+            "withheld_worst_m": float(np.max(held)) if held else None,
             "worst_weakest_front_sigma": float(np.min(fronts)) if fronts else None}
     return out
 
@@ -391,14 +398,16 @@ def fig_tradeoff(sweep: dict, reference: dict, pipe: Pipeline) -> None:
     plt.close(figure)
 
 
-def fig_localisation(sweep: dict) -> None:
-    """Estimated against true position, and the error as a fraction of the line."""
+def fig_localisation(sweep: dict, bands: dict) -> None:
+    """Three views of the same measurement: the error against where the hole is, what the gate accepted against what it
+    refused, and the delay against the flight time it cannot beat."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    figure, axes = plt.subplots(1, 2, figsize=(12.4, 4.4))
+    figure, axes = plt.subplots(1, 3, figsize=(17.0, 4.4), gridspec_kw={"width_ratios": [1.25, 0.85, 1.0]})
     style = {2.0: ":", 3.0: ":", 4.0: "--", 6.0: "--", 8.0: "-", 10.0: "-", 14.0: "-", 20.0: "-"}
+    resolution = PIPE.wave_speed * SENSORS.sample / 2.0
     for diameter in HOLES_MM:
         xs, errs = [], []
         for position in POSITIONS:
@@ -409,16 +418,33 @@ def fig_localisation(sweep: dict) -> None:
             errs.append(entry["median_error_m"])
         if xs:
             axes[0].plot(xs, errs, "o" + style[diameter], ms=4, label=f"{diameter:g} mm")
-    resolution = PIPE.wave_speed * SENSORS.sample / 2.0
     axes[0].axhline(resolution, color="black", lw=0.9, ls="--")
-    axes[0].annotate("one acquisition sample: $a\\,\\Delta t_s/2$ = 28.5 m", xy=(6400.0, resolution * 1.6),
+    axes[0].annotate("one acquisition sample: $a\\,\\Delta t_s/2$ = 28.5 m", xy=(3200.0, resolution * 0.55),
                      fontsize=8)
     axes[0].set_yscale("log")
     axes[0].set_xlabel("true distance of the hole along the line  [m]")
-    axes[0].set_ylabel("median localisation error  [m]")
+    axes[0].set_ylabel("median error of the accepted positions  [m]")
     axes[0].set_title("where the wave puts it")
-    axes[0].legend(fontsize=8, title="hole", ncol=2)
+    axes[0].legend(fontsize=7, title="hole", ncol=2)
     axes[0].grid(alpha=0.3)
+
+    places = [bands[f"{p:.0f}"] for p in POSITIONS]
+    index = np.arange(len(places))
+    axes[1].bar(index - 0.2, [p["median_error_m"] for p in places], 0.4, color="#0081be", label="accepted")
+    axes[1].bar(index + 0.2, [p["withheld_median_m"] or 0.0 for p in places], 0.4, color="#a23a00",
+                label="withheld (what it would have said)")
+    axes[1].plot(index - 0.2, [p["worst_error_m"] for p in places], "_", color="#0081be", ms=13, mew=1.6,
+                 label="worst of each")
+    axes[1].plot(index + 0.2, [p["withheld_worst_m"] for p in places], "_", color="#a23a00", ms=13, mew=1.6,
+                 label="_nolegend_")
+    axes[1].set_yscale("log")
+    axes[1].set_xticks(index)
+    axes[1].set_xticklabels([f"{p['distance_m'] / 1000:.1f} km\nplaced {p['placed']}/{p['runs']}\n"
+                             f"withheld {p['withheld']}" for p in places], fontsize=7.5)
+    axes[1].set_ylim(0.7, 4000.0)
+    axes[1].set_ylabel("median |error|  [m]")
+    axes[1].set_title("what the gate accepted, and what it refused")
+    axes[1].legend(fontsize=7, loc="upper left")
 
     for diameter in HOLES_MM:
         delays, floors = [], []
@@ -430,19 +456,19 @@ def fig_localisation(sweep: dict) -> None:
             delays.append(got)
             floors.append(entry["delay_floor_s"])
         if delays:
-            axes[1].scatter(floors, delays, s=18, label=f"{diameter:g} mm")
+            axes[2].scatter(floors, delays, s=18, label=f"{diameter:g} mm")
     span = [1.5, 9.5]
-    axes[1].plot(span, span, "k--", lw=0.9)
-    axes[1].set_xlim(*span)
-    axes[1].annotate("the detector adds nothing to the flight time", xy=(5.4, 6.6), fontsize=8)
-    axes[1].set_xlabel("floor: distance to the nearer transmitter / a  [s]")
-    axes[1].set_ylabel("measured detection delay  [s]")
-    axes[1].set_title("why it is late: the wave had to fly there")
-    axes[1].set_yscale("log")
-    axes[1].legend(fontsize=8, title="hole", ncol=2)
-    axes[1].grid(alpha=0.3)
+    axes[2].plot(span, span, "k--", lw=0.9)
+    axes[2].set_xlim(*span)
+    axes[2].set_yscale("log")
+    axes[2].annotate("the detector adds nothing to the flight time", xy=(5.2, 6.2), fontsize=8)
+    axes[2].set_xlabel("floor: distance to the nearer transmitter / a  [s]")
+    axes[2].set_ylabel("measured detection delay  [s]")
+    axes[2].set_title("why it is late: the wave had to fly there")
+    axes[2].legend(fontsize=7, title="hole", ncol=2)
+    axes[2].grid(alpha=0.3)
     figure.suptitle("Place and time of the hole, at a decision interval of 12$\\sigma$", fontsize=11)
-    figure.tight_layout()
+    figure.tight_layout(rect=(0.0, 0.0, 1.0, 0.94))
     figure.savefig(FIGURES / "localisation.png", dpi=130)
     plt.close(figure)
 
@@ -495,7 +521,7 @@ def main() -> int:
     report["seconds"] = round(time.time() - started, 1)
 
     fig_tradeoff(sweep, reference, PIPE)
-    fig_localisation(sweep)
+    fig_localisation(sweep, report["localisation_by_position"])
     output.write_text(json.dumps(report, indent=1) + "\n")
 
     operating = report["leaks"]["10"]["9800"]["by_threshold"]["12"]

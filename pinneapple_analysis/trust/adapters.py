@@ -43,7 +43,7 @@ from .record import (
     utc_now,
 )
 
-__all__ = ["from_ensemble", "weather_horizon", "rollout_horizon", "calibration_uncertainty",
+__all__ = ["from_ensemble", "from_solution", "weather_horizon", "rollout_horizon", "calibration_uncertainty",
            "verification_measurement", "domain_from_gate", "fingerprint_query", "trust"]
 
 _ENSEMBLE_SOURCE = "pinneapple_physics.ensemble.PhysicsEnsemble"
@@ -388,6 +388,183 @@ def verification_measurement(verification: Any, *,
         checks=out, source=f"{source} ({who})")
 
 
+# ------------------------------------------------------------------------------------------ solve results
+def _rms(array: Any) -> float:
+    a = np.asarray(array, float)
+    return float(np.sqrt(np.mean(a ** 2))) if a.size else float("nan")
+
+
+def _weights_fingerprint(model: Any) -> tuple[str, str]:
+    """A fingerprint of the trained parameters: SHA-256 over their float64 values, in the order the model lists them.
+
+    The weights are the model, so they are what a record can point at six months later; the architecture name alone
+    is not. A model whose parameters cannot be read gets ``("", "")`` and the provenance says so, rather than a hash
+    of ``repr(model)``.
+    """
+    try:
+        params = [p.detach().cpu().numpy() for p in model.parameters()]
+    except (AttributeError, TypeError, RuntimeError):
+        return "", ""
+    if not params:
+        return "", ""
+    import hashlib
+
+    h = hashlib.sha256()
+    for p in params:
+        h.update(np.ascontiguousarray(np.asarray(p, dtype=np.float64)).tobytes())
+    return h.hexdigest(), f"sha256 of the {len(params)} parameter arrays ({sum(p.size for p in params)} values, float64)"
+
+
+def _architecture_of(solution: Any) -> tuple[str, str]:
+    """``(architecture, family)`` of a solve result or a physics model, from its own record; empty when it says none.
+
+    A :class:`pinneapple_physics.solving.Solution` names its architecture in ``info``; a
+    :class:`pinneapple_neural.physics_model.PhysicsModel` names its family directly (``pinn``, ``operator``, ...).
+    """
+    info = dict(getattr(solution, "info", {}) or {})
+    name = str(info.get("architecture", "") or getattr(solution, "name", "") or "")
+    family = str(info.get("family", "") or getattr(solution, "family", "") or "")
+    if name and not family:
+        try:
+            from pinneapple_neural.architectures.registry import ModelRegistry
+            family = str(getattr(ModelRegistry.spec(name), "family", "") or "")
+        except Exception:                                  # an architecture the registry does not know
+            family = ""
+    return name, family
+
+
+def from_solution(solution: Any, problem: Any = None, *, n_points: int = 512, gate: Any = None,
+                  domain_points: Any = None, ctx: Mapping[str, Any] | None = None, seed: int = 0,
+                  horizon: Horizon | None = None, uncertainty: Uncertainty | None = None,
+                  residual_reference: float | None = None, residual_reference_source: str = "",
+                  kind: str | None = None) -> Trust:
+    """The Trust of a ``pp.solve`` result — a PINN or a neural operator — measured where it matters (#345).
+
+    The library trains these models on a PDE residual; the record may not read the training loss back out and call it
+    a measurement, so the residual here is **re-evaluated on points the model never trained on**: ``n_points`` drawn
+    uniformly in the problem's domain box from a fixed seed,
+    :func:`pinneapple_physics.pinn_solver.compiler.pointwise_residual` — the same expression the solver trains on, so
+    the check is of the equation the model was trained for and not of a copy of it — and the RMS over the points.
+
+    What it measures, and what it declares absent instead:
+
+    ==================  ===========================================================================
+    ``residuals``       the PDE residual at fresh points, law ``"pde"``, scope ``"whole field"``
+    ``in_domain``       a :class:`TrustGate` box from the problem's ``domain_bounds``, scored on the
+                        same points (a box is coarser than the training sample and the gate says so)
+    ``provenance``      the method, the architecture and the SHA-256 of the trained weights
+    ``horizon``         ``not_measured``: a steady solve has no lead, and a rollout horizon comes from
+                        ``validation.rollout.divergence_time`` — pass one and it is used
+    ``measurement``     ``not_measured``: a PINN is trained offline and reads no instrument
+    ``uncertainty``     ``not_measured``: a deterministic network emits no interval
+    ==================  ===========================================================================
+
+    ``residual_reference`` is the in-domain level the residual is judged against, and it has to be given with its
+    source: a PINN does not measure one on itself, and a threshold nobody measured is not a reference. Without it the
+    residual gate is ``unmeasured`` and :meth:`Trust.badge` says so — a record that cannot place its own number is
+    ``fading``, never silently ``good``.
+
+    The two kinds land in ``kind``: ``"operator"`` when the architecture belongs to the ``neural_operators`` family
+    of the model registry, ``"pinn"`` otherwise.
+    """
+    from .record import Provenance, Residual, TrustValue, fingerprint_array, library_version, utc_now
+
+    problem = problem if problem is not None else getattr(solution, "problem", None)
+    if problem is None or not hasattr(problem, "to_pde_spec"):
+        raise NotSupported(
+            f"pp.trust cannot read a {type(solution).__name__} without the problem it solves",
+            fix="pass the problem: pp.trust(solution, points, problem); a Solution from pp.solve() carries it, so "
+                "this is only needed for a bare model")
+    model = getattr(solution, "model", None)
+    if model is None:
+        raise NotSupported(
+            f"pp.trust cannot read the trust of a {type(solution).__name__} that carries no trained model",
+            fix="pass a Solution from pp.solve(..., method='pinn') (its .model is the network), or wrap the model in "
+                "a PhysicsEnsemble and pass that instead")
+    spec = problem.to_pde_spec()
+    bounds = dict(getattr(problem, "domain_bounds", {}) or {}) or {c: tuple(v) for c, v in spec.domain_bounds.items()}
+    coords = list(getattr(problem, "coords", []) or list(bounds))
+    missing = [c for c in coords if c not in bounds]
+    if missing:
+        raise ValueError(f"the problem declares no bounds for {missing}, so no point can be sampled in its domain")
+
+    rng = np.random.default_rng(int(seed))
+    X = np.stack([rng.uniform(float(bounds[c][0]), float(bounds[c][1]), int(n_points)) for c in coords], axis=1)
+    points = X
+
+    import torch
+    from pinneapple_physics.pinn_solver.compiler import pointwise_residual
+
+    residual_fn = pointwise_residual(spec, ctx=dict(ctx or {}))
+    try:
+        with torch.no_grad():
+            dtype = next(model.parameters()).dtype
+        out = np.asarray(residual_fn(model, torch.as_tensor(X, dtype=dtype)).detach().cpu().numpy(), float)
+    except (RuntimeError, ValueError, IndexError) as exc:
+        raise NotSupported(
+            f"the residual of {type(model).__name__} cannot be sampled at points: it takes a whole field on its own "
+            f"grid instead ({type(exc).__name__}: {exc})",
+            fix="a grid operator (FNO, UNO, a graph network) predicts a field, not a value at an arbitrary point: "
+                "score the field it emits with pinneapple_analysis.trust.producers (the CFD surrogate does exactly "
+                "that), or wrap it in a PhysicsEnsemble and pass that") from exc
+    value = _rms(out)
+    where = f"{int(n_points)} points drawn uniformly in the box of {getattr(problem, 'name', 'the problem')!r}"
+    judged = residual_reference is not None and bool(residual_reference_source)
+    residuals = (Residual(
+        "pde",
+        TrustValue.measured(
+            value, unit="[-]", source="pinneapple_physics.pinn_solver.compiler.pointwise_residual",
+            method=f"RMS of the PDE residual at {where} (seed {seed}), in the equation's own units: the residual is "
+                   f"re-evaluated on points the model never trained on, never read back from its training loss"
+                   + ("" if judged else "; no in-domain level was measured for it, so nothing here says whether that "
+                                            "number is good (pass residual_reference= with its source to judge it)"),
+            reference=float(residual_reference) if judged else None,
+            reference_source=residual_reference_source if judged else ""),
+        scope="whole field"),)
+
+    if gate is None and bounds and all(isinstance(v, Sequence) and len(v) == 2 for v in bounds.values()):
+        from .trust_gate import TrustGate
+        gate = TrustGate().fit_from_bounds({k: tuple(v) for k, v in bounds.items()})
+    if gate is not None:
+        in_domain, domain_score = domain_from_gate(gate, points if domain_points is None else domain_points)
+    else:
+        why = "the problem declares no domain_bounds and no TrustGate was given, so the input was never tested"
+        in_domain, domain_score = TrustValue.not_measured(why), TrustValue.not_measured(why)
+
+    architecture, family = _architecture_of(solution)
+    model_fp, model_method = _weights_fingerprint(model)
+    data_fp, data_method = fingerprint_array(points)
+    if kind is None:
+        kind = "operator" if "neural_operator" in family else "pinn"
+    return Trust(
+        kind=kind or "pinn",
+        in_domain=in_domain,
+        domain_score=domain_score,
+        horizon=(horizon if horizon is not None else Horizon.not_measured(
+            "a solve result carries no lead: a steady field has no horizon, and an autoregressive one needs "
+            "validation.rollout.divergence_time (rollout_horizon), which the caller passes")),
+        residuals=residuals,
+        measurement=Measurement.not_measured(
+            "a trained network reads no instrument: there is no reading to check, and none is reported as sound",
+            source="pinneapple_analysis.trust.adapters.from_solution"),
+        uncertainty=(uncertainty if uncertainty is not None else Uncertainty.not_measured(
+            "a deterministic network emits a point prediction, not an interval; pass uncertainty= from "
+            "calibration_uncertainty (or the ensemble's own interval) to have one",
+            source="pinneapple_analysis.trust.adapters.from_solution")),
+        provenance=Provenance(
+            kind=kind or "pinn", model=f"{getattr(solution, 'method', 'solve')}({architecture})" if architecture
+            else f"{getattr(solution, 'method', 'solve')}({type(model).__name__})",
+            model_fingerprint=model_fp, model_fingerprint_method=model_method,
+            data_fingerprint=data_fp, data_fingerprint_method=data_method,
+            library_version=library_version(), created=utc_now(),
+            inputs={"points": int(n_points), "seed": int(seed)},
+            notes=(f"the residual is sampled, not the training loss: {int(n_points)} points in the domain box, "
+                   f"interior only" if not bounds else
+                   f"the residual is sampled, not the training loss: {int(n_points)} points drawn in the box, which "
+                   f"is coarser than the training sample",)),
+    )
+
+
 # ------------------------------------------------------------------------------------------ the entry point
 def trust(model: Any, data: Any = None, problem: Any = None, **options: Any) -> Trust:
     """``pp.trust(model, data, problem)`` — the trust of one prediction, as a :class:`Trust` (#345).
@@ -395,36 +572,39 @@ def trust(model: Any, data: Any = None, problem: Any = None, **options: Any) -> 
     Parameters
     ----------
     model
-        The model that made the prediction. Covered today: a
-        :class:`pinneapple_physics.ensemble.PhysicsEnsemble` — and, because it is duck-typed, any surrogate that
-        behaves like one (``predict(query)`` returning the ensemble's own dictionary: ``prediction``, ``spread``,
-        ``lower``/``upper``, and ``residuals`` when it evaluates them). That is the kind that already carries the
-        residual lookahead and the measurement check, so it is the one whose trust can be read instead of invented.
+        The model that made the prediction. Three kinds are covered, which is what the issue asks for:
+
+        * an **ensemble** — a :class:`pinneapple_physics.ensemble.PhysicsEnsemble` and, because it is duck-typed,
+          any surrogate that behaves like one (``predict(query)`` returning the ensemble's own dictionary:
+          ``prediction``, ``spread``, ``lower``/``upper``, and ``residuals`` when it evaluates them). That is the kind
+          that already carries the residual lookahead and the measurement check;
+        * a **PINN** or a **neural operator** — a :class:`pinneapple_physics.solving.Solution` from
+          ``pp.solve``: :func:`from_solution` re-evaluates its PDE residual on points it never trained on;
+        * a **bare surrogate** (a ``torch.nn.Module`` or a callable) — refused by name: wrap it in a
+          :class:`~pinneapple_physics.ensemble.PhysicsEnsemble` and it is covered by the first kind.
     data
         The case the prediction answers: the query passed to ``model.predict``. A mapping with ``"query"`` (and
         optionally ``"reference"``) is unpacked.
     problem
         Optional :class:`pinneapple_physics.PhysicalProblem`. Used for its ``domain_bounds`` (turned into a
         :class:`TrustGate` box, which is coarser than a sample of the training points and says so) and for its name
-        in the provenance.
+        in the provenance. A ``Solution`` carries its own, so it can be omitted there.
     **options
-        ``reference``, ``gate``, ``domain_points``, ``horizon``, ``requested_lead`` — see :func:`from_ensemble`.
+        ``reference``, ``gate``, ``domain_points``, ``horizon``, ``requested_lead`` — see :func:`from_ensemble`; and
+        for a solve result ``n_points``, ``ctx``, ``seed``, ``uncertainty``, ``residual_reference``,
+        ``residual_reference_source`` — see :func:`from_solution`.
 
     Returns
     -------
     Trust
         With every field either measured (number, unit, source) or ``not_measured`` (with the reason).
 
-    What it does **not** cover yet, and refuses with :class:`pinneapple_core.errors.NotSupported` instead of
-    returning a half-empty object as if it were a measurement:
+    What it still does not cover, and refuses with :class:`pinneapple_core.errors.NotSupported` instead of returning
+    a half-empty object as if it were a measurement:
 
-    * a **PINN** or a **neural operator** — their trust needs the residual sampled on collocation points (not the
-      training loss), the boundary-condition error on the geometry, and a horizon from a rollout; none of that is
-      read yet, and no adapter guesses it;
     * a **bare surrogate** (a ``torch.nn.Module`` or a callable) — wrap it in a ``PhysicsEnsemble`` with the
       reference solver as the second expert and it is covered;
-    * the **consumers** (``twin3d``, the weather ``earth2_gif``, certificates) — they do not read :class:`Trust`
-      yet; that is the next slice of #345.
+    * a **solve result with no model in it** (no network to sample a residual from).
 
     Examples
     --------
@@ -444,8 +624,11 @@ def trust(model: Any, data: Any = None, problem: Any = None, **options: Any) -> 
         data = data["query"]
     if getattr(model, "experts", None) is not None and callable(getattr(model, "predict", None)):
         return from_ensemble(model, data, problem=problem, **options)
+    if (callable(getattr(model, "predict", None)) and getattr(model, "model", None) is not None
+            and (problem is not None or hasattr(model, "problem") or hasattr(model, "family"))):
+        return from_solution(model, problem, **options)
     raise NotSupported(
         f"pp.trust does not read the trust of a {type(model).__name__} yet",
-        fix="pass a pinneapple_physics.ensemble.PhysicsEnsemble (or a surrogate with the same predict() contract); "
-            "the PINN and neural-operator kinds need the residual sampled on collocation points and a rollout "
-            "horizon, which #345 still lists as open")
+        fix="pass a pinneapple_physics.ensemble.PhysicsEnsemble (or a surrogate with the same predict() contract), or "
+            "a Solution from pp.solve(..., method='pinn') — a PINN or a neural operator — whose residual is sampled "
+            "on points it never trained on; a bare torch module has no trust of its own to read")

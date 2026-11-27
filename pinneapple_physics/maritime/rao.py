@@ -315,7 +315,7 @@ def _solve(section: Section, omega: float):
     def generalize(phi_at_faces) -> np.ndarray:
         """The generalized force of a pressure field on the wetted surface: ``[F_x, F_z, M_roll]``."""
         total = np.zeros(3, dtype=complex)
-        for (me, x, z, mx, mz, length, _), phi in zip(faces, phi_at_faces, strict=True):
+        for (_me, x, z, mx, mz, length, _), phi in zip(faces, phi_at_faces, strict=True):
             pressure = 1j * omega * RHO * phi
             total += -pressure * length * np.array([mx, mz, x * mz - (z - zc) * mx])
         return total

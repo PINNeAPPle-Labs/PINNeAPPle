@@ -32,7 +32,15 @@ from pathlib import Path
 
 import numpy as np
 
-from pinneapple_physics.maritime import confidence, mooring, motion, ndbc, operability, rao, seastate
+from pinneapple_physics.maritime import (
+    confidence,
+    mooring,
+    motion,
+    ndbc,
+    operability,
+    rao,
+    seastate,
+)
 from pinneapple_physics.maritime import spectrum as sp
 
 HERE = Path(__file__).resolve().parent
@@ -196,7 +204,7 @@ def inertia_ratio(vessel: dict) -> float:
 
 def roll_period_check(vessel: dict) -> dict[str, float]:
     """The resonance the solve gives against the hydrostatics' own period, with and without the added inertia."""
-    section, props = vessel["section"], vessel["properties"]
+    section = vessel["section"]
     hydrostatic = 2.0 * math.pi * section.k_xx / math.sqrt(G_ACC * section.gm)
     solved = vessel["transfer"].period_roll
     return {"hydrostatic_s": float(hydrostatic), "solved_s": float(solved),
@@ -312,8 +320,8 @@ def forecast_window(buoy: Buoy, model: seastate.SeaStateModel, transfer, leads: 
 
     # the day the window closes: a forecast that is open at the first lead and shut before the last one, which is the
     # only day an operability window has anything to say about; failing that, the roughest day in the record
-    chosen, best = None, -1.0
-    roughest, worst = None, -1.0
+    chosen, best = None, -1e9
+    roughest, worst = None, -1e9
     for i in np.where(second_half)[0]:
         spectrum = model.forecast(states["freq"][i], states["density"][i], states["wind"][i], leads=leads)
         pairs = [evaluate_sea(spectrum.hs[j], spectrum.tp[j]) for j in range(leads.size)]
@@ -617,8 +625,9 @@ def main() -> None:
                     "intact_equilibrium": lines["intact_equilibrium"],
                     "lost_equilibrium": lines["lost_equilibrium"],
                     "stiffness": lines["stiffness"], "breaking": lines["breaking"],
-                    "utilisation_static": float(lines["intact_worst"][np.argmin(np.abs(lines["offsets"]))]),
-                    "utilisation_lost": float(lines["lost_worst"][np.argmin(np.abs(lines["offsets"]))])},
+                    "utilisation_static": float(lines["static"]["T_fairlead"] / lines["breaking"]),
+                    "utilisation_at_load": lines["intact_equilibrium"]["utilisation"],
+                    "utilisation_at_load_lost": lines["lost_equilibrium"]["utilisation"]},
         "events": events,
         "window": {"analysis_time": window["analysis_time"],
                    "sentence": window["opening"]["sentence"],

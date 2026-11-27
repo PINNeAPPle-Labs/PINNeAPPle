@@ -1,0 +1,230 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/maritime_operability",
+ "title": "An operability window with a measured confidence: a buoy's sea, a vessel's answer, a mooring and the hours left",
+ "description": "NOAA NDBC station 41010 -- 45 days of ten-minute sea state and 2080 measured wave spectra, 20 NM east of Cape Canaveral in 30 m of water -- read, fitted, forecast with a horizon and scored against itself by halves; a 20 m beam, 6 m draught section whose added mass, damping and excitation come from the two-dimensional free-surface problem solved on a grid; the motions that follow at a crane pedestal and at the bow; the quasi-static catenary of an eight-line mooring and what two lost lines do to the rest; five instrument records with a slam, a mooring step and two failed sensors injected, all five diagnosed correctly; and the product, an operability window quoted with the fraction of hours the forecast's verdict was measured to match the observation's -- 96 % at one hour and 76 % at twenty-four.",
+ "domain": "offshore engineering",
+ "methods": [
+  "JONSWAP and Pierson-Moskowitz spectra",
+  "spectral evolution with a horizon",
+  "2-D free-surface potential flow (finite volume, complex-frequency sponge)",
+  "linear seakeeping response",
+  "quasi-static catenary mooring",
+  "residual diagnosis with a redundant sensor pair",
+  "operability criteria with a measured decision confidence"
+ ],
+ "modules": [
+  "pinneapple_physics.maritime"
+ ],
+ "params": {
+  "station": "41010",
+  "record_days": 45,
+  "spectra": 2080,
+  "bands": 46,
+  "section_beam_m": 20.0,
+  "section_draught_m": 6.0,
+  "section_gm_m": 1.5,
+  "depth_m": 30.0,
+  "mooring_lines": 8,
+  "mooring_depth_m": 120.0,
+  "mooring_initial_span_m": 400.0,
+  "line_length_m": 437.0,
+  "crane_point_m": [0.0, 8.0],
+  "bow_point_m": [20.0, 0.0],
+  "criteria_hs_m": 1.5,
+  "criteria_acceleration_g": 0.2,
+  "leads_hours": 24
+ },
+ "scripts": [
+  "maritime_operability.py",
+  "build_dataset.py"
+ ],
+ "metrics": [
+  {
+   "name": "jonswap_fit_error",
+   "value": 0.283,
+   "unit": "",
+   "how": "median RMS of log S(f) over the energetic bands, for a JONSWAP fitted to each of 120 measured spectra; the Pierson-Moskowitz shape gives 0.428 on the same spectra"
+  },
+  {
+   "name": "fitted_gamma",
+   "value": 1.8,
+   "unit": "",
+   "how": "median peak enhancement of the fitted spectra, against the 3.3 the JONSWAP average is quoted with and the 1.0 of Pierson-Moskowitz"
+  },
+  {
+   "name": "hs_from_spectrum_against_wvht",
+   "value": 0.974,
+   "unit": "",
+   "how": "4 sqrt(m0) over NDBC's 46 published bands against the buoy's own WVHT: the bands the file carries are 2.6 % short of the number NDBC reports"
+  },
+  {
+   "name": "hs_skill_at_12h",
+   "value": 0.020,
+   "unit": "",
+   "how": "1 - MSE(model)/MSE(persistence) for Hs on 254 analyses on the second half of the record, coefficients fitted on the first half: RMSE 0.527 m against 0.532 m"
+  },
+  {
+   "name": "tp_skill_at_12h",
+   "value": 0.039,
+   "unit": "",
+   "how": "the same score for the period: RMSE 1.41 s against 1.44 s; with the other wind-sea closure (relaxing toward a fully developed sea) it is 0.164"
+  },
+  {
+   "name": "heave_rao_long_wave",
+   "value": 1.0009,
+   "unit": "",
+   "how": "the solved section at an 80 s period: a body small against the wavelength has to move with the water"
+  },
+  {
+   "name": "roll_rao_long_wave",
+   "value": 1.0618,
+   "unit": "",
+   "how": "roll per radian of wave slope at 80 s, from the same solve"
+  },
+  {
+   "name": "roll_resonance_solved",
+   "value": 14.53,
+   "unit": "s",
+   "how": "the peak of the solved roll response; the hydrostatic period with k_xx = 0.35 B is 11.47 s, and the solve measures A44 = 0.48 I44, which is the difference"
+  },
+  {
+   "name": "mooring_static_tension",
+   "value": 403875.0,
+   "unit": "N",
+   "how": "the quasi-static catenary at rest: 404 kN, 6.9 % of the 5.83 MN breaking load of the 76 mm chain"
+  },
+  {
+   "name": "mooring_tension_two_lines_lost",
+   "value": 597709.0,
+   "unit": "N",
+   "how": "at the same 400 kN environmental load the intact spread sits 5.15 m off with 512 kN on the worst line, and with two lines gone it sits 8.86 m off with 598 kN: 10.3 % of breaking"
+  },
+  {
+   "name": "mooring_stiffness",
+   "value": 34797.0,
+   "unit": "N/m",
+   "how": "the slope of the worst tension against the offset at rest, where the line still lies on the seabed"
+  },
+  {
+   "name": "decision_skill_at_1h",
+   "value": 0.96,
+   "unit": "",
+   "how": "the fraction of 254 analyses whose operability verdict from the forecast matched the verdict from what the buoy then measured, at a one-hour lead"
+  },
+  {
+   "name": "decision_skill_at_24h",
+   "value": 0.76,
+   "unit": "",
+   "how": "the same fraction at a 24 h lead: the confidence a window is quoted with falls from 96 % to 76 % across the day"
+  },
+  {
+   "name": "events_diagnosed_correctly",
+   "value": 5.0,
+   "unit": "",
+   "how": "five instrument records -- quiet, slam, mooring step, spiking accelerometer, stuck accelerometer -- and the kind of event each was called"
+  }
+ ],
+ "checks": [
+  {
+   "name": "the_spectrum_integrates_to_its_height",
+   "passed": true,
+   "kind": "reference",
+   "label": "4 sqrt(m0) returns the Hs the spectrum was built with to 0.03 % at four sea states"
+  },
+  {
+   "name": "long_wave_response_is_unity",
+   "passed": true,
+   "kind": "physics",
+   "label": "heave 1.0009 and roll 1.062 at an 80 s period, where a small body must move with the water"
+  },
+  {
+   "name": "the_damping_is_not_negative",
+   "passed": true,
+   "kind": "physics",
+   "label": "heave damping positive at every period solved, and both added mass and damping fall away at the short-wave end"
+  },
+  {
+   "name": "the_grid_does_not_move_the_answer",
+   "passed": true,
+   "kind": "verification",
+   "label": "40 nodes per wavelength and a four-wavelength sponge change the heave response by under 2 %; the added mass is the quantity sensitive to the sponge, which is why it is three wavelengths long"
+  },
+  {
+   "name": "the_roll_resonance_matches_its_own_inertia",
+   "passed": true,
+   "kind": "reference",
+   "label": "the resonance lands where C44/(I44 + A44) says with the A44 the solve measured, and it is later than the hydrostatic period, as added inertia must make it"
+  },
+  {
+   "name": "losing_lines_raises_the_load",
+   "passed": true,
+   "kind": "physics",
+   "label": "at a constant environmental load the six remaining lines carry 598 kN against 512 kN for eight"
+  },
+  {
+   "name": "a_quiet_sea_stays_quiet",
+   "passed": true,
+   "kind": "statistical",
+   "label": "the quiet record raises no event at a four-sigma threshold with a share rule, so the detector does not fire on its own noise"
+  },
+  {
+   "name": "the_five_scenarios_are_diagnosed_for_what_they_are",
+   "passed": true,
+   "kind": "reference",
+   "label": "slam called a slam, a tension step called the mooring, a spike and a stuck channel called instruments, and the quiet record called nothing"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/spectra.png",
+   "figures/skill.png",
+   "figures/rao.png",
+   "figures/mooring.png",
+   "figures/window.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/maritime_operability.json",
+   "data/ndbc_41010.npz"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/maritime_operability.md",
+  "script": "examples/maritime_operability/maritime_operability.py"
+ },
+ "references": [
+  {
+   "title": "NOAA National Data Buoy Center, station 41010 (Canaveral) standard meteorological, spectral density and wave summary files",
+   "kind": "dataset",
+   "url": "https://www.ndbc.noaa.gov/data/realtime2/41010.txt",
+   "note": "US Government work, no account; the 45-day slice is written by build_dataset.py as a 173 kB npz with the URL and the window in it"
+  },
+  {
+   "title": "Hasselmann et al. (1973), Measurements of wind-wave growth and swell decay during the Joint North Sea Wave Project (JONSWAP)",
+   "kind": "paper",
+   "url": "",
+   "note": "the spectral shape with the peak enhancement the fit here measures at gamma = 1.8 on average"
+  },
+  {
+   "title": "Pierson & Moskowitz (1964), A proposed spectral form for fully developed wind seas",
+   "kind": "paper",
+   "url": "",
+   "note": "alpha = 0.0081 and omega_p = 0.877 g/U, which give Hs = 0.21 U^2/g and Tp = 7.16 U/g and are checked in the tests against those relations"
+  },
+  {
+   "title": "Biran & Lopez-Pulido, Ship Hydrostatics and Stability, 2nd ed. (2014)",
+   "kind": "book",
+   "url": "",
+   "note": "GM, the waterplane second moment and the roll period the solved resonance is compared with; the 0.35 B gyration estimate is the one pinneapple_simulation.naval.hydrostatics already uses"
+  }
+ ],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11"
+ }
+}

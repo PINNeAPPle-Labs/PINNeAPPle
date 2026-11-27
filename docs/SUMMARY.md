@@ -196,6 +196,7 @@
     * [Engineering Design Optimizer (day 17)](guides/engineering_design_optimizer.md)
     * [Physics Design Optimizer (day 23)](guides/physics_design_optimizer.md)
     * [The Alcubierre warp bubble: curvature, energy conditions and the bill](guides/warp_drive.md)
+    * [An operability window with a measured confidence: a buoy's sea, a vessel's answer and the hours left](guides/maritime_operability.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)
   * [pinneapple_physics](api/pinneapple_physics/index.md)

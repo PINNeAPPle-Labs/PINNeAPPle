@@ -27,7 +27,15 @@ import math
 import numpy as np
 import pytest
 
-from pinneapple_physics.maritime import confidence, mooring, motion, ndbc, operability, rao, seastate
+from pinneapple_physics.maritime import (
+    confidence,
+    mooring,
+    motion,
+    ndbc,
+    operability,
+    rao,
+    seastate,
+)
 from pinneapple_physics.maritime import spectrum as sp
 
 G = 9.81
@@ -95,7 +103,6 @@ def test_the_fit_describes_a_synthetic_jonswap_and_prefers_gamma_above_one():
 # ------------------------------------------------------------------------------------------------ the sea state
 def test_the_separation_frequency_is_where_the_peak_of_a_developed_sea_sits():
     for wind in (6.0, 12.0, 20.0):
-        separation = float(seastate.separation_frequency(wind))
         developed = float(seastate.separation_frequency(wind, ratio=1.14))
         assert developed == pytest.approx(1.0 / sp.fully_developed(wind).tp, rel=2e-2)
 
@@ -152,11 +159,16 @@ def test_the_two_coefficients_and_only_them_come_back_out_of_synthetic_data():
         states.append((freq, spectrum, wind))
         observed_hs.append(out.hs * (1.0 + 0.01 * rng.standard_normal(leads.size)))
         observed_tp.append(out.tp * (1.0 + 0.01 * rng.standard_normal(leads.size)))
-    model, _ = seastate.calibrate(np.tile(freq, (4, 1)), np.array([s[1] for s in states]),
-                                  np.array([s[2] for s in states]), np.array(observed_hs), np.array(observed_tp),
-                                  leads, grid_swell=(12.0, 24.0, 48.0), grid_growth=(4.0, 8.0, 16.0))
+    model, scores = seastate.calibrate(np.tile(freq, (4, 1)), np.array([s[1] for s in states]),
+                                       np.array([s[2] for s in states]), np.array(observed_hs),
+                                       np.array(observed_tp), leads, grid_swell=(12.0, 24.0, 48.0),
+                                       grid_growth=(4.0, 8.0, 16.0))
     assert model.swell_decay_hours == pytest.approx(24.0, rel=1e-6)
-    assert model.windsea_growth_hours == pytest.approx(8.0, rel=1e-6)
+    # the growth timescale is *not* identifiable in the default closure: a wind sea below what the wind holds is
+    # carried, so the cost does not depend on it. That is a property of the model, and it is why the default has one
+    # coefficient doing the work and the other one measured against an alternative closure instead.
+    for growth in (4.0, 8.0, 16.0):
+        assert scores[f"swell=24,growth={growth:g}"] == pytest.approx(scores["cost"], rel=1e-9)
 
 
 def test_skill_score_is_one_when_the_forecast_is_perfect_and_negative_when_it_is_worse():

@@ -21,8 +21,10 @@ them and **where** they leave their domain. This module puts one next to the mod
 
 Weather queries are ``{"i0": <index into the Era5Store>, "steps": int, "variable": "z500"}`` and the prediction is
 ``(steps + 1, lat, lon)`` in physical units — exactly what :mod:`pinneapple_physics.weather.evaluate` scores, so an
-expert built here can be compared case by case with the published skill curves. The physics checks that say where
-each model leaves its domain are in :mod:`pinneapple_physics.domain_checks`.
+expert built here can be compared case by case with the published skill curves. ``variable`` may also be a list of
+names (``["z500", "u500"]``), which comes back stacked as ``(n_variables, steps + 1, lat, lon)``: one read for the
+field and the wind a physics check needs. The physics checks that say where each model leaves its domain are in
+:mod:`pinneapple_physics.domain_checks`.
 """
 from __future__ import annotations
 
@@ -224,18 +226,26 @@ class Adapter:
         return {"adapter": type(self).__name__, "model": self.name, "family": self.family}
 
 
-def _channel(fields: np.ndarray, channels: list[str], variable: str | None, who: str) -> np.ndarray:
-    """One variable out of a (..., channel, lat, lon) forecast, and a message that says what to do when it is absent."""
+def _channel(fields: np.ndarray, channels: list[str], variable: Any, who: str) -> np.ndarray:
+    """One variable out of a (..., channel, lat, lon) forecast, and a message that says what to do when it is absent.
+
+    ``variable`` may also be a sequence of names: the same read serves several channels and the result is stacked
+    along a new first axis, ``(n_variables, steps + 1, lat, lon)``. That is how a physics check asks one model for the
+    tracer *and* the wind that should carry it without reading the archive or running the network twice."""
     if variable is None:
         raise ValueError(f"{who}: the query needs 'variable' (one of {channels[:6]}...): the published archives carry "
                          f"a handful of channels, not the whole state")
-    if variable not in channels:
-        raise PretrainedUnavailable(f"{who} has no channel {variable!r}; it provides {channels}")
-    y = np.asarray(fields)[:, channels.index(variable)]
+    many = not isinstance(variable, str)
+    names = list(variable) if many else [variable]
+    missing = [v for v in names if v not in channels]
+    if missing:
+        raise PretrainedUnavailable(f"{who} has no channel {missing if many else missing[0]!r}; it provides {channels}")
+    y = np.asarray(fields)[:, [channels.index(v) for v in names]]
     if not np.all(np.isfinite(y)):
-        raise PretrainedUnavailable(f"{who}: no values for {variable!r} at this initial time (the archive only has "
-                                    f"00 and 12 UTC initialisations)")
-    return y
+        absent = [v for v in names if not np.all(np.isfinite(y[:, names.index(v)]))]
+        raise PretrainedUnavailable(f"{who}: no values for {absent if many else absent[0]!r} at this initial time "
+                                    f"(the archive only has 00 and 12 UTC initialisations)")
+    return y if many else y[:, 0]
 
 
 class WeatherBench2Adapter(Adapter):
@@ -245,13 +255,19 @@ class WeatherBench2Adapter(Adapter):
     ``forecast`` injects the source instead of opening the archive (a test, or a local mirror with the same
     ``fn(i0, steps) -> (steps + 1, channel, lat, lon)`` contract); without it the archive is opened on first use and
     a missing one is reported with the reason :class:`PublishedForecasts` recorded.
+
+    ``variables`` is the channel map read from the archive: :data:`~pinneapple_physics.weather.evaluate.WB2_NAMES`
+    (the scored channels) by default, and :data:`~pinneapple_physics.weather.evaluate.WB2_CHECKS` when the physics
+    checks need the model's own wind and a same-level dry static energy. The cost estimate follows it.
     """
     family = "weather"
 
     def __init__(self, store: Any, name: str, forecast: Callable | None = None,
-                 latency_s: float = NET_LATENCY_S, throughput_mb_s: float = NET_MB_S):
+                 latency_s: float = NET_LATENCY_S, throughput_mb_s: float = NET_MB_S,
+                 variables: Mapping[str, Any] | None = None):
         super().__init__(name=name, family="weather")
         self.store, self._forecast, self.latency_s, self.mb_s = store, forecast, float(latency_s), float(throughput_mb_s)
+        self.variables = None if variables is None else dict(variables)
         self._pub = None
         self._opened = forecast is not None
 
@@ -260,7 +276,7 @@ class WeatherBench2Adapter(Adapter):
             return self
         from .weather.evaluate import WB2_NAMES, PublishedForecasts
 
-        self._pub = PublishedForecasts(self.store, names=[self.name])
+        self._pub = PublishedForecasts(self.store, names=[self.name], variables=self.variables)
         if self.name not in self._pub.ds:
             why = self._pub.errors.get(self.name, "the archive is not in WeatherBench2's published baselines")
             raise PretrainedUnavailable(
@@ -284,13 +300,27 @@ class WeatherBench2Adapter(Adapter):
         return np.asarray(f)
 
     def predict(self, query: Any) -> np.ndarray:
-        return _channel(self.forecast(query), list(self.store.channels), query.get("variable"), self.name)
+        """One variable of the published forecast, leads 0 to ``steps``. A published archive carries no lead 0 (the
+        analysis is not a forecast: ``PublishedForecasts`` writes NaN there on purpose), and an expert of
+        :class:`PhysicsEnsemble` has to return the same leads as a model trained here, which starts *from* the analysis
+        -- so lead 0 is filled with the store's analysis, the field the archive's own model was initialised with."""
+        f = np.array(self.forecast(query), copy=True)
+        channels = list(self.store.channels)
+        variable = query.get("variable")
+        names = [variable] if isinstance(variable, str) else list(variable or ())
+        for v in names:                                  # lead 0 of every variable asked for, from the analysis
+            if v in channels:
+                c = channels.index(v)
+                f[0, c] = self.store.denorm(np.asarray(self.store.state[int(query["i0"]), c], np.float32), v)
+        return _channel(f, channels, variable, self.name)
 
     def cost(self, query: Any = None) -> float:
         """Latency plus payload: one field per lead and per channel the archive provides (the request fetches the
         whole set, so asking one variable does not make it cheaper)."""
+        from .weather.evaluate import WB2_NAMES
+
         steps = int((query or {}).get("steps", 40))
-        groups = 6                                     # WB2_NAMES: 5 surface/single-level + z and t at a level
+        groups = len(self.variables or WB2_NAMES)      # every (variable, level) of the channel map is a read
         cells = int(np.prod(self.store.state.shape[-2:]))
         payload_mb = steps * groups * cells * 4 / 1e6
         return self.latency_s + payload_mb / max(self.mb_s, 1e-9)

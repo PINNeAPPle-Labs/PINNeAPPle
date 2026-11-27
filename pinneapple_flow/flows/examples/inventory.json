@@ -212,7 +212,7 @@
  "hemodynamics_4dflow": {
   "domain": "biomedical flow",
   "status": "not_convertible",
-  "reason": "a benchmark, not a pipeline: it samples a 4D-flow acquisition from Womersley's closed form, fits an ensemble of axisymmetric Navier-Stokes PINNs to it (33 fits, about an hour of CPU) and reports the error of the wall shear stress and the pressure gradient against the closed form, as a function of the voxel size and the noise. Nothing here is a step a node could be fed: the unit is a phantom case trained to convergence, and its output is a verdict about what the modality supports"
+  "reason": "a benchmark, not a pipeline: it samples a 4D-flow acquisition from Womersley's closed form, fits an ensemble of axisymmetric Navier-Stokes PINNs to it (33 fits, about 35 minutes of CPU) and reports the error of the wall shear stress and the pressure gradient against the closed form, as a function of the voxel size and the noise. Nothing here is a step a node could be fed: the unit is a phantom case trained to convergence, and its output is a verdict about what the modality supports"
  },
  "industrial_presets": {
   "domain": "engineering presets",

@@ -1,0 +1,539 @@
+{
+  "issue": 335,
+  "dt_s": 0.005,
+  "duration_s": 20.0,
+  "fault_time_s": 8.0,
+  "seeds": {
+    "hover": 300,
+    "circle": 301,
+    "weave": 302,
+    "ge_a": 310,
+    "ge_b": 311,
+    "ge_c": 312,
+    "gust_a": 320,
+    "gust_b": 321,
+    "gust_c": 322,
+    "gust_d": 323,
+    "gust_e": 324,
+    "gust_f": 325,
+    "gust_g": 326,
+    "ramp": 340,
+    "step": 341,
+    "unseen amplitude 0.22 m": 350,
+    "unseen amplitude 0.15 m": 351,
+    "calm at 5 m, no ground effect": 352
+  },
+  "identification": {
+    "hover": {
+      "seed": 300,
+      "track": {
+        "mass_kg": [
+          1.49912263292985,
+          1.4999331846339485,
+          1.5003865138499344,
+          1.5002302000465662,
+          1.5001097636634577
+        ],
+        "time_s": [
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          19.99
+        ]
+      },
+      "settle_s": 0.0,
+      "mass_kg": 1.5001097636634577,
+      "mass_std_kg": 4.836195223067633e-05,
+      "inertia": [
+        0.003398405841664797,
+        0.0031876525996033596,
+        0.00667337371041608
+      ],
+      "inertia_std": [
+        0.0021616917997441783,
+        0.0020935910440492192,
+        0.004185447954136544
+      ],
+      "drag_area": [
+        0.0599461206192276,
+        0.06016048373632583,
+        0.14842776473058164
+      ],
+      "drag_std": [
+        0.015001097761123499,
+        0.01500101995613676,
+        0.0399994269089645
+      ],
+      "model_sigma_m_s2": 0.2668341594817131,
+      "speed_max_m_s": 0.2618368211343102,
+      "rate_max_rad_s": 0.01743685333025335,
+      "mass_error": 7.317577563847877e-05,
+      "inertia_error": [
+        -0.6910540143941093,
+        -0.7102134000360583,
+        -0.6822202995039962
+      ],
+      "drag_error": [
+        0.99820402064092,
+        1.0053494578775277,
+        0.8553470591322705
+      ]
+    },
+    "circle": {
+      "seed": 301,
+      "track": {
+        "mass_kg": [
+          1.7094875476000162,
+          1.5758523451240456,
+          1.5208696072839423,
+          1.5070546634775246,
+          1.5029394322103464
+        ],
+        "time_s": [
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          19.99
+        ]
+      },
+      "settle_s": 2.12,
+      "mass_kg": 1.5029394322103464,
+      "mass_std_kg": 5.938289693249891e-05,
+      "inertia": [
+        0.009319217767901245,
+        0.010221425454504633,
+        0.019847855399592038
+      ],
+      "inertia_std": [
+        2.668125642995593e-05,
+        2.4193995107122074e-05,
+        9.465039496825465e-05
+      ],
+      "drag_area": [
+        0.030342139544413498,
+        0.021191106823694853,
+        -0.2542720150182469
+      ],
+      "drag_std": [
+        0.00012549938954316145,
+        0.01502939434542599,
+        0.0037798542087278913
+      ],
+      "model_sigma_m_s2": 0.09116255141265152,
+      "speed_max_m_s": 4.132927766560156,
+      "rate_max_rad_s": 6.158411760322457,
+      "mass_error": 0.0019596214735642103,
+      "inertia_error": [
+        -0.1527983847362504,
+        -0.07077950413594236,
+        -0.054864028590855374
+      ],
+      "drag_error": [
+        0.011404651480450001,
+        -0.29362977254350486,
+        -4.178400187728086
+      ]
+    },
+    "weave": {
+      "seed": 302,
+      "track": {
+        "mass_kg": [
+          1.534748646726149,
+          1.5136493461478864,
+          1.5084443700920345,
+          1.5057750739909568,
+          1.5053750674808704
+        ],
+        "time_s": [
+          1.0,
+          2.0,
+          5.0,
+          10.0,
+          19.99
+        ]
+      },
+      "settle_s": 0.44,
+      "mass_kg": 1.5053750674808704,
+      "mass_std_kg": 9.23387952154569e-05,
+      "inertia": [
+        0.01062720201568976,
+        0.011154337196392269,
+        0.020668654750122827
+      ],
+      "inertia_std": [
+        9.711304910808213e-05,
+        0.00014822773738938096,
+        0.00021899665148734864
+      ],
+      "drag_area": [
+        0.028501571705757917,
+        0.02987062257561197,
+        -0.15309662684502345
+      ],
+      "drag_std": [
+        0.0003368989389151882,
+        0.0003483422849228956,
+        0.006939294098986749
+      ],
+      "model_sigma_m_s2": 0.04084577647879881,
+      "speed_max_m_s": 4.05862276279076,
+      "rate_max_rad_s": 3.6472179539649754,
+      "mass_error": 0.0035833783205803105,
+      "inertia_error": [
+        -0.033890725846385306,
+        0.014030654217479066,
+        -0.015778345232246416
+      ],
+      "drag_error": [
+        -0.04994760980806934,
+        -0.004312580812934286,
+        -2.9137078355627932
+      ]
+    }
+  },
+  "learned_residual": {
+    "ground_effect": {
+      "gains": {
+        "0.25 m": 0.4436290087742727,
+        "0.5 m": -0.1588073708350642
+      },
+      "total_gain": 0.2848216379392085,
+      "declared_gain": 0.15,
+      "fit_residual_m_s2": 0.13140255986691016,
+      "train_residual_m_s2": [
+        0.4366141032390502,
+        0.5057639787068683,
+        0.4386585615324973
+      ],
+      "cases": {
+        "unseen amplitude 0.22 m": {
+          "before_m_s2": 0.48275149939730694,
+          "after_m_s2": 0.1844417325956224,
+          "ratio": 0.3820635105761234
+        },
+        "unseen amplitude 0.15 m": {
+          "before_m_s2": 0.42781253426419763,
+          "after_m_s2": 0.247983235103263,
+          "ratio": 0.5796539728079118
+        },
+        "calm at 5 m, no ground effect": {
+          "before_m_s2": 0.10358162078128214,
+          "after_m_s2": 0.10357985343429674,
+          "ratio": 0.999982937639206
+        }
+      }
+    },
+    "wind": {
+      "pooled_world_force_m_s2": [
+        0.6901940676581858,
+        0.06227960120758179,
+        -0.8296676610218527
+      ],
+      "cases": {
+        "seen 6 m/s, another seed": {
+          "before_m_s2": 0.4421671119397339,
+          "pooled_m_s2": 0.28494091835443963,
+          "causal_m_s2": 0.10689096948670347,
+          "pooled_ratio": 0.6444190684025279,
+          "causal_ratio": 0.24174337394245732
+        },
+        "seen 10 m/s, another seed": {
+          "before_m_s2": 1.3070440754955117,
+          "pooled_m_s2": 0.5542545833707675,
+          "causal_m_s2": 0.18661898139924335,
+          "pooled_ratio": 0.42405194573155064,
+          "causal_ratio": 0.1427794095837927
+        },
+        "unseen 8 m/s": {
+          "before_m_s2": 0.8006531306905796,
+          "pooled_m_s2": 0.19230848402322465,
+          "causal_m_s2": 0.12142550063960368,
+          "pooled_ratio": 0.2401895111024604,
+          "causal_ratio": 0.15165806013257166
+        },
+        "unseen 3 m/s": {
+          "before_m_s2": 0.14711603499670187,
+          "pooled_m_s2": 0.5930351614087574,
+          "causal_m_s2": 0.1042803538632422,
+          "pooled_ratio": 4.031070857925531,
+          "causal_ratio": 0.7088306442297743
+        },
+        "calm, no wind at all": {
+          "before_m_s2": 0.10452727174159998,
+          "pooled_m_s2": 0.7007757746817781,
+          "causal_m_s2": 0.1041414351052332,
+          "pooled_ratio": 6.704238645146632,
+          "causal_ratio": 0.9963087467037254
+        }
+      }
+    }
+  },
+  "horizon": {
+    "threshold_m_s2": 0.6537766666666667,
+    "instants_s": [
+      8.5,
+      9.0,
+      9.5,
+      10.0,
+      12.0
+    ],
+    "ramps": {
+      "0.15 kg": {
+        "horizon": {
+          "8.5": {
+            "seconds": 60.0,
+            "level_m_s2": 0.10441722417909703,
+            "rate_m_s2_s": 0.006949504101471599,
+            "capped": true
+          },
+          "9.0": {
+            "seconds": 3.9646359388354018,
+            "level_m_s2": 0.15362693993386808,
+            "rate_m_s2_s": 0.05884687081458036,
+            "capped": false
+          },
+          "9.5": {
+            "seconds": 1.6747680741915218,
+            "level_m_s2": 0.2124136017605092,
+            "rate_m_s2_s": 0.10421802658319089,
+            "capped": false
+          },
+          "10.0": {
+            "seconds": 0.7028149518062422,
+            "level_m_s2": 0.28801879796405194,
+            "rate_m_s2_s": 0.14085684262604528,
+            "capped": false
+          },
+          "12.0": {
+            "seconds": 0.0,
+            "level_m_s2": 0.5962387873011773,
+            "rate_m_s2_s": 0.16145775324347575,
+            "capped": false
+          }
+        },
+        "diagnosis": "payload",
+        "diagnosis_horizon_s": 0.0
+      },
+      "0.30 kg": {
+        "horizon": {
+          "8.5": {
+            "seconds": 8.977051727201452,
+            "level_m_s2": 0.13470205803046734,
+            "rate_m_s2_s": 0.02809688716102373,
+            "capped": false
+          },
+          "9.0": {
+            "seconds": 0.7318907004508056,
+            "level_m_s2": 0.2594981812853007,
+            "rate_m_s2_s": 0.17415315020292993,
+            "capped": false
+          },
+          "9.5": {
+            "seconds": 0.0,
+            "level_m_s2": 0.3964998932547388,
+            "rate_m_s2_s": 0.2589655792933944,
+            "capped": false
+          },
+          "10.0": {
+            "seconds": 0.0,
+            "level_m_s2": 0.5504091425392291,
+            "rate_m_s2_s": 0.2958867269250546,
+            "capped": false
+          },
+          "12.0": {
+            "seconds": 0.0,
+            "level_m_s2": 1.1764731540500704,
+            "rate_m_s2_s": 0.32156485281603236,
+            "capped": false
+          }
+        },
+        "diagnosis": "payload",
+        "diagnosis_horizon_s": 0.0
+      },
+      "0.60 kg": {
+        "horizon": {
+          "8.5": {
+            "seconds": 1.899207260640289,
+            "level_m_s2": 0.21558310441135867,
+            "rate_m_s2_s": 0.09022275738889123,
+            "capped": false
+          },
+          "9.0": {
+            "seconds": 0.0,
+            "level_m_s2": 0.4883997290317901,
+            "rate_m_s2_s": 0.42457048148571774,
+            "capped": false
+          },
+          "9.5": {
+            "seconds": 0.0,
+            "level_m_s2": 0.7749071848295638,
+            "rate_m_s2_s": 0.5571085626859944,
+            "capped": false
+          },
+          "10.0": {
+            "seconds": 0.0,
+            "level_m_s2": 1.080101393509792,
+            "rate_m_s2_s": 0.5957147921654062,
+            "capped": false
+          },
+          "12.0": {
+            "seconds": 0.0,
+            "level_m_s2": 2.333406136276632,
+            "rate_m_s2_s": 0.638736984355323,
+            "capped": false
+          }
+        },
+        "diagnosis": "payload",
+        "diagnosis_horizon_s": 0.0
+      }
+    },
+    "step": {
+      "before": {
+        "seconds": 60.0,
+        "level_m_s2": 0.0933121383454626
+      },
+      "after": {
+        "seconds": 0.0,
+        "level_m_s2": 1.861082661246149
+      }
+    },
+    "excitation": {
+      "hover": {
+        "sigma_m_s2": 0.2668341594817131,
+        "seconds": 1.6746517963006013,
+        "level_m_s2": 0.2124136017605092
+      },
+      "weave": {
+        "sigma_m_s2": 0.04084577647879881,
+        "seconds": 3.843071122706878,
+        "level_m_s2": 0.2124136017605092
+      }
+    }
+  },
+  "external_logs": {
+    "why": "the issue asks the estimator to be run on real flight logs (PX4 Flight Review, the CMU ALFA dataset). Neither could be obtained from this machine, and no run is reported rather than a fabricated one",
+    "probes": [
+      {
+        "url": "https://review.px4.io/",
+        "http": 200,
+        "what": "the service is alive"
+      },
+      {
+        "url": "https://review.px4.io/browse",
+        "http": 200,
+        "what": "returns a page with no log ids: Flight Review has no public index, a log is reachable only by the id its owner publishes, and there is no id to use"
+      },
+      {
+        "url": "https://theairlab.org/alfa-dataset/",
+        "http": 200,
+        "what": "ALFA: 1.7 GB zipped (12.5 GB unzipped) of ROS .bag files from an ArduPilot Pixhawk over MAVLink 2.0, behind a Box shared link"
+      },
+      {
+        "url": "https://api.box.com/2.0/shared_items",
+        "http": 401,
+        "what": "an anonymous shared-link query to the Box API needs an app token"
+      },
+      {
+        "url": "https://kilthub.cmu.edu/api/datasets/:persistentId/?persistentId=doi:10.1184/R1/12707963",
+        "http": 202,
+        "what": "the Dataverse record behind the DOI answers the API with an empty body (bot challenge)"
+      }
+    ],
+    "what_a_test_would_need": [
+      "time-aligned accelerometer, gyro, attitude and GPS velocity at a known rate -- ALFA's .bag and a PX4 .ulg both have them, and this estimator's interface (OnlineExpert.update) takes exactly those plus the rotor speed",
+      "the rotor speed the thrust is computed from. This simulator's ESC reports it; a log carries a PWM command and not the speed, so a PWM -> omega curve has to be identified first, and that curve is the largest single error term the expert has (a 1 % speed error is a 2 % thrust error, which is the whole vertical drag signal)",
+      "the mass and the inertia of the airframe the log was flown on, which neither dataset publishes per flight; without them nothing can be scored, only cross-checked",
+      "an interactive download (a browser or an authenticated client) and a .bag/.ulg reader, neither of which this environment has"
+    ]
+  },
+  "checks": [
+    {
+      "name": "mass_is_identified_in_every_flight",
+      "passed": true,
+      "kind": "numerical",
+      "label": "worst mass error over hover, circle and weave is 0.36 %"
+    },
+    {
+      "name": "a_hover_does_not_identify_the_inertia",
+      "passed": true,
+      "kind": "numerical",
+      "label": "the hover's inertia is +-64 % (and -69 % wrong); the weave's is 3.4 %"
+    },
+    {
+      "name": "the_vertical_drag_is_not_identified",
+      "passed": true,
+      "kind": "reference",
+      "label": "the drag along the thrust axis comes out -191 % of the truth: a flight that does not fly vertically cannot identify it"
+    },
+    {
+      "name": "the_ground_effect_transfers_to_unseen_flights",
+      "passed": true,
+      "kind": "numerical",
+      "label": "held-out flights through the skirt: unseen amplitude 0.22 m 0.38x, unseen amplitude 0.15 m 0.58x, calm at 5 m, no ground effect 1.00x"
+    },
+    {
+      "name": "the_ground_effect_leaves_a_calm_flight_alone",
+      "passed": true,
+      "kind": "numerical",
+      "label": "a flight at 5 m is unchanged (1.00x)"
+    },
+    {
+      "name": "the_causal_wind_transfers_to_unseen_speeds",
+      "passed": true,
+      "kind": "numerical",
+      "label": "the 8 m/s gust it never saw: 0.80 -> 0.12 m/s^2 (0.15x)"
+    },
+    {
+      "name": "a_pooled_wind_does_not_transfer",
+      "passed": true,
+      "kind": "numerical",
+      "label": "one constant world force fitted across the gusts makes a calm flight 6.7x worse: the wind is a state, not a coefficient"
+    },
+    {
+      "name": "the_causal_wind_leaves_a_calm_flight_alone",
+      "passed": true,
+      "kind": "numerical",
+      "label": "a calm flight is unchanged (1.00x)"
+    },
+    {
+      "name": "the_horizon_shortens_as_the_fault_grows",
+      "passed": true,
+      "kind": "numerical",
+      "label": "half a second after the onset: 0.15 kg 60.0 s, 0.30 kg 9.0 s, 0.60 kg 1.9 s; the smallest of them is down to 4.0 s one second later and 0.0 s four seconds after that"
+    },
+    {
+      "name": "a_step_fault_expires_the_model",
+      "passed": true,
+      "kind": "numerical",
+      "label": "the model answers for 60.0 s before a 0.30 kg step and 0.0 s after it"
+    },
+    {
+      "name": "a_poorly_excited_model_answers_for_less",
+      "passed": true,
+      "kind": "numerical",
+      "label": "the same flight, judged by a model a hover taught, answers for 1.7 s; by one a maneuver taught, 3.8 s"
+    }
+  ],
+  "truth": {
+    "mass_kg": 1.5,
+    "inertia": [
+      0.011,
+      0.011,
+      0.021
+    ],
+    "drag_area": [
+      0.03,
+      0.03,
+      0.08
+    ]
+  },
+  "seconds": 111.63842415809631,
+  "machine": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "python": "3.11.16",
+    "processor": "arm",
+    "cpus": 10
+  }
+}

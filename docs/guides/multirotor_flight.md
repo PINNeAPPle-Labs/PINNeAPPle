@@ -165,8 +165,9 @@ area** it should have, and is flown at 200 Hz for twenty seconds:
 Three things are worth reading twice.
 
 * **A hover identifies the mass on its first sample.** The accelerometer measures `T/m` and the ESC reports `T`, so the
-  answer is one division, not a convergence: it goes from 3.0 kg to 1.5001 kg on the first reading and stays. What
-  takes *seconds* is everything else, because everything else needs the vehicle to move.
+  answer is one division, not a convergence: it goes from the declared 3.0 kg to within 1 % of the true mass on the
+  first sample and settles at 1.5001 kg (+0.01 %). What takes *seconds* is everything else, because everything else
+  needs the vehicle to move.
 * **The inertia is identified only by a maneuver, and the covariance is what says so.** In a hover the torque equation
   is `0 = 0`: nothing rotates, so nothing says what it costs to rotate, and the estimate wanders 69 % away with a
   ±63 % uncertainty attached to it. The `weave` — a figure-eight with an oscillating heading, added to `Trajectory` for

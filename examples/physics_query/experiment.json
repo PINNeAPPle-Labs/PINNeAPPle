@@ -14,9 +14,7 @@
   "pinneapple_condense.query"
  ],
  "params": {},
- "scripts": [
-  "run_demo.py"
- ],
+ "scripts": [],
  "metrics": [
   {
    "name": "queries",
@@ -86,13 +84,13 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "c1468334",
-  "created": "2026-10-25T11:30:15Z",
-  "seconds": 0.525,
+  "git": "c8a6e3dce",
+  "created": "2026-11-22T18:58:15Z",
+  "seconds": 0.293,
   "error": null,
   "environment": {
-   "python": "3.13.17",
-   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit"
   }
  }
 }

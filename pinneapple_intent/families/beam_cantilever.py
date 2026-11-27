@@ -59,7 +59,13 @@ class CantileverBeam(StudyFamily):
     qoi_label = "tip deflection"
     keywords = {"beam": 1.2, "cantilever": 1.4, "deflection": 1.2, "bending": 1.0, "bend": 0.8, "elasticity": 0.8,
                 "structural": 0.6, "young": 1.2, "modulus": 1.0, "stress": 0.5, "bracket": 0.8, "load": 0.4,
-                "stiffness": 1.0, "arm": 0.6, "strut": 0.8, "section": 0.4}
+                "stiffness": 1.0, "arm": 0.6, "strut": 0.8, "section": 0.4,
+                # português: a mesma viga em balanço
+                "viga": 1.2, "balanço": 1.4, "balanco": 1.4, "console": 1.2, "engastada": 1.2, "flecha": 1.2,
+                "deflexão": 1.2, "deflexao": 1.2, "flexão": 1.0, "flexao": 1.0, "elástico": 0.8,
+                "elastico": 0.8, "estrutural": 0.6, "módulo": 1.0, "modulo": 1.0, "tensão": 0.5, "tensao": 0.5,
+                "suporte": 0.8, "braço": 0.6, "braco": 0.6, "rigidez": 1.0, "seção": 0.4, "secao": 0.4,
+                "carga": 0.6}
     equations = (
         "E' I d^2 w/dx^2 = M(x),  E' = E / (1 - nu^2)   (Euler-Bernoulli, plane strain)",
         "w(0) = 0, w'(0) = 0   (clamped root)",
@@ -85,28 +91,44 @@ class CantileverBeam(StudyFamily):
         "Boresi & Chong, Elasticity in Engineering Mechanics (plane strain replaces E with E / (1 - nu^2)).",
     )
     slots = (
-        Slot("length", "beam length", unit="m", display_unit="mm", keywords=("length", "long", "span"),
+        Slot("length", "beam length", unit="m", display_unit="mm",
+             keywords=("length", "long", "span", "comprimento", "extensão", "extensao", "vão", "vao"),
              critical=True, bounds=(1e-3, 100.0), role="scale", question="How long is the beam?"),
         Slot("height", "section depth in the plane of bending", unit="m", display_unit="mm",
-             keywords=("height", "thickness", "depth in plane", "section"), critical=True, bounds=(1e-4, 10.0),
+             keywords=("height", "thickness", "depth in plane", "section", "altura", "espessura", "seção",
+                       "secao"), critical=True, bounds=(1e-4, 10.0),
              role="scale", question="What is the beam's section depth in the plane of bending?"),
-        Slot("depth", "out-of-plane depth", unit="m", display_unit="mm", keywords=("width", "out of plane", "depth"),
+        Slot("depth", "out-of-plane depth", unit="m", display_unit="mm",
+             keywords=("width", "out of plane", "depth", "largura", "profundidade"),
              default=1.0, default_source="1 m, the unit depth of the two-dimensional model; the load is entered as "
                                           "a total over it and divided by it",
              bounds=(1e-3, 100.0), role="scale", question="What is the out-of-plane depth of the beam?"),
         Slot("youngs_modulus", "Young's modulus", unit="Pa", display_unit="GPa",
-             keywords=("young", "modulus", "gpa", "stiffness"), critical=True, bounds=(1e5, 1e13), role="material",
+             keywords=("young", "modulus", "gpa", "stiffness", "módulo", "modulo", "rigidez", "elasticidade"),
+             critical=True, bounds=(1e5, 1e13), role="material",
              question="What is the Young's modulus of the material?"),
-        Slot("poisson", "Poisson's ratio", unit="", keywords=("poisson", "ratio"), default=0.3,
+        Slot("poisson", "Poisson's ratio", unit="", keywords=("poisson", "ratio", "coeficiente de poisson"),
+             default=0.3,
              default_source="0.3, the usual value for steel and aluminium alloys",
              bounds=(-0.99, 0.49), role="material", question="What is the Poisson's ratio?"),
-        Slot("load", "tip load", unit="N", display_unit="kN", keywords=("load", "force", "n", "kn"),
+        Slot("load", "tip load", unit="N", display_unit="kN",
+             keywords=("load", "force", "n", "kn", "carga", "força", "forca"),
              critical=True, bounds=(1e-6, 1e9), role="load", question="What load acts at the tip?"),
     )
     hints = (
         ("length", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\s+(?:long|span|beam)\b"),
+        # português: "2 m de comprimento", "comprimento de 2 m", "vão de 2 m"
+        ("length", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\s*(?:de\s+)?(?:comprimento|v[ãa]o)\b"),
+        ("length", r"(?i)\b(?:comprimento|v[ãa]o)\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\b"),
+        ("length", r"(?i)\b(?:viga|barra|perfil|bra[çc]o)\s+(?:em\s+balan[çc]o\s+)?(?:engastad[ao]\s+)?"
+                   r"(?:de|com|:)\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\b"),
         ("height", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\s+(?:deep|depth|high|tall|thick)\b"),
+        ("height", r"(?i)\b(?:altura|profundidade)\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\b"),
+        ("height", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\s*(?:de\s+)?(?:altura|profundidade)\b"),
+        ("height", r"(?i)\bse[çc][ãa]o\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>mm|cm|m)\b"),
         ("load", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>n|kn|mn)\s*(?:of\s+)?(?:load|force)\b"),
+        ("load", r"(?i)\b(?:carga|for[çc]a)\s*(?:de|:)?\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>n|kn|mn)\b"),
+        ("load", r"(?i)\b(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>kn|n)\s+(?:na\s+ponta|no\s+extremo|aplicad[ao]s?)\b"),
         ("youngs_modulus", r"(?i)\be\s*=\s*(?P<v>\d+(?:[.,]\d+)?)\s*(?P<u>gpa|mpa|kpa|pa)\b"),
     )
     # the bending gradient is across the section and the immersed stencil is wider than a beam element's, so the

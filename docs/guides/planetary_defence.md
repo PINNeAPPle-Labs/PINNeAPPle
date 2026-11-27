@@ -1,9 +1,10 @@
-# Planetary defence: what a kinetic impactor buys, and how far ahead the miss can be guaranteed
+# Planetary defence: what a kinetic impactor buys, how far ahead the miss can be guaranteed, and what each
+# acceleration in the field is worth
 
 An asteroid's orbit is an uncertainty cloud that grows with time. A kinetic impactor nudges it, and the question a
 decision-maker actually asks is not "what is the delta-v" but **"for how long ahead can we still guarantee a miss, and
 what does it cost"**. This module answers with the numbers that can be checked against the missions and objects whose
-answer is already known.
+answer is already known — and where a number is too small to matter, it says so with the number next to it.
 
 ## 1. The impulse, held to the mission that flew it
 
@@ -24,13 +25,16 @@ A body of mass `M` hit by `m` at speed `v` gets `delta_v = beta m v / M`; on a c
 
 ## 2. The nudge, on an object whose encounter is known
 
-Apophis passes **38 356 km** from the Earth on 2029-04-13 at 7.41 km/s — the encounter the propagator in this
-repository reproduces from the bundled JPL elements (0.000256 au against the ~0.0002 au of the published solution).
+Apophis passes **38 356 km** from the Earth on 2029-04-13 at 7.41 km/s, from the bundled JPL elements. The same
+record carries JPL's own uncertainty for that flyby — 0.000252172816 au with a 3-sigma range of
+0.000247515–0.000256837 au, which is **37 724 km ± 232 km (1 sigma)**. The model is 632 km away from it: 2.7 sigma,
+inside JPL's 697 km 3-sigma range, which is the repository's own gate (`smallbodies.validation_summary`).
 
 ```python
-from pinneapple_physics.astro.defence import APOPHIS_2029_JD, deflection_table, miss_distance
+from pinneapple_physics.astro.defence import APOPHIS_2029_JD, deflection_table, jpl_miss_sigma_km, miss_distance
 from pinneapple_physics.astro.smallbodies import load_body
 
+jpl_miss_sigma_km()["sigma_km"]      # 232.4 -- 1 sigma of the flyby distance, from the record's 3-sigma range
 body = load_body("apophis")
 rows = deflection_table(body, APOPHIS_2029_JD - 5 * 365.25, APOPHIS_2029_JD,
                         masses_kg=(100.0, 1000.0, 10000.0), speed_km_s=6.1, target_kg=5.4e10)
@@ -53,45 +57,144 @@ on the very same orbit buys **87 263 km**: 1 000 kg there is 169 mm/s, and the m
 the honest summary of planetary defence — it is a problem of *small* targets and *long* warning times, and the useful
 question about a big one is how early you have to go.
 
-## 3. What can be guaranteed
+## 3. The table read as the probability that it hits
 
-`beta` and the Yarkovsky drift `A2` are not known exactly. The orbit is therefore an ensemble, and the two questions
-have the same shape:
+A miss distance is not a decision; the probability that the body hits is. It is the same table, read with the two
+uncertainties that are already measured: the ensemble below gives the spread of the miss at each warning time, and
+JPL gives the orbit's own 232 km. Added in quadrature, they are the sigma of a Gaussian whose mean is the table's miss,
+and the probability that the true miss falls inside the Earth is `impact_probability`:
+
+```python
+from pinneapple_physics.astro.defence import impact_probability
+
+impact_probability(miss_km, sigma_km)        # P(|miss + error| < R_earth), the 1-D reading of the b-plane
+```
+
+Two geometries are read off the same rows, and they are two panels of `figures/impact_probability.png`:
+
+* **a body on a collision course** — the undeflected miss is the Earth's limb, so every kilometre the table bought is
+  margin, and the surface is the probability that it still hits. This is the only case a deflection changes, and the
+  surface falls across it by **twenty-four orders of magnitude**: 0.499 for 30 kg with one year of warning (the body is
+  still on the limb) down to **2.9e-25** for 10 000 kg with ten years of it.
+* **Apophis 2029** — the undeflected miss is the 38 356 km measured above, and the question is whether any cell walks
+  it back. None does: the closest cell is still **137 sigma** from an impact and the best one 147, so the table's whole
+  range of impactors moves the decision from "137 sigma safe" to "147 sigma safe".
+
+That is what the surface shows that the table did not: the table's 38 357 → 40 765 km reads like "nothing changes",
+and it is a fall of twenty-four orders of magnitude in the probability. It also shows the *floor* of the exercise —
+the 232 km of orbit uncertainty is what stands between the impactor and a guarantee, and no mass in the catalogue
+clears it: even the best cell leaves the body six Earth radii away, having moved it a third of one.
+
+## 4. What can be guaranteed
+
+`beta`, the Yarkovsky `A2` and the area-to-mass ratio that sets solar radiation pressure are not known exactly, so the
+orbit is an ensemble, and the two questions have the same shape:
 
 ```python
 from pinneapple_physics.astro.defence import sample_ensemble, success_probability, trust_horizon
 
-draws = sample_ensemble(n=64, a2_au_d2=-2.9e-14, a2_sigma=3e-15, beta=3.61, beta_sigma=0.35, seed=0)
-success_probability(misses_km)                    # fraction of the ensemble that clears the Earth
-trust_horizon(warning_days=days, spread_km=spread) # the warning time where the spread reaches the Earth's radius
+draws = sample_ensemble(n=6, a2_au_d2=-2.9e-14, a2_sigma=3e-15, beta=3.61, beta_sigma=0.35,
+                        area_to_mass_m2_kg=1.54e-6, am_sigma=0.5, seed=0)
+success_probability(misses_km)                      # fraction of the ensemble that clears the Earth
+trust_horizon(warning_days=days, spread_km=spread)  # the warning time where the spread reaches the Earth's radius
 ```
+
+Every draw is flown with *its own* parameters — `ensemble_arcs` integrates each member, so the `A2` draw is an
+acceleration the body actually feels and not a column in a table.
 
 The **trust horizon** is the point of the whole exercise: beyond it, "we will miss" is not a guarantee whatever the
 model says, because the ensemble is wider than the planet. It is the same object as the trust horizon of a forecast,
 applied to a deflection.
 
-Measured on the Apophis deflection with `beta` at ±0.35 and `A2` at ±3e-15 au/day^2 (6 draws): the spread of the miss
-is **2 km at 1 year, 18 km at 5, 21 km at 10**, against the Earth's 6 371 km radius, and the success fraction is 1.00
-at all three. That is a result about *what this ensemble does not contain*: the deflection parameters are far from
-being what limits the guarantee at this scale, and the dominant term for a real object is the uncertainty of the orbit
-solution itself (JPL's own covariance), which this slice does not carry. The horizon function returns the last warning
-time it was given when the ensemble never reaches the Earth — read it as "at least this far", not "exactly".
+Measured on the Apophis deflection with `beta` at ±0.35, `A2` at ±3e-15 au/day^2 and the area-to-mass ratio at ±50 %
+(6 draws): the spread of the miss is **11.9 km at 1 year, 19.2 km at 5, 21.9 km at 10**, against the Earth's 6 371 km
+radius, and the success fraction is 1.00 at all three. The horizon function returns the last warning time it was given
+when the ensemble never reaches the Earth — read it as "at least this far", not "exactly".
 
-The Yarkovsky drift is the largest unmodelled acceleration: for Apophis (`A2 = -2.9e-14 au/day^2`) the module gives
-**-166 m a year** of semi-major-axis drift, against the ~170 m/yr published — which is why `A2` is one of the two
-uncertain parameters and not a detail.
+That is a result about *what this ensemble does not contain*, and §5 puts a number on it: the deflection parameters
+move the miss by tens of kilometres, while the orbit solution JPL publishes for the same flyby is 232 km wide. The
+deflection is not what limits the guarantee at this scale — the orbit is.
 
-## 4. What the example produces
+The Yarkovsky drift is the largest of the small accelerations: for Apophis (`A2 = -2.9e-14 au/day^2`) the module gives
+**-166 m a year** of semi-major-axis drift, against the ~170 m/yr published — which is why `A2` is one of the uncertain
+parameters and not a detail.
 
-`examples/planetary_defence/apophis_deflection.py` runs the three acts and writes `apophis_deflection.json` plus two
-figures: the miss distance against impactor mass for three warning times, and the ensemble spread against warning time
-with the trust horizon drawn on it. `--quick` runs the DART anchor and one deflection in under a minute; the full study
-takes about 25 minutes on four cores, because it propagates a 15-year arc once per row.
+## 5. What each acceleration in the field is worth
 
-## 5. What this does not do
+`perturbation_budget` takes the field apart: it drops each perturber in turn, switches solar radiation pressure on at
+the rock's own area-to-mass ratio and at ten times it, adds the Yarkovsky term, and repeats the run once at a tighter
+integrator tolerance — that last row is the numerical floor the small rows have to be read against. One long
+integration per row, over the whole arc, because an asteroid's trajectory is not reusable.
 
-- The n-body field is the one the repository already ships (Sun, planets, Moon, the Sun's relativistic term, DE421);
-  the 16 perturbing asteroids that a real impact solution uses are not there, which is the ~20 % between the 38 356 km
-  above and the published 31 000 km.
+| term taken out or added | miss at 2029-04-13 | change | how far the body moved at the encounter |
+|---|---|---|---|
+| the field the module ships (Sun, 8 planets, Moon, 1PN) | 38 356 km | — | — |
+| without Venus | 2 808 518 km | +2 770 162 km | 2 861 938 km |
+| without the Earth | 2 193 147 km | +2 154 790 km | 2 160 999 km |
+| without Jupiter | 1 288 361 km | +1 250 005 km | 1 330 353 km |
+| without Saturn | 181 374 km | +143 017 km | 147 614 km |
+| without the Moon | 60 722 km | +22 366 km | 23 955 km |
+| without Mars | 30 284 km | −8 072 km | 8 791 km |
+| without Uranus | 31 168 km | −7 188 km | 7 633 km |
+| without Mercury | 43 800 km | +5 444 km | 5 767 km |
+| without Neptune | 35 631 km | −2 726 km | 2 891 km |
+| Yarkovsky, `A2 = -2.9e-14 au/day^2` | 38 029 km | −327 km | 351 km |
+| solar radiation pressure at 10x (A/M = 1.54e-5 m^2/kg) | 38 593 km | +237 km | 253 km |
+| solar radiation pressure at 1x (A/M = 1.54e-6 m^2/kg) | 38 380 km | +24 km | 25 km |
+| the numerical floor (rtol 1e-11 → 1e-12) | 38 357 km | +0.7 km | 1 km |
+
+Two things come out of it, and the first is the honest one about this whole exercise:
+
+* **the 2029 miss is the result of the entire twenty-one-year arc, not of the last encounter.** Every perturber in the
+  field is worth at least a few thousand kilometres, so none of them can be dropped, and the Earth itself — which pulls
+  on Apophis at its earlier approaches as much as at this one — is worth two million. That is also why the model lands
+  632 km from JPL's solution rather than on it: the sixteen perturbing asteroids a real impact solution uses are not in
+  this field.
+* **solar radiation pressure does not matter in this window, and here is the number.** At the rock's own area-to-mass
+  ratio it moves the 2029 miss by **24 km**: 0.4 % of the Earth's radius, a tenth of JPL's own uncertainty, and thirty
+  times the floor of the computation — real, measurable, and irrelevant to the decision. Ten times the pressure (a body
+  a tenth of the width) is 237 km, which is where it starts to matter.
+* The Yarkovsky term is −327 km, more than the uncertainty JPL quotes: the acceleration is worth including, and
+  `ensemble_arcs` finds the same thing from the other side, since it is the largest term in the spread.
+
+## 6. The animation
+
+`figures/planetary_defence.gif` is the picture the deliverable asked for — the uncertainty cloud growing over the
+years, the impactor arriving, and the approach that is not an impact — and it is made of the ensemble, not drawn:
+
+* every dot is a member of `result["ensemble"]["arcs"]`, flown with its own `beta`, `A2` and area-to-mass ratio, so
+  the widening is the members diverging;
+* the top panel is the distance from the Earth falling over the ten years, one trajectory per member, with the
+  Earth's surface drawn on it;
+* the second is the cloud's width — each member's offset from the undeflected body, which grows from the **14 km** it
+  already has at the impulse (the `A2` and area-to-mass draws act on the whole arc, not from the impact) to **274 km**
+  at the flyby, spreading the six members between 216 and 274 km. It is measured *along* the orbit, where the body is
+  moving at 30 km/s: the cloud is long, not thick, and the miss distance it moves is the 22 km of §4, an order of
+  magnitude smaller;
+* the third is the encounter plane to scale, Earth's disk and two dots — undeflected and deflected — with a zoomed
+  inset against JPL's 1 sigma, because at the full scale the deflection is a few pixels.
+
+## 7. What the example produces
+
+`examples/planetary_defence/apophis_deflection.py` runs the four acts and writes `apophis_deflection.json` plus four
+figures: `miss_vs_mass.png` (the table), `trust_horizon.png` (the spread against warning time), `impact_probability.png`
+(§3) and `planetary_defence.gif` (§6). `--quick` runs the DART anchor and one deflection in under a minute; the full
+study takes about 35 minutes, because it propagates a twenty-one-year arc once per table row, once per ensemble member
+and once per acceleration in §5.
+
+## 8. What this does not do
+
+- The n-body field is the one the repository already ships (Sun, planets, Moon, the Sun's relativistic term, DE421).
+  The 16 perturbing asteroids that a real impact solution uses are not there, which is the 632 km between the 38 356 km
+  above and JPL's 37 724 km — inside the 697 km 3-sigma JPL publishes, and the first thing to fix if it has to be
+  better.
+- The impact probability is the **1-D** reading of the b-plane: the Gaussian of the miss distance, not the integral of
+  a 2-D error ellipse over the capture cross-section. It is the right reading while the uncertainty is much smaller
+  than the Earth (232 km against 6 371 km) and the wrong one for a cloud wider than the planet, which is exactly the
+  regime a last-minute deflection is in — that case needs JPL Sentry's covariance and the full Rice distribution.
+- The "body on a collision course" panel is a what-if, and says so: the table's rows applied to an undeflected miss
+  of one Earth radius. It is not a published impact solution for any object.
 - The impactor is a momentum impulse at one instant: no cratering, no ejecta modelling beyond the single `beta`.
-- The uncertainty ensemble is normal and seeded; it is not a covariance-propagated orbit solution from JPL Sentry.
+- The uncertainty ensemble is normal and seeded; it is not a covariance-propagated orbit solution. What it carries
+  (beta, `A2`, area-to-mass) are the deflection's parameters; the orbit's own covariance enters only through the JPL
+  sigma of §3.

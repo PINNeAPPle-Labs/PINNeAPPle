@@ -1,16 +1,19 @@
 {
  "schema": "pinneapple.experiment/1",
  "id": "examples/planetary_defence",
- "title": "Apophis 2029: what a kinetic impactor buys, and how far ahead the miss can be guaranteed",
- "description": "The momentum enhancement the published DART period change implies (the model is held to the mission that flew it), the miss distance at the 2029-04-13 Apophis flyby against impactor mass and warning time, and an ensemble over beta and the Yarkovsky A2 that turns the two into a success fraction and a trust horizon. The propagator is the one the repository ships (Sun, planets, Moon, the Sun's relativistic term, DE421) started from the bundled JPL osculating elements, and the encounter it produces is compared with the published one.",
+ "title": "Apophis 2029: what a kinetic impactor buys, how far ahead the miss can be guaranteed, and what each acceleration is worth",
+ "description": "The momentum enhancement the published DART period change implies (the model is held to the mission that flew it), the miss distance at the 2029-04-13 Apophis flyby against impactor mass and warning time, that same table read as the probability that the body hits, an ensemble over beta, the Yarkovsky A2 and the area-to-mass ratio that draws the uncertainty cloud the animation moves through, and a budget that takes the field apart one acceleration at a time. The propagator is the one the repository ships (Sun, 8 planets, Moon, the Sun's relativistic term, DE421) started from the bundled JPL osculating elements, and the encounter it produces is compared with the published one, which the same record gives with its uncertainty.",
  "domain": "astronomy",
  "methods": [
   "N-body propagation",
   "kinetic impactor deflection",
   "momentum enhancement",
   "Yarkovsky effect",
+  "solar radiation pressure",
   "uncertainty ensemble",
-  "trust horizon"
+  "impact probability",
+  "trust horizon",
+  "perturbation budget"
  ],
  "modules": [
   "pinneapple_physics.astro.defence",
@@ -20,6 +23,7 @@
  "params": {
   "target": "99942 Apophis",
   "target_mass_kg": 54000000000.0,
+  "target_diameter_km": 0.325,
   "impactor_speed_km_s": 6.1,
   "beta": 3.61,
   "masses_kg": [
@@ -36,11 +40,15 @@
    10.0
   ],
   "what_if_mass_kg": 130000000.0,
+  "yarkovsky_a2_au_d2": -2.9e-14,
+  "area_to_mass_m2_kg": 1.54e-06,
+  "jpl_sigma_km": 232.4,
   "ensemble": {
    "n": 6,
    "beta_sigma": 0.35,
    "a2_au_d2": -2.9e-14,
    "a2_sigma": 3e-15,
+   "am_sigma": 0.5,
    "seed": 0
   }
  },
@@ -67,6 +75,18 @@
    "how": "closest approach to the Earth on JD 2462240.41 (2029-04-13) from the bundled JPL elements, 7.41 km/s relative; 0.000256 au"
   },
   {
+   "name": "jpl_apophis_2029_miss_km",
+   "value": 37724.5,
+   "unit": "km",
+   "how": "the same encounter in the bundled JPL close-approach record (orbit solution 199): 0.000252172816 au"
+  },
+  {
+   "name": "apophis_miss_error_vs_jpl_km",
+   "value": 631.7,
+   "unit": "km",
+   "how": "the model's 38 356 km against JPL's 37 724 km, over JPL's 1 sigma of 232.4 km -- 2.7 sigma, inside the 697 km 3-sigma range the same record publishes"
+  },
+  {
    "name": "apophis_miss_1000kg_5yr_km",
    "value": 38560.3,
    "unit": "km",
@@ -76,40 +96,95 @@
    "name": "apophis_miss_10000kg_10yr_km",
    "value": 40765.0,
    "unit": "km",
-   "how": "10 000 kg 10 years earlier (4.078 mm/s): +2 409 km -- the heaviest case in the table, still a fraction of the Earth's radius"
+   "how": "10 000 kg 10 years earlier (4.078 mm/s): +2 409 km -- the heaviest case in the table, still under half the Earth's radius"
   },
   {
    "name": "what_if_50m_miss_1000kg_5yr_km",
-   "value": 125619.0,
+   "value": 125619.3,
    "unit": "km",
-   "how": "the same impulse on a 50 m body (1.3e8 kg) on the same orbit: 169 mm/s and +87 000 km, i.e. a miss guaranteed by the deflection itself"
+   "how": "the same impulse on a 50 m body (1.3e8 kg) on the same orbit: 169 mm/s and +87 263 km, i.e. a miss guaranteed by the deflection itself"
+  },
+  {
+   "name": "impact_probability_10000kg_10yr_collision_course",
+   "value": 2.9e-25,
+   "unit": "",
+   "how": "the table's 2 409 km applied to a body whose undeflected miss is the Earth's limb, against sigma = hypot(JPL 232.4 km, the ensemble's 21.9 km); the same surface with 30 kg and one year of warning is 0.499"
+  },
+  {
+   "name": "impact_probability_apophis_2029_margin_sigma",
+   "value": 137.0,
+   "unit": "sigma",
+   "how": "the closest of the 18 cells to an impact in Apophis' own geometry: (38 357 - 6 371)/232.7; the best cell (10 000 kg, 10 years) is 147.3 sigma"
+  },
+  {
+   "name": "ensemble_spread_1yr_km",
+   "value": 11.9,
+   "unit": "km",
+   "how": "standard deviation of the miss over 6 draws of beta (sigma 0.35), Yarkovsky A2 (sigma 3e-15 au/day^2) and area-to-mass ratio (50 %), flown with the Yarkovsky term and the radiation pressure actually integrated"
   },
   {
    "name": "ensemble_spread_10yr_km",
-   "value": 21.0,
+   "value": 21.9,
    "unit": "km",
-   "how": "standard deviation of the miss over 6 draws of beta (sigma 0.35) and Yarkovsky A2 (sigma 3e-15 au/day^2) at 10 years; the Earth's radius is 6 371 km"
+   "how": "the same at 10 years; the Earth's radius is 6 371 km, so the horizon function returns the last date it was given rather than a crossing"
   },
   {
    "name": "success_probability_10yr",
    "value": 1.0,
    "unit": "",
    "how": "fraction of the ensemble further from the Earth than its radius at 10 years (1.00 at 1, 5 and 10 years)"
+  },
+  {
+   "name": "cloud_width_10yr_km",
+   "value": 274.2,
+   "unit": "km",
+   "how": "the farthest ensemble member from the undeflected body at the encounter, on the trajectories the animation draws; 14.2 km at the impulse, and only 21.9 km in the miss direction"
+  },
+  {
+   "name": "solar_radiation_pressure_delta_km",
+   "value": 23.7,
+   "unit": "km",
+   "how": "the 2029 miss with the pressure switched on at the rock's own 1.54e-6 m^2/kg (7.01e-12 m/s^2 at 1 au) against the field without it: 0.4 % of the Earth's radius and a tenth of JPL's 1 sigma, so it does not matter in this window and the number says how little"
+  },
+  {
+   "name": "yarkovsky_delta_km",
+   "value": -326.9,
+   "unit": "km",
+   "how": "the 2029 miss with A2 = -2.9e-14 au/day^2 integrated from the element epoch against the field without it: larger than JPL's 1 sigma, so the term is worth carrying"
+  },
+  {
+   "name": "smallest_perturber_delta_km",
+   "value": 2725.6,
+   "unit": "km",
+   "how": "Neptune taken out of the field, the smallest of the nine perturbers over the whole arc: 2 726 km against a numerical floor of 0.7 km (the same run at rtol 1e-12) -- no perturber can be dropped"
   }
  ],
  "checks": [
   {
    "name": "the encounter the propagator produces against the published one",
    "passed": true,
-   "detail": "38 356 km / 7.41 km/s against the ~31 000 km of the published solution: 20 %, the 16 perturbing asteroids this field does not carry"
+   "detail": "38 356 km / 7.41 km/s against JPL's 37 724 km +/- 232 km (1 sigma): 632 km away, 2.7 sigma, inside the 697 km 3 sigma the same record publishes. The manifest claimed ~31 000 km and a 20 % error before this pass; the bundled record does not say that"
+  },
+  {
+   "name": "the Yarkovsky drift against the published one",
+   "passed": true,
+   "detail": "-166 m/yr from A2 = -2.9e-14 au/day^2 against the ~170 m/yr published; the term integrated over the arc moves the 2029 miss by -327 km"
+  },
+  {
+   "name": "the ensemble never reaches the Earth",
+   "passed": true,
+   "detail": "21.9 km of spread at 10 years against a 6 371 km radius, so the trust horizon is the last warning time asked for, not a crossing"
   }
  ],
  "files": {
   "figures": [
    "figures/miss_vs_mass.png",
-   "figures/trust_horizon.png"
+   "figures/trust_horizon.png",
+   "figures/impact_probability.png"
   ],
-  "videos": [],
+  "videos": [
+   "figures/planetary_defence.gif"
+  ],
   "viewers": [],
   "data": [
    "apophis_deflection.json"
@@ -121,8 +196,10 @@
   "pr": []
  },
  "references": [
-  "JPL Small-Body Database: 99942 Apophis elements (the bundled record, public domain)",
-  "DART / Dimorphos: 570 kg at 6.1 km/s, period change 32 +/- 2 min, beta = 3.61 (NASA/APL published results)"
+  "JPL Small-Body Database: 99942 Apophis elements, and the 2029-04-13 close-approach record with its 3-sigma distance range and b-plane error ellipse (the bundled record, public domain)",
+  "DART / Dimorphos: 570 kg at 6.1 km/s, period change 32 +/- 2 min, beta = 3.61 (NASA/APL published results)",
+  "JPL A2 for Apophis, -2.9e-14 au/day^2, the non-gravitational parameter yarkovsky_drift is evaluated with (JPL SBDB)",
+  "Solar radiation pressure at 1 au, 4.56e-6 N/m^2: the nominal solar constant 1361 W/m^2 (IAU 2015 Resolution B3) over the speed of light"
  ],
  "status": "curated",
  "provenance": {

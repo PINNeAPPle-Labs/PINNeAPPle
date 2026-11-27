@@ -1,0 +1,122 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/warp_drive",
+ "title": "The Alcubierre warp bubble, measured: curvature, energy conditions and the bill",
+ "description": "The Alcubierre metric differentiated to give its Einstein tensor, in the frame that moves with the bubble: the expansion contracts ahead and expands behind, the energy density is zero on the axis and negative in the wall, the null energy condition is violated at every sampled point of the wall, and the total is about one Jupiter mass of negative energy for a 10 m bubble at the speed of light. A turntable render of the negative-energy shell and three maps.",
+ "domain": "relativity",
+ "methods": [
+  "ADM 3+1",
+  "finite-difference curvature",
+  "energy conditions"
+ ],
+ "modules": [
+  "pinneapple_physics.relativity"
+ ],
+ "params": {
+  "velocity_c": 1.0,
+  "radius_m": 10.0,
+  "wall_m": 2.0,
+  "shape": "alcubierre",
+  "grid_points": 25921
+ },
+ "scripts": [
+  "warp_drive.py"
+ ],
+ "metrics": [
+  {
+   "name": "closed_form_relative_error",
+   "value": 3.03e-11,
+   "unit": "",
+   "how": "the numeric T^00 against Alcubierre's -(v^2/32pi)(y^2+z^2)/r^2 (df/dr)^2, over 12 866 points in the wall"
+  },
+  {
+   "name": "peak_energy_density",
+   "value": -6.218e-4,
+   "unit": "m^-2",
+   "how": "min of T^00 over the z=0 plane, in geometric units (G = c = 1)"
+  },
+  {
+   "name": "total_negative_energy",
+   "value": -1.8947e27,
+   "unit": "kg",
+   "how": "integral of T^00 over a 60 m box, converted with c^2/G; -9.53e-4 solar masses, 1.00 Jupiter masses"
+  },
+  {
+   "name": "null_energy_minimum",
+   "value": -5.949e-3,
+   "unit": "",
+   "how": "the most negative T_ab k^a k^b over a sphere of null directions, at each of the 12 866 wall points"
+  },
+  {
+   "name": "weak_energy_minimum",
+   "value": -2.77e-2,
+   "unit": "",
+   "how": "the most negative T_ab u^a u^b over unit timelike vectors (directions and speeds up to 0.9 c); -6.2e-4 for the Eulerian observer alone"
+  },
+  {
+   "name": "expansion_peak",
+   "value": -0.25002,
+   "unit": "",
+   "how": "the York time v_s (x-x_s)/r_s f'(r_s) at x = +R, contracting ahead of the bubble"
+  },
+  {
+   "name": "interior_curvature_leak",
+   "value": 0.00158,
+   "unit": "",
+   "how": "peak |G| inside the bubble at r = 0.3 R, as a fraction of the peak in the wall"
+  }
+ ],
+ "checks": [
+  {
+   "name": "matches_the_closed_form",
+   "passed": true,
+   "kind": "reference",
+   "label": "T^00 reproduces Alcubierre's closed form to 3e-11 relative"
+  },
+  {
+   "name": "zero_on_the_axis",
+   "passed": true,
+   "kind": "physics",
+   "label": "T^00 = 4.8e-19 on the axis, where the closed form says it must vanish"
+  },
+  {
+   "name": "sympy_agrees",
+   "passed": true,
+   "kind": "reference",
+   "label": "the symbolic Einstein tensor of the same metric, with an abstract f(r), reduces to the same closed form"
+  },
+  {
+   "name": "null_energy_violated",
+   "passed": true,
+   "kind": "physics",
+   "label": "every wall point has a null direction with T_ab k^a k^b < 0"
+  },
+  {
+   "name": "weak_energy_violated",
+   "passed": true,
+   "kind": "physics",
+   "label": "every wall point has a timelike direction with T_ab u^a u^b < 0, including the Eulerian observer itself"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/warp_maps.png"
+  ],
+  "videos": [
+   "figures/warp_turntable.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "results/warp_drive.json"
+  ]
+ },
+ "links": [],
+ "references": [],
+ "status": "curated",
+ "lab": {},
+ "provenance": {
+  "source": "manual",
+  "methods": "declared",
+  "python": "3.11"
+ }
+}

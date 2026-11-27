@@ -28,6 +28,12 @@ REASONS: dict[str, str] = {
     "pinneapple_models": "shim: re-exports pinneapple_neural.architectures (covered there)",
     "pinneapple_train": "shim: re-exports pinneapple_neural.trainer (covered there)",
     "pinneapple_solvers": "shim: re-exports pinneapple_simulation.numerical_solvers (covered there)",
+    "pinneapple_physics.relativity": "the Alcubierre metric and what it costs (#376): the shape function, the York "
+                                     "time, the Einstein tensor of the metric as written, the null energy condition "
+                                     "searched over directions, and the total negative energy. It is a measurement of "
+                                     "one static geometry, not a step of a flow -- there is nothing to feed a node "
+                                     "with, and the output is a verdict about the design, which is what "
+                                     "examples/warp_drive reports",
     "pinneapple_physics.pretrained": "the door a model trained somewhere else comes in through (#348): the registry of "
                                      "open models with their licence, the adapters that load one (WeatherBench2, a "
                                      "torch checkpoint, a local array archive, the Hugging Face Hub) and the wrap that "

@@ -14,6 +14,9 @@ import numpy as np
 
 BG, FG, DIM = "#05080d", "#e8eef5", "#7d8a99"
 GOOD, FADING, POOR = "#3ddc97", "#f5b942", "#ff5d5d"
+#: The colour of each badge a ``Trust`` can carry (:meth:`pinneapple_analysis.trust.record.Trust.badge`), so a figure
+#: that was given the record paints what the record decided instead of deciding again.
+_BADGE_COLOUR = {"good": GOOD, "fading": FADING, "no_skill": POOR}
 CMAPS = {"t2m": "RdYlBu_r", "t850": "RdYlBu_r", "z500": "viridis", "msl": "cividis", "u10": "RdBu_r",
          "tp6": "Blues", "wind10": "magma", "q850": "YlGnBu"}
 LABEL = {"t2m": "2 m temperature (°C)", "t850": "temperature at 850 hPa (°C)", "z500": "500 hPa height (dam)",
@@ -94,9 +97,18 @@ def regional_lines(lines, box, size=(360, 260)):
 
 
 def _status(lead_h, horizon):
-    if lead_h <= horizon["useful_hours"]:
+    """The caption at one lead, ``good`` / ``fading`` / ``no better than climatology``.
+
+    ``horizon`` is what :func:`pinneapple_physics.weather.evaluate.horizons` returns, or — when the figure was given
+    the forecast's ``Trust`` — what :func:`pinneapple_analysis.trust.adapters.horizon_of_trust` read out of it, which
+    says in ``lead_axis`` whether the record measured a lead at all. A record that measured none gets a grey caption
+    saying so instead of the green of a horizon nobody measured (#345)."""
+    if horizon.get("lead_axis") == "not_measured":
+        return "horizon not measured", DIM
+    u, n = float(horizon["useful_hours"]), float(horizon["no_skill_hours"])
+    if lead_h <= u:
         return "good", GOOD
-    if lead_h <= horizon["no_skill_hours"]:
+    if lead_h <= n:
         return "fading", FADING
     return "no better than climatology", POOR
 
@@ -308,11 +320,21 @@ def _globe_rgb(field, lat, lon, center, size, cmap, norm, lines):
 
 def earth2_gif(path, var, truth, forecast, lat, lon, times, *, lead_hours, horizon, title, center=(20.0, -30.0),
                rotate_deg_per_frame=0.0, region=None, model_name="PINNeAPPle", vmin=None, vmax=None,
-               substeps=3, size=420, fps=12, dpi=80, cmap=None):
+               substeps=3, size=420, fps=12, dpi=80, cmap=None, trust=None):
     """NVIDIA Earth-2 style animation: ERA5 (left) and the forecast (right) on lit globes over black, smooth fields
     (cubic upsampling on the sphere, ``substeps`` interpolated frames between 6-hour states), the globe slowly
     rotating, the lead in large type and a thin lead bar coloured by the horizon (good, fading, no skill).
-    ``truth``/``forecast``: (n, lat, lon) in physical units at ``lead_hours``."""
+    ``truth``/``forecast``: (n, lat, lon) in physical units at ``lead_hours``.
+
+    ``trust``: the :class:`pinneapple_analysis.trust.record.Trust` of the forecast (#345). When it is given, the lead
+    bar and the colour of the state caption are read from it instead of from ``horizon`` — the bar ends at the
+    no-skill lead the record measured, a horizon the record could not measure draws no colour and says why, and the
+    model's badge (``good`` / ``fading`` / ``no skill``) is written under the lead. The record is what a consumer
+    reads: this function keeps no second opinion about the same forecast.
+    """
+    if trust is not None:
+        from pinneapple_analysis.trust.adapters import horizon_of_trust
+        horizon = horizon_of_trust(trust)
     import matplotlib
 
     matplotlib.use("Agg")
@@ -359,18 +381,33 @@ def earth2_gif(path, var, truth, forecast, lat, lon, times, *, lead_hours, horiz
     bar.set_xlim(0, lead_hours[-1])
     bar.set_ylim(0, 1)
     bar.axis("off")
-    U, N, L = horizon["useful_hours"], horizon["no_skill_hours"], lead_hours[-1]
-    bar.axvspan(0, min(U, L), color=GOOD, alpha=0.25)
-    if U < L:
-        bar.axvspan(U, min(N, L), color=FADING, alpha=0.25)
-    if N < L:
-        bar.axvspan(N, L, color=POOR, alpha=0.25)
+    U, N, L = float(horizon["useful_hours"]), float(horizon["no_skill_hours"]), lead_hours[-1]
+    if trust is None:
+        bar.axvspan(0, min(U, L), color=GOOD, alpha=0.25)
+        if U < L:
+            bar.axvspan(U, min(N, L), color=FADING, alpha=0.25)
+        if N < L:
+            bar.axvspan(N, L, color=POOR, alpha=0.25)
+        caption = (f"lead bar: green while the forecast is good on average (ACC ≥ 0.6, {U / 24:.1f} days), "
+                   f"amber until it is no better than climatology"
+                   + (f" ({N / 24:.1f} days)" if np.isfinite(N) else ""))
+    else:
+        # the bar is the record's: a segment is drawn only over the leads it measured, and a record that measured no
+        # lead draws no colour at all rather than a green bar to the last frame (#345)
+        if np.isfinite(U):
+            bar.axvspan(0, min(U, L), color=GOOD, alpha=0.25)
+        if np.isfinite(U) and np.isfinite(N) and U < L:
+            bar.axvspan(U, min(N, L), color=FADING, alpha=0.25)
+        if np.isfinite(N) and N < L:
+            bar.axvspan(N, L, color=POOR, alpha=0.25)
+        caption = f"lead bar: {horizon['note']}"
     from matplotlib.patches import Rectangle
 
     prog = bar.add_patch(Rectangle((0, 0.15), 0, 0.7, color="white", alpha=0.9))
-    fig.text(0.03, 0.04, f"lead bar: green while the forecast is good on average (ACC ≥ 0.6, {U / 24:.1f} days), "
-             f"amber until it is no better than climatology" + (f" ({N / 24:.1f} days)" if np.isfinite(N) else ""),
-             color="#5f6b7a", fontsize=8)
+    fig.text(0.03, 0.04, caption, color="#5f6b7a", fontsize=8)
+    if trust is not None:                        # the record's own badge, under the lead it is about
+        fig.text(0.97, 0.845, f"trust · {horizon['badge_text']}", color=_BADGE_COLOUR[horizon["badge"]],
+                 fontsize=10, ha="right", weight="bold")
 
     def frame(i):
         k, s = frames[i]

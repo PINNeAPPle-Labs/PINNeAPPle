@@ -2,7 +2,7 @@
 
 Export layout (one folder, static files, served by anything)::
 
-    scene.json      manifest: parts, fields, time steps, sensors, units, provenance
+    scene.json      manifest: parts, fields, time steps, sensors, units, provenance, the Trust record
     geometry.glb    all parts as glTF 2.0 binary meshes (opens in Blender, CAD viewers, three.js)
     fields.bin      float32 field values, part motions (position + quaternion per step) and per-step part
                     visibility, offsets listed in scene.json
@@ -97,6 +97,7 @@ class Scene:
         self.field_units: dict[str, str] = {}
         self.gravity: tuple[float, float, float] | None = None  # m/s^2 vector; None -> no PhysicsScene
         self.step_labels: list[str] | None = None  # one caption per time step, shown under the time slider
+        self.trust = None  # the Trust record of the prediction this scene renders (#345), written to scene.json
 
     # -- building ------------------------------------------------------
     def add_part(self, name: str, vertices, faces, *, group: str = "", color=(0.75, 0.77, 0.8)) -> Part:
@@ -156,6 +157,18 @@ class Scene:
         if self.times is None or len(labels) != len(self.times):
             raise ValueError("step labels: one label per scene time step")
         self.step_labels = labels
+
+    def attach_trust(self, trust) -> None:
+        """Attach the ``Trust`` of the prediction this scene renders (#345).
+
+        The record — in-domain, horizon, residuals per law, the checks on the readings, the calibrated interval and
+        the provenance, each number with its source — is written to ``scene.json`` under ``trust`` exactly as
+        :meth:`pinneapple_analysis.trust.record.Trust.to_dict` gives it, so the viewer and anything that reads the
+        export show what the record decided instead of a second opinion about the same field. ``None`` detaches it.
+        """
+        if trust is not None and not callable(getattr(trust, "to_dict", None)):
+            raise TypeError(f"attach_trust takes a pinneapple_analysis.trust.Trust, not a {type(trust).__name__}")
+        self.trust = trust
 
     _APPROX = ("none", "convexHull", "convexDecomposition", "boundingSphere", "boundingCube", "meshSimplification")
 
@@ -316,6 +329,9 @@ class Scene:
                          "series": None if s.series is None else [float(v) for v in s.series],
                          "envelope": None if s.envelope is None else list(s.envelope)}
                         for s in self.sensors],
+            # the record this scene renders (#345), round-tripped through its own JSON so the export carries the
+            # validated document and never a NaN that a strict reader refuses
+            "trust": None if self.trust is None else json.loads(self.trust.to_json()),
         }
         path = os.path.join(folder, "scene.json")
         with open(path, "w") as f:

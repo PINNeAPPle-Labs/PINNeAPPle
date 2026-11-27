@@ -44,7 +44,7 @@ from .record import (
 )
 
 __all__ = ["from_ensemble", "from_solution", "weather_horizon", "rollout_horizon", "calibration_uncertainty",
-           "verification_measurement", "domain_from_gate", "fingerprint_query", "trust"]
+           "verification_measurement", "domain_from_gate", "fingerprint_query", "horizon_of_trust", "trust"]
 
 _ENSEMBLE_SOURCE = "pinneapple_physics.ensemble.PhysicsEnsemble"
 
@@ -328,6 +328,62 @@ def rollout_horizon(divergence: Mapping[str, Any], *,
         requested=TrustValue.not_measured("no lead was requested for this prediction",
                                           source="pinneapple_analysis.trust.adapters.rollout_horizon"),
         unit=unit, source=source)
+
+
+# ------------------------------------------------------------------------------------------ what a figure reads
+_HOURS_PER_UNIT = {"h": 1.0, "hr": 1.0, "hour": 1.0, "hours": 1.0, "d": 24.0, "day": 24.0, "days": 24.0,
+                   "min": 1.0 / 60.0, "minute": 1.0 / 60.0, "minutes": 1.0 / 60.0, "s": 1.0 / 3600.0,
+                   "sec": 1.0 / 3600.0, "second": 1.0 / 3600.0, "seconds": 1.0 / 3600.0}
+
+
+def horizon_of_trust(trust: Any, *, unit: str = "h") -> dict[str, Any]:
+    """The lead axis a figure draws, read from a :class:`Trust` (#345) and from nothing else.
+
+    A consumer that draws a forecast on a lead axis (the weather ``earth2_gif``) needs three things: where the useful
+    part ends, where the no-skill part begins, and what the record's own badge is. They come out of
+    :attr:`Trust.horizon` and :meth:`Trust.badge` here, in the keys
+    :func:`pinneapple_physics.weather.evaluate.horizons` returns (``useful_hours``, ``no_skill_hours``) so the drawing
+    code reads the record exactly as it read that function — there is no second opinion about the same forecast.
+
+    A lead the record did **not** measure is ``inf`` here, never the end of the figure: a bar that runs green to the
+    last frame is the figure claiming a skill nobody measured. ``badge``, ``badge_text`` and ``note`` say what the
+    record does and does not vouch for, so the caption and the legend can repeat it verbatim.
+    """
+    horizon = getattr(trust, "horizon", None)
+    if horizon is None:
+        raise NotSupported(
+            f"horizon_of_trust reads a Trust, not a {type(trust).__name__}",
+            fix="build the record first: pp.trust(model, data, problem) returns the Trust this function reads")
+    recorded = str(getattr(horizon, "unit", "") or "").strip().lower()
+    factor = _HOURS_PER_UNIT.get(recorded, _HOURS_PER_UNIT.get(unit, 1.0) if not recorded else None)
+
+    def lead(value: TrustValue) -> float:
+        if not value.is_measured or factor is None:
+            return float("inf")
+        return float(value.value) * factor  # type: ignore[operator]
+
+    useful = lead(horizon.useful)
+    no_skill = lead(horizon.no_skill)
+    measured = [np.isfinite(useful), np.isfinite(no_skill)]
+    axis = "measured" if all(measured) else ("partly" if any(measured) else "not_measured")
+    if factor is None:
+        note = (f"the record's horizon is in {recorded!r}, which does not convert to {unit!r}: the lead axis draws "
+                f"no colour rather than a rescaled one")
+    else:
+        drawn = [f"{name} at {v:g} {unit}" for name, v in (("useful", useful), ("no-skill", no_skill))
+                 if np.isfinite(v)]
+        missing = [name for name, v in (("useful", useful), ("no-skill", no_skill)) if not np.isfinite(v)]
+        if not drawn:
+            note = ("the record measured no lead for this forecast, so the lead axis draws no colour: "
+                    + (horizon.useful.reason or "no horizon adapter was given"))
+        else:
+            note = "lead axis from the Trust record: " + ", ".join(drawn)
+            if missing:
+                note += ("; no " + " or ".join(missing) + " lead was measured, so nothing is drawn past the "
+                         "measured one")
+    return {"useful_hours": useful, "no_skill_hours": no_skill, "unit": unit, "lead_axis": axis,
+            "badge": str(trust.badge()), "badge_text": str(trust.badge_text()), "note": note,
+            "source": "pinneapple_analysis.trust.adapters.horizon_of_trust (Trust.horizon)"}
 
 
 # ------------------------------------------------------------------------------------------ uncertainty

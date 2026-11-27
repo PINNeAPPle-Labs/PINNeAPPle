@@ -90,6 +90,7 @@ from .adapters import (  # noqa: E402  (lê a confiança que o ensemble, o weath
     fingerprint_query,
     from_ensemble,
     from_solution,
+    horizon_of_trust,
     rollout_horizon,
     trust,
     verification_measurement,
@@ -97,7 +98,7 @@ from .adapters import (  # noqa: E402  (lê a confiança que o ensemble, o weath
 )
 
 __all__ += ["calibration_uncertainty", "domain_from_gate", "fingerprint_query", "from_ensemble", "from_solution",
-            "rollout_horizon", "trust", "verification_measurement", "weather_horizon"]
+            "horizon_of_trust", "rollout_horizon", "trust", "verification_measurement", "weather_horizon"]
 
 from .producers import (  # noqa: E402  (os três produtores do mesmo registro: tempo, ensemble e surrogate de CFD, #345)
     cfd_surrogate_trust,

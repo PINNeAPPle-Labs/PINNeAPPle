@@ -81,10 +81,15 @@ def main(argv=None) -> dict:
     ap.add_argument("--steps", type=int, default=None, help="Adam steps per member (2000 full, 300 quick)")
     ap.add_argument("--radial", type=int, default=8, help="voxels across the radius of the nominal acquisition")
     ap.add_argument("--noise", type=float, default=0.05, help="velocity noise, as a fraction of the peak")
+    ap.add_argument("--figures-only", action="store_true",
+                    help="redraw the four figures from the committed record, refitting only the aorta profile")
     a = ap.parse_args(argv)
     out = Path(a.out)
     (out / "results").mkdir(parents=True, exist_ok=True)
     (out / "figures").mkdir(parents=True, exist_ok=True)
+
+    if a.figures_only:
+        return _redraw(out)
 
     members = a.members if a.members is not None else (1 if a.quick else 3)
     sweep_members = a.sweep_members if a.sweep_members is not None else (1 if a.quick else 2)
@@ -167,6 +172,26 @@ def main(argv=None) -> dict:
 
 
 # -------------------------------------------------------------------------------------------------- figures
+def _redraw(out: Path) -> dict:
+    """Redraw the figures from ``results/hemodynamics_4dflow.json`` without repeating the campaign.
+
+    Three of the four read the record alone. The profile figure needs a network evaluated on a fine radial grid, so
+    the aortic case is fitted again -- the same seeds, the same acquisition, about four minutes -- and nothing else is
+    touched: the record is not rewritten.
+    """
+    result = json.loads((out / "results" / "hemodynamics_4dflow.json").read_text())
+    settings = result["settings"]
+    config = PINNConfig(n_collocation=settings["n_collocation"], adam_steps=settings["adam_steps"],
+                        lbfgs_steps=settings["lbfgs_steps"])
+    radius, flow = _case("aorta")
+    wave = _wave(radius, flow)
+    four_d = sample_4d_flow(wave, n_radial=settings["n_radial"], n_phases=24, n_planes=3,
+                            noise=settings["noise"], seed=1)
+    ens = ensemble(wave, four_d, members=settings["members"], config=config)
+    _figures(out, result, {"wave": wave, "four_d": four_d, "ensemble": ens})
+    return result
+
+
 def _figures(out: Path, result: dict, detail: dict | None = None) -> None:
     """Four figures, all drawn from the record: they can be redrawn without refitting anything.
 
@@ -204,20 +229,19 @@ def _figures(out: Path, result: dict, detail: dict | None = None) -> None:
                 ax.plot(y_line, truth, "-", color=colour, lw=1.8, label=f"Womersley, t = {phase / 24:.2f} T")
                 ax.plot(y_line, fitted, "--", color=colour, lw=1.0)
                 ax.plot(ys, vs[:, phase], "o", color=colour, ms=5, mfc="white")
-        axes[0].set(xlabel="r / R", ylabel="axial velocity [m/s]", title="the phantom, and what the fit does with 8 voxels")
+        axes[0].set(xlabel="r / R", ylabel="axial velocity [m/s]",
+                    title="the phantom, and what the fit does with 8 voxels")
         axes[1].set(xlabel="r / R", ylabel="axial velocity [m/s]", xlim=(0.85, 1.0),
-                    title="the last 15 % of the radius: the wall is never sampled")
+                    title=f"the last 15 % of the radius, where the wall is never sampled\n"
+                          f"first sample {1e3 * four_d.wall_gap:.2f} mm from the wall, the Stokes layer "
+                          f"{1e3 * wave.stokes_layer:.2f} mm", fontsize=9)
         axes[0].legend(fontsize=7, title="circle = measurement\ndashed = network", title_fontsize=7)
-        axes[1].axvline(1.0, color=dark, lw=0.9, ls=":")
-        top = float(np.max(vs))
-        axes[1].annotate(f"first sample {1e3 * four_d.wall_gap:.2f} mm from the wall",
-                         xy=(1.0 - four_d.wall_gap / wave.radius, 0.62 * top),
-                         xytext=(0.858, 0.92 * top), fontsize=7,
-                         arrowprops={"arrowstyle": "->", "lw": 0.7})
-        axes[1].annotate(f"Stokes layer {1e3 * wave.stokes_layer:.2f} mm",
-                         xy=(1.0 - wave.stokes_layer / wave.radius, 0.10 * top),
-                         xytext=(0.858, 0.42 * top), fontsize=7,
-                         arrowprops={"arrowstyle": "->", "lw": 0.7})
+        wall = 1.0 - four_d.wall_gap / wave.radius
+        layer = 1.0 - wave.stokes_layer / wave.radius
+        axes[1].axvline(1.0, color=dark, lw=0.9, ls=":", label="the wall")
+        axes[1].axvline(wall, color=orange, lw=0.9, ls="--", label="first sample")
+        axes[1].axvline(layer, color=blue, lw=0.9, ls="-.", label="edge of the layer")
+        axes[1].legend(fontsize=6.5, loc="lower left")
         fig.tight_layout()
         fig.savefig(out / "figures" / "profiles.png", dpi=120)
         plt.close(fig)

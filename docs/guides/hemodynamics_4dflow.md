@@ -95,16 +95,73 @@ Read as a whole, the table says three things:
 * **the two-point difference is not in the same league**, and the fatter the vessel the worse it does: at 99 % on the
   aorta it is no better than returning zero.
 
-The multi-harmonic case is the honest counterweight. Its fourth harmonic has `alpha = 41`, a layer 0.18 mm thick, and
+The multi-harmonic case is the honest counterweight. Its fourth harmonic has `alpha = 41`, a layer 0.36 mm thick, and
 the error triples: a real waveform asks for the thin layers a single frequency never shows.
 
-## Where the wall shear stress stops being recoverable
+## What the limit is, and what it is not
 
-<!--LIMIT-->
+Two sweeps. The first moves the voxel: 4, 8, 16 and 32 voxels across the radius, which move the first sample from
+0.03 mm to 1.88 mm from the wall — 0.04 to 2.6 boundary layers — on the two vessels at the ends of the range.
+
+| phantom | 4 voxels | 8 voxels | 16 voxels | 32 voxels |
+|---|---|---|---|---|
+| small artery, wall shear stress | 1.6 % | 1.2 % | 1.5 % | 1.0 % |
+| small artery, two-point | 38 % | 27 % | 58 % | 125 % |
+| aorta, wall shear stress | 2.1 % | 2.8 % | 1.2 % | 1.3 % |
+| aorta, two-point | 103 % | 99 % | 79 % | 52 % |
+
+Two things fall out of that table, and the second is the one worth the run.
+
+**Refining the voxel is not the fix.** On the small artery the data-only estimate goes from 38 % to 125 % as the grid
+is refined eight-fold: the noise is divided by a gap that keeps shrinking, and at 32 voxels the difference between the
+two outer samples is mostly noise. On the aorta it does improve, 103 % to 52 %, and never gets near the signal. A few
+per cent is out of reach for it at every resolution measured here.
+
+**The sampling gap is not what limits the network.** Its worst wall shear stress error among the four vessels, at
+any voxel size measured, is 2.8 % — at the nominal 8 voxels on the aorta — and the *coarsest* case, 4 voxels across a
+15 mm radius with the first sample 1.88 mm from the wall, is not the worst: 2.1 %. The wall slope is carried by the no-slip condition and the momentum equation, not by
+the data, so the voxel size mostly sets how well the **core** profile is known, and the core is generous: at
+`alpha = 21` the velocity is within 0.5 % of its axis value out to `y = 0.9`.
+
+That is not the sentence this section was going to contain. The expectation going in was that sparse planes destroy a
+derivative taken at the point where there is no sample. Measured, they destroy the **data-only estimate** of it — by
+up to 125 % — and leave the physics-informed one at a few per cent, because the derivative it is asked for is
+constrained by a boundary condition the data never had to provide.
+
+What the network does pay for is the other two axes:
+
+| aorta, 8 voxels | WSS error |
+|---|---|
+| 1 % velocity noise | 1.3 % |
+| 5 % velocity noise | 2.8 % |
+| 10 % velocity noise | 5.1 % |
+| 20 % velocity noise | 9.2 % |
+| five harmonics instead of one | 7.0 % |
+
+The error tracks the noise and the harmonic content rather than the sampling: it is close to linear in the noise
+(1.3, 2.8, 5.1, 9.2 % for 1, 5, 10 and 20 %), which is the behaviour of an estimator whose accuracy is set by how well
+the core profile is known rather than by where the wall is. The multi-harmonic case is the sharpest
+cost: its fourth harmonic sits at `alpha = 41`, where the layer is 0.36 mm thick -- 2.4 % of the radius, half the
+fundamental's 4.8 % -- and the network has to carry four such profiles in one function of `(y, tau)`. A real waveform
+asks for layers no MRI resolves and no ansatz represents cheaply, and that is where this method would need the work a
+phantom cannot skip.
 
 ## What the measurement corrected
 
-<!--CORRECTED-->
+Three things, in order of how much they change the report:
+
+* **The ensemble band is not an error bar.** The spread prices the seed — the initialisation and the optimisation —
+  and the error on these phantoms is four to nine times larger than it: on the aorta the closed form falls inside
+  `mean +/- 2 sd` for 29 % of the cycle, and on the four single-harmonic vessels for 21 to 29 %, where a calibrated
+  spread would give 95 %. The exception is the multi-harmonic case, at 92 %, because there the seed-to-seed
+  disagreement is itself a few per cent and swamps the shared bias. Quoting `+/- 2 sd` from an ensemble of this kind
+  would have claimed 0.5 % where the truth is 2.8 %.
+* **The error is flat in the Womersley number**, which the boundary-layer argument does not predict: the gap goes from
+  0.2 to 1.3 layers across the four vessels and the error goes from 1.2 % to 2.8 %. What breaks the method is the
+  frequency content of the waveform, not the thinness of the layer.
+* **The two-point difference is worst where the vessel is largest.** Same voxels across the radius means a larger gap
+  in a larger vessel, and the curvature it extrapolates across grows with `alpha`; 27 % on a 2 mm artery and 99 % on a
+  15 mm aorta.
 
 ## What this is not
 

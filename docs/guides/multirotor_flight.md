@@ -172,7 +172,7 @@ Three things are worth reading twice.
   is `0 = 0`: nothing rotates, so nothing says what it costs to rotate, and the estimate wanders 69 % away with a
   ±63 % uncertainty attached to it. The `weave` — a figure-eight with an oscillating heading, added to `Trajectory` for
   this — puts a torque and an angular acceleration on all three axes, and the same estimate lands 3.4 % from the truth
-  with ±0.8 %. The uncertainty is not a decoration: it is the honest answer to "what did this flight teach you".
+  with ±0.9 %. The uncertainty is not a decoration: it is the honest answer to "what did this flight teach you".
 * **The drag area is identified along the axes the flight flies along.** The circle is aligned with its velocity, so it
   identifies `CdA_x` to 1.1 % and knows nothing about `CdA_y` (−29 %); the weave sweeps both, and both come out within
   5 %. A hover does not move at all, so its drag estimate is still the `+100 %` it was declared with -- which is what a
@@ -274,7 +274,7 @@ instead of a colour.
    weight: the vehicle barely notices, so the residual barely notices. The gust in the campaign is 10 m/s for that
    reason, and the table above keeps the 4 m/s case to show where the floor is.
 3. **The drag area along the thrust axis is not identified by any flight this vehicle can fly.** At 2 m/s the vertical
-   drag is 0.16 m/s², at 5 m/s it is 1.0 m/s², and the thrust model's own lag error at the same speeds is 0.10 m/s² —
+   drag is 0.13 m/s², at 5 m/s it is 0.82 m/s², and the thrust model's own lag error at the same speeds is 0.10 m/s² —
    the same order. Every flight here returns a vertical `CdA` between −0.15 and +0.15 m² against a true 0.08, and the
    fitted uncertainty is *small* while being wrong, which is the worst combination and is reported as such. The two
    horizontal axes, which are what a gust pushes against, come out at 0.0285 and 0.0299 against 0.030.

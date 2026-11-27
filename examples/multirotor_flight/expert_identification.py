@@ -1,7 +1,7 @@
 """Who the vehicle is, learned in flight -- and how long the answer holds (#335).
 
-    python examples/multirotor_flight/expert_identification.py           # the whole study (~4 min)
-    python examples/multirotor_flight/expert_identification.py --quick   # fewer seeds (~1 min)
+    python examples/multirotor_flight/expert_identification.py           # the whole study (~3 min)
+    python examples/multirotor_flight/expert_identification.py --quick   # 14 s per flight instead of 20 (~2 min)
 
 The first example of this folder (:mod:`flight_safety`) measures the disagreement between a *declared* vehicle and the
 one flying. This one asks the three questions that come before and after that:
@@ -275,11 +275,17 @@ EXTERNAL_LOGS = {
 # -------------------------------------------------------------------------------------------------------- the report
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--quick", action="store_true", help="one seed per condition instead of a distinct one per flight")
+    ap.add_argument("--quick", action="store_true",
+                    help="fly 14 s per flight instead of 20 (the ramps and the horizons still land)")
     ap.add_argument("--out", default=_out("results", "expert_identification.json"))
     args = ap.parse_args(argv)
     started = time.time()
-    base = 300 if not args.quick else 400
+    if args.quick:
+        # the seeds do not change: a shorter flight is a different measurement, not a different draw of the same one,
+        # so the numbers of a quick run must not be compared with the committed ones
+        global DURATION
+        DURATION = 14.0
+    base = 300
     seeds = {name: base + i for i, name in enumerate(("hover", "circle", "weave"))}
     seeds.update({name: base + 10 + i for i, name in enumerate(("ge_a", "ge_b", "ge_c"))})
     seeds.update({name: base + 20 + i for i, name in enumerate(("gust_a", "gust_b", "gust_c", "gust_d", "gust_e",

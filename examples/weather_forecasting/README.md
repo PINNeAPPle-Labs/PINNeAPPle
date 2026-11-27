@@ -50,6 +50,38 @@ it uses mixed precision (about 27 samples/s on 4 cores); a GPU is not needed but
   the grid; float16), so the slow download is not repeated.
 - `hurricane_ian.py`: Hurricane Ian 2022 end to end — the best track, the vortex inside the reanalysis and inside two
   published forecasts, with the lead at which each stops being usable (see the section below).
+- `pretrained_ensemble.py`: IFS HRES, Pangu-Weather and the model trained here as experts of one `PhysicsEnsemble`,
+  with the weather checks deciding which of them the case belongs to (see the section below).
+
+## Bring your own model: three experts over 2020 (#348)
+
+`pretrained_ensemble.py` wraps the two published forecasts and the phase-1 checkpoint as `Expert`s with
+`pinneapple_physics.pretrained.from_pretrained_expert` — each arrives with its source, its licence and its cost
+estimate — and learns one `PhysicsEnsemble` per latitude band and season, with `advection_check` and `energy_check`
+from `pinneapple_physics.domain_checks` as the label-free `prediction_checks`.
+
+```bash
+python examples/weather_forecasting/pretrained_ensemble.py wx/era5 \
+    examples/weather_forecasting/checkpoints/phase1_step15000_fp16.pt --out wx/pretrained --every-days 30
+```
+
+11 initialisations of 2020, +6 h to +240 h, four bands × four seasons. The first run reads the published archives over
+HTTPS (748 s for the 11 cases) and caches them; a rerun is offline and writes
+`wx/pretrained/pretrained_ensemble_2020.json`.
+
+Measured 2026-11-27 (the run itself is in `data/pretrained_ensemble_2020.json`):
+
+| | ensemble | IFS HRES | Pangu-Weather | PINNeAPPle |
+|---|---|---|---|---|
+| relative L2, +6 h to +240 h | **0.0079** | 0.0086 | 0.0081 | 0.0152 |
+| RMSE at day 5 (m²/s²) | 235 | **207** | 212 | 541 |
+| cases a check took it out of | — | 0 % | 5.7 % | 18.8 % |
+
+The ensemble is the best of the four over the window and worse than IFS HRES at day 5; it wins 7 of the 16 cells. The
+check that separates them is the dry static energy drift, and it flags each model where it leaves its domain — Pangu
+only in the tropics, the phase-1 model in the Arctic (100 % of the DJF cases) — while the advection residual sits at
+about 0.95 for all four, the analysis included, because `z500` is not materially advected. The numbers, the tolerances
+and the reasons are in `docs/guides/pretrained_experts.md`.
 
 ## A hurricane end to end: Ian 2022 (#366)
 

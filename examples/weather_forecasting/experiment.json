@@ -6,6 +6,9 @@
  "domain": "geophysics and climate",
  "methods": [],
  "modules": [
+  "pinneapple_physics.domain_checks",
+  "pinneapple_physics.ensemble",
+  "pinneapple_physics.pretrained",
   "pinneapple_physics.weather.cyclones",
   "pinneapple_physics.weather.data",
   "pinneapple_physics.weather.evaluate",
@@ -16,6 +19,7 @@
  "params": {},
  "scripts": [
   "hurricane_ian.py",
+  "pretrained_ensemble.py",
   "run_use_cases.py",
   "score_baselines.py"
  ],
@@ -27,7 +31,8 @@
   "viewers": [],
   "data": [
    "checkpoints/era5_64x32_normalization.json",
-   "data/baselines_2020.json"
+   "data/baselines_2020.json",
+   "data/pretrained_ensemble_2020.json"
   ]
  },
  "links": {
@@ -37,7 +42,8 @@
    321,
    325,
    326,
-   342
+   342,
+   348
   ]
  },
  "references": [],

@@ -82,9 +82,81 @@ of the same failure.
 4. Measure it: an ensemble of the new model, the models already here and a cheap baseline on the same cases, with each
    model's skill alone next to the ensemble's.
 
-## 6. What this does not do yet
+That recipe is executed in a test for every entry the registry already has
+(`test_the_recipe_of_the_guide_holds_for_every_model_in_the_registry`): a registry entry that no adapter can wrap, or
+one whose licence stops travelling with the prediction, fails there.
 
-The demo the issue asks for — IFS HRES, Pangu-Weather and the PINNeAPPle weather model over 2020, with the weights
-choosing per region and season and the residual flagging where each leaves its domain — needs the archive subset
-downloaded and a trained checkpoint; it is the next slice. What exists here is the mechanism, the licence record, the
-three checks and the measurement of the checks themselves.
+## 6. The demo: three models over 2020, per region and season
+
+`examples/weather_forecasting/pretrained_ensemble.py` puts IFS HRES, Pangu-Weather and the PINNeAPPle weather model
+(phase 1) side by side as experts of one `PhysicsEnsemble`, with the two weather checks as `prediction_checks` — so
+the mixture is not chosen by the error alone: a model whose `z500` change its own 500 hPa wind cannot explain, or whose
+dry static energy drifts, is taken out of that case and the others carry it.
+
+```bash
+python examples/weather_forecasting/pretrained_ensemble.py wx/era5 \
+    examples/weather_forecasting/checkpoints/phase1_step15000_fp16.pt --out wx/pretrained --every-days 30
+```
+
+The cases are the 00 UTC initialisations of 2020 every 30 days (11 of them), each carried to +240 h; the cells are four
+latitude bands × four seasons (16). Regions and seasons are learned separately and in chronological order, so the error
+reported for a case is the one the ensemble made *before* seeing its truth. The first run reads the two published
+archives over HTTPS (about 100 s per case) and caches them as `.npz`; a rerun is offline and takes seconds.
+
+**Measured 2026-11-27** (11 cases, 16 cells, `z500` relative L2 over leads 6 h to +240 h, cosine-latitude weights;
+the run is in `examples/weather_forecasting/data/pretrained_ensemble_2020.json`):
+
+| | ensemble | IFS HRES | Pangu-Weather | PINNeAPPle |
+|---|---|---|---|---|
+| relative L2, +6 h to +240 h | **0.0079** | 0.0086 | 0.0081 | 0.0152 |
+| RMSE at day 5 (m²/s²) | 235 | **207** | 212 | 541 |
+| learned weight | — | 0.248 | 0.249 | 0.252 |
+| share of the combination | — | 0.385 | 0.347 | 0.267 |
+| cases a check took it out of | — | **0 %** | 5.7 % | **18.8 %** |
+| advection residual (median) | — | 0.954 | 0.953 | 0.956 |
+| dry static energy drift, spreads/day | — | 0.0022 | 0.0028 | 0.0042 |
+
+Four things are worth reading carefully, and they are the honest part of the demo:
+
+- **The ensemble has the lowest error of the four over the window** (0.0079 against 0.0081 of the best single model,
+  and 0.0152 of the model trained here) **and the worst day-5 point of the two published ones** (235 against 207 of IFS
+  HRES). It beats the best single model in **7 of the 16 cells** and on **33 % of the cases**: a mixture is a bet, not
+  a free improvement, and both numbers belong in the table.
+- **The learned weights stay near the fixed-share floor** (0.25 each with three experts; the extremes are 0.17 for
+  Pangu and 0.33 for the PINNeAPPle model in the Arctic DJF cell). What moves the mixture is not the error weight but
+  **the checks**: the share of the combination is 0.385 / 0.347 / 0.267 while the weights are 0.248 / 0.249 / 0.252,
+  because the model a check took out of a case gets no share of it.
+- **The residual flags each model where it leaves its domain, and the pattern differs by model.** IFS HRES is never
+  taken out. Pangu-Weather is, only in the tropics (25 % of the MAM cases, 33 % of JJA and of SON). The PINNeAPPle
+  model is taken out in **100 % of the Arctic DJF cases, 75 % of MAM, 67 % of SON, 33 % of JJA** and in 25 % of the
+  tropics MAM ones — 18.8 % of all cells, and it is also the model with the worst day-5 RMSE (541 against 207). The
+  sentence the check gives is the evidence: in Arctic DJF its dry static energy drifts 0.0134 spreads per day against
+  the 0.0117 the analysis's own level put the boundary at, while IFS HRES drifts 0.0044.
+- **The advection check does not separate them, and the demo says so.** Every model, and the analysis itself, lands
+  between 0.84 and 1.02: `z500` is not a materially advected field, so the residual is a floor all three meet and the
+  check never fires. It is reported anyway, because a check that is *reported and flat* is information; a check tuned
+  until it fires would only be a threshold in disguise.
+
+The tolerance each check is read against is measured on the same cases, not declared: it is twice the level the
+analysis itself scores, which — with `as_prediction_check` mapping a residual equal to the tolerance to a score of 0
+and the ensemble's threshold sitting at 0.5 — takes a model out when it is **twice as far from the dynamics as the
+analysis** (`calibrate` in the script prints the boundary it used for every region: 1.68 to 2.04 for advection, 0.005
+to 0.012 spreads per day for the energy).
+
+Two notes on running it. `pretrained_ensemble_2020.json` records the wall time of the run that wrote it (5.5 s here,
+because the 11 cases were already in the `.npz` cache); the first run reads two published archives per case over HTTPS
+and took **748 s** for the 11 cases. And the checkpoint is the same phase-1 one the rest of the example uses — the
+rollout phases 2, 4 and 8 have not run, which is what the 541 m²/s² at day 5 is made of.
+
+## 7. What this does not do yet
+
+- **GraphCast and NeuralGCM** are in the registry with their licence and envelope but not in the demo: GraphCast is
+  published on the 1440 x 721 grid and needs a regridder to 64 x 32 first. NeuralGCM is on the right grid and is one
+  `PUBLISHED` entry away.
+- **Prithvi, SAM 2 and Depth-Anything** have adapters and licence records, and the flood and video checks exist, but
+  no demo runs them: the perception side needs the HLS and video inputs, which are not in the repository.
+- **One year, eleven cases.** The weights move little in eleven cases per cell (the fixed-share floor dominates); a
+  longer archive would show the seasonal signal the current table only hints at.
+- **No conservation in the combination itself**: the ensemble combines the fields, it does not project them onto a
+  conserved total (`PhysicsEnsemble(conserve=...)` does that and the demo does not use it).
+

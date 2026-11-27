@@ -28,7 +28,7 @@ from typing import Any
 import numpy as np
 
 __all__ = ["SOURCES", "cache_dir", "fetch", "manifest", "MetricaMatch", "metrica_match", "skillcorner_ball",
-           "skillcorner_matches", "statsbomb_shots", "STATSBOMB_360"]
+           "skillcorner_matches", "skillcorner_tracking", "statsbomb_shots", "STATSBOMB_360"]
 
 METRICA = "https://raw.githubusercontent.com/metrica-sports/sample-data/master/data"
 SKILLCORNER_RAW = "https://raw.githubusercontent.com/SkillCorner/opendata/master/data"
@@ -187,6 +187,48 @@ def skillcorner_matches(root: str | Path | None = None) -> list[dict]:
     return json.loads(fetch(f"{SKILLCORNER_RAW}/matches.json", "skillcorner/matches.json", root).read_text())
 
 
+def _skillcorner_raw(match_id: int, root=None) -> Path:
+    """The raw JSON-lines tracking file of a match, downloaded into the cache with its hash."""
+    return fetch(f"{SKILLCORNER_LFS}/matches/{match_id}/{match_id}_tracking_extrapolated.jsonl",
+                 f"skillcorner/{match_id}_tracking_extrapolated.jsonl", root)
+
+
+def _skillcorner_seconds(ts) -> float:
+    if not ts:
+        return float("nan")
+    h, m_, s = ts.split(":")
+    return 3600 * float(h) + 60 * float(m_) + float(s)
+
+
+def _skillcorner_parse(p: Path, *, with_players: bool) -> tuple[np.ndarray, np.ndarray | None]:
+    """Read the tracking file once into ``(ball, players)`` arrays.
+
+    ``ball`` is ``(n, 7)`` -- ``frame, t, period, x, y, z, detected`` -- and ``players`` is ``(m, 6)`` long form --
+    ``frame, player_id, team, x, y, is_detected`` -- so a player that is missing from a frame is simply absent
+    rather than NaN-padded (broadcast tracking drops a player when the detector loses him, and the number of
+    players seen per frame varies).
+    """
+    ball, players = [], []
+    with open(p) as f:
+        for line in f:
+            d = json.loads(line)
+            b = d["ball_data"]
+            fr = d["frame"]
+            ball.append([fr, _skillcorner_seconds(d.get("timestamp")), d.get("period") or 0,
+                         *(np.nan if b.get(k) is None else b[k] for k in ("x", "y", "z")),
+                         1.0 if b.get("is_detected") else 0.0])
+            if with_players:
+                for pl in d.get("player_data") or []:
+                    players.append([fr, pl.get("player_id") or -1, 1.0 if pl.get("is_detected") else 0.0,
+                                    np.nan if pl.get("x") is None else pl["x"],
+                                    np.nan if pl.get("y") is None else pl["y"], pl.get("trackable_object") or -1])
+    return (np.asarray(ball, float),
+            np.asarray(players, float) if with_players else None)
+
+
+_BALL_KEYS = ("frame", "t", "period", "x", "y", "z", "detected")
+
+
 def skillcorner_ball(match_id: int, root: str | Path | None = None) -> dict[str, np.ndarray]:
     """Ball track of a SkillCorner match at 10 Hz: ``frame, t, period, x, y, z, detected`` (NaN when missing).
 
@@ -196,28 +238,40 @@ def skillcorner_ball(match_id: int, root: str | Path | None = None) -> dict[str,
     import os
     npz = cache_dir(root) / f"skillcorner/ball_{match_id}.npz"
     if not npz.exists():
-        rel = f"skillcorner/{match_id}_tracking_extrapolated.jsonl"
-        p = fetch(f"{SKILLCORNER_LFS}/matches/{match_id}/{match_id}_tracking_extrapolated.jsonl", rel, root)
-        rows = []
-        with open(p) as f:
-            for line in f:
-                d = json.loads(line)
-                b = d["ball_data"]
-                ts = d.get("timestamp")
-                sec = np.nan
-                if ts:
-                    h, m_, s = ts.split(":")
-                    sec = 3600 * float(h) + 60 * float(m_) + float(s)
-                rows.append([d["frame"], sec, d.get("period") or 0,
-                             *(np.nan if b.get(k) is None else b[k] for k in ("x", "y", "z")),
-                             1.0 if b.get("is_detected") else 0.0])
-        a = np.asarray(rows, float)
+        p = _skillcorner_raw(match_id, root)
+        a, _ = _skillcorner_parse(p, with_players=False)
         np.savez_compressed(npz, a=a)
         if not os.environ.get("PINNEAPPLE_KEEP_RAW"):
             p.unlink()
     a = np.load(npz)["a"]
-    keys = ("frame", "t", "period", "x", "y", "z", "detected")
-    return {k: a[:, i] for i, k in enumerate(keys)}
+    return {k: a[:, i] for i, k in enumerate(_BALL_KEYS)}
+
+
+def skillcorner_tracking(match_id: int, root: str | Path | None = None) -> dict[str, Any]:
+    """Ball **and every tracked player** of a SkillCorner match, the feed a broadcast replay is drawn from.
+
+    Returns ``{"ball": {...}, "players": array, "player_columns": (...)}``. ``ball`` is the dict of
+    :func:`skillcorner_ball`; ``players`` is long form, one row per player per frame that saw him, with the columns
+    ``frame, player_id, is_detected, x, y, trackable_object``. The raw file is parsed once into
+    ``skillcorner/track_<id>.npz``; the ball cache is filled from the same pass when it is missing, so asking for
+    both the ball and the players costs one download. Players are only ever cached, never committed.
+    """
+    import os
+    npz = cache_dir(root) / f"skillcorner/track_{match_id}.npz"
+    if not npz.exists():
+        p = _skillcorner_raw(match_id, root)
+        ball, players = _skillcorner_parse(p, with_players=True)
+        np.savez_compressed(npz, ball=ball, players=players)
+        ball_npz = cache_dir(root) / f"skillcorner/ball_{match_id}.npz"
+        if not ball_npz.exists():
+            np.savez_compressed(ball_npz, a=ball)
+        if not os.environ.get("PINNEAPPLE_KEEP_RAW"):
+            p.unlink()
+    z = np.load(npz)
+    cols = ("frame", "player_id", "is_detected", "x", "y", "trackable_object")
+    return {"ball": {k: z["ball"][:, i] for i, k in enumerate(_BALL_KEYS)},
+            "players": z["players"], "player_columns": cols}
+
 
 
 # ------------------------------------------------------------------------------------------------------ StatsBomb

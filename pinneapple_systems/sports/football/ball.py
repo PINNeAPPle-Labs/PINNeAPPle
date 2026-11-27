@@ -42,7 +42,7 @@ __all__ = ["Ball", "BALL", "G", "RHO_AIR", "NU_AIR", "DRAG_CRISIS_BAND", "cd_cri
            "fit_flight", "predict", "extract_flights", "Flight", "kinematic_extrapolation", "fisher_identifiability",
            "rolling_fit", "rolling_travel_time", "travel_time", "CL_MAX", "HeightMap", "HeightFit", "fit_height_map",
            "correct_flight", "height_recovery_test", "identifiability_of", "CR_CD_MAX", "CR_CL_MAX", "CR_SIGMA_FLOOR",
-           "CAMERA_Y", "known_height_distortion", "apparent_gravity"]
+           "CAMERA_Y", "known_height_distortion", "apparent_gravity", "BandedHeight"]
 
 G = 9.81
 RHO_AIR = 1.2          # kg/m^3, ~20 C at sea level
@@ -644,6 +644,51 @@ class HeightMap:
             out["nodes"] = np.asarray(self.nodes, float).ravel().tolist()
             out["values"] = np.asarray(self.values, float).ravel().tolist()
         return out
+
+
+@dataclass
+class BandedHeight:
+    """A :class:`HeightMap` together with the bootstrap band of the fit that produced it.
+
+    The band is the uncertainty of the *map*, not of a single flight: it is what a figure has to shade and what a
+    commercial asset has to print instead of a bare number (#911). It resamples matches, so it measures how much
+    matches disagree about ``f`` -- the question of whether the correction generalises, not the (smaller)
+    uncertainty of the per-flight parameters.
+
+    Every map method is delegated, so a :class:`BandedHeight` can be passed wherever a :class:`HeightMap` is
+    accepted (``correct_flight``, ``landing_and_apex``, ``identifiability_summary``).
+    """
+
+    map: HeightMap
+    grid: np.ndarray
+    lo: np.ndarray
+    hi: np.ndarray
+
+    @classmethod
+    def from_dict(cls, height: dict[str, Any], band: dict[str, Any]) -> BandedHeight:
+        """Rebuild from the JSON of a study (:meth:`HeightMap.as_dict` and ``height_study.height_band``)."""
+        hm = HeightMap(height["kind"], params=None if height.get("params") is None else np.asarray(height["params"],
+                                                                                                float),
+                       nodes=None if height.get("nodes") is None else np.asarray(height["nodes"], float),
+                       values=None if height.get("values") is None else np.asarray(height["values"], float))
+        return cls(hm, np.asarray(band["grid"], float), np.asarray(band["lo"], float), np.asarray(band["hi"], float))
+
+    def __call__(self, z, x=None, y=None) -> np.ndarray:
+        return self.map(z, x, y)
+
+    def to_feed(self, z, x=None, y=None) -> np.ndarray:
+        return self.map.to_feed(z, x, y)
+
+    def local_scale(self, z) -> np.ndarray:
+        return self.map.local_scale(z)
+
+    def is_sane(self, **kw) -> bool:
+        return self.map.is_sane(**kw)
+
+    def band_at(self, z) -> tuple[np.ndarray, np.ndarray]:
+        """``(lo, hi)`` of the physical height for a feed height ``z``: the shaded width of the ball's tube."""
+        z = np.asarray(z, float)
+        return (_interp_ext(z, self.grid, self.lo), _interp_ext(z, self.grid, self.hi))
 
 
 @dataclass

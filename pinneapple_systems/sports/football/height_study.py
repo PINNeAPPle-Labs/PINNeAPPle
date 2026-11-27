@@ -145,9 +145,10 @@ def _g_audit(flights, height: B.HeightMap | None, *, max_rmse: float = 0.6, work
         max_rmse = max_rmse * max(scale, 1e-6)
     a = S.gravity_audit(flights, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
     g = np.asarray(a["g_drag"], float)
+    idx = np.asarray(a.get("idx", []), int)
     return {"n_used": a["n_used"], "g_median": a["g_drag_median"], "g_ci95": a["g_drag_ci95"],
             "g_hz": [float(np.percentile(g, 2.5)), float(np.percentile(g, 97.5))] if len(g) else [float("nan")] * 2,
-            "values": g}
+            "values": g, "idx": idx}
 
 
 def _paired(a: np.ndarray, b: np.ndarray, seed: int = 0, n: int = 2000) -> dict[str, float]:
@@ -162,57 +163,123 @@ def _paired(a: np.ndarray, b: np.ndarray, seed: int = 0, n: int = 2000) -> dict[
 
 def height_correction(train, test, *, kinds=("scale", "camera", "spline"), rounds: int = 2, workers: int = 1,
                       max_rmse: float = 0.6, n_boot: int = 200, known_n: int = 30, seed: int = 0,
-                      fit_kw: dict[str, Any] | None = None) -> dict[str, Any]:
+                      fit_kw: dict[str, Any] | None = None, checkpoint=None, n_map: int | None = None) -> dict[str, Any]:
     """The whole study of #911 on a train/test split of matches; returns the JSON-serialisable result.
 
     For every map kind: the joint fit on the training matches, its rounds, the map and its band, then on the held-out
     matches the four checks of the issue. The uncorrected feed is the baseline of every comparison.
+
+    ``checkpoint`` is a path: the result is written there after every finished block, and a block already present is
+    not recomputed. The study is hours of per-flight fits on 20 matches, so a run that dies has to be resumable.
+
+    ``n_map`` caps how many training flights the joint map fit sees, drawn at random with ``seed``. The map is a
+    one-dimensional function of the feed height: a few hundred flights spread over the height range fix it as well
+    as two thousand, and the joint fit is the most expensive block here (four passes over the training set per
+    kind). The **checks below are unaffected** -- they still run on every held-out flight -- and ``n_map_used`` is
+    reported next to them so the number can be read for what it is.
     """
+    import json
+    from pathlib import Path
+
+    from pinneapple_core.jsonable import to_jsonable
+
     train, test = list(train), list(test)
-    out: dict[str, Any] = {"n_train_flights": len(train), "n_test_flights": len(test), "kinds": list(kinds)}
-    before_test = _g_audit(test, None, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
-    before_train = _g_audit(train, None, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
-    out["before"] = {"test": {k: v for k, v in before_test.items() if k != "values"},
-                     "train": {k: v for k, v in before_train.items() if k != "values"},
-                     "test_hist": np.histogram(before_test["values"], bins=np.linspace(0, 16, 33))[0].tolist(),
-                     "train_hist": np.histogram(before_train["values"], bins=np.linspace(0, 16, 33))[0].tolist()}
-    base_land = landing_and_apex(test, None, fit_kw=fit_kw)
-    out["baseline_prediction"] = {k: v for k, v in base_land.items() if not k.endswith("errors")}
-    out["kinds_result"] = {}
+    map_train = train
+    if n_map is not None and len(train) > n_map:
+        pick = np.random.default_rng(seed).permutation(len(train))[:int(n_map)]
+        map_train = [train[i] for i in sorted(pick.tolist())]
+    done: dict[str, Any] = {}
+    if checkpoint is not None and Path(checkpoint).exists():
+        done = json.loads(Path(checkpoint).read_text())
+
+    def save():
+        if checkpoint is not None:
+            Path(checkpoint).parent.mkdir(parents=True, exist_ok=True)
+            Path(checkpoint).write_text(json.dumps(to_jsonable(done, digits=6), indent=1))
+
+    def have(key):
+        return done.get(key) is not None
+
+    out: dict[str, Any] = {"n_train_flights": len(train), "n_test_flights": len(test), "kinds": list(kinds),
+                           "n_map_flights": len(map_train)}
+    if not have("before"):
+        before_test = _g_audit(test, None, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
+        before_train = _g_audit(train, None, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
+        done["before"] = {"test": {k: v for k, v in before_test.items() if k not in ("values", "idx")},
+                          "train": {k: v for k, v in before_train.items() if k not in ("values", "idx")},
+                          "test_hist": np.histogram(before_test["values"], bins=np.linspace(0, 16, 33))[0].tolist(),
+                          "train_hist": np.histogram(before_train["values"], bins=np.linspace(0, 16, 33))[0].tolist()}
+        save()
+    if not have("baseline_prediction"):
+        base_land = landing_and_apex(test, None, fit_kw=fit_kw)
+        done["baseline_prediction"] = {k: v for k, v in base_land.items() if not k.endswith("errors")}
+        done["baseline_errors"] = {k: np.asarray(v, float).tolist() for k, v in base_land.items()
+                                   if k.endswith("errors")}
+        save()
+    done.setdefault("kinds_result", {})
     for kind in kinds:
-        hf = B.fit_height_map(train, kind=kind, rounds=rounds, workers=workers, max_rmse=max_rmse, fit_kw=fit_kw)
-        band = height_band(hf, train, n_boot=n_boot, seed=seed, max_rmse=max_rmse)
+        key = f"kind_{kind}"
+        if have(key):
+            done["kinds_result"][kind] = done[key]
+            continue
+        hf = B.fit_height_map(map_train, kind=kind, rounds=rounds, workers=workers, max_rmse=max_rmse, fit_kw=fit_kw)
+        band = height_band(hf, map_train, n_boot=n_boot, seed=seed, max_rmse=max_rmse)
         gmap = np.asarray(band["grid"], float)
         r: dict[str, Any] = {"map": hf.height.as_dict(), "history": hf.history, "n_used_train": hf.n_used,
+                             "n_map_flights": len(map_train),
                              "residual_rms_feed": hf.residual(), "band": band,
                              "curve": {"grid": gmap.tolist(), "values": np.asarray(hf.height(gmap), float).tolist()}}
         g_test = _g_audit(test, hf.height, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
         g_train = _g_audit(train, hf.height, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
-        r["g_test"] = {k: v for k, v in g_test.items() if k != "values"}
-        r["g_train"] = {k: v for k, v in g_train.items() if k != "values"}
+        r["g_test"] = {k: v for k, v in g_test.items() if k not in ("values", "idx")}
+        r["g_train"] = {k: v for k, v in g_train.items() if k not in ("values", "idx")}
         r["hist_test"] = np.histogram(g_test["values"], bins=np.linspace(0, 16, 33))[0].tolist()
-        r["g_test_by_match"] = _per_match_g(test, hf.height, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
+        r["g_test_by_match"] = _per_match_g(test, g_test)
         pred = landing_and_apex(test, hf.height, fit_kw=fit_kw)
         r["prediction"] = {k: v for k, v in pred.items() if not k.endswith("errors")}
-        for key in ("landing", "apex"):
-            if base_land.get(key + "_errors") is not None and pred.get(key + "_errors") is not None:
-                r[f"{key}_paired"] = _paired(pred[key + "_errors"], base_land[key + "_errors"], seed=seed)
+        for k_ in ("landing", "apex"):
+            if done.get("baseline_errors", {}).get(k_ + "_errors") is not None and pred.get(k_ + "_errors") is not None:
+                r[f"{k_}_paired"] = _paired(pred[k_ + "_errors"],
+                                            np.asarray(done["baseline_errors"][k_ + "_errors"], float), seed=seed)
         r["identifiability"] = identifiability_summary(test, hf.height, workers=workers, fit_kw=fit_kw)
-        out["kinds_result"][kind] = r
-    out["identifiability_before"] = identifiability_summary(test, None, workers=workers, fit_kw=fit_kw)
-    out["known_answer"] = {k: B.height_recovery_test(n=known_n, kind=k, seed=seed, workers=workers, rounds=1,
-                                                     fit_kw=fit_kw) for k in kinds}
+        done[key] = r
+        done["kinds_result"][kind] = r
+        save()
+    if not have("identifiability_before"):
+        done["identifiability_before"] = identifiability_summary(test, None, workers=workers, fit_kw=fit_kw)
+        save()
+    done.setdefault("known_answer", {})
+    for kind in kinds:
+        if done["known_answer"].get(kind) is None:
+            done["known_answer"][kind] = B.height_recovery_test(n=known_n, kind=kind, seed=seed, workers=workers,
+                                                                rounds=1, fit_kw=fit_kw)
+            save()
+    out.update({k: done[k] for k in ("before", "baseline_prediction", "kinds_result", "identifiability_before",
+                                     "known_answer") if k in done})
+    if "baseline_errors" in done:
+        out["baseline_errors"] = done["baseline_errors"]
     return out
 
 
-def _per_match_g(test, height: B.HeightMap, *, max_rmse: float, workers: int,
-                 fit_kw: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Held-out gravity per match: does the map learned on one set of matches hold in each other match?"""
+def _per_match_g(test, audit: dict[str, Any]) -> dict[str, Any]:
+    """Held-out gravity per match, split out of one audit: does the map hold inside each other match?
+
+    Reading the split off the audit already run is not an optimisation detail -- it is the same numbers. A second
+    audit would refit every flight and could disagree with the pooled result by its own fitting noise.
+    """
+    g = np.asarray(audit.get("values", []), float)
+    idx = np.asarray(audit.get("idx", []), int)
+    if not len(g) or not len(idx):
+        return {}
+    match = np.asarray([str(test[i].match_id) if i < len(test) else "" for i in idx], dtype=object)
     out = {}
-    for m in dict.fromkeys(f.match_id for f in test):
-        sel = [f for f in test if f.match_id == m]
-        if len(sel) < 10:
+    for m in dict.fromkeys(match.tolist()):
+        sel = match == m
+        if sel.sum() < 10:
             continue
-        a = _g_audit(sel, height, max_rmse=max_rmse, workers=workers, fit_kw=fit_kw)
-        out[str(m)] = {"n": a["n_used"], "g_median": a["g_median"], "g_ci95": a["g_ci95"]}
+        x = g[sel]
+        rng = np.random.default_rng(0)
+        bs = [float(np.median(rng.choice(x, len(x)))) for _ in range(1000)]
+        out[str(m)] = {"n": int(sel.sum()), "g_median": float(np.median(x)),
+                       "g_ci95": [float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))]}
     return out

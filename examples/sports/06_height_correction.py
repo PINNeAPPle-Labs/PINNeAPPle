@@ -38,7 +38,15 @@ FIT_KW = {"dt": 0.05}                 # at the 10 Hz of the feed: the same fits 
 EDGES = np.linspace(0, 16, 33)        # gravity histogram bins, shared by every figure
 
 
-def main(smoke: bool = False, workers: int = 8, rounds: int = 2) -> dict:
+def _checkpoint_path(smoke: bool) -> Path:
+    """Where the resumable checkpoints live: the data cache, not the repository (they are intermediate)."""
+    from pinneapple_systems.sports.football import data as D
+    base = D.cache_dir().parent / "studies"
+    base.mkdir(parents=True, exist_ok=True)
+    return base / ("football_height_smoke.checkpoint.json" if smoke else "football_height.checkpoint.json")
+
+
+def main(smoke: bool = False, workers: int = 8, rounds: int = 2, checkpoint=None, map_flights: int = 400) -> dict:
     ids = sorted(m["id"] for m in D.skillcorner_matches())
     if smoke:
         ids = ids[:3]
@@ -53,11 +61,16 @@ def main(smoke: bool = False, workers: int = 8, rounds: int = 2) -> dict:
     print(f"train {len(train)} flights ({len(train_ids)} matches), test {len(test)} flights "
           f"({len(test_ids)} matches)", flush=True)
 
+    out = HERE / "results" / ("ball_height_smoke.json" if smoke else "ball_height.json")
+    out.parent.mkdir(exist_ok=True)
     res = H.height_correction(train, test, kinds=KINDS, rounds=1 if smoke else rounds, workers=workers,
-                              n_boot=200, known_n=12 if smoke else 30, seed=0, fit_kw=FIT_KW)
+                              n_boot=200, known_n=12 if smoke else 30, seed=0, fit_kw=FIT_KW,
+                              checkpoint=Path(checkpoint) if checkpoint else _checkpoint_path(smoke),
+                              n_map=map_flights)
     res["matches"] = {"train": train_ids, "test": test_ids}
     res["settings"] = {"rounds": 1 if smoke else rounds, "max_rmse": 0.6, "fit_dt": FIT_KW["dt"],
-                       "cr_cd_max": B.CR_CD_MAX, "cr_cl_max": B.CR_CL_MAX}
+                       "cr_cd_max": B.CR_CD_MAX, "cr_cl_max": B.CR_CL_MAX, "cr_sigma_floor": B.CR_SIGMA_FLOOR,
+                       "map_flights": map_flights}
 
     fig = HERE / "figures"
     for kind in KINDS:
@@ -86,8 +99,11 @@ if __name__ == "__main__":
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--rounds", type=int, default=2)
+    ap.add_argument("--checkpoint", default=None, help="resumable checkpoint path (default: the data cache)")
+    ap.add_argument("--map-flights", type=int, default=400,
+                    help="training flights the joint map fit sees (the checks still use every held-out flight)")
     a = ap.parse_args()
-    r = main(a.smoke, a.workers, a.rounds)
+    r = main(a.smoke, a.workers, a.rounds, a.checkpoint, a.map_flights)
     print(json.dumps(to_jsonable({k: {"g_test": v["g_test"], "prediction": v["prediction"],
                                       "identifiability": v["identifiability"]}
                                   for k, v in r["kinds_result"].items()}, digits=4), indent=1))

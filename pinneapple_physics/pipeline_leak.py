@@ -34,9 +34,10 @@ The wave is the fast sensor and the poor one: it reports in seconds but resolves
 noise. The balance is the slow sensor and the sharp one: it resolves a hundredth of the flow but knows nothing until
 the line has settled, ``2L/a`` later. A system wants both, which is what :func:`detect` is.
 
-**What this is not.** Steady friction only, so a wave crosses the line almost unattenuated here; a real line, with
-unsteady friction and a viscoelastic liner, loses far more, and the smallest leak this detector finds is smaller than
-the smallest a real line would give. The nominal transient is computed from known boundary conditions: the pump curve
+**What this is not.** Steady friction only. On this line that is already worth a third of the wave: a rarefaction
+that leaves the hole 1.26 m high is 0.84 m high when it reaches a transmitter 9.3 km away, because ``R q^2`` per cell
+turns against the flow change for as long as the front travels. A real line adds unsteady friction and, in a lined
+pipe, viscoelasticity on top, loses more still, and the smallest leak it gives up is larger than the one found here. The nominal transient is computed from known boundary conditions: the pump curve
 and the valve schedule are assumed known, and the detector re-zeroes itself on the first twenty seconds of the same
 record to absorb a static error in them. A boundary condition that changes *during* the record without the model
 being told is indistinguishable from a leak by the pressure alone -- the balance is what refuses it, and pays for the
@@ -264,6 +265,7 @@ def simulate(pipe: Pipeline, *, n_reaches: int = 500, t_end: float | None = None
     head_up, head_down = [float(H[0])], [float(H[-1])]
     flow_in, flow_out = [pipe.flow], [pipe.flow]
     leaky = [0.0]
+    split = [(0.0, 0.0)]
     t = 0.0
     for n in range(1, n_steps + 1):
         t = n * dt
@@ -323,6 +325,8 @@ def simulate(pipe: Pipeline, *, n_reaches: int = 500, t_end: float | None = None
         flow_in.append(float(q_left[0]))
         flow_out.append(float(q_right[-1]))
         leaky.append(out_of_hole)
+        split.append((float(q_left[i_leak]) - pipe.flow, float(q_right[i_leak]) - pipe.flow)
+                     if leak is not None else (0.0, 0.0))
         if monitored:
             monitored_heads.append(H[monitored].copy())
         if record:
@@ -331,7 +335,7 @@ def simulate(pipe: Pipeline, *, n_reaches: int = 500, t_end: float | None = None
     out = {"t": np.array(ts), "head_up": np.array(head_up), "head_down": np.array(head_down),
            "flow_in": np.array(flow_in), "flow_out": np.array(flow_out), "x": x, "steady": steady,
            "dx": dx, "dt": dt, "n_reaches": n_reaches, "wave_speed": a, "leak_node": leak_x,
-           "leak_flow": np.array(leaky)}
+           "leak_flow": np.array(leaky), "leak_split": np.array(split)}
     if monitored:
         out["monitor_x"] = monitor_x
         out["monitor_head"] = np.array(monitored_heads)
@@ -508,7 +512,7 @@ def detect(observation: dict, reference: dict, pipe: Pipeline, sensors: Sensors,
                "leak_distance": None, "leak_rate": None,
                "evidence": {"span_s": span, "arrival_a": None, "arrival_b": None, "delta_t": None,
                             "both_ends": False, "imbalance": imbalance, "imbalance_error": imbalance_error,
-                            "outside_transmitters": False,
+                            "outside_transmitters": False, "balance_window": None, "confirmed": None,
                             "stuck": {k: (None if v < 0 else float(t[v])) for k, v in stuck.items()},
                             "cusum": {k: v[2] for k, v in drop.items()}}}
     mine = sorted({k for k, v in drop.items() if v[1] >= 0} | {k for k, v in rise.items() if v[1] >= 0}
@@ -527,10 +531,14 @@ def detect(observation: dict, reference: dict, pipe: Pipeline, sensors: Sensors,
     if drop_both:
         drop_both = abs(t[drop["b"][0]] - t[drop["a"][0]]) <= span + margin
     if not drop_both:
-        # one side only, or both sides moving in opposite or non-leak directions
+        # one side only, or both sides moving in opposite or non-leak directions -- unless the line is losing mass,
+        # in which case the hole is there and the transient simply was not heard well enough to be placed
         verdict["source"] = "instrument" if len(mine) == 1 or any(stuck[k] >= 0 for k in mine) else "operation"
         if verdict["source"] == "operation":
             verdict["channel"] = None
+        if imbalance is not None and imbalance > imbalance_k * imbalance_error:
+            verdict["source"] = "leak"
+            verdict["leak_rate"] = imbalance
         return verdict
 
     t_a = _arrival(t, residuals["a"], drop["a"][0], -arrival_level)
@@ -542,11 +550,17 @@ def detect(observation: dict, reference: dict, pipe: Pipeline, sensors: Sensors,
     verdict["leak_distance"] = float(min(max(x_leak, x_a), x_b))
 
     settled = t >= max(t[drop["a"][0]], t[drop["b"][0]]) + settle
-    if settled.sum() >= 10:
-        settled_balance = float(np.mean((observation["flow_in"] - observation["flow_out"])[settled]))
-        verdict["evidence"]["imbalance"] = settled_balance
+    which = "settled" if settled.sum() >= 10 else "tail"
+    window_mask = settled if which == "settled" else tail_window
+    counts = int(window_mask.sum())
+    if counts >= 10:
+        settled_balance = float(np.mean((observation["flow_in"] - observation["flow_out"])[window_mask]))
+        verdict["evidence"].update(imbalance=settled_balance, balance_window=which,
+                                   imbalance_error=sensors.flow_sigma / math.sqrt(counts),
+                                   confirmed=bool(settled_balance >= imbalance_k * sensors.flow_sigma
+                                                  / math.sqrt(counts)))
         verdict["leak_rate"] = settled_balance
-        if settled_balance < imbalance_k * sensors.flow_sigma / math.sqrt(int(settled.sum())):
+        if not verdict["evidence"]["confirmed"]:
             # nothing is leaving the line: the two drops were the line changing operation, not a hole
             verdict["source"] = "operation"
             verdict["leak_distance"] = verdict["leak_rate"] = None
@@ -564,16 +578,24 @@ def measurement_check(observation: dict, reference: dict, pipe: Pipeline, sensor
     return detect(observation, reference, pipe, sensors, **kwargs)["source"] == "instrument"
 
 
-def minimum_detectable_leak(pipe: Pipeline, sensors: Sensors, *, waves: float = 1.2) -> dict:
+def minimum_detectable_leak(pipe: Pipeline, sensors: Sensors, *, waves: float = 1.2,
+                            attenuation: float = 0.0) -> dict:
     """The leak whose wave at the transmitter is ``waves`` standard deviations of the head noise, and the reasoning.
 
     The head change a hole makes at the instant it opens is the Joukowsky relation applied to the leak flow,
     ``dH = a Q_L / (2 g A)`` -- half the flow goes each way, hence the 2. Re-arranged, a leak is invisible to a
-    transducer of noise ``sigma`` below ``Q_L = 2 g A sigma / a``, independently of the detector: the signal is not in
-    the record a better algorithm could find. The factor ``waves`` is the margin the CUSUM needs over the noise; a
-    smaller one buys sensitivity with false alarms, which is the trade-off the example plots.
+    transducer of noise ``sigma`` below ``Q_L = 2 g A sigma / a``, independently of the detector: the signal is not
+    in the record that a better algorithm could find. ``waves`` is the margin the CUSUM needs over the noise, and a
+    smaller one buys sensitivity with false alarms. ``attenuation``, the fraction of the wave's height lost between
+    the hole and the transmitter (zero at the hole, and a third of it over 9 km on the line of the example), divides
+    the answer by ``1 - attenuation``: the transducer sees what is left.
+
+    This is the amplitude argument and it is optimistic. A leak also has to clear the CUSUM's slack at *both*
+    transmitters, and the far one sees less, which is why :func:`detect` finds the hole about half again larger than
+    this. The number to quote is the measured one; this one says why it is where it is.
     """
-    per_sigma = 2.0 * G * pipe.area * sensors.sigma / pipe.wave_speed
-    return {"leak_rate": waves * per_sigma, "per_sigma": per_sigma, "fraction_of_flow": waves * per_sigma / pipe.flow,
-            "head_at_hole": waves * sensors.sigma,
+    per_sigma = 2.0 * G * pipe.area * sensors.sigma / pipe.wave_speed / max(1.0 - attenuation, 1e-9)
+    return {"leak_rate": waves * per_sigma, "per_sigma": per_sigma,
+            "fraction_of_flow": waves * per_sigma / pipe.flow,
+            "head_at_transmitter": waves * sensors.sigma, "attenuation": attenuation,
             "sampling_resolution": pipe.wave_speed * sensors.sample / 2.0}

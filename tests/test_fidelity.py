@@ -4,19 +4,23 @@ The acceptance of #161 is that the routing decision and its reason are stored wi
 check the records; the ones that matter run the router against a case where the surrogate *would* be wrong and count
 how often that answer escaped.
 
-Measured on this machine (``2026-11-25``): a GP fitted on 60 points of ``exp(1.5 a) cos(2 b) + 0.3 a^2`` inside
+Measured on this machine (``2026-11-26``): a GP fitted on 60 points of ``exp(1.5 a) cos(2 b) + 0.3 a^2`` inside
 ``[0, 1]^2``, 400 requests uniform on ``[-0.15, 1.15]^2``, tolerance 0.05, every request verified against the solver:
 
-======================================  ==================  =====================  ======================
-policy                                  served by surrogate  served beyond tolerance  max error served
-======================================  ==================  =====================  ======================
-APPROVED + domain + tolerance           0.632                0                      0.012
-APPROVED + tolerance, no domain         0.877                7                      0.078
-APPROVED + domain, no tolerance         0.632                0                      0.012
-======================================  ==================  =====================  ======================
+======================================  ====================  ========================  ========================
+policy                                  served by surrogate   served beyond tolerance   max error served
+======================================  ====================  ========================  ========================
+APPROVED + domain + tolerance           0.593 (237 requests)  0                         0.009
+APPROVED + tolerance, no domain         0.870 (348 requests)  5                         0.081
+APPROVED + domain, no tolerance         0.593 (237 requests)  0                         0.009
+======================================  ====================  ========================  ========================
 
-The middle row is why the domain is not optional: without it the router serves seven answers it should not. The
-cost ratio (a solver call priced at 100 surrogate calls) is 0.374 for the full router.
+The middle row is why the domain is not optional: without it the router serves five answers it should not. The cost
+ratio (a solver call priced at 100 surrogate calls) is 0.413 for the full router.
+
+The horizon is the fifth condition (#347), and it is measured the same way: with the useful lead at 120 h and a 48 h
+request the router serves the same 237 requests as without a horizon at all, and with the useful lead at 24 h it serves
+**none** of them — every one of the 237 goes to the solver with ``past_horizon`` as its only code (cost ratio 1.0).
 """
 from __future__ import annotations
 
@@ -37,6 +41,15 @@ from pinneapple_analysis.fidelity import (  # noqa: E402
     audit,
     serve,
 )
+from pinneapple_analysis.trust.adapters import weather_horizon  # noqa: E402
+from pinneapple_analysis.trust.record import (  # noqa: E402
+    GOOD,
+    Horizon,
+    Measurement,
+    Trust,
+    TrustValue,
+    Uncertainty,
+)
 from pinneapple_analysis.trust.trust_report import (  # noqa: E402
     APPROVED,
     CONTRADICTS,
@@ -47,11 +60,18 @@ from pinneapple_analysis.trust.trust_report import (  # noqa: E402
 from pinneapple_analysis.uncertainty.applicability import ApplicabilityDomain  # noqa: E402
 
 TOL = 0.05
+N_REQUESTS = 400
+N_SERVED = 237                 # what the verdict, the domain and the tolerance accept, out of the 400 (measured below)
 
 
 def truth(X) -> np.ndarray:
     X = np.atleast_2d(np.asarray(X, dtype=float))
     return np.exp(1.5 * X[:, 0]) * np.cos(2 * X[:, 1]) + 0.3 * X[:, 0] ** 2
+
+
+def horizon(requested: float, *, useful: float = 120.0, no_skill: float = 240.0) -> Horizon:
+    """A horizon as #345 builds it — from the weather adapter, so the numbers in these tests are its, not made up."""
+    return weather_horizon({"useful_hours": useful, "no_skill_hours": no_skill}, requested_lead=requested)
 
 
 class Surrogate:
@@ -83,11 +103,12 @@ def rig():
     return s, domain, ok, X
 
 
-def _run(rig, *, domain="default", tolerance=TOL, trust="ok", verify=True):
+def _run(rig, *, domain="default", tolerance=TOL, trust="ok", verify=True, horizon=None, unknown_horizon="solver"):
     s, dom, ok, X = rig
-    return serve(X, s, truth, policy=FidelityPolicy(tolerance=tolerance),
+    return serve(X, s, truth, policy=FidelityPolicy(tolerance=tolerance, unknown_horizon=unknown_horizon),
                  domain=dom if domain == "default" else None,
                  trust=ok if trust == "ok" else trust,
+                 horizon=horizon,
                  verify=range(len(X)) if verify else None)
 
 
@@ -201,6 +222,108 @@ def test_the_cost_accounting_matches_the_routes(rig):
     assert a["cost"] == SURROGATE_COST * a["surrogate"] + SOLVER_COST * a["high_fidelity"]
 
 
+# ------------------------------------------------------------------------------- the horizon as a condition (#347)
+def test_a_short_horizon_sends_every_otherwise_acceptable_request_to_the_solver(rig):
+    """The deliverable of #347. Verdict APPROVED, input inside the domain, interval inside the tolerance — the horizon
+    is the only thing wrong — and the router escalates on it, with nothing else on the record."""
+    base = _run(rig)
+    accepted = [rec["i"] for rec in base.records if rec["route"] == "surrogate"]
+    assert len(accepted) == N_SERVED and base.n == N_REQUESTS
+
+    long_lead = _run(rig, horizon=horizon(48.0))                    # 48 h asked, the model is useful to 120 h
+    assert not [rec for rec in long_lead.records if "past_horizon" in rec["codes"]]
+    assert [rec["route"] for rec in long_lead.records] == [rec["route"] for rec in base.records]
+
+    short_lead = _run(rig, horizon=horizon(48.0, useful=24.0))      # same request, useless past 24 h
+    a = audit(short_lead)
+    assert a["reasons"]["past_horizon"] == N_REQUESTS
+    assert a["share_served_by_surrogate"] == 0.0 and a["cost_ratio"] == 1.0
+    assert a["served_beyond_tolerance"] == 0
+    for i in accepted:                                             # why each one went: the horizon, and only it
+        assert short_lead.records[i]["codes"] == ["past_horizon"]
+        assert short_lead.records[i]["route"] == "high_fidelity"
+        assert short_lead.records[i]["trust"] == APPROVED
+    assert "past the lead at which the model stops being trustworthy (24 h" in short_lead.records[accepted[0]]["reasons"][0]
+
+
+def test_the_horizon_escalates_only_the_requests_asking_for_a_lead_it_cannot_cover(rig):
+    """One horizon per request: the leads the model covers are still answered by the surrogate, the others are not."""
+    base = _run(rig)
+    accepted = [rec["i"] for rec in base.records if rec["route"] == "surrogate"]
+    per_request = [horizon(48.0, useful=24.0) if i % 2 else horizon(48.0) for i in range(N_REQUESTS)]
+    r = _run(rig, horizon=per_request)
+    odd, even = [i for i in accepted if i % 2], [i for i in accepted if not i % 2]
+    assert odd and even
+    assert all(r.records[i]["route"] == "high_fidelity" and r.records[i]["codes"] == ["past_horizon"] for i in odd)
+    assert all(r.records[i]["route"] == "surrogate" and r.records[i]["codes"] == [] for i in even)
+    a = audit(r)
+    assert a["surrogate"] == len(even) == 123
+    assert a["reasons"]["past_horizon"] == N_REQUESTS // 2
+
+
+def test_a_horizon_that_measured_nothing_is_not_a_pass(rig):
+    """A missing check never counts as a pass: a horizon was given and it cannot vouch, so the solver answers — unless
+    the caller says otherwise, and then it gets the routes of a run without a horizon."""
+    nothing = Horizon.not_measured("the rollout was never scored against truth")
+    r = _run(rig, horizon=nothing)
+    assert all(rec["route"] == "high_fidelity" for rec in r.records)
+    assert all("horizon_not_measured" in rec["codes"] for rec in r.records)
+    accepted = [rec for rec in _run(rig).records if rec["route"] == "surrogate"]
+    assert all(r.records[rec["i"]]["codes"] == ["horizon_not_measured"] for rec in accepted)
+    assert "never scored against truth" in r.records[accepted[0]["i"]]["reasons"][0]
+    loose = _run(rig, horizon=nothing, unknown_horizon="surrogate")
+    assert [rec["route"] for rec in loose.records] == [rec["route"] for rec in _run(rig).records]
+    assert all("horizon_not_measured" not in rec["codes"] for rec in loose.records)
+
+
+def _trust_with(h: Horizon) -> Trust:
+    """A :class:`~pinneapple_analysis.trust.record.Trust` of #345 with every gate measured and passing: the object a
+    consumer reads, carrying the horizon."""
+    m = TrustValue.measured
+    return Trust(kind="surrogate",
+                 in_domain=m(1.0, source="test gate", reference=1.0, reference_source="test"),
+                 domain_score=m(0.94, source="test gate"),
+                 horizon=h,
+                 measurement=Measurement(m(0.0, source="test measurement_check")),
+                 uncertainty=Uncertainty(level=0.9, coverage=m(0.93, source="test calibration"),
+                                         width=m(0.02, source="test calibration"),
+                                         ece=m(0.01, source="test calibration")))
+
+
+def test_the_router_reads_the_horizon_a_trust_object_carries(rig):
+    """``pp.trust``'s ``Horizon`` is one of the router's conditions: the verdict comes from the badge, the horizon from
+    the object — no second argument, no re-measurement."""
+    s, dom, ok, X = rig
+    covered = _trust_with(horizon(48.0))
+    assert covered.badge() == GOOD
+    r = serve(X, s, truth, policy=FidelityPolicy(tolerance=TOL), domain=dom, trust=covered)
+    assert r.records[0]["trust"] == APPROVED
+    assert [rec["route"] for rec in r.records] == [rec["route"] for rec in _run(rig).records]
+    assert r.policy["horizon"]["requested"]["value"] == 48.0
+
+    past = _trust_with(horizon(48.0, useful=24.0))
+    assert past.badge() == GOOD                       # the badge only refuses past the no-skill lead (240 h)
+    r2 = serve(X, s, truth, policy=FidelityPolicy(tolerance=TOL), domain=dom, trust=past)
+    assert all(rec["route"] == "high_fidelity" for rec in r2.records)
+    assert all("past_horizon" in rec["codes"] for rec in r2.records)
+
+
+def test_the_headline_numbers_this_module_quotes(rig):
+    """Every number in this module's docstring, asserted here: the share, the violations and the price."""
+    full = audit(_run(rig))
+    assert full["n"] == N_REQUESTS and full["surrogate"] == N_SERVED
+    assert full["share_served_by_surrogate"] == pytest.approx(0.593, abs=5e-4)
+    assert full["served_beyond_tolerance"] == 0 and full["max_error_served"] < TOL
+    assert full["max_error_served"] == pytest.approx(0.009, abs=5e-4)
+    assert full["cost_ratio"] == pytest.approx(0.413, abs=5e-4)
+    no_domain = audit(_run(rig, domain=None))
+    assert no_domain["share_served_by_surrogate"] == pytest.approx(0.870, abs=5e-4)
+    assert no_domain["served_beyond_tolerance"] == 5
+    assert no_domain["max_error_served"] == pytest.approx(0.081, abs=5e-4)
+    no_tolerance = audit(_run(rig, tolerance=None))
+    assert no_tolerance["surrogate"] == N_SERVED and no_tolerance["served_beyond_tolerance"] == 0
+
+
 def test_the_contract_rejects_what_it_cannot_route(rig):
     s, dom, ok, X = rig
     with pytest.raises(ValueError, match="no requests"):
@@ -213,3 +336,7 @@ def test_the_contract_rejects_what_it_cannot_route(rig):
         serve(X[:5], s, lambda Z: np.zeros(2), policy=FidelityPolicy(tolerance=None), trust="REVIEW")
     with pytest.raises(ValueError, match="must return"):
         serve(X[:5], lambda Z: np.zeros(5), truth, trust=ok)
+    with pytest.raises(ValueError, match="horizons for 5 requests"):
+        serve(X[:5], s, truth, trust=ok, horizon=[horizon(48.0)] * 3)
+    with pytest.raises(ValueError, match="cannot read a horizon"):
+        serve(X[:5], s, truth, trust=ok, horizon=[horizon(48.0)] * 4 + [42.0])

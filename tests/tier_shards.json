@@ -123,8 +123,14 @@
    "measured": "2026-11-25: 26 passed, 5 skipped in 186.59s (0:03:06) (205.9 s wall)",
    "paths": [
     "tests/pinneapple_solvers",
+    "tests/test_burgers3d_solver.py",
+    "tests/test_fem_axisymmetric.py",
+    "tests/test_fem_plane_stress.py",
     "tests/test_fenics_workflow.py",
-    "tests/test_solver_contract.py"
+    "tests/test_heat1d_solver.py",
+    "tests/test_solver_contract.py",
+    "tests/test_solver_scope.py",
+    "tests/test_wave2d_solver.py"
    ]
   },
   {
@@ -238,6 +244,7 @@
    "ceiling": 0,
    "id": "flow",
    "paths": [
+    "tests/test_advisor.py",
     "tests/test_flow_decisions.py",
     "tests/test_flow_equations.py",
     "tests/test_flow_examples.py",

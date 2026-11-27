@@ -778,6 +778,8 @@ _LAZY_ATTRS = {
     "PhysicsTensor": ("pinneapple_core.physics_tensor", "PhysicsTensor"),
     "study": ("pinneapple_intent", "study"),
     "compile_study": ("pinneapple_intent", "compile_study"),
+    # a problem in words -> the study pipeline it needs, as a diagram and as JSON (pinneapple_advisor)
+    "advise": ("pinneapple_advisor", "advise"),
     "PhysicsModule": ("pinneapple_core.module", "PhysicsModule"),
     "Sequential": ("pinneapple_core.module", "Sequential"),
     "SolverModule": ("pinneapple_core.module", "SolverModule"),

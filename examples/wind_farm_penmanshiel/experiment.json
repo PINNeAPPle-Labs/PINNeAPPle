@@ -153,7 +153,9 @@
    "examples/wind_farm_penmanshiel/notebooks/01_turbine_power_model.ipynb",
    "examples/wind_farm_penmanshiel/notebooks/02_wake_models.ipynb"
   ],
-  "pr": []
+  "pr": [
+   2644
+  ]
  },
  "references": [
   "Plumley, C. & Takeuchi, R. Penmanshiel wind farm data. Zenodo, 2025. doi:10.5281/zenodo.16807304 (CC-BY-4.0)",

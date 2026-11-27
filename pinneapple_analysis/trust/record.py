@@ -50,7 +50,7 @@ from typing import Any
 
 __all__ = [
     "SCHEMA", "MEASURED", "NOT_MEASURED", "GOOD", "FADING", "NO_SKILL",
-    "GATE_PASS", "GATE_FAIL", "GATE_NO_SKILL", "GATE_UNMEASURED",
+    "GATE_PASS", "GATE_FAIL", "GATE_NO_SKILL", "GATE_UNMEASURED", "TRUST_SCHEMA",
     "TrustValue", "Horizon", "Residual", "Measurement", "Uncertainty", "Provenance", "Gate", "Trust",
 ]
 
@@ -64,6 +64,97 @@ GOOD, FADING, NO_SKILL = "good", "fading", "no_skill"
 GATE_PASS, GATE_FAIL, GATE_NO_SKILL, GATE_UNMEASURED = "pass", "fail", "no_skill", "unmeasured"
 
 _BADGE_TEXT = {GOOD: "good", FADING: "fading", NO_SKILL: "no skill"}
+
+
+#: The JSON Schema of one :meth:`Trust.to_dict` document, versioned with :data:`SCHEMA` (#345).
+#:
+#: It exists for the sentence the issue is done by — "the weather, ensemble and one CFD surrogate example all emit
+#: the same ``Trust`` JSON" — to be a thing a machine checks: the three files are validated against this one
+#: document (:meth:`Trust.validate_document`), so a producer that dropped a field, renamed one or wrote a fourth
+#: badge fails the test instead of shipping a look-alike.
+#:
+#: The two shapes of a :class:`TrustValue` are deliberate and are the only ``oneOf`` here: a measured field carries
+#: ``value``/``unit``/``source`` (and ``reference``/``reference_source`` when it is judged against a level), a field
+#: that was not measured carries ``reason`` and no value at all. Both are the same field of the record, and neither
+#: is a zero.
+TRUST_SCHEMA: dict[str, Any] = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://pinneapple-labs.github.io/PINNeAPPle/schemas/trust-v1.json",
+    "title": "PINNeAPPle trust record",
+    "type": "object",
+    "required": ["schema", "kind", "badge", "badge_text", "badge_reason", "in_domain", "domain_score", "horizon",
+                 "residuals", "measurement", "uncertainty", "provenance", "gates", "notes"],
+    "properties": {
+        "schema": {"const": SCHEMA},
+        "kind": {"type": "string", "minLength": 1},
+        "badge": {"enum": [GOOD, FADING, NO_SKILL]},
+        "badge_text": {"type": "string"},
+        "badge_reason": {"type": "string"},
+        "in_domain": {"$ref": "#/$defs/value"},
+        "domain_score": {"$ref": "#/$defs/value"},
+        "horizon": {
+            "type": "object",
+            "required": ["unit", "source", "useful", "no_skill", "requested", "covers"],
+            "properties": {"unit": {"type": "string"}, "source": {"type": "string"},
+                           "useful": {"$ref": "#/$defs/value"}, "no_skill": {"$ref": "#/$defs/value"},
+                           "requested": {"$ref": "#/$defs/value"}, "covers": {"$ref": "#/$defs/value"}},
+            "additionalProperties": False,
+        },
+        "residuals": {"type": "array", "items": {
+            "type": "object", "required": ["law", "expert", "scope", "value"],
+            "properties": {"law": {"type": "string", "minLength": 1}, "expert": {"type": "string"},
+                           "scope": {"type": "string"}, "value": {"$ref": "#/$defs/value"}},
+            "additionalProperties": False}},
+        "measurement": {
+            "type": "object", "required": ["source", "suspect", "checks"],
+            "properties": {"source": {"type": "string"}, "suspect": {"$ref": "#/$defs/value"},
+                           "checks": {"type": "object", "additionalProperties": {"$ref": "#/$defs/value"}},
+                           "n_readings": {"$ref": "#/$defs/value"}, "n_suspect": {"$ref": "#/$defs/value"}},
+            "additionalProperties": False,
+        },
+        "uncertainty": {
+            "type": "object", "required": ["level", "method", "source", "coverage", "width", "ece", "calibrated"],
+            "properties": {"level": {"type": ["number", "null"]}, "method": {"type": "string"},
+                           "source": {"type": "string"}, "coverage": {"$ref": "#/$defs/value"},
+                           "width": {"$ref": "#/$defs/value"}, "ece": {"$ref": "#/$defs/value"},
+                           "calibrated": {"$ref": "#/$defs/value"}},
+            "additionalProperties": False,
+        },
+        "provenance": {
+            "type": "object",
+            "required": ["kind", "model", "model_fingerprint", "model_fingerprint_method", "data_fingerprint",
+                         "data_fingerprint_method", "library_version", "created", "inputs", "notes", "not_recorded"],
+            "properties": {k: {"type": ["string", "null"]} for k in
+                           ("kind", "model", "model_fingerprint", "model_fingerprint_method", "data_fingerprint",
+                            "data_fingerprint_method", "library_version", "created")}
+                          | {"inputs": {"type": "object"}, "notes": {"type": "array", "items": {"type": "string"}},
+                             "not_recorded": {"type": "array", "items": {"type": "string"}}},
+            "additionalProperties": False,
+        },
+        "gates": {"type": "array", "items": {
+            "type": "object", "required": ["name", "status", "evidence"],
+            "properties": {"name": {"type": "string", "minLength": 1},
+                           "status": {"enum": [GATE_PASS, GATE_FAIL, GATE_NO_SKILL, GATE_UNMEASURED]},
+                           "evidence": {"type": "string"}},
+            "additionalProperties": False}},
+        "notes": {"type": "array", "items": {"type": "string"}},
+    },
+    "additionalProperties": False,
+    "$defs": {
+        "value": {"oneOf": [
+            {"type": "object", "required": ["status", "value", "unit", "source", "method"],
+             "properties": {"status": {"const": MEASURED}, "value": {"type": "number"}, "unit": {"type": "string"},
+                            "source": {"type": "string", "minLength": 1}, "method": {"type": "string"},
+                            "reference": {"type": "number"}, "reference_source": {"type": "string"},
+                            "where": {"type": "string"}},
+             "additionalProperties": False},
+            {"type": "object", "required": ["status", "source", "method", "reason"],
+             "properties": {"status": {"const": NOT_MEASURED}, "source": {"type": "string"},
+                            "method": {"type": "string"}, "reason": {"type": "string", "minLength": 1}},
+             "additionalProperties": False},
+        ]},
+    },
+}
 
 
 def _finite(value: Any, what: str) -> float:
@@ -634,6 +725,35 @@ class Trust:
     @classmethod
     def from_json(cls, text: str) -> Trust:
         return cls.from_dict(json.loads(text))
+
+    @classmethod
+    def validate_document(cls, document: Any) -> list[str]:
+        """Problems of a JSON document against :data:`TRUST_SCHEMA`; empty when it is a valid record.
+
+        ``document`` may be the dict, the JSON text or a path to the file, so a consumer on the other side of a
+        process boundary can check what it received without constructing the object first. Without ``jsonschema``
+        installed the required keys are checked and the missing library is reported, never silently traded for a pass.
+        """
+        if isinstance(document, (str, bytes)):
+            text = document.decode("utf-8") if isinstance(document, bytes) else document
+            try:
+                doc = json.loads(text)
+            except ValueError:                                    # not JSON: is it a path to one?
+                from pathlib import Path
+                doc = json.loads(Path(text).read_text(encoding="utf-8"))
+        elif hasattr(document, "to_dict"):
+            doc = document.to_dict()
+        else:
+            doc = dict(document)
+        try:
+            import jsonschema
+        except ImportError:                                       # minimal check: the required keys, and the version
+            errors = [f"<root>: '{k}' is a required property" for k in TRUST_SCHEMA["required"] if k not in doc]
+            errors.append("<root>: jsonschema is not installed, so only the required keys were checked")
+            return errors
+        validator = jsonschema.Draft202012Validator(TRUST_SCHEMA)
+        return [f"{'/'.join(map(str, e.absolute_path)) or '<root>'}: {e.message}"
+                for e in validator.iter_errors(doc)]
 
     def write(self, path: Any, *, indent: int | None = 2) -> Any:
         """Write the JSON to ``path`` and return it."""

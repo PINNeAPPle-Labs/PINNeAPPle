@@ -1,0 +1,176 @@
+{
+  "schema": "pinneapple.trust/1",
+  "kind": "surrogate",
+  "badge": "fading",
+  "badge_text": "fading",
+  "badge_reason": "fading: horizon unmeasured — the horizon test needs both leads and the requested lead is not measured; residual:pod-3/pde fail — 0.0188121 against its in-domain level 0.0108835 (pinneapple_physics.ensemble.residual_baseline: the median residual of this expert on queries from its own domain); residual:pod-6/pde fail — 0.0188182 against its in-domain level 0.0108819 (pinneapple_physics.ensemble.residual_baseline: the median residual of this expert on queries from its own domain); measurement unmeasured — this ensemble was built without measurement_check, so the readings it used were never checked; calibration fail — measured coverage 0.3184 >= nominal level 0.9",
+  "in_domain": {
+    "status": "measured",
+    "value": 1.0,
+    "unit": "[-]",
+    "source": "pinneapple_analysis.trust.trust_gate.TrustGate.ood_p_values",
+    "method": "domain_score 1 >= 1: every query point inside the 99 % region of the training distribution"
+  },
+  "domain_score": {
+    "status": "measured",
+    "value": 1.0,
+    "unit": "[-]",
+    "source": "pinneapple_analysis.trust.trust_gate.TrustGate.ood_p_values",
+    "method": "fraction of query points with chi2 p-value >= ood_level 0.01 under the fitted training distribution"
+  },
+  "horizon": {
+    "unit": "",
+    "source": "",
+    "useful": {
+      "status": "not_measured",
+      "source": "",
+      "method": "",
+      "reason": "an ensemble does not measure a horizon: pass one from weather.evaluate.horizons (weather_horizon) or validation.rollout.divergence_time (rollout_horizon)"
+    },
+    "no_skill": {
+      "status": "not_measured",
+      "source": "",
+      "method": "",
+      "reason": "an ensemble does not measure a horizon: pass one from weather.evaluate.horizons (weather_horizon) or validation.rollout.divergence_time (rollout_horizon)"
+    },
+    "requested": {
+      "status": "not_measured",
+      "source": "",
+      "method": "",
+      "reason": "an ensemble does not measure a horizon: pass one from weather.evaluate.horizons (weather_horizon) or validation.rollout.divergence_time (rollout_horizon)"
+    },
+    "covers": {
+      "status": "not_measured",
+      "source": "pinneapple_analysis.trust.record.Horizon.covers",
+      "method": "requested <= no_skill",
+      "reason": "the horizon test needs both leads and the requested lead is not measured"
+    }
+  },
+  "residuals": [
+    {
+      "law": "pde",
+      "expert": "pod-3",
+      "scope": "whole field",
+      "value": {
+        "status": "measured",
+        "value": 0.018812103239182497,
+        "unit": "[-]",
+        "source": "pinneapple_physics.ensemble.PhysicsEnsemble.predict (residual_fn on this query)",
+        "method": "the physics residual the ensemble was configured with, for this expert on this case (relative form chosen by the residual_fn it was given)",
+        "reference": 0.01088353424438241,
+        "reference_source": "pinneapple_physics.ensemble.residual_baseline: the median residual of this expert on queries from its own domain"
+      }
+    },
+    {
+      "law": "pde",
+      "expert": "pod-6",
+      "scope": "whole field",
+      "value": {
+        "status": "measured",
+        "value": 0.018818199446946557,
+        "unit": "[-]",
+        "source": "pinneapple_physics.ensemble.PhysicsEnsemble.predict (residual_fn on this query)",
+        "method": "the physics residual the ensemble was configured with, for this expert on this case (relative form chosen by the residual_fn it was given)",
+        "reference": 0.010881878447184967,
+        "reference_source": "pinneapple_physics.ensemble.residual_baseline: the median residual of this expert on queries from its own domain"
+      }
+    }
+  ],
+  "measurement": {
+    "source": "pinneapple_physics.ensemble.PhysicsEnsemble",
+    "suspect": {
+      "status": "not_measured",
+      "source": "pinneapple_physics.ensemble.PhysicsEnsemble",
+      "method": "",
+      "reason": "this ensemble was built without measurement_check, so the readings it used were never checked"
+    },
+    "checks": {}
+  },
+  "uncertainty": {
+    "level": 0.9,
+    "method": "conformal scores kept online by the ensemble, widening the ensemble spread",
+    "source": "pinneapple_physics.ensemble.PhysicsEnsemble.predict",
+    "coverage": {
+      "status": "measured",
+      "value": 0.3184317129629629,
+      "unit": "[-]",
+      "source": "pinneapple_physics.ensemble.PhysicsEnsemble.update (miss_fraction)",
+      "method": "fraction of the points that fell inside the interval on the case just scored",
+      "reference": 0.9,
+      "reference_source": "the nominal level the ensemble states for its interval"
+    },
+    "width": {
+      "status": "measured",
+      "value": 2.095923718339861e-05,
+      "unit": "",
+      "source": "pinneapple_physics.ensemble.PhysicsEnsemble.predict (lower, upper)",
+      "method": "mean half-width of the interval over the points of this case, in the units of the field"
+    },
+    "ece": {
+      "status": "not_measured",
+      "source": "pinneapple_analysis.uncertainty.calibration.CalibrationMetrics",
+      "method": "",
+      "reason": "no expected calibration error was computed for this case; it needs a held-out set of predictions with their truth (CalibrationMetrics.expected_calibration_error)"
+    },
+    "calibrated": {
+      "status": "measured",
+      "value": 0.0,
+      "unit": "[-]",
+      "source": "pinneapple_physics.ensemble.PhysicsEnsemble.predict",
+      "method": "measured coverage 0.3184 >= nominal level 0.9",
+      "reference": 0.9,
+      "reference_source": "the nominal level of the interval, stated by the model"
+    }
+  },
+  "provenance": {
+    "kind": "surrogate",
+    "model": "PhysicsEnsemble(pod-3, pod-6)",
+    "model_fingerprint": "86593ccb7f4db16552c6f359fd9d5d5dedbcc3dfc8ef78bff2768c3826a41138",
+    "model_fingerprint_method": "sha256 of the utf-8 text of the expert names, kinds and declared costs",
+    "data_fingerprint": "e790fcb840b61325f4f122caeed8fe32f49e7722497769f79c345f3e3f84e191",
+    "data_fingerprint_method": "sha256 of the query parameters as sorted JSON",
+    "library_version": "pinneapple 0.8.0",
+    "created": "2026-11-27T12:55:55+00:00",
+    "inputs": {
+      "re": 70.0,
+      "n": 48
+    },
+    "notes": [
+      "the residual of an ensemble expert is a single scalar: this object says it was evaluated over the whole field and not where inside it the law is worst"
+    ],
+    "not_recorded": []
+  },
+  "gates": [
+    {
+      "name": "domain",
+      "status": "pass",
+      "evidence": "in_domain = 1 (domain_score 1), from pinneapple_analysis.trust.trust_gate.TrustGate.ood_p_values"
+    },
+    {
+      "name": "horizon",
+      "status": "unmeasured",
+      "evidence": "the horizon test needs both leads and the requested lead is not measured"
+    },
+    {
+      "name": "residual:pod-3/pde",
+      "status": "fail",
+      "evidence": "0.0188121 against its in-domain level 0.0108835 (pinneapple_physics.ensemble.residual_baseline: the median residual of this expert on queries from its own domain)"
+    },
+    {
+      "name": "residual:pod-6/pde",
+      "status": "fail",
+      "evidence": "0.0188182 against its in-domain level 0.0108819 (pinneapple_physics.ensemble.residual_baseline: the median residual of this expert on queries from its own domain)"
+    },
+    {
+      "name": "measurement",
+      "status": "unmeasured",
+      "evidence": "this ensemble was built without measurement_check, so the readings it used were never checked"
+    },
+    {
+      "name": "calibration",
+      "status": "fail",
+      "evidence": "measured coverage 0.3184 >= nominal level 0.9"
+    }
+  ],
+  "notes": []
+}

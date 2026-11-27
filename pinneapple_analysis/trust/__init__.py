@@ -70,6 +70,7 @@ from .record import (  # noqa: E402  (a camada de confiança como um objeto só:
     GOOD,
     NO_SKILL,
     SCHEMA,
+    TRUST_SCHEMA,
     Gate,
     Horizon,
     Measurement,
@@ -80,19 +81,31 @@ from .record import (  # noqa: E402  (a camada de confiança como um objeto só:
     Uncertainty,
 )
 
-__all__ += ["FADING", "GOOD", "NO_SKILL", "SCHEMA", "Gate", "Horizon", "Measurement", "Provenance", "Residual",
-            "Trust", "TrustValue", "Uncertainty"]
+__all__ += ["FADING", "GOOD", "NO_SKILL", "SCHEMA", "TRUST_SCHEMA", "Gate", "Horizon", "Measurement",
+            "Provenance", "Residual", "Trust", "TrustValue", "Uncertainty"]
 
 from .adapters import (  # noqa: E402  (lê a confiança que o ensemble, o weather, a uncertainty e os verifiers já medem)
     calibration_uncertainty,
     domain_from_gate,
     fingerprint_query,
     from_ensemble,
+    from_solution,
+    horizon_of_trust,
     rollout_horizon,
     trust,
     verification_measurement,
     weather_horizon,
 )
 
-__all__ += ["calibration_uncertainty", "domain_from_gate", "fingerprint_query", "from_ensemble", "rollout_horizon",
-            "trust", "verification_measurement", "weather_horizon"]
+__all__ += ["calibration_uncertainty", "domain_from_gate", "fingerprint_query", "from_ensemble", "from_solution",
+            "horizon_of_trust", "rollout_horizon", "trust", "verification_measurement", "weather_horizon"]
+
+from .producers import (  # noqa: E402  (os três produtores do mesmo registro: tempo, ensemble e surrogate de CFD, #345)
+    cfd_surrogate_trust,
+    ensemble_trust,
+    kovasznay_case,
+    navier_stokes_residual,
+    three_records,
+)
+
+__all__ += ["cfd_surrogate_trust", "ensemble_trust", "kovasznay_case", "navier_stokes_residual", "three_records"]

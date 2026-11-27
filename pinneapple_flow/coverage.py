@@ -348,6 +348,15 @@ REASONS: dict[str, str] = {
                                           "(the ensemble's residual lookahead, weather.evaluate's horizons, the "
                                           "uncertainty module, the decision verifiers). They run where the prediction "
                                           "is made, so a node here would duplicate that step and could disagree with it",
+    "pinneapple_analysis.trust.producers": "the three producers of that one record (#345), driven by "
+                                           "``scripts/trust_three_kinds.py``: they exist to show that the weather, the "
+                                           "ensemble and the CFD surrogate end on the same adapter, and the JSON they "
+                                           "emit is the artifact -- a node here would be a second copy of the step "
+                                           "that made the prediction",
+    "pinneapple_analysis.trust.forecast_skill": "the offline measurement behind the pre-trained experts' demo "
+                                                "(#348): the ensemble against each of its models alone on the analytic "
+                                                "advection truth, with the cost of each and the failure it names. It is "
+                                                "a study its own script runs, not a step a flow composes",
     "pinneapple_analysis.posterior": "posterior sampling with the diagnostics that say whether the posterior is "
                                      "there: HMC and adaptive chains take a log-posterior callable and return chains "
                                      "plus R-hat and effective sample size, which is a study of its own; the node "

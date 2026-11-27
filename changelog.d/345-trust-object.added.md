@@ -14,3 +14,9 @@
   `weather_horizon` (`pinneapple_physics.weather.evaluate.horizons`), `rollout_horizon`
   (`validation.rollout.divergence_time`), `calibration_uncertainty`
   (`uncertainty.calibration.CalibrationMetrics`) and `verification_measurement` (`pinneapple_decision.verifiers`).
+  `from_solution` covers the other model kind: the PDE residual of a PINN is re-evaluated at points it never trained on
+  (never read back from the training loss), with the SHA-256 of the weights in the provenance, and a grid operator is
+  refused by name because a field cannot be sampled at a point. `pp.trust` is in the stable core (`CORE_PP`), and the
+  consumers read the record instead of a second opinion: `adapters.horizon_of_trust` gives a figure the lead axis the
+  record measured (`earth2_gif(..., trust=)` draws its lead bar, its caption and its badge from it) and
+  `pinneapple_twin3d.Scene.attach_trust` writes the document into `scene.json`.

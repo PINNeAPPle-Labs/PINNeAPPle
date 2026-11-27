@@ -64,10 +64,16 @@ N_INIT = 12
 
 
 # ------------------------------------------------------------------------------------------ the reference case
-def _q0(P: np.ndarray, L: np.ndarray) -> np.ndarray:
-    """``q0`` on arrays of latitude and longitude in degrees: a smooth tracer of unit amplitude."""
+def _q0(P: np.ndarray, L: np.ndarray, a: float = 0.40) -> np.ndarray:
+    """``q0`` on arrays of latitude and longitude in degrees: a smooth tracer of unit amplitude.
+
+    ``a`` weights the latitude term against the zonal one, and it is what varies between the cases of the testbed (see
+    :func:`case_weight`): the zonal structure — the one the interpolation error of every scheme depends on — stays the
+    same, while the latitudes the shear stretches hardest carry different weight. Any ``a`` is advected exactly by the
+    zonal flow, so the truth stays analytic for all of them.
+    """
     return (0.6 * np.cos(np.radians(P)) * np.cos(np.radians(2.0 * L))
-            + 0.4 * np.sin(np.radians(2.0 * P)) * np.sin(np.radians(3.0 * L)))
+            + a * np.sin(np.radians(2.0 * P)) * np.sin(np.radians(3.0 * L)))
 
 
 def initial_state(lat: np.ndarray | None = None, lon: np.ndarray | None = None) -> np.ndarray:
@@ -95,6 +101,18 @@ def omega_deg(lat: np.ndarray | None = None) -> np.ndarray:
     return OMEGA_DEG * (1.0 + 0.5 * np.sin(np.radians(lat)))
 
 
+def case_weight(i0: int) -> float:
+    """The latitude weight of initialisation ``i0``: twelve distinct values in ``[0.25, 0.55]``.
+
+    The twelve initialisations must be twelve **different cases**, not one case moved around the circle: the RMS of a
+    label-free residual over a periodic grid is invariant under a shift, so rotating one field gives every expert the
+    same residual on every case (to 1e-17), and an in-domain level that can never disagree with the value it judges is
+    not a level. The weight below changes the case without changing its zonal structure, which is what the schemes'
+    error depends on: the report of which forecaster is closer stays a comparison of the same twelve fields.
+    """
+    return 0.25 + 0.30 * ((int(i0) * 5) % N_INIT) / (N_INIT - 1)
+
+
 def truth(i0: int, steps: int = STEPS) -> np.ndarray:
     """The exact solution of the advection for ``steps`` 6-h steps from initialisation ``i0``.
 
@@ -102,9 +120,10 @@ def truth(i0: int, steps: int = STEPS) -> np.ndarray:
     zonal flow is ``q0(lat, lon - omega(lat) t)`` exactly -- the shear stretches it and the scheme has to follow.
     """
     shift = (i0 * 13.0) % 360.0                              # each initialisation starts at another place in the cycle
+    a = case_weight(i0)                                      # ... and another latitude weighting
     P, L = np.meshgrid(LAT, LON, indexing="ij")
     om = omega_deg()[:, None]
-    return np.stack([_q0(P, L - shift - k * om) for k in range(steps + 1)])
+    return np.stack([_q0(P, L - shift - j * om, a) for j in range(steps + 1)])
 
 
 def zonal_wind(lat: np.ndarray | None = None, lon: np.ndarray | None = None) -> np.ndarray:

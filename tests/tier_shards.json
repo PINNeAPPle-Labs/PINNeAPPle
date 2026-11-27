@@ -819,6 +819,7 @@
     "tests/test_trainer_data_path.py",
     "tests/test_training_callbacks.py",
     "tests/test_transolver_native.py",
+    "tests/test_trust_benchmark_suite.py",
     "tests/test_trust_gate.py",
     "tests/test_trust_panels.py",
     "tests/test_trust_persistence.py",

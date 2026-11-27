@@ -73,11 +73,12 @@ class AnalysisReport:
     truth when it is known.
 
     ``x_start`` is the analysis at the start of the window for ``"4dvar"`` and the background for ``"enkf"`` (a
-    filter has no reading before its first observation time); ``x_end`` is the analysis at the end for both.
+    filter has no reading before its first observation time, so what it reports there is the mean of the initial
+    draws, the background plus sampling noise); ``x_end`` is the analysis at the end for both.
     """
 
     method: str
-    x_start: Tensor                     # (n,) analysis at step 0 -- background for the filter
+    x_start: Tensor                     # (n,) analysis at step 0 -- the background for the filter
     x_end: Tensor                       # (n,) analysis at step n_steps
     states: Tensor                      # (n_steps + 1, n) the analysed trajectory over the window
     spread: Tensor | None = None        # (n_steps + 1, n) ensemble std, None for 4D-Var

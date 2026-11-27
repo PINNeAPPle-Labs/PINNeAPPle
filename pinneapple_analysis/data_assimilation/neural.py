@@ -49,7 +49,7 @@ true model         none (free run)         0.94            3.48    4.14
 surrogate          none (free run)         0.94            3.39    4.09
 true model         4D-Var                  0.57            0.42    2.47
 surrogate          4D-Var                  0.73            0.83    2.71
-true model         ensemble Kalman filter  0.95            0.64    3.22
+true model         ensemble Kalman filter  0.95            0.63    3.22
 surrogate          ensemble Kalman filter  0.95            0.64    3.21
 =================  ======================  ==============  ======  ==========
 

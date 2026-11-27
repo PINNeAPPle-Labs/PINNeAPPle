@@ -1,0 +1,110 @@
+[
+ {
+  "name": "heat_load: 8 expensive designs beat the cheap model",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "correction 5.04% against the cheap model's 5.85% (relative L2)",
+  "kind": "baseline"
+ },
+ {
+  "name": "heat_load: the design alone stays far from the CFD",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "design-only 54.86% at N=64 (the floor is 15%); the cheap model is 5.85%, so the design alone does not beat it on this target",
+  "kind": "baseline"
+ },
+ {
+  "name": "stagnation_heat_flux: 8 expensive designs beat the cheap model",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "correction 17.87% against the cheap model's 18.28% (relative L2)",
+  "kind": "baseline"
+ },
+ {
+  "name": "stagnation_heat_flux: the design alone stays far from the CFD",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "design-only 26.85% at N=64 (the floor is 15%); the cheap model is 18.28%, so the design alone does not beat it on this target",
+  "kind": "baseline"
+ },
+ {
+  "name": "shoulder_heat_flux: 8 expensive designs beat the cheap model",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "correction 16.41% against the cheap model's 27.43% (relative L2)",
+  "kind": "baseline"
+ },
+ {
+  "name": "shoulder_heat_flux: the design alone stays far from the CFD",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "design-only 25.55% at N=64 (the floor is 15%); the cheap model is 27.43%, so the design alone does beat it on this target",
+  "kind": "baseline"
+ },
+ {
+  "name": "the average correction halves the field's error",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "8.94% against the cheap field's 17.91%, with no dependence on the design",
+  "kind": "baseline"
+ },
+ {
+  "name": "3 modes learned from the design beat the average correction",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "5.88% at N=8 against 8.94%",
+  "kind": "baseline"
+ },
+ {
+  "name": "the field correction is a few modes deep",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "97.4% of the relative residual's energy in 3 modes",
+  "kind": "physics"
+ }
+]

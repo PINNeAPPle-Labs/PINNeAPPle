@@ -1,0 +1,275 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-47e0351ace38",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "capsule_aeroheating",
+  "path": "examples/capsule_aeroheating/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "heat_load_cheap_model_error",
+   "value": 0.058543214006064076,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "heat_load_difference_at_8",
+   "value": 0.05043717698594383,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "heat_load_difference_at_64",
+   "value": 0.03548028443663488,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "heat_load_design_only_at_64",
+   "value": 0.5485725444276603,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "stagnation_heat_flux_cheap_model_error",
+   "value": 0.1827919813092403,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "stagnation_heat_flux_difference_at_8",
+   "value": 0.17865595965640857,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "stagnation_heat_flux_difference_at_64",
+   "value": 0.14600151484279916,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "stagnation_heat_flux_design_only_at_64",
+   "value": 0.26846350558180687,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "shoulder_heat_flux_cheap_model_error",
+   "value": 0.27433971537741886,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "shoulder_heat_flux_difference_at_8",
+   "value": 0.164133162297113,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "shoulder_heat_flux_difference_at_64",
+   "value": 0.07007296283718019,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "shoulder_heat_flux_design_only_at_64",
+   "value": 0.2555497685004162,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "cheap_field_error",
+   "value": 0.17912238860182908,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "mean_correction_at_lowest_budget",
+   "value": 0.08943655175469735,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "pod_correction_at_8",
+   "value": 0.058812207966247254,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "pod_correction_at_64",
+   "value": 0.03569342269089419,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "residual_energy_in_1_mode",
+   "value": 0.8096090369621983,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "residual_energy_in_2_modes",
+   "value": 0.9241235501962087,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "residual_energy_in_3_modes",
+   "value": 0.9741586611132166,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "nodes_per_run",
+   "value": 2361.0,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "heat_load: 8 expensive designs beat the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "correction 5.04% against the cheap model's 5.85% (relative L2)",
+   "kind": "baseline"
+  },
+  {
+   "name": "heat_load: the design alone stays far from the CFD",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "design-only 54.86% at N=64 (the floor is 15%); the cheap model is 5.85%, so the design alone does not beat it on this target",
+   "kind": "baseline"
+  },
+  {
+   "name": "stagnation_heat_flux: 8 expensive designs beat the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "correction 17.87% against the cheap model's 18.28% (relative L2)",
+   "kind": "baseline"
+  },
+  {
+   "name": "stagnation_heat_flux: the design alone stays far from the CFD",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "design-only 26.85% at N=64 (the floor is 15%); the cheap model is 18.28%, so the design alone does not beat it on this target",
+   "kind": "baseline"
+  },
+  {
+   "name": "shoulder_heat_flux: 8 expensive designs beat the cheap model",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "correction 16.41% against the cheap model's 27.43% (relative L2)",
+   "kind": "baseline"
+  },
+  {
+   "name": "shoulder_heat_flux: the design alone stays far from the CFD",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "design-only 25.55% at N=64 (the floor is 15%); the cheap model is 27.43%, so the design alone does beat it on this target",
+   "kind": "baseline"
+  },
+  {
+   "name": "the average correction halves the field's error",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "8.94% against the cheap field's 17.91%, with no dependence on the design",
+   "kind": "baseline"
+  },
+  {
+   "name": "3 modes learned from the design beat the average correction",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "5.88% at N=8 against 8.94%",
+   "kind": "baseline"
+  },
+  {
+   "name": "the field correction is a few modes deep",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "97.4% of the relative residual's energy in 3 modes",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-47e0351ace38",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "5968c2c08",
+  "seconds": 0.04,
+  "created": "2026-11-18T04:26:27Z",
+  "environment": {
+   "python": "3.11.16",
+   "platform": "macOS-26.5.2-arm64-arm-64bit",
+   "packages": {
+    "numpy": "2.4.6",
+    "torch": "2.15.0",
+    "scipy": "1.17.1"
+   }
+  }
+ }
+}

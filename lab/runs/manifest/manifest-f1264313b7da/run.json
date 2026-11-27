@@ -1,0 +1,53 @@
+{
+ "run_id": "manifest-f1264313b7da",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/capsule_aeroheating",
+  "path": "examples/capsule_aeroheating/experiment.json"
+ },
+ "status": "completed",
+ "started": 1794976172.0836658,
+ "owner": {
+  "pid": 188,
+  "host": "MacBook-Air.local",
+  "heartbeat": 1794976172.121901
+ },
+ "tags": [
+  "manifest"
+ ],
+ "git": "5968c2c08",
+ "environment": {
+  "python": "3.11.16",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.15.0",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1794976172.122028,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": []
+ },
+ "validation": {
+  "total": 9,
+  "failed": 0
+ },
+ "seconds": 0.038,
+ "datasets": {}
+}

@@ -1,0 +1,22 @@
+{
+ "heat_load_cheap_model_error": 0.058543214006064076,
+ "heat_load_difference_at_8": 0.05043717698594383,
+ "heat_load_difference_at_64": 0.03548028443663488,
+ "heat_load_design_only_at_64": 0.5485725444276603,
+ "stagnation_heat_flux_cheap_model_error": 0.1827919813092403,
+ "stagnation_heat_flux_difference_at_8": 0.17865595965640857,
+ "stagnation_heat_flux_difference_at_64": 0.14600151484279916,
+ "stagnation_heat_flux_design_only_at_64": 0.26846350558180687,
+ "shoulder_heat_flux_cheap_model_error": 0.27433971537741886,
+ "shoulder_heat_flux_difference_at_8": 0.164133162297113,
+ "shoulder_heat_flux_difference_at_64": 0.07007296283718019,
+ "shoulder_heat_flux_design_only_at_64": 0.2555497685004162,
+ "cheap_field_error": 0.17912238860182908,
+ "mean_correction_at_lowest_budget": 0.08943655175469735,
+ "pod_correction_at_8": 0.058812207966247254,
+ "pod_correction_at_64": 0.03569342269089419,
+ "residual_energy_in_1_mode": 0.8096090369621983,
+ "residual_energy_in_2_modes": 0.9241235501962087,
+ "residual_energy_in_3_modes": 0.9741586611132166,
+ "nodes_per_run": 2361.0
+}

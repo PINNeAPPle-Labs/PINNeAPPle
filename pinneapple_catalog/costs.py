@@ -366,6 +366,268 @@ def _probe_s43(n):
     return lambda: analyzer.analyze()
 
 
+# --------------------------------------------------------------------------- solvers measured on a declared synthetic case
+# The probes below need an input the method does not carry itself -- a grid, a particle set, a material field, a mesh.
+# Each one builds the smallest case that still exercises the method's own kernel, canonical and named in ``what``, so
+# the number is the cost of the method and not of a case a user would have written.
+@_probe("S5", "pinneapple_simulation.numerical_solvers.lbm.LBMSolver.forward (10 D2Q9 BGK sweeps, Zou-He inlet / "
+        "pressure outlet)", "n (cells along x; the channel grid is n x n/2)", [128, 256, 512], declared="n^2",
+        repeats=3, flops=False)
+def _probe_s5(n):
+    from pinneapple_simulation.numerical_solvers.lbm import LBMSolver
+    solver = LBMSolver(nx=n, ny=n // 2, Re=100.0)   # the step count is pinned: the fit measures a sweep, not a run
+    return lambda: solver.forward(steps=10)
+
+
+@_probe("S6", "pinneapple_simulation.numerical_solvers.sph.SPHSolver.forward (one WCSPH step; the "
+        "weakly-compressible member of the family)", "n (fluid particles in a unit box)", [100, 200, 400],
+        declared="n^2", repeats=3, flops=False)
+def _probe_s6(n):
+    import torch
+
+    from pinneapple_simulation.numerical_solvers.sph import SPHSolver
+    pos = torch.rand(n, 3, generator=torch.Generator().manual_seed(0)) * 0.5   # a settled cloud, no wall term
+    solver = SPHSolver()
+    return lambda: solver.forward(pos, dt=1e-3, steps=1)
+
+
+@_probe("S7", "pinneapple_simulation.numerical_solvers.meshfree.RBFCollocationSolver.forward (Kansa RBF "
+        "collocation, Gaussian kernel, Poisson case, Tikhonov reg=1e-3)", "n (interior collocation nodes per side)",
+        [20, 30, 40], declared="n^3", repeats=3, flops=False)
+def _probe_s7(n):
+    import torch
+
+    from pinneapple_simulation.numerical_solvers.meshfree import RBFCollocationSolver
+    # reg=1e-3, declared: with the 1e-8 default the Kansa matrix of this case is numerically singular at double
+    # precision (measured condition number 1e18), so the solve -- the operation being measured -- never returns.
+    solver = RBFCollocationSolver(reg=1e-3)
+    spec = _poisson_spec(f"meshfree_cost_probe_{n}")
+    interior = torch.linspace(0.0, 1.0, n + 2)[1:-1]
+    interior = torch.stack(torch.meshgrid(interior, interior, indexing="ij"), dim=-1).reshape(-1, 2)
+    t = torch.linspace(0.0, 1.0, 4 * n)
+    boundary = torch.cat([torch.stack([t, torch.zeros_like(t)], 1), torch.stack([t, torch.ones_like(t)], 1),
+                          torch.stack([torch.zeros_like(t), t], 1), torch.stack([torch.ones_like(t), t], 1)])
+    return lambda: solver.forward(spec=spec, interior_pts=interior, boundary_pts=boundary)
+
+
+@_probe("S8", "pinneapple_simulation.numerical_solvers.xtfc_ivp.solve_xtfc_ode (the constrained-expression "
+        "least-squares solve for dy/dt = -y, 2 collocation points per basis function)",
+        "n (basis functions; collocation points are 2n)", [400, 700, 1000], declared="n^2", repeats=3,
+        flops=False)
+def _probe_s8(n):
+    from pinneapple_simulation.numerical_solvers.xtfc_ivp import solve_xtfc_ode
+    return lambda: solve_xtfc_ode(lambda t, y: -y, [1.0], (0.0, 1.0), n_basis=n, n_collocation=2 * n,
+                                  max_iter=3)   # the iteration cap is pinned: the fit measures one solve
+
+
+@_probe("S10", "pinneapple_simulation.numerical_solvers.stiff_kinetics_ode.solve_stiff_reaction_network "
+        "(SciPy Radau on an 8-species reversible first-order chain)", "n (stiffest rate, 1/s; the cost is the "
+        "number of steps the integrator has to take)", [100, 1000, 10000], repeats=3, flops=False)
+def _probe_s10(n):
+    import numpy as np
+
+    from pinneapple_simulation.numerical_solvers.stiff_kinetics_ode import solve_stiff_reaction_network
+    k = float(n)
+
+    def rate_fn(t, y):
+        d = np.empty_like(y)
+        d[0] = -k * y[0]
+        d[1:] = k * (y[:-1] - y[1:])                   # reversible chain, every rate equal to k
+        return d
+
+    y0 = np.zeros(8)
+    y0[0] = 1.0
+    return lambda: solve_stiff_reaction_network(rate_fn, y0, (0.0, 1e-3))
+
+
+@_probe("S12", "pinneapple_simulation.numerical_solvers.immersed_boundary_fdm.solve_ibm_external_flow (5 "
+        "projected IBM/FDM iterations around a rigid sphere, 80 SOR sweeps each)",
+        "n (grid points per side)", [12, 16, 20], declared="n^3", repeats=3, flops=False)
+def _probe_s12(n):
+    import numpy as np
+
+    from pinneapple_simulation.numerical_solvers.immersed_boundary_fdm import solve_ibm_external_flow
+    bbox = (-1.0, 2.0, -1.0, 1.0, -1.0, 1.0)
+    a, b = np.linspace(0.0, np.pi, 12), np.linspace(0.0, 2.0 * np.pi, 16)
+    wall = np.array([[np.sin(t) * np.cos(p), np.sin(t) * np.sin(p), np.cos(t)] for t in a for p in b]) * 0.5
+    return lambda: solve_ibm_external_flow(wall, bbox, nx=n, ny=n, nz=n, n_iter=5)
+
+
+@_probe("S14", "pinneapple_simulation.numerical_solvers.eddy_current_fdm.solve_axisymmetric_eddy_current "
+        "(sparse complex solve for A_theta on an n x 2n r-z grid, one annular coil)",
+        "n (radial grid points; the axial grid is 2n)", [20, 40, 80], declared="n^2", repeats=3, flops=False)
+def _probe_s14(n):
+    import numpy as np
+
+    from pinneapple_simulation.numerical_solvers.eddy_current_fdm import (annular_current_source,
+                                                                        solve_axisymmetric_eddy_current)
+    r = np.linspace(1e-3, 0.1, n)
+    z = np.linspace(-0.1, 0.1, 2 * n)
+    R, Z = np.meshgrid(r, z, indexing="ij")
+    mu = np.full_like(R, 4e-7 * np.pi)                  # air, tabulated value
+    sigma = np.full_like(R, 1e6)                        # copper, tabulated value
+    src = annular_current_source(r, z, 0.05, 0.0, 0.01, 0.01, 100.0, 1.0)
+    return lambda: solve_axisymmetric_eddy_current(r, z, 2.0 * np.pi * 50.0, mu, sigma, src)
+
+
+@_probe("S16", "pinneapple_simulation.numerical_solvers.nbody_rebound.NBodySolver.forward (IAS15 over 10 output "
+        "times on a ring of equal masses)", "n (bodies)", [64, 128, 192], declared="n^2", repeats=3,
+        flops=False)
+def _probe_s16(n):
+    import numpy as np
+
+    from pinneapple_simulation.numerical_solvers.nbody_rebound import NBodySolver
+    ang = 2.0 * np.pi * np.arange(n) / n
+    bodies = [{"m": 1.0, "x": float(np.cos(a)), "y": float(np.sin(a)), "z": 0.0,
+               "vx": float(-np.sin(a) * 0.1), "vy": float(np.cos(a) * 0.1), "vz": 0.0} for a in ang]
+    solver = NBodySolver(bodies, integrator="ias15")
+    return lambda: solver.forward(t_end=0.05, n_steps=5)
+
+
+@_probe("S17", "pinneapple_simulation.numerical_solvers.jax_cfd_solver.JAXCFDSolver.forward (semi-implicit "
+        "Navier-Stokes steps on a fixed 128 x 128 periodic grid, Taylor-Green start)",
+        "n (Navier-Stokes steps)", [5, 10, 20], declared="n", repeats=3, flops=False)
+def _probe_s17(n):
+    from pinneapple_simulation.numerical_solvers.jax_cfd_solver import JAXCFDSolver
+    # The grid is fixed and the step count is the axis: on this adapter a step costs ~0.1 s whatever the grid, so a
+    # study over the grid alone would fit noise. 128^2 is the largest grid its own CFL check accepts at dt=0.008.
+    solver = JAXCFDSolver(nx=128, ny=128)
+    return lambda: solver.forward(steps=n)
+
+
+@_probe("S18", "pinneapple_simulation.particle_dynamics.molecular_dynamics.MolecularDynamicsSimulator.forward "
+        "(one velocity-Verlet step with brute-force Lennard-Jones pairs; the molecular-dynamics member)",
+        "n (particles in a cubic periodic box)", [1024, 2048, 3072], declared="n^2", repeats=3, flops=False)
+def _probe_s18(n):
+    import torch
+
+    from pinneapple_simulation.particle_dynamics.molecular_dynamics import (MDState,
+                                                                          MolecularDynamicsSimulator)
+    box = 8.0
+    pos = torch.rand(n, 3, generator=torch.Generator().manual_seed(0)) * box
+    state = MDState(pos=pos, vel=torch.zeros(n, 3))
+    sim = MolecularDynamicsSimulator(box_size=(box, box, box), dim=3)
+    return lambda: sim.forward(state, n_steps=1)
+
+
+@_probe("S36", "pinneapple_simulation.electromagnetics.hysteresis.JilesAtherton.trace (RK4 along an "
+        "n-point applied-field path)", "n (points on the applied-field path)", [250, 500, 1000],
+        declared="n", repeats=3, flops=False)
+def _probe_s36(n):
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.hysteresis import JilesAtherton
+    ja = JilesAtherton(Ms=1.6e6, a=1000.0, k=2000.0, c=0.1, alpha=1e-4)   # tabulated values for steel
+    path = 200.0 * np.sin(np.linspace(0.0, 2.0 * np.pi, n))
+    return lambda: ja.trace(path)
+
+
+@_probe("S37", "pinneapple_simulation.electromagnetics.media.Medium.eps_r (the dispersive coefficient "
+        "arithmetic of a Drude + Lorentz + Debye medium, evaluated over n frequencies)",
+        "n (frequencies at which the permittivity is evaluated)", [100000, 400000, 1600000],
+        declared="n", repeats=3, flops=False)
+def _probe_s37(n):
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.media import Debye, Drude, Lorentz, Medium
+    medium = Medium(eps_inf=1.0, poles=(Drude(1.0e16, 1.0e13), Lorentz(2.0e15, 1.0e13, 0.5),
+                                       Debye(1.0e12, 1.0e-11)))
+    omega = np.linspace(1.0e9, 1.0e16, n)
+    return lambda: medium.eps_r(omega)
+
+
+@_probe("S38", "pinneapple_physics.maxwell_checks.gauss_electric (one divergence check over an n x n field "
+        "set, central differences and the interior mask)", "n (grid points per side)", [400, 800, 1600],
+        declared="n^2", repeats=3, flops=False)
+def _probe_s38(n):
+    import numpy as np
+
+    from pinneapple_physics.maxwell_checks import gauss_electric
+    x = np.linspace(0.0, 1.0, n)
+    X, Y = np.meshgrid(x, x, indexing="ij")
+    fields = {"Ex": np.sin(2 * np.pi * X), "Ey": np.cos(2 * np.pi * Y)}
+    grid = {"x": x, "y": x}
+    return lambda: gauss_electric(grid, fields)
+
+
+@_probe("S40", "pinneapple_simulation.electromagnetics.fdtd.FDTD.run (10 Yee steps of a 2-D periodic vacuum "
+        "grid, one soft source)", "n (cells per side; the third axis is invariant)", [128, 256, 512],
+        declared="n^2", repeats=3, flops=False)
+def _probe_s40(n):
+    from pinneapple_simulation.electromagnetics.fdtd import FDTD, YeeGrid, ricker
+    grid = YeeGrid((n, n, 1), (1e-3, 1e-3, 1e-3))
+    sim = FDTD(grid, {"x": "periodic", "y": "periodic"})
+    sim.add_source("Ez", (n // 2, n // 2, 0), ricker(1e9))
+    return lambda: sim.run(steps=10)   # the step count is pinned: the fit measures a Yee step
+
+
+@_probe("S41", "pinneapple_simulation.electromagnetics.fdtd.NearToFarField.far_field (n x n observation "
+        "directions on a fixed closed box)", "n (directions per angle axis)", [64, 128, 256], declared="n^2",
+        repeats=3, flops=False)
+def _probe_s41(n):
+    import numpy as np
+
+    from pinneapple_simulation.electromagnetics.fdtd import FDTD, NearToFarField, YeeGrid, ricker
+    grid = YeeGrid((12, 12, 12), (2e-2, 2e-2, 2e-2))
+    sim = FDTD(grid, {"x": "pml", "y": "pml", "z": "pml"}, npml=2)
+    sim.add_source("Ez", (6, 6, 6), ricker(2.5e9))
+    ntf = NearToFarField(sim, np.array([2.5e9]), box=((4, 8), (4, 8), (4, 8)))   # setup, not timed
+    theta = np.linspace(0.0, np.pi, n)
+    phi = np.linspace(0.0, 2.0 * np.pi, n)
+    return lambda: ntf.far_field(theta, phi)
+
+
+@_probe("S42", "pinneapple_analysis.dynamics.first_passage.kaplan_meier (survival estimate over n observed "
+        "times)", "n (observed times)", [80000, 160000, 320000], declared="n log n", repeats=3, flops=False)
+def _probe_s42(n):
+    import numpy as np
+
+    from pinneapple_analysis.dynamics.first_passage import kaplan_meier
+    rng = np.random.default_rng(0)
+    times = rng.exponential(1.0, n)
+    observed = rng.random(n) < 0.7
+    return lambda: kaplan_meier(times, observed)
+
+
+@_probe("S44", "pinneapple_analysis.dynamics.fisher.FisherInformation.linear_gaussian (the Fisher "
+        "information of n observations over a 4-parameter linear-Gaussian model)",
+        "n (observations)", [50000, 200000, 800000], declared="n", repeats=3, flops=False)
+def _probe_s44(n):
+    import numpy as np
+
+    from pinneapple_analysis.dynamics.fisher import FisherInformation
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((n, 4))
+    return lambda: FisherInformation.linear_gaussian(X, 1.0, names=["a", "b", "c", "d"])
+
+
+@_probe("S45", "pinneapple_analysis.dynamics.early_warning.RollingStatistics.compute (rolling variance and "
+        "lag-1 autocorrelation over n samples)", "n (samples in the series)", [10000, 30000, 90000],
+        declared="n", repeats=3, flops=False)
+def _probe_s45(n):
+    import numpy as np
+
+    from pinneapple_analysis.dynamics.early_warning import RollingStatistics
+    rng = np.random.default_rng(0)
+    t = np.linspace(0.0, 100.0, n)
+    x = np.cumsum(rng.standard_normal(n)) * 1e-3 + np.sin(t)   # a wandering series with a slow trend
+    stats = RollingStatistics(window=0.1)
+    return lambda: stats.compute(t, x, which=("variance", "std", "kurtosis"))
+
+
+@_probe("S46", "pinneapple_analysis.dynamics.koopman.DMD.fit (exact DMD with a Gavish-Donoho rank on an "
+        "n x n snapshot matrix)", "n (snapshots; the state has n entries)", [100, 200, 400], declared="n^3",
+        repeats=3, flops=False)
+def _probe_s46(n):
+    import numpy as np
+
+    from pinneapple_analysis.dynamics.koopman import DMD
+    rng = np.random.default_rng(0)
+    data = rng.standard_normal((n, n))
+    dmd = DMD()
+    return lambda: dmd.fit(data)
+
+
 # Why a method has no measured cost. A closed set, so the reasons can be counted and a vague one cannot hide: the
 # gate rejects an unmeasured record whose blocker is not in this table, and every value here is used by at least one
 # method.
@@ -473,6 +735,8 @@ UNMEASURED: dict[str, tuple[str, str]] = {
 PROBES: dict[str, Probe] = {p.method_id: p for p in (
     _probe_s4, _probe_s19, _probe_s13, _probe_s15, _probe_s34, _probe_s35, _probe_s33, _probe_s28, _probe_s26,
     _probe_s27, _probe_s9, _probe_s1, _probe_s2, _probe_s3, _probe_s11, _probe_t1, _probe_s43,
+    _probe_s5, _probe_s6, _probe_s7, _probe_s8, _probe_s10, _probe_s12, _probe_s14, _probe_s16, _probe_s17, _probe_s18,
+    _probe_s36, _probe_s37, _probe_s38, _probe_s40, _probe_s41, _probe_s42, _probe_s44, _probe_s45, _probe_s46,
 ) if p.method_id in {m.id for m in _methods.METHODS}}
 
 

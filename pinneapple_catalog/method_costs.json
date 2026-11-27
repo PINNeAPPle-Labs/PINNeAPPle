@@ -1,5 +1,5 @@
 {
-  "commit": "b07f48db0",
+  "commit": "e4f66eec2",
   "how": "python scripts/measure_method_costs.py [--only ID ...]",
   "machine": {
     "cpu": "Apple M5",
@@ -14,7 +14,7 @@
     "system": "Darwin",
     "torch": "2.15.0"
   },
-  "measured_at": "2026-11-25T02:34:00+00:00",
+  "measured_at": "2026-11-25T12:28:53+00:00",
   "methods": {
     "E1": {
       "blocker": "definition",
@@ -814,9 +814,76 @@
       "verdict": "consistent"
     },
     "S10": {
-      "blocker": "not_a_single_operation",
-      "reason": "rfk45 stiff kinetics: the module exposes the steppers per problem, no single entry point to time",
-      "status": "unmeasured"
+      "declared": null,
+      "exponent": 0.5061907966339516,
+      "exponent_ci": [
+        0.26828429609911775,
+        0.7400398399978572
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            0.4817222692840457,
+            0.4817222692840457
+          ],
+          "coefficient": 3435.5045405842407,
+          "exponent": 0.4817222692840457,
+          "r2": 0.989323481016429
+        },
+        "time": {
+          "ci": [
+            0.26828429609911775,
+            0.7400398399978572
+          ],
+          "coefficient": 0.008929677890646843,
+          "exponent": 0.5061907966339516,
+          "r2": 0.9999523764229313
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.29746912499831524,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 271636,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 29549,
+          "n": 100.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.11136020800040569,
+          "time_min_s": 0.03683462500339374,
+          "time_s": 0.09145354198699351
+        },
+        {
+          "flops": null,
+          "mem_bytes": 109381,
+          "n": 1000.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.04385629200260155,
+          "time_min_s": 0.21057458299037535,
+          "time_s": 0.29746912499831524
+        },
+        {
+          "flops": null,
+          "mem_bytes": 271636,
+          "n": 10000.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.10985089599853382,
+          "time_min_s": 0.8928902079933323,
+          "time_s": 0.9409837499988498
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.stiff_kinetics_ode.solve_stiff_reaction_network (SciPy Radau on an 8-species reversible first-order chain)",
+      "r2": 0.9999523764229313,
+      "size_axis": "n (stiffest rate, 1/s; the cost is the number of steps the integrator has to take)",
+      "sizes": [
+        100.0,
+        1000.0,
+        10000.0
+      ],
+      "status": "measured",
+      "verdict": "undeclared"
     },
     "S11": {
       "declared": "n",
@@ -901,9 +968,76 @@
       "verdict": "consistent"
     },
     "S12": {
-      "blocker": "needs_input",
-      "reason": "immersed boundary wraps an FDM flow solve, so it needs the case's geometry and boundary set (S1 measures the FDM sweep underneath)",
-      "status": "unmeasured"
+      "declared": "n^3",
+      "exponent": 0.48662944460528096,
+      "exponent_ci": [
+        0.24728299888714342,
+        1.7645217427794995
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            1.0052092557132064,
+            1.0052092557132064
+          ],
+          "coefficient": 234471.5430246131,
+          "exponent": 1.0052092557132064,
+          "r2": 0.9797758574601386
+        },
+        "time": {
+          "ci": [
+            0.24728299888714342,
+            1.7645217427794995
+          ],
+          "coefficient": 0.07531487163129252,
+          "exponent": 0.48662944460528096,
+          "r2": 0.9963950362668811
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.2878007079998497,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 4878823,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 2903846,
+          "n": 12.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.02656320799724199,
+          "time_min_s": 0.20189104200107977,
+          "time_s": 0.25332604099821765
+        },
+        {
+          "flops": null,
+          "mem_bytes": 3647411,
+          "n": 16.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.06240206249640323,
+          "time_min_s": 0.26001887500751764,
+          "time_s": 0.2878007079998497
+        },
+        {
+          "flops": null,
+          "mem_bytes": 4878823,
+          "n": 20.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.10770583349221852,
+          "time_min_s": 0.28857591601263266,
+          "time_s": 0.3251708750030957
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.immersed_boundary_fdm.solve_ibm_external_flow (5 projected IBM/FDM iterations around a rigid sphere, 80 SOR sweeps each)",
+      "r2": 0.9963950362668811,
+      "size_axis": "n (grid points per side)",
+      "sizes": [
+        12.0,
+        16.0,
+        20.0
+      ],
+      "status": "measured",
+      "verdict": "better than declared"
     },
     "S13": {
       "declared": "n",
@@ -988,9 +1122,76 @@
       "verdict": "consistent"
     },
     "S14": {
-      "blocker": "needs_input",
-      "reason": "the eddy-current FDM needs a coil/material field set; the probe would measure the field builder",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 3.111980690489146,
+      "exponent_ci": [
+        2.5927787361023866,
+        3.9106128180050668
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            2.0497612806890504,
+            2.0497612806890504
+          ],
+          "coefficient": 1232.362275679984,
+          "exponent": 2.0497612806890504,
+          "r2": 0.9999839254609331
+        },
+        "time": {
+          "ci": [
+            2.5927787361023866,
+            3.9106128180050668
+          ],
+          "coefficient": 1.6593913551613374e-06,
+          "exponent": 3.111980690489146,
+          "r2": 0.9966007512173488
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.18565379100618884,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 9776654,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 570310,
+          "n": 20.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.012931708501128014,
+          "time_min_s": 0.006404332991223782,
+          "time_s": 0.017263999994611368
+        },
+        {
+          "flops": null,
+          "mem_bytes": 2384710,
+          "n": 40.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.014584666496375576,
+          "time_min_s": 0.1800966669979971,
+          "time_s": 0.18565379100618884
+        },
+        {
+          "flops": null,
+          "mem_bytes": 9776654,
+          "n": 80.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.13706760450440925,
+          "time_min_s": 1.174294500000542,
+          "time_s": 1.2904479580029147
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.eddy_current_fdm.solve_axisymmetric_eddy_current (sparse complex solve for A_theta on an n x 2n r-z grid, one annular coil)",
+      "r2": 0.9966007512173488,
+      "size_axis": "n (radial grid points; the axial grid is 2n)",
+      "sizes": [
+        20.0,
+        40.0,
+        80.0
+      ],
+      "status": "measured",
+      "verdict": "worse than declared"
     },
     "S15": {
       "declared": "n",
@@ -1075,19 +1276,220 @@
       "verdict": "consistent"
     },
     "S16": {
-      "blocker": "needs_optional_package",
-      "reason": "nbody_rebound needs the REBOUND package, which is not installed here",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 1.3638436316974745,
+      "exponent_ci": [
+        0.1596957218043763,
+        4.116217641964733
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            0.957896606162064,
+            0.957896606162064
+          ],
+          "coefficient": 415.57669351972265,
+          "exponent": 0.957896606162064,
+          "r2": 0.9977248182765894
+        },
+        "time": {
+          "ci": [
+            0.1596957218043763,
+            4.116217641964733
+          ],
+          "coefficient": 0.0003348367485773023,
+          "exponent": 1.3638436316974745,
+          "r2": 0.9991752553441963
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.2443117090006126,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 65128,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 22565,
+          "n": 64.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.15941691700572846,
+          "time_min_s": 0.008000957997865044,
+          "time_s": 0.0982118329993682
+        },
+        {
+          "flops": null,
+          "mem_bytes": 42125,
+          "n": 128.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.02641364550072467,
+          "time_min_s": 0.20675670899800025,
+          "time_s": 0.2443117090006126
+        },
+        {
+          "flops": null,
+          "mem_bytes": 65128,
+          "n": 192.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.11628958299843362,
+          "time_min_s": 0.42062066700600553,
+          "time_s": 0.4422919579956215
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.nbody_rebound.NBodySolver.forward (IAS15 over 10 output times on a ring of equal masses)",
+      "r2": 0.9991752553441963,
+      "size_axis": "n (bodies)",
+      "sizes": [
+        64.0,
+        128.0,
+        192.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
     },
     "S17": {
-      "blocker": "needs_optional_package",
-      "reason": "JAX-CFD needs jax, which is not installed here",
-      "status": "unmeasured"
+      "declared": "n",
+      "exponent": 0.908623446424961,
+      "exponent_ci": [
+        0.7719155543799331,
+        1.0568260716149853
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            0.10256986975524054,
+            0.10256986975524054
+          ],
+          "coefficient": 1422781.8421848875,
+          "exponent": 0.10256986975524054,
+          "r2": 0.738423543693433
+        },
+        "time": {
+          "ci": [
+            0.7719155543799331,
+            1.0568260716149853
+          ],
+          "coefficient": 0.16096638791002274,
+          "exponent": 0.908623446424961,
+          "r2": 0.999105071309245
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 1.2761626669962425,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 1982416,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 1719656,
+          "n": 5.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.05491272900690092,
+          "time_min_s": 0.6166979169938713,
+          "time_s": 0.7023636669910047
+        },
+        {
+          "flops": null,
+          "mem_bytes": 1715885,
+          "n": 10.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.1733892710035434,
+          "time_min_s": 0.9727876249962719,
+          "time_s": 1.2761626669962425
+        },
+        {
+          "flops": null,
+          "mem_bytes": 1982416,
+          "n": 20.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.2753356664907187,
+          "time_min_s": 2.118307792014093,
+          "time_s": 2.4751861249969807
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.jax_cfd_solver.JAXCFDSolver.forward (semi-implicit Navier-Stokes steps on a fixed 128 x 128 periodic grid, Taylor-Green start)",
+      "r2": 0.999105071309245,
+      "size_axis": "n (Navier-Stokes steps)",
+      "sizes": [
+        5.0,
+        10.0,
+        20.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
     },
     "S18": {
-      "blocker": "needs_input",
-      "reason": "particle dynamics: MPM / rigid bodies / MD each need their own configuration",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 3.153882963818144,
+      "exponent_ci": [
+        1.1585837334299973,
+        3.429461857623498
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            1.9993714346207099,
+            1.9993714346207099
+          ],
+          "coefficient": 36.19282765187828,
+          "exponent": 1.9993714346207099,
+          "r2": 0.9999999981840975
+        },
+        "time": {
+          "ci": [
+            1.1585837334299973,
+            3.429461857623498
+          ],
+          "coefficient": 1.5233783282174188e-11,
+          "exponent": 3.153882963818144,
+          "r2": 0.9744517595087987
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.5848290830035694,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 339850312,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 37786696,
+          "n": 1024.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.14462091650057118,
+          "time_min_s": 0.03659229200275149,
+          "time_s": 0.042171875000349246
+        },
+        {
+          "flops": null,
+          "mem_bytes": 151069768,
+          "n": 2048.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.024037416995270178,
+          "time_min_s": 0.5640077080024639,
+          "time_s": 0.5848290830035694
+        },
+        {
+          "flops": null,
+          "mem_bytes": 339850312,
+          "n": 3072.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.1213689374999376,
+          "time_min_s": 1.213113624995458,
+          "time_s": 1.2387129169947002
+        }
+      ],
+      "probe": "pinneapple_simulation.particle_dynamics.molecular_dynamics.MolecularDynamicsSimulator.forward (one velocity-Verlet step with brute-force Lennard-Jones pairs; the molecular-dynamics member)",
+      "r2": 0.9744517595087987,
+      "size_axis": "n (particles in a cubic periodic box)",
+      "sizes": [
+        1024.0,
+        2048.0,
+        3072.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
     },
     "S19": {
       "declared": "n log n",
@@ -2115,9 +2517,76 @@
       "status": "unmeasured"
     },
     "S5": {
-      "blocker": "needs_input",
-      "reason": "the LBM needs a spec plus the number of steps to be meaningful; a fixed-step probe would measure the step count, not the method",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 0.8736042275119457,
+      "exponent_ci": [
+        -0.43329648890302436,
+        1.5076562770660882
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            1.9990201844378723,
+            1.9990201844378723
+          ],
+          "coefficient": 116.70484173787585,
+          "exponent": 1.9990201844378723,
+          "r2": 0.9999999707096314
+        },
+        "time": {
+          "ci": [
+            -0.43329648890302436,
+            1.5076562770660882
+          ],
+          "coefficient": 0.0010299600537039101,
+          "exponent": 0.8736042275119457,
+          "r2": 0.30531407327079696
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.12098008301109076,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 30411208,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 1903284,
+          "n": 128.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.17981147950922605,
+          "time_min_s": 0.05964524998853449,
+          "time_s": 0.12098008301109076
+        },
+        {
+          "flops": null,
+          "mem_bytes": 7604843,
+          "n": 256.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.05114270799822407,
+          "time_min_s": 0.039900834002764896,
+          "time_s": 0.04556349999620579
+        },
+        {
+          "flops": null,
+          "mem_bytes": 30411208,
+          "n": 512.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.1261549164992175,
+          "time_min_s": 0.2299436670000432,
+          "time_s": 0.4061402499937685
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.lbm.LBMSolver.forward (10 D2Q9 BGK sweeps, Zou-He inlet / pressure outlet)",
+      "r2": 0.30531407327079696,
+      "size_axis": "n (cells along x; the channel grid is n x n/2)",
+      "sizes": [
+        128.0,
+        256.0,
+        512.0
+      ],
+      "status": "measured",
+      "verdict": "better than declared"
     },
     "S50": {
       "blocker": "needs_cuda",
@@ -2125,19 +2594,220 @@
       "status": "unmeasured"
     },
     "S6": {
-      "blocker": "needs_input",
-      "reason": "SPH / ISPH / DFSPH are particle methods whose cost is set by the particle count and the time step; a probe here would need a settled configuration to be comparable",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 1.5311401751537024,
+      "exponent_ci": [
+        1.35222747074214,
+        1.7584081738686341
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            0.9915368281741567,
+            0.9915368281741567
+          ],
+          "coefficient": 587.8343926012416,
+          "exponent": 0.9915368281741567,
+          "r2": 0.9995107182882648
+        },
+        "time": {
+          "ci": [
+            1.35222747074214,
+            1.7584081738686341
+          ],
+          "coefficient": 0.0002699051844057993,
+          "exponent": 1.5311401751537024,
+          "r2": 0.9719851187984944
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.7312305839877808,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 225479,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 57035,
+          "n": 100.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.07807020800828468,
+          "time_min_s": 0.275694999989355,
+          "time_s": 0.3456764170114184
+        },
+        {
+          "flops": null,
+          "mem_bytes": 110455,
+          "n": 200.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.11044087500340538,
+          "time_min_s": 0.638054832990747,
+          "time_s": 0.7312305839877808
+        },
+        {
+          "flops": null,
+          "mem_bytes": 225479,
+          "n": 400.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.17047483300120803,
+          "time_min_s": 2.8147531669965247,
+          "time_s": 2.887406915993779
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.sph.SPHSolver.forward (one WCSPH step; the weakly-compressible member of the family)",
+      "r2": 0.9719851187984944,
+      "size_axis": "n (fluid particles in a unit box)",
+      "sizes": [
+        100.0,
+        200.0,
+        400.0
+      ],
+      "status": "measured",
+      "verdict": "better than declared"
     },
     "S7": {
-      "blocker": "needs_input",
-      "reason": "the Kansa RBF solver runs from a ProblemSpec plus interior/boundary point sets",
-      "status": "unmeasured"
+      "declared": "n^3",
+      "exponent": 3.6162038950501705,
+      "exponent_ci": [
+        1.622733946259078,
+        4.831037716543497
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            3.270097785200656,
+            3.270097785200656
+          ],
+          "coefficient": 916.9053132205973,
+          "exponent": 3.270097785200656,
+          "r2": 0.9998184006712726
+        },
+        "time": {
+          "ci": [
+            1.622733946259078,
+            4.831037716543497
+          ],
+          "coefficient": 7.114536210080919e-07,
+          "exponent": 3.6162038950501705,
+          "r2": 0.9921992443097039
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.13740120800503064,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 160582384,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 16595824,
+          "n": 20.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.05858960399928037,
+          "time_min_s": 0.021181457996135578,
+          "time_s": 0.038024666006094776
+        },
+        {
+          "flops": null,
+          "mem_bytes": 60953104,
+          "n": 30.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.045396875000733417,
+          "time_min_s": 0.12027058300736826,
+          "time_s": 0.13740120800503064
+        },
+        {
+          "flops": null,
+          "mem_bytes": 160582384,
+          "n": 40.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.06579872899601469,
+          "time_min_s": 0.4615102920070058,
+          "time_s": 0.4765634999930626
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.meshfree.RBFCollocationSolver.forward (Kansa RBF collocation, Gaussian kernel, Poisson case, Tikhonov reg=1e-3)",
+      "r2": 0.9921992443097039,
+      "size_axis": "n (interior collocation nodes per side)",
+      "sizes": [
+        20.0,
+        30.0,
+        40.0
+      ],
+      "status": "measured",
+      "verdict": "consistent"
     },
     "S8": {
-      "blocker": "not_a_single_operation",
-      "reason": "X-TFC trains a network per call: its cost is a training budget, measured by the trainer probes (T*)",
-      "status": "unmeasured"
+      "declared": "n^2",
+      "exponent": 2.5601694899504386,
+      "exponent_ci": [
+        2.487703172610408,
+        3.397204560024329
+      ],
+      "fits": {
+        "memory": {
+          "ci": [
+            1.9912138691255408,
+            1.9912138691255408
+          ],
+          "coefficient": 85.22419138999243,
+          "exponent": 1.9912138691255408,
+          "r2": 0.999999373402968
+        },
+        "time": {
+          "ci": [
+            2.487703172610408,
+            3.397204560024329
+          ],
+          "coefficient": 2.715519849840038e-08,
+          "exponent": 2.5601694899504386,
+          "r2": 0.9992464878268578
+        }
+      },
+      "flops": null,
+      "flops_source": "",
+      "median_time_s": 0.5419241250056075,
+      "mem_source": "torch+trace",
+      "peak_mem_bytes": 80246420,
+      "per_size": [
+        {
+          "flops": null,
+          "mem_bytes": 12940820,
+          "n": 400.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.028737792003084905,
+          "time_min_s": 0.06658687499293592,
+          "time_s": 0.12282312499883119
+        },
+        {
+          "flops": null,
+          "mem_bytes": 39391220,
+          "n": 700.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.061145249506807886,
+          "time_min_s": 0.5191134589986177,
+          "time_s": 0.5419241250056075
+        },
+        {
+          "flops": null,
+          "mem_bytes": 80246420,
+          "n": 1000.0,
+          "n_runs": 3,
+          "time_iqr_s": 0.12737454199668719,
+          "time_min_s": 1.1964840830041794,
+          "time_s": 1.2720277500047814
+        }
+      ],
+      "probe": "pinneapple_simulation.numerical_solvers.xtfc_ivp.solve_xtfc_ode (the constrained-expression least-squares solve for dy/dt = -y, 2 collocation points per basis function)",
+      "r2": 0.9992464878268578,
+      "size_axis": "n (basis functions; collocation points are 2n)",
+      "sizes": [
+        400.0,
+        700.0,
+        1000.0
+      ],
+      "status": "measured",
+      "verdict": "worse than declared"
     },
     "S9": {
       "declared": "n",

@@ -7,8 +7,15 @@ Writes to ``out`` (default ``examples/weather_forecasting/_out/hurricane_ian``, 
 
 * ``summary.json`` — every number this script measured, with the data behind it (file, SHA-256, licence, date);
 * ``figures/ian_globe.png`` — the storm on the Earth-2 globe with the official track and the tracked ones;
-* ``figures/ian_globe.gif`` — the reanalysis crossing the globe, 6 hours a frame;
-* ``figures/ian_track_<model>.png`` — track and intensity error by lead, with the horizons marked.
+* ``figures/ian_globe.gif`` — the reanalysis crossing the globe, 6 hours a frame (the short cut of the video);
+* ``figures/ian_track_<model>.png`` — track and intensity error by lead, with the horizons marked;
+* ``figures/ian_track_vs_observed.png`` — the official track against the ones the models actually followed;
+* ``figures/ian_field_two_grids.png`` — the same instant on the 0.25-degree analysis and on the 5.625-degree archive,
+  one cell each, with the official position on both;
+* ``figures/ian_confidence_by_lead.png`` — the confidence bar along the lead: green inside both thresholds, amber past
+  one of them, red where the grid lost the storm;
+* ``figures/ian_stages.mp4`` — the chain as one video, 60 to 90 seconds: the analysis, the forecasts lead by lead and
+  the coarse grid, each frame captioned with the instant and the stage, the honest note always on screen.
 
 Data, all public and cited in ``summary.json``:
 
@@ -38,14 +45,19 @@ import numpy as np
 
 from pinneapple_physics.weather.cyclones import (
     AH_REFERENCE,
+    CORE_NOTE,
     HURDAT2_CITATION,
     HURDAT2_URL,
+    confidence_by_lead,
+    field_vs_grid,
     load_best_track,
     skill_by_lead,
+    stages_video,
     storm_horizons,
     track_globe,
     track_skill_figure,
     track_storm,
+    track_vs_observed,
     verify_storm,
 )
 
@@ -195,11 +207,18 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--cache", default=str(Path.home() / ".cache" / "pinneapple" / "hurricane"))
     ap.add_argument("--out", default=str(Path(__file__).parent / "_out" / "hurricane_ian"))
+    ap.add_argument("--figures", default=None,
+                    help="where the figures and the video go (default: <out>/figures); point it at the example folder "
+                         "to publish the media the issue asks for")
     ap.add_argument("--offline", action="store_true", help="use only what is already cached")
     ap.add_argument("--coarse", action="store_true", help="also run the same forecasts on the 5.625 degree grid")
+    ap.add_argument("--no-video", action="store_true", help="figures only: skip the 60-to-90-second video")
+    ap.add_argument("--fps", type=float, default=12.0, help="frames per second of the video")
+    ap.add_argument("--hold", type=int, default=7, help="frames each step of the data is held for")
     args = ap.parse_args(argv)
     cache, out = Path(args.cache), Path(args.out)
-    (out / "figures").mkdir(parents=True, exist_ok=True)
+    figdir = Path(args.figures) if args.figures else out / "figures"
+    figdir.mkdir(parents=True, exist_ok=True)
 
     best = load_best_track(STORM, HURDAT2_URL, cache=cache)
     print(f"{best.name} ({best.storm_id}): {len(best)} records from {best.times[0]} to {best.times[-1]}, "
@@ -239,41 +258,106 @@ def main(argv=None):
               f"{np.nanmedian(sk['wind_kt']):+.0f} kt ({np.nanmedian(sk['pressure_hpa']):+.0f} hPa)", flush=True)
         print(f"   horizons: 500 km at {h['track_hours']:.0f} h, 20 kt at {h['intensity_hours']:.0f} h, "
               f"storm lost by half the forecasts at {h['lost_hours']:.0f} h", flush=True)
-        track_skill_figure(out / "figures" / f"ian_track_{name.split()[0].lower()}.png", sk, h,
+        track_skill_figure(figdir / f"ian_track_{name.split()[0].lower()}.png", sk, h,
                            title=f"{name}, Hurricane Ian 2022, {len(errs)} initialisations")
 
+    if skills:
+        confidence_by_lead(figdir / "ian_confidence_by_lead.png", skills, horizons,
+                           title="Hurricane Ian 2022: the confidence bar along the lead",
+                           note="the same record as the two panels of each model, read as the one thing an operator "
+                                "wants to know: at which lead it is still inside both thresholds and the storm is "
+                                "still there to compare.")
+
     # 3. The grid: the same forecasts where a cell is wider than the core
-    coarse = {}
+    coarse, coarse_samples = {}, {}
     if args.coarse:
         for name, url in COARSE.items():
-            errs = []
+            errs, samples = [], {}
             for init in INITS:
                 d = fields_of(url, init, LEADS, cache, args.offline, tag=f"{name} 64x32")
-                _, e = track_and_verify(d, best, name, radius_km=RADIUS_COARSE_KM, init=np.datetime64(init, "h"))
+                tr, e = track_and_verify(d, best, name, radius_km=RADIUS_COARSE_KM, init=np.datetime64(init, "h"))
                 if e is not None:
                     errs.append(e)
+                    samples[init] = (d, tr)
             if not errs:
                 continue
             sk = skill_by_lead(errs)
             coarse[name] = {"forecasts": len(errs), "skill": _plain(sk),
                             "horizons": storm_horizons(sk), "found_fraction_overall": float(np.mean(sk["found_fraction"])),
                             "median_pressure_hpa": float(np.nanmedian(sk["pressure_hpa"]))}
+            # one initialisation kept whole -- its fields, its own tracked positions, its valid times -- because the
+            # video shows the coarse grid lead by lead and a median curve cannot be drawn on a map
+            keep = INITS[len(INITS) // 2] if INITS[len(INITS) // 2] in samples else next(iter(samples))
+            coarse_samples[name] = {"fields": samples[keep][0]["fields"], "lat": samples[keep][0]["lat"],
+                                    "lon": samples[keep][0]["lon"], "times": samples[keep][0]["times"],
+                                    "leads": np.asarray(sk["leads_h"], float), "skill": sk,
+                                    "thresholds": coarse[name]["horizons"]["thresholds"],
+                                    "horizons": coarse[name]["horizons"], "tracks": {name: samples[keep][1]},
+                                    "found_fraction_overall": coarse[name]["found_fraction_overall"],
+                                    "median_pressure_hpa": coarse[name]["median_pressure_hpa"], "init": keep}
             print(f"{name} on 64 x 32: the storm is present at {100 * np.mean(sk['found_fraction']):.0f}% of the "
                   f"leads, median central pressure {np.nanmedian(sk['pressure_hpa']):+.0f} hPa", flush=True)
 
     # the scene: the analysis at the peak hour, with the tracks that were followed
     peak = int(np.nanargmin(best.pressure_hpa))
     j = int(np.argmin(np.abs(an["times"] - best.times[peak])))
-    tracks = {"ERA5 0.25 deg (analysis)": an_track} | tracks
     note = ("ERA5 analysis, 0.25 deg. Tracks: the deepest pressure minimum within 400 km of the previous centre. "
             "Intensity is compared in hPa and, through Atkinson-Holliday, in knots.")
-    track_globe(out / "figures" / "ian_globe.png", best, tracks, pressure_hpa=an["fields"][j], lat=an["lat"],
+    followed = {"ERA5 0.25 deg (analysis)": an_track} | tracks
+    track_globe(figdir / "ian_globe.png", best, followed, pressure_hpa=an["fields"][j], lat=an["lat"],
                 lon=an["lon"], times=an["times"][j:j + 1], centre=(22.0, 282.0), note=note,
                 title=f"Hurricane Ian, {np.datetime_as_string(an['times'][j], unit='h').replace('T', ' ')} UTC")
-    track_globe(out / "figures" / "ian_globe.gif", best, tracks, pressure_hpa=an["fields"], lat=an["lat"],
+    track_globe(figdir / "ian_globe.gif", best, followed, pressure_hpa=an["fields"], lat=an["lat"],
                 lon=an["lon"], times=an["times"], centre=(24.0, 283.0), size=340, note=note,
                 title=f"Hurricane Ian, {str(best.times[0].astype('datetime64[D]'))} to "
                       f"{str(best.times[-1].astype('datetime64[D]'))}, 6 hours a frame")
+
+    # the track each model followed, against the one that was flown: the figure a reader checks the mean error against
+    captions = {"ERA5 0.25 deg (analysis)": f"median {np.nanmedian(an_err.track_km):.0f} km off the official centre"}
+    for name, sk in skills.items():
+        captions[name] = (f"median {float(sk['track_km'][int(np.argmin(np.abs(sk['leads_h'] - 48)))]):.0f} km at "
+                          f"+48 h")
+    track_vs_observed(figdir / "ian_track_vs_observed.png", best, followed, captions=captions, extent=BOX,
+                      title="Hurricane Ian 2022: the official track and the ones the models followed",
+                      note="one line per model is a real tracked series, not an average: the middle initialisation "
+                           "of each, followed by the pressure minimum, against the official HURDAT2 positions.")
+
+    # the cell, next to the storm it cannot hold: the same instant on both grids, with the official position marked
+    coarse_name = next(iter(coarse_samples), None)
+    if coarse_name is not None:
+        sample = coarse_samples[coarse_name]
+        want = an["times"][j]
+        k = int(np.argmin(np.abs(np.asarray(sample["times"], "datetime64[h]") - want)))
+        la_j, lo_j, _, _ = best.interpolate(np.array([sample["times"][k]]))
+        both = np.concatenate([np.ravel(an["fields"][j]), np.ravel(sample["fields"][k])])
+        field_vs_grid(figdir / "ian_field_two_grids.png",
+                      [{"label": "ERA5 reanalysis, 0.25 degree", "field": an["fields"][j], "lat": an["lat"],
+                        "lon": an["lon"], "cell_km": 27.8, "position": (la_j[0], lo_j[0]) if np.isfinite(la_j[0])
+                        else None},
+                       {"label": f"{coarse_name}, 5.625 degree", "field": sample["fields"][k],
+                        "lat": sample["lat"], "lon": sample["lon"], "cell_km": 625.0,
+                        "position": (la_j[0], lo_j[0]) if np.isfinite(la_j[0]) else None}],
+                      best=best, extent=(18.0, 34.0, 276.0, 294.0),
+                      vmin=float(np.nanmin(both)) - 1.0, vmax=float(np.nanpercentile(both, 90.0)),
+                      title=f"Ian, {np.datetime_as_string(np.datetime64(sample['times'][k], 'h'), unit='h')}"
+                            .replace("T", " ") + " UTC: the same storm at two cell sizes",
+                      note="the analysis resolves a centre to a fraction of its 28 km cell; the coarse archive is "
+                           "asked the same question with a 625 km cell, and answers with a field that has no core in "
+                           "it -- which is why the chain hands over to finer models instead of correcting this one. "
+                           "The two panels share one colour scale, cut at the 90th percentile of both fields.")
+
+    media = ["ian_globe.png", "ian_globe.gif"] + [f"ian_track_{n.split()[0].lower()}.png" for n in skills] + \
+        ["ian_track_vs_observed.png", "ian_confidence_by_lead.png"] + \
+        (["ian_field_two_grids.png"] if coarse_name is not None else [])
+    if not args.no_video:
+        analysis_stage = {"fields": an["fields"], "times": an["times"], "lat": an["lat"], "lon": an["lon"],
+                          "track": an_track, "errors": an_err}
+        stages_video(figdir / "ian_stages.mp4", best=best, analysis=analysis_stage, tracks=tracks, skills=skills,
+                     horizons=horizons, coarse=coarse_samples if args.coarse else None,
+                     title="Hurricane Ian 2022, end to end on public data — HURDAT2, ERA5, IFS HRES, Pangu-Weather",
+                     note=CORE_NOTE, fps=args.fps, hold=args.hold, n_inits=len(INITS))
+        media.append("ian_stages.mp4")
+
 
     # every lead time in this file has an origin: the store it was read from, what it carried and the licence it came
     # under, recorded next to the number so the two travel together
@@ -310,11 +394,11 @@ def main(argv=None):
         "horizons": {k: {kk: (vv if not isinstance(vv, dict) else vv) for kk, vv in v.items()}
                      for k, v in horizons.items()},
         "coarse_grid": coarse,
-        "files": ["figures/ian_globe.png", "figures/ian_globe.gif"] +
-                 [f"figures/ian_track_{n.split()[0].lower()}.png" for n in skills],
+        "files": [f"figures/{name}" for name in media],
+        "figures_dir": str(figdir),
     }
     (out / "summary.json").write_text(json.dumps(summary, indent=1))
-    print(f"wrote {out / 'summary.json'} + {len(list((out / 'figures').glob('*')))} figures", flush=True)
+    print(f"wrote {out / 'summary.json'} + {len(list(figdir.glob('*')))} files in {figdir}", flush=True)
     return summary
 
 

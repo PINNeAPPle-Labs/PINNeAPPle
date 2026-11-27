@@ -132,19 +132,19 @@ the number that says so.
 ## The curve: what a quieter detector costs
 
 `figures/tradeoff.png` and `figures/localisation.png`. The smallest hole the wave finds is set by the transducer
-noise, not by the decision interval: a hole 9.3 km away drops the head by `a Q_L/(2 g A)`, and it must clear the
-noise at the transmitter, so
+noise, not by the decision interval: a hole drops the head by `a Q_L/(2 g A)` at the hole, less what the travel takes,
+and what reaches the transmitter must clear that transmitter's noise, so
 
 ```
 Q_min = 2 g A σ / (a (1 - attenuation))
 ```
 
 with the measured 30 % attenuation that is `5.60e-4 m³/s` — 0.22 % of the flow, a hole about **4.6 mm** across. The
-measured floor is between 4 and 6 mm, and the two sizes say different things. A **4 mm** hole is found on all 18
-case/seed combinations but placed on one, 6.2 km off: the balance hears it, the wave does not hear it well enough at
-both ends to time it. A **6 mm** hole is found and placed at all three positions up to a decision interval of 12σ. The
-amplitude argument is optimistic by about a factor 1.3 because the leak also has to clear the CUSUM's slack at *both*
-ends and the far one sees less.
+measured floor is between 4 and 6 mm, and the two sizes say different things. At 8σ a **4 mm** hole is found on all
+18 case/seed combinations and placed on four, the best of them 6.2 km off: the balance hears it, the wave does not
+hear it well enough at both ends to time it. A **6 mm** hole is found at all three positions at every decision interval
+in the sweep, and placed at all three at 8σ. The amplitude argument is optimistic by about a factor 1.3 because the
+leak also has to clear the CUSUM's slack at *both* ends and the far one sees less.
 
 Raising the decision interval from 8σ to 12σ costs the smallest holes and buys the quiet: at 8σ a 3 mm hole is found
 nine times in eighteen and the false alarms are 0.73/h; at 12σ it is found once in eighteen and there is no false

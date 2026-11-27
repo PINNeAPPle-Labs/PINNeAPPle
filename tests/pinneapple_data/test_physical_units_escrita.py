@@ -42,3 +42,23 @@ def test_o_que_ja_era_unidade_continua_sendo() -> None:
 def test_o_que_nao_e_unidade_continua_recusado(escrito: str) -> None:
     with pytest.raises(UnitError):
         parse_unit(escrito)
+
+
+@pytest.mark.parametrize("palavra", ["na", "de", "face", "quente", "parede"])
+def test_palavra_comum_nao_vira_produto_de_unidades(palavra: str) -> None:
+    """A divisão exige símbolo exato: em minúsculas, "na" seria N·A, e a frase saía com a unidade "°C na"."""
+    with pytest.raises(UnitError):
+        parse_unit(palavra)
+
+
+def test_a_frase_da_parede_le_as_duas_temperaturas() -> None:
+    """O caso real: com "°C na" aceito como unidade, as duas temperaturas da parede deixavam de ser lidas."""
+    from pinneapple_design.intent.parse import find_quantities
+    from pinneapple_intent.compile import normalise_units
+
+    frase = ("Uma parede de aço de 12 mm de espessura, condutividade 200 W/mK, 300 °C na face quente, "
+             "ar a 25 °C na face fria com convecção de 12 W/m2K.")
+    lidas = {m.quote: m.unit for m in find_quantities(normalise_units(frase))}
+    assert lidas.get("300 °C") == "°C", lidas
+    assert lidas.get("25 °C") == "°C", lidas
+    assert not [u for u in lidas.values() if "na" in u], lidas

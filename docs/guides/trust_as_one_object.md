@@ -116,6 +116,7 @@ as the `source`.
 | `rollout_horizon` | `validation.rollout.divergence_time` |
 | `calibration_uncertainty` | `uncertainty.calibration.CalibrationMetrics` (coverage, width, ECE) |
 | `verification_measurement` | `pinneapple_decision.verifiers`: each named check as a 1/0 with its own source |
+| `horizon_of_trust` | `Trust.horizon` and `Trust.badge`, for a figure: the lead axis stops where the record measured it to |
 
 ## Three kinds of prediction, one record
 
@@ -224,7 +225,7 @@ and the length of the per-expert lists — three experts for the weather record,
 A document that lost a field, carried a fourth badge or gave a measured value a reason is refused by
 `Trust.validate_document`, which takes the dict, the JSON text or the path to the file.
 
-## What it does not cover yet
+## What each kind can measure, and what is refused
 
 `pp.trust` reads three kinds of model, and for each of them the record says what it could not measure instead of
 leaving a zero in its place. For everything else it **refuses** with `pinneapple_core.errors.NotSupported` and a `fix`
@@ -241,7 +242,22 @@ saying what to pass instead, rather than return a half-empty object that would r
   point, so its residual cannot be sampled the way a PINN's is. The field it emits is scored the way the CFD
   surrogate's is — `producers.cfd_surrogate_trust` is that path;
 * a **bare surrogate** (a `torch.nn.Module` or a callable) is refused for the same reason: wrap it in a
-  `PhysicsEnsemble` with the reference solver as the second expert and it is covered by the first kind;
-* the **consumers** read `Trust` where they draw something: the weather `earth2_gif` takes a `trust=` and draws its
-  lead bar and colours from it, and `twin3d` attaches the record to the scene it renders.
+  `PhysicsEnsemble` with the reference solver as the second expert and it is covered by the first kind.
+
+## The consumers read the record, not a second opinion
+
+Two of them draw, and both now take their numbers from the record (#345):
+
+| consumer | what it reads |
+|---|---|
+| `pinneapple_physics.weather.viz.earth2_gif(..., trust=t)` | `adapters.horizon_of_trust(t)`: the lead bar ends at the leads the record measured, a record that measured none draws no colour at all, the caption says why, and the badge is written under the lead in its own colour |
+| `pinneapple_twin3d.Scene.attach_trust(t)` | the whole document: `scene.json` carries `trust`, as `Trust.to_json` gives it |
+
+The figure keeps no second opinion: given both `horizon=` and `trust=`, it follows the record. A lead the record did
+not measure is `inf` in `horizon_of_trust`, never the last frame of the animation — a bar that runs green to the end
+is the figure claiming a skill nobody measured, which is the one thing the object exists to prevent.
+
+`tests/test_trust_consumers.py` holds it, without rendering an animation: it replaces `FuncAnimation` with a recorder,
+calls the frames and reads the texts and the bar segments back. Drop the record from the figure and four of its tests
+fail; drop it from the twin manifest and one more does.
 

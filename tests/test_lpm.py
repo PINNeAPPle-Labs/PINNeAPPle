@@ -95,6 +95,27 @@ def test_batched_optimizer_step_equals_per_design_step():
     torch.testing.assert_close(torch.tensor(one[-1]), torch.tensor(many[-1]))
 
 
+def test_chunked_epoch_equals_one_chunk():
+    """Walking the designs chunk by chunk must give the same loss history as putting them in one chunk.
+
+    ``fit`` backpropagates each chunk as it goes and steps once per epoch, which is the same gradient as summing every
+    chunk and calling ``backward`` once — but only one chunk's graph is alive at a time. Keeping them all alive is
+    what killed the 960-point wing fit at 4.4 GB before it finished an epoch, so this is the property to pin.
+    """
+    torch.manual_seed(0)
+    designs = ellipse_design_space(5, n_points=24, seed=3)
+    m = LargePhysicsModel(dim=2, n_fields=1, radii=(0.2, 0.8), width=24, n_heads=3, backbone="attention",
+                          attn_heads=2, attn_layers=1)
+    m2 = LargePhysicsModel(dim=2, n_fields=1, radii=(0.2, 0.8), width=24, n_heads=3, backbone="attention",
+                           attn_heads=2, attn_layers=1)
+    m2.load_state_dict(m.state_dict())                          # same weights before the first step
+    chunked = fit(m, designs, epochs=3, batch_designs=2)
+    whole = fit(m2, designs, epochs=3, batch_designs=len(designs))
+    assert len(chunked) == len(whole) == 3
+    for a, b in zip(chunked, whole, strict=True):
+        assert a == pytest.approx(b, rel=1e-5)
+
+
 def test_design_space_builds_scale_with_the_exact_answer():
     """``ellipse_design_space`` is the benchmark family, with the analytic potential-flow Cp as target."""
     designs = ellipse_design_space(120, n_points=32, seed=5)

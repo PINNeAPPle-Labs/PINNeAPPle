@@ -2,7 +2,7 @@
 
 Every folder under `examples/` is either run by CI or marked manual with a reason. The reasons are measured, not assumed: `python scripts/example_catalog.py --measure` runs each example and records what happened, and `--check` is the gate that keeps this page true.
 
-**In the CI tier: 9 · manual: 97 · budget: 660 s.**
+**In the CI tier: 10 · manual: 103 · budget: 660 s.**
 
 ## Runs in CI
 
@@ -17,6 +17,7 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/data_pipeline` | `01_physical_sample_basics.py` | 45 s |
 | `examples/physics_query` | `run_demo.py` | 45 s |
 | `examples/data_readiness` | `run.py` | 60 s |
+| `examples/intent_to_study` | `intent_to_study.py` | 30 s |
 
 ## Manual, with the reason
 
@@ -49,6 +50,7 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/digital_twin_library` | runs clean in 4.6 s but is not in the ci tier yet: promote it with --promote |
 | `examples/dynamics_toolkit` | takes longer than 12 s (dynamics_toolkit.py): too slow for the ci tier |
 | `examples/electrodynamics` | takes longer than 12 s (01_laplace_capacitor.py): too slow for the ci tier |
+| `examples/embedded` | takes longer than 12 s (embedded_inference.py): it trains the field surrogate (about a minute), exports the composite ONNX graph and measures the latency at one and four threads; --quick skips the training and runs in a few seconds |
 | `examples/end_to_end` | fails when run: RuntimeError: DataLoader worker (pid(s) 28938) exited unexpectedly |
 | `examples/enso_forecasting` | fails when run: ModuleNotFoundError: No module named 'netCDF4' |
 | `examples/flight_dynamics` | runs clean in 8.5 s but is not in the ci tier yet: promote it with --promote |
@@ -69,12 +71,15 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/inspection` | runs clean in 2.5 s but is not in the ci tier yet: promote it with --promote |
 | `examples/latent` | takes longer than 12 s (trusted_latent_surrogate.py): too slow for the ci tier |
 | `examples/lbm` | takes longer than 12 s (01_sphere_wind_tunnel.py): too slow for the ci tier |
+| `examples/lpm_design_space` | takes longer than 12 s (run.py): too slow for the ci tier |
+| `examples/lpm_five_models` | takes longer than 12 s (run.py): too slow for the ci tier |
 | `examples/meshgraphnet` | runs clean in 8.8 s but is not in the ci tier yet: promote it with --promote |
 | `examples/model_zoo` | takes longer than 12 s (quickstart.py): too slow for the ci tier |
 | `examples/modelica` | fails when run: RuntimeError: OpenModelica not found: install omc or pull the Docker image `docker pull openmodelica/openmodelica:v1.24.4-minimal` |
 | `examples/molecular` | fails when run: protein_on_gold.py: error: the following arguments are required: pdb |
 | `examples/motor_magnetics` | takes longer than 12 s (01_spm_cogging_and_torque.py): too slow for the ci tier |
 | `examples/mujoco` | fails when run: (MuJoCo 4.0 needs Python >= 3.11; on 3.10 the extra installs the 3.17 line.) |
+| `examples/multirotor_flight` | takes minutes, not seconds (flight_safety.py): it flies the campaign -- three calibration flights plus eight faults across three seeds at 20 s each, 500 Hz, with four BEMT rotors and a controller in the loop -- and then tunes three detectors. --quick flies one seed per fault |
 | `examples/near_random_forecasting` | takes longer than 12 s (render_visuals.py): too slow for the ci tier |
 | `examples/non_hermitian` | runs clean in 1.8 s but is not in the ci tier yet: promote it with --promote |
 | `examples/numerical_solvers` | imports a name this repository does not have yet (01_solvers_fft_feature_train.py, 02_solvers_hilbert_huang_decompose.py, 03_solvers_fem_poisson_1d.py, 04_solvers_fvm_advection_1d.py, 05_solvers_catalog_and_adapters.py, 06_solvers_decomp_demo.py, 08_solver_fdm_demo.py, 09_solver_lmb_demo.py, 10_solver_spectral_demo.py, 11_cad_cfd_pipeline_demo.py); listed in scripts/example_imports_baseline.txt |
@@ -91,6 +96,7 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/pinneapple_and_physicsnemo` | no script: the folder declares an example but has no .py to run |
 | `examples/pinneapple_benchmark` | takes longer than 12 s (01_pde_comparison.py): too slow for the ci tier |
 | `examples/pinneapple_cosim` | runs clean in 10.8 s but is not in the ci tier yet: promote it with --promote |
+| `examples/planetary_defence` | takes longer than 12 s (apophis_deflection.py): it propagates Apophis with the JPL elements over up to ten years for every impactor mass and warning time in the table, plus the uncertainty ensemble -- about 25 min in total, and --quick runs the DART anchor and one deflection in under a minute |
 | `examples/potential_co2` | fails when run: ModuleNotFoundError: No module named 'CoolProp' |
 | `examples/problem_designer` | fails when run:   $env:GOOGLE_API_KEY=...     (PowerShell) |
 | `examples/proof_graph` | takes longer than 12 s (pt_chain_no_go.py): too slow for the ci tier |
@@ -117,5 +123,6 @@ Every folder under `examples/` is either run by CI or marked manual with a reaso
 | `examples/visualizations` | runs clean in 0.0 s but is not in the ci tier yet: promote it with --promote |
 | `examples/vortex_domains` | runs clean in 1.2 s but is not in the ci tier yet: promote it with --promote |
 | `examples/vs_physicsnemo` | no script: the folder declares an example but has no .py to run |
+| `examples/warp_drive` | takes about 80 s, not seconds (warp_drive.py): it differentiates the metric on 26 000 points, sweeps a sphere of null directions at 12 866 of them, integrates the energy density over a 60 m box and renders a 36-frame turntable. --quick drops the GIF and halves the map |
 | `examples/weather_forecasting` | fails when run: TypeError: main() missing 3 required positional arguments: 'store_path', 'model_path', and 'out_dir' |
 | `examples/worldmodel` | takes longer than 12 s (01_generate_train_evaluate.py): too slow for the ci tier |

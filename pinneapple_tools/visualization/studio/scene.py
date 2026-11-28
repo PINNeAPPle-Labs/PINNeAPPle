@@ -178,6 +178,7 @@ class Scene:
     slices: List[Slice] = field(default_factory=list)
     axes: str = "z_up"
     title: str = "PINNeAPPle scene"
+    view: str = "iso"                                         # the preset the viewer opens on: iso/front/side/top
     labels: Dict[str, str] = field(default_factory=dict)     # field name -> label with unit (for colour bars)
     lighting: Optional[Dict[str, Any]] = None                 # a lighting preset for the browser viewer (see .lighting)
     materials: Dict[str, Dict[str, Any]] = field(default_factory=dict)   # extra / overriding entries of MATERIALS
@@ -356,7 +357,8 @@ class Scene:
         when the surfaces have two or more groups, those groups as layers."""
         r = lambda a, nd=4: np.round(np.asarray(a, float), nd).tolist()  # noqa: E731
         groups = list(dict.fromkeys(sf.group for sf in self.surfaces if sf.group))
-        return {"axes": self.axes, "title": self.title, "labels": self.labels, "fields": self.field_names(),
+        return {"axes": self.axes, "title": self.title, "view": self.view, "labels": self.labels,
+                "fields": self.field_names(),
                 **({"lighting": self.lighting} if self.lighting else {}),
                 # layers the viewer can switch on and off: the surfaces (glTF node indices) of each group
                 **({"groups": [{"name": g, "surfaces": [i for i, sf in enumerate(self.surfaces) if sf.group == g]}

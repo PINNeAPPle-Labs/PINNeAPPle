@@ -95,12 +95,45 @@ def test_a_family_without_a_fit_says_so(tmp_path):
 
 
 def test_the_scene_lays_the_samples_side_by_side(run):
+    """No two bodies share space: each gets its own shelf. The shelf runs along whichever axis the row took — a 2-D
+    family is turned a quarter so its row crosses the face-on view, and a 3-D one keeps the widest axis."""
     view = json.loads((run / "pp_nozzle" / "model" / "view.json").read_text())
     scene = lpm_figures.scene(view)
     assert len(scene.surfaces) == len(view["samples"])
-    spans = [(s.vertices[:, 0].min(), s.vertices[:, 0].max()) for s in scene.surfaces]
-    for (_, hi), (lo_next, _) in zip(spans, spans[1:], strict=False):
-        assert lo_next >= hi, "two bodies overlap: they were not given their own shelf"
+    for first, second in zip(scene.surfaces, scene.surfaces[1:], strict=False):
+        a, b = first.vertices, second.vertices
+        overlaps = all(a[:, k].min() <= b[:, k].max() and b[:, k].min() <= a[:, k].max() for k in range(3))
+        assert not overlaps, "two bodies overlap: they were not given their own shelf"
+
+
+def test_a_flat_scene_opens_face_on_and_faces_the_camera(run):
+    """pp_airfoil and pp_exchanger came out blank: a planar sheet drawn with the default 3/4 view is edge-on, and a
+    sheet whose faces point the other way is culled outright. Flat scenes open on the face-on preset and every
+    triangle faces +z, which is the side all four presets look from."""
+    import numpy as np
+
+    view = json.loads((run / "pp_nozzle" / "model" / "view.json").read_text())
+    scene = lpm_figures.scene(view)
+    assert np.allclose([np.ptp(s.vertices[:, 2]) for s in scene.surfaces], 0.0), "the fixture family is planar"
+    assert scene.view == "top", "a flat family opens face-on"
+    for surface in scene.surfaces:
+        v, f = surface.vertices, surface.faces
+        normals = np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]])
+        assert (normals[:, 2] >= -1e-12).all(), "a triangle facing away from the camera would not be drawn"
+
+
+def test_a_deep_scene_keeps_the_three_quarter_view(run):
+    """A 3-D body is turned off in the default view for a reason, and the fix for the flat ones must not touch it."""
+    import numpy as np
+
+    view = json.loads((run / "pp_nozzle" / "model" / "view.json").read_text())
+    def _deep(s, i):
+        pts = np.asarray(s["points"], dtype=float)
+        pts = np.hstack([pts, np.zeros((len(pts), 1))]) if pts.shape[1] == 2 else pts
+        return dict(s, points=(pts + np.array([0.0, 0.0, 1.0]) * i).tolist())
+
+    view = dict(view, samples=[_deep(s, i) for i, s in enumerate(view["samples"])])
+    assert lpm_figures.scene(view).view == "iso"
 
 
 def test_a_view_without_at_points_still_colours_its_skin(run):

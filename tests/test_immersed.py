@@ -174,3 +174,26 @@ def test_flow_node_immersed_heat(tmp_path):
     # Biot number k / (h L) is tiny: the part is nearly isothermal at T_inf + P / (h A)
     lumped = 25.0 + m["generated_W"] / (25.0 * m["area_m2"])
     assert abs(m["T_max_C"] - lumped) / (lumped - 25.0) < 0.01
+
+def test_a_point_on_the_interface_is_read_from_the_active_cell():
+    """A surface point that lands in the empty cell just outside the body must not come back NaN.
+
+    ``pp_fin3d`` lost 105 of its 950 samples this way — all of them on the outermost fin's x- face, all located in
+    the cell across the face — and the family aborted with "non-finite values in the geometry or the field".
+    """
+    import numpy as np
+
+    from pinneapple_simulation import immersed as im
+
+    geo = im.box(np.array([0.0, 0.0, 0.0]), np.array([1.0, 1.0, 0.4]))
+    disc = im.Discretization(geo, 0.1, order=1)
+    T = np.linspace(20.0, 60.0, disc.dofs.n_dofs)
+    on_the_faces = np.array([[0.0, 0.5, 0.2], [1.0, 0.5, 0.2], [0.5, 0.0, 0.2], [0.5, 0.5, 0.4],
+                             [0.0, 0.0, 0.0], [-1e-12, 0.5, 0.2]])
+    values = disc.evaluate(T, on_the_faces)
+    assert np.isfinite(values).all(), f"interface point came back NaN: {values}"
+    assert values.min() >= 20.0 - 1e-6 and values.max() <= 60.0 + 1e-6     # the extrapolation stays in range
+
+    # a point well outside the body is still NaN: the fallback must not invent a value for it
+    outside = disc.evaluate(T, np.array([[5.0, 5.0, 5.0]]))
+    assert np.isnan(outside).all()

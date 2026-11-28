@@ -1,12 +1,13 @@
-"""The four figures a fitted design space can show, drawn with the repository's own plotting.
+"""The figures and the 3-D viewer a fitted design space can show, drawn with the repository's own tooling.
 
 A family that has finished has ``model/view.json`` next to its card: the loss curve, the design space with the split,
 the bodies the samples came from, and — per sample — the field the reference produced against the field the model
-predicted. This module turns that file into PNGs with :mod:`pinneapple_tools.visualization`, so a figure the campaign
-shows and a figure a report carries are drawn by the same theme.
+predicted. This module turns that file into PNGs with :mod:`pinneapple_tools.visualization` and into a Studio viewer
+page, so a figure the campaign shows and a figure a report carries are drawn by the same theme.
 
-    from benchmarks.lpm_figures import ensure
+    from benchmarks.lpm_figures import ensure, ensure_viewer
     path = ensure(Path("~/lpm-campaign"), "pp_fin", "loss")     # builds it only if the view is newer
+    html = ensure_viewer(Path("~/lpm-campaign"), "pp_fin")      # the Studio's own 3-D page
 """
 from __future__ import annotations
 
@@ -16,7 +17,8 @@ from pathlib import Path
 from typing import Any
 
 #: what a family can show. ``loss`` and ``design`` come from the fit, ``geometry`` and ``prediction`` from its samples.
-KINDS = ("loss", "design", "geometry", "prediction")
+#: ``viewer`` is not a PNG: it is the Studio's interactive page, built from the same samples.
+KINDS = ("loss", "design", "geometry", "prediction", "viewer")
 
 _LOCK = threading.Lock()
 
@@ -166,14 +168,107 @@ def view_path(out: str | Path, family: str) -> Path:
     return Path(out) / family / "model" / "view.json"
 
 
+def _skin(points) -> tuple[Any, Any]:
+    """(vertices, triangles) for a point cloud: a Delaunay in the cloud's best-fit plane.
+
+    The families hand the model a point cloud, not a mesh, so a viewer has to build the skin. The projection is the
+    least inventive choice available: it adds no surface the points do not support, and it makes a plate, a wing or a
+    bracket rotate as the thin body it is. It does fill a concave silhouette — a nozzle's interior reads as solid — so
+    the caption says "triangulated in the best-fit plane" rather than "the body".
+    """
+    import numpy as np
+    from scipy.spatial import Delaunay
+
+    pts = np.asarray(points, dtype=float)
+    verts = np.hstack([pts, np.zeros((len(pts), 1))]) if pts.shape[1] == 2 else pts
+    centre = verts.mean(0)
+    _, _, vt = np.linalg.svd(verts - centre, full_matrices=False)
+    uv = (verts - centre) @ vt[:2].T
+    return verts, Delaunay(uv).simplices
+
+
+def scene(view: dict[str, Any]):
+    """The Studio :class:`Scene` the viewer page shows: one body per sample, coloured by the model's own field.
+
+    Two choices a viewer forces and a figure does not. The samples are laid **side by side** — they are four different
+    bodies of the same family and, drawn at their own coordinates, they sit on top of each other. And a 2-D family is
+    drawn as its contour (a tube along the outline) rather than as a skin: the design space is a curve, and filling it
+    would draw a body the family does not have.
+    """
+    import numpy as np
+
+    from pinneapple_tools.visualization.studio import Scene
+
+    samples = view["samples"]
+    scn = Scene(axes="z_up", title=f"{view.get('title') or view['family']} — samples side by side")
+    field_units = dict(zip(view["fields"], view.get("units") or [""] * len(view["fields"]), strict=False))
+    for f in view["fields"]:
+        unit = field_units.get(f, "")
+        scn.labels[f] = f"{f} [{unit}]" if unit else f"{f} [-]"
+
+    skins = [_skin(sample["points"]) for sample in samples]
+    placed = [verts for verts, _ in skins]
+    allpts = np.vstack(placed) if placed else np.zeros((1, 3))
+    axis = int(np.argmax(np.ptp(allpts, axis=0)))
+    starts, cursor = [], 0.0
+    for verts in placed:                                # the bodies never touch: each gets its own shelf
+        lo, hi = float(verts[:, axis].min()), float(verts[:, axis].max())
+        starts.append(cursor - lo)
+        cursor += (hi - lo) + 0.25 * max(hi - lo, 1e-9)
+
+    def values_of(sample: dict[str, Any], n: int) -> dict[str, Any]:
+        at_points = sample.get("at_points")
+        if at_points is None:                           # a view written before the flag existed: decide from the data
+            pts, q = sample.get("points") or [], sample.get("query") or []
+            at_points = bool(len(pts) == len(q) == n and np.allclose(np.asarray(pts), np.asarray(q)))
+        if not at_points:                               # values and vertices are one set only then
+            return {}
+        out = {}
+        for field in view["fields"]:
+            vals = np.asarray(sample["pred"].get(field, []), dtype=float)
+            if len(vals) == n:
+                out[field] = vals
+        return out
+
+    for i, sample in enumerate(samples):
+        verts, faces = skins[i]
+        shift = np.zeros(3)
+        shift[axis] = starts[i]
+        pts = verts + shift
+        surface = Scene.from_arrays(pts, faces, name=sample["label"], material="grey").surfaces[0]
+        surface.fields.update(values_of(sample, len(pts)))
+        scn.surfaces.append(surface)
+    return scn
+
+
+def ensure_viewer(out: str | Path, family: str) -> Path:
+    """The Studio 3-D page for one family (``single_file``: three.js inlined, opens from ``file://``)."""
+    source = view_path(out, family)
+    target = source.parent / "figures" / "viewer.html"
+    with _LOCK:
+        if target.is_file() and source.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
+            return target
+        if not source.is_file():
+            raise FileNotFoundError(f"{family} has no view.json yet: it has not been fitted")
+        from pinneapple_tools.visualization.studio.web import web_viewer
+
+        view = json.loads(source.read_text(encoding="utf-8"))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        web_viewer(scene(view), str(target.parent), title=view.get("title") or family,
+                   single_file=True, filename="viewer.html")
+        return target
+
+
 def ensure(out: str | Path, family: str, kind: str) -> Path:
-    """The PNG for one family and one kind, rebuilt only when ``view.json`` is newer than it.
+    """The file for one family and one kind, rebuilt only when ``view.json`` is newer than it.
 
     A family that has not finished has no view and gets an explicit error, which the page draws as "not measured yet"
     rather than as a blank chart.
     """
     if kind not in KINDS:
         raise KeyError(f"unknown figure {kind!r}; the families show {', '.join(KINDS)}")
+    if kind == "viewer":
+        return ensure_viewer(out, family)
     source = view_path(out, family)
     target = source.parent / "figures" / f"{kind}.png"
     with _LOCK:

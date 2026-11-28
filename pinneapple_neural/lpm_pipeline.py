@@ -653,10 +653,14 @@ def _view(*, family_info: dict[str, Any], manifest: dict[str, Any], designs: lis
         q = design.query.detach().cpu().numpy()
         pts = design.points.detach().cpu().numpy()
         keep_q, keep_p = _stride(len(q), 240), _stride(len(pts), 240)
+        same = bool(q.shape == pts.shape and np.allclose(q, pts))
         samples.append({
             "label": tag, "design": records[position].get("label", str(position)), "held_out": is_held,
             "relative_l2": (held["per_design"][held_pos[position]]["relative_l2"] if is_held else None),
             "ood": bool(report["ood"]),
+            # whether the field is evaluated on the body's own points: the 3-D viewer colours the skin only when the
+            # values and the vertices are one set, and draws the bare geometry when they are not
+            "at_points": same,
             "points": pts[keep_p].tolist(), "query": q[keep_q].tolist(),
             "target": {f: target[keep_q, j].tolist() for j, f in enumerate(field_names)},
             "pred": {f: pred[keep_q, j].tolist() for j, f in enumerate(field_names)},

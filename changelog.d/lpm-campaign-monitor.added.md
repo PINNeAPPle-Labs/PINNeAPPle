@@ -14,6 +14,12 @@
   prediction — drawn from `view.json` with `pinneapple_tools.visualization` (the house theme), served by the panel at
   `/figure/<family>/<kind>.png` and rebuilt only when the view is newer than the PNG. Samples are the best, median and
   worst held-out body, never a hand-picked one.
+- The **Studio 3-D viewer** in the panel: `lpm_figures.scene` turns the samples into a `Scene` and
+  `studio.web.web_viewer` writes it as one self-contained page (`single_file`, three.js inlined), served at
+  `/figure/<family>/viewer.html` and framed above the figures — orbit, zoom, and the field switch on its top bar. The
+  families give the model a point cloud and a viewer needs a skin, so each body is triangulated in its own best-fit
+  plane: the least inventive surface the points support, which makes a plate a plate and fills a concave silhouette, so
+  the caption says what it is. The samples stand side by side instead of on top of each other.
 - `benchmarks/lpm_monitor.py`: clicking a design space opens its figures, side by side with the held-out numbers; a
   family fitted before the view existed says so instead of drawing an empty chart.
 - `pinneapple_neural/lpm_pipeline.py`: `progress.json` while a stage runs. `generate_dataset(progress_every_s=...)`

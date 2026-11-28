@@ -72,11 +72,19 @@ def test_each_figure_is_drawn_and_then_cached(run):
     assert path.stat().st_mtime > 1
 
 
-def test_all_four_figures_build(run):
+def test_every_figure_builds(run):
     built = lpm_figures.build_all(run, "pp_nozzle")
     assert set(built) == set(lpm_figures.KINDS)
     for kind, path in built.items():
         assert os.path.getsize(path) > 1000, kind
+
+
+def test_the_viewer_is_the_studios_own_page(run):
+    path = lpm_figures.ensure_viewer(run, "pp_nozzle")
+    assert path.suffix == ".html" and path.stat().st_size > 100_000        # three.js is inlined, so it opens offline
+    page = path.read_text(encoding="utf-8")
+    assert 'import "pp/viewer"' in page                                  # the viewer is the studio's own module
+    assert "base64," in page                                             # and the scene travels inside the page
 
 
 def test_a_family_without_a_fit_says_so(tmp_path):
@@ -86,6 +94,26 @@ def test_a_family_without_a_fit_says_so(tmp_path):
         lpm_figures.ensure(tmp_path, "pp_fin", "nonsense")
 
 
+def test_the_scene_lays_the_samples_side_by_side(run):
+    view = json.loads((run / "pp_nozzle" / "model" / "view.json").read_text())
+    scene = lpm_figures.scene(view)
+    assert len(scene.surfaces) == len(view["samples"])
+    spans = [(s.vertices[:, 0].min(), s.vertices[:, 0].max()) for s in scene.surfaces]
+    for (_, hi), (lo_next, _) in zip(spans, spans[1:], strict=False):
+        assert lo_next >= hi, "two bodies overlap: they were not given their own shelf"
+
+
+def test_a_view_without_at_points_still_colours_its_skin(run):
+    """The campaign running when the flag was introduced wrote views without it; those must not come out grey."""
+    import copy
+
+    view = json.loads((run / "pp_nozzle" / "model" / "view.json").read_text())
+    old = copy.deepcopy(view)
+    for sample in old["samples"]:
+        sample.pop("at_points", None)
+    assert lpm_figures.scene(old).surfaces[0].fields, "the field is recovered from points == query"
+
+
 def test_the_panel_serves_a_figure_and_refuses_one_it_has_not_got(run):
     srv = lpm_monitor.serve(run, port=0, block=False)
     host, port = srv.server_address[0], srv.server_address[1]
@@ -93,6 +121,9 @@ def test_the_panel_serves_a_figure_and_refuses_one_it_has_not_got(run):
         with urllib.request.urlopen(f"http://{host}:{port}/figure/pp_nozzle/prediction.png") as r:
             assert r.status == 200 and r.headers["Content-Type"] == "image/png"
             assert r.read().startswith(b"\x89PNG")
+        with urllib.request.urlopen(f"http://{host}:{port}/figure/pp_nozzle/viewer.html") as r:
+            assert r.status == 200 and r.headers["Content-Type"].startswith("text/html")
+            assert b"<html" in r.read(2000).lower() or b"<!doctype" in r.read(2000).lower()
         with pytest.raises(urllib.error.HTTPError) as missing:
             urllib.request.urlopen(f"http://{host}:{port}/figure/pp_fin/loss.png")
         assert missing.value.code == 404

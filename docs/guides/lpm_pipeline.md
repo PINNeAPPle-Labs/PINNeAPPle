@@ -240,7 +240,7 @@ Two things the panel deliberately will not do. It does not import the families t
 files, so what it shows is what a run that died left behind. And it does not draw a progress file older than three
 minutes on a running stage as live — it marks it stale, because a fit that stopped writing is a fit that stopped.
 
-### The four figures
+### The figures and the 3-D viewer
 
 Clicking a finished design space opens its figures. They are drawn by `benchmarks/lpm_figures.py` from
 `model/view.json` — the file the fit writes next to the card — using this repository's own plotting
@@ -252,6 +252,15 @@ Clicking a finished design space opens its figures. They are drawn by `benchmark
 | `design` | where the designs are in the design space, on its two widest parameters, with the held-out bodies in a second colour — the split is by geometry, so a separated dot is a body the model never saw |
 | `geometry` | the bodies behind the samples, drawn from the point cloud the model is given, one panel per sample |
 | `prediction` | the reference (solid) against the model (dashed) along the ordered query points, one row per field and one column per body, each with its own held-out relative L2 |
+| `viewer` | the **Studio's own 3-D page** (`pinneapple_tools.visualization.studio.web.web_viewer`, `single_file`), served in the panel above the figures: drag to orbit, scroll to zoom, switch between the fields on its top bar |
+
+The viewer needs a skin, and the families hand the model a point cloud, so `lpm_figures.scene` triangulates each body
+in its own best-fit plane. That is the least inventive surface the points support — it makes a plate, a wing or a
+bracket the thin body it is, and it fills a concave silhouette, so a nozzle's interior reads as solid. Its caption says
+"the point cloud, triangulated in the best-fit plane" rather than "the body". The samples stand side by side: they are
+four different bodies of the same family and, drawn at their own coordinates, they would sit on top of each other. The
+field colours the skin only when the field's values were computed on the body's own points (`view.json` records that as
+`at_points`), and a view written before the flag existed is decided from the data instead of guessed.
 
 The samples are chosen, not cherry-picked: the best, the median and the worst held-out body by relative L2, plus one
 training body for contrast. A picture of one held-out body is a picture of that body — it is not a statement about the

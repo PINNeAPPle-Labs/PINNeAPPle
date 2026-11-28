@@ -29,7 +29,7 @@ from typing import Any
 
 from benchmarks import _daemon, lpm_figures
 
-__all__ = ["STAGES", "state", "page", "serve", "main"]
+__all__ = ["CAPTIONS", "STAGES", "state", "page", "serve", "main"]
 
 #: the five stages the pipeline runs, in order (see docs/guides/lpm_pipeline.md)
 STAGES = ("draw", "build", "write", "fit", "card")
@@ -316,6 +316,9 @@ figure img{width:100%;height:auto;display:block;border-radius:3px}
 figure.missing img{display:none}
 figure figcaption{font-size:11px;color:var(--dim);padding:6px 2px 0}
 figure.wide{grid-column:span 2}
+figure.full{grid-column:1/-1}
+figure iframe{width:100%;height:520px;border:0;border-radius:3px;background:#f4f4f4;display:block}
+figure.missing iframe{display:none}
 figure.missing figcaption::after{content:" — no figures for this family yet (fitted before the view was written)"}
 pre{background:#141414;border:1px solid var(--line);padding:10px;border-radius:6px;overflow:auto;font-size:12px;
 max-height:260px;margin:0}
@@ -377,12 +380,7 @@ function row(r){
       '">'+held+' <span class="dim">/ '+base+'</span></td>'+
     '<td class="mono dim">'+esc((r.written||'').slice(0,16).replace('T',' '))+'</td></tr>';
 }
-const CAPTIONS = {
-  loss: 'training loss, log scale — did it converge or stop early',
-  design: 'the design space on its two widest parameters; a second colour is a body held out by geometry',
-  geometry: 'the bodies behind the samples, as the model sees them (the point cloud)',
-  prediction: 'reference (solid) against the model (dashed), one row per field, one column per body'
-};
+const CAPTIONS = __CAPTIONS__;
 function detail(s){
   if(!OPEN) return '';
   const r = (s.families||[]).find(f=>f.name===OPEN);
@@ -392,11 +390,15 @@ function detail(s){
     return '<section class="detail">'+head+'<p class="dim">The figures are drawn when the card exists — '
       + esc(r.stage)+' now. The row above already says how far it got.</p></section>';
   const t = encodeURIComponent(r.written||'');
-  const figs = Object.keys(CAPTIONS).map(k =>
-    '<figure class="'+(k==='geometry'||k==='prediction'?'wide':'')+'"><img loading="lazy" src="figure/'+encodeURIComponent(r.name)+'/'+k+'.png?t='+t+'" alt="'+k+'" '
+  const fam = encodeURIComponent(r.name);
+  const viewer = '<figure class="full"><iframe loading="lazy" src="figure/'+fam+'/viewer.html?t='+t+'" '
+    + 'title="Studio 3-D viewer" onerror="this.parentNode.classList.add(\\'missing\\')"></iframe>'
+    + '<figcaption>'+esc(CAPTIONS._viewer)+'</figcaption></figure>';
+  const figs = Object.keys(CAPTIONS).filter(k=>k.charAt(0)!=='_').map(k =>
+    '<figure class="'+(k==='geometry'||k==='prediction'?'wide':'')+'"><img loading="lazy" src="figure/'+fam+'/'+k+'.png?t='+t+'" alt="'+k+'" '
     + 'onerror="this.parentNode.classList.add(\\'missing\\')"><figcaption>'+esc(CAPTIONS[k])+'</figcaption></figure>'
   ).join('');
-  return '<section class="detail">'+head+'<div class="figs">'+figs+'</div></section>';
+  return '<section class="detail">'+head+'<div class="figs">'+viewer+figs+'</div></section>';
 }
 function render(s){
   const c = s.campaign;
@@ -428,9 +430,22 @@ geometry; a model at or above its baseline has not learnt the space. The five ba
 <script>__JS__</script></body></html>"""
 
 
+#: what each figure is, in the panel's words. Kept here and injected as JSON, so a caption can hold an apostrophe
+#: without breaking the page it is written into
+CAPTIONS = {
+    "loss": "training loss, log scale — did it converge or stop early",
+    "design": "the design space on its two widest parameters; a second colour is a body held out by geometry",
+    "geometry": "the bodies behind the samples, as the model sees them (the point cloud)",
+    "prediction": "reference (solid) against the model (dashed), one row per field, one column per body",
+    "_viewer": ("the Studio 3-D viewer — drag to orbit, scroll to zoom, switch the field on the top bar; "
+                "the samples stand side by side, each coloured by the model's prediction"),
+}
+
+
 def page() -> str:
     """The panel's HTML, self-contained: it polls ``state.json`` next to it and needs nothing external."""
-    return _PAGE.replace("__CSS__", _CSS).replace("__JS__", _JS)
+    return (_PAGE.replace("__CSS__", _CSS).replace("__JS__", _JS)
+            .replace("__CAPTIONS__", json.dumps(CAPTIONS, ensure_ascii=True).replace("</", "<\\/")))
 
 
 def serve(out: str | Path, port: int = 8130, host: str = "127.0.0.1", log: str | Path | None = None,
@@ -454,7 +469,10 @@ def serve(out: str | Path, port: int = 8130, host: str = "127.0.0.1", log: str |
                     if not family or not name:
                         self.send_error(404)
                         return
-                    payload, ctype = lpm_figures.ensure(out, family, name.rsplit(".", 1)[0]).read_bytes(), "image/png"
+                    stem, _, suffix = name.rpartition(".")
+                    target = lpm_figures.ensure(out, family, stem or name)
+                    payload = target.read_bytes()
+                    ctype = "text/html; charset=utf-8" if target.suffix == ".html" else "image/png"
                 else:
                     self.send_error(404)
                     return

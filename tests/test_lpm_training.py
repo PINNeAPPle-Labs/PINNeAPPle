@@ -164,3 +164,19 @@ def test_a_warm_start_keeps_the_weights_it_transfers_and_refuses_another_archite
     with pytest.raises(ValueError, match="another design space"):
         train(other / "dataset", tmp_path / "e", epochs=1, batch_designs=2, width=24, code=16, n_heads=2,
               attn_layers=1, attn_heads=2, seed=0, device="cpu", init_from=first)
+
+
+def test_a_fresh_run_directory_can_be_fitted_with_resume_and_no_progress_writer(tmp_path, monkeypatch):
+    """The first checkpoint lands at the end of epoch one, so the model directory has to exist before the fit —
+    a run directory created by ``resume`` alone plus ``progress_every_s=0`` used to fail there."""
+    import pinneapple_neural.lpm_pipeline as pipeline
+
+    family = _Bar()
+    monkeypatch.setattr(pipeline, "_family_by_name", lambda name: family)
+    pipeline.generate_dataset(family, tmp_path / "d", n_geometries=3, conditions_per_geometry=1, seed=0)
+    summary = pipeline.train(tmp_path / "d", tmp_path / "fresh", epochs=2, batch_designs=2, width=24, code=8,
+                             n_heads=2, attn_layers=1, attn_heads=2, radii=(0.2, 0.8), seed=0, device="cpu",
+                             resume=True, progress_every_s=0)
+    assert (tmp_path / "fresh" / "model" / "card.json").is_file()
+    assert not (tmp_path / "fresh" / "model" / "fit.pt").exists()      # a finished fit leaves nothing to resume
+    assert summary["family"] == family.name

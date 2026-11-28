@@ -195,7 +195,7 @@ the campaign could not:
 | stage | module | what it decides |
 |---|---|---|
 | 0 | `intent` | a `StudyContract` supplies the point and its provenance; a parameter the contract marks missing is a question, not a default |
-| 1 | `space` | Sobol/LHS over the family's declared ranges, and the active `refine` near the decision threshold |
+| 1 | `space` | Sobol/LHS over the family's declared ranges, and the active `refine` near the decision threshold — `--refine N` runs that second round: `N` bodies are simulated where the confidence is closest to the threshold, added to the same dataset as refined, and the model is refit warm from the round it refined (`space.as_specs`, `lpm_pipeline.extend_dataset`) |
 | 2 | `geometry` | the body comes from a supplied mesh through `morph`, gated by `check_surface`; `validity_gate` measures how much of the box survives |
 | 3 | `catalog` | every dataset on disk, joined to the model whose card names it (by hash on a v2 card, by run directory on a v1 one — and the row says which) |
 | 4 | `anchors` | a **measurement** is evidence and never training data; the error becomes a VeriPhysics `ReferenceComparison` |
@@ -203,6 +203,31 @@ the campaign could not:
 | 6 | `trust` | held-out error against the constant field, calibrated confidence, the gates |
 | 7 | `card`, `registry` | the versioned record and the index over it |
 | 8 | `shift`, `benchmarks/lpm_compare.py` | an outside corpus, validation only, and one table with the same gates |
+
+### The second round, and why a refined body never scores
+
+A fit that stops at the drawn space leaves the model uncertain wherever the sampler happened to leave a gap, and the
+campaign has no way to spend ten more simulations where they would buy the most. `--refine N` is that round:
+
+```
+python -m benchmarks.lpm_campaign --families pp_fin --refine 8
+```
+
+The scores are the model's own **calibrated confidence** on the designs it trained on; `space.refine` clusters the
+proposals at the decision threshold rather than at the worst-informed body, because a body already flagged as far
+outside teaches a model less per simulation than one it almost understands. The proposals become specs
+(`space.as_specs`, dropping anything the family's `validate` refuses), and `extend_dataset` writes them into the same
+dataset — one manifest, one list of what the model could have seen — with `refined_geometries` recording which ids the
+round introduced and `refinement` recording the round itself: the threshold, the scores it was chosen from, the
+labels. The refit is warm from the run being refined (`train(..., init_from=...)`), so the second round spends its
+epochs on the new bodies; the architecture comes off the parent's card, because a warm start across two architectures
+is a shape mismatch, not a transfer.
+
+What keeps the number honest: **a refined body is never held out**. It was simulated *because* the model was unsure
+about it, so it is evidence about the sampler, not about the model — `_split_by_geometry` draws the held-out bodies
+from the geometries the sampler drew and pins every refined one into training, and the card says so
+(`split.among_refined`). A dataset that carries a published split is not refined at all: somebody else fixed what
+"held out" means and a second round would stop being comparable with it.
 
 ## Three dimensions
 

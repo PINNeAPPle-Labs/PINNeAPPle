@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 
+import numpy as np
 import pytest
 import torch
 
@@ -329,3 +330,77 @@ def test_the_answer_carries_the_provenance_of_every_value_back():
     assert out.verdict in ("inside the trained family", "outside the trained family: the answer is an extrapolation")
     assert out.quantities["alpha_deg"]["provenance"] == "stated"
     assert out.as_dict()["n_points"] == 24
+
+
+# ------------------------------------------------------------------ stage 1: the second round
+class _Bar(FieldFamily):
+    """Two range parameters and a field that moves with both, so a refinement has somewhere to go."""
+
+    name = "pp_refine_bar"
+    dim = 2
+    field_names = ("cp",)
+    field_units = ("-",)
+    geometry_params = {"length_m": (0.5, 1.5)}
+    operating_params = {"alpha_deg": (-4.0, 12.0)}
+
+    def points_and_normals(self, spec):
+        n = 12
+        x = np.linspace(0.0, spec.geometry["length_m"], n)
+        return np.stack([x, np.zeros(n)], axis=1), np.tile(np.array([[0.0, 1.0]]), (n, 1))
+
+    def field(self, spec):
+        x = np.linspace(0.0, 1.0, 12)
+        return (spec.operating["alpha_deg"] * x ** 2)[:, None]
+
+    def validate(self, spec):
+        return "longer than the reference reaches" if spec.geometry["length_m"] > 2.0 else ""
+
+
+def test_a_refined_body_is_simulated_marked_and_never_held_out(tmp_path):
+    import pinneapple_neural.lpm_pipeline as pipeline
+
+    family = _Bar()
+    first = [DesignSpec(geometry={"length_m": 0.6 + 0.2 * g}, operating={"alpha_deg": 0.0 + g}, geometry_id=g,
+                        label=f"{family.name}:g{g:05d}:c00") for g in range(4)]
+    manifest = pipeline.generate_dataset(family, tmp_path / "d", specs=first, seed=0)
+    assert manifest["n_designs"] == 4 and manifest.get("refinement") is None
+
+    # the proposals continue past the drawn ids and carry the round in the label
+    proposals = [space.Proposal(geometry={"length_m": 1.1}, operating={"alpha_deg": 3.5}, reason="confidence 0.51")]
+    refined = space.as_specs(proposals, family, first_geometry_id=4)
+    assert [s.geometry_id for s in refined] == [4] and refined[0].label.endswith(":r00004:c00")
+    # a proposal the family refuses is dropped, not written
+    too_long = [space.Proposal(geometry={"length_m": 9.0}, operating={"alpha_deg": 0.0})]
+    assert space.as_specs(too_long, family, first_geometry_id=9) == []
+
+    grown = pipeline.extend_dataset(family, tmp_path / "d", refined, refinement={"round": 1, "proposed": 1})
+    assert grown["n_designs"] == 5 and grown["refined_geometries"] == [4]
+    assert grown["refinement"][0]["designs"] == [refined[0].label]
+    assert grown["created_at"] == manifest["created_at"] and grown["extended_at"] >= grown["created_at"]
+    # the same design twice is skipped rather than written twice
+    assert pipeline.extend_dataset(family, tmp_path / "d", refined)["n_designs"] == 5
+
+    train_idx, hold_idx = pipeline._split_by_geometry(grown, 0.5, seed=0)
+    held = {grown["designs"][i]["geometry_id"] for i in hold_idx}
+    assert len(held) == 2 and held <= {0, 1, 2, 3}           # half of the four *drawn* bodies, none of the refined one
+    assert 4 in {grown["designs"][i]["geometry_id"] for i in train_idx}
+
+
+def test_the_refinement_round_fits_warm_and_says_so_on_the_card(tmp_path, monkeypatch):
+    import pinneapple_neural.lpm_pipeline as pipeline
+    from benchmarks import lpm_campaign
+
+    family = _Bar()
+    monkeypatch.setattr(pipeline, "_family_by_name", lambda name: family)
+    dataset, root = tmp_path / "d", tmp_path / "run"
+    pipeline.generate_dataset(family, dataset, n_geometries=4, conditions_per_geometry=1, seed=0)
+    pipeline.train(dataset, root, epochs=2, batch_designs=2, width=24, code=8, n_heads=2, attn_layers=1,
+                   attn_heads=2, radii=(0.2, 0.8), seed=0, device="cpu")
+
+    out = lpm_campaign.refine_family(family.name, family, dataset, root, 2, seed=0, epochs=1)
+    assert out["added"] >= 1 and out["proposed"] == 2
+    assert (root / "model" / "refinement.json").is_file()
+    card = json.loads((root / "model" / "card.json").read_text())
+    assert card["dataset"]["refinement"][0]["round"] == 1
+    assert card["dataset"]["refined_geometries"] == out["geometry_ids"]
+    assert card["split"]["among_refined"] == out["geometry_ids"]        # refined bodies train, they do not score

@@ -359,14 +359,15 @@ def _write_progress(path: Path, payload: dict[str, Any]) -> None:
 
 
 def _progress(path: Path, *, kind: str, family: str, started_at: str, started: float, done: int, total: int,
-              finished: bool = False, **extra: Any) -> None:
+              finished: bool = False, resumed_from: int = 0, **extra: Any) -> None:
     """One progress record: what this stage has finished, how fast, and how long it still needs.
 
     ``kind`` is ``dataset`` (done/total designs) or ``fit`` (done/total epochs); both carry the same ``done``,
     ``total``, ``per_s`` and ``eta_s`` so a reader renders the two stages with one shape.
     """
     elapsed = max(time.monotonic() - started, 1e-9)
-    rate = done / elapsed if done else 0.0
+    done_now = done - resumed_from              # a resumed fit starts part-way, so the rate is what *this* run did
+    rate = done_now / elapsed if done_now else 0.0
     payload = {"schema": PROGRESS_SCHEMA, "kind": kind, "family": family,
                "started_at": started_at, "updated_at": datetime.now(UTC).isoformat(timespec="seconds"),
                "done": int(done), "total": int(total), "finished": bool(finished),
@@ -690,7 +691,8 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
           holdout_fraction: float = 0.25, seed: int = 0, width: int = 96, n_heads: int = 4,
           code: int = 32, n_freq: int = 6, backbone: str = "attention", attn_layers: int = 2,
           attn_heads: int = 4, batch_designs: int = 32, radii: tuple[float, float, float] = (0.1, 0.4, 1.2),
-          device: str | None = None, verbose: bool = False, progress_every_s: float = 0.0) -> dict[str, Any]:
+          device: str | None = None, verbose: bool = False, progress_every_s: float = 0.0,
+          resume: bool = False) -> dict[str, Any]:
     """Fit an LPM on a dataset and write the model and its card.
 
     The split is by geometry (see :func:`_split_by_geometry`); the reported error is therefore on bodies the model
@@ -700,6 +702,9 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
     ``progress_every_s`` writes ``model/progress.json`` at that interval while the fit runs — epoch of how many, the
     loss so far and the time still needed — so a four-hour fit is not one line of output at the end with nothing
     between. ``0``, the default, writes nothing.
+
+    ``resume`` keeps ``model/fit.pt`` while the fit runs (see :func:`~.lpm.fit`), so a run that is killed continues
+    from its last checkpoint instead of from epoch one; the file is gone once the fit finishes.
     """
     designs, manifest = load_dataset(dataset_dir)
     family_info = manifest["family"]
@@ -720,15 +725,18 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
     started_at = datetime.now(UTC).isoformat(timespec="seconds")
     progress_path = Path(out_dir) / "model" / "progress.json"
     first_loss: list[float] = []
+    resumed_from = [epochs]                       # lowered to the first epoch this run actually ran
     last_progress = [started]
 
     def _on_epoch(epoch: int, loss: float) -> None:
         if not first_loss:
             first_loss.append(loss)
+        resumed_from[0] = min(resumed_from[0], epoch - 1)    # a resumed fit reports the rate of this run, not of both
         now = time.monotonic()
         if now - last_progress[0] >= progress_every_s or epoch == epochs:
             _progress(progress_path, kind="fit", family=family_info["name"], started_at=started_at, started=started,
                       done=epoch, total=epochs, loss=round(loss, 8), loss_first=round(first_loss[0], 8),
+                      resumed_from=resumed_from[0],
                       n_train_designs=len(train_designs), n_holdout_designs=len(hold_designs), device=str(dev))
             last_progress[0] = now
 
@@ -739,7 +747,8 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
     else:
         on_epoch = None
     history = fit(model, train_designs, epochs=epochs, lr=lr, seed=seed,
-                  batch_designs=min(batch_designs, len(train_designs)), device=dev, on_epoch=on_epoch)
+                  batch_designs=min(batch_designs, len(train_designs)), device=dev, on_epoch=on_epoch,
+                  checkpoint_dir=(Path(out_dir) / "model") if resume else None)
     seconds = time.monotonic() - started
     if progress_every_s > 0:
         _progress(progress_path, kind="fit", family=family_info["name"], started_at=started_at, started=started,

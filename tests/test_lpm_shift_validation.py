@@ -269,3 +269,30 @@ def test_the_download_plan_takes_one_case_and_leaves_the_terabytes():
     two = shift.fetch_plan(files, 2)
     assert sum(1 for p in two if p.endswith("merged_surfaces.vtp")) == 2
     assert shift.fetch_plan([], 1) == []
+
+
+def test_a_case_releases_its_surface_so_a_corpus_of_cases_can_be_read_in_sequence(tmp_path):
+    """Six WING cases are 1.3 GB on disk and about as much decoded; a corpus builder that keeps every surface alive
+    runs the machine out of memory for six designs of 2 048 points each."""
+    _tree(tmp_path)
+    from pinneapple_neural.lpm_stages import shift as shift_module
+
+    seen = []
+    original = shift_module.design
+
+    def spy(sample, *args, **kwargs):
+        seen.append(sample._surface is not None or sample.surface(arrays=()) is not None)
+        return original(sample, *args, **kwargs)
+
+    shift_module.design = spy
+    try:
+        cases = _designs(tmp_path)
+    finally:
+        shift_module.design = original
+    assert len(cases) == 6 and all(seen)                 # every case was decoded ...
+    # ... and each one was dropped before the next was read, which is what `release` is for
+    sample = shift.open_sample(tmp_path / "RUN_7", "Wing-sample")
+    sample.surface(arrays=[])
+    assert sample._surface is not None
+    sample.release()
+    assert sample._surface is None

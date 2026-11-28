@@ -322,6 +322,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=None, help="cases to read from the SHIFT tree")
     parser.add_argument("--max-points", type=int, default=2048, help="points per case (the neighbourhood is O(PQ))")
     parser.add_argument("--designs", type=int, default=None, help="cap the held-out designs (a quick look)")
+    parser.add_argument("--train-designs", type=int, default=120,
+                        help="cap the designs a PhysicsNeMo baseline is fitted on (default 120: a full wing family "
+                             "is 900+ bodies, and its inputs are a grid per design, not a point cloud)")
     parser.add_argument("--domino-steps", type=int, default=0,
                         help="also train DoMINO on the training designs for this many steps (slow; 0 = skip)")
     parser.add_argument("--geotransolver-steps", type=int, default=0,
@@ -359,14 +362,23 @@ def main(argv: list[str] | None = None) -> int:
     if args.domino_steps or args.geotransolver_steps:
         from pinneapple_neural.lpm_stages import training
 
-        first = corpus["train"][0]
+        training_designs = corpus["train"]
+        cap = int(args.train_designs or 0)
+        if cap and len(training_designs) > cap:
+            # evenly spaced, like the held-out cap: the design files are ordered by geometry, so a prefix is a
+            # biased slice of the space and the baseline would be measured on the easy end of it
+            pick = np.unique(np.linspace(0, len(training_designs) - 1, cap).round().astype(int))
+            training_designs = [corpus["train"][i] for i in pick]
+        first = training_designs[0]
         shape = {"n_params": int(first.params.numel()), "n_fields": int(first.target.shape[-1])}
         for steps, cls in ((args.domino_steps, training.DoMINOMember),
                            (args.geotransolver_steps, training.GeoTransolverMember)):
             if not steps:
                 continue
             member = cls(**shape)
-            member.fit(corpus["train"], steps=steps)
+            member.fit(training_designs, steps=steps)
+            member.notes.append(f"fitted on {len(training_designs)} of the {len(corpus['train'])} training designs "
+                                f"(the cap is --train-designs {cap})")
             candidates.append(TrainingMember(member, family, name=member.name, budget=member.budget))
             for note in member.describe()["notes"]:
                 print(f"note: {note}")

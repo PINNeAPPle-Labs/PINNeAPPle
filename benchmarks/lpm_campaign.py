@@ -369,12 +369,14 @@ def refine_family(name: str, family: Any, dataset: Path, root: Path, n_new: int,
         return {"round": 1, "added": 0,
                 "note": "the dataset carries a published split: a refined body would train on a split somebody else "
                         "fixed, and the two rounds would stop being comparable"}
+    card = json.loads((root / "model" / "card.json").read_text(encoding="utf-8"))
     model = load_model(root)
-    # the same split the fit used, so the confidence being read is on bodies the model was trained on
-    train_idx, _ = _split_by_geometry(manifest, 0.25, seed)
+    # the split **the fit used**, read off its card: a refinement that scores bodies the fit held out, or misses
+    # bodies it trained on, is asking the model about the wrong designs
+    policy = card.get("split") or {}
+    fraction = float(policy.get("holdout_fraction", 0.25))
+    train_idx, _ = _split_by_geometry(manifest, fraction, int(policy.get("seed", seed)))
     training = [designs[i] for i in train_idx]
-    calibration = trust.calibrate(model, training)
-    scores = [trust.confidence(model, d, calibration)["confidence"] for d in training]
     records = [manifest["designs"][i] for i in train_idx]
 
     def _spec(record: Any) -> Any:
@@ -382,26 +384,39 @@ def refine_family(name: str, family: Any, dataset: Path, root: Path, n_new: int,
         return DesignSpec(geometry=dict(record["geometry"]), operating=dict(record["operating"]),
                           geometry_id=int(record["geometry_id"]), label=record["label"])
 
-    proposals = space.refine(scores, [_spec(r) for r in records], n_new, geometry_params=dict(family.geometry_params),
-                             threshold=threshold, seed=seed + 1)
-    first_id = max(int(r["geometry_id"]) for r in manifest["designs"]) + 1
-    specs = space.as_specs(proposals, family, first_geometry_id=first_id)
-    if not specs:
-        return {"round": 1, "proposed": len(proposals), "added": 0,
-                "note": "every proposal fell outside the family's declared ranges"}
-    round_info = {"round": 1, "proposed": len(proposals), "threshold": float(threshold),
-                  "scores": {"mean": float(sum(scores) / len(scores)), "min": min(scores), "max": max(scores)},
-                  "seed": int(seed), "policy": "cluster at the confidence threshold on the training designs"}
-    extend_dataset(family, dataset, specs, refinement=round_info)
-    if verbose:
-        print(f"  {name}: {len(specs)} refined bodies added, {len(proposals) - len(specs)} refused by validate")
+    rounds = list(manifest.get("refinement") or [])
+    if rounds and not (root / "model" / "refinement.json").is_file():
+        # the round is already in the dataset and only its refit is missing: proposing again would simulate a second
+        # set of bodies around a model that never saw the first one, and record both as the same round
+        specs: list[Any] = []
+        round_info = dict(rounds[-1])
+        if verbose:
+            print(f"  {name}: round {round_info.get('round')} is already in the dataset; refitting without proposing")
+    else:
+        # one pass over the training designs: the knots come from the scores and the confidence is that map applied
+        # to the same numbers. Measuring them twice cost minutes per round on the GPU, before any epoch ran.
+        measured = [float(model.ood(d)["ood_score"]) for d in training]
+        calibration = trust.calibrate_from_scores(measured)
+        scores = [float(calibration(value)) for value in measured]
+        proposals = space.refine(scores, [_spec(r) for r in records], n_new,
+                                 geometry_params=dict(family.geometry_params), threshold=threshold, seed=seed + 1)
+        first_id = max(int(r["geometry_id"]) for r in manifest["designs"]) + 1
+        specs = space.as_specs(proposals, family, first_geometry_id=first_id)
+        if not specs:
+            return {"round": len(rounds) + 1, "proposed": len(proposals), "added": 0,
+                    "note": "every proposal fell outside the family's declared ranges"}
+        round_info = {"round": len(rounds) + 1, "proposed": len(proposals), "threshold": float(threshold),
+                      "scores": {"mean": float(sum(scores) / len(scores)), "min": min(scores), "max": max(scores)},
+                      "seed": int(seed), "policy": "cluster at the confidence threshold on the training designs"}
+        extend_dataset(family, dataset, specs, refinement=round_info)
+        if verbose:
+            print(f"  {name}: {len(specs)} refined bodies added, {len(proposals) - len(specs)} refused by validate")
 
     parent = root / "refinement" / "parent"
     (parent / "model").mkdir(parents=True, exist_ok=True)
     shutil.copy2(root / "model" / "model.pt", parent / "model" / "model.pt")
     # the second round is the same model as the first or it cannot be warm-started from it, so the architecture comes
     # off the parent's card rather than out of this function's arguments
-    card = json.loads((root / "model" / "card.json").read_text(encoding="utf-8"))
     config = card["model"]["config"]
     summary = train(dataset, root, epochs=epochs, seed=seed, init_from=parent, resume=True,
                     progress_every_s=progress_every_s,

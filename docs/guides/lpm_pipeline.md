@@ -189,6 +189,12 @@ corpus that states the same inputs, which is what the campaign's own split alrea
 
 ### The rest of the stages
 
+`pinneapple_neural.lpm_pipeline` runs its own five stages — draw, build, write, fit, card — and the writing and the
+fitting now live in `lpm_stages/dataset.py` and `lpm_stages/fit.py`, with the pipeline re-exporting them so every
+existing import still works. That is a split by what the code does, not a second numbering: the two modules keep the
+pipeline's own stage numbers in their docstrings, while the table below uses the `lpm_stages` numbering, where stage 3
+is the catalogue and stage 4 the anchors.
+
 The nine stages of `pinneapple_neural.lpm_stages` are not all extracted, and the ones that are each answer a question
 the campaign could not:
 

@@ -167,7 +167,7 @@ def test_without_a_member_the_table_still_declares_the_published_numbers():
 
 @needs_domino
 def test_the_member_joins_a_physics_ensemble_with_its_provenance(alpha):
-    from pinneapple_physics.ensemble import PhysicsEnsemble, Expert
+    from pinneapple_physics.ensemble import Expert, PhysicsEnsemble
 
     member = physicsnemo_models.DoMINOMember(seed=0).fit([alpha.case(run) for run in range(1, 4)], steps=10)
     expert = member.expert()

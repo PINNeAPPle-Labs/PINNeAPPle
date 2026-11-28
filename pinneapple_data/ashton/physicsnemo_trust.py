@@ -201,7 +201,7 @@ def cross_family_with_domino(root: str | Path, *, train_family: str = "alpha", t
     wrapper would be passed once its wheels are installed. The fixture is written once under ``root`` and read back
     through the reader, so every number is measured on a file.
     """
-    from pinneapple_physics.ensemble import PhysicsEnsemble, Expert
+    from pinneapple_physics.ensemble import Expert, PhysicsEnsemble
 
     base = Path(root) / f"pnemo_train_{train_family}"
     if not (base / "run_1").is_dir():

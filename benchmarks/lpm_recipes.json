@@ -20,7 +20,7 @@
  "families": {
   "pp_fin": {"full": {"geometries": 400, "conditions": 3, "epochs": 600, "width": 128},
              "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
-  "pp_airfoil": {"full": {"geometries": 400, "conditions": 4, "epochs": 600, "width": 128},
+  "pp_airfoil": {"full": {"geometries": 900, "conditions": 4, "epochs": 600, "width": 128},
                  "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},
   "pp_nozzle": {"full": {"geometries": 400, "conditions": 4, "epochs": 600, "width": 128},
                 "smoke": {"geometries": 2, "conditions": 1, "epochs": 5, "width": 32}},

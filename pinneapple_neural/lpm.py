@@ -388,8 +388,10 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
 
     Bagging: each ensemble head sees its own bootstrap resample of the designs (fixed per call),
     so the spread between heads reflects how much the training designs constrain a prediction.
-    ``batch_designs`` trains that many designs per optimizer step (padded and masked, so the
-    result per design is the same as training it alone); ``None`` keeps the one-design loop.
+    ``batch_designs`` walks the designs that many per backward (padded and masked, so the result
+    per design is the same as training it alone) and steps the optimizer once per epoch; what it
+    bounds is the memory of a backward, which is what makes ~1000 designs trainable. ``None`` puts
+    every design in a single chunk and is only reasonable for a handful of them.
 
     ``on_epoch(epoch, loss)`` is called after every epoch, ``epoch`` counted from 1, and is how a caller reports
     progress on a fit that runs for hours; the default ``None`` costs one comparison per epoch and writes nothing.
@@ -411,7 +413,7 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
     hist = []
     for epoch in range(1, epochs + 1):
         opt.zero_grad()
-        loss = 0.0
+        total = 0.0
         for idx in chunks:
             b = stack_designs([designs[i] for i in idx], device=device)
             pred = model._members_batch(b)  # (H, B, Q, f)
@@ -420,11 +422,16 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
             err = (((pred - b.target[None]) ** 2) * m).sum(dim=(-1, -2)) / (
                 b.query_mask.sum(-1).clamp_min(1).to(pred.dtype)[None, :] * fields)  # (H, B)
             w = weights[:, idx].to(err.device)
-            loss = loss + (w * err).sum() / H
-        loss.backward()
+            chunk = (w * err).sum() / H
+            # One backward per chunk and one step per epoch is the same update as summing every chunk and calling
+            # backward once — the gradient is additive — but only one chunk's graph is alive at a time. Summing the
+            # graphs of pp_wing3d's 150 chunks (960 points, attention quadratic in them) reached 4.4 GB and the fit
+            # was killed before it finished its first epoch.
+            chunk.backward()
+            total = total + chunk.detach()
         opt.step()
         sched.step()
-        hist.append(float(loss.detach()))
+        hist.append(float(total))
         if on_epoch is not None:
             on_epoch(epoch, hist[-1])
     model.remember_training_set(designs)

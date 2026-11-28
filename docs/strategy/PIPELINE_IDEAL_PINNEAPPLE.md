@@ -91,10 +91,11 @@ todo forward — chamado em `lpm.py:313`, dentro de `_members_batch`. Os designs
 
 **Falta:** o cache.
 
-**Construir:** no estágio 3 (escrever o dataset), pré-computar por design os índices de vizinhança de cada raio e
-guardar no `.npz` (índices `int32` + offsets, uma vez); `_multiscale` passa a ler do batch em vez de calcular. Medir
-antes/depois com o mesmo fit do wing (600 épocas) e registrar no changelog. Custo: dias. É o **maior ROI** da lista, e
-muda a escala do que cabe numa noite: as 11 famílias hoje levam ~34 h.
+**Construir (feito):** no estágio 3, as features de vizinhança são calculadas **uma vez por design** e guardadas no
+`.npz`; `_multiscale` lê do batch em vez de recalcular. Medido nos dados da campanha: **1,6× por época no
+`pp_wing3d`** (960 pontos, batch 24) e **2,2× no `pp_fin`** (111 pontos), com o histórico de loss idêntico até 1e-6.
+**Não** são os 50× deles: o gargalo deles era o carregamento famintos de GPU; o nosso `cdist` é só parte do forward.
+O número é este, não a analogia.
 
 ## 6. PhysicsNeMo (DoMINO/GeoTransolver), arquitetura própria, templates, GPU e fine-tune
 

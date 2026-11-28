@@ -379,7 +379,8 @@ def _progress(path: Path, *, kind: str, family: str, started_at: str, started: f
 
 def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: int = 32,
                      conditions_per_geometry: int = 3, seed: int = 0, verbose: bool = False,
-                     progress_every_s: float = 0.0) -> dict[str, Any]:
+                     progress_every_s: float = 0.0, radii: tuple[float, ...] = (0.1, 0.4, 1.2),
+                     cache_local: bool = True) -> dict[str, Any]:
     """Run the family's reference on a drawn design space and write it as a dataset.
 
     The dataset is what the next stages read: one ``.npz`` per design (points, normals, query, params, target) and a
@@ -408,11 +409,17 @@ def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: 
     per_geometry: dict[int, int] = {}
     for position, spec in enumerate(specs, start=1):
         design = build(family, spec)
+        if cache_local:
+            from .lpm import multiscale_neighbourhood
+            # once per design, at the moment the geometry is fixed: the fit reads these instead of rebuilding the
+            # same distance matrices on every epoch (the geometry never changes during a fit)
+            design.local = multiscale_neighbourhood(design.query, design.points, design.normals, radii)
         name = spec.label.replace(":", "_") + ".npz"
         path = designs_dir / name
         np.savez(path,
                  points=design.points.numpy(), normals=design.normals.numpy(), query=design.query.numpy(),
-                 params=design.params.numpy(), target=design.target.numpy())
+                 params=design.params.numpy(), target=design.target.numpy(),
+                 **({"local": design.local.numpy()} if design.local is not None else {}))
         records.append({**spec.as_dict(), "file": f"designs/{name}", "sha256": _sha256(path),
                         "n_points": int(design.points.shape[0]), "n_fields": int(design.target.shape[1])})
         fields_total += int(design.target.numel())
@@ -436,6 +443,7 @@ def generate_dataset(family: FieldFamily, out_dir: str | Path, *, n_geometries: 
         "n_values": fields_total,
         "seconds": round(time.monotonic() - started, 3),
         "designs": records,
+        "local": {"radii": list(radii), "cached": bool(cache_local)},
         "note": ("every field in this dataset was produced by the family's own reference (see "
                  "family.reference); no solver was run unless that reference says implements=solver"),
     }
@@ -459,6 +467,7 @@ def load_dataset(dataset_dir: str | Path) -> tuple[list[Design], dict[str, Any]]
                 query=torch.tensor(data["query"], dtype=torch.float32),
                 params=torch.tensor(data["params"], dtype=torch.float32),
                 target=torch.tensor(data["target"], dtype=torch.float32),
+                local=torch.tensor(data["local"], dtype=torch.float32) if "local" in data else None,
             ))
     return designs, manifest
 
@@ -707,6 +716,11 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
     from its last checkpoint instead of from epoch one; the file is gone once the fit finishes.
     """
     designs, manifest = load_dataset(dataset_dir)
+    # the dataset caches the neighbourhood features for the radii it was written with; fitting with other radii would
+    # make that cache unusable and pay the distance matrix again on every step, so the manifest wins.
+    cached = tuple((manifest.get("local") or {}).get("radii") or ())
+    if cached and tuple(radii) != cached:
+        radii = cached
     family_info = manifest["family"]
     published = _family_by_name(family_info["name"]).published_split(manifest["designs"])
     train_idx, hold_idx = published if published is not None else _split_by_geometry(

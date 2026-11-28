@@ -195,8 +195,10 @@ primeiro piloto existir.
 
 O gargalo de treino deles era **recalcular a relação entre pontos vizinhos a cada passo**; o cache valeu 50× por época.
 O nosso `_multiscale` faz exatamente isso: `torch.cdist(query, points)` em todo forward (`lpm.py:81`, chamado em
-`lpm.py:313`), com designs que **não mudam**. É o mesmo erro, na mesma arquitetura de dados, e está medido do lado
-deles: o ganho não é de 5%, é de ordem de grandeza.
+`lpm.py:313`), com designs que **não mudam**. É o mesmo erro na mesma arquitetura de dados — mas **medido do nosso
+lado dá 1,6× no wing e 2,2× no fin** (4 epochs, 400 designs, batch 24), não os 50× deles: o ganho deles vinha de
+descongestionar o *carregamento* numa GPU faminta, e o nosso `cdist` é só uma parte do forward. Fica o cache, que é
+grátis; não fica a expectativa de ordem de grandeza.
 
 ## 5. O que já está do nosso lado
 

@@ -152,6 +152,37 @@ def test_fit_resumes_from_its_checkpoint(tmp_path):
     assert len(fit(m2, designs, epochs=1, batch_designs=3, checkpoint_dir=tmp_path, checkpoint_every_s=0.0)) == 1
 
 
+def test_the_neighbourhood_cache_gives_the_same_fit():
+    """Caching the multiscale features must not change a single number — it only stops recomputing them.
+
+    ``_multiscale`` rebuilds the query-to-surface distance matrix on every forward, and the geometry never changes
+    during a fit. Storing the features once per design is the cache Luminary's 50x came from.
+    """
+    radii = (0.2, 0.8)
+    designs = ellipse_design_space(6, n_points=32, seed=7)
+    cached = [Design(d.points, d.normals, d.query, d.params, d.target,
+                     multiscale_neighbourhood(d.query, d.points, d.normals, radii))
+              for d in designs]
+
+    def fresh():
+        torch.manual_seed(0)
+        return LargePhysicsModel(dim=2, n_fields=1, radii=radii, width=24, n_heads=2, backbone="attention",
+                                 attn_heads=2, attn_layers=1)
+
+    a, b = fresh(), fresh()
+    b.load_state_dict(a.state_dict())
+    assert fit(a, designs, epochs=2, batch_designs=3) == pytest.approx(
+        fit(b, cached, epochs=2, batch_designs=3), rel=1e-6)
+
+    # a cache built for another radius set is ignored, not trusted: the fit equals the uncached one
+    wrong = [Design(d.points, d.normals, d.query, d.params, d.target,
+                    multiscale_neighbourhood(d.query, d.points, d.normals, (0.5,))) for d in designs]
+    c, e = fresh(), fresh()
+    e.load_state_dict(c.state_dict())
+    assert fit(c, designs, epochs=2, batch_designs=3) == pytest.approx(
+        fit(e, wrong, epochs=2, batch_designs=3), rel=1e-6)
+
+
 def test_design_space_builds_scale_with_the_exact_answer():
     """``ellipse_design_space`` is the benchmark family, with the analytic potential-flow Cp as target."""
     designs = ellipse_design_space(120, n_points=32, seed=5)

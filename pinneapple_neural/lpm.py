@@ -163,6 +163,10 @@ class Design:
     query: torch.Tensor  # (Q, d) where the field is known/predicted
     params: torch.Tensor  # (p,) operating parameters (may be empty)
     target: torch.Tensor | None = None  # (Q, f)
+    # (Q, R*(2d+1)) multiscale neighbourhood features, when they were computed once and stored: the geometry does not
+    # change during a fit, so rebuilding the same distance matrix on every step is pure waste. ``stack_designs``
+    # carries them into the batch and the model reads them instead of recomputing.
+    local: torch.Tensor | None = None
 
     @classmethod
     def ellipse(cls, a: float, b: float, n: int = 128) -> Design:
@@ -208,6 +212,7 @@ class DesignBatch:
     query_mask: torch.Tensor  # (B, Q) bool
     params: torch.Tensor  # (B, p)
     target: torch.Tensor | None = None  # (B, Q, f)
+    local: torch.Tensor | None = None  # (B, Q, R*(2d+1)) cached neighbourhood features
 
     @property
     def batch_size(self) -> int:
@@ -219,7 +224,7 @@ class DesignBatch:
             return None if t is None else t.to(device)
 
         return DesignBatch(move(self.points), move(self.normals), move(self.point_mask), move(self.query),
-                           move(self.query_mask), move(self.params), move(self.target))
+                           move(self.query_mask), move(self.params), move(self.target), move(self.local))
 
 
 def stack_designs(designs: Sequence[Design], device=None) -> DesignBatch:
@@ -241,6 +246,8 @@ def stack_designs(designs: Sequence[Design], device=None) -> DesignBatch:
     query_mask = torch.zeros(B, Q, dtype=torch.bool, device=dev)
     params = torch.zeros(B, p_dim, device=dev)
     target = torch.zeros(B, Q, fields, device=dev) if fields is not None else None
+    width = next((int(d.local.shape[1]) for d in designs if d.local is not None), 0)
+    local = torch.zeros(B, Q, width, device=dev) if width else None
     for i, d in enumerate(designs):
         p, q = len(d.points), len(d.query)
         points[i, :p] = d.points.to(dev)
@@ -252,7 +259,11 @@ def stack_designs(designs: Sequence[Design], device=None) -> DesignBatch:
             params[i, :d.params.numel()] = d.params.to(dev)
         if target is not None and d.target is not None:
             target[i, :q] = d.target.to(dev)
-    return DesignBatch(points, normals, point_mask, query, query_mask, params, target)
+        if local is not None and d.local is not None:
+            local[i, :q] = d.local.to(dev)
+    if local is not None and any(d.local is None for d in designs):
+        local = None                      # all or nothing: a half-cached batch would mix two feature pipelines
+    return DesignBatch(points, normals, point_mask, query, query_mask, params, target, local)
 
 
 def ellipse_design_space(n: int, *, n_points: int = 64, a_range: tuple[float, float] = (0.6, 1.4),
@@ -310,7 +321,13 @@ class LargePhysicsModel(nn.Module):
         """Ensemble members for a padded batch: (H, B, Q, f)."""
         Q = b.query.shape[1]
         g = self.geo(b.points, b.normals, b.point_mask)  # (B, code)
-        local = torch.cat([self.enc(b.query), _multiscale(b.query, b.points, b.normals, b.point_mask, self.radii)], -1)
+        # the neighbourhood features are cached when the dataset was written with the same radii as this model; a
+        # cache of another width is not this model's features and is recomputed rather than trusted
+        width = len(self.radii) * (2 * b.query.shape[-1] + 1)
+        neighbourhood = b.local if b.local is not None and b.local.shape[-1] == width else None
+        if neighbourhood is None:
+            neighbourhood = _multiscale(b.query, b.points, b.normals, b.point_mask, self.radii)
+        local = torch.cat([self.enc(b.query), neighbourhood], -1)
         cond = [g[:, None, :].expand(-1, Q, -1)]
         if b.params.numel():
             cond.append(b.params[:, None, :].expand(-1, Q, -1))

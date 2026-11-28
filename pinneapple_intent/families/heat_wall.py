@@ -129,6 +129,19 @@ class HeatWall(StudyFamily):
         """The wall's own thickness: a grid coarser than that cannot show the gradient through it."""
         return numeric(contract.get("thickness"), 0.04)
 
+    # os mesmos rótulos em português, para a tela mostrar o método no idioma do pedido
+    def analytic_label_pt(self) -> str:
+        return "resistências em série, forma fechada"
+
+    def analytic_method_pt(self) -> str:
+        return "condução estacionária unidimensional com a película convectiva em série"
+
+    def numerical_label_pt(self) -> str:
+        return "célula finita imersa, bidimensional"
+
+    def numerical_method_pt(self) -> str:
+        return "pinneapple_simulation.immersed.solve_heat numa caixa da parede: face quente fixada na temperatura, convecção na face fria, bordas isoladas"
+
     def analytic_label(self) -> str:
         return "series-resistance closed form"
 

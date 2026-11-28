@@ -119,16 +119,38 @@ class StudyFamily:
 
     def ladder(self) -> tuple[Rung, ...]:
         return (
-            Rung(ANALYTIC, self.analytic_label(), self.analytic_method(), modules=self.analytic_modules()),
+            Rung(ANALYTIC, self.analytic_label(), self.analytic_method(), modules=self.analytic_modules(),
+                 label_pt=self.analytic_label_pt(), method_pt=self.analytic_method_pt()),
             Rung(NUMERICAL, self.numerical_label(), self.numerical_method(),
-                 modules=("pinneapple_simulation.immersed",)),
+                 modules=("pinneapple_simulation.immersed",),
+                 label_pt=self.numerical_label_pt(), method_pt=self.numerical_method_pt()),
             Rung(CONVERGENCE, "the same solver on two grids",
                  "the numerical rung repeated at a coarser and a finer spacing, and the change of the quantity "
-                 "of interest between them", modules=("pinneapple_simulation.immersed",)),
+                 "of interest between them", modules=("pinneapple_simulation.immersed",),
+                 label_pt="o mesmo solver em duas malhas",
+                 method_pt="a etapa numérica repetida num espaçamento mais grosso e noutro mais fino, e a mudança da "
+                           "grandeza de interesse entre os dois"),
             Rung(SURROGATE, "a surrogate trained on the solver",
                  "a sweep over one input run through the numerical rung, a regression fitted to it, and its "
-                 "relative error on designs held out of the fit", modules=("pinneapple_simulation.immersed",)),
+                 "relative error on designs held out of the fit", modules=("pinneapple_simulation.immersed",),
+                 label_pt="um substituto treinado no solver",
+                 method_pt="uma varredura de uma entrada pela etapa numérica, uma regressão ajustada a ela, e o erro "
+                           "relativo nos projetos deixados fora do ajuste"),
         )
+
+    #: os mesmos rótulos em português. A família que não os declara devolve vazio, e a tela mostra o inglês — uma
+    #: tradução inventada para o nome de um método seria pior do que o nome original.
+    def analytic_label_pt(self) -> str:
+        return ""
+
+    def analytic_method_pt(self) -> str:
+        return ""
+
+    def numerical_label_pt(self) -> str:
+        return ""
+
+    def numerical_method_pt(self) -> str:
+        return ""
 
     def analytic_label(self) -> str:
         return "closed form"

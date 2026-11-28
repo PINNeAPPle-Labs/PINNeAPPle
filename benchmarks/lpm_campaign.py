@@ -330,7 +330,7 @@ def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: i
         _log(f"{name}: refining — {refine} bodies where the model's confidence is weakest, then a warm refit")
         started = time.monotonic()
         round_out = refine_family(name, family, dataset, root, refine, seed=seed, epochs=recipe["epochs"],
-                                  verbose=verbose)
+                                  progress_every_s=progress_every_s, verbose=verbose)
         round_out["seconds"] = round(time.monotonic() - started, 1)
         result["refinement"] = round_out
         _log(f"{name}: refined {round_out.get('added', 0)} bodies, held-out "
@@ -340,7 +340,8 @@ def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: i
 
 
 def refine_family(name: str, family: Any, dataset: Path, root: Path, n_new: int, *, seed: int,
-                  epochs: int, threshold: float = 0.5, verbose: bool = False) -> dict[str, Any]:
+                  epochs: int, threshold: float = 0.5, progress_every_s: float = 0.0,
+                  verbose: bool = False) -> dict[str, Any]:
     """Stage 1's second round: simulate where the model is least sure, then refit warm from where it was.
 
     The scores are the model's own confidence on the **training** designs (:mod:`pinneapple_neural.lpm_stages.trust`),
@@ -403,6 +404,7 @@ def refine_family(name: str, family: Any, dataset: Path, root: Path, n_new: int,
     card = json.loads((root / "model" / "card.json").read_text(encoding="utf-8"))
     config = card["model"]["config"]
     summary = train(dataset, root, epochs=epochs, seed=seed, init_from=parent, resume=True,
+                    progress_every_s=progress_every_s,
                     batch_designs=min(24, max(4, manifest["n_geometries"] + len(specs))),
                     **{key: config[key] for key in ("width", "code", "n_heads", "n_freq", "backbone",
                                                     "attn_layers", "attn_heads") if key in config})

@@ -1,0 +1,100 @@
+{
+ "curated": "2026-10-18 16:42 UTC",
+ "lang": "en",
+ "files": {
+  "mp4": "docs/assets/showcase/showcase_en.mp4",
+  "gif": "docs/assets/showcase/showcase_en.gif",
+  "png": "docs/assets/showcase/showcase_en.png"
+ },
+ "sizes_bytes": {
+  "mp4": 1817573,
+  "gif": 5720446,
+  "png": 985861
+ },
+ "tiles": [
+  {
+   "slot": "hero",
+   "item": "repo_results/ahmed_body",
+   "tier": "A",
+   "figure": "ahmed_streamlines.jpg",
+   "evidence": "drag vs wind tunnel (Ahmed, Ramm & Faltin, 1984)"
+  },
+  {
+   "slot": "grid",
+   "item": "repo_results/ahmed_body",
+   "tier": "A",
+   "figure": "ahmed_cp.jpg",
+   "evidence": "drag vs wind tunnel (Ahmed 1984)"
+  },
+  {
+   "slot": "grid",
+   "item": "repo_results/prius_pmsm",
+   "tier": "A",
+   "figure": "prius_10_pmsm_field.png",
+   "evidence": "torque vs published FEA (Yang et al. 2013)"
+  },
+  {
+   "slot": "grid",
+   "item": "particle_suspension",
+   "tier": "A",
+   "figure": "stirred_tank.gif",
+   "evidence": "vs Zwietering and Schiller–Naumann"
+  },
+  {
+   "slot": "grid",
+   "item": "calculix_case/l_bracket",
+   "tier": "A",
+   "figure": "von_mises_render.jpg",
+   "evidence": "bending vs Mc/I · mesh converged"
+  },
+  {
+   "slot": "grid",
+   "item": "calculix_case/plate_hole",
+   "tier": "A",
+   "figure": "von_mises_render.jpg",
+   "evidence": "stress vs Heywood"
+  },
+  {
+   "slot": "grid",
+   "item": "solid_fem/simply_supported",
+   "tier": "A",
+   "figure": "loading.gif",
+   "evidence": "deflection vs Timoshenko and CalculiX"
+  },
+  {
+   "slot": "grid",
+   "item": "solid_fem/torsion",
+   "tier": "A",
+   "figure": "loading.gif",
+   "evidence": "vs Saint-Venant and CalculiX"
+  },
+  {
+   "slot": "grid",
+   "item": "bar_wear/tungsten carbide",
+   "tier": "A",
+   "figure": "worn_end_render.jpg",
+   "evidence": "contact vs Winkler · Archard"
+  },
+  {
+   "slot": "grid",
+   "item": "pipe_flow/bend_90",
+   "tier": "A",
+   "figure": "streamlines.jpg",
+   "evidence": "friction vs Colebrook · loss vs Ito"
+  },
+  {
+   "slot": "b",
+   "item": "rom_study/cylinder_wake",
+   "tier": "B",
+   "figure": "wake_truth_vs_rom.gif",
+   "evidence": "POD mode pair holds the energy · beats persistence"
+  },
+  {
+   "slot": "b",
+   "item": "pipe_flow/kenics_mixer",
+   "tier": "B",
+   "figure": "streamlines.jpg",
+   "evidence": "mass conserved · beats an empty pipe"
+  }
+ ]
+}

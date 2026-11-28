@@ -1,0 +1,405 @@
+{
+ "environment": "CPython 3.11.16 on darwin",
+ "note": "Licences are read from installed metadata: PEP 639 License-Expression, else the trove classifier, else the short License field. `unobserved` names the dependencies this environment did not have installed; `unreadable` the ones it had, whose metadata declares no licence. Neither is guessed.",
+ "packages": {
+  "CoolProp": {
+   "licence": "MIT License",
+   "version": "8.1.0"
+  },
+  "PyWavelets": {
+   "licence": "MIT AND BSD-3-Clause",
+   "version": "1.9.0"
+  },
+  "accelerate": {
+   "licence": "Apache Software License",
+   "version": "1.16.0"
+  },
+  "anthropic": {
+   "licence": "Apache Software License",
+   "version": "2.14.0"
+  },
+  "argon2-cffi": {
+   "licence": "MIT",
+   "version": "25.1.0"
+  },
+  "astroML": {
+   "licence": "BSD License",
+   "version": "1.0.2.post1"
+  },
+  "astropy": {
+   "licence": "BSD-3-Clause",
+   "version": "8.0.3"
+  },
+  "asyncua": {
+   "licence": "GNU Lesser General Public License v3 or later (LGPLv3+)",
+   "version": "2.1.0"
+  },
+  "basyx-python-sdk": {
+   "licence": "MIT",
+   "version": "2.2.0"
+  },
+  "build": {
+   "licence": "MIT",
+   "version": "1.6.1"
+  },
+  "cadquery": {
+   "licence": "Apache Software License",
+   "version": "2.8.0"
+  },
+  "cryptography": {
+   "licence": "Apache-2.0 OR BSD-3-Clause",
+   "version": "50.0.2"
+  },
+  "datasets": {
+   "licence": "Apache Software License",
+   "version": "5.2.0"
+  },
+  "earthaccess": {
+   "licence": "MIT",
+   "version": "0.17.0"
+  },
+  "fast-simplification": {
+   "licence": "MIT",
+   "version": "0.2.0"
+  },
+  "fastapi": {
+   "licence": "MIT",
+   "version": "0.150.0"
+  },
+  "gmsh": {
+   "licence": "GNU General Public License v2 or later (GPLv2+)",
+   "version": "4.15.2"
+  },
+  "h5py": {
+   "licence": "BSD-3-Clause",
+   "version": "3.16.0"
+  },
+  "httpx": {
+   "licence": "BSD License",
+   "version": "0.28.1"
+  },
+  "huggingface_hub": {
+   "licence": "Apache Software License",
+   "version": "2.4.0"
+  },
+  "imageio": {
+   "licence": "BSD-2-Clause",
+   "version": "2.38.2"
+  },
+  "ipykernel": {
+   "licence": "BSD-3-Clause",
+   "version": "7.4.0"
+  },
+  "jax": {
+   "licence": "Apache-2.0",
+   "version": "0.10.2"
+  },
+  "jax-cfd": {
+   "licence": "Apache 2.0",
+   "version": "0.2.1"
+  },
+  "joblib": {
+   "licence": "BSD-3-Clause",
+   "version": "1.6.0"
+  },
+  "jupyter": {
+   "licence": "BSD License",
+   "version": "1.1.1"
+  },
+  "kafka-python": {
+   "licence": "Apache-2.0",
+   "version": "3.0.13"
+  },
+  "kaleido": {
+   "licence": "The MIT License (MIT)",
+   "version": "1.5.2"
+  },
+  "manifold3d": {
+   "licence": "Apache Software License",
+   "version": "3.5.5"
+  },
+  "mapbox-earcut": {
+   "licence": "ISC License (ISCL)",
+   "version": "2.1.0"
+  },
+  "matplotlib": {
+   "licence": "Python Software Foundation License",
+   "version": "3.11.2"
+  },
+  "mcp": {
+   "licence": "MIT License",
+   "version": "2.3.0"
+  },
+  "meshio": {
+   "licence": "MIT License",
+   "version": "5.3.5"
+  },
+  "miepython": {
+   "licence": "MIT",
+   "version": "3.3.1"
+  },
+  "mlflow": {
+   "licence": "Apache Software License",
+   "version": "3.18.0"
+  },
+  "mpi4py": {
+   "licence": "BSD-3-Clause",
+   "version": "4.1.2"
+  },
+  "mujoco": {
+   "licence": "Apache-2.0",
+   "version": "4.0.1"
+  },
+  "mujoco-mjx": {
+   "licence": "Apache-2.0",
+   "version": "4.0.1"
+  },
+  "mypy": {
+   "licence": "MIT",
+   "version": "2.4.1"
+  },
+  "newton": {
+   "licence": "Apache-2.0",
+   "version": "1.8.0"
+  },
+  "numba": {
+   "licence": "BSD License",
+   "version": "0.68.1"
+  },
+  "numpy": {
+   "licence": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+   "version": "2.4.6"
+  },
+  "onnx": {
+   "licence": "Apache-2.0",
+   "version": "1.23.2"
+  },
+  "onnxruntime": {
+   "licence": "MIT License",
+   "version": "1.32.0"
+  },
+  "open3d": {
+   "licence": "MIT License",
+   "version": "0.20.0"
+  },
+  "openai": {
+   "licence": "Apache-2.0",
+   "version": "3.59.0"
+  },
+  "optuna": {
+   "licence": "MIT License",
+   "version": "5.1.0"
+  },
+  "paho-mqtt": {
+   "licence": "EPL-2.0 OR BSD-3-Clause",
+   "version": "2.2.0"
+  },
+  "pandas": {
+   "licence": "BSD-3-Clause",
+   "version": "3.1.1"
+  },
+  "pdfminer.six": {
+   "licence": "MIT",
+   "version": "20260107"
+  },
+  "peft": {
+   "licence": "Apache Software License",
+   "version": "0.22.0"
+  },
+  "pillow": {
+   "licence": "MIT-CMU",
+   "version": "11.3.0"
+  },
+  "plotly": {
+   "licence": "MIT License",
+   "version": "5.24.1"
+  },
+  "pmdarima": {
+   "licence": "MIT",
+   "version": "2.1.1"
+  },
+  "prefect": {
+   "licence": "Apache Software License",
+   "version": "3.9.5"
+  },
+  "psutil": {
+   "licence": "BSD-3-Clause",
+   "version": "7.2.2"
+  },
+  "pyarrow": {
+   "licence": "Apache-2.0",
+   "version": "26.0.1"
+  },
+  "pydantic": {
+   "licence": "MIT",
+   "version": "2.14.4"
+  },
+  "pymodbus": {
+   "licence": "BSD License",
+   "version": "3.16.2"
+  },
+  "pymsis": {
+   "licence": "MIT License",
+   "version": "0.13.0"
+  },
+  "pytest": {
+   "licence": "MIT",
+   "version": "9.2.0"
+  },
+  "pytest-cov": {
+   "licence": "MIT",
+   "version": "7.1.0"
+  },
+  "pythonfmu": {
+   "licence": "MIT License",
+   "version": "0.7.0"
+  },
+  "pyvista": {
+   "licence": "MIT",
+   "version": "0.49.3"
+  },
+  "pyyaml": {
+   "licence": "MIT License",
+   "version": "6.0.4"
+  },
+  "reportlab": {
+   "licence": "BSD License",
+   "version": "5.1.1"
+  },
+  "requests": {
+   "licence": "Apache Software License",
+   "version": "2.34.2"
+  },
+  "rerun-sdk": {
+   "licence": "MIT OR Apache-2.0",
+   "version": "0.43.2"
+  },
+  "ruff": {
+   "licence": "MIT",
+   "version": "0.17.6"
+  },
+  "safetensors": {
+   "licence": "Apache Software License",
+   "version": "0.8.0"
+  },
+  "scikit-learn": {
+   "licence": "BSD-3-Clause",
+   "version": "1.9.1"
+  },
+  "scipy": {
+   "licence": "BSD License",
+   "version": "1.17.1"
+  },
+  "sentence-transformers": {
+   "licence": "Apache-2.0",
+   "version": "6.3.0"
+  },
+  "sgp4": {
+   "licence": "MIT",
+   "version": "2.27"
+  },
+  "skyfield": {
+   "licence": "MIT License",
+   "version": "1.55"
+  },
+  "skyfield-data": {
+   "licence": "MIT License",
+   "version": "7.0.0"
+  },
+  "smlibpy": {
+   "licence": "MIT AND Apache-2.0 AND OFL-1.1",
+   "version": "0.6.2"
+  },
+  "sqlalchemy": {
+   "licence": "MIT",
+   "version": "2.1.9"
+  },
+  "statsmodels": {
+   "licence": "BSD-3-Clause",
+   "version": "0.15.0"
+  },
+  "sympy": {
+   "licence": "BSD License",
+   "version": "1.14.0"
+  },
+  "tomli": {
+   "licence": "MIT",
+   "version": "2.5.0"
+  },
+  "torch": {
+   "licence": "Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND ISC AND MIT AND Zlib",
+   "version": "2.15.0"
+  },
+  "tqdm": {
+   "licence": "MPL-2.0 AND MIT",
+   "version": "4.70.1"
+  },
+  "trame": {
+   "licence": "Apache Software License",
+   "version": "4.0.0"
+  },
+  "trame-vtk": {
+   "licence": "BSD License",
+   "version": "2.11.17"
+  },
+  "trame-vuetify": {
+   "licence": "MIT License",
+   "version": "3.3.0"
+  },
+  "transformers": {
+   "licence": "Apache 2.0 License",
+   "version": "5.24.1"
+  },
+  "trimesh": {
+   "licence": "MIT License",
+   "version": "5.2.2"
+  },
+  "twine": {
+   "licence": "Apache-2.0",
+   "version": "7.0.0"
+  },
+  "typing-extensions": {
+   "licence": "PSF-2.0",
+   "version": "4.16.0"
+  },
+  "uvicorn": {
+   "licence": "BSD-3-Clause",
+   "version": "0.54.0"
+  },
+  "wandb": {
+   "licence": "MIT License",
+   "version": "0.31.2"
+  },
+  "warp-lang": {
+   "licence": "Apache-2.0",
+   "version": "1.19.0"
+  },
+  "xarray": {
+   "licence": "Apache-2.0",
+   "version": "2026.9.0"
+  },
+  "yt": {
+   "licence": "BSD-3-Clause",
+   "version": "4.4.4"
+  },
+  "zarr": {
+   "licence": "MIT",
+   "version": "3.1.6"
+  },
+  "galpy": {
+   "licence": "BSD License",
+   "version": "1.12.1"
+  }
+ },
+ "recorded": "2026-11-24",
+ "schema": "pinneapple.supply_chain/1",
+ "unobserved": [
+  "emmiai-noether",
+  "fenics-dolfinx",
+  "petsc4py"
+ ],
+ "unreadable": {
+  "fmpy": "unknown (see the distribution's licence file)",
+  "genesis-world": "unknown (see the distribution's licence file)"
+ }
+}

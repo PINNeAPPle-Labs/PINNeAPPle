@@ -1,0 +1,6 @@
+/* home page: gallery and two-by-two cards */
+.md-typeset .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin: 1em 0 1.5em }
+.md-typeset .gallery figure { margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.md-typeset .gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; background: #1b1f24 }
+.md-typeset .gallery figcaption { font-size: .72rem; line-height: 1.35; color: var(--md-default-fg-color--light); margin: 0; text-align: left; max-width: none }
+.md-typeset .grid.cards.two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)) }

@@ -1,0 +1,8862 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/dev/METHOD_COSTS/">
+      
+      
+        <link rel="prev" href="../adding_a_preset/">
+      
+      
+        <link rel="next" href="../../strategy/D1_problem_specs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Measured cost per catalog method: time, memory, FLOPs, scaling exponent and the machine - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#measured-cost-per-catalog-method" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Measured cost per catalog method: time, memory, FLOPs, scaling exponent and the machine
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/public_namespace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Public namespace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/seven_planes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The seven planes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/start_here/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed physics: sweeps, partitioned meshes, decomposed training
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/artifact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The .ppx container: a result that reproduces elsewhere
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One registry for every extensible object type
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins: what installing one does, and what it does not guarantee
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_data_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The physical data graph: from a prediction back to the problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/datasets_and_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datasets and models: the registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/warp_backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NVIDIA Warp as a compute backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pict_piso_solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PICT: a differentiable multi-block PISO solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_to_pinneapple/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add something to PINNeAPPle: six extension points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../test_shards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test shards: what blocks a pull request, and why the rest does not
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_a_preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add a preset, end to end
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Measured cost per catalog method: time, memory, FLOPs, scaling exponent and the machine
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Measured cost per catalog method: time, memory, FLOPs, scaling exponent and the machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-reproduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to reproduce
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-machine-these-numbers-came-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The machine these numbers came from
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measured-29-of-216" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured (29 of 216)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unmeasured-187-of-216" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unmeasured (187 of 216)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../strategy/D1_problem_specs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    D1 — the three problem specifications, reconciled
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PHYSICS_AI_INTEROP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PHYSICS_AI_STAGE_MAP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The physics-AI workflow, stage by stage: open tools and public datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/data_readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data readiness: may this dataset start a training run?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../support_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported versions: the matrix, and what was actually run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmark_cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Official benchmark cases: protocol and published table
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../battle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Battle of the models: the scoreboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backlog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog: this repository, by scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_75" >
+        
+          
+          <label class="md-nav__link" for="__nav_75" id="__nav_75_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_75_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_75">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/solve_a_problem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solve a problem: describe, solve twice, compare
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/headless_rendering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rendering without a display: xvfb, OSMesa, EGL and a container
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/house_theme/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One house theme for every 2-D figure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/reproducing_a_run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reproducing a recorded run: reproduced, divergent or refused
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dimensional_check/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checking the dimensions of an equation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rendering_fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A field on any domain: the picture and the VTU
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/postprocessing_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Post-processing gallery: six reference pictures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/bayesian_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian optimization: fewer reference simulations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/parameter_recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A recovered parameter and the interval it was measured to deserve
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_cards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model cards generated from an experiment record
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/integral_equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integral equations of the second kind
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/crash_and_surface_benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crash and surface-pressure benchmarks, recreated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/vortex_domains/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Viscous vortex domains: 2-D Navier-Stokes without a mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/astropy_fits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FITS, units and sky coordinates: astronomy data as a PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_conditioned_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A surrogate conditioned on the geometry, and the error on a body it never saw
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_surrogate_families/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Which geometry surrogate, and what it costs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mujoco/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MuJoCo 4.0: trajectories, checks and the robot backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../granular_dem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Granular DEM: volume-based contact, breakage, mills and wear
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinneapple_llm_quality_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality pipeline for LLM-generated artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/embedded_inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A model that flies: the residual in the graph, and the hertz it costs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/example_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example catalog: what runs in CI, and why the rest does not
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/front_door/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The front door: six functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_morphing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Morphing a surface mesh: a design space on an existing body
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/quality_diversity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality-diversity: a map of designs, and where a model fails
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/agent_workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Workbench: coding and engineering agents on a local model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/digital_twin_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Library: five systems, each with its own conservation laws
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/digital_twin_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The twin end to end, on real sensors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/signed_trust_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A trust report that can be re-verified later: signed with its model and inputs, residual recomputed on load
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trust_as_one_object/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The trust of a prediction as one object: every field a number with its source, or an explicit not measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pretrained_experts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bring your own foundation model: wrap it, check it, know where it stops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/planetary_defence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planetary defence: what a kinetic impactor buys, and how far ahead the miss can be guaranteed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/multirotor_flight/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A drone that says what is wrong with it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/openfoam_numerical_limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical limits of the OpenFOAM connector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/external_solver_contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External solvers: one interface, six backends, and what is out of scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_toolkit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics toolkit: the shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_first_passage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First-passage and hitting times
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_dimensional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dimensional analysis, Buckingham pi and curve collapse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_fisher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fisher information and experimental design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_early_warning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Critical slowing down and early-warning indicators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_koopman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Koopman operator and spectral analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/interlocking_bricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-modifying brick builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_from_intent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design from intent: a goal in words to a verified design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/intent_to_study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Text to simulation: a sentence to a verified, replayable study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pipeline_advisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The pipeline advisor: a problem in words, the study pipeline out
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chain_of_whys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain of whys: why each element of a design exists, computed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: an AI that manages evidence for engineering decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ahmed_body_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rover_learns_the_planet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The rover that learns the planet: drive, stall, learn the soil, replan, verify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/industrial_presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Industrial presets: engineering cases set up, solved and validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/science/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science by area: experiments in 0-D to 3-D + time, and the atlas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_physics_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: missions planned and run through controlled tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The validation loop: use case, evidence, maturity and the person who signs it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flow_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flow Studio and the flow schema (pinneapple-flow/1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_76" >
+        
+          
+          <label class="md-nav__link" for="__nav_76" id="__nav_76_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_76_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_76">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/physics_condensation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Physics Condensation: chip-package thermal without simulating every element
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_77" >
+        
+          
+          <label class="md-nav__link" for="__nav_77" id="__nav_77_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_77_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_77">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/electromagnetics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Electromagnetics and electrodynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/antenna_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antenna design: end-fire Vivaldi with an external FEM solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/compact_range/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact range quiet zone: feed gain x reflector size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design reports without an LLM: Datasheet and the self-planning study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/unit_cell_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periodic unit cell: FNO vs Bayesian optimisation at equal budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flight_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/launch_ascent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ascent to orbit: a launcher to a 500 km near-circular orbit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/topology_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/enso_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/near_random_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/football_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Football: where physics helps on public tracking data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/derivative_trees/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derivative trees across physics (pp.potential)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/hub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/warp_drive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Alcubierre warp bubble: curvature, energy conditions and the bill
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust_member/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Putting a PhysicsNeMo model into PINNeAPPle without retraining it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product/core-shared-pieces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The shared pieces: what makes the use cases one product
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../campaign/campanha-backlog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Campaign log 2026
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_pt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão geral (Português, era 0.6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-reproduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to reproduce
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-machine-these-numbers-came-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The machine these numbers came from
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measured-29-of-216" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measured (29 of 216)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unmeasured-187-of-216" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unmeasured (187 of 216)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/dev/METHOD_COSTS.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/dev/METHOD_COSTS.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="measured-cost-per-catalog-method">Measured cost per catalog method<a class="headerlink" href="#measured-cost-per-catalog-method" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Generated by <code>python scripts/measure_method_costs.py --docs</code> from
+<code>pinneapple_catalog/method_costs.json</code>. Do not edit by hand: run the script again.
+<code>--docs-check</code> fails when this file and the table disagree.</p>
+</blockquote>
+<p>Every entry of <code>pinneapple_catalog/methods.py</code> (<code>METHODS</code>) has a row here. A row is one of two things:</p>
+<ul>
+<li><strong>measured</strong> -- a probe ran this method on this machine over several problem sizes, and the row carries the
+  median time with its interquartile range, the peak memory with its sampling source, the FLOPs with their
+  source (<code>null</code> when nothing counted them, which is an answer and not a gap), the scaling exponent with a
+  bootstrap 95 % confidence interval, the sizes it was fitted over, and the machine it all came from;</li>
+<li><strong>unmeasured</strong> -- with a blocker from a closed set (<code>needs_cuda</code>, <code>needs_external_solver</code>,
+  <code>needs_optional_package</code>, <code>needs_input</code>, <code>not_a_single_operation</code>, <code>definition</code>) and the specific reason.</li>
+</ul>
+<h2 id="how-to-reproduce">How to reproduce<a class="headerlink" href="#how-to-reproduce" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>scripts/measure_method_costs.py<span class="w">                 </span><span class="c1"># measure every method that has a probe, rewrite the table</span>
+python<span class="w"> </span>scripts/measure_method_costs.py<span class="w"> </span>--only<span class="w"> </span>S4<span class="w"> </span>S11<span class="w">   </span><span class="c1"># remeasure a few, leave the rest untouched</span>
+python<span class="w"> </span>scripts/measure_method_costs.py<span class="w"> </span>--check<span class="w">         </span><span class="c1"># the gate: a row per catalog entry, the machine recorded</span>
+python<span class="w"> </span>scripts/measure_method_costs.py<span class="w"> </span>--docs<span class="w">          </span><span class="c1"># rewrite this file from the table</span>
+python<span class="w"> </span>scripts/measure_method_costs.py<span class="w"> </span>--gate<span class="w">          </span><span class="c1"># regression gate against method_costs_baseline.json</span>
+</code></pre></div>
+<p>The instrument is <code>pinneapple_analysis/cost/profiler.py</code> (<code>measure</code>, <code>scaling_study</code> with its bootstrap
+interval). It measures wall time, peak memory and PyTorch FLOPs. FLOPs stay <code>null</code> where nothing counts them:
+the counter knows matmul, conv, attention and FFTs, and NumPy work is not counted at all. Peak memory comes
+from <code>pinneapple_analysis/cost/memory.py</code>, and <code>mem_source</code> says which method produced it (<code>torch+trace</code> is
+the PyTorch profiler summed with <code>tracemalloc</code>, exact for what each one sees; <code>rss</code> and <code>tracemalloc</code> alone
+are lower bounds). The limits of both are established in those two modules and are not re-derived here.</p>
+<p>Wall time is wall clock, so it moves with whatever else the machine is doing. That is why every record
+carries the interquartile range beside the median and the exponent carries a bootstrap interval: a number
+here is a measurement with its uncertainty, and two runs on two machines are two measurements, not a
+regression (<code>--gate</code> refuses to compare across machines for exactly that reason).</p>
+<h2 id="the-machine-these-numbers-came-from">The machine these numbers came from<a class="headerlink" href="#the-machine-these-numbers-came-from" title="Permanent link">&para;</a></h2>
+<p>A wall time without its machine cannot be compared with anything, so it travels with the file:</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cpu</code></td>
+<td>Apple M5</td>
+</tr>
+<tr>
+<td><code>cpu_count</code></td>
+<td>10</td>
+</tr>
+<tr>
+<td><code>platform</code></td>
+<td>macOS-26.5.2-arm64-arm-64bit</td>
+</tr>
+<tr>
+<td><code>system</code></td>
+<td>Darwin</td>
+</tr>
+<tr>
+<td><code>machine</code></td>
+<td>arm64</td>
+</tr>
+<tr>
+<td><code>python</code></td>
+<td>3.11.16</td>
+</tr>
+<tr>
+<td><code>torch</code></td>
+<td>2.15.0</td>
+</tr>
+<tr>
+<td><code>cuda</code></td>
+<td>False</td>
+</tr>
+<tr>
+<td><code>memory_bytes</code></td>
+<td>17179869184</td>
+</tr>
+</tbody>
+</table>
+<p>Measured at <code>2026-11-25T13:41:40+00:00</code> on commit <code>556c526b6</code>.</p>
+<h2 id="measured-29-of-216">Measured (29 of 216)<a class="headerlink" href="#measured-29-of-216" title="Permanent link">&para;</a></h2>
+<p>Each <code>id</code> is the key of that method's record in <code>pinneapple_catalog/method_costs.json</code>, where the per-size
+times with their interquartile range live.</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>method</th>
+<th>what ran (the probe)</th>
+<th><code>n</code> means</th>
+<th>sizes</th>
+<th>exponent</th>
+<th>95 % CI</th>
+<th>R²</th>
+<th>declared</th>
+<th>verdict</th>
+<th>median time</th>
+<th>peak memory</th>
+<th>FLOPs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S1</strong></td>
+<td>Finite differences 1D/2D/3D</td>
+<td>pinneapple_simulation.numerical_solvers.fdm.FDMSolver.forward (the direct 2-D Poisson path: 50 red-black SOR sweeps on an n x n grid)</td>
+<td>n (grid points per side)</td>
+<td>64, 128, 256, 512</td>
+<td>1.94</td>
+<td>[1.01, 2.34]</td>
+<td>0.985</td>
+<td>n^2</td>
+<td>consistent</td>
+<td>134.1 ms</td>
+<td>14.5 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S2</strong></td>
+<td>Finite elements (linear) + nonlinear beam FEM</td>
+<td>pinneapple_simulation.numerical_solvers.fem.FEMSolver.solve_from_spec (Q1 assembly of a Poisson case, then 50 CG iterations)</td>
+<td>n (elements per side)</td>
+<td>8, 12, 16</td>
+<td>2.80</td>
+<td>[2.32, 3.37]</td>
+<td>0.877</td>
+<td>n^2</td>
+<td>worse than declared</td>
+<td>803.7 ms</td>
+<td>368.9 KiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S3</strong></td>
+<td>Finite volumes</td>
+<td>pinneapple_simulation.numerical_solvers.fvm.FVMSolver.forward (explicit Euler, 20 steps of a 2-D heat case)</td>
+<td>n (cells per side)</td>
+<td>64, 128, 256, 512</td>
+<td>1.49</td>
+<td>[1.10, 1.67]</td>
+<td>0.970</td>
+<td>n^2</td>
+<td>better than declared</td>
+<td>20.5 ms</td>
+<td>44.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S4</strong></td>
+<td>Spectral (Fourier pseudo-spectral)</td>
+<td>pinneapple_simulation.numerical_solvers.spectral.poisson_periodic_fft</td>
+<td>n (grid points per side, periodic square)</td>
+<td>64, 128, 256, 512</td>
+<td>1.53</td>
+<td>[1.33, 2.59]</td>
+<td>0.941</td>
+<td>n^2</td>
+<td>consistent</td>
+<td>2.8 ms</td>
+<td>20.0 MiB</td>
+<td>491,520 (dispatch_counter)</td>
+</tr>
+<tr>
+<td><strong>S7</strong></td>
+<td>Meshfree RBF collocation (Kansa)</td>
+<td>pinneapple_simulation.numerical_solvers.meshfree.RBFCollocationSolver.forward (Gaussian Kansa collocation of a Poisson case: the dense RBF solve)</td>
+<td>n (collocation points on a square grid)</td>
+<td>100, 400, 900, 1600</td>
+<td>2.46</td>
+<td>[2.28, 2.56]</td>
+<td>0.947</td>
+<td>—</td>
+<td>undeclared</td>
+<td>170.8 ms</td>
+<td>156.3 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S9</strong></td>
+<td>Discrete-time PINN / implicit Runge-Kutta Gauss-Legendre</td>
+<td>pinneapple_simulation.numerical_solvers.discrete_time_pinn.DiscreteTimePINNSolver (one implicit step, trained to a fixed iteration cap)</td>
+<td>n (iterations of the implicit step, q = 32 fixed)</td>
+<td>5, 10, 20, 40</td>
+<td>0.56</td>
+<td>[0.45, 0.63]</td>
+<td>0.792</td>
+<td>n</td>
+<td>better than declared</td>
+<td>824.1 ms</td>
+<td>1.2 MiB</td>
+<td>35,257,728 (flop_counter)</td>
+</tr>
+<tr>
+<td><strong>S11</strong></td>
+<td>TVD advection</td>
+<td>pinneapple_simulation.numerical_solvers.tvd_advection.tvd_advection_rhs (one second-order TVD upwind evaluation of df/dt)</td>
+<td>n (1-D grid points)</td>
+<td>65536, 262144, 1048576, 4194304</td>
+<td>1.25</td>
+<td>[1.08, 1.35]</td>
+<td>0.998</td>
+<td>n</td>
+<td>consistent</td>
+<td>24.0 ms</td>
+<td>192.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S13</strong></td>
+<td>Beam BVP FDM / 3D elasticity FDM</td>
+<td>pinneapple_simulation.numerical_solvers.beam_bvp_fdm.BeamBVPFDMSolver.forward</td>
+<td>n (1-D grid points along the beam)</td>
+<td>200, 400, 800, 1600</td>
+<td>1.36</td>
+<td>[0.22, 2.13]</td>
+<td>0.994</td>
+<td>n</td>
+<td>consistent</td>
+<td>14.1 ms</td>
+<td>947.7 KiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S14</strong></td>
+<td>Eddy current FDM</td>
+<td>pinneapple_simulation.numerical_solvers.eddy_current_fdm.solve_axisymmetric_eddy_current (one complex Helmholtz solve on a coil/material field set)</td>
+<td>n (grid points per side)</td>
+<td>24, 48, 96</td>
+<td>1.98</td>
+<td>[0.92, 3.66]</td>
+<td>0.999</td>
+<td>—</td>
+<td>undeclared</td>
+<td>179.7 ms</td>
+<td>6.7 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S15</strong></td>
+<td>Bekker-Wong terramechanics</td>
+<td>pinneapple_simulation.numerical_solvers.bekker_wong.BekkerWongSolver.forward</td>
+<td>n (slip ratios evaluated in one call)</td>
+<td>256, 512, 1024, 2048</td>
+<td>0.54</td>
+<td>[-0.09, 1.13]</td>
+<td>0.784</td>
+<td>n</td>
+<td>consistent</td>
+<td>22.1 ms</td>
+<td>8.5 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S18</strong></td>
+<td>Particle dynamics: rigid body, MPM, molecular dynamics</td>
+<td>pinneapple_simulation.particle_dynamics.molecular_dynamics.MolecularDynamicsSimulator.step (the molecular-dynamics member of the rigid body / MPM / MD family: one velocity-Verlet step of a Lennard-Jones gas)</td>
+<td>n (particles)</td>
+<td>256, 1024, 4096</td>
+<td>2.53</td>
+<td>[2.46, 2.63]</td>
+<td>0.993</td>
+<td>n^2</td>
+<td>worse than declared</td>
+<td>174.7 ms</td>
+<td>576.1 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S19</strong></td>
+<td>Signal decomposition: CEEMDAN, EEMD, VMD, HHT, SSA, SST, STL, FFT, wavelet</td>
+<td>pinneapple_simulation.numerical_solvers.fft.FFTSolver.forward (the FFT member of the family)</td>
+<td>n (signal samples)</td>
+<td>65536, 262144, 1048576, 2097152</td>
+<td>1.36</td>
+<td>[0.98, 1.56]</td>
+<td>0.947</td>
+<td>n log n</td>
+<td>consistent</td>
+<td>62.0 ms</td>
+<td>24.0 MiB</td>
+<td>2,621,440 (dispatch_counter)</td>
+</tr>
+<tr>
+<td><strong>S26</strong></td>
+<td>2D shallow-water finite volumes (MUSCL + HLL, wet/dry, walls, gates, virtual sensors, health checks)</td>
+<td>pinneapple_simulation.numerical_solvers.shallow_water_fv.ShallowWater2D (one step)</td>
+<td>n (cells per side)</td>
+<td>64, 128, 256, 512</td>
+<td>1.87</td>
+<td>[1.40, 2.25]</td>
+<td>0.981</td>
+<td>n^2</td>
+<td>consistent</td>
+<td>130.3 ms</td>
+<td>103.1 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S27</strong></td>
+<td>ETDRK4 exponential integrator for stiff semilinear PDEs (contour phi-functions, blow-up guard)</td>
+<td>pinneapple_simulation.numerical_solvers.etdrk4.ETDRK4 (one step of the stiff semilinear problem)</td>
+<td>n (points on the periodic grid)</td>
+<td>512, 1024, 2048, 4096</td>
+<td>1.01</td>
+<td>[0.85, 1.23]</td>
+<td>0.992</td>
+<td>n log n</td>
+<td>consistent</td>
+<td>212.8 µs</td>
+<td>321.1 KiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S28</strong></td>
+<td>Stable fluids 2D (semi-Lagrangian advection, spectral projection, vorticity confinement)</td>
+<td>pinneapple_simulation.numerical_solvers.stable_fluids.StableFluids2D (one full step)</td>
+<td>n (cells per side)</td>
+<td>64, 128, 256, 512</td>
+<td>2.49</td>
+<td>[2.35, 2.64]</td>
+<td>0.988</td>
+<td>n^2</td>
+<td>worse than declared</td>
+<td>75.8 ms</td>
+<td>38.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S29</strong></td>
+<td>2-D A_z magnetostatics, P1 FEM with Newton (nonlinear B-H, magnets, (anti-)periodic constraints)</td>
+<td>pinneapple_simulation.electromagnetics.electrostatics.solve_magnetostatic (P1 FEM assembly and solve of a rectangular A_z magnetostatics mesh)</td>
+<td>n (mesh points per side)</td>
+<td>16, 32, 48, 64</td>
+<td>3.31</td>
+<td>[2.27, 3.62]</td>
+<td>0.952</td>
+<td>n^2</td>
+<td>worse than declared</td>
+<td>53.2 ms</td>
+<td>5.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S32</strong></td>
+<td>2-D electrostatics, P1 FEM (capacitance from field energy)</td>
+<td>pinneapple_simulation.electromagnetics.electrostatics.solve_electrostatic (P1 FEM solve of a rectangular electrostatic mesh)</td>
+<td>n (mesh points per side)</td>
+<td>16, 32, 48, 64</td>
+<td>2.49</td>
+<td>[1.48, 3.09]</td>
+<td>0.903</td>
+<td>n^2</td>
+<td>consistent</td>
+<td>7.8 ms</td>
+<td>4.6 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S33</strong></td>
+<td>Biot-Savart integration of straight filament segments, loop and solenoid fields</td>
+<td>pinneapple_simulation.electromagnetics.statics.infinite_wire_B</td>
+<td>n (field points)</td>
+<td>16384, 65536, 262144, 1048576</td>
+<td>1.32</td>
+<td>[1.23, 1.38]</td>
+<td>0.964</td>
+<td>n</td>
+<td>worse than declared</td>
+<td>8.4 ms</td>
+<td>40.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S34</strong></td>
+<td>Mie series for dielectric and perfectly conducting spheres</td>
+<td>pinneapple_simulation.electromagnetics.mie.mie</td>
+<td>x (size parameter; the series needs ~x + 4x^(1/3) terms)</td>
+<td>50, 200, 800, 3200</td>
+<td>1.02</td>
+<td>[0.67, 1.28]</td>
+<td>0.898</td>
+<td>n</td>
+<td>consistent</td>
+<td>1.4 ms</td>
+<td>458.7 KiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S35</strong></td>
+<td>Fresnel coefficients and characteristic matrices of planar multilayers</td>
+<td>pinneapple_simulation.electromagnetics.waves.multilayer</td>
+<td>n (layers in the stack)</td>
+<td>16, 64, 256, 1024</td>
+<td>1.28</td>
+<td>[1.03, 1.36]</td>
+<td>0.977</td>
+<td>n</td>
+<td>consistent</td>
+<td>5.3 ms</td>
+<td>3.4 KiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S36</strong></td>
+<td>Jiles-Atherton hysteresis model (RK4 along an applied field path)</td>
+<td>pinneapple_simulation.electromagnetics.hysteresis.JilesAtherton.major_loop (RK4 along a two-cycle applied-field path)</td>
+<td>n (field points per branch)</td>
+<td>64, 128, 256</td>
+<td>0.91</td>
+<td>[0.59, 1.38]</td>
+<td>1.000</td>
+<td>n</td>
+<td>consistent</td>
+<td>1.13 s</td>
+<td>25.8 KiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S37</strong></td>
+<td>Dispersive media (Drude, Lorentz, Debye) and their auxiliary-differential-equation coefficients</td>
+<td>pinneapple_simulation.electromagnetics.media.Medium.eps_r (Drude and Lorentz pole sums over a frequency vector)</td>
+<td>n (frequencies evaluated)</td>
+<td>16384, 65536, 262144, 1048576</td>
+<td>1.63</td>
+<td>[1.40, 1.75]</td>
+<td>0.960</td>
+<td>n</td>
+<td>worse than declared</td>
+<td>105.2 ms</td>
+<td>64.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S38</strong></td>
+<td>Maxwell physics checks of predicted fields (Gauss, Faraday, Ampere-Maxwell, continuity, Poynting, interfaces, reciprocity, passivity)</td>
+<td>pinneapple_physics.maxwell_checks.gauss_magnetic (the divergence check over every interior face of a uniform 3-D field)</td>
+<td>n (grid points per side)</td>
+<td>16, 32, 48, 64</td>
+<td>3.90</td>
+<td>[2.81, 4.29]</td>
+<td>0.959</td>
+<td>n^3</td>
+<td>consistent</td>
+<td>26.8 ms</td>
+<td>16.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S40</strong></td>
+<td>Yee FDTD in 1-D/2-D/3-D (CPML, Courant check, Drude/Lorentz/Debye ADE, PEC/PMC/periodic/Bloch, TF/SF plane waves, DFT monitors, sub-cell averaging)</td>
+<td>pinneapple_simulation.electromagnetics.fdtd.FDTD.run (20 Yee steps of a 3-D box with a soft Ez source; no PML, so the step count alone sets the cost)</td>
+<td>n (cells per side)</td>
+<td>16, 24, 32, 40</td>
+<td>1.74</td>
+<td>[0.96, 3.66]</td>
+<td>0.935</td>
+<td>—</td>
+<td>undeclared</td>
+<td>225.0 ms</td>
+<td>7.8 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S42</strong></td>
+<td>First-passage times: crossing, Kaplan-Meier, SDE Monte Carlo with Brownian bridge, Fokker-Planck survival from a PDE solution</td>
+<td>pinneapple_analysis.dynamics.first_passage.FirstPassageAnalyzer.monte_carlo (Brownian paths to a threshold, fixed dt)</td>
+<td>n (simulated paths)</td>
+<td>500, 2000, 8000</td>
+<td>0.46</td>
+<td>[0.35, 0.74]</td>
+<td>0.997</td>
+<td>n</td>
+<td>better than declared</td>
+<td>198.4 ms</td>
+<td>1.3 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S43</strong></td>
+<td>Dimensional analysis: exact Buckingham pi groups, homogeneity checks, curve collapse</td>
+<td>pinneapple_analysis.dynamics.dimensional.BuckinghamPiAnalyzer.analyze (pi groups by Rayleigh's method over n quantities, in exact Fractions)</td>
+<td>n (quantities in the analysis)</td>
+<td>8, 12, 16, 20</td>
+<td>2.38</td>
+<td>[0.89, 4.10]</td>
+<td>0.893</td>
+<td>n^3</td>
+<td>consistent</td>
+<td>189.1 ms</td>
+<td>638.4 KiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>S46</strong></td>
+<td>Koopman operator from data: exact / TLS DMD, EDMD, generator EDMD, ResDMD residuals</td>
+<td>pinneapple_analysis.dynamics.koopman.DMD.fit (rank-8 exact DMD of a 32-state damped linear trajectory)</td>
+<td>n (snapshots)</td>
+<td>2048, 8192, 32768</td>
+<td>1.39</td>
+<td>[1.34, 1.47]</td>
+<td>0.975</td>
+<td>n</td>
+<td>worse than declared</td>
+<td>156.2 ms</td>
+<td>52.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+<tr>
+<td><strong>T1</strong></td>
+<td>Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler</td>
+<td>pinneapple_neural.trainer.trainer.Trainer.fit (one epoch of a 8-16-1 tanh MLP on CPU, batch 64)</td>
+<td>n (training samples in the epoch)</td>
+<td>2048, 8192, 32768</td>
+<td>0.55</td>
+<td>[0.52, 1.09]</td>
+<td>0.955</td>
+<td>n</td>
+<td>consistent</td>
+<td>242.4 ms</td>
+<td>129.7 KiB</td>
+<td>1,245,184 (flop_counter)</td>
+</tr>
+<tr>
+<td><strong>T22</strong></td>
+<td>Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, ensemble UQ, OOD score, fine-tuning)</td>
+<td>pinneapple_neural.lpm.FourierEncoding.<strong>call</strong> (the large-physics-model positional encoding over a point cloud)</td>
+<td>n (query points)</td>
+<td>16384, 65536, 262144</td>
+<td>1.08</td>
+<td>[0.91, 1.73]</td>
+<td>0.997</td>
+<td>n</td>
+<td>consistent</td>
+<td>2.9 ms</td>
+<td>93.0 MiB</td>
+<td>— (not countable)</td>
+</tr>
+</tbody>
+</table>
+<p>The median time is the median over the sizes' medians, so it is the order of magnitude of one call, not one
+size; the per-size numbers (with the IQR) are in the JSON under <code>per_size</code>. The exponent is the log-log slope
+of time against <code>n</code> over the sizes listed, and <code>declared</code> is the complexity the probe says the method has,
+with <code>verdict</code> saying whether the fit agrees with it inside the interval.</p>
+<h2 id="unmeasured-187-of-216">Unmeasured (187 of 216)<a class="headerlink" href="#unmeasured-187-of-216" title="Permanent link">&para;</a></h2>
+<p>A closed set of blockers, so the gap can be counted and cannot be waved away:</p>
+<table>
+<thead>
+<tr>
+<th>blocker</th>
+<th>methods</th>
+<th>what it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>definition</code></td>
+<td>143</td>
+<td>an equation or a problem of the catalog: a description, not an executable; its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><code>instrument_overhead</code></td>
+<td>1</td>
+<td>the probe exists and runs, but the memory instrument costs more than the work it measures: it serialises every operator, so a method whose step issues thousands of small ones cannot be profiled at a size that fits a laptop run</td>
+</tr>
+<tr>
+<td><code>needs_cuda</code></td>
+<td>3</td>
+<td>the entry point runs on a GPU (a CUDA kernel, or a package built on one); this machine has none</td>
+</tr>
+<tr>
+<td><code>needs_external_solver</code></td>
+<td>1</td>
+<td>the work happens in a program the repository only bridges to (OpenFOAM, FEniCS, ANSYS, MATLAB, Modelica, MuJoCo, NVIDIA Newton, PICT)</td>
+</tr>
+<tr>
+<td><code>needs_input</code></td>
+<td>16</td>
+<td>the entry point needs a configuration a probe cannot synthesize on its own (a mesh, a material set, a geometry, a dataset, a boundary set)</td>
+</tr>
+<tr>
+<td><code>needs_optional_package</code></td>
+<td>3</td>
+<td>the module needs a package that is not a dependency of the library (jax, rebound, warp, pysr)</td>
+</tr>
+<tr>
+<td><code>not_a_single_operation</code></td>
+<td>20</td>
+<td>the cost is set by a loop or an orchestration the caller writes, so there is no one call whose time is the method's</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>method</th>
+<th>blocker</th>
+<th>why there is no number</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S5</strong></td>
+<td>Lattice Boltzmann D2Q9 / D3Q19 (+ Smagorinsky LES)</td>
+<td><code>needs_input</code></td>
+<td>the LBM needs a grid big enough for one step's tensor work to outweigh the per-step operator overhead: a fixed-step probe timed 30 ms from 32 to 128 cells, which is the overhead and not the method, so there is no exponent to publish</td>
+</tr>
+<tr>
+<td><strong>S6</strong></td>
+<td>SPH / ISPH / DFSPH</td>
+<td><code>instrument_overhead</code></td>
+<td>the SPH / ISPH / DFSPH step runs and scales (128 to 1536 particles took 0.14 to 2.5 s), but one 128-particle step costs 40 s under the torch profiler the memory figure comes from, so the study cannot finish: the number is missing because of the instrument, not because of the method</td>
+</tr>
+<tr>
+<td><strong>S8</strong></td>
+<td>X-TFC (IVP, PDE, subdomains)</td>
+<td><code>not_a_single_operation</code></td>
+<td>X-TFC trains a network per call: its cost is a training budget, measured by the trainer probes (T*)</td>
+</tr>
+<tr>
+<td><strong>S10</strong></td>
+<td>Stiff kinetics ODE</td>
+<td><code>not_a_single_operation</code></td>
+<td>the stiff integrator's cost is set by the steps the stiffness forces, not by the number of species: solve_stiff_reaction_network took the same ~50 ms from 8 to 128 species, so a fit here would report noise as an exponent</td>
+</tr>
+<tr>
+<td><strong>S12</strong></td>
+<td>Immersed boundary (FDM)</td>
+<td><code>needs_input</code></td>
+<td>the immersed-boundary solve needs a case whose Poisson work outweighs the projection overhead: at a pinned iteration count, boxes from 12^3 to 28^3 moved from 120 to 210 ms (about n^0.5), so the probe was timing the setup, not the method</td>
+</tr>
+<tr>
+<td><strong>S16</strong></td>
+<td>N-body (REBOUND)</td>
+<td><code>needs_optional_package</code></td>
+<td>nbody_rebound needs the REBOUND package, which is not installed here</td>
+</tr>
+<tr>
+<td><strong>S17</strong></td>
+<td>JAX-CFD</td>
+<td><code>needs_optional_package</code></td>
+<td>JAX-CFD needs jax, which is not installed here</td>
+</tr>
+<tr>
+<td><strong>S20</strong></td>
+<td>Co-simulation (graph + engine, algebraic loops by Tarjan SCC)</td>
+<td><code>not_a_single_operation</code></td>
+<td>co-simulation: the cost is the coupling graph the user builds, measured by the case itself</td>
+</tr>
+<tr>
+<td><strong>S21</strong></td>
+<td>Digital twin state estimation: KF/EKF/UKF/EnKF, prognostics, signal reconstruction</td>
+<td><code>needs_input</code></td>
+<td>state estimation: cost is set by the state dimension and the number of steps of the run</td>
+</tr>
+<tr>
+<td><strong>S22</strong></td>
+<td>1D process components (pipe network, transient pipe, heat exchanger, valve, reaction, polytropic path, compressor map)</td>
+<td><code>not_a_single_operation</code></td>
+<td>1-D process components: the network is user-built; no single operation to time</td>
+</tr>
+<tr>
+<td><strong>S23</strong></td>
+<td>Explicit equation-system solver (evaluation order)</td>
+<td><code>not_a_single_operation</code></td>
+<td>explicit equation system: cost is the size of the system the user writes</td>
+</tr>
+<tr>
+<td><strong>S24</strong></td>
+<td>External solvers: OpenFOAM, FEniCS, ANSYS/CFD formats, MATLAB, Modelica/FMI, MuJoCo, Genesis, TurboDesigner</td>
+<td><code>needs_external_solver</code></td>
+<td>external solvers (OpenFOAM, FEniCS, ANSYS, MATLAB, Modelica, MuJoCo) are not installed here</td>
+</tr>
+<tr>
+<td><strong>S25</strong></td>
+<td>Causal telemetry conditioning (Hampel one-step, rate limit, first-order filter, gaps)</td>
+<td><code>not_a_single_operation</code></td>
+<td>telemetry conditioning: the cost is per-sample and dominated by the caller's loop</td>
+</tr>
+<tr>
+<td><strong>S30</strong></td>
+<td>Time-harmonic 2-D eddy currents (A_z, solid conductors with imposed net currents)</td>
+<td><code>needs_input</code></td>
+<td>time-harmonic eddy currents: same as S29</td>
+</tr>
+<tr>
+<td><strong>S31</strong></td>
+<td>Surface-PM machine model: Maxwell-stress and co-energy torque, cogging, back-EMF, losses</td>
+<td><code>needs_input</code></td>
+<td>surface-PM machine model: cost is set by the harmonic set of the run</td>
+</tr>
+<tr>
+<td><strong>S39</strong></td>
+<td>Density-based topology optimisation (SIMP, filter, projection, OC, MMA; compliance, thermal, Stokes-Brinkman, machine rotor)</td>
+<td><code>not_a_single_operation</code></td>
+<td>topology optimisation: the cost is iterations x cells, measured by each design study</td>
+</tr>
+<tr>
+<td><strong>S41</strong></td>
+<td>Near-to-far-field transform on a closed box (FDTD radiation patterns)</td>
+<td><code>needs_input</code></td>
+<td>the near-to-far transform runs on an FDTD box (see S40)</td>
+</tr>
+<tr>
+<td><strong>S44</strong></td>
+<td>Fisher information, Cramer-Rao bounds and optimal experimental design (D/A/E/c, Fedorov exchange)</td>
+<td><code>needs_input</code></td>
+<td>Fisher information: needs a model and a design matrix from the caller</td>
+</tr>
+<tr>
+<td><strong>S45</strong></td>
+<td>Early-warning indicators of critical slowing down (rolling variance / AC1, surrogate tests)</td>
+<td><code>not_a_single_operation</code></td>
+<td>early warning: per-window cost, dominated by the series length the user passes</td>
+</tr>
+<tr>
+<td><strong>S47</strong></td>
+<td>NVIDIA Newton rigid-body solvers: XPBD, semi-implicit with penalty contacts, Featherstone, MuJoCo-Warp</td>
+<td><code>needs_cuda</code></td>
+<td>NVIDIA Newton needs the Warp stack and a GPU</td>
+</tr>
+<tr>
+<td><strong>S48</strong></td>
+<td>Lid-driven cavity by vorticity-streamfunction (local, CPU/GPU-free engine for the PICT bridge)</td>
+<td><code>needs_input</code></td>
+<td>the PICT local solver stops on max_steps rather than on the grid: a 16^2 and a 24^2 cavity both cost ~40 ms at the same step cap, so the wall time is the iteration count the caller passes, not the method's grid cost</td>
+</tr>
+<tr>
+<td><strong>S49</strong></td>
+<td>PICT: differentiable multi-block PISO on a structured grid (external, CUDA)</td>
+<td><code>needs_cuda</code></td>
+<td>PICT needs CUDA</td>
+</tr>
+<tr>
+<td><strong>S50</strong></td>
+<td>NVIDIA Warp kernels: warp.fem weak forms, reverse-mode tape, zero-copy torch buffers</td>
+<td><code>needs_cuda</code></td>
+<td>NVIDIA Warp kernels need the warp package and a GPU</td>
+</tr>
+<tr>
+<td><strong>T2</strong></td>
+<td>Distributed: DDP, FSDP, SLURM, torchrun, PowerSGD</td>
+<td><code>not_a_single_operation</code></td>
+<td>DDP / FSDP / SLURM / torchrun: the cost is the number of ranks the job is launched with, not one process's call</td>
+</tr>
+<tr>
+<td><strong>T3</strong></td>
+<td>Causal training</td>
+<td><code>needs_input</code></td>
+<td>causal training schedules the collocation points of a trainer run; it is a policy inside T1's loop</td>
+</tr>
+<tr>
+<td><strong>T4</strong></td>
+<td>Time marching</td>
+<td><code>needs_input</code></td>
+<td>time marching trains one window per step, so the cost is the number of windows of the case</td>
+</tr>
+<tr>
+<td><strong>T5</strong></td>
+<td>Two phases Adam -&gt; L-BFGS + L-BFGS finetune</td>
+<td><code>needs_input</code></td>
+<td>the two-phase schedule (Adam then L-BFGS) needs a model, a loss and a data set from the caller</td>
+</tr>
+<tr>
+<td><strong>T6</strong></td>
+<td>Multi-restart</td>
+<td><code>not_a_single_operation</code></td>
+<td>multi-restart is the training cost multiplied by the number of restarts</td>
+</tr>
+<tr>
+<td><strong>T7</strong></td>
+<td>Adaptive residual-based collocation</td>
+<td><code>needs_input</code></td>
+<td>adaptive collocation needs the residual it resamples, i.e. a trainer run to measure</td>
+</tr>
+<tr>
+<td><strong>T8</strong></td>
+<td>Loss balancing: ReLoBRaLo, SoftAdapt, PCGrad, Augmented Lagrangian, Inverse Dirichlet, LR Annealing, AutoBalancer</td>
+<td><code>not_a_single_operation</code></td>
+<td>the loss balancers (ReLoBRaLo, SoftAdapt, PCGrad, ...) are scalar or gradient operations inside the training step: their cost is a fraction of the backward pass T1 measures</td>
+</tr>
+<tr>
+<td><strong>T9</strong></td>
+<td>Weight schedulers: SA-PINN, GradNorm, LossRatio, NTK</td>
+<td><code>not_a_single_operation</code></td>
+<td>the weight schedulers (SA-PINN, GradNorm, LossRatio, NTK) run inside the training step, on quantities the backward pass produces</td>
+</tr>
+<tr>
+<td><strong>T10</strong></td>
+<td>Domain decomposition: XPINN, DoMINO/D3M</td>
+<td><code>needs_input</code></td>
+<td>XPINN / DoMINO decompose the domain the user supplies into subdomains</td>
+</tr>
+<tr>
+<td><strong>T11</strong></td>
+<td>Inverse PINN (learnable physical parameters)</td>
+<td><code>needs_input</code></td>
+<td>the inverse PINN needs a data set to invert against</td>
+</tr>
+<tr>
+<td><strong>T12</strong></td>
+<td>Gray-box + symbolic regression (PySR)</td>
+<td><code>needs_optional_package</code></td>
+<td>the gray-box path calls PySR, which is not installed here</td>
+</tr>
+<tr>
+<td><strong>T13</strong></td>
+<td>Uncertainty: heteroscedastic, B-PINN, MC Dropout, deep ensembles</td>
+<td><code>not_a_single_operation</code></td>
+<td>heteroscedastic / B-PINN / MC-dropout / deep ensembles multiply the training cost by the number of samples or members</td>
+</tr>
+<tr>
+<td><strong>T14</strong></td>
+<td>SINDy</td>
+<td><code>not_a_single_operation</code></td>
+<td>SINDy's STLSQ cost is set by the library size and its iteration cap, not by the sample count: trajectories of 2k to 32k samples all took ~3.5 ms, so a fit over samples would report overhead as an exponent</td>
+</tr>
+<tr>
+<td><strong>T15</strong></td>
+<td>Adaptive hyperparameter sweep / architecture search (arena NAS)</td>
+<td><code>not_a_single_operation</code></td>
+<td>the sweep and architecture search run many training jobs: the cost is the number of trials</td>
+</tr>
+<tr>
+<td><strong>T16</strong></td>
+<td>Noether trainer (research only)</td>
+<td><code>needs_input</code></td>
+<td>the Noether trainer needs a symmetry declaration and the residual it is applied to</td>
+</tr>
+<tr>
+<td><strong>T17</strong></td>
+<td>Post-training advisor / audit</td>
+<td><code>not_a_single_operation</code></td>
+<td>the advisor and the audit read a finished run's history; there is no one call to time</td>
+</tr>
+<tr>
+<td><strong>T18</strong></td>
+<td>Meta-learning: MAML, Reptile</td>
+<td><code>not_a_single_operation</code></td>
+<td>MAML / Reptile are an inner loop per task: the cost is tasks x inner steps</td>
+</tr>
+<tr>
+<td><strong>T19</strong></td>
+<td>Transfer learning (freeze, adapters, parametric)</td>
+<td><code>needs_input</code></td>
+<td>transfer learning needs a source checkpoint and a target data set</td>
+</tr>
+<tr>
+<td><strong>T20</strong></td>
+<td>Self-scaled quasi-Newton: BFGS / SSBFGS / SSBroyden (new, 2026-09-24)</td>
+<td><code>not_a_single_operation</code></td>
+<td>the self-scaled quasi-Newton step converges in one or two iterations whatever the parameter count is, so its cost is set by the caller's objective: a quadratic in 64, 256 and 1024 parameters all took 0.19 ms</td>
+</tr>
+<tr>
+<td><strong>T21</strong></td>
+<td>Autoresearch loop (fixed-budget trials, keep/revert, random or LLM proposer)</td>
+<td><code>not_a_single_operation</code></td>
+<td>the autoresearch loop runs a budget of trials: the cost is the budget</td>
+</tr>
+<tr>
+<td><strong>T23</strong></td>
+<td>MultiAdam: per-loss-term Adam moments for multi-term PINN losses</td>
+<td><code>not_a_single_operation</code></td>
+<td>MultiAdam keeps per-term moments inside the training step, so its cost is a fraction of the backward pass T1 measures</td>
+</tr>
+<tr>
+<td><strong>E1</strong></td>
+<td>Laplace</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E2</strong></td>
+<td>Poisson</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E3</strong></td>
+<td>Helmholtz</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E4</strong></td>
+<td>Heat (steady anisotropic / transient)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E5</strong></td>
+<td>Wave</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E6</strong></td>
+<td>Advection-diffusion / convection</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E7</strong></td>
+<td>Burgers (viscous / inviscid)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E8</strong></td>
+<td>Reaction-diffusion 1D/2D (Gray-Scott)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E9</strong></td>
+<td>Fisher-KPP</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E10</strong></td>
+<td>Incompressible Navier-Stokes 2D/3D</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E11</strong></td>
+<td>Navier-Stokes in a rotating frame</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E12</strong></td>
+<td>Stokes</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E13</strong></td>
+<td>Brinkman</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E14</strong></td>
+<td>Darcy</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E15</strong></td>
+<td>Buckley-Leverett two-phase</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E16</strong></td>
+<td>Compressible Euler 1D/2D/axisymmetric/rotating 3D</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E17</strong></td>
+<td>Shallow water 1D/2D</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E18</strong></td>
+<td>Stommel gyre</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E19</strong></td>
+<td>Plane-stress / plane-strain linear elasticity</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E20</strong></td>
+<td>Axisymmetric elasticity (+ torsion) / Lame</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E21</strong></td>
+<td>Neo-Hookean hyperelasticity</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E22</strong></td>
+<td>Euler-Bernoulli beam</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E23</strong></td>
+<td>von Karman beam / plate</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E24</strong></td>
+<td>Thermoelasticity</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E25</strong></td>
+<td>Phase-field fracture</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E26</strong></td>
+<td>Biot poroelasticity</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E27</strong></td>
+<td>Maxwell TE</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E28</strong></td>
+<td>Bekker-Wong terramechanics</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E29</strong></td>
+<td>Compressor meanline 1D</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E30</strong></td>
+<td>Phonon Boltzmann transport 1D (gray)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E31</strong></td>
+<td>Black-Scholes</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E32</strong></td>
+<td>Heston</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E33</strong></td>
+<td>Opinion dynamics (continuum Hegselmann-Krause)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E34</strong></td>
+<td>Kepler two-body orbit</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E35</strong></td>
+<td>Circular restricted three-body problem (planar, synodic)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E36</strong></td>
+<td>J2 perturbation</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E37</strong></td>
+<td>Clohessy-Wiltshire relative motion</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E38</strong></td>
+<td>Euler rigid-body attitude</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E39</strong></td>
+<td>Lane-Emden polytrope</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E40</strong></td>
+<td>Shakura-Sunyaev accretion disk</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E41</strong></td>
+<td>Schwarzschild weak-field light bending</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E42</strong></td>
+<td>SIR epidemic</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E43</strong></td>
+<td>Pharmacokinetics two-compartment</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E44</strong></td>
+<td>Reaction network / Arrhenius / mass action</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E45</strong></td>
+<td>Hagen-Poiseuille</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E46</strong></td>
+<td>Blasius friction factor</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E47</strong></td>
+<td>Colebrook-White</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E48</strong></td>
+<td>Darcy-Weisbach pressure drop</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E49</strong></td>
+<td>Herschel-Bulkley + Metzner-Reed (non-Newtonian pipe flow)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E50</strong></td>
+<td>DNV-RP-O501 erosion (straight pipe and bend)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E51</strong></td>
+<td>Lame thick-walled cylinder</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E52</strong></td>
+<td>von Mises equivalent stress</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E53</strong></td>
+<td>Euler buckling + constrained rod buckling</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E54</strong></td>
+<td>Beam-column moment amplification factor</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E55</strong></td>
+<td>S-N curve + Goodman + Miner</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E56</strong></td>
+<td>Torsional stick-slip with Stribeck friction</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E57</strong></td>
+<td>Heat exchanger (effectiveness-NTU)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E58</strong></td>
+<td>Fin array conduction</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E59</strong></td>
+<td>Control valve (Cv, compressible / incompressible)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E60</strong></td>
+<td>Polytropic compression path</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E61</strong></td>
+<td>Real gas equation of state (CoolProp)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E62</strong></td>
+<td>Compressor similarity map</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E63</strong></td>
+<td>Helmholtz resonator</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E64</strong></td>
+<td>Membrane diffusion</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E65</strong></td>
+<td>Cantilever fatigue</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E66</strong></td>
+<td>Electrostatics (Gauss's law with permittivity), differential and integral form</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E67</strong></td>
+<td>Magnetostatics in the vector potential A_z</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E68</strong></td>
+<td>Magneto-quasistatic eddy currents (time-harmonic A_z)</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E69</strong></td>
+<td>Maxwell TMz time domain, differential and integral (Ampere-Maxwell circulation, Faraday) form</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E70</strong></td>
+<td>Maxwell's curl equations in 3-D with optional Gauss constraints</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E71</strong></td>
+<td>Frequency-domain TMz wave equation with complex permittivity</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E72</strong></td>
+<td>Fredholm integral equation of the second kind in Nystrom form, bounded and logarithmic kernels</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>E73</strong></td>
+<td>Volterra integral equation of the second kind in Nystrom form</td>
+<td><code>definition</code></td>
+<td>equation definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.1</strong></td>
+<td>Academic: burgers_1d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.2</strong></td>
+<td>Academic: channel_flow_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.3</strong></td>
+<td>Academic: darcy_pressure_only_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.4</strong></td>
+<td>Academic: helmholtz_acoustics_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.5</strong></td>
+<td>Academic: laplace_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.6</strong></td>
+<td>Academic: lid_driven_cavity_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.7</strong></td>
+<td>Academic: ns_incompressible_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.8</strong></td>
+<td>Academic: pipe_flow_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.9</strong></td>
+<td>Academic: poisson_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.10</strong></td>
+<td>Academic: reaction_diffusion_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.11</strong></td>
+<td>Academic: steady_heat_conduction_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.12</strong></td>
+<td>Academic: transient_heat_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P1.13</strong></td>
+<td>Academic: wave_ultrasound_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.1</strong></td>
+<td>Solids: axisymmetric_linear_elasticity_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.2</strong></td>
+<td>Solids: linear_elasticity_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.3</strong></td>
+<td>Solids: linear_elasticity_3d_industry</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.4</strong></td>
+<td>Solids: material_fracture_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.5</strong></td>
+<td>Solids: plane_strain_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.6</strong></td>
+<td>Solids: plane_stress_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.7</strong></td>
+<td>Solids: rotary_coupling_torsion</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.8</strong></td>
+<td>Solids: thermoelasticity_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.9</strong></td>
+<td>Solids: thick_walled_cylinder_lame</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.10</strong></td>
+<td>Solids: threaded_coupling_tc50_box</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.11</strong></td>
+<td>Solids: threaded_coupling_tc50_pin</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.12</strong></td>
+<td>Solids: threaded_coupling_tc50_rotating</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P2.13</strong></td>
+<td>Solids: von_mises_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P3.1</strong></td>
+<td>Aero / automotive: aircraft_wing_aerodynamics</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P3.2</strong></td>
+<td>Aero / automotive: aircraft_wing_structural</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P3.3</strong></td>
+<td>Aero / automotive: car_brake_thermal</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P3.4</strong></td>
+<td>Aero / automotive: car_external_aero</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P3.5</strong></td>
+<td>Aero / automotive: car_suspension_fatigue</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P3.6</strong></td>
+<td>Aero / automotive: rocket_nozzle_cfd</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P3.7</strong></td>
+<td>Aero / automotive: rocket_structural</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P4.1</strong></td>
+<td>Turbomachinery: axial_compressor_cascade_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P4.2</strong></td>
+<td>Turbomachinery: axial_compressor_meanline</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P4.3</strong></td>
+<td>Turbomachinery: axial_compressor_stage_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P4.4</strong></td>
+<td>Turbomachinery: fan_cooler_cfd</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.1</strong></td>
+<td>Industrial thermal: cpu_heatsink_thermal</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.2</strong></td>
+<td>Industrial thermal: datacenter_airflow_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.3</strong></td>
+<td>Industrial thermal: datacenter_cfd_3d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.4</strong></td>
+<td>Industrial thermal: datacenter_server_thermal</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.5</strong></td>
+<td>Industrial thermal: furnace_combustion_zone</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.6</strong></td>
+<td>Industrial thermal: industrial_furnace_thermal</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.7</strong></td>
+<td>Industrial thermal: pcb_thermal</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P5.8</strong></td>
+<td>Industrial thermal: refractory_lining</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.1</strong></td>
+<td>Multidisciplinary: black_scholes_1d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.2</strong></td>
+<td>Multidisciplinary: climate_atmosphere_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.3</strong></td>
+<td>Multidisciplinary: climate_ocean_gyre</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.4</strong></td>
+<td>Multidisciplinary: crystal_phonon</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.5</strong></td>
+<td>Multidisciplinary: drug_diffusion_tissue</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.6</strong></td>
+<td>Multidisciplinary: heston_pde_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.7</strong></td>
+<td>Multidisciplinary: opinion_dynamics_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.8</strong></td>
+<td>Multidisciplinary: pk_two_compartment</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P6.9</strong></td>
+<td>Multidisciplinary: sir_epidemic</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.1</strong></td>
+<td>Astro / space: cr3bp_planar_synodic</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.2</strong></td>
+<td>Astro / space: kepler_two_body_orbit</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.3</strong></td>
+<td>Astro / space: lane_emden_polytrope</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.4</strong></td>
+<td>Astro / space: nfw_dark_matter_potential</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.5</strong></td>
+<td>Astro / space: satellite_j2_perturbation</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.6</strong></td>
+<td>Astro / space: schwarzschild_light_bending_weak_field</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.7</strong></td>
+<td>Astro / space: shakura_sunyaev_accretion_disk</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.8</strong></td>
+<td>Astro / space: sod_shock_tube_astro</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.9</strong></td>
+<td>Astro / space: space_debris_cw_relative_motion</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P7.10</strong></td>
+<td>Astro / space: spacecraft_attitude_euler_rotation</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P8.1</strong></td>
+<td>Terramechanics: bekker_wong_surrogate_2d</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P10.1</strong></td>
+<td>Integral equations: integral_fredholm_separable_exp</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P10.2</strong></td>
+<td>Integral equations: integral_fredholm_unit_exp</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P10.3</strong></td>
+<td>Integral equations: integral_log_kernel_linear</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P10.4</strong></td>
+<td>Integral equations: integral_volterra_unit_exp</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+<tr>
+<td><strong>P9</strong></td>
+<td>PINNeAPPle-CFD v1: pipes + particle erosion (CFD-04 pilot)</td>
+<td><code>definition</code></td>
+<td>problem definition: not an executable of its own, its cost belongs to the solver that discretizes it</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

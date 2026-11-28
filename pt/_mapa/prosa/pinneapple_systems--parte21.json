@@ -1,0 +1,69 @@
+{
+ "pacote": "pinneapple_systems",
+ "objetivo": "Esta parte cobre dois submódulos do `pinneapple_systems`. `component_library` é um registro de componentes de planta nomeados (tubo, trocador de calor, tanque, célula de bateria, bomba, válvula). Cada componente junta uma arquitetura já existente do `ModelRegistry` com uma restrição física opcional (`Physics`), e os componentes são agrupados em toolboxes versionadas e instaláveis. `component_modeling` traz ferramentas que funcionam com qualquer modelo diferenciável, seja qual for a física que ele representa: controle PID e MPC, incerteza (SWAG, ensemble profundo, MC-Dropout), resíduos físicos genéricos por autograd e empacotamento ONNX para borda com runtime sem torch.",
+ "submodulos": {
+  "component_library": "Registro de componentes de planta nomeados, com restrição física, benchmark por tipo e toolboxes instaláveis.",
+  "component_modeling": "Controle, incerteza, resíduos físicos e exportação para borda para qualquer modelo diferenciável."
+ },
+ "modulos": {
+  "pinneapple_systems.component_library": "Reexporta `ComponentRegistry`, `ComponentModel`, `Physics`, `Toolbox`, `ToolboxRegistry` e o benchmark, e registra os seis componentes de referência ao ser importado.",
+  "pinneapple_systems.component_library.base": "`ComponentModel`: um `BaseModel` que envolve uma arquitetura registrada, conhece sua `Physics` e oferece `fit` e `evaluate` (RMSE, MAPE, R²) em uma chamada. [sem teste direto pelo inventário]",
+  "pinneapple_systems.component_library.benchmark": "Treina todas as arquiteturas registradas sob um `component_type` e as ranqueia pela perda final de validação. A marca 'placeholder' do inventário é falso positivo: o docstring diz 'not a display placeholder'. [sem teste direto pelo inventário]",
+  "pinneapple_systems.component_library.components": "Seis componentes de referência (tubo, trocador de calor, casco de tanque, célula de bateria, bomba, válvula), cada um com uma combinação diferente de física e arquitetura (`vanilla_pinn` ou `modified_mlp`); a válvula é só por dados. [sem teste direto pelo inventário]",
+  "pinneapple_systems.component_library.physics": "`Physics`: liga um componente à sua restrição, reduzida a uma `loss_fn` no formato do `Trainer`, com parâmetros guardados para inspeção. [sem teste direto pelo inventário]",
+  "pinneapple_systems.component_library.registry": "`ComponentRegistry` guarda componentes por `component_type`, permitindo várias arquiteturas concorrentes no mesmo tipo, e os constrói por nome. [sem teste direto pelo inventário]",
+  "pinneapple_systems.component_library.toolbox": "`Toolbox`: pacote nomeado e versionado de tipos de componentes com dependências; `ToolboxRegistry` registra e mantém o conjunto instalado. Registra a 'Fluid Mechanics Toolbox' e a 'Process Equipment Toolbox'. [sem teste direto pelo inventário]",
+  "pinneapple_systems.component_modeling": "Reexporta controle, MPC, SWAG, ensemble, MC-Dropout, resíduos físicos e exportação para borda; o docstring explica que registro, classe base e geração de malha ficam em outros pacotes. [sem teste direto do `__init__`]",
+  "pinneapple_systems.component_modeling.bayesian": "`SWAGApproximation`: posterior Gaussiana diagonal sobre os pesos via SWAG, a partir de snapshots ao longo do treino, com previsão por amostragem de pesos.",
+  "pinneapple_systems.component_modeling.control": "Controlador PID discreto com limites de saída e um executor de malha fechada para planta diferenciável ou caixa-preta, com ruído de processo e medição e observador opcional.",
+  "pinneapple_systems.component_modeling.edge": "Exporta um modelo para ONNX e compacta com `manifest.json` num zip; `EdgeRuntime` roda esse pacote só com onnxruntime e NumPy.",
+  "pinneapple_systems.component_modeling.ensemble": "`DeepEnsemble`: N cópias da mesma arquitetura com inicializações diferentes, treinadas separadamente; a média e o desvio entre membros dão a incerteza epistêmica.",
+  "pinneapple_systems.component_modeling.mc_dropout": "Incerteza por MC-Dropout: várias passagens com dropout ativo, reduzidas a média e desvio; erro se o modelo não tem dropout. [sem teste direto]",
+  "pinneapple_systems.component_modeling.mpc": "MPC de horizonte deslizante baseado em gradiente em torno de um componente diferenciável. [sem teste direto pelo inventário]",
+  "pinneapple_systems.component_modeling.physics_residuals": "Resíduos de EDP fechados por autograd para qualquer modelo coordenadas→campos: continuidade incompressível, condução de calor, elasticidade linear e difusão de espécies; saídas insuficientes levantam `NotImplementedError`."
+ },
+ "simbolos": {
+  "pinneapple_systems.component_library.base:ComponentModel": "Componente de planta nomeado: arquitetura existente + `Physics` opcional, com `fit` e `evaluate`.",
+  "pinneapple_systems.component_library.benchmark:ComponentBenchmarkResult": "Ranking das arquiteturas de um tipo de componente, com `best`.",
+  "pinneapple_systems.component_library.benchmark:benchmark_component_type": "Treina cada arquitetura de um `component_type` e ranqueia pela perda de validação.",
+  "pinneapple_systems.component_library.components:PipeVanillaPINN": "Componente tubo: VanillaPINN com restrição de escoamento incompressível.",
+  "pinneapple_systems.component_library.components:HeatExchangerVanillaPINN": "Componente trocador de calor: VanillaPINN com resíduo de condução de calor.",
+  "pinneapple_systems.component_library.components:TankShellVanillaPINN": "Componente casco de tanque: VanillaPINN com resíduo de elasticidade linear.",
+  "pinneapple_systems.component_library.components:BatteryCellVanillaPINN": "Componente célula de bateria: VanillaPINN com resíduo de difusão de espécies.",
+  "pinneapple_systems.component_library.components:PumpModifiedMLP": "Componente bomba: ModifiedMLP com restrição de escoamento incompressível.",
+  "pinneapple_systems.component_library.components:ValveModifiedMLP": "Componente válvula: ModifiedMLP só com dados, sem restrição física.",
+  "pinneapple_systems.component_library.physics:Physics": "Restrição física nomeada reduzida a uma `loss_fn`, com parâmetros para inspeção.",
+  "pinneapple_systems.component_library.registry:ComponentSpec": "Registro de um componente: tipo, nome, classe, física, descrição e tags.",
+  "pinneapple_systems.component_library.registry:ComponentRegistry": "Registro central de componentes: registra, lista por tipo, dá a spec e constrói.",
+  "pinneapple_systems.component_library.registry:register_component": "Decorador de módulo equivalente a `ComponentRegistry.register`.",
+  "pinneapple_systems.component_library.toolbox:Toolbox": "Pacote nomeado e versionado de tipos de componentes, com dependências e lista de componentes.",
+  "pinneapple_systems.component_library.toolbox:ToolboxRegistry": "Registro de toolboxes com instalar, desinstalar e consultar as instaladas.",
+  "pinneapple_systems.component_modeling.bayesian:SWAGApproximation": "Posterior aproximada SWAG (diagonal) sobre os pesos de um modelo, com `fit` e `predict_with_uncertainty`.",
+  "pinneapple_systems.component_modeling.control:PIDController": "PID discreto padrão com bias e limites de saída.",
+  "pinneapple_systems.component_modeling.control:run_closed_loop": "Fecha uma malha de controle PID em torno de uma planta e devolve os históricos.",
+  "pinneapple_systems.component_modeling.edge:EdgeRuntime": "Runtime mínimo de borda que carrega o zip exportado e roda inferência ONNX sem torch.",
+  "pinneapple_systems.component_modeling.edge:export_edge_package": "Exporta o modelo para ONNX e compacta com um manifesto num pacote de borda.",
+  "pinneapple_systems.component_modeling.ensemble:DeepEnsemble": "Ensemble profundo com `fit` e `predict` devolvendo média e desvio entre membros.",
+  "pinneapple_systems.component_modeling.mc_dropout:mc_dropout_uncertainty": "Média e desvio de várias passagens com dropout ativo.",
+  "pinneapple_systems.component_modeling.mpc:run_mpc": "MPC de horizonte deslizante que otimiza a entrada de controle por gradiente a cada passo.",
+  "pinneapple_systems.component_modeling.physics_residuals:incompressible_continuity_residual": "Resíduo de div(u) = 0 para as primeiras saídas de velocidade.",
+  "pinneapple_systems.component_modeling.physics_residuals:heat_conduction_residual": "Resíduo estacionário k·ΔT + Q.",
+  "pinneapple_systems.component_modeling.physics_residuals:linear_elasticity_residual": "Resíduo de equilíbrio de Navier-Lamé sem força de corpo.",
+  "pinneapple_systems.component_modeling.physics_residuals:species_diffusion_residual": "Resíduo estacionário de difusão-reação D·ΔC − k·C."
+ },
+ "exemplos": [
+  {
+   "titulo": "Componente tubo com toolbox e treino",
+   "caminho": "examples/systems/01_component_library_toolbox.py",
+   "codigo": "    toolbox = ToolboxRegistry.install(\"Fluid Mechanics Toolbox\")\n    print(f\"\\nInstalled '{toolbox.name} v{toolbox.version}' — components:\",\n          [c.name for c in toolbox.components()])\n    pipe = ComponentRegistry.build(\"PipeVanillaPINN\", in_dim=3, out_dim=3, hidden=(64, 64, 64))\n    print(f\"\\nBuilt {pipe._component_name} — physics: {pipe.physics.name}\")\n    x = torch.rand(256, 3)\n    y = torch.rand(256, 3)  # synthetic velocity targets, standing in for real CFD data\n    loader = DataLoader(TensorDataset(x, y), batch_size=32, collate_fn=_collate)\n    result = pipe.fit(loader, loader, epochs=5, lr=1e-3, run_name=\"pipe_demo\", log_dir=tempfile.mkdtemp())\n    metrics = pipe.evaluate(torch.rand(64, 3), torch.rand(64, 3))"
+  }
+ ],
+ "limitacoes": [
+  "`physics_residuals` levanta `NotImplementedError` quando o modelo não tem saídas suficientes para o resíduo pedido; os resíduos são estacionários e simplificados (sem força de corpo, decaimento de primeira ordem).",
+  "`SWAGApproximation` usa só a variância diagonal, não a parte de baixo posto do SWAG completo.",
+  "`edge` exige onnx/onnxruntime; `EdgeRuntime` não importa torch nem pinneapple.",
+  "Os seis componentes de referência são exemplos de arquitetura e física, sem dados reais; o exemplo usa alvos sintéticos aleatórios.",
+  "O conjunto de toolboxes instaladas vive só na memória do processo (`ToolboxRegistry`).",
+  "Sem teste direto pelo inventário: todos os módulos de `component_library` exceto o `__init__`, e `component_modeling` `mc_dropout`, `mpc` e o `__init__`."
+ ]
+}

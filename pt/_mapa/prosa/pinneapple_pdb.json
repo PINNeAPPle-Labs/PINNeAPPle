@@ -1,0 +1,67 @@
+{
+ "pacote": "pinneapple_pdb",
+ "objetivo": "O `pinneapple_pdb` (physics database) tem duas partes independentes. A primeira é o `PhysicalDatasetBuilder`, que monta datasets físicos a partir de hubs de dados da Terra (NASA CMR via `earthaccess`): busca coleções e granules, escolhe variáveis e janela espaço-temporal, abre os dados com xarray, padroniza dimensões, valida unidades, faixas e monotonicidade, acrescenta variáveis derivadas (vorticidade e divergência), fatia em janelas de tempo e blocos espaciais com tags de regime e grava tudo em Zarr no formato UPD, com um catálogo e um esquema físico (equações, contornos, política de unidades) vindo de templates como `atmosphere_reanalysis_v1`.\n\nA segunda parte é `benchmarks`, um catálogo pequeno e curado de datasets de referência resolvidos por nome (`get_benchmark(\"lane_emden_n1.5\")`), no mesmo padrão `@register_x`/`get_x`/`list_x` do registro de presets de `pinneapple_physics`. Cada entrada é recalculada ao ser pedida (integração com SciPy ou solução fechada) e conferida contra um valor publicado ou uma solução exata; se a conferência falhar, a função levanta erro em vez de devolver um perfil não verificado. As entradas cobrem Lane-Emden (n=1.5 e n=3), sustentação de vórtice de Polhamus no ângulo de Concorde (teoria, não dado de voo), camada-limite de Blasius, condução transiente em parede plana com Bi=1 e três casos com as equações do PDEBench (advecção 1D, difusão-reação 1D, Darcy 2D) sem baixar as trajetórias do PDEBench.\n\nO catálogo de benchmarks é usado pelo guardrail físico de `pinneapple_llm` e por exemplos como `examples/use_cases/concorde_high_aoa`; o builder é usado pelos exemplos de `examples/physics_db/`. O pacote não tem CLI: o `pyproject.toml` registra que o antigo script `pinneapple_pdb.cli:main` foi removido por não existir.",
+ "submodulos": {
+  "benchmarks": "Catálogo curado, por nome, de datasets de referência (x, y) recalculados e verificados a cada uso.",
+  "builder": "`PhysicalDatasetBuilder`: busca dados em hubs da Terra (earthaccess/CMR), valida, deriva, fatia e grava Zarr UPD com catálogo.",
+  "derived": "Variáveis derivadas (vorticidade e divergência) a partir de U/V em grade lat/lon.",
+  "shard": "Fatiamento por janelas de tempo e blocos espaciais, com tags de regime (trópicos, polar).",
+  "templates": "Templates de esquema físico (por exemplo reanálise atmosférica).",
+  "validate": "Padronização de dimensões e validação de unidades, faixas e monotonicidade."
+ },
+ "modulos": {
+  "pinneapple_pdb": "Ponto de entrada: reexporta o builder e suas specs, `schema_templates` e a API do catálogo de benchmarks; não tem docstring de módulo.",
+  "pinneapple_pdb.benchmarks": "Catálogo de referências por nome com oito entradas registradas, cada uma recalculada e conferida contra valor publicado ou solução exata (levanta erro se divergir); o docstring ainda fala em \"FIVE entries\", desatualizado.",
+  "pinneapple_pdb.builder": "Construtor de datasets físicos a partir de NASA CMR/`earthaccess` (extra opcional `pinneapple[earthdata]`, importado sob demanda): busca, inspeção de granule, seleção, validação, derivadas, fatiamento e escrita Zarr UPD com catálogo; `build` exige login no Earthdata. [sem teste direto]",
+  "pinneapple_pdb.derived": "Calcula vorticidade e divergência de vento U/V numa grade lat/lon e aplica as derivadas pedidas numa spec. [sem teste direto]",
+  "pinneapple_pdb.shard": "Gera janelas de tempo não sobrepostas e blocos lat/lon alinhados, recorta o dataset e marca tags `tropics`/`polar` pela latitude. [sem teste direto]",
+  "pinneapple_pdb.templates": "Devolve o template `atmosphere_reanalysis_v1` (equações primitivas hidrostáticas); a política pede SI mas nenhuma conversão automática é feita. [sem teste direto]",
+  "pinneapple_pdb.validate": "Padroniza nomes e ordem de dimensões (time, lev, lat, lon) e devolve a lista de problemas de unidades, faixas e monotonicidade. [sem teste direto]"
+ },
+ "simbolos": {
+  "pinneapple_pdb.benchmarks:BenchmarkEntry": "Um dataset de referência nomeado: descrição, fonte, variáveis x/y, arrays de referência e nota de verificação.",
+  "pinneapple_pdb.benchmarks:register_benchmark": "Decorador que registra uma fábrica sem argumentos de `BenchmarkEntry` sob um nome.",
+  "pinneapple_pdb.benchmarks:get_benchmark": "Resolve um benchmark pelo nome, construindo e verificando a entrada.",
+  "pinneapple_pdb.benchmarks:list_benchmarks": "Lista ordenada dos nomes de benchmarks registrados.",
+  "pinneapple_pdb.benchmarks:benchmark_catalog": "Dicionário nome -> `BenchmarkEntry` de todos os benchmarks, construídos e verificados de novo.",
+  "pinneapple_pdb.builder:HubQuery": "Parâmetros de busca no hub: provedor, nome curto e palavra-chave.",
+  "pinneapple_pdb.builder:SpaceTime": "Extensão temporal e espacial (bbox) com passo e chunking.",
+  "pinneapple_pdb.builder:VariableSelection": "Seleção de variáveis por inclusão, exclusão e pacotes.",
+  "pinneapple_pdb.builder:PhysicalSchema": "Metadados físicos: sistema, equações, CI, CC, forçantes, política de unidades, tags e validade.",
+  "pinneapple_pdb.builder:PhysicalDatasetBuilder": "Builder MVP: busca e inspeção de granules, sharding por tempo e blocos, derivadas e validações, saída Zarr com catálogo.",
+  "pinneapple_pdb.derived:DerivedSpec": "Quais variáveis derivadas acrescentar e os nomes de U e V.",
+  "pinneapple_pdb.derived:add_vorticity_divergence": "Acrescenta vorticidade e divergência calculadas de U/V em grade lat/lon.",
+  "pinneapple_pdb.derived:apply_derived": "Aplica as derivadas de uma spec e devolve um novo dataset.",
+  "pinneapple_pdb.shard:ShardSpec": "Janela de tempo, tamanho de bloco em graus e se adiciona tags de regime.",
+  "pinneapple_pdb.shard:iter_time_windows": "Gera pares (início, fim) de janelas de tempo não sobrepostas.",
+  "pinneapple_pdb.shard:subset_time": "Recorta o intervalo de tempo [a, b).",
+  "pinneapple_pdb.shard:iter_tiles": "Gera limites de blocos lat/lon alinhados à grade de passos dados.",
+  "pinneapple_pdb.shard:subset_tile": "Recorta um bloco espacial; supõe coordenadas ordenadas.",
+  "pinneapple_pdb.shard:regime_tags_for": "Tags de regime (`tropics`, `polar`) pela extensão em latitude.",
+  "pinneapple_pdb.templates:schema_templates": "Mapa id de template -> dicionário compatível com `PhysicalSchema`.",
+  "pinneapple_pdb.validate:ValidationSpec": "Spec de validação: exigir unidades, faixas por variável e monotonicidade de nível e tempo.",
+  "pinneapple_pdb.validate:standardize_dims": "Padroniza nomes de dimensões e transpõe variáveis para (time, lev, lat, lon).",
+  "pinneapple_pdb.validate:validate_dataset": "Valida o dataset contra a spec e devolve as mensagens de problema (vazia se válido)."
+ },
+ "exemplos": [
+  {
+   "titulo": "Inspecionar um granule de um hub da Terra",
+   "caminho": "examples/physics_db/00_quickstart_inspect.py",
+   "codigo": "    b = PhysicalDatasetBuilder()\n\n    # 1) Search collections (keep keyword broad at first)\n    collections = b.list_collections(keyword=\"MERRA\", limit=10)\n    print(\"\\nTop matches:\")\n    for c in collections[:10]:\n        print(f\"- {c.get('short_name')} | provider={c.get('provider')} | {c.get('title','')[:80]}\")\n\n    # 2) Pick one (edit as needed)\n    # Many users end up using MERRA-2 products; pick a short_name shown above.\n    b.set_dataset(provider=collections[0].get(\"provider\"), short_name=collections[0].get(\"short_name\"))"
+  },
+  {
+   "titulo": "Usar um benchmark do catálogo como referência teórica",
+   "caminho": "examples/use_cases/concorde_high_aoa/concorde_high_aoa_pipeline.py",
+   "codigo": "    bench = get_benchmark(\"concorde_high_aoa\")\n\n    fig, ax = plt.subplots(figsize=(9, 5.5), facecolor=DARK_BG)\n    ax.set_facecolor(DARK_BG)\n    for spine in ax.spines.values():\n        spine.set_edgecolor(\"#444\")\n    ax.tick_params(colors=\"white\")\n\n    ax.plot(\n        bench.reference_x[:, 0], bench.reference_y[:, 0],\n        \"-\", color=\"white\", lw=1.5,"
+  }
+ ],
+ "limitacoes": [
+  "O builder depende do extra opcional `earthaccess` (`pip install pinneapple[earthdata]`), de acesso à rede e de login no Earthdata (`build` chama `login`); também usa xarray, pandas e um engine como `pydap`.",
+  "Os módulos do builder (`builder`, `derived`, `shard`, `templates`, `validate`) não têm teste que os importe diretamente; os testes do pacote cobrem sobretudo `benchmarks`.",
+  "O catálogo de benchmarks é pequeno e curado; as entradas PDEBench reproduzem só as equações e parâmetros de exemplo, não as trajetórias reais do PDEBench.",
+  "`concorde_high_aoa` é a teoria de Polhamus avaliada na razão de aspecto aproximada do Concorde, não dado de túnel de vento ou de voo.",
+  "O docstring de `benchmarks` diz \"FIVE entries\", mas há oito registradas; um dataset LES de canal citado no docstring não foi incluído por viver fora do repositório.",
+  "A política de unidades do template pede SI, mas nenhuma conversão é feita: as unidades dos granules são gravadas como vieram (`converted: False`).",
+  "Não há CLI: o script `pinneapple_pdb.cli:main` foi removido do `pyproject.toml` porque o módulo não existe."
+ ]
+}

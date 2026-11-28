@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>E-Motor 3D Surrogates</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 10.2pt; line-height: 1.5; color: #14181d; margin: 0; }
+  h1 { font-size: 22pt; line-height: 1.15; margin: 0 0 6pt 0; letter-spacing: -0.2pt; }
+  h2 { font-size: 14pt; margin: 22pt 0 6pt 0; padding-bottom: 3pt; border-bottom: 1.6pt solid #0b6b57; page-break-after: avoid; }
+  h3 { font-size: 11.2pt; margin: 14pt 0 4pt 0; color: #0b6b57; page-break-after: avoid; }
+  p { margin: 0 0 7pt 0; text-align: justify; }
+  ul, ol { margin: 0 0 8pt 0; padding-left: 16pt; }
+  li { margin-bottom: 3pt; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.6pt; background: #eef2f1; padding: 0.5pt 3pt; border-radius: 3pt; }
+  pre { background: #0f1720; color: #e6edf3; padding: 9pt 11pt; border-radius: 5pt; overflow: visible;
+        font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.1pt; line-height: 1.42; margin: 6pt 0 10pt 0;
+        page-break-inside: avoid; white-space: pre-wrap; }
+  pre .c { color: #8b98a5; }
+  pre .k { color: #7ee2b8; }
+  pre .s { color: #f0b866; }
+  table { border-collapse: collapse; width: 100%; margin: 6pt 0 10pt 0; font-size: 8.9pt; page-break-inside: avoid; }
+  th, td { border-bottom: 0.6pt solid #d3dae0; padding: 3.5pt 5pt; text-align: left; vertical-align: top; }
+  tr { page-break-inside: avoid; break-inside: avoid; }
+  th { background: #eef2f1; font-weight: 600; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  figure { margin: 10pt 0 12pt 0; page-break-inside: avoid; }
+  figure img { width: 100%; border: 0.6pt solid #d3dae0; border-radius: 4pt; }
+  figcaption { font-size: 8.5pt; color: #4a5560; margin-top: 4pt; }
+  .cover { border-left: 5pt solid #0b6b57; padding: 0 0 0 12pt; margin-bottom: 16pt; }
+  .lead { font-size: 11.4pt; color: #2b3a44; }
+  .meta { font-size: 8.8pt; color: #5a6873; margin-top: 8pt; }
+  .box { background: #f4f8f7; border: 0.7pt solid #cfe0da; border-left: 3pt solid #0b6b57; padding: 8pt 11pt; border-radius: 4pt; margin: 8pt 0 10pt 0; page-break-inside: avoid; }
+  .warn { background: #fdf6ec; border: 0.7pt solid #ecd9b8; border-left: 3pt solid #c8811a; padding: 8pt 11pt; border-radius: 4pt; margin: 8pt 0 10pt 0; page-break-inside: avoid; }
+  .kv { display: grid; grid-template-columns: 34% 66%; font-size: 9.2pt; }
+  .kv div { padding: 2.5pt 0; border-bottom: 0.5pt dotted #d3dae0; }
+  .kv div:nth-child(odd) { color: #4a5560; }
+  .newpage { page-break-before: always; }
+  .small { font-size: 8.7pt; color: #4a5560; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Multiphysics 3-D optimisation of electric motors<br>on pretrained surrogates</h1>
+  <p class="lead">A large physics model — built once, shipped with its error bars — that replaces the FEA and the
+  thermal solve inside the design loop, so a motor can be optimised over thousands of designs without a single
+  finite-element call.</p>
+  <p class="meta">PINNeAPPle · <code>pinneapple_simulation.electromagnetics.machines.motor3d</code> ·
+  every number in this document was produced by the code it describes, on a laptop CPU, with the artefacts kept
+  next to it.</p>
+</div>
+
+<h2>1. The question this document answers</h2>
+
+<p>An electric motor is the canonical multiphysics object. The stator current produces torque <em>and</em> heat; the
+heat raises the winding and magnet temperatures; the magnet temperature lowers the remanence, which lowers the
+torque and eats the demagnetisation margin; the coolant flow sets how much heat leaves; the stack length and the
+skew change all of the above at once. Every one of those couplings is real, and every one of them is expensive to
+evaluate, because the electromagnetic side is a nonlinear magnetostatic finite-element problem that must be solved
+at several rotor positions per operating point.</p>
+
+<p>The engineering consequence is that motor design still lives with a small number of FEA runs and a large amount
+of experience. The alternative explored here is to spend the FEA once — on a designed set of cases — and learn the
+<em>whole chain</em> from geometry and operating point to performance, loss, temperature and demagnetisation margin.
+The learned model is not a curve fit per quantity: it is one map from the same eleven design variables to the
+fourteen physics outputs plus three axial profiles, shipped as a pretrained artefact with a model card that states
+its held-out error on every one of them.</p>
+
+<div class="box">
+<strong>What "without FEA or CFD" means here, precisely.</strong> During the search, every candidate design is
+answered by a forward pass of an ensemble of small networks — about 100 microseconds per design, and no solver
+involves. The FEA is spent twice: once, offline, to build the training set, and once, at the end, on a handful of
+designs of the Pareto front, to check that the front is real. Both costs are reported in every result. Nothing in
+this document claims a neural network knows physics it was not shown.
+</div>
+
+<h2>2. What the repository already contained</h2>
+
+<p>Before this work the library had most of the physics and all of the optimisation scaffolding, but not the loop
+that connects them. The inventory matters, because the model added here is built out of these pieces rather than
+next to them.</p>
+
+<table>
+  <tr><th style="width:34%">Capability</th><th style="width:32%">Where</th><th>What it does</th></tr>
+  <tr><td>2-D nonlinear magnetostatic FEA of a machine cross-section</td>
+      <td><code>machines.IPMMachine</code>, <code>machines.prius_2004</code></td>
+      <td>Torque by Maxwell stress and by co-energy, flux linkage, back-EMF, <code>L_d</code>/<code>L_q</code>,
+          MTPA, iron and magnet loss — the 2004 Toyota Prius geometry, verified against published FEA.</td></tr>
+  <tr><td>Conforming air-gap mesher with a moving band</td><td><code>machines.mesher</code></td>
+      <td>One pole and one slot pitch meshed with every polygon edge as a mesh edge, then copied around the circle.</td></tr>
+  <tr><td>Catalogue steel and magnet grades</td><td><code>machines.steel</code></td>
+      <td>B–H curve and loss table of M400-50A, NdFeB with its reversible <code>Br(T)</code> coefficient.</td></tr>
+  <tr><td>End windings outside the cross-section</td><td><code>machines.endwinding</code>, <code>machines.drive</code></td>
+      <td>End-turn length, resistance and leakage of the coil ends; flux maps and drive-cycle energy.</td></tr>
+  <tr><td>Lumped thermal network, one node per part</td><td><code>machines.thermal.machine_network</code></td>
+      <td>Seven nodes (yoke, teeth, winding, end windings, rotor, magnets, shaft) and a demagnetisation margin
+          against <code>Hcj(T)</code>.</td></tr>
+  <tr><td>Design-space optimisation with a surrogate</td><td><code>pinneapple_design.design_optimizer</code></td>
+      <td>NSGA-II, gradient methods, a Gaussian-process surrogate with active learning, hypervolume, and
+          re-verification of the front by the reference solver.</td></tr>
+  <tr><td>Magnetic topology optimisation</td><td><code>pinneapple_design.topology.magnetic</code></td>
+      <td>Rotor material distribution against mean torque.</td></tr>
+  <tr><td>An industrial preset for the Prius motor</td><td><code>pp.presets.load("ipm_traction_motor")</code></td>
+      <td>Torque, ripple, MTPA and voltage with a data sheet, a surrogate built on demand, an inversion and a
+          validation against Yang et al. (2013).</td></tr>
+  <tr><td>The 3-D surrogate pattern, proved on another domain</td><td><code>pinneapple_design.aero</code> (aircraft)</td>
+      <td>MLP coefficients over airfoil + planform, a whole-aircraft evaluator on top, NSGA-II, trust from the
+          ensemble spread, ONNX export for geometry.</td></tr>
+  <tr><td>Model zoo, trust layer, benchmarks</td><td><code>pp.zoo</code>, <code>pp.validate</code>,
+      <code>pinneapple check</code></td>
+      <td>Pretrained models with SHA-256-checked weights and cards; physics audit of any prediction; equal-budget
+      benchmarks.</td></tr>
+</table>
+
+<p>Two gaps followed from that inventory. First, the machine model was strictly two-dimensional per cross-section
+and the thermal network had one node per part: enough to know a hot-spot <em>level</em>, not its <em>place</em> along
+a stack with two cooled ends. Second, nothing assembled the chain — FEA, skew, loss, cooling, the magnet
+temperature back on torque and demagnetisation — into one call, and nothing in the motor domain had a pretrained
+surrogate that could be evaluated a hundred thousand times.</p>
+
+<h2>3. What was added</h2>
+
+<p>One package, <code>motor3d</code>, with six modules, a pretrained artefact, tests, an example and a guide:</p>
+
+<table>
+  <tr><th style="width:22%">Module</th><th>Contribution</th></tr>
+  <tr><td><code>thermal3d.py</code></td>
+      <td>The radial thermal network cut into axial segments and linked by <code>k A / dz</code>, with the end
+          windings as one node outside the stack and the water jacket spread over every yoke segment. With one
+          segment it reproduces <code>machines.thermal.machine_network</code> to round-off, which is the test that
+          says it is the same physics and not a second opinion.</td></tr>
+  <tr><td><code>model.py</code></td>
+      <td>The coupled chain in one call: FEA at the operating point, skew by axial slices, iron/magnet/copper loss,
+          cooling at a coolant flow, the magnet temperature corrected back onto torque, iron loss and the
+          demagnetisation margin, and the axial profiles. Designs past the reversible range of the magnet grade are
+          reported as not assessable instead of scored.</td></tr>
+  <tr><td><code>design.py</code></td>
+      <td>Eleven design variables declared once — rotor cross-section, stack, skew, operating point, coolant flow —
+          with units and bounds. The design space, the dataset columns and the network inputs are all derived from
+          that single declaration.</td></tr>
+  <tr><td><code>dataset.py</code></td>
+      <td>A design of experiments over that box with the geometry test as a feasibility filter, evaluated in
+          parallel processes and stored with its provenance (method, seed, model configuration, cost, rejection
+          rate).</td></tr>
+  <tr><td><code>surrogate.py</code></td>
+      <td>The ensemble: five to eight networks, log-space training for strictly positive outputs, a held-out error
+          per output, a validity box, an extrapolation measure, constant-output detection, and SHA-256-checked
+          weights with a model card.</td></tr>
+  <tr><td><code>optimize.py</code></td>
+      <td>The design problem and the NSGA-II search that runs entirely on the surrogate, the Pareto front, and the
+          re-check of the front with the reference model. Constraints are posed on the <em>conservative</em> value
+          (mean + 1σ of the ensemble), so a design that only satisfies a limit inside the model does not enter the
+          front.</td></tr>
+  <tr><td><code>workflow.py</code></td>
+      <td>Data → train → optimise → verify → figures → <code>report.md</code>, as one command with a subcommand per
+          step.</td></tr>
+</table>
+
+<figure>
+  <img src="figures/field_and_stack.png" alt="Flux density and 3-D stack">
+  <figcaption><strong>Left:</strong> the reference field solve — |B| in the 2004 Prius cross-section at 250 A peak
+  and 50° current angle, from the FEA the surrogate learns from. <strong>Right:</strong> the axial model: the stack
+  cut into slices, each twisted by the design's skew, which is how a skewed machine is represented without a 3-D
+  field solve. Both figures are produced by <code>Motor3DModel.solve(..., keep_fields=True)</code>.</figcaption>
+</figure>
+
+<h2>4. The physics chain</h2>
+
+<h3>4.1 Electromagnetic, per axial slice</h3>
+<p>One call to <code>IPMMachine.operating_point</code> solves the nonlinear magnetostatic problem
+<code>−div(ν ∇A<sub>z</sub>) = J + curl(ν B<sub>r</sub>)</code> over a set of rotor angles with sinusoidal currents
+fixed in the dq frame, and returns torque per angle, ripple, <code>ψ<sub>d</sub></code>,
+<code>ψ<sub>q</sub></code> and the fields. The magnet remanence is evaluated at the magnet temperature the design
+currently has, not at 20 °C.</p>
+
+<h3>4.2 Skew as slice averaging</h3>
+<p>The stack is cut into <code>n_segments</code> slices, each at its own electrical angle
+<code>δ<sub>k</sub> = (k/(K−1) − ½)·skew·p</code>. Each slice contributes the torque of the cross-section at that
+angle, so slot harmonics cancel exactly as they do in a skewed machine, and the ripple of the skewed stack is
+computed from the concatenated slice waveforms. The fundamental is reduced by the classic skew factor
+<code>sin(x)/x</code> with <code>x = p·skew/2</code>. That the mean torque of a 2-D slice model is otherwise
+invariant to the twist is a property of the model, not an oversight: the axial flux paths that skew also perturbs
+enter here through the end-winding resistance and the thermal network, and nowhere else.</p>
+
+<h3>4.3 Losses, with the winding's axial geometry</h3>
+<p>Iron loss comes from the flux density over an electrical period, per element, in the element's own frame;
+magnet loss from the resistance-limited eddy model; copper loss from the phase resistance, which depends on the
+stack length and on the end-turn length computed from the coil pitch at the mid-slot radius — a genuinely 3-D
+quantity. The copper loss is split between the slot and the end windings in proportion to their lengths, because
+the two sit in different nodes of the thermal network.</p>
+
+<h3>4.4 Cooling and the axial thermal network</h3>
+<p>The jacket conductance follows the coolant flow as <code>flow<sup>0.8</sup></code> — turbulent convection, stated
+as an assumption rather than fitted. The network solves <code>(L + G<sub>b</sub>)T = P + G<sub>b</sub>T<sub>∞</sub></code>
+on 5·K + 1 nodes. Its value is visible in the figure below: the winding is hottest in the middle of the stack and
+cooler at the ends that face the end windings, which is a statement a one-node-per-part model cannot make.</p>
+
+<figure>
+  <img src="figures/axial_profiles.png" alt="Axial temperature and torque profiles">
+  <figcaption>Axial resolution, baseline Prius design against the best torque-density design of the front, as
+  predicted by the pretrained surrogate. Left: winding temperature along the stack. Middle: the torque contributed
+  by each axial segment at a fixed rotor angle — the skew redistributes it. Right: magnet temperature. These three
+  curves are outputs of the surrogate, not post-processing.</figcaption>
+</figure>
+
+<h3>4.5 The coupling back to the magnets</h3>
+<p>The magnet temperature changes the remanence, and the remanence changes torque, iron loss (through
+<code>B²</code>) and the demagnetisation margin. The reference model solves the field once at a first-guess magnet
+temperature, solves the network, corrects those three quantities analytically and re-evaluates the copper loss at
+the resulting winding temperature until the temperatures stop moving. That is a one-step fixed point around one FEA
+solve per design; setting <code>fea_iterations=2</code> re-solves the field at the converged temperature, and the
+difference between the two is measured rather than assumed. The demagnetisation check compares the worst reverse
+field inside every magnet element against the intrinsic coercivity of the grade at that temperature; designs whose
+magnet would be pushed past the reversible range of the grade are reported as not assessable, because extrapolating
+<code>H<sub>cj</sub>(T)</code> through zero would produce a number with no meaning.</p>
+
+<h2>5. Building the large model</h2>
+
+<h3>5.1 The design vector</h3>
+<pre><span class="k">from</span> pinneapple_simulation.electromagnetics.machines.motor3d <span class="k">import</span> Motor3DDesign, VARIABLES
+
+<span class="k">for</span> v <span class="k">in</span> VARIABLES:
+    <span class="k">print</span>(f<span class="s">"{v.name:12s} {v.unit:8s} [{v.low}, {v.high}]  {v.description}"</span>)
+
+d = Motor3DDesign.baseline()          <span class="c"># the 2004 Prius at its published operating point</span>
+d = Motor3DDesign(L=0.10, skew_deg=6.0, rpm=3000.0, flow_L_min=8.0)
+d.sector_errors()                     <span class="c"># [] when the cross-section can be meshed</span></pre>
+
+<p>The eleven variables are <code>W4</code>, <code>H3</code>, <code>H0</code>, <code>W0</code>, <code>H1</code>
+(rotor cross-section, the same parametrisation the 2-D studies use), <code>L</code> and <code>skew_deg</code>
+(axial), <code>I_peak</code>, <code>gamma_deg</code>, <code>rpm</code> (operating point) and
+<code>flow_L_min</code> (cooling). Every one of them changes more than one output, which is the point.</p>
+
+<h3>5.2 The reference model in one call</h3>
+<pre><span class="k">from</span> pinneapple_simulation.electromagnetics.machines.motor3d <span class="k">import</span> Motor3DModel, PRIUS
+
+model = Motor3DModel()                <span class="c"># 192-node gap mesh, 12 rotor angles, 4 axial segments</span>
+r = model.solve(PRIUS)                <span class="c"># 250 A, 50 deg, 1500 rpm, 6 L/min coolant</span>
+<span class="k">print</span>(r[<span class="s">"torque_Nm"</span>], r[<span class="s">"T_winding_C"</span>], r[<span class="s">"demag_ratio"</span>])
+<span class="k">print</span>(r[<span class="s">"T_winding_profile_C"</span>])   <span class="c"># the winding along the stack, end to end</span>
+<span class="k">print</span>(r[<span class="s">"extra"</span>][<span class="s">"v_phase_V"</span>], r[<span class="s">"extra"</span>][<span class="s">"v_limit_V"</span>])</pre>
+
+<p>A design whose cross-section the mesher refuses, or whose magnet would demagnetise, returns
+<code>valid=False</code> with the reason and no solve: the reference model is allowed to say "this cannot be
+assessed", and the dataset keeps that answer.</p>
+
+<h3>5.3 The training set</h3>
+<pre><span class="k">from</span> pinneapple_simulation.electromagnetics.machines.motor3d <span class="k">import</span> build_dataset, Motor3DDesign
+
+ds = build_dataset(1200, seed=20260101, workers=8,
+                   model=Motor3DModel(n_gap=192, n_positions=12), extra=[Motor3DDesign.baseline()])
+ds.save(<span class="s">"motor3d_data"</span>)
+<span class="k">print</span>(ds.meta[<span class="s">"rejection_rate"</span>], ds.meta[<span class="s">"seconds_per_design"</span>])</pre>
+
+<div class="kv">
+  <div>Designs drawn (Latin hypercube, geometry filter applied)</div><div>1201</div>
+  <div>Buildable and solved</div><div>967 &nbsp;(rejection rate 19.5 %)</div>
+  <div>Reference cost on 8 cores</div><div>384.5 s wall, 0.32 s per design, 981 FEA operating points</div>
+  <div>FEA configuration</div><div>192 gap nodes × 12 rotor angles, 4 axial segments, one field iteration</div>
+</div>
+
+<p>The rejection rate is itself a result: one design in five drawn uniformly from the declared box cannot be built
+— polygons that cross, a magnet that leaves its pole. An optimiser that does not know this spends a fifth of its
+budget on geometry the mesher refuses, which is why the exact geometry test stays inside the search loop.</p>
+
+<h3>5.4 The surrogate, and what its card says</h3>
+<pre><span class="k">from</span> pinneapple_simulation.electromagnetics.machines.motor3d <span class="k">import</span> MotorSurrogate3D, SurrogateConfig
+
+surrogate = MotorSurrogate3D(SurrogateConfig(ensemble=8, epochs=3000, seed=7)).fit(ds)
+card = surrogate.card()
+<span class="k">print</span>(card[<span class="s">"heldout"</span>][<span class="s">"torque_Nm"</span>])          <span class="c"># mae, r2, mean_rel, p95_rel</span>
+<span class="k">print</span>(card[<span class="s">"mean_r2"</span>], card[<span class="s">"worst_output"</span>])
+surrogate.save(<span class="s">"motor3d-v1"</span>, version=<span class="s">"motor3d-v1"</span>)</pre>
+
+<p>Each network maps the eleven normalised design variables to 25 targets: the fourteen scalars (torque, ripple,
+torque density, efficiency, three loss channels, three temperatures, demagnetisation ratio, two masses) and three
+axial profiles of four segments. Outputs that are strictly positive are trained in log space, because what matters
+about a 300 W loss and a 30 N·m torque is their relative error, not their absolute one. An output that does not move
+in the training set is detected and predicted as its constant instead of being learned — that is how the magnet eddy
+loss, which is zero at these speeds with solid magnets, is reported rather than modelled as noise.</p>
+
+<table>
+  <tr><th>Held-out output (193 designs never trained on)</th><th class="n">MAE</th><th class="n">R²</th>
+      <th class="n">mean rel.</th><th class="n">95th rel.</th></tr>
+  <tr><td>Torque <span class="small">[N·m]</span></td><td class="n">2.07</td><td class="n">0.998</td>
+      <td class="n">1.15 %</td><td class="n">2.88 %</td></tr>
+  <tr><td>Torque density <span class="small">[N·m/kg]</span></td><td class="n">0.054</td><td class="n">0.998</td>
+      <td class="n">1.08 %</td><td class="n">2.65 %</td></tr>
+  <tr><td>Efficiency <span class="small">[–]</span></td><td class="n">0.0037</td><td class="n">0.992</td>
+      <td class="n">0.48 %</td><td class="n">1.88 %</td></tr>
+  <tr><td>Copper loss <span class="small">[W]</span></td><td class="n">82</td><td class="n">0.999</td>
+      <td class="n">1.51 %</td><td class="n">4.21 %</td></tr>
+  <tr><td>Iron loss <span class="small">[W]</span></td><td class="n">35</td><td class="n">0.995</td>
+      <td class="n">4.04 %</td><td class="n">12.99 %</td></tr>
+  <tr><td>Winding temperature <span class="small">[°C]</span></td><td class="n">1.39</td><td class="n">0.997</td>
+      <td class="n">0.92 %</td><td class="n">2.53 %</td></tr>
+  <tr><td>Magnet temperature <span class="small">[°C]</span></td><td class="n">1.05</td><td class="n">0.996</td>
+      <td class="n">0.87 %</td><td class="n">2.44 %</td></tr>
+  <tr><td>Demagnetisation ratio <span class="small">[–]</span></td><td class="n">0.020</td><td class="n">0.989</td>
+      <td class="n">3.10 %</td><td class="n">8.20 %</td></tr>
+  <tr><td>Torque ripple <span class="small">[–]</span></td><td class="n">0.014</td><td class="n">0.788</td>
+      <td class="n">8.86 %</td><td class="n">20.50 %</td></tr>
+  <tr><td><span class="small">mean R² over the outputs that vary</span></td><td class="n"></td>
+      <td class="n">0.983</td><td class="n"></td><td class="n"></td></tr>
+</table>
+
+<p>Ripple is the honest weak spot: <code>R² = 0.79</code>, with a 95th-percentile relative error of 20 %. It is the
+output that depends most on the fine structure of the slot geometry, and the one the constraints are most likely to
+press against. That is the reason the constraint is not posed on the network's mean — see the next section.</p>
+
+<figure>
+  <img src="figures/parity.png" alt="Held-out parity plots">
+  <figcaption>Surrogate against the reference model on 967 buildable designs (colour = density). Torque, efficiency,
+  winding temperature and copper loss are reproduced to about one per cent; the deviations grow where the machine
+  saturates, which is where the reference model's own mesh matters.</figcaption>
+</figure>
+
+<h2>6. The optimisation, with no solver in the loop</h2>
+
+<pre><span class="k">from</span> pinneapple_simulation.electromagnetics.machines.motor3d <span class="k">import</span> load_pretrained, design_problem, optimize, verify_front
+
+surrogate = load_pretrained()                       <span class="c"># weights checked against the SHA-256 of the card</span>
+out = optimize(design_problem(surrogate=surrogate), budget=4000, seed=0)
+<span class="k">print</span>(out[<span class="s">"n_evaluations"</span>], out[<span class="s">"designs_per_second"</span>], out[<span class="s">"n_reference_solves"</span>])
+ver = verify_front(out, n=8)                        <span class="c"># the only place an FEA call is spent</span>
+<span class="k">print</span>(ver[<span class="s">"still_feasible"</span>], ver[<span class="s">"rank_agreement"</span>], ver[<span class="s">"errors"</span>][<span class="s">"torque_Nm"</span>])</pre>
+
+<p>The problem is the one a motor designer asks: maximise torque density and efficiency, minimise magnet mass,
+subject to the winding temperature (180 °C, class H), the magnet temperature (140 °C, where the coercivity of a
+sintered NdFeB starts to fall away), the demagnetisation ratio (below the knee, i.e. 1) and the torque ripple
+(20 % peak to peak, which a traction inverter and gearbox tolerate). The search is NSGA-II from
+<code>pinneapple_design.design_optimizer</code>, and every candidate it evaluates is a network forward pass.</p>
+
+<div class="box">
+<strong>Two details that make the difference between a front and a plausible-looking scatter.</strong>
+<br>1. <em>Constraints on the conservative value.</em> The temperature, demagnetisation and ripple limits are imposed
+on <code>mean + 1σ</code> of the ensemble, not on its mean. A design at the limit is exactly where a one-sigma
+optimistic prediction is worthless, and the first version of this study — constraints on the mean — produced a
+front in which five of eight re-checked designs failed the same limits. With the conservative form, eight of eight
+pass.
+<br>2. <em>The geometry test stays exact.</em> The surrogate maps numbers to numbers; it does not know whether a
+cross-section can be built. <code>sector_errors()</code> costs 2.9 ms, so it runs inside the evaluator and marks
+unbuildable designs invalid instead of being learned.
+</div>
+
+<table>
+  <tr><th>Run of the study (as shipped in <code>report.md</code>)</th><th class="n">Value</th></tr>
+  <tr><td>Designs evaluated by the surrogate</td><td class="n">4000</td></tr>
+  <tr><td>Wall time of the search</td><td class="n">28.7 s</td></tr>
+  <tr><td>Throughput, geometry test included</td><td class="n">139 designs/s</td></tr>
+  <tr><td>FEA calls made by the search</td><td class="n">0</td></tr>
+  <tr><td>Designs on the Pareto front</td><td class="n">680</td></tr>
+  <tr><td>Best torque density</td><td class="n">9.64 N·m/kg (442 N·m, magnet 1.70 kg,<br>winding 177 °C, ripple 0.168)</td></tr>
+  <tr><td>Best efficiency</td><td class="n">0.976 (123 N·m, winding 84 °C)</td></tr>
+  <tr><td>Reference model, per design</td><td class="n">1.34 s</td></tr>
+  <tr><td>Surrogate, per design</td><td class="n">99 µs</td></tr>
+  <tr><td>Ratio</td><td class="n">13 500×</td></tr>
+</table>
+
+<figure>
+  <img src="figures/pareto.png" alt="Pareto front">
+  <figcaption>The front over four thousand designs, with the two limits that bind: the winding temperature and the
+  demagnetisation margin. The rightmost panel is the most informative — the temperature limit is what stops torque
+  density at about 10 N·m/kg, and that is a statement about the cooling, not about the electromagnetics.</figcaption>
+</figure>
+
+<h2>7. Checking the front against the physics</h2>
+
+<pre><span class="k">import</span> json
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+<span class="k">from</span> pinneapple_simulation.electromagnetics.machines.motor3d <span class="k">from</span> ... <span class="c"># see workflow._jsonable</span>
+ver = verify_front(out, reference=Motor3DModel(), n=8)</pre>
+
+<p>Eight designs spread across the front by farthest-point sampling are re-evaluated by the reference model: 16.3 s
+of FEA, against the 28.7 s the surrogate search itself took. The result is a statement about the front, which is the
+region the optimiser actually chose — not about a random split.</p>
+
+<table>
+  <tr><th>Output</th><th class="n">mean rel. error on the front</th><th class="n">max rel. error</th></tr>
+  <tr><td>Torque</td><td class="n">0.96 %</td><td class="n">2.54 %</td></tr>
+  <tr><td>Torque density</td><td class="n">0.95 %</td><td class="n">1.99 %</td></tr>
+  <tr><td>Winding temperature</td><td class="n">1.06 %</td><td class="n">1.83 %</td></tr>
+  <tr><td>Demagnetisation ratio</td><td class="n">2.05 %</td><td class="n">5.39 %</td></tr>
+  <tr><td>Efficiency</td><td class="n">0.81 %</td><td class="n">5.10 %</td></tr>
+  <tr><td>Torque ripple</td><td class="n">6.73 %</td><td class="n">20.64 %</td></tr>
+</table>
+
+<p><strong>8 of 8 designs of the front remain feasible</strong> when the reference model evaluates them under the same
+limits, and the Spearman rank agreement on torque density between surrogate and reference is <strong>1.000</strong>
+— the front is ordered identically. The residual spread in ripple is the same number the model card reports, and it
+is the number to keep in mind when the ripple limit is the binding constraint of a study.</p>
+
+<figure>
+  <img src="figures/verification_error.png" alt="Verification error per output">
+  <figcaption>Surrogate against the reference model, on the verified front. The ripple bar is the model's known
+  weakness; everything the front was actually optimised for sits below a few per cent.</figcaption>
+</figure>
+
+<figure>
+  <img src="figures/speed.png" alt="Speed comparison">
+  <figcaption>One reference design and one surrogate design on the same machine in the same process: 1.34 s against
+  99 µs. The break-even point is around 300 designs — a training set of a thousand designs pays for itself in the
+  first optimiser run, and every later run on that design space is free.</figcaption>
+</figure>
+
+<h2>8. What the study does not model</h2>
+
+<div class="warn">
+<strong>Read this before quoting a number from the previous pages.</strong>
+<ul style="margin:6pt 0 0 0">
+  <li><strong>The field is 2-D per axial slice.</strong> Axial flux paths — end leakage, axial saturation — enter
+  through the end-winding resistance and the thermal network, not through a 3-D field solve. A full 3-D FE motor
+  model is not part of this pipeline, and nothing here is a substitute for one when the question is genuinely axial.</li>
+  <li><strong>The coolant is a boundary conductance.</strong> The heat-transfer coefficient follows the flow as
+  <code>flow<sup>0.8</sup></code>; it is an input, not the output of a conjugate heat transfer solution. A validated
+  cooling model needs coefficients from measurements or from a CFD study of the actual jacket.</li>
+  <li><strong>The structural side is absent.</strong> Bridge stress at overspeed, magnet retention, rotor dynamics:
+  none of it is evaluated. A design that survives this study has passed a thermal and electromagnetic test only.</li>
+  <li><strong>The surrogate is valid inside its box.</strong> The ensemble spread is a proxy for uncertainty, not a
+  calibrated interval; <code>out_of_box</code> and <code>extrapolation</code> say when a design has left the data.
+  Beyond the box, the card's errors no longer apply.</li>
+  <li><strong>Magnet eddy loss is zero at the speeds studied</strong> with solid magnets; it is detected as a
+  constant output rather than modelled. Segmenting the magnets gives a non-zero, resistance-limited value.</li>
+  <li><strong>The reference itself is a model.</strong> Its torque agrees with the published FEA of Yang et al.
+  (2013) to a few per cent through <code>machines.verification</code>, and the axial network reduces to the library's
+  seven-node network exactly — but those are consistency checks against models, not against a bench test.</li>
+</ul>
+</div>
+
+<h2>9. Reproducing it</h2>
+
+<pre><span class="c"># the whole study: dataset, surrogate, search, verification, figures, report.md</span>
+python -m pinneapple_simulation.electromagnetics.machines.motor3d.workflow all --out motor3d_run
+
+<span class="c"># or step by step</span>
+python -m ...workflow build-dataset --n 1200 --workers 8 --out motor3d_run/dataset
+python -m ...workflow train        --data motor3d_run/dataset --out motor3d_run/model
+python -m ...workflow optimize     --budget 4000 --out motor3d_run/optimization.json
+python -m ...workflow verify       --optimization motor3d_run/optimization.json --n 8
+python -m ...workflow check-coupling --n 4     <span class="c"># cost of the one-step Br(T) correction</span>
+
+<span class="c"># the worked example, with the numbers printed at every step</span>
+python examples/motor_magnetics/03_multiphysics3d_surrogate.py</pre>
+
+<p>The test suite covers the physics reduction (one segment = the library's seven-node network, to round-off), the
+direction of every coupling (more skew → less torque and less ripple; more coolant → colder magnets → more torque),
+the deliverability of the training set, the model card, the SHA-256 check that refuses tampered weights, the search
+with its zero-FEA claim, the verification path, and the pretrained artefact itself.</p>
+
+<h2>Appendix A — files</h2>
+<table>
+  <tr><th style="width:52%">Path</th><th>Content</th></tr>
+  <tr><td><code>pinneapple_simulation/electromagnetics/machines/motor3d/design.py</code></td><td>Design vector, machine geometry, skew factor</td></tr>
+  <tr><td><code>.../motor3d/thermal3d.py</code></td><td>Axial-resolved lumped thermal network</td></tr>
+  <tr><td><code>.../motor3d/model.py</code></td><td>The coupled multiphysics reference model</td></tr>
+  <tr><td><code>.../motor3d/dataset.py</code></td><td>DOE, parallel evaluation, stored provenance</td></tr>
+  <tr><td><code>.../motor3d/surrogate.py</code></td><td>Ensemble, model card, SHA-256 loading</td></tr>
+  <tr><td><code>.../motor3d/optimize.py</code></td><td>Design problem, NSGA-II on the surrogate, verification</td></tr>
+  <tr><td><code>.../motor3d/workflow.py</code></td><td>CLI, figures, <code>report.md</code></td></tr>
+  <tr><td><code>.../motor3d/data/motor3d-v1/</code></td><td>Pretrained weights (1.2 MB) and model card</td></tr>
+  <tr><td><code>.../motor3d/data/train_v1/</code></td><td>The training set with its metadata</td></tr>
+  <tr><td><code>tests/test_motor3d.py</code></td><td>16 tests</td></tr>
+  <tr><td><code>examples/motor_magnetics/03_multiphysics3d_surrogate.py</code></td><td>Worked example</td></tr>
+  <tr><td><code>docs/guides/motor3d_surrogate.md</code></td><td>The guide</td></tr>
+</table>
+
+<h2>Appendix B — the public API</h2>
+<pre>Motor3DDesign, VARIABLES, NAMES, BOUNDS       <span class="c"># the design vector, declared once</span>
+Motor3DModel(n_gap, n_positions, n_segments)  <span class="c"># .solve(design) -> every quantity</span>
+                                              <span class="c"># .evaluate(X)   -> arrays over designs</span>
+AxialThermalModel(geometry, data, n_segments) <span class="c"># .steady(P), .powers(...)</span>
+build_dataset(n, seed, workers, model)        <span class="c"># -> MotorDataset (.save / .load)</span>
+MotorSurrogate3D(config).fit(dataset)         <span class="c"># .predict, .card, .save, .load</span>
+load_pretrained()                             <span class="c"># the shipped model, hash-checked</span>
+design_problem(surrogate=...)                 <span class="c"># objectives + limits + design space</span>
+optimize(problem, budget, seed)               <span class="c"># -> front, best designs, cost</span>
+verify_front(result, reference, n)            <span class="c"># the FEA re-check of the front</span>
+benchmark(surrogate, reference, n)            <span class="c"># seconds per design, both models</span></pre>
+
+<p class="small" style="margin-top:18pt">PINNeAPPle — physics AI that tells you when to trust it. This document and
+the artefacts it describes are part of the repository at
+<code>pinneapple_simulation/electromagnetics/machines/motor3d</code>.</p>
+
+</body>
+</html>

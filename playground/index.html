@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PINNeAPPle Playground</title>
+<meta name="description" content="Draw an airfoil, size a heat sink or drive a lunar rover wheel and see what a PINNeAPPle surrogate predicts, with its physics checks and trust verdict live. Runs entirely in your browser.">
+<meta name="theme-color" content="#0f1420">
+<meta property="og:title" content="PINNeAPPle Playground">
+<meta property="og:description" content="Physics surrogates in your browser, with the checks that say when to trust them.">
+<meta property="og:type" content="website">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/app.css">
+<link rel="modulepreload" href="js/main.js">
+<link rel="modulepreload" href="lib/onnx.js">
+<link rel="modulepreload" href="lib/zoo.js">
+<script>
+  // start fetching the airfoil model with the HTML when the page opens on the airfoil mode (the default)
+  if (!/^#\/?(heatsink|rover|gallery)/.test(location.hash)) {
+    const l = document.createElement("link"); l.rel = "preload"; l.as = "fetch"; l.crossOrigin = "anonymous";
+    l.href = "models/airfoil_cst_rans_mlp.onnx"; document.head.append(l);
+  }
+</script>
+<script type="importmap">
+{"imports": {"three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/", "pinneapple/": "./lib/"}}
+</script>
+</head>
+<body>
+<a class="skip" href="#view">Skip to the playground</a>
+<header class="top">
+  <a class="brand" href="#/airfoil" aria-label="PINNeAPPle Playground, home">
+    <img src="icon.svg" alt="" width="34" height="34">
+    <span><span class="title">PINNeAPPle <b>Playground</b></span>
+      <span class="subtitle">Draw a shape. Get the physics. See whether to trust it.</span></span>
+  </a>
+  <nav class="tabs" role="tablist" aria-label="Mode">
+    <a role="tab" href="#/airfoil" data-mode="airfoil">Airfoil</a>
+    <a role="tab" href="#/heatsink" data-mode="heatsink">Heat sink</a>
+    <a role="tab" href="#/rover" data-mode="rover">Rover wheel</a>
+    <a role="tab" href="#/gallery" data-mode="gallery">Geometry gallery</a>
+  </nav>
+  <div class="actions">
+    <button class="btn ghost" id="share" type="button" title="Copy a link to exactly this state">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"/></svg>
+      <span>Share</span></button>
+    <button class="btn ghost icon" id="theme" type="button" title="Toggle light / dark" aria-label="Toggle light or dark theme">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></button>
+    <button class="btn trust-btn" id="trust-open" type="button" aria-controls="trust" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+      <span>Why trust this?</span></button>
+  </div>
+</header>
+
+<main id="view" tabindex="-1" aria-live="polite">
+  <div class="loading" id="boot"><div class="spinner"></div><p>Loading the model…</p></div>
+</main>
+
+<aside id="trust" class="drawer" aria-hidden="true" aria-labelledby="trust-title">
+  <div class="drawer-head">
+    <h2 id="trust-title">Why trust this?</h2>
+    <button class="btn ghost icon" id="trust-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="drawer-body" id="trust-body"></div>
+</aside>
+<div class="scrim" id="scrim" hidden></div>
+
+<footer class="foot">
+  <span>Runs entirely in your browser: no server, no upload. <span id="engine-note"></span></span>
+  <span><a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle">Source (Apache-2.0)</a> ·
+    <a href="https://huggingface.co/PINNeAPPle-Labs">Model zoo</a> ·
+    <a href="https://pinneapple-labs.github.io/PINNeAPPle/guides/model_zoo/">Docs</a></span>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">The Playground runs the models in your browser and needs JavaScript.</p></noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

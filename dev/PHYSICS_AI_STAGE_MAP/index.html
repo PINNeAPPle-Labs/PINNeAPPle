@@ -1,0 +1,8761 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/dev/PHYSICS_AI_STAGE_MAP/">
+      
+      
+        <link rel="prev" href="../PHYSICS_AI_INTEROP/">
+      
+      
+        <link rel="next" href="../../core_concepts/earth_system/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>The physics-AI workflow, stage by stage: open tools and public datasets - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-physics-ai-workflow-stage-by-stage-open-tools-and-public-datasets" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              The physics-AI workflow, stage by stage: open tools and public datasets
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/public_namespace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Public namespace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/seven_planes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The seven planes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/start_here/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed physics: sweeps, partitioned meshes, decomposed training
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/artifact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The .ppx container: a result that reproduces elsewhere
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One registry for every extensible object type
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins: what installing one does, and what it does not guarantee
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_data_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The physical data graph: from a prediction back to the problem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/datasets_and_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datasets and models: the registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/warp_backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NVIDIA Warp as a compute backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pict_piso_solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PICT: a differentiable multi-block PISO solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_to_pinneapple/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add something to PINNeAPPle: six extension points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../test_shards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test shards: what blocks a pull request, and why the rest does not
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_a_preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add a preset, end to end
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../METHOD_COSTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Measured cost per catalog method: time, memory, FLOPs, scaling exponent and the machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../strategy/D1_problem_specs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    D1 — the three problem specifications, reconciled
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PHYSICS_AI_INTEROP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI interop: schema, datasets, CAE bridge, gates, operators, telemetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The physics-AI workflow, stage by stage: open tools and public datasets
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The physics-AI workflow, stage by stage: open tools and public datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-thirteen-stages-are-the-flow-palettes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The thirteen stages are the Flow palette's
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-tool-is-described-and-what-the-description-refuses-to-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a tool is described, and what the description refuses to claim
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-map-looks-like" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the map looks like
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-shape-says" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the shape says
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-map-in-the-planner-a-proposal-now-says-which-stages-it-spans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The map in the planner: a proposal now says which stages it spans
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-ten-licences-this-page-had-not-read-and-what-they-say" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ten licences this page had not read, and what they say
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisions-left-open-each-one-a-row-and-not-an-omission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisions left open, each one a row and not an omission
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/data_readiness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data readiness: may this dataset start a training run?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../support_matrix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported versions: the matrix, and what was actually run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmark_cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Official benchmark cases: protocol and published table
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../battle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Battle of the models: the scoreboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backlog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog: this repository, by scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_75" >
+        
+          
+          <label class="md-nav__link" for="__nav_75" id="__nav_75_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_75_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_75">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/solve_a_problem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solve a problem: describe, solve twice, compare
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/headless_rendering/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rendering without a display: xvfb, OSMesa, EGL and a container
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/house_theme/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One house theme for every 2-D figure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/reproducing_a_run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reproducing a recorded run: reproduced, divergent or refused
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dimensional_check/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checking the dimensions of an equation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rendering_fields/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A field on any domain: the picture and the VTU
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/postprocessing_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Post-processing gallery: six reference pictures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/bayesian_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bayesian optimization: fewer reference simulations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/parameter_recovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A recovered parameter and the interval it was measured to deserve
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_cards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model cards generated from an experiment record
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/integral_equations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integral equations of the second kind
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/crash_and_surface_benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crash and surface-pressure benchmarks, recreated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/vortex_domains/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Viscous vortex domains: 2-D Navier-Stokes without a mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/astropy_fits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FITS, units and sky coordinates: astronomy data as a PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_conditioned_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A surrogate conditioned on the geometry, and the error on a body it never saw
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_surrogate_families/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Which geometry surrogate, and what it costs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mujoco/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MuJoCo 4.0: trajectories, checks and the robot backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../granular_dem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Granular DEM: volume-based contact, breakage, mills and wear
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinneapple_llm_quality_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality pipeline for LLM-generated artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/embedded_inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A model that flies: the residual in the graph, and the hertz it costs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/example_catalog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example catalog: what runs in CI, and why the rest does not
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/front_door/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The front door: six functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_morphing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Morphing a surface mesh: a design space on an existing body
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/quality_diversity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality-diversity: a map of designs, and where a model fails
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/agent_workbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Workbench: coding and engineering agents on a local model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/digital_twin_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Library: five systems, each with its own conservation laws
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/digital_twin_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The twin end to end, on real sensors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/signed_trust_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A trust report that can be re-verified later: signed with its model and inputs, residual recomputed on load
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trust_as_one_object/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The trust of a prediction as one object: every field a number with its source, or an explicit not measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pretrained_experts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bring your own foundation model: wrap it, check it, know where it stops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/planetary_defence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Planetary defence: what a kinetic impactor buys, and how far ahead the miss can be guaranteed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/multirotor_flight/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A drone that says what is wrong with it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/openfoam_numerical_limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerical limits of the OpenFOAM connector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/external_solver_contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External solvers: one interface, six backends, and what is out of scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_toolkit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamics toolkit: the shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_first_passage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First-passage and hitting times
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_dimensional/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dimensional analysis, Buckingham pi and curve collapse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_fisher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fisher information and experimental design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_early_warning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Critical slowing down and early-warning indicators
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dynamics_koopman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Koopman operator and spectral analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/interlocking_bricks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-modifying brick builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_from_intent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design from intent: a goal in words to a verified design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/intent_to_study/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Text to simulation: a sentence to a verified, replayable study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pipeline_advisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The pipeline advisor: a problem in words, the study pipeline out
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chain_of_whys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chain of whys: why each element of a design exists, computed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: an AI that manages evidence for engineering decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/ahmed_body_end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    End-to-end CFD surrogate study: the Ahmed body (geometry to digital twin and back to wind-tunnel data)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rover_learns_the_planet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The rover that learns the planet: drive, stall, learn the soil, replan, verify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/industrial_presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Industrial presets: engineering cases set up, solved and validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/science/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science by area: experiments in 0-D to 3-D + time, and the atlas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/autonomous_physics_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autonomous Physics Lab: missions planned and run through controlled tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The validation loop: use case, evidence, maturity and the person who signs it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flow_schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flow Studio and the flow schema (pinneapple-flow/1)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_76" >
+        
+          
+          <label class="md-nav__link" for="__nav_76" id="__nav_76_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_76_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_76">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/physics_condensation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive Physics Condensation: chip-package thermal without simulating every element
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_77" >
+        
+          
+          <label class="md-nav__link" for="__nav_77" id="__nav_77_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_77_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_77">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/electromagnetics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Electromagnetics and electrodynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/antenna_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Antenna design: end-fire Vivaldi with an external FEM solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/compact_range/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact range quiet zone: feed gain x reflector size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design reports without an LLM: Datasheet and the self-planning study
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/unit_cell_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periodic unit cell: FNO vs Bayesian optimisation at equal budget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/flight_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flight dynamics, turbulence and take-off
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/launch_ascent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ascent to orbit: a launcher to a 500 km near-circular orbit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/topology_optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topology optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/enso_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/near_random_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Forecasting near-random series without overfitting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/football_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Football: where physics helps on public tracking data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/derivative_trees/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Derivative trees across physics (pp.potential)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/hub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/warp_drive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Alcubierre warp bubble: curvature, energy conditions and the bill
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust_member/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Putting a PhysicsNeMo model into PINNeAPPle without retraining it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../product/core-shared-pieces/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The shared pieces: what makes the use cases one product
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../campaign/campanha-backlog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Campaign log 2026
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/overview_pt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão geral (Português, era 0.6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-thirteen-stages-are-the-flow-palettes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The thirteen stages are the Flow palette's
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-tool-is-described-and-what-the-description-refuses-to-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a tool is described, and what the description refuses to claim
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-map-looks-like" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the map looks like
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-shape-says" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the shape says
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-map-in-the-planner-a-proposal-now-says-which-stages-it-spans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The map in the planner: a proposal now says which stages it spans
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-ten-licences-this-page-had-not-read-and-what-they-say" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ten licences this page had not read, and what they say
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisions-left-open-each-one-a-row-and-not-an-omission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisions left open, each one a row and not an omission
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/dev/PHYSICS_AI_STAGE_MAP.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/dev/PHYSICS_AI_STAGE_MAP.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="the-physics-ai-workflow-stage-by-stage-open-tools-and-public-datasets">The physics-AI workflow, stage by stage: open tools and public datasets<a class="headerlink" href="#the-physics-ai-workflow-stage-by-stage-open-tools-and-public-datasets" title="Permanent link">&para;</a></h1>
+<p>This page is the companion of <code>PHYSICS_AI_INTEROP.md</code>. That one is organised by integration (INT-001 … INT-015) and
+answers <em>"what does this repository do today?"</em>. This one is organised by <strong>stage of the workflow</strong> and answers the
+question a person building a pipeline asks first: <strong>at this step, which open tools exist, which public datasets
+feed it, and how far does this repository already get?</strong></p>
+<p>The map is not a document first. It is <code>pinneapple_catalog.stages</code>, and this page is generated from it, so a row here
+and a row in the code cannot disagree. Every claim below is checkable:</p>
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>tests/pinneapple_catalog<span class="w"> </span>-q
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pinneapple_catalog import stages; print(stages.coverage()['totals'])"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pinneapple_catalog import stages; print(stages.to_json('inverse')['counts'])"</span>
+</code></pre></div>
+<h2 id="the-thirteen-stages-are-the-flow-palettes">The thirteen stages are the Flow palette's<a class="headerlink" href="#the-thirteen-stages-are-the-flow-palettes" title="Permanent link">&para;</a></h2>
+<p><code>STAGE_IDS</code> is the palette's <code>SECTION_IDS</code>, and a test compares the two lists. That is deliberate: the palette is
+what a user sees in Flow Studio, so a stage that exists in the map and not on the canvas would be a catalogue of
+something nobody can build. The last section, <code>library</code>, is the palette's drawer of generated <code>auto.*</code> calls — it is
+carried so the lists match exactly, it is marked <code>kind="internal"</code>, and it asks no question and holds no tools.</p>
+<h2 id="how-a-tool-is-described-and-what-the-description-refuses-to-claim">How a tool is described, and what the description refuses to claim<a class="headerlink" href="#how-a-tool-is-described-and-what-the-description-refuses-to-claim" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What it says</th>
+<th>How it was obtained</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>license</code></td>
+<td>an SPDX id, or the licence's own name where no id exists</td>
+<td>read from the artefact that governs the <strong>code</strong>: the repository's <code>LICENSE</code> through the GitHub licence API, or the distribution metadata on PyPI for a package that ships none</td>
+</tr>
+<tr>
+<td><code>license_verified</code></td>
+<td>whether that read happened <strong>here</strong></td>
+<td><code>True</code> for the reads above; the ten rows that were <code>False</code> until 2026-11-25 are listed at the end of this page with what their text says</td>
+</tr>
+<tr>
+<td><code>integration</code></td>
+<td><code>wired</code> / <code>named</code> / <code>candidate</code></td>
+<td><code>wired</code> means a module in this repository calls it, and a test resolves that module's path; <code>named</code> means the repository mentions it (a recommender, a lazy export, a docstring) with no path that would run it; <code>candidate</code> means nothing here touches it</td>
+</tr>
+<tr>
+<td><code>also_in</code></td>
+<td>the <code>TOOL_CATALOG</code> id, where the same tool has a page there</td>
+<td>so the two catalogues reference each other instead of disagreeing</td>
+</tr>
+</tbody>
+</table>
+<p>Two things the licence column is <em>not</em>. A verified licence is <strong>not</strong> a commercial clearance: GPL-3.0, AGPL-3.0 and
+ODbL are read correctly and are still unusable in a closed product, which is why the id is carried rather than a
+boolean. And an unread licence is <strong>not</strong> a licence that forbids use — it is one this checkout did not open, and the
+row says so rather than guessing.</p>
+<p>The datasets side is a filter, not a copy: <code>CatalogEntry</code> in <code>pinneapple_data.datasets.catalog</code> gained the <code>stages</code> it
+feeds, so <code>catalog.entries(stage="inverse")</code> and <code>stages.datasets("inverse")</code> are the same list by construction. A
+test asserts it, and <code>stages.unassigned_datasets()</code> names any catalogued dataset that no stage claims.</p>
+<h2 id="what-the-map-looks-like">What the map looks like<a class="headerlink" href="#what-the-map-looks-like" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stages</td>
+<td>13 (12 of them workflow, 1 the palette's drawer)</td>
+</tr>
+<tr>
+<td>Tools</td>
+<td>111 — <strong>35 wired</strong>, 10 named, 66 candidate</td>
+</tr>
+<tr>
+<td>Licences read here</td>
+<td>101 of 111</td>
+</tr>
+<tr>
+<td>Public datasets</td>
+<td>13, every one tagged with at least one stage</td>
+</tr>
+</tbody>
+</table>
+<p>Read the <code>wired</code> column, not the tool count. A stage with twenty candidates and no wiring is a stage where the work
+has not started, and the map says so in the same breath as it names the tools.</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Tools</th>
+<th>Wired</th>
+<th>Datasets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>problem</td>
+<td>8</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>equations</td>
+<td>9</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>solvers</td>
+<td>27</td>
+<td>13</td>
+<td>1</td>
+</tr>
+<tr>
+<td>physics_ai</td>
+<td>15</td>
+<td>6</td>
+<td>8</td>
+</tr>
+<tr>
+<td>surrogates</td>
+<td>10</td>
+<td>2</td>
+<td>4</td>
+</tr>
+<tr>
+<td>data</td>
+<td>17</td>
+<td>8</td>
+<td>12</td>
+</tr>
+<tr>
+<td>inverse</td>
+<td>11</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>validation</td>
+<td>11</td>
+<td>3</td>
+<td>6</td>
+</tr>
+<tr>
+<td>optimization</td>
+<td>14</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>twin</td>
+<td>15</td>
+<td>5</td>
+<td>3</td>
+</tr>
+<tr>
+<td>viz</td>
+<td>13</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>export</td>
+<td>15</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>library</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-the-shape-says">What the shape says<a class="headerlink" href="#what-the-shape-says" title="Permanent link">&para;</a></h2>
+<p>Four things are worth saying plainly, because they are the reason to build the map at all:</p>
+<ul>
+<li><strong>The workflow is a T at the solvers.</strong> 27 tools at the classical-solver stage, 13 of them wired, against 11 and
+  <strong>1</strong> at the inverse stage and 10 with 2 at the ROM stage. The repository is strong where the physics is known and
+  thin where it has to be inferred from data — which is exactly the stage the trust layer and the design loop depend
+  on.</li>
+<li><strong>The inverse stage has one wired tool, and it is not a sampler.</strong> PySINDy recovers an equation from data; it does
+  not produce a posterior. PyMC, emcee, dynesty and UltraNest are catalogued and unused, so the "uncertainty" this
+  library reports is still a seed-ensemble disagreement (<code>bundle_uq.seed_ensemble</code> says so itself). Closing that gap
+  is the shortest path from "a number" to "an uncertainty".</li>
+<li><strong>Four stages have no datasets at all</strong> — equations, optimization, viz, export. For viz and export that is honest
+  (they consume a result rather than a public archive); for optimization it is a real hole: comparing a design loop
+  needs the <em>reference optimum</em> of a case, and no catalogued dataset carries one.</li>
+<li><strong>The copyleft list is short and specific</strong>: OpenFOAM (GPL-3.0), FEniCSx and UFL (LGPL-3.0), Firedrake
+  (LGPL-3.0-or-later), preCICE (LGPL-3.0), CasADi, RBniCS, dolfin-adjoint and OpenTURNS (LGPL-3.0), OpenRadioss
+  (AGPL-3.0-or-later), jax-fem and REBOUND (GPL-3.0-or-later), DEAP (LGPL-3.0), UltraNest (GPL-3.0), and — new to
+  this page — <strong>AirfRANS under ODbL-1.0</strong>, the one <em>dataset</em> whose licence is share-alike. Outside the copyleft
+  list and harder to live with, <strong>FluidX3D forbids commercial use outright</strong>.</li>
+</ul>
+<h3 id="problem-problem-geometry">problem — Problem &amp; geometry<a class="headerlink" href="#problem-problem-geometry" title="Permanent link">&para;</a></h3>
+<p><em>What is being solved, on what shape, and did the engineer's sentence become a machine-readable problem (domain, units, boundary patches, material)?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CadQuery</td>
+<td>Apache-2.0</td>
+<td>named</td>
+<td>problem</td>
+</tr>
+<tr>
+<td>FreeCAD</td>
+<td>LGPL-2.1</td>
+<td>wired</td>
+<td>problem</td>
+</tr>
+<tr>
+<td>Gmsh</td>
+<td>GPL-2.0-or-later (with the Gmsh linking exception)</td>
+<td>named</td>
+<td>problem, solvers</td>
+</tr>
+<tr>
+<td>Open3D</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>viz, problem</td>
+</tr>
+<tr>
+<td>OpenCASCADE (OCCT)</td>
+<td>LGPL-2.1</td>
+<td>candidate</td>
+<td>problem, export</td>
+</tr>
+<tr>
+<td>OpenFOAM</td>
+<td>GPL-3.0</td>
+<td>wired</td>
+<td>problem, solvers, validation</td>
+</tr>
+<tr>
+<td>SALOME</td>
+<td>LGPL-2.1</td>
+<td>candidate</td>
+<td>problem</td>
+</tr>
+<tr>
+<td>trimesh</td>
+<td>MIT</td>
+<td>named</td>
+<td>problem, viz</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: nasa_tmr, airfrans, flowbench</p>
+<p>Gap: CAD arrives as a file, not as a parameterised intent: the STEP/BREP edit that a design study needs requires an external kernel, and just two of them (FreeCAD, CadQuery) are reached from here.</p>
+<h3 id="equations-equations">equations — Equations<a class="headerlink" href="#equations-equations" title="Permanent link">&para;</a></h3>
+<p><em>Which governing equations, which conditions, and are they written as something a solver or a residual can consume — or only as prose?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cantera</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>CoolProp</td>
+<td>MIT</td>
+<td>wired</td>
+<td>equations</td>
+</tr>
+<tr>
+<td>FEniCSx (DOLFINx)</td>
+<td>LGPL-3.0</td>
+<td>wired</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>Firedrake</td>
+<td>LGPL-3.0-or-later</td>
+<td>candidate</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>Modelica Standard Library</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>equations, twin</td>
+</tr>
+<tr>
+<td>OpenModelica</td>
+<td>OSMC-PL-1.8</td>
+<td>wired</td>
+<td>equations, twin</td>
+</tr>
+<tr>
+<td>SUNDIALS</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>SymPy</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>equations</td>
+</tr>
+<tr>
+<td>UFL (FEniCS form language)</td>
+<td>LGPL-3.0</td>
+<td>candidate</td>
+<td>equations, solvers</td>
+</tr>
+</tbody>
+</table>
+<p>Gap: <code>physics.governing</code> is text with its symbols defined; nothing here turns that prose into a symbolic form without a human, so SymPy/UFL are catalogued and only named.</p>
+<h3 id="solvers-classical-solvers">solvers — Classical solvers<a class="headerlink" href="#solvers-classical-solvers" title="Permanent link">&para;</a></h3>
+<p><em>What produces the reference numbers that the surrogate will be scored against?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gmsh</td>
+<td>GPL-2.0-or-later (with the Gmsh linking exception)</td>
+<td>named</td>
+<td>problem, solvers</td>
+</tr>
+<tr>
+<td>OpenFOAM</td>
+<td>GPL-3.0</td>
+<td>wired</td>
+<td>problem, solvers, validation</td>
+</tr>
+<tr>
+<td>Cantera</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>FEniCSx (DOLFINx)</td>
+<td>LGPL-3.0</td>
+<td>wired</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>Firedrake</td>
+<td>LGPL-3.0-or-later</td>
+<td>candidate</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>SUNDIALS</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>UFL (FEniCS form language)</td>
+<td>LGPL-3.0</td>
+<td>candidate</td>
+<td>equations, solvers</td>
+</tr>
+<tr>
+<td>CalculiX</td>
+<td>GPL-2.0</td>
+<td>wired</td>
+<td>solvers, validation</td>
+</tr>
+<tr>
+<td>Diffrax</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>physics_ai, solvers</td>
+</tr>
+<tr>
+<td>Elmer</td>
+<td>GPL-2.0</td>
+<td>candidate</td>
+<td>solvers</td>
+</tr>
+<tr>
+<td>FluidX3D</td>
+<td>custom, non-commercial (no SPDX id)</td>
+<td>wired</td>
+<td>solvers</td>
+</tr>
+<tr>
+<td>Genesis</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, twin</td>
+</tr>
+<tr>
+<td>JAX-CFD</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>Kratos Multiphysics</td>
+<td>BSD-4-Clause (Kratos licence, per application)</td>
+<td>candidate</td>
+<td>solvers</td>
+</tr>
+<tr>
+<td>MuJoCo</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, twin</td>
+</tr>
+<tr>
+<td>NVIDIA Warp</td>
+<td>Apache-2.0</td>
+<td>named</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>Newton Physics</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>OpenRadioss</td>
+<td>AGPL-3.0-or-later</td>
+<td>wired</td>
+<td>solvers</td>
+</tr>
+<tr>
+<td>Project Chrono</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>solvers</td>
+</tr>
+<tr>
+<td>REBOUND</td>
+<td>GPL-3.0-or-later</td>
+<td>wired</td>
+<td>solvers</td>
+</tr>
+<tr>
+<td>SU2</td>
+<td>LGPL-2.1</td>
+<td>named</td>
+<td>solvers, optimization</td>
+</tr>
+<tr>
+<td>SciPy</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>optimization, solvers, data</td>
+</tr>
+<tr>
+<td>Taichi</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>deal.II</td>
+<td>LGPL-2.1-or-later</td>
+<td>candidate</td>
+<td>solvers, validation</td>
+</tr>
+<tr>
+<td>jax-fem</td>
+<td>GPL-3.0</td>
+<td>candidate</td>
+<td>solvers, inverse</td>
+</tr>
+<tr>
+<td>preCICE</td>
+<td>LGPL-3.0</td>
+<td>candidate</td>
+<td>solvers</td>
+</tr>
+<tr>
+<td>Φ-Flow</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>solvers, physics_ai</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: nasa_tmr</p>
+<p>Gap: The bridges are per product (CFD, structural), not one backend contract: a new code is a new adapter. Multi-solver coupling (preCICE) is catalogued and unused.</p>
+<h3 id="physics_ai-physics-ai">physics_ai — Physics AI<a class="headerlink" href="#physics_ai-physics-ai" title="Permanent link">&para;</a></h3>
+<p><em>Which model family (PINN, neural operator, graph network, differentiable solver) and which package actually trains it?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diffrax</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>physics_ai, solvers</td>
+</tr>
+<tr>
+<td>JAX-CFD</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>NVIDIA Warp</td>
+<td>Apache-2.0</td>
+<td>named</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>Newton Physics</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>Taichi</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>Φ-Flow</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>solvers, physics_ai</td>
+</tr>
+<tr>
+<td>DGL</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>physics_ai</td>
+</tr>
+<tr>
+<td>DeepXDE</td>
+<td>LGPL-2.1</td>
+<td>named</td>
+<td>physics_ai</td>
+</tr>
+<tr>
+<td>Equinox</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>physics_ai</td>
+</tr>
+<tr>
+<td>PINA</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>physics_ai</td>
+</tr>
+<tr>
+<td>PhysicsNeMo (Modulus)</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>physics_ai, surrogates</td>
+</tr>
+<tr>
+<td>PySINDy</td>
+<td>MIT</td>
+<td>wired</td>
+<td>physics_ai, inverse</td>
+</tr>
+<tr>
+<td>PyTorch Geometric</td>
+<td>MIT</td>
+<td>wired</td>
+<td>physics_ai</td>
+</tr>
+<tr>
+<td>neuraloperator</td>
+<td>MIT</td>
+<td>named</td>
+<td>physics_ai, surrogates</td>
+</tr>
+<tr>
+<td>torchdiffeq</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>physics_ai</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: cfdbench, pdebench, spe10, the_well, airfrans, deepmind_mgn, flowbench, pdearena</p>
+<p>Gap: No common training interface: the user picks the architecture, and each family's own package is a different dependency tree. The GPU wave solvers (Warp, Taichi) are wired for one demo path each.</p>
+<h3 id="surrogates-surrogates-roms">surrogates — Surrogates &amp; ROMs<a class="headerlink" href="#surrogates-surrogates-roms" title="Permanent link">&para;</a></h3>
+<p><em>Which cheap model stands in for the solver once the data exists, and how is it chosen?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PhysicsNeMo (Modulus)</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>physics_ai, surrogates</td>
+</tr>
+<tr>
+<td>neuraloperator</td>
+<td>MIT</td>
+<td>named</td>
+<td>physics_ai, surrogates</td>
+</tr>
+<tr>
+<td>EZyRB</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>surrogates</td>
+</tr>
+<tr>
+<td>GPy</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>surrogates</td>
+</tr>
+<tr>
+<td>GPyTorch</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>surrogates, validation</td>
+</tr>
+<tr>
+<td>OpenTURNS</td>
+<td>LGPL-3.0</td>
+<td>named</td>
+<td>surrogates, validation, inverse</td>
+</tr>
+<tr>
+<td>RBniCS</td>
+<td>LGPL-3.0</td>
+<td>candidate</td>
+<td>surrogates</td>
+</tr>
+<tr>
+<td>SMT</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>surrogates, optimization</td>
+</tr>
+<tr>
+<td>pyMOR</td>
+<td>BSD-2-Clause AND BSD-3-Clause</td>
+<td>candidate</td>
+<td>surrogates</td>
+</tr>
+<tr>
+<td>scikit-learn</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>surrogates, data</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: cfdbench, pdebench, the_well, airfrans</p>
+<p>Gap: Projection-based ROM (pyMOR, RBniCS, EZyRB) is catalogued and not used; the ROMs here are the library's own POD/DMD.</p>
+<h3 id="data-data">data — Data<a class="headerlink" href="#data-data" title="Permanent link">&para;</a></h3>
+<p><em>Where does the training data come from, in what format, and is the licence one a product may ship?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SciPy</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>optimization, solvers, data</td>
+</tr>
+<tr>
+<td>scikit-learn</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>surrogates, data</td>
+</tr>
+<tr>
+<td>ADIOS2</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>data</td>
+</tr>
+<tr>
+<td>Apache Airflow</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin, data</td>
+</tr>
+<tr>
+<td>Apache Arrow / Parquet</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>data</td>
+</tr>
+<tr>
+<td>CGNS</td>
+<td>Zlib-style (CGNS licence, derived from zlib/libpng)</td>
+<td>candidate</td>
+<td>export, data</td>
+</tr>
+<tr>
+<td>Chaospy</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>data, validation</td>
+</tr>
+<tr>
+<td>DVC</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>data</td>
+</tr>
+<tr>
+<td>MLflow</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>data, validation</td>
+</tr>
+<tr>
+<td>Pint</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>validation, data</td>
+</tr>
+<tr>
+<td>Prefect</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin, data</td>
+</tr>
+<tr>
+<td>SALib</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>data, validation</td>
+</tr>
+<tr>
+<td>VTK</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>viz, export, data</td>
+</tr>
+<tr>
+<td>Zarr</td>
+<td>MIT</td>
+<td>wired</td>
+<td>data</td>
+</tr>
+<tr>
+<td>h5py / HDF5</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>data</td>
+</tr>
+<tr>
+<td>pyDOE2</td>
+<td>BSD-3-Clause</td>
+<td>named</td>
+<td>data</td>
+</tr>
+<tr>
+<td>xarray</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>data</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: cfdbench, pdebench, spe10, the_well, airfrans, deepmind_mgn, flowbench, jhtdb, norne, pdearena, era5, nrel_wind</p>
+<p>Gap: The catalogue names twenty-odd public sources and reads six; the readers are per archive layout, and each new archive is a new reader.</p>
+<h3 id="inverse-inverse-calibration">inverse — Inverse &amp; calibration<a class="headerlink" href="#inverse-inverse-calibration" title="Permanent link">&para;</a></h3>
+<p><em>Which parameters, materials or source terms are unknown, and which inference buys them from measurements?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>jax-fem</td>
+<td>GPL-3.0</td>
+<td>candidate</td>
+<td>solvers, inverse</td>
+</tr>
+<tr>
+<td>PySINDy</td>
+<td>MIT</td>
+<td>wired</td>
+<td>physics_ai, inverse</td>
+</tr>
+<tr>
+<td>OpenTURNS</td>
+<td>LGPL-3.0</td>
+<td>named</td>
+<td>surrogates, validation, inverse</td>
+</tr>
+<tr>
+<td>ArviZ</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>validation, inverse</td>
+</tr>
+<tr>
+<td>PyMC</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>inverse, validation</td>
+</tr>
+<tr>
+<td>Pyro</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin, inverse</td>
+</tr>
+<tr>
+<td>UltraNest</td>
+<td>GPL-3.0</td>
+<td>candidate</td>
+<td>inverse</td>
+</tr>
+<tr>
+<td>dolfin-adjoint</td>
+<td>LGPL-3.0</td>
+<td>candidate</td>
+<td>inverse, optimization</td>
+</tr>
+<tr>
+<td>dynesty</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>inverse</td>
+</tr>
+<tr>
+<td>emcee</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>inverse</td>
+</tr>
+<tr>
+<td>lmfit</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>inverse</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: spe10, norne</p>
+<p>Gap: The library calibrates with its own optimisers; the Bayesian samplers (PyMC, emcee, dynesty) are catalogued and named, not wired, so no posterior comes out of a PINNeAPPle run.</p>
+<h3 id="validation-validation-uq">validation — Validation &amp; UQ<a class="headerlink" href="#validation-validation-uq" title="Permanent link">&para;</a></h3>
+<p><em>How far is the prediction from a reference, and what is the number that says so?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenFOAM</td>
+<td>GPL-3.0</td>
+<td>wired</td>
+<td>problem, solvers, validation</td>
+</tr>
+<tr>
+<td>CalculiX</td>
+<td>GPL-2.0</td>
+<td>wired</td>
+<td>solvers, validation</td>
+</tr>
+<tr>
+<td>deal.II</td>
+<td>LGPL-2.1-or-later</td>
+<td>candidate</td>
+<td>solvers, validation</td>
+</tr>
+<tr>
+<td>GPyTorch</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>surrogates, validation</td>
+</tr>
+<tr>
+<td>OpenTURNS</td>
+<td>LGPL-3.0</td>
+<td>named</td>
+<td>surrogates, validation, inverse</td>
+</tr>
+<tr>
+<td>Chaospy</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>data, validation</td>
+</tr>
+<tr>
+<td>MLflow</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>data, validation</td>
+</tr>
+<tr>
+<td>Pint</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>validation, data</td>
+</tr>
+<tr>
+<td>SALib</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>data, validation</td>
+</tr>
+<tr>
+<td>ArviZ</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>validation, inverse</td>
+</tr>
+<tr>
+<td>PyMC</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>inverse, validation</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: cfdbench, nasa_tmr, pdebench, spe10, jhtdb, pdearena</p>
+<p>Gap: Data-side and model-side gates exist and report a number; the UQ behind them is a seed-ensemble disagreement, not a posterior, and no catalogued sampler is wired to make it one.</p>
+<h3 id="optimization-optimization-control">optimization — Optimization &amp; control<a class="headerlink" href="#optimization-optimization-control" title="Permanent link">&para;</a></h3>
+<p><em>Given a trustworthy surrogate, which design should be built?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SU2</td>
+<td>LGPL-2.1</td>
+<td>named</td>
+<td>solvers, optimization</td>
+</tr>
+<tr>
+<td>SciPy</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>optimization, solvers, data</td>
+</tr>
+<tr>
+<td>SMT</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>surrogates, optimization</td>
+</tr>
+<tr>
+<td>dolfin-adjoint</td>
+<td>LGPL-3.0</td>
+<td>candidate</td>
+<td>inverse, optimization</td>
+</tr>
+<tr>
+<td>CVXPY</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>CasADi</td>
+<td>LGPL-3.0</td>
+<td>wired</td>
+<td>optimization, twin</td>
+</tr>
+<tr>
+<td>DEAP</td>
+<td>LGPL-3.0</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>HiGHS</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>Ipopt</td>
+<td>EPL-2.0</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>NLopt</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>Nevergrad</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>Pyomo</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>pycma</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>optimization</td>
+</tr>
+<tr>
+<td>pymoo</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>optimization</td>
+</tr>
+</tbody>
+</table>
+<p>Gap: Bayesian optimisation is present but not connected to the trust layer: a candidate can be ranked without the gate ever deciding whether the surrogate may be believed there.</p>
+<h3 id="twin-digital-twin">twin — Digital twin<a class="headerlink" href="#twin-digital-twin" title="Permanent link">&para;</a></h3>
+<p><em>Which live signals update the model, and what does the model say before the next measurement?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modelica Standard Library</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>equations, twin</td>
+</tr>
+<tr>
+<td>OpenModelica</td>
+<td>OSMC-PL-1.8</td>
+<td>wired</td>
+<td>equations, twin</td>
+</tr>
+<tr>
+<td>Genesis</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, twin</td>
+</tr>
+<tr>
+<td>MuJoCo</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>solvers, twin</td>
+</tr>
+<tr>
+<td>Apache Airflow</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin, data</td>
+</tr>
+<tr>
+<td>Prefect</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin, data</td>
+</tr>
+<tr>
+<td>Pyro</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin, inverse</td>
+</tr>
+<tr>
+<td>CasADi</td>
+<td>LGPL-3.0</td>
+<td>wired</td>
+<td>optimization, twin</td>
+</tr>
+<tr>
+<td>Apache Kafka</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin</td>
+</tr>
+<tr>
+<td>Eclipse Mosquitto (MQTT)</td>
+<td>EPL-2.0 OR EDL-1.0</td>
+<td>candidate</td>
+<td>twin</td>
+</tr>
+<tr>
+<td>FMPy</td>
+<td>BSD-2-Clause</td>
+<td>wired</td>
+<td>twin</td>
+</tr>
+<tr>
+<td>FilterPy</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>twin</td>
+</tr>
+<tr>
+<td>InfluxDB (open-source core)</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>twin</td>
+</tr>
+<tr>
+<td>NVIDIA Triton Inference Server</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>export, twin</td>
+</tr>
+<tr>
+<td>pykalman</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>twin</td>
+</tr>
+</tbody>
+</table>
+<p>Datasets: norne, era5, nrel_wind</p>
+<p>Gap: Streaming is HTTP polling and the telemetry bundle; no message broker, no FMU co-simulation in a twin loop (FMPy is wired only for the onboarding doctor).</p>
+<h3 id="viz-visualization">viz — Visualization<a class="headerlink" href="#viz-visualization" title="Permanent link">&para;</a></h3>
+<p><em>Can an engineer see the field, the mesh and the difference, in 3-D and as an animation?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open3D</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>viz, problem</td>
+</tr>
+<tr>
+<td>trimesh</td>
+<td>MIT</td>
+<td>named</td>
+<td>problem, viz</td>
+</tr>
+<tr>
+<td>VTK</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>viz, export, data</td>
+</tr>
+<tr>
+<td>Blender</td>
+<td>GPL-2.0-or-later</td>
+<td>wired</td>
+<td>viz, export</td>
+</tr>
+<tr>
+<td>F3D</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>viz</td>
+</tr>
+<tr>
+<td>Matplotlib</td>
+<td>Matplotlib (PSF-based, no SPDX id)</td>
+<td>wired</td>
+<td>viz, export</td>
+</tr>
+<tr>
+<td>OpenUSD</td>
+<td>TOST-1.0 (Tomorrow Open Source Technology License)</td>
+<td>named</td>
+<td>export, viz</td>
+</tr>
+<tr>
+<td>ParaView</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>viz</td>
+</tr>
+<tr>
+<td>Plotly</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>viz</td>
+</tr>
+<tr>
+<td>PyVista</td>
+<td>MIT</td>
+<td>wired</td>
+<td>viz, export</td>
+</tr>
+<tr>
+<td>napari</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>viz</td>
+</tr>
+<tr>
+<td>vedo</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>viz</td>
+</tr>
+<tr>
+<td>yt</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>viz</td>
+</tr>
+</tbody>
+</table>
+<p>Gap: PyVista is wired for the schema's bundles; the CAE readers' own results still go through per-product plot code.</p>
+<h3 id="export-export-report">export — Export &amp; report<a class="headerlink" href="#export-export-report" title="Permanent link">&para;</a></h3>
+<p><em>How does the result leave — as a portable model, a mesh, or a document a reviewer signs?</em></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Licence</th>
+<th>State</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenCASCADE (OCCT)</td>
+<td>LGPL-2.1</td>
+<td>candidate</td>
+<td>problem, export</td>
+</tr>
+<tr>
+<td>CGNS</td>
+<td>Zlib-style (CGNS licence, derived from zlib/libpng)</td>
+<td>candidate</td>
+<td>export, data</td>
+</tr>
+<tr>
+<td>VTK</td>
+<td>BSD-3-Clause</td>
+<td>wired</td>
+<td>viz, export, data</td>
+</tr>
+<tr>
+<td>NVIDIA Triton Inference Server</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>export, twin</td>
+</tr>
+<tr>
+<td>Blender</td>
+<td>GPL-2.0-or-later</td>
+<td>wired</td>
+<td>viz, export</td>
+</tr>
+<tr>
+<td>Matplotlib</td>
+<td>Matplotlib (PSF-based, no SPDX id)</td>
+<td>wired</td>
+<td>viz, export</td>
+</tr>
+<tr>
+<td>OpenUSD</td>
+<td>TOST-1.0 (Tomorrow Open Source Technology License)</td>
+<td>named</td>
+<td>export, viz</td>
+</tr>
+<tr>
+<td>PyVista</td>
+<td>MIT</td>
+<td>wired</td>
+<td>viz, export</td>
+</tr>
+<tr>
+<td>ONNX</td>
+<td>Apache-2.0</td>
+<td>wired</td>
+<td>export</td>
+</tr>
+<tr>
+<td>ONNX Runtime</td>
+<td>MIT</td>
+<td>wired</td>
+<td>export</td>
+</tr>
+<tr>
+<td>OpenVINO</td>
+<td>Apache-2.0</td>
+<td>candidate</td>
+<td>export</td>
+</tr>
+<tr>
+<td>Pandoc</td>
+<td>GPL-2.0</td>
+<td>candidate</td>
+<td>export</td>
+</tr>
+<tr>
+<td>WeasyPrint</td>
+<td>BSD-3-Clause</td>
+<td>candidate</td>
+<td>export</td>
+</tr>
+<tr>
+<td>XlsxWriter</td>
+<td>BSD-2-Clause</td>
+<td>candidate</td>
+<td>export</td>
+</tr>
+<tr>
+<td>python-docx</td>
+<td>MIT</td>
+<td>candidate</td>
+<td>export</td>
+</tr>
+</tbody>
+</table>
+<p>Gap: ONNX is exported and timed with three fallbacks; the rest of the list (OpenUSD, CGNS, Triton) is catalogued and not wired.</p>
+<h3 id="library-library-calls-advanced">library — Library calls (advanced)<a class="headerlink" href="#library-library-calls-advanced" title="Permanent link">&para;</a></h3>
+<p>Gap: Not a workflow stage: the palette's drawer of generated <code>auto.*</code> calls, kept in the list so the stage ids match the palette exactly.</p>
+<h2 id="the-map-in-the-planner-a-proposal-now-says-which-stages-it-spans">The map in the planner: a proposal now says which stages it spans<a class="headerlink" href="#the-map-in-the-planner-a-proposal-now-says-which-stages-it-spans" title="Permanent link">&para;</a></h2>
+<p>A table nobody queries is a document. The map is joined to the flow planner in <code>pinneapple_flow/stage_fit.py</code>:
+<code>FlowBuilder.proposal()</code> annotates every proposal with <code>stage_map</code>, and the annotation travels inside the flow
+(<code>flow.meta.stage_map</code>), so the Studio, the API and a saved flow all see the same thing.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_flow.stage_fit</span><span class="w"> </span><span class="kn">import</span> <span class="n">fit</span>
+<span class="n">fit</span><span class="p">([{</span><span class="s2">"id"</span><span class="p">:</span> <span class="s2">"calibrate"</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"inverse.calibrate"</span><span class="p">}])</span>
+<span class="c1"># {'stages': [{'id': 'inverse', 'wired': 1, 'wired_tools': ['pysindy'], 'datasets': [...],</span>
+<span class="c1">#              'readable_datasets': [...], 'gap': 'The library calibrates with its own optimisers; ...'}],</span>
+<span class="c1">#  'thin': [{'id': 'inverse', 'wired': 1, 'gap': '...'}], 'available': True, ...}</span>
+</code></pre></div>
+<p><code>thin</code> is deliberately <strong>not</strong> "zero wired tools". It is "at most one", because a stage where a single external tool
+is wired offers no choice at all: the planned flow runs that step on PINNeAPPle's own code whatever the user wanted.
+The stage's <code>gap</code> sentence goes with it, so the finding is actionable rather than a score.</p>
+<p>A thin stage is also recorded as a decision (<code>stage.coverage</code>) with the rule's own citation status, so the reason
+travels with the flow instead of living in a returned dict that a saved flow would lose. The rules gate
+(<code>tests/test_flow_decisions.py</code>) requires every rule to cite a reference or to say why it has none; this one says it
+is a property of this repository's map, not a literature rule.</p>
+<p>What it looks like on a real plan — <code>plan_heuristic("identify the conductivity of a rod from measurements")</code> spans
+six stages and flags one:</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Wired tools there</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>problem</td>
+<td>2</td>
+<td>fine</td>
+</tr>
+<tr>
+<td>equations</td>
+<td>5</td>
+<td>fine</td>
+</tr>
+<tr>
+<td>solvers</td>
+<td>13</td>
+<td>fine</td>
+</tr>
+<tr>
+<td>data</td>
+<td>8</td>
+<td>fine</td>
+</tr>
+<tr>
+<td><strong>inverse</strong></td>
+<td><strong>1</strong> (PySINDy)</td>
+<td><strong>thin — recorded as a decision</strong></td>
+</tr>
+<tr>
+<td>export</td>
+<td>6</td>
+<td>fine</td>
+</tr>
+</tbody>
+</table>
+<p>The join degrades instead of failing: without <code>pinneapple_catalog</code> installed, <code>fit()</code> still reports the stages the
+flow spans and says in <code>reason</code> why no coverage came back. An empty map would read as "nothing is available
+anywhere", which is a different and wrong statement.</p>
+<h2 id="the-ten-licences-this-page-had-not-read-and-what-they-say">The ten licences this page had not read, and what they say<a class="headerlink" href="#the-ten-licences-this-page-had-not-read-and-what-they-say" title="Permanent link">&para;</a></h2>
+<p>These ten rows carried a licence nobody here had opened. They were read on 2026-11-25, each one at the place named
+in its <code>license_source</code>, and <code>license_verified</code> is now <code>True</code> on all of them, so
+<code>stages.coverage()['totals']['license_unverified']</code> is <code>0</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>The licence, as its own text says it</th>
+<th>What it implies for a paid study and for distribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gmsh</td>
+<td>GPL-2.0-or-later, plus the Gmsh exception</td>
+<td>commercial use fine; the GPL reaches a modified Gmsh, and the exception keeps it away from the caller that links it</td>
+</tr>
+<tr>
+<td>SALOME</td>
+<td>LGPL-2.1</td>
+<td>commercial use fine; a modified SALOME stays LGPL, and linking does not reach the caller</td>
+</tr>
+<tr>
+<td>FluidX3D</td>
+<td>custom: research, education and personal use, "Commercial use is not allowed"</td>
+<td><strong>not usable in delivery</strong>: nothing may be sold, nor a paid service whose value derives from it; no military use, no AI training on the source</td>
+</tr>
+<tr>
+<td>Genesis</td>
+<td>Apache-2.0</td>
+<td>commercial use and redistribution fine, notice kept and changes stated</td>
+</tr>
+<tr>
+<td>Newton Physics</td>
+<td>Apache-2.0</td>
+<td>the same</td>
+</tr>
+<tr>
+<td>OpenRadioss</td>
+<td>AGPL-3.0-or-later, (C) 2026 SISW Siemens</td>
+<td>the strictest here: a modified version offered as a network service must publish its source; Siemens withdrew the open distribution in 2026-10</td>
+</tr>
+<tr>
+<td>REBOUND</td>
+<td>GPL-3.0-or-later</td>
+<td>shipped inside a product, the product becomes GPL: usable in a study, a decision before it is a dependency</td>
+</tr>
+<tr>
+<td>CGNS</td>
+<td>the CGNS licence, borrowed from zlib/libpng and superseding the LGPL</td>
+<td>permissive with no copyleft: shippable, notice kept and changes marked</td>
+</tr>
+<tr>
+<td>Blender</td>
+<td>GPL-2.0-or-later</td>
+<td>the GPL covers the application and the add-ons inside it, not the image it renders</td>
+</tr>
+<tr>
+<td>Matplotlib</td>
+<td>the MDT's own PSF-based agreement, no SPDX id</td>
+<td>permissive and not BSD: keep the agreement and the MDT notice, and summarise the changes in a derivative</td>
+</tr>
+</tbody>
+</table>
+<p>Two of the reads changed the row rather than confirming it. <strong>REBOUND's own header says "version 3 or any later
+version"</strong>, so <code>GPL-3.0</code> became <code>GPL-3.0-or-later</code>. <strong>Matplotlib's text is an agreement between the Matplotlib
+Development Team and a licensee</strong>, not a BSD-family licence, and the row that called it "BSD-style" now quotes the
+obligation it actually carries.</p>
+<p>FluidX3D is the one entry whose licence forbids what this repository sells, so <code>is_open</code> is <code>False</code> for it: a
+custom licence that bans commercial use is source-available, not open-source.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">stages</span>
+<span class="p">[(</span><span class="n">t</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">license</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">stages</span><span class="o">.</span><span class="n">tools</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="o">.</span><span class="n">license_verified</span><span class="p">]</span>   <span class="c1"># []</span>
+<span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">stages</span><span class="o">.</span><span class="n">tools</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="o">.</span><span class="n">is_open</span><span class="p">]</span>                         <span class="c1"># ['fluidx3d']</span>
+</code></pre></div>
+<h2 id="decisions-left-open-each-one-a-row-and-not-an-omission">Decisions left open, each one a row and not an omission<a class="headerlink" href="#decisions-left-open-each-one-a-row-and-not-an-omission" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Agents are not a stage.</strong> The palette has no section for the engineering agent, so the map has none either —
+   the intent compiler and the advisor live under <code>problem</code> and <code>optimization</code> for now. If the workflow gains an
+   agent step, it belongs in <code>SECTIONS</code> first and in this map second, which is the order the test enforces.</li>
+<li><strong><code>named</code> is not <code>wired</code>, and ten tools sit there.</strong> They are named by a recommender or an optional-dependency
+   table, with no path that runs them. Promoting one means writing the adapter, not editing this map.</li>
+<li><strong>The map does not rank.</strong> It says which tools serve a stage and how far this repository goes with each; it does
+   not say which of two candidates is better for a given problem. That ranking exists for solvers in
+   <code>tool_recommendation.recommend_tools</code>, and it is deliberately problem-scoped, not stage-scoped.</li>
+<li><strong>Dataset stage tags are a judgement, not a measurement.</strong> A dataset is tagged with the stages it <em>feeds</em>
+   (<code>pdebench</code> feeds physics-AI training, data, surrogates and validation). Two people could tag the same archive
+   differently; the tag lives in one place so the disagreement is a one-line edit rather than thirteen.</li>
+</ol>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<p>The licences above were read through the GitHub licence API and the PyPI JSON API; the homepages are the projects'
+own. Where a tool's <em>scope</em> is at stake rather than its licence, the entry defers to
+<code>pinneapple_analysis.verification.tool_recommendation.TOOL_CATALOG</code>, which cites each tool's documentation.</p>
+<ul>
+<li>GitHub licence API: <a href="https://docs.github.com/en/rest/licenses">https://docs.github.com/en/rest/licenses</a></li>
+<li>PyPI JSON API (<code>info.license</code>, <code>info.license_expression</code>): <a href="https://docs.pypi.org/api/json/">https://docs.pypi.org/api/json/</a></li>
+<li>SPDX licence list, the ids used above: <a href="https://spdx.org/licenses/">https://spdx.org/licenses/</a></li>
+<li>ODbL-1.0 (AirfRANS): <a href="https://opendatacommons.org/licenses/odbl/1-0/">https://opendatacommons.org/licenses/odbl/1-0/</a></li>
+<li>The companion page, organised by integration: <code>docs/dev/PHYSICS_AI_INTEROP.md</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+ "deform": null,
+ "field": "contact pressure",
+ "kind": "value",
+ "label": "",
+ "length_unit": "m",
+ "method": "",
+ "source": "",
+ "status": "",
+ "text": "contact pressure [MPa]",
+ "time": null,
+ "time_unit": "s",
+ "unit": "MPa",
+ "value_range": null
+}

@@ -1,0 +1,15 @@
+{
+ "deform": null,
+ "field": "t",
+ "kind": "value",
+ "label": "",
+ "length_unit": "m",
+ "method": "",
+ "source": "",
+ "status": "",
+ "text": "t [s]",
+ "time": null,
+ "time_unit": "s",
+ "unit": "s",
+ "value_range": null
+}

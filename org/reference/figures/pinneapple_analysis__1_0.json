@@ -1,0 +1,15 @@
+{
+ "deform": null,
+ "field": "damping",
+ "kind": "value",
+ "label": "",
+ "length_unit": "m",
+ "method": "",
+ "source": "",
+ "status": "",
+ "text": "damping [dimensionless]",
+ "time": null,
+ "time_unit": "s",
+ "unit": "-",
+ "value_range": null
+}

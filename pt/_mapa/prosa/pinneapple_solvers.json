@@ -1,0 +1,25 @@
+{
+ "pacote": "pinneapple_solvers",
+ "objetivo": "`pinneapple_solvers` é um shim de compatibilidade. Não tem código próprio: reexporta os solvers numéricos que hoje vivem em `pinneapple_simulation.numerical_solvers`, para que código antigo com `from pinneapple_solvers import ...` continue funcionando.\n\nO `__init__` traz `SolverBase`, `SolverOutput`, `SolverRegistry` e `FDMSolver` diretamente. `FEMSolver`, `FVMSolver`, `LBMSolver`, `SpectralSolver`, `SPHSolver` e `FFTSolver` vêm dentro de `try/except` e viram `None` se o import falhar. `registry` é apenas um apelido para a classe `SolverRegistry`.\n\nO submódulo `fft.py` foi criado porque `tests/pinneapple_solvers/test_fft.py` importava `pinneapple_solvers.fft`, que não existia. O comentário no `__init__` registra outro bug corrigido: antes ele importava um nome inexistente (`FFTProcessor`), e o erro era engolido pelo `except`. Código novo deve importar de `pinneapple_simulation.numerical_solvers`.",
+ "submodulos": {
+  "fft": "Reexporta `FFTSolver` de `pinneapple_simulation.numerical_solvers.fft`."
+ },
+ "modulos": {
+  "pinneapple_solvers": "[shim] Pacote de compatibilidade (obsoleto) que reexporta os solvers de `pinneapple_simulation.numerical_solvers`; os solvers opcionais viram `None` se o import falhar. [sem teste direto do `__init__`]",
+  "pinneapple_solvers.fft": "[shim] Reexporta `FFTSolver` de `pinneapple_simulation.numerical_solvers.fft`, para o caminho usado em `tests/pinneapple_solvers/test_fft.py`."
+ },
+ "simbolos": {},
+ "exemplos": [
+  {
+   "titulo": "Teste de fumaça do FFTSolver pelo caminho antigo",
+   "caminho": "tests/pinneapple_solvers/test_fft.py",
+   "codigo": "import torch\nfrom pinneapple_solvers.fft import FFTSolver\n\ndef test_fft_solver_smoke():\n    solver = FFTSolver()\n    x = torch.randn(4, 128)\n    out = solver(x)\n    assert hasattr(out, \"result\")\n    assert out.result.shape[0] == 4"
+  }
+ ],
+ "limitacoes": [
+  "É só um shim obsoleto: todo o comportamento está em `pinneapple_simulation.numerical_solvers`.",
+  "`FEMSolver`, `FVMSolver`, `LBMSolver`, `SpectralSolver`, `SPHSolver` e `FFTSolver` são importados com `except Exception` e viram `None` em silêncio se o módulo de origem falhar.",
+  "READMEs de exemplos (`examples/use_cases/TEMPLATE/README.md`, `examples/use_cases/drill_pipe_surrogate/README.md`) ainda citam `FEnicsBridge`, `OpenFOAMBridge` e `pinneapple_solvers.openfoam_bridge`, que este shim não exporta.",
+  "O `__init__` não tem teste direto; `tests/pinneapple_solvers/` testa `pinneapple_solvers.fft` e o `FDMSolver` pelo caminho novo."
+ ]
+}

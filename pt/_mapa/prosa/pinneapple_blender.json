@@ -1,0 +1,46 @@
+{
+ "pacote": "pinneapple_blender",
+ "objetivo": "`pinneapple_blender` leva resultados do PINNeAPPle para o Blender. O lado Python puro (`export`) grava uma nuvem de pontos com um ou mais campos, opcionalmente em vários passos de tempo, como uma sequência de arquivos `.ply` com cores por mapa de cores. O importador nativo do Blender abre esses arquivos sem add-on.\n\nHá duas formas de usar o Blender de verdade. `render.build_scene` chama uma instalação local do Blender em modo headless (`blender --background --python ...`), que roda o script `blender_addon/import_pinneapple_sequence.py` dentro do `bpy` do próprio Blender. O script importa cada quadro como um objeto e anima a visibilidade, e o resultado pode ser salvo em `.blend`. É o mesmo padrão de subprocesso usado pelo leitor de `.odb` do Abaqus em `cfd_formats`. Já `cycles` usa o módulo `bpy` instalado por pip, no mesmo processo, para montar cenas pequenas a partir de arrays NumPy (superfícies, tubos, pontos, planos, faixas, texto, câmera, luzes) e renderizar com Cycles na CPU. `frames_to_video` junta os quadros num MP4 com ffmpeg. Ele é usado pelos visuais de `examples/near_random_forecasting`.",
+ "submodulos": {
+  "blender_addon": "Script que roda dentro do Python do Blender para importar a sequência `.ply` e animar a visibilidade dos quadros.",
+  "cycles": "Renderizador Cycles no mesmo processo via `bpy`: monta cenas a partir de arrays e gera imagens e vídeo.",
+  "export": "Grava pontos e campos como sequência de `.ply` coloridos, sem precisar do Blender.",
+  "render": "Ponte por subprocesso para uma instalação local do Blender, que monta e salva a cena."
+ },
+ "modulos": {
+  "pinneapple_blender": "Pacote da ponte com o Blender; só o docstring descrevendo `export` e `render`. [sem teste direto]",
+  "pinneapple_blender.blender_addon.import_pinneapple_sequence": "Roda dentro do `bpy` do Blender (nunca importado pelo código normal): importa cada `frame_XXXX.ply` como objeto e põe keyframes de visibilidade; pode salvar `.blend`. [sem teste direto; exercitado pelos testes que exigem Blender]",
+  "pinneapple_blender.cycles": "`CyclesScene` monta uma cena Blender nova a partir de NumPy (malhas, superfícies, planos, tubos, pontos, faixas, texto, câmera, luzes) e renderiza com Cycles na CPU; exige `pip install bpy`.",
+  "pinneapple_blender.export": "Grava nuvens de pontos com campos escalares/vetoriais como `.ply` só de vértices, com cores por colormap e campos extras como propriedades, um arquivo por quadro.",
+  "pinneapple_blender.render": "Executa o Blender headless com o script do add-on para importar uma sequência `.ply` e opcionalmente salvar `.blend`; levanta erro claro se o executável não existe ou o Blender falha."
+ },
+ "simbolos": {
+  "pinneapple_blender.blender_addon.import_pinneapple_sequence:main": "Lê os argumentos depois de `--`, importa os quadros `.ply`, anima a visibilidade e salva o `.blend` se pedido.",
+  "pinneapple_blender.cycles:CyclesScene": "Cena Blender renderizada com Cycles na CPU, com métodos para adicionar geometria, materiais, câmera, luzes e renderizar quadros.",
+  "pinneapple_blender.cycles:available": "Diz se o módulo `bpy` pode ser importado.",
+  "pinneapple_blender.cycles:frames_to_video": "Junta quadros PNG `frame_%04d.png` num MP4 H.264 com ffmpeg.",
+  "pinneapple_blender.export:write_ply": "Grava uma nuvem de pontos PLY só de vértices, com cores e campos escalares opcionais.",
+  "pinneapple_blender.export:export_scene": "Exporta um quadro como `<out_dir>/frame_<NNNN>.ply` colorido pelo campo.",
+  "pinneapple_blender.export:export_trajectory": "Exporta uma sequência inteira: pontos fixos e um campo por quadro.",
+  "pinneapple_blender.render:build_scene": "Roda o Blender headless para importar a sequência `.ply` numa cena e opcionalmente salvar `.blend`."
+ },
+ "exemplos": [
+  {
+   "titulo": "Exportar uma sequência .ply",
+   "caminho": "tests/test_blender_bridge.py",
+   "codigo": "def test_export_trajectory_writes_valid_ply_sequence_with_real_colors(tmp_path):\n    rng = np.random.default_rng(0)\n    points = rng.uniform(-1, 1, size=(20, 3)).astype(np.float32)\n    fields = [np.sin(points[:, 0] + t) for t in np.linspace(0, np.pi, 3)]\n    paths = export_trajectory(points, fields, str(tmp_path), field_name=\"u\")\n\n    assert len(paths) == 3\n    for p in paths:\n        assert Path(p).exists()"
+  },
+  {
+   "titulo": "Cena Cycles a partir de arrays",
+   "caminho": "pinneapple_blender/cycles.py",
+   "codigo": "    from pinneapple_blender.cycles import CyclesScene, available\n    if available():\n        sc = CyclesScene(resolution=(960, 540), samples=64)\n        sc.add_surface(X, Y, Z, colors)               # (ny, nx) grids, colors (ny, nx, 3) in 0..1\n        sc.add_plane(z=0.0, size=(10, 6), color=(0.1, 0.3, 0.6), alpha=0.35)\n        sc.camera(location=(8, -9, 6), look_at=(0, 0, 0))\n        sc.render(\"landscape.png\")"
+  }
+ ],
+ "limitacoes": [
+  "`render` precisa de um executável `blender` instalado localmente; os testes que o usam são pulados quando ele não existe.",
+  "`cycles` precisa do módulo `bpy` (pip) e renderiza só na CPU; `frames_to_video` precisa do ffmpeg.",
+  "Os `.ply` são só de vértices (sem faces); para ver como superfície é preciso montar geometry nodes no Blender.",
+  "O docstring do add-on cita `render.render_sequence`, mas a função existente em `render.py` é `build_scene`.",
+  "O `__init__` e o script do add-on não têm teste direto pelo inventário."
+ ]
+}

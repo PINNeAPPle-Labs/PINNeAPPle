@@ -183,7 +183,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.detach:
         _daemon.detach("benchmarks.lpm_queue", args.detach.expanduser(), marker="LPM_QUEUE_DETACHED")
         return 0
-    return run_queue(out, queue_path, idle_s=args.idle, report=not args.no_report)
+    # flushed, because the detached copy's stdout is a file: a buffered queue log is a queue nobody can see
+    return run_queue(out, queue_path, idle_s=args.idle, report=not args.no_report,
+                     echo=lambda message: print(message, flush=True))
 
 
 if __name__ == "__main__":

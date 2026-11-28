@@ -116,6 +116,42 @@ def test_chunked_epoch_equals_one_chunk():
         assert a == pytest.approx(b, rel=1e-5)
 
 
+def test_fit_resumes_from_its_checkpoint(tmp_path):
+    """A fit that is killed must continue from its checkpoint, not from epoch one.
+
+    The campaign runs for tens of hours on a machine that has killed the process with no crash report, and a family
+    refitted from zero each time never finishes. The checkpoint carries the optimizer and scheduler state too, so the
+    resumed history continues the interrupted run instead of restarting its cosine schedule. The interruption here is
+    an exception thrown from the progress callback, which is the same point in the loop a kill can land.
+    """
+    designs = ellipse_design_space(5, n_points=24, seed=4)
+    torch.manual_seed(0)
+    m = LargePhysicsModel(dim=2, n_fields=1, radii=(0.2, 0.8), width=24, n_heads=2, backbone="attention",
+                          attn_heads=2, attn_layers=1)
+    seen: list[float] = []
+
+    def stop_at_two(epoch, loss):
+        seen.append(loss)
+        if epoch == 2:
+            raise RuntimeError("killed mid-fit")
+
+    with pytest.raises(RuntimeError):
+        fit(m, designs, epochs=4, batch_designs=2, checkpoint_dir=tmp_path, checkpoint_every_s=0.0,
+            on_epoch=stop_at_two)
+    assert len(seen) == 2 and (tmp_path / "fit.pt").exists(), "an interrupted fit leaves its checkpoint behind"
+
+    m2 = LargePhysicsModel(dim=2, n_fields=1, radii=(0.2, 0.8), width=24, n_heads=2, backbone="attention",
+                           attn_heads=2, attn_layers=1)
+    resumed = fit(m2, designs, epochs=4, batch_designs=2, checkpoint_dir=tmp_path, checkpoint_every_s=0.0)
+    assert len(resumed) == 4, "two epochs were already done and two remain"
+    assert resumed[:2] == pytest.approx(seen, rel=1e-6), "the resumed fit continues the history it found"
+    assert not (tmp_path / "fit.pt").exists(), "a finished fit leaves nothing to resume"
+
+    # a checkpoint of another recipe is not this fit's state, and resuming it would report another run's history
+    (tmp_path / "fit.pt").write_bytes(b"")
+    assert len(fit(m2, designs, epochs=1, batch_designs=3, checkpoint_dir=tmp_path, checkpoint_every_s=0.0)) == 1
+
+
 def test_design_space_builds_scale_with_the_exact_answer():
     """``ellipse_design_space`` is the benchmark family, with the analytic potential-flow Cp as target."""
     designs = ellipse_design_space(120, n_points=32, seed=5)

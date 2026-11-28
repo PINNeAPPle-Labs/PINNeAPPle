@@ -32,8 +32,10 @@ potential-flow answer, so scaling can be measured without a solver.
 from __future__ import annotations
 
 import math
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -51,6 +53,10 @@ __all__ = [
     "multiscale_neighbourhood",
     "stack_designs",
 ]
+
+#: Tag of the mid-fit checkpoint ``fit`` writes when it is given a ``checkpoint_dir``; it identifies the file's shape,
+#: not a published artefact.
+CHECKPOINT_SCHEMA = "pinneapple.lpm.fit_checkpoint/1"
 
 
 class FourierEncoding(nn.Module):
@@ -383,7 +389,8 @@ class LargePhysicsModel(nn.Module):
 
 def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, lr: float = 2e-3,
         freeze_geometry: bool = False, seed: int = 0, batch_designs: int | None = None,
-        device=None, on_epoch: Callable[[int, float], None] | None = None) -> list[float]:
+        device=None, on_epoch: Callable[[int, float], None] | None = None,
+        checkpoint_dir: str | Path | None = None, checkpoint_every_s: float = 900.0) -> list[float]:
     """Train (or fine-tune with ``freeze_geometry=True``) on a list of designs.
 
     Bagging: each ensemble head sees its own bootstrap resample of the designs (fixed per call),
@@ -395,6 +402,13 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
 
     ``on_epoch(epoch, loss)`` is called after every epoch, ``epoch`` counted from 1, and is how a caller reports
     progress on a fit that runs for hours; the default ``None`` costs one comparison per epoch and writes nothing.
+
+    ``checkpoint_dir`` makes the fit survive being killed: ``fit.pt`` is rewritten there at most every
+    ``checkpoint_every_s`` seconds and after the last epoch, carrying the weights, the optimizer and scheduler state and
+    the loss history, and a later call that finds it continues from the next epoch instead of from zero. The file is
+    removed when the fit reaches ``epochs``, so a finished run leaves nothing behind to resume. A checkpoint whose
+    recipe does not match this call — designs, epochs, batch size, learning rate or seed — is ignored and replaced,
+    because resuming a different run's state would report one fit's loss history as another's.
     """
     g = torch.Generator().manual_seed(seed)
     for p in model.geo.parameters():
@@ -410,8 +424,34 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
         model.to(device)
     size = n if batch_designs is None else max(1, min(int(batch_designs), n))
     chunks = [list(range(i, min(i + size, n))) for i in range(0, n, size)]
-    hist = []
-    for epoch in range(1, epochs + 1):
+    recipe = {"n_designs": n, "epochs": int(epochs), "batch_designs": size, "lr": float(lr), "seed": int(seed),
+              "freeze_geometry": bool(freeze_geometry)}
+    state_path = None if checkpoint_dir is None else Path(checkpoint_dir) / "fit.pt"
+    hist: list[float] = []
+    first = 1
+    if state_path is not None and state_path.exists():
+        try:
+            state = torch.load(state_path, map_location="cpu", weights_only=True)
+        except (RuntimeError, ValueError, EOFError, OSError):   # not a checkpoint of ours: truncate, foreign, empty
+            state = None
+        if isinstance(state, dict) and state.get("recipe") == recipe:
+            model.load_state_dict(state["model"])
+            model.to(device)
+            opt.load_state_dict(state["opt"])
+            sched.load_state_dict(state["sched"])
+            hist = [float(v) for v in state["hist"]]
+            first = min(int(state["epoch"]) + 1, epochs + 1)
+        else:
+            state_path.unlink(missing_ok=True)
+
+    def _save(epoch: int) -> None:
+        tmp = state_path.with_suffix(".tmp")
+        torch.save({"schema": CHECKPOINT_SCHEMA, "recipe": recipe, "epoch": int(epoch), "hist": hist,
+                    "model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict()}, tmp)
+        tmp.replace(state_path)
+
+    last_save = time.monotonic()
+    for epoch in range(first, epochs + 1):
         opt.zero_grad()
         total = 0.0
         for idx in chunks:
@@ -432,7 +472,14 @@ def fit(model: LargePhysicsModel, designs: list[Design], *, epochs: int = 2000, 
         opt.step()
         sched.step()
         hist.append(float(total))
+        # the checkpoint goes down before the progress callback: reporting is cosmetic, and a callback that throws
+        # must not cost the epoch it was reporting on
+        if state_path is not None and (time.monotonic() - last_save >= checkpoint_every_s or epoch == epochs):
+            _save(epoch)
+            last_save = time.monotonic()
         if on_epoch is not None:
             on_epoch(epoch, hist[-1])
+    if state_path is not None and state_path.exists():
+        state_path.unlink()                      # finished: nothing to resume, and a stale file would be resumed
     model.remember_training_set(designs)
     return hist

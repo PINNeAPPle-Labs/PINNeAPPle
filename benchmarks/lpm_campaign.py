@@ -314,7 +314,7 @@ def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: i
         started = time.monotonic()
         summary = train(dataset, root, epochs=recipe["epochs"], width=recipe["width"], seed=seed,
                         batch_designs=min(24, max(4, recipe["geometries"] or 24)),
-                        progress_every_s=progress_every_s)
+                        progress_every_s=progress_every_s, resume=True)
         result["model"] = {k: summary[k] for k in ("held_out_relative_l2", "constant_field_baseline_relative_l2",
                                                    "ood_probes_flagged", "within_tolerance")}
         result["model"]["seconds"] = round(time.monotonic() - started, 1)

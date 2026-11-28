@@ -18,11 +18,18 @@ another framework — without touching the ones around it:
 6. :mod:`~.trust` — what the model is worth: held-out error against the constant-field baseline, a **calibrated**
    confidence, and the gates that ask whether the answer obeys the physics
 7. :mod:`~.card` — the versioned record of all of it, and :mod:`~.registry` the index over the records
-8. **entrega** — the Studio and the panel read the card; the API returns the field *and* the verdict
+8. **entrega** — the Studio and the panel read the card; the API returns the field *and* the verdict — and
+   :mod:`~.shift`, the other half of what a model is worth: an outside corpus (Luminary's SHIFT datasets), read off
+   disk for prediction only, under the licence the corpus carries
 
-What is here today: ``space``, ``trust``, ``card`` and ``registry``. The rest stays in ``lpm_pipeline`` until its stage
-is extracted, which is deliberate — the campaign runs on that module and it keeps running.
+What is here today: ``intent`` (stage 0), ``space``, ``geometry`` (stage 2 over a supplied mesh), ``catalog``,
+``anchors``, ``training`` (DoMINO behind the same interface, and the warm start), ``trust``, ``card``, ``registry`` and
+``shift`` (stage 8's outside half). What is still in ``lpm_pipeline``: the dataset writer and the training loop, which
+the campaign runs on — and it stays there until its stage is extracted, which is deliberate: the campaign runs on that
+module and it keeps running. The comparison itself lives beside the benchmarks (``benchmarks/lpm_compare.py``), because a table that scores models is a
+benchmark, not a stage.
 """
 from __future__ import annotations
 
-__all__ = ["card", "registry", "space", "trust"]
+__all__ = ["anchors", "card", "catalog", "geometry", "intent", "registry", "shift", "space", "training",
+           "trust"]

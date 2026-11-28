@@ -7,6 +7,7 @@ import pytest
 import torch
 
 from pinneapple_neural.lpm import Design, LargePhysicsModel, ellipse_design_space, fit
+from pinneapple_neural.lpm_pipeline import DesignSpec, FieldFamily
 from pinneapple_neural.lpm_stages import card as card_stage
 from pinneapple_neural.lpm_stages import registry, space, trust
 
@@ -153,3 +154,178 @@ def test_the_registry_reads_the_cards_it_finds_and_picks_the_best_one(tmp_path):
     assert registry.best(rows)["family"] == "b"
     assert registry.best(rows, family="a") is None      # a model that misses its tolerance is not "the best"
     assert registry.summary(rows)["n_usable"] == 1
+
+
+# ------------------------------------------------------------------ stage 3: the catalogue
+def test_the_catalogue_pairs_each_dataset_with_the_model_that_names_it(tmp_path):
+    from pinneapple_neural.lpm_stages import catalog
+
+    _card(tmp_path, name="pp_ellipse")                       # writes pp_ellipse/model/card.json + dataset/manifest.json
+    lonely = tmp_path / "pp_orphan" / "dataset"
+    lonely.mkdir(parents=True)
+    (lonely / "manifest.json").write_text(json.dumps({"n_designs": 4, "n_geometries": 2, "n_points": 64,
+                                                      "family": {"name": "pp_orphan", "dim": 2,
+                                                                 "field_names": ["cp"], "tolerance": 0.05}}))
+    rows = catalog.entries(tmp_path)
+    assert {r.family for r in rows} == {"pp_ellipse", "pp_orphan"}
+    fitted, orphaned = catalog.pairs(rows)
+    assert [r.family for r in fitted] == ["pp_ellipse"]      # the card names the dataset's own identity
+    assert [r.family for r in orphaned] == ["pp_orphan"]
+    assert fitted[0].model_error == pytest.approx(0.04)
+    assert fitted[0].linked_by == "dataset identity"
+    text = catalog.table(rows)
+    assert "pp_orphan" in text and "(none)" in text and "held-out" in text
+
+    # a v1 card carries no identity to join on, so it pairs by the run directory it sits in — and says which it was
+    v1 = tmp_path / "pp_orphan" / "model"
+    v1.mkdir(parents=True)
+    (v1 / "card.json").write_text(json.dumps({"schema": "pinneapple.lpm.family_card/1",
+                                              "family": {"name": "pp_orphan"},
+                                              "held_out": {"relative_l2": 0.11}}))
+    paired = {r.family: r for r in catalog.entries(tmp_path)}
+    assert paired["pp_orphan"].model == "pp_orphan"
+    assert paired["pp_orphan"].linked_by == "same run directory"
+
+
+# ------------------------------------------------------------------ stage 4: the anchors
+def _model_and_design():
+    from pinneapple_neural.lpm_stages import anchors  # noqa: F401  (the module must import without a fit)
+    model, train, hold = _trained()
+    return model, hold[0]
+
+
+def test_an_anchor_measures_the_model_against_a_number_it_never_saw():
+    from pinneapple_neural.lpm_stages import anchors
+
+    model, design = _model_and_design()
+    with torch.no_grad():
+        predicted = anchors.value_of(model.predict(design)["mean"].numpy(), "mean")
+    anchor = anchors.Anchor(label="bench 1", design=design, quantity="mean", measured=predicted, tolerance_pct=5.0,
+                            source="synthetic test bench", unit="-")
+    report = anchors.measure(anchor, model)
+    assert report["error_pct"] == pytest.approx(0.0, abs=1e-9)
+    assert report["passed"] is True
+    # the same anchor with a value the model does not reproduce fails, which is the point of having one
+    wrong = anchors.Anchor(label="bench 2", design=design, quantity="mean", measured=predicted * 1.5,
+                           tolerance_pct=5.0, source="synthetic test bench")
+    assert anchors.measure(wrong, model)["passed"] is False
+
+
+def test_the_anchor_gate_says_not_applicable_when_no_measurement_exists():
+    from pinneapple_neural.lpm_stages import anchors
+
+    model, _ = _model_and_design()
+    empty = anchors.gate([], model)
+    assert empty["status"] == "not applicable"
+    assert "no measurement" in empty["detail"]
+
+
+def test_an_anchor_becomes_a_reference_comparison_veriphysics_can_file():
+    from pinneapple_neural.lpm_stages import anchors
+
+    model, design = _model_and_design()
+    with torch.no_grad():
+        predicted = anchors.value_of(model.predict(design)["mean"].numpy(), "mean")
+    anchor = anchors.Anchor(label="bench", design=design, quantity="mean", measured=predicted * 1.02,
+                            tolerance_pct=5.0, source="synthetic test bench")
+    comparison, = anchors.comparisons([anchor], model)
+    assert comparison.evidence_id == "bench" and comparison.kind == "experimental data"
+    assert comparison.value_pct == pytest.approx(2.0 / 1.02, abs=1e-6)
+    assert comparison.within(5.0) is True
+
+
+def test_an_anchor_without_a_source_or_a_tolerance_is_refused():
+    from pinneapple_neural.lpm_stages import anchors
+
+    _, design = _model_and_design()
+    with pytest.raises(ValueError, match="where the number came from"):
+        anchors.Anchor(label="x", design=design, quantity="mean", measured=1.0, tolerance_pct=5.0)
+    with pytest.raises(ValueError, match="tolerance"):
+        anchors.Anchor(label="x", design=design, quantity="mean", measured=1.0, tolerance_pct=0.0, source="bench")
+    with pytest.raises(ValueError, match="unknown quantity"):
+        anchors.Anchor(label="x", design=design, quantity="median", measured=1.0, tolerance_pct=1.0, source="bench")
+
+
+# ------------------------------------------------------------------ stage 0: the contract
+class _Plate(FieldFamily):
+    """A tiny family with one geometry and one operating parameter: enough for the contract to have something to feed."""
+
+    name = "pp_contract_plate"
+    dim = 2
+    field_names = ("cp",)
+    field_units = ("-",)
+    geometry_params = {"chord_m": (0.5, 1.5)}
+    operating_params = {"alpha_deg": (-5.0, 10.0)}
+
+    def points_and_normals(self, spec):
+        import numpy as np
+
+        n = 24
+        x = np.linspace(0.0, spec.geometry["chord_m"], n)
+        pts = np.stack([x, np.zeros(n)], axis=1)
+        return pts, np.tile(np.array([[0.0, 1.0]]), (n, 1))
+
+    def field(self, spec):
+        import numpy as np
+
+        n = 24
+        x = np.linspace(0.0, 1.0, n)
+        return (spec.operating["alpha_deg"] * (1.0 - x))[:, None]
+
+
+def _contract(**values):
+    from pinneapple_design.intent.spec import MISSING, STATED, Quantity
+    from pinneapple_intent.contract import StudyContract
+
+    made = {name: Quantity(name=name, value=value, unit="", provenance=STATED if value is not None else MISSING,
+                           source="user" if value is not None else "")
+            for name, value in values.items()}
+    return StudyContract(family="heat_wall", values=made)
+
+
+def test_a_contract_supplies_the_point_and_the_family_supplies_the_space():
+    from pinneapple_neural.lpm_stages import intent
+
+    family = _Plate()
+    contract = _contract(chord_m=1.0, alpha_deg=4.0)
+    spec = intent.spec_from_contract(contract, family, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert spec.geometry == {"chord_m": 1.0} and spec.operating == {"alpha_deg": 4.0}
+    assert spec.label.startswith("contract:")
+    design = intent.design_from_contract(contract, family, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert design.target.shape == (24, 1)
+
+
+def test_a_parameter_the_contract_marks_missing_is_a_question_not_a_default():
+    from pinneapple_neural.lpm_stages import intent
+
+    family = _Plate()
+    contract = _contract(chord_m=1.0, alpha_deg=None)
+    gaps = intent.missing(family, contract, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert gaps == {"alpha_deg": "alpha_deg"}
+    with pytest.raises(ValueError, match="does not supply every parameter"):
+        intent.spec_from_contract(contract, family, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    # an unmapped parameter is reported with the name of the mapping it is missing, not silently left out
+    gaps = intent.missing(family, _contract(chord_m=1.0), {"alpha_deg": "alpha_deg"})
+    assert gaps == {"chord_m": "(no mapping)", "alpha_deg": "alpha_deg"}
+
+
+def test_the_answer_carries_the_provenance_of_every_value_back():
+    from pinneapple_neural.lpm_stages import intent
+
+    family = _Plate()
+    # a model fitted on this family (one conditioning parameter: alpha), so the answer has something to be about
+    model = LargePhysicsModel(dim=2, n_fields=1, n_params=1, radii=(0.2, 0.8), width=24, n_heads=2,
+                              backbone="attention", attn_heads=2, attn_layers=1)
+    designs = []
+    for i in range(6):
+        spec = DesignSpec(geometry={"chord_m": 0.6 + 0.1 * i}, operating={"alpha_deg": -2.0 + i}, label=f"g{i}")
+        from pinneapple_neural.lpm_pipeline import build as _build
+
+        designs.append(_build(family, spec))
+    fit(model, designs, epochs=20, batch_designs=3, lr=3e-3)
+    contract = _contract(chord_m=1.0, alpha_deg=4.0)
+    out = intent.answer(model, family, contract, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert out.prediction.shape == (24, 1)
+    assert out.verdict in ("inside the trained family", "outside the trained family: the answer is an extrapolation")
+    assert out.quantities["alpha_deg"]["provenance"] == "stated"
+    assert out.as_dict()["n_points"] == 24

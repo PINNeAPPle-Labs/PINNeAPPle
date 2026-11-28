@@ -98,6 +98,80 @@ without a single extra solver run. Pointwise Cp error is now flat along the chor
 leading edge to 70 % chord); what remains sits near the trailing edge, where Cp is small and the relative error is
 large while the absolute error is not.
 
+## A corpus nobody here solved: predicting on SHIFT
+
+The RANS campaign is published by an academic group and this pipeline reads it; Luminary's **SHIFT** datasets are
+published by a company that trains its own LPMs, and they are used here for the opposite purpose. Not one design read
+from them may enter a fit: the moment a model has seen those bodies, what they say about them is not outside
+anymore. `pinneapple_neural.lpm_stages.shift` reads them off disk for one job — asking a model fitted here what it
+says about geometry it never saw, and scoring the answer against a solver that owed us nothing.
+
+Fifteen repositories live under `luminary-shift`; thirteen are `cc-by-nc-4.0` and two (`Submarine`, `CCA`) are
+`license:other`; every full repository is `gated: manual` and every `-sample` twin is `gated: auto`. Nothing is
+downloaded here: the data is on disk after somebody accepted the terms, and the module's job starts there.
+
+| Fact | Value |
+|---|---|
+| the case directory | the one holding `merged_surfaces.vtp` — seven datasets name it six ways (`sample_NNNNNN` at the root or under a version directory, `RUN_N`, a case hash, `yaris_xNNNNN`, `variant_NNNN`) |
+| the surface file | `merged_surfaces.vtp`, 231 MB for one WING case, read with `read_surface` so only the requested arrays are decoded |
+| the field | `CpMeanTrim`, else `Cp`, else the error lists the arrays the file carries |
+| the conditions | `params.json`, read whole and flattened (`velocity.u`), with a `condition_map` saying which key feeds which family parameter |
+| the licence | travels with the number: `require_validation_usage` accepts `validation-only` and nothing else, and a card built on it carries the repository and the URL |
+
+```python
+from pinneapple_neural.lpm_stages import shift
+shift.fetch("Wing-sample", "~/data/luminary-shift", n_cases=1)          # 240 MB, not 38 GB: one case and its JSONs
+cases = shift.samples("~/data/luminary-shift/Wing-sample", limit=2)     # walks for merged_surfaces.vtp
+out = shift.report(model, family, shift.designs("...", family, {"alpha_deg": "alpha_deg"}, limit=2),
+                   train_designs=train, dataset_name="Wing-sample")
+out["outside"]["licence"], out["held_out"]["relative_l2"]
+```
+
+`fetch` is the one place in the module that reaches the network, and it needs the caller's own credentials: every
+repository is gated, so the download works after the terms are accepted in a browser and `hf auth login` is run — and
+without them the error says exactly that instead of surfacing a 401. `fetch_plan` is the pure half: given the file list
+the Hub reports, it names the files of `n_cases` cases and leaves the volume `.vtu` and the inter-mesh `.stl`, which
+nothing here reads.
+
+A case is subsampled to a deterministic, evenly spaced subset (2 048 points by default) because the model's
+neighbourhood features are a distance matrix from the query to the body: a raw 200 000-node surface is a
+200 000² matrix. The subset size goes into the design's label, so a report says which one produced the number.
+
+`python -m benchmarks.lpm_compare` puts the answer beside the constant field, on the same gates, for a run of this
+campaign or for a SHIFT tree:
+
+```
+corpus: pp_nozzle held-out split (400 designs, split by geometry)
+model                   held-out     p90   worst  baseline  beaten  gates
+lpm                        0.044   0.063   0.180     0.666       0  acc FAIL / base ok
+tolerance: 0.02 (the family's own)
+```
+
+That is the whole reading of the campaign in one line: the model beats the mean field on all 400 held-out designs and
+misses the tolerance its own family declared (0.02). The `held-out` column is the **global** relative L2 — the number
+the cards report — while `p90` and `worst` are the per-design spread, and the two are not interchangeable: on the
+airfoil family the mean of the per-design errors is 1.31 where the global number is 0.71, both measured on the same
+400 designs. PhysicsNeMo's DoMINO, GeoTransolver and X-MeshGraphNet appear in the same run as **not compared**, with
+the reason: their inputs are a signed-distance grid and a mesh bundle built from an Ashton case, not a point-cloud
+design, and `pinneapple_data.ashton.physicsnemo_models` measures them there.
+
+### The rest of the stages
+
+The nine stages of `pinneapple_neural.lpm_stages` are not all extracted, and the ones that are each answer a question
+the campaign could not:
+
+| stage | module | what it decides |
+|---|---|---|
+| 0 | `intent` | a `StudyContract` supplies the point and its provenance; a parameter the contract marks missing is a question, not a default |
+| 1 | `space` | Sobol/LHS over the family's declared ranges, and the active `refine` near the decision threshold |
+| 2 | `geometry` | the body comes from a supplied mesh through `morph`, gated by `check_surface`; `validity_gate` measures how much of the box survives |
+| 3 | `catalog` | every dataset on disk, joined to the model whose card names it (by hash on a v2 card, by run directory on a v1 one — and the row says which) |
+| 4 | `anchors` | a **measurement** is evidence and never training data; the error becomes a VeriPhysics `ReferenceComparison` |
+| 5 | `training` | DoMINO behind the same `fit`/`predict`, and `finetune` as a warm start between design spaces that agree on their point dimension, conditioning width and radii |
+| 6 | `trust` | held-out error against the constant field, calibrated confidence, the gates |
+| 7 | `card`, `registry` | the versioned record and the index over it |
+| 8 | `shift`, `benchmarks/lpm_compare.py` | an outside corpus, validation only, and one table with the same gates |
+
 ## Three dimensions
 
 The five families above are 2-D: a section, a meridian, a plate. `pinneapple_neural.lpm_families_3d` keeps the same

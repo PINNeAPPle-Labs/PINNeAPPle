@@ -518,6 +518,35 @@ def _relative_l2(pred: torch.Tensor, target: torch.Tensor) -> float:
     return error / norm if norm > 0 else float("nan")
 
 
+def _warm_start(model: LargePhysicsModel, source: str | Path, expected: dict[str, Any]) -> None:
+    """Copy a fitted run's weights into ``model``, refusing a source built for a different architecture.
+
+    A checkpoint is a state dict plus the config it was built from; loading it into a model of another width either
+    raises from ``load_state_dict`` with a shape nobody can read, or — worse — succeeds for the layers that happen to
+    match. Comparing the config first turns that into one sentence.
+    """
+    path = Path(source) / "model" / "model.pt"
+    if not path.is_file():
+        raise FileNotFoundError(f"init_from: {path} is not a fitted run (it has no model/model.pt)")
+    payload = torch.load(path, map_location="cpu", weights_only=False)
+    config = payload.get("config") or {}
+    theirs = {"dim": int(config.get("dim", expected["dim"])),
+              "n_params": int(config.get("n_params", expected["n_params"])),
+              "radii": list(config.get("radii") or expected["radii"])}
+    mismatched = [k for k in ("dim", "n_params", "radii") if expected[k] != theirs[k]]
+    if mismatched:
+        detail = ", ".join(f"{k}: {expected[k]} != {theirs[k]}" for k in mismatched)
+        raise ValueError(f"init_from {path} was fitted for another design space ({detail}); warm-starting across a "
+                         f"different conditioning width or point dimension mixes two models rather than transferring "
+                         f"one")
+    state = payload["state_dict"]
+    if "train_codes" in state:
+        # the codes travel with the weights and the fit replaces them with this dataset's, so the buffer is only
+        # sized here to make the load succeed
+        model.train_codes = state["train_codes"].clone()
+    model.load_state_dict(state)
+
+
 def load_model(out_dir: str | Path, device: str | None = None) -> LargePhysicsModel:
     """Load a model written by :func:`train`, so a fitted design space can be used without the pipeline.
 
@@ -720,7 +749,7 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
           code: int = 32, n_freq: int = 6, backbone: str = "attention", attn_layers: int = 2,
           attn_heads: int = 4, batch_designs: int = 32, radii: tuple[float, float, float] = (0.1, 0.4, 1.2),
           device: str | None = None, verbose: bool = False, progress_every_s: float = 0.0,
-          resume: bool = False) -> dict[str, Any]:
+          resume: bool = False, init_from: str | Path | None = None) -> dict[str, Any]:
     """Fit an LPM on a dataset and write the model and its card.
 
     The split is by geometry (see :func:`_split_by_geometry`); the reported error is therefore on bodies the model
@@ -733,6 +762,10 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
 
     ``resume`` keeps ``model/fit.pt`` while the fit runs (see :func:`~.lpm.fit`), so a run that is killed continues
     from its last checkpoint instead of from epoch one; the file is gone once the fit finishes.
+
+    ``init_from`` warm-starts from a run's ``model/model.pt`` — the fine-tune between design spaces. The weights are
+    only meaningful if the architecture and the conditioning width match, so a mismatch is refused with the two
+    numbers named rather than loaded into a model whose first layer is a different size.
     """
     designs, manifest = load_dataset(dataset_dir)
     # the dataset caches the neighbourhood features for the radii it was written with; fitting with other radii would
@@ -754,6 +787,11 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
         radii=radii, n_freq=n_freq, width=width, code=code,
         n_heads=n_heads, backbone=backbone, attn_heads=attn_heads, attn_layers=attn_layers,
     ).to(dev)
+    if init_from is not None:
+        _warm_start(model, Path(init_from), expected={"dim": int(family_info["dim"]),
+                                                      "n_params": len(family_info["operating_params"])
+                                                      + len(family_info.get("geometry_features", {})),
+                                                      "radii": list(radii)})
     started = time.monotonic()
     started_at = datetime.now(UTC).isoformat(timespec="seconds")
     progress_path = Path(out_dir) / "model" / "progress.json"
@@ -886,7 +924,7 @@ def families() -> dict[str, FieldFamily]:
 
 def _family_by_name(name: str) -> FieldFamily:
     """A family by name, from either registry: a dataset's manifest records the name, and both are the same pipeline."""
-    from .lpm_families_3d import families_3d      # imported here: the 3-D module builds on this one
+    from .lpm_families_3d import families_3d  # imported here: the 3-D module builds on this one
 
     known = {**families(), **families_3d()}
     try:

@@ -45,6 +45,8 @@ __all__ = [
     "dataset",
     "design",
     "designs",
+    "fetch",
+    "fetch_plan",
     "open_sample",
     "report",
     "require_validation_usage",
@@ -396,6 +398,67 @@ def require_validation_usage(usage: str) -> str:
                          f"cc-by-nc-4.0 does not underwrite a commercial model, and a model trained on these bodies "
                          f"is not a validation of them")
     return USAGE
+
+
+def fetch_plan(files: Iterable[str], n_cases: int = 1) -> list[str]:
+    """The files to download for ``n_cases`` cases: their surface and sidecars, and nothing else.
+
+    A SHIFT repository is 12 to 126 GB and one case's ``merged_surfaces.vtp`` is over 200 MB, so "download the dataset"
+    is not a thing anybody wants to do to validate a model. The plan is built from the file list the Hub reports: the
+    case directories that hold :data:`CASE_SURFACE`, taken in order, and for each one the surface plus the three JSON
+    sidecars. The volume ``.vtu`` and the inter-mesh STLs are left out on purpose — nothing in this module reads them.
+    """
+    wanted = {CASE_SURFACE, "params.json", "forces.json", "metadata.json"}
+    cases: list[str] = []
+    for path in sorted(files):
+        if path.rsplit("/", 1)[-1] != CASE_SURFACE:
+            continue
+        case = path.rsplit("/", 1)[0]
+        if case not in cases:
+            cases.append(case)
+    plan: list[str] = []
+    for case in cases[:max(0, int(n_cases))]:
+        for path in sorted(files):
+            if path.rsplit("/", 1)[0] == case and path.rsplit("/", 1)[-1] in wanted:
+                plan.append(path)
+    return plan
+
+
+def fetch(dataset_name: str, root: str | Path, *, n_cases: int = 1) -> Path:
+    """Download ``n_cases`` cases of one SHIFT repository into ``root``.
+
+    This is the one place in the module that reaches the network, and it does so with the caller's own Hugging Face
+    credentials: every repository is gated, so the download only works after the terms were accepted in a browser and
+    ``huggingface-cli login`` was run. The error says that in as many words instead of surfacing a 401.
+
+    What it does not do: it does not train on anything, and it does not relax the licence. A dataset fetched here is
+    still ``validation-only`` (:func:`require_validation_usage`).
+    """
+    entry = dataset(dataset_name)
+    try:
+        from huggingface_hub import HfApi, hf_hub_download
+    except ImportError as exc:                              # pragma: no cover - environment dependent
+        raise ImportError(f"fetching {entry.repo_id} needs huggingface_hub (pip install huggingface_hub): {exc}") from exc
+    try:
+        files = HfApi().list_repo_files(entry.repo_id, repo_type="dataset")
+    except Exception as exc:                                # noqa: BLE001 - the SDK's errors are their own types
+        raise ShiftDataMissing(
+            f"{entry.repo_id}: the file list could not be read ({type(exc).__name__}: {exc}). The repository is "
+            f"{entry.gated} gated and {entry.licence}: accept the terms at {entry.url} and run `hf auth login` with "
+            f"the token, then run this again") from exc
+    plan = fetch_plan(files, n_cases)
+    if not plan:
+        raise ShiftDataMissing(f"{entry.repo_id}: no case directory holds {CASE_SURFACE}")
+    target = Path(root).expanduser()
+    for path in plan:
+        try:
+            hf_hub_download(entry.repo_id, path, repo_type="dataset", local_dir=str(target))
+        except Exception as exc:                            # noqa: BLE001 - the SDK's errors are their own types
+            raise ShiftDataMissing(
+                f"{entry.repo_id}/{path}: download refused ({type(exc).__name__}: {str(exc).splitlines()[0][:200]}). "
+                f"The repository is {entry.gated} gated and {entry.licence}: accept the terms at {entry.url} and run "
+                f"`hf auth login`, then run this again") from exc
+    return target
 
 
 def card_licence(dataset_name: str) -> dict[str, str]:

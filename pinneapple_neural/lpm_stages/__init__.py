@@ -22,12 +22,14 @@ another framework — without touching the ones around it:
    :mod:`~.shift`, the other half of what a model is worth: an outside corpus (Luminary's SHIFT datasets), read off
    disk for prediction only, under the licence the corpus carries
 
-What is here today: ``space``, ``geometry`` (stage 2 over a supplied mesh), ``trust``, ``card``, ``registry``,
-``shift``, ``catalog``, ``anchors`` and the PhysicsNeMo backend of ``training``. The rest stays in ``lpm_pipeline``
-until its stage is extracted, which is deliberate — the campaign runs on that module and it keeps running. The
-comparison itself lives beside the benchmarks (``benchmarks/lpm_compare.py``), because a table that scores models is a
+What is here today: ``intent`` (stage 0), ``space``, ``geometry`` (stage 2 over a supplied mesh), ``catalog``,
+``anchors``, ``training`` (DoMINO behind the same interface, and the warm start), ``trust``, ``card``, ``registry`` and
+``shift`` (stage 8's outside half). What is still in ``lpm_pipeline``: the dataset writer and the training loop, which
+the campaign runs on — and it stays there until its stage is extracted, which is deliberate: the campaign runs on that
+module and it keeps running. The comparison itself lives beside the benchmarks (``benchmarks/lpm_compare.py``), because a table that scores models is a
 benchmark, not a stage.
 """
 from __future__ import annotations
 
-__all__ = ["anchors", "card", "catalog", "geometry", "registry", "shift", "space", "training", "trust"]
+__all__ = ["anchors", "card", "catalog", "geometry", "intent", "registry", "shift", "space", "training",
+           "trust"]

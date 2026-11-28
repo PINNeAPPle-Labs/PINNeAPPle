@@ -7,6 +7,7 @@ import pytest
 import torch
 
 from pinneapple_neural.lpm import Design, LargePhysicsModel, ellipse_design_space, fit
+from pinneapple_neural.lpm_pipeline import DesignSpec, FieldFamily
 from pinneapple_neural.lpm_stages import card as card_stage
 from pinneapple_neural.lpm_stages import registry, space, trust
 
@@ -243,3 +244,88 @@ def test_an_anchor_without_a_source_or_a_tolerance_is_refused():
         anchors.Anchor(label="x", design=design, quantity="mean", measured=1.0, tolerance_pct=0.0, source="bench")
     with pytest.raises(ValueError, match="unknown quantity"):
         anchors.Anchor(label="x", design=design, quantity="median", measured=1.0, tolerance_pct=1.0, source="bench")
+
+
+# ------------------------------------------------------------------ stage 0: the contract
+class _Plate(FieldFamily):
+    """A tiny family with one geometry and one operating parameter: enough for the contract to have something to feed."""
+
+    name = "pp_contract_plate"
+    dim = 2
+    field_names = ("cp",)
+    field_units = ("-",)
+    geometry_params = {"chord_m": (0.5, 1.5)}
+    operating_params = {"alpha_deg": (-5.0, 10.0)}
+
+    def points_and_normals(self, spec):
+        import numpy as np
+
+        n = 24
+        x = np.linspace(0.0, spec.geometry["chord_m"], n)
+        pts = np.stack([x, np.zeros(n)], axis=1)
+        return pts, np.tile(np.array([[0.0, 1.0]]), (n, 1))
+
+    def field(self, spec):
+        import numpy as np
+
+        n = 24
+        x = np.linspace(0.0, 1.0, n)
+        return (spec.operating["alpha_deg"] * (1.0 - x))[:, None]
+
+
+def _contract(**values):
+    from pinneapple_design.intent.spec import MISSING, STATED, Quantity
+    from pinneapple_intent.contract import StudyContract
+
+    made = {name: Quantity(name=name, value=value, unit="", provenance=STATED if value is not None else MISSING,
+                           source="user" if value is not None else "")
+            for name, value in values.items()}
+    return StudyContract(family="heat_wall", values=made)
+
+
+def test_a_contract_supplies_the_point_and_the_family_supplies_the_space():
+    from pinneapple_neural.lpm_stages import intent
+
+    family = _Plate()
+    contract = _contract(chord_m=1.0, alpha_deg=4.0)
+    spec = intent.spec_from_contract(contract, family, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert spec.geometry == {"chord_m": 1.0} and spec.operating == {"alpha_deg": 4.0}
+    assert spec.label.startswith("contract:")
+    design = intent.design_from_contract(contract, family, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert design.target.shape == (24, 1)
+
+
+def test_a_parameter_the_contract_marks_missing_is_a_question_not_a_default():
+    from pinneapple_neural.lpm_stages import intent
+
+    family = _Plate()
+    contract = _contract(chord_m=1.0, alpha_deg=None)
+    gaps = intent.missing(family, contract, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert gaps == {"alpha_deg": "alpha_deg"}
+    with pytest.raises(ValueError, match="does not supply every parameter"):
+        intent.spec_from_contract(contract, family, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    # an unmapped parameter is reported with the name of the mapping it is missing, not silently left out
+    gaps = intent.missing(family, _contract(chord_m=1.0), {"alpha_deg": "alpha_deg"})
+    assert gaps == {"chord_m": "(no mapping)", "alpha_deg": "alpha_deg"}
+
+
+def test_the_answer_carries_the_provenance_of_every_value_back():
+    from pinneapple_neural.lpm_stages import intent
+
+    family = _Plate()
+    # a model fitted on this family (one conditioning parameter: alpha), so the answer has something to be about
+    model = LargePhysicsModel(dim=2, n_fields=1, n_params=1, radii=(0.2, 0.8), width=24, n_heads=2,
+                              backbone="attention", attn_heads=2, attn_layers=1)
+    designs = []
+    for i in range(6):
+        spec = DesignSpec(geometry={"chord_m": 0.6 + 0.1 * i}, operating={"alpha_deg": -2.0 + i}, label=f"g{i}")
+        from pinneapple_neural.lpm_pipeline import build as _build
+
+        designs.append(_build(family, spec))
+    fit(model, designs, epochs=20, batch_designs=3, lr=3e-3)
+    contract = _contract(chord_m=1.0, alpha_deg=4.0)
+    out = intent.answer(model, family, contract, {"chord_m": "chord_m", "alpha_deg": "alpha_deg"})
+    assert out.prediction.shape == (24, 1)
+    assert out.verdict in ("inside the trained family", "outside the trained family: the answer is an extrapolation")
+    assert out.quantities["alpha_deg"]["provenance"] == "stated"
+    assert out.as_dict()["n_points"] == 24

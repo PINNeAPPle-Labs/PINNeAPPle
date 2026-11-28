@@ -207,3 +207,25 @@ def test_the_harness_puts_the_model_and_the_constant_field_beside_each_other(tmp
     # the constant field is a column, not a row: it is the same number for every model, and what a reader needs is
     # the model's error beside it
     assert "shift fixture" in text and "baseline" in text and "beaten" in text
+
+
+# ------------------------------------------------------------------ getting the corpus onto the disk
+def test_the_download_plan_takes_one_case_and_leaves_the_terabytes():
+    files = ["OnShape_v1/sample_000001/merged_surfaces.vtp",
+             "OnShape_v1/sample_000001/merged_surfaces.stl",
+             "OnShape_v1/sample_000001/merged_surfaces_inter_mesh_0.stl",
+             "OnShape_v1/sample_000001/merged_volumes.vtu",
+             "OnShape_v1/sample_000001/params.json",
+             "OnShape_v1/sample_000001/forces.json",
+             "OnShape_v1/sample_000001/metadata.json",
+             "OnShape_v1/sample_000002/merged_surfaces.vtp",
+             "OnShape_v1/sample_000002/params.json",
+             "README.md"]
+    plan = shift.fetch_plan(files, 1)
+    assert plan == sorted([f for f in files if f.startswith("OnShape_v1/sample_000001/")
+                           and f.rsplit("/", 1)[-1] in {"merged_surfaces.vtp", "params.json", "forces.json",
+                                                        "metadata.json"}])
+    assert not any("volumes" in p or "inter_mesh" in p or p.endswith(".stl") for p in plan)
+    two = shift.fetch_plan(files, 2)
+    assert sum(1 for p in two if p.endswith("merged_surfaces.vtp")) == 2
+    assert shift.fetch_plan([], 1) == []

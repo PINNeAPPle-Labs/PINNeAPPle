@@ -23,12 +23,13 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 import torch
 
-__all__ = ["DoMINOMember", "availability"]
+__all__ = ["DoMINOMember", "availability", "compare_backends", "finetune"]
 
 #: the point-cloud grid DoMINO interpolates on: a size, not a method (see ``ashton.physicsnemo_models._small_parameters``)
 DEFAULT_GRID = (24, 16, 16)
@@ -249,3 +250,24 @@ def compare_backends(designs: Sequence[Any], *, train: int = 200, seed: int = 0)
                           seed=seed)
     member.fit(designs, steps=train)
     return {"member": member, "describe": member.describe(), "final_loss": member.history[-1] if member.history else None}
+
+
+def finetune(source_run: str | Path, dataset_dir: str | Path, out_dir: str | Path, **train_kwargs: Any) -> dict[str, Any]:
+    """Warm-start a fit from another design space's weights: the cheap half of a new model.
+
+    The design spaces in this repository share a body model and a conditioning width, so what a fit on the fin family
+    learnt about "a surface with a field on it" is not wasted on the exchanger — only the conditioning and the specific
+    field have to be learnt again. The weights are only transferable when the two spaces agree on the point dimension,
+    the conditioning width and the neighbourhood radii, and :func:`~pinneapple_neural.lpm_pipeline.train` refuses the
+    rest instead of loading a state dict into the wrong first layer.
+
+    This is a *convenience over the existing training path*, not a second trainer: everything goes through ``train``,
+    which keeps the split, the card and the checkpoint behaviour identical to a cold fit — so a fine-tuned model is
+    measured and reported exactly like any other, which is the only way the comparison between the two means anything.
+    """
+    from ..lpm_pipeline import train
+
+    result = train(dataset_dir, out_dir, init_from=source_run, **train_kwargs)
+    result.setdefault("notes", []).append(
+        f"warm-started from {source_run}; the split, the card and the measurement are the ones a cold fit would produce")
+    return result

@@ -171,6 +171,15 @@ class FieldFamily:
         """One operating point. The default draws uniformly inside ``operating_params``."""
         return {k: float(rng.uniform(*b)) for k, b in self.operating_params.items()}
 
+    def geometry_from_unit(self, geometry: dict[str, float]) -> dict[str, float]:
+        """A draw of ``geometry_params`` turned into a geometry the family's reference accepts.
+
+        The default returns the draw unchanged. A family overrides it when a point of the parameter box is not yet a
+        geometry — ``pp_fin`` rounds the fin count and derives the base width from it, and without this hook a sampler
+        that draws the box directly (LHS, Sobol, the active sampler) hands the reference a geometry with a missing key.
+        """
+        return dict(geometry)
+
     def ood_probes(self) -> list[tuple[str, DesignSpec]]:
         """Designs outside the trained family, as ``(name, spec)``. Empty when the family has none."""
         return []

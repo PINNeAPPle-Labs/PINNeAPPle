@@ -92,6 +92,13 @@ class FinHeatSink(FieldFamily):
                     "base_width_m": n * pitch}
         raise RuntimeError("pp_fin: could not draw a geometry inside the reference's own limits")
 
+    def geometry_from_unit(self, geometry: dict[str, float]) -> dict[str, float]:
+        """Round the fin count and derive the base width, which is what the reference reads instead of the pitch."""
+        g = dict(geometry)
+        g["n_fins"] = float(max(2, int(round(g["n_fins"]))))
+        g["base_width_m"] = g["n_fins"] * float(g["fin_pitch_m"])
+        return g
+
     def sample_operating(self, rng: np.random.Generator) -> dict[str, float]:
         """Still air (the natural-convection branch) or a forced flow well inside the forced correlation's range.
 

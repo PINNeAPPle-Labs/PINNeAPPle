@@ -216,6 +216,33 @@ Two flags exist for a machine that has to stay usable:
 thrown away, which is exactly the work a night is meant to keep. A stopped run writes what it has to `campaign.json`,
 says so in `runner.json`, and exits 0.
 
+## When it dies
+
+A long campaign on a desk machine gets killed — a lid closed at the wrong moment, a memory spike, something the
+unified log does not record. Two things make that cost minutes instead of a family.
+
+**The fit checkpoints.** While `train(..., resume=True)` runs — what the campaign always passes — `fit` rewrites
+`model/fit.pt` every fifteen minutes and after the last epoch, with the weights, the optimizer and scheduler state and
+the loss history. The next start continues from the epoch after the checkpoint instead of from one, so the cosine
+schedule and the Adam moments are the ones the run had. The file is deleted when the fit finishes, and a checkpoint
+whose recipe (designs, epochs, batch, learning rate, seed) does not match the call is ignored and replaced, so a
+`--force` with a different recipe cannot inherit an old run's history. A half-written dataset is a different case: a
+dataset without a manifest is still thrown away, which is why `--max-hours` stops between families.
+
+**Something restarts it.** Three launchd jobs, each of which can be submitted from a shell without a plist:
+
+```bash
+launchctl submit -l com.pinneapple.lpm -- /bin/bash -lc \
+  "cd ~/Documents/GitHub/lpm-five && exec python3 -m benchmarks.lpm_campaign --out ~/lpm-campaign"
+launchctl submit -l com.pinneapple.lpm-watch -- /bin/bash ~/lpm-campaign-watch.sh   # restarts the campaign, then the 900-body airfoil refit
+launchctl submit -l com.pinneapple.lpm-guard -- /bin/bash ~/lpm-campaign-guard.sh   # restarts the two above
+```
+
+`launchctl list | grep pinneapple` is the status. The guard exits once `~/lpm-campaign/.finished` exists, which the
+watcher writes after the last refit. The guard checks for a running process before submitting, because a `launchctl
+submit` job leaves the table when its process exits but a process can also outlive its entry, and a second campaign
+against the same `--out` would only fight over the lock.
+
 ## Following it on one screen
 
 A fit is four hours with nothing on stdout, so a screen that read `card.json` would show every family as *pending*

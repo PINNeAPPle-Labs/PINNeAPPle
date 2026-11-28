@@ -348,7 +348,6 @@ class FinHeatSink3D(FieldFamily):
         geo = shapes[0]
         for s in shapes[1:]:
             geo = im.union(geo, s)
-        disc = im.Discretization(geo, self._h(spec), order=1)
         k = 200.0                                        # aluminium 6061, W/m.K
         bcs = [
             im.HeatInput(spec.operating["power_w"],
@@ -356,9 +355,22 @@ class FinHeatSink3D(FieldFamily):
             im.Convection(spec.operating["h_w_m2k"], spec.operating["t_inf_c"],
                           where=lambda X: X[:, 2] > base[0][2] + 1e-6),
         ]
-        sol = im.solve_heat(disc, k, 0.0, bcs)
         pts, _ = self.points_and_normals(spec)
-        return sol(pts)[:, None]
+        # A fin is thinner than the background cell in most of this design space — the gap is as wide as the fin, and
+        # a 1 mm fin on the 8 mm grid the cost budget allows is not resolved where its faces fall inside cells the
+        # grid classifies as outside the body. Rather than refuse the design space, the grid is halved until the whole
+        # surface reads back finite; about one design in fifty needs it, so the average cost barely moves and no
+        # dataset gets a NaN.
+        h = self._h(spec)
+        for _ in range(3):
+            disc = im.Discretization(geo, h, order=1)
+            sol = im.solve_heat(disc, k, 0.0, bcs)
+            field = sol(pts)[:, None]
+            if np.isfinite(field).all():
+                return field
+            h *= 0.5
+        raise ValueError(f"{self.name}: the fin surface is not resolved even at h = {h * 2:.2e} m "
+                         f"({spec.label}); the reference cannot represent this geometry")
 
 
 def _occ_boxes(boxes) -> Callable:                                  # noqa: F821 - gmsh builds it

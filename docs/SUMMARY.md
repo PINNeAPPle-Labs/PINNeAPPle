@@ -198,6 +198,7 @@
     * [Engineering Design Optimizer (day 17)](guides/engineering_design_optimizer.md)
     * [Physics Design Optimizer (day 23)](guides/physics_design_optimizer.md)
     * [The Alcubierre warp bubble: curvature, energy conditions and the bill](guides/warp_drive.md)
+    * [Putting a PhysicsNeMo model into PINNeAPPle without retraining it](guides/physicsnemo_trust_member.md)
 * [The shared pieces: what makes the use cases one product](product/core-shared-pieces.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)

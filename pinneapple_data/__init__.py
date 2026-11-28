@@ -65,7 +65,7 @@ try:
 except Exception:
     pass
 
-from . import datasets, schema
+from . import ashton, datasets, schema
 from .datasets import (
     DatasetInfo,
     DatasetRegistry,
@@ -131,6 +131,7 @@ __all__ = [
     "dataset_ids",
     # Universal physics data schema (INT-001) and its gates (INT-005)
     "schema",
+    "ashton",
     "AxisSpec",
     "Field",
     "PhysicsDataBundle",

@@ -379,7 +379,9 @@ def build_pdf(document: dict[str, Any], pdf_path: str | Path, *, assets: Path | 
         "Campanha: <font face='Courier'>python -m benchmarks.lpm_campaign --out ~/lpm-campaign</font>, com "
         "<font face='Courier'>--refine N</font> para a segunda rodada do estágio 1. Comparação: "
         "<font face='Courier'>python -m benchmarks.lpm_compare --run ~/lpm-campaign/pp_wing3d --shift &lt;árvore&gt; "
-        "--dataset-name WING --condition alpha_deg=alpha --condition mach=mach --json ...</font>. Este PDF: "
+        "--dataset-name Wing-sample --condition alpha_deg=alpha --condition mach=mach --json ...</font> "
+        "(Wing-sample é o gêmeo acessível do WING, que é <i>manual</i> gated: mesma organização, mesma licença). "
+        "Este PDF: "
         "<font face='Courier'>python -m benchmarks.lpm_report --out ~/lpm-campaign --pdf ...</font>, que só lê. "
         "Cada cartão traz o split, a semente, o baseline e a decisão de confiança; o commit está na capa.", small))
 

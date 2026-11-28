@@ -162,19 +162,26 @@ def compare(candidates: Sequence[Candidate], validation: Sequence[Any], *, train
     truths = [d.target.numpy() * scale for d in validation]
     baselines = [_relative_l2(constant.predict(d), np.asarray(t, dtype=np.float64))
                  for d, t in zip(validation, truths, strict=True)]
+    squared_norm = sum(float(np.sum(t ** 2)) for t in truths)
+    squared_baseline = sum(float(np.sum((constant.predict(d) - t) ** 2))
+                           for d, t in zip(validation, truths, strict=True))
     rows: list[Row] = []
     for candidate in candidates:
-        errors = []
+        errors, squared_error = [], 0.0
         for design, truth in zip(validation, truths, strict=True):
             pred = np.asarray(candidate.predict(design), dtype=np.float64)
-            errors.append(_relative_l2(pred, np.asarray(truth, dtype=np.float64)))
+            truth = np.asarray(truth, dtype=np.float64)
+            errors.append(_relative_l2(pred, truth))
+            squared_error += float(np.sum((pred - truth) ** 2))
         finite = [e for e in errors if math.isfinite(e)]
         rows.append(Row(
             model=candidate.name,
-            relative_l2=float(np.mean(finite)) if finite else None,
+            # the global number is what the cards report and what the tolerance is about; the per-design quantiles
+            # are the spread beside it, and on a family whose designs differ in target norm the two are far apart
+            relative_l2=math.sqrt(squared_error / squared_norm) if squared_norm > 0 else None,
             p90=float(np.quantile(finite, 0.9)) if finite else None,
             worst=float(np.max(finite)) if finite else None,
-            baseline=float(np.mean(baselines)),
+            baseline=math.sqrt(squared_baseline / squared_norm) if squared_norm > 0 else None,
             n_designs=len(validation),
             designs_lost_to_baseline=sum(1 for e, b in zip(errors, baselines, strict=True) if e >= b),
             tolerance=tolerance,
@@ -301,8 +308,11 @@ def main(argv: list[str] | None = None) -> int:
 
     corpus = campaign_corpus(args.run)
     family, model = corpus["family"], corpus["model"]
-    if args.designs:
-        corpus["validation"] = corpus["validation"][:args.designs]
+    if args.designs and args.designs < len(corpus["validation"]):
+        # evenly spaced, not the first N: a design file is ordered by geometry, so a prefix is a biased sample and
+        # would report a different number from the card without anything being wrong
+        pick = np.unique(np.linspace(0, len(corpus["validation"]) - 1, args.designs).round().astype(int))
+        corpus["validation"] = [corpus["validation"][i] for i in pick]
     candidates: list[Candidate] = [LPMMember(model, family)]
     if args.shift:
         condition_map = dict(pair.split("=", 1) for pair in args.condition)

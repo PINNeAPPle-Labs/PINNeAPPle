@@ -184,7 +184,17 @@ def _skin(points) -> tuple[Any, Any]:
     centre = verts.mean(0)
     _, _, vt = np.linalg.svd(verts - centre, full_matrices=False)
     uv = (verts - centre) @ vt[:2].T
-    return verts, Delaunay(uv).simplices
+    faces = Delaunay(uv).simplices
+    # Delaunay returns each triangle in whichever orientation it likes, and the viewer culls back faces — so a sheet
+    # whose faces point away from the camera draws nothing at all. That is how pp_airfoil and pp_exchanger came out as
+    # an empty stage with a colour bar and working controls: the bodies were there, facing the wrong way. Every triangle
+    # is turned to the plane normal that points up (+z), which is the side all four preset views look from.
+    normal = vt[2] if vt.shape[0] > 2 else np.array([0.0, 0.0, 1.0])
+    upward = normal[2] > 1e-9 or (abs(normal[2]) <= 1e-9 and normal[1] >= 0)
+    normal = normal if upward else -normal
+    a, b, c = verts[faces[:, 0]], verts[faces[:, 1]], verts[faces[:, 2]]
+    flip = np.einsum("ij,j->i", np.cross(b - a, c - a), normal) < 0
+    return verts, np.where(flip[:, None], faces[:, [0, 2, 1]], faces)
 
 
 def scene(view: dict[str, Any]):
@@ -207,6 +217,17 @@ def scene(view: dict[str, Any]):
         scn.labels[f] = f"{f} [{unit}]" if unit else f"{f} [-]"
 
     skins = [_skin(sample["points"]) for sample in samples]
+    # A 2-D family is a sheet in the x-y plane, and the face-on preset renders that plane showing x down the screen:
+    # four bodies in a row would stand on end in a narrow column. A quarter turn of the sheet puts the row across the
+    # screen, which is the picture a contour plot of the same family draws.
+    # "flat" is about the whole set, not one body: four sheets stacked at different heights is a 3-D arrangement and
+    # keeps the oblique view.
+    every = np.vstack([verts for verts, _ in skins]) if skins else np.zeros((1, 3))
+    wide = float(np.ptp(every, axis=0).max()) or 1.0
+    flat = bool(skins) and float(np.ptp(every[:, 2])) <= 1e-9 * wide
+    if flat:
+        turn = np.array([[0.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])       # (x, y) -> (y, -x)
+        skins = [(verts @ turn.T, faces) for verts, faces in skins]
     placed = [verts for verts, _ in skins]
     allpts = np.vstack(placed) if placed else np.zeros((1, 3))
     axis = int(np.argmax(np.ptp(allpts, axis=0)))
@@ -238,7 +259,22 @@ def scene(view: dict[str, Any]):
         surface = Scene.from_arrays(pts, faces, name=sample["label"], material="grey").surfaces[0]
         surface.fields.update(values_of(sample, len(pts)))
         scn.surfaces.append(surface)
+    # a flat scene is a line seen edge-on in the default 3/4 view, so it opens face-on; a 3-D one keeps the view that
+    # shows its depth.
+    scn.view = "top" if flat else "iso"
     return scn
+
+
+def _code_stamp() -> float:
+    """Newest modification of the code that draws, so a changed drawing rule invalidates what is on disk.
+
+    The cache compared a figure only against ``view.json``: a fix to the way a body is drawn kept serving the page
+    built before it. The airfoil and the exchanger went on showing a blank stage after the faces were oriented.
+    """
+    here = Path(__file__).resolve()
+    studio = here.parent.parent / "pinneapple_tools" / "visualization" / "studio"
+    files = [here, studio / "web.py", studio / "scene.py"]
+    return max((p.stat().st_mtime for p in files if p.is_file()), default=0.0)
 
 
 def ensure_viewer(out: str | Path, family: str) -> Path:
@@ -246,7 +282,8 @@ def ensure_viewer(out: str | Path, family: str) -> Path:
     source = view_path(out, family)
     target = source.parent / "figures" / "viewer.html"
     with _LOCK:
-        if target.is_file() and source.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
+        fresh = max(source.stat().st_mtime, _code_stamp()) if source.is_file() else 0.0
+        if target.is_file() and source.is_file() and target.stat().st_mtime >= fresh:
             return target
         if not source.is_file():
             raise FileNotFoundError(f"{family} has no view.json yet: it has not been fitted")
@@ -272,7 +309,8 @@ def ensure(out: str | Path, family: str, kind: str) -> Path:
     source = view_path(out, family)
     target = source.parent / "figures" / f"{kind}.png"
     with _LOCK:
-        if target.is_file() and source.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
+        fresh = max(source.stat().st_mtime, _code_stamp()) if source.is_file() else 0.0
+        if target.is_file() and source.is_file() and target.stat().st_mtime >= fresh:
             return target
         if not source.is_file():
             raise FileNotFoundError(f"{family} has no view.json yet: it has not been fitted")

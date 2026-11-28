@@ -228,7 +228,11 @@ async function main() {
   document.querySelectorAll("[data-v]").forEach((b) => (b.onclick = () => fit(b.dataset.v)));
   $("#shot").onclick = () => { const a = document.createElement("a"); a.href = renderer.domElement.toDataURL("image/png"); a.download = "view.png"; a.click(); };
   if (A.on) animBar();
-  fit("iso"); const first = [...fields][0];
+  // a flat body is only legible face-on, so a scene can say which preset to open on ("view" in scene.json)
+  const opening = META.view || "iso";
+  fit(opening);
+  document.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b.dataset.v === opening));
+  const first = [...fields][0];
   setMode(first ? "field" : "real", first);
   if (A.on && META.animation.camera === "follow") setFollow(true);
   $("#load").style.display = "none";

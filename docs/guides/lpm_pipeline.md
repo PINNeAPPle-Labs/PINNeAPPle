@@ -235,6 +235,28 @@ from the geometries the sampler drew and pins every refined one into training, a
 (`split.among_refined`). A dataset that carries a published split is not refined at all: somebody else fixed what
 "held out" means and a second round would stop being comparable with it.
 
+### A fila, e o relatório que ela reconstrói
+
+Uma campanha que morre e retoma resolve resiliência, não **sequência**: o refinamento da asa precisa terminar antes de
+a comparação com o corpus externo significar alguma coisa, o refit do aerofólio tem de esperar que nenhum outro fit
+esteja usando a máquina, e o PDF precisa ser refeito depois de cada um. Isso é uma fila (`benchmarks/lpm_queue.py`) —
+uma lista JSON de trabalhos, um executor que segura a trava enquanto um roda, e o próprio `queue.json` como registro:
+
+```
+python -m benchmarks.lpm_queue --out ~/lpm-campaign --status     # o que está na fila e o que já rodou
+python -m benchmarks.lpm_queue --out ~/lpm-campaign --detach fila.log
+```
+
+Cada trabalho é `{"id", "title", "cwd", "command"}` e, opcionalmente, `log`, `depends_on` e `skip_if`; `command` é um
+vetor de argumentos, nunca uma string de shell. Duas esperas estão embutidas: antes de cada trabalho ele espera a
+trava da campanha (`<out>/.campaign.lock`) ficar livre, e depois de três falhas seguidas ele para — uma fila que
+insiste num trabalho que não roda é um laço com log, e a terceira falha é onde uma pessoa precisa olhar.
+
+O relatório (`benchmarks/lpm_report.py`) é o que sobra no fim: lê os cartões, as rodadas de refinamento, os snapshots e
+as comparações externas de um diretório de campanha e escreve **um** PDF — a tabela por família com o veredito de cada
+uma, o gráfico do erro contra o campo constante, o antes/depois do refinamento, os corpora externos, e a fila. Ele só
+lê; a única coisa que escreve é o PDF, então roda contra uma campanha no meio de um fit.
+
 ## Three dimensions
 
 The five families above are 2-D: a section, a meridian, a plate. `pinneapple_neural.lpm_families_3d` keeps the same

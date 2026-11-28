@@ -914,6 +914,8 @@
     "tests/test_lpm_figures.py",
     "tests/test_lpm_monitor.py",
     "tests/test_lpm_pipeline.py",
+    "tests/test_lpm_queue.py",
+    "tests/test_lpm_report.py",
     "tests/test_lpm_stages.py",
     "tests/test_lpm_geometry.py",
     "tests/test_lpm_training.py",

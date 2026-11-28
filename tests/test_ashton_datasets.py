@@ -8,7 +8,9 @@ cross-family experiment whose ordering is the point of reading three datasets in
 """
 from __future__ import annotations
 
+import base64
 import math
+import zlib
 
 import numpy as np
 import pytest
@@ -90,6 +92,79 @@ def test_surface_reader_reads_the_ascii_and_the_binary_encoding_alike(tmp_path):
     full_bytes = binary_surface.bytes_decoded
     partial = read_surface(tmp_path / "run_2" / "boundary_2.vtp", arrays=["Cp"])
     assert partial.bytes_decoded < full_bytes and sorted(partial.cell_data) == ["Cp"]
+
+
+_VTK_TYPE = {"Float32": "<f4", "Float64": "<f8", "Int32": "<i4", "Int64": "<i8"}
+
+
+def _compressed(values, vtk_type: str, *, block_bytes: int = 24) -> str:
+    """One ``DataArray`` payload the way VTK writes a compressed one.
+
+    A ``UInt32`` header of ``[nBlocks, blockSize, lastBlockSize, compressedSize x nBlocks]``, then one zlib stream per
+    block -- and the header and the data are two separate base64 streams, so a ``==`` lands *inside* the payload.
+    A block compression does not shrink is written raw, exactly as VTK does.
+    """
+    raw = np.asarray(values, dtype=_VTK_TYPE[vtk_type]).tobytes()
+    blocks = [raw[i:i + block_bytes] for i in range(0, len(raw), block_bytes)]
+    stored = [zlib.compress(b) if len(zlib.compress(b)) < len(b) else b for b in blocks]
+    head = np.array([len(blocks), block_bytes, len(blocks[-1]), *map(len, stored)], dtype="<u4").tobytes()
+    return base64.b64encode(head).decode() + base64.b64encode(b"".join(stored)).decode()
+
+
+def test_a_compressed_surface_reads_its_blocks_and_ignores_the_information_keys(tmp_path):
+    """The SHIFT layout: every array compressed, a block header ahead of the blocks, XML children after them."""
+    points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]], dtype=np.float32)
+    cp = np.array([0.5, 0.25, 0.75, 0.125], dtype=np.float32)
+    arrays = {
+        "Points": _compressed(points, "Float32"),
+        "connectivity": _compressed(np.array([0, 1, 2, 1, 2, 3], dtype=np.int64), "Int64"),
+        "offsets": _compressed(np.array([3, 6], dtype=np.int64), "Int64"),          # end offsets, as VTK writes them
+    }
+    information = ("<InformationKey name='L2_NORM_RANGE' location='vtkDataArray' length='2'>"
+                   "<Value index='0'>0.125</Value><Value index='1'>0.75</Value></InformationKey>")
+    file = tmp_path / "compressed.vtp"
+    file.write_text(
+        "<?xml version='1.0'?><VTKFile type='PolyData' version='1.0' byte_order='LittleEndian' "
+        "header_type='UInt32' compressor='vtkZLibDataCompressor'><PolyData>"
+        "<Piece NumberOfPoints='4' NumberOfCells='2'>"
+        f"<Points><DataArray type='Float32' NumberOfComponents='3' format='binary'>{arrays['Points']}"
+        "</DataArray></Points>"
+        f"<PointData><DataArray type='Float32' Name='Cp' format='binary'>{_compressed(cp, 'Float32')}"
+        f"{information}</DataArray></PointData>"
+        f"<Polys><DataArray type='Int64' Name='connectivity' format='binary'>{arrays['connectivity']}</DataArray>"
+        f"<DataArray type='Int64' Name='offsets' format='binary'>{arrays['offsets']}</DataArray></Polys>"
+        "</Piece></PolyData></VTKFile>", encoding="ascii")
+
+    surface = read_surface(file)
+    assert surface.n_points == 4
+    assert surface.n_cells == 2 and surface.cells_per_shape == {3: 2}
+    assert np.allclose(surface.points, points)                                  # the floating-point payload survives
+    assert np.allclose(surface.point_data["Cp"], cp)
+    assert np.array_equal(surface.cells_of(3), [[0, 1, 2], [1, 2, 3]])          # cells not shifted by the offsets
+    assert surface_quadrature(surface)["area"] == pytest.approx(1.0)
+
+
+def test_offsets_with_and_without_the_leading_zero_are_the_same_mesh(tmp_path):
+    """VTK omits the leading zero of a start-offset array; read as start offsets it loses the last cell and hands
+    every other one its neighbour's vertices. The SHIFT surface came back with 3,197,219 of its 3,197,220
+    triangles that way, and with them the point areas the force integral is built on."""
+    def surface_file(name: str, offsets: str):
+        file = tmp_path / name
+        file.write_text(
+            "<?xml version='1.0'?><VTKFile type='PolyData' version='0.1' byte_order='LittleEndian' "
+            "header_type='UInt64'><PolyData><Piece NumberOfPoints='4' NumberOfCells='2'>"
+            "<Points><DataArray type='Float64' NumberOfComponents='3' format='ascii'>"
+            "0 0 0 1 0 0 0 1 0 1 1 0</DataArray></Points>"
+            "<Polys><DataArray type='Int64' Name='connectivity' format='ascii'>0 1 2 1 2 3</DataArray>"
+            f"<DataArray type='Int64' Name='offsets' format='ascii'>{offsets}</DataArray></Polys>"
+            "</Piece></PolyData></VTKFile>", encoding="ascii")
+        return file
+
+    for name, offsets in (("vtk.vtp", "3 6"), ("start.vtp", "0 3 6")):
+        surface = read_surface(surface_file(name, offsets))
+        assert surface.n_cells == 2
+        assert np.array_equal(surface.cells_of(3), [[0, 1, 2], [1, 2, 3]])
+        assert surface_quadrature(surface)["area"] == pytest.approx(1.0)
 
 
 def test_partial_read_decodes_only_the_arrays_asked_for(tmp_path):

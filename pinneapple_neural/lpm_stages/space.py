@@ -16,7 +16,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["METHODS", "Proposal", "refine", "sample"]
+__all__ = ["METHODS", "Proposal", "as_specs", "refine", "sample"]
 
 #: sampling rules by name. ``uniform`` stays because it is what the first eleven design spaces used, and a change of
 #: sampler has to be comparable with them.
@@ -128,4 +128,25 @@ def refine(scores: list[float], specs: list[Any], n_new: int, *, geometry_params
         out.append(Proposal(geometry=geometry, operating={k2: float(v2) for k2, v2 in base.operating.items()},
                             reason=f"confidence {scores[i]:.2f} sits at the threshold {threshold:.2f}",
                             source=getattr(base, "label", "")))
+    return out
+
+
+def as_specs(proposals: list[Proposal], family: Any, *, first_geometry_id: int = 0) -> list[Any]:
+    """The proposals as specs the dataset writer takes, dropping the ones the family's own ``validate`` refuses.
+
+    A refined body is a perturbation of a design the family already represented, so a refusal here is the range
+    boundary doing its job, not an error: the spec is dropped and the caller compares the count with the number of
+    proposals to say how many. Ids continue past the drawn ones and the label marks the round (``:r00042:c00``), so a
+    manifest shows a refined design without having to consult the refinement block.
+    """
+    from ..lpm_pipeline import DesignSpec
+
+    out = []
+    for offset, proposal in enumerate(proposals):
+        gid = int(first_geometry_id) + offset
+        spec = DesignSpec(geometry=dict(proposal.geometry), operating=dict(proposal.operating), geometry_id=gid,
+                          label=f"{family.name}:r{gid:05d}:c00")
+        if family.validate(spec):
+            continue
+        out.append(spec)
     return out

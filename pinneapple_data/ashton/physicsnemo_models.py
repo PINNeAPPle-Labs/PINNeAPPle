@@ -44,7 +44,8 @@ from .catalog import dataset as _dataset
 from .loader import _DIMENSIONLESS, AshtonData, Case, resolve_field
 from .vtk_xml import face_area_normals
 
-__all__ = ["PHYSICSNEMO_LICENCE", "DEFAULT_GRID", "DEFAULT_NEIGHBORS", "availability",
+__all__ = ["PHYSICSNEMO_LICENCE", "DEFAULT_GRID", "DEFAULT_NEIGHBORS", "availability", "merge_config",
+           "small_parameters",
            "x_meshgraphnet_availability", "require_domino", "DoMINOMember", "XMeshGraphNetMember",
            "SurfaceResidual", "admissibility_residual", "physicsnemo_table"]
 
@@ -138,16 +139,16 @@ def require_domino() -> Any:
 # a case as DoMINO's inputs
 # ---------------------------------------------------------------------------
 
-def _merge(dst: dict, src: dict) -> dict:
+def merge_config(dst: dict, src: dict) -> dict:
     for key, value in src.items():
         if isinstance(value, dict) and isinstance(dst.get(key), dict):
-            _merge(dst[key], value)
+            merge_config(dst[key], value)
         else:
             dst[key] = value
     return dst
 
 
-def _small_parameters(filters: int = 8, width: int = 32, grid: Sequence[int] = DEFAULT_GRID,
+def small_parameters(filters: int = 8, width: int = 32, grid: Sequence[int] = DEFAULT_GRID,
                       neighbors: int = DEFAULT_NEIGHBORS) -> dict[str, Any]:
     """PhysicsNeMo's default model parameters with the layers a fixture-sized case can afford.
 
@@ -232,10 +233,10 @@ class DoMINOMember:
         self.steps = 0
         self.history: list[float] = []
         self.trained_on = ""
-        parameters = _small_parameters(filters, width, self.grid, self.neighbors)
+        parameters = small_parameters(filters, width, self.grid, self.neighbors)
         if model_parameters is not None:
-            _merge(parameters, model_parameters)
-        merged = _merge(copy.deepcopy(defaults), parameters)
+            merge_config(parameters, model_parameters)
+        merged = merge_config(copy.deepcopy(defaults), parameters)
         torch.manual_seed(self.seed)
         self.model = DoMINO(input_features=3, output_features_vol=None, output_features_surf=1, global_features=2,
                             model_parameters=Config(merged))

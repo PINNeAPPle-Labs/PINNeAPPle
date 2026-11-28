@@ -98,6 +98,143 @@ without a single extra solver run. Pointwise Cp error is now flat along the chor
 leading edge to 70 % chord); what remains sits near the trailing edge, where Cp is small and the relative error is
 large while the absolute error is not.
 
+## A corpus nobody here solved: predicting on SHIFT
+
+The RANS campaign is published by an academic group and this pipeline reads it; Luminary's **SHIFT** datasets are
+published by a company that trains its own LPMs, and they are used here for the opposite purpose. Not one design read
+from them may enter a fit: the moment a model has seen those bodies, what they say about them is not outside
+anymore. `pinneapple_neural.lpm_stages.shift` reads them off disk for one job — asking a model fitted here what it
+says about geometry it never saw, and scoring the answer against a solver that owed us nothing.
+
+Fifteen repositories live under `luminary-shift`; thirteen are `cc-by-nc-4.0` and two (`Submarine`, `CCA`) are
+`license:other`; every full repository is `gated: manual` and every `-sample` twin is `gated: auto`. Nothing is
+downloaded here: the data is on disk after somebody accepted the terms, and the module's job starts there.
+
+| Fact | Value |
+|---|---|
+| the case directory | the one holding `merged_surfaces.vtp` — seven datasets name it six ways (`sample_NNNNNN` at the root or under a version directory, `RUN_N`, a case hash, `yaris_xNNNNN`, `variant_NNNN`) |
+| the surface file | `merged_surfaces.vtp`, 231 MB for one WING case, read with `read_surface` so only the requested arrays are decoded — and written with `compressor="vtkZLibDataCompressor"`, which that reader inflates block by block |
+| the field | `CpMeanTrim`, else `Cp`, else a pressure in pascal (`Pressure (Pa)`), which is divided by the case's own `q∞` and referenced to its own `p∞` — half the surfaces carry one and half the other, and they are not the same number |
+| the conditions | `params.json`, read whole and flattened (`velocity.u`), with a `condition_map` saying which key feeds which family parameter |
+| the licence | travels with the number: `require_validation_usage` accepts `validation-only` and nothing else, and a card built on it carries the repository and the URL. A tree whose path does not name its repository is refused rather than scored: `cc-by-nc-4.0` and `other` are not interchangeable |
+
+```python
+from pinneapple_neural.lpm_stages import shift
+shift.fetch("Wing-sample", "~/data/luminary-shift", n_cases=1)          # 240 MB, not 38 GB: one case and its JSONs
+cases = shift.samples("~/data/luminary-shift/Wing-sample", limit=2)     # walks for merged_surfaces.vtp
+out = shift.report(model, family, shift.designs("...", family, {"alpha_deg": "alpha_deg"}, limit=2),
+                   train_designs=train, dataset_name="Wing-sample")
+out["outside"]["licence"], out["held_out"]["relative_l2"]
+```
+
+`fetch` is the one place in the module that reaches the network, and it needs the caller's own credentials: every
+repository is gated, so the download works after the terms are accepted in a browser and `hf auth login` is run — and
+without them the error says exactly that instead of surfacing a 401. `fetch_plan` is the pure half: given the file list
+the Hub reports, it names the files of `n_cases` cases and leaves the volume `.vtu` and the inter-mesh `.stl`, which
+nothing here reads.
+
+A case is subsampled to a deterministic, evenly spaced subset (2 048 points by default) because the model's
+neighbourhood features are a distance matrix from the query to the body: a raw 200 000-node surface is a
+200 000² matrix. The subset size goes into the design's label, so a report says which one produced the number.
+
+`python -m benchmarks.lpm_compare` puts the answer beside the constant field, on the same gates, for a run of this
+campaign or for a SHIFT tree:
+
+```
+corpus: pp_nozzle held-out split (400 designs, split by geometry)
+model                   held-out     p90   worst  baseline  beaten  gates
+lpm                        0.044   0.063   0.180     0.666       0  acc FAIL / base ok
+tolerance: 0.02 (the family's own)
+```
+
+That is the whole reading of the campaign in one line: the model beats the mean field on all 400 held-out designs and
+misses the tolerance its own family declared (0.02). The `held-out` column is the **global** relative L2 — the number
+the cards report — while `p90` and `worst` are the per-design spread, and the two are not interchangeable: on the
+airfoil family the mean of the per-design errors is 1.31 where the global number is 0.71, both measured on the same
+400 designs. PhysicsNeMo's DoMINO, GeoTransolver and X-MeshGraphNet appear in the same run as **not compared**, with
+the reason: their inputs are a signed-distance grid and a mesh bundle built from an Ashton case, not a point-cloud
+design, and `pinneapple_data.ashton.physicsnemo_models` measures them there.
+
+### The first outside row, and what it says
+
+One WING case on disk is enough to run the question the module exists for:
+
+```
+python -m benchmarks.lpm_compare --run ~/lpm-campaign/pp_wing3d \
+    --shift ~/data/luminary-shift/OnShape_luminary_crm_version001 --dataset-name WING \
+    --condition alpha_deg=alpha --condition mach=mach
+
+corpus: WING at OnShape_luminary_crm_version001 — an outside corpus, 1 case(s), cc-by-nc-4.0, validation-only only
+model                         held-out     p90   worst  baseline  beaten  gates
+lpm                              5.631   5.631   5.631     0.952       1  acc FAIL / base FAIL
+ood flag: 1/1 design(s) flagged outside the trained family (mean raw score 317.53)
+```
+
+The reading is not subtle and it is the right one: a model fitted on wings of a swept-wing family, asked about a whole
+CRM aircraft at a free stream it was never shown, is **5.6 times off and worse than the constant field** — and its own
+OOD flag fires at a raw score of 318, which is the model saying so before the error is computed. The same model on its
+own 300 held-out designs is 0.361 against the 0.10 tolerance its family declared, and 0.953 for the constant field, so
+the outside row is the home row made unmistakable rather than a surprise. Every number here is in the coefficient the
+case itself implies: `q∞ = ½ρU∞²` and `p∞` come out of its `params.json`, and the geometry was checked against the
+case's own `forces.json` — the pressure integral reproduces the provider's lift to 0.006 % (882 949 N against
+882 899 N), and its drag once the 1.29° angle of attack is applied to the axis. A reader that got the triangle winding,
+the areas or the units wrong would not reproduce that.
+
+What the row does **not** say: that the family is wrong. The corpus is out of distribution by construction — a
+different aircraft, a different solver, a different level of the model's own design space — and a wing-only
+parametrisation cannot state the twelve shape parameters this aircraft has. Two honest ways forward, neither of them
+open here: fit a family to the SHIFT bodies and validate it on held-out SHIFT cases (which this module's rule forbids —
+the corpus is `validation-only`, and a body a model has seen is not outside anything), or make the comparison on a
+corpus that states the same inputs, which is what the campaign's own split already is.
+
+### The rest of the stages
+
+`pinneapple_neural.lpm_pipeline` runs its own five stages — draw, build, write, fit, card — and the writing and the
+fitting now live in `lpm_stages/dataset.py` and `lpm_stages/fit.py`, with the pipeline re-exporting them so every
+existing import still works. That is a split by what the code does, not a second numbering: the two modules keep the
+pipeline's own stage numbers in their docstrings, while the table below uses the `lpm_stages` numbering, where stage 3
+is the catalogue and stage 4 the anchors.
+
+The nine stages of `pinneapple_neural.lpm_stages` are not all extracted, and the ones that are each answer a question
+the campaign could not:
+
+| stage | module | what it decides |
+|---|---|---|
+| 0 | `intent` | a `StudyContract` supplies the point and its provenance; a parameter the contract marks missing is a question, not a default |
+| 1 | `space` | Sobol/LHS over the family's declared ranges, and the active `refine` near the decision threshold — `--refine N` runs that second round: `N` bodies are simulated where the confidence is closest to the threshold, added to the same dataset as refined, and the model is refit warm from the round it refined (`space.as_specs`, `lpm_pipeline.extend_dataset`) |
+| 2 | `geometry` | the body comes from a supplied mesh through `morph`, gated by `check_surface`; `validity_gate` measures how much of the box survives |
+| 3 | `catalog` | every dataset on disk, joined to the model whose card names it (by hash on a v2 card, by run directory on a v1 one — and the row says which) |
+| 4 | `anchors` | a **measurement** is evidence and never training data; the error becomes a VeriPhysics `ReferenceComparison` |
+| 5 | `training` | DoMINO behind the same `fit`/`predict`, and `finetune` as a warm start between design spaces that agree on their point dimension, conditioning width and radii |
+| 6 | `trust` | held-out error against the constant field, calibrated confidence, the gates |
+| 7 | `card`, `registry` | the versioned record and the index over it |
+| 8 | `shift`, `benchmarks/lpm_compare.py` | an outside corpus, validation only, and one table with the same gates |
+
+### The second round, and why a refined body never scores
+
+A fit that stops at the drawn space leaves the model uncertain wherever the sampler happened to leave a gap, and the
+campaign has no way to spend ten more simulations where they would buy the most. `--refine N` is that round:
+
+```
+python -m benchmarks.lpm_campaign --families pp_fin --refine 8
+```
+
+The scores are the model's own **calibrated confidence** on the designs it trained on; `space.refine` clusters the
+proposals at the decision threshold rather than at the worst-informed body, because a body already flagged as far
+outside teaches a model less per simulation than one it almost understands. The proposals become specs
+(`space.as_specs`, dropping anything the family's `validate` refuses), and `extend_dataset` writes them into the same
+dataset — one manifest, one list of what the model could have seen — with `refined_geometries` recording which ids the
+round introduced and `refinement` recording the round itself: the threshold, the scores it was chosen from, the
+labels. The refit is warm from the run being refined (`train(..., init_from=...)`), so the second round spends its
+epochs on the new bodies; the architecture comes off the parent's card, because a warm start across two architectures
+is a shape mismatch, not a transfer.
+
+What keeps the number honest: **a refined body is never held out**. It was simulated *because* the model was unsure
+about it, so it is evidence about the sampler, not about the model — `_split_by_geometry` draws the held-out bodies
+from the geometries the sampler drew and pins every refined one into training, and the card says so
+(`split.among_refined`). A dataset that carries a published split is not refined at all: somebody else fixed what
+"held out" means and a second round would stop being comparable with it.
+
 ## Three dimensions
 
 The five families above are 2-D: a section, a meridian, a plate. `pinneapple_neural.lpm_families_3d` keeps the same

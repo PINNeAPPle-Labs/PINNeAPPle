@@ -285,7 +285,8 @@ def _hms(seconds: float) -> str:
 
 
 def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: int, force: bool,
-               verbose: bool, progress_every_s: float = 5.0, reporter: Reporter | None = None) -> dict[str, Any]:
+               verbose: bool, progress_every_s: float = 5.0, reporter: Reporter | None = None,
+               refine: int = 0) -> dict[str, Any]:
     """Generate one family's dataset and/or fit its model, skipping what is already there."""
     from pinneapple_neural.lpm_pipeline import generate_dataset, train
 
@@ -324,7 +325,94 @@ def run_family(name: str, recipe: dict[str, Any], out: Path, stage: str, seed: i
     elif stage in ("train", "both"):
         result["model"] = {"skipped": "already there"}
         _log(f"{name}: model already there, skipped")
+    if refine and (root / "model" / "card.json").is_file() and \
+            (force or not (root / "model" / "refinement.json").is_file()):
+        _log(f"{name}: refining — {refine} bodies where the model's confidence is weakest, then a warm refit")
+        started = time.monotonic()
+        round_out = refine_family(name, family, dataset, root, refine, seed=seed, epochs=recipe["epochs"],
+                                  verbose=verbose)
+        round_out["seconds"] = round(time.monotonic() - started, 1)
+        result["refinement"] = round_out
+        _log(f"{name}: refined {round_out.get('added', 0)} bodies, held-out "
+             f"{_fmt(round_out.get('held_out_relative_l2'))} against baseline "
+             f"{_fmt(round_out.get('constant_field_baseline_relative_l2'))} ({round_out['seconds']}s)")
     return result
+
+
+def refine_family(name: str, family: Any, dataset: Path, root: Path, n_new: int, *, seed: int,
+                  epochs: int, threshold: float = 0.5, verbose: bool = False) -> dict[str, Any]:
+    """Stage 1's second round: simulate where the model is least sure, then refit warm from where it was.
+
+    The scores are the model's own confidence on the **training** designs (:mod:`pinneapple_neural.lpm_stages.trust`),
+    the proposals come from :func:`~pinneapple_neural.lpm_stages.space.refine`, and the new bodies go into the same
+    dataset marked as refined — which is what keeps them out of the held-out set, because a body chosen *for* the
+    model's uncertainty cannot also be the evidence that it generalises.
+
+    The refit warm-starts from the run it is refining (:func:`~.lpm_pipeline.train`'s ``init_from``), so the second
+    round spends its epochs on the new bodies instead of relearning the first round's field. The parent checkpoint is
+    copied aside first: the fit writes into the same directory it is reading from.
+    """
+    import shutil
+
+    from pinneapple_neural.lpm_pipeline import (
+        _split_by_geometry,
+        extend_dataset,
+        load_dataset,
+        load_model,
+        train,
+    )
+    from pinneapple_neural.lpm_stages import space, trust
+
+    designs, manifest = load_dataset(dataset)
+    if family.published_split(manifest["designs"]) is not None:
+        return {"round": 1, "added": 0,
+                "note": "the dataset carries a published split: a refined body would train on a split somebody else "
+                        "fixed, and the two rounds would stop being comparable"}
+    model = load_model(root)
+    # the same split the fit used, so the confidence being read is on bodies the model was trained on
+    train_idx, _ = _split_by_geometry(manifest, 0.25, seed)
+    training = [designs[i] for i in train_idx]
+    calibration = trust.calibrate(model, training)
+    scores = [trust.confidence(model, d, calibration)["confidence"] for d in training]
+    records = [manifest["designs"][i] for i in train_idx]
+
+    def _spec(record: Any) -> Any:
+        from pinneapple_neural.lpm_pipeline import DesignSpec
+        return DesignSpec(geometry=dict(record["geometry"]), operating=dict(record["operating"]),
+                          geometry_id=int(record["geometry_id"]), label=record["label"])
+
+    proposals = space.refine(scores, [_spec(r) for r in records], n_new, geometry_params=dict(family.geometry_params),
+                             threshold=threshold, seed=seed + 1)
+    first_id = max(int(r["geometry_id"]) for r in manifest["designs"]) + 1
+    specs = space.as_specs(proposals, family, first_geometry_id=first_id)
+    if not specs:
+        return {"round": 1, "proposed": len(proposals), "added": 0,
+                "note": "every proposal fell outside the family's declared ranges"}
+    round_info = {"round": 1, "proposed": len(proposals), "threshold": float(threshold),
+                  "scores": {"mean": float(sum(scores) / len(scores)), "min": min(scores), "max": max(scores)},
+                  "seed": int(seed), "policy": "cluster at the confidence threshold on the training designs"}
+    extend_dataset(family, dataset, specs, refinement=round_info)
+    if verbose:
+        print(f"  {name}: {len(specs)} refined bodies added, {len(proposals) - len(specs)} refused by validate")
+
+    parent = root / "refinement" / "parent"
+    (parent / "model").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(root / "model" / "model.pt", parent / "model" / "model.pt")
+    # the second round is the same model as the first or it cannot be warm-started from it, so the architecture comes
+    # off the parent's card rather than out of this function's arguments
+    card = json.loads((root / "model" / "card.json").read_text(encoding="utf-8"))
+    config = card["model"]["config"]
+    summary = train(dataset, root, epochs=epochs, seed=seed, init_from=parent, resume=True,
+                    batch_designs=min(24, max(4, manifest["n_geometries"] + len(specs))),
+                    **{key: config[key] for key in ("width", "code", "n_heads", "n_freq", "backbone",
+                                                    "attn_layers", "attn_heads") if key in config})
+    out = {**round_info, "added": len(specs), "geometry_ids": [s.geometry_id for s in specs],
+           "held_out_relative_l2": summary["held_out_relative_l2"],
+           "constant_field_baseline_relative_l2": summary["constant_field_baseline_relative_l2"],
+           "within_tolerance": summary["within_tolerance"],
+           "parent": str(parent.relative_to(root))}
+    (root / "model" / "refinement.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
+    return out
 
 
 def _fmt(value: Any) -> str:
@@ -357,6 +445,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--conditions", type=int, help="override the recipe's operating points per body")
     parser.add_argument("--epochs", type=int, help="override the recipe's epochs")
     parser.add_argument("--width", type=int, help="override the recipe's model width")
+    parser.add_argument("--refine", type=int, default=0, metavar="N",
+                        help="after the fit, simulate N more bodies where the model's confidence is closest to the "
+                             "decision threshold and refit warm from the round it refined (stage 1)")
     parser.add_argument("--force", action="store_true", help="regenerate and refit even what is already there")
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--threads", type=int, default=max(1, (os.cpu_count() or 4) // 2),
@@ -412,7 +503,7 @@ def main(argv: list[str] | None = None) -> int:
             recipe = r["recipe"]
             try:
                 result = run_family(r["name"], recipe, a.out, a.stage, a.seed, a.force, a.verbose,
-                                    progress_every_s=a.progress_every, reporter=reporter)
+                                    progress_every_s=a.progress_every, reporter=reporter, refine=a.refine)
                 results.append(result)
                 reporter.finished(r["name"], result)
             except Exception as exc:                    # noqa: BLE001 - one family dying must not stop the night

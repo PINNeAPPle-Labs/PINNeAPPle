@@ -88,6 +88,22 @@ class ConstantField:
 
 
 @dataclass
+class TrainingMember:
+    """A stage-5 backend (DoMINO today) as a candidate: it answers in the target's units, this puts it in physical."""
+
+    member: Any
+    family: Any
+    name: str = "DoMINO"
+    budget: str = ""
+
+    def predict(self, design: Any) -> np.ndarray:
+        return np.asarray(self.member.predict(design), dtype=np.float64) * np.asarray(self.family.scales).ravel()
+
+    def describe(self) -> dict[str, Any]:
+        return self.member.describe()
+
+
+@dataclass
 class Unavailable:
     """A model that exists and cannot answer on this corpus: the row says which, and why, instead of a number."""
 
@@ -271,13 +287,15 @@ def shift_corpus(shift_root: str | Path, family: Any, model: Any, condition_map:
             "tolerance": float(family.tolerance)}
 
 
-def physicsnemo_rows() -> list[Unavailable]:
-    """The PhysicsNeMo baselines whose availability was checked here, with why they are not scored on this corpus."""
+def physicsnemo_rows(compared: Sequence[str] = ()) -> list[Unavailable]:
+    """The PhysicsNeMo baselines this run did *not* score, with why. A model already in the table is not listed."""
+    if any(name.startswith("DoMINO") for name in compared):
+        compared = (*compared, "DoMINO")
     try:
         from pinneapple_data.ashton.physicsnemo_models import availability
     except ImportError:                       # the ashton reader is not on this checkout
         return [Unavailable(name, "pinneapple_data.ashton is not on this checkout")
-                for name in ("DoMINO", "GeoTransolver", "X-MeshGraphNet")]
+                for name in ("DoMINO", "GeoTransolver", "X-MeshGraphNet") if name not in compared]
     state = availability()
     point_cloud = ("its inputs are a signed-distance grid and a mesh bundle built from a case file, not a point-cloud "
                    "design; pinneapple_data.ashton.physicsnemo_models scores it on the Ashton cases against the same "
@@ -289,7 +307,7 @@ def physicsnemo_rows() -> list[Unavailable]:
                         "GeoTransolver's forward takes its own bundle — wiring it is a job, not a row")]
     rows.append(Unavailable("X-MeshGraphNet", point_cloud) if state.get("x_meshgraphnet") else
                 Unavailable("X-MeshGraphNet", state.get("reasons", {}).get("x_meshgraphnet", "not importable here")))
-    return rows
+    return [row for row in rows if row.name not in compared]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -303,6 +321,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=None, help="cases to read from the SHIFT tree")
     parser.add_argument("--max-points", type=int, default=2048, help="points per case (the neighbourhood is O(PQ))")
     parser.add_argument("--designs", type=int, default=None, help="cap the held-out designs (a quick look)")
+    parser.add_argument("--domino-steps", type=int, default=0,
+                        help="also train DoMINO on the training designs for this many steps (slow; 0 = skip)")
     parser.add_argument("--json", default="", help="write the rows here as JSON")
     args = parser.parse_args(argv)
 
@@ -322,6 +342,16 @@ def main(argv: list[str] | None = None) -> int:
         corpus["validation"] = outside["validation"]
         corpus["corpus"] = outside["corpus"]
 
+    if args.domino_steps:
+        from pinneapple_neural.lpm_stages.training import DoMINOMember
+
+        first = corpus["train"][0]
+        domino = DoMINOMember(n_params=int(first.params.numel()), n_fields=int(first.target.shape[-1]))
+        domino.fit(corpus["train"], steps=args.domino_steps)
+        candidates.append(TrainingMember(domino, family, name=domino.name, budget=domino.budget))
+        for note in domino.describe()["notes"]:
+            print(f"note: {note}")
+
     rows = compare(candidates, corpus["validation"], train_designs=corpus["train"],
                    tolerance=corpus["tolerance"], scales=family.scales)
     print(table(rows, corpus=corpus["corpus"]))
@@ -331,7 +361,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ood flag: {flagged}/{len(ood)} design(s) flagged outside the trained family "
               f"(mean raw score {np.mean([r['ood_score'] for r in ood]):.2f}); on an outside corpus that flag firing "
               f"is the model saying the answer is an extrapolation")
-    unavailable = physicsnemo_rows()
+    unavailable = physicsnemo_rows([getattr(candidate, "name", "") for candidate in candidates])
     if unavailable:
         print("\nnot compared here:")
         for row in unavailable:

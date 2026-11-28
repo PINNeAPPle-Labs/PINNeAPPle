@@ -217,15 +217,18 @@ def scene(view: dict[str, Any]):
         scn.labels[f] = f"{f} [{unit}]" if unit else f"{f} [-]"
 
     skins = [_skin(sample["points"]) for sample in samples]
-    # A 2-D family is a sheet in the x-y plane, and the face-on preset renders that plane showing x down the screen:
-    # four bodies in a row would stand on end in a narrow column. A quarter turn of the sheet puts the row across the
-    # screen, which is the picture a contour plot of the same family draws.
-    # "flat" is about the whole set, not one body: four sheets stacked at different heights is a 3-D arrangement and
+    # The face-on preset renders a flat scene with y across the screen and x down it, so a row of four bodies along x
+    # would stand on end in a narrow column, and one along y lies across the screen — the picture a contour plot of the
+    # same family draws. The row has to follow the body's widest in-plane axis, or the bodies overlap; so when that axis
+    # is x, the sheet gets a quarter turn and the row lands on y.
+    #
+    # "Flat" is about the whole set, not one body: four sheets stacked at different heights is a 3-D arrangement and
     # keeps the oblique view.
     every = np.vstack([verts for verts, _ in skins]) if skins else np.zeros((1, 3))
-    wide = float(np.ptp(every, axis=0).max()) or 1.0
-    flat = bool(skins) and float(np.ptp(every[:, 2])) <= 1e-9 * wide
-    if flat:
+    spread = np.ptp(every, axis=0) if skins else np.zeros(3)
+    wide = float(spread.max()) or 1.0
+    flat = bool(skins) and float(spread[2]) <= 1e-9 * wide
+    if flat and spread[0] >= spread[1]:
         turn = np.array([[0.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])       # (x, y) -> (y, -x)
         skins = [(verts @ turn.T, faces) for verts, faces in skins]
     placed = [verts for verts, _ in skins]

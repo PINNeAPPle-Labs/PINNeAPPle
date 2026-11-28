@@ -24,9 +24,11 @@
    "blocking": true,
    "ceiling": 0,
    "id": "data",
-   "measured": "2026-11-20: 288 passed, 7 skipped in 28.64s (31.9 s wall)",
+   "measured": "2026-11-28: 425 passed, 6 skipped in 38.04s (39.8 s wall)",
    "paths": [
     "tests/pinneapple_data",
+    "tests/test_ashton_datasets.py",
+    "tests/test_ashton_physicsnemo_baselines.py",
     "tests/test_data_readiness.py",
     "tests/test_review_record.py"
    ]
@@ -700,6 +702,7 @@
     "tests/test_preset_authoring.py",
     "tests/test_presets.py",
     "tests/test_pretrained_experts.py",
+    "tests/test_problemdesign_codegen.py",
     "tests/test_problemdesign_formulate.py",
     "tests/test_problemdesign_orchestrator_bridge.py",
     "tests/test_process_components.py",
@@ -901,6 +904,22 @@
     "tests/test_surrogate_library.py",
     "tests/test_thermal_channel_datasets.py"
    ]
+  },
+  {
+   "id": "lpm",
+   "blocking": false,
+   "ceiling": 0,
+   "paths": [
+    "tests/test_lpm_3d.py",
+    "tests/test_lpm_figures.py",
+    "tests/test_lpm_monitor.py",
+    "tests/test_lpm_pipeline.py",
+    "tests/test_lpm_stages.py",
+    "tests/test_lpm_geometry.py",
+    "tests/test_lpm_training.py",
+    "tests/test_lpm_shift_validation.py"
+   ],
+   "reason": "every file runs green on its own, but test_lpm_3d.py followed by test_lpm_figures.py in one process ends with SIGPIPE (exit 141) before the summary \u2014 measured 2026-11-28; until that ordering is fixed the shard does not gate"
   }
  ]
 }

@@ -53,6 +53,7 @@ from .lpm import Design, LargePhysicsModel, fit
 DATASET_SCHEMA = "pinneapple.lpm.dataset/1"
 CARD_SCHEMA = "pinneapple.lpm.family_card/1"
 PROGRESS_SCHEMA = "pinneapple.lpm.progress/1"
+VIEW_SCHEMA = "pinneapple.lpm.view/1"
 TRUST = "not_verified_until_independent_review"
 
 __all__ = [
@@ -60,6 +61,7 @@ __all__ = [
     "DATASET_SCHEMA",
     "PROGRESS_SCHEMA",
     "TRUST",
+    "VIEW_SCHEMA",
     "DesignSpec",
     "FieldFamily",
     "Reference",
@@ -589,6 +591,97 @@ def _ood_report(model: LargePhysicsModel, family: FieldFamily,
     }
 
 
+def _stride(n: int, keep: int) -> list[int]:
+    """Every ``n/keep``-th index: the shape of a curve without the file becoming the dataset again."""
+    if n <= keep:
+        return list(range(n))
+    step = n / float(keep)
+    return [min(n - 1, int(i * step)) for i in range(keep)]
+
+
+def _view(*, family_info: dict[str, Any], manifest: dict[str, Any], designs: list[Design], train_idx: list[int],
+          hold_idx: list[int], history: list[float], held: dict[str, Any], model: LargePhysicsModel,
+          scales: torch.Tensor, tolerance: float) -> dict[str, Any]:
+    """What a screen draws: the loss curve, the design space and its split, the bodies, and predictions.
+
+    Written next to the card so a figure can be rebuilt without refitting anything. Everything is in the family's
+    physical units, and every sample carries the design it came from — a picture of one held-out body is a picture of
+    that body, never a claim about a part nobody ran.
+    """
+    records = manifest["designs"]
+    first = records[0] if records else {"geometry": {}, "operating": {}}
+    names = [*first.get("geometry", {}), *first.get("operating", {})]
+    held_pos = {int(i): k for k, i in enumerate(hold_idx)}
+
+    rows = []
+    for i, record in enumerate(records):
+        values = {**record.get("geometry", {}), **record.get("operating", {})}
+        k = held_pos.get(i)
+        rows.append({"label": record.get("label", str(i)), "geometry_id": record.get("geometry_id"),
+                     "values": {n: float(values[n]) for n in names if isinstance(values.get(n), (int, float))},
+                     "held_out": k is not None,
+                     "relative_l2": (held["per_design"][k]["relative_l2"] if k is not None else None)})
+
+    def spread(name: str) -> float:
+        vals = [r["values"][name] for r in rows if name in r["values"]]
+        if not vals:
+            return 0.0
+        return (max(vals) - min(vals)) / (abs(max(vals)) + abs(min(vals)) + 1e-12)
+
+    # the two parameters the design space actually varies most, so the scatter is the design space and not two
+    # nearly-constant axes with everything piled in a line
+    axes = sorted([n for n in names if rows and n in rows[0]["values"]], key=spread, reverse=True)[:2]
+    idx = _stride(len(history), 240)
+
+    picks: list[int] = []
+    scored = sorted((k for k in range(len(hold_idx)) if held["per_design"][k]["relative_l2"] is not None),
+                    key=lambda k: held["per_design"][k]["relative_l2"])
+    if scored:                                          # the best, the median and the worst held-out body
+        for k in (scored[0], scored[len(scored) // 2], scored[-1]):
+            if k not in picks:
+                picks.append(k)
+    field_names = list(family_info["field_names"])
+    chosen = [(f"held-out {k}", hold_idx[k], True) for k in picks]
+    if train_idx:
+        chosen.append(("training", train_idx[0], False))
+    samples = []
+    for tag, position, is_held in chosen:
+        design = designs[position]
+        report = model.predict(design)
+        pred = (report["mean"].detach().cpu() * scales).numpy()
+        target = (design.target * scales).numpy()
+        q = design.query.detach().cpu().numpy()
+        pts = design.points.detach().cpu().numpy()
+        keep_q, keep_p = _stride(len(q), 240), _stride(len(pts), 240)
+        samples.append({
+            "label": tag, "design": records[position].get("label", str(position)), "held_out": is_held,
+            "relative_l2": (held["per_design"][held_pos[position]]["relative_l2"] if is_held else None),
+            "ood": bool(report["ood"]),
+            "points": pts[keep_p].tolist(), "query": q[keep_q].tolist(),
+            "target": {f: target[keep_q, j].tolist() for j, f in enumerate(field_names)},
+            "pred": {f: pred[keep_q, j].tolist() for j, f in enumerate(field_names)},
+        })
+    return {
+        "schema": VIEW_SCHEMA,
+        "family": family_info["name"],
+        "title": family_info.get("title", family_info["name"]),
+        "dim": int(family_info["dim"]),
+        "fields": field_names,
+        "units": list(family_info.get("field_units", [])),
+        "reference": family_info.get("reference", {}),
+        "tolerance": float(tolerance),
+        "n_designs": len(rows),
+        "split": {"n_train": len(train_idx), "n_held_out": len(hold_idx)},
+        "params": names,
+        "axes": axes,
+        "designs": rows,
+        "loss": {"epoch": [i + 1 for i in idx], "loss": [float(history[i]) for i in idx]},
+        "samples": samples,
+        "note": ("every field here came from the family's own reference (see the card); the prediction is the model's "
+                 "mean over its bagged heads, and a sample is one body, not a statement about the design space"),
+    }
+
+
 def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr: float = 2e-3,
           holdout_fraction: float = 0.25, seed: int = 0, width: int = 96, n_heads: int = 4,
           code: int = 32, n_freq: int = 6, backbone: str = "attention", attn_layers: int = 2,
@@ -658,6 +751,11 @@ def train(dataset_dir: str | Path, out_dir: str | Path, *, epochs: int = 400, lr
 
     out = Path(out_dir)
     (out / "model").mkdir(parents=True, exist_ok=True)
+    view = _view(family_info=family_info, manifest=manifest, designs=designs, train_idx=train_idx,
+                 hold_idx=hold_idx, history=history, held=held, model=model,
+                 scales=torch.tensor(_family_by_name(family_info["name"]).scales, dtype=torch.float32),
+                 tolerance=tolerance)
+    (out / "model" / "view.json").write_text(json.dumps(view), encoding="utf-8")
     config = {"dim": int(family_info["dim"]), "n_fields": len(family_info["field_names"]),
               "n_params": (len(family_info["operating_params"])
                            + len(family_info.get("geometry_features", {}))), "radii": list(radii), "n_freq": n_freq,

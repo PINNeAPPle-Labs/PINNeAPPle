@@ -243,6 +243,11 @@ class Sample:
         raise ValueError(f"{self.label}: {chosen!r} is in neither the point nor the cell arrays of "
                          f"{self.surface_path.name}")
 
+    def release(self) -> None:
+        """Drop the decoded surface. One WING case is 231 MB of text and ~250 MB decoded, and a corpus of six of them
+        held at once is more memory than the six designs it produces need."""
+        self._surface = None
+
     def number(self, key: str) -> float:
         """A scalar from ``params.json`` (dotted paths allowed), or the list of keys that were there."""
         if key in self.params:
@@ -433,7 +438,11 @@ def designs(root: str | Path, family: Any, condition_map: dict[str, str], *, dat
         raise ShiftDataMissing(
             f"{root}: the directory does not name a SHIFT repository ({', '.join(unnamed)}), so neither the licence "
             f"nor the usage of the numbers could go on a card; say which one it is ({', '.join(sorted(DATASETS))})")
-    return [design(s, family, condition_map, field=field, max_points=max_points) for s in found]
+    cases = []
+    for sample in found:
+        cases.append(design(sample, family, condition_map, field=field, max_points=max_points))
+        sample.release()                       # the next case decodes its own; six at once do not fit
+    return cases
 
 
 def require_validation_usage(usage: str) -> str:

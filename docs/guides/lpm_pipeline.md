@@ -161,10 +161,10 @@ One WING case on disk is enough to run the question the module exists for:
 
 ```
 python -m benchmarks.lpm_compare --run ~/lpm-campaign/pp_wing3d \
-    --shift ~/data/luminary-shift/OnShape_luminary_crm_version001 --dataset-name WING \
+    --shift ~/data/luminary-shift/OnShape_luminary_crm_version001 --dataset-name Wing-sample \
     --condition alpha_deg=alpha --condition mach=mach
 
-corpus: WING at OnShape_luminary_crm_version001 — an outside corpus, 1 case(s), cc-by-nc-4.0, validation-only only
+corpus: Wing-sample at OnShape_luminary_crm_version001 — an outside corpus, 1 case(s), cc-by-nc-4.0, validation-only only
 model                         held-out     p90   worst  baseline  beaten  gates
 lpm                              5.631   5.631   5.631     0.952       1  acc FAIL / base FAIL
 ood flag: 1/1 design(s) flagged outside the trained family (mean raw score 317.53)
@@ -179,6 +179,19 @@ case itself implies: `q∞ = ½ρU∞²` and `p∞` come out of its `params.json
 case's own `forces.json` — the pressure integral reproduces the provider's lift to 0.006 % (882 949 N against
 882 899 N), and its drag once the 1.29° angle of attack is applied to the axis. A reader that got the triangle winding,
 the areas or the units wrong would not reproduce that.
+
+Which of our design spaces a SHIFT repository could validate at all is decided before any number is computed, and the
+answer today is one: the model's input dimension has to match the corpus, and the corpus has to state the parameters
+the model conditions on.
+
+| our family | conditions on | SHIFT repository that could state it | state |
+|---|---|---|---|
+| `pp_wing3d` | `alpha_deg`, `mach` | `WING` — both are in every case's `params.json` (read here through its `Wing-sample` twin: the full repository is `manual` gated and this token sees the sample one, same layout and same licence) | measured, above |
+| `pp_exchanger3d` | `t_hot_c`, `t_cold_c`, `h_tube_w_m2k`, `h_shell_w_m2k` | `Battery` is the closest (cold-plate CHT), and it publishes module temperature and pressure drop, not the exchanger's field | repository gated, terms not accepted here (403); the field does not match either |
+| `pp_fin3d` | `power_w`, `h_w_m2k`, `t_inf_c` | none — no heat-sink corpus | not available |
+| `pp_nozzle3d` | `gamma` | none — no nozzle corpus | not available |
+| `pp_bracket3d` | `load_n` | none — `SHIFT-Crash` is full-vehicle crash deformation, not a structural part | not available |
+| the six 2-D families | varies | none — a SHIFT case is an entire 3-D surface, and a `dim=2` model cannot be driven by one | not available |
 
 What the row does **not** say: that the family is wrong. The corpus is out of distribution by construction — a
 different aircraft, a different solver, a different level of the model's own design space — and a wing-only
@@ -234,6 +247,28 @@ about it, so it is evidence about the sampler, not about the model — `_split_b
 from the geometries the sampler drew and pins every refined one into training, and the card says so
 (`split.among_refined`). A dataset that carries a published split is not refined at all: somebody else fixed what
 "held out" means and a second round would stop being comparable with it.
+
+### A fila, e o relatório que ela reconstrói
+
+Uma campanha que morre e retoma resolve resiliência, não **sequência**: o refinamento da asa precisa terminar antes de
+a comparação com o corpus externo significar alguma coisa, o refit do aerofólio tem de esperar que nenhum outro fit
+esteja usando a máquina, e o PDF precisa ser refeito depois de cada um. Isso é uma fila (`benchmarks/lpm_queue.py`) —
+uma lista JSON de trabalhos, um executor que segura a trava enquanto um roda, e o próprio `queue.json` como registro:
+
+```
+python -m benchmarks.lpm_queue --out ~/lpm-campaign --status     # o que está na fila e o que já rodou
+python -m benchmarks.lpm_queue --out ~/lpm-campaign --detach fila.log
+```
+
+Cada trabalho é `{"id", "title", "cwd", "command"}` e, opcionalmente, `log`, `depends_on` e `skip_if`; `command` é um
+vetor de argumentos, nunca uma string de shell. Duas esperas estão embutidas: antes de cada trabalho ele espera a
+trava da campanha (`<out>/.campaign.lock`) ficar livre, e depois de três falhas seguidas ele para — uma fila que
+insiste num trabalho que não roda é um laço com log, e a terceira falha é onde uma pessoa precisa olhar.
+
+O relatório (`benchmarks/lpm_report.py`) é o que sobra no fim: lê os cartões, as rodadas de refinamento, os snapshots e
+as comparações externas de um diretório de campanha e escreve **um** PDF — a tabela por família com o veredito de cada
+uma, o gráfico do erro contra o campo constante, o antes/depois do refinamento, os corpora externos, e a fila. Ele só
+lê; a única coisa que escreve é o PDF, então roda contra uma campanha no meio de um fit.
 
 ## Three dimensions
 

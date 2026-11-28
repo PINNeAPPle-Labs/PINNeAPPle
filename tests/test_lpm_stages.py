@@ -404,3 +404,68 @@ def test_the_refinement_round_fits_warm_and_says_so_on_the_card(tmp_path, monkey
     assert card["dataset"]["refinement"][0]["round"] == 1
     assert card["dataset"]["refined_geometries"] == out["geometry_ids"]
     assert card["split"]["among_refined"] == out["geometry_ids"]        # refined bodies train, they do not score
+
+
+def test_the_calibration_is_measured_once_and_the_confidence_is_that_map_applied():
+    """A refinement asks the model about every training design; measuring each one twice is minutes of nothing on a
+    GPU that waits for the command buffer."""
+    from pinneapple_neural.lpm_stages import trust
+
+    calls = []
+
+    class _Model:
+        def eval(self):
+            return self
+
+        def ood(self, design):
+            calls.append(design)
+            return {"ood_score": float(design), "ood": False, "reasons": []}
+
+    designs = [0.2, 1.0, 1.5, 3.0, 9.0]
+    from_scores = trust.calibrate_from_scores(designs)
+    measured = trust.calibrate(_Model(), designs)
+    assert [k for k in from_scores.knots] == [k for k in measured.knots]      # the same map, one pass vs one pass
+    assert len(calls) == len(designs)                                          # calibrate measures each design once
+    assert from_scores(1.0) > from_scores(9.0)                                 # and it still decays outside the family
+
+
+def test_a_refinement_round_that_already_happened_is_not_proposed_again(tmp_path, monkeypatch):
+    """The dataset extension and the refit are one step: a refit that died between them must resume, not simulate a
+    second set of bodies around a model that never saw the first."""
+    import pinneapple_neural.lpm_pipeline as pipeline
+    from benchmarks import lpm_campaign
+
+    family = _Bar()
+    monkeypatch.setattr(pipeline, "_family_by_name", lambda name: family)
+    dataset, root = tmp_path / "d", tmp_path / "run"
+    pipeline.generate_dataset(family, dataset, n_geometries=4, conditions_per_geometry=1, seed=0)
+    pipeline.train(dataset, root, epochs=2, batch_designs=2, width=24, code=8, n_heads=2, attn_layers=1,
+                   attn_heads=2, radii=(0.2, 0.8), seed=0, device="cpu")
+    first = lpm_campaign.refine_family(family.name, family, dataset, root, 2, seed=0, epochs=1)
+    after_first = json.loads((dataset / "manifest.json").read_text())["n_designs"]
+    # the refit's own record is gone, as if it had been killed before finishing
+    (root / "model" / "refinement.json").unlink()
+    second = lpm_campaign.refine_family(family.name, family, dataset, root, 2, seed=0, epochs=1)
+    assert json.loads((dataset / "manifest.json").read_text())["n_designs"] == after_first   # nothing added twice
+    assert second["added"] == 0 and second["round"] == first["round"]
+    assert (root / "model" / "refinement.json").is_file()                                  # and the refit ran
+
+
+def test_a_second_round_is_numbered_after_the_first_and_does_not_overwrite_it(tmp_path, monkeypatch):
+    """The round number is what tells two refinements apart on the card; a hard-coded one would file the second as
+    the first and lose the record of what the first bought."""
+    import pinneapple_neural.lpm_pipeline as pipeline
+    from benchmarks import lpm_campaign
+
+    family = _Bar()
+    monkeypatch.setattr(pipeline, "_family_by_name", lambda name: family)
+    dataset, root = tmp_path / "d", tmp_path / "run"
+    pipeline.generate_dataset(family, dataset, n_geometries=5, conditions_per_geometry=1, seed=0)
+    pipeline.train(dataset, root, epochs=2, batch_designs=2, width=24, code=8, n_heads=2, attn_layers=1,
+                   attn_heads=2, radii=(0.2, 0.8), seed=0, device="cpu")
+    first = lpm_campaign.refine_family(family.name, family, dataset, root, 1, seed=0, epochs=1)
+    second = lpm_campaign.refine_family(family.name, family, dataset, root, 1, seed=0, epochs=1)
+    assert (first["round"], second["round"]) == (1, 2)
+    rounds = json.loads((dataset / "manifest.json").read_text())["refinement"]
+    assert [entry["round"] for entry in rounds] == [1, 2]        # both are on record, neither replaced the other
+    assert len({entry["designs"][0] for entry in rounds}) == 2    # and they added different bodies

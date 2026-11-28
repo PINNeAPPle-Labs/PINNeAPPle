@@ -23,7 +23,7 @@ from typing import Any
 import numpy as np
 import torch
 
-__all__ = ["Calibration", "calibrate", "held_out_report", "point_gates", "confidence"]
+__all__ = ["Calibration", "calibrate", "calibrate_from_scores", "held_out_report", "point_gates", "confidence"]
 
 CALIBRATION_SCHEMA = "pinneapple.lpm.calibration/1"
 
@@ -72,7 +72,20 @@ def calibrate(model: Any, designs: list[Any]) -> Calibration:
     if len(designs) < 2:
         raise ValueError("a calibration needs at least two training designs")
     model.eval()
-    scores = np.array([float(model.ood(d)["ood_score"]) for d in designs], dtype=float)
+    return calibrate_from_scores([float(model.ood(d)["ood_score"]) for d in designs])
+
+
+def calibrate_from_scores(values: list[float]) -> Calibration:
+    """The same calibration, from scores the caller already has.
+
+    :func:`calibrate` measures the score of every design, and a caller that then asks :func:`confidence` for each of
+    those same designs measures them a second time -- on a GPU that waits for the command buffer, the second pass on
+    a thousand designs is minutes of nothing. Splitting the knots out of the measurement is what lets the refinement
+    pay for one pass and get both numbers.
+    """
+    if len(values) < 2:
+        raise ValueError("a calibration needs at least two training designs")
+    scores = np.asarray(values, dtype=float)
     q50, q95, top = (float(np.quantile(scores, 0.5)), float(np.quantile(scores, 0.95)), float(scores.max()))
     top = max(top, q95, 1e-6)
     knots = [(0.0, 1.0), (q50, 0.99), (q95, 0.90), (top, 0.65),

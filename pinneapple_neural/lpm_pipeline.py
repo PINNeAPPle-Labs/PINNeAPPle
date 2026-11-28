@@ -298,20 +298,30 @@ def draw(family: FieldFamily, n_geometries: int, conditions_per_geometry: int = 
     rng = np.random.default_rng(seed)
     specs: list[DesignSpec] = []
     for gid in range(n_geometries):
-        geometry = family.sample_geometry(rng)
-        for c in range(conditions_per_geometry):
-            reason = "no attempt made"
-            for _ in range(attempts):
-                operating = family.sample_operating(rng)
-                candidate = DesignSpec(geometry=geometry, operating=operating, geometry_id=gid,
-                                       label=f"{family.name}:g{gid:05d}:c{c:02d}")
-                reason = family.validate(candidate)
-                if not reason:
-                    specs.append(candidate)
+        # A rejection can be about the geometry as much as the operating point — "the bores touch" and "the fin is
+        # thinner than a cell" are decided before any operating point is drawn, so re-drawing only the operating point
+        # can never help: `pp_exchanger3d` spent its 60 attempts on one impossible plate and raised. Both are re-drawn.
+        for _ in range(attempts):
+            geometry = family.sample_geometry(rng)
+            drawn = []
+            for c in range(conditions_per_geometry):
+                reason = "no attempt made"
+                for _ in range(attempts):
+                    operating = family.sample_operating(rng)
+                    candidate = DesignSpec(geometry=geometry, operating=operating, geometry_id=gid,
+                                           label=f"{family.name}:g{gid:05d}:c{c:02d}")
+                    reason = family.validate(candidate)
+                    if not reason:
+                        drawn.append(candidate)
+                        break
+                else:
                     break
             else:
-                raise RuntimeError(f"{family.name}: could not draw operating point {c} of geometry {gid} "
-                                   f"inside the reference's range after {attempts} tries: {reason}")
+                specs.extend(drawn)
+                break
+        else:
+            raise RuntimeError(f"{family.name}: could not draw geometry {gid} inside the reference's range after "
+                               f"{attempts} tries: {reason}")
     return specs
 
 

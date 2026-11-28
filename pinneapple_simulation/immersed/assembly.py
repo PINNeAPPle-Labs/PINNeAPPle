@@ -3,6 +3,7 @@ uniform), of cut cells (moment-fitted rules: one matrix product for all of them)
 cell), and the ghost-penalty face matrices; scatter into sparse matrices; condition numbers; linear solves."""
 from __future__ import annotations
 
+import itertools
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -62,11 +63,22 @@ class Discretization:
 
     # ------------------------------------------------------------ field evaluation
     def evaluate(self, u: np.ndarray, X: np.ndarray, gradient: bool = False, ncomp: int = 1) -> np.ndarray:
-        """Values (or gradients) of a discrete field at points; NaN outside the active cells."""
+        """Values (or gradients) of a discrete field at points; NaN only for points genuinely outside the body.
+
+        A point exactly on the immersed interface can be located in the empty cell on the far side of the face — the
+        grid is shifted off the axes a part is usually aligned with, but a face can still land on a grid plane, and
+        then half of the surface samples fall one cell outside. Those points belong to the body, so they are read from
+        the nearest active cell with the polynomial extended across the face (:meth:`_nearest_active`). Without that,
+        the field comes back NaN at the surface: `pp_fin3d` lost 105 of its 950 samples that way, on the outermost
+        fin's x- face, and the whole family aborted with "non-finite values in the geometry or the field".
+        """
         X = np.atleast_2d(np.asarray(X, float))
         cell, xi, ok = self.grid.locate(X)
         row = self.dofs.index[cell]
         ok &= row >= 0
+        if not ok.all() and self.dofs.index.max() >= 0:
+            cell, xi, row = self._nearest_active(X, cell, xi, row)
+            ok = row >= 0
         U = np.asarray(u).reshape(-1, ncomp)
         shp = (len(X), ncomp, self.d) if gradient else (len(X), ncomp)
         out = np.full(shp, np.nan)
@@ -79,6 +91,40 @@ class Discretization:
                 N = basis.shape(self.order, xi[ok])
                 out[ok] = np.einsum("nb,nbc->nc", N, U[dofs])
         return out[:, 0] if ncomp == 1 else out
+
+    def _nearest_active(self, X: np.ndarray, cell: np.ndarray, xi: np.ndarray, row: np.ndarray):
+        """Read the points that landed in an inactive cell from the nearest active one (see :meth:`evaluate`).
+
+        The search walks the 3^d neighbourhood of the located cell in order of distance, so a point on a face is read
+        from the cell just inside it, with the basis extrapolated across that face by however far it actually sits
+        outside. Points whose whole neighbourhood is empty stay inactive, which is what a point outside the body
+        deserves.
+        """
+        grid = self.grid
+        multi = grid.cell_multi(cell)
+        shape = np.asarray(grid.n)
+        cells, coords, rows = cell.copy(), xi.copy(), row.copy()
+        pending = np.nonzero(row < 0)[0]
+        steps = sorted(itertools.product((-1, 0, 1), repeat=grid.d), key=lambda st: (sum(abs(k) for k in st), st))
+        for step in steps:
+            if not len(pending):
+                break
+            cand = multi[pending] + np.asarray(step, np.int64)
+            inside = np.all((cand >= 0) & (cand < shape), axis=1)
+            pending, cand = pending[inside], cand[inside]
+            if not len(pending):
+                break
+            flat = np.ravel_multi_index(cand.T, grid.n)
+            found = self.dofs.index[flat]
+            good = found >= 0
+            if good.any():
+                take = pending[good]
+                chosen = flat[good]
+                cells[take] = chosen
+                rows[take] = found[good]
+                coords[take] = (X[take] - grid.lo) / grid.h - grid.cell_multi(chosen)     # may fall outside [0, 1]
+                pending = pending[~good]
+        return cells, coords, rows
 
     def physical(self, pts: Points) -> np.ndarray:
         return self.grid.to_physical(pts.cell, pts.xi)

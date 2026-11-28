@@ -125,6 +125,8 @@ REASONS: dict[str, str] = {
                                                      "data cannot separate it from another, and the coverage that "
                                                      "interval was measured to have: it is the evidence a calibration "
                                                      "is reported with, not a step of a flow",
+    "pinneapple_analysis.registry": "the registry of the algorithms this deployment runs, with source and verification "
+                                    "state: a flow reads it as the provenance of a result, not as a step of its own",
     "pinneapple_analysis.condition": "what the scales and the loss weights should be before a run starts: it "
                                      "answers a question about the setup of a problem, and the training node "
                                      "consumes the numbers -- the run it changes is the node's, not this",

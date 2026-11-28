@@ -18,6 +18,7 @@ from pathlib import Path
 
 import numpy as np
 
+from . import gmsh_session
 from .mesh import TetMesh, read_msh22
 from .nedelec import MU0, NU0, EdgeSpace, solve_magnetostatic
 
@@ -53,7 +54,15 @@ class SphereCase:
 def mesh_sphere(path, h: float, case: SphereCase, h_out: float | None = None) -> Path:
     """gmsh (OpenCASCADE) mesh of the sphere (physical volume 1, "sphere") inside the ball of radius ``R``
     (volume 2, "air"), outer surface physical 3, element size ``h`` in the sphere growing to ``h_out`` (default
-    ``2 h``) at the outer surface; written as ASCII msh 2.2."""
+    ``2 h``) at the outer surface; written as ASCII msh 2.2.
+
+    O gmsh roda na thread da sessão dele (:mod:`.gmsh_session`): chamado de duas threads diferentes, o segundo
+    ``mesh_sphere`` do processo derruba o interpretador.
+    """
+    return gmsh_session.run(_mesh_sphere, path, h, case, h_out)
+
+
+def _mesh_sphere(path, h: float, case: SphereCase, h_out: float | None = None) -> Path:
     import gmsh
 
     path = Path(path)

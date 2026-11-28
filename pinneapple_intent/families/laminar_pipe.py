@@ -177,6 +177,19 @@ class LaminarPipe(StudyFamily):
                   "the Reynolds number against the laminar limit the family claims")
 
     # ------------------------------------------------------------------ labels
+    # os mesmos rótulos em português, para a tela mostrar o método no idioma do pedido
+    def analytic_label_pt(self) -> str:
+        return "Hagen-Poiseuille, forma fechada"
+
+    def analytic_method_pt(self) -> str:
+        return "a solução exata do balanço de quantidade de movimento estacionário, desenvolvido e axisimétrico"
+
+    def numerical_label_pt(self) -> str:
+        return "diferenças finitas no balanço radial"
+
+    def numerical_method_pt(self) -> str:
+        return "(1/r) d/dr (r du/dr) = dp/dx discretizado no raio real, sem escorregamento na parede e simetria no eixo; o perfil integrado na vazão, e o gradiente que a carrega resolvido"
+
     def analytic_label(self) -> str:
         return "Hagen-Poiseuille closed form"
 

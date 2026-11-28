@@ -143,6 +143,19 @@ class CantileverBeam(StudyFamily):
         """The section depth: the bending gradient is across it, so the grid has to resolve it, not the span."""
         return numeric(contract.get("height"), 0.02)
 
+    # os mesmos rótulos em português, para a tela mostrar o método no idioma do pedido
+    def analytic_label_pt(self) -> str:
+        return "Euler-Bernoulli, forma fechada (estado plano de deformação)"
+
+    def analytic_method_pt(self) -> str:
+        return "a linha elástica de uma viga engastada com carga na ponta, com E trocado por E/(1 - nu²)"
+
+    def numerical_label_pt(self) -> str:
+        return "célula finita imersa, elasticidade linear em estado plano"
+
+    def numerical_method_pt(self) -> str:
+        return "pinneapple_simulation.immersed.solve_elasticity numa caixa da seção: face do engaste presa, face da ponta com carga cisalhante"
+
     def analytic_label(self) -> str:
         return "Euler-Bernoulli closed form (plane strain)"
 

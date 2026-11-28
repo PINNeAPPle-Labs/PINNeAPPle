@@ -107,6 +107,10 @@ class Rung:
     method: str                            # one line: what is solved and how
     modules: tuple[str, ...] = ()
     executables: tuple[str, ...] = ()
+    #: o mesmo rótulo e o mesmo método em português. Vazio quando a família não os declara, e aí quem mostra usa o
+    #: inglês — o que não pode acontecer é a tela inventar uma tradução para o nome de um método que ela não conhece.
+    label_pt: str = ""
+    method_pt: str = ""
 
     def availability(self) -> tuple[bool, str]:
         import importlib.util
@@ -121,7 +125,8 @@ class Rung:
 
     def to_dict(self) -> dict[str, Any]:
         ok, why = self.availability()
-        return {"name": self.name, "label": self.label, "method": self.method, "available": ok, "reason": why}
+        return {"name": self.name, "label": self.label, "method": self.method,
+                "label_pt": self.label_pt, "method_pt": self.method_pt, "available": ok, "reason": why}
 
 
 @dataclass
@@ -252,7 +257,10 @@ class StudyContract:
             equations=tuple(physics.get("equations") or ()), assumptions=tuple(physics.get("assumptions") or ()),
             limitations=tuple(doc.get("limitations") or ()), references=tuple(doc.get("references") or ()),
             values=values,
-            ladder=tuple(Rung(name=r["name"], label=r["label"], method=r["method"], modules=tuple(r.get("modules") or ()))
+            ladder=tuple(Rung(name=r["name"], label=r["label"], method=r["method"],
+                              modules=tuple(r.get("modules") or ()),
+                              executables=tuple(r.get("executables") or ()),
+                              label_pt=r.get("label_pt", ""), method_pt=r.get("method_pt", ""))
                          for r in workflow.get("ladder") or ()),
             validation=tuple(workflow.get("validation") or ()),
             questions=[Question(**q) for q in doc.get("questions") or ()],

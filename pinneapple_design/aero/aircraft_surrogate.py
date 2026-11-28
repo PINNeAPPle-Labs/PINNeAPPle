@@ -663,18 +663,36 @@ def _study(out_dir: str, n_train: int, n_test: int, n_alpha: int, epochs: int, f
             cell_vals["err"].append(np.abs(pred6[0] - show_truth)[near])
             cell_vals["std"].append(std6[0][near])
         mesh3 = Mesh(points=np.concatenate(Vs), blocks=[CellBlock("triangle", np.concatenate(Fs))])
+        # ΔCp não tem unidade — e a vista 3-D recusa um campo sem unidade declarada, de propósito: um campo pintado sem
+        # unidade é um enfeite. Era isso que impedia o .glb de existir ("the 3-D field view not written").
         fv = field_view(mesh3, [
             {"name": "truth", "values": np.concatenate(cell_vals["truth"]), "label": "ΔCp, vortex lattice",
-             "group": "dcp", "where": "cell"},
+             "group": "dcp", "where": "cell", "unit": "-"},
             {"name": "pred", "values": np.concatenate(cell_vals["pred"]), "label": "ΔCp, surrogate", "group": "dcp",
-             "where": "cell"},
+             "where": "cell", "unit": "-"},
             {"name": "err", "values": np.concatenate(cell_vals["err"]), "label": "|surrogate − lattice|",
-             "kind": "error", "where": "cell"},
+             "kind": "error", "where": "cell", "unit": "-"},
             {"name": "std", "values": np.concatenate(cell_vals["std"]), "label": "ensemble spread",
-             "kind": "error", "where": "cell"}],
+             "kind": "error", "where": "cell", "unit": "-"}],
             title=f"{show_label.capitalize()} at α = {show_a:g}°: AR {show.row['aspect_ratio']:.2f}, "
                   f"sweep {show.row['sweep_le']:.1f}°",
             notes=("lifting surfaces only: the vortex lattice carries no fuselage load",), length_unit="m")
+        # as linhas de corrente do próprio vórtice: o que a imagem do vídeo mostra em volta da asa. Elas não cabem no
+        # .glb (que leva superfícies), então vão no .json da vista — e quem desenha lê os dois.
+        try:
+            from .vlm import solve as _vlm_solve
+            from .vlm import streamlines as _vlm_streamlines
+
+            af = _airframe(show.row)
+            sol = _vlm_solve(af, show.x_ref, nc=NC, ns_wing=NS_WING, ns_tail=NS_TAIL)
+            le = float(np.min(sol.L.C[:, 0]))
+            y_max = float(np.max(np.abs(sol.L.C[:, 1])))
+            sementes = np.array([[le - 0.35, y, -0.05] for y in np.linspace(-0.9 * y_max, 0.9 * y_max, 7)])
+            tracos = _vlm_streamlines(sol, math.radians(show_a), 0.0, sementes, steps=160, h=0.06)
+            fv.scene.add_lines([t for t in tracos], name="streamlines", label="streamlines of the lattice")
+            fv.meta["lines"] = fv.scene.extras()["lines"]
+        except Exception as exc:  # noqa: BLE001 - as linhas são um extra; a vista fica sem elas, e o .glb fica
+            fv.meta["lines_error"] = str(exc)
         with open(os.path.join(out_dir, "aircraft_field.glb"), "wb") as fh:
             fh.write(fv.glb())
         import json

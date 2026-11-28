@@ -184,6 +184,41 @@ def _lookup(tok: str) -> Optional[Tuple[float, Dim, float]]:
     return None
 
 
+def _symbol(tok: str) -> Optional[Tuple[float, Dim, float]]:
+    """A unit symbol exactly as written: ``K`` is kelvin and ``k`` is nothing.
+
+    The split below must not use :func:`_lookup`, which falls back to lower case: it would read the word "na" as
+    N·A (newton times ampere), and a sentence like "300 °C na face quente" would come out with the unit "°C na".
+    """
+    if tok in _BASE:
+        return _BASE[tok]
+    alias = _ALIASES.get(tok)
+    return _symbol(alias) if alias and alias != tok else None
+
+
+def _pieces(tok: str) -> "list[tuple[str, int]] | None":
+    """Split a token nobody recognises into consecutive known symbols: ``mK`` -> m·K, ``m2K`` -> m²·K.
+
+    People write ``W/mK`` and ``J/kgK``; the parser only knew ``W/(m*K)``. The split runs only after the whole token
+    failed to be a unit, and only on exact symbols, so ``mm``, ``MPa`` and ``kg`` keep the meaning they always had
+    and ordinary words are left alone.
+    """
+    out: list[tuple[str, int]] = []
+    i = 0
+    while i < len(tok):
+        for size in range(len(tok) - i, 0, -1):
+            pedaco = tok[i:i + size]
+            m = re.fullmatch(r"([A-Za-zµμ]+)([234])?", pedaco)
+            if not m or _symbol(m.group(1)) is None:
+                continue
+            out.append((m.group(1), int(m.group(2) or 1)))
+            i += size
+            break
+        else:
+            return None
+    return out if len(out) > 1 else None
+
+
 def parse_unit(text: str) -> Unit:
     """Parse a unit expression: ``°C``, ``kg/m^3``, ``W/(m·K)``, ``m³/h``, ``N*m``, ``psig``.
 
@@ -221,6 +256,15 @@ def parse_unit(text: str) -> Unit:
                 if mm:
                     name, power = mm.group(1), int(mm.group(2)) * power
             hit = _lookup(name)
+            if hit is None and power == 1:
+                partes = _pieces(name)                    # "mK" escrito como duas unidades coladas
+                if partes:
+                    for nome_pedaco, potencia in partes:
+                        f_pedaco, d_pedaco, _ = _symbol(nome_pedaco)  # type: ignore[misc]
+                        factor *= f_pedaco ** (potencia * sign)
+                        for i in range(6):
+                            dim[i] += d_pedaco[i] * potencia * sign
+                    continue
             if hit is None:
                 raise UnitError(f"unknown unit '{name}' in '{raw}'")
             f, d, _off = hit                              # °C inside a compound is an interval

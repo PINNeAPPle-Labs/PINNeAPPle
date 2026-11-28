@@ -50,6 +50,29 @@ def test_domino_answers_on_a_point_cloud_design_in_the_target_units():
 
 
 @pytest.mark.skipif(not training.availability()["domino"], reason="physicsnemo is not installed")
+@pytest.mark.skipif(not training.availability()["geotransolver"], reason="physicsnemo is not installed")
+def test_geotransolver_reads_the_same_design_as_tokens_and_answers_on_it():
+    designs = _designs(3)
+    member = training.GeoTransolverMember(n_params=1, n_fields=1, seed=0)
+    member.fit(designs, steps=2)
+    pred = member.predict(designs[0])
+    assert pred.shape == (20, 1)
+    assert np.isfinite(pred).all()
+    described = member.describe()
+    assert described["model"] == "GeoTransolver"
+    assert described["budget"].startswith("2 steps of GeoTransolver")
+    assert "no grid, no mesh" in described["inputs"]
+
+
+@pytest.mark.skipif(not training.availability()["geotransolver"], reason="physicsnemo is not installed")
+def test_geotransolver_takes_a_two_dimensional_design_in_its_own_plane():
+    designs = _designs(2, dim=2)
+    member = training.GeoTransolverMember(n_params=1, n_fields=1, seed=0)
+    bundle = member.bundle(designs[0])
+    assert tuple(bundle["local_positions"].shape) == (1, 20, 3)     # padded, not refused
+    assert tuple(bundle["global_embedding"].shape) == (1, 1, 1)
+
+
 def test_a_two_dimensional_design_is_embedded_in_the_three_dimensional_grid():
     designs = _designs(2, dim=2)
     member = training.DoMINOMember(n_params=1, n_fields=1, seed=0, device_name="cpu")

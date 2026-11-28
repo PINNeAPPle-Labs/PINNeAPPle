@@ -29,7 +29,7 @@ from typing import Any
 import numpy as np
 import torch
 
-__all__ = ["DoMINOMember", "availability", "compare_backends", "finetune"]
+__all__ = ["DoMINOMember", "GeoTransolverMember", "availability", "compare_backends", "finetune"]
 
 #: the point-cloud grid DoMINO interpolates on: a size, not a method (see ``ashton.physicsnemo_models._small_parameters``)
 DEFAULT_GRID = (24, 16, 16)
@@ -43,10 +43,17 @@ def availability() -> dict[str, Any]:
         import physicsnemo
 
         out["physicsnemo"] = getattr(physicsnemo, "__version__", "unknown")
-        out["domino"] = True
+        for key, module in (("domino", "physicsnemo.models.domino.model"),
+                            ("geotransolver", "physicsnemo.models.geotransolver")):
+            try:
+                __import__(module)
+                out[key] = True
+            except Exception:                                # noqa: BLE001 - same probe, one level down
+                out[key] = False
     except Exception as exc:                                     # noqa: BLE001 - the import is the probe
         out["physicsnemo"] = None
         out["domino"] = False
+        out["geotransolver"] = False
         out["reason"] = f"physicsnemo is not importable: {exc}"
     for name, module in (("torch_geometric", "torch_geometric"), ("torch_scatter", "torch_scatter")):
         try:
@@ -235,6 +242,138 @@ class DoMINOMember:
             "notes": list(self.notes),
             "x_meshgraphnet": state.get("x_meshgraphnet"),
         }
+
+
+@dataclass
+class GeoTransolverMember:
+    """PhysicsNeMo's GeoTransolver on a point-cloud design: the same three calls, a different model family.
+
+    GeoTransolver's forward is already a point-cloud interface — ``(local_embedding, local_positions, geometry,
+    global_embedding)`` in, ``(B, N, out)`` out — so the mapping from a :class:`~pinneapple_neural.lpm.Design` needs
+    no signed-distance grid and no mesh: the positions are the geometry, the normals are the per-point features, and
+    the design's conditioning vector is the single global token. That is the reason it is the second backend here and
+    not a rewrite of the first: the same design, two model families, one table.
+
+    It is kept beside :class:`DoMINOMember` rather than merged with it because the difference between them is the
+    experiment: DoMINO reads the body through a grid, GeoTransolver reads it as tokens, and a comparison that hid
+    which one a row came from would be answering a different question.
+    """
+
+    n_params: int = 0
+    n_fields: int = 1
+    n_layers: int = 2
+    n_hidden: int = 48
+    n_head: int = 4
+    dropout: float = 0.0
+    seed: int = 0
+    device_name: str = "auto"
+    name: str = "GeoTransolver (PhysicsNeMo)"
+    budget: str = "0 steps"
+    model: Any = None
+    history: list[float] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+    trained_on: str = ""
+
+    def __post_init__(self) -> None:
+        if self.model is None:
+            self.model = self._build()
+        self.budget = "0 steps of GeoTransolver so far"
+
+    def _build(self) -> Any:
+        from physicsnemo.models.geotransolver import GeoTransolver
+
+        torch.manual_seed(self.seed)
+        return GeoTransolver(functional_dim=3, out_dim=int(self.n_fields), geometry_dim=3,
+                             global_dim=max(1, int(self.n_params)), n_layers=int(self.n_layers),
+                             n_hidden=int(self.n_hidden), n_head=int(self.n_head),
+                             dropout=float(self.dropout)).to(_device(self.device_name))
+
+    @property
+    def device(self) -> torch.device:
+        return next(self.model.parameters()).device
+
+    def bundle(self, design: Any) -> dict[str, torch.Tensor]:
+        """The four tensors the forward takes, from one design's point cloud and conditioning vector."""
+        points = _as3d(np.asarray(design.points.detach().cpu(), dtype=np.float64))
+        normals = _as3d(_unit(np.asarray(design.normals.detach().cpu(), dtype=np.float64)))
+        params = np.asarray(design.params.detach().cpu(), dtype=np.float64).ravel()
+        if params.size != self.n_params:
+            raise ValueError(f"the design carries {params.size} conditioning parameter(s) and this member was built "
+                             f"for {self.n_params}")
+        values = np.zeros(max(1, self.n_params), dtype=np.float64)
+        values[: params.size] = params
+        return {
+            "local_embedding": torch.as_tensor(normals[None], dtype=torch.float32),
+            "local_positions": torch.as_tensor(points[None], dtype=torch.float32),
+            "geometry": torch.as_tensor(points[None], dtype=torch.float32),
+            "global_embedding": torch.as_tensor(values.reshape(1, 1, -1), dtype=torch.float32),
+        }
+
+    def _forward(self, design: Any) -> torch.Tensor:
+        data = {k: v.to(self.device) for k, v in self.bundle(design).items()}
+        try:
+            return self.model(**data)
+        except RuntimeError as exc:
+            if self.device.type == "mps":
+                self.notes.append(f"mps fell back to cpu: {str(exc).splitlines()[0][:160]}")
+                self.model = self.model.to("cpu")
+                return self.model(**{k: v.to("cpu") for k, v in data.items()})
+            raise
+
+    def fit(self, designs: Iterable[Any], *, steps: int = 200, lr: float = 3e-3) -> GeoTransolverMember:
+        """Train on designs for a step budget, one design per step, on the mean squared error of the target."""
+        designs = list(designs)
+        if not designs:
+            raise ValueError("fit needs at least one design")
+        self.model.train()
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=float(lr))
+        for step in range(int(steps)):
+            design = designs[step % len(designs)]
+            out = self._forward(design)
+            target = design.target.to(self.device)[None]
+            loss = torch.mean((out[:, :, : self.n_fields] - target) ** 2)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            self.history.append(float(loss.detach()))
+        self.model.eval()
+        self.budget = f"{len(self.history)} steps of GeoTransolver at lr {lr:g} on {len(designs)} design(s)"
+        self.trained_on = f"{len(designs)} design(s)"
+        return self
+
+    @torch.no_grad()
+    def predict(self, design: Any) -> np.ndarray:
+        """The field on the design's own query points, ``(Q, n_fields)``, in the target's units."""
+        self.model.eval()
+        return self._forward(design)[0, :, : self.n_fields].detach().cpu().numpy().astype(np.float64)
+
+    def describe(self) -> dict[str, Any]:
+        state = availability()
+        return {
+            "model": "GeoTransolver",
+            "framework": f"physicsnemo {state.get('physicsnemo')} (Apache-2.0)",
+            "budget": self.budget,
+            "n_layers": int(self.n_layers), "n_hidden": int(self.n_hidden), "n_head": int(self.n_head),
+            "device": str(self.device),
+            "n_params": int(self.n_params),
+            "n_fields": int(self.n_fields),
+            "inputs": "the body as points and normals with one global token per design — no grid, no mesh",
+            "notes": list(self.notes),
+        }
+
+
+def _as3d(points: np.ndarray) -> np.ndarray:
+    """A 2-D design space (a section, a meridian) in its own plane with a zero third coordinate.
+
+    Both point-cloud backends here are three-dimensional networks; the embedding is the one the family's points
+    already imply, and refusing a 2-D space would mean the comparison only ever ran on the 3-D half of the campaign.
+    """
+    array = np.asarray(points, dtype=np.float64)
+    if array.shape[1] == 3:
+        return array
+    if array.shape[1] != 2:
+        raise ValueError(f"a {array.shape[1]}-dimensional design cannot be embedded in a 3-D network")
+    return np.concatenate([array, np.zeros((array.shape[0], 1))], axis=1)
 
 
 def _unit(normals: np.ndarray) -> np.ndarray:

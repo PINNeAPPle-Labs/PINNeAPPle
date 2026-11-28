@@ -209,19 +209,19 @@ def compare(candidates: Sequence[Candidate], validation: Sequence[Any], *, train
 
 def table(rows: Sequence[Row], *, title: str = "", corpus: str = "") -> str:
     """The table a person reads: the error, the baseline, and the verdict on each gate."""
-    head = f"{'model':22s} {'held-out':>9s} {'p90':>7s} {'worst':>7s} {'baseline':>9s} {'beaten':>7s}  gates"
+    head = f"{'model':28s} {'held-out':>9s} {'p90':>7s} {'worst':>7s} {'baseline':>9s} {'beaten':>7s}  gates"
     lines = [f"corpus: {corpus}"] if corpus else []
     if title:
         lines.append(title)
     lines += [head, "-" * len(head)]
     for row in rows:
         if row.relative_l2 is None:
-            lines.append(f"{row.model:22s} {'-':>9s} {'-':>7s} {'-':>7s} {'-':>9s} {'-':>7s}  {row.note[:60]}")
+            lines.append(f"{row.model:28s} {'-':>9s} {'-':>7s} {'-':>7s} {'-':>9s} {'-':>7s}  {row.note[:60]}")
             continue
         gates = row.gates()
         verdict = f"acc {'ok' if gates['accuracy'] == 'passed' else 'FAIL'} / base " \
                   f"{'ok' if gates['baseline'] == 'passed' else 'FAIL'}"
-        lines.append(f"{row.model:22s} {row.relative_l2:9.3f} {row.p90 or 0:7.3f} {row.worst or 0:7.3f} "
+        lines.append(f"{row.model:28s} {row.relative_l2:9.3f} {row.p90 or 0:7.3f} {row.worst or 0:7.3f} "
                      f"{row.baseline or 0:9.3f} {row.designs_lost_to_baseline:7d}  {verdict}")
     lines.append(f"tolerance: {rows[0].tolerance:g} (the family's own)" if rows and rows[0].tolerance else "")
     lines.append("conservation/boundary/residual: not applicable on a surface point cloud (no quadrature weights, "
@@ -289,8 +289,9 @@ def shift_corpus(shift_root: str | Path, family: Any, model: Any, condition_map:
 
 def physicsnemo_rows(compared: Sequence[str] = ()) -> list[Unavailable]:
     """The PhysicsNeMo baselines this run did *not* score, with why. A model already in the table is not listed."""
-    if any(name.startswith("DoMINO") for name in compared):
-        compared = (*compared, "DoMINO")
+    for prefix in ("DoMINO", "GeoTransolver"):
+        if any(name.startswith(prefix) for name in compared):
+            compared = (*compared, prefix)
     try:
         from pinneapple_data.ashton.physicsnemo_models import availability
     except ImportError:                       # the ashton reader is not on this checkout
@@ -303,8 +304,8 @@ def physicsnemo_rows(compared: Sequence[str] = ()) -> list[Unavailable]:
     rows = [Unavailable("DoMINO", point_cloud) if state.get("domino") else
             Unavailable("DoMINO", "not importable here: physicsnemo is not installed"),
             Unavailable("GeoTransolver",
-                        "no adapter: the ashton baseline module covers DoMINO and guards X-MeshGraphNet, and "
-                        "GeoTransolver's forward takes its own bundle — wiring it is a job, not a row")]
+                        "not importable here: physicsnemo is not installed") if not state.get("geotransolver") else
+            Unavailable("GeoTransolver", point_cloud)]
     rows.append(Unavailable("X-MeshGraphNet", point_cloud) if state.get("x_meshgraphnet") else
                 Unavailable("X-MeshGraphNet", state.get("reasons", {}).get("x_meshgraphnet", "not importable here")))
     return [row for row in rows if row.name not in compared]
@@ -323,6 +324,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--designs", type=int, default=None, help="cap the held-out designs (a quick look)")
     parser.add_argument("--domino-steps", type=int, default=0,
                         help="also train DoMINO on the training designs for this many steps (slow; 0 = skip)")
+    parser.add_argument("--geotransolver-steps", type=int, default=0,
+                        help="also train GeoTransolver on the training designs for this many steps (0 = skip)")
     parser.add_argument("--json", default="", help="write the rows here as JSON")
     args = parser.parse_args(argv)
 
@@ -336,21 +339,37 @@ def main(argv: list[str] | None = None) -> int:
     candidates: list[Candidate] = [LPMMember(model, family)]
     if args.shift:
         condition_map = dict(pair.split("=", 1) for pair in args.condition)
-        outside = shift_corpus(args.shift, family, model, condition_map, train_designs=corpus["train"],
-                               dataset_name=args.dataset_name or None, limit=args.limit,
-                               max_points=args.max_points, field_name=args.field)
+        unmapped = [name for name in family.conditioning_params if name not in condition_map]
+        if unmapped:
+            print(f"{family.name} conditions on {len(family.conditioning_params)} parameters and the map names "
+                  f"{len(condition_map)} of them; {unmapped} would have to be read off the SHIFT case, and a design "
+                  f"with half its inputs invented is not a validation of anything. Map them with --condition "
+                  f"ours=theirs, or score a family whose inputs the corpus states.")
+            return 2
+        try:
+            outside = shift_corpus(args.shift, family, model, condition_map, train_designs=corpus["train"],
+                                   dataset_name=args.dataset_name or None, limit=args.limit,
+                                   max_points=args.max_points, field_name=args.field)
+        except (KeyError, ValueError, FileNotFoundError) as exc:
+            print(f"the SHIFT corpus is not readable as {family.name}: {exc.args[0] if exc.args else exc}")
+            return 2
         corpus["validation"] = outside["validation"]
         corpus["corpus"] = outside["corpus"]
 
-    if args.domino_steps:
-        from pinneapple_neural.lpm_stages.training import DoMINOMember
+    if args.domino_steps or args.geotransolver_steps:
+        from pinneapple_neural.lpm_stages import training
 
         first = corpus["train"][0]
-        domino = DoMINOMember(n_params=int(first.params.numel()), n_fields=int(first.target.shape[-1]))
-        domino.fit(corpus["train"], steps=args.domino_steps)
-        candidates.append(TrainingMember(domino, family, name=domino.name, budget=domino.budget))
-        for note in domino.describe()["notes"]:
-            print(f"note: {note}")
+        shape = {"n_params": int(first.params.numel()), "n_fields": int(first.target.shape[-1])}
+        for steps, cls in ((args.domino_steps, training.DoMINOMember),
+                           (args.geotransolver_steps, training.GeoTransolverMember)):
+            if not steps:
+                continue
+            member = cls(**shape)
+            member.fit(corpus["train"], steps=steps)
+            candidates.append(TrainingMember(member, family, name=member.name, budget=member.budget))
+            for note in member.describe()["notes"]:
+                print(f"note: {note}")
 
     rows = compare(candidates, corpus["validation"], train_designs=corpus["train"],
                    tolerance=corpus["tolerance"], scales=family.scales)

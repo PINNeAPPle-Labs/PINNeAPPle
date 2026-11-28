@@ -113,10 +113,10 @@ downloaded here: the data is on disk after somebody accepted the terms, and the 
 | Fact | Value |
 |---|---|
 | the case directory | the one holding `merged_surfaces.vtp` — seven datasets name it six ways (`sample_NNNNNN` at the root or under a version directory, `RUN_N`, a case hash, `yaris_xNNNNN`, `variant_NNNN`) |
-| the surface file | `merged_surfaces.vtp`, 231 MB for one WING case, read with `read_surface` so only the requested arrays are decoded |
-| the field | `CpMeanTrim`, else `Cp`, else the error lists the arrays the file carries |
+| the surface file | `merged_surfaces.vtp`, 231 MB for one WING case, read with `read_surface` so only the requested arrays are decoded — and written with `compressor="vtkZLibDataCompressor"`, which that reader inflates block by block |
+| the field | `CpMeanTrim`, else `Cp`, else a pressure in pascal (`Pressure (Pa)`), which is divided by the case's own `q∞` and referenced to its own `p∞` — half the surfaces carry one and half the other, and they are not the same number |
 | the conditions | `params.json`, read whole and flattened (`velocity.u`), with a `condition_map` saying which key feeds which family parameter |
-| the licence | travels with the number: `require_validation_usage` accepts `validation-only` and nothing else, and a card built on it carries the repository and the URL |
+| the licence | travels with the number: `require_validation_usage` accepts `validation-only` and nothing else, and a card built on it carries the repository and the URL. A tree whose path does not name its repository is refused rather than scored: `cc-by-nc-4.0` and `other` are not interchangeable |
 
 ```python
 from pinneapple_neural.lpm_stages import shift
@@ -154,6 +154,38 @@ airfoil family the mean of the per-design errors is 1.31 where the global number
 400 designs. PhysicsNeMo's DoMINO, GeoTransolver and X-MeshGraphNet appear in the same run as **not compared**, with
 the reason: their inputs are a signed-distance grid and a mesh bundle built from an Ashton case, not a point-cloud
 design, and `pinneapple_data.ashton.physicsnemo_models` measures them there.
+
+### The first outside row, and what it says
+
+One WING case on disk is enough to run the question the module exists for:
+
+```
+python -m benchmarks.lpm_compare --run ~/lpm-campaign/pp_wing3d \
+    --shift ~/data/luminary-shift/OnShape_luminary_crm_version001 --dataset-name WING \
+    --condition alpha_deg=alpha --condition mach=mach
+
+corpus: WING at OnShape_luminary_crm_version001 — an outside corpus, 1 case(s), cc-by-nc-4.0, validation-only only
+model                         held-out     p90   worst  baseline  beaten  gates
+lpm                              5.631   5.631   5.631     0.952       1  acc FAIL / base FAIL
+ood flag: 1/1 design(s) flagged outside the trained family (mean raw score 317.53)
+```
+
+The reading is not subtle and it is the right one: a model fitted on wings of a swept-wing family, asked about a whole
+CRM aircraft at a free stream it was never shown, is **5.6 times off and worse than the constant field** — and its own
+OOD flag fires at a raw score of 318, which is the model saying so before the error is computed. The same model on its
+own 300 held-out designs is 0.361 against the 0.10 tolerance its family declared, and 0.953 for the constant field, so
+the outside row is the home row made unmistakable rather than a surprise. Every number here is in the coefficient the
+case itself implies: `q∞ = ½ρU∞²` and `p∞` come out of its `params.json`, and the geometry was checked against the
+case's own `forces.json` — the pressure integral reproduces the provider's lift to 0.006 % (882 949 N against
+882 899 N), and its drag once the 1.29° angle of attack is applied to the axis. A reader that got the triangle winding,
+the areas or the units wrong would not reproduce that.
+
+What the row does **not** say: that the family is wrong. The corpus is out of distribution by construction — a
+different aircraft, a different solver, a different level of the model's own design space — and a wing-only
+parametrisation cannot state the twelve shape parameters this aircraft has. Two honest ways forward, neither of them
+open here: fit a family to the SHIFT bodies and validate it on held-out SHIFT cases (which this module's rule forbids —
+the corpus is `validation-only`, and a body a model has seen is not outside anything), or make the comparison on a
+corpus that states the same inputs, which is what the campaign's own split already is.
 
 ### The rest of the stages
 

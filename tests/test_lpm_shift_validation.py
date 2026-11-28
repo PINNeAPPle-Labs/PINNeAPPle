@@ -147,6 +147,46 @@ def test_a_condition_the_mapping_does_not_cover_names_itself(tmp_path):
         shift.design(sample, _Plate(), {"alpha": "aoa"})
 
 
+DENSITY, SPEED, P_INF = 0.37949285594610055, 148.2854405996746, 23840.0        # the CRM case's own numbers
+
+
+def _pascal_case(directory, *, state_free_stream: bool = True) -> None:
+    """A case that carries ``Pressure (Pa)`` instead of ``Cp`` -- half of the SHIFT surfaces do."""
+    points, connectivity, offsets, cp_points, _ = _plane()
+    q_inf = 0.5 * DENSITY * SPEED ** 2
+    write_surface(directory / "merged_surfaces.vtp", points=points, connectivity=connectivity, offsets=offsets,
+                  point_data={"Pressure (Pa)": P_INF + cp_points * q_inf})
+    params = {"alpha_deg": 4.0, "mach": 0.5}
+    if state_free_stream:
+        params |= {"air_density": DENSITY, "stream_velocity": SPEED, "pressure": P_INF}
+    (directory / "params.json").write_text(json.dumps(params))
+
+
+def test_a_pressure_in_pascal_is_scored_through_the_cases_own_free_stream(tmp_path):
+    """Jacobian-free and assumption-free: q_inf and p_inf come out of the case, so the coefficient is the one the
+    provider would plot -- and the constant p_inf, which cancels out of a force integral, does not cancel out of a
+    per-point error and would otherwise be most of it."""
+    _pascal_case(tmp_path / "a")
+    d = shift.design(shift.open_sample(tmp_path / "a", "Wing-sample"), _Plate(), {"alpha": "alpha_deg"}, max_points=16)
+    xy = d.points.numpy()[:, :2]
+    expected = 1.0 - ((xy[:, 0] - 0.5) ** 2 + (xy[:, 1] - 0.5) ** 2)            # the Cp the case was built from
+    assert np.allclose(d.target.numpy().ravel() * 2.0, expected, atol=1e-4)
+    assert d.source["from"] == "pascal" and d.source["p_inf"] == P_INF
+    assert d.source["q_inf"] == pytest.approx(0.5 * DENSITY * SPEED ** 2)
+
+
+def test_a_pressure_without_a_free_stream_is_refused_rather_than_scored_as_a_coefficient(tmp_path):
+    _pascal_case(tmp_path / "a", state_free_stream=False)
+    with pytest.raises(shift.ShiftDataMissing, match="air_density"):
+        shift.design(shift.open_sample(tmp_path / "a", "Wing-sample"), _Plate(), {"alpha": "alpha_deg"})
+
+
+def test_a_field_that_is_already_a_coefficient_is_not_converted_again(tmp_path):
+    _case(tmp_path / "a")
+    values, provenance = shift._as_coefficient(np.array([0.3, -1.2]), "CpMeanTrim", None)
+    assert np.allclose(values, [0.3, -1.2]) and provenance["as"] == "coefficient"
+
+
 # ------------------------------------------------------------------ what the number may be used for
 def test_only_a_validation_usage_can_be_declared():
     assert shift.require_validation_usage("validation-only") == "validation-only"

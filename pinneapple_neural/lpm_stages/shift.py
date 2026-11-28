@@ -60,8 +60,10 @@ USAGE = "validation-only"
 CASE_SURFACE = "merged_surfaces.vtp"
 
 #: surface field names to try, in order, when the caller does not name one. DoMINO spells the wall pressure
-#: ``CpMeanTrim``; ``Cp`` and the others are what neighbouring datasets in the same family call the same quantity.
-FIELD_PREFERENCE: tuple[str, ...] = ("CpMeanTrim", "Cp", "pressureCoefficient", "pMeanTrim", "pressure", "p")
+#: ``CpMeanTrim``; ``Cp`` and the others are what neighbouring datasets in the same family call the same quantity. The
+#: pascal ones come last and are converted by :func:`_as_coefficient`, never compared as they stand.
+FIELD_PREFERENCE: tuple[str, ...] = ("CpMeanTrim", "Cp", "pressureCoefficient", "pMeanTrim", "pressure", "p",
+                                     "Pressure (Pa)", "Pressure [Pa]", "Pressure")
 
 
 @dataclass(frozen=True)
@@ -210,21 +212,29 @@ class Sample:
             self._surface = read_surface(self.surface_path, arrays=wanted)
         return self._surface
 
+    def field_name(self, name: str | None = None) -> str:
+        """Which array :meth:`field` would read: the caller's, or the first of :data:`FIELD_PREFERENCE` the file has.
+
+        Resolving the name without decoding the array is what lets :func:`design` know whether the values it is about
+        to read are already a coefficient or a pressure that has to be divided by the free stream.
+        """
+        if name is not None:
+            return name
+        names = self.surface(arrays=())
+        candidates = list(names.available_points) + list(names.available_cells)
+        chosen = next((n for n in FIELD_PREFERENCE if n in candidates), None)
+        if chosen is None:
+            raise ValueError(f"{self.label}: none of {FIELD_PREFERENCE} is in {self.surface_path.name}; it "
+                             f"carries point arrays {names.available_points} and cell arrays "
+                             f"{names.available_cells}")
+        return chosen
+
     def field(self, name: str | None = None) -> tuple[np.ndarray, str]:
         """The surface field and where it lives: ``(values, "point" | "cell")``.
 
-        Without a name, the first entry of :data:`FIELD_PREFERENCE` that the file actually carries is used; if none
-        is there, the error lists the arrays the file does carry, because that list is the answer.
+        Without a name, the first entry of :data:`FIELD_PREFERENCE` that the file actually carries is used.
         """
-        names = self.surface(arrays=())
-        chosen = name
-        if chosen is None:
-            candidates = list(names.available_points) + list(names.available_cells)
-            chosen = next((n for n in FIELD_PREFERENCE if n in candidates), None)
-            if chosen is None:
-                raise ValueError(f"{self.label}: none of {FIELD_PREFERENCE} is in {self.surface_path.name}; it "
-                                 f"carries point arrays {names.available_points} and cell arrays "
-                                 f"{names.available_cells}")
+        chosen = self.field_name(name)
         read = self.surface(arrays=[chosen])
         if chosen in read.point_data:
             return np.asarray(read.point_data[chosen], dtype=np.float64), "point"
@@ -320,6 +330,36 @@ def _subset(n: int, keep: int) -> np.ndarray:
     return np.unique(np.linspace(0, n - 1, keep).round().astype(np.int64))
 
 
+def _as_coefficient(values: np.ndarray, field: str, sample: Sample) -> tuple[np.ndarray, dict[str, Any]]:
+    """The field as a pressure coefficient, from an array that is already one or from a pressure in pascal.
+
+    Half of the SHIFT surfaces carry ``Cp`` and half carry ``Pressure (Pa)``, and the two are not the same number: a
+    pressure in pascal has to be divided by the free-stream dynamic pressure, which the case states in its own
+    ``params.json``. Scoring one against a model fitted on the other would be an offset dressed up as an error, so a
+    case that does not state what is needed raises instead of guessing.
+
+    The reference is subtracted when the case states it. Every SHIFT surface here is closed, so the free-stream
+    pressure cancels out of the force integral (:math:`\\oint p n\\,dA = \\oint (p - p_\\infty) n\\,dA`) -- the case's
+    own lift comes out of the integral either way -- but it does *not* cancel out of a per-point comparison, where it
+    would be a constant shift of 5.7 in a typical case.
+    """
+    name = field.strip().lower()
+    if name.startswith("cp") or name in ("pressurecoefficient", "pmantrim"):
+        return np.asarray(values, dtype=np.float64), {"field": field, "as": "coefficient"}
+    density = sample.params.get("air_density")
+    speed = sample.params.get("stream_velocity", sample.params.get("velocity"))
+    if not density or not speed:
+        raise ShiftDataMissing(
+            f"{sample.label}: {field!r} is a pressure in pascal, not a coefficient, and the case does not state the "
+            f"free-stream it would be divided by (needs air_density and stream_velocity); params.json carries "
+            f"{sorted(sample.params)}")
+    q_inf = 0.5 * float(density) * float(speed) ** 2
+    reference = sample.params.get("pressure", sample.params.get("pressure_farfield"))
+    converted = (np.asarray(values, dtype=np.float64) - float(reference or 0.0)) / q_inf
+    return converted, {"field": field, "as": "coefficient", "from": "pascal", "q_inf": q_inf,
+                       "p_inf": float(reference) if reference is not None else None}
+
+
 def design(sample: Sample, family: Any, condition_map: dict[str, str], *, field: str | None = None,
            max_points: int = 2048) -> Any:
     """One solved case as a :class:`~pinneapple_neural.lpm.Design`, ready to be predicted on.
@@ -349,6 +389,8 @@ def design(sample: Sample, family: Any, condition_map: dict[str, str], *, field:
 
     surface = sample.surface()
     point_values, location = sample.field(field)
+    chosen = sample.field_name(field)
+    point_values, provenance = _as_coefficient(point_values, chosen, sample)
     # the dataset the model was fitted on stores the target already divided by the family's field scale, and the model
     # predicts in those units; an outside corpus is in physical units, so the same division happens here
     scales = np.asarray(family.scales, dtype=np.float64).ravel()
@@ -372,7 +414,7 @@ def design(sample: Sample, family: Any, condition_map: dict[str, str], *, field:
     target = (np.asarray(point_values[keep], dtype=np.float64) / scales[0]).astype(np.float32).reshape(keep.size, 1)
 
     spec = {"label": f"{sample.label}#{keep.size}of{coords.shape[0]}", "field": field or "", "location": location,
-            "dataset": sample.dataset.name, "licence": sample.dataset.licence, "usage": USAGE}
+            "dataset": sample.dataset.name, "licence": sample.dataset.licence, "usage": USAGE, **provenance}
     obj = Design(points=torch.from_numpy(xyz), normals=torch.from_numpy(nrm), query=torch.from_numpy(xyz),
                  params=torch.from_numpy(params.astype(np.float32)), target=torch.from_numpy(target))
     obj.label = spec["label"]
@@ -383,8 +425,15 @@ def design(sample: Sample, family: Any, condition_map: dict[str, str], *, field:
 def designs(root: str | Path, family: Any, condition_map: dict[str, str], *, dataset_name: str | None = None,
             field: str | None = None, max_points: int = 2048, limit: int | None = None) -> list[Any]:
     """Every case under ``root`` as a design. The corpus is held out by construction: nothing here is trained on."""
-    return [design(s, family, condition_map, field=field, max_points=max_points)
-            for s in samples(root, dataset_name, limit=limit)]
+    found = samples(root, dataset_name, limit=limit)
+    # a card has to state the licence the number was produced under, and a path that does not name the repository
+    # does not state it: twelve of the fifteen are CC-BY-NC and two are ``other``, so the difference is not academic
+    unnamed = sorted({s.dataset.name for s in found if s.dataset.licence == "unknown"})
+    if unnamed:
+        raise ShiftDataMissing(
+            f"{root}: the directory does not name a SHIFT repository ({', '.join(unnamed)}), so neither the licence "
+            f"nor the usage of the numbers could go on a card; say which one it is ({', '.join(sorted(DATASETS))})")
+    return [design(s, family, condition_map, field=field, max_points=max_points) for s in found]
 
 
 def require_validation_usage(usage: str) -> str:

@@ -27,6 +27,7 @@ from pathlib import Path
 
 import numpy as np
 
+from . import gmsh_session
 from .mesh import TetMesh, read_msh22
 from .nedelec import NU0, EdgeSpace, solve_eddy
 
@@ -94,11 +95,20 @@ def coil_current_density(points: np.ndarray) -> np.ndarray:
 def mesh_team7(path, h_plate: float = 0.006, h_coil: float = 0.012, h_air: float = 0.08,
                margin: float = 0.3, h_layer: float | None = None) -> Path:
     """gmsh mesh: air box extending ``margin`` beyond the plate and coil (outer surface physical 9), the plate
-    (volume 1, "plate"), the coil (2, "coil"), air (3, "air"); sizes graded from the plate and coil."""
+    (volume 1, "plate"), the coil (2, "coil"), air (3, "air"); sizes graded from the plate and coil.
+
+    O gmsh roda na thread da sessão dele (:mod:`.gmsh_session`): uma segunda chamada de outra thread derrubava o
+    processo inteiro.
+    """
+    return gmsh_session.run(_mesh_team7, path, h_plate, h_coil, h_air, margin, h_layer)
+
+
+def _mesh_team7(path, h_plate: float, h_coil: float, h_air: float, margin: float,
+                h_layer: float | None) -> Path:
     import gmsh
 
     path = Path(path)
-    gmsh.initialize(["-v", "0"], interruptible=False)      # also from a worker thread (flow nodes)
+    gmsh.initialize(["-v", "0"], interruptible=False)      # no signal handler: runs off the main thread
     gmsh.option.setNumber("General.Terminal", 0)
     gmsh.model.add("team7")
     occ = gmsh.model.occ

@@ -164,3 +164,42 @@ def test_sphere_matches_getdp_on_the_same_mesh(tmp_path):
     assert e["Bz_mean_in"] == pytest.approx(g["Bz_mean_in"], rel=1e-8)
     assert s.energy == pytest.approx(g["energy"], rel=1e-8)
 
+
+
+@pytest.mark.skipif(not HAVE_GMSH, reason="gmsh not installed")
+def test_mesh_sphere_from_two_threads_does_not_kill_the_process(tmp_path):
+    """A second mesh from a *different* thread used to end the interpreter: SIGSEGV inside gmsh's OpenMP runtime.
+
+    Medido: duas ``mesh_sphere`` na thread principal passavam; a segunda feita de outra thread derrubava o processo
+    sem traceback. O gmsh guarda a sessão na thread que a inicializou, e um servidor chama cada caso numa thread do
+    pool — a segunda esfera do dia matava a API. ``gmsh_session.run`` prende todo o gmsh a um trabalhador só.
+
+    O caso roda num processo filho de propósito: uma regressão mata *aquele* processo, e o que sobra aqui é um código
+    de saída diferente de zero — e não a suíte inteira morrendo no meio.
+    """
+    import os
+    import subprocess
+    import sys
+    import textwrap
+    from pathlib import Path
+
+    script = textwrap.dedent(
+        """
+        import os, tempfile, threading
+        from pinneapple_simulation.electromagnetics.fem3d.sphere import SphereCase, mesh_sphere
+
+        caso = SphereCase()
+        def uma(i):
+            mesh_sphere(os.path.join(tempfile.mkdtemp(), f"e{i}.msh"), 0.5, caso)
+        for i in (1, 2):
+            t = threading.Thread(target=uma, args=(i,))
+            t.start(); t.join()
+        print("duas malhas, cada uma numa thread")
+        """
+    )
+    raiz = str(Path(__file__).resolve().parents[1])
+    r = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, timeout=600,
+                       env={**os.environ, "PYTHONPATH": raiz + (os.pathsep + os.environ["PYTHONPATH"]
+                                                                 if os.environ.get("PYTHONPATH") else "")})
+    assert r.returncode == 0, f"o processo filho saiu com {r.returncode}: {r.stdout[-500:]}\n{r.stderr[-2000:]}"
+    assert "duas malhas" in r.stdout

@@ -255,3 +255,23 @@ def test_um_pedido_em_portugues_que_nao_e_de_nenhuma_familia_continua_recusado()
     assert type(out).__name__ == "OutOfScope", "sem família, o compilador recusa em vez de rodar o mais próximo"
     assert out.kind == "no_template"
 
+
+
+# ================================================================ os rótulos em português
+def test_cada_degrau_traz_o_rotulo_e_o_metodo_em_portugues():
+    """A tela mostra o método no idioma do pedido: o degrau carrega o rótulo em inglês e o português."""
+    for frase in (WALL, PIPE, BEAM):
+        contrato = I.compile_study(frase)
+        assert contrato.status == I.READY
+        for degrau in contrato.to_dict()["workflow"]["ladder"]:
+            assert degrau["label"], degrau["name"]
+            assert degrau["label_pt"], f"{contrato.family}:{degrau['name']} sem rótulo em português"
+            assert degrau["method_pt"], f"{contrato.family}:{degrau['name']} sem método em português"
+            assert degrau["label_pt"] != degrau["label"] or contrato.family == "", "a tradução não é o inglês de volta"
+
+
+def test_o_degrau_numerico_da_parede_diz_em_portugues_o_que_ele_resolve():
+    contrato = I.compile_study(WALL)
+    degrau = next(r for r in contrato.to_dict()["workflow"]["ladder"] if r["name"] == "numerical")
+    assert "célula finita" in degrau["label_pt"]
+    assert "solve_heat" in degrau["method_pt"]          # o nome do módulo não se traduz
